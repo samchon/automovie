@@ -11,7 +11,7 @@ Commit instructions, creative bodies and evidence answers. Review, naturalness a
 | `docs/instructions/*.md` | Creative requirements, source boundaries and identified delegated writing choices |
 | `docs/body/settings/<domain>/<subject>.md` | One subject's facts, one file per subject, with H2 facets and anchored H3 facts, in the domains `world`, `cast`, `crowds`, `props`, `sets`, `cinematography` and `sound` |
 | `docs/body/settings/outline/index.md` | Domain and file navigation without duplicating facts |
-| `docs/body/brief/work.md`, `docs/body/brief/<domain>/<subject>.md` | A short's fixed conditions and shared decisions, in the settings domains |
+| `docs/body/brief/<domain>/<subject>.md` | A short's shared decisions in the settings domains, with its fixed conditions in `world/work.md` |
 | `docs/body/treatments/NNN-event.md` | Flat ordered events, causes, consequences, and information release |
 | `docs/body/scripts/NNN-part/NNN-episode.md` | Executable scenes and release partition, with part indexes |
 | `docs/body/screenplay/<film>.md`, or `NNN-part/NNN-episode.md` for several videos | Complete final audiovisual text, one file per delivered video, whose name the film and its media reuse; long work preserves its script partition |

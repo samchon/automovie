@@ -1,6 +1,6 @@
 ---
 name: contracts-story
-description: Maps the story checklists, from research and settings through treatments, scripts and the final screenplay to naturalness, discovery and review, onto their unit and population respondents. Use before selecting, answering or citing a story contract item.
+description: Maps the story checklists, from research and settings or a short's brief through treatments, scripts and the final screenplay to naturalness, discovery and review, onto their unit and population respondents. Use before selecting, answering or citing a story contract item.
 ---
 
 # Story contracts

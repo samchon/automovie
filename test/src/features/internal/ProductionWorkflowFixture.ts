@@ -86,6 +86,18 @@ export class ProductionWorkflowFixture {
           "# Upstream\n\n## Repair {#repair}\n\nIdentify inherited defects.\n",
         );
     }
+    // The short route's brief canon, in the settings domain layout.
+    ProductionWorkflowFixture.write(
+      root,
+      "docs/body/brief/world/arrival.md",
+      "# Arrival record\n\n## Arrival {#arrival}\n\nThe guest opens the door.\n",
+    );
+    for (const family of ["principles", "obligations", "discovery"])
+      ProductionWorkflowFixture.write(
+        root,
+        `.agents/skills/contracts/story/shared/${family}/brief.md`,
+        "# Contract\n\n## Scope {#scope}\n\nAccount for the selected work.\n",
+      );
     for (const family of ["principles", "obligations", "discovery"])
       for (const group of ["common", "narratives"])
         ProductionWorkflowFixture.write(
@@ -123,12 +135,18 @@ export class ProductionWorkflowFixture {
       root,
       mode,
     );
-    const layers: ("settings" | "treatments" | "scripts" | "screenplay")[] =
+    const layers: (
+      | "settings"
+      | "brief"
+      | "treatments"
+      | "scripts"
+      | "screenplay"
+    )[] =
       mode === "long"
         ? ["settings", "treatments", "scripts", "screenplay"]
         : mode === "short-with-settings"
           ? ["settings", "screenplay"]
-          : ["screenplay"];
+          : ["brief", "screenplay"];
     const discovery: Set<string> = new Set<string>();
     for (const family of ["principles", "obligations"])
       ProductionWorkflowFixture.write(
@@ -178,11 +196,13 @@ export class ProductionWorkflowFixture {
     for (const layer of layers) {
       props.construction[layer] = "evidence";
       const file: string =
-        layer === "settings" || layer === "treatments"
-          ? "001-event.md"
-          : "001-part/001-scene.md";
+        layer === "brief"
+          ? "world/arrival.md"
+          : layer === "settings" || layer === "treatments"
+            ? "001-event.md"
+            : "001-part/001-scene.md";
       const groups: string[] =
-        layer === "settings"
+        layer === "settings" || layer === "brief"
           ? ["common", layer]
           : ["common", "narratives", layer];
       const units: string[] = groups.map(
@@ -191,14 +211,21 @@ export class ProductionWorkflowFixture {
       const files: string[] = groups.map(
         (group: string): string => `shared/obligations/${group}.md#scope`,
       );
-      if (layer === "settings" || layer === "treatments" || mode !== "long")
+      if (
+        layer === "settings" ||
+        layer === "brief" ||
+        layer === "treatments" ||
+        mode !== "long"
+      )
         units.push("instructions/001-brief.md#door");
       if (layer === "settings" && mode === "long")
         files.push("settings/outline/index.md#001-event");
       for (const group of groups)
         discovery.add(`shared/discovery/${group}.md#scope`);
-      if (layer !== "settings")
+      if (layer !== "settings" && layer !== "brief")
         units.push(`shared/upstream/${layer}.md#repair`);
+      if (mode === "short" && layer === "screenplay")
+        units.push("brief/world/arrival.md#arrival");
       if (
         layer === "treatments" ||
         (mode === "short-with-settings" && layer === "screenplay")

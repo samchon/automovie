@@ -20,7 +20,7 @@ Long work runs settings → treatments → scripts → screenplay construction, 
 
 A short runs brief → screenplay construction, then screenplay naturalness (`short`). Its [brief](layers/brief.md) is canon like settings, with its own folders, contracts, evidence and review, and holds the fixed conditions and the decisions the films share; the screenplay decides everything else and repairs the brief upstream when writing exposes a gap. There are no settings, treatment, script or outline files. Wherever a skill or contract cites settings facts, a short cites its brief.
 
-Asset-only work has no narrative passes. Choose form and scale through [direction](planning/direction.md); complete work is the default. In an AutoMovie workspace the production's folder fixes the route: `movies/shorts/<name>` runs brief → screenplay, and `movies/series/<name>` runs the whole long route.
+Choose the long route when the work's causes, setups and payoffs span many scenes or releases, such as a feature, an episode or a series, because they need treatments to design events and scripts to partition them before the screenplay; choose the short route when each film is a few minutes at most and its events fit one screenplay, alone or as several shorts sharing a world. Record the choice in [project context](../production/profile.md); in an AutoMovie workspace the production's folder fixes it: `movies/shorts/<name>` runs the short route and `movies/series/<name>` the long route. Asset-only work has no narrative passes. Choose form and scale through [direction](planning/direction.md); complete work is the default.
 
 ## Construction
 

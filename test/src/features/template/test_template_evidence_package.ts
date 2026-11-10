@@ -182,7 +182,7 @@ export async function test_template_evidence_package(): Promise<void> {
       location: narrative,
       narrative: {
         mode: "short",
-        construction: { screenplay: "evidence" },
+        construction: { brief: "evidence", screenplay: "evidence" },
         naturalness: { screenplay: "evidence" },
       },
     });
@@ -203,7 +203,7 @@ export async function test_template_evidence_package(): Promise<void> {
       location: narrative,
       narrative: {
         mode: "short",
-        construction: { screenplay: "evidence" },
+        construction: { brief: "evidence", screenplay: "evidence" },
         claims: [
           {
             name: "commissioned cue",
