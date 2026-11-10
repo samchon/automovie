@@ -6,6 +6,7 @@ export * from "./readAutoMovieCreateArguments";
 export * from "./readAutoMovieAddArguments";
 export * from "./readAutoMovieNameOption";
 export * from "./selectAutoMovieProjectName";
+export * from "./IAutoMoviePackageManager";
 export * from "./selectAutoMoviePackageManager";
 export * from "./promptAutoMovieProjectName";
 export * from "./run";
