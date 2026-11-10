@@ -1,6 +1,6 @@
 # @automovie/engine
 
-The deterministic core of AutoMovie. It takes the typed declarations an authoring agent writes with `@automovie/interface`, validates them, and computes what each frame contains: poses within range of motion, sampled motion, staging and cuts, physics, buildings, light and sound. The same input always produces the same frames.
+The deterministic core of AutoMovie. It takes the typed declarations a coding agent writes with `@automovie/interface`, validates them, and computes what each frame contains: poses within range of motion, sampled motion, staging and cuts, physics, buildings, light and sound. The same input produces the same frames; [Physical performance](#physical-performance) states the one limit that has not been measured.
 
 The engine draws nothing and reads no files. `@automovie/viewer` displays its output, and loading assets is the host's job.
 

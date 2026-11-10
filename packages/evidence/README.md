@@ -78,4 +78,4 @@ npm run evidence
 
 The exit code is 0 for a complete analysis without errors, 1 for violations and 2 for an invalid configuration or incomplete analysis. `npx evidence list` prints the configured targets, `npx evidence inspect <target>` explains one, and `--only <targets...>` with optional `--shallow` narrows a check. The `@wrtnlabs/evidence` documentation covers addresses, annotations and fingerprints.
 
-A passing graph means the checklists were answered. It does not accept the writing or the delivered video, which remain the reviewers' call.
+A passing check means the checklists were answered. It does not accept the writing or the delivered video, which remain the reviewers' call.

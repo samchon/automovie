@@ -1,6 +1,6 @@
 # @automovie/motions
 
-Everyday human motion for AutoMovie. An authoring agent chains actions per person, such as walk, approach, look, gesture, sit, pick up, punch and guard. A performance places those chains on the film clock and answers any person's pose at any second. Each action is a law that brings the hands, feet and body onto targets, scaled to the body that performs it, so one chain fits people of different stature and proportion.
+Everyday human motion for AutoMovie. A coding agent chains actions per person, such as walk, approach, look, gesture, sit, pick up, punch and guard. A performance places those chains on the film clock and answers any person's pose at any second. Each action is a law that brings the hands, feet and body onto targets, scaled to the body that performs it, so one chain fits people of different stature and proportion.
 
 Poses depend only on the chain, the seed and the bodies. An action can be cut mid-motion with `until`, and the performance refuses a cut that the action does not allow.
 
