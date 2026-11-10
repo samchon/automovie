@@ -6,7 +6,7 @@ Evaluating a pose from its time alone has two consequences specific to motion. A
 
 ## Declared cuts
 
-Each action declares the actions it may be cut into, the window of each cut (a share of the action, or one of its events), and the transition kind. Refuse a cut the table does not list where the chain or schedule is built, so an impossible change of plan surfaces before the film renders.
+Each action declares its interrupt table: the actions it may be cut into, the window of each cut (a share of the action, or one of its events), and the transition kind. Refuse a cut its interrupt table does not list where the chain or schedule is built, so an impossible change of plan surfaces before the film renders.
 
 ## Changing action
 

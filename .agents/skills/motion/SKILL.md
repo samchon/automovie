@@ -1,6 +1,6 @@
 ---
 name: motion
-description: Defines how body motion is authored and verified in this repository, centred on effector goals, and owns the shared motion rules productions receive. Use before changing a human action law, the motions vocabulary, an engine motion primitive, or a motion capture verdict.
+description: Defines how body motion is authored and verified in this repository, centred on effector goals, and owns the shared motion rules productions receive. Use when authoring or verifying body motion, the motions vocabulary, a human action law, an engine motion primitive or retargeting, or a motion capture verdict.
 ---
 
 # Motion
@@ -18,6 +18,7 @@ Those four files ship unchanged to productions, so they name roles rather than t
 ## Owners
 
 - The [package boundaries](../project/SKILL.md#packages) place action content in `motions` and universal motion primitives in `engine`.
+- Retargeting a recorded or generated clip onto the canonical humanoid rig belongs to `engine` (`retargetHumanoidMotion`, with `preserveRetargetContacts` and `validateRetargetContacts` keeping its contacts); [contacts](contacts.md) and [verification](verification.md) judge the result like any authored motion.
 - Each algorithm has one owner. Read the owning package's exports before writing a helper; a second segment distance or angle wrap drifts from the first and leaves two bugs to fix.
 
 ## Bodies, research and captures

@@ -36,7 +36,7 @@ Read the skill whose trigger applies.
 - [contracts](.agents/skills/contracts/SKILL.md): writing or reviewing maintained source or tests, for their `@evidence` checklists.
 - [development](.agents/skills/development/SKILL.md): changing code, tests, or workflows.
 - [3d-modeling](.agents/skills/3d-modeling/SKILL.md): changing geometry, rigs, assets, viewer behavior, materials, or lighting, and before claiming a visual change works.
-- [motion](.agents/skills/motion/SKILL.md): authoring or verifying body motion, a human action law, an engine motion primitive, or a motion capture verdict.
+- [motion](.agents/skills/motion/SKILL.md): authoring or verifying body motion, the motions vocabulary, a human action law, an engine motion primitive or retargeting, or a motion capture verdict.
 - [human](.agents/skills/human/SKILL.md): working on `packages/human`, a human figure, or the Human viewer.
 - [scaffold](.agents/skills/scaffold/SKILL.md): editing `packages/template`, or reading, authoring, or reviewing production content anywhere.
 - [scaffold-prompting](.agents/skills/scaffold-prompting/SKILL.md): designing or revising the production skills, contracts and routers shipped by the scaffold.
