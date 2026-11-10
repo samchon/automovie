@@ -32,8 +32,14 @@ import { MotionBodies } from "../../../../packages/motions/src/executable/Motion
  * picks it up by `low` from a surface at hip height in front of the right
  * shoulder, then the pair hands it over (`HumanChain.pair(...).handOver`),
  * the receiver taking `high`. Pairs: the small woman and the tall man in both
- * orders, and the average and long-armed men, each standing 1.1 m apart and
- * facing; seeds 1 to 4 at trained skill.
+ * orders, and the average and long-armed men, facing; seeds 1 to 4 at
+ * trained skill. Each pair stands so the shorter arm reaches the point midway
+ * between the right shoulders, at their mean height, with 0.85 of its
+ * shoulder-to-palm length (upper arm, forearm and half the hand): Basili et
+ * al. (2009) measured a mean 1.16 m between partners at a handover, and half
+ * of it is 0.85 of an average adult's 0.68 m shoulder-to-palm length
+ * (Winter's segment fractions 0.186, 0.146 and half of 0.108 of a 1.75 m
+ * stature).
  *
  * Scenarios:
  * 1. No early release: the giver's grip ends no earlier than the receiver's
@@ -48,7 +54,7 @@ import { MotionBodies } from "../../../../packages/motions/src/executable/Motion
  *    grips it.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs whole two-person performances with a prop and reads the schedule's events, the displayed bones and the performance's prop frames; an early release, an exchange off the midpoint, a jumping prop, a slipping hold or a withdrawn prop taken anyway fails.
- * @evidence contracts/development/testing.md#independent-expectations The release rule and the 0.15 m bound are #3201 M10's (Mason and MacKenzie 2005; Hansen et al. 2017); positions come from forward kinematics and the performance's prop frames; 5 mm per 1/240 s is 1.2 m/s, faster than any hand transport here.
+ * @evidence contracts/development/testing.md#independent-expectations The release rule and the 0.15 m bound are #3201 M10's (Mason and MacKenzie 2005; Hansen et al. 2017); the spacing comes from the bodies' measured segment lengths and Basili et al.'s mean handover distance, not from the planner's reach band; positions come from forward kinematics and the performance's prop frames; 5 mm per 1/240 s is 1.2 m/s, faster than any hand transport here.
  * @evidence contracts/development/testing.md#distinguishing-cases Short-tall pairs in both orders and a long-armed pair, four seeds, transfer and withdraw; the planner's arithmetic and the mutual goal are owned by CI tests.
  * @evidence contracts/development/testing.md#execution-ownership A local test: it prepares polygon men, so its name falls under the CI exclusion of test_human_.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 scenarios and what each pins.
@@ -191,6 +197,16 @@ function handover(
   outcome: "transfer" | "withdraw",
 ): HumanPerformance {
   const shoulder: IAutoMovieVector3 = giver.rest.get("rightUpperArm")!;
+  const other: IAutoMovieVector3 = receiver.rest.get("rightUpperArm")!;
+  const palm = (b: IHumanBody): number =>
+    b.measure.upperArm + b.measure.forearm + b.measure.hand / 2;
+  const reach: number = 0.85 * Math.min(palm(giver), palm(receiver));
+  const half: number = Math.sqrt(
+    reach * reach - ((shoulder.y - other.y) / 2) ** 2,
+  );
+  const across: number = shoulder.x + other.x;
+  const apart: number =
+    shoulder.z + other.z + Math.sqrt(4 * half * half - across * across);
   return new HumanPerformance({
     seed,
     performers: [
@@ -204,7 +220,7 @@ function handover(
       {
         subject: "b",
         body: receiver,
-        at: { x: 0, y: 0, z: 1.1 },
+        at: { x: 0, y: 0, z: apart },
         yaw: 180,
         proficiency: { level: "trained" },
       },

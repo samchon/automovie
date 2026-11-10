@@ -19,7 +19,6 @@ import type { handshake } from "./handling/handshake";
 import type { pickUp } from "./handling/pickUp";
 import type { putDown } from "./handling/putDown";
 import type { handOver } from "./handling/handOver";
-import type { present } from "./handling/present";
 import type { punch } from "./striking/punch";
 import type { kick } from "./striking/kick";
 import type { guard } from "./striking/guard";
@@ -160,17 +159,6 @@ export class HumanChain extends AutoMovieChain {
    */
   public putDown(params: putDown.IParams, anchor?: string): this {
     return this.act("putDown", params, anchor);
-  }
-
-  /**
-   * Present a held pad to a striker, ready by the striker's named event.
-   *
-   * @param params The pad, its face, the striker, the event and the line.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
-   */
-  public present(params: present.IParams, anchor?: string): this {
-    return this.act("present", params, anchor);
   }
 
   /**
