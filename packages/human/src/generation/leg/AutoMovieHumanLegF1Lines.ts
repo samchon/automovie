@@ -1,3 +1,8 @@
+import type { AutoMovieViewAxis } from "@automovie/engine";
+
+import left from "./AutoMovieHumanLegF1Left.json";
+import native from "./AutoMovieHumanLegF1Native.json";
+import right from "./AutoMovieHumanLegF1Right.json";
 import { AutoMovieHumanLegF1Rebase } from "./AutoMovieHumanLegF1Rebase";
 import { AutoMovieHumanLegF1World } from "./AutoMovieHumanLegF1World";
 
@@ -16,6 +21,73 @@ import { AutoMovieHumanLegF1World } from "./AutoMovieHumanLegF1World";
  * `AutoMovieHumanLegViewCurves` as comments for the later algorithmization.
  */
 export namespace AutoMovieHumanLegF1Lines {
+  /** One exact holding contour from the accepted fixed F1 leg, in ISB world millimetres. */
+  export interface IFixedSection {
+    /** Actual authored course station, millimetres. */
+    station: number;
+
+    /** Observed origin and axes of this section plane. */
+    frame: ReturnType<AutoMovieViewAxis.IAxis["at"]>;
+
+    /** The original closed world contour in its recorded order. */
+    points: [number, number, number][];
+  }
+
+  /**
+   * Return the actual 212 regular generating contours, their original instep
+   * phase change and the exact seed rim of the native forefoot. The first
+   * regular rail is the actual s136 native-thigh boundary.
+   */
+  export function fixed(side: "left" | "right"): { rows: IFixedSection[]; refinements: number[] } {
+    const data: typeof left | typeof right = side === "left" ? left : right;
+    const point = (value: number | number[] | number[][] | undefined): [number, number, number] => {
+      if (!Array.isArray(value) || typeof value[0] !== "number" || typeof value[1] !== "number" || typeof value[2] !== "number")
+        throw new Error("A measured F1 leg contour point or frame is missing");
+      return [value[0], value[1], value[2]];
+    };
+    const rows: IFixedSection[] = data.rows.map(([station, origin, u, v, samples]): IFixedSection => {
+      if (typeof station !== "number" || !Array.isArray(samples)) throw new Error("A measured F1 leg section is missing");
+      return { station, frame: { origin: point(origin), u: point(u), v: point(v) }, points: samples.map(point) };
+    });
+    // The seam clock uses the regular course's final plane, not the shifted
+    // origin of the native seed cut. Both planes own the same physical rim.
+    const seed: Omit<IFixedSection, "points"> = side === "left"
+      ? { station: 892.8572857642163, frame: { origin: [128.69465255820268, 11.42973333310325, -156.40010052635884], u: [0.43295000701549186, 0.8983283490541243, -0.074568550414885], v: [-0.169734488552903, 0, -0.9854898291690709] } }
+      : { station: 892.8572527576581, frame: { origin: [128.694686078446, 11.429766860189588, 156.43366528546824], u: [0.4329500522420355, 0.8983283333642552, 0.07456847684255179], v: [0.1697343086908451, 0, -0.9854898601473485] } };
+    rows.push({ ...seed, points: data.ports[0]!.points.map(point) });
+    return { rows, refinements: data.refined };
+  }
+
+  /** Read the two native thigh rims and the actual measured fork guides. */
+  export function fixedHip(side: "left" | "right"): {
+    frame: IFixedSection["frame"];
+    entry: [number, number, number][];
+    rings: [number, number, number][][];
+    arcs: [number, number, number][][];
+  } {
+    type V3 = [number, number, number];
+    const data: typeof left | typeof right = side === "left" ? left : right;
+    const patch = native.patches.find(item => item.name === `leg.${side}.hip.native`)?.info;
+    if (patch === undefined || patch.start === undefined || patch.entry === undefined)
+      throw new Error(`The observed F1 ${side} proximal patch is absent`);
+    const point = (value: readonly number[]): V3 => [value[0]!, value[1]!, value[2]!];
+    const { origin, u, v } = patch.start.frame;
+    const rings: V3[][] = [];
+    const arcs: V3[][] = [];
+    for (const [, closed, points] of data.hip) {
+      if (!Array.isArray(points)) throw new Error("A recorded F1 fork guide is not a contour");
+      (closed === true ? rings : arcs).push(points.map(point));
+    }
+    return { frame: { origin: point(origin), u: point(u), v: point(v) }, entry: patch.entry.map(point), rings, arcs };
+  }
+
+  /** The same six physical rings consumed by the leg and its five toes. */
+  export function fixedFoot(side: "left" | "right"): [number, number, number][][] {
+    return (side === "left" ? left : right).ports.map(({ points }) =>
+      points.map((point: number[]): [number, number, number] => [point[0]!, point[1]!, point[2]!]),
+    );
+  }
+
   /** One label's four extents: lateral, medial, anterior, posterior, mm. */
   export type IBox = [number, number, number, number];
 

@@ -1,9 +1,13 @@
-import { AutoMovieSolidChain, type IAutoMovieLoftChain, type IAutoMovieSolidSurface, type IAutoMovieViewPart } from "@automovie/engine";
+import { AutoMovieContourLoftCurves64, AutoMovieSolidChain, type AutoMovieCurveMath64, type IAutoMovieLoftChain, type IAutoMovieSolidSurface, type IAutoMovieViewPart } from "@automovie/engine";
 
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
+import type { AutoMovieHumanF1Body } from "./AutoMovieHumanF1Body";
 import { AutoMovieHumanArmContact } from "./arm/AutoMovieHumanArmContact";
 import { AutoMovieHumanArmCurveSpec } from "./arm/AutoMovieHumanArmCurveSpec";
+import { AutoMovieHumanArmF1LeftSections } from "./arm/AutoMovieHumanArmF1LeftSections";
+import { AutoMovieHumanArmF1Lines } from "./arm/AutoMovieHumanArmF1Lines";
 import type { AutoMovieHumanArmF1Pose } from "./arm/AutoMovieHumanArmF1Pose";
+import { AutoMovieHumanArmF1RightSections } from "./arm/AutoMovieHumanArmF1RightSections";
 import { AutoMovieHumanArmInputs } from "./arm/AutoMovieHumanArmInputs";
 import { AutoMovieHumanArmLandmarks } from "./arm/AutoMovieHumanArmLandmarks";
 import { AutoMovieHumanArmSegmentFrames } from "./arm/AutoMovieHumanArmSegmentFrames";
@@ -11,6 +15,10 @@ import type { AutoMovieHumanArmShoulderJoin } from "./arm/AutoMovieHumanArmShoul
 import { AutoMovieHumanArmViewCurves } from "./arm/AutoMovieHumanArmViewCurves";
 import { AutoMovieHumanArmViewLoft } from "./arm/AutoMovieHumanArmViewLoft";
 import { AutoMovieHumanHandDigits } from "./hand/AutoMovieHumanHandDigits";
+import { AutoMovieHumanHandF1LeftSections } from "./hand/AutoMovieHumanHandF1LeftSections";
+import { AutoMovieHumanHandF1RightSections } from "./hand/AutoMovieHumanHandF1RightSections";
+import { AutoMovieHumanHandPalm } from "./hand/AutoMovieHumanHandPalm";
+import { AutoMovieHumanHandPorts } from "./hand/AutoMovieHumanHandPorts";
 import type { AutoMovieHumanTrunkS00 } from "./trunk/AutoMovieHumanTrunkS00";
 
 /**
@@ -28,6 +36,29 @@ import type { AutoMovieHumanTrunkS00 } from "./trunk/AutoMovieHumanTrunkS00";
  * shoulder renderer's (f1_arm's choice for its join).
  */
 export namespace AutoMovieHumanF1Arm {
+  /**
+   * Realize the fixed F1 arm and all five sewn digits in absolute capture
+   * world millimetres. The trunk supplies the exact oriented armscye and
+   * both incident parts keep those original coordinates and edges.
+   */
+  export function trace(side: "left" | "right", armscye: readonly AutoMovieCurveMath64.V[]): AutoMovieHumanF1Body.IFixedPart {
+    if (armscye.length !== (side === "left" ? 65 : 63)) throw new Error(`The fixed F1 ${side} arm requires its exact trunk-owned armscye`);
+    const source: AutoMovieHumanArmF1Lines.IFixedSource = side === "left" ? AutoMovieHumanArmF1LeftSections : AutoMovieHumanArmF1RightSections;
+    const hand: AutoMovieHumanHandPorts.IFixed = side === "left" ? AutoMovieHumanHandF1LeftSections : AutoMovieHumanHandF1RightSections;
+    const arm: AutoMovieHumanArmF1Lines.IFixedMesh = AutoMovieHumanArmF1Lines.sleeve(
+      { points: [...armscye], normal: source.rootNormal }, source.sleeve, source.wrist,
+    );
+
+    // The palm starts on the exact 72-vertex sleeve end. Its own measured
+    // plane sequence turns through the wrist and ends before any digit split.
+    const root: AutoMovieCurveMath64.V[] = AutoMovieContourLoftCurves64.tessellate(source.palm[0]!.loops[0]!.curve, 0.1)
+      .map(({ p: [x, y, z] }): AutoMovieCurveMath64.V => [x, y, -z]);
+    AutoMovieHumanHandPalm.attachFixed(arm, source.palm, root, source.wristFrame, undefined,
+      AutoMovieHumanHandPalm.contourCoordinates(source.palm, side === "left"));
+    const mesh: AutoMovieHumanArmF1Lines.IFixedMesh = AutoMovieHumanHandPorts.fixed(arm, armscye, hand);
+    return { mesh, included: [`thumb.${side}`, ...[1, 2, 3, 4].map((digit: number): string => `finger.${side}.${digit}`)] };
+  }
+
   /** The arm loft's section order, ring samples and widest layer gap, mm (f1_arm's `NodeArmShoulder`). */
   export const LOFT: { order: number; samples: number; gap: number } = { order: 32, samples: 64, gap: 6 };
 

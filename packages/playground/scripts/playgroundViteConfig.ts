@@ -11,11 +11,20 @@ import { createCaptureSinkPlugin } from "./createCaptureSinkPlugin";
  * watcher: Windows can lock a newly written scratch file and otherwise end
  * the whole server with EBUSY. Source changes retain normal HMR. Vite owns
  * bundling, source loading and server shutdown.
+ * Large authored controls use default JSON imports. Vite's JSON.parse
+ * transport keeps their nested arrays out of Rollup's object-literal AST;
+ * the source files and their parsed numeric values remain unchanged.
+ *
+ * @see https://github.com/vitejs/vite/blob/v5.4.21/docs/config/shared-options.md#jsonstringify
  */
 export const playgroundViteConfig: UserConfig = defineConfig({
   plugins: [
     createCaptureSinkPlugin({ repository: resolve(__dirname, "../../..") }),
   ],
+
+  // Vite 5 disables named JSON exports in this mode. The imported controls
+  // use default exports, so their readers retain the same object contract.
+  json: { stringify: true },
   server: {
     host: "127.0.0.1",
     port: 5173,

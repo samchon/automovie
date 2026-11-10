@@ -1,8 +1,9 @@
 import fs from "node:fs/promises";
-import { AutoMovieContourLoftCurves64, AutoMovieMeshCourse, AutoMovieMeshExtract, type IAutoMovieContourLoft64, tessellateAutoMovieContourLoft64, tessellateAutoMovieContourStrip64 } from "@automovie/engine";
+import { AutoMovieContourLoftCurves64, AutoMovieMeshCourse, AutoMovieMeshExtract, type IAutoMovieContourLoft64, type IAutoMovieCurve64, tessellateAutoMovieContourLoft64 } from "@automovie/engine";
 
 import { AutoMovieHumanF1Trace } from "../generation/AutoMovieHumanF1Trace";
 import { AutoMovieHumanArmCurveSpec } from "../generation/arm/AutoMovieHumanArmCurveSpec";
+import { AutoMovieHumanTrunkArmscye } from "../generation/trunk/AutoMovieHumanTrunkArmscye";
 import type { CaptureModel } from "../inspection/CaptureModel";
 import { CaptureSpecs } from "../inspection/CaptureSpecs";
 import { HumanNodePaths } from "./HumanNodePaths";
@@ -17,21 +18,14 @@ type ArmRoot = NodeTrunkArchive.ArmRoot;
 
 const { armRoots, insideArmRoot, observedArmRoot, archiveWorld, archiveCurve, withoutClosingMarker }: typeof NodeTrunkArchive = NodeTrunkArchive;
 
-const { armDot, armBoundaryGap, indexedTrunkReceipt, increasingPhase, edgeSense, wire, add, sub, scale, cross }: typeof NodeTrunkCaptureGeometry = NodeTrunkCaptureGeometry;
+const { armDot, armBoundaryGap, indexedTrunkReceipt, wire, add, sub, scale, cross, STEP }: typeof NodeTrunkCaptureGeometry = NodeTrunkCaptureGeometry;
+
+const { shoulderRail, trimArmscye, armCollar }: typeof AutoMovieHumanTrunkArmscye = AutoMovieHumanTrunkArmscye;
 
 /** Trace the measured F1 armscye and shared distal arm rim. */
 export namespace NodeTrunkArmscye {
-  /** One original trunk rail and its positions in the emitted shoulder skin. */
-  export type TrunkRail = {
-    /** Height of the archived horizontal rail in millimetres. */
-    station: number;
-    /** Ordered capture-world points in millimetres. */
-    points: V3[];
-    /** Position indices in the emitted shoulder mesh in the same order. */
-    indices: number[];
-    /** Signed directed use of the rail by the retained shoulder triangles. */
-    direction: number;
-  };
+  /** A retained trunk rail in the shoulder mesh, shared by both capture and pure construction. */
+  export type TrunkRail = AutoMovieHumanTrunkArmscye.TrunkRail;
   /** Shoulder patch and its two ordered trunk attachment rails, when available. */
   export type ShoulderSkin = {
     /** Generated shoulder skin and its original comparison and measurement lines. */
@@ -76,9 +70,15 @@ export namespace NodeTrunkArmscye {
       if (Object.keys(unsupported).length !== 0) throw new Error(`armscye: the original link ${beforeMm}→${afterMm} has unresolved components`);
       return { beforeMm, afterMm, groups: groups.map(([before, after]) => ({ before, after, supported: true, reason: null })) };
     });
-    const generated: IAutoMovieContourLoft64.IResult = tessellateAutoMovieContourLoft64({ sections, events, intervals, chordToleranceMm: global.loft.chordToleranceMm });
-    const lines: CaptureModel.ILine[] = sections.flatMap(({ loops }, row: number): CaptureModel.ILine[] => loops.map(({ curve }, loop: number): CaptureModel.ILine => ({
-      id: `armscye.original.${first + row}.${loop}`,
+    // The paired front rays place the bilateral shoulder marks at world
+    // y1278.627–1307.986 mm. Archive links 252–255 bracket them between
+    // the last saddle's upper rail and section 256. Keep all those anchors
+    // and both saddle links while splitting only the four ordinary spans.
+    const refined = await shoulderObservations(mesh, sections, intervals, intervals.slice(252 - first, 256 - first));
+    const generated: IAutoMovieContourLoft64.IResult = tessellateAutoMovieContourLoft64({ sections: refined.sections, events, intervals: refined.intervals, chordToleranceMm: global.loft.chordToleranceMm });
+    const originalRows: Map<number, number> = new Map(sections.map(({ coordinateMm }, row: number): [number, number] => [coordinateMm, first + row]));
+    const lines: CaptureModel.ILine[] = refined.sections.flatMap(({ coordinateMm, loops }): CaptureModel.ILine[] => loops.map(({ curve }, loop: number): CaptureModel.ILine => ({
+      id: originalRows.has(coordinateMm) ? `armscye.original.${originalRows.get(coordinateMm)}.${loop}` : `armscye.observed.${coordinateMm}.${loop}`,
       points: AutoMovieContourLoftCurves64.tessellate(curve, global.loft.chordToleranceMm).map(({ p }): V3 => archiveWorld(p)),
       closed: true,
       colour: "9e4c74",
@@ -88,7 +88,8 @@ export namespace NodeTrunkArmscye {
     for (let i: number = 0; i < (generated.mesh.indices?.length ?? 0); i += 3)
       indices.push(generated.mesh.indices![i]!, generated.mesh.indices![i + 2]!, generated.mesh.indices![i + 1]!);
     const diagnostics: string[] = [
-      `original armscye: ${sections.length} cuts, ${events.map((event: IAutoMovieContourLoft64.IEvent): string => `${event.name} ${event.coordinateMm} mm`).join(", ")}; ${indices.length / 3} triangles, ${generated.unresolved.length} unresolved groups`,
+      `original armscye: ${sections.length} archived cuts and ${refined.sections.length - sections.length} measured post-saddle cuts, ${events.map((event: IAutoMovieContourLoft64.IEvent): string => `${event.name} ${event.coordinateMm} mm`).join(", ")}; ${indices.length / 3} triangles, ${generated.unresolved.length} unresolved groups`,
+      ...refined.diagnostics,
       ...generated.unresolved.map((problem): string => JSON.stringify(problem)),
     ];
     let skin: CaptureModel.ITriangles = { positions, indices };
@@ -177,7 +178,7 @@ export namespace NodeTrunkArmscye {
       }
     }
     const lower: TrunkRail | null = shoulderRail(skin, generated.construction, 0, from);
-    const upper: TrunkRail | null = shoulderRail(skin, generated.construction, sections.length - 1, to);
+    const upper: TrunkRail | null = shoulderRail(skin, generated.construction, refined.sections.length - 1, to);
     const rails: [TrunkRail, TrunkRail] | null = lower !== null && upper !== null && lower.direction !== upper.direction ? [lower, upper] : null;
     diagnostics.push(rails === null
       ? "The original lower and upper torso rails do not both remain exact free cycles."
@@ -206,154 +207,53 @@ export namespace NodeTrunkArmscye {
     return { part: capture, rails };
   }
 
-  /** Read one original horizontal rail back from the actual emitted index boundary. */
-  function shoulderRail(skin: CaptureModel.ITriangles, construction: IAutoMovieContourLoft64.IResult["construction"], section: number, station: number): TrunkRail | null {
-    const original = construction.find((loop): boolean => loop.id.endsWith(`.section.${section}.loop.0`));
-    if (original === undefined) return null;
-    const points: V3[] = increasingPhase(original.points.map(([x, y, z]: V3): V3 => [x * 1000, y * 1000, z * -1000]));
-    const candidates: Map<string, number | null> = new Map(points.map((point: V3): [string, null] => [point.join(","), null]));
-    const used: Set<number> = new Set(skin.indices);
-    for (const vertex of used) {
-      const key: string = skin.positions.slice(3 * vertex, 3 * vertex + 3).join(",");
-      if (!candidates.has(key)) continue;
-      if (candidates.get(key) !== null) return null;
-      candidates.set(key, vertex);
-    }
-    const indices: number[] = [];
-    for (const point of points) {
-      const vertex: number | null | undefined = candidates.get(point.join(","));
-      if (vertex === null || vertex === undefined) return null;
-      indices.push(vertex);
-    }
-    const faces: [number, number, number][] = [];
-    for (let i: number = 0; i < skin.indices.length; i += 3) faces.push([skin.indices[i]!, skin.indices[i + 1]!, skin.indices[i + 2]!]);
-    const sense: number = edgeSense(indices, faces);
-    return Math.abs(sense) === indices.length ? { station, points, indices, direction: Math.sign(sense) } : null;
-  }
-
-  /** Cut only the positive-side sheet connected to the actual distal arm ring. */
-  function trimArmscye(mesh: CaptureModel.ITriangles, origin: V3, normal: V3, seed: readonly V3[]): { skin: CaptureModel.ITriangles; boundary: V3[]; boundaryIndices: number[] } {
-    const positions: number[] = [...mesh.positions];
-    const at = (i: number): V3 => [positions[3 * i]!, positions[3 * i + 1]!, positions[3 * i + 2]!];
-    const length: number = positions.length / 3;
-    const sign: number[] = Array.from({ length }, (_: unknown, i: number): number => armDot(sub(at(i), origin), normal));
-    const parents: Int32Array = Int32Array.from({ length }, (_: unknown, i: number): number => i);
-    const owner = (index: number): number => {
-      while (parents[index] !== index) {
-        parents[index] = parents[parents[index]!]!;
-        index = parents[index]!;
-      }
-      return index;
-    };
-    for (let i: number = 0; i < mesh.indices.length; i += 3) {
-      const positive: number[] = mesh.indices.slice(i, i + 3).filter((vertex: number): boolean => sign[vertex]! > 0);
-      for (let j: number = 1; j < positive.length; ++j) parents[owner(positive[j]!)] = owner(positive[0]!);
-    }
-    const source: Set<string> = new Set(seed.map((point: V3): string => point.join(",")));
-    const components: Set<number> = new Set();
-    for (const vertex of mesh.indices)
-      if (sign[vertex]! > 0 && source.has(at(vertex).join(","))) components.add(owner(vertex));
-    if (components.size !== 1) throw new Error(`the observed distal ring meets ${components.size} positive-side sheets`);
-    const selected: number = [...components][0]!;
-    const indices: number[] = [];
-    const crossings: Map<string, number> = new Map();
-    const cutVertices: Set<number> = new Set();
-    const cutEdges: Map<string, { a: number; b: number; uses: number }> = new Map();
-    const key = (a: number, b: number): string => a < b ? `${a},${b}` : `${b},${a}`;
-    const intersection = (a: number, b: number): number => {
-      if (sign[a] === 0 || sign[b] === 0) {
-        const vertex: number = sign[a] === 0 ? a : b;
-        cutVertices.add(vertex);
-        return vertex;
-      }
-      const edge: string = key(a, b);
-      const old: number | undefined = crossings.get(edge);
-      if (old !== undefined) return old;
-      const vertex: number = positions.length / 3;
-      positions.push(...add(at(a), scale(sub(at(b), at(a)), sign[a]! / (sign[a]! - sign[b]!))));
-      crossings.set(edge, vertex);
-      cutVertices.add(vertex);
-      return vertex;
-    };
-    for (let i: number = 0; i < mesh.indices.length; i += 3) {
-      const face: number[] = mesh.indices.slice(i, i + 3);
-      const positive: number | undefined = face.find((vertex: number): boolean => sign[vertex]! > 0);
-      if (positive === undefined || owner(positive) !== selected) {
-        indices.push(face[0]!, face[1]!, face[2]!);
+  /** Split observed one-to-one links at intervening unbridged source contours. */
+  async function shoulderObservations(
+    mesh: AutoMovieMeshExtract.IMesh,
+    sections: IAutoMovieContourLoft64.ISection[],
+    intervals: IAutoMovieContourLoft64.IInterval[],
+    selected: IAutoMovieContourLoft64.IInterval[],
+  ): Promise<{ sections: IAutoMovieContourLoft64.ISection[]; intervals: IAutoMovieContourLoft64.IInterval[]; diagnostics: string[] }> {
+    const axis = NodeTrunkArchive.archiveAxis(await NodeTrunkArchive.archiveRows());
+    const stations: number[] = selected.flatMap(({ beforeMm, afterMm }): number[] => {
+      const pieces: number = Math.ceil((afterMm - beforeMm) / STEP.cut);
+      return Array.from({ length: pieces - 1 }, (_: unknown, i: number): number => beforeMm + (afterMm - beforeMm) * (i + 1) / pieces);
+    });
+    const physical: AutoMovieMeshExtract.IMesh = NodeTrunkArchive.exactReferenceVertices(mesh);
+    const cuts: AutoMovieMeshCourse.ISection[] = AutoMovieMeshCourse.cut(physical, stations.map((station: number) => ({ station, ...axis.at(station) })), AutoMovieHumanF1Trace.TOLERANCE, 0);
+    const observed: IAutoMovieContourLoft64.ISection[] = [];
+    const diagnostics: string[] = [];
+    for (const { plane: { station, origin }, loop, pieces, flags } of cuts) {
+      if (loop === null || pieces !== 1 || flags.length !== 0) {
+        diagnostics.push(`armscye y${station.toFixed(3)} rejected: ${pieces} original outer loops; ${flags.join("; ") || "no holding loop"}.`);
         continue;
       }
-      const kept: number[] = [];
-      for (let j: number = 0; j < 3; ++j) {
-        const a: number = face[j]!;
-        const b: number = face[(j + 1) % 3]!;
-        if (sign[a]! <= 0) kept.push(a);
-        if ((sign[a]! > 0) !== (sign[b]! > 0)) kept.push(intersection(a, b));
+      const points: V3[] = withoutClosingMarker(loop.map(([u, v]: V2): V3 => [origin[0] + u, station, -origin[2] - v]), "armscye source", diagnostics);
+      // The original polygon edges are straight cubic spans. Their measured
+      // vertices and chord lengths remain the authority for the strip.
+      const steps: V3[] = points.map((point: V3, i: number): V3 => sub(points[(i + 1) % points.length]!, point));
+      const phaseIntervals: number[] = steps.map((step: V3): number => Math.hypot(...step));
+      if (points.length < 3 || phaseIntervals.some((length: number): boolean => !(length > 0))) {
+        diagnostics.push(`armscye y${station.toFixed(3)} rejected: the original holding loop has a collapsed edge.`);
+        continue;
       }
-      const polygon: number[] = kept.filter((vertex: number, j: number): boolean => vertex !== kept[(j + kept.length - 1) % kept.length]);
-      if (polygon.length < 3) continue;
-      for (let j: number = 0; j < polygon.length; ++j) {
-        const a: number = polygon[j]!;
-        const b: number = polygon[(j + 1) % polygon.length]!;
-        if (!cutVertices.has(a) || !cutVertices.has(b)) continue;
-        const edge: string = key(a, b);
-        const previous = cutEdges.get(edge);
-        if (previous === undefined) cutEdges.set(edge, { a, b, uses: 1 });
-        else ++previous.uses;
-      }
-      for (let j: number = 2; j < polygon.length; ++j) indices.push(polygon[0]!, polygon[j - 1]!, polygon[j]!);
+      const curve: IAutoMovieCurve64.Cubic = {
+        type: "cubicBezier", name: `armscye.source.${station}`, closed: true, unit: "mm", phaseUnit: "mm",
+        phaseIntervals,
+        spans: points.map((point: V3, i: number): IAutoMovieCurve64.Span => [
+          point, add(point, scale(steps[i]!, 1 / 3)), add(point, scale(steps[i]!, 2 / 3)), points[(i + 1) % points.length]!,
+        ]),
+      };
+      observed.push({ coordinateMm: station, loops: [{ winding: 1, curve }] });
     }
-    const next: Map<number, number> = new Map();
-    for (const { a, b, uses } of cutEdges.values()) {
-      if (uses !== 1) continue;
-      if (next.has(a)) throw new Error("the local trim boundary branches");
-      next.set(a, b);
-    }
-    if (next.size < 3) throw new Error("the selected arm did not leave a closed boundary");
-    const start: number = next.keys().next().value!;
-    const boundary: V3[] = [];
-    const boundaryIndices: number[] = [];
-    let current: number = start;
-    do {
-      boundary.push(at(current));
-      boundaryIndices.push(current);
-      const following: number | undefined = next.get(current);
-      if (following === undefined || boundary.length > next.size) throw new Error("the local trim boundary is open");
-      current = following;
-    } while (current !== start);
-    if (boundary.length !== next.size) throw new Error("the local trim has more than one boundary loop");
-    return { skin: { positions, indices }, boundary, boundaryIndices };
-  }
-
-  /** Continue the retained edge through the original parallel arm sections. */
-  function armCollar(skin: CaptureModel.ITriangles, boundary: V3[], boundaryIndices: number[], observed: V3[][], normal: V3): CaptureModel.ITriangles {
-    const positions: number[] = [...skin.positions];
-    const indices: number[] = [...skin.indices];
-    const owned: Map<V3, number> = new Map(boundary.map((point: V3, i: number): [V3, number] => [point, boundaryIndices[i]!]));
-    const increasing: boolean = armDot(AutoMovieMeshCourse.newell(boundary), normal) > 0;
-    let before: V3[] = boundary;
-    for (const ring of observed) {
-      const after: V3[] = (armDot(AutoMovieMeshCourse.newell(ring), normal) > 0) === increasing ? ring : [...ring].reverse();
-      const triangles: [V3, V3, V3][] = [];
-      tessellateAutoMovieContourStrip64(before, after, (a: V3, b: V3, c: V3): void => { triangles.push([a, b, c]); }, undefined, (observation): void => {
-        if (!observation.qualified) throw new Error(observation.diagnostics.join(" | ") || "ordinary collar did not qualify");
-      });
-      const first: number = edgeSense(before, triangles);
-      const second: number = edgeSense(after, triangles);
-      if (Math.abs(first) !== before.length || Math.abs(second) !== after.length || Math.sign(first) === Math.sign(second))
-        throw new Error("ordinary collar does not consume both full original edge cycles");
-      for (const [a, b, c] of triangles)
-        for (const point of first < 0 ? [a, b, c] : [a, c, b]) {
-          let vertex: number | undefined = owned.get(point);
-          if (vertex === undefined) {
-            vertex = positions.length / 3;
-            positions.push(...point);
-            owned.set(point, vertex);
-          }
-          indices.push(vertex);
-        }
-      before = after;
-    }
-    return { positions, indices };
+    const refined: IAutoMovieContourLoft64.IInterval[] = intervals.flatMap((interval): IAutoMovieContourLoft64.IInterval[] => {
+      const { beforeMm, afterMm, groups } = interval;
+      const within: number[] = observed.map((section): number => section.coordinateMm).filter((station: number): boolean => station > beforeMm && station < afterMm);
+      if (within.length === 0) return [interval];
+      const rails: number[] = [beforeMm, ...within, afterMm];
+      return rails.slice(1).map((end: number, i: number) => ({ beforeMm: rails[i]!, afterMm: end, groups }));
+    });
+    return { sections: [...sections, ...observed].sort((a, b): number => a.coordinateMm - b.coordinateMm), intervals: refined, diagnostics };
   }
 
   /** Keep the source triangles meeting the shoulder slab and frame their used vertices. */

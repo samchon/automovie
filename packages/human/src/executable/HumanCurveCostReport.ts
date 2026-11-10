@@ -63,7 +63,7 @@ export namespace HumanCurveCostReport {
 
   /** Explicit compiler-chain and related owning-project configs; null records a missing optional owner config. */
   export function configs(): Record<string, string | null> {
-    const names: string[] = ["package.json", "pnpm-workspace.yaml", "pnpm-lock.yaml", "test/tsconfig.json", "packages/human/lint.library.config.ts", "packages/playground/src/human-parameters/tsconfig.json", "config/tsconfig.json", "config/lint.config.ts", "config/lint.ts", ...["engine", "human", "interface", "playground"].flatMap((owner: string): string[] => ["packages/" + owner + "/package.json", "packages/" + owner + "/tsconfig.json", "packages/" + owner + "/lint.config.ts"])];
+    const names: string[] = ["package.json", "pnpm-workspace.yaml", "pnpm-lock.yaml", "test/tsconfig.json", "packages/playground/src/human-parameters/tsconfig.json", "config/tsconfig.json", "config/lint.config.ts", "config/lint.ts", ...["engine", "human", "interface", "playground"].flatMap((owner: string): string[] => ["packages/" + owner + "/package.json", "packages/" + owner + "/tsconfig.json", "packages/" + owner + "/lint.config.ts"])];
     return Object.fromEntries(names.map((name: string): [string, string | null] => [name, fs.existsSync(HumanNodePaths.resolve(name)) ? hash(fs.readFileSync(HumanNodePaths.resolve(name))) : null]));
   }
 

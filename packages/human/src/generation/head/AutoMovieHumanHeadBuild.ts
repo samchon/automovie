@@ -5,10 +5,12 @@ import { AutoMovieHumanBodyAnatomy } from "../AutoMovieHumanBodyAnatomy";
 import { AutoMovieHumanHeadAnatomy } from "../AutoMovieHumanHeadAnatomy";
 import type { IAutoMovieHumanBodyMeasures } from "../IAutoMovieHumanBodyMeasures";
 import { AutoMovieHumanArmCurveSpec } from "../arm/AutoMovieHumanArmCurveSpec";
+import type { AutoMovieHumanF1Body } from "../AutoMovieHumanF1Body";
 import { AutoMovieHumanTrunkJointDatums } from "../trunk/AutoMovieHumanTrunkJointDatums";
 import { AutoMovieHumanTrunkNeckBase } from "../trunk/AutoMovieHumanTrunkNeckBase";
 import { AutoMovieHumanTrunkSpecLandmarks } from "../trunk/AutoMovieHumanTrunkSpecLandmarks";
 import { AutoMovieHumanHeadF1Pose } from "./AutoMovieHumanHeadF1Pose";
+import { AutoMovieHumanHeadF1Skin } from "./AutoMovieHumanHeadF1Skin";
 import { AutoMovieHumanHeadFrankfort } from "./AutoMovieHumanHeadFrankfort";
 import { AutoMovieHumanHeadMass } from "./AutoMovieHumanHeadMass";
 import { AutoMovieHumanHeadNeckCourse } from "./AutoMovieHumanHeadNeckCourse";
@@ -29,6 +31,11 @@ type Vec3 = AutoMovieHumanArmCurveSpec.Vec3;
  * with their tape solves. Each stage is timed separately (milliseconds).
  */
 export namespace AutoMovieHumanHeadBuild {
+  /** Draw F1's measured skin and eyes above the exact trunk-owned neck boundary. */
+  export function f1(neck: readonly Vec3[]): AutoMovieHumanF1Body.IFixedPart {
+    return AutoMovieHumanHeadF1Skin.f1(neck);
+  }
+
   /** The build. */
   export interface IOutput {
     /** Resolved head measures. */

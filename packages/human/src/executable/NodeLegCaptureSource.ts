@@ -22,6 +22,7 @@ export namespace NodeLegCaptureSource {
       "packages/human/src/executable/NodeLegCaptureSource.ts",
       "packages/human/src/executable/NodeLegF1Archive.ts",
       "packages/human/src/executable/NodeLegF1Foot.ts",
+      "packages/human/src/executable/NodeLegF1Hip.ts",
       "packages/human/src/executable/NodeLegF1Loft.ts",
       "packages/human/src/executable/NodeLegF1Rings.ts",
       "packages/human/src/executable/NodeLegF1Trace.ts",

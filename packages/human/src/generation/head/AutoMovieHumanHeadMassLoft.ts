@@ -1,5 +1,8 @@
-import { AutoMovieViewLoft, type AutoMovieViewAxis, type IAutoMovieLoftRelief, type IAutoMovieViewPart } from "@automovie/engine";
+import { AutoMovieCurveMath64, AutoMovieViewAxis, AutoMovieViewLoft, type IAutoMovieLoftChain, type IAutoMovieLoftRelief, type IAutoMovieViewPart } from "@automovie/engine";
 
+import { AutoMovieHumanHorizontalChain } from "../../lofting/AutoMovieHumanHorizontalChain";
+import conics from "./AutoMovieHumanHeadF1Conics.json";
+import guides from "./AutoMovieHumanHeadF1Guides.json";
 import type { AutoMovieHumanHeadMass } from "./AutoMovieHumanHeadMass";
 import { AutoMovieHumanHeadMassCurves } from "./AutoMovieHumanHeadMassCurves";
 
@@ -29,6 +32,53 @@ const DEPTH: number = 8;
  * change under that shift.
  */
 export namespace AutoMovieHumanHeadMassLoft {
+  /**
+   * Rebuild the accepted fixed F1 head charts from their original world
+   * frames, measured signed supports and dimensionless conic shoulders.
+   * The other chains use the exact ordered ordinary guide rows. Local
+   * anatomical joins own the open rims left by these independent lofts.
+   */
+  export function f1(): { chains: IAutoMovieLoftChain[]; neck: AutoMovieViewAxis.IAxis } {
+    const neck: AutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(
+      conics.neck.centres.map(AutoMovieCurveMath64.clone), conics.neck.halves, AutoMovieCurveMath64.clone(conics.neck.forward),
+    );
+    if (typeof neck === "string") throw new Error(neck);
+    const quarter = <T>(values: readonly T[]): IAutoMovieViewPart.IQuarters<T> => [values[0]!, values[1]!, values[2]!, values[3]!];
+    const chains: IAutoMovieLoftChain[] = conics.parts.map((data): IAutoMovieLoftChain => {
+      const level = conics.level.find(({ name, stations }): boolean =>
+        data.name.startsWith(name) && data.stations[0]! >= stations[0]! && data.stations.at(-1)! <= stations.at(-1)!);
+      const axis: AutoMovieViewAxis.IAxis = data.name.startsWith("head.neck.") ? neck : (() => {
+        if (level === undefined) throw new Error(`Missing fixed axis for ${data.name}`);
+        return AutoMovieViewAxis.level(
+          level.stations.map((station: number, i: number) => ({ station, value: level.centres[i]![0]! })),
+          level.stations.map((station: number, i: number) => ({ station, value: level.centres[i]![2]! })),
+        );
+      })();
+      const { shoulders, touch, splits } = data.fullness;
+      const part: IAutoMovieViewPart = {
+        name: data.name, axis, stations: data.stations, front: data.front, side: data.side, order: data.order, samples: data.samples,
+        fullness: {
+          kind: "top", shoulders: quarter(shoulders),
+          ...(touch === undefined ? {} : { touch: quarter(touch) }),
+          ...(splits === undefined ? {} : { splits: quarter(splits) }),
+        },
+      };
+      const { chain }: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
+      if (chain === null) throw new Error(`The recorded fixed F1 conic refused ${data.name}`);
+      return chain;
+    });
+    // The measured forehead branch supplants the old overlapping guide
+    // completely. The remaining guide contours preserve their actual phase.
+    for (const { name, order, samples, profiles, stations } of guides) {
+      if (name === "head.face-linked.2686") continue;
+      chains.push(AutoMovieHumanHorizontalChain.build(
+        { name, order, samples, rule: "sagittal" },
+        profiles.map((row) => row.map(AutoMovieCurveMath64.clone)), undefined, stations,
+      ));
+    }
+    return { chains, neck };
+  }
+
   /** What the loft reads. */
   export interface IInput {
     /** The head mass's view curves. */

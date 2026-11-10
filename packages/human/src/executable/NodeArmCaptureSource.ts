@@ -16,16 +16,16 @@ type V3 = CaptureModel.Vec3;
 /**
  * The F1 arm capture provider. Each arm uses her own archived normal planes
  * from its first independent upper-arm section to the open palm. The
- * shared trace lofts her archived contours and checks the surface against
- * separate cuts of the native skin.
+ * ordinary sleeve keeps her measured section shapes where the four-conic
+ * trace produced elbow bands. The existing conic wrist ring stays shared.
  */
 export namespace NodeArmCaptureSource {
   type IReferenceSection = NodeArmCaptureGeometry.IReferenceSection;
   type IReferencePlane = NodeArmCaptureGeometry.IReferencePlane;
   type IReferenceTerminal = NodeArmCaptureGeometry.IReferenceTerminal;
   type IPalmArchive = NodeArmCaptureGeometry.IPalmArchive;
-  const { attachArmscye, attachContours, contourCoordinates, describeResidual, difference,
-    measuredPalm, openTerminal, physicalPlane, referenceAxis, world }: typeof NodeArmCaptureGeometry = NodeArmCaptureGeometry;
+  const { attachContours, contourCoordinates, describeResidual, difference,
+    measuredPalm, openTerminal, physicalPlane, referenceAxis, sleeve, world }: typeof NodeArmCaptureGeometry = NodeArmCaptureGeometry;
 
   const ARCHIVE: string = ".references/curves/bezier/f1/limbs";
   const DIGITS = ["thumb", "index", "middle", "ring", "pinky"] as const;
@@ -39,6 +39,7 @@ export namespace NodeArmCaptureSource {
     files: [
       "packages/human/src/executable/NodeArmCaptureSource.ts",
       "packages/human/src/executable/NodeArmHandSkin.ts",
+      "packages/human/src/executable/NodeArmNativeSaddle.ts",
       "packages/human/src/executable/NodeArmFingerFan.ts",
       "packages/human/src/executable/NodeArmCaptureGeometry.ts",
       "packages/human/src/executable/NodeTrunkCaptureSource.ts",
@@ -114,8 +115,8 @@ export namespace NodeArmCaptureSource {
       (max, layer) => max === undefined || layer.max > max.max ? layer : max, undefined);
     const boundary: AutoMovieHumanF1Trace.ILayer | undefined = measured.find((layer: AutoMovieHumanF1Trace.ILayer): boolean => layer.station === cuts[palmStart]);
     const diagnostics: string[] = [
-      `archived conic arm rows 18–126: ${armCuts.length} contours, ${trace.cuts.length} holding loops, sampled max k*r ${Math.max(...turns).toFixed(4)}`,
-      ...(worst === undefined ? [] : [`maximum raw radial residual ${worst.max.toFixed(3)} mm at ${worst.station.toFixed(3)} mm, ${worst.between ? "between cuts" : "archived cut"}`]),
+      `conic wrist support from archive rows 18–126: ${armCuts.length} contours, ${trace.cuts.length} holding loops, sampled max k*r ${Math.max(...turns).toFixed(4)}`,
+      ...(worst === undefined ? [] : [`prior conic sleeve residual ${worst.max.toFixed(3)} mm at ${worst.station.toFixed(3)} mm, ${worst.between ? "between cuts" : "archived cut"}`]),
       ...(boundary === undefined ? [] : [`wrist junction row 126: ${describeResidual(boundary, axis)}`]),
       ...(palm === undefined ? [] : [palm.receipt]),
       ...(refusal === undefined ? [] : [refusal]),
@@ -154,27 +155,33 @@ export namespace NodeArmCaptureSource {
     originals[0] = { id: `${name}.armscye`, points: armscye, closed: true, colour: "008080" };
     part.curves = [{ id: `${name}.archive`, part: name, frame, kind: "original sections", lines: originals, aids: [], datums: [] }];
     const chain = trace.loft?.chain;
+    if (part.loft.status === "available") {
+      // Rows 67 and 68 are only 0.179 mm apart and differ by less
+      // than 0.32 mm on either arm. Keep the original joint contour 68.
+      const sleeveRows = sections.slice(1, palmStart).map((row, i) => ({ row, line: lines[i + 1]! })).filter(({ row }): boolean => row.station !== 67);
+      try {
+        const wristFrame = axis.at(cuts[palmStart]!);
+        const shape = sleeve(part.loft.clay, armscye, physicalPlane(sections[0]!), sleeveRows, physicalPlane(sections[palmStart]!), wristFrame);
+        part.loft.clay = shape.clay;
+        part.loft.lines = shape.lines;
+        const diagnosis: string = `Ordinary sleeve uses ${sleeveRows.length} original intermediate contours and retains all ${armscye.length} armscye and 72 wrist edges.`;
+        part.diagnostics.push(diagnosis);
+        part.loft.diagnostics.push(diagnosis);
+      } catch (error) {
+        part.loft = { status: "unavailable", cause: `measured sleeve refused: ${error instanceof Error ? error.message : String(error)}` };
+      }
+    }
     if (part.loft.status === "available" && palm !== undefined && chain !== null && chain !== undefined && chain.opposite === undefined && chain.pole === undefined) {
       const palmStarted: number = performance.now();
       let diagnosis: string;
       try {
-        diagnosis = attachContours(part.loft.clay, palm.rows, lines[palmStart]!.points, axis.at(cuts[palmStart]!), undefined, contourCoordinates(palm.rows));
+        diagnosis = attachContours(part.loft.clay, palm.rows, lines[palmStart]!.points, axis.at(cuts[palmStart]!), undefined, contourCoordinates(palm.rows, side === "left"));
       } catch (error) {
         diagnosis = `palm junction refused: ${error instanceof Error ? error.message : String(error)}`;
       }
       part.diagnostics.push(diagnosis);
       part.loft.diagnostics.push(diagnosis);
       part.milliseconds.palm = performance.now() - palmStarted;
-    }
-    if (part.loft.status === "available") {
-      let diagnosis: string;
-      try {
-        diagnosis = attachArmscye(part.loft.clay, armscye, physicalPlane(sections[0]!), axis.at(cuts[1]!));
-      } catch (error) {
-        diagnosis = `armscye continuation refused: ${error instanceof Error ? error.message : String(error)}`;
-      }
-      part.diagnostics.push(diagnosis);
-      part.loft.diagnostics.push(diagnosis);
     }
     if (part.loft.status === "available" && palm !== undefined) {
       const started: number = performance.now();

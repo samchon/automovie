@@ -89,8 +89,8 @@ export namespace NodeHeadReference {
         report(capture, `${name} refused: ${error instanceof Error ? error.message : String(error)}`);
       }
     }
+    NodeHeadNativeJunctions.repairOuterSpans(capture, NodeHeadOrbit.skin(mesh), mesh, NodeHeadOrbit.clipPlane, NodeHeadOrbit.connect);
   }
-
   /** Prefer the complete observed forehead span where the existing section fits missed it. */
   export function withForehead(archive: string, mesh: AutoMovieMeshExtract.IMesh, chains: IAutoMovieLoftChain[], diagnostics: string[]): { chains: IAutoMovieLoftChain[]; forehead: NodeHeadJunction.IResult | null } {
     try {
@@ -158,7 +158,7 @@ export namespace NodeHeadReference {
       if (axis !== undefined && lastNeck !== undefined)
         seams.unshift({ chain: lastNeck.name!, end: "top", rail: "mouth:first", station: lastNeck.layers.at(-1)!.y });
       let wall: Junction = mouth;
-      try { wall = NodeHeadNativeJunctions.oralWall(archive, mesh, mouth); }
+      try { wall = NodeHeadNativeJunctions.oralWall(archive, mesh, mouth, native(), NodeHeadOrbit.clipPlane, NodeHeadOrbit.connect); }
       catch (error) { report(capture, `original oral wall refused: ${error instanceof Error ? error.message : String(error)}`); }
       report(capture, [wall.receipt, ...stitchJunction(capture.loft, wall, seams, chains, mesh, axis)].join("\n"));
     } catch (error) {

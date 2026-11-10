@@ -1,7 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
-import { AutoMovieMeshCourse, closestPointOnSegmentXZ } from "@automovie/engine";
+import { AutoMovieMeshCourse, type AutoMovieMeshExtract, closestPointOnSegmentXZ } from "@automovie/engine";
 
+import { AutoMovieHumanF1BodyAssembly } from "../generation/AutoMovieHumanF1BodyAssembly";
 import { AutoMovieHumanF1Fork } from "../generation/trunk/AutoMovieHumanF1Fork";
 import type { CaptureModel } from "../inspection/CaptureModel";
 import { NodeCanvasCamera } from "../inspection/NodeCanvasCamera";
@@ -14,9 +15,6 @@ import { NodeTrunkCaptureSource } from "./NodeTrunkCaptureSource";
 import { NodeTrunkReference } from "./NodeTrunkReference";
 
 type V3 = [number, number, number];
-type EdgeUse = { start: number; count: number };
-type FreeEdge = { low: number; high: number; increasing: boolean };
-type Free = Map<string, FreeEdge | null>;
 
 /** Capture the direct F1 geometry and verify the shared indexed boundaries. */
 export namespace NodeF1BodyDirect {
@@ -37,6 +35,7 @@ export namespace NodeF1BodyDirect {
       "packages/playground/src/human-parameters/f1.ts",
       ...names.flatMap((name: string): readonly string[] => providers.get(name)?.files ?? []),
       ...["NodeF1Body", "NodeF1BodyDirect", "NodeCaptureSources", "NodeCaptureRender", "NodeCanvasRaster"].map((file: string): string => `packages/human/src/executable/${file}.ts`),
+      "packages/human/src/generation/AutoMovieHumanF1BodyAssembly.ts",
     ];
     const identities: Record<string, string> = await NodeCaptureSources.identities(sourceFiles);
     const sources: { name: string; triangles: number; cause?: string; includedBy?: string }[] = [];
@@ -48,9 +47,7 @@ export namespace NodeF1BodyDirect {
       "leg.left": calfEvidence,
       "leg.right": calfEvidence,
     };
-    const positions: number[] = [];
-    const indices: number[] = [];
-    const boundaries: Map<string, Free> = new Map();
+    const meshes: Map<string, AutoMovieMeshExtract.IMesh> = new Map();
     const sewnFeet: Set<string> = new Set();
     const includedBy: Map<string, string> = new Map();
     for (const name of names) {
@@ -70,11 +67,7 @@ export namespace NodeF1BodyDirect {
         const prefixes: readonly string[] = reviewPrefixes[name] ?? [];
         const observations: string[] = part.diagnostics.filter((line: string): boolean => prefixes.some((prefix: string): boolean => line.startsWith(prefix)));
         if (observations.length !== 0) visualEvidence.push({ part: name, observations });
-        const base: number = positions.length / 3;
-        if (["trunk.archive", "head", "arm.left", "arm.right", "leg.left", "leg.right"].includes(name))
-          boundaries.set(name, directFree(mesh, base));
-        for (const value of mesh.positions) positions.push(value);
-        for (const index of mesh.indices) indices.push(base + index);
+        meshes.set(name, mesh);
         sources.push({ name, triangles: mesh.indices.length / 3 });
 
         // A palm declares its contained parts. The foot receipt is emitted
@@ -88,7 +81,7 @@ export namespace NodeF1BodyDirect {
       }
       console.log(`direct body source ${JSON.stringify(sources[sources.length - 1])}`);
     }
-    if (indices.length === 0) throw new Error("No direct F1 clay is available");
+    if (meshes.size === 0) throw new Error("No direct F1 clay is available");
 
     const reference: NodeCaptureSources.IReference = await context.reference();
     const original: NodeTrunkReference.IMesh = NodeTrunkReference.fromModel(reference.model, 1);
@@ -96,73 +89,8 @@ export namespace NodeF1BodyDirect {
     const fork: AutoMovieHumanF1Fork.IResult = AutoMovieHumanF1Fork.read(raw, NodeTrunkCaptureSource.midline(original.points));
     const neck: V3[] | null = await NodeTrunkCaptureSource.neckBoundary(raw);
     const [leftArm, rightArm]: V3[][] = await Promise.all([NodeTrunkCaptureSource.armBoundary("left"), NodeTrunkCaptureSource.armBoundary("right")]);
-    const crotch: string[] = directKeys(fork.crotch, false);
-    const median: Set<string> = new Set(crotch);
-
-    // The parent owns the two outer arcs. Only the children share the median
-    // line, so those edges must not also be expected on the trunk.
-    const half = (points: V3[]): string[] => directKeys(points, true).filter((key: string): boolean => !median.has(key));
-    const expected: { name: string; a: string; b: string; keys: string[] }[] = [
-      { name: "neck", a: "trunk.archive", b: "head", keys: neck === null ? [] : directKeys(neck, true) },
-      { name: "shoulder.left", a: "trunk.archive", b: "arm.left", keys: directKeys(leftArm!, true) },
-      { name: "shoulder.right", a: "trunk.archive", b: "arm.right", keys: directKeys(rightArm!, true) },
-      { name: "fork.left", a: "trunk.archive", b: "leg.left", keys: half(fork.left) },
-      { name: "fork.right", a: "trunk.archive", b: "leg.right", keys: half(fork.right) },
-      { name: "CROTCH_LINE", a: "leg.left", b: "leg.right", keys: crotch },
-    ];
-    const parents: Int32Array = Int32Array.from({ length: positions.length / 3 }, (_: unknown, i: number): number => i);
-    const root = (vertex: number): number => {
-      while (parents[vertex] !== vertex) {
-        parents[vertex] = parents[parents[vertex]!]!;
-        vertex = parents[vertex]!;
-      }
-      return vertex;
-    };
-    // Weld an entire measured seam only when each edge is free on both
-    // surfaces and their windings oppose. Exact indexed sewing leaves any
-    // unrelated coincident vertices and incomplete seams untouched.
-    const seams = expected.map(({ name, a, b, keys }) => {
-      const left: Free | undefined = boundaries.get(a);
-      const right: Free | undefined = boundaries.get(b);
-      const matches: [FreeEdge, FreeEdge][] = [];
-      let sameDirection: number = 0;
-      for (const key of keys) {
-        const l: FreeEdge | null | undefined = left?.get(key);
-        const r: FreeEdge | null | undefined = right?.get(key);
-        if (!l || !r) continue;
-        if (l.increasing === r.increasing) ++sameDirection;
-        matches.push([l, r]);
-      }
-      const sewn: boolean = keys.length > 0 && matches.length === keys.length && sameDirection === 0;
-      if (sewn)
-        for (const [l, r] of matches) {
-          parents[root(r.low)] = root(l.low);
-          parents[root(r.high)] = root(l.high);
-        }
-      return { name, parts: [a, b], expectedEdges: keys.length, matchingEdges: matches.length, sameDirection, sewn };
-    });
-    for (let i: number = 0; i < indices.length; ++i) indices[i] = root(indices[i]!);
-    const stride: number = positions.length / 3;
-    const used: Map<number, EdgeUse> = directIncidence(indices, stride);
-    const components: Set<number> = new Set();
-    let freeEdges: number = 0;
-    let multipleEdges: number = 0;
-    let upperTrunkFreeEdges: number = 0;
-    for (const [key, { count }] of used) {
-      const first: number = Math.floor(key / stride);
-      const second: number = key % stride;
-      const a: number = root(first);
-      const b: number = root(second);
-      parents[b] = a;
-      if (count === 1) {
-        ++freeEdges;
-        const y0: number = positions[3 * first + 1]!;
-        const y1: number = positions[3 * second + 1]!;
-        if (Math.min(y0, y1) >= 1333.79 && Math.max(y0, y1) < 1458) ++upperTrunkFreeEdges;
-      }
-      else if (count > 2) ++multipleEdges;
-    }
-    for (const vertex of indices) components.add(root(vertex));
+    const { mesh: { positions, indices }, seams, skin }: AutoMovieHumanF1BodyAssembly.IOutput =
+      AutoMovieHumanF1BodyAssembly.assemble(meshes, { neck: neck ?? [], arm: { left: leftArm!, right: rightArm! }, fork });
     const pelvis835 = (["left", "right"] as const).map((side: "left" | "right") => {
       const centre: V3 = side === "left" ? fork.leftPlane.centroid : fork.rightPlane.centroid;
       const plane: AutoMovieMeshCourse.IPlane = { station: 835, origin: [centre[0], 835, centre[2]], u: [1, 0, 0], v: [0, 0, 1] };
@@ -184,7 +112,7 @@ export namespace NodeF1BodyDirect {
       seams,
       unresolvedStructuralConnections: [
         ...seams.filter(({ sewn }): boolean => !sewn).map(({ name }): string => name),
-        ...(upperTrunkFreeEdges > 0 || !sources.some(({ name, triangles }): boolean => name === "trunk.archive" && triangles > 0) ? ["trunk upper openings"] : []),
+        ...(skin.upperTrunkFreeEdges > 0 || !sources.some(({ name, triangles }): boolean => name === "trunk.archive" && triangles > 0) ? ["trunk upper openings"] : []),
         ...["left", "right"].filter((side: string): boolean =>
           ![`thumb.${side}`, ...[1, 2, 3, 4].map((digit: number): string => `finger.${side}.${digit}`)]
             .every((name: string): boolean => includedBy.get(name) === `arm.${side}`),
@@ -192,7 +120,7 @@ export namespace NodeF1BodyDirect {
         ...["left", "right"].filter((side: string): boolean => !sewnFeet.has(side)).map((side: string): string => `${side} foot branch connections`),
       ],
       visualReview: { status: "pending", providerEvidence: visualEvidence, pelvis835 },
-      skin: { triangles: indices.length / 3, components: components.size, freeEdges, multipleEdges, upperTrunkFreeEdges },
+      skin,
     };
 
     const out: string = HumanNodePaths.resolve(`packages/human/.shots/f1_integration/body-direct-${new Date().toISOString().replaceAll(":", "-")}`);
@@ -238,51 +166,4 @@ export namespace NodeF1BodyDirect {
     return maximum;
   }
 
-  /** Record the oriented use and multiplicity of every indexed edge. */
-  function directIncidence(indices: readonly number[], stride: number): Map<number, EdgeUse> {
-    const uses: Map<number, EdgeUse> = new Map();
-    for (let i: number = 0; i < indices.length; i += 3)
-      for (let e: number = 0; e < 3; ++e) {
-        const a: number = indices[i + e]!;
-        const b: number = indices[i + (e + 1) % 3]!;
-        const key: number = Math.min(a, b) * stride + Math.max(a, b);
-        const use: EdgeUse | undefined = uses.get(key);
-        if (use === undefined) uses.set(key, { start: a, count: 1 });
-        else ++use.count;
-      }
-    return uses;
-  }
-
-  /** Unique free edges keyed by the exact world coordinates of both endpoints. */
-  function directFree(mesh: CaptureModel.ITriangles, base: number): Free {
-    const stride: number = mesh.positions.length / 3;
-    const free: Free = new Map();
-    const xyz = (i: number): string => mesh.positions.slice(3 * i, 3 * i + 3).join(",");
-    for (const [key, { start, count }] of directIncidence(mesh.indices, stride)) {
-      if (count !== 1) continue;
-      const low: number = Math.floor(key / stride);
-      const high: number = key % stride;
-      const end: number = start === low ? high : low;
-      const a: string = xyz(start);
-      const b: string = xyz(end);
-      if (a === b) continue;
-      const name: string = a < b ? `${a}|${b}` : `${b}|${a}`;
-      const edge: FreeEdge = a < b
-        ? { low: base + start, high: base + end, increasing: true }
-        : { low: base + end, high: base + start, increasing: false };
-      free.set(name, free.has(name) ? null : edge);
-    }
-    return free;
-  }
-
-  /** Coordinate keys for the actual ordered seam, excluding a repeated closing marker. */
-  function directKeys(points: readonly V3[], closed: boolean): string[] {
-    const keys: string[] = [];
-    for (let i: number = 1; i < points.length + Number(closed); ++i) {
-      const a: string = points[i - 1]!.join(",");
-      const b: string = points[i % points.length]!.join(",");
-      if (a !== b) keys.push(a < b ? `${a}|${b}` : `${b}|${a}`);
-    }
-    return keys;
-  }
 }

@@ -9,7 +9,6 @@ import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHum
 import { HumanNodeInput } from "./HumanNodeInput";
 import { HumanNodePaths } from "./HumanNodePaths";
 import { NodeArmDraw } from "./NodeArmDraw";
-import { NodeF1BodyDirect } from "./NodeF1BodyDirect";
 import { NodeF1BodyMeshDiagnostics } from "./NodeF1BodyMeshDiagnostics";
 import { NodeF1Joints } from "./NodeF1Joints";
 import { NodeF1Shade } from "./NodeF1Shade";
@@ -17,7 +16,8 @@ import { NodeF1Shade } from "./NodeF1Shade";
 type V3 = [number, number, number];
 
 /**
- * `node:f1-body` draws F1's measured body from the direct providers.
+ * `node:f1-body` draws F1 from its recorded inputs. Reference comparison
+ * and the old direct providers are explicit executable options.
  * The `--construction` inspection realizes the construction tree
  * (`AutoMovieHumanF1Body`) with the engine and tessellates it with the
  * body's skin (`AutoMovieHumanBodySurface`, whose solids draw the seams, the
@@ -38,7 +38,8 @@ export namespace NodeF1Body {
   /** Draw the measured body or inspect the construction tree on request. */
   export async function run(): Promise<void> {
     const construction: boolean = process.argv.includes("--construction") || process.env.F1_BODY_STATUS === "1";
-    if (!construction || process.argv.includes("--direct")) return NodeF1BodyDirect.run();
+    if (process.argv.includes("--direct")) return (await import("./NodeF1BodyDirect.js")).NodeF1BodyDirect.run();
+    if (!construction) return (await import("./NodeF1BodyFixed.js")).NodeF1BodyFixed.run(process.argv.includes("--reference"));
     const t0: number = performance.now();
     const person: Awaited<ReturnType<typeof HumanNodeInput.of>> = await HumanNodeInput.of();
     const t1: number = performance.now();

@@ -1,9 +1,12 @@
-import { AutoMovieViewAxis, AutoMovieViewLoft, AutoMovieViewSection, type IAutoMovieViewPart } from "@automovie/engine";
+import { AutoMovieContourLoftCurves64, AutoMovieLoftChain, AutoMovieViewAxis, AutoMovieViewLoft, AutoMovieViewSection, type IAutoMovieLoftChain, type IAutoMovieViewPart } from "@automovie/engine";
 
+import { AutoMovieHumanArmAxis } from "../arm/AutoMovieHumanArmAxis";
 import { AutoMovieHumanArmCurveSpec } from "../arm/AutoMovieHumanArmCurveSpec";
+import type { AutoMovieHumanArmF1Lines } from "../arm/AutoMovieHumanArmF1Lines";
 import type { AutoMovieHumanArmSegmentFrames } from "../arm/AutoMovieHumanArmSegmentFrames";
 import { AutoMovieHumanArmViewCurves } from "../arm/AutoMovieHumanArmViewCurves";
 import { AutoMovieHumanFairOutline } from "../arm/AutoMovieHumanFairOutline";
+import { AutoMovieHumanHandPalm } from "./AutoMovieHumanHandPalm";
 
 type Vec3 = AutoMovieHumanArmCurveSpec.Vec3;
 
@@ -37,6 +40,74 @@ type Vec3 = AutoMovieHumanArmCurveSpec.Vec3;
  * `q = -sqrt(L - s)`.
  */
 export namespace AutoMovieHumanHandDigits {
+  /** Restore the measured digit input after JSON has widened tuples and literal tags. */
+  export function fixedInput(value: typeof import("./AutoMovieHumanHandF1RightInputs.json").digits.thumb): IFixed {
+    const point: typeof AutoMovieHumanHandPalm.fixedPoint = AutoMovieHumanHandPalm.fixedPoint;
+    const shoulders: IAutoMovieViewPart.IOutline[] = value.part.fullness.shoulders;
+    if (shoulders.length !== 4 || value.part.fullness.kind !== "top")
+      throw new Error("A fixed F1 digit needs its four observed conic shoulder runs");
+    return {
+      ...value,
+      charts: value.charts.map((chart: typeof value.charts[number]): AutoMovieHumanArmAxis.IFixedChart => ({
+        ...chart, originMm: point(chart.originMm), u: point(chart.u), v: point(chart.v),
+      })),
+      part: { ...value.part, fullness: { ...value.part.fullness, kind: value.part.fullness.kind,
+        shoulders: [shoulders[0]!, shoulders[1]!, shoulders[2]!, shoulders[3]!] } },
+      distal: value.distal.map(AutoMovieHumanHandPalm.fixedSection), tip: point(value.tip),
+      terminal: { ...value.terminal, maximum: { ...value.terminal.maximum, pointsMm: value.terminal.maximum.pointsMm.map(point) } },
+    };
+  }
+
+  /** A digit's measured course, conic control outlines and observed tip continuation. */
+  export interface IFixed {
+    /** Absolute measured section charts in the native digit pose. */
+    charts: AutoMovieHumanArmAxis.IFixedChart[];
+
+    /** Four extents and four conic shoulder runs reduced from the source cuts. */
+    part: Omit<IAutoMovieViewPart, "axis">;
+
+    /** Ordinary end sections starting at the same last retained conic ring. */
+    distal: AutoMovieHumanHandPalm.IFixedSection[];
+
+    /** Unique observed tip in the assembled capture world, millimetres. */
+    tip: Vec3;
+
+    /** Independent maximum record with its native coordinates and adjacent cut. */
+    terminal: AutoMovieHumanHandPalm.IFixedTerminal;
+  }
+
+  /** Loft one digit's own conics in its observed pose and retain the exact open root. */
+  export function fixed(input: IFixed): AutoMovieHumanArmF1Lines.IFixedMesh {
+    const axis: AutoMovieViewAxis.IAxis = AutoMovieHumanArmAxis.observed(input.charts);
+    const result: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create({ ...input.part, axis });
+    const chain: IAutoMovieLoftChain | null = result.chain;
+    if (chain === null) throw new Error(`F1 digit ${input.part.name} has no admitted conic chain`);
+    const first: number = chain.layers[0]!.y, last: number = chain.layers.at(-1)!.y;
+    const count: number = 72, steps: number = Math.max(1, Math.ceil((last - first) / 1.5));
+    const phases: number[] = Array.from({ length: count }, (_, i): number => 2 * Math.PI * i / count);
+    const mesh: AutoMovieHumanArmF1Lines.IFixedMesh = { positions: [], indices: [] };
+    for (let i: number = 0; i <= steps; ++i)
+      for (const p of AutoMovieLoftChain.ring(chain, first + (last - first) * i / steps, phases)) mesh.positions.push(...p);
+    for (let row: number = 0; row < steps; ++row)
+      for (let i: number = 0; i < count; ++i) {
+        const a: number = row * count + i, b: number = row * count + (i + 1) % count;
+        mesh.indices.push(a, a + count, b + count, a, b + count, b);
+      }
+
+    const frame: ReturnType<AutoMovieViewAxis.IAxis["at"]> = axis.at(last);
+    if (input.distal.length > 1) {
+      const root: Vec3[] = AutoMovieContourLoftCurves64.tessellate(input.distal[0]!.loops[0]!.curve, 0.1)
+        .map(({ p: [x, y, z] }): Vec3 => [x, y, -z]);
+      AutoMovieHumanHandPalm.attachFixed(mesh, input.distal, root, frame, input.terminal);
+    } else {
+      const { base, boundary } = AutoMovieHumanHandPalm.openTerminal(mesh, frame);
+      const apex: number = mesh.positions.push(...input.tip) / 3 - 1;
+      for (let i: number = 0; i < boundary.length; ++i)
+        mesh.indices.push(apex, base + (i + 1) % boundary.length, base + i);
+    }
+    return mesh;
+  }
+
   /** One digit. */
   export interface IDigit {
     /** `digit.<1-5>.<side>`. */

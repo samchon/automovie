@@ -6,6 +6,7 @@ import type { AutoMovieHumanF1Fork } from "../generation/trunk/AutoMovieHumanF1F
 import type { CaptureModel } from "../inspection/CaptureModel";
 import { CaptureSpecs } from "../inspection/CaptureSpecs";
 import { NodeLegF1Archive } from "./NodeLegF1Archive";
+import { NodeLegF1Hip } from "./NodeLegF1Hip";
 import { NodeLegF1Rings } from "./NodeLegF1Rings";
 
 /**
@@ -269,21 +270,42 @@ export namespace NodeLegF1Loft {
       const from = previous === undefined ? stations[0]! : previous.station;
       const phases = previous?.row.length ?? 72;
       let row: IRing;
+      let nativeThigh = false;
       if (previous === undefined) {
         const frame = axis.at(from);
         const points = archiveRing(from, phases);
         if (points === null) throw new Error("The first thigh section has no unique measured ring");
         const measured = proximalRings(legFork, fork, frame, stations[1]! - stations[0]!, mesh);
         let boundary = append(forkClock(fork, measured[0]?.frame ?? frame));
+        const start = measured[0];
+        const end = measured.at(-1);
+        // Continue the same skin through the first archived thigh plane when
+        // its strict native rim matches that measured contour. Intermediate
+        // cuts remain independent checks on the interior of this slab.
+        const extension = start === undefined ? null : NodeLegF1Hip.append(mesh, legFork, start, { frame, points }, positions, indices, diagnostics);
+        const native = extension ?? (start === undefined || end === undefined || start === end
+          ? null : NodeLegF1Hip.append(mesh, legFork, start, end, positions, indices, diagnostics));
         for (const [k, section] of measured.entries()) {
-          const next = append(forkClock(section.points, section.frame));
-          stitchRows(boundary, next, positions, indices, "length");
-          boundary = next;
+          if (k === 0) {
+            const next = native?.upper ?? append(forkClock(section.points, section.frame));
+            const rails = NodeLegF1Hip.collar(boundary, next, section, legFork, mesh, positions, indices, append, native !== null);
+            for (const [i, rail] of rails.entries()) lines.push({ id: `Observed posterior fork rail ${i + 1}`, points: rail, closed: false, colour: "505050" });
+            diagnostics.push(`Observed posterior fork rails: ${rails.map((rail): number => rail.length).join(" / ") || "none"} source points between the retained rims.`);
+            boundary = next;
+          } else if (native === null) {
+            const next = append(forkClock(section.points, section.frame));
+            stitchRows(boundary, next, positions, indices, "length");
+            boundary = next;
+          }
           lines.push({ id: `Observed fork transition ${k + 1}`, points: section.points, closed: true, colour: "505050" });
           hipPlanes.push({ station: k, origin: section.frame.origin as V3, u: section.frame.u as V3, v: section.frame.v as V3 });
         }
-        row = { station: from, row: append(points) };
-        stitchRows(boundary, row.row, positions, indices);
+        nativeThigh = extension !== null;
+        row = { station: from, row: extension?.lower ?? append(points) };
+        if (extension === null) stitchRows(native?.lower ?? boundary, row.row, positions, indices);
+        else lines.push({ id: `Observed native thigh rim ${from.toFixed(3)} mm`, points: row.row.map((i): V3 =>
+          [positions[3 * i]!, positions[3 * i + 1]!, positions[3 * i + 2]!]), closed: true, colour: "505050" });
+        if (native !== null) diagnostics.push(`Observed proximal skin: ${native.triangles} original-surface triangles and ${native.upper.length} / ${native.lower.length} native rim edges.`);
         diagnostics.push(`Fork transition: ${measured.length} closed native rings between the shared fork boundary and the first thigh plane.`);
       } else row = previous;
       const lower = [...stations, ...footRefinements].filter((s): boolean => s > from && s <= last).sort((a, b): number => a - b);
@@ -301,6 +323,24 @@ export namespace NodeLegF1Loft {
           stitchSeam(row, next, axis, positions, indices);
           const seam = inspectSeam(positions, indices, axis, previous.adjacent, previous, next);
           diagnostics.push(`Knee boundary ${previous.station.toFixed(3)} mm: ${seam.sharedEdges} reciprocal edges, maximum face angle ${seam.angle.toFixed(2)} degrees.`);
+        } else if (nativeThigh && row.station === from) {
+          const mode = stitchSeam(row, next, axis, positions, indices);
+          diagnostics.push(`Observed thigh correspondence from ${from.toFixed(3)} to ${station.toFixed(3)} mm: ${mode}.`);
+        } else if (footRefinements.includes(row.station) || footRefinements.includes(station)) {
+          // The archived instep charts roll faster than their section planes
+          // turn. Carry the upstream direction into both planes for the seam
+          // clock. Each observed section keeps its original world vertices.
+          const upstream = axis.at(row.station).u as V3;
+          const transported: AutoMovieViewAxis.IAxis = {
+            at(s): Frame {
+              const frame = axis.at(s);
+              const n = AutoMovieViewAxis.normal(frame) as V3;
+              const u = Geometry.unit(sub(upstream, scale(n, Geometry.dot(upstream, n))));
+              return { origin: frame.origin, u, v: Geometry.cross(u, n) };
+            },
+          };
+          const mode = stitchSeam(row, next, transported, positions, indices);
+          diagnostics.push(`Observed instep correspondence from ${row.station.toFixed(3)} to ${station.toFixed(3)} mm: ${mode}.`);
         } else stitchRows(row.row, next.row, positions, indices);
         row = next;
         if (!footRefinements.includes(station)) sections.push(station);

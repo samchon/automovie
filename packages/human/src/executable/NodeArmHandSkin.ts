@@ -5,21 +5,23 @@ import {
   type IAutoMovieContourLoft64,
   type IAutoMovieCurve64,
   tessellateAutoMovieContourLoft64,
-  tessellateAutoMovieContourStrip64,
 } from "@automovie/engine";
 import { type IAutoMovieRecoverySlabObservation, observeAutoMovieRecoverySections } from "@automovie/recovery";
 
 import { AutoMovieHumanArmCurveSpec } from "../generation/arm/AutoMovieHumanArmCurveSpec";
 import { AutoMovieHumanArmF1Pose } from "../generation/arm/AutoMovieHumanArmF1Pose";
+import { AutoMovieHumanHandPorts } from "../generation/hand/AutoMovieHumanHandPorts";
 import type { CaptureModel } from "../inspection/CaptureModel";
 import { HumanNodePaths } from "./HumanNodePaths";
 import { NodeArmDraw } from "./NodeArmDraw";
 import { NodeArmFingerFan } from "./NodeArmFingerFan";
+import { NodeArmNativeSaddle } from "./NodeArmNativeSaddle";
 
 /** Assemble native hand and digit surfaces on their observed world-space rims. */
 export namespace NodeArmHandSkin {
   type V3 = CaptureModel.Vec3;
   type Digit = "thumb" | "index" | "middle" | "ring" | "pinky";
+  const { auditSkin, exactFreeRim, joinRims, sewExactRim }: typeof AutoMovieHumanHandPorts = AutoMovieHumanHandPorts;
 
   interface IInput {
     side: "left" | "right";
@@ -91,6 +93,12 @@ export namespace NodeArmHandSkin {
         !ordered(hostRims[i]!.points, proximal, row.originMm, whole[4]!.originMm, row.normal, whole[4]!.normal))
         throw new Error("The measured right palm sections overlap the finger-fan planes");
     }
+    if (side === "l") {
+      // Follow the original closed cut between s84 and the turned finger-fan plane.
+      const bridge = NodeArmFingerFan.between(raw, branch.host, proximal, [branch.afterOrigin, whole[4]!.originMm], [branch.normal, whole[4]!.normal], whole[4]!.u);
+      if (bridge.ring === undefined) throw new Error("The original left palm has no ordered continuation to the finger fan");
+      hostRims.push(bridge.ring);
+    }
     let hand: IIndexedMesh = joinRims(palm, fan, [...branch.host], [...proximal], [branch.normal, whole[4]!.normal], hostRims);
     const receipts: string[] = [];
     for (const digit of ["thumb", "index", "ring", "pinky"] as const) {
@@ -117,7 +125,6 @@ export namespace NodeArmHandSkin {
         [between.ring, { points: firstRing, normal: first.normal }]);
       receipts.push(`${digit} ${first.station}→${next.station}, ${sourceRim.length} indexed port edges`);
     }
-
     auditSkin(hand, input.armscye);
     // Every join appends geometry. Keep the already verified arm's exact
     // millimetre prefix, including its canonical shared armscye positions.
@@ -129,32 +136,6 @@ export namespace NodeArmHandSkin {
       diagnostics: [`Sewn native hand skin: palm ${palm.shared} indexed edges; middle source row 10 to conic 11; ${receipts.join(" | ")}. Only the ${input.armscye.length}-edge armscye remains open.`],
     };
   }
-
-  /** Require a single expected free seam and reciprocal direction on every sewn edge. */
-  function auditSkin(mesh: IIndexedMesh, root: readonly V3[]): void {
-    const edges: Map<string, { a: number; b: number; count: number; winding: number }> = new Map();
-    for (let i: number = 0; i < mesh.indices.length; i += 3)
-      for (let j: number = 0; j < 3; ++j) {
-        const a: number = mesh.indices[i + j]!, b: number = mesh.indices[i + (j + 1) % 3]!;
-        const key: string = a < b ? `${a}:${b}` : `${b}:${a}`;
-        const direction: number = a < b ? 1 : -1;
-        const known = edges.get(key);
-        if (known) {
-          ++known.count;
-          known.winding += direction;
-        } else edges.set(key, { a, b, count: 1, winding: direction });
-      }
-    const key = (a: string, b: string): string => a < b ? `${a}:${b}` : `${b}:${a}`;
-    const expected: string[] = root.map(([x, y, z]): string => [x * 0.001, y * 0.001, -z * 0.001].join(","));
-    const seam: Set<string> = new Set(expected.map((a, i): string => key(a, expected[(i + 1) % expected.length]!)));
-    const point = (index: number): string => mesh.positions.slice(3 * index, 3 * index + 3).join(",");
-    for (const { a, b, count, winding } of edges.values()) {
-      if (count === 1 && seam.delete(key(point(a), point(b)))) continue;
-      if (count !== 2 || winding !== 0) throw new Error("Hand assembly has an unexpected free or inconsistently oriented edge");
-    }
-    if (seam.size !== 0) throw new Error("Hand assembly changed a shared armscye edge");
-  }
-
   type IPhysicalDigitRow = NodeArmFingerFan.IPhysicalDigitRow;
 
   function toIsb([x, y, z]: IAutoMovieCurve64.Vector): V3 {
@@ -163,79 +144,6 @@ export namespace NodeArmHandSkin {
 
   type IIndexedMesh = { positions: readonly number[]; indices: readonly number[] };
   type IFreeRim = { ids: number[]; points: V3[] };
-
-  function exactFreeRim(mesh: IIndexedMesh, originMm: V3, normal: V3): IFreeRim {
-    const S: typeof AutoMovieHumanArmCurveSpec = AutoMovieHumanArmCurveSpec;
-    const edges: Map<string, { a: number; b: number; count: number }> = new Map();
-    const point = (index: number): V3 => mesh.positions.slice(index * 3, index * 3 + 3) as V3;
-    const inPlane = (index: number): boolean => Math.abs(S.dot(NodeArmDraw.sub(NodeArmDraw.scale(point(index), 1000), originMm), normal)) < 1e-6;
-    for (let i: number = 0; i < mesh.indices.length; i += 3)
-      for (let j: number = 0; j < 3; ++j) {
-        const a: number = mesh.indices[i + j]!;
-        const b: number = mesh.indices[i + (j + 1) % 3]!;
-        if (!inPlane(a) || !inPlane(b)) continue;
-        const key: string = a < b ? `${a}:${b}` : `${b}:${a}`;
-        const prior = edges.get(key);
-        if (prior) ++prior.count;
-        else edges.set(key, { a, b, count: 1 });
-      }
-    const free: Map<number, number> = new Map();
-    const incoming: Set<number> = new Set();
-    for (const { a, b, count } of edges.values()) if (count === 1) {
-      if (free.has(a) || incoming.has(b)) throw new Error("The actual terminal plane has a branched free edge");
-      free.set(a, b);
-      incoming.add(b);
-    }
-    if (free.size < 3) throw new Error("The actual terminal plane has no complete free ring");
-    const start: number = free.keys().next().value!;
-    const ids: number[] = [start];
-    for (let i: number = start; free.get(i) !== start;) {
-      const next: number | undefined = free.get(i);
-      if (next === undefined || ids.length >= free.size || ids.includes(next))
-        throw new Error("The actual terminal edge does not return to its first vertex");
-      ids.push(next);
-      i = next;
-    }
-    if (ids.length !== free.size) throw new Error("The actual terminal plane has more than one free ring");
-    return { ids, points: ids.map(point) };
-  }
-
-  /** Add a source patch that owns the same rim, preserving the original vertex indices. */
-  function sewExactRim(
-    before: IIndexedMesh,
-    after: IIndexedMesh,
-    root: IFreeRim,
-    next: IFreeRim,
-  ): { positions: number[]; indices: number[]; shared: number } {
-    const positions: number[] = [...before.positions];
-    const matches: number[] = next.points.map((point): number => {
-      const close: number[] = root.points.flatMap((other, i): number[] =>
-        Math.hypot(...NodeArmDraw.sub(point, other)) < 1e-10 ? [i] : []);
-      if (close.length !== 1) throw new Error("The new branch does not match one exact existing palm edge vertex");
-      return close[0]!;
-    });
-    if (matches.length !== root.ids.length || new Set(matches).size !== root.ids.length)
-      throw new Error(`The palm rim count changed (${root.ids.length} original versus ${matches.length} branch, ${new Set(matches).size} unique matches)`);
-    const forward: boolean = matches.every((index, i): boolean =>
-      (index + 1) % root.ids.length === matches[(i + 1) % matches.length]);
-    const reverse: boolean = matches.every((index, i): boolean =>
-      (index + root.ids.length - 1) % root.ids.length === matches[(i + 1) % matches.length]);
-    if (forward === reverse)
-      throw new Error("The branch did not retain the original indexed palm edge order");
-    const remap: Map<number, number> = new Map(next.ids.map((index, i): [number, number] => [index, root.ids[matches[i]!]!]));
-    const indices: number[] = after.indices.map((index): number => {
-      const prior: number | undefined = remap.get(index);
-      if (prior !== undefined) return prior;
-      const created: number = positions.length / 3;
-      positions.push(...after.positions.slice(index * 3, index * 3 + 3));
-      remap.set(index, created);
-      return created;
-    });
-    if (forward)
-      for (let i: number = 0; i < indices.length; i += 3)
-        [indices[i + 1], indices[i + 2]] = [indices[i + 2]!, indices[i + 1]!];
-    return { positions, indices: [...before.indices, ...indices], shared: matches.length };
-  }
 
   /** Trace the first two source cuts around the palm's isolated thumb split. */
   function palmThumbBranch(
@@ -262,7 +170,6 @@ export namespace NodeArmHandSkin {
     const afterMm: number = side === "l" ? S.dot(L.wristZero, leftAxis) + 84 : armRows[145]!.coordinateMm;
     const palm: IFreeRim = exactFreeRim(arm, origin, normal);
     const name: string = `palm_${side}`;
-
     // The original left cut splits once from s80 to s82. Both observed
     // rings continue separately from s82 to s84.
     const splitEnd: number = side === "l" ? beforeMm + 2 : afterMm;
@@ -363,131 +270,11 @@ export namespace NodeArmHandSkin {
       if (!ring) throw new Error("The generated branch did not preserve its original distal ring");
       return ring.points;
     };
-    const mesh = { positions: generation.mesh.positions, indices: generation.mesh.indices };
+    const generated: CaptureModel.ITriangles = { positions: generation.mesh.positions, indices: generation.mesh.indices };
+    const mesh: CaptureModel.ITriangles = side === "l"
+      ? NodeArmNativeSaddle.create(generated, name, verticesMm, triangles, normal, u, beforeMm, afterMm, event.id, upper.map(({ curve }, index): { name: string; points: V3[] } => ({ name: curve.name, points: loop(index) })))
+      : generated;
     return { mesh, palm, root: exactFreeRim(mesh, origin, normal), host: loop(1 - thumb), thumb: loop(thumb), afterOrigin, normal };
   }
 
-  /** Join existing mesh rims through ordered measured contours without changing their point identities. */
-  function joinRims(
-    fan: { positions: readonly number[]; indices: readonly number[] },
-    middle: { positions: readonly number[]; indices: readonly number[] },
-    fanRing: V3[],
-    middleRing: V3[],
-    normals: [V3, V3],
-    between: { points: V3[]; normal: V3 }[] = [],
-  ): IIndexedMesh {
-    const positions: number[] = [...fan.positions, ...middle.positions];
-    const base: number = fan.positions.length / 3;
-    const directedFree = (indices: readonly number[]): Map<string, 1 | -1 | 0> => {
-      const edges: Map<string, 1 | -1 | 0> = new Map();
-      for (let i: number = 0; i < indices.length; i += 3) {
-        for (let j: number = 0; j < 3; ++j) {
-          const a: number = indices[i + j]!;
-          const b: number = indices[i + (j + 1) % 3]!;
-          const key: string = a < b ? `${a}:${b}` : `${b}:${a}`;
-          edges.set(key, edges.has(key) ? 0 : a < b ? 1 : -1);
-        }
-      }
-      return edges;
-    };
-    const fanEdges: ReturnType<typeof directedFree> = directedFree(fan.indices);
-    const middleEdges: ReturnType<typeof directedFree> = directedFree(middle.indices);
-    const key = (a: number, b: number): string => a < b ? `${a}:${b}` : `${b}:${a}`;
-    const pointKey = (point: V3): string => point.join(",");
-    const idsOf = (mesh: IIndexedMesh, edges: Map<string, 1 | -1 | 0>, ring: V3[]): number[] => {
-      const freeVertices: Map<string, number[]> = new Map();
-      for (const [edge, direction] of edges)
-        if (direction !== 0)
-          for (const id of edge.split(":").map(Number)) {
-            const xyz: string = pointKey(mesh.positions.slice(id * 3, id * 3 + 3) as V3);
-            const found: number[] = freeVertices.get(xyz) ?? [];
-            if (!found.includes(id)) found.push(id);
-            freeVertices.set(xyz, found);
-          }
-      return ring.map((point): number => {
-        const found: number[] = freeVertices.get(pointKey(point)) ?? [];
-        if (found.length !== 1) throw new Error("The construction point has no unique free mesh vertex");
-        return found[0]!;
-      });
-    };
-    const fanIds: number[] = idsOf(fan, fanEdges, fanRing);
-    const middleIds: number[] = idsOf(middle, middleEdges, middleRing);
-    const S: typeof AutoMovieHumanArmCurveSpec = AutoMovieHumanArmCurveSpec;
-
-    // Align physical perimeter directions before lofting. The indexed
-    // triangle winding is normalized separately once the seams are checked.
-    const physicalSigns: [number, number] = [fanRing, middleRing].map((ring, i): number =>
-      Math.sign(S.dot(AutoMovieMeshCourse.newell(ring), normals[i]!))) as [number, number];
-    if (physicalSigns.includes(0)) throw new Error("A source rim does not have a physical orientation on its actual plane");
-    if (physicalSigns[0] !== physicalSigns[1]) {
-      middleIds.reverse();
-      middleRing.reverse();
-    }
-    const identity: Map<V3, number> = new Map([
-      ...fanRing.map((point, i): [V3, number] => [point, fanIds[i]!]),
-      ...middleRing.map((point, i): [V3, number] => [point, base + middleIds[i]!]),
-    ]);
-    const patch: number[] = [];
-    const inner: number[][] = [];
-    const rings: V3[][] = [fanRing];
-    for (const section of between) {
-      const direction: number = Math.sign(S.dot(AutoMovieMeshCourse.newell(section.points), section.normal));
-      if (direction === 0) throw new Error("An original intermediate ring is degenerate");
-      const points: V3[] = direction === physicalSigns[0] ? section.points : [...section.points].reverse();
-      inner.push(points.map((p): number => {
-        const id: number = positions.length / 3;
-        positions.push(...p);
-        identity.set(p, id);
-        return id;
-      }));
-      rings.push(points);
-    }
-    rings.push(middleRing);
-    for (let i: number = 0; i + 1 < rings.length; ++i)
-      tessellateAutoMovieContourStrip64(rings[i]!, rings[i + 1]!, (a, b, c): void => {
-        for (const point of [a, b, c]) {
-          const id: number | undefined = identity.get(point);
-          if (id === undefined) throw new Error("The measured strip added an unowned point");
-          patch.push(id);
-        }
-      }, (point): string | undefined => identity.get(point)?.toString(),
-      ({ qualified, diagnostics }): void => {
-        if (!qualified) throw new Error(`The measured strip was unqualified: ${diagnostics.join("; ")}`);
-      });
-    const use: Map<string, number[]> = new Map();
-    for (let i: number = 0; i < patch.length; i += 3)
-      for (let j: number = 0; j < 3; ++j) {
-        const a: number = patch[i + j]!, b: number = patch[i + (j + 1) % 3]!;
-        const edge: string = key(a, b);
-        use.set(edge, [...(use.get(edge) ?? []), a < b ? 1 : -1]);
-      }
-    for (const ids of inner)
-      if (ids.some((a, i): boolean => {
-        const list: number[] = use.get(key(a, ids[(i + 1) % ids.length]!)) ?? [];
-        return list.length !== 2 || list[0] === list[1];
-      })) throw new Error("An intermediate ring does not share every actual edge twice in opposite directions");
-    const shiftedMiddle: number[] = middle.indices.map((index): number => base + index);
-    const shifts = (ids: number[]): number[] => ids.map((index): number => base + index);
-    const middleWorldIds: number[] = shifts(middleIds);
-    const parts: ReturnType<typeof directedFree>[] = [fanEdges, directedFree(shiftedMiddle)];
-    const patchEdges: ReturnType<typeof directedFree> = directedFree(patch);
-    const seamSigns: number[] = [fanIds, middleWorldIds].map((ids, r): number => {
-      const signs: Set<number> = new Set(ids.map((a, i): number => {
-        const b: number = ids[(i + 1) % ids.length]!;
-        const edge: string = key(a, b);
-        return (parts[r]!.get(edge) ?? 0) * (patchEdges.get(edge) ?? 0);
-      }));
-      if (signs.size !== 1 || signs.has(0)) throw new Error("The strip did not reuse every exact ordered boundary edge");
-      return [...signs][0]!;
-    });
-    const flip = (triangles: number[]): void => {
-      for (let i: number = 0; i < triangles.length; i += 3)
-        [triangles[i + 1], triangles[i + 2]] = [triangles[i + 2]!, triangles[i + 1]!];
-    };
-    const flippedPatch: boolean = seamSigns[0] === 1;
-    const flippedDownstream: boolean = seamSigns[0] !== seamSigns[1];
-    if (flippedPatch) flip(patch);
-    if (flippedDownstream) flip(shiftedMiddle);
-    return { positions, indices: [...fan.indices, ...shiftedMiddle, ...patch] };
-  }
 }
