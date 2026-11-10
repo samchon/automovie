@@ -13,11 +13,13 @@ A case that only shows the action establishes nothing.
 
 ## Checks that can fail
 
-- A check states the bound it tests and tests exactly that bound. A value reported with no bound is a measurement, not a pass.
-- Measure the displayed result, never the plan's own output. A check that compares two outputs of the same plan, or reads back the target the plan reached, cannot catch the plan being wrong.
-- Take every bound from the requirement or its study. Widening a bound until a case passes hides the defect the case exists to find.
-- Run the cases across bodies of different statures and proportions, and against different partners and props. A pass on one body establishes nothing about another.
-- Cut each action at every window its interrupt table lists, and move its target mid-motion where it tracks one. A law checked only from start to end has not been checked where films use it.
+A check states the bound it tests and tests exactly that bound. A value reported with no bound is a measurement, not a pass.
+
+Measure the displayed result, never the plan's own output. A check that compares two outputs of the same plan, or reads back the target the plan reached, cannot catch the plan being wrong.
+
+Take every bound from the requirement or its study. Widening a bound until a case passes hides the defect the case exists to find.
+
+Run the cases across bodies of different statures and proportions, and against different partners and props, because a pass on one body establishes nothing about another. Cut each action at every window its interrupt table lists, and move its target mid-motion where it tracks one, because films use an action where it is interrupted.
 
 ## Look at the frames
 

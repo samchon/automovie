@@ -1,8 +1,10 @@
 # Time, transitions and redirection
 
+Read this when an action is cut into another, joins one, or has its target moved while it plays.
+
 ## Pose as a function of time
 
-A [law](laws.md#plan-once-evaluate-by-time) evaluates a pose from its plan and a time alone, which has two consequences specific to motion. A solver's reference pose comes from a fixed instant, such as the previous contact event of the plan (the events and windows an action resolves into), never from the frame before. A memo is keyed only by exact event times, never by sampled frames. Either way, playback, seeking and capture at different rates still agree.
+An action evaluates each pose from its plan and a time alone, which has two consequences for solvers and memos. A solver's reference pose comes from a fixed instant, such as the previous contact event of the plan (the events and windows an action resolves into), never from the frame before. A memo is keyed only by exact event times, never by sampled frames. Either way, playback, seeking and capture at different rates still agree.
 
 ## Declared cuts
 
@@ -10,7 +12,7 @@ Each action declares its interrupt table: the actions it may be cut into, the wi
 
 The kind follows what changes. A change to a different action [inertializes](#changing-action). A change of target within one family of movement [redirects](#changing-target-within-an-action). A cyclic movement that continues into another, such as a walk into a run, joins on the matching foot event, so the gait keeps its phase.
 
-A cut also names what it carries unchanged: the stance foot's plant, a guard, a grip. The action cut into [continues from that state](laws.md#continue-from-the-entry-state).
+A cut also names what it carries unchanged: the stance foot's plant, a guard, a grip. The action cut into plans from that state as its entry.
 
 ## Changing action
 
