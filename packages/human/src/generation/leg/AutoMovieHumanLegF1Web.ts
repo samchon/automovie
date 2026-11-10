@@ -8,8 +8,7 @@ import {
 
 import { AutoMovieHumanLoftMesh } from "../../lofting/AutoMovieHumanLoftMesh";
 import branches from "../AutoMovieHumanF1NativeBranches.json";
-import { AutoMovieHumanFootToes } from "../foot/AutoMovieHumanFootToes";
-import { AutoMovieHumanFootWebTrim } from "../foot/AutoMovieHumanFootWebTrim";
+import endings from "./AutoMovieHumanLegF1ForefootEnds.json";
 import left from "./AutoMovieHumanLegF1Left.json";
 import native from "./AutoMovieHumanLegF1Native.json";
 import right from "./AutoMovieHumanLegF1Right.json";
@@ -28,7 +27,7 @@ type Event = IAutoMovieContourLoft64.IEvent;
 type Interval = IAutoMovieContourLoft64.IInterval;
 /** Indexed generated triangle; source triangles are never authored here. */
 type Face = [number, number, number];
-/** Independently lofted sheet before its actual turned root cuts. */
+/** One connected forefoot loft, including its five logical digit domains. */
 type Skin = { points: V3[]; faces: Face[] };
 /** Immutable original physical root plane and world-mm boundary controls. */
 type Port = { frame: ReturnType<AutoMovieViewAxis.IAxis["at"]>; points: V3[] };
@@ -42,78 +41,31 @@ type Branch = NonNullable<(typeof branches.records)[number]["branches"]>;
 /** Generate the observed forefoot web in its original seed-normal chart. */
 export namespace AutoMovieHumanLegF1Web {
   /**
-   * Recreate the original 1-to-5 branch before clipping the five actual turned
-   * root planes. Its measured nearby events retain separate source ownership.
+   * Retain the complete measured 1-to-5 ordinary loft as one surface.
+   *
+   * Cutting this same sheet at five toe-root planes and inserting separate
+   * toes created the visible ten-sided comb bands. The complete source already
+   * contains those digits and their branch events, so it needs no artificial
+   * root joins. Logical toe identities do not require duplicate surfaces.
    */
   export function f1(mesh: Context, side: "left" | "right", points: readonly V3[][]): string[] {
-    const original: typeof left | typeof right = side === "left" ? left : right;
-    const ports: Port[] = original.ports.map(({ frame }: typeof original.ports[number], i: number): Port => ({
-      frame: { origin: AutoMovieCurveMath64.clone(frame.origin), u: AutoMovieCurveMath64.clone(frame.u), v: AutoMovieCurveMath64.clone(frame.v) },
-      points: points[i]!,
-    }));
-    if (ports.length !== 6) throw new Error(`The fixed ${side} forefoot needs six observed ports`);
-    const seed: Port = ports[0]!;
-    const skin: Skin = sectionSkin(side, seed.points);
-    const receipts: number[] = [];
-
-    // Retain the five original port domains and their removal order. The
-    // separately observed transverse curves never replace these cut planes.
-    for (const [i, port] of ports.slice(1).entries()) {
-      const { positive, negative }: ReturnType<typeof AutoMovieHumanFootWebTrim.splitSkin> = AutoMovieHumanFootWebTrim.splitSkin(skin, port.frame);
-      const components: Face[][] = AutoMovieHumanFootWebTrim.skinComponents(positive);
-      const observed: ReturnType<typeof AutoMovieHumanFootWebTrim.matchingRims> = components.flatMap((faces: Face[]): ReturnType<typeof AutoMovieHumanFootWebTrim.matchingRims> =>
-        AutoMovieHumanFootWebTrim.matchingRims(skin.points, faces, port, Infinity));
-      const candidates: typeof observed = observed.filter(({ deviation }: typeof observed[number]): boolean => deviation <= 0.5);
-      if (candidates.length !== 1)
-        throw new Error(`The fixed ${side} toe ${i + 1} has ${candidates.length} cuts within 0.5 mm, prior ${JSON.stringify(receipts)}, current ${JSON.stringify(observed.map(({ deviation }: typeof observed[number]): number => deviation))}`);
-      const cut: typeof candidates[number] = candidates[0]!;
-      receipts.push(cut.deviation);
-      skin.faces = negative.concat(...components.filter((faces: Face[]): boolean => faces !== cut.faces));
-    }
-    const rims: { ring: number[]; port: Port }[] = ports.slice(1).map((port: Port): { ring: number[]; port: Port } => {
-      const matches: ReturnType<typeof AutoMovieHumanFootWebTrim.matchingRims> = AutoMovieHumanFootWebTrim.matchingRims(skin.points, skin.faces, port, .5);
-      if (matches.length !== 1) throw new Error(`The fixed ${side} web lost its unique retained toe cut`);
-      return { ring: matches[0]!.ring, port };
-    });
-    const trims: (ReturnType<typeof AutoMovieHumanFootWebTrim.withdrawBand> & { port: Port })[] = rims.map(
-      ({ ring, port }: typeof rims[number]): typeof trims[number] =>
-        ({ ...AutoMovieHumanFootWebTrim.withdrawBand(skin, ring), port }));
-    const seedIds: number[] = existing(seed.points, mesh.positions);
+    if (points.length !== 6) throw new Error(`The fixed ${side} forefoot needs its six observed anatomical ports`);
+    const seed: V3[] = points[0]!;
+    const skin: Skin = sectionSkin(side, seed);
+    const seedIds: number[] = existing(seed, mesh.positions);
     const seedSign: 1 | -1 = direction(mesh.indices, seedIds);
-    const generated: number[] = existing(seed.points, skin.points.flat());
+    const generated: number[] = existing(seed, skin.points.flat());
     const flat: number[] = skin.faces.flat();
     const same: boolean = direction(flat, generated) === seedSign;
     const shared: Map<number, number> = new Map(generated.map((id: number, i: number): [number, number] => [id, seedIds[i]!]));
     const used: Set<number> = new Set(flat);
     for (const id of used) if (!shared.has(id)) shared.set(id, AutoMovieHumanLoftMesh.vertices(mesh, [skin.points[id]!])[0]!);
     for (const [a, b, c] of skin.faces) mesh.indices.push(shared.get(a)!, shared.get(same ? c : b)!, shared.get(same ? b : c)!);
-    return trims.map(({ before, guide, port }: typeof trims[number], i: number): string => {
-      const toe: Context = AutoMovieHumanFootToes.f1(side, i + 1, port.points);
-      const root: number[] = existing(port.points, toe.positions);
-      const off: number = mesh.positions.length / 3;
-      for (const coordinate of toe.positions) mesh.positions.push(coordinate);
-      for (const index of toe.indices) mesh.indices.push(index + off);
-      const a: number[] = before.map((id: number): number => shared.get(id)!);
-      const b: number[] = root.map((id: number): number => id + off);
-      {
-        // The 7b73276ad6 whole-foot witnesses also reach the fifth root
-        // (|Z| about 188 mm). An absent extraction-only transition record
-        // must not select the old flat fallback for digits three and five.
-        // All five roots retain their actual boundaries and use both healthy
-        // neighboring face fields in the same complete curve loft.
-        const tiles: number[] = AutoMovieHumanFootWebTrim.f1RootLoft(mesh.positions, a, b, port.frame, guide, mesh.indices);
-        const flip: boolean = direction(tiles, a) === direction(mesh.indices, a);
-        if ((direction(tiles, b) === direction(mesh.indices, b)) !== flip)
-          throw new Error("The finite F1 root loft disagrees with an exact shared boundary direction");
-        for (let k: number = 0; k < tiles.length; k += 3)
-          mesh.indices.push(tiles[k]!, tiles[k + (flip ? 2 : 1)]!, tiles[k + (flip ? 1 : 2)]!);
-      }
-      return `toe.${side}.${i + 1}`;
-    });
+    return Array.from({ length: 5 }, (_: unknown, i: number): string => `toe.${side}.${i + 1}`);
   }
 
   /**
-   * Generate the complete measured distal sheet before its five rotated cuts.
+   * Generate the complete measured distal sheet without artificial root cuts.
    * The fixed builder and the offline whole-body comparison read this same
    * input and emission. Coordinates are absolute ISB world millimetres.
    */
@@ -154,8 +106,27 @@ export namespace AutoMovieHumanLegF1Web {
           ]),
         },
       })) });
+    const ending: (typeof endings.records)[number] | undefined = endings.records.find(
+      (record: (typeof endings.records)[number]): boolean => record.side === side);
+    if (ending === undefined || source.rows.at(-1)!.station !== ending.startMm)
+      throw new Error("The complete F1 forefoot lost its measured terminal domain");
+
+    // The old web observation stopped 0.368 mm before the hallux maximum.
+    // Its 14-edge end is a truncated source domain, not a toe-root crack.
+    // Preserve the two additional observed cuts and actual extremal vertex;
+    // no centroid, landmark-based cap or original source triangle is used.
+    for (const row of ending.sections) sections.push({
+      coordinateMm: row.coordinateMm,
+      loops: [line(`${key}.terminal.${row.coordinateMm}`, row.points.map(AutoMovieCurveMath64.clone), n)],
+    });
+    sections.push({ coordinateMm: ending.afterMm, loops: [] });
     sections.sort((a: Section, b: Section): number => a.coordinateMm - b.coordinateMm);
-    const events: Event[] = [];
+    const last: number = ending.sections.at(-1)!.coordinateMm;
+    const events: Event[] = [{
+      name: `${key}.hallux.maximum`, coordinateMm: ending.maximumMm,
+      beforeMm: last, afterMm: ending.afterMm, before: [0], after: [],
+      kind: "maximum", regular: true, terminal: AutoMovieCurveMath64.clone(ending.terminal),
+    }];
     for (const { beforeMm, afterMm, groups } of observed.groups)
       for (const group of groups)
         for (const item of group.events) {
@@ -165,6 +136,9 @@ export namespace AutoMovieHumanLegF1Web {
         }
     const intervals: Interval[] = sections.slice(1).map((after: Section, i: number): Interval => {
       const before: Section = sections[i]!;
+      if (before.coordinateMm === last && after.coordinateMm === ending.afterMm)
+        return { beforeMm: last, afterMm: ending.afterMm,
+          groups: [{ before: [0], after: [], supported: true, reason: null }] };
       const original: Branch["groups"][number] | undefined = observed.groups.find((row: Branch["groups"][number]): boolean => row.beforeMm === before.coordinateMm && row.afterMm === after.coordinateMm);
       if (original !== undefined)
         return { beforeMm: before.coordinateMm, afterMm: after.coordinateMm,
