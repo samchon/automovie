@@ -26,4 +26,4 @@ The [codepawl datasets](https://huggingface.co/datasets/codepawl/abo-glb) on Hug
 
 ## 100STYLE
 
-[100STYLE](https://www.ianxmason.com/100style/) offers stylised locomotion motion capture in BVH under CC BY 4.0. Use it as a gait or style reference to retarget or recover, with its credit.
+[100STYLE](https://www.ianxmason.com/100style/) offers stylized locomotion motion capture in BVH under CC BY 4.0. Use it as a gait or style reference to retarget or recover, with its credit.
