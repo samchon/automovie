@@ -1,7 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { AutoMovieMeshExtract as M } from "../../../packages/engine/src/geometry/extract/AutoMovieMeshExtract";
-import type { AutoMovieLoftFrame } from "../../../packages/engine/src/geometry/construction/AutoMovieLoftFrame";
+import { AutoMovieMeshExtract as M, type AutoMovieLoftFrame } from "@automovie/engine";
 import type { FamilyConicSection as C } from "./FamilyConicSection";
 
 /**

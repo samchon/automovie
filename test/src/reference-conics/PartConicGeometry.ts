@@ -1,5 +1,5 @@
-import { AutoMovieLoftChain } from "../../../packages/engine/src/geometry/construction/AutoMovieLoftChain";
-import type { NodeCanvasTypes as N } from "../../../packages/human/src/inspection/NodeCanvasTypes";
+import { AutoMovieLoftChain } from "@automovie/engine";
+import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 import type { PartConicTypes as T } from "./PartConicTypes";
 import type { PartConicFields as F } from "./PartConicFields";
 import { PartConicInput as I } from "./PartConicInput";

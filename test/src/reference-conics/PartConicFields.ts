@@ -1,9 +1,4 @@
-import { AutoMovieNaturalSpline as S } from "../../../packages/engine/src/geometry/construction/AutoMovieNaturalSpline";
-import { AutoMovieViewOutline as O } from "../../../packages/engine/src/geometry/construction/AutoMovieViewOutline";
-import { AutoMovieViewAxis } from "../../../packages/engine/src/geometry/construction/AutoMovieViewAxis";
-import { AutoMovieViewLoft as L } from "../../../packages/engine/src/geometry/construction/AutoMovieViewLoft";
-import { AutoMovieViewChain as Q } from "../../../packages/engine/src/geometry/construction/AutoMovieViewChain";
-import type { IAutoMovieViewPart as V } from "../../../packages/engine/src/geometry/construction/IAutoMovieViewPart";
+import { AutoMovieNaturalSpline as S, AutoMovieViewOutline as O, AutoMovieViewAxis, AutoMovieViewLoft as L, AutoMovieViewChain as Q, type IAutoMovieViewPart as V } from "@automovie/engine";
 import type { PartConicTypes as T } from "./PartConicTypes";
 import { PartConicProfile as P } from "./PartConicProfile";
 

@@ -1,13 +1,13 @@
-import type { IAutoMovieModel } from "../../../packages/interface/src/model/IAutoMovieModel";
+import type { IAutoMovieModel } from "@automovie/interface";
 import type { IAutoMovieCurve64 as G } from "@automovie/engine";
-import { approximateAutoMovieRecoveryCompactCurves } from "../../../packages/recovery/src/curves/approximateAutoMovieRecoveryCompactCurves";
+import { approximateAutoMovieRecoveryCompactCurves } from "@automovie/recovery";
 import { ReferenceRuledRealization } from "./ReferenceRuledRealization";
 import { ConicPaperRender } from "./ConicPaperRender";
 import { RuledCompactInput as I } from "./RuledCompactInput";
 import { RuledCompactCurve as A } from "./RuledCompactCurve";
 import { RuledCompactFit as F } from "./RuledCompactFit";
 import { RuledCompactRender as R } from "./RuledCompactRender";
-import type { NodeCanvasTypes as N } from "../../../packages/human/src/inspection/NodeCanvasTypes";
+import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";

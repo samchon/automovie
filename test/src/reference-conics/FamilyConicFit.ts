@@ -1,5 +1,4 @@
-import { AutoMovieNaturalSpline as S } from "../../../packages/engine/src/geometry/construction/AutoMovieNaturalSpline";
-import { AutoMovieViewChain as Q } from "../../../packages/engine/src/geometry/construction/AutoMovieViewChain";
+import { AutoMovieNaturalSpline as S, AutoMovieViewChain as Q } from "@automovie/engine";
 import { FamilyConicSection as C } from "./FamilyConicSection";
 
 /**

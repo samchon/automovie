@@ -1,8 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
 
-import { AutoMovieRecoveryCompactApproximation as C } from "../../../../packages/recovery/src/curves/AutoMovieRecoveryCompactApproximation";
-import { AutoMovieRecoveryConicApproximation as Q } from "../../../../packages/recovery/src/curves/AutoMovieRecoveryConicApproximation";
-import { approximateAutoMovieRecoveryCompactCurves as approximate } from "../../../../packages/recovery/src/curves/approximateAutoMovieRecoveryCompactCurves";
+import { AutoMovieRecoveryCompactApproximation as C, AutoMovieRecoveryConicApproximation as Q, approximateAutoMovieRecoveryCompactCurves as approximate } from "@automovie/recovery";
 import { nclose } from "../internal/nclose";
 
 /**

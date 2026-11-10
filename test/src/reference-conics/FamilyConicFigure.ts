@@ -1,10 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { createHash } from "node:crypto";
-import { NodeCanvasRaster } from "../../../packages/human/src/executable/NodeCanvasRaster";
-import { AutoMovieHumanF1 } from "../../../packages/human/src/generation/f1/AutoMovieHumanF1";
-import { NodeCanvasCamera } from "../../../packages/human/src/inspection/NodeCanvasCamera";
-import type { NodeCanvasTypes as N } from "../../../packages/human/src/inspection/NodeCanvasTypes";
+import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
+import { AutoMovieHumanF1 } from "@automovie/human";
+import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
+import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 
 /**

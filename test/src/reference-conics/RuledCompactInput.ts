@@ -1,6 +1,5 @@
-import { type IAutoMovieCurve64 as G } from "@automovie/engine";
-import { convertAutoMovieRecoveryCurves } from "@automovie/recovery";
-import type { IAutoMovieRecoveryOpenContinuation } from "../../../packages/recovery/src/structures/curve/IAutoMovieRecoveryOpenContinuation";
+import type { IAutoMovieCurve64 as G } from "@automovie/engine";
+import { convertAutoMovieRecoveryCurves, type IAutoMovieRecoveryOpenContinuation } from "@automovie/recovery";
 import { createHash } from "node:crypto";
 import { once } from "node:events";
 import fs from "node:fs/promises";

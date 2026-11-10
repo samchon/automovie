@@ -1,17 +1,13 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { createHash } from "node:crypto";
-import { AutoMovieLoftChain } from "../../../packages/engine/src/geometry/construction/AutoMovieLoftChain";
-import type { AutoMovieLoftFrame } from "../../../packages/engine/src/geometry/construction/AutoMovieLoftFrame";
-import type { AutoMovieViewAxis } from "../../../packages/engine/src/geometry/construction/AutoMovieViewAxis";
-import type { AutoMovieViewLoft as L } from "../../../packages/engine/src/geometry/construction/AutoMovieViewLoft";
-import { NodeCanvasRaster } from "../../../packages/human/src/executable/NodeCanvasRaster";
-import { NodeCanvasCamera } from "../../../packages/human/src/inspection/NodeCanvasCamera";
-import type { NodeCanvasTypes as N } from "../../../packages/human/src/inspection/NodeCanvasTypes";
+import { AutoMovieLoftChain, type AutoMovieLoftFrame, type AutoMovieViewAxis, type AutoMovieViewLoft as L, AutoMovieViewChain as Q } from "@automovie/engine";
+import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
+import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
+import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 import { FamilyConicFit as F } from "./FamilyConicFit";
 import { FamilyConicLoft as K } from "./FamilyConicLoft";
 import { FamilyConicRelief as H } from "./FamilyConicRelief";
-import { AutoMovieViewChain as Q } from "../../../packages/engine/src/geometry/construction/AutoMovieViewChain";
 import { FamilyConicSection as C } from "./FamilyConicSection";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 

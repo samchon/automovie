@@ -2,8 +2,8 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { createHash } from "node:crypto";
 import { PNG } from "pngjs";
-import type { NodeCanvasTypes as N } from "../../../packages/human/src/inspection/NodeCanvasTypes";
-import { NodeCanvasCamera as V } from "../../../packages/human/src/inspection/NodeCanvasCamera";
+import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
+import { NodeCanvasCamera as V } from "./render/NodeCanvasCamera";
 import { SurfaceQualityData as D } from "./SurfaceQualityData";
 
 /** Attribute Float32 and index-orientation effects using cached control meshes only; no surface generation or fitting runs. */

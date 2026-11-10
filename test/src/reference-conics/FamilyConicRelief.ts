@@ -1,4 +1,4 @@
-import type { IAutoMovieLoftRelief } from "../../../packages/engine/src/geometry/construction/IAutoMovieLoftRelief";
+import type { IAutoMovieLoftRelief } from "@automovie/engine";
 import { FamilyConicFit as F } from "./FamilyConicFit";
 import type { FamilyConicSection as C } from "./FamilyConicSection";
 

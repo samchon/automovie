@@ -1,6 +1,4 @@
-import { AutoMovieRecoveryCompactApproximation as C } from "../../../packages/recovery/src/curves/AutoMovieRecoveryCompactApproximation";
-import { approximateAutoMovieRecoveryCompactCurves as approximate } from "../../../packages/recovery/src/curves/approximateAutoMovieRecoveryCompactCurves";
-import type { AutoMovieRecoveryConicApproximation as P } from "../../../packages/recovery/src/curves/AutoMovieRecoveryConicApproximation";
+import { AutoMovieRecoveryCompactApproximation as C, approximateAutoMovieRecoveryCompactCurves as approximate, type AutoMovieRecoveryConicApproximation as P } from "@automovie/recovery";
 import type { ConicPaperInput as I } from "./ConicPaperInput";
 import { CompactCurveSource as S } from "./CompactCurveSource";
 

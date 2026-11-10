@@ -1,6 +1,6 @@
-import { tessellateAutoMovieContourStrip64 } from "../../../packages/engine/src/geometry/curve/tessellateAutoMovieContourStrip64";
-import { AutoMovieRecoveryConicApproximation as C } from "../../../packages/recovery/src/curves/AutoMovieRecoveryConicApproximation";
-import type { NodeCanvasTypes as N } from "../../../packages/human/src/inspection/NodeCanvasTypes";
+import { tessellateAutoMovieContourStrip64 } from "@automovie/engine";
+import { AutoMovieRecoveryConicApproximation as C } from "@automovie/recovery";
+import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 import { ConicPaperInput as I } from "./ConicPaperInput";
 import type { ConicPaperFit as F } from "./ConicPaperFit";
 

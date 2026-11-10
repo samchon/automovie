@@ -1,6 +1,5 @@
-import type { AutoMovieViewAxis } from "../../../packages/engine/src/geometry/construction/AutoMovieViewAxis";
-import type { AutoMovieViewLoft as L } from "../../../packages/engine/src/geometry/construction/AutoMovieViewLoft";
-import { AutoMovieHumanConicLoft as H } from "../../../packages/human/src/generation/conic/AutoMovieHumanConicLoft";
+import type { AutoMovieViewAxis, AutoMovieViewLoft as L } from "@automovie/engine";
+import { AutoMovieHumanConicLoft as H } from "@automovie/human";
 
 /**
  * The stored conic family of the offline studies: the Human package's own

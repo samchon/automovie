@@ -1,5 +1,4 @@
-import type { AutoMovieRecoveryCompactApproximation as C } from "../../../packages/recovery/src/curves/AutoMovieRecoveryCompactApproximation";
-import type { AutoMovieRecoveryConicApproximation as P } from "../../../packages/recovery/src/curves/AutoMovieRecoveryConicApproximation";
+import type { AutoMovieRecoveryCompactApproximation as C, AutoMovieRecoveryConicApproximation as P } from "@automovie/recovery";
 import type { ConicPaperInput as I } from "./ConicPaperInput";
 
 /** Whole saved curves keep their physical phase clock while old span boundaries remain soft observations. */

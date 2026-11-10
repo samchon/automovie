@@ -1,4 +1,4 @@
-import { AutoMovieViewOutline as O } from "../../../packages/engine/src/geometry/construction/AutoMovieViewOutline";
+import { AutoMovieViewOutline as O } from "@automovie/engine";
 import type { PartConicFields as F } from "./PartConicFields";
 import type { PartConicTypes as T } from "./PartConicTypes";
 import { PartConicInput as I } from "./PartConicInput";

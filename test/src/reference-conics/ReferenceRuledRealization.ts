@@ -1,17 +1,7 @@
 /** Host-only adaptation of the retained reference-experiments realization, SHA-256 5859b65144d933c1393344f3834e60582b6b8a0e8b70fb947dc3a7895905c13b. Numerical owners, options, ordering and coefficient evaluation are unchanged. */
 import { type IAutoMovieCurve64 as C, tessellateAutoMovieLocalHermite64 as T } from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
-import { restoreRecoveryCurveBasis } from "../../../packages/recovery/src/internal/restoreRecoveryCurveBasis";
-import { prepareRecoveryLocalContinuation } from "../../../packages/recovery/src/internal/prepareRecoveryLocalContinuation";
-import { normalizeRecoveryCourse } from "../../../packages/recovery/src/internal/normalizeRecoveryCourse";
-import { describeRecoveryOpenRun } from "../../../packages/recovery/src/internal/describeRecoveryOpenRun";
-import { describeRecoveryNamedDomains } from "../../../packages/recovery/src/internal/describeRecoveryNamedDomains";
-import { reconstructRecovery } from "../../../packages/recovery/src/internal/reconstructRecovery";
-import { realizeAutoMovieRecoveryAnalyticDomains } from "../../../packages/recovery/src/reconstruction/realizeAutoMovieRecoveryAnalyticDomains";
-import type { IAutoMovieRecoveryTensorFamiliesInput } from "../../../packages/recovery/src/structures/domain/IAutoMovieRecoveryTensorFamiliesInput";
-import type { IAutoMovieRecoveryOpenContinuation } from "../../../packages/recovery/src/structures/curve/IAutoMovieRecoveryOpenContinuation";
-import type { IAutoMovieRecoveryTensorConstruction } from "../../../packages/recovery/src/structures/curve/IAutoMovieRecoveryTensorConstruction";
-import type { RecoveryLocalRunReport } from "../../../packages/recovery/src/internal/RecoveryLocalRunReport";
+import { restoreRecoveryCurveBasis, prepareRecoveryLocalContinuation, normalizeRecoveryCourse, describeRecoveryOpenRun, describeRecoveryNamedDomains, reconstructRecovery, realizeAutoMovieRecoveryAnalyticDomains, type IAutoMovieRecoveryTensorFamiliesInput, type IAutoMovieRecoveryOpenContinuation, type IAutoMovieRecoveryTensorConstruction, type RecoveryLocalRunReport } from "@automovie/recovery";
 
 /** Browser consumer policy; mathematical limits remain the official Node limits. */
 interface Options {

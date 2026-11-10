@@ -1,4 +1,4 @@
-import { AutoMovieRecoveryConicApproximation as C } from "../../../packages/recovery/src/curves/AutoMovieRecoveryConicApproximation";
+import { AutoMovieRecoveryConicApproximation as C } from "@automovie/recovery";
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";

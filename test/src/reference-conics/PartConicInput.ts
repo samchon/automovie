@@ -1,4 +1,4 @@
-import { AutoMovieMeshExtract as M } from "../../../packages/engine/src/geometry/extract/AutoMovieMeshExtract";
+import { AutoMovieMeshExtract as M } from "@automovie/engine";
 import { PartConicTypes as T } from "./PartConicTypes";
 import type { ConicPaperInput as C } from "./ConicPaperInput";
 import { createHash } from "node:crypto";

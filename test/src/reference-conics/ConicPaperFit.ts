@@ -1,6 +1,4 @@
-import { AutoMovieRecoveryConicApproximation as C } from "../../../packages/recovery/src/curves/AutoMovieRecoveryConicApproximation";
-import { approximateAutoMovieRecoveryConicsAhn } from "../../../packages/recovery/src/curves/approximateAutoMovieRecoveryConicsAhn";
-import { approximateAutoMovieRecoveryConicsGhosh } from "../../../packages/recovery/src/curves/approximateAutoMovieRecoveryConicsGhosh";
+import { AutoMovieRecoveryConicApproximation as C, approximateAutoMovieRecoveryConicsAhn, approximateAutoMovieRecoveryConicsGhosh } from "@automovie/recovery";
 import { ConicPaperInput as I } from "./ConicPaperInput";
 
 /** Bounded paper experiments; unsupported source charts remain missing rather than becoming source-mesh fallbacks. */

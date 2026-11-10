@@ -7,8 +7,8 @@ import {
   loadImage,
 } from "@napi-rs/canvas";
 
-import { NodeCanvasCamera } from "../inspection/NodeCanvasCamera";
-import type { NodeCanvasTypes } from "../inspection/NodeCanvasTypes";
+import { NodeCanvasCamera } from "./NodeCanvasCamera";
+import type { NodeCanvasTypes } from "./NodeCanvasTypes";
 
 /**
  * Experimental CPU orthographic z-buffer followed by actual Skia Canvas2D PNG encoding.

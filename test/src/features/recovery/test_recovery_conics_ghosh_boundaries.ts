@@ -1,10 +1,10 @@
 import {
   AutoMovieRecoveryConicApproximation as C,
+  GhoshConicApproximationDisplacement as displacement,
   approximateAutoMovieRecoveryConicsGhosh as approximate,
 } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
-import { GhoshConicApproximationDisplacement as displacement } from "../../../../packages/recovery/src/internal/GhoshConicApproximationDisplacement";
 import { nclose } from "../internal/nclose";
 
 /**

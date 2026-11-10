@@ -2,9 +2,9 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { createHash } from "node:crypto";
 import { PNG } from "pngjs";
-import { NodeCanvasCamera as C } from "../../../packages/human/src/inspection/NodeCanvasCamera";
-import { NodeCanvasRaster as R } from "../../../packages/human/src/executable/NodeCanvasRaster";
-import type { NodeCanvasTypes as N } from "../../../packages/human/src/inspection/NodeCanvasTypes";
+import { NodeCanvasCamera as C } from "./render/NodeCanvasCamera";
+import { NodeCanvasRaster as R } from "./render/NodeCanvasRaster";
+import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 import type { PartConicGeometry as G } from "./PartConicGeometry";
 
 /** Actual CPU clay/construction captures, with one native-fitted camera reused by every representation. */

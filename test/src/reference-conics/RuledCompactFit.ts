@@ -1,6 +1,5 @@
 import type { IAutoMovieCurve64 as G } from "@automovie/engine";
-import { approximateAutoMovieRecoveryCompactCurves as approximate } from "../../../packages/recovery/src/curves/approximateAutoMovieRecoveryCompactCurves";
-import type { AutoMovieRecoveryCompactApproximation as C } from "../../../packages/recovery/src/curves/AutoMovieRecoveryCompactApproximation";
+import { approximateAutoMovieRecoveryCompactCurves as approximate, type AutoMovieRecoveryCompactApproximation as C } from "@automovie/recovery";
 import { createWriteStream } from "node:fs";
 import { once } from "node:events";
 import path from "node:path";

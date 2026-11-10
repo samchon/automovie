@@ -1,5 +1,5 @@
-import type { AutoMovieViewChain as Q } from "../../../packages/engine/src/geometry/construction/AutoMovieViewChain";
-import { AutoMovieHumanConicSection as S } from "../../../packages/human/src/generation/conic/AutoMovieHumanConicSection";
+import type { AutoMovieViewChain as Q } from "@automovie/engine";
+import { AutoMovieHumanConicSection as S } from "@automovie/human";
 
 /**
  * The offline side of `AutoMovieHumanConicSection`: reading a starting field

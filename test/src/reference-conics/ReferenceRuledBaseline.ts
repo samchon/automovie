@@ -1,6 +1,6 @@
-import type { IAutoMovieModel } from "../../../packages/interface/src/model/IAutoMovieModel";
-import type { IAutoMovieRecoveryOpenContinuation } from "../../../packages/recovery/src/structures/curve/IAutoMovieRecoveryOpenContinuation";
-import type { NodeCanvasTypes as N } from "../../../packages/human/src/inspection/NodeCanvasTypes";
+import type { IAutoMovieModel } from "@automovie/interface";
+import type { IAutoMovieRecoveryOpenContinuation } from "@automovie/recovery";
+import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 import { ReferenceRuledRealization } from "./ReferenceRuledRealization";
 import { ConicPaperRender as R } from "./ConicPaperRender";
 import { createHash } from "node:crypto";

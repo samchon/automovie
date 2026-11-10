@@ -1,4 +1,4 @@
-import { AutoMovieViewChain as Q } from "../../../packages/engine/src/geometry/construction/AutoMovieViewChain";
+import { AutoMovieViewChain as Q } from "@automovie/engine";
 import type { PartConicTypes as T } from "./PartConicTypes";
 
 /** Source support contacts and tangent-line conics in one unmodified native section chart. */

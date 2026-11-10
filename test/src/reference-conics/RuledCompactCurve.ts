@@ -1,6 +1,5 @@
 import { AutoMovieBernstein64 as B, type IAutoMovieCurve64 as G } from "@automovie/engine";
-import type { AutoMovieRecoveryCompactApproximation as C } from "../../../packages/recovery/src/curves/AutoMovieRecoveryCompactApproximation";
-import type { AutoMovieRecoveryConicApproximation as P } from "../../../packages/recovery/src/curves/AutoMovieRecoveryConicApproximation";
+import type { AutoMovieRecoveryCompactApproximation as C, AutoMovieRecoveryConicApproximation as P } from "@automovie/recovery";
 
 /** Physical cubic adapters and coefficient-based error admission for the whole ruled experiment. */
 export namespace RuledCompactCurve {

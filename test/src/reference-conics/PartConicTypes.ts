@@ -1,4 +1,4 @@
-import type { AutoMovieMeshExtract as M } from "../../../packages/engine/src/geometry/extract/AutoMovieMeshExtract";
+import type { AutoMovieMeshExtract as M } from "@automovie/engine";
 import type { ConicPaperInput as C } from "./ConicPaperInput";
 
 /** World-registered input and coefficient evidence for the two guided section-family experiments. */

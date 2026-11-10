@@ -1,7 +1,7 @@
 import { ConicPaperRender as R } from "./ConicPaperRender";
-import { NodeCanvasCamera } from "../../../packages/human/src/inspection/NodeCanvasCamera";
-import { NodeCanvasRaster } from "../../../packages/human/src/executable/NodeCanvasRaster";
-import type { NodeCanvasTypes as N } from "../../../packages/human/src/inspection/NodeCanvasTypes";
+import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
+import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
+import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";

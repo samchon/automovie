@@ -5,9 +5,9 @@ import { chromium, type Browser, type Page } from "playwright";
 import { PartConicInput as I } from "./PartConicInput";
 import { PartConicFields as F } from "./PartConicFields";
 import { PartConicGeometry as G } from "./PartConicGeometry";
-import { AutoMovieLoftChain } from "../../../packages/engine/src/geometry/construction/AutoMovieLoftChain";
-import { NodeCanvasCamera as C } from "../../../packages/human/src/inspection/NodeCanvasCamera";
-import type { NodeCanvasTypes as N } from "../../../packages/human/src/inspection/NodeCanvasTypes";
+import { AutoMovieLoftChain } from "@automovie/engine";
+import { NodeCanvasCamera as C } from "./render/NodeCanvasCamera";
+import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 
 /** Replay independently stored conic fields through the existing GPU viewer; no fitting or native skin fallback occurs. */
 async function main(): Promise<void> {

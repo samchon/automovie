@@ -1,7 +1,6 @@
-import type { AutoMovieRecoveryCompactApproximation as C } from "../../../packages/recovery/src/curves/AutoMovieRecoveryCompactApproximation";
-import type { AutoMovieRecoveryConicApproximation as P } from "../../../packages/recovery/src/curves/AutoMovieRecoveryConicApproximation";
-import type { NodeCanvasTypes as N } from "../../../packages/human/src/inspection/NodeCanvasTypes";
-import { NodeCanvasCamera as V } from "../../../packages/human/src/inspection/NodeCanvasCamera";
+import type { AutoMovieRecoveryCompactApproximation as C, AutoMovieRecoveryConicApproximation as P } from "@automovie/recovery";
+import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
+import { NodeCanvasCamera as V } from "./render/NodeCanvasCamera";
 import { CompactCurveSource as S } from "./CompactCurveSource";
 import type { CompactCurveFit as F } from "./CompactCurveFit";
 import type { ConicPaperInput as I } from "./ConicPaperInput";

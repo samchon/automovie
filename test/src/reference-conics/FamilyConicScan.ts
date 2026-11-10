@@ -1,5 +1,5 @@
 import path from "node:path";
-import { AutoMovieViewAxis } from "../../../packages/engine/src/geometry/construction/AutoMovieViewAxis";
+import { AutoMovieViewAxis } from "@automovie/engine";
 import { FamilyConicSection as C } from "./FamilyConicSection";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 

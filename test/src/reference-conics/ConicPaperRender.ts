@@ -1,6 +1,6 @@
-import { NodeCanvasCamera } from "../../../packages/human/src/inspection/NodeCanvasCamera";
-import type { NodeCanvasTypes as N } from "../../../packages/human/src/inspection/NodeCanvasTypes";
-import { NodeCanvasRaster } from "../../../packages/human/src/executable/NodeCanvasRaster";
+import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
+import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
+import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import { PNG } from "pngjs";
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";

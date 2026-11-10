@@ -1070,6 +1070,9 @@ importers:
       '@dimforge/rapier3d-compat':
         specifier: 0.21.0
         version: 0.21.0
+      '@napi-rs/canvas':
+        specifier: 1.0.1
+        version: 1.0.1
       '@ttsc/evidence':
         specifier: catalog:samchon
         version: 0.36.3(@ttsc/lint@0.36.3(ttsc@0.36.3(typescript@7.0.2)))

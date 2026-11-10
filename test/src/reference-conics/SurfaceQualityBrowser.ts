@@ -1,7 +1,6 @@
 import * as THREE from "three";
-import { mountViewer } from "../../../packages/viewer/src/mountViewer";
-import type { IAutoMovieViewerHandle } from "../../../packages/viewer/src/IAutoMovieViewerHandle";
-import type { NodeCanvasTypes as N } from "../../../packages/human/src/inspection/NodeCanvasTypes";
+import { mountViewer, type IAutoMovieViewerHandle } from "@automovie/viewer";
+import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 
 /** Stored independently generated geometry and its real generating curves, already in native-frame metres. */
 interface Scene {
