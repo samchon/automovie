@@ -11,7 +11,9 @@ import { AutoMovieHumanF1FingerThumb } from "./AutoMovieHumanF1FingerThumb";
 import { AutoMovieHumanF1Foot } from "./AutoMovieHumanF1Foot";
 import { AutoMovieHumanF1Head } from "./AutoMovieHumanF1Head";
 import { AutoMovieHumanF1Leg } from "./AutoMovieHumanF1Leg";
+import { AutoMovieHumanF1Palm } from "./AutoMovieHumanF1Palm";
 import { AutoMovieHumanF1Pelvis } from "./AutoMovieHumanF1Pelvis";
+import { AutoMovieHumanF1Shoulders } from "./AutoMovieHumanF1Shoulders";
 import { AutoMovieHumanF1ToeBig } from "./AutoMovieHumanF1ToeBig";
 import { AutoMovieHumanF1ToeIndex } from "./AutoMovieHumanF1ToeIndex";
 import { AutoMovieHumanF1ToeLittle } from "./AutoMovieHumanF1ToeLittle";
@@ -57,6 +59,8 @@ export namespace AutoMovieHumanF1 {
     { family: AutoMovieHumanF1Pelvis, mirrored: false },
     { family: AutoMovieHumanF1Trunk, mirrored: false },
     { family: AutoMovieHumanF1Chest, mirrored: false },
+    { family: AutoMovieHumanF1Shoulders, mirrored: false },
+    { family: AutoMovieHumanF1Palm, mirrored: true },
     { family: AutoMovieHumanF1Head, mirrored: false },
     { family: AutoMovieHumanF1Arm, mirrored: true },
     { family: AutoMovieHumanF1Leg, mirrored: true },

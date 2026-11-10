@@ -31,7 +31,7 @@ export namespace FamilyConicSource {
 
   /** One exact plane cut about a frame's origin. */
   export interface ICut {
-    /** The closed loop winding once round the origin, counter-clockwise in the `(u, v)` chart, or null when none or several do. */
+    /** The outermost closed loop winding round the origin, counter-clockwise in the `(u, v)` chart, or null when none does. */
     loop: C.P[] | null;
 
     /** Closed loops that wind round the origin. */
@@ -81,7 +81,9 @@ export namespace FamilyConicSource {
     const n: V = [frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1], frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2], frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0]];
     const section: M.ISection = M.outline(mesh, { origin: [...frame.origin] as V, axes: [n, [...frame.u] as V, [...frame.v] as V] }, [0], 0, 0.5, 0)[0]!;
     const round: C.P[][] = section.loops.filter((loop: M.ILoop): boolean => loop.closed && winds(loop.points)).map((loop: M.ILoop): C.P[] => (area(loop.points) < 0 ? [...loop.points].reverse() : [...loop.points]));
-    return { loop: round.length === 1 ? round[0]! : null, around: round.length, pieces: section.loops.length };
+    // Several loops round the origin are nested shells (the head mesh carries its mouth and throat lining): the skin is the outermost, the one of largest area.
+    const outer: C.P[] | null = round.length === 0 ? null : round.reduce((a: C.P[], b: C.P[]): C.P[] => (area(b) > area(a) ? b : a));
+    return { loop: outer, around: round.length, pieces: section.loops.length };
   }
 
   /**

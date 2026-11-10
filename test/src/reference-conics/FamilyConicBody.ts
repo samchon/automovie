@@ -102,6 +102,11 @@ namespace FamilyConicBody {
           { name: "chest.back", stations: [380, 556], phases: [Math.PI / 2, (3 * Math.PI) / 2], axis: [1, 0, 0], rows: 21, columns: 39, mirror: true },
           { name: "chest.front", stations: [380, 556], phases: [-Math.PI / 2, Math.PI / 2], axis: [-1, 0, 0], rows: 21, columns: 39, mirror: true },
         ] },
+        { name: "shoulders", centres: [[0, 780, 0], [0, 1480, 0]], halves: [], up: [1, 0, 0], domain: [500, 626], whole: true, step: 2, gap: 8, mirrored: false, layouts: LIMB, reliefs: [
+          { name: "shoulders.back", stations: [440, 686], phases: [Math.PI / 2, (3 * Math.PI) / 2], axis: [1, 0, 0], rows: 31, columns: 39, mirror: true },
+          { name: "shoulders.front", stations: [440, 686], phases: [-Math.PI / 2, Math.PI / 2], axis: [-1, 0, 0], rows: 31, columns: 39, mirror: true },
+        ] },
+        { name: "palm", centres: [joint("hand_r"), joint("middle_01_r")], halves: [], up: [0, 0, 1], domain: [2, 60], step: 2, gap: 6, mirrored: true, layouts: LIMB, reliefs: "auto" },
         { name: "head", centres: [[0, 1340, 0], [0, 1705, 0]], halves: [], up: [1, 0, 0], domain: "auto", whole: true, step: 2, gap: 8, mirrored: false, layouts: LIMB, reliefs: [
           { name: "head.back", stations: [20, 400], phases: [Math.PI / 2, (3 * Math.PI) / 2], axis: [1, 0, 0], rows: 66, columns: 43, mirror: true },
           { name: "head.front", stations: [20, 400], phases: [-Math.PI / 2, Math.PI / 2], axis: [-1, 0, 0], rows: 66, columns: 63, mirror: true },
