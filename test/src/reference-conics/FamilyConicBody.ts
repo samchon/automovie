@@ -95,9 +95,9 @@ namespace FamilyConicBody {
         { name: "foot", centres: [[1, 45, 134], [133, 20, 157]], halves: [], up: [0, 1, 0], domain: "auto", step: 2, gap: 8, mirrored: true, layouts: LIMB, reliefs: "auto" },
         { name: "arm", centres: [joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r")], halves: [30], up: [1, 0, 0], domain: [76, 500], mirrored: true, layouts: LIMB, reliefs: "auto" },
         { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r")], halves: [40], up: [1, 0, 0], domain: [124, 800], mirrored: true, layouts: LIMB, reliefs: "auto" },
-        { name: "trunk", centres: [[0, 780, 0], [0, 1480, 0]], halves: [], up: [1, 0, 0], domain: [150, 492], mirrored: false, layouts: LIMB, reliefs: [
-          { name: "trunk.back", stations: [60, 582], phases: [Math.PI - 1, Math.PI + 1], axis: [1, 0, 0], rows: 21, columns: 19, mirror: true },
-          { name: "trunk.front", stations: [60, 582], phases: [-1, 1], axis: [-1, 0, 0], rows: 21, columns: 19, mirror: true },
+        { name: "trunk", centres: [[0, 780, 0], [0, 1480, 0]], halves: [], up: [1, 0, 0], domain: [150, 440], mirrored: false, layouts: LIMB, reliefs: [
+          { name: "trunk.back", stations: [60, 530], phases: [Math.PI / 2, (3 * Math.PI) / 2], axis: [1, 0, 0], rows: 21, columns: 23, mirror: true },
+          { name: "trunk.front", stations: [60, 530], phases: [-Math.PI / 2, Math.PI / 2], axis: [-1, 0, 0], rows: 21, columns: 23, mirror: true },
         ] },
       ] satisfies IPart[]
     ).filter((part: IPart): boolean => only.length === 0 || only.includes(part.name));
@@ -309,30 +309,52 @@ namespace FamilyConicBody {
       // Depth below the tape hull, not below the fitted wall: the wall's own misfit is not a hollow.
       return { s: row.s, phases: skins[i]!.map((p: C.P): number => Math.atan2(p[1], p[0])).filter((phi: number, k: number): boolean => C.radius(row.points, phi) - Math.hypot(skins[i]![k]![0], skins[i]![k]![1]) > 0.6 * TARGET_MM) };
     });
+    // Deep vertices are first split round the section: phases farther apart than a radian belong to different hollows (a spine groove and a cleavage share stations but not a window).
+    const every: number[] = deep.flatMap((row: { s: number; phases: number[] }): number[] => row.phases).sort((a: number, b: number): number => a - b);
     const windows: H.IWindow[] = [];
-    let run: { s: number; phases: number[] }[] = [];
-    const close = (): void => {
-      if (run.length >= 2) {
-        const all: number[] = run.flatMap((r: { s: number; phases: number[] }): number[] => r.phases);
-        const centre: number = Math.atan2(all.reduce((sum: number, phi: number): number => sum + Math.sin(phi), 0), all.reduce((sum: number, phi: number): number => sum + Math.cos(phi), 0));
-        const offsets: number[] = all.map((phi: number): number => Math.atan2(Math.sin(phi - centre), Math.cos(phi - centre)));
-        const from: number = centre + Math.min(...offsets) - 0.45;
-        const to: number = centre + Math.max(...offsets) + 0.45;
-        const stations: [number, number] = [run[0]!.s - 30, run.at(-1)!.s + 30];
-        const frame: AutoMovieLoftFrame.IFrame = course.at((stations[0] + stations[1]) / 2);
-        const axis: [number, number, number] = [0, 1, 2].map((c: number): number => -(Math.cos(centre) * frame.u[c]! + Math.sin(centre) * frame.v[c]!)) as [number, number, number];
-        windows.push({ name: name + ".hollow." + windows.length, stations, phases: [from, to], axis, rows: Math.max(7, Math.ceil((stations[1] - stations[0]) / 10) + 3), columns: Math.max(7, Math.ceil((to - from) / 0.15) + 3), mirror: false });
+    if (every.length === 0) return windows;
+    let widest: number = every[0]! + 2 * Math.PI - every.at(-1)!;
+    let start: number = 0;
+    for (let k: number = 1; k < every.length; ++k)
+      if (every[k]! - every[k - 1]! > widest) {
+        widest = every[k]! - every[k - 1]!;
+        start = k;
       }
-      run = [];
+    const turned: number[] = [...every.slice(start), ...every.slice(0, start).map((phi: number): number => phi + 2 * Math.PI)];
+    const clusters: [number, number][] = [];
+    let first: number = turned[0]!;
+    for (let k: number = 1; k <= turned.length; ++k)
+      if (k === turned.length || turned[k]! - turned[k - 1]! > 1) {
+        clusters.push([first, turned[k - 1]!]);
+        if (k < turned.length) first = turned[k]!;
+      }
+    const within = (phi: number, cluster: [number, number]): boolean => {
+      let value: number = phi;
+      while (value < cluster[0] - 1e-9) value += 2 * Math.PI;
+      return value <= cluster[1] + 1e-9;
     };
-    for (const row of deep) {
-      if (row.phases.length === 0) {
-        if (run.length > 0 && row.s - run.at(-1)!.s > 16) close();
-        continue;
+
+    // Within each phase cluster, every run of stations with deep vertices gets one window.
+    for (const cluster of clusters) {
+      let run: number[] = [];
+      const close = (): void => {
+        if (run.length >= 2) {
+          const centre: number = (cluster[0] + cluster[1]) / 2;
+          const from: number = cluster[0] - 0.45;
+          const to: number = cluster[1] + 0.45;
+          const stations: [number, number] = [run[0]! - 30, run.at(-1)! + 30];
+          const frame: AutoMovieLoftFrame.IFrame = course.at((stations[0] + stations[1]) / 2);
+          const axis: [number, number, number] = [0, 1, 2].map((c: number): number => -(Math.cos(centre) * frame.u[c]! + Math.sin(centre) * frame.v[c]!)) as [number, number, number];
+          windows.push({ name: name + ".hollow." + windows.length, stations, phases: [from, to], axis, rows: Math.max(7, Math.ceil((stations[1] - stations[0]) / 10) + 3), columns: Math.max(7, Math.ceil((to - from) / 0.15) + 3), mirror: false });
+        }
+        run = [];
+      };
+      for (const row of deep) {
+        if (row.phases.some((phi: number): boolean => within(phi, cluster))) run.push(row.s);
+        else if (run.length > 0 && row.s - run.at(-1)! > 16) close();
       }
-      run.push(row);
+      close();
     }
-    close();
     return windows;
   }
 

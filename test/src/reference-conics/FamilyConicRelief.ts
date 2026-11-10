@@ -76,6 +76,9 @@ export namespace FamilyConicRelief {
     heldMaxMm: number;
   }
 
+  /** Least cosine between the relief axis and the wall's radial direction for a phase to be observed. */
+  const FACING: number = 0.35;
+
   /** Phase samples per control span. */
   const PER_SPAN: number = 4;
 
@@ -107,6 +110,10 @@ export namespace FamilyConicRelief {
       for (let k: number = 1; k < phases; ++k) {
         const offset: number = (span * k) / phases;
         const inPlane: number = Math.hypot(row.axis[0], row.axis[1]);
+
+        // Where the axis runs along the wall instead of through it, a cast measures the wall's slope, not a depth: such phases are left to the net's fairness.
+        const phi: number = window.phases[0] + offset;
+        if (Math.abs(row.axis[0] * Math.cos(phi) + row.axis[1] * Math.sin(phi)) / inPlane < FACING) continue;
         const along: number | null = cast(row.skin, row.wall(window.phases[0] + offset), [row.axis[0] / inPlane, row.axis[1] / inPlane]);
         if (along === null) continue;
         const target: number = along / inPlane;
