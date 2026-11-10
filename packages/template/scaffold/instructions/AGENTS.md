@@ -45,7 +45,7 @@ Read the production's `PROJECT.md` for the adopted scope, then enter the request
 - [production](.agents/skills/production/SKILL.md): starting, resuming, restructuring, or delivering a production, including project context, media, conditioning, video generation, editing, encoding and handoff.
 - [story](.agents/skills/story/SKILL.md): researching what the film shows before writing it, and planning, writing, continuing or revising a brief, settings, treatments, scripts, final screenplay, expression pass, narrative evidence or cause-based repair. Its parts route to the needed documents.
 - [3d-modeling](.agents/skills/3d-modeling/SKILL.md): creating, importing, recovering, or inspecting asset representations, geometry, rigs, and authored controls; [entity work](.agents/skills/development/entities.md) sets what the commission needs from them.
-- [motion](.agents/skills/motion/SKILL.md): programmed performance from researched laws, staging, camera, physical responses, frame-time evaluation and motion verification.
+- [motion](.agents/skills/motion/SKILL.md): programmed performance by effector goals, composed from the installed human motion vocabulary and researched laws, with staging, camera, physical responses, frame-time evaluation and motion verification.
 - [image](.agents/skills/image/SKILL.md): generating canon reference images, shot frames, style frames or turnaround views.
 - [video](.agents/skills/video/SKILL.md): choosing the video model, planning requests within its limits and writing video prompts.
 - [audio](.agents/skills/audio/SKILL.md): deciding a shot's sound for the video model's prompt, or a voice preview the user asks to hear before video generation.

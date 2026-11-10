@@ -22,4 +22,4 @@ Compare the source's evaluated deformation with the imported result at matched t
 
 ## Hand Off
 
-Hand the admitted skeleton interpretation, controls, source identities and unresolved limits to the owner of the asset's performance, which owns time-varying motion and retargeting, so every rig repair stays with the rig rather than inside a shot. A pose screenshot, a finished auto-rig job or a low fitting residual covers only what it shows.
+Hand the admitted skeleton interpretation, controls, source identities and unresolved limits to the owner of the asset's performance under [motion](../motion/SKILL.md), which owns time-varying motion and retargeting, so every rig repair stays with the rig rather than inside a shot. A pose screenshot, a finished auto-rig job or a low fitting residual covers only what it shows.

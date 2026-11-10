@@ -41,6 +41,7 @@ const resolveTemplateVersions: () => Record<string, string> = (): Record<
       human: packageVersion("packages/human"),
       ingest: packageVersion("packages/ingest"),
       interface: packageVersion("packages/interface"),
+      motions: packageVersion("packages/motions"),
       recovery: packageVersion("packages/recovery"),
       render: packageVersion("packages/render"),
       template: packageVersion("packages/template"),

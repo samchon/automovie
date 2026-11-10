@@ -13,6 +13,7 @@ catalogs:
     "@automovie/human": *automovie
     "@automovie/ingest": *automovie
     "@automovie/interface": *automovie
+    "@automovie/motions": *automovie
     "@automovie/recovery": *automovie
     "@automovie/render": *automovie
     "@automovie/viewer": *automovie
