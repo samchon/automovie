@@ -15,15 +15,9 @@ Author every action by [effector goals](authoring.md), the rule the rest depends
 
 Those four files ship unchanged to productions, so they name roles rather than this repository's packages and paths. This file holds what applies only here.
 
-## Owners
+## Here
 
-- The [package boundaries](../project/SKILL.md#packages) place action content in `motions` and universal motion primitives in `engine`.
-- Retargeting a recorded or generated clip between humanoid rigs belongs to `engine`'s `retargetHumanoidMotion`, which keeps enabled contacts through `preserveRetargetContacts`; [contacts](contacts.md) and [verification](verification.md) judge the result like any authored motion.
-- Each algorithm has one owner. Read the owning package's exports before writing a helper; a second segment distance or angle wrap drifts from the first and leaves two bugs to fix.
-
-## Bodies, research and captures
-
-- Verify human motion only on the polygon man at Human parameters through the canonical skeleton path, under [human](../human/SKILL.md).
-- Each action family keeps its scope, current state and primary references in its sub-issue of the motions campaign, #3201. Read that sub-issue before authoring, and add the sources you use there, so the next author starts from them.
-- Captures run with `pnpm --dir packages/motions node:capture -- --case <key>`. A key can expand into several cases, such as one per gesture or per body, and each case writes `packages/motions/media/capture/<case>/manifest.json` with its stills and verdicts. The command exits with code 1 whenever a verdict fails, so pnpm's lifecycle error after the manifests are written reports a failed verdict, not a crash.
-- The test workflow (`.github/workflows/test.yml`) excludes the tests that prepare polygon men by name, so run them locally with `--include`.
+- The [package boundaries](../project/SKILL.md#packages) say which package owns action content and which owns universal motion primitives, retargeting included. Each algorithm has one owner, so read the owning package before writing a helper; a second copy drifts from the first and leaves two bugs to fix.
+- Verify human motion only on the polygon man at Human parameters, under [human](../human/SKILL.md).
+- An action's study is the primary sources its law cites in its documentation, and each action family's sub-issue of the motions campaign, #3201, collects them with the family's scope and current state. Read the sub-issue before authoring and add the sources you use there, so the next author starts from them.
+- The motions package's capture script runs the cases. A capture reports a failed verdict through its exit status, not a crash, and CI skips the tests that prepare polygon men, so run those locally.
