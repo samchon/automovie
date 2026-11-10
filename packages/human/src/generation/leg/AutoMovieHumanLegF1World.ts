@@ -6,6 +6,10 @@ type V3 = [number, number, number];
 type V2 = [number, number];
 type Frame = ReturnType<AutoMovieViewAxis.IAxis["at"]>;
 const sub: typeof AutoMovieCurveMath64.sub = AutoMovieCurveMath64.sub;
+/** One fixed F1 boundary and its existing increasing geometric parameters. */
+type FairRail = { row: number[]; phase: number[] };
+/** One longitudinal cubic of the fixed F1 repair, in absolute world mm. */
+type FairColumn = { phase: number; span: AutoMovieCurveMath64.Span; linear?: boolean };
 
 /**
  * f1's leg and foot 2D lines as absolute world points on her reference in
@@ -21,6 +25,57 @@ const sub: typeof AutoMovieCurveMath64.sub = AutoMovieCurveMath64.sub;
  * take them through `AutoMovieHumanLegF1Rebase`.
  */
 export namespace AutoMovieHumanLegF1World {
+  /**
+   * Realize the two fixed F1 repairs as shared transverse Hermite loft rows.
+   * Boundary indices are retained exactly. One middle curve exposes the
+   * cubic bow; further common rows follow the 0.5 mm control-hull chord bound.
+   * Open Hip panels return their lateral indices for the unchanged neighboring
+   * strip to consume. Closed toe bands use the existing cyclic row operator.
+   * The caller owns the inferred endpoint directions and artifact scope;
+   * cubic interpolation alone certifies neither embedding nor G1 continuity.
+   */
+  export function fairBand(lower: FairRail, upper: FairRail, columns: FairColumn[], positions: number[], indices: number[], closed: boolean): { t: number; ids: number[] }[] {
+    const times: Set<number> = new Set([0.5]);
+
+    /** Refine the whole transverse row family, not selected bad vertices. */
+    const refine: (span: AutoMovieCurveMath64.Span, from: number, to: number, depth: number) => void =
+      (span: AutoMovieCurveMath64.Span, from: number, to: number, depth: number): void => {
+        const d: V3 = sub(span[3], span[0]), l2: number = Geometry.dot(d, d);
+        const error: number = Math.max(...span.slice(1, 3).map((p: V3): number => {
+          const q: V3 = sub(p, span[0]), t: number = l2 === 0 ? 0 : Math.max(0, Math.min(1, Geometry.dot(q, d) / l2));
+          return Math.hypot(...sub(q, AutoMovieCurveMath64.scale(d, t)));
+        }));
+        if (error <= 0.5) return;
+        if (depth === 30) throw new Error("The fixed F1 Hermite repair cannot meet its chord tolerance");
+        const middle: number = (from + to) / 2;
+        times.add(middle);
+        const [a, b]: [AutoMovieCurveMath64.Span, AutoMovieCurveMath64.Span] = AutoMovieCurveMath64.split(span, 0.5);
+        refine(a, from, middle, depth + 1); refine(b, middle, to, depth + 1);
+      };
+    for (const column of columns) refine(column.span, 0, 1, 0);
+    const rows: { t: number; ids: number[] }[] = [...times].sort((a: number, b: number): number => a - b).map(
+      (t: number): { t: number; ids: number[] } => ({ t, ids: columns.map(({ span, linear }: FairColumn): number => {
+        const p: V3 = linear ? AutoMovieCurveMath64.mix(span[0], span[3], t) : AutoMovieCurveMath64.cubic(span, t);
+        return positions.push(p[0], p[1], p[2]) / 3 - 1;
+      }) }));
+    const phases: number[] = columns.map((column: FairColumn): number => column.phase);
+    const rails: FairRail[] = [lower, ...rows.map(({ ids }: typeof rows[number]): FairRail => ({ row: ids, phase: phases })), upper];
+    for (let k: number = 1; k < rails.length; ++k) {
+      const a: FairRail = rails[k - 1]!, b: FairRail = rails[k]!;
+      if (closed) stitchRows(a.row, b.row, positions, indices,
+        [[...a.phase.slice(1), a.phase[0]! + 1], [...b.phase.slice(1), b.phase[0]! + 1]]);
+      else {
+        let i: number = 0, j: number = 0;
+        while (i + 1 < a.row.length || j + 1 < b.row.length) {
+          const x: number = a.row[i]!, y: number = b.row[j]!;
+          if ((a.phase[i + 1] ?? Infinity) <= (b.phase[j + 1] ?? Infinity)) indices.push(x, a.row[++i]!, y);
+          else indices.push(x, b.row[++j]!, y);
+        }
+      }
+    }
+    return rows;
+  }
+
   /** Keep each fixed observed section frame and evaluate only between its measured neighbours. */
   export function archivedAxis(stations: number[], frames: Frame[]): AutoMovieViewAxis.IAxis {
     const exact: Map<number, Frame> = new Map(stations.map((s, i): [number, Frame] => [s, frames[i]!]));

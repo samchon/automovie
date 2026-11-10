@@ -102,9 +102,7 @@ export namespace AutoMovieHumanHeadF1Skin {
         },
       },
     );
-    // These two known defect neighborhoods retain their real intermediate
-    // source sections. Their original ordinary kernel replaces inferred-clock
-    // overrides; critical transitions are reconstructed separately in this batch.
+    // Local artifacts use the normal neighboring curves and retained lip graph.
     const localBounds: readonly (readonly [number, number])[] = [
       [1517.8813934326172, 1526.0076904296875],
       [1598.398551940918, 1599.391746520996],
@@ -152,7 +150,7 @@ export namespace AutoMovieHumanHeadF1Skin {
     // retained offline. Between anchors this is inferred PL parameter
     // transport, not a material correspondence or a longitudinal guide.
     const localReceipts: string[] = [
-      "Mouth normal between-event curves retained; original event coordinates/terminals preserved with finite normal-profile brackets; eye annuli include both healthy neighboring strips",
+      "Mouth middle depth and anatomical lip transitions retained; transient oral artifact components omitted between normal profiles; eye annuli span both healthy neighboring curves",
     ];
     for (const clock of observed.clocks)
       if (!inFloor(clock.beforeMm, clock.afterMm) && !inLocal(clock)) ordinary(mesh, rims, clock, sides.get(clock)!);
@@ -191,9 +189,7 @@ export namespace AutoMovieHumanHeadF1Skin {
       eyeReceipts.push(eye(mesh, required(rims, ends.beforeMm, ends.before).indices,
         required(rims, ends.afterMm, ends.after).indices, `${ends.beforeMm}–${ends.afterMm}`));
     }
-    // Only the previously measured flat ear critical is an authorized
-    // unresolved kernel group. Its exact source pole/rail remain explicit;
-    // neither its source nor its event qualification is raised to true.
+    // Only the already recorded flat ear refusal remains authorized.
     const earBounds: Set<string> = new Set();
     for (const interval of observed.intervals)
       for (const group of interval.groups)
@@ -222,20 +218,26 @@ export namespace AutoMovieHumanHeadF1Skin {
 
 
   /**
-   * Re-address only the known mouth micro-brackets to their saved normal
-   * neighboring profiles. The original source component graph is composed
-   * through omitted diagnostic rows; event coordinates, terminal points and
-   * distinct sheets remain unchanged. No nearest-loop or phase match is made.
+   * Simplify the observed loose oral fragments between sound lip profiles.
+   * Keep the middle depth, lower merge, upper split and two oral-wall ports;
+   * remove the intervening artifact branches from the generating graph.
    */
   function mouth(): { sections: typeof observed.sections; intervals: Interval[]; events: Event[] } {
-    // This existing 6ed world-Y profile carries the lip's actual middle depth.
-    // It precedes source-critical.43791 and stays a generating boundary, so a
-    // widened critical strip cannot flatten it into its two distant endpoints.
+    // This sound profile prevents flattening the lip's middle depth.
     const middleMm: number = 1520.5332565307617;
-    const omitted: Set<number> = new Set(floorInputs.mouth.removedCoordinates.filter((y: number): boolean => y !== middleMm));
+    // The front/low-oblique ab98127fa5 frames show loose oral triangles in
+    // this tiny transient split/minimum/split run. Keep the actual lower lip
+    // merge, upper lip split and sound profiles on both sides; the intervening
+    // artifact components are not another pair of anatomical mouth sheets.
+    const omitted: Set<number> = new Set([...floorInputs.mouth.removedCoordinates,
+      ...observed.sections.filter((row: typeof observed.sections[number]): boolean =>
+        row.coordinateMm > 1520.988998413086 && row.coordinateMm < 1522.8853607177734).map((row: typeof observed.sections[number]): number => row.coordinateMm),
+    ].filter((y: number): boolean => y !== middleMm));
     const sections: typeof observed.sections = observed.sections.filter((row: typeof observed.sections[number]): boolean => !omitted.has(row.coordinateMm));
     const intervals: Interval[] = [];
-    const events: Event[] = observed.events.map((event: typeof observed.events[number]): Event => {
+    const events: Event[] = observed.events.filter((event: typeof observed.events[number]): boolean =>
+      event.coordinateMm <= 1520.988998413086 || event.coordinateMm >= 1522.8853607177734
+      || event.coordinateMm === 1522.0014953613281).map((event: typeof observed.events[number]): Event => {
       if (event.kind !== "minimum" && event.kind !== "maximum" && event.kind !== "saddle") throw new Error("Invalid recorded mouth event kind");
       return { ...event, kind: event.kind, terminal: event.terminal === null ? null : AutoMovieCurveMath64.clone(event.terminal) };
     });
@@ -352,13 +354,45 @@ export namespace AutoMovieHumanHeadF1Skin {
     const b: Rim = required(rims, clock.afterMm, clock.after);
     const lower: number[] = a.phases.map((p: number): number => phase(p, a.chart, clock.lower, 1));
     const upper: number[] = b.phases.map((p: number): number => phase(p, b.chart, clock.upper, clock.direction));
-    // Three independent authorities: material winding sets generated rim
-    // order, rawSense relates that order to the recorded observations, and
-    // transport direction relates the two raw clocks. No coordinate moves.
+    // Retain material winding, raw visit sense and measured transport sense.
     const lo: ReturnType<typeof ordered> = ordered(a, lower, a.chart.rawSense * a.chart.sheetWinding);
     const hi: ReturnType<typeof ordered> = ordered(b, upper, b.chart.rawSense * b.chart.sheetWinding * clock.direction);
     const first: number = mesh.indices.length;
-    AutoMovieHumanLoftMesh.zipper(mesh, lo.indices, lo.phases, hi.indices, hi.phases);
+    if (clock.afterMm <= floorInputs.boundsMm[0]!) {
+      // The neck front/left/back ab98127fa5 frames show shallow horizontal
+      // facets. Keep every sound ring; use its normal predecessor/successor
+      // curves together to replace the straight intervening panels.
+      const before: typeof observed.sections[number] | undefined = observed.sections.filter((row: typeof observed.sections[number]): boolean => row.coordinateMm < clock.beforeMm).at(-1);
+      const after: typeof observed.sections[number] | undefined = observed.sections.find((row: typeof observed.sections[number]): boolean => row.coordinateMm > clock.afterMm);
+      const nearest: (p: V3, row: typeof before) => V3 = (p: V3, row: typeof before): V3 => {
+        let result: V3 = p, distance: number = Infinity;
+        for (const loop of row?.loops ?? []) for (let i: number = 0; i < loop.points.length; ++i) {
+          const x: V3 = AutoMovieCurveMath64.clone(loop.points[i]!), d: V3 = AutoMovieCurveMath64.sub(AutoMovieCurveMath64.clone(loop.points[(i + 1) % loop.points.length]!), x);
+          const length2: number = d.reduce((sum: number, value: number): number => sum + value * value, 0);
+          const t: number = length2 === 0 ? 0 : Math.max(0, Math.min(1, AutoMovieCurveMath64.sub(p, x).reduce((sum: number, value: number, k: number): number => sum + value * d[k]!, 0) / length2));
+          const q: V3 = AutoMovieCurveMath64.add(x, AutoMovieCurveMath64.scale(d, t)), gap: number = Math.hypot(...AutoMovieCurveMath64.sub(q, p));
+          if (gap < distance) { distance = gap; result = q; }
+        }
+        return result;
+      };
+      const sample: (row: typeof lo, phase: number) => V3 = (row: typeof lo, phase: number): V3 => {
+        const u: number = phase < row.phases[0]! ? phase + 2 * Math.PI : phase, ends: number[] = [...row.phases.slice(1), row.phases[0]! + 2 * Math.PI];
+        const i: number = ends.findIndex((end: number): boolean => u <= end);
+        return AutoMovieCurveMath64.mix(AutoMovieHumanLoftMesh.position(mesh, row.indices[i]!), AutoMovieHumanLoftMesh.position(mesh, row.indices[(i + 1) % row.indices.length]!), (u - row.phases[i]!) / (ends[i]! - row.phases[i]!));
+      };
+      const phases: number[] = [...new Set([...lo.phases, ...hi.phases])].sort((x: number, y: number): number => x - y);
+      const spans: AutoMovieCurveMath64.Span[] = phases.map((phase: number): AutoMovieCurveMath64.Span => {
+        const p: V3 = sample(lo, phase), q: V3 = sample(hi, phase), chord: V3 = AutoMovieCurveMath64.sub(q, p);
+        const incoming: V3 = AutoMovieCurveMath64.sub(p, nearest(p, before)), outgoing: V3 = AutoMovieCurveMath64.sub(nearest(q, after), q), width: number = Math.hypot(...chord);
+        return AutoMovieCurveMath64.hermite(p, q, Math.hypot(...incoming) === 0 ? chord : AutoMovieCurveMath64.scale(incoming, width / Math.hypot(...incoming)), Math.hypot(...outgoing) === 0 ? chord : AutoMovieCurveMath64.scale(outgoing, width / Math.hypot(...outgoing)), 1);
+      });
+      let previous: typeof lo = lo;
+      for (const t of [0.25, 0.5, 0.75]) {
+        const row: typeof lo = { indices: AutoMovieHumanLoftMesh.vertices(mesh, spans.map((span: AutoMovieCurveMath64.Span): V3 => AutoMovieCurveMath64.cubic(span, t))), phases };
+        AutoMovieHumanLoftMesh.zipper(mesh, previous.indices, previous.phases, row.indices, row.phases); previous = row;
+      }
+      AutoMovieHumanLoftMesh.zipper(mesh, previous.indices, previous.phases, hi.indices, hi.phases);
+    } else AutoMovieHumanLoftMesh.zipper(mesh, lo.indices, lo.phases, hi.indices, hi.phases);
     const faces: number[] = mesh.indices.slice(first);
     const low: 1 | -1 = direction(faces, a.indices, "clock lower");
     const high: 1 | -1 = direction(faces, b.indices, "clock upper");
@@ -399,10 +433,8 @@ export namespace AutoMovieHumanHeadF1Skin {
   }
 
   /**
-   * Consume only a recorded source-coherent eye annulus. Its local first-face
-   * material publications remain unchanged in the input. They do not justify
-   * constant winding across the annulus. Actual indexed free rims determine
-   * this existing join; only an independent generated upper sheet can reverse.
+   * Span the two normal eye-rim curves; keep both original indexed boundaries
+   * and orient an independent upper sheet from their actual free-rim senses.
    */
   function eye(mesh: Context, lower: number[], upper: number[], name: string): string {
     const a: number[] = direction(mesh.indices, lower, "eye lower") < 0 ? lower : lower.slice().reverse();
@@ -412,7 +444,32 @@ export namespace AutoMovieHumanHeadF1Skin {
       reversed = reverseSeparateSheet(mesh, lower[0]!, upper[0]!);
       b = b.slice().reverse();
     }
-    strip(mesh, a, b);
+    // The inner lower-rim wedge in the ab98127fa5 front frame is a flat
+    // annulus artifact. Span both sound neighboring curves together, using
+    // their unchanged face normals, instead of one long triangular band.
+    const normals: number[] = AutoMovieHumanLoftMesh.normals(mesh);
+    const nearest: number = b.reduce((best: number, id: number, i: number): number =>
+      Math.hypot(...AutoMovieCurveMath64.sub(AutoMovieHumanLoftMesh.position(mesh, id), AutoMovieHumanLoftMesh.position(mesh, a[0]!)))
+      < Math.hypot(...AutoMovieCurveMath64.sub(AutoMovieHumanLoftMesh.position(mesh, b[best]!), AutoMovieHumanLoftMesh.position(mesh, a[0]!))) ? i : best, 0);
+    b = [...b.slice(nearest), ...b.slice(0, nearest)];
+    const rows: { ids: number[]; phases: number[] }[] = [a, b].map((ids: number[]): { ids: number[]; phases: number[] } => {
+      const prefix: number[] = [0];
+      for (let i: number = 1; i <= ids.length; ++i) prefix.push(prefix[i - 1]! + Math.hypot(...AutoMovieCurveMath64.sub(AutoMovieHumanLoftMesh.position(mesh, ids[i % ids.length]!), AutoMovieHumanLoftMesh.position(mesh, ids[i - 1]!))));
+      return { ids, phases: prefix.slice(0, -1).map((p: number): number => p / prefix.at(-1)!) };
+    });
+    const phases: number[] = [...new Set(rows.flatMap((row: typeof rows[number]): number[] => row.phases))].sort((x: number, y: number): number => x - y);
+    const evaluate: (row: typeof rows[number], u: number) => { p: V3; n: V3 } = (row: typeof rows[number], u: number): { p: V3; n: V3 } => {
+      const ends: number[] = [...row.phases.slice(1), 1], i: number = ends.findIndex((end: number): boolean => u <= end), j: number = (i + 1) % row.ids.length;
+      const t: number = (u - row.phases[i]!) / (ends[i]! - row.phases[i]!), x: number = row.ids[i]!, y: number = row.ids[j]!;
+      return { p: AutoMovieCurveMath64.mix(AutoMovieHumanLoftMesh.position(mesh, x), AutoMovieHumanLoftMesh.position(mesh, y), t), n: AutoMovieCurveMath64.mix([normals[3 * x]!, normals[3 * x + 1]!, normals[3 * x + 2]!], [normals[3 * y]!, normals[3 * y + 1]!, normals[3 * y + 2]!], t) };
+    };
+    const columns: AutoMovieCurveMath64.Span[] = phases.map((u: number): AutoMovieCurveMath64.Span => {
+      const x: ReturnType<typeof evaluate> = evaluate(rows[0]!, u), y: ReturnType<typeof evaluate> = evaluate(rows[1]!, u), chord: V3 = AutoMovieCurveMath64.sub(y.p, x.p);
+      const tangent: (n: V3) => V3 = (n: V3): V3 => AutoMovieCurveMath64.sub(chord, AutoMovieCurveMath64.scale(n, chord.reduce((sum: number, p: number, k: number): number => sum + p * n[k]!, 0) / (n.reduce((sum: number, p: number): number => sum + p * p, 0) || 1)));
+      return AutoMovieCurveMath64.hermite(x.p, y.p, tangent(x.n), tangent(y.n), 1);
+    });
+    rows.splice(1, 0, ...[0.25, 0.5, 0.75].map((t: number): typeof rows[number] => ({ ids: AutoMovieHumanLoftMesh.vertices(mesh, columns.map((span: AutoMovieCurveMath64.Span): V3 => AutoMovieCurveMath64.cubic(span, t))), phases })));
+    for (let i: number = 1; i < rows.length; ++i) AutoMovieHumanLoftMesh.zipper(mesh, rows[i - 1]!.ids, rows[i - 1]!.phases.map((u: number): number => u * 2 * Math.PI), rows[i]!.ids, rows[i]!.phases.map((u: number): number => u * 2 * Math.PI));
     return `Known source eye annulus ${name}: actual reciprocal ports joined; ${reversed} independent generated faces reoriented, publication values retained`;
   }
 

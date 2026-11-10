@@ -102,22 +102,10 @@ export namespace AutoMovieHumanLegF1Web {
       const b: number[] = root.map((id: number): number => id + off);
       if (transition === undefined) bridge(mesh, a, b);
       else {
-        const normal: V3 = AutoMovieCurveMath64.clone(AutoMovieViewAxis.normal(port.frame));
-
-        /** Signed world-mm position in the original root's unchanged physical plane. */
-        const signed: (p: V3) => number = (p: V3): number => dot(AutoMovieCurveMath64.sub(p, port.frame.origin as V3), normal);
-        const from: number = a.reduce((limit: number, id: number): number => Math.max(limit, signed(AutoMovieHumanLoftMesh.position(mesh, id))), -Infinity);
-        const to: number = b.reduce((limit: number, id: number): number => Math.min(limit, signed(AutoMovieHumanLoftMesh.position(mesh, id))), Infinity);
-
-        // These are fixed observed polylines. Requiring every knot between
-        // both complete rails also bounds every linear span at every phase.
-        // No outside row or new coordinate expands this existing finite band.
-        const sections: V3[][] = transition.rows.filter((row: Transition["rows"][number]): boolean =>
-          row.station < 0 && row.points.every((p: number[]): boolean => {
-            const distance: number = signed(AutoMovieCurveMath64.clone(p));
-            return distance > from && distance < to;
-          })).map((row: Transition["rows"][number]): V3[] => row.points.map(AutoMovieCurveMath64.clone));
-        const tiles: number[] = AutoMovieHumanFootWebTrim.f1RootLoft(mesh.positions, a, b, port.frame, sections, guide);
+        // The observed failing roots keep the same finite indexed rails.
+        // Repair their complete interior from both healthy neighboring faces,
+        // rather than interpolating every recorded artifact section again.
+        const tiles: number[] = AutoMovieHumanFootWebTrim.f1RootLoft(mesh.positions, a, b, port.frame, guide, mesh.indices);
         const flip: boolean = direction(tiles, a) === direction(mesh.indices, a);
         if ((direction(tiles, b) === direction(mesh.indices, b)) !== flip)
           throw new Error("The finite F1 root loft disagrees with an exact shared boundary direction");

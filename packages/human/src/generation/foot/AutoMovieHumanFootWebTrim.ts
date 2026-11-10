@@ -1,5 +1,6 @@
 import { AutoMovieCurveMath64, AutoMovieViewAxis } from "@automovie/engine";
 
+import { AutoMovieHumanLoftMesh } from "../../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanArmCurveSpec } from "../arm/AutoMovieHumanArmCurveSpec";
 import { AutoMovieHumanLegF1World } from "../leg/AutoMovieHumanLegF1World";
 
@@ -227,22 +228,26 @@ export namespace AutoMovieHumanFootWebTrim {
   /**
    * Ordinary loft inside the existing F1 root band, in absolute world mm.
    * The caller supplies its retained indexed rail, original exact toe root
-   * and only observed polylines wholly between those rails along the root
-   * normal. No healthy plane cuts or new authored positions are introduced.
+   * and the actual neighboring web/toe faces. No healthy plane cuts or new
+   * authored positions are introduced.
    *
    * The exact toe polygon supplies the common curve parameter. The selected
    * cut rim is projected to that same known root curve, not to a new domain.
    * Its removed-face incidence carries this parameter to the stepped inner
    * rail, including local radial reversals; that rail is never required to
    * be star-shaped. Each neighbor interval follows the original cut cycle.
-   * Projection is geometric correspondence, not measured material identity
-   * or a G1 claim. Every indexed rim and every observed support knot stays.
+   * Projection is geometric correspondence, not measured material identity.
+   * The ab98127fa5 CPU/GPU round exposed folded finite bands despite that
+   * boundary ownership. Their interior artifact knots are not constraints:
+   * area-weighted normals of the unchanged neighboring faces infer transverse
+   * directions for a complete Hermite row loft. Native JSON remains the
+   * reversible observation record. This is not a final G1/embedding claim.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Carries the original generated cut-to-inner incidence onto the exact root polygon parameter and supplies complete adjacent curves to the existing ordinary strip; no polar condition is imposed on the stepped inner boundary.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No source faces, outside source row, minimum-area fan, tolerance widening or coordinate weld supplies this band.
    */
   export function f1RootLoft(
-    positions: number[], lower: number[], upper: number[], frame: Frame, sections: readonly (readonly V3[])[], guide: RootGuide,
+    positions: number[], lower: number[], upper: number[], frame: Frame, guide: RootGuide, existingIndices: readonly number[],
   ): number[] {
     /** Read an existing indexed point without moving either shared boundary. */
     const point: (id: number) => V3 = (id: number): V3 => [positions[3 * id]!, positions[3 * id + 1]!, positions[3 * id + 2]!];
@@ -296,20 +301,32 @@ export namespace AutoMovieHumanFootWebTrim {
       const phases: number[] = cycle.map((id: number): number => values[id]!);
       return { row: cycle.map((id: number): number => row[id]!), clock: [...phases.slice(1), phases[0]! + perimeter] };
     };
-    const rows: number[][] = [lower];
-    for (const section of sections) rows.push(section.map((p: V3): number => {
-      const id: number = positions.length / 3;
-      positions.push(p[0], p[1], p[2]);
-      return id;
-    }));
-    rows.push(upper);
-    const ordered: { row: number[]; clock: number[] }[] = rows.map((row: number[], i: number): { row: number[]; clock: number[] } =>
-      order(row, i === 0 ? lowerPhases : i === rows.length - 1 ? distances.slice(0, -1) : row.map((id: number): number => phase(point(id)))));
+    const ordered: { row: number[]; clock: number[] }[] = [order(lower, lowerPhases), order(upper, distances.slice(0, -1))];
+    const rails: Parameters<typeof AutoMovieHumanLegF1World.fairBand>[0][] = ordered.map(
+      ({ row, clock }: typeof ordered[number]): Parameters<typeof AutoMovieHumanLegF1World.fairBand>[0] =>
+        ({ row, phase: [clock.at(-1)! - perimeter, ...clock.slice(0, -1)].map((value: number): number => value / perimeter) }));
+    const normals: number[] = AutoMovieHumanLoftMesh.normals({ positions, indices: [...existingIndices], groups: [] });
+
+    /** Evaluate an existing boundary and its healthy neighboring normal field. */
+    const evaluate: (rail: typeof rails[number], u: number) => { p: V3; n: V3 } = (rail: typeof rails[number], u: number): { p: V3; n: V3 } => {
+      const x: number = u < rail.phase[0]! ? u + 1 : u;
+      const ends: number[] = [...rail.phase.slice(1), rail.phase[0]! + 1];
+      const i: number = ends.findIndex((end: number): boolean => x <= end), j: number = (i + 1) % rail.row.length;
+      const t: number = (x - rail.phase[i]!) / (ends[i]! - rail.phase[i]!);
+      const a: number = rail.row[i]!, b: number = rail.row[j]!;
+      const n0: V3 = [normals[3 * a]!, normals[3 * a + 1]!, normals[3 * a + 2]!], n1: V3 = [normals[3 * b]!, normals[3 * b + 1]!, normals[3 * b + 2]!];
+      return { p: mix(point(a), point(b), t), n: Geometry.unit(mix(n0, n1, t)) };
+    };
+    const parameters: number[] = [...new Set(rails.flatMap((rail: typeof rails[number]): number[] => rail.phase))].sort((a: number, b: number): number => a - b);
+    const columns: Parameters<typeof AutoMovieHumanLegF1World.fairBand>[2] = parameters.map(
+      (u: number): Parameters<typeof AutoMovieHumanLegF1World.fairBand>[2][number] => {
+        const a: { p: V3; n: V3 } = evaluate(rails[0]!, u), b: { p: V3; n: V3 } = evaluate(rails[1]!, u), chord: V3 = sub(b.p, a.p);
+        const da: V3 = sub(chord, AutoMovieCurveMath64.scale(a.n, Geometry.dot(chord, a.n)));
+        const db: V3 = sub(chord, AutoMovieCurveMath64.scale(b.n, Geometry.dot(chord, b.n)));
+        return { phase: u, span: AutoMovieCurveMath64.hermite(a.p, b.p, da, db, 1) };
+      });
     const indices: number[] = [];
-    for (let i: number = 1; i < ordered.length; ++i) {
-      const before: typeof ordered[number] = ordered[i - 1]!, after: typeof ordered[number] = ordered[i]!;
-      AutoMovieHumanLegF1World.stitchRows(before.row, after.row, positions, indices, [before.clock, after.clock]);
-    }
+    AutoMovieHumanLegF1World.fairBand(rails[0]!, rails[1]!, columns, positions, indices, true);
 
     // Bind both complete directed rims and reject exactly zero-area tiles.
     // Near-collinearity remains a separate same-body normal/crossing gate.
