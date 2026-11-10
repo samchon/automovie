@@ -2,6 +2,7 @@ import {
   type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
+  physicalShapeBounds,
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
 import type {
@@ -70,38 +71,98 @@ export namespace HumanColliders {
     b: IAutoMovieVector3,
   ): IDistance {
     let best: IDistance | undefined;
-    // Profile segments name rig bones by string; a segment whose bone the
-    // pose does not carry has nothing to place.
+    for (const { bone, pose, shapes } of placed(body, bones))
+      for (const shape of shapes) {
+        const d: number = physicalShapeSegmentDistance(pose, shape, a, b);
+        if (best === undefined || d < best.distance)
+          best = { distance: d, bone };
+      }
+    if (best === undefined)
+      throw new Error("A body without colliders has no distance");
+    return best;
+  }
+
+  /**
+   * The lowest world height any of a posed body's colliders reaches, metres:
+   * the least over the placed shapes of their exact world axis bounds
+   * (`physicalShapeBounds`). This is what a body lying or falling rests on, and
+   * it is synchronous, unlike the engine's physics geometry, which needs the
+   * physics runtime initialised.
+   *
+   * @param body The body.
+   * @param bones Its posed bones, world frame.
+   * @returns The least world Y of every collider, metres.
+   * @throws {Error} When the profile has no shape.
+   */
+  export function lowest(
+    body: IHumanBody,
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  ): number {
+    let low: number = Infinity;
+    for (const { pose, shapes } of placed(body, bones))
+      for (const shape of shapes)
+        low = Math.min(low, physicalShapeBounds(pose, shape).min.y);
+    if (low === Infinity)
+      throw new Error("A body without colliders has no lowest point");
+    return low;
+  }
+
+  /** One profile segment placed by its posed bone: the parent pose its shapes compose with. */
+  export interface IPlaced {
+    /** The rig bone that carries the segment. */
+    bone: AutoMovieHumanoidBone;
+
+    /** The segment's posed frame, world metres: the bone's world transform applied to the segment's neutral offset from the bone's rest joint. */
+    pose: P.ITransform;
+
+    /** The segment's shapes, each placed by `pose` composed with its own transform. */
+    shapes: readonly P.IShape[];
+  }
+
+  /**
+   * Every profile segment of a posed body with the frame its shapes are placed
+   * in. The canonical rig rests unrotated and a segment's neutral frame is its
+   * rest frame, so the posed frame is the bone's world rotation applied to the
+   * neutral offset from the bone's rest joint. This is the single owner of
+   * collider placement; distances and bounds read it.
+   *
+   * @param body The body.
+   * @param bones Its posed bones, world frame.
+   * @returns The placed segments, in profile order; a segment whose bone the pose does not carry is skipped.
+   */
+  export function placed(
+    body: IHumanBody,
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  ): IPlaced[] {
+    // Profile segments name rig bones by string; reading the posed map by name
+    // and taking the bone from the posed entry avoids casting the string.
     const byName: ReadonlyMap<string, IAutoMovieResolvedBone> = bones;
+    const out: IPlaced[] = [];
     for (const segment of body.profile.segments) {
       const posed: IAutoMovieResolvedBone | undefined = byName.get(
         segment.bone,
       );
       if (posed === undefined) continue;
-      const bone: AutoMovieHumanoidBone = posed.bone;
-      const rest: IAutoMovieVector3 | undefined = body.rest.get(bone);
+      const rest: IAutoMovieVector3 | undefined = body.rest.get(posed.bone);
       if (rest === undefined) continue;
-      const pose: P.ITransform = {
-        position: Vector3.add(
-          posed.worldPosition,
-          Quaternion.rotateVector(
-            posed.worldRotation,
-            Vector3.subtract(segment.neutral.position, rest),
+      out.push({
+        bone: posed.bone,
+        pose: {
+          position: Vector3.add(
+            posed.worldPosition,
+            Quaternion.rotateVector(
+              posed.worldRotation,
+              Vector3.subtract(segment.neutral.position, rest),
+            ),
           ),
-        ),
-        rotation: Quaternion.multiply(
-          posed.worldRotation,
-          segment.neutral.rotation,
-        ),
-      };
-      for (const shape of segment.shapes) {
-        const d: number = physicalShapeSegmentDistance(pose, shape, a, b);
-        if (best === undefined || d < best.distance)
-          best = { distance: d, bone };
-      }
+          rotation: Quaternion.multiply(
+            posed.worldRotation,
+            segment.neutral.rotation,
+          ),
+        },
+        shapes: segment.shapes,
+      });
     }
-    if (best === undefined)
-      throw new Error("A body without colliders has no distance");
-    return best;
+    return out;
   }
 }
