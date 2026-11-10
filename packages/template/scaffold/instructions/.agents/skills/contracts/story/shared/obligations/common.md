@@ -6,7 +6,7 @@ Each question compares the complete declared layer population and has exactly on
 
 Map every required beginning, ending, interval, person, event, fact, constraint, relationship and result to its smallest current owner. Report omissions, incompatible duplicate owners, independently useful content hidden in unrelated units, and files whose removal changes no fact, progression, relationship, experience or formal effect. Split independently changeable or refutable facts and progressions; keep dependent attributes and inseparable continuous operations together. Remove or reconnect purposeless material. Only an authorized scope decision permits an omission.
 
-Compare central and peripheral development: settings and treatments need sufficient decisions, scripts and screenplay sufficient execution and experience. Identify core omissions and disproportionate expansion. Counts, lengths, parent-child ratios and diffs locate passages to read, not quality verdicts.
+Compare central and peripheral development: settings or brief and treatments need sufficient decisions, scripts and screenplay sufficient execution and experience. Identify core omissions and disproportionate expansion. Counts, lengths, parent-child ratios and diffs locate passages to read, not quality verdicts.
 
 ## Are layer boundaries and work-wide choices consistent? {#layer-boundaries}
 

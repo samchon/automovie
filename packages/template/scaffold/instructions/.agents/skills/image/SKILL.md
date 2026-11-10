@@ -1,11 +1,11 @@
 ---
 name: image
-description: Generates still images for a production, such as canon reference images of cast, sets and props, a shot's first or last frame, style frames and turnaround views for modelling. Use when a settings record, a video request or a 3D form needs a generated image.
+description: Generates still images for a production, such as canon reference images of cast, sets and props, a shot's first or last frame, style frames and turnaround views for modelling. Use when a settings or brief record, a video request or a 3D form needs a generated image.
 ---
 
 # Image
 
-A generated image fixes what words cannot, how a figure, place or object looks, and one accepted image then travels through settings records, video references and shot frames. Most hosted image models expose no seed, so a prompt cannot reproduce an image: keep each accepted file under [media](../production/media.md) with its prompt, model and input images, and reuse the file rather than regenerate it.
+A generated image fixes what words cannot, how a figure, place or object looks, and one accepted image then travels through settings or brief records, video references and shot frames. Most hosted image models expose no seed, so a prompt cannot reproduce an image: keep each accepted file under [media](../production/media.md) with its prompt, model and input images, and reuse the file rather than regenerate it.
 
 ## Choose a generator
 

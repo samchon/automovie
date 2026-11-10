@@ -8,7 +8,7 @@ Fix the requested scope and artifact role; without a narrower request, assess ev
 
 ## Judges
 
-Use at least two fresh judges with the author's model, each making two independent judgments; a light request may use one and must say so. Give them the promise, scope, this method and annotation-free bodies or media, and withhold author identity, generation method, contracts, evidence, reviews and each other's results. The coordinator assigns and aggregates without voting. Judges read every selected unit, in non-overlapping chunks with a read inventory when needed, and lock reactions per file for settings and treatments and per scene or sequence for scripts, screenplay and video before scoring.
+Use at least two fresh judges with the author's model, each making two independent judgments; a light request may use one and must say so. Give them the promise, scope, this method and annotation-free bodies or media, and withhold author identity, generation method, contracts, evidence, reviews and each other's results. The coordinator assigns and aggregates without voting. Judges read every selected unit, in non-overlapping chunks with a read inventory when needed, and lock reactions per file for settings, brief and treatments and per scene or sequence for scripts, screenplay and video before scoring.
 
 ## Axes and anchors
 
