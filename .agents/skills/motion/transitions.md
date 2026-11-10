@@ -1,16 +1,16 @@
 # Time, transitions and redirection
 
-Read this when an action is cut into another, joins one, or has its target moved while it plays.
+An action rarely plays from start to end: it is cut into another, joins one, or has its target moved while it plays.
 
 ## Pose as a function of time
 
-An action evaluates each pose from its plan and a time alone, which has two consequences for solvers and memos. A solver's reference pose comes from a fixed instant, such as the previous contact event of the plan (the events and windows an action resolves into), never from the frame before. A memo is keyed only by exact event times, never by sampled frames. Either way, playback, seeking and capture at different rates still agree.
+An action evaluates each pose from its plan and a time alone, which has two consequences for solvers and caches. A solver's reference pose comes from a fixed instant, such as the previous contact event of the plan (the events and windows an action resolves into), never from the frame before. A cached result is keyed only by exact event times, never by sampled frames. Either way, playback, seeking and capture at different rates still agree.
 
 ## Declared cuts
 
 Each action declares its cuts: the actions it may be cut into, the window of each cut (a share of the action, or one of its events), where the target action is entered, and the transition kind. Refuse a cut the action does not list at the moment the plan is built, so an impossible change of plan surfaces before the film renders.
 
-The kind follows what changes. A change to a different action [inertializes](#changing-action). A change of target within one family of movement [redirects](#changing-target-within-an-action). A cyclic movement that continues into another, such as a walk into a run, joins on the matching foot event, so the gait keeps its phase.
+The kind follows what changes. A change to a different action [inertializes](#changing-action): it carries the difference in pose and velocity at the cut and lets it decay, instead of crossfading. A change of target within one family of movement [redirects](#changing-target-within-an-action). A cyclic movement that continues into another, such as a walk into a run, joins on the matching foot event, so the gait keeps its phase.
 
 A cut also names what it carries unchanged: the stance foot's plant, a guard, a grip. The action cut into plans from that state as its entry.
 

@@ -1,17 +1,17 @@
 ---
 name: motion
-description: Defines how body motion is designed, authored and verified in this repository, centred on effector goals and action laws, and owns the shared motion rules productions receive. Use when authoring or verifying body motion, the motions vocabulary, a human action law, an engine motion primitive or retargeting, or a motion capture verdict.
+description: Defines how body motion is designed, authored and verified in this repository, centered on interaction as end-effector goals and on action laws, and owns the shared motion rules productions receive. Use when authoring or verifying body motion, the motions vocabulary, a human action law, an engine motion primitive or retargeting, or a motion capture verdict.
 ---
 
 # Motion
 
 This repository develops the motion vocabulary that productions install. A production composes its actions, writes a law of its own only for an action the vocabulary lacks, and reports a defect in a shipped action back here. So an action here is finished only when it works for any body and any partner without a production patching it.
 
-An action is written as a law: a function that, given a body and its inputs, produces the same motion every time. Each rule file covers one part of designing or checking a law:
+Motion starts from interaction: the body's contact with the floor, a prop, a partner or a point it aims at. An action is written as a law, a function that, given a body and its inputs, produces the same motion every time. Each rule file covers one part of designing or checking a law:
 
 | Rule | Covers |
 | --- | --- |
-| [Effector goals](authoring.md) | Bringing effectors to targets: reach, balance, the path in time and the order of the fits. Every other rule depends on it |
+| [Effector goals](authoring.md) | Interaction as end-effector goals on targets: reach, balance, the path in time and the order of the fits. Every other rule depends on it |
 | [Laws](laws.md) | What every action declares: its plan, entry state, events, outcome and time scale |
 | [Variation](variation.md) | Parameters, skill and seed, and draws that replay |
 | [Transitions](transitions.md) | Pose as a function of time, declared cuts, inertialization and redirection |
@@ -19,7 +19,7 @@ An action is written as a law: a function that, given a body and its inputs, pro
 | [Layers](layers.md) | Gaze, breathing and other motion that runs over every action |
 | [Verification](verification.md) | Bounded checks, body sweeps and frame review |
 
-Those files hold only what is true of motion in any project, because productions receive them unchanged; they name roles rather than this repository's packages and paths. This file holds what applies only here.
+Those files hold only what is true of motion in any project and name roles rather than this repository's packages and paths, because the shared ones ship to productions unchanged. This file holds what applies only here.
 
 ## Adding an action
 
@@ -27,7 +27,7 @@ Work in this order, because each step fixes what the next one builds on.
 
 1. Read the action family's [study](#studies).
 
-   The study gives the shape prior, the phases with their timing, and the measured values at novice and expert level. An action written before its study invents the practice.
+   The study gives the key poses, the phases with their timing, and the measured values at novice and expert level. An action written before its study invents the practice.
 
 2. Declare the law's surface under [laws](laws.md).
 
@@ -37,9 +37,9 @@ Work in this order, because each step fixes what the next one builds on.
 
    The plan starts from the entry state and takes every quantity that varies from [skill and seed](variation.md).
 
-4. Declare the [interrupt table](transitions.md#declared-cuts) in both directions.
+4. Declare the action's [cuts](transitions.md#declared-cuts) in both directions.
 
-   One direction is the actions this one may be cut into. The other is this action as a cut target, in the tables of the actions that lead into it.
+   One direction is the actions this one may be cut into. The other is this action as a cut target, among the cuts of the actions that lead into it.
 
 5. Give the action isolated cases with bounded checks under [verification](verification.md).
 6. Capture the cases, review their frames, and repair every finding of the round together by cause.

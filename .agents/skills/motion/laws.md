@@ -1,10 +1,10 @@
 # Design an action as a law
 
-An action is a law: given a body, its parameters, the performer's skill, the state it is entered from and its targets, it produces the same motion every time. Give every law the parts below, because cuts, partners, sound and checks all rely on them.
+A law takes a body, its parameters, the performer's skill, the state it is entered from and its targets. Give every law the parts below, because cuts, partners, sound and checks all rely on them.
 
 ## Plan once, evaluate by time
 
-Decide everything an instance needs when it starts: its duration, its footprints, a flight path, a strike path. Each pose is then a closed evaluation of that plan at a time, so playback, seeking and capture at any rate agree. A law that decides while it plays gives playback one motion and a seek another. [Transitions](transitions.md#pose-as-a-function-of-time) gives what this demands of solvers and memos.
+Decide everything an instance needs when it starts: its duration, its footprints, a flight path, a strike path. Each pose is then a closed evaluation of that plan at a time. A law that decides while it plays gives playback one motion and a seek another. [Transitions](transitions.md#pose-as-a-function-of-time) gives what this demands of solvers and caches.
 
 ## Continue from the entry state
 
@@ -12,7 +12,7 @@ Plan from where the body is when the action starts: the displayed pose and its v
 
 ## Declare events and the decisive instant
 
-Name the instants other work depends on: the phases of the movement, the start and end of each contact, and the decisive instant when the action has one, such as an impact, a landing or a grip closing. Cuts, a partner's timing, sound and review address the action through these names. Without them an action can only be cut or matched at a guessed fraction of its length, and the guess breaks when the duration changes with the body.
+Name the instants other work depends on: the phases of the movement, the start and end of each contact, and the decisive instant when the action has one: the frame the action exists for, such as an impact, a release, a catch or a landing. Cuts, a partner's timing, sound and review address the action through these names. Without them an action can only be cut or matched at a guessed fraction of its length, and the guess breaks when the duration changes with the body.
 
 ## Take the outcome as an input
 
@@ -20,4 +20,4 @@ When an action can end in different outcomes, such as a strike that lands, is bl
 
 ## Scale time with the body
 
-Take durations and speeds from the body, as distances already are. Bodies of different size move alike at equal Froude number, v²/(g·l) with l the leg length (Alexander 1984), so a pace is a Froude number and not a speed in metres per second. A fixed speed makes a small body run where a tall one strolls.
+Take durations and speeds from the body, as distances already are. Bodies of different size move alike at equal Froude number, v²/(g·l) with l the leg length (Alexander 1984), so a pace is a Froude number and not a speed in meters per second. A fixed speed makes a small body run where a tall one strolls.
