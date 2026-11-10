@@ -8,6 +8,7 @@ import { AutoMovieHumanHeadEyeParts } from "./AutoMovieHumanHeadEyeParts";
 import { AutoMovieHumanHeadF1Junctions } from "./AutoMovieHumanHeadF1Junctions";
 import observed from "./AutoMovieHumanHeadF1Observed.json";
 import floorInputs from "./AutoMovieHumanHeadF1Floor.json";
+import neckCurves from "./AutoMovieHumanHeadF1NeckCurves.json";
 
 /** Absolute world-mm vector. */
 type V3 = AutoMovieCurveMath64.V;
@@ -259,6 +260,22 @@ export namespace AutoMovieHumanHeadF1Skin {
       return length;
     });
     charts.set(name, { order, prefix, rawSense: area > 0 ? 1 : -1, sheetWinding: winding });
+    const fitted: (typeof neckCurves.records)[number] | undefined = neckCurves.records.find(
+      (record: (typeof neckCurves.records)[number]): boolean => record.name === name);
+    if (fitted !== undefined) {
+      // Only the unbranched neck interior has fitted source curves. Their
+      // original chord clock remains authoritative for saved correspondence;
+      // exact neck/floor ports and all face/contact/critical curves stay owned
+      // by their existing definitions. The offline reducer keeps extrema and
+      // admits the observations at the owner's 0.5 mm trace tolerance.
+      if (fitted.rawKnots !== points.length || fitted.period !== prefix.at(-1))
+        throw new Error("The fixed neck coefficients no longer match their original source clock");
+      return { winding, curve: {
+        type: "cubicBezier", name, closed: true, unit: "mm", phaseUnit: "mm",
+        spans: fitted.spans.map((span: number[][]): IAutoMovieCurve64.Span => span.map(AutoMovieCurveMath64.clone) as AutoMovieCurveMath64.Span),
+        phaseIntervals: fitted.phaseIntervals,
+      } };
+    }
     return { winding, curve: { type: "cubicBezier", name, closed: true, unit: "mm", phaseUnit: "mm", spans, phaseIntervals } };
   }
 
@@ -314,21 +331,42 @@ export namespace AutoMovieHumanHeadF1Skin {
     const hi: ReturnType<typeof ordered> = ordered(b, upper, b.chart.rawSense * b.chart.sheetWinding * clock.direction);
     const first: number = mesh.indices.length;
     if (clock.afterMm <= floorInputs.boundsMm[0]!) {
-      // The neck front/left/back ab98127fa5 frames show shallow horizontal
-      // facets. Keep every sound ring; use its normal predecessor/successor
-      // curves together to replace the straight intervening panels.
-      const before: typeof observed.sections[number] | undefined = observed.sections.filter((row: typeof observed.sections[number]): boolean => row.coordinateMm < clock.beforeMm).at(-1);
-      const after: typeof observed.sections[number] | undefined = observed.sections.find((row: typeof observed.sections[number]): boolean => row.coordinateMm > clock.afterMm);
-      const nearest: (p: V3, row: typeof before) => V3 = (p: V3, row: typeof before): V3 => {
+      // The former unit-secant/chord-length construction produced 88 actual
+      // reversed face pairs in the 19:39 owner audit. Derivatives now belong
+      // to physical Y, and a shared point receives the same field jet from
+      // both incident strips. A basis or shading change cannot fix that cause.
+      const nearest: (p: V3, row: typeof observed.sections[number]) => V3 = (p: V3, row: typeof observed.sections[number]): V3 => {
         let result: V3 = p, distance: number = Infinity;
-        for (const loop of row?.loops ?? []) for (let i: number = 0; i < loop.points.length; ++i) {
-          const x: V3 = AutoMovieCurveMath64.clone(loop.points[i]!), d: V3 = AutoMovieCurveMath64.sub(AutoMovieCurveMath64.clone(loop.points[(i + 1) % loop.points.length]!), x);
+        for (let loop: number = 0; loop < row.loops.length; ++loop) {
+          const ids: number[] = required(rims, row.coordinateMm, loop).indices;
+          for (let i: number = 0; i < ids.length; ++i) {
+          const x: V3 = AutoMovieHumanLoftMesh.position(mesh, ids[i]!), d: V3 = AutoMovieCurveMath64.sub(AutoMovieHumanLoftMesh.position(mesh, ids[(i + 1) % ids.length]!), x);
           const length2: number = d.reduce((sum: number, value: number): number => sum + value * value, 0);
           const t: number = length2 === 0 ? 0 : Math.max(0, Math.min(1, AutoMovieCurveMath64.sub(p, x).reduce((sum: number, value: number, k: number): number => sum + value * d[k]!, 0) / length2));
           const q: V3 = AutoMovieCurveMath64.add(x, AutoMovieCurveMath64.scale(d, t)), gap: number = Math.hypot(...AutoMovieCurveMath64.sub(q, p));
           if (gap < distance) { distance = gap; result = q; }
         }
+        }
+        if (!Number.isFinite(distance)) throw new Error("The neck derivative has no neighboring generating curve");
         return result;
+      };
+      /** Differentiate one shared source position in physical millimetres of Y. */
+      const jet: (p: V3, y: number) => V3 = (p: V3, y: number): V3 => {
+        const before: typeof observed.sections[number] | undefined = observed.sections.filter(
+          (row: typeof observed.sections[number]): boolean => row.coordinateMm < y).at(-1);
+        const after: typeof observed.sections[number] | undefined = observed.sections.find(
+          (row: typeof observed.sections[number]): boolean => row.coordinateMm > y);
+        const stations: number[] = [], points: V3[][] = [];
+        if (before !== undefined) { stations.push(before.coordinateMm); points.push([nearest(p, before)]); }
+        const middle: number = stations.length;
+        stations.push(y); points.push([p]);
+        if (after !== undefined) { stations.push(after.coordinateMm); points.push([nearest(p, after)]); }
+        if (stations.length < 2) throw new Error("The neck has no longitudinal source derivative support");
+        const slope: V3 = AutoMovieCurveMath64.fieldSlopes(stations, points)[middle]![0]!;
+
+        // Every source section is the plane Y=y, hence dY/dy=1 exactly.
+        // PCHIP supplies the two in-plane derivatives without scalar overshoot.
+        return [slope[0], 1, slope[2]];
       };
       const sample: (row: typeof lo, phase: number) => V3 = (row: typeof lo, phase: number): V3 => {
         const u: number = phase < row.phases[0]! ? phase + 2 * Math.PI : phase, ends: number[] = [...row.phases.slice(1), row.phases[0]! + 2 * Math.PI];
@@ -337,9 +375,8 @@ export namespace AutoMovieHumanHeadF1Skin {
       };
       const phases: number[] = [...new Set([...lo.phases, ...hi.phases])].sort((x: number, y: number): number => x - y);
       const spans: AutoMovieCurveMath64.Span[] = phases.map((phase: number): AutoMovieCurveMath64.Span => {
-        const p: V3 = sample(lo, phase), q: V3 = sample(hi, phase), chord: V3 = AutoMovieCurveMath64.sub(q, p);
-        const incoming: V3 = AutoMovieCurveMath64.sub(p, nearest(p, before)), outgoing: V3 = AutoMovieCurveMath64.sub(nearest(q, after), q), width: number = Math.hypot(...chord);
-        return AutoMovieCurveMath64.hermite(p, q, Math.hypot(...incoming) === 0 ? chord : AutoMovieCurveMath64.scale(incoming, width / Math.hypot(...incoming)), Math.hypot(...outgoing) === 0 ? chord : AutoMovieCurveMath64.scale(outgoing, width / Math.hypot(...outgoing)), 1);
+        const p: V3 = sample(lo, phase), q: V3 = sample(hi, phase);
+        return AutoMovieCurveMath64.hermite(p, q, jet(p, clock.beforeMm), jet(q, clock.afterMm), clock.afterMm - clock.beforeMm);
       });
       let previous: typeof lo = lo;
       for (const t of [0.25, 0.5, 0.75]) {
