@@ -4,30 +4,28 @@ Look for a capability before writing it. This page says what each installed pack
 
 ## Installed packages {#installed-packages}
 
-A production is built with the AutoMovie packages its `package.json` lists. Search them before writing a capability, and use what they provide. A capability written a second time in the production diverges from the package at its first repair.
+Search the installed packages before writing a capability, and use what they provide. A capability written a second time in the production diverges from the package at its first repair.
 
 The skills name installed packages by role. This table is the one place that says which package each role is and what a production uses it for:
 
 | Role in the skills | Package | A production uses it to |
 | --- | --- | --- |
-| Interface package | `@automovie/interface` | Write what a film holds as typed data that every other package reads |
-| Human package | `@automovie/human` | Prepare a person's canonical body from parameters |
-| Motion vocabulary | `@automovie/motions` | Chain a person's actions and read the pose at any film second |
-| Engine | `@automovie/engine` | Validate the authored data, compose a scene's actions on one schedule and compute what each film second holds |
-| Viewer | `@automovie/viewer` | Draw the polygon man and every other form, and capture or inspect the picture |
-| Renderer | `@automovie/render` | Plan the frames, the edit and the encode that the production's own commands carry out |
-| Ingest package | `@automovie/ingest` | Decode external model, motion, audio and image bytes into AutoMovie records |
-| Recovery package | `@automovie/recovery` | Recover curves from a fixed mesh, so code can deform it or drive it by parameters |
-| Evidence package | `@automovie/evidence` | Configure the check that the production's code and writing answer their contracts |
-| Command-line tool | `automovie` | Create a production, add one to a workspace and sync these instructions |
+| Interface package | `@automovie/interface` | Type the authored data every other package reads |
+| Human package | `@automovie/human` | Prepare a person's canonical body |
+| Motion vocabulary | `@automovie/motions` | Chain a person's actions and read the pose at any second |
+| Engine | `@automovie/engine` | Validate the data, schedule a scene's actions and compute each film second |
+| Viewer | `@automovie/viewer` | Draw the polygon man and every other form, and capture the picture |
+| Renderer | `@automovie/render` | Plan the frames, cuts and encoding that the production's commands run |
+| Ingest package | `@automovie/ingest` | Decode external models, motion, audio and images |
+| Recovery package | `@automovie/recovery` | Recover curves from a fixed mesh so parameters can drive it |
+| Evidence package | `@automovie/evidence` | Configure the check that code and writing answer their contracts |
+| Command-line tool | `automovie` | Create, add and sync productions |
 
-The first six rows are in the order a film passes through them, from authored data to an encoded video. [How the parts work together](source-layout.md#how-the-parts-work-together) says how the production's own modules carry them into a film.
+The first six rows follow a film from authored data to encoded video, and [how the parts work together](source-layout.md#how-the-parts-work-together) says how the production's modules carry them.
 
 ### Reading a package {#reading-a-package}
 
-A package's README, public types and JSDoc are its API, and the skills repeat none of it. Read them in the package's folder under `node_modules` instead of recalling a call from memory: the packages change between releases, and the installed version is the one the production runs.
-
-Read the README first, for what the package owns and how a use of it begins. Then read the declaration and JSDoc of each export you use, for its units, limits and refusals.
+A package's README, public types and JSDoc are its API. Read them in the package's folder under `node_modules` instead of recalling a call, because the packages change between releases. Read the README first for what the package owns, then the declaration and JSDoc of each export you use for its units, limits and refusals.
 
 ### A defect or a gap
 

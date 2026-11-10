@@ -27,6 +27,8 @@ When a vocabulary action misbehaves in a case, hand the user the case and its nu
 
 Write a law only for an action the vocabulary lacks and for what is not a person, such as an animal, a vehicle, a crowd moving as a mass, a camera or a light.
 
+For an action the vocabulary lacks, read a comparable action in the source the installed motion vocabulary ships in its folder under `node_modules`, and build the law on the same principles. A law built that way composes with the vocabulary's actions and behaves like them, and one invented from scratch does neither.
+
 Confirm its [research](../story/planning/research.md) study first, because a law written without one invents the practice. Design it under the [shared motion rules](#shared-motion-rules), answer the [behaviors contract](../contracts/development/behaviors.md), and unit-test it against its study's values through [testing](../development/testing.md). Contact and reactions use the installed engine through [physical feedback](physical-feedback.md).
 
 ## Compose the film {#compose-the-film}
