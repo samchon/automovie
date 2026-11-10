@@ -437,6 +437,7 @@ export namespace AutoMovieHumanHeadF1Skin {
    * and orient an independent upper sheet from their actual free-rim senses.
    */
   function eye(mesh: Context, lower: number[], upper: number[], name: string): string {
+    const first: number = mesh.indices.length;
     const a: number[] = direction(mesh.indices, lower, "eye lower") < 0 ? lower : lower.slice().reverse();
     let b: number[] = direction(mesh.indices, upper, "eye upper") > 0 ? upper : upper.slice().reverse();
     let reversed: number = 0;
@@ -470,6 +471,13 @@ export namespace AutoMovieHumanHeadF1Skin {
     });
     rows.splice(1, 0, ...[0.25, 0.5, 0.75].map((t: number): typeof rows[number] => ({ ids: AutoMovieHumanLoftMesh.vertices(mesh, columns.map((span: AutoMovieCurveMath64.Span): V3 => AutoMovieCurveMath64.cubic(span, t))), phases })));
     for (let i: number = 1; i < rows.length; ++i) AutoMovieHumanLoftMesh.zipper(mesh, rows[i - 1]!.ids, rows[i - 1]!.phases.map((u: number): number => u * 2 * Math.PI), rows[i]!.ids, rows[i]!.phases.map((u: number): number => u * 2 * Math.PI));
+
+    // Zipper and the former contour tiler publish opposite boundary senses.
+    // Preserve the actual reciprocal shared rims, not an inferred loop sign.
+    orient(mesh, first, lower, upper, {
+      lower: direction(mesh.indices.slice(0, first), lower, "eye retained lower") === 1 ? -1 : 1,
+      upper: direction(mesh.indices.slice(0, first), upper, "eye retained upper") === 1 ? -1 : 1,
+    });
     return `Known source eye annulus ${name}: actual reciprocal ports joined; ${reversed} independent generated faces reoriented, publication values retained`;
   }
 
