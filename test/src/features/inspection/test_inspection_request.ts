@@ -14,10 +14,10 @@ import { InspectionScene } from "../internal/InspectionScene";
  * Scenarios:
  *
  * 1. A reader that answers null for every key, and one that answers undefined, both give the default request, and the keys the parser asks for are exactly `AUTO_MOVIE_INSPECTION_KEYS`.
- * 2. A reader holding every key gives each value as written: trimmed patterns with empty items dropped, the shade, the switches, kind patterns, the sliver limit, the cut, the stroke, label patterns and `pattern=rrggbb` colours in either letter case; each of the eight shades is accepted.
+ * 2. A reader holding every key gives each value as written: trimmed patterns with empty items dropped, the shade, the switches, kind patterns, the sliver limit, the cut, the stroke, label patterns, `pattern=rrggbb` colours in either letter case, and the trail patterns, reach and ticks; each of the eight shades is accepted.
  * 3. Each switch is on for the empty string, `1` and `true`, off for `0` and `false`, and refuses any other text.
  * 4. An axis cut puts the point on the named axis with a normal toward the side cut away, signed by its prefix, and a general cut is the point and direction as written.
- * 5. An unknown shade, a colour that is not `pattern=rrggbb`, a sliver limit or stroke that is zero, negative, blank, not a number or infinite, and a cut that is malformed, incomplete or has a zero direction are refused.
+ * 5. An unknown shade, a colour that is not `pattern=rrggbb`, a sliver limit, stroke, reach or tick rate that is zero, negative, blank, not a number or infinite, and a cut that is malformed, incomplete or has a zero direction are refused.
  * 6. The default request is written as no values, and the full request, a request with an axis cut, and requests changing one key each read back equal after being written, with every written key among `AUTO_MOVIE_INSPECTION_KEYS` in that list's order.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public parser through readers the test supplies, records the keys it asks for, writes requests with the public formatter and parses the written values back.
@@ -66,6 +66,9 @@ export function test_inspection_request(): void {
       { pattern: "hero/arm", color: 0xff8800 },
       { pattern: "curve/section", color: 0x00ff00 },
     ],
+    trail: ["hero/*Hand"],
+    reach: 0.5,
+    ticks: 10,
   };
   TestValidator.equals(
     "every key is read as written",
@@ -81,6 +84,9 @@ export function test_inspection_request(): void {
       stroke: "5",
       label: "hero, **/section/*",
       color: "hero/arm=FF8800, curve/section=00ff00",
+      trail: "hero/*Hand",
+      reach: "0.5",
+      ticks: "10",
     }),
     full,
   );
@@ -124,7 +130,7 @@ export function test_inspection_request(): void {
     { color: "=ff0000" },
     { color: "hero=gg0000" },
   ];
-  for (const key of ["sliver", "stroke"])
+  for (const key of ["sliver", "stroke", "reach", "ticks"])
     for (const text of ["0", "-1", "", "abc", "Infinity"]) refused.push({ [key]: text });
   for (const text of ["x", "x:1:2", "w:1", "x:abc", "x:", "1,2:0,0,1", "1,2,3:0,a,0", "1,2,3:0,0,0"])
     refused.push({ section: text });
@@ -146,6 +152,7 @@ export function test_inspection_request(): void {
     InspectionScene.ask({ xray: true }),
     InspectionScene.ask({ stroke: 0.1 + 0.2 }),
     InspectionScene.ask({ label: ["a"] }),
+    InspectionScene.ask({ trail: ["a", "b/*"], reach: 2, ticks: 24 }),
     InspectionScene.ask({ color: [{ pattern: "a", color: 0x00000f }] }),
   ];
   for (const request of requests) {

@@ -44,6 +44,9 @@ const SAMPLES: Readonly<Record<string, readonly [string, string][]>> = {
   stroke: [["stroke", "5"]],
   label: [["label", "hero/*"]],
   color: [["color", "hero/arm=ff8800"]],
+  trail: [["trail", "hero/*Hand"]],
+  reach: [["reach", "0.5"]],
+  ticks: [["ticks", "10"]],
 };
 
 /**

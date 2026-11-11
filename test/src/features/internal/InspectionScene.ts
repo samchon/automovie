@@ -46,6 +46,9 @@ export namespace InspectionScene {
       stroke: 3,
       label: [],
       color: [],
+      trail: [],
+      reach: 1,
+      ticks: 5,
       ...changes,
     };
   }

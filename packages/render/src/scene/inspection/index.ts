@@ -37,6 +37,7 @@ export * from "./mergeAutoMovieInspectionLegends.js";
 export * from "./parseAutoMovieInspectionRequest.js";
 export * from "./parseAutoMovieInspectionView.js";
 export * from "./placeAutoMovieInspectionLabels.js";
+export * from "./planAutoMovieInspectionTrailTimes.js";
 export * from "./resolveAutoMovieInspectionColors.js";
 export * from "./resolveAutoMovieInspectionView.js";
 export * from "./sampleAutoMovieInspectionTrails.js";

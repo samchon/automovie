@@ -10,6 +10,7 @@ import {
   type IAutoMovieInspectionTrail,
   applyAutoMovieInspection,
   markAutoMovieInspectionTrails,
+  planAutoMovieInspectionTrailTimes,
   sampleAutoMovieInspectionTrails,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
@@ -27,12 +28,13 @@ import { InspectionScene } from "../internal/InspectionScene";
  * 3. A trail pattern matching nothing is refused, and so is an empty list of times.
  * 4. Skeleton marks handed to the inspection at one second and then the next are drawn only at their own second: the second update replaces the first second's joints.
  * 5. A range overshoot at one joint is drawn as a flagged point in the flag colour and listed under a flag entry of the legend.
+ * 6. A request reaching 0.5 s at 4 ticks per second plans the trail times 1.5, 1.75, 2, 2.25 and 2.5 around the drawn second 2, clips them to 0, 0.25 and 0.5 at the start of the subject, and refuses a drawn second outside the subject.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Seeks a scene through the trail sampler, draws its marks and the engine's skeleton and overshoot marks through the public inspection, and reads the marks, the drawn points and the legend.
  * @evidence contracts/development/testing.md#independent-expectations Positions follow from the authored motion of one metre per second, the emphasised tick is the authored drawn second, and the flag colour is the palette's documented magenta.
  * @evidence contracts/development/testing.md#distinguishing-cases Contrasts a moving object against a still one, a match against none, one second's marks against the next, and a flagged joint against an unflagged one. The producers' own rules belong to their engine tests.
  * @evidence contracts/development/testing.md#execution-ownership This named portable unit builds its own scene and seek and starts no solver, browser, server or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An object moving one metre per second along X, sampled at five seconds).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An object moving one metre per second along X, sampled at five seconds).
  */
 export function test_inspection_motion(): void {
   const mover: THREE.Mesh = InspectionScene.quad("mover", 0, 0.2);
@@ -129,4 +131,21 @@ export function test_inspection_motion(): void {
     { label: "range overshoot (flagged)", color: 0xff00ff, count: 1 },
   ]);
   flagged.restore();
+
+  // 6. Trail times from the request.
+  const window = { reach: 0.5, ticks: 4 };
+  TestValidator.equals(
+    "the grid through the drawn second, clipped to the subject",
+    [
+      planAutoMovieInspectionTrailTimes({ request: window, seconds: 2, durationSeconds: 10 }),
+      planAutoMovieInspectionTrailTimes({ request: window, seconds: 0, durationSeconds: 10 }),
+    ],
+    [
+      [1.5, 1.75, 2, 2.25, 2.5],
+      [0, 0.25, 0.5],
+    ],
+  );
+  TestValidator.error("a second outside the subject", (): unknown =>
+    planAutoMovieInspectionTrailTimes({ request: window, seconds: 11, durationSeconds: 10 }),
+  );
 }

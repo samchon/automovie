@@ -2,7 +2,7 @@ import type { IAutoMovieSectionPlane } from "@automovie/engine";
 import type { AutoMovieGuidePass } from "@automovie/interface";
 
 /**
- * What one inspection picture shows of a scene: which objects and marks, under which shade, which kinds of marks, and where it is cut.
+ * What one inspection picture shows of a scene: which objects and marks, under which shade, which kinds of marks, which objects' travel, and where it is cut.
  *
  * Every member has a value. The request `parseAutoMovieInspectionRequest` returns when nothing is asked changes nothing: every object, the `beauty` shade, no marks and no cut.
  *
@@ -66,6 +66,21 @@ export interface IAutoMovieInspectionRequest {
    * Colours for one picture: each matched drawn object is shaded in its colour, under the `beauty` and `clay` shades only, and each matched mark kind is drawn in it instead of its default. A later entry wins over an earlier one.
    */
   color: IAutoMovieInspectionRequest.IColor[];
+
+  /**
+   * Path patterns of the objects whose travel is drawn as a trail, sampled by `sampleAutoMovieInspectionTrails` and drawn by `markAutoMovieInspectionTrails` as the `trail` and `trail/now` kinds, which `marks` must also ask for. Empty samples none.
+   */
+  trail: string[];
+
+  /**
+   * Seconds sampled before and after the drawn second for a trail, a positive duration; `planAutoMovieInspectionTrailTimes` clips the window to the subject's running time.
+   */
+  reach: number;
+
+  /**
+   * Trail samples per second, positive: one tick per sample, on a grid through the drawn second.
+   */
+  ticks: number;
 }
 export namespace IAutoMovieInspectionRequest {
   /**

@@ -59,5 +59,11 @@ export function formatAutoMovieInspectionRequest(
         )
         .join(","),
     ]);
+  if (request.trail.length !== 0)
+    values.push(["trail", request.trail.join(",")]);
+  if (request.reach !== absent.reach)
+    values.push(["reach", String(request.reach)]);
+  if (request.ticks !== absent.ticks)
+    values.push(["ticks", String(request.ticks)]);
   return values;
 }

@@ -15,4 +15,7 @@ export const AUTO_MOVIE_INSPECTION_KEYS: readonly string[] = [
   "stroke",
   "label",
   "color",
+  "trail",
+  "reach",
+  "ticks",
 ];

@@ -5,6 +5,12 @@ import type { IAutoMovieInspectionRequest } from "./IAutoMovieInspectionRequest.
 /** Stroke width in output pixels when none is asked: three, which stays visible when a still is reduced into a contact-sheet cell. */
 const STROKE: number = 3;
 
+/** Seconds a trail reaches before and after the drawn second when none is asked: one, which shows where a movement comes from and goes within a typical action. */
+const REACH: number = 1;
+
+/** Trail samples per second when none is asked: five, the lower end of the five to ten stills per second the capture skill reads a movement at. */
+const TICKS: number = 5;
+
 /** Every shade, keyed so the compiler refuses a list that misses one. */
 const SHADES: Record<IAutoMovieInspectionRequest.Shade, true> = {
   beauty: true,
@@ -34,6 +40,9 @@ const SHADES: Record<IAutoMovieInspectionRequest.Shade, true> = {
  * | `stroke` | A positive width in output pixels | 3 |
  * | `label` | Path patterns separated by commas | No label |
  * | `color` | `pattern=rrggbb` pairs separated by commas, such as `hero/arm=ff8800,curve/section=00ff00` | No colour |
+ * | `trail` | Path patterns of the objects whose travel is drawn, separated by commas | No trail |
+ * | `reach` | Seconds a trail samples before and after the drawn second, positive | 1 |
+ * | `ticks` | Trail samples per second, positive | 5 |
  *
  * A switch is on for the empty string, `1` or `true` and off for `0` or `false`. Any other text, an unknown shade or a number out of range throws an `Error` that names the key, the text and what is accepted. Mark kinds are not checked here, because their producers own them; `applyAutoMovieInspection` refuses a kind pattern that matches no kind it is given.
  *
@@ -69,6 +78,9 @@ export function parseAutoMovieInspectionRequest(
     stroke: positive("stroke", read("stroke")) ?? STROKE,
     label: list(read("label")),
     color: colors(read("color")),
+    trail: list(read("trail")),
+    reach: positive("reach", read("reach")) ?? REACH,
+    ticks: positive("ticks", read("ticks")) ?? TICKS,
   };
 }
 
