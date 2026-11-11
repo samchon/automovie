@@ -1,5 +1,8 @@
 import { Quaternion, Vector3, superposeMinimumJerk } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalProfile,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { StrikingContact, StrikingStroke } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -23,12 +26,12 @@ import { TestValidator } from "@nestia/e2e";
  * 5. A stroke against a wall stops where it first touches it, holds no
  *    penetration, recoils from there, and finds the same stop whether it is
  *    evaluated late first or early first.
- * 6. Capsule and box distances are exact signed distances; the first-contact
+ * 6. Capsule, sphere, box and hull distances are exact signed distances; the first-contact
  *    scan brackets and bisects a known crossing.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Evaluates the public delivery, stroke and contact functions and reads positions, speeds, stop seconds and distances; a landing off its point, a wrong speed share, a lost recoil, an order-dependent stop or a wrong distance fails.
  * @evidence contracts/development/testing.md#independent-expectations The impact share and speeds follow from the quintic's closed form; the wall's crossing is solved from the straight path; distances are computed by hand for axis-aligned shapes.
- * @evidence contracts/development/testing.md#distinguishing-cases Straight and via deliveries, free and stopped strokes, both evaluation orders, capsule, sphere and rotated box shapes.
+ * @evidence contracts/development/testing.md#distinguishing-cases Straight and via deliveries, free and stopped strokes, both evaluation orders, capsule, sphere, rotated box and rotated hull shapes.
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit; it runs in CI.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 scenarios and what each pins.
  */
@@ -149,26 +152,70 @@ export function test_motion_striking_stroke(): void {
       ),
   );
 
+  // Every collider rides one segment frame, lifted and turned so the shape's
+  // own transform and the segment's pose both take part.
+  const pose: IAutoMoviePhysicalProfile.ITransform = {
+    position: { x: 0, y: 0, z: 3 },
+    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
+  };
+  const still: IAutoMoviePhysicalProfile.ITransform = {
+    position: { x: 0, y: 0, z: 0 },
+    rotation: Quaternion.identity(),
+  };
   const capsule: StrikingContact.ICollider = {
-    kind: "capsule",
     name: "c",
-    a: { x: 0, y: 0, z: 0 },
-    b: { x: 0, y: 1, z: 0 },
-    radius: 0.1,
+    pose: still,
+    shape: {
+      id: "c",
+      material: "skin",
+      transform: { position: { x: 0, y: 0.5, z: 0 }, rotation: still.rotation },
+      kind: "capsule",
+      radius: 0.1,
+      halfLength: 0.5,
+    },
   };
   const sphere: StrikingContact.ICollider = {
-    kind: "capsule",
     name: "s",
-    a: { x: 2, y: 0, z: 0 },
-    b: { x: 2, y: 0, z: 0 },
-    radius: 0.2,
+    pose: still,
+    shape: {
+      id: "s",
+      material: "skin",
+      transform: { position: { x: 2, y: 0, z: 0 }, rotation: still.rotation },
+      kind: "sphere",
+      radius: 0.2,
+    },
   };
   const box: StrikingContact.ICollider = {
-    kind: "box",
     name: "b",
-    centre: { x: 0, y: 0, z: 3 },
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
-    halfExtents: { x: 0.5, y: 0.2, z: 0.1 },
+    pose,
+    shape: {
+      id: "b",
+      material: "skin",
+      transform: still,
+      kind: "box",
+      halfExtents: { x: 0.5, y: 0.2, z: 0.1 },
+    },
+  };
+  const hull: StrikingContact.ICollider = {
+    name: "h",
+    pose,
+    shape: {
+      id: "h",
+      material: "skin",
+      transform: still,
+      kind: "hull",
+      points: [-1, 1].flatMap((x: number): IAutoMovieVector3[] =>
+        [-1, 1].flatMap((y: number): IAutoMovieVector3[] =>
+          [-1, 1].map(
+            (z: number): IAutoMovieVector3 => ({
+              x: 0.5 * x,
+              y: 0.2 * y,
+              z: 0.1 * z,
+            }),
+          ),
+        ),
+      ),
+    },
   };
   TestValidator.predicate(
     "distances",
@@ -185,6 +232,12 @@ export function test_motion_striking_stroke(): void {
       Math.abs(StrikingContact.distance({ x: 0, y: 0, z: 3.3 }, box) + 0.1) <
         1e-9 &&
       Math.abs(StrikingContact.distance({ x: 0.3, y: 0, z: 3 }, box) - 0.2) <
+        1e-9 &&
+      Math.abs(StrikingContact.distance({ x: 0, y: 0, z: 3.8 }, hull) - 0.3) <
+        1e-9 &&
+      Math.abs(StrikingContact.distance({ x: 0, y: 0, z: 3.3 }, hull) + 0.1) <
+        1e-9 &&
+      Math.abs(StrikingContact.distance({ x: 0.3, y: 0, z: 3 }, hull) - 0.2) <
         1e-9 &&
       StrikingContact.nearest({ x: 1.7, y: 0, z: 0 }, [capsule, sphere, box])
         ?.name === "s",

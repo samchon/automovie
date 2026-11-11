@@ -1,26 +1,25 @@
 import {
   type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  closestPointsBetweenSegments,
+  physicalShapePairDistance,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieVector3,
+  IAutoMoviePhysicalProfile,
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../../body/IHumanBody";
+import { HumanColliders } from "../../posture/HumanColliders";
 
 /**
  * How deep two people's right hands enter each other, the rule the handshake
  * and handover cases measure interpenetration by: every right-hand phalanx
- * capsule and the right forearm capsule of one person against those of the
- * other, the palm boxes left out.
+ * collider and every right forearm collider of one person against those of
+ * the other, whatever kind the profile gives them, the palms left out.
  */
 export namespace HandOverlap {
   /**
    * The deepest overlap between two people's right-hand phalanx and forearm
-   * capsules.
+   * colliders, by the engine's shape pair distance.
    *
    * @param a One person.
    * @param aBones Their posed bones, world frame.
@@ -35,52 +34,43 @@ export namespace HandOverlap {
     bBones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): number {
     let least: number = Infinity;
-    for (const u of capsules(a, aBones))
-      for (const v of capsules(b, bBones))
+    const others: IPlaced[] = colliders(b, bBones);
+    for (const u of colliders(a, aBones))
+      for (const v of others)
         least = Math.min(
           least,
-          closestPointsBetweenSegments(u.p, u.q, v.p, v.q).distance - u.r - v.r,
+          physicalShapePairDistance(u.pose, u.shape, v.pose, v.shape),
         );
     return least;
   }
 }
 
-/** A placed capsule: its core segment and radius, metres. */
-interface ICapsule {
-  p: IAutoMovieVector3;
-  q: IAutoMovieVector3;
-  r: number;
+/** One collider with the posed frame of the segment that carries it. */
+interface IPlaced {
+  /** The segment's posed frame, world metres. */
+  pose: IAutoMoviePhysicalProfile.ITransform;
+
+  /** The shape, placed by `pose` composed with its own transform. */
+  shape: IAutoMoviePhysicalProfile.IShape;
 }
 
-/** A person's right-hand phalanx and forearm capsules, placed. */
-function capsules(
+/** A person's right-hand phalanx and forearm colliders, placed. */
+function colliders(
   body: IHumanBody,
   bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-): ICapsule[] {
+): IPlaced[] {
   const digit: RegExp = /^right(Thumb|Index|Middle|Ring|Little)/;
-  return body.profile.segments
-    .filter((x) => digit.test(x.bone) || x.bone === "rightLowerArm")
-    .flatMap((x): ICapsule[] =>
-      x.shapes.flatMap((shape): ICapsule[] => {
-        if (shape.kind !== "capsule") return [];
-        const bone: IAutoMovieResolvedBone = bones.get(
-          x.bone as AutoMovieHumanoidBone,
-        )!;
-        const centre: IAutoMovieVector3 = Vector3.add(
-          bone.worldPosition,
-          Quaternion.rotateVector(bone.worldRotation, shape.transform.position),
-        );
-        const axis: IAutoMovieVector3 = Quaternion.rotateVector(
-          Quaternion.multiply(bone.worldRotation, shape.transform.rotation),
-          { x: 0, y: shape.halfLength, z: 0 },
-        );
-        return [
-          {
-            p: Vector3.subtract(centre, axis),
-            q: Vector3.add(centre, axis),
-            r: shape.radius,
-          },
-        ];
-      }),
+  return HumanColliders.placed(body, bones)
+    .filter(
+      (segment: HumanColliders.IPlaced): boolean =>
+        digit.test(segment.bone) || segment.bone === "rightLowerArm",
+    )
+    .flatMap((segment: HumanColliders.IPlaced): IPlaced[] =>
+      segment.shapes.map(
+        (shape: IAutoMoviePhysicalProfile.IShape): IPlaced => ({
+          pose: segment.pose,
+          shape,
+        }),
+      ),
     );
 }

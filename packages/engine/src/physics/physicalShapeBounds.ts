@@ -7,7 +7,8 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 
 /**
- * Exact world axis bounds of the admitted sphere, Y capsule or oriented box.
+ * Exact world axis bounds of the admitted sphere, Y capsule, oriented box or
+ * convex hull; a hull's bounds are those of its rotated points.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Exact world axis bounds of the admitted sphere, Y capsule or oriented box) as stated in this comment.
  * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Exact world axis bounds of the admitted sphere, Y capsule or oriented box) directly over its typed inputs (`pose`, `shape`) as a fixed number of statements with no loop or recursion in the body, delegating to `Vector3.add`, `Quaternion.rotateVector`, `Quaternion.multiply`, `Math.abs`, `Vector3.subtract`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Apart from structural 0, 1 and 2 the body uses no numeric literal.
@@ -43,7 +44,25 @@ export function physicalShapeBounds(
       y: Math.abs(axis.y) * shape.halfLength + shape.radius,
       z: Math.abs(axis.z) * shape.halfLength + shape.radius,
     };
-  } else {
+  } else if (shape.kind === "hull") {
+    // A hull's bounds are its vertices' bounds about the shape centre.
+    let min: IAutoMovieVector3 = { x: Infinity, y: Infinity, z: Infinity };
+    let max: IAutoMovieVector3 = { x: -Infinity, y: -Infinity, z: -Infinity };
+    for (const point of shape.points) {
+      const world: IAutoMovieVector3 = Quaternion.rotateVector(rotation, point);
+      min = {
+        x: Math.min(min.x, world.x),
+        y: Math.min(min.y, world.y),
+        z: Math.min(min.z, world.z),
+      };
+      max = {
+        x: Math.max(max.x, world.x),
+        y: Math.max(max.y, world.y),
+        z: Math.max(max.z, world.z),
+      };
+    }
+    return { min: Vector3.add(center, min), max: Vector3.add(center, max) };
+  } else if (shape.kind === "box") {
     const x: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
       x: 1,
       y: 0,
@@ -73,6 +92,9 @@ export function physicalShapeBounds(
         Math.abs(y.z) * shape.halfExtents.y +
         Math.abs(z.z) * shape.halfExtents.z,
     };
+  } else {
+    shape satisfies never;
+    throw new Error("Unknown physical shape kind");
   }
   return {
     min: Vector3.subtract(center, extent),

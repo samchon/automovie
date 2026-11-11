@@ -11,6 +11,7 @@ export * from "./gait/HUMANOID_GAITS";
 export * from "./gait/HUMANOID_PROFILE";
 export * from "./handling/HumanGrasp";
 export * from "./handling/HumanGrip";
+export * from "./handling/HumanPreshape";
 export * from "./handling/HumanPrehension";
 export * from "./handling/handshake";
 export * from "./handling/pickUp";

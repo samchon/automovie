@@ -3,6 +3,7 @@ import {
   Quaternion,
   Vector3,
   type curlChainUntilContact,
+  physicalShapeSpan,
 } from "@automovie/engine";
 import type {
   AutoMovieGripKind,
@@ -23,8 +24,6 @@ import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { HumanGrip } from "./HumanGrip";
-import { HumanPrehension } from "./HumanPrehension";
 
 /**
  * A prop's grip affordance as a grasp target, and the hand that grasps it:
@@ -47,18 +46,14 @@ import { HumanPrehension } from "./HumanPrehension";
  *
  * The grasped width is the affordance's `aperture`, or else the extent along
  * the approach axis of the prop's collider nearest the grip point (the span
- * the closing hand must clear); the pre-shape opens the hand to `HumanPrehension.aperture` of it.
- * The open hand is found on the thumb-index aperture of the body's own digit
- * colliders: a blend from the closed grasp toward the flat hand when the flat
- * hand is wide enough, else the flat hand with the thumb's carpometacarpal
- * joint abducted until it is, the joint that opens the human grip span; a
- * span the hand cannot reach within 60 degrees of abduction stops there.
+ * the closing hand must clear), read from the engine's `physicalShapeSpan`.
+ * `HumanPreshape` opens the hand for it on the way.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame convention, the socket alignment, the width rule and the pre-shape rule.
- * @evidence contracts/development/implementation.md#principled-implementation Affordance frame composition, socket-to-frame alignment, collider extents along an axis, and bisection on the measured aperture.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Target reading, hand placement, closure and pre-shape as four functions over one target record.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing prop affordance or collider throws; an unreachable span is capped at the joint's limit and the reached aperture reported, not faked.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work plus one curl and two 30-step bisections per grasp.
+ * @evidence contracts/development/common.md#meaningful-documentation States the frame convention, the socket alignment, the width rule and who owns the pre-shape.
+ * @evidence contracts/development/implementation.md#principled-implementation Affordance frame composition, socket-to-frame alignment, and collider extents along an axis read from the engine's shape span.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Target reading, hand placement and the reachable grip search as functions over one target record.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing prop affordance or collider throws.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per target; the reachable search fits the arm once per candidate turn and tilt and once per stroke key.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per planned grasp.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -425,81 +420,6 @@ export namespace HumanGrasp {
   }
 
   /**
-   * The open pre-shape whose thumb-index aperture is the peak aperture for a
-   * width.
-   *
-   * @param body The body.
-   * @param side The hand.
-   * @param closed The closed grasp's digit angles.
-   * @param width The grasped width, metres.
-   * @returns The pre-shape's angles and the aperture it reaches, metres.
-   */
-  export function open(
-    body: IHumanBody,
-    side: HumanHand.Side,
-    closed: IHumanPosture["joints"],
-    width: number,
-  ): { joints: IHumanPosture["joints"]; aperture: number } {
-    const want: number = HumanPrehension.aperture(width);
-    const flat: IHumanPosture["joints"] = HumanHand.shape(side, "flat");
-    const blend = (w: number): IHumanPosture["joints"] => {
-      const out: IHumanPosture["joints"] = {};
-      for (const bone of new Set([
-        ...Object.keys(closed),
-        ...Object.keys(flat),
-      ]) as Set<AutoMovieHumanoidBone>) {
-        const a: readonly [number, number, number] = closed[bone] ?? [0, 0, 0];
-        const b: readonly [number, number, number] = flat[bone] ?? [0, 0, 0];
-        out[bone] = [
-          a[0] + (b[0] - a[0]) * w,
-          a[1] + (b[1] - a[1]) * w,
-          a[2] + (b[2] - a[2]) * w,
-        ];
-      }
-      return out;
-    };
-    const solve = (
-      shape: (x: number) => IHumanPosture["joints"],
-      hi: number,
-    ): { joints: IHumanPosture["joints"]; aperture: number } => {
-      let lo: number = 0;
-      let top: number = hi;
-      if (HumanGrip.aperture(body, side, shape(top)) <= want)
-        return {
-          joints: shape(top),
-          aperture: HumanGrip.aperture(body, side, shape(top)),
-        };
-      for (let i: number = 0; i < 30; i++) {
-        const mid: number = (lo + top) / 2;
-        if (HumanGrip.aperture(body, side, shape(mid)) < want) lo = mid;
-        else top = mid;
-      }
-      return {
-        joints: shape(top),
-        aperture: HumanGrip.aperture(body, side, shape(top)),
-      };
-    };
-    if (HumanGrip.aperture(body, side, flat) >= want) return solve(blend, 1);
-
-    // Wider than the flat hand: abduct the thumb's carpometacarpal joint, in
-    // whichever sense widens the span.
-    const thumb: AutoMovieHumanoidBone =
-      `${side}ThumbMetacarpal` as AutoMovieHumanoidBone;
-    const abducted =
-      (sense: number) =>
-      (x: number): IHumanPosture["joints"] => ({
-        ...flat,
-        [thumb]: [0, sense * 60 * x, 0] as const,
-      });
-    const sense: number =
-      HumanGrip.aperture(body, side, abducted(1)(0.5)) >=
-      HumanGrip.aperture(body, side, abducted(-1)(0.5))
-        ? 1
-        : -1;
-    return solve(abducted(sense), 1);
-  }
-
-  /**
    * The width of colliders along an axis: the extent of their union's
    * projection.
    *
@@ -531,29 +451,13 @@ export namespace HumanGrasp {
     let lo: number = Infinity;
     let hi: number = -Infinity;
     for (const c of colliders) {
-      const rotation: IAutoMovieQuaternion = Quaternion.multiply(
-        c.frame.rotation,
-        c.shape.transform.rotation,
-      );
-      const centre: number = Vector3.dot(
-        Vector3.add(
-          c.frame.position,
-          Quaternion.rotateVector(c.frame.rotation, c.shape.transform.position),
-        ),
+      const [low, high]: readonly [number, number] = physicalShapeSpan(
+        c.frame,
+        c.shape,
         axis,
       );
-      const along = (v: IAutoMovieVector3): number =>
-        Math.abs(Vector3.dot(Quaternion.rotateVector(rotation, v), axis));
-      const half: number =
-        c.shape.kind === "sphere"
-          ? c.shape.radius
-          : c.shape.kind === "capsule"
-            ? c.shape.radius + c.shape.halfLength * along({ x: 0, y: 1, z: 0 })
-            : c.shape.halfExtents.x * along({ x: 1, y: 0, z: 0 }) +
-              c.shape.halfExtents.y * along({ x: 0, y: 1, z: 0 }) +
-              c.shape.halfExtents.z * along({ x: 0, y: 0, z: 1 });
-      lo = Math.min(lo, centre - half);
-      hi = Math.max(hi, centre + half);
+      lo = Math.min(lo, low);
+      hi = Math.max(hi, high);
     }
     return [lo, hi];
   }

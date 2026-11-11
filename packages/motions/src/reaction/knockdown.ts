@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Vector3, physicalShapeBounds } from "@automovie/engine";
 import type {
   AutoMovieMotionTarget,
   IAutoMovieVector3,
@@ -92,7 +92,7 @@ export namespace knockdown {
    * @returns The root height, metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the rule, the ignored input and the unit.
-   * @evidence contracts/development/implementation.md#principled-implementation Forward kinematics of the posture with its root at zero height, then the lowest support point of every collision shape (a capsule's lower end less its radius, a box's lowest corner), negated.
+   * @evidence contracts/development/implementation.md#principled-implementation Forward kinematics of the posture with its root at zero height, then the lowest point of every collision shape's exact world bounds (`physicalShapeBounds`), negated.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One trunk resolution and one pass over the shapes.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None; the height follows from the body's own shapes.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in bones and shapes.
@@ -486,21 +486,6 @@ export namespace knockdown {
 
   /** The lowest world height of a collider. */
   function bottom(c: StrikingContact.ICollider): number {
-    if (c.kind === "capsule") return Math.min(c.a.y, c.b.y) - c.radius;
-    let low: number = Infinity;
-    for (const sx of [-1, 1])
-      for (const sy of [-1, 1])
-        for (const sz of [-1, 1]) {
-          const corner: IAutoMovieVector3 = Vector3.add(
-            c.centre,
-            Quaternion.rotateVector(c.rotation, {
-              x: sx * c.halfExtents.x,
-              y: sy * c.halfExtents.y,
-              z: sz * c.halfExtents.z,
-            }),
-          );
-          low = Math.min(low, corner.y);
-        }
-    return low;
+    return physicalShapeBounds(c.pose, c.shape).min.y;
   }
 }

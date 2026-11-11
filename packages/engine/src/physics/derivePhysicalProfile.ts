@@ -184,7 +184,9 @@ export function derivePhysicalProfile(
                     y: 0.4 * value.mass * value.shape.radius ** 2,
                     z: 0.4 * value.mass * value.shape.radius ** 2,
                   }
-                : {
+                : // A capsule and a box both use the box of their extent; this
+                  // provider derives no hull.
+                  {
                     x: (value.mass * (e.y ** 2 + e.z ** 2)) / 3,
                     y: (value.mass * (e.x ** 2 + e.z ** 2)) / 3,
                     z: (value.mass * (e.x ** 2 + e.y ** 2)) / 3,

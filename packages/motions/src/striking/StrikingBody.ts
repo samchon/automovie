@@ -11,11 +11,13 @@ import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   AutoMovieHumanoidSocket,
+  IAutoMoviePhysicalProfile,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -284,18 +286,16 @@ export namespace StrikingBody {
   /**
    * Another body's collision shapes posed by its bones: every shape of every
    * physical-profile segment (the same shapes its regions are resolved on),
-   * carried from the segment's neutral frame by its bone's world placement.
-   * With the canonical rig's identity rest rotations, a shape's bone-local
-   * offset `R_n p_s` (neutral rotation applied to the shape's position) is
-   * rotated by the bone's world rotation and added to its world position.
+   * each with the posed frame of its segment as `HumanColliders.placed`, the
+   * single owner of collider placement, gives it.
    *
    * @param body The other body.
    * @param bones Its resolved bones.
    * @returns The colliders, named by bone.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States which shapes, how they are placed and the identity-rest premise.
-   * @evidence contracts/development/implementation.md#principled-implementation Each profile shape's bone-local offset rotated by its bone's world rotation; this reads the segment's neutral frame at its bone's rest joint, true of the canonical profiles, where HumanColliders also subtracts the neutral position's offset.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over segments and shapes.
+   * @evidence contracts/development/common.md#meaningful-documentation States which shapes and who places them.
+   * @evidence contracts/development/implementation.md#principled-implementation Placement is `HumanColliders.placed`; this function only lists each placed segment's shapes with the segment's pose and bone.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over placed segments and shapes.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in shapes.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
@@ -305,55 +305,17 @@ export namespace StrikingBody {
     body: IHumanBody,
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): StrikingContact.ICollider[] {
-    const out: StrikingContact.ICollider[] = [];
-    for (const segment of body.profile.segments) {
-      const bone: IAutoMovieResolvedBone | undefined = bones.get(
-        segment.bone as AutoMovieHumanoidBone,
-      );
-      if (bone === undefined) continue;
-      for (const shape of segment.shapes) {
-        const rotation: IAutoMovieQuaternion = Quaternion.multiply(
-          bone.worldRotation,
-          Quaternion.multiply(
-            segment.neutral.rotation,
-            shape.transform.rotation,
-          ),
-        );
-        const centre: IAutoMovieVector3 = Vector3.add(
-          bone.worldPosition,
-          Quaternion.rotateVector(
-            bone.worldRotation,
-            Quaternion.rotateVector(
-              segment.neutral.rotation,
-              shape.transform.position,
-            ),
-          ),
-        );
-        if (shape.kind === "box")
-          out.push({
-            kind: "box",
+    return HumanColliders.placed(body, bones).flatMap(
+      (segment: HumanColliders.IPlaced): StrikingContact.ICollider[] =>
+        segment.shapes.map(
+          (
+            shape: IAutoMoviePhysicalProfile.IShape,
+          ): StrikingContact.ICollider => ({
             name: segment.bone,
-            centre,
-            rotation,
-            halfExtents: shape.halfExtents,
-          });
-        else {
-          const half: number = shape.kind === "capsule" ? shape.halfLength : 0;
-          const axis: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
-            x: 0,
-            y: half,
-            z: 0,
-          });
-          out.push({
-            kind: "capsule",
-            name: segment.bone,
-            a: Vector3.subtract(centre, axis),
-            b: Vector3.add(centre, axis),
-            radius: shape.radius,
-          });
-        }
-      }
-    }
-    return out;
+            pose: segment.pose,
+            shape,
+          }),
+        ),
+    );
   }
 }

@@ -1,6 +1,7 @@
 export * from "./AutoMovieHumanBindingInputs";
 export * from "./AutoMovieHumanCanonicalBody";
 export * from "./AutoMovieHumanCanonicalProfile";
+export * from "./AutoMovieHumanCanonicalSolids";
 export * from "./AutoMovieHumanCrotchBinding";
 export * from "./AutoMovieHumanJointCentres";
 export * from "./AutoMovieHumanJointTransition";

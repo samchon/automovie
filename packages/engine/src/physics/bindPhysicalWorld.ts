@@ -11,6 +11,7 @@ import { Vector3 } from "../math/Vector3";
 import type { AutoMoviePhysicalSimulation } from "./AutoMoviePhysicalSimulation";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { assertPhysicalNativeMotion } from "./assertPhysicalNativeMotion";
+import { physicalHullErode } from "./physicalHullErode";
 import { physicalNativeShape } from "./physicalNativeShape";
 import { samplePhysicalTarget } from "./samplePhysicalTarget";
 
@@ -204,17 +205,27 @@ export function bindPhysicalWorld(
         });
         if (material.compliance > 0) {
           const depth: number = material.maximumCompression!;
-          const coreShape: P.IShape =
-            shape.kind === "box"
-              ? {
-                  ...shape,
-                  halfExtents: {
-                    x: shape.halfExtents.x - depth,
-                    y: shape.halfExtents.y - depth,
-                    z: shape.halfExtents.z - depth,
-                  },
-                }
-              : { ...shape, radius: shape.radius - depth };
+          let coreShape: P.IShape;
+          if (shape.kind === "box")
+            coreShape = {
+              ...shape,
+              halfExtents: {
+                x: shape.halfExtents.x - depth,
+                y: shape.halfExtents.y - depth,
+                z: shape.halfExtents.z - depth,
+              },
+            };
+          else if (shape.kind === "sphere" || shape.kind === "capsule")
+            coreShape = { ...shape, radius: shape.radius - depth };
+          else if (shape.kind === "hull")
+            coreShape = {
+              ...shape,
+              points: physicalHullErode(shape.points, depth),
+            };
+          else {
+            shape satisfies never;
+            throw new Error("Unknown physical shape kind");
+          }
           const core: RAPIER.ColliderDesc = new RAPIER.ColliderDesc(
             physicalNativeShape(coreShape),
           );
