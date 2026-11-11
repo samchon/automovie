@@ -336,12 +336,12 @@ namespace FamilyConicBody {
         // section's chain lost an arc. Until that is understood the hand keeps this course and closes at the webs.
         // It starts 2 mm past the armscye's plane and fans round the shoulder (`ARM_ROOT`); round that turn the cap's top sweeps about 2.5
         // times faster than the station, so its knots may stand 6 mm apart, as round the ankle.
-        { name: "arm", centres: armCentres, course: "[J.armRoot, J.armTurn, J.lowerarm, J.hand, J.middle1]", halves: armHalves, up: arm.up, domain: [arm.plane + 2, round(570 + arm.shift)], gap: (s: number): number => (s < arm.turned ? 6 : GAP_MM), tip: round(600 + arm.shift), mirrored: true, layouts: LIMB, reliefs: "auto", rounds: [
+        { name: "arm", centres: armCentres, course: "[J.armRoot, J.armTurn, J.lowerarm, J.hand, J.middle1]", halves: armHalves, up: arm.up, domain: [arm.plane + 2, round(590 + arm.shift)], gap: (s: number): number => (s < arm.turned ? 6 : GAP_MM), tip: round(605 + arm.shift), cap: 570.45, mirrored: true, layouts: LIMB, reliefs: "auto", rounds: [
           // The forearm and the hand: the wall of two conics a quarter left the ulna's head 2 to 4 mm inside the skin at the wrist, the web
           // between the thumb and the hand up to 11 mm full and stripes of 1 to 4 mm along the forearm (`FamilyConicDeviation.ts`), which
           // are not hollows under the tape but the wall's own misfit, on both sides of it. A net round each run takes them.
           { name: "fore", stations: [300, 440], rows: 31, columns: 43, reach: 10 },
-          { name: "hand", stations: [425, round(570 + arm.shift)], rows: 50, columns: 63, reach: 14, hold: (p: R.V): number => {
+          { name: "hand", stations: [425, round(590 + arm.shift)], rows: 57, columns: 63, reach: 14, hold: (p: R.V): number => {
             // Within 24 mm of the thumb's course from 20 mm past its first joint: the web beside the thumb and the face the thumb comes out of.
             const a: R.V = joint("thumb_01_r");
             const b: R.V = joint("thumb_03_r");
@@ -510,7 +510,10 @@ namespace FamilyConicBody {
       // wall's growth goes to its worst sections, and the arm's are in the hand, which left the shoulder with ten knots at a mean of 0.7 mm.
       const to: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--to="))?.slice(5);
       const whole: [number, number] = part.domain === "auto" ? span(skin, axis, part.centres) : part.domain;
-      const domain: [number, number] = to === undefined ? whole : [whole[0], Number(to)];
+
+      // `--from=<station>`: fit only from that station on, for the far end of a wall whose head is another fit's.
+      const from: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--from="))?.slice(7);
+      const domain: [number, number] = [from === undefined ? whole[0] : Number(from), to === undefined ? whole[1] : Number(to)];
       log("family-body-domain", { part: part.name, domain });
 
       // The tip: the last station, searched a quarter millimetre at a time past the domain, whose plane still cuts a loop round the course, and half a step on.
@@ -731,7 +734,9 @@ namespace FamilyConicBody {
         // `--refit` keeps the reliefs fitted just above over the whole spliced wall instead: for a splice inside a window both walls share.
         if (spliced !== null && !process.argv.includes("--refit")) {
           const { tail, at, head }: { tail: K.IStored; at: number; head: IAutoMovieLoftRelief[] } = spliced;
-          definition.reliefs = [...head.filter((relief: IAutoMovieLoftRelief): boolean => relief.stations[1] <= at), ...(tail.reliefs ?? []).filter((relief: IAutoMovieLoftRelief): boolean => relief.stations[0] >= at)].map((relief: IAutoMovieLoftRelief, i: number): IAutoMovieLoftRelief => ({ ...relief, name: part.name + ".hollow." + i }));
+          // A stored net that goes once round the part is left behind: those are fitted again below, over the spliced wall.
+          const window = (relief: IAutoMovieLoftRelief): boolean => relief.phases[1] - relief.phases[0] < 2 * Math.PI - 1e-9;
+          definition.reliefs = [...head.filter((relief: IAutoMovieLoftRelief): boolean => window(relief) && relief.stations[1] <= at), ...(tail.reliefs ?? []).filter((relief: IAutoMovieLoftRelief): boolean => window(relief) && relief.stations[0] >= at)].map((relief: IAutoMovieLoftRelief, i: number): IAutoMovieLoftRelief => ({ ...relief, name: part.name + ".hollow." + i }));
           log("family-body-spliced", { part: part.name, at, reliefs: definition.reliefs.map((relief: IAutoMovieLoftRelief): string => relief.name + " " + relief.stations.join("..")) });
         }
 
