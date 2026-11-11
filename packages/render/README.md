@@ -74,6 +74,7 @@ A page passes its address's `searchParams` to the same reader, so one request te
 | `subject` | The subject the host loads | Capturing the actual consumer (capture, Conditions) |
 | `from`, `to`, `rate`, `at` | An even sampling on the subject's frames, five per second by default, or exact seconds | Five to ten stills per second (capture, Times) |
 | `events`, `window` | Every frame within `window` frames, three by default, of each instant | The output's own consecutive frames around a contact, cut or join (capture, Times) |
+| `threshold` | The `scdet` score, 10 by default, at which a video file's frame starts a new scene, whose frames are planned like an event's | Consecutive frames around every cut (capture, Times) |
 | `views` | View texts separated by `;`, `film` by default | Naming views that repeat (capture, Views) |
 | `passes` | Several shades sharing each view's camera | Choosing passes by the question (passes) |
 | `sweep`, `margin` | Each matched unit alone and with the neighbours within `margin` metres | Each unit alone and with its neighbours (capture, Subject) |
@@ -81,3 +82,5 @@ A page passes its address's `searchParams` to the same reader, so one request te
 | `round`, `compare`, `tolerance` | Keeping the capture as a named round, comparing it cell by cell with an earlier one, and the byte difference counted as unchanged | Rounds kept apart and compared (capture, Rounds; comparison) |
 
 A capture writes `<cell>.png` stills, `sheet-001.png` onwards and `record.json` into its root, or into `rounds/<round>` beneath it, and refuses a folder holding a file no record of its own lists. The record keeps the revision, the request as text, the budget, one row per planned cell with its hash, backend and resolved camera or the cause it was not drawn, and the comparison's pairs and unmatched cells.
+
+`runAutoMovieVideoCapture` samples an encoded or generated video file from the file itself. It plans FFmpeg runs, `scdet` to find the cuts and one frame-exact `select` with `-fps_mode passthrough`, and hands them to a host's process runner, so the stills are the file's own frames around every cut and event, captioned by frame and second. Compared against the source's round, its cells pair by second; pixels are compared only between stills of one backend, and a second the file lacks stays as an unmatched cell with its cause.
