@@ -407,17 +407,19 @@ export namespace knee {
     // the body it met ({@link StrikingRide}), built on first use.
     let met: IHumanActionPlan.IContactEvent | null = null;
     let ride: StrikingRide.IRide | undefined;
-    const carried = (posture: IHumanPosture, seconds: number): IHumanPosture => {
+    const carried = (
+      posture: IHumanPosture,
+      seconds: number,
+    ): IHumanPosture => {
       if (met === null) return posture;
       const event: IHumanActionPlan.IContactEvent = met;
       ride ??= StrikingRide.create({
         other: (): IHumanActionContext.IPerformer =>
           context.performer(event.against),
         stop: event.seconds,
-        end: t0 + duration,
-        axis: (
-          at: number,
-        ): readonly [IAutoMovieVector3, IAutoMovieVector3] =>
+        goal: (at: number): IAutoMovieVector3 =>
+          free(at - t0, at).limbs[leg]!.point,
+        axis: (at: number): readonly [IAutoMovieVector3, IAutoMovieVector3] =>
           StrikingWeapon.axis(chain, event.weapon, at),
       });
       return ride.carry(posture, leg, t0 + seconds);
