@@ -8,7 +8,6 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { HumanFoot } from "../posture/HumanFoot";
-import { HumanFrame } from "../posture/HumanFrame";
 
 /**
  * The relations every striking law reads from its entry state and its
@@ -200,7 +199,7 @@ export namespace StrikingTarget {
       side,
       "ball",
       ball,
-      HumanFrame.heading(foot.rotation) + turn,
+      HumanFoot.heading(foot.rotation) + turn,
       -raise,
     );
   }
@@ -235,8 +234,39 @@ export namespace StrikingTarget {
   ): IAutoMovieVector3 {
     if (target.kind !== "none") return context.aim(target, seconds).point;
     const m = context.body.measure;
-    const entry = context.entry;
-    const lead: "left" | "right" = StrikingTarget.lead(entry);
+    const height: number =
+      target.line === "low"
+        ? m.hipHeight - 0.3 * m.thigh
+        : target.line === "high"
+          ? m.headHeight - 0.5 * m.headRadius
+          : m.chestHeight;
+    const distance: number = target.range ?? range(height);
+    const from: IStance = stance(context.entry);
+    return {
+      x: from.centre.x + from.forward.x * distance,
+      y: height,
+      z: from.centre.z + from.forward.z * distance,
+    };
+  }
+
+  /** The line a virtual opponent stands on. */
+  export interface IStance {
+    /** The stance centre a range is measured from: midway between the ankles, on the floor. */
+    centre: IAutoMovieVector3;
+
+    /** The horizontal unit direction toward the virtual opponent. */
+    forward: IAutoMovieVector3;
+  }
+
+  /**
+   * The line a virtual opponent stands on: from midway between the entry's
+   * ankles, along the heading turned back by the stance turn when the feet
+   * are staggered (a 5 cm stagger decides).
+   *
+   * @param entry The action's entry.
+   * @returns The stance centre and the unit direction toward the opponent.
+   */
+  export function stance(entry: IHumanActionContext["entry"]): IStance {
     const r0: number = (entry.posture.yaw * Math.PI) / 180;
     const staggered: boolean =
       Math.abs(
@@ -246,24 +276,16 @@ export namespace StrikingTarget {
         ),
       ) > 0.05;
     const yaw: number =
-      entry.posture.yaw + (staggered ? (lead === "left" ? 30 : -30) : 0);
+      entry.posture.yaw +
+      (staggered ? (StrikingTarget.lead(entry) === "left" ? 30 : -30) : 0);
     const r: number = (yaw * Math.PI) / 180;
-    const height: number =
-      target.line === "low"
-        ? m.hipHeight - 0.3 * m.thigh
-        : target.line === "high"
-          ? m.headHeight - 0.5 * m.headRadius
-          : m.chestHeight;
-    const distance: number = target.range ?? range(height);
-    const centre: IAutoMovieVector3 = {
-      x: (entry.feet.left.ankle.x + entry.feet.right.ankle.x) / 2,
-      y: 0,
-      z: (entry.feet.left.ankle.z + entry.feet.right.ankle.z) / 2,
-    };
     return {
-      x: centre.x + Math.sin(r) * distance,
-      y: height,
-      z: centre.z + Math.cos(r) * distance,
+      centre: {
+        x: (entry.feet.left.ankle.x + entry.feet.right.ankle.x) / 2,
+        y: 0,
+        z: (entry.feet.left.ankle.z + entry.feet.right.ankle.z) / 2,
+      },
+      forward: { x: Math.sin(r), y: 0, z: Math.cos(r) },
     };
   }
 }

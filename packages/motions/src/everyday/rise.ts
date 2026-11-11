@@ -58,6 +58,10 @@ import { seated } from "./seated";
  * Rehabil Med 28:79; values provisional). A body that cannot leave the seat
  * over feet drawn that far draws them further, 2 degrees of shank at a time,
  * up to the ankle's 20 degrees of dorsiflexion (the rig's range of motion).
+ * A pelvis that stands more than 1 cm aside of the feet's middle, as after a
+ * shift along the seat, has both feet set across by that distance in the
+ * same draws, the foot on that side first: the body rises between its feet,
+ * not over the edge of their base.
  *
  * The rise reads only the seated posture it is entered from, so it follows
  * a sit, a shift or any posture with the socket on a seat. Events `seatOff`
@@ -159,7 +163,16 @@ export namespace rise {
     );
 
     // Then the feet are drawn back, one at a time, until each ankle stands
-    // behind its knee with the shank at an angle forward of vertical.
+    // behind its knee with the shank at an angle forward of vertical, and
+    // across, until their middle stands under the pelvis again.
+    const leftDir: IAutoMovieVector3 = HumanFrame.point(
+      { origin: { x: 0, y: 0, z: 0 }, yaw },
+      { x: 1, y: 0, z: 0 },
+    );
+    const across = (p: IAutoMovieVector3): number =>
+      p.x * leftDir.x + p.z * leftDir.z;
+    const aside: number =
+      across(begin) - (across(feet.left) + across(feet.right)) / 2;
     const drawAt = (
       angle: number,
     ): Record<"left" | "right", IAutoMovieVector3> => {
@@ -175,9 +188,11 @@ export namespace rise {
         const back: number = along(feet[side]) - behind;
         if (back > 0.01)
           out[side] = Vector3.subtract(
-            feet[side],
+            out[side],
             Vector3.scale(forwardDir, back),
           );
+        if (Math.abs(aside) > 0.01)
+          out[side] = Vector3.add(out[side], Vector3.scale(leftDir, aside));
       }
       return out;
     };
@@ -244,7 +259,10 @@ export namespace rise {
 
     const swings: Partial<Record<"left" | "right", [number, number]>> = {};
     let clock: number = edging;
-    for (const side of ["left", "right"] as const) {
+    // The foot on the side the feet move to leads, so they never cross.
+    for (const side of aside < 0
+      ? (["right", "left"] as const)
+      : (["left", "right"] as const)) {
       if (drawn[side] === feet[side]) continue;
       swings[side] = [clock, clock + DRAW];
       clock += DRAW;

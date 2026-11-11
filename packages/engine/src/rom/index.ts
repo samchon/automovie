@@ -6,6 +6,7 @@ export * from "./clampPose";
 export * from "./constants";
 export * from "./getConstraint";
 export * from "./restRelativeConstraint";
+export * from "./scanJointRom";
 export * from "./swingConeAngle";
 export * from "./swingConeBlend";
 export * from "./toClinicalAngle";

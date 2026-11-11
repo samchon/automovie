@@ -29,6 +29,7 @@ export * from "./addPositiveModulo";
 export * from "./adjacentAutoMovieFloat64";
 export * from "./admitAutoMovieQuadraticProgram";
 export * from "./assembleAutoMovieQuadraticProgram";
+export * from "./bracketedRoot";
 export * from "./clampAutoMovieUnitInterval";
 export * from "./closestPointOnSegmentXZ";
 export * from "./closestPointsBetweenSegments";

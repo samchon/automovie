@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  minimumJerk,
-  wrapDegrees,
-} from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionEvent,
@@ -16,15 +11,19 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import { stand } from "./stand";
 import { standUpright } from "./standUpright";
+import { walkDescent } from "./walkDescent";
+import { walkFoot } from "./walkFoot";
+import { walkReach } from "./walkReach";
 import { walkSteps } from "./walkSteps";
 
-/** Seconds either side of a contact event at which its stance and swing are read. */
-const EPSILON: number = 1e-6;
+/** Seconds before a toe-off over which the ankle's velocity there is read. */
+const TICK: number = 1e-3;
 
 /**
  * Walking to a floor point in whole steps, ending with the feet side by side.
@@ -46,16 +45,12 @@ const EPSILON: number = 1e-6;
  * and stop, rises and falls 2.5 cm about its mean twice a stride (the 4 to 5
  * cm vertical excursion of the centre of mass), sways 2 cm toward the stance
  * foot, and is lowered wherever a planted leg could not otherwise reach its
- * foot, so no plant is ever stretched off its point. Where a foot lands or
- * leaves, the stance and the swing are reached under different limits (the
- * heel and forefoot rockers' dorsal clamps, the swing's reach and ankle
- * range), so the swing absorbs the difference: from toe-off its foot goal,
- * the root and the heading carry the stance's values at the event as an
- * offset decaying over the first `walkSteps.FADE` of the swing, and before
- * heel strike they gather the stance's offset over the last, on a
- * minimum-jerk weight. A plant is never moved, and every displayed channel
- * is continuous through every contact event (Bollo 2018's offset decay,
- * applied to the foot goals at the contact switch). The pelvis turns 4° and
+ * foot, so no plant is ever stretched off its point ({@link walkReach}). A
+ * swing joins the stance its foot left, as the leg reached it at toe-off, to
+ * the stance it lands in, as the leg reaches it at heel strike
+ * ({@link walkFoot}), and the pelvis reads a swinging foot only through those
+ * two stances, so a plant is never moved and every displayed channel is
+ * continuous through every contact event by construction. The pelvis turns 4° and
  * tilts 4° with the stride, the chest counter-rotates, and the arms swing
  * opposite the legs about 15° with the elbows bent 15 to 30° (Perry and
  * Burnfield, normal gait kinematics).
@@ -250,7 +245,6 @@ export namespace walk {
       period: (seconds: number): number =>
         HumanSkill.jitter(context.skill, context.random("period"), seconds),
       swing: gait.swing,
-      lift: gait.lift,
       ...(gait.bob === undefined ? {} : { bob: gait.bob }),
     });
     const duration: number = steps.duration;
@@ -265,53 +259,147 @@ export namespace walk {
       to: s.to / duration,
       support: { kind: "ground" },
     }));
-    // The unconstrained reach at a second, memoised for the contact events'
-    // two sides, which every swing sample near them reads.
-    const solved: Map<number, ReturnType<typeof solveAt>> = new Map();
-    const solveAt = (t: number) => {
+    const pelvis = (t: number): readonly [number, number, number] => {
       const phase: number = steps.phase(t);
       const amount: number = steps.amount(t);
-      const hips: readonly [number, number, number] = [
+      return [
         0,
         4 * Math.cos(2 * Math.PI * phase) * amount,
         4 * Math.sin(2 * Math.PI * phase) * amount,
       ];
-      const feet: Record<"left" | "right", walkSteps.IFoot> = {
+    };
+    // A foot as its schedule alone has it, before any pelvis is settled.
+    const scheduled = (side: "left" | "right", t: number): walkFoot.IEnd => {
+      const foot: walkFoot.IScheduled = steps.foot(side, t);
+      return {
+        ankle: foot.placement.ankle,
+        rotation: foot.placement.rotation,
+        toes: foot.toes,
+      };
+    };
+    // A swinging foot between two stances as `at` has them, leaving the first
+    // with the rates that stance ends with.
+    const swung = (
+      side: "left" | "right",
+      swing: { off: number; on: number },
+      u: number,
+      at: (side: "left" | "right", t: number) => walkFoot.IEnd,
+    ): walkFoot.IFoot => {
+      const from: walkFoot.IEnd = at(side, swing.off);
+      const before: walkFoot.IEnd = at(side, swing.off - TICK);
+      return walkFoot.swing(body, side, {
+        from,
+        velocity: Vector3.scale(
+          Vector3.subtract(from.ankle, before.ankle),
+          1 / TICK,
+        ),
+        rates: {
+          pitch:
+            (HumanFoot.pitch(from.rotation) -
+              HumanFoot.pitch(before.rotation)) /
+            TICK,
+          toes: (from.toes - before.toes) / TICK,
+        },
+        to: at(side, swing.on),
+        u,
+        seconds: swing.on - swing.off,
+        lift: gait.lift,
+      });
+    };
+    // The lowering a swinging leg asks of the pelvis at a share of its swing
+    // for the ankle the schedule swings there, read from the schedule alone
+    // so that it needs no settled pelvis and every instant settles the same.
+    const reaching = (
+      side: "left" | "right",
+      swing: { off: number; on: number },
+      u: number,
+    ): number => {
+      const t: number = swing.off + u * (swing.on - swing.off);
+      return walkReach.short(
+        body,
+        walkReach.pelvis(body, steps.root(t), steps.yaw(t), pelvis(t), {
+          left: steps.foot("left", t),
+          right: steps.foot("right", t),
+        }).hips[side],
+        swung(side, swing, u, scheduled).placement.ankle,
+      );
+    };
+    // A swing's scheduled descent, memoised by its toe-off.
+    const descents: Map<string, walkDescent.IPlan> = new Map();
+    const settle = (
+      t: number,
+      feet: Record<"left" | "right", walkFoot.IScheduled>,
+    ): walkReach.IGround => {
+      const claims: Partial<Record<"left" | "right", number>> = {};
+      for (const side of ["left", "right"] as const) {
+        const swing = feet[side].swing;
+        if (swing === undefined || swing.u < walkDescent.START) continue;
+        const key: string = `${side}:${swing.off}`;
+        let descent: walkDescent.IPlan | undefined = descents.get(key);
+        if (descent === undefined) {
+          descent = walkDescent.plan((u: number): number =>
+            reaching(side, swing, u),
+          );
+          descents.set(key, descent);
+        }
+        claims[side] = walkDescent.claim(
+          descent,
+          swing.u,
+          reaching(side, swing, swing.u),
+          -walkReach.CLAIM,
+        );
+      }
+      return walkReach.ground(
+        body,
+        steps.root(t),
+        steps.yaw(t),
+        pelvis(t),
+        feet,
+        claims,
+      );
+    };
+    // A foot's stance as reached at a swing's end, memoised by its second:
+    // every sample of that swing reads the same three.
+    const ends: Map<string, walkFoot.IEnd> = new Map();
+    const end = (side: "left" | "right", t: number): walkFoot.IEnd => {
+      const key: string = `${side}:${t}`;
+      let out: walkFoot.IEnd | undefined = ends.get(key);
+      if (out === undefined) {
+        out = settle(t, {
+          left: steps.foot("left", t),
+          right: steps.foot("right", t),
+        }).feet[side];
+        ends.set(key, out);
+      }
+      return out;
+    };
+    const solve = (
+      t: number,
+    ): {
+      feet: Record<"left" | "right", walkFoot.IScheduled>;
+      hips: readonly [number, number, number];
+      settled: walkReach.IGround;
+      reached: Record<"left" | "right", walkFoot.IEnd>;
+    } => {
+      const feet: Record<"left" | "right", walkFoot.IScheduled> = {
         left: steps.foot("left", t),
         right: steps.foot("right", t),
       };
-      return {
-        hips,
-        feet,
-        reached: walkSteps.reach(body, steps.root(t), steps.yaw(t), hips, feet),
+      const settled: walkReach.IGround = settle(t, feet);
+      const reached: Record<"left" | "right", walkFoot.IEnd> = {
+        ...settled.feet,
       };
-    };
-    const solve = (t: number): ReturnType<typeof solveAt> => {
-      const cached = solved.get(t);
-      if (cached !== undefined) return cached;
-      const out = solveAt(t);
-      if (steps.events.some((e) => Math.abs(e.seconds - t) <= 2 * EPSILON))
-        solved.set(t, out);
-      return out;
-    };
-    // A side's last contact event of a kind at or before a second (-1) or its next after it (+1).
-    const contact = (
-      side: "left" | "right",
-      kind: "ToeOff" | "HeelStrike",
-      t: number,
-      direction: -1 | 1,
-    ): number | undefined => {
-      let best: number | undefined;
-      for (const e of steps.events) {
-        if (!e.name.startsWith(`${side}${kind}`)) continue;
-        if (direction < 0 ? e.seconds > t : e.seconds <= t) continue;
-        if (
-          best === undefined ||
-          (direction < 0 ? e.seconds > best : e.seconds < best)
-        )
-          best = e.seconds;
+      for (const side of ["left", "right"] as const) {
+        const swing = feet[side].swing;
+        if (swing === undefined) continue;
+        reached[side] = walkReach.swing(
+          body,
+          side,
+          settled,
+          swung(side, swing, swing.u, end),
+        );
       }
-      return best;
+      return { feet, hips: pelvis(t), settled, reached };
     };
     return {
       duration,
@@ -322,60 +410,9 @@ export namespace walk {
         const phase: number = steps.phase(t);
         const amount: number = steps.amount(t);
         const swing: number = Math.sin(2 * Math.PI * phase) * amount;
-        const { feet, hips, reached: raw } = solve(t);
-        // The swing absorbs the stance's values at its toe-off and heel strike.
-        const ankles = { ...raw.ankles };
-        const rotations = { ...raw.rotations };
-        const toes = { ...raw.toes };
-        let root: IAutoMovieVector3 = raw.root;
-        let yaw: number = raw.yaw;
-        for (const side of ["left", "right"] as const) {
-          const off: number | undefined = contact(side, "ToeOff", t, -1);
-          const on: number | undefined = contact(side, "HeelStrike", t, 1);
-          if (feet[side].planted || off === undefined || on === undefined)
-            continue;
-          const fade: number = walkSteps.FADE * (on - off);
-          const event: number | undefined =
-            t - off < fade ? off : on - t < fade ? on : undefined;
-          if (event === undefined) continue;
-          const weight: number =
-            event === off
-              ? 1 - minimumJerk((t - off) / fade).s
-              : minimumJerk(1 - (on - t) / fade).s;
-          const stance = solve(
-            event === off ? off - EPSILON : on + EPSILON,
-          ).reached;
-          const free = solve(
-            event === off ? off + EPSILON : on - EPSILON,
-          ).reached;
-          ankles[side] = Vector3.add(
-            ankles[side],
-            Vector3.scale(
-              Vector3.subtract(stance.ankles[side], free.ankles[side]),
-              weight,
-            ),
-          );
-          rotations[side] = Quaternion.normalize(
-            Quaternion.multiply(
-              Quaternion.slerp(
-                Quaternion.identity(),
-                Quaternion.multiply(
-                  stance.rotations[side],
-                  Quaternion.inverse(free.rotations[side]),
-                ),
-                weight,
-              ),
-              rotations[side],
-            ),
-          );
-          toes[side] += (stance.toes[side] - free.toes[side]) * weight;
-          root = Vector3.add(
-            root,
-            Vector3.scale(Vector3.subtract(stance.root, free.root), weight),
-          );
-          yaw += wrapDegrees(stance.yaw - free.yaw) * weight;
-        }
-        const reached = { ...raw, ankles, rotations, toes };
+        const { feet, hips, settled, reached } = solve(t);
+        const root: IAutoMovieVector3 = settled.root;
+        const yaw: number = settled.yaw;
         const upright: standUpright.IAlignment = standUpright.of(body);
         const joints: Partial<
           Record<AutoMovieHumanoidBone, readonly [number, number, number]>
@@ -384,8 +421,8 @@ export namespace walk {
           ...upright.joints,
           spine: [(upright.joints.spine?.[0] ?? 0) + gait.lean, 0, 0],
           hips,
-          leftToes: [reached.toes.left, 0, 0],
-          rightToes: [reached.toes.right, 0, 0],
+          leftToes: [reached.left.toes, 0, 0],
+          rightToes: [reached.right.toes, 0, 0],
           chest: [(upright.joints.chest?.[0] ?? 0) + gait.lean, 0, -4 * swing],
           leftUpperArm: [-gait.arms.shoulder * arms * swing, 5 + elbows, 0],
           rightUpperArm: [gait.arms.shoulder * arms * swing, 5 + elbows, 0],
@@ -402,27 +439,28 @@ export namespace walk {
         };
         const limbs: IHumanPosture["limbs"] = {};
         for (const side of ["left", "right"] as const) {
-          const foot: walkSteps.IFoot = feet[side];
+          const planted: boolean = feet[side].swing === undefined;
           // The knee points over the foot's own heading: the foot has no axial
           // joint, so its toe-out comes from the hip's twist this hint sets.
+          // The heading is read off the lateral axis, because a folded shank
+          // pitches a swinging foot past vertical.
           const knee: IAutoMovieVector3 = HumanFrame.point(
             {
               origin: HumanFrame.point(
                 { origin: root, yaw },
                 body.rest.get(`${side}LowerLeg`)!,
               ),
-              yaw: HumanFrame.heading(foot.placement.rotation),
+              yaw: HumanFoot.heading(reached[side].rotation),
             },
             { x: 0, y: 0, z: 1 },
           );
           limbs[side === "left" ? "leftLeg" : "rightLeg"] = {
-            point: reached.ankles[side],
+            point: reached[side].ankle,
             bend: knee,
-            rotation: reached.rotations[side],
-            ...(foot.planted ? { planted: true } : {}),
-            ...(reached.contacts[side] === undefined
-              ? {}
-              : { contact: reached.contacts[side] }),
+            rotation: reached[side].rotation,
+            ...(planted
+              ? { planted: true, contact: settled.contacts[side] }
+              : {}),
           };
         }
         return { root, yaw, pitch: 0, roll: 0, joints, limbs };

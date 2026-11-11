@@ -24,8 +24,10 @@ import { TestValidator } from "@nestia/e2e";
  * 6. A cut at another subject's event: a 2 s guard of subject b, placed in
  *    parallel with a's kick anchored "k", cut `{ of: "k", event: "impact" }`
  *    ends at the kick's impact, 1.0 s; an unknown anchor or event throws.
- * 7. A proximity cut asks the laws' `until` for its share and ends there; with
- *    no `until` law it throws.
+ * 7. A proximity cut asks the laws' `until` for its share and ends there; an
+ *    `until` law answering undefined (never met) leaves the 2 s guard uncut,
+ *    ending at 2 s with no interrupter and the step starting at 2 s; with no
+ *    `until` law it throws.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Resolves real compositions through the public resolver and reads entry times, cuts and interrupters; a cut ignored, placed at the wrong share, a contact kept after it or an interrupter on the wrong entry fails.
  * @evidence contracts/development/testing.md#independent-expectations Times follow from the declared durations and shares by arithmetic (start + share x duration); the error must name the declared events.
@@ -160,6 +162,29 @@ export function test_composition_schedule_cut(): void {
   TestValidator.predicate(
     "proximity cut at the laws' share",
     close(near.entries.find((e) => e.intent.capability === "guard")!.end, 0.5),
+  );
+  const never: IAutoMovieSchedule = both(
+    {
+      proximity: {
+        effector: "palmLeft",
+        target: { kind: "none" },
+        distance: 0.1,
+      },
+    },
+    { ...laws, until: (): undefined => undefined },
+  );
+  const uncut: IAutoMovieSchedule.IEntry = never.entries.find(
+    (e) => e.intent.capability === "guard",
+  )!;
+  const after: IAutoMovieSchedule.IEntry = never.entries.find(
+    (e) => e.intent.capability === "step",
+  )!;
+  TestValidator.predicate(
+    "proximity never met runs to the end, uncut",
+    close(uncut.end, 2) &&
+      uncut.cut === undefined &&
+      uncut.interruptedBy === undefined &&
+      close(after.start, 2),
   );
   TestValidator.error("proximity without an until law", (): unknown =>
     both({

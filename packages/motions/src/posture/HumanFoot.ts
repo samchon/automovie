@@ -1,5 +1,11 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import {
+  type IAutoMovieResolvedBone,
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -40,6 +46,71 @@ export namespace HumanFoot {
     rotation: IAutoMovieQuaternion;
   }
 
+  /** A sole socket that bears on the floor. */
+  export type Socket = "heel" | "ball" | "toe";
+
+  /** A sole socket's place on a displayed foot. */
+  export interface ISocket {
+    /** Which socket. */
+    socket: Socket;
+
+    /** Where it is, world metres. */
+    point: IAutoMovieVector3;
+  }
+
+  /**
+   * A foot's three sole sockets on displayed bones, heel first, each placed
+   * on the bone it rides: the toe socket of a profile with jointed toes moves
+   * with the toes bone, not with the foot.
+   *
+   * @param body The body.
+   * @param bones The displayed bones.
+   * @param side The foot.
+   * @returns The heel, the ball and the toe.
+   */
+  export function sockets(
+    body: IHumanBody,
+    bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    side: "left" | "right",
+  ): ISocket[] {
+    return (["heel", "ball", "toe"] as const).map(
+      (socket: Socket): ISocket => {
+        const frame =
+          body.surfaces.sockets[
+            `${socket}${side === "left" ? "Left" : "Right"}`
+          ];
+        return {
+          socket,
+          point: resolveAutoMovieHumanoidSurfaces.place(
+            frame,
+            bones.get(frame.bone)!,
+          ).point,
+        };
+      },
+    );
+  }
+
+  /**
+   * The base of support of displayed bones: the sole sockets of both feet,
+   * the points whose convex hull a margin of stability is measured to (Hof,
+   * Gazendam and Sinke 2005).
+   *
+   * @param body The body.
+   * @param bones The displayed bones.
+   * @returns The left foot's heel, ball and toe, then the right foot's, world metres.
+   */
+  export function base(
+    body: IHumanBody,
+    bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  ): IAutoMovieVector3[] {
+    return (["left", "right"] as const).flatMap(
+      (side: "left" | "right"): IAutoMovieVector3[] =>
+        sockets(body, bones, side).map(
+          (s: ISocket): IAutoMovieVector3 => s.point,
+        ),
+    );
+  }
+
   /**
    * The foot's rotation from rest for a heading and a pitch.
    *
@@ -56,6 +127,44 @@ export namespace HumanFoot {
         Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, heading),
         Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -pitch),
       ),
+    );
+  }
+
+  /**
+   * A foot's heading from its rotation, read off its lateral axis: a pitch
+   * leaves that axis level, so the heading holds when a folded shank carries
+   * the foot's pitch past vertical, where its forward axis points backward.
+   *
+   * @param rotation The foot's world rotation, a heading and a pitch.
+   * @returns Degrees about +Y.
+   */
+  export function heading(rotation: IAutoMovieQuaternion): number {
+    const lateral: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+      x: 1,
+      y: 0,
+      z: 0,
+    });
+    return (Math.atan2(-lateral.z, lateral.x) * 180) / Math.PI;
+  }
+
+  /**
+   * A foot's pitch from its rotation, about the lateral axis `heading` reads,
+   * so it runs past ±90° where the foot points past vertical.
+   *
+   * @param rotation The foot's world rotation, a heading and a pitch.
+   * @returns Degrees, positive toes up.
+   */
+  export function pitch(rotation: IAutoMovieQuaternion): number {
+    const toes: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+      x: 0,
+      y: 0,
+      z: 1,
+    });
+    const yaw: number = (heading(rotation) * Math.PI) / 180;
+    return (
+      (Math.atan2(toes.y, toes.x * Math.sin(yaw) + toes.z * Math.cos(yaw)) *
+        180) /
+      Math.PI
     );
   }
 
@@ -142,15 +251,6 @@ export namespace HumanFoot {
     anchor: IAutoMovieVector3,
     contact: IAutoMovieVector3,
   ): { ankle: IAutoMovieVector3; toes: number } {
-    const pitch = (q: IAutoMovieQuaternion): number =>
-      (Math.asin(
-        Math.max(
-          -1,
-          Math.min(1, Quaternion.rotateVector(q, { x: 0, y: 0, z: 1 }).y),
-        ),
-      ) *
-        180) /
-      Math.PI;
     return {
       ankle: Vector3.subtract(
         anchor,

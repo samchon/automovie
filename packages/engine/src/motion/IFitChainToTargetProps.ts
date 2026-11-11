@@ -57,6 +57,17 @@ export interface IFitChainToTargetProps {
   referencePose?: IAutoMoviePose;
 
   /**
+   * How much a degree of joint turn from `referencePose` counts in a hinged
+   * chain's swivel choice, in degrees of effector error; 1 when omitted. A
+   * caller approaching the reference's instant raises it continuously from
+   * near 0 to 1, so the reference decides between two nearly tied swivels
+   * before the approach reaches them without pulling the limb early on, and
+   * the chosen swivel stays continuous in time. Only the swivel's continuous
+   * cost reads it; must be finite and non-negative.
+   */
+  referenceWeight?: number;
+
+  /**
    * A model-frame point the mid joint (a knee or an elbow) bends toward, the
    * pole vector of game-engine two-bone IK. Omitted, a hinged chain (elbow,
    * knee) keeps the side its posed hinge already bends toward, the

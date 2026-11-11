@@ -61,8 +61,22 @@ const HAND: readonly string[] = [
  * The forearm's twist is pronation and supination, which happens beyond the
  * elbow's hinge, so the lower arms declare a distal twist
  * (`AutoMovieJointTwistPlacement`): twisting a bent forearm turns it about its
- * own length and leaves where it points unchanged. Every other bone keeps the
- * proximal default.
+ * own length and leaves where it points unchanged.
+ *
+ * The upper arms declare a distal twist too. The humerus's internal and
+ * external rotation turns it about its own length wherever the arm points,
+ * which only the distal order composes. In the proximal order the twist turns
+ * about the T-pose arm line, fixed in the shoulder girdle: for an arm in the
+ * sagittal plane (hanging, swinging, reaching forward) that line is the
+ * flexion axis carried there by the 90 degree abduction from rest, so flexion
+ * and twist turn about one axis, the chart is at its gimbal for every such
+ * pose, and the arm's rotation about its length has no coordinate of its own
+ * there. With the distal order `flexion` and `abduction` alone place the arm
+ * (its line's latitude toward the front and its longitude in the frontal
+ * plane) and `twist` is the humeral rotation; the only gimbal left is the arm
+ * pointing straight forward or back, where abduction and twist turn about the
+ * arm's own line. A pose with no twist is the same rotation in both orders.
+ * Every other bone keeps the proximal default.
  *
  * Opt in by passing this to {@link resolvePose} / `applyPose`; a bone that
  * declares its own `axes` keeps them, and a bone absent from both uses
@@ -85,10 +99,11 @@ export const HUMANOID_JOINT_AXES: Partial<
     "rightUpperArm",
     "rightLowerArm",
   ];
-  const forearm: IAutoMovieJointAxes = { ...arm, twistPlacement: "distal" };
+  // the humerus and the forearm turn about their own length beyond the swing
+  const turning: IAutoMovieJointAxes = { ...arm, twistPlacement: "distal" };
   const table: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> = {};
   for (const s of slots)
-    table[s] = s === "leftLowerArm" || s === "rightLowerArm" ? forearm : arm;
+    table[s] = s === "leftShoulder" || s === "rightShoulder" ? arm : turning;
   const hand: IAutoMovieJointAxes = {
     flexion: { x: 0, y: 0, z: 1 },
     abduction: { x: 0, y: 1, z: 0 },

@@ -19,6 +19,7 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "./HumanFoot";
 import type { IHumanPosture } from "./IHumanPosture";
+import { hipJoints } from "./hipJoints";
 import { poseBones } from "./poseBones";
 
 /**
@@ -129,6 +130,46 @@ export namespace resolveHumanPosture {
   }
 
   /**
+   * The heading angles of a root rotation, the inverse of {@link heading}:
+   * with `R = Ry(yaw) Rx(pitch) Rz(roll)`, the turned forward axis is
+   * `(sin yaw cos pitch, -sin pitch, cos yaw cos pitch)` and the vertical
+   * components of the turned left and up axes are `sin roll cos pitch` and
+   * `cos roll cos pitch`. A rotation composed in the world (a pelvis tilted
+   * about a floor axis after its turn) becomes a posture's heading through
+   * it. At a pitch of 90 degrees yaw and roll turn about the same axis and
+   * only their sum is defined; the yaw is then returned as 0 with the whole
+   * turn in the roll's reading, which no upright posture reaches.
+   *
+   * @param rotation The root's world rotation, unit.
+   * @returns Yaw, pitch and roll, degrees.
+   */
+  export function angles(
+    rotation: IAutoMovieQuaternion,
+  ): Pick<IHumanPosture, "yaw" | "pitch" | "roll"> {
+    const forward: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+      x: 0,
+      y: 0,
+      z: 1,
+    });
+    const left: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+      x: 1,
+      y: 0,
+      z: 0,
+    });
+    const up: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+      x: 0,
+      y: 1,
+      z: 0,
+    });
+    const degrees: number = 180 / Math.PI;
+    return {
+      yaw: Math.atan2(forward.x, forward.z) * degrees,
+      pitch: -Math.asin(Math.max(-1, Math.min(1, forward.y))) * degrees,
+      roll: Math.atan2(left.y, up.y) * degrees,
+    };
+  }
+
+  /**
    * A posture with its root lowered along gravity to the highest height at
    * which every planted leg reaches its goal with at least `knee` degrees of
    * knee flexion: a standing body bends its knees rather than letting a foot
@@ -148,10 +189,6 @@ export namespace resolveHumanPosture {
     posture: IHumanPosture,
     knee: number = 5,
   ): IHumanPosture {
-    const a: number = body.measure.thigh;
-    const b: number = body.measure.shank;
-    const phi: number = (knee * Math.PI) / 180;
-    const limit: number = Math.sqrt(a * a + b * b + 2 * a * b * Math.cos(phi));
     // Only world-anchored plants are lowered for: a leg goal attached to a
     // bone moves with that bone, so the root cannot be solved against it here.
     const legs: { side: "left" | "right"; goal: IAutoMovieVector3 }[] = [];
@@ -161,49 +198,49 @@ export namespace resolveHumanPosture {
         legs.push({ side, goal: goal.point });
     }
     if (legs.length === 0) return posture;
-    // The hip joints depend only on the root, the heading and the pelvis joint.
-    const pelvis: readonly [number, number, number] | undefined =
-      posture.joints.hips;
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+    const hips: Record<"left" | "right", IAutoMovieVector3> = hipJoints(
       body,
-      {
-        skeleton: body.skeleton.id,
-        root: {
-          translation: posture.root,
-          rotation: heading(posture),
-          scale: { x: 1, y: 1, z: 1 },
-        },
-        joints:
-          pelvis === undefined
-            ? []
-            : [
-                {
-                  bone: "hips",
-                  flexion: pelvis[0],
-                  abduction: pelvis[1],
-                  twist: pelvis[2],
-                },
-              ],
-      },
+      posture.root,
+      heading(posture),
+      posture.joints.hips,
     );
     let drop: number = 0;
-    for (const { side, goal } of legs) {
-      const hip: IAutoMovieResolvedBone | undefined = bones.get(
-        `${side}UpperLeg`,
-      );
-      if (hip === undefined)
-        throw new Error(
-          `The rig lacks ${side}UpperLeg, so the root cannot be lowered`,
-        );
-      const at: IAutoMovieVector3 = hip.worldPosition;
-      const dh: number = Math.hypot(at.x - goal.x, at.z - goal.z);
-      const dv: number = at.y - goal.y;
-      if (Math.hypot(dh, dv) > limit && dh < limit)
-        drop = Math.max(drop, dv - Math.sqrt(limit * limit - dh * dh));
-    }
+    for (const { side, goal } of legs)
+      drop = Math.max(drop, short(body, hips[side], goal, knee));
     return drop === 0
       ? posture
       : { ...posture, root: { ...posture.root, y: posture.root.y - drop } };
+  }
+
+  /**
+   * How far a hip joint stands above the height from which its leg reaches an
+   * ankle with `knee` degrees of knee flexion: the lowering that leg asks of
+   * the root, by Pythagoras on the leg's length at that flexion and the
+   * ankle's horizontal distance.
+   *
+   * @param body The performer's body.
+   * @param hip The hip joint, world metres.
+   * @param ankle The ankle, world metres.
+   * @param knee The least knee flexion, degrees.
+   * @returns Metres, negative by the slack of a leg that reaches with more
+   *   flexion, and `-Infinity` for an ankle horizontally beyond the leg's
+   *   reach, which no lowering helps.
+   */
+  export function short(
+    body: IHumanBody,
+    hip: IAutoMovieVector3,
+    ankle: IAutoMovieVector3,
+    knee: number,
+  ): number {
+    const a: number = body.measure.thigh;
+    const b: number = body.measure.shank;
+    const limit: number = Math.sqrt(
+      a * a + b * b + 2 * a * b * Math.cos((knee * Math.PI) / 180),
+    );
+    const dh: number = Math.hypot(hip.x - ankle.x, hip.z - ankle.z);
+    return dh < limit
+      ? hip.y - ankle.y - Math.sqrt(limit * limit - dh * dh)
+      : -Infinity;
   }
 
   /**
@@ -222,6 +259,32 @@ export namespace resolveHumanPosture {
     goal: IHumanPosture.IGoal,
   ): IAutoMoviePose {
     return fitLimb(body, pose, limb, goal);
+  }
+
+  /**
+   * A limb's reference solution read off a pose: the clinical angles of its
+   * upper and lower bones. A law solves the limb once at the instant its
+   * action is about (the grasp, the clasp, the placement) and hands the
+   * result to every goal of the stroke as `IHumanPosture.IGoal.reference`.
+   *
+   * @param pose The pose the limb was solved in.
+   * @param limb The limb.
+   * @returns The reference.
+   */
+  export function reference(
+    pose: IAutoMoviePose,
+    limb: IHumanPosture.Limb,
+  ): IHumanPosture.IReference {
+    const chain: IChain = chainOf(limb);
+    const read = (
+      bone: AutoMovieHumanoidBone,
+    ): readonly [number, number, number] => {
+      const joint: IAutoMovieJointPose | undefined = pose.joints.find(
+        (j: IAutoMovieJointPose): boolean => j.bone === bone,
+      );
+      return [joint?.flexion ?? 0, joint?.abduction ?? 0, joint?.twist ?? 0];
+    };
+    return { upper: read(chain.upper), lower: read(chain.lower) };
   }
 
   /**
@@ -349,11 +412,48 @@ export namespace resolveHumanPosture {
   }
 }
 
+/** How far a re-aimed end joint may still move between two fits of a limb with a contact, metres (provisional: a fiftieth of a millimetre, far inside every contact verdict). */
+const REAIM_TOLERANCE: number = 2e-5;
+
+/** The most fits a limb with a contact takes (provisional: the mixed iteration closes in three to five on a joint at its limit). */
+const REAIM_PASSES: number = 8;
+
+/** The three bones of a limb's chain. */
+interface IChain {
+  /** The bone at the shoulder or the hip. */
+  upper: AutoMovieHumanoidBone;
+
+  /** The bone at the elbow or the knee. */
+  lower: AutoMovieHumanoidBone;
+
+  /** The hand or the foot. */
+  effector: AutoMovieHumanoidBone;
+}
+
+/** The chain of a limb. */
+function chainOf(limb: IHumanPosture.Limb): IChain {
+  const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
+  return limb.endsWith("Arm")
+    ? {
+        upper: `${side}UpperArm`,
+        lower: `${side}LowerArm`,
+        effector: `${side}Hand`,
+      }
+    : {
+        upper: `${side}UpperLeg`,
+        lower: `${side}LowerLeg`,
+        effector: `${side}Foot`,
+      };
+}
+
 /**
  * The fit of one limb by the engine's two-bone solver; with a contact, the end
- * joint is re-aimed twice so the contact stays put under the rotation the
- * limb actually reached (`HumanFoot.heelOff`), and a foot's toes take back
- * the pitch it lost. A goal attached to a bone (`on`) is first carried into
+ * joint is re-aimed until the contact stays put, within `REAIM_TOLERANCE`,
+ * under the rotation the limb actually reached (`HumanFoot.heelOff`), and a
+ * foot's toes take back the pitch that fit lost. The re-aim is a fixed-point
+ * iteration with Anderson's mixing of depth one (Anderson 1965, "Iterative
+ * procedures for nonlinear integral equations", J. ACM 12; Walker and Ni
+ * 2011, SIAM J. Numer. Anal. 49), at most `REAIM_PASSES` fits. A goal attached to a bone (`on`) is first carried into
  * the world by that bone as the pose being fitted places it, so whatever
  * moved the bone before the fit (a trunk joint, a layer, a transition
  * offset) moves the goal with it.
@@ -379,8 +479,14 @@ function fitLimb(
     goal.point,
     Quaternion.rotateVector(goal.rotation, goal.contact),
   );
+  // The end joint's point is the fixed point of `x -> anchor - R(x) contact`,
+  // `R(x)` being the rotation the limb reaches when fitted to `x`. Plain
+  // iteration closes slowly while a joint stands on its limit, so each pass
+  // after the first takes Anderson's one-step mixing of the last two.
+  let point: IAutoMovieVector3 = goal.point;
+  let last: { image: IAutoMovieVector3; miss: IAutoMovieVector3 } | undefined;
   let toes: number = 0;
-  for (let i: number = 0; i < 2; i++) {
+  for (let i: number = 0; i < REAIM_PASSES; i++) {
     const reached: IAutoMovieQuaternion = resolvePose(
       fitted,
       body.skeleton,
@@ -389,16 +495,30 @@ function fitLimb(
     ).find(
       (r: IAutoMovieResolvedBone): boolean => r.bone === effector,
     )!.worldRotation;
-    const dot: number = Math.abs(
-      reached.x * goal.rotation.x +
-        reached.y * goal.rotation.y +
-        reached.z * goal.rotation.z +
-        reached.w * goal.rotation.w,
-    );
-    if (dot > Math.cos((0.1 * Math.PI) / 360)) break;
     const off = HumanFoot.heelOff(goal.rotation, reached, anchor, goal.contact);
+    // The toes belong to the fit they were read from, which is the one kept.
     toes = off.toes;
-    fitted = fitOnce(body, pose, limb, { ...goal, point: off.ankle });
+    const miss: IAutoMovieVector3 = Vector3.subtract(off.ankle, point);
+    if (Vector3.length(miss) < REAIM_TOLERANCE || i === REAIM_PASSES - 1)
+      break;
+    let next: IAutoMovieVector3 = off.ankle;
+    if (last !== undefined) {
+      const change: IAutoMovieVector3 = Vector3.subtract(miss, last.miss);
+      const size: number = Vector3.dot(change, change);
+      if (size > 1e-18) {
+        const mixing: number = Math.max(
+          -20,
+          Math.min(20, Vector3.dot(change, miss) / size),
+        );
+        next = Vector3.subtract(
+          off.ankle,
+          Vector3.scale(Vector3.subtract(off.ankle, last.image), mixing),
+        );
+      }
+    }
+    last = { image: off.ankle, miss };
+    point = next;
+    fitted = fitOnce(body, pose, limb, { ...goal, point });
   }
   if (!leg || toes === 0) return fitted;
   const bone: AutoMovieHumanoidBone = `${side}Toes`;
@@ -418,25 +538,38 @@ function fitOnce(
   limb: IHumanPosture.Limb,
   goal: IHumanPosture.IGoal,
 ): IAutoMoviePose {
-  const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
-  const arm: boolean = limb.endsWith("Arm");
+  const chain: IChain = chainOf(limb);
+  const angles = (
+    bone: AutoMovieHumanoidBone,
+    of: readonly [number, number, number],
+  ): IAutoMovieJointPose => ({
+    bone,
+    flexion: of[0],
+    abduction: of[1],
+    twist: of[2],
+  });
   return fitChainToTarget({
     skeleton: body.skeleton,
     pose,
-    chain: arm
-      ? {
-          upper: `${side}UpperArm`,
-          lower: `${side}LowerArm`,
-          effector: `${side}Hand`,
-        }
-      : {
-          upper: `${side}UpperLeg`,
-          lower: `${side}LowerLeg`,
-          effector: `${side}Foot`,
-        },
+    chain,
     target: goal.point,
     bend: goal.bend,
     ...(goal.rotation === undefined ? {} : { effectorRotation: goal.rotation }),
+    // A reference of no weight decides nothing, so it is left out entirely.
+    ...(goal.reference === undefined || goal.reference.weight === 0
+      ? {}
+      : {
+          ...(goal.reference.weight === undefined
+            ? {}
+            : { referenceWeight: goal.reference.weight }),
+          referencePose: {
+            ...pose,
+            joints: [
+              angles(chain.upper, goal.reference.upper),
+              angles(chain.lower, goal.reference.lower),
+            ],
+          },
+        }),
     topology: body.topology,
     jointAxes: HUMANOID_JOINT_AXES,
     restFrames: HUMANOID_REST_FRAME,

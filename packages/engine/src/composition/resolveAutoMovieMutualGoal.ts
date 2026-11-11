@@ -25,7 +25,9 @@ import { Vector3 } from "../math/Vector3";
  * beyond one straight arm (a child and a tall adult), the height moves to the
  * nearest one inside the band of heights both straight arms reach at that
  * horizontal distance, so the shorter partner reaches up or the taller down
- * only as far as the other cannot.
+ * only as far as the other cannot. An action that has its own preferred
+ * contact height (`height`, as an object is handed over at chest height)
+ * passes it in place of the comfortable mean; it is moved into the same band.
  *
  * A meeting is refused, not stretched, when no height lies within both
  * straight arms' reach: the error gives both limits and the widest shoulder
@@ -48,6 +50,12 @@ import { Vector3 } from "../math/Vector3";
 export function resolveAutoMovieMutualGoal(input: {
   /** One person. */ a: resolveAutoMovieMutualGoal.ISide;
   /** The other person. */ b: resolveAutoMovieMutualGoal.ISide;
+  /**
+   * The height the action itself prefers for the contact, world metres, when
+   * it has one (an object handed over at chest height): it replaces the
+   * comfortable-reach mean and is moved into the same shared band.
+   */
+  height?: number;
 }): resolveAutoMovieMutualGoal.IGoal {
   for (const side of [input.a, input.b])
     if (!(side.reach > 0 && side.limit >= side.reach))
@@ -97,7 +105,13 @@ export function resolveAutoMovieMutualGoal(input: {
   }
   const point: IAutoMovieVector3 = {
     x: (input.a.shoulder.x + input.b.shoulder.x) / 2,
-    y: Math.min(high, Math.max(low, (height(input.a) + height(input.b)) / 2)),
+    y: Math.min(
+      high,
+      Math.max(
+        low,
+        input.height ?? (height(input.a) + height(input.b)) / 2,
+      ),
+    ),
     z: (input.a.shoulder.z + input.b.shoulder.z) / 2,
   };
   const distance: [number, number] = [

@@ -24,6 +24,7 @@ import type { IHumanEntryState } from "../law/IHumanEntryState";
 import type { IHumanInterruptRow } from "../law/IHumanInterruptRow";
 import type { IHumanLayer } from "../law/IHumanLayer";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { humanRig } from "../posture/humanRig";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
@@ -114,8 +115,28 @@ export namespace HumanSegment {
     /** Film second a later action takes the hand over; infinite while none has. */
     until: number;
 
-    /** The hand's grip frame in the chest's frame, captured when the carry starts. */
-    carry?: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion };
+    /** The holding arm relative to the chest, captured when the carry starts. */
+    carry?: ICarry;
+  }
+
+  /**
+   * A holding arm as its action left it, which the carry keeps: the hand's
+   * frame and the elbow in the chest's frame, and the arm's own solution
+   * (`IHumanPosture.IGoal.reference`), so the carried arm stays in the
+   * configuration it took hold in.
+   */
+  export interface ICarry {
+    /** The hand joint in the chest's frame, metres. */
+    position: IAutoMovieVector3;
+
+    /** The hand's rotation in the chest's frame. */
+    rotation: IAutoMovieQuaternion;
+
+    /** The elbow in the chest's frame, metres: the carry's bend hint. */
+    elbow: IAutoMovieVector3;
+
+    /** The arm's solution there. */
+    reference: IHumanPosture.IReference;
   }
 
   /**
@@ -270,9 +291,26 @@ export namespace HumanSegment {
     seconds: number,
   ): IHumanEntryState {
     const body = person.performer.body;
-    const shown = (t: number): IAutoMoviePose =>
-      previous === undefined ? initial(person) : of(person, previous, t);
-    const state: samplePoseVelocity.IState = samplePoseVelocity(shown, seconds);
+    // The difference interval of every rate read here, seconds.
+    const step: number = 1e-3;
+    const poses: Map<number, IAutoMoviePose> = new Map();
+    const shown = (t: number): IAutoMoviePose => {
+      let pose: IAutoMoviePose | undefined = poses.get(t);
+      if (pose === undefined) {
+        pose =
+          previous === undefined ? initial(person) : of(person, previous, t);
+        poses.set(t, pose);
+      }
+      return pose;
+    };
+    // What was displayed up to the entry: the motion it leaves ends here.
+    const state: samplePoseVelocity.IState = samplePoseVelocity(
+      shown,
+      seconds,
+      step,
+      "before",
+      humanRig(body),
+    );
     const posture: IHumanPosture =
       previous === undefined
         ? person.initial
@@ -304,11 +342,47 @@ export namespace HumanSegment {
           u <= c.to + 1e-9,
       );
     };
-    const foot = (side: "left" | "right"): IHumanEntryState.IFoot => ({
-      ankle: bones.get(`${side}Foot`)!.worldPosition,
-      rotation: bones.get(`${side}Foot`)!.worldRotation,
-      planted: planted(`${side}Foot`),
-    });
+    // The same two earlier samples the pose velocity was read from, so a
+    // foot's rate is the one-sided difference of the motion that ends here.
+    const near: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      shown(seconds - step),
+    );
+    const far: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      shown(seconds - 2 * step),
+    );
+    const foot = (side: "left" | "right"): IHumanEntryState.IFoot => {
+      const here: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
+      const a: IAutoMovieResolvedBone = near.get(`${side}Foot`)!;
+      const b: IAutoMovieResolvedBone = far.get(`${side}Foot`)!;
+      const rate = (x: number, y: number, z: number): number =>
+        (3 * x - 4 * y + z) / (2 * step);
+      const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+        here.worldRotation,
+      );
+      const turn = (bone: IAutoMovieResolvedBone): IAutoMovieVector3 =>
+        samplePoseVelocity.rotationVector(
+          Quaternion.multiply(bone.worldRotation, inverse),
+        );
+      const ar: IAutoMovieVector3 = turn(a);
+      const br: IAutoMovieVector3 = turn(b);
+      return {
+        ankle: here.worldPosition,
+        rotation: here.worldRotation,
+        planted: planted(`${side}Foot`),
+        velocity: {
+          x: rate(here.worldPosition.x, a.worldPosition.x, b.worldPosition.x),
+          y: rate(here.worldPosition.y, a.worldPosition.y, b.worldPosition.y),
+          z: rate(here.worldPosition.z, a.worldPosition.z, b.worldPosition.z),
+        },
+        spin: {
+          x: rate(0, ar.x, br.x),
+          y: rate(0, ar.y, br.y),
+          z: rate(0, ar.z, br.z),
+        },
+      };
+    };
     return {
       seconds,
       pose: state.pose,
@@ -414,12 +488,9 @@ export namespace HumanSegment {
           ),
           bend: Vector3.add(
             chest.worldPosition,
-            Quaternion.rotateVector(chest.worldRotation, {
-              x: h.side === "left" ? 0.5 : -0.5,
-              y: -0.5,
-              z: -0.3,
-            }),
+            Quaternion.rotateVector(chest.worldRotation, h.carry.elbow),
           ),
+          reference: h.carry.reference,
           planted: true,
         };
         const limb: "leftArm" | "rightArm" =
@@ -459,10 +530,15 @@ export namespace HumanSegment {
       transition.kind !== "redirect" &&
       seconds - transition.cut < transition.blend
     ) {
+      // The source is read up to the cut and the target from it on: the
+      // target's law has no motion before its start to difference across.
       transition.offset ??= inertializePose(
         samplePoseVelocity(
           (t: number): IAutoMoviePose => of(person, transition.source, t),
           transition.cut,
+          1e-3,
+          "before",
+          humanRig(body),
         ),
         samplePoseVelocity(
           (t: number): IAutoMoviePose =>
@@ -480,8 +556,17 @@ export namespace HumanSegment {
               ),
             ),
           transition.cut,
+          1e-3,
+          "after",
+          humanRig(body),
         ),
         transition.blend,
+        // A joint cut as it passes the next action's pose keeps its rate and
+        // follows through; stopped short it would lose that rate at once.
+        true,
+        // Joints blend as rotations read through the displayed rig, so an arm
+        // hanging at its shoulder chart's gimbal does not swing on the way.
+        humanRig(body),
       );
       // The offset pose is clamped first and the planted limbs re-solved last,
       // so no later step moves a plant (the limb fit keeps its own angles in range).
@@ -501,19 +586,35 @@ export namespace HumanSegment {
   }
 
   /**
-   * Forget every evaluated pose and transition offset, once every person's
-   * actions are placed, so nothing evaluated against a half-placed
-   * performance survives.
+   * Forget everything a person's plans and transitions evaluated: each
+   * plan's own memo, every transition offset, every held hand's carry and
+   * every displayed pose. What they read may have changed since (another
+   * person was placed, a contact was committed), and each is rebuilt on its
+   * next read.
    *
    * @param person The person.
    */
-  export function settle(person: IPerson): void {
+  export function forget(person: IPerson): void {
     for (const segment of person.segments) {
       segment.plan.settle?.();
       if (segment.transition !== undefined) delete segment.transition.offset;
     }
     for (const held of person.holds) delete held.carry;
     person.cache.clear();
+  }
+
+  /**
+   * Forget every evaluated pose and transition offset, once every person's
+   * actions are placed, so nothing evaluated against a half-placed
+   * performance survives, and let displayed poses be kept from here on.
+   * Whatever later changes what a person shows (a contact stop committed or
+   * withdrawn) must {@link forget} everyone again; the poses kept in between
+   * are then exactly those of the state they were read in.
+   *
+   * @param person The person.
+   */
+  export function settle(person: IPerson): void {
+    forget(person);
     person.resolving = false;
   }
 
@@ -525,23 +626,33 @@ export namespace HumanSegment {
     return poseBones(person.performer.body, pose);
   }
 
-  /** A held hand's frame in the chest's frame at the end of the action that took hold. */
-  function capture(
-    person: IPerson,
-    held: IHeld,
-  ): { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion } {
+  /** A holding arm relative to the chest at the end of the action that took hold. */
+  function capture(person: IPerson, held: IHeld): ICarry {
     const at: number = Math.max(held.from, held.source.end);
-    const map = bones(person, of(person, held.source, at));
+    const pose: IAutoMoviePose = of(person, held.source, at);
+    const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = bones(
+      person,
+      pose,
+    );
     const chest: IAutoMovieResolvedBone = map.get("chest")!;
     const hand: IAutoMovieResolvedBone = map.get(`${held.side}Hand`)!;
-    const inverse = Quaternion.inverse(chest.worldRotation);
-    return {
-      position: Quaternion.rotateVector(
+    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+      chest.worldRotation,
+    );
+    const local = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+      Quaternion.rotateVector(
         inverse,
-        Vector3.subtract(hand.worldPosition, chest.worldPosition),
-      ),
+        Vector3.subtract(point, chest.worldPosition),
+      );
+    return {
+      position: local(hand.worldPosition),
       rotation: Quaternion.normalize(
         Quaternion.multiply(inverse, hand.worldRotation),
+      ),
+      elbow: local(map.get(`${held.side}LowerArm`)!.worldPosition),
+      reference: resolveHumanPosture.reference(
+        pose,
+        held.side === "left" ? "leftArm" : "rightArm",
       ),
     };
   }

@@ -14,6 +14,7 @@ import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionTarget,
   IAutoMoviePose,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -45,7 +46,8 @@ import type { IHumanProp } from "./IHumanProp";
  * interrupt table for the next action; otherwise construction throws with
  * the legal windows. A `proximity` cut is found by scanning the 24 Hz grid for
  * the first frame within the distance and bisecting 20 times, about 1e-7 s,
- * deterministic on a fixed grid. Given rules, the placed schedule is checked
+ * deterministic on a fixed grid whose last sample is the action's end; a
+ * distance never met leaves the action uncut. Given rules, the placed schedule is checked
  * with the engine's legality check and a violation refuses the performance.
  *
  * Sampling a person at a second takes the active action's posture, resolves
@@ -173,6 +175,13 @@ export class HumanPerformance {
           )
           .join("; ")}`,
       );
+    // Placement evaluated plans while later actions and people were not yet
+    // placed; the contact resolution reads every plan as the whole placed
+    // performance shows it. Every action is placed now, so displayed poses
+    // are kept from here: the contact search reads each person's pose at the
+    // same seconds once per weapon and per stop hypothesis, and `contacts`
+    // forgets everyone whenever the applied stops change.
+    for (const person of this.people.values()) HumanSegment.settle(person);
     this.contacts();
     for (const person of this.people.values()) HumanSegment.settle(person);
     this.resolving = false;
@@ -269,30 +278,40 @@ export class HumanPerformance {
     const window: (typeof grips)[number] | undefined = active ?? released;
     if (window === undefined) return prop.frame;
     const at: number = Math.min(seconds, window.to);
-    window.offset ??= ((): IHumanProp.IFrame => {
-      const before: IHumanProp.IFrame = this.prop(subject, window!.from - 1e-6);
-      const hand: IHumanProp.IFrame = this.hand(
-        window!.subject,
-        window!.side,
-        window!.from,
+    // A window opening on a hand that already holds the prop (a put down
+    // after a pick up) keeps that grip's offset: the hand never re-seats what
+    // it holds, so no action boundary moves the prop in the hand.
+    const seat = (w: (typeof grips)[number]): IHumanProp.IFrame => {
+      if (w.offset !== undefined) return w.offset;
+      const earlier: (typeof grips)[number] | undefined = grips.find(
+        (g: (typeof grips)[number]): boolean =>
+          g !== w &&
+          g.subject === w.subject &&
+          g.side === w.side &&
+          g.from < w.from &&
+          g.to >= w.from - 1e-6,
       );
-      const inverse = Quaternion.inverse(hand.rotation);
-      return {
+      if (earlier !== undefined) return (w.offset = seat(earlier));
+      const before: IHumanProp.IFrame = this.prop(subject, w.from - 1e-6);
+      const hand: IHumanProp.IFrame = this.hand(w.subject, w.side, w.from);
+      const inverse: IAutoMovieQuaternion = Quaternion.inverse(hand.rotation);
+      return (w.offset = {
         position: Quaternion.rotateVector(
           inverse,
           Vector3.subtract(before.position, hand.position),
         ),
         rotation: Quaternion.multiply(inverse, before.rotation),
-      };
-    })();
+      });
+    };
+    const offset: IHumanProp.IFrame = seat(window);
     const hand: IHumanProp.IFrame = this.hand(window.subject, window.side, at);
     return {
       position: Vector3.add(
         hand.position,
-        Quaternion.rotateVector(hand.rotation, window.offset.position),
+        Quaternion.rotateVector(hand.rotation, offset.position),
       ),
       rotation: Quaternion.normalize(
-        Quaternion.multiply(hand.rotation, window.offset.rotation),
+        Quaternion.multiply(hand.rotation, offset.rotation),
       ),
     };
   }
@@ -589,13 +608,13 @@ export class HumanPerformance {
       );
     };
     const step: number = 1 / 24;
+    const end: number = placed.start + placed.duration;
     let previous: number = placed.start;
     if (gap(previous) <= 0) return 0;
-    for (
-      let t: number = placed.start + step;
-      t <= placed.start + placed.duration + 1e-9;
-      t += step
-    ) {
+    // The grid's last sample is the span's own end, so a gap that closes
+    // inside the final partial step is still found.
+    for (let k: number = 1; previous < end; k++) {
+      const t: number = Math.min(end, placed.start + k * step);
       if (gap(t) <= 0) {
         let lo: number = previous;
         let hi: number = t;
@@ -713,8 +732,12 @@ export class HumanPerformance {
               seconds,
             })),
         );
-        segment.plan.settle?.();
       }
+
+      // A stop changes what its owner shows, and whoever reads the owner (a
+      // strike aimed at it, a guard watching it) planned against the earlier
+      // showing, so everyone's memos go, not the owner's alone.
+      for (const person of this.people.values()) HumanSegment.forget(person);
     };
     const nearest = (
       owner: HumanSegment.IPerson,

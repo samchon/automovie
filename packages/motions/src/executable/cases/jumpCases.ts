@@ -1,7 +1,6 @@
 import {
   type IAutoMovieResolvedBone,
   resolveAutoMovieCenterOfMass,
-  resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -13,8 +12,10 @@ import { HumanChain } from "../../HumanChain";
 import type { IHumanBody } from "../../body/IHumanBody";
 import { createHumanBody } from "../../body/createHumanBody";
 import { HumanPerformance } from "../../perform/HumanPerformance";
+import { HumanFoot } from "../../posture/HumanFoot";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
+import { FootSlip } from "./FootSlip";
 
 /**
  * Experiment E1 on the polygon man (`jump-e1-<body>` for the smallest, the
@@ -27,7 +28,9 @@ import { MotionBodies } from "../MotionBodies";
  * landing lie in (the walking before it is the walk captures'):
  *
  * - every cut is legal, a stance foot being planted;
- * - a heel or ball on the floor slides under 5 mm (both actions' plant windows);
+ * - the planted point of a foot, its lowest sole socket while within 1 cm of
+ *   the floor, slides under 5 mm in both actions' plant windows
+ *   ({@link FootSlip}, the rule the walk captures measure by);
  * - the velocity jump at the cut, the largest change of any bone's velocity
  *   across the cut, is at most 5 % of the largest bone speed within 0.5 s of it,
  *   each velocity the symmetric difference at the cut -/+ 1/240 s, naming the
@@ -138,7 +141,7 @@ export function jumpCases(
     ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
       performance.bones("a", t);
 
-    // Slip: heel or ball on the floor inside either action's plant window.
+    // Slip: the planted point on the floor inside either action's plant window.
     const windows = segments.flatMap((seg) =>
       seg.plan.contacts
         .filter((c) => c.kind === "plant")
@@ -161,34 +164,21 @@ export function jumpCases(
           (x) =>
             x.part === `${side}Foot` && t >= x.from + 1e-9 && t <= x.to - 1e-9,
         );
-        for (const socket of ["heel", "ball", "toe"] as const) {
-          const frame =
-            body.surfaces.sockets[
-              `${socket}${side === "left" ? "Left" : "Right"}`
-            ];
-          const p: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
-            frame,
-            map.get(frame.bone)!,
-          ).point;
-          if (t >= touchdown && -p.y > sink.value)
+        const sole: HumanFoot.ISocket[] = HumanFoot.sockets(body, map, side);
+        for (const { socket, point } of sole)
+          if (t >= touchdown && -point.y > sink.value)
             sink = {
-              value: -p.y,
+              value: -point.y,
               where: `k=${k} ${side} ${socket} t=${t.toFixed(3)} (${t < takeoff ? (t < at ? "walk" : "push-off") : "landing"})`,
             };
-          const key: string = `${side}${w}${socket}`;
-          if (w < 0 || p.y > 0.01 || socket === "toe") {
-            touched.delete(key);
-            continue;
-          }
-          const first: IAutoMovieVector3 = touched.get(key) ?? p;
-          touched.set(key, first);
-          const d: number = Math.hypot(p.x - first.x, p.z - first.z);
-          if (d > slip.value)
-            slip = {
-              value: d,
-              where: `k=${k} ${side} ${socket} t=${t.toFixed(3)}`,
-            };
-        }
+        const planted: HumanFoot.ISocket = FootSlip.contact(sole);
+        if (w < 0 || planted.point.y > 0.01) continue;
+        const d: number = FootSlip.drift(touched, `${side}${w}`, planted);
+        if (d > slip.value)
+          slip = {
+            value: d,
+            where: `k=${k} ${side} ${planted.socket} t=${t.toFixed(3)}`,
+          };
       }
     }
 

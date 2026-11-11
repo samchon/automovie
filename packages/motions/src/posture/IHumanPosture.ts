@@ -91,5 +91,39 @@ export namespace IHumanPosture {
      * (`resolveHumanPosture.order`, `resolveHumanPosture.world`).
      */
     on?: AutoMovieHumanoidBone;
+
+    /**
+     * The limb's own solution at one instant of the action the law names (the
+     * grasp, the clasp, the placement): the clinical angles of its upper and
+     * lower bones there, as `resolveHumanPosture.reference` reads them. Where
+     * the goal can be met by more than one arm or leg configuration, the fit
+     * keeps the one nearest this reference, so the limb stays on one side of
+     * the choice for the whole stroke. It is a constant of the plan, never a
+     * previous frame, so the pose stays a function of time alone. A degree of
+     * joint turn from the reference counts like a degree of hand or foot
+     * rotation error, so a law gives it in full from the named instant on (the
+     * hold after a grasp) and, over the reach toward that instant, raises its
+     * `weight` from 0 to 1 with the reach's own progress: the reference is
+     * that instant's solution, so the reach arrives at it exactly, and on the
+     * way the growing weight keeps the limb on the reference's side where two
+     * configurations nearly tie instead of letting it switch between them.
+     */
+    reference?: IHumanPosture.IReference;
+  }
+
+  /** A limb's reference solution: its upper and lower bones' clinical degrees. */
+  export interface IReference {
+    /** The upper bone's `[flexion, abduction, twist]`, degrees. */
+    upper: readonly [number, number, number];
+
+    /** The lower bone's `[flexion, abduction, twist]`, degrees. */
+    lower: readonly [number, number, number];
+
+    /**
+     * How much a degree of joint turn from the reference counts, in degrees
+     * of hand or foot rotation error (the engine's `referenceWeight`); 1 when
+     * omitted. A reach toward the reference's instant raises it from 0 to 1.
+     */
+    weight?: number;
   }
 }

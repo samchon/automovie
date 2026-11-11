@@ -145,10 +145,12 @@ export namespace receive {
       { x: 0, y: 0, z: body.measure.forearm },
     );
     const end: IAutoMovieVector3 = takes ? carry : shared.receiverFrom.point;
-    const back: number = HumanPrehension.nominal(
-      Vector3.length(Vector3.subtract(end, arrive)),
-      0,
-    );
+    // A hand that took the prop carries it; an empty one returns as it reached.
+    const travel: number = Vector3.length(Vector3.subtract(end, arrive));
+    const back: number = takes
+      ? HumanPrehension.carry(travel)
+      : HumanPrehension.nominal(travel, 0);
+    const bend: IAutoMovieVector3 = HumanHand.elbow(body, held, side);
     const home: HumanPrehension.ITransport = HumanPrehension.transport(
       arrive,
       end,
@@ -281,7 +283,21 @@ export namespace receive {
             [limb]: {
               point: wrist,
               rotation,
-              bend: HumanHand.elbow(body, held, side),
+              bend,
+              // The grasp's own arm solution anchors the hold and the
+              // take-away, and the reach more and more as it arrives.
+              ...(takes && t >= shared.gripClosed
+                ? { reference: shared.receiverReference }
+                : takes && t > shared.reachStart
+                  ? {
+                      reference: {
+                        ...shared.receiverReference,
+                        weight: minimumJerk(
+                          (t - shared.reachStart) / shared.reach,
+                        ).s,
+                      },
+                    }
+                  : {}),
               ...(takes && t >= shared.gripClosed && t <= leave
                 ? { planted: true }
                 : {}),

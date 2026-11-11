@@ -45,7 +45,8 @@ export interface IAutoMovieIntent {
    *   another subject's action, happens;
    * - `{ proximity }`: when the subject's `effector` region first comes within
    *   `distance` metres of `target` (zero is contact), which the production's
-   *   `until` law finds from its motion.
+   *   `until` law finds from its motion; a proximity the motion never
+   *   reaches cuts nothing, and the action runs to its end.
    *
    * The entry then ends at the cut and the next part of a sequence starts
    * there. The production's legality rules decide whether the cut is declared;

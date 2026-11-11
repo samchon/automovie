@@ -31,8 +31,11 @@ import { MOTION_CAPTURE_CASES } from "./cases/MOTION_CAPTURE_CASES";
  * becomes `sheet-<view>.png` (one cell per instant, captioned) under the
  * ignored `packages/motions/media/capture/<case>/`, with `manifest.json`
  * holding the instants, the verdicts and the case metrics. `--cell <px>` sets
- * the cell size (default 320) and `--views a,b` selects views. The process
- * exits non-zero when any verdict fails.
+ * the cell size (default 320) and `--views a,b` selects views. `--only
+ * <regex>` keeps the cases of the named factories whose own name matches, a
+ * factory that reads the filter not building the others, and throws when none
+ * matches; `--verdicts` prints the verdicts without drawing or writing
+ * anything. The process exits non-zero when any verdict fails.
  *
  * The rasterizer is the scaffold's Node integration
  * (`packages/template/scaffold/production/src/executable/viewer/node/raster`), imported
@@ -66,14 +69,41 @@ export async function motionCapture(): Promise<void> {
   ).split(",");
   for (const view of views)
     if (!(view in VIEWS)) throw new Error(`Unknown view ${view}`);
+  const pattern: RegExp | undefined = options.has("--only")
+    ? new RegExp(options.get("--only")!)
+    : undefined;
+  const only: ((name: string) => boolean) | undefined =
+    pattern === undefined
+      ? undefined
+      : (name: string): boolean => pattern.test(name);
   let failed: number = 0;
+  let built: number = 0;
   for (const name of names) {
-    const factory: (() => Iterable<IMotionCaptureCase>) | undefined =
-      MOTION_CAPTURE_CASES[name];
+    const factory:
+      | ((only?: (name: string) => boolean) => Iterable<IMotionCaptureCase>)
+      | undefined = MOTION_CAPTURE_CASES[name];
     if (factory === undefined) throw new Error(`Unknown case ${name}`);
-    for (const capture of factory()) failed += await draw(capture, cell, views);
+    for (const capture of factory(only)) {
+      if (only !== undefined && !only(capture.name)) continue;
+      built++;
+      failed += options.has("--verdicts")
+        ? report(capture, [])
+        : await draw(capture, cell, views);
+    }
   }
+  if (built === 0) throw new Error("No case matches --case and --only");
   if (failed !== 0) process.exitCode = 1;
+}
+
+/** Print one case's verdicts; returns the number that failed. */
+function report(capture: IMotionCaptureCase, sheets: readonly string[]): number {
+  const verdicts: IMotionCaptureCase.IVerdict[] = capture.verdicts ?? [];
+  console.log(`${capture.name}: ${capture.times.length} instants`);
+  for (const sheet of sheets) console.log(`  ${sheet}`);
+  for (const v of verdicts)
+    console.log(`  ${v.passed ? "pass" : "FAIL"} ${v.name}: ${v.detail}`);
+  return verdicts.filter((v: IMotionCaptureCase.IVerdict): boolean => !v.passed)
+    .length;
 }
 
 /** The view directions: where the camera stands relative to the target, and its up. */
@@ -268,12 +298,7 @@ async function draw(
     ),
     "utf8",
   );
-  console.log(`${capture.name}: ${capture.times.length} instants`);
-  for (const sheet of sheets) console.log(`  ${sheet}`);
-  for (const v of verdicts)
-    console.log(`  ${v.passed ? "pass" : "FAIL"} ${v.name}: ${v.detail}`);
-  return verdicts.filter((v: IMotionCaptureCase.IVerdict): boolean => !v.passed)
-    .length;
+  return report(capture, sheets);
 }
 
 /** An orthographic camera looking at the box's centre from a direction, fitted to its projected extent. */
@@ -319,11 +344,11 @@ function parse(argv: readonly string[]): Map<string, string> {
   for (let i: number = 0; i < argv.length; i++) {
     const [key, inline] = argv[i]!.split(/=(.*)/s) as [string, string?];
     if (key === "--") continue;
-    if (key === "--list") {
+    if (key === "--list" || key === "--verdicts") {
       out.set(key, "1");
       continue;
     }
-    if (!["--case", "--cell", "--views"].includes(key))
+    if (!["--case", "--cell", "--views", "--only"].includes(key))
       throw new Error(`Unknown option ${key}`);
     const value: string | undefined = inline ?? argv[++i];
     if (value === undefined) throw new Error(`${key} needs a value`);

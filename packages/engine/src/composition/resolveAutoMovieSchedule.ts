@@ -13,8 +13,11 @@ import type { IAutoMovieSchedule } from "./IAutoMovieSchedule";
  * anchor's contact instant (its start when the timing gives no contact) plus
  * the offset, and the walk continues after the later of the cursor and that
  * part's end. An intent with `until` ends at its cut (a share of its
- * duration, or the share of one of the events its timing names) and drops a
- * contact after the cut; the entry records the cut, and the entry the next
+ * duration, the share of one of the events its timing names, or the share at
+ * which the `until` law finds a proximity) and drops a contact after the cut;
+ * a proximity the law reports as never met leaves the intent uncut, so it
+ * runs to its end, while laws with no `until` at all cannot place a proximity
+ * cut and throw; the entry records the cut, and the entry the next
  * part of a sequence places there records it as `interruptedBy`. For each
  * intent the production's `timing` gives its duration
  * and optional contact offset, then `outcome` and `state` read the entries
@@ -64,16 +67,18 @@ export function resolveAutoMovieSchedule(
       let cut: { share: number; event?: string } | undefined;
       if (until !== undefined) {
         if ("proximity" in until) {
-          const share: number | undefined = laws.until?.(
+          if (laws.until === undefined)
+            throw new Error(
+              `${node.intent.subject}.${node.intent.capability} cuts on proximity, which these laws cannot resolve`,
+            );
+          // A proximity the motion never reaches leaves the intent uncut: it
+          // runs to its own end, as an `until` that never fires does.
+          const share: number | undefined = laws.until(
             node.intent,
             { start, duration: timing.duration },
             context,
           );
-          if (share === undefined)
-            throw new Error(
-              `${node.intent.subject}.${node.intent.capability} cuts on proximity, which these laws cannot resolve`,
-            );
-          cut = { share };
+          if (share !== undefined) cut = { share };
         } else if ("of" in until) {
           const other: IAutoMovieSchedule.IEntry | undefined = anchored.get(
             until.of,
@@ -108,7 +113,7 @@ export function resolveAutoMovieSchedule(
             );
           cut = { share: event.share, event: event.name };
         } else cut = { share: until.share };
-        if (!(cut.share >= 0 && cut.share <= 1))
+        if (cut !== undefined && !(cut.share >= 0 && cut.share <= 1))
           throw new Error(
             `Cut share of ${node.intent.subject}.${node.intent.capability} lies outside [0, 1]`,
           );

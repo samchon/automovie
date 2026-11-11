@@ -2,7 +2,6 @@ import {
   type IAutoMovieResolvedBone,
   Quaternion,
   resolveAutoMovieCenterOfMass,
-  resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -14,6 +13,7 @@ import { HumanChain } from "../../HumanChain";
 import type { IHumanBody } from "../../body/IHumanBody";
 import { createHumanBody } from "../../body/createHumanBody";
 import { HumanPerformance } from "../../perform/HumanPerformance";
+import { HumanFoot } from "../../posture/HumanFoot";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 
@@ -102,22 +102,14 @@ export function standCases(): IMotionCaptureCase[] {
     const ahead: number = com.z - (z("leftFoot") + z("rightFoot")) / 2;
     lean.push(`${name} ${(ahead * 100).toFixed(1)} cm`);
     if (ahead < 0.02 || ahead > 0.06) leanOk = false;
-    for (const socket of [
-      "heelLeft",
-      "heelRight",
-      "toeLeft",
-      "toeRight",
-    ] as const) {
-      const frame = body.surfaces.sockets[socket];
-      const y: number = resolveAutoMovieHumanoidSurfaces.place(
-        frame,
-        bones.get(frame.bone)!,
-      ).point.y;
-      if (Math.abs(y) > 0.005) {
+    for (const side of ["left", "right"] as const)
+      for (const { socket, point } of HumanFoot.sockets(body, bones, side)) {
+        if (socket === "ball" || Math.abs(point.y) <= 0.005) continue;
         floorOk = false;
-        floor.push(`${name} ${socket} ${(y * 1000).toFixed(1)} mm`);
+        floor.push(
+          `${name} ${side} ${socket} ${(point.y * 1000).toFixed(1)} mm`,
+        );
       }
-    }
   });
   return [
     {

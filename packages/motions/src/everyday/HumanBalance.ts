@@ -9,6 +9,7 @@ import {
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { poseBones } from "../posture/poseBones";
@@ -114,18 +115,9 @@ export namespace HumanBalance {
    */
   export function margin(body: IHumanBody, posture: IHumanPosture): number {
     const bones = poseBones(body, resolveHumanPosture(body, posture));
-    const support: IAutoMovieVector3[] = [];
-    for (const side of ["Left", "Right"] as const)
-      for (const point of ["heel", "ball", "toe"] as const) {
-        const frame = body.surfaces.sockets[`${point}${side}`];
-        support.push(
-          resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!)
-            .point,
-        );
-      }
     return resolveAutoMovieCenterOfMass.margin(
       resolveAutoMovieCenterOfMass.place(model(body), bones),
-      support,
+      HumanFoot.base(body, bones),
     );
   }
 
@@ -172,16 +164,10 @@ export namespace HumanBalance {
       velocity,
       1.34 * body.measure.hipHeight,
     );
-    const support: IAutoMovieVector3[] = [];
-    for (const side of ["Left", "Right"] as const)
-      for (const point of ["heel", "ball", "toe"] as const) {
-        const frame = body.surfaces.sockets[`${point}${side}`];
-        support.push(
-          resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!)
-            .point,
-        );
-      }
-    return resolveAutoMovieCenterOfMass.margin(xcom, support);
+    return resolveAutoMovieCenterOfMass.margin(
+      xcom,
+      HumanFoot.base(body, bones),
+    );
   }
 
   /**
@@ -205,18 +191,9 @@ export namespace HumanBalance {
     posture: IHumanPosture,
   ): { centre: IAutoMovieVector3; points: IAutoMovieVector3[] } {
     const bones = poseBones(body, resolveHumanPosture(body, posture));
-    const points: IAutoMovieVector3[] = [];
-    for (const side of ["Left", "Right"] as const)
-      for (const point of ["heel", "ball", "toe"] as const) {
-        const frame = body.surfaces.sockets[`${point}${side}`];
-        points.push(
-          resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!)
-            .point,
-        );
-      }
     return {
       centre: resolveAutoMovieCenterOfMass.place(model(body), bones),
-      points,
+      points: HumanFoot.base(body, bones),
     };
   }
 

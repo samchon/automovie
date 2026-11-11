@@ -1,7 +1,4 @@
-import {
-  minimumJerk,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import { minimumJerk } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
@@ -372,14 +369,9 @@ export namespace stepOver {
           const next: IHumanPosture["limbs"] = { ...posture.limbs };
           let moved: boolean = false;
           for (const side of lifted) {
-            const Side: "Left" | "Right" = side === "left" ? "Left" : "Right";
             const lowest: number = Math.min(
-              ...(["heel", "ball", "toe"] as const).map(
-                (name) =>
-                  resolveAutoMovieHumanoidSurfaces.place(
-                    body.surfaces.sockets[`${name}${Side}`],
-                    bones.get(`${side}Foot`)!,
-                  ).point.y,
+              ...HumanFoot.sockets(body, bones, side).map(
+                (s: HumanFoot.ISocket): number => s.point.y,
               ),
             );
             const short: number = footAt(side, t).lift - lowest;

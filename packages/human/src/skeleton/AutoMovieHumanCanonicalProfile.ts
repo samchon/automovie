@@ -25,7 +25,10 @@ import type {
  * joint, so its caps are the drawn joint balls and every joint lies inside its
  * own segment's collider, while a capsule to a surface tip (a distal phalanx
  * to its fingertip, the head to its crown) ends with its cap on the tip, so
- * the stature and the fingertips are where they are drawn; the pelvis, abdomen
+ * the stature and the fingertips are where they are drawn, and so does the
+ * forearm, whose cap ends on the wrist where the palm's box begins, so a
+ * forearm never reaches an elbow's radius into what its own hand holds; the
+ * pelvis, abdomen
  * and thorax are boxes between their joints whose half breadths and half
  * depths are the drawing's elliptical sections scaled by `sqrt(pi / 4)` (a box
  * of the ellipse's area); the neck is a capsule to the head joint and the head
@@ -139,7 +142,7 @@ export namespace AutoMovieHumanCanonicalProfile {
       );
     };
     // A capsule between two joints ends in the joints' balls; one to a surface
-    // tip (the crown, a fingertip) ends with its cap on the tip.
+    // tip (the crown, a fingertip, the wrist) ends with its cap on the tip.
     const capsule = (
       bone: AutoMovieHumanoidBone,
       share: number,
@@ -281,6 +284,7 @@ export namespace AutoMovieHumanCanonicalProfile {
         at(b("LowerArm")),
         at(b("Hand")),
         j(b("LowerArm")).radius,
+        true,
       );
       const knuckles: IJoint[] = FINGERS.map(
         (d: string): IJoint => j(b(`${d}Proximal`)),

@@ -57,6 +57,12 @@ export namespace IHumanEntryState {
 
     /** Whether the foot is planted on the floor at the entry. */
     planted: boolean;
+
+    /** The ankle's velocity as displayed up to the entry, world metres per second. */
+    velocity: IAutoMovieVector3;
+
+    /** The foot's angular velocity as displayed up to the entry, world radians per second. */
+    spin: IAutoMovieVector3;
   }
 
   /** The interrupted action. */

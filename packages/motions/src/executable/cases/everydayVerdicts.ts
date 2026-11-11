@@ -2,7 +2,6 @@ import {
   DEFAULT_HUMANOID_ROM,
   jointRomOvershoot,
   resolveAutoMovieCenterOfMass,
-  resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
   IAutoMovieJointPose,
@@ -11,7 +10,9 @@ import type {
 
 import type { IHumanBody } from "../../body/IHumanBody";
 import type { HumanPerformance } from "../../perform/HumanPerformance";
+import { HumanFoot } from "../../posture/HumanFoot";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { FootSlip } from "./FootSlip";
 
 /**
  * The numeric checks the everyday capture cases report beside their sheets,
@@ -29,10 +30,9 @@ import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 export namespace everydayVerdicts {
   /**
    * The largest slip of a planted foot within any plant window, metres, and
-   * where it happens. A planted foot rolls on its heel, flat and on its ball
-   * (the rockers of stance), so its contact is its lowest sole socket (heel,
-   * ball or toe), and the slip is that socket's horizontal drift from where
-   * it first became the contact in the window, on the 24 Hz grid.
+   * where it happens, by the rule of {@link FootSlip} on the 24 Hz grid. A
+   * plant may stand on something raised (a step), so no floor height is
+   * asked of the contact here.
    *
    * @param performance The performance.
    * @param subject The person.
@@ -52,8 +52,8 @@ export namespace everydayVerdicts {
           (contact.part !== "leftFoot" && contact.part !== "rightFoot")
         )
           continue;
-        const side: "Left" | "Right" =
-          contact.part === "leftFoot" ? "Left" : "Right";
+        const side: "left" | "right" =
+          contact.part === "leftFoot" ? "left" : "right";
         const from: number = Math.max(
           segment.entryTime,
           segment.start + contact.from * segment.plan.duration,
@@ -64,21 +64,13 @@ export namespace everydayVerdicts {
         );
         const anchors: Map<string, IAutoMovieVector3> = new Map();
         for (let t: number = from; t <= to + 1e-9; t += 1 / 24) {
-          const bones = performance.bones(subject, t);
-          let lowest: [string, IAutoMovieVector3] | undefined;
-          for (const name of ["heel", "ball", "toe"] as const) {
-            const frame = body.surfaces.sockets[`${name}${side}`];
-            const p: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
-              frame,
-              bones.get(frame.bone)!,
-            ).point;
-            if (lowest === undefined || p.y < lowest[1].y - 1e-6)
-              lowest = [name, p];
-          }
-          const [name, p] = lowest!;
-          const anchor: IAutoMovieVector3 = anchors.get(name) ?? p;
-          anchors.set(name, anchor);
-          const value: number = Math.hypot(p.x - anchor.x, p.z - anchor.z);
+          const value: number = FootSlip.drift(
+            anchors,
+            contact.part,
+            FootSlip.contact(
+              HumanFoot.sockets(body, performance.bones(subject, t), side),
+            ),
+          );
           if (value > worst.value)
             worst = {
               value,
@@ -147,17 +139,10 @@ export namespace everydayVerdicts {
       velocity,
       1.34 * body.measure.hipHeight,
     );
-    const bones = performance.bones(subject, seconds);
-    const support: IAutoMovieVector3[] = [];
-    for (const side of ["Left", "Right"] as const)
-      for (const point of ["heel", "ball", "toe"] as const) {
-        const frame = body.surfaces.sockets[`${point}${side}`];
-        support.push(
-          resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!)
-            .point,
-        );
-      }
-    return resolveAutoMovieCenterOfMass.margin(xcom, support);
+    return resolveAutoMovieCenterOfMass.margin(
+      xcom,
+      HumanFoot.base(body, performance.bones(subject, seconds)),
+    );
   }
 
   /**

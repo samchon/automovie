@@ -5,13 +5,7 @@ import {
 } from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
-import { swingConeAngle } from "./swingConeAngle";
-
-const AXES: readonly ["flexion", "abduction", "twist"] = [
-  "flexion",
-  "abduction",
-  "twist",
-] as const;
+import { scanJointRom } from "./scanJointRom";
 
 /**
  * Append axis range/ROM violations and a combined swing violation to the caller's collector. Null angles mean rest and contribute zero to swing; immobile axes admit null/zero. Field paths and degree overshoots preserve correction provenance, while constraint admission is separate.
@@ -53,69 +47,50 @@ export const validateJointRom: (props: {
     path: string;
     collector: ViolationCollector;
   } = props;
-  for (const axis of AXES) {
-    const angle: number | null = joint[axis];
-    const allowed: IAutoMovieAngleRange | null = constraint[axis];
-    if (angle === null) continue;
-    // 0 is only implicitly fine on an IMMOBILE axis (it is that axis's rest);
-    // against a zero-excluding override like [10, 90] it must report, or
-    // validate would call clean what clampJointRom moves to the min (#1057)
-    if (angle === 0 && allowed === null) continue;
-    if (!Number.isFinite(angle)) {
-      collector.push(
-        "range",
-        `${path}.${axis}`,
-        `${joint.bone} ${axis} must be finite or null, but was ${angle}`,
-        angle,
-      );
-      continue;
-    }
-    if (allowed === null) {
-      // immobile axis: the gap is the whole distance from the required 0
-      const overshoot: number = Math.abs(angle);
-      collector.push(
-        "rom",
-        `${path}.${axis}`,
-        `${joint.bone} does not move in ${axis}; this axis must be null or 0, but was ${angle} (${overshoot}° off)`,
-        angle,
-        overshoot,
-      );
-      continue;
-    }
-    if (angle < allowed.min || angle > allowed.max) {
-      const overshoot: number =
-        angle < allowed.min ? allowed.min - angle : angle - allowed.max;
-      collector.push(
-        "rom",
-        `${path}.${axis}`,
-        `${joint.bone} ${axis} must be within [${allowed.min}, ${allowed.max}]° (anatomical ROM), but was ${angle} (${overshoot}° past limit)`,
-        angle,
-        overshoot,
-      );
-    }
-  }
-
-  // Combined swing cone (ball joints): caps the corner the per-axis boxes miss.
-  // The cone is a COUPLING between the two axes, not a per-axis check, so a
-  // resting (`null`) axis is not exempt. It contributes its actual rotation, 0,
-  // exactly as the renderer reads it (`jointToQuaternion`'s `?? 0`). Gating on
-  // both axes being non-null made `{flexion:150, abduction:null}` pass while its
-  // identical twin `{flexion:150, abduction:0}` (the same quaternion) failed
-  // (#1245).
-  if (typeof constraint.swingDeg === "number") {
-    const swing: number = swingConeAngle(
-      joint.flexion ?? 0,
-      joint.abduction ?? 0,
-    );
-    if (swing > constraint.swingDeg) {
-      const overshoot: number = swing - constraint.swingDeg;
-      collector.push(
-        "rom",
-        `${path}.swing`,
-        `${joint.bone} combined flexion+abduction swing must be within ${constraint.swingDeg}° of neutral (the joint's reachable cone), but was ${swing.toFixed(1)}° (${overshoot.toFixed(1)}° past the cone)`,
-        swing,
-        overshoot,
-      );
-    }
-  }
+  // The faults and their distances come from `scanJointRom`, the measure the
+  // solvers rank candidates by; only their wording is decided here.
+  scanJointRom(
+    joint,
+    constraint,
+    (
+      part: scanJointRom.Part,
+      actual: number,
+      overshoot: number | undefined,
+    ): void => {
+      if (part === "swing") {
+        collector.push(
+          "rom",
+          `${path}.swing`,
+          `${joint.bone} combined flexion+abduction swing must be within ${constraint.swingDeg}° of neutral (the joint's reachable cone), but was ${actual.toFixed(1)}° (${overshoot!.toFixed(1)}° past the cone)`,
+          actual,
+          overshoot,
+        );
+        return;
+      }
+      const allowed: IAutoMovieAngleRange | null = constraint[part];
+      if (overshoot === undefined)
+        collector.push(
+          "range",
+          `${path}.${part}`,
+          `${joint.bone} ${part} must be finite or null, but was ${actual}`,
+          actual,
+        );
+      else if (allowed === null)
+        collector.push(
+          "rom",
+          `${path}.${part}`,
+          `${joint.bone} does not move in ${part}; this axis must be null or 0, but was ${actual} (${overshoot}° off)`,
+          actual,
+          overshoot,
+        );
+      else
+        collector.push(
+          "rom",
+          `${path}.${part}`,
+          `${joint.bone} ${part} must be within [${allowed.min}, ${allowed.max}]° (anatomical ROM), but was ${actual} (${overshoot}° past limit)`,
+          actual,
+          overshoot,
+        );
+    },
+  );
 };

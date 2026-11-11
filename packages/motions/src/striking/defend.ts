@@ -186,13 +186,16 @@ export namespace defend {
     const p: IParams = context.params;
     const attack: IHumanActionContext.IPlaced = context.action(p.against);
 
-    // A feint has no contact: the defender bites on its shown peak instead,
-    // which is how a defence started too early leaves the real strike open.
+    // A feint has no contact: the defender bites on the moment the strike it
+    // shows would have landed, which the feint declares, and which is how a
+    // defence spent on the feint leaves the real strike open. A strike that
+    // declares neither is read at its shown peak.
     const shown: number | undefined = attack.plan.events.find(
       (e) => e.name === "shown" || e.name === "chamber",
     )?.share;
     const decisive: number | undefined =
       attack.plan.contact ??
+      attack.plan.feigned ??
       (shown === undefined ? undefined : shown * attack.plan.duration);
     if (decisive === undefined)
       throw new Error(

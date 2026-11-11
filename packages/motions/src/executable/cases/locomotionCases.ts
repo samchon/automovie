@@ -1,8 +1,4 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import { type IAutoMovieResolvedBone, Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMoviePose,
@@ -15,12 +11,15 @@ import { walk } from "../../actions/walk";
 import type { IHumanBody } from "../../body/IHumanBody";
 import { createHumanBody } from "../../body/createHumanBody";
 import { HumanPerformance } from "../../perform/HumanPerformance";
+import { HumanFoot } from "../../posture/HumanFoot";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
+import type { humanPolygonMan } from "../humanPolygonMan";
+import { FootSlip } from "./FootSlip";
 
 /**
- * Capture cases of the walk law on the polygon man (E0): the smallest, the
- * average and the tallest sweep bodies each walk 4 m ahead alone, one case
+ * Capture cases of the walk law on the polygon man (E0): every body of
+ * `MotionBodies.SWEEP` walks 4 m ahead alone, one case
  * per body and pace (`walk-<pace>-<body>`), the same bodies running 10 m at
  * a jog, a run and a sprint (`run-<pace>-<body>`, judged by the same verdicts
  * against the gait's Froude speed), and the average body walking
@@ -34,8 +33,9 @@ import { MotionBodies } from "../MotionBodies";
  * limit; each walker's destination is marked. The verdicts are the ones a
  * walk must keep: the planted point, the lowest of heel, ball and toe pad
  * (the heel in the heel rocker, the toe pad in the forefoot rocker), while it
- * touches the floor (within 1 cm) in stance, slides under 5 mm across it for
- * as long as it stays the planted point, the foot-skate measure of Kovar, Schreiner
+ * touches the floor (within 1 cm) in stance, slides under 5 mm across it
+ * from where it first was the planted point of that stance ({@link FootSlip}),
+ * the foot-skate measure of Kovar, Schreiner
  * and Gleicher (2002), since the ankle itself moves as the foot rolls over
  * its rockers; no heel, ball or toe sinks more than 5 mm under the floor;
  * every displayed ankle meets its IK goal within 2 mm and every swinging foot
@@ -52,7 +52,8 @@ import { MotionBodies } from "../MotionBodies";
  * walker, foot, point and second of its worst sample.
  *
  * @param kind Walking or running cases.
- * @returns The cases.
+ * @param only Keeps the cases whose name it accepts, the others not being built; every case when absent.
+ * @returns The cases, each built as it is read.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the cases, instants, overlays and every verdict with its bound.
  * @evidence contracts/development/implementation.md#principled-implementation Runs the real performance and measures stance slip and floor penetration on the displayed bones and the body's own sockets.
@@ -62,13 +63,30 @@ import { MotionBodies } from "../MotionBodies";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
-export function locomotionCases(kind: "walk" | "run"): IMotionCaptureCase[] {
-  return (["f-small", "m-average", "m-tall"] as const).flatMap((who) => {
+export function* locomotionCases(
+  kind: "walk" | "run",
+  only?: (name: string) => boolean,
+): Iterable<IMotionCaptureCase> {
+  for (const who of MotionBodies.SWEEP) {
     const names = [who] as const;
-    const men = names.map((name) => MotionBodies.population(name));
-    const bodies: IHumanBody[] = men.map((man) =>
-      createHumanBody(man.body.skeleton, man.body.profile),
-    );
+    // The bodies are prepared on the first case the filter keeps.
+    let prepared:
+      | { men: humanPolygonMan.IPolygonMan[]; bodies: IHumanBody[] }
+      | undefined;
+    const prepare = (): NonNullable<typeof prepared> => {
+      if (prepared === undefined) {
+        const men: humanPolygonMan.IPolygonMan[] = names.map((name) =>
+          MotionBodies.population(name),
+        );
+        prepared = {
+          men,
+          bodies: men.map((man) =>
+            createHumanBody(man.body.skeleton, man.body.profile),
+          ),
+        };
+      }
+      return prepared;
+    };
     const all: {
       law: "walk" | "run";
       pace: string;
@@ -112,9 +130,11 @@ export function locomotionCases(kind: "walk" | "run"): IMotionCaptureCase[] {
           ]
         : []),
     ];
-    const configs = all.filter((c) => c.law === kind);
-    return configs.map(
-      ({ law, pace, froude: fr, label, to, extra }): IMotionCaptureCase => {
+    for (const { law, pace, froude: fr, label, to, extra } of all) {
+      if (law !== kind) continue;
+      if (only !== undefined && !only(`${law}-${label}-${who}`)) continue;
+      const { men, bodies } = prepare();
+      yield ((): IMotionCaptureCase => {
         const lanes: number[] = names.map((): number => 0);
         const goals: IAutoMovieVector3[] = names.map(
           (): IAutoMovieVector3 => to,
@@ -319,47 +339,31 @@ export function locomotionCases(kind: "walk" | "run"): IMotionCaptureCase[] {
                   }
                 }
               }
-              const points = (["heel", "ball", "toe"] as const).map(
-                (socket) => {
-                  const frame =
-                    body.surfaces.sockets[
-                      `${socket}${side === "left" ? "Left" : "Right"}`
-                    ];
-                  return {
-                    socket,
-                    p: resolveAutoMovieHumanoidSurfaces.place(
-                      frame,
-                      bones.get(frame.bone)!,
-                    ).point,
-                  };
-                },
+              const sole: HumanFoot.ISocket[] = HumanFoot.sockets(
+                body,
+                bones,
+                side,
               );
-              // The planted point is the lowest of heel, ball and toe pad: the heel in
-              // the heel rocker, the sole flat, the toe pad in the forefoot rocker.
-              const planted: string = points.reduce((a, b) =>
-                b.p.y < a.p.y ? b : a,
-              ).socket;
-              for (const { socket, p } of points) {
-                if (-p.y > sink.value)
+              for (const { socket, point } of sole)
+                if (-point.y > sink.value)
                   sink = {
-                    value: -p.y,
+                    value: -point.y,
                     where: `${names[i]} ${side} ${socket} ${phase} t=${t.toFixed(2)}`,
                   };
-                // The planted point on the floor during a stance must not move across it.
-                const key: string = `${side}${n}${socket}`;
-                if (n < 0 || p.y > 0.01 || socket !== planted) {
-                  touched.delete(key);
-                  continue;
-                }
-                const first: IAutoMovieVector3 = touched.get(key) ?? p;
-                touched.set(key, first);
-                const d: number = Math.hypot(p.x - first.x, p.z - first.z);
+              // The planted point on the floor during a stance must not move across it.
+              const planted: HumanFoot.ISocket = FootSlip.contact(sole);
+              if (n >= 0 && planted.point.y <= 0.01) {
+                const d: number = FootSlip.drift(
+                  touched,
+                  `${side}${n}`,
+                  planted,
+                );
                 if (d > slip.value)
                   slip = {
                     value: d,
-                    where: `${names[i]} ${side} ${socket} t=${t.toFixed(2)}${within}, foot rotation off ${error.toFixed(1)} deg`,
+                    where: `${names[i]} ${side} ${planted.socket} t=${t.toFixed(2)}${within}, foot rotation off ${error.toFixed(1)} deg`,
                   };
-                drift.push({ at: p, drift: d });
+                drift.push({ at: planted.point, drift: d });
               }
             }
           }
@@ -517,9 +521,9 @@ export function locomotionCases(kind: "walk" | "run"): IMotionCaptureCase[] {
               : []),
           ],
         };
-      },
-    );
-  });
+      })();
+    }
+  }
 }
 
 /** Every 0.2 s, and every heel strike and toe-off, labelled. */

@@ -95,6 +95,29 @@ export namespace StrikingRecord {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(plan: IHumanActionPlan): IRecord | undefined {
-    return RECORDS.get(plan)?.();
+    return carries(plan) ? plan.record() : RECORDS.get(plan)?.();
+  }
+
+  /**
+   * A strike's plan: the plan itself carries its record, built on demand
+   * from its current geometry and committed stop.
+   */
+  export interface IPlan extends IHumanActionPlan {
+    /**
+     * What the strike decided, read from its current geometry.
+     *
+     * @returns The record.
+     */
+    record(): IRecord;
+  }
+
+  /**
+   * Whether a plan carries a strike's record.
+   *
+   * @param plan A plan.
+   * @returns True for a strike's plan.
+   */
+  export function carries(plan: IHumanActionPlan): plan is IPlan {
+    return "record" in plan && typeof plan.record === "function";
   }
 }
