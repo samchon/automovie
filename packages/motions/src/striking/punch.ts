@@ -34,6 +34,7 @@ import { StrikingQuality } from "./StrikingQuality";
 import { StrikingReach } from "./StrikingReach";
 import { StrikingRecord } from "./StrikingRecord";
 import { StrikingRide } from "./StrikingRide";
+import { StrikingRoom } from "./StrikingRoom";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingStroke } from "./StrikingStroke";
@@ -66,7 +67,9 @@ import { StrikingWeapon } from "./StrikingWeapon";
  * punch turns the trunk through to bring the rear shoulder forward and
  * pivots the rear foot on its ball; a lead hook turns the other way. A body
  * punch lowers the root through the knees. When the arm's band falls short,
- * the lead foot steps in by up to one stance length and the rear foot drags
+ * the lead foot steps in by up to one stance length, never past the room in
+ * front of the arms ({@link StrikingRoom}) and never toward a target that no
+ * place on the line brings within the band, and the rear foot drags
  * from mid-delivery to mid-return (the IBA stepping jab), so no planted foot
  * is left behind a travelling hip; the trunk's turn is shared by the pelvis
  * and the lumbar and thoracic spine. Beyond that the fist extends
@@ -302,17 +305,19 @@ export namespace punch {
     // the body it met ({@link StrikingRide}), built on first use.
     let met: IHumanActionPlan.IContactEvent | null = null;
     let ride: StrikingRide.IRide | undefined;
-    const carried = (posture: IHumanPosture, seconds: number): IHumanPosture => {
+    const carried = (
+      posture: IHumanPosture,
+      seconds: number,
+    ): IHumanPosture => {
       if (met === null) return posture;
       const event: IHumanActionPlan.IContactEvent = met;
       ride ??= StrikingRide.create({
         other: (): IHumanActionContext.IPerformer =>
           context.performer(event.against),
         stop: event.seconds,
-        end: context.start + duration,
-        axis: (
-          at: number,
-        ): readonly [IAutoMovieVector3, IAutoMovieVector3] =>
+        goal: (at: number): IAutoMovieVector3 =>
+          geometry().posture(at - context.start).limbs[limb]!.point,
+        axis: (at: number): readonly [IAutoMovieVector3, IAutoMovieVector3] =>
           StrikingWeapon.axis(chain, event.weapon, at),
       });
       return ride.carry(posture, limb, context.start + seconds);
@@ -364,7 +369,9 @@ export namespace punch {
       get contacts(): IHumanContactWindow[] {
         return geometry().contacts;
       },
-      ...(p.feint === undefined ? { contact: delivery } : { feigned: delivery }),
+      ...(p.feint === undefined
+        ? { contact: delivery }
+        : { feigned: delivery }),
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         return carried(geometry().posture(t), t);
@@ -578,15 +585,39 @@ export namespace punch {
     const drag = (t: number): number =>
       minimumJerk((t - dragFrom) / (dragTo - dragFrom)).s;
     const carried: number = 0.5 * (1 + drag(shown));
+
+    // The arms at the launch, read from the displayed entry pose.
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
+      resolvePose(
+        context.entry.pose,
+        body.skeleton,
+        HUMANOID_JOINT_AXES,
+        HUMANOID_REST_FRAME,
+      ).map(
+        (
+          r: IAutoMovieResolvedBone,
+        ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
+      ),
+    );
+
+    // The punch returns to the guard where the step ends, so the step never
+    // closes past the room in front of the arms ({@link StrikingRoom}). A
+    // wrist off the line by more than the band's longest reach (a target
+    // above the arm) is out of reach from every place on the line, so it is
+    // not stepped toward: the nearest place is under it, the other's own.
+    const longest: number = StrikingReach.reach(m.upperArm, m.forearm, band[0]);
     const advance: number =
-      p.feint === undefined
+      p.feint === undefined && across <= longest
         ? Math.max(
             0,
-            StrikingReach.advance(
-              along,
-              needed,
-              carried * StrikingStance.length(body),
-            ) / carried,
+            Math.min(
+              StrikingReach.advance(
+                along,
+                needed,
+                carried * StrikingStance.length(body),
+              ) / carried,
+              StrikingRoom.ahead(context, at, bones, line, t0),
+            ),
           )
         : 0;
     const shoulder: IAutoMovieVector3 = Vector3.add(
@@ -608,19 +639,6 @@ export namespace punch {
       slide: false,
     });
 
-    // The arm at the launch, read from the displayed entry pose.
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
-      resolvePose(
-        context.entry.pose,
-        body.skeleton,
-        HUMANOID_JOINT_AXES,
-        HUMANOID_REST_FRAME,
-      ).map(
-        (
-          r: IAutoMovieResolvedBone,
-        ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
-      ),
-    );
     const origin: IAutoMovieVector3 = bones.get(
       `${side}Hand` as AutoMovieHumanoidBone,
     )!.worldPosition;
@@ -784,48 +802,23 @@ export namespace punch {
       );
     const lag: number = StrikingSkill.lag(context.skill) * shown;
 
-    // How deep a feint is shown, as a share of the way to the committed
-    // punch's wrist: the declared share, but never into a person's guard. The
-    // guard's depth is the farthest that person's hands and forearms stood
-    // toward the puncher from the aimed point when the punch was read, and
-    // the fist keeps clear of it by its own reach past the wrist and the two
-    // forearms' radii (derived: the surfaces that would otherwise touch).
-    const depth = (): number => {
-      const declared: number = minimumJerk(p.feint ?? 1).s;
-      if (p.at.kind !== "person") return declared;
-      const other: IHumanActionContext.IPerformer = context.performer(
-        p.at.subject,
-      );
-      const theirs: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        other.bones(t0 - StrikingTarget.LOOK);
-      const guard: number = Math.max(
-        0,
-        ...(
-          ["leftHand", "rightHand", "leftLowerArm", "rightLowerArm"] as const
-        ).map((bone): number =>
-          Vector3.dot(
-            Vector3.subtract(first, theirs.get(bone)!.worldPosition),
-            line,
-          ),
-        ),
-      );
-      const whole: number = Vector3.dot(
-        Vector3.subtract(solved.end, origin),
-        line,
-      );
-      if (!(whole > 1e-6)) return declared;
-      const clear: number =
-        Vector3.dot(Vector3.subtract(first, origin), line) -
-        guard -
-        Vector3.length(socket) -
-        m.forearmRadius -
-        other.body.measure.forearmRadius;
-      return Math.min(declared, Math.max(0, clear / whole));
-    };
+    // A feint is shown to its declared share, never into a person's guard.
     const reached: IAutoMovieVector3 =
       p.feint === undefined
         ? solved.end
-        : Vector3.lerp(origin, solved.end, depth());
+        : Vector3.lerp(
+            origin,
+            solved.end,
+            StrikingRoom.feint(context, at, {
+              declared: minimumJerk(p.feint).s,
+              aimed: first,
+              origin,
+              end: solved.end,
+              reach: Vector3.length(socket),
+              line,
+              launch: t0,
+            }),
+          );
     const units = StrikingStroke.delivery({
       origin,
       impact: reached,

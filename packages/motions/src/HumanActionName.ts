@@ -33,6 +33,36 @@
  * - `stagger`: one unplanned capture step after a push.
  * - `knockdown`: the legs giving way and the body going down to lie supine.
  * - `knee`: a knee driven onto a target, in the clinch or free.
+ * - `touch`: a hand laid on a partner's or one's own region and moved on it by a kind of touch.
+ * - `handToFace`: a hand-to-face task of daily living (drink, eat, phone, read, groom).
+ * - `crouch`: a crouch or squat held over the planted feet, then standing again.
+ * - `kneel`: kneeling on one knee, on both, or sitting back on the heels, then rising.
+ * - `climbStairs`: climbing a flight of stairs up or down, step over step or step by step.
+ * - `throwObject`: throwing a held object overarm, underarm or as a toss along a ballistic path to a target.
+ * - `catchObject`: catching a thrown object where its path enters the reach, giving with it and holding it.
+ * - `operate`: pressing a button, turning a knob, sliding a drawer or swinging a door by its handle.
+ * - `lieDown`: lying down on the floor from standing, supine, prone or on a side.
+ * - `crawl`: getting down onto hands and knees and crawling in the diagonal pattern.
+ * - `climbLadder`: climbing a fixed ladder in the four-beat pattern, three limbs always on it.
+ * - `clinch`: taking and holding a clinch grip on a partner, the neck tie or collar and sleeve.
+ * - `kickBall`: kicking a ball beside the support foot with the instep.
+ * - `useTool`: working a one-handed tool in cycles over a work point (hammer, saw, spoon, screwdriver).
+ * - `wipe`: wiping a level surface with the flat palm in circles.
+ * - `dress`: putting on a hat or a pair of glasses with both hands.
+ * - `carry`: walking while carrying a load in one hand, a box in both, a child on the hip, or pushing a cart.
+ * - `kiss`: the lips brought to a partner's region by a lean and a neck flexion.
+ * - `highFive`: two partners' hands meeting at one shared point and instant.
+ * - `selfAction`: a whole-body self action (stretch, victory arms, fist pump, neck or shoulder roll).
+ * - `exercise`: a standing bodyweight exercise counted in repetitions (squat, lunge, high knees, jumping jack).
+ * - `stretch`: a standing static stretch or yoga pose held and released (neck, cross-body, side bend, quadriceps, tree).
+ * - `dance`: a solo dance step locked to a declared beat (bounce, sway, step-touch).
+ * - `athletics`: the sprint start's crouch into the set position, held to the gun.
+ * - `gymnastics`: a handstand kicked up from standing, held and stepped down.
+ * - `martialArt`: a martial-art technique (horse stance, choku-zuki, tai chi push).
+ * - `ballSport`: a team ball skill with an implied ball (dribble, dig, set, throw-in).
+ * - `baseball`: a baseball position (catcher's crouch, ground ball, batting stance).
+ * - `racket`: a racket or golf position without the stroke (ready position, split step, golf address).
+ * - `swim`: swimming on a declared water plane (treading water, front crawl).
  */
 export type HumanActionName =
   | "stand"
@@ -63,4 +93,34 @@ export type HumanActionName =
   | "receive"
   | "stepOver"
   | "brace"
-  | "typeText";
+  | "typeText"
+  | "touch"
+  | "handToFace"
+  | "crouch"
+  | "kneel"
+  | "climbStairs"
+  | "throwObject"
+  | "catchObject"
+  | "operate"
+  | "lieDown"
+  | "crawl"
+  | "climbLadder"
+  | "clinch"
+  | "kickBall"
+  | "useTool"
+  | "wipe"
+  | "dress"
+  | "carry"
+  | "kiss"
+  | "highFive"
+  | "selfAction"
+  | "exercise"
+  | "stretch"
+  | "dance"
+  | "athletics"
+  | "gymnastics"
+  | "martialArt"
+  | "ballSport"
+  | "baseball"
+  | "racket"
+  | "swim";

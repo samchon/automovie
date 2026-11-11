@@ -4,6 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
+import { physicalHullFaces } from "./physicalHullFaces";
 
 /**
  * Admit geometry and observed frames without borrowing the native mass/tree contract. Every collider still has a finite solid shape, material, local frame and known joint carriers.
@@ -117,6 +118,21 @@ export function admitMotionGeometry(geometry: Geometry): void {
         )
           throw new Error("Invalid motion geometry round shape");
         radius = shape.radius;
+      } else if (shape.kind === "hull") {
+        if (
+          !Array.isArray(shape.points) ||
+          shape.points.length < 4 ||
+          !shape.points.every(
+            (point: (typeof shape.points)[number]): boolean =>
+              !!point && [point.x, point.y, point.z].every(scalar),
+          )
+        )
+          throw new Error("Invalid motion geometry hull");
+        const hull: physicalHullFaces.IHull = physicalHullFaces(shape.points);
+        // Convex by contract: the points span a volume and none lies inside.
+        if (hull.faces.length < 4 || hull.buried > hull.tolerance)
+          throw new Error("Invalid motion geometry hull");
+        radius = hull.depth;
       } else throw new Error("Invalid motion geometry shape kind");
       if (material.compliance > 0 && material.maximumCompression! >= radius)
         throw new Error("Invalid motion geometry rigid core");

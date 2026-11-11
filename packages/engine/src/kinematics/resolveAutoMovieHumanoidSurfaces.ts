@@ -10,6 +10,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { physicalHullFaces } from "../physics/physicalHullFaces";
 import { physicalShapeBounds } from "../physics/physicalShapeBounds";
 import { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 import { resolvePose } from "./resolvePose";
@@ -581,6 +582,25 @@ function shapeExit(
   const dir: IAutoMovieVector3 = Quaternion.rotateVector(inverse, d);
   let near: number = -Infinity;
   let far: number = Infinity;
+  if (shape.kind === "hull") {
+    // Clip the ray against every face plane: it enters through the planes
+    // it runs against and leaves through the ones it runs with.
+    for (const face of physicalHullFaces(shape.points).faces) {
+      const speed: number = Vector3.dot(face.normal, dir);
+      const height: number = Vector3.dot(face.normal, o) - face.offset;
+      if (Math.abs(speed) < 1e-12) {
+        if (height > BOUNDARY) return -Infinity;
+        continue;
+      }
+      if (speed < 0) near = Math.max(near, -height / speed);
+      else far = Math.min(far, -height / speed);
+    }
+    return near <= far ? far : -Infinity;
+  }
+  if (shape.kind !== "box") {
+    shape satisfies never;
+    throw new Error("Unknown physical shape kind");
+  }
   for (const k of ["x", "y", "z"] as const) {
     const h: number = shape.halfExtents[k];
     if (Math.abs(dir[k]) < 1e-12) {

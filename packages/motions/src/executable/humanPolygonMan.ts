@@ -25,9 +25,11 @@ import path from "node:path";
  * primitives), about 2 s a body with no skin or head surface built; its
  * measure is read by the engine's `measureAutoMovieHumanoidBody`. Prepared
  * bodies are shared through the ignored `packages/motions/.cache/polygon/`,
- * keyed by the SHA-256 of the parameters, the mass and the contents of
- * Human's source tree, so every test, capture and agent reuses one
- * preparation per person, and a change to Human prepares again.
+ * keyed by the SHA-256 of the parameters, the mass, the contents of
+ * Human's source tree and the engine sources that own the body's ring
+ * modules and hull mass, so every test, capture and agent reuses one
+ * preparation per person, and a change to Human or to those owners prepares
+ * again.
  *
  * @param id Stable body id, used as the skeleton id.
  * @param params Human's parameters.
@@ -99,7 +101,7 @@ export namespace humanPolygonMan {
   }
 }
 
-/** SHA-256 of every source file under Human's `src`, in sorted path order, computed once per process. */
+/** SHA-256 of every source file under Human's `src`, in sorted path order, and of the engine sources its solids are built by, computed once per process. */
 function humanSourceDigest(): string {
   if (DIGEST !== undefined) return DIGEST;
   const hash = createHash("sha256");
@@ -119,9 +121,25 @@ function humanSourceDigest(): string {
       "src",
     ),
   );
+  const engine: string = path.join(
+    path.dirname(require.resolve("@automovie/engine/package.json")),
+    "src",
+  );
+  for (const name of ENGINE_SOURCES)
+    hash.update(name).update(readFileSync(path.join(engine, name)));
   DIGEST = hash.digest("hex");
   return DIGEST;
 }
 
-/** The process's Human source digest. */
+/** The engine sources that decide a prepared body's solids and mass properties, relative to the engine's `src`. */
+const ENGINE_SOURCES: readonly string[] = [
+  "kinematics/resolveAutoMovieHumanoidRingModules.ts",
+  "physics/combinePhysicalMassProperties.ts",
+  "physics/physicalHullFaces.ts",
+  "physics/physicalHullMass.ts",
+  "physics/physicalHullNearest.ts",
+  "physics/physicalPrincipalAxes.ts",
+];
+
+/** The process's source digest. */
 let DIGEST: string | undefined;

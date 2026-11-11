@@ -8,6 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
+import { physicalHullFaces } from "../physics/physicalHullFaces";
 import { physicalShapeBounds } from "../physics/physicalShapeBounds";
 
 /**
@@ -95,15 +96,36 @@ export function measureAutoMovieHumanoidBody(
   };
   const radius = (name: AutoMovieHumanoidBone): number =>
     Math.max(
-      ...segment(name).shapes.map((shape: P.IShape): number =>
-        shape.kind === "box"
-          ? Math.min(
-              ...[shape.halfExtents.x, shape.halfExtents.y, shape.halfExtents.z]
-                .sort((a: number, b: number): number => b - a)
-                .slice(1),
-            )
-          : shape.radius,
-      ),
+      ...segment(name).shapes.map((shape: P.IShape): number => {
+        if (shape.kind === "box")
+          return Math.min(
+            shape.halfExtents.x,
+            shape.halfExtents.y,
+            shape.halfExtents.z,
+          );
+        if (shape.kind === "sphere" || shape.kind === "capsule")
+          return shape.radius;
+        if (shape.kind === "hull") {
+          // Half the hull's least width: the narrowest slab between a face
+          // plane and the vertex farthest behind it.
+          const hull: physicalHullFaces.IHull = physicalHullFaces(shape.points);
+          return (
+            Math.min(
+              ...hull.faces.map(
+                (face: physicalHullFaces.IFace): number =>
+                  face.offset -
+                  Math.min(
+                    ...hull.vertices.map((vertex: IAutoMovieVector3): number =>
+                      Vector3.dot(face.normal, vertex),
+                    ),
+                  ),
+              ),
+            ) / 2
+          );
+        }
+        shape satisfies never;
+        throw new Error("Unknown physical shape kind");
+      }),
     );
   const top: number = Math.max(
     ...profile.segments.flatMap((s: P.ISegment): number[] =>

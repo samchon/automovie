@@ -53,9 +53,7 @@ import { FootSlip } from "./FootSlip";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
-export function jumpCases(
-  who: "f-small" | "m-average" | "m-tall",
-): IMotionCaptureCase[] {
+export function jumpCases(who: string): IMotionCaptureCase[] {
   const man = MotionBodies.population(who);
   const body: IHumanBody = createHumanBody(man.body.skeleton, man.body.profile);
   const l: number = body.measure.hipHeight;

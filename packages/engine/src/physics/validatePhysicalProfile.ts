@@ -7,6 +7,7 @@ import type {
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
+import { physicalHullFaces } from "./physicalHullFaces";
 
 /**
  * Collect every numeric, reference, mass and tree defect before simulation.
@@ -163,6 +164,7 @@ export function validatePhysicalProfile(profile: P): string[] {
       shapes.add(shape.id);
       fail(materials.has(shape.material), `${location}.material`);
       transform(shape.transform, `${location}.transform`);
+      let hull: physicalHullFaces.IHull | null = null;
       if (shape.kind === "box")
         fail(
           vector(shape.halfExtents) &&
@@ -177,6 +179,20 @@ export function validatePhysicalProfile(profile: P): string[] {
         fail(positive(shape.radius), `${location}.radius`);
         if (shape.kind === "capsule")
           fail(nonnegative(shape.halfLength), `${location}.halfLength`);
+      } else if (shape.kind === "hull") {
+        // Convex by contract: the points span a volume and none lies inside.
+        hull =
+          Array.isArray(shape.points) &&
+          shape.points.length >= 4 &&
+          shape.points.every(vector)
+            ? physicalHullFaces(shape.points)
+            : null;
+        fail(
+          hull !== null &&
+            hull.faces.length >= 4 &&
+            hull.buried <= hull.tolerance,
+          `${location}.points`,
+        );
       } else fail(false, `${location}.kind`);
       const material: P.IMaterial | undefined = profile.materials.find(
         (candidate: (typeof profile.materials)[number]): boolean =>
@@ -199,7 +215,10 @@ export function validatePhysicalProfile(profile: P): string[] {
                 ].every((extent: number): boolean =>
                   positive(extent - material.maximumCompression!),
                 )
-            : positive(shape.radius - material.maximumCompression!),
+            : shape.kind === "hull"
+              ? hull !== null &&
+                positive(hull.depth - material.maximumCompression!)
+              : positive(shape.radius - material.maximumCompression!),
           `${location}.rigidCore`,
         );
     }

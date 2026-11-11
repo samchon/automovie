@@ -5,9 +5,9 @@ import {
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
@@ -19,6 +19,7 @@ import { poseBones } from "../posture/poseBones";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
+import { HumanPreshape } from "./HumanPreshape";
 
 /**
  * Reaching for a prop's grip, grasping it and lifting it clear.
@@ -134,7 +135,11 @@ export namespace pickUp {
     );
     // The same grip must still hold at the top of the lift, so the lifted
     // pose is a key of the choice.
-    const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(body, held, side);
+    const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
+      body,
+      held,
+      side,
+    );
     const chosen: HumanGrasp.IReach = HumanGrasp.reachable(
       body,
       held,
@@ -169,7 +174,7 @@ export namespace pickUp {
       chosen.shown,
       target.colliders,
     ).joints;
-    const open: IHumanPosture["joints"] = HumanGrasp.open(
+    const open: IHumanPosture["joints"] = HumanPreshape.open(
       body,
       side,
       closed,
@@ -178,9 +183,7 @@ export namespace pickUp {
     const entry: IAutoMovieResolvedBone = poseBones(
       body,
       context.entry.pose,
-    ).get(
-      `${side}Hand`,
-    )!;
+    ).get(`${side}Hand`)!;
 
     // Timing: reach, load, lift.
     const reach: number = HumanPrehension.duration(

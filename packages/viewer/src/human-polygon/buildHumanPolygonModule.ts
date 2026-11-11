@@ -9,7 +9,10 @@ import { humanPolygonTopology as LoftMesh } from "./humanPolygonTopology.js";
  * The caller owns shape selection, shared boundaries, materials and every
  * emitted geometry. This module only emits their local mesh and diagnostics,
  * preserving the existing source sequence, zipper, winding and crown cap.
- * Its front query intersects those same emitted triangles for face attachment.
+ * A band between two equal-count rings folds each of its quads along the
+ * ridge diagonal, the one that bulges away from the module's axis, so the
+ * drawn surface is the convex one the module's collider hull takes from the
+ * same ring points. Its front query intersects those same emitted triangles for face attachment.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Moves registered points into the bone rest frame once and consumes its supplied posed placement once; existing LoftMesh zipper and cap own exterior connectivity.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One module assembly returns the surface target, its matching diagnostic target and the material-bearing mesh without choosing anatomy or a palette.
@@ -150,11 +153,37 @@ export function buildHumanPolygonModule(
         for (let i: number = start; i < indices.length; i += 3)
           [indices[i + 1], indices[i + 2]] = [indices[i + 2]!, indices[i + 1]!];
     } else {
+      // Two rings of different proportions make a band of skew quads, and a
+      // skew quad folds along either diagonal: one fold is a ridge, the other
+      // a valley. The ridge is taken, so a band between two convex rings is
+      // the surface of their convex hull, which the collider is.
+      const inner: THREE.Vector3 = rings[layer]!.centre.clone()
+        .add(rings[layer + 1]!.centre)
+        .multiplyScalar(0.5)
+        .sub(new THREE.Vector3(...bone.position));
+      const at = (index: number): THREE.Vector3 =>
+        new THREE.Vector3(
+          positions[3 * index]!,
+          positions[3 * index + 1]!,
+          positions[3 * index + 2]!,
+        );
       for (let i: number = 0; i < sides; ++i) {
         const a: number = layer * sides + i;
         const b: number = layer * sides + ((i + 1) % sides);
-        triangle(a, b, a + sides);
-        triangle(b, b + sides, a + sides);
+        const face: THREE.Vector3 = at(b)
+          .sub(at(a))
+          .cross(at(a + sides).sub(at(a)));
+        const ridge: boolean =
+          face.dot(at(b + sides).sub(at(a))) *
+            face.dot(inner.clone().sub(at(a))) >=
+          0;
+        if (ridge) {
+          triangle(a, b, a + sides);
+          triangle(b, b + sides, a + sides);
+        } else {
+          triangle(a, b, b + sides);
+          triangle(a, b + sides, a + sides);
+        }
       }
     }
   }
