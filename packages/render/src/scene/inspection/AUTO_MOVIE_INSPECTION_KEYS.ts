@@ -8,7 +8,6 @@ export const AUTO_MOVIE_INSPECTION_KEYS: readonly string[] = [
   "hide",
   "shade",
   "surface",
-  "wire",
   "marks",
   "sliver",
   "section",

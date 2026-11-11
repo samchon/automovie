@@ -39,7 +39,6 @@ export namespace InspectionScene {
       hide: [],
       shade: "beauty",
       surface: true,
-      wire: false,
       marks: [],
       sliver: null,
       section: null,

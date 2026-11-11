@@ -56,7 +56,6 @@ export function test_inspection_request(): void {
     hide: ["prop"],
     shade: "faces",
     surface: false,
-    wire: true,
     marks: ["curve/section", "defect"],
     sliver: 0.05,
     section: { point: { x: 0, y: 1.2, z: 0 }, normal: { x: 0, y: 1, z: 0 } },
@@ -70,7 +69,6 @@ export function test_inspection_request(): void {
       hide: "prop",
       shade: "faces",
       surface: "0",
-      wire: "",
       marks: "curve/section, defect",
       sliver: "0.05",
       section: "y:1.2",
@@ -84,7 +82,7 @@ export function test_inspection_request(): void {
     TestValidator.equals(`shade ${shade} is accepted`, parse({ shade }).shade, shade);
 
   // 3. Switch forms.
-  for (const key of ["surface", "wire", "xray"] as const) {
+  for (const key of ["surface", "xray"] as const) {
     for (const text of ["", "1", "true"])
       TestValidator.equals(`${key} is on for "${text}"`, parse({ [key]: text })[key], true);
     for (const text of ["0", "false"])

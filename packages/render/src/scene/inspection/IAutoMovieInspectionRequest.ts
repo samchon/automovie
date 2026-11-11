@@ -33,11 +33,6 @@ export interface IAutoMovieInspectionRequest {
   surface: boolean;
 
   /**
-   * Whether each triangle is drawn as its three edges instead of its face.
-   */
-  wire: boolean;
-
-  /**
    * Kind patterns of the marks to draw, read by `matchAutoMovieInspectionPath` against each mark's kind, such as `curve/section`, `defect` or `**`. Empty draws no mark.
    */
   marks: string[];

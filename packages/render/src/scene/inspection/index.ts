@@ -20,6 +20,7 @@ export * from "./listAutoMovieInspectionPaths.js";
 export * from "./matchAutoMovieInspectionPath.js";
 export * from "./measureAutoMovieInspectionBounds.js";
 export * from "./measureAutoMovieInspectionDefects.js";
+export * from "./measureAutoMovieInspectionEdges.js";
 export * from "./mergeAutoMovieInspectionLegends.js";
 export * from "./parseAutoMovieInspectionRequest.js";
 export * from "./resolveAutoMovieInspectionColors.js";

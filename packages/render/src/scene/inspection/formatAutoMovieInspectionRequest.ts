@@ -33,8 +33,6 @@ export function formatAutoMovieInspectionRequest(
   if (request.shade !== absent.shade) values.push(["shade", request.shade]);
   if (request.surface !== absent.surface)
     values.push(["surface", request.surface ? "1" : "0"]);
-  if (request.wire !== absent.wire)
-    values.push(["wire", request.wire ? "1" : "0"]);
   if (request.marks.length !== 0)
     values.push(["marks", request.marks.join(",")]);
   if (request.sliver !== null) values.push(["sliver", String(request.sliver)]);

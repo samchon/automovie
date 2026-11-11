@@ -27,7 +27,6 @@ const SHADES: Record<IAutoMovieInspectionRequest.Shade, true> = {
  * | `parts`, `hide` | Path patterns separated by commas | No pattern |
  * | `shade` | `beauty`, `depth`, `mask`, `normal`, `outline`, `pose`, `clay` or `faces` | `beauty` |
  * | `surface` | A switch | On |
- * | `wire` | A switch | Off |
  * | `marks` | Kind patterns separated by commas, such as `curve/section,defect` | No mark |
  * | `sliver` | A positive aspect limit | No sliver measured |
  * | `section` | `x:0.2` cuts away everything beyond x = 0.2 m, `-x:0.2` everything before it, likewise `y` and `z`; or `px,py,pz:nx,ny,nz`, a point in metres and the direction cut away | No cut |
@@ -61,7 +60,6 @@ export function parseAutoMovieInspectionRequest(
     hide: list(read("hide")),
     shade: shade as IAutoMovieInspectionRequest.Shade,
     surface: flag("surface", read("surface"), true),
-    wire: flag("wire", read("wire"), false),
     marks: list(read("marks")),
     sliver: positive("sliver", read("sliver")),
     section: section(read("section")),
