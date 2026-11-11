@@ -1,4 +1,4 @@
-import type { IAutoMovieHeadlessPage } from "../../headlessCapture/IAutoMovieHeadlessPage";
+import type { IAutoMovieDrawPage } from "@automovie/render";
 
 /**
  * Ask a loaded capture page for every frame's state digest and its graphics
@@ -26,7 +26,7 @@ import type { IAutoMovieHeadlessPage } from "../../headlessCapture/IAutoMovieHea
  * @evidence contracts/development/common.md#meaningful-documentation States the hook contract, its purity requirement, the identity source and failure behavior.
  */
 export async function readViewerFrameStates(
-  page: Pick<IAutoMovieHeadlessPage, "evaluate">,
+  page: Pick<IAutoMovieDrawPage, "evaluate">,
   hook: string,
   times: readonly number[],
 ): Promise<{ digests: string[]; graphics: string }> {

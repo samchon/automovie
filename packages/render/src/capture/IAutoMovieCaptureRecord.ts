@@ -11,7 +11,7 @@ import type { IAutoMovieCaptureWindow } from "./IAutoMovieCaptureWindow.js";
  * A capture writes a `running` record listing the files it is about to write before it writes any, and the `complete` record last, so a folder interrupted at any step still says which of its files the capture owns and the next run replaces them. `.agents/skills/visual-debugging/capture.md` asks a record to keep the source revision, the input, the time, the resolved camera, the pass, the raster and the renderer, and to keep a cell that could not be drawn with its cause.
  *
  * @evidence contracts/development/design.md#principled-representation A union keyed by `state`: a running capture records only what it owns, a complete one everything that repeats it. The request is kept as the named text values that repeat it, every planned cell has a row, and a drawn and an undrawn row are separate members.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Each member answers a requirement of the skill quoted above or is read by the next run (`files`) or a comparison (`rows`), and `video` lists a file's cuts as `.agents/skills/visual-debugging/capture.md` asks frames around every cut; the subject keeps its clock and raster but not its drawables, which the request's selections already name.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Each member answers a requirement of the skill quoted above or is read by the next run (`files`) or a comparison (`rows`), `video` lists a file's cuts as `.agents/skills/visual-debugging/capture.md` asks frames around every cut, and `section` keeps what only the subject's owner judges, such as a motion case's verdicts, so the record of one capture stays one file in a folder that refuses foreign files; the subject keeps its clock and raster but not its drawables, which the request's selections already name.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts An undrawn cell has no file, hash or camera instead of empty ones, and an unstated backend or camera is null.
  * @evidence contracts/development/common.md#meaningful-documentation States when each state is written and why, which skill requirements the members answer, and what the next run reads.
  */
@@ -74,6 +74,9 @@ export type IAutoMovieCaptureRecord =
 
       /** The video file the stills were taken from, with its detected cuts, or null for a drawn subject. */
       video: IAutoMovieCaptureRecord.IVideo | null;
+
+      /** The subject owner's own section, such as a motion case's verdicts and metrics, as the host handed it over, or null when the owner has none. */
+      section: Readonly<Record<string, unknown>> | null;
 
       /** Every file name the capture wrote in its folder, this record included. */
       files: string[];
@@ -147,7 +150,7 @@ export namespace IAutoMovieCaptureRecord {
         /** Identity of the renderer that drew it, or null when the host did not state it. */
         backend: string | null;
 
-        /** The camera the view resolved to, as a view text, or null when the host did not state it. */
+        /** The camera the view resolved to, as the host wrote it (a draw page writes the JSON of its `IAutoMovieInspectionCamera`), or null when the host did not state it. */
         camera: string | null;
       }
     | {

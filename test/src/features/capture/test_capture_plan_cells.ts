@@ -30,7 +30,7 @@ const SUBJECT: IAutoMovieCaptureSubject = {
  *
  * 1. Two seconds, two views and two passes plan eight cells ordered by time, then view, then pass, named `t<seconds>-<view>-<pass>`, captioned with frame, second, view and pass, each with the inspection request of its pass.
  * 2. Planning the same request again gives the same names, so a later round finds the same cells.
- * 3. A single view and pass leave view and pass out of the caption, and a view with switches gets a file-safe name.
+ * 3. A single view and pass leave view and pass out of the caption, and a view with switches gets a file-safe name; a second between frames, 0.6202217844988447, is named and captioned to the millisecond without a frame.
  * 4. A sweep of `hero/*` with a margin plans each unit alone and with its touching neighbour; the lamp, touching nothing, is not a unit, and a unit with no neighbour within the margin is drawn once.
  * 5. The plan's layout groups the views and passes of one time on a row.
  *
@@ -97,6 +97,12 @@ export function test_capture_plan_cells(): void {
     "a single view and pass name only the time in the caption",
     [one.cells[0]!.name, one.cells[0]!.caption],
     ["t000.500-front_ortho-beauty", "f15 0.500s"],
+  );
+  const between: IAutoMovieCapturePlan = plan("at=0.6202217844988447");
+  TestValidator.equals(
+    "a second between frames is captioned to the millisecond, as named",
+    [between.cells[0]!.name, between.cells[0]!.caption],
+    ["t000.620-film-beauty", "0.620s"],
   );
 
   // 4. A sweep.

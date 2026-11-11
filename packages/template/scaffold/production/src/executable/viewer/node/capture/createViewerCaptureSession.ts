@@ -1,154 +1,66 @@
 import type { AutoMovieGuidePass } from "@automovie/interface";
+import {
+  AutoMovieDrawSession,
+  type IAutoMovieRasterImage,
+  encodeAutoMovieRasterPng,
+} from "@automovie/render";
 
 import { AutoMovieHeadlessCaptureError } from "./AutoMovieHeadlessCaptureError.js";
-import type { AutoMovieHeadlessCaptureErrorCode } from "./AutoMovieHeadlessCaptureErrorCode.js";
-import type { IAutoMovieHeadlessLocator } from "./IAutoMovieHeadlessLocator.js";
 import type { IViewerCaptureOptions } from "./IViewerCaptureOptions.js";
 import type { IViewerCaptureSession } from "./IViewerCaptureSession.js";
 
 /**
- * Open one page and capture explicitly sought samples through its published hooks. Passes must already be validated, nonempty and deduplicated by the caller. A hook override selects another published seek hook for an isolated sample.
+ * Open the production's draw-only page for one film and draw explicitly chosen seconds through its draw function, one call per pass, never screenshotting the page or injecting a style into it. Passes must already be validated, nonempty and deduplicated by the caller.
  *
- * Creation failures leave the page with the caller; a returned session owns it until close. Captures must not overlap. Seek and pass hooks finish before screenshots, including asynchronous completion; fulfilled hook values are discarded inside the page. Each pass supplies its PNG bytes to an awaited writer without retaining previous frames. Writer and close failures propagate unchanged; page failures carry a capture-step code.
+ * Creation injects the film's name before the page loads, waits for the draw function and describes the film; a failure there is a `route` error and leaves the page with the caller. A returned session owns the page until close. Each capture draws every pass of the second through the film's own camera at its delivery raster, encodes each picture as PNG and awaits the writer in pass order; a draw failure is a `capture` error, and writer and close failures propagate unchanged.
  *
- * @evidence contracts/development/implementation.md#principled-implementation One awaited explicit seek followed by awaited ordered pass switches and screenshots observes completed hooks; the page wrapper discards fulfilled hook values before the driver boundary, while hook rejection retains its capture-step classification. The caller supplies admitted pass names and owns output naming.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Page lifecycle and pixel transport live here while scheduling, file paths and encoding remain with consumers.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The same hook and selector options drive every route; beauty-only capture requires no pass hook.
- * @evidence contracts/development/common.md#meaningful-documentation States admission premises, hook overrides, failure ownership and non-overlapping use.
- * @evidence contracts/development/implementation.md#efficient-algorithms Initialization navigates once; each capture seeks once and performs one screenshot and awaited write per requested pass, O(P) browser calls.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The loaded page, checked hooks and locator are shared across samples; distinct screenshots and effectful writes are never cached.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One caller-supplied page transfers on successful creation and closes explicitly; non-overlapping calls retain at most one screenshot buffer plus whatever the writer retains. Failed creation leaves release with the caller.
+ * @evidence contracts/development/implementation.md#principled-implementation The render package's draw session calls the same draw function every capture uses, so a delivered frame and an inspection still are drawn by the same code; PNG encoding is the render package's.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Page lifecycle and pixel transport live here while scheduling, file paths and encoding into video remain with consumers.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts There is no selector, hook, screenshot or injected style: the page has no interface to hide.
+ * @evidence contracts/development/common.md#meaningful-documentation States creation steps and their failures, what a capture draws and writes, and ownership.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Creation loads the page once; each capture makes one draw call, one PNG encoding and one awaited write per pass, O(P) page calls.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The loaded page and its created film are shared across frames; distinct frames and effectful writes are never cached.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One caller-supplied page transfers on successful creation and closes explicitly; non-overlapping calls retain one frame's pictures plus whatever the writer retains.
  */
 export const createViewerCaptureSession: (
   options: IViewerCaptureOptions,
 ) => Promise<IViewerCaptureSession> = async (
   options: IViewerCaptureOptions,
 ): Promise<IViewerCaptureSession> => {
-  const seekFunction: string = options.seekFunction ?? "__afSeek";
-  const passFunction: string = options.passFunction ?? "__afPass";
-  const viewSelector: string = options.viewSelector ?? "#view";
-  const hideSelector: string | null =
-    options.hideSelector === undefined ? "#clips" : options.hideSelector;
-  const passes: readonly AutoMovieGuidePass[] = options.passes;
-  // A beauty-only list never touches the pass hook, so a viewer without one
-  // still captures.
-  const switchesPasses: boolean = passes.some(
-    (pass: AutoMovieGuidePass): boolean => pass !== "beauty",
-  );
-  await guardCapture(
-    "route",
-    `could not load render route "${options.url}"`,
-    (): Promise<unknown> =>
-      options.page.goto(options.url, {
-        waitUntil: options.waitUntil ?? "load",
-      }),
-  );
-  await guardCapture(
-    "seek-hook",
-    `render route "${options.url}" did not expose ${seekFunction}`,
-    (): Promise<unknown> =>
-      options.page.waitForFunction(isPageFunction, seekFunction),
-  );
-  if (switchesPasses)
-    await guardCapture(
-      "pass-hook",
-      `render route "${options.url}" did not expose ${passFunction} (required for guide passes ${passes.join(", ")})`,
-      (): Promise<unknown> =>
-        options.page.waitForFunction(isPageFunction, passFunction),
+  let session: AutoMovieDrawSession;
+  try {
+    session = await AutoMovieDrawSession.open({
+      page: options.page,
+      url: options.url,
+      props: { subject: options.subject, props: null },
+      backend: options.backend,
+      timeout: options.timeout ?? 240000,
+    });
+  } catch (error) {
+    throw new AutoMovieHeadlessCaptureError(
+      "route",
+      `could not open the draw page "${options.url}" for ${options.subject}`,
+      error,
     );
-  if (hideSelector !== null)
-    await guardCapture(
-      "capture",
-      `could not hide render ui "${hideSelector}"`,
-      (): Promise<unknown> =>
-        options.page.addStyleTag({
-          content: `${hideSelector}{display:none!important}`,
-        }),
-    );
-  const view: IAutoMovieHeadlessLocator = options.page.locator(viewSelector);
+  }
   return {
     capture: async (
-      sample: unknown,
+      seconds: number,
       write: (pass: AutoMovieGuidePass, bytes: Uint8Array) => Promise<void>,
-      hook: string = seekFunction,
     ): Promise<void> => {
-      await guardCapture(
-        "seek-hook",
-        `seek hook ${hook} failed at t=${sample}`,
-        (): Promise<unknown> =>
-          options.page.evaluate(callPageFunction, {
-            name: hook,
-            value: sample,
-          }),
-      );
-      for (const pass of passes) {
-        if (switchesPasses)
-          await guardCapture(
-            "pass-hook",
-            `pass hook ${passFunction} failed for "${pass}" at t=${sample}`,
-            (): Promise<unknown> =>
-              options.page.evaluate(callPageFunction, {
-                name: passFunction,
-                value: pass,
-              }),
-          );
-        const bytes: Uint8Array = await guardCapture(
+      let pictures: { pass: string; picture: IAutoMovieRasterImage }[];
+      try {
+        pictures = await session.frame(seconds, options.passes);
+      } catch (error) {
+        throw new AutoMovieHeadlessCaptureError(
           "capture",
-          `could not capture ${viewSelector} (${pass}) at t=${sample}`,
-          (): Promise<Uint8Array> => view.screenshot({ type: "png" }),
+          `could not draw ${options.subject} at t=${seconds}`,
+          error,
         );
-        if (bytes.byteLength === 0)
-          throw new AutoMovieHeadlessCaptureError(
-            "empty-frame",
-            `captured ${viewSelector} (${pass}) at t=${sample} but received zero bytes`,
-          );
-        await write(pass, bytes);
       }
+      for (const [index, { picture }] of pictures.entries())
+        await write(options.passes[index]!, await encodeAutoMovieRasterPng(picture));
     },
-    close: async (): Promise<void> => {
-      await options.page.close();
-    },
+    close: (): Promise<void> => session.close(),
   };
-};
-
-/**
- * Page-side check that a global of the given name is a function. It reads
- * only its argument because the host serializes it into the page.
- */
-const isPageFunction: (name: string) => boolean = (name: string): boolean =>
-  typeof (globalThis as unknown as Record<string, unknown>)[name] ===
-  "function";
-
-/**
- * Await the page-global hook, discarding its fulfilled value before the driver
- * boundary so synchronous scene objects need no serialization. It reads only
- * its argument because the host serializes this callback into the page.
- */
-const callPageFunction: (arg: {
-  name: string;
-  value: unknown;
-}) => Promise<void> = async (arg: {
-  name: string;
-  value: unknown;
-}): Promise<void> => {
-  await (globalThis as unknown as Record<string, (value: unknown) => unknown>)[
-    arg.name
-  ]!(arg.value);
-};
-
-/** Run one page call, rethrowing any failure as a capture error with `code`. */
-const guardCapture: <T>(
-  code: AutoMovieHeadlessCaptureErrorCode,
-  message: string,
-  task: () => Promise<T>,
-) => Promise<T> = async <T>(
-  code: AutoMovieHeadlessCaptureErrorCode,
-  message: string,
-  task: () => Promise<T>,
-): Promise<T> => {
-  try {
-    return await task();
-  } catch (error) {
-    throw new AutoMovieHeadlessCaptureError(code, message, error);
-  }
 };

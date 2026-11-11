@@ -1,18 +1,21 @@
 import type { IAutoMovieRenderSpec } from "@automovie/interface";
 
-import type { IAutoMovieHeadlessPage } from "../headlessCapture/IAutoMovieHeadlessPage";
+import type { IAutoMovieDrawPage } from "@automovie/render";
 
 /**
- * Capture a running viewer through its completed seek hook and encode one MP4.
+ * Draw a film's frames through the production's draw-only page and encode one MP4.
  *
- * @evidence contracts/development/design.md#principled-representation Explicit route, frame clock, raster and executables describe the existing browser and encoder boundaries; capture uses the viewer's own completed seek hook.
+ * @evidence contracts/development/design.md#principled-representation Explicit route, frame clock, raster and executables describe the existing browser and encoder boundaries; every frame comes from the page's draw function.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One options record owns execution inputs; scene, sound design and review admission remain with the production.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No production identity or acceptance policy enters this generic record.
  * @evidence contracts/development/common.md#meaningful-documentation Members state units, defaults, ownership and cancellation behavior.
  */
 export interface IAutoMovieViewerVideoOptions {
-  /** Fully resolved HTTP(S) viewer URL, including its capture-mode parameters. */
+  /** Address of the production's draw-only page, `render/index.html` of its server. */
   url: string;
+
+  /** Name of the film to draw. */
+  subject: string;
 
   /** Output raster, rate and encoding controls; yuv420p requires even dimensions. */
   spec: IAutoMovieRenderSpec;
@@ -26,8 +29,8 @@ export interface IAutoMovieViewerVideoOptions {
   /** MP4 destination, replaced by FFmpeg on successful encoding. */
   outputPath: string;
 
-  /** Installed Chrome or Chromium executable. */
-  chromeExecutable: string;
+  /** Installed Chrome or Chromium executable; absent, the Chromium build Playwright pins. */
+  chromeExecutable?: string;
 
   /** Installed FFmpeg executable, for example the path exported by ffmpeg-static. */
   ffmpegExecutable: string;
@@ -51,17 +54,8 @@ export interface IAutoMovieViewerVideoOptions {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The renderer retains the callback only for its operation and closes its session after failure or cancellation. The caller owns files and other resources created by preparation and must bound or cancel its work.
    */
   prepare?: (
-    page: Pick<IAutoMovieHeadlessPage, "evaluate">,
+    page: Pick<IAutoMovieDrawPage, "evaluate">,
   ) => Promise<{ audioMix?: string }>;
-
-  /** Element whose actual PNG pixels are captured; defaults to #view. */
-  viewSelector?: string;
-
-  /** UI hidden during capture; defaults to #clips, null hides nothing. */
-  hideSelector?: string | null;
-
-  /** Completed seek-hook global; defaults to __afSeek. */
-  seekFunction?: string;
 
   /**
    * Directory of the persistent frame cache; omitted captures every frame.
@@ -82,7 +76,7 @@ export interface IAutoMovieViewerVideoOptions {
    * returns (or resolves to) a nonempty string that changes whenever anything
    * that could change that frame's pixels changes: the scene state placed at
    * that second, the assets and code drawing it, fonts. It must not move the
-   * scene. Frame time, raster, route, selectors, hooks, package versions,
+   * scene. Frame time, raster, route, film, package versions,
    * browser build and GL renderer are added by the renderer.
    */
   frameDigestFunction?: string;

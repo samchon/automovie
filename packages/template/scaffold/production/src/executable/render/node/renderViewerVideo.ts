@@ -28,7 +28,7 @@ import { renderViewerVideoSession } from "./renderViewerVideoSession";
 import { runViewerVideoEncoder } from "./runViewerVideoEncoder";
 
 /**
- * Export actual completed Viewer pixels at i/fps, then encode them once with optional sound.
+ * Export the film's frames at i/fps, each drawn by the production's draw-only page through its draw function with SwiftShader, then encode them once with optional sound.
  * Captured dimensions must already match the spec. No playback or review is inferred.
  *
  * With `cacheDirectory`, frames whose key (see `cacheViewerCaptureSession`) is
@@ -37,12 +37,12 @@ import { runViewerVideoEncoder } from "./runViewerVideoEncoder";
  * entries this run did not reference are deleted; the result's `frameCache`
  * reports the counts. Encoding always consumes the complete merged sequence.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Admission precedes allocation; the public headless adapter awaits the real viewer seek, then renderVideo supplies the half-open i/fps schedule. PNG IHDR dimensions reject accidental canvas/HUD scaling before encoding. The original frame schedule and explicit audio mapping drive one FFmpeg process.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Render owns browser/session/scratch/encoder lifetime while Viewer owns completed hook and pixel transport. Production callers keep their scene identity, editorial acceptance and sound design.
+ * @evidence contracts/development/implementation.md#principled-implementation Admission precedes allocation; the headless adapter draws each frame through the draw-only page's draw function, the one every capture uses, then renderVideo supplies the half-open i/fps schedule. PNG IHDR dimensions reject accidental canvas/HUD scaling before encoding. The original frame schedule and explicit audio mapping drive one FFmpeg process.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Render owns browser/session/scratch/encoder lifetime while the draw session owns drawing and pixel transport. Production callers keep their scene identity, editorial acceptance and sound design.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every route uses the same PNG-header, raster, byte-budget and browser-error checks. Valid uniform or dark images remain legitimate; image content and sound require independent viewing and listening.
  * @evidence contracts/development/common.md#meaningful-documentation Describes exact-time pixels, raster requirement, resource ownership, returned measurements and the limits of capture observations.
- * @evidence contracts/development/implementation.md#efficient-algorithms F frames require F sequential seeks, screenshots, hashes and writes plus one encode; O(F) metadata and at most maxFrameBytes PNG disk storage are retained. Browser screenshot, motion and drawing costs remain in the measured capture interval.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One browser/page/session serves all frames; each distinct screenshot is captured once and the existing render schedule is shared with encoding metadata.
+ * @evidence contracts/development/implementation.md#efficient-algorithms F frames require F sequential draws, PNG encodings, hashes and writes plus one encode; O(F) metadata and at most maxFrameBytes PNG disk storage are retained. Motion and drawing costs remain in the measured capture interval.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One browser/page/session serves all frames; each distinct frame is drawn once and the existing render schedule is shared with encoding metadata.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A unique child scratch directory and partial MP4 are owned exclusively; PNG scratch is removed on all outcomes and the MP4 replaces its destination only after successful encoding. Session/page/browser release is attempted after success, failure and abort; cleanup errors retain prior causes. Abort closes the browser and Node terminates an active encoder. Metadata is bounded by maxFrames, browser diagnostics by 16 entries and encoder stderr by 64 KiB.
  */
 export async function renderViewerVideo(
@@ -86,12 +86,11 @@ export async function renderViewerVideo(
       outputPath: partial,
     });
     browser = await chromium.launch({
-      executablePath: options.chromeExecutable,
+      ...(options.chromeExecutable === undefined
+        ? {}
+        : { executablePath: options.chromeExecutable }),
       headless: true,
-      args: [
-        "--autoplay-policy=no-user-gesture-required",
-        "--disable-background-timer-throttling",
-      ],
+      args: ["--use-gl=angle", "--use-angle=swiftshader"],
     });
     options.signal?.addEventListener("abort", abort, { once: true });
     options.signal?.throwIfAborted();
@@ -150,9 +149,8 @@ export async function renderViewerVideo(
     session = await createHeadlessCaptureAdapter({
       page,
       url: options.url,
-      viewSelector: options.viewSelector,
-      hideSelector: options.hideSelector,
-      seekFunction: options.seekFunction,
+      subject: options.subject,
+      backend: `swiftshader; Chromium ${browser.version()}`,
       writeFrame,
     });
 
@@ -180,13 +178,8 @@ export async function renderViewerVideo(
             width: String(options.spec.frameFormat.width),
             height: String(options.spec.frameFormat.height),
             deviceScaleFactor: "1",
-            viewSelector: options.viewSelector ?? "#view",
-            hideSelector: JSON.stringify(
-              options.hideSelector === undefined
-                ? "#clips"
-                : options.hideSelector,
-            ),
-            seekFunction: options.seekFunction ?? "__afSeek",
+            subject: options.subject,
+            backend: "swiftshader",
           },
           write: writeFrame,
           verifyEvery: options.cacheVerifyEvery,

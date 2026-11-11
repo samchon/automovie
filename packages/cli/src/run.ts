@@ -12,6 +12,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 import type { AutoMovieCommand } from "./AutoMovieCommand";
+import { captureAutoMovie } from "./captureAutoMovie";
 import type { IAutoMoviePackageManager } from "./IAutoMoviePackageManager";
 import { deriveAutoMovieProjectName } from "./deriveAutoMovieProjectName";
 import { promptAutoMovieProjectName } from "./promptAutoMovieProjectName";
@@ -20,12 +21,14 @@ import { renderAutoMovieScaffoldNextSteps } from "./renderAutoMovieScaffoldNextS
 import { selectAutoMoviePackageManager } from "./selectAutoMoviePackageManager";
 import { selectAutoMovieProjectName } from "./selectAutoMovieProjectName";
 
-const USAGE: string = `automovie: scaffold an automovie project
+const USAGE: string = `automovie: scaffold an automovie project and capture its stills
 
 Usage:
   npx automovie create <directory> [--workspace] [--name <name>] [--force]
   pnpm automovie add <shorts|series>/<name> [--name <name>] [--force]
   npx automovie sync <directory> [--check] [--baseline <directory>]
+  automovie capture --module <file> [--backend software|gpu] [--out <dir>] [<request>]
+  automovie capture --file <video> [--out <dir>] [<request>]
 
 Commands:
   create          A single production, or with --workspace a pnpm workspace
@@ -34,6 +37,10 @@ Commands:
                   shorts run brief -> screenplay, series the long route.
   sync            Update the generated instructions of a single production
                   or a workspace root.
+  capture         In a production, draw the subjects a module offers in headless
+                  Chromium, or take a video file's own frames, into stills,
+                  contact sheets and record.json. Needs @automovie/render, vite
+                  and playwright-core in the production, and FFmpeg for --file.
 
 Options:
   --workspace     Create a pnpm workspace root instead of a single production.
@@ -43,6 +50,13 @@ Options:
   --check         Report a sync plan; exit 1 when updates or conflicts remain.
   --baseline      Previous adopted instructions the files came from; they
                   override the stored sync state for the files they hold.
+  --module        capture: the module whose subjects(props) the page draws.
+  --file          capture: an encoded video file instead of a subject.
+  --backend       capture: software (SwiftShader, the default) or gpu.
+  --out           capture: the folder; default media/capture/<subject>.
+  <request>       capture: --subject, --at, --from, --to, --rate, --events,
+                  --views, --passes, --marks, --label, --round, --compare and
+                  every other key of the capture request grammar.
   -h, --help      Show this help as a standalone request.
   -v, --version   Print the version as a standalone request.
 `;
@@ -54,6 +68,7 @@ Options:
  * - `create` renders a single production, or with `--workspace` a workspace root, and publishes it into the directory resolved against the working directory. The name is the typed `--name`, else derived from the target's basename; for the working directory itself the terminal is asked, offering `automovie-examples`, which is used without asking when no terminal is attached.
  * - `add` requires `pnpm-workspace.yaml` in the working directory, which it takes as the workspace root without searching elsewhere, and publishes a workspace production into `movies/<family>/<directory>`, named by `--name`, else by the npm-safe name derived from the directory segment as `create` derives one.
  * - `sync` plans explicit generated-instruction updates for the directory holding `AGENTS.md`, preserves project contracts and content and refuses local conflicts; check reports pending updates without writing.
+ * - `capture` runs `captureAutoMovie` in the working directory as the production, resolving to its status: 1 when a cell was not drawn.
  *
  * `create` and `add` refuse a non-empty target without `--force`. On success they list the written files relative to the target, then the next steps. Completed and partial file effects stay after failure; the error names the completed files and the stopping entry. Prepared directories can remain even when no file was written.
  *
@@ -83,6 +98,12 @@ export async function run(argv: readonly string[]): Promise<number> {
       process.stdout.write(`${packageVersion()}\n`);
       return 0;
     }
+    if (command.command === "capture")
+      return await captureAutoMovie({
+        args: command.args,
+        root: process.cwd(),
+        env: process.env,
+      });
     if (command.command === "sync") {
       const targetDir: string = path.resolve(process.cwd(), command.directory);
       const result: ReturnType<typeof syncScaffold> = syncScaffold({

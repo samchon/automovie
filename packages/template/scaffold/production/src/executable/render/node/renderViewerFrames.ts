@@ -7,24 +7,29 @@ import { createHeadlessCaptureAdapter } from "../headlessCapture/createHeadlessC
 import { preserveCleanupFailure } from "./capture/preserveCleanupFailure";
 
 /**
- * Capture stills of a running Viewer at chosen film seconds into a folder.
+ * Draw stills of a film at chosen seconds into a folder, through the production's draw-only page.
  *
- * Each still goes through the Viewer's own completed-seek hook, so it shows
- * exactly what playback and the video export draw at that second. Files are
+ * Each still is drawn by the page's draw function with the film's own camera
+ * at its delivery raster, so it shows exactly what the video export draws at
+ * that second. The browser draws with SwiftShader, the software backend
+ * recorded output uses. Files are
  * named `f<frame>-t<seconds>.png`, with the frame index on the `fps` grid, so a
  * folder sorts in film order. Plan the seconds with `planViewerFrameTimes`.
  *
- * @evidence contracts/development/common.md#meaningful-documentation The comment states that stills use the Viewer's seek hook, how files are named and sorted, and where the seconds come from; each option and result field states its unit or meaning.
- * @evidence contracts/development/implementation.md#principled-implementation One headless page loads the Viewer route once and the public capture adapter seeks, hides the controls and screenshots the view for each second in order, so a still matches the video export's frame at that time.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states that stills come from the draw function, the backend, how files are named and sorted, and where the seconds come from; each option and result field states its unit or meaning.
+ * @evidence contracts/development/implementation.md#principled-implementation One headless page loads the draw-only page once and the capture adapter draws each second in order through its draw function, so a still matches the video export's frame at that time.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Browser launch, the capture adapter and file naming live here; the Viewer owns placement, and planViewerFrameTimes owns which seconds are taken.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Seconds outside the film or a missing Chrome executable throw before launch, and every capture failure propagates instead of skipping a frame.
- * @evidence contracts/development/implementation.md#efficient-algorithms N stills cost one page load plus N sequential seeks, screenshots and writes; nothing else is rendered.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The loaded Viewer route and its prepared film serve every still of the call.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An empty list of seconds throws before launch, and every capture failure propagates instead of skipping a frame.
+ * @evidence contracts/development/implementation.md#efficient-algorithms N stills cost one page load plus N sequential draws and writes; nothing else is rendered.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The loaded draw-only page and its created film serve every still of the call.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The browser, page and capture session are released after success, failure or abort, keeping the original error; only the returned file list is retained.
  */
 export async function renderViewerFrames(options: {
-  /** Viewer URL, passed unchanged, carrying any capture and film parameters. */
+  /** Address of the production's draw-only page, `render/index.html` of its server. */
   url: string;
+
+  /** Name of the film to draw. */
+  subject: string;
 
   /** Still width in pixels. */
   width: number;
@@ -41,17 +46,8 @@ export async function renderViewerFrames(options: {
   /** Folder the stills are written to; created when absent. */
   outputDir: string;
 
-  /** Chrome or Chromium executable. */
-  chromeExecutable: string;
-
-  /** Selector of the captured element; `#view` by default. */
-  viewSelector?: string;
-
-  /** Selector hidden during capture; `#clips` by default. */
-  hideSelector?: string | null;
-
-  /** Page global that seeks the Viewer; `__afSeek` by default. */
-  seekFunction?: string;
+  /** Chrome or Chromium executable; absent, the Chromium build Playwright pins. */
+  chromeExecutable?: string;
 
   /** Page load and seek timeout in milliseconds; 600000 by default. */
   timeoutMs?: number;
@@ -59,8 +55,6 @@ export async function renderViewerFrames(options: {
   /** Aborts the capture and closes the browser. */
   signal?: AbortSignal;
 }): Promise<{ seconds: number; frame: number; file: string; bytes: number }[]> {
-  if (options.chromeExecutable.length === 0)
-    throw new Error("Set a Chrome or Chromium executable");
   if (options.times.length === 0) throw new Error("No film seconds to capture");
   await mkdir(options.outputDir, { recursive: true });
   let browser: Browser | undefined;
@@ -72,12 +66,11 @@ export async function renderViewerFrames(options: {
   try {
     options.signal?.throwIfAborted();
     browser = await chromium.launch({
-      executablePath: options.chromeExecutable,
+      ...(options.chromeExecutable === undefined
+        ? {}
+        : { executablePath: options.chromeExecutable }),
       headless: true,
-      args: [
-        "--autoplay-policy=no-user-gesture-required",
-        "--disable-background-timer-throttling",
-      ],
+      args: ["--use-gl=angle", "--use-angle=swiftshader"],
     });
     const page: Page = await browser.newPage({
       viewport: { width: options.width, height: options.height },
@@ -88,9 +81,8 @@ export async function renderViewerFrames(options: {
     session = await createHeadlessCaptureAdapter({
       page,
       url: options.url,
-      viewSelector: options.viewSelector,
-      hideSelector: options.hideSelector,
-      seekFunction: options.seekFunction,
+      subject: options.subject,
+      backend: `swiftshader; Chromium ${browser.version()}`,
       writeFrame: (file: string, bytes: Uint8Array): Promise<void> =>
         writeFile(file, bytes),
     });

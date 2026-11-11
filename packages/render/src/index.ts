@@ -1,6 +1,7 @@
 export * from "./caption/index.js";
 export * from "./capture/index.js";
 export * from "./delivery/index.js";
+export * from "./draw/index.js";
 export * from "./film/index.js";
 export * from "./ffmpegArgs.js";
 export * from "./frameName.js";

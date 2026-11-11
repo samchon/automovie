@@ -2,7 +2,6 @@ import {
   type IAutoMovieInspectionHandle,
   type IAutoMovieInspectionRequest,
   applyAutoMovieInspection,
-  createAutoMoviePerformanceOverlay,
   parseAutoMovieInspectionRequest,
 } from "@automovie/render";
 import { type IAutoMovieViewerHandle, mountViewer } from "@automovie/viewer";
@@ -12,6 +11,7 @@ import type { IFilmProduction } from "./IFilmProduction";
 import type { InspectionView } from "./InspectionView";
 import { clampProductionSeconds } from "./clampProductionSeconds";
 import { films } from "./composition/films";
+import { markFilmProduction } from "./markFilmProduction";
 import { placeInspectionView } from "./placeInspectionView";
 import { planInspectionViews } from "./planInspectionViews";
 import { selectFilm } from "./selectFilm";
@@ -59,13 +59,9 @@ const production: IFilmProduction = await film.create(
 const held: (() => void)[] = [(): void => production.dispose()];
 const canvas: HTMLCanvasElement =
   document.querySelector<HTMLCanvasElement>("#view")!;
-const reviewRequested: boolean =
-  query.get("rig") === "1" || query.get("contacts") === "1";
 // The page draws through one view; the capture command draws several side by side.
 let views: InspectionView[];
 try {
-  if (reviewRequested && !production.performance)
-    throw new Error("This film has no physical review source");
   views = planInspectionViews(
     query.get("view"),
     Object.keys(production.views ?? {}),
@@ -122,28 +118,17 @@ const host: IAutoMovieViewerHandle = mountViewer(
 );
 held.push((): void => host.stop());
 
-// The inspection is applied to the film's own objects first, so a partial view does not take the review overlay away.
+// The film's skeleton and contacts are marks like any other, drawn when `marks` asks for `joint`, `bone` or `contact`.
 let inspection: IAutoMovieInspectionHandle;
-let overlay: ReturnType<typeof createAutoMoviePerformanceOverlay> | undefined;
 try {
   production.seek(seconds);
   inspection = applyAutoMovieInspection({
     scene: production.scene,
     request,
     renderer: host.renderer,
-    ...(production.marks === undefined
-      ? {}
-      : { marks: production.marks(seconds) }),
+    marks: markFilmProduction(production, seconds),
   });
   held.push((): void => inspection.restore());
-  if (reviewRequested && production.performance) {
-    const review: ReturnType<typeof createAutoMoviePerformanceOverlay> =
-      createAutoMoviePerformanceOverlay(production.performance);
-    held.push((): void => review.dispose());
-    production.scene.add(review.object);
-    review.show(query.get("rig") === "1", query.get("contacts") === "1");
-    overlay = review;
-  }
 } catch (error: unknown) {
   release();
   throw error;
@@ -179,12 +164,7 @@ function draw(): void {
   if (held.length === 0) return;
   try {
     production.seek(seconds);
-    inspection.update(production.marks?.(seconds));
-    if (overlay && production.performance)
-      overlay.update(
-        production.performance.frame(),
-        production.performance.contacts(),
-      );
+    inspection.update(markFilmProduction(production, seconds));
     // A named view is framed on what this second draws, or on its focus, so the same second always gives the same picture.
     host.renderer.render(
       production.scene,

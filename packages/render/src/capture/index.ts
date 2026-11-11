@@ -29,3 +29,4 @@ export * from "./readAutoMovieCaptureArguments.js";
 export * from "./readAutoMovieVideoSceneCuts.js";
 export * from "./runAutoMovieCapture.js";
 export * from "./runAutoMovieVideoCapture.js";
+export * from "./scaleAutoMovieCaptureLabels.js";

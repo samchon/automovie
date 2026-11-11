@@ -11,24 +11,17 @@ import type { IAutoMovieHeadlessCaptureSession } from "./IAutoMovieHeadlessCaptu
  * Open a capture session over a Playwright-like page and return its
  * `renderVideo`-compatible `captureFrame`.
  *
- * Creation folds repeated passes, navigates to `url` once, waits for the seek
- * global, waits for the pass global when a non-beauty pass is requested, hides
- * `hideSelector`, and resolves the view locator. Each `captureFrame(t, index,
- * dir)` then calls the seek global with `t` once and, for every pass in order,
- * switches to it when passes are switched, screenshots the view, refuses an
- * empty PNG, and awaits `writeFrame` at `<dir>/<guidePassFrameName(index,
- * pass)>`. It returns the beauty path, or the first pass's path for a
- * guides-only list.
+ * Creation folds repeated passes and opens the production's draw-only page for the film through `createViewerCaptureSession`. Each `captureFrame(t, index, dir)` then draws second `t` once per pass through the page's draw function, in order, and awaits `writeFrame` at `<dir>/<guidePassFrameName(index, pass)>`. It returns the beauty path, or the first pass's path for a guides-only list.
  *
- * Guarded navigation, hook, style and screenshot failures and refused pass/empty-byte inputs throw AutoMovieHeadlessCaptureError with a step code. Synchronous locator construction, writeFrame and close failures propagate unwrapped. If creation throws, the page remains the caller's; once the session returns it owns the page. Capture calls must not overlap and the caller must close after success or failure.
+ * Page-opening and drawing failures and a refused pass list throw AutoMovieHeadlessCaptureError with a step code; writeFrame and close failures propagate unwrapped. If creation throws, the page remains the caller's; once the session returns it owns the page. Capture calls must not overlap and the caller must close after success or failure.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Determinism comes from the viewer's own seek hook: the route is loaded once with its clock handed to the capturer, every frame is placed by an explicit time rather than wall-clock playback, and pass names go through `normalizeGuidePasses`, the same normalization the render planners use, so file names agree with the plans. The Viewer session awaits synchronous or asynchronous hook completion before capture and discards fulfilled hook values inside the page; the host must finish drawing before its hook completes.
+ * @evidence contracts/development/implementation.md#principled-implementation Every frame is drawn by the same draw function inspection stills use, placed by an explicit time rather than wall-clock playback, and pass names go through `normalizeGuidePasses`, the same normalization the render planners use, so file names agree with the plans.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Creation does every once-per-session step and the returned closure does only per-frame work, while page error classification sits in the Viewer session and file naming stays with `guidePassFrameName`.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The adapter has no viewer-specific branches or retries; skipping the pass hook for a beauty-only list follows from the contract that beauty needs no pass switch, not from a particular viewer.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The adapter has no film-specific branches or retries, and never screenshots the page or injects a style into it.
  * @evidence contracts/development/common.md#meaningful-documentation The doc gives the creation steps, the per-frame steps and their order, the written paths, the returned path, the error classification including unwrapped `writeFrame` failures, and page ownership on success and failure.
- * @evidence contracts/development/implementation.md#efficient-algorithms Creation costs one navigation, at most two hook waits and one style injection; each frame costs one seek plus, for P distinct passes, at most P pass switches, P screenshots and P writes, which is the minimum because every pass is a distinct picture; folding repeats keeps P from counting a pass twice.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The loaded route, the hook checks, the injected style and the locator are produced once and shared by every frame, and the single seek per frame is shared by all of its passes; screenshots are never shared because each frame and pass is a different picture.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The session closures retain options, page and folded passes for as long as the session is held; close delegates page-resource release but does not clear those JavaScript references. Under the required non-overlapping captures, at most one screenshot buffer is in flight, becoming collectable after its awaited write; the writer may independently retain bytes or files. This adapter adds no timeout, cancellation or automatic failure teardown.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Creation costs one page load; each frame costs, for P distinct passes, P draw calls and P writes, which is the minimum because every pass is a distinct picture; folding repeats keeps P from counting a pass twice.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The loaded page and its created film are shared by every frame; pictures are never shared because each frame and pass is a different picture.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The session closures retain options, page and folded passes for as long as the session is held; close delegates page-resource release. Under the required non-overlapping captures, one frame's pictures are in flight, becoming collectable after their awaited writes; the writer may independently retain bytes or files.
  */
 export const createHeadlessCaptureAdapter: (
   options: IAutoMovieHeadlessCaptureOptions,
@@ -42,7 +35,10 @@ export const createHeadlessCaptureAdapter: (
     ? "beauty"
     : passes[0]!;
   const session: IViewerCaptureSession = await createViewerCaptureSession({
-    ...options,
+    page: options.page,
+    url: options.url,
+    subject: options.subject,
+    backend: options.backend,
     passes,
   });
   return {

@@ -5,9 +5,18 @@ import { defineConfig } from "vite";
 /** Scratch names belong to this production, including when its parent uses one. */
 const productionRoot: string = fileURLToPath(new URL(".", import.meta.url));
 
-/** Running production viewer; generated evidence and capture scratch never reload it. */
+/** Running production viewer and its draw-only page; generated evidence and capture scratch never reload them. */
 export default defineConfig({
-  build: { target: "es2022" },
+  build: {
+    target: "es2022",
+    // Two pages: the Viewer, and the draw-only page every capture and delivery draws through.
+    rollupOptions: {
+      input: {
+        main: resolve(productionRoot, "index.html"),
+        render: resolve(productionRoot, "render/index.html"),
+      },
+    },
+  },
   server: {
     host: "127.0.0.1",
     port: 5173,

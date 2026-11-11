@@ -16,9 +16,9 @@
     "dev": "vite",
     "build": "vite build",
     "render": "ttsx --cache-dir node_modules/.cache/ttsc -P tsconfig.json src/executable/render.ts",
-    "capture": "ttsx --no-plugins --noCheck -P tsconfig.json src/executable/capture.ts",
+    "capture": "automovie capture --module src/subjects.ts",
     "review": "ttsx --cache-dir node_modules/.cache/ttsc -P tsconfig.json src/executable/review.ts",
-    "review:setup": "playwright install ffmpeg",
+    "review:setup": "playwright install ffmpeg chromium-headless-shell",
     "physics": "ttsx --cache-dir node_modules/.cache/ttsc -P tsconfig.json src/executable/physics.ts"
   },
   "dependencies": {
@@ -38,6 +38,7 @@
     "pngjs": "{{version:pngjs}}"
   },
   "devDependencies": {
+    "automovie": "{{version:cli}}",
     "playwright": "{{version:playwright}}",
     "@nestia/e2e": "{{version:nestiaE2e}}",
     "@automovie/evidence": "{{version:evidence}}",

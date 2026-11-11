@@ -78,7 +78,7 @@ The agent builds the cast and sets as coarse entities, composes each person's pe
 
 ### The motion-hint video
 
-The production's Viewer plays, pauses and seeks the same performance the export uses, a Node capture draws stills of any second from any view, and the render exports the film through Chrome and FFmpeg on your machine. The agent assembles the film in the screenplay's order, renders the control channels from the same performance, inspects stills from the source and from the encoded file, and hands off the fixed inputs, the commands that reproduce it and the remaining limits. The whole hint is complete when every main scene is programmed and the whole video is assembled; stills or pilot clips do not complete it.
+The production's Viewer plays, pauses and seeks the same performance the export uses, a capture draws stills of any second from any view through the same draw function the render uses, and the render exports the film through headless Chromium and FFmpeg on your machine. The agent assembles the film in the screenplay's order, renders the control channels from the same performance, inspects stills from the source and from the encoded file, and hands off the fixed inputs, the commands that reproduce it and the remaining limits. The whole hint is complete when every main scene is programmed and the whole video is assembled; stills or pilot clips do not complete it.
 
 ### A finished film
 
@@ -116,6 +116,8 @@ A workspace keeps several productions under one `AGENTS.md`, `CLAUDE.md` and `.a
 npx automovie create <directory> [--workspace] [--name <name>] [--force]
 pnpm automovie add <shorts|series>/<name> [--name <name>] [--force]
 npx automovie sync <directory> [--check] [--baseline <directory>]
+automovie capture --module <file> [--backend software|gpu] [--out <dir>] [<request>]
+automovie capture --file <video> [--out <dir>] [<request>]
 ```
 
 ### create
@@ -131,6 +133,10 @@ npx automovie sync <directory> [--check] [--baseline <directory>]
 ### sync
 
 `sync` updates the generated instructions after upgrading `automovie`, on a single production or a workspace root. It rewrites `AGENTS.md`, `CLAUDE.md` and the bundled skills and leaves the contracts, your own skills, `PROJECT.md`, the README, configuration, source and written content as they are. `--check` writes nothing and exits 1 while updates or conflicts remain, and `--baseline <directory>` names the instruction files the project was installed from. An instruction file you edited is reported as a conflict and nothing is written until you restore it, keeping your edit in a skill of your own.
+
+### capture
+
+`capture` runs in a production, which `npm run capture` does with `--module src/subjects.ts`. It builds a draw-only page for the module's subjects with the production's Vite, draws every planned still in headless Chromium through `@automovie/render`'s draw function, with SwiftShader unless `--backend gpu`, and writes stills, contact sheets and `record.json` into `--out` or `media/capture/<subject>`. `--file` captures a video file's own frames with FFmpeg from `FFMPEG_PATH` or `ffmpeg-static` instead. The remaining options are the capture request: `--subject`, the seconds, views, passes, inspection and rounds. Playwright's `npx playwright install chromium-headless-shell` installs the browser, and `CHROME_PATH` selects another. It exits 1 when a cell could not be drawn.
 
 ## Packages
 

@@ -3,9 +3,9 @@
  *
  * `help` and `version` carry nothing because they are standalone requests. `create`, `add` and `sync` carry their targets exactly as typed; `run` resolves them against the working directory. An explicit `name` is carried as typed; `run` chooses the name when it is absent.
  *
- * @evidence contracts/development/design.md#principled-representation Each variant carries exactly what its command needs after admission, so `run` performs no further argument parsing.
+ * @evidence contracts/development/design.md#principled-representation Each variant carries exactly what its command needs after admission, so `run` performs no further argument parsing, except `capture`, whose options are the request grammar of the production's renderer and are read once that renderer is loaded.
  * @evidence contracts/development/design.md#minimal-and-owned-surface A closed union over the command name lets `run` switch on one field, and the workspace family is a closed pair instead of a free path.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No variant has an escape field for unparsed tokens.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No variant other than `capture` carries unparsed tokens, and `capture`'s are read by the one request reader every host shares rather than a second grammar here.
  * @evidence contracts/development/common.md#meaningful-documentation Every variant and member states its meaning and who resolves it.
  */
 export type AutoMovieCommand =
@@ -61,4 +61,11 @@ export type AutoMovieCommand =
 
       /** Explicit prior adopted instruction root; the files it supplies govern over stored sync state. */
       baseline?: string;
+    }
+  | {
+      /** Capture stills of a subject or a video file in the production at the working directory. */
+      command: "capture";
+
+      /** The tokens after `capture`, as typed; `run` reads them through the production's request grammar, which only the production's `@automovie/render` holds. */
+      args: string[];
     };

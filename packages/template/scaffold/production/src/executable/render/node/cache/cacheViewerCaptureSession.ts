@@ -4,13 +4,12 @@ import {
   planAutoMovieArtifacts,
   resolveAutoMovieArtifact,
 } from "@automovie/engine";
-import { frameName } from "@automovie/render";
+import { type IAutoMovieDrawPage, frameName } from "@automovie/render";
 import { readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
 
 import type { IAutoMovieHeadlessCaptureSession } from "../../headlessCapture/IAutoMovieHeadlessCaptureSession";
-import type { IAutoMovieHeadlessPage } from "../../headlessCapture/IAutoMovieHeadlessPage";
 import type { IAutoMovieDirectoryArtifactStore } from "./IAutoMovieDirectoryArtifactStore";
 import type { IAutoMovieViewerFrameCacheReport } from "./IAutoMovieViewerFrameCacheReport";
 import { composeViewerFrameKeys } from "./composeViewerFrameKeys";
@@ -45,14 +44,14 @@ import { readViewerFrameStates } from "./readViewerFrameStates";
  * @evidence contracts/development/implementation.md#principled-implementation Keys follow the engine's constructive-trace schema with toolchain (Render, Viewer and engine package versions, Render and Viewer source digests, browser build, GL vendor/renderer) and per-frame purity inputs; reuse requires the engine's content verification, and storing each frame before the next makes a crash lose at most the frame in flight.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The wrapper keeps renderVideo's adapter shape so scheduling, preparation, encoding and cleanup stay unchanged; observation, key composition, planning, resolution and storage are separate modules.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A time that differs from the planned schedule throws; a missing hook throws; mismatches are reported, not hidden.
- * @evidence contracts/development/implementation.md#efficient-algorithms Planning is O(F); each reused frame costs one read, one SHA-256 and one write instead of a seek and screenshot; each captured frame adds one read, one SHA-256 and one store write.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Planning is O(F); each reused frame costs one read, one SHA-256 and one write instead of a draw; each captured frame adds one read, one SHA-256 and one store write.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares a stored frame only when its full key matches and its bytes verify; the encoder still consumes the complete merged sequence, so encoding is never partially reused.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains F keys and the plan for the run and one frame's bytes at a time; close delegates to the inner session on every outcome; finish bounds disk to this run's distinct frames.
  * @evidence contracts/development/common.md#meaningful-documentation States the call order, resume property, verification, ownership and finish semantics.
  */
 export function cacheViewerCaptureSession(options: {
   session: IAutoMovieHeadlessCaptureSession;
-  page: Pick<IAutoMovieHeadlessPage, "evaluate">;
+  page: Pick<IAutoMovieDrawPage, "evaluate">;
   store: IAutoMovieDirectoryArtifactStore;
   times: readonly number[];
   digestFunction: string;

@@ -12,6 +12,7 @@ import type { IAutoMovieCaptureDrawing } from "./IAutoMovieCaptureDrawing.js";
 import type { IAutoMovieCapturePlan } from "./IAutoMovieCapturePlan.js";
 import type { IAutoMovieCaptureRecord } from "./IAutoMovieCaptureRecord.js";
 import { markAutoMovieCaptureCell } from "./markAutoMovieCaptureCell.js";
+import { scaleAutoMovieCaptureLabels } from "./scaleAutoMovieCaptureLabels.js";
 
 
 /**
@@ -53,6 +54,9 @@ export async function runAutoMovieCapture(props: {
 
   /** The video file the stills come from, with its detected cuts, recorded as it is; absent for a drawn subject. */
   video?: IAutoMovieCaptureRecord.IVideo;
+
+  /** The subject owner's own section of the record, such as a motion case's verdicts and metrics, written as it is; absent when the owner has none. */
+  section?: Readonly<Record<string, unknown>>;
 }): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> {
   const { plan } = props;
   const { layout, subject, request } = plan;
@@ -74,13 +78,7 @@ export async function runAutoMovieCapture(props: {
   ]);
 
   // A label's font pixel stays at least one sheet pixel once the still is reduced into its cell.
-  const labelScale: number = Math.max(
-    1,
-    Math.ceil(
-      Math.min(subject.width, subject.height) /
-        Math.min(layout.cell.width, layout.cell.height),
-    ),
-  );
+  const labelScale: number = scaleAutoMovieCaptureLabels(subject, layout);
 
   // Draw, stamp, write and lay each cell in plan order.
   const rows: IAutoMovieCaptureRecord.Row[] = [];
@@ -176,6 +174,7 @@ export async function runAutoMovieCapture(props: {
     sheets,
     comparison,
     video: props.video ?? null,
+    section: props.section ?? null,
   });
 }
 

@@ -75,7 +75,7 @@ Motion is read from stills through marks a subject hands over for each drawn sec
 
 ## Node tooling
 
-A ready-made host, a program that supplies both adapters, is in every generated production under `src/executable/render`: browser capture, FFmpeg export and MP4 handling. It belongs to the production, so read its source for those APIs. `npm run render` in a production runs it.
+A ready-made host, a program that supplies both adapters, is in every generated production under `src/executable/render`: frames drawn by the production's draw-only page, FFmpeg export and MP4 handling. It belongs to the production, so read its source for those APIs. `npm run render` in a production runs it.
 
 A finished render says only that capture and encoding ran, so watch and listen to the video before accepting it.
 
@@ -121,5 +121,9 @@ A page passes its address's `searchParams` to the same reader, so one request te
 | `round`, `compare`, `tolerance` | Keeping the capture as a named round, comparing it cell by cell with an earlier one, and the byte difference counted as unchanged | Rounds kept apart and compared (capture, Rounds; comparison) |
 
 A capture writes `<cell>.png` stills, `sheet-001.png` onwards and `record.json` into its root, or into `rounds/<round>` beneath it, and refuses a folder holding a file no record of its own lists. The record keeps the revision, the request as text, the budget, one row per planned cell with its hash, backend and resolved camera or the cause it was not drawn, and the comparison's pairs and unmatched cells.
+
+### The draw-only page
+
+Every picture a host saves comes from one function that runs in the browser. A page with no interface calls `installAutoMovieDraw(subjects)`, where `subjects` maps the props a host injected before the page loaded to the subjects the page offers, each an `IAutoMovieDrawSubject` whose `create()` returns the scene, the delivery camera, the clock, the raster, `seek`, the subject's views and its marks per second. `AutoMovieDrawSession` drives that page from a host through any driver shaped like Playwright's page: `describe` gives the `IAutoMovieCaptureSubject` to plan against, `drawing(cell, plan)` is the capture run's draw function, and `frame(seconds, passes)` draws one delivered frame per pass. Each draw applies the cell's inspection, frames a fitted view over every planned second, seeks and waits for the subject to report ready, draws through the resolved camera on the renderer's own canvas (the `beauty` pass at twice each side, averaged down), and returns the pixels with the label anchors and the resolved camera; the record's backend names the browser's backend, its Chromium version and the WebGL renderer string. The `automovie capture` command of the `automovie` package is the Node host.
 
 `runAutoMovieVideoCapture` samples an encoded or generated video file from the file itself. It plans FFmpeg runs, `scdet` to find the cuts and one frame-exact `select` with `-fps_mode passthrough`, and hands them to a host's process runner, so the stills are the file's own frames around every cut and event, captioned by frame and second. Compared against the source's round, its cells pair by second; pixels are compared only between stills of one backend, and a second the file lacks stays as an unmatched cell with its cause.

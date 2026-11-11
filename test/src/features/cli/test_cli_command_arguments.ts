@@ -18,13 +18,14 @@ import { throwsError } from "../internal/predicates";
  * 3. `add` splits `shorts/<name>` or `series/<name>` into its family and one
  *    directory segment, with optional single `--force` and `--name`.
  * 4. Sync admits one target with optional check and explicit baseline; repeated or missing values refuse.
+ * 4a. `capture` keeps every token after it, in order, for the production's request reader, including none.
  * 5. Unknown and removed commands (`start` among them), unknown or repeated
  *    options, a missing `--name` value, missing, extra or blank directories,
  *    an unknown family, an unportable or padded segment, and a standalone flag
  *    beside other tokens all refuse with a message naming the correction.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the exported `readAutoMovieCommandArguments` and asserts the returned request or the thrown message, catching a lost directory, family, `--workspace`, `--force` or `--name`, a path segment that could leave `movies/<family>`, a standalone flag admitted beside other tokens, a removed command accepted, and a refusal that does not say how to correct it.
- * @evidence contracts/development/testing.md#independent-expectations Expected requests and correction fragments come from the CLI grammar in the README and usage text (`create` with `--workspace`, `--name`, `--force`; `add` with `shorts|series/<name>`, `--name`, `--force`; `sync` with single check/baseline options; standalone `-h`/`--help` and `-v`/`--version`; `./-name` for a dash-leading directory), not from the parser's output; fragment matching cannot judge the rest of each message's wording.
+ * @evidence contracts/development/testing.md#independent-expectations Expected requests and correction fragments come from the CLI grammar in the README and usage text (`create` with `--workspace`, `--name`, `--force`; `add` with `shorts|series/<name>`, `--name`, `--force`; `sync` with single check/baseline options; `capture` whose options the production's request grammar reads; standalone `-h`/`--help` and `-v`/`--version`; `./-name` for a dash-leading directory), not from the parser's output; fragment matching cannot judge the rest of each message's wording.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers empty input, each standalone spelling alone and beside an extra token, every create option together in a shuffled order, both families, zero, blank and two targets, an unknown option per command, a dash-leading directory, repeated flags, `--name` missing, blank or followed by an option, a target without family, with an unknown family or an extra segment, empty, `..`, separator-bearing and padded segments, and the removed `start`, `toc` and `inspect-external` commands; execution of an admitted request belongs to `run` and the project name to `test_cli_project_name`.
  * @evidence contracts/development/testing.md#execution-ownership A unit test discovered by the `test_` prefix that calls the pure parser in-process with literal argument arrays, starting no process and registering no dynamic cases.
  * @evidence contracts/development/common.md#meaningful-documentation The comment states the behavior under test and lists each scenario with the property it pins.
@@ -91,6 +92,12 @@ export function test_cli_command_arguments(): void {
       baseline: "previous",
     },
   );
+  TestValidator.equals(
+    "capture keeps its tokens",
+    read("capture", "--module", "src/subjects.ts", "--at", "1,2", "--views", "front;top"),
+    { command: "capture", args: ["--module", "src/subjects.ts", "--at", "1,2", "--views", "front;top"] },
+  );
+  TestValidator.equals("capture without tokens", read("capture"), { command: "capture", args: [] });
   // Each refusal names its correction: the one command, the one option, the
   // directory count, a non-blank directory, or a standalone flag.
   const invalid: readonly (readonly [readonly string[], string])[] = [
@@ -109,12 +116,12 @@ export function test_cli_command_arguments(): void {
       ["sync", "movie", "--baseline", "old", "--baseline", "other"],
       "only once",
     ],
-    [["unknown"], "the commands are create, add and sync"],
-    [["start", "project"], "the commands are create, add and sync"],
-    [["toc"], "the commands are create, add and sync"],
+    [["unknown"], "the commands are create, add, sync and capture"],
+    [["start", "project"], "the commands are create, add, sync and capture"],
+    [["toc"], "the commands are create, add, sync and capture"],
     [
       ["inspect-external", "model.glb", "--profile", "gltf-static-v1"],
-      "the commands are create, add and sync",
+      "the commands are create, add, sync and capture",
     ],
     [["create"], "exactly one target directory; received 0"],
     [["create", " "], "non-blank target directory"],

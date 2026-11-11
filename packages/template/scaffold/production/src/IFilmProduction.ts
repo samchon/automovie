@@ -10,7 +10,7 @@ import type * as THREE from "three";
  *
  * @evidence contracts/development/common.md#meaningful-documentation The comment names what one mount holds; each member states what it owns and when it runs.
  * @evidence contracts/development/design.md#principled-representation Playback, seeking and capture all place the scene through one seek per second, so a second reached by any path draws the same state.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The members the Viewer entry reads to draw, seek and release a film, plus the three optional review sources it reads only when a review overlay, a named view or inspection marks are requested.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The members the Viewer and draw-only pages read to draw, seek and release a film, plus the three optional review sources: the physical performance whose skeleton and contacts `markFilmProduction` marks, the named views, and the film's own marks.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No playback-only or capture-only member exists; named views move only a separate inspection camera, so the film camera and delivered captures are unchanged.
  */
 export interface IFilmProduction {
@@ -20,7 +20,7 @@ export interface IFilmProduction {
   /** Camera the Viewer renders through; camera entities move it in `seek`. */
   camera: THREE.PerspectiveCamera;
 
-  /** Optional shared physical review source, used only when a review overlay is requested. */
+  /** Optional physical review source: `markFilmProduction` draws its bodies' skeleton and its contact forces as `joint`, `bone` and `contact` marks. */
   performance?: {
     /** Scene ids and profiles for the displayed bodies. */
     bodies: { id: string; profile: IAutoMoviePhysicalProfile }[];
@@ -28,8 +28,6 @@ export interface IFilmProduction {
     frame: () => AutoMoviePhysicsCache.IFrame;
     /** Actual geometric or solved contact episodes. */
     contacts: () => readonly IAutoMovieContactReceipt[];
-    /** Explicit simultaneous contact-overlay budget. */
-    maximumContacts: number;
     /** Inspection vector length per newton of step-mean force. */
     metresPerNewton: number;
   };

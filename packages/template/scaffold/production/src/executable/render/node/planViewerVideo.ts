@@ -77,8 +77,8 @@ export function planViewerVideo(options: IAutoMovieViewerVideoOptions): {
   for (const value of [
     options.frameDir,
     options.outputPath,
-    options.chromeExecutable,
     options.ffmpegExecutable,
+    ...(options.chromeExecutable === undefined ? [] : [options.chromeExecutable]),
   ])
     if (value.trim().length === 0)
       throw new Error("Viewer video paths must be nonempty");
