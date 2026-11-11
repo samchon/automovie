@@ -17,6 +17,12 @@ import { TestValidator } from "@nestia/e2e";
  *    that acceleration: a minimum-jerk descent of 0.02 m over 0.25 s meeting
  *    a claim that bends at 3 m/s^2.
  * 5. A non-positive duration and a non-finite elapsed time throw.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public term and reads its value, slope and second difference by finite differences of the returned numbers; a term with the wrong end condition, peak or sign fails.
+ * @evidence contracts/development/testing.md#independent-expectations The end conditions are those of the quintic Hermite basis of a unit initial acceleration, the peak `54 / 3125` is that polynomial at its stationary point two fifths of the way, and the descent it is joined to is the minimum-jerk polynomial written out in the test.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers both ends and outside them, the derivatives at each end, the peak and the sign in between, a join read backwards in time, and two refused inputs.
+ * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit on numbers; it runs in CI.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 scenarios and what each pins.
  */
 export function test_motion_carried_acceleration(): void {
   const close = (a: number, b: number, e: number): boolean =>

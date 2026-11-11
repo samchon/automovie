@@ -17,8 +17,8 @@ import { QUATERNION_NLERP_DOT_THRESHOLD } from "./constants/QUATERNION_NLERP_DOT
  * leaves its inputs unchanged and returns a new value.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the component order, where quaternions come from and go, the unit-length premise for rotation arguments, and that every function returns a new value.
- * @evidence contracts/development/design.md#principled-representation Represents Pure quaternion math over , components `(x, y, z, w)` in glTF order: companion namespace of 11 members (`identity`, `DEG2RAD`, `EULER_AXES`, `multiply`, `normalize`, `inverse`, ...); units and frames named in its text: quaternion, radians, degree, world, local. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `Quaternion` in packages/engine/src/math/Quaternion.ts; its surface is the 11 members listed and the text shows 335 other files naming it, mostly packages/engine (134), test (78), movies (62), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#principled-representation Represents Pure quaternion math over , components `(x, y, z, w)` in glTF order: companion namespace of 12 members (`identity`, `DEG2RAD`, `EULER_AXES`, `multiply`, `normalize`, `inverse`, ...); units and frames named in its text: quaternion, radians, degree, world, local. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `Quaternion` in packages/engine/src/math/Quaternion.ts; its surface is the 12 members listed and the text shows 335 other files naming it, mostly packages/engine (134), test (78), movies (62), so no member is declared for a presumed future need.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace Quaternion {
@@ -350,5 +350,45 @@ export namespace Quaternion {
       z: a.z * wa + bz * wb,
       w: a.w * wa + bw * wb,
     });
+  };
+
+  /**
+   * The angle of the rotation that takes `a` to `b`, in radians within
+   * `[0, π]`: the geodesic distance between the two rotations. `q` and `-q`
+   * are the same rotation, so negating either argument changes nothing.
+   *
+   * The angle is `2 atan2(|v|, |w|)` of the relative quaternion
+   * `inverse(a) * b`, with `v` its vector part and `w` its scalar part. The
+   * shorter formula `2 acos |a · b|` reads a small angle from how far a
+   * cosine falls short of 1, which binary64 resolves only to about 1.1e-16,
+   * so it returns every angle below about 3e-8 radian as 0 or as one of a few
+   * steps that size; the vector part keeps full relative precision there. A
+   * search that ranks candidates by this angle needs that precision to settle
+   * on the same candidate for mirrored inputs.
+   *
+   * @param a Unit rotation.
+   * @param b Unit rotation.
+   * @returns The angle in radians.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation The relative rotation of two unit quaternions is `inverse(a) * b`, whose vector part has length `sin(θ/2)` and whose scalar part is `cos(θ/2)`; reading the half angle from both through atan2 is accurate at every angle, where arccosine of the dot product loses all digits of an angle below the square root of the unit roundoff.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One owner for the distance between rotations that the chain fit's reference term, its effector error and its continuity order all read, composed from this namespace's own `inverse` and `multiply`.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No clamp of a dot product and no threshold: the absolute scalar part is the stated identification of `q` with `-q`, and the result is exact to rounding for every pair.
+   * @evidence contracts/development/common.md#meaningful-documentation States the unit, the range, the sign insensitivity, the formula and why the shorter arccosine form is not used, and the unit-length premise of both arguments.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One Hamilton product, one hypotenuse and one arctangent in constant time, with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of two rotations that coordinates no work across calls.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Creates two temporary quaternions and returns a number; nothing is retained.
+   */
+  export const angle: (
+    a: IAutoMovieQuaternion,
+    b: IAutoMovieQuaternion,
+  ) => number = (a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): number => {
+    const relative: IAutoMovieQuaternion = multiply(inverse(a), b);
+    return (
+      2 *
+      Math.atan2(
+        Math.hypot(relative.x, relative.y, relative.z),
+        Math.abs(relative.w),
+      )
+    );
   };
 }

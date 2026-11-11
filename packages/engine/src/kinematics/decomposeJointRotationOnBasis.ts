@@ -100,6 +100,14 @@ const assertFiniteQuaternion: (q: IAutoMovieQuaternion) => void = (
  *   omitted, the angles stay rest-relative.
  * @param domain Bone and resolved ROM that choose among equivalent charts;
  *   omitted or with a `null` constraint, the principal chart is returned.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what the caller must have done to the basis, why the split exists, that the conventions are `decomposeJointRotation`'s, what is thrown and what an unnormalized basis silently gives.
+ * @evidence contracts/development/implementation.md#principled-implementation Closed-form Euler extraction reads each angle's sine and projected cosine through atan2; a projected cosine within the square root of the binary64 unit roundoff, where a rounding error and the pin's truncation error meet, takes the undetermined-angle convention. Among the principal chart, the alternate chart and each angle's full-turn alias nearest its range, the least ROM overshoot wins, and every candidate is the same rotation.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The extraction, the handedness correction, the clinical lift and the chart choice sit in one inverse because each depends on the others' convention; ROM scoring is delegated to `jointRomOvershoot` and frame arithmetic to `toClinicalAngle`, and `decomposeJointRotation` is this function behind one normalization.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Selection compares the caller's unchanged constraint and never clamps an angle into range; the gimbal pin is the standard convention for an undetermined pair, and no bone is special-cased.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Three vector rotations, a few dot products and at most three overshoot scores in constant time; taking the basis already normalized removes one validation and normalization from each of the hundreds of candidates a limb fit decomposes.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller normalizes a joint's basis once per solve and passes it to every call, which is the reason this entry exists beside `decomposeJointRotation`.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the angles are a new record.
  */
 export const decomposeJointRotationOnBasis: (
   q: IAutoMovieQuaternion,

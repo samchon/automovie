@@ -16,6 +16,12 @@ import { TestValidator } from "@nestia/e2e";
  * 4. The negated rule is a smooth maximum that never falls below the plain
  *    one.
  * 5. A non-finite value and a non-positive width throw.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public function and reads its values and their finite-difference slope along a sweep; a rule that exceeds the plain minimum, steps in slope, or blends beyond the width fails.
+ * @evidence contracts/development/testing.md#independent-expectations The plain minimum is `Math.min`, the depth `h² width / 4` is the quadratic polynomial smooth minimum's definition evaluated by hand, and the slope's step is bounded by its rate `1 / (2 width)` times the differencing step.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers values a width or more apart in both orders, equal values, values inside the blend, a sweep through the crossing, the negated maximum, and two refused inputs.
+ * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit on numbers; it runs in CI.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 scenarios and what each pins.
  */
 export function test_motion_smooth_minimum(): void {
   const close = (a: number, b: number, e: number = 1e-12): boolean =>
