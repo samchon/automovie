@@ -4,7 +4,7 @@ import {
   IAutoMovieScriptNode,
 } from "@automovie/interface";
 
-import { screenplaySceneSlug } from "./screenplaySceneSlug";
+import { screenplaySceneSlug } from "./screenplaySceneSlug.js";
 
 /**
  * Serialize a validated script into plain screenplay text with one terminal

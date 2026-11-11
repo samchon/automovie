@@ -1,4 +1,4 @@
-import type { AutoMovieOrderedScalar } from "./AutoMovieOrderedScalar";
+import type { AutoMovieOrderedScalar } from "./AutoMovieOrderedScalar.js";
 
 /** One position of a compared array: a scalar or a one-level row of scalars. */
 type IOrderedEntry = AutoMovieOrderedScalar | readonly AutoMovieOrderedScalar[];

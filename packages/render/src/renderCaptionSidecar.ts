@@ -1,4 +1,4 @@
-import type { IAutoMovieCaptionSidecar } from "./IAutoMovieCaptionSidecar";
+import type { IAutoMovieCaptionSidecar } from "./IAutoMovieCaptionSidecar.js";
 
 /**
  * Serialize a caption sidecar for the host to write: two-space indented JSON in declaration order, followed by one newline.

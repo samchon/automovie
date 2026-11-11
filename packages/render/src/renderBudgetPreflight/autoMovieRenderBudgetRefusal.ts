@@ -3,8 +3,8 @@ import type {
   IAutoMovieRenderFinding,
 } from "@automovie/interface";
 
-import type { IAutoMovieRenderBudgetAssessment } from "./IAutoMovieRenderBudgetAssessment";
-import { IAutoMovieRenderBudgetEvidence } from "./IAutoMovieRenderBudgetEvidence";
+import type { IAutoMovieRenderBudgetAssessment } from "./IAutoMovieRenderBudgetAssessment.js";
+import { IAutoMovieRenderBudgetEvidence } from "./IAutoMovieRenderBudgetEvidence.js";
 
 /**
  * Format the caller-supplied budget evidence as an over-limit or unknown-required-texture diagnostic, or return null when neither condition is recorded. This helper returns text; it raises no job refusal and does not verify the provenance of supplied reports.

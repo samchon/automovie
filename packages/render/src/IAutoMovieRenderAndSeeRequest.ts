@@ -1,6 +1,6 @@
 import { IAutoMovieRenderSpec } from "@automovie/interface";
 
-import { IAutoMovieRenderAdapters } from "./IAutoMovieRenderAdapters";
+import { IAutoMovieRenderAdapters } from "./IAutoMovieRenderAdapters.js";
 
 /**
  * Host-supplied request for rendering a clip and returning inspectable artifacts.

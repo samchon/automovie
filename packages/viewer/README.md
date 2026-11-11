@@ -34,7 +34,7 @@ const viewer = mountViewer(canvas, scene, camera, (elapsedSeconds) => {
 
 `mountViewer` is the only entry point that needs a browser.
 
-The published JavaScript is ESM only, and Node hosts need Node.js 22.23.2 or later. Keep the host, the viewer and any Three.js addons on one `three` installation, or constructors and shared uniforms stop matching. A host compiled to CommonJS turns its own `three` import into `require("three")` and gets the `THREE_CJS_DEPRECATED` warning, so compile as ESM.
+The package publishes CommonJS (`lib/*.js`) and ES modules (`lib/*.mjs`), chosen by the `import` condition, and Node hosts need Node.js 22.23.2 or later. Keep the host, the viewer and any Three.js addons on one `three` installation, or constructors and shared uniforms stop matching. A CommonJS host loads `require("three")`, which three.js warns about with `THREE_CJS_DEPRECATED` and which can leave the ES-module addons on a second `three`, so import the package as ESM.
 
 ## Entry points
 

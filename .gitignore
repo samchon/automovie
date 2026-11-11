@@ -14,6 +14,8 @@ packages/motions/.cache/
 packages/motions/media/
 lib/
 dist/
+# ttsc plugin cache the rolldown build's @ttsc/unplugin writes beside each package.
+.ttsc/
 
 .DS_Store
 *.tsbuildinfo
