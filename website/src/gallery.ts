@@ -1,1 +1,0 @@
-export { mountGallery } from "./mountGallery";

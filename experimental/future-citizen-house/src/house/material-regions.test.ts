@@ -1,1 +1,0 @@
-export { verifyMaterialRegions } from "./verifyMaterialRegions";

@@ -1,9 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "lib": ["ESNext", "DOM"],
-    "types": ["node"],
-    "plugins": [{ "transform": "@ttsc/lint", "enabled": false }]
-  },
-  "include": ["test/index.ts", "test/helpers", "test/features"]
-}

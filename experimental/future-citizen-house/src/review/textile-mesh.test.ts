@@ -1,1 +1,0 @@
-export { verifyTextileContact } from "./verifyTextileContact";

@@ -11,8 +11,8 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "skipLibCheck": true,
-    "types": ["node", "three", "vite/client"],
+    "types": ["node", "vite/client"],
     "lib": ["ESNext", "DOM", "DOM.Iterable"]
   },
-  "include": ["src", "build", "vite.config.ts", "lint.config.ts"]
+  "include": ["build", "vite.config.ts", "lint.config.ts"]
 }

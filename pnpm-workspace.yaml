@@ -1,8 +1,5 @@
 packages:
   - config
-  - experimental/*
-  - movies/*
-  - movies/shorts/*
   - packages/*
   - test
   - website

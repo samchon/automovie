@@ -1,19 +1,14 @@
 # @automovie/website
 
-The public site at [samchon.github.io/automovie](https://samchon.github.io/automovie/). It presents four buildings, an ancient temple, a medieval manor, a modern suburban house and a future citizen house, as 3D tours built from source.
+The public site at [samchon.github.io/automovie](https://samchon.github.io/automovie/). It is an empty placeholder page while the showcase productions move to the [automovie-examples](https://github.com/samchon/automovie-examples) repository.
 
 ## Commands
 
 ```bash
-pnpm --filter @automovie/website dev      # generate scenes, then Vite at http://127.0.0.1:5174/
-pnpm --filter @automovie/website build    # generate scenes, type-check, then Vite into dist/
+pnpm --filter @automovie/website dev      # Vite at http://127.0.0.1:5174/
+pnpm --filter @automovie/website build    # type-check, then Vite into dist/
 pnpm --filter @automovie/website preview  # serve dist/ at http://127.0.0.1:4174/
-pnpm --filter @automovie/website evidence # check source implementation acknowledgments
 pnpm --filter @automovie/website deploy   # build, then publish dist/ to gh-pages
 ```
 
-Every build first runs the productions' scene producers and writes gzip transports with their textures under the ignored `public/buildings/`; these are regenerated, never committed. `.github/workflows/website.yml` builds pull requests that touch the site and deploys `dist/` from `master`. Pages serves the site under a case-sensitive repository path, so `vite.config.ts` uses a relative `base`.
-
-## Tours
-
-`tour/?building=ancient|modern|future` and `manor/` share one spectator controller: click for mouse look, WASD or arrows to fly, Space and C to rise and descend, Shift to slow down, R to return to the exterior, and touch pads on mobile. `?view=<id>` opens one of the production's authored cameras. The manor's `src/bakeManor.ts` groups supported entry meshes by the current material/sampler key while retaining separate entry controls.
+`.github/workflows/website.yml` builds pull requests that touch the site and deploys `dist/` from `master`. Pages serves the site under a case-sensitive repository path, so `vite.config.ts` uses a relative `base`.
