@@ -50,6 +50,8 @@ Distance from the reference skin's cut vertices to the regenerated section, thro
 | Fingers | 65 to 147 each | 0 | 0.05 to 0.11 | 0.33 to 0.74 |
 | Toes | 39 to 65 each | 0 | 0.03 to 0.18 | 0.15 to 1.3 |
 
+The nose's free end is a family of its own, 63 numbers at 0.1 mm against its hull, attached at a port on the face. The trunk wall kept was fitted with the nose still in its sections; the port cuts that part out. A wall fitted without the nose is 588 numbers at 1.08 mm but creases the chest from the neck to the armpits and under the breasts, so it is not kept.
+
 A trunk wall of 672 numbers at 0.56 mm exists as well, fitted with knots 4 mm apart from the neck up; it streaks the face, so the wall with knots 8 mm apart is kept at 441 numbers more.
 
 The whole figure is one piece, generated with no engine diagnostic in 43 to 54 s on a machine other work kept at about 80 % load. It took 193 s before five engine repairs found by CPU profile: an incidence ledger per mesh, one structure check per source, one check per cap source, an exact sign for grid-aligned orientations, and a bridge search that keys only the pairs it keeps. What remains is spread over the constraint splitting, the face and incidence keys and the grid.
@@ -57,7 +59,7 @@ The whole figure is one piece, generated with no engine diagnostic in 43 to 54 s
 ## Open
 
 - The thumb's blend is 0.5 mm wide and leaves a small notch at its root; at 1 mm it folds in the web beside the index finger.
-- The face's nose, eyes and mouth are reliefs; the ear is its outer form without the concha.
+- The face's eyes and mouth are reliefs; the ear is its outer form without the concha.
 - The folds in front of and behind each armpit are the tape's smooth bridge from the chest to the shoulder, not carved: a relief that reached them left a pleat or a flap. The trunk's mean rose from 0.52 to 0.87 mm for it.
 - The band from the trunk to each arm meets the arm with a faint ring.
 - A hand read as the curve round all fingers on a course square to the knuckles fits to 588 numbers at 0.34 mm but is not adopted: the engine refuses it as a face at ten stations between 569 and 584 mm.
