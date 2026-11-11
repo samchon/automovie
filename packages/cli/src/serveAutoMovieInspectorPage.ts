@@ -1,4 +1,5 @@
 import { findAutoMovieFreePort } from "./findAutoMovieFreePort";
+import { planAutoMovieModulePageViteConfig } from "./planAutoMovieModulePageViteConfig";
 import { writeAutoMovieModulePage } from "./writeAutoMovieModulePage";
 
 /**
@@ -14,7 +15,7 @@ interface IVite {
 /**
  * Serve the inspector page over a subject module with the production's Vite in development mode, and return its address and the call that stops it.
  *
- * The page is written by `writeAutoMovieModulePage`, as the draw page is: one `div` and a script that calls `@automovie/viewer`'s `mountAutoMovieInspectorPage` with the module's `subjects` called on `props` and the window's `location` and `history`, the same call the scaffold's own page makes. The development server uses the production's `vite.config.ts` and `public` folder, listens on 127.0.0.1 at `port` or a free port with `strictPort`, and transforms the production's sources on request, so an edit is seen on the next reload.
+ * The page is written by `writeAutoMovieModulePage`, as the draw page is: one `div` and a script that calls `@automovie/viewer`'s `mountAutoMovieInspectorPage` with the module's `subjects` called on `props` and the window's `location` and `history`, the same call the scaffold's own page makes. The development server takes `planAutoMovieModulePageViteConfig`: the production's `vite.config.ts` and `public` folder and the page as the dependency scanner's entry, so dependencies are pre-bundled before the first load; listens on 127.0.0.1 at `port` or a free port with `strictPort`, and transforms the production's sources on request, so an edit is seen on the next reload.
  *
  * It rejects when the module does not exist, naming it, and when the server cannot start, after deleting the scratch folder.
  *
@@ -63,11 +64,7 @@ export async function serveAutoMovieInspectorPage(props: {
     const port: number = props.port ?? (await findAutoMovieFreePort());
     const server: Awaited<ReturnType<IVite["createServer"]>> =
       await vite.createServer({
-        root: page.folder,
-        configFile: page.configFile,
-        publicDir: page.publicDir,
-        logLevel: "warn",
-        clearScreen: false,
+        ...planAutoMovieModulePageViteConfig(page),
         server: { host: "127.0.0.1", port, strictPort: true, open: false },
       });
     await server.listen();

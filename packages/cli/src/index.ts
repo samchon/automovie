@@ -31,6 +31,7 @@ export * from "./inspectAutoMovie";
 export * from "./readAutoMovieInspectHostOptions";
 export * from "./serveAutoMovieInspectorPage";
 export * from "./writeAutoMovieModulePage";
+export * from "./planAutoMovieModulePageViteConfig";
 export * from "./AUTOMOVIE_CAPTURE_OPTIONS";
 export * from "./AUTOMOVIE_RENDER_OPTIONS";
 export * from "./AUTOMOVIE_REVIEW_OPTIONS";
