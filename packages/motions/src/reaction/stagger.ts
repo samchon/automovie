@@ -50,6 +50,11 @@ import { StrikingTarget } from "../striking/StrikingTarget";
  * comes from a place ahead of the performer, so the body staggers backward.
  * The step's time is a reflex and no manner changes it; the manner's tempo
  * scales the time the body takes to right itself after the step.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the capture rule with its sources, the stepping foot, the timing, the refusal and how the action is composed.
+ * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table, parameters and a plan composed of part primitives on one clock, with plant windows.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the timing and size constants, the plan and the capture distance the tests check against.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, contact-window, foot, target, clock and primitive types; the step scales with each body's hip height and foot.
  */
 export namespace stagger {
   /** The action's name. */
@@ -63,7 +68,14 @@ export namespace stagger {
     knockdown: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
   };
 
-  /** Parameters. */
+  /**
+   * Parameters.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the blow's target and its default, the push's direction, the speed's unit and what the manner changes.
+   * @evidence contracts/development/design.md#principled-representation The blow is the interface's motion-target union, the speed metres per second, checked positive and capturable when planning, and the manner the shared manner record.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The three values the plan reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's target union and the shared manner.
+   */
   export interface IParams {
     /** Where the blow comes from: the body is pushed away from it; a place ahead of the performer when absent. */
     from?: AutoMovieMotionTarget;
@@ -95,6 +107,14 @@ export namespace stagger {
    * @param height The pendulum length, metres.
    * @param margin The margin beyond the extrapolated centre, metres.
    * @returns Metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the formula and every unit.
+   * @evidence contracts/development/implementation.md#principled-implementation Hof's extrapolated centre of mass for an inverted pendulum, g = 9.81 m/s².
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function capture(
     speed: number,
@@ -110,6 +130,14 @@ export namespace stagger {
    * @param context The action's context.
    * @returns The plan.
    * @throws {Error} When the speed is not positive, the capture step exceeds one leg, or the manner is out of range.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States its input, its plan and its refusals.
+   * @evidence contracts/development/implementation.md#principled-implementation The capture step lands at the extrapolated centre of mass plus half a foot along the push; the root follows the feet, and the trunk tips and rights itself on the clock's envelope.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One clock, one held base and five rows; the push is read once.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An uncapturable push throws and names the knockdown instead of shortening the step; the tip angle and the clearance are named provisional constants.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond the guard's trunk resolution.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The push, the stepping foot and the landing are computed once per plan and dropped on settle.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one cached geometry, cleared by settle and released with the plan.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
