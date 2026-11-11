@@ -33,6 +33,19 @@ namespace FamilyConicTree {
         }
       process.stdout.write(JSON.stringify({ mirror: family.name, worstMm: worst }) + "\n");
     }
+    // The authored numbers: per family its knots, section fields and conic numbers (a knot's station and one value per field), and the heights
+    // its reliefs store; then the totals, a twin counted once since it is derived.
+    const counted = AutoMovieHumanF1.FAMILIES.map((m: AutoMovieHumanF1.IMember): { name: string; knots: number; fields: number; conic: number; reliefs: number; heights: number } => ({
+      name: m.family.name,
+      knots: m.family.knots.length,
+      fields: m.family.values.length,
+      conic: m.family.knots.length * (1 + m.family.values.length),
+      reliefs: m.family.reliefs?.length ?? 0,
+      heights: (m.family.reliefs ?? []).reduce((sum: number, relief: { heights: number[] }): number => sum + relief.heights.length, 0),
+    }));
+    process.stdout.write(JSON.stringify({ families: counted.length, conicNumbers: counted.reduce((s, c) => s + c.conic, 0), sectionFieldCurves: counted.reduce((s, c) => s + c.fields, 0), reliefNets: counted.reduce((s, c) => s + c.reliefs, 0), reliefHeightsStored: counted.reduce((s, c) => s + c.heights, 0), each: counted.map((c) => c.name + ":" + c.knots + "k*" + c.fields + "f=" + c.conic + (c.heights > 0 ? "+" + c.heights + "h" : "")).join(" ") }) + "\n");
+    if (process.argv.includes("--count")) return;
+
     // `FamilyConicTree.ts [layerMm] [chordMm]`: the families' layer spacing and the tessellation chord, to weigh time against the skin.
     const layer: number = Number(process.argv[2] ?? "2");
     const chord: number = Number(process.argv[3] ?? "1") / 1000;

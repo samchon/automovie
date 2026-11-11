@@ -34,6 +34,7 @@ The parts are sewn by the engine's construction operators.
 - **Growth must restart from the best family.** Going on from a round that did not improve carried a failed solve into every later one.
 - **The engine reads between stations by its own spline.** Where the model's section turns fast, the engine's chain can lose an arc between two stations that the model never loses, so the part adds stations where the model stands off the mean of its neighbours.
 - **A pole takes every coordinate together.** The engine closed only a four-quarter section; a chain's touch offsets and split points now fall in the same pole parameter as its extents, and a relief must vanish at the pole.
+- **The reference's own loft curves, reduced curve by curve, are not smaller.** The toes of one foot are 233 closed section curves of 4,476 cubic spans in the reference. Reduced by the Recovery package's Ghosh reducer at 0.5 mm they are 6,849 conic arcs, 88 curves only partly, and the study's loft drops 85 of 218 strips (`FamilyConicReference.ts`). Cut along each toe's own course and fitted together, the same five toes are 245 numbers, closed and sewn. A reducer that keeps every section keeps the reference's slicing; the reduction is in choosing the course and fitting all sections at once.
 - **Profile before blaming an operator.** The body's realization took 193 s after the digits were merged. The joins were 4.8 % of it; 83 % was the face tessellation rereading the whole mesh for every face.
 
 ## Measured
