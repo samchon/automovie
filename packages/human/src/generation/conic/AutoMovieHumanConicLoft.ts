@@ -109,6 +109,52 @@ export namespace AutoMovieHumanConicLoft {
     };
   }
 
+  /**
+   * The family's twin across the median plane `z = 0`, as a family of its own.
+   *
+   * The course and the chart seed are reflected. A course's chart is `v = u x t`, so the reflected course charts the
+   * reflected section with `v` negated, which also reverses its travel: the twin's anchors are the original's in reverse
+   * order from the first, each extreme with its `v` negated, and the arc after the twin's anchor `j` is the original's arc
+   * before its anchor `K - j`. A relief keeps its stations and heights and takes the negated phase window, the reflected
+   * axis and its columns in reverse.
+   *
+   * @param family A family whose layout is not itself a mirror layout and has no inflection anchor.
+   * @param name The twin's chain name.
+   */
+  export function mirror(family: IFamily, name: string): IFamily {
+    const anchors: AutoMovieHumanConicSection.IAnchor[] = family.layout.anchors;
+    const K: number = anchors.length;
+    if (family.layout.mirror || anchors.some((anchor: AutoMovieHumanConicSection.IAnchor): boolean => anchor.kind === "i")) throw new Error("mirror: the layout of " + family.name + " cannot be reflected");
+    const { at, shoulders }: { at: number[]; shoulders: number } = AutoMovieHumanConicSection.offsets(family.layout);
+    const values: number[][] = [];
+    for (let j: number = 0; j < K; ++j) {
+      const k: number = (K - j) % K;
+      const anchor: AutoMovieHumanConicSection.IAnchor = anchors[k]!;
+      values.push([...family.values[at[k]!]!]);
+      if (anchor.kind !== "m" && anchor.mid !== true) values.push(family.values[at[k]! + 1]!.map((v: number): number => -v));
+    }
+    for (let j: number = 0; j < K; ++j) values.push([...family.values[shoulders + (K - j - 1)]!]);
+    const flip = (v: V3): V3 => [v[0], v[1], -v[2]];
+    return {
+      name,
+      centres: family.centres.map(flip),
+      halves: [...family.halves],
+      up: flip(family.up),
+      layout: { mirror: false, anchors: anchors.map((_: AutoMovieHumanConicSection.IAnchor, j: number): AutoMovieHumanConicSection.IAnchor => anchors[(K - j) % K]!) },
+      knots: [...family.knots],
+      values,
+      ...(family.reliefs === undefined
+        ? {}
+        : {
+            reliefs: family.reliefs.map((relief: IAutoMovieLoftRelief): IAutoMovieLoftRelief => {
+              const turn: number = relief.phases[1] > 0 ? 2 * Math.PI : 0;
+              const reverse = (net: number[]): number[] => net.map((_: number, i: number): number => net[i - (i % relief.columns) + relief.columns - 1 - (i % relief.columns)]!);
+              return { ...relief, name: relief.name + ".mirror", phases: [turn - relief.phases[1], turn - relief.phases[0]], axis: flip(relief.axis), heights: reverse(relief.heights), ...(relief.shift === undefined ? {} : { shift: reverse(relief.shift) }) };
+            }),
+          }),
+    };
+  }
+
   /** Loft a family through the engine. */
   export function create(family: IFamily, stations: number[]): AutoMovieViewLoft.IResult {
     return AutoMovieViewLoft.create(part(family, stations));
