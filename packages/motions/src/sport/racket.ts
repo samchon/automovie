@@ -252,13 +252,15 @@ export namespace racket {
         ),
         ...grip(
           other,
+          // A hand's length ahead of the racket hand along the heading, on the racket's throat.
           (posture: IHumanPosture) =>
-            AutoMovieMotionHumanPlaced.grid(
-              body,
-              posture,
-              side,
-              { height: "waist", lateral: "centre", distance: "mid" },
-              { forward: m.hand / arm },
+            Vector3.add(
+              AutoMovieMotionHumanPlaced.grid(body, posture, side, {
+                height: "waist",
+                lateral: "centre",
+                distance: "mid",
+              }),
+              local(posture, { x: 0, y: 0, z: m.hand }),
             ),
           "front",
         ),
