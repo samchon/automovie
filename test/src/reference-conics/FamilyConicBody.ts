@@ -102,7 +102,7 @@ namespace FamilyConicBody {
           { name: "upper.back", stations: [440, 990], phases: [Math.PI / 2, (3 * Math.PI) / 2], axis: [1, 0, 0], rows: 111, columns: 43, mirror: true },
           { name: "upper.front", stations: [440, 990], phases: [-Math.PI / 2, Math.PI / 2], axis: [-1, 0, 0], rows: 111, columns: 63, mirror: true },
         ] },
-        { name: "palm", centres: [joint("hand_r"), joint("middle_01_r")], halves: [], up: [0, 0, 1], domain: [2, 60], step: 2, gap: 6, mirrored: true, layouts: LIMB, reliefs: "auto" },
+        { name: "palm", centres: [joint("hand_r"), joint("middle_01_r")], halves: [], up: [0, 0, 1], domain: [0, 60], step: 2, gap: 6, mirrored: true, layouts: LIMB, reliefs: "auto" },
       ] satisfies IPart[]
     ).filter((part: IPart): boolean => only.length === 0 || only.includes(part.name));
     const meshes: N.Mesh[] = [];
