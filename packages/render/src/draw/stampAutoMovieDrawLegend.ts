@@ -8,13 +8,13 @@ const ROW: number = 9;
 /**
  * Put a picture's legend on the picture itself, in the corner where it hides the least of what was drawn: one row per entry, a square of the entry's colour followed by the label stamp's text `<label> <count>`, so a reader of the still alone knows what each mark colour means.
  *
- * The block is tried in the bottom-left, bottom-right and top-right corners, in that order; the top-left is left to the caption a contact sheet stamps over each still. The block goes where the fewest of its pixels differ from the colour of the picture's pixel in that very corner, the background the corner shows, so it covers empty space where the picture has any, and the earlier corner wins a tie. Each swatch is painted now, `ROW × scale` pixels on a side, the height of a stamped label box; the returned labels are the rows' texts, anchored right of their swatches, for the capture run to stamp at the same `scale`. An empty legend paints nothing and returns nothing.
+ * The block is tried in the bottom-left, bottom-right, top-right and top-left corners, in that order; every corner is free, since a contact sheet writes its caption in a strip under each cell rather than over the still. The block goes where the fewest of its pixels differ from the colour of the picture's pixel in that very corner, the background the corner shows, so it covers empty space where the picture has any, and the earlier corner wins a tie. Each swatch is painted now, `ROW × scale` pixels on a side, the height of a stamped label box; the returned labels are the rows' texts, anchored right of their swatches, for the capture run to stamp at the same `scale`. An empty legend paints nothing and returns nothing.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the layout, the corner rule and why the top-left is skipped, what is painted now and what is returned for stamping, the units, and the empty case.
+ * @evidence contracts/development/common.md#meaningful-documentation States the layout, the corner rule and why every corner is open, what is painted now and what is returned for stamping, the units, and the empty case.
  * @evidence contracts/development/implementation.md#principled-implementation `.agents/skills/visual-debugging/passes.md` asks for a legend naming each colour's finding and for labels hidden where they cover what is judged; drawing it into the still keeps it with the picture a vision model reads, the swatch is the exact sRGB colour the inspection drew the kind in, and the corner is chosen by counting the drawn pixels it would hide, measured on the picture itself.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Measure the block, count each corner's covered pixels, paint the swatches and collect the text anchors; text drawing is the label stamp's.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Entries keep the legend's order and wording; nothing is abbreviated or recoloured, and no corner is fixed for a kind of subject.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the block's area times the three corners tried, plus the swatches' pixels.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the block's area times the four corners tried, plus the swatches' pixels.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure stamp of one picture.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Writes into the picture's own bytes and returns fresh labels.
  */
@@ -42,6 +42,7 @@ export function stampAutoMovieDrawLegend(
     { left: 0, top: height - blockHeight, x: 0, y: height - 1 },
     { left: width - blockWidth, top: height - blockHeight, x: width - 1, y: height - 1 },
     { left: width - blockWidth, top: 0, x: width - 1, y: 0 },
+    { left: 0, top: 0, x: 0, y: 0 },
   ];
   let best: { left: number; top: number } = corners[0]!;
   let fewest: number = Number.POSITIVE_INFINITY;
