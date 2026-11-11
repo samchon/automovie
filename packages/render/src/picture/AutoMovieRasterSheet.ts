@@ -3,8 +3,11 @@ import { stampAutoMovieRasterLabel } from "./stampAutoMovieRasterLabel.js";
 
 /**
  * A contact sheet of pictures, filled one picture at a time: each picture is
- * reduced into its cell in row-major order and captioned after reduction, so
- * the caption stays legible however small the cell is. Reduction averages
+ * reduced into its cell in row-major order, and its caption is written in a
+ * dark strip under the cell, outside the picture, so the caption hides no part
+ * of the subject or its legend and stays legible however small the cell is.
+ * `AutoMovieRasterSheet.caption` gives the strip's height for a cell height,
+ * which a layout reserves under every row. Reduction averages
  * every source pixel a cell pixel covers (`area`, the default), or copies the
  * source pixel at the cell pixel's centre (`nearest`), which keeps exact
  * colours for a review that reads pixel values.
@@ -20,9 +23,9 @@ import { stampAutoMovieRasterLabel } from "./stampAutoMovieRasterLabel.js";
  * await writeFile("sheet.png", await encodeAutoMovieRasterPng(sheet.finish()));
  * ```
  *
- * @evidence contracts/development/common.md#meaningful-documentation The comment states the fill order, both reductions and what each keeps, when captions are drawn, the memory bound, the extent of the result and how it is encoded.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states the fill order, both reductions and what each keeps, where captions are drawn and why, the memory bound, the extent of the result and how it is encoded.
  * @evidence contracts/development/design.md#principled-representation The sheet is itself an IAutoMovieRasterImage, so encoding and captioning reuse the frame path unchanged.
- * @evidence contracts/development/design.md#minimal-and-owned-surface A constructor, `add` and `finish`; layout is fixed by the constructor.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface A constructor, `add` and `finish`, and the static `caption` that a layout reads to reserve the strip; layout is fixed by the constructor.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing names a film or capture command; captions are caller text.
  */
 export class AutoMovieRasterSheet {
@@ -41,11 +44,34 @@ export class AutoMovieRasterSheet {
   /** Cell width in pixels. */
   private readonly cellWidth: number;
 
-  /** Cell height in pixels. */
+  /** Cell height in pixels, the picture alone. */
   private readonly cellHeight: number;
+
+  /** Height in pixels of the caption strip under each cell. */
+  private readonly strip: number;
 
   /** How a picture is reduced into its cell. */
   private readonly reduction: "area" | "nearest";
+
+  /**
+   * Height in pixels of the caption strip a sheet writes under a cell of the given height: one line of the label stamp's 3 × 5 font at a scale of one font pixel per 90 cell pixels, at least one, with two font pixels of margin above and below.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the unit, what the strip holds, the scale rule and its floor, and the margin.
+   * @evidence contracts/development/implementation.md#principled-implementation The strip is exactly the stamp's box, `5 × scale` of glyph plus `2 × scale` of margin on each side, so the caption fills it without being cut; the scale follows the cell, as it did when captions were drawn inside it.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression, shared by the sheet and every layout that reserves the strip.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fixed strip height: it follows the cell.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure expression.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a number.
+   */
+  public static caption(cellHeight: number): number {
+    return 9 * AutoMovieRasterSheet.scale(cellHeight);
+  }
+
+  /** The caption's font scale for a cell height: one font pixel per 90 cell pixels, at least one. */
+  private static scale(cellHeight: number): number {
+    return Math.max(1, Math.round(cellHeight / 90));
+  }
 
   /**
    * Allocate an empty sheet.
@@ -53,7 +79,7 @@ export class AutoMovieRasterSheet {
    * @param capacity Number of cells, a positive integer.
    * @param columns Cells per row, a positive integer.
    * @param cellWidth Cell width in pixels, a positive integer.
-   * @param cellHeight Cell height in pixels, a positive integer.
+   * @param cellHeight Cell height in pixels, a positive integer, not counting the caption strip under it.
    * @param reduction `area` to average the pixels a cell pixel covers, `nearest` to copy the one at its centre.
    */
   public constructor(
@@ -68,6 +94,7 @@ export class AutoMovieRasterSheet {
     this.cellWidth = cellWidth;
     this.cellHeight = cellHeight;
     this.reduction = reduction;
+    this.strip = AutoMovieRasterSheet.caption(cellHeight);
     if (
       ![capacity, columns, cellWidth, cellHeight].every(
         (value: number): boolean => Number.isSafeInteger(value) && value > 0,
@@ -78,7 +105,7 @@ export class AutoMovieRasterSheet {
       );
     const used: number = Math.min(columns, capacity);
     const width: number = used * cellWidth;
-    const height: number = Math.ceil(capacity / used) * cellHeight;
+    const height: number = Math.ceil(capacity / used) * (cellHeight + this.strip);
     if (width * height > 64_000_000)
       throw new Error("Sheet exceeds 64 megapixels");
     this.sheet = {
@@ -92,20 +119,21 @@ export class AutoMovieRasterSheet {
   }
 
   /**
-   * Reduce one frame into the next cell and caption it.
+   * Reduce one frame into the next cell and write its caption in the strip under it.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States that the frame fills the next cell and receives the caption.
+   * @evidence contracts/development/common.md#meaningful-documentation States that the frame fills the next cell and its caption the strip under it.
    * @evidence contracts/development/implementation.md#principled-implementation Under `area` each cell pixel averages the source pixels its footprint covers, so thin lines and small figures survive reduction instead of being skipped by point sampling; under `nearest` it copies the source pixel under its centre, `floor((x + 0.5) × source / cell)`, so every colour on the sheet is one the picture holds.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the cell's pixels, then one caption.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the cell's pixels, then one caption strip.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A full sheet throws instead of overwriting a cell.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the source frame's pixel count.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caption reuses the frame label stamp on a cell view of the sheet.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caption reuses the frame label stamp on a strip the width of the cell.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The frame is not retained.
    */
   public add(frame: IAutoMovieRasterImage, caption: string): void {
     if (this.count >= this.capacity) throw new Error("The sheet is full");
     const left: number = (this.count % this.columns) * this.cellWidth;
-    const top: number = Math.floor(this.count / this.columns) * this.cellHeight;
+    const top: number =
+      Math.floor(this.count / this.columns) * (this.cellHeight + this.strip);
     const cell: IAutoMovieRasterImage = {
       width: this.cellWidth,
       height: this.cellHeight,
@@ -156,19 +184,32 @@ export class AutoMovieRasterSheet {
         cell.pixels[target + 2] = b / n;
       }
     }
+
+    // The caption in a dark strip under the cell, cut at the cell's width.
+    const strip: IAutoMovieRasterImage = {
+      width: this.cellWidth,
+      height: this.strip,
+      pixels: new Uint8ClampedArray(this.cellWidth * this.strip * 4),
+    };
+    for (let offset: number = 0; offset < strip.pixels.length; offset += 4)
+      strip.pixels.set([16, 16, 16, 255], offset);
     stampAutoMovieRasterLabel(
-      cell,
+      strip,
       caption,
-      Math.max(1, Math.round(this.cellHeight / 90)),
+      AutoMovieRasterSheet.scale(this.cellHeight),
     );
-    for (let y: number = 0; y < this.cellHeight; y++)
-      this.sheet.pixels.set(
-        cell.pixels.subarray(
-          y * this.cellWidth * 4,
-          (y + 1) * this.cellWidth * 4,
-        ),
-        ((top + y) * this.sheet.width + left) * 4,
-      );
+    for (const [picture, offset] of [
+      [cell, 0],
+      [strip, this.cellHeight],
+    ] as const)
+      for (let y: number = 0; y < picture.height; y++)
+        this.sheet.pixels.set(
+          picture.pixels.subarray(
+            y * this.cellWidth * 4,
+            (y + 1) * this.cellWidth * 4,
+          ),
+          ((top + offset + y) * this.sheet.width + left) * 4,
+        );
     this.count++;
   }
 
@@ -195,7 +236,7 @@ export class AutoMovieRasterSheet {
     if (this.count === this.capacity) return this.sheet;
     const width: number = Math.min(this.columns, this.count) * this.cellWidth;
     const height: number =
-      Math.ceil(this.count / this.columns) * this.cellHeight;
+      Math.ceil(this.count / this.columns) * (this.cellHeight + this.strip);
     const pixels: Uint8ClampedArray = new Uint8ClampedArray(width * height * 4);
     for (let y: number = 0; y < height; y++)
       pixels.set(
