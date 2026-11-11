@@ -9,10 +9,10 @@ import { humanPolygonTopology as LoftMesh } from "./humanPolygonTopology.js";
  * The caller owns shape selection, shared boundaries, materials and every
  * emitted geometry. This module only emits their local mesh and diagnostics,
  * preserving the existing source sequence, zipper, winding and crown cap.
- * A band between two equal-count rings folds each of its quads along the
- * ridge diagonal, the one that bulges away from the module's axis, so the
- * drawn surface is the convex one the module's collider hull takes from the
- * same ring points. Its front query intersects those same emitted triangles for face attachment.
+ * A band between two rings is the side of their convex hull: each ring's
+ * edges taken in order of direction, each closed on the other ring's vertex
+ * that supports it, so the drawn surface is the one the module's collider
+ * hull takes from the same ring points. Its front query intersects those same emitted triangles for face attachment.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Moves registered points into the bone rest frame once and consumes its supplied posed placement once; existing LoftMesh zipper and cap own exterior connectivity.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One module assembly returns the surface target, its matching diagnostic target and the material-bearing mesh without choosing anatomy or a palette.
@@ -153,36 +153,57 @@ export function buildHumanPolygonModule(
         for (let i: number = start; i < indices.length; i += 3)
           [indices[i + 1], indices[i + 2]] = [indices[i + 2]!, indices[i + 1]!];
     } else {
-      // Two rings of different proportions make a band of skew quads, and a
-      // skew quad folds along either diagonal: one fold is a ridge, the other
-      // a valley. The ridge is taken, so a band between two convex rings is
-      // the surface of their convex hull, which the collider is.
-      const inner: THREE.Vector3 = rings[layer]!.centre.clone()
-        .add(rings[layer + 1]!.centre)
-        .multiplyScalar(0.5)
-        .sub(new THREE.Vector3(...bone.position));
-      const at = (index: number): THREE.Vector3 =>
-        new THREE.Vector3(
-          positions[3 * index]!,
-          positions[3 * index + 1]!,
-          positions[3 * index + 2]!,
+      // The band is the side of the convex hull of its two rings, which is
+      // the collider. The rings are convex, lie in parallel planes and wind
+      // the same way, so each side face of their hull is one ring's edge with
+      // the other ring's vertex that supports the edge's outward direction:
+      // the two rings' edges taken in order of direction. Joining the points
+      // of one index instead is the hull only where the rings' edges run
+      // parallel; between rings of different proportions such a joining edge
+      // cuts inside the hull, by 2 mm across a chest's shoulder ring.
+      const direction = (from: number, to: number): number => {
+        const edge: THREE.Vector3 = new THREE.Vector3(
+          positions[3 * to]! - positions[3 * from]!,
+          positions[3 * to + 1]! - positions[3 * from + 1]!,
+          positions[3 * to + 2]! - positions[3 * from + 2]!,
         );
-      for (let i: number = 0; i < sides; ++i) {
-        const a: number = layer * sides + i;
-        const b: number = layer * sides + ((i + 1) % sides);
-        const face: THREE.Vector3 = at(b)
-          .sub(at(a))
-          .cross(at(a + sides).sub(at(a)));
-        const ridge: boolean =
-          face.dot(at(b + sides).sub(at(a))) *
-            face.dot(inner.clone().sub(at(a))) >=
-          0;
-        if (ridge) {
-          triangle(a, b, a + sides);
-          triangle(b, b + sides, a + sides);
+        const angle: number = Math.atan2(edge.dot(v), edge.dot(u));
+        return angle < 0 ? angle + 2 * Math.PI : angle;
+      };
+      // Each ring's vertices from the start of its edge of least direction,
+      // with the direction of the edge each one starts; at direction zero
+      // both rings stand on their first vertex.
+      const walk = (ring: number): { vertex: number; angle: number }[] => {
+        const edges: { vertex: number; angle: number }[] = Array.from(
+          { length: sides },
+          (_: unknown, i: number): { vertex: number; angle: number } => ({
+            vertex: ring * sides + i,
+            angle: direction(
+              ring * sides + i,
+              ring * sides + ((i + 1) % sides),
+            ),
+          }),
+        );
+        const first: number = edges.reduce(
+          (best: number, edge: { angle: number }, i: number): number =>
+            edge.angle < edges[best]!.angle ? i : best,
+          0,
+        );
+        return [...edges.slice(first), ...edges.slice(0, first)];
+      };
+      const lower: { vertex: number; angle: number }[] = walk(layer);
+      const upper: { vertex: number; angle: number }[] = walk(layer + 1);
+      let i: number = 0;
+      let j: number = 0;
+      while (i < sides || j < sides) {
+        const a: number = lower[i % sides]!.vertex;
+        const c: number = upper[j % sides]!.vertex;
+        if (j >= sides || (i < sides && lower[i]!.angle <= upper[j]!.angle)) {
+          triangle(a, lower[(i + 1) % sides]!.vertex, c);
+          i++;
         } else {
-          triangle(a, b, b + sides);
-          triangle(a, b + sides, a + sides);
+          triangle(a, upper[(j + 1) % sides]!.vertex, c);
+          j++;
         }
       }
     }
