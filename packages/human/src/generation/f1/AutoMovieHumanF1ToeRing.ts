@@ -52,6 +52,6 @@ export const AutoMovieHumanF1ToeRing: AutoMovieHumanConicLoft.IFamily = {
     [0.429, 0.3976, 0.2699],
   ],
 
-  // Past its last knot the part closes in a point at this station, where the reference's own loop vanishes.
-  tips: [null, 30.63],
+  // The part closes in a point at `tip`, the station where the reference's own loop vanishes; its cap starts at `from`.
+  tips: [null, {from: 27, tip: 30.63}],
 };

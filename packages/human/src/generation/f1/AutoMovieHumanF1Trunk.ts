@@ -68,8 +68,9 @@ export const AutoMovieHumanF1Trunk: AutoMovieHumanConicLoft.IFamily = {
     [0.0848, 0.6966, 0.9222, 0.9459, 0.7325, 0.4343, 0.7808, 0.7836, 0.8554, 0.6619, 0.753, 0.9398, 0.9378, 0.8608, 0.73, 0.8018, 0.8515, 0.842, 0.8349, 0.8338, 0.725, 0.0464, 0.0779, 0.089, 0.3589, 0.6523, 0.82, 0.4534, 0.909, 0.2529, 0.0655, 0.7608, 0.5124, 0.4178, 0.0327, 0.3685, 0.3683, 0.4157, 0.4524, 0.3222],
   ],
 
-  // Past its last knot the part closes in a point at this station, where the reference's own loop vanishes.
-  tips: [null, 918.88],
+  // The part closes in a point at the station where the reference's own loop vanishes. Its cap starts 23 mm below, where the wall still lies
+  // within 3.2 mm of the skin: nearer the crown the head narrows faster than the fields' cubics follow.
+  tips: [null, { from: 896, tip: 918.88 }],
 
   // Reliefs: heights in mm of a uniform cubic B-spline net over a window of the wall's chart, moved along `axis`; they carry the skin that lies inside the tape wall.
   reliefs: [

@@ -20,7 +20,7 @@ namespace FamilyConicTip {
     if (member === undefined) throw new Error("no family named " + name);
     const from: number = member.family.knots[0]!;
     const to: number = member.family.knots.at(-1)!;
-    const family: AutoMovieHumanConicLoft.IFamily = { ...member.family, tips: [bottom === undefined ? null : from - Number(bottom), top === undefined || top === "-" ? null : to + Number(top)] };
+    const family: AutoMovieHumanConicLoft.IFamily = { ...member.family, tips: [bottom === undefined ? null : { from, tip: from - Number(bottom) }, top === undefined || top === "-" ? null : { from: to, tip: to + Number(top) }] };
     const count: number = Math.ceil((to - from) / 2) + 1;
     const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(family, Array.from({ length: count }, (_: unknown, i: number): number => from + ((to - from) * i) / (count - 1)));
     process.stdout.write(JSON.stringify({ family: name, tips: family.tips, diagnostics: loft.diagnostics, lofted: loft.chain !== null }).slice(0, 3000) + "\n");

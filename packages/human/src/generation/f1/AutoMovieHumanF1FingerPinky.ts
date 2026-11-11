@@ -52,6 +52,6 @@ export const AutoMovieHumanF1FingerPinky: AutoMovieHumanConicLoft.IFamily = {
     [0.3174, 0.3928, 0.3642, 0.4549, 0.4628],
   ],
 
-  // Past its last knot the part closes in a point at this station, where the reference's own loop vanishes.
-  tips: [null, 64.13],
+  // The part closes in a point at `tip`, the station where the reference's own loop vanishes; its cap starts at `from`.
+  tips: [null, {from: 61, tip: 64.13}],
 };

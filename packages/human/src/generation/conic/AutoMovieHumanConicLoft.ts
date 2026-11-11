@@ -41,12 +41,25 @@ export namespace AutoMovieHumanConicLoft {
     /** Reliefs composed onto the wall; absent means none. */
     reliefs?: IAutoMovieLoftRelief[];
 
-    /**
-     * Stations where the part closes in a point, before its first knot and past its last, mm; null leaves that end an open section. Between
-     * the end knot and its tip every section coordinate falls to zero in the engine's pole parameter, the root of the distance to the tip, with
-     * the end section's tangent angles and shoulders kept, so the cap is that section shrunk to a rounded point.
-     */
-    tips?: [number | null, number | null];
+    /** Where the part closes in a point, toward its first knot and toward its last; null leaves that end an open section. */
+    tips?: [ITip | null, ITip | null];
+  }
+
+  /**
+   * One closed end of a part.
+   *
+   * Between `from` and `tip` the part is its section at `from` shrunk by one factor, with that section's tangent angles and shoulders kept. The
+   * factor is a conic in the plane of station and size: with `d` the distance to the tip and `H` that of `from`, `g^2 = A d + B d^2`, the ellipse
+   * or hyperbola on the course that stands upright at the tip (`A > 0`), reaches 1 at `from` and leaves `from` at the wall's own taper there, so
+   * the cap continues the wall without a crease. With `q = H mu`, `mu` the wall's relative growth per millimetre away from the tip, and
+   * `x = sqrt(d / H)`, that is `g = x sqrt(2 (1 - q) + (2 q - 1) x^2)`; `q = 1/2` is the paraboloid.
+   */
+  export interface ITip {
+    /** Station of the last section the fields own, between the first and the last knot, mm. */
+    from: number;
+
+    /** Station of the point, mm. */
+    tip: number;
   }
 
   /**
@@ -82,27 +95,46 @@ export namespace AutoMovieHumanConicLoft {
    * @param family The authored definition.
    * @param stations Stations of the emitted layers and of the derived outlines, mm, increasing.
    */
-  export function part(family: IFamily, stations: number[]): IAutoMovieViewPart {
+  export function part(family: IFamily, requested: number[]): IAutoMovieViewPart {
     const read: (s: number) => number[] = reader(family);
+    const [bottom, top]: [ITip | null, ITip | null] = family.tips ?? [null, null];
+
+    // The fields own the stations between the caps; each cap starts on a station of its own.
+    const stations: number[] = [
+      ...(bottom === null ? [] : [bottom.from]),
+      ...requested.filter((s: number): boolean => (bottom === null || s > bottom.from) && (top === null || s < top.from)),
+      ...(top === null ? [] : [top.from]),
+    ];
     const chains: AutoMovieHumanConicSection.IChain[] = stations.map((s: number): AutoMovieHumanConicSection.IChain => AutoMovieHumanConicSection.resolve(read(s), family.layout));
     const count: number = chains[0]!.input.points.length;
     const guides: number[] = chains[0]!.guides;
     if (guides.length !== 4) throw new Error("the layout names " + guides.length + " engine guides instead of four");
-    const [bottom, top]: [number | null, number | null] = family.tips ?? [null, null];
 
-    // A coordinate is zero at a tip; an angle or a shoulder keeps the end section's value there.
-    // Between an end and its tip the cap's own knots stand at equal steps of the root of the distance to the tip, each the end section scaled by
-    // that root's share, so every coordinate of a cap section falls by one factor and the section stays the end section's shape.
-    const cap = (end: number, tip: number, value: number, length: boolean, site: string): IAutoMovieViewPart.IKnot[] =>
-      Array.from({ length: CAP_KNOTS + 1 }, (_: unknown, k: number): IAutoMovieViewPart.IKnot => {
-        const share: number = k / (CAP_KNOTS + 1);
-        return { site: site + "." + k, station: tip + (end - tip) * share * share, value: length ? value * share : value };
+    // The wall's taper at a cap's first section: the relative growth of the mean of its four extents over a millimetre away from the tip,
+    // times the cap's length, held to [0, 0.95] so the cap neither flares nor loses its upright tangent at the tip.
+    const taper = (end: ITip): number => {
+      const size = (s: number): number => {
+        const chain: AutoMovieHumanConicSection.IChain = AutoMovieHumanConicSection.resolve(read(s), family.layout);
+        return chain.guides.reduce((sum: number, g: number, q: number): number => sum + Math.abs(chain.input.points[g]![q % 2]), 0);
+      };
+      const inward: number = Math.sign(end.from - end.tip);
+      return Math.min(0.95, Math.max(0, (size(end.from + inward) / size(end.from) - 1) * Math.abs(end.from - end.tip)));
+    };
+
+    // A coordinate is zero at a tip; an angle or a shoulder keeps the cap's first section's value there. The cap's own knots stand at equal
+    // steps of the root of the distance to the tip, the engine's pole parameter, each that section scaled by the tip's conic factor.
+    const cap = (end: ITip, value: number, length: boolean, site: string): IAutoMovieViewPart.IKnot[] => {
+      const q: number = taper(end);
+      return Array.from({ length: CAP_KNOTS + 1 }, (_: unknown, k: number): IAutoMovieViewPart.IKnot => {
+        const x: number = k / (CAP_KNOTS + 1);
+        return { site: site + "." + k, station: end.tip + (end.from - end.tip) * x * x, value: length ? value * x * Math.sqrt(2 * (1 - q) + (2 * q - 1) * x * x) : value };
       });
+    };
     const closing = (pick: (chain: AutoMovieHumanConicSection.IChain) => number, length: boolean): IAutoMovieViewPart.IOutline => ({
       knots: [
-        ...(bottom === null ? [] : cap(stations[0]!, bottom, pick(chains[0]!), length, "tip.bottom")),
+        ...(bottom === null ? [] : cap(bottom, pick(chains[0]!), length, "tip.bottom")),
         ...stations.map((station: number, i: number): IAutoMovieViewPart.IKnot => ({ site: "s" + i, station, value: pick(chains[i]!) })),
-        ...(top === null ? [] : cap(stations.at(-1)!, top, pick(chains.at(-1)!), length, "tip.top").reverse()),
+        ...(top === null ? [] : cap(top, pick(chains.at(-1)!), length, "tip.top").reverse()),
       ],
     });
     const outline = (pick: (chain: AutoMovieHumanConicSection.IChain) => number): IAutoMovieViewPart.IOutline => closing(pick, true);
@@ -131,7 +163,7 @@ export namespace AutoMovieHumanConicLoft {
     return {
       name: family.name,
       axis: axis(family),
-      stations: [...(bottom === null ? [] : [bottom]), ...stations, ...(top === null ? [] : [top])],
+      stations: [...(bottom === null ? [] : [bottom.tip]), ...stations, ...(top === null ? [] : [top.tip])],
       ...(bottom === null && top === null ? {} : { pole: bottom === null ? ("top" as const) : top === null ? ("bottom" as const) : ("both" as const) }),
       front: { positive: coordinate(0, 0), negative: coordinate(2, 0) },
       side: { positive: coordinate(1, 1), negative: coordinate(3, 1) },
@@ -176,7 +208,7 @@ export namespace AutoMovieHumanConicLoft {
       layout: { mirror: false, anchors: anchors.map((_: AutoMovieHumanConicSection.IAnchor, j: number): AutoMovieHumanConicSection.IAnchor => anchors[(K - j) % K]!) },
       knots: [...family.knots],
       values,
-      ...(family.tips === undefined ? {} : { tips: [family.tips[0], family.tips[1]] as [number | null, number | null] }),
+      ...(family.tips === undefined ? {} : { tips: [family.tips[0], family.tips[1]] as [ITip | null, ITip | null] }),
       ...(family.reliefs === undefined
         ? {}
         : {

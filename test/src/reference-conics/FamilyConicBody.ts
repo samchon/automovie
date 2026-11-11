@@ -77,6 +77,9 @@ namespace FamilyConicBody {
     /** The part closes in a point past its last fitted section: the station where the reference's loop vanishes is read and written as the family's top tip. */
     tip?: boolean;
 
+    /** Station where the cap starts when the wall is not followed to its last fitted section, mm; absent, the domain's end. */
+    cap?: number;
+
     /** Also emitted mirrored in the median plane `z = 0`. */
     mirrored: boolean;
 
@@ -124,7 +127,7 @@ namespace FamilyConicBody {
         { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r"), [133, 20, 157]], course: "[J.thigh, J.calf, J.foot, J.footBall]", halves: [40, 62], up: [1, 0, 0], domain: [104, 956], gap: 6, mirrored: true, layouts: LIMB, reliefs: "auto" },
         // The trunk from the crotch to the crown as one wall. It owns the shoulders down to the plane square to each upper arm through the armpit's
         // crease; past that plane, lateral of the crease and inside the arm's own tube, the skin is the arm's and is left out of the trunk's sections.
-        { name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], course: "[J.axisFloor, J.axisCrown]", halves: [], up: [1, 0, 0], domain: [40, 912], whole: true, step: 2, gap: 8, tip: true, mirrored: false, layouts: LIMB, clip: (p: R.V): number => Math.max(...[1, -1].map((side: number): number => {
+        { name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], course: "[J.axisFloor, J.axisCrown]", halves: [], up: [1, 0, 0], domain: [40, 912], whole: true, step: 2, gap: 8, tip: true, cap: 896, mirrored: false, layouts: LIMB, clip: (p: R.V): number => Math.max(...[1, -1].map((side: number): number => {
           const a: R.V = joint("upperarm_r");
           const b: R.V = joint("lowerarm_r");
           const length: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
@@ -348,7 +351,7 @@ namespace FamilyConicBody {
       await fs.writeFile(path.join(out, "receipt.json"), JSON.stringify({ schema: "f1-family-conic-body-v1", targetMm: TARGET_MM, parts: receipt, milliseconds: performance.now() - started }, null, 2));
 
       // The authored module: the same definition as TypeScript, written beside the receipt and, with --emit, into the Human package.
-      if (tip !== null) definition.tips = [null, tip];
+      if (tip !== null) definition.tips = [null, { from: part.cap ?? domain[1], tip }];
       const moduleText: string = emit({ ...part, domain }, definition, C.units(definition.layout).length === C.units(C.limb(0)).length ? 0 : 1, engine, rows.length);
       await fs.writeFile(path.join(out, moduleName(part.name) + ".ts"), moduleText);
       if (process.argv.includes("--emit")) await fs.writeFile(path.join(root, "packages/human/src/generation/f1", moduleName(part.name) + ".ts"), moduleText);
@@ -578,7 +581,7 @@ namespace FamilyConicBody {
       lines.push("    // " + names[f], "    " + JSON.stringify(field).replaceAll(",", ", ") + ",");
     });
     lines.push("  ],");
-    if (family.tips !== undefined) lines.push("", "  // Past its last knot the part closes in a point at this station, where the reference's own loop vanishes.", "  tips: " + JSON.stringify(family.tips).replaceAll(",", ", ") + ",");
+    if (family.tips !== undefined) lines.push("", "  // The part closes in a point at `tip`, the station where the reference's own loop vanishes; its cap starts at `from`.", "  tips: " + JSON.stringify(family.tips).replaceAll("\"", "").replaceAll(",", ", ").replaceAll(":", ": ") + ",");
     if (family.reliefs !== undefined && family.reliefs.length > 0) {
       lines.push("", "  // Reliefs: heights in mm of a uniform cubic B-spline net over a window of the wall's chart, moved along `axis`; they carry the skin that lies inside the tape wall.", "  reliefs: [");
       for (const relief of family.reliefs) lines.push("    " + JSON.stringify({ ...relief, phases: relief.phases.map(round4), axis: relief.axis.map((x: number): number => Math.round(x * 1e5) / 1e5) }).replaceAll(",", ", ") + ",");
