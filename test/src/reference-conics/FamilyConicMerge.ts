@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { type AutoMovieConstructionRealization, type IAutoMovieViewPart, realizeAutoMovieConstruction } from "@automovie/engine";
+import { type AutoMovieConstructionRealization, AutoMovieLoftChain, type AutoMovieLoftFrame, AutoMovieViewLoft, type IAutoMovieViewPart, realizeAutoMovieConstruction } from "@automovie/engine";
 import { AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
 import type { AutoMovieConstructionNode } from "@automovie/interface";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
@@ -43,14 +43,54 @@ namespace FamilyConicMerge {
     };
     const limb: AutoMovieHumanF1.IMember = member(limbName);
     let root: AutoMovieConstructionNode = leaf(limb, limb.family.tips![1]!.from - 80);
-    const width: number = Number(chord) / 1000;
+
+    // `--gap`: where the first digit's capsule lies against the limb, before any merge. For each of its stations and eight of its phases, how
+    // far its point stands outside (+) or inside (-) the limb's skin along the limb's own radius, mm; a dot where the limb has no station.
+    if (process.argv.includes("--gap")) {
+      const digit: AutoMovieHumanF1.IMember = member(digits[0]);
+      capsule(digit, Number(depth));
+      const host: IAutoMovieViewPart = sources.get(limb.family.name)!;
+      const hostLoft: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(host);
+      const partLoft: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(sources.get(digit.family.name)!);
+      if (hostLoft.chain === null || partLoft.chain === null) throw new Error("a leaf does not loft");
+      const last: number = limb.family.tips![1]!.tip;
+      const rows: string[] = [];
+      for (let s: number = -Number(depth) + 2; s <= digit.family.knots.at(-1)!; s += 5) {
+        const cells: string[] = [];
+        for (let k: number = 0; k < 8; ++k) {
+          const p: number[] = AutoMovieLoftChain.point(partLoft.chain, s, (k * Math.PI) / 4);
+          let at: number = limb.family.tips![1]!.from;
+          let frame: AutoMovieLoftFrame.IFrame = host.axis.at(at);
+          for (let i: number = 0; i < 20; ++i) {
+            const t: number[] = [frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1], frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2], frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0]];
+            at += (p[0]! - frame.origin[0]) * t[0]! + (p[1]! - frame.origin[1]) * t[1]! + (p[2]! - frame.origin[2]) * t[2]!;
+            frame = host.axis.at(at);
+          }
+          if (at < host.stations[0]! || at >= last - 0.2) {
+            cells.push("     .");
+            continue;
+          }
+          const d: number[] = [p[0]! - frame.origin[0], p[1]! - frame.origin[1], p[2]! - frame.origin[2]];
+          const u: number = d[0]! * frame.u[0] + d[1]! * frame.u[1] + d[2]! * frame.u[2];
+          const v: number = d[0]! * frame.v[0] + d[1]! * frame.v[1] + d[2]! * frame.v[2];
+          const q: number[] = AutoMovieLoftChain.point(hostLoft.chain, at, Math.atan2(v, u));
+          cells.push((Math.hypot(u, v) - Math.hypot(q[0]! - frame.origin[0], q[1]! - frame.origin[1], q[2]! - frame.origin[2])).toFixed(1).padStart(6));
+        }
+        rows.push(String(s).padStart(5) + " " + cells.join(""));
+      }
+      process.stdout.write("station  phase 0 45 90 135 180 225 270 315\n" + rows.join("\n") + "\n");
+      return;
+    }
 
     // Each digit is carried `depth` mm behind its first joint, and its seed is searched along four of its own phase lines in turn: the first
     // line whose merge the engine admits is kept, and a digit none admits is left out with the last refusal.
     const refusals: unknown[] = [];
     const chosen: Record<string, number> = {};
-    for (const name of digits) {
+    for (const entry of digits) {
+      // `name@chord` gives one digit a blend chord of its own, mm.
+      const [name, own]: string[] = entry.split("@");
       const digit: AutoMovieHumanF1.IMember = member(name);
+      const width: number = (own === undefined ? Number(chord) : Number(own)) / 1000;
       let kept: boolean = false;
       for (const quarter of [0, 1, 2, 3]) {
         const candidate: AutoMovieConstructionNode = {
@@ -73,13 +113,13 @@ namespace FamilyConicMerge {
         const refused = trial.diagnostics.filter((d: { node: string }): boolean => d.node === "web." + name);
         if (refused.length === 0) {
           root = candidate;
-          chosen[name] = quarter;
+          chosen[name!] = quarter;
           kept = true;
           break;
         }
-        if (quarter === 3) refusals.push(...refused);
+        refusals.push(...refused.map((d: { node: string; contract: string; detail: string }): object => ({ quarter, contract: d.contract, detail: d.node + ": " + d.detail.slice(0, 110) })));
       }
-      if (!kept) sources.delete(name);
+      if (!kept) sources.delete(name!);
     }
     process.stdout.write(JSON.stringify({ chosen, refusals }).slice(0, 2500) + "\n");
     const started: number = performance.now();

@@ -26,7 +26,7 @@ import { AutoMovieHumanF1Trunk } from "./AutoMovieHumanF1Trunk";
  * The body is one sewn skin, built by the engine's construction operators:
  * the trunk from the crotch to the crown, and on each side an arm that runs
  * from below the armpit through the wrist to the finger webs, a leg that runs
- * from below the crotch round the ankle to the toe webs, an ear, four fingers
+ * from below the crotch round the ankle to the toe webs, an ear, five fingers
  * and five toes. The trunk's open lower end is split into the two legs along
  * the midsagittal chord, and each arm and each ear is attached at a port on
  * the trunk; those bands span from a curve on the trunk to a ring of the part
@@ -34,9 +34,10 @@ import { AutoMovieHumanF1Trunk } from "./AutoMovieHumanF1Trunk";
  * capsule merged onto its limb's cap along the curve where it comes out. The
  * crown, each hand, each foot, each ear and each digit close in a pole.
  *
- * The thumbs are closed tubes of their own that pass through the hand unsewn.
- * The face's nose, eyes and mouth are height fields over the trunk's wall, and
- * the ear is its outer form without the concha.
+ * The hand's sections leave out the thumb past where it stands free, as the
+ * trunk's leave out the arms and the ears. The face's nose, eyes and mouth are
+ * height fields over the trunk's wall, and the ear is its outer form without
+ * the concha.
  */
 export namespace AutoMovieHumanF1 {
   /** One generated surface piece. */
@@ -80,7 +81,10 @@ export namespace AutoMovieHumanF1 {
     /** The limb whose cap it leaves through. */
     limb: "arm" | "leg";
 
-    /** Chord of the blend on either side of the curve where the digit meets the cap, mm: 2 between the fingers, 1 in the toes' narrower webs. */
+    /**
+     * Chord of the blend on either side of the curve where the digit meets the limb, mm: 1 for the fingers and the toes, whose webs leave no
+     * room for a wider rail, and 0.5 for the thumb, whose blend folds at 1 mm in the acute web beside the index finger.
+     */
     chord: number;
   }
 
@@ -90,10 +94,11 @@ export namespace AutoMovieHumanF1 {
    * cap in a closed curve wherever it comes out.
    */
   export const DIGITS: readonly IDigit[] = [
-    { family: AutoMovieHumanF1FingerMiddle, limb: "arm", chord: 2 },
-    { family: AutoMovieHumanF1FingerRing, limb: "arm", chord: 2 },
-    { family: AutoMovieHumanF1FingerIndex, limb: "arm", chord: 2 },
-    { family: AutoMovieHumanF1FingerPinky, limb: "arm", chord: 2 },
+    { family: AutoMovieHumanF1FingerMiddle, limb: "arm", chord: 1 },
+    { family: AutoMovieHumanF1FingerRing, limb: "arm", chord: 1 },
+    { family: AutoMovieHumanF1FingerIndex, limb: "arm", chord: 1 },
+    { family: AutoMovieHumanF1FingerPinky, limb: "arm", chord: 1 },
+    { family: AutoMovieHumanF1FingerThumb, limb: "arm", chord: 0.5 },
     { family: AutoMovieHumanF1ToeBig, limb: "leg", chord: 1 },
     { family: AutoMovieHumanF1ToeIndex, limb: "leg", chord: 1 },
     { family: AutoMovieHumanF1ToeMiddle, limb: "leg", chord: 1 },
@@ -101,11 +106,8 @@ export namespace AutoMovieHumanF1 {
     { family: AutoMovieHumanF1ToeLittle, limb: "leg", chord: 1 },
   ];
 
-  /**
-   * The families not sewn yet: the thumb, whose merge finds no closed meeting with the hand. Its course starts at its first joint, inside the
-   * hand, and its fitted run starts where it stands free; it is carried back to 2 mm short of that joint, so its root lies under the skin.
-   */
-  export const LOOSE: readonly IMember[] = [AutoMovieHumanF1FingerThumb].map((family: AutoMovieHumanConicLoft.IFamily): IMember => ({ family, mirrored: true, reach: [family.knots[0]! - 2, 0] }));
+  /** The families not sewn: none now. A loose family is emitted as a closed tube of its own, carried by its reach under its neighbour's skin. */
+  export const LOOSE: readonly IMember[] = [];
 
   /** Every authored family of the figure. */
   export const FAMILIES: readonly IMember[] = [

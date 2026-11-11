@@ -154,7 +154,15 @@ namespace FamilyConicBody {
         // A course that leaves the wrist square to the row of knuckles, with the hand read on to the finger webs as the curve round all the
         // fingers (`surround`), was fitted to 588 numbers at a mean of 0.34 mm, but the engine refused it as a face: between its stations a
         // section's chain lost an arc. Until that is understood the hand keeps this course and closes at the webs.
-        { name: "arm", centres: [joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r"), joint("middle_01_r")], course: "[J.upperarm, J.lowerarm, J.hand, J.middle1]", halves: [30, 10], up: [1, 0, 0], domain: [76, 570], tip: 600, mirrored: true, layouts: LIMB, reliefs: "auto" },
+        { name: "arm", centres: [joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r"), joint("middle_01_r")], course: "[J.upperarm, J.lowerarm, J.hand, J.middle1]", halves: [30, 10], up: [1, 0, 0], domain: [76, 570], tip: 600, mirrored: true, layouts: LIMB, reliefs: "auto", clip: (p: R.V): number => {
+          // The thumb past where it stands free of the palm is not the hand's: inside 16 mm of its course from 40 mm past its first joint.
+          // Left in, the hand's wall and the thumb's lay within half a millimetre of each other for 10 mm, and a merge traces no such meeting.
+          const a: R.V = joint("thumb_01_r");
+          const b: R.V = joint("thumb_03_r");
+          const length: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+          const along: number = ((p[0] - a[0]) * (b[0] - a[0]) + (p[1] - a[1]) * (b[1] - a[1]) + (p[2] - a[2]) * (b[2] - a[2])) / length;
+          return Math.min(along - 40, 16 - Math.hypot(p[0] - a[0] - (along * (b[0] - a[0])) / length, p[1] - a[1] - (along * (b[1] - a[1])) / length, p[2] - a[2] - (along * (b[2] - a[2])) / length));
+        } },
 
         // The leg turns at the ankle and runs on to the ball of the foot, its sections fanning round the instep, so the heel is lofted and the ankle
         // is no seam. The ankle's turn is long enough that its tightest radius, 2 h / (1.875 angle) = 46 mm, stays outside the instep. Round the

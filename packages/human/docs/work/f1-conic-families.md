@@ -26,7 +26,7 @@ The parts are sewn by the engine's construction operators.
 - **Fit all sections at once.** One least-squares problem over every section, on shared sparse knots, replaces per-section readings that jumped.
 - **Read the cut vertices, not the chords.** The reference is faceted; a chord lies inside the intended surface by the facet's sagitta.
 - **A merge needs a crossing, a port needs none.** Where two parts continue each other's skin they touch along the seam, and a traced intersection there is ill-conditioned. A port or a split spans a band between a curve on one and a ring of the other instead. A merge suits a part that comes out through another's surface.
-- **A part that leaves by a branch is taken out of its parent's sections.** The trunk's sections leave out the arm past the armscye plane and the ears. With the arms left in, the wall threw fins; with the ears in, it bulged and stepped.
+- **A part that leaves by a branch is taken out of its parent's sections.** The trunk's sections leave out the arm past the armscye plane and the ears, and the hand's leave out the free thumb. With the arms left in, the wall threw fins; with the ears in, it bulged and stepped; with the thumb in, the hand's wall and the thumb's lay within half a millimetre of each other for 10 mm and no merge traced their meeting. A table of one part's signed distance to the other's skin, by station and phase, shows this before any operator is tried.
 - **A merged part must be closed where it is buried.** An open tube carried back into the hand met its cap in an open curve. Closed in a point inside the hand, it meets the cap in a closed curve wherever it comes out.
 - **A relief does not reach round the wall.** Past about 1.2 rad from its axis a height slides a point along the wall. Such a window folded the skin at the side of the head and refused the ear's port.
 - **A relief that cannot reach its hollow leaves scratches.** A window placed by the hollow search is kept only when it takes away half of its deepest hollow on the withheld sections. The leg keeps none.
@@ -43,7 +43,7 @@ Distance from the reference skin's cut vertices to the regenerated section, thro
 | Part | Conic numbers | Relief heights | Mean, mm | Max, mm |
 | --- | --- | --- | --- | --- |
 | Trunk, crotch to crown | 1,113 | 7,474 | 0.52 | 61 at the nose |
-| Arm, armpit to finger webs | 546 | 340 | 0.11 | 6.3 |
+| Arm, armpit to finger webs, without the free thumb | 273 | 340 | 0.31 | 4.2 |
 | Leg, crotch to toe webs | 735 | 0 | 0.23 | 6.1 |
 | Ear, against its hull | 105 | 0 | 0.08 | 0.36 |
 | Fingers | 65 to 147 each | 0 | 0.05 to 0.11 | 0.33 to 0.74 |
@@ -51,11 +51,11 @@ Distance from the reference skin's cut vertices to the regenerated section, thro
 
 A trunk wall of 672 numbers at 0.56 mm exists as well, fitted with knots 4 mm apart from the neck up; it streaks the face, so the wall with knots 8 mm apart is kept at 441 numbers more.
 
-The body is generated with no engine diagnostic as 345,000 triangles, in 49 to 50 s on the machine when idle and up to 90 s while other work loaded it. A CPU profile of that run puts 64 % in the constrained triangulation of the trimmed faces and 22 % in the port bands.
+The whole figure is one piece, generated with no engine diagnostic in 43 to 54 s on a machine other work kept at about 80 % load. It took 193 s before five engine repairs found by CPU profile: an incidence ledger per mesh, one structure check per source, one check per cap source, an exact sign for grid-aligned orientations, and a bridge search that keys only the pairs it keeps. What remains is spread over the constraint splitting, the face and incidence keys and the grid.
 
 ## Open
 
-- The thumbs pass through the hands unsewn: their merge finds no closed meeting.
+- The thumb's blend is 0.5 mm wide and leaves a small notch at its root; at 1 mm it folds in the web beside the index finger.
 - The face's nose, eyes and mouth are reliefs; the ear is its outer form without the concha.
 - A thin flap stands in front of each armpit, where the trunk's relief cuts the fold beside the stump of arm it keeps.
 - A hand read as the curve round all fingers on a course square to the knuckles fits to 588 numbers at 0.34 mm but is not adopted: the engine refuses it as a face at ten stations between 569 and 584 mm.
