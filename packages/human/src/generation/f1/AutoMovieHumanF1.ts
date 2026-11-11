@@ -159,8 +159,13 @@ export namespace AutoMovieHumanF1 {
   /** Columns round each band and rows across it. */
   const BAND: { count: number; rows: number } = { count: 96, rows: 8 };
 
-  /** Columns round each leg's band at the crotch: a thigh's girth of 565 mm at 4 mm apart, as the legs' own rings stand. At 96 the band showed as a ring of facets round each thigh. */
-  const THIGH_COLUMNS: number = 144;
+  /**
+   * Columns round each leg's band at the crotch and round each arm's at the armscye. A band twists from its loop's direction to its ring's, so
+   * each of its quads is two triangles of different slope, and a column wider than about 2 mm shows as a pair of stripes: at 96 columns a ring
+   * of facets stood round each thigh, at 144 upright hatching, and at 288, 2 mm apart round a thigh's girth of 565 mm, neither.
+   */
+  const THIGH_COLUMNS: number = 288;
+  const SHOULDER_COLUMNS: number = 192;
 
   /** The sewn body's declaration: its construction tree and the view parts its source leaves name. */
   export interface IConstruction {
@@ -193,8 +198,8 @@ export namespace AutoMovieHumanF1 {
     const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create({ ...family, tips: undefined, reliefs: undefined }, [first, rail, first + 2 * RAIL_MM.arm, first + 4 * RAIL_MM.arm]);
     if (loft.chain === null) throw new Error("the arm's first stations do not loft");
     const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> = loft.chain;
-    const outline: [number, number][] = Array.from({ length: 4 * BAND.count }, (_: unknown, j: number): [number, number] => {
-      const p: number[] = AutoMovieLoftChain.point(chain, rail, (2 * Math.PI * j) / (4 * BAND.count));
+    const outline: [number, number][] = Array.from({ length: 4 * SHOULDER_COLUMNS }, (_: unknown, j: number): [number, number] => {
+      const p: number[] = AutoMovieLoftChain.point(chain, rail, (2 * Math.PI * j) / (4 * SHOULDER_COLUMNS));
       return [p[1]! - J.axisFloor[1], Math.atan2(p[2]!, p[0]!)];
     });
     const span = (c: 0 | 1): [number, number] => [Math.min(...outline.map((q: [number, number]): number => q[c])), Math.max(...outline.map((q: [number, number]): number => q[c]))];
@@ -210,8 +215,8 @@ export namespace AutoMovieHumanF1 {
         return [(Math.atan2(y, x) + 2 * Math.PI) % (2 * Math.PI), Math.hypot(x, y)];
       })
       .sort((a: [number, number], b: [number, number]): number => a[0] - b[0]);
-    const shape: number[] = Array.from({ length: BAND.count }, (_: unknown, k: number): number => {
-      const clock: number = (2 * Math.PI * k) / BAND.count;
+    const shape: number[] = Array.from({ length: SHOULDER_COLUMNS }, (_: unknown, k: number): number => {
+      const clock: number = (2 * Math.PI * k) / SHOULDER_COLUMNS;
       const after: number = polar.findIndex((q: [number, number]): boolean => q[0] >= clock);
       // The outline's two points on either side of the clock; round the turn's end, its last point and its first.
       const [a, b]: [number, number][] = after > 0 ? [polar[after - 1]!, polar[after]!] : after === 0 ? [[polar.at(-1)![0] - 2 * Math.PI, polar.at(-1)![1]], polar[0]!] : [polar.at(-1)!, [polar[0]![0] + 2 * Math.PI, polar[0]![1]]];
@@ -325,7 +330,7 @@ export namespace AutoMovieHumanF1 {
     };
     for (const side of [1, -1] as const) {
       const arm: { node: AutoMovieConstructionNode; face: string } = limb("arm", side);
-      root = { type: "port", name: "armscye." + arm.face, host: root, hostFace: trunk, loop: armscye(side), band: "band." + arm.face, part: arm.node, partFace: arm.face, partEnd: "bottom", rail: RAIL_MM.arm / 1000, count: BAND.count, rows: BAND.rows };
+      root = { type: "port", name: "armscye." + arm.face, host: root, hostFace: trunk, loop: armscye(side), band: "band." + arm.face, part: arm.node, partFace: arm.face, partEnd: "bottom", rail: RAIL_MM.arm / 1000, count: SHOULDER_COLUMNS, rows: BAND.rows };
       const ear: AutoMovieHumanConicLoft.IFamily = side > 0 ? BODY.ear : twin(BODY.ear);
       root = { type: "port", name: "auricle." + ear.name, host: root, hostFace: trunk, loop: auricle(side), band: "band." + ear.name, part: leaf(ear), partFace: ear.name, partEnd: "bottom", rail: RAIL_MM.ear / 1000, count: BAND.count, rows: BAND.rows };
     }
