@@ -63,4 +63,8 @@ The page's address lands with issue #3309.
 
 ## The capture command
 
-The capture host's command line lands with issue #3311.
+The `automovie` command of the `cli` package captures from a production's folder; the [`render` README](../../../packages/render/README.md#request-keys) lists its options with the request keys. It takes the same keys as a page's address, plus a few of its own: which subject module to draw or which video file to sample, the root folder, and whether the browser draws in software or on the GPU.
+
+A drawn subject comes from the production's own draw-only page, built with the production's bundler and drawn in headless Chromium, so the stills come from the same function the page uses. Software drawing is the default, because it removes GPU driver variation; the record names the backend either way. A video file is sampled through FFmpeg, from the production's own copy or one the environment names, and its clock and raster are read from the file.
+
+The record's revision is the production's commit, marked when the working tree differs from it. The command exits with a failure when any cell was not drawn, because an undrawn cell is unverified evidence, and it prints every such cell with its cause and every unmatched or changed pair of a comparison.
