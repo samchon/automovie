@@ -180,7 +180,7 @@ namespace FamilyConicBody {
           const thumb: number = Math.min(along - 40, 16 - Math.hypot(p[0] - a[0] - (along * (b[0] - a[0])) / length, p[1] - a[1] - (along * (b[1] - a[1])) / length, p[2] - a[2] - (along * (b[2] - a[2])) / length));
 
           // `--sagittal`: the arm owns the shoulder's cap as well, the skin lateral of the armpit's sagittal plane, and gives up what lies medial.
-          return SAGITTAL ? Math.max(thumb, Math.min(ARMPIT_MM - p[2], 1420 - p[1], p[1] - 1240)) : thumb;
+          return SAGITTAL ? Math.max(thumb, ARMPIT_MM - p[2]) : thumb;
         } },
 
         // The leg turns at the ankle and runs on to the ball of the foot, its sections fanning round the instep, so the heel is lofted and the ankle

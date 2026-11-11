@@ -87,8 +87,8 @@ namespace FamilyConicMerge {
     const refusals: unknown[] = [];
     const chosen: Record<string, number> = {};
     for (const entry of digits) {
-      // `name@chord` gives one digit a blend chord of its own, mm.
-      const [name, own]: string[] = entry.split("@");
+      // `name@chord@depth` gives one digit a blend chord and a root depth of its own, mm.
+      const [name, own, deep]: string[] = entry.split("@");
       const digit: AutoMovieHumanF1.IMember = member(name);
       const width: number = (own === undefined ? Number(chord) : Number(own)) / 1000;
       let kept: boolean = false;
@@ -98,7 +98,7 @@ namespace FamilyConicMerge {
           kind: "merge",
           name: "web." + name,
           host: root,
-          part: capsule(digit, Number(depth)),
+          part: capsule(digit, Number(deep ?? depth)),
           seed: { type: "search", partFace: name, hostFace: limb.family.name, phase: (quarter * Math.PI) / 2, from: 0, to: 0.7 },
           parameter: { type: "phase" },
           partWidth: { type: "chord", value: width },
