@@ -10,6 +10,7 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
+import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanRoot } from "../compose/AutoMovieMotionHumanRoot";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
@@ -164,7 +165,8 @@ export namespace knockdown {
     // the legs and the neck. The root reads it to rest the body on the floor.
     const legs = (seconds: number): AutoMovieMotionHumanJoints.Angles => {
       const knee: number =
-        100 * sit(seconds) * (1 - back(seconds)) + 15 * back(seconds);
+        ANGLES.buckle * sit(seconds) * (1 - back(seconds)) +
+        ANGLES.lying * back(seconds);
       return {
         leftUpperLeg: [knee * 0.9, 5, 0],
         rightUpperLeg: [knee * 0.9, 5, 0],
@@ -173,7 +175,7 @@ export namespace knockdown {
       };
     };
     const neck = (seconds: number): AutoMovieMotionHumanJoints.Angles => ({
-      neck: [20 * back(seconds), 0, 0],
+      neck: [ANGLES.neck * back(seconds), 0, 0],
     });
     const pitch = (seconds: number): number => -88 * back(seconds);
     return composeAutoMovieMotionHumanAction({
@@ -274,12 +276,44 @@ export namespace knockdown {
   /** When the trunk starts rolling back, as a share of the time to the seat. */
   const ROLLING: number = 0.6;
 
+  /**
+   * The fall's joint angles, degrees, each a level of its joint's range
+   * (provisional): the knee's buckle under the falling pelvis, the knee as
+   * the body lies, the neck's tuck as the back rolls down, and the trailing
+   * arm's forward lift, opening and elbow.
+   */
+  const ANGLES = {
+    buckle: AutoMovieMotionHumanRange.degrees("leftLowerLeg", "flexion", {
+      level: "deep",
+      scale: 0.9,
+    }),
+    lying: AutoMovieMotionHumanRange.degrees(
+      "leftLowerLeg",
+      "flexion",
+      "slight",
+    ),
+    neck: AutoMovieMotionHumanRange.degrees("neck", "flexion", "half"),
+    lift: AutoMovieMotionHumanRange.degrees("leftUpperArm", "flexion", {
+      level: "slight",
+      scale: 0.5,
+    }),
+    open: AutoMovieMotionHumanRange.degrees(
+      "leftUpperArm",
+      "abduction",
+      "slight",
+    ),
+    elbow: AutoMovieMotionHumanRange.degrees("leftLowerArm", "flexion", {
+      level: "light",
+      scale: 0.8,
+    }),
+  };
+
   /** The arms' joints as they trail the fall, degrees. */
   const LIMP: AutoMovieMotionHumanJoints.Angles = {
-    leftUpperArm: [10, 20, 0],
-    rightUpperArm: [10, 20, 0],
-    leftLowerArm: [30, 0, 0],
-    rightLowerArm: [30, 0, 0],
+    leftUpperArm: [ANGLES.lift, ANGLES.open, 0],
+    rightUpperArm: [ANGLES.lift, ANGLES.open, 0],
+    leftLowerArm: [ANGLES.elbow, 0, 0],
+    rightLowerArm: [ANGLES.elbow, 0, 0],
   };
 
   /** A heading difference wrapped into (-180, 180]. */

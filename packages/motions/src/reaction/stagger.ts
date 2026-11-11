@@ -7,9 +7,12 @@ import type {
 import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
+import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanRoot } from "../compose/AutoMovieMotionHumanRoot";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
+import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
@@ -61,12 +64,11 @@ export namespace stagger {
   export const name: HumanActionName = "stagger";
 
   /** Cancel table: a stagger flows into a guard or a knockdown. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
-    guard: [
-      { window: ["caught", 1], kind: "inertialize", entry: 0, blend: 0.15 },
-    ],
-    knockdown: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
-  };
+  export const interrupts: IHumanActionLaw["interrupts"] =
+    AutoMovieMotionHumanInterrupt.table({
+      guard: ["fromStroke", "smooth"],
+      knockdown: ["anytime", "quick"],
+    });
 
   /**
    * Parameters.
@@ -87,14 +89,23 @@ export namespace stagger {
     manner?: AutoMovieMotionManner.IManner;
   }
 
-  /** The capture step's landing, seconds (Maki and McIlroy 1997). */
-  export const LANDING: number = 0.35;
+  /** The capture step's landing, a measured reactive-step time. */
+  export const LANDING: AutoMovieMotionHumanTiming.Span = {
+    seconds: 0.35,
+    source: "Maki and McIlroy 1997, Phys Ther 77:488",
+  };
 
-  /** The whole stagger at a neutral manner, seconds. */
-  export const DURATION: number = 0.8;
+  /** The righting after the step at a neutral manner (provisional). */
+  export const RIGHTING: AutoMovieMotionHumanTiming.Span = {
+    pause: "beat",
+    scale: 1.125,
+  };
 
-  /** The trunk's tip with the push, degrees (provisional). */
-  export const TIP: number = 10;
+  /** The trunk's tip with the push (provisional). */
+  export const TIP: AutoMovieMotionHumanRange.Amount = {
+    level: "light",
+    scale: 0.9,
+  };
 
   /** The stepping foot's clearance, as a share of the stature (provisional). */
   export const CLEARANCE: number = 0.02;
@@ -158,13 +169,17 @@ export namespace stagger {
 
     // The tip and the step are the body's reflex; only the righting after
     // the step follows the manner's tempo.
+    const landing: number = AutoMovieMotionHumanTiming.seconds(LANDING);
     const clock: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.of(DURATION, [
-        { name: "tipped", seconds: 0.5 * LANDING },
-        { name: "caught", seconds: LANDING },
-        { name: "stroke", seconds: LANDING },
-        { name: "relax", seconds: LANDING },
-      ]),
+      AutoMovieMotionClock.of(
+        landing + AutoMovieMotionHumanTiming.seconds(RIGHTING),
+        [
+          { name: "tipped", seconds: 0.5 * landing },
+          { name: "caught", seconds: landing },
+          { name: "stroke", seconds: landing },
+          { name: "relax", seconds: landing },
+        ],
+      ),
       AutoMovieMotionManner.of(context, p.manner),
       { holds: [], fixed: [AutoMovieMotionClock.START, "tipped"] },
     );
@@ -234,8 +249,9 @@ export namespace stagger {
         ? { left: moved, right: feet.right }
         : { left: feet.left, right: moved };
     };
+    const lean: number = AutoMovieMotionHumanRange.lean(TIP);
     const tip = (seconds: number): number =>
-      TIP * clock.envelope([START, "tipped"], ["relax", END], seconds);
+      lean * clock.envelope([START, "tipped"], ["relax", END], seconds);
     const legs: IAutoMovieMotionHumanPrimitive = {
       channels: ["leftLeg", "rightLeg"],
       from: 0,

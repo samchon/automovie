@@ -1,3 +1,5 @@
+import type { AutoMovieMotionClock } from "./AutoMovieMotionClock";
+
 /**
  * How long an effector takes to travel a distance.
  *
@@ -107,5 +109,161 @@ export namespace AutoMovieMotionHumanTiming {
     return place.solid && place.width !== undefined
       ? aimed(distance, place.width)
       : transport(distance);
+  }
+
+  /**
+   * A named length of a pause or of a short phase.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is named; `PAUSES` gives each length.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the lengths a phrase holds for, so a law states a pause the table supplies and types no seconds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Four names, each with a shipped law that uses its length.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A length between two names is the scale rung of `Span`, never a fifth name without a user.
+   */
+  export type Pause = "none" | "brief" | "beat" | "long";
+
+  /**
+   * The seconds of each pause (provisional): `none` is no time, `brief` 0.15
+   * (an interrupt's smooth blend), `beat` 0.4 (one swing of the `wave`
+   * gesture and the flinch's return), `long` 0.8 (the hold of a posture
+   * gesture such as `slump`).
+   */
+  export const PAUSES: Readonly<Record<Pause, number>> = {
+    none: 0,
+    brief: 0.15,
+    beat: 0.4,
+    long: 0.8,
+  };
+
+  /**
+   * A movement whose time follows from how far it goes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the record; each member states its unit and the rule it selects.
+   * @evidence contracts/development/design.md#principled-representation The two inputs of the timing rules above, so a phase states what moves how far and the rule supplies the seconds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members; read by `seconds`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The width is optional because a free movement has none; none is invented.
+   */
+  export interface ITravel {
+    /** Metres travelled. */
+    distance: number;
+
+    /** The width of the target the movement stops on, metres; a free movement when absent. */
+    width?: number;
+  }
+
+  /**
+   * The length of a phase on one of three rungs: a named pause or a travel,
+   * a pause with a scale in [0.5, 1.5], or explicit seconds with their
+   * source.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the three rungs and the scale's range.
+   * @evidence contracts/development/design.md#principled-representation Intent first and seconds on demand: every rung resolves to seconds, the unit the action clock takes.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One union of four members; read by `seconds`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The explicit rung requires its source by type; the scale is bounded so it cannot stand in for another name.
+   */
+  export type Span =
+    | Pause
+    | ITravel
+    | {
+        /** The pause scaled. */
+        pause: Pause;
+
+        /** The factor, in [0.5, 1.5]. */
+        scale: number;
+      }
+    | {
+        /** The seconds. */
+        seconds: number;
+
+        /** A citation, or `provisional: <capture case name>`. */
+        source: string;
+      };
+
+  /**
+   * The lengths of a phrase's phases, each by its role.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the record; each member states its phase and its value when absent.
+   * @evidence contracts/development/design.md#principled-representation The members of the action clock's phrase, each a `Span` instead of seconds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Mirrors `AutoMovieMotionClock.IPhrase` member for member; read by `phrase`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts An absent hold stays absent, so the clock's own rule for a missing phase applies.
+   */
+  export interface IRoles {
+    /** The preparation, from `start` to `ready`. */
+    prepare: Span;
+
+    /** The wait before the stroke; none when absent. */
+    wait?: Span;
+
+    /** The stroke up to its decisive instant. */
+    attack: Span;
+
+    /** The stroke after it; none when absent. */
+    follow?: Span;
+
+    /** The hold after the stroke; none when absent. */
+    hold?: Span;
+
+    /** The retraction, from `relax` to `end`. */
+    retract: Span;
+  }
+
+  /**
+   * The seconds of a span.
+   *
+   * @param span The span, on any rung.
+   * @returns Seconds.
+   * @throws {Error} When a scale lies outside [0.5, 1.5], explicit seconds are negative or not finite, or an explicit source is empty.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the input, the result's unit and every refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation A pause reads `PAUSES`; a travel takes the aimed rule when it states a width and the free-space rule otherwise.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per rung.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is clamped: a scale past its bound and an unsourced value throw.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `aimed` and `transport`.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function seconds(span: Span): number {
+    if (typeof span === "string") return PAUSES[span];
+    if ("distance" in span)
+      return span.width === undefined
+        ? transport(span.distance)
+        : aimed(span.distance, span.width);
+    if ("pause" in span) {
+      if (!(span.scale >= 0.5 && span.scale <= 1.5))
+        throw new Error(
+          `A pause scale of ${span.scale} lies outside [0.5, 1.5]; use another pause name`,
+        );
+      return PAUSES[span.pause] * span.scale;
+    }
+    if (span.source.trim() === "")
+      throw new Error("Explicit seconds state their source");
+    if (!(span.seconds >= 0 && Number.isFinite(span.seconds)))
+      throw new Error("Explicit seconds are finite and not negative");
+    return span.seconds;
+  }
+
+  /**
+   * The action clock's phrase of a set of roles.
+   *
+   * @param roles The phases by role.
+   * @returns The phrase, in seconds; a hold or a decay left out stays out.
+   * @throws {Error} When a span is refused by `seconds`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and what happens to an absent member.
+   * @evidence contracts/development/implementation.md#principled-implementation Each member is its span's seconds; the phrase's structure is unchanged, so the clock reads it as before.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record literal.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No absent member is given a length.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates every member to `seconds`.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function phrase(roles: IRoles): AutoMovieMotionClock.IPhrase {
+    return {
+      prepare: seconds(roles.prepare),
+      ...(roles.wait !== undefined ? { wait: seconds(roles.wait) } : {}),
+      attack: seconds(roles.attack),
+      ...(roles.follow !== undefined ? { follow: seconds(roles.follow) } : {}),
+      ...(roles.hold !== undefined ? { hold: seconds(roles.hold) } : {}),
+      retract: seconds(roles.retract),
+    };
   }
 }
