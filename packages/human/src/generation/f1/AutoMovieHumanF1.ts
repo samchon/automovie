@@ -148,6 +148,9 @@ export namespace AutoMovieHumanF1 {
   /** Columns round each band and rows across it. */
   const BAND: { count: number; rows: number } = { count: 96, rows: 8 };
 
+  /** Columns round each leg's band at the crotch: a thigh's girth of 565 mm at 4 mm apart, as the legs' own rings stand. At 96 the band showed as a ring of facets round each thigh. */
+  const THIGH_COLUMNS: number = 144;
+
   /** The sewn body's declaration: its construction tree and the view parts its source leaves name. */
   export interface IConstruction {
     /** The tree: both arm ports over the crotch split over the trunk. */
@@ -269,7 +272,7 @@ export namespace AutoMovieHumanF1 {
       hostFace: trunk,
       hostEnd: "bottom",
       seam: [0, Math.PI],
-      count: BAND.count,
+      count: THIGH_COLUMNS,
       rows: BAND.rows,
       children: [
         { band: "band." + legs[0]!.face, part: legs[0]!.node, partFace: legs[0]!.face, partEnd: "bottom", rail: RAIL_MM.leg / 1000 },

@@ -234,7 +234,7 @@ namespace FamilyConicBody {
         // The trunk from the crotch to the crown as one wall. Knots 4 mm apart from the neck up followed every step of the face's hull and left
         // the wall streaked, so they keep 8 mm and the face is the reliefs'. The ears are left out of its sections. It owns the shoulders down to the armscye plane through the armpit's
         // crease; past that plane, lateral of the crease and inside the arm's own tube, the skin is the arm's and is left out of the trunk's sections.
-        { name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], course: "[J.axisFloor, J.axisCrown]", halves: [], up: [1, 0, 0], domain: [40, 912], whole: true, step: 2, gap: 8, tip: true, cap: 896, mirrored: false, layouts: LIMB, clip: (p: R.V): number => Math.max(ear(p), nose(p), ...[1, -1].map((side: number): number => {
+        { name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], course: "[J.axisFloor, J.axisCrown]", halves: [], up: [1, 0, 0], domain: [40, 912], whole: true, step: 2, gap: (s: number): number => (process.argv.includes("--jaw") && s >= 692 && s <= 732 ? 3 : 8), tip: true, cap: 896, mirrored: false, layouts: LIMB, clip: (p: R.V): number => Math.max(ear(p), nose(p), ...[1, -1].map((side: number): number => {
           const a: R.V = joint("upperarm_r");
           const b: R.V = joint("lowerarm_r");
           const length: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
@@ -255,11 +255,32 @@ namespace FamilyConicBody {
           // The upper windows end at the crown's tip, 918.88 mm: a relief's height and its two derivatives vanish at its window's edge, which the engine requires of a pole.
           { name: "trunk.high.back", stations: [640, 918.88], phases: [Math.PI - 1.2, Math.PI + 1.2], axis: [1, 0, 0], rows: 57, columns: 33, mirror: true },
           { name: "trunk.high.front", stations: [640, 918.88], phases: [-1.2, 1.2], axis: [-1, 0, 0], rows: 57, columns: 49, mirror: true },
+          // The front and back windows end 1.2 rad round, where the skin in front of the ear and behind the jaw's angle still lies inside the
+          // tape, so a seam runs down the cheek. Two more windows cast straight in from each side over the neck and head were tried twice.
+          // Reaching 1.0 rad either way, a cast from the front of the cheek ran along the face and landed on its far side (heights up to
+          // 81 mm on withheld sections) and casts landed on the chord closing the ear's cut: the cheek and the ear's root streaked. Reaching
+          // 0.7 rad, with casts onto a cut's chord no longer observed, the two sides came out alike (14 mm deepest) and the cheek's seam
+          // softened, but the skin under the ear and along the jaw's angle gouged. Neither is kept: the jaw is not a relief's to make.
           // The face: a finer net, 2.5 mm apart, over what the upper front window leaves between the throat and the brow.
           { name: "trunk.face", stations: [690, 890], phases: [-1.2, 1.2], axis: [-1, 0, 0], rows: 81, columns: 69, mirror: true },
         ] },
       ] satisfies IPart[]
     ).filter((part: IPart): boolean => only.length === 0 || only.includes(part.name));
+    // `--head=<heightMm>,<degrees>,<halfMm>`: a trial of the trunk's course turning backward at that height by that angle, to read (with
+    // `--observe`) how its tilted planes cut the jaw and the skin under it. Turned at 1,430 mm by 30, 45 and 60 degrees, a plane takes
+    // in the chin and the throat together and the tape bridges them: hollows of 46 to 81 mm against 4 mm on level planes, and no loop
+    // round the course above the mouth. Level planes are the head's; only the 25 mm under the jaw change fast along them.
+    const head: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--head="))?.slice(7);
+    if (head !== undefined)
+      for (const part of parts)
+        if (part.name === "trunk") {
+          const [height, degrees, half]: number[] = head.split(",").map(Number);
+          const angle: number = (degrees! * Math.PI) / 180;
+          part.centres = [[0, 780, 0], [0, height!, 0], [-400 * Math.sin(angle), height! + 400 * Math.cos(angle), 0]];
+          part.halves = [half!];
+          part.domain = [40, 1100];
+          part.clip = undefined;
+        }
     const meshes: N.Mesh[] = [];
     const curves: N.Curve[] = [];
     const receipt: unknown[] = [];
@@ -460,7 +481,9 @@ namespace FamilyConicBody {
             const section: Q.ISection = C.chain(read(row.s), definition.layout);
             const frame: AutoMovieLoftFrame.IFrame = course.at(row.s);
             const inChart = (axis: readonly number[]): C.P => [axis[0]! * frame.u[0] + axis[1]! * frame.u[1] + axis[2]! * frame.u[2], axis[0]! * frame.v[0] + axis[1]! * frame.v[1] + axis[2]! * frame.v[2]];
-            return { s: row.s, skin: skins[i]!, heldout: row.heldout, wall: (phi: number): C.P => {
+            // A cast that lands on the chord closing a neighbour's cut (the ear's, the nose's, the arm's) has found no skin: inside the cut the clip is positive.
+            const open = part.clip === undefined ? undefined : (p: C.P): boolean => part.clip!([frame.origin[0] + p[0] * frame.u[0] + p[1] * frame.v[0], frame.origin[1] + p[0] * frame.u[1] + p[1] * frame.v[1], frame.origin[2] + p[0] * frame.u[2] + p[1] * frame.v[2]]) > 0.05;
+            return { s: row.s, skin: skins[i]!, heldout: row.heldout, ...(open === undefined ? {} : { open }), wall: (phi: number): C.P => {
               const r: number = Q.radius(section, phi);
               const p: C.P = [r * Math.cos(phi), r * Math.sin(phi)];
               for (const relief of earlier) {

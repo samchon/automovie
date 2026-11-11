@@ -56,6 +56,9 @@ export namespace FamilyConicRelief {
 
     /** Withheld from the fit. */
     heldout: boolean;
+
+    /** Whether a chart point of the skin polygon is not skin: a point of the chord that closes the cut a neighbouring part leaves. A cast that lands there is not observed. */
+    open?: (p: C.P) => boolean;
   }
 
   /** A fitted relief and its sampled errors along the axis. */
@@ -114,8 +117,10 @@ export namespace FamilyConicRelief {
         // Where the axis runs along the wall instead of through it, a cast measures the wall's slope, not a depth: such phases are left to the net's fairness.
         const phi: number = window.phases[0] + offset;
         if (Math.abs(row.axis[0] * Math.cos(phi) + row.axis[1] * Math.sin(phi)) / inPlane < FACING) continue;
-        const along: number | null = cast(row.skin, row.wall(window.phases[0] + offset), [row.axis[0] / inPlane, row.axis[1] / inPlane]);
+        const from: C.P = row.wall(window.phases[0] + offset);
+        const along: number | null = cast(row.skin, from, [row.axis[0] / inPlane, row.axis[1] / inPlane]);
         if (along === null) continue;
+        if (row.open?.([from[0] + (along * row.axis[0]) / inPlane, from[1] + (along * row.axis[1]) / inPlane]) === true) continue;
         const target: number = along / inPlane;
         const [iv, wv] = basis((offset / span) * (Cn - 3), Cn);
         const weights: [number, number][] = [];

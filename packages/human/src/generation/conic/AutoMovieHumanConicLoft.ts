@@ -76,6 +76,13 @@ export namespace AutoMovieHumanConicLoft {
    */
   const REFINE: { length: number; share: number; least: number } = { length: 0.5, share: 0.05, least: 0.25 };
 
+  /**
+   * Largest distance between two neighbouring phases of a part's rings at its widest section, mm; a part has at least 48 phases. With 128
+   * phases for every part the trunk's stood 4 mm apart at the head and 9 mm at the hips, wider than its relief nets' 2.5 to 3 mm, which showed
+   * as steps, while a finger's stood half a millimetre apart.
+   */
+  const PHASE_MM: number = 4;
+
   /** The part's course as the engine reads it. */
   export function axis(family: Pick<IFamily, "centres" | "halves" | "up">): AutoMovieViewAxis.IAxis {
     const made: AutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(family.centres, family.halves, family.up);
@@ -195,6 +202,14 @@ export namespace AutoMovieHumanConicLoft {
       return out;
     };
     const coordinate = (q: number, axisIndex: 0 | 1): IAutoMovieViewPart.IOutline => outline((chain: AutoMovieHumanConicSection.IChain): number => chain.input.points[guides[q]!]![axisIndex]);
+
+    // Phases round the part: its widest section's girth, as the ellipse on its half extents (Ramanujan's perimeter), at `PHASE_MM` apart.
+    const girth: number = Math.max(
+      ...chains.map((chain: AutoMovieHumanConicSection.IChain): number => {
+        const [a, b]: number[] = [0, 1].map((c: number): number => (Math.max(...chain.input.points.map((p: AutoMovieHumanConicSection.P): number => p[c]!)) - Math.min(...chain.input.points.map((p: AutoMovieHumanConicSection.P): number => p[c]!))) / 2);
+        return Math.PI * (3 * (a! + b!) - Math.sqrt((3 * a! + b!) * (a! + 3 * b!)));
+      }),
+    );
     return {
       name: family.name,
       axis: axis(family),
@@ -204,7 +219,7 @@ export namespace AutoMovieHumanConicLoft {
       side: { positive: coordinate(1, 1), negative: coordinate(3, 1) },
       fullness: { kind: "top", shoulders: quarters((q: number): IAutoMovieViewPart.IOutline => share((chain: AutoMovieHumanConicSection.IChain): number => chain.input.shoulders[guides[q]!]!)), touch: quarters((q: number): IAutoMovieViewPart.IOutline => coordinate(q, q % 2 === 0 ? 1 : 0)), pieces: quarters(pieces) },
       order: 32,
-      samples: 128,
+      samples: Math.max(48, 8 * Math.ceil(girth / PHASE_MM / 8)),
       ...(family.reliefs === undefined || family.reliefs.length === 0 ? {} : { reliefs: family.reliefs }),
     };
   }
