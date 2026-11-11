@@ -112,11 +112,23 @@ export namespace AutoMovieHumanF1Joints {
   /** Where the leg's course ends past the ankle, in the ball of the foot. */
   export const footBall: V3 = [133, 20, 157];
 
-  /** Station along the upper arm, from `upperarm` toward `lowerarm`, of the plane square to the arm through the armpit's crease: the trunk owns the skin above that plane, the arm the skin below it. */
-  export const armscye: number = 67;
+  /** The armpit's crease, where the arm's inner side meets the trunk's side. */
+  export const armpit: V3 = [-25, 1276, 151];
 
-  /** Side distance of the armpit's crease from the median plane. */
-  export const armpit: number = 151;
+  /** Unit normal of the armscye plane, pointing down the arm: the plane through the armpit's crease, square to the upper arm. The trunk owns the skin above it, the arm the skin below it. */
+  export const armscyeNormal: V3 = [0.0339, -0.7944, 0.6065];
+
+  /** Where the ear's course starts, under its root in the side of the head. */
+  export const earRoot: V3 = [3, 1579, 74];
+
+  /** Where the ear's course ends, straight to the side past the auricle's rim. */
+  export const earTip: V3 = [3, 1579, 100];
+
+  /** Centre of the auricle's root on the sagittal plane it leaves the skull at. */
+  export const earBase: V3 = [9.5, 1572, 77];
+
+  /** Half extents of the auricle's root in height and fore and aft. */
+  export const earHalf: [number, number] = [29, 10.5];
 
   /** The point `length` millimetres past `b` on the line from `a` through `b`: where a digit's course ends beyond its last joint. */
   export function beyond(a: V3, b: V3, length: number): V3 {

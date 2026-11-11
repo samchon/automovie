@@ -10,7 +10,7 @@ import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
  * Whether the engine closes a conic family's end in a pole: the named family is given a tip a stated distance past its last knot (and, with a
  * second distance, before its first), lofted, and its layers, diagnostics and skin are reported.
  *
- * Usage: `FamilyConicTip.ts <family> <topMm|-> [bottomMm]`.
+ * Usage: `FamilyConicTip.ts <family> <topMm|-|=> [bottomMm] [--bare] [--from=<station>]`; `=` keeps the family's own tips.
  */
 namespace FamilyConicTip {
   /** Loft one family with tips and report it. */
@@ -20,13 +20,16 @@ namespace FamilyConicTip {
     if (member === undefined) throw new Error("no family named " + name);
     const from: number = member.family.knots[0]!;
     const to: number = member.family.knots.at(-1)!;
-    const family: AutoMovieHumanConicLoft.IFamily = { ...member.family, tips: [bottom === undefined ? null : { from, tip: from - Number(bottom) }, top === undefined || top === "-" ? null : { from: to, tip: to + Number(top) }] };
+    // `--bare` drops the reliefs, to see the wall alone; `--from=<station>` shows only the layers past a station.
+    const bare: boolean = process.argv.includes("--bare");
+    const least: number = Number(process.argv.find((argument: string): boolean => argument.startsWith("--from="))?.slice(7) ?? "-Infinity");
+    const family: AutoMovieHumanConicLoft.IFamily = top === "=" ? { ...member.family, ...(bare ? { reliefs: [] } : {}) } : { ...member.family, tips: [bottom === undefined ? null : { from, tip: from - Number(bottom) }, top === undefined || top === "-" ? null : { from: to, tip: to + Number(top) }] };
     const count: number = Math.ceil((to - from) / 2) + 1;
     const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(family, Array.from({ length: count }, (_: unknown, i: number): number => from + ((to - from) * i) / (count - 1)));
     process.stdout.write(JSON.stringify({ family: name, tips: family.tips, diagnostics: loft.diagnostics, lofted: loft.chain !== null }).slice(0, 3000) + "\n");
     if (loft.chain === null) return;
     const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> = loft.chain;
-    const layers: number[] = chain.layers.map((layer: { y: number }): number => layer.y);
+    const layers: number[] = chain.layers.map((layer: { y: number }): number => layer.y).filter((y: number): boolean => y >= least);
     process.stdout.write(JSON.stringify({ layers: layers.length, first: layers.slice(0, 6), last: layers.slice(-8), pole: (chain as { pole?: unknown }).pole ?? null }) + "\n");
     const phases: number = 96;
     const positions: number[] = [];

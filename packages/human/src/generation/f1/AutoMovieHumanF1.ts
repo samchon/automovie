@@ -3,6 +3,7 @@ import type { AutoMovieConstructionNode, IAutoMovieConstructionPort } from "@aut
 
 import { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanF1Arm } from "./AutoMovieHumanF1Arm";
+import { AutoMovieHumanF1Ear } from "./AutoMovieHumanF1Ear";
 import { AutoMovieHumanF1FingerIndex } from "./AutoMovieHumanF1FingerIndex";
 import { AutoMovieHumanF1FingerMiddle } from "./AutoMovieHumanF1FingerMiddle";
 import { AutoMovieHumanF1FingerPinky } from "./AutoMovieHumanF1FingerPinky";
@@ -23,18 +24,19 @@ import { AutoMovieHumanF1Trunk } from "./AutoMovieHumanF1Trunk";
  * read anywhere on this path.
  *
  * The body is one sewn skin, built by the engine's construction operators
- * from five families: the trunk from the crotch to the crown, and on each side
- * an arm that runs from below the armpit through the wrist to the knuckles and
- * a leg that runs from below the crotch round the ankle to the ball of the
- * foot. The trunk's open lower end is split into the two legs along the
- * midsagittal chord, and each arm is attached at a port on the trunk's
- * shoulder. No intersection is traced: every band spans from a curve on the
- * trunk to a ring of the limb and meets both G2.
+ * from seven families: the trunk from the crotch to the crown, and on each
+ * side an arm that runs from below the armpit through the wrist to the finger
+ * webs, a leg that runs from below the crotch round the ankle to the toe webs,
+ * and an ear. The trunk's open lower end is split into the two legs along the
+ * midsagittal chord, and each arm and each ear is attached at a port on the
+ * trunk. No intersection is traced: every band spans from a curve on the trunk
+ * to a ring of the part and meets both G2. The crown, each hand, each foot and
+ * each ear close in a pole.
  *
- * The figure is under construction. The digits are separate open tubes that
- * reach into the hand and the foot without being sewn; the digit tips, the
- * crown, the knuckle end of each hand and the ball end of each foot are open;
- * and the head's ears, nose and mouth are a wall with height fields over it.
+ * The digits are closed tubes of their own. Each is carried back to its first
+ * joint, under the cap of its hand or foot, and passes through that cap
+ * without being sewn to it. The face's nose, eyes and mouth are height fields
+ * over the trunk's wall, and the ear is its outer form without the concha.
  */
 export namespace AutoMovieHumanF1 {
   /** One generated surface piece. */
@@ -68,7 +70,7 @@ export namespace AutoMovieHumanF1 {
   }
 
   /** The families the sewn body is built from. */
-  export const BODY: { trunk: AutoMovieHumanConicLoft.IFamily; arm: AutoMovieHumanConicLoft.IFamily; leg: AutoMovieHumanConicLoft.IFamily } = { trunk: AutoMovieHumanF1Trunk, arm: AutoMovieHumanF1Arm, leg: AutoMovieHumanF1Leg };
+  export const BODY: { trunk: AutoMovieHumanConicLoft.IFamily; arm: AutoMovieHumanConicLoft.IFamily; leg: AutoMovieHumanConicLoft.IFamily; ear: AutoMovieHumanConicLoft.IFamily } = { trunk: AutoMovieHumanF1Trunk, arm: AutoMovieHumanF1Arm, leg: AutoMovieHumanF1Leg, ear: AutoMovieHumanF1Ear };
 
   /** The families not sewn yet: the digits. */
   export const LOOSE: readonly IMember[] = [
@@ -88,7 +90,7 @@ export namespace AutoMovieHumanF1 {
   ].map((family: AutoMovieHumanConicLoft.IFamily): IMember => ({ family, mirrored: true, reach: [family.knots[0]! - 2, 0] }));
 
   /** Every authored family of the figure. */
-  export const FAMILIES: readonly IMember[] = [{ family: BODY.trunk, mirrored: false }, { family: BODY.arm, mirrored: true }, { family: BODY.leg, mirrored: true }, ...LOOSE];
+  export const FAMILIES: readonly IMember[] = [{ family: BODY.trunk, mirrored: false }, { family: BODY.arm, mirrored: true }, { family: BODY.leg, mirrored: true }, { family: BODY.ear, mirrored: true }, ...LOOSE];
 
   /** Station spacing of the layers and derived outlines of a sewn family, mm: the spacing at which the engine admits these families as faces. */
   const LAYER_MM: number = 2;
@@ -96,11 +98,17 @@ export namespace AutoMovieHumanF1 {
   /** Radius of the arm at its armscye plane, mm, read off the reference's section there. */
   const ARMSCYE_RADIUS_MM: number = 48;
 
-  /** How far outside the arm's root the port loop stands on the trunk's own skin, mm. */
+  /**
+   * How far outside the arm's root the port loop stands on the trunk's own skin, mm. At 22 mm the loop took in the folds in front of and behind
+   * the armpit but the longer band met the arm with a ridge all round, so the loop stays close and the front fold keeps a thin flap.
+   */
   const ARMSCYE_MARGIN_MM: number = 10;
 
   /** Where each limb's band lands on it, mm from the limb's first station: the limb keeps its stations beyond. */
-  const RAIL_MM: { arm: number; leg: number } = { arm: 10, leg: 12 };
+  const RAIL_MM: { arm: number; leg: number; ear: number } = { arm: 10, leg: 12, ear: 2 };
+
+  /** How far outside the auricle's root the ear's port loop stands on the skull, mm. */
+  const AURICLE_MARGIN_MM: number = 4;
 
   /** Columns round each band and rows across it. */
   const BAND: { count: number; rows: number } = { count: 96, rows: 8 };
@@ -117,19 +125,47 @@ export namespace AutoMovieHumanF1 {
   /**
    * The armscye's port on the trunk's chart.
    *
-   * Its centre is where the upper arm's axis meets the armscye plane. Its semi-axes are the arm's girth there as the trunk's chart sees it,
-   * the station one foreshortened by the arm's slope, both widened by the margin so the loop stands on the trunk's skin round the arm's root.
+   * Its centre is where the upper arm's axis meets the armscye plane. The arm's tube cuts that plane in an ellipse, the arm's radius across
+   * the plane's slope and that radius over the cosine of the angle between the arm and the plane's normal along it. The port's semi-axes are
+   * that ellipse as the trunk's chart sees it, its long axis's height in station and its short axis as a phase at the centre's side distance,
+   * both widened by the margin so the loop stands on the trunk's skin round the arm's root.
    *
    * @param side +1 for the +Z side, -1 for its twin.
    */
   export function armscye(side: 1 | -1): IAutoMovieConstructionPort.ILoop {
     const J = AutoMovieHumanF1Joints;
+    const n: AutoMovieHumanF1Joints.V3 = J.armscyeNormal;
     const length: number = Math.hypot(J.lowerarm[0] - J.upperarm[0], J.lowerarm[1] - J.upperarm[1], J.lowerarm[2] - J.upperarm[2]);
     const d: number[] = [0, 1, 2].map((c: number): number => (J.lowerarm[c]! - J.upperarm[c]!) / length);
-    const hub: number[] = [0, 1, 2].map((c: number): number => J.upperarm[c]! + J.armscye * d[c]!);
+    const cosine: number = d[0]! * n[0] + d[1]! * n[1] + d[2]! * n[2];
+    const along: number = ((J.armpit[0] - J.upperarm[0]) * n[0] + (J.armpit[1] - J.upperarm[1]) * n[1] + (J.armpit[2] - J.upperarm[2]) * n[2]) / cosine;
+    const hub: number[] = [0, 1, 2].map((c: number): number => J.upperarm[c]! + along * d[c]!);
+
+    // The ellipse's long axis lies along the arm's direction projected into the plane, its short axis square to it in the plane. Where the
+    // plane is square to the arm that projection vanishes and the ellipse is a circle, whose height is the same for any pair of axes.
+    const projected: number[] = [0, 1, 2].map((c: number): number => d[c]! - cosine * n[c]!);
+    const seed: number[] = Math.hypot(projected[0]!, projected[1]!, projected[2]!) > 1e-3 ? projected : [1 - n[0] * n[0], -n[0] * n[1], -n[0] * n[2]];
+    const long: number[] = seed.map((x: number): number => x / Math.hypot(seed[0]!, seed[1]!, seed[2]!));
+    const short: number[] = [n[1] * long[2]! - n[2] * long[1]!, n[2] * long[0]! - n[0] * long[2]!, n[0] * long[1]! - n[1] * long[0]!];
+    const rise: number = Math.hypot((ARMSCYE_RADIUS_MM / cosine) * long[1]!, ARMSCYE_RADIUS_MM * short[1]!);
     return {
       centre: [(hub[1]! - J.axisFloor[1]) / 1000, side * Math.atan2(hub[2]!, hub[0]!)],
-      semi: [(ARMSCYE_RADIUS_MM * (Math.abs(d[2]!) / Math.hypot(d[1]!, d[2]!)) + ARMSCYE_MARGIN_MM) / 1000, Math.atan((ARMSCYE_RADIUS_MM + ARMSCYE_MARGIN_MM) / hub[2]!)],
+      semi: [(rise + ARMSCYE_MARGIN_MM) / 1000, Math.atan((ARMSCYE_RADIUS_MM + ARMSCYE_MARGIN_MM) / hub[2]!)],
+      sense: 1,
+    };
+  }
+
+  /**
+   * The ear's port on the trunk's chart: an ellipse about the centre of the auricle's root, its semi-axes the root's half height in station and
+   * its half depth as a phase at the root's side distance, both widened by the margin so the loop stands on the skull round the root.
+   *
+   * @param side +1 for the +Z side, -1 for its twin.
+   */
+  export function auricle(side: 1 | -1): IAutoMovieConstructionPort.ILoop {
+    const J = AutoMovieHumanF1Joints;
+    return {
+      centre: [(J.earBase[1] - J.axisFloor[1]) / 1000, side * Math.atan2(J.earBase[2], J.earBase[0])],
+      semi: [(J.earHalf[0] + AURICLE_MARGIN_MM) / 1000, Math.atan((J.earHalf[1] + AURICLE_MARGIN_MM) / J.earBase[2])],
       sense: 1,
     };
   }
@@ -165,6 +201,8 @@ export namespace AutoMovieHumanF1 {
     for (const side of [1, -1] as const) {
       const arm: AutoMovieHumanConicLoft.IFamily = side > 0 ? BODY.arm : twin(BODY.arm);
       root = { type: "port", name: "armscye." + arm.name, host: root, hostFace: trunk, loop: armscye(side), band: "band." + arm.name, part: leaf(arm), partFace: arm.name, partEnd: "bottom", rail: RAIL_MM.arm / 1000, count: BAND.count, rows: BAND.rows };
+      const ear: AutoMovieHumanConicLoft.IFamily = side > 0 ? BODY.ear : twin(BODY.ear);
+      root = { type: "port", name: "auricle." + ear.name, host: root, hostFace: trunk, loop: auricle(side), band: "band." + ear.name, part: leaf(ear), partFace: ear.name, partEnd: "bottom", rail: RAIL_MM.ear / 1000, count: BAND.count, rows: BAND.rows };
     }
     return { root, sources };
   }

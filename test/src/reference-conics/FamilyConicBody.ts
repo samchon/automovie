@@ -30,14 +30,29 @@ namespace FamilyConicBody {
   /** The limb layouts of 4 and 8 conics; the 16 conic layout fitted worse from the same start on the arm and is left out until that is understood. */
   const LIMB: { layout: C.ILayout; depth: number }[] = [0, 1].map((depth: number): { layout: C.ILayout; depth: number } => ({ layout: C.limb(depth), depth }));
 
-  /** Station along the upper arm, from its joint, of the plane square to the arm through the armpit's crease, mm: `AutoMovieHumanF1Joints.armscye`. */
-  const ARMSCYE_MM: number = 67;
+  /**
+   * Unit normal of the armscye plane on the +Z side, pointing down the arm: `AutoMovieHumanF1Joints.armscyeNormal`. The plane holds the armpit's
+   * crease and is square to the upper arm, 67 mm down it from the shoulder joint. A plane half as far off the sagittal was tried to shorten the
+   * stump of arm the trunk keeps; the trunk's fit then stalled above 2 mm, so the fold beside that stump is left inside the arm's port instead.
+   */
+  const ARMSCYE_NORMAL: R.V = [0.0339, -0.7944, 0.6065];
 
-  /** Side distance of the armpit's crease from the median plane, mm: `AutoMovieHumanF1Joints.armpit`. */
+  /** Height of the armpit's crease, mm: `AutoMovieHumanF1Joints.armpit[1]`. */
+  const ARMPIT_Y_MM: number = 1276;
+
+  /** Side distance of the armpit's crease from the median plane, mm: `AutoMovieHumanF1Joints.armpit[2]`. */
   const ARMPIT_MM: number = 151;
 
   /** Radius about the upper arm's axis inside which skin past the armscye plane is the arm's, mm; the hips, as far to the side, lie outside it. */
   const ARM_TUBE_MM: number = 75;
+
+  /**
+   * The ear's box, mm: lateral of the sagittal plane the auricle leaves the skull at, and inside the auricle's extent fore and aft and in height,
+   * read off `FamilyConicScan.ts ear`. Positive inside the box on either side of the head.
+   */
+  function ear(p: R.V): number {
+    return Math.min(Math.abs(p[2]) - 77, p[0] + 10, 26 - p[0], p[1] - 1538, 1602 - p[1]);
+  }
 
   /** One part to fit. */
   interface IPart {
@@ -66,7 +81,21 @@ namespace FamilyConicBody {
     step?: number;
 
     /** Least distance between two station knots, mm; absent, `GAP_MM`. */
-    gap?: number;
+    gap?: number | ((s: number) => number);
+
+    /** Cut the head skin alone. */
+    head?: boolean;
+
+    /** The part's loop need not wind round its course: of each plane's closed loops the clip leaves, the largest whose hull holds the course is taken, and the family is measured against that hull. */
+    loose?: boolean;
+
+    /**
+     * With `loose`: the part runs on past where its branches part. From station `from` each section is the curve that surrounds every loop lying
+     * wholly within `reach` of the course, mm, their common hull; before it the section is the loop round the course as for any part. It is the
+     * surrounding curve of one-to-many branching (Gabrielides, Ginnis and Kaklis, Smooth branching surface construction from cross sections,
+     * 2007): the single contour is skinned to it and each branch joins through it.
+     */
+    surround?: { from: number; reach: number };
 
     /**
      * Skin that belongs to a neighbouring part: a world point where this is positive is left out of every section, and the section is closed by
@@ -122,28 +151,47 @@ namespace FamilyConicBody {
         ...["bigtoe", "indextoe", "middletoe", "ringtoe", "littletoe"].map((toe: string): IPart => digit("toe." + toe.replace("toe", ""), [toe + "_01_r", toe + "_02_r"], toe === "bigtoe" ? 28 : toe === "littletoe" ? 14 : 18, [0, 1, 0])),
         // The arm runs on through the wrist to the knuckles, so the wrist is no seam. Its first section is the first one below the armpit that
         // takes in no trunk; the trunk's port band spans from there up to the armscye.
+        // A course that leaves the wrist square to the row of knuckles, with the hand read on to the finger webs as the curve round all the
+        // fingers (`surround`), was fitted to 588 numbers at a mean of 0.34 mm, but the engine refused it as a face: between its stations a
+        // section's chain lost an arc. Until that is understood the hand keeps this course and closes at the webs.
         { name: "arm", centres: [joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r"), joint("middle_01_r")], course: "[J.upperarm, J.lowerarm, J.hand, J.middle1]", halves: [30, 10], up: [1, 0, 0], domain: [76, 570], tip: 600, mirrored: true, layouts: LIMB, reliefs: "auto" },
 
         // The leg turns at the ankle and runs on to the ball of the foot, its sections fanning round the instep, so the heel is lofted and the ankle
         // is no seam. The ankle's turn is long enough that its tightest radius, 2 h / (1.875 angle) = 46 mm, stays outside the instep. Round the
         // turn the heel sweeps about 2.7 times faster than the station, so its knots may stand 6 mm apart.
+        // A course that leaves the ankle square to the row of toe joints, with the forefoot read as the curve round all the toes, was tried
+        // so the toes could be merged through the cap as the fingers are; its wall stalled above 3 mm, so the foot keeps this course and closes
+        // at the toe webs, and the toes pass through that cap unsewn.
         { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r"), [133, 20, 157]], course: "[J.thigh, J.calf, J.foot, J.footBall]", halves: [40, 62], up: [1, 0, 0], domain: [104, 956], gap: 6, tip: 990, mirrored: true, layouts: LIMB, reliefs: "auto" },
-        // The trunk from the crotch to the crown as one wall. It owns the shoulders down to the plane square to each upper arm through the armpit's
+        // The auricle as a short loft out of the side of the head: its course runs straight to the side from under its root, and of each plane's
+        // loops inside the ear's box it reads the hull, so it is the ear's outer form without the concha's hollow.
+        { name: "ear", centres: [[3, 1579, 74], [3, 1579, 100]], course: "[J.earRoot, J.earTip]", halves: [], up: [0, 1, 0], domain: [4, 18], head: true, loose: true, step: 1, gap: 3, tip: 23, mirrored: true, layouts: LIMB, clip: (p: R.V): number => -ear(p), reliefs: [] },
+
+        // The trunk from the crotch to the crown as one wall. Knots 4 mm apart from the neck up followed every step of the face's hull and left
+        // the wall streaked, so they keep 8 mm and the face is the reliefs'. The ears are left out of its sections. It owns the shoulders down to the armscye plane through the armpit's
         // crease; past that plane, lateral of the crease and inside the arm's own tube, the skin is the arm's and is left out of the trunk's sections.
-        { name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], course: "[J.axisFloor, J.axisCrown]", halves: [], up: [1, 0, 0], domain: [40, 912], whole: true, step: 2, gap: 8, tip: true, cap: 896, mirrored: false, layouts: LIMB, clip: (p: R.V): number => Math.max(...[1, -1].map((side: number): number => {
+        { name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], course: "[J.axisFloor, J.axisCrown]", halves: [], up: [1, 0, 0], domain: [40, 912], whole: true, step: 2, gap: 8, tip: true, cap: 896, mirrored: false, layouts: LIMB, clip: (p: R.V): number => Math.max(ear(p), ...[1, -1].map((side: number): number => {
           const a: R.V = joint("upperarm_r");
           const b: R.V = joint("lowerarm_r");
           const length: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
           const d: R.V = [(b[0] - a[0]) / length, (b[1] - a[1]) / length, (b[2] - a[2]) / length];
           const q: R.V = [p[0] - a[0], p[1] - a[1], side * p[2] - a[2]];
           const along: number = q[0] * d[0] + q[1] * d[1] + q[2] * d[2];
-          return Math.min(along - ARMSCYE_MM, side * p[2] - ARMPIT_MM, ARM_TUBE_MM - Math.hypot(q[0] - along * d[0], q[1] - along * d[1], q[2] - along * d[2]));
+          return Math.min(ARMSCYE_NORMAL[0] * (p[0] + 25) + ARMSCYE_NORMAL[1] * (p[1] - ARMPIT_Y_MM) + ARMSCYE_NORMAL[2] * (side * p[2] - ARMPIT_MM), side * p[2] - ARMPIT_MM, ARM_TUBE_MM - Math.hypot(q[0] - along * d[0], q[1] - along * d[1], q[2] - along * d[2]));
         })), reliefs: [
-          { name: "trunk.low.back", stations: [-20, 556], phases: [Math.PI / 2, (3 * Math.PI) / 2], axis: [1, 0, 0], rows: 61, columns: 39, mirror: true },
-          { name: "trunk.low.front", stations: [-20, 556], phases: [-Math.PI / 2, Math.PI / 2], axis: [-1, 0, 0], rows: 61, columns: 39, mirror: true },
+          // Every window stays within 1.2 rad of its axis. Farther round, a height along the axis slides a point along the wall instead of
+          // moving it in or out, which folded the skin at the sides of the head and the shoulders; there the wall stands alone.
+          { name: "trunk.low.back", stations: [-20, 470], phases: [Math.PI - 1.2, Math.PI + 1.2], axis: [1, 0, 0], rows: 51, columns: 31, mirror: true },
+          { name: "trunk.low.front", stations: [-20, 470], phases: [-1.2, 1.2], axis: [-1, 0, 0], rows: 51, columns: 31, mirror: true },
+          // Over the chest and the shoulders the windows reach 1.45 rad: the folds in front of and behind the armpit lie between 1.0 and 1.25 rad,
+          // and a window that ended among them left a pleat along its edge. Their three zero rings keep the height off the arms' ports.
+          { name: "trunk.chest.back", stations: [420, 680], phases: [Math.PI - 1.45, Math.PI + 1.45], axis: [1, 0, 0], rows: 53, columns: 49, mirror: true },
+          { name: "trunk.chest.front", stations: [420, 680], phases: [-1.45, 1.45], axis: [-1, 0, 0], rows: 53, columns: 49, mirror: true },
           // The upper windows end at the crown's tip, 918.88 mm: a relief's height and its two derivatives vanish at its window's edge, which the engine requires of a pole.
-          { name: "trunk.high.back", stations: [440, 918.88], phases: [Math.PI / 2, (3 * Math.PI) / 2], axis: [1, 0, 0], rows: 97, columns: 43, mirror: true },
-          { name: "trunk.high.front", stations: [440, 918.88], phases: [-Math.PI / 2, Math.PI / 2], axis: [-1, 0, 0], rows: 97, columns: 63, mirror: true },
+          { name: "trunk.high.back", stations: [640, 918.88], phases: [Math.PI - 1.2, Math.PI + 1.2], axis: [1, 0, 0], rows: 57, columns: 33, mirror: true },
+          { name: "trunk.high.front", stations: [640, 918.88], phases: [-1.2, 1.2], axis: [-1, 0, 0], rows: 57, columns: 49, mirror: true },
+          // The face: a finer net, 2.5 mm apart, over what the upper front window leaves between the throat and the brow.
+          { name: "trunk.face", stations: [690, 890], phases: [-1.2, 1.2], axis: [-1, 0, 0], rows: 81, columns: 69, mirror: true },
         ] },
       ] satisfies IPart[]
     ).filter((part: IPart): boolean => only.length === 0 || only.includes(part.name));
@@ -159,8 +207,29 @@ namespace FamilyConicBody {
       const hollows: string[] = [];
       const skins: C.P[][] = [];
       const step: number = part.step ?? STEP_MM;
-      const gap: number = part.gap ?? GAP_MM;
-      const skin: R.ISource["body"] = part.whole === true ? source.all : source.body;
+      const gap = (s: number): number => (typeof part.gap === "function" ? part.gap(s) : (part.gap ?? GAP_MM));
+      const skin: R.ISource["body"] = part.head === true ? source.head : part.whole === true ? source.all : source.body;
+
+      // A plane's loop for the part: the one round the course, or for a `loose` part the largest closed loop the clip leaves whose hull holds the course.
+      const cut = (frame: AutoMovieLoftFrame.IFrame, s: number): C.P[] | null => {
+        if (part.loose !== true || (part.surround !== undefined && s < part.surround.from)) {
+          const whole: C.P[] | null = R.cut(skin, frame).loop;
+          return whole === null || part.clip === undefined ? whole : without(whole, frame, part.clip);
+        }
+        const inside = (hull: readonly C.P[]): boolean => hull.every((p: C.P, i: number): boolean => p[0] * hull[(i + 1) % hull.length]![1] - p[1] * hull[(i + 1) % hull.length]![0] > 0);
+        const clipped: C.P[][] = R.loops(skin, frame)
+          .map((loop: C.P[]): C.P[] | null => (part.clip === undefined ? loop : without(loop, frame, part.clip)))
+          .filter((loop: C.P[] | null): loop is C.P[] => loop !== null && loop.length >= 3);
+
+        // A part that surrounds its branches reads the curve round every loop within its reach of the course: the hull of them all.
+        if (part.surround !== undefined) {
+          const near: C.P[] = clipped.filter((loop: C.P[]): boolean => loop.every((p: C.P): boolean => Math.hypot(p[0], p[1]) < part.surround!.reach)).flat();
+          const around: C.P[] = near.length < 3 ? [] : R.hull(near);
+          return around.length >= 3 && inside(around) ? around : null;
+        }
+        const kept: C.P[][] = clipped.filter((loop: C.P[]): boolean => inside(R.hull(loop)));
+        return kept.length === 0 ? null : kept.reduce((a: C.P[], b: C.P[]): C.P[] => (Math.abs(R.area(b)) > Math.abs(R.area(a)) ? b : a));
+      };
       const domain: [number, number] = part.domain === "auto" ? span(skin, axis, part.centres) : part.domain;
       log("family-body-domain", { part: part.name, domain });
 
@@ -170,7 +239,7 @@ namespace FamilyConicBody {
         if (typeof part.tip === "number") tip = part.tip;
         else {
           tip = domain[1];
-          while (tip < domain[1] + 80 && R.cut(skin, axis.at(tip + 0.25)).loop !== null) tip += 0.25;
+          while (tip < domain[1] + 80 && cut(axis.at(tip + 0.25), tip + 0.25) !== null) tip += 0.25;
           tip = Math.round((tip + 0.125) * 100) / 100;
         }
         log("family-body-tip", { part: part.name, tip, pastDomainMm: tip - domain[1] });
@@ -178,14 +247,14 @@ namespace FamilyConicBody {
       }
       for (let s: number = domain[0], i: number = 0; s <= domain[1] + 1e-9; s += step / 2, ++i) {
         const frame: AutoMovieLoftFrame.IFrame = axis.at(s);
-        const whole: C.P[] | null = R.cut(skin, frame).loop;
-        const loop: C.P[] | null = whole === null || part.clip === undefined ? whole : without(whole, frame, part.clip);
+        const loop: C.P[] | null = cut(frame, s);
         if (loop === null) skipped.push(s);
         else {
           // The family is the tape wall: it reads the section's convex hull. How far the skin lies inside that hull is measured apart, as relief.
+          // A loose part is measured against that hull as well: its loop need not be star-shaped about the course.
           const wall: C.P[] = R.hull(loop);
           rows.push({ s, points: wall, heldout: i % 2 === 1 });
-          skins.push(loop);
+          skins.push(part.loose === true && (part.surround === undefined || s >= part.surround.from) ? wall : loop);
           let deepest: number = 0;
           let where: number = 0;
           for (const p of loop) {
@@ -222,17 +291,27 @@ namespace FamilyConicBody {
         // A deeper layout starts from the shallower one's final knots and values, cut exactly at every arc's median.
         const knots0: number[] = best === null ? [domain[0], (domain[0] + domain[1]) / 2, domain[1]] : [...best.knots];
         let result: F.IResult = attempt(knots0, layout, best === null ? undefined : F.refine(best.values, depth - 1), "depth " + depth);
-        while (result.fault === null && result.training.maximumMm > 0.9 * TARGET_MM) {
-          const open: F.IResult["rows"] = result.rows.filter((r: F.IResult["rows"][number]): boolean => !r.heldout && r.maximumMm > 0.9 * TARGET_MM && result.knots.every((k: number): boolean => Math.abs(k - r.s) >= gap)).sort((a, b) => b.maximumMm - a.maximumMm);
-          const added: number[] = [];
-          for (const r of open) if (added.length < 4 && added.every((s: number): boolean => Math.abs(s - r.s) >= 2 * gap)) added.push(r.s);
-          if (added.length === 0) break;
-          const next: number[] = [...result.knots, ...added].sort((a: number, b: number): number => a - b);
-          const trial: F.IResult = attempt(next, layout, F.resample(result.values, result.knots, next), "grow");
 
-          // More knots that move neither the mean nor the maximum by 3 % are not kept: what remains is not the station splines' to follow.
-          if (trial.fault !== null || (trial.training.meanMm > 0.97 * result.training.meanMm && trial.training.maximumMm > 0.97 * result.training.maximumMm)) break;
-          result = trial;
+        // Growth always starts from the family of least mean so far. A round that lowers that mean by 3 % is kept; one that does not is dropped
+        // and its stations are not offered again, so the next round tries the next worst rows. Three dropped rounds in a row end the growth.
+        // Going on from a dropped round instead carried a failed solve into every later one and left the trunk and the leg above 2 mm.
+        const refused: Set<number> = new Set();
+        let idle: number = 0;
+        while (result.fault === null && result.training.maximumMm > 0.9 * TARGET_MM && idle < 3) {
+          const held: F.IResult = result;
+          const open: F.IResult["rows"] = held.rows.filter((r: F.IResult["rows"][number]): boolean => !r.heldout && !refused.has(r.s) && r.maximumMm > 0.9 * TARGET_MM && held.knots.every((k: number): boolean => Math.abs(k - r.s) >= gap(r.s))).sort((a, b) => b.maximumMm - a.maximumMm);
+          const added: number[] = [];
+          for (const r of open) if (added.length < 4 && added.every((s: number): boolean => Math.abs(s - r.s) >= 2 * gap(r.s))) added.push(r.s);
+          if (added.length === 0) break;
+          const next: number[] = [...held.knots, ...added].sort((a: number, b: number): number => a - b);
+          const trial: F.IResult = attempt(next, layout, F.resample(held.values, held.knots, next), "grow");
+          if (trial.fault === null && trial.training.meanMm < 0.97 * held.training.meanMm) {
+            result = trial;
+            idle = 0;
+          } else {
+            for (const s of added) refused.add(s);
+            ++idle;
+          }
         }
         if (result.fault === null && (best === null || result.training.maximumMm < 0.97 * best.training.maximumMm || result.training.meanMm < 0.9 * best.training.meanMm)) best = result;
         if (best !== null && best.training.maximumMm <= 0.9 * TARGET_MM) break;
@@ -240,19 +319,24 @@ namespace FamilyConicBody {
 
       // Prune: drop every knot whose removal keeps the maximum and the mean within 3 % and 5 % of the grown family.
       if (best !== null && reuse === undefined) {
-        // The limits are read from the grown family under the same plain pass the trials run, so a trial is compared like for like.
+        // The limits are read from the grown family under the same plain pass the trials run, so a trial is compared like for like. The grown
+        // family itself stays: the thinned one replaces it only if, refitted with the reweighted passes, its mean is within 10 % of the grown one's.
         const base: F.IResult = attempt(best.knots, best.layout, best.values, "prune base", 2);
-        if (base.fault === null) best = base;
-        const limitMax: number = Math.max(0.9 * TARGET_MM, 1.03 * best.training.maximumMm);
-        const limitMean: number = 1.05 * best.training.meanMm;
-        for (let k: number = best.knots.length - 2; k >= 1; --k) {
-          const next: number[] = best.knots.filter((_: number, i: number): boolean => i !== k);
-          // Trials run one plain least-squares pass; the kept family is refitted with the reweighted passes afterwards.
-          const trial: F.IResult = attempt(next, best.layout, F.resample(best.values, best.knots, next), "prune", 2);
-          if (trial.fault === null && trial.training.maximumMm <= limitMax && trial.training.meanMm <= limitMean) best = trial;
+        if (base.fault === null) {
+          let thinned: F.IResult = base;
+          const limitMax: number = Math.max(0.9 * TARGET_MM, 1.03 * base.training.maximumMm);
+          const limitMean: number = 1.05 * base.training.meanMm;
+          for (let k: number = thinned.knots.length - 2; k >= 1; --k) {
+            const next: number[] = thinned.knots.filter((_: number, i: number): boolean => i !== k);
+            const trial: F.IResult = attempt(next, thinned.layout, F.resample(thinned.values, thinned.knots, next), "prune", 2);
+            if (trial.fault === null && trial.training.maximumMm <= limitMax && trial.training.meanMm <= limitMean) thinned = trial;
+          }
+          if (thinned.knots.length < best.knots.length) {
+            const polished: F.IResult = attempt(thinned.knots, thinned.layout, thinned.values, "polish");
+            if (polished.fault === null && polished.training.meanMm <= 1.1 * best.training.meanMm) best = polished;
+            else if (thinned.training.meanMm <= 1.1 * best.training.meanMm) best = thinned;
+          }
         }
-        const polished: F.IResult = attempt(best.knots, best.layout, best.values, "polish");
-        if (polished.fault === null && polished.training.maximumMm <= best.training.maximumMm && polished.training.meanMm <= 1.05 * best.training.meanMm) best = polished;
       }
       if (best === null) {
         receipt.push({ part: part.name, trail, fault: "no admissible family" });
@@ -290,8 +374,11 @@ namespace FamilyConicBody {
               return p;
             }, axis: [window.axis[0] * frame.u[0] + window.axis[1] * frame.u[1] + window.axis[2] * frame.u[2], window.axis[0] * frame.v[0] + window.axis[1] * frame.v[1] + window.axis[2] * frame.v[2]] };
           }));
-          definition.reliefs.push(fitted.relief);
-          log("family-body-relief", { part: part.name, relief: window.name, scalars: fitted.scalars, deepestMm: round(fitted.deepestMm), trainMaxMm: round(fitted.trainMaxMm), heldMaxMm: round(fitted.heldMaxMm) });
+          // A window placed by the hollow search is kept only when its net takes away at least half of its deepest hollow on the withheld
+          // sections. Round a turn a section's hollow lies across the cast's axis, and a net that cannot reach it leaves scratches instead.
+          const kept: boolean = part.reliefs !== "auto" || fitted.heldMaxMm <= 0.5 * fitted.deepestMm;
+          if (kept) definition.reliefs.push(fitted.relief);
+          log("family-body-relief", { part: part.name, relief: window.name, kept, scalars: fitted.scalars, deepestMm: round(fitted.deepestMm), trainMaxMm: round(fitted.trainMaxMm), heldMaxMm: round(fitted.heldMaxMm) });
         }
         await fs.writeFile(path.join(out, part.name + ".family.json"), JSON.stringify(definition));
       }
@@ -478,11 +565,23 @@ namespace FamilyConicBody {
       "  /** Where the leg's course ends past the ankle, in the ball of the foot. */",
       "  export const footBall: V3 = [133, 20, 157];",
       "",
-      "  /** Station along the upper arm, from `upperarm` toward `lowerarm`, of the plane square to the arm through the armpit's crease: the trunk owns the skin above that plane, the arm the skin below it. */",
-      "  export const armscye: number = " + ARMSCYE_MM + ";",
+      "  /** The armpit's crease, where the arm's inner side meets the trunk's side. */",
+      "  export const armpit: V3 = [-25, " + ARMPIT_Y_MM + ", " + ARMPIT_MM + "];",
       "",
-      "  /** Side distance of the armpit's crease from the median plane. */",
-      "  export const armpit: number = " + ARMPIT_MM + ";",
+      "  /** Unit normal of the armscye plane, pointing down the arm: the plane through the armpit's crease, square to the upper arm. The trunk owns the skin above it, the arm the skin below it. */",
+      "  export const armscyeNormal: V3 = " + JSON.stringify(ARMSCYE_NORMAL).replaceAll(",", ", ") + ";",
+      "",
+      "  /** Where the ear's course starts, under its root in the side of the head. */",
+      "  export const earRoot: V3 = [3, 1579, 74];",
+      "",
+      "  /** Where the ear's course ends, straight to the side past the auricle's rim. */",
+      "  export const earTip: V3 = [3, 1579, 100];",
+      "",
+      "  /** Centre of the auricle's root on the sagittal plane it leaves the skull at. */",
+      "  export const earBase: V3 = [9.5, 1572, 77];",
+      "",
+      "  /** Half extents of the auricle's root in height and fore and aft. */",
+      "  export const earHalf: [number, number] = [29, 10.5];",
       "",
       "  /** The point `length` millimetres past `b` on the line from `a` through `b`: where a digit's course ends beyond its last joint. */",
       "  export function beyond(a: V3, b: V3, length: number): V3 {",
@@ -569,10 +668,10 @@ namespace FamilyConicBody {
       " * them: the section is a chain of conics through its four extremes" + (depth > 0 ? " and one median point per quarter" : "") + ", fitted to the convex hull of the reference skin",
       " * (the path of a taut tape).",
       " *",
-      " * Source: the f1 reference body cut by this course's own planes over stations " + part.domain[0] + " to " + part.domain[1] + " mm, " + sections + " sections " + (part.step ?? STEP_MM) / 2 + " mm apart, every",
+      " * Source: the f1 reference " + (part.head === true ? "head" : part.whole === true ? "body and head" : "body") + " cut by this course's own planes over stations " + part.domain[0] + " to " + part.domain[1] + " mm, " + sections + " sections " + (part.step ?? STEP_MM) / 2 + " mm apart, every",
       " * second one withheld from the fit. Fitted offline by `test/src/reference-conics/FamilyConicBody.ts` (joint least squares over",
-      " * all sections). Regenerated through the engine's view loft from these numbers alone, the reference skin's cut vertices lie",
-      " * " + engine.engineMeanMm + " mm from it on average and at most " + engine.engineMaxMm + " mm. " + engine.scalars + " independent numbers.",
+      " * all sections). Regenerated through the engine's view loft from these numbers alone, " + (part.loose === true ? "the vertices of each section's hull lie" : "the reference skin's cut vertices lie"),
+      " * " + engine.engineMeanMm + " mm from it on average and at most " + engine.engineMaxMm + " mm" + (part.loose === true ? "; what lies inside that hull is not modelled" : "") + ". " + engine.scalars + " independent numbers.",
       " */",
       "export const " + name + ": AutoMovieHumanConicLoft.IFamily = {",
       "  name: " + JSON.stringify(family.name) + ",",
@@ -587,7 +686,7 @@ namespace FamilyConicBody {
       lines.push("    // " + names[f], "    " + JSON.stringify(field).replaceAll(",", ", ") + ",");
     });
     lines.push("  ],");
-    if (family.tips !== undefined) lines.push("", "  // The part closes in a point at `tip`, the station where the reference's own loop vanishes; its cap starts at `from`.", "  tips: " + JSON.stringify(family.tips).replaceAll("\"", "").replaceAll(",", ", ").replaceAll(":", ": ") + ",");
+    if (family.tips !== undefined) lines.push("", "  // The part closes in a point at `tip`, " + (typeof part.tip === "number" ? "a station placed by anatomy" : "the station where the reference's own loop vanishes") + "; its cap starts at `from`.", "  tips: " + JSON.stringify(family.tips).replaceAll("\"", "").replaceAll(",", ", ").replaceAll(":", ": ") + ",");
     if (family.reliefs !== undefined && family.reliefs.length > 0) {
       lines.push("", "  // Reliefs: heights in mm of a uniform cubic B-spline net over a window of the wall's chart, moved along `axis`; they carry the skin that lies inside the tape wall.", "  reliefs: [");
       for (const relief of family.reliefs) lines.push("    " + JSON.stringify({ ...relief, phases: relief.phases.map(round4), axis: relief.axis.map((x: number): number => Math.round(x * 1e5) / 1e5) }).replaceAll(",", ", ") + ",");

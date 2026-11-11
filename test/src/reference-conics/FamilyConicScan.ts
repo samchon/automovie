@@ -74,6 +74,33 @@ namespace FamilyConicScan {
       }
       return;
     }
+    if (process.argv[2] === "ear") {
+      // The ear: every closed loop of sagittal planes through the side of the head, by its extent fore and aft and in height, so the plane the
+      // auricle leaves the skull at and the auricle's own extent are read. Then the head's half width at heights round the ear, at four depths.
+      for (let z: number = 60; z <= 98; z += 2) {
+        const cells: string[] = R.loops(source.head, { origin: [0, 1600, z], u: [1, 0, 0], v: [0, 1, 0] }).map((loop: C.P[]): string => {
+          const xs: number[] = loop.map((p: C.P): number => p[0]);
+          const ys: number[] = loop.map((p: C.P): number => p[1] + 1600);
+          return "x " + Math.min(...xs).toFixed(0) + ".." + Math.max(...xs).toFixed(0) + " y " + Math.min(...ys).toFixed(0) + ".." + Math.max(...ys).toFixed(0) + " a" + (R.area(loop) / 100).toFixed(1);
+        });
+        process.stdout.write("z " + z + ": " + cells.join(" | ") + "\n");
+      }
+      for (let y: number = 1560; y <= 1660; y += 10) {
+        const loop: C.P[] | null = R.cut(source.head, { origin: [0, y, 0], u: [1, 0, 0], v: [0, 0, 1] }).loop;
+        if (loop === null) continue;
+        const widths: string[] = [-70, -50, -30, -10, 10, 30].map((x: number): string => {
+          const hits: number[] = [];
+          for (let i: number = 0; i < loop.length; ++i) {
+            const a: C.P = loop[i]!;
+            const b: C.P = loop[(i + 1) % loop.length]!;
+            if (a[0] > x !== b[0] > x) hits.push(a[1] + ((b[1] - a[1]) * (x - a[0])) / (b[0] - a[0]));
+          }
+          return "x" + x + ":" + (hits.length === 0 ? "." : Math.max(...hits).toFixed(0));
+        });
+        process.stdout.write("y " + y + " half width " + widths.join(" ") + "\n");
+      }
+      return;
+    }
     if (process.argv[2] === "hand" || process.argv[2] === "foot") {
       // Where the digits leave: along the limb's own course, every closed loop of each plane near the limb's end by its centre and area, so the
       // order and the stations at which the digits part from the hand or the foot are read before any branch is declared.
@@ -84,9 +111,22 @@ namespace FamilyConicScan {
         return [b[0] + ((b[0] - a[0]) * length) / d, b[1] + ((b[1] - a[1]) * length) / d, b[2] + ((b[2] - a[2]) * length) / d];
       };
       const reach: number = Number(process.argv[3] ?? "20");
-      const made: AutoMovieViewAxis.IAxis | string = hand
-        ? AutoMovieViewAxis.jointed([joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r"), past(joint("middle_01_r"), joint("index_01_r"), reach)], [30, 10], [1, 0, 0])
-        : AutoMovieViewAxis.jointed([joint("thigh_r"), joint("calf_r"), joint("foot_r"), past(joint("indextoe_01_r"), joint("bigtoe_01_r"), reach)], [40, 62], [1, 0, 0]);
+
+      // `square`: the course's last segment leaves its joint square to the row of first digit joints, so its planes lie along the webs.
+      const square = (from: R.V, toward: R.V, a: R.V, b: R.V): R.V => {
+        const k: number[] = [0, 1, 2].map((c: number): number => (b[c]! - a[c]!) / Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]));
+        const m: number[] = [0, 1, 2].map((c: number): number => toward[c]! - from[c]!);
+        const along: number = m[0]! * k[0]! + m[1]! * k[1]! + m[2]! * k[2]!;
+        return [0, 1, 2].map((c: number): number => from[c]! + m[c]! - along * k[c]!) as R.V;
+      };
+      const made: AutoMovieViewAxis.IAxis | string =
+        process.argv[4] === "square"
+          ? hand
+            ? AutoMovieViewAxis.jointed([joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r"), square(joint("hand_r"), joint("middle_01_r"), joint("pinky_01_r"), joint("index_01_r"))], [30, 10], [1, 0, 0])
+            : AutoMovieViewAxis.jointed([joint("thigh_r"), joint("calf_r"), joint("foot_r"), square(joint("foot_r"), [133, 20, 157], joint("littletoe_01_r"), joint("bigtoe_01_r"))], [40, 62], [1, 0, 0])
+          : hand
+            ? AutoMovieViewAxis.jointed([joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r"), past(joint("middle_01_r"), joint("index_01_r"), reach)], [30, 10], [1, 0, 0])
+            : AutoMovieViewAxis.jointed([joint("thigh_r"), joint("calf_r"), joint("foot_r"), past(joint("indextoe_01_r"), joint("bigtoe_01_r"), reach)], [40, 62], [1, 0, 0]);
       if (typeof made === "string") throw new Error(made);
       const axis: AutoMovieViewAxis.IAxis = made;
       const [from, to]: [number, number] = hand ? [556, 640] : [930, 1010];
