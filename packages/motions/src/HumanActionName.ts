@@ -53,6 +53,7 @@
  * - `stretch`: a standing static stretch or yoga pose held and released (neck, cross-body, side bend, quadriceps, tree).
  * - `dance`: a solo dance step locked to a declared beat (bounce, sway, step-touch).
  * - `athletics`: the sprint start's crouch into the set position, held to the gun.
+ * - `gymnastics`: a handstand kicked up from standing, held and stepped down.
  */
 export type HumanActionName =
   | "stand"
@@ -103,4 +104,5 @@ export type HumanActionName =
   | "exercise"
   | "stretch"
   | "dance"
-  | "athletics";
+  | "athletics"
+  | "gymnastics";

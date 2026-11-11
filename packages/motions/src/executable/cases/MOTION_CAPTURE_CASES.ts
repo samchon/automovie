@@ -12,6 +12,7 @@ import { danceCases } from "./danceCases";
 import { everydayCases } from "./everydayCases";
 import { exerciseCases } from "./exerciseCases";
 import { galleryCases } from "./galleryCases";
+import { gymnasticsCases } from "./gymnasticsCases";
 import { handToFaceCases } from "./handToFaceCases";
 import { handlingCases } from "./handlingCases";
 import { jumpCases } from "./jumpCases";
@@ -162,4 +163,7 @@ export const MOTION_CAPTURE_CASES: Readonly<
   athletics: (): IMotionCaptureCase[] => athleticsCases(),
   "athletics-sweep": (): IMotionCaptureCase[] =>
     athleticsCases(MotionBodies.SWEEP),
+  gymnastics: (): IMotionCaptureCase[] => gymnasticsCases(),
+  "gymnastics-sweep": (): IMotionCaptureCase[] =>
+    gymnasticsCases(MotionBodies.SWEEP),
 };

@@ -32,6 +32,7 @@ import { flinch } from "../reaction/flinch";
 import { knockdown } from "../reaction/knockdown";
 import { stagger } from "../reaction/stagger";
 import { athletics } from "../sport/athletics";
+import { gymnastics } from "../sport/gymnastics";
 import { defend } from "../striking/defend";
 import { guard } from "../striking/guard";
 import { kick } from "../striking/kick";
@@ -108,4 +109,5 @@ export const HUMAN_ACTIONS: Readonly<
   stretch,
   dance,
   athletics,
+  gymnastics,
 };
