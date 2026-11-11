@@ -7,18 +7,18 @@ import {
 import * as THREE from "three";
 
 /**
- * The polygon man of one canonical Human body, drawn by the viewer's polygon
+ * The polygon man of one canonical Human body, drawn by the renderer's polygon
  * builder and posed from canonical poses.
  *
  * The builder reads Human's registered frame, so the drawing takes
  * `AutoMovieHumanCanonicalBody.display` (the T-pose bones and placements
  * reflected back) and sits under a group carrying
  * `AutoMovieHumanCanonicalBody.REFLECTION`, which shows it in the canonical
- * world; the rasterizer and three.js reverse winding for that mirrored matrix,
+ * world; three.js reverses winding for that mirrored matrix,
  * so faces keep their orientation. The drawing is the bare polygon body.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frame handling, why it is exact and that no face or detail is added.
- * @evidence contracts/development/implementation.md#principled-implementation Uses Human's own canonical adapter for placements and the viewer's own polygon builder for geometry.
+ * @evidence contracts/development/implementation.md#principled-implementation Uses Human's own canonical adapter for placements and the renderer's own polygon builder for geometry.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Build once, then `place` applies each pose.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No display correction or added geometry.
  * @evidence contracts/development/implementation.md#efficient-algorithms Building is linear in drawing triangles; placing is linear in joints.

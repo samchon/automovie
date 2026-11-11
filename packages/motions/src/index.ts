@@ -109,3 +109,5 @@ export * from "./reaction/flinch";
 export * from "./reaction/knockdown";
 export * from "./striking/knee";
 export * from "./reaction/stagger";
+export * from "./capture/IMotionCaptureOverlays";
+export * from "./capture/markMotionCaptureCase";
