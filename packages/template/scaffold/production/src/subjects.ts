@@ -12,7 +12,7 @@ import { films } from "./composition/films";
 import { markFilmProduction } from "./markFilmProduction";
 
 /**
- * The production's films as the subjects its draw-only page offers, one per registered film under the film's name: what `automovie capture --module src/subjects.ts` and the delivery render draw.
+ * The production's films as subjects, one per registered film under the film's name: what the draw-only page `automovie capture --module src/subjects.ts` and `automovie render --module src/subjects.ts` build over this module offers, and what `automovie inspect` shows.
  *
  * Each film is created as the Viewer creates it, at its delivery raster (1280 × 720 when it states none), seeked through its own `seek` at a second clamped to its running time, and marked by `markFilmProduction`, so a capture, a delivered frame and the Viewer show the same state.
  *
