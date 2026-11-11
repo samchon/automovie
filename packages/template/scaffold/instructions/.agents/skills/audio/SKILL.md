@@ -17,7 +17,7 @@ When the selected model or mode generates no sound, report it to the user with t
 
 ## Voice preview
 
-Make a preview only when the user wants to hear the voices before video generation. Use [local speech](local-speech.md) or another speech service under [acquisition](acquisition.md), adding [sound effects](sound-effects.md) only when the user asks for them too, and ask the user to play it with the motion hint in the Viewer and listen. A preview is never delivered or required, and the video prompt still carries the film's sound.
+Make a preview only when the user wants to hear the voices before video generation. Use [local speech](local-speech.md) or another speech service under [acquisition](acquisition.md), adding [sound effects](sound-effects.md) only when the user asks for them too, and ask the user to play it alongside the motion hint and listen. A preview is never delivered or required, and the video prompt still carries the film's sound.
 
 ## Commissioned soundtrack {#commissioned-soundtrack}
 

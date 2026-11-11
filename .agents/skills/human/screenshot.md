@@ -1,6 +1,6 @@
 # Screenshots
 
-The figure is inspected with the shared [instrument](../visual-debugging/instrument.md): the inspector page for reading it interactively and the capture command for stills, sheets and the record a round keeps. The Human package's [README](../../../packages/human/README.md#inspection) owns its subject module, the scripts that run both over it, the subject names and the path of every piece and curve; the [`render` README](../../../packages/render/README.md#inspection) owns the request keys. This page holds only what reading the Human figure adds.
+The figure is inspected with the shared [instrument](../visual-debugging/instrument.md): the inspector page for reading it interactively and the capture command for stills, sheets and the record a round keeps. The Human package's [README](../../../packages/human/README.md#inspection) owns its subject module, the scripts that run both over it, the subject names and the path of every piece and curve; the [`render` README](../../../packages/render/README.md#request-keys) owns the request keys. This page holds only what reading the Human figure adds.
 
 ## Selecting Curves And Parts
 

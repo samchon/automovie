@@ -34,11 +34,11 @@ A capture is planned as a list of cells before anything is drawn: each fixed by 
 
 ## Reader budget
 
-Sheets are laid out for the reader budget that [Stills and sheets](capture.md#stills-and-sheets) states, with 1568 px and 200 px as the defaults. Every sheet stays within the longest edge, every cell reaches the smallest, a still is never enlarged, and cells that do not fit one sheet spread over more sheets rather than shrink. Cells are reduced by averaging, or by the nearest pixel where a review reads exact pixel values.
+Sheets are laid out for the reader budget that [Stills and sheets](capture.md#stills-and-sheets) states, with 1568 px and 200 px as the defaults. Every sheet stays within the longest edge, every cell reaches the smallest, each cell's caption sits in a strip under it that is counted against the longest edge and never taken from the cell, a still is never enlarged, and cells that do not fit one sheet spread over more sheets rather than shrink. Cells are reduced by averaging, or by the nearest pixel where a review reads exact pixel values.
 
 ## Record
 
-A capture writes its stills, sheets and one record into its own folder, or into a named round beneath it. The record is first written as unfinished, listing every file the capture is about to write, and rewritten as complete once the last file is written. A folder holding a file no record of it lists is refused untouched, and an interrupted capture is replaced by the next run. The complete record keeps the source revision, the request as text, the reader budget and layout, the planned times and event windows, and one row per planned cell: a drawn cell with its file, content hash, backend and resolved camera, or a failed cell with its cause, which the sheet shows as a marked cell in its place.
+A capture writes its stills, sheets and one record into its own folder, or into a named round beneath it. The record is first written as unfinished, listing every file the capture is about to write, and rewritten as complete once the last file is written. A folder holding a file no record of it lists is refused untouched, and an interrupted capture is replaced by the next run. The complete record keeps the source revision, the request as text, the reader budget and layout, the planned times and event windows, and one row per planned cell: a drawn cell with its file, content hash, backend and resolved camera, and the paths each of its selection, hide, label, colour and focus patterns matched, listed by their topmost paths with a count, or a failed cell with its cause, which the sheet shows as a marked cell in its place.
 
 ## Comparison
 
