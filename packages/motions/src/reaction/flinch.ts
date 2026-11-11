@@ -1,15 +1,22 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieMotionTarget,
-  IAutoMovieMotionEvent,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
+import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanGoal } from "../compose/AutoMovieMotionHumanGoal";
+import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
+import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
+import { AutoMovieMotionHumanRoot } from "../compose/AutoMovieMotionHumanRoot";
+import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
+import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingBody } from "../striking/StrikingBody";
 import { StrikingQuality } from "../striking/StrikingQuality";
@@ -32,10 +39,14 @@ import { StrikingTarget } from "../striking/StrikingTarget";
  * The threat is a target (the incoming weapon's region, a prop, a point), read
  * at the start.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the startle pattern, its timing with sources, the provisional sizes and that the feet stay planted.
- * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table, parameters and a pure plan of postures in world metres and seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the timing constants and the plan the law table and the performance dispatch through.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, contact-window and target types; no body is special-cased.
+ * The action is rows over the posture it was entered in: one clock with the
+ * `peak` instant, and a root, a trunk, a head and two arm primitives that all
+ * rise to the peak and fall to the end on the clock's envelope.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the startle pattern, its timing with sources, the provisional sizes, that the feet stay planted and how the action is composed.
+ * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table, parameters and a plan composed of part primitives on one clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the timing and size constants and the plan the law table and the performance dispatch through.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, target, clock and primitive types; no body is special-cased.
  */
 export namespace flinch {
   /** The action's name. */
@@ -71,6 +82,15 @@ export namespace flinch {
   /** The whole flinch, seconds. */
   export const DURATION: number = 0.6;
 
+  /** The trunk's lean away from the threat at full intensity, degrees (provisional). */
+  export const LEAN: number = 12;
+
+  /** The root's shift away from the threat at full intensity, metres (provisional). */
+  export const SHIFT: number = 0.03;
+
+  /** The neck's added flexion at full intensity, degrees (provisional). */
+  export const DUCK: number = 10;
+
   /**
    * Plan a flinch.
    *
@@ -79,10 +99,10 @@ export namespace flinch {
    * @throws {Error} When the intensity lies outside (0, 1].
    *
    * @evidence contracts/development/common.md#meaningful-documentation States its input, its plan and its refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation An out-and-back minimum-jerk profile peaking at the measured startle peak; the gloves' goals come from the face region and the fist sockets and are solved by the shared limb fit.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads the threat once, then evaluates each posture in closed form.
+   * @evidence contracts/development/implementation.md#principled-implementation Every part rises to the measured startle peak and falls to the end on the clock's envelope; the gloves' goals come from the face region and the fist sockets and are solved by the shared limb fit.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One clock, one held base and five rows; the threat is read once.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An intensity outside its range throws; the sizes are named provisional constants.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond one trunk resolution.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond one trunk resolution per arm.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The threat's direction is computed once per plan and dropped on settle, when the threat may have moved.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one cached direction, cleared by settle and released with the plan.
    */
@@ -96,23 +116,19 @@ export namespace flinch {
     const m = body.measure;
     const entry: IHumanPosture = context.entry.posture;
     const lead: "left" | "right" = StrikingTarget.lead(context.entry);
-    const events: IAutoMovieMotionEvent[] = [
-      { name: "peak", share: PEAK / DURATION },
-    ];
-    const contacts: IHumanContactWindow[] = (
-      ["leftFoot", "rightFoot"] as const
-    ).map(
-      (part): IHumanContactWindow => ({
-        part,
-        kind: "plant",
-        from: 0,
-        to: 1,
-        support: { kind: "ground" },
-      }),
+    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+      DURATION,
+      [{ name: "peak", seconds: PEAK }],
     );
-    let away: IAutoMovieVector3 | undefined;
-    const direction = (): IAutoMovieVector3 => {
-      if (away !== undefined) return away;
+    const rise: readonly [string, string] = [AutoMovieMotionClock.START, "peak"];
+    const fall: readonly [string, string] = ["peak", AutoMovieMotionClock.END];
+    const share = (seconds: number): number =>
+      intensity * clock.envelope(rise, fall, seconds);
+
+    // Away from the threat in the performer's floor frame: `x` left, `z` forward.
+    let cached: IAutoMovieVector3 | undefined;
+    const away = (): IAutoMovieVector3 => {
+      if (cached !== undefined) return cached;
       const threat: IAutoMovieVector3 = context.aim(
         context.params.from,
         context.start - StrikingTarget.LOOK,
@@ -125,106 +141,109 @@ export namespace flinch {
         y: 0,
         z: head.z - threat.z,
       };
-      away =
+      cached =
         Vector3.length(d) > 1e-6
-          ? Vector3.normalize(d)
-          : {
-              x: -Math.sin((entry.yaw * Math.PI) / 180),
-              y: 0,
-              z: -Math.cos((entry.yaw * Math.PI) / 180),
-            };
-      return away;
+          ? HumanFrame.local(
+              { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
+              Vector3.normalize(d),
+            )
+          : { x: 0, y: 0, z: -1 };
+      return cached;
     };
-    return {
-      duration: DURATION,
-      events,
-      contacts,
-      settle: (): void => {
-        away = undefined;
-      },
-      posture: (seconds: number): IHumanPosture => {
-        const t: number = Math.min(DURATION, Math.max(0, seconds));
-        const k: number =
-          intensity *
-          (minimumJerk(t / PEAK).s -
-            minimumJerk((t - PEAK) / (DURATION - PEAK)).s);
-        const d: IAutoMovieVector3 = direction();
-        const r: number = (entry.yaw * Math.PI) / 180;
-        const forward: IAutoMovieVector3 = {
-          x: Math.sin(r),
-          y: 0,
-          z: Math.cos(r),
-        };
-        const left: IAutoMovieVector3 = {
-          x: Math.cos(r),
-          y: 0,
-          z: -Math.sin(r),
-        };
-        const tilt: number = 12 * k;
-        const posture: IHumanPosture = {
-          root: Vector3.add(entry.root, Vector3.scale(d, 0.03 * k)),
-          yaw: entry.yaw,
-          // Leaning away: a forward tip when the threat is behind, a back
-          // tip when it is ahead; a tip to the side away from it.
-          pitch: entry.pitch + tilt * Vector3.dot(d, forward),
-          roll: entry.roll - tilt * Vector3.dot(d, left),
-          joints: {
-            ...entry.joints,
-            ...StrikingStance.joints(),
-            neck: [12 + 10 * k, 0, 0],
-          },
-          limbs: { ...entry.limbs },
-        };
+
+    // A glove before the face on the trunk the action has placed so far.
+    const cover =
+      (side: "left" | "right"): AutoMovieMotionHumanGoal.Frame =>
+      (posture: IHumanPosture): IHumanPosture.IGoal => {
         const bones = StrikingBody.trunk(body, posture);
         const face = StrikingBody.region(body, bones, "face");
         const fist: number = StrikingQuality.fist(m.hand);
-        const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
-        const guard = StrikingStance.guard(body, posture, { lead });
-        for (const side of ["left", "right"] as const) {
-          const arm: "leftArm" | "rightArm" =
-            side === "left" ? "leftArm" : "rightArm";
-          const out: IAutoMovieVector3 = Vector3.scale(
-            left,
-            side === "left" ? 1 : -1,
-          );
-          const at: IAutoMovieVector3 = Vector3.add(
+        const out: IAutoMovieVector3 = HumanFrame.point(
+          { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
+          { x: side === "left" ? fist : -fist, y: 0, z: 0 },
+        );
+        const rotation = StrikingBody.fist(
+          body,
+          side,
+          { x: 0, y: 1, z: 0 },
+          Vector3.scale(face.normal, -1),
+        );
+        return {
+          point: Vector3.subtract(
             Vector3.add(
-              face.point,
-              Vector3.scale(face.normal, m.forearmRadius + fist),
-            ),
-            Vector3.scale(out, fist),
-          );
-          const rotation = StrikingBody.fist(
-            body,
-            side,
-            { x: 0, y: 1, z: 0 },
-            Vector3.scale(face.normal, -1),
-          );
-          const goal: IHumanPosture.IGoal = {
-            point: Vector3.subtract(
-              at,
-              StrikingBody.socket(
-                body,
-                side === "left" ? "fistLeft" : "fistRight",
-                rotation,
+              Vector3.add(
+                face.point,
+                Vector3.scale(face.normal, m.forearmRadius + fist),
               ),
+              out,
             ),
-            bend: Vector3.add(bones.get(`${side}UpperArm`)!.worldPosition, {
-              x: 0,
-              y: -m.upperArm,
-              z: 0,
-            }),
-            rotation,
-          };
-          const from: IHumanPosture.IGoal = limbs[arm] ?? guard[arm] ?? goal;
-          limbs[arm] = {
-            point: Vector3.lerp(from.point, goal.point, k),
-            bend: Vector3.lerp(from.bend, goal.bend, k),
-            rotation: Quaternion.slerp(from.rotation ?? rotation, rotation, k),
-          };
-        }
-        return { ...posture, limbs };
+            StrikingBody.socket(
+              body,
+              side === "left" ? "fistLeft" : "fistRight",
+              rotation,
+            ),
+          ),
+          bend: Vector3.add(bones.get(`${side}UpperArm`)!.worldPosition, {
+            x: 0,
+            y: -m.upperArm,
+            z: 0,
+          }),
+          rotation,
+        };
+      };
+    const arm = (side: "left" | "right"): IAutoMovieMotionHumanPrimitive =>
+      AutoMovieMotionHumanGoal.drive({
+        limb: `${side}Arm`,
+        from: 0,
+        to: DURATION,
+        goal: cover(side),
+        origin: (posture: IHumanPosture, seconds: number): IHumanPosture.IGoal =>
+          posture.limbs[`${side}Arm`] ??
+          StrikingStance.guard(body, posture, { lead })[`${side}Arm`] ??
+          cover(side)(posture, seconds),
+        weight: share,
+      });
+
+    return composeAutoMovieMotionHumanAction({
+      base: {
+        ...AutoMovieMotionHumanBase.still(
+          DURATION,
+          {
+            ...entry,
+            joints: { ...entry.joints, ...StrikingStance.joints() },
+          },
+          AutoMovieMotionHumanBase.plants(),
+        ),
+        settle: (): void => {
+          cached = undefined;
+        },
       },
-    };
+      clock,
+      primitives: [
+        AutoMovieMotionHumanRoot.travel({
+          from: 0,
+          to: DURATION,
+          offset: (seconds: number): AutoMovieMotionHumanRoot.IOffset => ({
+            point: Vector3.scale(away(), SHIFT * share(seconds)),
+            yaw: 0,
+          }),
+        }),
+        // Leaning away: a forward tip when the threat is behind, a back tip
+        // when it is ahead; a tip to the side away from it.
+        AutoMovieMotionHumanLean.tilt({
+          from: 0,
+          to: DURATION,
+          angles: (seconds: number): AutoMovieMotionHumanLean.IAngles => ({
+            pitch: LEAN * share(seconds) * away().z,
+            roll: -LEAN * share(seconds) * away().x,
+          }),
+        }),
+        AutoMovieMotionHumanJoints.pulse(clock, rise, fall, {
+          neck: [DUCK * intensity, 0, 0],
+        }),
+        arm("left"),
+        arm("right"),
+      ],
+    });
   }
 }

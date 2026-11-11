@@ -44,6 +44,56 @@ export namespace AutoMovieMotionHumanLean {
     weight(seconds: number): number;
   }
 
+  /** A tilt of the whole body about the root, degrees added to the posture. */
+  export interface IAngles {
+    /** Forward pitch added, degrees. */
+    pitch: number;
+
+    /** Roll added, degrees. */
+    roll: number;
+  }
+
+  /** A tilt over a window. */
+  export interface ITilt {
+    /** Seconds since the action's start from which the trunk is written. */
+    from: number;
+
+    /** Seconds since the action's start until which the trunk is written. */
+    to: number;
+
+    /**
+     * The tilt added to what the posture holds.
+     *
+     * @param seconds Seconds since the action's start.
+     * @returns The pitch and the roll, degrees.
+     */
+    angles(seconds: number): IAngles;
+  }
+
+  /**
+   * The body tilted about its root without a balance shift: the small leans
+   * a standing body makes inside its base of support (a recoil, a sway, a
+   * lean toward a listener).
+   *
+   * @param props The window and the tilt.
+   * @returns The primitive, on the trunk.
+   */
+  export function tilt(props: ITilt): IAutoMovieMotionHumanPrimitive {
+    return {
+      channels: ["trunk"],
+      from: props.from,
+      to: props.to,
+      write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
+        const more: IAngles = props.angles(seconds);
+        return {
+          ...posture,
+          pitch: posture.pitch + more.pitch,
+          roll: posture.roll + more.roll,
+        };
+      },
+    };
+  }
+
   /**
    * A posture tipped forward about the hips.
    *
