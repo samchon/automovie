@@ -4,7 +4,7 @@ Plans how AutoMovie output becomes frames and a video file: frame schedules and 
 
 The package launches nothing itself, which keeps it usable in a browser. You pass it adapters that capture a frame and run the encoder.
 
-It also owns everything that turns a film into pixels without user interaction: building Three.js objects from `@automovie/interface` models and scenes, applying poses, expressions and motion at a time, the guide and render passes, compositing, shadows, textures and resource lifetime, the polygon-man figure builders, the inspection core and the CPU rasterizer. Interactive display, the canvas mount, playback loop and transport controls, stays in `@automovie/viewer`.
+It also owns everything that turns a film into pixels without user interaction: building Three.js objects from `@automovie/interface` models and scenes, applying poses, expressions and motion at a time, the guide and render passes, compositing, shadows, textures and resource lifetime, the polygon-man figure builders, the inspection core, and the picture utilities (sheets, comparison, label stamps, PNG codec) that work on pixels from any source. Interactive display, the canvas mount, playback loop and transport controls, stays in `@automovie/viewer`.
 
 ## Use
 
@@ -36,18 +36,7 @@ You write the two adapters, or take them from a generated production (see [Node 
 
 ## Inspection
 
-`applyAutoMovieInspection` turns a built scene into one inspection picture, in place, and returns a handle whose `restore` puts the scene back. `parseAutoMovieInspectionRequest` reads the request from named text values, so a page address and a command line share one grammar, and `formatAutoMovieInspectionRequest` writes it back. Each key serves a requirement of the [visual-debugging](../../.agents/skills/visual-debugging/SKILL.md), [3d-modeling](../../.agents/skills/3d-modeling/inspection.md) or [motion](../../.agents/skills/motion/verification.md) skill:
-
-| Key | Draws | Serves |
-| --- | --- | --- |
-| `parts`, `hide` | The objects and marks whose paths the patterns select | Selecting the whole, each unit and its neighbours (capture, Subject) |
-| `shade`, `surface` | A guide pass, `clay` for form without colour or `faces` for the side each surface shows; surfaces off leave the marks alone | Choosing a pass by the question (passes) |
-| `marks`, `sliver` | The marks whose kinds the patterns select, `edge` for triangle sides over or without the surface | Marking what a measurement found (passes), the construction over the surface and the surface alone (inspection, Construction) |
-| `section` | A world-space cut | Cutaways as an inspection control |
-| `xray`, `stroke` | Marks through surfaces, and their width in output pixels | Reading marks in a reduced still |
-| `label` | The names of the matched objects and marks, placed by the handle's `labels` with overlapping ones dropped and reported | Showing labels to establish identity (passes) |
-| `color` | `pattern=rrggbb` colours for matched objects and mark kinds in one picture | Each kind of thing in one colour throughout a capture (passes) |
-| `trail`, `reach`, `ticks` | The travel of the matched objects, sampled `ticks` times a second for `reach` seconds either side of the drawn second, as the `trail` and `trail/now` kinds | An overlay of paths, so a still shows a movement (passes; motion verification) |
+`applyAutoMovieInspection` turns a built scene into one inspection picture, in place, and returns a handle whose `restore` puts the scene back. `parseAutoMovieInspectionRequest` reads the request from named text values, so a page address and a command line share one grammar, and `formatAutoMovieInspectionRequest` writes it back. [Request keys](#request-keys) lists every key with the requirement it serves.
 
 A mark is plain data, `IAutoMovieMark` from `@automovie/engine`: a path, a kind with its legend label and colour, one of four shapes (points, a polyline, segments, arrows), a flag for an anomaly, and the scene object it follows. Any owner hands its located findings to the inspection as marks, such as construction curves through `markAutoMovieConstructionCurves`; the inspection measures mesh defects itself. Two kinds never share a colour in one picture, a flagged mark takes the flag colour, and the handle's `legend` counts the marks of each kind.
 
@@ -65,7 +54,7 @@ try {
 }
 ```
 
-Marks are drawn as three.js screen-space lines and points, so a stroke has the requested width in output pixels in WebGL and in the CPU rasterizer alike. A mark's path extends its object's, so `parts=hero/torso/section/3` draws one curve. A pattern that selects nothing throws instead of drawing an empty picture, and the handle's `selected` lists what the request selected.
+Marks are drawn as three.js screen-space lines and points, so a stroke has the requested width in output pixels. A mark's path extends its object's, so `parts=hero/torso/section/3` draws one curve. A pattern that selects nothing throws instead of drawing an empty picture, and the handle's `selected` lists what the request selected.
 
 A view is text that `parseAutoMovieInspectionView` reads and `resolveAutoMovieInspectionView` turns into a camera and the record of it: `film`, a fixed `x,y,z:tx,ty,tz`, a subject's own view, or a named viewpoint such as `front` fitted to what is drawn, with `@ortho` for a scale-true orthographic camera, `@focus=<pattern>` to frame a part and `@flagged` to frame what a measurement flagged. It serves naming views that repeat and framing a close-up on the affected region (capture, Views).
 
@@ -106,10 +95,30 @@ const folder = await AutoMovieCaptureFolder.open({ storage: fs, root, round: req
 const record = await runAutoMovieCapture({ plan, draw, folder, revision, match: "cell" });
 ```
 
-A page passes its address's `searchParams` to the same reader, so one request text gives one picture in every host, and `formatAutoMovieCapturePlanRequest` writes a request back as the values that repeat it. `planAutoMovieCapture` refuses a view, time, mark kind or sweep the subject cannot give before anything is drawn. The capture's own keys join the inspection keys above:
+A page passes its address's `searchParams` to the same reader, so one request text gives one picture in every host, and `formatAutoMovieCapturePlanRequest` writes a request back as the values that repeat it. `planAutoMovieCapture` refuses a view, time, mark kind or sweep the subject cannot give before anything is drawn. [Request keys](#request-keys) lists the capture's own keys beside the inspection keys.
+
+A capture writes `<cell>.png` stills, `sheet-001.png` onwards and `record.json` into its root, or into `rounds/<round>` beneath it, and refuses a folder holding a file no record of its own lists. The record keeps the revision, the request as text, the budget, one row per planned cell with its hash, backend and resolved camera or the cause it was not drawn, and the comparison's pairs and unmatched cells.
+
+### The draw-only page
+
+Every picture a host saves comes from one function that runs in the browser. A page with no interface calls `installAutoMovieDraw(subjects)`, where `subjects` maps the props a host injected before the page loaded to the subjects the page offers, each an `IAutoMovieDrawSubject` whose `create()` returns the scene, the delivery camera, the clock, the raster, `seek`, the subject's views and its marks per second. `AutoMovieDrawSession` drives that page from a host through any driver shaped like Playwright's page: `describe` gives the `IAutoMovieCaptureSubject` to plan against, `drawing(cell, plan)` is the capture run's draw function, and `frame(seconds, passes)` draws one delivered frame per pass. Each draw applies the cell's inspection, frames a fitted view over every planned second, seeks and waits for the subject to report ready, draws through the resolved camera on the renderer's own canvas (the `beauty` pass at twice each side, averaged down), and returns the pixels with the label anchors and the resolved camera; the record's backend names the browser's backend, its Chromium version and the WebGL renderer string. The `automovie capture` command of the `automovie` package is the Node host.
+
+`runAutoMovieVideoCapture` samples an encoded or generated video file from the file itself. It plans FFmpeg runs, `scdet` to find the cuts and one frame-exact `select` with `-fps_mode passthrough`, and hands them to a host's process runner, so the stills are the file's own frames around every cut and event, captioned by frame and second. Compared against the source's round, its cells pair by second; pixels are compared only between stills of one backend, and a second the file lacks stays as an unmatched cell with its cause.
+
+## Request keys
+
+Each key a request reader accepts, and each option the `automovie capture` command of the `automovie` package takes for itself, serves a requirement of the [visual-debugging](../../.agents/skills/visual-debugging/SKILL.md), [3d-modeling](../../.agents/skills/3d-modeling/inspection.md) or [motion](../../.agents/skills/motion/verification.md) skill. A page's address and the command line carry the same keys; the command line writes each as `--<key>`, and the four options written below with their dashes belong to the command alone.
 
 | Key | Asks for | Serves |
 | --- | --- | --- |
+| `parts`, `hide` | The objects and marks whose paths the patterns select | Selecting the whole, each unit and its neighbours (capture, Subject) |
+| `shade`, `surface` | A guide pass, `clay` for form without colour or `faces` for the side each surface shows; surfaces off leave the marks alone | Choosing a pass by the question (passes) |
+| `marks`, `sliver` | The marks whose kinds the patterns select, `edge` for triangle sides over or without the surface | Marking what a measurement found (passes), the construction over the surface and the surface alone (inspection, Construction) |
+| `section` | A world-space cut | Cutaways as an inspection control |
+| `xray`, `stroke` | Marks through surfaces, and their width in output pixels | Reading marks in a reduced still |
+| `label` | The names of the matched objects and marks, placed by the handle's `labels` with overlapping ones dropped and reported | Showing labels to establish identity (passes) |
+| `color` | `pattern=rrggbb` colours for matched objects and mark kinds in one picture | Each kind of thing in one colour throughout a capture (passes) |
+| `trail`, `reach`, `ticks` | The travel of the matched objects, sampled `ticks` times a second for `reach` seconds either side of the drawn second, as the `trail` and `trail/now` kinds | An overlay of paths, so a still shows a movement (passes; motion verification) |
 | `subject` | The subject the host loads | Capturing the actual consumer (capture, Conditions) |
 | `from`, `to`, `rate`, `at` | An even sampling on the subject's frames, five per second by default, or exact seconds | Five to ten stills per second (capture, Times) |
 | `events`, `window` | Every frame within `window` frames, three by default, of each instant | The output's own consecutive frames around a contact, cut or join (capture, Times) |
@@ -119,11 +128,7 @@ A page passes its address's `searchParams` to the same reader, so one request te
 | `sweep`, `margin` | Each matched unit alone and with the neighbours within `margin` metres | Each unit alone and with its neighbours (capture, Subject) |
 | `longest`, `smallest`, `reduction` | The reader budget, 1568 and 200 px by default, and `area` or `nearest` reduction into cells | Reading the sheet first, at a size the reader takes in (capture, Stills and sheets) |
 | `round`, `compare`, `tolerance` | Keeping the capture as a named round, comparing it cell by cell with an earlier one, and the byte difference counted as unchanged | Rounds kept apart and compared (capture, Rounds; comparison) |
-
-A capture writes `<cell>.png` stills, `sheet-001.png` onwards and `record.json` into its root, or into `rounds/<round>` beneath it, and refuses a folder holding a file no record of its own lists. The record keeps the revision, the request as text, the budget, one row per planned cell with its hash, backend and resolved camera or the cause it was not drawn, and the comparison's pairs and unmatched cells.
-
-### The draw-only page
-
-Every picture a host saves comes from one function that runs in the browser. A page with no interface calls `installAutoMovieDraw(subjects)`, where `subjects` maps the props a host injected before the page loaded to the subjects the page offers, each an `IAutoMovieDrawSubject` whose `create()` returns the scene, the delivery camera, the clock, the raster, `seek`, the subject's views and its marks per second. `AutoMovieDrawSession` drives that page from a host through any driver shaped like Playwright's page: `describe` gives the `IAutoMovieCaptureSubject` to plan against, `drawing(cell, plan)` is the capture run's draw function, and `frame(seconds, passes)` draws one delivered frame per pass. Each draw applies the cell's inspection, frames a fitted view over every planned second, seeks and waits for the subject to report ready, draws through the resolved camera on the renderer's own canvas (the `beauty` pass at twice each side, averaged down), and returns the pixels with the label anchors and the resolved camera; the record's backend names the browser's backend, its Chromium version and the WebGL renderer string. The `automovie capture` command of the `automovie` package is the Node host.
-
-`runAutoMovieVideoCapture` samples an encoded or generated video file from the file itself. It plans FFmpeg runs, `scdet` to find the cuts and one frame-exact `select` with `-fps_mode passthrough`, and hands them to a host's process runner, so the stills are the file's own frames around every cut and event, captioned by frame and second. Compared against the source's round, its cells pair by second; pixels are compared only between stills of one backend, and a second the file lacks stays as an unmatched cell with its cause.
+| `--module` | The subject module whose subjects the draw page offers; required unless `--file` is given | Capturing the actual consumer (capture, Conditions) |
+| `--file` | An encoded or generated video file captured from its own frames instead of a drawn subject | Sampling an encoded file from the file itself (capture, Times) |
+| `--out` | The capture's root folder, `media/capture/<subject>` by default | Keeping each round's capture apart (capture, Rounds) |
+| `--backend` | `software`, SwiftShader through ANGLE and the default, or `gpu` | The renderer as a condition every still records (capture, Conditions) |
