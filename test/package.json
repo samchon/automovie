@@ -45,6 +45,7 @@
     "@ttsc/unplugin": "catalog:samchon",
     "@types/jsdom": "^21.1.7",
     "@types/node": "catalog:utils",
+    "@napi-rs/canvas": "1.0.1",
     "@types/pngjs": "catalog:media",
     "@types/three": "catalog:three",
     "@wrtnlabs/evidence": "catalog:samchon",
