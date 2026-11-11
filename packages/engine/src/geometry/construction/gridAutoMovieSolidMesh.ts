@@ -89,7 +89,7 @@ interface Grid {
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One local record carries provisional points, indexed constraints and full-cell triangles; domain assembly and residual triangulation have separate owners.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing retained grid is not an empty source. No trim index is reconstructed/welded, no full cell is admitted solely from corner flags and no mesh mutation occurs before all downstream planning succeeds.
  * @evidence contracts/development/common.md#meaningful-documentation States copied-jet lifetime, station-major exceptions, foreign-owner face charts, conservative cell exclusion and immutable-source premise. Periodic trim primitives use the local half-period family consumed by the existing kept-side reader.
- * @evidence contracts/development/implementation.md#efficient-algorithms Reads G grid jets once and performs O(G(S+L)) true-cut classification, O(C(S+D)) conservative cell tests and O(G(S+D)) boundary-contact scans for S cut segments, D domain authority segments and C cells. Domain work and the cost of each source predicate are additional, not constant-time assumptions.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Reads G grid jets once and performs O(G(S+L)) true-cut classification, conservative cell tests over only the barriers whose station range meets each cell's interval (bucketed once in O((S+D) R) for R intervals) and O(G(S+D)) boundary-contact scans for S cut segments, D domain authority segments and C cells. Domain work and the cost of each source predicate are additional, not constant-time assumptions.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares station/phase spacings, copied jets and grid-index reservations; source readers and full-cell lookup serve all residual queries within this face.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources O(G+S+L) grid/constraint/catalogue state is local; returned closures retain their source readers and cell table only until the caller finishes this face, with no global cache.
  */
@@ -248,6 +248,27 @@ export function gridAutoMovieSolidMesh(
   const full: AutoMovieSolidMeshPlan.ITriangle[] = [];
   const boundary: Map<string, AutoMovieSolidMeshConstraints.ISegment> =
     new Map();
+
+  // The barriers each station interval can meet, in their own order: a
+  // barrier whose station range misses an interval touches none of its cells,
+  // so each cell reads only its interval's few instead of the face's all.
+  const crossing: number[][] = Array.from(
+    { length: Math.max(0, stations.length - 1) },
+    (): number[] => [],
+  );
+  for (const [index, edge] of barriers.entries()) {
+    const a: Point | undefined = chart.get(edge.a);
+    const b: Point | undefined = chart.get(edge.b);
+    // A barrier without both chart points is offered to every interval, so
+    // the cell test meets it exactly as before.
+    const low: number =
+      a === undefined || b === undefined ? -Infinity : Math.min(a[0], b[0]);
+    const high: number =
+      a === undefined || b === undefined ? Infinity : Math.max(a[0], b[0]);
+    for (let i: number = 0; i + 1 < stations.length; i++)
+      if (!(high < stations[i]! || low > stations[i + 1]!))
+        crossing[i]!.push(index);
+  }
   for (let i: number = 0; i + 1 < stations.length; i++)
     for (let j: number = 0; j < columns; j++) {
       const next: number = (j + 1) % phases.length;
@@ -263,6 +284,7 @@ export function gridAutoMovieSolidMesh(
       const touched: boolean | string = touches(
         chart,
         barriers,
+        crossing[i]!,
         stations[i]!,
         stations[i + 1]!,
         phases[j]!,
@@ -402,10 +424,11 @@ function copy(
   };
 }
 
-/** True cuts retain their conservative bound; exactly consumed domain sides do not discard a source grid cell. */
+/** True cuts retain their conservative bound; exactly consumed domain sides do not discard a source grid cell. `candidates` are the indices of the barriers whose station range meets the cell's, in increasing order. */
 function touches(
   chart: ReadonlyMap<number, Point>,
   trim: readonly AutoMovieSolidMeshConstraints.ISegment[],
+  candidates: readonly number[],
   u0: number,
   u1: number,
   v0: number,
@@ -413,7 +436,8 @@ function touches(
   period: number | undefined,
   domainFrom: number,
 ): boolean | string {
-  for (const [index, edge] of trim.entries()) {
+  for (const index of candidates) {
+    const edge: AutoMovieSolidMeshConstraints.ISegment = trim[index]!;
     const a: Point = chart.get(edge.a)!;
     const b: Point = chart.get(edge.b)!;
     if (Math.max(a[0], b[0]) < u0 || Math.min(a[0], b[0]) > u1) continue;

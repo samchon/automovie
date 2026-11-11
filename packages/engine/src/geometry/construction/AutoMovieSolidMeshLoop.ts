@@ -58,10 +58,10 @@ export namespace AutoMovieSolidMeshLoop {
    * non-transparent reads or effectful descriptor traps are outside this premise.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Uses the same parity, metric projection and margin comparisons as keeps; copied chart values change no geometry.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One face-local closure owns lazy loop preparation; no global cache or spatial index is introduced.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves loop order, eager fallback, both distinct periodic rules, full metric scan, sqrt and equality; no tolerance or curve is changed.
-   * @evidence contracts/development/common.md#meaningful-documentation States numerical snapshot ownership, accessor fallback and the supported descriptor premise.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Preparation and queries are O(S+L) for S total edges and L loops; invariant shifts/tuples and repeated point metrics are reused.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One face-local closure owns lazy loop preparation and each loop's chart box; no global cache is introduced.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves loop order, eager fallback, both distinct periodic rules, sqrt and equality; the metric scan of a loop is skipped only where a lower bound of the same metric to the loop's chart box strictly exceeds the margin, so the answer is the full scan's and no tolerance or curve is changed.
+   * @evidence contracts/development/common.md#meaningful-documentation States numerical snapshot ownership, accessor fallback, the supported descriptor premise and the bound that skips a far loop.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Preparation is O(S+L) for S total edges and L loops; a query reads the kept side of each loop and scans only the loops whose box lies within the margin, so a face of many small holes costs each grid point its few near ones.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each new face owns new preparation after edits or rollback; eligible input and jet values stay unchanged while read.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Captures O(S+L) scratch for L loops until the returned reader is dropped; the face retains it only through its synchronous call.
    */
@@ -137,14 +137,59 @@ export namespace AutoMovieSolidMeshLoop {
         if (state.deltas === undefined) {
           const chart: [number, number][] = state.chart!.chart;
           state.deltas = new Float64Array(2 * chart.length);
+          let low: number = Infinity;
+          let high: number = -Infinity;
+          let phase: number = chart[0]?.[1] ?? 0;
+          let first: number = phase;
+          let last: number = phase;
           for (let k: number = 0; k < chart.length; k++) {
             const a: [number, number] = chart[k]!;
             const b: [number, number] = chart[(k + 1) % chart.length]!;
             state.deltas[2 * k] = b[0] - a[0];
             state.deltas[2 * k + 1] =
               AutoMovieSolidCycle.shift(b[1], a[1], period) - a[1];
+            low = Math.min(low, a[0]);
+            high = Math.max(high, a[0]);
+            first = Math.min(first, phase);
+            last = Math.max(last, phase);
+            phase += state.deltas[2 * k + 1]!;
           }
+          // The loop's phases unwrapped along its own walk: a box in phase
+          // exists only when they stay inside half a period, so every
+          // point's nearest lift is the one the segments read.
+          const narrow: boolean =
+            Number.isFinite(first) &&
+            Number.isFinite(last) &&
+            (period === undefined || last - first < period / 2);
+          state.box = [
+            low,
+            high,
+            narrow ? (first + last) / 2 : NaN,
+            narrow ? (last - first) / 2 : NaN,
+          ];
         }
+
+        // A point farther from the loop's chart box than the margin, by a
+        // lower bound of the metric, is farther from every segment: with
+        // `c = F / sqrt(E G)`, `E du^2 + 2 F du dv + G dv^2 >=
+        // (1 - |c|) (E du^2 + G dv^2)`, and any offset to the loop has
+        // `|du|`, `|dv|` at least the gaps to the box. The scan is skipped
+        // only on a strict excess, so a tie still reads every segment.
+        const box: [number, number, number, number] = state.box!;
+        const gapU: number = Math.max(0, box[0] - u, u - box[1]);
+        const gapV: number = Number.isNaN(box[2])
+          ? 0
+          : Math.max(
+              0,
+              Math.abs(AutoMovieSolidCycle.shift(v, box[2], period) - box[2]) -
+                box[3],
+            );
+        const shear: number = E > 0 && G > 0 ? Math.abs(F) / Math.sqrt(E * G) : 1;
+        if (
+          (1 - shear) * (E * gapU * gapU + G * gapV * gapV) >
+          margin * margin * (1 + 1e-9)
+        )
+          continue;
         if (
           !(
             distance(state.chart!, u, v, E, F, G, period, state.deltas) >=
@@ -176,6 +221,12 @@ export namespace AutoMovieSolidMeshLoop {
       v: number,
     ) => boolean;
     /** Metric segment differences, dx/dy per edge. */ deltas?: Float64Array;
+    /** The copied chart's box: lowest and highest station, then the middle and half width of its unwrapped phases, NaN when they span half a period or more. */ box?: [
+      number,
+      number,
+      number,
+      number,
+    ];
   }
 
   /** Copy only own data-valued numerical fields, without invoking ordinary getters. */
