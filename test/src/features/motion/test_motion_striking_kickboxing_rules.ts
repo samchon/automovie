@@ -17,9 +17,9 @@ import { TestValidator } from "@nestia/e2e";
  * the ring and the count place and time the knockdown procedure.
  *
  * Scenarios:
- * 1. Punches and round kicks to the face, ribs and thigh are legal; any
- *    strike at the back of the head, the spine, the throat or the groin is a
- *    foul; a push kick at the thigh is a foul and at the abdomen is legal.
+ * 1. Punches and round kicks to the face, throat, ribs and thigh are legal;
+ *    any strike at the back of the head, the back or the groin is a foul; a
+ *    push kick at the thigh is a foul and at the abdomen is legal.
  * 2. A schedule where `a` punches `b` while `b` is in a knockdown is
  *    flagged once; the same punch after `b`'s next action has started, or
  *    before the knockdown, is not. A knee followed at once by a punch breaks
@@ -31,7 +31,7 @@ import { TestValidator } from "@nestia/e2e";
  *    farther from the fallen fighter.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public foul test, the engine's legality check over the ruleset, the ring and the count, and reads their verdicts and points; a missed foul, a false flag, a corner on the wrong diagonal or a clamp outside the margin fails.
- * @evidence contracts/development/testing.md#independent-expectations Fouls are the GLORY rule list; the downed window is the knockdown's start to the next action's start; ring points follow from the square's half side and the rotation.
+ * @evidence contracts/development/testing.md#independent-expectations Fouls are the GLORY V2.2 §5.07 rule list, which names the back of the head, the back and the groin and not the throat; the downed window is the knockdown's start to the next action's start; ring points follow from the square's half side and the rotation.
  * @evidence contracts/development/testing.md#distinguishing-cases Legal and foul regions, punch and both kicks, strikes before, during and after a knockdown, inside and outside points, both neutral corners.
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit over hand-built schedules; it runs in CI.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 scenarios and what each pins.
@@ -42,7 +42,7 @@ export function test_motion_striking_kickboxing_rules(): void {
   });
   TestValidator.predicate(
     "legal targets",
-    ["face", "ribsLeft", "thighOuterLeft"].every(
+    ["face", "throat", "ribsLeft", "thighOuterLeft"].every(
       (r: string): boolean =>
         KickboxingRules.foul("punch", at(r)) === null &&
         KickboxingRules.foul("kick", { ...at(r), technique: "round" }) === null,
@@ -50,7 +50,7 @@ export function test_motion_striking_kickboxing_rules(): void {
   );
   TestValidator.predicate(
     "foul targets",
-    ["headBack", "upperBack", "throat", "groin"].every(
+    ["headBack", "upperBack", "groin"].every(
       (r: string): boolean => KickboxingRules.foul("punch", at(r)) !== null,
     ),
   );

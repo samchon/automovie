@@ -12,12 +12,13 @@ import type {
  * `checkAutoMovieLegality` form, for the motions vocabulary's `punch`,
  * `kick`, `defend` and `knockdown` actions.
  *
- * From the GLORY Rules (as inspected in the kickboxing research of #3201):
- * elbows, throws and sweeps are banned, so only punches, round kicks, push
- * kicks and knees strike (A.7, A.10); strikes to the back of the head, the
- * spine, the throat and the groin are fouls; a linear kick to the legs is a
- * foul, so a push kick may only strike the body (the research's reading of
- * "every leg attack arcs"); the clinch allows one immediate knee, so a knee
+ * From the GLORY Official Rules V2.2, §5.07 (as inspected in the kickboxing
+ * research of #3201): elbows, throws and sweeps are banned, so only punches,
+ * round kicks, push kicks and knees strike (A.7, A.10); strikes to the back
+ * of the head or the back (A.2) and to the groin (A.3) are fouls, and no
+ * other target is, the throat included; a linear kick to the legs is a foul,
+ * so a push kick may only strike the body (A.4: "an Athlete may only attack
+ * the legs with kicks that arc"); the clinch allows one immediate knee, so a knee
  * may not touch another strike of the same fighter (A.11); and no downed
  * opponent may be attacked. A strike
  * at a performer who is down (between the start of their knockdown and the
@@ -32,7 +33,7 @@ import type {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the engine's rule and schedule types and the interface's regions and targets.
  */
 export namespace KickboxingRules {
-  /** Regions a strike may not target (GLORY fouls: back of the head, spine, throat, groin). */
+  /** Regions a strike may not target (GLORY §5.07 A.2 the back of the head or the back, A.3 the groin). */
   export const FOUL_REGIONS: ReadonlySet<AutoMovieHumanoidRegion> =
     new Set<AutoMovieHumanoidRegion>([
       "headBack",
@@ -41,7 +42,6 @@ export namespace KickboxingRules {
       "lowerBack",
       "kidneyLeft",
       "kidneyRight",
-      "throat",
       "groin",
     ]);
 
