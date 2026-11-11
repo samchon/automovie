@@ -1,6 +1,8 @@
 import type { IAutoMovieMark } from "@automovie/engine";
+import type * as THREE from "three";
 
 import type { IAutoMovieViewerSubjectBounds } from "../subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
+import type { IAutoMovieInspectionLabel } from "./IAutoMovieInspectionLabel.js";
 import type { IAutoMovieInspectionLegendEntry } from "./IAutoMovieInspectionLegendEntry.js";
 
 /**
@@ -51,6 +53,27 @@ export interface IAutoMovieInspectionHandle {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Allocates nothing.
    */
   resize: (width: number, height: number) => void;
+
+  /**
+   * Place the names the request's `label` patterns ask for on a picture drawn through `camera` at `width` by `height` pixels, with the stamp's font pixel `scale` pixels across: one label per matched drawn object or mark path, anchored at the centre of its drawn box, a label that would overlap one placed before it listed in `dropped`. A host stamps `labels` on its still, and a page places them as elements, so both show the same labels at the same places.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is labelled, where a label is anchored, what is dropped, the parameters' units and how hosts use the result.
+   * @evidence contracts/development/implementation.md#principled-implementation Boxes are measured on the scene as drawn now, objects and marks alike, and placed by the shared placement owner, so a label names what the picture shows at its place.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Measure the labelled paths' boxes, then place them.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A label is never moved to make room; it is kept at its anchor or reported as dropped.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the labelled objects' drawn vertices and marks' coordinates, plus the placement's pass.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The pose and camera change between calls, so nothing is reused.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns plain records and keeps nothing.
+   */
+  labels: (
+    camera: THREE.Camera,
+    width: number,
+    height: number,
+    scale: number,
+  ) => {
+    labels: IAutoMovieInspectionLabel[];
+    dropped: IAutoMovieInspectionLabel[];
+  };
 
   /**
    * The world-space box of what the inspection leaves drawn now, marks included, or null when nothing is. A view is framed on it.

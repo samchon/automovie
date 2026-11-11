@@ -32,6 +32,8 @@ const SHADES: Record<IAutoMovieInspectionRequest.Shade, true> = {
  * | `section` | `x:0.2` cuts away everything beyond x = 0.2 m, `-x:0.2` everything before it, likewise `y` and `z`; or `px,py,pz:nx,ny,nz`, a point in metres and the direction cut away | No cut |
  * | `xray` | A switch | Off |
  * | `stroke` | A positive width in output pixels | 3 |
+ * | `label` | Path patterns separated by commas | No label |
+ * | `color` | `pattern=rrggbb` pairs separated by commas, such as `hero/arm=ff8800,curve/section=00ff00` | No colour |
  *
  * A switch is on for the empty string, `1` or `true` and off for `0` or `false`. Any other text, an unknown shade or a number out of range throws an `Error` that names the key, the text and what is accepted. Mark kinds are not checked here, because their producers own them; `applyAutoMovieInspection` refuses a kind pattern that matches no kind it is given.
  *
@@ -65,6 +67,8 @@ export function parseAutoMovieInspectionRequest(
     section: section(read("section")),
     xray: flag("xray", read("xray"), false),
     stroke: positive("stroke", read("stroke")) ?? STROKE,
+    label: list(read("label")),
+    color: colors(read("color")),
   };
 }
 
@@ -74,6 +78,18 @@ function list(text: string | null | undefined): string[] {
     .split(",")
     .map((item: string): string => item.trim())
     .filter((item: string): boolean => item !== "");
+}
+
+/** The `pattern=rrggbb` pairs of a comma-separated text. */
+function colors(
+  text: string | null | undefined,
+): IAutoMovieInspectionRequest.IColor[] {
+  return list(text).map((item: string): IAutoMovieInspectionRequest.IColor => {
+    const pair: RegExpExecArray | null = /^(.+)=([0-9a-fA-F]{6})$/u.exec(item);
+    if (pair === null)
+      throw new Error(`Inspection color "${item}" is not pattern=rrggbb`);
+    return { pattern: pair[1]!.trim(), color: Number.parseInt(pair[2]!, 16) };
+  });
 }
 
 /** A switch: on for the empty string, `1` or `true`, off for `0` or `false`. */

@@ -13,4 +13,6 @@ export const AUTO_MOVIE_INSPECTION_KEYS: readonly string[] = [
   "section",
   "xray",
   "stroke",
+  "label",
+  "color",
 ];

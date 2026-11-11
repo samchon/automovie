@@ -9,22 +9,27 @@ import type { IAutoMovieViewerSubjectBounds } from "../subjectViewpoint/IAutoMov
 import { AUTO_MOVIE_INSPECTION_PALETTE } from "./AUTO_MOVIE_INSPECTION_PALETTE.js";
 import type { IApplyAutoMovieInspectionProps } from "./IApplyAutoMovieInspectionProps.js";
 import type { IAutoMovieInspectionHandle } from "./IAutoMovieInspectionHandle.js";
+import type { IAutoMovieInspectionLabel } from "./IAutoMovieInspectionLabel.js";
 import type { IAutoMovieInspectionLegendEntry } from "./IAutoMovieInspectionLegendEntry.js";
 import type { IAutoMovieInspectionMarkSet } from "./IAutoMovieInspectionMarkSet.js";
 import type { IAutoMovieInspectionMeasured } from "./IAutoMovieInspectionMeasured.js";
 import type { IAutoMovieInspectionOverlay } from "./IAutoMovieInspectionOverlay.js";
 import type { IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
 import type { IAutoMovieInspectionRequest } from "./IAutoMovieInspectionRequest.js";
+import { applyAutoMovieInspectionSection } from "./applyAutoMovieInspectionSection.js";
 import { applyAutoMovieInspectionShade } from "./applyAutoMovieInspectionShade.js";
 import { autoMovieInspectionPathOf } from "./autoMovieInspectionPathOf.js";
 import { buildAutoMovieInspectionMarks } from "./buildAutoMovieInspectionMarks.js";
+import { chooseAutoMovieInspectionMarks } from "./chooseAutoMovieInspectionMarks.js";
+import { colorAutoMovieInspectionObjects } from "./colorAutoMovieInspectionObjects.js";
 import { legendAutoMovieInspectionMarks } from "./legendAutoMovieInspectionMarks.js";
 import { listAutoMovieInspectionPaths } from "./listAutoMovieInspectionPaths.js";
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
 import { measureAutoMovieInspectionBounds } from "./measureAutoMovieInspectionBounds.js";
-import { measureAutoMovieInspectionDefects } from "./measureAutoMovieInspectionDefects.js";
-import { measureAutoMovieInspectionEdges } from "./measureAutoMovieInspectionEdges.js";
+import { measureAutoMovieInspectionMeshes } from "./measureAutoMovieInspectionMeshes.js";
+import { measureAutoMovieInspectionPaths } from "./measureAutoMovieInspectionPaths.js";
 import { mergeAutoMovieInspectionLegends } from "./mergeAutoMovieInspectionLegends.js";
+import { placeAutoMovieInspectionLabels } from "./placeAutoMovieInspectionLabels.js";
 import { resolveAutoMovieInspectionColors } from "./resolveAutoMovieInspectionColors.js";
 
 /**
@@ -34,13 +39,13 @@ import { resolveAutoMovieInspectionColors } from "./resolveAutoMovieInspectionCo
  *
  * 1. **Kinds.** The kinds that exist are those of the supplied marks and those the inspection measures itself: `edge`, the triangle sides of a mesh, and `defect/open`, `defect/non-manifold`, `defect/inconsistent`, `defect/degenerate`, and `defect/sliver` while `sliver` is set. A `marks` pattern that matches none of them throws and lists them. A kind is drawn when a `marks` pattern matches it.
  * 2. **Measured marks.** Asked edges and defect kinds are measured on every drawn, visible mesh that `hide` does not leave out; batched meshes are not measured. Edges drawn over a surface show how its triangles follow the form, and with `surface` off they are drawn alone; no material is switched to wireframe.
- * 3. **Selection.** Every drawn object and every mark of an asked kind has a path. An object or a mark is selected when `parts` is empty or one of its patterns matches, and no `hide` pattern matches; a mark whose anchor object is invisible or matched by `hide` is left out too. A pattern that matches no object and no mark throws before anything changes, so a mistyped name is not an empty picture.
+ * 3. **Selection.** Every drawn object and every mark of an asked kind has a path, and a mark's path extends the path of the object it belongs to, so one pattern selects, hides, labels and colours objects and marks alike: `parts=hero/torso/section/3` draws one curve. An object or a mark is selected when `parts` is empty or one of its patterns matches, and no `hide` pattern matches; a mark whose anchor object is invisible or matched by `hide` is left out too. A `parts`, `hide`, `label` or `color` pattern that matches no object, mark or kind throws before anything changes, so a mistyped name is not an empty picture.
  * 4. **Isolation.** Unselected objects, and every mesh when `surface` is off, are taken off all layers. A layer is tested per object, so the objects beneath an isolated one stay as they were selected, which hiding it would not allow.
  * 5. **Shade.** Surfaces are coloured by `shade`. The `outline` pass draws its shells around the selected meshes only. The `pose` pass draws the skeleton of the whole scene, since a bone is not a drawn object and has no path to select.
- * 6. **Marks.** Selected marks are drawn in their kind's colour, or the flag colour when flagged, as lines `stroke` pixels wide and points three strokes across. Two kinds in one picture never share a colour, and no kind takes the flag colour or the active shade's surface colours; a clash throws naming both. With `xray` marks ignore depth.
+ * 6. **Colours and marks.** Meshes a `color` pattern matches take its colour as `colorAutoMovieInspectionObjects` draws it. Selected marks are drawn in their kind's colour, or the `color` a pattern gives the kind, or the flag colour when flagged, as lines `stroke` pixels wide and points three strokes across. Two kinds in one picture never share a colour, and no kind takes the flag colour or the active shade's surface colours; a clash throws naming both. With `xray` marks ignore depth.
  * 7. **Section.** With `section`, the plane is given to every material in the scene, marks included. It cuts three.js's built-in materials, the guide passes and inspection shades, and the marks. In the browser a film's own shader material is cut only when its shader includes three.js's clipping chunks, while the CPU rasterizer cuts every material.
  *
- * The legend lists each drawn kind once with its number of marks, a flag entry per kind with flagged marks, and under the faces shade the two surface colours with the number of surfaces shaded. `selected` lists the paths the request selected.
+ * The legend lists each drawn kind once with its number of marks, a flag entry per kind with flagged marks, and under the faces shade the two surface colours with the number of surfaces shaded. `selected` lists the paths the request selected, and `labels` places the names the `label` patterns ask for on a picture.
  *
  * A failure at any step undoes the steps before it and throws. An engine refusal while measuring a mesh is rethrown naming the mesh's path.
  *
@@ -113,40 +118,19 @@ export function applyAutoMovieInspection(
 
   // Measured marks on every drawn, visible mesh the request does not hide, read before any state changes.
   const drawn: IAutoMovieInspectionPath[] = listAutoMovieInspectionPaths(scene);
-  const meshes: { path: string; mesh: THREE.Mesh }[] = [];
-  for (const { path, object } of drawn)
-    if (
-      object instanceof THREE.Mesh &&
-      (object as { isBatchedMesh?: boolean }).isBatchedMesh !== true &&
-      object.geometry.hasAttribute("position") &&
-      shown(object)
-    )
-      meshes.push({ path, mesh: object });
-  const asked: Set<IAutoMovieMeshDefect.Kind> = new Set<IAutoMovieMeshDefect.Kind>(
-    defects.filter((kind: string): boolean => asks(`defect/${kind}`)),
-  );
-  const measured: IAutoMovieInspectionMeasured[] = [];
-  if (asks("edge"))
-    for (const { path, mesh } of meshes)
-      if (!hidden(path))
-        measured.push(measureAutoMovieInspectionEdges({ mesh, path }));
-  if (asked.size !== 0) {
-    const cache: Map<THREE.BufferGeometry, IAutoMovieMeshDefect[]> = new Map<
-      THREE.BufferGeometry,
-      IAutoMovieMeshDefect[]
-    >();
-    for (const { path, mesh } of meshes)
-      if (!hidden(path))
-        measured.push(
-          measureAutoMovieInspectionDefects({
-            mesh,
-            path,
-            kinds: asked,
-            sliver: request.sliver,
-            measured: cache,
-          }),
-        );
-  }
+  const {
+    meshes,
+    measured,
+  }: {
+    meshes: { path: string; mesh: THREE.Mesh }[];
+    measured: IAutoMovieInspectionMeasured[];
+  } = measureAutoMovieInspectionMeshes({
+    drawn,
+    defects,
+    sliver: request.sliver,
+    asks,
+    hidden,
+  });
 
   // Selection: object paths and the paths of marks of asked kinds, one verdict per distinct path.
   const known: Set<string> = new Set<string>([
@@ -164,9 +148,23 @@ export function applyAutoMovieInspection(
         matchAutoMovieInspectionPath(path, pattern),
       ),
   );
-  if (unmatched.length !== 0)
+  const unlabelled: string[] = request.label.filter(
+    (pattern: string): boolean =>
+      ![...known].some((path: string): boolean =>
+        matchAutoMovieInspectionPath(path, pattern),
+      ),
+  );
+  const uncoloured: string[] = request.color
+    .map((entry: IAutoMovieInspectionRequest.IColor): string => entry.pattern)
+    .filter(
+      (pattern: string): boolean =>
+        ![...known, ...available].some((name: string): boolean =>
+          matchAutoMovieInspectionPath(name, pattern),
+        ),
+    );
+  if (unmatched.length + unlabelled.length + uncoloured.length !== 0)
     throw new Error(
-      `Inspection patterns match no object or mark of the scene: ${unmatched.join(", ")}`,
+      `Inspection patterns match no object, mark or kind of the scene: ${[...unmatched, ...unlabelled, ...uncoloured].join(", ")}`,
     );
   const selects: (path: string) => boolean = memo(
     (path: string): boolean =>
@@ -185,30 +183,8 @@ export function applyAutoMovieInspection(
   // The supplied marks a picture draws, grouped by the object their frame belongs to.
   const choose: (marks: readonly IAutoMovieMark[]) => IChosen = (
     marks: readonly IAutoMovieMark[],
-  ): IChosen => {
-    const chosen: IAutoMovieMark[] = [];
-    const sets: Map<THREE.Object3D | null, IAutoMovieMark[]> = new Map<
-      THREE.Object3D | null,
-      IAutoMovieMark[]
-    >();
-    for (const mark of marks) {
-      if (!asks(mark.kind) || !selects(mark.path)) continue;
-      let anchor: THREE.Object3D | null = null;
-      if (mark.anchor !== null) {
-        anchor = anchors.get(mark.anchor) ?? null;
-        if (anchor === null)
-          throw new Error(
-            `Mark "${mark.path}" follows "${mark.anchor}", which no object of the scene is`,
-          );
-        if (!shown(anchor) || hidden(mark.anchor)) continue;
-      }
-      chosen.push(mark);
-      const set: IAutoMovieMark[] = sets.get(anchor) ?? [];
-      set.push(mark);
-      sets.set(anchor, set);
-    }
-    return { marks: chosen, sets };
-  };
+  ): IChosen =>
+    chooseAutoMovieInspectionMarks({ marks, asks, selects, hidden, anchors });
   const ownMarks: IAutoMovieMark[] = measured.flatMap(
     (set: IAutoMovieInspectionMeasured): IAutoMovieMark[] =>
       set.marks.filter((mark: IAutoMovieMark): boolean => selects(mark.path)),
@@ -281,6 +257,18 @@ export function applyAutoMovieInspection(
       applyAutoMovieInspectionShade(scene, request.shade);
     undo.push(shade.restore);
 
+    // Colours: the meshes the request colours take their colour over the shade.
+    if (request.color.length !== 0)
+      undo.push(
+        colorAutoMovieInspectionObjects({
+          meshes: meshes.filter(({ path }: { path: string }): boolean =>
+            selects(path),
+          ),
+          shade: request.shade,
+          color: request.color,
+        }),
+      );
+
     // Marks: one group at the scene root holding the measured marks and the current supplied ones.
     const group: THREE.Group = new THREE.Group();
     scene.add(group);
@@ -292,6 +280,7 @@ export function applyAutoMovieInspection(
       resolveAutoMovieInspectionColors({
         marks: [...current.marks, ...ownMarks],
         reserved,
+        recolor: request.color,
       });
     const own: IAutoMovieInspectionOverlay = buildAutoMovieInspectionMarks(
       paint(
@@ -314,45 +303,18 @@ export function applyAutoMovieInspection(
     undo.push((): void => overlay.dispose());
     group.add(overlay.object);
 
-    // Section: the plane owner overwrites clipping state, so the prior state is recorded here and put back.
+    // Section: the cut and the restore of the clipping state it borrows belong to the section owner.
     const renderer: IAutoMovieSectionRenderer = props.renderer ?? {
       localClippingEnabled: false,
     };
-    if (request.section !== null) {
-      const enabled: boolean = renderer.localClippingEnabled;
-      const clipping: Map<
-        THREE.Material,
-        { planes: THREE.Plane[] | null; intersection: boolean }
-      > = new Map<
-        THREE.Material,
-        { planes: THREE.Plane[] | null; intersection: boolean }
-      >();
-      scene.traverse((object: THREE.Object3D): void => {
-        for (const material of materialsOf(object))
-          if (!clipping.has(material))
-            clipping.set(material, {
-              planes: material.clippingPlanes,
-              intersection: material.clipIntersection,
-            });
-      });
-      undo.push((): void => {
-        for (const [material, prior] of clipping) {
-          if (
-            (material.clippingPlanes?.length ?? 0) !==
-            (prior.planes?.length ?? 0)
-          )
-            material.needsUpdate = true;
-          material.clippingPlanes = prior.planes;
-          material.clipIntersection = prior.intersection;
-        }
-        renderer.localClippingEnabled = enabled;
-      });
-      applyAutoMovieSectionPlanes({
-        renderer,
-        root: scene,
-        planes: [request.section],
-      });
-    }
+    if (request.section !== null)
+      undo.push(
+        applyAutoMovieInspectionSection({
+          scene,
+          renderer,
+          section: request.section,
+        }),
+      );
 
     // The legend and the selection are rewritten in place whenever the supplied marks change.
     const legend: IAutoMovieInspectionLegendEntry[] = [];
@@ -387,6 +349,7 @@ export function applyAutoMovieInspection(
           resolveAutoMovieInspectionColors({
             marks: [...next.marks, ...ownMarks],
             reserved,
+            recolor: request.color,
           });
         const built: IAutoMovieInspectionOverlay = buildAutoMovieInspectionMarks(
           paint(next.sets, nextKinds),
@@ -414,10 +377,49 @@ export function applyAutoMovieInspection(
     };
     update();
 
+    // The drawn marks with the objects their frames belong to, for labels and focus.
+    const placed: () => IPlaced[] = (): IPlaced[] => [
+      ...[...current.sets].flatMap(
+        ([anchor, marks]: [THREE.Object3D | null, IAutoMovieMark[]]): IPlaced[] =>
+          marks.map((mark: IAutoMovieMark): IPlaced => ({ mark, anchor })),
+      ),
+      ...measured.flatMap((set: IAutoMovieInspectionMeasured): IPlaced[] =>
+        set.marks
+          .filter((mark: IAutoMovieMark): boolean => selects(mark.path))
+          .map((mark: IAutoMovieMark): IPlaced => ({ mark, anchor: set.anchor })),
+      ),
+    ];
+    const shownObjects: IAutoMovieInspectionPath[] = drawn.filter(
+      (entry: IAutoMovieInspectionPath): boolean => selects(entry.path),
+    );
+
     return {
       legend,
       selected,
       update,
+      labels: (
+        camera: THREE.Camera,
+        width: number,
+        height: number,
+        scale: number,
+      ): {
+        labels: IAutoMovieInspectionLabel[];
+        dropped: IAutoMovieInspectionLabel[];
+      } =>
+        placeAutoMovieInspectionLabels({
+          boxes: measureAutoMovieInspectionPaths({
+            objects: shownObjects,
+            marks: placed(),
+            choose: (path: string): boolean =>
+              request.label.some((pattern: string): boolean =>
+                matchAutoMovieInspectionPath(path, pattern),
+              ),
+          }),
+          camera,
+          width,
+          height,
+          scale,
+        }),
       resize: (width: number, height: number): void => {
         if (
           !(Number.isFinite(width) && width > 0) ||
@@ -450,6 +452,15 @@ interface IChosen {
   sets: Map<THREE.Object3D | null, IAutoMovieMark[]>;
 }
 
+/** A drawn mark with the object its frame belongs to, `null` for world space. */
+interface IPlaced {
+  /** The mark. */
+  mark: IAutoMovieMark;
+
+  /** Its anchor. */
+  anchor: THREE.Object3D | null;
+}
+
 /** A one-argument predicate that decides each distinct argument once. */
 function memo(decide: (key: string) => boolean): (key: string) => boolean {
   const verdicts: Map<string, boolean> = new Map<string, boolean>();
@@ -461,26 +472,6 @@ function memo(decide: (key: string) => boolean): (key: string) => boolean {
     }
     return verdict;
   };
-}
-
-/** Whether an object and every ancestor are visible. */
-function shown(object: THREE.Object3D): boolean {
-  for (
-    let current: THREE.Object3D | null = object;
-    current !== null;
-    current = current.parent
-  )
-    if (!current.visible) return false;
-  return true;
-}
-
-/** The materials an object draws with, none for an object that has no material. */
-function materialsOf(object: THREE.Object3D): THREE.Material[] {
-  const material: THREE.Material | THREE.Material[] | undefined = (
-    object as Partial<Pick<THREE.Mesh, "material">>
-  ).material;
-  if (material === undefined) return [];
-  return Array.isArray(material) ? material : [material];
 }
 
 /** The two surface colours of the faces shade with the number of surfaces shaded, or nothing under any other shade or with surfaces off. */

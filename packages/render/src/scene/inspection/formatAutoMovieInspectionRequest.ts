@@ -6,7 +6,7 @@ import { parseAutoMovieInspectionRequest } from "./parseAutoMovieInspectionReque
 /**
  * Write an inspection request as the named text values `parseAutoMovieInspectionRequest` reads, so a request made in one host repeats in another as an address or a command line.
  *
- * Keys come in the order of `AUTO_MOVIE_INSPECTION_KEYS`, and a key whose value is the parser's absent value is left out, so the request that asks for nothing is the empty list. Lists are joined by commas, switches are written `1` or `0`, numbers in JavaScript's shortest form that reads back to the same number, and a cut always in its general `px,py,pz:nx,ny,nz` form. For every request the parser returns, parsing the written values gives an equal request.
+ * Keys come in the order of `AUTO_MOVIE_INSPECTION_KEYS`, and a key whose value is the parser's absent value is left out, so the request that asks for nothing is the empty list. Lists are joined by commas, colours written `pattern=rrggbb`, switches are written `1` or `0`, numbers in JavaScript's shortest form that reads back to the same number, and a cut always in its general `px,py,pz:nx,ny,nz` form. For every request the parser returns, parsing the written values gives an equal request.
  *
  * ```ts
  * const address = new URLSearchParams(formatAutoMovieInspectionRequest(request));
@@ -47,5 +47,17 @@ export function formatAutoMovieInspectionRequest(
     values.push(["xray", request.xray ? "1" : "0"]);
   if (request.stroke !== absent.stroke)
     values.push(["stroke", String(request.stroke)]);
+  if (request.label.length !== 0)
+    values.push(["label", request.label.join(",")]);
+  if (request.color.length !== 0)
+    values.push([
+      "color",
+      request.color
+        .map(
+          (entry: IAutoMovieInspectionRequest.IColor): string =>
+            `${entry.pattern}=${entry.color.toString(16).padStart(6, "0")}`,
+        )
+        .join(","),
+    ]);
   return values;
 }

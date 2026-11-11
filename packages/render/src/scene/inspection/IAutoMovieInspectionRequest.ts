@@ -56,6 +56,16 @@ export interface IAutoMovieInspectionRequest {
    * Width of mark lines in output pixels, in every renderer. A point is drawn three widths across.
    */
   stroke: number;
+
+  /**
+   * Path patterns of the drawn objects and marks to label with their names. Empty labels nothing.
+   */
+  label: string[];
+
+  /**
+   * Colours for one picture: each matched drawn object is shaded in its colour, under the `beauty` and `clay` shades only, and each matched mark kind is drawn in it instead of its default. A later entry wins over an earlier one.
+   */
+  color: IAutoMovieInspectionRequest.IColor[];
 }
 export namespace IAutoMovieInspectionRequest {
   /**
@@ -71,4 +81,20 @@ export namespace IAutoMovieInspectionRequest {
    * @evidence contracts/development/common.md#meaningful-documentation States what each inspection shade replaces, what lights it and what it reveals, and that the pose pass is not narrowed by a selection.
    */
   export type Shade = AutoMovieGuidePass | "clay" | "faces";
+
+  /**
+   * One colour assignment of a request: a pattern and the colour what it matches takes.
+   *
+   * @evidence contracts/development/design.md#principled-representation A pattern under the path grammar and an sRGB hex integer; the pattern is matched against object paths and mark kinds alike, because the request names both by one grammar.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, read by `applyAutoMovieInspection` and written by the request formatter.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No member says whether the pattern means an object or a kind; a pattern that matches neither is refused where the request is applied.
+   * @evidence contracts/development/common.md#meaningful-documentation States what each member is and how the pattern is matched.
+   */
+  export interface IColor {
+    /** Path pattern of the objects or mark kinds to colour. */
+    pattern: string;
+
+    /** The colour, sRGB hex. */
+    color: number;
+  }
 }

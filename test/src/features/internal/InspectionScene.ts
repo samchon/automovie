@@ -44,6 +44,8 @@ export namespace InspectionScene {
       section: null,
       xray: false,
       stroke: 3,
+      label: [],
+      color: [],
       ...changes,
     };
   }
