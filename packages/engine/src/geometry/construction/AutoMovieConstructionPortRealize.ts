@@ -21,7 +21,7 @@ type Vec3 = AutoMovieSolidVector.Vec3;
 /**
  * Realize a port (`IAutoMovieConstructionPort`): the host's port curve cut out of its face as a hole, a band from that curve to the part's rail (`AutoMovieConstructionSplitBand.strip`, the split's own strip with the monotone ribbon scale), all sharing their boundary vertices.
  *
- * Steps: walk the host and admit its face; take the checkpoint; walk the part and admit its face and rail (realized after the checkpoint, the rail inside its domain, the rail's side not already cut); build the band, whose start ribbons are the host surface's 2-jet across the port curve toward the curve's centre; then add, in one step, the port curve's vertices on the host (its hole cycle), the rail's vertices on the part (its rail cycle) and the band face with its two station-end cycles, every segment naming the face across it. The band's chain and surface join the realization's chains and surfaces.
+ * Steps: walk the host and admit its face; take the checkpoint; walk the part and admit its face and rail (realized after the checkpoint, the rail inside its domain, the rail's side not already cut); build the band, whose start ribbons are the host surface's 2-jet across the port curve (the ellipse, each column scaled from the centre by the loop's share when it declares a shape) toward the curve's centre; then add, in one step, the port curve's vertices on the host (its hole cycle), the rail's vertices on the part (its rail cycle) and the band face with its two station-end cycles, every segment naming the face across it. The band's chain and surface join the realization's chains and surfaces.
  *
  * A broken premise restores the checkpoint and records one diagnostic under the port's name; a foreign error restores it and propagates unchanged.
  *
@@ -101,10 +101,15 @@ export function AutoMovieConstructionPortRealize(
     const [a, b]: [number, number] = [node.loop.semi[0] * S, node.loop.semi[1]];
     const chart: [number, number][] = Array.from(
       { length: n },
-      (_: unknown, k: number): [number, number] => [
-        y0 + a * Math.cos(clock(k)),
-        p0 + node.loop.sense * b * Math.sin(clock(k)),
-      ],
+      (_: unknown, k: number): [number, number] => {
+        // A shaped loop keeps each column on its ray from the centre, so the
+        // chart direction into the port below is the ellipse's own.
+        const share: number = node.loop.shape?.[k] ?? 1;
+        return [
+          y0 + share * a * Math.cos(clock(k)),
+          p0 + share * node.loop.sense * b * Math.sin(clock(k)),
+        ];
+      },
     );
     const inward: [number, number][] = Array.from(
       { length: n },

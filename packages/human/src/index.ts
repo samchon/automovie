@@ -6,3 +6,4 @@ export * from "./typings";
 export * from "./generation/conic/AutoMovieHumanConicLoft";
 export * from "./generation/conic/AutoMovieHumanConicSection";
 export * from "./generation/f1/AutoMovieHumanF1";
+export * from "./generation/f1/AutoMovieHumanF1Joints";

@@ -38,6 +38,12 @@ export namespace FamilyConicRelief {
 
     /** The window is centred on the median line and its net is tied symmetric across it. */
     mirror: boolean;
+
+    /**
+     * Farthest a cast may land from the wall and still be observed, mm; absent, any distance. A cast that slips through an opening of the skin,
+     * between the lips or past an eyelid, lands on what lies behind it, and its height is not the skin's.
+     */
+    reach?: number;
   }
 
   /** One observed section with the wall beneath it. */
@@ -56,6 +62,9 @@ export namespace FamilyConicRelief {
 
     /** Withheld from the fit. */
     heldout: boolean;
+
+    /** Whether a chart point of the skin polygon is not skin: a point of the chord that closes the cut a neighbouring part leaves. A cast that lands there is not observed. */
+    open?: (p: C.P) => boolean;
   }
 
   /** A fitted relief and its sampled errors along the axis. */
@@ -114,8 +123,11 @@ export namespace FamilyConicRelief {
         // Where the axis runs along the wall instead of through it, a cast measures the wall's slope, not a depth: such phases are left to the net's fairness.
         const phi: number = window.phases[0] + offset;
         if (Math.abs(row.axis[0] * Math.cos(phi) + row.axis[1] * Math.sin(phi)) / inPlane < FACING) continue;
-        const along: number | null = cast(row.skin, row.wall(window.phases[0] + offset), [row.axis[0] / inPlane, row.axis[1] / inPlane]);
+        const from: C.P = row.wall(window.phases[0] + offset);
+        const along: number | null = cast(row.skin, from, [row.axis[0] / inPlane, row.axis[1] / inPlane]);
         if (along === null) continue;
+        if (window.reach !== undefined && Math.abs(along) / inPlane > window.reach) continue;
+        if (row.open?.([from[0] + (along * row.axis[0]) / inPlane, from[1] + (along * row.axis[1]) / inPlane]) === true) continue;
         const target: number = along / inPlane;
         const [iv, wv] = basis((offset / span) * (Cn - 3), Cn);
         const weights: [number, number][] = [];
