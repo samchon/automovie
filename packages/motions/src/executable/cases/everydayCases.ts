@@ -21,6 +21,7 @@ import { typeText } from "../../everyday/typeText";
 import { HumanPerformance } from "../../perform/HumanPerformance";
 import { HumanFoot } from "../../posture/HumanFoot";
 import { HumanHand } from "../../posture/HumanHand";
+import { poseBones } from "../../posture/poseBones";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 import type { humanPolygonMan } from "../humanPolygonMan";
@@ -129,7 +130,7 @@ export function everydayCases(
         performance.aim(
           { kind: "person", subject, region: "sternum" },
           t,
-          frame(),
+          frame(body),
         ).point;
       const pa: IAutoMovieVector3 = sternum("a", walking.end);
       const pb: IAutoMovieVector3 = sternum("b", walking.end);
@@ -885,17 +886,15 @@ function angle(a: IAutoMovieVector3, b: IAutoMovieVector3): number {
   );
 }
 
-/** A neutral aiming frame, for reading person targets. */
-function frame(): {
-  root: IAutoMovieVector3;
-  yaw: number;
-  heights: Record<"low" | "middle" | "high", number>;
-  range: number;
-} {
+/** A neutral aiming frame, for reading person targets; its own bones are the body at rest. */
+function frame(body: IHumanBody): Parameters<HumanPerformance["aim"]>[2] {
   return {
     root: { x: 0, y: 0, z: 0 },
     yaw: 0,
     heights: { low: 0, middle: 0, high: 0 },
     range: 1,
+    body,
+    bones: () =>
+      poseBones(body, { skeleton: body.skeleton.id, root: null, joints: [] }),
   };
 }

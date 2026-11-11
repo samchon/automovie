@@ -24,8 +24,8 @@ dist/
 # local screenshot scratch (not committed)
 .shots/
 
-# Website-only derived transports; rebuilt from production source before use.
-website/public/buildings/
+# The automovie-examples clone, a separate pnpm workspace with its own lockfile.
+/examples/
 
 # transpiled output that lands beside a source rather than in `lib/`
 packages/*/src/**/*.js

@@ -5,6 +5,7 @@ import {
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanTrunk } from "../everyday/HumanTrunk";
@@ -133,7 +134,7 @@ export namespace pickUp {
     );
     // The same grip must still hold at the top of the lift, so the lifted
     // pose is a key of the choice.
-    const bend: IAutoMovieVector3 = HumanHand.elbow(body, held, side);
+    const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(body, held, side);
     const chosen: HumanGrasp.IReach = HumanGrasp.reachable(
       body,
       held,

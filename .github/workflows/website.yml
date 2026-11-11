@@ -7,11 +7,6 @@ on:
     paths:
       - ".github/workflows/website.yml"
       - "config/**"
-      - "packages/engine/**"
-      - "packages/interface/**"
-      - "packages/render/**"
-      - "packages/viewer/**"
-      - "experimental/**"
       - "website/**"
       - "package.json"
       - "pnpm-lock.yaml"
@@ -20,11 +15,6 @@ on:
     paths:
       - ".github/workflows/website.yml"
       - "config/**"
-      - "packages/engine/**"
-      - "packages/interface/**"
-      - "packages/render/**"
-      - "packages/viewer/**"
-      - "experimental/**"
       - "website/**"
       - "package.json"
       - "pnpm-lock.yaml"
@@ -58,8 +48,6 @@ jobs:
           path: node_modules/.cache/ttsc
           key: ttsc-website-${{ hashFiles('pnpm-lock.yaml') }}
 
-      # Vite bundles the viewer, the engine, and the manor straight from their
-      # workspace sources, so no package build precedes the site build.
       - name: Build website
         run: pnpm --filter @automovie/website build
 

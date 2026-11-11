@@ -83,9 +83,7 @@ The [root README](../../../README.md#packages) and package READMEs own inventori
 
 ### Productions
 
-Film and screenplay productions live under `movies/`, and the architectural demonstrations under `experimental/`. The four productions under `experimental/` feed the public website and are not disposable.
-
-When relocating a production, preserve its adopted sources and historical proof, and move its actual consumers and workspace wiring with it.
+Productions live in the [automovie-examples](https://github.com/samchon/automovie-examples) repository, not here. A local clone sits at the ignored `examples/` as its own pnpm workspace with its own lockfile, linking this repository's packages by relative path, so this repository's workspace and lockfile never depend on whether it is present.
 
 ## Commands
 

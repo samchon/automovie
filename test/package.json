@@ -30,8 +30,6 @@
     "h264-mp4-encoder": "catalog:media",
     "kokoro-js": "catalog:media",
     "libopus-wasm": "catalog:media",
-    "medieval-baron-manor": "workspace:*",
-    "modern-suburban-house": "workspace:*",
     "onnxruntime-node": "catalog:media",
     "pngjs": "catalog:media",
     "three": "catalog:three",

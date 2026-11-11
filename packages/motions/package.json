@@ -28,7 +28,9 @@
   },
   "scripts": {
     "build": "ttsc --noEmit -P tsconfig.executable.json && rimraf lib && ttsc",
-    "node:capture": "ttsx --no-plugins --noCheck -P tsconfig.executable.json src/executable/motionCapture.ts"
+    "evidence": "evidence",
+    "node:capture": "ttsx --no-plugins --noCheck -P tsconfig.executable.json src/executable/motionCapture.ts",
+    "node:resolve": "ttsx --no-plugins --noCheck -P tsconfig.executable.json src/executable/motionResolve.ts"
   },
   "keywords": [],
   "author": "Samchon",

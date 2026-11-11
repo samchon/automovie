@@ -17,7 +17,15 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  *
  * @param props The base, the clock and the primitives.
  * @returns The plan.
- * @throws {Error} When the base and the clock differ in duration, a primitive's window is reversed or leaves the clock, or two primitives claim one channel over overlapping windows.
+ * @throws {Error} When the base and the clock differ in duration, a primitive claims no channel, a primitive's window is reversed or leaves the clock, or two primitives claim one channel over overlapping windows.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what the base and the clock give, the writing order, where contacts and weapons come from and every refusal.
+ * @evidence contracts/development/implementation.md#principled-implementation The posture at a second is the base's with each active primitive's channels merged in, in the order of the kinematic tree, so a part reads the parts it hangs from as already placed.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Sort once, validate once, collect contacts and weapons once, then one loop per posture.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Two primitives on one channel at one time throw instead of the later one winning; windows that only touch at an instant are allowed, and the sort is stable by the given order.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Validation is quadratic in the primitives once per plan, and an action has tens of them; each posture is linear in the primitives.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanChannel.merge` and `ORDER` and the clock's events; the sorted list is computed once and shared by every posture.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the base, the clock and the sorted primitives, and holds no per-second state.
  */
 export function composeAutoMovieMotionHumanAction(
   props: composeAutoMovieMotionHumanAction.IProps,
@@ -119,7 +127,14 @@ export function composeAutoMovieMotionHumanAction(
     },
   };
 }
-/** Companion types of {@link composeAutoMovieMotionHumanAction}. */
+/**
+ * Companion types of {@link composeAutoMovieMotionHumanAction}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what `IProps` is composed of; each member states its meaning and its constraint.
+ * @evidence contracts/development/design.md#principled-representation The posture kept where nothing is claimed, the time axis, the part movements, and which instant is decisive.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One interface of four members; contacts and weapons come from the base and the primitives and are not stated a second time.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The decisive instant is a name of the clock and not a second, so it cannot disagree with the clock.
+ */
 export namespace composeAutoMovieMotionHumanAction {
   /** What an action is composed of. */
   export interface IProps {

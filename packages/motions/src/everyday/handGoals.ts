@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import type { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -29,7 +30,7 @@ import { poseBones } from "../posture/poseBones";
  *
  * @param body The body.
  * @param posture The posture the arms are added to; its legs and trunk are solved with them.
- * @param requests One request per moving hand.
+ * @param requests One target per moving hand; a target's `curl` is not read here.
  * @returns The posture with the arm goals set.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States why two passes are needed and what each keeps.
@@ -43,7 +44,7 @@ import { poseBones } from "../posture/poseBones";
 export function handGoals(
   body: IHumanBody,
   posture: IHumanPosture,
-  requests: readonly handGoals.IRequest[],
+  requests: readonly AutoMovieMotionHumanArm.ISided[],
 ): IHumanPosture {
   if (requests.length === 0) return posture;
   const limb = (side: HumanHand.Side): "leftArm" | "rightArm" =>
@@ -113,34 +114,3 @@ export function handGoals(
 
 /** Correction passes: two bring the contact within a few millimetres where one leaves up to two centimetres (measured on the rest places). */
 const PASSES: number = 2;
-
-/**
- * Companion types of {@link handGoals}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents each member's frame.
- * @evidence contracts/development/design.md#principled-representation A hand surface, its world point and rotation, the hand shape and the elbow hint.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the everyday laws pass.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses HumanHand's surface and shape types.
- */
-export namespace handGoals {
-  /** One hand's goal. */
-  export interface IRequest {
-    /** The hand. */
-    side: HumanHand.Side;
-
-    /** The surface brought to the point. */
-    surface: HumanHand.Surface;
-
-    /** The hand shape the posture holds. */
-    shape: HumanHand.Shape;
-
-    /** Where the surface goes, world metres. */
-    point: IAutoMovieVector3;
-
-    /** The hand's asked world rotation from rest. */
-    rotation: IAutoMovieQuaternion;
-
-    /** The elbow's bend hint, world metres. */
-    bend: IAutoMovieVector3;
-  }
-}

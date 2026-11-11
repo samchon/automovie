@@ -6,6 +6,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
@@ -42,9 +45,8 @@ import { poseBones } from "../posture/poseBones";
  * are the conventional light, ordinary and deep bows) while the hips move
  * back to keep the body balanced over the feet ({@link HumanBalance}).
  *
- * Transport time follows the distance moved, `0.25 + 0.5 D` seconds for `D`
- * metres (provisional; a gesture's preparation lasts a few tenths of a
- * second, and reaching time grows with distance as Fitts 1954 describes),
+ * Transport time is the free-space time of the distance moved
+ * (`AutoMovieMotionHumanTiming.transport`),
  * 0.3 s for head and shoulder gestures and one second per 30 degrees of a
  * bow (provisional). The Effort's tempo scales every phase, its extent the
  * gesture's size and its elbow term the arm's width ({@link HumanEffort}).
@@ -125,7 +127,7 @@ export namespace gesture {
    * @evidence contracts/development/common.md#meaningful-documentation States what is planned and every refusal; the law's doc gives the phases, timing laws and provisional values.
    * @evidence contracts/development/implementation.md#principled-implementation Kendon's phases (Kendon 1980; McNeill 1992): hand goals from gestureStroke solved by the arm's inverse kinematics, transported on minimum-jerk paths with spherical interpolation of the hand's turn; joint gestures added under an envelope; a bow's hip shift from the engine's centre of mass (HumanBalance.shift) at the peak pitch, scaled by the pitch's sine between. Start and rest points are stored in the performer's frame so they follow the standing body.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The plan owns phase timing and transport; gestureStroke owns each gesture's goals and angles, `bow` the pitched posture, handGoals the arm solve.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The `0.25 + 0.5 D` transport, the 0.3 s joint-gesture preparation and the second per 30 degrees of a bow are named provisional values; Effort modifiers come from HumanEffort; no gesture or body is special-cased beyond the kind's own table rows.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The free-space transport time is the timing owner's; the 0.3 s joint-gesture preparation and the second per 30 degrees of a bow are named provisional values; Effort modifiers come from HumanEffort; no gesture or body is special-cased beyond the kind's own table rows.
    * @evidence contracts/development/implementation.md#efficient-algorithms Planning costs two bone resolves for the start and rest hands and, for a bow, one balance solve; each posture costs one stand posture, one stroke goal per moving hand (each may aim at the target) and one hand solve.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Phase times, start and rest hands and the bow's shift are computed once per instance and every posture reads them.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The posture closure holds this instance's body, parameters, phase times and start and rest hands, released with the performance; nothing grows per call.
@@ -221,9 +223,10 @@ export namespace gesture {
         ? depth / 30
         : sides.length === 0
           ? 0.3
-          : 0.25 + 0.5 * transport);
+          : AutoMovieMotionHumanTiming.transport(transport));
     const retract: number = prepare;
-    const stroke: number = T * cycles * rhythm.period;
+    const stroke: number =
+      T * cycles * AutoMovieMotionHumanTiming.seconds(rhythm.period);
     const strokeEnd: number = prepare + stroke;
     const retractAt: number = strokeEnd + hold;
     const duration: number = retractAt + retract;
@@ -281,7 +284,7 @@ export namespace gesture {
         }
 
         // Hands: transported to the stroke, through it, and back to rest.
-        const requests: handGoals.IRequest[] = [];
+        const requests: AutoMovieMotionHumanArm.ISided[] = [];
         const frame: HumanFrame.IFrame = {
           origin: posture.root,
           yaw: posture.yaw,
@@ -320,7 +323,7 @@ export namespace gesture {
             shape: goal.shape,
             point,
             rotation,
-            bend: HumanHand.elbow(body, posture, side, goal.out + mods.elbow),
+            bend: AutoMovieMotionHumanBend.hang(body, posture, side, goal.out + mods.elbow),
           });
           const shape = HumanHand.shape(side, goal.shape);
           const relaxed = HumanHand.shape(side, "relaxed");

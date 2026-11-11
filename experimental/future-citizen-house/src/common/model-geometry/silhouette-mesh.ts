@@ -1,1 +1,0 @@
-export { authoredSilhouette } from "./authoredSilhouette";

@@ -10,10 +10,13 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../../body/IHumanBody";
+import type { AutoMovieMotionHumanTarget } from "../../compose/AutoMovieMotionHumanTarget";
 import type { gestureStroke } from "../../everyday/gestureStroke";
 import type { HumanPerformance } from "../../perform/HumanPerformance";
+import { HumanFrame } from "../../posture/HumanFrame";
 import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { MotionPlaceVerdicts } from "./MotionPlaceVerdicts";
 
 /**
  * The checks that a gesture performs its own goal, measured on the
@@ -36,7 +39,10 @@ import type { IMotionCaptureCase } from "../IMotionCaptureCase";
  *   `stopPalm`: the palm faces forward within 30 degrees at shoulder height
  *   within 15 cm; `palmsUp`: both palms face up within 35 degrees;
  * - `scratchHead`: the index fingertip stays within 15 mm plus the finger's
- *   radius of the temple.
+ *   radius of the temple;
+ * - `wave` and `stopPalm`: the palm is at the place the law names, read back
+ *   from the pose at the stroke's middle as the nearest height, lateral and
+ *   distance names.
  *
  * Thresholds other than the head range are provisional, set at about half
  * of each gesture's planned size so they test that the gesture happens, not
@@ -114,6 +120,25 @@ export function everydayGestureVerdicts(
         ),
       ),
     );
+  const placed = (
+    name: string,
+    expected: AutoMovieMotionHumanTarget.IGrid,
+  ): IMotionCaptureCase.IVerdict => {
+    // The law places the hand from the rig origin, not from the hips bone.
+    const root = performance.pose("a", mid).root;
+    if (root === null) throw new Error("A performed pose has a root");
+    return MotionPlaceVerdicts.at(
+      name,
+      body,
+      {
+        root: root.translation,
+        yaw: HumanFrame.heading(root.rotation),
+      },
+      "right",
+      palm(mid, "right").point,
+      expected,
+    );
+  };
   switch (kind) {
     case "nod":
     case "shakeHead": {
@@ -168,6 +193,11 @@ export function everydayGestureVerdicts(
           swings(xs) === cycles,
           `${swings(xs)} swings`,
         ),
+        placed("hand at eye, outside, near", {
+          height: "eye",
+          lateral: "outside",
+          distance: "near",
+        }),
       ];
     }
     case "beckon": {
@@ -298,6 +328,11 @@ export function everydayGestureVerdicts(
           height <= 0.15,
           `${(height * 1000).toFixed(1)} mm off`,
         ),
+        placed("hand at shoulder, inside, far", {
+          height: "shoulder",
+          lateral: "inside",
+          distance: "far",
+        }),
       ];
     }
     case "palmsUp":

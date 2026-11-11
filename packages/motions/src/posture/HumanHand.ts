@@ -14,9 +14,8 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "./IHumanPosture";
+import { HumanFrame } from "./HumanFrame";
 import { poseBones } from "./poseBones";
-import { resolveHumanPosture } from "./resolveHumanPosture";
 
 /**
  * A hand brought to a target: which wrist point and hand rotation put a
@@ -275,6 +274,125 @@ export namespace HumanHand {
   }
 
   /**
+   * A direction of the performer's floor frame: `out` is away from the
+   * midline on the acting hand's side and `in` toward it, so one name serves
+   * both hands.
+   */
+  export type Axis = "out" | "in" | "up" | "down" | "forward" | "back";
+
+  /**
+   * A direction on one of three rungs: an axis, a share of the way between
+   * two axes, or explicit components (out, up and forward of the acting
+   * side; any non-zero length) with where they come from.
+   */
+  export type Direction =
+    | Axis
+    | {
+        /** The two axes; they must not be opposite. */
+        between: readonly [Axis, Axis];
+
+        /** How far from the first to the second, in [0, 1]. */
+        share: number;
+      }
+    | {
+        /** The components. */
+        explicit: { out: number; up: number; forward: number };
+
+        /** A citation, or `provisional: <capture case name>`. */
+        source: string;
+      };
+
+  /** How a hand is turned, by named directions. */
+  export interface IFacing {
+    /** Where the fingers point. */
+    fingers: Direction;
+
+    /** Where the palm faces; not parallel to `fingers`. */
+    palm: Direction;
+  }
+
+  /**
+   * The world unit vector of a named direction for a hand of a performer
+   * heading `yaw`.
+   *
+   * @param side The acting hand, which `out` and `in` mirror by.
+   * @param yaw The performer's heading, degrees about +Y.
+   * @param direction The direction, on any rung.
+   * @returns The unit vector, world frame.
+   * @throws {Error} When a between joins opposite axes or its share lies outside [0, 1], when explicit components are all zero, or when an explicit source is empty.
+   */
+  export function direction(
+    side: Side,
+    yaw: number,
+    direction: Direction,
+  ): IAutoMovieVector3 {
+    const sign: number = side === "left" ? 1 : -1;
+    const axis = (name: Axis): IAutoMovieVector3 => {
+      switch (name) {
+        case "out":
+          return { x: sign, y: 0, z: 0 };
+        case "in":
+          return { x: -sign, y: 0, z: 0 };
+        case "up":
+          return { x: 0, y: 1, z: 0 };
+        case "down":
+          return { x: 0, y: -1, z: 0 };
+        case "forward":
+          return { x: 0, y: 0, z: 1 };
+        case "back":
+          return { x: 0, y: 0, z: -1 };
+      }
+    };
+    let local: IAutoMovieVector3;
+    if (typeof direction === "string") local = axis(direction);
+    else if ("between" in direction) {
+      if (!(direction.share >= 0 && direction.share <= 1))
+        throw new Error("A between share lies in [0, 1]");
+      const a: IAutoMovieVector3 = axis(direction.between[0]);
+      const b: IAutoMovieVector3 = axis(direction.between[1]);
+      if (Vector3.dot(a, b) < -0.5)
+        throw new Error("A direction between opposite axes is undefined");
+      local = Vector3.add(
+        Vector3.scale(a, 1 - direction.share),
+        Vector3.scale(b, direction.share),
+      );
+    } else {
+      if (direction.source.trim() === "")
+        throw new Error("An explicit direction states its source");
+      local = {
+        x: sign * direction.explicit.out,
+        y: direction.explicit.up,
+        z: direction.explicit.forward,
+      };
+      if (!(Vector3.length(local) > 1e-9))
+        throw new Error("An explicit direction has a length");
+    }
+    return HumanFrame.point(
+      { origin: { x: 0, y: 0, z: 0 }, yaw },
+      Vector3.normalize(local),
+    );
+  }
+
+  /**
+   * The hand's world rotation from its rest for a named orientation.
+   *
+   * @param side The hand.
+   * @param yaw The performer's heading, degrees about +Y.
+   * @param facing Where the fingers point and the palm faces, by name.
+   * @returns The rotation.
+   */
+  export function facing(
+    side: Side,
+    yaw: number,
+    facing: IFacing,
+  ): IAutoMovieQuaternion {
+    return rotation(side, {
+      fingers: direction(side, yaw, facing.fingers),
+      palm: direction(side, yaw, facing.palm),
+    });
+  }
+
+  /**
    * The wrist goal that puts a hand surface on a world point with the hand
    * turned by a given rotation.
    *
@@ -373,38 +491,6 @@ export namespace HumanHand {
       normal: placed.normal,
       forward: turn(local.forward),
     };
-  }
-
-  /**
-   * A natural elbow hint for an arm goal: a point beside, below and behind
-   * the shoulder in the trunk's turned frame, so the elbow hangs down and out
-   * as an unloaded arm does and never rises or folds across the body. A law
-   * passes its own point instead where the movement needs another bend.
-   *
-   * @param body The body.
-   * @param posture The root and heading the trunk is placed by.
-   * @param side The arm.
-   * @param out Extra outward share of the upper arm, for akimbo and wide gestures; 0 by default.
-   * @returns The world point.
-   */
-  export function elbow(
-    body: IHumanBody,
-    posture: Pick<IHumanPosture, "root" | "yaw" | "pitch" | "roll">,
-    side: Side,
-    out: number = 0,
-  ): IAutoMovieVector3 {
-    const shoulder: IAutoMovieVector3 = body.rest.get(`${side}UpperArm`)!;
-    const sign: number = side === "left" ? 1 : -1;
-    const m = body.measure;
-    const local: IAutoMovieVector3 = {
-      x: shoulder.x + sign * (0.4 + out) * m.upperArm,
-      y: shoulder.y - m.upperArm,
-      z: shoulder.z - 0.5 * m.upperArm,
-    };
-    return Vector3.add(
-      posture.root,
-      Quaternion.rotateVector(resolveHumanPosture.heading(posture), local),
-    );
   }
 }
 
