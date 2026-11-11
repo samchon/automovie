@@ -314,14 +314,6 @@ export namespace resolveAutoMovieHumanoidSurfaces {
    * @param tangent The offset on the region's tangent plane.
    * @returns The bone-local frame of the surface point.
    * @throws {Error} When the region is not placed by a ray, or a bone or segment it needs is missing.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the plane, the ray, the result's frame, the zero case and the refused regions.
-   * @evidence contracts/development/implementation.md#principled-implementation The same station and exact collider exit that place the region, on a ray turned toward the offset point, so the point follows the body's own shapes.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One station, one tangent basis, one exit.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A region with no ray throws rather than being moved along a guessed plane; the point is never left off the surface.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the bone's colliders after one rest pose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the rest readers and the exit routine with the region table's resolution.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh record and retains nothing.
    */
   export function offset(
     skeleton: IAutoMovieSkeleton,

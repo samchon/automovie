@@ -174,6 +174,14 @@ export namespace AutoMovieMotionHumanVariation {
      *
      * @param key The slot key, a short stable string such as `reach.place`.
      * @returns The slot's stream and the repeat's index in it.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States what a key is and what the result holds.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A signature with no body; `of` builds the function and answers for it.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A signature with no body; it declares one read and adds no layer.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A signature with no body; nothing here can special-case a key.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A signature with no body; it chooses no algorithm.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature with no body; it coordinates no work.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature with no body; it holds nothing.
      */
     series(key: string): IHumanActionContext.ISeries;
   }
