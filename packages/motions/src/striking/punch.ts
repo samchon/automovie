@@ -5,6 +5,7 @@ import {
   Quaternion,
   Vector3,
   minimumJerk,
+  resolveAutoMovieHumanoidSurfaces,
   resolvePose,
 } from "@automovie/engine";
 import type {
@@ -16,6 +17,8 @@ import type {
 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
+import { AutoMovieMotionHumanVariation } from "../compose/AutoMovieMotionHumanVariation";
+import type { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -124,6 +127,14 @@ export namespace punch {
 
     /** A feint: the share of the delivery shown before returning, in (0, 1). */
     feint?: number;
+
+    /**
+     * How much repeats of the punch differ: `variation` in [0, 1] scales the
+     * spread of the point aimed at within a person's region, and
+     * `proficiency` replaces the performer's skill for that spread. Absent or
+     * 0, every repeat is aimed at the region's own point.
+     */
+    manner?: Pick<AutoMovieMotionManner.IManner, "variation" | "proficiency">;
   }
 
   /** Elbow flexion band at contact by technique, degrees (IBA drawings read; hook and uppercut near a right angle). */
@@ -306,6 +317,31 @@ export namespace punch {
       });
       return ride.carry(posture, limb, context.start + seconds);
     };
+    // The point aimed at within a person's region, varied per repeat: one
+    // offset on the region's tangent plane, read by the aim, by the defence
+    // that answers this punch and so by the record. The region's radius comes
+    // from the struck body. Only the intent varies here: the arm's miss is
+    // the seeded scatter the tracker already adds (`StrikingQuality.offset`),
+    // so it is not counted a second time.
+    const source: AutoMovieMotionHumanVariation.ISource | undefined =
+      AutoMovieMotionHumanVariation.of(context, p.manner);
+    let tangent: resolveAutoMovieHumanoidSurfaces.ITangent | undefined;
+    const aimed = (): resolveAutoMovieHumanoidSurfaces.ITangent | undefined => {
+      if (
+        source === undefined ||
+        p.at.kind !== "person" ||
+        !resolveAutoMovieHumanoidSurfaces.rayed(p.at.region)
+      )
+        return undefined;
+      tangent ??= AutoMovieMotionHumanVariation.strike(source, "point", {
+        radius: StrikingBody.radius(
+          context.performer(p.at.subject).body,
+          p.at.region,
+        ),
+        scatter: 0,
+      });
+      return tangent;
+    };
     let built: IGeometry | undefined;
     let building: boolean = false;
     const geometry = (): IGeometry => {
@@ -316,7 +352,7 @@ export namespace punch {
         );
       building = true;
       try {
-        built = build(context, timing, fixed);
+        built = build(context, timing, fixed, aimed());
       } finally {
         building = false;
       }
@@ -348,6 +384,10 @@ export namespace punch {
           }
         : {}),
     };
+    // Read on demand, as the other person may not be placed while this punch
+    // is planned.
+    if (source !== undefined)
+      Object.defineProperty(out, "aimed", { enumerable: true, get: aimed });
     StrikingRecord.register(
       out,
       (): StrikingRecord.IRecord => geometry().record,
@@ -392,6 +432,7 @@ export namespace punch {
     context: IHumanActionContext<IParams>,
     timing: ITiming,
     fixed: number | null | undefined,
+    tangent: resolveAutoMovieHumanoidSurfaces.ITangent | undefined,
   ): IGeometry {
     const p: IParams = context.params;
     const { side, lead, which, delivery, shown, recoil, drop, duration } =
@@ -405,14 +446,27 @@ export namespace punch {
       side === "left" ? "leftArm" : "rightArm";
     const fist: "fistLeft" | "fistRight" =
       side === "left" ? "fistLeft" : "fistRight";
-    const aim = (seconds: number): IAutoMovieVector3 =>
-      StrikingTarget.aim(
+    const at: AutoMovieMotionTarget = p.at;
+    const aim = (seconds: number): IAutoMovieVector3 => {
+      if (tangent !== undefined && at.kind === "person") {
+        const other: IHumanActionContext.IPerformer = context.performer(
+          at.subject,
+        );
+        return StrikingBody.region(
+          other.body,
+          other.bones(seconds),
+          at.region,
+          tangent,
+        ).point;
+      }
+      return StrikingTarget.aim(
         context,
-        p.at,
+        at,
         seconds,
         (): number =>
           0.9 * (m.upperArm + m.forearm) + 0.5 * m.shoulderHalfWidth,
       );
+    };
 
     // The line to the target at the launch and the trunk turn it calls for.
     const first: IAutoMovieVector3 = aim(t0 - StrikingTarget.LOOK);

@@ -120,6 +120,18 @@ export interface IHumanActionContext<P = object> {
    * @returns The stream.
    */
   random(channel: string): IAutoMovieRandom;
+
+  /**
+   * The draws of one channel across this action's repeats: one stream for
+   * every instance of the action's id, keyed by the chain seed, the subject,
+   * the action's id and the channel, with this instance's ordinal as the
+   * index into it. A low-discrepancy sequence over the repeats reads it, so
+   * consecutive repeats land apart.
+   *
+   * @param channel The quantity drawn.
+   * @returns The stream and this instance's index.
+   */
+  series(channel: string): IHumanActionContext.ISeries;
 }
 /**
  * Companion types of {@link IHumanActionContext}.
@@ -156,6 +168,15 @@ export namespace IHumanActionContext {
      * @returns The frame.
      */
     frame(seconds: number): IHumanProp.IFrame;
+  }
+
+  /** A stream shared by every repeat of an action, with one repeat's place in it. */
+  export interface ISeries {
+    /** The stream, the same for every instance of the action's id. */
+    random: IAutoMovieRandom;
+
+    /** Which occurrence of the action's id in the performer's chain this is, from 0. */
+    index: number;
   }
 
   /** An action placed in the performance. */

@@ -11,7 +11,11 @@ import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import type { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
+import { AutoMovieMotionHumanVariation } from "../compose/AutoMovieMotionHumanVariation";
+import { AutoMovieMotionHumanVariationPlace } from "../compose/AutoMovieMotionHumanVariationPlace";
+import type { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -114,6 +118,15 @@ export namespace gesture {
 
     /** Movement quality. */
     effort?: HumanEffort.IEffort;
+
+    /**
+     * How much repeats of the gesture differ: `variation` in [0, 1] scales
+     * the spread of the preparation's length and of where a `wave` or a
+     * `stopPalm` holds the hand within its named place, and `proficiency`
+     * replaces the performer's skill for those spreads. Absent or 0, every
+     * repeat is the same.
+     */
+    manner?: Pick<AutoMovieMotionManner.IManner, "variation" | "proficiency">;
   }
 
   /**
@@ -174,7 +187,28 @@ export namespace gesture {
       region: p.region ?? "forehead",
       extent: mods.extent,
       ...(target(seconds) === undefined ? {} : { target: target(seconds)! }),
+      ...(source === undefined || travel === undefined
+        ? {}
+        : {
+            vary: (
+              record: AutoMovieMotionHumanTarget.IDefault,
+            ): AutoMovieMotionHumanTarget.IDefault =>
+              AutoMovieMotionHumanVariationPlace.vary(
+                source,
+                "place",
+                body,
+                side,
+                record,
+                travel,
+              ),
+          }),
     });
+    // This repeat's variation, and the arrival its place offset is read
+    // from: set once the named place's transport is known, so the places are
+    // as named until then.
+    const source: AutoMovieMotionHumanVariation.ISource | undefined =
+      AutoMovieMotionHumanVariation.of(context, p.manner);
+    let travel: AutoMovieMotionHumanVariationPlace.ITravel | undefined;
 
     // Where each hand starts (the entry) and rests (the relaxed hanging arm), in the performer's frame.
     const probe: IHumanActionPlan = stand.plan({
@@ -190,38 +224,57 @@ export namespace gesture {
     const rest: Partial<
       Record<HumanHand.Side, AutoMovieMotionHumanArm.IAngles>
     > = {};
-    let transport: number = 0;
     for (const side of sides) {
-      const goal: gestureStroke.IHand = gestureStroke.hand(
-        p.kind,
-        side,
-        0,
-        cycles,
-        input(at0, 0, side),
-      );
       begin[side] = AutoMovieMotionHumanArm.angles(context.entry.pose, side);
       rest[side] = AutoMovieMotionHumanArm.angles(restPose, side);
-      transport = Math.max(
-        transport,
-        Vector3.length(
-          Vector3.subtract(
-            goal.point,
-            HumanHand.frame(body, entryBones, side, goal.surface, "relaxed")
-              .point,
-          ),
-        ),
-      );
     }
+    // The farthest a hand travels from the entry to its stroke's start.
+    const span = (): number => {
+      let far: number = 0;
+      for (const side of sides) {
+        const goal: gestureStroke.IHand = gestureStroke.hand(
+          p.kind,
+          side,
+          0,
+          cycles,
+          input(at0, 0, side),
+        );
+        far = Math.max(
+          far,
+          Vector3.length(
+            Vector3.subtract(
+              goal.point,
+              HumanHand.frame(body, entryBones, side, goal.surface, "relaxed")
+                .point,
+            ),
+          ),
+        );
+      }
+      return far;
+    };
 
     const T: number = mods.tempo;
-    const prepare: number =
+    const named: number = span();
+    if (source !== undefined && named > 0)
+      travel = {
+        distance: named,
+        seconds: T * AutoMovieMotionHumanTiming.transport(named),
+      };
+    const transport: number = travel === undefined ? named : span();
+    // The retraction keeps the named length; only the preparation varies, so
+    // the stroke's start moves and the stroke's own length does not.
+    const retract: number =
       T *
       (p.kind === "bow"
         ? depth / 30
         : sides.length === 0
           ? 0.3
           : AutoMovieMotionHumanTiming.transport(transport));
-    const retract: number = prepare;
+    const prepare: number = AutoMovieMotionHumanVariation.duration(
+      source,
+      "prepare",
+      retract,
+    );
     const stroke: number =
       T * cycles * AutoMovieMotionHumanTiming.seconds(rhythm.period);
     const strokeEnd: number = prepare + stroke;

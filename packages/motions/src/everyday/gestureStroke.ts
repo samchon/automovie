@@ -162,6 +162,17 @@ export namespace gestureStroke {
 
     /** Effort extent multiplier. */
     extent: number;
+
+    /**
+     * This repeat's variation of a named place, for `wave` and `stopPalm`;
+     * absent, the place is as named.
+     *
+     * @param record The named place's share record.
+     * @returns The varied share record.
+     */
+    vary?(
+      record: AutoMovieMotionHumanTarget.IDefault,
+    ): AutoMovieMotionHumanTarget.IDefault;
   }
 
   /**
@@ -366,17 +377,32 @@ export namespace gestureStroke {
     // A place of the air by its names, in the performer's own frame: the
     // shares times the stature, the half shoulder width and the arm, ahead
     // of the root, which a lowered posture carries down with it. `reach`
-    // scales the distance ahead.
+    // scales the distance ahead. `named` is the place without its nudge: when
+    // given and the repeat varies, the named place's offset is added, so the
+    // offset is one value through the stroke whatever the nudge does.
     const put = (
       place: AutoMovieMotionHumanTarget.Place,
       reach: number = 1,
+      named?: AutoMovieMotionHumanTarget.Place,
     ): IAutoMovieVector3 => {
       const shares: AutoMovieMotionHumanTarget.IDefault =
         AutoMovieMotionHumanTarget.place(body, side, place);
+      const base: AutoMovieMotionHumanTarget.IDefault | undefined =
+        named === undefined || input.vary === undefined
+          ? undefined
+          : AutoMovieMotionHumanTarget.place(body, side, named);
+      const varied: AutoMovieMotionHumanTarget.IDefault | undefined =
+        base === undefined ? undefined : input.vary!(base);
+      const offset = (
+        key: "lateral" | "height" | "range",
+      ): number =>
+        base === undefined || varied === undefined
+          ? 0
+          : (varied[key] ?? 0) - (base[key] ?? 0);
       return at(
-        (shares.lateral ?? 0) * m.shoulderHalfWidth,
-        shares.height * m.stature,
-        shares.range * L * reach,
+        ((shares.lateral ?? 0) + offset("lateral")) * m.shoulderHalfWidth,
+        (shares.height + offset("height")) * m.stature,
+        (shares.range + offset("range")) * L * reach,
       );
     };
     const facing = (
@@ -395,10 +421,14 @@ export namespace gestureStroke {
         return {
           surface: "palm",
           shape: "flat",
-          point: put({
-            at: { height: "eye", lateral: "outside", distance: "near" },
-            nudge: { out: sign * swing },
-          }),
+          point: put(
+            {
+              at: { height: "eye", lateral: "outside", distance: "near" },
+              nudge: { out: sign * swing },
+            },
+            1,
+            { height: "eye", lateral: "outside", distance: "near" },
+          ),
           rotation: HumanHand.rotation(side, {
             fingers: dir(Math.sin(tilt), Math.cos(tilt), 0),
             palm: HumanHand.direction(side, frame.yaw, "forward"),
@@ -432,6 +462,7 @@ export namespace gestureStroke {
               nudge: { forward: 0.05 * bump(u) },
             },
             Math.min(1, e),
+            { height: "shoulder", lateral: "inside", distance: "far" },
           ),
           rotation: facing("up", "forward"),
           out: 0,

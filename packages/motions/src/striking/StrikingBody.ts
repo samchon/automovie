@@ -82,27 +82,77 @@ export namespace StrikingBody {
    * @param body The body.
    * @param bones Its resolved bones.
    * @param region The region.
+   * @param tangent A point of the region's surface beside its own point, as an offset on its tangent plane; absent or zero, the region's own point.
    * @returns World point and outward normal.
+   * @throws {Error} When an offset is asked of a region the engine does not place by a ray.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result's frame.
-   * @evidence contracts/development/implementation.md#principled-implementation The engine's bone-local region frame placed by its bone's world transform.
+   * @evidence contracts/development/common.md#meaningful-documentation States the result's frame and what the offset selects.
+   * @evidence contracts/development/implementation.md#principled-implementation The engine's bone-local region frame, or its surface point at the offset, placed by its bone's world transform.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup and one placement.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time at the region's own point; one rest pose and one ray at an offset.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; a strike reads its offset point a few times per plan.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function region(
     body: IHumanBody,
-    bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     region: AutoMovieHumanoidRegion,
+    tangent?: resolveAutoMovieHumanoidSurfaces.ITangent,
   ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
     const frame: resolveAutoMovieHumanoidSurfaces.IFrame =
-      body.surfaces.regions[region];
-    return resolveAutoMovieHumanoidSurfaces.place(
+      tangent === undefined || (tangent.up === 0 && tangent.out === 0)
+        ? body.surfaces.regions[region]
+        : resolveAutoMovieHumanoidSurfaces.offset(
+            body.skeleton,
+            body.profile,
+            region,
+            tangent,
+          );
+    const placed = resolveAutoMovieHumanoidSurfaces.place(
       frame,
       bones.get(frame.bone)!,
     );
+    return { point: placed.point, normal: placed.normal };
+  }
+
+  /**
+   * A region's radius: half the distance from its point to the nearest other
+   * region's point at rest, so every point within it is nearer to this
+   * region than to any other.
+   *
+   * @param body The body.
+   * @param region The region.
+   * @returns The radius, metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the definition and the property it gives.
+   * @evidence contracts/development/implementation.md#principled-implementation Half the nearest-neighbour distance is the largest ball about a point in which that point is the nearest of the set.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the regions at rest.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Read from the body's own regions, with no radius typed per region.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the regions.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of the body; a strike reads it once per plan.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function radius(
+    body: IHumanBody,
+    region: AutoMovieHumanoidRegion,
+  ): number {
+    const at = (name: AutoMovieHumanoidRegion): IAutoMovieVector3 => {
+      const frame: resolveAutoMovieHumanoidSurfaces.IFrame =
+        body.surfaces.regions[name];
+      return Vector3.add(body.rest.get(frame.bone)!, frame.point);
+    };
+    const own: IAutoMovieVector3 = at(region);
+    let nearest: number = Infinity;
+    for (const name of Object.keys(
+      body.surfaces.regions,
+    ) as AutoMovieHumanoidRegion[])
+      if (name !== region)
+        nearest = Math.min(
+          nearest,
+          Vector3.length(Vector3.subtract(at(name), own)),
+        );
+    return 0.5 * nearest;
   }
 
   /**
