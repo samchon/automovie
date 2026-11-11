@@ -60,6 +60,7 @@
  * - `martialArt`: a martial-art technique (horse stance, choku-zuki, tai chi push).
  * - `ballSport`: a team ball skill with an implied ball (dribble, dig, set, throw-in).
  * - `baseball`: a baseball position (catcher's crouch, ground ball, batting stance).
+ * - `racket`: a racket or golf position without the stroke (ready position, split step, golf address).
  */
 export type HumanActionName =
   | "stand"
@@ -117,4 +118,5 @@ export type HumanActionName =
   | "gymnastics"
   | "martialArt"
   | "ballSport"
-  | "baseball";
+  | "baseball"
+  | "racket";

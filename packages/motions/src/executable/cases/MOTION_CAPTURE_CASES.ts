@@ -4,8 +4,8 @@ import { affectionCases } from "./affectionCases";
 import { affordanceCases } from "./affordanceCases";
 import { athleticsCases } from "./athleticsCases";
 import { ballSportCases } from "./ballSportCases";
-import { baseballCases } from "./baseballCases";
 import { ballStrikeCases } from "./ballStrikeCases";
+import { baseballCases } from "./baseballCases";
 import { climbCases } from "./climbCases";
 import { crouchCases } from "./crouchCases";
 import { danceCases } from "./danceCases";
@@ -22,6 +22,7 @@ import { householdCases } from "./householdCases";
 import { jumpCases } from "./jumpCases";
 import { locomotionCases } from "./locomotionCases";
 import { martialArtCases } from "./martialArtCases";
+import { racketCases } from "./racketCases";
 import { reactionCases } from "./reactionCases";
 import { selfCases } from "./selfCases";
 import { stairsCases } from "./stairsCases";
@@ -187,4 +188,6 @@ export const MOTION_CAPTURE_CASES: Readonly<
   baseball: (): IMotionCaptureCase[] => baseballCases(),
   "baseball-sweep": (): IMotionCaptureCase[] =>
     baseballCases(MotionBodies.SWEEP),
+  racket: (): IMotionCaptureCase[] => racketCases(),
+  "racket-sweep": (): IMotionCaptureCase[] => racketCases(MotionBodies.SWEEP),
 };
