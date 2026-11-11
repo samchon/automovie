@@ -61,6 +61,7 @@
  * - `ballSport`: a team ball skill with an implied ball (dribble, dig, set, throw-in).
  * - `baseball`: a baseball position (catcher's crouch, ground ball, batting stance).
  * - `racket`: a racket or golf position without the stroke (ready position, split step, golf address).
+ * - `swim`: swimming on a declared water plane (treading water, front crawl).
  */
 export type HumanActionName =
   | "stand"
@@ -119,4 +120,5 @@ export type HumanActionName =
   | "martialArt"
   | "ballSport"
   | "baseball"
-  | "racket";
+  | "racket"
+  | "swim";

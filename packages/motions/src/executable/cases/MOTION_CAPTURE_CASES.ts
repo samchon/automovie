@@ -29,6 +29,7 @@ import { stairsCases } from "./stairsCases";
 import { standCases } from "./standCases";
 import { stretchCases } from "./stretchCases";
 import { strikingCases } from "./strikingCases";
+import { swimCases } from "./swimCases";
 import { throwCases } from "./throwCases";
 import { toolCases } from "./toolCases";
 import { variationCases } from "./variationCases";
@@ -190,4 +191,6 @@ export const MOTION_CAPTURE_CASES: Readonly<
     baseballCases(MotionBodies.SWEEP),
   racket: (): IMotionCaptureCase[] => racketCases(),
   "racket-sweep": (): IMotionCaptureCase[] => racketCases(MotionBodies.SWEEP),
+  swim: (): IMotionCaptureCase[] => swimCases(),
+  "swim-sweep": (): IMotionCaptureCase[] => swimCases(MotionBodies.SWEEP),
 };

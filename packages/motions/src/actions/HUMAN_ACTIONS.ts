@@ -38,6 +38,7 @@ import { baseball } from "../sport/baseball";
 import { gymnastics } from "../sport/gymnastics";
 import { martialArt } from "../sport/martialArt";
 import { racket } from "../sport/racket";
+import { swim } from "../sport/swim";
 import { defend } from "../striking/defend";
 import { guard } from "../striking/guard";
 import { kick } from "../striking/kick";
@@ -124,4 +125,5 @@ export const HUMAN_ACTIONS: Readonly<
   ballSport,
   baseball,
   racket,
+  swim,
 };
