@@ -68,6 +68,8 @@ export * from "./affordance/operate";
 export * from "./floor/crawl";
 export * from "./floor/lieDown";
 export * from "./climbing/climbLadder";
+export * from "./grappling/clinch";
+export * from "./ballStrike/kickBall";
 export * from "./posture/poseBones";
 export * from "./everyday/gesture";
 export * from "./everyday/gestureStroke";

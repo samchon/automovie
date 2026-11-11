@@ -1,9 +1,12 @@
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 import { affordanceCases } from "./affordanceCases";
+import { ballStrikeCases } from "./ballStrikeCases";
 import { climbCases } from "./climbCases";
+import { grappleCases } from "./grappleCases";
 import { floorCases } from "./floorCases";
 import { affectionCases } from "./affectionCases";
+import { athleticsCases } from "./athleticsCases";
 import { crouchCases } from "./crouchCases";
 import { danceCases } from "./danceCases";
 import { everydayCases } from "./everydayCases";
@@ -139,6 +142,10 @@ export const MOTION_CAPTURE_CASES: Readonly<
   "floor-sweep": (): IMotionCaptureCase[] => floorCases(MotionBodies.SWEEP),
   climb: (): IMotionCaptureCase[] => climbCases(),
   "climb-sweep": (): IMotionCaptureCase[] => climbCases(MotionBodies.SWEEP),
+  grapple: (): IMotionCaptureCase[] => grappleCases(),
+  "grapple-sweep": (): IMotionCaptureCase[] => grappleCases(MotionBodies.SWEEP),
+  ball: (): IMotionCaptureCase[] => ballStrikeCases(),
+  "ball-sweep": (): IMotionCaptureCase[] => ballStrikeCases(MotionBodies.SWEEP),
   affection: (): IMotionCaptureCase[] => affectionCases(),
   "affection-sweep": (): IMotionCaptureCase[] =>
     affectionCases(MotionBodies.SWEEP),
@@ -152,4 +159,7 @@ export const MOTION_CAPTURE_CASES: Readonly<
     stretchCases(MotionBodies.SWEEP),
   dance: (): IMotionCaptureCase[] => danceCases(),
   "dance-sweep": (): IMotionCaptureCase[] => danceCases(MotionBodies.SWEEP),
+  athletics: (): IMotionCaptureCase[] => athleticsCases(),
+  "athletics-sweep": (): IMotionCaptureCase[] =>
+    athleticsCases(MotionBodies.SWEEP),
 };

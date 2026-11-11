@@ -1,6 +1,8 @@
 import type { HumanActionName } from "../HumanActionName";
 import { operate } from "../affordance/operate";
+import { kickBall } from "../ballStrike/kickBall";
 import { climbLadder } from "../climbing/climbLadder";
+import { clinch } from "../grappling/clinch";
 import { crawl } from "../floor/crawl";
 import { lieDown } from "../floor/lieDown";
 import { handToFace } from "../daily/handToFace";
@@ -29,6 +31,7 @@ import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import { flinch } from "../reaction/flinch";
 import { knockdown } from "../reaction/knockdown";
 import { stagger } from "../reaction/stagger";
+import { athletics } from "../sport/athletics";
 import { defend } from "../striking/defend";
 import { guard } from "../striking/guard";
 import { kick } from "../striking/kick";
@@ -96,10 +99,13 @@ export const HUMAN_ACTIONS: Readonly<
   lieDown,
   crawl,
   climbLadder,
+  clinch,
+  kickBall,
   kiss,
   highFive,
   selfAction,
   exercise,
   stretch,
   dance,
+  athletics,
 };

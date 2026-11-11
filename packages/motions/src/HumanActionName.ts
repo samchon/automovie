@@ -44,12 +44,15 @@
  * - `lieDown`: lying down on the floor from standing, supine, prone or on a side.
  * - `crawl`: getting down onto hands and knees and crawling in the diagonal pattern.
  * - `climbLadder`: climbing a fixed ladder in the four-beat pattern, three limbs always on it.
+ * - `clinch`: taking and holding a clinch grip on a partner, the neck tie or collar and sleeve.
+ * - `kickBall`: kicking a ball beside the support foot with the instep.
  * - `kiss`: the lips brought to a partner's region by a lean and a neck flexion.
  * - `highFive`: two partners' hands meeting at one shared point and instant.
  * - `selfAction`: a whole-body self action (stretch, victory arms, fist pump, neck or shoulder roll).
  * - `exercise`: a standing bodyweight exercise counted in repetitions (squat, lunge, high knees, jumping jack).
  * - `stretch`: a standing static stretch or yoga pose held and released (neck, cross-body, side bend, quadriceps, tree).
  * - `dance`: a solo dance step locked to a declared beat (bounce, sway, step-touch).
+ * - `athletics`: the sprint start's crouch into the set position, held to the gun.
  */
 export type HumanActionName =
   | "stand"
@@ -92,9 +95,12 @@ export type HumanActionName =
   | "lieDown"
   | "crawl"
   | "climbLadder"
+  | "clinch"
+  | "kickBall"
   | "kiss"
   | "highFive"
   | "selfAction"
   | "exercise"
   | "stretch"
-  | "dance";
+  | "dance"
+  | "athletics";
