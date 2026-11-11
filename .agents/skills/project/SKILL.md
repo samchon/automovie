@@ -66,12 +66,17 @@ The [root README](../../../README.md#packages) and package READMEs own inventori
 | `motions` | Human action content |
 | `human` | The human figure generated from typed parameters by code |
 | `recovery` | Reference-mesh reconstruction |
-| `render` | Building and drawing scenes, the passes, the inspection core, frame schedules and encoding plans; launches nothing |
-| `viewer` | Interactive display and its UI |
+| `render` | Building and drawing scenes, the passes, the inspection core, the capture plan and record, frame schedules and encoding plans; launches nothing |
+| `viewer` | The interactive display, a React library |
+| `cli` | The `automovie` command: creating a production, and the hosts that capture, render and review it |
 | `evidence` | Reusable engineering defaults and optional narrative evidence composition, for native checking |
 | `template/scaffold` | The generated production instructions, editable contracts and thin configuration, which `cli` installs |
 
 `render` and `viewer` are the only libraries importing `three.js`. The parameter-only Human surface has no viewer or capture entry point.
+
+### Hosts
+
+`render` reaches files, processes and the page only through what a host injects, and imports no `node:` module and no React, so one rule runs the same in a page, a Node host and a unit test against an in-memory host. A rule that does not depend on one production belongs in `render` with a logic unit test; a host holds wiring only. The page is `viewer`'s interactive display, and the Node host that drives FFmpeg and a headless browser is `cli`.
 
 ### Motion
 
