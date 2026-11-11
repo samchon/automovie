@@ -260,11 +260,13 @@ namespace FamilyConicBody {
           { name: "trunk.high.back", stations: [640, 918.88], phases: [Math.PI - 1.2, Math.PI + 1.2], axis: [1, 0, 0], rows: 57, columns: 33, mirror: true },
           { name: "trunk.high.front", stations: [640, 918.88], phases: [-1.2, 1.2], axis: [-1, 0, 0], rows: 57, columns: 49, mirror: true },
           // The front and back windows end 1.2 rad round, where the skin in front of the ear and behind the jaw's angle still lies inside the
-          // tape, so a seam runs down the cheek. Two more windows cast straight in from each side over the neck and head were tried twice.
-          // Reaching 1.0 rad either way, a cast from the front of the cheek ran along the face and landed on its far side (heights up to
-          // 81 mm on withheld sections) and casts landed on the chord closing the ear's cut: the cheek and the ear's root streaked. Reaching
-          // 0.7 rad, with casts onto a cut's chord no longer observed, the two sides came out alike (14 mm deepest) and the cheek's seam
-          // softened, but the skin under the ear and along the jaw's angle gouged. Neither is kept: the jaw is not a relief's to make.
+          // tape, so a seam ran down the cheek and over the skull. These two cast straight in from each side and take what those leave.
+          // They reach 0.7 rad either way: at 1.0 rad a cast from the front of the cheek ran along the face and landed on its far side
+          // (heights up to 81 mm on withheld sections), and casts onto the chord closing the ear's cut, since left unobserved, streaked
+          // the ear's root. They start at the ear's lobe, station 756: carried down to the neck they gouged the narrow hollow under the
+          // lobe behind the jaw's angle three times over, on the smeared wall and on the one with close knots under the jaw alike.
+          { name: "trunk.high.left", stations: [756, 918.88], phases: [Math.PI / 2 - 0.7, Math.PI / 2 + 0.7], axis: [0, 0, -1], rows: 45, columns: 29, mirror: false },
+          { name: "trunk.high.right", stations: [756, 918.88], phases: [-Math.PI / 2 - 0.7, -Math.PI / 2 + 0.7], axis: [0, 0, 1], rows: 45, columns: 29, mirror: false },
           // The face: a finer net, 2.5 mm apart, over what the upper front window leaves between the throat and the brow.
           { name: "trunk.face", stations: [690, 890], phases: [-1.2, 1.2], axis: [-1, 0, 0], rows: 81, columns: 69, mirror: true },
         ] },
