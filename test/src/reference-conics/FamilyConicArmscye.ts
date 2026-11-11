@@ -1,16 +1,16 @@
 import { AutoMovieLoftChain } from "@automovie/engine";
-import { AutoMovieHumanConicLoft, AutoMovieHumanF1, AutoMovieHumanF1Joints } from "@automovie/human";
+import { AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
 
 /**
- * The armscye band's columns read from the two lofts alone, with no realization: for a margin round the shoulder's section and a rail on the arm,
- * how each column of the band leaves the trunk and arrives at the arm.
+ * The armscye band's columns read from the two lofts alone, with no realization: for the port loop `AutoMovieHumanF1.armscye` declares and a
+ * rail on the arm, how each column of the band leaves the trunk and arrives at the arm.
  *
  * A column runs from a loop point on the trunk to the arm's rail point at the same angle about the rail's centroid. It folds when the trunk's
  * chart direction into the loop, or the arm's direction along its course, points back against the column's chord. The table gives both cosines
  * per clock, and the count of columns that point back, for each side.
  *
- * Usage: `FamilyConicArmscye.ts <marginMm> <railMm> [bottomMm] [--table]`; several values of each may be given as `a,b,c`. `bottomMm` tries
- * another height for the section's lower edge than the datum's.
+ * Usage: `FamilyConicArmscye.ts [railMm] [--table]`; the rail is the one the body declares unless given, and several may be given as `a,b,c`
+ * to see how far the declared loop holds.
  */
 namespace FamilyConicArmscye {
   type V3 = [number, number, number];
@@ -23,11 +23,9 @@ namespace FamilyConicArmscye {
   /** Read the columns and print them. */
   export function main(): void {
     const numbers = (text: string | undefined, fallback: number): number[] => (text === undefined || text.startsWith("--") ? [fallback] : text.split(",").map(Number));
-    const margins: number[] = numbers(process.argv[2], 4);
-    const rails: number[] = numbers(process.argv[3], 25);
+    const rails: number[] = numbers(process.argv[2], AutoMovieHumanF1.RAIL_MM.arm);
     const table: boolean = process.argv.includes("--table");
-    const bottoms: number[] = numbers(process.argv[4], AutoMovieHumanF1Joints.armscye.bottom);
-    const n: number = 96;
+    const n: number = AutoMovieHumanF1.armscye(1).shape?.length ?? 96;
     const turn: number = 2 * Math.PI;
     const chainOf = (family: AutoMovieHumanConicLoft.IFamily, from: number, to: number): NonNullable<ReturnType<typeof AutoMovieHumanConicLoft.create>["chain"]> => {
       const count: number = Math.ceil((to - from) / 4) + 1;
@@ -42,15 +40,13 @@ namespace FamilyConicArmscye {
       const arm = chainOf(family, first, first + 160);
       const host = (s: number, p: number): V3 => AutoMovieLoftChain.point(trunk, s, p) as V3;
       const part = (s: number, p: number): V3 => AutoMovieLoftChain.point(arm, s, p) as V3;
-      for (const margin of margins)
-        for (const rail of rails)
-        for (const bottom of bottoms) {
-          const J = { ...AutoMovieHumanF1Joints, armscye: { ...AutoMovieHumanF1Joints.armscye, bottom } };
-          const fore: number = Math.atan2(J.armpit[2], J.armscye.fore);
-          const aft: number = Math.atan2(J.armpit[2], J.armscye.aft);
-          const centre: [number, number] = [(J.armscye.bottom + J.armscye.top) / 2 - J.axisFloor[1], (side * (fore + aft)) / 2];
-          const semi: [number, number] = [(J.armscye.top - J.armscye.bottom) / 2 + margin, (aft - fore) / 2 + margin / J.armpit[2]];
-          const at = (k: number, shrink: number): V3 => host(centre[0] + (1 - shrink) * semi[0] * Math.cos((turn * k) / n), centre[1] + side * (1 - shrink) * semi[1] * Math.sin((turn * k) / n));
+      for (const rail of rails) {
+          // The declared loop, as the engine reads it: the ellipse's point at each clock scaled from the centre by the column's share.
+          const declared = AutoMovieHumanF1.armscye(side);
+          const at = (k: number, shrink: number): V3 => {
+            const share: number = (1 - shrink) * (declared.shape?.[k] ?? 1);
+            return host(1000 * (declared.centre[0] + share * declared.semi[0] * Math.cos((turn * k) / n)), declared.centre[1] + share * declared.sense * declared.semi[1] * Math.sin((turn * k) / n));
+          };
           const loop: V3[] = Array.from({ length: n }, (_: unknown, k: number): V3 => at(k, 0));
           const inward: V3[] = loop.map((p: V3, k: number): V3 => sub(at(k, 0.01), p));
 
@@ -103,7 +99,7 @@ namespace FamilyConicArmscye {
             shortest = Math.min(shortest, norm(chord));
             if (table && k % 4 === 0) rows.push("  k " + String(k).padStart(2) + " loop " + loop[k]!.map((x: number): string => x.toFixed(0).padStart(5)).join("") + " rail " + q.map((x: number): string => x.toFixed(0).padStart(5)).join("") + " chord " + norm(chord).toFixed(1).padStart(5) + " host " + h.toFixed(2).padStart(5) + " part " + p.toFixed(2).padStart(5));
           }
-          process.stdout.write(JSON.stringify({ side, margin, rail, bottom, reversals, hostBack, partBack, worstHost: Number(worstHost.toFixed(2)), worstPart: Number(worstPart.toFixed(2)), chord: [Number(shortest.toFixed(1)), Number(longest.toFixed(1))], ringNormal: normal.map((x: number): number => Number(x.toFixed(2))), ringCentre: c.map(Math.round) }) + "\n");
+          process.stdout.write(JSON.stringify({ side, rail, reversals, hostBack, partBack, worstHost: Number(worstHost.toFixed(2)), worstPart: Number(worstPart.toFixed(2)), chord: [Number(shortest.toFixed(1)), Number(longest.toFixed(1))], ringNormal: normal.map((x: number): number => Number(x.toFixed(2))), ringCentre: c.map(Math.round) }) + "\n");
           for (const row of rows) process.stdout.write(row + "\n");
         }
     }

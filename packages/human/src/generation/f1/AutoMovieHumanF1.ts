@@ -131,16 +131,18 @@ export namespace AutoMovieHumanF1 {
   const LAYER_MM: number = 4;
 
   /**
-   * How far outside the shoulder's section the port loop stands on the trunk's own skin, mm. At 4 mm every column of the band leaves the
-   * trunk toward the arm's ring (`FamilyConicArmscye.ts`), over the shoulder by 12 to 24 mm; a wider loop only lengthens the band.
+   * How far outside the arm's ring the port loop stands on the trunk's own skin, mm. With the rail 10 mm in, at 6 mm every column of the band
+   * leaves the trunk toward the ring and reaches it along the arm's own direction (`FamilyConicArmscye.ts`), 6 to 19 mm long. At 3 mm with
+   * the rail 3 mm in the same held, but a band 4 mm long turned from the trunk's skin to the arm's so sharply that it showed as a line round
+   * the shoulder.
    */
-  const ARMSCYE_MARGIN_MM: number = 4;
+  const ARMSCYE_MARGIN_MM: number = 6;
 
   /**
    * Where each limb's band lands on it, mm from the limb's first station: the limb keeps its stations beyond. The arm's first station is 2 mm
-   * past the armscye's plane and its course is still square to that plane there, so its ring 3 mm on lies beside the plane, inside the loop.
+   * past the armscye's plane and its course is nearly square to that plane for its first 25 mm, so its ring 10 mm on lies beside the plane.
    */
-  const RAIL_MM: { arm: number; leg: number; ear: number } = { arm: 3, leg: 12, ear: 2 };
+  export const RAIL_MM: { arm: number; leg: number; ear: number } = { arm: 10, leg: 12, ear: 2 };
 
   /** How far outside the auricle's root the ear's port loop stands on the skull, mm. */
   const AURICLE_MARGIN_MM: number = 4;
@@ -164,31 +166,53 @@ export namespace AutoMovieHumanF1 {
    * The armscye's port on the trunk's chart.
    *
    * The armscye is the armpit's sagittal plane: the trunk owns the skin medial of it and the arm the skin lateral of it, the shoulder's cap
-   * included. The port is the shoulder's section in that plane as the trunk's chart sees it, its height in station and its depth as phases at
-   * the plane's side distance, both widened by the margin so the loop stands on the trunk's own skin round the section. The arm's course leaves
-   * the trunk square to that plane, so the ring the band lands on lies beside the plane and inside the loop all the way round.
+   * included. The arm's course leaves the trunk square to that plane, so the ring the band lands on lies beside the plane. The port is that
+   * ring's own outline as the trunk's chart sees it, each point's height above the axis's foot and its phase about the axis, pushed out from
+   * the outline's centre by the margin so the loop stands on the trunk's own skin round the ring. The loop is written as the ellipse on the
+   * outline's half extents with a share per column. An ellipse alone stood up to 29 mm from the ring under the armpit, where the ring's
+   * lower edge runs aslant, and the band there reached the arm against the arm's own direction.
    *
    * @param side +1 for the +Z side, -1 for its twin.
    */
   export function armscye(side: 1 | -1): IAutoMovieConstructionPort.ILoop {
     const J = AutoMovieHumanF1Joints;
-    const fore: number = Math.atan2(J.armpit[2], J.armscye.fore);
-    const aft: number = Math.atan2(J.armpit[2], J.armscye.aft);
-    return {
-      centre: [((J.armscye.bottom + J.armscye.top) / 2 - J.axisFloor[1]) / 1000, (side * (fore + aft)) / 2],
-      semi: [((J.armscye.top - J.armscye.bottom) / 2 + ARMSCYE_MARGIN_MM) / 1000, (aft - fore) / 2 + ARMSCYE_MARGIN_MM / J.armpit[2]],
-      sense: side,
-    };
-  }
+    const family: AutoMovieHumanConicLoft.IFamily = side > 0 ? BODY.arm : AutoMovieHumanConicLoft.mirror(BODY.arm, BODY.arm.name + ".mirror");
+    const first: number = family.knots[0]!;
+    const rail: number = first + RAIL_MM.arm;
 
-  /**
-   * Where the armscye's band meets the arm in a crease, on the port loop's clock: from just behind the armpit's lowest point, at clock pi, round
-   * the fold in front of it. There the arm's underside leaves the trunk downward, back over the trunk's own side, and its skin runs against
-   * the band's columns: `FamilyConicArmscye.ts` reads 15 of the 96 columns arriving against the arm's direction, all between clocks 2.9 and 4.0.
-   * Inside the window the band reaches the arm along its chord, as the skin does in the fold. The loop of each side runs the way its reflection
-   * does (`sense`), so one window serves both.
-   */
-  const ARMPIT_CREASE: { start: number; end: number; transition: number } = { start: Math.PI - 0.25, end: Math.PI + 0.95, transition: 0.3 };
+    // The arm's ring at the rail, read from a loft of its first stations alone.
+    const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create({ ...family, tips: undefined, reliefs: undefined }, [first, rail, first + 2 * RAIL_MM.arm, first + 4 * RAIL_MM.arm]);
+    if (loft.chain === null) throw new Error("the arm's first stations do not loft");
+    const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> = loft.chain;
+    const outline: [number, number][] = Array.from({ length: 4 * BAND.count }, (_: unknown, j: number): [number, number] => {
+      const p: number[] = AutoMovieLoftChain.point(chain, rail, (2 * Math.PI * j) / (4 * BAND.count));
+      return [p[1]! - J.axisFloor[1], Math.atan2(p[2]!, p[0]!)];
+    });
+    const span = (c: 0 | 1): [number, number] => [Math.min(...outline.map((q: [number, number]): number => q[c])), Math.max(...outline.map((q: [number, number]): number => q[c]))];
+    const [stations, phases]: [number, number][] = [span(0), span(1)];
+    const centre: [number, number] = [(stations[0] + stations[1]) / 2, (phases[0] + phases[1]) / 2];
+    const semi: [number, number] = [(stations[1] - stations[0]) / 2, (phases[1] - phases[0]) / 2];
+
+    // Each outline point by its clock on that ellipse and its distance from the centre as a share of the ellipse's.
+    const polar: [number, number][] = outline
+      .map((q: [number, number]): [number, number] => {
+        const x: number = (q[0] - centre[0]) / semi[0];
+        const y: number = (side * (q[1] - centre[1])) / semi[1];
+        return [(Math.atan2(y, x) + 2 * Math.PI) % (2 * Math.PI), Math.hypot(x, y)];
+      })
+      .sort((a: [number, number], b: [number, number]): number => a[0] - b[0]);
+    const shape: number[] = Array.from({ length: BAND.count }, (_: unknown, k: number): number => {
+      const clock: number = (2 * Math.PI * k) / BAND.count;
+      const after: number = polar.findIndex((q: [number, number]): boolean => q[0] >= clock);
+      // The outline's two points on either side of the clock; round the turn's end, its last point and its first.
+      const [a, b]: [number, number][] = after > 0 ? [polar[after - 1]!, polar[after]!] : after === 0 ? [[polar.at(-1)![0] - 2 * Math.PI, polar.at(-1)![1]], polar[0]!] : [polar.at(-1)!, [polar[0]![0] + 2 * Math.PI, polar[0]![1]]];
+      const share: number = b[0] === a[0] ? a[1] : a[1] + ((b[1] - a[1]) * (clock - a[0])) / (b[0] - a[0]);
+
+      // The margin as a share of the ellipse's own distance at this clock, a phase taken at the armpit's side distance.
+      return share + ARMSCYE_MARGIN_MM / Math.hypot(semi[0] * Math.cos(clock), semi[1] * J.armpit[2] * Math.sin(clock));
+    });
+    return { centre: [centre[0] / 1000, centre[1]], semi: [semi[0] / 1000, semi[1]], sense: side, shape };
+  }
 
   /**
    * The ear's port on the trunk's chart: an ellipse about the centre of the auricle's root, its semi-axes the root's half height in station and
@@ -281,7 +305,7 @@ export namespace AutoMovieHumanF1 {
     };
     for (const side of [1, -1] as const) {
       const arm: { node: AutoMovieConstructionNode; face: string } = limb("arm", side);
-      root = { type: "port", name: "armscye." + arm.face, host: root, hostFace: trunk, loop: armscye(side), band: "band." + arm.face, part: arm.node, partFace: arm.face, partEnd: "bottom", rail: RAIL_MM.arm / 1000, count: BAND.count, rows: BAND.rows, crease: ARMPIT_CREASE };
+      root = { type: "port", name: "armscye." + arm.face, host: root, hostFace: trunk, loop: armscye(side), band: "band." + arm.face, part: arm.node, partFace: arm.face, partEnd: "bottom", rail: RAIL_MM.arm / 1000, count: BAND.count, rows: BAND.rows };
       const ear: AutoMovieHumanConicLoft.IFamily = side > 0 ? BODY.ear : twin(BODY.ear);
       root = { type: "port", name: "auricle." + ear.name, host: root, hostFace: trunk, loop: auricle(side), band: "band." + ear.name, part: leaf(ear), partFace: ear.name, partEnd: "bottom", rail: RAIL_MM.ear / 1000, count: BAND.count, rows: BAND.rows };
     }

@@ -112,7 +112,10 @@ export namespace AutoMovieHumanF1Joints {
   /** Where the leg's course ends past the ankle, in the ball of the foot. */
   export const footBall: V3 = [133, 20, 157];
 
-  /** The armpit's crease, where the arm's inner side meets the trunk's side. */
+  /**
+   * The armpit's crease, where the arm's inner side meets the trunk's side. The armscye is the sagittal plane at its side distance: the trunk
+   * owns the skin medial of that plane, the arm the rest.
+   */
   export const armpit: V3 = [-25, 1276, 151];
 
   /**
@@ -123,13 +126,6 @@ export namespace AutoMovieHumanF1Joints {
 
   /** The corner the arm's course turns at, round the shoulder, from straight to the side to the line down to the elbow. */
   export const armTurn: V3 = [-12, 1300, 203];
-
-  /**
-   * The shoulder's section in the armscye, the sagittal plane at the armpit's side distance: the heights of the arm's underside and of the
-   * shoulder's top just beside it, and its fore and aft edges forward of the median axis. The trunk owns the skin medial of the plane, the arm
-   * the rest.
-   */
-  export const armscye: { bottom: number; top: number; fore: number; aft: number } = { bottom: 1258, top: 1404, fore: 47, aft: -70 };
 
   /** Where the ear's course starts, under its root in the side of the head. */
   export const earRoot: V3 = [3, 1579, 74];
