@@ -38,6 +38,12 @@ export namespace FamilyConicRelief {
 
     /** The window is centred on the median line and its net is tied symmetric across it. */
     mirror: boolean;
+
+    /**
+     * Farthest a cast may land from the wall and still be observed, mm; absent, any distance. A cast that slips through an opening of the skin,
+     * between the lips or past an eyelid, lands on what lies behind it, and its height is not the skin's.
+     */
+    reach?: number;
   }
 
   /** One observed section with the wall beneath it. */
@@ -120,6 +126,7 @@ export namespace FamilyConicRelief {
         const from: C.P = row.wall(window.phases[0] + offset);
         const along: number | null = cast(row.skin, from, [row.axis[0] / inPlane, row.axis[1] / inPlane]);
         if (along === null) continue;
+        if (window.reach !== undefined && Math.abs(along) / inPlane > window.reach) continue;
         if (row.open?.([from[0] + (along * row.axis[0]) / inPlane, from[1] + (along * row.axis[1]) / inPlane]) === true) continue;
         const target: number = along / inPlane;
         const [iv, wv] = basis((offset / span) * (Cn - 3), Cn);

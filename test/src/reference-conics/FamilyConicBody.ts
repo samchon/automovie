@@ -268,7 +268,12 @@ namespace FamilyConicBody {
           { name: "trunk.high.left", stations: [756, 918.88], phases: [Math.PI / 2 - 0.7, Math.PI / 2 + 0.7], axis: [0, 0, -1], rows: 45, columns: 29, mirror: false },
           { name: "trunk.high.right", stations: [756, 918.88], phases: [-Math.PI / 2 - 0.7, -Math.PI / 2 + 0.7], axis: [0, 0, 1], rows: 45, columns: 29, mirror: false },
           // The face: a finer net, 2.5 mm apart, over what the upper front window leaves between the throat and the brow.
-          { name: "trunk.face", stations: [690, 890], phases: [-1.2, 1.2], axis: [-1, 0, 0], rows: 81, columns: 69, mirror: true },
+          { name: "trunk.face", stations: [690, 890], phases: [-1.2, 1.2], axis: [-1, 0, 0], rows: 81, columns: 69, mirror: true, reach: 30 },
+          // The eyes and the mouth: nets 1.5 mm apart over two bands of the face. The face's net, 2.6 mm apart, left the lids a slit and the
+          // lips a block. A cast that lands farther than `reach` is not observed: between the lips it slipped through to what lies behind,
+          // 78 mm on, and dug a pit in the middle of the mouth.
+          { name: "trunk.eyes", stations: [792, 826], phases: [-0.8, 0.8], axis: [-1, 0, 0], rows: 26, columns: 105, mirror: true, reach: 12 },
+          { name: "trunk.mouth", stations: [722, 758], phases: [-0.5, 0.5], axis: [-1, 0, 0], rows: 27, columns: 67, mirror: true, reach: 12 },
         ] },
       ] satisfies IPart[]
     ).filter((part: IPart): boolean => only.length === 0 || only.includes(part.name));
