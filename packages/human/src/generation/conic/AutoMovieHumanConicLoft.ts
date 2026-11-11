@@ -71,9 +71,10 @@ export namespace AutoMovieHumanConicLoft {
 
   /**
    * When a station is added midway between two: the model's section there stands off the mean of the two by more than `length` mm in a point's
-   * coordinate or by more than `share` in a tangent's angle, rad, or a shoulder. No interval is cut below `least` mm.
+   * coordinate or by more than `share` in a tangent's angle, rad, or a shoulder. No interval is cut below `least` mm. At a tenth of these
+   * tolerances nearly every interval was cut whatever spacing was asked for, and the body's skin held 580,000 triangles at any setting.
    */
-  const REFINE: { length: number; share: number; least: number } = { length: 0.05, share: 0.005, least: 0.125 };
+  const REFINE: { length: number; share: number; least: number } = { length: 0.5, share: 0.05, least: 0.25 };
 
   /** The part's course as the engine reads it. */
   export function axis(family: Pick<IFamily, "centres" | "halves" | "up">): AutoMovieViewAxis.IAxis {

@@ -233,6 +233,24 @@ function validate(
   source: AutoMovieLoftViewSource.ISource,
   station: number,
 ): void {
+  // A source is immutable while it is read, so its structure is checked on its first reading alone; every reading still checks its station.
+  // Checked on every reading, the structure cost an eighth of a body's realization.
+  if (source !== null && typeof source === "object" && VALIDATED.has(source)) {
+    if (!Number.isFinite(station)) throw new Error("The present view source is malformed.");
+    return;
+  }
+  structure(source, station);
+  VALIDATED.add(source);
+}
+
+/** Sources whose structure has been checked, released with them. */
+const VALIDATED: WeakSet<AutoMovieLoftViewSource.ISource> = new WeakSet();
+
+/** Refuse a malformed source or station by the rule it breaks. */
+function structure(
+  source: AutoMovieLoftViewSource.ISource,
+  station: number,
+): void {
   if (
     !Number.isFinite(station) ||
     source === null ||

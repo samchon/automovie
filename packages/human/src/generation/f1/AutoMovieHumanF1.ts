@@ -120,8 +120,11 @@ export namespace AutoMovieHumanF1 {
   /** How far behind its first joint a sewn digit closes in a point, mm. */
   const ROOT_MM: number = 10;
 
-  /** Station spacing of the layers and derived outlines of a sewn family, mm: the spacing at which the engine admits these families as faces. */
-  const LAYER_MM: number = 2;
+  /**
+   * Station spacing of the layers and derived outlines of a sewn family, mm. Each part adds stations of its own where its section turns fast,
+   * so 4 mm is admitted whole with 345,000 triangles; at 2 mm the body held 589,000 and the engine read one toe's middle section as degenerate.
+   */
+  const LAYER_MM: number = 4;
 
   /** Radius of the arm at its armscye plane, mm, read off the reference's section there. */
   const ARMSCYE_RADIUS_MM: number = 48;
@@ -198,13 +201,17 @@ export namespace AutoMovieHumanF1 {
     };
   }
 
-  /** Declare the sewn body. */
-  export function construction(): IConstruction {
+  /**
+   * Declare the sewn body.
+   *
+   * @param layer Station spacing of each family's layers and derived outlines, mm.
+   */
+  export function construction(layer: number = LAYER_MM): IConstruction {
     const sources: Map<string, IAutoMovieViewPart> = new Map();
     const leaf = (family: AutoMovieHumanConicLoft.IFamily): AutoMovieConstructionNode => {
       const from: number = family.knots[0]!;
       const to: number = family.knots.at(-1)!;
-      const count: number = Math.ceil((to - from) / LAYER_MM) + 1;
+      const count: number = Math.ceil((to - from) / layer) + 1;
       sources.set(family.name, AutoMovieHumanConicLoft.part(family, Array.from({ length: count }, (_: unknown, i: number): number => from + ((to - from) * i) / (count - 1))));
       return { type: "source", name: family.name, source: family.name };
     };

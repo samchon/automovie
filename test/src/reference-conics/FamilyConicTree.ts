@@ -33,10 +33,13 @@ namespace FamilyConicTree {
         }
       process.stdout.write(JSON.stringify({ mirror: family.name, worstMm: worst }) + "\n");
     }
-    const declared: AutoMovieHumanF1.IConstruction = AutoMovieHumanF1.construction();
+    // `FamilyConicTree.ts [layerMm] [chordMm]`: the families' layer spacing and the tessellation chord, to weigh time against the skin.
+    const layer: number = Number(process.argv[2] ?? "2");
+    const chord: number = Number(process.argv[3] ?? "1") / 1000;
+    const declared: AutoMovieHumanF1.IConstruction = AutoMovieHumanF1.construction(layer);
     const started: number = performance.now();
-    const real: AutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction({ name: "f1.body", root: declared.root }, { chord: 0.001, sources: declared.sources });
-    const report = { port: AutoMovieHumanF1.armscye(1), milliseconds: Math.round(performance.now() - started), diagnostics: real.diagnostics, chains: real.chains.map((c: { name: string }): string => c.name), vertices: real.mesh.positions.length / 3, triangles: real.mesh.indices.length / 3 };
+    const real: AutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction({ name: "f1.body", root: declared.root }, { chord, sources: declared.sources });
+    const report = { layerMm: layer, chordMm: chord * 1000, milliseconds: Math.round(performance.now() - started), diagnostics: real.diagnostics, chains: real.chains.map((c: { name: string }): string => c.name), vertices: real.mesh.positions.length / 3, triangles: real.mesh.indices.length / 3 };
     process.stdout.write(JSON.stringify(report).slice(0, 4000) + "\n");
     if (real.mesh.positions.length === 0) return;
     const out: string = path.join(path.resolve(process.cwd(), ".."), "test/.shots/family-conic-tree", new Date().toISOString().replaceAll(":", "-"));

@@ -4,46 +4,59 @@ The record of campaign 1's reconstruction of f1 in its reference pose: what the 
 
 ## Construction
 
-A part is a tape wall with reliefs.
+A part is a tape wall, with reliefs where the wall cannot follow the skin.
 
-- **Course.** A jointed axis through the part's joint centres. Stations are arclength from the first centre, and every section lies in the plane normal to the course.
-- **Wall.** At each station the section is a closed chain of conics through four extremes, the points where the section runs parallel to its chart axes, with one shoulder per arc. A quarter may be halved at its median point: the point at a share `f` of the way from the chord midpoint to the meeting of the two end tangents, with its tangent parallel to the chord. Every conic has such a point, so a split with the values of rational subdivision changes nothing, and other values add freedom without ever leaving the admissible set.
+- **Course.** A jointed axis through the part's joint centres, which every family names from one datum module. Stations are arclength from the first centre, and every section lies in the plane normal to the course. Round a joint the sections fan: the leg turns at the ankle and runs on to the foot, so the heel is lofted.
+- **Wall.** At each station the section is a closed chain of conics through four extremes, the points where the section runs parallel to its chart axes, with one shoulder per arc. A quarter may be halved at its median point: the point at a share `f` of the way from the chord midpoint to the meeting of the two end tangents, with its tangent parallel to the chord.
 - **Along the station.** Every section number is a natural cubic through its values at a few knots shared by all of the part's numbers.
-- **Reliefs.** The wall is fitted to the convex hull of each reference section, the path of a taut tape. Skin that lies inside the hull, such as a crease, a groove or the face, is a height over a window of the wall's chart along a fixed axis.
+- **Reliefs.** The wall is fitted to the convex hull of each reference section, the path of a taut tape. Skin that lies inside the hull is a height over a window of the wall's chart along a fixed axis.
+- **Closed ends.** A family may close in a point. From the station its cap starts at, the section shrinks by one conic factor that leaves the wall at the wall's own taper and stands upright at the tip.
 
-The runtime resolves each station's numbers into the engine's guides and conic pieces and lofts them through the engine's view loft.
+The parts are sewn by the engine's construction operators.
+
+| Seam | Operator | What it needs |
+| --- | --- | --- |
+| Trunk to both legs | `split` of the trunk's open lower end | A seam chord from front to back |
+| Trunk to each arm and each ear | `port` on the trunk's chart | An ellipse round the part's root, derived from datums |
+| Limb to each finger and toe | `join` (merge) | The digit as a capsule whose inner end lies inside the limb |
+| Wrist, ankle, neck | none | One family runs through |
 
 ## What the rounds taught
 
-- **Fit all sections at once.** Reading each section alone and interpolating the readings kept 28 of 30 forearm sections as knots and left a ring across the thigh where the readings jumped. One least-squares problem over every section, on shared sparse knots, gave the forearm shaft from 52 numbers within 0.45 mm.
-- **Read the cut vertices, not the chords.** The reference is faceted. A chord between two cut vertices lies inside the intended surface by the facet's sagitta, 0.6 mm on the thigh.
-- **Free split points do not converge.** A contact that may slide along the curve, with a free tangent, is nearly undetermined and settles on the edge of admissibility. The median anchor has neither freedom.
-- **Fixed groove layouts degenerate.** A crest, an inflection and a groove bottom cannot stay one layout along the trunk: the spine groove is 10 to 13 mm deep above the waist and vanishes at the waist. The hull with a relief has no such station.
-- **A cast along the relief axis is blind where the axis runs along the wall.** Such phases are left to the net's fairness, and a window that needs them needs another axis.
-- **One family per continuous form.** Three trunk walls stacked on one axis met at visible seams; one family from the crotch to the armpit has none and fits better.
-- **A guide on its box corner has no arc.** Where one cut vertex is both the forward and a side extreme, the touch offset reaches the corner and the engine refuses the station; this ended the arm, the leg and the palm short. The model now holds each guide within 92 % of the way to the corners its neighbours set.
-- **A later relief is fitted over the earlier ones.** Side reliefs over the upper family's front and back ones lowered its mean from 0.97 to 0.75 mm but left ragged patches at the shoulders, so they are not kept.
-- **Rows where a branch merges into the section do not belong to the wall.** Fitted, the rows where the arms join the shoulders threw fins sideways.
+- **Fit all sections at once.** One least-squares problem over every section, on shared sparse knots, replaces per-section readings that jumped.
+- **Read the cut vertices, not the chords.** The reference is faceted; a chord lies inside the intended surface by the facet's sagitta.
+- **A merge needs a crossing, a port needs none.** Where two parts continue each other's skin they touch along the seam, and a traced intersection there is ill-conditioned. A port or a split spans a band between a curve on one and a ring of the other instead. A merge suits a part that comes out through another's surface.
+- **A part that leaves by a branch is taken out of its parent's sections.** The trunk's sections leave out the arm past the armscye plane and the ears. With the arms left in, the wall threw fins; with the ears in, it bulged and stepped.
+- **A merged part must be closed where it is buried.** An open tube carried back into the hand met its cap in an open curve. Closed in a point inside the hand, it meets the cap in a closed curve wherever it comes out.
+- **A relief does not reach round the wall.** Past about 1.2 rad from its axis a height slides a point along the wall. Such a window folded the skin at the side of the head and refused the ear's port.
+- **A relief that cannot reach its hollow leaves scratches.** A window placed by the hollow search is kept only when it takes away half of its deepest hollow on the withheld sections. The leg keeps none.
+- **Knots stand as close as the section moves.** Round the ankle the heel sweeps 2.7 times faster than the station, and 12 mm between knots stalled the whole leg; 6 mm there fits it. From the neck up, 4 mm let the wall follow every step of the face's hull and streaked it.
+- **Growth must restart from the best family.** Going on from a round that did not improve carried a failed solve into every later one.
+- **The engine reads between stations by its own spline.** Where the model's section turns fast, the engine's chain can lose an arc between two stations that the model never loses, so the part adds stations where the model stands off the mean of its neighbours.
+- **A pole takes every coordinate together.** The engine closed only a four-quarter section; a chain's touch offsets and split points now fall in the same pole parameter as its extents, and a relief must vanish at the pole.
+- **Profile before blaming an operator.** The body's realization took 193 s after the digits were merged. The joins were 4.8 % of it; 83 % was the face tessellation rereading the whole mesh for every face.
 
 ## Measured
 
 Distance from the reference skin's cut vertices to the regenerated section, through the engine; half of the sections withheld from each fit.
 
-| Part | Numbers (wall + relief) | Mean, mm | Max, mm |
-| --- | --- | --- | --- |
-| Arm | 221 + 64 | 0.12 | 1.0 |
-| Leg | 588 + hollow reliefs | 0.13 | 0.9 to 800 mm, 3.1 at the ankle rows |
-| Midfoot | 189 + 178 | 0.12 | 0.89 |
-| Palm | 126 + hollow reliefs | 0.15 | 4.4 |
-| Finger shafts | 65 to 117 | 0.05 to 0.11 | 0.37 to 0.83 |
-| Toe shafts | 39 to 65 | 0.03 to 0.13 | 0.15 to 0.64 |
-| Torso | 273 + 1,870 | 0.29 | 6.2 |
-| Shoulders, neck and head, one family | 567 + 5,040 | 0.97 | 60 |
+| Part | Conic numbers | Relief heights | Mean, mm | Max, mm |
+| --- | --- | --- | --- | --- |
+| Trunk, crotch to crown | 1,113 | 7,474 | 0.52 | 61 at the nose |
+| Arm, armpit to finger webs | 546 | 340 | 0.11 | 6.3 |
+| Leg, crotch to toe webs | 735 | 0 | 0.23 | 6.1 |
+| Ear, against its hull | 105 | 0 | 0.08 | 0.36 |
+| Fingers | 65 to 147 each | 0 | 0.05 to 0.11 | 0.33 to 0.74 |
+| Toes | 39 to 65 each | 0 | 0.03 to 0.18 | 0.15 to 1.3 |
+
+A trunk wall of 672 numbers at 0.56 mm exists as well, fitted with knots 4 mm apart from the neck up; it streaks the face, so the wall with knots 8 mm apart is kept at 441 numbers more.
+
+The body is generated with no engine diagnostic as 345,000 triangles, in 49 to 50 s on the machine when idle and up to 90 s while other work loaded it. A CPU profile of that run puts 64 % in the constrained triangulation of the trimmed faces and 22 % in the port bands.
 
 ## Open
 
-- The parts are separate open tubes. The armpit, the crotch and the ankles are open bands; heels, digit tips and the crown are not built. The chain sections the families use are C1, are refused by the engine's continuation and have no pole.
-- The 0.5 mm target holds only on finger and some toe shafts.
-- The head's ears, nose and mouth are an envelope: a radial relief cannot follow an undercut.
-- A layout of sixteen conics fitted worse than eight from an exact start, unexplained.
-- The two smallest toes' fitted run is 5 to 6 mm long.
+- The thumbs pass through the hands unsewn: their merge finds no closed meeting.
+- The face's nose, eyes and mouth are reliefs; the ear is its outer form without the concha.
+- A thin flap stands in front of each armpit, where the trunk's relief cuts the fold beside the stump of arm it keeps.
+- A hand read as the curve round all fingers on a course square to the knuckles fits to 588 numbers at 0.34 mm but is not adopted: the engine refuses it as a face at ten stations between 569 and 584 mm.
+- The 0.5 mm target holds on the limbs' means and the digits, not on the trunk's maximum.
