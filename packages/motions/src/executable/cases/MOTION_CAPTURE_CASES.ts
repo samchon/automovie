@@ -9,7 +9,9 @@ import { handlingCases } from "./handlingCases";
 import { jumpCases } from "./jumpCases";
 import { locomotionCases } from "./locomotionCases";
 import { reactionCases } from "./reactionCases";
+import { selfCases } from "./selfCases";
 import { stairsCases } from "./stairsCases";
+import { throwCases } from "./throwCases";
 import { standCases } from "./standCases";
 import { strikingCases } from "./strikingCases";
 import { variationCases } from "./variationCases";
@@ -122,7 +124,11 @@ export const MOTION_CAPTURE_CASES: Readonly<
   "crouch-sweep": (): IMotionCaptureCase[] => crouchCases(MotionBodies.SWEEP),
   stairs: (): IMotionCaptureCase[] => stairsCases(),
   "stairs-sweep": (): IMotionCaptureCase[] => stairsCases(MotionBodies.SWEEP),
+  throw: (): IMotionCaptureCase[] => throwCases(),
+  "throw-sweep": (): IMotionCaptureCase[] => throwCases(MotionBodies.SWEEP),
   affection: (): IMotionCaptureCase[] => affectionCases(),
   "affection-sweep": (): IMotionCaptureCase[] =>
     affectionCases(MotionBodies.SWEEP),
+  self: (): IMotionCaptureCase[] => selfCases(),
+  "self-sweep": (): IMotionCaptureCase[] => selfCases(MotionBodies.SWEEP),
 };

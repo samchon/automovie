@@ -62,6 +62,8 @@ export * from "./everyday/brace";
 export * from "./everyday/crouch";
 export * from "./everyday/kneel";
 export * from "./terrain/climbStairs";
+export * from "./throwing/catchObject";
+export * from "./throwing/throwObject";
 export * from "./posture/poseBones";
 export * from "./everyday/gesture";
 export * from "./everyday/gestureStroke";

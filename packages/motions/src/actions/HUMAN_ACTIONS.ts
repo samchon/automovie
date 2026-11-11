@@ -29,8 +29,11 @@ import { knee } from "../striking/knee";
 import { punch } from "../striking/punch";
 import { step } from "../striking/step";
 import { climbStairs } from "../terrain/climbStairs";
+import { catchObject } from "../throwing/catchObject";
+import { throwObject } from "../throwing/throwObject";
 import { highFive } from "../touch/highFive";
 import { kiss } from "../touch/kiss";
+import { selfAction } from "../touch/selfAction";
 import { touch } from "../touch/touch";
 import { jump } from "./jump";
 import { run } from "./run";
@@ -80,6 +83,9 @@ export const HUMAN_ACTIONS: Readonly<
   crouch,
   kneel,
   climbStairs,
+  throwObject,
+  catchObject,
   kiss,
   highFive,
+  selfAction,
 };
