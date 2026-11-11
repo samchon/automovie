@@ -43,14 +43,14 @@ Distance from the reference skin's cut vertices to the regenerated section, thro
 
 | Part | Conic numbers | Relief heights | Mean, mm | Max, mm |
 | --- | --- | --- | --- | --- |
-| Trunk, crotch to crown | 1,113 | 6,816 | 0.87 | 61 at the nose |
+| Trunk, crotch to crown | 1,113 | 7,474 | 0.52 | 61 at the nose |
 | Arm, armpit to finger webs, without the free thumb | 273 | 340 | 0.31 | 4.2 |
 | Leg, crotch to toe webs | 735 | 0 | 0.23 | 6.1 |
 | Ear, against its hull | 105 | 0 | 0.08 | 0.36 |
 | Fingers | 65 to 147 each | 0 | 0.05 to 0.11 | 0.33 to 0.74 |
 | Toes | 39 to 65 each | 0 | 0.03 to 0.18 | 0.15 to 1.3 |
 
-The nose's free end is a family of its own, 63 numbers at 0.1 mm against its hull, attached at a port on the face. The trunk wall kept was fitted with the nose still in its sections; the port cuts that part out. A wall fitted without the nose is 588 numbers at 1.08 mm but creases the chest from the neck to the armpits and under the breasts, so it is not kept.
+The nose's free end is a family of its own, 63 numbers at 0.1 mm against its hull, attached at a port on the face. The trunk wall kept was fitted with the nose still in its sections; the port cuts that part out. A wall fitted without the nose is 588 numbers at 1.08 mm. It was set aside on a render that showed creases across the chest, but those creases came from the relief windows of that round, not from the wall, so it has not been judged fairly yet.
 
 A trunk wall of 672 numbers at 0.56 mm exists as well, fitted with knots 4 mm apart from the neck up; it streaks the face, so the wall with knots 8 mm apart is kept at 441 numbers more.
 
@@ -60,7 +60,7 @@ The whole figure is one piece, generated with no engine diagnostic in 43 to 54 s
 
 - The thumb's blend is 0.5 mm wide and leaves a small notch at its root; at 1 mm it folds in the web beside the index finger.
 - The face's eyes and mouth are reliefs; the ear is its outer form without the concha.
-- The folds in front of and behind each armpit are the tape's smooth bridge from the chest to the shoulder, not carved: a relief that reached them left a pleat or a flap. The trunk's mean rose from 0.52 to 0.87 mm for it.
+- The trunk keeps a stump of each arm, and the tape bridges from the breast to it. A relief window that ends inside that bridge, at 1.0 or 1.2 rad, creases the chest and the back from the neck to the armpit; reaching 1.45 rad it leaves a thin flap in the fold beside each armpit, which is the state kept. A step also runs across the back where the stump begins. A trunk cut at the armpit's sagittal plane, with the arm owning the shoulder's cap, removes the cause; its fit is `FamilyConicBody.ts --sagittal` and is not adopted yet.
 - The band from the trunk to each arm meets the arm with a faint ring.
 - A hand read as the curve round all fingers on a course square to the knuckles fits to 588 numbers at 0.34 mm but is not adopted: the engine refuses it as a face at ten stations between 569 and 584 mm.
 - The 0.5 mm target holds on the limbs' means and the digits, not on the trunk's maximum.

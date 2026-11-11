@@ -43,6 +43,14 @@ namespace FamilyConicBody {
   /** Side distance of the armpit's crease from the median plane, mm: `AutoMovieHumanF1Joints.armpit[2]`. */
   const ARMPIT_MM: number = 151;
 
+  /**
+   * `--sagittal`: an experiment in which the trunk keeps no stump of arm. The armscye is the armpit's sagittal plane up to the shoulder's top:
+   * the trunk leaves out everything lateral of it inside the arm's tube, and the arm, fitted from 40 mm below the shoulder joint, leaves out
+   * what lies medial. The stump the trunk keeps otherwise makes the tape bridge from the breast to the shoulder, which a relief either creases
+   * or turns into a flap, and puts a step across the back where the stump begins.
+   */
+  const SAGITTAL: boolean = process.argv.includes("--sagittal");
+
   /** Radius about the upper arm's axis inside which skin past the armscye plane is the arm's, mm; the hips, as far to the side, lie outside it. */
   const ARM_TUBE_MM: number = 75;
 
@@ -162,22 +170,24 @@ namespace FamilyConicBody {
         // A course that leaves the wrist square to the row of knuckles, with the hand read on to the finger webs as the curve round all the
         // fingers (`surround`), was fitted to 588 numbers at a mean of 0.34 mm, but the engine refused it as a face: between its stations a
         // section's chain lost an arc. Until that is understood the hand keeps this course and closes at the webs.
-        { name: "arm", centres: [joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r"), joint("middle_01_r")], course: "[J.upperarm, J.lowerarm, J.hand, J.middle1]", halves: [30, 10], up: [1, 0, 0], domain: [76, 570], tip: 600, mirrored: true, layouts: LIMB, reliefs: "auto", clip: (p: R.V): number => {
+        { name: "arm", centres: [joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r"), joint("middle_01_r")], course: "[J.upperarm, J.lowerarm, J.hand, J.middle1]", halves: [30, 10], up: [1, 0, 0], domain: [SAGITTAL ? 40 : 76, 570], tip: 600, mirrored: true, layouts: LIMB, reliefs: "auto", clip: (p: R.V): number => {
           // The thumb past where it stands free of the palm is not the hand's: inside 16 mm of its course from 40 mm past its first joint.
           // Left in, the hand's wall and the thumb's lay within half a millimetre of each other for 10 mm, and a merge traces no such meeting.
           const a: R.V = joint("thumb_01_r");
           const b: R.V = joint("thumb_03_r");
           const length: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
           const along: number = ((p[0] - a[0]) * (b[0] - a[0]) + (p[1] - a[1]) * (b[1] - a[1]) + (p[2] - a[2]) * (b[2] - a[2])) / length;
-          return Math.min(along - 40, 16 - Math.hypot(p[0] - a[0] - (along * (b[0] - a[0])) / length, p[1] - a[1] - (along * (b[1] - a[1])) / length, p[2] - a[2] - (along * (b[2] - a[2])) / length));
+          const thumb: number = Math.min(along - 40, 16 - Math.hypot(p[0] - a[0] - (along * (b[0] - a[0])) / length, p[1] - a[1] - (along * (b[1] - a[1])) / length, p[2] - a[2] - (along * (b[2] - a[2])) / length));
+
+          // `--sagittal`: the arm owns the shoulder's cap as well, the skin lateral of the armpit's sagittal plane, and gives up what lies medial.
+          return SAGITTAL ? Math.max(thumb, Math.min(ARMPIT_MM - p[2], 1420 - p[1], p[1] - 1240)) : thumb;
         } },
 
         // The leg turns at the ankle and runs on to the ball of the foot, its sections fanning round the instep, so the heel is lofted and the ankle
         // is no seam. The ankle's turn is long enough that its tightest radius, 2 h / (1.875 angle) = 46 mm, stays outside the instep. Round the
         // turn the heel sweeps about 2.7 times faster than the station, so its knots may stand 6 mm apart.
-        // A course that leaves the ankle square to the row of toe joints, with the forefoot read as the curve round all the toes, was tried
-        // so the toes could be merged through the cap as the fingers are; its wall stalled above 3 mm, so the foot keeps this course and closes
-        // at the toe webs, and the toes pass through that cap unsewn.
+        // A course that leaves the ankle square to the row of toe joints, with the forefoot read as the curve round all the toes, was tried;
+        // its wall stalled above 3 mm, so the foot keeps this course and closes at the toe webs, and the toes are merged onto that cap.
         { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r"), [133, 20, 157]], course: "[J.thigh, J.calf, J.foot, J.footBall]", halves: [40, 62], up: [1, 0, 0], domain: [104, 956], gap: 6, tip: 990, mirrored: true, layouts: LIMB, reliefs: "auto" },
         // The auricle as a short loft out of the side of the head: its course runs straight to the side from under its root, and of each plane's
         // loops inside the ear's box it reads the hull, so it is the ear's outer form without the concha's hollow.
@@ -196,17 +206,18 @@ namespace FamilyConicBody {
           const d: R.V = [(b[0] - a[0]) / length, (b[1] - a[1]) / length, (b[2] - a[2]) / length];
           const q: R.V = [p[0] - a[0], p[1] - a[1], side * p[2] - a[2]];
           const along: number = q[0] * d[0] + q[1] * d[1] + q[2] * d[2];
-          return Math.min(ARMSCYE_NORMAL[0] * (p[0] + 25) + ARMSCYE_NORMAL[1] * (p[1] - ARMPIT_Y_MM) + ARMSCYE_NORMAL[2] * (side * p[2] - ARMPIT_MM), side * p[2] - ARMPIT_MM, ARM_TUBE_MM - Math.hypot(q[0] - along * d[0], q[1] - along * d[1], q[2] - along * d[2]));
+          return Math.min(SAGITTAL ? Infinity : ARMSCYE_NORMAL[0] * (p[0] + 25) + ARMSCYE_NORMAL[1] * (p[1] - ARMPIT_Y_MM) + ARMSCYE_NORMAL[2] * (side * p[2] - ARMPIT_MM), side * p[2] - ARMPIT_MM, ARM_TUBE_MM - Math.hypot(q[0] - along * d[0], q[1] - along * d[1], q[2] - along * d[2]));
         })), reliefs: [
           // Every window stays within 1.2 rad of its axis. Farther round, a height along the axis slides a point along the wall instead of
           // moving it in or out, which folded the skin at the sides of the head and the shoulders; there the wall stands alone.
           { name: "trunk.low.back", stations: [-20, 470], phases: [Math.PI - 1.2, Math.PI + 1.2], axis: [1, 0, 0], rows: 51, columns: 31, mirror: true },
           { name: "trunk.low.front", stations: [-20, 470], phases: [-1.2, 1.2], axis: [-1, 0, 0], rows: 51, columns: 31, mirror: true },
-          // Over the chest and the shoulders the windows stop at 1.0 rad, short of the folds in front of and behind the armpit, which lie
-          // between 1.0 and 1.25 rad. A window that ended among them left a pleat along its edge, and one that reached past them to 1.45 rad
-          // slid the skin into a flap; left to the wall, the folds are the tape's smooth bridge from the chest to the shoulder.
-          { name: "trunk.chest.back", stations: [420, 680], phases: [Math.PI - 1.0, Math.PI + 1.0], axis: [1, 0, 0], rows: 53, columns: 35, mirror: true },
-          { name: "trunk.chest.front", stations: [420, 680], phases: [-1.0, 1.0], axis: [-1, 0, 0], rows: 53, columns: 35, mirror: true },
+          // Over the chest and the shoulders the windows reach 1.45 rad. The tape bridges from the breast to the stump of arm the trunk keeps,
+          // and the skin lies deep inside that bridge from about 0.6 to 1.3 rad: a window that ends there, at 1.0 or 1.2 rad, creases the whole
+          // chest and back along its edge from the neck to the armpit. Reaching past it leaves only a thin flap in the fold beside the armpit.
+          // The cause is the stump, not the window: a trunk cut at the armpit's sagittal plane has no such bridge.
+          { name: "trunk.chest.back", stations: [420, 680], phases: [Math.PI - 1.45, Math.PI + 1.45], axis: [1, 0, 0], rows: 53, columns: 49, mirror: true },
+          { name: "trunk.chest.front", stations: [420, 680], phases: [-1.45, 1.45], axis: [-1, 0, 0], rows: 53, columns: 49, mirror: true },
           // The upper windows end at the crown's tip, 918.88 mm: a relief's height and its two derivatives vanish at its window's edge, which the engine requires of a pole.
           { name: "trunk.high.back", stations: [640, 918.88], phases: [Math.PI - 1.2, Math.PI + 1.2], axis: [1, 0, 0], rows: 57, columns: 33, mirror: true },
           { name: "trunk.high.front", stations: [640, 918.88], phases: [-1.2, 1.2], axis: [-1, 0, 0], rows: 57, columns: 49, mirror: true },
