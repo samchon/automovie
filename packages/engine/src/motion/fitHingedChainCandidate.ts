@@ -144,18 +144,7 @@ export function fitHingedChainCandidate(
   const apart = (
     a: IAutoMovieQuaternion,
     b: IAutoMovieQuaternion | null,
-  ): number =>
-    b === null
-      ? 0
-      : (2 *
-          Math.acos(
-            Math.min(
-              1,
-              Math.abs(a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w),
-            ),
-          ) *
-          180) /
-        Math.PI;
+  ): number => (b === null ? 0 : (Quaternion.angle(a, b) * 180) / Math.PI);
   const solved: ReturnType<typeof hingedArmArticulation> =
     hingedArmArticulation({
       upper: prepared.upper,
@@ -235,7 +224,9 @@ function basisOf(axes: IAutoMovieJointAxes | undefined): IAutoMovieJointAxes {
  * hand the fit will actually show. The twist share comes from the engine's
  * single swing-twist owner (`swingTwist`); each joint is clamped through its
  * clinical domain as the fit clamps it; the error is the geodesic angle
- * `2 acos |<shown, requested>|` between the shown and the requested rotation.
+ * between the shown and the requested rotation, from `Quaternion.angle`,
+ * which stays exact for an error near zero so the swivel refinement settles
+ * on mirrored swivels for mirrored requests.
  *
  * @param props The fit request.
  * @param prepared The chain's preparation.
@@ -279,6 +270,7 @@ function rotationError(
       props.restFrames?.[bone],
     );
   };
+  const wanted: IAutoMovieQuaternion = Quaternion.normalize(rotation);
   return (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion): number => {
     const above: IAutoMovieQuaternion = Quaternion.multiply(
       Quaternion.multiply(prepared.upper.worldRotation, upper),
@@ -312,16 +304,9 @@ function rotationError(
       Quaternion.multiply(mid, rest),
       clamped(effector, local, effectorAxes, effectorBasis),
     );
-    const dot: number = Math.min(
-      1,
-      Math.abs(
-        shown.x * rotation.x +
-          shown.y * rotation.y +
-          shown.z * rotation.z +
-          shown.w * rotation.w,
-      ),
+    return (
+      (Quaternion.angle(Quaternion.normalize(shown), wanted) * 180) / Math.PI
     );
-    return (2 * Math.acos(dot) * 180) / Math.PI;
   };
 }
 

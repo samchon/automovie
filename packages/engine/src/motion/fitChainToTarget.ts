@@ -452,16 +452,7 @@ const jointRotationDistance: (
       restFrame,
     ),
   );
-  const dot: number = Math.min(
-    1,
-    Math.abs(
-      candidate.x * prior.x +
-        candidate.y * prior.y +
-        candidate.z * prior.z +
-        candidate.w * prior.w,
-    ),
-  );
-  const angle: number = 2 * Math.acos(dot);
+  const angle: number = Quaternion.angle(candidate, prior);
   return angle * angle;
 };
 

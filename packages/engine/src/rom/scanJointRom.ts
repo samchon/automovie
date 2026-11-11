@@ -34,6 +34,14 @@ const AXES: readonly ["flexion", "abduction", "twist"] = [
  * @param report Called once per fault with the faulted part, the measured
  *   value in degrees and its overshoot in degrees, `undefined` for a
  *   non-finite value.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States who reads the scan and why it builds no message, the report order, what `null`, `0` and a non-finite angle mean on each kind of axis, how each overshoot is measured, the swing coupling, and each callback argument's unit.
+ * @evidence contracts/development/implementation.md#principled-implementation An interval's overshoot is the distance to its nearer bound and an immobile axis's is the whole angle, the distances a clamp would move the joint; the swing is measured by `swingConeAngle` on the rotation the renderer reads, so a resting axis counts as its actual 0.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The single owner of what a ROM fault is: the gate words its reports and the solvers sum them, so the two cannot judge by different rules; one loop over the three axes and one cone check.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tolerance is added and no bone or axis is special-cased; a non-finite angle is reported without a distance instead of being scored as zero or clamped.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Three comparisons and at most one cone angle per joint, with no allocation, which matters because a limb fit scans hundreds of candidates per solve.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure scan of one joint and constraint that coordinates no work across calls.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; faults leave through the caller's callback.
  */
 export const scanJointRom: (
   joint: IAutoMovieJointPose,
@@ -84,8 +92,22 @@ export const scanJointRom: (
   }
 };
 
-/** Companion declarations of {@link scanJointRom}. */
+/**
+ * Companion declarations of {@link scanJointRom}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names what the namespace holds; its one member states what each value stands for.
+ * @evidence contracts/development/design.md#principled-representation Holds the one type the scan's callback needs, the part a fault is measured on.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One type, declared beside the function whose callback takes it and read by its two callers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No cast, no index signature and no copy of a type owned elsewhere.
+ */
 export namespace scanJointRom {
-  /** What a fault is measured on: one clinical axis, or the combined swing. */
+  /**
+   * What a fault is measured on: one clinical axis, or the combined swing.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two kinds of part a fault can name.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the three clinical axis names a joint pose carries and `swing`, the coupling of flexion and abduction that belongs to no single axis.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Four literals, one for each check the scan runs; the gate maps each to its message and the ranking ignores it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts String literals rather than `string`, so a caller's switch over the parts is checked for exhaustiveness.
+   */
   export type Part = "flexion" | "abduction" | "twist" | "swing";
 }

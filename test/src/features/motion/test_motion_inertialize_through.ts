@@ -23,6 +23,12 @@ import { TestValidator } from "@nestia/e2e";
  * 5. A pose cut from a knee at 10.01° falling 24°/s to a knee held at 10°
  *    shows the target 10 ms later when clamped, and more than 0.1° past it
  *    when let through.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public offset and pose forms and reads the returned values, their finite differences and the shown knee angle; a let-through offset that is clamped, loses its rate at the cut, or does not end at zero fails.
+ * @evidence contracts/development/testing.md#independent-expectations The clamped decay time `5 x0 / |v0|`, the cut acceleration `-(8 v0 t1 + 20 x0) / t1^2` and the overshoot bound `256 t1 / 3125` per unit of excess rate are derived by hand from the inertialization quintic with zero end jerk.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers the same offset clamped and let through, the value, rate and acceleration at the cut, the crossing and its bound, an offset heading away, and the pose form in both modes.
+ * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit on numbers and a one-joint pose; it runs in CI.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 scenarios and what each pins.
  */
 export function test_motion_inertialize_through(): void {
   const close = (a: number, b: number, e: number): boolean =>
@@ -80,9 +86,12 @@ export function test_motion_inertialize_through(): void {
   );
   const target = samplePoseVelocity((): IAutoMoviePose => knee(10), 0);
   const shown = (pass: boolean): number =>
-    inertializePose(source, target, t1, pass)(0.01, knee(10)).joints.find(
-      (j) => j.bone === "leftLowerLeg",
-    )!.flexion!;
+    inertializePose(
+      source,
+      target,
+      t1,
+      pass,
+    )(0.01, knee(10)).joints.find((j) => j.bone === "leftLowerLeg")!.flexion!;
   TestValidator.predicate(
     "the pose form stops short or follows through",
     shown(false) === 10 && shown(true) < 9.9,

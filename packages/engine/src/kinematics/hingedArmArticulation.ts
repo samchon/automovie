@@ -54,7 +54,10 @@ const SPAN_EPSILON: number = 1e-9;
  * `overshoot`, compared exactly, then the least `deviation`, both from
  * `score`. Every local minimum of a sweep is then refined between its
  * neighbouring steps by golden-section search under the same ordering, and
- * the best of the sweeps and the refinements is returned. So the chosen pose
+ * the best of the sweeps and the refinements is returned. A pass whose two
+ * probes tie closes the bracket onto both, so a request mirrored left to
+ * right, whose probes are the same two exchanged, refines to the mirrored
+ * swivel. So the chosen pose
  * follows a moving target continuously rather than in swivel steps, a legal
  * interval narrower than one step is still found from the dip it leaves in
  * the sweep, and between two basins the truly better one wins rather than the
@@ -70,7 +73,7 @@ const SPAN_EPSILON: number = 1e-9;
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Pure chain geometry with the ROM policy injected through `score`, so `reachPose` owns the clinical decomposition and constraints while this function owns the branches and the sweep; the shared `aimRotation` aims the root.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rig, side or target is special-cased; the degeneracy thresholds are the engine's shared length scale, and a chain that cannot reach legally returns its least overshoot instead of being clamped into range.
  * @evidence contracts/development/common.md#meaningful-documentation States the hinge-only elbow, the span formula and its branches, the out-of-span behavior, the swivel sweep and its ordering, who owns scoring, every `null` case with its threshold, and each input's frame.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most two branches times 360 swivel steps plus 42 refinement probes per local minimum of a sweep, each one quaternion product plus one `score` call, so cost is bounded per solve and dominated by `score`; a level sweep refines nothing, and the step is a resolution choice among equally exact poses.
+ * @evidence contracts/development/implementation.md#efficient-algorithms At most two branches times 360 swivel steps plus 42 refinement probes per local minimum of a sweep (one more for each tied pass, at most 82), each one quaternion product plus one `score` call, so cost is bounded per solve and dominated by `score`; a level sweep refines nothing, and the step is a resolution choice among equally exact poses.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each hinge branch computes its mid direction and aim once for the whole swivel sweep; scores cannot be shared because the caller evaluates distinct shoulder rotations under its own constraints.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps one branch's 360 scored candidates during its sweep and retains nothing after the solve; the caller owns the returned rotations.
  */
@@ -206,8 +209,7 @@ export const hingedArmArticulation: (props: {
       swept.push(probe(step * SWIVEL_STEP));
     for (let step: number = 0; step < swept.length; ++step) {
       const at: IScored = swept[step]!;
-      const before: IScored =
-        swept[(step + swept.length - 1) % swept.length]!;
+      const before: IScored = swept[(step + swept.length - 1) % swept.length]!;
       const after: IScored = swept[(step + 1) % swept.length]!;
       if (chosen === null || better(at, chosen)) chosen = at;
 
@@ -265,11 +267,22 @@ const refine = (
       atOuter = atInner;
       inner = high - GOLDEN * (high - low);
       atInner = probe(inner);
-    } else {
+    } else if (better(atOuter, atInner)) {
       low = inner;
       inner = outer;
       atInner = atOuter;
       outer = low + GOLDEN * (high - low);
+      atOuter = probe(outer);
+    } else {
+      // A tie: the minimum of a unimodal score lies between the two probes,
+      // so both ends close in. Keeping either side instead would send a
+      // mirrored request, whose probes are these two exchanged, to the
+      // opposite end of a level stretch.
+      low = inner;
+      high = outer;
+      inner = high - GOLDEN * (high - low);
+      outer = low + GOLDEN * (high - low);
+      atInner = probe(inner);
       atOuter = probe(outer);
     }
   }
