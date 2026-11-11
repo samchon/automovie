@@ -1,4 +1,4 @@
-import { AutoMovieMotionClock } from "@automovie/engine";
+import { AutoMovieMotionClock } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**

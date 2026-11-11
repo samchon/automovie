@@ -1,6 +1,5 @@
+import { minimumJerk } from "@automovie/engine";
 import type { IAutoMovieMotionEvent } from "@automovie/interface";
-
-import { minimumJerk } from "./minimumJerk";
 
 /**
  * The clock of one action: its duration and its named instants, and the only

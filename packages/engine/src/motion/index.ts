@@ -1,5 +1,4 @@
 export * from "./AutoMovieEnvelope";
-export * from "./AutoMovieMotionClock";
 export * from "./AutoMovieGenericGesture";
 export * from "./AutoMoviePathGround";
 export * from "./AutoMovieRetargetContactPolicy";

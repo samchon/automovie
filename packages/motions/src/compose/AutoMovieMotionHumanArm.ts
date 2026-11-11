@@ -1,5 +1,4 @@
 import {
-  type AutoMovieMotionClock,
   type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
@@ -14,6 +13,8 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import type { AutoMovieMotionClock } from "./AutoMovieMotionClock";
+import { AutoMovieMotionHumanHand } from "./AutoMovieMotionHumanHand";
 import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
 /**
@@ -203,32 +204,6 @@ export namespace AutoMovieMotionHumanArm {
   }
 
   /**
-   * The finger joints of a hand on its way to a shape.
-   *
-   * @param side The hand.
-   * @param shape The shape at weight 1.
-   * @param curl Extra flexion of the fingers over the shape, degrees.
-   * @param weight How far from the relaxed cascade to the shape, in [0, 1].
-   * @returns Angles for every finger and thumb segment of that hand.
-   */
-  export function fingers(
-    side: HumanHand.Side,
-    shape: HumanHand.Shape,
-    curl: number,
-    weight: number,
-  ): IHumanPosture["joints"] {
-    const asked: IHumanPosture["joints"] = HumanHand.shape(side, shape);
-    const relaxed: IHumanPosture["joints"] = HumanHand.shape(side, "relaxed");
-    const out: IHumanPosture["joints"] = {};
-    for (const bone of Object.keys(asked) as AutoMovieHumanoidBone[]) {
-      const a: number = asked[bone]![0] + (bone.includes("Thumb") ? 0 : curl);
-      const r: number = relaxed[bone]![0];
-      out[bone] = [r + (a - r) * weight, 0, 0];
-    }
-    return out;
-  }
-
-  /**
    * An arm moved between an origin and a target by a weight.
    *
    * @param props The movement.
@@ -266,7 +241,12 @@ export namespace AutoMovieMotionHumanArm {
           ...posture,
           joints: {
             ...posture.joints,
-            ...fingers(props.side, target.shape, target.curl ?? 0, s),
+            ...AutoMovieMotionHumanHand.fingers(
+              props.side,
+              target.shape,
+              target.curl ?? 0,
+              s,
+            ),
           },
           limbs: {
             ...posture.limbs,

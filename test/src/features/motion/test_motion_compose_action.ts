@@ -1,5 +1,5 @@
-import { AutoMovieMotionClock } from "@automovie/engine";
 import {
+  AutoMovieMotionClock,
   type IAutoMovieMotionHumanPrimitive,
   type IHumanActionPlan,
   type IHumanPosture,

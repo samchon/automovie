@@ -1,5 +1,6 @@
 import {
   AutoMovieMotionHumanArm,
+  AutoMovieMotionHumanHand,
   AutoMovieMotionHumanJoints,
   HumanHand,
   type IAutoMovieMotionHumanPrimitive,
@@ -81,15 +82,15 @@ export function test_motion_compose_parts(): void {
   TestValidator.predicate(
     "fingers go from the relaxed cascade to the shape",
     matches(
-      AutoMovieMotionHumanArm.fingers("left", "fist", 0, 0),
+      AutoMovieMotionHumanHand.fingers("left", "fist", 0, 0),
       (b): number => relaxed[b]![0],
     ) &&
       matches(
-        AutoMovieMotionHumanArm.fingers("left", "fist", 0, 1),
+        AutoMovieMotionHumanHand.fingers("left", "fist", 0, 1),
         (b): number => fist[b]![0],
       ) &&
       matches(
-        AutoMovieMotionHumanArm.fingers("left", "fist", 0, 0.5),
+        AutoMovieMotionHumanHand.fingers("left", "fist", 0, 0.5),
         (b): number => (relaxed[b]![0] + fist[b]![0]) / 2,
       ),
   );
@@ -97,7 +98,7 @@ export function test_motion_compose_parts(): void {
     "a curl flexes the fingers and not the thumb",
     bones.some((b): boolean => b.includes("Thumb")) &&
       matches(
-        AutoMovieMotionHumanArm.fingers("left", "fist", 10, 1),
+        AutoMovieMotionHumanHand.fingers("left", "fist", 10, 1),
         (b): number => fist[b]![0] + (b.includes("Thumb") ? 0 : 10),
       ),
   );

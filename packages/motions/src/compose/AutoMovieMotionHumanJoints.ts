@@ -1,6 +1,7 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import type { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanChannel } from "./AutoMovieMotionHumanChannel";
 import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
@@ -82,5 +83,40 @@ export namespace AutoMovieMotionHumanJoints {
         return { ...posture, joints };
       },
     };
+  }
+
+  /**
+   * Angles added and taken back: their share rises over one window and falls
+   * over another on the clock's envelope (a nod, a shrug, a flinch), and the
+   * joints are written from the first instant to the last on the channels of
+   * the angles' own bones.
+   *
+   * @param clock The action's clock.
+   * @param rise The instants the angles start growing and are full at.
+   * @param fall The instants the angles start shrinking and are gone at.
+   * @param peak The angles at their fullest.
+   * @returns The primitive.
+   */
+  export function pulse(
+    clock: AutoMovieMotionClock.IClock,
+    rise: readonly [string, string],
+    fall: readonly [string, string],
+    peak: Angles,
+  ): IAutoMovieMotionHumanPrimitive {
+    return add({
+      channels: channels(peak),
+      from: clock.at(rise[0]),
+      to: clock.at(fall[1]),
+      delta: (seconds: number): Angles => {
+        const share: number = clock.envelope(rise, fall, seconds);
+        const out: Angles = {};
+        for (const [bone, full] of Object.entries(peak) as [
+          AutoMovieHumanoidBone,
+          readonly [number, number, number],
+        ][])
+          out[bone] = [full[0] * share, full[1] * share, full[2] * share];
+        return out;
+      },
+    });
   }
 }
