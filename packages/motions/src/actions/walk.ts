@@ -11,6 +11,7 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
@@ -294,7 +295,8 @@ export namespace walk {
         ),
         rates: {
           pitch:
-            (walkFoot.pitch(from.rotation) - walkFoot.pitch(before.rotation)) /
+            (HumanFoot.pitch(from.rotation) -
+              HumanFoot.pitch(before.rotation)) /
             TICK,
           toes: (from.toes - before.toes) / TICK,
         },
@@ -448,7 +450,7 @@ export namespace walk {
                 { origin: root, yaw },
                 body.rest.get(`${side}LowerLeg`)!,
               ),
-              yaw: walkFoot.yaw(reached[side].rotation),
+              yaw: HumanFoot.heading(reached[side].rotation),
             },
             { x: 0, y: 0, z: 1 },
           );

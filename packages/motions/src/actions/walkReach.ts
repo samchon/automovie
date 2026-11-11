@@ -147,12 +147,12 @@ export namespace walkReach {
       const w: number = weight(feet[side]);
       if (w <= 0) continue;
       const rotation: IAutoMovieQuaternion = feet[side].placement.rotation;
-      const heading: number = HumanFrame.heading(rotation);
+      const heading: number = HumanFoot.heading(rotation);
       const off: number = wrapDegrees(planned - heading);
       const excess: number =
         Math.abs(off) > TWIST ? off - Math.sign(off) * TWIST : 0;
       pivots[side] =
-        excess * Math.min(1, Math.max(0, -walkFoot.pitch(rotation) / HEEL_UP));
+        excess * Math.min(1, Math.max(0, -HumanFoot.pitch(rotation) / HEEL_UP));
       const turned: number = wrapDegrees(yaw - (heading + pivots[side]));
       if (Math.abs(turned) > TWIST / w)
         yaw -= turned - (Math.sign(turned) * TWIST) / w;
@@ -323,18 +323,18 @@ export namespace walkReach {
     let ankle: IAutoMovieVector3 = Vector3.add(h, v);
     let rotation: IAutoMovieQuaternion = foot.placement.rotation;
     const off: number = wrapDegrees(
-      HumanFrame.heading(rotation) - settled.yaw,
+      HumanFoot.heading(rotation) - settled.yaw,
     );
     if (Math.abs(off) > TWIST)
       rotation = HumanFoot.rotation(
         settled.yaw + Math.sign(off) * TWIST,
-        walkFoot.pitch(rotation),
+        HumanFoot.pitch(rotation),
       );
 
     // The ankle comes in under the hip until the leg's line leans no further
     // to the side of the foot than the ankle inverts or everts.
     const across: IAutoMovieVector3 = HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw: walkFoot.yaw(rotation) },
+      { origin: { x: 0, y: 0, z: 0 }, yaw: HumanFoot.heading(rotation) },
       { x: 1, y: 0, z: 0 },
     );
     const aside: number =
@@ -378,8 +378,8 @@ export namespace walkReach {
     pivoted: number,
   ): { end: walkFoot.IEnd; contact: IAutoMovieVector3 } {
     let placement: HumanFoot.IPlacement = foot.placement;
-    const heading: number = HumanFrame.heading(placement.rotation);
-    let pitch: number = walkFoot.pitch(placement.rotation);
+    const heading: number = HumanFoot.heading(placement.rotation);
+    let pitch: number = HumanFoot.pitch(placement.rotation);
     const about: "heel" | "mtp" = pitch > 1e-6 ? "heel" : "mtp";
     const pivot: IAutoMovieVector3 = HumanFoot.point(
       body,

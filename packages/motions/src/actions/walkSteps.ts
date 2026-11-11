@@ -138,7 +138,7 @@ export namespace walkSteps {
     const flatten = (side: "left" | "right"): HumanFoot.IPlacement => ({
       ankle: { ...input.entry.feet[side].ankle, y: m.ankleHeight },
       rotation: HumanFoot.rotation(
-        HumanFrame.heading(input.entry.feet[side].rotation),
+        HumanFoot.heading(input.entry.feet[side].rotation),
         0,
       ),
     });
@@ -341,7 +341,7 @@ export namespace walkSteps {
     // 1999; Taylor et al. 2005); provisional, the pitch falls linearly to 15
     // degrees as the turn reaches TWIST.
     for (const side of ["left", "right"] as const) {
-      let leaving: number = HumanFrame.heading(start[side].rotation);
+      let leaving: number = HumanFoot.heading(start[side].rotation);
       for (const step of steps.filter((x: IStep): boolean => x.side === side)) {
         const turned: number = wrapDegrees(
           leaving -
@@ -359,7 +359,7 @@ export namespace walkSteps {
     };
     const foot = (side: "left" | "right", t: number): walkFoot.IScheduled => {
       let flat: HumanFoot.IPlacement = start[side];
-      let facing: number = HumanFrame.heading(flat.rotation);
+      let facing: number = HumanFoot.heading(flat.rotation);
       let strike: number = -Infinity;
       for (const [i, step] of own[side].entries()) {
         const leave = (at: number): walkFoot.IFoot =>

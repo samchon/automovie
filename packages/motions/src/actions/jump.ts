@@ -167,19 +167,8 @@ export namespace jump {
       ankle: entry.feet[takeoff].ankle,
       rotation: entry.feet[takeoff].rotation,
     };
-    const supportHeading: number = HumanFrame.heading(support.rotation);
-    const supportPitch: number =
-      (Math.asin(
-        Math.max(
-          -1,
-          Math.min(
-            1,
-            Quaternion.rotateVector(support.rotation, { x: 0, y: 0, z: 1 }).y,
-          ),
-        ),
-      ) *
-        180) /
-      Math.PI;
+    const supportHeading: number = HumanFoot.heading(support.rotation);
+    const supportPitch: number = HumanFoot.pitch(support.rotation);
     const arm = (side: "left" | "right"): number =>
       entry.posture.joints[`${side}UpperArm`]?.[0] ?? 0;
     // A foot still in its heel rocker comes down about its heel first; the
@@ -649,7 +638,7 @@ export namespace jump {
               bend: knee(
                 root,
                 side,
-                HumanFrame.heading(landing[side].rotation),
+                HumanFoot.heading(landing[side].rotation),
               ),
               planted: true,
               contact: HumanFoot.offset(body, side, "mtp"),

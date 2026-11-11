@@ -7,7 +7,6 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import { walkFoot } from "./walkFoot";
 
 /**
  * The two-bone geometry of a stepping leg, read without solving it: where the
@@ -130,9 +129,9 @@ export namespace walkLeg {
     ankle: IAutoMovieVector3,
     rotation: IAutoMovieQuaternion,
   ): IAutoMovieQuaternion {
-    const heading: number = HumanFrame.heading(rotation);
+    const heading: number = HumanFoot.heading(rotation);
     const shank: number = lean(body, hip, ankle, heading);
-    const pitch: number = walkFoot.pitch(rotation);
+    const pitch: number = HumanFoot.pitch(rotation);
     const clamped: number = Math.min(
       -shank + 20 - ANKLE,
       Math.max(-shank - 50 + ANKLE, pitch),

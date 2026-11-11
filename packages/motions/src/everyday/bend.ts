@@ -432,7 +432,8 @@ export namespace bend {
     const joints: IHumanPosture["joints"] = tilt.joints;
 
     // A squat deeper than the ankles' 20 degree dorsiflexion range lets the
-    // heels rise, each foot rolling on its ball (provisional heel lift).
+    // heels rise, each foot turning about its toes' joint, the contact its
+    // goal names (provisional heel lift).
     const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
     const heel: number = HEEL[strategy] * share;
     if (heel > 0)
@@ -447,15 +448,16 @@ export namespace bend {
         const lifted: HumanFoot.IPlacement = HumanFoot.pivot(
           body,
           side,
-          "ball",
-          HumanFoot.point(body, side, "ball", flat),
-          HumanFrame.heading(goal0.rotation),
+          "mtp",
+          HumanFoot.point(body, side, "mtp", flat),
+          HumanFoot.heading(goal0.rotation),
           -heel,
         );
         limbs[leg] = {
           ...goal0,
           point: lifted.ankle,
           rotation: lifted.rotation,
+          contact: HumanFoot.offset(body, side, "mtp"),
         };
       }
 

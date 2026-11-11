@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  carriedRate,
-  minimumJerk,
-  wrapDegrees,
-} from "@automovie/engine";
+import { carriedRate, minimumJerk, wrapDegrees } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -11,7 +6,6 @@ import type {
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
-import { HumanFrame } from "../posture/HumanFrame";
 
 /**
  * One foot of a stepping gait at an instant: the rockers of its stance on a
@@ -67,47 +61,6 @@ export namespace walkFoot {
 
     /** The toes' flexion, degrees. */
     toes: number;
-  }
-
-  /**
-   * A foot's heading from its rotation, read off its lateral axis: a pitch
-   * leaves that axis level, so the heading holds when a folded shank carries
-   * the foot's pitch past vertical, where its forward axis points backward.
-   *
-   * @param rotation The foot's world rotation, a heading and a pitch.
-   * @returns Degrees about +Y.
-   */
-  export function yaw(rotation: IAutoMovieQuaternion): number {
-    const lateral: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
-      x: 1,
-      y: 0,
-      z: 0,
-    });
-    return (Math.atan2(-lateral.z, lateral.x) * 180) / Math.PI;
-  }
-
-  /**
-   * A foot's pitch from its rotation, about the lateral axis `yaw` reads, so
-   * it runs past ±90° where the foot points past vertical.
-   *
-   * @param rotation The foot's world rotation, a heading and a pitch.
-   * @returns Degrees, positive toes up.
-   */
-  export function pitch(rotation: IAutoMovieQuaternion): number {
-    const toes: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
-      x: 0,
-      y: 0,
-      z: 1,
-    });
-    const heading: number = (yaw(rotation) * Math.PI) / 180;
-    return (
-      (Math.atan2(
-        toes.y,
-        toes.x * Math.sin(heading) + toes.z * Math.cos(heading),
-      ) *
-        180) /
-      Math.PI
-    );
   }
 
   /**
@@ -235,11 +188,11 @@ export namespace walkFoot {
         props.lift * body.measure.hipHeight * bump,
       z: a.z + (b.z - a.z) * s + props.velocity.z * carried,
     };
-    const leaving: number = HumanFrame.heading(props.from.rotation);
+    const leaving: number = HumanFoot.heading(props.from.rotation);
     const heading: number =
       leaving +
-      wrapDegrees(HumanFrame.heading(props.to.rotation) - leaving) * s;
-    const left: number = pitch(props.from.rotation);
+      wrapDegrees(HumanFoot.heading(props.to.rotation) - leaving) * s;
+    const left: number = HumanFoot.pitch(props.from.rotation);
     const turning: number = carriedRate(props.seconds / 2, u * props.seconds);
     const toes: number =
       props.from.toes * (1 - minimumJerk(Math.min(1, 2 * u)).s) +
@@ -250,7 +203,7 @@ export namespace walkFoot {
       rotation: HumanFoot.rotation(
         heading,
         left +
-          (pitch(props.to.rotation) - left) * s +
+          (HumanFoot.pitch(props.to.rotation) - left) * s +
           (props.rates?.pitch ?? 0) * turning,
       ),
     };

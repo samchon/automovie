@@ -8,7 +8,6 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { HumanFoot } from "../posture/HumanFoot";
-import { HumanFrame } from "../posture/HumanFrame";
 
 /**
  * The relations every striking law reads from its entry state and its
@@ -200,7 +199,7 @@ export namespace StrikingTarget {
       side,
       "ball",
       ball,
-      HumanFrame.heading(foot.rotation) + turn,
+      HumanFoot.heading(foot.rotation) + turn,
       -raise,
     );
   }

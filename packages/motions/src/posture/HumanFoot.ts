@@ -131,6 +131,44 @@ export namespace HumanFoot {
   }
 
   /**
+   * A foot's heading from its rotation, read off its lateral axis: a pitch
+   * leaves that axis level, so the heading holds when a folded shank carries
+   * the foot's pitch past vertical, where its forward axis points backward.
+   *
+   * @param rotation The foot's world rotation, a heading and a pitch.
+   * @returns Degrees about +Y.
+   */
+  export function heading(rotation: IAutoMovieQuaternion): number {
+    const lateral: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+      x: 1,
+      y: 0,
+      z: 0,
+    });
+    return (Math.atan2(-lateral.z, lateral.x) * 180) / Math.PI;
+  }
+
+  /**
+   * A foot's pitch from its rotation, about the lateral axis `heading` reads,
+   * so it runs past ±90° where the foot points past vertical.
+   *
+   * @param rotation The foot's world rotation, a heading and a pitch.
+   * @returns Degrees, positive toes up.
+   */
+  export function pitch(rotation: IAutoMovieQuaternion): number {
+    const toes: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+      x: 0,
+      y: 0,
+      z: 1,
+    });
+    const yaw: number = (heading(rotation) * Math.PI) / 180;
+    return (
+      (Math.atan2(toes.y, toes.x * Math.sin(yaw) + toes.z * Math.cos(yaw)) *
+        180) /
+      Math.PI
+    );
+  }
+
+  /**
    * A sole point's offset from the ankle in the foot's rest frame, the toes
    * flexed by an angle.
    *
@@ -213,15 +251,6 @@ export namespace HumanFoot {
     anchor: IAutoMovieVector3,
     contact: IAutoMovieVector3,
   ): { ankle: IAutoMovieVector3; toes: number } {
-    const pitch = (q: IAutoMovieQuaternion): number =>
-      (Math.asin(
-        Math.max(
-          -1,
-          Math.min(1, Quaternion.rotateVector(q, { x: 0, y: 0, z: 1 }).y),
-        ),
-      ) *
-        180) /
-      Math.PI;
     return {
       ankle: Vector3.subtract(
         anchor,
