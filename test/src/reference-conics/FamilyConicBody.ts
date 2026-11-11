@@ -256,24 +256,19 @@ namespace FamilyConicBody {
           // creased the whole chest and back along its edge, and one reaching 1.45 rad left a thin flap in the fold beside the armpit.
           { name: "trunk.chest.back", stations: [420, 680], phases: [Math.PI - 1.0, Math.PI + 1.0], axis: [1, 0, 0], rows: 53, columns: 35, mirror: true },
           { name: "trunk.chest.front", stations: [420, 680], phases: [-1.0, 1.0], axis: [-1, 0, 0], rows: 53, columns: 35, mirror: true },
-          // The upper windows end at the crown's tip, 918.88 mm: a relief's height and its two derivatives vanish at its window's edge, which the engine requires of a pole.
-          { name: "trunk.high.back", stations: [640, 918.88], phases: [Math.PI - 1.2, Math.PI + 1.2], axis: [1, 0, 0], rows: 57, columns: 33, mirror: true },
-          { name: "trunk.high.front", stations: [640, 918.88], phases: [-1.2, 1.2], axis: [-1, 0, 0], rows: 57, columns: 49, mirror: true },
-          // The front and back windows end 1.2 rad round, where the skin in front of the ear and behind the jaw's angle still lies inside the
-          // tape, so a seam ran down the cheek and over the skull. These two cast straight in from each side and take what those leave.
-          // They reach 0.7 rad either way: at 1.0 rad a cast from the front of the cheek ran along the face and landed on its far side
-          // (heights up to 81 mm on withheld sections), and casts onto the chord closing the ear's cut, since left unobserved, streaked
-          // the ear's root. They start at the ear's lobe, station 756: carried down to the neck they gouged the narrow hollow under the
-          // lobe behind the jaw's angle three times over, on the smeared wall and on the one with close knots under the jaw alike.
-          { name: "trunk.high.left", stations: [756, 918.88], phases: [Math.PI / 2 - 0.7, Math.PI / 2 + 0.7], axis: [0, 0, -1], rows: 45, columns: 29, mirror: false },
-          { name: "trunk.high.right", stations: [756, 918.88], phases: [-Math.PI / 2 - 0.7, -Math.PI / 2 + 0.7], axis: [0, 0, 1], rows: 45, columns: 29, mirror: false },
-          // The face: a finer net, 2.5 mm apart, over what the upper front window leaves between the throat and the brow.
-          { name: "trunk.face", stations: [690, 890], phases: [-1.2, 1.2], axis: [-1, 0, 0], rows: 81, columns: 69, mirror: true, reach: 30 },
-          // The eyes and the mouth: nets 1.5 mm apart over two bands of the face. The face's net, 2.6 mm apart, left the lids a slit and the
-          // lips a block. A cast that lands farther than `reach` is not observed: between the lips it slipped through to what lies behind,
-          // 78 mm on, and dug a pit in the middle of the mouth.
-          { name: "trunk.eyes", stations: [792, 826], phases: [-0.8, 0.8], axis: [-1, 0, 0], rows: 26, columns: 105, mirror: true, reach: 12 },
-          { name: "trunk.mouth", stations: [722, 758], phases: [-0.5, 0.5], axis: [-1, 0, 0], rows: 27, columns: 67, mirror: true, reach: 12 },
+          // The neck and head: windows whose cast turns with the phase (`turn`), square to the wall all the way round. One net goes round the
+          // whole head with its seam down the back, and ends at the crown's tip, 918.88 mm, where a relief must vanish for the pole. With
+          // fixed axes the head took four windows, front, back and two sides, whose edges met in a seam down the cheek and over the skull
+          // and whose casts grazed the jaw's side; cast round, the cheek, the jaw's side, the temple and the ear's root are one smooth net
+          // of fewer heights. A cast that lands farther than `reach` is not observed: between the lips one slipped through to what lies
+          // behind, 78 mm on, and dug a pit in the mouth.
+          { name: "trunk.head", stations: [640, 918.88], phases: [-Math.PI + 0.15, Math.PI - 0.15], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 57, columns: 109, mirror: true, reach: 35 },
+          // The face: a finer net, 2.6 mm apart, between the throat and the brow.
+          { name: "trunk.face", stations: [690, 890], phases: [-1.2, 1.2], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 81, columns: 69, mirror: true, reach: 30 },
+          // The eyes and the mouth: nets 1.5 mm apart over two bands of the face, which the face's net left a slit and a block. A finer band
+          // under the chin was tried for the level rings there and changed nothing: they are the wall's own, where the chin steps out.
+          { name: "trunk.eyes", stations: [792, 826], phases: [-0.8, 0.8], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 26, columns: 105, mirror: true, reach: 12 },
+          { name: "trunk.mouth", stations: [722, 758], phases: [-0.5, 0.5], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 27, columns: 67, mirror: true, reach: 12 },
         ] },
       ] satisfies IPart[]
     ).filter((part: IPart): boolean => only.length === 0 || only.includes(part.name));
@@ -508,12 +503,12 @@ namespace FamilyConicBody {
               const p: C.P = [r * Math.cos(phi), r * Math.sin(phi)];
               for (const relief of earlier) {
                 const height: number = AutoMovieLoftRelief.height(relief, row.s, phi)[0];
-                const along: C.P = inChart(relief.axis);
+                const along: C.P = inChart(AutoMovieLoftRelief.direction(relief, phi)[0]);
                 p[0] += height * along[0];
                 p[1] += height * along[1];
               }
               return p;
-            }, axis: [window.axis[0] * frame.u[0] + window.axis[1] * frame.u[1] + window.axis[2] * frame.u[2], window.axis[0] * frame.v[0] + window.axis[1] * frame.v[1] + window.axis[2] * frame.v[2]] };
+            }, axis: inChart(window.axis), ...(window.turn === undefined ? {} : { turn: inChart(window.turn) }) };
           }));
           // A window placed by the hollow search is kept only when its net takes away at least half of its deepest hollow on the withheld
           // sections. Round a turn a section's hollow lies across the cast's axis, and a net that cannot reach it leaves scratches instead.

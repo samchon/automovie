@@ -30,6 +30,9 @@ export namespace FamilyConicRelief {
     /** Unit world direction of the height; it must lie in the section planes. */
     axis: [number, number, number];
 
+    /** With it, the height's direction turns with the phase about the window's middle: `cos(t - c) axis + sin(t - c) turn` (`IAutoMovieLoftRelief.turn`). */
+    turn?: [number, number, number];
+
     /** Control points across the station range, at least 7. */
     rows: number;
 
@@ -59,6 +62,9 @@ export namespace FamilyConicRelief {
 
     /** The relief axis projected into the section chart; its length is the share of a height that stays in the section plane. */
     axis: C.P;
+
+    /** The window's `turn` projected likewise, when it has one. */
+    turn?: C.P;
 
     /** Withheld from the fit. */
     heldout: boolean;
@@ -118,16 +124,20 @@ export namespace FamilyConicRelief {
       const [iu, wu] = basis(((row.s - window.stations[0]) / (window.stations[1] - window.stations[0])) * (R - 3), R);
       for (let k: number = 1; k < phases; ++k) {
         const offset: number = (span * k) / phases;
-        const inPlane: number = Math.hypot(row.axis[0], row.axis[1]);
+        const phi: number = window.phases[0] + offset;
+
+        // The cast's direction at this phase: the fixed axis, or the axis turned about the window's middle phase.
+        const turned: number = phi - (window.phases[0] + span / 2);
+        const axis: C.P = row.turn === undefined ? row.axis : [Math.cos(turned) * row.axis[0] + Math.sin(turned) * row.turn[0], Math.cos(turned) * row.axis[1] + Math.sin(turned) * row.turn[1]];
+        const inPlane: number = Math.hypot(axis[0], axis[1]);
 
         // Where the axis runs along the wall instead of through it, a cast measures the wall's slope, not a depth: such phases are left to the net's fairness.
-        const phi: number = window.phases[0] + offset;
-        if (Math.abs(row.axis[0] * Math.cos(phi) + row.axis[1] * Math.sin(phi)) / inPlane < FACING) continue;
+        if (Math.abs(axis[0] * Math.cos(phi) + axis[1] * Math.sin(phi)) / inPlane < FACING) continue;
         const from: C.P = row.wall(window.phases[0] + offset);
-        const along: number | null = cast(row.skin, from, [row.axis[0] / inPlane, row.axis[1] / inPlane]);
+        const along: number | null = cast(row.skin, from, [axis[0] / inPlane, axis[1] / inPlane]);
         if (along === null) continue;
         if (window.reach !== undefined && Math.abs(along) / inPlane > window.reach) continue;
-        if (row.open?.([from[0] + (along * row.axis[0]) / inPlane, from[1] + (along * row.axis[1]) / inPlane]) === true) continue;
+        if (row.open?.([from[0] + (along * axis[0]) / inPlane, from[1] + (along * axis[1]) / inPlane]) === true) continue;
         const target: number = along / inPlane;
         const [iv, wv] = basis((offset / span) * (Cn - 3), Cn);
         const weights: [number, number][] = [];
@@ -175,7 +185,7 @@ export namespace FamilyConicRelief {
       if (sample.heldout) heldMaxMm = Math.max(heldMaxMm, miss);
       else trainMaxMm = Math.max(trainMaxMm, miss);
     }
-    return { relief: { name: window.name, stations: window.stations, phases: window.phases, axis: window.axis, rows: R, columns: Cn, heights }, scalars: unknowns, deepestMm: deepest, trainMaxMm, heldMaxMm };
+    return { relief: { name: window.name, stations: window.stations, phases: window.phases, axis: window.axis, ...(window.turn === undefined ? {} : { turn: window.turn }), rows: R, columns: Cn, heights }, scalars: unknowns, deepestMm: deepest, trainMaxMm, heldMaxMm };
   }
 
   /** Signed distance from a chart point along a unit direction to the nearest crossing of a polygon; null when the line misses it. */
