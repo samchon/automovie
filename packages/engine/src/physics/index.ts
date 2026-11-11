@@ -160,3 +160,4 @@ export * from "./validatePhysicalProfile";
 export * from "./visitPhysicalNative";
 export * from "./warmPhysicalSupportTargets";
 export * from "./yieldPhysicalSimulation";
+export * from "./markAutoMovieSkeleton";

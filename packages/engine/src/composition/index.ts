@@ -17,3 +17,4 @@ export * from "./resolveAutoMovieOutcome";
 export * from "./resolveAutoMovieRelationalGoal";
 export * from "./resolveAutoMovieSchedule";
 export * from "./resolveAutoMovieZone";
+export * from "./markAutoMovieContacts";

@@ -136,3 +136,4 @@ export * from "./trianglesOf";
 export * from "./triangulateAutoMovieRegion";
 export * from "./triangulateRegion";
 export * from "./weldedDegenerateTriangles";
+export * from "./markAutoMovieMeshClearance";

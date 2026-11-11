@@ -106,3 +106,4 @@ export * from "./validateUniqueIds";
 export * from "./validateUniqueValues";
 export * from "./validateVectorArtifact";
 export * from "./violation";
+export * from "./markAutoMovieSlip";
