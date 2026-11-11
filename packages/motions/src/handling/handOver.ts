@@ -4,9 +4,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -26,9 +26,10 @@ import { HumanPrehension } from "./HumanPrehension";
  * (`HumanHandover`), holds it there while the receiver's hand arrives and
  * closes, holds on through the transfer time, and only then opens the
  * fingers and returns the hand to where it hangs; inverse kinematics solves
- * the arm, which keeps the configuration it carried the prop in
- * (`IHumanPosture.IGoal.reference`), and the rest of the body holds the
- * posture it was entered in. The
+ * the arm, whose reference (`IHumanPosture.IGoal.reference`) passes from the
+ * configuration it carried the prop in to the offer's own solution with the
+ * transport's progress and back on the way home, and the rest of the body
+ * holds the posture it was entered in. The
  * prop rides the giver's hand until the receiver's grip closes, then the
  * receiver's (the latest grip carries a prop), so it never jumps.
  *
@@ -153,12 +154,47 @@ export namespace handOver {
     const flat: IHumanPosture["joints"] = HumanHand.shape(side, "flat");
     const relaxed: IHumanPosture["joints"] = HumanHand.shape(side, "relaxed");
     const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
-    // The arm keeps the configuration it carried the prop in.
-    const reference: IHumanPosture.IReference = resolveHumanPosture.reference(
+    const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
+      body,
+      held,
+      side,
+    );
+
+    // The arm's two named instants: the carry it enters in and the offer,
+    // solved once on its own. The offer at a small giver's shoulder height
+    // needs another elbow than the carry, so a reference of the carry alone
+    // left the wrist to make up the forearm's pitch and tilted the prop.
+    const carried: IHumanPosture.IReference = resolveHumanPosture.reference(
       context.entry.pose,
       limb,
     );
-    const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(body, held, side);
+    const offered: IHumanPosture.IReference = resolveHumanPosture.reference(
+      resolveHumanPosture(body, {
+        ...held,
+        limbs: {
+          ...held.limbs,
+          [limb]: {
+            point: shared.giverAt.point,
+            rotation: shared.giverAt.rotation,
+            bend,
+          },
+        },
+      }),
+      limb,
+    );
+    const mix = (
+      from: readonly [number, number, number],
+      to: readonly [number, number, number],
+      share: number,
+    ): readonly [number, number, number] => [
+      from[0] + (to[0] - from[0]) * share,
+      from[1] + (to[1] - from[1]) * share,
+      from[2] + (to[2] - from[2]) * share,
+    ];
+    const between = (share: number): IHumanPosture.IReference => ({
+      upper: mix(carried.upper, offered.upper, share),
+      lower: mix(carried.lower, offered.lower, share),
+    });
     const part: IHumanContactWindow["part"] =
       side === "left" ? "leftHand" : "rightHand";
     return {
@@ -196,9 +232,11 @@ export namespace handOver {
         let wrist: IAutoMovieVector3;
         let rotation: IAutoMovieQuaternion;
         let digits: IHumanPosture["joints"] = closed;
+        let share: number = 1;
         if (t <= shared.offer) {
           wrist = out.wrist(t);
           rotation = out.turn(t);
+          share = minimumJerk(t / shared.offer).s;
         } else if (t <= pullback) {
           wrist = shared.giverAt.point;
           rotation = shared.giverAt.rotation;
@@ -214,6 +252,7 @@ export namespace handOver {
           const r: number = t - pullback - (opens ? OPEN : 0);
           wrist = home.wrist(r);
           rotation = home.turn(r);
+          share = 1 - minimumJerk(r / back).s;
           if (opens)
             digits = HumanPrehension.shape(
               { entry: flat, open: relaxed, closed: relaxed },
@@ -230,7 +269,7 @@ export namespace handOver {
               point: wrist,
               rotation,
               bend,
-              reference,
+              reference: between(share),
               ...(t >= shared.offer && t <= pullback ? { planted: true } : {}),
             },
           },

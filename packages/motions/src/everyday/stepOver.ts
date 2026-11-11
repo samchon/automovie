@@ -11,8 +11,8 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
  * Stepping over a low obstacle from standing in front of it: the lead foot
@@ -37,7 +37,10 @@ import { poseBones } from "../posture/poseBones";
  * over the landed feet while the trail foot swings, each leg on a
  * minimum-jerk path, lowered wherever a planted leg could not
  * reach its foot with the knee 0.5 % short of straight, so no plant is
- * stretched off its footprint.
+ * stretched off its footprint. A planted foot whose shank leans past the
+ * ankle's dorsal range raises its heel about the toes' joint, the toes
+ * staying flat (the forefoot rocker, Perry and Burnfield), as the trail foot
+ * does while the lead foot lands.
  *
  * Time scales with leg length by dynamic similarity (Alexander 1984): the
  * whole action takes `2.4 sqrt(l / 0.93)` seconds for a hip height `l`
@@ -339,7 +342,7 @@ export namespace stepOver {
             bend: knee,
             rotation: f.placement.rotation,
             ...(f.planted
-              ? { planted: true, contact: HumanFoot.offset(body, side, "ball") }
+              ? { planted: true, contact: HumanFoot.offset(body, side, "mtp") }
               : {}),
           };
         }

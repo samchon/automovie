@@ -218,8 +218,15 @@ export namespace HumanGrasp {
    * family of turns produces (about a grasped part's own axis, where any
    * azimuth wraps it alike, or about the palm's normal, where the palm's
    * contact is unchanged), the one the arm can actually take from a posture,
-   * by the error left after the arm's fit (rotation in degrees plus position
-   * in millimetres), the authored turn winning ties by a hundredth of a
+   * by the error left after the arm's fit over its three goals: the hand's
+   * rotation in degrees, the wrist's position in millimetres and the elbow's
+   * turn from its hint about the shoulder-to-wrist line in degrees, the one
+   * freedom a placed wrist leaves the elbow (Tolani, Goswami and Badler
+   * 2000). The fit gives up the elbow hint before the hand, so a hand turn
+   * the wrist's range cannot hold with the hinted elbow is reached by the
+   * other arm pose, the elbow raised; counting that turn as error ranks the
+   * grip the arm takes as the law asked above one it takes by leaving its
+   * bend. The authored turn wins ties by a hundredth of a
    * degree per degree of turn. Grasp planners rank a part's symmetric grasps
    * by reachability the same way (Miller et al. 2003, Automatic grasp
    * planning using shape primitives), since an authored grip frame alone may
@@ -261,7 +268,12 @@ export namespace HumanGrasp {
     const fit = (
       key: IKey,
       reference: IHumanPosture.IReference | undefined,
-    ): { pose: IAutoMoviePose; shown: HumanHand.IWrist; miss: number } => {
+    ): {
+      pose: IAutoMoviePose;
+      shown: HumanHand.IWrist;
+      miss: number;
+      departure: number;
+    } => {
       const pose: IAutoMoviePose = resolveHumanPosture(body, {
         ...key.posture,
         limbs: {
@@ -274,9 +286,45 @@ export namespace HumanGrasp {
           },
         },
       });
-      const hand: IAutoMovieResolvedBone = poseBones(body, pose).get(
-        `${side}Hand`,
-      )!;
+      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        poseBones(body, pose);
+      const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
+      // How far the elbow sits from its hint about the shoulder-to-wrist
+      // line, the one freedom the wrist's place leaves it.
+      const shoulder: IAutoMovieVector3 = bones.get(
+        `${side}UpperArm`,
+      )!.worldPosition;
+      const line: IAutoMovieVector3 = Vector3.subtract(
+        hand.worldPosition,
+        shoulder,
+      );
+      const span: number = Vector3.dot(line, line);
+      const radial = (point: IAutoMovieVector3): IAutoMovieVector3 => {
+        const from: IAutoMovieVector3 = Vector3.subtract(point, shoulder);
+        return span > 0
+          ? Vector3.subtract(
+              from,
+              Vector3.scale(line, Vector3.dot(from, line) / span),
+            )
+          : from;
+      };
+      const shownSide: IAutoMovieVector3 = radial(
+        bones.get(`${side}LowerArm`)!.worldPosition,
+      );
+      const hintSide: IAutoMovieVector3 = radial(key.bend);
+      const sides: number =
+        Vector3.length(shownSide) * Vector3.length(hintSide);
+      const departure: number =
+        sides > 1e-12
+          ? (Math.acos(
+              Math.max(
+                -1,
+                Math.min(1, Vector3.dot(shownSide, hintSide) / sides),
+              ),
+            ) *
+              180) /
+            Math.PI
+          : 0;
       const dot: number = Math.min(
         1,
         Math.abs(
@@ -295,6 +343,7 @@ export namespace HumanGrasp {
             Vector3.length(
               Vector3.subtract(hand.worldPosition, key.wrist.point),
             ),
+        departure,
       };
     };
     let best: IReach | undefined;
@@ -306,9 +355,14 @@ export namespace HumanGrasp {
         const reference: IHumanPosture.IReference =
           resolveHumanPosture.reference(grasp.pose, limb);
         let miss: number = grasp.miss;
-        for (const key of stroke?.(wrist) ?? [])
-          miss = Math.max(miss, fit(key, reference).miss);
-        const cost: number = miss + 0.01 * (Math.abs(turn) + Math.abs(tilt));
+        let departure: number = grasp.departure;
+        for (const key of stroke?.(wrist) ?? []) {
+          const held = fit(key, reference);
+          miss = Math.max(miss, held.miss);
+          departure = Math.max(departure, held.departure);
+        }
+        const cost: number =
+          miss + departure + 0.01 * (Math.abs(turn) + Math.abs(tilt));
         if (best === undefined || cost < least) {
           least = cost;
           best = {
@@ -318,6 +372,7 @@ export namespace HumanGrasp {
             shown: grasp.shown,
             reference,
             miss,
+            departure,
             pose: grasp.pose,
           };
         }
@@ -362,6 +417,9 @@ export namespace HumanGrasp {
 
     /** The error the arm leaves over the grasp and its stroke: degrees of rotation plus millimetres of position. */
     miss: number;
+
+    /** How far the fitted elbow turns from its hint about the shoulder-to-wrist line, worst over the grasp and its stroke, degrees. */
+    departure: number;
 
     /** The posed body at the grasp. */
     pose: IAutoMoviePose;

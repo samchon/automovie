@@ -32,9 +32,16 @@ import { HandOverlap } from "./HandOverlap";
  * release and the end. Both right wrists leave trails and the meeting point
  * is marked. Verdicts: the palms meet within 15 mm at the clasp and stay
  * within 10 mm through the pump, the chests stand in Hall's personal zone, no
- * right-hand phalanx or forearm capsule enters the other's by more than 10 mm
- * (`HandOverlap`, the palm boxes not measured), every joint stays in the
- * default range, and the ankles move at most 5 mm.
+ * right-hand phalanx, palm or forearm collider enters the other's by more
+ * than 10 mm (`HandOverlap`), every joint stays in the default range, the
+ * ankles move at most 5 mm, and neither shaking upper arm leaves the vertical
+ * by more than 45 degrees from the clasp to the release. That last bound is
+ * the upper limit of the second upper-arm band of the Rapid Upper Limb
+ * Assessment (20 to 45 degrees, McAtamney and Corlett 1993, Applied
+ * Ergonomics 24(2):91), the band of an arm offered forward with the elbow
+ * low; the law's own offering arm stands 30 degrees forward
+ * (`handshakeOffer.SHOULDER`), and an elbow raised to the side to turn the hand
+ * reads 57 to 70 degrees.
  *
  * @returns The cases.
  *
@@ -115,8 +122,26 @@ export function handshakeCases(): IMotionCaptureCase[] {
     let drift: number = 0;
     let deepest: number = Infinity;
     let overshoot: number = 0;
+    let raised: number = 0;
     for (const t of samples) {
       if (t >= clasp && t <= release) {
+        for (const subject of ["a", "b"]) {
+          const shoulder: IAutoMovieVector3 = performance
+            .bones(subject, t)
+            .get("rightUpperArm")!.worldPosition;
+          const upper: IAutoMovieVector3 = Vector3.subtract(
+            performance.bones(subject, t).get("rightLowerArm")!.worldPosition,
+            shoulder,
+          );
+          raised = Math.max(
+            raised,
+            (Math.acos(
+              Math.max(-1, Math.min(1, -upper.y / Vector3.length(upper))),
+            ) *
+              180) /
+              Math.PI,
+          );
+        }
         drift = Math.max(drift, distance(palm("a", a, t), palm("b", b, t)));
         deepest = Math.min(
           deepest,
@@ -221,7 +246,12 @@ export function handshakeCases(): IMotionCaptureCase[] {
           detail: `${chest.toFixed(3)} m`,
         },
         {
-          name: "no hand or forearm capsule enters the other's by more than 10 mm",
+          name: "both upper arms within 45 deg of vertical through the clasp (RULA band 2)",
+          passed: raised <= 45,
+          detail: `${raised.toFixed(1)} deg`,
+        },
+        {
+          name: "no hand, palm or forearm collider enters the other's by more than 10 mm",
           passed: deepest >= -0.01,
           detail: `${(deepest * 1000).toFixed(1)} mm`,
         },

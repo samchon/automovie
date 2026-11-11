@@ -400,11 +400,12 @@ export namespace StrikingStance {
         point: foot.ankle,
         bend,
         rotation: foot.rotation,
-        // A planted foot stands on the ball of its foot: when the ankle's
-        // range cannot give the asked rotation, the foot turns about the
-        // ball, which stays on the floor, instead of about the ankle.
+        // A planted foot stands on its forefoot: when the ankle's range
+        // cannot give the asked rotation, the foot turns about the toes'
+        // joint and the toes stay flat on the floor (the forefoot rocker,
+        // Perry and Burnfield), instead of turning about the ankle.
         ...(planted[side]
-          ? { planted: true, contact: HumanFoot.offset(body, side, "ball") }
+          ? { planted: true, contact: HumanFoot.offset(body, side, "mtp") }
           : {}),
       };
     }
