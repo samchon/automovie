@@ -245,16 +245,6 @@ function build(name: string, who: string): IMotionCaptureCase {
       passed: elsewhere.length === 0,
       detail: `${run.length - elsewhere.length} of ${run.length}${elsewhere.length === 0 ? "" : `; first other: ${elsewhere[0]!.nearest}`}`,
     });
-    const apart: number = Math.max(
-      ...run.map((s: IStruck): number =>
-        Vector3.length(Vector3.subtract(s.audit, s.point)),
-      ),
-    );
-    verdicts.push({
-      name: `the record aims at the same strike point, proficiency ${label}`,
-      passed: apart <= variationCases.ON,
-      detail: `${(1000 * apart).toFixed(3)} mm at most over ${run.length}; bound ${1000 * variationCases.ON} mm`,
-    });
   }
   for (const axis of ["y", "x"] as const) {
     const values: number[] = novice.map(
@@ -268,8 +258,8 @@ function build(name: string, who: string): IMotionCaptureCase {
     });
   }
   const offsets = (run: IStruck[]): IAutoMovieVector3[] =>
-    run.map((s: IStruck): IAutoMovieVector3 =>
-      Vector3.subtract(s.point, s.centre),
+    run.map(
+      (s: IStruck): IAutoMovieVector3 => Vector3.subtract(s.point, s.centre),
     );
   const wide: number = dispersion(offsets(novice));
   const narrow: number = dispersion(offsets(expert));
@@ -279,7 +269,7 @@ function build(name: string, who: string): IMotionCaptureCase {
     detail: `${(1000 * wide).toFixed(1)} mm at proficiency 0, ${(1000 * narrow).toFixed(1)} mm at 1, ratio ${(wide / narrow).toFixed(2)}; bound ${variationCases.RATIO}`,
   });
   metrics.strike = { radius, wide, narrow };
-  verdicts.push(defended(body, struck));
+  verdicts.push(...defended(body, struck));
 
   if (drawn === undefined) throw new Error("The wave was not performed");
   const performance: HumanPerformance = drawn;
@@ -339,7 +329,10 @@ function gestures(
 ): { performance: HumanPerformance; repeats: IRepeat[]; middles: number[] } {
   let chain: HumanChain = HumanChain.subject("a");
   for (let i: number = 0; i < variationCases.REPEATS; i++)
-    chain = chain.gesture({ kind, ...(manner === undefined ? {} : { manner }) });
+    chain = chain.gesture({
+      kind,
+      ...(manner === undefined ? {} : { manner }),
+    });
   const performance: HumanPerformance = perform(body, chain);
   const middles: number[] = [];
   const repeats: IRepeat[] = performance
@@ -434,12 +427,12 @@ function reached(
   ).point;
 }
 
-/** One punch's strike point. */
+/** One repeat's strike point. */
 interface IStruck {
-  /** The point aimed at on the struck body at the contact, world metres. */
+  /** The point aimed at on the struck body, world metres. */
   point: IAutoMovieVector3;
 
-  /** The region's own point at the contact, world metres. */
+  /** The region's own point on the struck body, world metres. */
   centre: IAutoMovieVector3;
 
   /** The point's signed distance from the struck body's colliders, metres. */
@@ -447,9 +440,6 @@ interface IStruck {
 
   /** The region nearest to the point on the body at rest. */
   nearest: AutoMovieHumanoidRegion;
-
-  /** The record's aim: its planned point less its landing offset, world metres. */
-  audit: IAutoMovieVector3;
 }
 
 /** The target of the varied punch. */
@@ -459,7 +449,7 @@ const ABDOMEN: AutoMovieMotionTarget = {
   region: "abdomen",
 };
 
-/** The partner's standing guard, long enough for every repeat. */
+/** The partner's standing guard. */
 function waits(seconds: number): HumanChain {
   return HumanChain.subject("b").guard({
     seconds,
@@ -467,131 +457,232 @@ function waits(seconds: number): HumanChain {
   });
 }
 
-/** The striker's guard before the punches. */
-function ready(): HumanChain {
+/** The striker's guard before a punch. */
+function ready(seconds: number = 0.8): HumanChain {
   return HumanChain.subject("a").guard({
-    seconds: 0.8,
+    seconds,
     facing: { kind: "person", subject: "b", region: "face" },
   });
 }
 
-/** The repeats of a straight punch at the partner's abdomen, each read at its contact. */
+/** The distance between the two, a jab's range of the striker. */
+function range(body: IHumanBody): number {
+  return (
+    strikingScenarios.JAB_RANGE * StrikingLimb.length(body, "leftHand", false)
+  );
+}
+
+/**
+ * The offset one repeat of a punch aims at within the abdomen: the owner's
+ * strike offset on the series the performance gives the punch's repeat, so
+ * it is the offset a performed punch carries on its plan (`defended`
+ * compares the two on a performed punch).
+ */
+function aimed(
+  struck: IHumanBody,
+  anchor: string,
+  index: number,
+  proficiency: number,
+): resolveAutoMovieHumanoidSurfaces.ITangent {
+  const skill: HumanSkill.ISkill = HumanSkill.resolve(
+    { level: "trained" },
+    "variation",
+  );
+  return AutoMovieMotionHumanVariation.strike(
+    AutoMovieMotionHumanVariation.of(
+      {
+        skill,
+        series: (channel: string) => ({
+          random: HumanSkill.series(skill, "a", anchor, channel),
+          index,
+        }),
+      },
+      { variation: 1, proficiency },
+    ),
+    "point",
+    { radius: StrikingBody.radius(struck, "abdomen"), scatter: 0 },
+  );
+}
+
+/**
+ * The strike points of the repeats of a punch at the partner's abdomen, on
+ * the partner standing in their guard. A performed punch at a person costs
+ * its whole contact search, so the repeats are read from the owner and one
+ * performed punch is checked against it in `defended`.
+ */
 function strikes(
   body: IHumanBody,
   struck: IHumanBody,
   proficiency: number,
 ): IStruck[] {
-  let chain: HumanChain = ready();
-  for (let i: number = 0; i < variationCases.REPEATS; i++)
-    chain = chain.punch({
-      technique: "straight",
-      at: ABDOMEN,
-      manner: { variation: 1, proficiency },
-    });
   const performance: HumanPerformance = perform(
     body,
-    chain.with(waits(60)),
-    {
-      body: struck,
-      gap:
-        strikingScenarios.JAB_RANGE *
-        StrikingLimb.length(body, "leftHand", false),
-    },
+    ready().with(waits(0.8)),
+    { body: struck, gap: range(body) },
   );
+  const bones = performance.bones("b", 0.4);
+  const placed = HumanColliders.placed(struck, bones);
+  const centre: IAutoMovieVector3 = StrikingBody.region(
+    struck,
+    bones,
+    "abdomen",
+  ).point;
   const rest = (region: AutoMovieHumanoidRegion): IAutoMovieVector3 => {
     const frame = struck.surfaces.regions[region];
     return Vector3.add(struck.rest.get(frame.bone)!, frame.point);
   };
-  return performance
-    .segments("a")
-    .filter((g: HumanSegment.ISegment): boolean => g.name === "punch")
-    .map((g: HumanSegment.ISegment): IStruck => {
-      const record: StrikingRecord.IRecord | undefined = StrikingRecord.of(
-        g.plan,
-      );
-      if (record === undefined || g.plan.contact === undefined)
-        throw new Error("A punch records its aim and has a contact");
-      const bones = performance.bones("b", g.start + g.plan.contact);
-      const point: IAutoMovieVector3 = StrikingBody.region(
-        struck,
-        bones,
+  const out: IStruck[] = [];
+  for (let i: number = 0; i < variationCases.REPEATS; i++) {
+    const tangent: resolveAutoMovieHumanoidSurfaces.ITangent = aimed(
+      struck,
+      "punch",
+      i,
+      proficiency,
+    );
+    const point: IAutoMovieVector3 = StrikingBody.region(
+      struck,
+      bones,
+      "abdomen",
+      tangent,
+    ).point;
+    let gap: number = Infinity;
+    for (const { pose, shapes } of placed)
+      for (const shape of shapes)
+        gap = Math.min(
+          gap,
+          physicalShapeSegmentDistance(pose, shape, point, point),
+        );
+    // At rest, where the region's radius is defined.
+    const frame: resolveAutoMovieHumanoidSurfaces.IFrame =
+      resolveAutoMovieHumanoidSurfaces.offset(
+        struck.skeleton,
+        struck.profile,
         "abdomen",
-        g.plan.aimed,
-      ).point;
-      let gap: number = Infinity;
-      for (const { pose, shapes } of HumanColliders.placed(struck, bones))
-        for (const shape of shapes)
-          gap = Math.min(
-            gap,
-            physicalShapeSegmentDistance(pose, shape, point, point),
-          );
-      // At rest, where the region's radius is defined.
-      const frame: resolveAutoMovieHumanoidSurfaces.IFrame =
-        g.plan.aimed === undefined
-          ? struck.surfaces.regions.abdomen
-          : resolveAutoMovieHumanoidSurfaces.offset(
-              struck.skeleton,
-              struck.profile,
-              "abdomen",
-              g.plan.aimed,
-            );
-      const still: IAutoMovieVector3 = Vector3.add(
-        struck.rest.get(frame.bone)!,
-        frame.point,
+        tangent,
       );
-      let nearest: AutoMovieHumanoidRegion = "abdomen";
-      let least: number = Infinity;
-      for (const region of Object.keys(
-        struck.surfaces.regions,
-      ) as AutoMovieHumanoidRegion[]) {
-        const d: number = Vector3.length(Vector3.subtract(rest(region), still));
-        if (d < least) {
-          least = d;
-          nearest = region;
-        }
+    const still: IAutoMovieVector3 = Vector3.add(
+      struck.rest.get(frame.bone)!,
+      frame.point,
+    );
+    let nearest: AutoMovieHumanoidRegion = "abdomen";
+    let least: number = Infinity;
+    for (const region of Object.keys(
+      struck.surfaces.regions,
+    ) as AutoMovieHumanoidRegion[]) {
+      const d: number = Vector3.length(Vector3.subtract(rest(region), still));
+      if (d < least) {
+        least = d;
+        nearest = region;
       }
-      return {
-        point,
-        centre: StrikingBody.region(struck, bones, "abdomen").point,
-        gap,
-        nearest,
-        audit: Vector3.subtract(record.planned, record.offset),
-      };
-    });
+    }
+    out.push({ point, centre, gap, nearest });
+  }
+  return out;
 }
 
-/** A cover forced in time against one varied punch at the abdomen. */
+/**
+ * Two performed, varied punches at the abdomen. Against a partner standing
+ * in their guard, the plan carries the owner's offset for that repeat, and
+ * the record's aim (its planned point less its landing offset) moves from
+ * that of the same punch without variation by what the varied point moves
+ * from the region's own point. The two are compared as moves because the
+ * record's plan is a prediction made at the launch, not the partner's point
+ * at the contact. Against a cover forced in time, the cover classes as
+ * declared.
+ */
 function defended(
   body: IHumanBody,
   struck: IHumanBody,
-): IMotionCaptureCase.IVerdict {
-  const performance: HumanPerformance = perform(
+): IMotionCaptureCase.IVerdict[] {
+  const varied = {
+    technique: "straight",
+    at: ABDOMEN,
+    manner: { variation: 1, proficiency: 0 },
+  } as const;
+  const read = (
+    manner: boolean,
+  ): {
+    carried: resolveAutoMovieHumanoidSurfaces.ITangent | undefined;
+    audit: IAutoMovieVector3;
+    point: IAutoMovieVector3;
+  } => {
+    const standing: HumanPerformance = perform(
+      body,
+      ready(2)
+        .punch(manner ? varied : { technique: "straight", at: ABDOMEN })
+        .with(waits(4)),
+      { body: struck, gap: range(body) },
+    );
+    const punch: HumanSegment.ISegment = standing
+      .segments("a")
+      .find((g: HumanSegment.ISegment): boolean => g.name === "punch")!;
+    const record: StrikingRecord.IRecord | undefined = StrikingRecord.of(
+      punch.plan,
+    );
+    if (record === undefined || punch.plan.contact === undefined)
+      throw new Error("A punch records its aim and has a contact");
+    return {
+      carried: punch.plan.aimed,
+      audit: Vector3.subtract(record.planned, record.offset),
+      point: StrikingBody.region(
+        struck,
+        standing.bones("b", punch.start + punch.plan.contact),
+        "abdomen",
+        punch.plan.aimed,
+      ).point,
+    };
+  };
+  const plain = read(false);
+  const moved = read(true);
+  const expected: resolveAutoMovieHumanoidSurfaces.ITangent = aimed(
+    struck,
+    "punch",
+    0,
+    0,
+  );
+  const carried: resolveAutoMovieHumanoidSurfaces.ITangent | undefined =
+    moved.carried;
+  const apart: number = Vector3.length(
+    Vector3.subtract(
+      Vector3.subtract(moved.audit, plain.audit),
+      Vector3.subtract(moved.point, plain.point),
+    ),
+  );
+  const covered: HumanPerformance = perform(
     body,
     ready()
-      .punch(
-        {
-          technique: "straight",
-          at: ABDOMEN,
-          manner: { variation: 1, proficiency: 0 },
-        },
-        "body",
-      )
+      .punch(varied, "body")
       .with(
-        waits(0.8).defend({ kind: "cover", against: "body", outcome: "inTime" }),
+        waits(0.8).defend({
+          kind: "cover",
+          against: "body",
+          outcome: "inTime",
+        }),
       ),
+    { body: struck, gap: range(body) },
+  );
+  return [
     {
-      body: struck,
-      gap:
-        strikingScenarios.JAB_RANGE *
-        StrikingLimb.length(body, "leftHand", false),
+      name: "the performed punch carries the owner's strike offset",
+      passed:
+        carried !== undefined &&
+        carried.up === expected.up &&
+        carried.out === expected.out &&
+        Math.hypot(carried.up, carried.out) > 0,
+      detail: `up ${carried?.up.toFixed(4)} out ${carried?.out.toFixed(4)} m, the owner's up ${expected.up.toFixed(4)} out ${expected.out.toFixed(4)} m`,
     },
-  );
-  return StrikingVerdicts.defence(
-    "b",
-    performance
-      .segments("b")
-      .find((g: HumanSegment.ISegment): boolean => g.name === "defend")!,
-  );
+    {
+      name: "the record's aim moves with the strike point",
+      passed: apart <= variationCases.ON,
+      detail: `${(1000 * apart).toFixed(3)} mm between the record's move and the varied point's move; bound ${1000 * variationCases.ON} mm`,
+    },
+    StrikingVerdicts.defence(
+      "b",
+      covered
+        .segments("b")
+        .find((g: HumanSegment.ISegment): boolean => g.name === "defend")!,
+    ),
+  ];
 }
 
 /** The root mean square distance of points from their mean, metres. */
@@ -619,7 +710,9 @@ function deviation(values: number[]): number {
     values.reduce((sum: number, v: number): number => sum + v, 0) /
     values.length;
   return Math.sqrt(
-    values.reduce((sum: number, v: number): number => sum + (v - mean) ** 2, 0) /
-      values.length,
+    values.reduce(
+      (sum: number, v: number): number => sum + (v - mean) ** 2,
+      0,
+    ) / values.length,
   );
 }

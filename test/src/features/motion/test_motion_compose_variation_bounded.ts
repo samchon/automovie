@@ -39,7 +39,7 @@ import { motionVariationSource } from "../internal/motionVariationSource";
  *    0.03 m.
  * 7. Of each slot's 1,024 offsets at most one lies on its bound.
  * 8. The place `ahead` with no travel: the root mean square of a novice's
- *    offsets is at least twice an elite's (the spreads are 0.04 and 0.015).
+ *    offsets is at least twice an elite's (the spreads are 0.04 and 0.013).
  * 9. A solved elbow turned over 64 repeats stays 0.3 m from the shoulder and
  *    0.25 m from the wrist, within 16° of the solved place (two spreads of
  *    8°), on places whose strain is finite, and not all at one place.

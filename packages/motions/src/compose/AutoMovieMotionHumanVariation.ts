@@ -4,8 +4,8 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { HumanHand } from "../posture/HumanHand";
-import type { IAutoMovieProficiency } from "../skill/IAutoMovieProficiency";
 import { HumanSkill } from "../skill/HumanSkill";
+import type { IAutoMovieProficiency } from "../skill/IAutoMovieProficiency";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanRange } from "./AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
@@ -111,7 +111,7 @@ export namespace AutoMovieMotionHumanVariation {
       readonly [novice: number, elite: number]
     >
   > = {
-    place: [0.04, 0.015],
+    place: [0.04, 0.013],
     strike: [0.5, 0.2],
     direction: [5, 2],
     amount: [0.05, 0.02],
@@ -302,9 +302,10 @@ export namespace AutoMovieMotionHumanVariation {
    * `HumanSkill.scatter` of the travel, and `a` is 1 along the arrival and
    * `ACROSS` across it. On each axis the bound is the smaller of
    * `AutoMovieMotionHumanTarget.NUDGE` and the cell rule over that axis's
-   * names, and the three axes share one shrink factor, so the ellipse keeps
-   * its shape. An axis with no room, such as the height of a place on the
-   * floor, drops out of the offset and the ellipse lies flat across it.
+   * names, and each axis has its own factor, so an axis whose names stand
+   * close together flattens the ellipse across it and takes nothing from the
+   * other two. An axis with no room, such as the height of a place on the
+   * floor, drops out of the offset.
    *
    * @param source The action's variation; absent, the record itself is returned.
    * @param key The slot key.
@@ -316,8 +317,8 @@ export namespace AutoMovieMotionHumanVariation {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the unit, the frame, the spread, the bound and every input's meaning when absent.
    * @evidence contracts/development/implementation.md#principled-implementation Two terms because two things vary: where the performer means to arrive within the name, and how far the arm misses that, which alone grows with speed (Schmidt et al. 1979; Harris and Wolpert 1998). The ellipse lies along the arrival (Gordon et al. 1994; van Beers et al. 2004).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The spreads, the basis, the bounds, one shrink factor and one sum.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No component is clamped: the factor is the largest for which the offset at `TRUNCATE` on every component stays inside every axis's bound.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The spreads, the basis, the bounds, one factor per axis and one sum.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No component is clamped: an axis's factor is the largest for which the offset at `TRUNCATE` on every component stays inside that axis's bound.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the height, the share tables and `NUDGE` of `AutoMovieMotionHumanTarget`, and `HumanSkill.scatter`.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work over three axes and eighteen names.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
@@ -346,7 +347,8 @@ export namespace AutoMovieMotionHumanVariation {
     const axes: IAutoMovieVector3[] = basis({
       x: travel?.direction?.out ?? 0,
       y: travel?.direction?.up ?? 0,
-      z: travel?.direction?.forward ?? (travel?.direction === undefined ? 1 : 0),
+      z:
+        travel?.direction?.forward ?? (travel?.direction === undefined ? 1 : 0),
     });
     // Each axis's bound in arm lengths: out, up, forward. A place on the
     // floor has no room upward or downward.
@@ -371,10 +373,14 @@ export namespace AutoMovieMotionHumanVariation {
         ) *
           m.stature) /
         arm,
-      z: cell(Object.values(AutoMovieMotionHumanTarget.DISTANCES), record.range),
+      z: cell(
+        Object.values(AutoMovieMotionHumanTarget.DISTANCES),
+        record.range,
+      ),
     };
-    let shrink: number = 1;
-    const open: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
+    // Each axis's own factor: 1 while the offset at `TRUNCATE` fits its
+    // bound, the share that fits otherwise, and 0 with no room.
+    const fit: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
     for (const axis of ["x", "y", "z"] as const) {
       const reach: number =
         TRUNCATE *
@@ -387,19 +393,19 @@ export namespace AutoMovieMotionHumanVariation {
         AutoMovieMotionHumanTarget.NUDGE,
         bounds[axis],
       );
-      if (!(bound > 0)) open[axis] = 0;
-      else if (reach > bound) shrink = Math.min(shrink, bound / reach);
+      if (!(bound > 0)) fit[axis] = 0;
+      else if (reach > bound) fit[axis] = bound / reach;
     }
     const z: number[] = normals(source.series(key), 3);
     const drawn: IAutoMovieVector3 = axes.reduce(
       (sum: IAutoMovieVector3, e: IAutoMovieVector3, i: number) =>
-        Vector3.add(sum, Vector3.scale(e, shrink * spreads[i]! * z[i]!)),
+        Vector3.add(sum, Vector3.scale(e, spreads[i]! * z[i]!)),
       { x: 0, y: 0, z: 0 },
     );
     const offset: IAutoMovieVector3 = {
-      x: drawn.x * open.x,
-      y: drawn.y * open.y,
-      z: drawn.z * open.z,
+      x: drawn.x * fit.x,
+      y: drawn.y * fit.y,
+      z: drawn.z * fit.z,
     };
     return {
       ...record,
@@ -725,8 +731,12 @@ export namespace AutoMovieMotionHumanVariation {
     let arc: number = 0;
     while (
       arc + STEP <= reach &&
-      Number.isFinite(AutoMovieMotionHumanBend.strain(props, turned(arc + STEP))) &&
-      Number.isFinite(AutoMovieMotionHumanBend.strain(props, turned(-arc - STEP)))
+      Number.isFinite(
+        AutoMovieMotionHumanBend.strain(props, turned(arc + STEP)),
+      ) &&
+      Number.isFinite(
+        AutoMovieMotionHumanBend.strain(props, turned(-arc - STEP)),
+      )
     )
       arc += STEP;
     const degrees: number = scalar(
@@ -867,9 +877,7 @@ function cell(names: readonly number[], value: number): number {
   const below: number | undefined =
     nearest > 0 ? (name - sorted[nearest - 1]!) / 2 : undefined;
   const above: number | undefined =
-    nearest < sorted.length - 1
-      ? (sorted[nearest + 1]! - name) / 2
-      : undefined;
+    nearest < sorted.length - 1 ? (sorted[nearest + 1]! - name) / 2 : undefined;
   const low: number = name - (below ?? above ?? 0);
   const high: number = name + (above ?? below ?? 0);
   return Math.max(
@@ -891,7 +899,8 @@ function disc(draws: IHumanActionContext.ISeries): [number, number] {
     number,
     number,
   ];
-  const cut: number = 1 - Math.exp(-(AutoMovieMotionHumanVariation.TRUNCATE ** 2) / 2);
+  const cut: number =
+    1 - Math.exp(-(AutoMovieMotionHumanVariation.TRUNCATE ** 2) / 2);
   const radius: number = Math.sqrt(-2 * Math.log(1 - u * cut));
   return [
     radius * Math.cos(2 * Math.PI * v),
