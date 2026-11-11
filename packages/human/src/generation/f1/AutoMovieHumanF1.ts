@@ -25,20 +25,22 @@ import { AutoMovieHumanF1Trunk } from "./AutoMovieHumanF1Trunk";
  * read anywhere on this path.
  *
  * The body is one sewn skin, built by the engine's construction operators:
- * the trunk from the crotch to the crown, and on each side an arm that runs
- * from below the armpit through the wrist to the finger webs, a leg that runs
- * from below the crotch round the ankle to the toe webs, an ear, five fingers
- * and five toes. The trunk's open lower end is split into the two legs along
- * the midsagittal chord, and each arm and each ear is attached at a port on
- * the trunk; those bands span from a curve on the trunk to a ring of the part
- * and meet both G2 without a traced intersection. Each finger and toe is a
+ * the trunk from the crotch to the crown, the nose's free end, and on each
+ * side an arm that runs from the armpit's sagittal plane round the shoulder
+ * and through the wrist to the finger webs, a leg that runs from below the
+ * crotch round the ankle to the toe webs, an ear, five fingers and five toes.
+ * The trunk's open lower end is split into the two legs along the midsagittal
+ * chord, and each arm, each ear and the nose is attached at a port on the
+ * trunk; those bands span from a curve on the trunk to a ring of the part and
+ * meet both G2 without a traced intersection. Each finger and toe is a
  * capsule merged onto its limb's cap along the curve where it comes out. The
- * crown, each hand, each foot, each ear and each digit close in a pole.
+ * crown, each hand, each foot, each ear, the nose and each digit close in a
+ * pole.
  *
  * The hand's sections leave out the thumb past where it stands free, as the
- * trunk's leave out the arms and the ears. The face's nose, eyes and mouth are
- * height fields over the trunk's wall, and the ear is its outer form without
- * the concha.
+ * trunk's leave out the arms, the ears and the nose. The face's eyes and
+ * mouth are height fields over the trunk's wall, and the ear is its outer
+ * form without the concha.
  */
 export namespace AutoMovieHumanF1 {
   /** One generated surface piece. */
@@ -126,7 +128,7 @@ export namespace AutoMovieHumanF1 {
 
   /**
    * Station spacing of the layers and derived outlines of a sewn family, mm. Each part adds stations of its own where its section turns fast,
-   * so 4 mm is admitted whole with 345,000 triangles; at 2 mm the body held 589,000 and the engine read one toe's middle section as degenerate.
+   * so 4 mm is admitted whole; at 2 mm the engine read one toe's middle section as degenerate, and at 8 mm it refuses the arm's face.
    */
   const LAYER_MM: number = 4;
 
