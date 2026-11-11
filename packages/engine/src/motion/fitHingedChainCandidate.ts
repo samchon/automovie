@@ -144,8 +144,7 @@ export function fitHingedChainCandidate(
   const apart = (
     a: IAutoMovieQuaternion,
     b: IAutoMovieQuaternion | null,
-  ): number =>
-    b === null ? 0 : (Quaternion.angle(a, b) * 180) / Math.PI;
+  ): number => (b === null ? 0 : (Quaternion.angle(a, b) * 180) / Math.PI);
   const solved: ReturnType<typeof hingedArmArticulation> =
     hingedArmArticulation({
       upper: prepared.upper,

@@ -209,8 +209,7 @@ export const hingedArmArticulation: (props: {
       swept.push(probe(step * SWIVEL_STEP));
     for (let step: number = 0; step < swept.length; ++step) {
       const at: IScored = swept[step]!;
-      const before: IScored =
-        swept[(step + swept.length - 1) % swept.length]!;
+      const before: IScored = swept[(step + swept.length - 1) % swept.length]!;
       const after: IScored = swept[(step + 1) % swept.length]!;
       if (chosen === null || better(at, chosen)) chosen = at;
 

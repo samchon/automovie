@@ -86,9 +86,12 @@ export function test_motion_inertialize_through(): void {
   );
   const target = samplePoseVelocity((): IAutoMoviePose => knee(10), 0);
   const shown = (pass: boolean): number =>
-    inertializePose(source, target, t1, pass)(0.01, knee(10)).joints.find(
-      (j) => j.bone === "leftLowerLeg",
-    )!.flexion!;
+    inertializePose(
+      source,
+      target,
+      t1,
+      pass,
+    )(0.01, knee(10)).joints.find((j) => j.bone === "leftLowerLeg")!.flexion!;
   TestValidator.predicate(
     "the pose form stops short or follows through",
     shown(false) === 10 && shown(true) < 9.9,
