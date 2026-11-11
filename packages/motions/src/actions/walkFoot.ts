@@ -21,6 +21,8 @@ import { HumanFrame } from "../posture/HumanFrame";
  * the stance and, from 60 % of it, on its ball to its push pitch at toe-off
  * (provisional angles inside the ranges of Perry and Burnfield's rockers), the
  * toes extending at the ball by the same angle so they stay flat on the floor.
+ * The forefoot rocker starts at rest and ends still turning (`LEAVE`), the
+ * rate the swing then carries on from.
  * In swing the ankle leaves the placement and the velocity its stance ended
  * with and arrives at rest on the placement its next stance begins with, on a
  * quintic Hermite curve (the minimum-jerk profile of Flash and Hogan 1985 plus
@@ -175,8 +177,9 @@ export namespace walkFoot {
       const rise: number =
         toeOff - 0.4 * (Number.isFinite(strike) ? length : 0.6);
       if (t > rise) {
+        const u: number = (t - rise) / (toeOff - rise);
         const degrees: number =
-          push * minimumJerk((t - rise) / (toeOff - rise)).s;
+          push * (minimumJerk(u).s - LEAVE * carriedRate(1, 1 - u));
         return {
           placement: rocked(body, side, flat, heading, degrees, "mtp"),
           toes: -degrees,
@@ -262,6 +265,9 @@ export namespace walkFoot {
 
   /** The pitch a foot strikes the floor with, degrees toes-up (provisional, inside Perry and Burnfield's heel rocker). */
   export const STRIKE: number = 15;
+
+  /** The rate the forefoot rocker ends with, in push pitches per rocker duration (provisional): the foot is still plantarflexing when the toes leave the floor (Perry and Burnfield), and at 2 the minimum-jerk rise with the engine's `carriedRate` term reversed is exactly `2u³ − u⁴`, monotonic and ending with no acceleration. */
+  const LEAVE: number = 2;
 
   /** The share of a stance its heel rocker takes (provisional; loading response is the first 10 to 12 % of the cycle, Perry and Burnfield). */
   const HEEL_SHARE: number = 0.12;

@@ -8,6 +8,7 @@ export * from "./Quaternion";
 export * from "./Vector3";
 export * from "./admitAutoMovieQuadraticProgram";
 export * from "./assembleAutoMovieQuadraticProgram";
+export * from "./bracketedRoot";
 export * from "./closestPointOnSegmentXZ";
 export * from "./closestPointsBetweenSegments";
 export * from "./cofactorAutoMovieJacobian";

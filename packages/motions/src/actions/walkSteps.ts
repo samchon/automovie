@@ -41,14 +41,14 @@ import { walkReach } from "./walkReach";
  * after the previous; its toe-off one swing (0.8 step periods, 40 % of a
  * stride) before its heel strike; the first toe-off comes after the gait's
  * initiation. `walkFoot` owns the rockers of each stance, toes-down by up to
- * 40° at toe-off.
+ * 55° at toe-off.
  *
  * The plan's root is the unconstrained pelvis path; `walkReach` then makes
  * every foot goal reachable on the actual pelvis.
  */
 export namespace walkSteps {
-  /** The toe-off pitch of a straight step, degrees toes-down (provisional, inside Perry and Burnfield's forefoot rocker). */
-  const PUSH: number = 40;
+  /** The toe-off pitch of a straight step, degrees toes-down: the toes' joints are extended about 55° at the end of pre-swing, the toes still flat on the floor and the knee 40° bent (Perry and Burnfield). A shallower foot leaves the ankle behind the advancing hip, so the trailing knee straightens through pre-swing where it bends. */
+  const PUSH: number = 55;
 
   /** The furthest a planted leg's line leans to the side of its foot, degrees: 5° inside the ankle's 25° of inversion and eversion (DEFAULT_HUMANOID_ROM), provisional room for the pelvis's drop and list. */
   const ROLL: number = 20;

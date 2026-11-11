@@ -1,6 +1,7 @@
 import {
   Quaternion,
   Vector3,
+  bracketedRoot,
   minimumJerk,
   smoothMinimum,
   wrapDegrees,
@@ -34,7 +35,10 @@ import { walkLeg } from "./walkLeg";
  * half of a swing (`walkDescent`). The two feet's claims and none at all join
  * in a smooth maximum `CLAIM` wide (the engine's `smoothMinimum`, negated),
  * which never lowers less than either asks, so the pelvis is continuous with
- * its rate through every contact event and where a leg runs out of slack. A
+ * its rate through every contact event and where a leg runs out of slack.
+ * The stances are placed against the lowered hips, which changes what they
+ * claim, so the lowering is the one whose stances claim exactly it, found
+ * between none and the first claim by the engine's `bracketedRoot`. A
  * stance whose shank leans toward the ankle's dorsal limit raises its heel
  * about its ball (`walkLeg.heelRise`, from `walkLeg.ROCKER` of room on), or
  * lowers its toes about its heel in the heel rocker; one whose thigh would
@@ -227,13 +231,41 @@ export namespace walkReach {
         0,
         CLAIM,
       );
-    // The stances are placed first and the root lowered for the ankles they
-    // end at, then placed again against the lowered hips, so the root is
-    // lowered for the feet actually shown.
-    place(0);
-    const first: number = lowering();
-    place(first);
-    const drop: number = Math.max(first, lowering());
+    // The lowering is the one that asks for itself: the stances placed against
+    // the hips it lowers claim exactly it. Lower hips raise a stance's heel
+    // and its claim falls, so what a lowering leaves unclaimed changes sign
+    // once between none and the first claim. Under the unlowered hips a
+    // stretched leg stands at its straight knee, where the shank's lean turns
+    // on a square root; the lowering that asks for itself keeps every knee
+    // bent, so none of that reaches the root.
+    const asked = (drop: number): number => {
+      place(drop);
+      return lowering();
+    };
+    const first: number = asked(0);
+    let drop: number = 0;
+    if (first > 0) {
+      let high: number = first;
+      let over: number = asked(high) - high;
+      for (let k: number = 0; k < 8 && over > 0; k++) {
+        high *= 2;
+        over = asked(high) - high;
+      }
+      const ends: ReadonlyMap<number, number> = new Map([
+        [0, first],
+        [high, over],
+      ]);
+      drop =
+        over > 0
+          ? high
+          : bracketedRoot(
+              (d: number): number => ends.get(d) ?? asked(d) - d,
+              0,
+              high,
+              FINE,
+            );
+      place(drop);
+    }
     return {
       yaw,
       root: { ...root, y: root.y - drop },
@@ -453,6 +485,9 @@ export namespace walkReach {
 
   /** Both feet. */
   const SIDES: readonly ["left", "right"] = ["left", "right"];
+
+  /** The width, metres, to which the root's lowering is solved: a nanometre, under which its error adds less than a micrometre per second to a rate read over a frame. */
+  const FINE: number = 1e-9;
 
   /** The largest extension, degrees, of a swinging leg's thigh, 2° inside the hip's 30° extension (DEFAULT_HUMANOID_ROM); the ankle trails further by the knee's bend. */
   const EXTENSION: number = 28;

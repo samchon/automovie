@@ -391,13 +391,35 @@ export namespace jump {
     const rolling: number =
       (-(roll.x * lateral.x + roll.y * lateral.y + roll.z * lateral.z) * 180) /
       Math.PI;
-    // The take-off leg's hip joint under a root and a heading.
-    const hipAt = (root: IAutoMovieVector3, yaw: number): IAutoMovieVector3 =>
+    // The pelvis joint through the push, from the entry's own angles and
+    // their rates to the upright ones. The hip joints hang from the pelvis,
+    // so a pelvis listed and turned by a stride puts the take-off hip
+    // millimetres from where an upright one has it, and the heel's rule would
+    // read a leg the entry does not show.
+    const level: readonly [number, number, number] = upright.joints.hips ?? [
+      0, 0, 0,
+    ];
+    const listed: readonly [number, number, number] =
+      entry.posture.joints.hips ?? level;
+    const listing: readonly [number, number, number] =
+      entry.velocity.joints.get("hips") ?? [0, 0, 0];
+    const pelvisAt = (t: number): readonly [number, number, number] => {
+      if (t >= P) return level;
+      const s: number = minimumJerk(t / P).s;
+      const k: number = carry(t);
+      return [
+        listed[0] + (level[0] - listed[0]) * s + listing[0] * k,
+        listed[1] + (level[1] - listed[1]) * s + listing[1] * k,
+        listed[2] + (level[2] - listed[2]) * s + listing[2] * k,
+      ];
+    };
+    // The take-off leg's hip joint under a root, a heading and that pelvis.
+    const hipAt = (t: number): IAutoMovieVector3 =>
       hipJoints(
         body,
-        root,
-        resolveHumanPosture.heading({ yaw, pitch: 0, roll: 0 }),
-        upright.joints.hips,
+        rootAt(t),
+        resolveHumanPosture.heading({ yaw: yawAt(t), pitch: 0, roll: 0 }),
+        pelvisAt(t),
       )[takeoff];
     const turning: number = (entry.velocity.angular.y * 180) / Math.PI;
     const swinging = (side: "left" | "right"): number =>
@@ -463,7 +485,7 @@ export namespace jump {
       walkLeg.heelRise(
         body,
         takeoff,
-        hipAt(rootAt(t), yawAt(t)),
+        hipAt(t),
         ball,
         supportHeading,
         Math.min(start, -40) * minimumJerk((t - lowered) / span).s,
@@ -555,6 +577,7 @@ export namespace jump {
         };
         const limbs: IHumanPosture["limbs"] = {};
         if (t <= P) {
+          joints.hips = pelvisAt(t);
           // Push-off: the take-off foot rolls over its ball; the reaching leg withdraws under the body.
           // From the entry's own pitch and pitch rate, so a foot rolling on
           // its heel or its ball keeps rolling.
