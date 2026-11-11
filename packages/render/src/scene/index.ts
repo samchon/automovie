@@ -117,7 +117,6 @@ export * from "./updateAutoMovieComparisonCamera.js";
 export { createAutoMovieSurfaceAppearance } from "./createAutoMovieSurfaceAppearance.js";
 export { createAutoMoviePhysicalPoseAdapter } from "./createAutoMoviePhysicalPoseAdapter.js";
 export * from "./human-polygon/index.js";
-export * from "./motion-overlay/index.js";
 export * from "./AutoMovieResourceRetirementScope.js";
 export * from "./constructAutoMovieOwnedResources.js";
 export * from "./restoreAutoMovieRenderModeOnce.js";

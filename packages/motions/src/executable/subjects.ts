@@ -4,10 +4,10 @@ import {
   type AutoMovieDrawSubjects,
   type IAutoMovieDrawScene,
   type IAutoMovieDrawSubject,
-  applyAutoMovieGhost,
 } from "@automovie/render";
 import * as THREE from "three";
 
+import { applyMotionCaptureGhost } from "../capture/applyMotionCaptureGhost";
 import { markMotionCaptureCase } from "../capture/markMotionCaptureCase";
 import type { IMotionCaptureProps } from "./IMotionCaptureProps";
 import { MotionCaptureFigure } from "./MotionCaptureFigure";
@@ -71,7 +71,7 @@ function build(data: IMotionCaptureProps): IAutoMovieDrawScene {
   for (const ghost of data.ghosts) {
     const figure: MotionCaptureFigure = new MotionCaptureFigure(ghost.body);
     figure.object.name = `ghost-${ghost.id}`;
-    disposers.push(applyAutoMovieGhost(figure.object, ghost.color ?? 0x3a6ea5, ghost.opacity));
+    disposers.push(applyMotionCaptureGhost(figure.object, ghost.color ?? 0x3a6ea5, ghost.opacity));
     scene.add(figure.object);
     figures.push({ figure, poses: ghost.poses });
     disposers.push((): void => figure.dispose());
