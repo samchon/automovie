@@ -232,9 +232,13 @@ namespace FamilyConicBody {
         { name: "nose", centres: [[118, 1561, 0], [140, 1561, 0]], course: "[J.noseRoot, J.noseTip]", halves: [], up: [0, 1, 0], domain: [5, 14], head: true, loose: true, step: 1, gap: 3, tip: 18, mirrored: false, layouts: LIMB, clip: (p: R.V): number => -nose(p), reliefs: [] },
 
         // The trunk from the crotch to the crown as one wall. Knots 4 mm apart from the neck up followed every step of the face's hull and left
-        // the wall streaked, so they keep 8 mm and the face is the reliefs'. The ears are left out of its sections. It owns the shoulders down to the armscye plane through the armpit's
+        // the wall streaked, so they keep 8 mm and the face is the reliefs'. Under the jaw alone, stations 692 to 732, they may stand 3 mm
+        // apart: there a level section goes from the neck's round to the chin's keyhole within 25 mm, and at 8 mm the wall smeared that step
+        // into flaps along the jaw. Fitted whole with those knots the chest's reliefs came out worse (882 numbers, 0.74 mm), so the wall
+        // kept is the earlier one below station 640 and this one above it, with every relief fitted again over the splice
+        // (`--wall=<earlier> --splice=<this>@640 --refit`): 693 numbers at 0.66 mm. The ears are left out of its sections. It owns the shoulders down to the armscye plane through the armpit's
         // crease; past that plane, lateral of the crease and inside the arm's own tube, the skin is the arm's and is left out of the trunk's sections.
-        { name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], course: "[J.axisFloor, J.axisCrown]", halves: [], up: [1, 0, 0], domain: [40, 912], whole: true, step: 2, gap: (s: number): number => (process.argv.includes("--jaw") && s >= 692 && s <= 732 ? 3 : 8), tip: true, cap: 896, mirrored: false, layouts: LIMB, clip: (p: R.V): number => Math.max(ear(p), nose(p), ...[1, -1].map((side: number): number => {
+        { name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], course: "[J.axisFloor, J.axisCrown]", halves: [], up: [1, 0, 0], domain: [40, 912], whole: true, step: 2, gap: (s: number): number => (s >= 692 && s <= 732 ? 3 : 8), tip: true, cap: 896, mirrored: false, layouts: LIMB, clip: (p: R.V): number => Math.max(ear(p), nose(p), ...[1, -1].map((side: number): number => {
           const a: R.V = joint("upperarm_r");
           const b: R.V = joint("lowerarm_r");
           const length: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
@@ -505,7 +509,8 @@ namespace FamilyConicBody {
         // A spliced wall takes the reliefs as it takes the knots: each wall's own stored ones on its side of the station, since those were
         // fitted on the very values the splice keeps there. Fitted again over the whole spliced wall, the hollow search placed other windows
         // and the keep rule dropped the one over the hollow in front of the shoulder, which left the skin 8 mm inside the wall there.
-        if (spliced !== null) {
+        // `--refit` keeps the reliefs fitted just above over the whole spliced wall instead: for a splice inside a window both walls share.
+        if (spliced !== null && !process.argv.includes("--refit")) {
           const { tail, at, head }: { tail: K.IStored; at: number; head: IAutoMovieLoftRelief[] } = spliced;
           definition.reliefs = [...head.filter((relief: IAutoMovieLoftRelief): boolean => relief.stations[1] <= at), ...(tail.reliefs ?? []).filter((relief: IAutoMovieLoftRelief): boolean => relief.stations[0] >= at)].map((relief: IAutoMovieLoftRelief, i: number): IAutoMovieLoftRelief => ({ ...relief, name: part.name + ".hollow." + i }));
           log("family-body-spliced", { part: part.name, at, reliefs: definition.reliefs.map((relief: IAutoMovieLoftRelief): string => relief.name + " " + relief.stations.join("..")) });
