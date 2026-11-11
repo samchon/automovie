@@ -44,12 +44,12 @@ namespace FamilyConicBody {
   const ARMPIT_MM: number = 151;
 
   /**
-   * `--sagittal`: an experiment in which the trunk keeps no stump of arm. The armscye is the armpit's sagittal plane up to the shoulder's top:
-   * the trunk leaves out everything lateral of it inside the arm's tube, and the arm, fitted from 40 mm below the shoulder joint, leaves out
-   * what lies medial. The stump the trunk keeps otherwise makes the tape bridge from the breast to the shoulder, which a relief either creases
-   * or turns into a flap, and puts a step across the back where the stump begins.
+   * The armscye is the armpit's sagittal plane up to the shoulder's top: the trunk leaves out everything lateral of it inside the arm's tube,
+   * and the arm, fitted from 40 mm below the shoulder joint, leaves out what lies medial. `--stump` fits the earlier division instead, a plane
+   * square to the upper arm, under which the trunk kept a stump of arm: the tape then bridged from the breast to the stump, which a relief
+   * either creased or turned into a flap, and a step ran across the back where the stump began.
    */
-  const SAGITTAL: boolean = process.argv.includes("--sagittal");
+  const SAGITTAL: boolean = !process.argv.includes("--stump");
 
   /** Radius about the upper arm's axis inside which skin past the armscye plane is the arm's, mm; the hips, as far to the side, lie outside it. */
   const ARM_TUBE_MM: number = 75;
@@ -305,6 +305,9 @@ namespace FamilyConicBody {
 
       // Fit: grow the shared knot vector at the worst open fitting sections until the target holds or no section is open.
       let best: F.IResult | null = null;
+
+      // The other wall of a splice and its station, kept so its reliefs past that station come with its knots.
+      let spliced: { tail: K.IStored; at: number } | null = null;
       const trail: unknown[] = [];
       const attempt = (knots: number[], layout: C.ILayout, initial: number[][] | undefined, note: string, power: number = 4): F.IResult => {
         const result: F.IResult = F.fit(rows, knots, layout, power, initial);
@@ -325,6 +328,7 @@ namespace FamilyConicBody {
           const [other, at]: string[] = splice.split("@");
           const tail: K.IStored = JSON.parse(await fs.readFile(path.join(other!, part.name + ".family.json"), "utf8")) as K.IStored;
           if (tail.values.length !== wall.values.length) throw new Error("splice: the two walls of " + part.name + " have different layouts");
+          spliced = { tail, at: Number(at) };
           const head: number[] = wall.knots.map((_: number, k: number): number => k).filter((k: number): boolean => wall.knots[k]! < Number(at));
           const rest: number[] = tail.knots.map((_: number, k: number): number => k).filter((k: number): boolean => tail.knots[k]! >= Number(at));
           wall.values = wall.values.map((field: number[], f: number): number[] => [...head.map((k: number): number => field[k]!), ...rest.map((k: number): number => tail.values[f]![k]!)]);
@@ -424,6 +428,14 @@ namespace FamilyConicBody {
           const kept: boolean = part.reliefs !== "auto" || fitted.heldMaxMm <= 0.5 * fitted.deepestMm;
           if (kept) definition.reliefs.push(fitted.relief);
           log("family-body-relief", { part: part.name, relief: window.name, kept, scalars: fitted.scalars, deepestMm: round(fitted.deepestMm), trainMaxMm: round(fitted.trainMaxMm), heldMaxMm: round(fitted.heldMaxMm) });
+        }
+
+        // A spliced wall takes the reliefs as it takes the knots: the ones fitted here whose windows end before the station, and the other
+        // wall's own whose windows start past it, since those were fitted on the very values the splice keeps there.
+        if (spliced !== null) {
+          const { tail, at }: { tail: K.IStored; at: number } = spliced;
+          definition.reliefs = [...definition.reliefs.filter((relief: IAutoMovieLoftRelief): boolean => relief.stations[1] <= at), ...(tail.reliefs ?? []).filter((relief: IAutoMovieLoftRelief): boolean => relief.stations[0] >= at)];
+          log("family-body-spliced", { part: part.name, at, reliefs: definition.reliefs.map((relief: IAutoMovieLoftRelief): string => relief.name + " " + relief.stations.join("..")) });
         }
         await fs.writeFile(path.join(out, part.name + ".family.json"), JSON.stringify(definition));
       }
@@ -613,8 +625,11 @@ namespace FamilyConicBody {
       "  /** The armpit's crease, where the arm's inner side meets the trunk's side. */",
       "  export const armpit: V3 = [-25, " + ARMPIT_Y_MM + ", " + ARMPIT_MM + "];",
       "",
-      "  /** Unit normal of the armscye plane, pointing down the arm: the plane through the armpit's crease, square to the upper arm. The trunk owns the skin above it, the arm the skin below it. */",
-      "  export const armscyeNormal: V3 = " + JSON.stringify(ARMSCYE_NORMAL).replaceAll(",", ", ") + ";",
+      "  /**",
+      "   * The shoulder's section in the armscye, the sagittal plane at the armpit's side distance: the heights of the armpit's crease and of the",
+      "   * shoulder's top there, and its fore and aft edges forward of the median axis. The trunk owns the skin medial of the plane, the arm the rest.",
+      "   */",
+      "  export const armscye: { bottom: number; top: number; fore: number; aft: number } = { bottom: 1265, top: 1404, fore: 47, aft: -70 };",
       "",
       "  /** Where the ear's course starts, under its root in the side of the head. */",
       "  export const earRoot: V3 = [3, 1579, 74];",

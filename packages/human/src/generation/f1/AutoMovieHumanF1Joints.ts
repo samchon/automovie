@@ -115,8 +115,11 @@ export namespace AutoMovieHumanF1Joints {
   /** The armpit's crease, where the arm's inner side meets the trunk's side. */
   export const armpit: V3 = [-25, 1276, 151];
 
-  /** Unit normal of the armscye plane, pointing down the arm: the plane through the armpit's crease, square to the upper arm. The trunk owns the skin above it, the arm the skin below it. */
-  export const armscyeNormal: V3 = [0.0339, -0.7944, 0.6065];
+  /**
+   * The shoulder's section in the armscye, the sagittal plane at the armpit's side distance: the heights of the armpit's crease and of the
+   * shoulder's top there, and its fore and aft edges forward of the median axis. The trunk owns the skin medial of the plane, the arm the rest.
+   */
+  export const armscye: { bottom: number; top: number; fore: number; aft: number } = { bottom: 1265, top: 1404, fore: 47, aft: -70 };
 
   /** Where the ear's course starts, under its root in the side of the head. */
   export const earRoot: V3 = [3, 1579, 74];

@@ -130,17 +130,14 @@ export namespace AutoMovieHumanF1 {
    */
   const LAYER_MM: number = 4;
 
-  /** Radius of the arm at its armscye plane, mm, read off the reference's section there. */
-  const ARMSCYE_RADIUS_MM: number = 48;
-
   /**
-   * How far outside the arm's root the port loop stands on the trunk's own skin, mm. At 22 mm the loop took in the folds in front of and behind
-   * the armpit but the longer band met the arm with a ridge all round, so the loop stays close and the front fold keeps a thin flap.
+   * How far outside the shoulder's section the port loop stands on the trunk's own skin, mm. From 10 mm on the loop runs over the trunk's turn
+   * toward the front and back and no longer goes once round the arm's ring as the engine reads it; at 4 mm it is admitted.
    */
-  const ARMSCYE_MARGIN_MM: number = 10;
+  const ARMSCYE_MARGIN_MM: number = 4;
 
   /** Where each limb's band lands on it, mm from the limb's first station: the limb keeps its stations beyond. */
-  const RAIL_MM: { arm: number; leg: number; ear: number } = { arm: 10, leg: 12, ear: 2 };
+  const RAIL_MM: { arm: number; leg: number; ear: number } = { arm: 25, leg: 12, ear: 2 };
 
   /** How far outside the auricle's root the ear's port loop stands on the skull, mm. */
   const AURICLE_MARGIN_MM: number = 4;
@@ -169,23 +166,12 @@ export namespace AutoMovieHumanF1 {
    */
   export function armscye(side: 1 | -1): IAutoMovieConstructionPort.ILoop {
     const J = AutoMovieHumanF1Joints;
-    const n: AutoMovieHumanF1Joints.V3 = J.armscyeNormal;
-    const length: number = Math.hypot(J.lowerarm[0] - J.upperarm[0], J.lowerarm[1] - J.upperarm[1], J.lowerarm[2] - J.upperarm[2]);
-    const d: number[] = [0, 1, 2].map((c: number): number => (J.lowerarm[c]! - J.upperarm[c]!) / length);
-    const cosine: number = d[0]! * n[0] + d[1]! * n[1] + d[2]! * n[2];
-    const along: number = ((J.armpit[0] - J.upperarm[0]) * n[0] + (J.armpit[1] - J.upperarm[1]) * n[1] + (J.armpit[2] - J.upperarm[2]) * n[2]) / cosine;
-    const hub: number[] = [0, 1, 2].map((c: number): number => J.upperarm[c]! + along * d[c]!);
-
-    // The ellipse's long axis lies along the arm's direction projected into the plane, its short axis square to it in the plane. Where the
-    // plane is square to the arm that projection vanishes and the ellipse is a circle, whose height is the same for any pair of axes.
-    const projected: number[] = [0, 1, 2].map((c: number): number => d[c]! - cosine * n[c]!);
-    const seed: number[] = Math.hypot(projected[0]!, projected[1]!, projected[2]!) > 1e-3 ? projected : [1 - n[0] * n[0], -n[0] * n[1], -n[0] * n[2]];
-    const long: number[] = seed.map((x: number): number => x / Math.hypot(seed[0]!, seed[1]!, seed[2]!));
-    const short: number[] = [n[1] * long[2]! - n[2] * long[1]!, n[2] * long[0]! - n[0] * long[2]!, n[0] * long[1]! - n[1] * long[0]!];
-    const rise: number = Math.hypot((ARMSCYE_RADIUS_MM / cosine) * long[1]!, ARMSCYE_RADIUS_MM * short[1]!);
+    // The armscye is the armpit's sagittal plane; the port is the shoulder's section in it as the trunk's chart sees it, widened by the margin.
+    const fore: number = Math.atan2(J.armpit[2], J.armscye.fore);
+    const aft: number = Math.atan2(J.armpit[2], J.armscye.aft);
     return {
-      centre: [(hub[1]! - J.axisFloor[1]) / 1000, side * Math.atan2(hub[2]!, hub[0]!)],
-      semi: [(rise + ARMSCYE_MARGIN_MM) / 1000, Math.atan((ARMSCYE_RADIUS_MM + ARMSCYE_MARGIN_MM) / hub[2]!)],
+      centre: [((J.armscye.bottom + J.armscye.top) / 2 - J.axisFloor[1]) / 1000, (side * (fore + aft)) / 2],
+      semi: [((J.armscye.top - J.armscye.bottom) / 2 + ARMSCYE_MARGIN_MM) / 1000, (aft - fore) / 2 + ARMSCYE_MARGIN_MM / J.armpit[2]],
       sense: 1,
     };
   }
