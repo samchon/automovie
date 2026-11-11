@@ -1,15 +1,15 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { AutoMovieHumanChannel } from "./AutoMovieHumanChannel";
-import type { IAutoMovieHumanPrimitive } from "./IAutoMovieHumanPrimitive";
+import { AutoMovieMotionHumanChannel } from "./AutoMovieMotionHumanChannel";
+import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
 /**
  * Joint primitives: clinical angles written on the joints of a channel
  * directly, for the parts no effector goal places (the head's nod, the
  * shoulder girdle's shrug, the spine's slump).
  */
-export namespace AutoMovieHumanJoints {
+export namespace AutoMovieMotionHumanJoints {
   /** Clinical `[flexion, abduction, twist]` degrees by bone. */
   export type Angles = Partial<
     Record<AutoMovieHumanoidBone, readonly [number, number, number]>
@@ -18,7 +18,7 @@ export namespace AutoMovieHumanJoints {
   /** Angles added over a window. */
   export interface IAdd {
     /** The channels whose joints are written. */
-    channels: readonly AutoMovieHumanChannel[];
+    channels: readonly AutoMovieMotionHumanChannel[];
 
     /** Seconds since the action's start from which the angles are added. */
     from: number;
@@ -39,16 +39,16 @@ export namespace AutoMovieHumanJoints {
    * The channels a set of angles is written on.
    *
    * @param angles Angles by bone.
-   * @returns The channels of its bones, in {@link AutoMovieHumanChannel.ORDER}.
+   * @returns The channels of its bones, in {@link AutoMovieMotionHumanChannel.ORDER}.
    */
-  export function channels(angles: Angles): AutoMovieHumanChannel[] {
-    const found: Set<AutoMovieHumanChannel> = new Set(
+  export function channels(angles: Angles): AutoMovieMotionHumanChannel[] {
+    const found: Set<AutoMovieMotionHumanChannel> = new Set(
       (Object.keys(angles) as AutoMovieHumanoidBone[]).map(
-        AutoMovieHumanChannel.of,
+        AutoMovieMotionHumanChannel.of,
       ),
     );
-    return AutoMovieHumanChannel.ORDER.filter(
-      (c: AutoMovieHumanChannel): boolean => found.has(c),
+    return AutoMovieMotionHumanChannel.ORDER.filter(
+      (c: AutoMovieMotionHumanChannel): boolean => found.has(c),
     );
   }
 
@@ -59,7 +59,7 @@ export namespace AutoMovieHumanJoints {
    * @returns The primitive.
    * @throws {Error} At a second when an angle is given for a bone outside the channels.
    */
-  export function add(props: IAdd): IAutoMovieHumanPrimitive {
+  export function add(props: IAdd): IAutoMovieMotionHumanPrimitive {
     return {
       channels: props.channels,
       from: props.from,
@@ -70,7 +70,7 @@ export namespace AutoMovieHumanJoints {
           AutoMovieHumanoidBone,
           readonly [number, number, number],
         ][]) {
-          if (!props.channels.includes(AutoMovieHumanChannel.of(bone)))
+          if (!props.channels.includes(AutoMovieMotionHumanChannel.of(bone)))
             throw new Error(
               `A joint primitive writes ${bone} outside its channels`,
             );

@@ -1,4 +1,7 @@
-import { AutoMovieHumanChannel, type IHumanPosture } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanChannel,
+  type IHumanPosture,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -46,7 +49,7 @@ export function test_motion_compose_channel(): void {
         "rightFoot",
         "leftToes",
       ] as const
-    ).map(AutoMovieHumanChannel.of),
+    ).map(AutoMovieMotionHumanChannel.of),
     [
       "trunk",
       "trunk",
@@ -90,7 +93,7 @@ export function test_motion_compose_channel(): void {
   };
   TestValidator.equals(
     "the trunk and the left arm are taken, the rest kept",
-    AutoMovieHumanChannel.merge(base, written, ["trunk", "leftArm"]),
+    AutoMovieMotionHumanChannel.merge(base, written, ["trunk", "leftArm"]),
     {
       root: { x: 1, y: 0, z: 0 },
       yaw: 10,
@@ -102,13 +105,14 @@ export function test_motion_compose_channel(): void {
   );
   TestValidator.equals(
     "a goal the written posture dropped is cleared",
-    AutoMovieHumanChannel.merge(base, { ...written, limbs: {} }, ["leftArm"])
-      .limbs,
+    AutoMovieMotionHumanChannel.merge(base, { ...written, limbs: {} }, [
+      "leftArm",
+    ]).limbs,
     { rightArm: goal(2), leftLeg: goal(3) },
   );
   TestValidator.equals(
     "the root alone",
-    AutoMovieHumanChannel.merge(base, written, ["root"]),
+    AutoMovieMotionHumanChannel.merge(base, written, ["root"]),
     { ...base, root: { x: 9, y: 9, z: 9 }, yaw: 90 },
   );
 }

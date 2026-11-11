@@ -12,7 +12,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * hand; each hand owns its finger joints; each leg owns its limb goal and the
  * joints of its thigh, shank, foot and toes.
  */
-export type AutoMovieHumanChannel =
+export type AutoMovieMotionHumanChannel =
   | "root"
   | "trunk"
   | "head"
@@ -22,13 +22,13 @@ export type AutoMovieHumanChannel =
   | "rightHand"
   | "leftArm"
   | "rightArm";
-export namespace AutoMovieHumanChannel {
+export namespace AutoMovieMotionHumanChannel {
   /**
    * The order channels are written in: the body is placed first and the
    * arms last, so a primitive reads every part its own part hangs from as
    * the action already placed it.
    */
-  export const ORDER: readonly AutoMovieHumanChannel[] = [
+  export const ORDER: readonly AutoMovieMotionHumanChannel[] = [
     "root",
     "trunk",
     "head",
@@ -46,7 +46,7 @@ export namespace AutoMovieHumanChannel {
    * @param bone The bone.
    * @returns Its channel.
    */
-  export function of(bone: AutoMovieHumanoidBone): AutoMovieHumanChannel {
+  export function of(bone: AutoMovieHumanoidBone): AutoMovieMotionHumanChannel {
     const side: "left" | "right" | undefined = bone.startsWith("left")
       ? "left"
       : bone.startsWith("right")
@@ -78,9 +78,9 @@ export namespace AutoMovieHumanChannel {
   export function merge(
     base: IHumanPosture,
     written: IHumanPosture,
-    channels: readonly AutoMovieHumanChannel[],
+    channels: readonly AutoMovieMotionHumanChannel[],
   ): IHumanPosture {
-    const owns = (channel: AutoMovieHumanChannel): boolean =>
+    const owns = (channel: AutoMovieMotionHumanChannel): boolean =>
       channels.includes(channel);
     const joints: IHumanPosture["joints"] = {};
     for (const [bone, angles] of Object.entries(base.joints) as [

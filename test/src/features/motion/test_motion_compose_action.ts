@@ -1,9 +1,9 @@
 import { AutoMovieMotionClock } from "@automovie/engine";
 import {
-  type IAutoMovieHumanPrimitive,
+  type IAutoMovieMotionHumanPrimitive,
   type IHumanActionPlan,
   type IHumanPosture,
-  composeAutoMovieHumanAction,
+  composeAutoMovieMotionHumanAction,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -60,7 +60,7 @@ export function test_motion_compose_action(): void {
       limbs: {},
     }),
   };
-  const head: IAutoMovieHumanPrimitive = {
+  const head: IAutoMovieMotionHumanPrimitive = {
     channels: ["head"],
     from: 0,
     to: 1,
@@ -69,7 +69,7 @@ export function test_motion_compose_action(): void {
       joints: { ...posture.joints, head: [posture.pitch, 0, 0] },
     }),
   };
-  const trunk = (from: number, to: number): IAutoMovieHumanPrimitive => ({
+  const trunk = (from: number, to: number): IAutoMovieMotionHumanPrimitive => ({
     channels: ["trunk"],
     from,
     to,
@@ -98,7 +98,7 @@ export function test_motion_compose_action(): void {
       pitch: 30,
     }),
   });
-  const plan: IHumanActionPlan = composeAutoMovieHumanAction({
+  const plan: IHumanActionPlan = composeAutoMovieMotionHumanAction({
     base,
     clock,
     primitives: [head, trunk(0.2, 0.8)],
@@ -152,7 +152,7 @@ export function test_motion_compose_action(): void {
 
   TestValidator.equals(
     "claims that meet at an instant are accepted",
-    composeAutoMovieHumanAction({
+    composeAutoMovieMotionHumanAction({
       base,
       clock,
       primitives: [trunk(0, 0.5), trunk(0.5, 1)],
@@ -160,30 +160,38 @@ export function test_motion_compose_action(): void {
     30,
   );
   TestValidator.error("overlapping claims", (): unknown =>
-    composeAutoMovieHumanAction({
+    composeAutoMovieMotionHumanAction({
       base,
       clock,
       primitives: [trunk(0, 0.6), trunk(0.5, 1)],
     }),
   );
   TestValidator.error("a base of another duration", (): unknown =>
-    composeAutoMovieHumanAction({
+    composeAutoMovieMotionHumanAction({
       base: { ...base, duration: 2 },
       clock,
       primitives: [],
     }),
   );
   TestValidator.error("a primitive without a channel", (): unknown =>
-    composeAutoMovieHumanAction({
+    composeAutoMovieMotionHumanAction({
       base,
       clock,
       primitives: [{ ...head, channels: [] }],
     }),
   );
   TestValidator.error("a reversed window", (): unknown =>
-    composeAutoMovieHumanAction({ base, clock, primitives: [trunk(0.8, 0.2)] }),
+    composeAutoMovieMotionHumanAction({
+      base,
+      clock,
+      primitives: [trunk(0.8, 0.2)],
+    }),
   );
   TestValidator.error("a window past the clock", (): unknown =>
-    composeAutoMovieHumanAction({ base, clock, primitives: [trunk(0.5, 1.5)] }),
+    composeAutoMovieMotionHumanAction({
+      base,
+      clock,
+      primitives: [trunk(0.5, 1.5)],
+    }),
   );
 }
