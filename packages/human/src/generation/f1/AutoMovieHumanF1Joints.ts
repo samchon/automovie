@@ -116,10 +116,20 @@ export namespace AutoMovieHumanF1Joints {
   export const armpit: V3 = [-25, 1276, 151];
 
   /**
-   * The shoulder's section in the armscye, the sagittal plane at the armpit's side distance: the heights of the armpit's crease and of the
-   * shoulder's top there, and its fore and aft edges forward of the median axis. The trunk owns the skin medial of the plane, the arm the rest.
+   * Where the arm's course starts, inside the trunk beside the armscye's plane, 35 mm above the armpit's crease and midway between the
+   * shoulder's fore and aft edges. The course leaves it straight to the side, so the arm's first sections lie beside that plane.
    */
-  export const armscye: { bottom: number; top: number; fore: number; aft: number } = { bottom: 1265, top: 1404, fore: 47, aft: -70 };
+  export const armRoot: V3 = [-12, 1300, 121];
+
+  /** The corner the arm's course turns at, round the shoulder, from straight to the side to the line down to the elbow. */
+  export const armTurn: V3 = [-12, 1300, 203];
+
+  /**
+   * The shoulder's section in the armscye, the sagittal plane at the armpit's side distance: the heights of the arm's underside and of the
+   * shoulder's top just beside it, and its fore and aft edges forward of the median axis. The trunk owns the skin medial of the plane, the arm
+   * the rest.
+   */
+  export const armscye: { bottom: number; top: number; fore: number; aft: number } = { bottom: 1258, top: 1404, fore: 47, aft: -70 };
 
   /** Where the ear's course starts, under its root in the side of the head. */
   export const earRoot: V3 = [3, 1579, 74];

@@ -224,6 +224,21 @@ export namespace AutoMovieConstructionAdmission {
             throw new Error(
               `realizeAutoMovieConstruction: ${name}'s rail ${node.rail} m is not positive`,
             );
+          const crease: typeof node.crease = node.crease;
+          if (
+            crease !== undefined &&
+            !(
+              Number.isFinite(crease.start) &&
+              Number.isFinite(crease.end) &&
+              Number.isFinite(crease.transition) &&
+              crease.start <= crease.end &&
+              crease.end < crease.start + 2 * Math.PI &&
+              crease.transition > 0
+            )
+          )
+            throw new Error(
+              `realizeAutoMovieConstruction: ${name}'s crease is not start <= end < start + 2 pi with a positive transition`,
+            );
           if (seen.has(node.band))
             throw new Error(
               `realizeAutoMovieConstruction: the name ${node.band} is used twice`,

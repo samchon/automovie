@@ -7,7 +7,7 @@ import type { AutoMovieConstructionNode } from "@automovie/interface";
  * Scenarios:
  * 1. One body: the tree is one split of the trunk into two legs, five ports (an arm and an ear on each side, and the nose) and twenty merges (five fingers and five toes on each side), over twenty-eight source leaves.
  * 2. Every leaf has its part: each source leaf's name is a key of the sources, and each part carries that name.
- * 3. Sides mirror: every operator on the +Z side has a twin whose part face is the same name with `.mirror`, and the two armscye loops and the two auricle loops have the same station and semi-axes and opposite phases.
+ * 3. Sides mirror: every operator on the +Z side has a twin whose part face is the same name with `.mirror`, and the two armscye loops and the two auricle loops have the same station and semi-axes and opposite phases; the armscye loops also run in opposite senses, so the one crease window both armscye ports declare lies under the armpit on each side.
  * 4. A digit is merged onto its own limb before that limb is attached: each merge's host face is an arm or a leg of the merge's own side, and no merge's host subtree holds the trunk.
  * 5. A port stands on the trunk: each loop's centre station lies inside the trunk part's stations and its phase semi-axis is under pi.
  *
@@ -54,6 +54,10 @@ export function test_human_f1_construction(): void {
     const right = loop(-1);
     if (left.centre[0] !== right.centre[0] || left.centre[1] !== -right.centre[1] || left.semi[0] !== right.semi[0] || left.semi[1] !== right.semi[1]) failures.push(`${name} loops are not mirror images: ${JSON.stringify([left, right])}`);
   }
+
+  if (AutoMovieHumanF1.armscye(1).sense !== 1 || AutoMovieHumanF1.armscye(-1).sense !== -1) failures.push("the armscye loops do not run as reflections of each other");
+  const creases: string[] = nodes.flatMap((node: AutoMovieConstructionNode): string[] => (node.type === "port" && node.name.startsWith("armscye.") ? [JSON.stringify(node.crease)] : []));
+  if (creases.length !== 2 || creases[0] === undefined || creases[0] !== creases[1] || !creases[0].includes("start")) failures.push(`the armscye ports' creases are ${creases.join(" and ")}`);
 
   // 4. Merges under limbs.
   for (const node of nodes)

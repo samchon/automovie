@@ -1,11 +1,12 @@
 import type { AutoMovieConstructionNode } from "./AutoMovieConstructionNode";
+import type { IAutoMovieConstructionSplit } from "./IAutoMovieConstructionSplit";
 
 /**
  * A part attached at a known port of a host face: a closed port curve on the host's chart, an ellipse about a published centre, is cut out of the host, and a band spans from that curve to the part's ring at `rail` (an arm on its armscye, a branch on a stem's side). The parent owns the port loop and the region inside it; the part keeps its stations beyond the rail.
  *
- * The port curve at clock `c` in `[0, 2 pi)` is the chart point `(centre[0] + semi[0] cos c, centre[1] + sense semi[1] sin c)`: station in metres, phase in radians. The band is the engine's join strip between two ribbons: the host surface's own 2-jet across the port curve, toward the curve's centre (the chart direction `(-semi[0] cos c, -sense semi[1] sin c)`), and the part's own 2-jet at its rail toward its kept side, both scaled by one factor at which no column turns back along its chord. The band is G2 to the host along the port curve and G2 to the part along its rail. A failed premise leaves the part, the band and the host's port as they were, with one diagnostic naming the port.
+ * The port curve at clock `c` in `[0, 2 pi)` is the chart point `(centre[0] + semi[0] cos c, centre[1] + sense semi[1] sin c)`: station in metres, phase in radians. The band is the engine's join strip between two ribbons: the host surface's own 2-jet across the port curve, toward the curve's centre (the chart direction `(-semi[0] cos c, -sense semi[1] sin c)`), and the part's own 2-jet at its rail toward its kept side, both scaled by one factor at which no column turns back along its chord. The band is G2 to the host along the port curve and G2 to the part along its rail, except inside a declared `crease` window, where it reaches the rail along its chord as a split's band does (a skin fold such as the armpit, where the part leaves the host back over the host's own skin). A failed premise leaves the part, the band and the host's port as they were, with one diagnostic naming the port.
  *
- * Engine admission: `hostFace` a view part of the host's subtree and `partFace` one of the part's; the `band` name unique in the tree; `count` a multiple of 4 of at least 8; `rows` a positive integer; `rail` positive; the loop's centre finite, both semi-axes positive and the phase semi-axis under pi.
+ * Engine admission: `hostFace` a view part of the host's subtree and `partFace` one of the part's; the `band` name unique in the tree; `count` a multiple of 4 of at least 8; `rows` a positive integer; `rail` positive; the loop's centre finite, both semi-axes positive and the phase semi-axis under pi; a crease's bounds finite, `start <= end < start + 2 pi`, and its transition positive.
  *
  * @evidence contracts/development/design.md#principled-representation A known port lies on a published landmark loop of the parent, which owns that loop (construction.md, Connections), and the band is the shared strip between each side's 2-jet across its rail, so the part meets the parent G2 without a traced intersection.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One host face, one closed chart ellipse, one part with its rail and band, and the strip's sampling inputs.
@@ -48,6 +49,9 @@ export interface IAutoMovieConstructionPort {
 
   /** Grid stations of the band face across its span, at least 1. */
   rows: number;
+
+  /** A declared crease where the band meets the part, on the port curve's clock, or absent for G2 all round. */
+  crease?: IAutoMovieConstructionSplit.ICrease;
 }
 
 export namespace IAutoMovieConstructionPort {

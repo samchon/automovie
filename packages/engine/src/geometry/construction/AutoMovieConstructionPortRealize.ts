@@ -21,7 +21,7 @@ type Vec3 = AutoMovieSolidVector.Vec3;
 /**
  * Realize a port (`IAutoMovieConstructionPort`): the host's port curve cut out of its face as a hole, a band from that curve to the part's rail (`AutoMovieConstructionSplitBand.strip`, the split's own strip with the monotone ribbon scale), all sharing their boundary vertices.
  *
- * Steps: walk the host and admit its face; take the checkpoint; walk the part and admit its face and rail (realized after the checkpoint, the rail inside its domain, the rail's side not already cut); build the band, whose start ribbons are the host surface's 2-jet across the port curve toward the curve's centre; then add, in one step, the port curve's vertices on the host (its hole cycle), the rail's vertices on the part (its rail cycle) and the band face with its two station-end cycles, every segment naming the face across it. The band's chain and surface join the realization's chains and surfaces.
+ * Steps: walk the host and admit its face; take the checkpoint; walk the part and admit its face and rail (realized after the checkpoint, the rail inside its domain, the rail's side not already cut); build the band, whose start ribbons are the host surface's 2-jet across the port curve toward the curve's centre and whose end ribbons are the part's own except inside the port's declared crease window, where they are the columns' chords; then add, in one step, the port curve's vertices on the host (its hole cycle), the rail's vertices on the part (its rail cycle) and the band face with its two station-end cycles, every segment naming the face across it. The band's chain and surface join the realization's chains and surfaces.
  *
  * A broken premise restores the checkpoint and records one diagnostic under the port's name; a foreign error restores it and propagates unchanged.
  *
@@ -157,11 +157,14 @@ export function AutoMovieConstructionPortRealize(
         "the host's tangent plane at the port's clock origin is degenerate",
       );
     const band: AutoMovieConstructionSplitBand.IStrip | string =
-      AutoMovieConstructionSplitBand.strip(node.band, loop, near, outward, {
-        surface: part,
-        station: rail,
-        into,
-      });
+      AutoMovieConstructionSplitBand.strip(
+        node.band,
+        loop,
+        near,
+        outward,
+        { surface: part, station: rail, into },
+        node.crease,
+      );
     if (typeof band === "string") return fail(`band ${node.band}: ${band}`);
 
     // Shared vertices: the port curve on the host, the rail on the part.

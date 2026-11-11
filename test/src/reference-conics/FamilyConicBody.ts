@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { createHash } from "node:crypto";
-import { AutoMovieLoftChain, type AutoMovieLoftFrame, AutoMovieLoftRelief, type AutoMovieViewAxis, type AutoMovieViewLoft as L, AutoMovieViewChain as Q, type IAutoMovieLoftRelief } from "@automovie/engine";
+import { AutoMovieLoftChain, type AutoMovieLoftFrame, AutoMovieLoftRelief, AutoMovieViewAxis, type AutoMovieViewLoft as L, AutoMovieViewChain as Q, type IAutoMovieLoftRelief } from "@automovie/engine";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
@@ -30,26 +30,36 @@ namespace FamilyConicBody {
   /** The limb layouts of 4 and 8 conics; the 16 conic layout fitted worse from the same start on the arm and is left out until that is understood. */
   const LIMB: { layout: C.ILayout; depth: number }[] = [0, 1].map((depth: number): { layout: C.ILayout; depth: number } => ({ layout: C.limb(depth), depth }));
 
-  /**
-   * Unit normal of the armscye plane on the +Z side, pointing down the arm: `AutoMovieHumanF1Joints.armscyeNormal`. The plane holds the armpit's
-   * crease and is square to the upper arm, 67 mm down it from the shoulder joint. A plane half as far off the sagittal was tried to shorten the
-   * stump of arm the trunk keeps; the trunk's fit then stalled above 2 mm, so the fold beside that stump is left inside the arm's port instead.
-   */
-  const ARMSCYE_NORMAL: R.V = [0.0339, -0.7944, 0.6065];
-
   /** Height of the armpit's crease, mm: `AutoMovieHumanF1Joints.armpit[1]`. */
   const ARMPIT_Y_MM: number = 1276;
 
-  /** Side distance of the armpit's crease from the median plane, mm: `AutoMovieHumanF1Joints.armpit[2]`. */
+  /**
+   * Side distance of the armpit's crease from the median plane, mm: `AutoMovieHumanF1Joints.armpit[2]`. The armscye is the sagittal plane at
+   * this distance, up to the shoulder's top: the trunk leaves out everything lateral of it inside the arm's tube, and the arm what lies medial.
+   * Under an earlier division, a plane square to the upper arm through the crease, the trunk kept a stump of arm: the tape bridged from the
+   * breast to the stump, which a relief either creased or turned into a flap, and a step ran across the back where the stump began.
+   */
   const ARMPIT_MM: number = 151;
 
   /**
-   * The armscye is the armpit's sagittal plane up to the shoulder's top: the trunk leaves out everything lateral of it inside the arm's tube,
-   * and the arm, fitted from 40 mm below the shoulder joint, leaves out what lies medial. `--stump` fits the earlier division instead, a plane
-   * square to the upper arm, under which the trunk kept a stump of arm: the tape then bridged from the breast to the stump, which a relief
-   * either creased or turned into a flap, and a step ran across the back where the stump began.
+   * Where the arm's course starts and where it turns down the arm, mm: `AutoMovieHumanF1Joints.armRoot` and `armTurn`.
+   *
+   * The course leaves the trunk square to the armscye's sagittal plane, so the arm's first sections lie in planes beside that plane and the
+   * trunk's port loop stands round a ring of the arm a few millimetres off it. It then turns round the shoulder to the elbow, its sections
+   * fanning about the armpit as the leg's fan about the instep, so the shoulder's cap is lofted. The height is 35 mm above the armpit's
+   * crease: the turn's tightest radius, 2 h / (1.875 angle) = 69 mm with h = 65 mm, must stay beyond the skin on the turn's inner side,
+   * which is that crease at first and the inner arm, about 57 mm off the course, further on. The turn begins about 10 mm inside the plane;
+   * its angle rises as the quintic smoothstep, so the section 5 mm past the plane is still within 3 degrees of it.
+   *
+   * With the course straight from the shoulder joint down the arm the first whole section was a slanted plane 40 mm below the joint. The
+   * shoulder's cap above it belonged to no part: the port's band spanned up to 113 mm across it, and 20 of its 96 columns reached the arm's
+   * ring against the arm's own direction under the armpit, where the band folded and slit.
    */
-  const SAGITTAL: boolean = !process.argv.includes("--stump");
+  const ARM_ROOT: R.V = [-12, 1300, 121];
+  const ARM_TURN: R.V = [-12, 1300, 203];
+
+  /** Half length of the shoulder's turn, mm. */
+  const SHOULDER_HALF_MM: number = 65;
 
   /** Radius about the upper arm's axis inside which skin past the armscye plane is the arm's, mm; the hips, as far to the side, lie outside it. */
   const ARM_TUBE_MM: number = 75;
@@ -160,17 +170,42 @@ namespace FamilyConicBody {
       const keys: string[] = joints.map((j: string): string => "J." + j.replace("_0", "").replace("_r", ""));
       return { name, centres, course: "[" + [...keys, "J.beyond(" + keys.at(-2) + ", " + keys.at(-1) + ", " + tip + ")"].join(", ") + "]", halves: centres.slice(1, -1).map((): number => 5), up, domain: "auto", step: 2, gap: 6, tip: true, mirrored: true, layouts: LIMB, reliefs: [] };
     };
+
+    // The arm's course past the elbow is the line it was first fitted on, from the shoulder joint straight down. Its stations there are the
+    // earlier ones moved by `shift`, and `up` is turned about the first segment so the chart there is the earlier chart: the hand end of that
+    // earlier fit, which every finger was sewn on, can then be spliced in unchanged (`--splice=<directory>@<station>+<shift>`).
+    const armCentres: R.V[] = [ARM_ROOT, ARM_TURN, joint("lowerarm_r"), joint("hand_r"), joint("middle_01_r")];
+    const armHalves: number[] = [SHOULDER_HALF_MM, 30, 10];
+    const arm: { shift: number; up: R.V; plane: number; turned: number } = ((): { shift: number; up: R.V; plane: number; turned: number } => {
+      const formerCentres: R.V[] = [joint("upperarm_r"), ...armCentres.slice(2)];
+      const former: AutoMovieViewAxis.IRun[] = AutoMovieViewAxis.runs(formerCentres, [30, 10]) as AutoMovieViewAxis.IRun[];
+      const next: AutoMovieViewAxis.IRun[] = AutoMovieViewAxis.runs(armCentres, armHalves) as AutoMovieViewAxis.IRun[];
+      const shift: number = round(next[2]!.start - next[2]!.from - (former[1]!.start - former[1]!.from));
+      const at: number = (former[1]!.start + former[1]!.end) / 2;
+      const old: AutoMovieLoftFrame.IFrame = (AutoMovieViewAxis.jointed(formerCentres, [30, 10], [1, 0, 0]) as AutoMovieViewAxis.IAxis).at(at);
+      const roll = (up: R.V): number => {
+        const now: AutoMovieLoftFrame.IFrame = (AutoMovieViewAxis.jointed(armCentres, armHalves, up) as AutoMovieViewAxis.IAxis).at(at + shift);
+        return Math.atan2(old.u[0] * now.v[0] + old.u[1] * now.v[1] + old.u[2] * now.v[2], old.u[0] * now.u[0] + old.u[1] * now.u[1] + old.u[2] * now.u[2]);
+      };
+      // The first segment runs along +Z, so turning `up` about it by an angle turns every later chart by the same angle about its tangent.
+      const first: number = roll([1, 0, 0]);
+      const candidates: R.V[] = [1, -1].map((sign: number): R.V => [round4(Math.cos(first)), round4(sign * Math.sin(first)), 0]);
+      const up: R.V = Math.abs(roll(candidates[0]!)) < Math.abs(roll(candidates[1]!)) ? candidates[0]! : candidates[1]!;
+      log("family-body-arm-course", { shift, up, rollBefore: first, rollAfter: roll(up), runs: next, formerRuns: former });
+      return { shift, up, plane: ARMPIT_MM - ARM_ROOT[2], turned: next[1]!.start };
+    })();
     const parts: IPart[] = (
       [
         ...["index", "middle", "ring", "pinky"].map((finger: string): IPart => digit("finger." + finger, [finger + "_01_r", finger + "_02_r", finger + "_03_r"], finger === "pinky" ? 22 : 26, [1, 0, 0])),
         digit("finger.thumb", ["thumb_01_r", "thumb_02_r", "thumb_03_r"], 30, [0, 1, 0]),
         ...["bigtoe", "indextoe", "middletoe", "ringtoe", "littletoe"].map((toe: string): IPart => digit("toe." + toe.replace("toe", ""), [toe + "_01_r", toe + "_02_r"], toe === "bigtoe" ? 28 : toe === "littletoe" ? 14 : 18, [0, 1, 0])),
-        // The arm runs on through the wrist to the knuckles, so the wrist is no seam. Its first section is the first one below the armpit that
-        // takes in no trunk; the trunk's port band spans from there up to the armscye.
+        // The arm runs on through the wrist to the knuckles, so the wrist is no seam.
         // A course that leaves the wrist square to the row of knuckles, with the hand read on to the finger webs as the curve round all the
         // fingers (`surround`), was fitted to 588 numbers at a mean of 0.34 mm, but the engine refused it as a face: between its stations a
         // section's chain lost an arc. Until that is understood the hand keeps this course and closes at the webs.
-        { name: "arm", centres: [joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r"), joint("middle_01_r")], course: "[J.upperarm, J.lowerarm, J.hand, J.middle1]", halves: [30, 10], up: [1, 0, 0], domain: [SAGITTAL ? 40 : 76, 570], tip: 600, mirrored: true, layouts: LIMB, reliefs: "auto", clip: (p: R.V): number => {
+        // It starts 2 mm past the armscye's plane and fans round the shoulder (`ARM_ROOT`); round that turn the cap's top sweeps about 2.5
+        // times faster than the station, so its knots may stand 6 mm apart, as round the ankle.
+        { name: "arm", centres: armCentres, course: "[J.armRoot, J.armTurn, J.lowerarm, J.hand, J.middle1]", halves: armHalves, up: arm.up, domain: [arm.plane + 2, round(570 + arm.shift)], gap: (s: number): number => (s < arm.turned ? 6 : GAP_MM), tip: round(600 + arm.shift), mirrored: true, layouts: LIMB, reliefs: "auto", clip: (p: R.V): number => {
           // The thumb past where it stands free of the palm is not the hand's: inside 16 mm of its course from 40 mm past its first joint.
           // Left in, the hand's wall and the thumb's lay within half a millimetre of each other for 10 mm, and a merge traces no such meeting.
           const a: R.V = joint("thumb_01_r");
@@ -179,8 +214,8 @@ namespace FamilyConicBody {
           const along: number = ((p[0] - a[0]) * (b[0] - a[0]) + (p[1] - a[1]) * (b[1] - a[1]) + (p[2] - a[2]) * (b[2] - a[2])) / length;
           const thumb: number = Math.min(along - 40, 16 - Math.hypot(p[0] - a[0] - (along * (b[0] - a[0])) / length, p[1] - a[1] - (along * (b[1] - a[1])) / length, p[2] - a[2] - (along * (b[2] - a[2])) / length));
 
-          // `--sagittal`: the arm owns the shoulder's cap as well, the skin lateral of the armpit's sagittal plane, and gives up what lies medial.
-          return SAGITTAL ? Math.max(thumb, ARMPIT_MM - p[2]) : thumb;
+          // The arm owns the shoulder's cap as well, the skin lateral of the armpit's sagittal plane, and gives up what lies medial.
+          return Math.max(thumb, ARMPIT_MM - p[2]);
         } },
 
         // The leg turns at the ankle and runs on to the ball of the foot, its sections fanning round the instep, so the heel is lofted and the ankle
@@ -206,19 +241,17 @@ namespace FamilyConicBody {
           const d: R.V = [(b[0] - a[0]) / length, (b[1] - a[1]) / length, (b[2] - a[2]) / length];
           const q: R.V = [p[0] - a[0], p[1] - a[1], side * p[2] - a[2]];
           const along: number = q[0] * d[0] + q[1] * d[1] + q[2] * d[2];
-          return Math.min(SAGITTAL ? Infinity : ARMSCYE_NORMAL[0] * (p[0] + 25) + ARMSCYE_NORMAL[1] * (p[1] - ARMPIT_Y_MM) + ARMSCYE_NORMAL[2] * (side * p[2] - ARMPIT_MM), side * p[2] - ARMPIT_MM, ARM_TUBE_MM - Math.hypot(q[0] - along * d[0], q[1] - along * d[1], q[2] - along * d[2]));
+          return Math.min(side * p[2] - ARMPIT_MM, ARM_TUBE_MM - Math.hypot(q[0] - along * d[0], q[1] - along * d[1], q[2] - along * d[2]));
         })), reliefs: [
           // Every window stays within 1.2 rad of its axis. Farther round, a height along the axis slides a point along the wall instead of
           // moving it in or out, which folded the skin at the sides of the head and the shoulders; there the wall stands alone.
           { name: "trunk.low.back", stations: [-20, 470], phases: [Math.PI - 1.2, Math.PI + 1.2], axis: [1, 0, 0], rows: 51, columns: 31, mirror: true },
           { name: "trunk.low.front", stations: [-20, 470], phases: [-1.2, 1.2], axis: [-1, 0, 0], rows: 51, columns: 31, mirror: true },
-          // Over the chest and the shoulders the windows reach 1.45 rad. The tape bridges from the breast to the stump of arm the trunk keeps,
-          // and the skin lies deep inside that bridge from about 0.6 to 1.3 rad: a window that ends there, at 1.0 or 1.2 rad, creases the whole
-          // chest and back along its edge from the neck to the armpit. Reaching past it leaves only a thin flap in the fold beside the armpit.
-          // The cause is the stump, not the window: a trunk cut at the armpit's sagittal plane has no such bridge.
-          // With `--sagittal` there is no stump to bridge to, so the chest windows stop at 1.0 rad, short of the fold beside the armpit.
-          { name: "trunk.chest.back", stations: [420, 680], phases: SAGITTAL ? [Math.PI - 1.0, Math.PI + 1.0] : [Math.PI - 1.45, Math.PI + 1.45], axis: [1, 0, 0], rows: 53, columns: SAGITTAL ? 35 : 49, mirror: true },
-          { name: "trunk.chest.front", stations: [420, 680], phases: SAGITTAL ? [-1.0, 1.0] : [-1.45, 1.45], axis: [-1, 0, 0], rows: 53, columns: SAGITTAL ? 35 : 49, mirror: true },
+          // Over the chest and the shoulders the windows stop at 1.0 rad, short of the fold beside the armpit. While the trunk kept a stump of
+          // arm the tape bridged from the breast to it, with the skin deep inside that bridge from about 0.6 to 1.3 rad: a window ending there
+          // creased the whole chest and back along its edge, and one reaching 1.45 rad left a thin flap in the fold beside the armpit.
+          { name: "trunk.chest.back", stations: [420, 680], phases: [Math.PI - 1.0, Math.PI + 1.0], axis: [1, 0, 0], rows: 53, columns: 35, mirror: true },
+          { name: "trunk.chest.front", stations: [420, 680], phases: [-1.0, 1.0], axis: [-1, 0, 0], rows: 53, columns: 35, mirror: true },
           // The upper windows end at the crown's tip, 918.88 mm: a relief's height and its two derivatives vanish at its window's edge, which the engine requires of a pole.
           { name: "trunk.high.back", stations: [640, 918.88], phases: [Math.PI - 1.2, Math.PI + 1.2], axis: [1, 0, 0], rows: 57, columns: 33, mirror: true },
           { name: "trunk.high.front", stations: [640, 918.88], phases: [-1.2, 1.2], axis: [-1, 0, 0], rows: 57, columns: 49, mirror: true },
@@ -262,7 +295,11 @@ namespace FamilyConicBody {
         const kept: C.P[][] = clipped.filter((loop: C.P[]): boolean => inside(R.hull(loop)));
         return kept.length === 0 ? null : kept.reduce((a: C.P[], b: C.P[]): C.P[] => (Math.abs(R.area(b)) > Math.abs(R.area(a)) ? b : a));
       };
-      const domain: [number, number] = part.domain === "auto" ? span(skin, axis, part.centres) : part.domain;
+      // `--to=<station>`: fit only up to that station, for the head of a wall whose far end is spliced in from another fit. Fitted whole, a
+      // wall's growth goes to its worst sections, and the arm's are in the hand, which left the shoulder with ten knots at a mean of 0.7 mm.
+      const to: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--to="))?.slice(5);
+      const whole: [number, number] = part.domain === "auto" ? span(skin, axis, part.centres) : part.domain;
+      const domain: [number, number] = to === undefined ? whole : [whole[0], Number(to)];
       log("family-body-domain", { part: part.name, domain });
 
       // The tip: the last station, searched a quarter millimetre at a time past the domain, whose plane still cuts a loop round the course, and half a step on.
@@ -303,11 +340,17 @@ namespace FamilyConicBody {
       log("family-body-hollows", { part: part.name, deepestMmAtDegrees: hollows.filter((_: string, i: number): boolean => i % 6 === 0).join(" ") });
       log("family-body-observed", { part: part.name, sections: rows.length, skipped });
 
+      // `--observe`: the sections alone, every fourth one's extents in its chart and how near its hull comes to the course, and no fit.
+      if (process.argv.includes("--observe")) {
+        log("family-body-sections", { part: part.name, rows: rows.filter((_: F.IRow, i: number): boolean => i % 4 === 0).map((row: F.IRow): string => row.s.toFixed(0) + " u " + Math.min(...row.points.map((p: C.P): number => p[0])).toFixed(0) + ".." + Math.max(...row.points.map((p: C.P): number => p[0])).toFixed(0) + " v " + Math.min(...row.points.map((p: C.P): number => p[1])).toFixed(0) + ".." + Math.max(...row.points.map((p: C.P): number => p[1])).toFixed(0) + " near " + Math.min(...Array.from({ length: 72 }, (_: unknown, j: number): number => C.radius(row.points, (Math.PI * j) / 36))).toFixed(0)) });
+        continue;
+      }
+
       // Fit: grow the shared knot vector at the worst open fitting sections until the target holds or no section is open.
       let best: F.IResult | null = null;
 
       // The other wall of a splice and its station, kept so its reliefs past that station come with its knots.
-      let spliced: { tail: K.IStored; at: number } | null = null;
+      let spliced: { tail: K.IStored; at: number; head: IAutoMovieLoftRelief[] } | null = null;
       const trail: unknown[] = [];
       const attempt = (knots: number[], layout: C.ILayout, initial: number[][] | undefined, note: string, power: number = 4): F.IResult => {
         const result: F.IResult = F.fit(rows, knots, layout, power, initial);
@@ -325,10 +368,16 @@ namespace FamilyConicBody {
         // layout replace this one's. A limb refitted for one end keeps the other end of the fit its neighbours were sewn on.
         const splice: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--splice="))?.slice(9);
         if (splice !== undefined) {
-          const [other, at]: string[] = splice.split("@");
+          const [other, where]: string[] = splice.split("@");
+          const [at, moved]: string[] = where!.split("+");
           const tail: K.IStored = JSON.parse(await fs.readFile(path.join(other!, part.name + ".family.json"), "utf8")) as K.IStored;
           if (tail.values.length !== wall.values.length) throw new Error("splice: the two walls of " + part.name + " have different layouts");
-          spliced = { tail, at: Number(at) };
+
+          // `+<shift>`: the other wall was fitted on a course whose stations past the splice are this one's less the shift.
+          const shift: number = Number(moved ?? 0);
+          tail.knots = tail.knots.map((k: number): number => round(k + shift));
+          tail.reliefs = (tail.reliefs ?? []).map((relief: IAutoMovieLoftRelief): IAutoMovieLoftRelief => ({ ...relief, stations: [round(relief.stations[0] + shift), round(relief.stations[1] + shift)] }));
+          spliced = { tail, at: Number(at), head: wall.reliefs ?? [] };
           const head: number[] = wall.knots.map((_: number, k: number): number => k).filter((k: number): boolean => wall.knots[k]! < Number(at));
           const rest: number[] = tail.knots.map((_: number, k: number): number => k).filter((k: number): boolean => tail.knots[k]! >= Number(at));
           wall.values = wall.values.map((field: number[], f: number): number[] => [...head.map((k: number): number => field[k]!), ...rest.map((k: number): number => tail.values[f]![k]!)]);
@@ -430,11 +479,12 @@ namespace FamilyConicBody {
           log("family-body-relief", { part: part.name, relief: window.name, kept, scalars: fitted.scalars, deepestMm: round(fitted.deepestMm), trainMaxMm: round(fitted.trainMaxMm), heldMaxMm: round(fitted.heldMaxMm) });
         }
 
-        // A spliced wall takes the reliefs as it takes the knots: the ones fitted here whose windows end before the station, and the other
-        // wall's own whose windows start past it, since those were fitted on the very values the splice keeps there.
+        // A spliced wall takes the reliefs as it takes the knots: each wall's own stored ones on its side of the station, since those were
+        // fitted on the very values the splice keeps there. Fitted again over the whole spliced wall, the hollow search placed other windows
+        // and the keep rule dropped the one over the hollow in front of the shoulder, which left the skin 8 mm inside the wall there.
         if (spliced !== null) {
-          const { tail, at }: { tail: K.IStored; at: number } = spliced;
-          definition.reliefs = [...definition.reliefs.filter((relief: IAutoMovieLoftRelief): boolean => relief.stations[1] <= at), ...(tail.reliefs ?? []).filter((relief: IAutoMovieLoftRelief): boolean => relief.stations[0] >= at)];
+          const { tail, at, head }: { tail: K.IStored; at: number; head: IAutoMovieLoftRelief[] } = spliced;
+          definition.reliefs = [...head.filter((relief: IAutoMovieLoftRelief): boolean => relief.stations[1] <= at), ...(tail.reliefs ?? []).filter((relief: IAutoMovieLoftRelief): boolean => relief.stations[0] >= at)].map((relief: IAutoMovieLoftRelief, i: number): IAutoMovieLoftRelief => ({ ...relief, name: part.name + ".hollow." + i }));
           log("family-body-spliced", { part: part.name, at, reliefs: definition.reliefs.map((relief: IAutoMovieLoftRelief): string => relief.name + " " + relief.stations.join("..")) });
         }
         await fs.writeFile(path.join(out, part.name + ".family.json"), JSON.stringify(definition));
@@ -626,10 +676,20 @@ namespace FamilyConicBody {
       "  export const armpit: V3 = [-25, " + ARMPIT_Y_MM + ", " + ARMPIT_MM + "];",
       "",
       "  /**",
-      "   * The shoulder's section in the armscye, the sagittal plane at the armpit's side distance: the heights of the armpit's crease and of the",
-      "   * shoulder's top there, and its fore and aft edges forward of the median axis. The trunk owns the skin medial of the plane, the arm the rest.",
+      "   * Where the arm's course starts, inside the trunk beside the armscye's plane, 35 mm above the armpit's crease and midway between the",
+      "   * shoulder's fore and aft edges. The course leaves it straight to the side, so the arm's first sections lie beside that plane.",
       "   */",
-      "  export const armscye: { bottom: number; top: number; fore: number; aft: number } = { bottom: 1265, top: 1404, fore: 47, aft: -70 };",
+      "  export const armRoot: V3 = " + JSON.stringify(ARM_ROOT).replaceAll(",", ", ") + ";",
+      "",
+      "  /** The corner the arm's course turns at, round the shoulder, from straight to the side to the line down to the elbow. */",
+      "  export const armTurn: V3 = " + JSON.stringify(ARM_TURN).replaceAll(",", ", ") + ";",
+      "",
+      "  /**",
+      "   * The shoulder's section in the armscye, the sagittal plane at the armpit's side distance: the heights of the arm's underside and of the",
+      "   * shoulder's top just beside it, and its fore and aft edges forward of the median axis. The trunk owns the skin medial of the plane, the arm",
+      "   * the rest.",
+      "   */",
+      "  export const armscye: { bottom: number; top: number; fore: number; aft: number } = { bottom: 1258, top: 1404, fore: 47, aft: -70 };",
       "",
       "  /** Where the ear's course starts, under its root in the side of the head. */",
       "  export const earRoot: V3 = [3, 1579, 74];",

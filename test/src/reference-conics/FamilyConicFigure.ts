@@ -47,10 +47,11 @@ namespace FamilyConicFigure {
       ["hand", (p: N.Point): boolean => p[2] > 0.38 && p[1] > 0.84 && p[1] < 1.04],
       ["foot", (p: N.Point): boolean => p[2] > 0 && p[1] < 0.13],
       ["shoulder", (p: N.Point): boolean => p[2] > 0.06 && p[1] > 1.2 && p[1] < 1.45],
+      ["shoulder.twin", (p: N.Point): boolean => p[2] < -0.06 && p[1] > 1.2 && p[1] < 1.45],
     ];
     for (const [zone, inside] of zones) {
       const near: N.Point[] = bounds.filter(inside);
-      for (const view of ["front", "left", "high-oblique"]) {
+      for (const view of zone.startsWith("shoulder") ? ["front", "back", zone === "shoulder" ? "left" : "right", "high-oblique"] : ["front", "left", "high-oblique"]) {
         const camera: N.Camera = NodeCanvasCamera.fit(view, near, 900, 900);
         for (const [stage, shown] of [["reference", reference], ["generated", generated]] as [string, N.Mesh[]][]) {
           const file: string = zone + "." + view + "." + stage + ".png";

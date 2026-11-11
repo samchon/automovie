@@ -26,12 +26,14 @@ type V3 = [number, number, number];
  * 5. Watertight skin: every edge is used by two triangles except on the free ends (`z = 0`, `z = -0.1`, `x = 0.072` m).
  * 6. Refusal: a rail of 0.5 m leaves one diagnostic on the port, no band, no hole and no part face.
  * 7. Red: the loop check read against a port curve about station 0.04 fails.
+ * 8. Crease: with a crease window of 0.4 rad about clock pi and a transition of 0.3 rad, the band's cross derivative at the rail is parallel to its column's chord at clock pi and to the part's own station direction `+x` at clocks 0, pi / 2 and 3 pi / 2, within 1e-9; the chord at clock pi is not `+x`.
+ * 9. Crease admission: a crease with a zero transition is refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Realizes port trees with `realizeAutoMovieConstruction` and reads the band's, host's and part's surfaces, the published body's cycles and the skin. It catches a band off the port curve or the rail, a band whose cross jets are not the host's, a hole not shared with the band, an open skin and a refusal that leaves a partial cut.
  * @evidence contracts/development/testing.md#independent-expectations Port points from the cylinder's closed form on the declared chart ellipse; cross jets read on the host's realized surface along the ellipse's inward chart direction (the node contract); rail points on the part's knot circle, exact for ConstructionShapes; watertightness from the manifold edge rule.
- * @evidence contracts/development/testing.md#distinguishing-cases A positive port, a rail outside the part as the rollback case and a shifted curve as the red reading; the strip's scale law belongs to `test_construction_strip_law`, the split to `test_construction_split`.
+ * @evidence contracts/development/testing.md#distinguishing-cases A positive port, a rail outside the part as the rollback case, a shifted curve as the red reading, and a crease read inside and outside its window; the strip's scale law belongs to `test_construction_strip_law`, the split to `test_construction_split`.
  * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include construction_port`; it realizes made trees in process and starts no host, browser or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: No diagnostic; the faces are exactly the host, the part and the band; the host carries one hole cycle.).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 9 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: No diagnostic; the faces are exactly the host, the part and the band; the host carries one hole cycle.).
  */
 export function test_construction_port(): void {
   const failures: string[] = [];
@@ -258,6 +260,50 @@ export function test_construction_port(): void {
     failures.push(
       "proof: the band's loop reads equal to a port curve about station 40 mm",
     );
+
+  // 8. A crease window about clock pi.
+  const folded: AutoMovieConstructionRealization.IRealization = realize({
+    ...port(0.02),
+    crease: { start: Math.PI - 0.4, end: Math.PI + 0.4, transition: 0.3 },
+  });
+  if (folded.diagnostics.length !== 0)
+    failures.push(`crease: ${ConstructionRead.diagnostics(folded)}`);
+  else {
+    const creased: IAutoMovieSolidSurface = ConstructionRead.surface(
+      folded,
+      "band.port",
+    );
+    const span: number =
+      folded.chains.find(
+        (c: { name: string }): boolean => c.name === "band.port",
+      )?.layers[1]?.y ?? NaN;
+    for (const k of [0, n / 4, n / 2, (3 * n) / 4]) {
+      const end: IAutoMovieSolidSurface.IJet = creased.jet(span, clock(k));
+      const chord: V3 = sub(end.p, creased.jet(0, clock(k)).p);
+      const alongChord: number = angle(end.u, chord);
+      const alongPart: number = angle(end.u, [1, 0, 0]);
+      if (k === n / 2 ? !(alongChord <= 1e-9) : !(alongPart <= 1e-9))
+        failures.push(
+          `crease column ${k}: the band arrives ${alongChord} off its chord and ${alongPart} off the part's own direction`,
+        );
+      if (k === n / 2 && alongPart <= 1e-3)
+        failures.push(
+          "crease: the chord at clock pi is the part's own direction, so the window is not told apart",
+        );
+    }
+  }
+
+  // 9. A crease without a transition.
+  let refused: boolean = false;
+  try {
+    realize({
+      ...port(0.02),
+      crease: { start: 1, end: 2, transition: 0 },
+    });
+  } catch {
+    refused = true;
+  }
+  if (!refused) failures.push("a crease with no transition was admitted");
   if (failures.length !== 0)
     throw new Error(
       `${failures.length} port failures:\n${failures.join("\n")}`,

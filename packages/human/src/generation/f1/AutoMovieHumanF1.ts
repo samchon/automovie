@@ -131,13 +131,16 @@ export namespace AutoMovieHumanF1 {
   const LAYER_MM: number = 4;
 
   /**
-   * How far outside the shoulder's section the port loop stands on the trunk's own skin, mm. From 10 mm on the loop runs over the trunk's turn
-   * toward the front and back and no longer goes once round the arm's ring as the engine reads it; at 4 mm it is admitted.
+   * How far outside the shoulder's section the port loop stands on the trunk's own skin, mm. At 4 mm every column of the band leaves the
+   * trunk toward the arm's ring (`FamilyConicArmscye.ts`), over the shoulder by 12 to 24 mm; a wider loop only lengthens the band.
    */
   const ARMSCYE_MARGIN_MM: number = 4;
 
-  /** Where each limb's band lands on it, mm from the limb's first station: the limb keeps its stations beyond. */
-  const RAIL_MM: { arm: number; leg: number; ear: number } = { arm: 25, leg: 12, ear: 2 };
+  /**
+   * Where each limb's band lands on it, mm from the limb's first station: the limb keeps its stations beyond. The arm's first station is 2 mm
+   * past the armscye's plane and its course is still square to that plane there, so its ring 3 mm on lies beside the plane, inside the loop.
+   */
+  const RAIL_MM: { arm: number; leg: number; ear: number } = { arm: 3, leg: 12, ear: 2 };
 
   /** How far outside the auricle's root the ear's port loop stands on the skull, mm. */
   const AURICLE_MARGIN_MM: number = 4;
@@ -157,24 +160,32 @@ export namespace AutoMovieHumanF1 {
   /**
    * The armscye's port on the trunk's chart.
    *
-   * Its centre is where the upper arm's axis meets the armscye plane. The arm's tube cuts that plane in an ellipse, the arm's radius across
-   * the plane's slope and that radius over the cosine of the angle between the arm and the plane's normal along it. The port's semi-axes are
-   * that ellipse as the trunk's chart sees it, its long axis's height in station and its short axis as a phase at the centre's side distance,
-   * both widened by the margin so the loop stands on the trunk's skin round the arm's root.
+   * The armscye is the armpit's sagittal plane: the trunk owns the skin medial of it and the arm the skin lateral of it, the shoulder's cap
+   * included. The port is the shoulder's section in that plane as the trunk's chart sees it, its height in station and its depth as phases at
+   * the plane's side distance, both widened by the margin so the loop stands on the trunk's own skin round the section. The arm's course leaves
+   * the trunk square to that plane, so the ring the band lands on lies beside the plane and inside the loop all the way round.
    *
    * @param side +1 for the +Z side, -1 for its twin.
    */
   export function armscye(side: 1 | -1): IAutoMovieConstructionPort.ILoop {
     const J = AutoMovieHumanF1Joints;
-    // The armscye is the armpit's sagittal plane; the port is the shoulder's section in it as the trunk's chart sees it, widened by the margin.
     const fore: number = Math.atan2(J.armpit[2], J.armscye.fore);
     const aft: number = Math.atan2(J.armpit[2], J.armscye.aft);
     return {
       centre: [((J.armscye.bottom + J.armscye.top) / 2 - J.axisFloor[1]) / 1000, (side * (fore + aft)) / 2],
       semi: [((J.armscye.top - J.armscye.bottom) / 2 + ARMSCYE_MARGIN_MM) / 1000, (aft - fore) / 2 + ARMSCYE_MARGIN_MM / J.armpit[2]],
-      sense: 1,
+      sense: side,
     };
   }
+
+  /**
+   * Where the armscye's band meets the arm in a crease, on the port loop's clock: from just behind the armpit's lowest point, at clock pi, round
+   * the fold in front of it. There the arm's underside leaves the trunk downward, back over the trunk's own side, and its skin runs against
+   * the band's columns: `FamilyConicArmscye.ts` reads 15 of the 96 columns arriving against the arm's direction, all between clocks 2.9 and 4.0.
+   * Inside the window the band reaches the arm along its chord, as the skin does in the fold. The loop of each side runs the way its reflection
+   * does (`sense`), so one window serves both.
+   */
+  const ARMPIT_CREASE: { start: number; end: number; transition: number } = { start: Math.PI - 0.25, end: Math.PI + 0.95, transition: 0.3 };
 
   /**
    * The ear's port on the trunk's chart: an ellipse about the centre of the auricle's root, its semi-axes the root's half height in station and
@@ -267,7 +278,7 @@ export namespace AutoMovieHumanF1 {
     };
     for (const side of [1, -1] as const) {
       const arm: { node: AutoMovieConstructionNode; face: string } = limb("arm", side);
-      root = { type: "port", name: "armscye." + arm.face, host: root, hostFace: trunk, loop: armscye(side), band: "band." + arm.face, part: arm.node, partFace: arm.face, partEnd: "bottom", rail: RAIL_MM.arm / 1000, count: BAND.count, rows: BAND.rows };
+      root = { type: "port", name: "armscye." + arm.face, host: root, hostFace: trunk, loop: armscye(side), band: "band." + arm.face, part: arm.node, partFace: arm.face, partEnd: "bottom", rail: RAIL_MM.arm / 1000, count: BAND.count, rows: BAND.rows, crease: ARMPIT_CREASE };
       const ear: AutoMovieHumanConicLoft.IFamily = side > 0 ? BODY.ear : twin(BODY.ear);
       root = { type: "port", name: "auricle." + ear.name, host: root, hostFace: trunk, loop: auricle(side), band: "band." + ear.name, part: leaf(ear), partFace: ear.name, partEnd: "bottom", rail: RAIL_MM.ear / 1000, count: BAND.count, rows: BAND.rows };
     }
