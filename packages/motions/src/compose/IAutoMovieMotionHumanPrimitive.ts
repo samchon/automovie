@@ -41,6 +41,14 @@ export interface IAutoMovieMotionHumanPrimitive {
    * @param posture The posture so far at this second.
    * @param seconds Seconds since the action's start, in [`from`, `to`].
    * @returns The posture; fields outside the claimed channels are ignored.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the posture and the seconds it is given, that the seconds lie in the primitive's window and that fields outside the claimed channels are ignored.
+   * @evidence contracts/development/implementation.md#principled-implementation A pure function from the posture so far and the time to a posture, so an action is such functions side by side and the order of writing is the channels' order.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One member called once per active primitive per evaluated second by `composeAutoMovieMotionHumanAction`.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The composition keeps only the claimed channels of the result and throws on two primitives that claim one channel over overlapping windows, so an implementation cannot overwrite what another part wrote.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
    */
   write(posture: IHumanPosture, seconds: number): IHumanPosture;
 }

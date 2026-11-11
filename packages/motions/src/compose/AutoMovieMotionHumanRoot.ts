@@ -57,6 +57,14 @@ export namespace AutoMovieMotionHumanRoot {
      *
      * @param seconds Seconds since the action's start.
      * @returns The displacement.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the argument and its origin and that the result is a displacement in the posture's own floor frame.
+     * @evidence contracts/development/implementation.md#principled-implementation The displacement is a pure function of the seconds in the frame of the heading the posture had, so a root travels without a world coordinate.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second by `travel`; `excursion` fills it from a clock.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts place applies the displacement as returned, with no clamp of its own, so its range is the movement's own.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
      */
     offset(seconds: number): IOffset;
   }

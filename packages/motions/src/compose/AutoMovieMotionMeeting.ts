@@ -99,6 +99,14 @@ export namespace AutoMovieMotionMeeting {
      * @param role The role.
      * @param contacts The contacts' world points, metres.
      * @returns The role's instants, seconds since the meeting's start.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the role and the contacts it is given, and that the instants are seconds since the meeting's start.
+     * @evidence contracts/development/implementation.md#principled-implementation A role's own timing toward the contacts, from where it stands and where its bones are, so the meeting takes the latest of each instant over the roles.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One required member of a kind, called once per role by `of`. No kind is shipped in this package yet beyond the feature test's; the laws that define theirs come with issue #3286.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The member returns instants and no shared ones; the pair's shared instants are `of`'s, so no role is timed by its partner's guess.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
      */
     timing(
       role: IRole,
@@ -111,6 +119,14 @@ export namespace AutoMovieMotionMeeting {
      *
      * @param roles The roles, in the meeting's order.
      * @returns Each contact's world point, metres.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the roles it is given, their order, the unit and the frame of the result, and that its absence means the mean of the default places.
+     * @evidence contracts/development/implementation.md#principled-implementation A kind that knows where its contacts lie better than the mean of the roles' default places says so here, and `of` calls it only when every role is present.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One optional member of a kind, called at most once by `of`. No kind is shipped in this package yet beyond the feature test's.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts When a role is missing `of` does not call it, so a kind's placement never sees a partner made up to fill a role.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
      */
     place?(roles: readonly IRole[]): Record<string, IAutoMovieVector3>;
   }

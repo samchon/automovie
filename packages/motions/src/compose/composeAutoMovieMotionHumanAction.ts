@@ -127,16 +127,16 @@ export function composeAutoMovieMotionHumanAction(
     },
   };
 }
-/** Companion types of {@link composeAutoMovieMotionHumanAction}. */
+/**
+ * Companion types of {@link composeAutoMovieMotionHumanAction}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what `IProps` is composed of; each member states its meaning and its constraint.
+ * @evidence contracts/development/design.md#principled-representation The posture kept where nothing is claimed, the time axis, the part movements, and which instant is decisive.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One interface of four members; contacts and weapons come from the base and the primitives and are not stated a second time.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The decisive instant is a name of the clock and not a second, so it cannot disagree with the clock.
+ */
 export namespace composeAutoMovieMotionHumanAction {
-  /**
-   * What an action is composed of.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and its constraint.
-   * @evidence contracts/development/design.md#principled-representation The posture kept where nothing is claimed, the time axis, the part movements, and which instant is decisive.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members; contacts and weapons come from the base and the primitives and are not stated a second time.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The decisive instant is a name of the clock and not a second, so it cannot disagree with the clock.
-   */
+  /** What an action is composed of. */
   export interface IProps {
     /** The plan whose posture the unclaimed channels keep; as long as the clock. */
     base: IHumanActionPlan;

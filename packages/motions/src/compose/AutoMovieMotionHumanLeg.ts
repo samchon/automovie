@@ -85,6 +85,14 @@ export namespace AutoMovieMotionHumanLeg {
      *
      * @param seconds Seconds since the action's start.
      * @returns `true` while it is planted.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the argument and its origin and what the boolean means.
+     * @evidence contracts/development/implementation.md#principled-implementation Bearing is a pure function of the seconds, so a foot that lands or leaves inside the span needs no second primitive.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second by `place`.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The member answers a boolean and no share of bearing, so a foot is either planted or free; the reader applies no tolerance of its own to it.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
      */
     planted(seconds: number): boolean;
   }
