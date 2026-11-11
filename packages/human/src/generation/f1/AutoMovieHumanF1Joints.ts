@@ -103,20 +103,20 @@ export namespace AutoMovieHumanF1Joints {
   /** Reference joint `littletoe_02_r`. */
   export const littletoe2: V3 = [131.85, 12.21, 201.42];
 
-  /** Foot of the vertical axis the torso and the upper body are read about, below the crotch on the median line. */
+  /** Foot of the vertical axis the trunk is read about, below the crotch on the median line. */
   export const axisFloor: V3 = [0, 780, 0];
 
-  /** Top of the torso's axis, in the neck. */
-  export const axisNeck: V3 = [0, 1480, 0];
-
-  /** Top of the upper body's axis, above the crown. */
+  /** Top of the trunk's axis, above the crown. */
   export const axisCrown: V3 = [0, 1705, 0];
 
-  /** Rear end of the midfoot's axis, under the ankle. */
-  export const footRear: V3 = [1, 45, 134];
-
-  /** Front end of the midfoot's axis, in the ball of the foot. */
+  /** Where the leg's course ends past the ankle, in the ball of the foot. */
   export const footBall: V3 = [133, 20, 157];
+
+  /** Station along the upper arm, from `upperarm` toward `lowerarm`, of the plane square to the arm through the armpit's crease: the trunk owns the skin above that plane, the arm the skin below it. */
+  export const armscye: number = 67;
+
+  /** Side distance of the armpit's crease from the median plane. */
+  export const armpit: number = 151;
 
   /** The point `length` millimetres past `b` on the line from `a` through `b`: where a digit's course ends beyond its last joint. */
   export function beyond(a: V3, b: V3, length: number): V3 {

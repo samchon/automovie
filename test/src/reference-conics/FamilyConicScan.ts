@@ -33,12 +33,46 @@ namespace FamilyConicScan {
       }
       return;
     }
-    const courses: { name: string; centres: R.V[]; halves: number[]; up: R.V; step: number }[] = [];
-    for (const side of ["l", "r"]) {
-      courses.push({ name: "arm_" + side, centres: [joint("upperarm_" + side), joint("lowerarm_" + side), joint("hand_" + side)], halves: [30], up: [1, 0, 0], step: 8 });
-      courses.push({ name: "leg_" + side, centres: [joint("thigh_" + side), joint("calf_" + side), joint("foot_" + side)], halves: [40], up: [1, 0, 0], step: 12 });
+    if (process.argv[2] === "shoulder") {
+      // Where the arm leaves the trunk. Horizontal planes: every closed loop's side range, and the fore-and-aft thickness of the loop round the axis at
+      // each side distance, whose valley is the armscye. Sagittal planes through the shoulder: the loop round the shoulder joint's height.
+      const crossings = (loop: readonly C.P[], axisIndex: 0 | 1, at: number): number[] => {
+        const out: number[] = [];
+        for (let i: number = 0; i < loop.length; ++i) {
+          const a: C.P = loop[i]!;
+          const b: C.P = loop[(i + 1) % loop.length]!;
+          if (a[axisIndex] > at !== b[axisIndex] > at) out.push(a[1 - axisIndex]! + ((b[1 - axisIndex]! - a[1 - axisIndex]!) * (at - a[axisIndex])) / (b[axisIndex] - a[axisIndex]));
+        }
+        return out.sort((p: number, q: number): number => p - q);
+      };
+      for (let y: number = 1240; y <= 1430; y += 10) {
+        const loop: C.P[] | null = R.cut(source.all, { origin: [0, y, 0], u: [1, 0, 0], v: [0, 0, 1] }).loop;
+        if (loop === null) continue;
+        const cells: string[] = [];
+        for (let z: number = 90; z <= 230; z += 10) {
+          const x: number[] = crossings(loop, 1, z);
+          cells.push(x.length === 0 ? "   ." : x.length === 2 ? (x[1]! - x[0]!).toFixed(0).padStart(4) : (x.at(-1)! - x[0]!).toFixed(0).padStart(3) + "*");
+        }
+        const side: C.P = loop.reduce((a: C.P, b: C.P): C.P => (b[1] > a[1] ? b : a));
+        process.stdout.write("y " + y + " side " + side.map(Math.round) + " thickness z90..230/10: " + cells.join(" ") + "\n");
+      }
+      for (let z: number = 110; z <= 200; z += 6) {
+        const cut: R.ICut = R.cut(source.all, { origin: [-16, 1353, z], u: [1, 0, 0], v: [0, 1, 0] });
+        if (cut.loop === null) {
+          process.stdout.write("z " + z + " no loop round the joint height, pieces " + cut.pieces + "\n");
+          continue;
+        }
+        const us: number[] = cut.loop.map((p: C.P): number => p[0]);
+        const vs: number[] = cut.loop.map((p: C.P): number => p[1]);
+        const low: C.P = cut.loop.reduce((a: C.P, b: C.P): C.P => (b[1] < a[1] ? b : a));
+        process.stdout.write("z " + z + " loops " + cut.around + "/" + cut.pieces + " x " + Math.round(-16 + Math.min(...us)) + ".." + Math.round(-16 + Math.max(...us)) + " y " + Math.round(1353 + Math.min(...vs)) + ".." + Math.round(1353 + Math.max(...vs)) + " lowest at x " + Math.round(-16 + low[0]) + " area " + (R.area(cut.loop) / 100).toFixed(0) + "\n");
+      }
+      return;
     }
-    courses.push({ name: "trunk", centres: [[0, 780, 0], [0, 1480, 0]], halves: [], up: [1, 0, 0], step: 12 });
+    const courses: { name: string; centres: R.V[]; halves: number[]; up: R.V; step: number }[] = [];
+    courses.push({ name: "arm", centres: [joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r"), joint("middle_01_r")], halves: [30, 10], up: [1, 0, 0], step: 6 });
+    courses.push({ name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r"), [133, 20, 157]], halves: [40, 62], up: [1, 0, 0], step: 6 });
+    courses.push({ name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], halves: [], up: [1, 0, 0], step: 12 });
     for (const course of courses) {
       const axis: AutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(course.centres, course.halves, course.up);
       if (typeof axis === "string") throw new Error(course.name + ": " + axis);
