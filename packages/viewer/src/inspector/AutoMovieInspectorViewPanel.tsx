@@ -12,7 +12,7 @@ import type { IAutoMovieInspectorAction } from "./IAutoMovieInspectorAction.js";
 const FIXED: string = "0,1.6,4:0,1,0";
 
 /**
- * View: the subject's camera (`film`), a named view (the subject's own or a fitted viewpoint) with orthographic projection and a focus, or a fixed camera by coordinates.
+ * View: the subject's camera (`film`), a named view (the subject's own or a fitted viewpoint) with orthographic projection, following each second and a focus, or a fixed camera by coordinates, typed with any scale and up its text carries.
  *
  * The panel shows the request's first view, the one the page draws, and writes every change back as one view text through render's `formatAutoMovieInspectionView`, which the reducer replaces the request's views with. A fixed camera and a focus pattern are typed and dispatched when the field is left or Enter is pressed.
  *
@@ -67,7 +67,7 @@ export function AutoMovieInspectorViewPanel(props: {
           setTyped(null);
           if (chosen === "film") send({ type: "film" });
           else if (chosen === "fixed") props.dispatch({ type: "view", view: FIXED });
-          else send({ type: "named", name: chosen, orthographic: false, focus: null });
+          else send({ type: "named", name: chosen, orthographic: false, follow: false, focus: null });
         }}
       >
         <option value="film">film</option>
@@ -104,6 +104,16 @@ export function AutoMovieInspectorViewPanel(props: {
               }
             />{" "}
             orthographic
+          </label>
+          <label style={{ display: "block" }}>
+            <input
+              type="checkbox"
+              checked={view.follow}
+              onChange={(event: ChangeEvent<HTMLInputElement>): void =>
+                send({ ...view, follow: event.target.checked })
+              }
+            />{" "}
+            follow each second
           </label>
           <label style={{ display: "block" }}>
             <input

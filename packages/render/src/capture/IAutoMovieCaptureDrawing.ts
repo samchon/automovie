@@ -33,6 +33,11 @@ export interface IAutoMovieCaptureDrawing {
   camera?: string;
 
   /**
+   * The view text that draws the resolved camera again, a fixed view as `formatAutoMovieInspectionCameraView` writes it, which a later round copies as is; absent when the host does not state it.
+   */
+  repeat?: string;
+
+  /**
    * What each pattern of the cell's request and view resolved to, as `resolveAutoMovieCapturePatterns` gives it on the draw page; absent when the host does not state it.
    */
   resolved?: IAutoMovieCaptureResolution[];

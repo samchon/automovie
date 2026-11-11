@@ -2,6 +2,7 @@ import type { IAutoMovieCaptureCell } from "../capture/IAutoMovieCaptureCell.js"
 import type { IAutoMovieCaptureDrawing } from "../capture/IAutoMovieCaptureDrawing.js";
 import type { IAutoMovieCapturePlan } from "../capture/IAutoMovieCapturePlan.js";
 import type { IAutoMovieCaptureSubject } from "../capture/IAutoMovieCaptureSubject.js";
+import { formatAutoMovieInspectionCameraView } from "../scene/inspection/formatAutoMovieInspectionCameraView.js";
 import type { IAutoMovieInspectionRequest } from "../scene/inspection/IAutoMovieInspectionRequest.js";
 import { parseAutoMovieInspectionRequest } from "../scene/inspection/parseAutoMovieInspectionRequest.js";
 import type { IAutoMovieRasterImage } from "../picture/IAutoMovieRasterImage.js";
@@ -165,7 +166,7 @@ export class AutoMovieDrawSession {
   }
 
   /**
-   * The capture run's draw function: draw one planned cell through `planAutoMovieDrawCall`, returning its picture with the legend of its marks in the top-left corner by `stampAutoMovieDrawLegend`, the legend texts and the inspection's labels for the run to stamp, the session's backend, the resolved camera as JSON and the paths each pattern resolved to.
+   * The capture run's draw function: draw one planned cell through `planAutoMovieDrawCall`, returning its picture with the legend of its marks in the top-left corner by `stampAutoMovieDrawLegend`, the legend texts and the inspection's labels for the run to stamp, the session's backend, the resolved camera as JSON with the fixed view text that draws it again, and the paths each pattern resolved to.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is drawn and what each returned member holds.
    * @evidence contracts/development/implementation.md#principled-implementation The cell becomes the page call by the shared planner, so a cell's second, view, pass, request and raster reach the page as planned.
@@ -189,6 +190,7 @@ export class AutoMovieDrawSession {
       ],
       backend: this.backend,
       camera: JSON.stringify(result.camera),
+      repeat: formatAutoMovieInspectionCameraView(result.camera),
       resolved: result.resolved,
     };
   }

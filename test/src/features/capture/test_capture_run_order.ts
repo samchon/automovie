@@ -40,7 +40,7 @@ const SUBJECT: IAutoMovieCaptureSubject = {
  *
  * 1. Two seconds through one view draw two cells in plan order; the storage sees: create and list the folder, the `running` record, both stills, the sheet, the `complete` record, and no other call.
  * 2. Every path touched lies under the root.
- * 3. The record lists the subject, the revision, the request as text, one drawn row per cell with its file, sheet position, backend, camera and the pattern resolutions the draw stated, the sheet, and every file written including itself.
+ * 3. The record lists the subject, the revision, the request as text, one drawn row per cell with its file, sheet position, backend, camera, the view text that repeats it and the pattern resolutions the draw stated, the sheet, and every file written including itself.
  * 4. Each row's hash is the hash of the still decoded from its file; the label the draw anchored at (40, 20) is stamped there, and the one anchored at (62, 34), whose 7 by 9 box would leave the 64 by 36 still, is moved inside it to (57, 27).
  * 5. A second capture into the same root replaces the first's stills, leaving only its own files and the record.
  * 6. A folder opened for another round than the plan's is refused before anything is written.
@@ -75,6 +75,7 @@ export async function test_capture_run_order(): Promise<void> {
       backend: "memory",
       resolved: [{ role: "parts", pattern: "hero", paths: ["hero"], count: 2 }],
       camera: "0,1,4:0,1,0",
+      repeat: "0,1,4:0,1,0@ortho=0.01",
     };
   };
   const capture: (text: string) => Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> = async (text: string): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> => {
@@ -128,7 +129,7 @@ export async function test_capture_run_order(): Promise<void> {
         row.sheet,
         row.row,
         row.column,
-        row.state === "drawn" ? [row.file, row.backend, row.camera, row.resolved] : null,
+        row.state === "drawn" ? [row.file, row.backend, row.camera, row.repeat, row.resolved] : null,
       ]),
     ],
     [
@@ -142,8 +143,8 @@ export async function test_capture_run_order(): Promise<void> {
       ["sheet-001.png"],
       ["t001.000-film-beauty.png", "t002.000-film-beauty.png", "sheet-001.png", "record.json"],
       [
-        ["t001.000-film-beauty", "drawn", "sheet-001.png", 0, 0, ["t001.000-film-beauty.png", "memory", "0,1,4:0,1,0", [{ role: "parts", pattern: "hero", paths: ["hero"], count: 2 }]]],
-        ["t002.000-film-beauty", "drawn", "sheet-001.png", 0, 1, ["t002.000-film-beauty.png", "memory", "0,1,4:0,1,0", [{ role: "parts", pattern: "hero", paths: ["hero"], count: 2 }]]],
+        ["t001.000-film-beauty", "drawn", "sheet-001.png", 0, 0, ["t001.000-film-beauty.png", "memory", "0,1,4:0,1,0", "0,1,4:0,1,0@ortho=0.01", [{ role: "parts", pattern: "hero", paths: ["hero"], count: 2 }]]],
+        ["t002.000-film-beauty", "drawn", "sheet-001.png", 0, 1, ["t002.000-film-beauty.png", "memory", "0,1,4:0,1,0", "0,1,4:0,1,0@ortho=0.01", [{ role: "parts", pattern: "hero", paths: ["hero"], count: 2 }]]],
       ],
     ],
   );

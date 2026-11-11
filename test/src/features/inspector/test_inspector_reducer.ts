@@ -48,7 +48,7 @@ export function test_inspector_reducer(): void {
     [{ type: "shade", shade: "clay" }, ["passes", "inspection.shade"], (r: IAutoMovieCapturePlanRequest): boolean => same(r.passes, ["clay"]) && r.inspection.shade === "clay"],
     [{ type: "switch", key: "surface", on: false }, ["inspection.surface"], (r: IAutoMovieCapturePlanRequest): boolean => r.inspection.surface === false],
     [{ type: "switch", key: "xray", on: true }, ["inspection.xray"], (r: IAutoMovieCapturePlanRequest): boolean => r.inspection.xray === true],
-    [{ type: "view", view: "side@ortho@focus=hero/arm" }, ["views"], (r: IAutoMovieCapturePlanRequest): boolean => same(r.views, ["side@ortho@focus=hero/arm"])],
+    [{ type: "view", view: "side@ortho@follow@focus=hero/arm" }, ["views"], (r: IAutoMovieCapturePlanRequest): boolean => same(r.views, ["side@ortho@follow@focus=hero/arm"])],
     [{ type: "time", seconds: 1.5 }, ["sampling"], (r: IAutoMovieCapturePlanRequest): boolean => same(r.sampling, { kind: "at", seconds: [1.5] })],
     [{ type: "subject", name: "b" }, ["subject"], (r: IAutoMovieCapturePlanRequest): boolean => r.subject === "b"],
     [{ type: "subject", name: null }, ["subject"], (r: IAutoMovieCapturePlanRequest): boolean => r.subject === null],

@@ -14,6 +14,7 @@ export * from "./createAutoMovieInspectionStrokes.js";
 export * from "./expandAutoMovieInspectionSweep.js";
 export * from "./focusAutoMovieInspection.js";
 export * from "./formatAutoMovieInspectionRequest.js";
+export * from "./formatAutoMovieInspectionCameraView.js";
 export * from "./formatAutoMovieInspectionView.js";
 export * from "./IApplyAutoMovieInspectionProps.js";
 export * from "./IAutoMovieInspectionCamera.js";

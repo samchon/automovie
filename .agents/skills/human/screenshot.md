@@ -28,7 +28,7 @@ Read a part's construction before its surface, through the same cameras, as [ins
 2. the construction over the clay surface: `marks=curve/*` with `shade=clay`;
 3. the clay surface alone: `shade=clay`.
 
-A named view fits itself to what is drawn, and the curves alone span less than the surface, so the three passes of one round take the cameras the first pass's record resolved, written as fixed views. Use `@ortho` on a named view where a length is read across the picture, and `@focus=<pattern>` for a close-up on a part or a joint, such as `three-quarter@focus=f1/finger.*` with `marks=curve/*`, since a focus on a family frames its curves.
+A named view fits itself to what is drawn, and the curves alone span less than the surface, so the three passes of one round take the views the first pass's record gives as each cell's repeat text, the fixed view that draws its camera again, orthographic ones included. Use `@ortho` on a named view where a length is read across the picture, and `@focus=<pattern>` for a close-up on a part or a joint, such as `three-quarter@focus=f1/finger.*` with `marks=curve/*`, since a focus on a family frames its curves.
 
 ## Reference Comparison
 

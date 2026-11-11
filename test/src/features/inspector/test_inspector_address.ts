@@ -29,7 +29,7 @@ import { TestValidator } from "@nestia/e2e";
 export function test_inspector_address(): void {
   const texts: string[] = [
     "parts=hero/**,prop&hide=hero/legs&label=hero/**&color=hero/arm=ff8800&marks=edge,defect/*&shade=clay&surface=0&xray&sliver=4&section=-x:0.2&stroke=2",
-    `subject=${encodeURIComponent("a&b c's")}&at=0.5,1.25&events=2&window=1&views=front@ortho@focus=hero/arm;-1,1.6,4:0,1,0;film&sweep=hero/*&margin=0.1&round=r1&compare=r0&tolerance=3`,
+    `subject=${encodeURIComponent("a&b c's")}&at=0.5,1.25&events=2&window=1&views=front@ortho@follow@focus=hero/arm;-1,1.6,4:0,1,0@ortho=0.005@up=0,0,-1;film&sweep=hero/*&margin=0.1&round=r1&compare=r0&tolerance=3`,
     "from=1&to=2.5&rate=10&passes=normal,depth&longest=2576&smallest=256&reduction=nearest",
   ];
   const requests: IAutoMovieCapturePlanRequest[] = texts.map(
@@ -45,7 +45,7 @@ export function test_inspector_address(): void {
   }
   const second: string = formatAutoMovieInspectorAddress(requests[1]!);
   TestValidator.predicate("the subject's &, space and quote are escaped", second.includes("subject=a%26b%20c's"));
-  TestValidator.predicate("views stay readable", second.includes("views=front@ortho@focus=hero/arm;-1,1.6,4:0,1,0;film"));
+  TestValidator.predicate("views stay readable", second.includes("views=front@ortho@follow@focus=hero/arm;-1,1.6,4:0,1,0@ortho=0.005@up=0,0,-1;film"));
   TestValidator.predicate("a colour pair keeps its =", formatAutoMovieInspectorAddress(requests[0]!).includes("color=hero/arm=ff8800"));
 
   // 2. Empty request and leading question mark.

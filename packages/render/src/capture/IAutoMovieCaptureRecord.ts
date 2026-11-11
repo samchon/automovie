@@ -157,6 +157,9 @@ export namespace IAutoMovieCaptureRecord {
         /** The camera the view resolved to, as the host wrote it (a draw page writes the JSON of its `IAutoMovieInspectionCamera`), or null when the host did not state it. */
         camera: string | null;
 
+        /** The view text that draws that camera again, a fixed view with its scale and up when needed, which a later round copies as is; null when the host did not state it. */
+        repeat: string | null;
+
         /** What each pattern of the cell's request and view resolved to, topmost paths and counts, or null when the host did not state it. */
         resolved: IAutoMovieCaptureResolution[] | null;
       }

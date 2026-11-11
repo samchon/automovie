@@ -35,7 +35,7 @@ const SUBJECT: IAutoMovieCaptureSubject = {
  * 2. Each call's second, view and shade are the cell's, its request is the cell's whole inspection request with `marks` kept, its raster is 48 by 30, and its framing span is both planned seconds.
  * 3. The label scale is the capture run's, so labels the page keeps apart stay apart once stamped.
  * 4. The session opens by injecting the subject's name and props before loading, then loads the address, waits for the draw function and describes the subject; the subject it plans against is the one described.
- * 5. Each drawing carries the legend as a swatch in the bottom-left corner, clear of the sheet caption over the top-left, with its text label beside it, then the page's labels, the backend joining the host's launch with the page's renderer, the resolved camera as JSON, and the page's pattern resolutions unchanged.
+ * 5. Each drawing carries the legend as a swatch in the bottom-left corner, clear of the sheet caption over the top-left, with its text label beside it, then the page's labels, the backend joining the host's launch with the page's renderer, the resolved camera as JSON, the fixed view text that repeats it, and the page's pattern resolutions unchanged.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Opens a session over a recording page, plans with the public planner and draws every cell through `drawing`, then reads the calls the page received; a session that dropped a cell's view or pass, sent a stale second, the wrong raster, a single-second framing span, an unstated backend or dropped pattern resolutions fails.
  * @evidence contracts/development/testing.md#independent-expectations Expected seconds, views and passes come from the request text written here and the cell order the planner documents (selection, time, view, pass); the raster is the subject's; the label scale is `scaleAutoMovieCaptureLabels`, the rule the capture run documents for stamping, so the assertion pins that both use one rule rather than a number.
@@ -111,7 +111,7 @@ export async function test_draw_cell_call(): Promise<void> {
   const scale: number = scaleAutoMovieCaptureLabels(SUBJECT, plan.layout);
   TestValidator.equals(
     "legend, labels, backend, camera and resolved patterns",
-    [drawings[0]!.labels, drawings[0]!.backend, JSON.parse(drawings[0]!.camera!).view, drawings[0]!.resolved],
+    [drawings[0]!.labels, drawings[0]!.backend, JSON.parse(drawings[0]!.camera!).view, drawings[0]!.repeat, drawings[0]!.resolved],
     [
       [
         { text: "trail 2", x: 9 * scale, y: 30 - 9 * scale },
@@ -119,6 +119,7 @@ export async function test_draw_cell_call(): Promise<void> {
       ],
       "swiftshader; Chromium 151.0.7922.34; ANGLE (SwiftShader)",
       "front",
+      "0,1,4:0,1,0",
       [{ role: "parts", pattern: "hero", paths: ["hero"], count: 3 }],
     ],
   );

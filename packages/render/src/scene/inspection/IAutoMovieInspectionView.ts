@@ -29,12 +29,12 @@ export namespace IAutoMovieInspectionView {
   }
 
   /**
-   * A camera at one point looking at another, in world metres; its text is `x,y,z:tx,ty,tz`.
+   * A camera at one point looking at another, in world metres; its text is `x,y,z:tx,ty,tz`, optionally followed by `@ortho=<metres per pixel>` and `@up=x,y,z`, so every camera a record keeps can be written as a fixed view that draws it again.
    *
-   * @evidence contracts/development/design.md#principled-representation Two distinct world points fix a perspective camera's direction; the lens is the subject's.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The discriminant and the two points.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No fitting member: a fixed view is not fitted.
-   * @evidence contracts/development/common.md#meaningful-documentation States the frame, units and text.
+   * @evidence contracts/development/design.md#principled-representation Two distinct world points fix the direction, the up direction fixes the roll, and the projection is either the subject's perspective lens or an orthographic scale in metres per picture pixel; together they are the whole of a recorded camera's pose and projection.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The discriminant, the two points, the scale and the up direction; the scale and the up are what a recorded orthographic or vertical camera needs to be repeated exactly.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No fitting member: a fixed view is not fitted. A perspective camera is a null scale rather than a scale of zero, and world `+Y` is a null up rather than a written default.
+   * @evidence contracts/development/common.md#meaningful-documentation States the frame, units, text and what each optional member means when absent.
    */
   export interface IFixed {
     /** Discriminant. */
@@ -45,13 +45,19 @@ export namespace IAutoMovieInspectionView {
 
     /** Point looked at, world metres, distinct from `position`. */
     target: IAutoMovieVector3;
+
+    /** Metres of world one picture pixel spans for an orthographic camera, positive; null for the subject's perspective lens. */
+    metresPerPixel: number | null;
+
+    /** Up direction of the picture, a world direction not parallel to the line of sight; null for world `+Y`. */
+    up: IAutoMovieVector3 | null;
   }
 
   /**
-   * A view by name, with the switches a fitted view takes; its text is the name followed by `@ortho`, `@focus=<pattern>` or `@flagged`.
+   * A view by name, with the switches a fitted view takes; its text is the name followed by `@ortho`, `@follow`, `@focus=<pattern>` or `@flagged`.
    *
    * @evidence contracts/development/design.md#principled-representation A name is either a subject's view or a named viewpoint fitted to bounds; projection and focus only change the fit, so they ride on the name.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The discriminant, the name and the two switches.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The discriminant, the name and the three switches.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Focus is null or one of two forms, so a pattern and the flagged focus cannot both be given.
    * @evidence contracts/development/common.md#meaningful-documentation States the text and what each member changes.
    */
@@ -64,6 +70,9 @@ export namespace IAutoMovieInspectionView {
 
     /** Whether the fitted camera is orthographic, which draws lengths true to scale across the picture. */
     orthographic: boolean;
+
+    /** Whether the view is fitted at each drawn second alone instead of over every second a capture plans, so a travelling subject stays large in the picture at the cost of one shared camera across times. */
+    follow: boolean;
 
     /** What the fitted camera frames instead of everything drawn, or null for everything drawn. */
     focus: IFocus | null;

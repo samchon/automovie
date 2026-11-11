@@ -18,14 +18,17 @@ const FLOOR: number = 0.5;
  * | View | Camera |
  * | --- | --- |
  * | `film` | The subject's own `camera`, returned unchanged |
- * | Fixed | A perspective camera at the position looking at the target, with the subject camera's field of view and clips |
+ * | Fixed | A perspective camera at the position looking at the target, with the subject camera's field of view and clips, rolled to the view's up when it states one |
+ * | Fixed with a scale | An orthographic camera at the position looking at the target, the picture's height spanning the scale times its pixels, with clips at a quarter and three and a half times the eye's distance to the target |
  * | A name the subject's `views` holds | A perspective camera where that view places it at `seconds`, with the subject camera's field of view and clips |
  * | A named viewpoint | A perspective camera from the viewpoint's direction fitted to `bounds` by `frameAutoMovieViewerSubject`, with the subject camera's field of view |
  * | A named viewpoint with `orthographic` | An orthographic camera from the same direction whose frame holds every corner of `bounds`, by the same margin |
  *
  * `bounds` is what the view frames: the host measures it on what is drawn, or on the focus the view names through the inspection handle's `bounds`. A subject's view wins a name over a named viewpoint, because the subject knows its own staging. A vertical named view takes the up direction its viewpoint documents, `-Z` from the top and `+Z` from the bottom; every other view takes `+Y`. The record's `metresPerPixel` is the orthographic frame's height over `height`.
  *
- * It throws for a size that is not positive, an unknown name with the accepted names listed, a subject view or fixed camera asked to be orthographic or focused, and a fitted view without bounds, which means nothing is drawn to frame.
+ * `@follow` changes only which seconds a host measures `bounds` over, the drawn second alone, so it resolves as the fit it modifies. A fixed camera with a scale repeats a fitted orthographic view exactly, because that view stands twice its frame's radius from its target with clips at half and seven times the radius.
+ *
+ * It throws for a size that is not positive, an unknown name with the accepted names listed, a subject view asked to be orthographic, followed or focused, and a fitted view without bounds, which means nothing is drawn to frame.
  *
  * ```ts
  * const { camera, record } = resolveAutoMovieInspectionView({
@@ -114,7 +117,7 @@ export function resolveAutoMovieInspectionView(props: {
       ? props.views[view.name]
       : undefined;
   if (view.type === "fixed" || own !== undefined) {
-    if (view.type === "named" && (view.orthographic || view.focus !== null))
+    if (view.type === "named" && (view.orthographic || view.follow || view.focus !== null))
       throw new Error(
         `Inspection view "${props.text}" is the subject's own view, which takes no switch`,
       );
@@ -130,13 +133,38 @@ export function resolveAutoMovieInspectionView(props: {
             position: vector(pose.position),
             target: vector(pose.target),
           }))(own!(props.seconds));
+    const up: IAutoMovieVector3 =
+      view.type === "fixed" && view.up !== null ? view.up : { x: 0, y: 1, z: 0 };
+
+    // A fixed orthographic camera: its scale as written, its clips a quarter and three and a half times the eye's distance, a fitted orthographic view's own clips.
+    if (view.type === "fixed" && view.metresPerPixel !== null) {
+      const distance: number = Math.hypot(
+        placed.target.x - placed.position.x,
+        placed.target.y - placed.position.y,
+        placed.target.z - placed.position.z,
+      );
+      const half: number = (view.metresPerPixel * props.height) / 2;
+      const camera: THREE.OrthographicCamera = new THREE.OrthographicCamera(
+        -half * aspect,
+        half * aspect,
+        half,
+        -half,
+        distance / 4,
+        distance * 3.5,
+      );
+      aim(camera, placed.position, placed.target, up);
+      return {
+        camera,
+        record: record(props.text, camera, props.height, placed.target),
+      };
+    }
     const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
       props.camera.fov,
       aspect,
       props.camera.near,
       props.camera.far,
     );
-    aim(camera, placed.position, placed.target, { x: 0, y: 1, z: 0 });
+    aim(camera, placed.position, placed.target, up);
     return {
       camera,
       record: record(props.text, camera, props.height, placed.target),
