@@ -1,6 +1,8 @@
 import {
   type IApplyAutoMovieInspectionProps,
   type IAutoMovieCapturePlanRequest,
+  type IAutoMovieDrawScene,
+  type IAutoMovieDrawSubject,
   type IAutoMovieInspectionHandle,
   type IAutoMovieInspectionLabel,
   type IAutoMovieInspectionView,
@@ -17,12 +19,11 @@ import type * as THREE from "three";
 import type { AutoMovieInspectorPlayhead } from "./AutoMovieInspectorPlayhead.js";
 import type { IAutoMovieInspectorScene } from "./IAutoMovieInspectorScene.js";
 import type { IAutoMovieInspectorSceneHost } from "./IAutoMovieInspectorSceneHost.js";
-import type { IAutoMovieInspectorSubject } from "./IAutoMovieInspectorSubject.js";
 import { readAutoMovieInspectorAddress } from "./readAutoMovieInspectorAddress.js";
 
 /** What a mount holds once its instance is ready. */
 interface ILive {
-  instance: IAutoMovieInspectorSubject.IInstance;
+  instance: IAutoMovieDrawScene;
   renderer: IAutoMovieInspectorSceneHost.IRenderer;
   inspection: IAutoMovieInspectionHandle;
   applied: IAutoMovieCapturePlanRequest;
@@ -31,6 +32,7 @@ interface ILive {
   drawn: AutoMovieInspectorPlayhead.ISnapshot | undefined;
   size: IAutoMovieInspectorSceneHost.ISize | undefined;
   dirty: boolean;
+  seeking: boolean;
   error: string | null;
   labelled: boolean;
 }
@@ -38,15 +40,15 @@ interface ILive {
 /**
  * Mount a subject on the inspector's canvas: build an instance, apply the request's inspection, and draw it every animation frame at the playhead's second through the request's first view.
  *
- * The instance is created at once and arrives later. When it arrives the mount checks its clock and raster, lists its paths and the marks of its first second, applies the inspection of the newest request (or, when the scene refuses it, of the request that asks for nothing, reported through `refused`), sets the playhead's duration and second, reports `ready` and schedules the first frame. Each frame advances a playing playhead by the wall time since the last frame, follows the host's size, and redraws when the playhead's snapshot or the request changed: seek the instance, update the inspection with the second's marks, resolve the view and render. A drawing error pauses playback and is reported once until a frame draws again.
+ * The instance is created at once and arrives later. When it arrives the mount checks its clock and raster, seeks it to the request's first second and waits until it is ready there, lists its paths and the marks of its first second, applies the inspection of the newest request (or, when the scene refuses it, of the request that asks for nothing, reported through `refused`), sets the playhead's duration and second, reports `ready` and schedules the first frame. Each frame advances a playing playhead by the wall time since the last frame, follows the host's size, and redraws when the playhead's snapshot or the request changed: seek the instance and, once its promise resolves, update the inspection with the second's marks, resolve the view and render. While a seek is pending no other is started, and the next frame seeks the newest second, so a slow subject drops intermediate seconds instead of queueing them. A drawing error pauses playback and is reported once until a frame draws again.
  *
- * The picture's aspect is the subject's raster, not the canvas's, so a view frames what a capture of the same subject frames; the page gives the canvas that aspect. The mount adds no listener and holds at most one pending frame, so a mount, dispose and mount again on one canvas, as React's StrictMode runs an effect, leaves one renderer and one frame loop; a mount disposed before its instance arrives disposes the instance on arrival and creates no renderer.
+ * The picture's aspect is the subject's raster, not the canvas's, so a view frames what a capture of the same subject frames; the page gives the canvas that aspect. The mount adds no listener and holds at most one pending frame, so a mount, dispose and mount again on one canvas, as React's StrictMode runs an effect, leaves one renderer and one frame loop; a mount disposed before its instance arrives or is ready disposes the instance then and creates no renderer, and a seek that resolves after dispose draws nothing.
  *
  * The page draws the first view and the first pass of the request; the capture command draws them all. While paused, the labels the request asks for are placed by the inspection on the picture's pixels, with the stamp's font pixel at least one CSS pixel of the canvas as a capture keeps it at least one sheet pixel, and reported in CSS pixels; a named view with a focus is framed on what the focus selects.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the arrival sequence, the fallback on refusal, what a frame does and when it redraws, the error rule, the aspect rule, the lifecycle guarantees, which view and pass are drawn, and how labels and focus are placed.
- * @evidence contracts/development/implementation.md#principled-implementation The scene is changed only through render's inspection, which restores before re-applying; views are resolved by render's view resolver on the inspection's drawn bounds, and the delivery camera takes the raster's aspect as the capture does. Wall time comes from the frame callback's own timestamp, so a frame's advance is the time actually elapsed.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One closure owns one mount: arrival, apply, frame, draw and dispose are local steps over one record of what is held; React, the DOM and WebGL stay with the component and the host.
+ * @evidence contracts/development/implementation.md#principled-implementation The scene is changed only through render's inspection, which restores before re-applying; views are resolved by render's view resolver on the inspection's drawn bounds, and the delivery camera takes the raster's aspect as the capture does. Wall time comes from the frame callback's own timestamp, so a frame's advance is the time actually elapsed. The subject's seek promise is the draw contract's readiness signal, so a picture is drawn only once the subject reports it can be.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One closure owns one mount: arrival, apply, frame, seek, paint, failure and dispose are local steps over one record of what is held; React, the DOM and WebGL stay with the component and the host.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A refused request is reported with the request still drawn rather than drawn half-applied, an instance that arrives after dispose is released rather than drawn, and no frame is drawn from a size that is not positive.
  * @evidence contracts/development/implementation.md#efficient-algorithms A frame that changed nothing costs one size read and one snapshot comparison; a redraw costs the subject's seek, the inspection's update linear in its marks, one view resolution and the render. Paths and the first second's marks are listed once per mount.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The applied inspection, the renderer and the instance live for the whole mount; an inspection is re-applied only when its written text changes.
@@ -54,7 +56,10 @@ interface ILive {
  */
 export function mountAutoMovieInspectorScene(props: {
   /** The subject to build. */
-  subject: IAutoMovieInspectorSubject;
+  subject: IAutoMovieDrawSubject;
+
+  /** The subject's name, as the request's `subject` key and the refusals name it. */
+  name: string;
 
   /** The request in force when the mount starts. */
   request: IAutoMovieCapturePlanRequest;
@@ -76,32 +81,45 @@ export function mountAutoMovieInspectorScene(props: {
   // The instance arrives later; one that arrives after dispose is released at once.
   props.subject
     .create()
-    .then((instance: IAutoMovieInspectorSubject.IInstance): void => {
+    .then(async (instance: IAutoMovieDrawScene): Promise<void> => {
       if (disposed) instance.dispose();
-      else arrive(instance);
+      else await arrive(instance);
     })
     .catch((error: unknown): void => {
       if (!disposed) report.error(messageOf(error));
     });
 
-  /** Take an arrived instance into use, releasing it if anything fails. */
-  function arrive(instance: IAutoMovieInspectorSubject.IInstance): void {
-    const held: (() => void)[] = [(): void => instance.dispose()];
+  /** Take an arrived instance into use once it is ready at its first second, releasing it if anything fails. */
+  async function arrive(instance: IAutoMovieDrawScene): Promise<void> {
+    let seconds: number;
     try {
       for (const [name, value] of [
         ["duration", instance.durationSeconds],
+        ["fps", instance.fps],
         ["width", instance.width],
         ["height", instance.height],
       ] as const)
         if (!(Number.isFinite(value) && value > 0))
           throw new Error(
-            `Subject "${props.subject.name}" ${name} ${value} is not positive`,
+            `Subject "${props.name}" ${name} ${value} is not positive`,
           );
       playhead.setDuration(instance.durationSeconds);
       playhead.seek(firstSecond(wanted));
-      const seconds: number = playhead.getSnapshot().seconds;
-      instance.seek(seconds);
+      seconds = playhead.getSnapshot().seconds;
+      await instance.seek(seconds);
+    } catch (error) {
+      if (!disposed) report.error(messageOf(error));
+      instance.dispose();
+      return;
+    }
 
+    // A mount disposed while the subject got ready releases it unused.
+    if (disposed) {
+      instance.dispose();
+      return;
+    }
+    const held: (() => void)[] = [(): void => instance.dispose()];
+    try {
       // Paths are listed before the inspection adds its own objects to the scene.
       const marks: NonNullable<IApplyAutoMovieInspectionProps["marks"]> =
         instance.marks?.(seconds) ?? [];
@@ -123,6 +141,7 @@ export function mountAutoMovieInspectorScene(props: {
         width: instance.width,
         height: instance.height,
         durationSeconds: instance.durationSeconds,
+        fps: instance.fps,
       };
 
       const renderer: IAutoMovieInspectorSceneHost.IRenderer =
@@ -160,6 +179,7 @@ export function mountAutoMovieInspectorScene(props: {
         drawn: undefined,
         size: undefined,
         dirty: true,
+        seeking: false,
         error: null,
         labelled: false,
       };
@@ -202,17 +222,37 @@ export function mountAutoMovieInspectorScene(props: {
     }
 
     const snapshot: AutoMovieInspectorPlayhead.ISnapshot = playhead.getSnapshot();
-    if (drawable && (now.dirty || snapshot !== now.drawn)) draw(now, snapshot);
+    if (drawable && !now.seeking && (now.dirty || snapshot !== now.drawn))
+      draw(now, snapshot);
     now.frame = host.requestFrame(frame);
   }
 
-  /** Draw one second through the applied request's first view. */
+  /** Seek one second and draw it once the subject is ready there; frames skip drawing while a seek is pending. */
   function draw(now: ILive, snapshot: AutoMovieInspectorPlayhead.ISnapshot): void {
     now.dirty = false;
     now.drawn = snapshot;
+    now.seeking = true;
+    let ready: Promise<void>;
+    try {
+      ready = now.instance.seek(snapshot.seconds);
+    } catch (error) {
+      ready = Promise.reject(error instanceof Error ? error : new Error(String(error)));
+    }
+    ready
+      .then((): void => {
+        now.seeking = false;
+        if (live === now) paint(now, snapshot);
+      })
+      .catch((error: unknown): void => {
+        now.seeking = false;
+        if (live === now) fail(now, snapshot, error);
+      });
+  }
+
+  /** Draw the second the subject is now at through the applied request's first view. */
+  function paint(now: ILive, snapshot: AutoMovieInspectorPlayhead.ISnapshot): void {
     const { instance } = now;
     try {
-      instance.seek(snapshot.seconds);
       now.inspection.update(instance.marks?.(snapshot.seconds));
 
       // The delivery camera takes the raster's aspect, as a capture of the subject does.
@@ -248,12 +288,21 @@ export function mountAutoMovieInspectorScene(props: {
         report.error(null);
       }
     } catch (error) {
-      if (snapshot.playing) playhead.pause();
-      const message: string = messageOf(error);
-      if (message !== now.error) {
-        now.error = message;
-        report.error(message);
-      }
+      fail(now, snapshot, error);
+    }
+  }
+
+  /** Report a drawing error once until a frame draws again, and stop playback on it. */
+  function fail(
+    now: ILive,
+    snapshot: AutoMovieInspectorPlayhead.ISnapshot,
+    error: unknown,
+  ): void {
+    if (snapshot.playing) playhead.pause();
+    const message: string = messageOf(error);
+    if (message !== now.error) {
+      now.error = message;
+      report.error(message);
     }
   }
 

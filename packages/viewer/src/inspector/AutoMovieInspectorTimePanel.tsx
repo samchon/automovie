@@ -24,6 +24,9 @@ export function AutoMovieInspectorTimePanel(props: {
   /** The playhead driven. */
   playhead: AutoMovieInspectorPlayhead;
 
+  /** The subject's frames per second, the slider's step, or null before a subject is ready. */
+  fps: number | null;
+
   /** Where a paused or sought second goes. */
   dispatch: (action: IAutoMovieInspectorAction) => void;
 }): JSX.Element {
@@ -37,6 +40,7 @@ export function AutoMovieInspectorTimePanel(props: {
       </button>
       <AutoMovieInspectorTimeReadout
         playhead={props.playhead}
+        fps={props.fps}
         dispatch={props.dispatch}
       />
       <select

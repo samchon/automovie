@@ -45,8 +45,8 @@ export namespace IAutoMovieInspectorScene {
   /**
    * What a mount learns about its subject once the instance is ready, for the panels.
    *
-   * @evidence contracts/development/design.md#principled-representation The identity paths a selection can name, the supplied marks the kinds are listed from, the view names a view can take, the subject's raster in pixels and its duration in seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Each member feeds one panel: paths the selection tree, marks the marks panel, views the view panel, the raster the canvas aspect, the duration the readout.
+   * @evidence contracts/development/design.md#principled-representation The identity paths a selection can name, the supplied marks the kinds are listed from, the view names a view can take, the subject's raster in pixels, its duration in seconds and its frames per second.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Each member feeds one panel: paths the selection tree, marks the marks panel, views the view panel, the raster the canvas aspect, the duration and frame rate the readout.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Paths and marks are those of the first second drawn, and the kinds are listed under the current request because a sliver limit or a trail adds kinds; marks that appear later are reached by typing a pattern.
    * @evidence contracts/development/common.md#meaningful-documentation States what each member lists and at which second.
    */
@@ -68,6 +68,9 @@ export namespace IAutoMovieInspectorScene {
 
     /** The subject's duration in seconds. */
     durationSeconds: number;
+
+    /** Frames per second of the subject's own grid, the step the time slider moves by. */
+    fps: number;
   }
 
   /**

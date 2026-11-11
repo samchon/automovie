@@ -1,4 +1,8 @@
-import type { IAutoMovieInspectionLegendEntry } from "@automovie/render";
+import {
+  type IAutoMovieDrawSubject,
+  type IAutoMovieInspectionLegendEntry,
+  selectAutoMovieDrawSubject,
+} from "@automovie/render";
 import {
   type ChangeEvent,
   type JSX,
@@ -19,13 +23,11 @@ import { AutoMovieInspectorViewPanel } from "./AutoMovieInspectorViewPanel.js";
 import type { IAutoMovieInspectorProps } from "./IAutoMovieInspectorProps.js";
 import type { IAutoMovieInspectorScene } from "./IAutoMovieInspectorScene.js";
 import type { IAutoMovieInspectorState } from "./IAutoMovieInspectorState.js";
-import type { IAutoMovieInspectorSubject } from "./IAutoMovieInspectorSubject.js";
 import { createAutoMovieInspectorCanvasHost } from "./createAutoMovieInspectorCanvasHost.js";
 import { createAutoMovieInspectorState } from "./createAutoMovieInspectorState.js";
 import { formatAutoMovieInspectorAddress } from "./formatAutoMovieInspectorAddress.js";
 import { mountAutoMovieInspectorScene } from "./mountAutoMovieInspectorScene.js";
 import { reduceAutoMovieInspectorState } from "./reduceAutoMovieInspectorState.js";
-import { selectAutoMovieInspectorSubject } from "./selectAutoMovieInspectorSubject.js";
 
 /** No labels, the state before a paused picture places any. */
 const UNLABELLED: IAutoMovieInspectorScene.ILabels = {
@@ -39,14 +41,14 @@ const UNLABELLED: IAutoMovieInspectorScene.ILabels = {
  *
  * The request is the component's only state that changes the picture. Every panel dispatches an edit to `reduceAutoMovieInspectorState`, the canvas is a plain three.js scene from `@automovie/render` mounted by `mountAutoMovieInspectorScene` in an effect, and every change of the request reaches `onRequestChange` as address text, so the page keeps its address equal to the request. The playhead is an `AutoMovieInspectorPlayhead` outside React that the render loop advances, so playback re-renders only the time readout.
  *
- * The mount effect depends on the subject only; the request reaches a mounted scene through its `apply`, and a request the scene refuses is set back to the one it still draws, with the reason shown. Under StrictMode the mount effect runs, cleans up and runs again on the same canvas, which the mount supports with one renderer alive at the end.
+ * The mount effect depends on the chosen subject object only, which selectAutoMovieDrawSubject picks by the request's subject key, so each subject must keep its identity across renders; the request reaches a mounted scene through its `apply`, and a request the scene refuses is set back to the one it still draws, with the reason shown. Under StrictMode the mount effect runs, cleans up and runs again on the same canvas, which the mount supports with one renderer alive at the end.
  *
  * ```tsx
  * createRoot(element).render(
  *   <AutoMovieInspector
  *     subjects={subjects}
  *     initialText={location.search}
- *     onRequestChange={(text) => history.replaceState(null, "", `?${text}`)}
+ *     onRequestChange={createAutoMovieInspectorAddressWriter({ location, history })}
  *   />,
  * );
  * ```
@@ -84,23 +86,25 @@ export function AutoMovieInspector(
   const { onRequestChange } = props;
 
   // A subject the request cannot name is shown as an error, with the subject choice still offered.
-  let subject: IAutoMovieInspectorSubject | null = null;
+  const names: string[] = Object.keys(props.subjects);
+  let name: string | null = null;
   let unnamed: string | null = null;
   try {
-    subject = selectAutoMovieInspectorSubject(
-      props.subjects,
-      state.request.subject,
-    );
+    name = selectAutoMovieDrawSubject(names, state.request.subject);
   } catch (error) {
     unnamed = error instanceof Error ? error.message : String(error);
   }
 
   // The scene lives as long as its subject; the effect reruns only then, so the request it captures is the one in force at mount.
   const request: IAutoMovieInspectorState["request"] = state.request;
+  const subject: IAutoMovieDrawSubject | null =
+    name === null ? null : props.subjects[name]!;
   useEffect((): (() => void) | undefined => {
-    if (canvas.current === null || subject === null) return undefined;
+    if (canvas.current === null || subject === null || name === null)
+      return undefined;
     const mounted: IAutoMovieInspectorScene = mountAutoMovieInspectorScene({
       subject,
+      name,
       request,
       playhead,
       host: createAutoMovieInspectorCanvasHost(canvas.current),
@@ -122,7 +126,7 @@ export function AutoMovieInspector(
       setLabels(UNLABELLED);
       mounted.dispose();
     };
-  }, [subject, playhead]);
+  }, [subject, name, playhead]);
 
   // Every request reaches the scene and the page's address.
   useEffect((): void => {
@@ -167,7 +171,11 @@ export function AutoMovieInspector(
             ),
           )}
         </div>
-        <AutoMovieInspectorTimePanel playhead={playhead} dispatch={dispatch} />
+        <AutoMovieInspectorTimePanel
+          playhead={playhead}
+          fps={facts?.fps ?? null}
+          dispatch={dispatch}
+        />
         {[unnamed, failure, state.error]
           .filter((message: string | null): message is string => message !== null)
           .map(
@@ -180,7 +188,7 @@ export function AutoMovieInspector(
         <AutoMovieInspectorRequestPanel request={request} dispatch={dispatch} />
       </div>
       <div style={{ flex: "0 0 320px", overflowY: "auto", maxHeight: "100vh" }}>
-        {props.subjects.length > 1 ? (
+        {names.length > 1 ? (
           <label style={{ display: "block", marginBottom: 8 }}>
             Subject{" "}
             <select
@@ -193,10 +201,10 @@ export function AutoMovieInspector(
               }
             >
               <option value="">(choose)</option>
-              {props.subjects.map(
-                (candidate: IAutoMovieInspectorSubject): JSX.Element => (
-                  <option key={candidate.name} value={candidate.name}>
-                    {candidate.name}
+              {names.map(
+                (candidate: string): JSX.Element => (
+                  <option key={candidate} value={candidate}>
+                    {candidate}
                   </option>
                 ),
               )}

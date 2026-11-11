@@ -13,7 +13,7 @@ import type { IAutoMovieInspectorAction } from "./IAutoMovieInspectorAction.js";
 /**
  * The playhead's slider and clock, the one component that reads the playhead and so the only one playback re-renders.
  *
- * Dragging the slider seeks the playhead and dispatches the second as a `time` edit, and so does playback stopping, by a pause or at the end, so the request names the picture left on screen.
+ * Dragging the slider, which steps by one frame of the subject's grid, seeks the playhead and dispatches the second as a `time` edit, and so does playback stopping, by a pause or at the end, so the request names the picture left on screen.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what it shows, why it alone reads the playhead and when it edits the request.
  * @evidence contracts/development/implementation.md#principled-implementation `useSyncExternalStore` is React's contract for reading an external store without tearing; the playhead's cached snapshot keeps it from rendering when nothing moved.
@@ -26,6 +26,9 @@ import type { IAutoMovieInspectorAction } from "./IAutoMovieInspectorAction.js";
 export function AutoMovieInspectorTimeReadout(props: {
   /** The playhead shown and sought. */
   playhead: AutoMovieInspectorPlayhead;
+
+  /** The subject's frames per second, so the slider steps from frame to frame of its grid, as a capture's seconds do; null before a subject is ready, when the slider steps freely. */
+  fps: number | null;
 
   /** Where the sought second goes. */
   dispatch: (action: IAutoMovieInspectorAction) => void;
@@ -50,7 +53,7 @@ export function AutoMovieInspectorTimeReadout(props: {
         aria-label="Second"
         min={0}
         max={snapshot.durationSeconds}
-        step="any"
+        step={props.fps === null ? "any" : 1 / props.fps}
         value={snapshot.seconds}
         style={{ flex: "1 1 auto" }}
         onChange={(event: ChangeEvent<HTMLInputElement>): void => {
