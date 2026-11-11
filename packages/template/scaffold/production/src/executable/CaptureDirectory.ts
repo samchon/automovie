@@ -118,7 +118,7 @@ export class CaptureDirectory {
   ): Promise<void> {
     await writeFile(
       path.join(this.directory, cell.file),
-      encodeAutoMovieRasterPng(image),
+      await encodeAutoMovieRasterPng(image),
     );
     await this.record(image, cell);
   }
@@ -192,7 +192,7 @@ export class CaptureDirectory {
   private async write(sheet: CaptureSheetBook.ISheet): Promise<void> {
     await writeFile(
       path.join(this.directory, sheet.file),
-      encodeAutoMovieRasterPng(sheet.image),
+      await encodeAutoMovieRasterPng(sheet.image),
     );
     await writeFile(
       path.join(this.directory, `${sheet.file}.json`),

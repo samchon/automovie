@@ -35,7 +35,7 @@ import * as THREE from "three";
  * @evidence contracts/development/testing.md#execution-ownership This named portable unit builds its own scenes and camera and starts no browser, server or GPU.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An unlit red quad filling the view's centre draws pure red at the centre).
  */
-export function test_viewer_node_raster(): void {
+export async function test_viewer_node_raster(): Promise<void> {
   const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
     60,
     1,
@@ -151,7 +151,9 @@ export function test_viewer_node_raster(): void {
   );
 
   // 5. PNG and label.
-  const png: PNG = PNG.sync.read(encodeAutoMovieRasterPng(single));
+  const png: PNG = PNG.sync.read(
+    Buffer.from(await encodeAutoMovieRasterPng(single)),
+  );
   TestValidator.equals("png size", [png.width, png.height], [64, 64]);
   TestValidator.equals(
     "png centre",

@@ -1,15 +1,17 @@
 import type { IAutoMovieRasterImage } from "./IAutoMovieRasterImage.js";
 
 /**
- * Burn a short caption, such as a film second, into a picture's top-left
- * corner, white on a dark box, so a thumbnail on a contact sheet still says
- * which moment it shows.
+ * Burn a short caption, such as a film second or a mark's label, into a
+ * picture, white on a dark box, so a thumbnail on a contact sheet still says
+ * which moment it shows and a mark says what it is.
  *
- * The built-in 3 × 5 pixel font covers digits, `.`, `:`, `-`, `/`, space and
- * lower-case `a`–`z`; other characters draw as blanks. `scale` enlarges each
- * font pixel to a square of that many pixels.
+ * The box's top-left corner goes at `at`, the picture's top-left corner when
+ * omitted, moved left and up as far as needed to keep the box inside the
+ * picture. The built-in 3 × 5 pixel font covers digits, `.`, `:`, `-`, `/`,
+ * space and lower-case `a`–`z`; other characters draw as blanks. `scale`
+ * enlarges each font pixel to a square of that many pixels.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the purpose, placement, colours, character coverage and scale.
+ * @evidence contracts/development/common.md#meaningful-documentation States the purpose, placement and how it is kept inside the picture, colours, character coverage and scale.
  * @evidence contracts/development/implementation.md#principled-implementation A bitmap font needs no font file or native canvas, so captions work wherever the Node frame does.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One box fill and one loop over glyph pixels.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A non-positive or fractional scale throws; text wider than the frame is cut at the frame edge rather than wrapped onto content.
@@ -21,6 +23,7 @@ export function stampAutoMovieRasterLabel(
   raster: IAutoMovieRasterImage,
   text: string,
   scale: number,
+  at: { x: number; y: number } = { x: 0, y: 0 },
 ): void {
   if (!Number.isSafeInteger(scale) || scale <= 0)
     throw new Error("Label scale must be a positive integer");
@@ -30,7 +33,17 @@ export function stampAutoMovieRasterLabel(
     pad * 2 + text.length * 4 * scale - scale,
   );
   const boxHeight: number = Math.min(raster.height, pad * 2 + 5 * scale);
-  fill(raster, 0, 0, boxWidth, boxHeight, [16, 16, 16]);
+
+  // The box starts at the anchor, moved back inside the picture where it would leave it.
+  const left: number = Math.max(
+    0,
+    Math.min(Math.round(at.x), raster.width - boxWidth),
+  );
+  const top: number = Math.max(
+    0,
+    Math.min(Math.round(at.y), raster.height - boxHeight),
+  );
+  fill(raster, left, top, boxWidth, boxHeight, [16, 16, 16]);
   for (const [n, character] of [...text.toLowerCase()].entries()) {
     const rows: readonly number[] = GLYPHS[character] ?? [0, 0, 0, 0, 0];
     for (let row: number = 0; row < 5; row++)
@@ -38,8 +51,8 @@ export function stampAutoMovieRasterLabel(
         if ((rows[row]! >> (2 - column)) & 1)
           fill(
             raster,
-            pad + (n * 4 + column) * scale,
-            pad + row * scale,
+            left + pad + (n * 4 + column) * scale,
+            top + pad + row * scale,
             scale,
             scale,
             [255, 255, 255],

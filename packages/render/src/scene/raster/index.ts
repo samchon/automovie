@@ -2,7 +2,6 @@ export * from "./AutoMovieRasterLighting.js";
 export * from "./AutoMovieRasterSheet.js";
 export * from "./AutoMovieRasterTarget.js";
 export * from "./compareAutoMovieRasters.js";
-export * from "./encodeAutoMovieRasterPng.js";
 export * from "./IAutoMovieRasterComparison.js";
 export * from "./IAutoMovieRasterFrame.js";
 export * from "./IAutoMovieRasterImage.js";

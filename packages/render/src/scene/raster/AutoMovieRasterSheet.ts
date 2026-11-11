@@ -3,8 +3,11 @@ import { stampAutoMovieRasterLabel } from "./stampAutoMovieRasterLabel.js";
 
 /**
  * A contact sheet of pictures, filled one picture at a time: each picture is
- * area-averaged into its cell in row-major order and captioned after
- * reduction, so the caption stays legible however small the cell is.
+ * reduced into its cell in row-major order and captioned after reduction, so
+ * the caption stays legible however small the cell is. Reduction averages
+ * every source pixel a cell pixel covers (`area`, the default), or copies the
+ * source pixel at the cell pixel's centre (`nearest`), which keeps exact
+ * colours for a review that reads pixel values.
  *
  * A cell takes any picture, a drawn frame, a difference image or a decoded
  * still alike. Pictures are reduced as they arrive, so a sheet never holds
@@ -14,10 +17,10 @@ import { stampAutoMovieRasterLabel } from "./stampAutoMovieRasterLabel.js";
  * ```ts
  * const sheet = new AutoMovieRasterSheet(20, 5, 180, 320);
  * for (const [seconds, frame] of frames) sheet.add(frame, `${seconds}s`);
- * await writeFile("sheet.png", encodeAutoMovieRasterPng(sheet.finish()));
+ * await writeFile("sheet.png", await encodeAutoMovieRasterPng(sheet.finish()));
  * ```
  *
- * @evidence contracts/development/common.md#meaningful-documentation The comment states the fill order, the reduction, when captions are drawn, the memory bound, the extent of the result and how it is encoded.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states the fill order, both reductions and what each keeps, when captions are drawn, the memory bound, the extent of the result and how it is encoded.
  * @evidence contracts/development/design.md#principled-representation The sheet is itself an IAutoMovieRasterImage, so encoding and captioning reuse the frame path unchanged.
  * @evidence contracts/development/design.md#minimal-and-owned-surface A constructor, `add` and `finish`; layout is fixed by the constructor.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing names a film or capture command; captions are caller text.
@@ -41,6 +44,9 @@ export class AutoMovieRasterSheet {
   /** Cell height in pixels. */
   private readonly cellHeight: number;
 
+  /** How a picture is reduced into its cell. */
+  private readonly reduction: "area" | "nearest";
+
   /**
    * Allocate an empty sheet.
    *
@@ -48,17 +54,20 @@ export class AutoMovieRasterSheet {
    * @param columns Cells per row, a positive integer.
    * @param cellWidth Cell width in pixels, a positive integer.
    * @param cellHeight Cell height in pixels, a positive integer.
+   * @param reduction `area` to average the pixels a cell pixel covers, `nearest` to copy the one at its centre.
    */
   public constructor(
     capacity: number,
     columns: number,
     cellWidth: number,
     cellHeight: number,
+    reduction: "area" | "nearest" = "area",
   ) {
     this.capacity = capacity;
     this.columns = columns;
     this.cellWidth = cellWidth;
     this.cellHeight = cellHeight;
+    this.reduction = reduction;
     if (
       ![capacity, columns, cellWidth, cellHeight].every(
         (value: number): boolean => Number.isSafeInteger(value) && value > 0,
@@ -86,7 +95,7 @@ export class AutoMovieRasterSheet {
    * Reduce one frame into the next cell and caption it.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States that the frame fills the next cell and receives the caption.
-   * @evidence contracts/development/implementation.md#principled-implementation Each cell pixel averages the source pixels its footprint covers, so thin lines and small figures survive reduction instead of being skipped by point sampling.
+   * @evidence contracts/development/implementation.md#principled-implementation Under `area` each cell pixel averages the source pixels its footprint covers, so thin lines and small figures survive reduction instead of being skipped by point sampling; under `nearest` it copies the source pixel under its centre, `floor((x + 0.5) × source / cell)`, so every colour on the sheet is one the picture holds.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the cell's pixels, then one caption.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A full sheet throws instead of overwriting a cell.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the source frame's pixel count.
@@ -109,6 +118,23 @@ export class AutoMovieRasterSheet {
         Math.floor(((y + 1) * frame.height) / this.cellHeight),
       );
       for (let x: number = 0; x < this.cellWidth; x++) {
+        const target: number = (y * this.cellWidth + x) * 4;
+        cell.pixels[target + 3] = 255;
+
+        // Nearest: the source pixel under the cell pixel's centre.
+        if (this.reduction === "nearest") {
+          const source: number =
+            (Math.floor(((y + 0.5) * frame.height) / this.cellHeight) *
+              frame.width +
+              Math.floor(((x + 0.5) * frame.width) / this.cellWidth)) *
+            4;
+          cell.pixels[target] = frame.pixels[source]!;
+          cell.pixels[target + 1] = frame.pixels[source + 1]!;
+          cell.pixels[target + 2] = frame.pixels[source + 2]!;
+          continue;
+        }
+
+        // Area: the mean of the source pixels the cell pixel covers.
         const x0: number = Math.floor((x * frame.width) / this.cellWidth);
         const x1: number = Math.max(
           x0 + 1,
@@ -125,11 +151,9 @@ export class AutoMovieRasterSheet {
             b += frame.pixels[source + 2]!;
           }
         const n: number = (y1 - y0) * (x1 - x0);
-        const target: number = (y * this.cellWidth + x) * 4;
         cell.pixels[target] = r / n;
         cell.pixels[target + 1] = g / n;
         cell.pixels[target + 2] = b / n;
-        cell.pixels[target + 3] = 255;
       }
     }
     stampAutoMovieRasterLabel(

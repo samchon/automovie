@@ -269,7 +269,7 @@ async function draw(
         sheet.add(raster, time.label);
       }
       const file: string = path.join(directory, `sheet-${view}.png`);
-      await writeFile(file, encodeAutoMovieRasterPng(sheet.finish()));
+      await writeFile(file, await encodeAutoMovieRasterPng(sheet.finish()));
       sheets.push(file);
     }
   } finally {

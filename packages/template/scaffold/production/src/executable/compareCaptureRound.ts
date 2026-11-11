@@ -61,7 +61,7 @@ export async function compareCaptureRound(props: {
     if (pair.difference !== undefined)
       await writeFile(
         path.join(props.directory, pair.difference.file),
-        encodeAutoMovieRasterPng(pair.difference.image),
+        await encodeAutoMovieRasterPng(pair.difference.image),
       );
     entries.push(pair.entry);
   }
