@@ -34,6 +34,20 @@ namespace FamilyConicScan {
       }
       return;
     }
+    if (process.argv[2] === "radii") {
+      // `radii <fromMm> <toMm> [stepMm]`: the trunk's level sections between two stations, the skin's radius every 15 degrees over the +Z
+      // half turn. A radius that jumps between two neighbouring stations is skin that lies level between them, which no section samples.
+      const axis: AutoMovieViewAxis.IAxis = AutoMovieViewAxis.jointed([[0, 780, 0], [0, 1705, 0]], [], [1, 0, 0]) as AutoMovieViewAxis.IAxis;
+      const step: number = Number(process.argv[5] ?? 2);
+      for (let s: number = Number(process.argv[3]); s <= Number(process.argv[4]); s += step) {
+        const loop: C.P[] | null = R.cut(source.all, axis.at(s)).loop;
+        if (loop === null) continue;
+        const radii: string[] = [];
+        for (let degree: number = 0; degree <= 180; degree += 15) radii.push(C.radius(loop, (degree * Math.PI) / 180).toFixed(0).padStart(4));
+        process.stdout.write("y " + (780 + s) + " station " + s + " r(0..180/15):" + radii.join("") + "\n");
+      }
+      return;
+    }
     if (process.argv[2] === "trunk") {
       // Trunk sections in polar form about the vertical axis through the origin: radius every 15 degrees over the half turn, to read crests and grooves before choosing a layout.
       const axis: AutoMovieViewAxis.IAxis = AutoMovieViewAxis.jointed([[0, 780, 0], [0, 1480, 0]], [], [1, 0, 0]) as AutoMovieViewAxis.IAxis;

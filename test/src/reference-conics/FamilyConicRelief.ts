@@ -50,6 +50,15 @@ export namespace FamilyConicRelief {
      * between the lips or past an eyelid, lands on what lies behind it, and its height is not the skin's.
      */
     reach?: number;
+
+    /**
+     * How far from its first and from its last station the window takes less than the whole height, mm: the share rises smoothly from none
+     * at the edge to all of it that far in. A window's outer rows are zero, so a net asked for the whole height right up to its edge falls
+     * off within two rows, and the window fitted after it over the same skin cannot follow so short a fall: the edge showed as a level line
+     * across the chest. Faded, the earlier net leaves a smooth remainder for the later one, which must start inside the earlier one's whole
+     * part.
+     */
+    fade?: [number, number];
   }
 
   /** One observed section with the wall beneath it. */
@@ -150,6 +159,13 @@ export namespace FamilyConicRelief {
     const samples: { weights: [number, number][]; target: number; heldout: boolean }[] = [];
     let deepest: number = 0;
     const phases: number = (Cn - 3) * PER_SPAN;
+
+    // The share of a height the window takes at a station: a smooth step over each faded edge.
+    const share = (s: number): number => {
+      const step = (x: number): number => (x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x));
+      const [low, high]: [number, number] = window.fade ?? [0, 0];
+      return (low > 0 ? step((s - window.stations[0]) / low) : 1) * (high > 0 ? step((window.stations[1] - s) / high) : 1);
+    };
     for (const row of rows) {
       if (row.s <= window.stations[0] || row.s >= window.stations[1]) continue;
       const [iu, wu] = basis(((row.s - window.stations[0]) / (window.stations[1] - window.stations[0])) * (R - 3), R);
@@ -171,7 +187,7 @@ export namespace FamilyConicRelief {
         const held: boolean = row.hold?.(landing) === true || row.hold?.(from) === true;
         if (!held && window.reach !== undefined && Math.abs(along) / inPlane > window.reach) continue;
         if (!held && row.open?.(landing) === true) continue;
-        const target: number = held ? 0 : along / inPlane;
+        const target: number = held ? 0 : (share(row.s) * along) / inPlane;
         const [iv, wv] = basis((offset / span) * (Cn - 3), Cn);
         const weights: [number, number][] = [];
         for (let a: number = 0; a < 4; ++a)

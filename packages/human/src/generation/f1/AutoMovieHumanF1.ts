@@ -156,6 +156,14 @@ export namespace AutoMovieHumanF1 {
   const WEB_LAYER_MM: number = 1;
   const WEB_REACH_MM: number = 12;
 
+  /**
+   * When a layer is added midway between two of a family that carries reliefs: its skin there stands off the middle of the chord between the
+   * two by more than `sagitta` mm at some phase. No interval is cut below `least` mm. Layers are level rings, so a fold that crosses them
+   * aslant, as the one under the breast does, is drawn in steps as tall as the layers are apart; where the skin turns that fast the layers
+   * must stand closer than the 4 mm that carries the rest.
+   */
+  const FOLD: { sagitta: number; least: number; phases: number } = { sagitta: 0.15, least: 0.5, phases: 96 };
+
   /** Columns round each band and rows across it. */
   const BAND: { count: number; rows: number } = { count: 96, rows: 8 };
 
@@ -278,8 +286,26 @@ export namespace AutoMovieHumanF1 {
         const cuts: number = Math.ceil((s - before) / pitch - 1e-9);
         return Array.from({ length: cuts }, (_: unknown, k: number): number => before + ((s - before) * (k + 1)) / cuts);
       });
-      sources.set(family.name, AutoMovieHumanConicLoft.part(family, stations));
+      sources.set(family.name, AutoMovieHumanConicLoft.part(family, folded(family, stations)));
       return { type: "source", name: family.name, source: family.name };
+    };
+
+    // The same stations with a layer added wherever the family's relieved skin turns too fast between two of them (`FOLD`).
+    const folded = (family: AutoMovieHumanConicLoft.IFamily, stations: number[]): number[] => {
+      if ((family.reliefs ?? []).length === 0) return stations;
+      const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(family, stations);
+      if (loft.chain === null) return stations;
+      const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> = loft.chain;
+      const ring = (s: number): number[][] => Array.from({ length: FOLD.phases }, (_: unknown, j: number): number[] => AutoMovieLoftChain.point(chain, s, (2 * Math.PI * j) / FOLD.phases));
+      const between = (a: number, low: number[][], b: number, high: number[][]): number[] => {
+        if (b - a <= 2 * FOLD.least) return [];
+        const middle: number = (a + b) / 2;
+        const mid: number[][] = ring(middle);
+        const off: boolean = mid.some((p: number[], j: number): boolean => Math.hypot(p[0]! - (low[j]![0]! + high[j]![0]!) / 2, p[1]! - (low[j]![1]! + high[j]![1]!) / 2, p[2]! - (low[j]![2]! + high[j]![2]!) / 2) > FOLD.sagitta);
+        return off ? [...between(a, low, middle, mid), middle, ...between(middle, mid, b, high)] : [];
+      };
+      const rings: number[][][] = stations.map(ring);
+      return stations.flatMap((s: number, i: number): number[] => (i === 0 ? [s] : [...between(stations[i - 1]!, rings[i - 1]!, s, rings[i]!), s]));
     };
     const twin = (family: AutoMovieHumanConicLoft.IFamily): AutoMovieHumanConicLoft.IFamily => AutoMovieHumanConicLoft.mirror(family, family.name + ".mirror");
     const trunk: string = BODY.trunk.name;
