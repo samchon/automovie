@@ -67,7 +67,7 @@ In the inspector, the capture's keys are the address's parameters of the same na
 
 5. Prepare the [motion hint and its control channels]({{skills}}/motion/control-channels.md) from the same actual performance.
 
-   Keep the frame/camera mapping aligned for time-matched channels. Use the supplied Viewer/export host or document the production's adopted replacement here.
+   Keep the frame/camera mapping aligned for time-matched channels. Use the supplied inspector page and the capture and render commands, or document the production's adopted replacement here.
 
 6. Assemble and encode the complete work through [assembly]({{skills}}/production/assembly.md), then inspect the actual output through [delivery review]({{skills}}/review/delivery-review.md).
 
