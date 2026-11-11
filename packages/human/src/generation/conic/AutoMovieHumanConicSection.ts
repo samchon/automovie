@@ -83,6 +83,9 @@ export namespace AutoMovieHumanConicSection {
   /** Bound of every share inside the model: a share at 0 or 1 is a degenerate conic the engine refuses. */
   const EDGE: number = 0.03;
 
+  /** Largest share of the way to a box corner that a guide's touch offset may take. */
+  const CORNER: number = 0.92;
+
   /** The limb layout: four extremes, each quarter halved `depth` times by nested medians (4, 8 or 16 conics). */
   export function limb(depth: number): ILayout {
     let layout: ILayout = { mirror: false, anchors: (["max", "max", "min", "min"] as const).map((pick: "max" | "min", q: number): IAnchor => ({ kind: q % 2 === 0 ? "u" : "v", guide: true, pick })) };
@@ -160,6 +163,19 @@ export namespace AutoMovieHumanConicSection {
       points[k] = p;
       tangents[k] = anchor.kind === "u" ? [0, p[0] > 0 ? 1 : -1] : [p[1] > 0 ? -1 : 1, 0];
     });
+
+    // A guide that reaches its box's corner leaves its arc no first leg. Where one point of a section is both its forward
+    // and its side extreme (a section standing like a diamond in its chart) the touch offset would do exactly that, so each
+    // guide is held inside the share CORNER of the way to the corners its two neighbouring guides set.
+    const boxed: number[] = layout.anchors.map((_: IAnchor, k: number): number => k).filter((k: number): boolean => layout.anchors[k]!.guide === true);
+    if (!layout.mirror && boxed.length === 4)
+      boxed.forEach((k: number, q: number): void => {
+        const across: 0 | 1 = q % 2 === 0 ? 1 : 0;
+        const a: number = points[boxed[(q + 1) % 4]!]![across];
+        const b: number = points[boxed[(q + 3) % 4]!]![across];
+        const p: P = points[k]!;
+        p[across] = Math.min(CORNER * Math.max(a, b), Math.max(CORNER * Math.min(a, b), p[across]));
+      });
 
     // Then the anchors that stand on their neighbours' triangle or chord, lower levels first.
     for (const k of dependents(layout)) {

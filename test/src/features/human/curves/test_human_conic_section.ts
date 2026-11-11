@@ -10,6 +10,7 @@ import { AutoMovieHumanConicSection } from "@automovie/human";
  * 3. A different median fullness moves the curve: raising one median's fullness by 0.1 changes the radius inside that quarter and leaves the opposite quarter's untouched.
  * 4. A mirror layout is symmetric in the median line: the radius at `phi` equals the radius at `-phi`, and its chain has the listed anchors and their reflections.
  * 5. A share outside (0, 1) is confined inside the model: a shoulder of 1.5 yields an admitted chain equal to the one with the shoulder at the model's bound.
+ * 6. A guide on its box corner is held back: with the forward extreme's touch offset equal to the side support, the chain is still admitted and the guide stands below the corner on its own support line.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanConicSection.chain`, `resolve`, `limb` and `units` and reads the resulting engine chain with `AutoMovieViewChain.radius`.
  * @evidence contracts/development/testing.md#independent-expectations The ellipse's polar radius `1 / sqrt((cos / a)^2 + (sin / b)^2)` is a closed form; the subdivision weights are Farin's rational de Casteljau step at `t = 1/2` with end weights renormalised, a property of conics independent of this code; mirror symmetry is a geometric identity.
@@ -77,6 +78,15 @@ export function test_human_conic_section(): void {
   const chain: AutoMovieViewChain.ISection = S.chain(wild, S.limb(0));
   if (chain.fault !== null) failures.push(`out-of-range shoulder: chain refused with ${chain.fault}`);
   else if (!(Math.abs(AutoMovieViewChain.radius(chain, 0.7) - radius(bounded, S.limb(0), 0.7)) <= 1e-12)) failures.push("out-of-range shoulder: not equal to the chain at the model's bound 0.97");
+
+  // 6. A guide on its box corner: the forward extreme's touch offset equals the side support, which leaves the first arc no leg unless the model holds the guide back.
+  const diamond: number[] = [40, 25, 0, 25, -40, 0, 0, -25, ...new Array<number>(4).fill(0.4)];
+  const cornered: AutoMovieViewChain.ISection = S.chain(diamond, S.limb(0));
+  if (cornered.fault !== null) failures.push(`guide on the corner: chain refused with ${cornered.fault}`);
+  else {
+    const held: AutoMovieHumanConicSection.P = S.resolve(diamond, S.limb(0)).input.points[0]!;
+    if (!(held[0] === 40 && held[1] < 25 && held[1] > 20)) failures.push(`guide on the corner: resolved at (${held[0]}, ${held[1]}), expected u 40 and v held below the corner's 25`);
+  }
 
   if (failures.length > 0) throw new Error("human conic section:\n" + failures.join("\n"));
 }
