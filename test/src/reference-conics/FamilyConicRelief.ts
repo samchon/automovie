@@ -59,6 +59,9 @@ export namespace FamilyConicRelief {
      * part.
      */
     fade?: [number, number];
+
+    /** The same toward the window's first and last phase, radians: a window's edge down the skin creases as its edge across it does. */
+    fadePhase?: [number, number];
   }
 
   /** One observed section with the wall beneath it. */
@@ -160,11 +163,12 @@ export namespace FamilyConicRelief {
     let deepest: number = 0;
     const phases: number = (Cn - 3) * PER_SPAN;
 
-    // The share of a height the window takes at a station: a smooth step over each faded edge.
-    const share = (s: number): number => {
+    // The share of a height the window takes at a station and a phase: a smooth step over each faded edge.
+    const share = (s: number, phi: number): number => {
       const step = (x: number): number => (x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x));
       const [low, high]: [number, number] = window.fade ?? [0, 0];
-      return (low > 0 ? step((s - window.stations[0]) / low) : 1) * (high > 0 ? step((window.stations[1] - s) / high) : 1);
+      const [first, last]: [number, number] = window.fadePhase ?? [0, 0];
+      return (low > 0 ? step((s - window.stations[0]) / low) : 1) * (high > 0 ? step((window.stations[1] - s) / high) : 1) * (first > 0 ? step((phi - window.phases[0]) / first) : 1) * (last > 0 ? step((window.phases[1] - phi) / last) : 1);
     };
     for (const row of rows) {
       if (row.s <= window.stations[0] || row.s >= window.stations[1]) continue;
@@ -187,7 +191,7 @@ export namespace FamilyConicRelief {
         const held: boolean = row.hold?.(landing) === true || row.hold?.(from) === true;
         if (!held && window.reach !== undefined && Math.abs(along) / inPlane > window.reach) continue;
         if (!held && row.open?.(landing) === true) continue;
-        const target: number = held ? 0 : (share(row.s) * along) / inPlane;
+        const target: number = held ? 0 : (share(row.s, phi) * along) / inPlane;
         const [iv, wv] = basis((offset / span) * (Cn - 3), Cn);
         const weights: [number, number][] = [];
         for (let a: number = 0; a < 4; ++a)

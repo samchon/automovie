@@ -381,14 +381,16 @@ namespace FamilyConicBody {
           // Over the chest and the shoulders the windows stop at 1.0 rad, short of the fold beside the armpit. While the trunk kept a stump of
           // arm the tape bridged from the breast to it, with the skin deep inside that bridge from about 0.6 to 1.3 rad: a window ending there
           // creased the whole chest and back along its edge, and one reaching 1.45 rad left a thin flap in the fold beside the armpit.
-          { name: "trunk.chest.back", stations: [380, 680], phases: [Math.PI - 1.2, Math.PI + 1.2], axis: [1, 0, 0], turn: [0, 0, 1], rows: 63, columns: 41, mirror: true, reach: 40, fade: [30, 25] },
-          { name: "trunk.chest.front", stations: [380, 680], phases: [-1.2, 1.2], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 63, columns: 41, mirror: true, reach: 40, fade: [30, 25] },
+          { name: "trunk.chest.back", stations: [380, 680], phases: [Math.PI - 1.2, Math.PI + 1.2], axis: [1, 0, 0], turn: [0, 0, 1], rows: 63, columns: 41, mirror: true, reach: 40, fade: [30, 25], fadePhase: [0.3, 0.3] },
+          { name: "trunk.chest.front", stations: [380, 680], phases: [-1.2, 1.2], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 63, columns: 41, mirror: true, reach: 40, fade: [30, 25], fadePhase: [0.3, 0.3] },
           // The side, from the breast's edge round under the arm to the shoulder blade's: the front and back windows end 1.2 rad from the
           // median line, and between them the wall stood as the tape left it, 7 to 10 mm outside the skin in the hollow over the collar
           // bone and in the fold in front of the armpit (`FamilyConicDeviation.ts`). One window spans the whole side, so its edges lie on
-          // skin the front and back windows have already brought home and it has nothing to take there; across the arm's cut, where no
-          // skin is observed, its net is the fairest one between what it sees on either side.
-          { name: "trunk.chest.side", stations: [400, 680], phases: [Math.PI / 2 - 0.72, Math.PI / 2 + 0.72], axis: [0, 0, -1], turn: [1, 0, 0], rows: 59, columns: 47, mirror: false, twin: true, uncut: true, reach: 25, fade: [30, 25] },
+          // skin the front and back windows have already brought home and it has nothing to take there; across the arm's cut it reads the
+          // arm's own skin as far as its reach (`uncut`). Each side is fitted on its own skin: the trunk is fitted whole, not as a half and
+          // its image, and one side's net reflected onto the other left patches 2 to 4 mm full over one shoulder.
+          { name: "trunk.chest.side", stations: [400, 680], phases: [Math.PI / 2 - 0.82, Math.PI / 2 + 0.82], axis: [0, 0, -1], turn: [1, 0, 0], rows: 59, columns: 53, mirror: false, uncut: true, reach: 25, fade: [30, 25] },
+          { name: "trunk.chest.side.twin", stations: [400, 680], phases: [-Math.PI / 2 - 0.82, -Math.PI / 2 + 0.82], axis: [0, 0, 1], turn: [-1, 0, 0], rows: 59, columns: 53, mirror: false, uncut: true, reach: 25, fade: [30, 25] },
           // The neck and head: windows whose cast turns with the phase (`turn`), square to the wall all the way round. One net goes round the
           // whole head with its seam down the back, and ends at the crown's tip, 918.88 mm, where a relief must vanish for the pole. With
           // fixed axes the head took four windows, front, back and two sides, whose edges met in a seam down the cheek and over the skull
@@ -414,6 +416,10 @@ namespace FamilyConicBody {
           // The chin, which the sections leave out (`CHIN`): cast from the cone's wall forward and down at 45 degrees on the median line,
           // so the chin's front and the level skin under it are both seen at 45 degrees and the chin is one height over the wall.
           { name: "chin", stations: [690, 734], phases: [-0.8, 0.8], axis: [-Math.SQRT1_2, Math.SQRT1_2, 0], turn: [0, 0, -1], skin: (p: R.V): number => Math.max(ear(p), nose(p)), rows: 47, columns: 57, reach: 30, mirror: true },
+          // The top of each shoulder, between the neck's muscle and the shoulder's point: the skin there faces up, a cast round the axis
+          // grazes it, and it stood 2 to 4 mm full on both sides (`FamilyConicDeviation.ts`). A coarse net cast straight down takes it.
+          { name: "shoulder", stations: [596, 664], phases: [0.95, 1.95], axis: [0, -1, 0], rows: 17, columns: 27, reach: 8, nearest: true },
+          { name: "shoulder.twin", stations: [596, 664], phases: [-1.95, -0.95], axis: [0, -1, 0], rows: 17, columns: 27, reach: 8, nearest: true },
           // The crown: the wall closes in the engine's own dome from station 896 to the tip, which stood 3 to 4 mm under the skull's
           // (`FamilyConicDeviation.ts`). As on the ear, the skin there faces along the course, and one net round the pole carries it.
           // The dome is only too flat, so the net is a coarse one: at 2 mm a row it followed every ray and the crown came out in rings.
