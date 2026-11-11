@@ -1,7 +1,7 @@
 {
   "name": "@automovie/viewer",
   "version": "0.1.0",
-  "description": "automovie viewer: three.js renderer that plays automovie models, poses, and motion (not an editor)",
+  "description": "automovie viewer: the interactive display, a React inspector and an imperative mount over the render package's three.js scene (not an editor)",
   "main": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
@@ -43,8 +43,16 @@
     "@automovie/render": "workspace:^",
     "three": "catalog:three"
   },
+  "peerDependencies": {
+    "react": "catalog:react",
+    "react-dom": "catalog:react"
+  },
   "devDependencies": {
+    "@types/react": "catalog:react",
+    "@types/react-dom": "catalog:react",
     "@types/three": "catalog:three",
+    "react": "catalog:react",
+    "react-dom": "catalog:react",
     "rimraf": "catalog:utils",
     "rolldown": "catalog:rolldown",
     "ttsc": "catalog:samchon",

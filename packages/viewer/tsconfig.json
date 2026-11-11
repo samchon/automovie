@@ -6,6 +6,7 @@
     "types": ["node"],
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
+    "jsx": "react-jsx",
     "plugins": [
       {
         "transform": "@ttsc/lint",

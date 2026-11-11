@@ -11,6 +11,7 @@ export * from "./createViewerFrameControl.js";
 export * from "./createViewerViewportResize.js";
 export * from "./redrawViewerCompletedFrame.js";
 export * from "./audio/index.js";
+export * from "./inspector/index.js";
 export * from "./transport/index.js";
 export * from "./IViewerCameraStateSnapshot.js";
 export * from "./createViewerDisplayClock.js";

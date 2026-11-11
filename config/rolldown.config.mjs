@@ -9,7 +9,7 @@ import { globSync } from "tinyglobby";
 // `lib/<path>.mjs`: named exports intact, no facade chunks, no CommonJS
 // transcoding. Everything outside `src/` is an external module.
 export default {
-  input: globSync("./src/**/*.ts"),
+  input: globSync("./src/**/*.{ts,tsx}"),
   external: (id) => !id.startsWith(".") && !path.isAbsolute(id),
   output: {
     dir: "./lib",
