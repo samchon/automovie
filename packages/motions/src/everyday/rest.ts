@@ -12,6 +12,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
@@ -62,8 +65,8 @@ import { poseBones } from "../posture/poseBones";
  *   at `chinRest`, the thinking pose.
  *
  * Each hand travels from where the entry left it to its place on a
- * minimum-jerk path over `0.25 + 0.5 D` seconds for `D` metres (provisional,
- * as the gesture preparation) and holds there; the place follows the body,
+ * minimum-jerk path over the free-space time of its distance
+ * (`AutoMovieMotionHumanTiming.transport`) and holds there; the place follows the body,
  * so breathing and sway carry the hands with it. A hand at `side` is not
  * moved.
  *
@@ -197,7 +200,9 @@ export namespace rest {
         ),
         travel: Math.min(
           duration,
-          0.25 + 0.5 * Vector3.length(Vector3.subtract(from, goal.point)),
+          AutoMovieMotionHumanTiming.transport(
+            Vector3.length(Vector3.subtract(from, goal.point)),
+          ),
         ),
       };
     }
@@ -233,7 +238,7 @@ export namespace rest {
         };
         const turn: IAutoMovieQuaternion = HumanFrame.turn(frame.yaw);
         const joints: IHumanPosture["joints"] = { ...posture.joints };
-        const requests: handGoals.IRequest[] = [];
+        const requests: AutoMovieMotionHumanArm.ISided[] = [];
         for (const side of ["left", "right"] as const) {
           const goal: IGoal | undefined = local[side];
           const from = begin[side];
@@ -281,8 +286,8 @@ export namespace rest {
   /**
    * Both hands' rest goals on a posture.
    *
-   * Each place states where the elbow points, as a hint beside the shoulder
-   * in the body's frame (`ELBOWS`, in upper-arm lengths out, up and forward):
+   * Each place states where the elbow points, as a bend preset of
+   * `AutoMovieMotionHumanBend` (`BENDS`):
    * akimbo and behind-the-head elbows go out wide, chin-rest elbows forward
    * and down, the others down beside the body; crossed arms set their elbows
    * exactly (`crossedArms`).
@@ -309,21 +314,21 @@ export namespace rest {
         { origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw },
         { x, y, z },
       );
+    // The hint rides the root and the heading only, as the rest places were
+    // captured: a standing rest does not pitch or roll the trunk.
     const elbow = (
       side: HumanHand.Side,
-      place: keyof typeof ELBOWS,
-    ): IAutoMovieVector3 => {
-      const shoulder: IAutoMovieVector3 = body.rest.get(`${side}UpperArm`)!;
-      const [o, u, f] = ELBOWS[place];
-      return HumanFrame.point(frame, {
-        x: shoulder.x + (side === "left" ? 1 : -1) * o * m.upperArm,
-        y: shoulder.y + u * m.upperArm,
-        z: shoulder.z + f * m.upperArm,
-      });
-    };
+      place: keyof typeof BENDS,
+    ): IAutoMovieVector3 =>
+      AutoMovieMotionHumanBend.arm(
+        body,
+        { root: posture.root, yaw: posture.yaw },
+        side,
+        BENDS[place],
+      );
     const lay = (
       side: HumanHand.Side,
-      place: keyof typeof ELBOWS,
+      place: keyof typeof BENDS,
       surface: HumanHand.Surface,
       shape: HumanHand.Shape,
       point: IAutoMovieVector3,
@@ -471,20 +476,17 @@ export namespace rest {
     return out;
   }
 
-  /** Elbow hints by place: upper-arm lengths out, up and forward of the shoulder (provisional). */
-  export const ELBOWS: Readonly<
-    Record<
-      Exclude<Place, "side" | "crossed">,
-      readonly [number, number, number]
-    >
+  /** The elbow's bend preset by place. */
+  export const BENDS: Readonly<
+    Record<Exclude<Place, "side" | "crossed">, AutoMovieMotionHumanBend.Arm>
   > = {
-    pocket: [0.35, -1, -0.3],
-    hip: [0.9, -0.4, -0.1],
-    claspedFront: [0.3, -0.9, 0.1],
-    claspedBehind: [0.35, -0.9, -0.4],
-    behindHead: [0.9, 0.5, 0.3],
-    chinRest: [0.1, -0.8, 0.6],
-    elbowSupport: [0.3, -0.9, 0.3],
+    pocket: "tucked",
+    hip: "akimbo",
+    claspedFront: "front",
+    claspedBehind: "behind",
+    behindHead: "raised",
+    chinRest: "forward",
+    elbowSupport: "folded",
   };
 
   /** The least forward hang of each upper arm when the arms are crossed, degrees (provisional). */

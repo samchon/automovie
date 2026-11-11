@@ -1,9 +1,7 @@
-import type {
-  IAutoMovieProficiency,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import type { IAutoMovieProficiency } from "../skill/IAutoMovieProficiency";
 
 /**
  * One person in a performance: whose body, where and facing which way they

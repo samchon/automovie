@@ -4,6 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -157,7 +158,7 @@ export namespace handOver {
       context.entry.pose,
       limb,
     );
-    const bend: IAutoMovieVector3 = HumanHand.elbow(body, held, side);
+    const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(body, held, side);
     const part: IHumanContactWindow["part"] =
       side === "left" ? "leftHand" : "rightHand";
     return {

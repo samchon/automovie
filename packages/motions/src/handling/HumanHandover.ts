@@ -9,6 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanHand } from "../posture/HumanHand";
@@ -237,7 +238,7 @@ export namespace HumanHandover {
       input.receiver.body,
       standing,
       input.receiver.side,
-      HumanHand.elbow(input.receiver.body, standing, input.receiver.side),
+      AutoMovieMotionHumanBend.hang(input.receiver.body, standing, input.receiver.side),
       (turn: number): HumanHand.IWrist =>
         HumanGrasp.hand(
           input.receiver.body,

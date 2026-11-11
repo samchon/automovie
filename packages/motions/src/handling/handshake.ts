@@ -14,6 +14,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
@@ -185,7 +186,7 @@ export namespace handshake {
       normal: IAutoMovieVector3,
       fingers: IAutoMovieVector3,
     ): HumanGrasp.IReach => {
-      const bend: IAutoMovieVector3 = HumanHand.elbow(who, posture, side);
+      const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(who, posture, side);
       return HumanGrasp.reachable(
         who,
         posture,
@@ -274,7 +275,7 @@ export namespace handshake {
         [limb]: {
           point: their.point,
           rotation: their.rotation,
-          bend: HumanHand.elbow(partner, standing, side),
+          bend: AutoMovieMotionHumanBend.hang(partner, standing, side),
         },
       },
     });
@@ -385,7 +386,7 @@ export namespace handshake {
             [limb]: {
               point: wrist,
               rotation,
-              bend: HumanHand.elbow(body, posture, side),
+              bend: AutoMovieMotionHumanBend.hang(body, posture, side),
               // The clasp's own arm solution anchors the pump, the reach more
               // and more as it arrives and the return less and less as it
               // leaves.

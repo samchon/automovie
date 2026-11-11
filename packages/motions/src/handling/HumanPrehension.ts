@@ -11,6 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { HumanSkill } from "../skill/HumanSkill";
 
 /**
@@ -60,16 +61,16 @@ import { HumanSkill } from "../skill/HumanSkill";
  */
 export namespace HumanPrehension {
   /** McIntosh et al. 2018 two-factor intercept, seconds. */
-  export const INTERCEPT: number = -0.30607;
+  export const INTERCEPT: number = AutoMovieMotionHumanTiming.INTERCEPT;
 
   /** McIntosh et al. 2018 amplitude slope, seconds per decade of millimetres. */
-  export const AMPLITUDE: number = 0.29727;
+  export const AMPLITUDE: number = AutoMovieMotionHumanTiming.AMPLITUDE;
 
   /** McIntosh et al. 2018 width slope, seconds per metre (0.65 ms per mm). */
-  export const WIDTH: number = 0.65;
+  export const WIDTH: number = AutoMovieMotionHumanTiming.WIDTH;
 
   /** The shortest amplitude the fit was measured at, metres. */
-  export const SHORTEST: number = 0.17;
+  export const SHORTEST: number = AutoMovieMotionHumanTiming.SHORTEST;
 
   /**
    * Peak wrist speed while an object is carried in the hand, metres per
@@ -119,11 +120,7 @@ export namespace HumanPrehension {
    * @returns Seconds.
    */
   export function nominal(distance: number, width: number): number {
-    return (
-      INTERCEPT +
-      AMPLITUDE * Math.log10(1000 * Math.max(SHORTEST, distance)) +
-      WIDTH * Math.max(0, width)
-    );
+    return AutoMovieMotionHumanTiming.aimed(distance, width);
   }
 
   /**

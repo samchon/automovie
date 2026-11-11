@@ -1,17 +1,21 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
   AutoMovieMotionTarget,
-  IAutoMovieMotionEvent,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
+import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
+import { AutoMovieMotionHumanRoot } from "../compose/AutoMovieMotionHumanRoot";
+import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
+import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingBody } from "../striking/StrikingBody";
@@ -58,8 +62,8 @@ export namespace knockdown {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's target union.
    */
   export interface IParams {
-    /** Where the blow came from. */
-    from: AutoMovieMotionTarget;
+    /** Where the blow came from; a place ahead of the performer when absent. */
+    from?: AutoMovieMotionTarget;
 
     /** How long the body lies after landing, seconds; 1 when absent. */
     seconds?: number;
@@ -120,105 +124,163 @@ export namespace knockdown {
     const m = body.measure;
     const lie: number = context.params.seconds ?? 1;
     if (!(lie >= 0)) throw new Error("A knockdown lies a non-negative time");
-    const duration: number = DOWN + lie;
     const entry: IHumanPosture = context.entry.posture;
-    let away: number | undefined;
+    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+      DOWN + lie,
+      [
+        { name: "rolling", seconds: ROLLING * SEATED },
+        { name: "seated", seconds: SEATED },
+        { name: "stroke", seconds: SEATED },
+        { name: "down", seconds: DOWN },
+        { name: "relax", seconds: DOWN },
+      ],
+    );
+    const duration: number = clock.duration;
+    const sit = (seconds: number): number =>
+      clock.progress(AutoMovieMotionClock.START, "seated", seconds);
+    const back = (seconds: number): number =>
+      clock.progress("rolling", "down", seconds);
+
+    // The heading that faces the blow, so the back falls away from it.
+    let cached: number | undefined;
     const heading = (): number => {
-      if (away !== undefined) return away;
-      const threat: IAutoMovieVector3 = context.aim(
-        context.params.from,
-        context.start - StrikingTarget.LOOK,
-      ).point;
-      const d: IAutoMovieVector3 = {
-        x: entry.root.x - threat.x,
-        y: 0,
-        z: entry.root.z - threat.z,
+      if (cached !== undefined) return cached;
+      const away: IAutoMovieVector3 = AutoMovieMotionHumanTarget.away(
+        AutoMovieMotionHumanTarget.resolve(
+          context,
+          context.params.from,
+          context.start - StrikingTarget.LOOK,
+          entry,
+          AutoMovieMotionHumanTarget.DEFAULTS.ahead,
+        ),
+        entry.root,
+        entry.yaw,
+      );
+      cached = (Math.atan2(-away.x, -away.z) * 180) / Math.PI;
+      return cached;
+    };
+
+    // What the fall folds at a second: the trunk's pitch and the joints of
+    // the legs and the neck. The root reads it to rest the body on the floor.
+    const legs = (seconds: number): AutoMovieMotionHumanJoints.Angles => {
+      const knee: number =
+        100 * sit(seconds) * (1 - back(seconds)) + 15 * back(seconds);
+      return {
+        leftUpperLeg: [knee * 0.9, 5, 0],
+        rightUpperLeg: [knee * 0.9, 5, 0],
+        leftLowerLeg: [knee, 0, 0],
+        rightLowerLeg: [knee, 0, 0],
       };
-
-      // Facing the blow, the back falls away from it.
-      away =
-        Vector3.length(d) > 1e-6
-          ? (Math.atan2(-d.x, -d.z) * 180) / Math.PI
-          : entry.yaw;
-      return away;
     };
-    const events: IAutoMovieMotionEvent[] = [
-      { name: "seated", share: SEATED / duration },
-      { name: "down", share: DOWN / duration },
-    ];
-    const contacts: IHumanContactWindow[] = [
-      {
-        part: "seat",
-        kind: "seat",
-        from: SEATED / duration,
-        to: DOWN / duration,
-        support: { kind: "ground" },
-      },
-      {
-        part: "back",
-        kind: "lie",
-        from: DOWN / duration,
-        to: 1,
-        support: { kind: "ground" },
-      },
-    ];
-    const limp: Partial<
-      Record<AutoMovieHumanoidBone, readonly [number, number, number]>
-    > = {
-      leftUpperArm: [10, 20, 0],
-      rightUpperArm: [10, 20, 0],
-      leftLowerArm: [30, 0, 0],
-      rightLowerArm: [30, 0, 0],
-    };
-    return {
-      duration,
-      events,
-      contacts,
-      settle: (): void => {
-        away = undefined;
-      },
-      posture: (seconds: number): IHumanPosture => {
-        const t: number = Math.min(duration, Math.max(0, seconds));
-        const yaw: number = heading();
-        const sit: number = minimumJerk(t / SEATED).s;
-        const back: number = minimumJerk(
-          (t - 0.6 * SEATED) / (DOWN - 0.6 * SEATED),
-        ).s;
-        const frame: HumanFrame.IFrame = {
-          origin: { ...entry.root, y: 0 },
-          yaw,
-        };
-
-        // The pelvis moves back by a thigh as it sits, the feet slide forward
-        // to lie a leg's length ahead, and the trunk rolls back to the floor.
-        const root: IAutoMovieVector3 = HumanFrame.point(frame, {
-          x: 0,
-          y: 0,
-          z: -0.5 * m.thigh * sit - 0.3 * m.thigh * back,
-        });
-        const knee: number = 100 * sit * (1 - back) + 15 * back;
-        const posture: IHumanPosture = {
-          root,
-          yaw: entry.yaw + angle(yaw - entry.yaw) * sit,
-          pitch: -88 * back,
-          roll: 0,
-          joints: {
-            ...limp,
-            leftUpperLeg: [knee * 0.9, 5, 0],
-            rightUpperLeg: [knee * 0.9, 5, 0],
-            leftLowerLeg: [knee, 0, 0],
-            rightLowerLeg: [knee, 0, 0],
-            neck: [20 * back, 0, 0],
+    const neck = (seconds: number): AutoMovieMotionHumanJoints.Angles => ({
+      neck: [20 * back(seconds), 0, 0],
+    });
+    const pitch = (seconds: number): number => -88 * back(seconds);
+    return composeAutoMovieMotionHumanAction({
+      base: {
+        ...AutoMovieMotionHumanBase.still(
+          duration,
+          {
+            root: entry.root,
+            yaw: entry.yaw,
+            pitch: 0,
+            roll: 0,
+            joints: LIMP,
+            limbs: {},
           },
-          limbs: {},
-        };
-        const floor: number = rest(body, posture);
-        const standing: number = entry.root.y;
-        posture.root = { ...root, y: standing + (floor - standing) * sit };
-        return posture;
+          [
+            {
+              part: "seat",
+              kind: "seat",
+              from: SEATED / duration,
+              to: DOWN / duration,
+              support: { kind: "ground" },
+            },
+            {
+              part: "back",
+              kind: "lie",
+              from: DOWN / duration,
+              to: 1,
+              support: { kind: "ground" },
+            },
+          ],
+        ),
+        settle: (): void => {
+          cached = undefined;
+        },
       },
-    };
+      clock,
+      primitives: [
+        // The pelvis moves back by a thigh as it sits and comes down to rest
+        // on the floor, the body turning to face the blow.
+        AutoMovieMotionHumanRoot.travel({
+          from: 0,
+          to: duration,
+          offset: (seconds: number): AutoMovieMotionHumanRoot.IOffset => {
+            const yaw: number = heading();
+            const floor: number = rest(body, {
+              root: entry.root,
+              yaw: entry.yaw,
+              pitch: pitch(seconds),
+              roll: 0,
+              joints: { ...LIMP, ...legs(seconds), ...neck(seconds) },
+              limbs: {},
+            });
+            const slide: IAutoMovieVector3 = HumanFrame.local(
+              { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
+              HumanFrame.point(
+                { origin: { x: 0, y: 0, z: 0 }, yaw },
+                {
+                  x: 0,
+                  y: 0,
+                  z:
+                    -0.5 * m.thigh * sit(seconds) -
+                    0.3 * m.thigh * back(seconds),
+                },
+              ),
+            );
+            return {
+              point: { ...slide, y: (floor - entry.root.y) * sit(seconds) },
+              yaw: angle(yaw - entry.yaw) * sit(seconds),
+            };
+          },
+        }),
+        // The trunk rolls back to the floor.
+        AutoMovieMotionHumanLean.tilt({
+          from: 0,
+          to: duration,
+          angles: (seconds: number): AutoMovieMotionHumanLean.IAngles => ({
+            pitch: pitch(seconds),
+            roll: 0,
+          }),
+        }),
+        // The knees and hips fold under the pelvis, then straighten to lie.
+        AutoMovieMotionHumanJoints.add({
+          channels: ["leftLeg", "rightLeg"],
+          from: 0,
+          to: duration,
+          delta: legs,
+        }),
+        AutoMovieMotionHumanJoints.add({
+          channels: ["head"],
+          from: 0,
+          to: duration,
+          delta: neck,
+        }),
+      ],
+    });
   }
+
+  /** When the trunk starts rolling back, as a share of the time to the seat. */
+  const ROLLING: number = 0.6;
+
+  /** The arms' joints as they trail the fall, degrees. */
+  const LIMP: AutoMovieMotionHumanJoints.Angles = {
+    leftUpperArm: [10, 20, 0],
+    rightUpperArm: [10, 20, 0],
+    leftLowerArm: [30, 0, 0],
+    rightLowerArm: [30, 0, 0],
+  };
 
   /** A heading difference wrapped into (-180, 180]. */
   function angle(degrees: number): number {

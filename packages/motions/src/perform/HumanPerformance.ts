@@ -21,6 +21,8 @@ import type {
 import type { HumanActionName } from "../HumanActionName";
 import { HUMAN_ACTIONS } from "../actions/HUMAN_ACTIONS";
 import { stand } from "../actions/stand";
+import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -28,6 +30,7 @@ import type { IHumanLayer } from "../law/IHumanLayer";
 import { HumanColliders } from "../posture/HumanColliders";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import { HumanSegment } from "./HumanSegment";
 import type { IHumanPerformer } from "./IHumanPerformer";
@@ -87,6 +90,11 @@ export class HumanPerformance {
     }[]
   > = new Map();
 
+  private readonly meetings: Map<
+    string,
+    { subject: string; meeting: AutoMovieMotionMeeting.IMeeting }
+  > = new Map();
+
   private resolving: boolean = true;
 
   /**
@@ -144,6 +152,8 @@ export class HumanPerformance {
                 high: body.measure.headHeight - 0.5 * body.measure.headRadius,
               },
               range: 0.9 * (body.measure.thigh + body.measure.shank),
+              body,
+              bones: () => poseBones(body, resolveHumanPosture(body, posture)),
             });
           },
           random: (channel: string) =>
@@ -331,7 +341,7 @@ export class HumanPerformance {
    *
    * @param target The target.
    * @param seconds Film seconds.
-   * @param frame The aiming person's own frame, for `point` targets in the performer frame and `none`.
+   * @param frame The aiming person's own frame, for `point` targets in the performer frame and `none`, and their own body and bones, for `self`.
    * @returns The aim.
    */
   public aim(
@@ -342,6 +352,8 @@ export class HumanPerformance {
       yaw: number;
       heights: Record<"low" | "middle" | "high", number>;
       range: number;
+      body: IHumanBody;
+      bones: () => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
     },
   ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
     const yaw: number = (frame.yaw * Math.PI) / 180;
@@ -366,6 +378,14 @@ export class HumanPerformance {
         );
         return { point: placed.point, normal: placed.normal };
       }
+      case "self": {
+        const region = frame.body.surfaces.regions[target.region];
+        const placed = resolveAutoMovieHumanoidSurfaces.place(
+          region,
+          frame.bones().get(region.bone)!,
+        );
+        return { point: placed.point, normal: placed.normal };
+      }
       case "prop": {
         const prop: IHumanProp | undefined = this.props.get(target.subject);
         const local = prop?.points[target.point];
@@ -380,24 +400,31 @@ export class HumanPerformance {
           normal: Quaternion.rotateVector(at.rotation, local.normal),
         };
       }
-      case "point":
+      case "point": {
+        // A performer-frame vector in the world: x left, y up, z forward.
+        const turned = (v: IAutoMovieVector3): IAutoMovieVector3 =>
+          Vector3.add(
+            Vector3.add(Vector3.scale(left, v.x), { x: 0, y: v.y, z: 0 }),
+            Vector3.scale(forward, v.z),
+          );
         return {
           point:
             target.frame === "world"
               ? target.at
               : Vector3.add(
                   { x: frame.root.x, y: 0, z: frame.root.z },
-                  Vector3.add(
-                    Vector3.add(Vector3.scale(left, target.at.x), {
-                      x: 0,
-                      y: target.at.y,
-                      z: 0,
-                    }),
-                    Vector3.scale(forward, target.at.z),
-                  ),
+                  turned(target.at),
                 ),
-          normal: Vector3.scale(forward, -1),
+          normal:
+            target.normal === undefined
+              ? Vector3.scale(forward, -1)
+              : Vector3.normalize(
+                  target.frame === "world"
+                    ? target.normal
+                    : turned(target.normal),
+                ),
         };
+      }
       case "none":
         return {
           point: Vector3.add(
@@ -460,6 +487,8 @@ export class HumanPerformance {
             high: body.measure.headHeight - 0.5 * body.measure.headRadius,
           },
           range,
+          body,
+          bones: () => poseBones(body, entry.pose),
         }),
       random: (channel: string) =>
         HumanSkill.stream(
@@ -484,6 +513,48 @@ export class HumanPerformance {
           frame: (seconds: number): IHumanProp.IFrame =>
             this.prop(subject, seconds),
         };
+      },
+      meeting: (
+        kind: AutoMovieMotionMeeting.IKind,
+        role: string,
+        partner?: { role: string; subject: string },
+      ): AutoMovieMotionMeeting.IMeeting => {
+        const own: AutoMovieMotionMeeting.IRole = {
+          name: role,
+          subject: intent.subject,
+          body,
+          posture: entry.posture,
+          bones: poseBones(body, entry.pose),
+        };
+        if (partner === undefined)
+          return AutoMovieMotionMeeting.of(kind, [own], context);
+        // The role planned first computes the meeting; the other reads that
+        // record while it still lies ahead of its own start.
+        const key: string = `${kind.name}|${(intent.subject < partner.subject ? [intent.subject, partner.subject] : [partner.subject, intent.subject]).join("|")}`;
+        const kept = this.meetings.get(key);
+        if (
+          kept !== undefined &&
+          kept.subject !== intent.subject &&
+          kept.meeting.instants.relax > context.start
+        )
+          return kept.meeting;
+        const meeting: AutoMovieMotionMeeting.IMeeting =
+          AutoMovieMotionMeeting.of(
+            kind,
+            [
+              own,
+              {
+                name: partner.role,
+                subject: partner.subject,
+                body: this.person(partner.subject).performer.body,
+                posture: this.posture(partner.subject, context.start),
+                bones: this.bones(partner.subject, context.start),
+              },
+            ],
+            context,
+          );
+        this.meetings.set(key, { subject: intent.subject, meeting });
+        return meeting;
       },
       action: (anchor: string): IHumanActionContext.IPlaced => {
         const placed = this.anchors.get(anchor);

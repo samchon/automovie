@@ -4,6 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanTrunk } from "../everyday/HumanTrunk";
@@ -150,7 +151,7 @@ export namespace receive {
     const back: number = takes
       ? HumanPrehension.carry(travel)
       : HumanPrehension.nominal(travel, 0);
-    const bend: IAutoMovieVector3 = HumanHand.elbow(body, held, side);
+    const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(body, held, side);
     const home: HumanPrehension.ITransport = HumanPrehension.transport(
       arrive,
       end,

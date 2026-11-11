@@ -4,6 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
@@ -325,7 +326,7 @@ export namespace bend {
               shape: "flat",
               point: Vector3.lerp(from, target, s),
               rotation: turn,
-              bend: HumanHand.elbow(body, lowered, side, 0.2),
+              bend: AutoMovieMotionHumanBend.hang(body, lowered, side, 0.2),
             },
             {
               side: free,
@@ -337,7 +338,7 @@ export namespace bend {
                 freeTurn,
                 s,
               ),
-              bend: HumanHand.elbow(body, lowered, free, 0.3),
+              bend: AutoMovieMotionHumanBend.hang(body, lowered, free, 0.3),
             },
           ],
         );

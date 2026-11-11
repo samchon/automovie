@@ -9,6 +9,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
@@ -188,7 +190,7 @@ export namespace seated {
       body,
       resolveHumanPosture(body, posture),
     );
-    const requests: handGoals.IRequest[] = [];
+    const requests: AutoMovieMotionHumanArm.ISided[] = [];
     for (const side of ["left", "right"] as const) {
       const frame =
         body.surfaces.regions[
@@ -216,7 +218,7 @@ export namespace seated {
           fingers: along,
           palm: Vector3.scale(normal, -1),
         }),
-        bend: HumanHand.elbow(body, posture, side, 0.2),
+        bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2),
       });
     }
     const placed: IHumanPosture = handGoals(body, posture, requests);
