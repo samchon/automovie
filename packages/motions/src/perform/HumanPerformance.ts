@@ -530,7 +530,7 @@ export class HumanPerformance {
           return AutoMovieMotionMeeting.of(kind, [own], context);
         // The role planned first computes the meeting; the other reads that
         // record while it still lies ahead of its own start.
-        const key: string = `${kind.name}|${[intent.subject, partner.subject].sort().join("|")}`;
+        const key: string = `${kind.name}|${(intent.subject < partner.subject ? [intent.subject, partner.subject] : [partner.subject, intent.subject]).join("|")}`;
         const kept = this.meetings.get(key);
         if (
           kept !== undefined &&
