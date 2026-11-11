@@ -19,6 +19,7 @@ import { rest } from "../../everyday/rest";
 import { seated } from "../../everyday/seated";
 import { typeText } from "../../everyday/typeText";
 import { HumanPerformance } from "../../perform/HumanPerformance";
+import { HumanFoot } from "../../posture/HumanFoot";
 import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
@@ -613,16 +614,9 @@ export function everydayCases(
       const span: number = crossing.end - crossing.start;
       let clearance: number = Infinity;
       for (let t: number = 0; t <= performance.duration + 1e-9; t += 1 / 96)
-        for (const side of ["Left", "Right"] as const)
-          for (const name of ["heel", "ball", "toe"] as const) {
-            const frame = body.surfaces.sockets[`${name}${side}`];
-            const p: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
-              frame,
-              performance.bones("a", t).get(frame.bone)!,
-            ).point;
-            if (p.z > box.at.z && p.z < box.at.z + box.depth)
-              clearance = Math.min(clearance, p.y - box.height);
-          }
+        for (const p of HumanFoot.base(body, performance.bones("a", t)))
+          if (p.z > box.at.z && p.z < box.at.z + box.depth)
+            clearance = Math.min(clearance, p.y - box.height);
       out.push({
         name: `everyday-step${suffix}`,
         times: [0, 0.2, 0.3, 0.4, 0.5, 0.7, 0.8, 0.9, 1].map((u: number) => ({

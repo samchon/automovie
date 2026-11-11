@@ -1,5 +1,11 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import {
+  type IAutoMovieResolvedBone,
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -38,6 +44,71 @@ export namespace HumanFoot {
 
     /** The foot's world rotation from its rest. */
     rotation: IAutoMovieQuaternion;
+  }
+
+  /** A sole socket that bears on the floor. */
+  export type Socket = "heel" | "ball" | "toe";
+
+  /** A sole socket's place on a displayed foot. */
+  export interface ISocket {
+    /** Which socket. */
+    socket: Socket;
+
+    /** Where it is, world metres. */
+    point: IAutoMovieVector3;
+  }
+
+  /**
+   * A foot's three sole sockets on displayed bones, heel first, each placed
+   * on the bone it rides: the toe socket of a profile with jointed toes moves
+   * with the toes bone, not with the foot.
+   *
+   * @param body The body.
+   * @param bones The displayed bones.
+   * @param side The foot.
+   * @returns The heel, the ball and the toe.
+   */
+  export function sockets(
+    body: IHumanBody,
+    bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    side: "left" | "right",
+  ): ISocket[] {
+    return (["heel", "ball", "toe"] as const).map(
+      (socket: Socket): ISocket => {
+        const frame =
+          body.surfaces.sockets[
+            `${socket}${side === "left" ? "Left" : "Right"}`
+          ];
+        return {
+          socket,
+          point: resolveAutoMovieHumanoidSurfaces.place(
+            frame,
+            bones.get(frame.bone)!,
+          ).point,
+        };
+      },
+    );
+  }
+
+  /**
+   * The base of support of displayed bones: the sole sockets of both feet,
+   * the points whose convex hull a margin of stability is measured to (Hof,
+   * Gazendam and Sinke 2005).
+   *
+   * @param body The body.
+   * @param bones The displayed bones.
+   * @returns The left foot's heel, ball and toe, then the right foot's, world metres.
+   */
+  export function base(
+    body: IHumanBody,
+    bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  ): IAutoMovieVector3[] {
+    return (["left", "right"] as const).flatMap(
+      (side: "left" | "right"): IAutoMovieVector3[] =>
+        sockets(body, bones, side).map(
+          (s: ISocket): IAutoMovieVector3 => s.point,
+        ),
+    );
   }
 
   /**

@@ -12,6 +12,7 @@ import { HumanChain } from "../../HumanChain";
 import type { IHumanBody } from "../../body/IHumanBody";
 import { createHumanBody } from "../../body/createHumanBody";
 import { HumanPerformance } from "../../perform/HumanPerformance";
+import { HumanFoot } from "../../posture/HumanFoot";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 import { FootSlip } from "./FootSlip";
@@ -163,14 +164,14 @@ export function jumpCases(
           (x) =>
             x.part === `${side}Foot` && t >= x.from + 1e-9 && t <= x.to - 1e-9,
         );
-        const sole: FootSlip.IPoint[] = FootSlip.points(body, map, side);
+        const sole: HumanFoot.ISocket[] = HumanFoot.sockets(body, map, side);
         for (const { socket, point } of sole)
           if (t >= touchdown && -point.y > sink.value)
             sink = {
               value: -point.y,
               where: `k=${k} ${side} ${socket} t=${t.toFixed(3)} (${t < takeoff ? (t < at ? "walk" : "push-off") : "landing"})`,
             };
-        const planted: FootSlip.IPoint = FootSlip.contact(sole);
+        const planted: HumanFoot.ISocket = FootSlip.contact(sole);
         if (w < 0 || planted.point.y > 0.01) continue;
         const d: number = FootSlip.drift(touched, `${side}${w}`, planted);
         if (d > slip.value)

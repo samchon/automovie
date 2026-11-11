@@ -11,6 +11,7 @@ import { walk } from "../../actions/walk";
 import type { IHumanBody } from "../../body/IHumanBody";
 import { createHumanBody } from "../../body/createHumanBody";
 import { HumanPerformance } from "../../perform/HumanPerformance";
+import { HumanFoot } from "../../posture/HumanFoot";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 import type { humanPolygonMan } from "../humanPolygonMan";
@@ -338,7 +339,7 @@ export function* locomotionCases(
                   }
                 }
               }
-              const sole: FootSlip.IPoint[] = FootSlip.points(
+              const sole: HumanFoot.ISocket[] = HumanFoot.sockets(
                 body,
                 bones,
                 side,
@@ -350,7 +351,7 @@ export function* locomotionCases(
                     where: `${names[i]} ${side} ${socket} ${phase} t=${t.toFixed(2)}`,
                   };
               // The planted point on the floor during a stance must not move across it.
-              const planted: FootSlip.IPoint = FootSlip.contact(sole);
+              const planted: HumanFoot.ISocket = FootSlip.contact(sole);
               if (n >= 0 && planted.point.y <= 0.01) {
                 const d: number = FootSlip.drift(
                   touched,

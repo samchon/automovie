@@ -2,7 +2,6 @@ import {
   DEFAULT_HUMANOID_ROM,
   jointRomOvershoot,
   resolveAutoMovieCenterOfMass,
-  resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
   IAutoMovieJointPose,
@@ -11,6 +10,7 @@ import type {
 
 import type { IHumanBody } from "../../body/IHumanBody";
 import type { HumanPerformance } from "../../perform/HumanPerformance";
+import { HumanFoot } from "../../posture/HumanFoot";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FootSlip } from "./FootSlip";
 
@@ -68,7 +68,7 @@ export namespace everydayVerdicts {
             anchors,
             contact.part,
             FootSlip.contact(
-              FootSlip.points(body, performance.bones(subject, t), side),
+              HumanFoot.sockets(body, performance.bones(subject, t), side),
             ),
           );
           if (value > worst.value)
@@ -139,17 +139,10 @@ export namespace everydayVerdicts {
       velocity,
       1.34 * body.measure.hipHeight,
     );
-    const bones = performance.bones(subject, seconds);
-    const support: IAutoMovieVector3[] = [];
-    for (const side of ["Left", "Right"] as const)
-      for (const point of ["heel", "ball", "toe"] as const) {
-        const frame = body.surfaces.sockets[`${point}${side}`];
-        support.push(
-          resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!)
-            .point,
-        );
-      }
-    return resolveAutoMovieCenterOfMass.margin(xcom, support);
+    return resolveAutoMovieCenterOfMass.margin(
+      xcom,
+      HumanFoot.base(body, performance.bones(subject, seconds)),
+    );
   }
 
   /**

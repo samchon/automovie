@@ -1,13 +1,6 @@
-import {
-  type IAutoMovieResolvedBone,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../../body/IHumanBody";
+import type { HumanFoot } from "../../posture/HumanFoot";
 
 /**
  * How far a planted foot slides, the one rule every capture case measures
@@ -22,55 +15,18 @@ import type { IHumanBody } from "../../body/IHumanBody";
  * and is not sliding. The slip is the contact's horizontal distance from
  * where that socket first was the contact in the same plant window; the
  * anchor is kept for the whole window, so a socket that leaves the floor and
- * returns is still measured from where it first stood.
+ * returns is still measured from where it first stood. The sockets come from
+ * `HumanFoot.sockets`, the one place that puts them on displayed bones.
  */
 export namespace FootSlip {
-  /** A sole socket. */
-  export type Socket = "heel" | "ball" | "toe";
-
-  /** A sole socket's displayed place. */
-  export interface IPoint {
-    /** Which socket. */
-    socket: Socket;
-
-    /** Where it is, world metres. */
-    point: IAutoMovieVector3;
-  }
-
-  /**
-   * A foot's three sole sockets on displayed bones, heel first.
-   *
-   * @param body The body.
-   * @param bones The displayed bones.
-   * @param side The foot.
-   * @returns The heel, the ball and the toe.
-   */
-  export function points(
-    body: IHumanBody,
-    bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    side: "left" | "right",
-  ): IPoint[] {
-    return (["heel", "ball", "toe"] as const).map((socket: Socket): IPoint => {
-      const frame =
-        body.surfaces.sockets[`${socket}${side === "left" ? "Left" : "Right"}`];
-      return {
-        socket,
-        point: resolveAutoMovieHumanoidSurfaces.place(
-          frame,
-          bones.get(frame.bone)!,
-        ).point,
-      };
-    });
-  }
-
   /**
    * The contact of a foot: its lowest sole socket.
    *
    * @param sole The foot's sockets, in tie order.
    * @returns The lowest.
    */
-  export function contact(sole: IPoint[]): IPoint {
-    let lowest: IPoint = sole[0]!;
+  export function contact(sole: HumanFoot.ISocket[]): HumanFoot.ISocket {
+    let lowest: HumanFoot.ISocket = sole[0]!;
     for (const p of sole) if (p.point.y < lowest.point.y - 1e-6) lowest = p;
     return lowest;
   }
@@ -86,7 +42,7 @@ export namespace FootSlip {
   export function drift(
     anchors: Map<string, IAutoMovieVector3>,
     window: string,
-    at: IPoint,
+    at: HumanFoot.ISocket,
   ): number {
     const key: string = `${window} ${at.socket}`;
     const anchor: IAutoMovieVector3 = anchors.get(key) ?? at.point;
