@@ -38,6 +38,7 @@ export * from "./compose/AutoMovieMotionHumanRoot";
 export * from "./compose/AutoMovieMotionHumanTarget";
 export * from "./compose/AutoMovieMotionHumanTiming";
 export * from "./compose/AutoMovieMotionHumanTrunk";
+export * from "./compose/AutoMovieMotionHumanVariation";
 export * from "./compose/AutoMovieMotionManner";
 export * from "./compose/AutoMovieMotionMeeting";
 export * from "./compose/IAutoMovieMotionHumanPrimitive";
