@@ -77,7 +77,11 @@ export namespace AutoMovieLoftPoint {
       for (const relief of chain.reliefs ?? []) {
         const d: number = AutoMovieLoftRelief.height(relief, s, t)[0];
         if (d === 0) continue;
-        for (let k: number = 0; k < 3; k++) q[k]! += d * relief.axis[k]!;
+        const e: [number, number, number] = AutoMovieLoftRelief.direction(
+          relief,
+          t,
+        )[0];
+        for (let k: number = 0; k < 3; k++) q[k]! += d * e[k]!;
       }
       if (source !== null && !q.every(Number.isFinite))
         throw new Error("The actual native point has no finite world value.");
@@ -179,9 +183,10 @@ export namespace AutoMovieLoftPoint {
           s,
           t,
         );
+        const [e, e1] = AutoMovieLoftRelief.direction(relief, t);
         for (let k: number = 0; k < 3; k++) {
-          p[k]! += h[0] * relief.axis[k]!;
-          dt[k]! += h[2] * relief.axis[k]!;
+          p[k]! += h[0] * e[k]!;
+          dt[k]! += h[2] * e[k]! + h[0] * e1[k]!;
         }
       }
       if (![...p, ...dt].every(Number.isFinite))
@@ -311,7 +316,11 @@ export namespace AutoMovieLoftPoint {
       for (const relief of chain.reliefs ?? []) {
         const d: number = AutoMovieLoftRelief.height(relief, s, t)[0];
         if (d === 0) continue;
-        for (let k: number = 0; k < 3; k++) q[k]! += d * relief.axis[k]!;
+        const e: [number, number, number] = AutoMovieLoftRelief.direction(
+          relief,
+          t,
+        )[0];
+        for (let k: number = 0; k < 3; k++) q[k]! += d * e[k]!;
       }
       return q;
     };

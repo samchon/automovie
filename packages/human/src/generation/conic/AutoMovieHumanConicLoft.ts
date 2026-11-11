@@ -268,7 +268,10 @@ export namespace AutoMovieHumanConicLoft {
             reliefs: family.reliefs.map((relief: IAutoMovieLoftRelief): IAutoMovieLoftRelief => {
               const turn: number = relief.phases[1] > 0 ? 2 * Math.PI : 0;
               const reverse = (net: number[]): number[] => net.map((_: number, i: number): number => net[i - (i % relief.columns) + relief.columns - 1 - (i % relief.columns)]!);
-              return { ...relief, name: relief.name + ".mirror", phases: [turn - relief.phases[1], turn - relief.phases[0]], axis: flip(relief.axis), heights: reverse(relief.heights), ...(relief.shift === undefined ? {} : { shift: reverse(relief.shift) }) };
+              return { ...relief, name: relief.name + ".mirror", phases: [turn - relief.phases[1], turn - relief.phases[0]], axis: flip(relief.axis), heights: reverse(relief.heights), ...(relief.shift === undefined ? {} : { shift: reverse(relief.shift) }),
+                // The twin's phases run the other way, so its turning direction is the reflected one negated.
+                ...(relief.turn === undefined ? {} : { turn: flip(relief.turn).map((x: number): number => -x) as [number, number, number] }),
+              };
             }),
           }),
     };
