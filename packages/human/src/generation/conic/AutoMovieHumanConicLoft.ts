@@ -210,6 +210,9 @@ export namespace AutoMovieHumanConicLoft {
         return Math.PI * (3 * (a! + b!) - Math.sqrt((3 * a! + b!) * (a! + 3 * b!)));
       }),
     );
+
+    // And no farther apart than the finest relief net's columns, as the layers are cut to its rows: a net shows only what the rings sample.
+    const finest: number = Math.min(Infinity, ...(family.reliefs ?? []).map((relief: IAutoMovieLoftRelief): number => (relief.phases[1] - relief.phases[0]) / (relief.columns - 3)));
     return {
       name: family.name,
       axis: axis(family),
@@ -219,7 +222,7 @@ export namespace AutoMovieHumanConicLoft {
       side: { positive: coordinate(1, 1), negative: coordinate(3, 1) },
       fullness: { kind: "top", shoulders: quarters((q: number): IAutoMovieViewPart.IOutline => share((chain: AutoMovieHumanConicSection.IChain): number => chain.input.shoulders[guides[q]!]!)), touch: quarters((q: number): IAutoMovieViewPart.IOutline => coordinate(q, q % 2 === 0 ? 1 : 0)), pieces: quarters(pieces) },
       order: 32,
-      samples: Math.max(48, 8 * Math.ceil(girth / PHASE_MM / 8)),
+      samples: Math.max(48, 8 * Math.ceil(Math.max(girth / PHASE_MM, (2 * Math.PI) / finest) / 8)),
       ...(family.reliefs === undefined || family.reliefs.length === 0 ? {} : { reliefs: family.reliefs }),
     };
   }
