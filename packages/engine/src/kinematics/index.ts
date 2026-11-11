@@ -9,6 +9,8 @@ export * from "./IAutoMovieArmChainFault";
 export * from "./IAutoMovieChainBone";
 export * from "./IAutoMovieHingedArticulation";
 export * from "./IAutoMovieJointAxesIssue";
+export * from "./IAutoMoviePoseRig";
+export * from "./poseJointCodec";
 export * from "./IAutoMovieResolvedBone";
 export * from "./IAutoMovieSkeletonTopology";
 export * from "./IAutoMovieTwoBoneArticulation";

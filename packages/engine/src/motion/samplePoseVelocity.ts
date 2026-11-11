@@ -6,6 +6,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { IAutoMoviePoseRig } from "../kinematics/IAutoMoviePoseRig";
+import { poseJointCodec } from "../kinematics/poseJointCodec";
 import { Quaternion } from "../math/Quaternion";
 
 /**
@@ -26,10 +28,18 @@ import { Quaternion } from "../math/Quaternion";
  * error `O(h^2)` times the third derivative. An angle absent from a sample
  * counts as zero, its clinical neutral.
  *
+ * Each joint's angular velocity (`spins`) is read the way the root's is, from
+ * the rotation vectors of its articulation at the same samples
+ * ({@link poseJointCodec}), never from the angle rates: at an angle chart's
+ * gimbal the angle rates of a smooth rotation are unbounded, while its angular
+ * velocity is not.
+ *
  * @param sample The pose as a pure function of seconds.
  * @param seconds The instant.
  * @param step The difference interval `h`, seconds; 1 ms by default.
  * @param side Which side of the instant the motion is read from: both by default.
+ * @param rig The rig the joints' angles are read through for `spins`; the
+ *   default basis with rest-relative angles when omitted.
  * @returns The pose at the instant and its velocity.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States both estimators, when each applies, their error order, the absent-angle meaning and the units.
@@ -45,6 +55,7 @@ export function samplePoseVelocity(
   seconds: number,
   step: number = 1e-3,
   side: samplePoseVelocity.Side = "both",
+  rig?: IAutoMoviePoseRig,
 ): samplePoseVelocity.IState {
   if (!(step > 0)) throw new Error("A velocity step is positive");
   const pose: IAutoMoviePose = sample(seconds);
@@ -91,6 +102,33 @@ export function samplePoseVelocity(
     ]);
   }
 
+  // Joint spins: the rotation vectors of each articulation at the two samples
+  // beside the instant, from the same origin sample as the root's below.
+  const codec: poseJointCodec.ICodec = poseJointCodec(rig);
+  const still: [number, number, number] = [0, 0, 0];
+  const spins: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map();
+  for (const bone of joints.keys()) {
+    const from: IAutoMovieQuaternion = Quaternion.inverse(
+      codec.rotation(bone, (side === "both" ? ba : pa).get(bone) ?? still),
+    );
+    const swing = (
+      angles: Map<AutoMovieHumanoidBone, [number, number, number]>,
+    ): IAutoMovieVector3 =>
+      samplePoseVelocity.rotationVector(
+        Quaternion.multiply(
+          codec.rotation(bone, angles.get(bone) ?? still),
+          from,
+        ),
+      );
+    const x: IAutoMovieVector3 = swing(aa);
+    const y: IAutoMovieVector3 = swing(ba);
+    spins.set(bone, {
+      x: rate(x.x, y.x, 0),
+      y: rate(x.y, y.y, 0),
+      z: rate(x.z, y.z, 0),
+    });
+  }
+
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const at: IAutoMovieVector3 = a.root?.translation ?? zero;
   const bt: IAutoMovieVector3 = b.root?.translation ?? zero;
@@ -111,6 +149,7 @@ export function samplePoseVelocity(
     pose,
     velocity: {
       joints,
+      spins,
       linear: {
         x: rate(at.x, bt.x, pt.x),
         y: rate(at.y, bt.y, pt.y),
@@ -145,6 +184,12 @@ export namespace samplePoseVelocity {
   export interface IVelocity {
     /** Flexion, abduction and twist rates per bone, degrees per second. */
     joints: Map<AutoMovieHumanoidBone, [number, number, number]>;
+
+    /**
+     * Each joint's angular velocity, radians per second, in the frame its
+     * articulation is applied in (after the bone's rest rotation).
+     */
+    spins: Map<AutoMovieHumanoidBone, IAutoMovieVector3>;
 
     /** Root translation rate, metres per second, the pose's parent frame. */
     linear: IAutoMovieVector3;

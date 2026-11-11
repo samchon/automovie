@@ -6,6 +6,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { IAutoMoviePoseRig } from "../kinematics/IAutoMoviePoseRig";
+import { poseJointCodec } from "../kinematics/poseJointCodec";
 import { Quaternion } from "../math/Quaternion";
 import { inertializeOffset } from "./inertializeOffset";
 import { samplePoseVelocity } from "./samplePoseVelocity";
@@ -15,13 +17,21 @@ import { samplePoseVelocity } from "./samplePoseVelocity";
  * the cut, and the source's offset from it decays to zero.
  *
  * At the cut the displayed pose was the source; from then on it is the target
- * plus an offset per channel. Every clinical angle's offset and offset
- * velocity decay independently by {@link inertializeOffset} (Bollo, GDC
- * 2018), so each channel is continuous in value and velocity at the cut,
- * reaches the target exactly at its own clamped decay time and never
- * overshoots it. The root translation decays per axis the same way. The root
- * rotation's offset `q_s q_t^-1` decays as its rotation vector, per axis, with
- * the angular velocity offset, and is applied before the target rotation.
+ * plus an offset. Every rotation's offset `q_s q_t^-1` (each joint's
+ * articulation and the root's rotation) decays as its rotation vector, per
+ * axis, with the angular velocity offset, by {@link inertializeOffset} (Bollo,
+ * GDC 2018), and is applied before the target rotation; the root translation
+ * decays per axis the same way. Each is therefore continuous in value and
+ * velocity at the cut, reaches the target exactly at its own clamped decay
+ * time and never overshoots it.
+ *
+ * A joint is blended as a rotation, never per clinical angle: its
+ * `[flexion, abduction, twist]` is an Euler chart, and at the chart's gimbal
+ * (a hanging arm on a T-pose rig) nearly equal rotations have far apart
+ * triples, whose per-angle blend swings the bone through poses neither side
+ * holds. The blended rotation is lowered to angles through the rig
+ * ({@link poseJointCodec}), in the chart its range of motion admits best. A
+ * joint with no offset left returns the target's own angles untouched.
  *
  * The result is a pure function of the elapsed time and the target pose at
  * that time, so a caller can evaluate it on any grid. Contact corrections
@@ -31,26 +41,31 @@ import { samplePoseVelocity } from "./samplePoseVelocity";
  * @param source The displayed pose and its velocity at the cut.
  * @param target The target's pose and velocity at the cut.
  * @param duration Requested decay time, seconds; positive.
- * @param through Whether a channel heading to its target faster than the
+ * @param through Whether an offset heading to its target faster than the
  *   decay absorbs passes through it and returns, as `inertializeOffset`
  *   bounds, instead of stopping short of it within milliseconds: the "never
  *   overshoots" above is then given up for a bounded acceleration at the cut.
+ * @param rig The rig the joints' angles are read through, the one both
+ *   states' `spins` were sampled with; the default basis with rest-relative
+ *   angles when omitted.
  * @returns The displayed pose for an elapsed time and the target pose at it.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the per-channel method, its continuity and no-overshoot guarantees, the root rotation's treatment and where contact correction goes.
- * @evidence contracts/development/implementation.md#principled-implementation Per-channel quintic inertialization (Bollo 2018) with the rotation offset decayed as a rotation vector, the standard treatment of orientation offsets.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Offsets are captured once; the returned function adds their decay to the target.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rotation-space method and why angles are not blended, its continuity and no-overshoot guarantees and where contact correction goes.
+ * @evidence contracts/development/implementation.md#principled-implementation Quintic inertialization (Bollo 2018) with every orientation offset decayed as a rotation vector, the standard treatment of orientation offsets.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Offsets are captured once; the returned function applies their decay before the target.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Bones present on one side only take their clinical neutral, zero, on the other.
  * @evidence contracts/development/implementation.md#efficient-algorithms Capture is linear in joints; each evaluation is linear in joints.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The captured offsets are shared by every evaluation of one transition.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function retains only the captured offsets, bounded by the joint count.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The captured offsets and the joint codec are shared by every evaluation of one transition.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function retains only the captured offsets and the codec, bounded by the joint count.
  */
 export function inertializePose(
   source: samplePoseVelocity.IState,
   target: samplePoseVelocity.IState,
   duration: number,
   through: boolean = false,
+  rig?: IAutoMoviePoseRig,
 ): (elapsed: number, pose: IAutoMoviePose) => IAutoMoviePose {
+  const codec: poseJointCodec.ICodec = poseJointCodec(rig);
   const angles = (
     p: IAutoMoviePose,
   ): Map<AutoMovieHumanoidBone, [number, number, number]> =>
@@ -64,29 +79,61 @@ export function inertializePose(
         ],
       ),
     );
+  const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  const axes = ["x", "y", "z"] as const;
+
+  // The offset rotation `exp(decayed vector)` at an elapsed time, or null
+  // once nothing of it is left.
+  const decayed = (
+    x: IAutoMovieVector3,
+    v: IAutoMovieVector3,
+    elapsed: number,
+  ): IAutoMovieQuaternion | null => {
+    const turn: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+    for (const k of axes)
+      turn[k] = inertializeOffset(x[k], v[k], duration, elapsed, through).value;
+    const angle: number = Math.hypot(turn.x, turn.y, turn.z);
+    return angle < 1e-12
+      ? null
+      : Quaternion.fromAxisAngle(
+          { x: turn.x / angle, y: turn.y / angle, z: turn.z / angle },
+          (angle * 180) / Math.PI,
+        );
+  };
+
   const sa: Map<AutoMovieHumanoidBone, [number, number, number]> = angles(
     source.pose,
   );
   const ta: Map<AutoMovieHumanoidBone, [number, number, number]> = angles(
     target.pose,
   );
-  const offsets: Map<AutoMovieHumanoidBone, { x: number[]; v: number[] }> =
-    new Map();
+  const still: [number, number, number] = [0, 0, 0];
+  const offsets: Map<
+    AutoMovieHumanoidBone,
+    { x: IAutoMovieVector3; v: IAutoMovieVector3 }
+  > = new Map();
   for (const bone of new Set([...sa.keys(), ...ta.keys()])) {
-    const s: [number, number, number] = sa.get(bone) ?? [0, 0, 0];
-    const t: [number, number, number] = ta.get(bone) ?? [0, 0, 0];
-    const vs: [number, number, number] = source.velocity.joints.get(bone) ?? [
-      0, 0, 0,
-    ];
-    const vt: [number, number, number] = target.velocity.joints.get(bone) ?? [
-      0, 0, 0,
-    ];
-    offsets.set(bone, {
-      x: [0, 1, 2].map((k: number): number => s[k]! - t[k]!),
-      v: [0, 1, 2].map((k: number): number => vs[k]! - vt[k]!),
-    });
+    const s: [number, number, number] = sa.get(bone) ?? still;
+    const t: [number, number, number] = ta.get(bone) ?? still;
+    const vs: IAutoMovieVector3 = source.velocity.spins.get(bone) ?? zero;
+    const vt: IAutoMovieVector3 = target.velocity.spins.get(bone) ?? zero;
+    const same: boolean = s[0] === t[0] && s[1] === t[1] && s[2] === t[2];
+    const x: IAutoMovieVector3 = same
+      ? zero
+      : samplePoseVelocity.rotationVector(
+          Quaternion.multiply(
+            codec.rotation(bone, s),
+            Quaternion.inverse(codec.rotation(bone, t)),
+          ),
+        );
+    const v: IAutoMovieVector3 = {
+      x: vs.x - vt.x,
+      y: vs.y - vt.y,
+      z: vs.z - vt.z,
+    };
+    if (same && v.x === 0 && v.y === 0 && v.z === 0) continue;
+    offsets.set(bone, { x, v });
   }
-  const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const st: IAutoMovieVector3 = source.pose.root?.translation ?? zero;
   const tt: IAutoMovieVector3 = target.pose.root?.translation ?? zero;
   const sr: IAutoMovieQuaternion =
@@ -96,28 +143,42 @@ export function inertializePose(
   const rotation0: IAutoMovieVector3 = samplePoseVelocity.rotationVector(
     Quaternion.multiply(sr, Quaternion.inverse(tr)),
   );
-  const axes = ["x", "y", "z"] as const;
+  const spin0: IAutoMovieVector3 = {
+    x: source.velocity.angular.x - target.velocity.angular.x,
+    y: source.velocity.angular.y - target.velocity.angular.y,
+    z: source.velocity.angular.z - target.velocity.angular.z,
+  };
   return (elapsed: number, pose: IAutoMoviePose): IAutoMoviePose => {
     const now: Map<AutoMovieHumanoidBone, [number, number, number]> =
       angles(pose);
     const joints: IAutoMovieJointPose[] = [];
     for (const bone of new Set([...now.keys(), ...offsets.keys()])) {
-      const base: [number, number, number] = now.get(bone) ?? [0, 0, 0];
-      const o: { x: number[]; v: number[] } | undefined = offsets.get(bone);
-      const at = (k: number): number =>
-        base[k]! +
-        (o === undefined
-          ? 0
-          : inertializeOffset(o.x[k]!, o.v[k]!, duration, elapsed, through)
-              .value);
-      joints.push({ bone, flexion: at(0), abduction: at(1), twist: at(2) });
+      const base: [number, number, number] = now.get(bone) ?? still;
+      const o: { x: IAutoMovieVector3; v: IAutoMovieVector3 } | undefined =
+        offsets.get(bone);
+      const offset: IAutoMovieQuaternion | null =
+        o === undefined ? null : decayed(o.x, o.v, elapsed);
+      const shown: [number, number, number] =
+        offset === null
+          ? base
+          : codec.angles(
+              bone,
+              Quaternion.normalize(
+                Quaternion.multiply(offset, codec.rotation(bone, base)),
+              ),
+            );
+      joints.push({
+        bone,
+        flexion: shown[0],
+        abduction: shown[1],
+        twist: shown[2],
+      });
     }
     const t: IAutoMovieVector3 = pose.root?.translation ?? zero;
     const r: IAutoMovieQuaternion =
       pose.root?.rotation ?? Quaternion.identity();
     const translation: IAutoMovieVector3 = { ...t };
-    const turn: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-    for (const k of axes) {
+    for (const k of axes)
       translation[k] += inertializeOffset(
         st[k] - tt[k],
         source.velocity.linear[k] - target.velocity.linear[k],
@@ -125,22 +186,8 @@ export function inertializePose(
         elapsed,
         through,
       ).value;
-      turn[k] = inertializeOffset(
-        rotation0[k],
-        source.velocity.angular[k] - target.velocity.angular[k],
-        duration,
-        elapsed,
-        through,
-      ).value;
-    }
-    const angle: number = Math.hypot(turn.x, turn.y, turn.z);
     const offset: IAutoMovieQuaternion =
-      angle < 1e-12
-        ? Quaternion.identity()
-        : Quaternion.fromAxisAngle(
-            { x: turn.x / angle, y: turn.y / angle, z: turn.z / angle },
-            (angle * 180) / Math.PI,
-          );
+      decayed(rotation0, spin0, elapsed) ?? Quaternion.identity();
     return {
       skeleton: pose.skeleton,
       root: {

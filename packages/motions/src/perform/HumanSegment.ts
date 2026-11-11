@@ -24,6 +24,7 @@ import type { IHumanEntryState } from "../law/IHumanEntryState";
 import type { IHumanInterruptRow } from "../law/IHumanInterruptRow";
 import type { IHumanLayer } from "../law/IHumanLayer";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { humanRig } from "../posture/humanRig";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
@@ -308,6 +309,7 @@ export namespace HumanSegment {
       seconds,
       step,
       "before",
+      humanRig(body),
     );
     const posture: IHumanPosture =
       previous === undefined
@@ -536,6 +538,7 @@ export namespace HumanSegment {
           transition.cut,
           1e-3,
           "before",
+          humanRig(body),
         ),
         samplePoseVelocity(
           (t: number): IAutoMoviePose =>
@@ -555,11 +558,15 @@ export namespace HumanSegment {
           transition.cut,
           1e-3,
           "after",
+          humanRig(body),
         ),
         transition.blend,
         // A joint cut as it passes the next action's pose keeps its rate and
         // follows through; stopped short it would lose that rate at once.
         true,
+        // Joints blend as rotations read through the displayed rig, so an arm
+        // hanging at its shoulder chart's gimbal does not swing on the way.
+        humanRig(body),
       );
       // The offset pose is clamped first and the planted limbs re-solved last,
       // so no later step moves a plant (the limb fit keeps its own angles in range).
