@@ -219,7 +219,7 @@ export function buildHumanPolygonModule(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Documents section axes, optional source points and display coordinates, and the query's local units, frontmost selection and missing-hit result.
  * @evidence contracts/development/design.md#principled-representation Represents Explicit section inputs shared by the display selector and mesh assembler: companion namespace of 2 members (`ISection`, `frontAt`); units and frames named in its text: metre, frame, second, local. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `buildHumanPolygonModule` in packages/viewer/src/human-polygon/buildHumanPolygonModule.ts; its surface is the 2 members listed and the text shows 3 other files naming it, mostly packages/viewer (3), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `buildHumanPolygonModule` in packages/render/src/scene/human-polygon/buildHumanPolygonModule.ts; its surface is the 2 members listed and the text shows 3 other files naming it, mostly packages/render (3), so no member is declared for a presumed future need.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace buildHumanPolygonModule {
