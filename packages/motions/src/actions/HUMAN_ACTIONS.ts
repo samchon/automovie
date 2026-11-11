@@ -1,9 +1,12 @@
 import type { HumanActionName } from "../HumanActionName";
 import { operate } from "../affordance/operate";
+import { climbLadder } from "../climbing/climbLadder";
 import { crawl } from "../floor/crawl";
 import { lieDown } from "../floor/lieDown";
 import { handToFace } from "../daily/handToFace";
+import { dance } from "../exercise/dance";
 import { exercise } from "../exercise/exercise";
+import { stretch } from "../exercise/stretch";
 import { approach } from "../everyday/approach";
 import { bend } from "../everyday/bend";
 import { brace } from "../everyday/brace";
@@ -92,8 +95,11 @@ export const HUMAN_ACTIONS: Readonly<
   operate,
   lieDown,
   crawl,
+  climbLadder,
   kiss,
   highFive,
   selfAction,
   exercise,
+  stretch,
+  dance,
 };

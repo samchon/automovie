@@ -43,10 +43,13 @@
  * - `operate`: pressing a button, turning a knob, sliding a drawer or swinging a door by its handle.
  * - `lieDown`: lying down on the floor from standing, supine, prone or on a side.
  * - `crawl`: getting down onto hands and knees and crawling in the diagonal pattern.
+ * - `climbLadder`: climbing a fixed ladder in the four-beat pattern, three limbs always on it.
  * - `kiss`: the lips brought to a partner's region by a lean and a neck flexion.
  * - `highFive`: two partners' hands meeting at one shared point and instant.
  * - `selfAction`: a whole-body self action (stretch, victory arms, fist pump, neck or shoulder roll).
  * - `exercise`: a standing bodyweight exercise counted in repetitions (squat, lunge, high knees, jumping jack).
+ * - `stretch`: a standing static stretch or yoga pose held and released (neck, cross-body, side bend, quadriceps, tree).
+ * - `dance`: a solo dance step locked to a declared beat (bounce, sway, step-touch).
  */
 export type HumanActionName =
   | "stand"
@@ -88,7 +91,10 @@ export type HumanActionName =
   | "operate"
   | "lieDown"
   | "crawl"
+  | "climbLadder"
   | "kiss"
   | "highFive"
   | "selfAction"
-  | "exercise";
+  | "exercise"
+  | "stretch"
+  | "dance";
