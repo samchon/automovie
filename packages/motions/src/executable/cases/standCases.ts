@@ -18,10 +18,10 @@ import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 
 /**
- * The capture case of quiet standing on the polygon man (`stand`): the
- * smallest, the average and the tallest sweep bodies stand for 2 s on a
- * diagonal, 0.8 m apart along each axis, drawn at the start, after settling
- * and at the end.
+ * The capture case of quiet standing on the polygon man (`stand`): the named
+ * bodies, by default the smallest, the average and the tallest of the sweep,
+ * stand for 2 s on a diagonal, 0.8 m apart along each axis, drawn at the
+ * start, after settling and at the end.
  *
  * The verdicts are the clinical standing alignment the stand law claims, read
  * on the displayed bones at the end: the shoulder joints' midpoint and the
@@ -32,6 +32,8 @@ import { MotionBodies } from "../MotionBodies";
  * ankles' midpoint (Winter 1995); and each heel and toe on the floor within
  * 5 mm.
  *
+ * @param names The bodies that stand.
+ * @param label The case's name.
  * @returns The case.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the instants and every verdict with its bound and source.
@@ -42,8 +44,10 @@ import { MotionBodies } from "../MotionBodies";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
-export function standCases(): IMotionCaptureCase[] {
-  const names = ["f-small", "m-average", "m-tall"] as const;
+export function standCases(
+  names: readonly string[] = ["f-small", "m-average", "m-tall"],
+  label: string = "stand",
+): IMotionCaptureCase[] {
   const men = names.map((name) => MotionBodies.population(name));
   const bodies: IHumanBody[] = men.map((man) =>
     createHumanBody(man.body.skeleton, man.body.profile),
@@ -59,7 +63,11 @@ export function standCases(): IMotionCaptureCase[] {
       subject: `s${i}`,
       body,
       // A diagonal lane, so the bodies part in the front and the side views alike.
-      at: { x: (i - 1) * 0.8, y: 0, z: (i - 1) * 0.8 },
+      at: {
+        x: (i - (names.length - 1) / 2) * 0.8,
+        y: 0,
+        z: (i - (names.length - 1) / 2) * 0.8,
+      },
       yaw: 0,
       proficiency: { level: "trained" as const },
     })),
@@ -113,7 +121,7 @@ export function standCases(): IMotionCaptureCase[] {
   });
   return [
     {
-      name: "stand",
+      name: label,
       times: [
         { seconds: 0, label: "start" },
         { seconds: 0.5, label: "settled" },

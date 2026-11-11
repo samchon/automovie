@@ -47,7 +47,12 @@ export const MOTION_CAPTURE_CASES: Readonly<
   "jump-e1-f-small": (): IMotionCaptureCase[] => jumpCases("f-small"),
   "jump-e1-m-average": (): IMotionCaptureCase[] => jumpCases("m-average"),
   "jump-e1-m-tall": (): IMotionCaptureCase[] => jumpCases("m-tall"),
+  "jump-e1-sweep": function* (): Iterable<IMotionCaptureCase> {
+    for (const who of MotionBodies.SWEEP) yield* jumpCases(who);
+  },
   stand: (): IMotionCaptureCase[] => standCases(),
+  "stand-sweep": (): IMotionCaptureCase[] =>
+    standCases(MotionBodies.SWEEP, "stand-sweep"),
   "everyday-approach": (): IMotionCaptureCase[] => everydayCases("approach"),
   "everyday-look": (): IMotionCaptureCase[] => everydayCases("look"),
   "everyday-gesture": (): IMotionCaptureCase[] => everydayCases("gesture"),
