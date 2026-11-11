@@ -13,6 +13,11 @@ import type { AutoMovieMotionHumanChannel } from "./AutoMovieMotionHumanChannel"
  * body. The composition gives it the posture the base and the channels
  * written before it produced, and keeps only the claimed channels of what it
  * returns ({@link AutoMovieMotionHumanChannel.merge}).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what a primitive is, what it is built against, what posture it is given and what of its result is kept.
+ * @evidence contracts/development/design.md#principled-representation A part's movement is a function from the posture so far and the time to a posture, over a span and on declared channels; an action is such functions side by side.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Six members: the claim, the span, the function, and the two things only a primitive knows that a plan must carry (its contacts and its weapons).
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the plan's contact-window and weapon types; the two optional members are absent for a primitive that makes neither.
  */
 export interface IAutoMovieMotionHumanPrimitive {
   /** The channels it writes. */

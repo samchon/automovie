@@ -35,9 +35,21 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  * fingers go from the relaxed cascade to the target's shape by the same
  * weight (Jeannerod 1984: the hand is shaped during its transport). The
  * origin is held in the performer's own floor frame, so it follows the body.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what a target is and when it is evaluated, how the hand is solved, the path and the turn between origin and target, and the frame an origin is held in.
+ * @evidence contracts/development/design.md#principled-representation An arm movement is an effector goal blended between a body-carried origin and a per-second target frame by one weight, the form reach-to-grasp studies describe (transport and hand shaping on one time course).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One movement (`move`) with three named weights over it (`reach`, `hold`, `retract`) and the three conversions they need; the only owner of arm goals built from a hand surface.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the hand's surface and shape unions and the posture's goal type; no action name and no fixed body size appears.
  */
 export namespace AutoMovieMotionHumanArm {
-  /** Where a hand surface goes and how the hand is held there, world frame. */
+  /**
+   * Where a hand surface goes and how the hand is held there, world frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the record is and its frame; each member gives its unit and its meaning when absent.
+   * @evidence contracts/development/design.md#principled-representation The surface, its point and the hand's rotation fix the wrist; the bend hint fixes the elbow's one remaining freedom; the shape and the curl fix the fingers.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members, each read by `goal` or `move`; `curl` is optional because most shapes need none.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `HumanHand.Surface` and `HumanHand.Shape` and the interface's vector and quaternion types.
+   */
   export interface ITarget {
     /** The surface brought to the point. */
     surface: HumanHand.Surface;
@@ -59,15 +71,41 @@ export namespace AutoMovieMotionHumanArm {
   }
 
   /**
+   * A target with the arm that takes it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the record adds to a target.
+   * @evidence contracts/development/design.md#principled-representation A target is the same for either hand; which arm takes it is a separate fact, added by extension.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One added member; the one record every law that places hands by a list reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Extends `ITarget` instead of repeating its members.
+   */
+  export interface ISided extends ITarget {
+    /** The arm. */
+    side: HumanHand.Side;
+  }
+
+  /**
    * A target as a frame of the action.
    *
    * @param posture The posture so far at this second.
    * @param seconds Seconds since the action's start.
    * @returns The target.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what each argument is and when the function is called.
+   * @evidence contracts/development/design.md#principled-representation A target that rides on something (the performer's trunk, a partner, a prop) is a function of the posture so far and the time, evaluated when the row is written.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One function type, taken by every arm primitive.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A fixed target is the constant function, so there is no second form for it.
    */
-  export type Frame = (posture: IHumanPosture, seconds: number) => ITarget;
+  export type Frame =(posture: IHumanPosture, seconds: number) => ITarget;
 
-  /** Where a hand is before or after its movement, in the performer's floor frame. */
+  /**
+   * Where a hand is before or after its movement, in the performer's floor
+   * frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the record is and its frame; each member gives its axes and unit.
+   * @evidence contracts/development/design.md#principled-representation A hand that has not started or has finished belongs to the body, so its place is held relative to the root and the heading and travels with them.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, the surface's point and the hand's rotation; produced by `origin` and read by `move`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A separate type from `ITarget`, whose members are in the world frame, so the two frames cannot be mixed.
+   */
   export interface IOrigin {
     /** The surface's point; `x` left, `y` up, `z` forward of the root, metres. */
     point: IAutoMovieVector3;
@@ -76,7 +114,14 @@ export namespace AutoMovieMotionHumanArm {
     rotation: IAutoMovieQuaternion;
   }
 
-  /** One arm's movement. */
+  /**
+   * One arm's movement.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, its unit and the range of the weight.
+   * @evidence contracts/development/design.md#principled-representation The span the arm is written over, its two ends and the weight between them: a blend of two hand states on a time course.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Seven members, all read by `move`; `reach`, `hold` and `retract` fill them from a clock.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The weight is a function of seconds and not a named easing, so any time course fits without a new member.
+   */
   export interface IMove {
     /** The body. */
     body: IHumanBody;
@@ -114,6 +159,14 @@ export namespace AutoMovieMotionHumanArm {
    * @param side The hand.
    * @param surface The surface.
    * @returns The origin.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each input and that the result is in the given floor frame.
+   * @evidence contracts/development/implementation.md#principled-implementation The surface's world point and the hand's world rotation, taken into the floor frame by its inverse: the hand's place relative to the body.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two inverse transforms.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads the relaxed hand, the shape an arm has before a movement shapes it.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanHand.frame`, `HumanFrame.local` and `HumanFrame.turn`.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function origin(
     body: IHumanBody,
@@ -143,6 +196,14 @@ export namespace AutoMovieMotionHumanArm {
    * @param posture The posture whose root and heading carry the origin.
    * @param from The origin.
    * @returns The world point, metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what of the posture is read and the result's frame and unit.
+   * @evidence contracts/development/implementation.md#principled-implementation The floor-frame transform of the origin's point by the posture's root and heading, the inverse of what `origin` stored.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One transform.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The root's own height is kept, as `origin` measured from it.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `HumanFrame.point`.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function point(
     posture: Pick<IHumanPosture, "root" | "yaw">,
@@ -163,6 +224,14 @@ export namespace AutoMovieMotionHumanArm {
    * @param side The arm.
    * @param target The target.
    * @returns The goal.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the goal places and why it carries the surface as its contact.
+   * @evidence contracts/development/implementation.md#principled-implementation The wrist follows rigidly from the surface's point and the hand's rotation; the surface's offset from the wrist is the contact the resolver holds when the rotation is out of range.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One wrist placement and one offset lookup.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A surface at the wrist itself declares no contact, since a zero offset gives the resolver no lever to re-aim by.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanHand.place` and `HumanHand.offset`, the owners of the hand's geometry.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function goal(
     body: IHumanBody,
@@ -192,22 +261,18 @@ export namespace AutoMovieMotionHumanArm {
   }
 
   /**
-   * How long a hand takes to travel a distance: `0.25 + 0.5 D` seconds for
-   * `D` metres (provisional; a gesture's preparation lasts a few tenths of a
-   * second and reaching time grows with distance, Fitts 1954).
-   *
-   * @param distance Metres.
-   * @returns Seconds.
-   */
-  export function transport(distance: number): number {
-    return 0.25 + 0.5 * distance;
-  }
-
-  /**
    * An arm moved between an origin and a target by a weight.
    *
    * @param props The movement.
    * @returns The primitive, on the arm's and the hand's channels.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what moves, by what, and the channels claimed.
+   * @evidence contracts/development/implementation.md#principled-implementation A straight path of the surface and a spherical interpolation of the hand by one weight, with the fingers shaped by the same weight (Jeannerod 1984).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One target evaluation, one blend and one posture update.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The weight is clamped to [0, 1] so an overshooting time course cannot extrapolate the hand past its target; at weight 1 the target is used as it is, with no blend error.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per written second.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `point`, `goal` and `AutoMovieMotionHumanHand.fingers`.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props only and holds no per-second state.
    */
   export function move(props: IMove): IAutoMovieMotionHumanPrimitive {
     const limb: "leftArm" | "rightArm" = `${props.side}Arm`;
@@ -268,6 +333,14 @@ export namespace AutoMovieMotionHumanArm {
    * @param from Where the hand starts.
    * @param target The target.
    * @returns The primitive.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two ends, the window and the time course.
+   * @evidence contracts/development/implementation.md#principled-implementation A point-to-point hand movement follows the minimum-jerk profile (Flash and Hogan 1985), which the clock's progress is.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call of `move` with the clock's progress as the weight.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The window is two named instants of the clock, so no time is written twice.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `move` and the clock.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function reach(
     body: IHumanBody,
@@ -299,6 +372,14 @@ export namespace AutoMovieMotionHumanArm {
    * @param window The instants the hold starts and ends at.
    * @param target The target.
    * @returns The primitive.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the window and that the target may move.
+   * @evidence contracts/development/implementation.md#principled-implementation A hand on its target is the movement at weight 1 throughout, so the target frame alone decides where the hand is.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call of `move` with a constant weight.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The origin `move` requires is never read at weight 1, so the identity origin passed is inert and stated here.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `move` and the clock.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function hold(
     body: IHumanBody,
@@ -329,6 +410,14 @@ export namespace AutoMovieMotionHumanArm {
    * @param target The target the hand leaves.
    * @param to Where the hand ends.
    * @returns The primitive.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two ends, the window and the time course.
+   * @evidence contracts/development/implementation.md#principled-implementation A reach run backwards: the same minimum-jerk profile with the weight going from 1 to 0.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call of `move` with one minus the clock's progress.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The target stays a frame, so a hand leaving a moving thing starts from where the thing is.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `move` and the clock.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function retract(
     body: IHumanBody,

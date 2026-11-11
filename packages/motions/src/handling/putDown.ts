@@ -8,6 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -158,7 +159,7 @@ export namespace putDown {
 
     // An authored heading is kept; otherwise the prop may rest at whichever
     // heading the arm can lay it down at exactly.
-    const bend: IAutoMovieVector3 = HumanHand.elbow(body, held, side);
+    const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(body, held, side);
     const chosen: HumanHand.IWrist =
       context.params.yaw === undefined
         ? HumanGrasp.reachable(

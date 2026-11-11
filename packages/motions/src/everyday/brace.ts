@@ -4,6 +4,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
@@ -309,7 +311,7 @@ export namespace brace {
         const frame: HumanFrame.IFrame = { origin: posture.root, yaw };
         const reach: number = (m.upperArm + m.forearm) * 0.55;
         const catching: boolean = p.kind === "catchBody";
-        const requests: handGoals.IRequest[] = (["left", "right"] as const).map(
+        const requests: AutoMovieMotionHumanArm.ISided[] = (["left", "right"] as const).map(
           (side) => {
             const sign: number = side === "left" ? 1 : -1;
             const point: IAutoMovieVector3 = Vector3.add(
@@ -332,7 +334,7 @@ export namespace brace {
               shape: "flat",
               point,
               rotation: turn,
-              bend: HumanHand.elbow(body, posture, side, 0.2),
+              bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2),
             };
           },
         );

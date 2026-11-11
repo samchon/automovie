@@ -12,7 +12,13 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  * foot's rotation turns by spherical interpolation, all by one weight. A limb
  * between two goals bears on nothing, so it is not planted; it keeps the
  * asked goal's contact, the point the resolver holds when the rotation is out
- * of range. Both goals are in one frame: the world, or the same bone.
+ * of range, and its reference solution. Both goals are in one frame: the
+ * world, or the same bone.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what moves how between two goals, why a limb between them is not planted, what it keeps of the asked goal and the frame rule.
+ * @evidence contracts/development/design.md#principled-representation A limb goal is a point, a bend hint and a rotation, so a goal between two is their interpolation by one weight.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The mix, the goal of a driven limb, one primitive (`drive`) and one named time course (`pulse`); the only owner of goal interpolation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Works on the posture's own goal type for any of the four limbs; mismatched frames throw.
  */
 export namespace AutoMovieMotionHumanGoal {
   /**
@@ -23,6 +29,14 @@ export namespace AutoMovieMotionHumanGoal {
    * @param weight How far, clamped to [0, 1].
    * @returns `from` at 0, `to` at 1, and the mixed goal between.
    * @throws {Error} When the goals are attached to different frames.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States both ends, the clamp, the middle and when it throws.
+   * @evidence contracts/development/implementation.md#principled-implementation Points interpolate on lines and the rotation on the sphere; the plant is dropped because a moving limb bears on nothing, and the contact, the frame and the reference are the asked goal's.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two early returns for the ends, one frame check and one record.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ends return the given goals themselves, so a plant held at an end is kept; a rotation only one goal states is held, not interpolated from an invented one.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse beyond the engine's interpolation.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function mix(
     from: IHumanPosture.IGoal,
@@ -52,16 +66,32 @@ export namespace AutoMovieMotionHumanGoal {
           }),
       ...(to.contact === undefined ? {} : { contact: to.contact }),
       ...(to.on === undefined ? {} : { on: to.on }),
+      ...(to.reference === undefined ? {} : { reference: to.reference }),
     };
   }
 
-  /** A limb goal as a frame of the action. */
+  /**
+   * A limb goal as a frame of the action: a function of the posture so far
+   * and the seconds since the action's start.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the function takes and returns.
+   * @evidence contracts/development/design.md#principled-representation A goal that rides on the body or follows a path is a function of the posture so far and the time, evaluated when the row is written.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One function type, taken by `drive` and `pulse`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A fixed goal is the constant function, so there is no second form for it.
+   */
   export type Frame = (
     posture: IHumanPosture,
     seconds: number,
   ) => IHumanPosture.IGoal;
 
-  /** One limb driven toward a goal. */
+  /**
+   * One limb driven toward a goal.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, its unit, its value when absent and the range of the weight.
+   * @evidence contracts/development/design.md#principled-representation The limb, the span written, the two goals and the weight between them.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members; the origin is optional because the posture so far usually holds the goal to leave.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The limb is the posture's own limb key, so one type serves arms and legs.
+   */
   export interface IToward {
     /** The limb. */
     limb: IHumanPosture.Limb;
@@ -95,6 +125,14 @@ export namespace AutoMovieMotionHumanGoal {
    * @param seconds Seconds since the action's start.
    * @returns The goal.
    * @throws {Error} When no origin is given and the posture holds no goal for the limb.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each input and when it throws.
+   * @evidence contracts/development/implementation.md#principled-implementation The origin is the stated one or the goal the posture so far holds, mixed with the asked goal by the weight of the second.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One origin choice and one mix.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A limb with no goal to leave throws instead of starting from an invented one.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `mix`.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function toward(
     props: IToward,
@@ -119,6 +157,14 @@ export namespace AutoMovieMotionHumanGoal {
    *
    * @param props The limb, its window, its goal, its origin and its weight.
    * @returns The primitive, on the limb's channel.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is driven, for which limbs it is meant and the channel claimed.
+   * @evidence contracts/development/implementation.md#principled-implementation Each second the driven goal replaces the limb's goal on the posture so far.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One goal written into one limb.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Writes its own limb only and leaves every other member of the posture as it is.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `toward`.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props only and holds no per-second state.
    */
   export function drive(props: IToward): IAutoMovieMotionHumanPrimitive {
     return {
@@ -148,6 +194,14 @@ export namespace AutoMovieMotionHumanGoal {
    * @param origin The goal left and returned to; the posture's own when absent.
    * @param size The envelope's scale, in (0, 1]; 1 when absent.
    * @returns The primitive.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two windows, the span written, the default origin and the scale's range.
+   * @evidence contracts/development/implementation.md#principled-implementation A limb that goes and returns is the clock's envelope over a rise and a fall, scaled for a movement that stops short of its goal.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call of `drive` with the scaled envelope as the weight.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An absent origin is left absent, so `toward` reads the posture's own goal.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `drive` and the clock.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function pulse(
     clock: AutoMovieMotionClock.IClock,

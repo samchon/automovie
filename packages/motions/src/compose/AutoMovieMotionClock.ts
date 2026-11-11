@@ -231,4 +231,113 @@ export namespace AutoMovieMotionClock {
     }
     return of(seconds, instants);
   }
+
+  /**
+   * The lengths of a phrase's six phases, seconds.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the record is; each member names the two instants it lies between and its value when absent.
+   * @evidence contracts/development/design.md#principled-representation The phases of a gesture (Kendon 1980: preparation, hold, stroke, hold, retraction), with the stroke split at its decisive instant as BML 1.0 splits it.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members, the lengths between the seven standard instants; read only by `phrase`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The three phases a movement may lack are optional and read as zero, which puts two instants at one time instead of removing a name.
+   */
+  export interface IPhrase {
+    /** From `start` to `ready`: the part leaves rest for where its stroke starts. */
+    prepare: number;
+
+    /** From `ready` to `strokeStart`: the part waits there; 0 when absent. */
+    wait?: number;
+
+    /** From `strokeStart` to `stroke`: the stroke up to its decisive instant. */
+    attack: number;
+
+    /** From `stroke` to `strokeEnd`: the stroke after it; 0 when absent. */
+    follow?: number;
+
+    /** From `strokeEnd` to `relax`: the part stays where the stroke left it; 0 when absent. */
+    hold?: number;
+
+    /** From `relax` to `end`: the part returns to rest. */
+    retract: number;
+  }
+
+  /**
+   * The standard instants of a phrase in time order, between `start` and
+   * `end`: the synchronisation points BML 1.0 gives every behaviour.
+   */
+  export const PHRASE: readonly [
+    "ready",
+    "strokeStart",
+    "stroke",
+    "strokeEnd",
+    "relax",
+  ] = ["ready", "strokeStart", "stroke", "strokeEnd", "relax"];
+
+  /**
+   * A clock with the standard instants of a phrase: `start`, `ready`,
+   * `strokeStart`, `stroke` (the instant of contact or of greatest extent),
+   * `strokeEnd`, `relax`, `end`. A phase of no length puts its two instants at
+   * one time, so every phrase has every name and two actions can be aligned
+   * by any of them.
+   *
+   * @param durations The six phase lengths.
+   * @returns The clock.
+   * @throws {Error} On a negative length, or a phrase of no length.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the instants, what a phase of no length does and each refused input.
+   * @evidence contracts/development/implementation.md#principled-implementation Each standard instant is the running sum of the phase lengths before it, and the duration is their total.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One list of the six lengths in order, one loop, then `of`.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A negative length throws instead of being clamped; a total of zero is refused by `of`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Builds the clock through `of`, so every constructor shares one validation.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One pass over six lengths, with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing of its own; the clock it returns is `of`'s.
+   */
+  export function phrase(durations: IPhrase): IClock {
+    const lengths: readonly number[] = [
+      durations.prepare,
+      durations.wait ?? 0,
+      durations.attack,
+      durations.follow ?? 0,
+      durations.hold ?? 0,
+      durations.retract,
+    ];
+    const instants: IInstant[] = [];
+    let seconds: number = 0;
+    lengths.forEach((length: number, i: number): void => {
+      if (!(length >= 0)) throw new Error("A phrase's phase has a negative length");
+      seconds += length;
+      if (i < PHRASE.length) instants.push({ name: PHRASE[i]!, seconds });
+    });
+    return of(seconds, instants);
+  }
+
+  /**
+   * Phases laid end to end a number of times, for a movement that repeats (a
+   * wave, a pump, a key press). Each repetition's phases are numbered from 1:
+   * `down` and `up` repeated twice are `down1`, `up1`, `down2`, `up2`.
+   *
+   * @param span The phases of one repetition, in order.
+   * @param count How many repetitions; a positive integer.
+   * @returns The phases, for {@link sequence}.
+   * @throws {Error} On a count that is not a positive integer.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the numbering by example, the result's consumer and the refused count.
+   * @evidence contracts/development/implementation.md#principled-implementation A periodic movement is one period's phases repeated, so each repetition keeps the period's names with its ordinal.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One nested map.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A count of zero or a fraction throws instead of yielding an empty or a truncated list; lengths are validated by `sequence`.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the phases produced, with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function repeat(span: readonly IPhase[], count: number): IPhase[] {
+    if (!(Number.isInteger(count) && count > 0))
+      throw new Error("A movement repeats a positive whole number of times");
+    return Array.from({ length: count }, (_: unknown, i: number): IPhase[] =>
+      span.map(
+        (phase: IPhase): IPhase => ({
+          name: `${phase.name}${i + 1}`,
+          seconds: phase.seconds,
+        }),
+      ),
+    ).flat();
+  }
 }

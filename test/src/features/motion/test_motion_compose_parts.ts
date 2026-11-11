@@ -10,8 +10,8 @@ import { TestValidator } from "@nestia/e2e";
 
 /**
  * The part primitives' body-free rules: joint angles added on their own
- * channels, a hand's fingers on the way to a shape, an origin carried by the
- * performer's floor frame, and a reach's travel time.
+ * channels, a hand's fingers on the way to a shape, and an origin carried by
+ * the performer's floor frame.
  *
  * Scenarios:
  * 1. Angles for a shoulder girdle, the head and a right finger are written on
@@ -24,13 +24,12 @@ import { TestValidator } from "@nestia/e2e";
  *    of 10° flexes every finger segment but no thumb segment.
  * 4. An origin 0.1 m left, 1 m up and 0.3 m forward of a root at (2, 0, 5)
  *    heading 90° (facing +X) is at (2.3, 1, 4.9) in the world.
- * 5. A hand travels 0.4 m in 0.45 s.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the public primitives and reads the returned channels, joint angles, point and seconds; angles written on the wrong channel, a curl applied to the thumb or a frame turned the wrong way fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public primitives and reads the returned channels, joint angles and point; angles written on the wrong channel, a curl applied to the thumb or a frame turned the wrong way fails.
  * @evidence contracts/development/testing.md#independent-expectations Sums and means are computed by hand from the inputs, the finger end states are the hand's own published shapes, and the world point follows from the stated frame: at a heading of 90° forward is +X and left is -Z.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers three channel kinds, a held and an absent joint, a refused bone, three weights, fingers against thumbs, a turned frame and the travel rule.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers three channel kinds, a held and an absent joint, a refused bone, three weights, fingers against thumbs and a turned frame.
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit that needs no body; it runs in CI. Arm goals and the balanced lean need a measured body and are judged by the motion captures.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 scenarios and what each pins.
  */
 export function test_motion_compose_parts(): void {
   const close = (a: number, b: number): boolean => Math.abs(a - b) <= 1e-9;
@@ -110,9 +109,5 @@ export function test_motion_compose_parts(): void {
   TestValidator.predicate(
     "an origin follows the root and the heading",
     close(world.x, 2.3) && close(world.y, 1) && close(world.z, 4.9),
-  );
-  TestValidator.predicate(
-    "travel time of a reach",
-    close(AutoMovieMotionHumanArm.transport(0.4), 0.45),
   );
 }

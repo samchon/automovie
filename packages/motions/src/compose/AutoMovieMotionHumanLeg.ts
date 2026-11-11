@@ -3,9 +3,9 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
-import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { AutoMovieMotionClock } from "./AutoMovieMotionClock";
+import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
 /**
@@ -19,9 +19,21 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  * not slide (`HumanFoot.heelOff`). The knee bends over the foot: its hint is
  * ahead of the knee's rest place along the foot's own heading (Perry and
  * Burnfield, Gait Analysis, 2nd ed.).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what a foot's placement is, how the leg is solved, what a planted foot declares and where the knee bends.
+ * @evidence contracts/development/design.md#principled-representation A leg movement is an ankle placement over time with a flag for bearing on the floor, the two facts a stance and a swing differ by.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One movement (`place`) with two named forms over it (`plant`, `step`), the swing path and the goal builder; the only owner of leg goals built from a foot placement.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `HumanFoot.IPlacement` and the posture's goal type; no action name and no fixed body size appears.
  */
 export namespace AutoMovieMotionHumanLeg {
-  /** A leg side. */
+  /**
+   * A leg side.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two sides a leg is on.
+   * @evidence contracts/development/design.md#principled-representation The body's bilateral symmetry as a closed union, the form the rig's bone names take.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, used by every function here.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A literal union, not a string.
+   */
   export type Side = "left" | "right";
 
   /**
@@ -30,13 +42,25 @@ export namespace AutoMovieMotionHumanLeg {
    * @param posture The posture so far at this second.
    * @param seconds Seconds since the action's start.
    * @returns The placement, world frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what each argument is, when the function is called and the result's frame.
+   * @evidence contracts/development/design.md#principled-representation A foot that follows something (a swing path, a pivot about its ball) is a function of the posture so far and the time, evaluated when the row is written.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One function type, taken by `place`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A fixed placement is the constant function, so there is no second form for it.
    */
   export type Frame = (
     posture: IHumanPosture,
     seconds: number,
   ) => HumanFoot.IPlacement;
 
-  /** One leg's movement. */
+  /**
+   * One leg's movement.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and its unit.
+   * @evidence contracts/development/design.md#principled-representation The span the leg is written over, where the foot is at each second and whether it bears then.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members, all read by `place`; `plant` and `step` fill them from a clock.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Bearing is a function of seconds, so a foot that lands inside the span needs no second primitive.
+   */
   export interface IPlace {
     /** The body. */
     body: IHumanBody;
@@ -73,6 +97,14 @@ export namespace AutoMovieMotionHumanLeg {
    * @param clearance The ankle's greatest rise, metres.
    * @param progress How far along, in [0, 1].
    * @returns The placement.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the path's formula, where it peaks and each input's unit.
+   * @evidence contracts/development/implementation.md#principled-implementation The lowest-order curve that leaves and lands at the floor with one peak: a parabola over the straight line, with the foot's turn interpolated on the sphere.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One interpolation, one added height and one turn.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Progress is clamped to [0, 1], so the foot never goes under the floor past either end.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse beyond the engine's vector and quaternion interpolation.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function arc(
     from: HumanFoot.IPlacement,
@@ -97,6 +129,14 @@ export namespace AutoMovieMotionHumanLeg {
    * @param placement The foot's placement.
    * @param planted Whether the foot bears on the floor.
    * @returns The goal.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each input and what of the posture is read.
+   * @evidence contracts/development/implementation.md#principled-implementation The ankle and the foot's rotation are the goal; the knee's hint follows the foot's heading; a bearing foot declares the toes' joint as its contact so the heel rises about the ball instead of the foot sliding.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record with one conditional pair of members.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A free foot declares neither a plant nor a contact, so the resolver does not pin a foot in the air.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanBend.knee`, `HumanFoot.heading` and `HumanFoot.offset`.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function goal(
     body: IHumanBody,
@@ -105,16 +145,14 @@ export namespace AutoMovieMotionHumanLeg {
     placement: HumanFoot.IPlacement,
     planted: boolean,
   ): IHumanPosture.IGoal {
-    const knee: IAutoMovieVector3 = HumanFrame.point(
-      { origin: posture.root, yaw: posture.yaw },
-      body.rest.get(`${side}LowerLeg`)!,
-    );
     return {
       point: placement.ankle,
       rotation: placement.rotation,
-      bend: HumanFrame.point(
-        { origin: knee, yaw: HumanFoot.heading(placement.rotation) },
-        { x: 0, y: 0, z: 1 },
+      bend: AutoMovieMotionHumanBend.knee(
+        body,
+        posture,
+        side,
+        HumanFoot.heading(placement.rotation),
       ),
       ...(planted
         ? { planted: true, contact: HumanFoot.offset(body, side, "mtp") }
@@ -127,6 +165,14 @@ export namespace AutoMovieMotionHumanLeg {
    *
    * @param props The movement.
    * @returns The primitive, on the leg's channel.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the leg follows and the channel claimed.
+   * @evidence contracts/development/implementation.md#principled-implementation Each second the placement and the bearing are evaluated and turned into the leg's goal on the posture so far, so the knee's hint follows the root the earlier rows moved.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One goal written into one limb.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Writes its own limb only and leaves every other member of the posture as it is.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per written second.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `goal`.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props only and holds no per-second state.
    */
   export function place(props: IPlace): IAutoMovieMotionHumanPrimitive {
     const limb: "leftLeg" | "rightLeg" = `${props.side}Leg`;
@@ -159,6 +205,14 @@ export namespace AutoMovieMotionHumanLeg {
    * @param window The instants the plant starts and ends at.
    * @param at Where the foot stands.
    * @returns The primitive.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the window and what the foot does in it.
+   * @evidence contracts/development/implementation.md#principled-implementation A stance foot is one placement that bears throughout.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call of `place` with two constant functions.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The window is two named instants of the clock, so no time is written twice.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `place` and the clock.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function plant(
     body: IHumanBody,
@@ -190,6 +244,14 @@ export namespace AutoMovieMotionHumanLeg {
    * @param to Where the foot lands.
    * @param clearance The ankle's greatest rise, metres.
    * @returns The primitive.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two ends, the window, the time course and when the foot bears.
+   * @evidence contracts/development/implementation.md#principled-implementation A swing foot travels its arc on the minimum-jerk profile and bears only once it has arrived, so it lands without sliding.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call of `place` with the arc and the landing test.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Bearing is read from the clock's linear share reaching 1 and not from the eased progress, which approaches 1 before the instant.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `place`, `arc` and the clock.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function step(
     body: IHumanBody,

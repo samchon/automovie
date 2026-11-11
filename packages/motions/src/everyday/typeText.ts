@@ -1,6 +1,7 @@
 import { minimumJerk } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -255,7 +256,7 @@ export namespace typeText {
               fingers,
               palm: { x: 0, y: -1, z: 0 },
             }),
-            bend: HumanHand.elbow(body, hold, side, 0.1),
+            bend: AutoMovieMotionHumanBend.hang(body, hold, side, 0.1),
           })),
         );
       },

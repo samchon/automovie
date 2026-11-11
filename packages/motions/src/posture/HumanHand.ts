@@ -14,9 +14,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "./IHumanPosture";
 import { poseBones } from "./poseBones";
-import { resolveHumanPosture } from "./resolveHumanPosture";
 
 /**
  * A hand brought to a target: which wrist point and hand rotation put a
@@ -373,38 +371,6 @@ export namespace HumanHand {
       normal: placed.normal,
       forward: turn(local.forward),
     };
-  }
-
-  /**
-   * A natural elbow hint for an arm goal: a point beside, below and behind
-   * the shoulder in the trunk's turned frame, so the elbow hangs down and out
-   * as an unloaded arm does and never rises or folds across the body. A law
-   * passes its own point instead where the movement needs another bend.
-   *
-   * @param body The body.
-   * @param posture The root and heading the trunk is placed by.
-   * @param side The arm.
-   * @param out Extra outward share of the upper arm, for akimbo and wide gestures; 0 by default.
-   * @returns The world point.
-   */
-  export function elbow(
-    body: IHumanBody,
-    posture: Pick<IHumanPosture, "root" | "yaw" | "pitch" | "roll">,
-    side: Side,
-    out: number = 0,
-  ): IAutoMovieVector3 {
-    const shoulder: IAutoMovieVector3 = body.rest.get(`${side}UpperArm`)!;
-    const sign: number = side === "left" ? 1 : -1;
-    const m = body.measure;
-    const local: IAutoMovieVector3 = {
-      x: shoulder.x + sign * (0.4 + out) * m.upperArm,
-      y: shoulder.y - m.upperArm,
-      z: shoulder.z - 0.5 * m.upperArm,
-    };
-    return Vector3.add(
-      posture.root,
-      Quaternion.rotateVector(resolveHumanPosture.heading(posture), local),
-    );
   }
 }
 
