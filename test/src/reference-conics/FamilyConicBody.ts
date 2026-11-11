@@ -351,6 +351,10 @@ namespace FamilyConicBody {
 
         // The nose's free end as a short loft straight forward out of the face, closed at its tip.
         { name: "nose", centres: [[118, 1561, 0], [140, 1561, 0]], course: "[J.noseRoot, J.noseTip]", halves: [], up: [0, 1, 0], domain: [5, 14], head: true, loose: true, step: 1, gap: 3, tip: 18, mirrored: false, layouts: LIMB, clip: (p: R.V): number => -nose(p), reliefs: [] },
+        // The nostrils open downward, and a frontal section shows only the nose's outline round them. A net over the nose's underside, cast
+        // straight up, reads the first skin a ray from below meets, and found them: 3 to 5 mm deep and more, from 124 to 128 mm forward
+        // (`--casts`). That is where the band lands: with the dimples in it the rail's ring is no longer star-shaped and the port refuses
+        // the nose. The nostrils lie across the nose's root, which is the band's.
 
         // The trunk from the crotch to the crown as one wall. Knots 4 mm apart from the neck up followed every step of the face's hull and left
         // the wall streaked, so they keep 8 mm and the face is the reliefs'. Under the jaw alone, stations 692 to 732, they may stand 3 mm
@@ -443,6 +447,9 @@ namespace FamilyConicBody {
       const skipped: number[] = [];
       const hollows: string[] = [];
       const skins: C.P[][] = [];
+
+      // Each section's own loop as it was cut, which for a loose part is not the hull its wall is measured against.
+      const loops: C.P[][] = [];
       const step: number = part.step ?? STEP_MM;
       const gap = (s: number): number => (typeof part.gap === "function" ? part.gap(s) : (part.gap ?? GAP_MM));
       const skin: R.ISource["body"] = part.head === true ? source.head : part.whole === true ? source.all : source.body;
@@ -496,6 +503,7 @@ namespace FamilyConicBody {
           const wall: C.P[] = R.hull(loop);
           rows.push({ s, points: wall, heldout: i % 2 === 1 });
           skins.push(part.loose === true && (part.surround === undefined || s >= part.surround.from) ? wall : loop);
+          loops.push(loop);
           let deepest: number = 0;
           let where: number = 0;
           for (const p of loop) {
@@ -651,7 +659,7 @@ namespace FamilyConicBody {
             // A cast that lands on the chord closing a neighbour's cut (the ear's, the nose's, the arm's) has found no skin: inside the cut the clip is positive.
             const open = part.clip === undefined || window.uncut === true || window.chord === true ? undefined : (p: C.P): boolean => part.clip!([frame.origin[0] + p[0] * frame.u[0] + p[1] * frame.v[0], frame.origin[1] + p[0] * frame.u[1] + p[1] * frame.v[1], frame.origin[2] + p[0] * frame.u[2] + p[1] * frame.v[2]]) > 0.05;
             const hold = window.hold === undefined ? undefined : (p: C.P): boolean => window.hold!([frame.origin[0] + p[0] * frame.u[0] + p[1] * frame.v[0], frame.origin[1] + p[0] * frame.u[1] + p[1] * frame.v[1], frame.origin[2] + p[0] * frame.u[2] + p[1] * frame.v[2]]) > 0;
-            const own: C.P[] = skins[i]!;
+            const own: C.P[] = window.chord === true ? loops[i]! : skins[i]!;
             const whole: C.P[] | null = window.uncut === true && row.s > window.stations[0] && row.s < window.stations[1] ? R.cut(skin, frame).loop : null;
             return { s: row.s, ...(hold === undefined ? {} : { hold }), skin: whole ?? own, heldout: row.heldout, ...(open === undefined ? {} : { open }), wall: (phi: number): C.P => {
               const r: number = Q.radius(section, phi);
