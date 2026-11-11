@@ -145,6 +145,27 @@ export namespace HumanSkill {
   }
 
   /**
+   * The draw stream one channel shares across every instance of an action,
+   * for a sequence indexed by the instance.
+   *
+   * @param skill The skill, carrying the chain seed.
+   * @param subject The performer's id.
+   * @param action The action's stable id (its anchor or its name).
+   * @param channel The quantity drawn.
+   * @returns The stream.
+   */
+  export function series(
+    skill: ISkill,
+    subject: string,
+    action: string,
+    channel: string,
+  ): IAutoMovieRandom {
+    return createAutoMovieRandom(
+      deriveAutoMovieSeed(skill.seed, subject, action, "series", channel),
+    );
+  }
+
+  /**
    * A standard normal draw from a stream index pair (Box-Muller transform).
    *
    * @param random The stream.

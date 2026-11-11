@@ -342,7 +342,10 @@ export namespace defend {
     // What the defender sees: the attacker's limb moving most toward the
     // struck region, and the line from it to the region.
     const own = StrikingBody.trunk(body, entry);
-    const regionAt = StrikingBody.region(body, own, timing.region);
+    // The point within the region is the strike's own, so the defence goes
+    // where the strike is aimed.
+    const aimed = timing.attack.plan.aimed;
+    const regionAt = StrikingBody.region(body, own, timing.region, aimed);
     const attacker: IHumanActionContext.IPerformer = context.performer(
       timing.attack.subject,
     );
@@ -426,7 +429,7 @@ export namespace defend {
     // Arms and the checking leg as goals on the defender's own body.
     const goals = (posture: IHumanPosture): Partial<IHumanPosture["limbs"]> => {
       const bones = StrikingBody.trunk(body, posture);
-      const region = StrikingBody.region(body, bones, timing.region);
+      const region = StrikingBody.region(body, bones, timing.region, aimed);
       const glove = (
         side: "left" | "right",
         at: IAutoMovieVector3,

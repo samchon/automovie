@@ -42,8 +42,9 @@ import { everydayVerdicts } from "./everydayVerdicts";
  * - `everyday-look`: looks at a point 50 degrees to the left and up and at the
  *   floor ahead; each eye within 2 degrees of its target once settled.
  * - `everyday-gesture-<kind>`: each gesture at rest, mid-preparation, the
- *   stroke's start, middle and end, mid-retraction and the end; pointing
- *   within 2 degrees of the eye-to-target line, self-touch within 15 mm of
+ *   stroke's start, middle and end, mid-retraction and the end; each elbow
+ *   slower than 2.5 m/s while the arm is carried to and from the stroke,
+ *   pointing within 2 degrees of the eye-to-target line, self-touch within 15 mm of
  *   its region, claps meeting within 10 mm, and each gesture's own goal
  *   (`everydayGestureVerdicts`).
  * - `everyday-rest`: each rest place held; each hand surface within 15 mm of
@@ -274,6 +275,32 @@ export function everydayCases(
         const mid = performance.bones("a", (s + e) / 2);
         const verdicts: IMotionCaptureCase.IVerdict[] =
           everydayVerdicts.standard(performance, "a", body);
+        // An arm carried to and from its stroke swings from the shoulder: an
+        // elbow that moves faster than 2.5 m/s has flipped to the other side.
+        for (const side of ["left", "right"] as const)
+          verdicts.push(
+            within(
+              `${side} elbow travel per frame outside the stroke`,
+              Math.max(
+                everydayVerdicts.travel(
+                  performance,
+                  "a",
+                  `${side}LowerArm`,
+                  0,
+                  s,
+                ),
+                everydayVerdicts.travel(
+                  performance,
+                  "a",
+                  `${side}LowerArm`,
+                  r,
+                  end,
+                ),
+              ),
+              2.5 / 24,
+              "mm",
+            ),
+          );
         if (kind === "point") {
           const eye: IAutoMovieVector3 = mid.get("rightEye")!.worldPosition;
           verdicts.push(
@@ -775,7 +802,10 @@ export function everydayCases(
         });
         verdicts.push({
           name: "key dip 2 to 4 mm",
-          passed: dips[0]! >= 0.002 && dips.at(-1)! <= 0.004,
+          // A key bottoms out at 4 mm, the law's own travel, so the deepest
+          // press is compared at the 0.02 mm the posture resolver holds a
+          // contact to.
+          passed: dips[0]! >= 0.002 && dips.at(-1)! <= 0.004 + 2e-5,
           detail: `${(dips[0]! * 1000).toFixed(1)} to ${(dips.at(-1)! * 1000).toFixed(1)} mm below the key tops`,
         });
         verdicts.push({

@@ -1,23 +1,19 @@
 import {
   type IAutoMovieResolvedBone,
-  Quaternion,
   Vector3,
-  curlChainUntilContact,
   minimumJerk,
   resolveAutoMovieMutualGoal,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMoviePhysicalProfile,
-  IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
@@ -26,6 +22,7 @@ import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanClasp } from "./HumanClasp";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
@@ -39,9 +36,12 @@ import { HumanPrehension } from "./HumanPrehension";
  * shoulders, at the height both comfortable reaches agree on, with the palm
  * facing the partner's palm across the line between the two people and the
  * fingers pointing at the partner, so two right hands meet web to web with
- * their thumbs up; each hand then turns in its palm's plane to the tilt its
- * own arm can reach at the clasp and at the pump's top and bottom alike
- * (`HumanGrasp.reachable`), the palms' contact unchanged. Inverse kinematics
+ * their thumbs up; the two hands then turn in their palms' planes together,
+ * the palms' contact unchanged, to the pair of turns whose open hands keep
+ * every phalanx off the other's forearm and which both arms reach best at the
+ * clasp and at the pump's top and bottom alike (`HumanClasp.choose`), so each
+ * hand's fingers close round the other's hand rather than lie along its
+ * wrist. Inverse kinematics
  * solves each arm (`HumanHand.place`, the Final IK and Unreal Control Rig
  * practice of an effector socket on a world target), and through the clasp
  * and the pump the arm keeps the configuration it clasped in
@@ -60,9 +60,10 @@ import { HumanPrehension } from "./HumanPrehension";
  * reviewed by Prasad et al. 2022, Human-Robot Handshaking: A Review, Int. J.
  * Soc. Robot.): the reach is a minimum-jerk transport whose time is the
  * reach-to-grasp movement time over the comfortable reach (`HumanPrehension`),
- * the longer of the two partners' so both palms arrive together; the fingers
- * open during the reach and close on the partner's hand by the clasp
- * (`HumanGrip`); the shake moves the shared point up and down at 2.43 Hz for
+ * the longer of the two partners' so both palms arrive together; the hand
+ * opens during the reach to the offered hand of `HumanClasp.open` and its
+ * digits close from there on the partner's hand by the clasp (`HumanGrip`);
+ * the shake moves the shared point up and down at 2.43 Hz for
  * two cycles, the greeting handshake of Tagne et al. 2016 (0.90 s of main
  * shaking at 2.43 Hz, as tabulated by Prasad et al.), with a vertical
  * amplitude of 25 mm about the point that is provisional (no study located
@@ -142,8 +143,9 @@ export namespace handshake {
     // The meeting point from both acting shoulders at the start.
     const entered: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       poseBones(body, context.entry.pose);
-    const mine: IAutoMovieVector3 = entered.get(`${side}UpperArm`)!
-      .worldPosition;
+    const mine: IAutoMovieVector3 = entered.get(
+      `${side}UpperArm`,
+    )!.worldPosition;
     const theirs: IAutoMovieVector3 = context
       .performer(context.params.partner)
       .bones(context.start)
@@ -166,7 +168,10 @@ export namespace handshake {
       params: { seconds: duration },
     });
 
-    // The hand's grasp frame: palm toward the partner's palm, fingers at the partner.
+    // The hand's grasp frame: palm toward the partner's palm, fingers at the
+    // partner, then both hands turned in their palms' planes together
+    // (`HumanClasp.choose`), from both standing postures, so both partners
+    // agree on the clasp.
     const across: IAutoMovieVector3 = Vector3.normalize({
       x: theirs.x - mine.x,
       y: 0,
@@ -175,57 +180,32 @@ export namespace handshake {
     const left: IAutoMovieVector3 = { x: across.z, y: 0, z: -across.x };
     const palm: IAutoMovieVector3 =
       side === "right" ? left : Vector3.scale(left, -1);
-    // Each hand may turn in its palm's plane (the palms' contact is the same)
-    // to the tilt its own arm can reach, as hands cross at an angle in a real
-    // handshake; the same tilt must hold at the pump's top and bottom, so
-    // those are keys of the choice. Each partner computes both choices from
-    // both standing postures, so they agree.
-    const clasping = (
-      who: IHumanBody,
-      posture: IHumanPosture,
-      normal: IAutoMovieVector3,
-      fingers: IAutoMovieVector3,
-    ): HumanGrasp.IReach => {
-      const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(who, posture, side);
-      return HumanGrasp.reachable(
-        who,
-        posture,
-        side,
-        bend,
-        (angle: number): HumanHand.IWrist =>
-          HumanHand.place(
-            who,
-            side,
-            "palm",
-            meet,
-            Quaternion.normalize(
-              Quaternion.multiply(
-                Quaternion.fromAxisAngle(normal, angle),
-                HumanHand.rotation(side, { fingers, palm: normal }),
-              ),
-            ),
-            "flat",
-          ),
-        [0],
-        (wrist: HumanHand.IWrist): HumanGrasp.IKey[] =>
-          [-AMPLITUDE, AMPLITUDE].map(
-            (lift: number): HumanGrasp.IKey => ({
-              posture,
-              wrist: {
-                point: { ...wrist.point, y: wrist.point.y + lift },
-                rotation: wrist.rotation,
-              },
-              bend,
-            }),
-          ),
-      );
-    };
-    const own: HumanGrasp.IReach = clasping(
-      body,
-      base.posture(reach),
-      palm,
-      across,
+    const hands: [HumanClasp.IHand, HumanClasp.IHand] = [
+      {
+        subject: context.subject,
+        body,
+        posture: HumanGrasp.standing(body, entered),
+        palm,
+        fingers: across,
+      },
+      {
+        subject: context.params.partner,
+        body: partner,
+        posture: HumanGrasp.standing(
+          partner,
+          context.performer(context.params.partner).bones(context.start),
+        ),
+        palm: Vector3.scale(palm, -1),
+        fingers: Vector3.scale(across, -1),
+      },
+    ];
+    const choice: HumanClasp.IChoice = HumanClasp.choose(
+      side,
+      meet,
+      AMPLITUDE,
+      ...hands,
     );
+    const own: HumanGrasp.IReach = choice.mine;
     const clasp: HumanHand.IWrist = own.wrist;
     const turn: IAutoMovieQuaternion = clasp.rotation;
 
@@ -253,77 +233,22 @@ export namespace handshake {
     );
     const peak: number = HumanPrehension.peak(context.random("peak"));
 
-    // The fingers close round the partner's hand as it will lie at the clasp:
-    // the partner's palm on the same point, turned to face this palm. The
-    // partner's hand, forearm and open thumb, posed as the partner's arm will
-    // be at the clasp, are what the closing digits stop on.
-    const standing: IHumanPosture = HumanGrasp.standing(
-      partner,
-      context.performer(context.params.partner).bones(context.start),
-    );
-    const their: HumanHand.IWrist = clasping(
-      partner,
-      standing,
-      Vector3.scale(palm, -1),
-      Vector3.scale(across, -1),
-    ).wrist;
-    const partnerPose: IAutoMoviePose = resolveHumanPosture(partner, {
-      ...standing,
-      joints: { ...standing.joints, ...HumanHand.shape(side, "flat") },
-      limbs: {
-        ...standing.limbs,
-        [limb]: {
-          point: their.point,
-          rotation: their.rotation,
-          bend: AutoMovieMotionHumanBend.hang(partner, standing, side),
-        },
-      },
-    });
-    const partnerBones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(partner, partnerPose);
-    const colliders: curlChainUntilContact.ICollider[] =
-      partner.profile.segments
-        .filter(
-          (s: IAutoMoviePhysicalProfile.ISegment): boolean =>
-            s.bone === `${side}Hand` ||
-            s.bone === `${side}LowerArm` ||
-            s.bone.startsWith(`${side}Thumb`),
-        )
-        .flatMap(
-          (
-            s: IAutoMoviePhysicalProfile.ISegment,
-          ): curlChainUntilContact.ICollider[] => {
-            const bone: IAutoMovieResolvedBone = partnerBones.get(
-              s.bone as AutoMovieHumanoidBone,
-            )!;
-            return s.shapes.map(
-              (
-                shape: IAutoMoviePhysicalProfile.IShape,
-              ): curlChainUntilContact.ICollider => ({
-                shape,
-                frame: {
-                  position: bone.worldPosition,
-                  rotation: bone.worldRotation,
-                },
-              }),
-            );
-          },
-        );
-    const fingers: IHumanPosture["joints"] = HumanGrip.close(
-      body,
+    // The fingers close from the offered hand round the partner's hand as it
+    // will lie at the clasp, posed as the partner's arm will be.
+    const offered: IHumanPosture["joints"] = HumanClasp.open(body, side);
+    const fingers: IHumanPosture["joints"] = HumanClasp.close(
       side,
-      "power",
-      own.shown,
-      colliders,
-    ).joints;
+      choice,
+      ...hands,
+    );
     const shapes = {
       entry: HumanGrip.fingers(context.entry.pose, side),
-      open: HumanHand.shape(side, "flat"),
+      open: offered,
       closed: fingers,
     };
     const open = {
       entry: fingers,
-      open: HumanHand.shape(side, "flat"),
+      open: offered,
       closed: HumanHand.shape(side, "relaxed"),
     };
     return {
@@ -398,7 +323,12 @@ export namespace handshake {
                       weight:
                         t < reach
                           ? minimumJerk(t / reach).s
-                          : 1 - minimumJerk((t - reach - shake) / back).s,
+                          : // Clamped, as the minimum-jerk position
+                            // rounds past 1 at the return's end.
+                            Math.max(
+                              0,
+                              1 - minimumJerk((t - reach - shake) / back).s,
+                            ),
                     },
                   }),
             },

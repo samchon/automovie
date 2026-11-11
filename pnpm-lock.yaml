@@ -280,6 +280,9 @@ catalogs:
       specifier: ^0.2.17
       version: 0.2.17
   vite:
+    esbuild:
+      specifier: ^0.21.5
+      version: 0.21.5
     vite:
       specifier: ^5.4.10
       version: 5.4.21
@@ -920,6 +923,9 @@ importers:
       devalue:
         specifier: 6.0.2
         version: 6.0.2
+      esbuild:
+        specifier: catalog:vite
+        version: 0.21.5
       jsdom:
         specifier: 26.1.0
         version: 26.1.0(supports-color@7.2.0)

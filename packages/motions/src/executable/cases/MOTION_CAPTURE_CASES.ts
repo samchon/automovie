@@ -1,13 +1,39 @@
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
+import { affectionCases } from "./affectionCases";
+import { affordanceCases } from "./affordanceCases";
+import { athleticsCases } from "./athleticsCases";
+import { ballSportCases } from "./ballSportCases";
+import { ballStrikeCases } from "./ballStrikeCases";
+import { baseballCases } from "./baseballCases";
+import { carryCases } from "./carryCases";
+import { climbCases } from "./climbCases";
+import { crouchCases } from "./crouchCases";
+import { danceCases } from "./danceCases";
+import { dressCases } from "./dressCases";
 import { everydayCases } from "./everydayCases";
+import { exerciseCases } from "./exerciseCases";
+import { floorCases } from "./floorCases";
 import { galleryCases } from "./galleryCases";
+import { grappleCases } from "./grappleCases";
+import { gymnasticsCases } from "./gymnasticsCases";
+import { handToFaceCases } from "./handToFaceCases";
 import { handlingCases } from "./handlingCases";
+import { householdCases } from "./householdCases";
 import { jumpCases } from "./jumpCases";
 import { locomotionCases } from "./locomotionCases";
+import { martialArtCases } from "./martialArtCases";
+import { racketCases } from "./racketCases";
 import { reactionCases } from "./reactionCases";
+import { selfCases } from "./selfCases";
+import { stairsCases } from "./stairsCases";
 import { standCases } from "./standCases";
+import { stretchCases } from "./stretchCases";
 import { strikingCases } from "./strikingCases";
+import { swimCases } from "./swimCases";
+import { throwCases } from "./throwCases";
+import { toolCases } from "./toolCases";
+import { variationCases } from "./variationCases";
 
 /**
  * Every capture case by name: each factory builds one or more cases, so a
@@ -46,7 +72,12 @@ export const MOTION_CAPTURE_CASES: Readonly<
   "jump-e1-f-small": (): IMotionCaptureCase[] => jumpCases("f-small"),
   "jump-e1-m-average": (): IMotionCaptureCase[] => jumpCases("m-average"),
   "jump-e1-m-tall": (): IMotionCaptureCase[] => jumpCases("m-tall"),
+  "jump-e1-sweep": function* (): Iterable<IMotionCaptureCase> {
+    for (const who of MotionBodies.SWEEP) yield* jumpCases(who);
+  },
   stand: (): IMotionCaptureCase[] => standCases(),
+  "stand-sweep": (): IMotionCaptureCase[] =>
+    standCases(MotionBodies.SWEEP, "stand-sweep"),
   "everyday-approach": (): IMotionCaptureCase[] => everydayCases("approach"),
   "everyday-look": (): IMotionCaptureCase[] => everydayCases("look"),
   "everyday-gesture": (): IMotionCaptureCase[] => everydayCases("gesture"),
@@ -56,17 +87,27 @@ export const MOTION_CAPTURE_CASES: Readonly<
   "everyday-step": (): IMotionCaptureCase[] => everydayCases("step"),
   "everyday-brace": (): IMotionCaptureCase[] => everydayCases("brace"),
   "everyday-type": (): IMotionCaptureCase[] => everydayCases("type"),
+  "everyday-approach-sweep": (): IMotionCaptureCase[] =>
+    everydayCases("approach", MotionBodies.SWEEP),
+  "everyday-look-sweep": (): IMotionCaptureCase[] =>
+    everydayCases("look", MotionBodies.SWEEP),
+  "everyday-gesture-sweep": (): IMotionCaptureCase[] =>
+    everydayCases("gesture", MotionBodies.SWEEP),
   "everyday-rest-sweep": (): IMotionCaptureCase[] =>
-    everydayCases(
-      "rest",
-      MotionBodies.SWEEP.filter((b: string): boolean => b !== "f-short"),
-    ),
+    everydayCases("rest", MotionBodies.SWEEP),
   "everyday-seat-sweep": (): IMotionCaptureCase[] =>
-    everydayCases(
-      "seat",
-      MotionBodies.SWEEP.filter((b: string): boolean => b !== "f-short"),
-    ),
+    everydayCases("seat", MotionBodies.SWEEP),
+  "everyday-bend-sweep": (): IMotionCaptureCase[] =>
+    everydayCases("bend", MotionBodies.SWEEP),
+  "everyday-step-sweep": (): IMotionCaptureCase[] =>
+    everydayCases("step", MotionBodies.SWEEP),
+  "everyday-brace-sweep": (): IMotionCaptureCase[] =>
+    everydayCases("brace", MotionBodies.SWEEP),
+  "everyday-type-sweep": (): IMotionCaptureCase[] =>
+    everydayCases("type", MotionBodies.SWEEP),
   reaction: (): IMotionCaptureCase[] => reactionCases(),
+  "reaction-sweep": (): IMotionCaptureCase[] =>
+    reactionCases(MotionBodies.SWEEP),
   "handling-handshake": (): IMotionCaptureCase[] => handlingCases("handshake"),
   "handling-grasp": (): IMotionCaptureCase[] => handlingCases("grasp"),
   "handling-handover": (): IMotionCaptureCase[] => handlingCases("handover"),
@@ -93,4 +134,66 @@ export const MOTION_CAPTURE_CASES: Readonly<
   "striking-air": (
     only?: (name: string) => boolean,
   ): Iterable<IMotionCaptureCase> => strikingCases("striking-air", only),
+  variation: (only?: (name: string) => boolean): Iterable<IMotionCaptureCase> =>
+    variationCases(only),
+  "hand-face": (): IMotionCaptureCase[] => handToFaceCases(),
+  "hand-face-sweep": (): IMotionCaptureCase[] =>
+    handToFaceCases(MotionBodies.SWEEP),
+  crouch: (): IMotionCaptureCase[] => crouchCases(),
+  "crouch-sweep": (): IMotionCaptureCase[] => crouchCases(MotionBodies.SWEEP),
+  stairs: (): IMotionCaptureCase[] => stairsCases(),
+  "stairs-sweep": (): IMotionCaptureCase[] => stairsCases(MotionBodies.SWEEP),
+  throw: (): IMotionCaptureCase[] => throwCases(),
+  "throw-sweep": (): IMotionCaptureCase[] => throwCases(MotionBodies.SWEEP),
+  affordance: (): IMotionCaptureCase[] => affordanceCases(),
+  "affordance-sweep": (): IMotionCaptureCase[] =>
+    affordanceCases(MotionBodies.SWEEP),
+  floor: (): IMotionCaptureCase[] => floorCases(),
+  "floor-sweep": (): IMotionCaptureCase[] => floorCases(MotionBodies.SWEEP),
+  climb: (): IMotionCaptureCase[] => climbCases(),
+  "climb-sweep": (): IMotionCaptureCase[] => climbCases(MotionBodies.SWEEP),
+  grapple: (): IMotionCaptureCase[] => grappleCases(),
+  "grapple-sweep": (): IMotionCaptureCase[] => grappleCases(MotionBodies.SWEEP),
+  ball: (): IMotionCaptureCase[] => ballStrikeCases(),
+  "ball-sweep": (): IMotionCaptureCase[] => ballStrikeCases(MotionBodies.SWEEP),
+  tool: (): IMotionCaptureCase[] => toolCases(),
+  "tool-sweep": (): IMotionCaptureCase[] => toolCases(MotionBodies.SWEEP),
+  household: (): IMotionCaptureCase[] => householdCases(),
+  "household-sweep": (): IMotionCaptureCase[] =>
+    householdCases(MotionBodies.SWEEP),
+  dress: (): IMotionCaptureCase[] => dressCases(),
+  "dress-sweep": (): IMotionCaptureCase[] => dressCases(MotionBodies.SWEEP),
+  carry: (): IMotionCaptureCase[] => carryCases(),
+  "carry-sweep": (): IMotionCaptureCase[] => carryCases(MotionBodies.SWEEP),
+  affection: (): IMotionCaptureCase[] => affectionCases(),
+  "affection-sweep": (): IMotionCaptureCase[] =>
+    affectionCases(MotionBodies.SWEEP),
+  self: (): IMotionCaptureCase[] => selfCases(),
+  "self-sweep": (): IMotionCaptureCase[] => selfCases(MotionBodies.SWEEP),
+  exercise: (): IMotionCaptureCase[] => exerciseCases(),
+  "exercise-sweep": (): IMotionCaptureCase[] =>
+    exerciseCases(MotionBodies.SWEEP),
+  stretch: (): IMotionCaptureCase[] => stretchCases(),
+  "stretch-sweep": (): IMotionCaptureCase[] => stretchCases(MotionBodies.SWEEP),
+  dance: (): IMotionCaptureCase[] => danceCases(),
+  "dance-sweep": (): IMotionCaptureCase[] => danceCases(MotionBodies.SWEEP),
+  athletics: (): IMotionCaptureCase[] => athleticsCases(),
+  "athletics-sweep": (): IMotionCaptureCase[] =>
+    athleticsCases(MotionBodies.SWEEP),
+  gymnastics: (): IMotionCaptureCase[] => gymnasticsCases(),
+  "gymnastics-sweep": (): IMotionCaptureCase[] =>
+    gymnasticsCases(MotionBodies.SWEEP),
+  martial: (): IMotionCaptureCase[] => martialArtCases(),
+  "martial-sweep": (): IMotionCaptureCase[] =>
+    martialArtCases(MotionBodies.SWEEP),
+  "team-ball": (): IMotionCaptureCase[] => ballSportCases(),
+  "team-ball-sweep": (): IMotionCaptureCase[] =>
+    ballSportCases(MotionBodies.SWEEP),
+  baseball: (): IMotionCaptureCase[] => baseballCases(),
+  "baseball-sweep": (): IMotionCaptureCase[] =>
+    baseballCases(MotionBodies.SWEEP),
+  racket: (): IMotionCaptureCase[] => racketCases(),
+  "racket-sweep": (): IMotionCaptureCase[] => racketCases(MotionBodies.SWEEP),
+  swim: (): IMotionCaptureCase[] => swimCases(),
+  "swim-sweep": (): IMotionCaptureCase[] => swimCases(MotionBodies.SWEEP),
 };

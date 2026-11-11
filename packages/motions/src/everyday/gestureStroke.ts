@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, minimumJerk, physicalHullFaces } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
@@ -162,6 +162,17 @@ export namespace gestureStroke {
 
     /** Effort extent multiplier. */
     extent: number;
+
+    /**
+     * This repeat's variation of a named place, for `wave` and `stopPalm`;
+     * absent, the place is as named.
+     *
+     * @param record The named place's share record.
+     * @returns The varied share record.
+     */
+    vary?(
+      record: AutoMovieMotionHumanTarget.IDefault,
+    ): AutoMovieMotionHumanTarget.IDefault;
   }
 
   /**
@@ -366,17 +377,30 @@ export namespace gestureStroke {
     // A place of the air by its names, in the performer's own frame: the
     // shares times the stature, the half shoulder width and the arm, ahead
     // of the root, which a lowered posture carries down with it. `reach`
-    // scales the distance ahead.
+    // scales the distance ahead. `named` is the place without its nudge: when
+    // given and the repeat varies, the named place's offset is added, so the
+    // offset is one value through the stroke whatever the nudge does.
     const put = (
       place: AutoMovieMotionHumanTarget.Place,
       reach: number = 1,
+      named?: AutoMovieMotionHumanTarget.Place,
     ): IAutoMovieVector3 => {
       const shares: AutoMovieMotionHumanTarget.IDefault =
         AutoMovieMotionHumanTarget.place(body, side, place);
+      const base: AutoMovieMotionHumanTarget.IDefault | undefined =
+        named === undefined || input.vary === undefined
+          ? undefined
+          : AutoMovieMotionHumanTarget.place(body, side, named);
+      const varied: AutoMovieMotionHumanTarget.IDefault | undefined =
+        base === undefined ? undefined : input.vary!(base);
+      const offset = (key: "lateral" | "height" | "range"): number =>
+        base === undefined || varied === undefined
+          ? 0
+          : (varied[key] ?? 0) - (base[key] ?? 0);
       return at(
-        (shares.lateral ?? 0) * m.shoulderHalfWidth,
-        shares.height * m.stature,
-        shares.range * L * reach,
+        ((shares.lateral ?? 0) + offset("lateral")) * m.shoulderHalfWidth,
+        (shares.height + offset("height")) * m.stature,
+        (shares.range + offset("range")) * L * reach,
       );
     };
     const facing = (
@@ -395,10 +419,14 @@ export namespace gestureStroke {
         return {
           surface: "palm",
           shape: "flat",
-          point: put({
-            at: { height: "eye", lateral: "outside", distance: "near" },
-            nudge: { out: sign * swing },
-          }),
+          point: put(
+            {
+              at: { height: "eye", lateral: "outside", distance: "near" },
+              nudge: { out: sign * swing },
+            },
+            1,
+            { height: "eye", lateral: "outside", distance: "near" },
+          ),
           rotation: HumanHand.rotation(side, {
             fingers: dir(Math.sin(tilt), Math.cos(tilt), 0),
             palm: HumanHand.direction(side, frame.yaw, "forward"),
@@ -432,6 +460,7 @@ export namespace gestureStroke {
               nudge: { forward: 0.05 * bump(u) },
             },
             Math.min(1, e),
+            { height: "shoulder", lateral: "inside", distance: "far" },
           ),
           rotation: facing("up", "forward"),
           out: 0,
@@ -461,7 +490,9 @@ export namespace gestureStroke {
           rotation: facing("forward", "up"),
           out: 0,
           curl:
-            ANGLES.beckon * e * (0.5 - 0.5 * Math.cos(2 * Math.PI * cycles * u)),
+            ANGLES.beckon *
+            e *
+            (0.5 - 0.5 * Math.cos(2 * Math.PI * cycles * u)),
         };
       case "clap":
       case "rubHands": {
@@ -719,7 +750,8 @@ export namespace gestureStroke {
   /**
    * How far the finger's axis stands off the skin it touches: the distal
    * index phalanx's collider radius (the hand's thinnest half-extent on a
-   * profile without finger colliders), so a fingertip laid on a surface
+   * profile without finger colliders: a box's least half extent, or the
+   * radius of the sphere a hull holds about its centre), so a fingertip laid on a surface
    * touches it rather than sinking its axis into it.
    */
   function padding(body: IHumanBody, side: HumanHand.Side): number {
@@ -728,18 +760,26 @@ export namespace gestureStroke {
       body.profile.segments.find((s) => s.bone === `${side}Hand`);
     let thin: number = 0;
     for (const shape of segment?.shapes ?? []) {
-      const half: number =
-        shape.kind === "box"
-          ? Math.min(
-              shape.halfExtents.x,
-              shape.halfExtents.y,
-              shape.halfExtents.z,
-            )
-          : shape.kind === "sphere" || shape.kind === "capsule"
-            ? shape.radius
-            : 0;
+      const half: number = thickness(shape);
       thin = thin === 0 ? half : Math.min(thin, half);
     }
     return thin;
+  }
+
+  /** A shape's thinnest half extent, metres. */
+  function thickness(
+    shape: IHumanBody["profile"]["segments"][number]["shapes"][number],
+  ): number {
+    if (shape.kind === "sphere") return shape.radius;
+    if (shape.kind === "capsule") return shape.radius;
+    if (shape.kind === "box")
+      return Math.min(
+        shape.halfExtents.x,
+        shape.halfExtents.y,
+        shape.halfExtents.z,
+      );
+    if (shape.kind === "hull") return physicalHullFaces(shape.points).depth;
+    shape satisfies never;
+    throw new Error("Unknown physical shape kind");
   }
 }

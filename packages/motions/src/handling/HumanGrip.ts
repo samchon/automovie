@@ -37,9 +37,10 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * - `precision`: the thumb, the index and the middle finger, the ring and
  *   little fingers left relaxed.
  *
- * The curl runs on the hand alone at its rest, with the object carried into
- * the rest hand's frame by the planned grasp (the hand's world wrist and
- * rotation), so the angles depend only on where the object sits in the hand,
+ * The curl runs on the hand alone, from its rest or from the open shape a
+ * law passes (an offered hand opens its thumb before it closes), with the
+ * object carried into the rest hand's frame by the planned grasp (the hand's
+ * world wrist and rotation), so the angles depend only on where the object sits in the hand,
  * which a grip keeps fixed, and are computed once per grasp. Each phalanx is
  * the capsule the body's physical profile declares on that digit bone, its
  * radius and its far end read from the collider, so contact meets what is
@@ -149,6 +150,7 @@ export namespace HumanGrip {
    * @param kind The grip kind.
    * @param hand The hand's planned world frame: its wrist joint and its rotation from rest.
    * @param colliders The object's colliders in the world at the grasp.
+   * @param from The digit angles the closure starts from, clinical degrees; the rest hand when absent.
    * @returns The closed finger angles of that hand and each closing digit's final gap, metres.
    */
   export function close(
@@ -157,6 +159,7 @@ export namespace HumanGrip {
     kind: AutoMovieGripKind,
     hand: HumanHand.IWrist,
     colliders: readonly curlChainUntilContact.ICollider[],
+    from: IHumanPosture["joints"] = {},
   ): { joints: IHumanPosture["joints"]; gaps: Partial<Record<Digit, number>> } {
     // Carry the object into the rest hand's frame: rest = R0 R^-1 (world - W) + P0.
     const rest: IAutoMovieResolvedBone = resolve(body, {
@@ -190,7 +193,23 @@ export namespace HumanGrip {
     const digits: readonly Digit[] = CLOSING[kind];
     const result: curlChainUntilContact.IResult = curlChainUntilContact({
       skeleton: body.skeleton,
-      pose: { skeleton: body.skeleton.id, root: null, joints: [] },
+      pose: {
+        skeleton: body.skeleton.id,
+        root: null,
+        joints: (
+          Object.entries(from) as [
+            AutoMovieHumanoidBone,
+            readonly [number, number, number],
+          ][]
+        ).map(
+          ([bone, a]): IAutoMovieJointPose => ({
+            bone,
+            flexion: a[0],
+            abduction: a[1],
+            twist: a[2],
+          }),
+        ),
+      },
       chains: digits.map(
         (d: Digit): curlChainUntilContact.IChain => chain(body, side, d),
       ),

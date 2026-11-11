@@ -1,8 +1,13 @@
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import type {
+  IAutoMovieVector3,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import RAPIER from "@dimforge/rapier3d-compat";
 
+import { physicalHullFaces } from "./physicalHullFaces";
+
 /**
- * Preserve primitive geometry while avoiding the pinned narrow phase's degenerate zero-axis capsule path.
+ * Preserve primitive geometry while avoiding the pinned narrow phase's degenerate zero-axis capsule path; a hull maps to the native convex polyhedron of its vertices.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Preserve primitive geometry while avoiding the pinned narrow phase's degenerate zero-axis capsule path) as stated in this comment.
  * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Preserve primitive geometry while avoiding the pinned narrow phase's degenerate zero-axis capsule path) directly over its typed inputs (`shape`) as a fixed number of statements with no loop or recursion in the body; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Apart from structural 0, 1 and 2 the body uses no numeric literal.
@@ -18,11 +23,28 @@ export function physicalNativeShape(shape: P.IShape): RAPIER.Shape {
     (shape.kind === "capsule" && shape.halfLength === 0)
   )
     return new RAPIER.Ball(shape.radius);
-  return shape.kind === "capsule"
-    ? new RAPIER.Capsule(shape.halfLength, shape.radius)
-    : new RAPIER.Cuboid(
-        shape.halfExtents.x,
-        shape.halfExtents.y,
-        shape.halfExtents.z,
-      );
+  if (shape.kind === "capsule")
+    return new RAPIER.Capsule(shape.halfLength, shape.radius);
+  if (shape.kind === "box")
+    return new RAPIER.Cuboid(
+      shape.halfExtents.x,
+      shape.halfExtents.y,
+      shape.halfExtents.z,
+    );
+  if (shape.kind === "hull")
+    // Without indices the native shape computes the hull of the vertices.
+    return new RAPIER.ConvexPolyhedron(
+      new Float32Array(
+        physicalHullFaces(shape.points).vertices.flatMap(
+          (vertex: IAutoMovieVector3): number[] => [
+            vertex.x,
+            vertex.y,
+            vertex.z,
+          ],
+        ),
+      ),
+      null,
+    );
+  shape satisfies never;
+  throw new Error("Unknown physical shape kind");
 }

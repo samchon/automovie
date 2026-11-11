@@ -81,7 +81,10 @@ export interface IAutoMovieViewPart {
    * requires the removed cap's actual effects to vanish on the kept interval.
    * The loft adds rings at equal steps of the root of
    * pole distance and moves shoulders toward the conic ellipse value by a
-   * quintic smoothstep over the nearest outline-knot span. These construction
+   * quintic smoothstep over the nearest outline-knot span. A top fullness
+   * with touch offsets or splits keeps its own angles and shoulders instead:
+   * its touch offsets and split coordinates also have a knot of value 0 at
+   * the pole, and the cap is the end section shrunk to that point. These construction
    * choices require regular compatible source/frame jets for a smooth dome;
    * this field does not prove G2 regularity of the resulting pole. Absent,
    * both ends are open sections.

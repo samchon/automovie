@@ -341,6 +341,54 @@ export namespace AutoMovieMotionHumanBend {
       ? Infinity
       : found.strain;
   }
+
+  /**
+   * An elbow place turned about the line from the shoulder to the wrist.
+   *
+   * @param props The request; its `fallback` is not read.
+   * @param elbow The elbow's place, world metres.
+   * @param degrees The turn, counter-clockwise seen from the wrist looking at the shoulder.
+   * @returns The turned place, world metres, at the same distance from the line; the place itself when the rig has no such arm or the elbow lies on the line.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the axis, the turn's sense, the result's frame and the two cases with nothing to turn.
+   * @evidence contracts/development/implementation.md#principled-implementation The swivel angle of Tolani, Goswami and Badler 2000: the elbow's one freedom once the wrist is placed is its turn about the shoulder-to-wrist line.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The foot of the elbow on the line and one rotation of the radial vector.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Legality is not judged here: a caller reads `strain` on the result.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the shoulder from the chain `solve` and `strain` prepare.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One chain preparation and constant work.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function turn(
+    props: ISolve,
+    elbow: IAutoMovieVector3,
+    degrees: number,
+  ): IAutoMovieVector3 {
+    const chain: IChain | null = chainOf(props.body, props.posture, props.side);
+    if (chain === null) return elbow;
+    const axis: IAutoMovieVector3 = Vector3.subtract(
+      props.point,
+      chain.shoulder,
+    );
+    if (!(Vector3.length(axis) > 1e-9)) return elbow;
+    const line: IAutoMovieVector3 = Vector3.normalize(axis);
+    const foot: IAutoMovieVector3 = Vector3.add(
+      chain.shoulder,
+      Vector3.scale(
+        line,
+        Vector3.dot(Vector3.subtract(elbow, chain.shoulder), line),
+      ),
+    );
+    const radial: IAutoMovieVector3 = Vector3.subtract(elbow, foot);
+    if (!(Vector3.length(radial) > 1e-9)) return elbow;
+    const angle: number = (degrees * Math.PI) / 180;
+    return Vector3.add(
+      foot,
+      Vector3.add(
+        Vector3.scale(radial, Math.cos(angle)),
+        Vector3.scale(Vector3.cross(line, radial), Math.sin(angle)),
+      ),
+    );
+  }
 }
 
 /** The trunk bones whose shapes an elbow may not enter. */

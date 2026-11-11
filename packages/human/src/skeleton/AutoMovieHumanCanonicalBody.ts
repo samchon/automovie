@@ -114,7 +114,8 @@ export namespace AutoMovieHumanCanonicalBody {
    * bone with an identity rest rotation, the toes bone at the hallux's
    * metatarsophalangeal joint, and every other joint rides its nearest
    * humanoid ancestor. The contact profile is built from the same joints and
-   * radii (`AutoMovieHumanCanonicalProfile`), so contacts meet what is drawn.
+   * radii (`AutoMovieHumanCanonicalProfile`), its colliders the convex hulls
+   * of the drawn ring points, so contacts meet what is drawn.
    *
    * @param params The Human's parameters.
    * @param options Body mass in kilograms and the skeleton id.
@@ -468,6 +469,8 @@ function canonical(
         bind.map((bone: IBind): [string, Profile.IJoint] => [
           bone.bone,
           {
+            parent: bone.parent,
+            carrier: carrier.get(bone.bone)!,
             position: position.get(bone.bone)!,
             tip: tip.get(bone.bone)!,
             radius: bone.radius,

@@ -2,6 +2,8 @@ import {
   type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
+  closestPointsBetweenSegments,
+  physicalHullFaces,
   physicalShapeBounds,
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
@@ -24,6 +26,9 @@ import type { IHumanBody } from "../body/IHumanBody";
  * segment's neutral offset from the bone's rest joint. Every shape distance
  * is the engine's single owner, `physicalShapeSegmentDistance`, and the
  * body's distance is the least over its shapes, the distance to their union.
+ * A shape whose bounding sphere already lies farther than the least distance
+ * found is passed over without the exact query, which cannot change the
+ * least, so the searches that call this in loops pay for the near shapes only.
  */
 export namespace HumanColliders {
   /** A signed distance and the segment it is measured to. */
@@ -73,6 +78,27 @@ export namespace HumanColliders {
     let best: IDistance | undefined;
     for (const { bone, pose, shapes } of placed(body, bones))
       for (const shape of shapes) {
+        // A shape lies inside its bounding sphere, so it is no nearer than
+        // the sphere: one that cannot beat the least found is skipped.
+        if (best !== undefined) {
+          const ball: IBall = bound(shape);
+          const centre: IAutoMovieVector3 = Vector3.add(
+            pose.position,
+            Quaternion.rotateVector(
+              pose.rotation,
+              Vector3.add(
+                shape.transform.position,
+                Quaternion.rotateVector(shape.transform.rotation, ball.centre),
+              ),
+            ),
+          );
+          if (
+            closestPointsBetweenSegments(a, b, centre, centre).distance -
+              ball.radius >=
+            best.distance
+          )
+            continue;
+        }
         const d: number = physicalShapeSegmentDistance(pose, shape, a, b);
         if (best === undefined || d < best.distance)
           best = { distance: d, bone };
@@ -166,3 +192,28 @@ export namespace HumanColliders {
     return out;
   }
 }
+
+/** A sphere containing a shape, in the shape's own frame. */
+interface IBall {
+  /** The sphere's centre, shape-local metres. */
+  centre: IAutoMovieVector3;
+
+  /** The sphere's radius, metres. */
+  radius: number;
+}
+
+/** The sphere about a shape's centre that contains it: a sphere's own radius, a capsule's half length plus radius, a box's half diagonal, a hull's vertex radius about its vertex mean. */
+const bound = (shape: P.IShape): IBall => {
+  const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  if (shape.kind === "sphere") return { centre: origin, radius: shape.radius };
+  if (shape.kind === "capsule")
+    return { centre: origin, radius: shape.halfLength + shape.radius };
+  if (shape.kind === "box")
+    return { centre: origin, radius: Vector3.length(shape.halfExtents) };
+  if (shape.kind === "hull") {
+    const hull: physicalHullFaces.IHull = physicalHullFaces(shape.points);
+    return { centre: hull.centre, radius: hull.radius };
+  }
+  shape satisfies never;
+  throw new Error("Unknown physical shape kind");
+};

@@ -107,6 +107,10 @@ export namespace IAutoMoviePhysicalProfile {
         /** Solid oriented box. */ kind: "box";
         /** Positive local half-extents, metres. */ halfExtents: IAutoMovieVector3;
       }
+    | {
+        /** Solid convex polytope: the convex hull of its points. */ kind: "hull";
+        /** At least four shape-local vertices, metres, not all in one plane; every point is a vertex or lies on the hull's surface, never inside it. */ points: IAutoMovieVector3[];
+      }
   );
   /**
    * Angular axis is in the parent joint frame; limits are radians.

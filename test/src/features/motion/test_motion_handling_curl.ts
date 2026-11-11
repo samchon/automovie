@@ -309,6 +309,10 @@ function clearance(
         ) - shape.radius
       );
     }
+    if (shape.kind === "hull")
+      throw new Error(
+        "This reference measures the sphere, capsule and box the scenarios curl on",
+      );
     const q: IAutoMovieVector3 = {
       x: Math.abs(p.x - c.x) - shape.halfExtents.x,
       y: Math.abs(p.y - c.y) - shape.halfExtents.y,

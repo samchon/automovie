@@ -30,6 +30,7 @@ export * from "./reachPose";
 export * from "./reachableBoneNames";
 export * from "./resolveAttachment";
 export * from "./resolveAutoMovieCenterOfMass";
+export * from "./resolveAutoMovieHumanoidRingModules";
 export * from "./resolveAutoMovieHumanoidSurfaces";
 export * from "./resolveLookAt";
 export * from "./resolvePose";

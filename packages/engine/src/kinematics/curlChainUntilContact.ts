@@ -11,6 +11,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { physicalHullFaces } from "../physics/physicalHullFaces";
 import { physicalShapeSegmentDistance } from "../physics/physicalShapeSegmentDistance";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
@@ -287,14 +288,21 @@ export namespace curlChainUntilContact {
 
 /** Refuse a shape whose dimensions cannot give a distance. */
 function validate(shape: P.IShape): void {
-  const ok: boolean =
-    shape.kind === "sphere"
-      ? shape.radius > 0
-      : shape.kind === "capsule"
-        ? shape.radius > 0 && shape.halfLength >= 0
-        : shape.halfExtents.x > 0 &&
-          shape.halfExtents.y > 0 &&
-          shape.halfExtents.z > 0;
+  let ok: boolean;
+  if (shape.kind === "sphere") ok = shape.radius > 0;
+  else if (shape.kind === "capsule")
+    ok = shape.radius > 0 && shape.halfLength >= 0;
+  else if (shape.kind === "box")
+    ok =
+      shape.halfExtents.x > 0 &&
+      shape.halfExtents.y > 0 &&
+      shape.halfExtents.z > 0;
+  else if (shape.kind === "hull")
+    ok = physicalHullFaces(shape.points).faces.length >= 4;
+  else {
+    shape satisfies never;
+    ok = false;
+  }
   if (!ok)
     throw new Error(`A collider ${shape.id} has non-positive dimensions`);
 }

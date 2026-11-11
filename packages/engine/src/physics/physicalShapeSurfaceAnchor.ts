@@ -5,9 +5,10 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { physicalHullFaces } from "./physicalHullFaces";
 
 /**
- * A collider's exact support surface in a specified bone-local outward direction. Capsule ties select the segment midpoint rather than an arbitrary cap; boxes select the face centre on tied coordinates.
+ * A collider's exact support surface in a specified bone-local outward direction. Capsule ties select the segment midpoint rather than an arbitrary cap; boxes select the face centre on tied coordinates; hulls select the mean of the tied vertices.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (A collider's exact support surface in a specified bone-local outward direction) as stated in this comment.
  * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (A collider's exact support surface in a specified bone-local outward direction) directly over its typed inputs (`pose`, `shape`, `normal`) as a fixed number of statements with no loop or recursion in the body, delegating to `Quaternion.rotateVector`, `Vector3.normalize`, `Quaternion.multiply`, `Quaternion.inverse`, `Math.abs`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Beyond structural 0, 1 and 2 the body uses the literal 1e-12, whose basis this answer does not independently establish and a reviewer must confirm.
@@ -36,19 +37,37 @@ export function physicalShapeSurfaceAnchor(
   );
   const sign: (value: number) => number = (value: number): number =>
     Math.abs(value) < 1e-12 ? 0 : Math.sign(value);
-  const point: IAutoMovieVector3 =
-    shape.kind === "box"
-      ? {
-          x: sign(direction.x) * shape.halfExtents.x,
-          y: sign(direction.y) * shape.halfExtents.y,
-          z: sign(direction.z) * shape.halfExtents.z,
-        }
-      : Vector3.add(Vector3.scale(direction, shape.radius), {
-          x: 0,
-          y:
-            shape.kind === "capsule" ? sign(direction.y) * shape.halfLength : 0,
-          z: 0,
-        });
+  let point: IAutoMovieVector3;
+  if (shape.kind === "box")
+    point = {
+      x: sign(direction.x) * shape.halfExtents.x,
+      y: sign(direction.y) * shape.halfExtents.y,
+      z: sign(direction.z) * shape.halfExtents.z,
+    };
+  else if (shape.kind === "sphere" || shape.kind === "capsule")
+    point = Vector3.add(Vector3.scale(direction, shape.radius), {
+      x: 0,
+      y: shape.kind === "capsule" ? sign(direction.y) * shape.halfLength : 0,
+      z: 0,
+    });
+  else if (shape.kind === "hull") {
+    // The support feature: the mean of the vertices farthest along the
+    // direction, a vertex, an edge midpoint or a face's vertex mean.
+    const hull: physicalHullFaces.IHull = physicalHullFaces(shape.points);
+    let reach: number = -Infinity;
+    for (const vertex of hull.vertices)
+      reach = Math.max(reach, Vector3.dot(vertex, direction));
+    const support: IAutoMovieVector3[] = hull.vertices.filter(
+      (vertex: IAutoMovieVector3): boolean =>
+        Vector3.dot(vertex, direction) >= reach - hull.tolerance,
+    );
+    point = { x: 0, y: 0, z: 0 };
+    for (const vertex of support)
+      point = Vector3.add(point, Vector3.scale(vertex, 1 / support.length));
+  } else {
+    shape satisfies never;
+    throw new Error("Unknown physical shape kind");
+  }
   return {
     point: Vector3.add(
       Vector3.add(

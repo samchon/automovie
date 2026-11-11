@@ -6,14 +6,15 @@ import { applyHumanPolygonPose } from "./applyHumanPolygonPose.js";
 import { buildHumanPolygonModule } from "./buildHumanPolygonModule.js";
 import { buildHumanPolygonParts } from "./buildHumanPolygonParts.js";
 import { createHumanPolygonPalette } from "./createHumanPolygonPalette.js";
-import { humanPolygonSections as Sections } from "./humanPolygonSections.js";
 
 /**
  * Draw a rigid polygon blockout from the generated skeleton, in metres.
  *
  * Every module is procedural and comes from the skeleton alone: joint
  * positions, tips and skin girth radii, never the Human's skin surfaces, so the
- * polygon figure keeps working however the realistic skin is built. Modules
+ * polygon figure keeps working however the realistic skin is built. The
+ * engine's `resolveAutoMovieHumanoidRingModules` owns the rings and their
+ * points, which the physical profile also takes its colliders from. Modules
  * use eight-sided sections at their selected levels. Joint spans set torso,
  * palm and foot breadth; girth radii set thickness; the neck runs from the
  * neck joint to the head joint and the head closes on the head's tip. Each
@@ -50,7 +51,6 @@ export function buildHumanPolygon(
 ): AutoMovieHumanPolygon.IDrawing {
   createHumanPolygonPalette.validate(options.partColors);
   const bones: Map<string, AutoMovieHumanPolygon.IBone> = new Map();
-  const children: Map<string, AutoMovieHumanPolygon.IBone[]> = new Map();
   const placements: Map<string, AutoMovieHumanPolygon.IPlacement> = new Map();
   for (const bone of output.bones) {
     if (
@@ -62,19 +62,9 @@ export function buildHumanPolygon(
     )
       throw new Error(`Invalid polygon skeleton bone: ${bone.bone}`);
     bones.set(bone.bone, bone);
-    if (bone.parent !== null) {
-      const siblings: AutoMovieHumanPolygon.IBone[] =
-        children.get(bone.parent) ?? [];
-      siblings.push(bone);
-      children.set(bone.parent, siblings);
-    }
   }
   for (const placement of output.posed)
     placements.set(placement.bone, placement);
-  // The neck and head are drawn from their own joints like every other segment.
-  const skeletal: ReturnType<typeof skeletalNeckAndHead> =
-    skeletalNeckAndHead(bones);
-  const neckRings: buildHumanPolygonModule.ISection[] = skeletal.neck;
 
   /**
    * Resolve an original construction joint or refuse its missing identity.
@@ -250,13 +240,8 @@ export function buildHumanPolygon(
   try {
     ({ headObject, headMesh, headBox } = buildHumanPolygonParts(
       output,
-      children,
-      skeletal.crown,
-      neckRings,
-      [neckRings[neckRings.length - 1]!, ...skeletal.head],
       boneAt,
       add,
-      groups,
     ));
     // Non-emitted driving joints remain real scene nodes for attachments and
     // world-space inspection, using the same admitted evaluator placements.
@@ -294,54 +279,5 @@ export function buildHumanPolygon(
         buildHumanPolygonModule.frontAt(headMesh.geometry, headBox, y, z),
     },
     dispose,
-  };
-}
-
-/**
- * Neck and head rings from their own joints: a two-ring neck from the neck joint
- * to the head joint, and a head that widens to the head segment's girth radius
- * and closes on the head's tip (two girth radii above the joint when no tip).
- *
- */
-function skeletalNeckAndHead(
-  bones: ReadonlyMap<string, AutoMovieHumanPolygon.IBone>,
-): {
-  neck: buildHumanPolygonModule.ISection[];
-  head: buildHumanPolygonModule.ISection[];
-  crown: [number, number, number];
-} {
-  const neck: AutoMovieHumanPolygon.IBone | undefined = bones.get("neck");
-  const head: AutoMovieHumanPolygon.IBone | undefined = bones.get("head");
-  if (!neck || !head)
-    throw new Error("Polygon neck and head require the neck and head joints");
-  const crown: [number, number, number] = head.tip ?? [
-    head.position[0],
-    head.position[1] + 2 * head.radius,
-    head.position[2],
-  ];
-  const base: THREE.Vector3 = new THREE.Vector3(...head.position);
-  const top: THREE.Vector3 = new THREE.Vector3(...crown);
-  return {
-    neck: [
-      Sections.section(
-        new THREE.Vector3(...neck.position),
-        neck.radius,
-        neck.radius,
-      ),
-      Sections.section(base.clone(), neck.radius * 0.92, neck.radius * 0.92),
-    ],
-    head: [
-      Sections.section(
-        base.clone().lerp(top, 0.35),
-        head.radius,
-        head.radius * 0.92,
-      ),
-      Sections.section(
-        base.clone().lerp(top, 0.75),
-        head.radius * 0.85,
-        head.radius * 0.8,
-      ),
-    ],
-    crown,
   };
 }

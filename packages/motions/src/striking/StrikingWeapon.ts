@@ -8,6 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 
@@ -40,12 +41,30 @@ export namespace StrikingWeapon {
     side: "left" | "right",
     seconds: number,
   ): IAutoMovieVector3[] {
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = owner
-      .performer(owner.subject)
-      .bones(seconds);
+    return posed(
+      owner.body,
+      owner.performer(owner.subject).bones(seconds),
+      side,
+    );
+  }
+
+  /**
+   * An arm's axis ends on posed bones: the shoulder, the elbow, the wrist,
+   * and the fist's axis end one forearm radius behind the knuckles.
+   *
+   * @param body The arm's body.
+   * @param bones Its posed bones, world frame.
+   * @param side The arm's side.
+   * @returns The four axis ends, world metres.
+   */
+  export function posed(
+    body: IHumanBody,
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    side: "left" | "right",
+  ): IAutoMovieVector3[] {
     const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
     const knuckles: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
-      owner.body.surfaces.sockets[side === "left" ? "fistLeft" : "fistRight"],
+      body.surfaces.sockets[side === "left" ? "fistLeft" : "fistRight"],
       hand,
     ).point;
     const reach: IAutoMovieVector3 = Vector3.subtract(
@@ -53,7 +72,7 @@ export namespace StrikingWeapon {
       hand.worldPosition,
     );
     const length: number = Vector3.length(reach);
-    const r: number = owner.body.measure.forearmRadius;
+    const r: number = body.measure.forearmRadius;
     return [
       bones.get(`${side}UpperArm`)!.worldPosition,
       bones.get(`${side}LowerArm`)!.worldPosition,

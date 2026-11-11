@@ -4,9 +4,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
@@ -15,10 +15,10 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { HumanGrasp } from "./HumanGrasp";
 import { HumanGrip } from "./HumanGrip";
 import { HumanHandover } from "./HumanHandover";
 import { HumanPrehension } from "./HumanPrehension";
+import { HumanPreshape } from "./HumanPreshape";
 
 /**
  * Taking a prop a giver holds out: the receiver's half of a handover.
@@ -151,7 +151,11 @@ export namespace receive {
     const back: number = takes
       ? HumanPrehension.carry(travel)
       : HumanPrehension.nominal(travel, 0);
-    const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(body, held, side);
+    const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
+      body,
+      held,
+      side,
+    );
     const home: HumanPrehension.ITransport = HumanPrehension.transport(
       arrive,
       end,
@@ -176,7 +180,7 @@ export namespace receive {
           shared.target.colliders,
         ).joints
       : HumanHand.shape(side, "relaxed");
-    const open: IHumanPosture["joints"] = HumanGrasp.open(
+    const open: IHumanPosture["joints"] = HumanPreshape.open(
       body,
       side,
       takes ? closed : HumanHand.shape(side, "relaxed"),

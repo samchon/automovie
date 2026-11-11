@@ -5,6 +5,7 @@ import {
   Quaternion,
   Vector3,
   minimumJerk,
+  resolveAutoMovieHumanoidSurfaces,
   resolvePose,
 } from "@automovie/engine";
 import type {
@@ -16,6 +17,8 @@ import type {
 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
+import { AutoMovieMotionHumanVariation } from "../compose/AutoMovieMotionHumanVariation";
+import type { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -31,6 +34,7 @@ import { StrikingQuality } from "./StrikingQuality";
 import { StrikingReach } from "./StrikingReach";
 import { StrikingRecord } from "./StrikingRecord";
 import { StrikingRide } from "./StrikingRide";
+import { StrikingRoom } from "./StrikingRoom";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingStroke } from "./StrikingStroke";
@@ -63,7 +67,9 @@ import { StrikingWeapon } from "./StrikingWeapon";
  * punch turns the trunk through to bring the rear shoulder forward and
  * pivots the rear foot on its ball; a lead hook turns the other way. A body
  * punch lowers the root through the knees. When the arm's band falls short,
- * the lead foot steps in by up to one stance length and the rear foot drags
+ * the lead foot steps in by up to one stance length, never past the room in
+ * front of the arms ({@link StrikingRoom}) and never toward a target that no
+ * place on the line brings within the band, and the rear foot drags
  * from mid-delivery to mid-return (the IBA stepping jab), so no planted foot
  * is left behind a travelling hip; the trunk's turn is shared by the pelvis
  * and the lumbar and thoracic spine. Beyond that the fist extends
@@ -124,6 +130,14 @@ export namespace punch {
 
     /** A feint: the share of the delivery shown before returning, in (0, 1). */
     feint?: number;
+
+    /**
+     * How much repeats of the punch differ: `variation` in [0, 1] scales the
+     * spread of the point aimed at within a person's region, and
+     * `proficiency` replaces the performer's skill for that spread. Absent or
+     * 0, every repeat is aimed at the region's own point.
+     */
+    manner?: Pick<AutoMovieMotionManner.IManner, "variation" | "proficiency">;
   }
 
   /** Elbow flexion band at contact by technique, degrees (IBA drawings read; hook and uppercut near a right angle). */
@@ -291,20 +305,47 @@ export namespace punch {
     // the body it met ({@link StrikingRide}), built on first use.
     let met: IHumanActionPlan.IContactEvent | null = null;
     let ride: StrikingRide.IRide | undefined;
-    const carried = (posture: IHumanPosture, seconds: number): IHumanPosture => {
+    const carried = (
+      posture: IHumanPosture,
+      seconds: number,
+    ): IHumanPosture => {
       if (met === null) return posture;
       const event: IHumanActionPlan.IContactEvent = met;
       ride ??= StrikingRide.create({
         other: (): IHumanActionContext.IPerformer =>
           context.performer(event.against),
         stop: event.seconds,
-        end: context.start + duration,
-        axis: (
-          at: number,
-        ): readonly [IAutoMovieVector3, IAutoMovieVector3] =>
+        goal: (at: number): IAutoMovieVector3 =>
+          geometry().posture(at - context.start).limbs[limb]!.point,
+        axis: (at: number): readonly [IAutoMovieVector3, IAutoMovieVector3] =>
           StrikingWeapon.axis(chain, event.weapon, at),
       });
       return ride.carry(posture, limb, context.start + seconds);
+    };
+    // The point aimed at within a person's region, varied per repeat: one
+    // offset on the region's tangent plane, read by the aim, by the defence
+    // that answers this punch and so by the record. The region's radius comes
+    // from the struck body. Only the intent varies here: the arm's miss is
+    // the seeded scatter the tracker already adds (`StrikingQuality.offset`),
+    // so it is not counted a second time.
+    const source: AutoMovieMotionHumanVariation.ISource | undefined =
+      AutoMovieMotionHumanVariation.of(context, p.manner);
+    let tangent: resolveAutoMovieHumanoidSurfaces.ITangent | undefined;
+    const aimed = (): resolveAutoMovieHumanoidSurfaces.ITangent | undefined => {
+      if (
+        source === undefined ||
+        p.at.kind !== "person" ||
+        !resolveAutoMovieHumanoidSurfaces.rayed(p.at.region)
+      )
+        return undefined;
+      tangent ??= AutoMovieMotionHumanVariation.strike(source, "point", {
+        radius: StrikingBody.radius(
+          context.performer(p.at.subject).body,
+          p.at.region,
+        ),
+        scatter: 0,
+      });
+      return tangent;
     };
     let built: IGeometry | undefined;
     let building: boolean = false;
@@ -316,7 +357,7 @@ export namespace punch {
         );
       building = true;
       try {
-        built = build(context, timing, fixed);
+        built = build(context, timing, fixed, aimed());
       } finally {
         building = false;
       }
@@ -328,7 +369,9 @@ export namespace punch {
       get contacts(): IHumanContactWindow[] {
         return geometry().contacts;
       },
-      ...(p.feint === undefined ? { contact: delivery } : { feigned: delivery }),
+      ...(p.feint === undefined
+        ? { contact: delivery }
+        : { feigned: delivery }),
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         return carried(geometry().posture(t), t);
@@ -348,6 +391,10 @@ export namespace punch {
           }
         : {}),
     };
+    // Read on demand, as the other person may not be placed while this punch
+    // is planned.
+    if (source !== undefined)
+      Object.defineProperty(out, "aimed", { enumerable: true, get: aimed });
     StrikingRecord.register(
       out,
       (): StrikingRecord.IRecord => geometry().record,
@@ -392,6 +439,7 @@ export namespace punch {
     context: IHumanActionContext<IParams>,
     timing: ITiming,
     fixed: number | null | undefined,
+    tangent: resolveAutoMovieHumanoidSurfaces.ITangent | undefined,
   ): IGeometry {
     const p: IParams = context.params;
     const { side, lead, which, delivery, shown, recoil, drop, duration } =
@@ -405,14 +453,27 @@ export namespace punch {
       side === "left" ? "leftArm" : "rightArm";
     const fist: "fistLeft" | "fistRight" =
       side === "left" ? "fistLeft" : "fistRight";
-    const aim = (seconds: number): IAutoMovieVector3 =>
-      StrikingTarget.aim(
+    const at: AutoMovieMotionTarget = p.at;
+    const aim = (seconds: number): IAutoMovieVector3 => {
+      if (tangent !== undefined && at.kind === "person") {
+        const other: IHumanActionContext.IPerformer = context.performer(
+          at.subject,
+        );
+        return StrikingBody.region(
+          other.body,
+          other.bones(seconds),
+          at.region,
+          tangent,
+        ).point;
+      }
+      return StrikingTarget.aim(
         context,
-        p.at,
+        at,
         seconds,
         (): number =>
           0.9 * (m.upperArm + m.forearm) + 0.5 * m.shoulderHalfWidth,
       );
+    };
 
     // The line to the target at the launch and the trunk turn it calls for.
     const first: IAutoMovieVector3 = aim(t0 - StrikingTarget.LOOK);
@@ -524,15 +585,39 @@ export namespace punch {
     const drag = (t: number): number =>
       minimumJerk((t - dragFrom) / (dragTo - dragFrom)).s;
     const carried: number = 0.5 * (1 + drag(shown));
+
+    // The arms at the launch, read from the displayed entry pose.
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
+      resolvePose(
+        context.entry.pose,
+        body.skeleton,
+        HUMANOID_JOINT_AXES,
+        HUMANOID_REST_FRAME,
+      ).map(
+        (
+          r: IAutoMovieResolvedBone,
+        ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
+      ),
+    );
+
+    // The punch returns to the guard where the step ends, so the step never
+    // closes past the room in front of the arms ({@link StrikingRoom}). A
+    // wrist off the line by more than the band's longest reach (a target
+    // above the arm) is out of reach from every place on the line, so it is
+    // not stepped toward: the nearest place is under it, the other's own.
+    const longest: number = StrikingReach.reach(m.upperArm, m.forearm, band[0]);
     const advance: number =
-      p.feint === undefined
+      p.feint === undefined && across <= longest
         ? Math.max(
             0,
-            StrikingReach.advance(
-              along,
-              needed,
-              carried * StrikingStance.length(body),
-            ) / carried,
+            Math.min(
+              StrikingReach.advance(
+                along,
+                needed,
+                carried * StrikingStance.length(body),
+              ) / carried,
+              StrikingRoom.ahead(context, at, bones, line, t0),
+            ),
           )
         : 0;
     const shoulder: IAutoMovieVector3 = Vector3.add(
@@ -554,19 +639,6 @@ export namespace punch {
       slide: false,
     });
 
-    // The arm at the launch, read from the displayed entry pose.
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
-      resolvePose(
-        context.entry.pose,
-        body.skeleton,
-        HUMANOID_JOINT_AXES,
-        HUMANOID_REST_FRAME,
-      ).map(
-        (
-          r: IAutoMovieResolvedBone,
-        ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
-      ),
-    );
     const origin: IAutoMovieVector3 = bones.get(
       `${side}Hand` as AutoMovieHumanoidBone,
     )!.worldPosition;
@@ -730,48 +802,23 @@ export namespace punch {
       );
     const lag: number = StrikingSkill.lag(context.skill) * shown;
 
-    // How deep a feint is shown, as a share of the way to the committed
-    // punch's wrist: the declared share, but never into a person's guard. The
-    // guard's depth is the farthest that person's hands and forearms stood
-    // toward the puncher from the aimed point when the punch was read, and
-    // the fist keeps clear of it by its own reach past the wrist and the two
-    // forearms' radii (derived: the surfaces that would otherwise touch).
-    const depth = (): number => {
-      const declared: number = minimumJerk(p.feint ?? 1).s;
-      if (p.at.kind !== "person") return declared;
-      const other: IHumanActionContext.IPerformer = context.performer(
-        p.at.subject,
-      );
-      const theirs: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        other.bones(t0 - StrikingTarget.LOOK);
-      const guard: number = Math.max(
-        0,
-        ...(
-          ["leftHand", "rightHand", "leftLowerArm", "rightLowerArm"] as const
-        ).map((bone): number =>
-          Vector3.dot(
-            Vector3.subtract(first, theirs.get(bone)!.worldPosition),
-            line,
-          ),
-        ),
-      );
-      const whole: number = Vector3.dot(
-        Vector3.subtract(solved.end, origin),
-        line,
-      );
-      if (!(whole > 1e-6)) return declared;
-      const clear: number =
-        Vector3.dot(Vector3.subtract(first, origin), line) -
-        guard -
-        Vector3.length(socket) -
-        m.forearmRadius -
-        other.body.measure.forearmRadius;
-      return Math.min(declared, Math.max(0, clear / whole));
-    };
+    // A feint is shown to its declared share, never into a person's guard.
     const reached: IAutoMovieVector3 =
       p.feint === undefined
         ? solved.end
-        : Vector3.lerp(origin, solved.end, depth());
+        : Vector3.lerp(
+            origin,
+            solved.end,
+            StrikingRoom.feint(context, at, {
+              declared: minimumJerk(p.feint).s,
+              aimed: first,
+              origin,
+              end: solved.end,
+              reach: Vector3.length(socket),
+              line,
+              launch: t0,
+            }),
+          );
     const units = StrikingStroke.delivery({
       origin,
       impact: reached,

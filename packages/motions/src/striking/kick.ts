@@ -195,17 +195,19 @@ export namespace kick {
     // the body it met ({@link StrikingRide}), built on first use.
     let met: IHumanActionPlan.IContactEvent | null = null;
     let ride: StrikingRide.IRide | undefined;
-    const carried = (posture: IHumanPosture, seconds: number): IHumanPosture => {
+    const carried = (
+      posture: IHumanPosture,
+      seconds: number,
+    ): IHumanPosture => {
       if (met === null) return posture;
       const event: IHumanActionPlan.IContactEvent = met;
       ride ??= StrikingRide.create({
         other: (): IHumanActionContext.IPerformer =>
           context.performer(event.against),
         stop: event.seconds,
-        end: t0 + timing.duration,
-        axis: (
-          at: number,
-        ): readonly [IAutoMovieVector3, IAutoMovieVector3] =>
+        goal: (at: number): IAutoMovieVector3 =>
+          geometry().posture(at - t0).limbs[limb]!.point,
+        axis: (at: number): readonly [IAutoMovieVector3, IAutoMovieVector3] =>
           StrikingWeapon.axis(chain, event.weapon, at),
       });
       return ride.carry(posture, limb, t0 + seconds);
@@ -317,7 +319,9 @@ export namespace kick {
   }
 
   /** A fresh kick's timing (Gavagan and Sayers 2017 phases, scaled and jittered by skill). */
-  function measure(context: IHumanActionContext<IParams>): IKickGeometry.ITiming {
+  function measure(
+    context: IHumanActionContext<IParams>,
+  ): IKickGeometry.ITiming {
     const lead: "left" | "right" = StrikingTarget.lead(context.entry);
     const side: "left" | "right" =
       leg(context.params) === "lead" ? lead : StrikingStance.rear({ lead });

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Vector3, physicalShapeBounds } from "@automovie/engine";
 import type {
   AutoMovieMotionTarget,
   IAutoMoviePose,
@@ -8,8 +8,10 @@ import type {
 import { HumanChain } from "../../HumanChain";
 import type { IHumanBody } from "../../body/IHumanBody";
 import { createHumanBody } from "../../body/createHumanBody";
+import { AutoMovieMotionHumanRange } from "../../compose/AutoMovieMotionHumanRange";
 import { HumanPerformance } from "../../perform/HumanPerformance";
 import { HumanColliders } from "../../posture/HumanColliders";
+import { flinch } from "../../reaction/flinch";
 import { StrikingBody } from "../../striking/StrikingBody";
 import { StrikingQuality } from "../../striking/StrikingQuality";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
@@ -27,16 +29,20 @@ import { everydayVerdicts } from "./everydayVerdicts";
  *
  * - `reaction-flinch-ahead` and `reaction-flinch-side`: a flinch from a threat
  *   ahead at head height and from one at the left; foot slip at most 5 mm,
- *   the head farther from the threat at the peak than at the start, and each
- *   wrist before the face at the peak, within the cover's own reach of the
- *   face point (the forearm's radius, two fists and one hand).
+ *   each planted foot within 5 mm of the floor, the head farther from the
+ *   threat at the peak than at the start and moved no more than the law's
+ *   size allows (its height above the hips times the lean's sine, plus the
+ *   shift and 30 mm for the neck's duck), and each wrist before the face at
+ *   the peak, within the cover's own reach of the face point (the forearm's
+ *   radius, two fists and one hand).
  * - `reaction-stagger-back` and `reaction-stagger-side`: a 1 m/s push from
- *   ahead and from the left; foot slip at most 5 mm and the extrapolated
- *   centre of mass inside the feet's base at the end (Hof, Gazendam and Sinke
- *   2005).
+ *   ahead and from the left; foot slip at most 5 mm, each planted foot within
+ *   5 mm of the floor and the extrapolated centre of mass inside the feet's
+ *   base at the end (Hof, Gazendam and Sinke 2005).
  * - `reaction-knockdown`: a knockdown from a blow ahead; the lowest point of
- *   the body's collision shapes never below the floor by more than 10 mm, and
- *   within 10 mm of it once the body lies.
+ *   the body's collision shapes never below the floor by more than 10 mm, the
+ *   seat and the feet both within 10 mm of the floor as the seat lands, and
+ *   the lowest point within 10 mm of the floor once the body lies.
  *
  * @param bodies The sweep bodies to run each case on; `m-average` when absent.
  * @returns The cases.
@@ -86,13 +92,32 @@ export function reactionCases(
         body.measure.forearmRadius +
         2 * StrikingQuality.fist(body.measure.hand) +
         body.measure.hand;
+      const start = performance.bones("a", 0);
       const verdicts: IMotionCaptureCase.IVerdict[] = [
         ...everydayVerdicts.standard(performance, "a", body),
+        planted(performance, body),
         {
           name: "head farther from the threat at the peak",
           passed: gap(peak) > gap(0),
           detail: `${((gap(peak) - gap(0)) * 1000).toFixed(1)} mm farther`,
         },
+        everydayVerdicts.within(
+          "head travel at the peak",
+          Vector3.length(
+            Vector3.subtract(
+              bones.get("head")!.worldPosition,
+              start.get("head")!.worldPosition,
+            ),
+          ),
+          (start.get("head")!.worldPosition.y -
+            start.get("hips")!.worldPosition.y) *
+            Math.sin(
+              (AutoMovieMotionHumanRange.lean(flinch.LEAN) * Math.PI) / 180,
+            ) +
+            AutoMovieMotionHumanRange.shift(body, flinch.SHIFT) +
+            0.03,
+          "mm",
+        ),
       ];
       for (const side of ["left", "right"] as const) {
         const wrist: IAutoMovieVector3 = Vector3.subtract(
@@ -140,6 +165,7 @@ export function reactionCases(
         targets: [{ at, radius: 0.04, color: 0xd04040 }],
         verdicts: [
           ...everydayVerdicts.standard(performance, "a", body),
+          planted(performance, body),
           {
             name: "caught body balanced over the feet at the end",
             passed: margin >= 0,
@@ -168,6 +194,18 @@ export function reactionCases(
         body,
         performance.bones("a", end),
       );
+      const landed = performance.bones("a", event(performance, "seated"));
+      const low = (of: (bone: string) => boolean): number => {
+        let value: number = Infinity;
+        for (const { bone, pose, shapes } of HumanColliders.placed(
+          body,
+          landed,
+        ))
+          if (of(bone))
+            for (const shape of shapes)
+              value = Math.min(value, physicalShapeBounds(pose, shape).min.y);
+        return value;
+      };
       out.push({
         name: `reaction-knockdown${suffix}`,
         times: times(performance, 0.1, [
@@ -189,6 +227,18 @@ export function reactionCases(
             "mm",
           ),
           everydayVerdicts.within(
+            "seat off the floor as it lands",
+            Math.abs(low((b) => b === "hips" || b.endsWith("UpperLeg"))),
+            0.01,
+            "mm",
+          ),
+          everydayVerdicts.within(
+            "feet off the floor as the seat lands",
+            Math.abs(low((b) => /(LowerLeg|Foot|Toes)$/.test(b))),
+            0.01,
+            "mm",
+          ),
+          everydayVerdicts.within(
             "lying body's lowest point off the floor",
             Math.abs(lying),
             0.01,
@@ -199,6 +249,21 @@ export function reactionCases(
     }
   }
   return out;
+}
+
+/** A planted foot stays on the floor: within 5 mm in its plant windows. */
+function planted(
+  performance: HumanPerformance,
+  body: IHumanBody,
+): IMotionCaptureCase.IVerdict {
+  const off = everydayVerdicts.grounded(performance, "a", body);
+  const verdict: IMotionCaptureCase.IVerdict = everydayVerdicts.within(
+    "a planted foot off the floor",
+    off.value,
+    0.005,
+    "mm",
+  );
+  return { ...verdict, detail: `${verdict.detail}, worst in ${off.where}` };
 }
 
 /** A performance of one polygon man standing at the origin heading +Z. */

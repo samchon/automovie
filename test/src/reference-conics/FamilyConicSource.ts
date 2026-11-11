@@ -91,6 +91,13 @@ export namespace FamilyConicSource {
     return { loop: outer, around: round.length, pieces: section.loops.length };
   }
 
+  /** Every closed loop of a mesh's cut by a frame's plane, counter-clockwise in the frame's chart, whether or not it winds round the origin. */
+  export function loops(mesh: M.IMesh, frame: AutoMovieLoftFrame.IFrame): C.P[][] {
+    const n: V = [frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1], frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2], frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0]];
+    const section: M.ISection = M.outline(mesh, { origin: [...frame.origin] as V, axes: [n, [...frame.u] as V, [...frame.v] as V] }, [0], 0, 0.5, 0)[0]!;
+    return section.loops.filter((loop: M.ILoop): boolean => loop.closed).map((loop: M.ILoop): C.P[] => (area(loop.points) < 0 ? [...loop.points].reverse() : [...loop.points]));
+  }
+
   /**
    * Convex hull of a chart polygon, counter-clockwise (Andrew's monotone
    * chain). It is the path a taut tape takes round the section, so a family

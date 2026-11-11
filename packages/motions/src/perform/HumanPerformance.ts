@@ -498,6 +498,15 @@ export class HumanPerformance {
           instance,
           channel,
         ),
+      series: (channel: string): IHumanActionContext.ISeries => ({
+        random: HumanSkill.series(
+          person.skill,
+          intent.subject,
+          intent.anchor ?? name,
+          channel,
+        ),
+        index: instance,
+      }),
       performer: (subject: string): IHumanActionContext.IPerformer => ({
         body: this.person(subject).performer.body,
         bones: (seconds: number) => this.bones(subject, seconds),

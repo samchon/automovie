@@ -5,7 +5,7 @@ import type { AutoMovieConstructionNode } from "./AutoMovieConstructionNode";
  *
  * The port curve at clock `c` in `[0, 2 pi)` is the chart point `(centre[0] + semi[0] cos c, centre[1] + sense semi[1] sin c)`: station in metres, phase in radians. The band is the engine's join strip between two ribbons: the host surface's own 2-jet across the port curve, toward the curve's centre (the chart direction `(-semi[0] cos c, -sense semi[1] sin c)`), and the part's own 2-jet at its rail toward its kept side, both scaled by one factor at which no column turns back along its chord. The band is G2 to the host along the port curve and G2 to the part along its rail. A failed premise leaves the part, the band and the host's port as they were, with one diagnostic naming the port.
  *
- * Engine admission: `hostFace` a view part of the host's subtree and `partFace` one of the part's; the `band` name unique in the tree; `count` a multiple of 4 of at least 8; `rows` a positive integer; `rail` positive; the loop's centre finite, both semi-axes positive and the phase semi-axis under pi.
+ * Engine admission: `hostFace` a view part of the host's subtree and `partFace` one of the part's; the `band` name unique in the tree; `count` a multiple of 4 of at least 8; `rows` a positive integer; `rail` positive; the loop's centre finite, both semi-axes positive and the phase semi-axis under pi; a loop's shape, when given, `count` finite positive shares.
  *
  * @evidence contracts/development/design.md#principled-representation A known port lies on a published landmark loop of the parent, which owns that loop (construction.md, Connections), and the band is the shared strip between each side's 2-jet across its rail, so the part meets the parent G2 without a traced intersection.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One host face, one closed chart ellipse, one part with its rail and band, and the strip's sampling inputs.
@@ -52,10 +52,10 @@ export interface IAutoMovieConstructionPort {
 
 export namespace IAutoMovieConstructionPort {
   /**
-   * A port curve: an ellipse on the host face's chart about a centre, run from its station-ward end at clock 0.
+   * A port curve: an ellipse on the host face's chart about a centre, run from its station-ward end at clock 0, or that ellipse with its distance from the centre scaled per column.
    *
-   * @evidence contracts/development/design.md#principled-representation An ellipse in the chart is exact in clock and carries an exact chart map for the band, as the parent's published port (AutoMovieHumanTrunkPorts) is defined.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A centre, two semi-axes and a sense.
+   * @evidence contracts/development/design.md#principled-representation An ellipse in the chart is exact in clock and carries an exact chart map for the band, as the parent's published port (AutoMovieHumanTrunkPorts) is defined; a per-column share keeps each column's point on its own ray from the centre, so the band's direction into the port is the ellipse's.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A centre, two semi-axes, a sense and an optional share per column.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Values only.
    * @evidence contracts/development/common.md#meaningful-documentation States each field's unit and the clock's direction.
    */
@@ -68,5 +68,12 @@ export namespace IAutoMovieConstructionPort {
 
     /** +1 or -1: the phase's sense of increasing clock at `c = pi / 2`. */
     sense: 1 | -1;
+
+    /**
+     * The curve's distance from the centre at each of the band's column clocks `2 pi k / count`, as a share of the ellipse's there: the port
+     * curve's point at that clock is `centre + shape[k] (semi[0] cos c, sense semi[1] sin c)`. Absent, the ellipse itself. It lets the port
+     * curve follow the outline of the part's own ring where that is not an ellipse, so every column of the band is as long as its neighbours.
+     */
+    shape?: number[];
   }
 }

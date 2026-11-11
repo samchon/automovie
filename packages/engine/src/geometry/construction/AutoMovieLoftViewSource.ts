@@ -182,9 +182,11 @@ export namespace AutoMovieLoftViewSource {
         "top shoulder",
         diagnostics,
       );
-      const touch: Outlines | null = fullness.touch === undefined ? null : group(fullness.touch, {}, "touch", diagnostics);
+      // A touch offset and a split's point are chart coordinates of the section like the extents, so at a pole they close in the same pole
+      // parameter and every coordinate of a cap section falls together; an angle or a shoulder is no length and keeps its own parameter.
+      const touch: Outlines | null = fullness.touch === undefined ? null : group(fullness.touch, ends, "touch", diagnostics);
       const admit = (split: IAutoMovieViewPart.ISplit, name: string): Split | null => {
-        const parts: (AutoMovieViewOutline.IOutline | null)[] = [curve(split.u, {}, `${name} u`, diagnostics), curve(split.v, {}, `${name} v`, diagnostics), curve(split.angle, {}, `${name} angle`, diagnostics), curve(split.shoulder, {}, `${name} shoulder`, diagnostics)];
+        const parts: (AutoMovieViewOutline.IOutline | null)[] = [curve(split.u, ends, `${name} u`, diagnostics), curve(split.v, ends, `${name} v`, diagnostics), curve(split.angle, {}, `${name} angle`, diagnostics), curve(split.shoulder, {}, `${name} shoulder`, diagnostics)];
         return parts.some((p: AutoMovieViewOutline.IOutline | null): boolean => p === null) ? null : [parts[0]!, parts[1]!, parts[2]!, parts[3]!];
       };
       const splits: (Split | null)[] | null = fullness.splits === undefined ? null : fullness.splits.map((split: IAutoMovieViewPart.ISplit, q: number): Split | null => admit(split, `split ${q}`));
