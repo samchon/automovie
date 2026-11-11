@@ -127,11 +127,11 @@ export namespace AutoMovieHumanF1Joints {
   /** The corner the arm's course turns at, round the shoulder, from straight to the side to the line down to the elbow. */
   export const armTurn: V3 = [-12, 1300, 203];
 
-  /** Where the ear's course starts, under its root in the side of the head. */
-  export const earRoot: V3 = [3, 1579, 74];
+  /** Where the ear's course starts, in the side of the head under the middle of the auricle's outline. */
+  export const earRoot: V3 = [4, 1574, 74];
 
-  /** Where the ear's course ends, straight to the side past the auricle's rim. */
-  export const earTip: V3 = [3, 1579, 100];
+  /** Where the ear's course ends, straight to the side past the auricle's rim, so the pole of its closed end stands in the middle of its outer face. */
+  export const earTip: V3 = [4, 1574, 100];
 
   /** Centre of the auricle's root on the sagittal plane it leaves the skull at. */
   export const earBase: V3 = [9.5, 1572, 77];

@@ -39,8 +39,8 @@ import { AutoMovieHumanF1Trunk } from "./AutoMovieHumanF1Trunk";
  *
  * The hand's sections leave out the thumb past where it stands free, as the
  * trunk's leave out the arms, the ears and the nose. The face's eyes and
- * mouth are height fields over the trunk's wall, and the ear is its outer
- * form without the concha.
+ * mouth are height fields over the trunk's wall, and the ear's helix and
+ * concha a height field over its closed end.
  */
 export namespace AutoMovieHumanF1 {
   /** One generated surface piece. */

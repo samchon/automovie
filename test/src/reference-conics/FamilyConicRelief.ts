@@ -42,6 +42,9 @@ export namespace FamilyConicRelief {
     /** The window is centred on the median line and its net is tied symmetric across it. */
     mirror: boolean;
 
+    /** The window goes once round (`phases` one turn apart) and its net closes on itself, with no edge in phase. */
+    periodic?: boolean;
+
     /**
      * Farthest a cast may land from the wall and still be observed, mm; absent, any distance. A cast that slips through an opening of the skin,
      * between the lips or past an eyelid, lands on what lies behind it, and its height is not the skin's.
@@ -100,20 +103,45 @@ export namespace FamilyConicRelief {
   /** Weight of the squared second differences of the net against the summed squared misses, per control point. */
   const FAIR: number = 1e-3;
 
-  /** Fit one window. */
-  export function fit(window: IWindow, rows: readonly IRow[]): IResult {
+  /** A height observed directly at a chart point, for a window whose cast is not taken in the section planes. */
+  export interface IObserved {
+    /** Station, mm. */
+    s: number;
+
+    /** Phase, radians. */
+    phi: number;
+
+    /** The height that carries the base point there onto the skin, mm along the window's axis. */
+    target: number;
+
+    /** Withheld from the fit. */
+    heldout: boolean;
+  }
+
+  /**
+   * Fit one window.
+   *
+   * @param window The window.
+   * @param rows Observed sections; each is cast in its own plane along the window's axis.
+   * @param observed Heights observed directly at chart points, beside or instead of the sections.
+   */
+  export function fit(window: IWindow, rows: readonly IRow[], observed: readonly IObserved[] = []): IResult {
     const span: number = window.phases[1] - window.phases[0];
     const R: number = window.rows;
     const Cn: number = window.columns;
 
-    // Unknowns: the inner control points, tied across the median when mirrored.
+    // Unknowns: the inner control points, tied across the median when mirrored. A window that goes once round has no phase edge: its last
+    // three columns are its first three again, which makes the uniform cubic net periodic, and no column is held at zero.
     const slot: number[] = new Array<number>(R * Cn).fill(-1);
     let unknowns: number = 0;
     for (let r: number = 3; r < R - 3; ++r)
-      for (let c: number = 3; c < Cn - 3; ++c) {
-        const twin: number = r * Cn + (Cn - 1 - c);
-        slot[r * Cn + c] = window.mirror && slot[twin]! >= 0 ? slot[twin]! : unknowns++;
-      }
+      if (window.periodic === true)
+        for (let c: number = 0; c < Cn; ++c) slot[r * Cn + c] = c >= Cn - 3 ? slot[r * Cn + c - (Cn - 3)]! : unknowns++;
+      else
+        for (let c: number = 3; c < Cn - 3; ++c) {
+          const twin: number = r * Cn + (Cn - 1 - c);
+          slot[r * Cn + c] = window.mirror && slot[twin]! >= 0 ? slot[twin]! : unknowns++;
+        }
 
     // Observations: for each section inside the window, the along-axis height at phases across the window.
     const samples: { weights: [number, number][]; target: number; heldout: boolean }[] = [];
@@ -149,6 +177,21 @@ export namespace FamilyConicRelief {
         deepest = Math.max(deepest, Math.abs(target));
         samples.push({ weights, target, heldout: row.heldout });
       }
+    }
+    for (const seen of observed) {
+      const offset: number = seen.phi - window.phases[0] - 2 * Math.PI * Math.floor((seen.phi - window.phases[0]) / (2 * Math.PI));
+      if (seen.s <= window.stations[0] || seen.s >= window.stations[1] || offset >= span) continue;
+      if (window.reach !== undefined && Math.abs(seen.target) > window.reach) continue;
+      const [iu, wu] = basis(((seen.s - window.stations[0]) / (window.stations[1] - window.stations[0])) * (R - 3), R);
+      const [iv, wv] = basis((offset / span) * (Cn - 3), Cn);
+      const weights: [number, number][] = [];
+      for (let a: number = 0; a < 4; ++a)
+        for (let b: number = 0; b < 4; ++b) {
+          const at: number = slot[(iu + a) * Cn + iv + b]!;
+          if (at >= 0) weights.push([at, wu[a]! * wv[b]!]);
+        }
+      deepest = Math.max(deepest, Math.abs(seen.target));
+      samples.push({ weights, target: seen.target, heldout: seen.heldout });
     }
 
     // Normal equations with the fairness penalty on second differences along both directions.

@@ -30,6 +30,13 @@ namespace FamilyConicBody {
   /** The limb layouts of 4 and 8 conics; the 16 conic layout fitted worse from the same start on the arm and is left out until that is understood. */
   const LIMB: { layout: C.ILayout; depth: number }[] = [0, 1].map((depth: number): { layout: C.ILayout; depth: number } => ({ layout: C.limb(depth), depth }));
 
+  /**
+   * Where the ear's course starts and ends, mm: `AutoMovieHumanF1Joints.earRoot` and `earTip`. It runs straight to the side through the middle
+   * of the auricle's outline, so the closed end's pole stands in the middle of the face a relief carves there.
+   */
+  const EAR_ROOT: R.V = [4, 1574, 74];
+  const EAR_TIP: R.V = [4, 1574, 100];
+
   /** Height of the armpit's crease, mm: `AutoMovieHumanF1Joints.armpit[1]`. */
   const ARMPIT_Y_MM: number = 1276;
 
@@ -146,6 +153,12 @@ namespace FamilyConicBody {
 
     /** Relief windows for what lies inside the tape wall, or `auto` to place one over every hollow deeper than the target. */
     reliefs: H.IWindow[] | "auto";
+
+    /**
+     * A relief over the part's closed end for the skin that faces along the course: its station range within the cap, its net's size, and the
+     * farthest a ray cast back along the course may land and still be observed, mm.
+     */
+    face?: { stations: [number, number]; rows: number; columns: number; reach: number };
   }
 
   /** Run every part and write the receipt and the renders. */
@@ -224,9 +237,12 @@ namespace FamilyConicBody {
         // A course that leaves the ankle square to the row of toe joints, with the forefoot read as the curve round all the toes, was tried;
         // its wall stalled above 3 mm, so the foot keeps this course and closes at the toe webs, and the toes are merged onto that cap.
         { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r"), [133, 20, 157]], course: "[J.thigh, J.calf, J.foot, J.footBall]", halves: [40, 62], up: [1, 0, 0], domain: [104, 956], gap: 6, tip: 990, mirrored: true, layouts: LIMB, reliefs: "auto" },
-        // The auricle as a short loft out of the side of the head: its course runs straight to the side from under its root, and of each plane's
-        // loops inside the ear's box it reads the hull, so it is the ear's outer form without the concha's hollow.
-        { name: "ear", centres: [[3, 1579, 74], [3, 1579, 100]], course: "[J.earRoot, J.earTip]", halves: [], up: [0, 1, 0], domain: [4, 18], head: true, loose: true, step: 1, gap: 3, tip: 23, mirrored: true, layouts: LIMB, clip: (p: R.V): number => -ear(p), reliefs: [] },
+        // The auricle as a short loft out of the side of the head. Its course runs straight to the side, and of each plane's loops inside
+        // the ear's box a section reads the hull, so the wall is the ear's outline. It closes early, 4 mm past its rail, in a dome whose
+        // pole stands on the antihelix at the height of the skin there: the helix's fold and the concha face the side, under that dome, and
+        // a relief over the dome carves them (`face`). The relief starts 3.5 mm up the dome: nearer its edge the dome stands upright and a
+        // height along the course slides along it, which broke the band at the ear's root.
+        { name: "ear", centres: [EAR_ROOT, EAR_TIP], course: "[J.earRoot, J.earTip]", halves: [], up: [0, 1, 0], domain: [4, 12], head: true, loose: true, step: 1, gap: 3, tip: 17, cap: 8, mirrored: true, layouts: LIMB, clip: (p: R.V): number => -ear(p), reliefs: [], face: { stations: [11.5, 17], rows: 27, columns: 99, reach: 14 } },
 
         // The nose's free end as a short loft straight forward out of the face, closed at its tip.
         { name: "nose", centres: [[118, 1561, 0], [140, 1561, 0]], course: "[J.noseRoot, J.noseTip]", halves: [], up: [0, 1, 0], domain: [5, 14], head: true, loose: true, step: 1, gap: 3, tip: 18, mirrored: false, layouts: LIMB, clip: (p: R.V): number => -nose(p), reliefs: [] },
@@ -600,6 +616,63 @@ namespace FamilyConicBody {
 
       // The authored module: the same definition as TypeScript, written beside the receipt and, with --emit, into the Human package.
       if (tip !== null) definition.tips = [null, { from: part.cap ?? domain[1], tip }];
+
+      // The face: what the part's closed end hides. From points of the cap, by station and phase, a ray runs back along the course, and
+      // the distance to the outermost reference triangle it meets is the height there; one net that closes on itself round the tip carries
+      // them. The sections never see this skin: it faces along the course, and a section's hull is its outline.
+      if (part.face !== undefined && tip !== null) {
+        const capped: L.IResult = K.create(definition, stations);
+        if (capped.chain === null) throw new Error(part.name + ": the capped part does not loft");
+        const first: R.V = part.centres[0]!;
+        const last: R.V = part.centres.at(-1)!;
+        const span: number = Math.hypot(last[0] - first[0], last[1] - first[1], last[2] - first[2]);
+        const axis: R.V = [(first[0] - last[0]) / span, (first[1] - last[1]) / span, (first[2] - last[2]) / span];
+        const triangles: [R.V, R.V, R.V][] = [];
+        for (let t: number = 0; t + 2 < skin.indices.length; t += 3) {
+          const corners: R.V[] = [0, 1, 2].map((k: number): R.V => [skin.positions[skin.indices[t + k]! * 3]!, skin.positions[skin.indices[t + k]! * 3 + 1]!, skin.positions[skin.indices[t + k]! * 3 + 2]!]);
+          if (part.clip === undefined || corners.some((p: R.V): boolean => part.clip!(p) <= 3)) triangles.push(corners as [R.V, R.V, R.V]);
+        }
+        const cross = (a: R.V, b: R.V): R.V => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+        const dot = (a: R.V, b: R.V): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+        const sub = (a: R.V, b: R.V): R.V => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+
+        // The least signed distance along the axis from a point to the triangles (Moeller and Trumbore), within the reach either way.
+        const cast = (p: R.V): number | null => {
+          let best: number | null = null;
+          for (const [a, b, c] of triangles) {
+            const e1: R.V = sub(b, a);
+            const e2: R.V = sub(c, a);
+            const h: R.V = cross(axis, e2);
+            const det: number = dot(e1, h);
+            if (Math.abs(det) < 1e-12) continue;
+            const s: R.V = sub(p, a);
+            const u: number = dot(s, h) / det;
+            if (u < 0 || u > 1) continue;
+            const q: R.V = cross(s, e1);
+            const v: number = dot(axis, q) / det;
+            if (v < 0 || u + v > 1) continue;
+            const t: number = dot(e2, q) / det;
+            if (Math.abs(t) > part.face!.reach) continue;
+            if (best === null || t < best) best = t;
+          }
+          return best;
+        };
+        const window: H.IWindow = { name: part.name + ".face", stations: part.face.stations, phases: [0, 2 * Math.PI], axis, rows: part.face.rows, columns: part.face.columns, mirror: false, periodic: true };
+        const observed: H.IObserved[] = [];
+        const along: number = 4 * (window.rows - 3);
+        const about: number = 4 * (window.columns - 3);
+        for (let i: number = 1; i < along; ++i)
+          for (let j: number = 0; j < about; ++j) {
+            const s: number = window.stations[0] + ((window.stations[1] - window.stations[0]) * i) / along;
+            const phi: number = (2 * Math.PI * j) / about;
+            const target: number | null = cast(AutoMovieLoftChain.point(capped.chain, s, phi) as R.V);
+            if (target !== null) observed.push({ s, phi, target, heldout: i % 2 === 1 });
+          }
+        const faced: H.IResult = H.fit(window, [], observed);
+        definition.reliefs = [...(definition.reliefs ?? []), faced.relief];
+        log("family-body-face", { part: part.name, triangles: triangles.length, observed: observed.length, scalars: faced.scalars, deepestMm: round(faced.deepestMm), trainMaxMm: round(faced.trainMaxMm), heldMaxMm: round(faced.heldMaxMm) });
+        await fs.writeFile(path.join(out, part.name + ".family.json"), JSON.stringify(definition));
+      }
       const moduleText: string = emit({ ...part, domain }, definition, Math.round(Math.log2(definition.layout.anchors.length / 4)), engine, rows.length);
       await fs.writeFile(path.join(out, moduleName(part.name) + ".ts"), moduleText);
       if (process.argv.includes("--emit")) await fs.writeFile(path.join(root, "packages/human/src/generation/f1", moduleName(part.name) + ".ts"), moduleText);
@@ -738,11 +811,11 @@ namespace FamilyConicBody {
       "  /** The corner the arm's course turns at, round the shoulder, from straight to the side to the line down to the elbow. */",
       "  export const armTurn: V3 = " + JSON.stringify(ARM_TURN).replaceAll(",", ", ") + ";",
       "",
-      "  /** Where the ear's course starts, under its root in the side of the head. */",
-      "  export const earRoot: V3 = [3, 1579, 74];",
+      "  /** Where the ear's course starts, in the side of the head under the middle of the auricle's outline. */",
+      "  export const earRoot: V3 = [4, 1574, 74];",
       "",
-      "  /** Where the ear's course ends, straight to the side past the auricle's rim. */",
-      "  export const earTip: V3 = [3, 1579, 100];",
+      "  /** Where the ear's course ends, straight to the side past the auricle's rim, so the pole of its closed end stands in the middle of its outer face. */",
+      "  export const earTip: V3 = [4, 1574, 100];",
       "",
       "  /** Centre of the auricle's root on the sagittal plane it leaves the skull at. */",
       "  export const earBase: V3 = [9.5, 1572, 77];",
@@ -868,7 +941,7 @@ namespace FamilyConicBody {
     if (family.tips !== undefined) lines.push("", "  // The part closes in a point at `tip`, " + (typeof part.tip === "number" ? "a station placed by anatomy" : "the station where the reference's own loop vanishes") + "; its cap starts at `from`.", "  tips: " + JSON.stringify(family.tips).replaceAll("\"", "").replaceAll(",", ", ").replaceAll(":", ": ") + ",");
     if (family.reliefs !== undefined && family.reliefs.length > 0) {
       lines.push("", "  // Reliefs: heights in mm of a uniform cubic B-spline net over a window of the wall's chart, moved along `axis`; they carry the skin that lies inside the tape wall.", "  reliefs: [");
-      for (const relief of family.reliefs) lines.push("    " + JSON.stringify({ ...relief, phases: relief.phases.map(round4), axis: relief.axis.map((x: number): number => Math.round(x * 1e5) / 1e5) }).replaceAll(",", ", ") + ",");
+      for (const relief of family.reliefs) lines.push("    " + JSON.stringify({ ...relief, phases: Math.abs(relief.phases[1] - relief.phases[0] - 2 * Math.PI) < 1e-9 ? relief.phases : relief.phases.map(round4), axis: relief.axis.map((x: number): number => Math.round(x * 1e5) / 1e5) }).replaceAll(",", ", ") + ",");
       lines.push("  ],");
     }
     lines.push("};", "");
