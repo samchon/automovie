@@ -7,11 +7,15 @@ import type {
 import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanGoal } from "../compose/AutoMovieMotionHumanGoal";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
+import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanRoot } from "../compose/AutoMovieMotionHumanRoot";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
+import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
@@ -35,15 +39,19 @@ import { StrikingTarget } from "../striking/StrikingTarget";
  * at about 60 ms and the arms near 100 ms, peaks within about 0.2 s and fades
  * over a few tenths of a second, so the flinch reaches its peak at 0.2 s and
  * returns by 0.6 s. Its size grows with `intensity`: the head moves up to
- * one head radius away from the threat through the trunk's lean (up to 12
- * degrees) and a 3 cm root shift, and the gloves rise to cover the face
+ * one head radius away from the threat through a light lean of the trunk
+ * (a quarter of the reach's lean limit) and a root shift of 1.8 % of the
+ * stature, the neck ducks lightly, and the gloves rise to cover the face
  * (provisional sizes, no located kinematic amplitude). The feet stay planted.
  * The threat is a target (the incoming weapon's region, a prop, a point), read
  * at the start.
  *
- * The action is rows over the posture it was entered in: one clock with the
- * `peak` instant, and a root, a trunk, a head and two arm primitives that all
- * rise to the peak and fall to the end on the clock's envelope.
+ * The action is rows over the posture it was entered in: one phrase with no
+ * preparation, whose attack is the rise and whose retraction the return, and
+ * a root, a trunk, a head and two arm primitives that all rise to the
+ * `stroke` instant and fall to the end on the clock's envelope. A guard or a
+ * defence may cancel it from the peak on, a stagger or a knockdown at any
+ * time.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the startle pattern, its timing with sources, the provisional sizes, that the feet stay planted and how the action is composed.
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table, parameters and a plan composed of part primitives on one clock.
@@ -55,12 +63,13 @@ export namespace flinch {
   export const name: HumanActionName = "flinch";
 
   /** Cancel table: a flinch flows into a guard, a defence or a stagger. */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
-    guard: [{ window: [0.3, 1], kind: "inertialize", entry: 0, blend: 0.15 }],
-    defend: [{ window: [0.3, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
-    stagger: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.08 }],
-    knockdown: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.08 }],
-  };
+  export const interrupts: IHumanActionLaw["interrupts"] =
+    AutoMovieMotionHumanInterrupt.table({
+      guard: ["fromStroke", "smooth"],
+      defend: ["fromStroke", "quick"],
+      stagger: ["anytime", "reflex"],
+      knockdown: ["anytime", "reflex"],
+    });
 
   /**
    * Parameters.
@@ -81,20 +90,23 @@ export namespace flinch {
     manner?: AutoMovieMotionManner.IManner;
   }
 
-  /** Startle peak, seconds (Brown et al. 1991). */
-  export const PEAK: number = 0.2;
+  /** The rise to the startle's peak, a measured reflex time. */
+  export const RISE: AutoMovieMotionHumanTiming.Span = {
+    seconds: 0.2,
+    source: "Brown et al. 1991, Brain 114:1891",
+  };
 
-  /** The whole flinch, seconds. */
-  export const DURATION: number = 0.6;
+  /** The return from the peak (provisional). */
+  export const RETURN: AutoMovieMotionHumanTiming.Span = "beat";
 
-  /** The trunk's lean away from the threat at full intensity, degrees (provisional). */
-  export const LEAN: number = 12;
+  /** The trunk's lean away from the threat at full intensity (provisional). */
+  export const LEAN: AutoMovieMotionHumanRange.Amount = "light";
 
-  /** The root's shift away from the threat at full intensity, metres (provisional). */
-  export const SHIFT: number = 0.03;
+  /** The root's shift away from the threat at full intensity, as a share of the stature (provisional). */
+  export const SHIFT: number = 0.018;
 
-  /** The neck's added flexion at full intensity, degrees (provisional). */
-  export const DUCK: number = 10;
+  /** The neck's added flexion at full intensity (provisional). */
+  export const DUCK: AutoMovieMotionHumanRange.Amount = "light";
 
   /**
    * Plan a flinch.
@@ -129,19 +141,28 @@ export namespace flinch {
     // The startle's rise is a reflex and keeps its time; the return follows
     // the manner's tempo.
     const clock: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.of(DURATION, [
-        { name: "peak", seconds: PEAK },
-        { name: "stroke", seconds: PEAK },
-        { name: "relax", seconds: PEAK },
-      ]),
+      AutoMovieMotionClock.phrase(
+        AutoMovieMotionHumanTiming.phrase({
+          prepare: "none",
+          attack: RISE,
+          retract: RETURN,
+        }),
+      ),
       modifiers,
-      { holds: [], fixed: [AutoMovieMotionClock.START] },
+      { holds: [], fixed: ["strokeStart"] },
     );
     const duration: number = clock.duration;
-    const rise: readonly [string, string] = [AutoMovieMotionClock.START, "peak"];
+    const rise: readonly [string, string] = [AutoMovieMotionClock.START, "stroke"];
     const fall: readonly [string, string] = ["relax", AutoMovieMotionClock.END];
     const share = (seconds: number): number =>
       intensity * clock.envelope(rise, fall, seconds);
+    const lean: number = AutoMovieMotionHumanRange.lean(LEAN);
+    const shift: number = AutoMovieMotionHumanRange.shift(body, SHIFT);
+    const duck: number = AutoMovieMotionHumanRange.degrees(
+      "neck",
+      "flexion",
+      DUCK,
+    );
 
     // Away from the threat in the performer's floor frame: `x` left, `z` forward.
     let cached: IAutoMovieVector3 | undefined;
@@ -181,25 +202,31 @@ export namespace flinch {
           { x: 0, y: 1, z: 0 },
           Vector3.scale(face.normal, -1),
         );
-        return {
-          point: Vector3.subtract(
+        const point: IAutoMovieVector3 = Vector3.subtract(
+          Vector3.add(
             Vector3.add(
-              Vector3.add(
-                face.point,
-                Vector3.scale(face.normal, m.forearmRadius + fist),
-              ),
-              out,
+              face.point,
+              Vector3.scale(face.normal, m.forearmRadius + fist),
             ),
-            StrikingBody.socket(
-              body,
-              side === "left" ? "fistLeft" : "fistRight",
-              rotation,
-            ),
+            out,
           ),
-          bend: Vector3.add(bones.get(`${side}UpperArm`)!.worldPosition, {
-            x: 0,
-            y: -m.upperArm,
-            z: 0,
+          StrikingBody.socket(
+            body,
+            side === "left" ? "fistLeft" : "fistRight",
+            rotation,
+          ),
+        );
+        return {
+          point,
+          // The elbow of least strain; where the solver refuses the goal, an
+          // elbow straight below the shoulder, the cover's place before it.
+          bend: AutoMovieMotionHumanBend.solve({
+            body,
+            posture,
+            side,
+            point,
+            rotation,
+            fallback: { out: 0, up: -1, forward: 0 },
           }),
           rotation,
         };
@@ -237,7 +264,7 @@ export namespace flinch {
           from: 0,
           to: duration,
           offset: (seconds: number): AutoMovieMotionHumanRoot.IOffset => ({
-            point: Vector3.scale(away(), SHIFT * share(seconds)),
+            point: Vector3.scale(away(), shift * share(seconds)),
             yaw: 0,
           }),
         }),
@@ -247,12 +274,12 @@ export namespace flinch {
           from: 0,
           to: duration,
           angles: (seconds: number): AutoMovieMotionHumanLean.IAngles => ({
-            pitch: LEAN * share(seconds) * away().z,
-            roll: -LEAN * share(seconds) * away().x,
+            pitch: lean * share(seconds) * away().z,
+            roll: -lean * share(seconds) * away().x,
           }),
         }),
         AutoMovieMotionHumanJoints.pulse(clock, rise, fall, {
-          neck: [DUCK * intensity, 0, 0],
+          neck: [duck * intensity, 0, 0],
         }),
         arm("left"),
         arm("right"),

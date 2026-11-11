@@ -225,7 +225,8 @@ export namespace gesture {
           ? 0.3
           : AutoMovieMotionHumanTiming.transport(transport));
     const retract: number = prepare;
-    const stroke: number = T * cycles * rhythm.period;
+    const stroke: number =
+      T * cycles * AutoMovieMotionHumanTiming.seconds(rhythm.period);
     const strokeEnd: number = prepare + stroke;
     const retractAt: number = strokeEnd + hold;
     const duration: number = retractAt + retract;

@@ -7,6 +7,9 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
+import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
+import type { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -23,16 +26,21 @@ import { HumanTrunk } from "./HumanTrunk";
  * inverse kinematics ({@link HumanHand}). Points are built in the performer's
  * own frame (`x` left, `y` up, `z` forward from the root) from the body's
  * measure, or on a target or on the body's own face, so every gesture fits
- * any stature and proportion:
+ * any stature and proportion. A place of the air is written in the names of
+ * {@link AutoMovieMotionHumanTarget.Place} (a height, a lateral and a
+ * distance, with a nudge in arm lengths where the stroke moves about it), a
+ * hand's turn in the axes of {@link HumanHand.Direction}, and a joint angle
+ * as a level of {@link AutoMovieMotionHumanRange}:
  *
- * - `wave`: the open palm faces forward beside the head, the wrist
- *   `0.55` upper arms above the shoulder and `0.25` arm lengths ahead; the
- *   hand swings side to side `0.06` arm lengths, tilting as the forearm turns
- *   about the elbow, about 2.5 cycles a second (provisional).
- * - `raiseHand`: the open palm forward above the shoulder, the arm nearly
- *   straight (`0.92` arm lengths up); `cheer` raises both fists and pumps them.
- * - `stopPalm`: the open palm faces forward at shoulder height `0.85` arm
- *   lengths ahead, pushed `0.05` further in the stroke.
+ * - `wave`: the open palm faces forward beside the head, at eye height,
+ *   outside the shoulder and near; the hand swings side to side `0.06` arm
+ *   lengths, tilting as the forearm turns about the elbow, about 2.5 cycles a
+ *   second (provisional).
+ * - `raiseHand`: the open palm forward, raised from the shoulder to overhead
+ *   by the extent; `cheer` raises both fists and pumps them `0.08` arm
+ *   lengths.
+ * - `stopPalm`: the open palm faces forward at shoulder height, inside the
+ *   shoulder and far, pushed `0.05` arm lengths further in the stroke.
  * - `point`: the index fingertip on the line from the eye on the pointing
  *   side to the target, as people point (Henriques and Crawford 2002, J
  *   Neurophysiol 87:1677, found the fingertip placed on the line from the
@@ -55,15 +63,17 @@ import { HumanTrunk } from "./HumanTrunk";
  *
  * Gestures of the head, shoulders and trunk are joint angles because no body
  * point is brought anywhere; the movement is the segment's own rotation:
- * `nod` flexes the head 12 degrees and back twice a second (head nods in
- * conversation are small and quick, Hadar et al. 1985, J Nonverbal Behav
- * 9:214; values provisional), `shakeHead` turns it 20 degrees either way
- * about 2.2 cycles a second (provisional), `shrug` raises both shoulder
- * girdles 18 degrees (provisional, inside the 30 degree elevation range),
- * `chinLift` extends the head 15 degrees, `squareShoulders` retracts the
- * girdles 10 and extends the chest 4, `slump` flexes the chest 12, the spine
- * 6, the head 10 and protracts the girdles 10 (display postures,
- * provisional). `bow` is the trunk's pitch, handled by the gesture law.
+ * `nod` flexes the head lightly (11.25 degrees) and back twice a second (head
+ * nods in conversation are small and quick, Hadar et al. 1985, J Nonverbal
+ * Behav 9:214; values provisional), `shakeHead` turns it lightly (17.5
+ * degrees) either way about 2.2 cycles a second (provisional), `shrug`
+ * raises both shoulder girdles 18 degrees (provisional, inside the 30 degree
+ * elevation range), `chinLift` extends the head 15 degrees,
+ * `squareShoulders` retracts the girdles about 10 and extends the chest 4,
+ * `slump` flexes the chest 12, the spine 6, the head about 10 and protracts
+ * the girdles about 10 (display postures, provisional). `ANGLES` states each
+ * as a level of the joint's range. `bow` is the trunk's pitch, handled by
+ * the gesture law.
  * Amplitudes and distances that express the gesture's size scale with the
  * Effort extent; contact points and the pointing line do not.
  *
@@ -184,30 +194,110 @@ export namespace gestureStroke {
     curl?: number;
   }
 
-  /** A gesture's timing: cycles in the stroke and seconds per cycle. */
+  /**
+   * A gesture's timing: cycles in the stroke and the time of one cycle, a
+   * named pause or a pause scaled (the seconds each resolves to are the ones
+   * the gestures shipped with; the clap's three beats a second is no scaled
+   * pause and stays explicit).
+   */
   export const RHYTHM: Readonly<
-    Record<Kind, { cycles: number; period: number }>
+    Record<Kind, { cycles: number; period: AutoMovieMotionHumanTiming.Span }>
   > = {
-    wave: { cycles: 3, period: 0.4 },
-    raiseHand: { cycles: 1, period: 0.5 },
-    cheer: { cycles: 2, period: 0.5 },
-    stopPalm: { cycles: 1, period: 0.35 },
-    point: { cycles: 1, period: 0.5 },
-    palmsUp: { cycles: 1, period: 0.6 },
-    beckon: { cycles: 2, period: 0.6 },
-    clap: { cycles: 4, period: 1 / 3 },
-    rubHands: { cycles: 3, period: 0.35 },
-    touchFace: { cycles: 1, period: 0.8 },
-    pushGlasses: { cycles: 1, period: 0.3 },
-    scratchHead: { cycles: 4, period: 0.25 },
-    shrug: { cycles: 1, period: 0.7 },
-    nod: { cycles: 2, period: 0.5 },
-    shakeHead: { cycles: 3, period: 0.45 },
-    bow: { cycles: 1, period: 0.6 },
-    chinLift: { cycles: 1, period: 0.8 },
-    squareShoulders: { cycles: 1, period: 0.8 },
-    slump: { cycles: 1, period: 0.8 },
+    wave: { cycles: 3, period: "beat" },
+    raiseHand: { cycles: 1, period: { pause: "beat", scale: 1.25 } },
+    cheer: { cycles: 2, period: { pause: "beat", scale: 1.25 } },
+    stopPalm: { cycles: 1, period: { pause: "beat", scale: 0.875 } },
+    point: { cycles: 1, period: { pause: "beat", scale: 1.25 } },
+    palmsUp: { cycles: 1, period: { pause: "beat", scale: 1.5 } },
+    beckon: { cycles: 2, period: { pause: "beat", scale: 1.5 } },
+    clap: {
+      cycles: 4,
+      period: { seconds: 1 / 3, source: "provisional: everyday-gesture-clap" },
+    },
+    rubHands: { cycles: 3, period: { pause: "beat", scale: 0.875 } },
+    touchFace: { cycles: 1, period: "long" },
+    pushGlasses: { cycles: 1, period: { pause: "beat", scale: 0.75 } },
+    scratchHead: { cycles: 4, period: { pause: "beat", scale: 0.625 } },
+    shrug: { cycles: 1, period: { pause: "long", scale: 0.875 } },
+    nod: { cycles: 2, period: { pause: "beat", scale: 1.25 } },
+    shakeHead: { cycles: 3, period: { pause: "beat", scale: 1.125 } },
+    bow: { cycles: 1, period: { pause: "beat", scale: 1.5 } },
+    chinLift: { cycles: 1, period: "long" },
+    squareShoulders: { cycles: 1, period: "long" },
+    slump: { cycles: 1, period: "long" },
   };
+
+  /**
+   * The size of each joint gesture at full extent, signed clinical degrees:
+   * a level of the joint's range, scaled where the shipped size lay between
+   * two levels (provisional; `everydayGestureVerdicts` checks each gesture
+   * happens).
+   */
+  export const ANGLES = {
+    /** The head's flexion in a nod. */
+    nod: AutoMovieMotionHumanRange.degrees("head", "flexion", "light"),
+
+    /** The head's turn either way in a shake. */
+    shake: AutoMovieMotionHumanRange.degrees("head", "external", "light"),
+
+    /** The girdles' rise in a shrug. */
+    shrug: AutoMovieMotionHumanRange.degrees("leftShoulder", "abduction", {
+      level: "half",
+      scale: 1.2,
+    }),
+
+    /** The head's tilt in a shrug. */
+    shrugHead: AutoMovieMotionHumanRange.degrees("head", "abduction", "slight"),
+
+    /** The head's extension in a chin lift. */
+    chinLift: AutoMovieMotionHumanRange.degrees("head", "extension", {
+      level: "light",
+      scale: 1.2,
+    }),
+
+    /** The girdles' retraction in squared shoulders. */
+    square: AutoMovieMotionHumanRange.degrees("leftShoulder", "extension", {
+      level: "deep",
+      scale: 0.9,
+    }),
+
+    /** The chest's extension in squared shoulders. */
+    squareChest: AutoMovieMotionHumanRange.degrees("chest", "extension", {
+      level: "light",
+      scale: 0.8,
+    }),
+
+    /** The chest's flexion in a slump. */
+    slumpChest: AutoMovieMotionHumanRange.degrees("chest", "flexion", {
+      level: "light",
+      scale: 1.2,
+    }),
+
+    /** The spine's flexion in a slump. */
+    slumpSpine: AutoMovieMotionHumanRange.degrees("spine", "flexion", {
+      level: "slight",
+      scale: 0.75,
+    }),
+
+    /** The head's flexion in a slump. */
+    slumpHead: AutoMovieMotionHumanRange.degrees("head", "flexion", {
+      level: "light",
+      scale: 0.9,
+    }),
+
+    /** The girdles' protraction in a slump. */
+    slumpGirdle: AutoMovieMotionHumanRange.degrees("leftShoulder", "flexion", {
+      level: "light",
+      scale: 1.3,
+    }),
+
+    /** The fingers' curl in a beckon. */
+    beckon: AutoMovieMotionHumanRange.degrees(
+      "leftIndexProximal",
+      "flexion",
+      "deep",
+    ),
+  } as const;
 
   /** Which hands each gesture moves: `one` the chosen side, `both`, or `none`. */
   export const HANDS: Readonly<Record<Kind, "one" | "both" | "none">> = {
@@ -273,54 +363,77 @@ export namespace gestureStroke {
         { origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw },
         { x, y, z },
       );
-    const turn = (
-      fingers: IAutoMovieVector3,
-      palm: IAutoMovieVector3,
-    ): IAutoMovieQuaternion => HumanHand.rotation(side, { fingers, palm });
+    // A place of the air by its names, in the performer's own frame: the
+    // shares times the stature, the half shoulder width and the arm, ahead
+    // of the root, which a lowered posture carries down with it. `reach`
+    // scales the distance ahead.
+    const put = (
+      place: AutoMovieMotionHumanTarget.Place,
+      reach: number = 1,
+    ): IAutoMovieVector3 => {
+      const shares: AutoMovieMotionHumanTarget.IDefault =
+        AutoMovieMotionHumanTarget.place(body, side, place);
+      return at(
+        (shares.lateral ?? 0) * m.shoulderHalfWidth,
+        shares.height * m.stature,
+        shares.range * L * reach,
+      );
+    };
+    const facing = (
+      fingers: HumanHand.Direction,
+      palm: HumanHand.Direction,
+    ): IAutoMovieQuaternion =>
+      HumanHand.facing(side, frame.yaw, { fingers, palm });
     const wave: number = oscillation(u, cycles);
     const e: number = input.extent;
     switch (kind) {
       case "wave": {
-        const dx: number = 0.06 * L * e * wave;
-        const tilt: number = Math.atan2(dx, m.forearm);
+        // The swing is the same way for either hand, so it is `out` for the
+        // left hand and `in` for the right.
+        const swing: number = 0.06 * e * wave;
+        const tilt: number = Math.atan2(swing * L, m.forearm);
         return {
           surface: "palm",
           shape: "flat",
-          point: at(
-            sign * (m.shoulderHalfWidth + 0.45 * m.upperArm) + dx,
-            m.shoulderHeight + 0.55 * m.upperArm,
-            0.25 * L,
-          ),
-          rotation: turn(dir(Math.sin(tilt), Math.cos(tilt), 0), dir(0, 0, 1)),
+          point: put({
+            at: { height: "eye", lateral: "outside", distance: "near" },
+            nudge: { out: sign * swing },
+          }),
+          rotation: HumanHand.rotation(side, {
+            fingers: dir(Math.sin(tilt), Math.cos(tilt), 0),
+            palm: HumanHand.direction(side, frame.yaw, "forward"),
+          }),
           out: 0.3,
         };
       }
       case "raiseHand":
-      case "cheer": {
-        const pump: number =
-          kind === "cheer" ? 0.08 * L * e * Math.max(0, wave) : 0;
+      case "cheer":
         return {
           surface: kind === "cheer" ? "fist" : "palm",
           shape: kind === "cheer" ? "fist" : "flat",
-          point: at(
-            sign * m.shoulderHalfWidth,
-            m.shoulderHeight + 0.92 * L * Math.min(1, e) + pump,
-            0.1 * L,
-          ),
-          rotation: turn(dir(0, 1, 0), dir(0, 0, 1)),
+          point: put({
+            between: [
+              { height: "shoulder", lateral: "shoulder", distance: "close" },
+              { height: "overhead", lateral: "shoulder", distance: "close" },
+            ],
+            share: Math.min(1, e),
+            nudge: { up: kind === "cheer" ? 0.08 * e * Math.max(0, wave) : 0 },
+          }),
+          rotation: facing("up", "forward"),
           out: 0.2,
         };
-      }
       case "stopPalm":
         return {
           surface: "palm",
           shape: "flat",
-          point: at(
-            sign * 0.6 * m.shoulderHalfWidth,
-            m.shoulderHeight,
-            (0.8 + 0.05 * bump(u)) * L * Math.min(1, e),
+          point: put(
+            {
+              at: { height: "shoulder", lateral: "inside", distance: "far" },
+              nudge: { forward: 0.05 * bump(u) },
+            },
+            Math.min(1, e),
           ),
-          rotation: turn(dir(0, 1, 0), dir(0, 0, 1)),
+          rotation: facing("up", "forward"),
           out: 0,
         };
       case "point":
@@ -330,52 +443,50 @@ export namespace gestureStroke {
         return {
           surface: "palm",
           shape: "flat",
-          point: at(
-            sign * (m.shoulderHalfWidth + 0.15 * L * e),
-            m.waistHeight + 0.03 * L * e * bump(u),
-            0.4 * L,
-          ),
-          rotation: turn(dir(sign * 0.35, 0, 1), dir(0, 1, 0)),
+          point: put({
+            at: { height: "waist", lateral: "shoulder", distance: "near" },
+            nudge: { out: 0.15 * e, up: 0.03 * e * bump(u), forward: 0.15 },
+          }),
+          rotation: facing({ between: ["forward", "out"], share: 0.25 }, "up"),
           out: 0.2,
         };
       case "beckon":
         return {
           surface: "palm",
           shape: "flat",
-          point: at(
-            sign * 0.5 * m.shoulderHalfWidth,
-            m.chestHeight - 0.05 * L,
-            0.55 * L,
-          ),
-          rotation: turn(dir(0, 0, 1), dir(0, 1, 0)),
+          point: put({
+            at: { height: "chest", lateral: "inside", distance: "mid" },
+            nudge: { up: -0.05, forward: -0.05 },
+          }),
+          rotation: facing("forward", "up"),
           out: 0,
-          curl: 70 * e * (0.5 - 0.5 * Math.cos(2 * Math.PI * cycles * u)),
+          curl:
+            ANGLES.beckon * e * (0.5 - 0.5 * Math.cos(2 * Math.PI * cycles * u)),
         };
       case "clap":
       case "rubHands": {
-        const centre: IAutoMovieVector3 = {
-          x: 0,
-          y: m.chestHeight - 0.1 * L,
-          z: 0.42 * L,
-        };
+        // The palms meet ahead of the chest, the fingers up and forward; a
+        // clap parts them and a rub slides them opposite ways along the
+        // fingers.
         const apart: number =
           kind === "clap"
-            ? 0.18 * L * e * (0.5 + 0.5 * Math.cos(2 * Math.PI * cycles * u))
+            ? 0.09 * e * (0.5 + 0.5 * Math.cos(2 * Math.PI * cycles * u))
             : 0;
-        const slide: number =
-          kind === "rubHands" ? sign * 0.03 * L * e * wave : 0;
-        const fingers: IAutoMovieVector3 = { x: 0, y: 0.5, z: 0.866 };
+        const slide: number = kind === "rubHands" ? sign * 0.03 * e * wave : 0;
         return {
           surface: "palm",
           shape: "flat",
-          point: at(
-            centre.x + (sign * apart) / 2,
-            centre.y + fingers.y * slide,
-            centre.z + fingers.z * slide,
-          ),
-          rotation: turn(
-            dir(fingers.x, fingers.y, fingers.z),
-            dir(-sign, 0, 0),
+          point: put({
+            at: { height: "chest", lateral: "centre", distance: "near" },
+            nudge: {
+              out: apart,
+              up: -0.1 + PRAYER.up * slide,
+              forward: 0.17 + PRAYER.forward * slide,
+            },
+          }),
+          rotation: facing(
+            { explicit: PRAYER, source: "provisional: everyday-gesture-clap" },
+            "in",
           ),
           out: 0.1,
         };
@@ -425,34 +536,34 @@ export namespace gestureStroke {
       case "nod":
         return {
           head: [
-            12 * a * (0.5 - 0.5 * Math.cos(2 * Math.PI * cycles * u)),
+            ANGLES.nod * a * (0.5 - 0.5 * Math.cos(2 * Math.PI * cycles * u)),
             0,
             0,
           ],
         };
       case "shakeHead":
-        return { head: [0, 0, 20 * a * oscillation(u, cycles)] };
+        return { head: [0, 0, ANGLES.shake * a * oscillation(u, cycles)] };
       case "shrug":
         return {
-          leftShoulder: [0, 18 * a, 0],
-          rightShoulder: [0, 18 * a, 0],
-          head: [0, 4 * a, 0],
+          leftShoulder: [0, ANGLES.shrug * a, 0],
+          rightShoulder: [0, ANGLES.shrug * a, 0],
+          head: [0, ANGLES.shrugHead * a, 0],
         };
       case "chinLift":
-        return { head: [-15 * a, 0, 0] };
+        return { head: [ANGLES.chinLift * a, 0, 0] };
       case "squareShoulders":
         return {
-          leftShoulder: [-10 * a, 0, 0],
-          rightShoulder: [-10 * a, 0, 0],
-          chest: [-4 * a, 0, 0],
+          leftShoulder: [ANGLES.square * a, 0, 0],
+          rightShoulder: [ANGLES.square * a, 0, 0],
+          chest: [ANGLES.squareChest * a, 0, 0],
         };
       case "slump":
         return {
-          chest: [12 * a, 0, 0],
-          spine: [6 * a, 0, 0],
-          head: [10 * a, 0, 0],
-          leftShoulder: [10 * a, 0, 0],
-          rightShoulder: [10 * a, 0, 0],
+          chest: [ANGLES.slumpChest * a, 0, 0],
+          spine: [ANGLES.slumpSpine * a, 0, 0],
+          head: [ANGLES.slumpHead * a, 0, 0],
+          leftShoulder: [ANGLES.slumpGirdle * a, 0, 0],
+          rightShoulder: [ANGLES.slumpGirdle * a, 0, 0],
         };
       case "wave":
       case "raiseHand":
@@ -495,6 +606,16 @@ export namespace gestureStroke {
       Math.min(minimumJerk(u / 0.15).s, minimumJerk((1 - u) / 0.15).s)
     );
   }
+
+  /**
+   * Where the fingers of two palms held together point: up and forward, 30
+   * degrees above the horizontal (provisional).
+   */
+  const PRAYER: { out: number; up: number; forward: number } = {
+    out: 0,
+    up: 0.5,
+    forward: 0.866,
+  };
 
   /** A single rise and fall over the stroke, `sin^2(pi u)`. */
   function bump(u: number): number {
