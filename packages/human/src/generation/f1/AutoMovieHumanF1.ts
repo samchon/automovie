@@ -11,6 +11,7 @@ import { AutoMovieHumanF1FingerRing } from "./AutoMovieHumanF1FingerRing";
 import { AutoMovieHumanF1FingerThumb } from "./AutoMovieHumanF1FingerThumb";
 import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 import { AutoMovieHumanF1Leg } from "./AutoMovieHumanF1Leg";
+import { AutoMovieHumanF1Nose } from "./AutoMovieHumanF1Nose";
 import { AutoMovieHumanF1ToeBig } from "./AutoMovieHumanF1ToeBig";
 import { AutoMovieHumanF1ToeIndex } from "./AutoMovieHumanF1ToeIndex";
 import { AutoMovieHumanF1ToeLittle } from "./AutoMovieHumanF1ToeLittle";
@@ -71,7 +72,7 @@ export namespace AutoMovieHumanF1 {
   }
 
   /** The families the sewn body is built from. */
-  export const BODY: { trunk: AutoMovieHumanConicLoft.IFamily; arm: AutoMovieHumanConicLoft.IFamily; leg: AutoMovieHumanConicLoft.IFamily; ear: AutoMovieHumanConicLoft.IFamily } = { trunk: AutoMovieHumanF1Trunk, arm: AutoMovieHumanF1Arm, leg: AutoMovieHumanF1Leg, ear: AutoMovieHumanF1Ear };
+  export const BODY: { trunk: AutoMovieHumanConicLoft.IFamily; arm: AutoMovieHumanConicLoft.IFamily; leg: AutoMovieHumanConicLoft.IFamily; ear: AutoMovieHumanConicLoft.IFamily; nose: AutoMovieHumanConicLoft.IFamily } = { trunk: AutoMovieHumanF1Trunk, arm: AutoMovieHumanF1Arm, leg: AutoMovieHumanF1Leg, ear: AutoMovieHumanF1Ear, nose: AutoMovieHumanF1Nose };
 
   /** One digit sewn to its limb. */
   export interface IDigit {
@@ -115,6 +116,7 @@ export namespace AutoMovieHumanF1 {
     { family: BODY.arm, mirrored: true },
     { family: BODY.leg, mirrored: true },
     { family: BODY.ear, mirrored: true },
+    { family: BODY.nose, mirrored: false },
     ...DIGITS.map((digit: IDigit): IMember => ({ family: digit.family, mirrored: true })),
     ...LOOSE,
   ];
@@ -204,6 +206,19 @@ export namespace AutoMovieHumanF1 {
   }
 
   /**
+   * The nose's port on the trunk's chart: an ellipse about the centre of the nose's root on the median line in front, its semi-axes the root's
+   * half height in station and its half width as a phase at the root's forward distance, both widened by the margin.
+   */
+  export function nostril(): IAutoMovieConstructionPort.ILoop {
+    const J = AutoMovieHumanF1Joints;
+    return {
+      centre: [(J.noseBase[1] - J.axisFloor[1]) / 1000, 0],
+      semi: [(J.noseHalf[0] + AURICLE_MARGIN_MM) / 1000, Math.atan((J.noseHalf[1] + AURICLE_MARGIN_MM) / J.noseBase[0])],
+      sense: 1,
+    };
+  }
+
+  /**
    * Declare the sewn body.
    *
    * @param layer Station spacing of each family's layers and derived outlines, mm.
@@ -270,6 +285,7 @@ export namespace AutoMovieHumanF1 {
       const ear: AutoMovieHumanConicLoft.IFamily = side > 0 ? BODY.ear : twin(BODY.ear);
       root = { type: "port", name: "auricle." + ear.name, host: root, hostFace: trunk, loop: auricle(side), band: "band." + ear.name, part: leaf(ear), partFace: ear.name, partEnd: "bottom", rail: RAIL_MM.ear / 1000, count: BAND.count, rows: BAND.rows };
     }
+    root = { type: "port", name: "nostril." + BODY.nose.name, host: root, hostFace: trunk, loop: nostril(), band: "band." + BODY.nose.name, part: leaf(BODY.nose), partFace: BODY.nose.name, partEnd: "bottom", rail: RAIL_MM.ear / 1000, count: BAND.count, rows: BAND.rows };
     return { root, sources };
   }
 

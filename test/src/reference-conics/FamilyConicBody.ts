@@ -54,6 +54,14 @@ namespace FamilyConicBody {
     return Math.min(Math.abs(p[2]) - 77, p[0] + 10, 26 - p[0], p[1] - 1538, 1602 - p[1]);
   }
 
+  /**
+   * The nose's box, mm: in front of the frontal plane the nose stands free of the lips and cheeks at, and inside its extent across and in
+   * height, read off `FamilyConicScan.ts nose`. Positive inside the box.
+   */
+  function nose(p: R.V): number {
+    return Math.min(p[0] - 122, 19 - Math.abs(p[2]), p[1] - 1540, 1582 - p[1]);
+  }
+
   /** One part to fit. */
   interface IPart {
     /** Chain name. */
@@ -175,10 +183,13 @@ namespace FamilyConicBody {
         // loops inside the ear's box it reads the hull, so it is the ear's outer form without the concha's hollow.
         { name: "ear", centres: [[3, 1579, 74], [3, 1579, 100]], course: "[J.earRoot, J.earTip]", halves: [], up: [0, 1, 0], domain: [4, 18], head: true, loose: true, step: 1, gap: 3, tip: 23, mirrored: true, layouts: LIMB, clip: (p: R.V): number => -ear(p), reliefs: [] },
 
+        // The nose's free end as a short loft straight forward out of the face, closed at its tip.
+        { name: "nose", centres: [[118, 1561, 0], [140, 1561, 0]], course: "[J.noseRoot, J.noseTip]", halves: [], up: [0, 1, 0], domain: [5, 14], head: true, loose: true, step: 1, gap: 3, tip: 18, mirrored: false, layouts: LIMB, clip: (p: R.V): number => -nose(p), reliefs: [] },
+
         // The trunk from the crotch to the crown as one wall. Knots 4 mm apart from the neck up followed every step of the face's hull and left
         // the wall streaked, so they keep 8 mm and the face is the reliefs'. The ears are left out of its sections. It owns the shoulders down to the armscye plane through the armpit's
         // crease; past that plane, lateral of the crease and inside the arm's own tube, the skin is the arm's and is left out of the trunk's sections.
-        { name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], course: "[J.axisFloor, J.axisCrown]", halves: [], up: [1, 0, 0], domain: [40, 912], whole: true, step: 2, gap: 8, tip: true, cap: 896, mirrored: false, layouts: LIMB, clip: (p: R.V): number => Math.max(ear(p), ...[1, -1].map((side: number): number => {
+        { name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], course: "[J.axisFloor, J.axisCrown]", halves: [], up: [1, 0, 0], domain: [40, 912], whole: true, step: 2, gap: 8, tip: true, cap: 896, mirrored: false, layouts: LIMB, clip: (p: R.V): number => Math.max(ear(p), nose(p), ...[1, -1].map((side: number): number => {
           const a: R.V = joint("upperarm_r");
           const b: R.V = joint("lowerarm_r");
           const length: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
@@ -591,6 +602,18 @@ namespace FamilyConicBody {
       "",
       "  /** Half extents of the auricle's root in height and fore and aft. */",
       "  export const earHalf: [number, number] = [29, 10.5];",
+      "",
+      "  /** Where the nose's course starts, inside the face behind the nose's free end. */",
+      "  export const noseRoot: V3 = [118, 1561, 0];",
+      "",
+      "  /** Where the nose's course ends, straight forward past its tip. */",
+      "  export const noseTip: V3 = [140, 1561, 0];",
+      "",
+      "  /** Centre of the nose's root on the frontal plane it stands free of the lips and cheeks at. */",
+      "  export const noseBase: V3 = [122, 1561, 0];",
+      "",
+      "  /** Half extents of the nose's root in height and across. */",
+      "  export const noseHalf: [number, number] = [21, 18];",
       "",
       "  /** The point `length` millimetres past `b` on the line from `a` through `b`: where a digit's course ends beyond its last joint. */",
       "  export function beyond(a: V3, b: V3, length: number): V3 {",

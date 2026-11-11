@@ -74,6 +74,21 @@ namespace FamilyConicScan {
       }
       return;
     }
+    if (process.argv[2] === "nose") {
+      // The nose: every closed loop of frontal planes through the front of the head that lies near the median line, by its extent across and
+      // in height, so the plane the nose leaves the face at and its own extent are read.
+      for (let x: number = 70; x <= 130; x += 3) {
+        const cells: string[] = R.loops(source.head, { origin: [x, 1600, 0], u: [0, 0, 1], v: [0, 1, 0] })
+          .filter((loop: C.P[]): boolean => loop.some((p: C.P): boolean => Math.abs(p[0]) < 12))
+          .map((loop: C.P[]): string => {
+            const zs: number[] = loop.map((p: C.P): number => p[0]);
+            const ys: number[] = loop.map((p: C.P): number => p[1] + 1600);
+            return "z " + Math.min(...zs).toFixed(0) + ".." + Math.max(...zs).toFixed(0) + " y " + Math.min(...ys).toFixed(0) + ".." + Math.max(...ys).toFixed(0) + " a" + (Math.abs(R.area(loop)) / 100).toFixed(1);
+          });
+        process.stdout.write("x " + x + ": " + cells.join(" | ") + "\n");
+      }
+      return;
+    }
     if (process.argv[2] === "ear") {
       // The ear: every closed loop of sagittal planes through the side of the head, by its extent fore and aft and in height, so the plane the
       // auricle leaves the skull at and the auricle's own extent are read. Then the head's half width at heights round the ear, at four depths.

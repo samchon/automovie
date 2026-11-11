@@ -5,7 +5,7 @@ import type { AutoMovieConstructionNode } from "@automovie/interface";
  * The declaration of f1's sewn body, against the anatomy it declares.
  *
  * Scenarios:
- * 1. One body: the tree is one split of the trunk into two legs, four ports (an arm and an ear on each side) and twenty merges (five fingers and five toes on each side), over twenty-seven source leaves.
+ * 1. One body: the tree is one split of the trunk into two legs, five ports (an arm and an ear on each side, and the nose) and twenty merges (five fingers and five toes on each side), over twenty-eight source leaves.
  * 2. Every leaf has its part: each source leaf's name is a key of the sources, and each part carries that name.
  * 3. Sides mirror: every operator on the +Z side has a twin whose part face is the same name with `.mirror`, and the two armscye loops and the two auricle loops have the same station and semi-axes and opposite phases.
  * 4. A digit is merged onto its own limb before that limb is attached: each merge's host face is an arm or a leg of the merge's own side, and no merge's host subtree holds the trunk.
@@ -35,7 +35,7 @@ export function test_human_f1_construction(): void {
   const count = (type: string): number => nodes.filter((node: AutoMovieConstructionNode): boolean => node.type === type).length;
 
   // 1. The body's parts.
-  for (const [type, expected] of [["split", 1], ["port", 4], ["join", 20], ["source", 27]] as [string, number][]) if (count(type) !== expected) failures.push(`${count(type)} ${type} nodes, expected ${expected}`);
+  for (const [type, expected] of [["split", 1], ["port", 5], ["join", 20], ["source", 28]] as [string, number][]) if (count(type) !== expected) failures.push(`${count(type)} ${type} nodes, expected ${expected}`);
 
   // 2. Leaves and their parts.
   for (const node of nodes)
@@ -43,10 +43,10 @@ export function test_human_f1_construction(): void {
       const part = declared.sources.get(node.source);
       if (part === undefined || part.name !== node.name) failures.push(`source leaf ${node.name} has ${part === undefined ? "no part" : "the part " + part.name}`);
     }
-  if (declared.sources.size !== 27) failures.push(`${declared.sources.size} source parts, expected 27`);
+  if (declared.sources.size !== 28) failures.push(`${declared.sources.size} source parts, expected 28`);
 
-  // 3. Both sides.
-  const faces: string[] = nodes.flatMap((node: AutoMovieConstructionNode): string[] => (node.type === "port" ? [node.partFace] : node.type === "join" ? [node.seed.partFace] : node.type === "split" ? node.children.map((child): string => child.partFace) : []));
+  // 3. Both sides; the nose stands on the median plane and has no twin.
+  const faces: string[] = nodes.flatMap((node: AutoMovieConstructionNode): string[] => (node.type === "port" ? [node.partFace] : node.type === "join" ? [node.seed.partFace] : node.type === "split" ? node.children.map((child): string => child.partFace) : [])).filter((name: string): boolean => name !== "nose");
   for (const face of faces.filter((name: string): boolean => !name.endsWith(".mirror"))) if (!faces.includes(face + ".mirror")) failures.push(`${face} has no twin`);
   if (faces.filter((name: string): boolean => name.endsWith(".mirror")).length !== faces.length / 2) failures.push(`${faces.length} operator faces are not half twins`);
   for (const [name, loop] of [["armscye", AutoMovieHumanF1.armscye], ["auricle", AutoMovieHumanF1.auricle]] as const) {
