@@ -1,8 +1,11 @@
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
+import { affordanceCases } from "./affordanceCases";
+import { floorCases } from "./floorCases";
 import { affectionCases } from "./affectionCases";
 import { crouchCases } from "./crouchCases";
 import { everydayCases } from "./everydayCases";
+import { exerciseCases } from "./exerciseCases";
 import { galleryCases } from "./galleryCases";
 import { handToFaceCases } from "./handToFaceCases";
 import { handlingCases } from "./handlingCases";
@@ -126,9 +129,17 @@ export const MOTION_CAPTURE_CASES: Readonly<
   "stairs-sweep": (): IMotionCaptureCase[] => stairsCases(MotionBodies.SWEEP),
   throw: (): IMotionCaptureCase[] => throwCases(),
   "throw-sweep": (): IMotionCaptureCase[] => throwCases(MotionBodies.SWEEP),
+  affordance: (): IMotionCaptureCase[] => affordanceCases(),
+  "affordance-sweep": (): IMotionCaptureCase[] =>
+    affordanceCases(MotionBodies.SWEEP),
+  floor: (): IMotionCaptureCase[] => floorCases(),
+  "floor-sweep": (): IMotionCaptureCase[] => floorCases(MotionBodies.SWEEP),
   affection: (): IMotionCaptureCase[] => affectionCases(),
   "affection-sweep": (): IMotionCaptureCase[] =>
     affectionCases(MotionBodies.SWEEP),
   self: (): IMotionCaptureCase[] => selfCases(),
   "self-sweep": (): IMotionCaptureCase[] => selfCases(MotionBodies.SWEEP),
+  exercise: (): IMotionCaptureCase[] => exerciseCases(),
+  "exercise-sweep": (): IMotionCaptureCase[] =>
+    exerciseCases(MotionBodies.SWEEP),
 };

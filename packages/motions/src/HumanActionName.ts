@@ -40,9 +40,13 @@
  * - `climbStairs`: climbing a flight of stairs up or down, step over step or step by step.
  * - `throwObject`: throwing a held object overarm, underarm or as a toss along a ballistic path to a target.
  * - `catchObject`: catching a thrown object where its path enters the reach, giving with it and holding it.
+ * - `operate`: pressing a button, turning a knob, sliding a drawer or swinging a door by its handle.
+ * - `lieDown`: lying down on the floor from standing, supine, prone or on a side.
+ * - `crawl`: getting down onto hands and knees and crawling in the diagonal pattern.
  * - `kiss`: the lips brought to a partner's region by a lean and a neck flexion.
  * - `highFive`: two partners' hands meeting at one shared point and instant.
  * - `selfAction`: a whole-body self action (stretch, victory arms, fist pump, neck or shoulder roll).
+ * - `exercise`: a standing bodyweight exercise counted in repetitions (squat, lunge, high knees, jumping jack).
  */
 export type HumanActionName =
   | "stand"
@@ -81,6 +85,10 @@ export type HumanActionName =
   | "climbStairs"
   | "throwObject"
   | "catchObject"
+  | "operate"
+  | "lieDown"
+  | "crawl"
   | "kiss"
   | "highFive"
-  | "selfAction";
+  | "selfAction"
+  | "exercise";

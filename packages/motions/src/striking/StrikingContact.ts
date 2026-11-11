@@ -1,6 +1,6 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Vector3, physicalShapeNearest } from "@automovie/engine";
 import type {
-  IAutoMovieQuaternion,
+  IAutoMoviePhysicalProfile,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -35,35 +35,20 @@ export namespace StrikingContact {
    * One convex collision shape of the other body, in world metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each variant and member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation A discriminated union: a capsule as an axis and a radius (a sphere when the ends meet), a box as a centre, a rotation and half extents.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The two shape kinds the physical profile's spheres, capsules and boxes map onto, with the bone name a verdict reports.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   * @evidence contracts/development/design.md#principled-representation The profile's own shape with the posed frame of the segment that carries it, so every kind the profile can hold is posed one way and no second shape vocabulary exists.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The shape, its segment's pose and the bone name a verdict reports.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's shape and transform.
    */
-  export type ICollider =
-    | {
-        /** A capsule (a sphere when `a` equals `b`). */
-        kind: "capsule";
-        /** What it is, such as the bone it rides. */
-        name: string;
-        /** One end of its axis. */
-        a: IAutoMovieVector3;
-        /** The other end of its axis. */
-        b: IAutoMovieVector3;
-        /** Its radius, metres. */
-        radius: number;
-      }
-    | {
-        /** An oriented box. */
-        kind: "box";
-        /** What it is. */
-        name: string;
-        /** Its centre. */
-        centre: IAutoMovieVector3;
-        /** Its rotation from its local axes to the world. */
-        rotation: IAutoMovieQuaternion;
-        /** Its half extents along its local axes, metres. */
-        halfExtents: IAutoMovieVector3;
-      };
+  export interface ICollider {
+    /** What it is, such as the bone it rides. */
+    name: string;
+
+    /** The posed frame of the segment that carries the shape, world metres. */
+    pose: IAutoMoviePhysicalProfile.ITransform;
+
+    /** The profile shape, placed by `pose` composed with its own transform. */
+    shape: IAutoMoviePhysicalProfile.IShape;
+  }
 
   /**
    * The closest point of a segment to a point.
@@ -98,42 +83,22 @@ export namespace StrikingContact {
 
   /**
    * The signed distance from a point to a shape's surface: positive outside,
-   * zero on it, negative inside (the capsule exactly; the box's interior
-   * depth as the smallest distance to a face).
+   * zero on it, negative inside by the depth to the nearest face.
    *
    * @param p The point, world metres.
    * @param shape The shape.
    * @returns Metres.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the sign convention and how exact each shape's distance is.
-   * @evidence contracts/development/implementation.md#principled-implementation The capsule's distance to its axis less the radius; the box's exact signed distance in its local frame (Quilez's box distance).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per shape kind.
+   * @evidence contracts/development/common.md#meaningful-documentation States the sign convention.
+   * @evidence contracts/development/implementation.md#principled-implementation The engine's single shape query, `physicalShapeNearest`, on a segment of no length; this function states no shape mathematics of its own.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call to the owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The owner's cost for the shape's kind.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function distance(p: IAutoMovieVector3, shape: ICollider): number {
-    if (shape.kind === "capsule")
-      return (
-        Vector3.length(Vector3.subtract(p, closest(p, shape.a, shape.b))) -
-        shape.radius
-      );
-    const local: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(shape.rotation),
-      Vector3.subtract(p, shape.centre),
-    );
-    const q: IAutoMovieVector3 = {
-      x: Math.abs(local.x) - shape.halfExtents.x,
-      y: Math.abs(local.y) - shape.halfExtents.y,
-      z: Math.abs(local.z) - shape.halfExtents.z,
-    };
-    const outside: number = Vector3.length({
-      x: Math.max(q.x, 0),
-      y: Math.max(q.y, 0),
-      z: Math.max(q.z, 0),
-    });
-    return outside + Math.min(Math.max(q.x, q.y, q.z), 0);
+    return physicalShapeNearest(shape.pose, shape.shape, p, p).distance;
   }
 
   /**

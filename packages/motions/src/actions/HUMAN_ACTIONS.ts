@@ -1,5 +1,9 @@
 import type { HumanActionName } from "../HumanActionName";
+import { operate } from "../affordance/operate";
+import { crawl } from "../floor/crawl";
+import { lieDown } from "../floor/lieDown";
 import { handToFace } from "../daily/handToFace";
+import { exercise } from "../exercise/exercise";
 import { approach } from "../everyday/approach";
 import { bend } from "../everyday/bend";
 import { brace } from "../everyday/brace";
@@ -85,7 +89,11 @@ export const HUMAN_ACTIONS: Readonly<
   climbStairs,
   throwObject,
   catchObject,
+  operate,
+  lieDown,
+  crawl,
   kiss,
   highFive,
   selfAction,
+  exercise,
 };
