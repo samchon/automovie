@@ -1,7 +1,7 @@
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { HumanChannel } from "./HumanChannel";
+import type { AutoMovieHumanChannel } from "./AutoMovieHumanChannel";
 
 /**
  * One part's movement over one window of an action: a pure function of time
@@ -12,11 +12,11 @@ import type { HumanChannel } from "./HumanChannel";
  * body, another performer, a prop, the world), never as a constant of one
  * body. The composition gives it the posture the base and the channels
  * written before it produced, and keeps only the claimed channels of what it
- * returns ({@link HumanChannel.merge}).
+ * returns ({@link AutoMovieHumanChannel.merge}).
  */
-export interface IHumanPrimitive {
+export interface IAutoMovieHumanPrimitive {
   /** The channels it writes. */
-  channels: readonly HumanChannel[];
+  channels: readonly AutoMovieHumanChannel[];
 
   /** Seconds since the action's start from which it writes. */
   from: number;

@@ -6,7 +6,7 @@ import { HumanBalance } from "../everyday/HumanBalance";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { IHumanPrimitive } from "./IHumanPrimitive";
+import type { IAutoMovieHumanPrimitive } from "./IAutoMovieHumanPrimitive";
 
 /**
  * Trunk lean primitives: the whole body above the feet tipped about the
@@ -17,7 +17,7 @@ import type { IHumanPrimitive } from "./IHumanPrimitive";
  * the floor, a look under a table). The planted legs keep their goals and are
  * solved again when the posture is resolved.
  */
-export namespace HumanLean {
+export namespace AutoMovieHumanLean {
   /** A lean over a window. */
   export interface IBow {
     /** The body. */
@@ -84,7 +84,7 @@ export namespace HumanLean {
    * @returns The primitive, on the root and the trunk.
    * @throws {Error} When the peak is not positive.
    */
-  export function bow(props: IBow): IHumanPrimitive {
+  export function bow(props: IBow): IAutoMovieHumanPrimitive {
     if (!(props.peak > 0)) throw new Error("A bow's peak pitch is positive");
     const sine = (degrees: number): number =>
       Math.sin((degrees * Math.PI) / 180);

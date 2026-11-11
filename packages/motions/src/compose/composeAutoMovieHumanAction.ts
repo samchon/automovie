@@ -3,8 +3,8 @@ import type { AutoMovieMotionClock } from "@automovie/engine";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { HumanChannel } from "./HumanChannel";
-import type { IHumanPrimitive } from "./IHumanPrimitive";
+import { AutoMovieHumanChannel } from "./AutoMovieHumanChannel";
+import type { IAutoMovieHumanPrimitive } from "./IAutoMovieHumanPrimitive";
 
 /**
  * An action composed of part primitives over a base.
@@ -12,7 +12,7 @@ import type { IHumanPrimitive } from "./IHumanPrimitive";
  * The base is the posture every unclaimed channel keeps (standing, a fighting
  * stance, seated, walking). The clock gives the duration and the events. At a
  * second, the base's posture is taken and every primitive whose window holds
- * that second writes its channels onto it, in {@link HumanChannel.ORDER}, so
+ * that second writes its channels onto it, in {@link AutoMovieHumanChannel.ORDER}, so
  * an arm reads the trunk the action already placed. The plan's contact
  * windows and weapons are the base's followed by the primitives'.
  *
@@ -20,25 +20,36 @@ import type { IHumanPrimitive } from "./IHumanPrimitive";
  * @returns The plan.
  * @throws {Error} When the base and the clock differ in duration, a primitive's window is reversed or leaves the clock, or two primitives claim one channel over overlapping windows.
  */
-export function composeHumanAction(
-  props: composeHumanAction.IProps,
+export function composeAutoMovieHumanAction(
+  props: composeAutoMovieHumanAction.IProps,
 ): IHumanActionPlan {
   const duration: number = props.clock.duration;
   if (Math.abs(props.base.duration - duration) > 1e-6)
     throw new Error("A composed action's base lasts as long as its clock");
-  const rank = (p: IHumanPrimitive): number =>
+  const rank = (p: IAutoMovieHumanPrimitive): number =>
     Math.min(
-      ...p.channels.map((c: HumanChannel): number =>
-        HumanChannel.ORDER.indexOf(c),
+      ...p.channels.map((c: AutoMovieHumanChannel): number =>
+        AutoMovieHumanChannel.ORDER.indexOf(c),
       ),
     );
-  const primitives: IHumanPrimitive[] = props.primitives
-    .map((p: IHumanPrimitive, i: number): [IHumanPrimitive, number] => [p, i])
+  const primitives: IAutoMovieHumanPrimitive[] = props.primitives
+    .map(
+      (
+        p: IAutoMovieHumanPrimitive,
+        i: number,
+      ): [IAutoMovieHumanPrimitive, number] => [p, i],
+    )
     .sort(
-      (a: [IHumanPrimitive, number], b: [IHumanPrimitive, number]): number =>
+      (
+        a: [IAutoMovieHumanPrimitive, number],
+        b: [IAutoMovieHumanPrimitive, number],
+      ): number =>
         rank(a[0]) - rank(b[0]) || a[0].from - b[0].from || a[1] - b[1],
     )
-    .map((pair: [IHumanPrimitive, number]): IHumanPrimitive => pair[0]);
+    .map(
+      (pair: [IAutoMovieHumanPrimitive, number]): IAutoMovieHumanPrimitive =>
+        pair[0],
+    );
   for (const p of primitives) {
     if (p.channels.length === 0)
       throw new Error("A primitive claims at least one channel");
@@ -49,10 +60,10 @@ export function composeHumanAction(
   }
   for (let i: number = 0; i < primitives.length; i++)
     for (let k: number = i + 1; k < primitives.length; k++) {
-      const a: IHumanPrimitive = primitives[i]!;
-      const b: IHumanPrimitive = primitives[k]!;
-      const shared: HumanChannel | undefined = a.channels.find(
-        (c: HumanChannel): boolean => b.channels.includes(c),
+      const a: IAutoMovieHumanPrimitive = primitives[i]!;
+      const b: IAutoMovieHumanPrimitive = primitives[k]!;
+      const shared: AutoMovieHumanChannel | undefined = a.channels.find(
+        (c: AutoMovieHumanChannel): boolean => b.channels.includes(c),
       );
       if (
         shared !== undefined &&
@@ -65,13 +76,14 @@ export function composeHumanAction(
   const contacts: IHumanContactWindow[] = [
     ...props.base.contacts,
     ...primitives.flatMap(
-      (p: IHumanPrimitive): readonly IHumanContactWindow[] => p.contacts ?? [],
+      (p: IAutoMovieHumanPrimitive): readonly IHumanContactWindow[] =>
+        p.contacts ?? [],
     ),
   ];
   const weapons: IHumanActionPlan.IWeapon[] = [
     ...(props.base.weapons ?? []),
     ...primitives.flatMap(
-      (p: IHumanPrimitive): readonly IHumanActionPlan.IWeapon[] =>
+      (p: IAutoMovieHumanPrimitive): readonly IHumanActionPlan.IWeapon[] =>
         p.weapons ?? [],
     ),
   ];
@@ -97,7 +109,7 @@ export function composeHumanAction(
       let posture: IHumanPosture = base.posture(t);
       for (const p of primitives)
         if (t >= p.from - 1e-9 && t <= p.to + 1e-9)
-          posture = HumanChannel.merge(
+          posture = AutoMovieHumanChannel.merge(
             posture,
             p.write(posture, Math.min(p.to, Math.max(p.from, t))),
             p.channels,
@@ -106,8 +118,8 @@ export function composeHumanAction(
     },
   };
 }
-/** Companion types of {@link composeHumanAction}. */
-export namespace composeHumanAction {
+/** Companion types of {@link composeAutoMovieHumanAction}. */
+export namespace composeAutoMovieHumanAction {
   /** What an action is composed of. */
   export interface IProps {
     /** The plan whose posture the unclaimed channels keep; as long as the clock. */
@@ -117,7 +129,7 @@ export namespace composeHumanAction {
     clock: AutoMovieMotionClock.IClock;
 
     /** The part primitives, in any order. */
-    primitives: readonly IHumanPrimitive[];
+    primitives: readonly IAutoMovieHumanPrimitive[];
 
     /** The clock instant that is the action's decisive instant, when it has one. */
     contact?: string;

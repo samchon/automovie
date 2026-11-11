@@ -14,7 +14,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { IHumanPrimitive } from "./IHumanPrimitive";
+import type { IAutoMovieHumanPrimitive } from "./IAutoMovieHumanPrimitive";
 
 /**
  * Arm primitives: a hand surface carried to a target, kept on it and taken
@@ -35,7 +35,7 @@ import type { IHumanPrimitive } from "./IHumanPrimitive";
  * weight (Jeannerod 1984: the hand is shaped during its transport). The
  * origin is held in the performer's own floor frame, so it follows the body.
  */
-export namespace HumanArm {
+export namespace AutoMovieHumanArm {
   /** Where a hand surface goes and how the hand is held there, world frame. */
   export interface ITarget {
     /** The surface brought to the point. */
@@ -234,7 +234,7 @@ export namespace HumanArm {
    * @param props The movement.
    * @returns The primitive, on the arm's and the hand's channels.
    */
-  export function move(props: IMove): IHumanPrimitive {
+  export function move(props: IMove): IAutoMovieHumanPrimitive {
     const limb: "leftArm" | "rightArm" = `${props.side}Arm`;
     return {
       channels: [limb, `${props.side}Hand`],
@@ -296,7 +296,7 @@ export namespace HumanArm {
     window: readonly [string, string],
     from: IOrigin,
     target: Frame,
-  ): IHumanPrimitive {
+  ): IAutoMovieHumanPrimitive {
     return move({
       body,
       side,
@@ -326,7 +326,7 @@ export namespace HumanArm {
     side: HumanHand.Side,
     window: readonly [string, string],
     target: Frame,
-  ): IHumanPrimitive {
+  ): IAutoMovieHumanPrimitive {
     return move({
       body,
       side,
@@ -357,7 +357,7 @@ export namespace HumanArm {
     window: readonly [string, string],
     target: Frame,
     to: IOrigin,
-  ): IHumanPrimitive {
+  ): IAutoMovieHumanPrimitive {
     return move({
       body,
       side,

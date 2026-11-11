@@ -1,9 +1,9 @@
 import {
-  HumanArm,
+  AutoMovieHumanArm,
+  AutoMovieHumanJoints,
   HumanHand,
-  HumanJoints,
+  type IAutoMovieHumanPrimitive,
   type IHumanPosture,
-  type IHumanPrimitive,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -35,7 +35,7 @@ export function test_motion_compose_parts(): void {
   const close = (a: number, b: number): boolean => Math.abs(a - b) <= 1e-9;
   TestValidator.equals(
     "channels of a set of angles",
-    HumanJoints.channels({
+    AutoMovieHumanJoints.channels({
       rightIndexProximal: [10, 0, 0],
       head: [5, 0, 0],
       leftShoulder: [0, 4, 0],
@@ -51,11 +51,11 @@ export function test_motion_compose_parts(): void {
     joints: { head: [10, 2, 0], spine: [7, 0, 0] },
     limbs: {},
   };
-  const nod: IHumanPrimitive = HumanJoints.add({
+  const nod: IAutoMovieHumanPrimitive = AutoMovieHumanJoints.add({
     channels: ["head"],
     from: 0,
     to: 1,
-    delta: (seconds: number): HumanJoints.Angles =>
+    delta: (seconds: number): AutoMovieHumanJoints.Angles =>
       seconds > 0.9
         ? { spine: [1, 0, 0] }
         : { head: [20 * seconds, 0, 1], neck: [4, 0, 0] },
@@ -81,15 +81,15 @@ export function test_motion_compose_parts(): void {
   TestValidator.predicate(
     "fingers go from the relaxed cascade to the shape",
     matches(
-      HumanArm.fingers("left", "fist", 0, 0),
+      AutoMovieHumanArm.fingers("left", "fist", 0, 0),
       (b): number => relaxed[b]![0],
     ) &&
       matches(
-        HumanArm.fingers("left", "fist", 0, 1),
+        AutoMovieHumanArm.fingers("left", "fist", 0, 1),
         (b): number => fist[b]![0],
       ) &&
       matches(
-        HumanArm.fingers("left", "fist", 0, 0.5),
+        AutoMovieHumanArm.fingers("left", "fist", 0, 0.5),
         (b): number => (relaxed[b]![0] + fist[b]![0]) / 2,
       ),
   );
@@ -97,12 +97,12 @@ export function test_motion_compose_parts(): void {
     "a curl flexes the fingers and not the thumb",
     bones.some((b): boolean => b.includes("Thumb")) &&
       matches(
-        HumanArm.fingers("left", "fist", 10, 1),
+        AutoMovieHumanArm.fingers("left", "fist", 10, 1),
         (b): number => fist[b]![0] + (b.includes("Thumb") ? 0 : 10),
       ),
   );
 
-  const world = HumanArm.point(
+  const world = AutoMovieHumanArm.point(
     { root: { x: 2, y: 0, z: 5 }, yaw: 90 },
     { point: { x: 0.1, y: 1, z: 0.3 }, rotation: { x: 0, y: 0, z: 0, w: 1 } },
   );
@@ -112,6 +112,6 @@ export function test_motion_compose_parts(): void {
   );
   TestValidator.predicate(
     "travel time of a reach",
-    close(HumanArm.transport(0.4), 0.45),
+    close(AutoMovieHumanArm.transport(0.4), 0.45),
   );
 }
