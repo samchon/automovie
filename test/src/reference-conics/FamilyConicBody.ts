@@ -270,12 +270,11 @@ namespace FamilyConicBody {
       const centres: R.V[] = joints.map(joint);
       centres.push(beyond(centres.at(-2)!, centres.at(-1)!, tip));
       const keys: string[] = joints.map((j: string): string => "J." + j.replace("_0", "").replace("_r", ""));
-      return { name, centres, course: "[" + [...keys, "J.beyond(" + keys.at(-2) + ", " + keys.at(-1) + ", " + tip + ")"].join(", ") + "]", halves: centres.slice(1, -1).map((): number => 5), up, domain: "auto", step: 2, gap: 6, tip: true, mirrored: true, layouts: LIMB, reliefs: [], casts: [
-        // A digit closes in the engine's dome, which stood 2 to 4 mm inside the pad at every tip (`FamilyConicDeviation.ts`): a coarse net
-        // over the dome, cast back along the digit, carries the tip as the crown's does.
-        { name: "tip", stations: "cap", axis: "course", rows: 9, columns: 15, reach: 6 },
-      ] };
+      return { name, centres, course: "[" + [...keys, "J.beyond(" + keys.at(-2) + ", " + keys.at(-1) + ", " + tip + ")"].join(", ") + "]", halves: centres.slice(1, -1).map((): number => 5), up, domain: "auto", step: 2, gap: 6, tip: true, mirrored: true, layouts: LIMB, reliefs: [] };
     };
+    // A digit's tip stands 2 to 4 mm short of the pad, the thumb's more (`FamilyConicDeviation.ts`). A net over its dome, cast back along the
+    // digit as the crown's is, did not mend it: the dome is 3 to 4 mm long, the course leaves the pad through its side before the pad ends,
+    // and the casts of a toe land on its neighbours; the thumb's net came out at heights of -8 to 8 mm. The tip is the course's to mend.
 
     // The arm's course past the elbow is the line it was first fitted on, from the shoulder joint straight down. Its stations there are the
     // earlier ones moved by `shift`, and `up` is turned about the first segment so the chart there is the earlier chart: the hand end of that
@@ -651,7 +650,9 @@ namespace FamilyConicBody {
             // A cast that lands on the chord closing a neighbour's cut (the ear's, the nose's, the arm's) has found no skin: inside the cut the clip is positive.
             const open = part.clip === undefined || window.uncut === true || window.chord === true ? undefined : (p: C.P): boolean => part.clip!([frame.origin[0] + p[0] * frame.u[0] + p[1] * frame.v[0], frame.origin[1] + p[0] * frame.u[1] + p[1] * frame.v[1], frame.origin[2] + p[0] * frame.u[2] + p[1] * frame.v[2]]) > 0.05;
             const hold = window.hold === undefined ? undefined : (p: C.P): boolean => window.hold!([frame.origin[0] + p[0] * frame.u[0] + p[1] * frame.v[0], frame.origin[1] + p[0] * frame.u[1] + p[1] * frame.v[1], frame.origin[2] + p[0] * frame.u[2] + p[1] * frame.v[2]]) > 0;
-            return { s: row.s, ...(hold === undefined ? {} : { hold }), skin: window.uncut === true && row.s > window.stations[0] && row.s < window.stations[1] ? (R.cut(skin, frame).loop ?? skins[i]!) : skins[i]!, heldout: row.heldout, ...(open === undefined ? {} : { open }), wall: (phi: number): C.P => {
+            const own: C.P[] = skins[i]!;
+            const whole: C.P[] | null = window.uncut === true && row.s > window.stations[0] && row.s < window.stations[1] ? R.cut(skin, frame).loop : null;
+            return { s: row.s, ...(hold === undefined ? {} : { hold }), skin: whole ?? own, heldout: row.heldout, ...(open === undefined ? {} : { open }), wall: (phi: number): C.P => {
               const r: number = Q.radius(section, phi);
               const p: C.P = [r * Math.cos(phi), r * Math.sin(phi)];
               for (const relief of earlier) {
