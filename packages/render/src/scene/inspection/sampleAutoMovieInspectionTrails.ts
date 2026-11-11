@@ -10,27 +10,27 @@ const STILL: number = 1e-6;
 /**
  * Sample where every object a path pattern selects is, at each of a window's seconds, so a still can show the path it travels.
  *
- * The objects are the scene's objects of any kind, drawn or not, at the shallowest paths the pattern matches: a matched path whose parent path also matches is part of its parent's object. When several objects share a path, the first in scene order stands for it. For each second in `times`, `seek` places the subject and the world position of each object's origin is read, so any moving object is sampled, whatever its kind: a body's root or bone, a prop, a vehicle, a camera.
+ * The objects are the scene's objects of any kind, drawn or not, at the shallowest paths the pattern matches: a matched path whose parent path also matches is part of its parent's object. When several objects share a path, the first in scene order stands for it. For each second in `times`, `seek` places the subject and is awaited, so a subject that becomes ready only after an await, such as one loading a texture or a pose, is read once it is placed; then the world position of each object's origin is read, so any moving object is sampled, whatever its kind: a body's root or bone, a prop, a vehicle, a camera.
  *
- * Seconds are taken in ascending order. The scene is left as the last `seek` placed it, so the caller seeks the second it draws again. A trail whose every sample lies within a micrometre of its first is stationary.
+ * Seconds are taken in ascending order, one seek at a time. The scene is left as the last `seek` placed it, so the caller seeks the second it draws again and awaits that seek before drawing. A trail whose every sample lies within a micrometre of its first is stationary.
  *
- * It throws when `times` is empty or holds a second that is not finite, and when the pattern matches no object.
+ * It rejects when `times` is empty or holds a second that is not finite, when the pattern matches no object, and with the seek's own rejection when a second cannot be placed.
  *
  * ```ts
- * const trails = sampleAutoMovieInspectionTrails({ scene, pattern: "hero/*Hand", times, seek: production.seek });
- * production.seek(seconds);
+ * const trails = await sampleAutoMovieInspectionTrails({ scene, pattern: "hero/*Hand", times, seek: subject.seek });
+ * await subject.seek(seconds);
  * inspection.update([...production.marks?.(seconds) ?? [], ...markAutoMovieInspectionTrails(trails, seconds)]);
  * ```
  *
- * @evidence contracts/development/common.md#meaningful-documentation States which objects are sampled and how shared paths resolve, what is read at each second, the order, the state the scene is left in, the stationary rule and its tolerance, and the refusals, and shows the sample, seek and draw order.
- * @evidence contracts/development/implementation.md#principled-implementation An object's travel is its origin's world position over time, read after three.js brings world matrices up to date, so the subject only seeks and the sampler needs to know nothing of what moves it.
+ * @evidence contracts/development/common.md#meaningful-documentation States which objects are sampled and how shared paths resolve, what is read at each second, the order, the state the scene is left in, the awaited seek, the stationary rule and its tolerance, and the refusals, and shows the sample, seek and draw order.
+ * @evidence contracts/development/implementation.md#principled-implementation An object's travel is its origin's world position over time, read after the subject's seek has resolved and three.js has brought world matrices up to date, so the subject only seeks and the sampler needs to know nothing of what moves it or when it is ready.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the objects once, then one seek and one read per second.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tolerance is a stated micrometre, below any visible motion, not a value tuned to a case, and an empty match is refused.
  * @evidence contracts/development/implementation.md#efficient-algorithms One scene traversal to resolve paths, then per second one seek, one world-matrix pass and one read per object.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call samples the subject as it moves now.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns plain numbers; the scene and the seek are borrowed.
  */
-export function sampleAutoMovieInspectionTrails(props: {
+export async function sampleAutoMovieInspectionTrails(props: {
   /** The scene the subject is built into. */
   scene: THREE.Scene;
 
@@ -40,9 +40,9 @@ export function sampleAutoMovieInspectionTrails(props: {
   /** The film seconds to sample. */
   times: readonly number[];
 
-  /** Place the subject at a film second. */
-  seek: (seconds: number) => void;
-}): IAutoMovieInspectionTrail[] {
+  /** Place the subject at a film second; resolves once the subject is ready to be read there. */
+  seek: (seconds: number) => Promise<void>;
+}): Promise<IAutoMovieInspectionTrail[]> {
   if (props.times.length === 0 || !props.times.every(Number.isFinite))
     throw new Error("Trail times must be one or more finite seconds");
   const times: number[] = [...props.times].sort(
@@ -76,7 +76,7 @@ export function sampleAutoMovieInspectionTrails(props: {
   const positions: number[][] = objects.map((): number[] => []);
   const at: THREE.Vector3 = new THREE.Vector3();
   for (const seconds of times) {
-    props.seek(seconds);
+    await props.seek(seconds);
     props.scene.updateMatrixWorld(true);
     objects.forEach(([, object]: [string, THREE.Object3D], i: number): void => {
       object.getWorldPosition(at);

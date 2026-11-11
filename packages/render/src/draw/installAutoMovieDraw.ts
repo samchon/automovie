@@ -41,7 +41,7 @@ const SUPERSAMPLE: number = 2;
  *
  * 1. applies the call's inspection to the scene, or keeps the one applied when the request is the same, restoring the previous one first;
  * 2. for a fitted view, frames it on the union of what the inspection leaves drawn, or its focus, over the call's `frame` seconds, measured once per view and selection;
- * 3. for each `trail` pattern of the request, samples the matched objects over `planAutoMovieInspectionTrailTimes` with `sampleAutoMovieInspectionTrails`, then seeks the call's second and waits for the subject to report ready, and brings the inspection to it with the subject's marks of that second and `markAutoMovieInspectionTrails` of the samples; the sampler's seek is synchronous, so a subject whose `seek` places objects only after an await is sampled at the second it last finished placing;
+ * 3. for each `trail` pattern of the request, samples the matched objects over `planAutoMovieInspectionTrailTimes` with `sampleAutoMovieInspectionTrails`, then seeks the call's second and waits for the subject to report ready, and brings the inspection to it with the subject's marks of that second and `markAutoMovieInspectionTrails` of the samples; every seek is awaited, the sampler's and the drawn second's, so a subject that becomes ready only after an await is never read or drawn at another second;
  * 4. draws through the camera `resolveAutoMovieInspectionView` gives, at the call's raster, or for the `beauty` shade at twice each side with mark lines twice as wide;
  * 5. reads the drawn pixels back, flips them to rows from the top and averages a supersampled picture down, places the request's labels at the label scale, and copies the inspection's legend of the marks drawn.
  *
@@ -111,21 +111,15 @@ export function installAutoMovieDraw(
         seconds,
         durationSeconds: scene.durationSeconds,
       });
-
-      // The sampler seeks synchronously; each seek's promise is kept so a refused second fails the draw.
-      const seeks: Promise<void>[] = [];
       for (const pattern of request.trail)
         trails.push(
-          ...sampleAutoMovieInspectionTrails({
+          ...(await sampleAutoMovieInspectionTrails({
             scene: scene.scene,
             pattern,
             times,
-            seek: (at: number): void => {
-              seeks.push(scene.seek(at));
-            },
-          }),
+            seek: (at: number): Promise<void> => scene.seek(at),
+          })),
         );
-      await Promise.all(seeks);
     }
     await scene.seek(seconds);
     return [

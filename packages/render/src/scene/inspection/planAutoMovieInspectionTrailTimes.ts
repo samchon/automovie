@@ -9,7 +9,7 @@ import type { IAutoMovieInspectionRequest } from "./IAutoMovieInspectionRequest.
  *
  * ```ts
  * const times = planAutoMovieInspectionTrailTimes({ request, seconds, durationSeconds });
- * const trails = request.trail.length === 0 ? [] : sampleAutoMovieInspectionTrails({ scene, pattern, times, seek });
+ * const trails = request.trail.length === 0 ? [] : await sampleAutoMovieInspectionTrails({ scene, pattern, times, seek });
  * ```
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the grid, why it passes through the drawn second, the clipping, the order, how a host uses the times, and the refusals.

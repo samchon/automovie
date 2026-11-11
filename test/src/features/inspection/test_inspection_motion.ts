@@ -36,17 +36,17 @@ import { InspectionScene } from "../internal/InspectionScene";
  * @evidence contracts/development/testing.md#execution-ownership This named portable unit builds its own scene and seek and starts no solver, browser, server or GPU.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An object moving one metre per second along X, sampled at five seconds).
  */
-export function test_inspection_motion(): void {
+export async function test_inspection_motion(): Promise<void> {
   const mover: THREE.Mesh = InspectionScene.quad("mover", 0, 0.2);
   const post: THREE.Mesh = InspectionScene.quad("post", 5, 0.2);
   const stage: THREE.Scene = InspectionScene.scene(mover, post);
-  const seek = (seconds: number): void => {
+  const seek = async (seconds: number): Promise<void> => {
     mover.position.set(seconds, 0, 0);
   };
   const times: number[] = [0, 1, 2, 3, 4];
 
   // 1. A moving object.
-  const [moving]: IAutoMovieInspectionTrail[] = sampleAutoMovieInspectionTrails({ scene: stage, pattern: "mover", times, seek });
+  const [moving]: IAutoMovieInspectionTrail[] = await sampleAutoMovieInspectionTrails({ scene: stage, pattern: "mover", times, seek });
   TestValidator.equals("five samples along X", [moving!.path, moving!.positions, moving!.stationary], [
     "mover",
     [0, 0, 0, 1, 0, 0, 2, 0, 0, 3, 0, 0, 4, 0, 0],
@@ -65,7 +65,7 @@ export function test_inspection_motion(): void {
   TestValidator.equals("the emphasised tick is the second drawn", (marks[2]!.shape as IAutoMovieMark.IPoints).points, [2, 0, 0]);
 
   // 2. A still object.
-  const [still]: IAutoMovieInspectionTrail[] = sampleAutoMovieInspectionTrails({ scene: stage, pattern: "post", times, seek });
+  const [still]: IAutoMovieInspectionTrail[] = await sampleAutoMovieInspectionTrails({ scene: stage, pattern: "post", times, seek });
   TestValidator.equals(
     "one tick and stationary",
     [still!.stationary, markAutoMovieInspectionTrails([still!], 0).map((mark: IAutoMovieMark) => [mark.kind, mark.shape.type])],
@@ -79,8 +79,8 @@ export function test_inspection_motion(): void {
   );
 
   // 3. Refusals.
-  TestValidator.error("a pattern matching nothing", (): unknown => sampleAutoMovieInspectionTrails({ scene: stage, pattern: "ghost", times, seek }));
-  TestValidator.error("no times", (): unknown => sampleAutoMovieInspectionTrails({ scene: stage, pattern: "mover", times: [], seek }));
+  await TestValidator.error("a pattern matching nothing", (): Promise<unknown> => sampleAutoMovieInspectionTrails({ scene: stage, pattern: "ghost", times, seek }));
+  await TestValidator.error("no times", (): Promise<unknown> => sampleAutoMovieInspectionTrails({ scene: stage, pattern: "mover", times: [], seek }));
 
   // 4. Marks per second.
   const profile: IAutoMoviePhysicalProfile = {
