@@ -35,7 +35,7 @@ import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a level is a share of, which limit each motion reads, the sign of the result and the three rungs.
  * @evidence contracts/development/design.md#principled-representation A share of the joint's own range, the normalisation joint-discomfort posture prediction uses, so a level means the same effort at every joint.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One table of five levels and four functions; the only owner of amounts by level.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One table of five levels and five functions; the only owner of amounts by level.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Levels and motions are closed unions; the ranges are the engine's and are not copied here.
  */
 export namespace AutoMovieMotionHumanRange {
@@ -143,7 +143,9 @@ export namespace AutoMovieMotionHumanRange {
         names[names.indexOf(amount.level) + (amount.scale > 1 ? 1 : -1)];
       throw new Error(
         `A scale of ${amount.scale} on ${amount.level} lies outside [0.5, 1.5]; ${
-          next === undefined ? "state explicit degrees" : `use the level ${next}`
+          next === undefined
+            ? "state explicit degrees"
+            : `use the level ${next}`
         }`,
       );
     }
@@ -177,11 +179,48 @@ export namespace AutoMovieMotionHumanRange {
     motion: Motion,
     amount: Amount,
   ): number {
-    const end: number = limit(bone, motion);
+    const end: number | null = limit(bone, motion);
+    if (end === null) throw new Error(`${bone} has no range in ${motion}`);
     if (typeof amount === "string" || "level" in amount)
       return share(amount) * end;
     checked(amount, Math.abs(end), `${bone} ${motion}`);
     return Math.sign(end) * amount.degrees;
+  }
+
+  /**
+   * The signed limit a motion of a joint reads.
+   *
+   * @param bone The joint.
+   * @param motion The motion.
+   * @returns Signed degrees, or null when the joint has no range, the motion's axis is locked or the limit is 0.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result's sign and what null means.
+   * @evidence contracts/development/implementation.md#principled-implementation The end of the motion's axis in `DEFAULT_HUMANOID_ROM`, as the namespace's table maps motions to limits.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One axis choice and one end choice.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A motion with no room reads as null, never as 0 degrees.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the engine's range table; `degrees` and the resolve table both read limits here.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function limit(
+    bone: AutoMovieHumanoidBone,
+    motion: Motion,
+  ): number | null {
+    const joint: IAutoMovieJointConstraint | undefined =
+      DEFAULT_HUMANOID_ROM[bone];
+    if (joint === undefined) return null;
+    const axis: IAutoMovieAngleRange | null =
+      motion === "flexion" || motion === "extension"
+        ? joint.flexion
+        : motion === "abduction" || motion === "adduction"
+          ? joint.abduction
+          : joint.twist;
+    if (axis === null) return null;
+    const end: number =
+      motion === "flexion" || motion === "abduction" || motion === "external"
+        ? axis.max
+        : axis.min;
+    return end === 0 ? null : end;
   }
 
   /**
@@ -222,32 +261,12 @@ export namespace AutoMovieMotionHumanRange {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function shift(body: Pick<IHumanBody, "measure">, share: number): number {
+  export function shift(
+    body: Pick<IHumanBody, "measure">,
+    share: number,
+  ): number {
     return share * body.measure.stature;
   }
-}
-
-/** The signed limit a motion of a joint reads; a missing joint, a locked axis and a limit of 0 throw. */
-function limit(
-  bone: AutoMovieHumanoidBone,
-  motion: AutoMovieMotionHumanRange.Motion,
-): number {
-  const joint: IAutoMovieJointConstraint | undefined =
-    DEFAULT_HUMANOID_ROM[bone];
-  if (joint === undefined) throw new Error(`${bone} has no range of motion`);
-  const axis: IAutoMovieAngleRange | null =
-    motion === "flexion" || motion === "extension"
-      ? joint.flexion
-      : motion === "abduction" || motion === "adduction"
-        ? joint.abduction
-        : joint.twist;
-  if (axis === null) throw new Error(`${bone} does not turn in ${motion}`);
-  const end: number =
-    motion === "flexion" || motion === "abduction" || motion === "external"
-      ? axis.max
-      : axis.min;
-  if (end === 0) throw new Error(`${bone} has no room in ${motion}`);
-  return end;
 }
 
 /** Refuses explicit degrees that are unsourced, negative or past a limit. */

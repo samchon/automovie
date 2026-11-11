@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM, Vector3 } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieVector3,
@@ -175,7 +175,11 @@ export namespace AutoMovieMotionHumanResolve {
       forward: metres.z / arm,
       up: metres.y / m.stature,
       left: metres.x / m.shoulderHalfWidth,
-      nudge: { out: metres.x / arm, up: metres.y / arm, forward: metres.z / arm },
+      nudge: {
+        out: metres.x / arm,
+        up: metres.y / arm,
+        forward: metres.z / arm,
+      },
     };
   }
 
@@ -201,7 +205,9 @@ export namespace AutoMovieMotionHumanResolve {
     out: number = 0,
   ): IBend {
     const base: AutoMovieMotionHumanBend.IShares =
-      typeof preset === "string" ? AutoMovieMotionHumanBend.ARM[preset] : preset;
+      typeof preset === "string"
+        ? AutoMovieMotionHumanBend.ARM[preset]
+        : preset;
     const shares: AutoMovieMotionHumanBend.IShares = {
       ...base,
       out: base.out + out,
@@ -279,7 +285,9 @@ export namespace AutoMovieMotionHumanResolve {
     const f = (value: number): string => value.toFixed(3);
     const point = (v: IAutoMovieVector3): string =>
       `${f(v.x)},${f(v.y)},${f(v.z)}`;
-    lines.push(["name", ...bodies.map((b: IBody): string => b.name)].join("\t"));
+    lines.push(
+      ["name", ...bodies.map((b: IBody): string => b.name)].join("\t"),
+    );
     for (const name of Object.keys(
       AutoMovieMotionHumanTarget.DEFAULTS,
     ) as AutoMovieMotionHumanTarget.Name[])
@@ -327,22 +335,7 @@ export namespace AutoMovieMotionHumanResolve {
     lines.push(["level (degrees)", ...levels].join("\t"));
     for (const bone of BONES)
       for (const motion of MOTIONS) {
-        const joint = DEFAULT_HUMANOID_ROM[bone];
-        const axis =
-          motion === "flexion" || motion === "extension"
-            ? joint?.flexion
-            : motion === "abduction" || motion === "adduction"
-              ? joint?.abduction
-              : joint?.twist;
-        const end: number | undefined =
-          axis === undefined || axis === null
-            ? undefined
-            : motion === "flexion" ||
-                motion === "abduction" ||
-                motion === "external"
-              ? axis.max
-              : axis.min;
-        if (end === undefined || end === 0) continue;
+        if (AutoMovieMotionHumanRange.limit(bone, motion) === null) continue;
         lines.push(
           [
             `${bone} ${motion}`,
@@ -431,17 +424,25 @@ export namespace AutoMovieMotionHumanResolve {
       };
       const angle: number =
         (Math.acos(
-          Math.max(-1, Math.min(1, Vector3.dot(across(solved), across(preset)))),
+          Math.max(
+            -1,
+            Math.min(1, Vector3.dot(across(solved), across(preset))),
+          ),
         ) *
           180) /
         Math.PI;
       return `${angle.toFixed(0)} deg, ${AutoMovieMotionHumanBend.strain(
         props,
         solved,
-      ).toFixed(3)} / ${AutoMovieMotionHumanBend.strain(props, preset).toFixed(3)}`;
+      ).toFixed(
+        3,
+      )} / ${AutoMovieMotionHumanBend.strain(props, preset).toFixed(3)}`;
     };
     return [
-      ["place (swivel from hang, strain solved / hang)", ...bodies.map((b) => b.name)].join("\t"),
+      [
+        "place (swivel from hang, strain solved / hang)",
+        ...bodies.map((b) => b.name),
+      ].join("\t"),
       ...places.map(([label, place]): string =>
         [label, ...bodies.map((b): string => cell(b.body, place))].join("\t"),
       ),

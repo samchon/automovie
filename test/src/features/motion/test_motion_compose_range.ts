@@ -1,7 +1,4 @@
-import {
-  AutoMovieMotionHumanRange,
-  type IHumanBody,
-} from "@automovie/motions";
+import { AutoMovieMotionHumanRange, type IHumanBody } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -24,12 +21,14 @@ import { TestValidator } from "@nestia/e2e";
  * 6. A scale of 2, explicit degrees past the limit (160° of knee flexion),
  *    an explicit amount with an empty source and a motion the joint has no
  *    range in (knee abduction) throw.
+ * 7. The limit of knee flexion is 150°, of hip extension -30°, and of knee
+ *    abduction null.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public functions and reads the degrees; a share of the wrong limit, an extension without its sign, or a clamped refusal fails.
  * @evidence contracts/development/testing.md#independent-expectations Every number is the stated share times the stated limit, worked out by hand.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers four joints with three different limits, both signs, each rung, the lean, the shift and one refusal per rule.
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit over the engine's range table. It runs in CI.
- * @evidence contracts/development/common.md#meaningful-documentation States the limits and the levels and lists the 6 scenarios with their numbers.
+ * @evidence contracts/development/common.md#meaningful-documentation States the limits and the levels and lists the 7 scenarios with their numbers.
  */
 export function test_motion_compose_range(): void {
   const near = (got: number, expected: number): boolean =>
@@ -48,7 +47,10 @@ export function test_motion_compose_range(): void {
   TestValidator.predicate(
     "a level with a scale",
     near(AutoMovieMotionHumanRange.share("half"), 0.5) &&
-      near(AutoMovieMotionHumanRange.share({ level: "light", scale: 1.2 }), 0.3) &&
+      near(
+        AutoMovieMotionHumanRange.share({ level: "light", scale: 1.2 }),
+        0.3,
+      ) &&
       near(degrees("neck", "flexion", { level: "light", scale: 1.2 }), 13.5),
   );
   TestValidator.predicate(
@@ -79,5 +81,11 @@ export function test_motion_compose_range(): void {
   );
   TestValidator.error("a motion with no range", (): unknown =>
     degrees("leftLowerLeg", "abduction", "light"),
+  );
+  TestValidator.predicate(
+    "the limit of a motion",
+    AutoMovieMotionHumanRange.limit("leftLowerLeg", "flexion") === 150 &&
+      AutoMovieMotionHumanRange.limit("leftUpperLeg", "extension") === -30 &&
+      AutoMovieMotionHumanRange.limit("leftLowerLeg", "abduction") === null,
   );
 }
