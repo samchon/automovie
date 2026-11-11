@@ -191,10 +191,11 @@ namespace FamilyConicBody {
           // moving it in or out, which folded the skin at the sides of the head and the shoulders; there the wall stands alone.
           { name: "trunk.low.back", stations: [-20, 470], phases: [Math.PI - 1.2, Math.PI + 1.2], axis: [1, 0, 0], rows: 51, columns: 31, mirror: true },
           { name: "trunk.low.front", stations: [-20, 470], phases: [-1.2, 1.2], axis: [-1, 0, 0], rows: 51, columns: 31, mirror: true },
-          // Over the chest and the shoulders the windows reach 1.45 rad: the folds in front of and behind the armpit lie between 1.0 and 1.25 rad,
-          // and a window that ended among them left a pleat along its edge. Their three zero rings keep the height off the arms' ports.
-          { name: "trunk.chest.back", stations: [420, 680], phases: [Math.PI - 1.45, Math.PI + 1.45], axis: [1, 0, 0], rows: 53, columns: 49, mirror: true },
-          { name: "trunk.chest.front", stations: [420, 680], phases: [-1.45, 1.45], axis: [-1, 0, 0], rows: 53, columns: 49, mirror: true },
+          // Over the chest and the shoulders the windows stop at 1.0 rad, short of the folds in front of and behind the armpit, which lie
+          // between 1.0 and 1.25 rad. A window that ended among them left a pleat along its edge, and one that reached past them to 1.45 rad
+          // slid the skin into a flap; left to the wall, the folds are the tape's smooth bridge from the chest to the shoulder.
+          { name: "trunk.chest.back", stations: [420, 680], phases: [Math.PI - 1.0, Math.PI + 1.0], axis: [1, 0, 0], rows: 53, columns: 35, mirror: true },
+          { name: "trunk.chest.front", stations: [420, 680], phases: [-1.0, 1.0], axis: [-1, 0, 0], rows: 53, columns: 35, mirror: true },
           // The upper windows end at the crown's tip, 918.88 mm: a relief's height and its two derivatives vanish at its window's edge, which the engine requires of a pole.
           { name: "trunk.high.back", stations: [640, 918.88], phases: [Math.PI - 1.2, Math.PI + 1.2], axis: [1, 0, 0], rows: 57, columns: 33, mirror: true },
           { name: "trunk.high.front", stations: [640, 918.88], phases: [-1.2, 1.2], axis: [-1, 0, 0], rows: 57, columns: 49, mirror: true },

@@ -42,7 +42,7 @@ Distance from the reference skin's cut vertices to the regenerated section, thro
 
 | Part | Conic numbers | Relief heights | Mean, mm | Max, mm |
 | --- | --- | --- | --- | --- |
-| Trunk, crotch to crown | 1,113 | 7,474 | 0.52 | 61 at the nose |
+| Trunk, crotch to crown | 1,113 | 6,816 | 0.87 | 61 at the nose |
 | Arm, armpit to finger webs, without the free thumb | 273 | 340 | 0.31 | 4.2 |
 | Leg, crotch to toe webs | 735 | 0 | 0.23 | 6.1 |
 | Ear, against its hull | 105 | 0 | 0.08 | 0.36 |
@@ -57,6 +57,7 @@ The whole figure is one piece, generated with no engine diagnostic in 43 to 54 s
 
 - The thumb's blend is 0.5 mm wide and leaves a small notch at its root; at 1 mm it folds in the web beside the index finger.
 - The face's nose, eyes and mouth are reliefs; the ear is its outer form without the concha.
-- A thin flap stands in front of each armpit, where the trunk's relief cuts the fold beside the stump of arm it keeps.
+- The folds in front of and behind each armpit are the tape's smooth bridge from the chest to the shoulder, not carved: a relief that reached them left a pleat or a flap. The trunk's mean rose from 0.52 to 0.87 mm for it.
+- The band from the trunk to each arm meets the arm with a faint ring.
 - A hand read as the curve round all fingers on a course square to the knuckles fits to 588 numbers at 0.34 mm but is not adopted: the engine refuses it as a face at ten stations between 569 and 584 mm.
 - The 0.5 mm target holds on the limbs' means and the digits, not on the trunk's maximum.
