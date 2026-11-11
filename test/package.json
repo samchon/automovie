@@ -10,6 +10,7 @@
     "evidence": "evidence",
     "conic:build": "esbuild \"src/reference-conics/FamilyConic*.ts\" --bundle --platform=node --format=cjs --external:@napi-rs/canvas --outdir=.shots/esbuild --out-extension:.js=.cjs --log-level=warning",
     "conic:armscye": "pnpm conic:build && node .shots/esbuild/FamilyConicArmscye.cjs",
+    "conic:deviation": "pnpm conic:build && node .shots/esbuild/FamilyConicDeviation.cjs",
     "conic:fit": "pnpm conic:build && node .shots/esbuild/FamilyConicBody.cjs",
     "conic:figure": "pnpm conic:build && node .shots/esbuild/FamilyConicFigure.cjs",
     "conic:scan": "pnpm conic:build && node .shots/esbuild/FamilyConicScan.cjs",

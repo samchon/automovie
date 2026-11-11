@@ -87,6 +87,77 @@ namespace FamilyConicBody {
     return Math.min(p[0] - 122, 19 - Math.abs(p[2]), p[1] - 1540, 1582 - p[1]);
   }
 
+  /**
+   * The chin's cone, mm: about the trunk's course, from the throat's radius at the height the chin starts, widening by `slope` for each
+   * millimetre up, which brings it to the fold under the lower lip at 1,503 mm. On the median line the skin goes forward from 58 to 107 mm
+   * within 4 mm of height there, read off `FamilyConicBody.ts trunk --casts`: a level section jumps by the chin's whole depth, and the skin
+   * under the chin lies between two sections. What stands outside the cone is left out of the trunk's sections, whose front then grows by
+   * the slope, and is carried by a relief cast across the cone (`casts`).
+   */
+  const CHIN: { y: number; radius: number; slope: number } = { y: 1476, radius: 58, slope: 1.9 };
+
+  /** `--chinless`: the trunk's sections keep the chin and no relief is cast for it, as in the walls stored before the cone. */
+  const CHINLESS: boolean = process.argv.includes("--chinless");
+
+  /** How far a point stands outside the chin's cone, mm; negative inside it, behind the course or below its start. */
+  function chin(p: R.V): number {
+    return CHINLESS || p[0] <= 0 || p[1] < CHIN.y ? -1 : (Math.hypot(p[0], p[2]) - CHIN.radius - CHIN.slope * (p[1] - CHIN.y)) / Math.hypot(1, CHIN.slope);
+  }
+
+  /** A relief for skin that faces along the course, where a section's plane only grazes it. */
+  interface ICast {
+    /** The relief's name after the part's. */
+    name: string;
+
+    /** Station range of the window, mm. */
+    stations: [number, number];
+
+    /** Phase range of the window, radians; absent, the window goes once round and its net closes on itself. */
+    phases?: [number, number];
+
+    /** Unit direction of the height, or `course` for back along the part's course. */
+    axis: R.V | "course";
+
+    /** With it, the direction turns with the phase as a relief's does: `axis` at the window's middle phase, `turn` a quarter turn on. */
+    turn?: R.V;
+
+    /** The reference skin the rays may meet, positive where it is left out; absent, the part's own clip. */
+    skin?: (p: R.V) => number;
+
+    /** Control points along the station and round the phase. */
+    rows: number;
+    columns: number;
+
+    /** Farthest a ray may land from the surface and still be observed, mm. */
+    reach: number;
+
+    /** Least cosine between a reference triangle's normal and the axis for the triangle to be met; absent, any. */
+    facing?: number;
+
+    /** Take the nearest triangle either way instead of the outermost against the axis. */
+    nearest?: boolean;
+
+    /** The window is centred on the median line and its net is tied symmetric across it. */
+    mirror?: boolean;
+  }
+
+  /** A relief window of a part. */
+  interface IWindow extends H.IWindow {
+    /**
+     * The window stands to one side of a part that is its own mirror image, and the relief fitted in it is written a second time reflected
+     * across the median plane, as `<name>.twin`.
+     */
+    twin?: boolean;
+
+    /**
+     * The window reads each section whole, with the skin of the neighbours the part's clip leaves out. Round a neighbour's cut the part's wall
+     * turns into the chord that closes the cut, and a relief that sees only the part's own skin leaves it turned there; one that sees the
+     * neighbour's skin as far as its reach carries the wall on past the cut the way the skin goes, which is the direction a band to that
+     * neighbour leaves in.
+     */
+    uncut?: boolean;
+  }
+
   /** One part to fit. */
   interface IPart {
     /** Chain name. */
@@ -152,13 +223,10 @@ namespace FamilyConicBody {
     layouts: { layout: C.ILayout; depth: number }[];
 
     /** Relief windows for what lies inside the tape wall, or `auto` to place one over every hollow deeper than the target. */
-    reliefs: H.IWindow[] | "auto";
+    reliefs: IWindow[] | "auto";
 
-    /**
-     * A relief over the part's closed end for the skin that faces along the course: its station range within the cap, its net's size, and the
-     * farthest a ray cast back along the course may land and still be observed, mm.
-     */
-    face?: { stations: [number, number]; rows: number; columns: number; reach: number };
+    /** Reliefs whose heights are cast in space instead of in the section planes, fitted in order over the surface with every earlier relief on it. */
+    casts?: ICast[];
   }
 
   /** Run every part and write the receipt and the renders. */
@@ -242,7 +310,7 @@ namespace FamilyConicBody {
         // pole stands on the antihelix at the height of the skin there: the helix's fold and the concha face the side, under that dome, and
         // a relief over the dome carves them (`face`). The relief starts 3.5 mm up the dome: nearer its edge the dome stands upright and a
         // height along the course slides along it, which broke the band at the ear's root.
-        { name: "ear", centres: [EAR_ROOT, EAR_TIP], course: "[J.earRoot, J.earTip]", halves: [], up: [0, 1, 0], domain: [4, 12], head: true, loose: true, step: 1, gap: 3, tip: 17, cap: 8, mirrored: true, layouts: LIMB, clip: (p: R.V): number => -ear(p), reliefs: [], face: { stations: [11.5, 17], rows: 27, columns: 99, reach: 14 } },
+        { name: "ear", centres: [EAR_ROOT, EAR_TIP], course: "[J.earRoot, J.earTip]", halves: [], up: [0, 1, 0], domain: [4, 12], head: true, loose: true, step: 1, gap: 3, tip: 17, cap: 8, mirrored: true, layouts: LIMB, clip: (p: R.V): number => -ear(p), reliefs: [], casts: [{ name: "face", stations: [11.5, 17], axis: "course", rows: 27, columns: 99, reach: 14 }] },
 
         // The nose's free end as a short loft straight forward out of the face, closed at its tip.
         { name: "nose", centres: [[118, 1561, 0], [140, 1561, 0]], course: "[J.noseRoot, J.noseTip]", halves: [], up: [0, 1, 0], domain: [5, 14], head: true, loose: true, step: 1, gap: 3, tip: 18, mirrored: false, layouts: LIMB, clip: (p: R.V): number => -nose(p), reliefs: [] },
@@ -254,7 +322,7 @@ namespace FamilyConicBody {
         // kept is the earlier one below station 640 and this one above it, with every relief fitted again over the splice
         // (`--wall=<earlier> --splice=<this>@640 --refit`): 693 numbers at 0.66 mm. The ears are left out of its sections. It owns the shoulders down to the armscye plane through the armpit's
         // crease; past that plane, lateral of the crease and inside the arm's own tube, the skin is the arm's and is left out of the trunk's sections.
-        { name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], course: "[J.axisFloor, J.axisCrown]", halves: [], up: [1, 0, 0], domain: [40, 912], whole: true, step: 2, gap: (s: number): number => (s >= 692 && s <= 732 ? 3 : 8), tip: true, cap: 896, mirrored: false, layouts: LIMB, clip: (p: R.V): number => Math.max(ear(p), nose(p), ...[1, -1].map((side: number): number => {
+        { name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], course: "[J.axisFloor, J.axisCrown]", halves: [], up: [1, 0, 0], domain: [40, 912], whole: true, step: 2, gap: (s: number): number => (s >= 692 && s <= 732 ? Number(process.argv.find((argument: string): boolean => argument.startsWith("--jaw="))?.slice(6) ?? 3) : 8), tip: true, cap: 896, mirrored: false, layouts: LIMB, clip: (p: R.V): number => Math.max(ear(p), nose(p), chin(p), ...[1, -1].map((side: number): number => {
           const a: R.V = joint("upperarm_r");
           const b: R.V = joint("lowerarm_r");
           const length: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
@@ -273,6 +341,12 @@ namespace FamilyConicBody {
           // creased the whole chest and back along its edge, and one reaching 1.45 rad left a thin flap in the fold beside the armpit.
           { name: "trunk.chest.back", stations: [420, 680], phases: [Math.PI - 1.2, Math.PI + 1.2], axis: [1, 0, 0], turn: [0, 0, 1], rows: 53, columns: 41, mirror: true, reach: 40 },
           { name: "trunk.chest.front", stations: [420, 680], phases: [-1.2, 1.2], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 53, columns: 41, mirror: true, reach: 40 },
+          // The side, from the breast's edge round under the arm to the shoulder blade's: the front and back windows end 1.2 rad from the
+          // median line, and between them the wall stood as the tape left it, 7 to 10 mm outside the skin in the hollow over the collar
+          // bone and in the fold in front of the armpit (`FamilyConicDeviation.ts`). One window spans the whole side, so its edges lie on
+          // skin the front and back windows have already brought home and it has nothing to take there; across the arm's cut, where no
+          // skin is observed, its net is the fairest one between what it sees on either side.
+          { name: "trunk.chest.side", stations: [430, 680], phases: [Math.PI / 2 - 0.72, Math.PI / 2 + 0.72], axis: [0, 0, -1], turn: [1, 0, 0], rows: 53, columns: 47, mirror: false, twin: true, uncut: true, reach: 25 },
           // The neck and head: windows whose cast turns with the phase (`turn`), square to the wall all the way round. One net goes round the
           // whole head with its seam down the back, and ends at the crown's tip, 918.88 mm, where a relief must vanish for the pole. With
           // fixed axes the head took four windows, front, back and two sides, whose edges met in a seam down the cheek and over the skull
@@ -294,6 +368,14 @@ namespace FamilyConicBody {
           // The eyes and the mouth: nets 1.5 mm apart over two bands of the face, which the face's net left a slit and a block.
           { name: "trunk.eyes", stations: [792, 826], phases: [-0.8, 0.8], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 26, columns: 105, mirror: true, reach: 12 },
           { name: "trunk.mouth", stations: [722, 758], phases: [-0.5, 0.5], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 27, columns: 67, mirror: true, reach: 12 },
+        ], casts: [
+          // The chin, which the sections leave out (`CHIN`): cast from the cone's wall forward and down at 45 degrees on the median line,
+          // so the chin's front and the level skin under it are both seen at 45 degrees and the chin is one height over the wall.
+          { name: "chin", stations: [690, 734], phases: [-0.8, 0.8], axis: [-Math.SQRT1_2, Math.SQRT1_2, 0], turn: [0, 0, -1], skin: (p: R.V): number => Math.max(ear(p), nose(p)), rows: 47, columns: 57, reach: 30, mirror: true },
+          // The crown: the wall closes in the engine's own dome from station 896 to the tip, which stood 3 to 4 mm under the skull's
+          // (`FamilyConicDeviation.ts`). As on the ear, the skin there faces along the course, and one net round the pole carries it.
+          // The dome is only too flat, so the net is a coarse one: at 2 mm a row it followed every ray and the crown came out in rings.
+          { name: "crown", stations: [896.5, 918.88], axis: "course", rows: 9, columns: 15, reach: 10 },
         ] },
       ] satisfies IPart[]
     ).filter((part: IPart): boolean => only.length === 0 || only.includes(part.name));
@@ -512,7 +594,7 @@ namespace FamilyConicBody {
       {
         const read: (s: number) => number[] = K.reader(definition);
         const course: AutoMovieViewAxis.IAxis = K.axis(definition);
-        const windows: H.IWindow[] = part.reliefs === "auto" ? hollowWindows(part.name, rows, skins, course) : part.reliefs;
+        const windows: IWindow[] = part.reliefs === "auto" ? hollowWindows(part.name, rows, skins, course) : part.reliefs;
         definition.reliefs = [];
         for (const window of windows) {
           // Each window is fitted over the wall with every earlier relief already on it, as the engine composes them, so a later window takes only what the earlier ones left.
@@ -522,8 +604,8 @@ namespace FamilyConicBody {
             const frame: AutoMovieLoftFrame.IFrame = course.at(row.s);
             const inChart = (axis: readonly number[]): C.P => [axis[0]! * frame.u[0] + axis[1]! * frame.u[1] + axis[2]! * frame.u[2], axis[0]! * frame.v[0] + axis[1]! * frame.v[1] + axis[2]! * frame.v[2]];
             // A cast that lands on the chord closing a neighbour's cut (the ear's, the nose's, the arm's) has found no skin: inside the cut the clip is positive.
-            const open = part.clip === undefined ? undefined : (p: C.P): boolean => part.clip!([frame.origin[0] + p[0] * frame.u[0] + p[1] * frame.v[0], frame.origin[1] + p[0] * frame.u[1] + p[1] * frame.v[1], frame.origin[2] + p[0] * frame.u[2] + p[1] * frame.v[2]]) > 0.05;
-            return { s: row.s, skin: skins[i]!, heldout: row.heldout, ...(open === undefined ? {} : { open }), wall: (phi: number): C.P => {
+            const open = part.clip === undefined || window.uncut === true ? undefined : (p: C.P): boolean => part.clip!([frame.origin[0] + p[0] * frame.u[0] + p[1] * frame.v[0], frame.origin[1] + p[0] * frame.u[1] + p[1] * frame.v[1], frame.origin[2] + p[0] * frame.u[2] + p[1] * frame.v[2]]) > 0.05;
+            return { s: row.s, skin: window.uncut === true && row.s > window.stations[0] && row.s < window.stations[1] ? (R.cut(skin, frame).loop ?? skins[i]!) : skins[i]!, heldout: row.heldout, ...(open === undefined ? {} : { open }), wall: (phi: number): C.P => {
               const r: number = Q.radius(section, phi);
               const p: C.P = [r * Math.cos(phi), r * Math.sin(phi)];
               for (const relief of earlier) {
@@ -539,6 +621,13 @@ namespace FamilyConicBody {
           // sections. Round a turn a section's hollow lies across the cast's axis, and a net that cannot reach it leaves scratches instead.
           const kept: boolean = part.reliefs !== "auto" || fitted.heldMaxMm <= 0.5 * fitted.deepestMm;
           if (kept) definition.reliefs.push(fitted.relief);
+
+          // The twin: the same heights with their columns in the other order, over the reflected phases, cast along the reflected directions.
+          if (kept && window.twin === true) {
+            const { relief }: H.IResult = fitted;
+            const flip = (v: readonly number[]): [number, number, number] => [v[0]!, v[1]!, -v[2]!];
+            definition.reliefs.push({ ...relief, name: relief.name + ".twin", phases: [-relief.phases[1], -relief.phases[0]], axis: flip(relief.axis), ...(relief.turn === undefined ? {} : { turn: flip(relief.turn).map((x: number): number => -x || 0) as [number, number, number] }), heights: relief.heights.map((_: number, i: number): number => relief.heights[i - (i % relief.columns) + (relief.columns - 1 - (i % relief.columns))]!) });
+          }
           log("family-body-relief", { part: part.name, relief: window.name, kept, scalars: fitted.scalars, deepestMm: round(fitted.deepestMm), trainMaxMm: round(fitted.trainMaxMm), heldMaxMm: round(fitted.heldMaxMm) });
         }
 
@@ -617,31 +706,52 @@ namespace FamilyConicBody {
       // The authored module: the same definition as TypeScript, written beside the receipt and, with --emit, into the Human package.
       if (tip !== null) definition.tips = [null, { from: part.cap ?? domain[1], tip }];
 
-      // The face: what the part's closed end hides. From points of the cap, by station and phase, a ray runs back along the course, and
-      // the distance to the outermost reference triangle it meets is the height there; one net that closes on itself round the tip carries
-      // them. The sections never see this skin: it faces along the course, and a section's hull is its outline.
-      if (part.face !== undefined && tip !== null) {
+      // Cast reliefs: skin that faces along the course, which no section sees. From points of the finished surface, by station and phase,
+      // a ray runs along the relief's axis, and its distance to the reference triangle it meets is the height there. The ear's outer face
+      // lies under its closed end and is cast back along the course on one net that closes on itself round the tip.
+      for (const face of tip === null ? [] : (part.casts ?? []).filter((cast: ICast): boolean => !(CHINLESS && cast.name === "chin"))) {
         const capped: L.IResult = K.create(definition, stations);
         if (capped.chain === null) throw new Error(part.name + ": the capped part does not loft");
         const first: R.V = part.centres[0]!;
         const last: R.V = part.centres.at(-1)!;
         const span: number = Math.hypot(last[0] - first[0], last[1] - first[1], last[2] - first[2]);
-        const axis: R.V = [(first[0] - last[0]) / span, (first[1] - last[1]) / span, (first[2] - last[2]) / span];
+        const axis: R.V = face.axis === "course" ? [(first[0] - last[0]) / span, (first[1] - last[1]) / span, (first[2] - last[2]) / span] : face.axis;
+        const window: H.IWindow = { name: part.name + "." + face.name, stations: face.stations, phases: face.phases ?? [0, 2 * Math.PI], axis, rows: face.rows, columns: face.columns, mirror: face.mirror === true, ...(face.phases === undefined ? { periodic: true } : {}), ...(face.turn === undefined ? {} : { turn: face.turn }) };
+        const middle: number = (window.phases[0] + window.phases[1]) / 2;
+        const toward = (phi: number): R.V => (face.turn === undefined ? axis : [0, 1, 2].map((c: number): number => Math.cos(phi - middle) * axis[c]! + Math.sin(phi - middle) * face.turn![c]!) as R.V);
+        const outside: ((p: R.V) => number) | undefined = face.skin ?? part.clip;
+        const along: number = 4 * (window.rows - 3);
+        const about: number = 4 * (window.columns - 3);
+        const bases: { s: number; phi: number; p: R.V; heldout: boolean }[] = [];
+        for (let i: number = 1; i < along; ++i)
+          for (let j: number = face.phases === undefined ? 0 : 1; j < about; ++j) {
+            const s: number = window.stations[0] + ((window.stations[1] - window.stations[0]) * i) / along;
+            const phi: number = window.phases[0] + ((window.phases[1] - window.phases[0]) * j) / about;
+            bases.push({ s, phi, p: AutoMovieLoftChain.point(capped.chain, s, phi) as R.V, heldout: i % 2 === 1 });
+          }
+
+        // The reference triangles a ray can meet: the part's own skin within the reach of the points' box.
+        const box: [R.V, R.V] = [[0, 1, 2].map((c: number): number => Math.min(...bases.map((b): number => b.p[c]!)) - face.reach) as R.V, [0, 1, 2].map((c: number): number => Math.max(...bases.map((b): number => b.p[c]!)) + face.reach) as R.V];
         const triangles: [R.V, R.V, R.V][] = [];
         for (let t: number = 0; t + 2 < skin.indices.length; t += 3) {
           const corners: R.V[] = [0, 1, 2].map((k: number): R.V => [skin.positions[skin.indices[t + k]! * 3]!, skin.positions[skin.indices[t + k]! * 3 + 1]!, skin.positions[skin.indices[t + k]! * 3 + 2]!]);
-          if (part.clip === undefined || corners.some((p: R.V): boolean => part.clip!(p) <= 3)) triangles.push(corners as [R.V, R.V, R.V]);
+          if (corners.some((p: R.V): boolean => p.every((x: number, c: number): boolean => x >= box[0][c]! && x <= box[1][c]!)) && (outside === undefined || corners.some((p: R.V): boolean => outside(p) <= 3))) triangles.push(corners as [R.V, R.V, R.V]);
         }
         const cross = (a: R.V, b: R.V): R.V => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
         const dot = (a: R.V, b: R.V): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
         const sub = (a: R.V, b: R.V): R.V => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 
-        // The least signed distance along the axis from a point to the triangles (Moeller and Trumbore), within the reach either way.
-        const cast = (p: R.V): number | null => {
+        // The signed distance along the axis from a point to the triangles (Moeller and Trumbore), within the reach either way: the least,
+        // which is the outermost skin seen against the axis, or the nearest. A triangle that does not face the axis is passed over.
+        const cast = (p: R.V, axis: R.V): number | null => {
           let best: number | null = null;
           for (const [a, b, c] of triangles) {
             const e1: R.V = sub(b, a);
             const e2: R.V = sub(c, a);
+            if (face.facing !== undefined) {
+              const n: R.V = cross(e1, e2);
+              if (Math.abs(dot(n, axis)) < face.facing * Math.hypot(n[0], n[1], n[2])) continue;
+            }
             const h: R.V = cross(axis, e2);
             const det: number = dot(e1, h);
             if (Math.abs(det) < 1e-12) continue;
@@ -652,25 +762,31 @@ namespace FamilyConicBody {
             const v: number = dot(axis, q) / det;
             if (v < 0 || u + v > 1) continue;
             const t: number = dot(e2, q) / det;
-            if (Math.abs(t) > part.face!.reach) continue;
-            if (best === null || t < best) best = t;
+            if (Math.abs(t) > face.reach) continue;
+            if (best === null || (face.nearest === true ? Math.abs(t) < Math.abs(best) : t < best)) best = t;
           }
           return best;
         };
-        const window: H.IWindow = { name: part.name + ".face", stations: part.face.stations, phases: [0, 2 * Math.PI], axis, rows: part.face.rows, columns: part.face.columns, mirror: false, periodic: true };
         const observed: H.IObserved[] = [];
-        const along: number = 4 * (window.rows - 3);
-        const about: number = 4 * (window.columns - 3);
-        for (let i: number = 1; i < along; ++i)
-          for (let j: number = 0; j < about; ++j) {
+        for (const base of bases) {
+          const target: number | null = cast(base.p, toward(base.phi));
+          if (target !== null) observed.push({ s: base.s, phi: base.phi, target, heldout: base.heldout });
+        }
+        // `--casts`: the cast heights as a table, one row per station step and eleven phases across, each with its point's forward and
+        // upward position, and a dot where no ray landed.
+        if (process.argv.includes("--casts")) {
+          const cell = (i: number, j: number): string => {
             const s: number = window.stations[0] + ((window.stations[1] - window.stations[0]) * i) / along;
-            const phi: number = (2 * Math.PI * j) / about;
-            const target: number | null = cast(AutoMovieLoftChain.point(capped.chain, s, phi) as R.V);
-            if (target !== null) observed.push({ s, phi, target, heldout: i % 2 === 1 });
-          }
+            const phi: number = window.phases[0] + ((window.phases[1] - window.phases[0]) * j) / about;
+            const hit: H.IObserved | undefined = observed.find((o: H.IObserved): boolean => Math.abs(o.s - s) < 1e-9 && Math.abs(o.phi - phi) < 1e-9);
+            const p: R.V = AutoMovieLoftChain.point(capped.chain!, s, phi) as R.V;
+            return (hit === undefined ? "." : hit.target.toFixed(1)).padStart(6) + ("@" + p[0].toFixed(0) + "," + p[1].toFixed(0)).padStart(9);
+          };
+          for (let i: number = 2; i < along; i += 4) process.stdout.write((window.stations[0] + ((window.stations[1] - window.stations[0]) * i) / along).toFixed(1).padStart(7) + Array.from({ length: 11 }, (_: unknown, k: number): string => cell(i, Math.round((about * (k + 0.5)) / 11))).join("") + "\n");
+        }
         const faced: H.IResult = H.fit(window, [], observed);
         definition.reliefs = [...(definition.reliefs ?? []), faced.relief];
-        log("family-body-face", { part: part.name, triangles: triangles.length, observed: observed.length, scalars: faced.scalars, deepestMm: round(faced.deepestMm), trainMaxMm: round(faced.trainMaxMm), heldMaxMm: round(faced.heldMaxMm) });
+        log("family-body-face", { part: part.name, relief: window.name, triangles: triangles.length, observed: observed.length, scalars: faced.scalars, deepestMm: round(faced.deepestMm), trainMaxMm: round(faced.trainMaxMm), heldMaxMm: round(faced.heldMaxMm) });
         await fs.writeFile(path.join(out, part.name + ".family.json"), JSON.stringify(definition));
       }
       const moduleText: string = emit({ ...part, domain }, definition, Math.round(Math.log2(definition.layout.anchors.length / 4)), engine, rows.length);
