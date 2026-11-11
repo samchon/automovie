@@ -1,1 +1,0 @@
-export { verifyFixedGlazingFill } from "./verifyFixedGlazingFill";

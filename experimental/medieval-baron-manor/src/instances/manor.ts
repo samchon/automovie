@@ -1,1 +1,0 @@
-export { manorInstanceDefinitions } from "./manorInstanceDefinitions";

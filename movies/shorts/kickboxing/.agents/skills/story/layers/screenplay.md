@@ -1,9 +1,0 @@
-# Final video screenplay
-
-Compose the audience's complete viewing and listening experience, understandable without its parents, under the screenplay questions in the [story contracts](../../contracts/story/SKILL.md). Choose what is seen and heard, how attention moves, and when the audience recognizes, waits and connects, through speech, action, reactions, sound, detail, duration and transitions in [readable notation](notation.md). A fixed view, silence, caption or narration serves the form when its contribution earns the attention.
-
-For long work, extract concise notes of the required identities, decisions, states, chronology, space and audience knowledge from completed treatments and scripts, draft in an [isolated context](../correction/inspection.md#isolated-context) with those notes, the requirements and fixed quotations, then compare against the actual parents. Keep the decided event order while composing the realization afresh under [parent differentiation](../../contracts/story/shared/principles/narratives.md#parent-differentiation). A short composes events, action and realization from its settings and brief.
-
-The screenplay is the last place a decision can be made: motion, sound and edit realize it, and code never chooses an exchange, outcome or reaction. Write every beat from the settings facts of the people, objects and places in it and the research laws and outcome tables of what they do, and decide it completely in its [beat record](notation.md#records), leaving measurements to the code. A beat the cited laws or tables cannot produce is repaired here or in settings before code is written from it.
-
-A defective parent is repaired under [upstream repair](../correction/repair.md#upstream-defects). Before evidence, read the whole progression in viewing order, then inspect and repair under [cause rounds](../correction/repair.md#cause-rounds) and complete the passes through [workflow](../workflow.md).

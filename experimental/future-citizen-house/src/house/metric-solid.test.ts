@@ -1,1 +1,0 @@
-export { verifyMetricSolids } from "./verifyMetricSolids";

@@ -1,1 +1,0 @@
-export { verifyMaterialOwners } from "./verifyMaterialOwners";
