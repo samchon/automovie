@@ -57,17 +57,27 @@ export const MOTION_CAPTURE_CASES: Readonly<
   "everyday-step": (): IMotionCaptureCase[] => everydayCases("step"),
   "everyday-brace": (): IMotionCaptureCase[] => everydayCases("brace"),
   "everyday-type": (): IMotionCaptureCase[] => everydayCases("type"),
+  "everyday-approach-sweep": (): IMotionCaptureCase[] =>
+    everydayCases("approach", MotionBodies.SWEEP),
+  "everyday-look-sweep": (): IMotionCaptureCase[] =>
+    everydayCases("look", MotionBodies.SWEEP),
+  "everyday-gesture-sweep": (): IMotionCaptureCase[] =>
+    everydayCases("gesture", MotionBodies.SWEEP),
   "everyday-rest-sweep": (): IMotionCaptureCase[] =>
-    everydayCases(
-      "rest",
-      MotionBodies.SWEEP.filter((b: string): boolean => b !== "f-short"),
-    ),
+    everydayCases("rest", MotionBodies.SWEEP),
   "everyday-seat-sweep": (): IMotionCaptureCase[] =>
-    everydayCases(
-      "seat",
-      MotionBodies.SWEEP.filter((b: string): boolean => b !== "f-short"),
-    ),
+    everydayCases("seat", MotionBodies.SWEEP),
+  "everyday-bend-sweep": (): IMotionCaptureCase[] =>
+    everydayCases("bend", MotionBodies.SWEEP),
+  "everyday-step-sweep": (): IMotionCaptureCase[] =>
+    everydayCases("step", MotionBodies.SWEEP),
+  "everyday-brace-sweep": (): IMotionCaptureCase[] =>
+    everydayCases("brace", MotionBodies.SWEEP),
+  "everyday-type-sweep": (): IMotionCaptureCase[] =>
+    everydayCases("type", MotionBodies.SWEEP),
   reaction: (): IMotionCaptureCase[] => reactionCases(),
+  "reaction-sweep": (): IMotionCaptureCase[] =>
+    reactionCases(MotionBodies.SWEEP),
   "handling-handshake": (): IMotionCaptureCase[] => handlingCases("handshake"),
   "handling-grasp": (): IMotionCaptureCase[] => handlingCases("grasp"),
   "handling-handover": (): IMotionCaptureCase[] => handlingCases("handover"),
