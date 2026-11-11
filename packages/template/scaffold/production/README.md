@@ -13,11 +13,11 @@ npm run evidence
 npm test
 ```
 
-The project includes instructions, contracts and a working empty Viewer with exact-time video export. Start with [production]({{skills}}/production/SKILL.md) for the requested output and [story]({{skills}}/story/SKILL.md) for creative work. Default lint and evidence check ordinary TypeScript source and tests; [evidence configuration]({{skills}}/evidence/configuration.md) adds narrative scope and stages to that same configuration. The empty scene and checks do not complete a production.
+The project includes instructions, contracts and a working empty inspector page with exact-time video export. Start with [production]({{skills}}/production/SKILL.md) for the requested output and [story]({{skills}}/story/SKILL.md) for creative work. Default lint and evidence check ordinary TypeScript source and tests; [evidence configuration]({{skills}}/evidence/configuration.md) adds narrative scope and stages to that same configuration. The empty scene and checks do not complete a production.
 
-## Viewer and export
+## Inspector and export
 
-Run `npm run dev`, then open [the Viewer](http://127.0.0.1:5173/). Play, pause and seek use the same deterministic performance as export. Each delivered video is one film in `src/composition/films/`, registered in `src/composition/films/index.ts` under its screenplay file's name, with its running time, frame rate and optional `width` × `height` delivery raster (1280 × 720 by default; 720 × 1280 for a vertical short); `?film=<name>` selects one, and may be omitted while only one exists. URL parameters `start`, `end`, `rate` and `play=1` select interval playback, for example [0 to 15 seconds at half speed](http://127.0.0.1:5173/?film=starter&start=0&end=15&rate=0.5&play=1). The starter film `src/composition/films/starter.ts` holds an empty scene; each film composes its scenes and sets its own running time.
+Run `npm run dev`, then open [the inspector](http://127.0.0.1:5173/). It shows the films of `src/subjects.ts`, the same subjects `npm run capture` draws, through one request: every panel (time, selection, marks, shade, view and the request text) edits it, the address carries it with the capture's keys, and the page shows the `automovie capture` command whose options, given to `npm run capture --`, repeat the picture. Play, pause and seek use the same deterministic performance as export. Each delivered video is one film in `src/composition/films/`, registered in `src/composition/films/index.ts` under its screenplay file's name, with its running time, frame rate and optional `width` × `height` delivery raster (1280 × 720 by default; 720 × 1280 for a vertical short); `?subject=<name>` selects one, and may be omitted while only one exists, and `at` the second shown, for example [the starter at 2 seconds through the front view](http://127.0.0.1:5173/?subject=starter&at=2&views=front). The starter film `src/composition/films/starter.ts` holds an empty scene; each film composes its scenes and sets its own running time.
 
 Keep the server running, then run `npm run render -- --film <name>`, omitting `--film` while only one film exists. `src/executable/render.ts` opens the production's draw-only page `render/index.html` for the selected film and draws every frame at `i / fps` through the same draw function `npm run capture` uses, with SwiftShader, the software WebGL backend, in the Chromium build Playwright pins (`npm run review:setup` installs it; `CHROME_PATH` selects another executable). FFmpeg is supplied by `ffmpeg-static`; `FFMPEG_PATH` selects another executable. `VIEWER_URL` selects another running host.
 
@@ -27,7 +27,7 @@ The public Render runner writes `media/automovie/<film>/videos/film.mp4` and the
 
 `npm run capture -- --subject <film> [request]` runs `automovie capture --module src/subjects.ts`: it builds the draw-only page with this production's Vite, draws each planned still of the film in headless Chromium with SwiftShader through the same draw function the delivery render uses, and writes the stills, contact sheets laid out for the reader and `record.json` into `media/capture/<film>/`. The record names the source revision, the request, each cell's resolved camera and the backend with the WebGL renderer and the Chromium version, and keeps every cell that could not be drawn with its cause; the command exits non-zero when one was not. Run `npm run review:setup` once to install the browser.
 
-The request is the same grammar as the Viewer's address and the `automovie capture` usage lists every key: `--from`, `--to` and `--rate`, or `--at`, choose the seconds, `--events` adds the frames around contacts, `--views` lists views separated by `;` (`film`, a film view of `IFilmProduction.views`, a named viewpoint such as `front@ortho` or `three-quarter@focus=<pattern>`, or `x,y,z:tx,ty,tz`), `--passes` the shades, `--parts`, `--hide`, `--marks`, `--label` and `--color` the inspection, `--sweep` each unit alone and with its neighbours, and `--round` and `--compare` keep and compare rounds. `--file <video>` captures an encoded file's own frames around its cuts instead of a film.
+The request is the same grammar as the inspector's address and the `automovie capture` usage lists every key: `--from`, `--to` and `--rate`, or `--at`, choose the seconds, `--events` adds the frames around contacts, `--views` lists views separated by `;` (`film`, a film view of `IFilmProduction.views`, a named viewpoint such as `front@ortho` or `three-quarter@focus=<pattern>`, or `x,y,z:tx,ty,tz`), `--passes` the shades, `--parts`, `--hide`, `--marks`, `--label` and `--color` the inspection, `--sweep` each unit alone and with its neighbours, and `--round` and `--compare` keep and compare rounds. `--file <video>` captures an encoded file's own frames around its cuts instead of a film.
 
 ```bash
 npm run capture -- --subject catalog --from 12 --to 14 --events 13.1 --views "right;three-quarter@ortho"
@@ -43,7 +43,7 @@ npm run capture -- --file media/automovie/<film>/videos/film.mp4 --from 60 --to 
 
 Run `npm run review:setup` once to install Playwright's recording FFmpeg and its headless Chromium, and set `CHROME_PATH` to an installed Chrome or Chromium executable. `npm run review -- playback <viewer-url> <observation-seconds>` records actual Play-button playback as a video with its displayed clock and browser errors into `media/automovie/<film>/videos/review/`, unless a final directory argument names another, for the user to watch.
 
-In the Viewer, `view` selects an inspection camera with the same view grammar, and the capture's inspection keys are URL parameters of the same names, such as `?parts=teapot&shade=clay&marks=curve`; `marks=joint,bone,contact` draws the skeleton and contact forces of `IFilmProduction.performance`, which `src/markFilmProduction.ts` hands to the inspection in every host. A request the capture refuses is refused on the page too, with the reason in place of the clock. Judge a correction at the same source revision, film seconds and camera.
+In the inspector, the capture's keys are the address's parameters of the same names, such as `?views=front@ortho&parts=teapot&shade=clay&marks=curve`; `marks=joint,bone,contact` draws the skeleton and contact forces of `IFilmProduction.performance`, which `src/markFilmProduction.ts` hands to the inspection in every host. A request the capture refuses is refused on the page too: the reason is shown and the previous request stays drawn. Judge a correction at the same source revision, film seconds and camera.
 
 `npm run physics -- <input-module.ts> <output.amphys> [maximum-bytes]` computes a simulated performance once from a Node module exporting `createPhysicalInput()` and writes the archive with its JSON manifest, limited to 256 MiB by default. Keep the archive as a [stage cache]({{skills}}/production/stage-caches.md) under `.cache/` and regenerate it after changing physical inputs; playback, seeking and capture read it through the installed Engine's physical playback, which checks it against the current input's identity.
 
@@ -84,16 +84,16 @@ A separately commissioned screenplay ends with its text duties; a standalone ass
 | `npm run evidence` | Source/test checklists and the selected path's active evidence obligations |
 | `npm test` | Run exported `test_*` functions under `test/features` through `tsconfig.test.json`; an empty selection fails |
 | `npm run format` | Source formatting |
-| `npm run dev` | Actual production Viewer on `127.0.0.1:5173` |
-| `npm run build` | Bundle the production Viewer |
+| `npm run dev` | The production's inspector page on `127.0.0.1:5173` |
+| `npm run build` | Bundle the inspector page and the draw-only page |
 | `npm run physics -- <input-module.ts> <output.amphys> [maximum-bytes]` | Precompute an adopted physical performance outside the browser |
-| `npm run render -- --film <name>` | Export one film of the running Viewer as a picture-only video |
+| `npm run render -- --film <name>` | Export one film through the running draw-only page as a picture-only video |
 | `npm run capture -- --subject <film> [request]` | Stills, sheets and a record of a film drawn by the draw-only page, with inspection views, passes, marks and round comparison |
 | `npm run capture -- --file <video> [request]` | Stills of an encoded file's own frames, around its cuts |
 
 The project uses ES modules with `verbatimModuleSyntax` and `isolatedModules`: mark type-only imports and exports with `type`, and keep each file transformable on its own.
 
-`test/index.ts` discovers pure logic unit tests in `test/features/<source path>/test_<name>.ts` through `tsconfig.test.json`. Export a named `test_<name>(): void` or `Promise<void>` function and assert behavior with `node:assert/strict` or `TestValidator` from `@nestia/e2e`. Use `npm test -- --include <substring> --exclude <substring>` to select test filenames; repeated options accumulate. Tests call portable logic directly; actual Viewer and media inspection run separately.
+`test/index.ts` discovers pure logic unit tests in `test/features/<source path>/test_<name>.ts` through `tsconfig.test.json`. Export a named `test_<name>(): void` or `Promise<void>` function and assert behavior with `node:assert/strict` or `TestValidator` from `@nestia/e2e`. Use `npm test -- --include <substring> --exclude <substring>` to select test filenames; repeated options accumulate. Tests call portable logic directly; the inspector page and media inspection run separately.
 
 ## Project files
 
@@ -107,7 +107,7 @@ The project uses ES modules with `verbatimModuleSyntax` and `isolatedModules`: m
 | `src` | Entities, laws, interactions, consequences, scene and film composition, host entries and commands |
 | `src/integrations` | Optional provider or local-tool code |
 | `test` | Tests and their runner |
-| `index.html`, `vite.config.ts` | The Viewer host page and its Vite configuration |
+| `index.html`, `src/main.ts`, `vite.config.ts` | The inspector page, its one-call mount of `@automovie/viewer` and the Vite configuration of both pages |
 | `public` | Small fixed browser inputs; audio and video belong in `media/` |
 | Runtime README instructions and `.env.example` | Nonsecret setup and variable names; actual secrets stay in ignored local `.env` |
 | `evidence.config.ts` | The duties selected through installed `@automovie/evidence`, which `npm run evidence` evaluates as the selected native graph |

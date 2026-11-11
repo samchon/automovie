@@ -31,6 +31,8 @@
     "@automovie/render": "{{version:render}}",
     "@automovie/viewer": "{{version:viewer}}",
     "three": "{{version:three}}",
+    "react": "{{version:react}}",
+    "react-dom": "{{version:reactDom}}",
     "@gltf-transform/core": "{{version:gltfTransformCore}}",
     "h264-mp4-encoder": "{{version:h264Mp4Encoder}}",
     "mp4box": "{{version:mp4box}}",
@@ -48,6 +50,7 @@
     "typescript": "{{version:typescript}}",
     "@wrtnlabs/evidence": "{{version:evidenceCli}}",
     "@types/three": "{{version:threeTypes}}",
+    "@types/react": "{{version:reactTypes}}",
     "vite": "{{version:vite}}",
     "ffmpeg-static": "{{version:ffmpegStatic}}",
     "@types/pngjs": "{{version:pngjsTypes}}"
