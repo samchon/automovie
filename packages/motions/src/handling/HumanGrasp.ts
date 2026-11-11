@@ -247,6 +247,7 @@ export namespace HumanGrasp {
    * @param goal The wrist goal of a turn and a tilt, degrees.
    * @param tilts The tilts tried at each turn; only the authored one when absent.
    * @param stroke The further key poses the same grip must reach, from its grasp goal; none when absent.
+   * @param turns The turns tried, degrees; -90 to 90 in steps of 15 when absent.
    * @returns The best turn and tilt, their goal, the hand the arm achieves for it, and the arm's solution there.
    */
   export function reachable(
@@ -257,6 +258,7 @@ export namespace HumanGrasp {
     goal: (turn: number, tilt: number) => HumanHand.IWrist,
     tilts: readonly number[] = [0],
     stroke?: (wrist: HumanHand.IWrist) => readonly IKey[],
+    turns: readonly number[] = TURNS,
   ): IReach {
     const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
     // One key pose fitted: the pose and the error the arm leaves there, the
@@ -300,8 +302,9 @@ export namespace HumanGrasp {
             ),
       };
     };
-    let best: (IReach & { cost: number }) | undefined;
-    for (let turn: number = -90; turn <= 90; turn += 15)
+    let best: IReach | undefined;
+    let least: number = Infinity;
+    for (const turn of turns)
       for (const tilt of tilts) {
         const wrist: HumanHand.IWrist = goal(turn, tilt);
         const grasp = fit({ posture, wrist, bend }, undefined);
@@ -311,17 +314,27 @@ export namespace HumanGrasp {
         for (const key of stroke?.(wrist) ?? [])
           miss = Math.max(miss, fit(key, reference).miss);
         const cost: number = miss + 0.01 * (Math.abs(turn) + Math.abs(tilt));
-        if (best === undefined || cost < best.cost)
-          best = { turn, tilt, wrist, shown: grasp.shown, reference, cost };
+        if (best === undefined || cost < least) {
+          least = cost;
+          best = {
+            turn,
+            tilt,
+            wrist,
+            shown: grasp.shown,
+            reference,
+            miss,
+            pose: grasp.pose,
+          };
+        }
       }
-    return {
-      turn: best!.turn,
-      tilt: best!.tilt,
-      wrist: best!.wrist,
-      shown: best!.shown,
-      reference: best!.reference,
-    };
+    return best!;
   }
+
+  /** The turns {@link reachable} tries by default, degrees: a quarter turn either way in steps of 15. */
+  export const TURNS: readonly number[] = Array.from(
+    { length: 13 },
+    (_: unknown, i: number): number => -90 + 15 * i,
+  );
 
   /** A key pose of a stroke: the posture the arm is fitted in, the wrist goal and the elbow hint. */
   export interface IKey {
@@ -351,6 +364,12 @@ export namespace HumanGrasp {
 
     /** The arm's solution at the grasp, the reference of the whole stroke. */
     reference: IHumanPosture.IReference;
+
+    /** The error the arm leaves over the grasp and its stroke: degrees of rotation plus millimetres of position. */
+    miss: number;
+
+    /** The posed body at the grasp. */
+    pose: IAutoMoviePose;
   }
 
   /**
