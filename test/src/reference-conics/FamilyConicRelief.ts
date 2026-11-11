@@ -74,6 +74,9 @@ export namespace FamilyConicRelief {
 
     /** Whether a chart point of the skin polygon is not skin: a point of the chord that closes the cut a neighbouring part leaves. A cast that lands there is not observed. */
     open?: (p: C.P) => boolean;
+
+    /** Whether the net is held where a cast lands: the height observed there is zero, whatever the cast measured, so the wall stays as it was. */
+    hold?: (p: C.P) => boolean;
   }
 
   /** A fitted relief and its sampled errors along the axis. */
@@ -164,9 +167,11 @@ export namespace FamilyConicRelief {
         const from: C.P = row.wall(window.phases[0] + offset);
         const along: number | null = cast(row.skin, from, [axis[0] / inPlane, axis[1] / inPlane]);
         if (along === null) continue;
-        if (window.reach !== undefined && Math.abs(along) / inPlane > window.reach) continue;
-        if (row.open?.([from[0] + (along * axis[0]) / inPlane, from[1] + (along * axis[1]) / inPlane]) === true) continue;
-        const target: number = along / inPlane;
+        const landing: C.P = [from[0] + (along * axis[0]) / inPlane, from[1] + (along * axis[1]) / inPlane];
+        const held: boolean = row.hold?.(landing) === true || row.hold?.(from) === true;
+        if (!held && window.reach !== undefined && Math.abs(along) / inPlane > window.reach) continue;
+        if (!held && row.open?.(landing) === true) continue;
+        const target: number = held ? 0 : along / inPlane;
         const [iv, wv] = basis((offset / span) * (Cn - 3), Cn);
         const weights: [number, number][] = [];
         for (let a: number = 0; a < 4; ++a)

@@ -148,7 +148,7 @@ namespace FamilyConicDeviation {
     }
     const summary = { schema: "f1-family-conic-deviation-v1", meanMm: round(total / area), shareBeyond1Mm: round(outside / area), binsUnderMm: BINS.map((b: { under: number }): number | null => (Number.isFinite(b.under) ? b.under : null)), worst: worst.slice(0, 80) };
     await fs.writeFile(path.join(out, "deviation.json"), JSON.stringify(summary, null, 2));
-    process.stdout.write(JSON.stringify({ out, meanMm: summary.meanMm, shareBeyond1Mm: summary.shareBeyond1Mm }) + "\n");
+    process.stdout.write(JSON.stringify({ out, meanMm: summary.meanMm, shareBeyond1Mm: summary.shareBeyond1Mm, pieces: pieces.length, diagnostics: pieces.flatMap((piece: AutoMovieHumanF1.IPiece): string[] => piece.diagnostics) }) + "\n");
     for (const row of worst.slice(0, 50)) process.stdout.write(row.centreMm.map((x: number): string => String(x).padStart(6)).join("") + "  area " + String(row.areaMm2).padStart(5) + "  mean " + row.meanMm.toFixed(2).padStart(6) + "  abs " + row.absoluteMm.toFixed(2).padStart(5) + "  far " + row.farthestMm.toFixed(2).padStart(6) + "\n");
   }
 

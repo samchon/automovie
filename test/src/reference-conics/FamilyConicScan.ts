@@ -23,6 +23,17 @@ namespace FamilyConicScan {
       if (p === undefined) throw new Error("No joint " + name);
       return p;
     };
+    if (process.argv[2] === "crotch") {
+      // Level planes through the crotch, 2 mm apart: how many loops each cuts, and on the loop round the axis how far the skin stands
+      // forward and backward on the median line, so the height where the legs part is read and not assumed.
+      const axis: AutoMovieViewAxis.IAxis = AutoMovieViewAxis.jointed([[0, 780, 0], [0, 1480, 0]], [], [1, 0, 0]) as AutoMovieViewAxis.IAxis;
+      for (let s: number = 10; s <= 50; s += 2) {
+        const loops: C.P[][] = R.loops(source.body, axis.at(s));
+        const loop: C.P[] | null = R.cut(source.body, axis.at(s)).loop;
+        process.stdout.write("y " + (780 + s) + " loops " + loops.length + (loop === null ? " none round the axis" : " forward " + C.radius(loop, 0).toFixed(1) + " backward " + C.radius(loop, Math.PI).toFixed(1) + " side " + C.radius(loop, Math.PI / 2).toFixed(1)) + "\n");
+      }
+      return;
+    }
     if (process.argv[2] === "trunk") {
       // Trunk sections in polar form about the vertical axis through the origin: radius every 15 degrees over the half turn, to read crests and grooves before choosing a layout.
       const axis: AutoMovieViewAxis.IAxis = AutoMovieViewAxis.jointed([[0, 780, 0], [0, 1480, 0]], [], [1, 0, 0]) as AutoMovieViewAxis.IAxis;
