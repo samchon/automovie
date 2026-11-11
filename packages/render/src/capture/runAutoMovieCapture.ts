@@ -92,7 +92,7 @@ export async function runAutoMovieCapture(props: {
     };
     const fixed: Pick<
       IAutoMovieCaptureRecord.Row,
-      "index" | "name" | "selection" | "time" | "view" | "pass"
+      "index" | "name" | "selection" | "time" | "view" | "pass" | "label"
     > = {
       index: cell.index,
       name: cell.name,
@@ -100,6 +100,7 @@ export async function runAutoMovieCapture(props: {
       time: cell.time,
       view: cell.view,
       pass: cell.pass,
+      label: cell.label,
     };
     sheet ??= new AutoMovieRasterSheet(
       layout.perSheet,

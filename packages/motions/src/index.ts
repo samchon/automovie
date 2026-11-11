@@ -111,3 +111,4 @@ export * from "./striking/knee";
 export * from "./reaction/stagger";
 export * from "./capture/IMotionCaptureOverlays";
 export * from "./capture/markMotionCaptureCase";
+export * from "./capture/planMotionCaptureInstants";

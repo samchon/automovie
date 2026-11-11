@@ -128,6 +128,9 @@ export namespace IAutoMovieCaptureRecord {
     /** The shade drawn in. */
     pass: string;
 
+    /** Label of the subject's named instant at the cell's second, or null when the second is not one. */
+    label: string | null;
+
     /** File name of the sheet the cell is on. */
     sheet: string;
 

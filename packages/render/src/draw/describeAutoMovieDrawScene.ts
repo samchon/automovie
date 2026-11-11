@@ -12,7 +12,7 @@ import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
 /**
  * Describe a created subject as a capture plans against it, from the scene as `create` left it: no second is sought, because a subject need not hold every second, such as a case that samples only its own instants.
  *
- * Views are the subject's own names, then the inspection's named viewpoints. Drawables are the inspection paths of the drawn objects, one world box per distinct path, the union of the boxes of every object sharing it; an object with an empty box is left out. Mark kinds are those the subject supplies at second 0, then `trail`, `trail/now`, `edge` and every `defect/<kind>`, the kinds the inspection draws from its own sampling and measurement; a subject whose kinds appear only later in its run lists them only at second 0's, which is a stated limit.
+ * Named instants are the subject's own, copied. Views are the subject's own names, then the inspection's named viewpoints. Drawables are the inspection paths of the drawn objects, one world box per distinct path, the union of the boxes of every object sharing it; an object with an empty box is left out. Mark kinds are those the subject supplies at second 0, then `trail`, `trail/now`, `edge` and every `defect/<kind>`, the kinds the inspection draws from its own sampling and measurement; a subject whose kinds appear only later in its run lists them only at second 0's, which is a stated limit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States where each member comes from, the order of names and kinds, the union rule and the limit on kinds.
  * @evidence contracts/development/implementation.md#principled-implementation Paths come from the inspection's own path listing and boxes from three.js's `Box3.setFromObject` on world matrices brought up to date, so a sweep groups by the boxes the inspection draws.
@@ -73,5 +73,15 @@ export function describeAutoMovieDrawScene(
       }),
     ),
     marks: [...new Set<string>([...supplied, ...measured])],
+    ...(scene.instants === undefined
+      ? {}
+      : {
+          instants: scene.instants.map(
+            (instant: { seconds: number; label: string }): IAutoMovieCaptureSubject.IInstant => ({
+              seconds: instant.seconds,
+              label: instant.label,
+            }),
+          ),
+        }),
   };
 }

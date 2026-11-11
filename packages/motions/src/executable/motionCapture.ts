@@ -109,17 +109,11 @@ export async function motionCapture(): Promise<void> {
       const props: IMotionCaptureProps = planMotionCaptureProps(capture, RASTER);
       const marked: boolean = markMotionCaptureCase(props).length !== 0;
 
-      // A still is named to the millisecond, so instants a case lists twice within one millisecond are drawn once.
-      const drawn: number[] = [
-        ...new Map(
-          props.seconds.map((seconds: number): [string, number] => [seconds.toFixed(3), seconds]),
-        ).values(),
-      ];
       const request: IAutoMovieCapturePlanRequest = parseAutoMovieCapturePlanRequest(
         new Map<string, string>([
           ...options,
           ["subject", capture.name],
-          ["at", drawn.join(",")],
+          ["at", props.instants.map((instant: { seconds: number }): number => instant.seconds).join(",")],
           ["views", views],
           ...(options.has("marks") || !marked ? [] : [["marks", "case"] as [string, string]]),
         ]),

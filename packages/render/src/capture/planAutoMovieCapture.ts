@@ -16,7 +16,7 @@ import { planAutoMovieCaptureLayout } from "./planAutoMovieCaptureLayout.js";
 /**
  * Plan a capture as data before anything is drawn: check the request against what the subject offers, then list every cell, fixed by selection, time, view and pass, and lay them out for the reader budget.
  *
- * Cells are ordered by selection, then time, then view, then pass, so the views and passes of one instant sit together and every pass of a view shares its camera. A cell's name is its second written to the millisecond (`t002.000`), its view and pass, and for a swept selection its kind and unit, with every character other than letters, digits, `_` and `-` written `_`; a cell's caption names the frame, when the second lies on one, and the second to the millisecond, as the name writes it, then whichever of view, pass and selection vary in the plan, so a caption fits its cell whatever the second's digits. Times come from `planAutoMovieCaptureFrames` and the sheet layout from `planAutoMovieCaptureLayout`, with a row's group being the views times the passes.
+ * Cells are ordered by selection, then time, then view, then pass, so the views and passes of one instant sit together and every pass of a view shares its camera. A cell's name is its second written to the millisecond (`t002.000`), its view and pass, and for a swept selection its kind and unit, with every character other than letters, digits, `_` and `-` written `_`; a cell's caption names the frame, when the second lies on one, and the second to the millisecond, as the name writes it, then the label of the subject's named instant written the same to the millisecond, which the cell also carries as label, then whichever of view, pass and selection vary in the plan, so a caption fits its cell whatever the second's digits. Times come from `planAutoMovieCaptureFrames` and the sheet layout from `planAutoMovieCaptureLayout`, with a row's group being the views times the passes.
  *
  * Frames around cuts are planned like those around events, for a video file whose cuts were detected before planning.
  *
@@ -90,6 +90,16 @@ export function planAutoMovieCapture(props: {
   const { times, windows } = frames;
   const cells: IAutoMovieCaptureCell[] = [];
   const names: Set<string> = new Set();
+
+  // Named instants by their second to the millisecond, the resolution a cell is named at.
+  const labels: Map<string, string> = new Map(
+    (subject.instants ?? []).map(
+      (instant: IAutoMovieCaptureSubject.IInstant): [string, string] => [
+        instant.seconds.toFixed(3),
+        instant.label,
+      ],
+    ),
+  );
   for (const selection of selections)
     for (const time of times)
       for (const view of request.views)
@@ -107,6 +117,7 @@ export function planAutoMovieCapture(props: {
               `Two capture cells take the name ${name}; give seconds at least a millisecond apart and views that differ in letters or digits`,
             );
           names.add(name);
+          const label: string | null = labels.get(time.seconds.toFixed(3)) ?? null;
           cells.push({
             index: cells.length,
             name,
@@ -115,7 +126,8 @@ export function planAutoMovieCapture(props: {
             view,
             pass,
             request: inspect(request.inspection, pass, selection),
-            caption: caption(request, selections.length, time, view, pass, selection),
+            label,
+            caption: caption(request, selections.length, time, label, view, pass, selection),
           });
         }
 
@@ -182,11 +194,12 @@ function slug(text: string): string {
   return text.replace(/[^A-Za-z0-9_-]+/gu, "_");
 }
 
-/** What a sheet cell says: frame and second, then whatever varies in the plan. */
+/** What a sheet cell says: frame and second, the named instant's label, then whatever varies in the plan. */
 function caption(
   request: IAutoMovieCapturePlanRequest,
   selections: number,
   time: IAutoMovieCaptureTime,
+  label: string | null,
   view: string,
   pass: IAutoMovieInspectionRequest.Shade,
   selection: IAutoMovieCaptureSelection,
@@ -194,6 +207,7 @@ function caption(
   return [
     ...(time.frame === null ? [] : [`f${time.frame}`]),
     `${time.seconds.toFixed(3)}s`,
+    ...(label === null ? [] : [label]),
     ...(request.views.length > 1 ? [view] : []),
     ...(request.passes.length > 1 ? [pass] : []),
     ...(selections > 1

@@ -1,10 +1,11 @@
 import type { IAutoMoviePose } from "@automovie/interface";
 
+import { planMotionCaptureInstants } from "../capture/planMotionCaptureInstants";
 import type { IMotionCaptureCase } from "./IMotionCaptureCase";
 import type { IMotionCaptureProps } from "./IMotionCaptureProps";
 
 /**
- * Turn a built motion case into the data its draw page receives: every performer and ghost posed at each of the case's instants, and the case's overlays as they are.
+ * Turn a built motion case into the data its draw page receives: every performer and ghost posed at each of the case's instants, the instants drawn with their labels from `planMotionCaptureInstants`, and the case's overlays as they are.
  *
  * @param capture The built case.
  * @param raster Width and height in pixels of every still.
@@ -36,6 +37,7 @@ export function planMotionCaptureProps(
   return {
     name: capture.name,
     seconds,
+    instants: planMotionCaptureInstants(capture.times),
     raster,
     performers: capture.performers.map(figure),
     ghosts: (capture.ghosts ?? []).map(

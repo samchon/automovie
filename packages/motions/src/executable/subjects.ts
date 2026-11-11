@@ -27,7 +27,7 @@ const GRID_CELL: number = 0.25;
 /**
  * The draw page's subjects for the motion capture harness: one subject, named by the case, built from the case's props.
  *
- * The subject is the case's scene on a light background under an ambient light and one sun: its performers as solid polygon men named by their ids, its ghosts translucent and named `ghost-<id>`, its boxes as shaded meshes named `box-<i>`, and a ground grid named `ground`, lines every 0.25 m over the floor's rectangle under everything drawn at any instant with a margin of 0.18 m, so the ground widens no fitted view. Seeking a second places every figure in its pose at the instant within a microsecond of it; a second the case does not sample throws, listing the case's instants. The case's trails, targets and drift are its marks through `markMotionCaptureCase`, the same at every second. The delivery camera stands on the three-quarter side looking at the middle of what is drawn; the case is read through the fitted views `motionCapture` asks for.
+ * The subject is the case's scene on a light background under an ambient light and one sun: its performers as solid polygon men named by their ids, its ghosts translucent and named `ghost-<id>`, its boxes as shaded meshes named `box-<i>`, and a ground grid named `ground`, lines every 0.25 m over the floor's rectangle under everything drawn at any instant with a margin of 0.18 m, so the ground widens no fitted view. Seeking a second places every figure in its pose at the instant within a microsecond of it; a second the case does not sample throws, listing the case's instants. The case's trails, targets and drift are its marks through `markMotionCaptureCase`, the same at every second, and its labelled instants are the subject's named instants, so each still's caption and record row name its beat. The delivery camera stands on the three-quarter side looking at the middle of what is drawn; the case is read through the fitted views `motionCapture` asks for.
  *
  * @param props The case's page data, from `planMotionCaptureProps`.
  * @returns The case's subject under its name.
@@ -155,6 +155,7 @@ function build(data: IMotionCaptureProps): IAutoMovieDrawScene {
     fps: FPS,
     width: data.raster.width,
     height: data.raster.height,
+    instants: data.instants,
     marks: (): readonly IAutoMovieMark[] => marks,
     seek: async (seconds: number): Promise<void> => {
       const at: number | undefined = index.get(key(seconds));

@@ -8,7 +8,7 @@ import type { IAutoMovieCaptureTime } from "./IAutoMovieCaptureTime.js";
  * A host's draw function receives it and draws `request` through `view` at `time.seconds`; the capture names, captions, records and compares it.
  *
  * @evidence contracts/development/design.md#principled-representation The four values that fix a still, plus the complete inspection request they resolve to, so the draw function needs no other input and a later round pairs cells by the same values.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The view stays the request's view text, read by the inspection core's view grammar; the request is the inspection core's own type. `index`, `name` and `caption` are read by the sheet and the record.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The view stays the request's view text, read by the inspection core's view grammar; the request is the inspection core's own type. `index`, `name`, `label` and `caption` are read by the sheet and the record.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts `request.shade` equals `pass` and `request.parts` equals `selection.parts`, kept equal by the planner; the cell names no subject kind.
  * @evidence contracts/development/common.md#meaningful-documentation States what fixes the cell, who reads it and how its members relate.
  */
@@ -34,6 +34,9 @@ export interface IAutoMovieCaptureCell {
   /** The inspection request the still is drawn with, the plan's own with this cell's pass and selection. */
   request: IAutoMovieInspectionRequest;
 
-  /** Caption stamped on the still's sheet cell: the frame and second, then whichever of view, pass and selection vary in the plan. */
+  /** Label of the subject's named instant at this cell's second, or null when the second is not one. */
+  label: string | null;
+
+  /** Caption stamped on the still's sheet cell: the frame and second, the instant's label, then whichever of view, pass and selection vary in the plan. */
   caption: string;
 }
