@@ -1,33 +1,34 @@
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
+import { affectionCases } from "./affectionCases";
 import { affordanceCases } from "./affordanceCases";
+import { athleticsCases } from "./athleticsCases";
+import { ballSportCases } from "./ballSportCases";
 import { ballStrikeCases } from "./ballStrikeCases";
 import { climbCases } from "./climbCases";
-import { dressCases } from "./dressCases";
-import { householdCases } from "./householdCases";
-import { toolCases } from "./toolCases";
-import { grappleCases } from "./grappleCases";
-import { floorCases } from "./floorCases";
-import { affectionCases } from "./affectionCases";
-import { athleticsCases } from "./athleticsCases";
 import { crouchCases } from "./crouchCases";
 import { danceCases } from "./danceCases";
+import { dressCases } from "./dressCases";
 import { everydayCases } from "./everydayCases";
 import { exerciseCases } from "./exerciseCases";
+import { floorCases } from "./floorCases";
 import { galleryCases } from "./galleryCases";
+import { grappleCases } from "./grappleCases";
 import { gymnasticsCases } from "./gymnasticsCases";
 import { handToFaceCases } from "./handToFaceCases";
 import { handlingCases } from "./handlingCases";
+import { householdCases } from "./householdCases";
 import { jumpCases } from "./jumpCases";
 import { locomotionCases } from "./locomotionCases";
 import { martialArtCases } from "./martialArtCases";
 import { reactionCases } from "./reactionCases";
 import { selfCases } from "./selfCases";
 import { stairsCases } from "./stairsCases";
-import { throwCases } from "./throwCases";
 import { standCases } from "./standCases";
 import { stretchCases } from "./stretchCases";
 import { strikingCases } from "./strikingCases";
+import { throwCases } from "./throwCases";
+import { toolCases } from "./toolCases";
 import { variationCases } from "./variationCases";
 
 /**
@@ -167,8 +168,7 @@ export const MOTION_CAPTURE_CASES: Readonly<
   "exercise-sweep": (): IMotionCaptureCase[] =>
     exerciseCases(MotionBodies.SWEEP),
   stretch: (): IMotionCaptureCase[] => stretchCases(),
-  "stretch-sweep": (): IMotionCaptureCase[] =>
-    stretchCases(MotionBodies.SWEEP),
+  "stretch-sweep": (): IMotionCaptureCase[] => stretchCases(MotionBodies.SWEEP),
   dance: (): IMotionCaptureCase[] => danceCases(),
   "dance-sweep": (): IMotionCaptureCase[] => danceCases(MotionBodies.SWEEP),
   athletics: (): IMotionCaptureCase[] => athleticsCases(),
@@ -180,4 +180,7 @@ export const MOTION_CAPTURE_CASES: Readonly<
   martial: (): IMotionCaptureCase[] => martialArtCases(),
   "martial-sweep": (): IMotionCaptureCase[] =>
     martialArtCases(MotionBodies.SWEEP),
+  "team-ball": (): IMotionCaptureCase[] => ballSportCases(),
+  "team-ball-sweep": (): IMotionCaptureCase[] =>
+    ballSportCases(MotionBodies.SWEEP),
 };

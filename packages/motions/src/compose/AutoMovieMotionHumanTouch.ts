@@ -70,7 +70,21 @@ export namespace AutoMovieMotionHumanTouch {
     /** The effector. */
     effector: AutoMovieMotionHumanTouchEffector.IEffector;
 
-    /** The region at a second on the posture so far. */
+    /**
+     * The region at a second.
+     *
+     * @param posture The posture written so far in this frame.
+     * @param seconds Seconds since the action's start.
+     * @returns The region's point in world metres and its unit normal, pointing away from the surface.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States both arguments, the space and unit of the point and the sense of the normal.
+     * @evidence contracts/development/implementation.md#principled-implementation The region is read on the posture so far, so a region on a moving partner or on the performer's own body is followed frame by frame.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One query returning the surface frame's two quantities; the touch builds its lift and travel on them.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The normal is required, so the lift's direction is never guessed from the point alone.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
+     */
     region(
       posture: IHumanPosture,
       seconds: number,

@@ -29,7 +29,15 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the hand's surfaces, shapes and alignment; the pad is a collider query, not a shape's radius.
  */
 export namespace AutoMovieMotionHumanTouchEffector {
-  /** A hand axis at rest: the fingers' direction, the palm's facing or the thumb's, or their opposites. */
+  /**
+   * A hand axis at rest: the fingers' direction, the palm's facing or the
+   * thumb's, or their opposites.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the three anatomical directions and that a leading minus is the opposite.
+   * @evidence contracts/development/design.md#principled-representation The hand's three anatomical axes and their negatives, the six directions a held tool or a surface can point in the hand's rest frame.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Six literals, read by the effector's tool offset and its two laid axes.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Anatomical names, not bone-space x, y and z, so a left and a right hand state the same effector.
+   */
   export type Axis =
     | "fingers"
     | "palm"

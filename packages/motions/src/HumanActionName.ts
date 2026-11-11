@@ -58,6 +58,7 @@
  * - `athletics`: the sprint start's crouch into the set position, held to the gun.
  * - `gymnastics`: a handstand kicked up from standing, held and stepped down.
  * - `martialArt`: a martial-art technique (horse stance, choku-zuki, tai chi push).
+ * - `ballSport`: a team ball skill with an implied ball (dribble, dig, set, throw-in).
  */
 export type HumanActionName =
   | "stand"
@@ -113,4 +114,5 @@ export type HumanActionName =
   | "dance"
   | "athletics"
   | "gymnastics"
-  | "martialArt";
+  | "martialArt"
+  | "ballSport";

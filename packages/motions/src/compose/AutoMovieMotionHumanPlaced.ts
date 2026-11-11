@@ -48,10 +48,37 @@ export namespace AutoMovieMotionHumanPlaced {
     /** The arm's angles at weight 0. */
     rest: AutoMovieMotionHumanArm.IAngles;
 
-    /** How far the arm is from its rest to the place, in [0, 1]. */
+    /**
+     * How far the arm is from its rest to the place.
+     *
+     * @param seconds Seconds since the action's start.
+     * @returns The weight in [0, 1]: 0 leaves the arm at `rest`, 1 lays the hand on the place.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the argument's origin, the range and what both ends of the range mean.
+     * @evidence contracts/development/implementation.md#principled-implementation The caller states the approach and the release as one blend weight over time, the form its clock's envelope already has.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One number per second; `arm` blends the rest angles and the solved arm by it.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The range is stated, so a weight outside it is the caller's error and is not clamped silently here.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
+     */
     weight(seconds: number): number;
 
-    /** The place at a second: the point and the way the surface faces (its normal points away from the surface). */
+    /**
+     * The place at a second.
+     *
+     * @param posture The posture written so far in this frame.
+     * @param seconds Seconds since the action's start.
+     * @returns The point in world metres, the unit direction the surface faces (its normal, pointing away from the surface) and, when the hand's fingers must point a given way, that unit direction.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States both arguments, the space and unit of the point, the sense of the normal and when the forward direction is given.
+     * @evidence contracts/development/implementation.md#principled-implementation The place is read on the posture so far, so a place on the performer's own moving body or on a moving object is followed frame by frame.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One query returning the three quantities the arm goal needs.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The facing is required, so the hand's orientation is never guessed from the point alone.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
+     */
     place(
       posture: IHumanPosture,
       seconds: number,

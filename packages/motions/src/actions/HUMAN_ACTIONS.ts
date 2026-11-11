@@ -1,17 +1,9 @@
 import type { HumanActionName } from "../HumanActionName";
 import { operate } from "../affordance/operate";
 import { kickBall } from "../ballStrike/kickBall";
-import { dress } from "../dressing/dress";
-import { useTool } from "../tasks/useTool";
-import { wipe } from "../tasks/wipe";
 import { climbLadder } from "../climbing/climbLadder";
-import { clinch } from "../grappling/clinch";
-import { crawl } from "../floor/crawl";
-import { lieDown } from "../floor/lieDown";
 import { handToFace } from "../daily/handToFace";
-import { dance } from "../exercise/dance";
-import { exercise } from "../exercise/exercise";
-import { stretch } from "../exercise/stretch";
+import { dress } from "../dressing/dress";
 import { approach } from "../everyday/approach";
 import { bend } from "../everyday/bend";
 import { brace } from "../everyday/brace";
@@ -25,6 +17,12 @@ import { shift } from "../everyday/shift";
 import { sit } from "../everyday/sit";
 import { stepOver } from "../everyday/stepOver";
 import { typeText } from "../everyday/typeText";
+import { dance } from "../exercise/dance";
+import { exercise } from "../exercise/exercise";
+import { stretch } from "../exercise/stretch";
+import { crawl } from "../floor/crawl";
+import { lieDown } from "../floor/lieDown";
+import { clinch } from "../grappling/clinch";
 import { handOver } from "../handling/handOver";
 import { handshake } from "../handling/handshake";
 import { pickUp } from "../handling/pickUp";
@@ -35,6 +33,7 @@ import { flinch } from "../reaction/flinch";
 import { knockdown } from "../reaction/knockdown";
 import { stagger } from "../reaction/stagger";
 import { athletics } from "../sport/athletics";
+import { ballSport } from "../sport/ballSport";
 import { gymnastics } from "../sport/gymnastics";
 import { martialArt } from "../sport/martialArt";
 import { defend } from "../striking/defend";
@@ -43,6 +42,8 @@ import { kick } from "../striking/kick";
 import { knee } from "../striking/knee";
 import { punch } from "../striking/punch";
 import { step } from "../striking/step";
+import { useTool } from "../tasks/useTool";
+import { wipe } from "../tasks/wipe";
 import { climbStairs } from "../terrain/climbStairs";
 import { catchObject } from "../throwing/catchObject";
 import { throwObject } from "../throwing/throwObject";
@@ -118,4 +119,5 @@ export const HUMAN_ACTIONS: Readonly<
   athletics,
   gymnastics,
   martialArt,
+  ballSport,
 };
