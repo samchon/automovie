@@ -6,6 +6,7 @@ import { athleticsCases } from "./athleticsCases";
 import { ballSportCases } from "./ballSportCases";
 import { ballStrikeCases } from "./ballStrikeCases";
 import { baseballCases } from "./baseballCases";
+import { carryCases } from "./carryCases";
 import { climbCases } from "./climbCases";
 import { crouchCases } from "./crouchCases";
 import { danceCases } from "./danceCases";
@@ -162,6 +163,8 @@ export const MOTION_CAPTURE_CASES: Readonly<
     householdCases(MotionBodies.SWEEP),
   dress: (): IMotionCaptureCase[] => dressCases(),
   "dress-sweep": (): IMotionCaptureCase[] => dressCases(MotionBodies.SWEEP),
+  carry: (): IMotionCaptureCase[] => carryCases(),
+  "carry-sweep": (): IMotionCaptureCase[] => carryCases(MotionBodies.SWEEP),
   affection: (): IMotionCaptureCase[] => affectionCases(),
   "affection-sweep": (): IMotionCaptureCase[] =>
     affectionCases(MotionBodies.SWEEP),

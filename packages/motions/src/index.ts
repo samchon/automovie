@@ -74,6 +74,7 @@ export * from "./ballStrike/kickBall";
 export * from "./tasks/useTool";
 export * from "./tasks/wipe";
 export * from "./dressing/dress";
+export * from "./carrying/carry";
 export * from "./posture/poseBones";
 export * from "./everyday/gesture";
 export * from "./everyday/gestureStroke";

@@ -1,6 +1,7 @@
 import type { HumanActionName } from "../HumanActionName";
 import { operate } from "../affordance/operate";
 import { kickBall } from "../ballStrike/kickBall";
+import { carry } from "../carrying/carry";
 import { climbLadder } from "../climbing/climbLadder";
 import { handToFace } from "../daily/handToFace";
 import { dress } from "../dressing/dress";
@@ -113,6 +114,7 @@ export const HUMAN_ACTIONS: Readonly<
   useTool,
   wipe,
   dress,
+  carry,
   kiss,
   highFive,
   selfAction,
