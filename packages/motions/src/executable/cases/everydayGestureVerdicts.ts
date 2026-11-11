@@ -124,13 +124,14 @@ export function everydayGestureVerdicts(
     name: string,
     expected: AutoMovieMotionHumanTarget.IGrid,
   ): IMotionCaptureCase.IVerdict => {
-    const hips = performance.bones("a", mid).get("hips")!;
+    // The law places the hand from the rig origin, not from the hips bone.
+    const root = performance.pose("a", mid).root;
     return MotionPlaceVerdicts.at(
       name,
       body,
       {
-        root: hips.worldPosition,
-        yaw: HumanFrame.heading(hips.worldRotation),
+        root: root.translation,
+        yaw: HumanFrame.heading(root.rotation),
       },
       "right",
       palm(mid, "right").point,

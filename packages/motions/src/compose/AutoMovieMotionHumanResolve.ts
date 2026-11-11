@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM } from "@automovie/engine";
+import { DEFAULT_HUMANOID_ROM, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieVector3,
@@ -25,7 +25,7 @@ import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is resolved, why an author needs both units, and the frame of every metre value.
  * @evidence contracts/development/design.md#principled-representation Each result pairs the record the layer uses with its metric reading on one body, so neither is derived by hand.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Five functions over the place, bend and range owners; it resolves and owns no table of its own.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Six functions over the place, bend and range owners; it resolves and owns no table of its own.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every value comes from the owner a law reads it from, so the table cannot disagree with a performance.
  */
 export namespace AutoMovieMotionHumanResolve {
@@ -354,7 +354,108 @@ export namespace AutoMovieMotionHumanResolve {
       }
     return lines.join("\n");
   }
+
+  /**
+   * The solved elbow beside the `hang` preset on a set of bodies, as text:
+   * one row per place with one column per body.
+   *
+   * Each body stands at rest heading +Z, and the left wrist is put on the
+   * place with no hand rotation. A cell gives the angle from the preset's
+   * elbow to the solved one about the line from the shoulder to the wrist,
+   * then the strain of the solved elbow and the strain of the preset's. A
+   * place the arm cannot reach reads `out of reach`.
+   *
+   * @param bodies The bodies, in column order.
+   * @returns The table, lines joined by a line feed; angles in whole degrees, strains to three decimals.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the stance, what a cell holds, the units and the cell of a refused place.
+   * @evidence contracts/development/implementation.md#principled-implementation Both elbows are projected across the shoulder-to-wrist line and the angle between the projections is the swivel between them, the one freedom the solver chooses.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One cell builder over the named places and the grid places the gesture laws use.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A refused place is printed as refused, not as a zero angle.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Three solver searches per cell; the table is printed on demand, not during a performance.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `AutoMovieMotionHumanBend.solve`, `strain` and `arm` and the place owner.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the solver's per-body cache is the solver's own.
+   */
+  export function swivel(
+    bodies: readonly { name: string; body: IHumanBody }[],
+  ): string {
+    const places: [string, AutoMovieMotionHumanTarget.Place][] = [
+      ...(
+        Object.keys(
+          AutoMovieMotionHumanTarget.DEFAULTS,
+        ) as AutoMovieMotionHumanTarget.Name[]
+      ).map((name): [string, AutoMovieMotionHumanTarget.Place] => [name, name]),
+      ...SWIVEL_GRIDS.map(
+        (grid): [string, AutoMovieMotionHumanTarget.Place] => [
+          `${grid.height} ${grid.lateral} ${grid.distance}`,
+          grid,
+        ],
+      ),
+    ];
+    const cell = (
+      body: IHumanBody,
+      place: AutoMovieMotionHumanTarget.Place,
+    ): string => {
+      const posture = { root: { x: 0, y: 0, z: 0 }, yaw: 0 };
+      const shoulder: IAutoMovieVector3 = body.rest.get("leftUpperArm")!;
+      const props: AutoMovieMotionHumanBend.ISolve = {
+        body,
+        posture,
+        side: "left",
+        point: AutoMovieMotionHumanTarget.fallback(
+          body,
+          posture,
+          AutoMovieMotionHumanTarget.place(body, "left", place),
+        ).point,
+      };
+      const preset: IAutoMovieVector3 = AutoMovieMotionHumanBend.arm(
+        body,
+        posture,
+        "left",
+        "hang",
+      );
+      let solved: IAutoMovieVector3;
+      try {
+        solved = AutoMovieMotionHumanBend.solve(props);
+      } catch {
+        return "out of reach";
+      }
+      const axis: IAutoMovieVector3 = Vector3.normalize(
+        Vector3.subtract(props.point, shoulder),
+      );
+      const across = (p: IAutoMovieVector3): IAutoMovieVector3 => {
+        const v: IAutoMovieVector3 = Vector3.subtract(p, shoulder);
+        return Vector3.normalize(
+          Vector3.subtract(v, Vector3.scale(axis, Vector3.dot(v, axis))),
+        );
+      };
+      const angle: number =
+        (Math.acos(
+          Math.max(-1, Math.min(1, Vector3.dot(across(solved), across(preset)))),
+        ) *
+          180) /
+        Math.PI;
+      return `${angle.toFixed(0)} deg, ${AutoMovieMotionHumanBend.strain(
+        props,
+        solved,
+      ).toFixed(3)} / ${AutoMovieMotionHumanBend.strain(props, preset).toFixed(3)}`;
+    };
+    return [
+      ["place (swivel from hang, strain solved / hang)", ...bodies.map((b) => b.name)].join("\t"),
+      ...places.map(([label, place]): string =>
+        [label, ...bodies.map((b): string => cell(b.body, place))].join("\t"),
+      ),
+    ].join("\n");
+  }
 }
+
+/** The grid places the swivel table lists beside the named ones: the places of `stopPalm`, `wave` and `raiseHand`, and a hand at the hip. */
+const SWIVEL_GRIDS: readonly AutoMovieMotionHumanTarget.IGrid[] = [
+  { height: "shoulder", lateral: "inside", distance: "far" },
+  { height: "eye", lateral: "outside", distance: "near" },
+  { height: "overhead", lateral: "shoulder", distance: "close" },
+  { height: "hip", lateral: "outside", distance: "close" },
+];
 
 /** The joints the table lists: the trunk and the head, and the left limbs, which the right mirror. */
 const BONES: readonly AutoMovieHumanoidBone[] = [

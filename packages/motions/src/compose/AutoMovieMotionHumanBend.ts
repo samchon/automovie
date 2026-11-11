@@ -298,8 +298,11 @@ export namespace AutoMovieMotionHumanBend {
   export function solve(props: ISolve): IAutoMovieVector3 {
     const found: ICandidate | string = search(
       props,
-      (_elbow: IAutoMovieVector3, strain: number): number => strain,
-      true,
+      (): ((candidate: ICandidate) => IScore) =>
+        (candidate: ICandidate): IScore => ({
+          overshoot: candidate.overshoot,
+          deviation: candidate.strain,
+        }),
     );
     if (typeof found !== "string" && found.overshoot === 0) return found.elbow;
     if (props.fallback !== undefined)
@@ -321,9 +324,9 @@ export namespace AutoMovieMotionHumanBend {
    * @returns The strain `solve` minimises, a unitless number; `Infinity` when the wrist is out of reach or that elbow place is not allowed.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which elbow place is measured, the unit and the meaning of `Infinity`.
-   * @evidence contracts/development/implementation.md#principled-implementation Takes the candidate whose elbow lies on the bend point's side of the shoulder-to-wrist line and reads the same strain and the same legality `solve` ranks by.
+   * @evidence contracts/development/implementation.md#principled-implementation Takes the elbow places within one degree of the bend point's side of the shoulder-to-wrist line, the sweep's own step, and reads the same strain and the same legality `solve` ranks by. An elbow place has two arm poses, one per bend branch of the hinge, so an allowed pose ranks before the other.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One search ranked by side, then one read.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An elbow place that is not allowed reads as `Infinity`, never as the strain of a neighbour that is.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A side with no allowed place within that degree reads as `Infinity`, never as the strain of a farther place that is allowed.
    * @evidence contracts/development/implementation.md#efficient-algorithms The same bounded sweep as `solve`.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares `search` with `solve`, so a preset and the solver are compared on one measure.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only what `solve` retains.
@@ -331,9 +334,8 @@ export namespace AutoMovieMotionHumanBend {
   export function strain(props: ISolve, bend: IAutoMovieVector3): number {
     const found: ICandidate | string = search(
       props,
-      (elbow: IAutoMovieVector3, _strain: number, ctx: IChain): number =>
-        away(ctx.shoulder, props.point, elbow, bend),
-      false,
+      (chain: IChain): ((candidate: ICandidate) => IScore) =>
+        toward(chain.shoulder, props.point, bend),
     );
     return typeof found === "string" || found.overshoot !== 0
       ? Infinity
@@ -497,6 +499,44 @@ function away(
     : 1 - Vector3.dot(Vector3.normalize(a), Vector3.normalize(b));
 }
 
+/** What the engine's swivel sweep orders candidates by: `overshoot` first, compared exactly, then `deviation`. */
+interface IScore {
+  /** The first key. */
+  overshoot: number;
+
+  /** The second key. */
+  deviation: number;
+}
+
+/** `away` at one degree, the step of the engine's swivel sweep, so a side always holds a swept candidate. */
+const SIDE: number = 1 - Math.cos(Math.PI / 180);
+
+/**
+ * The ranking that takes the elbow place on a point's side of the
+ * shoulder-to-wrist line. Candidates within one degree of that side come
+ * first, ordered by their overshoot and then by their strain plus `away`,
+ * which is under 0.0002 there. An elbow place has two arm poses, one per
+ * bend branch, and this order takes the allowed one. Every other candidate
+ * follows, nearer sides first.
+ *
+ * @param shoulder The shoulder, world metres.
+ * @param wrist The wrist, world metres.
+ * @param bend The point whose side is taken, world metres.
+ * @returns The ranking.
+ */
+function toward(
+  shoulder: IAutoMovieVector3,
+  wrist: IAutoMovieVector3,
+  bend: IAutoMovieVector3,
+): (candidate: ICandidate) => IScore {
+  return (candidate: ICandidate): IScore => {
+    const side: number = away(shoulder, wrist, candidate.elbow, bend);
+    return side <= SIDE
+      ? { overshoot: candidate.overshoot, deviation: candidate.strain + side }
+      : { overshoot: 1e9 * (1 + side), deviation: 0 };
+  };
+}
+
 /**
  * Half the width of a range, degrees, or null for an axis that does not move.
  *
@@ -518,8 +558,7 @@ function half(range: { min: number; max: number } | null): number | null {
  * @param point The wrist, world metres.
  * @param rotation The hand's world rotation, when its turn counts as strain.
  * @param neutral The hanging arm's shoulder angles; null leaves the shoulder's strain at 0.
- * @param rank The number to minimise, from a candidate's elbow and strain.
- * @param legal Whether an allowed place ranks before every other place.
+ * @param score The ranking of a candidate.
  * @returns The chosen candidate with its true overshoot, or null for a degenerate chain.
  */
 function best(
@@ -529,8 +568,7 @@ function best(
   point: IAutoMovieVector3,
   rotation: IAutoMovieQuaternion | undefined,
   neutral: IAngles | null,
-  rank: (elbow: IAutoMovieVector3, strain: number) => number,
-  legal: boolean,
+  score: (candidate: ICandidate) => IScore,
 ): ICandidate | null {
   const { prepared } = chain;
   const upperBone: AutoMovieHumanoidBone = prepared.chain.upper;
@@ -638,13 +676,7 @@ function best(
       score: (
         upper: IAutoMovieQuaternion,
         lower: IAutoMovieQuaternion,
-      ): { overshoot: number; deviation: number } => {
-        const candidate: ICandidate = read(upper, lower);
-        return {
-          overshoot: legal ? candidate.overshoot : 0,
-          deviation: rank(candidate.elbow, candidate.strain),
-        };
-      },
+      ): IScore => score(read(upper, lower)),
     });
   return solved === null ? null : read(solved.upper, solved.lower);
 }
@@ -685,9 +717,7 @@ function neutralOf(
     point,
     undefined,
     null,
-    (elbow: IAutoMovieVector3): number =>
-      away(chain.shoulder, point, elbow, hint),
-    false,
+    toward(chain.shoulder, point, hint),
   );
   if (hanging === null) return null;
   NEUTRAL.set(body, { ...NEUTRAL.get(body), [side]: hanging.angles });
@@ -699,14 +729,12 @@ function neutralOf(
  * out of reach and returns the best candidate under a ranking.
  *
  * @param props The request.
- * @param rank The number to minimise, from a candidate's elbow, its strain and the chain.
- * @param legal Whether an allowed place ranks before every other place.
+ * @param rank The ranking of a candidate, given the prepared chain.
  * @returns The candidate, or the reason there is none.
  */
 function search(
   props: AutoMovieMotionHumanBend.ISolve,
-  rank: (elbow: IAutoMovieVector3, strain: number, chain: IChain) => number,
-  legal: boolean,
+  rank: (chain: IChain) => (candidate: ICandidate) => IScore,
 ): ICandidate | string {
   const chain: IChain | null = chainOf(props.body, props.posture, props.side);
   const neutral: IAngles | null = neutralOf(props.body, props.side);
@@ -724,9 +752,7 @@ function search(
       props.point,
       props.rotation,
       neutral,
-      (elbow: IAutoMovieVector3, strain: number): number =>
-        rank(elbow, strain, chain),
-      legal,
+      rank(chain),
     ) ?? "the arm chain is degenerate"
   );
 }
