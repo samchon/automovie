@@ -1,10 +1,10 @@
 # Verification
 
-The viewer finds defects and accepts a candidate, and the [tests](testing.md) confirm it, in the Human skill's [order](SKILL.md#order). A candidate needs both, because numbers alone do not establish a sound human shape and the viewer shows defects no test reads yet. Judge original 2D definitions, actual raw loft curves, their overlap/default clay, and final realized skin as separate stages. Each stage keeps its own failures and unverified work; a smooth downstream surface cannot accept a wrong original.
+The [shared instrument](screenshot.md) finds defects and accepts a candidate, and the [tests](testing.md) confirm it, in the Human skill's [order](SKILL.md#order). A candidate needs both, because numbers alone do not establish a sound human shape and a still shows defects no test reads yet. Judge original 2D definitions, actual raw loft curves, their overlap/default clay, and final realized skin as separate stages. Each stage keeps its own failures and unverified work; a smooth downstream surface cannot accept a wrong original.
 
 ## Curves Against The Reference
 
-A surface is only as right as its original 2D definitions, so complete their inspection before correcting its shape. Use the [selection recipes](screenshot.md#selecting-curves-and-parts) to keep the reference visible.
+A surface is only as right as its original 2D definitions, so complete their inspection before correcting its shape. The instrument draws no reference yet: until the reference is handed to it as a subject or as marks, a comparison against the reference is [unavailable evidence](screenshot.md#reference-comparison), recorded as such and never passed.
 
 For a composed source, inspect its original contributing curves and physical-plane/frame maps, then the composed section/guide family and declared ports before judging its loft. Keep logical anatomical selections mapped to actual subdomains of that same source; a former part name does not require a duplicate independent loft. Record any source or port the current inspection consumer cannot yet display as unavailable.
 
@@ -14,7 +14,7 @@ For a composed source, inspect its original contributing curves and physical-pla
 
 A changed host or frame reopens the original-curve comparison of every affected neighbour. Use the selected canonical original producer for this stage. Unrelated regional sources, upper constraint solves, raw lofts, full preparation/calibration and Boolean realization are not prerequisites for reading an available original. Record a genuinely required unavailable dependency instead of requesting unrelated work to reach it.
 
-For repeatable evidence, use the [inspection packet](screenshot.md#inspection-packets), then judge its individual curves, reference-section overlays and explicit neighbour groups before accepting the whole overview. Its automatically framed named camera is a visibility aid; a curve that remains edge-on, hidden or unsupported still needs the reverse or oblique reading. A completed row or packet is capture coverage, not a 2D form or shared-connection pass.
+For repeatable evidence, plan the round as one capture with a [sweep](screenshot.md#selecting-curves-and-parts), then judge its individual curves and neighbour groups before accepting the whole overview. A fitted named view is a visibility aid; a curve that remains edge-on, hidden or unsupported still needs the reverse or oblique reading. A completed capture is coverage, not a 2D form or shared-connection pass.
 
 The reference comparison observes the production source definition before final realization. Read its `observation`, original `diagnostics` and `sourceRecords`: tree membership, unconnected studies, definition-only parts and unavailable results mean different things. Inspect studies as studies; their visible curves do not prove they belong to the generated skin. Distinguish the original interpolation support from the actual part domain, and verify that displayed curves and top rings lie in that domain. `finalRealization: not-run` is no final calibration, join or rig pass. A source with no admitted loft sections can still have original outlines to inspect.
 
@@ -30,7 +30,7 @@ The [three steps](SKILL.md#three-steps) define the work; these are the gates of 
 - Step 2 passes when the re-based coordinates return to the reference pose exactly.
 - Both steps also need the joints realized, the anatomical order detectors passing and the surface-integrity detectors passing.
 
-The reference mesh has hatching, holes and saw-toothed slices, so an extracted knot is accepted only after it is checked against the reference in the viewer.
+The reference mesh has hatching, holes and saw-toothed slices, so an extracted knot is accepted only after it is checked against the reference mesh itself.
 
 A defect visible in a frame must be removable in one batch. Before each batch, inventory every visible defect of the whole figure in every view and close-up, and assign each defect a cause and an owner. Research whether a better or more certain method exists than the current one, and adopt it when it does. A defect left out of the inventory is an incomplete investigation.
 
@@ -61,27 +61,24 @@ Inspect both parts' original 2D definitions individually and with their neighbou
 
 ## Inspection Round
 
-Inspect the candidate's generating curves, skin and joins following [visual debugging](../visual-debugging/SKILL.md) and [form inspection](../3d-modeling/inspection.md), for the affected person and all affected parts, and compare it with the existing figure under matching camera, light, shading, size and renderer conditions in every affected region and join, including changed inputs. Expand to other people when the task requires it. Inspect each selected part alone, then with its host and neighbours, then assembled, using the [selection recipes](screenshot.md#selecting-curves-and-parts); include the realized blends so a hidden blend cannot manufacture a gap. Keep partial work visible with what is unverified marked. Every variable below is a URL variable of the [debug viewer](screenshot.md).
+Inspect the candidate's generating curves, skin and joins following [visual debugging](../visual-debugging/SKILL.md) and [form inspection](../3d-modeling/inspection.md), for the affected person and all affected parts, and compare it with the existing figure under matching camera, light, shade, size and backend in every affected region and join, including changed inputs. Expand to other people when the task requires it. Inspect each selected part alone, then with its host and neighbours, then assembled, using the [selection recipes](screenshot.md#selecting-curves-and-parts); include the realized blends so a hidden blend cannot manufacture a gap. Keep partial work visible with what is unverified marked. Every key below is a request key of the [shared instrument](screenshot.md).
 
-1. For each part whose original 2D curves are accepted, request its actual selected raw loft and inspect the generated sections, axis and guides alone (`parts=none`). Continue at the same cameras with those curves over the raw default-clay surface, then raw clay alone (`curves=none`). Inspect the part and its chosen neighbours immediately; unrelated parts need not be complete. Read the actual producer ids: source `view.*` outlines and original `top.<k>` rings are different constructions.
-2. Inspect the actual realized tree and final skin with its kept faces, continuations, blends and cuts present. Repeat the whole current person and affected neighbours from every needed camera, under default shading and `shade=appearance`, in the anatomical neutral, bind and any poses required by the active task. Check proportions, silhouettes and missing or disconnected anatomy. View the face with `shade=appearance` and `focus=head*`.
-3. View each region and realized connection in close-ups (`focus=<part pattern>`) with `shade=clay` under `light=raking` from `lightSide=left` and `lightSide=right`. Check the declared C2/G2 conditions on smooth keys and strips, and inspect explicit creases, topology transitions and trims under their own contracts.
+1. For each part whose original 2D curves are accepted, draw its sections, guides and axis alone (`marks=curve/*`, `surface=0`), then those curves over the clay surface (`marks=curve/*`, `shade=clay`), then the clay alone (`shade=clay`), through the same cameras. Inspect the part and its chosen neighbours immediately; unrelated parts need not be complete.
+2. Inspect the whole current person and affected neighbours from every needed view, under the clay and the beauty shade, in the anatomical neutral, bind and any poses required by the active task. Check proportions, silhouettes and missing or disconnected anatomy. View the face with a focused view such as `front@focus=f1/upper`.
+3. View each region and connection in close-ups with a focused view under `shade=clay`, and with `shade=faces` where an open end or a flipped surface is suspected. Check the declared C2/G2 conditions on smooth keys and strips, and inspect explicit creases, topology transitions and trims under their own contracts; `marks=edge` shows how the triangles follow the form there.
 4. Trace every line or ripple to the curves that make it:
-   - Find the skin part `human.skin.<chain>/<k>` that carries it by showing and colouring candidates with `parts` and `partColor`.
-   - Select sections `<chain>/<k>`, `<chain>/<k+1>` and `<chain>/axis` with `curves`, retaining the matched camera from the preceding surface pass.
-   - Read the adjoining surface with `shade=curvature` and identify the curves with `labels=1`.
+   - Find the piece that carries it by showing and colouring candidates with `parts` and `color`.
+   - Draw the sections either side of it and the axis of that family, such as `parts=f1/arm/section/3,f1/arm/section/4,f1/arm/axis` with `marks=curve/*`, through the camera of the preceding surface pass.
+   - Name what is drawn with `label` while establishing identity, then hide the labels where they cover the shape.
 5. Write every finding, with its cause, into the round's findings table.
 
-The reference comparison shows the reference skin and the inputs to lofting, not the generated person's skin. Use the ordinary person or piece view for the three 3D passes above. A missing or culled surface cannot be accepted from its view curves.
-
-The packet's `source.parts:tree` passes are the actual placed chains before joining, with `finalRealization: not-run` and actual pose null. Read them as raw loft curves, their default-clay overlap and raw clay at matching cameras; subtractive operands remain positive raw surfaces. An isolated open end's display fan is a cut lid, whose appearance does not settle the shared connection. Keep these findings separate from the optional ordinary Boolean-clay block and its final diagnostics. Neither raw surface availability nor an empty source diagnostic list proves successful final merge/diff or skin.
+A missing or culled surface cannot be accepted from its curves.
 
 ## Render Audit
 
-- Capture only after the generated output changes, and show only new frames.
-- After a figure changes, the whole-person minimum is fresh front, left and top original curves over its reference with `viewLabels=0`, plus final skin from the same three cameras with `curves=none` and underwear hidden. Inspect these six frames yourself and retain the source and camera receipts. They accompany a shape claim; unavailable final skin remains unverified.
-- Include back, oblique, individual and neighbour views and the raw three-pass inspection required by the affected geometry; the whole-person minimum does not replace those readings.
-- Capture a round through the [one-shot capture](screenshot.md) for Node images, or through the viewer's batch route or capture CLI for viewer-only conditions. Each keeps every PNG's exact bytes with its receipt under `packages/human/.shots/`, in a round directory of your own.
-- Check each file's SHA-256 against its `x-human-png-sha256` header.
-- Open every PNG.
-- If a capture fails, stop visual claims that depend on it and repair the viewer and capture path first.
+- Capture only after the generated output changes, and read only new stills.
+- After a figure changes, the whole-person minimum is the three passes above from the front, left and top, with underwear and hair hidden by `hide`. Inspect these stills yourself and keep the capture's record. They accompany a shape claim; unavailable final skin remains unverified.
+- Include back, oblique, individual and neighbour views as the affected geometry requires; the whole-person minimum does not replace those readings.
+- Keep each round's capture under `packages/human/.shots/`, in a named round of its own, as [capture](../visual-debugging/capture.md#rounds) keeps rounds.
+- Open every still a finding cites.
+- If a capture fails, stop visual claims that depend on it and restore the instrument first.

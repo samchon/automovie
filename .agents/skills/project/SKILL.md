@@ -72,7 +72,7 @@ The [root README](../../../README.md#packages) and package READMEs own inventori
 | `evidence` | Reusable engineering defaults and optional narrative evidence composition, for native checking |
 | `template/scaffold` | The generated production instructions, editable contracts and thin configuration, which `cli` installs |
 
-`render` and `viewer` are the only libraries importing `three.js`. The parameter-only Human surface has no viewer or capture entry point.
+`render` and `viewer` are the only libraries whose public surface imports `three.js`; a package's subject module, kept out of its barrel, may import it to build what the shared instrument draws. The Human figure is inspected that way, through a subject module of `human`.
 
 ### Hosts
 
