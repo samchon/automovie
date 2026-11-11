@@ -4,7 +4,7 @@ import type { IAutoMovieCapturePlan } from "../capture/IAutoMovieCapturePlan.js"
 import type { IAutoMovieCaptureSubject } from "../capture/IAutoMovieCaptureSubject.js";
 import type { IAutoMovieInspectionRequest } from "../scene/inspection/IAutoMovieInspectionRequest.js";
 import { parseAutoMovieInspectionRequest } from "../scene/inspection/parseAutoMovieInspectionRequest.js";
-import type { IAutoMovieRasterImage } from "../scene/raster/IAutoMovieRasterImage.js";
+import type { IAutoMovieRasterImage } from "../picture/IAutoMovieRasterImage.js";
 import { AUTO_MOVIE_DRAW_GLOBALS } from "./AUTO_MOVIE_DRAW_GLOBALS.js";
 import type { IAutoMovieDrawCall } from "./IAutoMovieDrawCall.js";
 import type { IAutoMovieDrawDescription } from "./IAutoMovieDrawDescription.js";

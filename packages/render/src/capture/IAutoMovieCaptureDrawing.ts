@@ -1,4 +1,4 @@
-import type { IAutoMovieRasterImage } from "../scene/raster/IAutoMovieRasterImage.js";
+import type { IAutoMovieRasterImage } from "../picture/IAutoMovieRasterImage.js";
 
 /**
  * What a host's draw function returns for one cell: the picture, the anchors of the labels to stamp on it, and what drew it.

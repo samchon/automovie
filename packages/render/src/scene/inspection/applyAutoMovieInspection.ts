@@ -39,7 +39,7 @@ import { resolveAutoMovieInspectionColors } from "./resolveAutoMovieInspectionCo
 /**
  * Turn a built scene into the picture an inspection request asks for, in place, and return the handle that keeps its shade and marks current and puts the scene back.
  *
- * The same applied scene is drawn by the browser renderer and by the CPU rasterizer, so a view on the page and a still made in Node show the same thing. In order:
+ * The applied scene is drawn by three.js like any other, so the inspector page and the draw-only function show the same picture. In order:
  *
  * 1. **Kinds.** The kinds that exist are those `listAutoMovieInspectionKinds` lists: the supplied marks' kinds and the inspection's own, `edge`, the triangle sides of a mesh, the `defect/<kind>` kinds, `defect/sliver` only while `sliver` is set, and `trail` and `trail/now` while `trail` names objects. A `marks` pattern that matches none of them throws and lists them. A kind is drawn when a `marks` pattern matches it.
  * 2. **Measured marks.** Asked edges and defect kinds are measured on every drawn, visible mesh that `hide` does not leave out; batched meshes are not measured. Edges drawn over a surface show how its triangles follow the form, and with `surface` off they are drawn alone; no material is switched to wireframe.
@@ -47,7 +47,7 @@ import { resolveAutoMovieInspectionColors } from "./resolveAutoMovieInspectionCo
  * 4. **Isolation.** Unselected objects, and every mesh when `surface` is off, are taken off all layers. A layer is tested per object, so the objects beneath an isolated one stay as they were selected, which hiding it would not allow.
  * 5. **Shade.** Surfaces are coloured by `shade`. The `outline` pass draws its shells around the selected meshes only. The `pose` pass draws the skeleton of the whole scene, since a bone is not a drawn object and has no path to select.
  * 6. **Colours and marks.** Meshes a `color` pattern matches take its colour as `colorAutoMovieInspectionObjects` draws it. Selected marks are drawn in their kind's colour, or the `color` a pattern gives the kind, or the flag colour when flagged, as lines `stroke` pixels wide and points three strokes across. Two kinds in one picture never share a colour, and no kind takes the flag colour or the active shade's surface colours; a clash throws naming both. With `xray` marks ignore depth.
- * 7. **Section.** With `section`, the plane is given to every material in the scene, marks included. It cuts three.js's built-in materials, the guide passes and inspection shades, and the marks. In the browser a film's own shader material is cut only when its shader includes three.js's clipping chunks, while the CPU rasterizer cuts every material.
+ * 7. **Section.** With `section`, the plane is given to every material in the scene, marks included. It cuts three.js's built-in materials, the guide passes and inspection shades, and the marks. A film's own shader material is cut only when its shader includes three.js's clipping chunks.
  *
  * The legend lists each drawn kind once with its number of marks, a flag entry per kind with flagged marks, and under the faces shade the two surface colours with the number of surfaces shaded. `selected` lists the paths the request selected, and `labels` places the names the `label` patterns ask for on a picture.
  *
@@ -58,7 +58,7 @@ import { resolveAutoMovieInspectionColors } from "./resolveAutoMovieInspectionCo
  * try {
  *   production.seek(2.4);
  *   inspection.update(production.marks?.(2.4));
- *   const frame = rasterizeAutoMovieScene({ scene, camera, width: 960, height: 960 });
+ *   renderer.render(scene, camera);
  * } finally {
  *   inspection.restore();
  * }

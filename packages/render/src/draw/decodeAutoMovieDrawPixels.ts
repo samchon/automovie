@@ -1,4 +1,4 @@
-import type { IAutoMovieRasterImage } from "../scene/raster/IAutoMovieRasterImage.js";
+import type { IAutoMovieRasterImage } from "../picture/IAutoMovieRasterImage.js";
 import type { IAutoMovieDrawResult } from "./IAutoMovieDrawResult.js";
 
 /**

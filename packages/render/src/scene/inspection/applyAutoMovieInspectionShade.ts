@@ -43,12 +43,10 @@ void main() {
  *
  * A guide pass is applied as `applyRenderMode` applies it. `clay` gives every mesh one grey, two-sided and lit by the scene's lights, so form reads without the film's colours. `faces` gives every mesh one unlit colour by the side seen, grey from the front and maroon from the back, so an inverted, open or inside-out surface shows where it is. Both inspection shades keep each mesh's skinning, morphing, instancing and formation cycle, and take section planes.
  *
- * The CPU rasterizer draws the faces shade from its two colour uniforms, so a still made in Node and a frame drawn in the browser agree.
- *
  * A shade made of swapped materials follows the scene by itself, so its `update` does nothing. The `outline` and `pose` passes hold shells and segments of their own, and their `update` is the pass's.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what each shade draws and reveals, what deformation the inspection shades keep, how the two renderers agree on the faces shade, and which shades an update moves.
- * @evidence contracts/development/implementation.md#principled-implementation Facing is the rasterizer's own front-face test on the deformed, projected triangle, so the back colour appears exactly where winding and view disagree.
+ * @evidence contracts/development/common.md#meaningful-documentation States what each shade draws and reveals, what deformation the inspection shades keep, and which shades an update moves.
+ * @evidence contracts/development/implementation.md#principled-implementation Facing is the GPU rasterizer's own front-face test on the deformed, projected triangle, so the back colour appears exactly where winding and view disagree.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per shade family, each yielding the same handle; the two inspection shades differ only in the material their factory makes.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shader is assembled from three.js's own chunks, so deformation and clipping are the renderer's, not a second implementation, and no mesh is skipped by name.
  * @evidence contracts/development/implementation.md#efficient-algorithms One material swap per mesh; the faces programs are shared by three.js across meshes with the same deformation.

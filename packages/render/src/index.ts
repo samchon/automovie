@@ -17,6 +17,7 @@ export * from "./renderObservationAudit.js";
 export * from "./renderPathStem.js";
 export * from "./renderPoseKeypointSidecar.js";
 export * from "./renderVideo.js";
+export * from "./picture/index.js";
 export * from "./scene/index.js";
 export * from "./screenplay/index.js";
 export * from "./IAutoMovieRenderAdapters.js";

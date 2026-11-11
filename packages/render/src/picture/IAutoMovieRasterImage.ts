@@ -1,6 +1,6 @@
 /**
- * An opaque sRGB picture as the raster tools exchange it: a frame drawn on
- * the CPU, a contact sheet, a difference image or a file a host decoded.
+ * An opaque sRGB picture as the raster tools exchange it: a frame the draw-only
+ * function returned, a contact sheet, a difference image or a file a host decoded.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the four producers of such a picture; each member states its unit and layout.
  * @evidence contracts/development/design.md#principled-representation Integer size and row-major RGBA bytes are what a PNG encoder, a label stamp, a sheet and a comparison all read, so one shape passes between them without conversion.

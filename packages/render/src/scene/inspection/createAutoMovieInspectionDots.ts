@@ -1,13 +1,13 @@
 import * as THREE from "three";
 
-import { RASTER_STROKE_DEPTH_LEAD } from "../raster/RASTER_STROKE_DEPTH_LEAD.js";
+import { AUTO_MOVIE_INSPECTION_DEPTH_LEAD } from "./AUTO_MOVIE_INSPECTION_DEPTH_LEAD.js";
 
 /**
  * Make the points object inspection marks draw their places with: one screen-sized square per vertex, one colour per vertex, unlit and outside fog and tone mapping.
  *
- * A point is three stroke widths across, in the same pixels as a line's width, so a joint stays visible where the lines of its bones meet it. Its size does not shrink with distance. three.js draws it that many pixels times the renderer's pixel ratio, as it draws a line's width, and the CPU rasterizer draws it the same size.
+ * A point is three stroke widths across, in the same pixels as a line's width, so a joint stays visible where the lines of its bones meet it. Its size does not shrink with distance. three.js draws it that many pixels times the renderer's pixel ratio, as it draws a line's width.
  *
- * `positions` holds one xyz vertex per point and `colors` the matching linear rgb, kept by the geometry, not copied, so the caller rewrites `positions` in place to move the points. Depth follows `createAutoMovieInspectionStrokes`: ignored with `xray`, and otherwise led `RASTER_STROKE_DEPTH_LEAD` toward the camera.
+ * `positions` holds one xyz vertex per point and `colors` the matching linear rgb, kept by the geometry, not copied, so the caller rewrites `positions` in place to move the points. Depth follows `createAutoMovieInspectionStrokes`: ignored with `xray`, and otherwise led `AUTO_MOVIE_INSPECTION_DEPTH_LEAD` toward the camera.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the size rule and its reason, that size ignores distance, the pixel ratio both renderers apply, the buffer layout and sharing, and the depth behaviour.
  * @evidence contracts/development/implementation.md#principled-implementation three.js points are squares of a size in pixels when size attenuation is off, the screen-sized quad the rule asks for; the depth lead is the same view-space lead as the strokes, inserted after three.js's own projection chunk.
@@ -50,7 +50,7 @@ export function createAutoMovieInspectionDots(
         "#include <project_vertex>",
         [
           "#include <project_vertex>",
-          `mvPosition.xyz -= ( isOrthographic ? vec3( 0.0, 0.0, -1.0 ) : normalize( mvPosition.xyz ) ) * ${RASTER_STROKE_DEPTH_LEAD.toFixed(6)};`,
+          `mvPosition.xyz -= ( isOrthographic ? vec3( 0.0, 0.0, -1.0 ) : normalize( mvPosition.xyz ) ) * ${AUTO_MOVIE_INSPECTION_DEPTH_LEAD.toFixed(6)};`,
           "gl_Position = projectionMatrix * mvPosition;",
         ].join("\n"),
       );

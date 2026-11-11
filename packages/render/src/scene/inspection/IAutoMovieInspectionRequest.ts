@@ -86,7 +86,7 @@ export namespace IAutoMovieInspectionRequest {
   /**
    * A surface colouring: one of the guide passes, or one of the two inspection shades.
    *
-   * `clay` replaces every material with one grey lit by the scene's lights, so form reads without colour. A scene without lights draws black in WebGL, and under the CPU rasterizer's own headlight in a Node still. `faces` draws each surface in one unlit colour by the side seen, so a flipped or open surface shows its back.
+   * `clay` replaces every material with one grey lit by the scene's lights, so form reads without colour. A scene without lights draws it black. `faces` draws each surface in one unlit colour by the side seen, so a flipped or open surface shows its back.
    *
    * Under `pose` the picture is the skeleton of the whole scene: a bone is not a drawn object and has no path, so `parts` and `hide` do not narrow it.
    *

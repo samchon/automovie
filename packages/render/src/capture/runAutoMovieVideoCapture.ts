@@ -1,6 +1,6 @@
 import { formatAutoMovieInspectionRequest } from "../scene/inspection/formatAutoMovieInspectionRequest.js";
 import { AutoMovieCaptureFolder } from "./AutoMovieCaptureFolder.js";
-import { decodeAutoMovieRasterPng } from "./decodeAutoMovieRasterPng.js";
+import { decodeAutoMovieRasterPng } from "../picture/decodeAutoMovieRasterPng.js";
 import type { IAutoMovieCaptureCell } from "./IAutoMovieCaptureCell.js";
 import type { IAutoMovieCaptureDrawing } from "./IAutoMovieCaptureDrawing.js";
 import type { IAutoMovieCapturePlan } from "./IAutoMovieCapturePlan.js";

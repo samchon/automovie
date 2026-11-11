@@ -1,10 +1,10 @@
-import { AutoMovieRasterSheet } from "../scene/raster/AutoMovieRasterSheet.js";
-import { compareAutoMovieRasters } from "../scene/raster/compareAutoMovieRasters.js";
-import type { IAutoMovieRasterComparison } from "../scene/raster/IAutoMovieRasterComparison.js";
-import type { IAutoMovieRasterImage } from "../scene/raster/IAutoMovieRasterImage.js";
+import { AutoMovieRasterSheet } from "../picture/AutoMovieRasterSheet.js";
+import { compareAutoMovieRasters } from "../picture/compareAutoMovieRasters.js";
+import type { IAutoMovieRasterComparison } from "../picture/IAutoMovieRasterComparison.js";
+import type { IAutoMovieRasterImage } from "../picture/IAutoMovieRasterImage.js";
 import type { AutoMovieCaptureFolder } from "./AutoMovieCaptureFolder.js";
-import { decodeAutoMovieRasterPng } from "./decodeAutoMovieRasterPng.js";
-import { encodeAutoMovieRasterPng } from "./encodeAutoMovieRasterPng.js";
+import { decodeAutoMovieRasterPng } from "../picture/decodeAutoMovieRasterPng.js";
+import { encodeAutoMovieRasterPng } from "../picture/encodeAutoMovieRasterPng.js";
 import type { IAutoMovieCaptureBudget } from "./IAutoMovieCaptureBudget.js";
 import type { IAutoMovieCaptureComparison } from "./IAutoMovieCaptureComparison.js";
 import type { IAutoMovieCaptureLayout } from "./IAutoMovieCaptureLayout.js";

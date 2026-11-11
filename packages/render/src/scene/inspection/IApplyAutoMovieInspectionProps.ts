@@ -29,7 +29,7 @@ export interface IApplyAutoMovieInspectionProps {
   marks?: readonly IAutoMovieMark[];
 
   /**
-   * The WebGL renderer drawing the scene, whose local clipping a section needs switched on. The CPU rasterizer needs none.
+   * The WebGL renderer drawing the scene, whose local clipping a section needs switched on. Absent, a section sets the planes on the materials and a renderer must have local clipping on to honour them.
    */
   renderer?: IAutoMovieSectionRenderer;
 }
