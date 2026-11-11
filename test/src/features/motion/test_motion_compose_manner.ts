@@ -36,6 +36,12 @@ import { TestValidator } from "@nestia/e2e";
  * 6. Extent 0.5 halves a visit's and a lift's excursion in the air and leaves
  *    a visit on a solid place where it is; curvature bows the hand's path
  *    toward its own side and keeps both ends.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public resolvers, the clock's retiming and two phrases, and reads the modifiers, the instants and the written limb goals; a factor applied the wrong way, a hold stretched by the tempo, a fixed span stretched, or an extent that moves a solid place fails.
+ * @evidence contracts/development/testing.md#independent-expectations The instants are each span's stated length times its factor, summed by hand; the variation's offsets are the documented bounds times the stub's draws; the halved excursions are the midpoints of the stated origin and place. The Effort values 0.7, 1.3, 1.1 and 0.15 are `HumanEffort`'s documented ends, written as numbers.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers the absent and the empty manner, each factor alone in both directions where it has two, holds against a fixed span, a novice against an expert and half variation, a stated against an inherited proficiency, five range refusals, and a place in the air against a solid one.
+ * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit; the draw stream, the skill and the body are stubs of the members the code reads, since the real stream's values would hide which index feeds which modifier. The manner on a real body is judged by the reactions' motion captures. It runs in CI.
+ * @evidence contracts/development/common.md#meaningful-documentation States the clock, the stub's draws and what they imply, and lists the 6 scenarios with their numbers.
  */
 export function test_motion_compose_manner(): void {
   const close = (a: number, b: number, e: number = 1e-9): boolean =>

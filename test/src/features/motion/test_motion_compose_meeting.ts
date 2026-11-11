@@ -28,6 +28,12 @@ import { TestValidator } from "@nestia/e2e";
  * 5. No role, a role too many and a role the kind does not name throw.
  * 6. The shared instants on an action's own time, and a clock aligned on one:
  *    the spans before the instant stretch and the spans after keep their length.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public `of`, `place` and `local` and the clock's alignment, and reads the record; a frame that depends on the order of the roles, a contact not shared by both, an instant taken from the faster role, or a lone role marked solid fails.
+ * @evidence contracts/development/testing.md#independent-expectations The frame, the contact and the places are worked out by hand from the stated stances and the stub's measures; the instants are the stated timings' maxima plus the start; the aligned clock's instants are the phrase's spans scaled by 0.75 over 0.625 before the stroke and unchanged after it.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers both orders of two roles, each role's place, a lone role, a kind with and without its own placement, three refusals of the role list, an unknown contact, and an alignment on a time and on none.
+ * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit; the body is a stub of the four measures a default place reads and the kind is the test's own, since no law defines a kind until the mutual laws are rebuilt. How the performance pairs two actions into one meeting is not covered here. It runs in CI.
+ * @evidence contracts/development/common.md#meaningful-documentation States the stub, both stances and timings, and lists the 6 scenarios with their numbers.
  */
 export function test_motion_compose_meeting(): void {
   const close = (a: number, b: number, e: number = 1e-9): boolean =>

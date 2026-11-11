@@ -44,6 +44,12 @@ import { TestValidator } from "@nestia/e2e";
  *    fullest, share their angle half and half between the neck and the head;
  *    a trunk turn gives the chest 60 % and the spine 40 %.
  * 8. A shift and a facing turn arrive at their window's end and stay.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Calls each public phrase and reads the posture it writes, its channels and its contact windows; a strike that stops in the air, a visit still moving on its place, a contact window on a place in the air, a pivot that drags the ball, or a share other than the stated one fails.
+ * @evidence contracts/development/testing.md#independent-expectations The points are the stated origins, places and chambers at instants where the profile is 0, 1 or 2 by its definition; the windows are the instants over the duration; the wave's values follow from a sine at its quarter cycles under a growth of half; the pivoted ankle is the ball's stated offset turned 90° by hand. Speed is a central difference of the written points.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers a free against an arrested pass and strike, a place in the air against a solid one for the hand and the foot, both ends and the hold of each phrase, three head axes, the trunk's two joints, and a moved against a turned root.
+ * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit on a stub body of the bones and sockets the goals read. `AutoMovieMotionHumanTrunk.crouch` and `counterbalance` are not covered: their balance solve needs a real body's masses, and they have no caller until the laws are rebuilt, where the motion captures judge them. The arm's bend, the solved limb and the look on screen are the captures' as well. It runs in CI.
+ * @evidence contracts/development/common.md#meaningful-documentation States both clocks and the stub, and lists the 8 scenarios with their numbers.
  */
 export function test_motion_compose_phrase(): void {
   const close = (a: number, b: number, e: number = 1e-9): boolean =>

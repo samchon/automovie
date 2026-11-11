@@ -184,6 +184,14 @@ export namespace AutoMovieMotionHumanRoot {
    * @param window The instants the body starts moving and arrives at.
    * @param by The move in the body's own floor frame, metres.
    * @returns The primitive, on the root from the first instant to the clock's end.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the movement, the window, the frame and unit, and how long the primitive holds.
+   * @evidence contracts/development/implementation.md#principled-implementation A body carried from one place to another starts and ends at rest, so the displacement is scaled by the clock's minimum-jerk progress; the primitive runs to the clock's end because a moved body stays where it arrived.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One `travel` with the scaled offset.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: the displacement is the caller's. No law reads it yet; the steps and the seats rebuilt for #3286 are the consumers.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `travel`, `scale` and the clock; `excursion` is the same offset on an envelope for a move that returns.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per evaluated second.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function shift(
     clock: AutoMovieMotionClock.IClock,
@@ -209,6 +217,14 @@ export namespace AutoMovieMotionHumanRoot {
    * @param window The instants the turn starts and arrives at.
    * @param yaw The turn about +Y, degrees; positive toward the performer's left.
    * @returns The primitive, on the root from the first instant to the clock's end.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the movement, the window, the unit and sign, and how long the primitive holds.
+   * @evidence contracts/development/implementation.md#principled-implementation A turn of the heading starts and ends at rest, so the angle is scaled by the clock's minimum-jerk progress and held to the clock's end.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One `travel` with the scaled offset, the same shape as `shift` with the angle in place of the displacement.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: the angle is the caller's, and the feet are not moved here, so a law that turns the body turns its feet with the leg phrases. No law reads it yet.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `travel`, `scale` and the clock.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per evaluated second.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function face(
     clock: AutoMovieMotionClock.IClock,

@@ -352,6 +352,14 @@ export namespace AutoMovieMotionClock {
    * @param window The instants the movement starts, passes the point and ends at.
    * @param seconds Seconds since the action's start.
    * @returns 0 until the start, 1 at the point, the overshoot's share after it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the movement, what 1 means, the arrested case and the value before, at and after the point.
+   * @evidence contracts/development/implementation.md#principled-implementation One minimum-jerk unit (Flash and Hogan 1985) spans the whole window, and the point is passed at the share of the unit's time the first span takes; dividing by the unit's travel at that share makes the point 1. An arrested movement takes the share 0.5, where the unit's speed peaks.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The unit's time is the first span's linear progress up to the point and the second span's after it, then one ratio of two profile values.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A first span under 1e-12 s steps at the point instead of dividing by it, and a second span under 1e-9 s reads as arrested; no other tolerance.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the windows through the clock's `linear` and the profile through `minimumJerk`.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function through(
     clock: IClock,
@@ -383,6 +391,14 @@ export namespace AutoMovieMotionClock {
    * @param seconds Seconds since the action's start.
    * @returns A value in [-1, 1]; 0 outside the window.
    * @throws {Error} On a cycle count that is not a positive integer.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the shape, how it starts and ends, the range, the value outside the window and the refused count.
+   * @evidence contracts/development/implementation.md#principled-implementation A sine of whole cycles is zero at both ends of the window; the product of two minimum-jerk ramps, each one half cycle long, brings its speed to zero there too, so the pose is left and rejoined at rest.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The window's linear progress, the two ramps and the sine.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A count of zero or a fraction throws instead of giving a wave that ends away from the pose.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the window through the clock's `linear` and the ramps through `minimumJerk`.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function wave(
     clock: IClock,
@@ -409,6 +425,14 @@ export namespace AutoMovieMotionClock {
    * @param factor The factor of the span an instant opens; positive.
    * @returns The stretched clock, with the same instant names.
    * @throws {Error} On a factor that is not positive.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what a span is, how it is named, what the result keeps and the refused factor.
+   * @evidence contracts/development/implementation.md#principled-implementation Each instant's new time is the running sum of the stretched spans before it, so the order of the instants and every name are kept and only lengths change.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the sorted instants with a running sum, then `of`.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A factor of zero or less throws instead of collapsing or reversing a span.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Builds the result through `of`, so it has the same validation as every clock; `scale`, `align` and the manner's `time` are this function with a factor rule each.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One pass over a handful of instants, with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing of its own; the clock it returns is `of`'s.
    */
   export function stretch(
     clock: IClock,
@@ -444,6 +468,14 @@ export namespace AutoMovieMotionClock {
    * @param fixed The instants that open the spans left as they are; none when absent.
    * @returns The scaled clock, with the same instant names.
    * @throws {Error} On a tempo that is not positive, or a fixed name the clock lacks.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States which spans change, why the fixed ones do not, the defaults and each refused input.
+   * @evidence contracts/development/implementation.md#principled-implementation A tempo is one factor on every span a performer chooses the length of; a span whose length physics sets is named and keeps its length.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One check of the fixed names and one call of `stretch`.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A fixed name the clock lacks throws through `at` instead of being ignored.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `stretch`.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A handful of instants and names, with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function scale(
     clock: IClock,
@@ -467,6 +499,14 @@ export namespace AutoMovieMotionClock {
    * @param seconds Where it falls, seconds since the action's start; positive.
    * @returns The aligned clock, with the same instant names.
    * @throws {Error} When the instant is at the action's start, or the second is not positive.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States which spans stretch and which keep their length, who uses it and each refused input.
+   * @evidence contracts/development/implementation.md#principled-implementation The spans before the instant share one factor, the asked second over the instant's own, so their proportions are kept and the instant lands on the second; the movement after the instant is the role's own and keeps its lengths.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One factor and one call of `stretch`, whose rule switches to 1 at the first instant at or after the aligned one.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An instant at the start has no span to stretch and throws; instants within 1e-12 s of the aligned one count as at it, so two names at one time move together.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `stretch`.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A handful of instants, with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function align(
     clock: IClock,

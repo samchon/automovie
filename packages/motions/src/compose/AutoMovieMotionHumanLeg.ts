@@ -281,6 +281,11 @@ export namespace AutoMovieMotionHumanLeg {
    * What every leg phrase takes: the leg, the clock whose standard instants
    * (`AutoMovieMotionClock.PHRASE`) it moves on, and where the foot stands
    * before and after.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the record is; each member gives its meaning, and the optional two what their absence means.
+   * @evidence contracts/development/design.md#principled-representation A leg phrase is one foot leaving and rejoining one stance on one clock; the contact states that the place is solid by naming what the foot bears on, so a place in the air cannot carry a contact window.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members shared by `lift`, `tap`, `swing` and `pivot`, mirroring the arm's phrase; the placement, the clock, the contact window and the modifiers are their owners' types. No law reads the leg phrases yet; the kicks, the gaits and the everyday laws rebuilt for #3286 are the consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The contact is one optional record instead of a solid flag beside optional contact fields; `pivot` omits it because its contact is always the ground.
    */
   export interface IPhrase {
     /** The body. */
@@ -332,6 +337,14 @@ export namespace AutoMovieMotionHumanLeg {
    * @param from The instant the foot comes to bear.
    * @param to The instant it leaves.
    * @returns One window when the phrase states a contact, none otherwise.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two instants and when no window is returned.
+   * @evidence contracts/development/implementation.md#principled-implementation A plan's contact window is a share of its duration, so each instant's seconds are divided by the clock's duration; a place in the air bears nothing and gets no window.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One conditional and one record.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: the kind and the support are the phrase's own, and an unknown instant throws through the clock.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work `tap`, `swing` and `pivot` build their windows here. The arm's `bearing` is the same four lines with the hand as the part; the two are kept beside their phrases rather than joined behind a part parameter.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function bearing(
     props: Pick<IPhrase, "clock" | "side" | "contact">,
@@ -359,6 +372,14 @@ export namespace AutoMovieMotionHumanLeg {
    * @param to The placement at share 1.
    * @param share How far along; not clamped for the ankle, clamped to [0, 1] for the rotation.
    * @returns The placement.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States both interpolations and where the share is clamped.
+   * @evidence contracts/development/implementation.md#principled-implementation A rigid placement is a point and a rotation: the point is interpolated on the line and the rotation by spherical interpolation, the constant-speed path between two rotations.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record of two interpolations.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ankle is not clamped, so a share past 1 carries a swing past its target and an extent above 1 enlarges a place in the air; the rotation is clamped because a turn past the target's has no meaning the callers ask for.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every leg phrase and the extent's scaling blend placements here, on `Vector3` and `Quaternion.slerp`.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function between(
     from: HumanFoot.IPlacement,
@@ -391,6 +412,14 @@ export namespace AutoMovieMotionHumanLeg {
    *
    * @param props The phrase and the raised placement.
    * @returns The primitive; the foot is planted only at the two ends.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the movement, its instants and when the foot is planted.
+   * @evidence contracts/development/implementation.md#principled-implementation A foot raised and set back is the stance blended toward the raised placement by the clock's minimum-jerk envelope, at rest at both ends and while held. A raised placement in the air is scaled about the stance by the manner's extent.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One `place` over the whole clock.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: the raised placement is the caller's. The phrase adds no contact window even when a contact is stated, since a raised foot bears on nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates the solve to `place`, the blend to `between` and the timing to the clock.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per evaluated second beyond `place`'s solve.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function lift(
     props: IPhrase & { raised: Frame },
@@ -417,6 +446,14 @@ export namespace AutoMovieMotionHumanLeg {
    *
    * @param props The phrase, the place and the ankle's greatest rise on the way, metres.
    * @returns The primitive, with a contact window from `stroke` to `relax` when the phrase states a contact; the foot is planted on the place only then.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the movement, its instants, the clearance's unit and when the foot is planted.
+   * @evidence contracts/development/implementation.md#principled-implementation A foot carried to a place clears the floor on the way, so both trips are the leg's arc with the stated clearance on the clock's minimum-jerk progress. A place in the air is scaled about the stance by the manner's extent, and the foot is planted on the place only when it is solid.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One `place` whose placement is the outward arc until `relax` and the return arc after it.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: the place and the clearance are the caller's, and a place in the air is neither planted nor given a window.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `place`, the arc that `step` uses, and `bearing`.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per evaluated second beyond `place`'s solve.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function tap(
     props: IPhrase & { target: Frame; clearance: number },
@@ -467,6 +504,14 @@ export namespace AutoMovieMotionHumanLeg {
    *
    * @param props The phrase, the chamber, the target and the weapons the swing carries.
    * @returns The primitive, with a contact window from `stroke` to `relax` when the phrase states a contact; the foot is planted only at the two ends.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the phases with their instants, the free and the arrested ending, the contact window and when the foot is planted.
+   * @evidence contracts/development/implementation.md#principled-implementation The foot runs from the chamber along the line to the target by `AutoMovieMotionClock.through`, which is 1 at `stroke` with speed, so a free swing travels past the target and an arrested one stops on it; the envelope carries the foot from and back to its stance. A target in the air is scaled about the chamber by the manner's extent.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One `place` over the whole clock: the chamber before `strokeStart`, the line after it, blended with the stance by the envelope. The arm's `strike` has the same shape.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: the overshoot follows from the follow phase's length, not from a stated distance. Stopping on the first surface met is the performance's arrest, not decided here.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `place`, `between`, `through` and `bearing`.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per evaluated second beyond `place`'s solve.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function swing(
     props: IPhrase & {
@@ -516,6 +561,14 @@ export namespace AutoMovieMotionHumanLeg {
    *
    * @param props The phrase, the sole point that stays, the heading's turn at its fullest in degrees about +Y and the pitch at its fullest in degrees, positive toes up.
    * @returns The primitive, planted throughout, with a pivot window on the ground over the whole clock.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the movement, its instants, the units and signs of the two angles and the contact window.
+   * @evidence contracts/development/implementation.md#principled-implementation A foot that turns on the floor rotates about the sole point that stays, so the point is read once from the stance and the ankle is placed by the rigid relation `HumanFoot.pivot` owns as the heading and the pitch grow by the clock's envelope.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The stance's point, heading and pitch are read once; the placement adds the enveloped turn and pitch to them.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: the foot stays planted and its window is a pivot on the ground, so the sole point is held and the rest of the sole is free to turn.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `place`, `HumanFoot.point`, `HumanFoot.pivot` and `bearing`.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per evaluated second beyond `place`'s solve.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive keeps its arguments, one point and two angles.
    */
   export function pivot(
     props: Omit<IPhrase, "contact"> & {

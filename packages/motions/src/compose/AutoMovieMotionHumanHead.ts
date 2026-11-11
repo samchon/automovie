@@ -9,6 +9,11 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  * Each angle is shared half by the neck and half by the head, the two joints
  * of the cervical chain the rig has. A head aimed at something is the gaze
  * primitive's.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what the phrases move, how an angle is shared and which movement belongs to the gaze primitive instead.
+ * @evidence contracts/development/design.md#principled-representation A head movement with no target is a clinical angle of the cervical chain, so the phrases are joint deltas on the head's channel that add to where the posture holds the head.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One share, its constant and three phrases; the oscillation they share is private. No law reads them yet: the reactions state their head angles as their own curves, and the gestures rebuilt for #3286 are the consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The axis is an index into the clinical triple the joints are written in, not a second name for it; aiming at a target is left to the gaze primitive instead of an optional target here.
  */
 export namespace AutoMovieMotionHumanHead {
   /** The neck's share of a head angle; the head joint takes the rest. */
@@ -20,6 +25,14 @@ export namespace AutoMovieMotionHumanHead {
    * @param axis Which of the clinical `[flexion, abduction, twist]`.
    * @param degrees The whole angle, degrees.
    * @returns The two joints' angles.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the axis, the unit and what is returned.
+   * @evidence contracts/development/implementation.md#principled-implementation The rig has two cervical joints, so a head angle is split between them in the stated share and the two parts sum to the whole.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One helper builds each joint's triple.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The share is the named constant `NECK`; an even split is a modelling choice for a rig that lumps seven vertebrae into two joints, stated as such in the namespace comment.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every head phrase splits its angle here.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function share(
     axis: 0 | 1 | 2,
@@ -60,6 +73,14 @@ export namespace AutoMovieMotionHumanHead {
    * @param cycles How many nods; a positive integer.
    * @param degrees The flexion at its fullest, degrees.
    * @returns The primitive, on the head.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the movement, the window, the count and the unit.
+   * @evidence contracts/development/implementation.md#principled-implementation A nod is a repeated flexion about the held pose, so the angle is the amplitude times `AutoMovieMotionClock.wave`, which leaves and rejoins the pose at rest.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call to the shared oscillation with the flexion axis.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: the amplitude and the count are the caller's.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the oscillation with `shake`.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per evaluated second.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function nod(
     clock: AutoMovieMotionClock.IClock,
@@ -78,6 +99,14 @@ export namespace AutoMovieMotionHumanHead {
    * @param cycles How many shakes; a positive integer.
    * @param degrees The twist at its fullest, degrees.
    * @returns The primitive, on the head.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the movement, the window, the count and the unit.
+   * @evidence contracts/development/implementation.md#principled-implementation A shake is a repeated twist about the held pose, so the angle is the amplitude times `AutoMovieMotionClock.wave`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call to the shared oscillation with the twist axis.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: the amplitude and the count are the caller's.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the oscillation with `nod`.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per evaluated second.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function shake(
     clock: AutoMovieMotionClock.IClock,
@@ -96,6 +125,14 @@ export namespace AutoMovieMotionHumanHead {
    * @param fall The instants the tilt starts shrinking and is gone at.
    * @param degrees The lateral flexion at its fullest, degrees.
    * @returns The primitive, on the head.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the movement, the two windows and the unit.
+   * @evidence contracts/development/implementation.md#principled-implementation A tilt that grows, stays and goes is the lateral angle scaled by the clock's envelope over the two windows.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: the amplitude and its side are the caller's signed angle.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `AutoMovieMotionHumanJoints.pulse` and `share`.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per evaluated second.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function tilt(
     clock: AutoMovieMotionClock.IClock,

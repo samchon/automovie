@@ -21,9 +21,21 @@ import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
  * is the same whichever role asks first. A role with no performer is left
  * out: the contacts are then the present role's default places and the
  * meeting is not solid, so each role's law performs alone in the air.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what a meeting holds, when it is computed, why the order of asking does not matter and what a missing role means.
+ * @evidence contracts/development/design.md#principled-representation A mutual action has one geometry and one timing that both performers obey, the scene with named roles of contextual animation and the shared synchronisation points of BML; the record is that scene, so neither law derives the other's side.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Four records and three functions. The performance computes the meeting and the action context carries it; the mutual laws read it with #3286. Default places and their resolution stay `AutoMovieMotionHumanTarget`'s.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A missing role is a shorter role list and a meeting that is not solid, not a partner made up to fill it.
  */
 export namespace AutoMovieMotionMeeting {
-  /** One performer's part in a meeting, as it stands when the meeting starts. */
+  /**
+   * One performer's part in a meeting, as it stands when the meeting starts.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the record is and at which moment; each member gives its meaning.
+   * @evidence contracts/development/design.md#principled-representation What a kind needs to place contacts and time a role: who it is, its body, where it stands and where its bones are at the start.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Five required members; the posture and the bones are picks of their owners' types, only the members a meeting reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No optional member; an absent performer is an absent role, not a role with empty fields.
+   */
   export interface IRole {
     /** The role's name within the kind (`giver`, `attacker`). */
     name: string;
@@ -44,7 +56,14 @@ export namespace AutoMovieMotionMeeting {
     >;
   }
 
-  /** The three instants a meeting shares. */
+  /**
+   * The three instants a meeting shares.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the record is; each member gives its meaning and unit.
+   * @evidence contracts/development/design.md#principled-representation The instants two performers must agree on are when both are ready, when the contact is made and when it is left; they carry the names of a phrase's standard instants, so each law pins its own clock to them.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Three required numbers, used for a role's natural timing, the meeting's film seconds and an action's local seconds.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One record for all three uses, whose origin each use states, instead of three records of the same shape.
+   */
   export interface ITiming {
     /** When the roles are ready to meet, seconds. */
     ready: number;
@@ -56,7 +75,14 @@ export namespace AutoMovieMotionMeeting {
     relax: number;
   }
 
-  /** A kind of mutual action: its roles, its contacts and its natural timing. */
+  /**
+   * A kind of mutual action: its roles, its contacts and its natural timing.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what a kind is; each member and both methods give their meaning, parameters and units.
+   * @evidence contracts/development/design.md#principled-representation A kind is what differs between mutual actions: who takes part, where they touch and how long each takes to get there. The frame, the order and the shared instants are the same for all and are computed by `of`.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Five members. No kind is shipped in this package yet beyond the feature test's; the handshake, the handover and the strike define theirs with #3286.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The contacts are default places, so one statement serves both the mean when together and the offer when alone; `place` is optional because the mean of the defaults is the right meeting point for a symmetric kind.
+   */
   export interface IKind {
     /** The kind's name (`handshake`, `handover`, `strike`). */
     name: string;
@@ -89,7 +115,14 @@ export namespace AutoMovieMotionMeeting {
     place?(roles: readonly IRole[]): Record<string, IAutoMovieVector3>;
   }
 
-  /** A meeting. */
+  /**
+   * A meeting.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member gives its meaning, frame and unit; the frame states both its two-role and its one-role form.
+   * @evidence contracts/development/design.md#principled-representation The contacts are stored in the shared frame, so they read the same for both roles and survive a move of the pair; the instants are film seconds, the one time both actions share.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Six required members of plain data, with no body or bone kept, so the record can be carried by the action context.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts `solid` is the one fact a law cannot derive from the rest, since the roles present do not say how many the kind has.
+   */
   export interface IMeeting {
     /** The kind's name. */
     kind: string;
@@ -122,6 +155,14 @@ export namespace AutoMovieMotionMeeting {
    * @param context The film second the meeting starts at.
    * @returns The meeting.
    * @throws {Error} With no role, more roles than the kind has, or a role the kind does not name.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, that the roles' order is free and the three refusals.
+   * @evidence contracts/development/implementation.md#principled-implementation The roles are sorted by name and then subject before anything is read, so the result does not depend on who asks. The frame sits at the mean floor point heading from the first role to the second; each contact is the kind's own placement or the mean of the roles' default places; each shared instant is the latest of the roles' natural ones, since the pair can meet only when the slower role arrives.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Validate, order, frame, contacts, instants, record, in that order with one local each.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An empty, oversized or misnamed role list throws with the kind's roles named. Roles on one floor point take the first role's heading instead of an undefined direction. A role count is checked against the kind's, not each name's multiplicity.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two roles and a few contacts; one sort and one pass each.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Default places resolve through `AutoMovieMotionHumanTarget.fallback` and the frame change through `HumanFrame.local`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function; the record keeps no body, posture or bone.
    */
   export function of(
     kind: IKind,
@@ -231,6 +272,14 @@ export namespace AutoMovieMotionMeeting {
    * @param posture Where the performer stands.
    * @returns The place, solid when the meeting is.
    * @throws {Error} On a contact the meeting lacks.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the place's point and facing, when it is solid and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation A contact between two people is approached from each one's own side, so the place faces back at the asking performer along the floor and the two roles get opposite normals on one point.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup, one frame change and one normal.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unknown contact throws with the meeting's contacts named; a performer standing on the contact takes the direction behind its own heading instead of a zero normal.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Returns `AutoMovieMotionHumanTarget.IPlace`, so `hand` and the phrases take it like any resolved target.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function place(
     meeting: IMeeting,
@@ -267,6 +316,14 @@ export namespace AutoMovieMotionMeeting {
    * @param meeting The meeting.
    * @param start The film second of the action's time zero.
    * @returns The instants, seconds since the action's start.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the conversion and both time origins.
+   * @evidence contracts/development/implementation.md#principled-implementation Film seconds less the action's start are the action's own seconds, the time its clock is built on.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record of three differences.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: an instant before the action's start comes out negative and is not clamped, so the law that pins its clock to it sees that it started too late.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Three subtractions with nothing to reuse.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function local(meeting: IMeeting, start: number): ITiming {
     return {

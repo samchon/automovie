@@ -233,6 +233,14 @@ export namespace AutoMovieMotionHumanTarget {
    * @param point The point of the body, world metres.
    * @param yaw The body's heading, degrees about +Y.
    * @returns The direction, world; backward of the heading when the point is above or below the place.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the direction's meaning, the inputs' frames and units and the fallback.
+   * @evidence contracts/development/implementation.md#principled-implementation A standing body is displaced over the floor, so the push is the horizontal part of the line from the place to the body, normalised.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One difference and one conditional.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A source directly above or below has no horizontal direction, so the body goes backward of its own heading, the way a person recoils from a blow with no side; the threshold of a micrometre only guards the division.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work `flinch`, `stagger` and `knockdown` read their direction here, on `Vector3` and `HumanFrame.point`.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function away(
     place: Pick<IPlace, "point">,
