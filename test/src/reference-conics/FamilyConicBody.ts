@@ -216,8 +216,9 @@ namespace FamilyConicBody {
           // and the skin lies deep inside that bridge from about 0.6 to 1.3 rad: a window that ends there, at 1.0 or 1.2 rad, creases the whole
           // chest and back along its edge from the neck to the armpit. Reaching past it leaves only a thin flap in the fold beside the armpit.
           // The cause is the stump, not the window: a trunk cut at the armpit's sagittal plane has no such bridge.
-          { name: "trunk.chest.back", stations: [420, 680], phases: [Math.PI - 1.45, Math.PI + 1.45], axis: [1, 0, 0], rows: 53, columns: 49, mirror: true },
-          { name: "trunk.chest.front", stations: [420, 680], phases: [-1.45, 1.45], axis: [-1, 0, 0], rows: 53, columns: 49, mirror: true },
+          // With `--sagittal` there is no stump to bridge to, so the chest windows stop at 1.0 rad, short of the fold beside the armpit.
+          { name: "trunk.chest.back", stations: [420, 680], phases: SAGITTAL ? [Math.PI - 1.0, Math.PI + 1.0] : [Math.PI - 1.45, Math.PI + 1.45], axis: [1, 0, 0], rows: 53, columns: SAGITTAL ? 35 : 49, mirror: true },
+          { name: "trunk.chest.front", stations: [420, 680], phases: SAGITTAL ? [-1.0, 1.0] : [-1.45, 1.45], axis: [-1, 0, 0], rows: 53, columns: SAGITTAL ? 35 : 49, mirror: true },
           // The upper windows end at the crown's tip, 918.88 mm: a relief's height and its two derivatives vanish at its window's edge, which the engine requires of a pole.
           { name: "trunk.high.back", stations: [640, 918.88], phases: [Math.PI - 1.2, Math.PI + 1.2], axis: [1, 0, 0], rows: 57, columns: 33, mirror: true },
           { name: "trunk.high.front", stations: [640, 918.88], phases: [-1.2, 1.2], axis: [-1, 0, 0], rows: 57, columns: 49, mirror: true },
@@ -316,6 +317,19 @@ namespace FamilyConicBody {
       const reuse: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--wall="))?.slice(7);
       if (reuse !== undefined) {
         const wall: K.IStored = JSON.parse(await fs.readFile(path.join(reuse, part.name + ".family.json"), "utf8")) as K.IStored;
+
+        // `--splice=<directory>@<station>`: from that station on, the knots and values of another stored wall of the same part, course and
+        // layout replace this one's. A limb refitted for one end keeps the other end of the fit its neighbours were sewn on.
+        const splice: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--splice="))?.slice(9);
+        if (splice !== undefined) {
+          const [other, at]: string[] = splice.split("@");
+          const tail: K.IStored = JSON.parse(await fs.readFile(path.join(other!, part.name + ".family.json"), "utf8")) as K.IStored;
+          if (tail.values.length !== wall.values.length) throw new Error("splice: the two walls of " + part.name + " have different layouts");
+          const head: number[] = wall.knots.map((_: number, k: number): number => k).filter((k: number): boolean => wall.knots[k]! < Number(at));
+          const rest: number[] = tail.knots.map((_: number, k: number): number => k).filter((k: number): boolean => tail.knots[k]! >= Number(at));
+          wall.values = wall.values.map((field: number[], f: number): number[] => [...head.map((k: number): number => field[k]!), ...rest.map((k: number): number => tail.values[f]![k]!)]);
+          wall.knots = [...head.map((k: number): number => wall.knots[k]!), ...rest.map((k: number): number => tail.knots[k]!)];
+        }
         best = { layout: wall.layout, knots: wall.knots, values: wall.values, rows: [], training: { maximumMm: NaN, meanMm: NaN }, heldout: { maximumMm: NaN, meanMm: NaN }, fault: null, milliseconds: 0 } as unknown as F.IResult;
       }
       for (const { layout, depth } of reuse === undefined ? part.layouts : []) {
