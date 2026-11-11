@@ -139,6 +139,7 @@ export async function runAutoMovieCapture(props: {
       hash: hashAutoMovieRasterImage(picture),
       backend: drawing.backend ?? null,
       camera: drawing.camera ?? null,
+      resolved: drawing.resolved ?? null,
     });
     sheet.add(picture, cell.caption);
     sheet = await full(sheet, cell, folder, sheets, sheetNames, plan);

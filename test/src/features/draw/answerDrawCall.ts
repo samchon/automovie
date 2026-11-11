@@ -1,7 +1,7 @@
 import type { IAutoMovieDrawCall, IAutoMovieDrawResult } from "@automovie/render";
 
 /**
- * What a recording draw page answers for a call: a picture at the call's raster, rows from the top, each pixel `[row, column, 7, 255]` so a flipped or shifted picture is told apart, with one label, a legend of one blue kind and a perspective camera named by the call's view.
+ * What a recording draw page answers for a call: a picture at the call's raster, rows from the top, each pixel `[row, column, 7, 255]` so a flipped or shifted picture is told apart, with one label, a legend of one blue kind, a perspective camera named by the call's view, and one resolved `parts` pattern.
  */
 export function answerDrawCall(call: IAutoMovieDrawCall): IAutoMovieDrawResult {
   let text: string = "";
@@ -25,5 +25,6 @@ export function answerDrawCall(call: IAutoMovieDrawCall): IAutoMovieDrawResult {
       near: 0.1,
       far: 100,
     },
+    resolved: [{ role: "parts", pattern: "hero", paths: ["hero"], count: 3 }],
   };
 }

@@ -165,7 +165,7 @@ export class AutoMovieDrawSession {
   }
 
   /**
-   * The capture run's draw function: draw one planned cell through `planAutoMovieDrawCall`, returning its picture with the legend of its marks in the top-left corner by `stampAutoMovieDrawLegend`, the legend texts and the inspection's labels for the run to stamp, the session's backend and the resolved camera as JSON.
+   * The capture run's draw function: draw one planned cell through `planAutoMovieDrawCall`, returning its picture with the legend of its marks in the top-left corner by `stampAutoMovieDrawLegend`, the legend texts and the inspection's labels for the run to stamp, the session's backend, the resolved camera as JSON and the paths each pattern resolved to.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is drawn and what each returned member holds.
    * @evidence contracts/development/implementation.md#principled-implementation The cell becomes the page call by the shared planner, so a cell's second, view, pass, request and raster reach the page as planned.
@@ -189,6 +189,7 @@ export class AutoMovieDrawSession {
       ],
       backend: this.backend,
       camera: JSON.stringify(result.camera),
+      resolved: result.resolved,
     };
   }
 

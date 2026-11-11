@@ -1,6 +1,7 @@
 import type { IAutoMovieCaptureBudget } from "./IAutoMovieCaptureBudget.js";
 import type { IAutoMovieCaptureComparison } from "./IAutoMovieCaptureComparison.js";
 import type { IAutoMovieCaptureLayout } from "./IAutoMovieCaptureLayout.js";
+import type { IAutoMovieCaptureResolution } from "./IAutoMovieCaptureResolution.js";
 import type { IAutoMovieCaptureSelection } from "./IAutoMovieCaptureSelection.js";
 import type { IAutoMovieCaptureTime } from "./IAutoMovieCaptureTime.js";
 import type { IAutoMovieCaptureWindow } from "./IAutoMovieCaptureWindow.js";
@@ -12,7 +13,7 @@ import type { IAutoMovieCaptureWindow } from "./IAutoMovieCaptureWindow.js";
  *
  * @evidence contracts/development/design.md#principled-representation A union keyed by `state`: a running capture records only what it owns, a complete one everything that repeats it. The request is kept as the named text values that repeat it, every planned cell has a row, and a drawn and an undrawn row are separate members.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Each member answers a requirement of the skill quoted above or is read by the next run (`files`) or a comparison (`rows`), `video` lists a file's cuts as `.agents/skills/visual-debugging/capture.md` asks frames around every cut, and `section` keeps what only the subject's owner judges, such as a motion case's verdicts, so the record of one capture stays one file in a folder that refuses foreign files; the subject keeps its clock and raster but not its drawables, which the request's selections already name.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts An undrawn cell has no file, hash or camera instead of empty ones, and an unstated backend or camera is null.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts An undrawn cell has no file, hash, camera or resolution instead of empty ones, and an unstated backend, camera or resolution is null.
  * @evidence contracts/development/common.md#meaningful-documentation States when each state is written and why, which skill requirements the members answer, and what the next run reads.
  */
 export type IAutoMovieCaptureRecord =
@@ -104,7 +105,7 @@ export namespace IAutoMovieCaptureRecord {
   /**
    * One planned cell: what fixed it, where it sits on the sheets, and whether it was drawn.
    *
-   * @evidence contracts/development/design.md#principled-representation The cell's fixing values and sheet position shared by both outcomes, then a drawn still's file, hash, backend and camera, or the cause it was not drawn.
+   * @evidence contracts/development/design.md#principled-representation The cell's fixing values and sheet position shared by both outcomes, then a drawn still's file, hash, backend, camera and the paths each of its patterns resolved to, or the cause it was not drawn.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the reader of the record and by a later comparison, which pairs rows by these values.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The two outcomes are union members keyed by `state`.
    * @evidence contracts/development/common.md#meaningful-documentation States what each member holds and its unit.
@@ -155,6 +156,9 @@ export namespace IAutoMovieCaptureRecord {
 
         /** The camera the view resolved to, as the host wrote it (a draw page writes the JSON of its `IAutoMovieInspectionCamera`), or null when the host did not state it. */
         camera: string | null;
+
+        /** What each pattern of the cell's request and view resolved to, topmost paths and counts, or null when the host did not state it. */
+        resolved: IAutoMovieCaptureResolution[] | null;
       }
     | {
         /** The draw function failed; the sheet shows a marked cell in its place. */

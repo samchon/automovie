@@ -2,15 +2,18 @@ import type { IAutoMovieMark } from "@automovie/engine";
 import * as THREE from "three";
 
 import type { IAutoMovieViewerSubjectBounds } from "../scene/subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
+import { resolveAutoMovieCapturePatterns } from "../capture/resolveAutoMovieCapturePatterns.js";
 import { applyAutoMovieInspection } from "../scene/inspection/applyAutoMovieInspection.js";
 import { formatAutoMovieInspectionRequest } from "../scene/inspection/formatAutoMovieInspectionRequest.js";
 import type { IAutoMovieInspectionCamera } from "../scene/inspection/IAutoMovieInspectionCamera.js";
 import type { IAutoMovieInspectionHandle } from "../scene/inspection/IAutoMovieInspectionHandle.js";
 import type { IAutoMovieInspectionLabel } from "../scene/inspection/IAutoMovieInspectionLabel.js";
 import type { IAutoMovieInspectionLegendEntry } from "../scene/inspection/IAutoMovieInspectionLegendEntry.js";
+import type { IAutoMovieInspectionPath } from "../scene/inspection/IAutoMovieInspectionPath.js";
 import type { IAutoMovieInspectionRequest } from "../scene/inspection/IAutoMovieInspectionRequest.js";
 import type { IAutoMovieInspectionTrail } from "../scene/inspection/IAutoMovieInspectionTrail.js";
 import type { IAutoMovieInspectionView } from "../scene/inspection/IAutoMovieInspectionView.js";
+import { listAutoMovieInspectionPaths } from "../scene/inspection/listAutoMovieInspectionPaths.js";
 import { markAutoMovieInspectionTrails } from "../scene/inspection/markAutoMovieInspectionTrails.js";
 import { parseAutoMovieInspectionView } from "../scene/inspection/parseAutoMovieInspectionView.js";
 import { planAutoMovieInspectionTrailTimes } from "../scene/inspection/planAutoMovieInspectionTrailTimes.js";
@@ -43,7 +46,7 @@ const SUPERSAMPLE: number = 2;
  * 2. for a fitted view, frames it on the union of what the inspection leaves drawn, or its focus, over the call's `frame` seconds, measured once per view and selection;
  * 3. for each `trail` pattern of the request, samples the matched objects over `planAutoMovieInspectionTrailTimes` with `sampleAutoMovieInspectionTrails`, then seeks the call's second and waits for the subject to report ready, and brings the inspection to it with the subject's marks of that second and `markAutoMovieInspectionTrails` of the samples; every seek is awaited, the sampler's and the drawn second's, so a subject that becomes ready only after an await is never read or drawn at another second;
  * 4. draws through the camera `resolveAutoMovieInspectionView` gives, at the call's raster, or for the `beauty` shade at twice each side with mark lines twice as wide;
- * 5. reads the drawn pixels back, flips them to rows from the top and averages a supersampled picture down, places the request's labels at the label scale, and copies the inspection's legend of the marks drawn.
+ * 5. reads the drawn pixels back, flips them to rows from the top and averages a supersampled picture down, places the request's labels at the label scale, copies the inspection's legend of the marks drawn, and resolves every pattern of the request and view by `resolveAutoMovieCapturePatterns` against the scene's object paths and the selected mark paths, so the record names what each matched.
  *
  * It draws to the renderer's own canvas and reads it back in the same task, so colour conversion and tone mapping are the ones the interactive page applies to its canvas; a render target would skip both. The film camera's aspect is set to the picture's, as the page sets it to its canvas.
  *
@@ -55,9 +58,9 @@ const SUPERSAMPLE: number = 2;
  *
  * @evidence contracts/development/common.md#meaningful-documentation States who calls it, when the subject and renderer are made, every step of a draw in order, why the canvas is read instead of a render target, and the supersampling rule.
  * @evidence contracts/development/implementation.md#principled-implementation WebGL's `readPixels` on the default framebuffer, read before the task ends, returns what the page shows; the inspection, the view grammar and the camera resolution are the inspection core's, so a still and the page draw the same scene through the same code. Framing on all the run's seconds keeps one camera per view, as `.agents/skills/visual-debugging/capture.md` asks for a view a later round compares.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One loader for the subject and renderer, one applier keyed by the request, one placer that seeks and gathers a second's marks with its trails, one bounds cache keyed by view, selection and trails, and one draw that composes them; describing and pixel encoding are their own modules.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One loader for the subject and renderer, one applier keyed by the request, one placer that seeks and gathers a second's marks with its trails, one bounds cache keyed by view, selection and trails, and one draw that composes them; describing, pixel encoding and pattern resolution are their own modules.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A subject that is not ready is awaited, never drawn half placed; a view or request the inspection refuses throws to the host, which records the cell as not drawn.
- * @evidence contracts/development/implementation.md#efficient-algorithms A draw costs one seek, one inspection update, a trail's seeks over its window when asked, one render and one readback linear in the picture's pixels; a new request adds one inspection apply, and a new fitted view one seek and update per framing second.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A draw costs one seek, one inspection update, a trail's seeks over its window when asked, one render, one readback linear in the picture's pixels and one walk of the scene's paths for the resolution; a new request adds one inspection apply, and a new fitted view one seek and update per framing second.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The subject, the renderer, the applied inspection while its request text is unchanged, and each view's framing box while its view text, selection and seconds are unchanged, are reused across draws.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The page holds one subject, one renderer, one applied inspection and one box per framed view for its life; leaving the page restores the inspection and disposes the subject and renderer.
  */
@@ -288,6 +291,16 @@ export function installAutoMovieDraw(
           (entry: IAutoMovieInspectionLegendEntry): IAutoMovieInspectionLegendEntry => ({ ...entry }),
         ),
         camera: resolved.record,
+        resolved: resolveAutoMovieCapturePatterns({
+          paths: [
+            ...listAutoMovieInspectionPaths(scene.scene).map(
+              (entry: IAutoMovieInspectionPath): string => entry.path,
+            ),
+            ...handle.selected,
+          ],
+          request: call.request,
+          view: call.view,
+        }),
       };
     },
   };
