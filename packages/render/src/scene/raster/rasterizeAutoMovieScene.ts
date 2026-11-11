@@ -5,6 +5,7 @@ import { AutoMovieRasterTarget } from "./AutoMovieRasterTarget.js";
 import type { IAutoMovieRasterFrame } from "./IAutoMovieRasterFrame.js";
 import type { IAutoMovieSceneRaster } from "./IAutoMovieSceneRaster.js";
 import type { IRasterizeAutoMovieSceneProps } from "./IRasterizeAutoMovieSceneProps.js";
+import { proxyAutoMovieRasterLineSegments } from "./proxyAutoMovieRasterLineSegments.js";
 import { submitAutoMovieRasterMesh } from "./submitAutoMovieRasterMesh.js";
 import { submitAutoMovieRasterStrokes } from "./submitAutoMovieRasterStrokes.js";
 
@@ -24,7 +25,8 @@ import { submitAutoMovieRasterStrokes } from "./submitAutoMovieRasterStrokes.js"
  * install are reproduced as data: depth as a per-pixel grey, the normal pass
  * as a packed view-space normal, the outline pass as its displaced white
  * shell over black fills. Lines take their material's width, vertex colours
- * and clipping planes; points are squares of their `PointsMaterial` size.
+ * and clipping planes, and a screen-space `LineSegments2` is drawn as its
+ * segments at its `LineMaterial` width; points are squares of their `PointsMaterial` size.
  * Opaque objects are drawn in ascending `renderOrder`, and in scene order
  * where that is equal, so a stroke whose material has the depth test off
  * stays on top only of what is drawn before it; a group's own `renderOrder`
@@ -42,7 +44,7 @@ import { submitAutoMovieRasterStrokes } from "./submitAutoMovieRasterStrokes.js"
  * ```ts
  * production.seek(12.5);
  * const frame = rasterizeAutoMovieScene({ scene, camera, width: 720, height: 1280 });
- * await writeFile("f.png", encodeAutoMovieRasterPng(frame));
+ * await writeFile("f.png", await encodeAutoMovieRasterPng(frame));
  * ```
  *
  * @evidence contracts/development/common.md#meaningful-documentation The comment states the purpose, every drawn object kind and material property honoured, which pass materials are reproduced as data, the opaque order, the transparent pass with its two sort keys, and what is left out and where it is counted.
@@ -111,7 +113,11 @@ export function rasterizeAutoMovieScene(
   scene.traverseVisible((object: THREE.Object3D): void => {
     // A layer mismatch leaves this object out and still visits its children, as three.js does.
     if (!object.layers.test(camera.layers)) return;
-    if (object instanceof THREE.Mesh) {
+
+    // A screen-space line is a mesh of widened quads; its segments are drawn as lines of its width.
+    if ((object as { isLineSegments2?: boolean }).isLineSegments2 === true)
+      drawn.push(proxyAutoMovieRasterLineSegments(object as THREE.Mesh));
+    else if (object instanceof THREE.Mesh) {
       if ((object as { isBatchedMesh?: boolean }).isBatchedMesh === true)
         skip(object.type);
       else drawn.push(object);

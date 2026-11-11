@@ -1,34 +1,27 @@
-import type {
-  IAutoMovieConstructionCurve,
-  IAutoMovieMeshDefect,
-} from "@automovie/engine";
+import type { IAutoMovieMeshDefect } from "@automovie/engine";
 
 /**
- * Colours of inspection marks, as sRGB hex.
+ * Colours the inspection itself owns, as sRGB hex: the flag every anomaly takes, the kinds it measures on meshes, and the surface colours of its two shades.
  *
- * Each construction curve kind, the flag on a curve, each mesh defect kind and the back of a surface has a hue of its own, so a mark is identified by its colour alone in a reduced still. `clay` and `front` are neutral greys that none of the marks can be mistaken for.
+ * Supplied marks bring their own colours, so this table lists no curve, joint or contact. A mark kind may take none of the reserved colours: the flag always, `clay` under the clay shade, `front` and `back` under the faces shade.
  *
- * | Mark | Colour |
+ * | Use | Colour |
  * | --- | --- |
- * | Section curve | Blue `59a0f4` |
- * | Guide curve | Green `59cb89` |
- * | Axis curve | Cyan `00e5ff` |
- * | Flagged curve of any kind | Magenta `ff00ff` |
+ * | Flagged mark of any kind | Magenta `ff00ff` |
  * | Open edge | Red `ff3b30` |
  * | Non-manifold edge | Purple `b14aff` |
  * | Inconsistent edge | Yellow `ffcc00` |
  * | Degenerate triangle | White `ffffff` |
  * | Sliver triangle | Orange `ff9500` |
- * | Back face, under the faces shade | Maroon `8b1a1a` |
+ * | Clay surface | Grey `bdbdbd` |
+ * | Front of a surface, under the faces shade | Grey `b0b0b0` |
+ * | Back of a surface, under the faces shade | Maroon `8b1a1a` |
  */
 export const AUTO_MOVIE_INSPECTION_PALETTE: {
-  /** Colour of an unflagged construction curve, by its kind. */
-  readonly curve: Readonly<Record<IAutoMovieConstructionCurve.Kind, number>>;
-
-  /** Colour of a construction curve its sampler flagged, whatever its kind. */
+  /** Colour of a flagged mark, whatever its kind. */
   readonly flagged: number;
 
-  /** Colour of a mesh defect's edges, by its kind. */
+  /** Colour of a measured mesh defect, by its kind. */
   readonly defect: Readonly<Record<IAutoMovieMeshDefect.Kind, number>>;
 
   /** Surface colour of the clay shade, before lighting. */
@@ -40,7 +33,6 @@ export const AUTO_MOVIE_INSPECTION_PALETTE: {
   /** Colour of a surface seen from its back under the faces shade. */
   readonly back: number;
 } = {
-  curve: { section: 0x59a0f4, guide: 0x59cb89, axis: 0x00e5ff },
   flagged: 0xff00ff,
   defect: {
     open: 0xff3b30,

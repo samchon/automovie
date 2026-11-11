@@ -38,7 +38,7 @@ import { runCaptureFfmpeg } from "./runCaptureFfmpeg";
  *
  * **Views.** `--view` takes what {@link planInspectionViews} reads: one or several comma-separated names, each a key of the film's `IFilmProduction.views`, `film` for the film camera, or one of `front`, `back`, `right`, `left`, `top`, `bottom`, `three-quarter` and `three-quarter-back`; or `x,y,z:tx,ty,tz`, a fixed camera in world metres. A named view is framed once on everything the run draws across all its seconds, so the camera holds still and a subject's travel reads as travel. Several views draw every second through each: stills are `t<seconds>-<view>.png`, the folder ends in `-views`, and a sheet row is one second unless `--columns` says otherwise.
  *
- * **Inspection.** The Viewer's inspection parameters are options of the same names, read by the viewer's own request reader: `--parts` and `--hide` select objects by path pattern, `--shade` colours surfaces (`beauty`, `depth`, `mask`, `normal`, `outline`, `pose`, `clay`, `faces`), `--surface 0` removes them, `--wire` draws triangle edges, `--curves <section,guide,axis|all>` draws the film's `IFilmProduction.constructions`, `--defects <open,non-manifold,inconsistent,degenerate|all>` and `--sliver <aspect>` mark mesh defects, `--section <y:1.2>` cuts the scene, `--xray` draws marks over surfaces and `--stroke <px>` sets their width. `--paths` prints every path of the mounted film and draws nothing. The manifest records the request, the legend of mark colours with their counts and the selected paths, and the legend is printed.
+ * **Inspection.** The Viewer's inspection parameters are options of the same names, read by the viewer's own request reader: `--parts` and `--hide` select objects by path pattern, `--shade` colours surfaces (`beauty`, `depth`, `mask`, `normal`, `outline`, `pose`, `clay`, `faces`), `--surface 0` removes them, `--wire` draws triangle edges, `--marks <kind patterns>` draws marks of the named kinds, the film's `IFilmProduction.marks` and the mesh defects the inspection measures (`defect/open`, `defect/non-manifold`, `defect/inconsistent`, `defect/degenerate`, and `defect/sliver` under `--sliver <aspect>`), `--section <y:1.2>` cuts the scene, `--xray` draws marks over surfaces and `--stroke <px>` sets their width. `--paths` prints every path of the mounted film and draws nothing. The manifest records the request, the legend of mark colours with their counts and the selected paths, and the legend is printed.
  *
  * **Rounds.** `--round <name>` keeps the run under `rounds/<name>/` of its folder, where later runs leave it. `--compare <name>` compares the run's stills against that round, writing `diff-<still>` for each changed still and `comparison.json`; `--tolerance <bytes>` (default 0) is the channel difference still counted as unchanged.
  *
@@ -204,7 +204,8 @@ export async function capture(): Promise<void> {
       // The views and the inspection are resolved, and the first second drawn through every view, before the folder is opened, which replaces the previous run.
       production.seek(times[0]!);
       if (options.has("--paths")) {
-        for (const line of listCapturePaths(production)) console.log(line);
+        for (const line of listCapturePaths(production, times[0]!))
+          console.log(line);
         continue;
       }
       const views: InspectionView[] = planInspectionViews(
@@ -223,9 +224,9 @@ export async function capture(): Promise<void> {
       const inspection: IAutoMovieInspectionHandle = applyAutoMovieInspection({
         scene: production.scene,
         request,
-        ...(production.constructions === undefined
+        ...(production.marks === undefined
           ? {}
-          : { constructions: production.constructions }),
+          : { marks: production.marks(times[0]!) }),
       });
       try {
         // A named view is framed on everything the run draws, so its camera holds still.
@@ -233,7 +234,7 @@ export async function capture(): Promise<void> {
         if (views.some((v: InspectionView): boolean => v.kind === "named"))
           for (const seconds of times) {
             production.seek(seconds);
-            inspection.update();
+            inspection.update(production.marks?.(seconds));
             bounds = unite(bounds, inspection.bounds());
           }
         const spares: Map<string, THREE.PerspectiveCamera> = new Map(
@@ -293,7 +294,7 @@ export async function capture(): Promise<void> {
         let count: number = 0;
         for (const seconds of times) {
           production.seek(seconds);
-          inspection.update();
+          inspection.update(production.marks?.(seconds));
           // Every view of the second is drawn before any is written, so a view the first second refuses leaves the previous run in place.
           const stills: [InspectionView, IAutoMovieSceneRaster, string][] = [];
           for (const v of views) {

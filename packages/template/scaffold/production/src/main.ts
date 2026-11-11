@@ -128,13 +128,14 @@ held.push((): void => host.stop());
 let inspection: IAutoMovieInspectionHandle;
 let overlay: ReturnType<typeof createAutoMoviePerformanceOverlay> | undefined;
 try {
+  production.seek(seconds);
   inspection = applyAutoMovieInspection({
     scene: production.scene,
     request,
     renderer: host.renderer,
-    ...(production.constructions === undefined
+    ...(production.marks === undefined
       ? {}
-      : { constructions: production.constructions }),
+      : { marks: production.marks(seconds) }),
   });
   held.push((): void => inspection.restore());
   if (reviewRequested && production.performance) {
@@ -180,7 +181,7 @@ function draw(): void {
   if (held.length === 0) return;
   try {
     production.seek(seconds);
-    inspection.update();
+    inspection.update(production.marks?.(seconds));
     if (overlay && production.performance)
       overlay.update(
         production.performance.frame(),

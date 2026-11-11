@@ -1,4 +1,5 @@
 export * from "./AutoMovieMeshCrossingGeometry";
+export * from "./IAutoMovieMark";
 export * from "./IAutoMovieMeshAssembly";
 export * from "./IAutoMovieMeshAttachmentCap";
 export * from "./IAutoMovieMeshClearanceWitness";

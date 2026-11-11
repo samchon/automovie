@@ -43,7 +43,7 @@ void main() {
  *
  * A guide pass is applied as `applyRenderMode` applies it. `clay` gives every mesh one grey, two-sided and lit by the scene's lights, so form reads without the film's colours. `faces` gives every mesh one unlit colour by the side seen, grey from the front and maroon from the back, so an inverted, open or inside-out surface shows where it is. Both inspection shades keep each mesh's skinning, morphing, instancing and formation cycle, and take section planes.
  *
- * The CPU rasterizer draws the faces shade from its two colour uniforms, so a still made in Node and a frame drawn in the browser agree. Drawn as wire, every edge takes the front colour in both renderers, since a line has no side.
+ * The CPU rasterizer draws the faces shade from its two colour uniforms, so a still made in Node and a frame drawn in the browser agree.
  *
  * A shade made of swapped materials follows the scene by itself, so its `update` does nothing. The `outline` and `pose` passes hold shells and segments of their own, and their `update` is the pass's.
  *

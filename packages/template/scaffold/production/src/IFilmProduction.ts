@@ -1,9 +1,8 @@
-import type { AutoMoviePhysicsCache } from "@automovie/engine";
+import type { AutoMoviePhysicsCache, IAutoMovieMark } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMoviePhysicalProfile,
 } from "@automovie/interface";
-import type { IAutoMovieInspectionConstruction } from "@automovie/render";
 import type * as THREE from "three";
 
 /**
@@ -11,7 +10,7 @@ import type * as THREE from "three";
  *
  * @evidence contracts/development/common.md#meaningful-documentation The comment names what one mount holds; each member states what it owns and when it runs.
  * @evidence contracts/development/design.md#principled-representation Playback, seeking and capture all place the scene through one seek per second, so a second reached by any path draws the same state.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The members the Viewer entry reads to draw, seek and release a film, plus the three optional review sources it reads only when a review overlay, a named view or construction curves are requested.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The members the Viewer entry reads to draw, seek and release a film, plus the three optional review sources it reads only when a review overlay, a named view or inspection marks are requested.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No playback-only or capture-only member exists; named views move only a separate inspection camera, so the film camera and delivered captures are unchanged.
  */
 export interface IFilmProduction {
@@ -54,9 +53,9 @@ export interface IFilmProduction {
   >;
 
   /**
-   * Optional construction curves of the film's built forms, such as the sections, guides and axis of a loft, each with the scene object its form was built into. They are drawn only when an inspection asks for curves, in the Viewer through the `curves` parameter and in a capture through `--curves`.
+   * Optional inspection marks of the film at an exact second: what its owners locate, such as the construction curves of its built forms from `markAutoMovieConstructionCurves`. They are drawn only when an inspection's `marks` parameter names their kinds, in the Viewer and in a capture alike, and the drawn second's marks are asked for after `seek`.
    */
-  constructions?: readonly IAutoMovieInspectionConstruction[];
+  marks?: (seconds: number) => readonly IAutoMovieMark[];
 
   /**
    * Places every displayed object and the camera for an exact film second.

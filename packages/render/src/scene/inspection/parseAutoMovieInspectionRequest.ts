@@ -1,8 +1,4 @@
-import type {
-  IAutoMovieConstructionCurve,
-  IAutoMovieMeshDefect,
-  IAutoMovieSectionPlane,
-} from "@automovie/engine";
+import type { IAutoMovieSectionPlane } from "@automovie/engine";
 
 import type { IAutoMovieInspectionRequest } from "./IAutoMovieInspectionRequest.js";
 
@@ -21,48 +17,33 @@ const SHADES: Record<IAutoMovieInspectionRequest.Shade, true> = {
   faces: true,
 };
 
-/** Every construction curve kind. */
-const CURVES: Record<IAutoMovieConstructionCurve.Kind, true> = {
-  section: true,
-  guide: true,
-  axis: true,
-};
-
-/** Every mesh defect kind that needs no limit. */
-const DEFECTS: Record<Exclude<IAutoMovieMeshDefect.Kind, "sliver">, true> = {
-  open: true,
-  "non-manifold": true,
-  inconsistent: true,
-  degenerate: true,
-};
-
 /**
  * Read an inspection request from named text values, the form both a page address and a command line supply.
  *
- * `read` returns the text of a key, or null or undefined when the key is absent. A key that is present without a value reads as the empty string, which turns a switch on.
+ * `read` returns the text of a key, or null or undefined when the key is absent. A key that is present without a value reads as the empty string, which turns a switch on. `AUTO_MOVIE_INSPECTION_KEYS` lists every key read, and `formatAutoMovieInspectionRequest` writes a request back as these values.
  *
  * | Key | Text | Absent |
  * | --- | --- | --- |
  * | `parts`, `hide` | Path patterns separated by commas | No pattern |
  * | `shade` | `beauty`, `depth`, `mask`, `normal`, `outline`, `pose`, `clay` or `faces` | `beauty` |
  * | `surface` | A switch | On |
- * | `wire`, `xray` | A switch | Off |
- * | `curves` | `section`, `guide`, `axis` separated by commas, or `all` | None |
- * | `defects` | `open`, `non-manifold`, `inconsistent`, `degenerate` separated by commas, or `all` | None |
- * | `sliver` | A positive aspect limit | No sliver marked |
+ * | `wire` | A switch | Off |
+ * | `marks` | Kind patterns separated by commas, such as `curve/section,defect` | No mark |
+ * | `sliver` | A positive aspect limit | No sliver measured |
  * | `section` | `x:0.2` cuts away everything beyond x = 0.2 m, `-x:0.2` everything before it, likewise `y` and `z`; or `px,py,pz:nx,ny,nz`, a point in metres and the direction cut away | No cut |
+ * | `xray` | A switch | Off |
  * | `stroke` | A positive width in output pixels | 3 |
  *
- * A switch is on for the empty string, `1` or `true` and off for `0` or `false`. Any other text, an unknown name or a number out of range throws an `Error` that names the key, the text and what is accepted.
+ * A switch is on for the empty string, `1` or `true` and off for `0` or `false`. Any other text, an unknown shade or a number out of range throws an `Error` that names the key, the text and what is accepted. Mark kinds are not checked here, because their producers own them; `applyAutoMovieInspection` refuses a kind pattern that matches no kind it is given.
  *
  * ```ts
  * const request = parseAutoMovieInspectionRequest((key) => url.searchParams.get(key));
  * ```
  *
- * @evidence contracts/development/common.md#meaningful-documentation Tabulates every key with its accepted text and its absent value, states the switch rule and what a refusal reports.
+ * @evidence contracts/development/common.md#meaningful-documentation Tabulates every key with its accepted text and its absent value, states the switch rule, what a refusal reports and where kinds are checked instead.
  * @evidence contracts/development/implementation.md#principled-implementation Each key is read once through the caller's reader and admitted against the type's own members, so the returned record is complete and every value in it is one the request type allows.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One record literal with one helper per value form: pattern list, kind list, switch, positive number and cut.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unreadable text throws instead of falling back to the absent value, and the kind tables are records keyed by the engine's and interface's unions, so a kind added there fails compilation here until it is listed.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One record literal with one helper per value form: pattern list, switch, positive number and cut.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unreadable text throws instead of falling back to the absent value, and the shade table is a record keyed by the request's union, so a shade added there fails compilation here until it is listed.
  * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the length of the text read.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each key is read and parsed once per call and nothing is computed twice.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The call keeps nothing: the reader is used and dropped, and the returned record is the caller's.
@@ -81,8 +62,7 @@ export function parseAutoMovieInspectionRequest(
     shade: shade as IAutoMovieInspectionRequest.Shade,
     surface: flag("surface", read("surface"), true),
     wire: flag("wire", read("wire"), false),
-    curves: kinds("curves", read("curves"), CURVES),
-    defects: kinds("defects", read("defects"), DEFECTS),
+    marks: list(read("marks")),
     sliver: positive("sliver", read("sliver")),
     section: section(read("section")),
     xray: flag("xray", read("xray"), false),
@@ -96,24 +76,6 @@ function list(text: string | null | undefined): string[] {
     .split(",")
     .map((item: string): string => item.trim())
     .filter((item: string): boolean => item !== "");
-}
-
-/** The distinct kinds a text names, every kind for `all`. */
-function kinds<Kind extends string>(
-  key: string,
-  text: string | null | undefined,
-  known: Record<Kind, true>,
-): Kind[] {
-  const every: Kind[] = Object.keys(known) as Kind[];
-  const named: string[] = list(text);
-  for (const name of named)
-    if (name !== "all" && !Object.hasOwn(known, name))
-      throw new Error(
-        `Inspection ${key} "${name}" is not one of ${every.join(", ")}, all`,
-      );
-  return named.includes("all")
-    ? every
-    : every.filter((kind: Kind): boolean => named.includes(kind));
 }
 
 /** A switch: on for the empty string, `1` or `true`, off for `0` or `false`. */
