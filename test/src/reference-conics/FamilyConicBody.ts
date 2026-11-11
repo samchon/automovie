@@ -76,6 +76,7 @@ namespace FamilyConicBody {
     const source: R.ISource = await R.load(root);
     const joint = (name: string): R.V => source.joints.get(name)!;
     const only: string[] = process.argv.slice(2).filter((argument: string): boolean => !argument.startsWith("--"));
+    if (process.argv.includes("--emit-joints")) await fs.writeFile(path.join(root, "packages/human/src/generation/f1/AutoMovieHumanF1Joints.ts"), joints(source));
     // A digit's course runs through its joints and on past the last one by the length of its distal segment.
     const beyond = (a: R.V, b: R.V, length: number): R.V => {
       const d: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
@@ -93,7 +94,7 @@ namespace FamilyConicBody {
         ...["bigtoe", "indextoe", "middletoe", "ringtoe", "littletoe"].map((toe: string): IPart => digit("toe." + toe.replace("toe", ""), [toe + "_01_r", toe + "_02_r"], toe === "bigtoe" ? 28 : toe === "littletoe" ? 14 : 18, [0, 1, 0])),
         { name: "foot", centres: [[1, 45, 134], [133, 20, 157]], halves: [], up: [0, 1, 0], domain: "auto", step: 2, gap: 8, mirrored: true, layouts: LIMB, reliefs: "auto" },
         { name: "arm", centres: [joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r")], halves: [30], up: [1, 0, 0], domain: [76, 508], mirrored: true, layouts: LIMB, reliefs: "auto" },
-        { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r")], halves: [40], up: [1, 0, 0], domain: [124, 826], mirrored: true, layouts: LIMB, reliefs: "auto" },
+        { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r")], halves: [40], up: [1, 0, 0], domain: [104, 826], mirrored: true, layouts: LIMB, reliefs: "auto" },
         { name: "torso", centres: [[0, 780, 0], [0, 1480, 0]], halves: [], up: [1, 0, 0], domain: [40, 496], step: 2, mirrored: false, layouts: LIMB, reliefs: [
           { name: "torso.back", stations: [-20, 556], phases: [Math.PI / 2, (3 * Math.PI) / 2], axis: [1, 0, 0], rows: 61, columns: 39, mirror: true },
           { name: "torso.front", stations: [-20, 556], phases: [-Math.PI / 2, Math.PI / 2], axis: [-1, 0, 0], rows: 61, columns: 39, mirror: true },
@@ -374,6 +375,58 @@ namespace FamilyConicBody {
       close();
     }
     return windows;
+  }
+
+  /** Reference joints the families' courses run through, by the name the datum module gives each. */
+  const JOINTS: readonly [string, string][] = [
+    ["upperarm", "upperarm_r"], ["lowerarm", "lowerarm_r"], ["hand", "hand_r"],
+    ["thigh", "thigh_r"], ["calf", "calf_r"], ["foot", "foot_r"],
+    ...["index", "middle", "ring", "pinky", "thumb"].flatMap((finger: string): [string, string][] => [1, 2, 3].map((k: number): [string, string] => [finger + k, finger + "_0" + k + "_r"])),
+    ...["bigtoe", "indextoe", "middletoe", "ringtoe", "littletoe"].flatMap((toe: string): [string, string][] => [1, 2].map((k: number): [string, string] => [toe + k, toe + "_0" + k + "_r"])),
+  ];
+
+  /** The datum module: every joint centre the authored courses use, once, by name. */
+  function joints(source: R.ISource): string {
+    const lines: string[] = [
+      "/**",
+      " * f1's joint centres on the +Z side in its reference pose: the datums every authored course of the figure runs through.",
+      " *",
+      " * Frame: millimetres, forward +X, up +Y, +Z the reference's left. The values are the reference rig's bind joint centres,",
+      " * read once offline by `test/src/reference-conics/FamilyConicBody.ts --emit-joints`. A family names its course by these",
+      " * datums and holds no joint coordinate of its own, so a law that places the joints from a person's measurements replaces",
+      " * this table and every course follows.",
+      " */",
+      "export namespace AutoMovieHumanF1Joints {",
+      "  /** A point in the figure's frame, mm. */",
+      "  export type V3 = [number, number, number];",
+      "",
+    ];
+    for (const [name, joint] of JOINTS) lines.push("  /** Reference joint `" + joint + "`. */", "  export const " + name + ": V3 = " + JSON.stringify(source.joints.get(joint)!.map(round)).replaceAll(",", ", ") + ";", "");
+    lines.push(
+      "  /** Foot of the vertical axis the torso and the upper body are read about, below the crotch on the median line. */",
+      "  export const axisFloor: V3 = [0, 780, 0];",
+      "",
+      "  /** Top of the torso's axis, in the neck. */",
+      "  export const axisNeck: V3 = [0, 1480, 0];",
+      "",
+      "  /** Top of the upper body's axis, above the crown. */",
+      "  export const axisCrown: V3 = [0, 1705, 0];",
+      "",
+      "  /** Rear end of the midfoot's axis, under the ankle. */",
+      "  export const footRear: V3 = [1, 45, 134];",
+      "",
+      "  /** Front end of the midfoot's axis, in the ball of the foot. */",
+      "  export const footBall: V3 = [133, 20, 157];",
+      "",
+      "  /** The point `length` millimetres past `b` on the line from `a` through `b`: where a digit's course ends beyond its last joint. */",
+      "  export function beyond(a: V3, b: V3, length: number): V3 {",
+      "    const d: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);",
+      "    return [b[0] + ((b[0] - a[0]) * length) / d, b[1] + ((b[1] - a[1]) * length) / d, b[2] + ((b[2] - a[2]) * length) / d];",
+      "  }",
+      "}",
+      "",
+    );
+    return lines.join("\n");
   }
 
   /** Module and constant name of a part's authored family. */

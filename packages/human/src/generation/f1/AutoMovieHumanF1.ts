@@ -52,24 +52,40 @@ export namespace AutoMovieHumanF1 {
     diagnostics: AutoMovieViewLoft.IResult["diagnostics"];
   }
 
-  /** Every authored family with whether it has a mirrored twin. */
-  export const FAMILIES: readonly { family: AutoMovieHumanConicLoft.IFamily; mirrored: boolean }[] = [
-    { family: AutoMovieHumanF1Torso, mirrored: false },
+  /** One authored family in the figure. */
+  export interface IMember {
+    /** The authored definition. */
+    family: AutoMovieHumanConicLoft.IFamily;
+
+    /** Emitted a second time reflected in the median plane `z = 0`. */
+    mirrored: boolean;
+
+    /**
+     * How far the family is carried before its first knot and past its last, mm. There its fields continue as the straight
+     * end tangents of their natural cubics, so a tube reaches into its neighbour and the two overlap where the fitted runs
+     * stop at a branch. The overlap is not a join: the surfaces interpenetrate and are not sewn. Absent, no reach.
+     */
+    reach?: [number, number];
+  }
+
+  /** Every authored family of the figure. */
+  export const FAMILIES: readonly IMember[] = [
+    { family: AutoMovieHumanF1Torso, mirrored: false, reach: [0, 20] },
     { family: AutoMovieHumanF1Upper, mirrored: false },
-    { family: AutoMovieHumanF1Palm, mirrored: true },
-    { family: AutoMovieHumanF1Arm, mirrored: true },
-    { family: AutoMovieHumanF1Leg, mirrored: true },
-    { family: AutoMovieHumanF1FingerIndex, mirrored: true },
-    { family: AutoMovieHumanF1FingerMiddle, mirrored: true },
-    { family: AutoMovieHumanF1FingerPinky, mirrored: true },
-    { family: AutoMovieHumanF1FingerRing, mirrored: true },
-    { family: AutoMovieHumanF1FingerThumb, mirrored: true },
-    { family: AutoMovieHumanF1Foot, mirrored: true },
-    { family: AutoMovieHumanF1ToeBig, mirrored: true },
-    { family: AutoMovieHumanF1ToeIndex, mirrored: true },
-    { family: AutoMovieHumanF1ToeLittle, mirrored: true },
-    { family: AutoMovieHumanF1ToeMiddle, mirrored: true },
-    { family: AutoMovieHumanF1ToeRing, mirrored: true },
+    { family: AutoMovieHumanF1Palm, mirrored: true, reach: [2, 6] },
+    { family: AutoMovieHumanF1Arm, mirrored: true, reach: [36, 4] },
+    { family: AutoMovieHumanF1Leg, mirrored: true, reach: [28, 4] },
+    { family: AutoMovieHumanF1FingerIndex, mirrored: true, reach: [10, 0] },
+    { family: AutoMovieHumanF1FingerMiddle, mirrored: true, reach: [10, 0] },
+    { family: AutoMovieHumanF1FingerPinky, mirrored: true, reach: [10, 0] },
+    { family: AutoMovieHumanF1FingerRing, mirrored: true, reach: [10, 0] },
+    { family: AutoMovieHumanF1FingerThumb, mirrored: true, reach: [10, 0] },
+    { family: AutoMovieHumanF1Foot, mirrored: true, reach: [4, 10] },
+    { family: AutoMovieHumanF1ToeBig, mirrored: true, reach: [8, 0] },
+    { family: AutoMovieHumanF1ToeIndex, mirrored: true, reach: [8, 0] },
+    { family: AutoMovieHumanF1ToeLittle, mirrored: true, reach: [8, 0] },
+    { family: AutoMovieHumanF1ToeMiddle, mirrored: true, reach: [8, 0] },
+    { family: AutoMovieHumanF1ToeRing, mirrored: true, reach: [8, 0] },
   ];
 
   /**
@@ -80,10 +96,10 @@ export namespace AutoMovieHumanF1 {
    */
   export function create(step: number = 4, phases: number = 128): IPiece[] {
     const pieces: IPiece[] = [];
-    for (const { family, mirrored } of FAMILIES) {
-      // Layers from the first knot to the last, evenly spaced at most `step` apart.
-      const from: number = family.knots[0]!;
-      const to: number = family.knots.at(-1)!;
+    for (const { family, mirrored, reach } of FAMILIES) {
+      // Layers from the first knot to the last, widened by the member's reach, evenly spaced at most `step` apart.
+      const from: number = family.knots[0]! - (reach?.[0] ?? 0);
+      const to: number = family.knots.at(-1)! + (reach?.[1] ?? 0);
       const count: number = Math.max(2, Math.ceil((to - from) / step) + 1);
       const stations: number[] = Array.from({ length: count }, (_: unknown, i: number): number => from + ((to - from) * i) / (count - 1));
       const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(family, stations);
