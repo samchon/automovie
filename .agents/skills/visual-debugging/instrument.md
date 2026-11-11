@@ -61,6 +61,8 @@ An encoded or generated file is sampled from its own frames: its cuts are detect
 
 A production's development page is the `viewer` package's inspector, mounted over the same subjects module that the capture command draws, so the page offers exactly the subjects a capture can take; the [`viewer` README](../../../packages/viewer/README.md#inspector-page) owns its mount. The page's state is one request: every panel edits it, the canvas draws it through `render`'s scene, the address carries it as the request text, and the page shows the capture command that repeats the picture. An address the grammar refuses opens the request that asks for nothing and shows the refusal, so a mistyped link is seen rather than silently drawn as something else.
 
+A package or folder without a page of its own, such as one holding motion cases, gets the same page from the `automovie` command's inspect mode: it serves the inspector over any module that exports its subjects, refuses a request the capture would refuse before serving, and prints the address whose query is the request.
+
 ## The capture command
 
 The `automovie` command of the `cli` package captures from a production's folder; the [`render` README](../../../packages/render/README.md#request-keys) lists its options with the request keys. It takes the same keys as a page's address, plus a few of its own: which subject module to draw or which video file to sample, the root folder, and whether the browser draws in software or on the GPU.
