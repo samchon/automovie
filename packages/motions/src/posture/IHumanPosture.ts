@@ -101,9 +101,12 @@ export namespace IHumanPosture {
      * the choice for the whole stroke. It is a constant of the plan, never a
      * previous frame, so the pose stays a function of time alone. A degree of
      * joint turn from the reference counts like a degree of hand or foot
-     * rotation error, so a law gives it from the named instant on (the hold
-     * after a grasp) and leaves the reach toward that instant without one:
-     * the unanchored reach arrives at the very solution the reference holds.
+     * rotation error, so a law gives it in full from the named instant on (the
+     * hold after a grasp) and, over the reach toward that instant, raises its
+     * `weight` from 0 to 1 with the reach's own progress: the reference is
+     * that instant's solution, so the reach arrives at it exactly, and on the
+     * way the growing weight keeps the limb on the reference's side where two
+     * configurations nearly tie instead of letting it switch between them.
      */
     reference?: IHumanPosture.IReference;
   }
@@ -115,5 +118,12 @@ export namespace IHumanPosture {
 
     /** The lower bone's `[flexion, abduction, twist]`, degrees. */
     lower: readonly [number, number, number];
+
+    /**
+     * How much a degree of joint turn from the reference counts, in degrees
+     * of hand or foot rotation error (the engine's `referenceWeight`); 1 when
+     * omitted. A reach toward the reference's instant raises it from 0 to 1.
+     */
+    weight?: number;
   }
 }

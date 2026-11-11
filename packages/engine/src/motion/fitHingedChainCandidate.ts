@@ -40,7 +40,8 @@ import type { prepareChainPlant } from "./prepareChainPlant";
  * two separate minima tie exactly; the reference term then decides the tie
  * toward the reference's side. The weights are provisional, as no source
  * fixes them: one degree of joint turn from the reference counts as much as
- * one degree of effector error, so the reference's side is kept unless a
+ * one degree of effector error (times the request's `referenceWeight`, 1
+ * when omitted), so the reference's side is kept unless a
  * turn buys at least as much accuracy; and the
  * hint's side is worth 2 degrees per unit of `1 - cos` (4 degrees for the
  * opposite side), enough to decide between otherwise equal swivels while
@@ -135,6 +136,11 @@ export function fitHingedChainCandidate(
     previous(props.chain.upper),
     previous(props.chain.lower),
   ];
+  const anchor: number = props.referenceWeight ?? 1;
+  if (!Number.isFinite(anchor) || anchor < 0)
+    throw new Error(
+      `fitChainToTarget referenceWeight must be finite and non-negative, but was ${anchor}`,
+    );
   const apart = (
     a: IAutoMovieQuaternion,
     b: IAutoMovieQuaternion | null,
@@ -193,8 +199,9 @@ export function fitHingedChainCandidate(
           deviation:
             (turn === null ? 0 : turn(upper, lower)) +
             2 * away +
-            apart(Quaternion.normalize(upper), before[0]) +
-            apart(Quaternion.normalize(lower), before[1]) +
+            anchor *
+              (apart(Quaternion.normalize(upper), before[0]) +
+                apart(Quaternion.normalize(lower), before[1])) +
             1e-9 * effort,
         };
       },

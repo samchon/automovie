@@ -386,9 +386,20 @@ export namespace handshake {
               point: wrist,
               rotation,
               bend: HumanHand.elbow(body, posture, side),
-              // The clasp's own arm solution anchors the pump; the reach
-              // arrives at it and the return leaves it unanchored.
-              ...(gripping ? { planted: true, reference: own.reference } : {}),
+              // The clasp's own arm solution anchors the pump, the reach more
+              // and more as it arrives and the return less and less as it
+              // leaves.
+              ...(gripping
+                ? { planted: true, reference: own.reference }
+                : {
+                    reference: {
+                      ...own.reference,
+                      weight:
+                        t < reach
+                          ? minimumJerk(t / reach).s
+                          : 1 - minimumJerk((t - reach - shake) / back).s,
+                    },
+                  }),
             },
           },
         };

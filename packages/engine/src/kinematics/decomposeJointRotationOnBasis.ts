@@ -19,12 +19,36 @@ const RAD2DEG: number = 180 / Math.PI;
 const QUATERNION_AXES: readonly ["x", "y", "z", "w"] = ["x", "y", "z", "w"];
 
 /**
- * Projected cosine below which cancellation is at unit-matrix roundoff and the
- * gimbal convention pins one outer angle. Resolvable near-gimbal turns stay active.
+ * Projected cosine at or below which the gimbal convention pins one outer
+ * angle: the square root of the binary64 unit roundoff, about 1.5e-8.
+ *
+ * With a projected cosine `c`, the two outer angles are read from matrix
+ * entries of size `c` that carry a rounding error of about one unit roundoff
+ * `e`, so each is uncertain by about `e / c` radians; pinning one of them to
+ * zero instead rebuilds the rotation within `c` times the pinned angle. The
+ * two errors meet at `c = sqrt(e)`, the usual balance of a rounding against a
+ * truncation error, where both are near 1e-8 radian. A narrower band leaves
+ * turns whose outer angles are rounding noise, tens of degrees at `c` near
+ * 1e-15, which a caller that holds one of the two (a hinge's immobile
+ * abduction clamped to zero) then shows as a rotation error of that size: an
+ * elbow held at a right angle read a different forearm twist every call.
+ * Resolvable near-gimbal turns, from about a millionth of a degree off the
+ * right angle, stay active.
  */
-const GIMBAL_COSINE_EPSILON: number = 4 * Number.EPSILON;
+const GIMBAL_COSINE_EPSILON: number = Math.sqrt(Number.EPSILON);
 
-/** Choose an admitted full-turn alias when one exists; never clamp an angle. */
+/**
+ * Choose the full-turn alias of an angle nearest its admitted range: one
+ * inside the range when any is, otherwise the alias with the least overshoot
+ * (the lower one on a tie); never clamp an angle.
+ *
+ * The nearest alias matters for a range no alias can hit exactly. An immobile
+ * axis admits only 0, and an extraction returns its half turn as 180 degrees
+ * less a rounding error, so the alternate chart's 360 degrees less that error
+ * has no alias at exactly 0; left unaliased it would score a full turn of
+ * overshoot and lose the chart choice to a far worse chart, on rounding
+ * noise alone.
+ */
 const periodicAngle: (
   angle: number,
   range: IAutoMovieAngleRange | null,
@@ -34,9 +58,12 @@ const periodicAngle: (
   if (angle >= minimum && angle <= maximum) return angle;
   const first: number = Math.ceil((minimum - angle) / 360);
   const last: number = Math.floor((maximum - angle) / 360);
-  return first > last
-    ? angle
-    : angle + 360 * Math.max(first, Math.min(last, 0));
+  if (first <= last) return angle + 360 * Math.max(first, Math.min(last, 0));
+  // No alias is inside: `last` is the nearest one below the range and `first`
+  // the nearest one above it.
+  const below: number = angle + 360 * last;
+  const above: number = angle + 360 * first;
+  return minimum - below <= above - maximum ? below : above;
 };
 
 const assertFiniteQuaternion: (q: IAutoMovieQuaternion) => void = (

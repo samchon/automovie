@@ -266,11 +266,17 @@ export namespace pickUp {
               point: wrist,
               rotation: t < reach ? transport.turn(t) : grasp.rotation,
               bend,
-              // The grip's own arm solution anchors the hold and the lift;
-              // the reach arrives at it unanchored, so the two meet exactly.
+              // The grip's own arm solution anchors the hold and the lift,
+              // and the reach more and more as it arrives, so the two meet
+              // exactly.
               ...(t >= reach
                 ? { planted: true, reference: chosen.reference }
-                : {}),
+                : {
+                    reference: {
+                      ...chosen.reference,
+                      weight: minimumJerk(t / reach).s,
+                    },
+                  }),
             },
           },
         };

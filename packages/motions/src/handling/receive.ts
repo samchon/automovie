@@ -285,10 +285,19 @@ export namespace receive {
               rotation,
               bend,
               // The grasp's own arm solution anchors the hold and the
-              // take-away; the reach arrives at it unanchored.
+              // take-away, and the reach more and more as it arrives.
               ...(takes && t >= shared.gripClosed
                 ? { reference: shared.receiverReference }
-                : {}),
+                : takes && t > shared.reachStart
+                  ? {
+                      reference: {
+                        ...shared.receiverReference,
+                        weight: minimumJerk(
+                          (t - shared.reachStart) / shared.reach,
+                        ).s,
+                      },
+                    }
+                  : {}),
               ...(takes && t >= shared.gripClosed && t <= leave
                 ? { planted: true }
                 : {}),

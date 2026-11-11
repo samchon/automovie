@@ -555,9 +555,13 @@ function fitOnce(
     target: goal.point,
     bend: goal.bend,
     ...(goal.rotation === undefined ? {} : { effectorRotation: goal.rotation }),
-    ...(goal.reference === undefined
+    // A reference of no weight decides nothing, so it is left out entirely.
+    ...(goal.reference === undefined || goal.reference.weight === 0
       ? {}
       : {
+          ...(goal.reference.weight === undefined
+            ? {}
+            : { referenceWeight: goal.reference.weight }),
           referencePose: {
             ...pose,
             joints: [

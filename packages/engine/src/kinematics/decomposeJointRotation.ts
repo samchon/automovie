@@ -20,6 +20,9 @@ import { normalizeJointAxes } from "./normalizeJointAxes";
  * (abduction ±90 for a proximal twist, flexion ±90 for a distal one) only one
  * combination of the outer angles is determined, so the other outer angle is
  * pinned to 0 and twist takes the rest; the angles still rebuild the rotation.
+ * The pin holds within a projected cosine of the square root of the unit
+ * roundoff, about 1.5e-8, where the two outer angles are otherwise rounding
+ * noise and the pinned angles rebuild the rotation within 1e-7 radian.
  * A left-handed basis, such as the default (`flexion × abduction = −twist`),
  * is extracted against `−twist` and the twist sign restored, so the round trip
  * holds for any orthonormal basis.
@@ -28,7 +31,7 @@ import { normalizeJointAxes } from "./normalizeJointAxes";
  * `clinical = sign · r + neutral`. A `domain` with a non-null constraint also
  * considers the rotation's second Euler chart, `(f + 180, 180 − a, t + 180)`
  * for a proximal twist and `(180 − f, a + 180, t + 180)` for a distal one, and
- * full-turn aliases of each that fall inside the constraint's ranges. The
+ * the full-turn alias of each angle nearest the constraint's range. The
  * candidate with the least {@link jointRomOvershoot} wins, the principal chart
  * on a tie. Every candidate is the same rotation, so a pose no chart can hold
  * keeps its overshoot instead of being clamped.
@@ -44,7 +47,7 @@ import { normalizeJointAxes } from "./normalizeJointAxes";
  * @param domain Bone and resolved ROM that choose among equivalent charts;
  *   omitted or with a `null` constraint, the principal chart is returned.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Closed-form Euler extraction reads sine and projected cosine through atan2, preserving resolvable near-gimbal rotations that asin can round to ninety degrees; only cosine at four binary64 unit epsilons takes the undetermined-angle convention. Normalized orthogonal axes and unit input rotations are the premises, and alternate charts/full turns retain the same rotation up to roundoff.
+ * @evidence contracts/development/implementation.md#principled-implementation Closed-form Euler extraction reads sine and projected cosine through atan2, preserving resolvable near-gimbal rotations that asin can round to ninety degrees; only a projected cosine within the square root of the binary64 unit roundoff, where a rounding error and the pin's truncation error meet, takes the undetermined-angle convention. Normalized orthogonal axes and unit input rotations are the premises, and alternate charts/full turns retain the same rotation up to roundoff.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The extraction, the handedness correction, the clinical lift and the ROM chart choice sit in one inverse because each depends on the others' convention; ROM scoring is delegated to `jointRomOvershoot` and frame arithmetic to `toClinicalAngle`, so the gate and this inverse read one rule.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Selection compares the caller's unchanged constraint and never clamps an angle into range; the gimbal pin is the standard convention for an undetermined pair, not a compensation, and no bone is special-cased.
  * @evidence contracts/development/common.md#meaningful-documentation States the inverse relationship, both composition orders, the gimbal convention, the handedness correction, the frame lift, both alternate charts and the tie rule, the thrown inputs, the unit-quaternion premise, and each parameter's default.
