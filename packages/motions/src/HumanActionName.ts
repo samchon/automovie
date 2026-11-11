@@ -59,6 +59,7 @@
  * - `gymnastics`: a handstand kicked up from standing, held and stepped down.
  * - `martialArt`: a martial-art technique (horse stance, choku-zuki, tai chi push).
  * - `ballSport`: a team ball skill with an implied ball (dribble, dig, set, throw-in).
+ * - `baseball`: a baseball position (catcher's crouch, ground ball, batting stance).
  */
 export type HumanActionName =
   | "stand"
@@ -115,4 +116,5 @@ export type HumanActionName =
   | "athletics"
   | "gymnastics"
   | "martialArt"
-  | "ballSport";
+  | "ballSport"
+  | "baseball";

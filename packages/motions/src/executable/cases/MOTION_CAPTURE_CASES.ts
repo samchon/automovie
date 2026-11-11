@@ -4,6 +4,7 @@ import { affectionCases } from "./affectionCases";
 import { affordanceCases } from "./affordanceCases";
 import { athleticsCases } from "./athleticsCases";
 import { ballSportCases } from "./ballSportCases";
+import { baseballCases } from "./baseballCases";
 import { ballStrikeCases } from "./ballStrikeCases";
 import { climbCases } from "./climbCases";
 import { crouchCases } from "./crouchCases";
@@ -183,4 +184,7 @@ export const MOTION_CAPTURE_CASES: Readonly<
   "team-ball": (): IMotionCaptureCase[] => ballSportCases(),
   "team-ball-sweep": (): IMotionCaptureCase[] =>
     ballSportCases(MotionBodies.SWEEP),
+  baseball: (): IMotionCaptureCase[] => baseballCases(),
+  "baseball-sweep": (): IMotionCaptureCase[] =>
+    baseballCases(MotionBodies.SWEEP),
 };

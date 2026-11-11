@@ -34,6 +34,7 @@ import { knockdown } from "../reaction/knockdown";
 import { stagger } from "../reaction/stagger";
 import { athletics } from "../sport/athletics";
 import { ballSport } from "../sport/ballSport";
+import { baseball } from "../sport/baseball";
 import { gymnastics } from "../sport/gymnastics";
 import { martialArt } from "../sport/martialArt";
 import { defend } from "../striking/defend";
@@ -120,4 +121,5 @@ export const HUMAN_ACTIONS: Readonly<
   gymnastics,
   martialArt,
   ballSport,
+  baseball,
 };
