@@ -1,4 +1,8 @@
-import { AutoMovieMotionHumanVariation } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanVariation,
+  AutoMovieMotionHumanVariationForm,
+  AutoMovieMotionHumanVariationPlace,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { MOTION_VARIATION_BODIES } from "../internal/MOTION_VARIATION_BODIES";
@@ -24,7 +28,7 @@ export function test_motion_compose_variation_reproducible(): void {
   const all = (index: number): unknown[] => {
     const source = motionVariationSource({ index });
     return [
-      AutoMovieMotionHumanVariation.place(
+      AutoMovieMotionHumanVariationPlace.vary(
         source,
         "place",
         MOTION_VARIATION_BODIES[0]!,
@@ -42,11 +46,11 @@ export function test_motion_compose_variation_reproducible(): void {
         y: 0,
         z: 1,
       }),
-      AutoMovieMotionHumanVariation.amount(source, "amount", 0.5),
+      AutoMovieMotionHumanVariationForm.amount(source, "amount", 0.5),
       AutoMovieMotionHumanVariation.duration(source, "duration", 0.3),
       AutoMovieMotionHumanVariation.pause(source, "pause", 0.4),
-      AutoMovieMotionHumanVariation.bend(source, "bend", 0.2),
-      AutoMovieMotionHumanVariation.curvature(source, "curvature", 0.1),
+      AutoMovieMotionHumanVariationForm.bend(source, "bend", 0.2),
+      AutoMovieMotionHumanVariationForm.curvature(source, "curvature", 0.1),
     ];
   };
   const still: unknown[] = [

@@ -1,6 +1,6 @@
 import {
   AutoMovieMotionHumanTarget,
-  AutoMovieMotionHumanVariation,
+  AutoMovieMotionHumanVariationPlace,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -32,11 +32,14 @@ import { motionVariationSource } from "../internal/motionVariationSource";
  */
 export function test_motion_compose_variation_named(): void {
   const posture = { root: { x: 0, y: 0, z: 0 }, yaw: 0 };
-  const travel: AutoMovieMotionHumanVariation.ITravel = {
+  const travel: AutoMovieMotionHumanVariationPlace.ITravel = {
     distance: 0.6,
     seconds: 0.3,
   };
-  const strays = (grid: AutoMovieMotionHumanTarget.IGrid, count: number): string[] => {
+  const strays = (
+    grid: AutoMovieMotionHumanTarget.IGrid,
+    count: number,
+  ): string[] => {
     const out: string[] = [];
     for (const [b, body] of MOTION_VARIATION_BODIES.entries())
       for (const side of ["left", "right"] as const) {
@@ -49,7 +52,7 @@ export function test_motion_compose_variation_named(): void {
             AutoMovieMotionHumanTarget.fallback(
               body,
               posture,
-              AutoMovieMotionHumanVariation.place(
+              AutoMovieMotionHumanVariationPlace.vary(
                 motionVariationSource({ index }),
                 "place",
                 body,
@@ -89,7 +92,10 @@ export function test_motion_compose_variation_named(): void {
     "the wave and the stop palm keep their names",
     [
       ...strays({ height: "eye", lateral: "outside", distance: "near" }, 1024),
-      ...strays({ height: "shoulder", lateral: "inside", distance: "far" }, 1024),
+      ...strays(
+        { height: "shoulder", lateral: "inside", distance: "far" },
+        1024,
+      ),
     ],
     [],
   );
@@ -97,7 +103,7 @@ export function test_motion_compose_variation_named(): void {
   // 3. The floor.
   const body = MOTION_VARIATION_BODIES[0]!;
   const floor = Array.from({ length: 128 }, (_: unknown, index: number) =>
-    AutoMovieMotionHumanVariation.place(
+    AutoMovieMotionHumanVariationPlace.vary(
       motionVariationSource({ index }),
       "place",
       body,

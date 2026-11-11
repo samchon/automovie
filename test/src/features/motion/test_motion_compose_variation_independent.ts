@@ -1,4 +1,4 @@
-import { AutoMovieMotionHumanVariation } from "@automovie/motions";
+import { AutoMovieMotionHumanVariationForm } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionVariationSource } from "../internal/motionVariationSource";
@@ -23,7 +23,7 @@ import { motionVariationSource } from "../internal/motionVariationSource";
 export function test_motion_compose_variation_independent(): void {
   const source = motionVariationSource();
   const slot = (key: string): number =>
-    AutoMovieMotionHumanVariation.bend(source, key, 0);
+    AutoMovieMotionHumanVariationForm.bend(source, key, 0);
   const alone: number[] = [slot("a"), slot("b")];
   const a: number = slot("a");
   slot("c");

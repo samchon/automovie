@@ -1,6 +1,8 @@
 import {
-  AutoMovieMotionHumanVariation,
   type AutoMovieMotionHumanTarget,
+  AutoMovieMotionHumanVariation,
+  AutoMovieMotionHumanVariationForm,
+  AutoMovieMotionHumanVariationPlace,
   HumanSkill,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -56,7 +58,7 @@ export function test_motion_compose_variation_identity(): void {
   const vector = { x: 0, y: 0, z: 1 };
   TestValidator.predicate(
     "every slot returns its input",
-    AutoMovieMotionHumanVariation.place(
+    AutoMovieMotionHumanVariationPlace.vary(
       undefined,
       "place",
       MOTION_VARIATION_BODIES[0]!,
@@ -64,15 +66,22 @@ export function test_motion_compose_variation_identity(): void {
       record,
       { distance: 0.6, seconds: 0.3 },
     ) === record &&
-      AutoMovieMotionHumanVariation.direction(undefined, "direction", vector) ===
-        vector &&
-      AutoMovieMotionHumanVariation.amount(undefined, "amount", 0.5) === 0.5 &&
+      AutoMovieMotionHumanVariation.direction(
+        undefined,
+        "direction",
+        vector,
+      ) === vector &&
+      AutoMovieMotionHumanVariationForm.amount(undefined, "amount", 0.5) ===
+        0.5 &&
       AutoMovieMotionHumanVariation.duration(undefined, "duration", 0.3) ===
         0.3 &&
       AutoMovieMotionHumanVariation.pause(undefined, "pause", 0.4) === 0.4 &&
-      AutoMovieMotionHumanVariation.bend(undefined, "bend", 0.2) === 0.2 &&
-      AutoMovieMotionHumanVariation.curvature(undefined, "curvature", 0.1) ===
-        0.1 &&
+      AutoMovieMotionHumanVariationForm.bend(undefined, "bend", 0.2) === 0.2 &&
+      AutoMovieMotionHumanVariationForm.curvature(
+        undefined,
+        "curvature",
+        0.1,
+      ) === 0.1 &&
       AutoMovieMotionHumanVariation.strike(undefined, "strike", {
         radius: 0.1,
         scatter: 0.02,

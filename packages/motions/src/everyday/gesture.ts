@@ -14,6 +14,7 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionHumanVariation } from "../compose/AutoMovieMotionHumanVariation";
+import { AutoMovieMotionHumanVariationPlace } from "../compose/AutoMovieMotionHumanVariationPlace";
 import type { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
@@ -192,7 +193,7 @@ export namespace gesture {
             vary: (
               record: AutoMovieMotionHumanTarget.IDefault,
             ): AutoMovieMotionHumanTarget.IDefault =>
-              AutoMovieMotionHumanVariation.place(
+              AutoMovieMotionHumanVariationPlace.vary(
                 source,
                 "place",
                 body,
@@ -207,7 +208,7 @@ export namespace gesture {
     // as named until then.
     const source: AutoMovieMotionHumanVariation.ISource | undefined =
       AutoMovieMotionHumanVariation.of(context, p.manner);
-    let travel: AutoMovieMotionHumanVariation.ITravel | undefined;
+    let travel: AutoMovieMotionHumanVariationPlace.ITravel | undefined;
 
     // Where each hand starts (the entry) and rests (the relaxed hanging arm), in the performer's frame.
     const probe: IHumanActionPlan = stand.plan({

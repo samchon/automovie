@@ -1,4 +1,7 @@
-import { AutoMovieMotionHumanVariation } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanVariationDraw,
+  AutoMovieMotionHumanVariationForm,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionVariationSource } from "../internal/motionVariationSource";
@@ -32,7 +35,7 @@ import { motionVariationSource } from "../internal/motionVariationSource";
 export function test_motion_compose_variation_spaced(): void {
   const COUNT: number = 64;
   const draws = (index: number, count: 1 | 2): number[] =>
-    AutoMovieMotionHumanVariation.uniforms(
+    AutoMovieMotionHumanVariationDraw.uniforms(
       motionVariationSource({ index }).series("slot"),
       count,
     );
@@ -55,7 +58,7 @@ export function test_motion_compose_variation_spaced(): void {
   const bends: number[] = Array.from(
     { length: COUNT },
     (_: unknown, index: number): number =>
-      AutoMovieMotionHumanVariation.bend(
+      AutoMovieMotionHumanVariationForm.bend(
         motionVariationSource({ index }),
         "slot",
         0,
@@ -65,7 +68,9 @@ export function test_motion_compose_variation_spaced(): void {
     "neighbouring repeats differ by 0.9 of a spread",
     bends
       .slice(1)
-      .every((v: number, i: number): boolean => Math.abs(v - bends[i]!) >= 0.045),
+      .every(
+        (v: number, i: number): boolean => Math.abs(v - bends[i]!) >= 0.045,
+      ),
   );
 
   const bins: number[] = new Array<number>(8).fill(0);

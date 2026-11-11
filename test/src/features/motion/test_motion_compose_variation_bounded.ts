@@ -1,8 +1,10 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanBend,
-  AutoMovieMotionHumanVariation,
   type AutoMovieMotionHumanTarget,
+  AutoMovieMotionHumanVariation,
+  AutoMovieMotionHumanVariationForm,
+  AutoMovieMotionHumanVariationPlace,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -57,8 +59,10 @@ export function test_motion_compose_variation_bounded(): void {
     skill: number = 0,
     count: number = COUNT,
   ): T[] =>
-    Array.from({ length: count }, (_: unknown, index: number): T =>
-      read(motionVariationSource({ index, skill })),
+    Array.from(
+      { length: count },
+      (_: unknown, index: number): T =>
+        read(motionVariationSource({ index, skill })),
     );
   const within = (offsets: number[], bound: number): boolean =>
     offsets.every((o: number): boolean => Math.abs(o) <= bound + 1e-12);
@@ -77,14 +81,23 @@ export function test_motion_compose_variation_bounded(): void {
     facing: "performer",
   };
   const places = repeats((source) =>
-    AutoMovieMotionHumanVariation.place(source, "place", body, "left", chest, {
-      distance: 1,
-      seconds: 0.2,
-    }),
+    AutoMovieMotionHumanVariationPlace.vary(
+      source,
+      "place",
+      body,
+      "left",
+      chest,
+      {
+        distance: 1,
+        seconds: 0.2,
+      },
+    ),
   );
   const forward: number[] = places.map((p) => p.range - 0.8);
   const out: number[] = places.map((p) => (p.lateral! * 0.2) / 0.55);
-  const up: number[] = places.map((p) => ((p.height - chest.height) * 1.7) / 0.55);
+  const up: number[] = places.map(
+    (p) => ((p.height - chest.height) * 1.7) / 0.55,
+  );
   TestValidator.predicate(
     "a place stays in its cell on every axis",
     within(forward, 0.08) &&
@@ -96,9 +109,9 @@ export function test_motion_compose_variation_bounded(): void {
 
   // 2. to 6. The scalar slots, the direction and the strike point.
   const amounts = (share: number): number[] =>
-    repeats((s) => AutoMovieMotionHumanVariation.amount(s, "amount", share)).map(
-      (v: number): number => v - share,
-    );
+    repeats((s) =>
+      AutoMovieMotionHumanVariationForm.amount(s, "amount", share),
+    ).map((v: number): number => v - share);
   const durations = (seconds: number): number[] =>
     repeats((s) =>
       AutoMovieMotionHumanVariation.duration(s, "duration", seconds),
@@ -107,10 +120,10 @@ export function test_motion_compose_variation_bounded(): void {
     AutoMovieMotionHumanVariation.pause(s, "pause", 0.4),
   ).map((v: number): number => v - 0.4);
   const bends: number[] = repeats((s) =>
-    AutoMovieMotionHumanVariation.bend(s, "bend", 0.2),
+    AutoMovieMotionHumanVariationForm.bend(s, "bend", 0.2),
   ).map((v: number): number => v - 0.2);
   const curvatures: number[] = repeats((s) =>
-    AutoMovieMotionHumanVariation.curvature(s, "curvature", 0.1),
+    AutoMovieMotionHumanVariationForm.curvature(s, "curvature", 0.1),
   ).map((v: number): number => v - 0.1);
   TestValidator.predicate(
     "an amount stays in its level",
@@ -207,8 +220,13 @@ export function test_motion_compose_variation_bounded(): void {
     Math.sqrt(
       repeats(
         (s) =>
-          AutoMovieMotionHumanVariation.place(s, "place", body, "left", ahead)
-            .range - 0.8,
+          AutoMovieMotionHumanVariationPlace.vary(
+            s,
+            "place",
+            body,
+            "left",
+            ahead,
+          ).range - 0.8,
         skill,
       ).reduce((sum: number, o: number): number => sum + o * o, 0) / COUNT,
     );
@@ -241,7 +259,7 @@ export function test_motion_compose_variation_bounded(): void {
   };
   const radius: number = Math.sqrt(0.3 ** 2 - along ** 2);
   const elbows: IAutoMovieVector3[] = repeats(
-    (s) => AutoMovieMotionHumanVariation.swivel(s, "elbow", props, solved),
+    (s) => AutoMovieMotionHumanVariationForm.swivel(s, "elbow", props, solved),
     0,
     64,
   );

@@ -1,5 +1,6 @@
 import {
   AutoMovieMotionHumanVariation,
+  AutoMovieMotionHumanVariationForm,
   AutoMovieMotionManner,
   HumanSkill,
 } from "@automovie/motions";
@@ -45,11 +46,11 @@ export function test_motion_compose_variation_existing(): void {
   const before = AutoMovieMotionManner.of(context, manner);
   const source = AutoMovieMotionHumanVariation.of(context, manner)!;
   const slots: number[] = [
-    AutoMovieMotionHumanVariation.amount(source, "amount", 0.5),
+    AutoMovieMotionHumanVariationForm.amount(source, "amount", 0.5),
     AutoMovieMotionHumanVariation.duration(source, "duration", 0.3),
     AutoMovieMotionHumanVariation.pause(source, "pause", 0.4),
-    AutoMovieMotionHumanVariation.bend(source, "bend", 0.2),
-    AutoMovieMotionHumanVariation.bend(source, "manner", 0.2),
+    AutoMovieMotionHumanVariationForm.bend(source, "bend", 0.2),
+    AutoMovieMotionHumanVariationForm.bend(source, "manner", 0.2),
   ];
   TestValidator.equals(
     "the manner's modifiers after the slots",
@@ -64,7 +65,6 @@ export function test_motion_compose_variation_existing(): void {
   );
   TestValidator.predicate(
     "a slot keyed like a channel draws its own value",
-    slots[4] !== slots[3] &&
-      source.series("manner").random.float(0) !== first,
+    slots[4] !== slots[3] && source.series("manner").random.float(0) !== first,
   );
 }

@@ -1,6 +1,6 @@
 import {
-  AutoMovieMotionHumanVariation,
   type AutoMovieMotionHumanTarget,
+  AutoMovieMotionHumanVariationPlace,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -34,7 +34,7 @@ export function test_motion_compose_variation_keyed(): void {
     props: Parameters<typeof motionVariationSource>[0],
     key: string = "place",
   ): AutoMovieMotionHumanTarget.IDefault =>
-    AutoMovieMotionHumanVariation.place(
+    AutoMovieMotionHumanVariationPlace.vary(
       motionVariationSource(props),
       key,
       MOTION_VARIATION_BODIES[0]!,
