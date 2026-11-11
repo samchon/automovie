@@ -4,10 +4,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -15,13 +15,13 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import { HumanBalance } from "./HumanBalance";
 import { HumanGaze } from "./HumanGaze";
 import { HumanTrunk } from "./HumanTrunk";
 import { handGoals } from "./handGoals";
-import { poseBones } from "../posture/poseBones";
 
 /**
  * Bending down to bring a hand to a low point (the floor, a low shelf, a
@@ -390,7 +390,7 @@ export namespace bend {
    * @evidence contracts/development/common.md#meaningful-documentation States what is lowered, moved and pitched, each parameter's unit and range, and the squat's heel lift in the implementation comments.
    * @evidence contracts/development/implementation.md#principled-implementation Moves the hips' goal down by the strategy's share of the hip height and back by `back` in the posture's frame, inclines the trunk by the lumbopelvic rhythm with the pelvis limited by hip flexion (HumanTrunk.pelvisLimit), lifts a squat's heels about the ball (HumanFoot.pivot) with the toes bent to stay flat, and re-solves the planted legs, lowering the pelvis where a leg cannot reach.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture transform shared by the plan, the balance solve and the reach bisection; the inclination split, foot pivot and leg solve are imported from their owners.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts HIPS and HEEL are named provisional shares; no body or case is special-cased. Known defect: the squat's heel lift moves the ball contact by 36 to 46 mm in the local step and bend test, so the lift does not yet hold the ball fixed.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts HIPS and HEEL are named provisional shares; no body or case is special-cased. The pelvis limit is read over the lifted ankles, so the hip stays within its flexion range and the foot holds its contact through the squat.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work: one trunk incline, at most two foot pivots and one leg-lowering solve.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure function; callers that need the same lowered posture call it once per sample.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new posture and retains nothing.
@@ -418,20 +418,6 @@ export namespace bend {
         hips,
       ),
     );
-    const tilt = HumanTrunk.incline(
-      posture.joints,
-      pitch,
-      HumanTrunk.pelvisLimit(body, level, posture.yaw, {
-        left: posture.limbs.leftLeg!.point,
-        right: posture.limbs.rightLeg!.point,
-      }),
-    );
-    const tipped: IHumanPosture = {
-      ...posture,
-      pitch: posture.pitch + tilt.pitch,
-    };
-    const joints: IHumanPosture["joints"] = tilt.joints;
-
     // A squat deeper than the ankles' 20 degree dorsiflexion range lets the
     // heels rise, each foot turning about its toes' joint, the contact its
     // goal names (provisional heel lift).
@@ -461,6 +447,23 @@ export namespace bend {
           contact: HumanFoot.offset(body, side, "mtp"),
         };
       }
+
+    // The pelvis tilts by what the hips leave it over the ankles as the legs
+    // will hold them: a lifted heel raises its ankle and folds the thigh
+    // further, so the limit is read after the lift.
+    const tilt = HumanTrunk.incline(
+      posture.joints,
+      pitch,
+      HumanTrunk.pelvisLimit(body, level, posture.yaw, {
+        left: limbs.leftLeg!.point,
+        right: limbs.rightLeg!.point,
+      }),
+    );
+    const tipped: IHumanPosture = {
+      ...posture,
+      pitch: posture.pitch + tilt.pitch,
+    };
+    const joints: IHumanPosture["joints"] = tilt.joints;
 
     // With the heels up the toes bend at their joints and stay flat on the floor.
     const toes: IHumanPosture["joints"] =

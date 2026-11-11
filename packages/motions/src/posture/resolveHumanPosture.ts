@@ -415,8 +415,15 @@ export namespace resolveHumanPosture {
 /** How far a re-aimed end joint may still move between two fits of a limb with a contact, metres (provisional: a fiftieth of a millimetre, far inside every contact verdict). */
 const REAIM_TOLERANCE: number = 2e-5;
 
-/** The most fits a limb with a contact takes (provisional: the mixed iteration closes in three to five on a joint at its limit). */
-const REAIM_PASSES: number = 8;
+/**
+ * The most fits a limb with a contact takes (provisional). The mixed
+ * iteration closes in three to five on a joint well past its limit. A foot
+ * whose flat pose misses the ankle's range by under a degree has its only
+ * solution far away, at a heel raised by centimetres, and the first passes
+ * move away from the flat pose slowly: up to eleven fits measured on a
+ * stagger's landed rear foot.
+ */
+const REAIM_PASSES: number = 16;
 
 /** The three bones of a limb's chain. */
 interface IChain {
@@ -499,8 +506,7 @@ function fitLimb(
     // The toes belong to the fit they were read from, which is the one kept.
     toes = off.toes;
     const miss: IAutoMovieVector3 = Vector3.subtract(off.ankle, point);
-    if (Vector3.length(miss) < REAIM_TOLERANCE || i === REAIM_PASSES - 1)
-      break;
+    if (Vector3.length(miss) < REAIM_TOLERANCE || i === REAIM_PASSES - 1) break;
     let next: IAutoMovieVector3 = off.ankle;
     if (last !== undefined) {
       const change: IAutoMovieVector3 = Vector3.subtract(miss, last.miss);

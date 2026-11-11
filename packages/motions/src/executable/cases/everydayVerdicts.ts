@@ -4,6 +4,7 @@ import {
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieJointPose,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -16,12 +17,13 @@ import { FootSlip } from "./FootSlip";
 
 /**
  * The numeric checks the everyday capture cases report beside their sheets,
- * measured on the displayed poses the sheets draw: foot slip in the plant
- * windows, range-of-motion overshoot, and a bounded distance.
+ * measured on the displayed poses the sheets draw: foot slip and the foot's
+ * height off the floor in the plant windows, a joint's travel per frame,
+ * range-of-motion overshoot, and a bounded distance.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each check measures and on which poses.
  * @evidence contracts/development/implementation.md#principled-implementation Slip is the sole centre's drift inside each declared plant window on the 24 Hz grid; overshoot is the engine's per-joint measure against the default humanoid range.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Three small measures and one verdict builder.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Five small measures over one list of plant windows, and one verdict builder.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Measures read displayed poses, never the laws' goals, except where a check names its goal.
  * @evidence contracts/development/implementation.md#efficient-algorithms Linear in frames times joints.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Run once per capture.
@@ -45,39 +47,87 @@ export namespace everydayVerdicts {
     body: IHumanBody,
   ): { value: number; where: string } {
     let worst: { value: number; where: string } = { value: 0, where: "none" };
-    for (const segment of performance.segments(subject))
-      for (const contact of segment.plan.contacts) {
-        if (
-          contact.kind !== "plant" ||
-          (contact.part !== "leftFoot" && contact.part !== "rightFoot")
-        )
-          continue;
-        const side: "left" | "right" =
-          contact.part === "leftFoot" ? "left" : "right";
-        const from: number = Math.max(
-          segment.entryTime,
-          segment.start + contact.from * segment.plan.duration,
+    for (const plant of plants(performance, subject)) {
+      const anchors: Map<string, IAutoMovieVector3> = new Map();
+      for (let t: number = plant.from; t <= plant.to + 1e-9; t += 1 / 24) {
+        const value: number = FootSlip.drift(
+          anchors,
+          plant.part,
+          FootSlip.contact(
+            HumanFoot.sockets(body, performance.bones(subject, t), plant.side),
+          ),
         );
-        const to: number = Math.min(
-          segment.end,
-          segment.start + contact.to * segment.plan.duration,
-        );
-        const anchors: Map<string, IAutoMovieVector3> = new Map();
-        for (let t: number = from; t <= to + 1e-9; t += 1 / 24) {
-          const value: number = FootSlip.drift(
-            anchors,
-            contact.part,
-            FootSlip.contact(
-              HumanFoot.sockets(body, performance.bones(subject, t), side),
-            ),
-          );
-          if (value > worst.value)
-            worst = {
-              value,
-              where: `${segment.name} ${contact.part} at ${t.toFixed(2)} s`,
-            };
-        }
+        if (value > worst.value)
+          worst = {
+            value,
+            where: `${plant.action} ${plant.part} at ${t.toFixed(2)} s`,
+          };
       }
+    }
+    return worst;
+  }
+
+  /**
+   * The farthest a foot planted on the ground is from the floor within any
+   * of its plant windows, metres, and where it happens: the height of the
+   * sole point {@link FootSlip} reads as the contact, above or below zero, on
+   * the 24 Hz grid. A plant on something raised is not read.
+   *
+   * @param performance The performance.
+   * @param subject The person.
+   * @param body The person's body.
+   * @returns Metres, with the action, the foot and the film second of the worst height.
+   */
+  export function grounded(
+    performance: HumanPerformance,
+    subject: string,
+    body: IHumanBody,
+  ): { value: number; where: string } {
+    let worst: { value: number; where: string } = { value: 0, where: "none" };
+    for (const plant of plants(performance, subject)) {
+      if (plant.ground === false) continue;
+      for (let t: number = plant.from; t <= plant.to + 1e-9; t += 1 / 24) {
+        const value: number = Math.abs(
+          FootSlip.contact(
+            HumanFoot.sockets(body, performance.bones(subject, t), plant.side),
+          ).point.y,
+        );
+        if (value > worst.value)
+          worst = {
+            value,
+            where: `${plant.action} ${plant.part} at ${t.toFixed(2)} s`,
+          };
+      }
+    }
+    return worst;
+  }
+
+  /**
+   * The farthest a bone's joint travels in one frame of the 24 Hz grid
+   * between two film seconds, metres: a speed limit read on displayed poses.
+   *
+   * @param performance The performance.
+   * @param subject The person.
+   * @param bone The bone.
+   * @param from Film seconds.
+   * @param to Film seconds.
+   * @returns Metres per 1/24 s.
+   */
+  export function travel(
+    performance: HumanPerformance,
+    subject: string,
+    bone: AutoMovieHumanoidBone,
+    from: number,
+    to: number,
+  ): number {
+    const at = (t: number): IAutoMovieVector3 =>
+      performance.bones(subject, t).get(bone)!.worldPosition;
+    let worst: number = 0;
+    for (let t: number = from; t + 1 / 24 <= to + 1e-9; t += 1 / 24) {
+      const a: IAutoMovieVector3 = at(t);
+      const b: IAutoMovieVector3 = at(t + 1 / 24);
+      worst = Math.max(worst, Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z));
+    }
     return worst;
   }
 
@@ -200,4 +250,42 @@ export namespace everydayVerdicts {
       ),
     ];
   }
+}
+
+/** A foot's plant window in film seconds, clipped to its action's own span. */
+interface IPlant {
+  action: string;
+  part: "leftFoot" | "rightFoot";
+  side: "left" | "right";
+  from: number;
+  to: number;
+  ground: boolean;
+}
+
+/** Every foot plant window of a person's performance. */
+function plants(performance: HumanPerformance, subject: string): IPlant[] {
+  const out: IPlant[] = [];
+  for (const segment of performance.segments(subject))
+    for (const contact of segment.plan.contacts) {
+      if (
+        contact.kind !== "plant" ||
+        (contact.part !== "leftFoot" && contact.part !== "rightFoot")
+      )
+        continue;
+      out.push({
+        action: segment.name,
+        part: contact.part,
+        side: contact.part === "leftFoot" ? "left" : "right",
+        from: Math.max(
+          segment.entryTime,
+          segment.start + contact.from * segment.plan.duration,
+        ),
+        to: Math.min(
+          segment.end,
+          segment.start + contact.to * segment.plan.duration,
+        ),
+        ground: contact.support?.kind === "ground",
+      });
+    }
+  return out;
 }
