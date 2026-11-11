@@ -1,11 +1,15 @@
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
+import { affectionCases } from "./affectionCases";
+import { crouchCases } from "./crouchCases";
 import { everydayCases } from "./everydayCases";
 import { galleryCases } from "./galleryCases";
+import { handToFaceCases } from "./handToFaceCases";
 import { handlingCases } from "./handlingCases";
 import { jumpCases } from "./jumpCases";
 import { locomotionCases } from "./locomotionCases";
 import { reactionCases } from "./reactionCases";
+import { stairsCases } from "./stairsCases";
 import { standCases } from "./standCases";
 import { strikingCases } from "./strikingCases";
 import { variationCases } from "./variationCases";
@@ -111,4 +115,14 @@ export const MOTION_CAPTURE_CASES: Readonly<
   ): Iterable<IMotionCaptureCase> => strikingCases("striking-air", only),
   variation: (only?: (name: string) => boolean): Iterable<IMotionCaptureCase> =>
     variationCases(only),
+  "hand-face": (): IMotionCaptureCase[] => handToFaceCases(),
+  "hand-face-sweep": (): IMotionCaptureCase[] =>
+    handToFaceCases(MotionBodies.SWEEP),
+  crouch: (): IMotionCaptureCase[] => crouchCases(),
+  "crouch-sweep": (): IMotionCaptureCase[] => crouchCases(MotionBodies.SWEEP),
+  stairs: (): IMotionCaptureCase[] => stairsCases(),
+  "stairs-sweep": (): IMotionCaptureCase[] => stairsCases(MotionBodies.SWEEP),
+  affection: (): IMotionCaptureCase[] => affectionCases(),
+  "affection-sweep": (): IMotionCaptureCase[] =>
+    affectionCases(MotionBodies.SWEEP),
 };

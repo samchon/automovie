@@ -33,6 +33,13 @@
  * - `stagger`: one unplanned capture step after a push.
  * - `knockdown`: the legs giving way and the body going down to lie supine.
  * - `knee`: a knee driven onto a target, in the clinch or free.
+ * - `touch`: a hand laid on a partner's or one's own region and moved on it by a kind of touch.
+ * - `handToFace`: a hand-to-face task of daily living (drink, eat, phone, read, groom).
+ * - `crouch`: a crouch or squat held over the planted feet, then standing again.
+ * - `kneel`: kneeling on one knee, on both, or sitting back on the heels, then rising.
+ * - `climbStairs`: climbing a flight of stairs up or down, step over step or step by step.
+ * - `kiss`: the lips brought to a partner's region by a lean and a neck flexion.
+ * - `highFive`: two partners' hands meeting at one shared point and instant.
  */
 export type HumanActionName =
   | "stand"
@@ -63,4 +70,11 @@ export type HumanActionName =
   | "receive"
   | "stepOver"
   | "brace"
-  | "typeText";
+  | "typeText"
+  | "touch"
+  | "handToFace"
+  | "crouch"
+  | "kneel"
+  | "climbStairs"
+  | "kiss"
+  | "highFive";

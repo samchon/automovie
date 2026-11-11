@@ -1,0 +1,256 @@
+import type {
+  AutoMovieMotionTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import type { HumanActionName } from "../HumanActionName";
+import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
+import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
+import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
+import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
+import { AutoMovieMotionHumanTouchForm } from "../compose/AutoMovieMotionHumanTouchForm";
+import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
+import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
+import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import type { IHumanActionContext } from "../law/IHumanActionContext";
+import type { IHumanActionLaw } from "../law/IHumanActionLaw";
+import type { IHumanActionPlan } from "../law/IHumanActionPlan";
+import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import type { HumanHand } from "../posture/HumanHand";
+import type { IHumanPosture } from "../posture/IHumanPosture";
+import { poseBones } from "../posture/poseBones";
+
+/**
+ * A touch while standing: one hand, or both, laid on a region of a partner
+ * or of the performer's own body and moved on it by a kind of social touch
+ * (Jung et al. 2017): a tap, a pat, a stroke, a rub, a press, a squeeze, a
+ * hold or a scratch. It is the one law of the affectionate and social touch
+ * family (#3284: a pat on the head, a tap on the shoulder, a hand on the
+ * arm) and of the self-directed family (#3285: a belly pat, a nape rub, a
+ * forearm scratch, a self hug, hands over the ears), each item a row of
+ * `(effector, region, kind, timing)`.
+ *
+ * The hand reaches the region in the free-space transport time of the
+ * distance (`AutoMovieMotionHumanTiming.transport`), repeats the kind's
+ * stroke `count` times (`AutoMovieMotionHumanTouchForm.FORMS`), dwells for the
+ * hold and goes back in the reach's time; the manner's tempo scales every
+ * span and its extent the lift and the travel. The feet stay planted and the
+ * body keeps the entry posture. A region of the performer's limbs is read on
+ * the entry pose, so it must ride a limb the touch does not move.
+ *
+ * Events: the phrase instants (`ready` on the region, `strokeStart` to
+ * `strokeEnd` the repetitions, `relax` leaving). A touch may be cut before
+ * it arrives or from `relax` on, into standing, a walk, a gesture or another
+ * touch, the declined handshake's rule.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the families it serves, the timing, the source of the kinds, what stays still and the events and cuts.
+ * @evidence contracts/development/design.md#principled-representation A law record composed of the touch primitive per hand over a held base.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the parameters and the plan.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts One law for every touch row; no row is a law of its own.
+ */
+export namespace touch {
+  /** The action's name. */
+  export const name: HumanActionName = "touch";
+
+  /** Cancel table. */
+  export const interrupts: IHumanActionLaw["interrupts"] = {
+    ...AutoMovieMotionHumanInterrupt.table({
+      stand: ["fromRelax", "smooth"],
+      gesture: ["fromRelax", "smooth"],
+      touch: ["fromRelax", "smooth"],
+      walk: ["fromRelax", "smooth"],
+      flinch: ["anytime", "reflex"],
+    }),
+  };
+
+  /** Which part of the hand touches. */
+  export type With = "palm" | "fingertips" | "handBack" | "fist";
+
+  /** Each part's effector. */
+  export const EFFECTORS: Readonly<
+    Record<With, AutoMovieMotionHumanTouchEffector.IEffector>
+  > = {
+    palm: { surface: "palm", shape: "flat" },
+    fingertips: { surface: "indexTip", shape: "flat" },
+    handBack: { surface: "handBack", shape: "relaxed" },
+    fist: { surface: "fist", shape: "fist" },
+  };
+
+  /**
+   * Parameters.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
+   * @evidence contracts/development/design.md#principled-representation The region as the shared target union, the kind and the effector as closed unions, timing as counts and seconds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the target union and the manner.
+   */
+  export interface IParams {
+    /** The region touched: a partner's (`person`) or the performer's own (`self`). */
+    target: AutoMovieMotionTarget;
+
+    /** The kind; `pat` when absent. */
+    kind?: AutoMovieMotionHumanTouchForm.Kind;
+
+    /** The part of the hand; the palm when absent. */
+    with?: With;
+
+    /** The hand; `right` when absent. */
+    side?: HumanHand.Side;
+
+    /** The other hand's region, touched the same way at the same time; one hand when absent. */
+    other?: AutoMovieMotionTarget;
+
+    /** Repetitions; 3 for a tap, a pat, a rub or a scratch and 1 otherwise when absent. */
+    count?: number;
+
+    /** Seconds the hand stays after the repetitions; 0.4, or 1.2 for a press, a squeeze or a hold, when absent. */
+    hold?: number;
+
+    /** The travel's direction on the region; `up` when absent. */
+    tangent?: AutoMovieMotionHumanTouchForm.Tangent;
+
+    /** How it is performed. */
+    manner?: AutoMovieMotionManner.IManner;
+  }
+
+  /**
+   * Plan a touch.
+   *
+   * @param context The action's context.
+   * @returns The plan.
+   * @throws {Error} When the count is not a positive whole number or the hold is negative.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives the timing and the sources.
+   * @evidence contracts/development/implementation.md#principled-implementation A phrase clock from the free-space transport of the farther hand, the kind's repetitions and the hold, with one touch stroke per hand over a held standing base.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Defaults, the reach, the clock, one stroke per hand, the composition.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Defaults are named per kind; a negative hold throws; no region or body is special-cased.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One entry resolve and one elbow solve per hand at plan time.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to the touch stroke, the timing owner and the manner.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the entry bones and the clock.
+   */
+  export function plan(
+    context: IHumanActionContext<IParams>,
+  ): IHumanActionPlan {
+    const p: IParams = context.params;
+    const body = context.body;
+    const kind: AutoMovieMotionHumanTouchForm.Kind = p.kind ?? "pat";
+    const still: boolean =
+      kind === "press" || kind === "squeeze" || kind === "hold";
+    const count: number = p.count ?? (kind === "stroke" || still ? 1 : 3);
+    const hold: number = p.hold ?? (still ? 1.2 : 0.4);
+    if (!(hold >= 0)) throw new Error("A touch's hold is not negative");
+    const modifiers: AutoMovieMotionManner.IModifiers =
+      AutoMovieMotionManner.of(context, p.manner);
+    const effector: AutoMovieMotionHumanTouchEffector.IEffector =
+      EFFECTORS[p.with ?? "palm"];
+    const tangent: AutoMovieMotionHumanTouchForm.Tangent = p.tangent ?? "up";
+    const entry: IHumanPosture = context.entry.posture;
+    const bones = poseBones(body, context.entry.pose);
+    const first: HumanHand.Side = p.side ?? "right";
+    const hands: [HumanHand.Side, AutoMovieMotionTarget][] = [
+      [first, p.target],
+      ...(p.other === undefined
+        ? []
+        : [
+            [first === "right" ? "left" : "right", p.other] as [
+              HumanHand.Side,
+              AutoMovieMotionTarget,
+            ],
+          ]),
+    ];
+    const region =
+      (target: AutoMovieMotionTarget) =>
+      (posture: IHumanPosture, seconds: number) =>
+        AutoMovieMotionHumanTouch.region(
+          context,
+          target,
+          context.start + seconds,
+          posture,
+          bones,
+        );
+
+    // The reach's length: the farther hand's distance to its region at the entry.
+    let far: number = 0;
+    for (const [side, target] of hands) {
+      const at: IAutoMovieVector3 = region(target)(entry, 0).point;
+      const from: IAutoMovieVector3 = AutoMovieMotionHumanTouchEffector.point(
+        body,
+        bones,
+        side,
+        effector,
+      );
+      far = Math.max(
+        far,
+        Math.hypot(at.x - from.x, at.y - from.y, at.z - from.z),
+      );
+    }
+    const reach: number = AutoMovieMotionHumanTiming.transport(far);
+    const repetition: number = AutoMovieMotionHumanTouchForm.period(
+      body,
+      kind,
+      AutoMovieMotionHumanTiming.seconds(
+        AutoMovieMotionHumanTouchForm.FORMS[kind].period,
+      ),
+    );
+    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+      AutoMovieMotionClock.phrase({
+        prepare: reach,
+        attack: count * repetition,
+        hold,
+        retract: reach,
+      }),
+      modifiers,
+    );
+
+    const primitives: IAutoMovieMotionHumanPrimitive[] = [];
+    for (const [side, target] of hands) {
+      const support: IHumanContactWindow.Support | undefined =
+        target.kind === "person"
+          ? { kind: "person", subject: target.subject, region: target.region }
+          : target.kind === "self"
+            ? {
+                kind: "person",
+                subject: context.subject,
+                region: target.region,
+              }
+            : undefined;
+      primitives.push(
+        ...AutoMovieMotionHumanTouch.touch({
+          body,
+          clock,
+          side,
+          rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
+          effector,
+          region: region(target),
+          kind,
+          count,
+          tangent,
+          extent: modifiers.extent,
+          bend: AutoMovieMotionHumanTouch.bend(
+            body,
+            entry,
+            side,
+            effector,
+            region(target)(entry, 0),
+            tangent,
+          ),
+          entry,
+          ...(support === undefined ? {} : { contact: support }),
+        }),
+      );
+    }
+    return composeAutoMovieMotionHumanAction({
+      base: AutoMovieMotionHumanBase.still(
+        clock.duration,
+        entry,
+        AutoMovieMotionHumanBase.plants(),
+      ),
+      clock,
+      primitives,
+      contact: "ready",
+    });
+  }
+}

@@ -1,0 +1,327 @@
+import {
+  type IAutoMovieResolvedBone,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieMotionTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import type { IHumanBody } from "../body/IHumanBody";
+import type { IHumanActionContext } from "../law/IHumanActionContext";
+import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import { HumanFrame } from "../posture/HumanFrame";
+import type { HumanHand } from "../posture/HumanHand";
+import type { IHumanPosture } from "../posture/IHumanPosture";
+import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
+import { AutoMovieMotionHumanArm } from "./AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanHand } from "./AutoMovieMotionHumanHand";
+import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
+import { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEffector";
+import { AutoMovieMotionHumanTouchForm } from "./AutoMovieMotionHumanTouchForm";
+import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
+
+/**
+ * The touch stroke: one hand effector brought onto a surface region, moved on
+ * it by the touch's kind and taken back. Every touch of the social, the
+ * self-directed and the hand-to-face families is a row of this generator
+ * over `(effector, region, kind, timing)` (campaign note on #3201; #3284,
+ * #3285, #3234).
+ *
+ * The kinds and their movement in the region's frame are
+ * `AutoMovieMotionHumanTouchForm`'s, the effector (a hand surface or a held
+ * tool's tip) `AutoMovieMotionHumanTouchEffector`'s. The arm is carried in
+ * joint space from the angles the entry held to the solution of the goal
+ * (`AutoMovieMotionHumanArm.carried`), the fingers take their shape on the
+ * same envelope, and the elbow's hint is solved once, on the entry posture,
+ * and carried with the root, so the arm keeps one side of its swivel through
+ * the whole stroke.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what the generator does, which owners it reads and how the arm, the fingers and the elbow are moved.
+ * @evidence contracts/development/design.md#principled-representation A touch is an effector frame laid against a region frame with a periodic offset in that frame, the form the social touch taxonomy describes.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The touch record, the region resolver, the primitive and the elbow hint.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the arm carry, the hand shapes, the region frames and the target resolver; no body or action is named.
+ */
+export namespace AutoMovieMotionHumanTouch {
+  /**
+   * One touch.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit and default.
+   * @evidence contracts/development/design.md#principled-representation The phrase clock, the effector, the region as a frame of the posture and the kind with its repetitions.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The members `touch` reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The region is a frame function, so a partner's region and the performer's own fit one member.
+   */
+  export interface ITouch {
+    /** The body. */
+    body: IHumanBody;
+
+    /** A phrase clock: arrive by `ready`, repeat from `strokeStart` to `strokeEnd`, leave from `relax`. */
+    clock: AutoMovieMotionClock.IClock;
+
+    /** The hand. */
+    side: HumanHand.Side;
+
+    /** The arm's angles before and after the touch. */
+    rest: AutoMovieMotionHumanArm.IAngles;
+
+    /** The effector. */
+    effector: AutoMovieMotionHumanTouchEffector.IEffector;
+
+    /** The region at a second on the posture so far. */
+    region(
+      posture: IHumanPosture,
+      seconds: number,
+    ): Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">;
+
+    /** The kind. */
+    kind: AutoMovieMotionHumanTouchForm.Kind;
+
+    /** How many repetitions; a positive whole number. */
+    count: number;
+
+    /** The travel's direction; `up` when absent. */
+    tangent?: AutoMovieMotionHumanTouchForm.Tangent;
+
+    /** The effector's stand-off from the region along its normal beyond the skin's pad, metres; 0 when absent. */
+    standoff?: number;
+
+    /** Factor on the lift and the travel; 1 when absent. */
+    extent?: number;
+
+    /** The elbow's bend hint, world, on the entry posture; carried with the root. */
+    bend: IAutoMovieVector3;
+
+    /** The entry posture the hint was solved on. */
+    entry: Pick<IHumanPosture, "root" | "yaw">;
+
+    /** What the hand bears on while it is on the region; no window when absent. */
+    contact?: IHumanContactWindow.Support;
+  }
+
+  /**
+   * A region of a target as a frame: a person's region or a prop's point
+   * through the context's aim, a trunk or head region of the performer on
+   * the posture, and a limb region of the performer on the entry pose, which
+   * a touch that does not move that limb leaves where it was.
+   *
+   * @param context The action's context.
+   * @param target The target.
+   * @param seconds Film seconds.
+   * @param posture The posture so far.
+   * @param entry The entry pose's resolved bones.
+   * @returns The point and the outward normal.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States which pose each kind of region is read on and why.
+   * @evidence contracts/development/implementation.md#principled-implementation A limb is solved after the trunk, so a limb region of the performer is placed on the entry's displayed bone; everything else goes through the target resolver.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch for a self limb region, one delegation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A limb region on the moving arm is the caller's error; the region is not re-read on the solved arm.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the engine's surface placement and `AutoMovieMotionHumanTarget.resolve`.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One placement or one resolve per call.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function region(
+    context: Pick<IHumanActionContext, "aim" | "body">,
+    target: AutoMovieMotionTarget,
+    seconds: number,
+    posture: IHumanPosture,
+    entry: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  ): Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal"> {
+    if (target.kind === "self") {
+      const frame = context.body.surfaces.regions[target.region];
+      if (!TRUNK.has(frame.bone)) {
+        const placed = resolveAutoMovieHumanoidSurfaces.place(
+          frame,
+          entry.get(frame.bone)!,
+        );
+        return { point: placed.point, normal: placed.normal };
+      }
+    }
+    return AutoMovieMotionHumanTarget.resolve(
+      context,
+      target,
+      seconds,
+      posture,
+      AutoMovieMotionHumanTarget.DEFAULTS.ahead,
+    );
+  }
+
+  /**
+   * A touch: the arm and the fingers on one clock. The arm is carried from
+   * its rest angles to the effector's goal by `ready` and back from `relax`;
+   * between `strokeStart` and `strokeEnd` the goal is lifted along the
+   * region's normal by `lift sin^2(pi n u)`, which touches down at every
+   * repetition's end, and moved along its tangent by the clock's windowed
+   * wave of `n` cycles.
+   *
+   * @param props The touch.
+   * @returns The arm's and the hand's primitives; the arm carries the contact window from `ready` to `relax` when a support is given.
+   * @throws {Error} When the count is not a positive whole number.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the phases, the lift and travel formulas and the contact window.
+   * @evidence contracts/development/implementation.md#principled-implementation Joint-space carry (Soechting and Lacquaniti 1981) to a goal laid on the region frame each second, with the kind's offsets in that frame.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One arm carry and one hand form.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The lift and travel are shares of the hand; a count that is not whole throws.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One region read and one posture solve per written second.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `AutoMovieMotionHumanArm.carried`, `AutoMovieMotionHumanHand.form` and the effector's goal.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitives close over their props and one hint.
+   */
+  export function touch(props: ITouch): IAutoMovieMotionHumanPrimitive[] {
+    if (!(Number.isInteger(props.count) && props.count > 0))
+      throw new Error("A touch repeats a positive whole number of times");
+    const { body, clock, side } = props;
+    const form: AutoMovieMotionHumanTouchForm.IForm =
+      AutoMovieMotionHumanTouchForm.FORMS[props.kind];
+    const hand: number = body.measure.hand * (props.extent ?? 1);
+    const standoff: number =
+      (props.standoff ?? 0) +
+      AutoMovieMotionHumanTouchEffector.pad(body, side, props.effector);
+    const hint: IAutoMovieVector3 = HumanFrame.local(
+      { origin: props.entry.root, yaw: props.entry.yaw },
+      props.bend,
+    );
+    const arm: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanArm.carried(
+      {
+        body,
+        side,
+        from: 0,
+        to: clock.duration,
+        rest: props.rest,
+        weight: (seconds: number): number =>
+          clock.envelope(["start", "ready"], ["relax", "end"], seconds),
+        goal: (
+          posture: IHumanPosture,
+          seconds: number,
+        ): IHumanPosture.IGoal => {
+          const place = props.region(posture, seconds);
+          const normal: IAutoMovieVector3 = Vector3.normalize(place.normal);
+          const along: IAutoMovieVector3 =
+            AutoMovieMotionHumanTouchForm.tangent(
+              normal,
+              posture.yaw,
+              props.tangent ?? "up",
+            );
+          const u: number = clock.linear("strokeStart", "strokeEnd", seconds);
+          const lift: number =
+            form.lift * hand * Math.sin(Math.PI * props.count * u) ** 2;
+          const travel: number =
+            form.travel === 0
+              ? 0
+              : form.travel *
+                hand *
+                AutoMovieMotionClock.wave(
+                  clock,
+                  ["strokeStart", "strokeEnd"],
+                  props.count,
+                  seconds,
+                );
+          const at: IAutoMovieVector3 = Vector3.add(
+            Vector3.add(place.point, Vector3.scale(normal, standoff + lift)),
+            Vector3.scale(along, travel),
+          );
+          return AutoMovieMotionHumanTouchEffector.goal(
+            body,
+            side,
+            props.effector,
+            at,
+            normal,
+            along,
+            HumanFrame.point({ origin: posture.root, yaw: posture.yaw }, hint),
+          );
+        },
+      },
+    );
+    return [
+      {
+        ...arm,
+        ...(props.contact === undefined
+          ? {}
+          : {
+              contacts: [
+                {
+                  part: `${side}Hand`,
+                  kind: "grip",
+                  from: clock.at("ready") / clock.duration,
+                  to: clock.at("relax") / clock.duration,
+                  support: props.contact,
+                } satisfies IHumanContactWindow,
+              ],
+            }),
+      },
+      AutoMovieMotionHumanHand.form(
+        clock,
+        side,
+        ["start", "ready"],
+        ["relax", "end"],
+        props.effector.shape,
+        form.curl,
+      ),
+    ];
+  }
+
+  /**
+   * The elbow hint of a touch, solved once on the entry posture for the
+   * effector laid on the region there.
+   *
+   * @param body The body.
+   * @param posture The entry posture.
+   * @param side The hand.
+   * @param effector The effector.
+   * @param place The region at the entry.
+   * @param tangent Which tangent.
+   * @returns The hint, world.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States when and on what the hint is solved.
+   * @evidence contracts/development/implementation.md#principled-implementation The least-strain elbow place of `AutoMovieMotionHumanBend.solve` for the goal at the entry, the hanging arm's where it refuses.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One goal and one solve.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Solved once, so the swivel cannot flip between seconds.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the effector's goal and the bend solver.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One bounded swivel sweep per touch.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function bend(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    side: HumanHand.Side,
+    effector: AutoMovieMotionHumanTouchEffector.IEffector,
+    place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    tangent: AutoMovieMotionHumanTouchForm.Tangent,
+  ): IAutoMovieVector3 {
+    const normal: IAutoMovieVector3 = Vector3.normalize(place.normal);
+    const g: IHumanPosture.IGoal = AutoMovieMotionHumanTouchEffector.goal(
+      body,
+      side,
+      effector,
+      place.point,
+      normal,
+      AutoMovieMotionHumanTouchForm.tangent(normal, posture.yaw, tangent),
+      AutoMovieMotionHumanBend.hang(body, posture, side),
+    );
+    return AutoMovieMotionHumanBend.solve({
+      body,
+      posture,
+      side,
+      point: g.point,
+      rotation: g.rotation!,
+      fallback: "hang",
+    });
+  }
+}
+
+/** The bones a posture places without solving a limb. */
+const TRUNK: ReadonlySet<AutoMovieHumanoidBone> =
+  new Set<AutoMovieHumanoidBone>([
+    "hips",
+    "spine",
+    "chest",
+    "upperChest",
+    "neck",
+    "head",
+    "leftEye",
+    "rightEye",
+    "jaw",
+    "leftShoulder",
+    "rightShoulder",
+  ]);

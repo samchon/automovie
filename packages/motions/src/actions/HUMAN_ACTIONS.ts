@@ -1,8 +1,11 @@
 import type { HumanActionName } from "../HumanActionName";
+import { handToFace } from "../daily/handToFace";
 import { approach } from "../everyday/approach";
 import { bend } from "../everyday/bend";
 import { brace } from "../everyday/brace";
+import { crouch } from "../everyday/crouch";
 import { gesture } from "../everyday/gesture";
+import { kneel } from "../everyday/kneel";
 import { look } from "../everyday/look";
 import { rest } from "../everyday/rest";
 import { rise } from "../everyday/rise";
@@ -25,6 +28,10 @@ import { kick } from "../striking/kick";
 import { knee } from "../striking/knee";
 import { punch } from "../striking/punch";
 import { step } from "../striking/step";
+import { climbStairs } from "../terrain/climbStairs";
+import { highFive } from "../touch/highFive";
+import { kiss } from "../touch/kiss";
+import { touch } from "../touch/touch";
 import { jump } from "./jump";
 import { run } from "./run";
 import { stand } from "./stand";
@@ -68,4 +75,11 @@ export const HUMAN_ACTIONS: Readonly<
   stepOver,
   brace,
   typeText,
+  touch,
+  handToFace,
+  crouch,
+  kneel,
+  climbStairs,
+  kiss,
+  highFive,
 };
