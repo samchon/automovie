@@ -1,20 +1,17 @@
 import {
   type IAutoMovieCapturePlanRequest,
-  type IAutoMovieInspectionView,
   parseAutoMovieCapturePlanRequest,
-  parseAutoMovieInspectionView,
   readAutoMovieCaptureArguments,
 } from "@automovie/render";
 import {
   formatAutoMovieInspectorAddress,
   formatAutoMovieInspectorCommand,
-  formatAutoMovieInspectorView,
   readAutoMovieInspectorAddress,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * The inspector's request round-trips through its address text, the command it shows reads back to the same plan request through the command's own reader, and a view the panel builds is written as text the view grammar reads back.
+ * The inspector's request round-trips through its address text, the command it shows reads back to the same plan request through the command's own reader.
  *
  * Scenarios:
  *
@@ -22,13 +19,12 @@ import { TestValidator } from "@nestia/e2e";
  * 2. The request that asks for nothing is the empty address, and a leading `?` is accepted.
  * 3. An address with an unknown key or an empty `views` is refused naming the key.
  * 4. Each request's command options, read by `readAutoMovieCaptureArguments` and the plan reader, give an equal request; the command text starts with `automovie capture`, and split as a POSIX shell splits single-quoted words it gives back the same arguments.
- * 5. Film, fixed, named, orthographic, pattern-focused, flagged and combined views are written as text that parses back to the same view.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Writes requests with the public address and command writers and reads them back with the inspector's address reader and the capture command's own argument reader, and writes views read back by render's view parser.
+ * @evidence contracts/development/testing.md#behavioral-verification Writes requests with the public address and command writers and reads them back with the inspector's address reader and the capture command's own argument reader.
  * @evidence contracts/development/testing.md#independent-expectations The requests are read from address texts written out in the test, so the oracle is the plan grammar's reader, not the writer under test; the shell split follows the POSIX single-quote rule, implemented in the test, and the readable characters are those RFC 3986 allows in a query.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts the empty request against full ones, a value needing escapes against plain ones, an argument needing quotes against plain ones, every view form, and accepted against refused addresses.
- * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_inspector_address`; no browser and no command is run. The reducer's edits belong to `test_inspector_reducer`.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each naming its input and the behaviour it pins.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts the empty request against full ones, a value needing escapes against plain ones, an argument needing quotes against plain ones, and accepted against refused addresses.
+ * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_inspector_address`; no browser and no command is run. The reducer's edits belong to `test_inspector_reducer`, and the view text's round trip to render's own view tests.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming its input and the behaviour it pins.
  */
 export function test_inspector_address(): void {
   const texts: string[] = [
@@ -77,21 +73,6 @@ export function test_inspector_address(): void {
     "an argument holding a quote is quoted",
     formatAutoMovieInspectorCommand(requests[1]!).text.includes(`'--subject=a&b c'\\''s'`),
   );
-
-  // 5. Views written by the panel read back.
-  const views: IAutoMovieInspectionView[] = [
-    { type: "film" },
-    { type: "fixed", position: { x: -0.5, y: 1.6, z: 1e-7 }, target: { x: 0, y: 1, z: 0 } },
-    { type: "named", name: "front", orthographic: false, focus: null },
-    { type: "named", name: "three-quarter", orthographic: true, focus: null },
-    { type: "named", name: "side", orthographic: false, focus: { type: "pattern", pattern: "hero/*" } },
-    { type: "named", name: "top", orthographic: false, focus: { type: "flagged" } },
-    { type: "named", name: "front", orthographic: true, focus: { type: "pattern", pattern: "hero/arm" } },
-  ];
-  for (const view of views) {
-    const text: string = formatAutoMovieInspectorView(view);
-    TestValidator.equals(`${text} reads back`, parseAutoMovieInspectionView(text), view);
-  }
 }
 
 /** The message a call throws, or the empty string when it does not throw. */

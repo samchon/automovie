@@ -20,7 +20,7 @@ import { InspectionScene } from "../internal/InspectionScene";
  *
  * Scenarios:
  *
- * 1. As StrictMode runs an effect: mount, dispose before the instance arrives, mount again, then both instances arrive. The first instance is disposed on arrival without a renderer; the second gets the one renderer, one pending frame and one `ready` report listing its object and mark paths, the supplied and measured kinds and the named views.
+ * 1. As StrictMode runs an effect: mount, dispose before the instance arrives, mount again, then both instances arrive. The first instance is disposed on arrival without a renderer; the second gets the one renderer, one pending frame and one `ready` report listing its object and mark paths, the marks of its first second and the named views.
  * 2. The first frame renders once at the address's second; a frame with nothing changed renders nothing; a new canvas size resizes the renderer and renders again.
  * 3. Playing, frames 500 ms apart advance the playhead half a second each and seek the instance there; past the end the playhead stops at the duration.
  * 4. A request whose mark pattern matches no kind is refused with the request still drawn; a request asking for the supplied kind at a new second is applied, its legend reported, the playhead sought to that second, and drawn on the next frame.
@@ -54,8 +54,8 @@ export async function test_inspector_mount_lifecycle(): Promise<void> {
   const facts: IAutoMovieInspectorScene.IFacts = report.facts[0]!;
   TestValidator.equals("object and mark paths", facts.paths, ["hero", "prop", "hero/axis"]);
   TestValidator.predicate(
-    "supplied and measured kinds",
-    ["curve/axis", "edge", "defect/open"].every((kind: string): boolean => facts.kinds.includes(kind)),
+    "the first second's supplied marks",
+    facts.marks.length === 1 && facts.marks[0]!.kind === "curve/axis",
   );
   TestValidator.predicate("named views", facts.views.includes("front"));
   TestValidator.equals("the playhead takes the duration and the address's second", [playhead.getSnapshot().durationSeconds, playhead.getSnapshot().seconds], [2, 0.25]);

@@ -211,7 +211,7 @@ export function AutoMovieInspector(
         <AutoMovieInspectorShadePanel request={request} dispatch={dispatch} />
         <AutoMovieInspectorMarksPanel
           request={request}
-          kinds={facts?.kinds ?? []}
+          marks={facts?.marks ?? []}
           legend={legend}
           dispatch={dispatch}
         />

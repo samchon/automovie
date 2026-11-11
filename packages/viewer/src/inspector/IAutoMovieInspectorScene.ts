@@ -1,4 +1,5 @@
 import type {
+  IApplyAutoMovieInspectionProps,
   IAutoMovieCapturePlanRequest,
   IAutoMovieInspectionLegendEntry,
 } from "@automovie/render";
@@ -44,17 +45,17 @@ export namespace IAutoMovieInspectorScene {
   /**
    * What a mount learns about its subject once the instance is ready, for the panels.
    *
-   * @evidence contracts/development/design.md#principled-representation The identity paths and mark kinds a selection can name, the view names a view can take, the subject's raster in pixels and its duration in seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Each member feeds one panel: paths the selection tree, kinds the marks panel, views the view panel, the raster the canvas aspect, the duration the readout.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Paths and kinds are those of the first second drawn; marks that appear later are reached by typing a pattern.
+   * @evidence contracts/development/design.md#principled-representation The identity paths a selection can name, the supplied marks the kinds are listed from, the view names a view can take, the subject's raster in pixels and its duration in seconds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Each member feeds one panel: paths the selection tree, marks the marks panel, views the view panel, the raster the canvas aspect, the duration the readout.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Paths and marks are those of the first second drawn, and the kinds are listed under the current request because a sliver limit or a trail adds kinds; marks that appear later are reached by typing a pattern.
    * @evidence contracts/development/common.md#meaningful-documentation States what each member lists and at which second.
    */
   export interface IFacts {
     /** Identity paths of every drawn object in scene order, then of every supplied mark, at the first second drawn. */
     paths: string[];
 
-    /** Mark kinds a `marks` pattern can name: the supplied kinds at the first second, then the kinds the inspection measures. */
-    kinds: string[];
+    /** The marks the subject supplies at the first second drawn; the marks panel lists the kinds a request can name from them with `listAutoMovieInspectionKinds`, under the request in force. */
+    marks: NonNullable<IApplyAutoMovieInspectionProps["marks"]>;
 
     /** The subject's own view names, then the named viewpoints a fitted view takes. */
     views: string[];

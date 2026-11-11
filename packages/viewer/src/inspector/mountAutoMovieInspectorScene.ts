@@ -1,5 +1,4 @@
 import {
-  AUTO_MOVIE_INSPECTION_PALETTE,
   type IApplyAutoMovieInspectionProps,
   type IAutoMovieCapturePlanRequest,
   type IAutoMovieInspectionHandle,
@@ -39,7 +38,7 @@ interface ILive {
 /**
  * Mount a subject on the inspector's canvas: build an instance, apply the request's inspection, and draw it every animation frame at the playhead's second through the request's first view.
  *
- * The instance is created at once and arrives later. When it arrives the mount checks its clock and raster, lists its paths and mark kinds, applies the inspection of the newest request (or, when the scene refuses it, of the request that asks for nothing, reported through `refused`), sets the playhead's duration and second, reports `ready` and schedules the first frame. Each frame advances a playing playhead by the wall time since the last frame, follows the host's size, and redraws when the playhead's snapshot or the request changed: seek the instance, update the inspection with the second's marks, resolve the view and render. A drawing error pauses playback and is reported once until a frame draws again.
+ * The instance is created at once and arrives later. When it arrives the mount checks its clock and raster, lists its paths and the marks of its first second, applies the inspection of the newest request (or, when the scene refuses it, of the request that asks for nothing, reported through `refused`), sets the playhead's duration and second, reports `ready` and schedules the first frame. Each frame advances a playing playhead by the wall time since the last frame, follows the host's size, and redraws when the playhead's snapshot or the request changed: seek the instance, update the inspection with the second's marks, resolve the view and render. A drawing error pauses playback and is reported once until a frame draws again.
  *
  * The picture's aspect is the subject's raster, not the canvas's, so a view frames what a capture of the same subject frames; the page gives the canvas that aspect. The mount adds no listener and holds at most one pending frame, so a mount, dispose and mount again on one canvas, as React's StrictMode runs an effect, leaves one renderer and one frame loop; a mount disposed before its instance arrives disposes the instance on arrival and creates no renderer.
  *
@@ -49,7 +48,7 @@ interface ILive {
  * @evidence contracts/development/implementation.md#principled-implementation The scene is changed only through render's inspection, which restores before re-applying; views are resolved by render's view resolver on the inspection's drawn bounds, and the delivery camera takes the raster's aspect as the capture does. Wall time comes from the frame callback's own timestamp, so a frame's advance is the time actually elapsed.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One closure owns one mount: arrival, apply, frame, draw and dispose are local steps over one record of what is held; React, the DOM and WebGL stay with the component and the host.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A refused request is reported with the request still drawn rather than drawn half-applied, an instance that arrives after dispose is released rather than drawn, and no frame is drawn from a size that is not positive.
- * @evidence contracts/development/implementation.md#efficient-algorithms A frame that changed nothing costs one size read and one snapshot comparison; a redraw costs the subject's seek, the inspection's update linear in its marks, one view resolution and the render. Paths and kinds are listed once per mount.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A frame that changed nothing costs one size read and one snapshot comparison; a redraw costs the subject's seek, the inspection's update linear in its marks, one view resolution and the render. Paths and the first second's marks are listed once per mount.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The applied inspection, the renderer and the instance live for the whole mount; an inspection is re-applied only when its written text changes.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The mount owns one instance, one renderer, one applied inspection and at most one pending frame, released by `dispose` in reverse order, each attempted even when another fails; the playhead is borrowed and gains no listener.
  */
@@ -103,7 +102,7 @@ export function mountAutoMovieInspectorScene(props: {
       const seconds: number = playhead.getSnapshot().seconds;
       instance.seek(seconds);
 
-      // Paths and kinds are listed before the inspection adds its own objects to the scene.
+      // Paths are listed before the inspection adds its own objects to the scene.
       const marks: NonNullable<IApplyAutoMovieInspectionProps["marks"]> =
         instance.marks?.(seconds) ?? [];
       const facts: IAutoMovieInspectorScene.IFacts = {
@@ -113,15 +112,8 @@ export function mountAutoMovieInspectorScene(props: {
           ),
           ...marks.map(({ path }: { path: string }): string => path),
         ],
-        kinds: [
-          ...new Set<string>([
-            ...marks.map(({ kind }: { kind: string }): string => kind),
-            "edge",
-            ...Object.keys(AUTO_MOVIE_INSPECTION_PALETTE.defect).map(
-              (kind: string): string => `defect/${kind}`,
-            ),
-          ]),
-        ],
+        marks,
+
         views: [
           ...Object.keys(instance.views ?? {}),
           ...autoMovieViewerNamedViewpoints().map(

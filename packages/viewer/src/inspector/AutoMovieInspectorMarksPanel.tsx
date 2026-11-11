@@ -1,21 +1,24 @@
-import type {
-  IAutoMovieCapturePlanRequest,
-  IAutoMovieInspectionLegendEntry,
+import {
+  type IApplyAutoMovieInspectionProps,
+  type IAutoMovieCapturePlanRequest,
+  type IAutoMovieInspectionKind,
+  type IAutoMovieInspectionLegendEntry,
+  listAutoMovieInspectionKinds,
 } from "@automovie/render";
 import type { ChangeEvent, JSX } from "react";
 
 import type { IAutoMovieInspectorAction } from "./IAutoMovieInspectorAction.js";
 
 /**
- * Marks: the kinds the subject offers, each switched by its own kind pattern, the x-ray switch, and the legend of what the picture draws.
+ * Marks: the kinds the picture can draw, each with its default colour and switched by its own kind pattern, the x-ray switch, and the legend of what the picture draws.
  *
- * A kind is checked when the request's `marks` holds that kind as a pattern; patterns typed in the address, such as `defect/*`, stay in the request and are listed beside the kinds. The legend is the inspection's: each colour drawn, what it marks and how many marks carry it.
+ * The kinds are render's `listAutoMovieInspectionKinds` of the supplied marks under the request in force, so a sliver limit or a trail adds its kinds as soon as it is asked for. A kind is checked when the request's `marks` holds that kind as a pattern; patterns typed in the address, such as `defect/*`, stay in the request and are listed beside the kinds. The legend is the inspection's: each colour drawn, what it marks and how many marks carry it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is listed, when a kind is checked, where typed patterns appear and what the legend counts.
- * @evidence contracts/development/implementation.md#principled-implementation The kinds come from the mount, which lists the supplied and measured kinds, and the legend from render's inspection handle, so the panel invents no kind or colour.
+ * @evidence contracts/development/implementation.md#principled-implementation The kinds come from render's one kind list and the legend from render's inspection handle, so the panel restates no kind rule and invents no colour.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One checkbox per kind, one switch, one list of legend entries.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A typed pattern that is not a listed kind is shown with its own checkbox rather than dropped.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the kinds, the patterns and the legend.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the supplied marks, the kinds, the patterns and the legend.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A view with handlers.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds nothing.
  */
@@ -23,8 +26,8 @@ export function AutoMovieInspectorMarksPanel(props: {
   /** The request shown. */
   request: IAutoMovieCapturePlanRequest;
 
-  /** Mark kinds the subject offers. */
-  kinds: readonly string[];
+  /** The marks the subject supplies, from which the kinds are listed. */
+  marks: NonNullable<IApplyAutoMovieInspectionProps["marks"]>;
 
   /** The legend of the current picture. */
   legend: readonly IAutoMovieInspectionLegendEntry[];
@@ -33,8 +36,21 @@ export function AutoMovieInspectorMarksPanel(props: {
   dispatch: (action: IAutoMovieInspectorAction) => void;
 }): JSX.Element {
   const marks: string[] = props.request.inspection.marks;
+  const kinds: IAutoMovieInspectionKind[] = listAutoMovieInspectionKinds({
+    request: props.request.inspection,
+    marks: props.marks,
+  });
+  const colors: Map<string, number> = new Map<string, number>(
+    kinds.map((entry: IAutoMovieInspectionKind): [string, number] => [
+      entry.kind,
+      entry.color,
+    ]),
+  );
   const listed: string[] = [
-    ...new Set<string>([...props.kinds, ...marks]),
+    ...new Set<string>([
+      ...kinds.map((entry: IAutoMovieInspectionKind): string => entry.kind),
+      ...marks,
+    ]),
   ];
   return (
     <fieldset>
@@ -53,6 +69,17 @@ export function AutoMovieInspectorMarksPanel(props: {
                 })
               }
             />{" "}
+            {colors.has(kind) ? (
+              <span
+                style={{
+                  display: "inline-block",
+                  width: 10,
+                  height: 10,
+                  marginRight: 4,
+                  background: `#${colors.get(kind)!.toString(16).padStart(6, "0")}`,
+                }}
+              />
+            ) : null}
             {kind}
           </label>
         ),

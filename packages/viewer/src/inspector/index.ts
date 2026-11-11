@@ -12,7 +12,6 @@ export * from "./createAutoMovieInspectorCanvasHost.js";
 export * from "./createAutoMovieInspectorState.js";
 export * from "./formatAutoMovieInspectorAddress.js";
 export * from "./formatAutoMovieInspectorCommand.js";
-export * from "./formatAutoMovieInspectorView.js";
 export * from "./IAutoMovieInspectorAction.js";
 export * from "./IAutoMovieInspectorPathNode.js";
 export * from "./IAutoMovieInspectorProps.js";

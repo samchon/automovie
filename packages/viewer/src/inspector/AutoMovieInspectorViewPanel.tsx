@@ -1,12 +1,12 @@
 import {
   type IAutoMovieCapturePlanRequest,
   type IAutoMovieInspectionView,
+  formatAutoMovieInspectionView,
   parseAutoMovieInspectionView,
 } from "@automovie/render";
 import { type ChangeEvent, type JSX, useState } from "react";
 
 import type { IAutoMovieInspectorAction } from "./IAutoMovieInspectorAction.js";
-import { formatAutoMovieInspectorView } from "./formatAutoMovieInspectorView.js";
 
 /** The fixed camera a person starts from when choosing one: 4 m in front at eye height, looking at the origin at 1 m. */
 const FIXED: string = "0,1.6,4:0,1,0";
@@ -14,7 +14,7 @@ const FIXED: string = "0,1.6,4:0,1,0";
 /**
  * View: the subject's camera (`film`), a named view (the subject's own or a fitted viewpoint) with orthographic projection and a focus, or a fixed camera by coordinates.
  *
- * The panel shows the request's first view, the one the page draws, and writes every change back as one view text through `formatAutoMovieInspectorView`, which the reducer replaces the request's views with. A fixed camera and a focus pattern are typed and dispatched when the field is left or Enter is pressed.
+ * The panel shows the request's first view, the one the page draws, and writes every change back as one view text through render's `formatAutoMovieInspectionView`, which the reducer replaces the request's views with. A fixed camera and a focus pattern are typed and dispatched when the field is left or Enter is pressed.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the forms offered, which view is shown, how a change is written and when typed fields are dispatched.
  * @evidence contracts/development/implementation.md#principled-implementation The shown view is parsed by render's view grammar and the dispatched text written by its inverse, so every switch is one the grammar reads.
@@ -40,7 +40,7 @@ export function AutoMovieInspectorViewPanel(props: {
   const send: (next: IAutoMovieInspectionView) => void = (
     next: IAutoMovieInspectionView,
   ): void =>
-    props.dispatch({ type: "view", view: formatAutoMovieInspectorView(next) });
+    props.dispatch({ type: "view", view: formatAutoMovieInspectionView(next) });
   const form: string = view.type === "named" ? view.name : view.type;
   const focus: string =
     view.type === "named" && view.focus?.type === "pattern"
