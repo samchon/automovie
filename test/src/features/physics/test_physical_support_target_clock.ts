@@ -1,3 +1,12 @@
+import {
+  type advancePhysicalBalance as Balance,
+  AutoMoviePhysicalSimulation as Simulation,
+  bindPhysicalWorld,
+  physicalSupportPoint,
+  samplePhysicalTarget,
+  trackPhysicalBalanceTargets,
+  trackPhysicalRootSupportTargets,
+} from "@automovie/engine";
 import type {
   IAutoMoviePhysicalProfile as P,
   IAutoMovieVector3 as V,
@@ -6,13 +15,6 @@ import RAPIER, { type RigidBody, type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
-import { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
-import type { advancePhysicalBalance as Balance } from "../../../../packages/engine/src/physics/advancePhysicalBalance";
-import { bindPhysicalWorld } from "../../../../packages/engine/src/physics/bindPhysicalWorld";
-import { physicalSupportPoint } from "../../../../packages/engine/src/physics/physicalSupportPoint";
-import { samplePhysicalTarget } from "../../../../packages/engine/src/physics/samplePhysicalTarget";
-import { trackPhysicalBalanceTargets } from "../../../../packages/engine/src/physics/trackPhysicalBalanceTargets";
-import { trackPhysicalRootSupportTargets } from "../../../../packages/engine/src/physics/trackPhysicalRootSupportTargets";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 import { PhysicalSupportFixtures } from "../internal/PhysicalSupportFixtures";

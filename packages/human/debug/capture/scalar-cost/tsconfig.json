@@ -1,8 +1,0 @@
-{
-  "extends": "../curve-cost/tsconfig.json",
-  "compilerOptions": {
-    "plugins": [{ "transform": "@ttsc/lint", "configFile": "../../../../../config/lint.config.ts" }]
-  },
-  "files": ["./HumanScalarPreparationCost.ts"],
-  "include": []
-}

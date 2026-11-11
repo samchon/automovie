@@ -1,9 +1,8 @@
 import {
   AutoMovieSolidMesh,
   type IAutoMovieSolidSurface,
+  incircleAutoMovieSolidChart,
 } from "@automovie/engine";
-
-import { incircleAutoMovieSolidChart } from "../../../../../packages/engine/src/geometry/construction/incircleAutoMovieSolidChart";
 
 /** One chart point. */
 type Chart = [number, number];

@@ -1,8 +1,9 @@
 import { decodeProductionAudioAsset } from "@automovie/ingest";
+import {
+  encodeAutoMovieWavPcm16,
+  mixAutoMovieAudioPcm,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
-
-import { encodeAutoMovieWavPcm16 } from "../../../../packages/render/src/audio/encodeAutoMovieWavPcm16";
-import { mixAutoMovieAudioPcm } from "../../../../packages/render/src/audio/mixAutoMovieAudioPcm";
 
 /** Audio cues sum sample-accurately with equal-power pan, refuse clipping, and encode to PCM16 WAV that decodes back.
  *

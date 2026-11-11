@@ -1,7 +1,6 @@
+import { AutoMovieStepPlanner as Planner } from "@automovie/engine";
 import type { IAutoMovieFootfallPattern } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { AutoMovieStepPlanner as Planner } from "../../../../packages/engine/src/physics/AutoMovieStepPlanner";
 
 /** Physical planner behavior.
  *

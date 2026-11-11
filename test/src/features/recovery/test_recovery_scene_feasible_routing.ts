@@ -1,8 +1,10 @@
+import {
+  type IAutoMovieRecoveryFeasibleJointOptions,
+  admitRecoveryCameraScene,
+  createRecoveryCameraScene,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
-import { admitRecoveryCameraScene } from "../../../../packages/recovery/src/internal/admitRecoveryCameraScene";
-import { createRecoveryCameraScene } from "../../../../packages/recovery/src/internal/createRecoveryCameraScene";
-import type { IAutoMovieRecoveryFeasibleJointOptions } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryFeasibleJointOptions";
 import { createRecoverySceneNumericalFixture } from "../internal/createRecoverySceneNumericalFixture";
 import { nclose } from "../internal/nclose";
 

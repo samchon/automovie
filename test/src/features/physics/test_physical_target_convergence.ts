@@ -1,12 +1,14 @@
+import {
+  Vector3,
+  physicalSupportPoint,
+  solvePhysicalArticulationTargets,
+} from "@automovie/engine";
 import type {
   IAutoMoviePhysicalProfile as P,
   IAutoMovieVector3 as V,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
-import { physicalSupportPoint } from "../../../../packages/engine/src/physics/physicalSupportPoint";
-import { solvePhysicalArticulationTargets } from "../../../../packages/engine/src/physics/solvePhysicalArticulationTargets";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
 /** A small geometric lever must continue improving until residual tolerance, independently of the size of one improvement.

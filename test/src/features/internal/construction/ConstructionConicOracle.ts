@@ -1,9 +1,8 @@
 import type {
+  AutoMovieConicHermite,
   AutoMoviePolarSector,
   AutoMovieViewSection,
 } from "@automovie/engine";
-
-import type { AutoMovieConicHermite } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConicHermite";
 
 /**
  * Independent implicit conics and Taylor arithmetic for source-section tests.

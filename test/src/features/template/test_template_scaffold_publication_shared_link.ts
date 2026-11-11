@@ -1,4 +1,7 @@
-import { type IScaffoldPublicationReceipt, publishFiles } from "@automovie/template";
+import {
+  type IScaffoldPublicationReceipt,
+  publishFiles,
+} from "@automovie/template";
 import { TestValidator } from "@nestia/e2e";
 import fs from "node:fs";
 import os from "node:os";
@@ -19,8 +22,12 @@ import path from "node:path";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: AGENTS.md is hard-linked from a cache directory outside the root and forced publication replaces it as a single-link file).
  */
 export function test_template_scaffold_publication_shared_link(): void {
-  const root: string = fs.mkdtempSync(path.join(os.tmpdir(), "automovie-scaffold-"));
-  const cache: string = fs.mkdtempSync(path.join(os.tmpdir(), "automovie-cache-"));
+  const root: string = fs.mkdtempSync(
+    path.join(os.tmpdir(), "automovie-scaffold-"),
+  );
+  const cache: string = fs.mkdtempSync(
+    path.join(os.tmpdir(), "automovie-cache-"),
+  );
   try {
     const agents: string = path.join(root, "AGENTS.md");
     const readme: string = path.join(root, "README.md");
@@ -29,27 +36,45 @@ export function test_template_scaffold_publication_shared_link(): void {
     fs.writeFileSync(readme, "old readme");
     fs.linkSync(agents, cached);
     const readmeIdentity: bigint = fs.statSync(readme, { bigint: true }).ino;
-    TestValidator.equals("fixture shares AGENTS.md", fs.statSync(agents).nlink, 2);
+    TestValidator.equals(
+      "fixture shares AGENTS.md",
+      fs.statSync(agents).nlink,
+      2,
+    );
 
     const receipt: IScaffoldPublicationReceipt = publishFiles(
       root,
       { "AGENTS.md": "new agents", "README.md": "new readme" },
       { force: true },
     );
-    TestValidator.equals("forced publication completes", receipt.status, "completed");
+    TestValidator.equals(
+      "forced publication completes",
+      receipt.status,
+      "completed",
+    );
     TestValidator.equals(
       "shared file replaced, cache name untouched",
-      [fs.readFileSync(agents, "utf8"), fs.statSync(agents).nlink, fs.readFileSync(cached, "utf8"), fs.statSync(cached).nlink],
+      [
+        fs.readFileSync(agents, "utf8"),
+        fs.statSync(agents).nlink,
+        fs.readFileSync(cached, "utf8"),
+        fs.statSync(cached).nlink,
+      ],
       ["new agents", 1, "old agents", 1],
     );
     TestValidator.equals(
       "single-link file rewritten in place",
-      [fs.readFileSync(readme, "utf8"), fs.statSync(readme, { bigint: true }).ino],
+      [
+        fs.readFileSync(readme, "utf8"),
+        fs.statSync(readme, { bigint: true }).ino,
+      ],
       ["new readme", readmeIdentity],
     );
     TestValidator.equals(
       "no staging sibling",
-      fs.readdirSync(root).filter((name: string): boolean => name.endsWith(".automovie-sync")),
+      fs
+        .readdirSync(root)
+        .filter((name: string): boolean => name.endsWith(".automovie-sync")),
       [],
     );
   } finally {

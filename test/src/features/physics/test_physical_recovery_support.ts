@@ -1,7 +1,8 @@
+import {
+  type advancePhysicalBalance as Balance,
+  samplePhysicalRecoverySupport,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
-
-import type { advancePhysicalBalance as Balance } from "../../../../packages/engine/src/physics/advancePhysicalBalance";
-import { samplePhysicalRecoverySupport } from "../../../../packages/engine/src/physics/samplePhysicalRecoverySupport";
 
 /** Actual recovery ownership drives support promises causally, independently of an authored calendar.
  *

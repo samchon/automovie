@@ -4,7 +4,7 @@ import type {
 } from "@automovie/engine";
 
 import type { AutoMovieHumanHandAttachment } from "../hand/AutoMovieHumanHandAttachment";
-import { AutoMovieHumanJointTurn } from "./AutoMovieHumanJointTurn";
+import { AutoMovieHumanBendArc } from "./AutoMovieHumanBendArc";
 import { AutoMovieHumanSiteViewPart } from "./AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanWalkPart } from "./AutoMovieHumanWalkPart";
 
@@ -165,7 +165,7 @@ export namespace AutoMovieHumanDigitWalk {
     const joints: { half: number }[] = Array.from(
       { length: bones - 1 },
       (_: unknown, k: number): { half: number } => ({
-        half: AutoMovieHumanJointTurn.half(
+        half: AutoMovieHumanBendArc.half(
           input.centres[k]!,
           input.centres[k + 1]!,
           input.centres[k + 2]!,

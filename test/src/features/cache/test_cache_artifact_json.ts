@@ -1,8 +1,9 @@
+import {
+  decodeAutoMovieArtifactJson,
+  encodeAutoMovieArtifactJson,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 import { isDeepStrictEqual } from "node:util";
-
-import { decodeAutoMovieArtifactJson } from "../../../../packages/engine/src/cache/decodeAutoMovieArtifactJson";
-import { encodeAutoMovieArtifactJson } from "../../../../packages/engine/src/cache/encodeAutoMovieArtifactJson";
 
 /**
  * Artifact JSON restores accepted plain data exactly and refuses the rest.
@@ -50,8 +51,9 @@ export function test_cache_artifact_json(): void {
     ["undefined element", [1, undefined]],
     ["reserved member", { $number: "-0" }],
   ] as const)
-    TestValidator.error(title, (): Uint8Array =>
-      encodeAutoMovieArtifactJson(refused),
+    TestValidator.error(
+      title,
+      (): Uint8Array => encodeAutoMovieArtifactJson(refused),
     );
   TestValidator.error("unknown tag", (): unknown =>
     decodeAutoMovieArtifactJson(

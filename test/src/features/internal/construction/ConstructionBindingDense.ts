@@ -1,6 +1,7 @@
-import type { IAutoMovieLoftChain as Chain } from "@automovie/engine";
-
-import { AutoMovieLoftSectionSource as Source } from "../../../../../packages/engine/src/geometry/construction/AutoMovieLoftSectionSource";
+import {
+  type IAutoMovieLoftChain as Chain,
+  AutoMovieLoftSectionSource as Source,
+} from "@automovie/engine";
 
 /** Numeric groups whose emitted rows and independent snapshots must remain finite, dense and width-compatible. */
 type Field = "coefficients" | "slopes" | "curvatures";

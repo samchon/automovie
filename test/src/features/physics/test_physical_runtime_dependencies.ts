@@ -1,21 +1,23 @@
+import {
+  PhysicalTargetInterval as Interval,
+  Quaternion,
+  type AutoMoviePhysicalSimulation as Simulation,
+  Vector3,
+  bindPhysicalWorld,
+  copyPhysicalTarget,
+  preparePhysicalTargetSampler,
+  readPhysicalScene,
+  samplePhysicalAuthoredTargets,
+  samplePhysicalTarget,
+  setPhysicalTargetJointRotation,
+  solvePhysicalChainTarget,
+  warmPhysicalSupportTargets,
+} from "@automovie/engine";
 import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import RAPIER, { type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
-import type { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
-import { PhysicalTargetInterval as Interval } from "../../../../packages/engine/src/physics/PhysicalTargetInterval";
-import { bindPhysicalWorld } from "../../../../packages/engine/src/physics/bindPhysicalWorld";
-import { copyPhysicalTarget } from "../../../../packages/engine/src/physics/copyPhysicalTarget";
-import { preparePhysicalTargetSampler } from "../../../../packages/engine/src/physics/preparePhysicalTargetSampler";
-import { readPhysicalScene } from "../../../../packages/engine/src/physics/readPhysicalScene";
-import { samplePhysicalAuthoredTargets } from "../../../../packages/engine/src/physics/samplePhysicalAuthoredTargets";
-import { samplePhysicalTarget } from "../../../../packages/engine/src/physics/samplePhysicalTarget";
-import { setPhysicalTargetJointRotation } from "../../../../packages/engine/src/physics/setPhysicalTargetJointRotation";
-import { solvePhysicalChainTarget } from "../../../../packages/engine/src/physics/solvePhysicalChainTarget";
-import { warmPhysicalSupportTargets } from "../../../../packages/engine/src/physics/warmPhysicalSupportTargets";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 import { PhysicalPointFixtures } from "../internal/PhysicalPointFixtures";
 import { qclose } from "../internal/qclose";

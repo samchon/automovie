@@ -1,8 +1,11 @@
-import { AutoMovieConicArcField } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConicArcField";
-import { AutoMovieConicFieldJet } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConicFieldJet";
-import { AutoMovieViewConic } from "../../../../../packages/engine/src/geometry/construction/AutoMovieViewConic";
-import { AutoMovieViewOutline } from "../../../../../packages/engine/src/geometry/construction/AutoMovieViewOutline";
-import { AutoMovieViewSectionField } from "../../../../../packages/engine/src/geometry/construction/AutoMovieViewSectionField";
+import {
+  AutoMovieConicArcField,
+  AutoMovieConicFieldJet,
+  AutoMovieViewConic,
+  AutoMovieViewOutline,
+  AutoMovieViewSectionField,
+} from "@automovie/engine";
+
 import { ConstructionConicFieldBoundary } from "../../internal/construction/ConstructionConicFieldBoundary";
 import { ConstructionConicFieldOracle } from "../../internal/construction/ConstructionConicFieldOracle";
 

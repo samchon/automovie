@@ -1,8 +1,9 @@
+import {
+  type IAutoMovieModelObject,
+  createAutoMoviePhysicalPoseAdapter,
+} from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
-
-import type { IAutoMovieModelObject } from "../../../../packages/viewer/src/IAutoMovieModelObject";
-import { createAutoMoviePhysicalPoseAdapter } from "../../../../packages/viewer/src/createAutoMoviePhysicalPoseAdapter";
 
 /** Absolute physical display conversion.
  *

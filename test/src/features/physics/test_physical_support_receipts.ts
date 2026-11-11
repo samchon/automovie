@@ -1,3 +1,11 @@
+import {
+  type AutoMoviePhysicalSimulation as Simulation,
+  bindPhysicalWorld,
+  collectPhysicalSupports as collect,
+  collectPhysicalContacts,
+  recordPhysicalContact,
+  solvePhysicalCompliantContacts,
+} from "@automovie/engine";
 import type {
   IAutoMoviePhysicalProfile as P,
   IAutoMovieFootfallPattern as Pattern,
@@ -6,12 +14,6 @@ import type {
 import RAPIER, { type RigidBody, type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 
-import type { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
-import { bindPhysicalWorld } from "../../../../packages/engine/src/physics/bindPhysicalWorld";
-import { collectPhysicalContacts } from "../../../../packages/engine/src/physics/collectPhysicalContacts";
-import { collectPhysicalSupports as collect } from "../../../../packages/engine/src/physics/collectPhysicalSupports";
-import { recordPhysicalContact } from "../../../../packages/engine/src/physics/recordPhysicalContact";
-import { solvePhysicalCompliantContacts } from "../../../../packages/engine/src/physics/solvePhysicalCompliantContacts";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 import { nclose } from "../internal/nclose";
 

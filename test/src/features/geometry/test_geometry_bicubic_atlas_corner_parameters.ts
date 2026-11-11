@@ -1,7 +1,7 @@
+import { realizeAutoMovieBicubicAtlas64 as realize } from "@automovie/engine";
+import type { IAutoMovieBicubicAtlasGeometry as Atlas } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { realizeAutoMovieBicubicAtlas64 as realize } from "../../../../packages/engine/src/geometry/realizeAutoMovieBicubicAtlas64";
-import type { IAutoMovieBicubicAtlasGeometry as Atlas } from "../../../../packages/interface/src/model/IAutoMovieBicubicAtlasGeometry";
 import { createBicubicPlaneRecipe } from "../internal/createBicubicPlaneRecipe";
 import { nclose } from "../internal/nclose";
 

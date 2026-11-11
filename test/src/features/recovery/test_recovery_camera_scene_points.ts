@@ -1,11 +1,13 @@
+import {
+  type IAutoMovieRecoveryMapObservation,
+  type IAutoMovieRecoveryMapPose,
+  admitRecoveryCameraScene,
+  evaluateRecoveryScenePoint,
+  refineRecoveryCameraMap,
+  triangulateRecoverySceneTrack,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
-import { admitRecoveryCameraScene } from "../../../../packages/recovery/src/internal/admitRecoveryCameraScene";
-import { evaluateRecoveryScenePoint } from "../../../../packages/recovery/src/internal/evaluateRecoveryScenePoint";
-import { refineRecoveryCameraMap } from "../../../../packages/recovery/src/internal/refineRecoveryCameraMap";
-import { triangulateRecoverySceneTrack } from "../../../../packages/recovery/src/internal/triangulateRecoverySceneTrack";
-import type { IAutoMovieRecoveryMapObservation } from "../../../../packages/recovery/src/structures/image/IAutoMovieRecoveryMapObservation";
-import type { IAutoMovieRecoveryMapPose } from "../../../../packages/recovery/src/structures/image/IAutoMovieRecoveryMapPose";
 import { createRecoverySceneNumericalFixture } from "../internal/createRecoverySceneNumericalFixture";
 import { nclose } from "../internal/nclose";
 

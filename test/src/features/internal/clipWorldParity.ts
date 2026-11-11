@@ -1,5 +1,4 @@
 import {
-  type IAutoMovieJointAxes,
   type IAutoMovieMotionClipBridge,
   type IAutoMovieResolvedBone,
   type IAutoMovieRestFrame,
@@ -11,6 +10,7 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieJointAxes,
   IAutoMovieMotion,
   IAutoMovieSkeleton,
 } from "@automovie/interface";

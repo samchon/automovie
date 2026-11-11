@@ -9,4 +9,4 @@ export * from "./AUTOMOVIE_SUPPORT_TOLERANCE";
 export * from "./AUTO_MOVIE_DESIGN_FRAME_VIEWS";
 export * from "./AUTO_MOVIE_DESIGN_ISSUE_KINDS";
 export * from "./AUTO_MOVIE_DESIGN_REFERENCE_MEDIA";
-export * from "./PLANAR_EPSILON";
+export * from "./BUILT_PLANAR_EPSILON";

@@ -1,10 +1,12 @@
+import {
+  AutoMoviePhysicalSimulation as Simulation,
+  Vector3,
+  bindPhysicalWorld,
+} from "@automovie/engine";
 import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import RAPIER, { type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 
-import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
-import { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
-import { bindPhysicalWorld } from "../../../../packages/engine/src/physics/bindPhysicalWorld";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
 /** Thirty native steps: settling, then a loaded window. */

@@ -2,10 +2,9 @@ import {
   AutoMovieConstructionViews,
   type AutoMovieLoftFrame,
   AutoMovieViewAxis,
+  rollAutoMovieViewAxis,
 } from "@automovie/engine";
 import type { IAutoMovieConstructionJointedAxis } from "@automovie/interface";
-
-import { rollAutoMovieViewAxis } from "../../../../../packages/engine/src/geometry/construction/rollAutoMovieViewAxis";
 
 /**
  * A requested material roll changes only the in-plane basis, with C2 endpoint joins.

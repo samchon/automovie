@@ -1,8 +1,10 @@
+import {
+  AutoMoviePhysicalSimulation as Simulation,
+  samplePhysicalTrackingTarget,
+} from "@automovie/engine";
 import type { IAutoMovieContactReceipt as Receipt } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
-import { samplePhysicalTrackingTarget } from "../../../../packages/engine/src/physics/samplePhysicalTrackingTarget";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 

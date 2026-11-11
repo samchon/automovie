@@ -1,12 +1,9 @@
-import {
-  type IAutoMovieJointAxes,
-  type IAutoMovieRestFrame,
-  validateFootSkate,
-} from "@automovie/engine";
+import { type IAutoMovieRestFrame, validateFootSkate } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBeatEndActorState,
   IAutoMovieBeatEndFootPlant,
+  IAutoMovieJointAxes,
   IAutoMovieMotion,
   IAutoMovieSkeleton,
   IAutoMovieStageActor,

@@ -1,5 +1,6 @@
 import {
   AutoMovieLoftChain,
+  AutoMovieLoftSectionSource,
   AutoMovieViewAxis,
   AutoMovieViewLoft,
   type IAutoMovieLoftChain,
@@ -7,7 +8,6 @@ import {
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { AutoMovieLoftSectionSource } from "../../../../../packages/engine/src/geometry/construction/AutoMovieLoftSectionSource";
 import { ConstructionBindingDense } from "../../internal/construction/ConstructionBindingDense";
 import { nclose } from "../../internal/nclose";
 

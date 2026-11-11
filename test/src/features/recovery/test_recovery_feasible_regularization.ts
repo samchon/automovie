@@ -1,11 +1,13 @@
+import {
+  type IAutoMovieRecoveryFeasibleFit,
+  type IAutoMovieRecoveryFeasibleModel,
+  type IAutoMovieRecoveryFeasibleProblem,
+  type IAutoMovieRecoveryRegularizationUpdate,
+  refineRecoveryFeasibleState,
+  updateRecoveryRegularization,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
-import { refineRecoveryFeasibleState } from "../../../../packages/recovery/src/internal/refineRecoveryFeasibleState";
-import { updateRecoveryRegularization } from "../../../../packages/recovery/src/internal/updateRecoveryRegularization";
-import type { IAutoMovieRecoveryRegularizationUpdate } from "../../../../packages/recovery/src/structures/image/IAutoMovieRecoveryRegularizationUpdate";
-import type { IAutoMovieRecoveryFeasibleFit } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryFeasibleFit";
-import type { IAutoMovieRecoveryFeasibleModel } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryFeasibleModel";
-import type { IAutoMovieRecoveryFeasibleProblem } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryFeasibleProblem";
 import type { AutoRecoveryRegularizationMode } from "../internal/AutoRecoveryRegularizationMode";
 import type { IRecoveryRegularizationObservation } from "../internal/IRecoveryRegularizationObservation";
 import { nclose } from "../internal/nclose";

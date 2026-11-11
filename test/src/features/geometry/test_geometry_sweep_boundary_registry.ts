@@ -1,10 +1,12 @@
-import { type IAutoMovieSweep } from "@automovie/engine";
+import {
+  type IAutoMovieSurfaceRegistry,
+  type IAutoMovieSweep,
+  type IAutoMovieSweepRig,
+  registerAutoMovieSurfaceVertices,
+  rigAutoMovieSweep,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieSurfaceRegistry } from "../../../../packages/engine/src/geometry/sweep/IAutoMovieSurfaceRegistry";
-import { type IAutoMovieSweepRig } from "../../../../packages/engine/src/geometry/sweep/IAutoMovieSweepRig";
-import { registerAutoMovieSurfaceVertices } from "../../../../packages/engine/src/geometry/sweep/registerAutoMovieSurfaceVertices";
-import { rigAutoMovieSweep } from "../../../../packages/engine/src/geometry/sweep/rigAutoMovieSweep";
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";
 

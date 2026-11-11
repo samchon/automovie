@@ -1,8 +1,10 @@
+import {
+  AutoMovieMotionAudit as Audit,
+  type AutoMoviePhysicsCache as Cache,
+} from "@automovie/engine";
 import type { IAutoMovieMotionGeometry as Geometry } from "@automovie/interface";
 import assert from "node:assert/strict";
 
-import { AutoMovieMotionAudit as Audit } from "../../../../packages/engine/src/physics/AutoMovieMotionAudit";
-import type { AutoMoviePhysicsCache as Cache } from "../../../../packages/engine/src/physics/AutoMoviePhysicsCache";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
 /** Disconnected carriers audit without invented native masses or joints.

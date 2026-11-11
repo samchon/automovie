@@ -1,10 +1,14 @@
+import {
+  type IAutoMovieSimplexAtom,
+  minimizeAutoMovieSimplexQuadratic,
+  solveAutoMovieQuadraticProgram,
+} from "@automovie/engine";
+import {
+  measureRecoveryFeasibleArithmetic,
+  solveRecoveryFeasibleDirection,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieSimplexAtom } from "../../../../packages/engine/src/math/IAutoMovieSimplexAtom";
-import { minimizeAutoMovieSimplexQuadratic } from "../../../../packages/engine/src/math/minimizeAutoMovieSimplexQuadratic";
-import { solveAutoMovieQuadraticProgram } from "../../../../packages/engine/src/math/solveAutoMovieQuadraticProgram";
-import { measureRecoveryFeasibleArithmetic } from "../../../../packages/recovery/src/internal/measureRecoveryFeasibleArithmetic";
-import { solveRecoveryFeasibleDirection } from "../../../../packages/recovery/src/internal/solveRecoveryFeasibleDirection";
 import type { IRecoveryFeasibleDirectionCase } from "../internal/IRecoveryFeasibleDirectionCase";
 import { nclose } from "../internal/nclose";
 

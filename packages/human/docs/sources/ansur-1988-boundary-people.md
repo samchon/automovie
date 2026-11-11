@@ -47,7 +47,7 @@ The 2,208 women and 1,774 men of the working databases with all 38 measures belo
 | menton to nasal root depression | MENTON_TO_NASAL_ROOT_DEP_LNTH | face height scale |
 | ear length, breadth, protrusion | EAR_LNTH, EAR_BRTH, EAR_PROTRUSION | ear `length`, carrier of `breadth`, `protrusion` |
 
-Means, SDs, sample extremes and the full correlation matrix per sex are the constants of `test/src/features/internal/HumanPopulationSurvey.ts` (`SURVEY`), to four decimals. Selected means (women / men): stature 1629.4 / 1755.8, mass 62.0 / 78.5, chest 907.1 / 991.4, natural waist 725.5 / 839.9, buttock 966.9 / 983.7, bust span 184.8 / 215.9, underbust 769.7 / 926.1, neck base 346.2 / 408.4, neck 315.7 / 379.6, knee 365.2 / 386.4. Body-mass index: 23.34 (SD 2.65) women, 25.42 (3.00) men.
+Means, SDs, sample extremes and the full correlation matrix per sex are the constants of `packages/motions/src/executable/population/HumanPopulationSurvey.ts` (`SURVEY`), to four decimals. Selected means (women / men): stature 1629.4 / 1755.8, mass 62.0 / 78.5, chest 907.1 / 991.4, natural waist 725.5 / 839.9, buttock 966.9 / 983.7, bust span 184.8 / 215.9, underbust 769.7 / 926.1, neck base 346.2 / 408.4, neck 315.7 / 379.6, knee 365.2 / 386.4. Body-mass index: 23.34 (SD 2.65) women, 25.42 (3.00) men.
 
 ## Method
 

@@ -1,6 +1,5 @@
+import { solvePhysicalTargetStep } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
-
-import { solvePhysicalTargetStep } from "../../../../packages/engine/src/physics/solvePhysicalTargetStep";
 
 /** A constrained coordinate cannot absorb the correction needed from a free one.
  *

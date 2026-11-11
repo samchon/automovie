@@ -1,4 +1,8 @@
-import { AutoMovieMeshCourse, AutoMovieViewSection, type IAutoMovieViewPart } from "@automovie/engine";
+import {
+  AutoMovieMeshCourse,
+  AutoMovieViewSection,
+  type IAutoMovieViewPart,
+} from "@automovie/engine";
 
 type Quarters = IAutoMovieViewPart.IQuarters<number>;
 
@@ -20,23 +24,47 @@ type Quarters = IAutoMovieViewPart.IQuarters<number>;
 export function test_construction_operator_view_shoulder(): void {
   const failures: string[] = [];
   const unit: AutoMovieViewSection.IBox = { extents: [1, 1, 1, 1] };
-  const radius = (box: AutoMovieViewSection.IBox, rho: number, phi: number): number => AutoMovieViewSection.radius(AutoMovieViewSection.of(box, [rho, rho, rho, rho] as Quarters), phi)[0];
+  const radius = (
+    box: AutoMovieViewSection.IBox,
+    rho: number,
+    phi: number,
+  ): number =>
+    AutoMovieViewSection.radius(
+      AutoMovieViewSection.of(box, [rho, rho, rho, rho] as Quarters),
+      phi,
+    )[0];
 
   // 1. Closed forms along the corner diagonal of the unit box.
   const circle: number = radius(unit, Math.SQRT2 - 1, Math.PI / 4);
-  if (!(Math.abs(circle - 1) <= 1e-9)) failures.push(`circle quarter: diagonal radius ${circle}, expected 1`);
+  if (!(Math.abs(circle - 1) <= 1e-9))
+    failures.push(`circle quarter: diagonal radius ${circle}, expected 1`);
   const parabola: number = radius(unit, 0.5, Math.PI / 4);
   const wrong: number = (2 / 3) * Math.SQRT2;
-  if (!(Math.abs(parabola - 0.75 * Math.SQRT2) <= 1e-9)) failures.push(`parabola quarter: diagonal radius ${parabola}, expected ${0.75 * Math.SQRT2}`);
-  if (!(Math.abs(parabola - wrong) > 0.1)) failures.push(`the parabola check does not separate w = rho / (1 - rho) from w = rho (${parabola} against ${wrong})`);
+  if (!(Math.abs(parabola - 0.75 * Math.SQRT2) <= 1e-9))
+    failures.push(
+      `parabola quarter: diagonal radius ${parabola}, expected ${0.75 * Math.SQRT2}`,
+    );
+  if (!(Math.abs(parabola - wrong) > 0.1))
+    failures.push(
+      `the parabola check does not separate w = rho / (1 - rho) from w = rho (${parabola} against ${wrong})`,
+    );
 
   // 2. The reader's crossing equals the section's own diagonal point.
   const boxes: [Quarters, Quarters][] = [
-    [[1, 1, 1, 1], [0.45, 0.45, 0.45, 0.45]],
-    [[40, 25, 30, 20], [0.42, 0.55, 0.38, 0.6]],
+    [
+      [1, 1, 1, 1],
+      [0.45, 0.45, 0.45, 0.45],
+    ],
+    [
+      [40, 25, 30, 20],
+      [0.42, 0.55, 0.38, 0.6],
+    ],
   ];
   for (const [extents, shoulders] of boxes) {
-    const section: AutoMovieViewSection.ISection = AutoMovieViewSection.of({ extents }, shoulders);
+    const section: AutoMovieViewSection.ISection = AutoMovieViewSection.of(
+      { extents },
+      shoulders,
+    );
     const [eu, ev, nu, nv] = extents;
     const guides: [number, number][] = [
       [eu, 0],
@@ -56,30 +84,57 @@ export function test_construction_operator_view_shoulder(): void {
       let hi: number = 1;
       for (let k: number = 0; k < 200; ++k) {
         const t: number = (lo + hi) / 2;
-        const p: [number, number] = [M[0] + t * (A[0] - M[0]), M[1] + t * (A[1] - M[1])];
-        if (Math.hypot(...p) < AutoMovieViewSection.radius(section, Math.atan2(p[1], p[0]))[0]) lo = t;
+        const p: [number, number] = [
+          M[0] + t * (A[0] - M[0]),
+          M[1] + t * (A[1] - M[1]),
+        ];
+        if (
+          Math.hypot(...p) <
+          AutoMovieViewSection.radius(section, Math.atan2(p[1], p[0]))[0]
+        )
+          lo = t;
         else hi = t;
       }
       expected.push((lo + hi) / 2);
       const t: number = (lo + hi) / 2;
-      special.push(Math.atan2(M[1] + t * (A[1] - M[1]), M[0] + t * (A[0] - M[0])));
+      special.push(
+        Math.atan2(M[1] + t * (A[1] - M[1]), M[0] + t * (A[0] - M[0])),
+      );
     }
-    const phases: number[] = [...Array.from({ length: 720 }, (_: unknown, k: number): number => (2 * Math.PI * k) / 720 - Math.PI), ...special].sort((a: number, b: number): number => a - b);
-    const loop: [number, number][] = phases.map((phi: number): [number, number] => {
-      const r: number = AutoMovieViewSection.radius(section, phi)[0];
-      return [r * Math.cos(phi), r * Math.sin(phi)];
-    });
-    const reading: AutoMovieMeshCourse.IReading = AutoMovieMeshCourse.read(loop);
+    const phases: number[] = [
+      ...Array.from(
+        { length: 720 },
+        (_: unknown, k: number): number => (2 * Math.PI * k) / 720 - Math.PI,
+      ),
+      ...special,
+    ].sort((a: number, b: number): number => a - b);
+    const loop: [number, number][] = phases.map(
+      (phi: number): [number, number] => {
+        const r: number = AutoMovieViewSection.radius(section, phi)[0];
+        return [r * Math.cos(phi), r * Math.sin(phi)];
+      },
+    );
+    const reading: AutoMovieMeshCourse.IReading =
+      AutoMovieMeshCourse.read(loop);
     const signed: Quarters = [eu, -nu, ev, -nv];
     reading.extents.forEach((e: number, k: number): void => {
-      if (!(Math.abs(e - signed[k]!) <= 1e-9)) failures.push(`box [${extents}]: extent ${k} ${e}, expected ${signed[k]}`);
+      if (!(Math.abs(e - signed[k]!) <= 1e-9))
+        failures.push(
+          `box [${extents}]: extent ${k} ${e}, expected ${signed[k]}`,
+        );
     });
     reading.touch.forEach((t: number, k: number): void => {
-      if (!(Math.abs(t) <= 1e-9)) failures.push(`box [${extents}]: touch ${k} ${t}, expected 0`);
+      if (!(Math.abs(t) <= 1e-9))
+        failures.push(`box [${extents}]: touch ${k} ${t}, expected 0`);
     });
-    reading.quarters.forEach((q: AutoMovieMeshCourse.IQuarter, k: number): void => {
-      if (q.rho === null || !(Math.abs(q.rho - expected[k]!) <= 1e-9)) failures.push(`box [${extents}]: quarter ${k} read ${q.rho}, the section's own crossing ${expected[k]}`);
-    });
+    reading.quarters.forEach(
+      (q: AutoMovieMeshCourse.IQuarter, k: number): void => {
+        if (q.rho === null || !(Math.abs(q.rho - expected[k]!) <= 1e-9))
+          failures.push(
+            `box [${extents}]: quarter ${k} read ${q.rho}, the section's own crossing ${expected[k]}`,
+          );
+      },
+    );
   }
 
   // 3. A notched square reads its concave quarter unclamped.
@@ -95,15 +150,34 @@ export function test_construction_operator_view_shoulder(): void {
   ];
   const plain: AutoMovieMeshCourse.IReading = AutoMovieMeshCourse.read(square);
   plain.quarters.forEach((q: AutoMovieMeshCourse.IQuarter, k: number): void => {
-    if (q.rho === null || !(Math.abs(q.rho - 1) <= 1e-12)) failures.push(`square: quarter ${k} read ${q.rho}, expected 1 (the corner)`);
+    if (q.rho === null || !(Math.abs(q.rho - 1) <= 1e-12))
+      failures.push(
+        `square: quarter ${k} read ${q.rho}, expected 1 (the corner)`,
+      );
   });
-  const notched: [number, number][] = [[10, 0], [10, 2], [2, 2], [2, 10], ...square.slice(2)];
-  const concave: AutoMovieMeshCourse.IReading = AutoMovieMeshCourse.read(notched);
+  const notched: [number, number][] = [
+    [10, 0],
+    [10, 2],
+    [2, 2],
+    [2, 10],
+    ...square.slice(2),
+  ];
+  const concave: AutoMovieMeshCourse.IReading =
+    AutoMovieMeshCourse.read(notched);
   const q0: number | null = concave.quarters[0].rho;
-  if (q0 === null || !(q0 <= 0)) failures.push(`notched square: quarter 0 read ${q0}, expected at or below 0`);
-  concave.quarters.slice(1).forEach((q: AutoMovieMeshCourse.IQuarter, k: number): void => {
-    if (q.rho === null || !(Math.abs(q.rho - 1) <= 1e-12)) failures.push(`notched square: quarter ${k + 1} read ${q.rho}, expected 1`);
-  });
+  if (q0 === null || !(q0 <= 0))
+    failures.push(
+      `notched square: quarter 0 read ${q0}, expected at or below 0`,
+    );
+  concave.quarters
+    .slice(1)
+    .forEach((q: AutoMovieMeshCourse.IQuarter, k: number): void => {
+      if (q.rho === null || !(Math.abs(q.rho - 1) <= 1e-12))
+        failures.push(
+          `notched square: quarter ${k + 1} read ${q.rho}, expected 1`,
+        );
+    });
 
-  if (failures.length !== 0) throw new Error(`view shoulder:\n${failures.join("\n")}`);
+  if (failures.length !== 0)
+    throw new Error(`view shoulder:\n${failures.join("\n")}`);
 }

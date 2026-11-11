@@ -67,7 +67,6 @@ The [root README](../../../README.md#packages) and package READMEs own inventori
 | `human` | The human figure generated from typed parameters by code |
 | `recovery` | Reference-mesh reconstruction |
 | `viewer` | GPU display, capture and inspection transport; the only library importing `three.js` |
-| `playground` | Mounting `viewer`, and the example parameter sets |
 | `evidence` | Reusable engineering defaults and optional narrative evidence composition, for native checking |
 | `template/scaffold` | The generated production instructions, editable contracts and thin configuration, which `cli` installs |
 

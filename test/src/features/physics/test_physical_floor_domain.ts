@@ -1,6 +1,6 @@
+import { AutoMoviePhysicalSimulation as Simulation } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
 /**

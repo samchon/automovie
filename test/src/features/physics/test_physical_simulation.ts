@@ -1,8 +1,9 @@
+import {
+  AutoMoviePhysicalSimulation as Simulation,
+  validatePhysicalProfile,
+} from "@automovie/engine";
 import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
-import { validatePhysicalProfile } from "../../../../packages/engine/src/physics/validatePhysicalProfile";
 
 /**
  * Fixed-step dynamics, replay order and late-edit restart retain the same state.

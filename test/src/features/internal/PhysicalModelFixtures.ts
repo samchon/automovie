@@ -1,3 +1,4 @@
+import { derivePhysicalProfile } from "@automovie/engine";
 import type {
   IAutoMovieModel,
   IAutoMovieVector3,
@@ -5,7 +6,6 @@ import type {
 } from "@automovie/interface";
 
 import { createAutoMovieStickman } from "./createAutoMovieStickman";
-import { derivePhysicalProfile } from "../../../../packages/engine/src/physics/derivePhysicalProfile";
 import { makeProp } from "./makeProp";
 import { material } from "./material";
 import { primitivePart } from "./primitivePart";

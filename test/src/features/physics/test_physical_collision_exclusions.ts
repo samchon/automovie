@@ -1,9 +1,11 @@
+import {
+  type AutoMoviePhysicsCache,
+  AutoMoviePhysicalSimulation as Simulation,
+  Vector3,
+} from "@automovie/engine";
 import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
-import { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
-import type { AutoMoviePhysicsCache } from "../../../../packages/engine/src/physics/AutoMoviePhysicsCache";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
 /** Twelve native steps. */

@@ -1,6 +1,7 @@
 import {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  type IAutoMovieJointAxes,
   IAutoMovieMotion,
   IAutoMovieSkeleton,
   IAutoMovieValidation,
@@ -8,7 +9,6 @@ import {
 } from "@automovie/interface";
 
 import {
-  IAutoMovieJointAxes,
   IAutoMovieSkeletonTopology,
   indexSkeletonTopology,
   resolvePose,

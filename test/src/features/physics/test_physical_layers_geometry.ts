@@ -1,8 +1,9 @@
+import {
+  preparePhysicalGeometry as Geometry,
+  auditPhysicalOutcomes,
+} from "@automovie/engine";
 import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { auditPhysicalOutcomes } from "../../../../packages/engine/src/physics/auditPhysicalOutcomes";
-import { preparePhysicalGeometry as Geometry } from "../../../../packages/engine/src/physics/preparePhysicalGeometry";
 
 /** Physical geometry behavior.
  *

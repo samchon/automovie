@@ -24,8 +24,8 @@ import { SPACE_GROUP_NAME } from "./buildSpace.js";
  * evidence of a physical floor. Anything carrying no geometry is untouched.
  *
  * Exported, and separate from {@link buildScene}, for the reason
- * {@link applySceneFog} is: a host that assembles its own scene graph — the
- * playground's film page, which is what the offline renderer captures — must
+ * {@link applySceneFog} is: a host that assembles its own scene graph — a
+ * production's film page, which is what the offline renderer captures — must
  * make the same call, or it captures a production whose shadows were declared
  * and never drawn.
  *

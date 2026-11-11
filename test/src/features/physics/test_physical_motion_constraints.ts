@@ -1,9 +1,11 @@
+import {
+  AutoMovieMotionAudit as Audit,
+  type AutoMoviePhysicsCache as Cache,
+  measurePhysicalMotionConstraint as Measure,
+} from "@automovie/engine";
 import type { IAutoMovieMotionGeometry } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { AutoMovieMotionAudit as Audit } from "../../../../packages/engine/src/physics/AutoMovieMotionAudit";
-import type { AutoMoviePhysicsCache as Cache } from "../../../../packages/engine/src/physics/AutoMoviePhysicsCache";
-import { measurePhysicalMotionConstraint as Measure } from "../../../../packages/engine/src/physics/measurePhysicalMotionConstraint";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
 /** Numerical audit observes actual endpoint witnesses and three-point flexion.

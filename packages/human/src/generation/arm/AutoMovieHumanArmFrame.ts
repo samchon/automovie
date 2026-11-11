@@ -1,4 +1,4 @@
-import { AutoMovieHumanJointTurn } from "../limb/AutoMovieHumanJointTurn";
+import { AutoMovieHumanBendArc } from "../limb/AutoMovieHumanBendArc";
 import { AutoMovieHumanWalkPart } from "../limb/AutoMovieHumanWalkPart";
 import type { AutoMovieHumanArmBones } from "./AutoMovieHumanArmBones";
 import type { AutoMovieHumanArmWalk } from "./AutoMovieHumanArmWalk";
@@ -109,7 +109,7 @@ export namespace AutoMovieHumanArmFrame {
             ? []
             : [
                 {
-                  half: AutoMovieHumanJointTurn.half(
+                  half: AutoMovieHumanBendArc.half(
                     bones.wrist,
                     knuckle,
                     crease,

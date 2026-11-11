@@ -1,10 +1,12 @@
+import {
+  AutoMoviePhysicsCache as Cache,
+  AutoMoviePhysicalPlayback as Playback,
+  AutoMoviePhysicalSimulation as Simulation,
+  physicalInputDigest,
+  samplePhysicalRecoverySupport,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { AutoMoviePhysicalPlayback as Playback } from "../../../../packages/engine/src/physics/AutoMoviePhysicalPlayback";
-import { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
-import { AutoMoviePhysicsCache as Cache } from "../../../../packages/engine/src/physics/AutoMoviePhysicsCache";
-import { physicalInputDigest } from "../../../../packages/engine/src/physics/physicalInputDigest";
-import { samplePhysicalRecoverySupport } from "../../../../packages/engine/src/physics/samplePhysicalRecoverySupport";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
 /** A Node-computed archive replays the same performance without stepping a solver.

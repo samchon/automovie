@@ -2,7 +2,7 @@
 
 Draws AutoMovie output with Three.js. It builds Three.js objects from `@automovie/interface` models and scenes, applies poses, expressions and motion on one frame clock, and captures or inspects the result. The engine decides what a frame contains and the viewer only draws it. This is the one AutoMovie package that imports `three`.
 
-It has no editor controls and no example content. A host, the program that mounts it, can be a browser page, a headless capture process or the playground.
+It has no editor controls and no example content. A host, the program that mounts it, can be a browser page or a headless capture process.
 
 ## Use
 

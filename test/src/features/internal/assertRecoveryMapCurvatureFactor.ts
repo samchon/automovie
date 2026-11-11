@@ -1,12 +1,14 @@
+import type { IAutoMovieSimplexAtom } from "@automovie/engine";
+import {
+  type IAutoMovieRecoveryMapCurvatureBlocks,
+  type IAutoMovieRecoveryMapCurvatureFit,
+  type IAutoMovieRecoveryMapPose,
+  createRecoveryMapTriangularMetric,
+  differentiateRecoveryMapProjection,
+  factorRecoveryMapCurvature,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieSimplexAtom } from "../../../../packages/engine/src/math/IAutoMovieSimplexAtom";
-import { createRecoveryMapTriangularMetric } from "../../../../packages/recovery/src/internal/createRecoveryMapTriangularMetric";
-import { differentiateRecoveryMapProjection } from "../../../../packages/recovery/src/internal/differentiateRecoveryMapProjection";
-import { factorRecoveryMapCurvature } from "../../../../packages/recovery/src/internal/factorRecoveryMapCurvature";
-import type { IAutoMovieRecoveryMapPose } from "../../../../packages/recovery/src/structures/image/IAutoMovieRecoveryMapPose";
-import type { IAutoMovieRecoveryMapCurvatureBlocks } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryMapCurvatureBlocks";
-import type { IAutoMovieRecoveryMapCurvatureFit } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryMapCurvatureFit";
 import { nclose } from "../internal/nclose";
 
 /**
