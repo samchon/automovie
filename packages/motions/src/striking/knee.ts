@@ -1,17 +1,16 @@
-import {
-  Quaternion,
-  Vector3,
-  minimumJerk,
-  wrapDegrees,
-} from "@automovie/engine";
+import { Quaternion, Vector3, wrapDegrees } from "@automovie/engine";
 import type {
   AutoMovieMotionTarget,
-  IAutoMovieMotionEvent,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
+import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
+import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
+import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -85,11 +84,14 @@ export namespace knee {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's target union.
    */
   export interface IParams {
-    /** What it strikes. */
-    at: AutoMovieMotionTarget;
+    /** What it strikes; a virtual opponent at the knee's range on the middle line when absent. */
+    at?: AutoMovieMotionTarget;
 
     /** Which leg: lead or rear; rear when absent. */
     leg?: "lead" | "rear";
+
+    /** How it is performed: the tempo scales the rise and the recoil. */
+    manner?: AutoMovieMotionManner.IManner;
   }
 
   /** The thigh's and the shank's unit directions, world frame. */
@@ -142,12 +144,35 @@ export namespace knee {
     const side: "left" | "right" =
       (p.leg ?? "rear") === "lead" ? lead : StrikingStance.rear({ lead });
     const support: "left" | "right" = side === "left" ? "right" : "left";
-    const slow: number = StrikingSkill.recovery(context.skill);
+    const slow: number =
+      StrikingSkill.recovery(context.skill) *
+      AutoMovieMotionManner.of(context, p.manner).tempo;
     const prep: number = StrikingSkill.KICK_PREPARATION;
     const impact: number = prep + StrikingSkill.KICK_CHAMBER * slow;
     const duration: number = impact + StrikingSkill.KICK_RECOIL * slow;
     const span: number = impact - prep;
     const recoil: number = duration - impact;
+
+    // The knee is lifted by `lifted` and the hips driven in from `drive`;
+    // the hips are withdrawn by `withdrawn` and the leg lowers from
+    // `lowering`.
+    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+      duration,
+      [
+        { name: "launch", seconds: prep },
+        { name: "lifted", seconds: prep + KneeForm.LIFT_SHARE * span },
+        { name: "drive", seconds: impact - KneeForm.LIFT_SHARE * span },
+        { name: "impact", seconds: impact },
+        { name: "stroke", seconds: impact },
+        { name: "relax", seconds: impact },
+        { name: "withdrawn", seconds: impact + KneeForm.LIFT_SHARE * recoil },
+        {
+          name: "lowering",
+          seconds: duration - KneeForm.LIFT_SHARE * recoil,
+        },
+        { name: "replant", seconds: duration },
+      ],
+    );
     const entry: IHumanPosture = context.entry.posture;
     const feet: Record<"left" | "right", HumanFoot.IPlacement> =
       StrikingTarget.feet(context.entry);
@@ -277,11 +302,6 @@ export namespace knee {
       };
       return built;
     };
-    const events: IAutoMovieMotionEvent[] = [
-      { name: "launch", share: prep / duration },
-      { name: "impact", share: impact / duration },
-      { name: "replant", share: 1 },
-    ];
     const contacts: IHumanContactWindow[] = [
       {
         part: `${side}Foot`,
@@ -314,16 +334,21 @@ export namespace knee {
 
       // The hips square over the whole way out and back; the thigh lifts
       // early and lowers late; the pelvis drives late and withdraws early.
-      const lift: number = KneeForm.LIFT_SHARE * span;
-      const lower: number = KneeForm.LIFT_SHARE * recoil;
-      const whole: number =
-        minimumJerk((t - prep) / span).s - minimumJerk((t - impact) / recoil).s;
-      const rise: number =
-        minimumJerk((t - prep) / lift).s -
-        minimumJerk((t - (duration - lower)) / lower).s;
-      const drive: number =
-        minimumJerk((t - (impact - lift)) / lift).s -
-        minimumJerk((t - impact) / lower).s;
+      const whole: number = clock.envelope(
+        ["launch", "stroke"],
+        ["relax", "replant"],
+        t,
+      );
+      const rise: number = clock.envelope(
+        ["launch", "lifted"],
+        ["lowering", "replant"],
+        t,
+      );
+      const drive: number = clock.envelope(
+        ["drive", "stroke"],
+        ["relax", "withdrawn"],
+        t,
+      );
       const posture: IHumanPosture = carriage(g.thrust, g.turn, whole, drive);
 
       // The thigh swung about the hip the carriage leaves, the shank folding
@@ -343,9 +368,10 @@ export namespace knee {
         Vector3.scale(g.slack, 1 - rise),
       );
       const hands = StrikingStance.guard(body, posture, { lead });
-      if (p.at.kind === "person") {
+      const at: AutoMovieMotionTarget | undefined = p.at;
+      if (at?.kind === "person") {
         const other: IHumanActionContext.IPerformer = context.performer(
-          p.at.subject,
+          at.subject,
         );
         const nape: IAutoMovieVector3 = other
           .bones(seconds - StrikingTarget.LOOK)
@@ -422,16 +448,58 @@ export namespace knee {
       });
       return ride.carry(posture, leg, t0 + seconds);
     };
+
+    // The knee at a second: its free course, or, once stopped, held for the
+    // dwell and then the free course played back from the stop to the start
+    // on a minimum-jerk clock. The way in was clear of the body up to its
+    // first contact, so the way out is too.
+    const shown = (t: number): IHumanPosture => {
+      const at: number | undefined = stop(t0 + t);
+      if (at === undefined || t <= at - t0) return free(t, t0 + t);
+      const s: number = at - t0;
+      const w: number = AutoMovieMotionClock.of(duration, [
+        {
+          name: "withdraw",
+          seconds: Math.min(duration, s + StrikingStroke.DWELL),
+        },
+      ]).progress("withdraw", AutoMovieMotionClock.END, t);
+      return free(s * (1 - w), t0 + t);
+    };
+
+    // Two rows over the entry's posture: the body with both legs, and the
+    // arms at the guard or the clinch.
+    const composed: IHumanActionPlan = composeAutoMovieMotionHumanAction({
+      base: AutoMovieMotionHumanBase.still(
+        duration,
+        {
+          root: entry.root,
+          yaw: entry.yaw,
+          pitch: entry.pitch,
+          roll: entry.roll,
+          joints: { ...entry.joints, ...StrikingStance.joints() },
+          limbs: {},
+        },
+        contacts,
+      ),
+      clock,
+      primitives: [BODY, ARMS].map(
+        (channels: readonly AutoMovieMotionHumanChannel[]) => ({
+          channels,
+          from: 0,
+          to: duration,
+          write: (posture: IHumanPosture, seconds: number): IHumanPosture =>
+            AutoMovieMotionHumanChannel.merge(posture, shown(seconds), channels),
+        }),
+      ),
+    });
     const out: IHumanActionPlan = {
-      duration,
-      events,
-      contacts,
+      ...composed,
       contact: impact,
       settle: (): void => {
         built = undefined;
         ride = undefined;
       },
-      ...(p.at.kind === "person"
+      ...(p.at?.kind === "person"
         ? {
             weapons: StrikingWeapon.capsules(chain),
             stop: (found: readonly IHumanActionPlan.IContactEvent[]): void => {
@@ -444,17 +512,8 @@ export namespace knee {
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const at: number | undefined = stop(t0 + t);
-        if (at === undefined || t <= at - t0) return free(t, t0 + t);
-
-        // Held for the dwell, then the free course played back from the stop
-        // to the start on a minimum-jerk clock: the way in was clear of the
-        // body up to its first contact, so the way out is too.
-        const s: number = at - t0;
-        const w: number = minimumJerk(
-          (t - s - StrikingStroke.DWELL) /
-            Math.max(1e-3, duration - s - StrikingStroke.DWELL),
-        ).s;
-        return carried(free(s * (1 - w), t0 + t), t);
+        const posture: IHumanPosture = composed.posture(t);
+        return at === undefined || t <= at - t0 ? posture : carried(posture, t);
       },
     };
     StrikingRecord.register(out, (): StrikingRecord.IRecord => {
@@ -477,4 +536,16 @@ export namespace knee {
     });
     return out;
   }
+
+  /** The channels of the body's row. */
+  const BODY: readonly AutoMovieMotionHumanChannel[] = [
+    "root",
+    "trunk",
+    "head",
+    "leftLeg",
+    "rightLeg",
+  ];
+
+  /** The channels of the arms' row. */
+  const ARMS: readonly AutoMovieMotionHumanChannel[] = ["leftArm", "rightArm"];
 }

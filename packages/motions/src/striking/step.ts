@@ -1,10 +1,12 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
-import type {
-  IAutoMovieMotionEvent,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Vector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
+import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
+import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
+import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -31,10 +33,11 @@ import { StrikingTarget } from "./StrikingTarget";
  * 0.35 s, about three steps a second, inside the 2 to 3.5 steps a second of
  * the ring-movement reading (provisional).
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the foot order with its coaching source, the paths, the defaults and which are provisional.
- * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table, parameters with a closed direction union, and a pure plan of postures in world metres and seconds with plant windows.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the timing constants and the plan the law table dispatches through.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the stance, posture and plan types; the step scales with each body's stance.
+ * The action is rows over the entry's posture: one clock with each step's
+ * landings, a stance row that carries the root and the two legs together
+ * (the root is lowered onto the planted feet), and an arm row that keeps the
+ * guard. The manner's tempo scales the step period and its step factor the
+ * step length, up to one stance length.
  */
 export namespace step {
   /** The action's name. */
@@ -49,14 +52,7 @@ export namespace step {
     defend: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
   };
 
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame, unit and default.
-   * @evidence contracts/development/design.md#principled-representation A closed union of directions in the stance's frame, a whole step count and a length in metres, both checked when planning.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The three values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
+  /** Parameters. */
   export interface IParams {
     /** The direction in the stance's own frame. */
     direction: "forward" | "back" | "left" | "right";
@@ -66,28 +62,26 @@ export namespace step {
 
     /** Each step's length, metres; half a stance length when absent. */
     length?: number;
+
+    /** How it is performed: the tempo scales the period, the step factor the length. */
+    manner?: AutoMovieMotionManner.IManner;
   }
 
-  /** Seconds per step (provisional). */
+  /** Seconds per step at a neutral manner (provisional). */
   export const PERIOD: number = 0.35;
 
   /** Share of a stance length one step covers (IBA: the following foot restores the stance without crossing). */
   export const STEP_SHARE: number = 0.5;
+
+  /** The shares of a step at which the first foot lands, the second lifts and the second lands. */
+  export const SHARES: readonly [number, number, number] = [0.5, 0.45, 0.95];
 
   /**
    * Plan footwork.
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the step count is not a whole number of at least one, or the length leaves (0, one stance length].
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States its input, its plan and its refusals; the namespace states the method.
-   * @evidence contracts/development/implementation.md#principled-implementation The coached foot order in the stance's line frame, each foot on a lifted minimum-jerk path in its half step, the root on its own minimum-jerk profile, the legs and guard solved by the shared fit.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Validation, the line frame and the feet's schedule once, then each posture in closed form.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid counts and lengths throw; the period is a named provisional value.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond the limb fits.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The plan reads nothing that can change; each posture is computed from its inputs.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Its closures hold only the instance's own inputs and are released with the plan.
+   * @throws {Error} When the step count is not a whole number of at least one, the length leaves (0, one stance length], or the manner is out of range.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -97,12 +91,19 @@ export namespace step {
     if (!(Number.isInteger(count) && count >= 1))
       throw new Error("Footwork takes a whole number of steps");
     const body = context.body;
-    const length: number = p.length ?? STEP_SHARE * StrikingStance.length(body);
-    if (!(length > 0 && length <= StrikingStance.length(body)))
+    const stated: number = p.length ?? STEP_SHARE * StrikingStance.length(body);
+    if (!(stated > 0 && stated <= StrikingStance.length(body)))
       throw new Error(
         `A step's length lies in (0, ${StrikingStance.length(body).toFixed(3)}] m`,
       );
-    const duration: number = count * PERIOD;
+    const modifiers: AutoMovieMotionManner.IModifiers =
+      AutoMovieMotionManner.of(context, p.manner);
+    const length: number = Math.min(
+      StrikingStance.length(body),
+      stated * modifiers.step,
+    );
+    const period: number = PERIOD * modifiers.tempo;
+    const duration: number = count * period;
     const entry: IHumanPosture = context.entry.posture;
     const lead: "left" | "right" = StrikingTarget.lead(context.entry);
     const rear: "left" | "right" = StrikingStance.rear({ lead });
@@ -134,95 +135,145 @@ export namespace step {
     const feet: Record<"left" | "right", HumanFoot.IPlacement> =
       StrikingTarget.feet(context.entry);
     const lift: number = 0.015 * body.measure.stature;
-    const windows: Record<"left" | "right", readonly [number, number]> =
-      first === "left"
-        ? { left: [0, 0.5], right: [0.45, 0.95] }
-        : { left: [0.45, 0.95], right: [0, 0.5] };
 
-    // A foot's progress: whole steps done plus the current step's share.
-    const progress = (
+    // Each step: the first foot lands, the second lifts just before and
+    // lands, and the step ends.
+    const steps: number[] = Array.from(
+      { length: count },
+      (_: unknown, k: number): number => k,
+    );
+    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+      duration,
+      [
+        ...steps.flatMap((k: number): AutoMovieMotionClock.IInstant[] => [
+          { name: `secondUp${k + 1}`, seconds: (k + SHARES[1]) * period },
+          { name: `firstDown${k + 1}`, seconds: (k + SHARES[0]) * period },
+          { name: `secondDown${k + 1}`, seconds: (k + SHARES[2]) * period },
+          { name: `step${k + 1}`, seconds: (k + 1) * period },
+        ]),
+        { name: "stroke", seconds: duration },
+        { name: "relax", seconds: duration },
+      ],
+    );
+    const START: string = AutoMovieMotionClock.START;
+    const END: string = AutoMovieMotionClock.END;
+    const swing = (
       side: "left" | "right",
-      t: number,
-    ): { travelled: number; swinging: boolean; s: number } => {
-      const k: number = Math.min(count - 1, Math.floor(t / PERIOD));
-      const local: number = (t - k * PERIOD) / PERIOD;
-      const [a, b] = windows[side];
-      const s: number = minimumJerk((local - a) / (b - a)).s;
+      k: number,
+    ): readonly [string, string] =>
+      side === first
+        ? [k === 0 ? START : `step${k}`, `firstDown${k + 1}`]
+        : [`secondUp${k + 1}`, `secondDown${k + 1}`];
+    const placed = (
+      side: "left" | "right",
+      seconds: number,
+    ): { placement: HumanFoot.IPlacement; down: boolean } => {
+      let travelled: number = 0;
+      let raised: number = 0;
+      let down: boolean = true;
+      for (const k of steps) {
+        const [a, b] = swing(side, k);
+        const s: number = clock.progress(a, b, seconds);
+        travelled += s;
+        if (seconds > clock.at(a) && seconds < clock.at(b)) {
+          down = false;
+          raised = 4 * s * (1 - s);
+        }
+      }
       return {
-        travelled: (k + s) * length,
-        swinging: local > a && local < b,
-        s,
+        placement: {
+          ankle: Vector3.add(feet[side].ankle, {
+            x: unit.x * travelled * length,
+            y: lift * raised,
+            z: unit.z * travelled * length,
+          }),
+          rotation: feet[side].rotation,
+        },
+        down,
       };
     };
+
+    // The root is carried the whole way on one profile and lowered until
+    // each planted leg reaches its foot.
+    const stance: IAutoMovieMotionHumanPrimitive = {
+      channels: ["root", "leftLeg", "rightLeg"],
+      from: 0,
+      to: duration,
+      write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
+        const l = placed("left", seconds);
+        const r = placed("right", seconds);
+        return resolveHumanPosture.lower(
+          body,
+          {
+            ...posture,
+            root: Vector3.add(
+              entry.root,
+              Vector3.scale(
+                unit,
+                count * length * clock.progress(START, END, seconds),
+              ),
+            ),
+            limbs: {
+              ...posture.limbs,
+              ...StrikingStance.legs(
+                body,
+                { left: l.placement, right: r.placement },
+                { left: l.down, right: r.down },
+              ),
+            },
+          },
+          5,
+        );
+      },
+    };
+    const arms: IAutoMovieMotionHumanPrimitive = {
+      channels: ["leftArm", "rightArm"],
+      from: 0,
+      to: duration,
+      write: (posture: IHumanPosture): IHumanPosture => ({
+        ...posture,
+        limbs: {
+          ...posture.limbs,
+          ...StrikingStance.guard(body, posture, { lead }),
+        },
+      }),
+    };
+
     const contacts: IHumanContactWindow[] = [];
-    for (let k: number = 0; k < count; k++)
+    for (const k of steps)
       for (const side of ["left", "right"] as const) {
-        const [a, b] = windows[side];
-        const start: number = k === 0 ? 0 : (k - 1 + windows[side][1]) / count;
+        const [a, b] = swing(side, k);
         contacts.push({
           part: `${side}Foot`,
           kind: "plant",
-          from: start,
-          to: (k + a) / count,
+          from: k === 0 ? 0 : clock.at(swing(side, k - 1)[1]) / duration,
+          to: clock.at(a) / duration,
           support: { kind: "ground" },
         });
         if (k === count - 1)
           contacts.push({
             part: `${side}Foot`,
             kind: "plant",
-            from: (k + b) / count,
+            from: clock.at(b) / duration,
             to: 1,
             support: { kind: "ground" },
           });
       }
-    const events: IAutoMovieMotionEvent[] = Array.from(
-      { length: count },
-      (_: unknown, k: number): IAutoMovieMotionEvent => ({
-        name: `step${k + 1}`,
-        share: (k + 1) / count,
-      }),
-    );
-    return {
-      duration,
-      events,
-      contacts,
-      posture: (seconds: number): IHumanPosture => {
-        const t: number = Math.min(duration, Math.max(0, seconds));
-        const placed = {} as Record<"left" | "right", HumanFoot.IPlacement>;
-        const down = {} as Record<"left" | "right", boolean>;
-        for (const side of ["left", "right"] as const) {
-          const g = progress(side, t);
-          placed[side] = {
-            ankle: Vector3.add(feet[side].ankle, {
-              x: unit.x * g.travelled,
-              y: g.swinging ? lift * 4 * g.s * (1 - g.s) : 0,
-              z: unit.z * g.travelled,
-            }),
-            rotation: feet[side].rotation,
-          };
-          down[side] = !g.swinging;
-        }
-        const carried: number = count * length * minimumJerk(t / duration).s;
-        const posture: IHumanPosture = resolveHumanPosture.lower(
-          body,
-          {
-            root: Vector3.add(entry.root, Vector3.scale(unit, carried)),
-            yaw: entry.yaw,
-            pitch: entry.pitch,
-            roll: entry.roll,
-            joints: { ...entry.joints, ...StrikingStance.joints() },
-            limbs: StrikingStance.legs(body, placed, down),
-          },
-          5,
-        );
-        return {
-          ...posture,
-          limbs: {
-            ...posture.limbs,
-            ...StrikingStance.guard(body, posture, { lead }),
-          },
-        };
-      },
-    };
+    return composeAutoMovieMotionHumanAction({
+      base: AutoMovieMotionHumanBase.still(
+        duration,
+        {
+          root: entry.root,
+          yaw: entry.yaw,
+          pitch: entry.pitch,
+          roll: entry.roll,
+          joints: { ...entry.joints, ...StrikingStance.joints() },
+          limbs: {},
+        },
+        contacts,
+      ),
+      clock,
+      primitives: [stance, arms],
+    });
   }
 }

@@ -3,6 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -17,10 +18,10 @@ import type { kick } from "./kick";
  */
 export interface IKickGeometry {
   /**
-   * The whole posture.
+   * The body's posture with both legs.
    *
    * @param seconds Seconds since the kick's start.
-   * @returns The posture, the guard and the kicking leg's goal included.
+   * @returns The posture, the kicking leg's goal included and the arms left to the guard's row.
    */
   posture(seconds: number): IHumanPosture;
 
@@ -101,6 +102,16 @@ export namespace IKickGeometry {
 
     /** The replant. */
     duration: number;
+
+    /**
+     * The kick's clock: `launch`, `chamber`, `impact` (`shown` for a feint)
+     * with its aliases `stroke` and `relax`, `folded` (the re-chamber's end)
+     * and `replant`.
+     */
+    clock: AutoMovieMotionClock.IClock;
+
+    /** The manner's factor on the chamber's fold. */
+    extent: number;
   }
 
   /** The kicking leg's goal at one instant. */

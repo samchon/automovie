@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -228,19 +229,26 @@ export namespace StrikingTarget {
    */
   export function aim(
     context: IHumanActionContext,
-    target: AutoMovieMotionTarget,
+    target: AutoMovieMotionTarget | undefined,
     seconds: number,
     range: (height: number) => number,
   ): IAutoMovieVector3 {
-    if (target.kind !== "none") return context.aim(target, seconds).point;
+    if (target !== undefined && target.kind !== "none")
+      return AutoMovieMotionHumanTarget.resolve(
+        context,
+        target,
+        seconds,
+        context.entry.posture,
+        AutoMovieMotionHumanTarget.DEFAULTS.ahead,
+      ).point;
     const m = context.body.measure;
     const height: number =
-      target.line === "low"
+      target?.line === "low"
         ? m.hipHeight - 0.3 * m.thigh
-        : target.line === "high"
+        : target?.line === "high"
           ? m.headHeight - 0.5 * m.headRadius
           : m.chestHeight;
-    const distance: number = target.range ?? range(height);
+    const distance: number = target?.range ?? range(height);
     const from: IStance = stance(context.entry);
     return {
       x: from.centre.x + from.forward.x * distance,

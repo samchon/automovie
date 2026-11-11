@@ -87,9 +87,7 @@ export namespace KickSwing {
     shift: IAutoMovieVector3,
   ) => IKickGeometry.ILeg {
     const { body, side, timing, key, contact, plant } = props;
-    const { prep, chamber, impact, duration } = timing;
-    const recoil: number = duration - impact;
-    const folding: number = KickForm.RECHAMBER_SHARE * recoil;
+    const { prep, chamber, impact } = timing;
 
     // The contact pelvis's frame, in which the knee and the chambered shank
     // are fixed, and the knee's hinge turn from the chamber to the contact:
@@ -129,13 +127,11 @@ export namespace KickSwing {
     const span: number = Math.max(1e-3, impact - begin) / unit(share);
     const angle = (clock: number): number =>
       ((hinge.degrees * minimumJerk((clock - begin) / span).s) / share) *
-      (1 - minimumJerk((clock - impact) / Math.max(1e-3, folding)).s);
+      (1 - timing.clock.progress("stroke", "folded", clock));
     const rising = (clock: number): number =>
-      minimumJerk((clock - prep) / Math.max(1e-3, chamber - prep)).s;
+      timing.clock.progress("launch", "chamber", clock);
     const lowering = (clock: number): number =>
-      minimumJerk(
-        (clock - impact - folding) / Math.max(1e-3, recoil - folding),
-      ).s;
+      timing.clock.progress("folded", "replant", clock);
     return (
       clock: number,
       base: IHumanPosture,

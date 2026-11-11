@@ -1,11 +1,17 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieMotionTarget,
-  IAutoMovieMotionEvent,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
+import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanGoal } from "../compose/AutoMovieMotionHumanGoal";
+import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
+import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
+import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
+import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -34,10 +40,12 @@ import { StrikingTarget } from "./StrikingTarget";
  * provisional readings of coaching footage (the kickboxing research's
  * rhythm share) with no located measurement.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States how the stance is taken, the line's source, the stay-planted tolerance and the provisional bounce.
- * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table, parameters and a pure plan of postures in world metres and seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the timing constants and the plan the law table and the performance dispatch through.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the stance, posture, plan and target types; the stance is measured on each body.
+ * The action is rows over the entry's posture: one clock with the feet's
+ * landings and the `set` instant, a stance row that carries the root, the
+ * trunk and the two legs together (the root is lowered onto the planted
+ * feet, so the three are one movement), and an arm row that raises the
+ * gloves. The manner's tempo scales the time the stance takes to set and
+ * its extent scales the bounce.
  */
 export namespace guard {
   /** The action's name. */
@@ -52,16 +60,9 @@ export namespace guard {
     step: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
   };
 
-  /**
-   * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit, minimum or default.
-   * @evidence contracts/development/design.md#principled-representation A duration in seconds (raised to the setting time when planning), a closed union of stances, and the interface's motion target to face.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The three values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's target union.
-   */
+  /** Parameters. */
   export interface IParams {
-    /** How long, seconds; 1 when absent and at least the 0.6 s the stance takes to set. */
+    /** How long, seconds; 1 when absent and at least the time the stance takes to set. */
     seconds?: number;
 
     /** Which side leads; the entry's leading side when absent. */
@@ -69,72 +70,240 @@ export namespace guard {
 
     /** What to face; the entry's line when absent. */
     facing?: AutoMovieMotionTarget;
+
+    /** How it is performed: the tempo scales the setting, the extent the bounce. */
+    manner?: AutoMovieMotionManner.IManner;
   }
 
-  /** Seconds to step into the stance. */
+  /** Seconds to step into the stance at a neutral manner. */
   export const SET: number = 0.6;
 
   /** Bounce rate, per second (provisional). */
   export const BOUNCE_RATE: number = 2;
+
+  /** The bounce's fade before the end, seconds. */
+  export const FADE: number = 0.2;
 
   /**
    * Plan a guard.
    *
    * @param context The action's context.
    * @returns The plan.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States its input and its plan; the namespace states the behaviour.
-   * @evidence contracts/development/implementation.md#principled-implementation Each foot steps on a minimum-jerk unit to its measured stance place in turn, the root sinks and turns, the gloves rise to the guard, then a bounce through the knees; the limbs are solved by the shared fit.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds the geometry on first use and evaluates each posture from it.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A too-short duration is raised to the setting time, as documented; the bounce is a named provisional value.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond the leg and arm fits.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The geometry is built once per plan and every posture reads it; settle drops it when the faced target may have moved.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one geometry, cleared by settle and released with the plan.
+   * @throws {Error} When the manner is out of range.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
   ): IHumanActionPlan {
-    const duration: number = Math.max(SET, context.params.seconds ?? 1);
-    let built: IGeometry | undefined;
-    const geometry = (): IGeometry => (built ??= build(context, duration));
-    const events: IAutoMovieMotionEvent[] = [
-      { name: "set", share: SET / duration },
-    ];
-    return {
+    const p: IParams = context.params;
+    const modifiers: AutoMovieMotionManner.IModifiers =
+      AutoMovieMotionManner.of(context, p.manner);
+    const set: number = SET * modifiers.tempo;
+    const duration: number = Math.max(set, p.seconds ?? 1);
+    const body = context.body;
+    const entry: IHumanPosture = context.entry.posture;
+    const lead: "left" | "right" =
+      p.stance === undefined
+        ? StrikingTarget.lead(context.entry)
+        : p.stance === "orthodox"
+          ? "left"
+          : "right";
+    const rear: "left" | "right" = lead === "left" ? "right" : "left";
+
+    // The rear foot swings first and the lead foot follows, overlapping it.
+    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
       duration,
-      events,
-      get contacts(): IHumanContactWindow[] {
-        return geometry().contacts;
+      [
+        { name: "leadUp", seconds: (0.25 / SET) * set },
+        { name: "rearDown", seconds: (0.3 / SET) * set },
+        { name: "leadDown", seconds: (0.55 / SET) * set },
+        { name: "set", seconds: set },
+        { name: "stroke", seconds: set },
+        { name: "relax", seconds: Math.max(set, duration - FADE) },
+      ],
+    );
+    const START: string = AutoMovieMotionClock.START;
+    const END: string = AutoMovieMotionClock.END;
+    const swing: Record<"left" | "right", readonly [string, string]> =
+      lead === "left"
+        ? { left: ["leadUp", "leadDown"], right: [START, "rearDown"] }
+        : { left: [START, "rearDown"], right: ["leadUp", "leadDown"] };
+
+    let built: IGeometry | undefined;
+    const geometry = (): IGeometry =>
+      (built ??= build(context, lead, entry));
+    const down = (side: "left" | "right", seconds: number): boolean =>
+      !geometry().moves[side] ||
+      seconds <= clock.at(swing[side][0]) ||
+      seconds >= clock.at(swing[side][1]);
+    const foot = (
+      side: "left" | "right",
+      seconds: number,
+    ): HumanFoot.IPlacement => {
+      const g: IGeometry = geometry();
+      if (!g.moves[side]) return g.from[side];
+      const s: number = clock.progress(swing[side][0], swing[side][1], seconds);
+      const ankle: IAutoMovieVector3 = Vector3.lerp(
+        g.from[side].ankle,
+        g.to[side].ankle,
+        s,
+      );
+      return {
+        ankle: { ...ankle, y: ankle.y + g.lift * 4 * s * (1 - s) },
+        rotation: Quaternion.slerp(g.from[side].rotation, g.to[side].rotation, s),
+      };
+    };
+
+    // The root, the trunk and the legs: the root travels to the stance
+    // centre, sinks, turns and bounces, and is lowered until each planted leg
+    // reaches its foot.
+    const stance: IAutoMovieMotionHumanPrimitive = {
+      channels: ["root", "trunk", "leftLeg", "rightLeg"],
+      from: 0,
+      to: duration,
+      write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
+        const g: IGeometry = geometry();
+        const s: number = clock.progress(START, "set", seconds);
+        const fade: number = s * (1 - clock.progress("relax", END, seconds));
+        const hop: number =
+          g.bounce *
+          modifiers.extent *
+          fade *
+          0.5 *
+          (1 -
+            Math.cos(2 * Math.PI * BOUNCE_RATE * Math.max(0, seconds - set)));
+        return resolveHumanPosture.lower(
+          body,
+          {
+            ...posture,
+            root: {
+              x: entry.root.x + (g.root.x - entry.root.x) * s,
+              y: entry.root.y + (g.sunk - entry.root.y) * s - hop,
+              z: entry.root.z + (g.root.z - entry.root.z) * s,
+            },
+            yaw: entry.yaw + angle(g.heading - entry.yaw) * s,
+            pitch: entry.pitch * (1 - s),
+            roll: entry.roll * (1 - s),
+            limbs: {
+              ...posture.limbs,
+              ...StrikingStance.legs(
+                body,
+                { left: foot("left", seconds), right: foot("right", seconds) },
+                { left: down("left", seconds), right: down("right", seconds) },
+              ),
+            },
+          },
+          5,
+        );
       },
-      posture: (seconds: number): IHumanPosture =>
-        geometry().posture(Math.min(duration, Math.max(0, seconds))),
-      settle: (): void => {
-        built = undefined;
+    };
+
+    // The gloves rise from the entry's hand goals to the guard on the trunk
+    // the stance row has placed; an entry without world hand goals takes the
+    // guard at once.
+    const arms: IAutoMovieMotionHumanPrimitive = {
+      channels: ["leftArm", "rightArm"],
+      from: 0,
+      to: duration,
+      write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
+        const hands = StrikingStance.guard(body, posture, { lead });
+        const s: number = clock.progress(START, "set", seconds);
+        const raised = (arm: "leftArm" | "rightArm"): IHumanPosture.IGoal => {
+          const from: IHumanPosture.IGoal | undefined = entry.limbs[arm];
+          return from === undefined || from.on !== undefined
+            ? hands[arm]!
+            : AutoMovieMotionHumanGoal.mix(from, hands[arm]!, s);
+        };
+        return {
+          ...posture,
+          limbs: {
+            ...posture.limbs,
+            leftArm: raised("leftArm"),
+            rightArm: raised("rightArm"),
+          },
+        };
+      },
+    };
+
+    const composed: IHumanActionPlan = composeAutoMovieMotionHumanAction({
+      base: {
+        ...AutoMovieMotionHumanBase.still(duration, {
+          root: entry.root,
+          yaw: entry.yaw,
+          pitch: entry.pitch,
+          roll: entry.roll,
+          joints: { ...entry.joints, ...StrikingStance.joints() },
+          limbs: {},
+        }),
+        settle: (): void => {
+          built = undefined;
+        },
+      },
+      clock,
+      primitives: [stance, arms],
+    });
+    return {
+      ...composed,
+      get contacts(): IHumanContactWindow[] {
+        const g: IGeometry = geometry();
+        return (["left", "right"] as const).flatMap((side: "left" | "right"): IHumanContactWindow[] =>
+            !g.moves[side]
+              ? [
+                  {
+                    part: `${side}Foot`,
+                    kind: "plant",
+                    from: 0,
+                    to: 1,
+                    support: { kind: "ground" },
+                  },
+                ]
+              : [
+                  {
+                    part: `${side}Foot`,
+                    kind: "plant",
+                    from: 0,
+                    to: clock.at(swing[side][0]) / duration,
+                    support: { kind: "ground" },
+                  },
+                  {
+                    part: `${side}Foot`,
+                    kind: "plant",
+                    from: clock.at(swing[side][1]) / duration,
+                    to: 1,
+                    support: { kind: "ground" },
+                  },
+                ],
+          );
       },
     };
   }
 
-  /** A built guard. */
+  /** What a guard reads from the entry and the line, once per run. */
   interface IGeometry {
-    /** The posture at seconds since the start. */
-    posture(seconds: number): IHumanPosture;
-    /** The feet's contact windows. */
-    contacts: IHumanContactWindow[];
+    /** Where each foot starts. */
+    from: Record<"left" | "right", HumanFoot.IPlacement>;
+    /** Where each foot stands in the stance. */
+    to: Record<"left" | "right", HumanFoot.IPlacement>;
+    /** Whether each foot has to move. */
+    moves: Record<"left" | "right", boolean>;
+    /** The root's floor place in the stance. */
+    root: IAutoMovieVector3;
+    /** The root's height in the stance, metres. */
+    sunk: number;
+    /** The stance's heading, degrees. */
+    heading: number;
+    /** A swinging foot's lift, metres. */
+    lift: number;
+    /** The bounce's height, metres. */
+    bounce: number;
   }
 
   /** Build the stance from the entry and the line. */
   function build(
     context: IHumanActionContext<IParams>,
-    duration: number,
+    lead: "left" | "right",
+    entry: IHumanPosture,
   ): IGeometry {
     const body = context.body;
-    const entry: IHumanPosture = context.entry.posture;
-    const lead: "left" | "right" =
-      context.params.stance === undefined
-        ? StrikingTarget.lead(context.entry)
-        : context.params.stance === "orthodox"
-          ? "left"
-          : "right";
     const staggered: boolean =
       Math.abs(
         Vector3.dot(
@@ -150,9 +319,12 @@ export namespace guard {
         ? StrikingTarget.heading(
             StrikingTarget.line(
               entry.root,
-              context.aim(
+              AutoMovieMotionHumanTarget.resolve(
+                context,
                 context.params.facing,
                 context.start - StrikingTarget.LOOK,
+                entry,
+                AutoMovieMotionHumanTarget.DEFAULTS.ahead,
               ).point,
               entry.yaw,
             ),
@@ -174,141 +346,23 @@ export namespace guard {
     const heading: number = StrikingStance.heading(stance);
     // The pelvis over the stance centre, the feet being symmetric about it on
     // the line.
-    const rootAt: IAutoMovieVector3 = { x: centre.x, y: 0, z: centre.z };
-    const sunk: number = StrikingStance.sink(body, rootAt, heading, {
+    const sunk: number = StrikingStance.sink(body, centre, heading, {
       left: to.left.ankle,
       right: to.right.ankle,
     });
-
-    // Each foot's swing window, the rear first; a foot already in place stays.
+    // A foot already in place stays.
     const moves = (side: "left" | "right"): boolean =>
       Vector3.length(Vector3.subtract(from[side].ankle, to[side].ankle)) > 0.01;
-    const first: readonly [number, number] = [0, 0.3];
-    const second: readonly [number, number] = [0.25, 0.55];
-    const window: Record<"left" | "right", readonly [number, number]> =
-      lead === "left"
-        ? { left: second, right: first }
-        : { left: first, right: second };
-    const lift: number = 0.02 * body.measure.stature;
-    const foot = (side: "left" | "right", t: number): HumanFoot.IPlacement => {
-      if (!moves(side)) return from[side];
-      const [a, b] = window[side];
-      const s: number = minimumJerk((t - a) / (b - a)).s;
-      const ankle: IAutoMovieVector3 = Vector3.lerp(
-        from[side].ankle,
-        to[side].ankle,
-        s,
-      );
-      return {
-        ankle: { ...ankle, y: ankle.y + lift * 4 * s * (1 - s) },
-        rotation: Quaternion.slerp(from[side].rotation, to[side].rotation, s),
-      };
-    };
-    const contacts: IHumanContactWindow[] = (
-      ["left", "right"] as const
-    ).flatMap((side): IHumanContactWindow[] => {
-      if (!moves(side))
-        return [
-          {
-            part: `${side}Foot`,
-            kind: "plant",
-            from: 0,
-            to: 1,
-            support: { kind: "ground" },
-          },
-        ];
-      const [a, b] = window[side];
-      return [
-        {
-          part: `${side}Foot`,
-          kind: "plant",
-          from: 0,
-          to: a / duration,
-          support: { kind: "ground" },
-        },
-        {
-          part: `${side}Foot`,
-          kind: "plant",
-          from: b / duration,
-          to: 1,
-          support: { kind: "ground" },
-        },
-      ];
-    });
-    const bounce: number = Math.abs(sunk) / 3;
     return {
-      contacts,
-      posture: (t: number): IHumanPosture => {
-        const s: number = minimumJerk(t / SET).s;
-        const fade: number =
-          s * (1 - minimumJerk((t - (duration - 0.2)) / 0.2).s);
-        const hop: number =
-          bounce *
-          fade *
-          0.5 *
-          (1 - Math.cos(2 * Math.PI * BOUNCE_RATE * Math.max(0, t - SET)));
-        const posture: IHumanPosture = {
-          root: {
-            x: entry.root.x + (rootAt.x - entry.root.x) * s,
-            y: entry.root.y + (sunk - entry.root.y) * s - hop,
-            z: entry.root.z + (rootAt.z - entry.root.z) * s,
-          },
-          yaw: entry.yaw + angle(heading - entry.yaw) * s,
-          pitch: entry.pitch * (1 - s),
-          roll: entry.roll * (1 - s),
-          joints: { ...entry.joints, ...StrikingStance.joints() },
-          limbs: {},
-        };
-        const feet: Record<"left" | "right", HumanFoot.IPlacement> = {
-          left: foot("left", t),
-          right: foot("right", t),
-        };
-        const down = (side: "left" | "right"): boolean =>
-          !moves(side) || t <= window[side][0] || t >= window[side][1];
-        const legs = StrikingStance.legs(body, feet, {
-          left: down("left"),
-          right: down("right"),
-        });
-
-        // The root lowered until each planted leg reaches its foot, as the
-        // stance turns and travels over feet that have not moved yet.
-        const lowered: IHumanPosture = resolveHumanPosture.lower(
-          body,
-          { ...posture, limbs: legs },
-          5,
-        );
-        const hands = StrikingStance.guard(body, lowered, { lead });
-        return {
-          ...lowered,
-          limbs: { ...lowered.limbs, ...blendArms(context, hands, s) },
-        };
-      },
+      from,
+      to,
+      moves: { left: moves("left"), right: moves("right") },
+      root: centre,
+      sunk,
+      heading,
+      lift: 0.02 * body.measure.stature,
+      bounce: Math.abs(sunk) / 3,
     };
-  }
-
-  /** The entry's arms blended toward the guard by a share: from the hands' entry goals, or the guard alone when the entry wrote none. */
-  function blendArms(
-    context: IHumanActionContext<IParams>,
-    hands: Pick<IHumanPosture["limbs"], "leftArm" | "rightArm">,
-    s: number,
-  ): Pick<IHumanPosture["limbs"], "leftArm" | "rightArm"> {
-    const out: Pick<IHumanPosture["limbs"], "leftArm" | "rightArm"> = {};
-    for (const arm of ["leftArm", "rightArm"] as const) {
-      const to: IHumanPosture.IGoal = hands[arm]!;
-      const from: IHumanPosture.IGoal | undefined =
-        context.entry.posture.limbs[arm];
-      out[arm] =
-        from === undefined
-          ? to
-          : {
-              point: Vector3.lerp(from.point, to.point, s),
-              bend: Vector3.lerp(from.bend, to.bend, s),
-              ...(from.rotation !== undefined && to.rotation !== undefined
-                ? { rotation: Quaternion.slerp(from.rotation, to.rotation, s) }
-                : {}),
-            };
-    }
-    return out;
   }
 
   /** A heading difference wrapped into (-180, 180]. */

@@ -4,18 +4,20 @@ import {
   type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
-  minimumJerk,
   resolvePose,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionTarget,
-  IAutoMovieMotionEvent,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
+import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
+import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -116,14 +118,17 @@ export namespace punch {
     /** Which hand: the stance's lead or rear; lead for a straight or a hook and rear for an uppercut when absent. */
     hand?: "lead" | "rear";
 
-    /** What it strikes. */
-    at: AutoMovieMotionTarget;
+    /** What it strikes; a virtual opponent at the technique's range on the middle line when absent. */
+    at?: AutoMovieMotionTarget;
 
     /** Declared accuracy; `hit` when absent. */
     accuracy?: StrikingQuality.Accuracy;
 
     /** A feint: the share of the delivery shown before returning, in (0, 1). */
     feint?: number;
+
+    /** How it is performed: the tempo scales the delivery and the return, the extent the trunk's turn. */
+    manner?: AutoMovieMotionManner.IManner;
   }
 
   /** Elbow flexion band at contact by technique, degrees (IBA drawings read; hook and uppercut near a right angle). */
@@ -218,11 +223,15 @@ export namespace punch {
           : StrikingSkill.ALTERNATING_INTERVAL) - Math.max(0, elapsed),
       );
     }
-    delivery = HumanSkill.jitter(
-      context.skill,
-      context.random("delivery"),
-      delivery * StrikingSkill.strike(context.skill),
-    );
+    const modifiers: AutoMovieMotionManner.IModifiers =
+      AutoMovieMotionManner.of(context, p.manner);
+    delivery =
+      modifiers.tempo *
+      HumanSkill.jitter(
+        context.skill,
+        context.random("delivery"),
+        delivery * StrikingSkill.strike(context.skill),
+      );
     const shown: number = p.feint === undefined ? delivery : p.feint * delivery;
     const drop: StrikingSkill.IGuardDrop =
       p.feint === undefined
@@ -230,9 +239,28 @@ export namespace punch {
         : { depth: 0, seconds: 0 };
     const recoil: number =
       p.feint === undefined
-        ? StrikingSkill.HAND_RECOVERY * StrikingSkill.recovery(context.skill)
+        ? modifiers.tempo *
+          StrikingSkill.HAND_RECOVERY *
+          StrikingSkill.recovery(context.skill)
         : shown;
     const duration: number = shown + recoil + drop.seconds;
+
+    // The rear foot of a stepping punch drags from `drag` to `dragged`; the
+    // glove is back at the guard at `returned` and a dropped guard recovers
+    // by the end.
+    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+      duration,
+      [
+        { name: "launch", seconds: 0 },
+        { name: "drag", seconds: 0.5 * shown },
+        { name: p.feint === undefined ? "impact" : "shown", seconds: shown },
+        { name: "stroke", seconds: shown },
+        { name: "relax", seconds: shown },
+        { name: "dragged", seconds: shown + 0.5 * recoil },
+        { name: "returned", seconds: shown + recoil },
+        { name: "recovered", seconds: duration },
+      ],
+    );
     const timing: ITiming = {
       side,
       lead,
@@ -242,15 +270,9 @@ export namespace punch {
       recoil,
       drop,
       duration,
+      clock,
+      extent: modifiers.extent,
     };
-    const events: IAutoMovieMotionEvent[] = [
-      { name: "launch", share: 0 },
-      {
-        name: p.feint === undefined ? "impact" : "shown",
-        share: shown / duration,
-      },
-      { name: "recovered", share: 1 },
-    ];
 
     // Geometry reads the target, which may only be read from postures: it is
     // built on first use and dropped when the performance settles.
@@ -261,7 +283,7 @@ export namespace punch {
     // a stop the resolution has not made.
     const strikes: boolean =
       p.feint === undefined &&
-      p.at.kind === "person" &&
+      p.at?.kind === "person" &&
       StrikingQuality.stops(p.accuracy);
     let fixed: number | null | undefined = strikes ? null : undefined;
 
@@ -322,16 +344,47 @@ export namespace punch {
       }
       return built;
     };
+    // Two rows over the entry's posture: the body (the root, the trunk's
+    // turn and the legs, lowered together onto the planted feet) and the
+    // arms (the guard and the punching arm's goal).
+    const entry: IHumanPosture = context.entry.posture;
+    const composed: IHumanActionPlan = composeAutoMovieMotionHumanAction({
+      base: AutoMovieMotionHumanBase.still(duration, {
+        root: entry.root,
+        yaw: entry.yaw,
+        pitch: entry.pitch,
+        roll: entry.roll,
+        joints: { ...entry.joints, ...StrikingStance.joints() },
+        limbs: {},
+      }),
+      clock,
+      primitives: [
+        {
+          channels: ["root", "trunk", "leftLeg", "rightLeg"],
+          from: 0,
+          to: duration,
+          write: (posture: IHumanPosture, seconds: number): IHumanPosture =>
+            geometry().body(posture, seconds),
+        },
+        {
+          channels: ["leftArm", "rightArm"],
+          from: 0,
+          to: duration,
+          write: (posture: IHumanPosture, seconds: number): IHumanPosture =>
+            geometry().arms(posture, seconds),
+        },
+      ],
+    });
     const out: IHumanActionPlan = {
       duration,
-      events,
+      events: composed.events,
       get contacts(): IHumanContactWindow[] {
         return geometry().contacts;
       },
       ...(p.feint === undefined ? { contact: delivery } : { feigned: delivery }),
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        return carried(geometry().posture(t), t);
+        return carried(composed.posture(t), t);
       },
       settle: (): void => {
         built = undefined;
@@ -373,12 +426,19 @@ export namespace punch {
     drop: StrikingSkill.IGuardDrop;
     /** The whole punch, seconds. */
     duration: number;
+    /** The punch's clock. */
+    clock: AutoMovieMotionClock.IClock;
+    /** The manner's factor on the trunk's turn. */
+    extent: number;
   }
 
   /** A built punch. */
   interface IGeometry {
-    /** The posture at seconds since the start. */
-    posture(seconds: number): IHumanPosture;
+    /** The posture with the root, the trunk and the legs written, at seconds since the start. */
+    body(posture: IHumanPosture, seconds: number): IHumanPosture;
+
+    /** The posture with the arms written on the body so far, at seconds since the start. */
+    arms(posture: IHumanPosture, seconds: number): IHumanPosture;
 
     /** The feet's contact windows. */
     contacts: IHumanContactWindow[];
@@ -396,6 +456,9 @@ export namespace punch {
     const p: IParams = context.params;
     const { side, lead, which, delivery, shown, recoil, drop, duration } =
       timing;
+    const time: AutoMovieMotionClock.IClock = timing.clock;
+    const START: string = AutoMovieMotionClock.START;
+    const END: string = AutoMovieMotionClock.END;
     const body = context.body;
     const m = body.measure;
     const t0: number = context.start;
@@ -424,7 +487,8 @@ export namespace punch {
     const turn: number =
       (lead === "left" ? 1 : -1) *
       TURN[p.technique][which] *
-      StrikingSkill.amplitude(context.skill);
+      StrikingSkill.amplitude(context.skill) *
+      timing.extent;
     const outward: IAutoMovieVector3 = Vector3.scale(
       Vector3.cross(up, line),
       side === "left" ? 1 : -1,
@@ -519,10 +583,9 @@ export namespace punch {
     // The rear foot drags from mid-delivery to mid-return (the IBA stepping
     // jab: the rear foot follows at once), so by the contact the root has
     // carried the shoulder the share `carried` of the step.
-    const dragFrom: number = 0.5 * shown;
-    const dragTo: number = shown + 0.5 * recoil;
-    const drag = (t: number): number =>
-      minimumJerk((t - dragFrom) / (dragTo - dragFrom)).s;
+    const dragFrom: number = time.at("drag");
+    const dragTo: number = time.at("dragged");
+    const drag = (t: number): number => time.progress("drag", "dragged", t);
     const carried: number = 0.5 * (1 + drag(shown));
     const advance: number =
       p.feint === undefined
@@ -578,11 +641,11 @@ export namespace punch {
     )!.worldPosition;
 
     // Shares through the punch: out to the contact, back to the guard.
-    const out = (t: number): number => minimumJerk(t / shown).s;
-    const back = (t: number): number => minimumJerk((t - shown) / recoil).s;
+    const out = (t: number): number => time.progress(START, "stroke", t);
+    const back = (t: number): number => time.progress("relax", "returned", t);
     const sag = (t: number): number =>
       drop.seconds > 0
-        ? back(t) - minimumJerk((t - shown - recoil) / drop.seconds).s
+        ? time.envelope(["relax", "returned"], ["returned", END], t)
         : 0;
 
     // Root, heading and feet: the lead foot steps in by the advance with a
@@ -597,9 +660,7 @@ export namespace punch {
     // from its drag, and the rear foot's pivot returns on that same profile,
     // so no planted foot is twisted under a hip turning back over it.
     const turnBack = (t: number): number =>
-      stepping
-        ? minimumJerk((t - dragTo) / Math.max(1e-3, duration - dragTo)).s
-        : back(t);
+      stepping ? time.progress("dragged", END, t) : back(t);
     // The feet keep the punch's clock; the trunk's turn may run on another
     // (a withdrawal's), so a stopped punch can turn back without moving a
     // planted foot.
@@ -619,21 +680,13 @@ export namespace punch {
     ) {
       const s: number = Math.max(0, fixed - t0);
       const from: number = advance * out(s);
-      const rest: number = StrikingArrest.rest(
-        from,
-        (advance * minimumJerk(s / shown).ds) / shown,
-        shown - s,
-      );
+      const speed: number =
+        advance * AutoMovieMotionClock.rate(time, [START, "stroke"], s);
+      const rest: number = StrikingArrest.rest(from, speed, shown - s);
       travel = (t: number): number =>
         t <= s
           ? advance * out(t)
-          : StrikingArrest.settle(
-              from,
-              (advance * minimumJerk(s / shown).ds) / shown,
-              rest,
-              shown - s,
-              t - s,
-            );
+          : StrikingArrest.settle(from, speed, rest, shown - s, t - s);
       follow =
         s <= dragFrom
           ? (t: number): number => rest * drag(t)
@@ -642,15 +695,18 @@ export namespace punch {
                 ? advance * drag(t)
                 : StrikingArrest.settle(
                     advance * drag(s),
-                    (advance *
-                      minimumJerk((s - dragFrom) / (dragTo - dragFrom)).ds) /
-                      (dragTo - dragFrom),
+                    advance *
+                      AutoMovieMotionClock.rate(time, ["drag", "dragged"], s),
                     rest,
                     dragTo - s,
                     t - s,
                   );
     }
-    const base = (t: number, clock: number = t): IHumanPosture => {
+    const bodyAt = (
+      posture: IHumanPosture,
+      t: number,
+      clock: number,
+    ): IHumanPosture => {
       const turning: number = out(clock) - turnBack(clock);
       const moved: number = travel(t);
       const dragged: number = follow(t);
@@ -690,26 +746,27 @@ export namespace punch {
       return resolveHumanPosture.lower(
         body,
         {
+          ...posture,
           root: Vector3.add(
             { ...entry.root, y: entry.root.y - dip * turning },
             Vector3.scale(line, 0.5 * (moved + dragged)),
           ),
           yaw: entry.yaw + 0.4 * turn * turning,
-          pitch: entry.pitch,
-          roll: entry.roll,
           joints: {
-            ...entry.joints,
-            ...StrikingStance.joints(),
+            ...posture.joints,
             spine: [0, 0, 0.3 * turn * turning],
             chest: [0, 0, 0.3 * turn * turning],
           },
-          limbs: StrikingStance.legs(
-            body,
-            placed,
-            lead === "left"
-              ? { left: leadDown, right: rearDown }
-              : { left: rearDown, right: leadDown },
-          ),
+          limbs: {
+            ...posture.limbs,
+            ...StrikingStance.legs(
+              body,
+              placed,
+              lead === "left"
+                ? { left: leadDown, right: rearDown }
+                : { left: rearDown, right: leadDown },
+            ),
+          },
         },
         5,
       );
@@ -719,7 +776,18 @@ export namespace punch {
     // the contact back to it, stopping on the struck body's first surface.
     const guardEnd: IHumanPosture.IGoal = StrikingStance.guard(
       body,
-      base(duration),
+      bodyAt(
+        {
+          root: entry.root,
+          yaw: entry.yaw,
+          pitch: entry.pitch,
+          roll: entry.roll,
+          joints: { ...entry.joints, ...StrikingStance.joints() },
+          limbs: {},
+        },
+        duration,
+        duration,
+      ),
       { lead },
     )[arm]!;
     const rotationAt = (t: number): IAutoMovieQuaternion =>
@@ -737,10 +805,15 @@ export namespace punch {
     // the fist keeps clear of it by its own reach past the wrist and the two
     // forearms' radii (derived: the surfaces that would otherwise touch).
     const depth = (): number => {
-      const declared: number = minimumJerk(p.feint ?? 1).s;
-      if (p.at.kind !== "person") return declared;
+      const declared: number = AutoMovieMotionClock.of(1, []).progress(
+        START,
+        END,
+        p.feint ?? 1,
+      );
+      const at: AutoMovieMotionTarget | undefined = p.at;
+      if (at?.kind !== "person") return declared;
       const other: IHumanActionContext.IPerformer = context.performer(
-        p.at.subject,
+        at.subject,
       );
       const theirs: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         other.bones(t0 - StrikingTarget.LOOK);
@@ -794,14 +867,15 @@ export namespace punch {
       ...(fixed === undefined ? {} : { fixed }),
     });
 
-    // The punch's posture for a wrist goal at a second, the arm's elbow and
-    // the trunk's turn on a clock (the second itself unless withdrawing).
-    const compose = (
+    // The arms on the body's posture for a wrist goal at a second, the arm's
+    // elbow and the trunk's turn on a clock (the second itself unless
+    // withdrawing).
+    const armsAt = (
+      posture: IHumanPosture,
       t: number,
       end: IAutoMovieVector3,
-      clock: number = t,
+      clock: number,
     ): IHumanPosture => {
-      const posture: IHumanPosture = base(t, clock);
       const guard = StrikingStance.guard(body, posture, { lead });
       const elbow: IAutoMovieVector3 = Vector3.lerp(
         Vector3.lerp(
@@ -860,32 +934,49 @@ export namespace punch {
         status: solved.status,
         stop: stroke.stop,
       },
-      posture: (t: number): IHumanPosture => {
-        const at: number | undefined = stroke.stop(t0 + t);
-        if (at === undefined || t <= at - t0)
-          return compose(t, stroke.end(t0 + t));
-
-        // Held for the dwell, then the arm and the trunk's turn retrace the
-        // approach back to the launch on a minimum-jerk clock, the wrist
-        // carried onto the guard it returns to: every configuration of the
-        // approach up to the first contact was clear of the body it met, so
-        // the way back is too, where a straight return to the guard cuts
-        // through a covering glove.
-        const s: number = at - t0;
-        const w: number = minimumJerk(
-          (t - s - StrikingStroke.DWELL) /
-            Math.max(1e-3, duration - s - StrikingStroke.DWELL),
-        ).s;
-        const clock: number = s * (1 - w);
-        return compose(
-          t,
-          Vector3.add(
-            stroke.free(t0 + clock),
-            Vector3.scale(Vector3.subtract(guardEnd.point, origin), w),
-          ),
-          clock,
-        );
+      body: (posture: IHumanPosture, t: number): IHumanPosture =>
+        bodyAt(posture, t, phase(t).clock),
+      arms: (posture: IHumanPosture, t: number): IHumanPosture => {
+        const read: IPhase = phase(t);
+        return armsAt(posture, t, read.end, read.clock);
       },
     };
+
+    // Where the punch is at a second: on its own clock with the stroke's
+    // wrist, or, once stopped, held for the dwell and then retracing the
+    // approach back to the launch on a minimum-jerk clock, the wrist carried
+    // onto the guard it returns to. Every configuration of the approach up
+    // to the first contact was clear of the body it met, so the way back is
+    // too, where a straight return to the guard cuts through a covering
+    // glove.
+    function phase(t: number): IPhase {
+      const at: number | undefined = stroke.stop(t0 + t);
+      if (at === undefined || t <= at - t0)
+        return { clock: t, end: stroke.end(t0 + t) };
+      const s: number = at - t0;
+      const w: number = AutoMovieMotionClock.of(duration, [
+        {
+          name: "withdraw",
+          seconds: Math.min(duration, s + StrikingStroke.DWELL),
+        },
+      ]).progress("withdraw", END, t);
+      const clock: number = s * (1 - w);
+      return {
+        clock,
+        end: Vector3.add(
+          stroke.free(t0 + clock),
+          Vector3.scale(Vector3.subtract(guardEnd.point, origin), w),
+        ),
+      };
+    }
+  }
+
+  /** Where a punch is at a second. */
+  interface IPhase {
+    /** The second on the punch's own clock the arm and the trunk's turn read. */
+    clock: number;
+    /** The wrist's goal. */
+    end: IAutoMovieVector3;
+  }
   }
 }

@@ -372,6 +372,25 @@ export namespace AutoMovieMotionClock {
   }
 
   /**
+   * How fast minimum-jerk progress between two instants changes: the speed
+   * of a point-to-point movement as a share of its path per second.
+   *
+   * @param clock The clock.
+   * @param window The instants the movement starts and ends at.
+   * @param seconds Seconds since the action's start.
+   * @returns Progress per second; 0 outside the window and for a window of no length.
+   */
+  export function rate(
+    clock: IClock,
+    window: readonly [string, string],
+    seconds: number,
+  ): number {
+    const span: number = clock.at(window[1]) - clock.at(window[0]);
+    if (span < 1e-12) return 0;
+    return minimumJerk(clock.linear(window[0], window[1], seconds)).ds / span;
+  }
+
+  /**
    * A movement back and forth about a pose between two instants: a sine of a
    * whole number of cycles, grown over its first half cycle and shrunk over
    * its last on the minimum-jerk profile, so it leaves and rejoins the pose

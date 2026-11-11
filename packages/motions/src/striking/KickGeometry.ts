@@ -1,6 +1,5 @@
 import {
   Vector3,
-  minimumJerk,
   type superposeMinimumJerk,
   wrapDegrees,
 } from "@automovie/engine";
@@ -10,6 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -196,7 +196,9 @@ export namespace KickGeometry {
       );
       const fit: KickChain.IFit = found.fit;
       const folded: number =
-        fit.flexion + (KickForm.CHAMBER_FLEXION - fit.flexion) * amplitude;
+        fit.flexion +
+        (KickForm.CHAMBER_FLEXION - fit.flexion) *
+          Math.min(1, amplitude * timing.extent);
       const key: KickChamber.IKey = KickChamber.fold(
         body,
         side,
@@ -279,7 +281,7 @@ export namespace KickGeometry {
   }
 
   /**
-   * Assemble the posture from the body, the kicking leg and the guard.
+   * Assemble the posture from the body and the kicking leg.
    *
    * When the leg meets a surface, the whole striking chain (the pelvis's
    * turn and lean, and the leg under it) holds for the dwell and then
@@ -317,15 +319,14 @@ export namespace KickGeometry {
       // The approach clock runs back from the stop to the start over the
       // rest of the kick, after the dwell, while the step's clock stays at
       // the stop.
-      const rest: number = Math.max(
-        1e-3,
-        timing.duration - s - StrikingStroke.DWELL,
-      );
-      const w: number = minimumJerk((t - s - StrikingStroke.DWELL) / rest).s;
+      const w: number = AutoMovieMotionClock.of(timing.duration, [
+        {
+          name: "withdraw",
+          seconds: Math.min(timing.duration, s + StrikingStroke.DWELL),
+        },
+      ]).progress("withdraw", AutoMovieMotionClock.END, t);
       const back: number = s * (1 - w);
-      const stepped: number = minimumJerk(
-        (s - timing.prep) / Math.max(1e-3, timing.chamber - timing.prep),
-      ).s;
+      const stepped: number = timing.clock.progress("launch", "chamber", s);
       const base: IHumanPosture = parts.base(s, parts.shown(back), back);
       return {
         body: base,
@@ -345,7 +346,6 @@ export namespace KickGeometry {
           ...held.body,
           limbs: {
             ...held.body.limbs,
-            ...StrikingStance.guard(body, held.body, { lead: timing.lead }),
             [timing.side === "left" ? "leftLeg" : "rightLeg"]: {
               point: held.leg.ankle,
               bend: held.leg.hint,

@@ -1,10 +1,14 @@
 import type {
   AutoMovieMotionTarget,
-  IAutoMovieMotionEvent,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
+import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
+import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
+import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -85,14 +89,17 @@ export namespace kick {
     /** Which leg: the stance's lead or rear; rear for a round kick and lead for a push kick when absent. */
     leg?: "lead" | "rear";
 
-    /** What it strikes. */
-    at: AutoMovieMotionTarget;
+    /** What it strikes; a virtual opponent at the technique's range on the middle line when absent. */
+    at?: AutoMovieMotionTarget;
 
     /** Declared accuracy; `hit` when absent. */
     accuracy?: StrikingQuality.Accuracy;
 
     /** A feint: the kick shows its chamber and returns without extending. */
     feint?: boolean;
+
+    /** How it is performed: the tempo scales the chamber, the extension and the recoil, the extent the chamber's fold. */
+    manner?: AutoMovieMotionManner.IManner;
   }
 
   /** A kick's plan: a strike's plan that another kick may continue from. */
@@ -146,18 +153,21 @@ export namespace kick {
     const duration: number = timing.duration - offset;
     const share = (seconds: number): number =>
       Math.min(1, Math.max(0, (seconds - offset) / duration));
-    const events: IAutoMovieMotionEvent[] = [
-      ...(timing.prep >= offset
-        ? [{ name: "launch", share: share(timing.prep) }]
-        : []),
-      ...(timing.chamber >= offset
-        ? [{ name: "chamber", share: share(timing.chamber) }]
-        : []),
-      ...(p.feint === true
-        ? []
-        : [{ name: "impact", share: share(timing.impact) }]),
-      { name: "replant", share: 1 },
-    ];
+
+    // This instance's clock: the kick's own, read from the cut on.
+    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+      duration,
+      timing.clock.instants
+        .filter(
+          (i: AutoMovieMotionClock.IInstant): boolean => i.seconds >= offset,
+        )
+        .map(
+          (i: AutoMovieMotionClock.IInstant): AutoMovieMotionClock.IInstant => ({
+            name: i.name,
+            seconds: i.seconds - offset,
+          }),
+        ),
+    );
 
     // A contact resolved jointly by the performance (null: the leg met
     // nothing). A kick that offers its leg as a weapon is shown on its free
@@ -165,7 +175,7 @@ export namespace kick {
     // assumes of every weapon not yet stopped.
     const strikes: boolean =
       p.feint !== true &&
-      p.at.kind === "person" &&
+      p.at?.kind === "person" &&
       StrikingQuality.stops(p.accuracy);
     let fixed: number | null | undefined = strikes ? null : undefined;
 
@@ -229,9 +239,53 @@ export namespace kick {
       }
       return built;
     };
+
+    // Two rows over the entry's posture: the body with both legs, read from
+    // the geometry, and the arms keeping the guard on it.
+    const entry: IHumanPosture = context.entry.posture;
+    const composed: IHumanActionPlan = composeAutoMovieMotionHumanAction({
+      base: AutoMovieMotionHumanBase.still(duration, {
+        root: entry.root,
+        yaw: entry.yaw,
+        pitch: entry.pitch,
+        roll: entry.roll,
+        joints: { ...entry.joints, ...StrikingStance.joints() },
+        limbs: {},
+      }),
+      clock,
+      primitives: [
+        {
+          channels: BODY,
+          from: 0,
+          to: duration,
+          write: (posture: IHumanPosture, seconds: number): IHumanPosture =>
+            AutoMovieMotionHumanChannel.merge(
+              posture,
+              geometry().posture(
+                Math.min(timing.duration, Math.max(0, seconds + offset)),
+              ),
+              BODY,
+            ),
+        },
+        {
+          channels: ["leftArm", "rightArm"],
+          from: 0,
+          to: duration,
+          write: (posture: IHumanPosture): IHumanPosture => ({
+            ...posture,
+            limbs: {
+              ...posture.limbs,
+              ...StrikingStance.guard(context.body, posture, {
+                lead: timing.lead,
+              }),
+            },
+          }),
+        },
+      ],
+    });
     return {
       duration,
-      events,
+      events: composed.events,
       get contacts(): IHumanContactWindow[] {
         return geometry()
           .contacts.map(
@@ -261,7 +315,10 @@ export namespace kick {
           timing.duration,
           Math.max(0, seconds + offset),
         );
-        return carried(geometry().posture(t), t);
+        return carried(
+          composed.posture(Math.min(duration, Math.max(0, seconds))),
+          t,
+        );
       },
       settle: (): void => {
         built = undefined;
@@ -321,7 +378,11 @@ export namespace kick {
     const lead: "left" | "right" = StrikingTarget.lead(context.entry);
     const side: "left" | "right" =
       leg(context.params) === "lead" ? lead : StrikingStance.rear({ lead });
-    const slow: number = StrikingSkill.recovery(context.skill);
+    const modifiers: AutoMovieMotionManner.IModifiers =
+      AutoMovieMotionManner.of(context, context.params.manner);
+    const slow: number =
+      StrikingSkill.recovery(context.skill) * modifiers.tempo;
+    const feint: boolean = context.params.feint === true;
     const prep: number = StrikingSkill.KICK_PREPARATION;
     const chamber: number =
       prep +
@@ -332,13 +393,44 @@ export namespace kick {
       );
     const impact: number =
       chamber +
-      (context.params.feint === true
+      (feint
         ? 0
-        : StrikingSkill.KICK_EXTENSION * StrikingSkill.strike(context.skill));
-    const recoil: number =
-      context.params.feint === true
-        ? chamber - prep
-        : StrikingSkill.KICK_RECOIL * slow;
-    return { side, lead, prep, chamber, impact, duration: impact + recoil };
+        : StrikingSkill.KICK_EXTENSION *
+          StrikingSkill.strike(context.skill) *
+          modifiers.tempo);
+    const recoil: number = feint
+      ? chamber - prep
+      : StrikingSkill.KICK_RECOIL * slow;
+    const duration: number = impact + recoil;
+    return {
+      side,
+      lead,
+      prep,
+      chamber,
+      impact,
+      duration,
+      clock: AutoMovieMotionClock.of(duration, [
+        { name: "launch", seconds: prep },
+        { name: "chamber", seconds: chamber },
+        { name: feint ? "shown" : "impact", seconds: impact },
+        { name: "stroke", seconds: impact },
+        { name: "relax", seconds: impact },
+        {
+          name: "folded",
+          seconds: impact + KickForm.RECHAMBER_SHARE * recoil,
+        },
+        { name: "replant", seconds: duration },
+      ]),
+      extent: modifiers.extent,
+    };
   }
+
+  /** The channels the geometry's posture writes. */
+  const BODY: readonly AutoMovieMotionHumanChannel[] = [
+    "root",
+    "trunk",
+    "head",
+    "leftLeg",
+    "rightLeg",
+  ];
 }

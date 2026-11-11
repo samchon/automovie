@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieQuaternion,
@@ -6,6 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import type { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -81,15 +82,10 @@ export namespace KickCarriage {
     const support: "left" | "right" = side === "left" ? "right" : "left";
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const w: number =
-      minimumJerk(turning / timing.chamber).s -
-      minimumJerk(
-        (turning - timing.impact) / (timing.duration - timing.impact),
-      ).s;
+      timing.clock.progress(AutoMovieMotionClock.START, "chamber", turning) -
+      timing.clock.progress("stroke", AutoMovieMotionClock.END, turning);
     const stepped: number =
-      carriage.step *
-      minimumJerk(
-        (seconds - timing.prep) / Math.max(1e-3, timing.chamber - timing.prep),
-      ).s;
+      carriage.step * timing.clock.progress("launch", "chamber", seconds);
 
     // The root travels toward the support ankle and rides the step.
     const centre: IAutoMovieVector3 = Vector3.add(

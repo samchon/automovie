@@ -1,7 +1,8 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { IKickGeometry } from "./IKickGeometry";
@@ -56,8 +57,12 @@ export namespace KickRedirect {
       { line: old.line, step: old.carriage.step },
     );
     const cut: number = context.start - t0;
-    const span: number = Math.max(1e-3, timing.impact - cut);
-    const blend = (t: number): number => minimumJerk((t - cut) / span).s;
+    const blending: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+      timing.impact,
+      [{ name: "cut", seconds: Math.min(cut, timing.impact) }],
+    );
+    const blend = (t: number): number =>
+      blending.progress("cut", AutoMovieMotionClock.END, t);
     const mix = (from: number, to: number, w: number): number =>
       from + (to - from) * w;
     return KickGeometry.compose(body, timing, t0, {
