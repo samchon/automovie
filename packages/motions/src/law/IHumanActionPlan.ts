@@ -1,3 +1,4 @@
+import type { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionEvent,
@@ -91,6 +92,15 @@ export interface IHumanActionPlan {
    * @param events This action's weapons' first contacts, in time order.
    */
   stop?(events: readonly IHumanActionPlan.IContactEvent[]): void;
+
+  /**
+   * Where within its target region a strike is aimed, as an offset from the
+   * region's own point on the region's tangent plane, when this repeat of
+   * the strike varies. The striker's aim, the defence that answers it and the
+   * strike's record all read this one value, so they agree on the point.
+   * Absent, the strike is aimed at the region's own point.
+   */
+  aimed?: resolveAutoMovieHumanoidSurfaces.ITangent;
 }
 /**
  * Companion types of {@link IHumanActionPlan}.

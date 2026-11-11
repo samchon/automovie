@@ -8,6 +8,7 @@ import { locomotionCases } from "./locomotionCases";
 import { reactionCases } from "./reactionCases";
 import { standCases } from "./standCases";
 import { strikingCases } from "./strikingCases";
+import { variationCases } from "./variationCases";
 
 /**
  * Every capture case by name: each factory builds one or more cases, so a
@@ -93,4 +94,6 @@ export const MOTION_CAPTURE_CASES: Readonly<
   "striking-air": (
     only?: (name: string) => boolean,
   ): Iterable<IMotionCaptureCase> => strikingCases("striking-air", only),
+  variation: (only?: (name: string) => boolean): Iterable<IMotionCaptureCase> =>
+    variationCases(only),
 };
