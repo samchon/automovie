@@ -225,6 +225,34 @@ export namespace AutoMovieMotionHumanTarget {
   }
 
   /**
+   * The horizontal unit direction from a place to a point of the body: the
+   * way a body is pushed by what comes from the place, and the way it shrinks
+   * from it.
+   *
+   * @param place The place the threat or the blow comes from.
+   * @param point The point of the body, world metres.
+   * @param yaw The body's heading, degrees about +Y.
+   * @returns The direction, world; backward of the heading when the point is above or below the place.
+   */
+  export function away(
+    place: Pick<IPlace, "point">,
+    point: IAutoMovieVector3,
+    yaw: number,
+  ): IAutoMovieVector3 {
+    const d: IAutoMovieVector3 = {
+      x: point.x - place.point.x,
+      y: 0,
+      z: point.z - place.point.z,
+    };
+    return Vector3.length(d) > 1e-6
+      ? Vector3.normalize(d)
+      : HumanFrame.point(
+          { origin: { x: 0, y: 0, z: 0 }, yaw },
+          { x: 0, y: 0, z: -1 },
+        );
+  }
+
+  /**
    * The arm target that lays a hand surface on a place: the surface's point
    * on the place's point and its normal against the place's normal.
    *

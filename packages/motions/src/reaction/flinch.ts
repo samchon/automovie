@@ -11,6 +11,8 @@ import { AutoMovieMotionHumanGoal } from "../compose/AutoMovieMotionHumanGoal";
 import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanRoot } from "../compose/AutoMovieMotionHumanRoot";
+import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
+import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -69,11 +71,14 @@ export namespace flinch {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's target union.
    */
   export interface IParams {
-    /** Where the threat comes from. */
-    from: AutoMovieMotionTarget;
+    /** Where the threat comes from; a place ahead of the performer when absent. */
+    from?: AutoMovieMotionTarget;
 
     /** How strong, in (0, 1]; 1 when absent. */
     intensity?: number;
+
+    /** How it is performed; its intensity is `intensity` unless it states one. */
+    manner?: AutoMovieMotionManner.IManner;
   }
 
   /** Startle peak, seconds (Brown et al. 1991). */
@@ -96,7 +101,7 @@ export namespace flinch {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the intensity lies outside (0, 1].
+   * @throws {Error} When the intensity lies outside (0, 1], or the manner is out of range.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States its input, its plan and its refusal.
    * @evidence contracts/development/implementation.md#principled-implementation Every part rises to the measured startle peak and falls to the end on the clock's envelope; the gloves' goals come from the face region and the fist sockets and are solved by the shared limb fit.
@@ -109,19 +114,32 @@ export namespace flinch {
   export function plan(
     context: IHumanActionContext<IParams>,
   ): IHumanActionPlan {
-    const intensity: number = context.params.intensity ?? 1;
-    if (!(intensity > 0 && intensity <= 1))
-      throw new Error("A flinch's intensity lies in (0, 1]");
+    const p: IParams = context.params;
+    const modifiers: AutoMovieMotionManner.IModifiers =
+      AutoMovieMotionManner.of(context, {
+        ...(p.intensity === undefined ? {} : { intensity: p.intensity }),
+        ...p.manner,
+      });
+    const intensity: number = modifiers.extent;
     const body = context.body;
     const m = body.measure;
     const entry: IHumanPosture = context.entry.posture;
     const lead: "left" | "right" = StrikingTarget.lead(context.entry);
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
-      DURATION,
-      [{ name: "peak", seconds: PEAK }],
+
+    // The startle's rise is a reflex and keeps its time; the return follows
+    // the manner's tempo.
+    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+      AutoMovieMotionClock.of(DURATION, [
+        { name: "peak", seconds: PEAK },
+        { name: "stroke", seconds: PEAK },
+        { name: "relax", seconds: PEAK },
+      ]),
+      modifiers,
+      { holds: [], fixed: [AutoMovieMotionClock.START] },
     );
+    const duration: number = clock.duration;
     const rise: readonly [string, string] = [AutoMovieMotionClock.START, "peak"];
-    const fall: readonly [string, string] = ["peak", AutoMovieMotionClock.END];
+    const fall: readonly [string, string] = ["relax", AutoMovieMotionClock.END];
     const share = (seconds: number): number =>
       intensity * clock.envelope(rise, fall, seconds);
 
@@ -129,25 +147,20 @@ export namespace flinch {
     let cached: IAutoMovieVector3 | undefined;
     const away = (): IAutoMovieVector3 => {
       if (cached !== undefined) return cached;
-      const threat: IAutoMovieVector3 = context.aim(
-        context.params.from,
-        context.start - StrikingTarget.LOOK,
-      ).point;
-      const head: IAutoMovieVector3 = StrikingBody.trunk(body, entry).get(
-        "head",
-      )!.worldPosition;
-      const d: IAutoMovieVector3 = {
-        x: head.x - threat.x,
-        y: 0,
-        z: head.z - threat.z,
-      };
-      cached =
-        Vector3.length(d) > 1e-6
-          ? HumanFrame.local(
-              { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
-              Vector3.normalize(d),
-            )
-          : { x: 0, y: 0, z: -1 };
+      cached = HumanFrame.local(
+        { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
+        AutoMovieMotionHumanTarget.away(
+          AutoMovieMotionHumanTarget.resolve(
+            context,
+            p.from,
+            context.start - StrikingTarget.LOOK,
+            entry,
+            AutoMovieMotionHumanTarget.DEFAULTS.ahead,
+          ),
+          StrikingBody.trunk(body, entry).get("head")!.worldPosition,
+          entry.yaw,
+        ),
+      );
       return cached;
     };
 
@@ -195,7 +208,7 @@ export namespace flinch {
       AutoMovieMotionHumanGoal.drive({
         limb: `${side}Arm`,
         from: 0,
-        to: DURATION,
+        to: duration,
         goal: cover(side),
         origin: (posture: IHumanPosture, seconds: number): IHumanPosture.IGoal =>
           posture.limbs[`${side}Arm`] ??
@@ -207,7 +220,7 @@ export namespace flinch {
     return composeAutoMovieMotionHumanAction({
       base: {
         ...AutoMovieMotionHumanBase.still(
-          DURATION,
+          duration,
           {
             ...entry,
             joints: { ...entry.joints, ...StrikingStance.joints() },
@@ -222,7 +235,7 @@ export namespace flinch {
       primitives: [
         AutoMovieMotionHumanRoot.travel({
           from: 0,
-          to: DURATION,
+          to: duration,
           offset: (seconds: number): AutoMovieMotionHumanRoot.IOffset => ({
             point: Vector3.scale(away(), SHIFT * share(seconds)),
             yaw: 0,
@@ -232,7 +245,7 @@ export namespace flinch {
         // when it is ahead; a tip to the side away from it.
         AutoMovieMotionHumanLean.tilt({
           from: 0,
-          to: DURATION,
+          to: duration,
           angles: (seconds: number): AutoMovieMotionHumanLean.IAngles => ({
             pitch: LEAN * share(seconds) * away().z,
             roll: -LEAN * share(seconds) * away().x,

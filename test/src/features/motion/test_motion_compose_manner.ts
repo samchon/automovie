@@ -186,7 +186,16 @@ export function test_motion_compose_manner(): void {
       ["leftFoot", { x: 0.1, y: 0.08, z: 0 }],
       ["leftToes", { x: 0.1, y: 0.02, z: 0.12 }],
     ]),
-    surfaces: { sockets: {} },
+    surfaces: {
+      sockets: {
+        palmRight: {
+          bone: "rightHand",
+          point: { x: 0, y: -0.02, z: 0.08 },
+          normal: { x: 0, y: -1, z: 0 },
+          forward: { x: 0, y: 0, z: 1 },
+        },
+      },
+    },
   } as unknown as IHumanBody;
   const posture: IHumanPosture = {
     root: { x: 0, y: 0, z: 0 },
