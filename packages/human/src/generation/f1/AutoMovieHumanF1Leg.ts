@@ -1,5 +1,6 @@
 import type { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
+import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 
 /**
  * f1's leg tape wall on the +Z side; the other side is its mirror image in the median plane z = 0, which f1's reference satisfies exactly.
@@ -19,7 +20,7 @@ import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection"
  */
 export const AutoMovieHumanF1Leg: AutoMovieHumanConicLoft.IFamily = {
   name: "leg",
-  centres: [[25.37, 904.79, 96.64], [16.32, 466.85, 117.13], [1.21, 74.69, 134.44]],
+  centres: [AutoMovieHumanF1Joints.thigh, AutoMovieHumanF1Joints.calf, AutoMovieHumanF1Joints.foot],
   halves: [40],
   up: [1, 0, 0],
   layout: AutoMovieHumanConicSection.limb(1),

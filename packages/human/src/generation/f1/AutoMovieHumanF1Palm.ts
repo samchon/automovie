@@ -1,5 +1,6 @@
 import type { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
+import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 
 /**
  * f1's palm tape wall on the +Z side; the other side is its mirror image in the median plane z = 0, which f1's reference satisfies exactly.
@@ -19,7 +20,7 @@ import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection"
  */
 export const AutoMovieHumanF1Palm: AutoMovieHumanConicLoft.IFamily = {
   name: "palm",
-  centres: [[140.73, 993.53, 427.22], [191.89, 947.98, 468.66]],
+  centres: [AutoMovieHumanF1Joints.hand, AutoMovieHumanF1Joints.middle1],
   halves: [],
   up: [0, 0, 1],
   layout: AutoMovieHumanConicSection.limb(1),

@@ -38,6 +38,9 @@ namespace FamilyConicBody {
     /** Course centres, mm. */
     centres: R.V[];
 
+    /** The same centres as the authored module writes them: an expression over `AutoMovieHumanF1Joints`, here abbreviated `J`. */
+    course: string;
+
     /** Turn half lengths at the interior centres, mm. */
     halves: number[];
 
@@ -85,25 +88,26 @@ namespace FamilyConicBody {
     const digit = (name: string, joints: string[], tip: number, up: R.V): IPart => {
       const centres: R.V[] = joints.map(joint);
       centres.push(beyond(centres.at(-2)!, centres.at(-1)!, tip));
-      return { name, centres, halves: centres.slice(1, -1).map((): number => 5), up, domain: "auto", step: 2, gap: 6, mirrored: true, layouts: LIMB, reliefs: [] };
+      const keys: string[] = joints.map((j: string): string => "J." + j.replace("_0", "").replace("_r", ""));
+      return { name, centres, course: "[" + [...keys, "J.beyond(" + keys.at(-2) + ", " + keys.at(-1) + ", " + tip + ")"].join(", ") + "]", halves: centres.slice(1, -1).map((): number => 5), up, domain: "auto", step: 2, gap: 6, mirrored: true, layouts: LIMB, reliefs: [] };
     };
     const parts: IPart[] = (
       [
         ...["index", "middle", "ring", "pinky"].map((finger: string): IPart => digit("finger." + finger, [finger + "_01_r", finger + "_02_r", finger + "_03_r"], finger === "pinky" ? 22 : 26, [1, 0, 0])),
         digit("finger.thumb", ["thumb_01_r", "thumb_02_r", "thumb_03_r"], 30, [0, 1, 0]),
         ...["bigtoe", "indextoe", "middletoe", "ringtoe", "littletoe"].map((toe: string): IPart => digit("toe." + toe.replace("toe", ""), [toe + "_01_r", toe + "_02_r"], toe === "bigtoe" ? 28 : toe === "littletoe" ? 14 : 18, [0, 1, 0])),
-        { name: "foot", centres: [[1, 45, 134], [133, 20, 157]], halves: [], up: [0, 1, 0], domain: "auto", step: 2, gap: 8, mirrored: true, layouts: LIMB, reliefs: "auto" },
-        { name: "arm", centres: [joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r")], halves: [30], up: [1, 0, 0], domain: [76, 508], mirrored: true, layouts: LIMB, reliefs: "auto" },
-        { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r")], halves: [40], up: [1, 0, 0], domain: [104, 826], mirrored: true, layouts: LIMB, reliefs: "auto" },
-        { name: "torso", centres: [[0, 780, 0], [0, 1480, 0]], halves: [], up: [1, 0, 0], domain: [40, 496], step: 2, mirrored: false, layouts: LIMB, reliefs: [
+        { name: "foot", centres: [[1, 45, 134], [133, 20, 157]], course: "[J.footRear, J.footBall]", halves: [], up: [0, 1, 0], domain: "auto", step: 2, gap: 8, mirrored: true, layouts: LIMB, reliefs: "auto" },
+        { name: "arm", centres: [joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r")], course: "[J.upperarm, J.lowerarm, J.hand]", halves: [30], up: [1, 0, 0], domain: [76, 508], mirrored: true, layouts: LIMB, reliefs: "auto" },
+        { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r")], course: "[J.thigh, J.calf, J.foot]", halves: [40], up: [1, 0, 0], domain: [104, 826], mirrored: true, layouts: LIMB, reliefs: "auto" },
+        { name: "torso", centres: [[0, 780, 0], [0, 1480, 0]], course: "[J.axisFloor, J.axisNeck]", halves: [], up: [1, 0, 0], domain: [40, 496], step: 2, mirrored: false, layouts: LIMB, reliefs: [
           { name: "torso.back", stations: [-20, 556], phases: [Math.PI / 2, (3 * Math.PI) / 2], axis: [1, 0, 0], rows: 61, columns: 39, mirror: true },
           { name: "torso.front", stations: [-20, 556], phases: [-Math.PI / 2, Math.PI / 2], axis: [-1, 0, 0], rows: 61, columns: 39, mirror: true },
         ] },
-        { name: "upper", centres: [[0, 780, 0], [0, 1705, 0]], halves: [], up: [1, 0, 0], domain: [514, 912], whole: true, step: 2, gap: 8, mirrored: false, layouts: LIMB, reliefs: [
+        { name: "upper", centres: [[0, 780, 0], [0, 1705, 0]], course: "[J.axisFloor, J.axisCrown]", halves: [], up: [1, 0, 0], domain: [514, 912], whole: true, step: 2, gap: 8, mirrored: false, layouts: LIMB, reliefs: [
           { name: "upper.back", stations: [440, 990], phases: [Math.PI / 2, (3 * Math.PI) / 2], axis: [1, 0, 0], rows: 111, columns: 43, mirror: true },
           { name: "upper.front", stations: [440, 990], phases: [-Math.PI / 2, Math.PI / 2], axis: [-1, 0, 0], rows: 111, columns: 63, mirror: true },
         ] },
-        { name: "palm", centres: [joint("hand_r"), joint("middle_01_r")], halves: [], up: [0, 0, 1], domain: [0, 60], step: 2, gap: 6, mirrored: true, layouts: LIMB, reliefs: "auto" },
+        { name: "palm", centres: [joint("hand_r"), joint("middle_01_r")], course: "[J.hand, J.middle1]", halves: [], up: [0, 0, 1], domain: [0, 60], step: 2, gap: 6, mirrored: true, layouts: LIMB, reliefs: "auto" },
       ] satisfies IPart[]
     ).filter((part: IPart): boolean => only.length === 0 || only.includes(part.name));
     const meshes: N.Mesh[] = [];
@@ -490,6 +494,7 @@ namespace FamilyConicBody {
     const lines: string[] = [
       "import type { AutoMovieHumanConicLoft } from \"../conic/AutoMovieHumanConicLoft\";",
       "import { AutoMovieHumanConicSection } from \"../conic/AutoMovieHumanConicSection\";",
+      "import { AutoMovieHumanF1Joints } from \"./AutoMovieHumanF1Joints\";",
       "",
       "/**",
       " * f1's " + part.name + " tape wall" + (part.mirrored ? " on the +Z side; the other side is its mirror image in the median plane z = 0, which f1's reference satisfies exactly" : "") + ".",
@@ -509,7 +514,7 @@ namespace FamilyConicBody {
       " */",
       "export const " + name + ": AutoMovieHumanConicLoft.IFamily = {",
       "  name: " + JSON.stringify(family.name) + ",",
-      "  centres: " + JSON.stringify(family.centres).replaceAll(",", ", ") + ",",
+      "  centres: " + part.course.replaceAll("J.", "AutoMovieHumanF1Joints.") + ",",
       "  halves: " + JSON.stringify(family.halves) + ",",
       "  up: " + JSON.stringify(family.up).replaceAll(",", ", ") + ",",
       "  layout: AutoMovieHumanConicSection.limb(" + depth + "),",

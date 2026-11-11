@@ -1,5 +1,6 @@
 import type { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
+import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 
 /**
  * f1's finger.index tape wall on the +Z side; the other side is its mirror image in the median plane z = 0, which f1's reference satisfies exactly.
@@ -19,7 +20,7 @@ import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection"
  */
 export const AutoMovieHumanF1FingerIndex: AutoMovieHumanConicLoft.IFamily = {
   name: "finger.index",
-  centres: [[209.19, 955.59, 456.61], [235.36, 925.06, 464.28], [247.22, 907.85, 464.42], [261.98, 886.45, 464.6]],
+  centres: [AutoMovieHumanF1Joints.index1, AutoMovieHumanF1Joints.index2, AutoMovieHumanF1Joints.index3, AutoMovieHumanF1Joints.beyond(AutoMovieHumanF1Joints.index2, AutoMovieHumanF1Joints.index3, 26)],
   halves: [5,5],
   up: [1, 0, 0],
   layout: AutoMovieHumanConicSection.limb(0),

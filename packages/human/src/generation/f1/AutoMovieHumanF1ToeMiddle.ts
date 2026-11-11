@@ -1,5 +1,6 @@
 import type { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
+import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 
 /**
  * f1's toe.middle tape wall on the +Z side; the other side is its mirror image in the median plane z = 0, which f1's reference satisfies exactly.
@@ -19,7 +20,7 @@ import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection"
  */
 export const AutoMovieHumanF1ToeMiddle: AutoMovieHumanConicLoft.IFamily = {
   name: "toe.middle",
-  centres: [[137.36, 19.89, 172.59], [158.91, 13.84, 179.13], [175.55, 9.16, 184.18]],
+  centres: [AutoMovieHumanF1Joints.middletoe1, AutoMovieHumanF1Joints.middletoe2, AutoMovieHumanF1Joints.beyond(AutoMovieHumanF1Joints.middletoe1, AutoMovieHumanF1Joints.middletoe2, 18)],
   halves: [5],
   up: [0, 1, 0],
   layout: AutoMovieHumanConicSection.limb(0),

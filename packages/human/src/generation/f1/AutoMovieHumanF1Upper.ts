@@ -1,5 +1,6 @@
 import type { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
+import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 
 /**
  * f1's upper tape wall.
@@ -19,7 +20,7 @@ import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection"
  */
 export const AutoMovieHumanF1Upper: AutoMovieHumanConicLoft.IFamily = {
   name: "upper",
-  centres: [[0, 780, 0], [0, 1705, 0]],
+  centres: [AutoMovieHumanF1Joints.axisFloor, AutoMovieHumanF1Joints.axisCrown],
   halves: [],
   up: [1, 0, 0],
   layout: AutoMovieHumanConicSection.limb(1),
