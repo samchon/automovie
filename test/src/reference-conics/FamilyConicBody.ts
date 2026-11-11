@@ -672,7 +672,10 @@ namespace FamilyConicBody {
       {
         const read: (s: number) => number[] = K.reader(definition);
         const course: AutoMovieViewAxis.IAxis = K.axis(definition);
-        const windows: IWindow[] = part.reliefs === "auto" ? hollowWindows(part.name, rows, skins, course) : part.reliefs;
+        // A window the hollow search places ends at the part's tip at the latest: a relief must vanish at the pole.
+        // It hands its edges over as an authored window may (`fade`): the search widens it by 30 mm and 0.45 rad past its hollow, and asked
+        // for the whole height from its first free row it drew its outline on the ankle as level wrinkles.
+        const windows: IWindow[] = part.reliefs === "auto" ? hollowWindows(part.name, rows, skins, course).map((window: H.IWindow): IWindow => ({ ...window, stations: [window.stations[0], Math.min(window.stations[1], tip ?? Infinity)], fade: [50, 50], fadePhase: [0.6, 0.6] })) : part.reliefs;
 
         // Phases from 0 to a whole turn have their middle at pi, where the inward radial direction is +u, and a quarter turn on it is +v.
         const rounds: IWindow[] = (part.rounds ?? []).map((net): IWindow => {
