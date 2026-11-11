@@ -7,8 +7,13 @@
  * lights use; depth is normalized device depth in [-1, 1], smaller nearer.
  * Screen coordinates put pixel centres at half-integers from the top-left.
  *
- * @evidence contracts/development/common.md#meaningful-documentation The comment states the colour space, depth convention and pixel-centre convention every method relies on; each method states its inputs and effect.
- * @evidence contracts/development/design.md#principled-representation Linear float colour keeps lighting sums and supersample averaging exact before one sRGB conversion; a float depth buffer resolves visibility per pixel independent of submission order.
+ * A fill passes the depth test at a pixel when its depth, rounded to the
+ * buffer's precision, is not farther than the stored one. Of two fills at one
+ * depth the later one is therefore drawn, as under three.js's default depth
+ * function, so a mark drawn along another replaces it on every pixel.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states the colour space, depth convention, pixel-centre convention and depth test every method relies on; each method states its inputs and effect.
+ * @evidence contracts/development/design.md#principled-representation Linear float colour keeps lighting sums and supersample averaging exact before one sRGB conversion; a float depth buffer resolves visibility per pixel, and comparing at its own precision makes equal depths tie instead of falling either way by rounding.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The target owns its two buffers and the fills that write them; traversal, shading and encoding stay with their callers.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No method knows a scene, material or film; every fill takes plain coordinates and a colour.
  */
@@ -49,15 +54,18 @@ export class AutoMovieRasterTarget {
    * Fill a screen triangle with one colour, depth-tested per pixel centre.
    *
    * `alpha` below one blends over the current colour; `write` false keeps the
-   * depth buffer unchanged, as transparent surfaces do in the Viewer.
+   * depth buffer unchanged, as transparent surfaces do in the Viewer. A `ramp`
+   * replaces `rgb` per pixel with the grey it returns for that pixel's
+   * normalized device depth, which is how a depth pass stays exact across a
+   * triangle larger than a pixel.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the coverage rule, the depth test and how alpha and depth writes behave.
+   * @evidence contracts/development/common.md#meaningful-documentation States the coverage rule, how alpha and depth writes behave and what a ramp replaces; the depth test is the class's own.
    * @evidence contracts/development/implementation.md#principled-implementation Barycentric edge functions normalized by the signed area cover pixel centres for either winding, and depth interpolates linearly in screen space because normalized device depth is affine there.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the clamped bounding box tests coverage, depth range and the buffer in that order.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Degenerate triangles return without drawing instead of being nudged; depth outside the clip range is rejected rather than clamped.
    * @evidence contracts/development/implementation.md#efficient-algorithms Work is linear in the clamped bounding box area; edge coefficients are computed once per triangle.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Coefficients shared by every pixel are hoisted out of the loop.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources No allocation; writes go into the target's existing buffers.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One three-float scratch per call for ramped pixels; writes go into the target's existing buffers.
    */
   public triangle(
     x0: number,
@@ -72,6 +80,7 @@ export class AutoMovieRasterTarget {
     rgb: readonly [number, number, number],
     alpha: number,
     write: boolean,
+    ramp: ((depth: number) => number) | null = null,
   ): boolean {
     const area: number = (x1 - x0) * (y2 - y0) - (x2 - x0) * (y1 - y0);
     if (!(Math.abs(area) > 1e-12)) return false;
@@ -96,6 +105,7 @@ export class AutoMovieRasterTarget {
     const b1: number = (x0 - x2) * inverse;
     const a2: number = (y0 - y1) * inverse;
     const b2: number = (x1 - x0) * inverse;
+    const grey: [number, number, number] = [0, 0, 0];
     let drawn: boolean = false;
     for (let y: number = minY; y <= maxY; y++) {
       const py: number = y + 0.5;
@@ -110,9 +120,16 @@ export class AutoMovieRasterTarget {
         const z: number = w0 * z0 + w1 * z1 + w2 * z2;
         if (z < -1 || z > 1) continue;
         const index: number = y * this.width + x;
-        if (z >= this.depth[index]!) continue;
+        if (Math.fround(z) > this.depth[index]!) continue;
         if (write) this.depth[index] = z;
-        this.blend(index, rgb, alpha);
+        if (ramp === null) this.blend(index, rgb, alpha);
+        else {
+          const level: number = ramp(z);
+          grey[0] = level;
+          grey[1] = level;
+          grey[2] = level;
+          this.blend(index, grey, alpha);
+        }
         drawn = true;
       }
     }
@@ -120,16 +137,25 @@ export class AutoMovieRasterTarget {
   }
 
   /**
-   * Draw a one-pixel line between two screen points, interpolating depth and
-   * testing it unless `test` is false.
+   * Draw a line between two screen points, testing its depth unless `test` is
+   * false. `width` is the stroke in target pixels, one when omitted, rounded
+   * down to the nearest odd count so the stroke stays centred on the line.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the width, the depth interpolation and the optional depth test.
-   * @evidence contracts/development/implementation.md#principled-implementation A DDA over the longer axis visits one pixel per step, so the line has no gaps; depth interpolates with the same parameter.
+   * The line takes one pixel in every column it spans, or in every row when
+   * it is steeper than a diagonal: the one it crosses at that column's centre,
+   * with the depth it has there. Pixels and depths therefore follow from where
+   * the line lies and not from the direction it is drawn in, so two strokes
+   * along one segment meet the depth test with equal depths. A `ramp` replaces
+   * `rgb` at each pixel with the grey it returns for the line's depth there, as
+   * a triangle's does.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the width and its rounding, which pixel each column or row takes, where its depth is read, the optional depth test and what a ramp replaces.
+   * @evidence contracts/development/implementation.md#principled-implementation Sampling at pixel centres along the longer axis visits every column or row once, so the line has no gaps, and makes coverage and depth a function of the line's position alone; an end pixel whose centre lies beyond the segment takes the endpoint.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop; per-pixel writes go through the shared point fill.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Off-raster pixels are skipped individually rather than clipping the whole line away.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the line's pixel length.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the point fill for the depth test and write.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources No allocation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only columns or rows the stroke cannot reach the raster from are left out; the endpoints are never moved to the raster's border, which would change the slope.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the line's pixel length inside the raster, however far its ends lie outside.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the point fill for the depth test, the ramp and the write.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The line allocates nothing itself; a ramped line's point fills each allocate one grey triple that is released with the fill.
    */
   public line(
     x0: number,
@@ -140,33 +166,49 @@ export class AutoMovieRasterTarget {
     z1: number,
     rgb: readonly [number, number, number],
     test: boolean,
+    width: number = 1,
+    ramp: ((depth: number) => number) | null = null,
   ): void {
-    const steps: number = Math.ceil(
-      Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)),
+    const radius: number = Math.max(0, Math.floor((width - 1) / 2));
+    const steep: boolean = Math.abs(y1 - y0) > Math.abs(x1 - x0);
+    const from: number = steep ? y0 : x0;
+    const to: number = steep ? y1 : x1;
+    const first: number = Math.max(-radius, Math.floor(Math.min(from, to)));
+    const last: number = Math.min(
+      (steep ? this.height : this.width) - 1 + radius,
+      Math.floor(Math.max(from, to)),
     );
-    for (let step: number = 0; step <= steps; step++) {
-      const t: number = steps === 0 ? 0 : step / steps;
+    for (let cell: number = first; cell <= last; cell++) {
+      const t: number =
+        to === from
+          ? 0
+          : Math.min(1, Math.max(0, (cell + 0.5 - from) / (to - from)));
+      const across: number = steep ? x0 + (x1 - x0) * t : y0 + (y1 - y0) * t;
       this.point(
-        x0 + (x1 - x0) * t,
-        y0 + (y1 - y0) * t,
+        steep ? across : cell + 0.5,
+        steep ? cell + 0.5 : across,
         z0 + (z1 - z0) * t,
-        0,
+        radius,
         rgb,
         test,
+        ramp,
       );
     }
   }
 
   /**
    * Fill the square of pixels within `radius` of a screen point at one depth.
+   * With `test` on, each pixel takes the class's depth test and, when it
+   * passes, stores the depth. A `ramp` replaces `rgb` with the grey it
+   * returns for that depth.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the covered square and the depth behaviour.
+   * @evidence contracts/development/common.md#meaningful-documentation States the covered square, the depth behaviour and what a ramp replaces.
    * @evidence contracts/development/implementation.md#principled-implementation Each covered pixel takes the same depth test and write as a surface, so points and lines hide behind nearer surfaces.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One nested loop over the clamped square.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Depth outside the clip range is rejected, not clamped.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work for the small radii used.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Lines call it per step instead of repeating the test.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources No allocation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A ramped point allocates one grey triple, released when the fill returns; an unramped one allocates nothing.
    */
   public point(
     x: number,
@@ -175,8 +217,14 @@ export class AutoMovieRasterTarget {
     radius: number,
     rgb: readonly [number, number, number],
     test: boolean,
+    ramp: ((depth: number) => number) | null = null,
   ): void {
     if (z < -1 || z > 1) return;
+    let paint: readonly [number, number, number] = rgb;
+    if (ramp !== null) {
+      const level: number = ramp(z);
+      paint = [level, level, level];
+    }
     const cx: number = Math.floor(x);
     const cy: number = Math.floor(y);
     for (let py: number = cy - radius; py <= cy + radius; py++) {
@@ -184,9 +232,9 @@ export class AutoMovieRasterTarget {
       for (let px: number = cx - radius; px <= cx + radius; px++) {
         if (px < 0 || px >= this.width) continue;
         const index: number = py * this.width + px;
-        if (test && z >= this.depth[index]!) continue;
+        if (test && Math.fround(z) > this.depth[index]!) continue;
         if (test) this.depth[index] = z;
-        this.blend(index, rgb, 1);
+        this.blend(index, paint, 1);
       }
     }
   }

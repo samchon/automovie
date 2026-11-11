@@ -1,80 +1,36 @@
 import {
+  type IAutoMovieInspectionHandle,
+  type IAutoMovieInspectionRequest,
   type IAutoMovieViewerHandle,
+  applyAutoMovieInspection,
   createAutoMoviePerformanceOverlay,
   mountViewer,
+  parseAutoMovieInspectionRequest,
 } from "@automovie/viewer";
 
 import type { IFilm } from "./IFilm";
 import type { IFilmProduction } from "./IFilmProduction";
+import type { InspectionView } from "./InspectionView";
 import { clampProductionSeconds } from "./clampProductionSeconds";
 import { films } from "./composition/films";
+import { placeInspectionView } from "./placeInspectionView";
+import { planInspectionViews } from "./planInspectionViews";
 import { selectFilm } from "./selectFilm";
 
 const query: URLSearchParams = new URLSearchParams(location.search);
-const film: IFilm = selectFilm(films, query.get("film")).film;
-const durationSeconds: number = film.durationSeconds;
 const status: HTMLOutputElement =
   document.querySelector<HTMLOutputElement>("#clock")!;
-const production: IFilmProduction = await film.create(
-  (message: string): void => {
-    status.value = message;
-  },
+// A refused request stops the page, so its reason is shown where the clock would be. The listener is in place before anything can refuse, an unknown film included.
+window.addEventListener("error", (event: ErrorEvent): void => {
+  status.value =
+    event.error instanceof Error ? event.error.message : event.message;
+});
+const film: IFilm = selectFilm(films, query.get("film")).film;
+const durationSeconds: number = film.durationSeconds;
+// What the query alone decides is refused before the film is created, so such a refusal mounts nothing.
+const request: IAutoMovieInspectionRequest = parseAutoMovieInspectionRequest(
+  (key: string): string | null => query.get(key),
 );
-const canvas: HTMLCanvasElement =
-  document.querySelector<HTMLCanvasElement>("#view")!;
-const reviewRequested: boolean =
-  query.get("rig") === "1" || query.get("contacts") === "1";
-if (reviewRequested && !production.performance)
-  throw new Error("This film has no physical review source");
-const overlay:
-  | ReturnType<typeof createAutoMoviePerformanceOverlay>
-  | undefined =
-  reviewRequested && production.performance
-    ? createAutoMoviePerformanceOverlay(production.performance)
-    : undefined;
-if (overlay) {
-  production.scene.add(overlay.object);
-  overlay.show(query.get("rig") === "1", query.get("contacts") === "1");
-}
-const viewName: string | null = query.get("view");
-const preset: NonNullable<IFilmProduction["views"]>[string] | undefined =
-  viewName !== null &&
-  production.views !== undefined &&
-  Object.hasOwn(production.views, viewName)
-    ? production.views[viewName]
-    : undefined;
-const inspection: IFilmProduction["camera"] | undefined =
-  viewName !== null ? production.camera.clone() : undefined;
-if (inspection && !preset) {
-  const coordinates: number[][] = viewName!
-    .split(":")
-    .map((part: string): number[] => part.split(",").map(Number));
-  if (
-    coordinates.length !== 2 ||
-    coordinates.some(
-      (point: number[]): boolean =>
-        point.length !== 3 || !point.every(Number.isFinite),
-    )
-  )
-    throw new Error(
-      "Inspection view must be a named film view or x,y,z:tx,ty,tz in metres",
-    );
-  inspection.position.set(
-    coordinates[0]![0]!,
-    coordinates[0]![1]!,
-    coordinates[0]![2]!,
-  );
-  inspection.lookAt(
-    coordinates[1]![0]!,
-    coordinates[1]![1]!,
-    coordinates[1]![2]!,
-  );
-}
-inspection?.updateProjectionMatrix();
-const slider: HTMLInputElement =
-  document.querySelector<HTMLInputElement>("#seek")!;
-const clock: HTMLOutputElement =
-  document.querySelector<HTMLOutputElement>("#clock")!;
 const capture: boolean = query.get("capture") === "1";
 const width: number = Number(query.get("w") ?? film.width ?? 1280);
 const height: number = Number(query.get("h") ?? film.height ?? 720);
@@ -84,9 +40,6 @@ if (
   )
 )
   throw new Error("Invalid viewer raster");
-canvas.style.width = `${width}px`;
-canvas.style.height = `${height}px`;
-slider.max = String(durationSeconds);
 const start: number = Number(query.get("start") ?? 0);
 const end: number = Number(query.get("end") ?? durationSeconds);
 const rate: number = Number(query.get("rate") ?? 1);
@@ -98,6 +51,40 @@ if (
   rate <= 0
 )
   throw new Error("Invalid playback interval or rate");
+const production: IFilmProduction = await film.create(
+  (message: string): void => {
+    status.value = message;
+  },
+);
+// What the page holds, in the order acquired. A refusal after this point releases all of it, since nothing more will be drawn, and so does leaving the page.
+const held: (() => void)[] = [(): void => production.dispose()];
+const canvas: HTMLCanvasElement =
+  document.querySelector<HTMLCanvasElement>("#view")!;
+const reviewRequested: boolean =
+  query.get("rig") === "1" || query.get("contacts") === "1";
+// The page draws through one view; the capture command draws several side by side.
+let views: InspectionView[];
+try {
+  if (reviewRequested && !production.performance)
+    throw new Error("This film has no physical review source");
+  views = planInspectionViews(
+    query.get("view"),
+    Object.keys(production.views ?? {}),
+  );
+  if (views.length !== 1)
+    throw new Error("The Viewer draws through one view at a time");
+} catch (error: unknown) {
+  release();
+  throw error;
+}
+const view: InspectionView = views[0]!;
+const spare: IFilmProduction["camera"] | undefined =
+  view.kind === "film" ? undefined : production.camera.clone();
+const slider: HTMLInputElement =
+  document.querySelector<HTMLInputElement>("#seek")!;
+canvas.style.width = `${width}px`;
+canvas.style.height = `${height}px`;
+slider.max = String(durationSeconds);
 let seconds: number = start;
 let playing: boolean = !capture && query.get("play") === "1";
 let previous: number = performance.now();
@@ -136,27 +123,91 @@ const host: IAutoMovieViewerHandle = mountViewer(
     },
   },
 );
+held.push((): void => host.stop());
+
+// The inspection is applied to the film's own objects first, so a partial view does not take the review overlay away.
+let inspection: IAutoMovieInspectionHandle;
+let overlay: ReturnType<typeof createAutoMoviePerformanceOverlay> | undefined;
+try {
+  inspection = applyAutoMovieInspection({
+    scene: production.scene,
+    request,
+    renderer: host.renderer,
+    ...(production.constructions === undefined
+      ? {}
+      : { constructions: production.constructions }),
+  });
+  held.push((): void => inspection.restore());
+  if (reviewRequested && production.performance) {
+    const review: ReturnType<typeof createAutoMoviePerformanceOverlay> =
+      createAutoMoviePerformanceOverlay(production.performance);
+    held.push((): void => review.dispose());
+    production.scene.add(review.object);
+    review.show(query.get("rig") === "1", query.get("contacts") === "1");
+    overlay = review;
+  }
+} catch (error: unknown) {
+  release();
+  throw error;
+}
+// Each mark colour is listed with the number of marks drawn in it, as the capture command prints it.
+const legend: HTMLOutputElement =
+  document.querySelector<HTMLOutputElement>("#legend")!;
+for (const entry of inspection.legend) {
+  const item: HTMLSpanElement = document.createElement("span");
+  const swatch: HTMLElement = document.createElement("i");
+  swatch.style.background = `#${entry.color.toString(16).padStart(6, "0")}`;
+  item.append(swatch, `${entry.label} x${entry.count}`);
+  legend.append(item);
+}
 
 /**
- * Draw and publish the exact production clock through the mounted Viewer.
+ * Release everything the page holds, last acquired first, attempting each even when another throws. A second call releases nothing.
+ */
+function release(): void {
+  const step: (() => void) | undefined = held.pop();
+  if (step === undefined) return;
+  try {
+    step();
+  } finally {
+    release();
+  }
+}
+
+/**
+ * Draw and publish the exact production clock through the mounted Viewer. A second the request cannot draw ends the page as a refused request does: the reason replaces the clock and everything held is released, after which a call draws nothing.
  */
 function draw(): void {
-  production.seek(seconds);
-  if (preset && inspection) {
-    const pose: ReturnType<NonNullable<typeof preset>> = preset(seconds);
-    inspection.position.set(...pose.position);
-    inspection.lookAt(...pose.target);
+  if (held.length === 0) return;
+  try {
+    production.seek(seconds);
+    inspection.update();
+    if (overlay && production.performance)
+      overlay.update(
+        production.performance.frame(),
+        production.performance.contacts(),
+      );
+    // A named view is framed on what this second draws, so the same second always gives the same picture.
+    if (spare !== undefined && view.kind !== "film")
+      placeInspectionView({
+        camera: spare,
+        view,
+        production,
+        seconds,
+        aspect: width / height,
+        bounds: view.kind === "named" ? inspection.bounds() : null,
+      });
+    host.renderer.render(production.scene, spare ?? production.camera);
+    host.completeFrame(seconds);
+    slider.value = String(seconds);
+    status.value = `${seconds.toFixed(2)} / ${durationSeconds.toFixed(2)} s`;
+    dirty = false;
+  } catch (error: unknown) {
+    // The reason is written here as well as by the window's listener, since a caller of `__afSeek` receives the error itself.
+    status.value = error instanceof Error ? error.message : String(error);
+    release();
+    throw error;
   }
-  if (overlay && production.performance)
-    overlay.update(
-      production.performance.frame(),
-      production.performance.contacts(),
-    );
-  host.renderer.render(production.scene, inspection ?? production.camera);
-  host.completeFrame(seconds);
-  slider.value = String(seconds);
-  clock.value = `${seconds.toFixed(2)} / ${durationSeconds.toFixed(2)} s`;
-  dirty = false;
 }
 
 /**
@@ -179,19 +230,5 @@ document.querySelector<HTMLButtonElement>("#pause")!.onclick = (): void => {
   playing = false;
 };
 slider.oninput = (): void => seek(Number(slider.value));
-window.addEventListener(
-  "pagehide",
-  (): void => {
-    try {
-      host.stop();
-    } finally {
-      try {
-        overlay?.dispose();
-      } finally {
-        production.dispose();
-      }
-    }
-  },
-  { once: true },
-);
+window.addEventListener("pagehide", release, { once: true });
 draw();

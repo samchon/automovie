@@ -1,5 +1,7 @@
+import type { IAutoMovieRasterImage } from "./IAutoMovieRasterImage.js";
+
 /**
- * One frame drawn in Node by `rasterizeAutoMovieScene`: its opaque sRGB
+ * One frame drawn on the CPU by `rasterizeAutoMovieScene`: its opaque sRGB
  * pixels and a count of what was drawn and what could not be represented.
  *
  * The frame is a CPU diagnostic of geometry, pose, staging and framing, not a
@@ -9,20 +11,11 @@
  * reader should not expect to see.
  *
  * @evidence contracts/development/common.md#meaningful-documentation The comment says which call produces the frame, that it is a geometry and staging diagnostic rather than GPU parity, what the shading leaves out, and where the omissions are counted; each member states its unit and layout.
- * @evidence contracts/development/design.md#principled-representation A frame is exactly what a PNG encoder and a reviewer need: integer raster size, row-major opaque RGBA bytes and counts; byte layout matches the encoder and the sheet writer without conversion.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Four members, all read by the encoder, label stamping or the capture manifest; the statistics shape lives in the companion namespace.
+ * @evidence contracts/development/design.md#principled-representation A frame is the picture every raster tool exchanges plus the counts only a drawn frame has, so it passes to the encoder, the label stamp, the sheet and the comparison as it is.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The picture's three members and one statistics record read by the capture manifest; the statistics shape lives in the companion namespace.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No member names a particular film, figure or capture command.
  */
-export interface IAutoMovieSceneRaster {
-  /** Raster width in pixels. */
-  width: number;
-
-  /** Raster height in pixels. */
-  height: number;
-
-  /** Opaque sRGB RGBA bytes, row-major from the top-left corner. */
-  pixels: Uint8ClampedArray;
-
+export interface IAutoMovieSceneRaster extends IAutoMovieRasterImage {
   /** What the frame drew and what it replaced or left out. */
   statistics: IAutoMovieSceneRaster.IStatistics;
 }
@@ -41,7 +34,10 @@ export namespace IAutoMovieSceneRaster {
     /** Visible meshes submitted, counting each instance of an instanced mesh. */
     meshes: number;
 
-    /** Triangles that reached the raster after culling and clipping. */
+    /**
+     * Triangles that reached the raster after culling and clipping; a
+     * wireframe triangle counts once.
+     */
     triangles: number;
 
     /** Line segments drawn from `Line`, `LineSegments` and `LineLoop` objects. */
@@ -56,7 +52,10 @@ export namespace IAutoMovieSceneRaster {
     /** Submitted materials whose texture map was replaced by the base colour. */
     untextured: number;
 
-    /** Submitted shader materials drawn with a neutral clay colour. */
+    /**
+     * Submitted shader materials drawn as neutral clay because they are not
+     * one of the pass shaders this rasterizer reproduces.
+     */
     approximated: number;
   }
 }

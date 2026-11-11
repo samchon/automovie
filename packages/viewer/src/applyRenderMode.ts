@@ -54,8 +54,11 @@ const hideNonMeshRenderables: (scene: THREE.Scene) => () => void = (
 
 /**
  * Apply one diffusion-guide render mode to a built scene, returning the restore
- * handle. The override is applied at snapshot time and reversed right after, so
- * the viewer stays a thin projection of the engine result:
+ * handle. A capture applies the override at snapshot time and reverses it right
+ * after, so the viewer stays a thin projection of the engine result. A caller
+ * that keeps an override across frames calls the handle's `update` before
+ * drawing each one, which `outline` and `pose` supply because they hold copies
+ * the scene's animation does not move:
  *
  * - `beauty`: no override (the ordinary shaded render).
  * - `depth`: meshes use clamp(1-viewZ/range,0,1) with camera-space depth and a shared {@link DEPTH_NORMALIZATION_RANGE}, independent of near/far normalization. Camera changes can change a world point's viewZ; black is the far-range/background convention.
@@ -179,6 +182,7 @@ export const applyRenderMode: (
   return {
     mode,
     semantic: handle.semantic,
+    ...(handle.update === undefined ? {} : { update: handle.update }),
     restore: restoreAutoMovieRenderModeOnce((): void => {
       guardAutoMovieRenderModeRetirement(scene, {
         run: (): void => {

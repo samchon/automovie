@@ -43,8 +43,42 @@ Everything is exported from the package root.
 - Play: `AutoMoviePlayer`, `applyPose`, `applyExpression`, and `applyAutoMovieRigLocals` for complete rig-evaluator output.
 - Passes and transitions: `applyRenderMode`, `applyAutoMovieSemanticMask`, `renderAutoMovieFilmFrame`.
 - Mount and capture: `mountViewer`, `captureViewerSnapshot`.
+- Draw without a browser: `rasterizeAutoMovieScene`, `AutoMovieRasterSheet`, `compareAutoMovieRasters`, `encodeAutoMovieRasterPng`.
+- Inspect: `applyAutoMovieInspection`, `parseAutoMovieInspectionRequest`, `listAutoMovieInspectionPaths`, `autoMovieViewerNamedViewpoints`.
 
-Formations, effects, fluids, soft bodies, section planes and the metric capture helpers are exported the same way. Units and the owner of each returned object are in the JSDoc. A CPU rasterizer for Node ships with a generated production, under `src/executable/viewer/node/raster`.
+Formations, effects, fluids, soft bodies, section planes and the metric capture helpers are exported the same way. Units and the owner of each returned object are in the JSDoc.
+
+## Inspection
+
+`applyAutoMovieInspection` turns a built scene into one inspection picture, in place, and returns a handle whose `restore` puts the scene back. One request states four independent things:
+
+| Question | Request |
+| --- | --- |
+| Which objects | `parts` and `hide`, patterns over the object paths `listAutoMovieInspectionPaths` prints |
+| How surfaces are coloured | `shade`, a guide pass, `clay` for form without colour or `faces` for the side each surface shows; `surface` off leaves the marks alone, and `wire` draws triangle edges |
+| What is marked | `curves`, the construction curves the caller supplies, and `defects` and `sliver`, the mesh defects the engine measures on the drawn surfaces |
+| Where the scene is cut | `section`, a world-space plane; in the browser a film's own shader material is cut only when its shader includes three.js's clipping chunks |
+
+```ts
+import { applyAutoMovieInspection, parseAutoMovieInspectionRequest, rasterizeAutoMovieScene } from "@automovie/viewer";
+
+const request = parseAutoMovieInspectionRequest((key) => url.searchParams.get(key));
+const inspection = applyAutoMovieInspection({ scene, request, constructions });
+try {
+  inspection.update(); // after every seek, before drawing
+  const frame = rasterizeAutoMovieScene({ scene, camera, width: 960, height: 960 });
+} finally {
+  inspection.restore();
+}
+```
+
+The applied scene is drawn by the browser renderer and by `rasterizeAutoMovieScene` alike, so a page and a still made in Node show the same request. Each kind of mark has one colour, listed in `AUTO_MOVIE_INSPECTION_PALETTE`, and the handle's `legend` counts the marks drawn in each. A pattern that selects nothing throws instead of drawing an empty picture, and the handle's `selected` lists what the request selected.
+
+Construction curves come from the engine's `sampleAutoMovieConstructionCurves`, paired with the scene object the form was built into. They are the form at rest, so read them on the rest pose.
+
+`parseAutoMovieInspectionRequest` reads a request from named text values, so a page address and a command line share one grammar; its JSDoc tabulates the keys. `autoMovieViewerNamedViewpoints` gives the eight views asked for by name, which `frameAutoMovieViewerSubject` frames on the box the handle's `bounds` measures.
+
+WebGL draws every line one pixel wide, so the stroke width applies to stills drawn by the CPU rasterizer.
 
 ## Ownership
 

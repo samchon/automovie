@@ -1,20 +1,18 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
+  AutoMovieRasterSheet,
+  type IAutoMovieSceneRaster,
   applyAutoMovieGhost,
   createAutoMovieDriftMarkers,
   createAutoMovieTargetMarker,
   createAutoMovieTrail,
+  encodeAutoMovieRasterPng,
+  rasterizeAutoMovieScene,
 } from "@automovie/viewer";
 import { mkdir, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import * as THREE from "three";
 
-import {
-  AutoMovieRasterSheet,
-  type IAutoMovieSceneRaster,
-  encodeAutoMovieRasterPng,
-  rasterizeAutoMovieScene,
-} from "../../../template/scaffold/production/src/executable/viewer/node/raster/index.js";
 import type { IMotionCaptureCase } from "./IMotionCaptureCase";
 import { MotionCaptureFigure } from "./MotionCaptureFigure";
 import { MOTION_CAPTURE_CASES } from "./cases/MOTION_CAPTURE_CASES";
@@ -36,14 +34,10 @@ import { MOTION_CAPTURE_CASES } from "./cases/MOTION_CAPTURE_CASES";
  * the cell size (default 320) and `--views a,b` selects views. The process
  * exits non-zero when any verdict fails.
  *
- * The rasterizer is the scaffold's Node integration
- * (`packages/template/scaffold/production/src/executable/viewer/node/raster`), imported
- * by relative path as the test program imports the scaffold's other
- * integrations; this executable is not compiled into the package and is
- * unreachable from its entry, and a move of that integration must update
- * this import. Frames are flat-shaded CPU diagnostics, not delivered pixels.
+ * The rasterizer is the viewer package's. Frames are flat-shaded CPU
+ * diagnostics, not delivered pixels.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Gives every option, the views and their directions, the output paths, the exit status and the rasterizer coupling.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives every option, the views and their directions, the output paths, the exit status and the rasterizer's owner.
  * @evidence contracts/development/implementation.md#principled-implementation Orthographic cameras fitted to the drawn bounds keep scale comparable across cells; posing uses Human's canonical adapter and drawing the viewer's polygon builder.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Parse, build each case, fit views, draw sheets, write the manifest.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unknown cases, options or views throw; a failed verdict fails the run.

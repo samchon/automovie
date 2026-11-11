@@ -106,6 +106,8 @@ export * from "./buildSoftBodyObject.js";
 export * from "./IAutoMoviePlantingObject.js";
 export * from "./buildPlantingObject.js";
 export * from "./subjectViewpoint/index.js";
+export * from "./raster/index.js";
+export * from "./inspection/index.js";
 export * from "./IAutoMovieFilmBeautyLayer.js";
 export * from "./AutoMovieFilmBeautyComposition.js";
 export * from "./resolveAutoMovieFilmBeautyComposition.js";

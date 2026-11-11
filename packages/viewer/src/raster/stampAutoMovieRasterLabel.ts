@@ -1,7 +1,7 @@
-import type { IAutoMovieSceneRaster } from "./IAutoMovieSceneRaster.js";
+import type { IAutoMovieRasterImage } from "./IAutoMovieRasterImage.js";
 
 /**
- * Burn a short caption, such as a film second, into a frame's top-left
+ * Burn a short caption, such as a film second, into a picture's top-left
  * corner, white on a dark box, so a thumbnail on a contact sheet still says
  * which moment it shows.
  *
@@ -18,7 +18,7 @@ import type { IAutoMovieSceneRaster } from "./IAutoMovieSceneRaster.js";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Writes into the frame's own bytes; allocates nothing else.
  */
 export function stampAutoMovieRasterLabel(
-  raster: IAutoMovieSceneRaster,
+  raster: IAutoMovieRasterImage,
   text: string,
   scale: number,
 ): void {
@@ -49,7 +49,7 @@ export function stampAutoMovieRasterLabel(
 
 /** Fill a clamped rectangle of the frame with one opaque colour. */
 function fill(
-  raster: IAutoMovieSceneRaster,
+  raster: IAutoMovieRasterImage,
   x: number,
   y: number,
   width: number,
