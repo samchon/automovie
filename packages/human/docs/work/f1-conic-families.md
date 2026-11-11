@@ -21,6 +21,8 @@ The runtime resolves each station's numbers into the engine's guides and conic p
 - **Fixed groove layouts degenerate.** A crest, an inflection and a groove bottom cannot stay one layout along the trunk: the spine groove is 10 to 13 mm deep above the waist and vanishes at the waist. The hull with a relief has no such station.
 - **A cast along the relief axis is blind where the axis runs along the wall.** Such phases are left to the net's fairness, and a window that needs them needs another axis.
 - **One family per continuous form.** Three trunk walls stacked on one axis met at visible seams; one family from the crotch to the armpit has none and fits better.
+- **A guide on its box corner has no arc.** Where one cut vertex is both the forward and a side extreme, the touch offset reaches the corner and the engine refuses the station; this ended the arm, the leg and the palm short. The model now holds each guide within 92 % of the way to the corners its neighbours set.
+- **A later relief is fitted over the earlier ones.** Side reliefs over the upper family's front and back ones lowered its mean from 0.97 to 0.75 mm but left ragged patches at the shoulders, so they are not kept.
 - **Rows where a branch merges into the section do not belong to the wall.** Fitted, the rows where the arms join the shoulders threw fins sideways.
 
 ## Measured
@@ -29,10 +31,10 @@ Distance from the reference skin's cut vertices to the regenerated section, thro
 
 | Part | Numbers (wall + relief) | Mean, mm | Max, mm |
 | --- | --- | --- | --- |
-| Arm | 420 + 64 | 0.09 | 1.2 |
-| Leg | 651 + 416 | 0.13 | 1.0 |
+| Arm | 221 + 64 | 0.12 | 1.0 |
+| Leg | 588 + hollow reliefs | 0.13 | 0.9 to 800 mm, 3.1 at the ankle rows |
 | Midfoot | 189 + 178 | 0.12 | 0.89 |
-| Palm | 105 + hollow reliefs | 0.18 | 5.1 |
+| Palm | 126 + hollow reliefs | 0.15 | 4.4 |
 | Finger shafts | 65 to 117 | 0.05 to 0.11 | 0.37 to 0.83 |
 | Toe shafts | 39 to 65 | 0.03 to 0.13 | 0.15 to 0.64 |
 | Torso | 273 + 1,870 | 0.29 | 6.2 |
@@ -40,7 +42,7 @@ Distance from the reference skin's cut vertices to the regenerated section, thro
 
 ## Open
 
-- The parts are separate open tubes. The armpit, the crotch, the wrists and the ankles are open bands; heels, digit tips and the crown are not built. The chain sections the families use are C1, are refused by the engine's continuation and have no pole.
+- The parts are separate open tubes. The armpit, the crotch and the ankles are open bands; heels, digit tips and the crown are not built. The chain sections the families use are C1, are refused by the engine's continuation and have no pole.
 - The 0.5 mm target holds only on finger and some toe shafts.
 - The head's ears, nose and mouth are an envelope: a radial relief cannot follow an undercut.
 - A layout of sixteen conics fitted worse than eight from an exact start, unexplained.
