@@ -247,15 +247,16 @@ namespace FamilyConicBody {
           const along: number = q[0] * d[0] + q[1] * d[1] + q[2] * d[2];
           return Math.min(side * p[2] - ARMPIT_MM, ARM_TUBE_MM - Math.hypot(q[0] - along * d[0], q[1] - along * d[1], q[2] - along * d[2]));
         })), reliefs: [
-          // Every window stays within 1.2 rad of its axis. Farther round, a height along the axis slides a point along the wall instead of
-          // moving it in or out, which folded the skin at the sides of the head and the shoulders; there the wall stands alone.
-          { name: "trunk.low.back", stations: [-20, 470], phases: [Math.PI - 1.2, Math.PI + 1.2], axis: [1, 0, 0], rows: 51, columns: 31, mirror: true },
-          { name: "trunk.low.front", stations: [-20, 470], phases: [-1.2, 1.2], axis: [-1, 0, 0], rows: 51, columns: 31, mirror: true },
+          // Every window's cast turns with the phase (`turn`), so it is square to the wall across its whole width, 1.5 rad to either side of
+          // the front and of the back. On fixed axes the windows had to stop at 1.0 to 1.2 rad: farther round a height slid a point along
+          // the wall instead of moving it in or out, which folded the skin at the sides of the head and the shoulders.
+          { name: "trunk.low.back", stations: [-20, 470], phases: [Math.PI - 1.5, Math.PI + 1.5], axis: [1, 0, 0], turn: [0, 0, 1], rows: 51, columns: 39, mirror: true, reach: 70 },
+          { name: "trunk.low.front", stations: [-20, 470], phases: [-1.5, 1.5], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 51, columns: 39, mirror: true, reach: 70 },
           // Over the chest and the shoulders the windows stop at 1.0 rad, short of the fold beside the armpit. While the trunk kept a stump of
           // arm the tape bridged from the breast to it, with the skin deep inside that bridge from about 0.6 to 1.3 rad: a window ending there
           // creased the whole chest and back along its edge, and one reaching 1.45 rad left a thin flap in the fold beside the armpit.
-          { name: "trunk.chest.back", stations: [420, 680], phases: [Math.PI - 1.0, Math.PI + 1.0], axis: [1, 0, 0], rows: 53, columns: 35, mirror: true },
-          { name: "trunk.chest.front", stations: [420, 680], phases: [-1.0, 1.0], axis: [-1, 0, 0], rows: 53, columns: 35, mirror: true },
+          { name: "trunk.chest.back", stations: [420, 680], phases: [Math.PI - 1.2, Math.PI + 1.2], axis: [1, 0, 0], turn: [0, 0, 1], rows: 53, columns: 41, mirror: true, reach: 40 },
+          { name: "trunk.chest.front", stations: [420, 680], phases: [-1.2, 1.2], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 53, columns: 41, mirror: true, reach: 40 },
           // The neck and head: windows whose cast turns with the phase (`turn`), square to the wall all the way round. One net goes round the
           // whole head with its seam down the back, and ends at the crown's tip, 918.88 mm, where a relief must vanish for the pole. With
           // fixed axes the head took four windows, front, back and two sides, whose edges met in a seam down the cheek and over the skull
@@ -263,6 +264,9 @@ namespace FamilyConicBody {
           // of fewer heights. A cast that lands farther than `reach` is not observed: between the lips one slipped through to what lies
           // behind, 78 mm on, and dug a pit in the mouth.
           { name: "trunk.head", stations: [640, 918.88], phases: [-Math.PI + 0.15, Math.PI - 0.15], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 57, columns: 109, mirror: true, reach: 35 },
+          // The head's net is zero along its seam down the back, where the skin still lies inside the tape and a ridge stood; this window
+          // over the back takes what the first leaves there.
+          { name: "trunk.head.back", stations: [640, 918.88], phases: [Math.PI - 1.0, Math.PI + 1.0], axis: [1, 0, 0], turn: [0, 0, 1], rows: 57, columns: 39, mirror: true, reach: 20 },
           // The face: a finer net, 2.6 mm apart, between the throat and the brow.
           { name: "trunk.face", stations: [690, 890], phases: [-1.2, 1.2], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 81, columns: 69, mirror: true, reach: 30 },
           // The eyes and the mouth: nets 1.5 mm apart over two bands of the face, which the face's net left a slit and a block. A finer band
@@ -663,7 +667,10 @@ namespace FamilyConicBody {
           const stations: [number, number] = [run[0]! - 30, run.at(-1)! + 30];
           const frame: AutoMovieLoftFrame.IFrame = course.at((stations[0] + stations[1]) / 2);
           const axis: [number, number, number] = [0, 1, 2].map((c: number): number => -(Math.cos(centre) * frame.u[c]! + Math.sin(centre) * frame.v[c]!)) as [number, number, number];
-          windows.push({ name: name + ".hollow." + windows.length, stations, phases: [from, to], axis, rows: Math.max(7, Math.ceil((stations[1] - stations[0]) / 10) + 3), columns: Math.max(7, Math.ceil((to - from) / 0.15) + 3), mirror: false });
+
+          // The cast turns with the phase about the window's middle, so a wide hollow is met square all the way across it.
+          const turn: [number, number, number] = [0, 1, 2].map((c: number): number => -(-Math.sin(centre) * frame.u[c]! + Math.cos(centre) * frame.v[c]!)) as [number, number, number];
+          windows.push({ name: name + ".hollow." + windows.length, stations, phases: [from, to], axis, turn, rows: Math.max(7, Math.ceil((stations[1] - stations[0]) / 10) + 3), columns: Math.max(7, Math.ceil((to - from) / 0.15) + 3), mirror: false });
         }
         run = [];
       };
