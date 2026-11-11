@@ -59,7 +59,7 @@ An encoded or generated file is sampled from its own frames: its cuts are detect
 
 ## The inspector page
 
-The page's address lands with issue #3309.
+A production's development page is the `viewer` package's inspector, mounted over the same subjects module that the capture command draws, so the page offers exactly the subjects a capture can take; the [`viewer` README](../../../packages/viewer/README.md#inspector-page) owns its mount. The page's state is one request: every panel edits it, the canvas draws it through `render`'s scene, the address carries it as the request text, and the page shows the capture command that repeats the picture. An address the grammar refuses opens the request that asks for nothing and shows the refusal, so a mistyped link is seen rather than silently drawn as something else.
 
 ## The capture command
 
