@@ -30,6 +30,17 @@ namespace FamilyConicMerge {
       sources.set(m.family.name, AutoMovieHumanConicLoft.part(m.family, Array.from({ length: count }, (_: unknown, i: number): number => from + ((to - from) * i) / (count - 1))));
       return { type: "source", name: m.family.name, source: m.family.name };
     };
+
+    // A digit as a capsule: besides its tip it closes in a point `depth` mm behind its first joint, inside the limb. A closed body with one end
+    // inside the limb and the other outside meets the limb's skin in a closed curve wherever it comes out, which is what a merge needs.
+    const capsule = (m: AutoMovieHumanF1.IMember, depth: number): AutoMovieConstructionNode => {
+      const from: number = m.family.knots[0]!;
+      const to: number = m.family.knots.at(-1)!;
+      const family: AutoMovieHumanConicLoft.IFamily = { ...m.family, tips: [{ from, tip: -depth }, m.family.tips?.[1] ?? null] };
+      const count: number = Math.ceil(to - from) + 1;
+      sources.set(family.name, AutoMovieHumanConicLoft.part(family, Array.from({ length: count }, (_: unknown, i: number): number => from + ((to - from) * i) / (count - 1))));
+      return { type: "source", name: family.name, source: family.name };
+    };
     const limb: AutoMovieHumanF1.IMember = member(limbName);
     let root: AutoMovieConstructionNode = leaf(limb, limb.family.tips![1]!.from - 80);
     const width: number = Number(chord) / 1000;
@@ -47,7 +58,7 @@ namespace FamilyConicMerge {
           kind: "merge",
           name: "web." + name,
           host: root,
-          part: leaf(digit, -Number(depth)),
+          part: capsule(digit, Number(depth)),
           seed: { type: "search", partFace: name, hostFace: limb.family.name, phase: (quarter * Math.PI) / 2, from: 0, to: 0.7 },
           parameter: { type: "phase" },
           partWidth: { type: "chord", value: width },

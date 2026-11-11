@@ -23,20 +23,20 @@ import { AutoMovieHumanF1Trunk } from "./AutoMovieHumanF1Trunk";
  * families alone: no reference mesh, recovered curve or observation file is
  * read anywhere on this path.
  *
- * The body is one sewn skin, built by the engine's construction operators
- * from seven families: the trunk from the crotch to the crown, and on each
- * side an arm that runs from below the armpit through the wrist to the finger
- * webs, a leg that runs from below the crotch round the ankle to the toe webs,
- * and an ear. The trunk's open lower end is split into the two legs along the
- * midsagittal chord, and each arm and each ear is attached at a port on the
- * trunk. No intersection is traced: every band spans from a curve on the trunk
- * to a ring of the part and meets both G2. The crown, each hand, each foot and
- * each ear close in a pole.
+ * The body is one sewn skin, built by the engine's construction operators:
+ * the trunk from the crotch to the crown, and on each side an arm that runs
+ * from below the armpit through the wrist to the finger webs, a leg that runs
+ * from below the crotch round the ankle to the toe webs, an ear, four fingers
+ * and five toes. The trunk's open lower end is split into the two legs along
+ * the midsagittal chord, and each arm and each ear is attached at a port on
+ * the trunk; those bands span from a curve on the trunk to a ring of the part
+ * and meet both G2 without a traced intersection. Each finger and toe is a
+ * capsule merged onto its limb's cap along the curve where it comes out. The
+ * crown, each hand, each foot, each ear and each digit close in a pole.
  *
- * The digits are closed tubes of their own. Each is carried back to its first
- * joint, under the cap of its hand or foot, and passes through that cap
- * without being sewn to it. The face's nose, eyes and mouth are height fields
- * over the trunk's wall, and the ear is its outer form without the concha.
+ * The thumbs are closed tubes of their own that pass through the hand unsewn.
+ * The face's nose, eyes and mouth are height fields over the trunk's wall, and
+ * the ear is its outer form without the concha.
  */
 export namespace AutoMovieHumanF1 {
   /** One generated surface piece. */
@@ -72,25 +72,53 @@ export namespace AutoMovieHumanF1 {
   /** The families the sewn body is built from. */
   export const BODY: { trunk: AutoMovieHumanConicLoft.IFamily; arm: AutoMovieHumanConicLoft.IFamily; leg: AutoMovieHumanConicLoft.IFamily; ear: AutoMovieHumanConicLoft.IFamily } = { trunk: AutoMovieHumanF1Trunk, arm: AutoMovieHumanF1Arm, leg: AutoMovieHumanF1Leg, ear: AutoMovieHumanF1Ear };
 
-  /** The families not sewn yet: the digits. */
-  export const LOOSE: readonly IMember[] = [
-    AutoMovieHumanF1FingerIndex,
-    AutoMovieHumanF1FingerMiddle,
-    AutoMovieHumanF1FingerPinky,
-    AutoMovieHumanF1FingerRing,
-    AutoMovieHumanF1FingerThumb,
-    AutoMovieHumanF1ToeBig,
-    AutoMovieHumanF1ToeIndex,
-    AutoMovieHumanF1ToeLittle,
-    AutoMovieHumanF1ToeMiddle,
-    AutoMovieHumanF1ToeRing,
+  /** One digit sewn to its limb. */
+  export interface IDigit {
+    /** The digit's authored definition. */
+    family: AutoMovieHumanConicLoft.IFamily;
 
-    // A digit's course starts at its first joint, inside the hand or the foot, and its fitted run starts where it stands free of its
-    // neighbours; it is carried back to 2 mm short of that joint, so its root lies under the limb's cap.
-  ].map((family: AutoMovieHumanConicLoft.IFamily): IMember => ({ family, mirrored: true, reach: [family.knots[0]! - 2, 0] }));
+    /** The limb whose cap it leaves through. */
+    limb: "arm" | "leg";
+
+    /** Chord of the blend on either side of the curve where the digit meets the cap, mm: 2 between the fingers, 1 in the toes' narrower webs. */
+    chord: number;
+  }
+
+  /**
+   * The digits sewn to the body, in the order they are merged: the middle one of each limb first, then its neighbours outward. Each is merged
+   * as a capsule: besides its tip it closes in a point `ROOT_MM` behind its first joint, inside the hand or the foot, so it meets the limb's
+   * cap in a closed curve wherever it comes out.
+   */
+  export const DIGITS: readonly IDigit[] = [
+    { family: AutoMovieHumanF1FingerMiddle, limb: "arm", chord: 2 },
+    { family: AutoMovieHumanF1FingerRing, limb: "arm", chord: 2 },
+    { family: AutoMovieHumanF1FingerIndex, limb: "arm", chord: 2 },
+    { family: AutoMovieHumanF1FingerPinky, limb: "arm", chord: 2 },
+    { family: AutoMovieHumanF1ToeBig, limb: "leg", chord: 1 },
+    { family: AutoMovieHumanF1ToeIndex, limb: "leg", chord: 1 },
+    { family: AutoMovieHumanF1ToeMiddle, limb: "leg", chord: 1 },
+    { family: AutoMovieHumanF1ToeRing, limb: "leg", chord: 1 },
+    { family: AutoMovieHumanF1ToeLittle, limb: "leg", chord: 1 },
+  ];
+
+  /**
+   * The families not sewn yet: the thumb, whose merge finds no closed meeting with the hand. Its course starts at its first joint, inside the
+   * hand, and its fitted run starts where it stands free; it is carried back to 2 mm short of that joint, so its root lies under the skin.
+   */
+  export const LOOSE: readonly IMember[] = [AutoMovieHumanF1FingerThumb].map((family: AutoMovieHumanConicLoft.IFamily): IMember => ({ family, mirrored: true, reach: [family.knots[0]! - 2, 0] }));
 
   /** Every authored family of the figure. */
-  export const FAMILIES: readonly IMember[] = [{ family: BODY.trunk, mirrored: false }, { family: BODY.arm, mirrored: true }, { family: BODY.leg, mirrored: true }, { family: BODY.ear, mirrored: true }, ...LOOSE];
+  export const FAMILIES: readonly IMember[] = [
+    { family: BODY.trunk, mirrored: false },
+    { family: BODY.arm, mirrored: true },
+    { family: BODY.leg, mirrored: true },
+    { family: BODY.ear, mirrored: true },
+    ...DIGITS.map((digit: IDigit): IMember => ({ family: digit.family, mirrored: true })),
+    ...LOOSE,
+  ];
+
+  /** How far behind its first joint a sewn digit closes in a point, mm. */
+  const ROOT_MM: number = 10;
 
   /** Station spacing of the layers and derived outlines of a sewn family, mm: the spacing at which the engine admits these families as faces. */
   const LAYER_MM: number = 2;
@@ -183,7 +211,36 @@ export namespace AutoMovieHumanF1 {
     const twin = (family: AutoMovieHumanConicLoft.IFamily): AutoMovieHumanConicLoft.IFamily => AutoMovieHumanConicLoft.mirror(family, family.name + ".mirror");
     const trunk: string = BODY.trunk.name;
 
+    // A limb with its digits: each digit is merged onto the limb's cap before the limb is attached to the trunk, so the engine traces where a
+    // capsule comes out against the limb alone. Merged after the whole body was sewn, every digit was traced against all of it.
+    const limb = (which: "arm" | "leg", side: 1 | -1): { node: AutoMovieConstructionNode; face: string } => {
+      const family: AutoMovieHumanConicLoft.IFamily = side > 0 ? BODY[which] : twin(BODY[which]);
+      let node: AutoMovieConstructionNode = leaf(family);
+      for (const digit of DIGITS.filter((d: IDigit): boolean => d.limb === which)) {
+        const capsule: AutoMovieHumanConicLoft.IFamily = { ...digit.family, tips: [{ from: digit.family.knots[0]!, tip: -ROOT_MM }, digit.family.tips?.[1] ?? null] };
+        const part: AutoMovieHumanConicLoft.IFamily = side > 0 ? capsule : twin(capsule);
+        node = {
+          type: "join",
+          kind: "merge",
+          name: "web." + part.name,
+          host: node,
+          part: leaf(part),
+          seed: { type: "search", partFace: part.name, hostFace: family.name, phase: 0, from: 0, to: 0.7 },
+          parameter: { type: "phase" },
+          partWidth: { type: "chord", value: digit.chord / 1000 },
+          hostWidth: { type: "chord", value: digit.chord / 1000 },
+          continuity: "G2",
+          count: 48,
+          rows: 4,
+          tolerance: 1e-12,
+          grazing: 0.05,
+        };
+      }
+      return { node, face: family.name };
+    };
+
     // The trunk's section chart has +u forward and +v to +Z, so the seam from phase 0 to pi gives the first child the +Z half of the end.
+    const legs: { node: AutoMovieConstructionNode; face: string }[] = [limb("leg", 1), limb("leg", -1)];
     let root: AutoMovieConstructionNode = {
       type: "split",
       name: "crotch",
@@ -194,13 +251,13 @@ export namespace AutoMovieHumanF1 {
       count: BAND.count,
       rows: BAND.rows,
       children: [
-        { band: "band." + BODY.leg.name, part: leaf(BODY.leg), partFace: BODY.leg.name, partEnd: "bottom", rail: RAIL_MM.leg / 1000 },
-        { band: "band." + BODY.leg.name + ".mirror", part: leaf(twin(BODY.leg)), partFace: BODY.leg.name + ".mirror", partEnd: "bottom", rail: RAIL_MM.leg / 1000 },
+        { band: "band." + legs[0]!.face, part: legs[0]!.node, partFace: legs[0]!.face, partEnd: "bottom", rail: RAIL_MM.leg / 1000 },
+        { band: "band." + legs[1]!.face, part: legs[1]!.node, partFace: legs[1]!.face, partEnd: "bottom", rail: RAIL_MM.leg / 1000 },
       ],
     };
     for (const side of [1, -1] as const) {
-      const arm: AutoMovieHumanConicLoft.IFamily = side > 0 ? BODY.arm : twin(BODY.arm);
-      root = { type: "port", name: "armscye." + arm.name, host: root, hostFace: trunk, loop: armscye(side), band: "band." + arm.name, part: leaf(arm), partFace: arm.name, partEnd: "bottom", rail: RAIL_MM.arm / 1000, count: BAND.count, rows: BAND.rows };
+      const arm: { node: AutoMovieConstructionNode; face: string } = limb("arm", side);
+      root = { type: "port", name: "armscye." + arm.face, host: root, hostFace: trunk, loop: armscye(side), band: "band." + arm.face, part: arm.node, partFace: arm.face, partEnd: "bottom", rail: RAIL_MM.arm / 1000, count: BAND.count, rows: BAND.rows };
       const ear: AutoMovieHumanConicLoft.IFamily = side > 0 ? BODY.ear : twin(BODY.ear);
       root = { type: "port", name: "auricle." + ear.name, host: root, hostFace: trunk, loop: auricle(side), band: "band." + ear.name, part: leaf(ear), partFace: ear.name, partEnd: "bottom", rail: RAIL_MM.ear / 1000, count: BAND.count, rows: BAND.rows };
     }
@@ -212,10 +269,11 @@ export namespace AutoMovieHumanF1 {
    *
    * @param step Station spacing of a loose family's layers, mm.
    * @param phases Vertices round every layer of a loose family.
+   * @param chord Largest distance the sewn body's triangles may stand off its surfaces, metres. Most of the generation time is this tessellation.
    */
-  export function create(step: number = 4, phases: number = 128): IPiece[] {
+  export function create(step: number = 4, phases: number = 128, chord: number = 0.001): IPiece[] {
     const declared: IConstruction = construction();
-    const real: AutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction({ name: "f1.body", root: declared.root }, { chord: 0.001, sources: declared.sources });
+    const real: AutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction({ name: "f1.body", root: declared.root }, { chord, sources: declared.sources });
     const pieces: IPiece[] = [{ name: "body", positions: Array.from(real.mesh.positions), indices: Array.from(real.mesh.indices), diagnostics: real.diagnostics.map((d: { node: string; contract: string; detail: string }): string => d.node + " (" + d.contract + "): " + d.detail) }];
     for (const { family, mirrored, reach } of LOOSE) {
       // Layers from the first knot to the last, widened by the member's reach, evenly spaced at most `step` apart.

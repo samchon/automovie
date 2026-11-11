@@ -69,6 +69,12 @@ export namespace AutoMovieHumanConicLoft {
    */
   const CAP_KNOTS: number = 12;
 
+  /**
+   * When a station is added midway between two: the model's section there stands off the mean of the two by more than `length` mm in a point's
+   * coordinate or by more than `share` in a tangent's angle, rad, or a shoulder. No interval is cut below `least` mm.
+   */
+  const REFINE: { length: number; share: number; least: number } = { length: 0.05, share: 0.005, least: 0.125 };
+
   /** The part's course as the engine reads it. */
   export function axis(family: Pick<IFamily, "centres" | "halves" | "up">): AutoMovieViewAxis.IAxis {
     const made: AutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(family.centres, family.halves, family.up);
@@ -100,12 +106,40 @@ export namespace AutoMovieHumanConicLoft {
     const [bottom, top]: [ITip | null, ITip | null] = family.tips ?? [null, null];
 
     // The fields own the stations between the caps; each cap starts on a station of its own.
-    const stations: number[] = [
+    const owned: number[] = [
       ...(bottom === null ? [] : [bottom.from]),
       ...requested.filter((s: number): boolean => (bottom === null || s > bottom.from) && (top === null || s < top.from)),
       ...(top === null ? [] : [top.from]),
     ];
-    const chains: AutoMovieHumanConicSection.IChain[] = stations.map((s: number): AutoMovieHumanConicSection.IChain => AutoMovieHumanConicSection.resolve(read(s), family.layout));
+
+    // The engine reads every derived number between two stations by its own spline, not through the section model, so where the model's
+    // section turns faster than that reading follows, the engine's chain loses an arc though the model's never does. Wherever the model's
+    // section midway between two stations stands off the mean of their two by more than the tolerances, the midway station is added.
+    const resolved: Map<number, AutoMovieHumanConicSection.IChain> = new Map();
+    const at = (s: number): AutoMovieHumanConicSection.IChain => {
+      let chain: AutoMovieHumanConicSection.IChain | undefined = resolved.get(s);
+      if (chain === undefined) resolved.set(s, (chain = AutoMovieHumanConicSection.resolve(read(s), family.layout)));
+      return chain;
+    };
+    const between = (a: number, b: number): number[] => {
+      if (b - a <= 2 * REFINE.least) return [];
+      const middle: number = (a + b) / 2;
+      const [low, mid, high]: AutoMovieHumanConicSection.IChain[] = [at(a), at(middle), at(b)];
+      const off: boolean = mid!.input.points.some((p: AutoMovieHumanConicSection.P, k: number): boolean => {
+        const turn = (t: AutoMovieHumanConicSection.P): number => Math.atan2(t[1], t[0]);
+        const swing: number = turn(high!.input.tangents[k]!) - turn(low!.input.tangents[k]!);
+        const lean: number = turn(mid!.input.tangents[k]!) - turn(low!.input.tangents[k]!) - (swing - 2 * Math.PI * Math.round(swing / (2 * Math.PI))) / 2;
+        return (
+          Math.abs(p[0] - (low!.input.points[k]![0] + high!.input.points[k]![0]) / 2) > REFINE.length ||
+          Math.abs(p[1] - (low!.input.points[k]![1] + high!.input.points[k]![1]) / 2) > REFINE.length ||
+          Math.abs(lean - 2 * Math.PI * Math.round(lean / (2 * Math.PI))) > REFINE.share ||
+          Math.abs(mid!.input.shoulders[k]! - (low!.input.shoulders[k]! + high!.input.shoulders[k]!) / 2) > REFINE.share
+        );
+      });
+      return off ? [...between(a, middle), middle, ...between(middle, b)] : [];
+    };
+    const stations: number[] = owned.flatMap((s: number, i: number): number[] => (i === 0 ? [s] : [...between(owned[i - 1]!, s), s]));
+    const chains: AutoMovieHumanConicSection.IChain[] = stations.map(at);
     const count: number = chains[0]!.input.points.length;
     const guides: number[] = chains[0]!.guides;
     if (guides.length !== 4) throw new Error("the layout names " + guides.length + " engine guides instead of four");
