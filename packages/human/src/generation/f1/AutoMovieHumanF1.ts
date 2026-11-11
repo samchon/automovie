@@ -189,11 +189,20 @@ export namespace AutoMovieHumanF1 {
         continue;
       }
       const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> = loft.chain;
-      const rings: number[][][] = stations.map((s: number): number[][] => Array.from({ length: phases }, (_: unknown, j: number): number[] => AutoMovieLoftChain.point(chain, s, (2 * Math.PI * j) / phases)));
+
+      // Past the last knot the loft's own cap layers follow, and the pole closes them by a fan.
+      const layers: number[] = [...stations, ...chain.layers.map((layer: { y: number }): number => layer.y).filter((y: number): boolean => y > to)];
+      const rings: number[][][] = layers.map((s: number): number[][] => Array.from({ length: phases }, (_: unknown, j: number): number[] => AutoMovieLoftChain.point(chain, s, (2 * Math.PI * j) / phases)));
       for (const sign of mirrored ? [1, -1] : [1]) {
         const positions: number[] = [];
         const indices: number[] = [];
         for (const ring of rings) for (const p of ring) positions.push(p[0]! / 1000, p[1]! / 1000, (sign * p[2]!) / 1000);
+        if (chain.pole?.end === "top") {
+          const apex: number = positions.length / 3;
+          const last: number = (rings.length - 1) * phases;
+          positions.push(chain.pole.point[0] / 1000, chain.pole.point[1] / 1000, (sign * chain.pole.point[2]) / 1000);
+          for (let j: number = 0; j < phases; ++j) indices.push(...(sign > 0 ? [last + j, apex, last + ((j + 1) % phases)] : [last + j, last + ((j + 1) % phases), apex]));
+        }
         for (let i: number = 0; i + 1 < rings.length; ++i)
           for (let j: number = 0; j < phases; ++j) {
             const a: number = i * phases + j;

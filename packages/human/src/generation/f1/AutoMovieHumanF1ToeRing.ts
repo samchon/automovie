@@ -16,7 +16,7 @@ import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
  * Source: the f1 reference body cut by this course's own planes over stations 22 to 27 mm, 6 sections 1 mm apart, every
  * second one withheld from the fit. Fitted offline by `test/src/reference-conics/FamilyConicBody.ts` (joint least squares over
  * all sections). Regenerated through the engine's view loft from these numbers alone, the reference skin's cut vertices lie
- * 0.05 mm from it on average and at most 0.33 mm. 39 independent numbers.
+ * 0.18 mm from it on average and at most 1.3 mm. 39 independent numbers.
  */
 export const AutoMovieHumanF1ToeRing: AutoMovieHumanConicLoft.IFamily = {
   name: "toe.ring",
@@ -27,28 +27,31 @@ export const AutoMovieHumanF1ToeRing: AutoMovieHumanConicLoft.IFamily = {
   knots: [22, 24.5, 27],
   values: [
     // front (+u) extreme: u, mm
-    [3.84, 3.34, 2.51],
+    [3.84, 3.32, 2.5],
     // front (+u) extreme: v, mm
-    [2.09, 2.19, 2.23],
+    [2.17, 1.96, 1.21],
     // side (+v) extreme: u, mm
-    [-2.36, -2.85, -3.65],
+    [-2.36, -2.87, -2.9],
     // side (+v) extreme: v, mm
-    [7.31, 7.78, 8.36],
+    [7.33, 7.72, 7.74],
     // back (-u) extreme: u, mm
-    [-11.49, -11.59, -12.44],
+    [-11.51, -11.52, -11.53],
     // back (-u) extreme: v, mm
-    [0.12, 0.68, 2.24],
+    [0.08, 2.7, 26.58],
     // side (-v) extreme: u, mm
-    [-5.04, -5.35, -6.05],
+    [-5.05, -5.2, -3.68],
     // side (-v) extreme: v, mm
-    [-5.73, -5.4, -5],
+    [-5.73, -5.38, -4.77],
     // shoulder rho of the arc after anchor 0, share
-    [0.4027, 0.4173, 0.4497],
+    [0.3905, 0.4453, 0.5447],
     // shoulder rho of the arc after anchor 1, share
-    [0.4253, 0.448, 0.4831],
+    [0.4206, 0.3808, -0.2348],
     // shoulder rho of the arc after anchor 2, share
-    [0.4687, 0.4425, 0.4331],
+    [0.4614, 0.4878, 0.9255],
     // shoulder rho of the arc after anchor 3, share
-    [0.4277, 0.412, 0.4],
+    [0.429, 0.3976, 0.2699],
   ],
+
+  // Past its last knot the part closes in a point at this station, where the reference's own loop vanishes.
+  tips: [null, 30.63],
 };

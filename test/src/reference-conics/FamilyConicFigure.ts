@@ -40,6 +40,26 @@ namespace FamilyConicFigure {
         frames.push({ file, sha256: createHash("sha256").update(png).digest("hex") });
       }
     }
+
+    // Close frames: the same pair framed on the reference's points inside one zone of the figure, metres.
+    const zones: [string, (p: N.Point) => boolean][] = [
+      ["head", (p: N.Point): boolean => p[1] > 1.45],
+      ["hand", (p: N.Point): boolean => p[2] > 0.38 && p[1] > 0.84 && p[1] < 1.04],
+      ["foot", (p: N.Point): boolean => p[2] > 0 && p[1] < 0.13],
+      ["shoulder", (p: N.Point): boolean => p[2] > 0.06 && p[1] > 1.2 && p[1] < 1.45],
+    ];
+    for (const [zone, inside] of zones) {
+      const near: N.Point[] = bounds.filter(inside);
+      for (const view of ["front", "left", "high-oblique"]) {
+        const camera: N.Camera = NodeCanvasCamera.fit(view, near, 900, 900);
+        for (const [stage, shown] of [["reference", reference], ["generated", generated]] as [string, N.Mesh[]][]) {
+          const file: string = zone + "." + view + "." + stage + ".png";
+          const png: Buffer = NodeCanvasRaster.render(camera, shown, [], "depth", "f1 | " + stage + " | " + zone + " " + view).png;
+          await fs.writeFile(path.join(out, file), png);
+          frames.push({ file, sha256: createHash("sha256").update(png).digest("hex") });
+        }
+      }
+    }
     const receipt = { schema: "f1-family-conic-figure-v1", generationMs: Math.round(generationMs), pieces: pieces.map((piece: AutoMovieHumanF1.IPiece): { name: string; vertices: number; triangles: number } => ({ name: piece.name, vertices: piece.positions.length / 3, triangles: piece.indices.length / 3 })), faults, frames };
     await fs.writeFile(path.join(out, "receipt.json"), JSON.stringify(receipt, null, 2));
     process.stdout.write(JSON.stringify({ out, generationMs: receipt.generationMs, pieces: pieces.length, faults }) + "\n");

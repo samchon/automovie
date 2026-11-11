@@ -16,7 +16,7 @@ import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
  * Source: the f1 reference body cut by this course's own planes over stations 21 to 52 mm, 32 sections 1 mm apart, every
  * second one withheld from the fit. Fitted offline by `test/src/reference-conics/FamilyConicBody.ts` (joint least squares over
  * all sections). Regenerated through the engine's view loft from these numbers alone, the reference skin's cut vertices lie
- * 0.11 mm from it on average and at most 0.64 mm. 65 independent numbers.
+ * 0.1 mm from it on average and at most 0.61 mm. 65 independent numbers.
  */
 export const AutoMovieHumanF1ToeBig: AutoMovieHumanConicLoft.IFamily = {
   name: "toe.big",
@@ -27,28 +27,31 @@ export const AutoMovieHumanF1ToeBig: AutoMovieHumanConicLoft.IFamily = {
   knots: [21, 29, 36.5, 43, 52],
   values: [
     // front (+u) extreme: u, mm
-    [6.95, 6.73, 5.41, 5.68, 7.37],
+    [7.03, 6.81, 5.28, 5.64, 7.24],
     // front (+u) extreme: v, mm
-    [-2.42, -3.77, -3.91, -3.7, -3.3],
+    [-2.64, -3.96, -4.4, -2.95, -3.69],
     // side (+v) extreme: u, mm
-    [-6.46, -7.1, -6.45, -5.03, -2.38],
+    [-5.98, -7.19, -6.61, -4.44, -2.26],
     // side (+v) extreme: v, mm
-    [9.98, 10.71, 10.28, 8.8, 5.02],
+    [9.99, 10.74, 10.24, 8.8, 4.94],
     // back (-u) extreme: u, mm
-    [-15.33, -15.55, -14.8, -13.32, -8.95],
+    [-15.3, -15.54, -14.77, -13.33, -8.9],
     // back (-u) extreme: v, mm
-    [-5.46, -4.43, -4.98, -5.57, -2.95],
+    [-5.92, -3.73, -4.77, -5.88, -4.4],
     // side (-v) extreme: u, mm
-    [-8.94, -7.14, -6.14, -3.19, -1.68],
+    [-8.96, -6.71, -5.91, -4.02, -1.93],
     // side (-v) extreme: v, mm
-    [-13.55, -14.93, -15.61, -15.38, -12.83],
+    [-13.57, -14.93, -15.59, -15.36, -12.82],
     // shoulder rho of the arc after anchor 0, share
-    [0.4267, 0.4228, 0.3934, 0.3357, 0.3685],
+    [0.409, 0.4222, 0.4181, 0.2832, 0.3872],
     // shoulder rho of the arc after anchor 1, share
-    [0.4752, 0.4693, 0.4677, 0.463, 0.4178],
+    [0.5003, 0.4513, 0.4599, 0.4957, 0.4698],
     // shoulder rho of the arc after anchor 2, share
-    [0.4889, 0.4929, 0.4855, 0.5149, 0.569],
+    [0.4626, 0.5265, 0.4971, 0.4921, 0.5056],
     // shoulder rho of the arc after anchor 3, share
-    [0.5157, 0.4097, 0.4488, 0.3623, 0.3338],
+    [0.5065, 0.382, 0.4341, 0.4191, 0.3551],
   ],
+
+  // Past its last knot the part closes in a point at this station, where the reference's own loop vanishes.
+  tips: [null, 55.38],
 };

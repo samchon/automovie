@@ -27,28 +27,31 @@ export const AutoMovieHumanF1ToeLittle: AutoMovieHumanConicLoft.IFamily = {
   knots: [18, 21, 24],
   values: [
     // front (+u) extreme: u, mm
-    [4.3, 3.67, 2.56],
+    [4.27, 3.68, 2.58],
     // front (+u) extreme: v, mm
-    [-0.14, 0.64, 1.01],
+    [-0.19, 0.57, 1.03],
     // side (+v) extreme: u, mm
-    [-3.84, -5.63, -6.52],
+    [-3.84, -5.52, -6.51],
     // side (+v) extreme: v, mm
-    [5.66, 6.22, 6.55],
+    [5.66, 6.23, 6.53],
     // back (-u) extreme: u, mm
-    [-10.72, -10.97, -10.91],
+    [-10.72, -10.97, -10.93],
     // back (-u) extreme: v, mm
-    [-0.04, 0.82, 1.43],
+    [-0.01, 0.63, 1.37],
     // side (-v) extreme: u, mm
-    [-2.52, -3.11, -4.32],
+    [-2.43, -3.21, -4.33],
     // side (-v) extreme: v, mm
-    [-6.82, -6.29, -5.31],
+    [-6.82, -6.3, -5.3],
     // shoulder rho of the arc after anchor 0, share
-    [0.4221, 0.4538, 0.4228],
+    [0.4256, 0.4465, 0.4197],
     // shoulder rho of the arc after anchor 1, share
-    [0.4655, 0.4347, 0.4513],
+    [0.4667, 0.4493, 0.452],
     // shoulder rho of the arc after anchor 2, share
-    [0.4586, 0.4436, 0.4146],
+    [0.4642, 0.4279, 0.4074],
     // shoulder rho of the arc after anchor 3, share
-    [0.3593, 0.4164, 0.4412],
+    [0.3602, 0.4158, 0.4392],
   ],
+
+  // Past its last knot the part closes in a point at this station, where the reference's own loop vanishes.
+  tips: [null, 27.13],
 };

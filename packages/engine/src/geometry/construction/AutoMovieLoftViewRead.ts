@@ -115,7 +115,7 @@ export namespace AutoMovieLoftViewRead {
               );
       }
       const w: CapReading = cap(source.caps, station);
-      if (w.active)
+      if (w.active && !chained(source))
         shoulders = shoulders.map((r: number): number => blend(r, w));
       if (![...extents, ...shoulders].every(Number.isFinite))
         throw new Error("The effective source values are not finite.");
@@ -182,7 +182,7 @@ export namespace AutoMovieLoftViewRead {
               );
       }
       const w: CapReading = cap(source.caps, station);
-      if (w.active)
+      if (w.active && !chained(source))
         shoulders = shoulders.map((r: Scalar): Scalar => {
           const difference: number = AutoMovieViewSection.ELLIPSE - r[0];
           return [
@@ -212,6 +212,17 @@ export namespace AutoMovieLoftViewRead {
       return fault(station, error);
     }
   }
+}
+
+/**
+ * Whether a source's sections are conic chains (touch offsets, splits or split lists) rather than four plain quarters.
+ *
+ * Such a source closes a pole self-similarly: its coordinates fall to zero in the pole parameter while every tangent angle and shoulder keeps
+ * its own source value, so the cap is the end section shrunk to a point. The surface has a tangent plane there when the coordinates fall
+ * together; its curvature at the pole is that of the section's own shape, not an ellipse's.
+ */
+function chained(source: AutoMovieLoftViewSource.ISource): boolean {
+  return source.fullness.kind === "top" && (source.fullness.touch !== null || source.fullness.splits !== null || source.fullness.pieces !== null);
 }
 
 /** The four scalar roles of one split, in its tuple order. */
@@ -249,11 +260,10 @@ function validate(
   )
     throw new Error("The present fullness source has no four-quarter layout.");
 
-  // A split-quarter or touch-offset section has no cap law: the cap blends
-  // quarter shoulders toward the four-quarter ellipse, which names no piece
-  // of a split quarter.
+  // A split-quarter or touch-offset section closes its pole as it stands: the
+  // four-quarter cap law blends quarter shoulders toward the ellipse, which
+  // names no piece of a split quarter, so `chained` sources skip that blend.
   if (source.fullness.kind === "top" && (source.fullness.touch !== null || source.fullness.splits !== null || source.fullness.pieces !== null)) {
-    if (source.caps.length !== 0) throw new Error("A touch-offset or split-quarter source has no cap law; it closes no pole.");
     if (source.fullness.touch !== null && source.fullness.touch.length !== 4) throw new Error("The present touch source has no four-guide layout.");
     if (source.fullness.splits !== null && (source.fullness.splits.length !== 4 || source.fullness.splits.some((split: readonly AutoMovieViewOutline.IOutline[]): boolean => split.length !== 4)))
       throw new Error("The present split source has no four-quarter, four-role layout.");
