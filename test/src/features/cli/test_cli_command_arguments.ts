@@ -18,7 +18,7 @@ import { throwsError } from "../internal/predicates";
  * 3. `add` splits `shorts/<name>` or `series/<name>` into its family and one
  *    directory segment, with optional single `--force` and `--name`.
  * 4. Sync admits one target with optional check and explicit baseline; repeated or missing values refuse.
- * 4a. `capture` keeps every token after it, in order, for the production's request reader, including none.
+ * 4a. `capture`, `render` and `review` keep every token after them, in order, for the production's option reader, including none.
  * 5. Unknown and removed commands (`start` among them), unknown or repeated
  *    options, a missing `--name` value, missing, extra or blank directories,
  *    an unknown family, an unportable or padded segment, and a standalone flag
@@ -98,6 +98,14 @@ export function test_cli_command_arguments(): void {
     { command: "capture", args: ["--module", "src/subjects.ts", "--at", "1,2", "--views", "front;top"] },
   );
   TestValidator.equals("capture without tokens", read("capture"), { command: "capture", args: [] });
+  TestValidator.equals(
+    "render and review keep their tokens",
+    [read("render", "--module", "src/subjects.ts"), read("review", "--url", "http://127.0.0.1:5173/", "--seconds", "5")],
+    [
+      { command: "render", args: ["--module", "src/subjects.ts"] },
+      { command: "review", args: ["--url", "http://127.0.0.1:5173/", "--seconds", "5"] },
+    ],
+  );
   // Each refusal names its correction: the one command, the one option, the
   // directory count, a non-blank directory, or a standalone flag.
   const invalid: readonly (readonly [readonly string[], string])[] = [
@@ -116,12 +124,12 @@ export function test_cli_command_arguments(): void {
       ["sync", "movie", "--baseline", "old", "--baseline", "other"],
       "only once",
     ],
-    [["unknown"], "the commands are create, add, sync, capture and inspect"],
-    [["start", "project"], "the commands are create, add, sync, capture and inspect"],
-    [["toc"], "the commands are create, add, sync, capture and inspect"],
+    [["unknown"], "the commands are create, add, sync, capture, inspect, render and review"],
+    [["start", "project"], "the commands are create, add, sync, capture, inspect, render and review"],
+    [["toc"], "the commands are create, add, sync, capture, inspect, render and review"],
     [
       ["inspect-external", "model.glb", "--profile", "gltf-static-v1"],
-      "the commands are create, add, sync, capture and inspect",
+      "the commands are create, add, sync, capture, inspect, render and review",
     ],
     [["create"], "exactly one target directory; received 0"],
     [["create", " "], "non-blank target directory"],

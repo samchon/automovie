@@ -1,7 +1,7 @@
 /**
  * The browser page a draw session drives, declared as the five Playwright `Page` methods it calls, so a Playwright page fits as it is and a test passes a recording double.
  *
- * Functions handed to `addInitScript`, `waitForFunction` and `evaluate` run inside the page, so they read only their argument.
+ * Functions handed to `waitForFunction` and `evaluate` run inside the page, so they read only their argument; the init script is text.
  *
  * @evidence contracts/development/design.md#principled-representation Structural typing over the driver's own call shapes keeps `render` free of a browser driver while any driver with those shapes satisfies it unchanged.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Exactly the calls `AutoMovieDrawSession` makes: inject the props, load, wait for the draw function, call it, close. No screenshot, style injection or element lookup is declared, because pictures come only from the draw function.
@@ -10,7 +10,7 @@
  */
 export interface IAutoMovieDrawPage {
   /**
-   * Run `script(arg)` in the page before any of its own scripts, on every load.
+   * Run a script's text in the page before any of its own scripts, on every load. The text form is the one Playwright's `Page.addInitScript` takes without serialising an argument, so a real page fits without a cast.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States when the script runs.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation A signature has no body; the browser driver answers.
@@ -20,7 +20,7 @@ export interface IAutoMovieDrawPage {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature has no body; the browser driver answers.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature has no body; the browser driver answers.
    */
-  addInitScript<T>(script: (arg: T) => void, arg: T): Promise<unknown>;
+  addInitScript(script: { content: string }): Promise<unknown>;
 
   /**
    * Load an address, resolving at the `load` event.

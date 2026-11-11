@@ -23,8 +23,8 @@ export function createDrawPageDouble(props: {
 }): createDrawPageDouble.IDouble {
   const calls: createDrawPageDouble.ICall[] = [];
   const page: IAutoMovieDrawPage = {
-    addInitScript: async <T>(_script: (arg: T) => void, arg: T): Promise<unknown> => {
-      calls.push({ method: "addInitScript", arg });
+    addInitScript: async (script: { content: string }): Promise<unknown> => {
+      calls.push({ method: "addInitScript", arg: script.content });
       return undefined;
     },
     goto: async (url: string): Promise<unknown> => {
@@ -66,7 +66,7 @@ export namespace createDrawPageDouble {
     /** The page method called. */
     method: string;
 
-    /** The argument sent: the address, the injected props, a global's name, or the draw function's call. */
+    /** The argument sent: the address, the init script's text, a global's name, or the draw function's call. */
     arg: unknown;
   }
 }

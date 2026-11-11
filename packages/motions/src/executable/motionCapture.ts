@@ -4,12 +4,18 @@ import {
   parseAutoMovieCapturePlanRequest,
   readAutoMovieCaptureArguments,
 } from "@automovie/render";
-import { AutoMovieCaptureHost } from "automovie";
+import {
+  AutoMovieCaptureHost,
+  loadAutoMovieProductionModule,
+  renderAutoMovieVideo,
+  resolveAutoMovieFfmpeg,
+} from "automovie";
 import path from "node:path";
 
 import type { IMotionCaptureCase } from "./IMotionCaptureCase";
 import { markMotionCaptureCase } from "../capture/markMotionCaptureCase";
 import type { IMotionCaptureProps } from "./IMotionCaptureProps";
+import { buildMotionCaptureCases } from "./buildMotionCaptureCases";
 import { MOTION_CAPTURE_CASES } from "./cases/MOTION_CAPTURE_CASES";
 import { planMotionCaptureProps } from "./planMotionCaptureProps";
 
@@ -37,7 +43,7 @@ const RASTER: { width: number; height: number } = { width: 720, height: 720 };
  *
  * `pnpm --dir packages/motions node:capture -- --case <name>[,<name>…]` builds each named case of `MOTION_CAPTURE_CASES` (`--list` prints them) and captures it with `automovie capture`'s host: the page built from `subjects` draws the case's instants (`at`) through its views into `packages/motions/media/capture/<case>/`, as stills, contact sheets and `record.json`. The record's section holds the case's instants with their labels, its performers, its verdicts and its metrics. The process exits non-zero when any verdict fails or any cell is not drawn.
  *
- * Options of the harness: `--only <regex>` keeps the cases whose name matches, a factory that reads the filter building no other; `--views a,b` picks among `front`, `side`, `top` and `threeQuarter`, or gives view texts of the shared grammar; `--verdicts` prints the verdicts without drawing; `--backend gpu` draws on the GPU instead of SwiftShader. Every other option is a key of the capture request grammar, such as `--marks`, `--label`, `--passes`, `--round` or `--compare`; `subject` and `at` are the case's. Without `--marks`, every mark of the case is drawn.
+ * Options of the harness: `--only <regex>` keeps the cases whose name matches, a factory that reads the filter building no other; `--views a,b` picks among `front`, `side`, `top` and `threeQuarter`, or gives view texts of the shared grammar; `--verdicts` prints the verdicts without drawing; `--video` also renders each case's whole clock through the same page into `media/video/<case>/film.mp4` with FFmpeg from `FFMPEG_PATH` or `ffmpeg-static`; `--backend gpu` draws on the GPU instead of SwiftShader. Every other option is a key of the capture request grammar, such as `--marks`, `--label`, `--passes`, `--round` or `--compare`; `subject` and `at` are the case's. Without `--marks`, every mark of the case is drawn.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives every option, the default views, the output, what the record's section holds, and the exit status.
  * @evidence contracts/development/implementation.md#principled-implementation A case is a subject like any other: the harness supplies its data and its verdicts, and the shared host plans, draws, lays out, records and compares, so a motion case takes the request every subject takes.
@@ -70,6 +76,7 @@ export async function motionCapture(): Promise<void> {
   const only: RegExp | null = ((text: string | null): RegExp | null =>
     text === null ? null : new RegExp(text))(take("only"));
   const verdicts: boolean = take("verdicts") !== null;
+  const video: boolean = take("video") !== null;
   const backend: string = take("backend") ?? "software";
   if (backend !== "software" && backend !== "gpu")
     throw new Error(`--backend "${backend}" is not software or gpu`);
@@ -79,18 +86,7 @@ export async function motionCapture(): Promise<void> {
     .join(";");
 
   // Build every case first, so a bad name or filter costs no browser.
-  const cases: IMotionCaptureCase[] = [];
-  for (const name of names) {
-    const factory:
-      | ((only?: (name: string) => boolean) => Iterable<IMotionCaptureCase>)
-      | undefined = MOTION_CAPTURE_CASES[name];
-    if (factory === undefined) throw new Error(`Unknown case ${name}`);
-    const filter: ((name: string) => boolean) | undefined =
-      only === null ? undefined : (candidate: string): boolean => only.test(candidate);
-    for (const capture of factory(filter))
-      if (filter === undefined || filter(capture.name)) cases.push(capture);
-  }
-  if (cases.length === 0) throw new Error("No case matches --case and --only");
+  const cases: IMotionCaptureCase[] = buildMotionCaptureCases(names, only);
 
   let failed: number = 0;
   if (verdicts) {
@@ -98,6 +94,10 @@ export async function motionCapture(): Promise<void> {
     if (failed !== 0) process.exitCode = 1;
     return;
   }
+  // FFmpeg is found before the page is built, so a missing encoder costs no drawing.
+  const ffmpeg: string | null = video
+    ? resolveAutoMovieFfmpeg({ env: process.env, load: (id: string): unknown => loadAutoMovieProductionModule(ROOT, id) })
+    : null;
   const host: AutoMovieCaptureHost = await AutoMovieCaptureHost.open({
     root: ROOT,
     module: MODULE,
@@ -152,6 +152,19 @@ export async function motionCapture(): Promise<void> {
       for (const row of undrawn)
         if (row.state === "failed") console.log(`  not drawn ${row.name}: ${row.cause}`);
       failed += report(capture) + undrawn.length;
+
+      // The case's whole clock as a video, drawn by the same page.
+      if (ffmpeg !== null) {
+        const written: Awaited<ReturnType<typeof renderAutoMovieVideo>> = await renderAutoMovieVideo({
+          host,
+          root: ROOT,
+          subject: capture.name,
+          props,
+          out: path.join(ROOT, "media", "video", capture.name),
+          ffmpeg,
+        });
+        console.log(`  video ${written.video}: ${written.frames} frames`);
+      }
     }
   } finally {
     await host.close();

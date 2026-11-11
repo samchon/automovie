@@ -2,13 +2,13 @@ import type { AutoMovieCaptureBackend } from "./AutoMovieCaptureBackend";
 import type { IAutoMovieChromium } from "./IAutoMovieChromium";
 import { planAutoMovieChromiumLaunch } from "./planAutoMovieChromiumLaunch";
 
-/** The command that installs the Chromium build Playwright pins for headless use. */
-const INSTALL: string = "npx playwright install chromium-headless-shell";
+/** The command that installs the Chromium build the production's `playwright-core` pins for headless use; `playwright-core`'s own command, so the revision is the one the production launches. */
+const INSTALL: string = "npx playwright-core install chromium-headless-shell";
 
 /**
  * Launch headless Chromium for a capture backend, and describe the launch the way a record names it: the backend, then the Chromium version.
  *
- * A launch that fails because the browser executable is missing is rethrown as an error naming `npx playwright install chromium-headless-shell` and `CHROME_PATH`; any other failure is rethrown with the backend named.
+ * A launch that fails because the browser executable is missing is rethrown as an error naming `npx playwright-core install chromium-headless-shell` and `CHROME_PATH`; any other failure is rethrown with the backend named.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is launched, the description's form and both failures.
  * @evidence contracts/development/implementation.md#principled-implementation Switches come from `planAutoMovieChromiumLaunch`; Playwright reports a missing browser as an executable that does not exist, which is the message matched, so only that case is turned into the install instruction.

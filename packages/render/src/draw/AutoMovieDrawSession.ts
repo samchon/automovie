@@ -68,7 +68,7 @@ export class AutoMovieDrawSession {
    * It rejects when the page does not install the draw function within the timeout, naming the address, and when describing the subject fails or outlasts the timeout. A rejected open leaves the page with the caller.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the four steps, the refusals and who owns the page after a refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The props go in through an init script, which runs before the page's own modules, so the subject module reads them at its first line, as Remotion's renderer hands props to its bundle.
+   * @evidence contracts/development/implementation.md#principled-implementation The props go in through an init script, the JSON of the props assigned to their global, which runs before the page's own modules, so the subject module reads them at its first line, as Remotion's renderer hands props to its bundle.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Inject, load, wait, describe, each one page call.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing draw function is an error naming the address, never a fallback to screenshots.
    * @evidence contracts/development/implementation.md#efficient-algorithms Four page calls; describing creates the subject once, which every later picture reuses.
@@ -92,13 +92,9 @@ export class AutoMovieDrawSession {
     timeout: number;
   }): Promise<AutoMovieDrawSession> {
     const { page, timeout } = props;
-    await page.addInitScript(
-      (arg: { name: string; value: IAutoMovieDrawProps }): void => {
-        (globalThis as unknown as Record<string, unknown>)[arg.name] =
-          arg.value;
-      },
-      { name: AUTO_MOVIE_DRAW_GLOBALS.props, value: props.props },
-    );
+    await page.addInitScript({
+      content: `globalThis[${JSON.stringify(AUTO_MOVIE_DRAW_GLOBALS.props)}] = ${JSON.stringify(props.props)};`,
+    });
     await page.goto(props.url, { waitUntil: "load" });
     try {
       await page.waitForFunction(

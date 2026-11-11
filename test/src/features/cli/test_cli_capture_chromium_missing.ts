@@ -6,11 +6,11 @@ import { type IAutoMovieChromium, launchAutoMovieChromium } from "automovie";
  *
  * Scenarios:
  *
- * 1. A Chromium whose launch rejects with Playwright's "Executable doesn't exist at …" message makes the launch reject naming `npx playwright install chromium-headless-shell` and `CHROME_PATH`, keeping the original error as its cause.
+ * 1. A Chromium whose launch rejects with Playwright's "Executable doesn't exist at …" message makes the launch reject naming `npx playwright-core install chromium-headless-shell` and `CHROME_PATH`, keeping the original error as its cause.
  * 2. A launch rejecting for another reason rejects naming the backend, without the install instruction, and keeps its cause.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the launcher with Chromium doubles that reject and reads the error; a launcher that hid the install command, named it for an unrelated failure, or dropped the cause fails.
- * @evidence contracts/development/testing.md#independent-expectations The missing-browser message is the one Playwright prints for an absent executable, and the install command is Playwright's own for the headless shell, which the issue's case matrix requires the error to name.
+ * @evidence contracts/development/testing.md#independent-expectations The missing-browser message is the one Playwright prints for an absent executable, and the install command is `playwright-core`'s own for the headless shell, the package the production declares, so the browser revision is the one it launches, which the issue's case matrix requires the error to name.
  * @evidence contracts/development/testing.md#distinguishing-cases A missing executable against another failure. Successful launches are owned by `test_cli_capture_backends`.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_cli_capture_chromium_missing`; no browser exists or starts.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each naming the input and the behavior it pins.
@@ -37,7 +37,7 @@ export async function test_cli_capture_chromium_missing(): Promise<void> {
   TestValidator.predicate(
     "names the install command and CHROME_PATH",
     missing !== null &&
-      missing.message.includes("npx playwright install chromium-headless-shell") &&
+      missing.message.includes("npx playwright-core install chromium-headless-shell") &&
       missing.message.includes("CHROME_PATH"),
   );
   TestValidator.predicate(

@@ -116,8 +116,10 @@ A workspace keeps several productions under one `AGENTS.md`, `CLAUDE.md` and `.a
 npx automovie create <directory> [--workspace] [--name <name>] [--force]
 pnpm automovie add <shorts|series>/<name> [--name <name>] [--force]
 npx automovie sync <directory> [--check] [--baseline <directory>]
-automovie capture --module <file> [--backend software|gpu] [--out <dir>] [<request>]
+automovie capture --module <file> [--props <json>] [--backend software|gpu] [--out <dir>] [<request>]
 automovie capture --file <video> [--out <dir>] [<request>]
+automovie render --module <file> [--subject <name>] [--props <json>] [--out <dir>] [--backend software|gpu]
+automovie review --url <inspector address> --seconds <s> [--out <dir>]
 ```
 
 ### create
@@ -136,7 +138,15 @@ automovie capture --file <video> [--out <dir>] [<request>]
 
 ### capture
 
-`capture` runs in a production, which `npm run capture` does with `--module src/subjects.ts`. It builds a draw-only page for the module's subjects with the production's Vite, draws every planned still in headless Chromium through `@automovie/render`'s draw function, with SwiftShader unless `--backend gpu`, and writes stills, contact sheets and `record.json` into `--out` or `media/capture/<subject>`. `--file` captures a video file's own frames with FFmpeg from `FFMPEG_PATH` or `ffmpeg-static` instead. The remaining options are the capture request: `--subject`, the seconds, views, passes, inspection and rounds. Playwright's `npx playwright install chromium-headless-shell` installs the browser, and `CHROME_PATH` selects another. It exits 1 when a cell could not be drawn.
+`capture` runs in a production, which `npm run capture` does with `--module src/subjects.ts`. It builds a draw-only page for the module's subjects with the production's Vite, draws every planned still in headless Chromium through `@automovie/render`'s draw function, with SwiftShader unless `--backend gpu`, and writes stills, contact sheets and `record.json` into `--out` or `media/capture/<subject>`. `--props <json>` passes a module the data its subjects are built from, and `--file` captures a video file's own frames with FFmpeg from `FFMPEG_PATH` or `ffmpeg-static` instead. The remaining options are the capture request: `--subject`, the seconds, views, passes, inspection and rounds. `npx playwright-core install chromium-headless-shell` installs the browser, and `CHROME_PATH` selects another. It exits 1 when a cell could not be drawn.
+
+### render
+
+`render` runs in a production, which `npm run render` does with `--module src/subjects.ts`. It draws every frame of one subject, `--subject` or the module's only one, through the same draw page and function as `capture`, and encodes them once with FFmpeg into `film.mp4` with `render-report.json` beside it, in `--out` or `media/automovie/<subject>/videos`. `--props <json>` passes a module the data its subjects are built from.
+
+### review
+
+`review` records real-time playback of the production's running inspector page, `npm run dev`, at `--url` for `--seconds` of wall time after pressing its Play button, into a video with `playback.json` of the readings and page errors, in `--out` or `media/automovie/review`. `npx playwright-core install ffmpeg` provides the recorder. It exits 1 when the page reported a script error.
 
 ## Packages
 

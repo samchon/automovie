@@ -14,6 +14,8 @@ import * as path from "node:path";
 import type { AutoMovieCommand } from "./AutoMovieCommand";
 import { captureAutoMovie } from "./captureAutoMovie";
 import { inspectAutoMovie } from "./inspectAutoMovie";
+import { renderAutoMovie } from "./renderAutoMovie";
+import { reviewAutoMovie } from "./reviewAutoMovie";
 import type { IAutoMoviePackageManager } from "./IAutoMoviePackageManager";
 import { deriveAutoMovieProjectName } from "./deriveAutoMovieProjectName";
 import { promptAutoMovieProjectName } from "./promptAutoMovieProjectName";
@@ -22,15 +24,17 @@ import { renderAutoMovieScaffoldNextSteps } from "./renderAutoMovieScaffoldNextS
 import { selectAutoMoviePackageManager } from "./selectAutoMoviePackageManager";
 import { selectAutoMovieProjectName } from "./selectAutoMovieProjectName";
 
-const USAGE: string = `automovie: scaffold an automovie project and capture its stills
+const USAGE: string = `automovie: scaffold an automovie project, and capture, render and review it
 
 Usage:
   npx automovie create <directory> [--workspace] [--name <name>] [--force]
   pnpm automovie add <shorts|series>/<name> [--name <name>] [--force]
   npx automovie sync <directory> [--check] [--baseline <directory>]
-  automovie capture --module <file> [--backend software|gpu] [--out <dir>] [<request>]
+  automovie capture --module <file> [--props <json>] [--backend software|gpu] [--out <dir>] [<request>]
   automovie capture --file <video> [--out <dir>] [<request>]
   automovie inspect --module <file> [--props <json>] [--port <n>] [<request>]
+  automovie render --module <file> [--subject <name>] [--props <json>] [--out <dir>] [--backend software|gpu]
+  automovie review --url <inspector address> --seconds <s> [--out <dir>]
 
 Commands:
   create          A single production, or with --workspace a pnpm workspace
@@ -47,6 +51,12 @@ Commands:
                   subjects a module offers and print its address, whose query
                   is the request. Needs @automovie/render, @automovie/viewer,
                   react, react-dom and vite there; Ctrl+C stops it.
+  render          In a production, draw every frame of one subject through the
+                  draw page in headless Chromium and encode film.mp4 with
+                  render-report.json. Needs what capture needs, and FFmpeg.
+  review          Record real-time playback of the running inspector page as a
+                  video with playback.json. Needs playwright-core and
+                  Playwright's ffmpeg (npx playwright-core install ffmpeg).
 
 Options:
   --workspace     Create a pnpm workspace root instead of a single production.
@@ -56,17 +66,22 @@ Options:
   --check         Report a sync plan; exit 1 when updates or conflicts remain.
   --baseline      Previous adopted instructions the files came from; they
                   override the stored sync state for the files they hold.
-  --module        capture, inspect: the module whose subjects(props) the page
-                  draws.
+  --module        capture, inspect, render: the module whose subjects(props)
+                  the page draws.
   --port          inspect: the port to serve on; default a free port.
-  --props         inspect: a JSON file the module's subjects(props) is called
-                  with; default null.
+  --props         capture, inspect, render: a JSON file the module's subjects(props) is
+                  called with; default null.
   --file          capture: an encoded video file instead of a subject.
-  --backend       capture: software (SwiftShader, the default) or gpu.
+  --backend       capture, render: software (SwiftShader, the default) or gpu.
   --out           capture: the folder; default media/capture/<subject>.
+                  render: default media/automovie/<subject>/videos.
+                  review: default media/automovie/review.
+  --url           review: the running inspector page's address.
+  --seconds       review: wall-clock seconds of playback recorded.
   <request>       capture, inspect: --subject, --at, --from, --to, --rate, --events,
                   --views, --passes, --marks, --label, --round, --compare and
-                  every other key of the capture request grammar.
+                  every other key of the capture request grammar; render takes
+                  --subject alone, the subject rendered, default the only one.
   -h, --help      Show this help as a standalone request.
   -v, --version   Print the version as a standalone request.
 `;
@@ -80,6 +95,8 @@ Options:
  * - `sync` plans explicit generated-instruction updates for the directory holding `AGENTS.md`, preserves project contracts and content and refuses local conflicts; check reports pending updates without writing.
  * - `capture` runs `captureAutoMovie` in the working directory as the production, resolving to its status: 1 when a cell was not drawn.
  * - `inspect` runs `inspectAutoMovie` in the working directory, serving the inspector page until the process is interrupted.
+ * - `render` runs `renderAutoMovie` in the working directory as the production, resolving to 0 once the video is written.
+ * - `review` runs `reviewAutoMovie`, resolving to 1 when the recorded page reported a script error.
  *
  * `create` and `add` refuse a non-empty target without `--force`. On success they list the written files relative to the target, then the next steps. Completed and partial file effects stay after failure; the error names the completed files and the stopping entry. Prepared directories can remain even when no file was written.
  *
@@ -117,6 +134,10 @@ export async function run(argv: readonly string[]): Promise<number> {
       });
     if (command.command === "inspect")
       return await inspectAutoMovie({ args: command.args, root: process.cwd() });
+    if (command.command === "render")
+      return await renderAutoMovie({ args: command.args, root: process.cwd(), env: process.env });
+    if (command.command === "review")
+      return await reviewAutoMovie({ args: command.args, root: process.cwd(), env: process.env });
     if (command.command === "sync") {
       const targetDir: string = path.resolve(process.cwd(), command.directory);
       const result: ReturnType<typeof syncScaffold> = syncScaffold({

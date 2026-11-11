@@ -17,7 +17,13 @@ export interface IMotionCaptureProps extends IMotionCaptureOverlays {
   /** The case's name, which is the subject's name. */
   name: string;
 
-  /** The instants the figures are posed at, seconds, in the case's order; `poses` align with them. */
+  /** Frames per second of the case's grid. */
+  fps: number;
+
+  /** Running time in seconds, a whole number of grid frames past the last instant. */
+  durationSeconds: number;
+
+  /** The seconds the figures are posed at: the case's instants in its order, then the grid's other frames; `poses` align with them. */
   seconds: number[];
 
   /** The instants drawn, each named by the case's label, as `planMotionCaptureInstants` plans them. */

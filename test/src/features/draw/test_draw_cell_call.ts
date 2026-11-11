@@ -66,7 +66,7 @@ export async function test_draw_cell_call(): Promise<void> {
   TestValidator.equals(
     "the props are injected under the draw props global",
     double.calls[0]!.arg,
-    { name: "__automovieDrawProps", value: { subject: "duel", props: { seed: 3 } } },
+    'globalThis["__automovieDrawProps"] = {"subject":"duel","props":{"seed":3}};',
   );
   TestValidator.equals("the session plans against the described subject", session.subject, SUBJECT);
 

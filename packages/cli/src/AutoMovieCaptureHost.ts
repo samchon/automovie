@@ -13,9 +13,9 @@ import { serveAutoMovieDrawPage } from "./serveAutoMovieDrawPage";
 const TIMEOUT: number = 120_000;
 
 /**
- * The Node host that draws a production's subjects in headless Chromium: one built draw page, one browser, and any number of captures through them.
+ * The Node host that draws a production's subjects in headless Chromium: one built draw page, one browser, and any number of sessions, captures and renders through them.
  *
- * `open` loads `@automovie/render`, `vite` and `playwright-core` from the production, builds and serves the draw page for a subject module, and launches Chromium with the asked backend. Each `capture` opens a fresh page with the subject and props injected before it loads, describes the subject, plans the request against it, and runs the capture core with `node:fs/promises` as storage and the page's draw function as the draw, so every saved picture comes from the draw function. `close` ends the browser and the server and deletes the built page. The `automovie capture` command uses one host for one capture; a package with many subjects, such as the motion cases, uses one host for all of them.
+ * `open` loads `@automovie/render`, `vite` and `playwright-core` from the production, builds and serves the draw page for a subject module, and launches Chromium with the asked backend. Each `capture` opens a fresh page with the subject and props injected before it loads, describes the subject, plans the request against it, and runs the capture core with `node:fs/promises` as storage and the page's draw function as the draw, so every saved picture comes from the draw function. `close` ends the browser and the server and deletes the built page. `session` opens one subject for any other host that draws through the page, such as `renderAutoMovieVideo`. The `automovie capture` and `automovie render` commands use one host for one subject; a package with many subjects, such as the motion cases, uses one host for all of them.
  *
  * ```ts
  * const host = await AutoMovieCaptureHost.open({ root, module: "src/subjects.ts", backend: "software", env: process.env });
@@ -32,8 +32,8 @@ const TIMEOUT: number = 120_000;
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No subject kind is named; the module and its props say what is drawn.
  */
 export class AutoMovieCaptureHost {
-  /** The production's `@automovie/render`. */
-  private readonly render: typeof Render;
+  /** The production's `@automovie/render`, which drew the page; a host that draws through `session` uses it for the rules it applies. */
+  public readonly render: typeof Render;
 
   /** The backend and Chromium version, such as `swiftshader; Chromium 131.0.6778.33`. */
   public readonly backend: string;
@@ -127,6 +127,41 @@ export class AutoMovieCaptureHost {
   }
 
   /**
+   * Open a fresh page of the served draw page with a subject and its props injected before it loads, and describe the subject through it.
+   *
+   * The returned session owns the page; the caller closes it. A page that installs no draw function or cannot describe its subject rejects, and the page is closed first.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is opened and injected, who closes it, and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation Every picture of a capture or a render comes through one such session, so both hosts draw through the same function.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One page, one session open, one close on failure.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A failed open is reported, never retried.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One page per call.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call is a fresh page, because props differ between subjects.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The page passes to the returned session, or is closed here when opening fails.
+   */
+  public async session(props: {
+    /** Name of the subject, or null for the page's only subject. */
+    subject: string | null;
+
+    /** Data the subject module reads, as JSON, or null. */
+    props: unknown;
+  }): Promise<Render.AutoMovieDrawSession> {
+    const page: Render.IAutoMovieDrawPage = await this.browser.newPage();
+    try {
+      return await this.render.AutoMovieDrawSession.open({
+        page,
+        url: this.page.url,
+        props: { subject: props.subject, props: props.props },
+        backend: this.backend,
+        timeout: TIMEOUT,
+      });
+    } catch (error) {
+      await page.close();
+      throw error;
+    }
+  }
+
+  /**
    * Capture one subject: open a page with the subject and props injected, plan the request against what it describes, and draw every cell into the folder at `out`.
    *
    * The revision recorded is the production's git commit. It rejects what the planner or the folder refuses before anything is drawn, and a page that installs no draw function; the page is closed on every outcome.
@@ -153,20 +188,10 @@ export class AutoMovieCaptureHost {
     section?: Readonly<Record<string, unknown>>;
   }): Promise<Extract<Render.IAutoMovieCaptureRecord, { state: "complete" }>> {
     const { render } = this;
-    const page: Render.IAutoMovieDrawPage = await this.browser.newPage();
-    let session: Render.AutoMovieDrawSession;
-    try {
-      session = await render.AutoMovieDrawSession.open({
-        page,
-        url: this.page.url,
-        props: { subject: props.request.subject, props: props.props },
-        backend: this.backend,
-        timeout: TIMEOUT,
-      });
-    } catch (error) {
-      await page.close();
-      throw error;
-    }
+    const session: Render.AutoMovieDrawSession = await this.session({
+      subject: props.request.subject,
+      props: props.props,
+    });
     try {
       const plan: Render.IAutoMovieCapturePlan = render.planAutoMovieCapture({
         request: props.request,
