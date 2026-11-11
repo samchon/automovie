@@ -417,7 +417,16 @@ namespace FamilyConicBody {
         }
         best = { layout: wall.layout, knots: wall.knots, values: wall.values, rows: [], training: { maximumMm: NaN, meanMm: NaN }, heldout: { maximumMm: NaN, meanMm: NaN }, fault: null, milliseconds: 0 } as unknown as F.IResult;
       }
-      for (const { layout, depth } of reuse === undefined ? part.layouts : []) {
+      // `--deepen=<directory>`: the stored wall of an earlier run is cut once more, every arc at its median, and fitted again on the same knots,
+      // with no growth and no pruning: twice the conics round each section for the same stations.
+      const deepen: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--deepen="))?.slice(9);
+      let deeper: number = 0;
+      if (deepen !== undefined) {
+        const wall: K.IStored = JSON.parse(await fs.readFile(path.join(deepen, part.name + ".family.json"), "utf8")) as K.IStored;
+        deeper = Math.round(Math.log2(wall.layout.anchors.length / 4)) + 1;
+        best = { layout: wall.layout, knots: wall.knots, values: wall.values, rows: [], training: { maximumMm: NaN, meanMm: NaN }, heldout: { maximumMm: NaN, meanMm: NaN }, fault: null, milliseconds: 0 } as unknown as F.IResult;
+      }
+      for (const { layout, depth } of reuse !== undefined ? [] : deepen !== undefined ? [{ layout: C.limb(deeper), depth: deeper }] : part.layouts) {
         // A deeper layout starts from the shallower one's final knots and values, cut exactly at every arc's median.
         const knots0: number[] = best === null ? [domain[0], (domain[0] + domain[1]) / 2, domain[1]] : [...best.knots];
         let result: F.IResult = attempt(knots0, layout, best === null ? undefined : F.refine(best.values, depth - 1), "depth " + depth);
@@ -427,7 +436,7 @@ namespace FamilyConicBody {
         // Going on from a dropped round instead carried a failed solve into every later one and left the trunk and the leg above 2 mm.
         const refused: Set<number> = new Set();
         let idle: number = 0;
-        while (result.fault === null && result.training.maximumMm > 0.9 * TARGET_MM && idle < 3) {
+        while (deepen === undefined && result.fault === null && result.training.maximumMm > 0.9 * TARGET_MM && idle < 3) {
           const held: F.IResult = result;
           const open: F.IResult["rows"] = held.rows.filter((r: F.IResult["rows"][number]): boolean => !r.heldout && !refused.has(r.s) && r.maximumMm > 0.9 * TARGET_MM && held.knots.every((k: number): boolean => Math.abs(k - r.s) >= gap(r.s))).sort((a, b) => b.maximumMm - a.maximumMm);
           const added: number[] = [];
@@ -443,12 +452,12 @@ namespace FamilyConicBody {
             ++idle;
           }
         }
-        if (result.fault === null && (best === null || result.training.maximumMm < 0.97 * best.training.maximumMm || result.training.meanMm < 0.9 * best.training.meanMm)) best = result;
+        if (result.fault === null && (best === null || deepen !== undefined || result.training.maximumMm < 0.97 * best.training.maximumMm || result.training.meanMm < 0.9 * best.training.meanMm)) best = result;
         if (best !== null && best.training.maximumMm <= 0.9 * TARGET_MM) break;
       }
 
       // Prune: drop every knot whose removal keeps the maximum and the mean within 3 % and 5 % of the grown family.
-      if (best !== null && reuse === undefined) {
+      if (best !== null && reuse === undefined && deepen === undefined) {
         // The limits are read from the grown family under the same plain pass the trials run, so a trial is compared like for like. The grown
         // family itself stays: the thinned one replaces it only if, refitted with the reweighted passes, its mean is within 10 % of the grown one's.
         const base: F.IResult = attempt(best.knots, best.layout, best.values, "prune base", 2);
@@ -587,7 +596,7 @@ namespace FamilyConicBody {
 
       // The authored module: the same definition as TypeScript, written beside the receipt and, with --emit, into the Human package.
       if (tip !== null) definition.tips = [null, { from: part.cap ?? domain[1], tip }];
-      const moduleText: string = emit({ ...part, domain }, definition, C.units(definition.layout).length === C.units(C.limb(0)).length ? 0 : 1, engine, rows.length);
+      const moduleText: string = emit({ ...part, domain }, definition, Math.round(Math.log2(definition.layout.anchors.length / 4)), engine, rows.length);
       await fs.writeFile(path.join(out, moduleName(part.name) + ".ts"), moduleText);
       if (process.argv.includes("--emit")) await fs.writeFile(path.join(root, "packages/human/src/generation/f1", moduleName(part.name) + ".ts"), moduleText);
     }
