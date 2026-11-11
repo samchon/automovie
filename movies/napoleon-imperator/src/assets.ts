@@ -3,7 +3,7 @@ import type {
   AutoMoviePrimitiveShape,
   IAutoMovieModel,
 } from "@automovie/interface";
-import { buildModel } from "@automovie/viewer";
+import { buildModel } from "@automovie/render";
 import * as THREE from "three";
 
 const UP = new THREE.Vector3(0, 1, 0);

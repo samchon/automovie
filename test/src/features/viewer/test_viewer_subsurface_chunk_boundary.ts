@@ -1,4 +1,4 @@
-import { SUBSURFACE_TARGET, subsurfacePhysicalChunk } from "@automovie/viewer";
+import { SUBSURFACE_TARGET, subsurfacePhysicalChunk } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

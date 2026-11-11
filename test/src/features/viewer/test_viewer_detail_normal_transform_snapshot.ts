@@ -1,4 +1,4 @@
-import { createDetailNormalShaderPatch } from "@automovie/viewer";
+import { createDetailNormalShaderPatch } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

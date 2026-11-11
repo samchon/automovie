@@ -1,4 +1,4 @@
-import type { IAutoMovieRasterImage } from "@automovie/viewer";
+import type { IAutoMovieRasterImage } from "@automovie/render";
 import { readFile } from "node:fs/promises";
 import { PNG } from "pngjs";
 

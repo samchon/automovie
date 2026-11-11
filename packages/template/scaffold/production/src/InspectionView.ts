@@ -1,4 +1,4 @@
-import type { IAutoMovieViewerViewpoint } from "@automovie/viewer";
+import type { IAutoMovieViewerViewpoint } from "@automovie/render";
 
 /**
  * One camera an inspection draws through, as `planInspectionViews` reads it from a view request.

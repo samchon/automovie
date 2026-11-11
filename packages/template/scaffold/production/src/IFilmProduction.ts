@@ -3,7 +3,7 @@ import type {
   IAutoMovieContactReceipt,
   IAutoMoviePhysicalProfile,
 } from "@automovie/interface";
-import type { IAutoMovieInspectionConstruction } from "@automovie/viewer";
+import type { IAutoMovieInspectionConstruction } from "@automovie/render";
 import type * as THREE from "three";
 
 /**

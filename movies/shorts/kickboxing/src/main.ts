@@ -1,8 +1,5 @@
-import {
-  createAutoMoviePerformanceOverlay,
-  mountViewer,
-  type IAutoMovieViewerHandle,
-} from "@automovie/viewer";
+import { createAutoMoviePerformanceOverlay } from "@automovie/render";
+import { mountViewer, type IAutoMovieViewerHandle } from "@automovie/viewer";
 
 import type { IFilm } from "./IFilm";
 import type { IFilmProduction } from "./IFilmProduction";

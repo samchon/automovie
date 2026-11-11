@@ -4,7 +4,7 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { createAutoMovieHumanPolygonFigure } from "@automovie/viewer";
+import { createAutoMovieHumanPolygonFigure } from "@automovie/render";
 import * as THREE from "three";
 
 import type { RefereeBody } from "./RefereeBody";

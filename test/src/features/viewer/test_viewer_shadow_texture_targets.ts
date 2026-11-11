@@ -2,7 +2,7 @@ import { measureAutoMovieRenderTextureTarget } from "@automovie/engine";
 import {
   type IAutoMovieShadowTextureHost,
   readAutoMovieShadowTextureTargets,
-} from "@automovie/viewer";
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import type * as ThreeTypes from "three";
 

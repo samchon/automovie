@@ -16,8 +16,8 @@ import {
   assessAutoMovieRenderBudget,
   autoMovieRenderBudgetEvidence,
   autoMovieRenderBudgetRefusal,
+  readAutoMovieTextureSource,
 } from "@automovie/render";
-import { readAutoMovieTextureSource } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import type { DataTexture } from "three";
 

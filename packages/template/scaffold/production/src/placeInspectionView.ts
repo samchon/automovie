@@ -3,7 +3,7 @@ import {
   type IAutoMovieViewerSubjectPose,
   applyAutoMovieViewerSubjectPose,
   frameAutoMovieViewerSubject,
-} from "@automovie/viewer";
+} from "@automovie/render";
 import type * as THREE from "three";
 
 import type { IFilmProduction } from "./IFilmProduction";

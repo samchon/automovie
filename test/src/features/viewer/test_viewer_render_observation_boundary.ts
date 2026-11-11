@@ -2,8 +2,10 @@ import type {
   IAutoMovieRenderObservation,
   IAutoMovieRenderReport,
 } from "@automovie/interface";
-import { auditAutoMovieRenderObservation } from "@automovie/render";
-import { observeAutoMovieRendererFrame } from "@automovie/viewer";
+import {
+  auditAutoMovieRenderObservation,
+  observeAutoMovieRendererFrame,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import type * as THREE from "three";
 

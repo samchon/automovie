@@ -1,17 +1,18 @@
 # @automovie/viewer
 
-Draws AutoMovie output with Three.js. It builds Three.js objects from `@automovie/interface` models and scenes, applies poses, expressions and motion on one frame clock, and captures or inspects the result. The engine decides what a frame contains and the viewer only draws it. This is the one AutoMovie package that imports `three`.
+Displays AutoMovie output interactively: it mounts a canvas, runs the playback loop, saves snapshots, plays audio cues and provides the transport and review controls. Building Three.js objects from `@automovie/interface` models and scenes, applying state at a time, the guide passes, inspection, the polygon man and the CPU rasterizer belong to `@automovie/render`, and the entry points below other than mounting, display and transport are imported from there. `render` and `viewer` are the AutoMovie packages that import `three`.
 
 It has no editor controls and no example content. A host, the program that mounts it, can be a browser page or a headless capture process.
 
 ## Use
 
 ```bash
-npm install @automovie/viewer @automovie/interface three
+npm install @automovie/viewer @automovie/render @automovie/interface three
 ```
 
 ```ts
-import { buildModel, mountViewer } from "@automovie/viewer";
+import { buildModel } from "@automovie/render";
+import { mountViewer } from "@automovie/viewer";
 import type { IAutoMovieModel } from "@automovie/interface";
 import * as THREE from "three";
 
@@ -60,7 +61,7 @@ Formations, effects, fluids, soft bodies, section planes and the metric capture 
 | Where the scene is cut | `section`, a world-space plane; in the browser a film's own shader material is cut only when its shader includes three.js's clipping chunks |
 
 ```ts
-import { applyAutoMovieInspection, parseAutoMovieInspectionRequest, rasterizeAutoMovieScene } from "@automovie/viewer";
+import { applyAutoMovieInspection, parseAutoMovieInspectionRequest, rasterizeAutoMovieScene } from "@automovie/render";
 
 const request = parseAutoMovieInspectionRequest((key) => url.searchParams.get(key));
 const inspection = applyAutoMovieInspection({ scene, request, constructions });

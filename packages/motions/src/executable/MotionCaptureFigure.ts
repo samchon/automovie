@@ -3,7 +3,7 @@ import type { IAutoMoviePose } from "@automovie/interface";
 import {
   type AutoMovieHumanPolygon,
   buildHumanPolygon,
-} from "@automovie/viewer";
+} from "@automovie/render";
 import * as THREE from "three";
 
 /**

@@ -1,7 +1,7 @@
 import {
   type IAutoMovieInspectionRequest,
   parseAutoMovieInspectionRequest,
-} from "@automovie/viewer";
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**

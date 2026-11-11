@@ -2,7 +2,7 @@ import type {
   IAutoMovieScene,
   IAutoMovieSemanticMask,
 } from "@automovie/interface";
-import type { IAutoMovieFormationCycle } from "@automovie/viewer";
+import type { IAutoMovieFormationCycle } from "@automovie/render";
 import * as THREE from "three";
 
 /** Existing route-only cycle input; tests its material hook key, not deformation or full bake validity. */

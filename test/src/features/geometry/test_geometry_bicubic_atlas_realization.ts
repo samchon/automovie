@@ -1,6 +1,6 @@
 import { realizeAutoMovieBicubicAtlas64 } from "@automovie/engine";
 import type { IAutoMovieBicubicAtlasGeometry } from "@automovie/interface";
-import { buildGeometry } from "@automovie/viewer";
+import { buildGeometry } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { bicubicAtlasRealizationOracle as R } from "../internal/bicubicAtlasRealizationOracle";

@@ -43,7 +43,6 @@
     "@napi-rs/canvas": "1.0.1",
     "@playwright/mcp": "catalog:media",
     "@automovie/render": "workspace:^",
-    "@automovie/viewer": "workspace:^",
     "@types/three": "catalog:three",
     "playwright-core": "catalog:media",
     "three": "catalog:three",

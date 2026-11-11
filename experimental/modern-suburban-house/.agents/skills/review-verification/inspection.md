@@ -65,7 +65,7 @@ Inspection pictures do not discharge delivery-frame obligations. A sectioned, is
 
 A building cannot be judged from outside, because the outside is what hides the inside, and a camera moved into a room shows that room only. Cut the resolved scene instead. `IAutoMovieSectionPlane` declares one half-space to REMOVE, as a coplanar `point` and a `normal` pointing at the removed side.
 
-Keep the execution environments distinct. `classifyAutoMovieSectionPlaneBox` is an `@automovie/engine` calculation over `{ planes, min, max }` that answers `kept`, `cut`, or `crossed` for a subject's bound. `applyAutoMovieSectionPlanes` is an `@automovie/viewer` call over `{ renderer, root, planes }` that clips the materials of an already-built scene and requires a live browser renderer. Both are authored under `src`; only the pure calculation can run in a Node measurement module.
+Keep the execution environments distinct. `classifyAutoMovieSectionPlaneBox` is an `@automovie/engine` calculation over `{ planes, min, max }` that answers `kept`, `cut`, or `crossed` for a subject's bound. `applyAutoMovieSectionPlanes` is an `@automovie/render` call over `{ renderer, root, planes }` that clips the materials of an already-built scene and requires a live browser renderer. Both are authored under `src`; only the pure calculation can run in a Node measurement module.
 
 Derive an inspection cut from the measured subject and camera. It may remove intervening geometry but must not remove the subject being judged. State the cut explicitly in the observation basis.
 

@@ -1,7 +1,7 @@
 import {
   type IAutoMovieViewerViewpoint,
   autoMovieViewerNamedViewpoints,
-} from "@automovie/viewer";
+} from "@automovie/render";
 
 import type { InspectionView } from "./InspectionView";
 

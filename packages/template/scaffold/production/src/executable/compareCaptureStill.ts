@@ -2,7 +2,7 @@ import {
   type IAutoMovieRasterComparison,
   type IAutoMovieRasterImage,
   compareAutoMovieRasters,
-} from "@automovie/viewer";
+} from "@automovie/render";
 
 /**
  * Compare one still against the still of the same name in an earlier round.

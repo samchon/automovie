@@ -8,7 +8,7 @@ import {
   createAutoMovieTrail,
   encodeAutoMovieRasterPng,
   rasterizeAutoMovieScene,
-} from "@automovie/viewer";
+} from "@automovie/render";
 import { mkdir, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import * as THREE from "three";

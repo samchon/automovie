@@ -1,4 +1,4 @@
-import { buildModel, flattenInstancedObject } from "@automovie/viewer";
+import { buildModel, flattenInstancedObject } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -29,7 +29,7 @@ export function test_viewer_vertex_colour_imported_instancing(): void {
     colors: _colors,
     ...bare
   }: import("@automovie/interface").IAutoMovieMesh = colored;
-  const built: import("@automovie/viewer").IAutoMovieModelObject = buildModel(
+  const built: import("@automovie/render").IAutoMovieModelObject = buildModel(
     vertexColourModel([colored, colored, bare]),
   );
   const parts: THREE.Mesh<

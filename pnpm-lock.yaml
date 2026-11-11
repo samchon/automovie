@@ -319,9 +319,6 @@ importers:
       '@automovie/render':
         specifier: workspace:^
         version: link:../../packages/render
-      '@automovie/viewer':
-        specifier: workspace:^
-        version: link:../../packages/viewer
       automovie:
         specifier: workspace:^
         version: link:../../packages/cli
@@ -712,9 +709,6 @@ importers:
       '@automovie/render':
         specifier: workspace:^
         version: link:../render
-      '@automovie/viewer':
-        specifier: workspace:^
-        version: link:../viewer
       '@napi-rs/canvas':
         specifier: 1.0.1
         version: 1.0.1
@@ -819,9 +813,9 @@ importers:
       '@automovie/human':
         specifier: workspace:^
         version: link:../human
-      '@automovie/viewer':
+      '@automovie/render':
         specifier: workspace:^
-        version: link:../viewer
+        version: link:../render
       '@ttsc/evidence':
         specifier: catalog:samchon
         version: 0.36.3(@ttsc/lint@0.36.3(ttsc@0.36.3(typescript@7.0.2)))
@@ -898,6 +892,9 @@ importers:
       mp4box:
         specifier: catalog:media
         version: 2.4.1
+      three:
+        specifier: catalog:three
+        version: 0.186.0
     devDependencies:
       '@ttsc/evidence':
         specifier: catalog:samchon
@@ -905,6 +902,12 @@ importers:
       '@ttsc/lint':
         specifier: catalog:samchon
         version: 0.36.3(ttsc@0.36.3(typescript@7.0.2))
+      '@types/node':
+        specifier: catalog:utils
+        version: 22.19.20
+      '@types/three':
+        specifier: catalog:three
+        version: 0.186.0
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
         version: 0.8.2(ttsc@0.36.3(typescript@7.0.2))
@@ -954,12 +957,9 @@ importers:
 
   packages/viewer:
     dependencies:
-      '@automovie/engine':
+      '@automovie/render':
         specifier: workspace:^
-        version: link:../engine
-      '@automovie/interface':
-        specifier: workspace:^
-        version: link:../interface
+        version: link:../render
       three:
         specifier: catalog:three
         version: 0.186.0

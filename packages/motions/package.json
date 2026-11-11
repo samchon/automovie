@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "@automovie/human": "workspace:^",
-    "@automovie/viewer": "workspace:^",
+    "@automovie/render": "workspace:^",
     "@ttsc/evidence": "catalog:samchon",
     "@ttsc/lint": "catalog:samchon",
     "@types/node": "catalog:utils",

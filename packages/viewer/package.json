@@ -38,8 +38,7 @@
     "url": "https://github.com/samchon/automovie"
   },
   "dependencies": {
-    "@automovie/engine": "workspace:^",
-    "@automovie/interface": "workspace:^",
+    "@automovie/render": "workspace:^",
     "three": "catalog:three"
   },
   "devDependencies": {

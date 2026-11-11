@@ -1,4 +1,4 @@
-import { encodeAutoMovieRasterPng } from "@automovie/viewer";
+import { encodeAutoMovieRasterPng } from "@automovie/render";
 import { readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 

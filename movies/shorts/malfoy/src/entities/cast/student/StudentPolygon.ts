@@ -1,6 +1,9 @@
 import type { AutoMovieHumanSkeleton } from "@automovie/human";
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { type AutoMovieHumanPolygon, buildHumanPolygon } from "@automovie/viewer";
+import {
+  type AutoMovieHumanPolygon,
+  buildHumanPolygon,
+} from "@automovie/render";
 import * as THREE from "three";
 
 import type { IStudentProfile } from "./IStudentProfile";

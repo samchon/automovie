@@ -3,7 +3,7 @@
 // the visual scene. The formal asset string stays in each material binding;
 // only its URL is resolved here, so the module runs from any bundler root.
 import { TextureLoader } from "three";
-import { AutoMovieTextureCache } from "@automovie/viewer";
+import { AutoMovieTextureCache } from "@automovie/render";
 import { manorTextureBindings } from "../materials/manor";
 import { createManorScene } from "../models/manor";
 import { deriveManorInstanceInventory } from "./manor-inventory";

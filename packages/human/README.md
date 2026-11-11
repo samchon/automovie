@@ -31,16 +31,16 @@ const body = AutoMovieHumanCanonicalBody.prepare(parameters, { mass: 72, id: "a"
 
 ## Polygon man
 
-The polygon man is drawn by `@automovie/viewer` from the canonical body, and posed with canonical poses such as the ones `@automovie/motions` samples.
+The polygon man is drawn by `@automovie/render` from the canonical body, and posed with canonical poses such as the ones `@automovie/motions` samples.
 
 ```bash
-npm install @automovie/viewer @automovie/interface three
+npm install @automovie/render @automovie/interface three
 ```
 
 ```ts
 import { AutoMovieHumanCanonicalBody, type IAutoMovieHumanParameters } from "@automovie/human";
 import type { IAutoMoviePose } from "@automovie/interface";
-import { buildHumanPolygon } from "@automovie/viewer";
+import { buildHumanPolygon } from "@automovie/render";
 import * as THREE from "three";
 
 declare const parameters: IAutoMovieHumanParameters;

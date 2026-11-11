@@ -1,4 +1,4 @@
-import type { IAutoMovieRasterImage } from "@automovie/viewer";
+import type { IAutoMovieRasterImage } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { compareCaptureStill } from "../../../src/executable/compareCaptureStill";

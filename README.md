@@ -143,8 +143,8 @@ npx automovie sync <directory> [--check] [--baseline <directory>]
 | [`@automovie/motions`](https://github.com/samchon/automovie/tree/master/packages/motions) | Human actions, such as walk, sit and pick up, as deterministic laws scaled to the body |
 | [`@automovie/ingest`](https://github.com/samchon/automovie/tree/master/packages/ingest) | Deterministic import of glTF, GLB, VRM, WAVE and PPM inputs |
 | [`@automovie/recovery`](https://github.com/samchon/automovie/tree/master/packages/recovery) | Curves recovered from a reference mesh, and geometry rebuilt from them |
-| [`@automovie/viewer`](https://github.com/samchon/automovie/tree/master/packages/viewer) | Three.js display, capture and inspection |
-| [`@automovie/render`](https://github.com/samchon/automovie/tree/master/packages/render) | Frame schedules, edit timelines and encoder plans, with capture and encoding supplied by the calling program |
+| [`@automovie/viewer`](https://github.com/samchon/automovie/tree/master/packages/viewer) | Interactive Three.js display: canvas mount, playback, snapshot saving and transport controls |
+| [`@automovie/render`](https://github.com/samchon/automovie/tree/master/packages/render) | Three.js scene building, passes, inspection and the polygon man, plus frame schedules, edit timelines and encoder plans, with capture and encoding supplied by the calling program |
 | [`@automovie/evidence`](https://github.com/samchon/automovie/tree/master/packages/evidence) | Checks that a production's code and writing answer their checklists |
 | [`@automovie/template`](https://github.com/samchon/automovie/tree/master/packages/template) | The scaffold every production starts from |
 

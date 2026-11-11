@@ -4,7 +4,7 @@ import {
   IAutoMovieLight,
   type IAutoMovieVector3,
 } from "@automovie/interface";
-import { applyLightState, buildLight } from "@automovie/viewer";
+import { applyLightState, buildLight } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

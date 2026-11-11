@@ -3,7 +3,7 @@ import type {
   IAutoMovieModel,
   IAutoMovieModelPart,
 } from "@automovie/interface";
-import { buildModel } from "@automovie/viewer";
+import { buildModel } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

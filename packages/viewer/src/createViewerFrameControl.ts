@@ -1,9 +1,11 @@
+import {
+  restoreAutoMovieRenderModeOnce,
+  restoreAutoMovieRenderModeState,
+} from "@automovie/render";
 import type * as THREE from "three";
 
 import type { IAutoMovieViewerCompletedFrame } from "./IAutoMovieViewerCompletedFrame.js";
 import { createViewerCameraState } from "./createViewerCameraState.js";
-import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
-import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
  * Own a mounted frame's camera/time controller and nested playback freezes.

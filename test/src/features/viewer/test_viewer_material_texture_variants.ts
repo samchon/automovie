@@ -3,7 +3,7 @@ import {
   type IAutoMovieRenderTextureSource,
   measureAutoMovieRenderTextureClosure,
 } from "@automovie/engine";
-import { readAutoMovieMaterialTextureSources } from "@automovie/viewer";
+import { readAutoMovieMaterialTextureSources } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import type * as ThreeTypes from "three";
 

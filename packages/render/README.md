@@ -4,6 +4,8 @@ Plans how AutoMovie output becomes frames and a video file: frame schedules and 
 
 The package launches nothing itself, which keeps it usable in a browser. You pass it adapters that capture a frame and run the encoder.
 
+It also owns everything that turns a film into pixels without user interaction: building Three.js objects from `@automovie/interface` models and scenes, applying poses, expressions and motion at a time, the guide and render passes, compositing, shadows, textures and resource lifetime, the polygon-man figure builders, the inspection core and the CPU rasterizer. Interactive display, the canvas mount, playback loop and transport controls, stays in `@automovie/viewer`.
+
 ## Use
 
 ```bash

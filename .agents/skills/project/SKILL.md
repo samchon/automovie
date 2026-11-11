@@ -11,7 +11,7 @@ AutoMovie produces film-generation diffusion hints from an LLM-authored screenpl
 
 ### Coarse models, detailed motion
 
-A production's person is the polygon man, drawn by `viewer` from the canonical body `human` prepares, and every other model is as simple as identification allows. Motion is authored in detail and must accurately realize the intended performance and interactions.
+A production's person is the polygon man, drawn by `render` from the canonical body `human` prepares, and every other model is as simple as identification allows. Motion is authored in detail and must accurately realize the intended performance and interactions.
 
 Develop on the coarse models with verified motion. Detail is an option of the same entity that a delivery switches on, such as a detailed Human surface a commission selects, so scene intent never depends on surface complexity.
 
@@ -66,11 +66,12 @@ The [root README](../../../README.md#packages) and package READMEs own inventori
 | `motions` | Human action content |
 | `human` | The human figure generated from typed parameters by code |
 | `recovery` | Reference-mesh reconstruction |
-| `viewer` | GPU display, capture and inspection transport; the only library importing `three.js` |
+| `render` | Building and drawing scenes, the passes, the inspection core, frame schedules and encoding plans; launches nothing |
+| `viewer` | Interactive display and its UI |
 | `evidence` | Reusable engineering defaults and optional narrative evidence composition, for native checking |
 | `template/scaffold` | The generated production instructions, editable contracts and thin configuration, which `cli` installs |
 
-The parameter-only Human surface has no viewer or capture entry point.
+`render` and `viewer` are the only libraries importing `three.js`. The parameter-only Human surface has no viewer or capture entry point.
 
 ### Motion
 

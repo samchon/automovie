@@ -1,7 +1,7 @@
 import {
   autoMovieInspectionPathOf,
   listAutoMovieInspectionPaths,
-} from "@automovie/viewer";
+} from "@automovie/render";
 
 import type { IFilmProduction } from "../IFilmProduction";
 

@@ -1,7 +1,7 @@
 import {
   type IAutoMovieRasterImage,
   encodeAutoMovieRasterPng,
-} from "@automovie/viewer";
+} from "@automovie/render";
 import { mkdir, readdir, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 

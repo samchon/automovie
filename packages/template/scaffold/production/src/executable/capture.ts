@@ -1,4 +1,3 @@
-import { planViewerFrameTimes } from "@automovie/render";
 import {
   type IAutoMovieInspectionHandle,
   type IAutoMovieInspectionRequest,
@@ -6,9 +5,10 @@ import {
   type IAutoMovieViewerSubjectBounds,
   applyAutoMovieInspection,
   parseAutoMovieInspectionRequest,
+  planViewerFrameTimes,
   rasterizeAutoMovieScene,
   stampAutoMovieRasterLabel,
-} from "@automovie/viewer";
+} from "@automovie/render";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import type * as THREE from "three";

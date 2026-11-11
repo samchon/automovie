@@ -1,12 +1,11 @@
 import {
   type IAutoMovieInspectionHandle,
   type IAutoMovieInspectionRequest,
-  type IAutoMovieViewerHandle,
   applyAutoMovieInspection,
   createAutoMoviePerformanceOverlay,
-  mountViewer,
   parseAutoMovieInspectionRequest,
-} from "@automovie/viewer";
+} from "@automovie/render";
+import { type IAutoMovieViewerHandle, mountViewer } from "@automovie/viewer";
 
 import type { IFilm } from "./IFilm";
 import type { IFilmProduction } from "./IFilmProduction";

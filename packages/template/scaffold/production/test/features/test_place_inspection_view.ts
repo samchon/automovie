@@ -1,4 +1,4 @@
-import type { IAutoMovieViewerSubjectBounds } from "@automovie/viewer";
+import type { IAutoMovieViewerSubjectBounds } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

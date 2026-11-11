@@ -2,7 +2,7 @@ import type {
   IAutoMovieCompiledFormationLod,
   IAutoMovieFormationMotion,
 } from "@automovie/interface";
-import { buildInstancedFormation, formationCycleOf } from "@automovie/viewer";
+import { buildInstancedFormation, formationCycleOf } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

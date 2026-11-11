@@ -4,7 +4,7 @@ import {
   type AutoMovieHumanCartoon,
   createAutoMovieClosedSphereGeometry,
   createAutoMovieHumanPolygonFigure,
-} from "@automovie/viewer";
+} from "@automovie/render";
 import * as THREE from "three";
 
 import type { FighterBody } from "./FighterBody";

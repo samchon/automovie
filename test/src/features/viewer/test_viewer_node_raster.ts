@@ -3,7 +3,7 @@ import {
   encodeAutoMovieRasterPng,
   rasterizeAutoMovieScene,
   stampAutoMovieRasterLabel,
-} from "@automovie/viewer";
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { PNG } from "pngjs";
 import * as THREE from "three";

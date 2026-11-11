@@ -4,7 +4,7 @@ import {
   IAutoMovieStageLight,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { type IAutoMovieModelObject, buildScene } from "@automovie/viewer";
+import { type IAutoMovieModelObject, buildScene } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

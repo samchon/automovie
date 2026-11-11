@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { buildModel, type IAutoMovieTextureResolver } from "@automovie/viewer";
+import { buildModel, type IAutoMovieTextureResolver } from "@automovie/render";
 import type { IMedievalManorScene } from "./IMedievalManorScene";
 import type { createManorInstanceConsumer } from "../instances/manor-viewer";
 import { configureManorRenderer } from "./configureManorRenderer";

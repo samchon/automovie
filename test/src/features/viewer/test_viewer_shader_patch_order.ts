@@ -1,4 +1,4 @@
-import { applyMaterialShaderPatches } from "@automovie/viewer";
+import { applyMaterialShaderPatches } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**

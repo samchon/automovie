@@ -1,4 +1,4 @@
-import type { IAutoMovieTextureResolver } from "@automovie/viewer";
+import type { IAutoMovieTextureResolver } from "@automovie/render";
 import * as THREE from 'three';
 import type { IAutoMovieMaterial, IAutoMovieMesh, IAutoMovieQuaternion, IAutoMovieTransform, IAutoMovieTravelMotion, IAutoMovieVector3 } from "@automovie/interface";
 import type { IMedievalManorScene } from "./IMedievalManorScene";

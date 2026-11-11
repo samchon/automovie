@@ -9,17 +9,15 @@ import {
   IAutoMovieTransform,
 } from "@automovie/interface";
 import {
+  IAutoMovieModelObject,
   IAutoMoviePoseKeypointActor,
   IAutoMoviePoseKeypointFrame,
   IAutoMoviePoseKeypointSidecar,
+  buildModel,
+  buildScene,
   planPoseKeypointSidecar,
   renderPoseKeypointSidecar,
 } from "@automovie/render";
-import {
-  IAutoMovieModelObject,
-  buildModel,
-  buildScene,
-} from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

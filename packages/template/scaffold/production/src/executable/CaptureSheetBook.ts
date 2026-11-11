@@ -1,7 +1,7 @@
 import {
   AutoMovieRasterSheet,
   type IAutoMovieRasterImage,
-} from "@automovie/viewer";
+} from "@automovie/render";
 
 import type { CaptureDirectory } from "./CaptureDirectory";
 import { indexCaptureSheet } from "./indexCaptureSheet";

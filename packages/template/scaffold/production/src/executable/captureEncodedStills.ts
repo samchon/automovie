@@ -1,4 +1,4 @@
-import type { IAutoMovieRasterImage } from "@automovie/viewer";
+import type { IAutoMovieRasterImage } from "@automovie/render";
 import { readdir, rename, rm, stat } from "node:fs/promises";
 import path from "node:path";
 
