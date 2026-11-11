@@ -126,6 +126,7 @@ export function everydayGestureVerdicts(
   ): IMotionCaptureCase.IVerdict => {
     // The law places the hand from the rig origin, not from the hips bone.
     const root = performance.pose("a", mid).root;
+    if (root === null) throw new Error("A performed pose has a root");
     return MotionPlaceVerdicts.at(
       name,
       body,

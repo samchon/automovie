@@ -5,6 +5,7 @@ import { galleryCases } from "./galleryCases";
 import { handlingCases } from "./handlingCases";
 import { jumpCases } from "./jumpCases";
 import { locomotionCases } from "./locomotionCases";
+import { reactionCases } from "./reactionCases";
 import { standCases } from "./standCases";
 import { strikingCases } from "./strikingCases";
 
@@ -65,6 +66,7 @@ export const MOTION_CAPTURE_CASES: Readonly<
       "seat",
       MotionBodies.SWEEP.filter((b: string): boolean => b !== "f-short"),
     ),
+  reaction: (): IMotionCaptureCase[] => reactionCases(),
   "handling-handshake": (): IMotionCaptureCase[] => handlingCases("handshake"),
   "handling-grasp": (): IMotionCaptureCase[] => handlingCases("grasp"),
   "handling-handover": (): IMotionCaptureCase[] => handlingCases("handover"),
