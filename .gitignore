@@ -12,6 +12,7 @@ packages/cli/README.md
 packages/template/.cache/
 packages/motions/.cache/
 packages/motions/media/
+packages/human/media/
 lib/
 dist/
 # ttsc plugin cache the rolldown build's @ttsc/unplugin writes beside each package.

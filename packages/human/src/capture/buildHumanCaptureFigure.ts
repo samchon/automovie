@@ -6,9 +6,9 @@ import { markHumanCaptureCurves } from "./markHumanCaptureCurves";
 import { resolveHumanCaptureSubject } from "./resolveHumanCaptureSubject";
 
 /**
- * Build one capture subject's figure: the person's generated surface as three.js meshes named by the figure's own parts, and its construction as marks.
+ * Build one capture subject's figure: the person's generated surface as three.js meshes named by the pieces the generator emits, and its construction as marks named by its families.
  *
- * The object is a group named after the person; each generated piece is one mesh beneath it named by its piece, the authored family's name or `<family>.mirror` for its reflected twin, so a piece's path is `<person>/<family>`. The group turns the figure's frame (forward +X, up +Y, left +Z) a quarter turn about the vertical so the figure faces +Z, the side the `front` view stands on. Pieces are shaded in one light skin tone on both sides, because the parts are open tubes whose inside shows at their ends. A piece the loft could not build has no mesh.
+ * The object is a group named after the person; each generated piece is one mesh beneath it named by its piece: `body` for the skin every sewn family shares, and a loose family's name or `<family>.mirror` for its reflected twin. So the sewn skin's path is `<person>/body`, and a family sewn into it has no surface of its own to select; its curves name it. The group turns the figure's frame (forward +X, up +Y, left +Z) a quarter turn about the vertical so the figure faces +Z, the side the `front` view stands on. Pieces are shaded in one light skin tone on both sides, because a loose family is an open tube whose inside shows at its ends. A piece the generator could not build has no mesh.
  *
  * It throws as `resolveHumanCaptureSubject` does for an unknown person or pose.
  *

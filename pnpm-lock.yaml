@@ -505,6 +505,9 @@ importers:
       '@automovie/render':
         specifier: workspace:^
         version: link:../render
+      '@automovie/viewer':
+        specifier: workspace:^
+        version: link:../viewer
       '@napi-rs/canvas':
         specifier: 1.0.1
         version: 1.0.1
@@ -526,6 +529,12 @@ importers:
       playwright-core:
         specifier: catalog:media
         version: 1.60.0
+      react:
+        specifier: catalog:react
+        version: 19.3.1
+      react-dom:
+        specifier: catalog:react
+        version: 19.3.1(react@19.3.1)
       rimraf:
         specifier: catalog:utils
         version: 6.1.3

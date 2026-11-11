@@ -67,12 +67,13 @@ The figure is inspected with AutoMovie's shared instrument. `src/executable/subj
 | Path | What it names |
 | --- | --- |
 | `f1` | The whole person |
-| `f1/<family>`, `f1/<family>.mirror` | One generated piece, such as `f1/arm` and its reflected twin `f1/arm.mirror` |
+| `f1/body` | The sewn skin: the trunk with the limbs, digits, ears and nose joined to it |
+| `f1/<family>`, `f1/<family>.mirror` | One family's construction curves, such as `f1/arm` and its reflected twin's `f1/arm.mirror`; a loose family, when one is defined, is also a piece of its own here |
 | `f1/<family>/section/<k>` | The section ring at the family's `k`-th authored knot |
 | `f1/<family>/guide/<q>` | The guide rail at quarter phase `q`, 0 to 3 |
 | `f1/<family>/axis` | The line through the rings' centres |
 
-The construction curves are marks of the kinds `curve/section`, `curve/guide` and `curve/axis`, so `--marks curve/*` draws them over the surface and `--marks curve/* --surface 0` draws them alone, through the same views.
+The construction curves are marks of the kinds `curve/section`, `curve/guide` and `curve/axis`, so `--marks curve/*` draws them over the surface and `--marks curve/* --surface 0` draws them alone, through the same views. The skin is one piece, so a family's surface cannot be drawn apart from the body; select its curves and frame them with `@focus`.
 
 ## Background
 

@@ -15,7 +15,7 @@ const RASTER: number = 960;
 /**
  * The Human figure as the subjects a draw-only page offers: every person the package defines, by name, in each pose it is drawn in, for `automovie capture --module src/executable/subjects.ts` and the inspector.
  *
- * Each subject is the person's figure from `buildHumanCaptureFigure`, its surface named by the figure's own parts and its construction curves as marks, on a light background under an ambient light and one key light. The figure stands still, so the subject lasts one frame and seeking does nothing. The delivery camera stands three-quarters to the figure's front at eye height and looks at its middle; the instrument's named views, fitted to what is drawn, are how it is read. The props are not read.
+ * Each subject is the person's figure from `buildHumanCaptureFigure`, its sewn skin as the piece `body` and its construction curves as marks named by its families, on a light background under an ambient light and one key light. The figure stands still, so the subject lasts one frame and seeking does nothing. The delivery camera stands three-quarters to the figure's front at eye height and looks at its middle; the instrument's named views, fitted to what is drawn, are how it is read. The props are not read.
  *
  * ```bash
  * pnpm capture --views "front@ortho;right@ortho;three-quarter" --marks curve/*

@@ -13,8 +13,8 @@
   },
   "scripts": {
     "build": "ttsc --noEmit -P tsconfig.executable.json && rimraf lib && ttsc",
-    "capture": "automovie capture --module src/executable/subjects.ts",
-    "inspect": "automovie inspect --module src/executable/subjects.ts"
+    "capture": "ttsx --no-plugins --noCheck -P tsconfig.executable.json node_modules/automovie/src/bin.ts capture --module src/executable/subjects.ts",
+    "inspect": "ttsx --no-plugins --noCheck -P tsconfig.executable.json node_modules/automovie/src/bin.ts inspect --module src/executable/subjects.ts"
   },
   "keywords": [],
   "author": "Samchon",
@@ -45,7 +45,10 @@
     "@automovie/recovery": "workspace:^",
     "@napi-rs/canvas": "1.0.1",
     "@automovie/render": "workspace:^",
+    "@automovie/viewer": "workspace:^",
     "automovie": "workspace:^",
+    "react": "catalog:react",
+    "react-dom": "catalog:react",
     "@types/three": "catalog:three",
     "playwright-core": "catalog:media",
     "three": "catalog:three",
