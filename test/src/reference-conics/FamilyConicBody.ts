@@ -74,8 +74,11 @@ namespace FamilyConicBody {
      */
     clip?: (p: R.V) => number;
 
-    /** The part closes in a point past its last fitted section: the station where the reference's loop vanishes is read and written as the family's top tip. */
-    tip?: boolean;
+    /**
+     * The part closes in a point past its last fitted section. With `true` the tip is the station where the reference's loop vanishes; a number
+     * is a tip placed by anatomy instead, the level of the digit webs for a hand or a foot, whose loop runs on into one digit.
+     */
+    tip?: boolean | number;
 
     /** Station where the cap starts when the wall is not followed to its last fitted section, mm; absent, the domain's end. */
     cap?: number;
@@ -119,12 +122,12 @@ namespace FamilyConicBody {
         ...["bigtoe", "indextoe", "middletoe", "ringtoe", "littletoe"].map((toe: string): IPart => digit("toe." + toe.replace("toe", ""), [toe + "_01_r", toe + "_02_r"], toe === "bigtoe" ? 28 : toe === "littletoe" ? 14 : 18, [0, 1, 0])),
         // The arm runs on through the wrist to the knuckles, so the wrist is no seam. Its first section is the first one below the armpit that
         // takes in no trunk; the trunk's port band spans from there up to the armscye.
-        { name: "arm", centres: [joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r"), joint("middle_01_r")], course: "[J.upperarm, J.lowerarm, J.hand, J.middle1]", halves: [30, 10], up: [1, 0, 0], domain: [76, 570], mirrored: true, layouts: LIMB, reliefs: "auto" },
+        { name: "arm", centres: [joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r"), joint("middle_01_r")], course: "[J.upperarm, J.lowerarm, J.hand, J.middle1]", halves: [30, 10], up: [1, 0, 0], domain: [76, 570], tip: 600, mirrored: true, layouts: LIMB, reliefs: "auto" },
 
         // The leg turns at the ankle and runs on to the ball of the foot, its sections fanning round the instep, so the heel is lofted and the ankle
         // is no seam. The ankle's turn is long enough that its tightest radius, 2 h / (1.875 angle) = 46 mm, stays outside the instep. Round the
         // turn the heel sweeps about 2.7 times faster than the station, so its knots may stand 6 mm apart.
-        { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r"), [133, 20, 157]], course: "[J.thigh, J.calf, J.foot, J.footBall]", halves: [40, 62], up: [1, 0, 0], domain: [104, 956], gap: 6, mirrored: true, layouts: LIMB, reliefs: "auto" },
+        { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r"), [133, 20, 157]], course: "[J.thigh, J.calf, J.foot, J.footBall]", halves: [40, 62], up: [1, 0, 0], domain: [104, 956], gap: 6, tip: 990, mirrored: true, layouts: LIMB, reliefs: "auto" },
         // The trunk from the crotch to the crown as one wall. It owns the shoulders down to the plane square to each upper arm through the armpit's
         // crease; past that plane, lateral of the crease and inside the arm's own tube, the skin is the arm's and is left out of the trunk's sections.
         { name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], course: "[J.axisFloor, J.axisCrown]", halves: [], up: [1, 0, 0], domain: [40, 912], whole: true, step: 2, gap: 8, tip: true, cap: 896, mirrored: false, layouts: LIMB, clip: (p: R.V): number => Math.max(...[1, -1].map((side: number): number => {
@@ -163,10 +166,13 @@ namespace FamilyConicBody {
 
       // The tip: the last station, searched a quarter millimetre at a time past the domain, whose plane still cuts a loop round the course, and half a step on.
       let tip: number | null = null;
-      if (part.tip === true) {
-        tip = domain[1];
-        while (tip < domain[1] + 80 && R.cut(skin, axis.at(tip + 0.25)).loop !== null) tip += 0.25;
-        tip = Math.round((tip + 0.125) * 100) / 100;
+      if (part.tip !== undefined) {
+        if (typeof part.tip === "number") tip = part.tip;
+        else {
+          tip = domain[1];
+          while (tip < domain[1] + 80 && R.cut(skin, axis.at(tip + 0.25)).loop !== null) tip += 0.25;
+          tip = Math.round((tip + 0.125) * 100) / 100;
+        }
         log("family-body-tip", { part: part.name, tip, pastDomainMm: tip - domain[1] });
         if (process.argv.includes("--tips")) continue;
       }

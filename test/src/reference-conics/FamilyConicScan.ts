@@ -10,6 +10,11 @@ import { FamilyConicSource as R } from "./FamilyConicSource";
  * family is fitted.
  */
 namespace FamilyConicScan {
+  /** Mean of a loop's vertices in its chart, mm. */
+  function centre(loop: readonly C.P[]): C.P {
+    return [loop.reduce((sum: number, p: C.P): number => sum + p[0], 0) / loop.length, loop.reduce((sum: number, p: C.P): number => sum + p[1], 0) / loop.length];
+  }
+
   /** Print the survey. */
   export async function main(): Promise<void> {
     const source: R.ISource = await R.load(path.resolve(process.cwd(), ".."));
@@ -66,6 +71,31 @@ namespace FamilyConicScan {
         const vs: number[] = cut.loop.map((p: C.P): number => p[1]);
         const low: C.P = cut.loop.reduce((a: C.P, b: C.P): C.P => (b[1] < a[1] ? b : a));
         process.stdout.write("z " + z + " loops " + cut.around + "/" + cut.pieces + " x " + Math.round(-16 + Math.min(...us)) + ".." + Math.round(-16 + Math.max(...us)) + " y " + Math.round(1353 + Math.min(...vs)) + ".." + Math.round(1353 + Math.max(...vs)) + " lowest at x " + Math.round(-16 + low[0]) + " area " + (R.area(cut.loop) / 100).toFixed(0) + "\n");
+      }
+      return;
+    }
+    if (process.argv[2] === "hand" || process.argv[2] === "foot") {
+      // Where the digits leave: along the limb's own course, every closed loop of each plane near the limb's end by its centre and area, so the
+      // order and the stations at which the digits part from the hand or the foot are read before any branch is declared.
+      const hand: boolean = process.argv[2] === "hand";
+      // Each course ends past the digit on the thumb or big-toe side, so its planes reach the webs one after another from the little side.
+      const past = (a: R.V, b: R.V, length: number): R.V => {
+        const d: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+        return [b[0] + ((b[0] - a[0]) * length) / d, b[1] + ((b[1] - a[1]) * length) / d, b[2] + ((b[2] - a[2]) * length) / d];
+      };
+      const reach: number = Number(process.argv[3] ?? "20");
+      const made: AutoMovieViewAxis.IAxis | string = hand
+        ? AutoMovieViewAxis.jointed([joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r"), past(joint("middle_01_r"), joint("index_01_r"), reach)], [30, 10], [1, 0, 0])
+        : AutoMovieViewAxis.jointed([joint("thigh_r"), joint("calf_r"), joint("foot_r"), past(joint("indextoe_01_r"), joint("bigtoe_01_r"), reach)], [40, 62], [1, 0, 0]);
+      if (typeof made === "string") throw new Error(made);
+      const axis: AutoMovieViewAxis.IAxis = made;
+      const [from, to]: [number, number] = hand ? [556, 640] : [930, 1010];
+      for (let s: number = from; s <= to; s += 2) {
+        const cells: string[] = R.loops(source.body, axis.at(s))
+          .filter((loop: C.P[]): boolean => Math.hypot(...centre(loop)) < 90)
+          .sort((a: C.P[], b: C.P[]): number => centre(b)[1] - centre(a)[1])
+          .map((loop: C.P[]): string => "(" + centre(loop).map((x: number): string => x.toFixed(0)).join(",") + " a" + (R.area(loop) / 100).toFixed(1) + ")");
+        process.stdout.write(s + ": " + cells.join(" ") + "\n");
       }
       return;
     }

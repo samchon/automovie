@@ -72,17 +72,20 @@ export namespace AutoMovieHumanF1 {
 
   /** The families not sewn yet: the digits. */
   export const LOOSE: readonly IMember[] = [
-    { family: AutoMovieHumanF1FingerIndex, mirrored: true, reach: [10, 0] },
-    { family: AutoMovieHumanF1FingerMiddle, mirrored: true, reach: [10, 0] },
-    { family: AutoMovieHumanF1FingerPinky, mirrored: true, reach: [10, 0] },
-    { family: AutoMovieHumanF1FingerRing, mirrored: true, reach: [10, 0] },
-    { family: AutoMovieHumanF1FingerThumb, mirrored: true, reach: [10, 0] },
-    { family: AutoMovieHumanF1ToeBig, mirrored: true, reach: [8, 0] },
-    { family: AutoMovieHumanF1ToeIndex, mirrored: true, reach: [8, 0] },
-    { family: AutoMovieHumanF1ToeLittle, mirrored: true, reach: [8, 0] },
-    { family: AutoMovieHumanF1ToeMiddle, mirrored: true, reach: [8, 0] },
-    { family: AutoMovieHumanF1ToeRing, mirrored: true, reach: [8, 0] },
-  ];
+    AutoMovieHumanF1FingerIndex,
+    AutoMovieHumanF1FingerMiddle,
+    AutoMovieHumanF1FingerPinky,
+    AutoMovieHumanF1FingerRing,
+    AutoMovieHumanF1FingerThumb,
+    AutoMovieHumanF1ToeBig,
+    AutoMovieHumanF1ToeIndex,
+    AutoMovieHumanF1ToeLittle,
+    AutoMovieHumanF1ToeMiddle,
+    AutoMovieHumanF1ToeRing,
+
+    // A digit's course starts at its first joint, inside the hand or the foot, and its fitted run starts where it stands free of its
+    // neighbours; it is carried back to 2 mm short of that joint, so its root lies under the limb's cap.
+  ].map((family: AutoMovieHumanConicLoft.IFamily): IMember => ({ family, mirrored: true, reach: [family.knots[0]! - 2, 0] }));
 
   /** Every authored family of the figure. */
   export const FAMILIES: readonly IMember[] = [{ family: BODY.trunk, mirrored: false }, { family: BODY.arm, mirrored: true }, { family: BODY.leg, mirrored: true }, ...LOOSE];
