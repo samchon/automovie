@@ -1,7 +1,7 @@
 import type { IAutoMovieMark } from "@automovie/engine";
 import * as THREE from "three";
 
-import { AUTO_MOVIE_INSPECTION_PALETTE } from "./AUTO_MOVIE_INSPECTION_PALETTE.js";
+import { AUTO_MOVIE_INSPECTION_KINDS } from "./AUTO_MOVIE_INSPECTION_KINDS.js";
 import type { IAutoMovieInspectionMeasured } from "./IAutoMovieInspectionMeasured.js";
 
 /**
@@ -66,8 +66,8 @@ export function measureAutoMovieInspectionEdges(props: {
     marks.push({
       path: props.path === "" ? "edge" : `${props.path}/edge`,
       kind: "edge",
-      label: "mesh edge",
-      color: AUTO_MOVIE_INSPECTION_PALETTE.edge,
+      label: AUTO_MOVIE_INSPECTION_KINDS.edge!.label,
+      color: AUTO_MOVIE_INSPECTION_KINDS.edge!.color,
       shape: { type: "segments", points },
       flagged: false,
       anchor: props.path,

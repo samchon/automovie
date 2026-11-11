@@ -9,6 +9,7 @@ import type { IAutoMovieViewerSubjectBounds } from "../subjectViewpoint/IAutoMov
 import { AUTO_MOVIE_INSPECTION_PALETTE } from "./AUTO_MOVIE_INSPECTION_PALETTE.js";
 import type { IApplyAutoMovieInspectionProps } from "./IApplyAutoMovieInspectionProps.js";
 import type { IAutoMovieInspectionHandle } from "./IAutoMovieInspectionHandle.js";
+import type { IAutoMovieInspectionKind } from "./IAutoMovieInspectionKind.js";
 import type { IAutoMovieInspectionLabel } from "./IAutoMovieInspectionLabel.js";
 import type { IAutoMovieInspectionLegendEntry } from "./IAutoMovieInspectionLegendEntry.js";
 import type { IAutoMovieInspectionMarkSet } from "./IAutoMovieInspectionMarkSet.js";
@@ -25,6 +26,7 @@ import { chooseAutoMovieInspectionMarks } from "./chooseAutoMovieInspectionMarks
 import { colorAutoMovieInspectionObjects } from "./colorAutoMovieInspectionObjects.js";
 import { focusAutoMovieInspection } from "./focusAutoMovieInspection.js";
 import { legendAutoMovieInspectionMarks } from "./legendAutoMovieInspectionMarks.js";
+import { listAutoMovieInspectionKinds } from "./listAutoMovieInspectionKinds.js";
 import { listAutoMovieInspectionPaths } from "./listAutoMovieInspectionPaths.js";
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
 import { measureAutoMovieInspectionBounds } from "./measureAutoMovieInspectionBounds.js";
@@ -39,7 +41,7 @@ import { resolveAutoMovieInspectionColors } from "./resolveAutoMovieInspectionCo
  *
  * The same applied scene is drawn by the browser renderer and by the CPU rasterizer, so a view on the page and a still made in Node show the same thing. In order:
  *
- * 1. **Kinds.** The kinds that exist are those of the supplied marks and those the inspection measures itself: `edge`, the triangle sides of a mesh, and `defect/open`, `defect/non-manifold`, `defect/inconsistent`, `defect/degenerate`, and `defect/sliver` while `sliver` is set. A `marks` pattern that matches none of them throws and lists them. A kind is drawn when a `marks` pattern matches it.
+ * 1. **Kinds.** The kinds that exist are those `listAutoMovieInspectionKinds` lists: the supplied marks' kinds and the inspection's own, `edge`, the triangle sides of a mesh, the `defect/<kind>` kinds, `defect/sliver` only while `sliver` is set, and `trail` and `trail/now` while `trail` names objects. A `marks` pattern that matches none of them throws and lists them. A kind is drawn when a `marks` pattern matches it.
  * 2. **Measured marks.** Asked edges and defect kinds are measured on every drawn, visible mesh that `hide` does not leave out; batched meshes are not measured. Edges drawn over a surface show how its triangles follow the form, and with `surface` off they are drawn alone; no material is switched to wireframe.
  * 3. **Selection.** Every drawn object and every mark of an asked kind has a path, and a mark's path extends the path of the object it belongs to, so one pattern selects, hides, labels and colours objects and marks alike: `parts=hero/torso/section/3` draws one curve. An object or a mark is selected when `parts` is empty or one of its patterns matches, and no `hide` pattern matches; a mark whose anchor object is invisible or matched by `hide` is left out too. A `parts`, `hide`, `label` or `color` pattern that matches no object, mark or kind throws before anything changes, so a mistyped name is not an empty picture.
  * 4. **Isolation.** Unselected objects, and every mesh when `surface` is off, are taken off all layers. A layer is tested per object, so the objects beneath an isolated one stay as they were selected, which hiding it would not allow.
@@ -88,13 +90,10 @@ export function applyAutoMovieInspection(
     (kind: IAutoMovieMeshDefect.Kind): boolean =>
       kind !== "sliver" || request.sliver !== null,
   );
-  const available: string[] = [
-    ...new Set<string>([
-      ...supplied.map((mark: IAutoMovieMark): string => mark.kind),
-      "edge",
-      ...defects.map((kind: string): string => `defect/${kind}`),
-    ]),
-  ];
+  const available: string[] = listAutoMovieInspectionKinds({
+    request,
+    marks: supplied,
+  }).map((entry: IAutoMovieInspectionKind): string => entry.kind);
   const unknown: string[] = request.marks.filter(
     (pattern: string): boolean =>
       !available.some((kind: string): boolean =>

@@ -1,6 +1,15 @@
 import type { IAutoMovieMark } from "@automovie/engine";
 
+import { AUTO_MOVIE_INSPECTION_KINDS } from "./AUTO_MOVIE_INSPECTION_KINDS.js";
 import type { IAutoMovieInspectionTrail } from "./IAutoMovieInspectionTrail.js";
+
+/** Legend entry of the trail kind. */
+const TRAIL: { readonly label: string; readonly color: number } =
+  AUTO_MOVIE_INSPECTION_KINDS.trail!;
+
+/** Legend entry of the emphasised tick. */
+const NOW: { readonly label: string; readonly color: number } =
+  AUTO_MOVIE_INSPECTION_KINDS["trail/now"]!;
 
 /**
  * Draw sampled trails as marks for one drawn second: each moving object's path as a line through its samples with a tick at every sample, and the sample of the drawn second emphasised.
@@ -19,7 +28,7 @@ import type { IAutoMovieInspectionTrail } from "./IAutoMovieInspectionTrail.js";
  * @evidence contracts/development/common.md#meaningful-documentation States the three marks of a trail, how the emphasised sample is chosen, the stationary case, the frame, and tabulates both kinds.
  * @evidence contracts/development/implementation.md#principled-implementation A still shows a pose, not a movement, so the path an object travels and where on it the drawn second falls are drawn from measured positions instead of left for the eye to infer.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the trails, with one nearest-sample search each.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No sample is interpolated: every tick and the emphasis are measured positions. The colours are a drawing convention chosen apart from every other kind's.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No sample is interpolated: every tick and the emphasis are measured positions. The labels and colours are those `AUTO_MOVIE_INSPECTION_KINDS` gives the two kinds.
  * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the samples.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure conversion of sampled data for one second.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The line and the ticks share the trail's position array; nothing else is kept.
@@ -40,8 +49,8 @@ export function markAutoMovieInspectionTrails(
       marks.push({
         path,
         kind: "trail",
-        label: "trail",
-        color: 0xd2691e,
+        label: TRAIL.label,
+        color: TRAIL.color,
         shape: { type: "polyline", points: trail.positions, closed: false },
         flagged: false,
         anchor: null,
@@ -50,8 +59,8 @@ export function markAutoMovieInspectionTrails(
       {
         path,
         kind: "trail",
-        label: "trail",
-        color: 0xd2691e,
+        label: TRAIL.label,
+        color: TRAIL.color,
         shape: {
           type: "points",
           points: trail.stationary
@@ -64,8 +73,8 @@ export function markAutoMovieInspectionTrails(
       {
         path,
         kind: "trail/now",
-        label: "trail at the drawn second",
-        color: 0x1e90ff,
+        label: NOW.label,
+        color: NOW.color,
         shape: {
           type: "points",
           points: trail.positions.slice(nearest * 3, nearest * 3 + 3),
