@@ -1,6 +1,6 @@
+import { AutoMoviePhysicalSimulation as Simulation } from "@automovie/engine";
 import assert from "node:assert/strict";
 
-import { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
 /** Cancellation and yielding share every compute ownership path.

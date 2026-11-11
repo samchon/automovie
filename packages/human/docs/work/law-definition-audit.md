@@ -8,7 +8,7 @@ Correction: the laws worker initially treated the technique note's pra-pa ear br
 
 ## Complete existing f1 input round, 2026-11-05
 
-The scope is the anatomical/shape domain of the actual `IAutoMovieHumanParameters` graph and complete authored `packages/playground/src/human-parameters/f1.ts`, both directly reopened. It is not every field of the older BodyIdentity/ArmIdentity/LegIdentity records: only the four hand and three foot dimensions selected by ExtremityDimensions are reachable there. No thyroid-angle, navicular, new shape input, expression or another person's generation is added.
+The scope is the anatomical/shape domain of the actual `IAutoMovieHumanParameters` graph and the complete authored f1 parameters, both directly reopened. It is not every field of the older BodyIdentity/ArmIdentity/LegIdentity records: only the four hand and three foot dimensions selected by ExtremityDimensions are reachable there. No thyroid-angle, navicular, new shape input, expression or another person's generation is added.
 
 The leaf delivery matrices are [BODY's complete source audit](body-input-source-audit.md) and [HEAD's complete delivery audit](head-input-delivery-audit.md). Both were read in full, and their missing/retired routes and trunk/head course distinctions were independently cross-checked against actual consumers. They are the single maintained per-leaf delivery tables; the protocol and cause tables below apply to those exact rows rather than duplicate a competing source inventory. An emitted source parameter, a closed anatomical measure, an independent observation and an accepted skin remain different states.
 
@@ -188,7 +188,7 @@ The same proposal's official check with `--only` the six owned files completed a
 
 ## Input provenance
 
-The actual `packages/playground/src/human-parameters/f1.ts` supplies a `head` object. `AutoMovieHumanHeadAnatomy.resolve` preserves each supplied value, `AutoMovieHumanBodyLaw.headInputs` passes the resolved identity, and `AutoMovieHumanHeadLane.create` passes its `earPair` into `AutoMovieHumanHeadComposer.compose`. `AutoMovieHumanHeadEarParts.of` selects each side's own ear. The head mass, nose, mouth and ears therefore cannot be excused as omitted-input defaults.
+The actual f1 parameters supply a `head` object. `AutoMovieHumanHeadAnatomy.resolve` preserves each supplied value, `AutoMovieHumanBodyLaw.headInputs` passes the resolved identity, and `AutoMovieHumanHeadLane.create` passes its `earPair` into `AutoMovieHumanHeadComposer.compose`. `AutoMovieHumanHeadEarParts.of` selects each side's own ear. The head mass, nose, mouth and ears therefore cannot be excused as omitted-input defaults.
 
 | Input | Authored f1 value, mm unless stated | Definition and consumer |
 | --- | --- | --- |

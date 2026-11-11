@@ -43,37 +43,13 @@ In step 3, a published value enters only in one of two ways:
 
 A sample's plain mean or median describes the average subject, not this person. Before using a source, read the parameters the reference was authored with: its body controls, such as height, fat, masculine-feminine and muscularity, beside its measured girths and lengths. State in the comment which covariate values select the relation. A difference left by a population default is unfinished work, not an accepted reason.
 
-## Review And Supervision
+## Review
 
 Build one baseline covering every available original, its individual reference views, actual neighbour groups and the whole figure. Reuse source preparation across the batch. Later rounds regenerate changed originals and affected neighbours; add angles or close-ups for unresolved questions rather than repeat unchanged images. Missing or failed originals remain named gaps in coverage.
 
-The modeler inspects the actual originals and submits each completed region with its source bytes, identities, domains, frame maps, images and unresolved conditions. When the campaign assigns an independent judge, that judge owns each curve's acceptance and the modeler continues other regions without waiting for the verdict. Return each completed review round's findings together by cause.
+Inspect the actual originals and retain each completed region's source bytes, identities, domains, frame maps, images and unresolved conditions. Record each completed review round's findings together by cause.
 
 A verdict names the exact source version, curve, physical interval and personally inspected views. Use pass, fail or unobserved only for that scope. A material-clock guide is not an anatomical plane cut, and neither accepts an uninspected section piece, loop or complete part. Require plausible basic form and placement over the reference; unexplained spikes, bulges, indentations or crossings remain defects even when calipers, continuity checks or tests pass. Completed captures and numerical residuals are not visual acceptance.
-
-### Supervisor Audit
-
-While workers build, the supervisor's only work is this audit, run as a scheduled loop at the interval the owner set. The supervisor audits and does not design fixes or add steps to the owner's plan, because each added judgment has cost the owner hours of rework. The scheduled prompt names this section and its four steps in full.
-
-Each audit runs these steps in order:
-
-1. **Liveness.** Confirm that every worker is running: its transcript grew since the last audit and its run has not ended. Resume a stopped worker at once, without asking. Never replace a worker with a new one: a replacement loses everything the worker learned. Only an explicit owner order stops a worker, and the supervisor keeps its own turn free of long-running commands while workers run, because an interrupt of that turn can stop them.
-2. **Violations.** Read each worker's history since the last audit: its transcript action by action, its saves and diffs, its runs and the shared watch logs. The audit hunts wasted or wrong work in that history: work off the owner's plan, a construction that moves a line off the reference, a fix later reverted, a probe repeated without a new question, a claim the history contradicts. Time spent reading code before writing is not a violation. Compare the history with every applicable skill rule and every task instruction given to that worker:
-   - each save compiles, and its watch cycle is read before the next action;
-   - one batch per cause, with predicted numbers written first;
-   - no edit-and-re-render loops;
-   - original 2D lines before infrastructure;
-   - bases written in the comments;
-   - independent tests proven red and green;
-   - the file ownership the campaign assigned.
-
-   Trace the changed calls to their shared owners and production consumers, and check that the change removed the reported cause; counts of processes, files, tests or images do not replace this. On a violation, pause the worker, give it the broken rule and the correction, and resume it at once, so it acts on the correction now instead of finding it later in its message queue. Check the correction at the next audit.
-3. **Research.** Name the largest shape deviation visible in the newest frames against the reference, and research that deviation in primary sources: anthropometry, imaging studies, anatomical tables, and the surface-construction literature for the method in use. Send the worker the concrete values or methods, their sources and how each applies. Know the construction method's classical limits before writing a brief (level sections against a horizontal floor, branches, a pole under a port) and order their standard remedies in it, because a limit found through a refusal costs a fix-and-revert cycle. A worker's statement that no source exists is a claim to verify. Deliver research the same way as a correction: pause the worker, message it, resume it.
-4. **Claims.** Treat every worker claim since the last audit as unproven, such as "fixed", "passes", "matches within N mm", "sourced", "debt" or "not my file". Open the cited frames, read the cited code, and recompute the cited numbers from logs, manifests and receipts. Record each as held or false, keep earlier observations with their original scope, and warn the worker on a false or unverifiable claim. A cited basis that leaves a visible deviation from the reference does not justify it, and a part drawn alone does not prove the joined body.
-
-A worker blocked by a refusal researches the standard method itself and reports the block together with that method and its sources.
-
-Report each audit to the owner with the claims and their verdicts, the violations warned, the research sent and the frames inspected. Relay a worker's claim only after opening its frame, because an unverified relay sends the campaign in the wrong direction.
 
 ## Shared Connections
 
@@ -85,7 +61,7 @@ Inspect both parts' original 2D definitions individually and with their neighbou
 
 ## Inspection Round
 
-Inspect the candidate's generating curves, skin and joins following [Visual Debugging](../3d-modeling/visual-debugging.md), for the affected person and all affected parts, and compare it with the existing figure under matching camera, light, shading, size and renderer conditions in every affected region and join, including changed inputs. Expand to other people when the task requires it. Inspect each selected part alone, then with its host and neighbours, then assembled, using the [selection recipes](screenshot.md#selecting-curves-and-parts); include the realized blends so a hidden blend cannot manufacture a gap. Keep partial work visible with what is unverified marked. Every variable below is a URL variable of the [debug viewer](screenshot.md).
+Inspect the candidate's generating curves, skin and joins following [visual debugging](../visual-debugging/SKILL.md) and [form inspection](../3d-modeling/inspection.md), for the affected person and all affected parts, and compare it with the existing figure under matching camera, light, shading, size and renderer conditions in every affected region and join, including changed inputs. Expand to other people when the task requires it. Inspect each selected part alone, then with its host and neighbours, then assembled, using the [selection recipes](screenshot.md#selecting-curves-and-parts); include the realized blends so a hidden blend cannot manufacture a gap. Keep partial work visible with what is unverified marked. Every variable below is a URL variable of the [debug viewer](screenshot.md).
 
 1. For each part whose original 2D curves are accepted, request its actual selected raw loft and inspect the generated sections, axis and guides alone (`parts=none`). Continue at the same cameras with those curves over the raw default-clay surface, then raw clay alone (`curves=none`). Inspect the part and its chosen neighbours immediately; unrelated parts need not be complete. Read the actual producer ids: source `view.*` outlines and original `top.<k>` rings are different constructions.
 2. Inspect the actual realized tree and final skin with its kept faces, continuations, blends and cuts present. Repeat the whole current person and affected neighbours from every needed camera, under default shading and `shade=appearance`, in the anatomical neutral, bind and any poses required by the active task. Check proportions, silhouettes and missing or disconnected anatomy. View the face with `shade=appearance` and `focus=head*`.

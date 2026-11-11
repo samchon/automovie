@@ -1,20 +1,18 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
+  AutoMovieRasterSheet,
+  type IAutoMovieSceneRaster,
   applyAutoMovieGhost,
   createAutoMovieDriftMarkers,
   createAutoMovieTargetMarker,
   createAutoMovieTrail,
+  encodeAutoMovieRasterPng,
+  rasterizeAutoMovieScene,
 } from "@automovie/viewer";
 import { mkdir, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import * as THREE from "three";
 
-import {
-  AutoMovieRasterSheet,
-  type IAutoMovieSceneRaster,
-  encodeAutoMovieRasterPng,
-  rasterizeAutoMovieScene,
-} from "../../../template/scaffold/production/src/executable/viewer/node/raster/index.js";
 import type { IMotionCaptureCase } from "./IMotionCaptureCase";
 import { MotionCaptureFigure } from "./MotionCaptureFigure";
 import { MOTION_CAPTURE_CASES } from "./cases/MOTION_CAPTURE_CASES";

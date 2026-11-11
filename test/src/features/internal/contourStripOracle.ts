@@ -1,4 +1,4 @@
-import type { IAutoMovieCurve64 as C } from "../../../../packages/engine/src/geometry/curve/IAutoMovieCurve64.ts";
+import type { IAutoMovieCurve64 as C } from "@automovie/engine";
 
 /** Independent small-polygon enumeration and incidence algebra for contour tests. */
 export namespace contourStripOracle {

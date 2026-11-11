@@ -1,4 +1,4 @@
-import type { IAutoMovieLoftChain } from "@automovie/engine";
+import type { IAutoMovieContourLoft64, IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
 import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanHandDigitChain } from "./AutoMovieHumanHandDigitChain";
@@ -32,6 +32,40 @@ type Vec3 = AutoMovieHumanHandVector.Vec3;
  * the same construction.
  */
 export namespace AutoMovieHumanHandConstruction {
+  /** Authored fixed contour topology before JSON tuple and literal restoration. */
+  export interface IFixedContourInput {
+    /** Physical original section coordinates and their closed coefficient loops. */
+    sections: { coordinateMm: number; loops: { curve: AutoMovieHumanHandPalm.IFixedCurveInput; winding: number }[] }[];
+    /** Original section-to-section component incidence. */
+    intervals?: IAutoMovieContourLoft64["intervals"];
+    /** Observed source events with their physical coordinate and incident loops. */
+    events: {
+      name: string; coordinateMm: number; beforeMm: number; afterMm: number; before: number[]; after: number[];
+      kind: string; regular: boolean; terminal: number[] | null;
+    }[];
+    /** Original physical chord budget in millimetres. */
+    chordToleranceMm: number;
+  }
+
+  /** Restore exactly the declared contour coefficients and event incidence. */
+  export function fixedContour(value: IFixedContourInput): IAutoMovieContourLoft64 {
+    const point: typeof AutoMovieHumanHandPalm.fixedPoint = AutoMovieHumanHandPalm.fixedPoint;
+    return {
+      ...value,
+      sections: value.sections.map((section: IFixedContourInput["sections"][number]): IAutoMovieContourLoft64.ISection => ({
+        ...section, loops: section.loops.map((loop: typeof section.loops[number]): IAutoMovieContourLoft64.ISection["loops"][number] => {
+          if (loop.winding !== 1 && loop.winding !== -1) throw new Error("A fixed F1 loop has no declared winding");
+          return { ...loop, winding: loop.winding, curve: AutoMovieHumanHandPalm.fixedCurve(loop.curve) };
+        }),
+      })),
+      events: value.events.map((event: IFixedContourInput["events"][number]): IAutoMovieContourLoft64.IEvent => {
+        if (event.kind !== "saddle" && event.kind !== "minimum" && event.kind !== "maximum")
+          throw new Error("A fixed F1 contour event has an unknown incidence");
+        return { ...event, kind: event.kind, terminal: event.terminal === null ? null : point(event.terminal) };
+      }),
+    };
+  }
+
   /** Points of a digit's centre line per point handed to the skeleton. */
   const LINE_EVERY: number = 8;
 

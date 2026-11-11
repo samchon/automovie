@@ -1,5 +1,8 @@
-import type { IAutoMovieContourLoft64 as L } from "../../../../packages/engine/src/geometry/curve/IAutoMovieContourLoft64.ts";
-import type { IAutoMovieCurve64 as C } from "../../../../packages/engine/src/geometry/curve/IAutoMovieCurve64.ts";
+import type {
+  IAutoMovieCurve64 as C,
+  IAutoMovieContourLoft64 as L,
+} from "@automovie/engine";
+
 import { contourStripOracle as O } from "../internal/contourStripOracle.ts";
 import { nclose } from "../internal/nclose.ts";
 

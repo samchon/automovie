@@ -1,8 +1,6 @@
+import { physicalJointInertia, samplePhysicalTarget } from "@automovie/engine";
 import RAPIER, { type RigidBody, type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
-
-import { physicalJointInertia } from "../../../../packages/engine/src/physics/physicalJointInertia";
-import { samplePhysicalTarget } from "../../../../packages/engine/src/physics/samplePhysicalTarget";
 
 /**
  * A ninety-degree frame exchanges two unequal world inertia axes. Two free

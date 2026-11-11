@@ -1,7 +1,7 @@
+import { derivePhysicalActuators } from "@automovie/engine";
 import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { derivePhysicalActuators } from "../../../../packages/engine/src/physics/derivePhysicalActuators";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
 /** Joint gains include an attached payload through a tiny intermediate carrier.

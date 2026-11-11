@@ -1,11 +1,11 @@
 import type {
   IAutoMovieActionSynthesizer,
-  IAutoMovieJointAxes,
   IAutoMovieRestFrame,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieActionCall,
+  IAutoMovieJointAxes,
   IAutoMovieMotion,
 } from "@automovie/interface";
 

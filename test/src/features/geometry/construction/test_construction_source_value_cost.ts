@@ -1,15 +1,15 @@
 import {
+  AutoMovieConicArc,
+  AutoMovieConicArcField,
+  AutoMovieConicFieldJet,
+  AutoMovieConicHermite,
   AutoMovieLoftSectionNative,
   type AutoMovieLoftViewRead,
+  AutoMovieViewConic,
   AutoMovieViewSection,
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { AutoMovieConicArc } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConicArc";
-import { AutoMovieConicArcField } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConicArcField";
-import { AutoMovieConicFieldJet } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConicFieldJet";
-import { AutoMovieConicHermite } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConicHermite";
-import { AutoMovieViewConic } from "../../../../../packages/engine/src/geometry/construction/AutoMovieViewConic";
 import { ConstructionConicOracle } from "../../internal/construction/ConstructionConicOracle";
 import { nclose } from "../../internal/nclose";
 

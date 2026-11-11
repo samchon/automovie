@@ -20,7 +20,7 @@ Give [Observing runs](observing-runs.md) to the observer as its brief.
 
 ## Owners
 
-The production's [campaign guide](../../../packages/template/scaffold/instructions/.agents/skills/production/campaign.md) owns its run record, dispatch, film and module ownership and resumption, and its specialist skills own creation and acceptance. Repository [issue campaigns](../issue-campaign/SKILL.md) own broad engineering audits and issue publication.
+The production's [sustained runs guide](../../../packages/template/scaffold/instructions/.agents/skills/production/sustained-runs.md) owns its run record, dispatch, film and module ownership and resumption, and its specialist skills own creation and acceptance. Repository [issue campaigns](../issue-campaign/SKILL.md) own broad engineering audits and issue publication.
 
 These rules stay here rather than in the scaffold, because the scaffold ships to everyone who installs AutoMovie and their productions are not bound to this repository's process launching or observation. The production's guide leaves observation to an available scheduler and additional agents to the user's authorization; this repository chooses an observer subagent as that scheduler and CLI processes as those agents.
 

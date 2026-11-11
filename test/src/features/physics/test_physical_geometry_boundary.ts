@@ -1,9 +1,11 @@
+import {
+  preparePhysicalGeometry as Geometry,
+  Quaternion,
+} from "@automovie/engine";
 import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { preparePhysicalGeometry as Geometry } from "../../../../packages/engine/src/physics/preparePhysicalGeometry";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 import { nclose } from "../internal/nclose";
 

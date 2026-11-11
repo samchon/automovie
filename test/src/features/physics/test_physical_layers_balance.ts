@@ -1,7 +1,6 @@
+import { AutoMoviePhysicalBalance as Balance } from "@automovie/engine";
 import type { IAutoMovieFootfallPattern } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { AutoMoviePhysicalBalance as Balance } from "../../../../packages/engine/src/physics/AutoMoviePhysicalBalance";
 
 /** Physical balance behavior.
  *

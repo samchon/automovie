@@ -1,4 +1,4 @@
-import type { IAutoMovieSimplexAtom } from "../../../../packages/engine/src/math/IAutoMovieSimplexAtom";
+import type { IAutoMovieSimplexAtom } from "@automovie/engine";
 
 /** Authored pure-QP rows and an independently derived physical optimum. */
 export interface IRecoveryFeasibleDirectionCase {

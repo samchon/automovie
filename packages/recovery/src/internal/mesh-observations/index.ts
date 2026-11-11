@@ -1,7 +1,6 @@
-/** Generic registered-mesh observations, without anatomical or rig ownership. */
-export * from "./IAutoMovieRecoveryIndexedMesh";
 export * from "./CriticalVertex";
 export * from "./CutPoint";
+export * from "./IAutoMovieRecoveryIndexedMesh";
 export * from "./Plane";
 export * from "./Polyline";
 export * from "./V2";

@@ -1,17 +1,12 @@
-// The joint-axis declaration moved to `interface`, where a bone carries it;
-// the engine keeps exporting it for its existing consumers.
-export type {
-  AutoMovieJointTwistPlacement,
-  IAutoMovieJointAxes,
-} from "@automovie/interface";
 export * from "./AutoMovieSkeletonParentKey";
 export * from "./IAutoMovieArmChainFault";
 export * from "./IAutoMovieChainBone";
 export * from "./IAutoMovieHingedArticulation";
 export * from "./IAutoMovieJointAxesIssue";
+export * from "./IAutoMovieJointRotationDomain";
 export * from "./IAutoMoviePoseRig";
-export * from "./poseJointCodec";
 export * from "./IAutoMovieResolvedBone";
+export * from "./IAutoMovieResolvedJointAngles";
 export * from "./IAutoMovieSkeletonTopology";
 export * from "./IAutoMovieTwoBoneArticulation";
 export * from "./ITwoBoneIK";
@@ -19,26 +14,26 @@ export * from "./aimRotation";
 export * from "./aimYawPitch";
 export * from "./armChainFault";
 export * from "./clinicalDeviation";
-export * from "./curlChainUntilContact";
 export * from "./constants";
+export * from "./curlChainUntilContact";
 export * from "./decomposeJointRotation";
-export * from "./IAutoMovieJointRotationDomain";
-export type { IAutoMovieResolvedJointAngles } from "./IAutoMovieResolvedJointAngles";
+export * from "./decomposeJointRotationOnBasis";
 export * from "./gazeChainJoints";
 export * from "./hingedArmArticulation";
 export * from "./indexSkeletonTopology";
 export * from "./jointRomOvershoot";
 export * from "./jointToQuaternion";
+export * from "./measureAutoMovieHumanoidBody";
 export * from "./normalizeJointAxes";
+export * from "./poseJointCodec";
 export * from "./reachPose";
 export * from "./reachableBoneNames";
 export * from "./resolveAttachment";
+export * from "./resolveAutoMovieCenterOfMass";
+export * from "./resolveAutoMovieHumanoidSurfaces";
 export * from "./resolveLookAt";
 export * from "./resolvePose";
 export * from "./skeletonJointAxes";
 export * from "./solveTwoBoneIK";
 export * from "./twoBoneChainArticulation";
 export * from "./validateJointAxesBasis";
-export * from "./measureAutoMovieHumanoidBody";
-export * from "./resolveAutoMovieCenterOfMass";
-export * from "./resolveAutoMovieHumanoidSurfaces";

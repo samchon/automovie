@@ -1,7 +1,8 @@
+import {
+  physicalBalanceExhaustion,
+  physicalTrackingWithdrawn,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
-
-import { physicalBalanceExhaustion } from "../../../../packages/engine/src/physics/physicalBalanceExhaustion";
-import { physicalTrackingWithdrawn } from "../../../../packages/engine/src/physics/physicalTrackingWithdrawn";
 
 /** Exhausted support recovery withdraws default tracking, while explicit joint protection keeps its own effort.
  *

@@ -1,6 +1,6 @@
 # Modularization
 
-A named part makes a change local; a group makes its members move and change together. This structure applies to crafted forms, rebuilt diffusion output, and generated meshes placed directly, because their source does not change how they belong to an assembly.
+A named part makes a change local; a group makes its members move and change together. This structure applies to crafted, recovered, generated and found forms alike, because their source does not change how they belong to an assembly.
 
 ## Parts and groups
 
@@ -16,7 +16,7 @@ Define each connection once for both parts to consume, including its intended co
 
 ## Source modules
 
-Organize authoring modules by part and group responsibility, reusing one definition for repeated members. Keep shape or placement rules with their owner and have dependent modules consume that definition, so an agent can read and change one responsibility without reconstructing the whole asset.
+Organize authoring modules by part and group responsibility, reusing one definition for repeated and mirrored members. Keep shape or placement rules with their owner and have dependent modules consume that definition, so an agent can read and change one responsibility without reconstructing the whole asset.
 
 A source-module boundary need not cut the rendered surface. Put shared dimensions, frames, curves and surfaces with one owner, and derive dependent geometry, construction and attachments from their actual generating definitions rather than independent approximations; otherwise a local edit can leave a neighbor or diagnostic describing an old shape.
 

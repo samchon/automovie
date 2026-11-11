@@ -134,7 +134,7 @@ const positiveEvenInteger: (
 
 const repoRoot: () => string = (): string => {
   const cwd: string = process.cwd();
-  return ["playground", "render"].includes(path.basename(cwd)) &&
+  return path.basename(cwd) === "render" &&
     path.basename(path.dirname(cwd)) === "packages"
     ? path.resolve(cwd, "../..")
     : cwd;

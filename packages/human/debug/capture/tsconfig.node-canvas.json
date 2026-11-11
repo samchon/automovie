@@ -1,9 +1,0 @@
-{
-  "extends": "../../tsconfig.debug.scripts.json",
-  "compilerOptions": {
-    "rootDir": "../../../..",
-    "plugins": [{ "transform": "@ttsc/lint", "configFile": "../../../../config/lint.config.ts" }]
-  },
-  "files": ["./NodeCanvasExperiment.ts"],
-  "include": []
-}

@@ -11,9 +11,8 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "rimraf lib && ttsc",
+    "build": "rimraf lib && ttsc && node -e \"require('node:fs').copyFileSync('../../README.md', 'README.md')\"",
     "start": "ttsx src/bin.ts",
-    "prepack": "pnpm run build",
     "evidence": "evidence"
   },
   "keywords": [

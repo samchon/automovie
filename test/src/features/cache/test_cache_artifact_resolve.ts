@@ -1,9 +1,10 @@
+import {
+  type IAutoMovieArtifactResolution,
+  type IAutoMovieArtifactStore,
+  resolveAutoMovieArtifact,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
-
-import type { IAutoMovieArtifactResolution } from "../../../../packages/engine/src/cache/IAutoMovieArtifactResolution";
-import type { IAutoMovieArtifactStore } from "../../../../packages/engine/src/cache/IAutoMovieArtifactStore";
-import { resolveAutoMovieArtifact } from "../../../../packages/engine/src/cache/resolveAutoMovieArtifact";
 
 /**
  * Read-or-compute serves only verified entries and audits on request.
@@ -28,8 +29,7 @@ export async function test_cache_artifact_resolve(): Promise<void> {
   const store: IAutoMovieArtifactStore = {
     read: async (
       key: string,
-    ): Promise<IAutoMovieArtifactStore.IEntry | undefined> =>
-      entries.get(key),
+    ): Promise<IAutoMovieArtifactStore.IEntry | undefined> => entries.get(key),
     write: async (
       key: string,
       entry: IAutoMovieArtifactStore.IEntry,
@@ -50,8 +50,11 @@ export async function test_cache_artifact_resolve(): Promise<void> {
       return Uint8Array.from(bytes);
     };
 
-  const computed: IAutoMovieArtifactResolution =
-    await resolveAutoMovieArtifact(store, "k", produce([1, 2, 3]));
+  const computed: IAutoMovieArtifactResolution = await resolveAutoMovieArtifact(
+    store,
+    "k",
+    produce([1, 2, 3]),
+  );
   TestValidator.equals("computed", [computed.outcome, runs], ["computed", 1]);
   TestValidator.equals(
     "stored digest",
@@ -71,8 +74,11 @@ export async function test_cache_artifact_resolve(): Promise<void> {
   );
 
   entries.set("k", { ...entries.get("k")!, bytes: Uint8Array.from([1, 2]) });
-  const repaired: IAutoMovieArtifactResolution =
-    await resolveAutoMovieArtifact(store, "k", produce([1, 2, 3]));
+  const repaired: IAutoMovieArtifactResolution = await resolveAutoMovieArtifact(
+    store,
+    "k",
+    produce([1, 2, 3]),
+  );
   TestValidator.equals(
     "repaired",
     [repaired.outcome, Array.from(entries.get("k")!.bytes)],
@@ -80,8 +86,12 @@ export async function test_cache_artifact_resolve(): Promise<void> {
   );
 
   const before: number = writes;
-  const verified: IAutoMovieArtifactResolution =
-    await resolveAutoMovieArtifact(store, "k", produce([1, 2, 3]), true);
+  const verified: IAutoMovieArtifactResolution = await resolveAutoMovieArtifact(
+    store,
+    "k",
+    produce([1, 2, 3]),
+    true,
+  );
   TestValidator.equals(
     "verified",
     [verified.outcome, writes],
@@ -96,10 +106,16 @@ export async function test_cache_artifact_resolve(): Promise<void> {
     ["mismatched", sha256(Uint8Array.from([4]))],
   );
 
-  await TestValidator.error("failure", (): Promise<unknown> =>
-    resolveAutoMovieArtifact(store, "failed", async (): Promise<Uint8Array> => {
-      throw new Error("compute failed");
-    }),
+  await TestValidator.error(
+    "failure",
+    (): Promise<unknown> =>
+      resolveAutoMovieArtifact(
+        store,
+        "failed",
+        async (): Promise<Uint8Array> => {
+          throw new Error("compute failed");
+        },
+      ),
   );
   TestValidator.equals("failure stores nothing", entries.has("failed"), false);
 }

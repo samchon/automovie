@@ -1,10 +1,12 @@
+import type { IAutoMovieSimplexAtom } from "@automovie/engine";
+import {
+  type IAutoMovieRecoveryFeasibleFit,
+  type IAutoMovieRecoveryFeasibleModel,
+  type IAutoMovieRecoveryFeasibleProblem,
+  refineRecoveryFeasibleState,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieSimplexAtom } from "../../../../packages/engine/src/math/IAutoMovieSimplexAtom";
-import { refineRecoveryFeasibleState } from "../../../../packages/recovery/src/internal/refineRecoveryFeasibleState";
-import type { IAutoMovieRecoveryFeasibleFit } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryFeasibleFit";
-import type { IAutoMovieRecoveryFeasibleModel } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryFeasibleModel";
-import type { IAutoMovieRecoveryFeasibleProblem } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryFeasibleProblem";
 import type { IRecoveryFeasibleObservation } from "../internal/IRecoveryFeasibleObservation";
 import type { IRecoveryFeasibleSpecification } from "../internal/IRecoveryFeasibleSpecification";
 import { nclose } from "../internal/nclose";

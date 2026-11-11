@@ -1,7 +1,6 @@
+import { auditPhysicalOutcomes as audit } from "@automovie/engine";
 import type { IAutoMovieContactReceipt as Receipt } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { auditPhysicalOutcomes as audit } from "../../../../packages/engine/src/physics/auditPhysicalOutcomes";
 
 /**
  * A long episode cannot borrow a later impulse to fulfill an earlier screenplay contact or contradict an earlier deliberate miss.

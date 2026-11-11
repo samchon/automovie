@@ -1,13 +1,14 @@
+import {
+  Quaternion,
+  Vector3,
+  projectPhysicalJointVelocity,
+} from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
-import { projectPhysicalJointVelocity } from "../../../../packages/engine/src/physics/projectPhysicalJointVelocity";
 
 /** Motor intent respects the actual differential of compound twist limits.
  *

@@ -1,9 +1,10 @@
+import {
+  createAutoMovieRandom,
+  deriveAutoMovieSeed,
+  hashAutoMovieFnv1a64,
+  philoxAutoMovie4x32,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
-
-import { createAutoMovieRandom } from "../../../../packages/engine/src/random/createAutoMovieRandom";
-import { deriveAutoMovieSeed } from "../../../../packages/engine/src/random/deriveAutoMovieSeed";
-import { hashAutoMovieFnv1a64 } from "../../../../packages/engine/src/random/hashAutoMovieFnv1a64";
-import { philoxAutoMovie4x32 } from "../../../../packages/engine/src/random/philoxAutoMovie4x32";
 
 /** The pinned generator reproduces its published algorithms and stays pure, seekable and stream-independent.
  *

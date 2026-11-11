@@ -1,14 +1,16 @@
+import {
+  Quaternion,
+  type AutoMoviePhysicalSimulation as Simulation,
+  physicalSupportPoint,
+  setPhysicalTargetJointRotation,
+  warmPhysicalSupportTargets,
+} from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import type { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
-import { physicalSupportPoint } from "../../../../packages/engine/src/physics/physicalSupportPoint";
-import { setPhysicalTargetJointRotation } from "../../../../packages/engine/src/physics/setPhysicalTargetJointRotation";
-import { warmPhysicalSupportTargets } from "../../../../packages/engine/src/physics/warmPhysicalSupportTargets";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 import { PhysicalSupportFixtures } from "../internal/PhysicalSupportFixtures";
 import { vclose } from "../internal/vclose";

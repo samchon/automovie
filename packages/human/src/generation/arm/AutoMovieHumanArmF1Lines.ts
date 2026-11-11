@@ -1,3 +1,7 @@
+import { AutoMovieMeshCourse, tessellateAutoMovieContourStrip64 } from "@automovie/engine";
+
+import { AutoMovieHumanArmCurveSpec } from "./AutoMovieHumanArmCurveSpec";
+
 /**
  * f1's arm lines: the control points of the arm's sparse 2D view curves for
  * the f1-only mission, extracted from the reference in her own pose by the
@@ -42,6 +46,69 @@
  * separate fingers, the knuckles and the knuckle arc keep drawn values.
  */
 export namespace AutoMovieHumanArmF1Lines {
+  /** A point or direction in the fixed F1 capture world. */
+  type V3 = [number, number, number];
+
+  /** Locally owned mutable world-millimetre triangles, until the region is returned. */
+  export interface IFixedMesh {
+    /** Absolute millimetre positions, three numbers per vertex. */
+    positions: number[];
+
+    /** Three vertex indices per emitted triangle. */
+    indices: number[];
+  }
+
+  /** One ordered, implicitly closed set of measured contour controls and its distal plane normal. */
+  export interface IFixedRing {
+    /** Absolute contour vertices in millimetres, without a repeated closing point. */
+    points: V3[];
+
+    /** Unit normal pointing along the measured distal course. */
+    normal: V3;
+  }
+
+  /** Use the original contour walks between the exact shared shoulder and wrist. */
+  export function sleeve(
+    shoulder: IFixedRing,
+    rows: readonly IFixedRing[],
+    wrist: IFixedRing,
+  ): IFixedMesh {
+    const positions: number[] = [];
+    const indices: number[] = [];
+    const identity: Map<V3, number> = new Map();
+
+    /** Read each original perimeter against its own measured distal normal. */
+    const orientation: (ring: IFixedRing) => number = (ring: IFixedRing): number =>
+      Math.sign(AutoMovieHumanArmCurveSpec.dot(AutoMovieMeshCourse.newell(ring.points), ring.normal));
+    const sign: number = -orientation(wrist);
+    if (sign === 0) throw new Error("The measured F1 wrist has no physical orientation");
+
+    // Tessellate in the reference's physical metre chart. Retain the exact
+    // absolute millimetre controls for the shared shoulder and wrist indices.
+    const walks: V3[][] = [shoulder, ...rows, wrist].map((ring: IFixedRing): V3[] => {
+      const points: V3[] = ring.points.map(([x, y, z]: V3): V3 => {
+        const point: V3 = [x * 0.001, y * 0.001, -z * 0.001];
+        identity.set(point, positions.push(x, y, z) / 3 - 1);
+        return point;
+      });
+      return orientation(ring) === sign ? points : points.reverse();
+    });
+    for (let i: number = 1; i < walks.length; ++i)
+      tessellateAutoMovieContourStrip64(walks[i - 1]!, walks[i]!, (a: V3, b: V3, c: V3): void => {
+        indices.push(identity.get(a)!, identity.get(b)!, identity.get(c)!);
+      }, (point: V3): string => String(identity.get(point)), ({ qualified, diagnostics }: Parameters<NonNullable<Parameters<typeof tessellateAutoMovieContourStrip64>[4]>>[0]): void => {
+        if (!qualified) throw new Error(`F1 measured arm strip ${i} refused: ${diagnostics.join("; ")}`);
+      });
+
+    const last: number = positions.length / 3 - wrist.points.length;
+    const direction: number = indices.findIndex((a: number, i: number): boolean => a === last &&
+      indices[i - i % 3 + (i + 1) % 3] === last + 1);
+    if (direction < 0)
+      for (let i: number = 0; i < indices.length; i += 3)
+        [indices[i + 1], indices[i + 2]] = [indices[i + 2]!, indices[i + 1]!];
+    return { positions, indices };
+  }
+
   /** One quarter's conic shoulder per pair of guides. */
   export interface IShoulders {
     /** Between the lateral and posterior guides. */

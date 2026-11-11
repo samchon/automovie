@@ -1,3 +1,5 @@
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
+
 /**
  * Indexed triangle emission for lofted rings.
  *
@@ -58,6 +60,37 @@ export namespace AutoMovieHumanLoftMesh {
   /** Empty buffers. */
   export function create(): IContext {
     return { positions: [], indices: [], groups: [] };
+  }
+
+  /**
+   * Sample a chain on its declared station grid and common phase clock.
+   * Fixed F1 ports retain the exact diagonal used by the original measured
+   * contour capture, including the original pole fan orientation.
+   */
+  export function sampled(chain: IAutoMovieLoftChain, stations: readonly number[], phases: number): IContext {
+    const mesh: IContext = create();
+    const around: number[] = Array.from({ length: phases }, (_: unknown, k: number): number => (2 * Math.PI * k) / phases);
+    for (const station of stations)
+      for (const p of AutoMovieLoftChain.ring(chain, station, around)) mesh.positions.push(p[0]!, p[1]!, p[2]!);
+    for (let i: number = 0; i + 1 < stations.length; ++i)
+      for (let k: number = 0; k < phases; ++k) {
+        const a: number = i * phases + k;
+        const c: number = i * phases + ((k + 1) % phases);
+        mesh.indices.push(a, a + phases, c + phases, a, c + phases, c);
+      }
+    fans([chain.pole, chain.opposite], stations.length, phases, mesh.positions, mesh.indices);
+    return mesh;
+  }
+
+  /** Append the original station-grid pole fans to the supplied mesh buffers. */
+  export function fans(caps: readonly ({ end: "bottom" | "top"; point: [number, number, number] } | undefined)[], rows: number, phases: number, positions: number[], indices: number[]): void {
+    for (const terminal of caps) {
+      if (terminal === undefined) continue;
+      const row: number = terminal.end === "bottom" ? 0 : rows - 1;
+      const apex: number = positions.length / 3;
+      positions.push(...terminal.point);
+      for (let k: number = 0; k < phases; ++k) indices.push(apex, row * phases + k, row * phases + ((k + 1) % phases));
+    }
   }
 
   /**

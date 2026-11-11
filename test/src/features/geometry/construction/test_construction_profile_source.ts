@@ -1,6 +1,7 @@
 import {
   AutoMovieConstructionNativeProfile,
   AutoMovieConstructionProfile,
+  AutoMovieLoftAdmissionError,
   AutoMovieViewAxis,
   type IAutoMovieConstructionProfileSource,
   type IAutoMovieSolidSurface,
@@ -9,7 +10,6 @@ import {
 import type { IAutoMovieConstructionProfile } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { AutoMovieLoftAdmissionError } from "../../../../../packages/engine/src/geometry/construction/AutoMovieLoftAdmissionError";
 import { ConstructionNativeContinuation as Made } from "../../internal/construction/ConstructionNativeContinuation";
 import { nclose } from "../../internal/nclose";
 

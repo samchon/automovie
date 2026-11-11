@@ -1,4 +1,7 @@
+import { AutoMovieNaturalSpline, type AutoMovieViewAxis, AutoMovieViewParameter } from "@automovie/engine";
+
 import type { AutoMovieHumanArmBones } from "./AutoMovieHumanArmBones";
+import { AutoMovieHumanArmJet } from "./AutoMovieHumanArmJet";
 
 /**
  * The arm's axis: the bone polyline from the shoulder centre through the
@@ -20,6 +23,83 @@ import type { AutoMovieHumanArmBones } from "./AutoMovieHumanArmBones";
  * above the shoulder centre (negative) and past the wrist along the forearm.
  */
 export namespace AutoMovieHumanArmAxis {
+  /** One physically observed absolute digit section frame in native world millimetres. */
+  export interface IFixedChart {
+    /** Distance along the unchanged source course, millimetres. */
+    stationMm: number;
+
+    /** Absolute plane origin in native world millimetres. */
+    originMm: Vec3;
+
+    /** First observed tangent to the section plane. */
+    u: Vec3;
+
+    /** Second observed tangent in the native chart's handedness. */
+    v: Vec3;
+  }
+
+  /**
+   * Keep the original section planes at their archived stations. Natural
+   * splines continue their origins and directions between measurements; the
+   * analytic jet differentiates the orthonormalized chart actually used.
+   */
+  export function observed(planes: readonly IFixedChart[]): AutoMovieViewAxis.IAxis {
+    const stations: number[] = planes.map((plane: IFixedChart): number => plane.stationMm);
+
+    /** Reflect the native chart once into capture-world millimetres. */
+    const world: (point: Vec3) => Vec3 = ([x, y, z]: Vec3): Vec3 => [x, y, -z];
+    const J: typeof AutoMovieHumanArmJet = AutoMovieHumanArmJet;
+
+    /** Preserve the observed station parameter when continuing one chart vector. */
+    const vector: (read: (p: IFixedChart) => Vec3) => (s: number) => AutoMovieHumanArmJet.V = (read: (p: IFixedChart) => Vec3): ((s: number) => AutoMovieHumanArmJet.V) => {
+      const components: Vec3[] = planes.map(read);
+      const splines: AutoMovieNaturalSpline.ISpline[] = [0, 1, 2].map((k: number): AutoMovieNaturalSpline.ISpline =>
+        AutoMovieNaturalSpline.create(stations, components.map((p: Vec3): number => p[k]!)));
+      return (s: number): AutoMovieHumanArmJet.V => [
+        AutoMovieNaturalSpline.read(splines[0]!, s),
+        AutoMovieNaturalSpline.read(splines[1]!, s),
+        AutoMovieNaturalSpline.read(splines[2]!, s),
+      ];
+    };
+    const origin: (s: number) => AutoMovieHumanArmJet.V = vector((p: IFixedChart): Vec3 => world(p.originMm));
+    const across: (s: number) => AutoMovieHumanArmJet.V = vector((p: IFixedChart): Vec3 => world(p.u));
+    const up: (s: number) => AutoMovieHumanArmJet.V = vector((p: IFixedChart): Vec3 => {
+      const [x, y, z]: Vec3 = world(p.v);
+      return [-x, -y, -z];
+    });
+
+    /** Orthonormalize the continued frame and retain its analytic derivatives. */
+    const frame: (s: number) => { origin: AutoMovieHumanArmJet.V; u: AutoMovieHumanArmJet.V; v: AutoMovieHumanArmJet.V } = (s: number): { origin: AutoMovieHumanArmJet.V; u: AutoMovieHumanArmJet.V; v: AutoMovieHumanArmJet.V } => {
+      const u: AutoMovieHumanArmJet.V = J.unit(across(s));
+      const normal: AutoMovieHumanArmJet.V = J.unit(J.cross(up(s), u));
+      return { origin: origin(s), u, v: J.cross(u, normal) };
+    };
+    return {
+      at: (s: number): ReturnType<AutoMovieViewAxis.IAxis["at"]> => {
+        const f: ReturnType<typeof frame> = frame(s);
+        return { origin: J.value(f.origin), u: J.value(f.u), v: J.value(f.v) };
+      },
+      jet: (s: number, parameter?: Parameters<NonNullable<AutoMovieViewAxis.IAxis['jet']>>[1]): ReturnType<NonNullable<AutoMovieViewAxis.IAxis['jet']>> => {
+        const f: ReturnType<typeof frame> = frame(s);
+        const inverse: [number, number] | null = parameter === undefined ? [1, 0] : AutoMovieViewParameter.inverseJet(parameter, s);
+        if (inverse === null) return null;
+
+        /** Apply the caller's parameter jet without changing the physical frame. */
+        const derivatives: (vector: AutoMovieHumanArmJet.V) => AutoMovieHumanArmJet.V = (vector: AutoMovieHumanArmJet.V): AutoMovieHumanArmJet.V =>
+          vector.map(([value, first, second]: AutoMovieHumanArmJet.J): AutoMovieHumanArmJet.J =>
+            [value, first * inverse[0], second * inverse[0] * inverse[0] + first * inverse[1]]) as AutoMovieHumanArmJet.V;
+        const origin: AutoMovieHumanArmJet.V = derivatives(f.origin);
+        const u: AutoMovieHumanArmJet.V = derivatives(f.u);
+        const v: AutoMovieHumanArmJet.V = derivatives(f.v);
+        return {
+          value: { origin: J.value(origin), u: J.value(u), v: J.value(v) },
+          first: { origin: J.first(origin), u: J.first(u), v: J.first(v) },
+          second: { origin: J.second(origin), u: J.second(u), v: J.second(v) },
+        };
+      },
+    };
+  }
+
   /** The walk. */
   export interface IAxis {
     /** Point at a walk length. */

@@ -1,5 +1,8 @@
-import type { AutoMovieSolidMeshPlan } from "../../../../../packages/engine/src/geometry/construction/AutoMovieSolidMeshPlan";
-import { triangulateAutoMovieSolidBoundary } from "../../../../../packages/engine/src/geometry/construction/triangulateAutoMovieSolidBoundary";
+import {
+  type AutoMovieSolidMeshPlan,
+  triangulateAutoMovieSolidBoundary,
+} from "@automovie/engine";
+
 import { nclose } from "../nclose";
 
 /** Original station/phase values; selection never changes these coordinates. */
@@ -14,19 +17,30 @@ export namespace ConstructionMeshSelectionGeometry {
   export function occupied(failures: string[]): void {
     for (const scale of [0.001, 1, 1000]) {
       const vertices: Map<number, Point> = new Map([
-        [0, [0, 0]], [1, [2 * scale, 0]], [2, [2 * scale, 1]], [3, [0, 1]],
+        [0, [0, 0]],
+        [1, [2 * scale, 0]],
+        [2, [2 * scale, 1]],
+        [3, [0, 1]],
       ]);
-      const made: AutoMovieSolidMeshPlan.ITriangle[] | string = triangulateAutoMovieSolidBoundary(
-        vertices, { vertices: [0, 1, 2, 3], lifts: [0, 0, 0, 0], winding: 0 },
-        undefined, true, new Set<string>(["1/3"]),
-      );
+      const made: AutoMovieSolidMeshPlan.ITriangle[] | string =
+        triangulateAutoMovieSolidBoundary(
+          vertices,
+          { vertices: [0, 1, 2, 3], lifts: [0, 0, 0, 0], winding: 0 },
+          undefined,
+          true,
+          new Set<string>(["1/3"]),
+        );
       if (typeof made === "string" || keys(made) !== "0/1/2;0/2/3")
-        failures.push(`Occupied shared diagonal at scale ${scale}: ${typeof made === "string" ? made : keys(made)}`);
+        failures.push(
+          `Occupied shared diagonal at scale ${scale}: ${typeof made === "string" ? made : keys(made)}`,
+        );
     }
   }
 
   /** Compare oriented populations modulo cyclic corner and triangle publication order. */
-  export function keys(triangles: readonly AutoMovieSolidMeshPlan.ITriangle[]): string {
+  export function keys(
+    triangles: readonly AutoMovieSolidMeshPlan.ITriangle[],
+  ): string {
     const result: string[] = triangles.map(
       (triangle: AutoMovieSolidMeshPlan.ITriangle): string => {
         const ids: number[] = triangle.vertices;
@@ -132,7 +146,9 @@ export namespace ConstructionMeshSelectionGeometry {
             failures.push("The U lost its 4*3-2*2 chart area.");
         }
         if (JSON.stringify([...vertices]) !== before)
-          failures.push("Sampling selection changed an original concave point.");
+          failures.push(
+            "Sampling selection changed an original concave point.",
+          );
       }
   }
 
@@ -219,7 +235,10 @@ export namespace ConstructionMeshSelectionGeometry {
         for (let k: number = 15; k >= 0; k--)
           points.push([2 * scale, offset + (3 * k) / 15]);
         const vertices: Map<number, Point> = new Map(
-          points.map((point: Point, id: number): [number, Point] => [id, point]),
+          points.map((point: Point, id: number): [number, Point] => [
+            id,
+            point,
+          ]),
         );
         const before: string = JSON.stringify([...vertices]);
         for (const first of [0, 9, 21, 30]) {
@@ -238,14 +257,18 @@ export namespace ConstructionMeshSelectionGeometry {
               true,
             );
           if (typeof made === "string") {
-            failures.push(`cylinder strip/${scale}/${offset}/${first}: ${made}`);
+            failures.push(
+              `cylinder strip/${scale}/${offset}/${first}: ${made}`,
+            );
             continue;
           }
           const topology: string = keys(made);
           const reference: string | undefined = references.get(offset);
           if (reference === undefined) references.set(offset, topology);
           else if (reference !== topology)
-            failures.push("Cylinder strip topology changed with units or start.");
+            failures.push(
+              "Cylinder strip topology changed with units or start.",
+            );
           if (made.length !== points.length - 2)
             failures.push("The 37-corner cylinder strip needs 35 triangles.");
           let area: number = 0;
@@ -255,8 +278,8 @@ export namespace ConstructionMeshSelectionGeometry {
               (id: number): Point => points[id]!,
             ) as [Point, Point, Point];
             const signed: number =
-              ((b[0] - a[0]) * (c[1] - a[1]) -
-                (b[1] - a[1]) * (c[0] - a[0])) / 2;
+              ((b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])) /
+              2;
             if (!(signed > 0))
               failures.push("Cylinder strip lost positive native orientation.");
             area += signed;
@@ -291,10 +314,14 @@ export namespace ConstructionMeshSelectionGeometry {
             if (
               !(
                 (normal[0] * x) / radial +
-                  (normal[1] * y) / radial + normal[2] > 0
+                  (normal[1] * y) / radial +
+                  normal[2] >
+                0
               )
             )
-              failures.push("Cylinder strip chord failed radial-plus-z facing.");
+              failures.push(
+                "Cylinder strip chord failed radial-plus-z facing.",
+              );
           }
           if (used.size !== points.length || !nclose(area / scale, 6, 1e-10))
             failures.push("Cylinder strip lost an original point or area 6.");

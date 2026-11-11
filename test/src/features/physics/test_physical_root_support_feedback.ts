@@ -1,8 +1,7 @@
+import { Vector3, planPhysicalRootSupportTargets } from "@automovie/engine";
 import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
-import { planPhysicalRootSupportTargets } from "../../../../packages/engine/src/physics/planPhysicalRootSupportTargets";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 import { PhysicalSupportFixtures } from "../internal/PhysicalSupportFixtures";
 

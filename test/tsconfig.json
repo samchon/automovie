@@ -1,7 +1,7 @@
 {
   "extends": "../config/tsconfig.json",
   "compilerOptions": {
-    "rootDir": "..",
+    "rootDir": "src",
     "noEmit": true,
     "allowImportingTsExtensions": true,
     "rewriteRelativeImportExtensions": true,
@@ -17,11 +17,7 @@
     ]
   },
   "include": [
-    "src",
-    "../packages/human/src/executable/NodeCanvasExperiment.ts",
-    "../packages/human/src/executable/RunHumanTorsoObservation.ts",
-    "../packages/human/src/executable/HumanCurveCost.ts",
-    "../packages/motions/src/executable/motionCapture.ts"
+    "src"
   ],
   "exclude": [
     "src/executable"

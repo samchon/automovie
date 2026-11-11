@@ -5,12 +5,12 @@ import {
   AutoMovieLoftJet,
   AutoMovieLoftSectionConnect,
   AutoMovieLoftSectionSource,
+  type AutoMovieLoftViewRead,
   AutoMovieViewLoft,
   type IAutoMovieLoftChain,
   type IAutoMovieViewPart,
 } from "@automovie/engine";
 
-import type { AutoMovieLoftViewRead } from "../../../../../packages/engine/src/geometry/construction/AutoMovieLoftViewRead";
 import { ConstructionConicFieldOracle } from "./ConstructionConicFieldOracle";
 
 /** One physical station jet, independently authored at source knots. */

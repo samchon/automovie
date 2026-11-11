@@ -1,7 +1,9 @@
+import {
+  type IAutoMovieQuadraticRow,
+  solveAutoMovieQuadraticProgram,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieQuadraticRow } from "../../../../packages/engine/src/math/IAutoMovieQuadraticRow";
-import { solveAutoMovieQuadraticProgram } from "../../../../packages/engine/src/math/solveAutoMovieQuadraticProgram";
 import { nclose } from "../internal/nclose";
 
 /**

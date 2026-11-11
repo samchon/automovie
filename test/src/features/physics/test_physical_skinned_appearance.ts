@@ -1,11 +1,12 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieSkinnedMesh,
+  applyDualQuaternionSkinning,
+  createAutoMovieSurfaceAppearance,
+} from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 import * as THREE from "three";
-
-import { AutoMovieSkinnedMesh } from "../../../../packages/viewer/src/AutoMovieSkinnedMesh";
-import { createAutoMovieSurfaceAppearance } from "../../../../packages/viewer/src/createAutoMovieSurfaceAppearance";
-import { applyDualQuaternionSkinning } from "../../../../packages/viewer/src/dualQuaternionSkinning/applyDualQuaternionSkinning";
 
 /**
  * Local appearance follows the actual posed DQ skin, inverts compression, preserves shaders and restores on seek. Empty/sparse RGB, Float32 overflow and duplicate resource ownership refuse; representable HDR multipliers remain legal.

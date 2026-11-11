@@ -1,15 +1,16 @@
+import {
+  AutoMovieChain,
+  AutoMovieComposition,
+  type IAutoMovieIntent,
+  type IAutoMovieSchedule,
+  auditAutoMovieOutcome,
+  checkAutoMovieLegality,
+  evaluateAutoMovieSchedule,
+  measureAutoMovieSchedule,
+  resolveAutoMovieOutcome,
+  resolveAutoMovieSchedule,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
-
-import { AutoMovieChain } from "../../../../packages/engine/src/composition/AutoMovieChain";
-import { AutoMovieComposition } from "../../../../packages/engine/src/composition/AutoMovieComposition";
-import type { IAutoMovieIntent } from "../../../../packages/engine/src/composition/IAutoMovieIntent";
-import type { IAutoMovieSchedule } from "../../../../packages/engine/src/composition/IAutoMovieSchedule";
-import { auditAutoMovieOutcome } from "../../../../packages/engine/src/composition/auditAutoMovieOutcome";
-import { checkAutoMovieLegality } from "../../../../packages/engine/src/composition/checkAutoMovieLegality";
-import { evaluateAutoMovieSchedule } from "../../../../packages/engine/src/composition/evaluateAutoMovieSchedule";
-import { measureAutoMovieSchedule } from "../../../../packages/engine/src/composition/measureAutoMovieSchedule";
-import { resolveAutoMovieOutcome } from "../../../../packages/engine/src/composition/resolveAutoMovieOutcome";
-import { resolveAutoMovieSchedule } from "../../../../packages/engine/src/composition/resolveAutoMovieSchedule";
 
 /** Intents compose immutably, resolve on the film clock with the production's laws, and are read, judged and measured without rewriting.
  *

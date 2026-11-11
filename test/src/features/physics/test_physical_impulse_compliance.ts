@@ -1,6 +1,6 @@
+import { physicalJointEffort } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { physicalJointEffort } from "../../../../packages/engine/src/physics/physicalJointEffort";
 import { nclose } from "../internal/nclose";
 
 /** A disturbed joint tracks at its declared compliance fraction until its softening deadline, then recovers the full effort.

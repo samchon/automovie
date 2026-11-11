@@ -1,6 +1,6 @@
+import { AutoMovieCurveMath64 as M } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { AutoMovieCurveMath64 as M } from "../../../../packages/engine/src/geometry/curve/AutoMovieCurveMath64";
 import { nclose } from "../internal/nclose";
 
 /**

@@ -1,1 +1,1 @@
-export { convertAutoMovieRecoveryCurves } from "./convertAutoMovieRecoveryCurves";
+export * from "./convertAutoMovieRecoveryCurves";

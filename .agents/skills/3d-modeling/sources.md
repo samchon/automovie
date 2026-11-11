@@ -1,6 +1,6 @@
 # Sources
 
-An existing asset is a source beside crafting and generation. Use it as supplied when it serves the shot, or [recover](recovery.md) its curves when the shot needs dimensions, deformation or controls the asset cannot give. Propose, fetch or adopt one when a shot needs it or the user asks.
+An existing asset is a source beside crafting and generation. Propose, fetch or adopt one when a shot needs it or the user asks, and take it in under [Conditioning](conditioning.md), which decides whether it is used as supplied, rigged, varied by a parameter or recovered.
 
 The channels below are examples, not a complete list; search further for the subject at hand.
 

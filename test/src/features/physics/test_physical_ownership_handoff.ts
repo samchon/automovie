@@ -1,15 +1,17 @@
+import {
+  AutoMoviePhysicalPlayback as Playback,
+  Quaternion,
+  AutoMoviePhysicalSimulation as Simulation,
+  Vector3,
+  advancePhysicalOwnership,
+  bindPhysicalWorld,
+  physicalSupportPoint,
+  samplePhysicalTarget,
+} from "@automovie/engine";
 import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import RAPIER, { type RigidBody, type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
-import { AutoMoviePhysicalPlayback as Playback } from "../../../../packages/engine/src/physics/AutoMoviePhysicalPlayback";
-import { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
-import { advancePhysicalOwnership } from "../../../../packages/engine/src/physics/advancePhysicalOwnership";
-import { bindPhysicalWorld } from "../../../../packages/engine/src/physics/bindPhysicalWorld";
-import { physicalSupportPoint } from "../../../../packages/engine/src/physics/physicalSupportPoint";
-import { samplePhysicalTarget } from "../../../../packages/engine/src/physics/samplePhysicalTarget";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 import { nclose } from "../internal/nclose";
 import { qclose } from "../internal/qclose";

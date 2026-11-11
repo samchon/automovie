@@ -1,5 +1,7 @@
-import type { IAutoMovieRecoveryFeasibleTrialSelection } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryFeasibleTrialSelection";
-import type { IAutoMovieRecoveryFeasibleTrials } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryFeasibleTrials";
+import type {
+  IAutoMovieRecoveryFeasibleTrialSelection,
+  IAutoMovieRecoveryFeasibleTrials,
+} from "@automovie/recovery";
 
 /** Actual same-base selector effects observed by an independent scalar case. */
 export interface IRecoveryFeasibleTrialObservation {

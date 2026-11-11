@@ -1,15 +1,43 @@
 # Entity work
 
-Build the subjects the commission's scenes need, each in the entity folder [source layout](layout.md) gives, under the [entities contract](../contracts/development/entities.md). [3D modeling](../3d-modeling/SKILL.md) owns how a body or object is made, rigged and verified.
+Build the subjects the commission's scenes need, each in the entity folder [source layout](source-layout.md) gives, under the [entities contract](../contracts/development/entities.md).
 
 ## Scope
 
-Read [project context](../production/profile.md) first. A single scene can use a ready asset with a few placements; a recurring character needs editable proportions, expressions and motion. A standalone asset defines its views and controls without a screenplay.
+Read [project context](../production/project-context.md) first. Before building a subject, search the installed packages' READMEs for one that already provides it, under [installed packages](reuse.md#installed-packages). A standalone asset defines its views and controls without a screenplay.
 
 ## Coarse first {#coarse-first}
 
-Build stick figures, block forms or frames first, keeping identity, dimensions, pivots, attachments and controls independent of surface detail, and finish the complete low-cost performance through [motion](../motion/SKILL.md) before any upgrade. A motion hint guides video-to-video diffusion, which supplies the look, so a figure or object needs only enough form to be identified: spend accuracy on motion, staging, timing, range and camera readability, not on mesh, face or surface detail. When a figure package fails, adopt the simplest working figure, such as a polygon or stick figure, and report the fault to the package owner rather than repairing its geometry. Upgrade an entity only when the output contract asks for more than identification, such as a direct 3D film, and only what its visible role needs, keeping the controls and the measured budget. A 2D image can be appearance reference or a conditioning input, never a substitute for coded motion. Use the installed Human package only for what its public surface provides.
+A motion hint guides video-to-video diffusion, which supplies the look. So models stay coarse, and the accuracy goes to motion, staging, timing, range and camera readability.
+
+### People {#people}
+
+A person is the polygon man. The installed viewer draws it from the canonical body that the installed human package prepares from parameters, and those parameters come from the cast record's body facts.
+
+The same prepared body is the one the installed motion vocabulary plans for, so the figure on screen and the body the motion was solved on are one. [Installed packages](reuse.md#installed-packages) names these packages, and their READMEs give the calls.
+
+### Everything else
+
+Every other subject is the simplest form that identifies it: a few primitives chosen, sized and checked under 3D modeling's [coarse forms](../3d-modeling/coarse-forms.md). A chair is a seat, a back and four legs.
+
+### What stays out of the model {#what-stays-out}
+
+Identity, dimensions, pivots, attachments and controls stay independent of surface detail, so nothing a scene relies on moves when the surface changes.
+
+A fact the coarse form cannot show, such as a face, a fabric or a makeup state, is not modeled. It travels to the film through the record's canon images and the generation prompt, under [image](../image/SKILL.md) and [video](../video/SKILL.md). A 2D image can be an appearance reference or a conditioning input, never a substitute for coded motion.
+
+## Detail is an option {#detail}
+
+A commission may ask for more than identification, such as a direct 3D film. Detail is then an option of the entity whose default is the coarse form, and one definition builds both, so no placement, contact or control moves when the option changes.
+
+Author motion, accept catalog cases and review segments at the default. The coarse form shows joints and contacts plainly and captures quickly, and a defect repaired on a detailed model leaves the coarse one unrepaired.
+
+Select the detailed form only for the delivery that commissions it, record that choice in [project context](../production/project-context.md), and compare the same segments for changed proportions, pivots, contact, deformation, visibility, timing and silhouette.
+
+[3D modeling](../3d-modeling/SKILL.md#requested-detail) owns when a form goes beyond the coarse one and how it is made, rigged and verified.
 
 ## Inspect and hand off {#inspect-and-hand-off}
 
-Accept the entity first alone, in its [catalog cases](../motion/SKILL.md), against its settings or brief record's model sheet at every view and state the scenes use. Then inspect it in its commissioned use, with its scene cameras, neighbors and motion, segment by segment under [segment review](../motion/segments.md). After an upgrade, compare the same segments for changed proportions, pivots, contact, timing and silhouette. The entity names the settings or brief facts it realizes under the [entities contract](../contracts/development/entities.md); settings never link code.
+Accept the entity first alone, in its [catalog cases](../motion/catalog-cases.md), against its settings or brief record at every view and state the scenes use. Then inspect it in its commissioned use, with its scene cameras, neighbors and motion, segment by segment under [segment review](../motion/segment-review.md).
+
+The entity names the settings or brief facts it realizes under the [entities contract](../contracts/development/entities.md); settings never link code.

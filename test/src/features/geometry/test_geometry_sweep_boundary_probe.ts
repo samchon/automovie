@@ -1,11 +1,11 @@
 import {
   type IAutoMovieSweep,
+  type IAutoMovieSweepRig,
   type IAutoMovieSweepSurface,
+  rigAutoMovieSweep,
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { type IAutoMovieSweepRig } from "../../../../packages/engine/src/geometry/sweep/IAutoMovieSweepRig";
-import { rigAutoMovieSweep } from "../../../../packages/engine/src/geometry/sweep/rigAutoMovieSweep";
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";
 

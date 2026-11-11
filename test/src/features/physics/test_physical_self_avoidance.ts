@@ -1,12 +1,14 @@
+import {
+  preparePhysicalGeometry as Geometry,
+  Quaternion,
+  Vector3,
+  isPhysicalProfilePairExcluded,
+  planPhysicalContactTargets,
+  setPhysicalTargetJointRotation,
+} from "@automovie/engine";
 import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
-import { isPhysicalProfilePairExcluded } from "../../../../packages/engine/src/physics/isPhysicalProfilePairExcluded";
-import { planPhysicalContactTargets } from "../../../../packages/engine/src/physics/planPhysicalContactTargets";
-import { preparePhysicalGeometry as Geometry } from "../../../../packages/engine/src/physics/preparePhysicalGeometry";
-import { setPhysicalTargetJointRotation } from "../../../../packages/engine/src/physics/setPhysicalTargetJointRotation";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 
 /** Profile-wide avoidance derives enabled pairs from geometry and the joint tree.

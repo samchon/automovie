@@ -1,22 +1,46 @@
-# Write video prompts
+# Video prompts
 
-A video prompt tells a model what the hint cannot show: who each figure is, what the place and light look like, and what the shot sounds like. The hint, its control passes and the references already fix positions, timing and camera, so prose that restates or contradicts them competes with the stronger input. Follow the selected model's own prompting guide, linked in [models](models.md); the rules here are what those guides share.
+A video prompt tells a model what the motion hint cannot show: who each figure is, what the place and light look like, and what the shot sounds like. The hint, its control channels and the references already fix positions, timing and camera, so prose that restates or contradicts them competes with the stronger input.
+
+Follow the selected model's own prompting guide, linked in [diffusion models](diffusion.md); the rules here are what those guides share.
 
 ## Content
 
-- Describe the finished shot in plain prose: camera and framing, each figure, the single action, the setting, light and palette, style, then sound. Natural sentences steer better than keyword lists, and pasted tag-style prompts from another model lose meaning.
-- Give each shot one camera move and one subject action, written as countable beats ("takes three steps and stops at the rail"). Several moves or actions in one request blur, morph or drop; split the shot instead, or use the model's own timestamp or multi-shot syntax when it has one.
-- Name each figure as the person or thing it becomes, by its reference token or element name when the model binds references ("the woman from Image 1, in a navy wool coat"). Reuse the identical description, palette words and light logic in every shot of the same subject, because a reworded description is a different character to the model.
-- Describe what to show, not what to avoid. A negated word still primes its concept. Where the model has a negative field, list plain nouns there ("mannequin, clay, plastic, untextured render") without "no" or "don't".
-- Keep duration, size, frame rate and seed in the request's settings. Prose such as "make it longer" changes nothing.
+### Plain prose
 
-## Stand-ins and controls
+Describe the finished shot in plain prose, in this order: camera and framing, each figure, the single action, the setting, light and palette, style, then sound. Natural sentences steer better than keyword lists, and pasted tag-style prompts from another model lose meaning.
 
-The hint's figures are grey stand-ins. At low strength a model keeps their look and returns mannequins, robots or clay; at high strength it frees the look but loses the motion. Choose the input so motion and appearance arrive through different channels:
+### One move, one action
 
-- With a structural control (pose, depth, edges, layout), describe appearance, material, light and style only. The control carries the motion, and words about motion or structure fight it.
-- With a raw hint video, state its role in one sentence ("the input video supplies only camera, positions, timing and occlusion"), map each stand-in to its reference, and never describe the grey look positively. Words such as "3D", "render", "clay", "grey" or "model" in the positive prompt pull the result toward the stand-in.
-- When the model accepts a first frame or keyframe, give appearance there: an image made from the hint's own first frame under [image](../image/SKILL.md), so the generated shot starts in the hint's pose and camera.
+Give each shot one camera move and one subject action, written as countable beats ("takes three steps and stops at the rail"). Several moves or actions in one request blur, morph or drop. Split the shot instead, or use the model's own timestamp or multi-shot syntax when it has one.
+
+### One description per subject
+
+Name each figure as the person or thing it becomes, by its reference token or element name when the model binds references ("the woman from Image 1, in a navy wool coat"). Reuse the identical description, palette words and light logic in every shot of the same subject, because a reworded description is a different character to the model.
+
+### What to show
+
+Describe what to show, not what to avoid, because a negated word still primes its concept. Where the model has a negative field, list plain nouns there ("mannequin, clay, plastic, untextured render") without "no" or "don't".
+
+### Settings stay out of prose
+
+Keep duration, size, frame rate and seed in the request's settings. Prose such as "make it longer" changes nothing.
+
+## Polygon men and controls
+
+The hint's figures are gray and coarse. Strength is the setting for how far a model may depart from its input video: at low strength a model keeps their look and returns mannequins, robots or clay; at high strength it frees the look but loses the motion. Choose the input so motion and appearance arrive through different channels.
+
+### Structural control
+
+With a pose, depth, edge or layout control, describe appearance, material, light and style only. The control carries the motion, and words about motion or structure fight it.
+
+### Raw hint video
+
+State the video's role in one sentence ("the input video supplies only camera, positions, timing and occlusion") and map each polygon man to its reference. Never describe the gray look positively: words such as "3D", "render", "clay", "gray" or "model" in the positive prompt pull the result toward the polygon man.
+
+### First frame or keyframe
+
+When the model accepts one, give appearance there: an image made from the hint's own first frame under [image](../image/SKILL.md), so the generated shot starts in the hint's pose and camera.
 
 ## Sound
 

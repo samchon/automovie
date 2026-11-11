@@ -1,10 +1,11 @@
+import {
+  preparePhysicalGeometry as Geometry,
+  Quaternion,
+  Vector3,
+  physicalShapeSurfaceAnchor,
+} from "@automovie/engine";
 import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
-import { physicalShapeSurfaceAnchor } from "../../../../packages/engine/src/physics/physicalShapeSurfaceAnchor";
-import { preparePhysicalGeometry as Geometry } from "../../../../packages/engine/src/physics/preparePhysicalGeometry";
 
 /** Selected receiver surfaces follow their bone frame and agree with independent native closest-point queries.
  *

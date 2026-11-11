@@ -1,4 +1,8 @@
 import {
+  type IAutoMovieCurve64 as C,
+  realizeAutoMovieBicubicAtlas64 as realize,
+} from "@automovie/engine";
+import {
   type IAutoMovieRecoveryEventChartInput as Chart,
   AutoMovieRecoveryEventCurve as E,
   type IAutoMovieRecoveryEventCurvePiece,
@@ -6,8 +10,6 @@ import {
 } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieCurve64 as C } from "../../../../packages/engine/src/geometry/curve/IAutoMovieCurve64";
-import { realizeAutoMovieBicubicAtlas64 as realize } from "../../../../packages/engine/src/geometry/realizeAutoMovieBicubicAtlas64";
 import { nclose } from "../internal/nclose";
 
 /**

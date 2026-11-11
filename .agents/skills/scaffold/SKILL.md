@@ -19,7 +19,7 @@ Installed package APIs own API documentation, and the scaffold does not duplicat
 
 ## Source layout
 
-The production's [source layout](../../../packages/template/scaffold/instructions/.agents/skills/development/layout.md) is its backbone. A folder change moves the layout table, the development stages of `@automovie/evidence` and the contract respondents together, or they disagree about where code belongs. The scaffold `lint.config.ts` stays generic and names no folder.
+The production's [source layout](../../../packages/template/scaffold/instructions/.agents/skills/development/source-layout.md) is its backbone. A folder change moves the layout table, the development stages of `@automovie/evidence` and the contract respondents together, or they disagree about where code belongs. The scaffold `lint.config.ts` stays generic and names no folder.
 
 ## Outputs and routes
 
@@ -33,7 +33,7 @@ Default lint and evidence configurations serve ordinary TypeScript development; 
 
 ## Shared items
 
-An empty `$<name>` file under the scaffold's `.agents/skills` ships the repository item `<name>` at the same place under `.agents/skills`: `$3d-modeling` the whole folder, `development/$repair.md` the single file. The [instruction synchronizer](../../../packages/template/build/syncScaffoldInstructions.ts) copies those items into `lib/skills` on `prepare` and `build`, and the scaffold reader ships them in the placeholders' place.
+An empty `$<name>` file under the scaffold's `.agents/skills` ships the repository item `<name>` at the same place under `.agents/skills`: `$documentation` the whole folder, `development/$repair.md` the single file. A skill whose production stance differs keeps its own `SKILL.md` beside file placeholders, as `3d-modeling` and `motion` do. The [instruction synchronizer](../../../packages/template/build/syncScaffoldInstructions.ts) copies those items into `lib/skills` on `prepare` and `build`, and the scaffold reader ships them in the placeholders' place.
 
 Share a repository skill this way instead of keeping a second copy, and edit it at its repository source under the [shared skill](../prompting/SKILL.md#shared-skills) rule. [Root and scaffold](../scaffold-prompting/SKILL.md#root-and-scaffold) says which rules belong on which side.
 
@@ -59,7 +59,7 @@ Runtime README and `.env.example` own nonsecret operational setup and variable n
 
 ## Updating productions
 
-Package upgrades do not rewrite productions. Explicit instruction updates use the CLI sync documented in the [CLI README](../../../packages/cli/README.md), which updates routers and bundled task resources while preserving contracts, project decisions, configuration and authored content. Reusable package implementation stays with its package. A scaffold edit alone reaches only future installations until sync is run.
+Package upgrades do not rewrite productions. Explicit instruction updates use the CLI sync documented in the [root README](../../../README.md#commands), which updates routers and bundled task resources while preserving contracts, project decisions, configuration and authored content. Reusable package implementation stays with its package. A scaffold edit alone reaches only future installations until sync is run.
 
 For an authorized update to an existing production:
 

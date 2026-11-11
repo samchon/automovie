@@ -1,8 +1,8 @@
+import { physicalGravityTorques } from "@automovie/engine";
 import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import RAPIER, { type RigidBody, type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 
-import { physicalGravityTorques } from "../../../../packages/engine/src/physics/physicalGravityTorques";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
 /** Actual posed subtree mass supplies gravitational feed-forward in the motor's frame.

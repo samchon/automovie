@@ -5,9 +5,9 @@ description: Rewrites the final screenplay's expression against its frozen const
 
 # Naturalness
 
-Rewrite how the screenplay is seen and heard while its decided meaning stays frozen; scripts finish their expression within construction instead.
+Rewrite how the screenplay is seen and heard while its decided meaning stays frozen.
 
 | Task | Read |
 | --- | --- |
-| Rewrite expression against its frozen meaning | [Method](method.md) |
-| Freeze, submit or transfer expression work | [Procedure](procedure.md) |
+| Rewrite expression against its frozen meaning | [Rewriting](rewriting.md) |
+| Freeze, submit or transfer expression work | [Transfer](transfer.md) |

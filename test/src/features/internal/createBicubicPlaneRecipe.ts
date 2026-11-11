@@ -1,4 +1,4 @@
-import type { IAutoMovieBicubicAtlasGeometry } from "../../../../packages/interface/src/model/IAutoMovieBicubicAtlasGeometry";
+import type { IAutoMovieBicubicAtlasGeometry } from "@automovie/interface";
 
 /** Create the Bernstein degree elevation of the unit square in model metres. */
 export function createBicubicPlaneRecipe(): IAutoMovieBicubicAtlasGeometry {

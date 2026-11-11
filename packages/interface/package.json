@@ -9,7 +9,6 @@
   },
   "scripts": {
     "build": "rimraf lib && ttsc",
-    "prepack": "pnpm run build",
     "evidence": "evidence"
   },
   "keywords": [

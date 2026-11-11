@@ -2,7 +2,7 @@
 
 Draws AutoMovie output with Three.js. It builds Three.js objects from `@automovie/interface` models and scenes, applies poses, expressions and motion on one frame clock, and captures or inspects the result. The engine decides what a frame contains and the viewer only draws it. This is the one AutoMovie package that imports `three`.
 
-It has no editor controls and no example content. A host, the program that mounts it, can be a browser page, a headless capture process or the playground.
+It has no editor controls and no example content. A host, the program that mounts it, can be a browser page or a headless capture process.
 
 ## Use
 
@@ -44,7 +44,7 @@ Everything is exported from the package root.
 - Passes and transitions: `applyRenderMode`, `applyAutoMovieSemanticMask`, `renderAutoMovieFilmFrame`.
 - Mount and capture: `mountViewer`, `captureViewerSnapshot`.
 
-Formations, effects, fluids, soft bodies, section planes and the metric capture helpers are exported the same way. Units and the owner of each returned object are in the JSDoc. A CPU rasterizer for Node ships with a generated production, under `src/executable/viewer/node/raster`.
+Formations, effects, fluids, soft bodies, section planes and the metric capture helpers are exported the same way. Units and the owner of each returned object are in the JSDoc. `rasterizeAutoMovieScene` draws a scene on the CPU for Node captures, with `AutoMovieRasterSheet` contact sheets and `encodeAutoMovieRasterPng`.
 
 ## Ownership
 

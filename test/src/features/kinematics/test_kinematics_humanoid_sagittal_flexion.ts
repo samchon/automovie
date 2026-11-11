@@ -1,4 +1,3 @@
-import { createAutoMovieStickman } from "../internal/createAutoMovieStickman";
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
@@ -15,6 +14,7 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { createAutoMovieStickman } from "../internal/createAutoMovieStickman";
 import { joint } from "../internal/joint";
 import { material } from "../internal/material";
 import { nclose } from "../internal/nclose";
