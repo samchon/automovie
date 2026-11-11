@@ -4,6 +4,7 @@ import path from "node:path";
 
 import { CaptureDirectory } from "./CaptureDirectory";
 import { formatCaptureSeconds } from "./formatCaptureSeconds";
+import { isCaptureOwnedFile } from "./isCaptureOwnedFile";
 import { readCapturePng } from "./readCapturePng";
 import { runCaptureFfmpeg } from "./runCaptureFfmpeg";
 
@@ -84,10 +85,18 @@ export async function captureEncodedStills(props: {
     path.join(output.directory, "s%05d.png"),
   ]);
 
-  // Name each still by its second, and drop any the rate filter emitted at or past the window's end.
+  // The folder was cleared of owned names when it was opened, so every owned `s<number>.png` in it is FFmpeg's; a number grows a digit past 99999, so the stills are ordered by number.
   const decoded: string[] = (await readdir(output.directory))
-    .filter((entry: string): boolean => /^s\d{5}\.png$/u.test(entry))
-    .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0));
+    .filter(
+      (entry: string): boolean =>
+        /^s\d/u.test(entry) && isCaptureOwnedFile(entry),
+    )
+    .sort(
+      (a: string, b: string): number =>
+        Number(a.slice(1, -4)) - Number(b.slice(1, -4)),
+    );
+
+  // Name each still by its second, and drop any the rate filter emitted at or past the window's end.
   const times: number[] = [];
   let raster: { width: number; height: number } | null = null;
   for (const [index, entry] of decoded.entries()) {
