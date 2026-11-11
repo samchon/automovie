@@ -1,6 +1,9 @@
 import type { HumanActionName } from "../HumanActionName";
 import { operate } from "../affordance/operate";
 import { kickBall } from "../ballStrike/kickBall";
+import { dress } from "../dressing/dress";
+import { useTool } from "../tasks/useTool";
+import { wipe } from "../tasks/wipe";
 import { climbLadder } from "../climbing/climbLadder";
 import { clinch } from "../grappling/clinch";
 import { crawl } from "../floor/crawl";
@@ -33,6 +36,7 @@ import { knockdown } from "../reaction/knockdown";
 import { stagger } from "../reaction/stagger";
 import { athletics } from "../sport/athletics";
 import { gymnastics } from "../sport/gymnastics";
+import { martialArt } from "../sport/martialArt";
 import { defend } from "../striking/defend";
 import { guard } from "../striking/guard";
 import { kick } from "../striking/kick";
@@ -102,6 +106,9 @@ export const HUMAN_ACTIONS: Readonly<
   climbLadder,
   clinch,
   kickBall,
+  useTool,
+  wipe,
+  dress,
   kiss,
   highFive,
   selfAction,
@@ -110,4 +117,5 @@ export const HUMAN_ACTIONS: Readonly<
   dance,
   athletics,
   gymnastics,
+  martialArt,
 };

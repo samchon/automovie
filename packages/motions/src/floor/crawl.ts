@@ -120,10 +120,8 @@ export namespace crawl {
     const cycles: number = context.params.cycles ?? 3;
     if (!(Number.isInteger(cycles) && cycles > 0))
       throw new Error("A crawl lasts a positive whole number of cycles");
-    const modifiers: AutoMovieMotionManner.IModifiers = AutoMovieMotionManner.of(
-      context,
-      context.params.manner,
-    );
+    const modifiers: AutoMovieMotionManner.IModifiers =
+      AutoMovieMotionManner.of(context, context.params.manner);
     const standing: IHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
@@ -141,7 +139,11 @@ export namespace crawl {
     const knee: number = m.shankRadius;
     const hipY: number = knee + m.thigh;
     const shoulderY: number = m.upperArm + m.forearm + 0.5 * m.hand;
-    const restHips = hipJoints(body, { x: 0, y: 0, z: 0 }, Quaternion.identity());
+    const restHips = hipJoints(
+      body,
+      { x: 0, y: 0, z: 0 },
+      Quaternion.identity(),
+    );
     const restShoulders: IAutoMovieVector3 = Vector3.lerp(
       body.rest.get("leftUpperArm")!,
       body.rest.get("rightUpperArm")!,
@@ -186,7 +188,10 @@ export namespace crawl {
         Vector3.lerp(joints.left, joints.right, 0.5),
       );
     };
-    const crawling: IHumanPosture = { ...posed(1), root: rootFor(1, HumanFrame.point(frame, { x: 0, y: hipY, z: 0 })) };
+    const crawling: IHumanPosture = {
+      ...posed(1),
+      root: rootFor(1, HumanFrame.point(frame, { x: 0, y: hipY, z: 0 })),
+    };
     const bones = poseBones(body, resolveHumanPosture(body, crawling));
     const local = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
       HumanFrame.local(frame, bones.get(bone)!.worldPosition);
@@ -338,10 +343,8 @@ export namespace crawl {
     const contacts: IHumanContactWindow[] = [];
     for (const side of ["left", "right"] as const)
       for (let k: number = 0; k <= cycles; k++) {
-        const from: number =
-          k === 0 ? DOWN : lift(`${side}Hand`, k) + swing;
-        const to: number =
-          k === cycles ? duration : lift(`${side}Hand`, k + 1);
+        const from: number = k === 0 ? DOWN : lift(`${side}Hand`, k) + swing;
+        const to: number = k === cycles ? duration : lift(`${side}Hand`, k + 1);
         contacts.push({
           part: `${side}Hand`,
           kind: "plant",

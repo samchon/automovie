@@ -132,7 +132,8 @@ export function floorCases(
         for (let k: number = 1; k <= 3; k++) {
           const t: number =
             k === 3
-              ? FamilyCaseKit.event(performance, `${side}KneeTouchdown${k}`) + 0.1
+              ? FamilyCaseKit.event(performance, `${side}KneeTouchdown${k}`) +
+                0.1
               : (FamilyCaseKit.event(performance, `${side}KneeTouchdown${k}`) +
                   FamilyCaseKit.event(
                     performance,
@@ -162,7 +163,9 @@ export function floorCases(
           performance,
           `${limb}Liftoff${k}`,
         );
-        const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
+        const side: "left" | "right" = limb.startsWith("left")
+          ? "left"
+          : "right";
         for (
           let t: number = planned - 0.25 * period;
           t <= planned + 0.25 * period;
@@ -208,7 +211,7 @@ export function floorCases(
           {
             name: "diagonal lift-offs within 10 % of a cycle",
             passed: lag <= 0.1 * period,
-            detail: `${(lag / period * 100).toFixed(1)} % of ${period.toFixed(2)} s`,
+            detail: `${((lag / period) * 100).toFixed(1)} % of ${period.toFixed(2)} s`,
           },
         ],
       });

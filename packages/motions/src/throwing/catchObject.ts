@@ -60,8 +60,12 @@ export namespace catchObject {
     throwObject: [
       { window: ["secured", 1], kind: "inertialize", entry: 0, blend: 0.2 },
     ],
-    stand: [{ window: ["secured", 1], kind: "inertialize", entry: 0, blend: 0.3 }],
-    walk: [{ window: ["secured", 1], kind: "inertialize", entry: 0, blend: 0.3 }],
+    stand: [
+      { window: ["secured", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+    ],
+    walk: [
+      { window: ["secured", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+    ],
   };
 
   /**
@@ -197,8 +201,14 @@ export namespace catchObject {
 
     // The object: on its path before contact, given with after it, then
     // carried to before the sternum.
-    const given: IAutoMovieVector3 = Vector3.add(meet, Vector3.scale(along, GIVE));
-    const object = (seconds: number, posture: IHumanPosture): IAutoMovieVector3 => {
+    const given: IAutoMovieVector3 = Vector3.add(
+      meet,
+      Vector3.scale(along, GIVE),
+    );
+    const object = (
+      seconds: number,
+      posture: IHumanPosture,
+    ): IAutoMovieVector3 => {
       if (seconds <= contact)
         return throwObject.path(launch, Math.max(0, seconds - released));
       if (seconds <= secured)
@@ -262,7 +272,11 @@ export namespace catchObject {
               point: Vector3.add(centre, Vector3.scale(outward, radius)),
               normal: outward,
             },
-            { surface: "palm", shape: "relaxed", forward: { x: 0, y: 1, z: 0 } },
+            {
+              surface: "palm",
+              shape: "relaxed",
+              forward: { x: 0, y: 1, z: 0 },
+            },
           );
         },
         weight: (seconds: number): number =>

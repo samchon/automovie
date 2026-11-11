@@ -72,7 +72,13 @@ export function crouchCases(
         verdicts: [
           ...common(performance, who),
           depth === "full"
-            ? FamilyCaseKit.band("knee flexion at lowest", knee, 140, 157, "deg")
+            ? FamilyCaseKit.band(
+                "knee flexion at lowest",
+                knee,
+                140,
+                157,
+                "deg",
+              )
             : FamilyCaseKit.band("knee flexion at lowest", knee, 0, 140, "deg"),
           {
             name: "margin of stability through the crouch",

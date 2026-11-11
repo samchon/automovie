@@ -3,6 +3,9 @@ import { MotionBodies } from "../MotionBodies";
 import { affordanceCases } from "./affordanceCases";
 import { ballStrikeCases } from "./ballStrikeCases";
 import { climbCases } from "./climbCases";
+import { dressCases } from "./dressCases";
+import { householdCases } from "./householdCases";
+import { toolCases } from "./toolCases";
 import { grappleCases } from "./grappleCases";
 import { floorCases } from "./floorCases";
 import { affectionCases } from "./affectionCases";
@@ -17,6 +20,7 @@ import { handToFaceCases } from "./handToFaceCases";
 import { handlingCases } from "./handlingCases";
 import { jumpCases } from "./jumpCases";
 import { locomotionCases } from "./locomotionCases";
+import { martialArtCases } from "./martialArtCases";
 import { reactionCases } from "./reactionCases";
 import { selfCases } from "./selfCases";
 import { stairsCases } from "./stairsCases";
@@ -147,6 +151,13 @@ export const MOTION_CAPTURE_CASES: Readonly<
   "grapple-sweep": (): IMotionCaptureCase[] => grappleCases(MotionBodies.SWEEP),
   ball: (): IMotionCaptureCase[] => ballStrikeCases(),
   "ball-sweep": (): IMotionCaptureCase[] => ballStrikeCases(MotionBodies.SWEEP),
+  tool: (): IMotionCaptureCase[] => toolCases(),
+  "tool-sweep": (): IMotionCaptureCase[] => toolCases(MotionBodies.SWEEP),
+  household: (): IMotionCaptureCase[] => householdCases(),
+  "household-sweep": (): IMotionCaptureCase[] =>
+    householdCases(MotionBodies.SWEEP),
+  dress: (): IMotionCaptureCase[] => dressCases(),
+  "dress-sweep": (): IMotionCaptureCase[] => dressCases(MotionBodies.SWEEP),
   affection: (): IMotionCaptureCase[] => affectionCases(),
   "affection-sweep": (): IMotionCaptureCase[] =>
     affectionCases(MotionBodies.SWEEP),
@@ -166,4 +177,7 @@ export const MOTION_CAPTURE_CASES: Readonly<
   gymnastics: (): IMotionCaptureCase[] => gymnasticsCases(),
   "gymnastics-sweep": (): IMotionCaptureCase[] =>
     gymnasticsCases(MotionBodies.SWEEP),
+  martial: (): IMotionCaptureCase[] => martialArtCases(),
+  "martial-sweep": (): IMotionCaptureCase[] =>
+    martialArtCases(MotionBodies.SWEEP),
 };

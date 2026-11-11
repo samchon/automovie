@@ -56,8 +56,12 @@ export namespace kickBall {
 
   /** Cancel table: stand or walk after the follow-through. */
   export const interrupts: IHumanActionLaw["interrupts"] = {
-    stand: [{ window: ["strokeEnd", 1], kind: "inertialize", entry: 0, blend: 0.3 }],
-    walk: [{ window: ["strokeEnd", 1], kind: "inertialize", entry: 0, blend: 0.3 }],
+    stand: [
+      { window: ["strokeEnd", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+    ],
+    walk: [
+      { window: ["strokeEnd", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+    ],
   };
 
   /**
@@ -135,10 +139,8 @@ export namespace kickBall {
     const m = body.measure;
     const side: "left" | "right" = context.params.foot ?? "right";
     const radius: number = context.params.radius ?? 0.11;
-    const modifiers: AutoMovieMotionManner.IModifiers = AutoMovieMotionManner.of(
-      context,
-      context.params.manner,
-    );
+    const modifiers: AutoMovieMotionManner.IModifiers =
+      AutoMovieMotionManner.of(context, context.params.manner);
     const standing: IHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
@@ -182,10 +184,11 @@ export namespace kickBall {
     const chamber: HumanFoot.IPlacement = {
       ankle: Vector3.add(
         hit.ankle,
-        Vector3.add(
-          Vector3.scale(direction, -CHAMBER.back * m.shank),
-          { x: 0, y: CHAMBER.up * m.shank, z: 0 },
-        ),
+        Vector3.add(Vector3.scale(direction, -CHAMBER.back * m.shank), {
+          x: 0,
+          y: CHAMBER.up * m.shank,
+          z: 0,
+        }),
       ),
       rotation: hit.rotation,
     };
@@ -237,7 +240,9 @@ export namespace kickBall {
           clock,
           ["start", "stroke"],
           ["relax", "end"],
-          { [`${support}UpperArm`]: [10, 40, 0] } as AutoMovieMotionHumanJoints.Angles,
+          {
+            [`${support}UpperArm`]: [10, 40, 0],
+          } as AutoMovieMotionHumanJoints.Angles,
         ),
       ],
     });

@@ -164,10 +164,8 @@ export namespace crouch {
       context.params.heels ?? (depth === "full" ? "up" : "flat");
     const hold: number = context.params.hold ?? 1;
     if (!(hold >= 0)) throw new Error("A crouch's hold is not negative");
-    const modifiers: AutoMovieMotionManner.IModifiers = AutoMovieMotionManner.of(
-      context,
-      context.params.manner,
-    );
+    const modifiers: AutoMovieMotionManner.IModifiers =
+      AutoMovieMotionManner.of(context, context.params.manner);
 
     // The leg's angles: the shank tilts by the ankle's range plus the heel
     // lift, the thigh takes the rest of the knee flexion.
@@ -185,8 +183,7 @@ export namespace crouch {
       );
 
     // The clock: descent, hold, rise.
-    const down: number =
-      DESCENT[depth] * Math.sqrt(m.hipHeight / 0.93);
+    const down: number = DESCENT[depth] * Math.sqrt(m.hipHeight / 0.93);
     const clock: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.sequence([
         { name: "descend", seconds: down },

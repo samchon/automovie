@@ -88,7 +88,11 @@ export function climbCases(
     }
     let fewest: { value: number; at: number } = { value: 4, at: 0 };
     const handsOn: number = FamilyCaseKit.event(performance, "handsOn");
-    for (let t: number = handsOn; t <= performance.duration + 1e-9; t += 1 / 24) {
+    for (
+      let t: number = handsOn;
+      t <= performance.duration + 1e-9;
+      t += 1 / 24
+    ) {
       const bones = performance.bones("a", t);
       let count: number = 0;
       for (const side of ["left", "right"] as const) {
@@ -117,7 +121,12 @@ export function climbCases(
       boxes,
       verdicts: [
         ...everydayVerdicts.standard(performance, "a", who.body),
-        everydayVerdicts.within("gripping hand on its rung", held.value, 0.01, "mm"),
+        everydayVerdicts.within(
+          "gripping hand on its rung",
+          held.value,
+          0.01,
+          "mm",
+        ),
         {
           name: "three limbs on the ladder at every frame",
           passed: fewest.value >= 3,

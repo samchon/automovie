@@ -53,7 +53,9 @@ export namespace lieDown {
 
   /** Cancel table: the lying body is cut only once settled. */
   export const interrupts: IHumanActionLaw["interrupts"] = {
-    crawl: [{ window: ["settled", 1], kind: "inertialize", entry: 0, blend: 0.4 }],
+    crawl: [
+      { window: ["settled", 1], kind: "inertialize", entry: 0, blend: 0.4 },
+    ],
   };
 
   /** A lying position. */
@@ -98,7 +100,13 @@ export namespace lieDown {
     Record<"sit" | "kneel" | "quadruped" | Position, IPose>
   > = {
     sit: pose(-30, 0, { hip: 110, knee: 100, shoulder: -40, elbow: 5 }),
-    kneel: pose(0, 0, { hip: 0, knee: 110, shoulder: 0, elbow: 12, ankle: -30 }),
+    kneel: pose(0, 0, {
+      hip: 0,
+      knee: 110,
+      shoulder: 0,
+      elbow: 12,
+      ankle: -30,
+    }),
     quadruped: pose(85, 0, {
       hip: 85,
       knee: 95,
@@ -107,7 +115,13 @@ export namespace lieDown {
       neck: -40,
       ankle: -40,
     }),
-    supine: pose(-90, 0, { hip: 5, knee: 5, shoulder: 0, elbow: 10, ankle: -20 }),
+    supine: pose(-90, 0, {
+      hip: 5,
+      knee: 5,
+      shoulder: 0,
+      elbow: 10,
+      ankle: -20,
+    }),
     prone: pose(88, 0, {
       hip: 0,
       knee: 10,
@@ -133,27 +147,28 @@ export namespace lieDown {
   };
 
   /** The route of postures to each position, after standing, with each arrival's event. */
-  export const ROUTES: Readonly<Record<Position, readonly [string, string][]>> = {
-    supine: [
-      ["sit", "seatContact"],
-      ["supine", "supine"],
-    ],
-    prone: [
-      ["kneel", "kneeContact"],
-      ["quadruped", "handsDown"],
-      ["prone", "prone"],
-    ],
-    lateralLeft: [
-      ["sit", "seatContact"],
-      ["supine", "supine"],
-      ["lateralLeft", "lateral"],
-    ],
-    lateralRight: [
-      ["sit", "seatContact"],
-      ["supine", "supine"],
-      ["lateralRight", "lateral"],
-    ],
-  };
+  export const ROUTES: Readonly<Record<Position, readonly [string, string][]>> =
+    {
+      supine: [
+        ["sit", "seatContact"],
+        ["supine", "supine"],
+      ],
+      prone: [
+        ["kneel", "kneeContact"],
+        ["quadruped", "handsDown"],
+        ["prone", "prone"],
+      ],
+      lateralLeft: [
+        ["sit", "seatContact"],
+        ["supine", "supine"],
+        ["lateralLeft", "lateral"],
+      ],
+      lateralRight: [
+        ["sit", "seatContact"],
+        ["supine", "supine"],
+        ["lateralRight", "lateral"],
+      ],
+    };
 
   /**
    * Plan a lie down.
@@ -169,10 +184,8 @@ export namespace lieDown {
     const position: Position = context.params.position ?? "supine";
     const hold: number = context.params.hold ?? 2;
     if (!(hold >= 0)) throw new Error("A lie down's hold is not negative");
-    const modifiers: AutoMovieMotionManner.IModifiers = AutoMovieMotionManner.of(
-      context,
-      context.params.manner,
-    );
+    const modifiers: AutoMovieMotionManner.IModifiers =
+      AutoMovieMotionManner.of(context, context.params.manner);
     const standing: IHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
@@ -183,7 +196,9 @@ export namespace lieDown {
     ];
     const phases: AutoMovieMotionClock.IPhase[] = [
       { name: "getDown", seconds: PHASE },
-      ...route.slice(0, -1).map(([, event]) => ({ name: event, seconds: PHASE })),
+      ...route
+        .slice(0, -1)
+        .map(([, event]) => ({ name: event, seconds: PHASE })),
       { name: route.at(-1)![1], seconds: 0 },
       { name: "settled", seconds: hold },
     ];
@@ -218,8 +233,12 @@ export namespace lieDown {
         ...Object.keys(a.joints),
         ...Object.keys(b.joints),
       ]) as Set<keyof AutoMovieMotionHumanJoints.Angles>) {
-        const p: readonly [number, number, number] = a.joints[bone] ?? [0, 0, 0];
-        const q: readonly [number, number, number] = b.joints[bone] ?? [0, 0, 0];
+        const p: readonly [number, number, number] = a.joints[bone] ?? [
+          0, 0, 0,
+        ];
+        const q: readonly [number, number, number] = b.joints[bone] ?? [
+          0, 0, 0,
+        ];
         joints[bone] = [
           p[0] + (q[0] - p[0]) * u,
           p[1] + (q[1] - p[1]) * u,

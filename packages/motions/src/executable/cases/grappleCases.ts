@@ -54,7 +54,12 @@ export function grappleCases(
         "grapple",
         [
           { subject: "a", body: who.body },
-          { subject: "b", body: who.body, at: { x: 0, y: 0, z: 0.55 }, yaw: 180 },
+          {
+            subject: "b",
+            body: who.body,
+            at: { x: 0, y: 0, z: 0.55 },
+            yaw: 180,
+          },
         ],
         composition,
       );

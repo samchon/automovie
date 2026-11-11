@@ -59,10 +59,18 @@ export namespace kneel {
 
   /** Cancel table: the body stands, crouches or handles a low thing once it has settled. */
   export const interrupts: IHumanActionLaw["interrupts"] = {
-    stand: [{ window: ["settled", 1], kind: "inertialize", entry: 0, blend: 0.3 }],
-    crouch: [{ window: ["settled", 1], kind: "inertialize", entry: 0, blend: 0.3 }],
-    pickUp: [{ window: ["settled", 1], kind: "inertialize", entry: 0, blend: 0.3 }],
-    putDown: [{ window: ["settled", 1], kind: "inertialize", entry: 0, blend: 0.3 }],
+    stand: [
+      { window: ["settled", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+    ],
+    crouch: [
+      { window: ["settled", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+    ],
+    pickUp: [
+      { window: ["settled", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+    ],
+    putDown: [
+      { window: ["settled", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+    ],
   };
 
   /** On one knee, on both knees upright, or sitting back on the heels. */
@@ -136,10 +144,8 @@ export namespace kneel {
     const hold: number = context.params.hold ?? 1.5;
     const rise: boolean = context.params.rise ?? true;
     if (!(hold >= 0)) throw new Error("A kneel's hold is not negative");
-    const modifiers: AutoMovieMotionManner.IModifiers = AutoMovieMotionManner.of(
-      context,
-      context.params.manner,
-    );
+    const modifiers: AutoMovieMotionManner.IModifiers =
+      AutoMovieMotionManner.of(context, context.params.manner);
     const probe: IHumanActionPlan = stand.plan({
       ...context,
       params: { seconds: 1 },
@@ -192,10 +198,8 @@ export namespace kneel {
         standingHips[k],
         Vector3.scale(
           forward,
-          Vector3.dot(
-            Vector3.subtract(frontAnkle, standingHips[k]),
-            forward,
-          ) - behind,
+          Vector3.dot(Vector3.subtract(frontAnkle, standingHips[k]), forward) -
+            behind,
         ),
       ),
       y: hipY,
@@ -297,8 +301,7 @@ export namespace kneel {
           [k]: { ...backFoot, planted: true },
         } as IKey["feet"],
       });
-    if (kind === "sitBack")
-      keys.push({ ...keys.at(-1)!, root: rootSit });
+    if (kind === "sitBack") keys.push({ ...keys.at(-1)!, root: rootSit });
 
     // Phases: down through the keys, a hold, and back up when rising.
     const scale: number = Math.sqrt(m.hipHeight / 0.93);
@@ -371,7 +374,8 @@ export namespace kneel {
       b: IFoot & { planted: boolean },
       u: number,
     ): { placement: HumanFoot.IPlacement; planted: boolean; toes: number } => {
-      const moves: boolean = Vector3.length(Vector3.subtract(a.at, b.at)) > 1e-4;
+      const moves: boolean =
+        Vector3.length(Vector3.subtract(a.at, b.at)) > 1e-4;
       const placed = (foot: IFoot): HumanFoot.IPlacement =>
         HumanFoot.pivot(body, side, "mtp", foot.at, foot.heading, foot.pitch);
       const pitch: number = a.pitch + (b.pitch - a.pitch) * u;

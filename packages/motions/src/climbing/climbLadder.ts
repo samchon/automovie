@@ -160,10 +160,8 @@ export namespace climbLadder {
       );
     if (!(Number.isInteger(count) && count > 0))
       throw new Error("A ladder climb climbs a positive whole number of rungs");
-    const modifiers: AutoMovieMotionManner.IModifiers = AutoMovieMotionManner.of(
-      context,
-      context.params.manner,
-    );
+    const modifiers: AutoMovieMotionManner.IModifiers =
+      AutoMovieMotionManner.of(context, context.params.manner);
     const standing: IHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
@@ -183,8 +181,10 @@ export namespace climbLadder {
     const toe: number = Math.max(
       ...(["left", "right"] as const).map(
         (side) =>
-          HumanFrame.local(frame, HumanFoot.point(body, side, "toe", flat(side)))
-            .z,
+          HumanFrame.local(
+            frame,
+            HumanFoot.point(body, side, "toe", flat(side)),
+          ).z,
       ),
     );
     const ladder: ILadder = {
@@ -199,7 +199,10 @@ export namespace climbLadder {
     );
 
     // A foot's placement on a rung: the ball on the rung's top.
-    const footOn = (side: "left" | "right", index: number): HumanFoot.IPlacement =>
+    const footOn = (
+      side: "left" | "right",
+      index: number,
+    ): HumanFoot.IPlacement =>
       index === 0
         ? flat(side)
         : HumanFoot.pivot(
@@ -281,7 +284,11 @@ export namespace climbLadder {
                     out.ankle,
                     HumanFrame.point(
                       { origin: { x: 0, y: 0, z: 0 }, yaw },
-                      { x: 0, y: 0, z: -2 * CLEARANCE * Math.sin(Math.PI * at.u) },
+                      {
+                        x: 0,
+                        y: 0,
+                        z: -2 * CLEARANCE * Math.sin(Math.PI * at.u),
+                      },
                     ),
                   ),
                 };
@@ -345,9 +352,20 @@ export namespace climbLadder {
             },
             { surface: "grip", shape: "relaxed", curl: 50 },
           );
-          limbs[`${side}Arm`] = AutoMovieMotionHumanArm.goal(body, side, target);
+          limbs[`${side}Arm`] = AutoMovieMotionHumanArm.goal(
+            body,
+            side,
+            target,
+          );
         }
-        const gripped: IHumanPosture = { ...lowered, limbs: { ...lowered.limbs, leftArm: limbs.leftArm!, rightArm: limbs.rightArm! } };
+        const gripped: IHumanPosture = {
+          ...lowered,
+          limbs: {
+            ...lowered.limbs,
+            leftArm: limbs.leftArm!,
+            rightArm: limbs.rightArm!,
+          },
+        };
         if (reachShare >= 1) return gripped;
         return AutoMovieMotionHumanArm.carry(
           body,
@@ -375,7 +393,9 @@ export namespace climbLadder {
           from: from / duration,
           to: to / duration,
           support:
-            !hand && i === 0 ? { kind: "ground" } : { kind: "prop", subject: "ladder" },
+            !hand && i === 0
+              ? { kind: "ground" }
+              : { kind: "prop", subject: "ladder" },
         });
         if (i < own.length) from = own[i]!.to;
       }

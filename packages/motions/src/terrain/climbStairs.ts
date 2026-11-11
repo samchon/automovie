@@ -60,8 +60,12 @@ export namespace climbStairs {
 
   /** Cancel table: the climb ends into standing or walking once both feet are on the last tread. */
   export const interrupts: IHumanActionLaw["interrupts"] = {
-    stand: [{ window: ["arrived", 1], kind: "inertialize", entry: 0, blend: 0.3 }],
-    walk: [{ window: ["arrived", 1], kind: "inertialize", entry: 0, blend: 0.3 }],
+    stand: [
+      { window: ["arrived", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+    ],
+    walk: [
+      { window: ["arrived", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+    ],
   };
 
   /**
@@ -232,10 +236,8 @@ export namespace climbStairs {
     const yaw: number = standing.yaw;
     const stairs: IFlight = flight(body, standing, p);
     const sign: number = stairs.direction === "up" ? 1 : -1;
-    const modifiers: AutoMovieMotionManner.IModifiers = AutoMovieMotionManner.of(
-      context,
-      p.manner,
-    );
+    const modifiers: AutoMovieMotionManner.IModifiers =
+      AutoMovieMotionManner.of(context, p.manner);
 
     // Footprints: the sole's middle on the tread's middle at the standing lateral place.
     const flat = (side: "left" | "right"): HumanFoot.IPlacement => {
@@ -296,10 +298,7 @@ export namespace climbStairs {
     });
     instants.push({ name: "arrived", seconds: steps.length * period });
     const clock: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.of(
-        (steps.length + 0.3) * period,
-        instants,
-      ),
+      AutoMovieMotionClock.of((steps.length + 0.3) * period, instants),
       modifiers,
       { holds: [] },
     );
@@ -350,9 +349,14 @@ export namespace climbStairs {
       const top: number = Math.max(a.ankle.y, b.ankle.y) + LIFT;
       const y: number =
         b.ankle.y >= a.ankle.y
-          ? a.ankle.y + (top - a.ankle.y) * mj(0, 0.5) - (top - b.ankle.y) * mj(0.75, 1)
-          : a.ankle.y + (top - a.ankle.y) * mj(0, 0.25) - (top - b.ankle.y) * mj(0.45, 1);
-      const along: number = b.ankle.y >= a.ankle.y ? mj(0.3, 0.9) : mj(0.1, 0.7);
+          ? a.ankle.y +
+            (top - a.ankle.y) * mj(0, 0.5) -
+            (top - b.ankle.y) * mj(0.75, 1)
+          : a.ankle.y +
+            (top - a.ankle.y) * mj(0, 0.25) -
+            (top - b.ankle.y) * mj(0.45, 1);
+      const along: number =
+        b.ankle.y >= a.ankle.y ? mj(0.3, 0.9) : mj(0.1, 0.7);
       const ankle: IAutoMovieVector3 = Vector3.lerp(a.ankle, b.ankle, along);
       return { ankle: { ...ankle, y }, rotation: b.rotation };
     };
@@ -398,7 +402,11 @@ export namespace climbStairs {
       from: 0,
       to: duration,
       write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
-        const placed: IHumanPosture = { ...posture, root: rootAt(seconds), yaw };
+        const placed: IHumanPosture = {
+          ...posture,
+          root: rootAt(seconds),
+          yaw,
+        };
         const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
         for (const side of ["left", "right"] as const) {
           const foot = footAt(side, seconds);

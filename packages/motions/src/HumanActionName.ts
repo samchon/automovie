@@ -46,6 +46,9 @@
  * - `climbLadder`: climbing a fixed ladder in the four-beat pattern, three limbs always on it.
  * - `clinch`: taking and holding a clinch grip on a partner, the neck tie or collar and sleeve.
  * - `kickBall`: kicking a ball beside the support foot with the instep.
+ * - `useTool`: working a one-handed tool in cycles over a work point (hammer, saw, spoon, screwdriver).
+ * - `wipe`: wiping a level surface with the flat palm in circles.
+ * - `dress`: putting on a hat or a pair of glasses with both hands.
  * - `kiss`: the lips brought to a partner's region by a lean and a neck flexion.
  * - `highFive`: two partners' hands meeting at one shared point and instant.
  * - `selfAction`: a whole-body self action (stretch, victory arms, fist pump, neck or shoulder roll).
@@ -54,6 +57,7 @@
  * - `dance`: a solo dance step locked to a declared beat (bounce, sway, step-touch).
  * - `athletics`: the sprint start's crouch into the set position, held to the gun.
  * - `gymnastics`: a handstand kicked up from standing, held and stepped down.
+ * - `martialArt`: a martial-art technique (horse stance, choku-zuki, tai chi push).
  */
 export type HumanActionName =
   | "stand"
@@ -98,6 +102,9 @@ export type HumanActionName =
   | "climbLadder"
   | "clinch"
   | "kickBall"
+  | "useTool"
+  | "wipe"
+  | "dress"
   | "kiss"
   | "highFive"
   | "selfAction"
@@ -105,4 +112,5 @@ export type HumanActionName =
   | "stretch"
   | "dance"
   | "athletics"
-  | "gymnastics";
+  | "gymnastics"
+  | "martialArt";

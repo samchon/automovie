@@ -1,7 +1,4 @@
-import {
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   AutoMovieHumanoidRegion,
   IAutoMovieVector3,
@@ -56,7 +53,9 @@ export namespace clinch {
 
   /** Cancel table: a clinch goes into a knee or lets go at any time. */
   export const interrupts: IHumanActionLaw["interrupts"] = {
-    knee: [{ window: ["ready", 1], kind: "inertialize", entry: 0, blend: 0.15 }],
+    knee: [
+      { window: ["ready", 1], kind: "inertialize", entry: 0, blend: 0.15 },
+    ],
     stand: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
   };
 
@@ -102,7 +101,10 @@ export namespace clinch {
   export function regions(
     grip: Grip,
     collar: HumanHand.Side,
-  ): Record<HumanHand.Side, { region: AutoMovieHumanoidRegion; across: number }> {
+  ): Record<
+    HumanHand.Side,
+    { region: AutoMovieHumanoidRegion; across: number }
+  > {
     if (grip === "plum")
       return {
         left: { region: "nape", across: -SPREAD },
@@ -178,10 +180,8 @@ export namespace clinch {
     const partner: IHumanActionContext.IPerformer = context.performer(
       context.params.partner,
     );
-    const modifiers: AutoMovieMotionManner.IModifiers = AutoMovieMotionManner.of(
-      context,
-      context.params.manner,
-    );
+    const modifiers: AutoMovieMotionManner.IModifiers =
+      AutoMovieMotionManner.of(context, context.params.manner);
     const reach: number = AutoMovieMotionHumanTiming.aimed(
       0.85 * (body.measure.upperArm + body.measure.forearm),
       0.05,

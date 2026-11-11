@@ -62,7 +62,9 @@ export namespace operate {
 
   /** Cancel table: the hand lets go of the part and the body stands or walks. */
   export const interrupts: IHumanActionLaw["interrupts"] = {
-    stand: [{ window: ["relax", 1], kind: "inertialize", entry: 0, blend: 0.3 }],
+    stand: [
+      { window: ["relax", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+    ],
     walk: [{ window: ["relax", 1], kind: "inertialize", entry: 0, blend: 0.3 }],
   };
 
@@ -176,7 +178,11 @@ export namespace operate {
           roll: 0,
         };
       case "knob":
-        return { point: place.point, normal: n, roll: mechanism.turn * progress };
+        return {
+          point: place.point,
+          normal: n,
+          roll: mechanism.turn * progress,
+        };
       case "slider":
         return {
           point: Vector3.add(
@@ -193,7 +199,9 @@ export namespace operate {
           y: place.point.y,
         });
         const sign: number =
-          Vector3.dot(Vector3.cross({ x: 0, y: 1, z: 0 }, arm), n) >= 0 ? 1 : -1;
+          Vector3.dot(Vector3.cross({ x: 0, y: 1, z: 0 }, arm), n) >= 0
+            ? 1
+            : -1;
         const turn = Quaternion.fromAxisAngle(
           { x: 0, y: 1, z: 0 },
           sign * mechanism.swing * progress,
@@ -222,10 +230,8 @@ export namespace operate {
     const body: IHumanBody = context.body;
     const mechanism: Mechanism = context.params.mechanism;
     const side: HumanHand.Side = context.params.hand ?? "right";
-    const modifiers: AutoMovieMotionManner.IModifiers = AutoMovieMotionManner.of(
-      context,
-      context.params.manner,
-    );
+    const modifiers: AutoMovieMotionManner.IModifiers =
+      AutoMovieMotionManner.of(context, context.params.manner);
     const place = context.aim(mechanism.at, context.start);
     const hinge: IAutoMovieVector3 | undefined =
       mechanism.kind === "hinge"
@@ -243,15 +249,12 @@ export namespace operate {
           return Math.abs(mechanism.travel) / PACE.slide;
         case "hinge":
           return (
-            (Math.abs(mechanism.swing) * Math.PI) /
-            180 *
-            Vector3.length(
-              Vector3.subtract(
-                { ...place.point, y: 0 },
-                { ...hinge!, y: 0 },
-              ),
-            )
-          ) / PACE.swing;
+            (((Math.abs(mechanism.swing) * Math.PI) / 180) *
+              Vector3.length(
+                Vector3.subtract({ ...place.point, y: 0 }, { ...hinge!, y: 0 }),
+              )) /
+            PACE.swing
+          );
       }
     })();
     const origin: AutoMovieMotionHumanArm.IOrigin =
@@ -311,24 +314,18 @@ export namespace operate {
           path: (posture: IHumanPosture, _: number, progress: number) => {
             const now = state(mechanism, place, hinge, progress);
             const target: AutoMovieMotionHumanArm.ITarget =
-              AutoMovieMotionHumanTarget.hand(
-                body,
-                posture,
-                side,
-                now,
-                {
-                  surface,
-                  shape,
-                  forward:
-                    mechanism.kind === "button"
-                      ? { x: 0, y: 1, z: 0 }
-                      : HumanFrame.point(
-                          { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
-                          { x: side === "left" ? -1 : 1, y: 0, z: 0 },
-                        ),
-                  curl: mechanism.kind === "button" ? 0 : 40,
-                },
-              );
+              AutoMovieMotionHumanTarget.hand(body, posture, side, now, {
+                surface,
+                shape,
+                forward:
+                  mechanism.kind === "button"
+                    ? { x: 0, y: 1, z: 0 }
+                    : HumanFrame.point(
+                        { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
+                        { x: side === "left" ? -1 : 1, y: 0, z: 0 },
+                      ),
+                curl: mechanism.kind === "button" ? 0 : 40,
+              });
             return now.roll === 0
               ? target
               : {

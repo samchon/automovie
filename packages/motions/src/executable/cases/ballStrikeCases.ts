@@ -40,8 +40,7 @@ export function ballStrikeCases(
     const suffix: string = bodies.length === 1 ? "" : `-${id}`;
     const radius: number = 0.11;
     const foot: IAutoMovieVector3 = who.body.rest.get("rightFoot")!;
-    const toe: number =
-      foot.z + HumanFoot.offset(who.body, "right", "toe").z;
+    const toe: number = foot.z + HumanFoot.offset(who.body, "right", "toe").z;
     const centre: IAutoMovieVector3 = {
       x: foot.x,
       y: radius,

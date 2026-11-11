@@ -189,8 +189,11 @@ export namespace FamilyCaseKit {
       .joints.find((j: IAutoMovieJointPose): boolean => j.bone === bone);
     if (joint === undefined) return 0;
     return (
-      (axis === 0 ? joint.flexion : axis === 1 ? joint.abduction : joint.twist) ??
-      0
+      (axis === 0
+        ? joint.flexion
+        : axis === 1
+          ? joint.abduction
+          : joint.twist) ?? 0
     );
   }
 

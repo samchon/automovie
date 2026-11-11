@@ -81,7 +81,12 @@ export function throwCases(
         "throw",
         [
           { subject: "a", body: who.body },
-          { subject: "b", body: who.body, at: { x: 0, y: 0, z: distance }, yaw: 180 },
+          {
+            subject: "b",
+            body: who.body,
+            at: { x: 0, y: 0, z: distance },
+            yaw: 180,
+          },
         ],
         composition,
       );

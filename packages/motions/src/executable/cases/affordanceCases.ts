@@ -71,7 +71,11 @@ export function affordanceCases(
         {
           kind: "hinge",
           at: at(-0.2, 1.0, 0.6),
-          hinge: { kind: "point", at: { x: 0.55, y: 1.0, z: 0.6 }, frame: "world" },
+          hinge: {
+            kind: "point",
+            at: { x: 0.55, y: 1.0, z: 0.6 },
+            frame: "world",
+          },
           swing: 40,
         },
       ],
@@ -119,7 +123,9 @@ export function affordanceCases(
           hinge,
           smooth(t),
         ).point;
-        const gap: number = Vector3.length(Vector3.subtract(surfaceAt(t), want));
+        const gap: number = Vector3.length(
+          Vector3.subtract(surfaceAt(t), want),
+        );
         if (gap > worst.value) worst = { value: gap, at: t };
       }
       const verdicts: IMotionCaptureCase.IVerdict[] = [
@@ -147,15 +153,31 @@ export function affordanceCases(
                 180) /
               Math.PI;
         verdicts.push(
-          everydayVerdicts.within("press along the button's axis", angle, 2, "deg"),
+          everydayVerdicts.within(
+            "press along the button's axis",
+            angle,
+            2,
+            "deg",
+          ),
         );
       }
       if (mechanism.kind === "knob") {
         const turn = (t: number) =>
           performance.bones("a", t).get("rightHand")!.worldRotation;
-        const delta = Quaternion.multiply(turn(end), Quaternion.inverse(turn(start)));
+        const delta = Quaternion.multiply(
+          turn(end),
+          Quaternion.inverse(turn(start)),
+        );
         const twist: number =
-          (2 * Math.atan2(Vector3.dot({ x: delta.x, y: delta.y, z: delta.z }, towardPerformer), delta.w) * 180) /
+          (2 *
+            Math.atan2(
+              Vector3.dot(
+                { x: delta.x, y: delta.y, z: delta.z },
+                towardPerformer,
+              ),
+              delta.w,
+            ) *
+            180) /
           Math.PI;
         verdicts.push(
           FamilyCaseKit.band(

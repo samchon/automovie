@@ -164,9 +164,9 @@ export function stairsCases(
 }
 
 /** The flight's treads, its top landing and, going down, the floor behind it. */
-function boxes(flight: climbStairs.IFlight): NonNullable<
-  IMotionCaptureCase["boxes"]
-> {
+function boxes(
+  flight: climbStairs.IFlight,
+): NonNullable<IMotionCaptureCase["boxes"]> {
   const out: NonNullable<IMotionCaptureCase["boxes"]> = [];
   const sign: number = flight.direction === "up" ? 1 : -1;
   const bottom: number = Math.min(0, sign * flight.count * flight.riser) - 0.02;

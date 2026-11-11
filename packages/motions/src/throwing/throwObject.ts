@@ -70,10 +70,20 @@ export namespace throwObject {
   /** Cancel table: the thrower stands or walks once the follow-through ends. */
   export const interrupts: IHumanActionLaw["interrupts"] = {
     stand: [
-      { window: ["followThrough", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      {
+        window: ["followThrough", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.3,
+      },
     ],
     walk: [
-      { window: ["followThrough", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      {
+        window: ["followThrough", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.3,
+      },
     ],
   };
 
@@ -221,10 +231,8 @@ export namespace throwObject {
     const side: HumanHand.Side = context.params.hand ?? "right";
     const outward: number = side === "left" ? 1 : -1;
     const arm: number = m.upperArm + m.forearm;
-    const modifiers: AutoMovieMotionManner.IModifiers = AutoMovieMotionManner.of(
-      context,
-      context.params.manner,
-    );
+    const modifiers: AutoMovieMotionManner.IModifiers =
+      AutoMovieMotionManner.of(context, context.params.manner);
     const probe: IHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
@@ -232,9 +240,8 @@ export namespace throwObject {
     const frame: HumanFrame.IFrame = { origin: probe.root, yaw };
     const shoulder: IAutoMovieVector3 = HumanFrame.local(
       frame,
-      poseBones(body, resolveHumanPosture(body, probe)).get(
-        `${side}UpperArm`,
-      )!.worldPosition,
+      poseBones(body, resolveHumanPosture(body, probe)).get(`${side}UpperArm`)!
+        .worldPosition,
     );
     const place = (share: IAutoMovieVector3): IAutoMovieVector3 =>
       HumanFrame.point(frame, {
@@ -429,10 +436,19 @@ export namespace throwObject {
       to: duration,
       write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
         const degrees: number =
-          turn * clock.envelope(["windup", "cocked"], ["cocked", "release"], seconds) -
+          turn *
+            clock.envelope(
+              ["windup", "cocked"],
+              ["cocked", "release"],
+              seconds,
+            ) -
           0.6 *
             turn *
-            clock.envelope(["cocked", "followThrough"], ["recover", "end"], seconds);
+            clock.envelope(
+              ["cocked", "followThrough"],
+              ["recover", "end"],
+              seconds,
+            );
         return {
           ...posture,
           joints: {
