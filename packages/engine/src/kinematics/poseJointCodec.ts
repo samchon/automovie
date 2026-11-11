@@ -1,5 +1,6 @@
 import {
   AutoMovieHumanoidBone,
+  IAutoMovieAngleRange,
   IAutoMovieBone,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
@@ -32,6 +33,11 @@ import { skeletonJointAxes } from "./skeletonJointAxes";
  * equivalent triples it returns the one the range admits best, as the limb
  * fits do. Without a rig both use the default basis with rest-relative angles
  * and the principal chart.
+ *
+ * That holds for a joint free about all three axes. A hinge or a two-axis
+ * joint spans a lower-dimensional set of rotations, which a composed rotation
+ * leaves, and its angles have no gimbal inside their range; `ball` tells the
+ * two apart so a caller keeps such a joint on its own angles.
  *
  * @param rig The rig the angles are read through; the default basis when omitted.
  * @returns The forward and inverse maps.
@@ -85,6 +91,18 @@ export function poseJointCodec(rig?: IAutoMoviePoseRig): poseJointCodec.ICodec {
       );
       return [a.flexion, a.abduction, a.twist];
     },
+    ball: (bone: AutoMovieHumanoidBone): boolean => {
+      if (rig === undefined) return true;
+      const c: IAutoMovieJointConstraint | null = getConstraint(
+        bone,
+        declared.get(bone) ?? null,
+      );
+      const mobile = (r: IAutoMovieAngleRange | null): boolean =>
+        r !== null && r.max > r.min;
+      return (
+        c === null || (mobile(c.flexion) && mobile(c.abduction) && mobile(c.twist))
+      );
+    },
   };
 }
 
@@ -116,5 +134,15 @@ export namespace poseJointCodec {
       bone: AutoMovieHumanoidBone,
       rotation: IAutoMovieQuaternion,
     ) => [number, number, number];
+
+    /**
+     * Whether a bone's articulations fill a three-dimensional set of
+     * rotations: its effective range of motion is absent or moves all three
+     * axes. A hinge or a two-axis joint is not one; a rotation composed from
+     * two of its articulations generally leaves the set its angles span, so
+     * such a joint is differenced and blended on its own angles. Every bone
+     * is one without a rig, where no range is read.
+     */
+    ball: (bone: AutoMovieHumanoidBone) => boolean;
   }
 }

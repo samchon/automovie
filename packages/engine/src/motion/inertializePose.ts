@@ -25,13 +25,20 @@ import { samplePoseVelocity } from "./samplePoseVelocity";
  * velocity at the cut, reaches the target exactly at its own clamped decay
  * time and never overshoots it.
  *
- * A joint is blended as a rotation, never per clinical angle: its
+ * A ball joint is blended as a rotation, never per clinical angle: its
  * `[flexion, abduction, twist]` is an Euler chart, and at the chart's gimbal
- * (a hanging arm on a T-pose rig) nearly equal rotations have far apart
- * triples, whose per-angle blend swings the bone through poses neither side
- * holds. The blended rotation is lowered to angles through the rig
- * ({@link poseJointCodec}), in the chart its range of motion admits best. A
- * joint with no offset left returns the target's own angles untouched.
+ * nearly equal rotations have far apart triples, whose per-angle blend swings
+ * the bone through poses neither side holds. The blended rotation is lowered
+ * to angles through the rig ({@link poseJointCodec}), in the chart its range
+ * of motion admits best. A joint with no offset left returns the target's own
+ * angles untouched.
+ *
+ * A hinge or a two-axis joint (`poseJointCodec.ICodec.ball` false) is blended
+ * per angle instead, each angle's offset decayed with its rate offset: the
+ * rotations its angles span are a lower-dimensional set, and an offset
+ * rotation applied to one of them leaves that set, which the lowering would
+ * answer with motion on an axis the joint does not have. Its angles have no
+ * gimbal inside their range, so the per-angle blend is the faithful one.
  *
  * The result is a pure function of the elapsed time and the target pose at
  * that time, so a caller can evaluate it on any grid. Contact corrections
@@ -112,9 +119,33 @@ export function inertializePose(
     AutoMovieHumanoidBone,
     { x: IAutoMovieVector3; v: IAutoMovieVector3 }
   > = new Map();
+  // Angle offsets and their rates, for the joints that are not ball joints.
+  const hinged: Map<
+    AutoMovieHumanoidBone,
+    { x: [number, number, number]; v: [number, number, number] }
+  > = new Map();
   for (const bone of new Set([...sa.keys(), ...ta.keys()])) {
     const s: [number, number, number] = sa.get(bone) ?? still;
     const t: [number, number, number] = ta.get(bone) ?? still;
+    if (!codec.ball(bone)) {
+      const rs: [number, number, number] =
+        source.velocity.joints.get(bone) ?? still;
+      const rt: [number, number, number] =
+        target.velocity.joints.get(bone) ?? still;
+      const x: [number, number, number] = [
+        s[0] - t[0],
+        s[1] - t[1],
+        s[2] - t[2],
+      ];
+      const v: [number, number, number] = [
+        rs[0] - rt[0],
+        rs[1] - rt[1],
+        rs[2] - rt[2],
+      ];
+      if (x.some((k: number): boolean => k !== 0) || v.some((k: number): boolean => k !== 0))
+        hinged.set(bone, { x, v });
+      continue;
+    }
     const vs: IAutoMovieVector3 = source.velocity.spins.get(bone) ?? zero;
     const vt: IAutoMovieVector3 = target.velocity.spins.get(bone) ?? zero;
     const same: boolean = s[0] === t[0] && s[1] === t[1] && s[2] === t[2];
@@ -152,8 +183,27 @@ export function inertializePose(
     const now: Map<AutoMovieHumanoidBone, [number, number, number]> =
       angles(pose);
     const joints: IAutoMovieJointPose[] = [];
-    for (const bone of new Set([...now.keys(), ...offsets.keys()])) {
+    for (const bone of new Set([
+      ...now.keys(),
+      ...offsets.keys(),
+      ...hinged.keys(),
+    ])) {
       const base: [number, number, number] = now.get(bone) ?? still;
+      const h:
+        | { x: [number, number, number]; v: [number, number, number] }
+        | undefined = hinged.get(bone);
+      if (h !== undefined) {
+        const angle = (k: 0 | 1 | 2): number =>
+          base[k] +
+          inertializeOffset(h.x[k], h.v[k], duration, elapsed, through).value;
+        joints.push({
+          bone,
+          flexion: angle(0),
+          abduction: angle(1),
+          twist: angle(2),
+        });
+        continue;
+      }
       const o: { x: IAutoMovieVector3; v: IAutoMovieVector3 } | undefined =
         offsets.get(bone);
       const offset: IAutoMovieQuaternion | null =
