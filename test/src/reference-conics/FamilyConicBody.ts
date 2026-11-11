@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { createHash } from "node:crypto";
-import { AutoMovieLoftChain, type AutoMovieLoftFrame, type AutoMovieViewAxis, type AutoMovieViewLoft as L, AutoMovieViewChain as Q } from "@automovie/engine";
+import { AutoMovieLoftChain, type AutoMovieLoftFrame, AutoMovieLoftRelief, type AutoMovieViewAxis, type AutoMovieViewLoft as L, AutoMovieViewChain as Q, type IAutoMovieLoftRelief } from "@automovie/engine";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
@@ -206,10 +206,23 @@ namespace FamilyConicBody {
         const windows: H.IWindow[] = part.reliefs === "auto" ? hollowWindows(part.name, rows, skins, course) : part.reliefs;
         definition.reliefs = [];
         for (const window of windows) {
+          // Each window is fitted over the wall with every earlier relief already on it, as the engine composes them, so a later window takes only what the earlier ones left.
+          const earlier: IAutoMovieLoftRelief[] = [...definition.reliefs];
           const fitted: H.IResult = H.fit(window, rows.map((row: F.IRow, i: number): H.IRow => {
             const section: Q.ISection = C.chain(read(row.s), definition.layout);
             const frame: AutoMovieLoftFrame.IFrame = course.at(row.s);
-            return { s: row.s, skin: skins[i]!, heldout: row.heldout, wall: (phi: number): C.P => { const r: number = Q.radius(section, phi); return [r * Math.cos(phi), r * Math.sin(phi)]; }, axis: [window.axis[0] * frame.u[0] + window.axis[1] * frame.u[1] + window.axis[2] * frame.u[2], window.axis[0] * frame.v[0] + window.axis[1] * frame.v[1] + window.axis[2] * frame.v[2]] };
+            const inChart = (axis: readonly number[]): C.P => [axis[0]! * frame.u[0] + axis[1]! * frame.u[1] + axis[2]! * frame.u[2], axis[0]! * frame.v[0] + axis[1]! * frame.v[1] + axis[2]! * frame.v[2]];
+            return { s: row.s, skin: skins[i]!, heldout: row.heldout, wall: (phi: number): C.P => {
+              const r: number = Q.radius(section, phi);
+              const p: C.P = [r * Math.cos(phi), r * Math.sin(phi)];
+              for (const relief of earlier) {
+                const height: number = AutoMovieLoftRelief.height(relief, row.s, phi)[0];
+                const along: C.P = inChart(relief.axis);
+                p[0] += height * along[0];
+                p[1] += height * along[1];
+              }
+              return p;
+            }, axis: [window.axis[0] * frame.u[0] + window.axis[1] * frame.u[1] + window.axis[2] * frame.u[2], window.axis[0] * frame.v[0] + window.axis[1] * frame.v[1] + window.axis[2] * frame.v[2]] };
           }));
           definition.reliefs.push(fitted.relief);
           log("family-body-relief", { part: part.name, relief: window.name, scalars: fitted.scalars, deepestMm: round(fitted.deepestMm), trainMaxMm: round(fitted.trainMaxMm), heldMaxMm: round(fitted.heldMaxMm) });
