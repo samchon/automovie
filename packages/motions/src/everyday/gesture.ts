@@ -2,28 +2,28 @@ import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionTarget,
-  IAutoMovieQuaternion,
+  IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
 import { HumanEffort } from "./HumanEffort";
 import { gestureStroke } from "./gestureStroke";
 import { handGoals } from "./handGoals";
-import { poseBones } from "../posture/poseBones";
 
 /**
  * A communicative gesture while standing: the hand, head or trunk moves
@@ -33,11 +33,12 @@ import { poseBones } from "../posture/poseBones";
  *
  * The feet stay planted and the body stands as the stand law places it.
  * Each moving hand is an effector goal ({@link gestureStroke}): in the
- * preparation its surface travels from where the entry left it to the
- * stroke's first goal on a minimum-jerk path while the hand turns by
- * spherical interpolation and the fingers take the gesture's shape; in the
- * stroke it follows the stroke's goals; in the retraction it returns to
- * where the relaxed hanging arm holds it. The arm is solved by inverse
+ * preparation the arm's joint angles go from what the entry left to the
+ * solution of the stroke's goal on a minimum-jerk course
+ * (`AutoMovieMotionHumanArm.carry`) and the fingers take the gesture's
+ * shape; in the stroke the hand follows the stroke's goals; in the
+ * retraction the angles return to the relaxed hanging arm's. The arm is
+ * solved by inverse
  * kinematics with a natural elbow hint widened by the gesture and the
  * Effort. Head, shoulder and trunk gestures add their joint angles under an
  * envelope that rises in the preparation and falls in the retraction; a bow
@@ -125,7 +126,7 @@ export namespace gesture {
    * @throws {Error} On a missing pointing target, a count that is not a positive whole number, a negative hold, or a bow outside (0, 60] degrees.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is planned and every refusal; the law's doc gives the phases, timing laws and provisional values.
-   * @evidence contracts/development/implementation.md#principled-implementation Kendon's phases (Kendon 1980; McNeill 1992): hand goals from gestureStroke solved by the arm's inverse kinematics, transported on minimum-jerk paths with spherical interpolation of the hand's turn; joint gestures added under an envelope; a bow's hip shift from the engine's centre of mass (HumanBalance.shift) at the peak pitch, scaled by the pitch's sine between. Start and rest points are stored in the performer's frame so they follow the standing body.
+   * @evidence contracts/development/implementation.md#principled-implementation Kendon's phases (Kendon 1980; McNeill 1992): hand goals from gestureStroke solved by the arm's inverse kinematics, the arm carried to and from them in joint angles on a minimum-jerk course; joint gestures added under an envelope; a bow's hip shift from the engine's centre of mass (HumanBalance.shift) at the peak pitch, scaled by the pitch's sine between. The entry's and the rest's arm angles are joint angles, so they follow the standing body.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The plan owns phase timing and transport; gestureStroke owns each gesture's goals and angles, `bow` the pitched posture, handGoals the arm solve.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The free-space transport time is the timing owner's; the 0.3 s joint-gesture preparation and the second per 30 degrees of a bow are named provisional values; Effort modifiers come from HumanEffort; no gesture or body is special-cased beyond the kind's own table rows.
    * @evidence contracts/development/implementation.md#efficient-algorithms Planning costs two bone resolves for the start and rest hands and, for a bow, one balance solve; each posture costs one stand posture, one stroke goal per moving hand (each may aim at the target) and one hand solve.
@@ -181,11 +182,14 @@ export namespace gesture {
       params: { seconds: 1 },
     });
     const at0: IHumanPosture = probe.posture(0);
-    const frame0: HumanFrame.IFrame = { origin: at0.root, yaw: at0.yaw };
     const entryBones = poseBones(body, context.entry.pose);
-    const restBones = poseBones(body, resolveHumanPosture(body, at0));
-    const begin: Partial<Record<HumanHand.Side, ILocal>> = {};
-    const rest: Partial<Record<HumanHand.Side, ILocal>> = {};
+    const restPose: IAutoMoviePose = resolveHumanPosture(body, at0);
+    const begin: Partial<
+      Record<HumanHand.Side, AutoMovieMotionHumanArm.IAngles>
+    > = {};
+    const rest: Partial<
+      Record<HumanHand.Side, AutoMovieMotionHumanArm.IAngles>
+    > = {};
     let transport: number = 0;
     for (const side of sides) {
       const goal: gestureStroke.IHand = gestureStroke.hand(
@@ -195,22 +199,15 @@ export namespace gesture {
         cycles,
         input(at0, 0, side),
       );
-      begin[side] = local(
-        frame0,
-        HumanHand.frame(body, entryBones, side, goal.surface, "relaxed").point,
-        entryBones.get(`${side}Hand`)!.worldRotation,
-      );
-      rest[side] = local(
-        frame0,
-        HumanHand.frame(body, restBones, side, goal.surface, "relaxed").point,
-        restBones.get(`${side}Hand`)!.worldRotation,
-      );
+      begin[side] = AutoMovieMotionHumanArm.angles(context.entry.pose, side);
+      rest[side] = AutoMovieMotionHumanArm.angles(restPose, side);
       transport = Math.max(
         transport,
         Vector3.length(
           Vector3.subtract(
             goal.point,
-            HumanFrame.point(frame0, begin[side]!.point),
+            HumanHand.frame(body, entryBones, side, goal.surface, "relaxed")
+              .point,
           ),
         ),
       );
@@ -283,12 +280,9 @@ export namespace gesture {
           joints[bone] = [was[0] + add[0], was[1] + add[1], was[2] + add[2]];
         }
 
-        // Hands: transported to the stroke, through it, and back to rest.
+        // Hands: on the stroke's goals, and carried in joint space to its
+        // start and back to rest.
         const requests: AutoMovieMotionHumanArm.ISided[] = [];
-        const frame: HumanFrame.IFrame = {
-          origin: posture.root,
-          yaw: posture.yaw,
-        };
         for (const side of sides) {
           const goal: gestureStroke.IHand = gestureStroke.hand(
             p.kind,
@@ -297,33 +291,18 @@ export namespace gesture {
             cycles,
             input(posture, t, side),
           );
-          let point: IAutoMovieVector3 = goal.point;
-          let rotation: IAutoMovieQuaternion = goal.rotation;
-          const from: ILocal | undefined =
-            t < prepare ? begin[side] : t > retractAt ? rest[side] : undefined;
-          if (from !== undefined) {
-            const s: number =
-              t < prepare
-                ? minimumJerk(t / prepare).s
-                : 1 - minimumJerk((t - retractAt) / retract).s;
-            point = Vector3.lerp(
-              HumanFrame.point(frame, from.point),
-              goal.point,
-              s,
-            );
-            rotation = Quaternion.slerp(
-              Quaternion.multiply(HumanFrame.turn(frame.yaw), from.rotation),
-              goal.rotation,
-              s,
-            );
-          }
           requests.push({
             side,
             surface: goal.surface,
             shape: goal.shape,
-            point,
-            rotation,
-            bend: AutoMovieMotionHumanBend.hang(body, posture, side, goal.out + mods.elbow),
+            point: goal.point,
+            rotation: goal.rotation,
+            bend: AutoMovieMotionHumanBend.hang(
+              body,
+              posture,
+              side,
+              goal.out + mods.elbow,
+            ),
           });
           const shape = HumanHand.shape(side, goal.shape);
           const relaxed = HumanHand.shape(side, "relaxed");
@@ -334,7 +313,14 @@ export namespace gesture {
             joints[bone] = [r[0] + (a[0] + curl - r[0]) * envelope, 0, 0];
           }
         }
-        return handGoals(body, { ...posture, joints }, requests);
+        // The envelope is the transport's share: the arms leave the entry's
+        // angles in the preparation and reach the rest's in the retraction.
+        return AutoMovieMotionHumanArm.carry(
+          body,
+          handGoals(body, { ...posture, joints }, requests),
+          t < prepare ? begin : rest,
+          envelope,
+        );
       },
     };
   }
@@ -378,25 +364,4 @@ export namespace gesture {
     );
     return { ...tipped, root: Vector3.subtract(target, offset) };
   }
-}
-
-/** A hand's surface point and rotation in the performer's frame. */
-interface ILocal {
-  /** Point, performer frame. */
-  point: IAutoMovieVector3;
-
-  /** Hand rotation relative to the heading. */
-  rotation: IAutoMovieQuaternion;
-}
-
-/** A world surface point and hand rotation in a performer frame. */
-function local(
-  frame: HumanFrame.IFrame,
-  point: IAutoMovieVector3,
-  rotation: IAutoMovieQuaternion,
-): ILocal {
-  return {
-    point: HumanFrame.local(frame, point),
-    rotation: Quaternion.multiply(HumanFrame.turn(-frame.yaw), rotation),
-  };
 }

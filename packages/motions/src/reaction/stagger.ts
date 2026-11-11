@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieMotionTarget,
   IAutoMovieVector3,
@@ -6,11 +6,11 @@ import type {
 
 import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
-import { AutoMovieMotionHumanRoot } from "../compose/AutoMovieMotionHumanRoot";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
@@ -23,6 +23,7 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingStance } from "../striking/StrikingStance";
 import { StrikingTarget } from "../striking/StrikingTarget";
 
@@ -47,12 +48,14 @@ import { StrikingTarget } from "../striking/StrikingTarget";
  * one step; the law rejects it, naming the knockdown instead.
  *
  * The action is rows over the stance it was entered in: one clock with the
- * `tipped` and `caught` instants, a root that follows the feet along the
- * push, a trunk that tips with the push and rights itself, the two legs on
- * their feet and the two arms on guard. Without a blow's source the push
- * comes from a place ahead of the performer, so the body staggers backward.
- * The step's time is a reflex and no manner changes it; the manner's tempo
- * scales the time the body takes to right itself after the step.
+ * `tipped` and `caught` instants, a sway whose hips are thrown along the push
+ * ahead of the stepping foot and slow uniformly to rest over the middle of
+ * the feet as the step lands, while the body above them tips with the push
+ * and rights itself, the two legs on their feet and the two arms held as the
+ * entry left them. Without a blow's source the push comes from a place ahead
+ * of the performer, so the body staggers backward. The step's time is a
+ * reflex and no manner changes it; the manner's tempo scales the time the
+ * body takes to right itself after the step.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the capture rule with its sources, the stepping foot, the timing, the refusal and how the action is composed.
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table, parameters and a plan composed of part primitives on one clock, with plant windows.
@@ -143,10 +146,10 @@ export namespace stagger {
    * @throws {Error} When the speed is not positive, the capture step exceeds one leg, or the manner is out of range.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States its input, its plan and its refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The capture step lands at the extrapolated centre of mass plus half a foot along the push; the root follows the feet, and the trunk tips and rights itself on the clock's envelope.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One clock, one held base and five rows; the push is read once.
+   * @evidence contracts/development/implementation.md#principled-implementation The capture step lands at the extrapolated centre of mass plus half a foot along the push; the hips slow uniformly to rest over the middle of the feet as the step lands, and the trunk tips and rights itself on the clock's envelope.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One clock, one held base and three rows; the push is read once.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An uncapturable push throws and names the knockdown instead of shortening the step; the tip angle and the clearance are named provisional constants.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond the guard's trunk resolution.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The push, the stepping foot and the landing are computed once per plan and dropped on settle.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one cached geometry, cleared by settle and released with the plan.
    */
@@ -163,7 +166,6 @@ export namespace stagger {
         `A ${p.speed} m/s push needs a ${reach.toFixed(2)} m step, beyond one leg; use a knockdown`,
       );
     const entry: IHumanPosture = context.entry.posture;
-    const lead: "left" | "right" = StrikingTarget.lead(context.entry);
     const feet: Record<"left" | "right", HumanFoot.IPlacement> =
       StrikingTarget.feet(context.entry);
 
@@ -195,6 +197,7 @@ export namespace stagger {
           local: IAutoMovieVector3;
           stepper: "left" | "right";
           landing: IAutoMovieVector3;
+          travel: number;
         }
       | undefined;
     const geometry = () => {
@@ -214,6 +217,23 @@ export namespace stagger {
         Vector3.dot(Vector3.subtract(feet[side].ankle, entry.root), push);
       const stepper: "left" | "right" =
         along("left") > along("right") ? "left" : "right";
+      const landing: IAutoMovieVector3 = Vector3.add(
+        feet[stepper].ankle,
+        Vector3.scale(push, Math.max(0, reach - along(stepper))),
+      );
+      // The hips end over the middle of the two ankles, where both legs
+      // lean alike and each ankle needs the least of its range.
+      const hips: IAutoMovieVector3 = Vector3.add(
+        entry.root,
+        Quaternion.rotateVector(
+          resolveHumanPosture.heading(entry),
+          body.rest.get("hips")!,
+        ),
+      );
+      const centre: IAutoMovieVector3 = Vector3.scale(
+        Vector3.add(landing, feet[stepper === "left" ? "right" : "left"].ankle),
+        0.5,
+      );
       built = {
         push,
         local: HumanFrame.local(
@@ -221,9 +241,10 @@ export namespace stagger {
           push,
         ),
         stepper,
-        landing: Vector3.add(
-          feet[stepper].ankle,
-          Vector3.scale(push, Math.max(0, reach - along(stepper))),
+        landing,
+        travel: Math.max(
+          0,
+          Vector3.dot(Vector3.subtract(centre, hips), { ...push, y: 0 }),
         ),
       };
       return built;
@@ -270,17 +291,18 @@ export namespace stagger {
         };
       },
     };
+    // The arms keep the angles the entry held: a stagger has no time to
+    // place them, so a guard stays a guard and hanging arms stay hanging.
+    const held: Record<"left" | "right", AutoMovieMotionHumanArm.IAngles> = {
+      left: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
+      right: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
+    };
     const arms: IAutoMovieMotionHumanPrimitive = {
       channels: ["leftArm", "rightArm"],
       from: 0,
       to: duration,
-      write: (posture: IHumanPosture): IHumanPosture => ({
-        ...posture,
-        limbs: {
-          ...posture.limbs,
-          ...StrikingStance.guard(body, posture, { lead }),
-        },
-      }),
+      write: (posture: IHumanPosture): IHumanPosture =>
+        AutoMovieMotionHumanArm.carry(body, posture, held, 0),
     };
     const composed: IHumanActionPlan = composeAutoMovieMotionHumanAction({
       base: {
@@ -289,7 +311,7 @@ export namespace stagger {
           yaw: entry.yaw,
           pitch: entry.pitch,
           roll: entry.roll,
-          joints: { ...entry.joints, ...StrikingStance.joints() },
+          joints: entry.joints,
           limbs: {},
         }),
         settle: (): void => {
@@ -298,40 +320,28 @@ export namespace stagger {
       },
       clock,
       primitives: [
-        // The root follows the middle of the feet along the push.
-        AutoMovieMotionHumanRoot.travel({
-          from: 0,
-          to: duration,
-          offset: (seconds: number): AutoMovieMotionHumanRoot.IOffset => {
-            const { push, local } = geometry();
-            const at: Record<"left" | "right", HumanFoot.IPlacement> =
-              placed(seconds);
-            const centre: IAutoMovieVector3 = Vector3.scale(
-              Vector3.add(at.left.ankle, at.right.ankle),
-              0.5,
-            );
-            const travel: number = Vector3.dot(
-              Vector3.subtract({ ...centre, y: 0 }, { ...entry.root, y: 0 }),
-              push,
-            );
-            return {
-              point: Vector3.scale(
-                local,
-                Math.max(0, travel) * clock.progress(START, END, seconds),
-              ),
-              yaw: 0,
-            };
-          },
-        }),
-        // The trunk tips with the push while the body is carried, and rights
-        // itself once the step has caught it.
-        AutoMovieMotionHumanLean.tilt({
+        // The push throws the hips ahead of the stepping foot: they slow
+        // uniformly and come to rest over the middle of the feet as the step
+        // lands, while the body above them tips with the push and rights
+        // itself once the step has caught it; the root's height keeps both
+        // legs on their feet.
+        AutoMovieMotionHumanLean.sway({
+          body,
           from: 0,
           to: duration,
           angles: (seconds: number): AutoMovieMotionHumanLean.IAngles => ({
             pitch: tip(seconds) * geometry().local.z,
             roll: -tip(seconds) * geometry().local.x,
           }),
+          shift: (seconds: number): IAutoMovieVector3 => {
+            const { local, travel } = geometry();
+            const left: number = 1 - clock.linear(START, "caught", seconds);
+            return Vector3.scale(local, travel * (1 - left * left));
+          },
+          legs: (
+            seconds: number,
+          ): Pick<IHumanPosture["limbs"], "leftLeg" | "rightLeg"> =>
+            StrikingStance.legs(body, placed(seconds)),
         }),
         legs,
         arms,
