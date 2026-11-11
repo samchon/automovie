@@ -57,4 +57,4 @@ A cell that could not be drawn stays on the sheet with its cause and stays unver
 
 ## Rounds
 
-Keep each round's capture apart from the next, under a name that states its round or revision, with its manifest. Where a tool writes every run to the same place, copy the round out before the next run, and judge a rerun by the time of the files it wrote.
+Keep each round's capture apart from the next, under a name that states its round or revision, with its manifest. Where the instrument keeps named rounds, name the round when capturing it. Where it writes every run to the same place, copy the round out before the next run, and judge a rerun by the time of the files it wrote.

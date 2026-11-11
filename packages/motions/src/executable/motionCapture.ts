@@ -37,14 +37,10 @@ import { MOTION_CAPTURE_CASES } from "./cases/MOTION_CAPTURE_CASES";
  * matches; `--verdicts` prints the verdicts without drawing or writing
  * anything. The process exits non-zero when any verdict fails.
  *
- * The rasterizer is the scaffold's Node integration
- * (`packages/template/scaffold/production/src/executable/viewer/node/raster`), imported
- * by relative path as the test program imports the scaffold's other
- * integrations; this executable is not compiled into the package and is
- * unreachable from its entry, and a move of that integration must update
- * this import. Frames are flat-shaded CPU diagnostics, not delivered pixels.
+ * The rasterizer is the viewer package's. Frames are flat-shaded CPU
+ * diagnostics, not delivered pixels.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Gives every option, the views and their directions, the output paths, the exit status and the rasterizer coupling.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives every option, the views and their directions, the output paths, the exit status and the rasterizer's owner.
  * @evidence contracts/development/implementation.md#principled-implementation Orthographic cameras fitted to the drawn bounds keep scale comparable across cells; posing uses Human's canonical adapter and drawing the viewer's polygon builder.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Parse, build each case, fit views, draw sheets, write the manifest.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unknown cases, options or views throw; a failed verdict fails the run.

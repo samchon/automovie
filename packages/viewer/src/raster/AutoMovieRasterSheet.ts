@@ -1,14 +1,15 @@
-import type { IAutoMovieSceneRaster } from "./IAutoMovieSceneRaster.js";
+import type { IAutoMovieRasterImage } from "./IAutoMovieRasterImage.js";
 import { stampAutoMovieRasterLabel } from "./stampAutoMovieRasterLabel.js";
 
 /**
- * A contact sheet of Node-drawn frames, filled one frame at a time: each
- * frame is area-averaged into its cell in row-major order and captioned
- * after reduction, so the caption stays legible however small the cell is.
+ * A contact sheet of pictures, filled one picture at a time: each picture is
+ * area-averaged into its cell in row-major order and captioned after
+ * reduction, so the caption stays legible however small the cell is.
  *
- * Frames are reduced as they arrive, so a sheet never holds more than its own
- * pixels; the finished sheet is an ordinary raster for
- * `encodeAutoMovieRasterPng`.
+ * A cell takes any picture, a drawn frame, a difference image or a decoded
+ * still alike. Pictures are reduced as they arrive, so a sheet never holds
+ * more than its own pixels; the finished sheet is an ordinary picture for
+ * `encodeAutoMovieRasterPng`, cut to the cells that were filled.
  *
  * ```ts
  * const sheet = new AutoMovieRasterSheet(20, 5, 180, 320);
@@ -16,14 +17,14 @@ import { stampAutoMovieRasterLabel } from "./stampAutoMovieRasterLabel.js";
  * await writeFile("sheet.png", encodeAutoMovieRasterPng(sheet.finish()));
  * ```
  *
- * @evidence contracts/development/common.md#meaningful-documentation The comment states the fill order, the reduction, when captions are drawn, the memory bound and how the result is encoded.
- * @evidence contracts/development/design.md#principled-representation The sheet is itself an IAutoMovieSceneRaster, so encoding and captioning reuse the frame path unchanged.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states the fill order, the reduction, when captions are drawn, the memory bound, the extent of the result and how it is encoded.
+ * @evidence contracts/development/design.md#principled-representation The sheet is itself an IAutoMovieRasterImage, so encoding and captioning reuse the frame path unchanged.
  * @evidence contracts/development/design.md#minimal-and-owned-surface A constructor, `add` and `finish`; layout is fixed by the constructor.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing names a film or capture command; captions are caller text.
  */
 export class AutoMovieRasterSheet {
   /** The sheet pixels, opaque RGBA. */
-  private readonly sheet: IAutoMovieSceneRaster;
+  private readonly sheet: IAutoMovieRasterImage;
 
   /** Cells filled so far. */
   private count: number;
@@ -75,15 +76,6 @@ export class AutoMovieRasterSheet {
       width,
       height,
       pixels: new Uint8ClampedArray(width * height * 4),
-      statistics: {
-        meshes: 0,
-        triangles: 0,
-        lines: 0,
-        points: 0,
-        skipped: {},
-        untextured: 0,
-        approximated: 0,
-      },
     };
     for (let offset: number = 3; offset < this.sheet.pixels.length; offset += 4)
       this.sheet.pixels[offset] = 255;
@@ -101,15 +93,14 @@ export class AutoMovieRasterSheet {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The caption reuses the frame label stamp on a cell view of the sheet.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The frame is not retained.
    */
-  public add(frame: IAutoMovieSceneRaster, caption: string): void {
+  public add(frame: IAutoMovieRasterImage, caption: string): void {
     if (this.count >= this.capacity) throw new Error("The sheet is full");
     const left: number = (this.count % this.columns) * this.cellWidth;
     const top: number = Math.floor(this.count / this.columns) * this.cellHeight;
-    const cell: IAutoMovieSceneRaster = {
+    const cell: IAutoMovieRasterImage = {
       width: this.cellWidth,
       height: this.cellHeight,
       pixels: new Uint8ClampedArray(this.cellWidth * this.cellHeight * 4),
-      statistics: this.sheet.statistics,
     };
     for (let y: number = 0; y < this.cellHeight; y++) {
       const y0: number = Math.floor((y * frame.height) / this.cellHeight);
@@ -158,18 +149,38 @@ export class AutoMovieRasterSheet {
   }
 
   /**
-   * The sheet as filled so far; unfilled cells stay black.
+   * The sheet as filled so far, cut to the rows and columns that hold a
+   * picture.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the result holds and how unfilled cells look.
-   * @evidence contracts/development/implementation.md#principled-implementation Returns the sheet raster itself, which every frame was reduced into.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A single return.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An empty sheet throws rather than producing a blank image.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work No copy is made.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the returned raster; the sheet keeps no other buffer.
+   * A sheet filled short of its capacity gives a picture no larger than its
+   * filled cells: as wide as the cells of its first row and as tall as its
+   * started rows, with the unfilled cells of a last row left black. That
+   * picture is the caller's own, so a later `add` does not change it. It throws
+   * when no picture was added.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the extent of the result, how unfilled cells look, who owns the picture and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation The extent follows the filled cell count, so a short last sheet carries no empty rows or columns for a reader to scroll or a model to spend attention on.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A full sheet is returned; otherwise the filled extent is copied row by row.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An empty sheet throws rather than producing a blank image, and a partly filled sheet is copied instead of handing out a buffer a later `add` would rewrite.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time for a full sheet; linear in the filled extent otherwise.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A full sheet can take no further picture, so its own raster is returned without a copy.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the returned raster; the sheet keeps no buffer besides its own.
    */
-  public finish(): IAutoMovieSceneRaster {
+  public finish(): IAutoMovieRasterImage {
     if (this.count === 0) throw new Error("The sheet has no frames");
-    return this.sheet;
+    if (this.count === this.capacity) return this.sheet;
+    const width: number = Math.min(this.columns, this.count) * this.cellWidth;
+    const height: number =
+      Math.ceil(this.count / this.columns) * this.cellHeight;
+    const pixels: Uint8ClampedArray = new Uint8ClampedArray(width * height * 4);
+    for (let y: number = 0; y < height; y++)
+      pixels.set(
+        this.sheet.pixels.subarray(
+          y * this.sheet.width * 4,
+          (y * this.sheet.width + width) * 4,
+        ),
+        y * width * 4,
+      );
+    return { width, height, pixels };
   }
 }

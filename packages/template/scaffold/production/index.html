@@ -8,13 +8,15 @@
     <style>
       body { margin: 0; background: #111820; color: #eef3fa; font: 14px system-ui; }
       canvas { display: block; }
-      #clips { display: flex; align-items: center; gap: 12px; padding: 12px; }
+      #clips { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px; }
       #seek { width: 40vw; }
+      #legend { display: flex; flex-wrap: wrap; gap: 12px; }
+      #legend i { display: inline-block; width: 10px; height: 10px; margin-right: 4px; }
     </style>
   </head>
   <body>
     <canvas id="view"></canvas>
-    <nav id="clips"><button id="play">Play</button><button id="pause">Pause</button><input id="seek" type="range" min="0" step="0.01" value="0" aria-label="Film time" /><output id="clock"></output></nav>
+    <nav id="clips"><button id="play">Play</button><button id="pause">Pause</button><input id="seek" type="range" min="0" step="0.01" value="0" aria-label="Film time" /><output id="clock"></output><output id="legend"></output></nav>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

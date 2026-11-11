@@ -2,12 +2,13 @@
 // bundle that reaches this module through a package index still loads.
 import * as zlib from "node:zlib";
 
-import type { IAutoMovieSceneRaster } from "./IAutoMovieSceneRaster.js";
+import type { IAutoMovieRasterImage } from "./IAutoMovieRasterImage.js";
 
 /**
- * Encode a Node-drawn frame as a lossless 8-bit RGB PNG.
+ * Encode a picture, such as a Node-drawn frame, a contact sheet or a
+ * difference image, as a lossless 8-bit RGB PNG.
  *
- * The frame is opaque, so alpha is dropped; rows use filter type 0 and one
+ * The picture is opaque, so alpha is dropped; rows use filter type 0 and one
  * zlib stream, which every PNG reader, including `pngjs` and the frame-sheet
  * writer, decodes.
  *
@@ -20,7 +21,7 @@ import type { IAutoMovieSceneRaster } from "./IAutoMovieSceneRaster.js";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates the packed rows and the returned buffer; nothing is retained.
  */
 export function encodeAutoMovieRasterPng(
-  raster: IAutoMovieSceneRaster,
+  raster: IAutoMovieRasterImage,
 ): Buffer {
   const { width, height, pixels } = raster;
   if (pixels.length !== width * height * 4)
