@@ -13,6 +13,7 @@ import * as path from "node:path";
 
 import type { AutoMovieCommand } from "./AutoMovieCommand";
 import { captureAutoMovie } from "./captureAutoMovie";
+import { inspectAutoMovie } from "./inspectAutoMovie";
 import type { IAutoMoviePackageManager } from "./IAutoMoviePackageManager";
 import { deriveAutoMovieProjectName } from "./deriveAutoMovieProjectName";
 import { promptAutoMovieProjectName } from "./promptAutoMovieProjectName";
@@ -29,6 +30,7 @@ Usage:
   npx automovie sync <directory> [--check] [--baseline <directory>]
   automovie capture --module <file> [--backend software|gpu] [--out <dir>] [<request>]
   automovie capture --file <video> [--out <dir>] [<request>]
+  automovie inspect --module <file> [--props <json>] [--port <n>] [<request>]
 
 Commands:
   create          A single production, or with --workspace a pnpm workspace
@@ -41,6 +43,10 @@ Commands:
                   Chromium, or take a video file's own frames, into stills,
                   contact sheets and record.json. Needs @automovie/render, vite
                   and playwright-core in the production, and FFmpeg for --file.
+  inspect         In a production or package, serve the inspector page over the
+                  subjects a module offers and print its address, whose query
+                  is the request. Needs @automovie/render, @automovie/viewer,
+                  react, react-dom and vite there; Ctrl+C stops it.
 
 Options:
   --workspace     Create a pnpm workspace root instead of a single production.
@@ -50,11 +56,15 @@ Options:
   --check         Report a sync plan; exit 1 when updates or conflicts remain.
   --baseline      Previous adopted instructions the files came from; they
                   override the stored sync state for the files they hold.
-  --module        capture: the module whose subjects(props) the page draws.
+  --module        capture, inspect: the module whose subjects(props) the page
+                  draws.
+  --port          inspect: the port to serve on; default a free port.
+  --props         inspect: a JSON file the module's subjects(props) is called
+                  with; default null.
   --file          capture: an encoded video file instead of a subject.
   --backend       capture: software (SwiftShader, the default) or gpu.
   --out           capture: the folder; default media/capture/<subject>.
-  <request>       capture: --subject, --at, --from, --to, --rate, --events,
+  <request>       capture, inspect: --subject, --at, --from, --to, --rate, --events,
                   --views, --passes, --marks, --label, --round, --compare and
                   every other key of the capture request grammar.
   -h, --help      Show this help as a standalone request.
@@ -69,6 +79,7 @@ Options:
  * - `add` requires `pnpm-workspace.yaml` in the working directory, which it takes as the workspace root without searching elsewhere, and publishes a workspace production into `movies/<family>/<directory>`, named by `--name`, else by the npm-safe name derived from the directory segment as `create` derives one.
  * - `sync` plans explicit generated-instruction updates for the directory holding `AGENTS.md`, preserves project contracts and content and refuses local conflicts; check reports pending updates without writing.
  * - `capture` runs `captureAutoMovie` in the working directory as the production, resolving to its status: 1 when a cell was not drawn.
+ * - `inspect` runs `inspectAutoMovie` in the working directory, serving the inspector page until the process is interrupted.
  *
  * `create` and `add` refuse a non-empty target without `--force`. On success they list the written files relative to the target, then the next steps. Completed and partial file effects stay after failure; the error names the completed files and the stopping entry. Prepared directories can remain even when no file was written.
  *
@@ -104,6 +115,8 @@ export async function run(argv: readonly string[]): Promise<number> {
         root: process.cwd(),
         env: process.env,
       });
+    if (command.command === "inspect")
+      return await inspectAutoMovie({ args: command.args, root: process.cwd() });
     if (command.command === "sync") {
       const targetDir: string = path.resolve(process.cwd(), command.directory);
       const result: ReturnType<typeof syncScaffold> = syncScaffold({

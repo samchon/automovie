@@ -107,7 +107,7 @@ Every picture a host saves comes from one function that runs in the browser. A p
 
 ## Request keys
 
-Each key a request reader accepts, and each option the `automovie capture` command of the `automovie` package takes for itself, serves a requirement of the [visual-debugging](../../.agents/skills/visual-debugging/SKILL.md), [3d-modeling](../../.agents/skills/3d-modeling/inspection.md) or [motion](../../.agents/skills/motion/verification.md) skill. A page's address and the command line carry the same keys; the command line writes each as `--<key>`, and the four options written below with their dashes belong to the command alone.
+Each key a request reader accepts, and each option the `automovie capture` and `automovie inspect` commands of the `automovie` package take for themselves, serves a requirement of the [visual-debugging](../../.agents/skills/visual-debugging/SKILL.md), [3d-modeling](../../.agents/skills/3d-modeling/inspection.md) or [motion](../../.agents/skills/motion/verification.md) skill. A page's address and the command line carry the same keys; the command line writes each as `--<key>`, and the options written below with their dashes belong to the commands alone.
 
 | Key | Asks for | Serves |
 | --- | --- | --- |
@@ -128,7 +128,9 @@ Each key a request reader accepts, and each option the `automovie capture` comma
 | `sweep`, `margin` | Each matched unit alone and with the neighbours within `margin` metres | Each unit alone and with its neighbours (capture, Subject) |
 | `longest`, `smallest`, `reduction` | The reader budget, 1568 and 200 px by default, and `area` or `nearest` reduction into cells | Reading the sheet first, at a size the reader takes in (capture, Stills and sheets) |
 | `round`, `compare`, `tolerance` | Keeping the capture as a named round, comparing it cell by cell with an earlier one, and the byte difference counted as unchanged | Rounds kept apart and compared (capture, Rounds; comparison) |
-| `--module` | The subject module whose subjects the draw page offers; required unless `--file` is given | Capturing the actual consumer (capture, Conditions) |
+| `--module` | The subject module whose subjects the draw page, or with `inspect` the inspector page, offers; required unless `--file` is given | Capturing the actual consumer (capture, Conditions) |
 | `--file` | An encoded or generated video file captured from its own frames instead of a drawn subject | Sampling an encoded file from the file itself (capture, Times) |
 | `--out` | The capture's root folder, `media/capture/<subject>` by default | Keeping each round's capture apart (capture, Rounds) |
 | `--backend` | `software`, SwiftShader through ANGLE and the default, or `gpu` | The renderer as a condition every still records (capture, Conditions) |
+| `--port` | `inspect`: the port the inspector page is served on, a free one by default; the printed address's query is the request | Restoring the instrument for a subject a package offers, and a view that repeats from its text (capture) |
+| `--props` | `inspect`: a JSON file the module's `subjects` is called with, for subjects built from data a host computes, `null` by default | Inspecting the actual consumer, such as a motion case (capture, Conditions) |

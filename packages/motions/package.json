@@ -49,9 +49,12 @@
   "devDependencies": {
     "@automovie/human": "workspace:^",
     "@automovie/render": "workspace:^",
+    "@automovie/viewer": "workspace:^",
     "@ttsc/evidence": "catalog:samchon",
     "automovie": "workspace:^",
     "playwright-core": "catalog:media",
+    "react": "catalog:react",
+    "react-dom": "catalog:react",
     "vite": "catalog:vite",
     "@ttsc/lint": "catalog:samchon",
     "@types/node": "catalog:utils",

@@ -1,7 +1,8 @@
-import * as fs from "node:fs";
-import * as net from "node:net";
 import * as path from "node:path";
 import { promisify } from "node:util";
+
+import { findAutoMovieFreePort } from "./findAutoMovieFreePort";
+import { writeAutoMovieModulePage } from "./writeAutoMovieModulePage";
 
 /**
  * The part of the production's `vite` the capture host calls, declared structurally so the command loads the production's own Vite at run time.
@@ -23,7 +24,7 @@ interface IVite {
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is generated and where, how the build is configured and why, where the server listens, what the return holds, and the refusals.
  * @evidence contracts/development/implementation.md#principled-implementation A built page served by `vite preview` does not rebuild or reload while pages draw, which the development server does on a new import; the scratch folder sits inside the production so bare imports resolve from its own dependencies.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Generate, build, find a port, preview; the draw function and subjects are the page's.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Generate through `writeAutoMovieModulePage`, which the inspector page shares, build, find a port, preview; the draw function and subjects are the page's.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The production's page and configuration file are left untouched; the generated page replaces only the build input.
  * @evidence contracts/development/implementation.md#efficient-algorithms One build per host; every capture of the host reuses the served page.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The built page serves every subject and round of one host.
@@ -46,44 +47,28 @@ export async function serveAutoMovieDrawPage(props: {
   close: () => Promise<void>;
 }> {
   const vite: IVite = props.vite as IVite;
-  const module: string = path.resolve(props.root, props.module);
-  if (!fs.existsSync(module))
-    throw new Error(`The subject module ${module} does not exist`);
 
   // The generated page, in a scratch folder of this process.
-  const scratch: string = path.join(
-    props.root,
-    "node_modules",
-    ".cache",
-    "automovie",
-    `draw-${process.pid}-${Date.now()}`,
-  );
-  fs.mkdirSync(scratch, { recursive: true });
-  const relative: string = path
-    .relative(scratch, module)
-    .split(path.sep)
-    .join("/")
-    .replace(/\.tsx?$/u, "");
-  fs.writeFileSync(
-    path.join(scratch, "index.html"),
-    `<!doctype html>\n<html><head><meta charset="utf-8" /><title>draw</title></head><body><script type="module" src="./main.js"></script></body></html>\n`,
-  );
-  fs.writeFileSync(
-    path.join(scratch, "main.js"),
-    `import { installAutoMovieDraw } from "@automovie/render";\nimport { subjects } from ${JSON.stringify(relative.startsWith(".") ? relative : `./${relative}`)};\n\ninstallAutoMovieDraw(subjects);\n`,
-  );
-  const remove: () => void = (): void =>
-    fs.rmSync(scratch, { recursive: true, force: true });
+  const page: ReturnType<typeof writeAutoMovieModulePage> =
+    writeAutoMovieModulePage({
+      root: props.root,
+      module: props.module,
+      kind: "draw",
+      title: "draw",
+      body: "",
+      script: (specifier: string): string =>
+        `import { installAutoMovieDraw } from "@automovie/render";\nimport { subjects } from ${JSON.stringify(specifier)};\n\ninstallAutoMovieDraw(subjects);\n`,
+    });
+  const scratch: string = page.folder;
+  const remove: () => void = page.remove;
 
   try {
     // The production's configuration, with the generated page as the only input.
-    const config: string = path.join(props.root, "vite.config.ts");
-    const publicDir: string = path.join(props.root, "public");
     const outDir: string = path.join(scratch, "dist");
     await vite.build({
       root: scratch,
-      configFile: fs.existsSync(config) ? config : false,
-      publicDir: fs.existsSync(publicDir) ? publicDir : false,
+      configFile: page.configFile,
+      publicDir: page.publicDir,
       base: "./",
       logLevel: "warn",
       clearScreen: false,
@@ -97,7 +82,7 @@ export async function serveAutoMovieDrawPage(props: {
       },
     });
 
-    const port: number = await freePort();
+    const port: number = await findAutoMovieFreePort();
     const server: Awaited<ReturnType<IVite["preview"]>> = await vite.preview({
       root: scratch,
       configFile: false,
@@ -120,18 +105,4 @@ export async function serveAutoMovieDrawPage(props: {
     remove();
     throw error;
   }
-}
-
-/** A port the operating system reports free on 127.0.0.1 at the moment of asking. */
-function freePort(): Promise<number> {
-  return new Promise<number>(
-    (resolve: (port: number) => void, reject: (error: Error) => void): void => {
-      const server: net.Server = net.createServer();
-      server.once("error", reject);
-      server.listen(0, "127.0.0.1", (): void => {
-        const address: net.AddressInfo = server.address() as net.AddressInfo;
-        server.close((): void => resolve(address.port));
-      });
-    },
-  );
 }
