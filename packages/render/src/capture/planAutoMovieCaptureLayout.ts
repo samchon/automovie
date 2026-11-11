@@ -6,23 +6,23 @@ import type { IAutoMovieCaptureLayout } from "./IAutoMovieCaptureLayout.js";
 const EPSILON: number = 1e-9;
 
 /**
- * Lay out a capture's cells on contact sheets for a stated reader: every sheet's longest edge within `budget.longest`, every cell's shorter edge at least `budget.smallest`, and the cells as large as those two bounds allow. Each cell's caption strip, whose height `AutoMovieRasterSheet.caption` gives, is reserved under it and counted against the longest edge, never taken from the cell.
+ * Lay out a capture's cells on contact sheets for a stated reader: every sheet's longest edge within `budget.longest`, every cell's shorter edge at least `budget.smallest`, and the cells as large as those two bounds allow. Each cell's caption strip is reserved under it and counted against the longest edge, never taken from the cell: it holds as many lines as the longest of `captions` wraps to at the cell's width, by `AutoMovieRasterSheet.lines`, at the height `AutoMovieRasterSheet.caption` gives, so every caption keeps every word that identifies its cell.
  *
  * A cell keeps the still's proportions, so a portrait still gives upright cells, and never enlarges the still. The smallest cell decides how many cells one sheet can hold; when the cells do not fit one sheet they are spread evenly over as few sheets as hold them. Cells come in groups of `group`, such as the views and passes of one instant: when a group fits a row, a sheet holds whole groups and its column count is a multiple of the group, so each row starts a new group and no group is split between sheets. Among the grids that hold a sheet's cells, the one giving the largest cell wins, ties going to the grid with fewer empty cells, then to the one with fewer rows. A still so elongated that one smallest cell exceeds the longest edge is shrunk to fit it, the one case where a cell falls under `smallest`, because a reader would downsize a larger sheet anyway.
  *
  * It throws for a raster, count or group that is not a positive whole number.
  *
  * ```ts
- * planAutoMovieCaptureLayout({ width: 1280, height: 720, count: 50, group: 1, budget: { longest: 1568, smallest: 200, reduction: "area" } });
+ * planAutoMovieCaptureLayout({ width: 1280, height: 720, count: 50, group: 1, budget: { longest: 1568, smallest: 200, reduction: "area" }, captions: ["f30 1.000s"] });
  * // cells of 366 x 206 with an 18 px caption strip, in 4 columns of 7 rows, 25 per sheet on 2 sheets
  * ```
  *
  * @evidence contracts/development/common.md#meaningful-documentation States both bounds, the proportion and no-enlargement rules, how cells and groups are spread over sheets, which grid wins, the one case that breaks the smallest edge and why, and the refusal.
- * @evidence contracts/development/implementation.md#principled-implementation A sheet holds at most floor(longest / smallest-cell-width) by floor(longest / (smallest-cell-height + its caption strip)) cells, so the strip never pushes a cell under the smallest edge; spreading the count evenly over the fewest such sheets and then choosing the grid by its cell, the tallest whose width fits longest / columns and whose height with its strip fits longest / rows, maximises the cell size within both bounds. The strip's height grows with the cell in steps, so the cell is lowered pixel by pixel until cell and strip fit, and starting from the lower of the width-bound height and the row's share, a strip's height of steps at most finds it, because a cell plus its strip only grows with the cell. The smallest cell's sides are rounded up, so a grid that fits it keeps the shorter edge at `smallest`, and the chosen cell's sides are floored, so the sheet never exceeds the longest edge; both allow `1e-9` for floating-point error in a size that is whole in exact arithmetic.
+ * @evidence contracts/development/implementation.md#principled-implementation A sheet holds at most floor(longest / smallest-cell-width) by floor(longest / (smallest-cell-height + its caption strip)) cells, so the strip never pushes a cell under the smallest edge; spreading the count evenly over the fewest such sheets and then choosing the grid by its cell, the tallest whose width fits longest / columns and whose height with its strip fits longest / rows, maximises the cell size within both bounds. The strip's height changes with the cell in steps, its scale with the height and its line count with the width, so the cell is lowered pixel by pixel from the lower of the width-bound height and the row's share until cell and strip fit; the first fit is the largest cell, and the smallest cell's fit, counted with its own strip in the rows a sheet holds, bounds the search. The smallest cell's sides are rounded up, so a grid that fits it keeps the shorter edge at `smallest`, and the chosen cell's sides are floored, so the sheet never exceeds the longest edge; both allow `1e-9` for floating-point error in a size that is whole in exact arithmetic.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Size the smallest cell, count sheets in whole groups, then one search over column counts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No cell size, column count or sheet size is fixed: every number comes from the budget, the raster and the group.
- * @evidence contracts/development/implementation.md#efficient-algorithms The search tries at most one grid per column count, bounded by `longest / smallest`, with at most one strip's height of lowering steps each, independent of the count and of the still's pixels.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of a few numbers.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The search tries at most one grid per column count, bounded by `longest / smallest`, with lowering steps down to at most the smallest cell, each step wrapping the captions; work is linear in the captions' total length per step and independent of the still's pixels.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its arguments.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one small record and keeps nothing.
  */
 export function planAutoMovieCaptureLayout(props: {
@@ -40,6 +40,9 @@ export function planAutoMovieCaptureLayout(props: {
 
   /** The reader the sheets are for. */
   budget: IAutoMovieCaptureBudget;
+
+  /** Every caption a cell of these sheets may carry, the longest of which sizes the caption strip; empty for one line. */
+  captions: readonly string[];
 }): IAutoMovieCaptureLayout {
   const { width, height, count, budget } = props;
   for (const [key, value] of Object.entries({
@@ -60,11 +63,21 @@ export function planAutoMovieCaptureLayout(props: {
     Math.floor(budget.longest / Math.ceil(width * least - EPSILON)),
   );
   const leastHeight: number = Math.ceil(height * least - EPSILON);
+
+  // The caption strip under a cell: as many lines as the longest caption wraps to at the cell's width.
+  const strip: (cell: number) => { lines: number; height: number } = (
+    cell: number,
+  ): { lines: number; height: number } => {
+    const lines: number = AutoMovieRasterSheet.lines(
+      props.captions,
+      Math.max(1, Math.floor((width * cell) / height + EPSILON)),
+      cell,
+    );
+    return { lines, height: AutoMovieRasterSheet.caption(cell, lines) };
+  };
   const rowsMost: number = Math.max(
     1,
-    Math.floor(
-      budget.longest / (leastHeight + AutoMovieRasterSheet.caption(leastHeight)),
-    ),
+    Math.floor(budget.longest / (leastHeight + strip(leastHeight).height)),
   );
 
   // Spread whole groups evenly over the fewest sheets that hold them; a group wider than a row is not kept whole.
@@ -100,7 +113,7 @@ export function planAutoMovieCaptureLayout(props: {
         ),
       ),
     );
-    while (cell > 1 && cell + AutoMovieRasterSheet.caption(cell) > rowHeight)
+    while (cell > 1 && cell + strip(cell).height > rowHeight)
       cell--;
     const scale: number = cell / height;
     if (
@@ -121,7 +134,8 @@ export function planAutoMovieCaptureLayout(props: {
       width: Math.max(1, Math.floor(width * best.scale + EPSILON)),
       height: best.cell,
     },
-    caption: AutoMovieRasterSheet.caption(best.cell),
+    caption: strip(best.cell).height,
+    lines: strip(best.cell).lines,
     columns: best.columns,
     rows: best.rows,
     perSheet,

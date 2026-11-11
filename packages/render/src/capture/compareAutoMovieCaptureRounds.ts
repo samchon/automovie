@@ -87,6 +87,15 @@ export async function compareAutoMovieCaptureRounds(props: {
     count: Math.max(1, pairs.length * 3),
     group: 3,
     budget: props.budget,
+    // Every caption a comparison row can carry: each side's name, and the longest third caption.
+    captions: pairs.flatMap(
+      ([old, now]: [IAutoMovieCaptureRecord.Row | null, IAutoMovieCaptureRecord.Row | null]): string[] => [
+        `${props.round} ${old?.name ?? "missing"}`,
+        `now ${now?.name ?? "missing"}`,
+        `changed ${props.raster.width * props.raster.height}`,
+        "side by side",
+      ],
+    ),
   });
   const sheetNames: string[] = Array.from(
     { length: layout.sheets },
@@ -124,6 +133,7 @@ export async function compareAutoMovieCaptureRounds(props: {
       layout.cell.width,
       layout.cell.height,
       layout.reduction,
+      layout.lines,
     );
     sheet.add(picture ?? markAutoMovieCaptureCell(layout.cell), caption);
     filled++;

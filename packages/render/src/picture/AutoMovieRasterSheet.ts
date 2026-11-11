@@ -6,8 +6,11 @@ import { stampAutoMovieRasterLabel } from "./stampAutoMovieRasterLabel.js";
  * reduced into its cell in row-major order, and its caption is written in a
  * dark strip under the cell, outside the picture, so the caption hides no part
  * of the subject or its legend and stays legible however small the cell is.
- * `AutoMovieRasterSheet.caption` gives the strip's height for a cell height,
- * which a layout reserves under every row. Reduction averages
+ * A caption longer than the cell is wide wraps onto further lines at word
+ * boundaries, so it keeps every word that identifies the cell; the sheet's
+ * strip holds the number of lines its constructor states, which
+ * `AutoMovieRasterSheet.lines` and `AutoMovieRasterSheet.caption` let a layout
+ * size from its captions before any picture is added. Reduction averages
  * every source pixel a cell pixel covers (`area`, the default), or copies the
  * source pixel at the cell pixel's centre (`nearest`), which keeps exact
  * colours for a review that reads pixel values.
@@ -25,7 +28,7 @@ import { stampAutoMovieRasterLabel } from "./stampAutoMovieRasterLabel.js";
  *
  * @evidence contracts/development/common.md#meaningful-documentation The comment states the fill order, both reductions and what each keeps, where captions are drawn and why, the memory bound, the extent of the result and how it is encoded.
  * @evidence contracts/development/design.md#principled-representation The sheet is itself an IAutoMovieRasterImage, so encoding and captioning reuse the frame path unchanged.
- * @evidence contracts/development/design.md#minimal-and-owned-surface A constructor, `add` and `finish`, and the static `caption` that a layout reads to reserve the strip; layout is fixed by the constructor.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface A constructor, `add` and `finish`, and the statics `lines` and `caption` that a layout reads to reserve the strip; layout is fixed by the constructor.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing names a film or capture command; captions are caller text.
  */
 export class AutoMovieRasterSheet {
@@ -50,22 +53,92 @@ export class AutoMovieRasterSheet {
   /** Height in pixels of the caption strip under each cell. */
   private readonly strip: number;
 
+  /** Lines of caption the strip holds. */
+  private readonly lines: number;
+
   /** How a picture is reduced into its cell. */
   private readonly reduction: "area" | "nearest";
 
   /**
-   * Height in pixels of the caption strip a sheet writes under a cell of the given height: one line of the label stamp's 3 × 5 font at a scale of one font pixel per 90 cell pixels, at least one, with two font pixels of margin above and below.
+   * Height in pixels of the caption strip a sheet writes under a cell of the given height, holding `lines` lines: the label stamp's 3 × 5 font at a scale of one font pixel per 90 cell pixels, at least one, one font pixel between lines and two of margin above and below.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the unit, what the strip holds, the scale rule and its floor, and the margin.
-   * @evidence contracts/development/implementation.md#principled-implementation The strip is exactly the stamp's box, `5 × scale` of glyph plus `2 × scale` of margin on each side, so the caption fills it without being cut; the scale follows the cell, as it did when captions were drawn inside it.
+   * @evidence contracts/development/common.md#meaningful-documentation States the unit, what the strip holds, the scale rule and its floor, and the spacing.
+   * @evidence contracts/development/implementation.md#principled-implementation One line is exactly the stamp's box, `5 × scale` of glyph plus `2 × scale` of margin on each side; each further line adds its glyph and one font pixel of space, `6 × scale`, so a strip of `n` lines is `(6n + 3) × scale` and holds every line uncut. The scale follows the cell, as it did when captions were drawn inside it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression, shared by the sheet and every layout that reserves the strip.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fixed strip height: it follows the cell.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure expression.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a number.
    */
-  public static caption(cellHeight: number): number {
-    return 9 * AutoMovieRasterSheet.scale(cellHeight);
+  public static caption(cellHeight: number, lines: number = 1): number {
+    return (6 * lines + 3) * AutoMovieRasterSheet.scale(cellHeight);
+  }
+
+  /**
+   * The lines a caption takes under a cell of the given size: its words in order, as many to a line as the stamp fits in the cell's width, a word longer than a line broken across lines.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the wrapping rule and the long-word case.
+   * @evidence contracts/development/implementation.md#principled-implementation A stamped box is `4 × scale × characters + 3 × scale` pixels wide, so a line holds `floor((width - 3 × scale) / (4 × scale))` characters, at least one; greedy filling at spaces keeps every word whole where it fits.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the words, shared by the sheet and every layout that sizes a strip.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No character is dropped: a word wider than the cell is broken, never cut.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the caption's length.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its text and size.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh strings.
+   */
+  public static wrap(
+    caption: string,
+    cellWidth: number,
+    cellHeight: number,
+  ): string[] {
+    const scale: number = AutoMovieRasterSheet.scale(cellHeight);
+    const room: number = Math.max(
+      1,
+      Math.floor((cellWidth - 3 * scale) / (4 * scale)),
+    );
+    const lines: string[] = [];
+    let line: string = "";
+    for (const word of caption.split(" ").filter((part: string): boolean => part !== "")) {
+      for (let rest: string = word; rest !== ""; ) {
+        const joined: string = line === "" ? rest : `${line} ${rest}`;
+        if (joined.length <= room) {
+          line = joined;
+          rest = "";
+        } else if (line !== "") {
+          lines.push(line);
+          line = "";
+        } else {
+          lines.push(rest.slice(0, room));
+          rest = rest.slice(room);
+        }
+      }
+    }
+    if (line !== "" || lines.length === 0) lines.push(line);
+    return lines;
+  }
+
+  /**
+   * The most lines any of the captions takes under a cell of the given size, at least one, which a sheet's strip must hold.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is counted and the floor.
+   * @evidence contracts/development/implementation.md#principled-implementation Every cell of a sheet has one strip height, so the strip holds the longest wrapped caption.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One `wrap` per caption.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No caption is assumed short.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the captions' total length.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its arguments.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a number.
+   */
+  public static lines(
+    captions: readonly string[],
+    cellWidth: number,
+    cellHeight: number,
+  ): number {
+    let most: number = 1;
+    for (const caption of captions)
+      most = Math.max(
+        most,
+        AutoMovieRasterSheet.wrap(caption, cellWidth, cellHeight).length,
+      );
+    return most;
   }
 
   /** The caption's font scale for a cell height: one font pixel per 90 cell pixels, at least one. */
@@ -81,6 +154,7 @@ export class AutoMovieRasterSheet {
    * @param cellWidth Cell width in pixels, a positive integer.
    * @param cellHeight Cell height in pixels, a positive integer, not counting the caption strip under it.
    * @param reduction `area` to average the pixels a cell pixel covers, `nearest` to copy the one at its centre.
+   * @param lines Lines of caption the strip under each cell holds, a positive integer; a caption that wraps onto more lines keeps its first ones.
    */
   public constructor(
     capacity: number,
@@ -88,20 +162,22 @@ export class AutoMovieRasterSheet {
     cellWidth: number,
     cellHeight: number,
     reduction: "area" | "nearest" = "area",
+    lines: number = 1,
   ) {
     this.capacity = capacity;
     this.columns = columns;
     this.cellWidth = cellWidth;
     this.cellHeight = cellHeight;
     this.reduction = reduction;
-    this.strip = AutoMovieRasterSheet.caption(cellHeight);
+    this.lines = lines;
+    this.strip = AutoMovieRasterSheet.caption(cellHeight, lines);
     if (
-      ![capacity, columns, cellWidth, cellHeight].every(
+      ![capacity, columns, cellWidth, cellHeight, lines].every(
         (value: number): boolean => Number.isSafeInteger(value) && value > 0,
       )
     )
       throw new Error(
-        "Sheet capacity, columns and cell size must be positive integers",
+        "Sheet capacity, columns, cell size and caption lines must be positive integers",
       );
     const used: number = Math.min(columns, capacity);
     const width: number = used * cellWidth;
@@ -185,7 +261,7 @@ export class AutoMovieRasterSheet {
       }
     }
 
-    // The caption in a dark strip under the cell, cut at the cell's width.
+    // The caption in a dark strip under the cell, wrapped at the cell's width, one stamp per line.
     const strip: IAutoMovieRasterImage = {
       width: this.cellWidth,
       height: this.strip,
@@ -193,11 +269,12 @@ export class AutoMovieRasterSheet {
     };
     for (let offset: number = 0; offset < strip.pixels.length; offset += 4)
       strip.pixels.set([16, 16, 16, 255], offset);
-    stampAutoMovieRasterLabel(
-      strip,
-      caption,
-      AutoMovieRasterSheet.scale(this.cellHeight),
-    );
+    const scale: number = AutoMovieRasterSheet.scale(this.cellHeight);
+    AutoMovieRasterSheet.wrap(caption, this.cellWidth, this.cellHeight)
+      .slice(0, this.lines)
+      .forEach((line: string, index: number): void =>
+        stampAutoMovieRasterLabel(strip, line, scale, { x: 0, y: index * 6 * scale }),
+      );
     for (const [picture, offset] of [
       [cell, 0],
       [strip, this.cellHeight],

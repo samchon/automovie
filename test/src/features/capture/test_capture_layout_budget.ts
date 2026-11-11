@@ -25,16 +25,17 @@ const READER: IAutoMovieCaptureBudget = { longest: 1568, smallest: 200, reductio
  * 6. A 4000 by 200 still, whose smallest cell is wider than the longest edge, is shrunk to fit it.
  * 7. A zero count, a fractional width and a zero group are refused.
  * 8. A real sheet filled with the first layout's 25 pictures of 1280 by 720 finishes at 1464 by 1568, within the longest edge, with each cell's picture 366 by 206 and the dark caption strip in the 18 rows under it.
+ * 9. Captions of up to 87 characters wrap onto two or more lines under 1280 by 720 cells; the strip holds every line of the longest, and the sheet still stays within the longest edge with cells at least 200 px.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Computes layouts through the public planner and checks the sheet and cell sizes they imply; a layout with a fixed 320 px cell, a fixed column count, or one that let a sheet exceed the budget fails.
  * @evidence contracts/development/testing.md#independent-expectations The bounds are the budget's own numbers, from the Claude vision guide the issue cites; sheet extent is columns times cell width and rows times cell height plus strip, computed here; the 1280 by 720 case's 366 by 206 cells follow by hand: seven rows share 1568 px as 224 px each, and 206 px plus its 18 px strip (two font pixels per 90 cell pixels, nine strip pixels per font pixel) is the tallest cell that fits.
  * @evidence contracts/development/testing.md#distinguishing-cases Landscape against portrait, one sheet against many, a large still against a small one, grouped against ungrouped cells, the elongated still where the two bounds conflict, and the computed layout against a sheet actually filled with it. Sheet pixels are owned by `test_capture_sheet_nearest` and `test_capture_run_order`.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_layout_budget`; it computes and fills a sheet in memory.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 9 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export function test_capture_layout_budget(): void {
   const layout: (width: number, height: number, count: number, group?: number) => IAutoMovieCaptureLayout = (width: number, height: number, count: number, group: number = 1): IAutoMovieCaptureLayout =>
-    planAutoMovieCaptureLayout({ width, height, count, group, budget: READER });
+    planAutoMovieCaptureLayout({ width, height, count, group, budget: READER, captions: [] });
   const within: (title: string, sheet: IAutoMovieCaptureLayout) => void = (title: string, sheet: IAutoMovieCaptureLayout): void => {
     TestValidator.predicate(
       `${title}: the sheet is within the longest edge`,
@@ -56,8 +57,8 @@ export function test_capture_layout_budget(): void {
   within("16:9", wide);
   TestValidator.equals(
     "16:9 cells and sheets",
-    [wide.cell, wide.caption, wide.columns, wide.rows, wide.perSheet, wide.sheets],
-    [{ width: 366, height: 206 }, 18, 4, 7, 25, 2],
+    [wide.cell, wide.caption, wide.lines, wide.columns, wide.rows, wide.perSheet, wide.sheets],
+    [{ width: 366, height: 206 }, 18, 1, 4, 7, 25, 2],
   );
 
   // 2. Portrait.
@@ -128,5 +129,23 @@ export function test_capture_layout_budget(): void {
     "the picture fills the cell and the strip lies under it",
     [red(365, 0), red(365, 205), red(365, 206), red(365, 223), red(365, 224)],
     [200, 200, 16, 16, 200],
+  );
+
+  // 9. Long captions wrap and the strip grows, still within the budget.
+  const long: string = "f8 0.250s r toeoff1 three-quarter-back@ortho@follow depth neighbours hero_arm not drawn";
+  const captioned: IAutoMovieCaptureLayout = planAutoMovieCaptureLayout({
+    width: 1280,
+    height: 720,
+    count: 50,
+    group: 1,
+    budget: READER,
+    captions: ["f0 0.000s", long],
+  });
+  within("long captions", captioned);
+  TestValidator.predicate(
+    `the strip holds every line of the longest caption: ${captioned.lines} lines`,
+    captioned.lines >= 2 &&
+      AutoMovieRasterSheet.wrap(long, captioned.cell.width, captioned.cell.height).length <= captioned.lines &&
+      captioned.caption === AutoMovieRasterSheet.caption(captioned.cell.height, captioned.lines),
   );
 }

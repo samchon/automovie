@@ -15,9 +15,14 @@ export interface IAutoMovieCaptureLayout {
   cell: { width: number; height: number };
 
   /**
-   * Height in pixels of the caption strip under each cell, outside the picture, as `AutoMovieRasterSheet.caption` gives it for the cell's height.
+   * Height in pixels of the caption strip under each cell, outside the picture, as `AutoMovieRasterSheet.caption` gives it for the cell's height and `lines`.
    */
   caption: number;
+
+  /**
+   * Lines of caption the strip holds: as many as the longest caption a cell may carry wraps to at the cell's width.
+   */
+  lines: number;
 
   /**
    * Cells per row.

@@ -143,6 +143,8 @@ export function planAutoMovieCapture(props: {
       count: cells.length,
       group: request.views.length * request.passes.length,
       budget: request.budget,
+      // A cell the draw fails is captioned with " not drawn" after its caption.
+      captions: cells.map((cell: IAutoMovieCaptureCell): string => `${cell.caption} not drawn`),
     }),
   };
 }

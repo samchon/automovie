@@ -108,6 +108,7 @@ export async function runAutoMovieCapture(props: {
       layout.cell.width,
       layout.cell.height,
       layout.reduction,
+      layout.lines,
     );
     let drawing: IAutoMovieCaptureDrawing;
     try {

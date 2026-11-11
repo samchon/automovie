@@ -37,7 +37,7 @@ const SUBJECT: IAutoMovieCaptureSubject = {
  * 2. A third round changing one pixel at 2 s pairs it with one changed pixel, the box of that pixel and a difference image; a cell at 3 s the compared round lacks is unmatched with the cause that the round has no such cell.
  * 3. A cell drawn by another backend is laid side by side with no difference numbers.
  * 4. A cell whose resolved camera differs is unmatched naming both cameras, and a cell the compared round failed to draw is unmatched with that failure.
- * 5. Each comparison writes a comparison sheet of three cells per entry, two entries of 32 by 18 stills sharing one 192 by 27 row with its 9 px caption strip, and the record lists the comparison.
+ * 5. Each comparison writes a comparison sheet of three cells per entry, two entries of 32 by 18 stills sharing one 192 by 45 row with a four-line 27 px caption strip, since a caption such as `before t001.000-film-beauty` wraps at 7 characters, and the record lists the comparison.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs real rounds through the public planner, folder and run against in-memory storage and reads the comparison in each record and the files written; a comparison over only the matching cells, one that measured across backends, or one that paired cells seen through different cameras fails.
  * @evidence contracts/development/testing.md#independent-expectations Every still is a flat colour this test chooses, so which pixels change, where, and whether hashes agree is known by hand; the pairing and unmatched rules are those of `.agents/skills/visual-debugging/comparison.md`.
@@ -172,5 +172,5 @@ export async function test_capture_round_comparison(): Promise<void> {
     [["comparison-001.png"], true, true],
   );
   const sheet: IAutoMovieRasterImage = await decodeAutoMovieRasterPng(memory.files.get("out/rounds/after/comparison-001.png")!);
-  TestValidator.equals("two entries of three cells share one row with its caption strip", [sheet.width, sheet.height], [192, 27]);
+  TestValidator.equals("two entries of three cells share one row with its caption strip", [sheet.width, sheet.height], [192, 45]);
 }
