@@ -22,6 +22,7 @@ import type { HumanActionName } from "../HumanActionName";
 import { HUMAN_ACTIONS } from "../actions/HUMAN_ACTIONS";
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -87,6 +88,11 @@ export class HumanPerformance {
       to: number;
       offset?: IHumanProp.IFrame;
     }[]
+  > = new Map();
+
+  private readonly meetings: Map<
+    string,
+    { subject: string; meeting: AutoMovieMotionMeeting.IMeeting }
   > = new Map();
 
   private resolving: boolean = true;
@@ -507,6 +513,48 @@ export class HumanPerformance {
           frame: (seconds: number): IHumanProp.IFrame =>
             this.prop(subject, seconds),
         };
+      },
+      meeting: (
+        kind: AutoMovieMotionMeeting.IKind,
+        role: string,
+        partner?: { role: string; subject: string },
+      ): AutoMovieMotionMeeting.IMeeting => {
+        const own: AutoMovieMotionMeeting.IRole = {
+          name: role,
+          subject: intent.subject,
+          body,
+          posture: entry.posture,
+          bones: poseBones(body, entry.pose),
+        };
+        if (partner === undefined)
+          return AutoMovieMotionMeeting.of(kind, [own], context);
+        // The role planned first computes the meeting; the other reads that
+        // record while it still lies ahead of its own start.
+        const key: string = `${kind.name}|${[intent.subject, partner.subject].sort().join("|")}`;
+        const kept = this.meetings.get(key);
+        if (
+          kept !== undefined &&
+          kept.subject !== intent.subject &&
+          kept.meeting.instants.relax > context.start
+        )
+          return kept.meeting;
+        const meeting: AutoMovieMotionMeeting.IMeeting =
+          AutoMovieMotionMeeting.of(
+            kind,
+            [
+              own,
+              {
+                name: partner.role,
+                subject: partner.subject,
+                body: this.person(partner.subject).performer.body,
+                posture: this.posture(partner.subject, context.start),
+                bones: this.bones(partner.subject, context.start),
+              },
+            ],
+            context,
+          );
+        this.meetings.set(key, { subject: intent.subject, meeting });
+        return meeting;
       },
       action: (anchor: string): IHumanActionContext.IPlaced => {
         const placed = this.anchors.get(anchor);

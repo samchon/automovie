@@ -121,6 +121,9 @@ export namespace AutoMovieMotionHumanTarget {
 
     /** Extra flexion of every finger joint over the shape, degrees; 0 when absent. */
     curl?: number;
+
+    /** A share added to the bend's outward share, as a manner's `bend` is; 0 when absent. */
+    out?: number;
   }
 
   /**
@@ -271,7 +274,13 @@ export namespace AutoMovieMotionHumanTarget {
         normal,
         forward,
       }),
-      bend: AutoMovieMotionHumanBend.arm(body, posture, side, options.bend),
+      bend: AutoMovieMotionHumanBend.arm(
+        body,
+        posture,
+        side,
+        options.bend,
+        options.out ?? 0,
+      ),
       ...(options.curl === undefined ? {} : { curl: options.curl }),
     };
   }

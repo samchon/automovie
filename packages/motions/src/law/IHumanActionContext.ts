@@ -10,6 +10,7 @@ import type {
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
+import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import type { IHumanProp } from "../perform/IHumanProp";
 import type { HumanSkill } from "../skill/HumanSkill";
 import type { IHumanActionPlan } from "./IHumanActionPlan";
@@ -92,6 +93,25 @@ export interface IHumanActionContext<P = object> {
    * @throws {Error} When no such prop exists.
    */
   prop(subject: string): IHumanActionContext.IProp;
+
+  /**
+   * The meeting of an action this performer does with another: the one
+   * record both roles read, computed from where both stand at this action's
+   * start by whichever role is planned first. With no partner it is this
+   * role's own meeting on its default places, which is not solid. It may be
+   * read at plan time, so the partner's earlier actions must be placed first.
+   *
+   * @param kind The kind of mutual action.
+   * @param role This performer's role in it.
+   * @param partner The other performer and their role; absent when alone.
+   * @returns The meeting.
+   * @throws {Error} When no such performer exists, or the kind lacks a role.
+   */
+  meeting(
+    kind: AutoMovieMotionMeeting.IKind,
+    role: string,
+    partner?: { role: string; subject: string },
+  ): AutoMovieMotionMeeting.IMeeting;
 
   /**
    * This instance's draw stream for one channel.

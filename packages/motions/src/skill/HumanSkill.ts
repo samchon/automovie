@@ -3,7 +3,8 @@ import {
   createAutoMovieRandom,
   deriveAutoMovieSeed,
 } from "@automovie/engine";
-import type { IAutoMovieProficiency } from "@automovie/interface";
+
+import type { IAutoMovieProficiency } from "./IAutoMovieProficiency";
 
 /**
  * A performer's skill as numbers laws read: each proficiency axis resolved

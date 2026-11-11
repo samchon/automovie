@@ -174,4 +174,55 @@ export namespace AutoMovieMotionHumanRoot {
         scale(to, clock.envelope(rise, fall, seconds)),
     });
   }
+
+  /**
+   * A shift: the body moves by a displacement between two instants on the
+   * clock's minimum-jerk progress and stays there until the action's end (the
+   * weight carried onto one foot, a step's advance, a sink into a seat).
+   *
+   * @param clock The action's clock.
+   * @param window The instants the body starts moving and arrives at.
+   * @param by The move in the body's own floor frame, metres.
+   * @returns The primitive, on the root from the first instant to the clock's end.
+   */
+  export function shift(
+    clock: AutoMovieMotionClock.IClock,
+    window: readonly [string, string],
+    by: IAutoMovieVector3,
+  ): IAutoMovieMotionHumanPrimitive {
+    return travel({
+      from: clock.at(window[0]),
+      to: clock.duration,
+      offset: (seconds: number): IOffset =>
+        scale(
+          { point: by, yaw: 0 },
+          clock.progress(window[0], window[1], seconds),
+        ),
+    });
+  }
+
+  /**
+   * A facing turn: the heading turns by an angle between two instants on the
+   * clock's minimum-jerk progress and stays there until the action's end.
+   *
+   * @param clock The action's clock.
+   * @param window The instants the turn starts and arrives at.
+   * @param yaw The turn about +Y, degrees; positive toward the performer's left.
+   * @returns The primitive, on the root from the first instant to the clock's end.
+   */
+  export function face(
+    clock: AutoMovieMotionClock.IClock,
+    window: readonly [string, string],
+    yaw: number,
+  ): IAutoMovieMotionHumanPrimitive {
+    return travel({
+      from: clock.at(window[0]),
+      to: clock.duration,
+      offset: (seconds: number): IOffset =>
+        scale(
+          { point: { x: 0, y: 0, z: 0 }, yaw },
+          clock.progress(window[0], window[1], seconds),
+        ),
+    });
+  }
 }

@@ -2,10 +2,13 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import type { IHumanActionPlan } from "../law/IHumanActionPlan";
+import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { AutoMovieMotionClock } from "./AutoMovieMotionClock";
+import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
+import type { AutoMovieMotionManner } from "./AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
 /**
@@ -272,5 +275,296 @@ export namespace AutoMovieMotionHumanLeg {
       planted: (seconds: number): boolean =>
         clock.linear(window[0], window[1], seconds) >= 1,
     });
+  }
+
+  /**
+   * What every leg phrase takes: the leg, the clock whose standard instants
+   * (`AutoMovieMotionClock.PHRASE`) it moves on, and where the foot stands
+   * before and after.
+   */
+  export interface IPhrase {
+    /** The body. */
+    body: IHumanBody;
+
+    /** A clock with the standard instants of a phrase. */
+    clock: AutoMovieMotionClock.IClock;
+
+    /** The leg. */
+    side: Side;
+
+    /** Where the foot stands before and after the phrase. */
+    stance: HumanFoot.IPlacement;
+
+    /**
+     * What the foot bears on while it is on its place, when the place is
+     * solid; absent for a place in the air, which gives no contact window.
+     */
+    contact?: Pick<IHumanContactWindow, "kind" | "support">;
+
+    /**
+     * The manner's size: the extent scales a place in the air about where
+     * the foot leaves from. A phrase that states a contact keeps its place
+     * whatever the extent. Neutral when absent.
+     */
+    manner?: Pick<AutoMovieMotionManner.IModifiers, "extent">;
+  }
+
+  /**
+   * A placement scaled about another by the phrase's extent; unchanged when
+   * the phrase states a contact, since a manner never moves a goal on a solid
+   * place.
+   */
+  const extended = (
+    props: Pick<IPhrase, "contact" | "manner">,
+    about: HumanFoot.IPlacement,
+    target: HumanFoot.IPlacement,
+  ): HumanFoot.IPlacement => {
+    const extent: number = props.manner?.extent ?? 1;
+    return props.contact !== undefined || extent === 1
+      ? target
+      : between(about, target, extent);
+  };
+
+  /**
+   * The contact window of a foot between two instants.
+   *
+   * @param props The phrase.
+   * @param from The instant the foot comes to bear.
+   * @param to The instant it leaves.
+   * @returns One window when the phrase states a contact, none otherwise.
+   */
+  export function bearing(
+    props: Pick<IPhrase, "clock" | "side" | "contact">,
+    from: string,
+    to: string,
+  ): IHumanContactWindow[] {
+    return props.contact === undefined
+      ? []
+      : [
+          {
+            part: `${props.side}Foot`,
+            kind: props.contact.kind,
+            from: props.clock.at(from) / props.clock.duration,
+            to: props.clock.at(to) / props.clock.duration,
+            support: props.contact.support,
+          },
+        ];
+  }
+
+  /**
+   * A placement between two others: the ankle on the straight line and the
+   * rotation turned by spherical interpolation.
+   *
+   * @param from The placement at share 0.
+   * @param to The placement at share 1.
+   * @param share How far along; not clamped for the ankle, clamped to [0, 1] for the rotation.
+   * @returns The placement.
+   */
+  export function between(
+    from: HumanFoot.IPlacement,
+    to: HumanFoot.IPlacement,
+    share: number,
+  ): HumanFoot.IPlacement {
+    return {
+      ankle: Vector3.add(
+        from.ankle,
+        Vector3.scale(Vector3.subtract(to.ankle, from.ankle), share),
+      ),
+      rotation: Quaternion.slerp(
+        from.rotation,
+        to.rotation,
+        Math.min(1, Math.max(0, share)),
+      ),
+    };
+  }
+
+  /** Whether a phrase's foot stands on its stance: only at the clock's two ends. */
+  const grounded =
+    (clock: AutoMovieMotionClock.IClock) =>
+    (seconds: number): boolean =>
+      seconds <= 0 || seconds >= clock.duration;
+
+  /**
+   * A lift: the foot leaves its stance, is held raised and is set back (a
+   * knee raised, a foot drawn up, a leg crossed). It travels from `start` to
+   * `stroke`, stays until `relax` and stands again at `end`.
+   *
+   * @param props The phrase and the raised placement.
+   * @returns The primitive; the foot is planted only at the two ends.
+   */
+  export function lift(
+    props: IPhrase & { raised: Frame },
+  ): IAutoMovieMotionHumanPrimitive {
+    return place({
+      body: props.body,
+      side: props.side,
+      from: 0,
+      to: props.clock.duration,
+      placement: (posture: IHumanPosture, seconds: number) =>
+        between(
+          props.stance,
+          extended(props, props.stance, props.raised(posture, seconds)),
+          props.clock.envelope(["start", "stroke"], ["relax", "end"], seconds),
+        ),
+      planted: grounded(props.clock),
+    });
+  }
+
+  /**
+   * A tap: the foot swings to a place on an arc, rests on it and swings back
+   * (a toe tapped ahead, a foot set on a step and taken off). It lands at
+   * `stroke`, stays until `relax` and stands on its stance again at `end`.
+   *
+   * @param props The phrase, the place and the ankle's greatest rise on the way, metres.
+   * @returns The primitive, with a contact window from `stroke` to `relax` when the phrase states a contact; the foot is planted on the place only then.
+   */
+  export function tap(
+    props: IPhrase & { target: Frame; clearance: number },
+  ): IAutoMovieMotionHumanPrimitive {
+    const { clock } = props;
+    return {
+      ...place({
+        body: props.body,
+        side: props.side,
+        from: 0,
+        to: clock.duration,
+        placement: (posture: IHumanPosture, seconds: number) => {
+          const target: HumanFoot.IPlacement = extended(
+            props,
+            props.stance,
+            props.target(posture, seconds),
+          );
+          return seconds <= clock.at("relax")
+            ? arc(
+                props.stance,
+                target,
+                props.clearance,
+                clock.progress("start", "stroke", seconds),
+              )
+            : arc(
+                target,
+                props.stance,
+                props.clearance,
+                clock.progress("relax", "end", seconds),
+              );
+        },
+        planted: (seconds: number): boolean =>
+          grounded(clock)(seconds) ||
+          (props.contact !== undefined &&
+            seconds >= clock.at("stroke") &&
+            seconds <= clock.at("relax")),
+      }),
+      contacts: bearing(props, "stroke", "relax"),
+    };
+  }
+
+  /**
+   * A swing: the foot is drawn to a chamber by `ready`, extends from
+   * `strokeStart` and passes its target at `stroke` at speed. With a follow
+   * phase it travels on past the target and slows to rest at `strokeEnd` (a
+   * kick in the air); with none it is arrested at the target (a kick met by
+   * a body). It stays until `relax` and stands on its stance again at `end`.
+   *
+   * @param props The phrase, the chamber, the target and the weapons the swing carries.
+   * @returns The primitive, with a contact window from `stroke` to `relax` when the phrase states a contact; the foot is planted only at the two ends.
+   */
+  export function swing(
+    props: IPhrase & {
+      chamber: Frame;
+      target: Frame;
+      weapons?: readonly IHumanActionPlan.IWeapon[];
+    },
+  ): IAutoMovieMotionHumanPrimitive {
+    const { clock } = props;
+    return {
+      ...place({
+        body: props.body,
+        side: props.side,
+        from: 0,
+        to: clock.duration,
+        placement: (posture: IHumanPosture, seconds: number) => {
+          const chamber: HumanFoot.IPlacement = props.chamber(posture, seconds);
+          const p: number = AutoMovieMotionClock.through(
+            clock,
+            ["strokeStart", "stroke", "strokeEnd"],
+            seconds,
+          );
+          return between(
+            props.stance,
+            p <= 0
+              ? chamber
+              : between(
+                  chamber,
+                  extended(props, chamber, props.target(posture, seconds)),
+                  p,
+                ),
+            clock.envelope(["start", "ready"], ["relax", "end"], seconds),
+          );
+        },
+        planted: grounded(clock),
+      }),
+      contacts: bearing(props, "stroke", "relax"),
+      ...(props.weapons === undefined ? {} : { weapons: props.weapons }),
+    };
+  }
+
+  /**
+   * A pivot: the foot turns about a sole point that stays on the floor and
+   * turns back (the rear foot of a punch on its ball, the support foot of a
+   * round kick, a heel turned out). The turn and the pitch grow from `start`
+   * to `stroke`, stay until `relax` and are gone at `end`.
+   *
+   * @param props The phrase, the sole point that stays, the heading's turn at its fullest in degrees about +Y and the pitch at its fullest in degrees, positive toes up.
+   * @returns The primitive, planted throughout, with a pivot window on the ground over the whole clock.
+   */
+  export function pivot(
+    props: Omit<IPhrase, "contact"> & {
+      about: "heel" | "ball";
+      turn: number;
+      pitch: number;
+    },
+  ): IAutoMovieMotionHumanPrimitive {
+    const { clock } = props;
+    const at: IAutoMovieVector3 = HumanFoot.point(
+      props.body,
+      props.side,
+      props.about,
+      props.stance,
+    );
+    const heading: number = HumanFoot.heading(props.stance.rotation);
+    const pitch: number = HumanFoot.pitch(props.stance.rotation);
+    return {
+      ...place({
+        body: props.body,
+        side: props.side,
+        from: 0,
+        to: clock.duration,
+        placement: (_: IHumanPosture, seconds: number) => {
+          const w: number = clock.envelope(
+            ["start", "stroke"],
+            ["relax", "end"],
+            seconds,
+          );
+          return HumanFoot.pivot(
+            props.body,
+            props.side,
+            props.about,
+            at,
+            heading + props.turn * w,
+            pitch + props.pitch * w,
+          );
+        },
+        planted: (): boolean => true,
+      }),
+      contacts: bearing(
+        {
+          clock,
+          side: props.side,
+          contact: { kind: "pivot", support: { kind: "ground" } },
+        },
+        "start",
+        "end",
+      ),
+    };
   }
 }

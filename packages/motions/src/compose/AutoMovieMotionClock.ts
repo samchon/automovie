@@ -340,4 +340,149 @@ export namespace AutoMovieMotionClock {
       ),
     ).flat();
   }
+
+  /**
+   * Progress of a movement that passes a point at speed: a minimum-jerk
+   * movement from `from` to `to` scaled so it is 1 at `at`, the instant the
+   * point is passed, and more than 1 after it. When `to` is at `at` the
+   * movement is arrested at its peak speed (a fist met by a body): it is the
+   * first half of a minimum-jerk movement, and stays 1 from then on.
+   *
+   * @param clock The clock.
+   * @param window The instants the movement starts, passes the point and ends at.
+   * @param seconds Seconds since the action's start.
+   * @returns 0 until the start, 1 at the point, the overshoot's share after it.
+   */
+  export function through(
+    clock: IClock,
+    window: readonly [string, string, string],
+    seconds: number,
+  ): number {
+    const a: number = clock.at(window[0]);
+    const b: number = clock.at(window[1]);
+    const c: number = clock.at(window[2]);
+    if (b - a < 1e-12) return seconds >= b ? 1 : 0;
+    const arrested: boolean = c - b < 1e-9;
+    const k: number = arrested ? 0.5 : (b - a) / (c - a);
+    const u: number =
+      seconds <= b || arrested
+        ? k * clock.linear(window[0], window[1], seconds)
+        : k + (1 - k) * clock.linear(window[1], window[2], seconds);
+    return minimumJerk(u).s / minimumJerk(k).s;
+  }
+
+  /**
+   * A movement back and forth about a pose between two instants: a sine of a
+   * whole number of cycles, grown over its first half cycle and shrunk over
+   * its last on the minimum-jerk profile, so it leaves and rejoins the pose
+   * at rest.
+   *
+   * @param clock The clock.
+   * @param window The instants the movement starts and ends at.
+   * @param cycles How many cycles; a positive integer.
+   * @param seconds Seconds since the action's start.
+   * @returns A value in [-1, 1]; 0 outside the window.
+   * @throws {Error} On a cycle count that is not a positive integer.
+   */
+  export function wave(
+    clock: IClock,
+    window: readonly [string, string],
+    cycles: number,
+    seconds: number,
+  ): number {
+    if (!(Number.isInteger(cycles) && cycles > 0))
+      throw new Error("A movement repeats a positive whole number of times");
+    const u: number = clock.linear(window[0], window[1], seconds);
+    const half: number = 1 / (2 * cycles);
+    const grown: number =
+      minimumJerk(Math.min(1, u / half)).s *
+      minimumJerk(Math.min(1, (1 - u) / half)).s;
+    return grown * Math.sin(2 * Math.PI * cycles * u);
+  }
+
+  /**
+   * A clock with each of its spans stretched by a factor of its own. A span
+   * runs from one instant to the next in time order and is named by the
+   * instant that opens it; the first span is opened by `start`.
+   *
+   * @param clock The clock.
+   * @param factor The factor of the span an instant opens; positive.
+   * @returns The stretched clock, with the same instant names.
+   * @throws {Error} On a factor that is not positive.
+   */
+  export function stretch(
+    clock: IClock,
+    factor: (opening: string) => number,
+  ): IClock {
+    const instants: IInstant[] = [];
+    let opening: string = START;
+    let before: number = 0;
+    let seconds: number = 0;
+    const advance = (until: number): void => {
+      const f: number = factor(opening);
+      if (!(f > 0))
+        throw new Error(`The span "${opening}" opens is stretched by a positive factor`);
+      seconds += f * (until - before);
+      before = until;
+    };
+    for (const instant of clock.instants) {
+      advance(instant.seconds);
+      instants.push({ name: instant.name, seconds });
+      opening = instant.name;
+    }
+    advance(clock.duration);
+    return of(seconds, instants);
+  }
+
+  /**
+   * A clock performed at another tempo: every span is stretched by the tempo
+   * except the spans opened by the instants named in `fixed`, whose lengths
+   * physics sets (a flight, a fall, a recoil) and no manner changes.
+   *
+   * @param clock The clock.
+   * @param tempo The factor on every other span's length; positive, 1 for no change.
+   * @param fixed The instants that open the spans left as they are; none when absent.
+   * @returns The scaled clock, with the same instant names.
+   * @throws {Error} On a tempo that is not positive, or a fixed name the clock lacks.
+   */
+  export function scale(
+    clock: IClock,
+    tempo: number,
+    fixed: readonly string[] = [],
+  ): IClock {
+    for (const name of fixed) clock.at(name);
+    return stretch(clock, (opening: string): number =>
+      fixed.includes(opening) ? 1 : tempo,
+    );
+  }
+
+  /**
+   * A clock whose named instant falls on a given second: the spans before
+   * the instant are stretched by one factor so it lands there, and the spans
+   * after it keep their lengths. Two roles of a mutual action align their
+   * clocks to the meeting's shared instant this way.
+   *
+   * @param clock The clock.
+   * @param instant The instant to place.
+   * @param seconds Where it falls, seconds since the action's start; positive.
+   * @returns The aligned clock, with the same instant names.
+   * @throws {Error} When the instant is at the action's start, or the second is not positive.
+   */
+  export function align(
+    clock: IClock,
+    instant: string,
+    seconds: number,
+  ): IClock {
+    const at: number = clock.at(instant);
+    if (!(at > 0) || !(seconds > 0))
+      throw new Error(
+        `The instant "${instant}" is aligned from a positive time to a positive time`,
+      );
+    const factor: number = seconds / at;
+    let before: boolean = true;
+    return stretch(clock, (opening: string): number => {
+      if (opening !== START && clock.at(opening) >= at - 1e-12) before = false;
+      return before ? factor : 1;
+    });
+  }
 }
