@@ -253,7 +253,18 @@ export namespace AutoMovieHumanF1 {
       const from: number = family.knots[0]!;
       const to: number = family.knots.at(-1)!;
       const count: number = Math.ceil((to - from) / layer) + 1;
-      sources.set(family.name, AutoMovieHumanConicLoft.part(family, Array.from({ length: count }, (_: unknown, i: number): number => from + ((to - from) * i) / (count - 1))));
+      const even: number[] = Array.from({ length: count }, (_: unknown, i: number): number => from + ((to - from) * i) / (count - 1));
+
+      // Inside a relief whose net is finer along the station than the layers, each layer interval is cut until it is as fine: rings 4 mm
+      // apart showed the face's net, 2.6 mm apart, as level steps.
+      const stations: number[] = even.flatMap((s: number, i: number): number[] => {
+        if (i === 0) return [s];
+        const before: number = even[i - 1]!;
+        const pitch: number = Math.min(layer, ...(family.reliefs ?? []).filter((relief): boolean => relief.stations[0] < s && relief.stations[1] > before).map((relief): number => (relief.stations[1] - relief.stations[0]) / (relief.rows - 3)));
+        const cuts: number = Math.ceil((s - before) / pitch - 1e-9);
+        return Array.from({ length: cuts }, (_: unknown, k: number): number => before + ((s - before) * (k + 1)) / cuts);
+      });
+      sources.set(family.name, AutoMovieHumanConicLoft.part(family, stations));
       return { type: "source", name: family.name, source: family.name };
     };
     const twin = (family: AutoMovieHumanConicLoft.IFamily): AutoMovieHumanConicLoft.IFamily => AutoMovieHumanConicLoft.mirror(family, family.name + ".mirror");
