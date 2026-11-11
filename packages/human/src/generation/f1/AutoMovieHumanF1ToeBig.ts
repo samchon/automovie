@@ -13,45 +13,45 @@ import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
  * them: the section is a chain of conics through its four extremes, fitted to the convex hull of the reference skin
  * (the path of a taut tape).
  *
- * Source: the f1 reference body cut by this course's own planes over stations 21 to 52 mm, 32 sections 1 mm apart, every
+ * Source: the f1 reference body cut by this course's own planes over stations 21 to 53 mm, 33 sections 1 mm apart, every
  * second one withheld from the fit. Fitted offline by `test/src/reference-conics/FamilyConicBody.ts` (joint least squares over
  * all sections). Regenerated through the engine's view loft from these numbers alone, the reference skin's cut vertices lie
- * 0.1 mm from it on average and at most 0.61 mm. 65 independent numbers.
+ * 0.11 mm from it on average and at most 0.58 mm. 65 independent numbers.
  */
 export const AutoMovieHumanF1ToeBig: AutoMovieHumanConicLoft.IFamily = {
   name: "toe.big",
-  centres: [AutoMovieHumanF1Joints.bigtoe1, AutoMovieHumanF1Joints.bigtoe2, AutoMovieHumanF1Joints.beyond(AutoMovieHumanF1Joints.bigtoe1, AutoMovieHumanF1Joints.bigtoe2, 28)],
+  centres: [AutoMovieHumanF1Joints.bigtoe1, AutoMovieHumanF1Joints.bigtoe2, AutoMovieHumanF1Joints.beyond(AutoMovieHumanF1Joints.bigtoe2, AutoMovieHumanF1Joints.bigtoePad, 4)],
   halves: [5],
   up: [0, 1, 0],
   layout: AutoMovieHumanConicSection.limb(0),
-  knots: [21, 29, 36.5, 43, 52],
+  knots: [21, 31, 37, 43, 53],
   values: [
     // front (+u) extreme: u, mm
-    [7.03, 6.81, 5.28, 5.64, 7.24],
+    [6.95, 6.44, 5.17, 5.59, 6.77],
     // front (+u) extreme: v, mm
-    [-2.64, -3.96, -4.4, -2.95, -3.69],
+    [-2.58, -4.5, -5.41, -0.46, 1.58],
     // side (+v) extreme: u, mm
-    [-5.98, -7.19, -6.61, -4.44, -2.26],
+    [-6.64, -7.65, -7.11, -3.97, -0.66],
     // side (+v) extreme: v, mm
-    [9.99, 10.74, 10.24, 8.8, 4.94],
+    [9.95, 11.06, 11.07, 10.84, 6.89],
     // back (-u) extreme: u, mm
-    [-15.3, -15.54, -14.77, -13.33, -8.9],
+    [-15.32, -15.49, -14.82, -13.75, -8.55],
     // back (-u) extreme: v, mm
-    [-5.92, -3.73, -4.77, -5.88, -4.4],
+    [-4.88, -3.66, -3.28, -5.44, -4.35],
     // side (-v) extreme: u, mm
-    [-8.96, -6.71, -5.91, -4.02, -1.93],
+    [-8.29, -7.01, -5.32, -5.27, -3.27],
     // side (-v) extreme: v, mm
-    [-13.57, -14.93, -15.59, -15.36, -12.82],
+    [-13.6, -14.78, -14.4, -13.71, -9.56],
     // shoulder rho of the arc after anchor 0, share
-    [0.409, 0.4222, 0.4181, 0.2832, 0.3872],
+    [0.4309, 0.4408, 0.4703, 0.2395, 0.2682],
     // shoulder rho of the arc after anchor 1, share
-    [0.5003, 0.4513, 0.4599, 0.4957, 0.4698],
+    [0.4596, 0.4311, 0.3978, 0.4794, 0.5619],
     // shoulder rho of the arc after anchor 2, share
-    [0.4626, 0.5265, 0.4971, 0.4921, 0.5056],
+    [0.503, 0.5131, 0.5546, 0.4157, 0.4009],
     // shoulder rho of the arc after anchor 3, share
-    [0.5065, 0.382, 0.4341, 0.4191, 0.3551],
+    [0.5015, 0.3764, 0.3487, 0.4349, 0.4347],
   ],
 
   // The part closes in a point at `tip`, the station where the reference's own loop vanishes; its cap starts at `from`.
-  tips: [null, {from: 52, tip: 55.38}],
+  tips: [null, {from: 53, tip: 56.13}],
 };

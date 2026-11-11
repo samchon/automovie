@@ -96,6 +96,28 @@ namespace FamilyConicBody {
    */
   const CHIN: { y: number; radius: number; slope: number } = { y: 1476, radius: 58, slope: 1.9 };
 
+  /**
+   * A digit's pad: how far from the line of its last segment the pad's far point is looked for, mm, which keeps the search inside the digit
+   * and off its neighbours, and how far past that point the course runs on, mm.
+   */
+  const PAD: { reach: number; past: number } = { reach: 6, past: 4 };
+
+  /** The far point of a digit's pad: the skin's vertex farthest along the line from `a` through `b`, among those within `PAD.reach` of it. */
+  function pad(skin: R.ISource["body"], a: R.V, b: R.V): R.V {
+    const length: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+    const d: R.V = [(b[0] - a[0]) / length, (b[1] - a[1]) / length, (b[2] - a[2]) / length];
+    let best: R.V = b;
+    let far: number = 0;
+    for (let i: number = 0; i + 2 < skin.positions.length; i += 3) {
+      const q: R.V = [skin.positions[i]! - b[0], skin.positions[i + 1]! - b[1], skin.positions[i + 2]! - b[2]];
+      const along: number = q[0] * d[0] + q[1] * d[1] + q[2] * d[2];
+      if (along <= far || Math.hypot(q[0] - along * d[0], q[1] - along * d[1], q[2] - along * d[2]) > PAD.reach) continue;
+      far = along;
+      best = [Math.round(skin.positions[i]! * 100) / 100, Math.round(skin.positions[i + 1]! * 100) / 100, Math.round(skin.positions[i + 2]! * 100) / 100];
+    }
+    return best;
+  }
+
   /** `--chinless`: the trunk's sections keep the chin and no relief is cast for it, as in the walls stored before the cone. */
   const CHINLESS: boolean = process.argv.includes("--chinless");
 
@@ -266,15 +288,19 @@ namespace FamilyConicBody {
       const d: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
       return [b[0] + ((b[0] - a[0]) * length) / d, b[1] + ((b[1] - a[1]) * length) / d, b[2] + ((b[2] - a[2]) * length) / d];
     };
-    const digit = (name: string, joints: string[], tip: number, up: R.V): IPart => {
+    const digit = (name: string, joints: string[], up: R.V): IPart => {
       const centres: R.V[] = joints.map(joint);
-      centres.push(beyond(centres.at(-2)!, centres.at(-1)!, tip));
+
+      // Past its last joint the course aims at the pad's far point and runs on through it. Carried straight on along the last segment it
+      // left the pad through its side before the pad ended, and the tip stood 2 to 4 mm short.
+      const far: R.V = pad(source.body, centres.at(-2)!, centres.at(-1)!);
+      centres.push(beyond(centres.at(-1)!, far, PAD.past));
       const keys: string[] = joints.map((j: string): string => "J." + j.replace("_0", "").replace("_r", ""));
-      return { name, centres, course: "[" + [...keys, "J.beyond(" + keys.at(-2) + ", " + keys.at(-1) + ", " + tip + ")"].join(", ") + "]", halves: centres.slice(1, -1).map((): number => 5), up, domain: "auto", step: 2, gap: 6, tip: true, mirrored: true, layouts: LIMB, reliefs: [] };
+      log("family-body-pad", { part: name, pad: far });
+      return { name, centres, course: "[" + [...keys, "J.beyond(" + keys.at(-1) + ", J." + joints[0]!.replace("_01_r", "") + "Pad, " + PAD.past + ")"].join(", ") + "]", halves: centres.slice(1, -1).map((): number => 5), up, domain: "auto", step: 2, gap: 6, tip: true, mirrored: true, layouts: LIMB, reliefs: [] };
     };
-    // A digit's tip stands 2 to 4 mm short of the pad, the thumb's more (`FamilyConicDeviation.ts`). A net over its dome, cast back along the
-    // digit as the crown's is, did not mend it: the dome is 3 to 4 mm long, the course leaves the pad through its side before the pad ends,
-    // and the casts of a toe land on its neighbours; the thumb's net came out at heights of -8 to 8 mm. The tip is the course's to mend.
+    // A net over a digit's dome, cast back along the digit as the crown's is, did not mend the short tips: the dome is 3 to 4 mm long and
+    // the casts of a toe land on its neighbours; the thumb's net came out at heights of -8 to 8 mm.
 
     // The arm's course past the elbow is the line it was first fitted on, from the shoulder joint straight down. Its stations there are the
     // earlier ones moved by `shift`, and `up` is turned about the first segment so the chart there is the earlier chart: the hand end of that
@@ -301,9 +327,9 @@ namespace FamilyConicBody {
     })();
     const parts: IPart[] = (
       [
-        ...["index", "middle", "ring", "pinky"].map((finger: string): IPart => digit("finger." + finger, [finger + "_01_r", finger + "_02_r", finger + "_03_r"], finger === "pinky" ? 22 : 26, [1, 0, 0])),
-        digit("finger.thumb", ["thumb_01_r", "thumb_02_r", "thumb_03_r"], 30, [0, 1, 0]),
-        ...["bigtoe", "indextoe", "middletoe", "ringtoe", "littletoe"].map((toe: string): IPart => digit("toe." + toe.replace("toe", ""), [toe + "_01_r", toe + "_02_r"], toe === "bigtoe" ? 28 : toe === "littletoe" ? 14 : 18, [0, 1, 0])),
+        ...["index", "middle", "ring", "pinky"].map((finger: string): IPart => digit("finger." + finger, [finger + "_01_r", finger + "_02_r", finger + "_03_r"], [1, 0, 0])),
+        digit("finger.thumb", ["thumb_01_r", "thumb_02_r", "thumb_03_r"], [0, 1, 0]),
+        ...["bigtoe", "indextoe", "middletoe", "ringtoe", "littletoe"].map((toe: string): IPart => digit("toe." + toe.replace("toe", ""), [toe + "_01_r", toe + "_02_r"], [0, 1, 0])),
         // The arm runs on through the wrist to the knuckles, so the wrist is no seam.
         // A course that leaves the wrist square to the row of knuckles, with the hand read on to the finger webs as the curve round all the
         // fingers (`surround`), was fitted to 588 numbers at a mean of 0.34 mm, but the engine refused it as a face: between its stations a
@@ -980,6 +1006,12 @@ namespace FamilyConicBody {
       "",
     ];
     for (const [name, joint] of JOINTS) lines.push("  /** Reference joint `" + joint + "`. */", "  export const " + name + ": V3 = " + JSON.stringify(source.joints.get(joint)!.map(round)).replaceAll(",", ", ") + ";", "");
+    for (const [digit, last] of [...["index", "middle", "ring", "pinky", "thumb"].map((finger: string): [string, number] => [finger, 3]), ...["bigtoe", "indextoe", "middletoe", "ringtoe", "littletoe"].map((toe: string): [string, number] => [toe, 2])] as [string, number][])
+      lines.push(
+        "  /** The far point of the " + (digit.endsWith("toe") ? digit.replace("toe", " toe") : digit === "thumb" ? digit : digit + " finger") + "'s pad: the skin's farthest point along its last segment, within " + PAD.reach + " mm of that segment's line. Its course aims at it. */",
+        "  export const " + digit + "Pad: V3 = " + JSON.stringify(pad(source.body, source.joints.get(digit + "_0" + (last - 1) + "_r")!, source.joints.get(digit + "_0" + last + "_r")!)).replaceAll(",", ", ") + ";",
+        "",
+      );
     lines.push(
       "  /** Foot of the vertical axis the trunk is read about, below the crotch on the median line. */",
       "  export const axisFloor: V3 = [0, 780, 0];",

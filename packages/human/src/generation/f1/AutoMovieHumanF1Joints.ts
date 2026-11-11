@@ -103,6 +103,36 @@ export namespace AutoMovieHumanF1Joints {
   /** Reference joint `littletoe_02_r`. */
   export const littletoe2: V3 = [131.85, 12.21, 201.42];
 
+  /** The far point of the index finger's pad: the skin's farthest point along its last segment, within 6 mm of that segment's line. Its course aims at it. */
+  export const indexPad: V3 = [259.84, 889.34, 462.91];
+
+  /** The far point of the middle finger's pad: the skin's farthest point along its last segment, within 6 mm of that segment's line. Its course aims at it. */
+  export const middlePad: V3 = [242.64, 871.88, 474.19];
+
+  /** The far point of the ring finger's pad: the skin's farthest point along its last segment, within 6 mm of that segment's line. Its course aims at it. */
+  export const ringPad: V3 = [209.28, 863.9, 470.71];
+
+  /** The far point of the pinky finger's pad: the skin's farthest point along its last segment, within 6 mm of that segment's line. Its course aims at it. */
+  export const pinkyPad: V3 = [180.04, 869.22, 461.63];
+
+  /** The far point of the thumb's pad: the skin's farthest point along its last segment, within 6 mm of that segment's line. Its course aims at it. */
+  export const thumbPad: V3 = [249.23, 931.95, 420.01];
+
+  /** The far point of the big toe's pad: the skin's farthest point along its last segment, within 6 mm of that segment's line. Its course aims at it. */
+  export const bigtoePad: V3 = [199.3, 12.53, 150.53];
+
+  /** The far point of the index toe's pad: the skin's farthest point along its last segment, within 6 mm of that segment's line. Its course aims at it. */
+  export const indextoePad: V3 = [192.47, 5.44, 170.29];
+
+  /** The far point of the middle toe's pad: the skin's farthest point along its last segment, within 6 mm of that segment's line. Its course aims at it. */
+  export const middletoePad: V3 = [181.06, 4.82, 183.28];
+
+  /** The far point of the ring toe's pad: the skin's farthest point along its last segment, within 6 mm of that segment's line. Its course aims at it. */
+  export const ringtoePad: V3 = [166.01, 5.01, 195.29];
+
+  /** The far point of the little toe's pad: the skin's farthest point along its last segment, within 6 mm of that segment's line. Its course aims at it. */
+  export const littletoePad: V3 = [148.69, 4.72, 202.41];
+
   /** Foot of the vertical axis the trunk is read about, below the crotch on the median line. */
   export const axisFloor: V3 = [0, 780, 0];
 
