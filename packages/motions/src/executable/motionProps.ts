@@ -31,7 +31,7 @@ export async function motionProps(): Promise<void> {
   const names: string[] = (options.get("case") ?? "").split(",").filter((name: string): boolean => name !== "");
   if (names.length === 0) throw new Error("Name cases with --case a,b");
   const only: string | undefined = options.get("only");
-  const cases: IMotionCaptureCase[] = buildMotionCaptureCases(names, only === undefined ? null : new RegExp(only));
+  const cases: Iterable<IMotionCaptureCase> = buildMotionCaptureCases(names, only === undefined ? null : new RegExp(only));
   const out: string = path.resolve(options.get("out") ?? path.join(ROOT, "media", "props"));
   await mkdir(out, { recursive: true });
   for (const capture of cases) {

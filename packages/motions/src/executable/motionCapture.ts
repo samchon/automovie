@@ -85,8 +85,8 @@ export async function motionCapture(): Promise<void> {
     .map((view: string): string => VIEWS[view.trim()] ?? view.trim())
     .join(";");
 
-  // Build every case first, so a bad name or filter costs no browser.
-  const cases: IMotionCaptureCase[] = buildMotionCaptureCases(names, only);
+  // Names are checked now, so a bad name costs no browser; each case is built as the loop reaches it and dropped after.
+  const cases: Iterable<IMotionCaptureCase> = buildMotionCaptureCases(names, only);
 
   let failed: number = 0;
   if (verdicts) {
