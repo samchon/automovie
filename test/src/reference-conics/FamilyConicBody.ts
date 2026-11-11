@@ -267,10 +267,15 @@ namespace FamilyConicBody {
           // The head's net is zero along its seam down the back, where the skin still lies inside the tape and a ridge stood; this window
           // over the back takes what the first leaves there.
           { name: "trunk.head.back", stations: [640, 918.88], phases: [Math.PI - 1.0, Math.PI + 1.0], axis: [1, 0, 0], turn: [0, 0, 1], rows: 57, columns: 39, mirror: true, reach: 20 },
+          // Under the jaw the wall's knots stand 3 mm apart for the chin's step, and every field rippled with them: a ring 1.5 mm high
+          // stood round the whole neck at that level, the nape included. A band 1.4 mm apart along the station, round the neck and again
+          // over its back for the seam, takes the ring and follows the jaw's line where it rises to the sides. What stays is in front,
+          // under the chin: that skin is level, a level section cannot sample it and a cast round the axis only grazes it.
+          { name: "trunk.collar", stations: [680, 734], phases: [-Math.PI + 0.15, Math.PI - 0.15], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 39, columns: 131, mirror: true, reach: 30 },
+          { name: "trunk.collar.back", stations: [680, 734], phases: [Math.PI - 0.8, Math.PI + 0.8], axis: [1, 0, 0], turn: [0, 0, 1], rows: 39, columns: 37, mirror: true, reach: 10 },
           // The face: a finer net, 2.6 mm apart, between the throat and the brow.
           { name: "trunk.face", stations: [690, 890], phases: [-1.2, 1.2], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 81, columns: 69, mirror: true, reach: 30 },
-          // The eyes and the mouth: nets 1.5 mm apart over two bands of the face, which the face's net left a slit and a block. A finer band
-          // under the chin was tried for the level rings there and changed nothing: they are the wall's own, where the chin steps out.
+          // The eyes and the mouth: nets 1.5 mm apart over two bands of the face, which the face's net left a slit and a block.
           { name: "trunk.eyes", stations: [792, 826], phases: [-0.8, 0.8], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 26, columns: 105, mirror: true, reach: 12 },
           { name: "trunk.mouth", stations: [722, 758], phases: [-0.5, 0.5], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 27, columns: 67, mirror: true, reach: 12 },
         ] },

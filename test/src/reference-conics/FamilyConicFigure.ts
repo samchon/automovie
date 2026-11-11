@@ -48,6 +48,7 @@ namespace FamilyConicFigure {
       ["foot", (p: N.Point): boolean => p[2] > 0 && p[1] < 0.13],
       ["shoulder", (p: N.Point): boolean => p[2] > 0.06 && p[1] > 1.2 && p[1] < 1.45],
       ["shoulder.twin", (p: N.Point): boolean => p[2] < -0.06 && p[1] > 1.2 && p[1] < 1.45],
+      ["neck", (p: N.Point): boolean => p[1] > 1.42 && p[1] < 1.53 && Math.abs(p[2]) < 0.09],
       ["hip", (p: N.Point): boolean => p[1] > 0.72 && p[1] < 0.98 && Math.abs(p[2]) < 0.22],
     ];
     for (const [zone, inside] of zones) {
