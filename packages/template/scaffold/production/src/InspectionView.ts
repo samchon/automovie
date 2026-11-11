@@ -1,50 +1,22 @@
-import type { IAutoMovieViewerViewpoint } from "@automovie/render";
+import type { IAutoMovieInspectionView } from "@automovie/render";
 
 /**
  * One camera an inspection draws through, as `planInspectionViews` reads it from a view request.
  *
- * `id` names the view in file names, captions and records.
+ * `id` names the view in file names, captions and records, and `text` is the request's own text for the view, which the record keeps beside the camera it resolved to.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the producer and what `id` is for; each member states where its camera stands and what moves it.
- * @evidence contracts/development/design.md#principled-representation The four ways a camera is placed need different data, so each is one member of a union keyed by `kind` and a consumer cannot read a coordinate a named view does not have.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The viewpoint is the viewer's own record; the production adds only the kind, the id and a fixed camera's two points.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The film camera is a member of the union, not an absent value, so a request for several views can include it.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the producer and what each member is for.
+ * @evidence contracts/development/design.md#principled-representation The view itself is the renderer's parsed form, so every host resolves it by one rule; the production adds only a file-safe name and the text.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The parsed view is `@automovie/render`'s own type; the production adds the two members its files and records need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The film camera is a parsed view like any other, not an absent value, so a request for several views can include it.
  */
-export type InspectionView =
-  | {
-      /** The film's own camera, which shows the delivered framing. */
-      kind: "film";
+export interface InspectionView {
+  /** File-safe name: `film`, `inspection` for a fixed camera, or the view's name followed by `-ortho`, `-focus` or `-flagged` for each switch. */
+  id: string;
 
-      /** Always `film`. */
-      id: "film";
-    }
-  | {
-      /** One of the production's `IFilmProduction.views`, placed again for every drawn second. */
-      kind: "preset";
+  /** The view's text as the request wrote it. */
+  text: string;
 
-      /** The view's key in `IFilmProduction.views`. */
-      id: string;
-    }
-  | {
-      /** One of the viewer's named viewpoints, framed on what is drawn. */
-      kind: "named";
-
-      /** The viewpoint's id, such as `front` or `three-quarter`. */
-      id: string;
-
-      /** Direction and distance factor the framing owner takes. */
-      viewpoint: IAutoMovieViewerViewpoint;
-    }
-  | {
-      /** A camera that stays at one point and looks at another. */
-      kind: "fixed";
-
-      /** Always `inspection`. */
-      id: "inspection";
-
-      /** Camera position in world metres. */
-      position: readonly [number, number, number];
-
-      /** Point the camera looks at, in world metres. */
-      target: readonly [number, number, number];
-    };
+  /** The parsed view. */
+  view: IAutoMovieInspectionView;
+}

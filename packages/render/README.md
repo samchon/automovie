@@ -34,6 +34,42 @@ You write the two adapters, or take them from a generated production (see [Node 
 - `planCaptionSidecar` and the delivery profiles cover captions and the delivered video's format.
 - `AUTOMOVIE_GUIDE_PASSES` names the passes a motion hint is captured in, `beauty`, `depth`, `mask`, `normal`, `outline` and `pose`, and `planGuidePassOutputs` plans each pass's frame paths; `planPoseKeypointSidecar` and `renderPoseKeypointSidecar` write the pose keypoints beside them.
 
+## Inspection
+
+`applyAutoMovieInspection` turns a built scene into one inspection picture, in place, and returns a handle whose `restore` puts the scene back. `parseAutoMovieInspectionRequest` reads the request from named text values, so a page address and a command line share one grammar, and `formatAutoMovieInspectionRequest` writes it back. Each key serves a requirement of the [visual-debugging](../../.agents/skills/visual-debugging/SKILL.md), [3d-modeling](../../.agents/skills/3d-modeling/inspection.md) or [motion](../../.agents/skills/motion/verification.md) skill:
+
+| Key | Draws | Serves |
+| --- | --- | --- |
+| `parts`, `hide` | The objects and marks whose paths the patterns select | Selecting the whole, each unit and its neighbours (capture, Subject) |
+| `shade`, `surface` | A guide pass, `clay` for form without colour or `faces` for the side each surface shows; surfaces off leave the marks alone | Choosing a pass by the question (passes) |
+| `marks`, `sliver` | The marks whose kinds the patterns select, `edge` for triangle sides over or without the surface | Marking what a measurement found (passes), the construction over the surface and the surface alone (inspection, Construction) |
+| `section` | A world-space cut | Cutaways as an inspection control |
+| `xray`, `stroke` | Marks through surfaces, and their width in output pixels | Reading marks in a reduced still |
+| `label` | The names of the matched objects and marks, placed by the handle's `labels` with overlapping ones dropped and reported | Showing labels to establish identity (passes) |
+| `color` | `pattern=rrggbb` colours for matched objects and mark kinds in one picture | Each kind of thing in one colour throughout a capture (passes) |
+
+A mark is plain data, `IAutoMovieMark` from `@automovie/engine`: a path, a kind with its legend label and colour, one of four shapes (points, a polyline, segments, arrows), a flag for an anomaly, and the scene object it follows. Any owner hands its located findings to the inspection as marks, such as construction curves through `markAutoMovieConstructionCurves`; the inspection measures mesh defects itself. Two kinds never share a colour in one picture, a flagged mark takes the flag colour, and the handle's `legend` counts the marks of each kind.
+
+```ts
+import { applyAutoMovieInspection, parseAutoMovieInspectionRequest } from "@automovie/render";
+
+const request = parseAutoMovieInspectionRequest((key) => url.searchParams.get(key));
+const inspection = applyAutoMovieInspection({ scene, request, marks: production.marks?.(seconds) });
+try {
+  production.seek(seconds);
+  inspection.update(production.marks?.(seconds)); // after every seek, before drawing
+  renderer.render(scene, camera);
+} finally {
+  inspection.restore();
+}
+```
+
+Marks are drawn as three.js screen-space lines and points, so a stroke has the requested width in output pixels in WebGL and in the CPU rasterizer alike. A mark's path extends its object's, so `parts=hero/torso/section/3` draws one curve. A pattern that selects nothing throws instead of drawing an empty picture, and the handle's `selected` lists what the request selected.
+
+A view is text that `parseAutoMovieInspectionView` reads and `resolveAutoMovieInspectionView` turns into a camera and the record of it: `film`, a fixed `x,y,z:tx,ty,tz`, a subject's own view, or a named viewpoint such as `front` fitted to what is drawn, with `@ortho` for a scale-true orthographic camera, `@focus=<pattern>` to frame a part and `@flagged` to frame what a measurement flagged. It serves naming views that repeat and framing a close-up on the affected region (capture, Views).
+
+`expandAutoMovieInspectionSweep` expands a sweep pattern into units, each alone and with the neighbours whose boxes lie within a margin, which `measureAutoMovieInspectionPaths` measures on any scene; it serves the whole, each unit alone and each unit with its neighbours (capture, Subject).
+
 ## Node tooling
 
 A ready-made host, a program that supplies both adapters, is in every generated production under `src/executable/render`: browser capture, FFmpeg export and MP4 handling. It belongs to the production, so read its source for those APIs. `npm run render` in a production runs it.

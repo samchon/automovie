@@ -4,6 +4,7 @@ import type * as THREE from "three";
 import type { IAutoMovieViewerSubjectBounds } from "../subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
 import type { IAutoMovieInspectionLabel } from "./IAutoMovieInspectionLabel.js";
 import type { IAutoMovieInspectionLegendEntry } from "./IAutoMovieInspectionLegendEntry.js";
+import type { IAutoMovieInspectionView } from "./IAutoMovieInspectionView.js";
 
 /**
  * An inspection applied to a scene: what its colours mean, what it selected, and the calls made while it is in force.
@@ -76,9 +77,11 @@ export interface IAutoMovieInspectionHandle {
   };
 
   /**
-   * The world-space box of what the inspection leaves drawn now, marks included, or null when nothing is. A view is framed on it.
+   * The world-space box of what the inspection leaves drawn now, marks included, or null when nothing is; or, given a view's focus, the box of the drawn objects and marks its pattern matches or of the drawn flagged marks. A view is framed on it.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is measured, the null case and the use.
+   * A focus that frames nothing throws, the flagged focus saying no mark is flagged.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is measured with and without a focus, the null case, the refusal and the use.
    * @evidence contracts/development/implementation.md#principled-implementation The box is measured on the scene as isolated, so a partial view is framed on its part.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call with no argument, answered by the bounds owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An empty selection is null, not a box at the origin.
@@ -86,7 +89,9 @@ export interface IAutoMovieInspectionHandle {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The pose changes between calls, so no earlier box is valid to reuse.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns plain numbers and keeps nothing.
    */
-  bounds: () => IAutoMovieViewerSubjectBounds | null;
+  bounds: (
+    focus?: IAutoMovieInspectionView.IFocus | null,
+  ) => IAutoMovieViewerSubjectBounds | null;
 
   /**
    * End the inspection: put back every layer, material and clipping state it changed, and remove and release its marks. Calling it again does nothing.

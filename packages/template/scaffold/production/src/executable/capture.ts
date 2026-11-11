@@ -36,9 +36,9 @@ import { runCaptureFfmpeg } from "./runCaptureFfmpeg";
  *
  * **Seconds.** `--from <s>` (default 0) and `--to <s>` (default ten seconds later, at most the film's end) bound a half-open window that {@link planCaptureStills} samples on the film's frame grid at `--rate <n>` per second (default 5, at most 10, so 50 stills per ten seconds), adding 10 per second within half a second of each `--events <s,s,…>` second. `--every <frames>` samples the film's own frame grid instead, inclusive of both ends, and `--at <s,s,…>` draws exact seconds.
  *
- * **Views.** `--view` takes what {@link planInspectionViews} reads: one or several comma-separated names, each a key of the film's `IFilmProduction.views`, `film` for the film camera, or one of `front`, `back`, `right`, `left`, `top`, `bottom`, `three-quarter` and `three-quarter-back`; or `x,y,z:tx,ty,tz`, a fixed camera in world metres. A named view is framed once on everything the run draws across all its seconds, so the camera holds still and a subject's travel reads as travel. Several views draw every second through each: stills are `t<seconds>-<view>.png`, the folder ends in `-views`, and a sheet row is one second unless `--columns` says otherwise.
+ * **Views.** `--view` takes what {@link planInspectionViews} reads: one or several comma-separated names, each a key of the film's `IFilmProduction.views`, `film` for the film camera, or one of `front`, `back`, `right`, `left`, `top`, `bottom`, `three-quarter` and `three-quarter-back`, which may add `@ortho` for an orthographic camera, `@focus=<pattern>` to frame only what the pattern matches, or `@flagged` to frame the flagged marks; or `x,y,z:tx,ty,tz`, a fixed camera in world metres. Every camera comes from the renderer's `resolveAutoMovieInspectionView`, and the manifest records each view's resolved camera. A named view is framed once on everything the run draws, or on its focus, across all its seconds, so the camera holds still and a subject's travel reads as travel. Several views draw every second through each: stills are `t<seconds>-<view>.png`, the folder ends in `-views`, and a sheet row is one second unless `--columns` says otherwise.
  *
- * **Inspection.** The Viewer's inspection parameters are options of the same names, read by the viewer's own request reader: `--parts` and `--hide` select objects by path pattern, `--shade` colours surfaces (`beauty`, `depth`, `mask`, `normal`, `outline`, `pose`, `clay`, `faces`), `--surface 0` removes them, `--marks <kind patterns>` draws marks of the named kinds, the film's `IFilmProduction.marks` and what the inspection measures on meshes (`edge`, `defect/open`, `defect/non-manifold`, `defect/inconsistent`, `defect/degenerate`, and `defect/sliver` under `--sliver <aspect>`), `--section <y:1.2>` cuts the scene, `--xray` draws marks over surfaces and `--stroke <px>` sets their width. `--paths` prints every path of the mounted film and draws nothing. The manifest records the request, the legend of mark colours with their counts and the selected paths, and the legend is printed.
+ * **Inspection.** The Viewer's inspection parameters are options of the same names, read by the viewer's own request reader: `--parts` and `--hide` select objects by path pattern, `--shade` colours surfaces (`beauty`, `depth`, `mask`, `normal`, `outline`, `pose`, `clay`, `faces`), `--surface 0` removes them, `--marks <kind patterns>` draws marks of the named kinds, the film's `IFilmProduction.marks` and what the inspection measures on meshes (`edge`, `defect/open`, `defect/non-manifold`, `defect/inconsistent`, `defect/degenerate`, and `defect/sliver` under `--sliver <aspect>`), `--section <y:1.2>` cuts the scene, `--xray` draws marks over surfaces, `--stroke <px>` sets their width, `--label <patterns>` stamps the names of what it matches where the inspection places them, and `--color <pattern=rrggbb,…>` recolours objects and mark kinds. `--paths` prints every path of the mounted film and draws nothing. The manifest records the request, the legend of mark colours with their counts and the selected paths, and the legend is printed.
  *
  * **Rounds.** `--round <name>` keeps the run under `rounds/<name>/` of its folder, where later runs leave it. `--compare <name>` compares the run's stills against that round, writing `diff-<still>` for each changed still and `comparison.json`; `--tolerance <bytes>` (default 0) is the channel difference still counted as unchanged.
  *
@@ -229,22 +229,27 @@ export async function capture(): Promise<void> {
           : { marks: production.marks(times[0]!) }),
       });
       try {
-        // A named view is framed on everything the run draws, so its camera holds still.
-        let bounds: IAutoMovieViewerSubjectBounds | null = null;
-        if (views.some((v: InspectionView): boolean => v.kind === "named"))
+        // A named view is framed on everything the run draws, or on its focus, so its camera holds still.
+        const bounds: Map<string, IAutoMovieViewerSubjectBounds | null> =
+          new Map();
+        const framed: InspectionView[] = views.filter(
+          (v: InspectionView): boolean => v.view.type === "named",
+        );
+        if (framed.length !== 0)
           for (const seconds of times) {
             production.seek(seconds);
             inspection.update(production.marks?.(seconds));
-            bounds = unite(bounds, inspection.bounds());
+            for (const v of framed)
+              bounds.set(
+                v.id,
+                unite(
+                  bounds.get(v.id) ?? null,
+                  inspection.bounds(
+                    v.view.type === "named" ? v.view.focus : null,
+                  ),
+                ),
+              );
           }
-        const spares: Map<string, THREE.PerspectiveCamera> = new Map(
-          views
-            .filter((v: InspectionView): boolean => v.kind !== "film")
-            .map((v: InspectionView): [string, THREE.PerspectiveCamera] => [
-              v.id,
-              production.camera.clone(),
-            ]),
-        );
 
         // Opened once the first second is drawn through every view, so a raster the rasterizer refuses or a view that cannot be placed leaves the previous run in place.
         let output: CaptureDirectory | undefined;
@@ -298,21 +303,17 @@ export async function capture(): Promise<void> {
           // Every view of the second is drawn before any is written, so a view the first second refuses leaves the previous run in place.
           const stills: [InspectionView, IAutoMovieSceneRaster, string][] = [];
           for (const v of views) {
-            const camera: THREE.PerspectiveCamera =
-              spares.get(v.id) ?? production.camera;
-            if (v.kind === "film") fitAspect(camera, width, height);
-            else
-              placed.set(
-                v.id,
-                placeInspectionView({
-                  camera,
-                  view: v,
-                  production,
-                  seconds,
-                  aspect: width / height,
-                  bounds,
-                }),
-              );
+            const resolved: ReturnType<typeof placeInspectionView> =
+              placeInspectionView({
+                view: v,
+                production,
+                seconds,
+                width,
+                height,
+                bounds: bounds.get(v.id) ?? null,
+              });
+            placed.set(v.id, resolved);
+            const camera: THREE.Camera = resolved.camera;
             const raster: IAutoMovieSceneRaster = rasterizeAutoMovieScene({
               scene: production.scene,
               camera,
@@ -322,12 +323,16 @@ export async function capture(): Promise<void> {
             });
             const caption: string =
               `${seconds.toFixed(2)}s` + (views.length > 1 ? ` ${v.id}` : "");
+            const scale: number = Math.max(
+              2,
+              Math.round(Math.min(width, height) / 240),
+            );
+            // The labels the request asks for go where the inspection places them, before the caption so it stays on top.
+            for (const label of inspection.labels(camera, width, height, scale)
+              .labels)
+              stampAutoMovieRasterLabel(raster, label.text, scale, label);
             if (!options.has("--no-label") && !video)
-              stampAutoMovieRasterLabel(
-                raster,
-                caption,
-                Math.max(2, Math.round(Math.min(width, height) / 240)),
-              );
+              stampAutoMovieRasterLabel(raster, caption, scale);
             stills.push([v, raster, caption]);
           }
           output ??= await open();
@@ -355,13 +360,11 @@ export async function capture(): Promise<void> {
           fps: film.fps,
           raster: { width, height, supersample },
           camera: view ?? "film",
-          // A production view moves with the film, so only its name is recorded.
+          // Each view keeps the camera its last second resolved to; a fitted or fixed view holds one camera for the run.
           views: views.map((v: InspectionView): object => ({
             id: v.id,
-            kind: v.kind,
-            ...(v.kind === "named" || v.kind === "fixed"
-              ? { ...placed.get(v.id), fovDeg: spares.get(v.id)!.fov }
-              : {}),
+            text: v.text,
+            camera: placed.get(v.id)!.record,
           })),
           inspection: {
             request,
@@ -441,18 +444,6 @@ const FILE_OPTIONS: readonly string[] = [
   "--compare",
   "--tolerance",
 ];
-
-/** Match a perspective camera's aspect to the raster, as the Viewer does for its canvas. */
-function fitAspect(
-  camera: THREE.PerspectiveCamera,
-  width: number,
-  height: number,
-): void {
-  if (camera.aspect !== width / height) {
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
-  }
-}
 
 /** The smallest box holding two boxes, either of which may be absent. */
 function unite(

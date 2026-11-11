@@ -77,8 +77,6 @@ try {
   throw error;
 }
 const view: InspectionView = views[0]!;
-const spare: IFilmProduction["camera"] | undefined =
-  view.kind === "film" ? undefined : production.camera.clone();
 const slider: HTMLInputElement =
   document.querySelector<HTMLInputElement>("#seek")!;
 canvas.style.width = `${width}px`;
@@ -187,17 +185,23 @@ function draw(): void {
         production.performance.frame(),
         production.performance.contacts(),
       );
-    // A named view is framed on what this second draws, so the same second always gives the same picture.
-    if (spare !== undefined && view.kind !== "film")
-      placeInspectionView({
-        camera: spare,
-        view,
-        production,
-        seconds,
-        aspect: width / height,
-        bounds: view.kind === "named" ? inspection.bounds() : null,
-      });
-    host.renderer.render(production.scene, spare ?? production.camera);
+    // A named view is framed on what this second draws, or on its focus, so the same second always gives the same picture.
+    host.renderer.render(
+      production.scene,
+      view.view.type === "film"
+        ? production.camera
+        : placeInspectionView({
+            view,
+            production,
+            seconds,
+            width,
+            height,
+            bounds:
+              view.view.type === "named"
+                ? inspection.bounds(view.view.focus)
+                : null,
+          }).camera,
+    );
     host.completeFrame(seconds);
     slider.value = String(seconds);
     status.value = `${seconds.toFixed(2)} / ${durationSeconds.toFixed(2)} s`;
