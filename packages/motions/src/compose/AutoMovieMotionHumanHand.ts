@@ -101,7 +101,7 @@ export namespace AutoMovieMotionHumanHand {
    * @param side The hand.
    * @param rise The instants the shape starts forming and is formed at.
    * @param fall The instants the shape starts releasing and is released at.
-   * @param form The shape.
+   * @param asked The shape.
    * @param curl Extra flexion of the fingers over the shape, degrees.
    * @returns The primitive.
    */
@@ -110,12 +110,12 @@ export namespace AutoMovieMotionHumanHand {
     side: HumanHand.Side,
     rise: readonly [string, string],
     fall: readonly [string, string],
-    form: HumanHand.Shape,
+    asked: HumanHand.Shape,
     curl: number = 0,
   ): IAutoMovieMotionHumanPrimitive {
     return shape({
       side,
-      shape: form,
+      shape: asked,
       curl,
       from: clock.at(rise[0]),
       to: clock.at(fall[1]),
