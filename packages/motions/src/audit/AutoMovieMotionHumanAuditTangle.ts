@@ -43,12 +43,23 @@ import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMo
  *   the joint by construction and fold into each other as it bends, within
  *   its range of motion. Also the hand with its own fingers, and the foot
  *   with its toes;
- * - what a probe already lies inside in the body's two reference postures,
+ * - what two segments already share in the body's two reference postures,
  *   the rest T-pose it was modelled in and the quiet stance every performer
  *   starts from (`stand.posture`): the thighs meet at the crotch as the body
  *   was modelled, and the hanging upper arm lies against the ribs, where
- *   flesh gives and a convex collider does not. A probe's depth counts only
- *   beyond the deeper of its own two reference depths in that segment, so a
+ *   flesh gives and a convex collider does not. Two such surfaces slide
+ *   along each other as the body moves (a walking arm passes the flank it
+ *   hangs against), so a corner's depth counts only beyond the deepest any
+ *   corner of its segment lies in the other in either reference posture:
+ *   the practice of a self-collision matrix, which sets aside the pairs that
+ *   collide in the default pose (Chitta, Sucan and Cousins 2012, MoveIt,
+ *   IEEE Robot Autom Mag 19:18). Where that reference depth is itself more
+ *   than the skin gives (`BUILT`), the two convex colliders occupy one
+ *   volume by their build, as the upper arm's and the trunk's do along the
+ *   flank, and their corners are set aside altogether, as that matrix does;
+ *   below it the reference depth is kept as the allowance. A point of a
+ *   bone's axis keeps its own reference depth in every pair, so a limb that
+ *   crosses another is read in full however much their surfaces share. A
  *   tangle of the quiet stance itself is not this reading's to find.
  *
  * A caller may also exempt the hand a law declares in contact with the
@@ -58,12 +69,20 @@ import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMo
  * @evidence contracts/development/common.md#meaningful-documentation States the probes, the depth, both removals with their reasons and the declared-contact exemption.
  * @evidence contracts/development/implementation.md#principled-implementation Interior depth of a point in a convex polytope is its least distance to the supporting planes; the engine's hull faces and shape distance are the owners of both.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure A per-body model built once, a bounding-sphere pass, then probes against shapes.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pair is exempt beyond the stated structural ones, the joint a collider meets being read through bones without colliders; the rest baseline is per probe, so a part of the same segment that is free at rest is read at its full depth.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pair is exempt beyond the stated structural ones, the joint a collider meets being read through bones without colliders; the reference depth is per pair for corners and per point for a bone's axis, so a crossing limb is read at its full depth.
  * @evidence contracts/development/implementation.md#efficient-algorithms Bounding spheres reject distant pairs before any probe is transformed; a probe costs one plane product per face.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The probes, spheres, pair relation and rest depths of a body are remembered in a `WeakMap` keyed by the body.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One model per live body, released with it; rest depths are bounded by segment pairs.
  */
 export namespace AutoMovieMotionHumanAuditTangle {
+  /**
+   * The reference overlap beyond which two segments' surfaces are one volume
+   * by their build, metres: the 10 mm a pressed skin gives, the audit's own
+   * limit for a tangle. Two colliders deeper in each other than that while
+   * the body stands at rest cannot be told apart by their corners.
+   */
+  export const BUILT: number = 0.01;
+
   /** One pair of segments that pass into each other. */
   export interface IPair {
     /** The segment whose probe lies deepest. */
@@ -284,6 +303,27 @@ export namespace AutoMovieMotionHumanAuditTangle {
           );
           worst = Math.max(worst, ((over[k]! / radius) * 180) / Math.PI);
         }
+
+        // The other part's probes inside the arm's part: a corner of the
+        // belly lying in the forearm is the same tangle read from the other
+        // side, and `pose` takes the deeper of the two, so an arm is clear
+        // only when neither direction reads a depth.
+        const under: Float64Array = beyond(m, placed, j, i);
+        for (let k: number = 0; k < under.length; k++) {
+          if (!(under[k]! > 0)) continue;
+          const probe: IAutoMovieVector3 = Vector3.add(
+            placed[j]!.pose.position,
+            Quaternion.rotateVector(
+              placed[j]!.pose.rotation,
+              m.parts[j]!.probes[k]!,
+            ),
+          );
+          const radius: number = Math.max(
+            1e-3,
+            Vector3.length(Vector3.subtract(probe, shoulder)),
+          );
+          worst = Math.max(worst, ((under[k]! / radius) * 180) / Math.PI);
+        }
       }
     }
     return worst;
@@ -309,6 +349,9 @@ interface IPart {
   bone: AutoMovieHumanoidBone;
   shapes: readonly IAutoMoviePhysicalProfile.IShape[];
   probes: IAutoMovieVector3[];
+
+  /** How many of the probes, the first ones, are corners of the shapes; the rest lie on the bone's axis. */
+  surface: number;
   centre: IAutoMovieVector3;
   radius: number;
 }
@@ -377,6 +420,7 @@ const model = (body: IHumanBody): IModel => {
             Quaternion.rotateVector(shape.transform.rotation, corner),
           ),
         );
+    const surface: number = probes.length;
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(p.pose.rotation);
     const joint: IAutoMovieVector3 = body.rest.get(p.bone)!;
     for (const child of children.get(p.bone) ?? [])
@@ -405,7 +449,7 @@ const model = (body: IHumanBody): IModel => {
         radius,
         Vector3.length(Vector3.subtract(probe, centre)),
       );
-    return { bone: p.bone, shapes: p.shapes, probes, centre, radius };
+    return { bone: p.bone, shapes: p.shapes, probes, surface, centre, radius };
   });
   // The nearest ancestor of a bone that carries a collider: the joint its
   // collider meets, skipping bones (a clavicle) that have none.
@@ -545,6 +589,20 @@ const beyond = (
     const stance: Float64Array = depths(probes, m.stance[i]!, m.stance[j]!);
     for (let k: number = 0; k < baseline.length; k++)
       baseline[k] = Math.max(baseline[k]!, stance[k]!);
+
+    // Two surfaces that already overlap in a reference posture slide along
+    // each other as the body moves, so another corner comes to lie where the
+    // first one lay; the pair's deepest reference depth is what every corner
+    // of the segment may keep. Where that depth is more than the skin gives,
+    // the two colliders occupy one volume by their build and their corners
+    // say nothing of the motion. A point of the bone's axis keeps its own.
+    const surface: number = m.parts[i]!.surface;
+    let shared: number = 0;
+    for (let k: number = 0; k < surface; k++)
+      shared = Math.max(shared, baseline[k]!);
+    for (let k: number = 0; k < surface; k++)
+      baseline[k] =
+        shared > AutoMovieMotionHumanAuditTangle.BUILT ? Infinity : shared;
     m.baseline.set(key, baseline);
   }
   const now: Float64Array = depths(probes, placed[i]!, placed[j]!);
