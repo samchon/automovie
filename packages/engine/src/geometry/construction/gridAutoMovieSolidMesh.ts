@@ -66,16 +66,22 @@ interface Grid {
   metric: number;
 
   /**
-   * Phase scale of the face's metric where a chart point lies, length units
-   * per radian: `sqrt(G / E)` from the means of `E = |S_u|^2` and
-   * `G = |S_v|^2` over the four grid jets of the cell holding the point (the
-   * nearest cell outside the grid). Residual legalization reads it, so a face
-   * whose phase scale changes across it is made Delaunay in its own local
-   * metric, not the face's mean: beside the armscye's loop the trunk spans 231
-   * mm a radian where its mean is about half that, and triangles fair in the
-   * mean metric stood 4 to 7 degrees thin on the skin and folded 135 degrees.
+   * A quadrilateral's own first fundamental form, as the map
+   * `(u, v) -> (u + shear v, scale v)` under which its chart lengths are its
+   * skin's up to one factor: the least-squares linear map `J` from its four
+   * chart points to their skin points about their centroids, with
+   * `E = |J_u|^2`, `F = J_u . J_v`, `G = |J_v|^2`, `shear = F / E` and
+   * `scale = sqrt(G / E - shear^2)`. Residual legalization reads it, so a face
+   * whose metric changes across it is made Delaunay in the metric each
+   * quadrilateral actually spans, not the face's mean: beside the armscye's
+   * loop the trunk spans 231 mm a radian where its mean is about half that,
+   * and triangles fair in the mean metric stood 4 to 7 degrees thin on the
+   * skin and folded 135 degrees. Read instead from the grid jets of the cell
+   * holding the centroid, a band's corner column at f1's crotch fork, where
+   * the band's columns converge within one cell, took the wrong diagonal and
+   * folded 63 degrees. Points with no skin point yet read the face's mean.
    */
-  local: (u: number, v: number) => number;
+  local: (ids: readonly number[], charts: readonly Point[]) => [number, number];
 }
 
 /**
@@ -393,26 +399,48 @@ export function gridAutoMovieSolidMesh(
       if (typeof contact === "string") return contact;
       if (!contact) interior.push(at(i, j));
     }
-  const local = (u: number, v: number): number => {
-    const i: number = Math.min(
-      stations.length - 2,
-      Math.max(0, interval(stations, Math.min(Math.max(u, stations[0]!), stations[stations.length - 1]!))),
-    );
-    const phase: number =
-      period === undefined
-        ? Math.min(Math.max(v, phases[0]!), phases[phases.length - 1]!)
-        : v - period * Math.floor((v - phases[0]!) / period);
-    const j: number = interval(phases, phase, period !== undefined);
-    const k: number =
-      period === undefined ? Math.min(j + 1, phases.length - 1) : (j + 1) % phases.length;
-    let e: number = 0;
-    let g: number = 0;
-    for (const jet of [jets[i]![j]!, jets[i]![k]!, jets[i + 1]![j]!, jets[i + 1]![k]!]) {
-      e += norm(jet.u) ** 2;
-      g += norm(jet.v) ** 2;
-    }
-    const scale: number = Math.sqrt(g / e);
-    return Number.isFinite(scale) && scale > 0 ? scale : metric;
+  // A quadrilateral's own first fundamental form: the least-squares linear map from its four chart points to their skin points about
+  // their centroids, `J = (sum dX dC^T)(sum dC dC^T)^-1`, read as the shear and scale of `J^T J` over its first entry.
+  const point = (id: number): readonly number[] | undefined =>
+    id < base
+      ? [mesh.positions[3 * id]!, mesh.positions[3 * id + 1]!, mesh.positions[3 * id + 2]!]
+      : samples.get(id)?.point;
+  const local = (ids: readonly number[], charts: readonly Point[]): [number, number] => {
+    const skins: (readonly number[] | undefined)[] = ids.map(point);
+    if (skins.some((x: readonly number[] | undefined): boolean => x === undefined)) return [0, metric];
+    const n: number = charts.length;
+    const cu: number = charts.reduce((s: number, c: Point): number => s + c[0], 0) / n;
+    const cv: number = charts.reduce((s: number, c: Point): number => s + c[1], 0) / n;
+    const mean: number[] = [0, 1, 2].map((a: number): number => skins.reduce((s: number, x: readonly number[] | undefined): number => s + x![a]!, 0) / n);
+    let suu: number = 0;
+    let suv: number = 0;
+    let svv: number = 0;
+    const xu: number[] = [0, 0, 0];
+    const xv: number[] = [0, 0, 0];
+    charts.forEach((c: Point, k: number): void => {
+      const du: number = c[0] - cu;
+      const dv: number = c[1] - cv;
+      suu += du * du;
+      suv += du * dv;
+      svv += dv * dv;
+      for (let a: number = 0; a < 3; a++) {
+        const dx: number = skins[k]![a]! - mean[a]!;
+        xu[a] = xu[a]! + dx * du;
+        xv[a] = xv[a]! + dx * dv;
+      }
+    });
+    const det: number = suu * svv - suv * suv;
+    if (!(det > 0)) return [0, metric];
+    const su: number[] = [0, 1, 2].map((a: number): number => (xu[a]! * svv - xv[a]! * suv) / det);
+    const sv: number[] = [0, 1, 2].map((a: number): number => (xv[a]! * suu - xu[a]! * suv) / det);
+    const e: number = su[0]! ** 2 + su[1]! ** 2 + su[2]! ** 2;
+    const f: number = su[0]! * sv[0]! + su[1]! * sv[1]! + su[2]! * sv[2]!;
+    const g: number = sv[0]! ** 2 + sv[1]! ** 2 + sv[2]! ** 2;
+    const shear: number = f / e;
+    const scale: number = Math.sqrt(g / e - shear * shear);
+    return Number.isFinite(shear) && Number.isFinite(scale) && scale > 0
+      ? [shear, scale]
+      : [0, metric];
   };
   return {
     base,
