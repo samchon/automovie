@@ -193,8 +193,14 @@ export namespace AutoMovieHumanF1 {
    * two by more than `sagitta` mm at some phase. No interval is cut below `least` mm. Layers are level rings, so a fold that crosses them
    * aslant, as the one under the breast does, is drawn in steps as tall as the layers are apart; where the skin turns that fast the layers
    * must stand closer than the 4 mm that carries the rest.
+   *
+   * Over the stations of a crease's own window (`creases`, the nets over the fold under each breast) a layer is also added where the
+   * skin turns along the station by more than `turn` degrees between the two halves of the interval, at `fine` phases. Flat shading shows
+   * the turn, not the sagitta: the fold turned 14 to 20 degrees across one layer 2 to 4 mm tall, a sagitta of 0.1 mm, and stood in level
+   * steps from the front. The rule holds only there: everywhere on the trunk it added 166 rings and moved the head's, whose rings the
+   * ear's band is triangulated against.
    */
-  const FOLD: { sagitta: number; least: number; phases: number } = { sagitta: 0.15, least: 0.5, phases: 96 };
+  const FOLD: { sagitta: number; least: number; phases: number; turn: number; fine: number; creases: string[] } = { sagitta: 0.15, least: 0.5, phases: 96, turn: 4, fine: 192, creases: ["trunk.fold", "trunk.fold.twin"] };
 
   /** Columns round each band and rows across it. */
   const BAND: { count: number; rows: number } = { count: 96, rows: 8 };
@@ -340,7 +346,28 @@ export namespace AutoMovieHumanF1 {
         return off ? [...between(a, low, middle, mid), middle, ...between(middle, mid, b, high)] : [];
       };
       const rings: number[][][] = stations.map(ring);
-      return stations.flatMap((s: number, i: number): number[] => (i === 0 ? [s] : [...between(stations[i - 1]!, rings[i - 1]!, s, rings[i]!), s]));
+      const cut: number[] = stations.flatMap((s: number, i: number): number[] => (i === 0 ? [s] : [...between(stations[i - 1]!, rings[i - 1]!, s, rings[i]!), s]));
+
+      // Over a crease's window, where the skin turns along the station faster than `FOLD.turn` between an interval's halves.
+      const windows: [number, number][] = (family.reliefs ?? []).filter((relief): boolean => FOLD.creases.includes(relief.name)).map((relief): [number, number] => relief.stations);
+      if (windows.length === 0) return cut;
+      const fine = (s: number): number[][] => Array.from({ length: FOLD.fine }, (_: unknown, j: number): number[] => AutoMovieLoftChain.point(chain, s, (2 * Math.PI * j) / FOLD.fine));
+      const turned = (low: number[], mid: number[], high: number[]): number => {
+        const u: number[] = [0, 1, 2].map((k: number): number => mid[k]! - low[k]!);
+        const w: number[] = [0, 1, 2].map((k: number): number => high[k]! - mid[k]!);
+        const cosine: number = (u[0]! * w[0]! + u[1]! * w[1]! + u[2]! * w[2]!) / (Math.hypot(u[0]!, u[1]!, u[2]!) * Math.hypot(w[0]!, w[1]!, w[2]!));
+        return (Math.acos(Math.max(-1, Math.min(1, cosine))) * 180) / Math.PI;
+      };
+      const bend = (a: number, low: number[][], b: number, high: number[][]): number[] => {
+        if (b - a <= 2 * FOLD.least) return [];
+        const middle: number = (a + b) / 2;
+        const mid: number[][] = fine(middle);
+        const off: boolean = mid.some((p: number[], j: number): boolean => turned(low[j]!, p, high[j]!) > FOLD.turn);
+        return off ? [...bend(a, low, middle, mid), middle, ...bend(middle, mid, b, high)] : [];
+      };
+      const inside = (a: number, b: number): boolean => windows.some((window: [number, number]): boolean => a >= window[0] && b <= window[1]);
+      const sharp: (number[][] | null)[] = cut.map((s: number, i: number): number[][] | null => (inside(cut[Math.max(0, i - 1)]!, s) || inside(s, cut[Math.min(cut.length - 1, i + 1)]!) ? fine(s) : null));
+      return cut.flatMap((s: number, i: number): number[] => (i === 0 ? [s] : [...(inside(cut[i - 1]!, s) ? bend(cut[i - 1]!, sharp[i - 1]!, s, sharp[i]!) : []), s]));
     };
     const twin = (family: AutoMovieHumanConicLoft.IFamily): AutoMovieHumanConicLoft.IFamily => AutoMovieHumanConicLoft.mirror(family, family.name + ".mirror");
     const trunk: string = BODY.trunk.name;
