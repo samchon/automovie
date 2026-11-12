@@ -27,7 +27,7 @@ Before repairing, the author records in the verdict its decision on each finding
 - a permitted exception applies;
 - the parent contradicts the finding.
 
-The reviewer resolves each objection from the actual inputs in the same record. Intent, repair cost or earlier approval cannot dismiss an established loss. The author then repairs the findings that stand under [cause rounds](../story/correction/repair.md#cause-rounds), choosing the method.
+The reviewer resolves each objection from the actual inputs in the same record. Intent, repair cost or earlier approval cannot dismiss an established loss. The author then repairs the findings that stand under [cause rounds](../story/correction/repair.md#cause-rounds), choosing the method and changing only what they need.
 
 When screenplay naturalness traces a finding to frozen construction content, record its cause and earliest owner as an upstream report in the verdict instead of repeating it each round. It is repaired under [upstream repair](../story/correction/repair.md#upstream-defects) and remains an open limit until then.
 
@@ -39,6 +39,8 @@ A whole-work review rereads every selected body afresh and carries no unit verdi
 
 An item judged an observation in an earlier round becomes a finding only on new body, parent or source evidence.
 
+After the first round, every round, a closing round included, raises new findings only in text a repair changed or that depends on it, unless new body, parent or source evidence appears. Judging settled text afresh each round finds new readings forever, so the pass never closes.
+
 ## Grading and closure {#grading-and-closure}
 
 Grade each body finding by what its repair changes:
@@ -46,7 +48,7 @@ Grade each body finding by what its repair changes:
 | Grade | Its repair changes | Creative review closes by |
 | --- | --- | --- |
 | Minor | Wording only, with no fact, decision, event or audience experience beyond that passage | The scoped round that confirms it |
-| Moderate or higher | Anything more | A closing round that rereads every current H2 and judges afresh |
+| Moderate or higher | Anything more | A closing round that rereads every current H2 |
 
 A complete round with no body finding closes creative review directly.
 
