@@ -5,6 +5,7 @@ import { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanF1Arm } from "./AutoMovieHumanF1Arm";
 import { AutoMovieHumanF1Concha } from "./AutoMovieHumanF1Concha";
 import { AutoMovieHumanF1Ear } from "./AutoMovieHumanF1Ear";
+import { AutoMovieHumanF1Helix } from "./AutoMovieHumanF1Helix";
 import { AutoMovieHumanF1FingerIndex } from "./AutoMovieHumanF1FingerIndex";
 import { AutoMovieHumanF1FingerMiddle } from "./AutoMovieHumanF1FingerMiddle";
 import { AutoMovieHumanF1FingerPinky } from "./AutoMovieHumanF1FingerPinky";
@@ -121,6 +122,7 @@ export namespace AutoMovieHumanF1 {
     { family: BODY.arm, mirrored: true },
     { family: BODY.leg, mirrored: true },
     { family: BODY.ear, mirrored: true },
+    { family: AutoMovieHumanF1Helix, mirrored: true },
     { family: BODY.nose, mirrored: false },
     ...DIGITS.map((digit: IDigit): IMember => ({ family: digit.family, mirrored: true })),
     ...LOOSE,
@@ -399,8 +401,14 @@ export namespace AutoMovieHumanF1 {
       // walked by its own length: at 0.1 mm its rim folded 139 degrees against the antihelix, at 0.5 mm 97 (0.25 mm folded the earlier prism). It is seeded on its back side, phase pi / 2, which lies on the ear's outer face; its
       // lower side, phase pi, ran past the leaning ear's front onto the band. A twin's phases run the other way round.
       const concha: AutoMovieHumanConicLoft.IFamily = side > 0 ? AutoMovieHumanF1Concha : twin(AutoMovieHumanF1Concha);
-      root = { type: "port", name: "auricle." + ear.name, host: root, hostFace: trunk, loop: auricle(side), band: "band." + ear.name, part: leaf(ear), partFace: ear.name, partEnd: "bottom", rail: RAIL_MM.ear / 1000, count: BAND.count, rows: BAND.rows };
-      root = { type: "join", kind: "diff", name: "cut." + concha.name, host: root, part: leaf(concha), seed: { type: "search", partFace: concha.name, hostFace: ear.name, phase: side > 0 ? Math.PI / 2 : (3 * Math.PI) / 2, from: 0, to: 0.9 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.0005 }, hostWidth: { type: "chord", value: 0.0005 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04 };
+      // The helix is merged onto the leaf before the ear is attached, as a digit onto its limb: a tube along the rim's crest whose two ends are
+      // buried in the leaf, so the curve where they meet is one closed loop, walked by its own length. Both are layered every millimetre,
+      // which the tube's turns of 3 mm need. Seeded on the tube's inner line, phase pi, which its twin shares; a blend 0.5 mm wide crossed
+      // itself where the loop turns round the tube's ends, and one of 0.25 mm does not.
+      const helix: AutoMovieHumanConicLoft.IFamily = side > 0 ? AutoMovieHumanF1Helix : twin(AutoMovieHumanF1Helix);
+      const rimmed: AutoMovieConstructionNode = { type: "join", kind: "merge", name: "rim." + helix.name, host: leaf(ear, Infinity), part: leaf(helix, Infinity), seed: { type: "search", partFace: helix.name, hostFace: ear.name, phase: Math.PI, from: 0, to: 0.5 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.00025 }, hostWidth: { type: "chord", value: 0.00025 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04 };
+      root = { type: "port", name: "auricle." + ear.name, host: root, hostFace: trunk, loop: auricle(side), band: "band." + ear.name, part: rimmed, partFace: ear.name, partEnd: "bottom", rail: RAIL_MM.ear / 1000, count: BAND.count, rows: BAND.rows };
+      root = { type: "join", kind: "diff", name: "cut." + concha.name, host: root, part: leaf(concha), seed: { type: "search", partFace: concha.name, hostFace: ear.name, phase: side > 0 ? Math.PI / 2 : (3 * Math.PI) / 2, from: 0, to: 0.9 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.00025 }, hostWidth: { type: "chord", value: 0.00025 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04 };
     }
     root = { type: "port", name: "nostril." + BODY.nose.name, host: root, hostFace: trunk, loop: nostril(), band: "band." + BODY.nose.name, part: leaf(BODY.nose), partFace: BODY.nose.name, partEnd: "bottom", rail: RAIL_MM.nose / 1000, count: BAND.count, rows: BAND.rows };
     // Each nostril is cut from the head: its loft comes up out of the nose's underside and closes inside it.

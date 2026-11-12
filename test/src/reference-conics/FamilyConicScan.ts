@@ -215,6 +215,53 @@ namespace FamilyConicScan {
       }
       return;
     }
+    if (process.argv[2] === "helix") {
+      // `helix [floor] [band]`: the helix's crest from the outermost skin over the ear, its side distance on a quarter-millimetre grid of
+      // forward position and height. Along rays from the ear's middle (x 7, y 1572) every 10 degrees: the outline's edge (the last cell
+      // whose skin stands past `floor`, 79 mm), the crest (the highest cell within `band`, 7 mm, inside the edge) and the scapha's floor
+      // (the lowest cell within a further `band` inside the crest), so the rim's course and its width are read before a tube is declared.
+      const floor: number = Number(process.argv[3] ?? 79);
+      const band: number = Number(process.argv[4] ?? 7);
+      const [cx, cy, x0, x1, y0, y1, h] = [7, 1572, -14, 32, 1534, 1612, 0.25];
+      const nx: number = Math.round((x1 - x0) / h) + 1;
+      const ny: number = Math.round((y1 - y0) / h) + 1;
+      const z: Float64Array = new Float64Array(nx * ny).fill(-Infinity);
+      const P: ArrayLike<number> = source.head.positions;
+      const I: ArrayLike<number> = source.head.indices;
+      for (let t: number = 0; t + 2 < I.length; t += 3) {
+        const [a, b, c]: R.V[] = [0, 1, 2].map((k: number): R.V => [P[I[t + k]! * 3]!, P[I[t + k]! * 3 + 1]!, P[I[t + k]! * 3 + 2]!]);
+        if (Math.max(a![2], b![2], c![2]) < 55) continue;
+        const d: number = (b![0] - a![0]) * (c![1] - a![1]) - (b![1] - a![1]) * (c![0] - a![0]);
+        if (d === 0) continue;
+        for (let i: number = Math.max(0, Math.ceil((Math.min(a![0], b![0], c![0]) - x0) / h)); i < nx && x0 + i * h <= Math.max(a![0], b![0], c![0]); ++i)
+          for (let j: number = Math.max(0, Math.ceil((Math.min(a![1], b![1], c![1]) - y0) / h)); j < ny && y0 + j * h <= Math.max(a![1], b![1], c![1]); ++j) {
+            const [x, y]: number[] = [x0 + i * h, y0 + j * h];
+            const u: number = ((x! - a![0]) * (c![1] - a![1]) - (y! - a![1]) * (c![0] - a![0])) / d;
+            const v: number = ((b![0] - a![0]) * (y! - a![1]) - (b![1] - a![1]) * (x! - a![0])) / d;
+            if (u < 0 || v < 0 || u + v > 1) continue;
+            z[i * ny + j] = Math.max(z[i * ny + j]!, a![2] + u * (b![2] - a![2]) + v * (c![2] - a![2]));
+          }
+      }
+      const at = (x: number, y: number): number => {
+        const [i, j]: number[] = [Math.round((x - x0) / h), Math.round((y - y0) / h)];
+        return i! < 0 || j! < 0 || i! >= nx || j! >= ny ? -Infinity : z[i! * ny + j!]!;
+      };
+      process.stdout.write("deg  edge (x,y,z)          crest (x,y,z)         in   scapha (x,y,z)        depth\n");
+      for (let deg: number = -180; deg < 180; deg += 10) {
+        const [dx, dy]: number[] = [Math.cos((deg * Math.PI) / 180), Math.sin((deg * Math.PI) / 180)];
+        const skin = (r: number): number => at(cx + r * dx!, cy + r * dy!);
+        let edge: number = -1;
+        for (let r: number = 0; r < 45; r += h) if (skin(r) > floor) edge = r;
+        if (edge < 0) continue;
+        let crest: number = edge;
+        for (let r: number = edge; r > Math.max(0, edge - band); r -= h) if (skin(r) > skin(crest)) crest = r;
+        let low: number = crest;
+        for (let r: number = crest; r > Math.max(0, crest - band); r -= h) if (skin(r) < skin(low)) low = r;
+        const f = (r: number): string => ("(" + (cx + r * dx!).toFixed(1) + "," + (cy + r * dy!).toFixed(1) + "," + skin(r).toFixed(1) + ")").padEnd(22);
+        process.stdout.write(String(deg).padStart(4) + " " + f(edge) + f(crest) + (edge - crest).toFixed(1).padStart(4) + "  " + f(low) + (skin(crest) - skin(low)).toFixed(1) + "\n");
+      }
+      return;
+    }
     if (process.argv[2] === "hand" || process.argv[2] === "foot") {
       // Where the digits leave: along the limb's own course, every closed loop of each plane near the limb's end by its centre and area, so the
       // order and the stations at which the digits part from the hand or the foot are read before any branch is declared.

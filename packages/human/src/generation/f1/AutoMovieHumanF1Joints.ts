@@ -172,6 +172,13 @@ export namespace AutoMovieHumanF1Joints {
    */
   export const earTip: V3 = [-4, 1586, 98];
 
+  /**
+   * The helix's course, along the rim's crest from the front limb over the top and down the back to the lobule. Each inner centre is the
+   * crest read by `FamilyConicScan.ts helix` at 70, 90, 110, 130, 160, 200, 240 and 270 degrees round the ear's middle, sunk 1.8 mm toward
+   * the head; the two ends lie inside the ear's leaf, in front under the front limb and in the lobule.
+   */
+  export const helix: V3[] = [[17, 1586, 79], [15.8, 1596.2, 83.1], [7, 1598.3, 89.1], [-0.5, 1592.7, 93.4], [-3.8, 1584.8, 94.6], [-3.8, 1575.9, 92.6], [-0.8, 1569.2, 90.9], [2.3, 1563.8, 89.2], [7, 1555.5, 85.3], [13, 1551, 81]];
+
   /** Centre of the auricle's root on the sagittal plane it leaves the skull at. */
   export const earBase: V3 = [9.5, 1572, 77];
 

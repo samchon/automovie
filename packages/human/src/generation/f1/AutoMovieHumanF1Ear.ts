@@ -21,10 +21,9 @@ import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
  * The course runs straight out of the head to `AutoMovieHumanF1Joints.earTurn` and then turns, over 6 mm either side of it, to lean back and
  * up with the auricle's shell, so the root's sections to 78 mm out stand in sagittal planes and the ring the head's band lands on is the
  * auricle's whole footprint, its front and its lobule included, while the outer sections follow the shell to the helix's back, where the
- * pole stands. On a course leaning from the root the band owned the auricle's front third and the lobule's lower half. What lies inside the
- * hull on the outer face, the scapha and the fossa, is the relief `ear.face`: heights cast from the wall's forward half along the shell's
- * outer normal onto the reference, on a coarse net faded over its edges, with casts deeper than 5 mm (the cymba and the concha's bowl, which
- * is a cut of its own) left to the net's fairness (`FamilyConicBody.ts`, `EAR_FACE`). Re-emitted from `test` by
+ * pole stands. On a course leaning from the root the band owned the auricle's front third and the lobule's lower half. The rolled rim is
+ * the helix merged onto this leaf (`AutoMovieHumanF1Helix`) and the hollows are cuts, so the leaf carries no relief: a net over its outer
+ * face converged with the dome's phases and drew a fan of creases on the upper inner face. Re-emitted from `test` by
  * `node .shots/esbuild/FamilyConicBody.cjs ear --emit`, with this paragraph kept.
  */
 export const AutoMovieHumanF1Ear: AutoMovieHumanConicLoft.IFamily = {
@@ -66,9 +65,4 @@ export const AutoMovieHumanF1Ear: AutoMovieHumanConicLoft.IFamily = {
 
   // The part closes in a point at `tip`, the station where the reference's own loop vanishes; its cap starts at `from`.
   tips: [null, {from: 22, tip: 24.13}],
-
-  // Reliefs: heights in mm of a uniform cubic B-spline net over a window of the wall's chart, moved along `axis`; they carry the skin that lies inside the tape wall.
-  reliefs: [
-    {"name":"ear.face", "stations":[6.5, 23.6], "phases":[0.15, 3.3], "axis":[-0.6, 0, -0.8], "rows":13, "columns":11, "heights":[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4.42, 5.09, 5.42, 5.23, 1.34, 0, 0, 0, 0, 0, 0, 6.73, 2.91, 2.44, 2.99, 0.32, 0, 0, 0, 0, 0, 0, 6.83, 1.37, 2.24, 0.96, 0.17, 0, 0, 0, 0, 0, 0, 5.77, 1.17, 2.25, 0.64, 0.67, 0, 0, 0, 0, 0, 0, 5.91, 1.94, 3.05, 1.79, 2.4, 0, 0, 0, 0, 0, 0, 6, 1.8, 3.56, 2.48, 3.77, 0, 0, 0, 0, 0, 0, 10, 5.66, 6.74, 5.82, 7.32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]},
-  ],
 };
