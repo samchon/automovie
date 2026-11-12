@@ -55,6 +55,15 @@ namespace FamilyConicBody {
     .split("/")
     .map((centre: string): R.V => centre.split(",").map(Number) as R.V);
   const CONCHA_DOMAIN: [number, number] = (process.argv.find((argument: string): boolean => argument.startsWith("--concha-domain="))?.slice("--concha-domain=".length).split(",").map(Number) ?? [11.5, 23]) as [number, number];
+  /** `--concha-floor=<mm>`: how near the median plane the trial cutter's sections may read, in place of the ear's box (77). `--concha-up=x,y,z`: its chart's up. */
+  const CONCHA_FLOOR: number = Number(process.argv.find((argument: string): boolean => argument.startsWith("--concha-floor="))?.slice("--concha-floor=".length) ?? 77);
+  const CONCHA_UP: R.V = (process.argv.find((argument: string): boolean => argument.startsWith("--concha-up="))?.slice("--concha-up=".length).split(",").map(Number) ?? [0, 1, 0]) as R.V;
+  /** `--concha-box=<x0>,<x1>,<y0>,<y1>`: the trial cutter's sections are read inside this box, mm (no bound). */
+  const CONCHA_BOX: number[] = process.argv.find((argument: string): boolean => argument.startsWith("--concha-box="))?.slice("--concha-box=".length).split(",").map(Number) ?? [-Infinity, Infinity, -Infinity, Infinity];
+  /** `--concha-depth=<x0>,<x1>,<y0>,<y1>`: the trial cutter's sections are read from the skin's depth over this box (see `depthLoop`). */
+  const CONCHA_DEPTH: number[] | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--concha-depth="))?.slice("--concha-depth=".length).split(",").map(Number);
+  /** `--concha-lead=<mm>`: how far the trial cutter is carried straight back from its first section (12). */
+  const CONCHA_LEAD: number = Number(process.argv.find((argument: string): boolean => argument.startsWith("--concha-lead="))?.slice("--concha-lead=".length) ?? 12);
   const CONCHA_TIP: number = Number(process.argv.find((argument: string): boolean => argument.startsWith("--concha-tip="))?.slice("--concha-tip=".length) ?? 24.5);
 
   /** `--ear-to=<station>`: the last station the trial course's wall is fitted to, mm (26). */
@@ -489,7 +498,7 @@ namespace FamilyConicBody {
         // The ear's hollow as a loft of its own. The auricle is a thin shell: a sagittal plane cuts it in one loop shaped like a C, and what
         // the C stands round, the concha and the scapha, is the pocket between that loop and its hull, open to the front
         // (`FamilyConicScan.ts concha`: 435 mm2 at 78 mm out, 33 at 94). The loft runs out through those pockets.
-        { name: "concha", centres: CONCHA_TRIAL ?? [[-0.7, 1580, 99.5], [15, 1580, 77.5]], course: CONCHA_TRIAL === undefined ? "[J.conchaRoot, J.conchaTip]" : JSON.stringify(CONCHA_TRIAL).replaceAll(",", ", "), halves: [], up: [0, 1, 0], domain: CONCHA_DOMAIN, head: true, loose: true, step: 0.5, gap: 3, tip: CONCHA_TIP, lead: 12, pocket: 5, mirrored: true, layouts: [LIMB[0]!], clip: (p: R.V): number => -ear(p), reliefs: [] },
+        { name: "concha", centres: CONCHA_TRIAL ?? [[-0.7, 1580, 99.5], [15, 1580, 77.5]], course: CONCHA_TRIAL === undefined ? "[J.conchaRoot, J.conchaTip]" : JSON.stringify(CONCHA_TRIAL).replaceAll(",", ", "), halves: [], up: CONCHA_UP, domain: CONCHA_DOMAIN, head: true, loose: true, step: 0.5, gap: 3, tip: CONCHA_TIP, lead: CONCHA_LEAD, pocket: 5, mirrored: true, layouts: [LIMB[0]!], clip: (p: R.V): number => -Math.min(ear(p) + 77 - Math.min(77, CONCHA_FLOOR), Math.abs(p[2]) - CONCHA_FLOOR, p[0] - CONCHA_BOX[0], CONCHA_BOX[1] - p[0], p[1] - CONCHA_BOX[2], CONCHA_BOX[3] - p[1]), reliefs: [] },
         // A nostril as a hollow of its own: level planes cut one closed loop of it from 1,551 to 1,555 mm, 10 by 8 mm at its mouth
         // (`FamilyConicScan.ts nostril`). Its loft runs straight up through that loop, closes where the loop vanishes and is carried 8 mm
         // down out of the nose, to be cut from the head (`diff`).
@@ -606,8 +615,59 @@ namespace FamilyConicBody {
       const gap = (s: number): number => (typeof part.gap === "function" ? part.gap(s) : (part.gap ?? GAP_MM));
       const skin: R.ISource["body"] = part.head === true ? source.head : part.whole === true ? source.all : source.body;
 
+      // `--concha-depth=<x0>,<x1>,<y0>,<y1>`: a hollow read from the depth of the skin instead of from plane cuts. Over that box the outermost
+      // skin's distance from the median plane is sampled every quarter millimetre (the largest of the triangles over each point); a
+      // section at the plane `|z| = c` is the region round the course where the skin lies deeper than `c`, walked out ray by ray from the
+      // course. A dip whose sides open toward skin barely higher than its floor, as the concha does toward the cheek, has no loop of
+      // its own in any plane cut.
+      let depthGrid: { x0: number; y0: number; nx: number; ny: number; z: Float64Array } | null = null;
+      const depthAt = (x: number, y: number): number => {
+        if (depthGrid === null) {
+          const [x0, x1, y0, y1]: number[] = CONCHA_DEPTH!;
+          const nx: number = Math.round((x1! - x0!) / 0.25) + 1;
+          const ny: number = Math.round((y1! - y0!) / 0.25) + 1;
+          const z: Float64Array = new Float64Array(nx * ny).fill(-Infinity);
+          const P = (i: number): R.V => [skin.positions[i * 3]!, skin.positions[i * 3 + 1]!, skin.positions[i * 3 + 2]!];
+          for (let t: number = 0; t + 2 < skin.indices.length; t += 3) {
+            const [a, b, c]: R.V[] = [P(skin.indices[t]!), P(skin.indices[t + 1]!), P(skin.indices[t + 2]!)];
+            if (a[2] < 40 || Math.max(a[0], b[0], c[0]) < x0! || Math.min(a[0], b[0], c[0]) > x1! || Math.max(a[1], b[1], c[1]) < y0! || Math.min(a[1], b[1], c[1]) > y1!) continue;
+            const d: number = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+            if (d === 0) continue;
+            for (let i: number = Math.max(0, Math.ceil((Math.min(a[0], b[0], c[0]) - x0!) / 0.25)); i < nx && x0! + i * 0.25 <= Math.max(a[0], b[0], c[0]); ++i)
+              for (let j: number = Math.max(0, Math.ceil((Math.min(a[1], b[1], c[1]) - y0!) / 0.25)); j < ny && y0! + j * 0.25 <= Math.max(a[1], b[1], c[1]); ++j) {
+                const [x, y]: number[] = [x0! + i * 0.25, y0! + j * 0.25];
+                const u: number = ((x - a[0]) * (c[1] - a[1]) - (y - a[1]) * (c[0] - a[0])) / d;
+                const v: number = ((b[0] - a[0]) * (y - a[1]) - (b[1] - a[1]) * (x - a[0])) / d;
+                if (u < 0 || v < 0 || u + v > 1) continue;
+                z[i * ny + j] = Math.max(z[i * ny + j]!, a[2] + u * (b[2] - a[2]) + v * (c[2] - a[2]));
+              }
+          }
+          depthGrid = { x0: x0!, y0: y0!, nx, ny, z };
+        }
+        const g = depthGrid;
+        const i: number = Math.round((x - g.x0) / 0.25);
+        const j: number = Math.round((y - g.y0) / 0.25);
+        return i < 0 || j < 0 || i >= g.nx || j >= g.ny ? Infinity : g.z[i * g.ny + j]!;
+      };
+      const depthLoop = (frame: AutoMovieLoftFrame.IFrame): C.P[] | null => {
+        const c: number = Math.abs(frame.origin[2]);
+        if (!(depthAt(frame.origin[0], frame.origin[1]) < c)) return null;
+        const loop: C.P[] = [];
+        for (let k: number = 0; k < 96; ++k) {
+          const phi: number = (2 * Math.PI * k) / 96;
+          // The world direction of this chart phase, in the plane: the frame's own u and v carried to x and y.
+          const dir: number[] = [0, 1].map((a: number): number => Math.cos(phi) * frame.u[a]! + Math.sin(phi) * frame.v[a]!);
+          let r: number = 0;
+          while (r < 40 && depthAt(frame.origin[0] + (r + 0.1) * dir[0]!, frame.origin[1] + (r + 0.1) * dir[1]!) < c) r += 0.1;
+          if (r >= 40) return null;
+          loop.push([r * Math.cos(phi), r * Math.sin(phi)]);
+        }
+        return loop;
+      };
+
       // A plane's loop for the part: the one round the course, or for a `loose` part the largest closed loop the clip leaves whose hull holds the course.
       const cut = (frame: AutoMovieLoftFrame.IFrame, s: number): C.P[] | null => {
+        if (part.name === "concha" && CONCHA_DEPTH !== undefined) return depthLoop(frame);
         if (part.loose !== true || (part.surround !== undefined && s < part.surround.from)) {
           const whole: C.P[] | null = R.cut(skin, frame).loop;
           return whole === null || part.clip === undefined ? whole : without(whole, frame, part.clip, part.round);
