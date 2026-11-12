@@ -261,6 +261,12 @@ namespace FamilyConicBody {
     /** Relief windows for what lies inside the tape wall, or `auto` to place one over every hollow deeper than the target. */
     reliefs: IWindow[] | "auto";
 
+    /**
+     * For a cutter of an open hollow: each section is not the skin's loop but the largest pocket between that loop and its hull, with the
+     * hull edge that closes the pocket pushed out by this many mm.
+     */
+    pocket?: number;
+
     /** For a cutter, a hollow's own loft that is cut from its host: how far before its first section it is carried straight back, mm. */
     lead?: number;
 
@@ -389,6 +395,10 @@ namespace FamilyConicBody {
 
         // The nose's free end as a short loft straight forward out of the face, closed at its tip.
         { name: "nose", centres: [[118, 1561, 0], [140, 1561, 0]], course: "[J.noseRoot, J.noseTip]", halves: [], up: [0, 1, 0], domain: [5, 14], head: true, loose: true, step: 1, gap: 3, tip: 18, mirrored: false, layouts: LIMB, clip: (p: R.V): number => -nose(p), reliefs: [], casts: [{ name: "under", stations: [5.6, 14], phases: [Math.PI - 1.1, Math.PI + 1.1], axis: [0, 1, 0], rows: 31, columns: 39, reach: 10, mirror: true }] },
+        // The ear's hollow as a loft of its own. The auricle is a thin shell: a sagittal plane cuts it in one loop shaped like a C, and what
+        // the C stands round, the concha and the scapha, is the pocket between that loop and its hull, open to the front
+        // (`FamilyConicScan.ts concha`: 435 mm2 at 78 mm out, 33 at 94). The loft runs out through those pockets.
+        { name: "concha", centres: [[19, 1574, 72], [3, 1587, 98]], course: "[J.conchaRoot, J.conchaTip]", halves: [], up: [0, 1, 0], domain: [13.5, 21], head: true, loose: true, step: 0.5, gap: 2, tip: 24, pocket: 5, mirrored: true, layouts: LIMB, clip: (p: R.V): number => -ear(p), reliefs: [] },
         // A nostril as a hollow of its own: level planes cut one closed loop of it from 1,551 to 1,555 mm, 10 by 8 mm at its mouth
         // (`FamilyConicScan.ts nostril`). Its loft runs straight up through that loop, closes where the loop vanishes and is carried 8 mm
         // down out of the nose, to be cut from the head (`diff`).
@@ -521,7 +531,42 @@ namespace FamilyConicBody {
           return around.length >= 3 && inside(around) ? around : null;
         }
         const kept: C.P[][] = clipped.filter((loop: C.P[]): boolean => inside(R.hull(loop)));
-        return kept.length === 0 ? null : kept.reduce((a: C.P[], b: C.P[]): C.P[] => (Math.abs(R.area(b)) > Math.abs(R.area(a)) ? b : a));
+        const chosen: C.P[] | null = kept.length === 0 ? null : kept.reduce((a: C.P[], b: C.P[]): C.P[] => (Math.abs(R.area(b)) > Math.abs(R.area(a)) ? b : a));
+        if (chosen === null || part.pocket === undefined) return chosen;
+
+        // The pocket: the largest region between the loop and its hull, closed along one hull edge. That edge is pushed out by
+        // `pocket` mm, so the cutter stands clear of the wall it is cut from along the pocket's mouth.
+        const hull: C.P[] = R.hull(chosen);
+        const at = (p: C.P): number => chosen.findIndex((q: C.P): boolean => q[0] === p[0] && q[1] === p[1]);
+        const onHull = (p: C.P): boolean => hull.some((q: C.P): boolean => q[0] === p[0] && q[1] === p[1]);
+        let best: C.P[] = [];
+        for (let h: number = 0; h < hull.length; ++h) {
+          const [i, j]: [number, number] = [at(hull[h]!), at(hull[(h + 1) % hull.length]!)];
+          if (i < 0 || j < 0) continue;
+          for (const step of [1, -1]) {
+            const run: C.P[] = [];
+            for (let k: number = i; ; k = (k + step + chosen.length) % chosen.length) {
+              run.push(chosen[k]!);
+              if (k === j) break;
+            }
+            if (run.length >= 3 && !run.slice(1, -1).some(onHull) && (best.length < 3 || Math.abs(R.area(run)) > Math.abs(R.area(best)))) best = run;
+          }
+        }
+        if (best.length < 3) return null;
+        const [a, b]: [C.P, C.P] = [best[0]!, best.at(-1)!];
+        const middle: C.P = [best.reduce((sum: number, p: C.P): number => sum + p[0], 0) / best.length, best.reduce((sum: number, p: C.P): number => sum + p[1], 0) / best.length];
+        const length: number = Math.hypot(b[0] - a[0], b[1] - a[1]);
+        let normal: C.P = [(b[1] - a[1]) / length, -(b[0] - a[0]) / length];
+        if ((middle[0] - a[0]) * normal[0] + (middle[1] - a[1]) * normal[1] > 0) normal = [-normal[0], -normal[1]];
+        // Pushed out as a bow, deepest at the edge's middle: pushed out square, the pocket had two parallel sides, and an arc between
+        // parallel tangents is the one a conic chain cannot close.
+        const bow: C.P[] = Array.from({ length: 9 }, (_: unknown, k: number): C.P => {
+          const t: number = (k + 1) / 10;
+          const out: number = part.pocket! * 4 * t * (1 - t);
+          return [b[0] + (a[0] - b[0]) * t + out * normal[0], b[1] + (a[1] - b[1]) * t + out * normal[1]];
+        });
+        const pocket: C.P[] = [...best, ...bow];
+        return inside(R.hull(pocket)) ? pocket : null;
       };
       // `--to=<station>`: fit only up to that station, for the head of a wall whose far end is spliced in from another fit. Fitted whole, a
       // wall's growth goes to its worst sections, and the arm's are in the hand, which left the shoulder with ten knots at a mean of 0.7 mm.
@@ -1083,6 +1128,12 @@ namespace FamilyConicBody {
       "",
       "  /** Where the nose's course ends, straight forward past its tip. */",
       "  export const noseTip: V3 = [140, 1561, 0];",
+      "",
+      "  /** Where the course of the ear's hollow starts, inside the head behind the concha's floor. */",
+      "  export const conchaRoot: V3 = [19, 1574, 72];",
+      "",
+      "  /** Where it ends, out past the auricle's rim. */",
+      "  export const conchaTip: V3 = [3, 1587, 98];",
       "",
       "  /** Where a nostril's course starts, below the nose under the middle of the nostril's mouth. */",
       "  export const nostrilRoot: V3 = [127.1, 1540.4, 7.7];",

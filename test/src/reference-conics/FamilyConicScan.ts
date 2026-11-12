@@ -46,6 +46,35 @@ namespace FamilyConicScan {
       }
       return;
     }
+    if (process.argv[2] === "concha") {
+      // Sagittal planes out through the ear, 2 mm apart: every closed loop inside the ear's box by its extents forward and up and its
+      // area. The auricle's rim is the large loop; a loop inside it is a hollow the rim stands round, read before a cutter is declared.
+      for (let z: number = 70; z <= 98; z += 2) {
+        const frame = { origin: [0, 0, z] as R.V, u: [1, 0, 0] as R.V, v: [0, 1, 0] as R.V } as Parameters<typeof R.loops>[1];
+        const cells: string[] = R.loops(source.head, frame)
+          .filter((loop: C.P[]): boolean => centre(loop)[0] > -25 && centre(loop)[0] < 40 && centre(loop)[1] > 1530 && centre(loop)[1] < 1610)
+          .sort((a: C.P[], b: C.P[]): number => Math.abs(R.area(b)) - Math.abs(R.area(a)))
+          .map((loop: C.P[]): string => "(x " + Math.min(...loop.map((p: C.P): number => p[0])).toFixed(0) + ".." + Math.max(...loop.map((p: C.P): number => p[0])).toFixed(0) + " y " + Math.min(...loop.map((p: C.P): number => p[1])).toFixed(0) + ".." + Math.max(...loop.map((p: C.P): number => p[1])).toFixed(0) + " a" + R.area(loop).toFixed(0) + ")");
+        process.stdout.write("z " + z + ": " + cells.join(" ") + "\n");
+
+        // The pocket: the largest region between the auricle's loop and its hull, the hollow the rim stands round, open along one chord.
+        const ear: C.P[] | undefined = R.loops(source.head, frame)
+          .filter((loop: C.P[]): boolean => centre(loop)[0] > -10 && centre(loop)[0] < 25 && centre(loop)[1] > 1540 && centre(loop)[1] < 1605 && Math.abs(R.area(loop)) > 40 && Math.abs(R.area(loop)) < 1000)
+          .sort((a: C.P[], b: C.P[]): number => Math.abs(R.area(b)) - Math.abs(R.area(a)))[0];
+        if (ear === undefined) continue;
+        const hull: C.P[] = R.hull(ear);
+        const at = (p: C.P): number => ear.findIndex((q: C.P): boolean => q[0] === p[0] && q[1] === p[1]);
+        let best: C.P[] = [];
+        for (let h: number = 0; h < hull.length; ++h) {
+          const [i, j]: [number, number] = [at(hull[h]!), at(hull[(h + 1) % hull.length]!)];
+          if (i < 0 || j < 0) continue;
+          for (const run of [((): C.P[] => { const out: C.P[] = []; for (let k: number = i; ; k = (k + 1) % ear.length) { out.push(ear[k]!); if (k === j) break; } return out; })(), ((): C.P[] => { const out: C.P[] = []; for (let k: number = i; ; k = (k - 1 + ear.length) % ear.length) { out.push(ear[k]!); if (k === j) break; } return out; })()])
+            if (run.length >= 3 && !run.slice(1, -1).some((p: C.P): boolean => hull.some((q: C.P): boolean => q[0] === p[0] && q[1] === p[1])) && Math.abs(R.area(run)) > Math.abs(R.area(best.length < 3 ? [[0, 0], [0, 0], [0, 0]] : best))) best = run;
+        }
+        if (best.length >= 3) process.stdout.write("   pocket centre " + centre(best).map((x: number): string => x.toFixed(1)).join(",") + " area " + Math.abs(R.area(best)).toFixed(0) + " chord " + best[0]!.map((x: number): string => x.toFixed(0)).join(",") + " -> " + best.at(-1)!.map((x: number): string => x.toFixed(0)).join(",") + " points " + best.length + "\n");
+      }
+      return;
+    }
     if (process.argv[2] === "radii") {
       // `radii <fromMm> <toMm> [stepMm]`: the trunk's level sections between two stations, the skin's radius every 15 degrees over the +Z
       // half turn. A radius that jumps between two neighbouring stations is skin that lies level between them, which no section samples.
