@@ -415,6 +415,7 @@ export namespace AutoMovieConstructionSplitBand {
    * @param outward The start surface's outward normal at column 0.
    * @param child The child side: its surface, its rail station, `into` into its kept side.
    * @param crease The declared crease window on the child side, or absent.
+   * @param correspondence How the child's rail is matched to the loop: by angle about the rail's centroid, or by arclength share.
    * @returns The strip, or the refusal.
    */
   export function strip(
@@ -424,9 +425,10 @@ export namespace AutoMovieConstructionSplitBand {
     outward: Vec3,
     child: ISide,
     crease?: IAutoMovieConstructionSplit.ICrease,
+    correspondence: "angle" | "length" = "angle",
   ): IStrip | string {
     const n: number = loop.length;
-    const childPhases: number[] | string = phases(child, loop);
+    const childPhases: number[] | string = correspondence === "length" ? lengths(child, loop) : phases(child, loop);
     if (typeof childPhases === "string") return childPhases;
 
     const columns: {
@@ -680,6 +682,76 @@ export namespace AutoMovieConstructionSplitBand {
       else hi = mid;
     }
     return lo;
+  }
+
+  /**
+   * The child's rail phase at each loop point by arclength: column 0 takes the phase at its angle about the rail ring's centroid, in the
+   * ring's Newell plane, and every later column the phase that stands as far round the ring, as a share of the ring's length, as the column
+   * stands round the loop, the two run the same way when their Newell normals agree. Neither curve need be star-shaped about the centroid.
+   */
+  function lengths(child: ISide, loop: readonly Vec3[]): number[] | string {
+    const turn: number = 2 * Math.PI;
+    const samples: number = 8 * loop.length;
+    const at = (psi: number): Vec3 => {
+      const p: readonly number[] = child.surface.point?.(railAt(child, psi), psi) ?? child.surface.jet(railAt(child, psi), psi).p;
+      return [p[0]!, p[1]!, p[2]!];
+    };
+    const ring: Vec3[] = Array.from({ length: samples + 1 }, (_: unknown, j: number): Vec3 => at((turn * j) / samples));
+    const newell = (points: readonly Vec3[]): { centre: Vec3; normal: Vec3 | null } => {
+      let centre: Vec3 = [0, 0, 0];
+      for (const q of points) centre = add(centre, scale(q, 1 / points.length));
+      let area: Vec3 = [0, 0, 0];
+      points.forEach((q: Vec3, j: number): void => {
+        area = add(area, cross(sub(q, centre), sub(points[(j + 1) % points.length]!, centre)));
+      });
+      return { centre, normal: unit(area) };
+    };
+    const rim = newell(ring.slice(0, samples));
+    const lap = newell(loop);
+    if (rim.normal === null) return "the child's rail ring encloses no area";
+    if (lap.normal === null) return "the loop encloses no area";
+    const sense: 1 | -1 = dot(rim.normal, lap.normal) > 0 ? 1 : -1;
+    // Cumulative arclength round the ring at its samples, and round the loop at its columns.
+    const along: number[] = [0];
+    for (let j: number = 1; j <= samples; ++j) along.push(along[j - 1]! + norm(sub(ring[j]!, ring[j - 1]!)));
+    const total: number = along[samples]!;
+    const lapAlong: number[] = [0];
+    for (let k: number = 1; k <= loop.length; ++k) lapAlong.push(lapAlong[k - 1]! + norm(sub(loop[k % loop.length]!, loop[k - 1]!)));
+    const lapTotal: number = lapAlong[loop.length]!;
+    if (!(total > 0 && lapTotal > 0)) return "the child's rail ring or the loop has no length";
+    // Column 0's phase: the ring's sample nearest in angle about the centroid, in the ring's plane.
+    const d0: Vec3 = sub(ring[0]!, rim.centre);
+    const e1: Vec3 | null = unit(sub(d0, scale(rim.normal, dot(d0, rim.normal))));
+    if (e1 === null) return "the child's rail ring starts at its centroid";
+    const e2: Vec3 = cross(rim.normal, e1);
+    const angle = (p: Vec3): number => {
+      const d: Vec3 = sub(p, rim.centre);
+      return Math.atan2(dot(d, e2), dot(d, e1));
+    };
+    const wrap = (x: number): number => x - turn * Math.round(x / turn);
+    let anchor: number = 0;
+    for (let j: number = 1; j < samples; ++j) if (Math.abs(wrap(angle(ring[j]!) - angle(loop[0]!))) < Math.abs(wrap(angle(ring[anchor]!) - angle(loop[0]!)))) anchor = j;
+    // The phase at an arclength round the ring, by the samples and linear reading between them.
+    const phaseAt = (length: number): number => {
+      const x: number = ((length % total) + total) % total;
+      let j: number = 0;
+      while (j < samples - 1 && along[j + 1]! < x) ++j;
+      const span: number = along[j + 1]! - along[j]!;
+      return (turn * (j + (span > 0 ? (x - along[j]!) / span : 0))) / samples;
+    };
+    const start: number = along[anchor]!;
+    const out: number[] = [];
+    for (let k: number = 0; k < loop.length; ++k) {
+      const psi: number = phaseAt(start + sense * (lapAlong[k]! / lapTotal) * total);
+      if (k === 0) {
+        out.push(psi);
+        continue;
+      }
+      const step: number = sense * ((((sense * (psi - out[k - 1]!)) % turn) + turn) % turn);
+      if (!(step !== 0)) return `the child's rail phase does not advance at column ${k}`;
+      out.push(out[k - 1]! + step);
+    }
+    return out;
   }
 
   /**

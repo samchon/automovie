@@ -234,6 +234,8 @@ export namespace AutoMovieConstructionAdmission {
             throw new Error(
               `realizeAutoMovieConstruction: ${name}'s rails are not at least 3 finite positive distances`,
             );
+          if (node.correspondence !== undefined && node.correspondence !== "angle" && node.correspondence !== "length")
+            throw new Error(`realizeAutoMovieConstruction: ${name}'s correspondence ${String(node.correspondence)} is neither angle nor length`);
           const shape: number[] | undefined = node.loop.shape;
           if (
             shape !== undefined &&
