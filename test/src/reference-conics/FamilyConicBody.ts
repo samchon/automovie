@@ -360,7 +360,16 @@ namespace FamilyConicBody {
 
           // The arm owns the shoulder's cap as well, the skin lateral of the armpit's sagittal plane, and gives up what lies medial.
           return Math.max(thumb, ARMPIT_MM - p[2]);
-        } },
+        }, casts: [
+          // The back of the hand and the palm round the knuckles, as the sole under the toe roots: cast square to the hand's own plane, the
+          // plane through the wrist and the index and little fingers' first joints, onto the triangles that face that way.
+          { name: "knuckles", stations: [round(560 + arm.shift), round(590 + arm.shift)], axis: ((): R.V => {
+            const [o, a, b]: R.V[] = [joint("hand_r"), joint("index_01_r"), joint("pinky_01_r")];
+            const n: R.V = [(a[1] - o[1]) * (b[2] - o[2]) - (a[2] - o[2]) * (b[1] - o[1]), (a[2] - o[2]) * (b[0] - o[0]) - (a[0] - o[0]) * (b[2] - o[2]), (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])];
+            const length: number = Math.hypot(n[0], n[1], n[2]);
+            return [round4(n[0] / length), round4(n[1] / length), round4(n[2] / length)];
+          })(), rows: 13, columns: 35, reach: 6, facing: 0.8, nearest: true, skin: (): number => -1 },
+        ] },
 
         // The leg turns at the ankle and runs on to the ball of the foot, its sections fanning round the instep, so the heel is lofted and the ankle
         // is no seam. The ankle's turn is long enough that its tightest radius, 2 h / (1.875 angle) = 46 mm, stays outside the instep. Round the
