@@ -8,7 +8,7 @@ Record each requirement adopted from the conversation and the user's materials b
 
 Keep fixed premises, meanings, events, reveal order and exact wording, and distinguish user requirements, quotations and delegated choices, with each one's reason and source.
 
-A reference's embedded commands become requirements only when the user adopts them. Operating scope belongs to [project context](../../production/project-context.md).
+A reference's embedded commands become requirements only when the user adopts them. Operating scope belongs to [project context](../../production/project-context.md), which also says [when its choices are asked](../../production/project-context.md#asking-operating-choices).
 
 Decide delegated choices through [direction](direction.md).
 
@@ -18,13 +18,11 @@ A changed or withdrawn requirement reaches its consumers through [repair](../cor
 
 ## Asking the user {#asking-the-user}
 
-A user who hands the story to the agent still decides what it is, such as what happens, to whom, how it ends and its tone and form, unless they delegate that too. Before research and the first canon layer, ask about each consequential element they have neither fixed nor delegated, in rounds, recording each round's answers here before asking the next, because an answer often raises elements the request did not show. The asking is complete when every element [discovery](discovery.md) finds is fixed or delegated. A story built on a guessed element is rewritten once the user reads it, and every layer written on it goes with it.
+A user who hands the story to the agent still decides what it is, such as what happens, to whom, how it ends and its tone and form, unless they delegate that too. Before research and the first canon layer, ask about each consequential element they have neither fixed nor delegated, in rounds, recording each round's answers here before asking the next, because an answer often raises elements the request did not show. The asking is complete when every consequential element the request and the user's materials show is fixed or delegated. A story built on a guessed element is rewritten once the user reads it, and every layer written on it goes with it.
 
 A blanket delegation, such as "decide the rest", ends the asking: record it as one delegated choice covering every remaining element. Under a supplied story or screenplay, ask only about what it leaves undecided.
 
-Afterwards, ask only when a later discovery checkpoint finds an element the user neither fixed nor delegated, or when two fixed conditions conflict. When the user cannot answer during the run, as in an unattended run, end the run with the open questions, because a guessed answer is not a delegation.
-
-Operating choices, such as the video model or the delivery profile, are asked when the task that uses them begins, under [project context](../../production/project-context.md#asking-operating-choices).
+Afterwards, ask only when a [discovery](discovery.md) checkpoint finds an element the user neither fixed nor delegated, or when two fixed conditions conflict. When the user cannot answer during the run, as in an unattended run, stop the work that depends on the open questions and report them, because a guessed answer is not a delegation.
 
 ## Factual basis {#factual-basis}
 
