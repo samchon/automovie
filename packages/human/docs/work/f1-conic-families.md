@@ -100,6 +100,26 @@ The whole figure is one piece, generated with no engine diagnostic. With 128 pha
 
 The figure's own source, the conic model and the f1 families, is 234,727 bytes in 19 files, of which the trunk's reliefs are 116 KB. The package's whole `src` is 3,509,867 bytes in 571 files. The rest is the earlier parametric generator: `AutoMovieHumanSkeleton.prepare` and `AutoMovieHumanCanonicalBody.prepare`, which the motions package and two films call, reach 560 of those files through `AutoMovieHumanBodyLaw`, so none of it is dead. Nothing outside the package calls the earlier skin producer, `AutoMovieHumanBodySurface.generate`; only the skeleton prepared through its laws is used.
 
+## Which operator serves which region
+
+Four ways to make a stretch of skin, by what each costs and what it cannot do. A conic wall is tens of numbers and convex round its course. A merge adds a part that comes out through another's surface, and a port or a split one that continues it. A diff cuts a hollow that has a wall of its own, overhangs included. A relief is hundreds to thousands of heights and has one height at a point, so it cannot overhang.
+
+| Region | Operator | Numbers | State |
+| --- | --- | --- | --- |
+| Limbs, digits, the trunk's and the head's outline | Conic wall | 39 to 735 a part | Kept; the digits and the limbs need nothing else to 0.1 to 0.2 mm |
+| Arms, ears, nose on the trunk | Port | A loop each | Kept |
+| Legs on the trunk | Split | A seam | Kept |
+| Digits on a limb's closed end | Merge of a capsule | A chord each | Kept; the roots between the webs stay 2 to 4 mm full |
+| Nostrils | Diff of a conic loft | 39 for both | Kept, in place of 425 heights |
+| The ear's hollow | Diff of a conic loft read from the pocket in the ear's hull | 39 for both | Cuts on both sides; one side's walk and the ear's triangulation still fail; the ear keeps its net of 2,016 heights |
+| Belly, back, chest, thighs' hollows | Relief | 4,240 below the chest, 4,543 over it | Kept: wide gentle hollows with no wall of their own |
+| Face: eyes, mouth, cheeks | Relief | 7,911 | Kept for now; the eye sockets and the slit between the lips are hollows with walls and are candidates for a diff |
+| Chin | Relief cast across a cone the sections leave out | 1,066 | Kept; a chin merged as a part of its own is a candidate |
+| Breasts | Relief with layers added across the fold | Within the chest's | Kept; a breast merged as a part is a candidate, since its fold overhangs |
+| Finger and toe valleys | None yet | | A chain of splits was built and is worse than the dome; a wedge cut between two neighbours is the candidate |
+| Navel | Relief | Within the belly's | Kept: here it is the deep end of the median groove, 11 mm under its sides at 1,048 mm, and no pit of its own |
+| Armpit | A port's loop that stops at the crease | | Kept: the band is the fold |
+
 ## Open
 
 - The package's `src` is 3.51 MB against a cap of 2 MB. The f1 figure adds 0.23 MB; the other 3.27 MB is the earlier generator the skeleton is prepared from. Taking it out means preparing the skeleton without it, which is the re-basing of the public body and not a deletion.
