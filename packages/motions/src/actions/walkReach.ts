@@ -179,6 +179,10 @@ export namespace walkReach {
    * @param feet Each foot as scheduled.
    * @param claims The lowering a foot claims in place of its faded stance's,
    *   metres.
+   * @param rocker The room under which a stance's heel begins to rise,
+   *   degrees; `walkLeg.ROCKER` when absent. A gait gives less while it
+   *   starts and stops: a foot that is not stepping keeps its heel down until
+   *   its ankle can bend no further.
    * @returns The pelvis and each stance as reached.
    */
   export function ground(
@@ -188,14 +192,13 @@ export namespace walkReach {
     hips: readonly [number, number, number],
     feet: Readonly<Record<"left" | "right", walkFoot.IScheduled>>,
     claims: Readonly<Partial<Record<"left" | "right", number>>> = {},
+    rocker: number = walkLeg.ROCKER,
   ): IGround {
-    const { yaw, pivots, hips: joints }: IPelvis = pelvis(
-      body,
-      root,
-      planned,
-      hips,
-      feet,
-    );
+    const {
+      yaw,
+      pivots,
+      hips: joints,
+    }: IPelvis = pelvis(body, root, planned, hips, feet);
     const hip = (side: "left" | "right", drop: number): IAutoMovieVector3 => {
       const p: IAutoMovieVector3 = joints[side];
       return { x: p.x, y: p.y - drop, z: p.z };
@@ -211,6 +214,7 @@ export namespace walkReach {
           hip(side, drop),
           yaw,
           pivots[side],
+          rocker,
         );
         placed[side] = out.end;
         contacts[side] = out.contact;
@@ -322,9 +326,7 @@ export namespace walkReach {
     }
     let ankle: IAutoMovieVector3 = Vector3.add(h, v);
     let rotation: IAutoMovieQuaternion = foot.placement.rotation;
-    const off: number = wrapDegrees(
-      HumanFoot.heading(rotation) - settled.yaw,
-    );
+    const off: number = wrapDegrees(HumanFoot.heading(rotation) - settled.yaw);
     if (Math.abs(off) > TWIST)
       rotation = HumanFoot.rotation(
         settled.yaw + Math.sign(off) * TWIST,
@@ -376,6 +378,7 @@ export namespace walkReach {
     h: IAutoMovieVector3,
     yaw: number,
     pivoted: number,
+    rocker: number,
   ): { end: walkFoot.IEnd; contact: IAutoMovieVector3 } {
     let placement: HumanFoot.IPlacement = foot.placement;
     const heading: number = HumanFoot.heading(placement.rotation);
@@ -420,7 +423,7 @@ export namespace walkReach {
           pivot,
           heading,
           pitch,
-          walkLeg.ROCKER,
+          rocker,
         );
         if (risen !== pitch) {
           pitch = risen;

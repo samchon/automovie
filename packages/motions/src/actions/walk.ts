@@ -23,6 +23,7 @@ import { stand } from "./stand";
 import { standUpright } from "./standUpright";
 import { walkDescent } from "./walkDescent";
 import { walkFoot } from "./walkFoot";
+import { walkLeg } from "./walkLeg";
 import { walkReach } from "./walkReach";
 import { walkSteps } from "./walkSteps";
 
@@ -360,6 +361,10 @@ export namespace walk {
         pelvis(t),
         feet,
         claims,
+
+        // The forefoot rocker is a stepping foot's: it comes in with the gait
+        // and goes with it, so a walk stands flat where it starts and stops.
+        walkLeg.ROCKER * steps.amount(t),
       );
     };
     // A foot's stance as reached at a swing's end, memoised by its second:
@@ -418,10 +423,12 @@ export namespace walk {
         const root: IAutoMovieVector3 = settled.root;
         const yaw: number = settled.yaw;
         // The trunk inclines by the gait's lean, the pelvis and the spine
-        // sharing it, from the upright alignment.
+        // sharing it, from the upright alignment. The lean grows and fades
+        // with the gait itself, as the pelvis' sway and the arms' swing do,
+        // so a walk leaves a standstill upright and comes to one upright.
         const inclined = HumanTrunk.incline(
           standUpright.of(body).joints,
-          gait.lean,
+          gait.lean * amount,
         );
         const joints: Partial<
           Record<AutoMovieHumanoidBone, readonly [number, number, number]>
