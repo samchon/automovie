@@ -9,7 +9,7 @@ import { AutoMovieHumanConicSection } from "@automovie/human";
  * 2. A median split with the values of rational subdivision leaves the curve unchanged: the split limb layout with every median fullness `rho` and every half shoulder `w' / (1 + w')`, `w' = sqrt((1 + w) / 2)`, `w = rho / (1 - rho)`, reads the same radius as the plain layout on an off-centre box with touch offsets and four different shoulders.
  * 3. A different median fullness moves the curve: raising one median's fullness by 0.1 changes the radius inside that quarter and leaves the opposite quarter's untouched.
  * 4. A mirror layout is symmetric in the median line: the radius at `phi` equals the radius at `-phi`, and its chain has the listed anchors and their reflections.
- * 5. A share outside (0, 1) is confined inside the model: a shoulder of 1.5 yields an admitted chain equal to the one with the shoulder at the model's bound.
+ * 5. A share outside (0, 1) is confined inside the model, and a shoulder past the fair bound is held at it: shoulders of 1.5 and 0.9 yield the chain with the shoulder at 0.85, and a shoulder of 0.8 is kept.
  * 6. A guide on its box corner is held back: with the forward extreme's touch offset equal to the side support, the chain is still admitted and the guide stands below the corner on its own support line.
  * 7. The bilateral helper reads the ellipse: `bilateral(0)` on the ellipse's half with the ellipse shoulder, and `bilateral(1)` with every median at that shoulder and every half shoulder from rational subdivision, are the ellipse at every phase; `bilateral(1)` has 10 fields where `limb(1)` has 20.
  *
@@ -71,14 +71,20 @@ export function test_human_conic_section(): void {
     if (!(Math.abs(left - right) <= 1e-9)) failures.push(`bilateral at ${phi.toFixed(3)}: ${left} against ${right} at the mirrored phase`);
   }
 
-  // 5. An out-of-range shoulder is the bounded one.
+  // 5. An out-of-range shoulder, and one past the fair bound, are the bounded one; a shoulder under the bound is kept.
   const wild: number[] = [...ellipse];
   wild[8] = 1.5;
+  const fair: number[] = [...ellipse];
+  fair[8] = 0.9;
   const bounded: number[] = [...ellipse];
-  bounded[8] = 0.97;
+  bounded[8] = 0.85;
   const chain: AutoMovieViewChain.ISection = S.chain(wild, S.limb(0));
   if (chain.fault !== null) failures.push(`out-of-range shoulder: chain refused with ${chain.fault}`);
-  else if (!(Math.abs(AutoMovieViewChain.radius(chain, 0.7) - radius(bounded, S.limb(0), 0.7)) <= 1e-12)) failures.push("out-of-range shoulder: not equal to the chain at the model's bound 0.97");
+  else if (!(Math.abs(AutoMovieViewChain.radius(chain, 0.7) - radius(bounded, S.limb(0), 0.7)) <= 1e-12)) failures.push("out-of-range shoulder: not equal to the chain at the model's fair bound 0.85");
+  if (!(Math.abs(radius(fair, S.limb(0), 0.7) - radius(bounded, S.limb(0), 0.7)) <= 1e-12)) failures.push("shoulder 0.9: not held at the fair bound 0.85");
+  const under: number[] = [...ellipse];
+  under[8] = 0.8;
+  if (!(Math.abs(radius(under, S.limb(0), 0.7) - radius(bounded, S.limb(0), 0.7)) > 1e-3)) failures.push("shoulder 0.8: moved to the fair bound though it is under it");
 
   // 6. A guide on its box corner: the forward extreme's touch offset equals the side support, which leaves the first arc no leg unless the model holds the guide back.
   const diamond: number[] = [40, 25, 0, 25, -40, 0, 0, -25, ...new Array<number>(4).fill(0.4)];

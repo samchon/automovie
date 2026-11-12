@@ -31,8 +31,8 @@ import { AutoMovieViewChain } from "@automovie/engine";
  * reflects them, so a bilateral section spends its numbers once.
  *
  * Shares (`f`, `t`, shoulders) are confined to `[EDGE, 1 - EDGE]` inside the
- * model itself, so an offline fit, the authored numbers and the generated
- * surface read one curve.
+ * model itself, and shoulders to at most `FAIR`, so an offline fit, the
+ * authored numbers and the generated surface read one curve.
  */
 export namespace AutoMovieHumanConicSection {
   /** A planar chart point, millimetres. */
@@ -82,6 +82,13 @@ export namespace AutoMovieHumanConicSection {
 
   /** Bound of every share inside the model: a share at 0 or 1 is a degenerate conic the engine refuses. */
   const EDGE: number = 0.03;
+
+  /**
+   * Largest shoulder an arc takes. A shoulder near 1 hugs its two tangent lines and turns at their meeting within a millimetre: f1's trunk
+   * fitted the tape's straight run between the thighs with shoulders of 0.91 to 0.96, and those arcs drew a crease up the front of each thigh
+   * that no net over the wall could take out. Held at this the wall stays fair, and what it leaves the net carries.
+   */
+  const FAIR: number = 0.85;
 
   /** Largest share of the way to a box corner that a guide's touch offset may take. */
   const CORNER: number = 0.92;
@@ -213,7 +220,7 @@ export namespace AutoMovieHumanConicSection {
     }
     const input: AutoMovieViewChain.IInput = { points: [], tangents: [], shoulders: [] };
     const guides: number[] = [];
-    const rho = (arc: number): number => clamp(values[shoulders + arc]!);
+    const rho = (arc: number): number => Math.min(FAIR, clamp(values[shoulders + arc]!));
     for (let k: number = 0; k < K; ++k) {
       if (layout.anchors[k]!.guide === true) guides.push(input.points.length);
       input.points.push(points[k]!);
