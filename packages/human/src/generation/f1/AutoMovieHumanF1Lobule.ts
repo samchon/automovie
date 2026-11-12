@@ -26,8 +26,11 @@ import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
  * is flat along the skull and turns up in front (0.55); the back wall is a gentle ramp (0.4). The course leans 15 degrees back from straight
  * up, so its sections follow the gap's middle as it narrows back and up, and the tip stands at the gap's apex.
  *
- * Its blends are 0.5 mm wide on both sides: with 1 mm on the head, the host rail was not found beside the seed for one shape in two, where
- * the curve runs within a few millimetres of the band's lower edge, the seam along which the band leaves the head's skin.
+ * Its blend is 1.5 mm wide on the head and 1 mm on the cutter, so the lobule's edge and the floor's rim are rounded; 0.5 mm on either
+ * side drew them as sharp edges. Wide blends were refused on earlier shapes (a rail not found beside the seed, a folded blend) wherever
+ * the curve ran along the band's lower edge, the seam along which the band leaves the head's skin; this shape crosses it squarely.
+ * A raised, rounded bottom whose curve meets the band 4 mm above that seam, so the floor hides behind the lobule, ran the curve along the
+ * seam where it climbs the trunk's bulge under the lobule's front and folded its blend on both sides at every width tried.
  *
  * Frame and model: as `AutoMovieHumanF1Ear`. The course is 26.4 mm long; the cap below the first knot closes 6 mm under it, in the air,
  * and the one above the last closes at the course's end. 60 independent numbers, placed by hand from those readings.
