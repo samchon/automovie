@@ -82,15 +82,17 @@ namespace FamilyConicBody {
    *   the pole; started at 8 mm it left the hull's bridge over the notch in front of the lobe uncarved.
    * - Phases 0.15 to 3.3 rad: the forward half of the wall from its top round past its bottom to the lobe, which is the shell's outer face;
    *   the back half is the auricle's posterior skin, along which a cast slides.
-   * - 17 by 17 control heights, about 1.2 mm by 0.23 rad, faded over its first 2 mm, its last 2.5 mm and 0.3 rad at each phase edge: at 13
-   *   by 13 the antihelix did not show and, unfaded, the net overshot to 11 mm in its last free row beside the pole.
-   * - Reach 8 mm, facing 0.3: the scapha, the fossa and the antihelix lie within 6 mm of the hull and the lobe's notch within 8 (`--casts`);
-   *   the concha, 15 mm deep, is its own cut, so deeper casts are left to the net's fairness.
+   * - 13 by 11 control heights, about 1.7 mm by 0.32 rad, faded over its first 2 mm, its last 2.5 mm and 0.3 rad at each phase edge. At 17
+   *   by 17 with a reach of 8 mm the net cut the cymba and the fossa as one deep trench with sharp walls down the ear's upper half, where
+   *   the reference has a broad plateau 88 to 91 mm out (the antihelix) falling off at the concha's edge; unfaded, the net overshot to
+   *   11 mm in its last free row beside the pole.
+   * - Reach 5 mm, facing 0.3: the scapha and the fossa lie within 5 mm of the hull (`--casts`); deeper casts, the cymba and the concha, are
+   *   left to the net's fairness, and the concha is its own cut.
    * - Axis (-0.6, 0, -0.8), 37 degrees back from straight in: the shell's outer normal, between its rim's plane (31 degrees off the sagittal,
    *   `FamilyConicEar.ts --map`: rim 96 mm out at the back, 82 to 84 in front) and its hull's front edge, which recedes 1.15 mm forward for
    *   each millimetre out (`FamilyConicScan.ts ear`).
    */
-  const EAR_FACE: number[] = process.argv.find((argument: string): boolean => argument.startsWith("--ear-face="))?.slice("--ear-face=".length).split(",").map(Number) ?? [6.5, 23.6, 0.15, 3.3, 17, 17, 8, 0.3];
+  const EAR_FACE: number[] = process.argv.find((argument: string): boolean => argument.startsWith("--ear-face="))?.slice("--ear-face=".length).split(",").map(Number) ?? [6.5, 23.6, 0.15, 3.3, 13, 11, 5, 0.3];
   const EAR_FACE_AXIS: R.V = ((a: number[]): R.V => { const n: number = Math.hypot(a[0]!, a[1]!, a[2]!); return [a[0]! / n, a[1]! / n, a[2]! / n]; })(process.argv.find((argument: string): boolean => argument.startsWith("--ear-axis="))?.slice("--ear-axis=".length).split(",").map(Number) ?? [-0.6, 0, -0.8]);
 
   /**
