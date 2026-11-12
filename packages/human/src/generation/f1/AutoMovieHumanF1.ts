@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain, type AutoMovieConstructionRealization, AutoMovieNaturalSpline, type AutoMovieViewLoft, type IAutoMovieViewPart, realizeAutoMovieConstruction } from "@automovie/engine";
+import { AutoMovieLoftChain, type AutoMovieConstructionRealization, type AutoMovieLoftFrame, AutoMovieNaturalSpline, type AutoMovieViewAxis, type AutoMovieViewLoft, type IAutoMovieViewPart, realizeAutoMovieConstruction } from "@automovie/engine";
 import type { AutoMovieConstructionNode, IAutoMovieConstructionPort } from "@automovie/interface";
 
 import { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
@@ -380,8 +380,37 @@ export namespace AutoMovieHumanF1 {
         const cuts: number = Math.ceil((s - before) / pitch - 1e-9);
         return Array.from({ length: cuts }, (_: unknown, k: number): number => before + ((s - before) * (k + 1)) / cuts);
       });
-      sources.set(family.name, AutoMovieHumanConicLoft.part(family, folded(family, stations)));
+      sources.set(family.name, AutoMovieHumanConicLoft.part(family, folded(family, swept(family, stations))));
       return { type: "source", name: family.name, source: family.name };
+    };
+
+    // The same stations with each interval cut until no ring point moves farther than a layer by the course frame's own sweep. Round a
+    // turn a point off the course moves by `1 + kappa d` times the station, `d` its distance toward the turn's outside: round the shoulder
+    // the deltoid's cap moved 7 to 10 mm between layers 4 mm apart, round the heel 8 to 10, and every ring showed as a stripe. Measured by
+    // the frame alone, not by the rings' whole change, so a section that changes shape on a straight course keeps its layers.
+    const swept = (family: AutoMovieHumanConicLoft.IFamily, stations: number[]): number[] => {
+      if (family.centres.length < 3) return stations;
+      const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create({ ...family, reliefs: undefined }, stations);
+      if (loft.chain === null) return stations;
+      const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> = loft.chain;
+      const course: AutoMovieViewAxis.IAxis = AutoMovieHumanConicLoft.axis(family);
+      const reach = (s: number, t: number): number => {
+        const [from, to]: AutoMovieLoftFrame.IFrame[] = [course.at(s), course.at(t)];
+        return Math.max(
+          ...Array.from({ length: FOLD.phases }, (_: unknown, j: number): number => {
+            const p: number[] = AutoMovieLoftChain.point(chain, s, (2 * Math.PI * j) / FOLD.phases);
+            const r: number[] = [0, 1, 2].map((k: number): number => p[k]! - from.origin[k]!);
+            const [x, y]: number[] = [from.u, from.v].map((e: [number, number, number]): number => r[0]! * e[0] + r[1]! * e[1] + r[2]! * e[2]);
+            return Math.hypot(...[0, 1, 2].map((k: number): number => to.origin[k]! + x! * to.u[k]! + y! * to.v[k]! - p[k]!));
+          }),
+        );
+      };
+      return stations.flatMap((s: number, i: number): number[] => {
+        if (i === 0) return [s];
+        const before: number = stations[i - 1]!;
+        const cuts: number = Math.ceil(Math.max(reach(before, s), reach(s, before)) / layer - 1e-9);
+        return Array.from({ length: Math.max(1, cuts) }, (_: unknown, k: number): number => before + ((s - before) * (k + 1)) / Math.max(1, cuts));
+      });
     };
 
     // The same stations with a layer added wherever the family's relieved skin turns too fast between two of them (`FOLD`).
