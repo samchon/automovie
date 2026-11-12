@@ -162,6 +162,17 @@ namespace FamilyConicBody {
   const KNUCKLE: { half: number; reach: number; end: number; relief: number } = { half: 16, reach: 40, end: 595, relief: 575 };
 
   /**
+   * The net over the palm on to the hand's end, mm and radians of the arm's chart. Past `KNUCKLE.relief` the arm's wall alone is the taut
+   * tape across the palm's hollow and the bases of the middle and ring fingers: read every 2.5 mm from 550 to 595 mm at 32 phases (the
+   * wall's signed distance to the reference's nearest triangle), the bare wall stands 8 to 15 mm proud at phases 0.8 to 2.4 rad, the palm
+   * side, and with the hand's net, which falls to nothing before 575 mm, it was still 7 to 13 mm proud from 570 mm to the end ring, whose
+   * bands carried 4 to 6 mm of it on to the fingers, the worst cells on the whole skin's map. Only the palm is netted to the end, so
+   * the knuckles keep the wall the jagged band was taken from. The window runs on to the fitted cap's tip, 15 mm past the end, since a
+   * net's last three rows are zero and a relief must vanish at a pole, and fades in over 20 mm across the hand's net and over 0.4 rad at each side; 16 by 16 heights are about 5 mm along and 7 mm round.
+   */
+  const PALM: { stations: [number, number]; phases: [number, number]; fade: [number, number]; fadePhase: [number, number]; rows: number; columns: number } = { stations: [545, 610], phases: [0.3, 2.8], fade: [20, 0], fadePhase: [0.4, 0.4], rows: 16, columns: 16 };
+
+  /**
    * The leg's course past the ball of the foot, mm, as the arm's past the knuckles (`KNUCKLE`): on toward the five toes' mean first-segment
    * direction, a turn of 15 degrees from the line from the ankle to the ball of the foot, over `half` on either side (radius 79 mm, outside
    * the forefoot's half thickness of about 20 mm). On that course the foot is one loop to 976 mm, the little toe parts at 977, the ring toe at
@@ -519,9 +530,10 @@ namespace FamilyConicBody {
     /**
      * Relief nets that go once round the part over a run of its stations, fitted after its windows: each takes what the wall and the windows
      * leave, outside the wall as well as inside it, cast toward the course all the way round. Its two directions are the chart's at the middle
-     * of the run, so the run should be one the course does not turn much along.
+     * of the run, so the run should be one the course does not turn much along. With `window` it covers only those phases, still cast toward
+     * the course at every phase, and fades over its edges (`FamilyConicRelief.IWindow.fade`, `fadePhase`).
      */
-    rounds?: { name: string; stations: [number, number]; rows: number; columns: number; reach: number; hold?: (p: R.V) => number }[];
+    rounds?: { name: string; stations: [number, number]; rows: number; columns: number; reach: number; hold?: (p: R.V) => number; window?: { phases: [number, number]; fade: [number, number]; fadePhase: [number, number] } }[];
   }
 
   /** Run every part and write the receipt and the renders. */
@@ -572,6 +584,15 @@ namespace FamilyConicBody {
       return [from[0] + (sum[0]! * length) / l, from[1] + (sum[1]! * length) / l, from[2] + (sum[2]! * length) / l];
     };
     const toes: [R.V, R.V][] = ["bigtoe", "indextoe", "middletoe", "ringtoe", "littletoe"].map((f: string): [R.V, R.V] => [joint(f + "_01_r"), joint(f + "_02_r")]);
+    // Within 15 mm of the thumb's course from 30 mm past its first joint: the web beside the thumb and the face the thumb comes out of, where
+    // the hand's nets hold the wall so the thumb's merge finds its meeting.
+    const thumbHold = (p: R.V): number => {
+      const a: R.V = joint("thumb_01_r");
+      const b: R.V = joint("thumb_03_r");
+      const length: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+      const along: number = ((p[0] - a[0]) * (b[0] - a[0]) + (p[1] - a[1]) * (b[1] - a[1]) + (p[2] - a[2]) * (b[2] - a[2])) / length;
+      return Math.min(along - 30, 15 - Math.hypot(p[0] - a[0] - (along * (b[0] - a[0])) / length, p[1] - a[1] - (along * (b[1] - a[1])) / length, p[2] - a[2] - (along * (b[2] - a[2])) / length));
+    };
     const armCentres: R.V[] = [ARM_ROOT, ARM_TURN, joint("lowerarm_r"), joint("hand_r"), joint("middle_01_r"), toward(joint("middle_01_r"), fingers, KNUCKLE.reach)];
     const armHalves: number[] = [SHOULDER_HALF_MM, 30, 10, KNUCKLE.half];
     const arm: { shift: number; up: R.V; plane: number; turned: number } = ((): { shift: number; up: R.V; plane: number; turned: number } => {
@@ -608,14 +629,9 @@ namespace FamilyConicBody {
           // between the thumb and the hand up to 11 mm full and stripes of 1 to 4 mm along the forearm (`FamilyConicDeviation.ts`), which
           // are not hollows under the tape but the wall's own misfit, on both sides of it. A net round each run takes them.
           { name: "fore", stations: [300, 440], rows: 19, columns: 26, reach: 10 },
-          { name: "hand", stations: [425, KNUCKLE.relief], rows: 34, columns: 38, reach: 14, hold: (p: R.V): number => {
-            // Within 24 mm of the thumb's course from 20 mm past its first joint: the web beside the thumb and the face the thumb comes out of.
-            const a: R.V = joint("thumb_01_r");
-            const b: R.V = joint("thumb_03_r");
-            const length: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
-            const along: number = ((p[0] - a[0]) * (b[0] - a[0]) + (p[1] - a[1]) * (b[1] - a[1]) + (p[2] - a[2]) * (b[2] - a[2])) / length;
-            return Math.min(along - 30, 15 - Math.hypot(p[0] - a[0] - (along * (b[0] - a[0])) / length, p[1] - a[1] - (along * (b[1] - a[1])) / length, p[2] - a[2] - (along * (b[2] - a[2])) / length));
-          } },
+          { name: "hand", stations: [425, KNUCKLE.relief], rows: 34, columns: 38, reach: 14, hold: thumbHold },
+          // The palm on to the hand's end (`PALM`): past `KNUCKLE.relief` the wall alone is the tape across the palm's hollow.
+          { name: "palm", stations: PALM.stations, rows: PALM.rows, columns: PALM.columns, reach: 14, hold: thumbHold, window: { phases: PALM.phases, fade: PALM.fade, fadePhase: PALM.fadePhase } },
         ], clip: (p: R.V): number => {
           // The thumb past where it stands free of the palm is not the hand's: inside 16 mm of its course from 40 mm past its first joint.
           // Left in, the hand's wall and the thumb's lay within half a millimetre of each other for 10 mm, and a merge traces no such meeting.
@@ -1123,10 +1139,17 @@ namespace FamilyConicBody {
         // `--bare`: the wall alone, no relief of any kind, for a wall that is spliced and given its reliefs in a later run (`--wall`).
         const windows: IWindow[] = BARE ? [] : part.reliefs === "auto" ?hollowWindows(part.name, rows, skins, course).map((window: H.IWindow): IWindow => ({ ...window, stations: [window.stations[0], Math.min(window.stations[1], part.reliefEnd ?? tip ?? Infinity)], fade: [50, 50], fadePhase: [0.6, 0.6] })) : part.reliefs.map(scaled);
 
-        // Phases from 0 to a whole turn have their middle at pi, where the inward radial direction is +u, and a quarter turn on it is +v.
+        // Phases from 0 to a whole turn have their middle at pi, where the inward radial direction is +u, and a quarter turn on it is +v. A
+        // net over a window of phases with middle `c` casts toward the course as well: `cos(t - c) A + sin(t - c) T` is the inward radial
+        // direction `-(cos t u + sin t v)` at every phase `t` for `A = -(cos c u + sin c v)` and `T = sin c u - cos c v` (at `c = pi`, `u`
+        // and `v`).
         const rounds: IWindow[] = (BARE ? [] : part.rounds ?? []).map((net): IWindow => {
           const frame: AutoMovieLoftFrame.IFrame = course.at((net.stations[0] + net.stations[1]) / 2);
-          return { name: part.name + "." + net.name, stations: net.stations, phases: [0, 2 * Math.PI], axis: [frame.u[0], frame.u[1], frame.u[2]], turn: [frame.v[0], frame.v[1], frame.v[2]], rows: net.rows, columns: net.columns, mirror: false, periodic: true, chord: true, reach: net.reach, ...(net.hold === undefined ? {} : { hold: net.hold }) };
+          const phases: [number, number] = net.window?.phases ?? [0, 2 * Math.PI];
+          const c: number = (phases[0] + phases[1]) / 2;
+          const axis: R.V = net.window === undefined ? [frame.u[0], frame.u[1], frame.u[2]] : ([0, 1, 2].map((k: number): number => -(Math.cos(c) * frame.u[k]! + Math.sin(c) * frame.v[k]!)) as R.V);
+          const turn: R.V = net.window === undefined ? [frame.v[0], frame.v[1], frame.v[2]] : ([0, 1, 2].map((k: number): number => Math.sin(c) * frame.u[k]! - Math.cos(c) * frame.v[k]!) as R.V);
+          return { name: part.name + "." + net.name, stations: net.stations, phases, axis, turn, rows: net.rows, columns: net.columns, mirror: false, ...(net.window === undefined ? { periodic: true } : { fade: net.window.fade, fadePhase: net.window.fadePhase }), chord: true, reach: net.reach, ...(net.hold === undefined ? {} : { hold: net.hold }) };
         });
         definition.reliefs = [];
         const fitAll = (list: readonly IWindow[], judged: boolean): void => {

@@ -167,7 +167,9 @@ export namespace AutoMovieHumanF1 {
    * The limbs split at their ends, Birn's hand: the palm lofted on past the knuckles, its end cut into one opening per finger along the
    * webs, and each opening bridged to its finger by a band. The hand's end at 595 mm on the arm's course, which turns at the middle
    * finger's first joint toward the four fingers' mean direction, faces the fingers, so each band runs on to its finger. The web lines are
-   * `FamilyConicScan.ts webs` every 2 mm along each seam's chord, depths of 0 left out so the seam leaves its fork along the host. Each band
+   * `FamilyConicScan.ts webs` every 2 mm along each seam's chord, depths of 0 left out so the seam leaves its fork along the host, with the
+   * run-out knots it reads beside a palm fork; they were read again once the palm's net (`arm.palm`) brought the end ring's palm side onto
+   * the skin, where every web now starts at its palm fork instead of 6 to 10 mm along the chord. Each band
    * takes 192 columns: on 96, 0.5 to 1 mm apart along a seam, its quads stood as a comb of steps along every seam. The hand's ribbons keep
    * half their length at each fork (`reach`): the skin's edges folding by more than 90 degrees over the hand fall from 168 to 119.
    */
@@ -175,9 +177,9 @@ export namespace AutoMovieHumanF1 {
     arm: {
       digits: ["finger.pinky", "finger.ring", "finger.middle", "finger.index"],
       webs: [
-        [[0.006, 0.0007], [0.008, 0.002], [0.01, 0.0019], [0.012, 0.0005]],
-        [[0.01, 0.003], [0.012, 0.0061], [0.014, 0.0081], [0.016, 0.0087], [0.018, 0.0082], [0.02, 0.0064], [0.022, 0.0037], [0.024, 0.0003]],
-        [[0.006, 0.0036], [0.008, 0.0065], [0.01, 0.0072], [0.012, 0.0064], [0.014, 0.0052], [0.016, 0.0037], [0.018, 0.0019]],
+        [[0.002, 0.0015], [0.004, 0.0029], [0.006, 0.003], [0.008, 0.0015]],
+        [[0.0005, 0.001], [0.001, 0.002], [0.002, 0.0037], [0.004, 0.0065], [0.006, 0.0087], [0.008, 0.0101], [0.01, 0.0103], [0.012, 0.0092], [0.014, 0.0066], [0.016, 0.0027]],
+        [[0.0011, 0.001], [0.002, 0.0027], [0.004, 0.0059], [0.006, 0.0072], [0.008, 0.007], [0.01, 0.006], [0.012, 0.0044], [0.014, 0.0027], [0.016, 0.0007]],
       ],
       corner: 0.6,
       reach: 0.5,
