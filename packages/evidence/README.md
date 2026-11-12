@@ -55,7 +55,7 @@ export default createEvidenceConfig({
 
 `short` is a brief under `docs/body/brief` followed by the screenplay, and `long`, the mode of a series, has four layers: settings, treatments, scripts and screenplay. A layer you leave out stays a disabled draft. The checks cover the complete work unless `scope` names the first part that a pilot covers.
 
-`none` checks no narrative layer, for a screenplay written outside the narrative layers, and takes no `construction`, `naturalness` or `scope`.
+`none` checks no narrative layer, for a screenplay no narrative pass writes, and takes no `construction`, `naturalness` or `scope`.
 
 ### Research and development contracts
 

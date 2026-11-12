@@ -26,4 +26,4 @@ Keep every other fact with its owner and link to it: creative instructions in `d
 
 ## Asking for operating choices {#asking-for-operating-choices}
 
-Ask for an operating choice the user neither made nor delegated, such as the video model, a cost limit or the container and codec, when the first task that uses it begins, and record the answer here. Asked earlier, the user answers before knowing what the choice changes. Running time, frame and the rest of the story are asked under [creative requirements](../story/planning/requirements.md#asking-the-user).
+Ask for an operating choice the user neither made nor delegated, such as the video model, a cost limit or the container and codec, when the first task that uses it begins, and record the answer here. Asked earlier, the user answers before knowing what the choice changes. When the agent writes the story, running time, frame and the rest of the story are asked under [creative requirements](../story/planning/requirements.md#asking-the-user).

@@ -1,8 +1,8 @@
 import type { IEvidenceClaim } from "@wrtnlabs/evidence";
 
 /**
- * Declares that no narrative layer is checked, for a screenplay written
- * outside the narrative layers.
+ * Declares that no narrative layer is checked, for a screenplay no narrative
+ * pass writes.
  *
  * @evidence contracts/development/design.md#principled-representation The choice is named by its own mode rather than left to an omitted option, and with an enabled composition stage the code then realizes every instruction section that no narrative layer cites.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The mode and additional native claims are the only members; layer stages and scope belong to the narrative routes.
