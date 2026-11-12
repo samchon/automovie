@@ -5,10 +5,10 @@ import type { AutoMovieConstructionNode } from "@automovie/interface";
  * The declaration of f1's sewn body, against the anatomy it declares.
  *
  * Scenarios:
- * 1. One body: the tree is one split of the trunk into two legs, five ports (an arm and an ear on each side, and the nose) and twenty merges (five fingers and five toes on each side), over twenty-eight source leaves.
+ * 1. One body: the tree is one split of the trunk into two legs, five ports (an arm and an ear on each side, and the nose), twenty merges (five fingers and five toes on each side) and two cuts (a nostril on each side), over thirty source leaves.
  * 2. Every leaf has its part: each source leaf's name is a key of the sources, and each part carries that name.
  * 3. Sides mirror: every operator on the +Z side has a twin whose part face is the same name with `.mirror`, and the two armscye loops and the two auricle loops have the same station and semi-axes and opposite phases; the armscye loops also run in opposite senses and carry the same 192 shares, near one and not all one, since each follows its arm's ring and the two rings are reflections.
- * 4. A digit is merged onto its own limb before that limb is attached: each merge's host face is an arm or a leg of the merge's own side, and no merge's host subtree holds the trunk.
+ * 4. A digit is merged onto its own limb before that limb is attached: each merge's host face is an arm or a leg of the merge's own side, and no merge's host subtree holds the trunk. A nostril is cut from the whole head: each cut is seeded on the nose and its host subtree holds the trunk.
  * 5. A port stands on the trunk: each loop's centre station lies inside the trunk part's stations and its phase semi-axis is under pi.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanF1.construction`, `armscye` and `auricle` and walks the tree they return.
@@ -35,7 +35,7 @@ export function test_human_f1_construction(): void {
   const count = (type: string): number => nodes.filter((node: AutoMovieConstructionNode): boolean => node.type === type).length;
 
   // 1. The body's parts.
-  for (const [type, expected] of [["split", 1], ["port", 5], ["join", 20], ["source", 28]] as [string, number][]) if (count(type) !== expected) failures.push(`${count(type)} ${type} nodes, expected ${expected}`);
+  for (const [type, expected] of [["split", 1], ["port", 5], ["join", 22], ["source", 30]] as [string, number][]) if (count(type) !== expected) failures.push(`${count(type)} ${type} nodes, expected ${expected}`);
 
   // 2. Leaves and their parts.
   for (const node of nodes)
@@ -43,7 +43,7 @@ export function test_human_f1_construction(): void {
       const part = declared.sources.get(node.source);
       if (part === undefined || part.name !== node.name) failures.push(`source leaf ${node.name} has ${part === undefined ? "no part" : "the part " + part.name}`);
     }
-  if (declared.sources.size !== 28) failures.push(`${declared.sources.size} source parts, expected 28`);
+  if (declared.sources.size !== 30) failures.push(`${declared.sources.size} source parts, expected 30`);
 
   // 3. Both sides; the nose stands on the median plane and has no twin.
   const faces: string[] = nodes.flatMap((node: AutoMovieConstructionNode): string[] => (node.type === "port" ? [node.partFace] : node.type === "join" ? [node.seed.partFace] : node.type === "split" ? node.children.map((child): string => child.partFace) : [])).filter((name: string): boolean => name !== "nose");
@@ -62,7 +62,15 @@ export function test_human_f1_construction(): void {
 
   // 4. Merges under limbs.
   for (const node of nodes)
-    if (node.type === "join") {
+    if (node.type === "join" && node.kind === "diff") {
+      const under: AutoMovieConstructionNode[] = [];
+      const collect = (inner: AutoMovieConstructionNode): void => {
+        under.push(inner);
+        if (inner.type === "join" || inner.type === "port" || inner.type === "split") collect(inner.host);
+      };
+      collect(node.host);
+      if (node.seed.hostFace !== "nose" || !under.some((inner: AutoMovieConstructionNode): boolean => inner.type === "source" && inner.name === "trunk")) failures.push(`${node.name} is not cut from the head at the nose`);
+    } else if (node.type === "join") {
       const side: string = node.seed.partFace.endsWith(".mirror") ? ".mirror" : "";
       if (!["arm" + side, "leg" + side].includes(node.seed.hostFace)) failures.push(`${node.name} is merged onto ${node.seed.hostFace}`);
       const under: AutoMovieConstructionNode[] = [];

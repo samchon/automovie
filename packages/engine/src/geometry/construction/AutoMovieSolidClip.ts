@@ -58,6 +58,9 @@ export namespace AutoMovieSolidClip {
   /** Maximum crossing halvings; a null rail may end the search earlier once the bracket is at most a millionth of a column. */
   export const BISECTIONS: number = 40;
 
+  /** Largest world distance between the rail's last point on one face and its first on the next for a crossing to be placed between them, mm: a hundredth of a millimetre, a hundredth of the chord tolerance a skin is drawn at. */
+  export const CROSSING: number = 1e-2;
+
   /** Local side-probe distance is a quarter of neighbouring world spacing in the unit-world-speed chart direction; this relative sampling choice is not a global curved-cell bound. */
   export const SIDE: number = 0.25;
 
@@ -143,7 +146,42 @@ export namespace AutoMovieSolidClip {
         // column the two ends already place the crossing.
         if (r === null) {
           if (hi - lo <= (1e-6 * 2 * Math.PI) / count) break;
-          return `no rail at t ${m}, between the columns at t ${lo} and ${hi} where the rail leaves face ${faces[k]} for face ${next}`;
+
+          // The rail settles on neither face over a stretch of the parameter
+          // round the crossing. Each end of that stretch is found from its own
+          // side; the crossing is placed when the rail's two ends there are one
+          // world point within `CROSSING` mm.
+          let dead: [number, number] = [m, m];
+          for (let j: number = 0; j < BISECTIONS; j++) {
+            const a: number = (lo + dead[0]) / 2;
+            const ra: AutoMovieSolidRail.IRail | null = join.rail(a);
+            if (ra === null) dead = [a, dead[1]];
+            else if (index[ra.hostFace] === faces[k]) {
+              lo = a;
+              low = ra;
+            } else break;
+          }
+          for (let j: number = 0; j < BISECTIONS; j++) {
+            const b: number = (dead[1] + hi) / 2;
+            const rb: AutoMovieSolidRail.IRail | null = join.rail(b);
+            if (rb === null) dead = [dead[0], b];
+            else if (index[rb.hostFace] === next) {
+              hi = b;
+              high = rb;
+            } else break;
+          }
+          const gap: number = Math.hypot(
+            high!.hostPoint[0] - low!.hostPoint[0],
+            high!.hostPoint[1] - low!.hostPoint[1],
+            high!.hostPoint[2] - low!.hostPoint[2],
+          );
+          if (
+            index[low!.hostFace] === faces[k] &&
+            index[high!.hostFace] === next &&
+            gap <= CROSSING
+          )
+            break;
+          return `no rail at t ${m}, between the columns at t ${lo} and ${hi} where the rail leaves face ${faces[k]} for face ${next} (its two ends stand ${gap} mm apart)`;
         }
         if (index[r.hostFace] === faces[k]) {
           lo = m;

@@ -175,6 +175,12 @@ export namespace AutoMovieHumanF1Joints {
   /** Where the nose's course ends, straight forward past its tip. */
   export const noseTip: V3 = [140, 1561, 0];
 
+  /** Where a nostril's course starts, below the nose under the middle of the nostril's mouth. */
+  export const nostrilRoot: V3 = [127.1, 1540.4, 7.7];
+
+  /** Where a nostril's course ends, straight up inside the nose. */
+  export const nostrilTip: V3 = [119.1, 1560.4, 7.7];
+
   /** Centre of the nose's root on the frontal plane it stands free of the lips and cheeks at. */
   export const noseBase: V3 = [122, 1561, 0];
 

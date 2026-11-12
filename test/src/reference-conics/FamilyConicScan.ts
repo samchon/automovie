@@ -34,6 +34,18 @@ namespace FamilyConicScan {
       }
       return;
     }
+    if (process.argv[2] === "nostril") {
+      // Level planes up through the nose's underside, 1 mm apart: every closed loop on the +Z side within the nose's width by its centre
+      // forward and across, its extents and its area, so a nostril's course and girth are read before a cutter is declared for it.
+      for (let y: number = 1540; y <= 1560; y += 1) {
+        const frame = { origin: [0, y, 0] as R.V, u: [1, 0, 0] as R.V, v: [0, 0, 1] as R.V } as Parameters<typeof R.loops>[1];
+        const cells: string[] = R.loops(source.head, frame)
+          .filter((loop: C.P[]): boolean => centre(loop)[0] > 100 && centre(loop)[1] > 1 && centre(loop)[1] < 22 && Math.abs(R.area(loop)) < 400)
+          .map((loop: C.P[]): string => "(x " + Math.min(...loop.map((p: C.P): number => p[0])).toFixed(1) + ".." + Math.max(...loop.map((p: C.P): number => p[0])).toFixed(1) + " z " + Math.min(...loop.map((p: C.P): number => p[1])).toFixed(1) + ".." + Math.max(...loop.map((p: C.P): number => p[1])).toFixed(1) + " a" + R.area(loop).toFixed(0) + ")");
+        process.stdout.write("y " + y + ": " + cells.join(" ") + "\n");
+      }
+      return;
+    }
     if (process.argv[2] === "radii") {
       // `radii <fromMm> <toMm> [stepMm]`: the trunk's level sections between two stations, the skin's radius every 15 degrees over the +Z
       // half turn. A radius that jumps between two neighbouring stations is skin that lies level between them, which no section samples.

@@ -261,6 +261,9 @@ namespace FamilyConicBody {
     /** Relief windows for what lies inside the tape wall, or `auto` to place one over every hollow deeper than the target. */
     reliefs: IWindow[] | "auto";
 
+    /** For a cutter, a hollow's own loft that is cut from its host: how far before its first section it is carried straight back, mm. */
+    lead?: number;
+
     /** Reliefs whose heights are cast in space instead of in the section planes, fitted in order over the surface with every earlier relief on it. */
     casts?: ICast[];
 
@@ -386,6 +389,10 @@ namespace FamilyConicBody {
 
         // The nose's free end as a short loft straight forward out of the face, closed at its tip.
         { name: "nose", centres: [[118, 1561, 0], [140, 1561, 0]], course: "[J.noseRoot, J.noseTip]", halves: [], up: [0, 1, 0], domain: [5, 14], head: true, loose: true, step: 1, gap: 3, tip: 18, mirrored: false, layouts: LIMB, clip: (p: R.V): number => -nose(p), reliefs: [], casts: [{ name: "under", stations: [5.6, 14], phases: [Math.PI - 1.1, Math.PI + 1.1], axis: [0, 1, 0], rows: 31, columns: 39, reach: 10, mirror: true }] },
+        // A nostril as a hollow of its own: level planes cut one closed loop of it from 1,551 to 1,555 mm, 10 by 8 mm at its mouth
+        // (`FamilyConicScan.ts nostril`). Its loft runs straight up through that loop, closes where the loop vanishes and is carried 8 mm
+        // down out of the nose, to be cut from the head (`diff`).
+        { name: "nostril", centres: [[127.1, 1540.4, 7.7], [119.1, 1560.4, 7.7]], course: "[J.nostrilRoot, J.nostrilTip]", halves: [], up: [1, 0, 0], domain: [9, 13], head: true, loose: true, step: 0.5, gap: 1.5, tip: 16, lead: 9, mirrored: true, layouts: LIMB, clip: (p: R.V): number => -Math.min(p[0] - 114, 130 - p[0], p[2] - 1, 13 - p[2]), reliefs: [] },
         // The nostrils open downward, and a frontal section shows only the nose's outline round them. A net over the nose's underside, cast
         // straight up, reads the first skin a ray from below meets, and found them: 3 to 5 mm deep and more, from 124 to 128 mm forward
         // (`--casts`). That is where a band 2 mm in landed: with the dimples in it the rail's ring was no longer star-shaped and the port
@@ -677,7 +684,11 @@ namespace FamilyConicBody {
       log("family-body-rows", { part: part.name, worst: best.rows.filter((r) => r.maximumMm > TARGET_MM).map((r) => r.s.toFixed(0) + (r.heldout ? "h" : "t") + ":" + r.maximumMm.toFixed(2) + "@" + ((r.phase * 180) / Math.PI).toFixed(0)).join(" ") });
 
       // Store as rounded text, then regenerate from that text alone through the engine.
-      const stored: string = JSON.stringify({ name: part.name, centres: part.centres.map((c: R.V): number[] => c.map(round)), halves: part.halves, up: part.up, layout: best.layout, knots: best.knots.map(round), values: best.values.map((field: number[], f: number): number[] => field.map(C.units(best!.layout)[f] === "mm" ? round : round4)) });
+      // A cutter is carried straight back from its first section by `lead`: three knots more with that section's values, so it comes out
+      // of the skin it is cut from with the girth of its mouth. One knot alone let the fields' cubics swing between it and the first
+      // section, and the engine lost an arc of the chain there.
+      const led: { knots: number[]; values: number[][] } = part.lead === undefined ? { knots: best.knots, values: best.values } : { knots: [...[3, 2, 1].map((k: number): number => best!.knots[0]! - (part.lead! * k) / 3), ...best.knots], values: best.values.map((field: number[]): number[] => [field[0]!, field[0]!, field[0]!, ...field]) };
+      const stored: string = JSON.stringify({ name: part.name, centres: part.centres.map((c: R.V): number[] => c.map(round)), halves: part.halves, up: part.up, layout: best.layout, knots: led.knots.map(round), values: led.values.map((field: number[], f: number): number[] => field.map(C.units(best!.layout)[f] === "mm" ? round : round4)) });
       await fs.writeFile(path.join(out, part.name + ".family.json"), stored);
       const definition: K.IStored = JSON.parse(stored) as K.IStored;
 
@@ -1072,6 +1083,12 @@ namespace FamilyConicBody {
       "",
       "  /** Where the nose's course ends, straight forward past its tip. */",
       "  export const noseTip: V3 = [140, 1561, 0];",
+      "",
+      "  /** Where a nostril's course starts, below the nose under the middle of the nostril's mouth. */",
+      "  export const nostrilRoot: V3 = [127.1, 1540.4, 7.7];",
+      "",
+      "  /** Where a nostril's course ends, straight up inside the nose. */",
+      "  export const nostrilTip: V3 = [119.1, 1560.4, 7.7];",
       "",
       "  /** Centre of the nose's root on the frontal plane it stands free of the lips and cheeks at. */",
       "  export const noseBase: V3 = [122, 1561, 0];",
