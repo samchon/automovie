@@ -98,6 +98,33 @@ namespace FamilyConicBody {
   const ARM_ROOT: R.V = [-12, 1300, 121];
   const ARM_TURN: R.V = [-12, 1300, 203];
 
+  /**
+   * Where the breast's course starts and ends, mm: `AutoMovieHumanF1Joints.breastRoot` and `breastTip`. The course runs along the breast's
+   * axis through its apex, [128.3, 1253.6, 60.3] (the skin's foremost point between 1,150 and 1,320 mm high and 20 to 150 mm to the side),
+   * from 30 mm behind it to 8 mm past it. The axis, [0.9793, 0.0502, 0.1961], is the vector area of the skin within 70 mm of the apex: the
+   * vector area of that patch's boundary loop, so the mound does not tilt it. On it the chest under the fold stands 20 mm behind the apex
+   * (`breastaxis`, a scratch survey of the skin's profile in half-planes about the axis).
+   */
+  const BREAST_ROOT: R.V = [98.9, 1252.1, 54.4];
+  const BREAST_TIP: R.V = [136.1, 1254, 61.9];
+
+  /** Radius of the cylinder about the breast's course inside which its sections read the skin, mm: the fold under it is 42 to 50 mm out. */
+  const BREAST_RADIUS_MM: number = 56;
+
+  /** How far a point stands outside the breast's cylinder, mm; negative inside it. */
+  function breast(p: R.V): number {
+    return breastFrame(p)[1] - BREAST_RADIUS_MM;
+  }
+
+  /** A point's station along the breast's course from its root and its distance from that course, mm. */
+  function breastFrame(p: R.V): [number, number] {
+    const d: R.V = [BREAST_TIP[0] - BREAST_ROOT[0], BREAST_TIP[1] - BREAST_ROOT[1], BREAST_TIP[2] - BREAST_ROOT[2]];
+    const length: number = Math.hypot(d[0], d[1], d[2]);
+    const q: R.V = [p[0] - BREAST_ROOT[0], p[1] - BREAST_ROOT[1], p[2] - BREAST_ROOT[2]];
+    const along: number = (q[0] * d[0] + q[1] * d[1] + q[2] * d[2]) / length;
+    return [along, Math.hypot(q[0] - (along * d[0]) / length, q[1] - (along * d[1]) / length, q[2] - (along * d[2]) / length)];
+  }
+
   /** Half length of the shoulder's turn, mm. */
   const SHOULDER_HALF_MM: number = 65;
 
@@ -525,6 +552,13 @@ namespace FamilyConicBody {
           // edge columns, and the cliff showed as upright slivers on either side of the tip in profile; it hands its edges over (`fade`).
           { name: "under", stations: [22.5, 27], phases: [Math.PI - 1.1, Math.PI + 1.1], axis: [0, 1, 0], rows: 31, columns: 39, reach: 2.5, mirror: true, fade: [1, 1.5], fadePhase: [0.35, 0.35] },
         ] },
+        // The breast as a loft of its own along its axis (`BREAST_ROOT`), fitted for a port on the chest whose band is short under the fold
+        // and long over the upper slope; not attached yet (the doc's Open). Its sections read the skin inside a cylinder about the course
+        // (`BREAST_RADIUS_MM`), closed along the cylinder where the upper slope runs out past it. They start 17.5 mm behind the apex: on the axis
+        // the chest under the fold stands 20 mm behind it and level with the planes for 10 mm below the fold, and started 19.5 mm behind, the
+        // first planes grazed that chest and read a hollow of 13.8 mm there (9.6 mm off at most against 2.1). They run to 1 mm short of the tip
+        // and the cap starts 5 mm short of it (`cap`): the front is a shallow dome, 2 to 5 mm deep over 20 mm.
+        { name: "breast", centres: [BREAST_ROOT, BREAST_TIP], course: "[J.breastRoot, J.breastTip]", halves: [], up: [0, 1, 0], domain: [12.5, 29], loose: true, step: 1, gap: 3, tip: true, cap: 25, mirrored: true, layouts: LIMB, clip: breast, round: breast, reliefs: [] },
         // The ear's hollow as a loft of its own. The auricle is a thin shell: a sagittal plane cuts it in one loop shaped like a C, and what
         // the C stands round, the concha and the scapha, is the pocket between that loop and its hull, open to the front
         // (`FamilyConicScan.ts concha`: 435 mm2 at 78 mm out, 33 at 94). The loft runs out through those pockets.
@@ -1385,6 +1419,15 @@ namespace FamilyConicBody {
       "",
       "  /** Where it ends, inside the auricle under that hollow. */",
       "  export const scaphaTip: V3 = [-3.5, 1585, 80];",
+      "",
+      "  /**",
+      "   * Where the breast's course starts, inside the chest 30 mm behind the apex along the breast's axis. The axis is the vector area of the",
+      "   * skin within 70 mm of the apex, which is the vector area of that patch's boundary loop and so is not tilted by the mound itself.",
+      "   */",
+      "  export const breastRoot: V3 = " + JSON.stringify(BREAST_ROOT).replaceAll(",", ", ") + ";",
+      "",
+      "  /** Where the breast's course ends, along the same axis 8 mm past the apex. */",
+      "  export const breastTip: V3 = " + JSON.stringify(BREAST_TIP).replaceAll(",", ", ") + ";",
       "",
       "  /** Where a nostril's course starts, below the nose under the middle of the nostril's mouth. */",
       "  export const nostrilRoot: V3 = [127.1, 1540.4, 7.7];",
