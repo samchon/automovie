@@ -34,12 +34,15 @@ type Loop = AutoMovieSolidMesh.ILoop;
  * 6. A periodic island 5.9 of 6.28 wide, its points crowded at one end: a
  *    point at its far end is kept, at its own phase and a period lower, and
  *    points in its gap are not.
+ * 7. An island and a hole wider than a period (f1's ear after the concha's
+ *    widened cut, 2.34 to 9.05 rad): a point with two images in the span is
+ *    read at the one inside, and points past it are not.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls live/prepared Cycle and MeshLoop readers and the real Mesh.face consumer. Boolean decisions, getter/exception effects, chart-read counts, owner coordinates, edge uses and triangle normals catch stale snapshots, reordered failure, wrong metric margins or changed tessellation. Equivalent immutable numeric preparation is allowed.
  * @evidence contracts/development/testing.md#independent-expectations Rectangle distances follow the affine plane map: 2 mm on the stretched chart and sqrt(2) mm on the sheared chart. The turnback polygon crosses v=1.5 at u=1.5,3,4.5. The cylinder has four columns and two retained rows, hence 8 grid and 8 zipper triangles, 12 total vertices and one open four-edge top. Floating owner round trips allow 64 EPSILON at this unit scale. A separate literal legacy arithmetic oracle checks compatibility only, including ambiguous zero-margin boundary ties; it does not establish the currently unmet inclusive-on-cycle contract.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers all four kinds, positive/zero margins, periodic aliases and ties, empty/singleton/duplicate charts, singular metrics, unsupported accessors/non-finite data, short-circuit exceptions, copied-data reuse and new preparation after mutation. The unchanged five construction failures and full merge/clip topology are observed by the same construction_ round, not redefined here.
  * @evidence contracts/development/testing.md#execution-ownership Discoverable synchronous CPU unit test_construction_operator_trim_classification, reached by --include construction_. All surfaces and accessor probes belong to this test; it generates no person and starts no process, host, renderer or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Rectangular holes/islands in stretched and sheared planes, with margins).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Rectangular holes/islands in stretched and sheared planes, with margins).
  */
 export function test_construction_operator_trim_classification(): void {
   const square: Point[] = [
@@ -117,6 +120,17 @@ export function test_construction_operator_trim_classification(): void {
   TestValidator.predicate("wide island keeps its far end", wideRead(0.5, 5.8) && AutoMovieSolidCycle.kept(loop("island", wide), 0.5, 5.8, 2 * Math.PI));
   TestValidator.predicate("wide island keeps its far end through a lifted phase", wideRead(0.5, 5.8 - 2 * Math.PI));
   TestValidator.predicate("wide island leaves its gap", !wideRead(0.5, 6.2) && !wideRead(0.5, 0.05));
+
+  // An island wider than a period, as a cut whose two runs across a band stand apart in phase leaves. The coordinates are f1's: the ear's
+  // face after the concha's cut, widened forward, crossed its band (every twelfth point of the island's 384, and the three beside the
+  // query). It spans 2.34 to 9.05 rad about 5.69, so the triangle's probe at 8.89 has two images within it, and only the one at 8.89 lies
+  // inside; moved to within half a period of the middle it was read at 2.61, outside, and the face's triangulation was refused.
+  const across: Point[] = [[8.42, 2.64], [7.31, 2.65], [10.43, 2.8], [11.54, 3.02], [15.35, 3.24], [21.47, 3.8], [22.49, 5.41], [22.16, 6.14], [17.19, 6.34], [9.68, 6.55], [7.76, 6.88], [14.05, 6.63], [19.66, 6.52], [20.98, 8.41], [20.56, 8.82], [20.31, 8.9], [20.07, 8.96], [17.67, 9.05], [12.67, 8.96], [10.36, 8.78], [8.61, 8.59], [7.28, 8.41], [6.03, 8.3], [4.86, 8.29], [4.5, 7.93], [4.5, 6.77], [4.5, 6.28], [4.5, 5.58], [4.5, 3.46], [4.5, 2.94], [4.5, 2.75], [4.5, 2.39], [5.07, 2.34], [6.1, 2.44], [7.18, 2.54]];
+  const acrossRead: (u: number, v: number) => boolean = AutoMovieSolidCycle.prepare(loop("island", across), 2 * Math.PI);
+  TestValidator.predicate("island wider than a period keeps a point at either image", acrossRead(20.31, 8.89) && acrossRead(20.31, 8.89 - 2 * Math.PI) && AutoMovieSolidCycle.kept(loop("island", across), 20.31, 8.89, 2 * Math.PI));
+  TestValidator.predicate("island wider than a period reads its low end through the high image", acrossRead(5, 2) && acrossRead(15, 2));
+  TestValidator.predicate("island wider than a period leaves what lies past it", !acrossRead(20.3, 9.3) && !acrossRead(12, 9.3) && !acrossRead(25, 5));
+  TestValidator.predicate("hole wider than a period removes a point at either image", !AutoMovieSolidCycle.kept(loop("hole", across), 20.31, 8.89, 2 * Math.PI) && AutoMovieSolidCycle.kept(loop("hole", across), 20.3, 9.3, 2 * Math.PI));
 
   // This oracle owns equivalence with the face's arithmetic, not correct boundary ownership.
   const turn: number = 2 * Math.PI;

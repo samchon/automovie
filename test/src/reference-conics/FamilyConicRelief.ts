@@ -215,8 +215,10 @@ export namespace FamilyConicRelief {
           const at: number = slot[(iu + a) * Cn + iv + b]!;
           if (at >= 0) weights.push([at, wu[a]! * wv[b]!]);
         }
-      deepest = Math.max(deepest, Math.abs(seen.target));
-      samples.push({ weights, target: seen.target, heldout: seen.heldout });
+      // A height cast in space fades over the window's edges as a section's does, at its phase within the window.
+      const target: number = share(seen.s, window.phases[0] + offset) * seen.target;
+      deepest = Math.max(deepest, Math.abs(target));
+      samples.push({ weights, target, heldout: seen.heldout });
     }
 
     // Normal equations with the fairness penalty on second differences along both directions.

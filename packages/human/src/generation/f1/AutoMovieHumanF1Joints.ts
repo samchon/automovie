@@ -157,11 +157,27 @@ export namespace AutoMovieHumanF1Joints {
   /** The corner the arm's course turns at, round the shoulder, from straight to the side to the line down to the elbow. */
   export const armTurn: V3 = [-12, 1300, 203];
 
-  /** Where the ear's course starts, in the side of the head under the antihelix, between the ear's two hollows. */
-  export const earRoot: V3 = [5, 1570, 74];
+  /** Where the ear's course starts, in the side of the head under the middle of the auricle's root. */
+  export const earRoot: V3 = [5, 1582, 74];
 
-  /** Where the ear's course ends, straight to the side past the auricle's rim, so the pole of its closed end stands on the antihelix, where neither hollow's cut walks. */
-  export const earTip: V3 = [5, 1570, 100];
+  /**
+   * Where the ear's course turns from straight out of the head to leaning back with the auricle's shell: the root's sections up to 78 mm out
+   * stand in sagittal planes, so the root's ring holds the auricle's whole footprint, the front and the lobule included.
+   */
+  export const earTurn: V3 = [5, 1582, 82];
+
+  /**
+   * Where the ear's course ends, leaning back and up with the auricle's shell past the helix's back: the pole of its closed end stands on
+   * the helix's back, the auricle's outermost skin.
+   */
+  export const earTip: V3 = [-4, 1586, 98];
+
+  /**
+   * The helix's course, along the rim's crest from the front limb over the top and down the back to the lobule. Each inner centre is the
+   * crest read by `FamilyConicScan.ts helix` at 70, 90, 110, 130, 160, 200, 240 and 270 degrees round the ear's middle, sunk 1.8 mm toward
+   * the head; the two ends lie inside the ear's leaf, in front under the front limb and in the lobule.
+   */
+  export const helix: V3[] = [[17, 1586, 79], [15.8, 1596.2, 83.1], [7, 1598.3, 89.1], [-0.5, 1592.7, 93.4], [-3.8, 1584.8, 94.6], [-3.8, 1575.9, 92.6], [-0.8, 1569.2, 90.9], [2.3, 1563.8, 89.2], [7, 1555.5, 85.3], [13, 1551, 81]];
 
   /** Centre of the auricle's root on the sagittal plane it leaves the skull at. */
   export const earBase: V3 = [9.5, 1572, 77];
@@ -169,11 +185,11 @@ export namespace AutoMovieHumanF1Joints {
   /** Half extents of the auricle's root in height and fore and aft. */
   export const earHalf: [number, number] = [29, 10.5];
 
-  /** Where the nose's course starts, inside the face behind the nose's free end. */
-  export const noseRoot: V3 = [118, 1561, 0];
+  /** Where the nose's course starts, inside the face 5 mm behind the frontal plane through the alar grooves. */
+  export const noseRoot: V3 = [108, 1556, 0];
 
   /** Where the nose's course ends, straight forward past its tip. */
-  export const noseTip: V3 = [140, 1561, 0];
+  export const noseTip: V3 = [140, 1556, 0];
 
   /** Where the course of the concha's bowl starts, out past the auricle over the bowl's deepest point. */
   export const conchaRoot: V3 = [16.5, 1563, 90];
@@ -181,23 +197,26 @@ export namespace AutoMovieHumanF1Joints {
   /** Where it ends, square into the head under the bowl. */
   export const conchaTip: V3 = [16.5, 1563, 60];
 
-  /** Where the course of the ear's upper hollow, the scapha and the fossa above the bowl, starts, out along the shell's normal. */
-  export const scaphaRoot: V3 = [9.5, 1585, 100];
+  /** Where the course of the trough above the concha starts, the cymba's floor behind the helix's crus. */
+  export const fossaRoot: V3 = [13.5, 1574, 84];
 
-  /** Where it ends, inside the auricle under that hollow. */
-  export const scaphaTip: V3 = [-3.5, 1585, 80];
+  /** Where it ends, straight up the triangular fossa under the helix's front limb. */
+  export const fossaTip: V3 = [13.5, 1594, 84];
+
+  /**
+   * Where the breast's course starts, inside the chest 30 mm behind the apex along the breast's axis. The axis is the vector area of the
+   * skin within 70 mm of the apex, which is the vector area of that patch's boundary loop and so is not tilted by the mound itself.
+   */
+  export const breastRoot: V3 = [98.9, 1252.1, 54.4];
+
+  /** Where the breast's course ends, along the same axis 8 mm past the apex. */
+  export const breastTip: V3 = [136.1, 1254, 61.9];
 
   /** Where a nostril's course starts, below the nose under the middle of the nostril's mouth. */
   export const nostrilRoot: V3 = [127.1, 1540.4, 7.7];
 
   /** Where a nostril's course ends, straight up inside the nose. */
   export const nostrilTip: V3 = [119.1, 1560.4, 7.7];
-
-  /** Centre of the nose's root on the frontal plane it stands free of the lips and cheeks at. */
-  export const noseBase: V3 = [122, 1561, 0];
-
-  /** Half extents of the nose's root in height and across. */
-  export const noseHalf: [number, number] = [21, 18];
 
   /** The point `length` millimetres past `b` on the line from `a` through `b`: where a digit's course ends beyond its last joint. */
   export function beyond(a: V3, b: V3, length: number): V3 {

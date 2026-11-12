@@ -45,6 +45,28 @@ export namespace AutoMovieConstructionSplitBand {
 
     /** The station's sign leaving the rail: out of the host into the band, or from the child's rail into the child's kept side. */
     into: 1 | -1;
+
+    /** The rail's station at a phase when the rail is a curve round the face (a port's `rails`), mm; absent, `station` at every phase. */
+    along?: (psi: number) => number;
+  }
+
+  /**
+   * The rail's station on a side at a phase: its curve's when it has one, else its one station.
+   *
+   * @param side The side.
+   * @param psi The side's phase, radians.
+   * @returns The station, mm.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Reads the side's own rail curve, or its one station, so every reader of the child's rail takes the same station at a phase.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One conditional.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The curve is the caller's; nothing is clamped.
+   * @evidence contracts/development/common.md#meaningful-documentation States both cases and the units.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time beyond the curve's own reading.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reader coordinates no work.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function railAt(side: ISide, psi: number): number {
+    return side.along === undefined ? side.station : side.along(psi);
   }
 
   /**
@@ -581,8 +603,9 @@ export namespace AutoMovieConstructionSplitBand {
       end: AutoMovieSolidRibbon.IRibbon;
     }[] = [];
     for (let k: number = 0; k < n; ++k) {
+      const station: number = railAt(child, childPhases[k]!);
       const far: IAutoMovieSolidSurface.IJet = child.surface.jet(
-        child.station,
+        station,
         childPhases[k]!,
       );
       const chord: Vec3 = sub(far.p, loop[k]!);
@@ -594,7 +617,7 @@ export namespace AutoMovieConstructionSplitBand {
       if (typeof start === "string") return start;
       const own: AutoMovieSolidRibbon.IRibbon = AutoMovieSolidRibbon.of(
         child.surface,
-        child.station,
+        station,
         childPhases[k]!,
         child.into,
         0,
@@ -829,16 +852,17 @@ export namespace AutoMovieConstructionSplitBand {
   }
 
   /**
-   * The child's rail phase at each loop point by arclength: every column takes the phase that stands as far round the ring, as a share of
-   * the ring's length, as the column stands round the loop, the two run the same way when their Newell normals agree, from the start on the
-   * ring at which the two curves, each about its own centroid, stand closest in the least-squares sense. Neither curve need be star-shaped
-   * about the centroid.
+   * The child's rail phase at each loop point by arclength, for a split's child and a port's alike: the ring is the child's rail read at
+   * its station at each phase (`railAt`, a port's rail curve when it has one), and every column takes the phase that stands as far round
+   * the ring, as a share of the ring's length, as the column stands round the loop, the two run the same way when their Newell normals
+   * agree, from the start on the ring at which the two curves, each about its own centroid, stand closest in the least-squares sense.
+   * Neither curve need be star-shaped about the centroid.
    */
   function lengths(child: ISide, loop: readonly Vec3[]): number[] | string {
     const turn: number = 2 * Math.PI;
     const samples: number = 8 * loop.length;
     const at = (psi: number): Vec3 => {
-      const p: readonly number[] = child.surface.point?.(child.station, psi) ?? child.surface.jet(child.station, psi).p;
+      const p: readonly number[] = child.surface.point?.(railAt(child, psi), psi) ?? child.surface.jet(railAt(child, psi), psi).p;
       return [p[0]!, p[1]!, p[2]!];
     };
     const ring: Vec3[] = Array.from({ length: samples + 1 }, (_: unknown, j: number): Vec3 => at((turn * j) / samples));
@@ -925,8 +949,8 @@ export namespace AutoMovieConstructionSplitBand {
     const turn: number = 2 * Math.PI;
     const samples: number = 8 * loop.length;
     const at: (psi: number) => Vec3 = (psi: number): Vec3 => [
-      ...(child.surface.point?.(child.station, psi) ??
-        child.surface.jet(child.station, psi).p),
+      ...(child.surface.point?.(railAt(child, psi), psi) ??
+        child.surface.jet(railAt(child, psi), psi).p),
     ];
     const ring: Vec3[] = Array.from(
       { length: samples },

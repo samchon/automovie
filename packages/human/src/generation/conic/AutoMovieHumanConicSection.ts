@@ -66,6 +66,15 @@ export namespace AutoMovieHumanConicSection {
 
     /** Reflect the listed half in the median line `v = 0`. */
     mirror: boolean;
+
+    /**
+     * Least shoulder an arc of this family takes; absent, only the model's edge bound holds. An arc whose shoulder lies far under the
+     * ellipse's `sqrt(2) - 1` hugs its chord and turns at its ends, and where two such arcs meet at an extreme the wall turns within a few
+     * millimetres: f1's trunk held 0.22 to 0.36 either side of its side extreme over the hips, turned 1.06 degrees a half millimetre there
+     * against 0.2 elsewhere, and drew an upright line down each hip. It is a family's own number, not the model's, because other walls
+     * (the face's, the leg's) were fitted with lower shoulders where their skin wants them.
+     */
+    least?: number;
   }
 
   /** What a field measures: millimetres, a share in (0, 1), or an angle in radians. */
@@ -220,7 +229,7 @@ export namespace AutoMovieHumanConicSection {
     }
     const input: AutoMovieViewChain.IInput = { points: [], tangents: [], shoulders: [] };
     const guides: number[] = [];
-    const rho = (arc: number): number => Math.min(FAIR, clamp(values[shoulders + arc]!));
+    const rho = (arc: number): number => Math.min(FAIR, Math.max(layout.least ?? 0, clamp(values[shoulders + arc]!)));
     for (let k: number = 0; k < K; ++k) {
       if (layout.anchors[k]!.guide === true) guides.push(input.points.length);
       input.points.push(points[k]!);

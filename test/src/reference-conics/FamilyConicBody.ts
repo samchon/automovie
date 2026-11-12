@@ -34,12 +34,26 @@ namespace FamilyConicBody {
   const BILATERAL: { layout: C.ILayout; depth: number }[] = [{ layout: C.bilateral(1), depth: 1 }];
 
   /**
-   * Where the ear's course starts and ends, mm: `AutoMovieHumanF1Joints.earRoot` and `earTip`. It runs straight to the side through the
-   * antihelix, between the bowl and the upper hollow, so the closed end's pole stands where neither hollow's cut walks: on the auricle's
-   * middle, (4, 1584), the upper hollow's walk was lost at the pole.
+   * Where the ear's course starts and ends, mm: `AutoMovieHumanF1Joints.earRoot` and `earTip`.
+   *
+   * The auricle is a shell that leans back from the head: sagittal planes cut it 21 mm fore and aft at 78 mm out (x -2..21, y 1543..1597)
+   * and 8 mm at 94 mm out (x -6..2, y 1574..1596), and its outermost skin is the helix's back, 96 mm out at x -4 (`FamilyConicScan.ts ear`,
+   * `FamilyConicEar.ts --map`). A course straight out to the side left the sections' hulls at 92 mm out, so its wall closed in a dome round
+   * the whole root and stood out as a slab from the front. A course leaning back 20 degrees and up 9 from the root's middle all the way cut
+   * the root in tilted planes: where they crossed the ear's box 77 mm out, the first ring stood 84 mm out in front and under the lobule, and
+   * the port's band owned the auricle's front third and the lobule's lower half (owner-coloured frames).
+   *
+   * This course runs straight out of the head to `EAR_TURN`, so its sections to 78 mm out stand in sagittal planes and the first ring is the
+   * auricle's whole footprint, then turns over 6 mm either side of that corner to the same lean, its pole on the helix's back. The turn is
+   * 31 degrees, so its tightest radius is 2 h / (1.875 angle) = 12 mm, beyond the 9 to 11 mm the sections reach on its inner side, the back
+   * and top behind and above the course. Every section from 4 to 22 mm holds the course (`--observe`). Its chart's `u` leans 17 degrees
+   * forward (`EAR_UP`): straight up, the front (+v) extreme lay anywhere along the hull's straight front edge over the concha's mouth and its
+   * fitted height swung to 43 mm, past the section, which the native chain refused; leaning back it was refused as well.
    */
-  const EAR_ROOT: R.V = [5, 1570, 74];
-  const EAR_TIP: R.V = [5, 1570, 100];
+  const EAR_ROOT: R.V = [5, 1582, 74];
+  const EAR_TURN: R.V = [5, 1582, 82];
+  const EAR_TIP: R.V = [-4, 1586, 98];
+  const EAR_HALF_MM: number = 6;
 
   /** `--ear-course=<x,y,z>/<x,y,z>/...`: a trial course for the ear through those centres, turning at each inner one by `--ear-half=<mm>` (4). */
   const EAR_TRIAL: R.V[] | undefined = process.argv
@@ -48,6 +62,8 @@ namespace FamilyConicBody {
     .split("/")
     .map((centre: string): R.V => centre.split(",").map(Number) as R.V);
   const EAR_TRIAL_HALF: number = Number(process.argv.find((argument: string): boolean => argument.startsWith("--ear-half="))?.slice("--ear-half=".length) ?? 4);
+  /** `--ear-up=x,y,z`: the ear chart's `u` seed (see `EAR_ROOT`). */
+  const EAR_UP: R.V = (process.argv.find((argument: string): boolean => argument.startsWith("--ear-up="))?.slice("--ear-up=".length).split(",").map(Number) ?? [0.3, 0.95, 0]) as R.V;
 
   /** `--concha-course=<x,y,z>/<x,y,z>`, `--concha-domain=<from>,<to>`, `--concha-tip=<station>`: a trial course, domain and tip for the ear's hollow. */
   const CONCHA_TRIAL: R.V[] | undefined = process.argv
@@ -67,8 +83,41 @@ namespace FamilyConicBody {
   const CONCHA_LEAD: number = Number(process.argv.find((argument: string): boolean => argument.startsWith("--concha-lead="))?.slice("--concha-lead=".length) ?? 12);
   const CONCHA_TIP: number = Number(process.argv.find((argument: string): boolean => argument.startsWith("--concha-tip="))?.slice("--concha-tip=".length) ?? 24.5);
 
-  /** `--ear-to=<station>`: the last station the trial course's wall is fitted to, mm (26). */
-  const EAR_TRIAL_TO: number = Number(process.argv.find((argument: string): boolean => argument.startsWith("--ear-to="))?.slice("--ear-to=".length) ?? 26);
+  /**
+   * The relief over the ear's outer face (`--ear-face=<s0>,<s1>,<phase0>,<phase1>,<rows>,<columns>,<reach>[,<facing>]`), cast along
+   * `--ear-axis=x,y,z`; fitted only when asked for. On the course that runs straight out before it leans, its net converged with the dome's
+   * phases on the upper inner face and drew a fan of creases there, and the outer face is left as the hull for the helix and the hollows.
+   * Its last settings, kept as the flag's values:
+   *
+   * - Stations 6.5 to 23.6 mm: from 2 mm past the band's rail (4.5 mm), its first three rows zero and its first 2 mm faded, to just short of
+   *   the pole; started at 8 mm it left the hull's bridge over the notch in front of the lobe uncarved.
+   * - Phases 0.15 to 3.3 rad: the forward half of the wall from its top round past its bottom to the lobe, which is the shell's outer face;
+   *   the back half is the auricle's posterior skin, along which a cast slides.
+   * - 13 by 11 control heights, about 1.7 mm by 0.32 rad, faded over its first 2 mm, its last 2.5 mm and 0.3 rad at each phase edge. At 17
+   *   by 17 with a reach of 8 mm the net cut the cymba and the fossa as one deep trench with sharp walls down the ear's upper half, where
+   *   the reference has a broad plateau 88 to 91 mm out (the antihelix) falling off at the concha's edge; unfaded, the net overshot to
+   *   11 mm in its last free row beside the pole.
+   * - Reach 5 mm, facing 0.3: the scapha and the fossa lie within 5 mm of the hull (`--casts`); deeper casts, the cymba and the concha, are
+   *   left to the net's fairness, and the concha is its own cut.
+   * - Axis (-0.6, 0, -0.8), 37 degrees back from straight in: the shell's outer normal, between its rim's plane (31 degrees off the sagittal,
+   *   `FamilyConicEar.ts --map`: rim 96 mm out at the back, 82 to 84 in front) and its hull's front edge, which recedes 1.15 mm forward for
+   *   each millimetre out (`FamilyConicScan.ts ear`).
+   */
+  const EAR_FACE: number[] = process.argv.find((argument: string): boolean => argument.startsWith("--ear-face="))?.slice("--ear-face=".length).split(",").map(Number) ?? [6.5, 23.6, 0.15, 3.3, 13, 11, 5, 0.3];
+  const EAR_FACE_AXIS: R.V = ((a: number[]): R.V => { const n: number = Math.hypot(a[0]!, a[1]!, a[2]!); return [a[0]! / n, a[1]! / n, a[2]! / n]; })(process.argv.find((argument: string): boolean => argument.startsWith("--ear-axis="))?.slice("--ear-axis=".length).split(",").map(Number) ?? [-0.6, 0, -0.8]);
+
+  /**
+   * The face relief's fades (`--ear-fade=<first>,<last>,<firstPhase>,<lastPhase>`), mm and radians. Faded, the net is gentle at its edges;
+   * the ear's band, which the concha's cut crosses, failed to triangulate under a faded net until the engine read a face's membership
+   * beside any edge of its walk (`probeAutoMovieSolidMesh`).
+   */
+  const EAR_FADE: number[] = process.argv.find((argument: string): boolean => argument.startsWith("--ear-fade="))?.slice("--ear-fade=".length).split(",").map(Number) ?? [2, 2.5, 0.3, 0.3];
+
+  /** The ear's phase pitch (`--ear-pitch=<mm>`): at the model's 4 mm the rim's top drew a row of teeth. */
+  const EAR_PITCH: number = Number(process.argv.find((argument: string): boolean => argument.startsWith("--ear-pitch="))?.slice("--ear-pitch=".length) ?? 1.5);
+
+  /** `--ear-to=<station>`: the last station the ear's wall is fitted to, mm (22, 94 mm out, where the course still lies 2 mm inside the hull). */
+  const EAR_TRIAL_TO: number = Number(process.argv.find((argument: string): boolean => argument.startsWith("--ear-to="))?.slice("--ear-to=".length) ?? 22);
 
   /** Height of the armpit's crease, mm: `AutoMovieHumanF1Joints.armpit[1]`. */
   const ARMPIT_Y_MM: number = 1276;
@@ -121,6 +170,33 @@ namespace FamilyConicBody {
    */
   const TOE_TURN: { half: number; reach: number; end: number; relief: number } = { half: 10, reach: 40, end: 975, relief: 960 };
 
+  /**
+   * Where the breast's course starts and ends, mm: `AutoMovieHumanF1Joints.breastRoot` and `breastTip`. The course runs along the breast's
+   * axis through its apex, [128.3, 1253.6, 60.3] (the skin's foremost point between 1,150 and 1,320 mm high and 20 to 150 mm to the side),
+   * from 30 mm behind it to 8 mm past it. The axis, [0.9793, 0.0502, 0.1961], is the vector area of the skin within 70 mm of the apex: the
+   * vector area of that patch's boundary loop, so the mound does not tilt it. On it the chest under the fold stands 20 mm behind the apex
+   * (`breastaxis`, a scratch survey of the skin's profile in half-planes about the axis).
+   */
+  const BREAST_ROOT: R.V = [98.9, 1252.1, 54.4];
+  const BREAST_TIP: R.V = [136.1, 1254, 61.9];
+
+  /** Radius of the cylinder about the breast's course inside which its sections read the skin, mm: the fold under it is 42 to 50 mm out. */
+  const BREAST_RADIUS_MM: number = 56;
+
+  /** How far a point stands outside the breast's cylinder, mm; negative inside it. */
+  function breast(p: R.V): number {
+    return breastFrame(p)[1] - BREAST_RADIUS_MM;
+  }
+
+  /** A point's station along the breast's course from its root and its distance from that course, mm. */
+  function breastFrame(p: R.V): [number, number] {
+    const d: R.V = [BREAST_TIP[0] - BREAST_ROOT[0], BREAST_TIP[1] - BREAST_ROOT[1], BREAST_TIP[2] - BREAST_ROOT[2]];
+    const length: number = Math.hypot(d[0], d[1], d[2]);
+    const q: R.V = [p[0] - BREAST_ROOT[0], p[1] - BREAST_ROOT[1], p[2] - BREAST_ROOT[2]];
+    const along: number = (q[0] * d[0] + q[1] * d[1] + q[2] * d[2]) / length;
+    return [along, Math.hypot(q[0] - (along * d[0]) / length, q[1] - (along * d[1]) / length, q[2] - (along * d[2]) / length)];
+  }
+
   /** Half length of the shoulder's turn, mm. */
   const SHOULDER_HALF_MM: number = 65;
 
@@ -136,11 +212,46 @@ namespace FamilyConicBody {
   }
 
   /**
-   * The nose's box, mm: in front of the frontal plane the nose stands free of the lips and cheeks at, and inside its extent across and in
-   * height, read off `FamilyConicScan.ts nose`. Positive inside the box.
+   * The nose's box, mm. Positive inside the box.
+   *
+   * Its frontal plane stands just in front of the alar groove, the crease round each wing, so the wings are the nose's own sections and
+   * not the port's band. Level sections of the reference head (`FamilyConicScan.ts alar`, 2 mm apart) put that crease at 110.2 to 111.6 mm forward
+   * and 18.2 to 20 mm to the side from 1,546 to 1,558 mm, and the wing's outer face beside it nearly sagittal, 17.6 to 18.5 mm out from
+   * 112 to 120 mm forward; the plane at 113 mm crosses that face 1.5 to 3 mm in front of the crease. Under the wings the alar base meets
+   * the lip at 1,544 to 1,545 mm and the columella meets it at 1,542.5 mm (the subnasale), so the box starts at 1,543 mm. Across and at
+   * the top it keeps the earlier extent read off `FamilyConicScan.ts nose`: the wings stand within 18.5 mm of the median plane, and above
+   * 1,582 mm the dorsum is the face's. Before this the plane stood at 122 mm, in front of the wings, which the band then had to span.
+   *
    */
   function nose(p: R.V): number {
-    return Math.min(p[0] - 122, 19 - Math.abs(p[2]), p[1] - 1540, 1582 - p[1]);
+    return Math.min(p[0] - 113, 19 - Math.abs(p[2]), p[1] - 1543, 1582 - p[1]);
+  }
+
+  /**
+   * What the trunk leaves to the nose, mm, positive inside: the nose's box, less the sidewalls above the wings. There the sidewall runs
+   * into the cheek with no crease (from 1,566 mm the level loops slope on smoothly from it to the cheek, `FamilyConicScan.ts alar`), so the
+   * face keeps it as before: the front rises from 113 mm at the wings' top, 1,562 mm, to 122 mm at 1,572 mm by the smooth step. The nose's
+   * own sections still read the sidewalls from 113 mm (with a front that rises there, its first sections were wide slabs whose top climbed
+   * 20 mm in 9 mm of station, which no fit of 8 conics held); its band lands far enough in there to leave them to the face.
+   */
+  function noseCut(p: R.V): number {
+    const t: number = Math.min(1, Math.max(0, (p[1] - 1562) / 10));
+    return Math.min(nose(p), p[0] - (113 + 9 * t * t * (3 - 2 * t)));
+  }
+
+  /** `--floor-net=<rows>,<columns>`: the nose's floor net's control points; absent, 15 by 17 (about 1.3 mm along by 1.8 mm round). */
+  const FLOOR_NET: [number, number] = (process.argv.find((a: string): boolean => a.startsWith("--floor-net="))?.slice(12).split(",").map(Number) as [number, number] | undefined) ?? [15, 17];
+
+  /**
+   * A nostril's pit and its blended rim, mm: 10 inside, -10 outside. A level plane cuts the +Z pit at 1,552 mm in a loop from 117.6 to
+   * 127.7 mm forward and 3.0 to 11.1 mm across (`FamilyConicScan.ts nostril`), and the nostril's course leans 8 mm back over 20 mm up
+   * from [127.1, 1540.4] (`AutoMovieHumanF1Joints.nostrilRoot`). The region is that loop's ellipse, wider all round by the rim's blend
+   * (`AutoMovieHumanF1.ts`, `NOSTRIL_RIM_MM`, 1.5 mm), carried along the course from 1,541 mm up: what the nostril's cut takes.
+   */
+  function nostrilPit(p: R.V): number {
+    const forward: number = 127.1 - (8 * (p[1] - 1540.4)) / 20 + 0.2;
+    const inside: boolean = p[1] > 1541 && ((p[0] - forward) / 6.55) ** 2 + ((Math.abs(p[2]) - 7.05) / 5.55) ** 2 < 1;
+    return inside ? 10 : -10;
   }
 
   /**
@@ -274,6 +385,10 @@ namespace FamilyConicBody {
 
     /** The window is centred on the median line and its net is tied symmetric across it. */
     mirror?: boolean;
+
+    /** How far in from its first and last station, mm, and its first and last phase, radians, the window takes less than the whole height (`H.IWindow`). */
+    fade?: [number, number];
+    fadePhase?: [number, number];
   }
 
   /** A relief window of a part. */
@@ -379,6 +494,9 @@ namespace FamilyConicBody {
 
     /** Also emitted mirrored in the median plane `z = 0`. */
     mirrored: boolean;
+
+    /** Largest distance between neighbouring phases, mm, written into the module (`AutoMovieHumanConicLoft.IFamily.pitch`); absent, the model's default. */
+    pitch?: number;
 
     /** Limb layouts to try in order of median depth, each starting from the previous one's result. */
     layouts: { layout: C.ILayout; depth: number }[];
@@ -518,15 +636,35 @@ namespace FamilyConicBody {
         // A course that leaves the ankle square to the row of toe joints, with the forefoot read as the curve round all the toes, was tried;
         // its wall stalled above 3 mm, so the foot keeps this course and closes at the toe webs, and the toes are merged onto that cap.
         { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r"), [133, 20, 157], toward([133, 20, 157], toes, TOE_TURN.reach)], course: "[J.thigh, J.calf, J.foot, J.footBall, J.toward(J.footBall, [[J.bigtoe1, J.bigtoe2], [J.indextoe1, J.indextoe2], [J.middletoe1, J.middletoe2], [J.ringtoe1, J.ringtoe2], [J.littletoe1, J.littletoe2]], " + TOE_TURN.reach + ")]", halves: [40, 62, TOE_TURN.half], up: [1, 0, 0], domain: [104, TOE_TURN.end], gap: 12, tip: TOE_TURN.end + 15, covered: true, mirrored: true, layouts: LIMB, reliefs: "auto", reliefEnd: TOE_TURN.relief, casts: [{ name: "sole", stations: [930, TOE_TURN.relief], axis: [0, 1, 0], rows: 16, columns: 35, reach: 6, facing: 0.8, nearest: true }] },
-        // The auricle as a short loft out of the side of the head. Its course runs straight to the side, and of each plane's loops inside
-        // the ear's box a section reads the hull, so the wall is the ear's outline. It closes early, 4 mm past its rail, in a dome whose
-        // pole stands on the antihelix at the height of the skin there: the helix's fold and the concha face the side, under that dome, and
-        // a relief over the dome carves them (`face`). The relief starts 3.5 mm up the dome: nearer its edge the dome stands upright and a
-        // height along the course slides along it, which broke the band at the ear's root.
-        { name: "ear", centres: EAR_TRIAL ?? [EAR_ROOT, EAR_TIP], course: EAR_TRIAL === undefined ? "[J.earRoot, J.earTip]" : JSON.stringify(EAR_TRIAL).replaceAll(",", ", "), halves: EAR_TRIAL === undefined ? [] : EAR_TRIAL.slice(1, -1).map((): number => EAR_TRIAL_HALF), up: [0, 1, 0], domain: EAR_TRIAL === undefined ? [4, 12] : [4, EAR_TRIAL_TO], head: true, loose: true, step: 1, gap: 3, tip: EAR_TRIAL === undefined ? 17 : true, ...(EAR_TRIAL === undefined ? { cap: 5 } : {}), mirrored: true, layouts: EAR_TRIAL === undefined ? LIMB : [LIMB[0]!], clip: (p: R.V): number => -ear(p), reliefs: [], casts: [] },
+        // The auricle as a short loft straight out of the side of the head, then turning to lean back with the shell (`EAR_ROOT`). Of each
+        // plane's loops inside the ear's box a section reads the hull, so the wall is the auricle's outline at every depth and its outer face is
+        // the hull's, which recedes toward the helix's back as the sections go out. It is fitted to 22 mm along, 94 mm out, and closes where
+        // the last plane still cuts the skin, in a dome whose pole stands on the helix's back. What lies inside that hull on the outer face, the scapha, the fossa and the
+        // antihelix, a relief carves (`face`, `EAR_FACE`); the concha's bowl is a cut of its own.
+        { name: "ear", centres: EAR_TRIAL ?? [EAR_ROOT, EAR_TURN, EAR_TIP], course: EAR_TRIAL === undefined ? "[J.earRoot, J.earTurn, J.earTip]" : JSON.stringify(EAR_TRIAL).replaceAll(",", ", "), halves: EAR_TRIAL === undefined ? [EAR_HALF_MM] : EAR_TRIAL.slice(1, -1).map((): number => EAR_TRIAL_HALF), up: EAR_UP, domain: [4, EAR_TRIAL_TO], head: true, loose: true, step: 1, gap: 3, tip: process.argv.some((a: string): boolean => a.startsWith("--ear-tip=")) ? Number(process.argv.find((a: string): boolean => a.startsWith("--ear-tip="))!.slice(10)) : true, mirrored: true, layouts: process.argv.includes("--ear-deep") ? LIMB : [LIMB[0]!], clip: (p: R.V): number => -ear(p), reliefs: [], casts: !process.argv.some((a: string): boolean => a.startsWith("--ear-face=")) ? [] : [{ name: "face", stations: [EAR_FACE[0]!, EAR_FACE[1]!], phases: [EAR_FACE[2]!, EAR_FACE[3]!], axis: EAR_FACE_AXIS, rows: EAR_FACE[4]!, columns: EAR_FACE[5]!, reach: EAR_FACE[6]!, ...(EAR_FACE[7] === undefined ? {} : { facing: EAR_FACE[7] }), fade: [EAR_FADE[0]!, EAR_FADE[1]!], fadePhase: [EAR_FADE[2]!, EAR_FADE[3]!] }], pitch: EAR_PITCH },
 
         // The nose's free end as a short loft straight forward out of the face, closed at its tip.
-        { name: "nose", centres: [[118, 1561, 0], [140, 1561, 0]], course: "[J.noseRoot, J.noseTip]", halves: [], up: [0, 1, 0], domain: [5, 14], head: true, loose: true, step: 1, gap: 3, tip: 18, mirrored: false, layouts: LIMB, clip: (p: R.V): number => -nose(p), reliefs: [], casts: [{ name: "under", stations: [12.5, 17], phases: [Math.PI - 1.1, Math.PI + 1.1], axis: [0, 1, 0], rows: 31, columns: 39, reach: 2.5, mirror: true }] },
+        // Its course starts 5 mm behind the box's frontal plane, so its first section, half a millimetre into the box, lies on the wings.
+        { name: "nose", centres: [[108, 1556, 0], [140, 1556, 0]], course: "[J.noseRoot, J.noseTip]", halves: [], up: [0, 1, 0], domain: [5.5, 24], head: true, loose: true, step: 1, gap: 3, tip: 28, mirrored: false, layouts: LIMB, clip: (p: R.V): number => -nose(p), reliefs: [], casts: [
+          // The floor behind the lobule. The sections close it along the box's floor, so between each wing's outer rim and the columella
+          // the hull is one flat chord at 1,543 mm, 1 to 3 mm below the reference's wing round each nostril (rays going up from below, the
+          // first downward-facing skin each meets). Cast straight up from the band's rail behind the nostrils (station 8.5) to the lobule,
+          // whose own finer net starts inside this one's whole part. What each nostril's cut takes is left unobserved (`nostrilPit`), so the
+          // net bridges it with the fairest surface and the cutter meets a smooth floor; a coarse net, since a fine one followed the pits'
+          // rims into spikes. Skin below 1,542.5 mm is the lip's turn into the subnasale, which the band spans: observed, it drew the
+          // floor's middle down into a beak where the band lands.
+          { name: "floor", stations: [8.5, 25], phases: [Math.PI - 1.1, Math.PI + 1.1], axis: [0, 1, 0], skin: (p: R.V): number => Math.max(-nose(p), nostrilPit(p), p[1] < 1542.5 ? 10 : -10), rows: FLOOR_NET[0], columns: FLOOR_NET[1], reach: 3, facing: 0.3, mirror: true, fade: [1.5, 2], fadePhase: [0.35, 0.35] },
+          // The lobule's underside. Its net asked for the whole height up to its edges stood 2.4 to 4.4 mm deep one column from its zero
+          // edge columns, and the cliff showed as upright slivers on either side of the tip in profile; it hands its edges over (`fade`).
+          { name: "under", stations: [22.5, 27], phases: [Math.PI - 1.1, Math.PI + 1.1], axis: [0, 1, 0], rows: 31, columns: 39, reach: 2.5, mirror: true, fade: [1, 1.5], fadePhase: [0.35, 0.35] },
+        ] },
+        // The breast as a loft of its own along its axis (`BREAST_ROOT`), fitted for a port on the chest whose band is short under the fold
+        // and long over the upper slope; not attached yet (the doc's Open). Its sections read the skin inside a cylinder about the course
+        // (`BREAST_RADIUS_MM`), closed along the cylinder where the upper slope runs out past it. They start 17.5 mm behind the apex: on the axis
+        // the chest under the fold stands 20 mm behind it and level with the planes for 10 mm below the fold, and started 19.5 mm behind, the
+        // first planes grazed that chest and read a hollow of 13.8 mm there (9.6 mm off at most against 2.1). They run to 1 mm short of the tip
+        // and the cap starts 5 mm short of it (`cap`): the front is a shallow dome, 2 to 5 mm deep over 20 mm.
+        { name: "breast", centres: [BREAST_ROOT, BREAST_TIP], course: "[J.breastRoot, J.breastTip]", halves: [], up: [0, 1, 0], domain: [12.5, 29], loose: true, step: 1, gap: 3, tip: true, cap: 25, mirrored: true, layouts: LIMB, clip: breast, round: breast, reliefs: [] },
         // The ear's hollow as a loft of its own. The auricle is a thin shell: a sagittal plane cuts it in one loop shaped like a C, and what
         // the C stands round, the concha and the scapha, is the pocket between that loop and its hull, open to the front
         // (`FamilyConicScan.ts concha`: 435 mm2 at 78 mm out, 33 at 94). The loft runs out through those pockets.
@@ -538,8 +676,8 @@ namespace FamilyConicBody {
         // The nostrils open downward, and a frontal section shows only the nose's outline round them. A net over the nose's underside, cast
         // straight up, reads the first skin a ray from below meets, and found them: 3 to 5 mm deep and more, from 124 to 128 mm forward
         // (`--casts`). That is where a band 2 mm in landed: with the dimples in it the rail's ring was no longer star-shaped and the port
-        // refused the nose. The net starts 0.6 mm from the nose's first station and the band lands 0.5 mm in (`RAIL_MM.nose`), on a ring
-        // the net leaves whole.
+        // refused the nose. The nostrils are now cutters of their own and the net covers the lobule alone; the band lands on a curve round
+        // the nose (`AutoMovieHumanF1.ts`, `NOSE_RAILS_MM`).
 
         // The trunk from the crotch to the crown as one wall. Knots 4 mm apart from the neck up followed every step of the face's hull and left
         // the wall streaked, so they keep 8 mm and the face is the reliefs'. Under the jaw alone, stations 692 to 732, they may stand 3 mm
@@ -548,7 +686,7 @@ namespace FamilyConicBody {
         // kept is the earlier one below station 640 and this one above it, with every relief fitted again over the splice
         // (`--wall=<earlier> --splice=<this>@640 --refit`): 693 numbers at 0.66 mm. The ears are left out of its sections. It owns the shoulders down to the armscye plane through the armpit's
         // crease; past that plane, lateral of the crease and inside the arm's own tube, the skin is the arm's and is left out of the trunk's sections.
-        { name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], course: "[J.axisFloor, J.axisCrown]", halves: [], up: [1, 0, 0], domain: [28, 912], whole: true, step: 2, gap: (s: number): number => (s >= 692 && s <= 732 ? Number(process.argv.find((argument: string): boolean => argument.startsWith("--jaw="))?.slice(6) ?? 3) : s > 740 ? FACE_GAP_MM : 12), tip: true, cap: 906, mirrored: false, layouts: BILATERAL, round: chin, clip: (p: R.V): number => Math.max(ear(p), nose(p), chin(p), ...[1, -1].map((side: number): number => {
+        { name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], course: "[J.axisFloor, J.axisCrown]", halves: [], up: [1, 0, 0], domain: [28, 912], whole: true, step: 2, gap: (s: number): number => (s >= 692 && s <= 732 ? Number(process.argv.find((argument: string): boolean => argument.startsWith("--jaw="))?.slice(6) ?? 3) : s > 740 ? FACE_GAP_MM : 12), tip: true, cap: 906, mirrored: false, layouts: BILATERAL, round: chin, clip: (p: R.V): number => Math.max(ear(p), noseCut(p), chin(p), ...[1, -1].map((side: number): number => {
           const a: R.V = joint("upperarm_r");
           const b: R.V = joint("lowerarm_r");
           const length: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
@@ -574,8 +712,20 @@ namespace FamilyConicBody {
           // skin the front and back windows have already brought home and it has nothing to take there; across the arm's cut it reads the
           // arm's own skin as far as its reach (`uncut`). Each side is fitted on its own skin: the trunk is fitted whole, not as a half and
           // its image, and one side's net reflected onto the other left patches 2 to 4 mm full over one shoulder.
-          { name: "trunk.chest.side", stations: [400, 680], phases: [Math.PI / 2 - 0.82, Math.PI / 2 + 0.82], axis: [0, 0, -1], turn: [1, 0, 0], rows: 59, columns: 53, mirror: false, uncut: true, reach: 25, fade: [30, 25] },
-          { name: "trunk.chest.side.twin", stations: [400, 680], phases: [-Math.PI / 2 - 0.82, -Math.PI / 2 + 0.82], axis: [0, 0, 1], turn: [-1, 0, 0], rows: 59, columns: 53, mirror: false, uncut: true, reach: 25, fade: [30, 25] },
+          // Over the shoulder's top, from 610 mm up, the skin faces up and a height square to the side slides along it: there the window
+          // dug a notch beside the neck at [8..28, 1391..1413, 85..101] on `shoulder.high-oblique`, gone with this window taken off and only
+          // softened with the shoulder's casts taken off. It hands that skin over to the casts straight down (`shoulder`) over its last 90 mm; over its last 70 the notch was softened but still there.
+          { name: "trunk.chest.side", stations: [400, 680], phases: [Math.PI / 2 - 0.82, Math.PI / 2 + 0.82], axis: [0, 0, -1], turn: [1, 0, 0], rows: 59, columns: 53, mirror: false, uncut: true, reach: 25, fade: [30, 90] },
+          { name: "trunk.chest.side.twin", stations: [400, 680], phases: [-Math.PI / 2 - 0.82, -Math.PI / 2 + 0.82], axis: [0, 0, 1], turn: [-1, 0, 0], rows: 59, columns: 53, mirror: false, uncut: true, reach: 25, fade: [30, 90] },
+          // The fold under each breast, from the sternum round to the side, where the reference's skin turns from the breast's underside
+          // to the chest within a few millimetres. The chest's nets are 5 mm a row, and a cubic net that coarse rounded the fold over 10 to
+          // 15 mm, a soft shelf drawn in level bands 4 mm tall. A net 3 mm a row over the fold's stations lets the crease turn within two
+          // rows (its heights reach only 0.3 mm: the sections already fit there), and the layers inside it are cut as fine (`leaf`). The
+          // sections are 2 mm apart and every other one is withheld, so a net 2 mm a row, and one 0.016 or 0.024 rad a column, had rows the
+          // fit saw once and drew the reference's facets as a mottle; 3 mm and 0.035 rad, 5 mm at the breast, see each row twice. Cast
+          // square to the wall about its middle phase, 0.75 rad, as the chest's windows are, and fitted after them.
+          { name: "trunk.fold", stations: [400, 490], phases: [0.05, 1.45], axis: [-0.7317, 0, -0.6816], turn: [0.6816, 0, -0.7317], rows: 33, columns: 43, mirror: false, reach: 25, fade: [15, 15], fadePhase: [0.15, 0.15] },
+          { name: "trunk.fold.twin", stations: [400, 490], phases: [-1.45, -0.05], axis: [-0.7317, 0, 0.6816], turn: [-0.6816, 0, -0.7317], rows: 33, columns: 43, mirror: false, reach: 25, fade: [15, 15], fadePhase: [0.15, 0.15] },
           // The neck and head: windows whose cast turns with the phase (`turn`), square to the wall all the way round. One net goes round the
           // whole head with its seam down the back, and ends at the crown's tip, 918.88 mm, where a relief must vanish for the pole. With
           // fixed axes the head took four windows, front, back and two sides, whose edges met in a seam down the cheek and over the skull
@@ -604,11 +754,16 @@ namespace FamilyConicBody {
           { name: "eyes", stations: [792, 826], phases: [-0.8, 0.8], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 26, columns: 105, reach: 12, mirror: true },
           // The chin, which the sections leave out (`CHIN`): cast from the cone's wall forward and down at 45 degrees on the median line,
           // so the chin's front and the level skin under it are both seen at 45 degrees and the chin is one height over the wall.
-          { name: "chin", stations: [690, 734], phases: [-0.8, 0.8], axis: [-Math.SQRT1_2, Math.SQRT1_2, 0], turn: [0, 0, -1], skin: (p: R.V): number => Math.max(ear(p), nose(p)), rows: 47, columns: 57, reach: 30, mirror: true },
+          { name: "chin", stations: [690, 734], phases: [-0.8, 0.8], axis: [-Math.SQRT1_2, Math.SQRT1_2, 0], turn: [0, 0, -1], skin: (p: R.V): number => Math.max(ear(p), noseCut(p)), rows: 47, columns: 57, reach: 30, mirror: true },
           // The top of each shoulder, between the neck's muscle and the shoulder's point: the skin there faces up, a cast round the axis
           // grazes it, and it stood 2 to 4 mm full on both sides (`FamilyConicDeviation.ts`). A coarse net cast straight down takes it.
-          { name: "shoulder", stations: [596, 664], phases: [0.95, 1.95], axis: [0, -1, 0], rows: 17, columns: 27, reach: 8, nearest: true },
-          { name: "shoulder.twin", stations: [596, 664], phases: [-1.95, -0.95], axis: [0, -1, 0], rows: 17, columns: 27, reach: 8, nearest: true },
+          // It lands only on skin that faces up within 37 degrees, as the sole's does: toward the window's sides the skin turns to face
+          // outward and a height straight down slides the wall along itself. Landing anywhere, the -Z net left the slope streaked with
+          // folds of 44 degrees; landing on skin that faces up, 33.
+          // Its edges hand over (`fade`, 12 mm and 0.2 rad): the side window now leaves it the shoulder's top, and a net asked for the
+          // whole height right up to its zero edge falls off within two rows.
+          { name: "shoulder", stations: [596, 664], phases: [0.95, 1.95], axis: [0, -1, 0], rows: 17, columns: 27, reach: 8, facing: 0.8, nearest: true, fade: [12, 12], fadePhase: [0.2, 0.2] },
+          { name: "shoulder.twin", stations: [596, 664], phases: [-1.95, -0.95], axis: [0, -1, 0], rows: 17, columns: 27, reach: 8, facing: 0.8, nearest: true, fade: [12, 12], fadePhase: [0.2, 0.2] },
           // No net over the crown. The conic cap stood 3 to 4 mm under the skull and a coarse net cast along the course lifted it; the cap
           // that bends as the wall does is full enough, and meshed in rings the net drew rings round the pole.
         ] },
@@ -796,7 +951,14 @@ namespace FamilyConicBody {
         else {
           // The family is the tape wall: it reads the section's convex hull. How far the skin lies inside that hull is measured apart, as relief.
           // A loose part is measured against that hull as well: its loop need not be star-shaped about the course.
-          const wall: C.P[] = R.hull(loop);
+          // A loose part's section is closed by its clip's straight chords, and a hull edge carries no vertex between its ends, so a wall
+          // fitted to the vertices alone bulged past a long chord unseen: the nose's, closed at the top of its box, stood 10 mm above it.
+          // Along a loose part's hull every edge carries a point at least every millimetre.
+          const wall: C.P[] = part.loose === true ? R.hull(loop).flatMap((p: C.P, k: number, hull: C.P[]): C.P[] => {
+            const q: C.P = hull[(k + 1) % hull.length]!;
+            const pieces: number = Math.max(1, Math.ceil(Math.hypot(q[0] - p[0], q[1] - p[1])));
+            return Array.from({ length: pieces }, (_: unknown, t: number): C.P => [p[0] + ((q[0] - p[0]) * t) / pieces, p[1] + ((q[1] - p[1]) * t) / pieces]);
+          }) : R.hull(loop);
           rows.push({ s, points: wall, heldout: i % 2 === 1 });
           skins.push(part.loose === true && (part.surround === undefined || s >= part.surround.from) ? wall : loop);
           loops.push(loop);
@@ -870,7 +1032,12 @@ namespace FamilyConicBody {
         deeper = Math.round(Math.log2(wall.layout.anchors.length / 4)) + 1;
         best = { layout: wall.layout, knots: wall.knots, values: wall.values, rows: [], training: { maximumMm: NaN, meanMm: NaN }, heldout: { maximumMm: NaN, meanMm: NaN }, fault: null, milliseconds: 0 } as unknown as F.IResult;
       }
-      for (const { layout, depth } of reuse !== undefined ? [] : deepen !== undefined ? [{ layout: C.limb(deeper), depth: deeper }] : part.layouts) {
+      // `--least=<shoulder>`: the wall is fitted with every arc's shoulder held at that or more (`ILayout.least`), and stored with its shoulder
+      // values raised to it and the layout without it, so a wall spliced onto another fitted without the bound keeps one layout: the leg's
+      // knee, fitted at 0.3 and spliced into the stored wall, loses the crease its arcs of 0.06 to 0.14 drew while the foot keeps its own.
+      const least: number | undefined = ((value: string | undefined): number | undefined => (value === undefined ? undefined : Number(value)))(process.argv.find((argument: string): boolean => argument.startsWith("--least="))?.slice(8));
+      for (const { layout: plain, depth } of reuse !== undefined ? [] : deepen !== undefined ? [{ layout: C.limb(deeper), depth: deeper }] : part.layouts) {
+        const layout: C.ILayout = least === undefined ? plain : { ...plain, least };
         // A deeper layout starts from the shallower one's final knots and values, cut exactly at every arc's median.
         const knots0: number[] = best === null ? [domain[0], (domain[0] + domain[1]) / 2, domain[1]] : [...best.knots];
         let result: F.IResult = attempt(knots0, layout, best === null ? undefined : F.refine(best.values, depth - 1), "depth " + depth);
@@ -931,7 +1098,13 @@ namespace FamilyConicBody {
       // A cutter is carried straight back from its first section by `lead`: three knots more with that section's values, so it comes out
       // of the skin it is cut from with the girth of its mouth. One knot alone let the fields' cubics swing between it and the first
       // section, and the engine lost an arc of the chain there.
-      const led: { knots: number[]; values: number[][] } = part.lead === undefined ? { knots: best.knots, values: best.values } : { knots: [...[3, 2, 1].map((k: number): number => best!.knots[0]! - (part.lead! * k) / 3), ...best.knots], values: best.values.map((field: number[]): number[] => [field[0]!, field[0]!, field[0]!, ...field]) };
+      if (best.layout.least !== undefined) {
+        const bound: number = best.layout.least;
+        const unbounded: C.ILayout = { anchors: best.layout.anchors, mirror: best.layout.mirror };
+        const first: number = C.units(unbounded).length - (unbounded.mirror ? unbounded.anchors.length - 1 : unbounded.anchors.length);
+        best = { ...best, layout: unbounded, values: best.values.map((field: number[], f: number): number[] => (f >= first ? field.map((x: number): number => Math.max(bound, x)) : field)) };
+      }
+      const led: { knots: number[]; values: number[][] } = part.lead === undefined ? { knots: best.knots, values: best.values } :{ knots: [...[3, 2, 1].map((k: number): number => best!.knots[0]! - (part.lead! * k) / 3), ...best.knots], values: best.values.map((field: number[]): number[] => [field[0]!, field[0]!, field[0]!, ...field]) };
       const stored: string = JSON.stringify({ name: part.name, centres: part.centres.map((c: R.V): number[] => c.map(round)), halves: part.halves, up: part.up, layout: best.layout, knots: led.knots.map(round), values: led.values.map((field: number[], f: number): number[] => field.map(C.units(best!.layout)[f] === "mm" ? round : round4)) });
       await fs.writeFile(path.join(out, part.name + ".family.json"), stored);
       const definition: K.IStored = JSON.parse(stored) as K.IStored;
@@ -1088,7 +1261,7 @@ namespace FamilyConicBody {
         const last: R.V = part.centres.at(-1)!;
         const span: number = Math.hypot(last[0] - first[0], last[1] - first[1], last[2] - first[2]);
         const axis: R.V = face.axis === "course" ? [(first[0] - last[0]) / span, (first[1] - last[1]) / span, (first[2] - last[2]) / span] : face.axis;
-        const window: H.IWindow = { name: part.name + "." + face.name, stations: face.stations === "cap" ? [(part.cap ?? domain[1]) + 0.5, tip!] : face.stations, phases: face.phases ?? [0, 2 * Math.PI], axis, rows: face.rows, columns: face.columns, mirror: face.mirror === true, ...(face.phases === undefined ? { periodic: true } : {}), ...(face.turn === undefined ? {} : { turn: face.turn }) };
+        const window: H.IWindow = { name: part.name + "." + face.name, stations: face.stations === "cap" ? [(part.cap ?? domain[1]) + 0.5, tip!] : face.stations, phases: face.phases ?? [0, 2 * Math.PI], axis, rows: face.rows, columns: face.columns, mirror: face.mirror === true, ...(face.phases === undefined ? { periodic: true } : {}), ...(face.turn === undefined ? {} : { turn: face.turn }), ...(face.fade === undefined ? {} : { fade: face.fade }), ...(face.fadePhase === undefined ? {} : { fadePhase: face.fadePhase }) };
         const middle: number = (window.phases[0] + window.phases[1]) / 2;
         const toward = (phi: number): R.V => (face.turn === undefined ? axis : [0, 1, 2].map((c: number): number => Math.cos(phi - middle) * axis[c]! + Math.sin(phi - middle) * face.turn![c]!) as R.V);
         const outside: ((p: R.V) => number) | undefined = face.skin ?? part.clip;
@@ -1326,11 +1499,27 @@ namespace FamilyConicBody {
       "  /** The corner the arm's course turns at, round the shoulder, from straight to the side to the line down to the elbow. */",
       "  export const armTurn: V3 = " + JSON.stringify(ARM_TURN).replaceAll(",", ", ") + ";",
       "",
-      "  /** Where the ear's course starts, in the side of the head under the antihelix, between the ear's two hollows. */",
+      "  /** Where the ear's course starts, in the side of the head under the middle of the auricle's root. */",
       "  export const earRoot: V3 = " + JSON.stringify(EAR_ROOT).replaceAll(",", ", ") + ";",
       "",
-      "  /** Where the ear's course ends, straight to the side past the auricle's rim, so the pole of its closed end stands on the antihelix, where neither hollow's cut walks. */",
+      "  /**",
+      "   * Where the ear's course turns from straight out of the head to leaning back with the auricle's shell: the root's sections up to 78 mm out",
+      "   * stand in sagittal planes, so the root's ring holds the auricle's whole footprint, the front and the lobule included.",
+      "   */",
+      "  export const earTurn: V3 = " + JSON.stringify(EAR_TURN).replaceAll(",", ", ") + ";",
+      "",
+      "  /**",
+      "   * Where the ear's course ends, leaning back and up with the auricle's shell past the helix's back: the pole of its closed end stands on",
+      "   * the helix's back, the auricle's outermost skin.",
+      "   */",
       "  export const earTip: V3 = " + JSON.stringify(EAR_TIP).replaceAll(",", ", ") + ";",
+      "",
+      "  /**",
+      "   * The helix's course, along the rim's crest from the front limb over the top and down the back to the lobule. Each inner centre is the",
+      "   * crest read by `FamilyConicScan.ts helix` at 70, 90, 110, 130, 160, 200, 240 and 270 degrees round the ear's middle, sunk 1.8 mm toward",
+      "   * the head; the two ends lie inside the ear's leaf, in front under the front limb and in the lobule.",
+      "   */",
+      "  export const helix: V3[] = [[17, 1586, 79], [15.8, 1596.2, 83.1], [7, 1598.3, 89.1], [-0.5, 1592.7, 93.4], [-3.8, 1584.8, 94.6], [-3.8, 1575.9, 92.6], [-0.8, 1569.2, 90.9], [2.3, 1563.8, 89.2], [7, 1555.5, 85.3], [13, 1551, 81]];",
       "",
       "  /** Centre of the auricle's root on the sagittal plane it leaves the skull at. */",
       "  export const earBase: V3 = [9.5, 1572, 77];",
@@ -1338,11 +1527,11 @@ namespace FamilyConicBody {
       "  /** Half extents of the auricle's root in height and fore and aft. */",
       "  export const earHalf: [number, number] = [29, 10.5];",
       "",
-      "  /** Where the nose's course starts, inside the face behind the nose's free end. */",
-      "  export const noseRoot: V3 = [118, 1561, 0];",
+      "  /** Where the nose's course starts, inside the face 5 mm behind the frontal plane through the alar grooves. */",
+      "  export const noseRoot: V3 = [108, 1556, 0];",
       "",
       "  /** Where the nose's course ends, straight forward past its tip. */",
-      "  export const noseTip: V3 = [140, 1561, 0];",
+      "  export const noseTip: V3 = [140, 1556, 0];",
       "",
       "  /** Where the course of the concha's bowl starts, out past the auricle over the bowl's deepest point. */",
       "  export const conchaRoot: V3 = [16.5, 1563, 90];",
@@ -1350,23 +1539,26 @@ namespace FamilyConicBody {
       "  /** Where it ends, square into the head under the bowl. */",
       "  export const conchaTip: V3 = [16.5, 1563, 60];",
       "",
-      "  /** Where the course of the ear's upper hollow, the scapha and the fossa above the bowl, starts, out along the shell's normal. */",
-      "  export const scaphaRoot: V3 = [9.5, 1585, 100];",
+      "  /** Where the course of the trough above the concha starts, the cymba's floor behind the helix's crus. */",
+      "  export const fossaRoot: V3 = [13.5, 1574, 84];",
       "",
-      "  /** Where it ends, inside the auricle under that hollow. */",
-      "  export const scaphaTip: V3 = [-3.5, 1585, 80];",
+      "  /** Where it ends, straight up the triangular fossa under the helix's front limb. */",
+      "  export const fossaTip: V3 = [13.5, 1594, 84];",
+      "",
+      "  /**",
+      "   * Where the breast's course starts, inside the chest 30 mm behind the apex along the breast's axis. The axis is the vector area of the",
+      "   * skin within 70 mm of the apex, which is the vector area of that patch's boundary loop and so is not tilted by the mound itself.",
+      "   */",
+      "  export const breastRoot: V3 = " + JSON.stringify(BREAST_ROOT).replaceAll(",", ", ") + ";",
+      "",
+      "  /** Where the breast's course ends, along the same axis 8 mm past the apex. */",
+      "  export const breastTip: V3 = " + JSON.stringify(BREAST_TIP).replaceAll(",", ", ") + ";",
       "",
       "  /** Where a nostril's course starts, below the nose under the middle of the nostril's mouth. */",
       "  export const nostrilRoot: V3 = [127.1, 1540.4, 7.7];",
       "",
       "  /** Where a nostril's course ends, straight up inside the nose. */",
       "  export const nostrilTip: V3 = [119.1, 1560.4, 7.7];",
-      "",
-      "  /** Centre of the nose's root on the frontal plane it stands free of the lips and cheeks at. */",
-      "  export const noseBase: V3 = [122, 1561, 0];",
-      "",
-      "  /** Half extents of the nose's root in height and across. */",
-      "  export const noseHalf: [number, number] = [21, 18];",
       "",
       "  /** The point `length` millimetres past `b` on the line from `a` through `b`: where a digit's course ends beyond its last joint. */",
       "  export function beyond(a: V3, b: V3, length: number): V3 {",
@@ -1482,6 +1674,7 @@ namespace FamilyConicBody {
       lines.push("    // " + names[f], "    " + JSON.stringify(field).replaceAll(",", ", ") + ",");
     });
     lines.push("  ],");
+    if (part.pitch !== undefined) lines.push("", "  // Phases round the part stand at most this far apart, mm (`AutoMovieHumanConicLoft.IFamily.pitch`).", "  pitch: " + part.pitch + ",");
     if (family.tips !== undefined) lines.push("", "  // The part closes in a point at `tip`, " + (typeof part.tip === "number" ? "a station placed by anatomy" : "the station where the reference's own loop vanishes") + "; its cap starts at `from`.", "  tips: " + JSON.stringify(family.tips).replaceAll("\"", "").replaceAll(",", ", ").replaceAll(":", ": ") + ",");
     if (family.reliefs !== undefined && family.reliefs.length > 0) {
       lines.push("", "  // Reliefs: heights in mm of a uniform cubic B-spline net over a window of the wall's chart, moved along `axis`; they carry the skin that lies inside the tape wall.", "  reliefs: [");

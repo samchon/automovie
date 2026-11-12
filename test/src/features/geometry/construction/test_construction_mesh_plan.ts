@@ -45,12 +45,15 @@ interface Case {
  *    directed interior edges pair, inputs stay unchanged and outputs are owned.
  * 5. Unshared crossings, nonfinite coordinates, an unrepresentable strict
  *    centroid and an untriangulated kept band return named failures atomically.
+ * 6. A curve meeting a straight constraint at a grazing angle, its last vertex
+ *    1e-14 off the line, still covers its square: the face is read beside
+ *    another edge of the walk whose first edge has no represented corridor.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the native index planner directly and inspects triangle IDs/lifts, area and incidence rather than accepting a nonthrowing search as coverage proof. Production face/grid and f1 skin remain separate tests.
  * @evidence contracts/development/testing.md#independent-expectations Rectangles give exact sum/difference areas; a polygon with eight outer and eight hole vertices has sixteen triangles. Each directed interior edge has one reverse and each unpaired edge lies on a prescribed source segment.
  * @evidence contracts/development/testing.md#distinguishing-cases Includes collinear preservation, no retained interior grid, redundant constraints, domain contact, unequal winding populations, seam translation, three units and detached results. It does not claim arbitrary spiral-search completeness or measured f1 performance.
  * @evidence contracts/development/testing.md#execution-ownership Discoverable synchronous CPU unit through --include construction_mesh_plan, with no person generation, host, renderer, process or global replacement.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A square with collinear boundary points, a collinear hole, redundant nested).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A square with collinear boundary points, a collinear hole, redundant nested).
  */
 export function test_construction_mesh_plan(): void {
   const failures: string[] = [];
@@ -262,6 +265,7 @@ export function test_construction_mesh_plan(): void {
   );
   cavity(failures);
   outputCover(failures);
+  grazing(failures);
   if (failures.length !== 0)
     throw new Error(`Native mesh plan findings:\n${failures.join("\n")}`);
 }
@@ -390,6 +394,71 @@ function cavity(failures: string[]): void {
     );
   if (JSON.stringify({ points: [...points], boundary, triangles }) !== before)
     failures.push("near-diagonal cavity mutated input data");
+}
+
+/**
+ * A curve that meets a straight constraint at a grazing angle leaves its last vertex a few units of the last place off the line: the face
+ * beside that short edge has no represented corridor, but the same face lies beside every other edge of its walk, which must serve. The
+ * coordinates are f1's: the concha's cut meeting a grid line of the ear's band, 1e-14 off it at a phase of 16.37.
+ */
+function grazing(failures: string[]): void {
+  const line: number = 16.368318562268914;
+  const points: Map<number, readonly [number, number]> = new Map([
+    [0, [16.368318562268904, 4.449463121837102]],
+    [1, [line, 4.4505895925855405]],
+    [2, [line, 4.385139745635753]],
+    [3, [line, 4.516039439535327]],
+    [10, [16, 4]],
+    [11, [17, 4]],
+    [12, [17, 5]],
+    [13, [16, 5]],
+    [14, [line, 4]],
+    [15, [line, 5]],
+    [16, [16, 4.4]],
+  ]);
+  // The grazing edge comes first, so its walk is read from it.
+  const segments: AutoMovieSolidMeshConstraints.ISegment[] = [
+    [0, 1],
+    [16, 0],
+    [14, 2],
+    [2, 1],
+    [1, 3],
+    [3, 15],
+    [10, 14],
+    [14, 11],
+    [11, 12],
+    [12, 15],
+    [15, 13],
+    [13, 16],
+    [16, 10],
+  ].map(([a, b]): AutoMovieSolidMeshConstraints.ISegment => ({
+    a: a!,
+    b: b!,
+    turn: 0,
+  }));
+  const made: AutoMovieSolidMeshPlan.IPlan | string =
+    AutoMovieSolidMeshPlan.triangulate(
+      points,
+      segments,
+      (u: number, v: number): boolean => u > 16 && u < 17 && v > 4 && v < 5,
+    );
+  if (typeof made === "string") {
+    failures.push(`grazing edge: ${made}`);
+    return;
+  }
+  let area: number = 0;
+  for (const triangle of made.triangles) {
+    const [a, b, c] = triangle.vertices.map(
+      (id: number): readonly [number, number] => points.get(id)!,
+    );
+    const value: number =
+      ((b![0] - a![0]) * (c![1] - a![1]) - (b![1] - a![1]) * (c![0] - a![0])) /
+      2;
+    if (!(value > 0)) failures.push("grazing edge made a nonpositive triangle");
+    area += value;
+  }
+  if (!nclose(area, 1, 1e-12))
+    failures.push(`grazing edge covered ${area} of the unit square`);
 }
 
 /** Removing a common lift must not hide a larger-than-half-period output span. */

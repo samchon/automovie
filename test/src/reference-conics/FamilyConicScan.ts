@@ -299,6 +299,117 @@ namespace FamilyConicScan {
       }
       return;
     }
+    if (process.argv[2] === "alar") {
+      // The nose's base in level planes 2 mm apart: the head's outer loop on the +Z side from the median line out to 34 mm, as `z:x` points
+      // about 1.5 mm apart, so the alar groove (the corner where the wing's outer face meets the cheek), the alar base and the subnasale
+      // are read; and every small loop there, a nostril's cavity.
+      for (let y: number = 1538; y <= 1584; y += 2) {
+        const loops: C.P[][] = R.loops(source.head, { origin: [0, y, 0], u: [1, 0, 0], v: [0, 0, 1] });
+        const big: C.P[] = loops.reduce((a: C.P[], b: C.P[]): C.P[] => (Math.abs(R.area(b)) > Math.abs(R.area(a)) ? b : a));
+        const near: C.P[] = big.filter((p: C.P): boolean => p[0] > 98 && p[1] > -1 && p[1] < 34);
+        const start: number = big.indexOf(near.reduce((a: C.P, b: C.P): C.P => (Math.abs(b[1]) < 0.8 && b[0] > a[0] ? b : a), near[0]!));
+        const sense: number = big[(start + 3) % big.length]![1] > big[start]![1] ? 1 : -1;
+        const run: string[] = [];
+        let last: C.P | null = null;
+        for (let k: number = 0; k < big.length; ++k) {
+          const p: C.P = big[(start + sense * k + 4 * big.length) % big.length]!;
+          if (p[0] < 98 || p[1] > 34) break;
+          if (last !== null && Math.hypot(p[0] - last[0], p[1] - last[1]) < 1.5) continue;
+          run.push(p[1].toFixed(1) + ":" + p[0].toFixed(1));
+          last = p;
+        }
+        const small: string[] = loops
+          .filter((loop: C.P[]): boolean => loop !== big && Math.abs(R.area(loop)) < 600 && loop.some((p: C.P): boolean => p[0] > 100 && p[1] > 0 && p[1] < 30))
+          .map((loop: C.P[]): string => "[x " + Math.min(...loop.map((p: C.P): number => p[0])).toFixed(1) + ".." + Math.max(...loop.map((p: C.P): number => p[0])).toFixed(1) + " z " + Math.min(...loop.map((p: C.P): number => p[1])).toFixed(1) + ".." + Math.max(...loop.map((p: C.P): number => p[1])).toFixed(1) + "]");
+        process.stdout.write("y " + y + ": " + run.join(" ") + (small.length === 0 ? "" : "  small " + small.join(" ")) + "\n");
+      }
+      return;
+    }
+    if (process.argv[2] === "nose-rail") {
+      // Where the nose's wall is skin: at 32 phases round it, the distance from its wall (no reliefs, no cap) to the reference head every
+      // 0.5 mm of station, in tenths of a millimetre, and the first station from which it stays within 0.3 mm for 2 mm. Its first sections
+      // are closed by its box's chords inside the flesh, which stand off the skin; the band must land past them.
+      const family: AutoMovieHumanConicLoft.IFamily = { ...AutoMovieHumanF1.BODY.nose, tips: undefined, reliefs: undefined };
+      const first: number = family.knots[0]!;
+      const stations: number[] = Array.from({ length: 37 }, (_: unknown, i: number): number => first + i / 2);
+      const chain = AutoMovieHumanConicLoft.create(family, stations).chain;
+      if (chain === null) throw new Error("the nose does not loft");
+      const head: R.ISource["head"] = source.head;
+      const corners = (t: number): R.V[] => [0, 1, 2].map((k: number): R.V => [head.positions[head.indices[t + k]! * 3]!, head.positions[head.indices[t + k]! * 3 + 1]!, head.positions[head.indices[t + k]! * 3 + 2]!]);
+      const triangles: R.V[][] = [];
+      for (let t: number = 0; t + 2 < head.indices.length; t += 3) if (corners(t).some((p: R.V): boolean => p[0] > 105 && p[1] > 1530 && p[1] < 1595 && Math.abs(p[2]) < 28)) triangles.push(corners(t));
+      // The distance from a point to a triangle: to its plane when the foot falls inside, else to the nearest of its edges.
+      const toTriangle = (p: R.V, [a, b, c]: R.V[]): number => {
+        const sub = (x: R.V, y: R.V): R.V => [x[0] - y[0], x[1] - y[1], x[2] - y[2]];
+        const dot = (x: R.V, y: R.V): number => x[0] * y[0] + x[1] * y[1] + x[2] * y[2];
+        const cross = (x: R.V, y: R.V): R.V => [x[1] * y[2] - x[2] * y[1], x[2] * y[0] - x[0] * y[2], x[0] * y[1] - x[1] * y[0]];
+        const n: R.V = cross(sub(b!, a!), sub(c!, a!));
+        const inside: boolean = [[a!, b!], [b!, c!], [c!, a!]].every(([e, f]: R.V[]): boolean => dot(cross(sub(f!, e!), sub(p, e!)), n) >= 0);
+        if (inside) return Math.abs(dot(sub(p, a!), n)) / Math.hypot(...n);
+        return Math.min(...[[a!, b!], [b!, c!], [c!, a!]].map(([e, f]: R.V[]): number => {
+          const d: R.V = sub(f!, e!);
+          const t: number = Math.max(0, Math.min(1, dot(sub(p, e!), d) / dot(d, d)));
+          return Math.hypot(...sub(p, [e![0] + t * d[0], e![1] + t * d[1], e![2] + t * d[2]]));
+        }));
+      };
+      for (let j: number = 0; j < 32; ++j) {
+        const psi: number = (2 * Math.PI * j) / 32;
+        const off: number[] = stations.map((s: number): number => {
+          const p: R.V = AutoMovieLoftChain.point(chain, s, psi) as R.V;
+          return Math.min(...triangles.map((t: R.V[]): number => toTriangle(p, t)));
+        });
+        const at: number = off.findIndex((_: number, i: number): boolean => i + 4 < off.length && off.slice(i, i + 5).every((d: number): boolean => d < 0.3));
+        process.stdout.write(((psi * 180) / Math.PI).toFixed(0).padStart(4) + " skin from " + (at < 0 ? "none" : (stations[at]! - first).toFixed(1) + " mm in") + " | " + off.map((d: number): number => Math.min(99, Math.round(d * 10))).join(" ") + "\n");
+      }
+      return;
+    }
+    if (process.argv[2] === "helix") {
+      // `helix [floor] [band]`: the helix's crest from the outermost skin over the ear, its side distance on a quarter-millimetre grid of
+      // forward position and height. Along rays from the ear's middle (x 7, y 1572) every 10 degrees: the outline's edge (the last cell
+      // whose skin stands past `floor`, 79 mm), the crest (the highest cell within `band`, 7 mm, inside the edge) and the scapha's floor
+      // (the lowest cell within a further `band` inside the crest), so the rim's course and its width are read before a tube is declared.
+      const floor: number = Number(process.argv[3] ?? 79);
+      const band: number = Number(process.argv[4] ?? 7);
+      const [cx, cy, x0, x1, y0, y1, h] = [7, 1572, -14, 32, 1534, 1612, 0.25];
+      const nx: number = Math.round((x1 - x0) / h) + 1;
+      const ny: number = Math.round((y1 - y0) / h) + 1;
+      const z: Float64Array = new Float64Array(nx * ny).fill(-Infinity);
+      const P: ArrayLike<number> = source.head.positions;
+      const I: ArrayLike<number> = source.head.indices;
+      for (let t: number = 0; t + 2 < I.length; t += 3) {
+        const [a, b, c]: R.V[] = [0, 1, 2].map((k: number): R.V => [P[I[t + k]! * 3]!, P[I[t + k]! * 3 + 1]!, P[I[t + k]! * 3 + 2]!]);
+        if (Math.max(a![2], b![2], c![2]) < 55) continue;
+        const d: number = (b![0] - a![0]) * (c![1] - a![1]) - (b![1] - a![1]) * (c![0] - a![0]);
+        if (d === 0) continue;
+        for (let i: number = Math.max(0, Math.ceil((Math.min(a![0], b![0], c![0]) - x0) / h)); i < nx && x0 + i * h <= Math.max(a![0], b![0], c![0]); ++i)
+          for (let j: number = Math.max(0, Math.ceil((Math.min(a![1], b![1], c![1]) - y0) / h)); j < ny && y0 + j * h <= Math.max(a![1], b![1], c![1]); ++j) {
+            const [x, y]: number[] = [x0 + i * h, y0 + j * h];
+            const u: number = ((x! - a![0]) * (c![1] - a![1]) - (y! - a![1]) * (c![0] - a![0])) / d;
+            const v: number = ((b![0] - a![0]) * (y! - a![1]) - (b![1] - a![1]) * (x! - a![0])) / d;
+            if (u < 0 || v < 0 || u + v > 1) continue;
+            z[i * ny + j] = Math.max(z[i * ny + j]!, a![2] + u * (b![2] - a![2]) + v * (c![2] - a![2]));
+          }
+      }
+      const at = (x: number, y: number): number => {
+        const [i, j]: number[] = [Math.round((x - x0) / h), Math.round((y - y0) / h)];
+        return i! < 0 || j! < 0 || i! >= nx || j! >= ny ? -Infinity : z[i! * ny + j!]!;
+      };
+      process.stdout.write("deg  edge (x,y,z)          crest (x,y,z)         in   scapha (x,y,z)        depth\n");
+      for (let deg: number = -180; deg < 180; deg += 10) {
+        const [dx, dy]: number[] = [Math.cos((deg * Math.PI) / 180), Math.sin((deg * Math.PI) / 180)];
+        const skin = (r: number): number => at(cx + r * dx!, cy + r * dy!);
+        let edge: number = -1;
+        for (let r: number = 0; r < 45; r += h) if (skin(r) > floor) edge = r;
+        if (edge < 0) continue;
+        let crest: number = edge;
+        for (let r: number = edge; r > Math.max(0, edge - band); r -= h) if (skin(r) > skin(crest)) crest = r;
+        let low: number = crest;
+        for (let r: number = crest; r > Math.max(0, crest - band); r -= h) if (skin(r) < skin(low)) low = r;
+        const f = (r: number): string => ("(" + (cx + r * dx!).toFixed(1) + "," + (cy + r * dy!).toFixed(1) + "," + skin(r).toFixed(1) + ")").padEnd(22);
+        process.stdout.write(String(deg).padStart(4) + " " + f(edge) + f(crest) + (edge - crest).toFixed(1).padStart(4) + "  " + f(low) + (skin(crest) - skin(low)).toFixed(1) + "\n");
+      }
+      return;
+    }
     if (process.argv[2] === "hand" || process.argv[2] === "foot") {
       // Where the digits leave: along the limb's own course, every closed loop of each plane near the limb's end by its centre and area, so the
       // order and the stations at which the digits part from the hand or the foot are read before any branch is declared.
