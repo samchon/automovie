@@ -217,6 +217,7 @@ export namespace HumanSegment {
    * @param before Its schedule entry.
    * @param name The action entered.
    * @param start The entry second.
+   * @param accepts The entered action's own table of what may be cut into it.
    * @returns The row, or undefined for a first action, a gap or a natural end.
    * @throws {Error} When the previous action is cut outside every legal window, listing them.
    */
@@ -226,6 +227,7 @@ export namespace HumanSegment {
     before: IAutoMovieSchedule.IEntry | undefined,
     name: HumanActionName,
     start: number,
+    accepts: IHumanActionLaw["accepts"] = {},
   ): IHumanInterruptRow | undefined {
     if (
       previous === undefined ||
@@ -236,8 +238,14 @@ export namespace HumanSegment {
       return undefined;
     const D: number = previous.plan.duration;
     const share: number = (previous.end - previous.start) / D;
+    // The source's row for this action, then what the entered action accepts
+    // from this source, then either side's rule for every action.
     const rows: readonly IHumanInterruptRow[] =
-      previous.law.interrupts[name] ?? [];
+      previous.law.interrupts[name] ??
+      accepts[previous.name] ??
+      previous.law.interrupts.any ??
+      accepts.any ??
+      [];
     const found: IHumanInterruptRow | undefined = rows.find(
       (r: IHumanInterruptRow): boolean => {
         const [a, b] = r.window.map((w: number | string): number =>

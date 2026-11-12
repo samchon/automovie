@@ -511,7 +511,14 @@ export class HumanPerformance {
       );
     if (previous !== undefined && before !== undefined)
       previous.end = before.end;
-    const row = HumanSegment.row(intent.subject, previous, before, name, start);
+    const row = HumanSegment.row(
+      intent.subject,
+      previous,
+      before,
+      name,
+      start,
+      law.accepts,
+    );
     const entry = HumanSegment.entry(person, previous, start);
     const instance: number = person.segments.filter(
       (s: HumanSegment.ISegment): boolean => s.id === (intent.anchor ?? name),

@@ -73,6 +73,11 @@ export namespace stagger {
       knockdown: ["anytime", "quick"],
     });
 
+  /** A reaction interrupts whatever the body was doing, at any instant, as a reflex. */
+  export const accepts: IHumanActionLaw["accepts"] = {
+    any: [AutoMovieMotionHumanInterrupt.row("anytime", "reflex")],
+  };
+
   /**
    * Parameters.
    *

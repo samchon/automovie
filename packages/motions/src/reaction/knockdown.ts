@@ -8,6 +8,7 @@ import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
@@ -60,6 +61,11 @@ export namespace knockdown {
 
   /** Cancel table: none; a knocked-down performer stays down for the count. */
   export const interrupts: IHumanActionLaw["interrupts"] = {};
+
+  /** A reaction interrupts whatever the body was doing, at any instant, as a reflex. */
+  export const accepts: IHumanActionLaw["accepts"] = {
+    any: [AutoMovieMotionHumanInterrupt.row("anytime", "reflex")],
+  };
 
   /**
    * Parameters.

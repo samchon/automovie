@@ -19,8 +19,26 @@ export interface IHumanActionLaw<P = object> {
   /** The action's name. */
   name: HumanActionName;
 
-  /** The cancel table: target action to the windows a cut may use. */
-  interrupts: Partial<Record<HumanActionName, readonly IHumanInterruptRow[]>>;
+  /**
+   * The cancel table: target action to the windows a cut may use. The key
+   * `any` gives the windows a cut into every action may use, for an action
+   * a person can leave for anything, as quiet standing is.
+   */
+  interrupts: Partial<
+    Record<HumanActionName | "any", readonly IHumanInterruptRow[]>
+  >;
+
+  /**
+   * The table of what may be cut into this action, where the action itself
+   * decides it: source action to the windows of that source a cut may use,
+   * `any` for every source. A reaction to a blow or a threat interrupts
+   * whatever the body was doing, so it declares that here instead of every
+   * other action listing it. A source's own row for this action comes first;
+   * these rows are read when it has none.
+   */
+  accepts?: Partial<
+    Record<HumanActionName | "any", readonly IHumanInterruptRow[]>
+  >;
 
   /**
    * Plan one instance of the action.
