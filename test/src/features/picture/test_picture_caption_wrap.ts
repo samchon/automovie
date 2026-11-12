@@ -12,7 +12,7 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Under a 40 px wide, 12 px tall cell, where the stamp fits 9 characters a line at scale 1, `f8 0.250s r toeoff1 front` wraps to `f8 0.250s`, `r toeoff1` and `front`, and a 12-character word is broken into 9 and 3 characters.
  * 2. A caption that fits is one line, and an empty caption one empty line.
  * 3. `AutoMovieRasterSheet.lines` is the most lines any caption takes, at least one, and `caption` grows a strip by six font pixels a line: 9, 15 and 21 px for one, two and three lines at scale 1.
- * 4. A sheet made for two lines of an 8 by 12 cell is 8 by 27; adding a picture captioned with two lines writes white glyph pixels in the second line's rows, and a caption of three lines keeps its first two.
+ * 4. A sheet made for two lines of an 8 by 12 cell is 8 by 27; adding a picture captioned with two lines writes white glyph pixels in both lines' rows, the first line's bottom glyph row survives the second line's box, the gap row between them stays dark, and a caption of three lines keeps its first two.
  * 5. A sheet asked for zero lines is refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Wraps captions and fills real sheets through the public statics and constructor, then reads the lines and the strip's pixels; a wrapper that cut a word, a strip that kept one line, or a sheet that ignored its line count fails.
@@ -89,11 +89,16 @@ export function test_picture_caption_wrap(): void {
     [8, 27],
   );
 
-  // The 8 px cell fits one character a line, so "1 1" wraps to "1" and "1"; the glyph's top row lights its middle column, two pixels into each line's box.
+  // The 8 px cell fits one character a line, so "1 1" wraps to "1" and "1"; the glyph's top row lights its middle column, two pixels into each line's box, and its bottom row all three columns, four rows lower.
   TestValidator.equals(
     "both lines are stamped in the strip",
     [red(3, 12 + 2), red(3, 12 + 6 + 2), red(0, 12 + 2)],
     [255, 255, 16],
+  );
+  TestValidator.equals(
+    "each line keeps its bottom glyph row under the next line",
+    [red(2, 12 + 6), red(4, 12 + 6), red(2, 12 + 6 + 6), red(3, 12 + 7)],
+    [255, 255, 255, 16],
   );
   const cut: AutoMovieRasterSheet = new AutoMovieRasterSheet(
     1,

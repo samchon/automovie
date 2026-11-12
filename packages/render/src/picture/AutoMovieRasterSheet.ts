@@ -272,15 +272,25 @@ export class AutoMovieRasterSheet {
     };
     for (let offset: number = 0; offset < strip.pixels.length; offset += 4)
       strip.pixels.set([16, 16, 16, 255], offset);
+    // Each line is stamped on a band of its own and only its glyph rows are copied, so a line's box never paints over the glyphs of the line above it.
     const scale: number = AutoMovieRasterSheet.scale(this.cellHeight);
+    const row: number = this.cellWidth * 4;
+    const band: IAutoMovieRasterImage = {
+      width: this.cellWidth,
+      height: 9 * scale,
+      pixels: new Uint8ClampedArray(row * 9 * scale),
+    };
     AutoMovieRasterSheet.wrap(caption, this.cellWidth, this.cellHeight)
       .slice(0, this.lines)
-      .forEach((line: string, index: number): void =>
-        stampAutoMovieRasterLabel(strip, line, scale, {
-          x: 0,
-          y: index * 6 * scale,
-        }),
-      );
+      .forEach((line: string, index: number): void => {
+        for (let offset: number = 0; offset < band.pixels.length; offset += 4)
+          band.pixels.set([16, 16, 16, 255], offset);
+        stampAutoMovieRasterLabel(band, line, scale);
+        strip.pixels.set(
+          band.pixels.subarray(2 * scale * row, 7 * scale * row),
+          (index * 6 + 2) * scale * row,
+        );
+      });
     for (const [picture, offset] of [
       [cell, 0],
       [strip, this.cellHeight],
