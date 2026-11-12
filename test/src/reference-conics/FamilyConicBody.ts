@@ -101,12 +101,23 @@ namespace FamilyConicBody {
   /**
    * The arm's course past the middle finger's first joint, mm: on toward the four fingers' mean first-segment direction by `reach`, turned
    * there over `half` on either side of the joint. The turn is 24 degrees (from the line from the wrist to the middle finger's first joint),
-   * so its radius is `2 half / 0.41` = 49 mm, outside the hand's section in the turn's plane (its half thickness about 15 mm and a quarter
-   * of its half width, 40 mm, across): a course folds where its turn's radius is smaller than the section it carries. On that course the hand
-   * is one loop round it to 596 mm, the little finger parts at 597, the index finger at 601 and the ring and middle fingers at 603 (every
-   * plane's loops 2 mm apart), so the hand's sections run to end and its end is split there into the fingers.
+   * so its radius is `2 half / 0.41` = 59 mm, outside the hand's section in the turn's plane (its half thickness about 15 mm and a quarter
+   * of its half width, 40 mm, across): a course folds where its turn's radius is smaller than the section it carries. At 10 mm the
+   * thumb's merge held and at 14 mm it was lost. On that course the hand is one loop round it to 596 mm, the little finger parts at 597, the index
+   * finger at 601 and the ring and middle fingers at 603 (every plane's loops 2 mm apart), so the hand's sections run to `end` and its end
+   * is split there into the fingers. Its reliefs end at `relief`, before the turn: the net round the hand, the knuckles' cast and a hollow
+   * window carried on to the end each drew a jagged band across the knuckles, which the wall alone draws smooth.
    */
   const KNUCKLE: { half: number; reach: number; end: number; relief: number } = { half: 12, reach: 40, end: 595, relief: 575 };
+
+  /**
+   * The leg's course past the ball of the foot, mm, as the arm's past the knuckles (`KNUCKLE`): on toward the five toes' mean first-segment
+   * direction, a turn of 15 degrees from the line from the ankle to the ball of the foot, over `half` on either side (radius 79 mm, outside
+   * the forefoot's half thickness of about 20 mm). On that course the foot is one loop to 976 mm, the little toe parts at 977, the ring toe at
+   * 987, the big toe at 991 and the middle and index toes at 993 (every plane's loops 2 mm apart). Its reliefs end at `relief`, before the
+   * turn.
+   */
+  const TOE_TURN: { half: number; reach: number; end: number; relief: number } = { half: 10, reach: 40, end: 975, relief: 960 };
 
   /** Half length of the shoulder's turn, mm. */
   const SHOULDER_HALF_MM: number = 65;
@@ -440,6 +451,7 @@ namespace FamilyConicBody {
       const l: number = Math.hypot(sum[0]!, sum[1]!, sum[2]!);
       return [from[0] + (sum[0]! * length) / l, from[1] + (sum[1]! * length) / l, from[2] + (sum[2]! * length) / l];
     };
+    const toes: [R.V, R.V][] = ["bigtoe", "indextoe", "middletoe", "ringtoe", "littletoe"].map((f: string): [R.V, R.V] => [joint(f + "_01_r"), joint(f + "_02_r")]);
     const armCentres: R.V[] = [ARM_ROOT, ARM_TURN, joint("lowerarm_r"), joint("hand_r"), joint("middle_01_r"), toward(joint("middle_01_r"), fingers, KNUCKLE.reach)];
     const armHalves: number[] = [SHOULDER_HALF_MM, 30, 10, KNUCKLE.half];
     const arm: { shift: number; up: R.V; plane: number; turned: number } = ((): { shift: number; up: R.V; plane: number; turned: number } => {
@@ -503,7 +515,7 @@ namespace FamilyConicBody {
         // and their cubics drew a level ring above the ankle; at least 12 mm apart the ring is gone and the wall is 693 numbers at the same mean.
         // A course that leaves the ankle square to the row of toe joints, with the forefoot read as the curve round all the toes, was tried;
         // its wall stalled above 3 mm, so the foot keeps this course and closes at the toe webs, and the toes are merged onto that cap.
-        { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r"), [133, 20, 157]], course: "[J.thigh, J.calf, J.foot, J.footBall]", halves: [40, 62], up: [1, 0, 0], domain: [104, 956], gap: 12, tip: 990, covered: true, mirrored: true, layouts: LIMB, reliefs: "auto", casts: [{ name: "sole", stations: [930, 976], axis: [0, 1, 0], rows: 16, columns: 35, reach: 6, facing: 0.8, nearest: true }] },
+        { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r"), [133, 20, 157], toward([133, 20, 157], toes, TOE_TURN.reach)], course: "[J.thigh, J.calf, J.foot, J.footBall, J.toward(J.footBall, [[J.bigtoe1, J.bigtoe2], [J.indextoe1, J.indextoe2], [J.middletoe1, J.middletoe2], [J.ringtoe1, J.ringtoe2], [J.littletoe1, J.littletoe2]], " + TOE_TURN.reach + ")]", halves: [40, 62, TOE_TURN.half], up: [1, 0, 0], domain: [104, TOE_TURN.end], gap: 12, tip: TOE_TURN.end + 15, covered: true, mirrored: true, layouts: LIMB, reliefs: "auto", reliefEnd: TOE_TURN.relief, casts: [{ name: "sole", stations: [930, TOE_TURN.relief], axis: [0, 1, 0], rows: 16, columns: 35, reach: 6, facing: 0.8, nearest: true }] },
         // The auricle as a short loft out of the side of the head. Its course runs straight to the side, and of each plane's loops inside
         // the ear's box a section reads the hull, so the wall is the ear's outline. It closes early, 4 mm past its rail, in a dome whose
         // pole stands on the antihelix at the height of the skin there: the helix's fold and the concha face the side, under that dome, and
@@ -1232,8 +1244,11 @@ namespace FamilyConicBody {
       const close = (): void => {
         if (run.length >= 2) {
           const centre: number = (cluster[0] + cluster[1]) / 2;
-          const from: number = cluster[0] - 0.45;
-          const to: number = cluster[1] + 0.45;
+          // Widened by 0.45 rad on either side, but never to a whole turn: a window whose edges overlapped round the part drew a slit
+          // along the overlap (the leg's over the instep, after its foot was refitted on the turned course), so 0.4 rad stays between them.
+          const pad: number = Math.max(0, Math.min(0.45, (2 * Math.PI - 0.4 - (cluster[1] - cluster[0])) / 2));
+          const from: number = cluster[0] - pad;
+          const to: number = cluster[1] + pad;
           const stations: [number, number] = [run[0]! - 30, run.at(-1)! + 30];
           const frame: AutoMovieLoftFrame.IFrame = course.at((stations[0] + stations[1]) / 2);
           const axis: [number, number, number] = [0, 1, 2].map((c: number): number => -(Math.cos(centre) * frame.u[c]! + Math.sin(centre) * frame.v[c]!)) as [number, number, number];

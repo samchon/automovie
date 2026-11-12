@@ -5,10 +5,10 @@ import type { AutoMovieConstructionNode } from "@automovie/interface";
  * The declaration of f1's sewn body, against the anatomy it declares.
  *
  * Scenarios:
- * 1. One body: the tree is one split of the trunk into two legs and one of each hand's open end into its four fingers, five ports (an arm and an ear on each side, and the nose), twelve merges (the thumb and five toes on each side) and six cuts (a nostril and an ear's two hollows on each side), over thirty-four source leaves.
+ * 1. One body: the tree is one split of the trunk into two legs and one of each hand's and each foot's open end into its four fingers or five toes, five ports (an arm and an ear on each side, and the nose), two merges (a thumb on each side) and six cuts (a nostril and an ear's two hollows on each side), over thirty-four source leaves.
  * 2. Every leaf has its part: each source leaf's name is a key of the sources, and each part carries that name.
  * 3. Sides mirror: every operator on the +Z side has a twin whose part face is the same name with `.mirror`, and the two armscye loops and the two auricle loops have the same station and semi-axes and opposite phases; the armscye loops also run in opposite senses and carry the same 192 shares, near one and not all one, since each follows its arm's ring and the two rings are reflections.
- * 4. A hand's split takes its own side's arm's end and the four fingers from the little one, in that order. A digit is merged onto its own limb before that limb is attached: each merge's host face is an arm or a leg of the merge's own side, and no merge's host subtree holds the trunk. A nostril is cut from the whole head: its cut is seeded on the nose and its host subtree holds the trunk. An ear's upper hollow (the scapha) is cut from the ear alone, before the ear is attached: its cut is seeded on its own side's ear and its host is that ear's leaf. Its bowl (the concha) is cut after: seeded on its own side's ear, with the trunk under its host.
+ * 4. A hand's split takes its own side's arm's end and the four fingers from the little one, a foot's its leg's end and the five toes from the little one, in that order. A digit is merged onto its own limb before that limb is attached: each merge's host face is an arm or a leg of the merge's own side, and no merge's host subtree holds the trunk. A nostril is cut from the whole head: its cut is seeded on the nose and its host subtree holds the trunk. An ear's upper hollow (the scapha) is cut from the ear alone, before the ear is attached: its cut is seeded on its own side's ear and its host is that ear's leaf. Its bowl (the concha) is cut after: seeded on its own side's ear, with the trunk under its host.
  * 5. A port stands on the trunk: each loop's centre station lies inside the trunk part's stations and its phase semi-axis is under pi.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanF1.construction`, `armscye` and `auricle` and walks the tree they return.
@@ -35,7 +35,7 @@ export function test_human_f1_construction(): void {
   const count = (type: string): number => nodes.filter((node: AutoMovieConstructionNode): boolean => node.type === type).length;
 
   // 1. The body's parts.
-  for (const [type, expected] of [["split", 3], ["port", 5], ["join", 18], ["source", 34]] as [string, number][]) if (count(type) !== expected) failures.push(`${count(type)} ${type} nodes, expected ${expected}`);
+  for (const [type, expected] of [["split", 5], ["port", 5], ["join", 8], ["source", 34]] as [string, number][]) if (count(type) !== expected) failures.push(`${count(type)} ${type} nodes, expected ${expected}`);
 
   // 2. Leaves and their parts.
   for (const node of nodes)
@@ -45,7 +45,7 @@ export function test_human_f1_construction(): void {
     }
   if (declared.sources.size !== 34) failures.push(`${declared.sources.size} source parts, expected 34`);
   const kinds = (kind: string): number => nodes.filter((node: AutoMovieConstructionNode): boolean => node.type === "join" && node.kind === kind).length;
-  if (kinds("merge") !== 12 || kinds("diff") !== 6) failures.push(`${kinds("merge")} merges and ${kinds("diff")} cuts, expected 12 and 6`);
+  if (kinds("merge") !== 2 || kinds("diff") !== 6) failures.push(`${kinds("merge")} merges and ${kinds("diff")} cuts, expected 2 and 6`);
 
   // 3. Both sides; the nose stands on the median plane and has no twin.
   const faces: string[] = nodes.flatMap((node: AutoMovieConstructionNode): string[] => (node.type === "port" ? [node.partFace] : node.type === "join" ? [node.seed.partFace] : node.type === "split" ? node.children.map((child): string => child.partFace) : [])).filter((name: string): boolean => name !== "nose");
@@ -67,7 +67,9 @@ export function test_human_f1_construction(): void {
     if (node.type === "split" && node.name !== "crotch") {
       const side: string = node.hostFace.endsWith(".mirror") ? ".mirror" : "";
       const fingers: string = node.children.map((child): string => child.partFace).join(",");
-      if (node.hostFace !== "arm" + side || node.hostEnd !== "top" || fingers !== ["pinky", "ring", "middle", "index"].map((f: string): string => "finger." + f + side).join(",")) failures.push(` splits  into `);
+      const hand: boolean = node.hostFace.startsWith("arm");
+      const expected: string = (hand ? ["pinky", "ring", "middle", "index"].map((f: string): string => "finger." + f + side) : ["little", "ring", "middle", "index", "big"].map((f: string): string => "toe." + f + side)).join(",");
+      if (node.hostFace !== (hand ? "arm" : "leg") + side || node.hostEnd !== "top" || fingers !== expected) failures.push(` splits  into `);
     } else if (node.type === "join" && node.kind === "diff") {
       const side: string = node.seed.partFace.endsWith(".mirror") ? ".mirror" : "";
       const under: AutoMovieConstructionNode[] = [];

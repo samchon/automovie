@@ -2,7 +2,6 @@ import { AutoMovieLoftChain, type AutoMovieConstructionRealization, type AutoMov
 import type { AutoMovieConstructionNode, IAutoMovieConstructionPort, IAutoMovieConstructionSplit } from "@automovie/interface";
 
 import { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
-import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Arm } from "./AutoMovieHumanF1Arm";
 import { AutoMovieHumanF1Concha } from "./AutoMovieHumanF1Concha";
 import { AutoMovieHumanF1Ear } from "./AutoMovieHumanF1Ear";
@@ -90,35 +89,27 @@ export namespace AutoMovieHumanF1 {
     limb: "arm" | "leg";
 
     /**
-     * Chord of the blend on either side of the curve where the digit meets the limb, mm: 1 for the fingers and the toes, whose webs leave no
-     * room for a wider rail, and 0.5 for the thumb, whose blend folds at 1 mm in the acute web beside the index finger.
-     */
-    chord: number;
-
-    /**
-     * The digit leaves its limb's end over a knuckle in the row of knuckles: from a split end it is one of the split's children (`FANS`),
-     * else its root runs back over that knuckle (`ROOTS`). The thumb
+     * The digit leaves its limb's end over a knuckle in the row of knuckles, as one of the children of the end's split (`FANS`). The thumb
      * leaves the hand's side, its first joint deep in the palm, and keeps the root closed `ROOT_MM` behind its first joint.
      */
     knuckle: boolean;
   }
 
   /**
-   * The digits sewn to the body, in the order they are merged: the middle one of each limb first, then its neighbours outward. Each is merged
-   * as a capsule: besides its tip it closes in a point inside the hand or the foot (`ROOTS`, `ROOT_MM`), so it meets the limb's cap in a
-   * closed curve wherever it comes out.
+   * The digits sewn to the body. A knuckled digit is a child of its limb's split (`FANS`). The thumb is merged onto the hand's side as a
+   * capsule: besides its tip it closes in a point inside the hand (`ROOT_MM`), so it meets the hand in a closed curve wherever it comes out.
    */
   export const DIGITS: readonly IDigit[] = [
-    { family: AutoMovieHumanF1FingerMiddle, limb: "arm", chord: 1, knuckle: true },
-    { family: AutoMovieHumanF1FingerRing, limb: "arm", chord: 1, knuckle: true },
-    { family: AutoMovieHumanF1FingerIndex, limb: "arm", chord: 1, knuckle: true },
-    { family: AutoMovieHumanF1FingerPinky, limb: "arm", chord: 1, knuckle: true },
-    { family: AutoMovieHumanF1FingerThumb, limb: "arm", chord: 0.5, knuckle: false },
-    { family: AutoMovieHumanF1ToeBig, limb: "leg", chord: 1, knuckle: true },
-    { family: AutoMovieHumanF1ToeIndex, limb: "leg", chord: 1, knuckle: true },
-    { family: AutoMovieHumanF1ToeMiddle, limb: "leg", chord: 1, knuckle: true },
-    { family: AutoMovieHumanF1ToeRing, limb: "leg", chord: 1, knuckle: true },
-    { family: AutoMovieHumanF1ToeLittle, limb: "leg", chord: 1, knuckle: true },
+    { family: AutoMovieHumanF1FingerMiddle, limb: "arm", knuckle: true },
+    { family: AutoMovieHumanF1FingerRing, limb: "arm", knuckle: true },
+    { family: AutoMovieHumanF1FingerIndex, limb: "arm", knuckle: true },
+    { family: AutoMovieHumanF1FingerPinky, limb: "arm", knuckle: true },
+    { family: AutoMovieHumanF1FingerThumb, limb: "arm", knuckle: false },
+    { family: AutoMovieHumanF1ToeBig, limb: "leg", knuckle: true },
+    { family: AutoMovieHumanF1ToeIndex, limb: "leg", knuckle: true },
+    { family: AutoMovieHumanF1ToeMiddle, limb: "leg", knuckle: true },
+    { family: AutoMovieHumanF1ToeRing, limb: "leg", knuckle: true },
+    { family: AutoMovieHumanF1ToeLittle, limb: "leg", knuckle: true },
   ];
 
   /** The families not sewn: none now. A loose family is emitted as a closed tube of its own, carried by its reach under its neighbour's skin. */
@@ -172,7 +163,7 @@ export namespace AutoMovieHumanF1 {
    * finger's first joint toward the four fingers' mean direction, faces the fingers, so each band runs on to its finger. The web lines are
    * `FamilyConicScan.ts webs` every 2 mm along each seam's chord, depths of 0 left out so the seam leaves its fork along the host.
    */
-  const FANS: { arm?: IFan; leg?: IFan } = {
+  const FANS: { arm: IFan; leg: IFan } = {
     arm: {
       digits: ["finger.pinky", "finger.ring", "finger.middle", "finger.index"],
       webs: [
@@ -184,28 +175,28 @@ export namespace AutoMovieHumanF1 {
       rail: 3,
       columns: 96,
     },
+    // The foot's end at 975 mm on the leg's course, turned at the ball of the foot toward the five toes. Between the index and the big toe
+    // the rays from 8 to 18 mm along the chord ran on into the big toe (31 to 47 mm against 16 and 13 on either side) and are left out.
+    leg: {
+      digits: ["toe.little", "toe.ring", "toe.middle", "toe.index", "toe.big"],
+      webs: [
+        [[0.002, 0.0031], [0.004, 0.0038], [0.006, 0.0039], [0.008, 0.0037], [0.01, 0.0034], [0.012, 0.0024], [0.014, 0.0008]],
+        [[0.002, 0.0076], [0.004, 0.0116], [0.006, 0.0127], [0.008, 0.013], [0.01, 0.0128], [0.012, 0.0121], [0.014, 0.0113], [0.016, 0.0102], [0.018, 0.0088], [0.02, 0.0071], [0.022, 0.0035]],
+        [[0.002, 0.007], [0.004, 0.0145], [0.006, 0.0172], [0.008, 0.018], [0.01, 0.0185], [0.012, 0.0184], [0.014, 0.018], [0.016, 0.0177], [0.018, 0.0171], [0.02, 0.0162], [0.022, 0.0145], [0.024, 0.0104]],
+        [[0.002, 0.0094], [0.004, 0.0135], [0.006, 0.0158], [0.02, 0.0128], [0.022, 0.0104], [0.024, 0.0069], [0.026, 0.0031]],
+      ],
+      corner: 0.6,
+      rail: 3,
+      columns: 96,
+    },
   };
+
+  /** Chord of the thumb's blend on either side of the curve where it meets the hand, mm: at 1 mm it folds in the acute web beside the index finger. */
+  const THUMB_CHORD_MM: number = 0.5;
 
   /** How far behind its first joint the thumb's root closes in a point, inside the hand, mm. */
   const ROOT_MM: number = 10;
 
-  /**
-   * How a toe's root runs back over its knuckle, mm and a share: its sections are read only from its web on, where its loop first stands
-   * free; behind it its first section is held back to `back` mm past its first joint, swelled there by `swell` of its own size (half of that
-   * midway), and it closes in a point `root` mm further back, inside the foot. Closed from its web, a digit tapered 31 mm to a point and came
-   * out of its limb's end as a cone in a collar. The toes stand close together, 7.8 to 8.7 mm from their neighbours' midlines against
-   * their own 8 to 9 mm half widths: held back to 4 mm or swelled, neighbouring roots met and the rails between them could not be placed, so
-   * they run back to 8 mm, unswelled, and close 15 mm further back. The fingers leave the hand's split end instead (`FANS`).
-   */
-  const ROOTS: { back: number; root: number; swell: number } = { back: 8, root: 15, swell: 0 };
-
-  /**
-   * How far the foot's covered end leans toward the sole under its toes, mm (`AutoMovieHumanConicLoft.ITip.lean`): a cap shrunk about its
-   * course draws its sole back as fast as its top. Leaned 50 mm, the hand's end, before the hand was split, brought the valleys between its
-   * knuckles 2.4 mm down and its palm's webs 5 mm out; at 60 mm the section near the tip no longer held the course and the engine refused
-   * the arm. The foot leans 40 mm; leaned 30 to 50 mm it looks alike on the frames and every toe merges.
-   */
-  const LEAN_MM: number = 40;
 
   /**
    * Station spacing of the layers and derived outlines of a sewn family, mm. Each part adds stations of its own where its section turns fast,
@@ -402,7 +393,7 @@ export namespace AutoMovieHumanF1 {
   }
 
   /**
-   * The seams a limb's open end would be split along between its knuckled digits (`IAutoMovieConstructionSplit.outer`), from the little
+   * The seams a limb's open end is split along between its knuckled digits (`IAutoMovieConstructionSplit.outer`), from the little
    * finger's or the little toe's valley inward, each a pair of host phases on the end's ring enclosing the one before; each seam's heading,
    * the two digits' mean direction (`IAutoMovieConstructionSplit.IProfile.heading`); and the end's station, outward normal and palm or
    * sole normal. The split of a fanned limb's end (`FANS`) and `FamilyConicScan.ts webs` read it.
@@ -491,45 +482,25 @@ export namespace AutoMovieHumanF1 {
     // A limb with its digits: each digit is merged onto the limb's cap before the limb is attached to the trunk, so the engine traces where a
     // capsule comes out against the limb alone. Merged after the whole body was sewn, every digit was traced against all of it.
     const limb = (which: "arm" | "leg", side: 1 | -1): { node: AutoMovieConstructionNode; face: string } => {
-      // The limb's covered end leans toward the palm or the sole (`LEAN_MM`): the palm's side is the normal of the plane through the wrist and
-      // the index and little fingers' first joints, as the knuckles' cast takes it; the sole's is straight down.
-      const J = AutoMovieHumanF1Joints;
-      const sub = (a: number[], b: number[]): number[] => [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
-      const [a, b]: number[][] = [sub(J.index1, J.hand), sub(J.pinky1, J.hand)];
-      const down: number[] = which === "arm" ? [a[1]! * b[2]! - a[2]! * b[1]!, a[2]! * b[0]! - a[0]! * b[2]!, a[0]! * b[1]! - a[1]! * b[0]!] : [0, -1, 0];
-      const end: AutoMovieHumanConicLoft.ITip = BODY[which].tips![1]!;
-      const frame = AutoMovieHumanConicLoft.axis(BODY[which]).at(end.from);
-      const along = (w: number[]): number => (LEAN_MM * (down[0]! * w[0]! + down[1]! * w[1]! + down[2]! * w[2]!)) / Math.hypot(down[0]!, down[1]!, down[2]!);
-      // A fanned limb's end stays open and is split into its knuckled digits (`FANS`); the others close in a leaning covered cap.
-      const fanned: IFan | undefined = FANS[which];
-      const leaned: AutoMovieHumanConicLoft.IFamily = { ...BODY[which], tips: [BODY[which].tips![0], fanned === undefined ? { ...end, lean: [along(frame.u), along(frame.v)] } : null] };
+      // The limb's end stays open and is split into its knuckled digits (`FANS`); the thumb is merged onto the hand's side first, as a
+      // capsule closed `ROOT_MM` behind its first joint, inside the hand.
+      const fanned: IFan = FANS[which];
+      const leaned: AutoMovieHumanConicLoft.IFamily = { ...BODY[which], tips: [BODY[which].tips![0], null] };
       const family: AutoMovieHumanConicLoft.IFamily = side > 0 ? leaned : twin(leaned);
       let node: AutoMovieConstructionNode = leaf(family);
-      for (const digit of DIGITS.filter((d: IDigit): boolean => d.limb === which && !(fanned !== undefined && d.knuckle))) {
-        const first: number = digit.family.knots[0]!;
-        const { back, root, swell } = ROOTS;
-
-        // A knuckled digit's first section held back over its knuckle, its coordinates swelled, and closed past it (`ROOTS`).
-        const { at } = AutoMovieHumanConicSection.offsets(digit.family.layout);
-        const coordinate: Set<number> = new Set(digit.family.layout.anchors.flatMap((anchor: AutoMovieHumanConicSection.IAnchor, k: number): number[] => (anchor.kind === "m" ? [] : anchor.mid === true ? [at[k]!] : [at[k]!, at[k]! + 1])));
-        const held: AutoMovieHumanConicLoft.IFamily = digit.knuckle
-          ? { ...digit.family, knots: [back, (back + first) / 2, ...digit.family.knots], values: digit.family.values.map((row: number[], f: number): number[] => (coordinate.has(f) ? [row[0]! * (1 + swell), row[0]! * (1 + swell / 2), ...row] : [row[0]!, row[0]!, ...row])) }
-          : digit.family;
-        const capsule: AutoMovieHumanConicLoft.IFamily = { ...held, tips: [{ from: held.knots[0]!, tip: digit.knuckle ? back - root : -ROOT_MM, covered: true }, digit.family.tips?.[1] ?? null] };
+      for (const digit of DIGITS.filter((d: IDigit): boolean => d.limb === which && !d.knuckle)) {
+        const capsule: AutoMovieHumanConicLoft.IFamily = { ...digit.family, tips: [{ from: digit.family.knots[0]!, tip: -ROOT_MM, covered: true }, digit.family.tips?.[1] ?? null] };
         const part: AutoMovieHumanConicLoft.IFamily = side > 0 ? capsule : twin(capsule);
         node = {
           type: "join",
           kind: "merge",
           name: "web." + part.name,
           host: node,
-          part: leaf(part, first + WEB_REACH_MM),
+          part: leaf(part, digit.family.knots[0]! + WEB_REACH_MM),
           seed: { type: "search", partFace: part.name, hostFace: family.name, phase: 0, from: 0, to: 0.7 },
-          // A knuckled root comes out along the back of the hand or the foot for 20 mm, so beside the knuckle the curve runs along the digit's
-          // stations and a step of the digit's phase there spans most of its length: walked by phase, the middle and ring fingers' walks were
-          // lost at their sides toward the neighbouring valleys on most settings of `ROOTS`. Walked by its own length the curve is found on all.
-          parameter: digit.knuckle ? { type: "arc" } : { type: "phase" },
-          partWidth: { type: "chord", value: digit.chord / 1000 },
-          hostWidth: { type: "chord", value: digit.chord / 1000 },
+          parameter: { type: "phase" },
+          partWidth: { type: "chord", value: THUMB_CHORD_MM / 1000 },
+          hostWidth: { type: "chord", value: THUMB_CHORD_MM / 1000 },
           continuity: "G2",
           count: 48,
           rows: 4,
@@ -537,7 +508,6 @@ export namespace AutoMovieHumanF1 {
           grazing: 0.05,
         };
       }
-      if (fanned === undefined) return { node, face: family.name };
 
       // The split: the end's seams along the valleys between the knuckled digits (`fanSeams`), each curved along its web line (`IFan.webs`)
       // in the plane that holds the two digits' mean direction. The twin's phases run the other way, so a seam `[a, b]` is `[-b, -a]` there,
