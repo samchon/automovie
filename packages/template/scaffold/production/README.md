@@ -59,7 +59,7 @@ In the inspector, the capture's keys are the address's parameters of the same na
 
 3. Build the coarse entities under [entity work]({{skills}}/development/entities.md) and accept every module in its [catalog cases]({{skills}}/motion/catalog-cases.md).
 
-   Compose people's actions from the installed motion vocabulary, and write laws, interactions and consequences, with their tests, only for what it lacks.
+   Take the objects people use from the installed archetypes and compose what people do from the installed motion vocabulary. Write rows, laws, interactions and consequences, with their tests, only for what the packages lack.
 
 4. Compose every required main scene from the accepted modules under [motion]({{skills}}/motion/SKILL.md) and [staging for the camera]({{skills}}/motion/staging.md).
 

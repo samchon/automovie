@@ -18,7 +18,7 @@ State the beats realized and what happens in them, each decision the code had to
 
 ## Does it only compose? {#composition-only}
 
-Does the declaration only combine the capabilities of accepted modules, through the installed engine's combinators, along the screenplay? Logic written into one scene cannot be reused, tested or accepted in a catalog case, so anything else found here is a capability missing from its owner.
+Does the declaration only combine the capabilities of accepted modules, through the installed packages' operators, along the screenplay? Logic written into one scene cannot be reused, tested or accepted in a catalog case, so anything else found here is a capability missing from its owner.
 
 State the capabilities it combines and where it places absolute time.
 

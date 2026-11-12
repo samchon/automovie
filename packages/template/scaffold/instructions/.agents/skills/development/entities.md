@@ -16,9 +16,17 @@ A person is the polygon man. The installed viewer draws it from the canonical bo
 
 The same prepared body is the one the installed motion vocabulary plans for, so the figure on screen and the body the motion was solved on are one. [Installed packages](reuse.md#installed-packages) names these packages, and their READMEs give the calls.
 
+### Objects people use {#objects}
+
+What a person holds, uses, sits on, rides or fights with comes from the installed archetypes, such as a cup, a chair, a door, a stair, a car, a saddle horse or a sword. Each is already a coarse form, built from the record's facts as parameters and a seed, as the archetypes' README shows.
+
+An archetype declares its affordances, the places where a person meets it, such as a grip, a seat, a surface or a hinge. The installed motion vocabulary attaches an act to an affordance, so one act fits every size the object takes.
+
+Build such an object in the production only when no archetype offers it, as a coarse form like any other subject, and declare on it the affordances the scenes' acts attach to, as the installed packages type them. Without them the object can be drawn but not sat on, gripped or opened.
+
 ### Everything else
 
-Every other subject is the simplest form that identifies it: a few primitives chosen, sized and checked under 3D modeling's [coarse forms](../3d-modeling/coarse-forms.md). A chair is a seat, a back and four legs.
+Every other subject is the simplest form that identifies it: a few primitives chosen, sized and checked under 3D modeling's [coarse forms](../3d-modeling/coarse-forms.md). A tree is a trunk and a crown.
 
 ### What stays out of the model {#what-stays-out}
 

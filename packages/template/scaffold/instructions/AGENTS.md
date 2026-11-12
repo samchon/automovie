@@ -68,7 +68,7 @@ Read the production's `PROJECT.md` for the adopted scope, then enter the request
 | [production](.agents/skills/production/SKILL.md) | Starting, resuming, restructuring or handing off a production: project context, sustained runs, stage caches, media records, reorganization and final assembly |
 | [story](.agents/skills/story/SKILL.md) | Research, and planning, writing, continuing or revising a brief, settings, treatments, scripts, final screenplay, expression pass, narrative evidence or cause-based repair |
 | [3d-modeling](.agents/skills/3d-modeling/SKILL.md) | A subject's form: the coarse form of a few primitives by default, and a detailed representation, geometry, rig or authored control when [entity work](.agents/skills/development/entities.md#detail) says a commission needs one |
-| [motion](.agents/skills/motion/SKILL.md) | Programmed performance by end-effector goals, catalog cases, staging, camera, physical responses, frame evaluation, the motion hint's control channels and motion verification |
+| [motion](.agents/skills/motion/SKILL.md) | Composing what each person does from the installed motion vocabulary, repairing a refusal, extending the vocabulary, catalog cases, staging, camera, physical modes, frame evaluation, retargeting and the motion hint's control channels |
 | [image](.agents/skills/image/SKILL.md) | Canon reference images, shot frames, style frames or turnaround views |
 | [video](.agents/skills/video/SKILL.md) | Choosing the video model, planning requests, writing video prompts, and generating and adopting takes |
 | [audio](.agents/skills/audio/SKILL.md) | A shot's sound for the video model's prompt, a voice preview, or a commissioned soundtrack the user accepts by ear |

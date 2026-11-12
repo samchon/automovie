@@ -1,41 +1,53 @@
 # Compose a performance
 
-How a screenplay beat becomes one person's composition in the motion vocabulary. The vocabulary's README and public types own every call named by role here, so read them under [reading a package](../development/reuse.md#reading-a-package) before writing one.
+How a screenplay beat becomes each person's composition in the installed motion vocabulary. The vocabulary's README and public types own every call and value this page names by role, so read them under [reading a package](../development/reuse.md#reading-a-package) before writing one.
 
-## Decide the beat
+An act is what a beat has one person do, and an action is one entry of the vocabulary. An act is one action with its parameters, or several actions joined.
 
-Settle these from the screenplay and its [performance study](../story/planning/research.md#performance-study) before writing code, in this order, because each narrows the next:
+## Decide the act {#decide-the-act}
 
-1. Who acts, and who or what the act is directed at.
-2. What carries the body: the floor, a seat, the ground it lies or kneels on.
-3. Whether the body travels, and to where.
-4. The acts, in the order the beat shows them, each as an action of the vocabulary.
-5. For each act, its target: a region of another person, a region of the performer's own body, a point of a prop, a point in the world, or none.
-6. Which hand or foot acts, and what each hand already holds.
-7. How it is performed: its manner, its count and how long it is held.
-8. When it happens against the other people: together, after an event of another act, or cut short by one.
+For each person in the beat, settle the act on these axes from the beat record and its [performance study](../story/planning/research.md#performance-study), top to bottom, because each narrows the next:
 
-Write the decisions as the composition and nothing else. A value the beat does not decide stays at the action's default, because a default is the studied value and a guessed number is not.
+| Axis | Settle |
+| --- | --- |
+| Base | What carries the body, such as the floor it stands on, a seat, the ground it kneels or lies on, a wall it leans on, a bar it hangs from or a mount that moves |
+| Travel | Whether the body travels, where to and at what gait |
+| Action | Which action performs the act, and which named entry where the action has a table of them, such as a kind of gesture, touch or task |
+| Effector | Which hand, foot or other part of the body acts, and what each hand already holds |
+| Target | A region of another person or of the performer's own body, a place on an object, a point in the world or none, and the site of contact on it |
+| Object | The object the act involves and how the body relates to it: holding it, using it, resting on it, carrying it or riding it |
+| Partner | The performer's role where two or more perform one act together, such as giver and receiver or leader and follower |
+| Manner | How the act is performed: its effort, pace and count, and how long it is held |
+| Layer | What runs under everything the person does, such as gaze, breathing, listening or a mood |
+| Timing | When the act happens against other acts, partners, dialogue and beats |
 
-## Join the acts
+Write those decisions as the composition and nothing else. A value the beat does not decide stays at the action's default, because the default is the studied value and a guessed number is not.
 
-The vocabulary joins acts in a small number of ways, and a beat rarely needs another:
+A decision the beat left vague is made in the screenplay, under [concretization](../story/correction/repair.md#concretization).
 
-| The beat says | Join |
+## Join the acts {#join-the-acts}
+
+The vocabulary joins acts with a few operators:
+
+| The beat shows | Operator |
 | --- | --- |
 | One act, then the next | A sequence |
-| An act ends early, at a moment or when something comes near | A cut on that act, inside a window the act declares |
-| Two people act at the same time | Their compositions in parallel |
-| Two people perform one act together, such as a handshake or handing an object over | The vocabulary's mutual join, which plans both roles from one meeting |
-| An act answers another person's act | An anchor on the answered act, named by the answering one |
-| Gaze, breathing or listening runs under everything | A layer on the performance |
+| An act that ends early, at a moment or when something comes near | A cut on that act, inside a window the action declares |
+| One person doing two things at once, such as reading while walking | An overlay: the act that moves the body carries, and the other takes the parts the carrier yields |
+| Gaze, breathing or a mood under everything a person does | A layer, which adds to every act and takes no part away from one |
+| Several people each doing their own thing at once | Their compositions in parallel |
+| Two or more people performing one act together, such as a handshake, a handover or a lift | A mutual join, which plans every role from one meeting |
+| An act on an object, such as sitting on it, gripping it, opening it or riding it | Attaching the act to the object's [affordance](../development/entities.md#objects) |
+| An act timed to another act's instant, a partner, a line of dialogue or a beat | A sync between the named instants |
 
-Prefer one composition of vocabulary actions over new motion code. A beat that seems to need a new action is usually an existing action with another target, hand, manner or count.
+## Seed
 
-## One seed
+Every performance takes the film's [one seed](../development/source-layout.md#how-the-parts-work-together). The vocabulary draws each variation from the seed, the person and the act, so people given the same act already differ and a crowd needs no offsets set by hand.
 
-Give the film one seed and pass it to every performance. The vocabulary draws each variation from the seed, the person and the act, so the same seed replays the same film and another seed varies it inside studied bands. Vary a performance by its parameters and the seed, never by a copied composition with edited numbers.
+Another take of an act is another seed or parameter, never a copied composition, under [one module](../development/reuse.md#one-module).
 
-## When it does not plan
+## Hand it on
 
-A composition the vocabulary cannot perform is refused when the performance is built. Repair it under [refusals](refusals.md), and check a composition that plans under [catalog cases](catalog-cases.md).
+A cast entity's capability returns the composition and a scene joins capabilities, as [source layout](../development/source-layout.md#how-the-parts-work-together) sets.
+
+A composition the vocabulary cannot perform is refused when the performance is built. Repair it under [refusals](refusals.md), and accept one that plans in its [catalog case](catalog-cases.md).

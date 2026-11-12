@@ -15,13 +15,14 @@ Contract: [composition.md](../composition.md).
 
 ## Composition only {#composition-only}
 
-1. The declaration only combines entity capabilities, interaction entry points and consequences, through the installed engine's combinators.
+1. The declaration only combines entity capabilities, interaction entry points and consequences, through the operators of the installed motion vocabulary and engine.
 2. It places absolute time only at the screenplay's anchors.
 3. It holds no calculation, constant, coordinate, direct law import, URL parameter, archive load or runtime selection. Each of these is a capability missing from its owner and is added there.
-4. A person's action reaches the scene through the cast entity's capability, an action of the installed motion vocabulary included.
-5. The catalog and the film call the same capabilities with the same kind of parameters, and no scene keeps its own variant of a module.
-6. The film resolves once, from one seed.
-7. A defect a film shows is repaired in its module and accepted again in its catalog case, never in the scene.
+4. A person's act reaches the scene through the cast entity's capability, as a composition of the installed motion vocabulary.
+5. A refusal from an installed package is repaired at the axis it names, under [refusals](../../../motion/refusals.md). No declaration catches one and carries on, or widens a value to silence it.
+6. The catalog and the film call the same capabilities with the same kind of parameters, and no scene keeps its own variant of a module.
+7. The film resolves once, from one seed.
+8. A defect a film shows is repaired in its module and accepted again in its catalog case, never in the scene.
 
 ## Living scene {#living-scene}
 

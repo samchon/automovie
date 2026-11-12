@@ -1,35 +1,49 @@
 # Extend the vocabulary
 
-What to do when a beat needs a movement the motion vocabulary does not seem to have. Try each route in order and stop at the first that stages the beat, because every later route costs more and is checked less.
+What to do when a beat needs an act or a moving subject the installed packages do not seem to have. Take the first route below that stages the beat, because each later one costs more to write and leaves more of the checking to the production.
 
-## 1. Parameters and seed
+## 1. Compose again
 
-Read the nearest action's parameters again in the vocabulary's types. Most missing movements are an existing action with another target, hand, manner, count or hold, and a different performance of the same action is another seed.
+Read the nearest action's parameters and the [operators](compose.md#join-the-acts) again in the vocabulary's types. Most missing acts are an existing action with another target, effector, object or manner, two actions joined as an overlay or a mutual join, or the same act at another seed.
 
-## 2. A composition
+## 2. Register a row {#register-a-row}
 
-Compose the movement from several actions under [compose](compose.md): a sequence, a cut, two people in parallel, a mutual join.
+A row is one named entry of an action's table, such as a kind of gesture, touch or task. When the act is a new entry of a table the vocabulary has, such as a salute among its gestures, register the row with the vocabulary as its README shows. The action that owns the table then performs the row, with every axis and operator open to it.
 
-## 3. A layer
+## 3. Register a law {#register-a-law}
 
-A movement that runs over other actions without interrupting them, such as an arm held around a partner during another act, is a layer on the performance. A layer may move only the body parts the active action leaves free, so it adds to an action and never fights it.
+A law is the code that plans an action: given a body and its inputs, it produces the same motion every time. Write one only when the act owns what no shipped action plans:
 
-## 4. A gap in the vocabulary
+- a change of base, such as a way onto or off a support;
+- an outcome rule between performers;
+- a planner of its own, such as a flight path or a pattern of steps.
 
-A person's act that none of the routes above stages is a gap in the vocabulary. The installed vocabulary performs only its own actions, so a human action law written in the production cannot be performed by it. Hand the user the beat, its [performance study](../story/planning/research.md#performance-study) and what you tried under [a defect or a gap](../development/reuse.md#a-defect-or-a-gap), and continue with the work that does not depend on it.
+Register the law with the vocabulary as its README shows, and the vocabulary composes, cuts, refuses and checks it like its own actions.
 
-## 5. What is not a person
+## 4. What is not a person {#what-is-not-a-person}
 
-Write a production law for what the vocabulary does not cover at all: an animal, a vehicle, a crowd moving as a mass, a camera or a light.
+Write a production law for a moving subject no installed package provides: an animal or a machine no archetype offers, a crowd moving as a mass, a camera or a light. The archetypes move their own vehicles, mounts and articulated parts, so those need none.
 
-Confirm its [research](../story/planning/research.md) study first, because a law written without one invents the practice. Design it under the shared motion rules below, answer the [behaviors contract](../contracts/development/behaviors.md), and unit-test it against its study's values through [testing](../development/testing.md). Contact and reactions use the installed engine through [physical feedback](physical-feedback.md), and [method references](method-references.md) help choose an algorithm.
+Contact and reactions of such a subject use the installed engine through [physical feedback](physical-feedback.md).
+
+## What an extension owes
+
+Confirm its [research](../story/planning/research.md#what-needs-a-study) study first, because a row or a law written without one invents the practice. Put it in the laws folder [source layout](../development/source-layout.md#source) gives, where its declarations answer the [behaviors contract](../contracts/development/behaviors.md), and unit-test it against its study's values through [testing](../development/testing.md#motion-checks). Then accept it in a [catalog case](catalog-cases.md) like any other module.
+
+A row takes only its study's values. A law is designed under these shared motion rules, and [method references](method-references.md) help choose its algorithm:
 
 | Rule | Read when |
 | --- | --- |
 | [Effector goals](authoring.md) | Always: a law states movement as goals on targets, never as tuned joint angles |
 | [Laws](laws.md) | Designing its plan, entry state, events, outcome and time scale |
 | [Variation](variation.md) | It differs by parameters, skill or seed |
-| [Transitions](transitions.md) | It changes action or target mid-motion |
+| [Transitions](transitions.md) | It is cut, or changes target mid-motion |
 | [Contacts](contacts.md) | It plants, grips or touches |
-| [Layers](layers.md) | A layer runs over it |
-| [Verification](verification.md) | It needs its bounded checks and frame review |
+| [Layers](layers.md) | It is a layer, or a layer runs over it |
+| [Verification](verification.md) | Writing its bounded checks and reviewing its frames |
+
+## Send it upstream
+
+A row or a law other productions would need belongs in the vocabulary itself. Share it inside a workspace as a [shared module](../development/source-layout.md#shared-modules), hand it to the user for the package under [a defect or a gap](../development/reuse.md#a-defect-or-a-gap), and keep the registered one until the package ships it.
+
+An act that registration cannot express is a gap under the same route.
