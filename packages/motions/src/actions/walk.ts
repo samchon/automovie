@@ -13,6 +13,7 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import { HumanArmClearance } from "../posture/HumanArmClearance";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -473,11 +474,16 @@ export namespace walk {
           };
         }
         // The pelvis's share tips the body about the hips, so the legs stay
-        // on their footprints.
-        return AutoMovieMotionHumanLean.pivot(
+        // on their footprints; the swinging arms then keep clear of the body,
+        // the hands passing the thighs no nearer than they hang beside them.
+        return HumanArmClearance.swung(
           body,
-          { root, yaw, pitch: 0, roll: 0, joints, limbs },
-          { pitch: inclined.pitch, roll: 0 },
+          AutoMovieMotionHumanLean.pivot(
+            body,
+            { root, yaw, pitch: 0, roll: 0, joints, limbs },
+            { pitch: inclined.pitch, roll: 0 },
+          ),
+          ["left", "right"],
         );
       },
     };

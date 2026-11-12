@@ -3,14 +3,18 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
+import { standUpright } from "../actions/standUpright";
+import { walk } from "../actions/walk";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanClearance } from "../compose/AutoMovieMotionHumanClearance";
+import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanTrunk } from "../everyday/HumanTrunk";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -44,6 +48,12 @@ import { climbStairsFlight } from "./climbStairsFlight";
  * foot's leg is straight and the upper one's bent; it changes while a foot
  * swings and holds in double support, and is lowered wherever either leg,
  * planted or swinging, could not reach its foot.
+ *
+ * The trunk inclines forward by `ASCENT_LEAN` going up and by a walk's
+ * inclination going down, shared between the pelvis and the spine by the
+ * lumbopelvic rhythm and tipped about the hips, since the trunk flexes
+ * forward more in stair ascent than in level walking (McFadyen and Winter
+ * 1988, J Biomech 21:733).
  *
  * The cadence is 90 steps a minute (Mian, Narici, Minetti and Baltzopoulos
  * 2007, Gait Posture 26:463), scaled by the square root of the hip height
@@ -400,16 +410,27 @@ export namespace climbStairs {
       return stance.at(-1)!;
     };
 
+    // The trunk inclines forward over the climb, more ascending than on the
+    // level, and is shared by the pelvis and the spine.
+    const inclined = HumanTrunk.incline(
+      standUpright.of(body).joints,
+      p.direction === "down" ? walk.LEAN : ASCENT_LEAN,
+    );
     const climb: IAutoMovieMotionHumanPrimitive = {
-      channels: ["root", "leftLeg", "rightLeg"],
+      channels: ["root", "trunk", "leftLeg", "rightLeg"],
       from: 0,
       to: duration,
       write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
-        const placed: IHumanPosture = {
-          ...posture,
-          root: rootAt(seconds),
-          yaw,
-        };
+        const placed: IHumanPosture = AutoMovieMotionHumanLean.pivot(
+          body,
+          {
+            ...posture,
+            root: rootAt(seconds),
+            yaw,
+            joints: { ...posture.joints, ...inclined.joints },
+          },
+          { pitch: inclined.pitch, roll: 0 },
+        );
         // The root stays where the swinging leg reaches its foot too, so
         // the foot keeps its clearing path.
         const feet = {
@@ -477,3 +498,6 @@ export namespace climbStairs {
     level: number;
   }
 }
+
+/** The trunk's forward inclination ascending stairs, degrees (provisional: more than a walk's, McFadyen and Winter 1988, J Biomech 21:733). */
+const ASCENT_LEAN: number = 8;

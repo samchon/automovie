@@ -36,10 +36,13 @@ import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMo
  * Two readings are removed because they are the body's build and not the
  * motion's doing:
  *
- * - pairs that are one part or share a joint: a bone and its parent (their
- *   colliders overlap at the joint by construction and fold into each other
- *   as it bends, within its range of motion), the hand with its own fingers,
- *   and the foot with its toes;
+ * - pairs that are one part or share a joint: a bone and its parent, or the
+ *   nearest ancestor that carries a collider when the bones between carry
+ *   none (the upper arm and the chest meet at the shoulder girdle, whose
+ *   clavicle bone has no collider of its own); their colliders overlap at
+ *   the joint by construction and fold into each other as it bends, within
+ *   its range of motion. Also the hand with its own fingers, and the foot
+ *   with its toes;
  * - what a probe already lies inside in the body's two reference postures,
  *   the rest T-pose it was modelled in and the quiet stance every performer
  *   starts from (`stand.posture`): the thighs meet at the crotch as the body
@@ -55,7 +58,7 @@ import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMo
  * @evidence contracts/development/common.md#meaningful-documentation States the probes, the depth, both removals with their reasons and the declared-contact exemption.
  * @evidence contracts/development/implementation.md#principled-implementation Interior depth of a point in a convex polytope is its least distance to the supporting planes; the engine's hull faces and shape distance are the owners of both.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure A per-body model built once, a bounding-sphere pass, then probes against shapes.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pair is exempt beyond the stated structural ones; the rest baseline is per probe, so a part of the same segment that is free at rest is read at its full depth.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pair is exempt beyond the stated structural ones, the joint a collider meets being read through bones without colliders; the rest baseline is per probe, so a part of the same segment that is free at rest is read at its full depth.
  * @evidence contracts/development/implementation.md#efficient-algorithms Bounding spheres reject distant pairs before any probe is transformed; a probe costs one plane product per face.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The probes, spheres, pair relation and rest depths of a body are remembered in a `WeakMap` keyed by the body.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One model per live body, released with it; rest depths are bounded by segment pairs.
@@ -218,6 +221,75 @@ export namespace AutoMovieMotionHumanAuditTangle {
   }
 
   /**
+   * How far one arm's segments (the upper arm, the forearm, the hand and its
+   * fingers) pass into the rest of the same body beyond their reference
+   * depths, as degrees of turn at the shoulder: each probe's excess depth
+   * over its distance from the shoulder joint. The reading the tangle audit
+   * makes of the arm, in the unit a range of motion overshoot has, so a law
+   * that keeps an arm clear keeps it clear by this audit's measure.
+   *
+   * @param body The body.
+   * @param bones Its posed bones.
+   * @param side The arm.
+   * @returns Degrees; 0 when no probe of the arm lies deeper than at rest or in the quiet stance.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the segments, the depth's baseline and the unit.
+   * @evidence contracts/development/implementation.md#principled-implementation The same probes, pair relation and baselines as `pose`, so a cleared arm and an audited one agree; a depth at a probe is the shoulder's turn that carries the probe that far, its arc over its radius.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the arm's parts and the body's other parts.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The pairs of one part or one joint are skipped as `pose` skips them; nothing else is exempt.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Bounding spheres reject distant pairs before any probe is read.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the per-body model and its remembered baselines.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The model is the audit's own, held per live body.
+   */
+  export function arm(
+    body: IHumanBody,
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    side: "left" | "right",
+  ): number {
+    const m: IModel = model(body);
+    const placed: HumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
+    const shoulder: IAutoMovieVector3 = bones.get(
+      `${side}UpperArm`,
+    )!.worldPosition;
+    const mine = (bone: AutoMovieHumanoidBone): boolean =>
+      bone === `${side}UpperArm` ||
+      bone === `${side}LowerArm` ||
+      group(bone) === `${side}Hand`;
+    let worst: number = 0;
+    for (let i: number = 0; i < placed.length; i++) {
+      if (!mine(placed[i]!.bone)) continue;
+      const a: IAutoMovieVector3 = centre(placed[i]!, m.parts[i]!);
+      for (let j: number = 0; j < placed.length; j++) {
+        if (m.related[i]![j]! || mine(placed[j]!.bone)) continue;
+        const reach: number = m.parts[i]!.radius + m.parts[j]!.radius;
+        if (
+          Vector3.length(
+            Vector3.subtract(a, centre(placed[j]!, m.parts[j]!)),
+          ) >= reach
+        )
+          continue;
+        const over: Float64Array = beyond(m, placed, i, j);
+        for (let k: number = 0; k < over.length; k++) {
+          if (!(over[k]! > 0)) continue;
+          const probe: IAutoMovieVector3 = Vector3.add(
+            placed[i]!.pose.position,
+            Quaternion.rotateVector(
+              placed[i]!.pose.rotation,
+              m.parts[i]!.probes[k]!,
+            ),
+          );
+          const radius: number = Math.max(
+            1e-3,
+            Vector3.length(Vector3.subtract(probe, shoulder)),
+          );
+          worst = Math.max(worst, ((over[k]! / radius) * 180) / Math.PI);
+        }
+      }
+    }
+    return worst;
+  }
+
+  /**
    * The key of an unordered pair of bones.
    *
    * @param a One bone.
@@ -335,12 +407,22 @@ const model = (body: IHumanBody): IModel => {
       );
     return { bone: p.bone, shapes: p.shapes, probes, centre, radius };
   });
+  // The nearest ancestor of a bone that carries a collider: the joint its
+  // collider meets, skipping bones (a clavicle) that have none.
+  const collided: ReadonlySet<AutoMovieHumanoidBone> = new Set(
+    parts.map((p: IPart): AutoMovieHumanoidBone => p.bone),
+  );
+  const above = (bone: AutoMovieHumanoidBone): AutoMovieHumanoidBone | null => {
+    let up: AutoMovieHumanoidBone | null = parent.get(bone) ?? null;
+    while (up !== null && !collided.has(up)) up = parent.get(up) ?? null;
+    return up;
+  };
   const related: boolean[][] = parts.map((a: IPart): boolean[] =>
     parts.map(
       (b: IPart): boolean =>
         a.bone === b.bone ||
-        parent.get(a.bone) === b.bone ||
-        parent.get(b.bone) === a.bone ||
+        above(a.bone) === b.bone ||
+        above(b.bone) === a.bone ||
         group(a.bone) === group(b.bone),
     ),
   );
@@ -448,13 +530,13 @@ const depths = (
   return out;
 };
 
-/** The deepest any probe of segment `i` lies in segment `j` beyond its own rest depth there. */
-const excess = (
+/** How deep each probe of segment `i` lies in segment `j` beyond its own reference depth there, metres; zero or less where it does not. */
+const beyond = (
   m: IModel,
   placed: readonly HumanColliders.IPlaced[],
   i: number,
   j: number,
-): number => {
+): Float64Array => {
   const key: number = i * m.parts.length + j;
   const probes: IAutoMovieVector3[] = m.parts[i]!.probes;
   let baseline: Float64Array | undefined = m.baseline.get(key);
@@ -466,9 +548,19 @@ const excess = (
     m.baseline.set(key, baseline);
   }
   const now: Float64Array = depths(probes, placed[i]!, placed[j]!);
+  for (let k: number = 0; k < now.length; k++) now[k] = now[k]! - baseline[k]!;
+  return now;
+};
+
+/** The deepest any probe of segment `i` lies in segment `j` beyond its own rest depth there. */
+const excess = (
+  m: IModel,
+  placed: readonly HumanColliders.IPlaced[],
+  i: number,
+  j: number,
+): number => {
   let worst: number = 0;
-  for (let k: number = 0; k < now.length; k++)
-    worst = Math.max(worst, now[k]! - baseline[k]!);
+  for (const d of beyond(m, placed, i, j)) worst = Math.max(worst, d);
   return worst;
 };
 

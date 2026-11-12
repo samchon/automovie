@@ -46,7 +46,9 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  * the arm never sweeps through the body it is about to touch;
  * the arm's angles leave the entry's over the path's first share
  * (`AutoMovieMotionHumanArm.carried`) and follow the path's solution after
- * it. The fingers take their shape on the same envelope, and the elbow's
+ * it, its goal standing off the region along the normal by the share still
+ * to go, so the hand arrives and leaves along the normal. The fingers take
+ * their shape on the same envelope, and the elbow's
  * hint is solved once, on the entry posture, and carried with the root, so
  * the arm keeps one side of its swivel through the whole stroke.
  *
@@ -275,8 +277,16 @@ export namespace AutoMovieMotionHumanTouch {
                   props.count,
                   seconds,
                 );
+          // Arriving and leaving, the goal stands off the region along its
+          // normal by the share of the carry still to go, up to a hand's
+          // length, so the hand comes onto the region and draws back off it
+          // along the normal instead of sinking along the surface.
+          const off: number = APPROACH * hand * (1 - share(seconds));
           const at: IAutoMovieVector3 = Vector3.add(
-            Vector3.add(place.point, Vector3.scale(normal, standoff + lift)),
+            Vector3.add(
+              place.point,
+              Vector3.scale(normal, standoff + lift + off),
+            ),
             Vector3.scale(along, travel),
           );
           const frame: HumanFrame.IFrame = {
@@ -603,6 +613,9 @@ export namespace AutoMovieMotionHumanTouch {
     return best;
   }
 }
+
+/** How far off a region along its normal a touch's goal stands at the start of the arrival and the end of the leave, hand lengths (provisional: a hand draws back about its own length before it turns away). */
+const APPROACH: number = 1;
 
 /** The turn either way of head on a held vessel's facing is sought within, degrees (provisional: past it the palm faces away from the region). */
 const UPRIGHT_SPAN: number = 90;
