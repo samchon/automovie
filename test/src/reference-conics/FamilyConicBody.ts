@@ -660,8 +660,8 @@ namespace FamilyConicBody {
         const j: number = Math.round((b + g.half) / 0.25);
         return i < 0 || j < 0 || i >= g.n || j >= g.n ? -Infinity : g.w[i * g.n + j]!;
       };
-      const depthLoop = (frame: AutoMovieLoftFrame.IFrame, s: number): C.P[] | null => {
-        // The frame's chart axes and the first frame's agree on a straight course; a section's point (a, b) is the grid's (a, b).
+      const depthLoop = (s: number): C.P[] | null => {
+        // Every frame's chart axes are the first frame's on a straight course; a section's point (a, b) is the grid's (a, b).
         if (!(depthAt(0, 0) > s)) return null;
         const loop: C.P[] = [];
         for (let k: number = 0; k < 96; ++k) {
@@ -676,7 +676,7 @@ namespace FamilyConicBody {
 
       // A plane's loop for the part: the one round the course, or for a `loose` part the largest closed loop the clip leaves whose hull holds the course.
       const cut = (frame: AutoMovieLoftFrame.IFrame, s: number): C.P[] | null => {
-        if (part.name === "concha" && CONCHA_DEPTH !== undefined) return depthLoop(frame, s);
+        if (part.name === "concha" && CONCHA_DEPTH !== undefined) return depthLoop(s);
         if (part.loose !== true || (part.surround !== undefined && s < part.surround.from)) {
           const whole: C.P[] | null = R.cut(skin, frame).loop;
           return whole === null || part.clip === undefined ? whole : without(whole, frame, part.clip, part.round);
@@ -1146,7 +1146,11 @@ namespace FamilyConicBody {
       const anchors: number = definition.layout.anchors.length;
       const moduleText: string = emit({ ...part, domain }, definition, Math.round(Math.log2(definition.layout.mirror ? (anchors - 1) / 2 : anchors / 4)), engine, rows.length);
       await fs.writeFile(path.join(out, moduleName(part.name) + ".ts"), moduleText);
-      if (process.argv.includes("--emit")) await fs.writeFile(path.join(root, "packages/human/src/generation/f1", moduleName(part.name) + ".ts"), moduleText);
+
+      // The construction's own path must admit the family too; a refused one is written beside the receipt but not into the package.
+      const refused: string[] = K.refusals(definition);
+      log("family-body-native", { part: part.name, admitted: refused.length === 0, refusals: refused.map((text: string): string => text.slice(0, 300)) });
+      if (process.argv.includes("--emit") && refused.length === 0) await fs.writeFile(path.join(root, "packages/human/src/generation/f1", moduleName(part.name) + ".ts"), moduleText);
     }
 
     // Same cameras for the reference and the regenerated parts, framed on the reference.
