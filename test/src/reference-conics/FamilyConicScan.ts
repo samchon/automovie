@@ -262,6 +262,89 @@ namespace FamilyConicScan {
       }
       return;
     }
+    if (process.argv[2] === "webs") {
+      // The web line between each two neighbouring digits, in the plane each seam of the limb's split stands in: from the seam's first fork
+      // along its chord every 2 mm, how far a ray along the plane's second axis (the seam's heading square to the chord) runs from
+      // the chord before it leaves the reference skin, mm. Where the chord point already lies outside the skin the depth is 0. These are the
+      // seams' profile knots (`IAutoMovieConstructionSplit.IProfile`) for a split of the limb's end (`AutoMovieHumanF1.fanSeams`).
+      for (const which of ["arm", "leg"] as const) {
+        const { station, seams, headings, normal } = AutoMovieHumanF1.fanSeams(which);
+        const family = { ...AutoMovieHumanF1.BODY[which], tips: undefined };
+        const loft = AutoMovieHumanConicLoft.create(family, family.knots);
+        const ring = (t: number): R.V => AutoMovieLoftChain.point(loft.chain!, station, t) as R.V;
+        const mesh = source.body;
+        const cast = (o: R.V, d: R.V): number[] => {
+          const hits: number[] = [];
+          for (let t: number = 0; t + 2 < mesh.indices.length; t += 3) {
+            const [a, b, c]: R.V[] = [0, 1, 2].map((k: number): R.V => [mesh.positions[mesh.indices[t + k]! * 3]!, mesh.positions[mesh.indices[t + k]! * 3 + 1]!, mesh.positions[mesh.indices[t + k]! * 3 + 2]!]);
+            const e1: R.V = [b![0] - a![0], b![1] - a![1], b![2] - a![2]];
+            const e2: R.V = [c![0] - a![0], c![1] - a![1], c![2] - a![2]];
+            const p: R.V = [d[1] * e2[2] - d[2] * e2[1], d[2] * e2[0] - d[0] * e2[2], d[0] * e2[1] - d[1] * e2[0]];
+            const det: number = e1[0] * p[0] + e1[1] * p[1] + e1[2] * p[2];
+            if (Math.abs(det) < 1e-12) continue;
+            const s: R.V = [o[0] - a![0], o[1] - a![1], o[2] - a![2]];
+            const u: number = (s[0] * p[0] + s[1] * p[1] + s[2] * p[2]) / det;
+            if (u < 0 || u > 1) continue;
+            const qv: R.V = [s[1] * e1[2] - s[2] * e1[1], s[2] * e1[0] - s[0] * e1[2], s[0] * e1[1] - s[1] * e1[0]];
+            const v: number = (d[0] * qv[0] + d[1] * qv[1] + d[2] * qv[2]) / det;
+            if (v < 0 || u + v > 1) continue;
+            const l: number = (e2[0] * qv[0] + e2[1] * qv[1] + e2[2] * qv[2]) / det;
+            // Signed by the triangle's facing: an exit where its outward normal runs along the ray.
+            const facing: number = d[0] * (e1[1] * e2[2] - e1[2] * e2[1]) + d[1] * (e1[2] * e2[0] - e1[0] * e2[2]) + d[2] * (e1[0] * e2[1] - e1[1] * e2[0]);
+            if (l > 0) hits.push(facing > 0 ? l : -l);
+          }
+          return hits.sort((x: number, y: number): number => Math.abs(x) - Math.abs(y));
+        };
+        seams.forEach(([a, b]: [number, number], j: number): void => {
+          const A: R.V = ring(a);
+          const B: R.V = ring(b);
+          const length: number = Math.hypot(B[0] - A[0], B[1] - A[1], B[2] - A[2]);
+          const e1: R.V = [(B[0] - A[0]) / length, (B[1] - A[1]) / length, (B[2] - A[2]) / length];
+          const h: R.V = headings[j]!;
+          const k: number = h[0] * e1[0] + h[1] * e1[1] + h[2] * e1[2];
+          const raw: R.V = [h[0] - k * e1[0], h[1] - k * e1[1], h[2] - k * e1[2]];
+          const rl: number = Math.hypot(...raw) * Math.sign(raw[0] * normal[0]! + raw[1] * normal[1]! + raw[2] * normal[2]!);
+          const e2: R.V = [raw[0] / rl, raw[1] / rl, raw[2] / rl];
+          const knots: string[] = [];
+          // Beside the first fork the web may stand well out of the end, where the skin between the two digits runs on along the host
+          // before it turns across: there the line is no graph over the chord. Rays along the chord from 4 mm before the fork, every
+          // millimetre out along the plane's second axis, read where they first enter the skin, as `[along, depth]` knots that run out
+          // first (`IAutoMovieConstructionSplit.IProfile`, parameterized by its own length); they stop where the ray no longer enters
+          // within 2 mm of the fork, which is where the line turns across.
+          // The same at the second fork, read back along the chord. Each run stops 0.5 mm short of the first or last web knot so no two
+          // knots coincide.
+          const runOut = (from: R.V, sign: 1 | -1): [number, number][] => {
+            const run: [number, number][] = [];
+            for (let out: number = 1; out < 20; out += 1) {
+              const back: R.V = [from[0] + out * e2[0] - sign * 4 * e1[0], from[1] + out * e2[1] - sign * 4 * e1[1], from[2] + out * e2[2] - sign * 4 * e1[2]];
+              const hits: number[] = cast(back, [sign * e1[0], sign * e1[1], sign * e1[2]]);
+              const along: number = hits.length > 0 && hits[0]! < 0 ? -hits[0]! - 4 : Infinity;
+              if (!(along < 1.5)) break;
+              // At least 0.1 mm from the fork, so a mirrored knot stays inside the chord as the engine measures it.
+              run.push([Math.max(0.1, along), out]);
+            }
+            return run;
+          };
+          for (const [along, out] of runOut(A, 1)) knots.push("[" + (along / 1000).toFixed(4) + ", " + (out / 1000).toFixed(4) + "]");
+          let last: number = 2;
+          while (last + 2 < length - 1) last += 2;
+          const tail: string[] = runOut(B, -1)
+            .filter(([along]: [number, number]): boolean => length - along > last + 0.5)
+            .reverse()
+            .map(([along, out]: [number, number]): string => "[" + (Math.floor((length - along) * 10) / 10 / 1000).toFixed(4) + ", " + (out / 1000).toFixed(4) + "]");
+          process.stdout.write(which + " seam " + j + " last web knot at " + last + " mm, " + tail.length + " run-out knots at the second fork\n");
+          for (let along: number = 2; along < length - 1; along += 2) {
+            const o: R.V = [A[0] + along * e1[0], A[1] + along * e1[1], A[2] + along * e1[2]];
+            const hits: number[] = cast(o, e2);
+            // Inside the skin when the first crossing ahead is an exit; the depth is then that crossing.
+            const depth: number = hits.length > 0 && hits[0]! > 0 ? hits[0]! : 0;
+            knots.push("[" + (along / 1000).toFixed(4) + ", " + (depth / 1000).toFixed(4) + "]");
+          }
+          process.stdout.write(which + " seam " + j + " phases [" + a.toFixed(4) + ", " + b.toFixed(4) + "] chord " + length.toFixed(1) + " mm from " + A.map((x: number): string => x.toFixed(1)).join("/") + " to " + B.map((x: number): string => x.toFixed(1)).join("/") + "\n  knots " + [...knots, ...tail].join(", ") + "\n");
+        });
+      }
+      return;
+    }
     if (process.argv[2] === "alar") {
       // The nose's base in level planes 2 mm apart: the head's outer loop on the +Z side from the median line out to 34 mm, as `z:x` points
       // about 1.5 mm apart, so the alar groove (the corner where the wing's outer face meets the cheek), the alar base and the subnasale

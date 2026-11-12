@@ -213,13 +213,13 @@ export namespace AutoMovieHumanF1Joints {
   export const lobuleTip: V3 = [7.5, 1555.5, 65.5];
 
   /**
-   * Where the breast's course starts, inside the chest 30 mm behind the apex along the breast's axis. The axis is the vector area of the
-   * skin within 70 mm of the apex, which is the vector area of that patch's boundary loop and so is not tilted by the mound itself.
+   * Where the breast's course starts, inside the chest 30 mm behind the dome's top along the skin's normal there: the top is the skin's
+   * point farthest along that normal, and the normal the vector area of the skin within 12 mm of the top.
    */
-  export const breastRoot: V3 = [98.9, 1252.1, 54.4];
+  export const breastRoot: V3 = [97.4, 1258.41, 65.14];
 
-  /** Where the breast's course ends, along the same axis 8 mm past the apex. */
-  export const breastTip: V3 = [136.1, 1254, 61.9];
+  /** Where the breast's course ends, along the same normal 8 mm past the top. */
+  export const breastTip: V3 = [134.64, 1261.94, 71.8];
 
   /** Where a nostril's course starts, below the nose under the middle of the nostril's mouth. */
   export const nostrilRoot: V3 = [127.1, 1540.4, 7.7];
@@ -231,5 +231,16 @@ export namespace AutoMovieHumanF1Joints {
   export function beyond(a: V3, b: V3, length: number): V3 {
     const d: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
     return [b[0] + ((b[0] - a[0]) * length) / d, b[1] + ((b[1] - a[1]) * length) / d, b[2] + ((b[2] - a[2]) * length) / d];
+  }
+
+  /** The point `length` millimetres past `from` along the mean of the unit directions of `segments`: where a limb's course runs on past its knuckles toward its digits. */
+  export function toward(from: V3, segments: [V3, V3][], length: number): V3 {
+    const sum: number[] = [0, 0, 0];
+    for (const [a, b] of segments) {
+      const d: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+      for (let c: number = 0; c < 3; ++c) sum[c] = sum[c]! + (b[c]! - a[c]!) / d;
+    }
+    const l: number = Math.hypot(sum[0]!, sum[1]!, sum[2]!);
+    return [from[0] + (sum[0]! * length) / l, from[1] + (sum[1]! * length) / l, from[2] + (sum[2]! * length) / l];
   }
 }

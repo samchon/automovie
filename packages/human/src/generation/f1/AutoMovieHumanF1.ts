@@ -1,9 +1,10 @@
 import { AutoMovieLoftChain, type AutoMovieConstructionRealization, type AutoMovieLoftFrame, AutoMovieNaturalSpline, type AutoMovieViewAxis, type AutoMovieViewLoft, type IAutoMovieViewPart, realizeAutoMovieConstruction } from "@automovie/engine";
-import type { AutoMovieConstructionNode, IAutoMovieConstructionPort } from "@automovie/interface";
+import type { AutoMovieConstructionNode, IAutoMovieConstructionPort, IAutoMovieConstructionSplit } from "@automovie/interface";
 
 import { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Arm } from "./AutoMovieHumanF1Arm";
+import { AutoMovieHumanF1Breast } from "./AutoMovieHumanF1Breast";
 import { AutoMovieHumanF1Concha } from "./AutoMovieHumanF1Concha";
 import { AutoMovieHumanF1Ear } from "./AutoMovieHumanF1Ear";
 import { AutoMovieHumanF1Fossa } from "./AutoMovieHumanF1Fossa";
@@ -82,7 +83,7 @@ export namespace AutoMovieHumanF1 {
   }
 
   /** The families the sewn body is built from. */
-  export const BODY: { trunk: AutoMovieHumanConicLoft.IFamily; arm: AutoMovieHumanConicLoft.IFamily; leg: AutoMovieHumanConicLoft.IFamily; ear: AutoMovieHumanConicLoft.IFamily; nose: AutoMovieHumanConicLoft.IFamily } = { trunk: AutoMovieHumanF1Trunk, arm: AutoMovieHumanF1Arm, leg: AutoMovieHumanF1Leg, ear: AutoMovieHumanF1Ear, nose: AutoMovieHumanF1Nose };
+  export const BODY: { trunk: AutoMovieHumanConicLoft.IFamily; arm: AutoMovieHumanConicLoft.IFamily; leg: AutoMovieHumanConicLoft.IFamily; ear: AutoMovieHumanConicLoft.IFamily; nose: AutoMovieHumanConicLoft.IFamily; breast: AutoMovieHumanConicLoft.IFamily } = { trunk: AutoMovieHumanF1Trunk, arm: AutoMovieHumanF1Arm, leg: AutoMovieHumanF1Leg, ear: AutoMovieHumanF1Ear, nose: AutoMovieHumanF1Nose, breast: AutoMovieHumanF1Breast };
 
   /** One digit sewn to its limb. */
   export interface IDigit {
@@ -93,28 +94,27 @@ export namespace AutoMovieHumanF1 {
     limb: "arm" | "leg";
 
     /**
-     * Chord of the blend on either side of the curve where the digit meets the limb, mm: 1 for the fingers and the toes, whose webs leave no
-     * room for a wider rail, and 0.5 for the thumb, whose blend folds at 1 mm in the acute web beside the index finger.
+     * The digit leaves its limb's end over a knuckle in the row of knuckles, as one of the children of the end's split (`FANS`). The thumb
+     * leaves the hand's side, its first joint deep in the palm, and keeps the root closed `ROOT_MM` behind its first joint.
      */
-    chord: number;
+    knuckle: boolean;
   }
 
   /**
-   * The digits sewn to the body, in the order they are merged: the middle one of each limb first, then its neighbours outward. Each is merged
-   * as a capsule: besides its tip it closes in a point `ROOT_MM` behind its first joint, inside the hand or the foot, so it meets the limb's
-   * cap in a closed curve wherever it comes out.
+   * The digits sewn to the body. A knuckled digit is a child of its limb's split (`FANS`). The thumb is merged onto the hand's side as a
+   * capsule: besides its tip it closes in a point inside the hand (`ROOT_MM`), so it meets the hand in a closed curve wherever it comes out.
    */
   export const DIGITS: readonly IDigit[] = [
-    { family: AutoMovieHumanF1FingerMiddle, limb: "arm", chord: 1 },
-    { family: AutoMovieHumanF1FingerRing, limb: "arm", chord: 1 },
-    { family: AutoMovieHumanF1FingerIndex, limb: "arm", chord: 1 },
-    { family: AutoMovieHumanF1FingerPinky, limb: "arm", chord: 1 },
-    { family: AutoMovieHumanF1FingerThumb, limb: "arm", chord: 0.5 },
-    { family: AutoMovieHumanF1ToeBig, limb: "leg", chord: 1 },
-    { family: AutoMovieHumanF1ToeIndex, limb: "leg", chord: 1 },
-    { family: AutoMovieHumanF1ToeMiddle, limb: "leg", chord: 1 },
-    { family: AutoMovieHumanF1ToeRing, limb: "leg", chord: 1 },
-    { family: AutoMovieHumanF1ToeLittle, limb: "leg", chord: 1 },
+    { family: AutoMovieHumanF1FingerMiddle, limb: "arm", knuckle: true },
+    { family: AutoMovieHumanF1FingerRing, limb: "arm", knuckle: true },
+    { family: AutoMovieHumanF1FingerIndex, limb: "arm", knuckle: true },
+    { family: AutoMovieHumanF1FingerPinky, limb: "arm", knuckle: true },
+    { family: AutoMovieHumanF1FingerThumb, limb: "arm", knuckle: false },
+    { family: AutoMovieHumanF1ToeBig, limb: "leg", knuckle: true },
+    { family: AutoMovieHumanF1ToeIndex, limb: "leg", knuckle: true },
+    { family: AutoMovieHumanF1ToeMiddle, limb: "leg", knuckle: true },
+    { family: AutoMovieHumanF1ToeRing, limb: "leg", knuckle: true },
+    { family: AutoMovieHumanF1ToeLittle, limb: "leg", knuckle: true },
   ];
 
   /** The families not sewn: none now. A loose family is emitted as a closed tube of its own, carried by its reach under its neighbour's skin. */
@@ -128,6 +128,7 @@ export namespace AutoMovieHumanF1 {
     { family: BODY.ear, mirrored: true },
     { family: AutoMovieHumanF1Helix, mirrored: true },
     { family: BODY.nose, mirrored: false },
+    { family: BODY.breast, mirrored: true },
     ...DIGITS.map((digit: IDigit): IMember => ({ family: digit.family, mirrored: true })),
     ...LOOSE,
   ];
@@ -145,8 +146,80 @@ export namespace AutoMovieHumanF1 {
    */
   const CROTCH: { knots: [number, number][]; corner: number } = { knots: [[0.0131, 0], [0.0231, 0.0011], [0.0331, 0.0028], [0.0431, 0.0031], [0.0531, 0.0029], [0.0631, 0.0018]], corner: 0.6 };
 
-  /** How far behind its first joint a sewn digit closes in a point, mm. */
+  /** A limb whose open end is split into its knuckled digits. */
+  interface IFan {
+    /** The digits in the seams' order, from the little finger or the little toe (`fanSeams`). */
+    digits: string[];
+
+    /** Each seam's web line, knots `[along, depth]` in metres in its plane (`IAutoMovieConstructionSplit.IProfile`). */
+    webs: [number, number][][];
+
+    /** The bands' turn at each fork, radians of clock. */
+    corner: number;
+
+    /** The share of its length each band's ribbon keeps at a fork (`IAutoMovieConstructionSplit.IProfile.reach`); absent, the whole. */
+    reach?: number;
+
+    /** Where each digit's band lands on it, mm past its first station, the web. */
+    rail: number;
+
+    /** Columns round each band, a quarter on each seam it takes. */
+    columns: number;
+  }
+
+  /**
+   * The limbs split at their ends, Birn's hand: the palm lofted on past the knuckles, its end cut into one opening per finger along the
+   * webs, and each opening bridged to its finger by a band. The hand's end at 595 mm on the arm's course, which turns at the middle
+   * finger's first joint toward the four fingers' mean direction, faces the fingers, so each band runs on to its finger. The web lines are
+   * `FamilyConicScan.ts webs` every 2 mm along each seam's chord, depths of 0 left out so the seam leaves its fork along the host. Each band
+   * takes 192 columns: on 96, 0.5 to 1 mm apart along a seam, its quads stood as a comb of steps along every seam. The hand's ribbons keep
+   * half their length at each fork (`reach`): the skin's edges folding by more than 90 degrees over the hand fall from 168 to 119.
+   */
+  const FANS: { arm: IFan; leg: IFan } = {
+    arm: {
+      digits: ["finger.pinky", "finger.ring", "finger.middle", "finger.index"],
+      webs: [
+        [[0.006, 0.0007], [0.008, 0.002], [0.01, 0.0019], [0.012, 0.0005]],
+        [[0.01, 0.003], [0.012, 0.0061], [0.014, 0.0081], [0.016, 0.0087], [0.018, 0.0082], [0.02, 0.0064], [0.022, 0.0037], [0.024, 0.0003]],
+        [[0.006, 0.0036], [0.008, 0.0065], [0.01, 0.0072], [0.012, 0.0064], [0.014, 0.0052], [0.016, 0.0037], [0.018, 0.0019]],
+      ],
+      corner: 0.6,
+      reach: 0.5,
+      rail: 3,
+      columns: 192,
+    },
+    // The foot's end at 975 mm on the leg's course, turned at the ball of the foot toward the five toes. Between the index and the big toe
+    // the rays from 8 to 18 mm along the chord ran on into the big toe (31 to 47 mm against 16 and 13 on either side) and are left out.
+    // Beside each fork the web stands up to 10 mm out of the end, on the sole as on top, so each seam first runs out along the foot and
+    // then turns across: the knots before the first web knot and after the last are `FamilyConicScan.ts webs`' run-out readings, rays
+    // along the chord every millimetre out from the end; read only every 2 mm along the chord, the seam turned down within 1 to 2 mm of
+    // its fork and stood a pointed tent between the toes on top. The bands turn over 0.75 rad of clock at each fork, nearly half of a
+    // stretch's 1.57: columns square to the ring and to the seam converge inside a fork's corner within about the turn's window, and the
+    // toe bands, 16 to 20 mm long, folded beside their forks over 185 of 3,840 clocks at 0.6 rad, 110 at 0.75 and 237 at 0.3 (sampled
+    // every 0.008 rad and 1/40 of each band's span, normals flipping between neighbours). Their ribbons keep a quarter of their length at
+    // each fork (`reach`): 110 clocks fold at the whole length, 44 at a half, 24 at a quarter and 28 at a tenth, and the webs' blades on top
+    // become grooves. The hand's bands keep their whole length: theirs fold in 13 clocks of 3,072 at the whole, 48 at a quarter.
+    leg: {
+      digits: ["toe.little", "toe.ring", "toe.middle", "toe.index", "toe.big"],
+      webs: [
+        [[0.0004, 0.001], [0.0009, 0.002], [0.002, 0.0031], [0.004, 0.0038], [0.006, 0.0039], [0.008, 0.0037], [0.01, 0.0034], [0.012, 0.0024], [0.014, 0.0008]],
+        [[0.0005, 0.001], [0.0007, 0.002], [0.0009, 0.003], [0.0012, 0.004], [0.0014, 0.005], [0.002, 0.0076], [0.004, 0.0116], [0.006, 0.0127], [0.008, 0.013], [0.01, 0.0128], [0.012, 0.0121], [0.014, 0.0113], [0.016, 0.0102], [0.018, 0.0088], [0.02, 0.0071], [0.022, 0.0035], [0.0225, 0.001]],
+        [[0.0008, 0.001], [0.001, 0.002], [0.0012, 0.003], [0.0014, 0.004], [0.002, 0.007], [0.004, 0.0145], [0.006, 0.0172], [0.008, 0.018], [0.01, 0.0185], [0.012, 0.0184], [0.014, 0.018], [0.016, 0.0177], [0.018, 0.0171], [0.02, 0.0162], [0.022, 0.0145], [0.024, 0.0104], [0.0248, 0.009], [0.025, 0.008], [0.0252, 0.007], [0.0254, 0.006], [0.0257, 0.005], [0.0258, 0.004], [0.0258, 0.003], [0.0258, 0.002], [0.0258, 0.001]],
+        [[0.0001, 0.001], [0.0001, 0.002], [0.0003, 0.003], [0.0006, 0.004], [0.0008, 0.005], [0.001, 0.006], [0.0013, 0.007], [0.002, 0.0094], [0.004, 0.0135], [0.006, 0.0158], [0.02, 0.0128], [0.022, 0.0104], [0.024, 0.0069], [0.026, 0.0031], [0.0265, 0.002], [0.027, 0.001]],
+      ],
+      corner: 0.75,
+      reach: 0.25,
+      rail: 3,
+      columns: 192,
+    },
+  };
+
+  /** Chord of the thumb's blend on either side of the curve where it meets the hand, mm: at 1 mm it folds in the acute web beside the index finger. */
+  const THUMB_CHORD_MM: number = 0.5;
+
+  /** How far behind its first joint the thumb's root closes in a point, inside the hand, mm. */
   const ROOT_MM: number = 10;
+
 
   /**
    * Station spacing of the layers and derived outlines of a sewn family, mm. Each part adds stations of its own where its section turns fast,
@@ -173,10 +246,46 @@ export namespace AutoMovieHumanF1 {
   const ARMPIT_ROUND_MM: number = 12;
 
   /**
+   * Where the arm's band lands on it, mm from its first station, at the +Z arm's phases `2 pi j / 24`, joined by the periodic cubic. Behind
+   * the armpit's crease the trunk's side and the arm's inner side meet in a slit, its top at 1,272 to 1,274 mm 25 to 35 mm behind the
+   * crease's datum, and the arm's side falls 2 to 4 mm for each millimetre outward from it (`vault`, a scratch survey of the skin in planes
+   * x = const); the ring 10 mm in hangs 22 mm below the slit's top at the arm's phases 96 to 136 degrees, and the band there left the
+   * trunk upward and folded back over it (108 to 139 degrees, a speck on `shoulder.high-oblique`; `FamilyConicArmscye.ts --table`: host
+   * cosines down to -0.82 over 24 columns). There, from 75 to 135 degrees, the rail comes up to 1.5 mm, to the first section's foot at
+   * 1,263 mm, and the loop follows the ring under the slit (`ARMPIT_SINK_MM`): the band crosses the slit near its foot and the slit above
+   * it is closed. Read by `FamilyConicArmscye.ts --table`, 3 columns point back, at -0.17 at worst, where the dip meets the front fold.
+   */
+  const ARM_RAILS_MM: number[] = [10, 10, 10, 10, 8, 3, 1.5, 1.5, 1.5, 3, 8, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
+
+  /**
+   * How far the loop's floor sinks where the arm's rail is shortest, mm, by the rail's share of its dip elsewhere. At 23 mm the floor is
+   * 4 mm under the ring there, so the smooth maximum and the margin leave the loop 1 to 2 mm under the ring, across the slit from it: sunk
+   * 18 mm the loop stood level with the ring and 16 columns left the trunk against it; sunk 28 or 40 mm it stood 3 to 6 mm under the ring
+   * and up to 17 columns reached the arm against the arm's own direction, which falls 2 mm a millimetre there.
+   */
+  const ARMPIT_SINK_MM: number = 23;
+
+  /** `ARM_RAILS_MM` for one side: the twin's chart runs the other way round, so its phase `psi` is the +Z arm's `-psi`. */
+  export function armRails(side: 1 | -1): number[] {
+    return side > 0 ? ARM_RAILS_MM : ARM_RAILS_MM.map((_: number, j: number): number => ARM_RAILS_MM[(ARM_RAILS_MM.length - j) % ARM_RAILS_MM.length]!);
+  }
+
+  /**
    * Where each limb's band lands on it, mm from the limb's first station: the limb keeps its stations beyond. The arm's first station is 2 mm
    * past the armscye's plane and its course is nearly square to that plane for its first 25 mm, so its ring 10 mm on lies beside the plane. The ear's band lands half a millimetre in, on the leaf's root ring where it leaves the head square. The nose's band lands on a curve (`NOSE_RAILS_MM`).
    */
-  export const RAIL_MM: { arm: number; leg: number; ear: number } = { arm: 10, leg: 6, ear: 0.5 };
+  export const RAIL_MM: { arm: number; leg: number; ear: number; breast: number } = { arm: 10, leg: 6, ear: 0.5, breast: 1 };
+
+  /**
+   * How far from the breast's course the trunk's own skin starts round the port, mm, at the clocks `2 pi j / 8` about the course: 0 up, a
+   * quarter turn to the side, a half turn down, three quarters toward the median line. The port's loop stands there. Under the breast it is
+   * the fold's lower edge, where the chest begins (`FamilyConicBody.ts BREAST_CHEST_MM`, read off the skin's profile in half-planes about
+   * the course: straight down the chest stands level 24 to 26 mm behind the top from 52 mm out), so the band spans the fold and the fold is
+   * its short side; elsewhere the skin runs on from the breast with no crease, and the loop stands 5 to 6 mm outside the ring: 2 to 3.5 mm
+   * out, the band joined the breast's flank to the trunk's in a visible line on `fold.left`. The trunk's sections leave out the breast's
+   * underside to 1.5 mm inside this curve, and elsewhere the skin to 1 mm inside the ring (`FamilyConicBody.ts BREAST_CLIP_MM`).
+   */
+  const BREAST_CHEST_MM: number[] = [62, 58, 52, 47, 52, 50, 54, 60];
 
   /**
    * Where the nose's band lands on it, mm from its first station, at its phases `2 pi j / 32` (0 up, a quarter turn toward -Z, a half turn
@@ -193,7 +302,9 @@ export namespace AutoMovieHumanF1 {
    * from the lip's front and turned on itself (folds of 110 to 161 degrees along y 1,543); landed 10.5 mm in at the subnasale alone,
    * between neighbours at 3 mm, it stood as a notch. Where the wall is skin from the first station the band still lands 2 mm in, so it
    * rounds the alar groove; under the back of each wing, where the alar groove is sharpest (110 to 125 and 235 to 250 degrees), only
-   * 1.5 mm in, so the crease there is crisp and softer above. Above the wings the
+   * 1.5 mm in, so the crease there is crisp and softer above. The floor's net (`AutoMovieHumanF1Nose`, `nose.floor`) lifts the ring
+   * between the wings onto the underside's skin, which leaves it no longer star-shaped about its centroid, so the port matches it to its
+   * loop by length (`correspondence`); by angle it was refused. Above the wings the
    * face keeps the sidewalls (`FamilyConicBody.ts noseCut`), and the band lands 5 to 8 mm in, the farther the higher, so its loop, 2.5 mm
    * outside this curve, stays on the face's own skin.
    */
@@ -206,6 +317,15 @@ export namespace AutoMovieHumanF1 {
    * floor, and at 4 mm its front edge, by the tragus, came out past the loop onto the head's own skin, where the cut left the skin open along it.
    */
   const NOSE_MARGIN_MM: number = 2.5;
+
+  /**
+   * How much farther out the nose's loop stands under the columella, mm, at the loop's lowest clock, falling off as `(-cos c)^6` (half of
+   * it about 10 mm to either side of the median line, nothing at the wings). The reference's lip turns forward into the subnasale over 6 mm of
+   * height (its front at 120.6, 121.1, 122.2 and 124 mm forward at 1,538, 1,540, 1,542 and 1,544 mm, `FamilyConicScan.ts alar`); a loop 2.5 mm
+   * below the floor stood on the face's own skin just under the nose's cut, which its net leaves fair and 1 mm hollow there, and the
+   * profile showed a notch under the band (mouth.left px 580..598 x 235..265). Landed 5 mm below, the band spans the whole turn.
+   */
+  const NOSE_SUBNASAL_MM: number = 2.5;
   const AURICLE_MARGIN_MM: number = 6;
 
   /**
@@ -254,6 +374,15 @@ export namespace AutoMovieHumanF1 {
    */
   const NOSTRIL_RIM_MM: number = 1.5;
 
+  /**
+   * Spacing of a nostril cutter's layers over its whole length, mm. The cutter's wall turns from its flared mouth into the canal within
+   * about 2.5 mm of station above the cut (its station line at 0.4 rad round turns 72 degrees between 10.4 and 13 mm along its course,
+   * where its knots at 9 and 11 mm change its section by 7 mm), and on layers 1.6 mm apart there the mesh folded 64 to 72 degrees along
+   * one ring inside each nostril, a faint streak down its walls (mouth.front px 555..600 x 190..260). On layers 1 mm apart the folds were
+   * 44 degrees.
+   */
+  const NOSTRIL_LAYER_MM: number = 0.5;
+
   /** The sewn body's declaration: its construction tree and the view parts its source leaves name. */
   export interface IConstruction {
     /** The tree: both arm ports over the crotch split over the trunk. */
@@ -281,15 +410,19 @@ export namespace AutoMovieHumanF1 {
     const first: number = family.knots[0]!;
     const rail: number = first + RAIL_MM.arm;
 
-    // The arm's ring at the rail, read from a loft of its first stations alone.
-    const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create({ ...family, tips: undefined, reliefs: undefined }, [first, rail, first + 2 * RAIL_MM.arm, first + 4 * RAIL_MM.arm]);
+    // The arm's ring at its rail curve (`armRails`), read from a loft of its first stations alone.
+    const along: (psi: number) => number = AutoMovieNaturalSpline.periodic(armRails(side).map((mm: number): number => first + mm));
+    const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create({ ...family, tips: undefined, reliefs: undefined }, [first, first + Math.min(...ARM_RAILS_MM) / 2, rail, first + 2 * RAIL_MM.arm, first + 4 * RAIL_MM.arm]);
     if (loft.chain === null) throw new Error("the arm's first stations do not loft");
     const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> = loft.chain;
+    const behind: (psi: number) => number = AutoMovieNaturalSpline.periodic(armRails(side).map((mm: number): number => (RAIL_MM.arm - mm) / (RAIL_MM.arm - Math.min(...ARM_RAILS_MM))));
     const outline: [number, number][] = Array.from({ length: 4 * SHOULDER_COLUMNS }, (_: unknown, j: number): [number, number] => {
-      const p: number[] = AutoMovieLoftChain.point(chain, rail, (2 * Math.PI * j) / (4 * SHOULDER_COLUMNS));
+      const psi: number = (2 * Math.PI * j) / (4 * SHOULDER_COLUMNS);
+      const p: number[] = AutoMovieLoftChain.point(chain, along(psi), psi);
       // The floor under the crease, met by a smooth maximum: held by a plain one, the loop ran level along the floor and turned up at a
-      // corner at each end, and the band stood a box-shaped notch at the back of the armpit.
-      const floor: number = J.armpit[1] - ARMPIT_DROP_MM;
+      // corner at each end, and the band stood a box-shaped notch at the back of the armpit. Behind the crease, where the rail comes up to
+      // the arm's first section, the floor sinks by the same share, so the loop follows the ring there.
+      const floor: number = J.armpit[1] - ARMPIT_DROP_MM - ARMPIT_SINK_MM * Math.max(0, Math.min(1, behind(psi)));
       return [(p[1]! + floor + Math.hypot(p[1]! - floor, ARMPIT_ROUND_MM)) / 2 - J.axisFloor[1], Math.atan2(p[2]!, p[0]!)];
     });
     // The margin's phase is taken at the armpit's side distance.
@@ -302,11 +435,11 @@ export namespace AutoMovieHumanF1 {
    *
    * @param outline The ring's points in the trunk's chart, `[station, phase]`, mm and radians, densely round it.
    * @param columns The band's columns.
-   * @param margin How far outside the ring the loop stands, mm.
+   * @param margin How far outside the ring the loop stands, mm, or that distance at each clock round the ellipse.
    * @param radius The distance from the trunk's axis at which a phase is read as millimetres, mm.
    * @param sense The phase's sense of increasing clock.
    */
-  function around(outline: [number, number][], columns: number, margin: number, radius: number, sense: 1 | -1): IAutoMovieConstructionPort.ILoop {
+  function around(outline: [number, number][], columns: number, margin: number | ((clock: number) => number), radius: number, sense: 1 | -1): IAutoMovieConstructionPort.ILoop {
     const span = (c: 0 | 1): [number, number] => [Math.min(...outline.map((q: [number, number]): number => q[c])), Math.max(...outline.map((q: [number, number]): number => q[c]))];
     const [stations, phases]: [number, number][] = [span(0), span(1)];
     const centre: [number, number] = [(stations[0] + stations[1]) / 2, (phases[0] + phases[1]) / 2];
@@ -328,7 +461,7 @@ export namespace AutoMovieHumanF1 {
       const share: number = b[0] === a[0] ? a[1] : a[1] + ((b[1] - a[1]) * (clock - a[0])) / (b[0] - a[0]);
 
       // The margin as a share of the ellipse's own distance at this clock.
-      return share + margin / Math.hypot(semi[0] * Math.cos(clock), semi[1] * radius * Math.sin(clock));
+      return share + (typeof margin === "number" ? margin : margin(clock)) / Math.hypot(semi[0] * Math.cos(clock), semi[1] * radius * Math.sin(clock));
     });
     return { centre: [centre[0] / 1000, centre[1]], semi: [semi[0] / 1000, semi[1]], sense, shape };
   }
@@ -402,10 +535,131 @@ export namespace AutoMovieHumanF1 {
     return around(
       ring.map((p: number[]): [number, number] => [p[1]! - J.axisFloor[1], Math.atan2(p[2]!, p[0]!)]),
       NOSE_COLUMNS,
-      NOSE_MARGIN_MM,
+      (clock: number): number => NOSE_MARGIN_MM + NOSE_SUBNASAL_MM * Math.max(0, -Math.cos(clock)) ** 6,
       radius,
       1,
     );
+  }
+
+  /**
+   * The breast's port on the trunk's chart: each point of the breast's ring at its rail carried out from the breast's course, square to
+   * it, to the distance `BREAST_CHEST_MM` gives at its clock, as the trunk's chart sees it; written as the armscye's loop is. Its phase is
+   * read as millimetres at the ring's mean distance from the trunk's axis.
+   *
+   * @param side +1 for the +Z side, -1 for its twin.
+   */
+  export function mammary(side: 1 | -1): IAutoMovieConstructionPort.ILoop {
+    const J = AutoMovieHumanF1Joints;
+    const family: AutoMovieHumanConicLoft.IFamily = BODY.breast;
+    const first: number = family.knots[0]!;
+    const rail: number = first + RAIL_MM.breast;
+    const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create({ ...family, tips: undefined, reliefs: undefined }, [first, rail, first + 2 * LAYER_MM, first + 4 * LAYER_MM]);
+    if (loft.chain === null) throw new Error("the breast's first stations do not loft");
+    const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> = loft.chain;
+
+    // The course's point and directions at the rail: along it, up squared to it, and to +Z square to both.
+    const frame: AutoMovieLoftFrame.IFrame = AutoMovieHumanConicLoft.axis(family).at(rail);
+    const w: number[] = [0, 1, 2].map((k: number): number => J.breastTip[k]! - J.breastRoot[k]!);
+    const length: number = Math.hypot(w[0]!, w[1]!, w[2]!);
+    const t: number[] = w.map((x: number): number => x / length);
+    const up: number[] = [-t[1]! * t[0]!, 1 - t[1]! * t[1]!, -t[1]! * t[2]!];
+    const lateral: number[] = [t[1]! * up[2]! - t[2]! * up[1]!, t[2]! * up[0]! - t[0]! * up[2]!, t[0]! * up[1]! - t[1]! * up[0]!];
+    const chest: (clock: number) => number = AutoMovieNaturalSpline.periodic(BREAST_CHEST_MM);
+    const ring: number[][] = Array.from({ length: 4 * SHOULDER_COLUMNS }, (_: unknown, j: number): number[] => {
+      const p: number[] = AutoMovieLoftChain.point(chain, rail, (2 * Math.PI * j) / (4 * SHOULDER_COLUMNS));
+      const off: number[] = [0, 1, 2].map((k: number): number => p[k]! - frame.origin[k]!);
+      const r: number = Math.hypot(off[0]!, off[1]!, off[2]!);
+      const clock: number = Math.atan2(off[0]! * lateral[0]! + off[1]! * lateral[1]! + off[2]! * lateral[2]!, off[0]! * up[0]! + off[1]! * up[1]! + off[2]! * up[2]!);
+      const out: number = chest(clock < 0 ? clock + 2 * Math.PI : clock) / r;
+      return [0, 1, 2].map((k: number): number => frame.origin[k]! + off[k]! * out);
+    });
+    const radius: number = ring.reduce((sum: number, p: number[]): number => sum + Math.hypot(p[0]!, p[2]!), 0) / ring.length;
+    return around(
+      ring.map((p: number[]): [number, number] => [p[1]! - J.axisFloor[1], side * Math.atan2(p[2]!, p[0]!)]),
+      SHOULDER_COLUMNS,
+      0,
+      radius,
+      side,
+    );
+  }
+
+  /**
+   * Where the plane between two neighbouring digits crosses a limb's open end: the two host phases at which the end's ring crosses the
+   * plane through the midpoints of the two digits' first joints and of their second joints that holds `up`, increasing in `[0, 2 pi)`.
+   *
+   * @param family The limb's family, its end open.
+   * @param station The end's station, mm.
+   * @param joints The two digits' first and second joints: `[[first, second], [first, second]]`.
+   * @param up The palm's or the sole's normal, or any direction the plane must hold.
+   */
+  export function valley(family: AutoMovieHumanConicLoft.IFamily, station: number, joints: [[number[], number[]], [number[], number[]]], up: number[]): [number, number] {
+    const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(family, family.knots);
+    if (loft.chain === null) throw new Error("valley: the limb does not loft");
+    const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> = loft.chain;
+    const mid = (a: number[], b: number[]): number[] => [(a[0]! + b[0]!) / 2, (a[1]! + b[1]!) / 2, (a[2]! + b[2]!) / 2];
+    const m1: number[] = mid(joints[0][0], joints[1][0]);
+    const m2: number[] = mid(joints[0][1], joints[1][1]);
+    const d: number[] = [m2[0]! - m1[0]!, m2[1]! - m1[1]!, m2[2]! - m1[2]!];
+    const normal: number[] = [d[1]! * up[2]! - d[2]! * up[1]!, d[2]! * up[0]! - d[0]! * up[2]!, d[0]! * up[1]! - d[1]! * up[0]!];
+    const side = (t: number): number => {
+      const p: number[] = AutoMovieLoftChain.point(chain, station, t);
+      return (p[0]! - m1[0]!) * normal[0]! + (p[1]! - m1[1]!) * normal[1]! + (p[2]! - m1[2]!) * normal[2]!;
+    };
+    const count: number = 720;
+    const crossings: number[] = [];
+    for (let k: number = 0; k < count; ++k) {
+      let [lo, hi]: number[] = [(2 * Math.PI * k) / count, (2 * Math.PI * (k + 1)) / count];
+      if (side(lo!) <= 0 === side(hi!) <= 0) continue;
+      for (let i: number = 0; i < 50; ++i) {
+        const middle: number = (lo! + hi!) / 2;
+        if (side(middle) <= 0 === side(lo!) <= 0) lo = middle;
+        else hi = middle;
+      }
+      crossings.push((lo! + hi!) / 2);
+    }
+    if (crossings.length !== 2) throw new Error("valley: the plane crosses the limb's end " + crossings.length + " times");
+    return [crossings[0]!, crossings[1]!];
+  }
+
+  /**
+   * The seams a limb's open end is split along between its knuckled digits (`IAutoMovieConstructionSplit.outer`), from the little
+   * finger's or the little toe's valley inward, each a pair of host phases on the end's ring enclosing the one before; each seam's heading,
+   * the two digits' mean direction (`IAutoMovieConstructionSplit.IProfile.heading`); and the end's station, outward normal and palm or
+   * sole normal. The split of a fanned limb's end (`FANS`) and `FamilyConicScan.ts webs` read it.
+   *
+   * @param which The limb.
+   */
+  export function fanSeams(which: "arm" | "leg"): { station: number; seams: [number, number][]; headings: [number, number, number][]; normal: number[]; up: number[] } {
+    const J = AutoMovieHumanF1Joints;
+    const family: AutoMovieHumanConicLoft.IFamily = { ...BODY[which], tips: undefined };
+    const station: number = family.knots.at(-1)!;
+    const sub = (a: number[], b: number[]): number[] => [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
+    const [a, b]: number[][] = [sub(J.index1, J.hand), sub(J.pinky1, J.hand)];
+    const up: number[] = which === "arm" ? [a[1]! * b[2]! - a[2]! * b[1]!, a[2]! * b[0]! - a[0]! * b[2]!, a[0]! * b[1]! - a[1]! * b[0]!] : [0, -1, 0];
+    const rows: [number[], number[]][] = which === "arm" ? [[J.pinky1, J.pinky2], [J.ring1, J.ring2], [J.middle1, J.middle2], [J.index1, J.index2]] : [[J.littletoe1, J.littletoe2], [J.ringtoe1, J.ringtoe2], [J.middletoe1, J.middletoe2], [J.indextoe1, J.indextoe2], [J.bigtoe1, J.bigtoe2]];
+    const seams: [number, number][] = [];
+    for (let i: number = 0; i + 1 < rows.length; ++i) {
+      const [p, q]: [number, number] = valley(family, station, [rows[i]!, rows[i + 1]!], up);
+      if (seams.length === 0) {
+        seams.push([p, q]);
+        continue;
+      }
+      // Of the three readings of the same two crossings, the one that encloses the seam before.
+      const [ia, ib]: [number, number] = seams.at(-1)!;
+      const enclosing: [number, number] | undefined = ([[p, q], [q, p + 2 * Math.PI], [q - 2 * Math.PI, p]] as [number, number][]).find(([x, y]: [number, number]): boolean => x < ia && y > ib && y < x + 2 * Math.PI);
+      if (enclosing === undefined) throw new Error("fanSeams: the valleys of the " + which + " do not nest");
+      seams.push(enclosing);
+    }
+    const frame = AutoMovieHumanConicLoft.axis(family).at(station);
+    const normal: number[] = [frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1], frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2], frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0]];
+    // Each seam's plane holds the two digits' mean direction, the line from their first joints' midpoint to their second joints'.
+    const headings: [number, number, number][] = rows.slice(1).map((row: [number[], number[]], i: number): [number, number, number] => {
+      const before: [number[], number[]] = rows[i]!;
+      const d: number[] = [0, 1, 2].map((c: number): number => (row[1][c]! + before[1][c]! - row[0][c]! - before[0][c]!) / 2);
+      const l: number = Math.hypot(d[0]!, d[1]!, d[2]!);
+      return [Math.round((d[0]! / l) * 1e4) / 1e4, Math.round((d[1]! / l) * 1e4) / 1e4, Math.round((d[2]! / l) * 1e4) / 1e4];
+    });
+    return { station, seams, headings, normal, up };
   }
 
   /**
@@ -415,7 +669,7 @@ export namespace AutoMovieHumanF1 {
    */
   export function construction(layer: number = LAYER_MM): IConstruction {
     const sources: Map<string, IAutoMovieViewPart> = new Map();
-    const leaf = (family: AutoMovieHumanConicLoft.IFamily, fine: number = -Infinity): AutoMovieConstructionNode => {
+    const leaf = (family: AutoMovieHumanConicLoft.IFamily, fine: number = -Infinity, close: number = WEB_LAYER_MM): AutoMovieConstructionNode => {
       const from: number = family.knots[0]!;
       const to: number = family.knots.at(-1)!;
       const count: number = Math.ceil((to - from) / layer) + 1;
@@ -426,7 +680,7 @@ export namespace AutoMovieHumanF1 {
       const stations: number[] = even.flatMap((s: number, i: number): number[] => {
         if (i === 0) return [s];
         const before: number = even[i - 1]!;
-        const pitch: number = Math.min(layer, before < fine ? WEB_LAYER_MM : layer, ...(family.reliefs ?? []).filter((relief): boolean => relief.stations[0] < s && relief.stations[1] > before).map((relief): number => (relief.stations[1] - relief.stations[0]) / (relief.rows - 3)));
+        const pitch: number = Math.min(layer, before < fine ? close : layer, ...(family.reliefs ?? []).filter((relief): boolean => relief.stations[0] < s && relief.stations[1] > before).map((relief): number => (relief.stations[1] - relief.stations[0]) / (relief.rows - 3)));
         const cuts: number = Math.ceil((s - before) / pitch - 1e-9);
         return Array.from({ length: cuts }, (_: unknown, k: number): number => before + ((s - before) * (k + 1)) / cuts);
       });
@@ -507,9 +761,13 @@ export namespace AutoMovieHumanF1 {
     // A limb with its digits: each digit is merged onto the limb's cap before the limb is attached to the trunk, so the engine traces where a
     // capsule comes out against the limb alone. Merged after the whole body was sewn, every digit was traced against all of it.
     const limb = (which: "arm" | "leg", side: 1 | -1): { node: AutoMovieConstructionNode; face: string } => {
-      const family: AutoMovieHumanConicLoft.IFamily = side > 0 ? BODY[which] : twin(BODY[which]);
+      // The limb's end stays open and is split into its knuckled digits (`FANS`); the thumb is merged onto the hand's side first, as a
+      // capsule closed `ROOT_MM` behind its first joint, inside the hand.
+      const fanned: IFan = FANS[which];
+      const leaned: AutoMovieHumanConicLoft.IFamily = { ...BODY[which], tips: [BODY[which].tips![0], null] };
+      const family: AutoMovieHumanConicLoft.IFamily = side > 0 ? leaned : twin(leaned);
       let node: AutoMovieConstructionNode = leaf(family);
-      for (const digit of DIGITS.filter((d: IDigit): boolean => d.limb === which)) {
+      for (const digit of DIGITS.filter((d: IDigit): boolean => d.limb === which && !d.knuckle)) {
         const capsule: AutoMovieHumanConicLoft.IFamily = { ...digit.family, tips: [{ from: digit.family.knots[0]!, tip: -ROOT_MM, covered: true }, digit.family.tips?.[1] ?? null] };
         const part: AutoMovieHumanConicLoft.IFamily = side > 0 ? capsule : twin(capsule);
         node = {
@@ -517,11 +775,11 @@ export namespace AutoMovieHumanF1 {
           kind: "merge",
           name: "web." + part.name,
           host: node,
-          part: leaf(part, part.knots[0]! + WEB_REACH_MM),
+          part: leaf(part, digit.family.knots[0]! + WEB_REACH_MM),
           seed: { type: "search", partFace: part.name, hostFace: family.name, phase: 0, from: 0, to: 0.7 },
           parameter: { type: "phase" },
-          partWidth: { type: "chord", value: digit.chord / 1000 },
-          hostWidth: { type: "chord", value: digit.chord / 1000 },
+          partWidth: { type: "chord", value: THUMB_CHORD_MM / 1000 },
+          hostWidth: { type: "chord", value: THUMB_CHORD_MM / 1000 },
           continuity: "G2",
           count: 48,
           rows: 4,
@@ -529,6 +787,43 @@ export namespace AutoMovieHumanF1 {
           grazing: 0.05,
         };
       }
+
+      // The split: the end's seams along the valleys between the knuckled digits (`fanSeams`), each curved along its web line (`IFan.webs`)
+      // in the plane that holds the two digits' mean direction. The twin's phases run the other way, so a seam `[a, b]` is `[-b, -a]` there,
+      // read from its other fork: its knots run back along the chord, and its heading is reflected.
+      const fan = fanSeams(which);
+      const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(leaned, leaned.knots);
+      if (loft.chain === null) throw new Error("the " + which + " does not loft");
+      const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> = loft.chain;
+      const seam = (j: number): IAutoMovieConstructionSplit.ISeam => {
+        const [a, b]: [number, number] = fan.seams[j]!;
+        const knots: [number, number][] = fanned.webs[j]!;
+        const [pa, pb]: number[][] = [AutoMovieLoftChain.point(chain, fan.station, a), AutoMovieLoftChain.point(chain, fan.station, b)];
+        const chord: number = Math.hypot(pb[0]! - pa[0]!, pb[1]! - pa[1]!, pb[2]! - pa[2]!) / 1000;
+        const h: [number, number, number] = fan.headings[j]!;
+        return side > 0
+          ? { seam: [a, b], profile: { knots, corner: fanned.corner, heading: h, ...(fanned.reach === undefined ? {} : { reach: fanned.reach }) } }
+          : { seam: [-b, -a], profile: { knots: knots.map(([along, depth]: [number, number]): [number, number] => [chord - along, depth]).reverse(), corner: fanned.corner, heading: [h[0], h[1], -h[2]], ...(fanned.reach === undefined ? {} : { reach: fanned.reach }) } };
+      };
+      const children: IAutoMovieConstructionSplit.IChild[] = fanned.digits.map((name: string): IAutoMovieConstructionSplit.IChild => {
+        const digit: IDigit = DIGITS.find((d: IDigit): boolean => d.family.name === name)!;
+        const part: AutoMovieHumanConicLoft.IFamily = side > 0 ? digit.family : twin(digit.family);
+        return { band: "band." + part.name, part: leaf(part), partFace: part.name, partEnd: "bottom", rail: fanned.rail / 1000, correspondence: "length" };
+      });
+      const first: IAutoMovieConstructionSplit.ISeam = seam(0);
+      node = {
+        type: "split",
+        name: "fan." + family.name,
+        host: node,
+        hostFace: family.name,
+        hostEnd: "top",
+        seam: first.seam,
+        ...(first.profile === undefined ? {} : { profile: first.profile }),
+        outer: fan.seams.slice(1).map((_: [number, number], j: number): IAutoMovieConstructionSplit.ISeam => seam(j + 1)),
+        count: fanned.columns,
+        rows: BAND.rows,
+        children: children as IAutoMovieConstructionSplit["children"],
+      };
       return { node, face: family.name };
     };
 
@@ -551,7 +846,7 @@ export namespace AutoMovieHumanF1 {
     };
     for (const side of [1, -1] as const) {
       const arm: { node: AutoMovieConstructionNode; face: string } = limb("arm", side);
-      root = { type: "port", name: "armscye." + arm.face, host: root, hostFace: trunk, loop: armscye(side), band: "band." + arm.face, part: arm.node, partFace: arm.face, partEnd: "bottom", rail: RAIL_MM.arm / 1000, count: SHOULDER_COLUMNS, rows: BAND.rows };
+      root = { type: "port", name: "armscye." + arm.face, host: root, hostFace: trunk, loop: armscye(side), band: "band." + arm.face, part: arm.node, partFace: arm.face, partEnd: "bottom", rail: Math.min(...ARM_RAILS_MM) / 1000, rails: armRails(side).map((mm: number): number => mm / 1000), count: SHOULDER_COLUMNS, rows: BAND.rows };
       const ear: AutoMovieHumanConicLoft.IFamily = side > 0 ? BODY.ear : twin(BODY.ear);
       // The ear's outer face is its leaf's, with the trough of the cymba and the fossa cut from it (below). Its bowl, the concha, low and forward
       // behind the tragus, is a loft read from the skin's depth and cut after the ear is attached: its cutter runs square into the head to
@@ -581,15 +876,21 @@ export namespace AutoMovieHumanF1 {
       const lobule: AutoMovieHumanConicLoft.IFamily = side > 0 ? AutoMovieHumanF1Lobule : twin(AutoMovieHumanF1Lobule);
       root = { type: "join", kind: "diff", name: "cut." + lobule.name, host: root, part: leaf(lobule, Infinity), seed: { type: "search", partFace: lobule.name, hostFace: trunk, phase: 0, from: 0, to: 0.5 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.001 }, hostWidth: { type: "chord", value: 0.0015 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04 };
       root = { type: "join", kind: "diff", name: "cut." + concha.name, host: root, part: leaf(concha), seed: { type: "search", partFace: concha.name, hostFace: ear.name, phase: side > 0 ? Math.PI / 2 : (3 * Math.PI) / 2, from: 0, to: 0.9 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.00025 }, hostWidth: { type: "chord", value: 0.00025 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04 };
+
+      // The breast, which the trunk's sections leave out: its band spans the fold under it from the chest to the breast's own wall. Its
+      // layers stand a millimetre apart all along it (`WEB_LAYER_MM`): over the dome a ring moves 1.5 to 4 mm across the skin for each
+      // millimetre of station, and layers 4 mm apart stood as concentric steps on `fold.front`.
+      const breast: AutoMovieHumanConicLoft.IFamily = side > 0 ? BODY.breast : twin(BODY.breast);
+      root = { type: "port", name: "mammary." + breast.name, host: root, hostFace: trunk, loop: mammary(side), band: "band." + breast.name, part: leaf(breast, Infinity), partFace: breast.name, partEnd: "bottom", rail: RAIL_MM.breast / 1000, count: SHOULDER_COLUMNS, rows: BAND.rows };
     }
-    root = { type: "port", name: "nostril." + BODY.nose.name, host: root, hostFace: trunk, loop: nostril(), band: "band." + BODY.nose.name, part: leaf(BODY.nose), partFace: BODY.nose.name, partEnd: "bottom", rail: Math.min(...NOSE_RAILS_MM) / 1000, rails: NOSE_RAILS_MM.map((rail: number): number => rail / 1000), count: NOSE_COLUMNS, rows: BAND.rows };
+    root = { type: "port", name: "nostril." + BODY.nose.name, host: root, hostFace: trunk, loop: nostril(), band: "band." + BODY.nose.name, part: leaf(BODY.nose), partFace: BODY.nose.name, partEnd: "bottom", rail: Math.min(...NOSE_RAILS_MM) / 1000, rails: NOSE_RAILS_MM.map((rail: number): number => rail / 1000), correspondence: "length", count: NOSE_COLUMNS, rows: BAND.rows };
     // Each nostril is cut from the head: its loft comes up out of the nose's underside and closes inside it. The band lands behind it, so the
     // cut lies wholly on the nose's own face and its blend may be as wide as the rim's roll; while the cut crossed the band at the sill only
     // a blend 0.15 mm wide found its rails there.
     for (const side of [1, -1] as const) {
       const drawn: AutoMovieHumanConicLoft.IFamily = drawnIn(AutoMovieHumanF1Nostril, NOSTRIL_RIM_MM);
       const hollow: AutoMovieHumanConicLoft.IFamily = side > 0 ? drawn : twin(drawn);
-      root = { type: "join", kind: "diff", name: "cut." + hollow.name, host: root, part: leaf(hollow), seed: { type: "search", partFace: hollow.name, hostFace: BODY.nose.name, phase: 0, from: 0, to: 0.9 }, parameter: { type: "phase" }, partWidth: { type: "chord", value: NOSTRIL_RIM_MM / 1000 }, hostWidth: { type: "chord", value: NOSTRIL_RIM_MM / 1000 }, continuity: "G2", count: 48, rows: 4, tolerance: 1e-12, grazing: 0.05 };
+      root = { type: "join", kind: "diff", name: "cut." + hollow.name, host: root, part: leaf(hollow, Infinity, NOSTRIL_LAYER_MM), seed: { type: "search", partFace: hollow.name, hostFace: BODY.nose.name, phase: 0, from: 0, to: 0.9 }, parameter: { type: "phase" }, partWidth: { type: "chord", value: NOSTRIL_RIM_MM / 1000 }, hostWidth: { type: "chord", value: NOSTRIL_RIM_MM / 1000 }, continuity: "G2", count: 48, rows: 4, tolerance: 1e-12, grazing: 0.05 };
     }
     return { root, sources };
   }
