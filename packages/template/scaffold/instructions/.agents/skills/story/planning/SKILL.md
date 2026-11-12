@@ -11,5 +11,5 @@ Settle the requirements, direction and uncovered work requirements before writin
 | --- | --- |
 | Ask for, adopt, change or withdraw creative requirements | [Requirements](requirements.md) |
 | Develop a direction within delegated authority | [Direction](direction.md) |
-| Study a practice, appearance or source as the work that uses it is written | [Research](research.md) |
+| Study a practice, appearance or source | [Research](research.md) |
 | Find and assign uncovered work requirements | [Discovery](discovery.md) |

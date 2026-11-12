@@ -4,7 +4,7 @@ Realize completed treatments as scenes performers and filmmakers can execute, un
 
 After [discovery](../planning/discovery.md), map treatments to their scenes and settle the scene, sequence and release units by actual viewing material, keeping stable H1 and H2 identities for the final screenplay.
 
-Build each scene around what its participants do, encounter and change: actual dialogue, action, reaction and performance in playable order, with usable space, light, sound and view, in readable [notation](notation.md).
+Build each scene around what its participants do, encounter and change: actual dialogue, action, reaction and performance in playable order, with usable space, light, sound and view, in readable [notation](notation.md). Study each action a scene names that no study holds yet under [research](../planning/research.md#when-to-study).
 
 Keep the inherited event chronology while creating the scene's own execution under [parent differentiation](../../contracts/story/shared/principles/narratives.md#parent-differentiation), cite every realized treatment, and repair a defective parent under [upstream repair](../correction/repair.md#upstream-defects).
 
