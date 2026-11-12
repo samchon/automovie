@@ -8,7 +8,6 @@ import type { AutoMovieSolidMeshPlan } from "./AutoMovieSolidMeshPlan";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 import { domainAutoMovieSolidMesh } from "./domainAutoMovieSolidMesh";
-import { incircleAutoMovieSolidChart } from "./incircleAutoMovieSolidChart";
 
 /** Native station/phase point. */
 type Point = readonly [number, number];
@@ -364,27 +363,17 @@ export function gridAutoMovieSolidMesh(
       const d: number = at(i, next);
       const wrap: number = next === 0 ? 1 : 0;
 
-      // A full cell is cut along its Delaunay diagonal in the form its own
-      // four points span, as legalization cuts a residual quadrilateral. Cut
-      // always from its first corner, a cell sheared by a chart whose phase
-      // lines wind round the part took its long diagonal, and its two
-      // triangles stood at different slopes in a check over the whole face.
-      const corners: Point[] = [
-        [stations[i]!, phases[j]!],
-        [stations[i + 1]!, phases[j]!],
-        [stations[i + 1]!, phases[j + 1] ?? phases[0]! + period!],
-        [stations[i]!, phases[j + 1] ?? phases[0]! + period!],
-      ];
-      const [shear, scale]: [number, number] = local([a, b, c, d], corners);
-      const cu: number = (stations[i]! + stations[i + 1]!) / 2;
-      const cv: number = (corners[0]![1] + corners[2]![1]) / 2;
-      const [P, Q, R, S] = corners.map(
-        (corner: Point): Point => [
-          corner[0] - cu + shear * (corner[1] - cv),
-          (corner[1] - cv) * scale,
-        ],
-      ) as [Point, Point, Point, Point];
-      if (incircleAutoMovieSolidChart(P, Q, R, S) > 0)
+      // A full cell is cut from its first corner unless its other diagonal
+      // bends the cell's two triangles against each other by well under half
+      // as much (`BEND`). Cut always from its first corner, a cell sheared by
+      // a chart whose phase lines wind round the part took the diagonal
+      // across the skin's curve, and its two triangles stood at different
+      // slopes in a check over the whole face (f1's deltoid). Cut by the sign
+      // of the Delaunay test in the cell's own form, nearly square cells took
+      // either diagonal by rounding, and where the choice changed a zigzag
+      // line ran across the face (f1's upper lip).
+      const [pa, pb, pc, pd]: Vec3[] = [jets[i]![j]!.p, jets[i + 1]![j]!.p, jets[i + 1]![next]!.p, jets[i]![next]!.p];
+      if (bend(pb, pc, pd, pa) < BEND * bend(pa, pb, pc, pd))
         full.push(
           { vertices: [a, b, d], lifts: [0, 0, wrap] },
           { vertices: [b, c, d], lifts: [0, wrap, wrap] },
@@ -485,6 +474,33 @@ export function gridAutoMovieSolidMesh(
     metric,
     local,
   };
+}
+
+/**
+ * Share of the first-corner split's bend below which a full cell takes its
+ * other diagonal (`bend`). A cell whose two splits bend alike, as the nearly
+ * square cells over f1's upper lip do, keeps its first corner, so a face is
+ * cut alike wherever no split is clearly flatter. Compared on
+ * `shoulder.high-oblique` and `head.front`: at 0.5 the deltoid's cap kept its
+ * check; at 0.9 the check is gone but for a few cells at its top edge and the
+ * lip is cut as it was before any cell was turned.
+ */
+const BEND: number = 0.9;
+
+/**
+ * The angle between the unit normals of the two triangles a quadrilateral is
+ * cut into along its diagonal `p`..`r`, radians, from `(p, q, r)` and
+ * `(p, r, s)`; 0 for a planar or degenerate quadrilateral.
+ */
+function bend(p: Vec3, q: Vec3, r: Vec3, s: Vec3): number {
+  const minus = (x: Vec3, y: Vec3): Vec3 => [x[0] - y[0], x[1] - y[1], x[2] - y[2]];
+  const n1: Vec3 = cross(minus(q, p), minus(r, p));
+  const n2: Vec3 = cross(minus(r, p), minus(s, p));
+  const l1: number = norm(n1);
+  const l2: number = norm(n2);
+  if (!(l1 > 0 && l2 > 0)) return 0;
+  const cosine: number = (n1[0] * n2[0] + n1[1] * n2[1] + n1[2] * n2[2]) / (l1 * l2);
+  return Math.acos(Math.max(-1, Math.min(1, cosine)));
 }
 
 /** Copy one coherent reading before a subsequent source call can reuse its storage. */

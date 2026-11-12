@@ -62,15 +62,20 @@ interface Case {
  *    in the metric their quadrilaterals span, and a full cell cut always from
  *    its first corner takes the diagonal that winds with the twist, 22 mm on
  *    the skin against 10.
- * 5. All four: every interior edge off the rails and the grid lines, a
- *    retained full cell's diagonal included, is locally Delaunay in the chart mapped by its
+ * 5. All four: every interior edge off the rails and the grid lines is
+ *    locally Delaunay (a retained full cell's diagonal within the engine's
+ *    allowance for nearly square cells, scenario 7) in the chart mapped by its
  *    quadrilateral's own first fundamental form, the least-squares linear map
  *    from its four chart points to its four emitted skin points, read as
  *    `(u, v) -> (u + F / E v, sqrt(G / E - (F / E)^2) v)`; every rail edge is used once and
  *    every interior edge once each way; the chart area equals the elementary
  *    polygon area; a second identical face emits the same indices.
+ * 6. Exactness of the in-circle sign (`exactness`).
+ * 7. Curled plane: `(u, v + 0.02 (u - 2)^2, 0)` on unit cells, untrimmed,
+ *    whose shear changes sign at `u = 2` and stays under 0.08: all sixteen
+ *    nearly square cells are cut alike.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls AutoMovieSolidMesh.face on four analytic charts and reads only emitted indices, positions and owner coordinates: world normals against the analytic outward normal, chart in-circle signs over shared edges and full cells' diagonals, rail-edge use, chart area and repeated output.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AutoMovieSolidMesh.face on five analytic charts and reads only emitted indices, positions and owner coordinates: world normals against the analytic outward normal, chart in-circle signs over shared edges and full cells' diagonals, which diagonal each cell of the curled plane takes, rail-edge use, chart area and repeated output.
  * @evidence contracts/development/testing.md#independent-expectations The sheared plane's world-inverted rail triangles follow from the smile's two curvatures, `v''` against `v'' + 2c`; each quadrilateral's metric is fitted here from the emitted chart and skin points of its four vertices, not read from the engine (the analytic forms behind them: plane `E = 1 + 4 c^2 u^2`, `F = 2 c u`, `G = 1`; cylinder `G` 2500; flared tube `G = (20 + u)^2`, `E` 2; twisted cylinder `E` 2, `F` 50, `G` 2500); areas are the domain minus the hole's shoelace area and the trapezoids under the wavy rail; the in-circle determinant is evaluated here in floating point, not by the engine predicate.
  * @evidence contracts/development/testing.md#distinguishing-cases A planar hole whose rail is convex in the chart but concave in the world, a periodic winding rail on a chart 50 times longer in phase and the same rail on a chart whose phase scale grows sixfold along it separate a chart-only ear triangulation, an unscaled Delaunay, a Delaunay in the face's mean metric, one without the form's shear and a legalization that flips a rail edge.
  * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by --include construction_mesh_legalize. It generates no person and starts no renderer, host or process.
@@ -79,6 +84,7 @@ interface Case {
 export function test_construction_mesh_legalize(): void {
   const failures: string[] = [];
   for (const input of [plane(), cylinder(), flare(), twisted()]) inspect(input, failures);
+  curled(failures);
   exactness(failures);
   if (failures.length > 0)
     throw new Error(
@@ -282,6 +288,45 @@ function fitted(charts: Chart[], skins: number[][]): [number, number] {
   return [shear, Math.sqrt(dot(sv, sv) / e - shear * shear)];
 }
 
+/**
+ * Scenario 7: the plane `(u, v + 0.02 (u - 2)^2, 0)` over `[0, 4]^2` on unit cells, untrimmed. Its shear `F = 0.04 (u - 2)` changes sign
+ * at `u = 2` and stays under 0.08, so every cell is nearly square and none is clearly sheared: all sixteen must be cut alike. Cut by the
+ * sign of the in-circle test alone, the cells on either side of `u = 2` took different diagonals, the zigzag f1's upper lip showed.
+ */
+function curled(failures: string[]): void {
+  const c: number = 0.02;
+  const surface: IAutoMovieSolidSurface = {
+    name: "curled plane",
+    orientation: 1,
+    jet: (u: number, v: number): IAutoMovieSolidSurface.IJet => ({
+      p: [u, v + c * (u - 2) * (u - 2), 0],
+      u: [1, 2 * c * (u - 2), 0],
+      v: [0, 1, 0],
+      uu: [0, 2 * c, 0],
+      uv: [0, 0, 0],
+      vv: [0, 0, 0],
+    }),
+  };
+  const grid: number[] = [0, 1, 2, 3, 4];
+  const made: AutoMovieSolidMesh.IMesh | string = build({ name: "curled plane", surface, stations: grid, phases: grid, loops: [], area: 16, side: (): boolean => true });
+  if (typeof made === "string") {
+    failures.push(`curled plane: ${made}`);
+    return;
+  }
+  const edges: Set<string> = new Set();
+  for (let t: number = 0; t < made.indices.length; t += 3)
+    for (let k: number = 0; k < 3; k++) {
+      const [a, b] = [made.indices[t + k]!, made.indices[t + ((k + 1) % 3)]!];
+      const chart = (id: number): string => `${made.coordinates[3 * id + 1]},${made.coordinates[3 * id + 2]}`;
+      edges.add(`${chart(a)}/${chart(b)}`);
+      edges.add(`${chart(b)}/${chart(a)}`);
+    }
+  const cuts: string[] = [];
+  for (const u of [0, 1, 2, 3])
+    for (const v of [0, 1, 2, 3]) cuts.push(edges.has(`${u},${v}/${u + 1},${v + 1}`) ? "first" : edges.has(`${u + 1},${v}/${u},${v + 1}`) ? "other" : "neither");
+  if (new Set(cuts).size !== 1 || cuts[0] === "neither") failures.push(`curled plane: its sixteen nearly square cells are cut ${JSON.stringify(cuts)}, not alike`);
+}
+
 /** Build one face and record every finding. */
 function inspect(input: Case, failures: string[]): void {
   const report = (finding: string): void => {
@@ -395,8 +440,10 @@ function inspect(input: Case, failures: string[]): void {
     if (c === undefined || rails.has(`${a},${b}`)) continue;
     const A: Chart = chart(a);
     const B: Chart = chart(b);
-    // A grid line. A retained full cell's diagonal is read as any other edge: the cell is cut along its Delaunay diagonal in its own form.
+    // A grid line. A retained full cell's diagonal is read as any other edge, but within the engine's allowance: a cell nearly square keeps
+    // its first-corner diagonal (`curled`), and only one whose first-corner diagonal clearly fails is cut the other way.
     if (grid(A) && grid(B) && (A[0] === B[0] || A[1] === B[1])) continue;
+    const diagonal: boolean = grid(A) && grid(B) && Math.abs(input.stations.indexOf(A[0]) - input.stations.indexOf(B[0])) === 1;
     const corners: Chart[] = [A, B, chart(d), chart(c)].map(
       (p: Chart): Chart => [p[0], near(p[1], A[1])],
     );
@@ -413,7 +460,7 @@ function inspect(input: Case, failures: string[]): void {
         : [points[1]!, points[0]!, points[2]!, points[3]!]
     ) as [Chart, Chart, Chart, Chart];
     const value: number = incircle(P, Q, S, T);
-    if (value > 1e-9) {
+    if (value > (diagonal ? 0.4 : 1e-9)) {
       ++violations;
       if (worst.length < 4)
         worst.push(
