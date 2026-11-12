@@ -1,6 +1,6 @@
 # Direction
 
-Identify the fixed conditions, the delegated choices and what supplied material must keep, and research the audience and nearby works only where they inform those choices. When the premise is delegated, compare materially different directions, distinguished by situation, pursuit, forces, progression or ending, and choose the one that best serves the commission, settling as far as delegation allows:
+Identify the fixed conditions, the delegated choices and what supplied material must keep, and research the audience and nearby works only where they inform those choices, studying through [research](research.md#when-to-study) only what could change them. When the premise is delegated, compare materially different directions, distinguished by situation, pursuit, forces, progression or ending, and choose the one that best serves the commission, settling as far as delegation allows:
 
 - who or what the audience follows, the starting situation, consequential choices and costs, and the destination;
 - what sustains attention across the requested duration;
