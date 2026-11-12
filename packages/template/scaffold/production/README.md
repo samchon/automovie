@@ -55,7 +55,7 @@ In the inspector, the capture's keys are the address's parameters of the same na
 
 2. When the agent writes the story, first [ask the user]({{skills}}/story/planning/requirements.md#asking-the-user) about it.
 
-   Unless the user [chose another writer]({{skills}}/story/workflow.md#who-writes-the-screenplay), write the [settings]({{skills}}/story/layers/settings.md), or a short's [brief]({{skills}}/story/layers/brief.md), then the complete [screenplay]({{skills}}/story/SKILL.md) along its [writing route]({{skills}}/story/workflow.md#route-and-parents), with evidence and independent review, each studying through [research]({{skills}}/story/planning/research.md#when-to-study) what it decides.
+   Unless the user's [choice of writer]({{skills}}/story/workflow.md#who-writes-the-screenplay) runs no narrative pass, write the [settings]({{skills}}/story/layers/settings.md), or a short's [brief]({{skills}}/story/layers/brief.md), then the complete [screenplay]({{skills}}/story/SKILL.md) along its [writing route]({{skills}}/story/workflow.md#route-and-parents), with evidence and independent review, each studying through [research]({{skills}}/story/planning/research.md#when-to-study) what it decides.
 
 3. Build the coarse entities under [entity work]({{skills}}/development/entities.md) and accept every module in its [catalog cases]({{skills}}/motion/catalog-cases.md).
 

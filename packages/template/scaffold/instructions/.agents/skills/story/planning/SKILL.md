@@ -1,11 +1,11 @@
 ---
 name: story-planning
-description: Settles what the writing must serve, namely adopted requirements, direction and uncovered work requirements, and the research each layer studies as it is written. Use before settings or a short's brief, when a requirement changes, or when writing needs a study.
+description: Settles the adopted requirements, direction and uncovered work requirements a layer serves, and studies what each layer decides as it is written. Use before settings or a short's brief, when a requirement changes, or when writing needs a study.
 ---
 
 # Planning
 
-Settle what the layers will serve before writing them, because a layer can only realize what was decided before it.
+Settle the requirements, direction and uncovered work requirements before writing the layers, because a layer can only realize what was decided before it; research continues as each layer is written.
 
 | Task | Read |
 | --- | --- |
