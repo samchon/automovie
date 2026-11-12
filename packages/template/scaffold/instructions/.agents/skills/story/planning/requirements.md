@@ -22,7 +22,7 @@ A user who hands the story to the agent still decides what it is, such as what h
 
 A blanket delegation, such as "decide the rest", ends the asking: record it as one delegated choice covering every remaining element. Under a supplied story or screenplay, ask only about what it leaves undecided.
 
-Afterwards, ask only when a [discovery](discovery.md) checkpoint finds an element the user neither fixed nor delegated, or when two fixed conditions conflict. When the user cannot answer during the run, as in an unattended run, stop the work that depends on the open questions and report them, because a guessed answer is not a delegation.
+Afterwards, ask only when a [discovery](discovery.md) checkpoint finds an element the user neither fixed nor delegated, or when two fixed conditions conflict. When the user cannot answer during the run, as in an unattended run, record the open questions in [project context](../../production/project-context.md), stop the work that depends on them and report them, because a guessed answer is not a delegation.
 
 ## Factual basis {#factual-basis}
 

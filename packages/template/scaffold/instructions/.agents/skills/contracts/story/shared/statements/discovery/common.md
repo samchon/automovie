@@ -12,7 +12,7 @@ Requirements:
 4. An adopted form states its observable choices, scope, audience effect, representative failure, semantic owner and repair boundary.
 5. Language baselines belong to their language owner, creative form to the work and world facts to settings. A possibly universal candidate stays research until adopted into shared contracts.
 6. A requirement found only in guide prose, selectors, status notes or repeated explanations moved to its owner with its consumers updated, under the [closed-pass boundary](../../../../../story/correction/repair.md#closed-passes).
-7. Each element the user neither fixed nor delegated was [asked of the user](../../../../../story/planning/requirements.md#asking-the-user) and its answer adopted as a requirement, or stays recorded as an open question. Exception: a blanket delegation adopted as a requirement covers every remaining element.
+7. Each consequential element the request and the user's materials show is fixed or delegated in the instructions, or recorded as an open question in project context, under [asking the user](../../../../../story/planning/requirements.md#asking-the-user). Exception: a blanket delegation adopted as a requirement covers every remaining element.
 
 Language:
 
