@@ -118,6 +118,9 @@ namespace FamilyConicBody {
     return best;
   }
 
+  /** How far a cutter's pocket is drawn in from the loop it is read between, at its farthest point, mm. */
+  const POCKET_INSET_MM: number = 1.5;
+
   /** `--chinless`: the trunk's sections keep the chin and no relief is cast for it, as in the walls stored before the cone. */
   const CHINLESS: boolean = process.argv.includes("--chinless");
 
@@ -398,7 +401,7 @@ namespace FamilyConicBody {
         // The ear's hollow as a loft of its own. The auricle is a thin shell: a sagittal plane cuts it in one loop shaped like a C, and what
         // the C stands round, the concha and the scapha, is the pocket between that loop and its hull, open to the front
         // (`FamilyConicScan.ts concha`: 435 mm2 at 78 mm out, 33 at 94). The loft runs out through those pockets.
-        { name: "concha", centres: [[19, 1574, 72], [3, 1587, 98]], course: "[J.conchaRoot, J.conchaTip]", halves: [], up: [0, 1, 0], domain: [13.5, 21], head: true, loose: true, step: 0.5, gap: 2, tip: 24, pocket: 5, mirrored: true, layouts: LIMB, clip: (p: R.V): number => -ear(p), reliefs: [] },
+        { name: "concha", centres: [[1.5, 1587, 98], [17.5, 1574, 72]], course: "[J.conchaRoot, J.conchaTip]", halves: [], up: [0, 1, 0], domain: [12.2, 20.7], head: true, loose: true, step: 0.5, gap: 2, tip: 26.7, lead: 10, pocket: 5, mirrored: true, layouts: [LIMB[0]!], clip: (p: R.V): number => -ear(p), reliefs: [] },
         // A nostril as a hollow of its own: level planes cut one closed loop of it from 1,551 to 1,555 mm, 10 by 8 mm at its mouth
         // (`FamilyConicScan.ts nostril`). Its loft runs straight up through that loop, closes where the loop vanishes and is carried 8 mm
         // down out of the nose, to be cut from the head (`diff`).
@@ -553,8 +556,12 @@ namespace FamilyConicBody {
           }
         }
         if (best.length < 3) return null;
-        const [a, b]: [C.P, C.P] = [best[0]!, best.at(-1)!];
+        // The pocket is drawn in toward its middle by `POCKET_INSET_MM` at its farthest point, so the rim round it keeps a thickness. At
+        // its own size its two ends lie on the hull, where the cutter's wall and the host's would meet at no angle.
         const middle: C.P = [best.reduce((sum: number, p: C.P): number => sum + p[0], 0) / best.length, best.reduce((sum: number, p: C.P): number => sum + p[1], 0) / best.length];
+        const reach: number = Math.max(...best.map((p: C.P): number => Math.hypot(p[0] - middle[0], p[1] - middle[1])));
+        best = best.map((p: C.P): C.P => [middle[0] + (p[0] - middle[0]) * (1 - POCKET_INSET_MM / reach), middle[1] + (p[1] - middle[1]) * (1 - POCKET_INSET_MM / reach)]);
+        const [a, b]: [C.P, C.P] = [best[0]!, best.at(-1)!];
         const length: number = Math.hypot(b[0] - a[0], b[1] - a[1]);
         let normal: C.P = [(b[1] - a[1]) / length, -(b[0] - a[0]) / length];
         if ((middle[0] - a[0]) * normal[0] + (middle[1] - a[1]) * normal[1] > 0) normal = [-normal[0], -normal[1]];
@@ -1129,11 +1136,11 @@ namespace FamilyConicBody {
       "  /** Where the nose's course ends, straight forward past its tip. */",
       "  export const noseTip: V3 = [140, 1561, 0];",
       "",
-      "  /** Where the course of the ear's hollow starts, inside the head behind the concha's floor. */",
-      "  export const conchaRoot: V3 = [19, 1574, 72];",
+      "  /** Where the course of the ear's hollow starts, out past the auricle's rim. */",
+      "  export const conchaRoot: V3 = [1.5, 1587, 98];",
       "",
-      "  /** Where it ends, out past the auricle's rim. */",
-      "  export const conchaTip: V3 = [3, 1587, 98];",
+      "  /** Where it ends, inside the head behind the concha's floor. */",
+      "  export const conchaTip: V3 = [17.5, 1574, 72];",
       "",
       "  /** Where a nostril's course starts, below the nose under the middle of the nostril's mouth. */",
       "  export const nostrilRoot: V3 = [127.1, 1540.4, 7.7];",

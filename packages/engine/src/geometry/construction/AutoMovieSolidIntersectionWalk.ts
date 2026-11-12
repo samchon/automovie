@@ -246,7 +246,8 @@ export namespace AutoMovieSolidIntersectionWalk {
         next = step(p, T, h, previous);
         if (next === null) h /= 2;
       }
-      if (next === null) return `lost after ${length} mm of the walk`;
+      if (next === null)
+        return `lost after ${length} mm of the walk, at [${p.point.map((x: number): string => x.toFixed(1)).join(", ")}] mm on host face ${p.face}`;
       length += norm(sub(next.point, p.point));
       previous = p;
       p = next;
@@ -284,9 +285,40 @@ export namespace AutoMovieSolidIntersectionWalk {
       let before: IPoint | null = null;
       for (let k: number = 1; k < n; k++) {
         /** Next accepted point of this fixed-chord reference walk. */
-        const next: IPoint | null = step(q, along, chord, before);
+        let next: IPoint | null = step(q, along, chord, before);
+
+        // Where the curve turns within less than a chord, the tangent
+        // prediction a whole chord ahead is refused. The chord is then walked
+        // in halved steps along the curve, as the first walk goes, and the
+        // point its length ahead stands in for the one a straight chord ahead.
+        if (next === null) {
+          let from: IPoint = q;
+          let heading: Vec3 = along;
+          let last: IPoint | null = before;
+          let left: number = chord;
+          let h: number = chord / 2;
+          for (
+            let halving: number = 0;
+            left > 1e-9 * chord && halving < AutoMovieSolidTraceSolve.HALVINGS;
+
+          ) {
+            const part: IPoint | null = step(from, heading, Math.min(h, left), last);
+            if (part === null) {
+              h /= 2;
+              halving++;
+              continue;
+            }
+            left -= norm(sub(part.point, from.point));
+            last = from;
+            from = part;
+            const turned: Vec3 | null = tangent(from, heading);
+            if (turned === null) break;
+            heading = turned;
+          }
+          if (left <= 1e-9 * chord) next = from;
+        }
         if (next === null)
-          return `the equal-chord walk is lost at step ${k} of ${n}`;
+          return `the equal-chord walk is lost at step ${k} of ${n}, at [${q.point.map((x: number): string => x.toFixed(1)).join(", ")}] mm on host face ${q.face}`;
         points.push(next.point);
         before = q;
         q = next;
