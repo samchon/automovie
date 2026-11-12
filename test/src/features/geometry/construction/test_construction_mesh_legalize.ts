@@ -27,8 +27,8 @@ interface Case {
   /** Chart area of the kept region, from elementary polygon areas. */
   area: number;
 
-  /** The phase scale of the face's uniform metric: `sqrt(mean G / mean E)` over the grid. */
-  scale: number;
+  /** The analytic first fundamental form's `E` and `G` at a chart point. */
+  form: (u: number, v: number) => [number, number];
 
   /** Whether a chart edge lies on a domain side, so it has one triangle. */
   side: (a: Chart, b: Chart) => boolean;
@@ -36,7 +36,9 @@ interface Case {
 
 /**
  * A trimmed face's residual triangulation is constrained Delaunay in the face's
- * uniform metric, so a dense trim rail never keeps triangles of its own vertices.
+ * local metric, so a dense trim rail never keeps triangles of its own vertices
+ * and a face whose phase scale changes across it keeps no triangle that is fair
+ * only in its mean metric.
  *
  * Scenarios:
  * 1. Sheared plane: the plane `(u, v + c u^2, 0)` with `c = -0.05` (Jacobian
@@ -49,22 +51,28 @@ interface Case {
  * 2. Anisotropic cylinder: radius 50 mm, so one phase radian is 50 mm of skin
  *    against 1 mm per station, with a 24-point start rail at `u = 0` and a
  *    192-point wavy end rail `u = 80 + 6 sin 3v`. The metric scale is
- *    `sqrt(G / E) = 50`.
- * 3. Both: every interior edge off the rails and grid lines is locally
- *    Delaunay in the chart with phase scaled by the case's scale; every rail
- *    edge is used once and every interior edge once each way; the chart area
- *    equals the elementary polygon area; a second identical face emits the
- *    same indices.
+ *    `sqrt(G / E) = 50` everywhere.
+ * 3. Flared tube: the same rails on a tube whose radius grows from 20 mm at the
+ *    start rail to 120 mm, so the phase scale runs from 14 to 85 mm a radian
+ *    against the face's mean of 54, the trunk's case beside the armscye's loop, where
+ *    the skin spans twice its face's mean. Legalized in the mean metric, edges
+ *    near the end rail are not locally Delaunay in their own.
+ * 4. All three: every interior edge off the rails and grid lines is locally
+ *    Delaunay in the chart with phase scaled by the local scale at its
+ *    quadrilateral's centroid, `sqrt(G / E)` from the means of the analytic `E`
+ *    and `G` at the cell's four grid corners; every rail edge is used once and
+ *    every interior edge once each way; the chart area equals the elementary
+ *    polygon area; a second identical face emits the same indices.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls AutoMovieSolidMesh.face on two analytic charts and reads only emitted indices, positions and owner coordinates: world normals against the analytic outward normal, chart in-circle signs over shared edges, rail-edge use, chart area and repeated output.
- * @evidence contracts/development/testing.md#independent-expectations The sheared plane's world-inverted rail triangles follow from the smile's two curvatures, `v''` against `v'' + 2c`; the scales follow from `E` and `G` of the analytic charts at the grid points (plane mean `E` 1.06 against `G` 1, cylinder `G` 2500 against `E` 1); areas are the domain minus the hole's shoelace area and the trapezoids under the wavy rail; the in-circle determinant is evaluated here in floating point, not by the engine predicate.
- * @evidence contracts/development/testing.md#distinguishing-cases A planar hole whose rail is convex in the chart but concave in the world, and a periodic winding rail on a chart 50 times longer in phase, separate a chart-only ear triangulation, an unscaled Delaunay and a legalization that flips a rail edge.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AutoMovieSolidMesh.face on three analytic charts and reads only emitted indices, positions and owner coordinates: world normals against the analytic outward normal, chart in-circle signs over shared edges, rail-edge use, chart area and repeated output.
+ * @evidence contracts/development/testing.md#independent-expectations The sheared plane's world-inverted rail triangles follow from the smile's two curvatures, `v''` against `v'' + 2c`; the scales follow from the analytic `E` and `G` at the grid corners (plane `E = 1 + 4 c^2 u^2` against `G` 1, cylinder `G` 2500 against `E` 1, flared tube `G = (20 + u)^2` against `E` 2); areas are the domain minus the hole's shoelace area and the trapezoids under the wavy rail; the in-circle determinant is evaluated here in floating point, not by the engine predicate.
+ * @evidence contracts/development/testing.md#distinguishing-cases A planar hole whose rail is convex in the chart but concave in the world, a periodic winding rail on a chart 50 times longer in phase and the same rail on a chart whose phase scale grows sixfold along it separate a chart-only ear triangulation, an unscaled Delaunay, a Delaunay in the face's mean metric and a legalization that flips a rail edge.
  * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by --include construction_mesh_legalize. It generates no person and starts no renderer, host or process.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Sheared plane: the plane `(u, v + c u^2, 0)` with `c = -0.05` (Jacobian).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Sheared plane: the plane `(u, v + c u^2, 0)` with `c = -0.05` (Jacobian).
  */
 export function test_construction_mesh_legalize(): void {
   const failures: string[] = [];
-  for (const input of [plane(), cylinder()]) inspect(input, failures);
+  for (const input of [plane(), cylinder(), flare()]) inspect(input, failures);
   exactness(failures);
   if (failures.length > 0)
     throw new Error(
@@ -112,8 +120,8 @@ function plane(): Case {
     phases: grid,
     loops: [{ kind: "hole", points: hole }],
     area: 16 - Math.abs(shoelace(hole)),
-    // E = 1 + 4 c^2 u^2 over the grid u = 0..4 has mean 1 + 0.01 * 6 = 1.06, and G = 1.
-    scale: Math.sqrt(1 / 1.06),
+    // E = 1 + 4 c^2 u^2 (1 to 1.16 over the grid) and G = 1.
+    form: (u: number): [number, number] => [1 + 4 * c * c * u * u, 1],
     side: (a: Chart, b: Chart): boolean =>
       (a[0] === b[0] && (a[0] === 0 || a[0] === 4)) ||
       (a[1] === b[1] && (a[1] === 0 || a[1] === 4)),
@@ -172,10 +180,78 @@ function cylinder(): Case {
       { kind: "end", points: end },
     ],
     area,
-    // E = 1 and G = R^2 = 2500, so sqrt(G / E) = 50 mm of skin per radian.
-    scale: 50,
+    // E = 1 and G = R^2 = 2500, so sqrt(G / E) = 50 mm of skin per radian everywhere.
+    form: (): [number, number] => [1, R * R],
     side: (): boolean => false,
   };
+}
+
+/** Scenario 3: a flared tube whose radius grows from 20 to 120 mm along 100 stations, with the wavy end rail of scenario 2. */
+function flare(): Case {
+  const turn: number = 2 * Math.PI;
+  // R(u) = 20 + u, so R' = 1, E = 1 + R'^2 = 2 and G = R^2.
+  const radius = (u: number): number => 20 + u;
+  const surface: IAutoMovieSolidSurface = {
+    name: "flared tube",
+    period: turn,
+    // S_u x S_v = (-R cos v, -R sin v, R R') points into the axis.
+    orientation: -1,
+    jet: (u: number, v: number): IAutoMovieSolidSurface.IJet => {
+      const R: number = radius(u);
+      return {
+        p: [R * Math.cos(v), R * Math.sin(v), u],
+        u: [Math.cos(v), Math.sin(v), 1],
+        v: [-R * Math.sin(v), R * Math.cos(v), 0],
+        uu: [0, 0, 0],
+        uv: [-Math.sin(v), Math.cos(v), 0],
+        vv: [-R * Math.cos(v), -R * Math.sin(v), 0],
+      };
+    },
+  };
+  const base: Case = cylinder();
+  return {
+    ...base,
+    name: "flared tube",
+    surface,
+    form: (u: number): [number, number] => [2, radius(u) ** 2],
+  };
+}
+
+/**
+ * The face's phase scale at a chart point, as residual legalization reads it: `sqrt(G / E)` from the means of the analytic `E` and `G`
+ * over the four grid corners of the cell holding the point.
+ */
+function local(input: Case, u: number, v: number): number {
+  const period: number | undefined = input.surface.period;
+  const below = (values: number[], x: number): number => {
+    let k: number = 0;
+    while (k + 2 < values.length && x >= values[k + 1]!) ++k;
+    return k;
+  };
+  const i: number = below(input.stations, u);
+  const phase: number =
+    period === undefined
+      ? v
+      : v - period * Math.floor((v - input.phases[0]!) / period);
+  const last: number = input.phases.length - 1;
+  const j: number =
+    period !== undefined && phase >= input.phases[last]!
+      ? last
+      : below(input.phases, phase);
+  const k: number = period === undefined ? Math.min(j + 1, last) : (j + 1) % input.phases.length;
+  let e: number = 0;
+  let g: number = 0;
+  for (const [s, t] of [
+    [input.stations[i]!, input.phases[j]!],
+    [input.stations[i]!, input.phases[k]!],
+    [input.stations[i + 1]!, input.phases[j]!],
+    [input.stations[i + 1]!, input.phases[k]!],
+  ] as [number, number][]) {
+    const [E, G] = input.form(s, t);
+    e += E;
+    g += G;
+  }
+  return Math.sqrt(g / e);
 }
 
 /** Build one face and record every finding. */
@@ -292,8 +368,16 @@ function inspect(input: Case, failures: string[]): void {
     const A: Chart = chart(a);
     const B: Chart = chart(b);
     if (grid(A) && grid(B) && (A[0] === B[0] || A[1] === B[1])) continue;
-    const points: Chart[] = [A, B, chart(d), chart(c)].map(
-      (p: Chart): Chart => [p[0], near(p[1], A[1]) * input.scale],
+    const corners: Chart[] = [A, B, chart(d), chart(c)].map(
+      (p: Chart): Chart => [p[0], near(p[1], A[1])],
+    );
+    const scale: number = local(
+      input,
+      corners.reduce((s: number, p: Chart): number => s + p[0], 0) / 4,
+      corners.reduce((s: number, p: Chart): number => s + p[1], 0) / 4,
+    );
+    const points: Chart[] = corners.map(
+      (p: Chart): Chart => [p[0], p[1] * scale],
     );
     // (a, b, d) is positive in the face's chart order; c is the far vertex across a-b.
     const [P, Q, S, T] = (
@@ -351,7 +435,7 @@ function loops(input: Case): number[][] {
 }
 
 /**
- * Scenario 4: the legalization's in-circle sign is exact on represented
+ * Scenario 5: the legalization's in-circle sign is exact on represented
  * points. The unit circle through `(-1, 0)`, `(1, 0)` and `(0, 1)` is
  * tested at the 17 by 17 points `(i u, -1 + j u)` around its lowest point,
  * `u = 2^-52` and `i, j` in -8..8: every coordinate is a multiple of `u`
