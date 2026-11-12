@@ -2,6 +2,7 @@ import { AutoMovieLoftChain, type AutoMovieConstructionRealization, AutoMovieNat
 import type { AutoMovieConstructionNode, IAutoMovieConstructionPort } from "@automovie/interface";
 
 import { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
+import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Arm } from "./AutoMovieHumanF1Arm";
 import { AutoMovieHumanF1Concha } from "./AutoMovieHumanF1Concha";
 import { AutoMovieHumanF1Ear } from "./AutoMovieHumanF1Ear";
@@ -179,14 +180,15 @@ export namespace AutoMovieHumanF1 {
    * half a millimetre in front of the alar grooves, so from there its wall is the wings' outer face, but its first sections are closed by its
    * box's chords at the top, inside the dorsum, and at the bottom, inside the lip behind the subnasale. Read off the nose's own wall by its
    * distance to the reference skin (`FamilyConicScan.ts nose-rail`, the station from which it lies within 0.3 mm of the skin): the wings'
-   * faces from the first station, the dorsum from 10 mm in (x 123.5), and below, where the wall leaves the lip's flesh for the skin, from
-   * 7 mm in at the nostrils' outer sills through 9 mm to 10.5 mm at the subnasale. Under each wing the wall's hull bridges the alar rim to
-   * the box's floor and turns a corner there; landed 2 to 2.5 mm in, the trim along the curve cut that corner into upright slivers, so the
-   * band lands 3.5 to 5 mm in round the alar base and takes the corner. Where the wall is skin from the first station the band still lands
-   * 2 mm in, so it rounds the alar groove. Above the wings the face keeps the sidewalls (`FamilyConicBody.ts
-   * noseCut`), and the band lands 5 to 8 mm in, the farther the higher, so its loop, 2.5 mm outside this curve, stays on the face's own skin.
+   * faces from the first station, and the dorsum from 10 mm in (x 123.5). Below, the wall leaves the lip's flesh for the skin 7 to 10.5 mm
+   * in, but there the nostrils lie, back to 117.6 mm forward, and a cut that crossed the band admitted only a knife-edged blend: so behind
+   * the nostrils, from 124 to 236 degrees round, the band lands 3 mm in (x 116.5), clear of each cut and its 1.5 mm blend
+   * (`NOSTRIL_RIM_MM`), rising to 6 mm under the columella. Landed 10.5 mm in at the subnasale between nostrils landed 3 mm in, it stood as
+   * a notch. Where the wall is skin from the first station the band still lands 2 mm in, so it rounds the alar groove. Above the wings the
+   * face keeps the sidewalls (`FamilyConicBody.ts noseCut`), and the band lands 5 to 8 mm in, the farther the higher, so its loop, 2.5 mm
+   * outside this curve, stays on the face's own skin.
    */
-  const NOSE_RAILS_MM: number[] = [10, 9.5, 8, 7, 6, 5, 3.5, 2.5, 2, 2, 2.5, 3.5, 5, 7, 9, 10.5, 10.5, 10.5, 9, 7, 5, 3.5, 2.5, 2, 2, 2.5, 3.5, 5, 6, 7, 8, 9.5];
+  const NOSE_RAILS_MM: number[] = [10, 9.5, 8, 7, 6, 5, 3.5, 2.5, 2, 2, 2.5, 3, 3, 3, 3, 4.5, 6, 4.5, 3, 3, 3, 3, 2.5, 2, 2, 2.5, 3.5, 5, 6, 7, 8, 9.5];
 
   /**
    * How far outside the nose's rail curve its port loop stands on the face, and outside the auricle's root the ear's stands on the skull, mm.
@@ -229,6 +231,13 @@ export namespace AutoMovieHumanF1 {
    * crossing from one face to the next (`AutoMovieSolidClip.CROSSING`, 0.01 mm).
    */
   const NOSE_COLUMNS: number = 192;
+
+  /**
+   * The nostril's rim, mm: the width of its cut's blend on either side of the curve, and how far its cutter is drawn in so the opening,
+   * widened by the blend, keeps the hollow's own size. The reference's rim, the alar rim and the sill, is a roll of about 1.5 to 2 mm radius
+   * (`FamilyConicFigure.ts nose`, from below); with a blend of 0.15 mm the generated rim was a knife's edge.
+   */
+  const NOSTRIL_RIM_MM: number = 1.5;
 
   /** The sewn body's declaration: its construction tree and the view parts its source leaves name. */
   export interface IConstruction {
@@ -307,6 +316,38 @@ export namespace AutoMovieHumanF1 {
       return share + margin / Math.hypot(semi[0] * Math.cos(clock), semi[1] * radius * Math.sin(clock));
     });
     return { centre: [centre[0] / 1000, centre[1]], semi: [semi[0] / 1000, semi[1]], sense, shape };
+  }
+
+  /**
+   * A family with every section drawn in by a distance: at each knot each extreme moves that far toward the middle of the section's
+   * extremes, and the shoulders and the medians, shares of their arcs, stay. A cutter whose cut is blended is drawn in by the blend's
+   * width, which moves the opening's edge out again by about as much.
+   *
+   * @param family The family, whose layout's extremes come in (u, v) pairs.
+   * @param mm The distance, mm.
+   */
+  function drawnIn(family: AutoMovieHumanConicLoft.IFamily, mm: number): AutoMovieHumanConicLoft.IFamily {
+    const units: string[] = AutoMovieHumanConicSection.units(family.layout);
+    const pairs: number[] = units.flatMap((unit: string, f: number): number[] => (unit === "mm" && units[f + 1] === "mm" && pairsBefore(units, f) ? [f] : []));
+    const values: number[][] = family.values.map((row: number[]): number[] => [...row]);
+    for (let k: number = 0; k < family.knots.length; ++k) {
+      const centre: [number, number] = [pairs.reduce((s: number, f: number): number => s + family.values[f]![k]!, 0) / pairs.length, pairs.reduce((s: number, f: number): number => s + family.values[f + 1]![k]!, 0) / pairs.length];
+      for (const f of pairs) {
+        const [u, v]: [number, number] = [family.values[f]![k]!, family.values[f + 1]![k]!];
+        const far: number = Math.hypot(u - centre[0], v - centre[1]);
+        if (far <= mm) throw new Error("drawnIn: " + family.name + "'s section at knot " + k + " is narrower than " + mm + " mm");
+        values[f]![k] = u - (mm * (u - centre[0])) / far;
+        values[f + 1]![k] = v - (mm * (v - centre[1])) / far;
+      }
+    }
+    return { ...family, values };
+  }
+
+  /** Whether the "mm" field at `f` starts a (u, v) pair: an even count of "mm" fields runs up to it. */
+  function pairsBefore(units: string[], f: number): boolean {
+    let run: number = 0;
+    for (let g: number = f - 1; g >= 0 && units[g] === "mm"; --g) ++run;
+    return run % 2 === 0;
   }
 
   /**
@@ -459,12 +500,13 @@ export namespace AutoMovieHumanF1 {
       root = cutter(concha, root, 0.1, Math.PI);
     }
     root = { type: "port", name: "nostril." + BODY.nose.name, host: root, hostFace: trunk, loop: nostril(), band: "band." + BODY.nose.name, part: leaf(BODY.nose), partFace: BODY.nose.name, partEnd: "bottom", rail: Math.min(...NOSE_RAILS_MM) / 1000, rails: NOSE_RAILS_MM.map((rail: number): number => rail / 1000), count: NOSE_COLUMNS, rows: BAND.rows };
-    // Each nostril is cut from the head: its loft comes up out of the nose's underside and closes inside it. Its back wall comes out
-    // through the band at the sill, where the band turns from the lip to the nose's underside within a few millimetres: a blend 0.25 to
-    // 0.5 mm wide either side found no rail on the band beside the curve on one side, and 0.15 mm is admitted on both.
+    // Each nostril is cut from the head: its loft comes up out of the nose's underside and closes inside it. The band lands behind it, so the
+    // cut lies wholly on the nose's own face and its blend may be as wide as the rim's roll; while the cut crossed the band at the sill only
+    // a blend 0.15 mm wide found its rails there.
     for (const side of [1, -1] as const) {
-      const hollow: AutoMovieHumanConicLoft.IFamily = side > 0 ? AutoMovieHumanF1Nostril : twin(AutoMovieHumanF1Nostril);
-      root = { type: "join", kind: "diff", name: "cut." + hollow.name, host: root, part: leaf(hollow), seed: { type: "search", partFace: hollow.name, hostFace: BODY.nose.name, phase: 0, from: 0, to: 0.9 }, parameter: { type: "phase" }, partWidth: { type: "chord", value: 0.00015 }, hostWidth: { type: "chord", value: 0.00015 }, continuity: "G2", count: 48, rows: 4, tolerance: 1e-12, grazing: 0.05 };
+      const drawn: AutoMovieHumanConicLoft.IFamily = drawnIn(AutoMovieHumanF1Nostril, NOSTRIL_RIM_MM);
+      const hollow: AutoMovieHumanConicLoft.IFamily = side > 0 ? drawn : twin(drawn);
+      root = { type: "join", kind: "diff", name: "cut." + hollow.name, host: root, part: leaf(hollow), seed: { type: "search", partFace: hollow.name, hostFace: BODY.nose.name, phase: 0, from: 0, to: 0.9 }, parameter: { type: "phase" }, partWidth: { type: "chord", value: NOSTRIL_RIM_MM / 1000 }, hostWidth: { type: "chord", value: NOSTRIL_RIM_MM / 1000 }, continuity: "G2", count: 48, rows: 4, tolerance: 1e-12, grazing: 0.05 };
     }
     return { root, sources };
   }
