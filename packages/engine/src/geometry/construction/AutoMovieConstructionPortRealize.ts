@@ -7,6 +7,7 @@ import { AutoMovieConstructionSplitBand } from "./AutoMovieConstructionSplitBand
 import { AutoMovieConstructionState } from "./AutoMovieConstructionState";
 import { AutoMovieConstructionViews } from "./AutoMovieConstructionViews";
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
+import { AutoMovieNaturalSpline } from "./AutoMovieNaturalSpline";
 import type { AutoMovieSolidBody } from "./AutoMovieSolidBody";
 import type { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
@@ -21,7 +22,7 @@ type Vec3 = AutoMovieSolidVector.Vec3;
 /**
  * Realize a port (`IAutoMovieConstructionPort`): the host's port curve cut out of its face as a hole, a band from that curve to the part's rail (`AutoMovieConstructionSplitBand.strip`, the split's own strip with the monotone ribbon scale), all sharing their boundary vertices.
  *
- * Steps: walk the host and admit its face; take the checkpoint; walk the part and admit its face and rail (realized after the checkpoint, the rail inside its domain, the rail's side not already cut); build the band, whose start ribbons are the host surface's 2-jet across the port curve (the ellipse, each column scaled from the centre by the loop's share when it declares a shape) toward the curve's centre; then add, in one step, the port curve's vertices on the host (its hole cycle), the rail's vertices on the part (its rail cycle) and the band face with its two station-end cycles, every segment naming the face across it. The band's chain and surface join the realization's chains and surfaces.
+ * Steps: walk the host and admit its face; take the checkpoint; walk the part and admit its face and rail (realized after the checkpoint, the rail inside its domain, the rail's side not already cut; a curved rail, `rails`, is the periodic cubic through its distances, every column's ring point, chart and ribbon taken at that column's own station on it); build the band, whose start ribbons are the host surface's 2-jet across the port curve (the ellipse, each column scaled from the centre by the loop's share when it declares a shape) toward the curve's centre; then add, in one step, the port curve's vertices on the host (its hole cycle), the rail's vertices on the part (its rail cycle) and the band face with its two station-end cycles, every segment naming the face across it. The band's chain and surface join the realization's chains and surfaces.
  *
  * A broken premise restores the checkpoint and records one diagnostic under the port's name; a foreign error restores it and propagates unchanged.
  *
@@ -76,16 +77,31 @@ export function AutoMovieConstructionPortRealize(
     const part: IAutoMovieSolidSurface = body.faces[index]!.surface;
     const into: 1 | -1 = node.partEnd === "bottom" ? 1 : -1;
     const S: number = AutoMovieConstructionViews.SCALE;
-    const rail: number =
-      chain.layers[node.partEnd === "bottom" ? 0 : chain.layers.length - 1]!.y +
-      into * node.rail * S;
+    const end: number =
+      chain.layers[node.partEnd === "bottom" ? 0 : chain.layers.length - 1]!.y;
+    const rail: number = end + into * node.rail * S;
+
+    // A curved rail: its station at each part phase, the periodic cubic
+    // through the declared distances.
+    const profile: ((psi: number) => number) | undefined =
+      node.rails === undefined
+        ? undefined
+        : AutoMovieNaturalSpline.periodic(node.rails.map((x: number): number => end + into * x * S));
+    const railAt: (psi: number) => number = (psi: number): number =>
+      profile === undefined ? rail : profile(psi);
     const [first, last]: [number, number] = part.domain ?? [
       chain.layers[0]!.y,
       chain.layers[chain.layers.length - 1]!.y,
     ];
-    if (!(rail > first && rail < last))
+    const reach: number[] =
+      node.rails === undefined
+        ? [rail]
+        : Array.from({ length: 8 * node.rails.length }, (_: unknown, j: number): number =>
+            railAt((2 * Math.PI * j) / (8 * node.rails!.length)),
+          );
+    if (!reach.every((s: number): boolean => s > first && s < last))
       return fail(
-        `the part face ${node.partFace}'s rail at station ${rail} mm lies outside its domain [${first}, ${last}] mm`,
+        `the part face ${node.partFace}'s rail at stations ${Math.min(...reach)} to ${Math.max(...reach)} mm leaves its domain [${first}, ${last}] mm`,
       );
 
     // The port curve on the host's chart (station mm, phase rad) and its
@@ -166,6 +182,7 @@ export function AutoMovieConstructionPortRealize(
         surface: part,
         station: rail,
         into,
+        ...(profile === undefined ? {} : { along: profile }),
       });
     if (typeof band === "string") return fail(`band ${node.band}: ${band}`);
 
@@ -179,9 +196,9 @@ export function AutoMovieConstructionPortRealize(
     const ring: number[] = band.childPhases.map((psi: number): number =>
       AutoMovieSolidMesh.vertex(
         mesh,
-        part.jet(rail, psi).p,
+        part.jet(railAt(psi), psi).p,
         partOwner,
-        rail,
+        railAt(psi),
         psi,
       ),
     );
@@ -242,9 +259,9 @@ export function AutoMovieConstructionPortRealize(
         neighbours: ring.map(
           (_: number, k: number): AutoMovieSolidCycle.INeighbour => ({
             face: index,
-            from: [rail, band.childPhases[k]!],
+            from: [railAt(band.childPhases[k]!), band.childPhases[k]!],
             to: [
-              rail,
+              railAt(band.childPhases[(k + 1) % n]!),
               k + 1 < n
                 ? band.childPhases[k + 1]!
                 : band.childPhases[0]! + sign * turn,
@@ -264,7 +281,7 @@ export function AutoMovieConstructionPortRealize(
       kind,
       vertices: order.map((k: number): number => ring[k]!),
       chart: order.map((k: number): [number, number] => [
-        rail,
+        railAt(band.childPhases[k]!),
         band.childPhases[k]!,
       ]),
       neighbours: order.map(

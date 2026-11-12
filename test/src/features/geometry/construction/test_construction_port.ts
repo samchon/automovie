@@ -317,6 +317,100 @@ export function test_construction_port(): void {
   }
   if (!refused)
     failures.push("a loop shape of 3 shares was admitted for 32 columns");
+
+  // 10. A curved rail: 20 and 30 mm in, alternating at the part phases 0, pi/2, pi and 3 pi/2, h = pi/2 apart. The periodic cubic's
+  // curvatures solve M[j-1] + 4 M[j] + M[j+1] = 6 (y[j+1] - 2 y[j] + y[j-1]) / h^2; by symmetry they alternate, +c at the 20 mm knots
+  // and -c at the 30 mm ones, so 2 c = 6 (30 - 40 + 30) / h^2 and c = 6 (30 - 20) / h^2.
+  const h: number = Math.PI / 2;
+  const c0: number = (6 * (30 - 20)) / (h * h);
+  const expected = (psi: number): number => {
+    const x: number = ((psi % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+    const j: number = Math.min(3, Math.floor(x / h));
+    const t: number = x - j * h;
+    const [y0, y1]: [number, number] = j % 2 === 0 ? [20, 30] : [30, 20];
+    const [m0, m1]: [number, number] = j % 2 === 0 ? [c0, -c0] : [-c0, c0];
+    // The cubic on the span with those end values and end curvatures.
+    return (
+      y0 +
+      t * ((y1 - y0) / h - (h * (2 * m0 + m1)) / 6) +
+      (m0 * t * t) / 2 +
+      ((m1 - m0) * t * t * t) / (6 * h)
+    );
+  };
+  const curved: AutoMovieConstructionRealization.IRealization = realize({
+    ...port(0.02),
+    rails: [0.02, 0.03, 0.02, 0.03],
+  });
+  if (curved.diagnostics.length !== 0)
+    failures.push(`curved rail: ${ConstructionRead.diagnostics(curved)}`);
+  else {
+    const strip: IAutoMovieSolidSurface = ConstructionRead.surface(
+      curved,
+      "band.port",
+    );
+    const span: number =
+      curved.chains.find(
+        (c: { name: string }): boolean => c.name === "band.port",
+      )?.layers[1]?.y ?? NaN;
+    let low: number = Infinity;
+    let high: number = -Infinity;
+    for (let k: number = 0; k < n; ++k) {
+      const p: readonly number[] = strip.jet(span, clock(k)).p;
+      // The part's chart: u = +z about z = -50 mm, v = +y; its stations run along +x from x = 12 mm.
+      const psi: number = Math.atan2(p[1]!, p[2]! + 50);
+      const gap: number = Math.max(
+        Math.abs(Math.hypot(p[1]!, p[2]! + 50) - 7),
+        Math.abs(p[0]! - 12 - expected(psi)),
+      );
+      if (!(gap <= 1e-6))
+        failures.push(
+          `curved rail column ${k}: ${gap} mm off the part at the rail curve's station ${12 + expected(psi)} mm`,
+        );
+      low = Math.min(low, p[0]!);
+      high = Math.max(high, p[0]!);
+    }
+    if (!(low < 33 && high > 41))
+      failures.push(
+        `curved rail: the ring spans ${low} to ${high} mm forward, not the curve's 32 to 42`,
+      );
+    const shared: (face: string, kind: string) => number[] = (
+      face: string,
+      kind: string,
+    ): number[] =>
+      curved.body.faces
+        .find((f: { chain: string }): boolean => f.chain === face)
+        ?.cycles.find((cy: { kind: string }): boolean => cy.kind === kind)
+        ?.points ?? [];
+    if (!same(shared("band.port", "end"), shared("arm", "start")))
+      failures.push("curved rail: the band's end cycle is not the part's rail cycle");
+    const edges: Map<string, number> = new Map();
+    const cx: number[] = curved.mesh.indices;
+    for (let t: number = 0; t + 2 < cx.length; t += 3)
+      for (let e: number = 0; e < 3; ++e) {
+        const a: number = cx[t + e]!;
+        const b: number = cx[t + ((e + 1) % 3)]!;
+        const key: string = a < b ? `${a},${b}` : `${b},${a}`;
+        edges.set(key, (edges.get(key) ?? 0) + 1);
+      }
+    const loose = (v: number): boolean => {
+      const x: number = curved.mesh.positions[3 * v]!;
+      const z: number = curved.mesh.positions[3 * v + 2]!;
+      return Math.abs(z) < 1e-7 || Math.abs(z + 0.1) < 1e-7 || Math.abs(x - 0.072) < 1e-7;
+    };
+    let gaps: number = 0;
+    for (const [key, count] of edges)
+      if (count > 2 || (count === 1 && !key.split(",").every((v: string): boolean => loose(Number(v))))) ++gaps;
+    if (gaps !== 0) failures.push(`curved rail: ${gaps} edges not shared by exactly two triangles`);
+  }
+
+  // 11. A curved rail of 2 distances is refused.
+  let short: boolean = false;
+  try {
+    realize({ ...port(0.02), rails: [0.02, 0.03] });
+  } catch {
+    short = true;
+  }
+  if (!short) failures.push("a curved rail of 2 distances was admitted");
   if (failures.length !== 0)
     throw new Error(
       `${failures.length} port failures:\n${failures.join("\n")}`,
