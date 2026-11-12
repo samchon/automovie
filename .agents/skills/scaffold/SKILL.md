@@ -7,7 +7,7 @@ description: Maintains the generated-project scaffold under packages/template an
 
 A production's own `AGENTS.md`, `README.md`, and source own its meaning; read them and the installed package APIs before interpreting, authoring, or reviewing it. Repository instructions never override them.
 
-[Scaffold prompting](../scaffold-prompting/SKILL.md) owns the design of shipped task skills, contracts and routers, with the [product principles](../scaffold-prompting/SKILL.md#product-principles) they serve. This skill owns their distribution and production ownership boundaries; [development](../development/SKILL.md) owns implementation changes to the checker and to the materializer, the template library that renders the scaffold into a project's files.
+[Scaffold prompting](../scaffold-prompting/SKILL.md) owns the design of shipped task skills, contracts and routers, with the [product principles](../scaffold-prompting/SKILL.md#product-principles) they serve. This skill owns their distribution and production ownership boundaries; [development](../development/SKILL.md) owns implementation changes to the checker and to `createAutoMovieScaffold`, the template function that turns the scaffold into a project's files.
 
 ## What the scaffold owns
 
@@ -33,7 +33,7 @@ Default lint and evidence configurations serve ordinary TypeScript development; 
 
 ## Shared items
 
-An empty `$<name>` file under the scaffold's `.agents/skills` ships the repository item `<name>` at the same place under `.agents/skills`: `$documentation` the whole folder, `development/$repair.md` the single file. A skill whose production stance differs keeps its own `SKILL.md` beside file placeholders, as `3d-modeling` and `motion` do. The [instruction synchronizer](../../../packages/template/build/syncScaffoldInstructions.ts) copies those items into `lib/skills` on `prepare` and `build`, and the scaffold reader ships them in the placeholders' place.
+An empty `$<name>` file under the scaffold's `.agents/skills` ships the repository item `<name>` at the same place under `.agents/skills`: `$documentation` the whole folder, `development/$repair.md` the single file. A skill whose production stance differs keeps its own `SKILL.md` beside file placeholders, as `3d-modeling` and `motion` do. The [prepare script](../../../packages/template/build/prepare.ts) copies those items into the package's ignored, published `generated/skills` on `prepare` and `build`, and `createAutoMovieScaffold` ships them in the placeholders' place.
 
 Share a repository skill this way instead of keeping a second copy, and edit it at its repository source under the [shared skill](../prompting/SKILL.md#shared-skills) rule. [Root and scaffold](../scaffold-prompting/SKILL.md#root-and-scaffold) says which rules belong on which side.
 
@@ -49,6 +49,8 @@ The scaffold has three layers:
 
 Instruction files take no token and stay layout-neutral: a project path they name is the production's, never a link out of `.agents`, and the production layer reaches the shared skills through `{{skills}}`.
 
+Files that differ between a single production and a workspace are generated rather than shipped: `pnpm-workspace.yaml`, whose catalogs every `catalog:` dependency of the layers' `package.json` files resolves through, and `evidence.config.ts`, which reads the workspace root's skills inside a workspace.
+
 Untracked files under `scaffold` still ship, so remove stale copies from a checkout before packaging.
 
 ## What a production owns
@@ -59,15 +61,6 @@ Runtime README and `.env.example` own nonsecret operational setup and variable n
 
 ## Updating productions
 
-Package upgrades do not rewrite productions. Explicit instruction updates use the CLI sync documented in the [root README](../../../README.md#commands), which updates routers and bundled task resources while preserving contracts, project decisions, configuration and authored content. Reusable package implementation stays with its package. A scaffold edit alone reaches only future installations until sync is run.
-
-For an authorized update to an existing production:
-
-1. Compare the adopted baseline, the proposed scaffold and the actual local files before applying the named scope.
-2. Use sync check to inspect changes and conflicts.
-3. Preserve project choices and custom contracts, and align changed addresses, selected respondents and consumers together.
-4. Follow that production's repair rules for affected answers and reviews.
-
-New installations retain instruction digests; legacy projects need an explicitly verified prior instruction baseline for differing existing files. Do not infer renewed approval from new wording or overwrite a repaired body with an old working edition.
+Package upgrades and scaffold edits reach only new installations. An authorized update to an existing production is a deliberate project change: compare the scaffold with the actual local files, preserve project choices and custom contracts, align changed addresses, selected respondents and consumers together, and follow that production's repair rules for affected answers and reviews. Do not infer renewed approval from new wording or overwrite a repaired body with an old working edition.
 
 For changed installation behavior, observe a generated project's installed entry point and its `lint`, `evidence`, and `test` commands.

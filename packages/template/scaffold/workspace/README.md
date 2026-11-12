@@ -38,5 +38,3 @@ Put code that several productions share in `packages/<name>` as an ordinary pnpm
 | `pnpm evidence` | Every member's `evidence` |
 | `pnpm test` | Every member's `test` |
 | `pnpm --filter <name> <script>` | One member's script, such as `pnpm --filter <name> dev` |
-
-Package upgrades leave this workspace unchanged. `pnpm automovie sync . --check` previews generated instruction updates for the shared skills, and omitting `--check` applies a conflict-free plan that preserves contracts, configuration and every production. Keep `.automovie/scaffold-state.json` here, beside `AGENTS.md`.

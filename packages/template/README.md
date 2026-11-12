@@ -1,37 +1,33 @@
 # @automovie/template
 
-The scaffold every AutoMovie production starts from, together with the functions that render it and write it to disk. Most people reach it through the [`automovie` CLI](../../README.md#commands). Use this package directly when your own tool has to install or update a scaffold.
+The scaffold every AutoMovie production starts from, with the one function that turns it into a project's files. Most people reach it through the [`automovie` CLI](../../README.md#commands). Use this package directly when your own tool has to create a production.
 
 ## Use
 
 ```bash
-npm install @automovie/template
+pnpm add @automovie/template
 ```
 
 ```ts
-import { renderScaffold, writeFiles } from "@automovie/template";
+import { createAutoMovieScaffold } from "@automovie/template";
 
-const written: string[] = writeFiles("my-film", renderScaffold({ name: "my-film" }));
+const files: Record<string, string> = createAutoMovieScaffold({
+  kind: "production",
+  name: "my-film",
+});
 ```
 
-## Rendering a scaffold
+`createAutoMovieScaffold` returns a `{ path: content }` map and writes nothing; the caller writes it. `kind` selects what it creates:
 
-A renderer returns a `{ path: content }` map and writes nothing. The map is the same for the same name and package version.
-
-| Renderer | Produces |
+| Kind | Creates |
 | --- | --- |
-| `renderScaffold` | A single production in its own repository |
-| `renderWorkspaceScaffold` | A pnpm workspace root with shared instructions and dependency catalogs |
-| `renderWorkspaceProductionScaffold` | One production for `movies/<shorts\|series>/<name>` inside such a workspace |
-| `renderScaffoldInstructions` | Only the instruction files: `AGENTS.md`, `CLAUDE.md` and `.agents/skills` |
+| `production` | A single production in its own pnpm repository |
+| `workspace` | A pnpm workspace root for `movies/shorts/*`, `movies/series/*` and `packages/*`, with the shared instructions |
+| `workspace-production` | One production for `movies/<shorts\|series>/<name>` inside such a workspace |
 
-## Writing it to disk
+Every dependency is a `catalog:` reference resolved by the generated `pnpm-workspace.yaml`: the AutoMovie packages at this package's own version, and the rest at the ranges this repository builds with.
 
-`writeFiles(location, files, options)` writes a rendered map and returns the paths written, or throws `ScaffoldPublicationError`. `publishFiles` takes the same arguments and returns a receipt instead: every completed file and the first one that did not complete. Both refuse a non-empty directory unless `force` is set, and neither deletes or rolls back what was already written when a later file fails.
-
-## Updating an installed project
-
-An installed project changes only through sync, never through a package upgrade. `planScaffoldSync({ location, baseline? })` compares a project's instruction files with the current bundle, and `syncScaffold` applies that plan when it has no conflict; with `check: true` it only reports. Sync rewrites `AGENTS.md`, `CLAUDE.md` and the bundled skill files, never the contracts (the checklists a production answers), configuration, source or written content. A file edited locally is a conflict, and a conflict stops every write. The CLI exposes this as `automovie sync`.
+Package upgrades never rewrite an installed project.
 
 ## What the scaffold contains
 

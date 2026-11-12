@@ -34,6 +34,6 @@ A single film's observed execution establishes that film's behavior, not compara
 
 A missing capability that a real authoring or playback task exposes is work to complete, not a reason to lower the commission or hide a local substitute. Trace it through [project ownership](../project/SKILL.md#packages), implement and validate it through [development](../development/SKILL.md), then reconnect its actual production consumer.
 
-Use [scaffold](../scaffold/SKILL.md) for explicit instruction sync; source, configuration and contract migrations remain deliberate project changes.
+Scaffold changes reach only new productions; source, configuration, instruction and contract migrations of an existing production remain deliberate project changes.
 
 Apply the production's viewer recovery priority before continuing dependent creative or visual judgments. A working preview does not certify capture, encoded-video playback or final delivery. Follow the exact failing path through repair and report observed and unperformed checks separately.

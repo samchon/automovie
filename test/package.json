@@ -65,6 +65,7 @@
     "ttsc": "catalog:samchon",
     "typescript": "catalog:typescript",
     "typescript-compiler": "npm:typescript@5.9.3",
-    "vite": "catalog:vite"
+    "vite": "catalog:vite",
+    "yaml": "^2.9.0"
   }
 }

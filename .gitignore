@@ -10,6 +10,7 @@ node_modules/
 packages/cli/.cache/
 packages/cli/README.md
 packages/template/.cache/
+packages/template/generated/
 packages/motions/.cache/
 packages/motions/media/
 packages/human/media/

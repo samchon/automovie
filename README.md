@@ -93,7 +93,7 @@ The generated production [README](https://github.com/samchon/automovie/blob/mast
 ```bash
 npx automovie create <directory>
 cd <directory>
-npm install
+pnpm install
 ```
 
 Open the directory in your coding agent and tell it what to make. The new production holds the instructions, contracts, configuration and an empty Viewer, and no film.
@@ -115,7 +115,6 @@ A workspace keeps several productions under one `AGENTS.md`, `CLAUDE.md` and `.a
 ```text
 npx automovie create <directory> [--workspace] [--name <name>] [--force]
 pnpm automovie add <shorts|series>/<name> [--name <name>] [--force]
-npx automovie sync <directory> [--check] [--baseline <directory>]
 automovie capture --module <file> [--props <json>] [--backend software|gpu] [--out <dir>] [<request>]
 automovie capture --file <video> [--out <dir>] [<request>]
 automovie render --module <file> [--subject <name>] [--props <json>] [--out <dir>] [--backend software|gpu]
@@ -124,7 +123,7 @@ automovie review --url <inspector address> --seconds <s> [--out <dir>]
 
 ### create
 
-`create` installs a single production. With `--workspace` it installs a pnpm workspace root instead, with a `pnpm-workspace.yaml` whose members are `movies/shorts/*`, `movies/series/*` and `packages/*` and whose catalogs pin every production dependency. The package name is `--name` when given and otherwise comes from the directory name.
+`create` installs a single production, a pnpm project whose `pnpm-workspace.yaml` holds the catalogs that pin its dependencies. With `--workspace` it installs a pnpm workspace root instead, with a `pnpm-workspace.yaml` whose members are `movies/shorts/*`, `movies/series/*` and `packages/*` and whose catalogs pin every production dependency. The package name is `--name` when given and otherwise comes from the directory name.
 
 ### add
 
@@ -132,21 +131,17 @@ automovie review --url <inspector address> --seconds <s> [--out <dir>]
 
 `create` and `add` refuse a non-empty target unless `--force` is given, which replaces files at the same paths.
 
-### sync
-
-`sync` updates the generated instructions after upgrading `automovie`, on a single production or a workspace root. It rewrites `AGENTS.md`, `CLAUDE.md` and the bundled skills and leaves the contracts, your own skills, `PROJECT.md`, the README, configuration, source and written content as they are. `--check` writes nothing and exits 1 while updates or conflicts remain, and `--baseline <directory>` names the instruction files the project was installed from. An instruction file you edited is reported as a conflict and nothing is written until you restore it, keeping your edit in a skill of your own.
-
 ### capture
 
-`capture` runs in a production, which `npm run capture` does with `--module src/subjects.ts`. It builds a draw-only page for the module's subjects with the production's Vite, draws every planned still in headless Chromium through `@automovie/render`'s draw function, with SwiftShader unless `--backend gpu`, and writes stills, contact sheets and `record.json` into `--out` or `media/capture/<subject>`. `--props <json>` passes a module the data its subjects are built from, and `--file` captures a video file's own frames with FFmpeg from `FFMPEG_PATH` or `ffmpeg-static` instead. The remaining options are the capture request: `--subject`, the seconds, views, passes, inspection and rounds. `npx playwright-core install chromium-headless-shell` installs the browser, and `CHROME_PATH` selects another. It exits 1 when a cell could not be drawn.
+`capture` runs in a production, which `pnpm run capture` does with `--module src/subjects.ts`. It builds a draw-only page for the module's subjects with the production's Vite, draws every planned still in headless Chromium through `@automovie/render`'s draw function, with SwiftShader unless `--backend gpu`, and writes stills, contact sheets and `record.json` into `--out` or `media/capture/<subject>`. `--props <json>` passes a module the data its subjects are built from, and `--file` captures a video file's own frames with FFmpeg from `FFMPEG_PATH` or `ffmpeg-static` instead. The remaining options are the capture request: `--subject`, the seconds, views, passes, inspection and rounds. `npx playwright-core install chromium-headless-shell` installs the browser, and `CHROME_PATH` selects another. It exits 1 when a cell could not be drawn.
 
 ### render
 
-`render` runs in a production, which `npm run render` does with `--module src/subjects.ts`. It draws every frame of one subject, `--subject` or the module's only one, through the same draw page and function as `capture`, and encodes them once with FFmpeg into `film.mp4` with `render-report.json` beside it, in `--out` or `media/automovie/<subject>/videos`. `--props <json>` passes a module the data its subjects are built from.
+`render` runs in a production, which `pnpm run render` does with `--module src/subjects.ts`. It draws every frame of one subject, `--subject` or the module's only one, through the same draw page and function as `capture`, and encodes them once with FFmpeg into `film.mp4` with `render-report.json` beside it, in `--out` or `media/automovie/<subject>/videos`. `--props <json>` passes a module the data its subjects are built from.
 
 ### review
 
-`review` records real-time playback of the production's running inspector page, `npm run dev`, at `--url` for `--seconds` of wall time after pressing its Play button, into a video with `playback.json` of the readings and page errors, in `--out` or `media/automovie/review`. `npx playwright-core install ffmpeg` provides the recorder. It exits 1 when the page reported a script error.
+`review` records real-time playback of the production's running inspector page, `pnpm run dev`, at `--url` for `--seconds` of wall time after pressing its Play button, into a video with `playback.json` of the readings and page errors, in `--out` or `media/automovie/review`. `npx playwright-core install ffmpeg` provides the recorder. It exits 1 when the page reported a script error.
 
 ## Packages
 

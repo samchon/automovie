@@ -11,7 +11,7 @@ import { readAutoMovieNameOption } from "./readAutoMovieNameOption";
  * @throws On an unknown or repeated option, a missing name value, or anything other than one non-blank directory.
  *
  * @evidence contracts/development/implementation.md#principled-implementation A complete left-to-right scan admits each flag once and consumes `--name`'s value, so every token is classified before any filesystem work.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The create grammar is separate from add and sync; `readAutoMovieNameOption` owns the shared value rule and `run` owns resolution.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The create grammar is separate from add; `readAutoMovieNameOption` owns the shared value rule and `run` owns resolution.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No default directory, inferred workspace mode or derived name is introduced here.
  * @evidence contracts/development/common.md#meaningful-documentation The comment states the grammar, the dash-leading spelling and that refusals name their correction.
  * @evidence contracts/development/implementation.md#efficient-algorithms One scan over the tokens.
