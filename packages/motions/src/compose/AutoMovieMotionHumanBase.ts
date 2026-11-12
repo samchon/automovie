@@ -53,7 +53,7 @@ export namespace AutoMovieMotionHumanBase {
    *
    * @param context The action's context.
    * @param duration Seconds; the composed action's clock lasts as long.
-   * @param contacts The supports a held base stands on, shares of the duration; a carrier declares its own.
+   * @param contacts The supports a held base stands on, shares of the duration; when absent, the supports the body rests on at the entry, held throughout. A carrier declares its own.
    * @returns The plan.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the two cases, each input and whose supports count.
@@ -67,11 +67,18 @@ export namespace AutoMovieMotionHumanBase {
   export function under(
     context: Pick<IHumanActionContext, "carrier" | "entry">,
     duration: number,
-    contacts: readonly IHumanContactWindow[] = [],
+    contacts?: readonly IHumanContactWindow[],
   ): IHumanActionPlan {
     const carrier: IHumanActionContext.ICarrier | undefined = context.carrier;
     if (carrier === undefined)
-      return still(duration, context.entry.posture, contacts);
+      return still(
+        duration,
+        context.entry.posture,
+        contacts ??
+          context.entry.supports.map(
+            (s): IHumanContactWindow => ({ ...s, from: 0, to: 1 }),
+          ),
+      );
     return {
       duration,
       events: [],

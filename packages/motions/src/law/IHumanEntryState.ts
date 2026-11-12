@@ -8,6 +8,7 @@ import type {
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { IHumanActionPlan } from "./IHumanActionPlan";
+import type { IHumanContactWindow } from "./IHumanContactWindow";
 
 /**
  * The displayed state an action is entered from: the pose and its velocity
@@ -43,6 +44,15 @@ export interface IHumanEntryState {
   /** Each foot's displayed state. */
   feet: Record<"left" | "right", IHumanEntryState.IFoot>;
 
+  /**
+   * What the body rests on at the entry: every support the action it leaves
+   * declares open at that instant (a foot planted, the seat on a chair, the
+   * body lying), and both feet on the ground before the first action. An
+   * action that keeps the posture it is entered in keeps these supports, so
+   * a drink taken seated declares the seat it sits on.
+   */
+  supports: IHumanEntryState.ISupport[];
+
   /** The interrupted action, when the entry is a cut. */
   from?: IHumanEntryState.IFrom;
 }
@@ -74,6 +84,18 @@ export namespace IHumanEntryState {
 
     /** The foot's angular velocity as displayed up to the entry, world radians per second. */
     spin: IAutoMovieVector3;
+  }
+
+  /** One support the body rests on. */
+  export interface ISupport {
+    /** The body part that bears. */
+    part: IHumanContactWindow["part"];
+
+    /** How it bears. */
+    kind: IHumanContactWindow["kind"];
+
+    /** The frame it bears on. */
+    support: IHumanContactWindow.Support;
   }
 
   /** The interrupted action. */

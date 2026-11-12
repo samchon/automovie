@@ -24,7 +24,8 @@ import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMo
  * seat or a back bears, or a foot is not planted is not read: the feet are
  * not the only support there. Nor is an instant within the pendulum's own
  * time constant (the square root of its length over gravity, about a third
- * of a second) of a foot leaving the ground: that body is taking the step
+ * of a second) of a foot leaving the ground or of another support taking
+ * the body (the seat a person lowers onto): that body is taking the step
  * Hof et al.'s condition demands, and in steady walking the extrapolated
  * centre does lie ahead of the leading foot through the double support
  * (Hof 2008, Hum Mov Sci 27:112).
@@ -150,7 +151,20 @@ export namespace AutoMovieMotionHumanAuditBalance {
     seconds: number,
     until: number = seconds,
   ): boolean {
-    if (until > seconds)
+    if (until > seconds) {
+      // Another support about to take the body (a seat it is being lowered
+      // onto) is the same case as a step being taken: the feet will not be
+      // alone for the hold.
+      for (const window of windows)
+        if (
+          window.contact.part !== "leftFoot" &&
+          window.contact.part !== "rightFoot" &&
+          window.contact.kind !== "grip" &&
+          window.contact.kind !== "strike" &&
+          window.from > seconds &&
+          window.from <= until + 1e-9
+        )
+          return false;
       for (const part of ["leftFoot", "rightFoot"] as const) {
         // How long this foot stays planted from the instant on, through
         // plant windows that follow one another without a gap.
@@ -170,6 +184,7 @@ export namespace AutoMovieMotionHumanAuditBalance {
         }
         if (kept < until - 1e-9) return false;
       }
+    }
     let left: boolean = false;
     let right: boolean = false;
     for (const window of windows) {

@@ -464,6 +464,7 @@ export namespace HumanSegment {
             },
       posture,
       feet: { left: foot("left"), right: foot("right") },
+      supports: supports(previous, seconds),
       ...(previous === undefined
         ? {}
         : {
@@ -482,6 +483,48 @@ export namespace HumanSegment {
             },
           }),
     };
+  }
+
+  /**
+   * What the body rests on as an action is left at a second: the supports
+   * its plan declares open there, a grip and a strike aside; both feet on
+   * the ground before any action.
+   *
+   * @param previous The action left, if any.
+   * @param seconds The film second.
+   * @returns The supports.
+   */
+  export function supports(
+    previous: ISegment | undefined,
+    seconds: number,
+  ): IHumanEntryState.ISupport[] {
+    if (previous === undefined)
+      return (["leftFoot", "rightFoot"] as const).map(
+        (part: "leftFoot" | "rightFoot"): IHumanEntryState.ISupport => ({
+          part,
+          kind: "plant",
+          support: { kind: "ground" },
+        }),
+      );
+    const u: number = Math.min(
+      1,
+      Math.max(0, (seconds - previous.start) / previous.plan.duration),
+    );
+    return previous.plan.contacts
+      .filter(
+        (c: IHumanContactWindow): boolean =>
+          c.kind !== "grip" &&
+          c.kind !== "strike" &&
+          u >= c.from - 1e-9 &&
+          u <= c.to + 1e-9,
+      )
+      .map(
+        (c: IHumanContactWindow): IHumanEntryState.ISupport => ({
+          part: c.part,
+          kind: c.kind,
+          support: c.support,
+        }),
+      );
   }
 
   /**

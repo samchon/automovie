@@ -333,11 +333,7 @@ export namespace kiss {
     const head = AutoMovieMotionHumanHead.share(0, solved.flexion);
     const turn = AutoMovieMotionHumanHead.share(2, twist);
     return composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.still(
-        clock.duration,
-        entry,
-        AutoMovieMotionHumanBase.plants(),
-      ),
+      base: AutoMovieMotionHumanBase.under(context, clock.duration),
       clock,
       primitives: [
         {

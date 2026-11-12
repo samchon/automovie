@@ -141,7 +141,6 @@ export namespace selfAction {
     HumanBound.whole("count", count);
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
-    const entry: IHumanPosture = context.entry.posture;
     const m = body.measure;
     const arm: number = m.upperArm + m.forearm;
     const rise: number =
@@ -317,11 +316,7 @@ export namespace selfAction {
       }
     }
     return composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.still(
-        clock.duration,
-        entry,
-        AutoMovieMotionHumanBase.plants(),
-      ),
+      base: AutoMovieMotionHumanBase.under(context, clock.duration),
       clock,
       primitives,
       contact: "stroke",

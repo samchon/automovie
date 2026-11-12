@@ -347,11 +347,7 @@ export namespace touch {
       );
     }
     return composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.still(
-        clock.duration,
-        entry,
-        AutoMovieMotionHumanBase.plants(),
-      ),
+      base: AutoMovieMotionHumanBase.under(context, clock.duration),
       clock,
       primitives,
       contact: "ready",

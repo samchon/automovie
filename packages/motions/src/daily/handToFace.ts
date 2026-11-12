@@ -382,11 +382,7 @@ export namespace handToFace {
       );
     }
     return composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.under(
-        context,
-        clock.duration,
-        AutoMovieMotionHumanBase.plants(),
-      ),
+      base: AutoMovieMotionHumanBase.under(context, clock.duration),
       clock,
       primitives,
       contact: row.at,
