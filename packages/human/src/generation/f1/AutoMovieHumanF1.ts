@@ -155,7 +155,6 @@ export namespace AutoMovieHumanF1 {
 
     /** The share of its length each band's ribbon keeps at a fork (`IAutoMovieConstructionSplit.IProfile.reach`); absent, the whole. */
     reach?: number;
-
     /** Where each digit's band lands on it, mm past its first station, the web. */
     rail: number;
 
@@ -178,17 +177,17 @@ export namespace AutoMovieHumanF1 {
       digits: ["finger.pinky", "finger.ring", "finger.middle", "finger.index"],
       webs: [
         [[0.002, 0.0015], [0.004, 0.0029], [0.006, 0.003], [0.008, 0.0015]],
-        [[0.0005, 0.001], [0.001, 0.002], [0.002, 0.0037], [0.004, 0.0065], [0.006, 0.0087], [0.008, 0.0101], [0.01, 0.0103], [0.012, 0.0092], [0.014, 0.0066], [0.016, 0.0027]],
-        [[0.0011, 0.001], [0.002, 0.0027], [0.004, 0.0059], [0.006, 0.0072], [0.008, 0.007], [0.01, 0.006], [0.012, 0.0044], [0.014, 0.0027], [0.016, 0.0007]],
+        [[0.0005, 0.001], [0.001, 0.002], [0.002, 0.0037], [0.004, 0.0065], [0.006, 0.0087], [0.008, 0.0101], [0.01, 0.0102], [0.012, 0.0091], [0.014, 0.0065], [0.016, 0.0026]],
+        [[0.0011, 0.001], [0.002, 0.0026], [0.004, 0.0057], [0.006, 0.0071], [0.008, 0.007], [0.01, 0.0059], [0.012, 0.0045], [0.014, 0.0028], [0.016, 0.0007]],
       ],
       corner: 0.6,
       reach: 0.5,
       rail: 3,
       columns: 192,
     },
-    // The foot's end at 975 mm on the leg's course, turned at the ball of the foot toward the five toes. Between the index and the big toe
-    // the rays from 8 to 18 mm along the chord ran on into the big toe (31 to 47 mm against 16 and 13 on either side) and are left out.
-    // Beside each fork the web stands up to 10 mm out of the end, on the sole as on top, so each seam first runs out along the foot and
+    // The foot's end at 975 mm on the leg's course, turned at the ball of the foot toward the five toes. Every seam's plane passes through
+    // the gap between its toes' facing skins (`fanSeams`); held midway between the index and the big toe's axes it ran through the big
+    // toe, whose rays from 8 to 18 mm along the chord ran on inside it (31 to 47 mm) and were left out. Beside each fork the web stands up to 10 mm out of the end, on the sole as on top, so each seam first runs out along the foot and
     // then turns across: the knots before the first web knot and after the last are `FamilyConicScan.ts webs`' run-out readings, rays
     // along the chord every millimetre out from the end; read only every 2 mm along the chord, the seam turned down within 1 to 2 mm of
     // its fork and stood a pointed tent between the toes on top. The bands turn over 0.75 rad of clock at each fork, nearly half of a
@@ -200,10 +199,10 @@ export namespace AutoMovieHumanF1 {
     leg: {
       digits: ["toe.little", "toe.ring", "toe.middle", "toe.index", "toe.big"],
       webs: [
-        [[0.0004, 0.001], [0.0009, 0.002], [0.002, 0.0031], [0.004, 0.0038], [0.006, 0.0039], [0.008, 0.0037], [0.01, 0.0034], [0.012, 0.0024], [0.014, 0.0008]],
-        [[0.0005, 0.001], [0.0007, 0.002], [0.0009, 0.003], [0.0012, 0.004], [0.0014, 0.005], [0.002, 0.0076], [0.004, 0.0116], [0.006, 0.0127], [0.008, 0.013], [0.01, 0.0128], [0.012, 0.0121], [0.014, 0.0113], [0.016, 0.0102], [0.018, 0.0088], [0.02, 0.0071], [0.022, 0.0035], [0.0225, 0.001]],
-        [[0.0008, 0.001], [0.001, 0.002], [0.0012, 0.003], [0.0014, 0.004], [0.002, 0.007], [0.004, 0.0145], [0.006, 0.0172], [0.008, 0.018], [0.01, 0.0185], [0.012, 0.0184], [0.014, 0.018], [0.016, 0.0177], [0.018, 0.0171], [0.02, 0.0162], [0.022, 0.0145], [0.024, 0.0104], [0.0248, 0.009], [0.025, 0.008], [0.0252, 0.007], [0.0254, 0.006], [0.0257, 0.005], [0.0258, 0.004], [0.0258, 0.003], [0.0258, 0.002], [0.0258, 0.001]],
-        [[0.0001, 0.001], [0.0001, 0.002], [0.0003, 0.003], [0.0006, 0.004], [0.0008, 0.005], [0.001, 0.006], [0.0013, 0.007], [0.002, 0.0094], [0.004, 0.0135], [0.006, 0.0158], [0.02, 0.0128], [0.022, 0.0104], [0.024, 0.0069], [0.026, 0.0031], [0.0265, 0.002], [0.027, 0.001]],
+        [[0.0004, 0.001], [0.001, 0.002], [0.002, 0.003], [0.004, 0.0038], [0.006, 0.0038], [0.008, 0.0036], [0.01, 0.0033], [0.012, 0.0023], [0.014, 0.0008]],
+        [[0.0005, 0.001], [0.0007, 0.002], [0.0009, 0.003], [0.0012, 0.004], [0.0014, 0.005], [0.002, 0.0076], [0.004, 0.0117], [0.006, 0.0129], [0.008, 0.0133], [0.01, 0.013], [0.012, 0.0123], [0.014, 0.0114], [0.016, 0.0102], [0.018, 0.0091], [0.02, 0.0072], [0.022, 0.0036], [0.0225, 0.001]],
+        [[0.0008, 0.001], [0.001, 0.002], [0.0012, 0.003], [0.0014, 0.004], [0.002, 0.007], [0.004, 0.0144], [0.006, 0.0171], [0.008, 0.0179], [0.01, 0.0182], [0.012, 0.018], [0.014, 0.0176], [0.016, 0.017], [0.018, 0.0162], [0.02, 0.015], [0.022, 0.0136], [0.024, 0.0102], [0.0247, 0.009], [0.025, 0.008], [0.0252, 0.007], [0.0254, 0.006], [0.0256, 0.005], [0.0258, 0.004], [0.0258, 0.003], [0.0258, 0.002], [0.0258, 0.001]],
+        [[0.0001, 0.001], [0.0001, 0.002], [0.0003, 0.003], [0.0005, 0.004], [0.0008, 0.005], [0.001, 0.006], [0.0012, 0.007], [0.0015, 0.008], [0.002, 0.0098], [0.004, 0.0141], [0.006, 0.0152], [0.008, 0.0156], [0.01, 0.0154], [0.012, 0.0149], [0.014, 0.0141], [0.016, 0.013], [0.018, 0.0117], [0.02, 0.0102], [0.022, 0.0087], [0.024, 0.0061], [0.026, 0.0028], [0.0269, 0.001]],
       ],
       corner: 0.75,
       reach: 0.25,
@@ -550,7 +549,7 @@ export namespace AutoMovieHumanF1 {
   /**
    * The seams a limb's open end is split along between its knuckled digits (`IAutoMovieConstructionSplit.outer`), from the little
    * finger's or the little toe's valley inward, each a pair of host phases on the end's ring enclosing the one before; each seam's heading,
-   * the two digits' mean direction (`IAutoMovieConstructionSplit.IProfile.heading`); and the end's station, outward normal and palm or
+   * toward the middle of the gap between the two digits' facing skins (`IAutoMovieConstructionSplit.IProfile.heading`); and the end's station, outward normal and palm or
    * sole normal. The split of a fanned limb's end (`FANS`) and `FamilyConicScan.ts webs` read it.
    *
    * @param which The limb.
@@ -578,10 +577,30 @@ export namespace AutoMovieHumanF1 {
     }
     const frame = AutoMovieHumanConicLoft.axis(family).at(station);
     const normal: number[] = [frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1], frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2], frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0]];
-    // Each seam's plane holds the two digits' mean direction, the line from their first joints' midpoint to their second joints'.
-    const headings: [number, number, number][] = rows.slice(1).map((row: [number[], number[]], i: number): [number, number, number] => {
-      const before: [number[], number[]] = rows[i]!;
-      const d: number[] = [0, 1, 2].map((c: number): number => (row[1][c]! + before[1][c]! - row[0][c]! - before[0][c]!) / 2);
+    // Each seam's plane holds its chord and the middle of the gap between the two digits' skins where they face each other, on each
+    // digit's first section: the point of that ring farthest toward the other ring's centre. Held to the digits' mean direction instead
+    // (the line from their first joints' midpoint to their second joints'), the plane between the index and the big toe stood midway
+    // between their axes, 12.3 mm from each, but the big toe is the wider: its skin crossed the plane by 1.1 to 1.5 mm from 8 to 18 mm
+    // along the seam, and the web scan's rays there ran on inside the big toe (31 to 47 mm) and were left out. The gap's middle stands
+    // 3.1 mm toward the index toe there, and within 0.7 mm of the mean-direction plane at every other seam.
+    const names: string[] = which === "arm" ? ["finger.pinky", "finger.ring", "finger.middle", "finger.index"] : ["toe.little", "toe.ring", "toe.middle", "toe.index", "toe.big"];
+    const end: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(family, family.knots);
+    if (end.chain === null) throw new Error("fanSeams: the " + which + " does not loft");
+    const firstRings: number[][][] = names.map((name: string): number[][] => {
+      const digit: AutoMovieHumanConicLoft.IFamily = DIGITS.find((d: IDigit): boolean => d.family.name === name)!.family;
+      const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create({ ...digit, tips: [null, digit.tips?.[1] ?? null] }, digit.knots);
+      if (loft.chain === null) throw new Error("fanSeams: " + name + " does not loft");
+      const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> = loft.chain;
+      return Array.from({ length: 256 }, (_: unknown, k: number): number[] => AutoMovieLoftChain.point(chain, digit.knots[0]!, (2 * Math.PI * k) / 256));
+    });
+    const centre = (ring: number[][]): number[] => [0, 1, 2].map((c: number): number => ring.reduce((sum: number, p: number[]): number => sum + p[c]!, 0) / ring.length);
+    const headings: [number, number, number][] = seams.map(([phase]: [number, number], i: number): [number, number, number] => {
+      const [one, two]: number[][][] = [firstRings[i]!, firstRings[i + 1]!];
+      const toward: number[] = sub(centre(two), centre(one));
+      const reach = (p: number[]): number => p[0]! * toward[0]! + p[1]! * toward[1]! + p[2]! * toward[2]!;
+      const near: number[] = one.reduce((best: number[], p: number[]): number[] => (reach(p) > reach(best) ? p : best));
+      const far: number[] = two.reduce((best: number[], p: number[]): number[] => (reach(p) < reach(best) ? p : best));
+      const d: number[] = sub([0, 1, 2].map((c: number): number => (near[c]! + far[c]!) / 2), AutoMovieLoftChain.point(end.chain!, station, phase));
       const l: number = Math.hypot(d[0]!, d[1]!, d[2]!);
       return [Math.round((d[0]! / l) * 1e4) / 1e4, Math.round((d[1]! / l) * 1e4) / 1e4, Math.round((d[2]! / l) * 1e4) / 1e4];
     });
