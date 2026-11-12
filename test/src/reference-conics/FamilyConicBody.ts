@@ -367,7 +367,7 @@ namespace FamilyConicBody {
         // turn the heel sweeps about 2.7 times faster than the station, so its knots may stand 6 mm apart.
         // A course that leaves the ankle square to the row of toe joints, with the forefoot read as the curve round all the toes, was tried;
         // its wall stalled above 3 mm, so the foot keeps this course and closes at the toe webs, and the toes are merged onto that cap.
-        { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r"), [133, 20, 157]], course: "[J.thigh, J.calf, J.foot, J.footBall]", halves: [40, 62], up: [1, 0, 0], domain: [104, 956], gap: 6, tip: 990, mirrored: true, layouts: LIMB, reliefs: "auto" },
+        { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r"), [133, 20, 157]], course: "[J.thigh, J.calf, J.foot, J.footBall]", halves: [40, 62], up: [1, 0, 0], domain: [104, 956], gap: 6, tip: 990, mirrored: true, layouts: LIMB, reliefs: "auto", casts: [{ name: "sole", stations: [930, 976], axis: [0, 1, 0], rows: 16, columns: 35, reach: 6, facing: 0.8, nearest: true }] },
         // The auricle as a short loft out of the side of the head. Its course runs straight to the side, and of each plane's loops inside
         // the ear's box a section reads the hull, so the wall is the ear's outline. It closes early, 4 mm past its rail, in a dome whose
         // pole stands on the antihelix at the height of the skin there: the helix's fold and the concha face the side, under that dome, and
