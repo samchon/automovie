@@ -10,64 +10,62 @@ import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
  * section lies in the plane normal to the course, charted by `u` (carried from `up` by the course's rotations) and `v`.
  *
  * Every row of `values` is one section field of `AutoMovieHumanConicSection` at the shared `knots`, a natural cubic between
- * them: the section is a chain of conics through its four extremes and one median point per quarter, fitted to the convex hull of the reference skin
+ * them: the section is a chain of conics through its four extremes, fitted to the convex hull of the reference skin
  * (the path of a taut tape).
  *
- * Source: the f1 reference head cut by this course's own planes over stations 4 to 12 mm, 17 sections 0.5 mm apart, every
+ * Source: the f1 reference head cut by this course's own planes over stations 4 to 22 mm, 37 sections 0.5 mm apart, every
  * second one withheld from the fit. Fitted offline by `test/src/reference-conics/FamilyConicBody.ts` (joint least squares over
  * all sections). Regenerated through the engine's view loft from these numbers alone, the vertices of each section's hull lie
- * 0.21 mm from it on average and at most 0.89 mm; what lies inside that hull is not modelled. 63 independent numbers.
+ * 0.15 mm from it on average and at most 0.97 mm; what lies inside that hull is not modelled. 65 independent numbers.
+ *
+ * The course leans back with the auricle's shell (`AutoMovieHumanF1Joints.earTip`), so the wall is the shell's hull at every depth and
+ * its pole stands on the helix's back. What lies inside that hull on the outer face, the scapha, the fossa and the antihelix, is the relief
+ * `ear.face`: heights cast from the wall's forward half along the shell's outer normal onto the reference, stations 8 to 23.6 mm, with
+ * casts deeper than 7 mm (the concha's bowl, which is a cut of its own) left to the net's fairness (`FamilyConicBody.ts`, `EAR_FACE`).
+ * Re-emitted from `test` by `node .shots/esbuild/FamilyConicBody.cjs ear --emit`, with this paragraph kept.
  */
 export const AutoMovieHumanF1Ear: AutoMovieHumanConicLoft.IFamily = {
   name: "ear",
   centres: [AutoMovieHumanF1Joints.earRoot, AutoMovieHumanF1Joints.earTip],
   halves: [],
   up: [0, 1, 0],
-  layout: AutoMovieHumanConicSection.limb(1),
-  knots: [4, 8, 12],
+  layout: AutoMovieHumanConicSection.limb(0),
+  knots: [4, 10, 13, 16, 22],
   values: [
     // front (+u) extreme: u, mm
-    [26.88, 30.16, 31.5],
+    [15.61, 17.62, 17.53, 16.74, 11.24],
     // front (+u) extreme: v, mm
-    [13.78, 9.22, 5.27],
-    // median fullness f of the arc pair around anchor 1, share
-    [0.5017, 0.495, 0.4978],
+    [12.84, 8.2, 7.31, 6.5, 3.08],
     // side (+v) extreme: u, mm
-    [6.22, 23.62, 18.69],
+    [15.18, 18.42, 21.03, 24.69, 33.97],
     // side (+v) extreme: v, mm
-    [16.59, 13.63, 10.28],
-    // median fullness f of the arc pair around anchor 3, share
-    [0.5005, 0.4866, 0.4907],
+    [15.87, 13.31, 11.41, 9.18, 3.35],
     // back (-u) extreme: u, mm
-    [-27.67, -23.94, -17.56],
+    [-33.27, -27.84, -23.4, -18.57, -6.42],
     // back (-u) extreme: v, mm
-    [11.76, 7.08, 1.77],
-    // median fullness f of the arc pair around anchor 5, share
-    [0.2181, 0.3556, 0.4736],
+    [5.21, 3.96, 3.22, 1.71, -2.59],
     // side (-v) extreme: u, mm
-    [3.58, 6.73, 8.09],
+    [-7.16, -5, -6.1, -2.71, -5.84],
     // side (-v) extreme: v, mm
-    [-7.14, -5.81, -7.19],
-    // median fullness f of the arc pair around anchor 7, share
-    [0.3863, 0.3554, 0.4852],
+    [-6, -2.41, -2.47, -3.31, -3.76],
     // shoulder rho of the arc after anchor 0, share
-    [0.4988, 0.4989, 0.5],
+    [0.4614, 0.4909, 0.489, 0.477, 0.5232],
     // shoulder rho of the arc after anchor 1, share
-    [0.4997, 0.5008, 0.4991],
+    [0.436, 0.1333, 0.0916, 0.1145, 0.6796],
     // shoulder rho of the arc after anchor 2, share
-    [0.5, 0.5, 0.5],
+    [0.2042, 0.4249, 0.4579, 0.4954, 0.5595],
     // shoulder rho of the arc after anchor 3, share
-    [0.4989, 0.4951, 0.4874],
-    // shoulder rho of the arc after anchor 4, share
-    [0.5787, 0.5108, 0.5125],
-    // shoulder rho of the arc after anchor 5, share
-    [0.5635, 0.4817, 0.5074],
-    // shoulder rho of the arc after anchor 6, share
-    [0.4799, 0.487, 0.4897],
-    // shoulder rho of the arc after anchor 7, share
-    [0.527, 0.5243, 0.5014],
+    [0.2757, 0.2297, 0.3599, 0.3898, 0.4402],
   ],
 
+  // Phases round the part stand at most this far apart, mm (`AutoMovieHumanConicLoft.IFamily.pitch`).
+  pitch: 1.5,
+
   // The part closes in a point at `tip`, a station placed by anatomy; its cap starts at `from`.
-  tips: [null, {from: 5, tip: 17}],
+  tips: [null, {from: 22, tip: 24}],
+
+  // Reliefs: heights in mm of a uniform cubic B-spline net over a window of the wall's chart, moved along `axis`; they carry the skin that lies inside the tape wall.
+  reliefs: [
+    {"name":"ear.face", "stations":[8, 23.6], "phases":[0.15, 3], "axis":[-0.6, 0, -0.8], "rows":13, "columns":13, "heights":[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.35, 9.53, 8.54, 7.24, 5.54, 6.15, 5.47, 0, 0, 0, 0, 0, 0, 1.48, 4.82, 1.59, 1.74, 0.86, 0.5, 1.1, 0, 0, 0, 0, 0, 0, 3.22, 5.31, 3.29, 3.13, 2.3, 1.6, 0.57, 0, 0, 0, 0, 0, 0, 4.59, 3.97, 2.65, 2.31, 1.76, 1.07, 0.95, 0, 0, 0, 0, 0, 0, 6.2, 4.75, 4.5, 3.97, 3.81, 2.7, 3.93, 0, 0, 0, 0, 0, 0, 5.92, 3.3, 4.07, 3.51, 3.79, 2.28, 5.74, 0, 0, 0, 0, 0, 0, 11.3, 8.72, 9.54, 9.33, 9.6, 8.19, 11.61, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]},
+  ],
 };
