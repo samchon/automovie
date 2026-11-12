@@ -8,6 +8,7 @@ import type {
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanTrunk } from "../everyday/HumanTrunk";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -92,12 +93,13 @@ export namespace AutoMovieMotionHumanTarget {
    * - `floor`: on the floor a forearm ahead of the feet, facing up; a thing
    *   picked up or put down.
    */
-  export const DEFAULTS: Readonly<Record<"ahead" | "desk" | "floor", IDefault>> =
-    {
-      ahead: { height: 0.72, range: 0.8, facing: "performer" },
-      desk: { height: 0.42, range: 0.6, facing: "up" },
-      floor: { height: 0, range: 0.6, facing: "up" },
-    };
+  export const DEFAULTS: Readonly<
+    Record<"ahead" | "desk" | "floor", IDefault>
+  > = {
+    ahead: { height: 0.72, range: 0.8, facing: "performer" },
+    desk: { height: 0.42, range: 0.6, facing: "up" },
+    floor: { height: 0, range: 0.6, facing: "up" },
+  };
 
   /**
    * A height of the standing body, read from its measure: the floor, six
@@ -320,7 +322,10 @@ export namespace AutoMovieMotionHumanTarget {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function height(body: Pick<IHumanBody, "measure">, name: Height): number {
+  export function height(
+    body: Pick<IHumanBody, "measure">,
+    name: Height,
+  ): number {
     const m = body.measure;
     switch (name) {
       case "floor":
@@ -377,7 +382,13 @@ export namespace AutoMovieMotionHumanTarget {
       return place.explicit;
     }
     if ("at" in place)
-      return nudged(body, side, named(body, side, place.at), place.nudge, place.at);
+      return nudged(
+        body,
+        side,
+        named(body, side, place.at),
+        place.nudge,
+        place.at,
+      );
     if ("between" in place) {
       if (!(place.share >= 0 && place.share <= 1))
         throw new Error("A between share lies in [0, 1]");
@@ -559,9 +570,13 @@ export namespace AutoMovieMotionHumanTarget {
         const bone: AutoMovieHumanoidBone =
           context.body.surfaces.regions[target.region].bone;
         if (!TRUNK.has(bone))
-          throw new Error(
-            `The region ${target.region} rides ${bone}, a limb bone a posture does not place; a self target is a region of the trunk or the head`,
-          );
+          throw new HumanRefusal({
+            kind: "parameter",
+            axis: "target",
+            value: target.region,
+            reason: `The region ${target.region} rides ${bone}, a limb bone a posture does not place; a self target is a region of the trunk or the head`,
+            fix: "aim at a region of the trunk or the head",
+          });
         return {
           ...HumanTrunk.region(context.body, posture, target.region),
           solid: true,
@@ -819,8 +834,8 @@ function closest<T extends string>(
 const ALONG: number = 0.9;
 
 /** The bones a posture places without solving a limb (`HumanTrunk.resolve`). */
-const TRUNK: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(
-  [
+const TRUNK: ReadonlySet<AutoMovieHumanoidBone> =
+  new Set<AutoMovieHumanoidBone>([
     "hips",
     "spine",
     "chest",
@@ -832,5 +847,4 @@ const TRUNK: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>
     "jaw",
     "leftShoulder",
     "rightShoulder",
-  ],
-);
+  ]);

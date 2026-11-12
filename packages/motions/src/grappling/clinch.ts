@@ -13,6 +13,7 @@ import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarge
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -174,7 +175,7 @@ export namespace clinch {
   ): IHumanActionPlan {
     const body: IHumanBody = context.body;
     const hold: number = context.params.hold ?? 2;
-    if (!(hold >= 0)) throw new Error("A clinch's hold is not negative");
+    HumanBound.least("hold", hold, 0, "s");
     const grip: Grip = context.params.grip ?? "plum";
     const table = regions(grip, context.params.hand ?? "right");
     const partner: IHumanActionContext.IPerformer = context.performer(

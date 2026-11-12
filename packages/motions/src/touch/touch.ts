@@ -18,6 +18,7 @@ import { AutoMovieMotionHumanTouchForm } from "../compose/AutoMovieMotionHumanTo
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -157,7 +158,7 @@ export namespace touch {
       kind === "press" || kind === "squeeze" || kind === "hold";
     const count: number = p.count ?? (kind === "stroke" || still ? 1 : 3);
     const hold: number = p.hold ?? (still ? 1.2 : 0.4);
-    if (!(hold >= 0)) throw new Error("A touch's hold is not negative");
+    HumanBound.least("hold", hold, 0, "s");
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     const effector: AutoMovieMotionHumanTouchEffector.IEffector =

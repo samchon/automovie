@@ -1,3 +1,5 @@
+import { HumanBound } from "../law/HumanBound";
+
 /**
  * Laban Effort as numbers: the four motion factors a mood or a character's
  * manner sets, turned into the multipliers everyday laws read for their
@@ -113,9 +115,7 @@ export namespace HumanEffort {
   export function modifiers(effort: IEffort = {}): IModifiers {
     const f = (value: number | undefined, name: string): number => {
       const v: number = value ?? 0;
-      if (!(v >= -1 && v <= 1))
-        throw new Error(`Effort ${name} lies in [-1, 1]`);
-      return v;
+      return HumanBound.within(`effort.${name}`, v, -1, 1);
     };
     const weight: number = f(effort.weight, "weight");
     const time: number = f(effort.time, "time");

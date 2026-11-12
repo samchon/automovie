@@ -12,6 +12,7 @@ import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarge
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -154,12 +155,8 @@ export namespace climbLadder {
     const m = body.measure;
     const spacing: number = context.params.spacing ?? 0.3;
     const count: number = context.params.rungs ?? 3;
-    if (!(spacing >= 0.25 && spacing <= 0.36))
-      throw new Error(
-        `A rung spacing of ${spacing.toFixed(3)} m lies outside the 0.25 to 0.36 m of fixed ladders`,
-      );
-    if (!(Number.isInteger(count) && count > 0))
-      throw new Error("A ladder climb climbs a positive whole number of rungs");
+    HumanBound.within("spacing", spacing, 0.25, 0.36, "m");
+    HumanBound.whole("rungs", count);
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
     const standing: IHumanPosture = stand

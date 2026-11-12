@@ -12,6 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { HumanColliders } from "../posture/HumanColliders";
@@ -227,8 +228,7 @@ export namespace AutoMovieMotionHumanTouch {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitives close over their props and one hint.
    */
   export function touch(props: ITouch): IAutoMovieMotionHumanPrimitive[] {
-    if (!(Number.isInteger(props.count) && props.count > 0))
-      throw new Error("A touch repeats a positive whole number of times");
+    HumanBound.whole("count", props.count);
     const { body, clock, side } = props;
     const form: AutoMovieMotionHumanTouchForm.IForm =
       AutoMovieMotionHumanTouchForm.FORMS[props.kind];

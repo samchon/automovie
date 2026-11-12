@@ -8,6 +8,7 @@ import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import { walk } from "../actions/walk";
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -156,15 +157,24 @@ export namespace approach {
     if (p.side === undefined) {
       const now: number = Math.hypot(point.x - feet.x, point.z - feet.z) - lead;
       if (now < gap - 1e-9)
-        throw new Error(
-          `${context.subject}: the target is ${now.toFixed(3)} m from the chest, nearer than the requested gap ${gap.toFixed(3)} m`,
-        );
+        throw new HumanRefusal({
+          kind: "parameter",
+          axis: "at",
+          value: gap,
+          feasible: { kind: "range", minimum: 0, maximum: now, unit: "m" },
+          reason: `the target is ${now.toFixed(3)} m from the chest, nearer than the requested gap ${gap.toFixed(3)} m`,
+          fix: "request a gap no larger than the present distance, or walk away from the target first",
+        });
       stop = HumanProxemics.stop(feet, point, gap, lead);
     } else {
       if (target.kind !== "person")
-        throw new Error(
-          `${context.subject}: a side is a person's side; this target is a ${target.kind}`,
-        );
+        throw new HumanRefusal({
+          kind: "parameter",
+          axis: "side",
+          value: context.params.side,
+          reason: `a side is a person's side; this target is a ${target.kind}`,
+          fix: "leave side out for a target that is not a person",
+        });
       const facing: number =
         (Math.atan2(aimed.normal.x, aimed.normal.z) * 180) / Math.PI;
       const turn: number = { front: 0, left: 90, right: -90, behind: 180 }[

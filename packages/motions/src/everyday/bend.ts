@@ -8,6 +8,8 @@ import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { HumanBound } from "../law/HumanBound";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -147,7 +149,7 @@ export namespace bend {
     const body: IHumanBody = context.body;
     const side: HumanHand.Side = context.params.side ?? "right";
     const hold: number = context.params.hold ?? 0.5;
-    if (!(hold >= 0)) throw new Error("A bend's hold is not negative");
+    HumanBound.least("hold", hold, 0, "s");
     const target: IAutoMovieVector3 = context.aim(
       context.params.toward,
       context.start,
@@ -534,9 +536,13 @@ export namespace bend {
     };
     if (gap(0) <= 0) return 0;
     if (gap(150) > 0)
-      throw new Error(
-        `A ${strategy} cannot bring the hand to a point ${target.y.toFixed(3)} m high there; bring the target nearer or choose a deeper strategy`,
-      );
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "toward",
+        value: strategy,
+        reason: `A ${strategy} cannot bring the hand to a point ${target.y.toFixed(3)} m high there; bring the target nearer or choose a deeper strategy`,
+        fix: "bring the target nearer the feet, or choose a deeper strategy",
+      });
     let lo: number = 0;
     let hi: number = 150;
     for (let i: number = 0; i < 30; i++) {

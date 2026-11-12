@@ -15,6 +15,7 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { kneelKeys } from "../everyday/kneelKeys";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -134,8 +135,7 @@ export namespace crawl {
     const body: IHumanBody = context.body;
     const m = body.measure;
     const cycles: number = context.params.cycles ?? 3;
-    if (!(Number.isInteger(cycles) && cycles > 0))
-      throw new Error("A crawl lasts a positive whole number of cycles");
+    HumanBound.whole("cycles", cycles);
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
     const standing: IHumanPosture = stand

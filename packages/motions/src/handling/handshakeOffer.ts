@@ -2,6 +2,7 @@ import { Vector3, resolveAutoMovieMutualGoal } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 
 /**
@@ -210,7 +211,13 @@ export namespace handshakeOffer {
     const span: IAutoMovieVector3 = Vector3.subtract(b.shoulder, a.shoulder);
     const gap: number = Math.hypot(span.x, span.z);
     if (!(gap > 1e-9))
-      throw new Error("A handshake needs two shoulders at different places");
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "partner",
+        value: gap,
+        reason: "A handshake needs two shoulders at different places",
+        fix: "stand the partners apart, facing each other within reach",
+      });
     const lower: [number, number] = [
       forearm(a.body, side),
       forearm(b.body, side),

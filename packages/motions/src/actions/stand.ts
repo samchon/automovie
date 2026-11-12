@@ -6,6 +6,7 @@ import type {
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -57,7 +58,7 @@ export namespace stand {
     context: IHumanActionContext<IParams>,
   ): IHumanActionPlan {
     const duration: number = context.params.seconds ?? 1.5;
-    if (!(duration > 0)) throw new Error("A stand lasts a positive time");
+    HumanBound.above("seconds", duration, 0, "s");
     const yaw: number = context.entry.posture.yaw;
     const footing: Record<"left" | "right", IAutoMovieVector3> = feet(
       context.body,

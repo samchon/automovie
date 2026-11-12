@@ -4,6 +4,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -78,9 +79,14 @@ export namespace shift {
     const body: IHumanBody = context.body;
     const limit: number = 0.35 * body.measure.thigh;
     if (!(Math.abs(context.params.by) <= limit))
-      throw new Error(
-        `${context.subject}: a seated shift moves at most ${limit.toFixed(3)} m without stepping; shift several times`,
-      );
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "by",
+        value: context.params.by,
+        feasible: { kind: "range", minimum: -limit, maximum: limit, unit: "m" },
+        reason: `a seated shift moves at most ${limit.toFixed(3)} m without stepping; shift several times`,
+        fix: "shift several times, each within the limit",
+      });
     const entry: IHumanPosture = context.entry.posture;
     const start: IAutoMovieVector3 = seated.socket(body, entry);
     const goal: IAutoMovieVector3 = HumanFrame.point(

@@ -15,6 +15,8 @@ import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
+import { HumanBound } from "../law/HumanBound";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -141,19 +143,27 @@ export namespace rest {
     };
     for (const place of PAIRED)
       if ((places.left === place) !== (places.right === place))
-        throw new Error(
-          `${context.subject}: ${place} holds both hands; name it for both`,
-        );
+        throw new HumanRefusal({
+          kind: "parameter",
+          axis: "rest",
+          value: place,
+          reason: `${place} holds both hands; name it for both`,
+          fix: `name ${place} for both hands`,
+        });
     for (const side of ["left", "right"] as const)
       if (
         places[side] === "elbowSupport" &&
         places[side === "left" ? "right" : "left"] !== "chinRest"
       )
-        throw new Error(
-          `${context.subject}: elbowSupport holds the other arm's elbow; the other hand must be at chinRest`,
-        );
+        throw new HumanRefusal({
+          kind: "parameter",
+          axis: "rest",
+          value: "elbowSupport",
+          reason: `elbowSupport holds the other arm's elbow; the other hand must be at chinRest`,
+          fix: "put the other hand at chinRest",
+        });
     const duration: number = context.params.seconds ?? 2;
-    if (!(duration > 0)) throw new Error("A rest lasts a positive time");
+    HumanBound.above("seconds", duration, 0, "s");
     const base: IHumanActionPlan = stand.plan({
       ...context,
       params: { seconds: duration },

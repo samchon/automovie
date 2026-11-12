@@ -13,6 +13,7 @@ import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk"
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -178,11 +179,9 @@ export namespace exercise {
     const body = context.body;
     const m = body.measure;
     const reps: number = p.reps ?? 3;
-    if (!(Number.isInteger(reps) && reps > 0))
-      throw new Error("An exercise repeats a positive whole number of times");
+    HumanBound.whole("reps", reps);
     const tempo: readonly [number, number, number] = p.tempo ?? [2, 0, 1];
-    if (tempo.some((s: number): boolean => !(s >= 0)))
-      throw new Error("An exercise's tempo spans are not negative");
+    for (const span of tempo) HumanBound.least("tempo", span, 0, "s");
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     const top: number = 0.3;

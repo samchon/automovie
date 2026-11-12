@@ -1,6 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanBound } from "../law/HumanBound";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -112,16 +113,9 @@ export namespace climbStairsFlight {
     const m = body.measure;
     const riser: number = params.riser ?? 0.17;
     const tread: number = params.tread ?? 0.28;
-    if (!(Number.isInteger(params.count) && params.count > 0))
-      throw new Error("A flight has a positive whole number of treads");
-    if (!(riser > 0 && riser <= 0.35 * m.hipHeight))
-      throw new Error(
-        `A riser of ${riser.toFixed(3)} m lies outside the 0 to ${(0.35 * m.hipHeight).toFixed(3)} m this body climbs`,
-      );
-    if (!(tread >= 0.6 * m.footLength))
-      throw new Error(
-        `A tread of ${tread.toFixed(3)} m is shorter than the ${(0.6 * m.footLength).toFixed(3)} m this body's foot needs`,
-      );
+    HumanBound.whole("count", params.count);
+    HumanBound.within("riser", riser, 0, 0.35 * m.hipHeight, "m", "minimum");
+    HumanBound.least("tread", tread, 0.6 * m.footLength, "m");
     const yaw: number = posture.yaw;
     const feet = (["left", "right"] as const).map((side) => {
       const goal: IHumanPosture.IGoal = posture.limbs[`${side}Leg`]!;

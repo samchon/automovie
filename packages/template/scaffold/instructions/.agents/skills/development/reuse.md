@@ -27,7 +27,7 @@ The first six rows follow a film from authored data to encoded video, and [how t
 
 A package's README, public types and JSDoc are its API. Read them in the package's folder under `node_modules` instead of recalling a call, because the packages change between releases. Read the README first for what the package owns, then the declaration and JSDoc of each export you use for its units, limits and refusals.
 
-### A defect or a gap
+### A defect or a gap {#a-defect-or-a-gap}
 
 A production cannot repair an installed package. An edit under `node_modules` or a vendored copy disappears at the next install and hides the defect from every other production.
 

@@ -13,6 +13,7 @@ import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoint
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -178,9 +179,14 @@ export namespace kickBall {
     )[side];
     const leg: number = m.thigh + m.shank;
     if (Vector3.length(Vector3.subtract(hit.ankle, hip)) > leg)
-      throw new Error(
-        `${context.subject}: the ball's back lies ${Vector3.length(Vector3.subtract(hit.ankle, hip)).toFixed(2)} m from the kicking hip, beyond the leg's ${leg.toFixed(2)} m`,
-      );
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "ball",
+        value: Vector3.length(Vector3.subtract(hit.ankle, hip)),
+        feasible: { kind: "range", minimum: 0, maximum: leg, unit: "m" },
+        reason: `the ball's back lies ${Vector3.length(Vector3.subtract(hit.ankle, hip)).toFixed(2)} m from the kicking hip, beyond the leg's ${leg.toFixed(2)} m`,
+        fix: "stand nearer the ball (approach it) so that its back lies within the leg's length of the kicking hip",
+      });
     const chamber: HumanFoot.IPlacement = {
       ankle: Vector3.add(
         hit.ankle,

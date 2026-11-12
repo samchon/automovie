@@ -1,14 +1,10 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  resolveAutoMovieCenterOfMass,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import type { IAutoMovieResolvedBone } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanColliders, HumanFoot, type IHumanBody } from "@automovie/motions";
+import { HumanSignature, type IHumanBody } from "@automovie/motions";
 
 import { MOTION_HUMAN_LAW_STAGES } from "./MOTION_HUMAN_LAW_STAGES";
 import { motionCoveringArray } from "./motionCoveringArray";
@@ -45,8 +41,8 @@ import type { motionHumanLawSweep } from "./motionHumanLawSweep";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A film lives as long as the test that holds it.
  */
 export namespace motionHumanSignature {
-  /** How near the floor a sole socket bears, metres (the 10 mm skin tolerance plus 10 mm). */
-  export const CONTACT: number = 0.02;
+  /** How near the floor a sole socket bears, metres. */
+  export const CONTACT: number = HumanSignature.CONTACT;
 
   /** A performed row. */
   export interface IStaged {
@@ -125,12 +121,17 @@ export namespace motionHumanSignature {
     ).map((c) => ({ row: c.row!, name: c.name as motionHumanBody.Name }));
   }
 
+  /** `a` of a staged row as the package's signature reader. */
+  export function reader(staged: IStaged): HumanSignature.IReader {
+    return HumanSignature.of(staged.film, "a", staged.body, staged.yaw);
+  }
+
   /** The bones of `a` at a second. */
   export function bones(
     staged: IStaged,
     seconds: number,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    return staged.film.bones("a", seconds);
+    return HumanSignature.bones(reader(staged), seconds);
   }
 
   /** A joint centre of `a` at a second. */
@@ -139,44 +140,16 @@ export namespace motionHumanSignature {
     seconds: number,
     bone: AutoMovieHumanoidBone,
   ): IAutoMovieVector3 {
-    const found: IAutoMovieResolvedBone | undefined = bones(
-      staged,
-      seconds,
-    ).get(bone);
-    if (found === undefined) throw new Error(`No ${bone}`);
-    return found.worldPosition;
+    return HumanSignature.joint(reader(staged), seconds, bone);
   }
 
   /** The performer's forward on the floor. */
-  export function forward(yaw: number): IAutoMovieVector3 {
-    const r: number = (yaw * Math.PI) / 180;
-    return { x: Math.sin(r), y: 0, z: Math.cos(r) };
-  }
+  export const forward: typeof HumanSignature.forward = HumanSignature.forward;
 
-  /**
-   * The trunk's inclination: the line from the hip joints' midpoint to the
-   * shoulder joints' midpoint against the vertical, in the sagittal plane,
-   * degrees, positive forward. These are the landmarks gait and squat
-   * studies take for the trunk segment (the greater trochanters and the
-   * acromia, or the joint centres under them), and in ideal standing
-   * alignment the plumb line passes through both, so a quiet stance reads
-   * about 0 (Kendall, McCreary, Provance, Rodgers and Romani 2005, Muscles:
-   * Testing and Function, 5th ed.; `STANCE`).
-   */
+  /** The trunk's inclination of `a`, degrees, positive forward (`HumanSignature.trunk`). */
   export function trunk(staged: IStaged, seconds: number): number {
-    const l: IAutoMovieVector3 = joint(staged, seconds, "leftUpperLeg");
-    const r: IAutoMovieVector3 = joint(staged, seconds, "rightUpperLeg");
-    const sl: IAutoMovieVector3 = joint(staged, seconds, "leftUpperArm");
-    const sr: IAutoMovieVector3 = joint(staged, seconds, "rightUpperArm");
-    const f: IAutoMovieVector3 = forward(staged.yaw);
-    const v: IAutoMovieVector3 = {
-      x: (sl.x + sr.x) / 2 - (l.x + r.x) / 2,
-      y: (sl.y + sr.y) / 2 - (l.y + r.y) / 2,
-      z: (sl.z + sr.z) / 2 - (l.z + r.z) / 2,
-    };
-    return (Math.atan2(v.x * f.x + v.z * f.z, v.y) * 180) / Math.PI;
+    return HumanSignature.trunk(reader(staged), seconds);
   }
-
   /** Each body's quiet-stance trunk reading, computed once a process. */
   const UPRIGHT: Map<string, number> = new Map();
 
@@ -215,26 +188,7 @@ export namespace motionHumanSignature {
   }
 
   /** The angle a distal segment turns from its proximal one at a joint: 0 straight, degrees. */
-  export function flexion(
-    proximal: IAutoMovieVector3,
-    centre: IAutoMovieVector3,
-    distal: IAutoMovieVector3,
-  ): number {
-    const a: IAutoMovieVector3 = {
-      x: centre.x - proximal.x,
-      y: centre.y - proximal.y,
-      z: centre.z - proximal.z,
-    };
-    const b: IAutoMovieVector3 = {
-      x: distal.x - centre.x,
-      y: distal.y - centre.y,
-      z: distal.z - centre.z,
-    };
-    const c: number =
-      (a.x * b.x + a.y * b.y + a.z * b.z) /
-      (Math.hypot(a.x, a.y, a.z) * Math.hypot(b.x, b.y, b.z));
-    return (Math.acos(Math.max(-1, Math.min(1, c))) * 180) / Math.PI;
-  }
+  export const flexion: typeof HumanSignature.flexion = HumanSignature.flexion;
 
   /** A knee's flexion, degrees. */
   export function knee(
@@ -242,11 +196,7 @@ export namespace motionHumanSignature {
     seconds: number,
     side: "left" | "right",
   ): number {
-    return flexion(
-      joint(staged, seconds, `${side}UpperLeg`),
-      joint(staged, seconds, `${side}LowerLeg`),
-      joint(staged, seconds, `${side}Foot`),
-    );
+    return HumanSignature.knee(reader(staged), seconds, side);
   }
 
   /** A hip's flexion: the thigh's turn from the trunk's line, degrees. */
@@ -255,12 +205,7 @@ export namespace motionHumanSignature {
     seconds: number,
     side: "left" | "right",
   ): number {
-    // The trunk's line continued through the hip: straight is no flexion.
-    return flexion(
-      joint(staged, seconds, "neck"),
-      joint(staged, seconds, `${side}UpperLeg`),
-      joint(staged, seconds, `${side}LowerLeg`),
-    );
+    return HumanSignature.hip(reader(staged), seconds, side);
   }
 
   /** An elbow's flexion, degrees. */
@@ -269,30 +214,17 @@ export namespace motionHumanSignature {
     seconds: number,
     side: "left" | "right",
   ): number {
-    return flexion(
-      joint(staged, seconds, `${side}UpperArm`),
-      joint(staged, seconds, `${side}LowerArm`),
-      joint(staged, seconds, `${side}Hand`),
-    );
+    return HumanSignature.elbow(reader(staged), seconds, side);
   }
 
   /** The head's pitch: how far its forward axis points below the horizon, degrees. */
   export function head(staged: IStaged, seconds: number): number {
-    const b = bones(staged, seconds).get("head")!;
-    const f: IAutoMovieVector3 = Quaternion.rotateVector(b.worldRotation, {
-      x: 0,
-      y: 0,
-      z: 1,
-    });
-    return (Math.asin(Math.max(-1, Math.min(1, -f.y))) * 180) / Math.PI;
+    return HumanSignature.head(reader(staged), seconds);
   }
 
   /** The whole-body centre of mass of `a`, world metres. */
   export function centre(staged: IStaged, seconds: number): IAutoMovieVector3 {
-    return resolveAutoMovieCenterOfMass.place(
-      resolveAutoMovieCenterOfMass(staged.body.skeleton, staged.body.profile),
-      bones(staged, seconds),
-    );
+    return HumanSignature.centre(reader(staged), seconds);
   }
 
   /** The lowest sole socket of a foot, world metres. */
@@ -301,156 +233,52 @@ export namespace motionHumanSignature {
     seconds: number,
     side: "left" | "right",
   ): IAutoMovieVector3 {
-    return HumanFoot.sockets(staged.body, bones(staged, seconds), side)
-      .map((s) => s.point)
-      .reduce((a, b) => (b.y < a.y ? b : a));
+    return HumanSignature.sole(reader(staged), seconds, side);
   }
 
-  /**
-   * Whether a foot bears on a floor at a height: its lowest sole socket is
-   * within `CONTACT` of the floor and moves over it slower than `SLIDE`. A
-   * swinging foot passes as little as 13 mm over the floor at mid-swing
-   * (Winter 1992, Phys Ther 72:45, the minimum toe clearance), so height
-   * alone would count it as a contact; a bearing foot is still.
-   */
+  /** Whether a foot of `a` bears on a floor at a height (`HumanSignature.bears`). */
   export function bears(
     staged: IStaged,
     seconds: number,
     side: "left" | "right",
     floor: number = 0,
   ): boolean {
-    const at = (t: number): IAutoMovieVector3[] =>
-      HumanFoot.sockets(staged.body, bones(staged, t), side).map(
-        (s) => s.point,
-      );
-    const now: IAutoMovieVector3[] = at(seconds);
-    let low: number = 0;
-    now.forEach((p, i) => {
-      if (p.y < now[low]!.y) low = i;
-    });
-    if (now[low]!.y - floor > CONTACT) return false;
-    // The same socket a moment either side, so a heel handing the load to
-    // the ball does not read as a slide.
-    const h: number = 1 / 120;
-    const a: IAutoMovieVector3 = at(Math.max(0, seconds - h))[low]!;
-    const b: IAutoMovieVector3 = at(
-      Math.min(staged.film.duration, seconds + h),
-    )[low]!;
-    const span: number =
-      Math.min(staged.film.duration, seconds + h) - Math.max(0, seconds - h);
-    return span <= 0 || Math.hypot(b.x - a.x, b.z - a.z) / span <= SLIDE;
+    return HumanSignature.bears(reader(staged), seconds, side, floor);
   }
 
-  /** The least time between two strikes of one foot, seconds (provisional: a sprint's stride lasts about 0.45 s, Mero et al. 1992). */
-  export const STRIDE: number = 0.25;
+  /** The least time between two strikes of one foot, seconds. */
+  export const STRIDE: number = HumanSignature.STRIDE;
 
-  /** The horizontal speed below which a low sole counts as bearing, metres per second (provisional: a fifth of a slow walk's speed). */
-  export const SLIDE: number = 0.2;
+  /** The horizontal speed below which a low sole counts as bearing, metres per second. */
+  export const SLIDE: number = HumanSignature.SLIDE;
 
-  /**
-   * Samples a second for a mean or an extreme over a held posture or a whole
-   * act: a body settles or moves its trunk over tenths of a second, so ten a
-   * second reads it within the bounds' resolution at a third of a 30 Hz
-   * film's frames. Swing clearances and contact events keep their own finer
-   * rates.
-   */
-  export const HELD: number = 10;
+  /** Samples a second for a mean or an extreme over a held posture or a whole act. */
+  export const HELD: number = HumanSignature.HELD;
 
   /** Instants from `from` to `to` at a rate. */
-  export function times(from: number, to: number, rate: number = 60): number[] {
-    const out: number[] = [];
-    for (let t: number = from; t <= to + 1e-9; t += 1 / rate) out.push(t);
-    return out;
-  }
+  export const times: typeof HumanSignature.times = HumanSignature.times;
 
   /** The gait of a window: the duty factor of each foot and the cadence. */
-  export interface IGait {
-    /** The share of the window each foot bears, averaged over both feet. */
-    duty: number;
+  export type IGait = HumanSignature.IGait;
 
-    /** Foot strikes (a foot coming down) per minute, both feet. */
-    cadence: number;
-
-    /** The strikes, in time order, with the foot. */
-    strikes: { seconds: number; side: "left" | "right" }[];
-  }
-
-  /**
-   * The gait over a window of steady travel.
-   *
-   * @param staged The row.
-   * @param from The window's start, seconds.
-   * @param to The window's end, seconds.
-   * @param rate Samples per second.
-   * @returns The duty factor, the cadence and the strikes.
-   */
+  /** The gait of `a` over a window of steady travel (`HumanSignature.gait`). */
   export function gait(
     staged: IStaged,
     from: number,
     to: number,
     rate: number = 120,
   ): IGait {
-    const ts: number[] = times(from, to, rate);
-    const strikes: { seconds: number; side: "left" | "right" }[] = [];
-    let bearing: number = 0;
-    for (const side of ["left", "right"] as const) {
-      let before: boolean | undefined;
-      for (const t of ts) {
-        const now: boolean = bears(staged, t, side);
-        if (now) bearing++;
-        // A foot strikes once a stride: a contact that flickers within a
-        // quarter second of the same foot's last strike (a heel handing the
-        // load to the ball) is the same footfall.
-        const mine = strikes.filter((s) => s.side === side);
-        const last: number | undefined = mine[mine.length - 1]?.seconds;
-        if (
-          before === false &&
-          now &&
-          (last === undefined || t - last >= STRIDE)
-        )
-          strikes.push({ seconds: t, side });
-        before = now;
-      }
-    }
-    strikes.sort((a, b) => a.seconds - b.seconds);
-    return {
-      duty: bearing / (2 * ts.length),
-      // Steps a minute from the mean interval between strikes, which a
-      // window a few steps long would quantise if strikes were counted.
-      cadence:
-        strikes.length < 2
-          ? 0
-          : (60 * (strikes.length - 1)) /
-            (strikes[strikes.length - 1]!.seconds - strikes[0]!.seconds),
-      strikes,
-    };
+    return HumanSignature.gait(reader(staged), from, to, rate);
   }
 
-  /**
-   * The peak speed of a joint centre over a window, metres per second, by
-   * central differences at 240 Hz.
-   */
+  /** The peak speed of a joint centre of `a` over a window, metres per second. */
   export function speed(
     staged: IStaged,
     bone: AutoMovieHumanoidBone,
     from: number,
     to: number,
   ): number {
-    const h: number = 1 / 240;
-    let peak: number = 0;
-    for (const t of times(
-      Math.max(h, from),
-      Math.min(to, staged.film.duration - h),
-      240,
-    )) {
-      const a: IAutoMovieVector3 = joint(staged, t - h, bone);
-      const b: IAutoMovieVector3 = joint(staged, t + h, bone);
-      peak = Math.max(
-        peak,
-        Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z) / (2 * h),
-      );
-    }
-    return peak;
+    return HumanSignature.speed(reader(staged), bone, from, to);
   }
 
   /** A region of a person placed on their displayed bones, world metres. */
@@ -461,52 +289,28 @@ export namespace motionHumanSignature {
     name: string,
     seconds: number,
   ): IAutoMovieVector3 {
-    const frame = (
-      body.surfaces.regions as Record<
-        string,
-        Parameters<typeof resolveAutoMovieHumanoidSurfaces.place>[0]
-      >
-    )[name]!;
-    return resolveAutoMovieHumanoidSurfaces.place(
-      frame,
-      staged.film.bones(subject, seconds).get(frame.bone)!,
-    ).point;
+    return HumanSignature.region(
+      HumanSignature.of(staged.film, subject, body, staged.yaw),
+      name as AutoMovieHumanoidRegion,
+      seconds,
+    );
   }
 
-  /**
-   * How far apart two people stand: the least signed distance from any joint
-   * centre of either to the other's colliders, metres, negative when a joint
-   * lies inside the other body.
-   */
+  /** How far apart `a` and `b` stand, metres, negative when a joint lies inside the other body. */
   export function apart(
     staged: IStaged,
     seconds: number,
     partner: IHumanBody,
   ): number {
-    const mine = bones(staged, seconds);
-    const theirs = staged.film.bones("b", seconds);
-    let least: number = Infinity;
-    for (const [, bone] of mine)
-      least = Math.min(
-        least,
-        HumanColliders.distance(partner, theirs, bone.worldPosition).distance,
-      );
-    for (const [, bone] of theirs)
-      least = Math.min(
-        least,
-        HumanColliders.distance(staged.body, mine, bone.worldPosition).distance,
-      );
-    return least;
+    return HumanSignature.apart(
+      reader(staged),
+      HumanSignature.of(staged.film, "b", partner, staged.yaw),
+      seconds,
+    );
   }
 
   /** The mean of a reading over instants. */
-  export function mean(
-    ts: readonly number[],
-    read: (t: number) => number,
-  ): number {
-    return ts.reduce((s, t) => s + read(t), 0) / ts.length;
-  }
-
+  export const mean: typeof HumanSignature.mean = HumanSignature.mean;
   /** The film second of a named event, or undefined when the law has none. */
   export function event(staged: IStaged, name: string): number | undefined {
     try {

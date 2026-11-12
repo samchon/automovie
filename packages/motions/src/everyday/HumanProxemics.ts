@@ -3,6 +3,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanBound } from "../law/HumanBound";
+import { HumanRefusal } from "../law/HumanRefusal";
+
 /**
  * Interpersonal distance: the gaps people keep, by relationship and purpose,
  * as the chest-to-target gap an approach stops at.
@@ -112,7 +115,7 @@ export namespace HumanProxemics {
     other: IAutoMovieBodyMeasure = self,
   ): number {
     if (typeof request === "number") {
-      if (!(request > 0)) throw new Error("An approach gap is positive");
+      HumanBound.above("at", request, 0, "m");
       return request;
     }
     if (request !== "handing") return GAPS[request];
@@ -145,9 +148,14 @@ export namespace HumanProxemics {
     const dz: number = target.z - from.z;
     const d: number = Math.hypot(dx, dz);
     if (d < 1e-9)
-      throw new Error(
-        "An approach needs a target away from where the performer stands",
-      );
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "target",
+        value: null,
+        reason:
+          "An approach needs a target away from where the performer stands",
+        fix: "aim the approach at a target that is not where the performer stands",
+      });
     const back: number = gap + chest;
     return {
       at: {

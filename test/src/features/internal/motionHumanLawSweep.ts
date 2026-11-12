@@ -15,6 +15,7 @@ import {
 } from "@automovie/motions";
 
 import LEDGER from "./MOTION_HUMAN_LEDGER.json";
+import { MotionHumanSweepChain } from "./MotionHumanSweepChain";
 import { motionCoveringArray } from "./motionCoveringArray";
 import { motionHumanBody } from "./motionHumanBody";
 import { motionHumanLaw } from "./motionHumanLaw";
@@ -133,8 +134,8 @@ export namespace motionHumanLawSweep {
   ];
 
   /** An empty chain of a subject. */
-  export function chain(subject: string = "a"): HumanChain {
-    return HumanChain.subject(subject);
+  export function chain(subject: string = "a"): MotionHumanSweepChain {
+    return MotionHumanSweepChain.subject(subject);
   }
 
   /** A world point as a target, with the normal of the surface it lies on. */

@@ -24,6 +24,7 @@ import { HUMAN_ACTIONS } from "../actions/HUMAN_ACTIONS";
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -71,6 +72,9 @@ export class HumanPerformance {
   /** Seconds from 0 to the last action's end. */
   public readonly duration: number;
 
+  /** The people, as the performance was given them. */
+  public readonly performers: readonly IHumanPerformer[];
+
   private readonly people: Map<string, HumanSegment.IPerson>;
 
   private readonly props: Map<string, IHumanProp>;
@@ -110,11 +114,19 @@ export class HumanPerformance {
         p,
       ]),
     );
+    this.performers = [...input.performers];
     this.people = new Map();
     this.anchors = new Map();
     for (const performer of input.performers) {
       if (this.people.has(performer.subject))
-        throw new Error(`Duplicate performer ${performer.subject}`);
+        throw new HumanRefusal({
+          kind: "participant",
+          performer: performer.subject,
+          axis: "performers",
+          value: performer.subject,
+          reason: `two performers are named ${performer.subject}`,
+          fix: "give every performer its own subject id",
+        });
       const initial: IHumanPosture = stand.posture(
         performer.body,
         performer.at,
@@ -163,8 +175,14 @@ export class HumanPerformance {
       });
     }
     this.schedule = resolveAutoMovieSchedule(input.composition, {
-      timing: (intent: IAutoMovieIntent, context) =>
-        this.place(intent, context.start, context.entries),
+      timing: (intent: IAutoMovieIntent, context) => {
+        const where: HumanRefusal.IWhere = this.where(intent);
+        try {
+          return this.place(intent, context.start, context.entries, where);
+        } catch (error) {
+          throw error instanceof HumanRefusal ? error.locate(where) : error;
+        }
+      },
       until: (
         intent: IAutoMovieIntent,
         placed: { start: number; duration: number },
@@ -178,14 +196,20 @@ export class HumanPerformance {
         ? []
         : checkAutoMovieLegality(this.schedule, input.rules);
     if (violations.length !== 0)
-      throw new Error(
-        `The performance breaks its rules: ${violations
+      throw new HumanRefusal({
+        kind: "rule",
+        axis: "rules",
+        value: violations.map(
+          (v: checkAutoMovieLegality.IViolation): string => v.rule,
+        ),
+        reason: `the performance breaks its rules: ${violations
           .map(
             (v: checkAutoMovieLegality.IViolation): string =>
               `${v.rule} at entry ${v.entry}: ${v.detail}`,
           )
           .join("; ")}`,
-      );
+        fix: "change the entries named so that each rule holds, or leave the rule out of the performance",
+      });
     // Placement evaluated plans while later actions and people were not yet
     // placed; the contact resolution reads every plan as the whole placed
     // performance shows it. Every action is placed now, so displayed poses
@@ -274,9 +298,7 @@ export class HumanPerformance {
   public prop(subject: string, seconds: number): IHumanProp.IFrame {
     const prop: IHumanProp | undefined = this.props.get(subject);
     if (prop === undefined)
-      throw new Error(
-        `No prop ${subject}; props are ${[...this.props.keys()].join(", ") || "none"}`,
-      );
+      throw this.missing("prop", subject, [...this.props.keys()]);
     const grips = this.grips(subject);
     // The latest grip still holding carries it; with none holding, the one released last left it.
     let active: (typeof grips)[number] | undefined;
@@ -390,8 +412,20 @@ export class HumanPerformance {
       case "prop": {
         const prop: IHumanProp | undefined = this.props.get(target.subject);
         const local = prop?.points[target.point];
+        if (prop === undefined)
+          throw this.missing("prop", target.subject, [...this.props.keys()]);
         if (local === undefined)
-          throw new Error(`No prop point ${target.subject}.${target.point}`);
+          throw new HumanRefusal({
+            kind: "affordance",
+            axis: "target",
+            value: `${target.subject}.${target.point}`,
+            feasible: {
+              kind: "alternatives",
+              values: Object.keys(prop.points),
+            },
+            reason: `prop ${target.subject} has no point named ${target.point}`,
+            fix: `aim at a point the prop declares, or declare ${target.point} in the prop's points`,
+          });
         const at: IHumanProp.IFrame = this.prop(target.subject, seconds);
         return {
           point: Vector3.add(
@@ -446,14 +480,20 @@ export class HumanPerformance {
     intent: IAutoMovieIntent,
     start: number,
     entries: readonly IAutoMovieSchedule.IEntry[],
+    where: HumanRefusal.IWhere,
   ) {
     const person: HumanSegment.IPerson = this.person(intent.subject);
     const name: HumanActionName = intent.capability as HumanActionName;
     const law: IHumanActionLaw<never> | undefined = HUMAN_ACTIONS[name];
     if (law === undefined)
-      throw new Error(
-        `${intent.subject}: no action law is named ${intent.capability}`,
-      );
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "act",
+        value: intent.capability,
+        feasible: { kind: "alternatives", values: Object.keys(HUMAN_ACTIONS) },
+        reason: `no action is named ${intent.capability}`,
+        fix: "name an action of the vocabulary",
+      });
     const params: object =
       (intent.parameters?.params as object | undefined) ?? {};
     const previous: HumanSegment.ISegment | undefined = person.segments.at(-1);
@@ -515,9 +555,7 @@ export class HumanPerformance {
       prop: (subject: string): IHumanActionContext.IProp => {
         const prop: IHumanProp | undefined = this.props.get(subject);
         if (prop === undefined)
-          throw new Error(
-            `${intent.subject}.${name} reads prop ${subject}; props are ${[...this.props.keys()].join(", ") || "none"}`,
-          );
+          throw this.missing("prop", subject, [...this.props.keys()]);
         return {
           prop,
           frame: (seconds: number): IHumanProp.IFrame =>
@@ -569,9 +607,17 @@ export class HumanPerformance {
       action: (anchor: string): IHumanActionContext.IPlaced => {
         const placed = this.anchors.get(anchor);
         if (placed === undefined)
-          throw new Error(
-            `${intent.subject}.${name} reads the action anchored ${anchor}, which is not placed earlier; anchors placed are ${[...this.anchors.keys()].join(", ") || "none"}`,
-          );
+          throw new HumanRefusal({
+            kind: "participant",
+            axis: "anchor",
+            value: anchor,
+            feasible: {
+              kind: "alternatives",
+              values: [...this.anchors.keys()],
+            },
+            reason: `the action anchored ${anchor} is not placed earlier in the composition`,
+            fix: `give the answered action the anchor ${anchor} and compose it before this one`,
+          });
         return {
           subject: placed.subject,
           name: placed.name,
@@ -590,6 +636,18 @@ export class HumanPerformance {
       context.start = start - share * plan.duration;
       plan = law.plan(context);
     }
+
+    // A law may refuse only once a posture is asked of it (a goal that turns
+    // out beyond reach at some second), long after it was placed; that
+    // refusal is located here, where the action's place in the film is known.
+    const posture: IHumanActionPlan["posture"] = plan.posture;
+    plan.posture = (seconds: number): IHumanPosture => {
+      try {
+        return posture(seconds);
+      } catch (error) {
+        throw error instanceof HumanRefusal ? error.locate(where) : error;
+      }
+    };
     const active: number = (1 - share) * plan.duration;
     const segment: HumanSegment.ISegment = {
       index: person.segments.length,
@@ -629,9 +687,22 @@ export class HumanPerformance {
           context.start + take.from * plan.duration,
         );
       else if (HumanSegment.drives(plan, held.side))
-        throw new Error(
-          `${intent.subject}: ${name} needs the ${held.side} hand, which holds ${held.prop} since ${held.source.name} (${held.source.id}); put it down or hand it over first`,
-        );
+        throw new HumanRefusal({
+          kind: "affordance",
+          axis: "hand",
+          value: held.side,
+          feasible: {
+            kind: "alternatives",
+            values: person.holds.some(
+              (h: HumanSegment.IHeld): boolean =>
+                h.until === Infinity && h.side !== held.side,
+            )
+              ? []
+              : [held.side === "left" ? "right" : "left"],
+          },
+          reason: `${name} needs the ${held.side} hand, which holds ${held.prop} since ${held.source.name} (${held.source.id})`,
+          fix: `put ${held.prop} down or hand it over first, or perform ${name} with the free hand`,
+        });
     }
     person.segments.push(segment);
     for (const hold of plan.holds ?? [])
@@ -1026,10 +1097,37 @@ export class HumanPerformance {
   private person(subject: string): HumanSegment.IPerson {
     const person: HumanSegment.IPerson | undefined = this.people.get(subject);
     if (person === undefined)
-      throw new Error(
-        `No performer ${subject}; performers are ${[...this.people.keys()].join(", ")}`,
-      );
+      throw this.missing("performer", subject, [...this.people.keys()]);
     return person;
+  }
+
+  /** The place of an intent in the film: its performer, its action and which occurrence of the action's id this is. */
+  private where(intent: IAutoMovieIntent): HumanRefusal.IWhere {
+    const id: string = intent.anchor ?? intent.capability;
+    return {
+      performer: intent.subject,
+      act: intent.capability,
+      instance:
+        (this.people.get(intent.subject)?.segments ?? []).filter(
+          (s: HumanSegment.ISegment): boolean => s.id === id,
+        ).length + 1,
+    };
+  }
+
+  /** The refusal of a performer or prop the performance does not hold, listing the ones it does. */
+  private missing(
+    what: "performer" | "prop",
+    subject: string,
+    known: readonly string[],
+  ): HumanRefusal {
+    return new HumanRefusal({
+      kind: what === "prop" ? "affordance" : "participant",
+      axis: what,
+      value: subject,
+      feasible: { kind: "alternatives", values: known },
+      reason: `the performance has no ${what} named ${subject}`,
+      fix: `name one of the performance's ${what}s, or add ${subject} to them`,
+    });
   }
 }
 

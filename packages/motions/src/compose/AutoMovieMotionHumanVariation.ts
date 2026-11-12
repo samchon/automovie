@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { HumanSkill } from "../skill/HumanSkill";
 import { AutoMovieMotionHumanTiming } from "./AutoMovieMotionHumanTiming";
@@ -177,12 +178,11 @@ export namespace AutoMovieMotionHumanVariation {
       | undefined,
   ): ISource | undefined {
     const variation: number = manner?.variation ?? 0;
-    if (!(variation >= 0 && variation <= 1))
-      throw new Error("A manner's variation lies in [0, 1]");
+    HumanBound.within("manner.variation", variation, 0, 1);
     if (variation === 0) return undefined;
     const proficiency: number | undefined = manner?.proficiency;
-    if (proficiency !== undefined && !(proficiency >= 0 && proficiency <= 1))
-      throw new Error("A manner's proficiency lies in [0, 1]");
+    if (proficiency !== undefined)
+      HumanBound.within("manner.proficiency", proficiency, 0, 1);
     return {
       skill:
         proficiency === undefined

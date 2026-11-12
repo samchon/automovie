@@ -14,6 +14,7 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -173,8 +174,7 @@ export namespace useTool {
     const kind: Kind = context.params.tool;
     const side: HumanHand.Side = context.params.hand ?? "right";
     const cycles: number = context.params.cycles ?? 4;
-    if (!(Number.isInteger(cycles) && cycles > 0))
-      throw new Error("A tool works a positive whole number of cycles");
+    HumanBound.whole("cycles", cycles);
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
     const on: IAutoMovieVector3 = context.aim(
@@ -195,10 +195,9 @@ export namespace useTool {
 
     // The working pose: where the grip is and how the hand is turned when the
     // working point is on the work, and the tool's axis from the grip.
-    const shoulder: IAutoMovieVector3 = poseBones(
-      body,
-      context.entry.pose,
-    ).get(`${side}UpperArm`)!.worldPosition;
+    const shoulder: IAutoMovieVector3 = poseBones(body, context.entry.pose).get(
+      `${side}UpperArm`,
+    )!.worldPosition;
     const posed = (axis: IAutoMovieVector3, rise: number): IWork => {
       // The grip stands `rise` over the tool's line, square to it.
       const base: IAutoMovieVector3 = Vector3.subtract(

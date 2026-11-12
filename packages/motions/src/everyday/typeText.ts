@@ -1,9 +1,10 @@
 import { minimumJerk } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -110,9 +111,13 @@ export namespace typeText {
         side: x > 0 ? "left" : "right",
       };
     }
-    throw new Error(
-      `The keyboard has no key "${key}"; it types letters and spaces`,
-    );
+    throw new HumanRefusal({
+      kind: "parameter",
+      axis: "text",
+      value: key,
+      reason: `The keyboard has no key "${key}"; it types letters and spaces`,
+      fix: "type letters and spaces only",
+    });
   }
 
   /**
@@ -128,7 +133,14 @@ export namespace typeText {
     const body: IHumanBody = context.body;
     const m = body.measure;
     const { keyboard, text } = context.params;
-    if (text.length === 0) throw new Error("Typing needs a text");
+    if (text.length === 0)
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "text",
+        value: text,
+        reason: "Typing needs a text",
+        fix: "give a text of at least one letter",
+      });
     const keys = [...text].map(typeText.key);
     const hold: IHumanPosture = context.entry.posture;
     const frame: HumanFrame.IFrame = { origin: keyboard.at, yaw: keyboard.yaw };
@@ -138,9 +150,19 @@ export namespace typeText {
     // Fit: the home row near elbow height and within the forearm's reach of the shoulders.
     const elbow: number = hold.root.y + m.shoulderHeight - m.upperArm;
     if (Math.abs(keyboard.at.y - elbow) > 0.15)
-      throw new Error(
-        `${context.subject}: the keyboard stands ${(keyboard.at.y - elbow).toFixed(3)} m from the elbows' height; place it within 0.15 m of ${elbow.toFixed(3)} m`,
-      );
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "keyboard",
+        value: keyboard.at.y,
+        feasible: {
+          kind: "range",
+          minimum: elbow - 0.15,
+          maximum: elbow + 0.15,
+          unit: "m",
+        },
+        reason: `the keyboard stands ${(keyboard.at.y - elbow).toFixed(3)} m from the elbows' height; place it within 0.15 m of ${elbow.toFixed(3)} m`,
+        fix: "place the keyboard within 0.15 m of the elbows' height",
+      });
     const shoulder: IAutoMovieVector3 = HumanFrame.point(
       { origin: hold.root, yaw: hold.yaw },
       { x: 0, y: m.shoulderHeight, z: 0 },
@@ -153,9 +175,13 @@ export namespace typeText {
       ) >
       0.95 * (m.upperArm + m.forearm + m.hand)
     )
-      throw new Error(
-        `${context.subject}: the keyboard is beyond the arms' reach`,
-      );
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "keyboard",
+        value: null,
+        reason: `the keyboard is beyond the arms' reach`,
+        fix: "place the keyboard nearer, or approach it first",
+      });
 
     // Presses on the skill's interval with timing variability.
     const interval: number = HumanSkill.quantity(

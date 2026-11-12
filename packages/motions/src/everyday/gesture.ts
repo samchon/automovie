@@ -16,6 +16,8 @@ import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTimin
 import { AutoMovieMotionHumanVariation } from "../compose/AutoMovieMotionHumanVariation";
 import { AutoMovieMotionHumanVariationPlace } from "../compose/AutoMovieMotionHumanVariationPlace";
 import type { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
+import { HumanBound } from "../law/HumanBound";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -155,15 +157,20 @@ export namespace gesture {
     const mods: HumanEffort.IModifiers = HumanEffort.modifiers(p.effort);
     const rhythm = gestureStroke.RHYTHM[p.kind];
     const cycles: number = p.count ?? rhythm.cycles;
-    if (!(Number.isInteger(cycles) && cycles > 0))
-      throw new Error("A gesture's count is a positive whole number");
+    HumanBound.whole("count", cycles);
     const hold: number = p.hold ?? 0;
-    if (!(hold >= 0)) throw new Error("A gesture's hold is not negative");
+    HumanBound.least("hold", hold, 0, "s");
     const depth: number = p.depth ?? 30;
-    if (p.kind === "bow" && !(depth > 0 && depth <= 60))
-      throw new Error("A bow's depth lies in (0, 60] degrees");
+    if (p.kind === "bow")
+      HumanBound.within("depth", depth, 0, 60, "degrees", "minimum");
     if (p.kind === "point" && p.target === undefined)
-      throw new Error("Pointing needs a target");
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "target",
+        value: undefined,
+        reason: "Pointing needs a target",
+        fix: "give the point gesture a target",
+      });
 
     const sides: HumanHand.Side[] = ((): HumanHand.Side[] => {
       const which = gestureStroke.HANDS[p.kind];

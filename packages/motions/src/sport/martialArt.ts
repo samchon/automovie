@@ -13,6 +13,7 @@ import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarge
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -117,9 +118,8 @@ export namespace martialArt {
     const m = body.measure;
     const count: number = p.count ?? 4;
     const hold: number = p.seconds ?? 1;
-    if (!(Number.isInteger(count) && count > 0))
-      throw new Error("A punch series counts a positive whole number");
-    if (!(hold >= 0)) throw new Error("A stance's hold is not negative");
+    HumanBound.whole("count", count);
+    HumanBound.least("seconds", hold, 0, "s");
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     const entry: IHumanPosture = context.entry.posture;

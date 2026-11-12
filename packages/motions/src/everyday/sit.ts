@@ -8,6 +8,8 @@ import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanBound } from "../law/HumanBound";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -118,14 +120,24 @@ export namespace sit {
     seated.check(body, seat);
     const back = context.params.back ?? "upright";
     if (back === "lean" && seat.back === undefined)
-      throw new Error(
-        `${context.subject}: leaning back needs a seat with a backrest`,
-      );
+      throw new HumanRefusal({
+        kind: "affordance",
+        axis: "back",
+        value: "lean",
+        feasible: { kind: "alternatives", values: ["upright", "slump"] },
+        reason: `leaning back needs a seat with a backrest`,
+        fix: "give the seat a back, or sit upright",
+      });
     const turn: number = angle(seat.yaw - context.entry.posture.yaw);
     if (Math.abs(turn) > 20)
-      throw new Error(
-        `${context.subject}: stands ${turn.toFixed(1)} degrees off the seat's heading; turn to within 20 degrees of facing away from the seat first`,
-      );
+      throw new HumanRefusal({
+        kind: "base",
+        axis: "seat",
+        value: turn,
+        feasible: { kind: "range", minimum: -20, maximum: 20, unit: "degrees" },
+        reason: `stands ${turn.toFixed(1)} degrees off the seat's heading; turn to within 20 degrees of facing away from the seat first`,
+        fix: "turn to within 20 degrees of facing away from the seat first, or turn the seat",
+      });
     const feet: Record<"left" | "right", IAutoMovieVector3> = stand.feet(
       body,
       context.entry,
@@ -139,7 +151,7 @@ export namespace sit {
     const peak: number = 35 + 50 * (1 - r);
     const contact: number = 0.75 * descent;
     const hold: number = context.params.seconds ?? 1;
-    if (!(hold >= 0)) throw new Error("A sit's hold is not negative");
+    HumanBound.least("seconds", hold, 0, "s");
     const duration: number = descent + hold;
     const yaw0: number = context.entry.posture.yaw;
     const start: IAutoMovieVector3 = seated.socket(body, context.entry.posture);
@@ -293,9 +305,13 @@ export namespace sit {
         );
         const far: number = Math.sqrt(Math.max(0, longest * longest - dy * dy));
         const edge: number = Math.hypot(hip.x - seat.at.x, hip.z - seat.at.z);
-        throw new Error(
-          `The ${side} ankle is ${d.toFixed(3)} m from its seated hip; stand with the ankles ${Math.max(0, near - edge).toFixed(3)} to ${(far - edge).toFixed(3)} m ahead of the seat's front edge`,
-        );
+        throw new HumanRefusal({
+          kind: "reach",
+          axis: "seat",
+          value: d,
+          reason: `The ${side} ankle is ${d.toFixed(3)} m from its seated hip; stand with the ankles ${Math.max(0, near - edge).toFixed(3)} to ${(far - edge).toFixed(3)} m ahead of the seat's front edge`,
+          fix: `stand with the ankles ${Math.max(0, near - edge).toFixed(3)} to ${(far - edge).toFixed(3)} m ahead of the seat's front edge`,
+        });
       }
     }
   }

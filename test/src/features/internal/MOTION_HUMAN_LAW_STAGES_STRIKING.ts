@@ -1,5 +1,6 @@
-import type { HumanChain, IHumanBody } from "@automovie/motions";
+import type { IHumanBody } from "@automovie/motions";
 
+import type { MotionHumanSweepChain } from "./MotionHumanSweepChain";
 import { motionHumanLawSweep } from "./motionHumanLawSweep";
 
 const S: typeof motionHumanLawSweep = motionHumanLawSweep;
@@ -9,7 +10,7 @@ const guard = (
   subject: "a" | "b",
   seconds: number,
   params: object = {},
-): HumanChain =>
+): MotionHumanSweepChain =>
   S.chain(subject).act("guard", {
     seconds,
     facing: S.person(subject === "a" ? "b" : "a", "face"),

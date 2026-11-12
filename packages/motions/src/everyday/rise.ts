@@ -5,6 +5,7 @@ import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -252,9 +253,13 @@ export namespace rise {
       if (off !== undefined) break;
     }
     if (off === undefined)
-      throw new Error(
-        `${context.subject}: the feet stand too far ahead to rise over them; place the ankles nearer the seat`,
-      );
+      throw new HumanRefusal({
+        kind: "base",
+        axis: "base",
+        value: null,
+        reason: `the feet stand too far ahead to rise over them; place the ankles nearer the seat`,
+        fix: "place the ankles nearer the seat before rising",
+      });
     peak -= 5;
 
     const swings: Partial<Record<"left" | "right", [number, number]>> = {};
