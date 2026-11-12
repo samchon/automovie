@@ -18,11 +18,11 @@ The same prepared body is the one the installed motion vocabulary plans for, so 
 
 ### Objects people use {#objects}
 
-What a person holds, uses, sits on, rides or fights with comes from the installed archetypes, such as a cup, a chair, a door, a stair, a car, a saddle horse or a sword. Each is already a coarse form, built from the record's facts as parameters and a seed, as the archetypes' README shows.
+What a person holds, uses, sits on, rides or fights with comes from the installed archetypes, such as a cup, a chair, a door, a car, a saddle horse or a sword. Each is already a coarse form, built from the record's facts as parameters and a seed, as the archetypes' README shows.
 
-An archetype declares its affordances, the places where a person meets it, such as a grip, a seat, a surface or a hinge. The installed motion vocabulary attaches an act to an affordance, so one act fits every size the object takes.
+An archetype declares its affordances, the places where a person meets it, such as a grip, a seat, a surface or a hinge. The installed motion vocabulary attaches an action to an affordance, so one action fits every size the object takes.
 
-Build such an object in the production only when no archetype offers it, as a coarse form like any other subject, and declare on it the affordances the scenes' acts attach to, as the installed packages type them. Without them the object can be drawn but not sat on, gripped or opened.
+Build such an object in the production only when no archetype offers it, as a coarse form like any other subject, and declare on it the affordances the scenes' actions attach to, as the installed packages type them. Without them the object can be drawn but not sat on, gripped or opened.
 
 ### Everything else
 

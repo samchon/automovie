@@ -19,7 +19,7 @@ Contract: [entities.md](../entities.md).
 2. It is composed of small fragments rather than inherited.
 3. It imports no other entity.
 4. Each capability returns an immutable intent record and never a pose, coordinate, offset or time.
-5. A person's capability returns the installed motion vocabulary's own composition of the act, a row or a law the production registered with it included. The entity adds no motion of its own.
+5. A person's capability returns the installed motion vocabulary's own composition of the action, an action the production [registered](../../../motion/extend.md) with it included. The entity adds no motion of its own.
 6. State such as wardrobe by story day, wounds, fatigue or a learned habit exists only as an explicit snapshot computed at schedule resolution.
 7. A habit is a trigger-to-response rule, with the trigger and response its fact describes and the timing its research supports.
 
@@ -32,4 +32,4 @@ Contract: [entities.md](../entities.md).
 5. A subject an installed package already provides is taken from it and not rebuilt.
 6. The entity rebuilds from a fixed source with its usage rights.
 7. An adopted or converted asset states which channels and deformation the conversion and the runtime retain.
-8. An object a person holds, uses, sits on, rides or fights with declares the affordances the scenes' acts attach to, under [objects people use](../../../development/entities.md#objects).
+8. An object a person holds, uses, sits on, rides or fights with declares the affordances the scenes' actions attach to, under [objects people use](../../../development/entities.md#objects).

@@ -12,8 +12,8 @@ The skills name installed packages by role. This table is the one place that say
 | --- | --- | --- |
 | Interface package | `@automovie/interface` | Type the authored data every other package reads |
 | Human package | `@automovie/human` | Prepare a person's canonical body |
-| Archetypes | `@automovie/archetypes` | Build the objects people hold, use, sit on, ride and fight with, each with the affordances a person's act attaches to |
-| Motion vocabulary | `@automovie/motions` | Compose what each person does, register the rows and laws it lacks, and read and check the pose at any second |
+| Archetypes | `@automovie/archetypes` | Build the objects people hold, use, sit on, ride and fight with, each with the affordances a person's action attaches to |
+| Motion vocabulary | `@automovie/motions` | Compose what each person does, register an action it lacks, and read and check the performance at any second |
 | Engine | `@automovie/engine` | Validate the data, schedule a scene's actions and compute each film second |
 | Viewer | `@automovie/viewer` | Mount the picture on a page, play it back and review it |
 | Renderer | `@automovie/render` | Draw the polygon man and every other form, inspect and capture the picture, and plan the frames, cuts and encoding that the production's commands run |
@@ -41,7 +41,7 @@ When a package misbehaves or lacks something the work needs:
 
 A workspace's own `packages/<name>` is the exception: the workspace owns that code and repairs it in place.
 
-A row or a law registered with the motion vocabulary under [extend](../motion/extend.md) is not such a substitute. Registration is the vocabulary's own way to take an act it lacks, so it needs no mark and stays.
+A row or a law registered with the motion vocabulary under [extend](../motion/extend.md) is not such a substitute. Registration is the vocabulary's own way to take an action it lacks, so it needs no mark and stays.
 
 ## One module, many uses {#one-module}
 

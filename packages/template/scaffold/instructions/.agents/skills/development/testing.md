@@ -12,7 +12,7 @@ The bounded checks [motion verification](../motion/verification.md) lists belong
 
 A test that needs a person takes a body the installed human package prepares at fixed parameters, without drawing it. Preparing a body can be slow, so prepare each one once per run and share it between tests.
 
-The installed motion vocabulary checks its own actions, so a production does not test them again. Its test of a composed act asserts only the value [a person's case](../motion/catalog-cases.md#a-persons-case) names. What only a picture shows belongs to the stills of the [catalog case](../motion/catalog-cases.md), not to a test.
+The installed motion vocabulary checks its own actions, so a production does not test them again. Its test of a composition asserts only the value [a person's case](../motion/catalog-cases.md#a-persons-case) names. What only a picture shows belongs to the stills of the [catalog case](../motion/catalog-cases.md), not to a test.
 
 ## What a test is not
 

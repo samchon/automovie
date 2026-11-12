@@ -2,24 +2,15 @@
 
 What to do when an installed package refuses what the production composed.
 
-A refusal from the motion vocabulary says that a real person could not perform the act as composed, from where they are, with what they hold. The archetypes refuse the same way for an object, such as a dimension outside its range or an affordance it lacks. Either is a finding about the scene, raised when the performance or the object is built, before any frame is drawn.
+A refusal from the motion vocabulary says that a real person could not perform the action as composed, from where they are, with what they hold. The archetypes refuse the same way for an object, such as a dimension outside its range or an affordance it lacks. Either is a finding about the scene, raised when the performance or the object is built, before any frame is drawn.
 
-A refusal names who was to act, the act, the axis at fault, the value given, what that axis accepts and what to change, as text and as fields a program can read.
+A refusal names who was to act, the action, the axis at fault, the value given, what that axis accepts and what to change, as text and as fields a program can read. The package's README and types list the kinds of refusal.
 
 ## Repair at the axis
 
-Change the one [axis](compose.md#decide-the-act) the refusal names, then build again:
+Change the one [axis](compose.md#decide-each-action) the refusal names, as it says, then build again.
 
-| The refusal says | Change |
-| --- | --- |
-| A value is outside what the action accepts | That value, to one inside the range it states |
-| A target or its site is out of reach | Bring the performer nearer first, change the base, or aim at a site within reach |
-| The base does not allow the act | What precedes the act, so the performer stands, sits or kneels first |
-| An object lacks the affordance, or another act already claims it | An affordance the refusal lists, or release the claim first |
-| A hand is already full | The other hand, or put the object down or hand it over first |
-| Two acts at once need the same part of the body | Give one act another part, or put the two in sequence |
-| An act is cut where its action declares no window | Cut inside a window the refusal lists, or let the act end |
-| A partner, a role or a synced instant is missing | Add it to the scene, or name an instant the act declares |
+The change is often to what precedes the action rather than to the action: the performer steps nearer before a reach, frees a hand before a grip, or sits or stands before an action the base does not allow.
 
 Take the repair from the screenplay. When two repairs would plan, choose the one the beat describes, because a repair that only silences the refusal stages a different scene.
 

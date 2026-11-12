@@ -32,7 +32,7 @@ Settings or brief domains map onto code: cast, crowds, props and sets become ent
 
 An entity is constructed from its settings or brief facts and composes small fragments. Its methods are capabilities that return intent records: what the subject means to do and to whom, never a pose, a coordinate or a time.
 
-A person's capability carries the installed motion vocabulary. Its intent is the vocabulary's own [composition](../motion/compose.md) of that act, built with the body prepared for the cast member, the proficiency the cast record gives and the targets the scene passes, as the vocabulary's README shows. The entity adds no motion of its own. The vocabulary performs a row or a law the production registers like one of its own, so that act reaches a scene the same way.
+A person's capability carries the installed motion vocabulary. Its intent is the vocabulary's own [composition](../motion/compose.md) of that action, built with the body prepared for the cast member, the proficiency the cast record gives and the targets the scene passes, as the vocabulary's README shows. The entity adds no motion of its own. The vocabulary performs an action the production [registers](../motion/extend.md) like one of its own, so it reaches a scene the same way.
 
 A scene joins capabilities through the operators of the installed motion vocabulary and engine, as their READMEs show. Interactions then align the participants, derive timing from the laws and decide outcomes from the outcome tables, and consequences follow from those outcomes. Logic lives in pure laws the methods call, so a unit test needs no mock.
 
@@ -54,7 +54,7 @@ Node-only tooling (processes, files, browser launch, FFmpeg) is not published: t
 
 Each file exports one declaration named as the file and stays under 500 lines; a larger one is a responsibility to split into fragments.
 
-A new subject starts from its settings or brief record, then its entity folder and tests. A new act starts as a composition of the installed motion vocabulary. Only when [extend](../motion/extend.md) finds the vocabulary lacks it does it start from its research, then its registered row or law and the interaction that uses it. A new scene starts from its screenplay H2 and beats, then its composition folder and its place in the film.
+A new subject starts from its settings or brief record, then its entity folder and tests. A new action starts from the installed motion vocabulary. Only when [extend](../motion/extend.md) finds the vocabulary lacks it does it start from its research, then its registered row or law and the interaction that uses it. A new scene starts from its screenplay H2 and beats, then its composition folder and its place in the film.
 
 ## Shared modules {#shared-modules}
 

@@ -2,7 +2,7 @@
 
 An entity or a motion module is accepted alone, in the catalog, before any film composes it.
 
-A catalog case plays one module alone: one act against one target, partner response and outcome, one movement, one official or bystander behavior, one fall, or one entity state the screenplay uses. Cases of one module differ only in parameters, so each module has one case composition that takes them, and the [catalog film](../development/source-layout.md#source) lists every case the screenplay uses in its own labeled interval.
+A catalog case plays one module alone: one action against one target, partner response and outcome, one movement, one official or bystander behavior, one fall, or one entity state the screenplay uses. Cases of one module differ only in parameters, so each module has one case composition that takes them, and the [catalog film](../development/source-layout.md#source) lists every case the screenplay uses in its own labeled interval.
 
 ## Capture and review
 
@@ -12,15 +12,15 @@ Review every still against the [performance study](../story/planning/research.md
 
 ## A person's case {#a-persons-case}
 
-Accept a composed act on three things together:
+Accept a person's case on three things together:
 
 1. The motion vocabulary's own report of its physical bounds is clean for the case.
-2. A unit test asserts, through the vocabulary's own measures, the value that makes the act what the beat names.
+2. A unit test asserts the case's studied value through the vocabulary's own measures.
 3. No still shows a flaw.
 
 The vocabulary's README names the report and the measures. Each of the three catches what the others miss: the report knows no intent, the test reads one value, and stills miss a hand a centimetre inside a hip.
 
-The tested value comes from the performance study where the production studied the practice, and otherwise from the source the action's documentation cites. A value read back from the composition's own output proves only that the code repeats itself.
+The studied value comes from the performance study where the production studied the practice, and otherwise from the source the action's documentation cites. A value read back from the composition's own output proves only that the code repeats itself.
 
 A finding that remains in a vocabulary action composed as its README shows is a defect of the package. Hand the user the case and its numbers under [a defect or a gap](../development/reuse.md#a-defect-or-a-gap) rather than correct it with an offset in the production.
 

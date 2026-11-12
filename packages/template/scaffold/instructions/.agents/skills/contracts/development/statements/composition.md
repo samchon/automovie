@@ -18,7 +18,7 @@ Contract: [composition.md](../composition.md).
 1. The declaration only combines entity capabilities, interaction entry points and consequences, through the operators of the installed motion vocabulary and engine.
 2. It places absolute time only at the screenplay's anchors.
 3. It holds no calculation, constant, coordinate, direct law import, URL parameter, archive load or runtime selection. Each of these is a capability missing from its owner and is added there.
-4. A person's act reaches the scene through the cast entity's capability, as a composition of the installed motion vocabulary.
+4. A person's action reaches the scene through the cast entity's capability, as a composition of the installed motion vocabulary.
 5. A refusal from an installed package is repaired at the axis it names, under [refusals](../../../motion/refusals.md). No declaration catches one and carries on, or widens a value to silence it.
 6. The catalog and the film call the same capabilities with the same kind of parameters, and no scene keeps its own variant of a module.
 7. The film resolves once, from one seed.

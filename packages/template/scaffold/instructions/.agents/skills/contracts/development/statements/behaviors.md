@@ -10,8 +10,9 @@ Contract: [behaviors.md](../behaviors.md).
 4. The behavior was written after its study.
 5. It performs no action the study does not record.
 6. Durations and speeds scale with the body, under [time scale](../../../motion/laws.md#scale-time-with-the-body).
-7. The act is not one the installed motion vocabulary performs or composes, and a person's row or law is registered with the vocabulary under [extend](../../../motion/extend.md). A vocabulary defect is reported under [installed packages](../../../development/reuse.md#installed-packages), never reimplemented.
-8. A deliberately stylized departure states its factor and reason.
+7. The action is not one the installed motion vocabulary performs, alone or joined with others. A vocabulary defect is reported under [installed packages](../../../development/reuse.md#installed-packages), never reimplemented.
+8. A person's row or law is registered with the vocabulary under [extend](../../../motion/extend.md), so the vocabulary performs it.
+9. A deliberately stylized departure states its factor and reason.
 
 ## Goals and bounds {#relational-goals}
 
