@@ -5,7 +5,7 @@ description: Inspects a narrative body and repairs it by cause, at its earliest 
 
 # Correction
 
-Correction applies repair by cause to a narrative body: inspect the whole of it, repair each cause at its earliest owner within closed boundaries, and after each repair inspect what the repair changed.
+Correction applies repair by cause to a narrative body: inspect the whole of it, then repair each cause at its earliest owner, within closed boundaries.
 
 | Task | Read |
 | --- | --- |

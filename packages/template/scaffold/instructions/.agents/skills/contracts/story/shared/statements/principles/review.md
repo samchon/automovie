@@ -7,8 +7,8 @@ Contract: [principles/review.md](../../principles/review.md).
 1. The locked observation has at least one exact body quotation and locator, and it is kept for units with no finding too.
 2. Headings, annotations, another unit, remembered wording and quotations selected after a verdict do not establish the reading.
 3. An evidence audit identifies the completed creative reading instead of claiming another independent read.
-4. Every finding identifies its passage, violated obligation and failure condition, recipient loss, earliest repair owner, and who found it, as [narrative rounds](../../../../../review/narrative-rounds.md#findings-and-objections) require.
-5. A factual objection is resolved with the actual quotation, definition, permitted exception and parent, frozen original, requirement or cited record.
+4. Every finding identifies its passage, violated obligation and failure condition, recipient loss, and earliest repair owner.
+5. A factual objection is resolved with the actual quotation, definition, permitted exception and parent or cited record.
 6. Upstream knowledge fills no gap the recipient experienced, and author confidence, repair cost, previous verdicts and taste dismiss no loss.
 7. Named failures were classified under the [selected decision rule](../../naturalness/common.md#reads-as-written) before author defenses, and the independent classifier resolved ambiguity in context.
 8. A named failure is protected only under a proven contractual exception. Other candidates use the [retention test](../../../../../story/evidence/answer-writing.md#grounds-for-retaining-a-candidate).
@@ -17,7 +17,6 @@ Contract: [principles/review.md](../../principles/review.md).
 11. Narrative and expressive quality is reviewed separately from the truth of evidence answers.
 12. The applicable question's defined scope is judged: examples may permit another proven loss, and a named-failure boundary is not expanded by taste.
 13. Revised passages and unchanged classifications were handled under [inspection](../../../../../story/correction/inspection.md#verify-changed-work).
-14. In a later round, the reviewer locked its reading of the changed text before opening the author's new decisions and repairs.
 
 ## Literal and class audit {#literal-and-class-audit}
 
@@ -30,7 +29,7 @@ Contract: [principles/review.md](../../principles/review.md).
 5. A claim about checking itself, repeated vocabulary, another event or partial support proves no relationship.
 6. An exclusion has its complete defined negative scope and inspection method.
 7. A creative reading records the literal audit as pending and does not claim to perform it.
-8. The [inspection record](../../../../../story/correction/inspection.md) covered every required sentence and parent comparison at the actual snapshot, before author evidence, carrying unchanged rows only as its [changed-work check](../../../../../story/correction/inspection.md#verify-changed-work) allows.
+8. The [inspection record](../../../../../story/correction/inspection.md) covered every required sentence and parent comparison at the actual snapshot, before author evidence.
 9. The inspection record rechecked all changed dependencies without silently reversing unchanged tests.
 10. The body was compared with its parents and requirements independently of the relationship rows, following [independent reading](../../../../../review/independent-reading.md), every decision against its inherited parent.
 11. Nearby relationships were compared by exchanging their names, predicates and conditions, so support and refutation stay specific to the actual relation.
