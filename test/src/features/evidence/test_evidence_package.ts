@@ -23,10 +23,11 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  * 5. An omitted outline stage follows activated settings and rejects an unanswered outline principle.
  * 6. Enabled research and behavior stages require each study's detached answers and each law's answers, and a law must cite its study.
  * 7. An enabled composition stage requires every screenplay beat realized: a scene citing one of two beats fails, and citing their scene covers both.
+ * 8. Narrative mode none refuses stage options and makes composition realize every instruction H2: one cited instruction of two fails, and a film citing the other passes.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Evaluates the public configuration's real source/test and narrative claims through native Evidence, preserving engineering selection, additional claim coverage and outline stage inheritance.
  * @evidence contracts/development/testing.md#independent-expectations Explicitly authored answers satisfy the shipped common, design, implementation and testing checklists for one interface, one function and one test; an unrelated unfinished story creates no engineering obligation. Established one-scene fixtures supply reviewed content; removing the outline principle answer must fail when its omitted stage inherits active settings, just as an added unanswered work question must block a ready short pass.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts missing and complete engineering answers, a type answering the design checklist against one answering the implementation checklist, coding and explicit narrative, additional native requirements, inherited outline stages, relative location rejection, independent default objects, a law's answers with and without its study citation, and a scene citing one beat against one citing the whole scene.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts missing and complete engineering answers, a type answering the design checklist against one answering the implementation checklist, coding and explicit narrative, additional native requirements, inherited outline stages, relative location rejection, independent default objects, a law's answers with and without its study citation, a scene citing one beat against one citing the whole scene, and mode none refusing a stage option, then realizing one instruction against both.
  * @evidence contracts/development/testing.md#execution-ownership Runs in-process through workspace source exports with temporary files beneath the existing monorepo cache so normal ancestor dependency resolution finds already linked compiler packages. It installs no consumer, starts no process/browser/GPU, and removes its owned fixtures in finally.
  * @evidence contracts/development/common.md#meaningful-documentation The comment states the behavior under test and lists each scenario with the property it pins.
  */
@@ -431,6 +432,60 @@ export async function test_evidence_package(): Promise<void> {
       whole.report.success,
       true,
       JSON.stringify(whole.report.diagnostics),
+    );
+
+    // With no story pass, composition must realize every user instruction,
+    // which a scene and its film may share.
+    ProductionWorkflowFixture.write(
+      production,
+      "docs/instructions/commission.md",
+      "# Commission\n\n## One round {#one-round}\n\nOne round.\n\n## The finish {#finish}\n\nA kick ends it.\n",
+    );
+    assert.throws(() =>
+      createEvidenceConfig({
+        location: production,
+        narrative: { mode: "none", construction: { screenplay: "evidence" } },
+      }),
+    );
+    const instructed: IEvidenceConfig = createEvidenceConfig({
+      location: production,
+      research: "evidence",
+      narrative: { mode: "none" },
+      development: { behaviors: "evidence", composition: "evidence" },
+    });
+    ProductionWorkflowFixture.write(
+      production,
+      "src/composition/scenes/bout/ring/ring.ts",
+      compose(
+        "ring",
+        [
+          " * @evidence docs/body/screenplay/bout.md#s01 The scene realizes both beats.",
+          " * @evidence docs/instructions/commission.md#finish The kick ends the round.",
+        ].join("\n"),
+      ),
+    );
+    const unrealized: IEvidenceCheckAnalysis = await EvidenceChecker.evaluate(
+      createEvidenceConfigPlan(instructed, stagedFile),
+    );
+    assert.equal(unrealized.report.success, false);
+    ProductionWorkflowFixture.write(
+      production,
+      "src/composition/films/bout.ts",
+      compose(
+        "bout",
+        [
+          " * @evidence docs/body/screenplay/bout.md The film delivers the bout.",
+          " * @evidence docs/instructions/commission.md#one-round The film runs one round.",
+        ].join("\n"),
+      ),
+    );
+    const realized: IEvidenceCheckAnalysis = await EvidenceChecker.evaluate(
+      createEvidenceConfigPlan(instructed, stagedFile),
+    );
+    assert.equal(
+      realized.report.success,
+      true,
+      JSON.stringify(realized.report.diagnostics),
     );
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
