@@ -4,7 +4,7 @@ import type {
   IAutoMovieProductionVideoProbe,
 } from "@automovie/interface";
 
-import type { IAutoMovieProductionVideoProfile } from "./IAutoMovieProductionVideoProfile";
+import type { IAutoMovieProductionVideoProfile } from "./IAutoMovieProductionVideoProfile.js";
 
 /**
  * Refuse every presentation, timing or color fact of a probed H.264-in-MP4

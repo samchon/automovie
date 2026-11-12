@@ -1,4 +1,4 @@
-import { isAutoMovieWebVttIdentifier } from "./isAutoMovieWebVttIdentifier";
+import { isAutoMovieWebVttIdentifier } from "./isAutoMovieWebVttIdentifier.js";
 
 /**
  * Return one WebVTT header text or cue identifier verbatim, or throw.

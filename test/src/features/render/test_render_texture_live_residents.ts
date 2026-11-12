@@ -8,7 +8,7 @@ import {
 import {
   AutoMovieTextureCache,
   readAutoMovieTextureSource,
-} from "@automovie/viewer";
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import type { DataTexture } from "three";
 

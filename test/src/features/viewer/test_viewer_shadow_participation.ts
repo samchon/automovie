@@ -4,7 +4,7 @@ import {
   applyAutoMovieShadowParticipation,
   buildModel,
   buildScene,
-} from "@automovie/viewer";
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import type * as THREE from "three";
 
@@ -52,7 +52,7 @@ const sceneOf: () => THREE.Scene<THREE.Object3DEventMap> =
         ],
         space: SPACE,
       },
-      (): import("@automovie/viewer").IAutoMovieModelObject =>
+      (): import("@automovie/render").IAutoMovieModelObject =>
         buildModel({ ...createModel(), id: "model-a" }),
     ).scene;
 

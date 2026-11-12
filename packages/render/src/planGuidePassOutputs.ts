@@ -1,9 +1,9 @@
 import type { AutoMovieGuidePass } from "@automovie/interface";
 
-import type { IAutoMovieGuidePassOutput } from "./IAutoMovieGuidePassOutput";
-import { guidePassFrameName } from "./guidePassFrameName";
-import { guidePassFramePattern } from "./guidePassFramePattern";
-import { normalizeGuidePasses } from "./normalizeGuidePasses";
+import type { IAutoMovieGuidePassOutput } from "./IAutoMovieGuidePassOutput.js";
+import { guidePassFrameName } from "./guidePassFrameName.js";
+import { guidePassFramePattern } from "./guidePassFramePattern.js";
+import { normalizeGuidePasses } from "./normalizeGuidePasses.js";
 
 /**
  * Plan where each requested pass writes its frames inside one frame directory: one capture per pass per frame, at pass-tagged paths.

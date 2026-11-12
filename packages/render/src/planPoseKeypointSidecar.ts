@@ -23,11 +23,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IAutoMoviePoseKeypointActor } from "./IAutoMoviePoseKeypointActor";
-import type { IAutoMoviePoseKeypointFrame } from "./IAutoMoviePoseKeypointFrame";
-import type { IAutoMoviePoseKeypointSidecar } from "./IAutoMoviePoseKeypointSidecar";
-import { frameTimes } from "./frameTimes";
-import { shotBeat } from "./shotBeat";
+import type { IAutoMoviePoseKeypointActor } from "./IAutoMoviePoseKeypointActor.js";
+import type { IAutoMoviePoseKeypointFrame } from "./IAutoMoviePoseKeypointFrame.js";
+import type { IAutoMoviePoseKeypointSidecar } from "./IAutoMoviePoseKeypointSidecar.js";
+import { frameTimes } from "./frameTimes.js";
+import { shotBeat } from "./shotBeat.js";
 
 /**
  * Plan the pose-keypoint sidecar of one sequence render.

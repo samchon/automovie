@@ -1,6 +1,6 @@
 import type { IAutoMovieCaptureRuntimeIdentity } from "@automovie/interface";
 
-import type { IAutoMovieProductionEncoderIdentity } from "./IAutoMovieProductionEncoderIdentity";
+import type { IAutoMovieProductionEncoderIdentity } from "./IAutoMovieProductionEncoderIdentity.js";
 
 /**
  * Capture and encoder identity shared by every chunk of one render job.

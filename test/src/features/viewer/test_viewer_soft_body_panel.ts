@@ -3,7 +3,7 @@ import {
   simulateSoftBody,
   softBodySurfaceGeometry,
 } from "@automovie/engine";
-import { buildSoftBodyObject } from "@automovie/viewer";
+import { buildSoftBodyObject } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

@@ -8,8 +8,8 @@ import type {
   IAutoMovieFilmTimeline,
 } from "@automovie/interface";
 
-import { autoMovieCaptionLanguageComparisonKey } from "./autoMovieCaptionLanguageComparisonKey";
-import { canonicalizeAutoMovieCaptionText } from "./canonicalizeAutoMovieCaptionText";
+import { autoMovieCaptionLanguageComparisonKey } from "./autoMovieCaptionLanguageComparisonKey.js";
+import { canonicalizeAutoMovieCaptionText } from "./canonicalizeAutoMovieCaptionText.js";
 
 /** Runtime-owned grapheme segmentation behavior and its complete identity. */
 interface IAutoMovieCaptionGraphemeRuntime {

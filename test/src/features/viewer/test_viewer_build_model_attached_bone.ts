@@ -2,7 +2,7 @@ import {
   AutoMovieHumanoidBone,
   type IAutoMovieModelPart,
 } from "@automovie/interface";
-import { buildModel } from "@automovie/viewer";
+import { buildModel } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import type * as THREE from "three";
 

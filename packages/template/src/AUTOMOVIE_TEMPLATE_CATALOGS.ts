@@ -1,7 +1,7 @@
 /**
  * The named pnpm catalog of a workspace root that holds each `{{version:<key>}}` dependency.
  *
- * A workspace production writes `catalog:<name>` for every versioned dependency, and the root's `pnpm-workspace.yaml` lists the same names under `catalogs`, grouped like this repository's own catalogs: `automovie` for the CLI and every `@automovie/*` package, `samchon` for the compiler, lint, evidence and test tools, and `typescript`, `three`, `gltf`, `vite`, `media` and `utils` for the rest. Inside a catalog, packages released together share one YAML anchor: `&automovie`, `&ttsc` and `&three`.
+ * A workspace production writes `catalog:<name>` for every versioned dependency, and the root's `pnpm-workspace.yaml` lists the same names under `catalogs`, grouped like this repository's own catalogs: `automovie` for the CLI and every `@automovie/*` package, `samchon` for the compiler, lint, evidence and test tools, and `typescript`, `three`, `gltf`, `vite`, `react`, `media` and `utils` for the rest. Inside a catalog, packages released together share one YAML anchor: `&automovie`, `&ttsc`, `&three` and `&react`.
  *
  * Principled implementation: The names match the catalogs the root renders, so each `catalog:<name>` specifier resolves through pnpm's named-catalog lookup to the entry the root declares.
  * Clear and simple design: One table owns the key-to-catalog relation for the variable builder; the workspace YAML owns the entries and their anchors.
@@ -38,6 +38,9 @@ export const AUTOMOVIE_TEMPLATE_CATALOGS: Readonly<Record<string, string>> = {
   threeTypes: "three",
   gltfTransformCore: "gltf",
   vite: "vite",
+  react: "react",
+  reactDom: "react",
+  reactTypes: "react",
   nodeTypes: "utils",
   nestiaE2e: "samchon",
   ttsc: "samchon",

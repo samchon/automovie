@@ -1,25 +1,28 @@
 import {
   AutoMovieRasterSheet,
   type IAutoMovieRasterImage,
-} from "@automovie/viewer";
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
  * A contact sheet lays its pictures out in row-major cells, reduces each by
- * area average, captions it, and finishes as a picture of the cells that were
- * filled.
+ * area average, writes its caption in a dark strip under the cell, and finishes
+ * as a picture of the cells that were filled. An 8 by 12 cell takes a strip of
+ * 9 pixels, one line of the 3 by 5 font at scale 1 with two pixels of margin
+ * above and below, so each row is 21 pixels tall.
  *
  * Scenarios:
  *
- * 1. Six 8 by 12 pictures in three columns finish as a 24 by 24 picture with
- *    each colour in its own cell, a dark caption box in the cell's corner and
- *    the caption's glyph in white.
+ * 1. Six 8 by 12 pictures in three columns finish as a 24 by 42 picture with
+ *    each colour in its own cell, the picture's own top-left corner left
+ *    uncovered, a dark strip under each cell and the caption's glyph in white
+ *    inside the strip.
  * 2. A 16 by 24 picture whose columns alternate between 0 and 200 lands in an
- *    8 by 12 cell as 100 everywhere outside the caption.
+ *    8 by 12 cell as 100 everywhere.
  * 3. A sheet of fifty cells in ten columns holding two pictures finishes 16
- *    by 12, holding three of six in three columns finishes 24 by 12, and
- *    holding four of six finishes 24 by 24 with the two unfilled cells black.
- * 4. A sheet of two cells laid out in ten columns finishes 16 by 12.
+ *    by 21, holding three of six in three columns finishes 24 by 21, and
+ *    holding four of six finishes 24 by 42 with the two unfilled cells black.
+ * 4. A sheet of two cells laid out in ten columns finishes 16 by 21.
  * 5. A picture finished from a partly filled sheet keeps its size and pixels
  *    when another picture is added, and the next finish includes that picture.
  * 6. Finishing an empty sheet, adding to a full sheet, a zero, negative or
@@ -27,10 +30,10 @@ import { TestValidator } from "@nestia/e2e";
  *    megapixels are refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Fills real sheets through the public constructor, `add` and `finish` and reads the finished picture's size and pixels; a sheet that kept its empty rows, copied rows with the wrong stride, point-sampled a reduction or returned a picture a later `add` rewrites fails.
- * @evidence contracts/development/testing.md#independent-expectations Sizes are the filled columns and rows times the authored cell size, colours are the ones this test paints, the average of 0 and 200 is 100, and the caption pixels follow the documented 3 by 5 font and two-pixel margin, all written by hand.
+ * @evidence contracts/development/testing.md#independent-expectations Sizes are the filled columns times the authored cell width and the started rows times the cell height plus its 9-pixel strip, colours are the ones this test paints, the average of 0 and 200 is 100, and the caption pixels follow the documented 3 by 5 font, its scale and two-pixel margin inside the strip, all written by hand.
  * @evidence contracts/development/testing.md#distinguishing-cases A full sheet against sheets short by rows, by columns and by both, a ragged last row against a whole one, a capacity below the column count, a finished picture before and after a later `add`, and each refusal against the accepted call.
  * @evidence contracts/development/testing.md#execution-ownership This named portable unit builds its own pictures in memory and starts no browser, server or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Six 8 by 12 pictures in three columns finish as a 24 by 24 picture).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Six 8 by 12 pictures in three columns finish as a 24 by 42 picture).
  */
 export function test_viewer_raster_sheet(): void {
   const picture = (
@@ -76,15 +79,15 @@ export function test_viewer_raster_sheet(): void {
   // 1. A full sheet, cell by cell.
   const full: IAutoMovieRasterImage = filled(6, 3, 6).finish();
   TestValidator.equals(
-    "six cells in three columns",
+    "six cells in three columns, each with its strip",
     size(full),
-    [24, 24, 2304],
+    [24, 42, 4032],
   );
   TestValidator.equals(
     "each picture lands in its row-major cell",
     [0, 1, 2, 3, 4, 5].map(
       (i: number): number =>
-        at(full, (i % 3) * 8 + 7, Math.floor(i / 3) * 12 + 11)[0]!,
+        at(full, (i % 3) * 8 + 7, Math.floor(i / 3) * 21 + 11)[0]!,
     ),
     [10, 20, 30, 40, 50, 60],
   );
@@ -94,16 +97,18 @@ export function test_viewer_raster_sheet(): void {
     [10, 40, 80, 255],
   );
   TestValidator.equals(
-    "the caption box darkens the cell's corner",
-    [at(full, 0, 0), at(full, 16, 12)],
+    "the caption leaves the picture's corner and darkens the strip under it",
+    [at(full, 0, 0), at(full, 0, 12), at(full, 23, 20), at(full, 16, 33)],
     [
+      [10, 40, 80, 255],
+      [16, 16, 16, 255],
       [16, 16, 16, 255],
       [16, 16, 16, 255],
     ],
   );
   TestValidator.equals(
-    "the caption's glyph is white, two pixels in from the corner",
-    [at(full, 3, 2), at(full, 19, 14)],
+    "the caption's glyph is white, two pixels into the strip",
+    [at(full, 3, 14), at(full, 19, 35)],
     [
       [255, 255, 255, 255],
       [255, 255, 255, 255],
@@ -130,11 +135,11 @@ export function test_viewer_raster_sheet(): void {
   TestValidator.equals(
     "two of fifty cells finish as two cells",
     size(two),
-    [16, 12, 768],
+    [16, 21, 1344],
   );
   TestValidator.equals(
     "the second cell follows the first in the narrower picture",
-    [at(two, 7, 11), at(two, 15, 11), at(two, 11, 2)],
+    [at(two, 7, 11), at(two, 15, 11), at(two, 11, 14)],
     [
       [10, 40, 80, 255],
       [20, 40, 80, 255],
@@ -144,17 +149,17 @@ export function test_viewer_raster_sheet(): void {
   TestValidator.equals(
     "one whole row of two finishes as that row",
     size(filled(6, 3, 3).finish()),
-    [24, 12, 1152],
+    [24, 21, 2016],
   );
   const ragged: IAutoMovieRasterImage = filled(6, 3, 4).finish();
   TestValidator.equals(
     "a ragged last row is kept whole",
     size(ragged),
-    [24, 24, 2304],
+    [24, 42, 4032],
   );
   TestValidator.equals(
     "its filled cell is drawn and its unfilled cells are black",
-    [at(ragged, 7, 23), at(ragged, 15, 23), at(ragged, 8, 12)],
+    [at(ragged, 7, 32), at(ragged, 15, 32), at(ragged, 8, 21)],
     [
       [40, 40, 80, 255],
       [0, 0, 0, 255],
@@ -166,7 +171,7 @@ export function test_viewer_raster_sheet(): void {
   TestValidator.equals(
     "two cells laid out in ten columns are two cells wide",
     size(filled(2, 10, 2).finish()),
-    [16, 12, 768],
+    [16, 21, 1344],
   );
 
   // 5. A finished picture is not rewritten.
@@ -177,13 +182,13 @@ export function test_viewer_raster_sheet(): void {
   TestValidator.equals(
     "the earlier picture keeps its size and pixels",
     [size(first), Array.from(first.pixels)],
-    [[8, 12, 384], before],
+    [[8, 21, 672], before],
   );
   TestValidator.equals(
     "the next finish holds both pictures",
     [size(growing.finish()), at(growing.finish(), 15, 11)],
     [
-      [16, 12, 768],
+      [16, 21, 1344],
       [90, 40, 80, 255],
     ],
   );

@@ -1,5 +1,5 @@
-import { IAutoMovieGuidePassOutput } from "./guidePasses";
-import { IAutoMovieSequenceRenderFrame } from "./sequenceRenderPlan";
+import { IAutoMovieGuidePassOutput } from "./guidePasses.js";
+import { IAutoMovieSequenceRenderFrame } from "./sequenceRenderPlan.js";
 
 /**
  * One independently renderable slice of a sequence render: a contiguous range of the whole plan's output frames with its own frame directory, paths and encoder invocation.

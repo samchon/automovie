@@ -1,17 +1,15 @@
 import { measureAutoMovieRenderTextureClosure } from "@automovie/engine";
 import type { IAutoMovieTextureReference } from "@automovie/interface";
 import {
-  assessAutoMovieRenderBudget,
-  autoMovieRenderBudgetEvidence,
-  autoMovieRenderBudgetRefusal,
-} from "@automovie/render";
-import {
   AutoMovieResourceRetirementScope,
   AutoMovieTextureCache,
   applySceneEnvironment,
+  assessAutoMovieRenderBudget,
+  autoMovieRenderBudgetEvidence,
+  autoMovieRenderBudgetRefusal,
   buildMaterial,
   readAutoMovieTextureSource,
-} from "@automovie/viewer";
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

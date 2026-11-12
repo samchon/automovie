@@ -1,10 +1,10 @@
 # Capture
 
-A capture is the stills, contact sheets and manifest that one plan produces. This document owns the instrument that draws them, the conditions that make them repeatable, and the choice of subject, views and times.
+A capture is the stills, contact sheets and record that one plan produces. This document owns keeping the instrument that draws them working, the conditions that make them repeatable, and the choice of subject, views and times.
 
-## The instrument
+## Restoring the instrument
 
-The viewer and its capture are the instrument. Restore a broken one before other work, because every judgment of a picture passes through it. Confirm the adopted scene, its required subjects, the current displayed artifact and relevant controls, seeking, playback and capture through the actual consumer, and protect other owners' processes meanwhile.
+The instrument, the inspection and capture core with the inspector page and the capture host that drive it, is one tool. Restore a broken one before other work, because every judgment of a picture passes through it. Confirm the adopted scene, its required subjects, the current displayed artifact and relevant controls, seeking, playback and capture through the actual consumer, and protect other owners' processes meanwhile.
 
 Repair a missing capability at the owner of that capability, then reconnect and verify the actual consumer; a build, a server response or an unrelated demonstration alone does not prove recovery. A view, pass or selection that the judgment needs and the instrument lacks is a missing capability too.
 
@@ -16,7 +16,7 @@ The questions fix the capture's cells. A cell is one still, fixed by its subject
 
 ## Conditions
 
-Capture the actual consumer with current source, and record what repeats the observation: the source revision, asset identities, input, time or pose, resolved camera, light, pass, raster size, renderer and detail settings.
+Capture the actual consumer with current source, and record what repeats the observation: the source revision, asset identities, input, time or pose, resolved camera, light, pass, raster size, renderer and detail settings. The capture's record keeps the revision, the request and each still's resolved camera and renderer backend, so assets, light and detail settings must be fixed by that revision.
 
 The renderer is one of the conditions. A simplified renderer establishes pose, contact, staging and silhouette; material, lighting, shadow and texture are judged on the renderer that draws the delivered picture.
 
@@ -51,10 +51,10 @@ A reviewer who sees a moving picture only as stills says so, and claims nothing 
 
 ## Stills and sheets
 
-Read a contact sheet first for the whole capture, with each cell captioned by what fixes it. A sheet shrinks every still, so open the full-size still wherever a contact, a joint, a seam or a small part decides the judgment.
+Read a contact sheet first for the whole capture, with each cell captioned by what fixes it. Lay sheets out for their reader: a vision model downsizes an image whose longest edge exceeds a limit and reads detail unreliably below a smallest edge, which the [Claude vision guide](https://platform.claude.com/docs/en/build-with-claude/vision) states as 1568 px (2576 px on newer models) and 200 px. Keep every sheet within the longest edge and every cell at least the smallest, and spread the cells over more sheets rather than shrink them. A sheet shrinks every still, so open the full-size still wherever a contact, a joint, a seam or a small part decides the judgment.
 
 A cell that could not be drawn stays on the sheet with its cause and stays unverified; an uncomputed subject is unavailable evidence.
 
 ## Rounds
 
-Keep each round's capture apart from the next, under a name that states its round or revision, with its manifest. Where the instrument keeps named rounds, name the round when capturing it. Where it writes every run to the same place, copy the round out before the next run, and judge a rerun by the time of the files it wrote.
+Keep each round's capture apart from the next, under a name that states its round or revision, with its record, by naming the round when capturing it. A record still marked unfinished belongs to an interrupted capture; capture that round again rather than read it.

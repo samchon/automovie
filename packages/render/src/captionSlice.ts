@@ -1,1 +1,1 @@
-export * from "./sliceCaptionSidecar";
+export * from "./sliceCaptionSidecar.js";

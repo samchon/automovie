@@ -1,6 +1,6 @@
 import type { IAutoMovieProductionPngPicture } from "@automovie/interface";
 
-import type { IAutoMovieProductionPngProfile } from "./IAutoMovieProductionPngProfile";
+import type { IAutoMovieProductionPngProfile } from "./IAutoMovieProductionPngProfile.js";
 
 /**
  * Refuse every difference between a role's PNG profile and the facts a PNG

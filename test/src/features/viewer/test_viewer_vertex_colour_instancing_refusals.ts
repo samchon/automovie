@@ -1,4 +1,4 @@
-import { buildModel, flattenInstancedObject } from "@automovie/viewer";
+import { buildModel, flattenInstancedObject } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -22,7 +22,7 @@ import {
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The existing part's two-channel or incomplete RGB/RGBA populations refuse before loaded-object flattening.).
  */
 export function test_viewer_vertex_colour_instancing_refusals(): void {
-  const built: import("@automovie/viewer").IAutoMovieModelObject = buildModel(
+  const built: import("@automovie/render").IAutoMovieModelObject = buildModel(
     vertexColourModel([vertexColourMesh()]),
   );
   const part: THREE.Mesh<

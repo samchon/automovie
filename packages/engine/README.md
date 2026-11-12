@@ -2,7 +2,7 @@
 
 The deterministic core of AutoMovie. It takes the authoring AST a coding agent writes with `@automovie/interface`, validates it, and computes what each frame contains: poses within range of motion, sampled motion, staging and cuts, physics, buildings, light and sound. The same input produces the same frames; [Physical performance](#physical-performance) states the one limit that has not been measured.
 
-Drawing belongs to `@automovie/viewer`, and the host, the program that calls the engine, loads the assets and hands them over.
+Drawing belongs to `@automovie/render`, and the host, the program that calls the engine, loads the assets and hands them over.
 
 ## Use
 

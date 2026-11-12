@@ -1,19 +1,17 @@
 import type { IAutoMovieRenderTextureSource } from "@automovie/engine";
 import type { IAutoMovieSceneEnvironment } from "@automovie/interface";
 import {
-  assessAutoMovieRenderBudget,
-  autoMovieRenderBudgetEvidence,
-  autoMovieRenderBudgetRefusal,
-} from "@automovie/render";
-import {
   AutoMovieTextureCache,
   applyMaterialOverlays,
   applySceneEnvironment,
   applySubsurfaceShading,
+  assessAutoMovieRenderBudget,
+  autoMovieRenderBudgetEvidence,
+  autoMovieRenderBudgetRefusal,
   buildLight,
   buildMaterial,
   readAutoMovieTextureSource,
-} from "@automovie/viewer";
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import type * as ThreeTypes from "three";
 

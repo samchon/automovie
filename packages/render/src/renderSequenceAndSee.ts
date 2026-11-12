@@ -1,7 +1,7 @@
-import type { IAutoMovieSequenceRenderAndSeeRequest } from "./IAutoMovieSequenceRenderAndSeeRequest";
-import type { IAutoMovieSequenceRenderAndSeeResult } from "./IAutoMovieSequenceRenderAndSeeResult";
-import { planSequenceRender } from "./planSequenceRender";
-import { renderSequenceVideo } from "./renderSequenceVideo";
+import type { IAutoMovieSequenceRenderAndSeeRequest } from "./IAutoMovieSequenceRenderAndSeeRequest.js";
+import type { IAutoMovieSequenceRenderAndSeeResult } from "./IAutoMovieSequenceRenderAndSeeResult.js";
+import { planSequenceRender } from "./planSequenceRender.js";
+import { renderSequenceVideo } from "./renderSequenceVideo.js";
 
 /**
  * Build a sequence render manifest, execute it through host adapters, and return an artifact an agent can inspect without recomputing the cut.

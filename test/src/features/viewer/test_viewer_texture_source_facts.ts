@@ -1,4 +1,4 @@
-import { readAutoMovieTextureSource } from "@automovie/viewer";
+import { readAutoMovieTextureSource } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import type * as ThreeTypes from "three";
 

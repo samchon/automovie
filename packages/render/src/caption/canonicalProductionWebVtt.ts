@@ -8,11 +8,11 @@ import type {
   IAutoMovieProductionFrameRate,
 } from "@automovie/interface";
 
-import { serializeAutoMovieWebVttCueText } from "./serializeAutoMovieWebVttCueText";
-import { serializeAutoMovieWebVttIdentifier } from "./serializeAutoMovieWebVttIdentifier";
-import { serializeAutoMovieWebVttSingleLineText } from "./serializeAutoMovieWebVttSingleLineText";
-import { webVttCaptionLanguage } from "./webVttCaptionLanguage";
-import { webVttTime } from "./webVttTime";
+import { serializeAutoMovieWebVttCueText } from "./serializeAutoMovieWebVttCueText.js";
+import { serializeAutoMovieWebVttIdentifier } from "./serializeAutoMovieWebVttIdentifier.js";
+import { serializeAutoMovieWebVttSingleLineText } from "./serializeAutoMovieWebVttSingleLineText.js";
+import { webVttCaptionLanguage } from "./webVttCaptionLanguage.js";
+import { webVttTime } from "./webVttTime.js";
 
 type ICaptionCue = IAutoMovieFilmTimeline["tracks"]["captions"][number];
 

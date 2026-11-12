@@ -1,1 +1,1 @@
-export * from "./auditAutoMovieRenderObservation";
+export * from "./auditAutoMovieRenderObservation.js";

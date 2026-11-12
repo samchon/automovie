@@ -1,6 +1,6 @@
 import { IAutoMovieRenderTargetRenderer } from "@automovie/interface";
 
-import { IAutoMovieRenderGraphicsIdentity } from "./IAutoMovieRenderGraphicsIdentity";
+import { IAutoMovieRenderGraphicsIdentity } from "./IAutoMovieRenderGraphicsIdentity.js";
 
 /**
  * Read a capture host's graphics probe as a render-target renderer identity, or

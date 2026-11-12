@@ -1,4 +1,4 @@
-import { buildModel } from "@automovie/viewer";
+import { buildModel } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -40,7 +40,7 @@ export function test_viewer_vertex_colour(): void {
       shape: { type: "box", width: 1, height: 1, depth: 1 },
     },
   });
-  const built: import("@automovie/viewer").IAutoMovieModelObject =
+  const built: import("@automovie/render").IAutoMovieModelObject =
     buildModel(model);
   const parts: THREE.Mesh<
     THREE.BufferGeometry<

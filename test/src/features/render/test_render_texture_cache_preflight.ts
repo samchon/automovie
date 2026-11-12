@@ -1,10 +1,10 @@
 import type { IAutoMovieRenderTextureSource } from "@automovie/engine";
 import {
+  AutoMovieTextureCache,
   assessAutoMovieRenderBudget,
   autoMovieRenderBudgetEvidence,
   autoMovieRenderBudgetRefusal,
 } from "@automovie/render";
-import { AutoMovieTextureCache } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import type { DataTexture } from "three";
 

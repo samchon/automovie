@@ -4,7 +4,7 @@ The checks to run on a change, and how to run them beside other agents.
 
 ## Type checking
 
-Read type errors from the running watch of the program that compiles the code, and start one only where none runs. `pnpm ttsc --noEmit --watch` in `test/` checks every package the tests import. Code outside that program, such as a package's debug viewer, has its own watch under its own tsconfig, documented beside that code.
+Read type errors from the running watch of the program that compiles the code, and start one only where none runs. `pnpm ttsc --noEmit --watch` in `test/` checks every package the tests import. Code outside that program, such as a page or subject module a package builds only for the shared inspection instrument, has its own watch under its own tsconfig, documented beside that code.
 
 Every agent in the checkout reads the running watch's log, because a second watch over the same program competes for the plugin cache and CPU and finds nothing more.
 

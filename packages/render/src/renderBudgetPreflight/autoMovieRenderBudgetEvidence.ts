@@ -4,9 +4,9 @@ import {
 } from "@automovie/engine";
 import { IAutoMovieRenderBudget } from "@automovie/interface";
 
-import { IAutoMovieRenderBudgetAssessment } from "./IAutoMovieRenderBudgetAssessment";
-import { IAutoMovieRenderBudgetEvidence } from "./IAutoMovieRenderBudgetEvidence";
-import { selectAutoMovieRenderBudget } from "./selectAutoMovieRenderBudget";
+import { IAutoMovieRenderBudgetAssessment } from "./IAutoMovieRenderBudgetAssessment.js";
+import { IAutoMovieRenderBudgetEvidence } from "./IAutoMovieRenderBudgetEvidence.js";
+import { selectAutoMovieRenderBudget } from "./selectAutoMovieRenderBudget.js";
 
 const STATUS_ORDER: Readonly<
   Record<IAutoMovieRenderBudgetAssessment["status"], number>

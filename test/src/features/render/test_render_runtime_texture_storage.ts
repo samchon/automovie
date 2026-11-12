@@ -8,7 +8,7 @@ import {
   IAutoMovieMaterial,
   IAutoMovieRenderTextureCost,
 } from "@automovie/interface";
-import { readAutoMovieTextureSource } from "@automovie/viewer";
+import { readAutoMovieTextureSource } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { DataTexture } from "three";
 

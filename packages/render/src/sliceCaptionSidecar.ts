@@ -1,7 +1,7 @@
 import {
   IAutoMovieCaptionEntry,
   IAutoMovieCaptionSidecar,
-} from "./captionSidecar";
+} from "./captionSidecar.js";
 
 /**
  * Slice a caption sidecar to one chunk's window `[frameStart, frameEnd)`, with spans clipped to the window and re-based to chunk-local frame indices.
