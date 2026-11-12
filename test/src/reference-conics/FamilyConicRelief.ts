@@ -216,7 +216,7 @@ export namespace FamilyConicRelief {
           if (at >= 0) weights.push([at, wu[a]! * wv[b]!]);
         }
       deepest = Math.max(deepest, Math.abs(seen.target));
-      samples.push({ weights, target: seen.target, heldout: seen.heldout });
+      samples.push({ weights, target: share(seen.s, seen.phi) * seen.target, heldout: seen.heldout });
     }
 
     // Normal equations with the fairness penalty on second differences along both directions.

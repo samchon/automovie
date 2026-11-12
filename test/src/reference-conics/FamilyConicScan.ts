@@ -1,5 +1,6 @@
 import path from "node:path";
-import { AutoMovieViewAxis } from "@automovie/engine";
+import { AutoMovieLoftChain, AutoMovieViewAxis } from "@automovie/engine";
+import { AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
 import { FamilyConicSection as C } from "./FamilyConicSection";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 
@@ -212,6 +213,70 @@ namespace FamilyConicScan {
           return "x" + x + ":" + (hits.length === 0 ? "." : Math.max(...hits).toFixed(0));
         });
         process.stdout.write("y " + y + " half width " + widths.join(" ") + "\n");
+      }
+      return;
+    }
+    if (process.argv[2] === "alar") {
+      // The nose's base in level planes 2 mm apart: the head's outer loop on the +Z side from the median line out to 34 mm, as `z:x` points
+      // about 1.5 mm apart, so the alar groove (the corner where the wing's outer face meets the cheek), the alar base and the subnasale
+      // are read; and every small loop there, a nostril's cavity.
+      for (let y: number = 1538; y <= 1584; y += 2) {
+        const loops: C.P[][] = R.loops(source.head, { origin: [0, y, 0], u: [1, 0, 0], v: [0, 0, 1] });
+        const big: C.P[] = loops.reduce((a: C.P[], b: C.P[]): C.P[] => (Math.abs(R.area(b)) > Math.abs(R.area(a)) ? b : a));
+        const near: C.P[] = big.filter((p: C.P): boolean => p[0] > 98 && p[1] > -1 && p[1] < 34);
+        const start: number = big.indexOf(near.reduce((a: C.P, b: C.P): C.P => (Math.abs(b[1]) < 0.8 && b[0] > a[0] ? b : a), near[0]!));
+        const sense: number = big[(start + 3) % big.length]![1] > big[start]![1] ? 1 : -1;
+        const run: string[] = [];
+        let last: C.P | null = null;
+        for (let k: number = 0; k < big.length; ++k) {
+          const p: C.P = big[(start + sense * k + 4 * big.length) % big.length]!;
+          if (p[0] < 98 || p[1] > 34) break;
+          if (last !== null && Math.hypot(p[0] - last[0], p[1] - last[1]) < 1.5) continue;
+          run.push(p[1].toFixed(1) + ":" + p[0].toFixed(1));
+          last = p;
+        }
+        const small: string[] = loops
+          .filter((loop: C.P[]): boolean => loop !== big && Math.abs(R.area(loop)) < 600 && loop.some((p: C.P): boolean => p[0] > 100 && p[1] > 0 && p[1] < 30))
+          .map((loop: C.P[]): string => "[x " + Math.min(...loop.map((p: C.P): number => p[0])).toFixed(1) + ".." + Math.max(...loop.map((p: C.P): number => p[0])).toFixed(1) + " z " + Math.min(...loop.map((p: C.P): number => p[1])).toFixed(1) + ".." + Math.max(...loop.map((p: C.P): number => p[1])).toFixed(1) + "]");
+        process.stdout.write("y " + y + ": " + run.join(" ") + (small.length === 0 ? "" : "  small " + small.join(" ")) + "\n");
+      }
+      return;
+    }
+    if (process.argv[2] === "nose-rail") {
+      // Where the nose's wall is skin: at 32 phases round it, the distance from its wall (no reliefs, no cap) to the reference head every
+      // 0.5 mm of station, in tenths of a millimetre, and the first station from which it stays within 0.3 mm for 2 mm. Its first sections
+      // are closed by its box's chords inside the flesh, which stand off the skin; the band must land past them.
+      const family: AutoMovieHumanConicLoft.IFamily = { ...AutoMovieHumanF1.BODY.nose, tips: undefined, reliefs: undefined };
+      const first: number = family.knots[0]!;
+      const stations: number[] = Array.from({ length: 37 }, (_: unknown, i: number): number => first + i / 2);
+      const chain = AutoMovieHumanConicLoft.create(family, stations).chain;
+      if (chain === null) throw new Error("the nose does not loft");
+      const head: R.ISource["head"] = source.head;
+      const corners = (t: number): R.V[] => [0, 1, 2].map((k: number): R.V => [head.positions[head.indices[t + k]! * 3]!, head.positions[head.indices[t + k]! * 3 + 1]!, head.positions[head.indices[t + k]! * 3 + 2]!]);
+      const triangles: R.V[][] = [];
+      for (let t: number = 0; t + 2 < head.indices.length; t += 3) if (corners(t).some((p: R.V): boolean => p[0] > 105 && p[1] > 1530 && p[1] < 1595 && Math.abs(p[2]) < 28)) triangles.push(corners(t));
+      // The distance from a point to a triangle: to its plane when the foot falls inside, else to the nearest of its edges.
+      const toTriangle = (p: R.V, [a, b, c]: R.V[]): number => {
+        const sub = (x: R.V, y: R.V): R.V => [x[0] - y[0], x[1] - y[1], x[2] - y[2]];
+        const dot = (x: R.V, y: R.V): number => x[0] * y[0] + x[1] * y[1] + x[2] * y[2];
+        const cross = (x: R.V, y: R.V): R.V => [x[1] * y[2] - x[2] * y[1], x[2] * y[0] - x[0] * y[2], x[0] * y[1] - x[1] * y[0]];
+        const n: R.V = cross(sub(b!, a!), sub(c!, a!));
+        const inside: boolean = [[a!, b!], [b!, c!], [c!, a!]].every(([e, f]: R.V[]): boolean => dot(cross(sub(f!, e!), sub(p, e!)), n) >= 0);
+        if (inside) return Math.abs(dot(sub(p, a!), n)) / Math.hypot(...n);
+        return Math.min(...[[a!, b!], [b!, c!], [c!, a!]].map(([e, f]: R.V[]): number => {
+          const d: R.V = sub(f!, e!);
+          const t: number = Math.max(0, Math.min(1, dot(sub(p, e!), d) / dot(d, d)));
+          return Math.hypot(...sub(p, [e![0] + t * d[0], e![1] + t * d[1], e![2] + t * d[2]]));
+        }));
+      };
+      for (let j: number = 0; j < 32; ++j) {
+        const psi: number = (2 * Math.PI * j) / 32;
+        const off: number[] = stations.map((s: number): number => {
+          const p: R.V = AutoMovieLoftChain.point(chain, s, psi) as R.V;
+          return Math.min(...triangles.map((t: R.V[]): number => toTriangle(p, t)));
+        });
+        const at: number = off.findIndex((_: number, i: number): boolean => i + 4 < off.length && off.slice(i, i + 5).every((d: number): boolean => d < 0.3));
+        process.stdout.write(((psi * 180) / Math.PI).toFixed(0).padStart(4) + " skin from " + (at < 0 ? "none" : (stations[at]! - first).toFixed(1) + " mm in") + " | " + off.map((d: number): number => Math.min(99, Math.round(d * 10))).join(" ") + "\n");
       }
       return;
     }

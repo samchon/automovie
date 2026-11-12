@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain, type AutoMovieConstructionRealization, type AutoMovieViewLoft, type IAutoMovieViewPart, realizeAutoMovieConstruction } from "@automovie/engine";
+import { AutoMovieLoftChain, type AutoMovieConstructionRealization, AutoMovieNaturalSpline, type AutoMovieViewLoft, type IAutoMovieViewPart, realizeAutoMovieConstruction } from "@automovie/engine";
 import type { AutoMovieConstructionNode, IAutoMovieConstructionPort } from "@automovie/interface";
 
 import { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
@@ -169,16 +169,32 @@ export namespace AutoMovieHumanF1 {
 
   /**
    * Where each limb's band lands on it, mm from the limb's first station: the limb keeps its stations beyond. The arm's first station is 2 mm
-   * past the armscye's plane and its course is nearly square to that plane for its first 25 mm, so its ring 10 mm on lies beside the plane. The ear's band lands half a millimetre in: its dome starts 5 mm out and its hollow is cut to within 1.5 mm of its root. The nose's lands 4 mm in, so the band is wide where a nostril's cut crosses it: 0.5 mm wide, its triangulation failed on another machine's arithmetic, and 2 mm in the nostril's own face failed.
+   * past the armscye's plane and its course is nearly square to that plane for its first 25 mm, so its ring 10 mm on lies beside the plane. The ear's band lands half a millimetre in: its dome starts 5 mm out and its hollow is cut to within 1.5 mm of its root. The nose's band lands on a curve (`NOSE_RAILS_MM`).
    */
-  export const RAIL_MM: { arm: number; leg: number; ear: number; nose: number } = { arm: 10, leg: 6, ear: 0.5, nose: 4 };
+  export const RAIL_MM: { arm: number; leg: number; ear: number } = { arm: 10, leg: 6, ear: 0.5 };
 
   /**
-   * How far outside the nose's root its port loop stands on the face, and outside the auricle's root the ear's stands on the skull, mm.
-   * The ear's is wider: the concha's bowl is cut across the ear's band down to its floor, and at 4 mm its front edge, by the tragus, came
-   * out past the loop onto the head's own skin, where the cut left the skin open along it.
+   * Where the nose's band lands on it, mm from its first station, at its phases `2 pi j / 32` (0 up, a quarter turn toward -Z, a half turn
+   * down), joined by the periodic cubic: a curve, not one station, because the nose's root lies in no one plane. The nose's sections start
+   * half a millimetre in front of the alar grooves, so from there its wall is the wings' outer face, but its first sections are closed by its
+   * box's chords at the top, inside the dorsum, and at the bottom, inside the lip behind the subnasale. Read off the nose's own wall by its
+   * distance to the reference skin (`FamilyConicScan.ts nose-rail`, the station from which it lies within 0.3 mm of the skin): the wings'
+   * faces from the first station, the dorsum from 10 mm in (x 123.5), and below, where the wall leaves the lip's flesh for the skin, from
+   * 7 mm in at the nostrils' outer sills through 9 mm to 10.5 mm at the subnasale. Under each wing the wall's hull bridges the alar rim to
+   * the box's floor and turns a corner there; landed 2 to 2.5 mm in, the trim along the curve cut that corner into upright slivers, so the
+   * band lands 3.5 to 5 mm in round the alar base and takes the corner. Where the wall is skin from the first station the band still lands
+   * 2 mm in, so it rounds the alar groove. Above the wings the face keeps the sidewalls (`FamilyConicBody.ts
+   * noseCut`), and the band lands 5 to 8 mm in, the farther the higher, so its loop, 2.5 mm outside this curve, stays on the face's own skin.
    */
-  const NOSE_MARGIN_MM: number = 4;
+  const NOSE_RAILS_MM: number[] = [10, 9.5, 8, 7, 6, 5, 3.5, 2.5, 2, 2, 2.5, 3.5, 5, 7, 9, 10.5, 10.5, 10.5, 9, 7, 5, 3.5, 2.5, 2, 2, 2.5, 3.5, 5, 6, 7, 8, 9.5];
+
+  /**
+   * How far outside the nose's rail curve its port loop stands on the face, and outside the auricle's root the ear's stands on the skull, mm.
+   * The nose's: the rail lies 2 mm in front of the alar groove on the wing's face (`FamilyConicBody.ts nose`), so 2.5 mm puts the loop in the
+   * groove and outside the box the face leaves to the nose. The ear's is wider: the concha's bowl is cut across the ear's band down to its
+   * floor, and at 4 mm its front edge, by the tragus, came out past the loop onto the head's own skin, where the cut left the skin open along it.
+   */
+  const NOSE_MARGIN_MM: number = 2.5;
   const AURICLE_MARGIN_MM: number = 6;
 
   /**
@@ -212,6 +228,13 @@ export namespace AutoMovieHumanF1 {
    */
   const THIGH_COLUMNS: number = 288;
   const SHOULDER_COLUMNS: number = 192;
+
+  /**
+   * Columns round the nose's band. Its rail is a curve on the nose, which the band's end meets exactly only at its columns; between them the
+   * band's own interpolation stood 0.03 mm off the nose's rail at 96 columns, and a nostril's cut, which crosses there, could not place its
+   * crossing from one face to the next (`AutoMovieSolidClip.CROSSING`, 0.01 mm).
+   */
+  const NOSE_COLUMNS: number = 192;
 
   /** The sewn body's declaration: its construction tree and the view parts its source leaves name. */
   export interface IConstruction {
@@ -251,6 +274,21 @@ export namespace AutoMovieHumanF1 {
       const floor: number = J.armpit[1] - ARMPIT_DROP_MM;
       return [(p[1]! + floor + Math.hypot(p[1]! - floor, ARMPIT_ROUND_MM)) / 2 - J.axisFloor[1], Math.atan2(p[2]!, p[0]!)];
     });
+    // The margin's phase is taken at the armpit's side distance.
+    return around(outline, SHOULDER_COLUMNS, ARMSCYE_MARGIN_MM, J.armpit[2], side);
+  }
+
+  /**
+   * A port loop round a part's ring as the trunk's chart sees it: the ellipse on the outline's half extents about their middle, with each
+   * column's distance from the centre a share of the ellipse's, pushed out from the centre by the margin.
+   *
+   * @param outline The ring's points in the trunk's chart, `[station, phase]`, mm and radians, densely round it.
+   * @param columns The band's columns.
+   * @param margin How far outside the ring the loop stands, mm.
+   * @param radius The distance from the trunk's axis at which a phase is read as millimetres, mm.
+   * @param sense The phase's sense of increasing clock.
+   */
+  function around(outline: [number, number][], columns: number, margin: number, radius: number, sense: 1 | -1): IAutoMovieConstructionPort.ILoop {
     const span = (c: 0 | 1): [number, number] => [Math.min(...outline.map((q: [number, number]): number => q[c])), Math.max(...outline.map((q: [number, number]): number => q[c]))];
     const [stations, phases]: [number, number][] = [span(0), span(1)];
     const centre: [number, number] = [(stations[0] + stations[1]) / 2, (phases[0] + phases[1]) / 2];
@@ -260,21 +298,21 @@ export namespace AutoMovieHumanF1 {
     const polar: [number, number][] = outline
       .map((q: [number, number]): [number, number] => {
         const x: number = (q[0] - centre[0]) / semi[0];
-        const y: number = (side * (q[1] - centre[1])) / semi[1];
+        const y: number = (sense * (q[1] - centre[1])) / semi[1];
         return [(Math.atan2(y, x) + 2 * Math.PI) % (2 * Math.PI), Math.hypot(x, y)];
       })
       .sort((a: [number, number], b: [number, number]): number => a[0] - b[0]);
-    const shape: number[] = Array.from({ length: SHOULDER_COLUMNS }, (_: unknown, k: number): number => {
-      const clock: number = (2 * Math.PI * k) / SHOULDER_COLUMNS;
+    const shape: number[] = Array.from({ length: columns }, (_: unknown, k: number): number => {
+      const clock: number = (2 * Math.PI * k) / columns;
       const after: number = polar.findIndex((q: [number, number]): boolean => q[0] >= clock);
       // The outline's two points on either side of the clock; round the turn's end, its last point and its first.
       const [a, b]: [number, number][] = after > 0 ? [polar[after - 1]!, polar[after]!] : after === 0 ? [[polar.at(-1)![0] - 2 * Math.PI, polar.at(-1)![1]], polar[0]!] : [polar.at(-1)!, [polar[0]![0] + 2 * Math.PI, polar[0]![1]]];
       const share: number = b[0] === a[0] ? a[1] : a[1] + ((b[1] - a[1]) * (clock - a[0])) / (b[0] - a[0]);
 
-      // The margin as a share of the ellipse's own distance at this clock, a phase taken at the armpit's side distance.
-      return share + ARMSCYE_MARGIN_MM / Math.hypot(semi[0] * Math.cos(clock), semi[1] * J.armpit[2] * Math.sin(clock));
+      // The margin as a share of the ellipse's own distance at this clock.
+      return share + margin / Math.hypot(semi[0] * Math.cos(clock), semi[1] * radius * Math.sin(clock));
     });
-    return { centre: [centre[0] / 1000, centre[1]], semi: [semi[0] / 1000, semi[1]], sense: side, shape };
+    return { centre: [centre[0] / 1000, centre[1]], semi: [semi[0] / 1000, semi[1]], sense, shape };
   }
 
   /**
@@ -293,16 +331,31 @@ export namespace AutoMovieHumanF1 {
   }
 
   /**
-   * The nose's port on the trunk's chart: an ellipse about the centre of the nose's root on the median line in front, its semi-axes the root's
-   * half height in station and its half width as a phase at the root's forward distance, both widened by the margin.
+   * The nose's port on the trunk's chart: the nose's own rail curve as the trunk's chart sees it, each point's height above the axis's foot
+   * and its phase about the axis, pushed out by the margin, as the armscye's loop is the arm's ring. Its phase is read as millimetres at the
+   * ring's mean distance from the trunk's axis.
    */
   export function nostril(): IAutoMovieConstructionPort.ILoop {
     const J = AutoMovieHumanF1Joints;
-    return {
-      centre: [(J.noseBase[1] - J.axisFloor[1]) / 1000, 0],
-      semi: [(J.noseHalf[0] + NOSE_MARGIN_MM) / 1000, Math.atan((J.noseHalf[1] + NOSE_MARGIN_MM) / J.noseBase[0])],
-      sense: 1,
-    };
+    const family: AutoMovieHumanConicLoft.IFamily = BODY.nose;
+    const first: number = family.knots[0]!;
+    const along: (psi: number) => number = AutoMovieNaturalSpline.periodic(NOSE_RAILS_MM.map((rail: number): number => first + rail));
+    const far: number = first + Math.max(...NOSE_RAILS_MM);
+    const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create({ ...family, tips: undefined, reliefs: undefined }, [first, (first + far) / 2, far, far + LAYER_MM]);
+    if (loft.chain === null) throw new Error("the nose's first stations do not loft");
+    const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> = loft.chain;
+    const ring: number[][] = Array.from({ length: 4 * NOSE_COLUMNS }, (_: unknown, j: number): number[] => {
+      const psi: number = (2 * Math.PI * j) / (4 * NOSE_COLUMNS);
+      return AutoMovieLoftChain.point(chain, along(psi), psi);
+    });
+    const radius: number = ring.reduce((sum: number, p: number[]): number => sum + Math.hypot(p[0]!, p[2]!), 0) / ring.length;
+    return around(
+      ring.map((p: number[]): [number, number] => [p[1]! - J.axisFloor[1], Math.atan2(p[2]!, p[0]!)]),
+      NOSE_COLUMNS,
+      NOSE_MARGIN_MM,
+      radius,
+      1,
+    );
   }
 
   /**
@@ -432,11 +485,13 @@ export namespace AutoMovieHumanF1 {
       root = { type: "port", name: "auricle." + ear.name, host: root, hostFace: trunk, loop: auricle(side), band: "band." + ear.name, part: cutter(scapha, leaf(ear), 0.25, Math.PI), partFace: ear.name, partEnd: "bottom", rail: RAIL_MM.ear / 1000, count: BAND.count, rows: BAND.rows };
       root = cutter(concha, root, 0.1, Math.PI);
     }
-    root = { type: "port", name: "nostril." + BODY.nose.name, host: root, hostFace: trunk, loop: nostril(), band: "band." + BODY.nose.name, part: leaf(BODY.nose), partFace: BODY.nose.name, partEnd: "bottom", rail: RAIL_MM.nose / 1000, count: BAND.count, rows: BAND.rows };
-    // Each nostril is cut from the head: its loft comes up out of the nose's underside and closes inside it.
+    root = { type: "port", name: "nostril." + BODY.nose.name, host: root, hostFace: trunk, loop: nostril(), band: "band." + BODY.nose.name, part: leaf(BODY.nose), partFace: BODY.nose.name, partEnd: "bottom", rail: Math.min(...NOSE_RAILS_MM) / 1000, rails: NOSE_RAILS_MM.map((rail: number): number => rail / 1000), count: NOSE_COLUMNS, rows: BAND.rows };
+    // Each nostril is cut from the head: its loft comes up out of the nose's underside and closes inside it. Its back wall comes out
+    // through the band at the sill, where the band turns from the lip to the nose's underside within a few millimetres: a blend 0.25 to
+    // 0.5 mm wide either side found no rail on the band beside the curve on one side, and 0.15 mm is admitted on both.
     for (const side of [1, -1] as const) {
       const hollow: AutoMovieHumanConicLoft.IFamily = side > 0 ? AutoMovieHumanF1Nostril : twin(AutoMovieHumanF1Nostril);
-      root = { type: "join", kind: "diff", name: "cut." + hollow.name, host: root, part: leaf(hollow), seed: { type: "search", partFace: hollow.name, hostFace: BODY.nose.name, phase: 0, from: 0, to: 0.9 }, parameter: { type: "phase" }, partWidth: { type: "chord", value: 0.0005 }, hostWidth: { type: "chord", value: 0.0005 }, continuity: "G2", count: 48, rows: 4, tolerance: 1e-12, grazing: 0.05 };
+      root = { type: "join", kind: "diff", name: "cut." + hollow.name, host: root, part: leaf(hollow), seed: { type: "search", partFace: hollow.name, hostFace: BODY.nose.name, phase: 0, from: 0, to: 0.9 }, parameter: { type: "phase" }, partWidth: { type: "chord", value: 0.00015 }, hostWidth: { type: "chord", value: 0.00015 }, continuity: "G2", count: 48, rows: 4, tolerance: 1e-12, grazing: 0.05 };
     }
     return { root, sources };
   }

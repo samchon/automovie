@@ -113,11 +113,31 @@ namespace FamilyConicBody {
   }
 
   /**
-   * The nose's box, mm: in front of the frontal plane the nose stands free of the lips and cheeks at, and inside its extent across and in
-   * height, read off `FamilyConicScan.ts nose`. Positive inside the box.
+   * The nose's box, mm. Positive inside the box.
+   *
+   * Its frontal plane stands just in front of the alar groove, the crease round each wing, so the wings are the nose's own sections and
+   * not the port's band. Level sections of the reference head (`FamilyConicScan.ts alar`, 2 mm apart) put that crease at 110.2 to 111.6 mm forward
+   * and 18.2 to 20 mm to the side from 1,546 to 1,558 mm, and the wing's outer face beside it nearly sagittal, 17.6 to 18.5 mm out from
+   * 112 to 120 mm forward; the plane at 113 mm crosses that face 1.5 to 3 mm in front of the crease. Under the wings the alar base meets
+   * the lip at 1,544 to 1,545 mm and the columella meets it at 1,542.5 mm (the subnasale), so the box starts at 1,543 mm. Across and at
+   * the top it keeps the earlier extent read off `FamilyConicScan.ts nose`: the wings stand within 18.5 mm of the median plane, and above
+   * 1,582 mm the dorsum is the face's. Before this the plane stood at 122 mm, in front of the wings, which the band then had to span.
+   *
    */
   function nose(p: R.V): number {
-    return Math.min(p[0] - 122, 19 - Math.abs(p[2]), p[1] - 1540, 1582 - p[1]);
+    return Math.min(p[0] - 113, 19 - Math.abs(p[2]), p[1] - 1543, 1582 - p[1]);
+  }
+
+  /**
+   * What the trunk leaves to the nose, mm, positive inside: the nose's box, less the sidewalls above the wings. There the sidewall runs
+   * into the cheek with no crease (from 1,566 mm the level loops slope on smoothly from it to the cheek, `FamilyConicScan.ts alar`), so the
+   * face keeps it as before: the front rises from 113 mm at the wings' top, 1,562 mm, to 122 mm at 1,572 mm by the smooth step. The nose's
+   * own sections still read the sidewalls from 113 mm (with a front that rises there, its first sections were wide slabs whose top climbed
+   * 20 mm in 9 mm of station, which no fit of 8 conics held); its band lands far enough in there to leave them to the face.
+   */
+  function noseCut(p: R.V): number {
+    const t: number = Math.min(1, Math.max(0, (p[1] - 1562) / 10));
+    return Math.min(nose(p), p[0] - (113 + 9 * t * t * (3 - 2 * t)));
   }
 
   /**
@@ -251,6 +271,10 @@ namespace FamilyConicBody {
 
     /** The window is centred on the median line and its net is tied symmetric across it. */
     mirror?: boolean;
+
+    /** How far in from its first and last station, mm, and its first and last phase, radians, the window takes less than the whole height (`H.IWindow`). */
+    fade?: [number, number];
+    fadePhase?: [number, number];
   }
 
   /** A relief window of a part. */
@@ -495,7 +519,12 @@ namespace FamilyConicBody {
         { name: "ear", centres: EAR_TRIAL ?? [EAR_ROOT, EAR_TIP], course: EAR_TRIAL === undefined ? "[J.earRoot, J.earTip]" : JSON.stringify(EAR_TRIAL).replaceAll(",", ", "), halves: EAR_TRIAL === undefined ? [] : EAR_TRIAL.slice(1, -1).map((): number => EAR_TRIAL_HALF), up: [0, 1, 0], domain: EAR_TRIAL === undefined ? [4, 12] : [4, EAR_TRIAL_TO], head: true, loose: true, step: 1, gap: 3, tip: EAR_TRIAL === undefined ? 17 : true, ...(EAR_TRIAL === undefined ? { cap: 5 } : {}), mirrored: true, layouts: EAR_TRIAL === undefined ? LIMB : [LIMB[0]!], clip: (p: R.V): number => -ear(p), reliefs: [], casts: [] },
 
         // The nose's free end as a short loft straight forward out of the face, closed at its tip.
-        { name: "nose", centres: [[118, 1561, 0], [140, 1561, 0]], course: "[J.noseRoot, J.noseTip]", halves: [], up: [0, 1, 0], domain: [5, 14], head: true, loose: true, step: 1, gap: 3, tip: 18, mirrored: false, layouts: LIMB, clip: (p: R.V): number => -nose(p), reliefs: [], casts: [{ name: "under", stations: [12.5, 17], phases: [Math.PI - 1.1, Math.PI + 1.1], axis: [0, 1, 0], rows: 31, columns: 39, reach: 2.5, mirror: true }] },
+        // Its course starts 5 mm behind the box's frontal plane, so its first section, half a millimetre into the box, lies on the wings.
+        { name: "nose", centres: [[108, 1556, 0], [140, 1556, 0]], course: "[J.noseRoot, J.noseTip]", halves: [], up: [0, 1, 0], domain: [5.5, 24], head: true, loose: true, step: 1, gap: 3, tip: 28, mirrored: false, layouts: LIMB, clip: (p: R.V): number => -nose(p), reliefs: [], casts: [
+          // The lobule's underside. Its net asked for the whole height up to its edges stood 2.4 to 4.4 mm deep one column from its zero
+          // edge columns, and the cliff showed as upright slivers on either side of the tip in profile; it hands its edges over (`fade`).
+          { name: "under", stations: [22.5, 27], phases: [Math.PI - 1.1, Math.PI + 1.1], axis: [0, 1, 0], rows: 31, columns: 39, reach: 2.5, mirror: true, fade: [1, 1.5], fadePhase: [0.35, 0.35] },
+        ] },
         // The ear's hollow as a loft of its own. The auricle is a thin shell: a sagittal plane cuts it in one loop shaped like a C, and what
         // the C stands round, the concha and the scapha, is the pocket between that loop and its hull, open to the front
         // (`FamilyConicScan.ts concha`: 435 mm2 at 78 mm out, 33 at 94). The loft runs out through those pockets.
@@ -507,8 +536,8 @@ namespace FamilyConicBody {
         // The nostrils open downward, and a frontal section shows only the nose's outline round them. A net over the nose's underside, cast
         // straight up, reads the first skin a ray from below meets, and found them: 3 to 5 mm deep and more, from 124 to 128 mm forward
         // (`--casts`). That is where a band 2 mm in landed: with the dimples in it the rail's ring was no longer star-shaped and the port
-        // refused the nose. The net starts 0.6 mm from the nose's first station and the band lands 0.5 mm in (`RAIL_MM.nose`), on a ring
-        // the net leaves whole.
+        // refused the nose. The nostrils are now cutters of their own and the net covers the lobule alone; the band lands on a curve round
+        // the nose (`AutoMovieHumanF1.ts`, `NOSE_RAILS_MM`).
 
         // The trunk from the crotch to the crown as one wall. Knots 4 mm apart from the neck up followed every step of the face's hull and left
         // the wall streaked, so they keep 8 mm and the face is the reliefs'. Under the jaw alone, stations 692 to 732, they may stand 3 mm
@@ -517,7 +546,7 @@ namespace FamilyConicBody {
         // kept is the earlier one below station 640 and this one above it, with every relief fitted again over the splice
         // (`--wall=<earlier> --splice=<this>@640 --refit`): 693 numbers at 0.66 mm. The ears are left out of its sections. It owns the shoulders down to the armscye plane through the armpit's
         // crease; past that plane, lateral of the crease and inside the arm's own tube, the skin is the arm's and is left out of the trunk's sections.
-        { name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], course: "[J.axisFloor, J.axisCrown]", halves: [], up: [1, 0, 0], domain: [28, 912], whole: true, step: 2, gap: (s: number): number => (s >= 692 && s <= 732 ? Number(process.argv.find((argument: string): boolean => argument.startsWith("--jaw="))?.slice(6) ?? 3) : s > 740 ? FACE_GAP_MM : 12), tip: true, cap: 906, mirrored: false, layouts: BILATERAL, round: chin, clip: (p: R.V): number => Math.max(ear(p), nose(p), chin(p), ...[1, -1].map((side: number): number => {
+        { name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], course: "[J.axisFloor, J.axisCrown]", halves: [], up: [1, 0, 0], domain: [28, 912], whole: true, step: 2, gap: (s: number): number => (s >= 692 && s <= 732 ? Number(process.argv.find((argument: string): boolean => argument.startsWith("--jaw="))?.slice(6) ?? 3) : s > 740 ? FACE_GAP_MM : 12), tip: true, cap: 906, mirrored: false, layouts: BILATERAL, round: chin, clip: (p: R.V): number => Math.max(ear(p), noseCut(p), chin(p), ...[1, -1].map((side: number): number => {
           const a: R.V = joint("upperarm_r");
           const b: R.V = joint("lowerarm_r");
           const length: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
@@ -582,7 +611,7 @@ namespace FamilyConicBody {
           { name: "eyes", stations: [792, 826], phases: [-0.8, 0.8], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 26, columns: 105, reach: 12, mirror: true },
           // The chin, which the sections leave out (`CHIN`): cast from the cone's wall forward and down at 45 degrees on the median line,
           // so the chin's front and the level skin under it are both seen at 45 degrees and the chin is one height over the wall.
-          { name: "chin", stations: [690, 734], phases: [-0.8, 0.8], axis: [-Math.SQRT1_2, Math.SQRT1_2, 0], turn: [0, 0, -1], skin: (p: R.V): number => Math.max(ear(p), nose(p)), rows: 47, columns: 57, reach: 30, mirror: true },
+          { name: "chin", stations: [690, 734], phases: [-0.8, 0.8], axis: [-Math.SQRT1_2, Math.SQRT1_2, 0], turn: [0, 0, -1], skin: (p: R.V): number => Math.max(ear(p), noseCut(p)), rows: 47, columns: 57, reach: 30, mirror: true },
           // The top of each shoulder, between the neck's muscle and the shoulder's point: the skin there faces up, a cast round the axis
           // grazes it, and it stood 2 to 4 mm full on both sides (`FamilyConicDeviation.ts`). A coarse net cast straight down takes it.
           // It lands only on skin that faces up within 37 degrees, as the sole's does: toward the window's sides the skin turns to face
@@ -777,7 +806,14 @@ namespace FamilyConicBody {
         else {
           // The family is the tape wall: it reads the section's convex hull. How far the skin lies inside that hull is measured apart, as relief.
           // A loose part is measured against that hull as well: its loop need not be star-shaped about the course.
-          const wall: C.P[] = R.hull(loop);
+          // A loose part's section is closed by its clip's straight chords, and a hull edge carries no vertex between its ends, so a wall
+          // fitted to the vertices alone bulged past a long chord unseen: the nose's, closed at the top of its box, stood 10 mm above it.
+          // Along a loose part's hull every edge carries a point at least every millimetre.
+          const wall: C.P[] = part.loose === true ? R.hull(loop).flatMap((p: C.P, k: number, hull: C.P[]): C.P[] => {
+            const q: C.P = hull[(k + 1) % hull.length]!;
+            const pieces: number = Math.max(1, Math.ceil(Math.hypot(q[0] - p[0], q[1] - p[1])));
+            return Array.from({ length: pieces }, (_: unknown, t: number): C.P => [p[0] + ((q[0] - p[0]) * t) / pieces, p[1] + ((q[1] - p[1]) * t) / pieces]);
+          }) : R.hull(loop);
           rows.push({ s, points: wall, heldout: i % 2 === 1 });
           skins.push(part.loose === true && (part.surround === undefined || s >= part.surround.from) ? wall : loop);
           loops.push(loop);
@@ -1080,7 +1116,7 @@ namespace FamilyConicBody {
         const last: R.V = part.centres.at(-1)!;
         const span: number = Math.hypot(last[0] - first[0], last[1] - first[1], last[2] - first[2]);
         const axis: R.V = face.axis === "course" ? [(first[0] - last[0]) / span, (first[1] - last[1]) / span, (first[2] - last[2]) / span] : face.axis;
-        const window: H.IWindow = { name: part.name + "." + face.name, stations: face.stations === "cap" ? [(part.cap ?? domain[1]) + 0.5, tip!] : face.stations, phases: face.phases ?? [0, 2 * Math.PI], axis, rows: face.rows, columns: face.columns, mirror: face.mirror === true, ...(face.phases === undefined ? { periodic: true } : {}), ...(face.turn === undefined ? {} : { turn: face.turn }) };
+        const window: H.IWindow = { name: part.name + "." + face.name, stations: face.stations === "cap" ? [(part.cap ?? domain[1]) + 0.5, tip!] : face.stations, phases: face.phases ?? [0, 2 * Math.PI], axis, rows: face.rows, columns: face.columns, mirror: face.mirror === true, ...(face.phases === undefined ? { periodic: true } : {}), ...(face.turn === undefined ? {} : { turn: face.turn }), ...(face.fade === undefined ? {} : { fade: face.fade }), ...(face.fadePhase === undefined ? {} : { fadePhase: face.fadePhase }) };
         const middle: number = (window.phases[0] + window.phases[1]) / 2;
         const toward = (phi: number): R.V => (face.turn === undefined ? axis : [0, 1, 2].map((c: number): number => Math.cos(phi - middle) * axis[c]! + Math.sin(phi - middle) * face.turn![c]!) as R.V);
         const outside: ((p: R.V) => number) | undefined = face.skin ?? part.clip;
@@ -1327,11 +1363,11 @@ namespace FamilyConicBody {
       "  /** Half extents of the auricle's root in height and fore and aft. */",
       "  export const earHalf: [number, number] = [29, 10.5];",
       "",
-      "  /** Where the nose's course starts, inside the face behind the nose's free end. */",
-      "  export const noseRoot: V3 = [118, 1561, 0];",
+      "  /** Where the nose's course starts, inside the face 5 mm behind the frontal plane through the alar grooves. */",
+      "  export const noseRoot: V3 = [108, 1556, 0];",
       "",
       "  /** Where the nose's course ends, straight forward past its tip. */",
-      "  export const noseTip: V3 = [140, 1561, 0];",
+      "  export const noseTip: V3 = [140, 1556, 0];",
       "",
       "  /** Where the course of the concha's bowl starts, out past the auricle over the bowl's deepest point. */",
       "  export const conchaRoot: V3 = [16.5, 1563, 90];",
@@ -1350,12 +1386,6 @@ namespace FamilyConicBody {
       "",
       "  /** Where a nostril's course ends, straight up inside the nose. */",
       "  export const nostrilTip: V3 = [119.1, 1560.4, 7.7];",
-      "",
-      "  /** Centre of the nose's root on the frontal plane it stands free of the lips and cheeks at. */",
-      "  export const noseBase: V3 = [122, 1561, 0];",
-      "",
-      "  /** Half extents of the nose's root in height and across. */",
-      "  export const noseHalf: [number, number] = [21, 18];",
       "",
       "  /** The point `length` millimetres past `b` on the line from `a` through `b`: where a digit's course ends beyond its last joint. */",
       "  export function beyond(a: V3, b: V3, length: number): V3 {",

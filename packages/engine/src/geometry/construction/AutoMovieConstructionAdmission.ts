@@ -224,6 +224,16 @@ export namespace AutoMovieConstructionAdmission {
             throw new Error(
               `realizeAutoMovieConstruction: ${name}'s rail ${node.rail} m is not positive`,
             );
+          if (
+            node.rails !== undefined &&
+            !(
+              node.rails.length >= 3 &&
+              node.rails.every((x: number): boolean => Number.isFinite(x) && x > 0)
+            )
+          )
+            throw new Error(
+              `realizeAutoMovieConstruction: ${name}'s rails are not at least 3 finite positive distances`,
+            );
           const shape: number[] | undefined = node.loop.shape;
           if (
             shape !== undefined &&
