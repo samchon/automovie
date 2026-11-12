@@ -308,7 +308,7 @@ export namespace AutoMovieHumanF1 {
    * face keeps the sidewalls (`FamilyConicBody.ts noseCut`), and the band lands 5 to 8 mm in, the farther the higher, so its loop, 2.5 mm
    * outside this curve, stays on the face's own skin.
    */
-  const NOSE_RAILS_MM: number[] = [10, 9.5, 8, 7, 6, 5, 3.5, 2.5, 2, 2, 1.5, 1.5, 3, 5.5, 8, 8.5, 9, 8.5, 8, 5.5, 3, 1.5, 1.5, 2, 2, 2.5, 3.5, 5, 6, 7, 8, 9.5];
+  export const NOSE_RAILS_MM: readonly number[] = [10, 9.5, 8, 7, 6, 5, 3.5, 2.5, 2, 2, 1.5, 1.5, 3, 5.5, 8, 8.5, 9, 8.5, 8, 5.5, 3, 1.5, 1.5, 2, 2, 2.5, 3.5, 5, 6, 7, 8, 9.5];
 
   /**
    * How far outside the nose's rail curve its port loop stands on the face, and outside the auricle's root the ear's stands on the skull, mm.
@@ -382,6 +382,18 @@ export namespace AutoMovieHumanF1 {
    * 44 degrees.
    */
   const NOSTRIL_LAYER_MM: number = 0.5;
+
+  /**
+   * The nostril cutter's mouth, mm along its course: its first fitted knot (`AutoMovieHumanF1Nostril`, sections read from 9 mm), whose
+   * section the lead carries out of the nose; the cut meets the floor 8 to 10 mm along it. And how far its later knots and its closed end are
+   * moved on (`spreadOut`), mm: fitted, the section moves 7 mm between the knots at 9 and 11 mm, a flare whose station line turns 72 degrees
+   * into the canal within 2.5 mm, and that turn stood as a streak inside each nostril however finely it was layered (folds of 32 to 50
+   * degrees on layers half a millimetre apart). Spread by this much the canal starts 2 mm higher and the flare is drawn over 4 mm: the
+   * nostril's lateral wall reads as one shadow from the front and from below, as the reference's does. Spread by 1 or 1.5 mm, one
+   * nostril's face was refused by the triangulation ("interior point hits an unshared boundary", "does not share one original diagonal").
+   */
+  const NOSTRIL_MOUTH_MM: number = 9;
+  const NOSTRIL_SPREAD_MM: number = 2;
 
   /** The sewn body's declaration: its construction tree and the view parts its source leaves name. */
   export interface IConstruction {
@@ -489,6 +501,21 @@ export namespace AutoMovieHumanF1 {
       }
     }
     return { ...family, values };
+  }
+
+  /**
+   * A family whose knots past `mouth`, and its closed end, are moved on along its course by a distance: the section at `mouth` and every
+   * section before it stay, and the change from it to the next knot's section is drawn over that much more station. A cutter whose wall
+   * turns from its flared mouth into its canal within a few millimetres is spread so it turns more gently.
+   *
+   * @param family The family.
+   * @param mouth The station of the last knot that stays, mm.
+   * @param mm The distance, mm.
+   */
+  function spreadOut(family: AutoMovieHumanConicLoft.IFamily, mouth: number, mm: number): AutoMovieHumanConicLoft.IFamily {
+    const moved = (s: number): number => (s > mouth ? s + mm : s);
+    const end = (tip: AutoMovieHumanConicLoft.ITip | null): AutoMovieHumanConicLoft.ITip | null => (tip === null ? null : { ...tip, from: moved(tip.from), tip: moved(tip.tip) });
+    return { ...family, knots: family.knots.map(moved), ...(family.tips === undefined ? {} : { tips: [end(family.tips[0]), end(family.tips[1])] }) };
   }
 
   /** Whether the "mm" field at `f` starts a (u, v) pair: an even count of "mm" fields runs up to it. */
@@ -888,7 +915,7 @@ export namespace AutoMovieHumanF1 {
     // cut lies wholly on the nose's own face and its blend may be as wide as the rim's roll; while the cut crossed the band at the sill only
     // a blend 0.15 mm wide found its rails there.
     for (const side of [1, -1] as const) {
-      const drawn: AutoMovieHumanConicLoft.IFamily = drawnIn(AutoMovieHumanF1Nostril, NOSTRIL_RIM_MM);
+      const drawn: AutoMovieHumanConicLoft.IFamily = spreadOut(drawnIn(AutoMovieHumanF1Nostril, NOSTRIL_RIM_MM), NOSTRIL_MOUTH_MM, NOSTRIL_SPREAD_MM);
       const hollow: AutoMovieHumanConicLoft.IFamily = side > 0 ? drawn : twin(drawn);
       root = { type: "join", kind: "diff", name: "cut." + hollow.name, host: root, part: leaf(hollow, Infinity, NOSTRIL_LAYER_MM), seed: { type: "search", partFace: hollow.name, hostFace: BODY.nose.name, phase: 0, from: 0, to: 0.9 }, parameter: { type: "phase" }, partWidth: { type: "chord", value: NOSTRIL_RIM_MM / 1000 }, hostWidth: { type: "chord", value: NOSTRIL_RIM_MM / 1000 }, continuity: "G2", count: 48, rows: 4, tolerance: 1e-12, grazing: 0.05 };
     }
