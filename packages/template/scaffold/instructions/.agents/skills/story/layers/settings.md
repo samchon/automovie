@@ -24,7 +24,7 @@ Measurements such as dimensions, light positions and timings go to [research](..
 | `cinematography` | The look: framing grammar, camera movement style, lighting style and grade |
 | `sound` | Ambience and music palettes; voices belong to the cast |
 
-User-fixed interpretations are canon. Research open facts through [research](../planning/research.md), attaching support and uncertainty to the facts they qualify, and report a conflict between an instruction and its source instead of changing canon.
+User-fixed interpretations are canon. Study what [when to study](../planning/research.md#when-to-study) assigns to settings, attaching support and uncertainty to the facts they qualify, and report a conflict between an instruction and its source instead of changing canon.
 
 Embed a subject's canon images, generated under [image](../../image/SKILL.md), from `media/diffusion/images/<domain>/`, such as `![Mara, front](../../../../media/diffusion/images/cast/mara-front.png)` in `docs/body/settings/cast/mara.md`; when an image and the text disagree, repair whichever is wrong.
 
