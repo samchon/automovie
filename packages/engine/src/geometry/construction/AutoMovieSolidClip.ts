@@ -1,6 +1,7 @@
 import type { AutoMovieSolidBlendChain } from "./AutoMovieSolidBlendChain";
 import type { AutoMovieSolidBody } from "./AutoMovieSolidBody";
 import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
+import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import type { AutoMovieSolidJoin } from "./AutoMovieSolidJoin";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
 import type { AutoMovieSolidRail } from "./AutoMovieSolidRail";
@@ -58,7 +59,11 @@ export namespace AutoMovieSolidClip {
   /** Maximum crossing halvings; a null rail may end the search earlier once the bracket is at most a millionth of a column. */
   export const BISECTIONS: number = 40;
 
-  /** Largest world distance between the rail's last point on one face and its first on the next for a crossing to be placed between them, mm: a hundredth of a millimetre, a hundredth of the chord tolerance a skin is drawn at. */
+  /**
+   * World slack of a crossing placed across a stretch where the rail settles on neither face, mm: a hundredth of a millimetre, a hundredth of
+   * the chord tolerance a skin is drawn at. The crossing is placed when the rail's last point on one face and its first on the next stand
+   * within it of each other, or each within it of the shared boundary's chord beyond the boundary's own sagitta (`seam`).
+   */
   export const CROSSING: number = 1e-2;
 
   /** Local side-probe distance is a quarter of neighbouring world spacing in the unit-world-speed chart direction; this relative sampling choice is not a global curved-cell bound. */
@@ -150,7 +155,11 @@ export namespace AutoMovieSolidClip {
           // The rail settles on neither face over a stretch of the parameter
           // round the crossing. Each end of that stretch is found from its own
           // side; the crossing is placed when the rail's two ends there are one
-          // world point within `CROSSING` mm.
+          // world point within `CROSSING` mm, or when both lie on the faces'
+          // shared boundary as closely as the boundary's two readings do (the
+          // sliver between them is the stretch, long where the rail runs along
+          // the boundary at a grazing angle: on f1's ear, 0.036 mm along the
+          // rail with both ends 0.006 mm off a seam whose sagitta is 0.007).
           let dead: [number, number] = [m, m];
           for (let j: number = 0; j < BISECTIONS; j++) {
             const a: number = (lo + dead[0]) / 2;
@@ -175,13 +184,14 @@ export namespace AutoMovieSolidClip {
             high!.hostPoint[1] - low!.hostPoint[1],
             high!.hostPoint[2] - low!.hostPoint[2],
           );
+          const off: [number, number] = seam(body, faces[k]!, next, low!, high!);
           if (
             index[low!.hostFace] === faces[k] &&
             index[high!.hostFace] === next &&
-            gap <= CROSSING
+            (gap <= CROSSING || off[0] <= off[1] + CROSSING)
           )
             break;
-          return `no rail at t ${m}, between the columns at t ${lo} and ${hi} where the rail leaves face ${faces[k]} for face ${next} (its two ends stand ${gap} mm apart)`;
+          return `no rail at t ${m}, between the columns at t ${lo} and ${hi} where the rail leaves face ${faces[k]} for face ${next} (its two ends stand ${gap} mm apart and ${off[0]} mm off the seam, which stands ${off[1]} mm off its chord)`;
         }
         if (index[r.hostFace] === faces[k]) {
           lo = m;
@@ -306,6 +316,63 @@ export namespace AutoMovieSolidClip {
     for (const face of pending.keys())
       return `the rail enters face ${body.faces[face]!.surface.name} through one trim and leaves through another, and crosses it only once`;
     return null;
+  }
+
+  /**
+   * How far a rail's two ends round a crossing stand off the boundary two faces share, and how far that boundary itself stands off its
+   * chord, mm: `[ends, seam]`. The boundary is the segment the two faces share nearest the first end, in the first face's chart. Its chord
+   * is the straight line between its two vertices; each face reads the segment in its own chart, the first as a chart chord and the second
+   * by its own map, and both readings stand off the chord by the segment's sagitta: on a blend round a tube 3 mm across, with columns
+   * 0.9 mm apart, by some hundredths of a millimetre. Between the two readings the rail lies on neither face; where it runs along the seam
+   * at a grazing angle that stretch is many times the sagitta long. Infinite ends where the faces share no segment.
+   */
+  function seam(
+    body: AutoMovieSolidBody.IBody,
+    face: number,
+    next: number,
+    low: AutoMovieSolidRail.IRail,
+    high: AutoMovieSolidRail.IRail,
+  ): [number, number] {
+    const at: [number, number] = [low.host[0], low.host[1]];
+    const f: AutoMovieSolidBody.IFace = body.faces[face]!;
+    const g: AutoMovieSolidBody.IFace | undefined = body.faces[next];
+    if (g === undefined) return [Infinity, 0];
+    const period: number | undefined = f.surface.period;
+
+    // The shared segment nearest the first end, in the first face's chart.
+    let best: { a: [number, number]; b: [number, number]; neighbour: AutoMovieSolidCycle.INeighbour; distance: number } | null = null;
+    for (const cycle of f.cycles)
+      for (let k: number = 0; k < cycle.neighbours.length; k++) {
+        const neighbour: AutoMovieSolidCycle.INeighbour = cycle.neighbours[k]!;
+        if (neighbour.face !== next) continue;
+        const a: [number, number] = cycle.chart[k]!;
+        const raw: [number, number] = cycle.chart[(k + 1) % cycle.chart.length]!;
+        const b: [number, number] = [raw[0], AutoMovieSolidCycle.shift(raw[1], a[1], period)];
+        const w: number = AutoMovieSolidCycle.shift(at[1], a[1], period);
+        const distance: number = Math.hypot(...nearest(a, b, [at[0], w]).map((x: number, i: number): number => x - [at[0], w][i]!));
+        if (best === null || distance < best.distance) best = { a, b, neighbour, distance };
+      }
+    if (best === null) return [Infinity, 0];
+
+    // The chord between the segment's two vertices, the first face's reading of its middle and the second face's.
+    const { a, b, neighbour: n } = best;
+    const read = (surface: IAutoMovieSolidSurface, c: [number, number]): [number, number, number] | null => {
+      const jet: IAutoMovieSolidSurface.IJet | null = AutoMovieSolidDomain.jet(surface, c[0], c[1]);
+      return jet === null ? null : [jet.p[0], jet.p[1], jet.p[2]];
+    };
+    const ends: ([number, number, number] | null)[] = [read(f.surface, a), read(f.surface, b), read(f.surface, [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]), read(g.surface, [(n.from[0] + n.to[0]) / 2, (n.from[1] + n.to[1]) / 2])];
+    if (ends.some((p: [number, number, number] | null): boolean => p === null)) return [Infinity, 0];
+    const [p, q, here, there] = ends as [number, number, number][];
+    const off = (x: readonly number[]): number => Math.hypot(...nearest(p!, q!, x).map((y: number, i: number): number => y - x[i]!));
+    return [Math.max(off(low.hostPoint), off(high.hostPoint)), Math.max(off(here!), off(there!))];
+  }
+
+  /** The point of the segment from `a` to `b` nearest `x`, in any dimension. */
+  function nearest(a: readonly number[], b: readonly number[], x: readonly number[]): number[] {
+    const d: number[] = b.map((y: number, i: number): number => y - a[i]!);
+    const dd: number = d.reduce((sum: number, y: number): number => sum + y * y, 0);
+    const t: number = dd > 0 ? Math.min(1, Math.max(0, d.reduce((sum: number, y: number, i: number): number => sum + y * (x[i]! - a[i]!), 0) / dd)) : 0;
+    return a.map((y: number, i: number): number => y + t * d[i]!);
   }
 
   /** What `clip` returns for a run that joins two of the face's trims. */

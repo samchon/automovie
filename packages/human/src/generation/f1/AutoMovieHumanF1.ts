@@ -6,6 +6,8 @@ import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection"
 import { AutoMovieHumanF1Arm } from "./AutoMovieHumanF1Arm";
 import { AutoMovieHumanF1Concha } from "./AutoMovieHumanF1Concha";
 import { AutoMovieHumanF1Ear } from "./AutoMovieHumanF1Ear";
+import { AutoMovieHumanF1Fossa } from "./AutoMovieHumanF1Fossa";
+import { AutoMovieHumanF1Helix } from "./AutoMovieHumanF1Helix";
 import { AutoMovieHumanF1FingerIndex } from "./AutoMovieHumanF1FingerIndex";
 import { AutoMovieHumanF1FingerMiddle } from "./AutoMovieHumanF1FingerMiddle";
 import { AutoMovieHumanF1FingerPinky } from "./AutoMovieHumanF1FingerPinky";
@@ -15,7 +17,6 @@ import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 import { AutoMovieHumanF1Leg } from "./AutoMovieHumanF1Leg";
 import { AutoMovieHumanF1Nose } from "./AutoMovieHumanF1Nose";
 import { AutoMovieHumanF1Nostril } from "./AutoMovieHumanF1Nostril";
-import { AutoMovieHumanF1Scapha } from "./AutoMovieHumanF1Scapha";
 import { AutoMovieHumanF1ToeBig } from "./AutoMovieHumanF1ToeBig";
 import { AutoMovieHumanF1ToeIndex } from "./AutoMovieHumanF1ToeIndex";
 import { AutoMovieHumanF1ToeLittle } from "./AutoMovieHumanF1ToeLittle";
@@ -44,8 +45,8 @@ import { AutoMovieHumanF1Trunk } from "./AutoMovieHumanF1Trunk";
  * The hand's sections leave out the thumb past where it stands free, as the
  * trunk's leave out the arms, the ears and the nose. The face's eyes and
  * mouth are height fields over the trunk's wall. A hollow with a wall of its
- * own is a loft cut out: each nostril from the head, and each ear's hollow
- * from the ear before the ear is attached.
+ * own is a loft cut out: each nostril from the head, each ear's trough above
+ * its bowl from the ear alone, and each ear's bowl after the ear is attached.
  */
 export namespace AutoMovieHumanF1 {
   /** One generated surface piece. */
@@ -123,6 +124,7 @@ export namespace AutoMovieHumanF1 {
     { family: BODY.arm, mirrored: true },
     { family: BODY.leg, mirrored: true },
     { family: BODY.ear, mirrored: true },
+    { family: AutoMovieHumanF1Helix, mirrored: true },
     { family: BODY.nose, mirrored: false },
     ...DIGITS.map((digit: IDigit): IMember => ({ family: digit.family, mirrored: true })),
     ...LOOSE,
@@ -170,7 +172,7 @@ export namespace AutoMovieHumanF1 {
 
   /**
    * Where each limb's band lands on it, mm from the limb's first station: the limb keeps its stations beyond. The arm's first station is 2 mm
-   * past the armscye's plane and its course is nearly square to that plane for its first 25 mm, so its ring 10 mm on lies beside the plane. The ear's band lands half a millimetre in: its dome starts 5 mm out and its hollow is cut to within 1.5 mm of its root. The nose's band lands on a curve (`NOSE_RAILS_MM`).
+   * past the armscye's plane and its course is nearly square to that plane for its first 25 mm, so its ring 10 mm on lies beside the plane. The ear's band lands half a millimetre in, on the leaf's root ring where it leaves the head square. The nose's band lands on a curve (`NOSE_RAILS_MM`).
    */
   export const RAIL_MM: { arm: number; leg: number; ear: number } = { arm: 10, leg: 6, ear: 0.5 };
 
@@ -549,16 +551,27 @@ export namespace AutoMovieHumanF1 {
       const arm: { node: AutoMovieConstructionNode; face: string } = limb("arm", side);
       root = { type: "port", name: "armscye." + arm.face, host: root, hostFace: trunk, loop: armscye(side), band: "band." + arm.face, part: arm.node, partFace: arm.face, partEnd: "bottom", rail: RAIL_MM.arm / 1000, count: SHOULDER_COLUMNS, rows: BAND.rows };
       const ear: AutoMovieHumanConicLoft.IFamily = side > 0 ? BODY.ear : twin(BODY.ear);
-      // The ear owns two hollows, each a loft cut out of it, both read from the reference. The upper one, the scapha and the fossa above
-      // the bowl, runs along the shell's normal and is cut from the ear alone before the ear is attached. The concha's bowl, low and
-      // forward behind the tragus, is read from the skin's depth and cut after the ear is attached; its cutter runs square into the head
-      // to the bowl's floor, is closed at both ends, and its cut crosses the ear's band from rim to rim and back, with a blend 0.1 mm
-      // wide (at 0.25 mm it folded). The leaf's pole stands on the antihelix between the two. Each curve is walked by its own length.
-      const cutter = (family: AutoMovieHumanConicLoft.IFamily, host: AutoMovieConstructionNode, chord: number, phase: number): AutoMovieConstructionNode => ({ type: "join", kind: "diff", name: "cut." + family.name, host, part: leaf(family), seed: { type: "search", partFace: family.name, hostFace: ear.name, phase, from: 0, to: 0.9 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: chord / 1000 }, hostWidth: { type: "chord", value: chord / 1000 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04 });
-      const scapha: AutoMovieHumanConicLoft.IFamily = side > 0 ? AutoMovieHumanF1Scapha : twin(AutoMovieHumanF1Scapha);
+      // The ear's outer face is its leaf's, with the trough of the cymba and the fossa cut from it (below). Its bowl, the concha, low and forward
+      // behind the tragus, is a loft read from the skin's depth and cut after the ear is attached: its cutter runs square into the head to
+      // the bowl's floor, is closed at both ends, and its cut crosses the ear's band from rim to rim and back, with a blend 0.5 mm wide,
+      // walked by its own length: at 0.1 mm its rim folded 139 degrees against the antihelix, at 0.5 mm 97 (0.25 mm folded the earlier prism). It is seeded on its back side, phase pi / 2, which lies on the ear's outer face; its
+      // lower side, phase pi, ran past the leaning ear's front onto the band. A twin's phases run the other way round.
       const concha: AutoMovieHumanConicLoft.IFamily = side > 0 ? AutoMovieHumanF1Concha : twin(AutoMovieHumanF1Concha);
-      root = { type: "port", name: "auricle." + ear.name, host: root, hostFace: trunk, loop: auricle(side), band: "band." + ear.name, part: cutter(scapha, leaf(ear), 0.25, Math.PI), partFace: ear.name, partEnd: "bottom", rail: RAIL_MM.ear / 1000, count: BAND.count, rows: BAND.rows };
-      root = cutter(concha, root, 0.1, Math.PI);
+      // The helix is merged onto the leaf before the ear is attached, as a digit onto its limb: a tube along the rim's crest whose two ends are
+      // buried in the leaf, so the curve where they meet is one closed loop, walked by its own length. Both are layered every millimetre,
+      // which the tube's turns of 3 mm need. Seeded on the tube's inner line, phase pi, which its twin shares; a blend 0.5 mm wide crossed
+      // itself where the loop turns round the tube's ends, and one of 0.25 mm does not.
+      const helix: AutoMovieHumanConicLoft.IFamily = side > 0 ? AutoMovieHumanF1Helix : twin(AutoMovieHumanF1Helix);
+      const rimmed: AutoMovieConstructionNode = { type: "join", kind: "merge", name: "rim." + helix.name, host: leaf(ear, Infinity), part: leaf(helix, Infinity), seed: { type: "search", partFace: helix.name, hostFace: ear.name, phase: Math.PI, from: 0, to: 0.5 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.00025 }, hostWidth: { type: "chord", value: 0.00025 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04 };
+      // The trough above the concha, the cymba and the triangular fossa, is cut from the ear alone after its helix: its floor lies on the
+      // leaf, past the ear's root, and its upper end runs beside the helix's front limb onto its blend. Seeded on its top, phase 0, which
+      // stands out past the leaf's face and comes down through it at each closed end; a twin's top is the same phase. Its blend reaches
+      // 1.5 mm onto the leaf, so the dish's edge is soft; on the cutter it is 0.5 mm, since at 1 mm its rail was refused at the seed, where
+      // the curve turns round the cutter's closed end, and at 2 mm on the leaf its rail was refused beside the helix.
+      const fossa: AutoMovieHumanConicLoft.IFamily = side > 0 ? AutoMovieHumanF1Fossa : twin(AutoMovieHumanF1Fossa);
+      const hollowed: AutoMovieConstructionNode = { type: "join", kind: "diff", name: "cut." + fossa.name, host: rimmed, part: leaf(fossa, Infinity), seed: { type: "search", partFace: fossa.name, hostFace: ear.name, phase: 0, from: 0, to: 0.9 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.0005 }, hostWidth: { type: "chord", value: 0.0015 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04 };
+      root = { type: "port", name: "auricle." + ear.name, host: root, hostFace: trunk, loop: auricle(side), band: "band." + ear.name, part: hollowed, partFace: ear.name, partEnd: "bottom", rail: RAIL_MM.ear / 1000, count: BAND.count, rows: BAND.rows };
+      root = { type: "join", kind: "diff", name: "cut." + concha.name, host: root, part: leaf(concha), seed: { type: "search", partFace: concha.name, hostFace: ear.name, phase: side > 0 ? Math.PI / 2 : (3 * Math.PI) / 2, from: 0, to: 0.9 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.00025 }, hostWidth: { type: "chord", value: 0.00025 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04 };
     }
     root = { type: "port", name: "nostril." + BODY.nose.name, host: root, hostFace: trunk, loop: nostril(), band: "band." + BODY.nose.name, part: leaf(BODY.nose), partFace: BODY.nose.name, partEnd: "bottom", rail: Math.min(...NOSE_RAILS_MM) / 1000, rails: NOSE_RAILS_MM.map((rail: number): number => rail / 1000), count: NOSE_COLUMNS, rows: BAND.rows };
     // Each nostril is cut from the head: its loft comes up out of the nose's underside and closes inside it. The band lands behind it, so the
