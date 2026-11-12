@@ -649,7 +649,9 @@ namespace FamilyConicBody {
         // its own size its two ends lie on the hull, where the cutter's wall and the host's would meet at no angle.
         const middle: C.P = [best.reduce((sum: number, p: C.P): number => sum + p[0], 0) / best.length, best.reduce((sum: number, p: C.P): number => sum + p[1], 0) / best.length];
         const reach: number = Math.max(...best.map((p: C.P): number => Math.hypot(p[0] - middle[0], p[1] - middle[1])));
-        best = best.map((p: C.P): C.P => [middle[0] + (p[0] - middle[0]) * (1 - POCKET_INSET_MM / reach), middle[1] + (p[1] - middle[1]) * (1 - POCKET_INSET_MM / reach)]);
+        // `--pocket-inset=<mm>`: a trial inset in place of `POCKET_INSET_MM`, for a pocket whose ends come near the rim.
+        const inset: number = Number(process.argv.find((argument: string): boolean => argument.startsWith("--pocket-inset="))?.slice("--pocket-inset=".length) ?? POCKET_INSET_MM);
+        best = best.map((p: C.P): C.P => [middle[0] + (p[0] - middle[0]) * (1 - inset / reach), middle[1] + (p[1] - middle[1]) * (1 - inset / reach)]);
         const [a, b]: [C.P, C.P] = [best[0]!, best.at(-1)!];
         const length: number = Math.hypot(b[0] - a[0], b[1] - a[1]);
         let normal: C.P = [(b[1] - a[1]) / length, -(b[0] - a[0]) / length];
