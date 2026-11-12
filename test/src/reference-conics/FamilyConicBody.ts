@@ -78,25 +78,27 @@ namespace FamilyConicBody {
    * The relief over the ear's outer face (`--ear-face=<s0>,<s1>,<phase0>,<phase1>,<rows>,<columns>,<reach>[,<facing>]`), cast along
    * `--ear-axis=x,y,z`.
    *
-   * - Stations 8 to 23.6 mm: from 3.5 mm past the band's rail (4.5 mm), as a relief nearer the rail broke the band, to just short of the pole.
-   * - Phases 0.15 to 3.0 rad: the forward half of the wall from its top to its bottom, which is the shell's outer face; the back half is the
-   *   auricle's posterior skin, along which a cast slides.
-   * - 13 by 13 control heights, about 1.3 mm by 0.24 rad: at 19 by 21 the net drew stripes and the ear's band failed to triangulate.
-   * - Reach 7 mm, facing 0.3: the scapha, the fossa and the antihelix lie within 6 mm of the hull (`--casts`); the concha, 15 mm deep, is its
-   *   own cut, so deeper casts are left to the net's fairness.
+   * - Stations 6.5 to 23.6 mm: from 2 mm past the band's rail (4.5 mm), its first three rows zero and its first 2 mm faded, to just short of
+   *   the pole; started at 8 mm it left the hull's bridge over the notch in front of the lobe uncarved.
+   * - Phases 0.15 to 3.3 rad: the forward half of the wall from its top round past its bottom to the lobe, which is the shell's outer face;
+   *   the back half is the auricle's posterior skin, along which a cast slides.
+   * - 17 by 17 control heights, about 1.2 mm by 0.23 rad, faded over its first 2 mm, its last 2.5 mm and 0.3 rad at each phase edge: at 13
+   *   by 13 the antihelix did not show and, unfaded, the net overshot to 11 mm in its last free row beside the pole.
+   * - Reach 8 mm, facing 0.3: the scapha, the fossa and the antihelix lie within 6 mm of the hull and the lobe's notch within 8 (`--casts`);
+   *   the concha, 15 mm deep, is its own cut, so deeper casts are left to the net's fairness.
    * - Axis (-0.6, 0, -0.8), 37 degrees back from straight in: the shell's outer normal, between its rim's plane (31 degrees off the sagittal,
    *   `FamilyConicEar.ts --map`: rim 96 mm out at the back, 82 to 84 in front) and its hull's front edge, which recedes 1.15 mm forward for
    *   each millimetre out (`FamilyConicScan.ts ear`).
    */
-  const EAR_FACE: number[] = process.argv.find((argument: string): boolean => argument.startsWith("--ear-face="))?.slice("--ear-face=".length).split(",").map(Number) ?? [8, 23.6, 0.15, 3.0, 13, 13, 7, 0.3];
+  const EAR_FACE: number[] = process.argv.find((argument: string): boolean => argument.startsWith("--ear-face="))?.slice("--ear-face=".length).split(",").map(Number) ?? [6.5, 23.6, 0.15, 3.3, 17, 17, 8, 0.3];
   const EAR_FACE_AXIS: R.V = ((a: number[]): R.V => { const n: number = Math.hypot(a[0]!, a[1]!, a[2]!); return [a[0]! / n, a[1]! / n, a[2]! / n]; })(process.argv.find((argument: string): boolean => argument.startsWith("--ear-axis="))?.slice("--ear-axis=".length).split(",").map(Number) ?? [-0.6, 0, -0.8]);
 
   /**
-   * The face relief's fades (`--ear-fade=<first>,<last>,<firstPhase>,<lastPhase>`), mm and radians: none. Faded by 2.5 mm toward the pole
-   * and 0.3 rad at its phase edges, with or without 3 mm at its first station, the net was gentler at its edges, but the ear's band, which
-   * the concha's cut crosses, failed to triangulate ("visibility left-side probe has no admitted represented corridor").
+   * The face relief's fades (`--ear-fade=<first>,<last>,<firstPhase>,<lastPhase>`), mm and radians. Faded, the net is gentle at its edges;
+   * the ear's band, which the concha's cut crosses, failed to triangulate under a faded net until the engine read a face's membership
+   * beside any edge of its walk (`probeAutoMovieSolidMesh`).
    */
-  const EAR_FADE: number[] = process.argv.find((argument: string): boolean => argument.startsWith("--ear-fade="))?.slice("--ear-fade=".length).split(",").map(Number) ?? [0, 0, 0, 0];
+  const EAR_FADE: number[] = process.argv.find((argument: string): boolean => argument.startsWith("--ear-fade="))?.slice("--ear-fade=".length).split(",").map(Number) ?? [2, 2.5, 0.3, 0.3];
 
   /** The ear's phase pitch (`--ear-pitch=<mm>`): at the model's 4 mm the rim's top drew a row of teeth. */
   const EAR_PITCH: number = Number(process.argv.find((argument: string): boolean => argument.startsWith("--ear-pitch="))?.slice("--ear-pitch=".length) ?? 1.5);

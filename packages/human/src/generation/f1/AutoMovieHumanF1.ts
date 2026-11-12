@@ -395,12 +395,12 @@ export namespace AutoMovieHumanF1 {
       const ear: AutoMovieHumanConicLoft.IFamily = side > 0 ? BODY.ear : twin(BODY.ear);
       // The ear's outer face, the scapha, the fossa and the antihelix, is a relief over its leaf. Its bowl, the concha, low and forward
       // behind the tragus, is a loft read from the skin's depth and cut after the ear is attached: its cutter runs square into the head to
-      // the bowl's floor, is closed at both ends, and its cut crosses the ear's band from rim to rim and back, with a blend 0.1 mm wide (at
-      // 0.25 mm it folded), walked by its own length. It is seeded on its back side, phase pi / 2, which lies on the ear's outer face; its
+      // the bowl's floor, is closed at both ends, and its cut crosses the ear's band from rim to rim and back, with a blend 0.5 mm wide,
+      // walked by its own length: at 0.1 mm its rim folded 139 degrees against the antihelix, at 0.5 mm 97 (0.25 mm folded the earlier prism). It is seeded on its back side, phase pi / 2, which lies on the ear's outer face; its
       // lower side, phase pi, ran past the leaning ear's front onto the band. A twin's phases run the other way round.
       const concha: AutoMovieHumanConicLoft.IFamily = side > 0 ? AutoMovieHumanF1Concha : twin(AutoMovieHumanF1Concha);
       root = { type: "port", name: "auricle." + ear.name, host: root, hostFace: trunk, loop: auricle(side), band: "band." + ear.name, part: leaf(ear), partFace: ear.name, partEnd: "bottom", rail: RAIL_MM.ear / 1000, count: BAND.count, rows: BAND.rows };
-      root = { type: "join", kind: "diff", name: "cut." + concha.name, host: root, part: leaf(concha), seed: { type: "search", partFace: concha.name, hostFace: ear.name, phase: side > 0 ? Math.PI / 2 : (3 * Math.PI) / 2, from: 0, to: 0.9 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.0001 }, hostWidth: { type: "chord", value: 0.0001 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04 };
+      root = { type: "join", kind: "diff", name: "cut." + concha.name, host: root, part: leaf(concha), seed: { type: "search", partFace: concha.name, hostFace: ear.name, phase: side > 0 ? Math.PI / 2 : (3 * Math.PI) / 2, from: 0, to: 0.9 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.0005 }, hostWidth: { type: "chord", value: 0.0005 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04 };
     }
     root = { type: "port", name: "nostril." + BODY.nose.name, host: root, hostFace: trunk, loop: nostril(), band: "band." + BODY.nose.name, part: leaf(BODY.nose), partFace: BODY.nose.name, partEnd: "bottom", rail: RAIL_MM.nose / 1000, count: BAND.count, rows: BAND.rows };
     // Each nostril is cut from the head: its loft comes up out of the nose's underside and closes inside it.

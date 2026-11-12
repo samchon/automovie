@@ -19,10 +19,11 @@ import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
  * 0.15 mm from it on average and at most 0.97 mm; what lies inside that hull is not modelled. 65 independent numbers.
  *
  * The course leans back with the auricle's shell (`AutoMovieHumanF1Joints.earTip`), so the wall is the shell's hull at every depth and
- * its pole stands on the helix's back. What lies inside that hull on the outer face, the scapha, the fossa and the antihelix, is the relief
- * `ear.face`: heights cast from the wall's forward half along the shell's outer normal onto the reference, stations 8 to 23.6 mm, with
- * casts deeper than 7 mm (the concha's bowl, which is a cut of its own) left to the net's fairness (`FamilyConicBody.ts`, `EAR_FACE`).
- * Re-emitted from `test` by `node .shots/esbuild/FamilyConicBody.cjs ear --emit`, with this paragraph kept.
+ * its pole stands on the helix's back. What lies inside that hull on the outer face, the scapha, the fossa, the antihelix and the notch
+ * in front of the lobe, is the relief `ear.face`: heights cast from the wall's forward half along the shell's outer normal onto the
+ * reference, stations 6.5 to 23.6 mm, faded over its edges, with casts deeper than 8 mm (the concha's bowl, which is a cut of its own)
+ * left to the net's fairness (`FamilyConicBody.ts`, `EAR_FACE`). Re-emitted from `test` by `node .shots/esbuild/FamilyConicBody.cjs ear
+ * --emit`, with this paragraph kept.
  */
 export const AutoMovieHumanF1Ear: AutoMovieHumanConicLoft.IFamily = {
   name: "ear",
@@ -66,6 +67,6 @@ export const AutoMovieHumanF1Ear: AutoMovieHumanConicLoft.IFamily = {
 
   // Reliefs: heights in mm of a uniform cubic B-spline net over a window of the wall's chart, moved along `axis`; they carry the skin that lies inside the tape wall.
   reliefs: [
-    {"name":"ear.face", "stations":[8, 23.6], "phases":[0.15, 3], "axis":[-0.6, 0, -0.8], "rows":13, "columns":13, "heights":[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.35, 9.53, 8.54, 7.24, 5.54, 6.15, 5.47, 0, 0, 0, 0, 0, 0, 1.48, 4.82, 1.59, 1.74, 0.86, 0.5, 1.1, 0, 0, 0, 0, 0, 0, 3.22, 5.31, 3.29, 3.13, 2.3, 1.6, 0.57, 0, 0, 0, 0, 0, 0, 4.59, 3.97, 2.65, 2.31, 1.76, 1.07, 0.95, 0, 0, 0, 0, 0, 0, 6.2, 4.75, 4.5, 3.97, 3.81, 2.7, 3.93, 0, 0, 0, 0, 0, 0, 5.92, 3.3, 4.07, 3.51, 3.79, 2.28, 5.74, 0, 0, 0, 0, 0, 0, 11.3, 8.72, 9.54, 9.33, 9.6, 8.19, 11.61, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]},
+    {"name":"ear.face", "stations":[6.5, 23.6], "phases":[0.15, 3.3], "axis":[-0.6, 0, -0.8], "rows":17, "columns":17, "heights":[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -2.72, 3.19, 9.86, 11.44, 10.23, 7.83, 8.18, 8.04, 4.98, 2.4, 1.43, 0, 0, 0, 0, 0, 0, -2.44, 3.12, 4.64, 3.82, 3.68, 2.58, 2.18, 4.38, 6.5, 1.53, 0, 0, 0, 0, 0, 0, 0, -1.77, 5.11, 5.39, 5.22, 4.65, 3.81, 3.2, 2.35, 4.3, 1.11, 0.24, 0, 0, 0, 0, 0, 0, -1.22, 5.74, 3.92, 3.69, 2.97, 2.32, 2.07, 1.56, 1.6, 0.02, 0.48, 0, 0, 0, 0, 0, 0, -0.35, 6.01, 3.56, 3.55, 2.79, 2.24, 1.74, 1.3, 0.99, -0.28, 0.85, 0, 0, 0, 0, 0, 0, 0.95, 6, 3.15, 3.29, 2.52, 2.14, 1.67, 1.12, 0.79, -0.25, 1.24, 0, 0, 0, 0, 0, 0, 2.11, 5.96, 3.35, 3.65, 2.95, 2.64, 2.19, 1.78, 1.38, 0.61, 1.87, 0, 0, 0, 0, 0, 0, 2.96, 5.82, 3.84, 4.16, 3.61, 3.38, 3.01, 2.72, 2.48, 2.29, 2.76, 0, 0, 0, 0, 0, 0, 5.05, 6.05, 5.16, 5.39, 5.1, 4.91, 4.75, 4.66, 4.42, 4.15, 3.64, 0, 0, 0, 0, 0, 0, 5.54, 4.81, 5.09, 5.11, 5.07, 5, 4.87, 4.82, 4.62, 4.28, 3.7, 0, 0, 0, 0, 0, 0, 8.4, 7.41, 8.01, 7.96, 7.98, 7.99, 7.86, 7.72, 7.22, 6.35, 4.75, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]},
   ],
 };

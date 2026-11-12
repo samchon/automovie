@@ -14,6 +14,13 @@ import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
  * which the engine clips as one pair of runs (`AutoMovieSolidClip`). Its outer end is closed 9 mm past its lead's start, so the curve
  * where it meets the leaf never runs along an open end.
  *
+ * Hand edits after that fit, so the cut is a bowl and not a prism. The fitted floor section (its first knot, 69 mm out) is held from
+ * 87 to 79 mm out and the part closes from there in a rounded cap to 71 mm out, the skull's level beside the ear (`FamilyConicScan.ts ear`:
+ * 70 to 74 mm at x -10 to 30): carried straight in to the floor at 65 mm, the cut's lower wall stood 20 mm deep as a flat lit shelf over
+ * the lobe. Its back (+v) extreme widens from that section's 8.66 mm to 11.5 and 13.5 mm toward the mouth, so the back wall slopes back
+ * toward the antihelix's crest (x 0 to 6 at 88 to 91 mm out, `FamilyConicEar.ts --map`) instead of standing square to the face. Its lower
+ * (-u) extreme reads -6 mm across in place of the fit's -10.6; the model holds a guide within 0.92 of its neighbours' box either way.
+ *
  * Frame: the figure's absolute reference pose, millimetres, forward +X, up +Y, +Z the reference's left. The course runs
  * through `centres` with a turn of half length `halves` at each joint; stations are arclength from the first centre and each
  * section lies in the plane normal to the course, charted by `u` (carried from `up` by the course's rotations) and `v`.
@@ -33,34 +40,34 @@ export const AutoMovieHumanF1Concha: AutoMovieHumanConicLoft.IFamily = {
   halves: [],
   up: [0, 1, 0],
   layout: AutoMovieHumanConicSection.limb(0),
-  knots: [3, 9, 15, 21, 22.5, 24],
+  knots: [3, 9, 15],
   values: [
     // front (+u) extreme: u, mm
-    [6.54, 6.54, 6.54, 6.54, 5.99, 5.19],
+    [6.54, 6.54, 6.54],
     // front (+u) extreme: v, mm
-    [1.13, 1.13, 1.13, 1.13, -0.33, -1.08],
+    [1.13, 1.13, 1.13],
     // side (+v) extreme: u, mm
-    [3.76, 3.76, 3.76, 3.76, -1.05, -2.05],
+    [3.76, 3.76, 3.76],
     // side (+v) extreme: v, mm
-    [8.66, 8.66, 8.66, 8.66, 6.8, 3.08],
+    [13.5, 11.5, 8.66],
     // back (-u) extreme: u, mm
-    [-7.13, -7.13, -7.13, -7.13, -6.11, -4.72],
+    [-7.13, -7.13, -7.13],
     // back (-u) extreme: v, mm
-    [-10.6, -10.6, -10.6, -10.6, -13.38, -41.83],
+    [-6, -6, -6],
     // side (-v) extreme: u, mm
-    [-8.73, -8.73, -8.73, -8.73, -4.44, 0.88],
+    [-8.73, -8.73, -8.73],
     // side (-v) extreme: v, mm
-    [-4.89, -4.89, -4.89, -4.89, -4.22, -3.23],
+    [-4.89, -4.89, -4.89],
     // shoulder rho of the arc after anchor 0, share
-    [0.4816, 0.4816, 0.4816, 0.4816, 0.4549, 0.4888],
+    [0.4816, 0.4816, 0.4816],
     // shoulder rho of the arc after anchor 1, share
-    [0.4396, 0.4396, 0.4396, 0.4396, 0.4917, 0.5188],
+    [0.4396, 0.4396, 0.4396],
     // shoulder rho of the arc after anchor 2, share
-    [0.4992, 0.4992, 0.4992, 0.4992, 0.4991, 0.4942],
+    [0.4992, 0.4992, 0.4992],
     // shoulder rho of the arc after anchor 3, share
-    [0.4705, 0.4705, 0.4705, 0.4705, 0.4748, 0.5003],
+    [0.4705, 0.4705, 0.4705],
   ],
 
   // The part closes in a point at `tip`, a station placed by anatomy; its cap starts at `from`.
-  tips: [{from: 3, tip: -6}, {from: 24, tip: 25}],
+  tips: [{from: 3, tip: -6}, {from: 11, tip: 19}],
 };
