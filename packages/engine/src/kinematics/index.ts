@@ -38,3 +38,5 @@ export * from "./skeletonJointAxes";
 export * from "./solveTwoBoneIK";
 export * from "./twoBoneChainArticulation";
 export * from "./validateJointAxesBasis";
+export * from "./markAutoMovieBalance";
+export * from "./markAutoMovieRomOvershoot";

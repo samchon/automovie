@@ -1,6 +1,6 @@
 import { IAutoMovieRenderSpec } from "@automovie/interface";
 
-import { IAutoMovieRenderResult } from "./IAutoMovieRenderResult";
+import { IAutoMovieRenderResult } from "./IAutoMovieRenderResult.js";
 
 /**
  * JSON-friendly render artifact returned to an agent or host.

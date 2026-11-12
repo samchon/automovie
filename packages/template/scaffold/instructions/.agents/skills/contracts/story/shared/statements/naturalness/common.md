@@ -58,7 +58,7 @@ Deciding and retaining:
 
 28. Every sentence was tested against the applicable named failures by the [independent classification](../../../../../story/correction/inspection.md#independent-classification), and their connections were read for insufficiency.
 29. An ambiguous candidate was decided by the independent classifier, who read its context for whether the named failure causes the recipient's loss.
-30. The author chose the repair and could raise a factual objection under [narrative rounds](../../../../../review/narrative-rounds.md), and did not settle that literary judgment.
+30. The author decided each finding and chose the repair under [narrative rounds](../../../../../review/narrative-rounds.md#findings-and-decisions).
 31. A revised passage was classified again under [inspection](../../../../../story/correction/inspection.md#verify-changed-work).
 32. A named failure is retained only under one of these exceptions, supported by the passage:
     - useful execution directions;

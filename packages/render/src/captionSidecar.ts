@@ -1,3 +1,3 @@
-export * from "./IAutoMovieCaptionEntry";
-export * from "./IAutoMovieCaptionSidecar";
-export * from "./renderCaptionSidecar";
+export * from "./IAutoMovieCaptionEntry.js";
+export * from "./IAutoMovieCaptionSidecar.js";
+export * from "./renderCaptionSidecar.js";

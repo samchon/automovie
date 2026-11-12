@@ -3,7 +3,7 @@ import type {
   IAutoMovieFormationMotion,
   IAutoMovieModel,
 } from "@automovie/interface";
-import type { buildInstancedFormation } from "@automovie/viewer";
+import type { buildInstancedFormation } from "@automovie/render";
 
 import { IDENTITY_TRANSFORM, createModel } from "./fixtures";
 

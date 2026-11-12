@@ -1,5 +1,5 @@
-import { canonicalizeAutoMovieCaptionText } from "./canonicalizeAutoMovieCaptionText";
-import { escapeWebVttText } from "./escapeWebVttText";
+import { canonicalizeAutoMovieCaptionText } from "./canonicalizeAutoMovieCaptionText.js";
+import { escapeWebVttText } from "./escapeWebVttText.js";
 
 /**
  * Serialize one authored caption as a WebVTT cue payload.

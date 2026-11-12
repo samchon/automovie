@@ -54,7 +54,28 @@
   "dependencies": {
     "@automovie/template": "workspace:^"
   },
+  "peerDependencies": {
+    "@automovie/render": "workspace:^",
+    "ffmpeg-static": "catalog:media",
+    "playwright-core": "catalog:media",
+    "vite": "catalog:vite"
+  },
+  "peerDependenciesMeta": {
+    "@automovie/render": {
+      "optional": true
+    },
+    "ffmpeg-static": {
+      "optional": true
+    },
+    "playwright-core": {
+      "optional": true
+    },
+    "vite": {
+      "optional": true
+    }
+  },
   "devDependencies": {
+    "@automovie/render": "workspace:^",
     "@ttsc/evidence": "catalog:samchon",
     "@types/node": "catalog:utils",
     "rimraf": "catalog:utils",

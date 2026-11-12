@@ -1,6 +1,6 @@
 import type { AutoMovieGuidePass } from "@automovie/interface";
 
-import { isGuidePass } from "../guidePasses";
+import { isGuidePass } from "../guidePasses.js";
 
 /**
  * Return the one structural pass a guide-pass deliverable declares, or throw.

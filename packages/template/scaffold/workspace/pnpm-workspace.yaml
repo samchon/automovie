@@ -30,6 +30,10 @@ catalogs:
     "@gltf-transform/core": "{{version:gltfTransformCore}}"
   vite:
     vite: "{{version:vite}}"
+  react:
+    react: &react "{{version:react}}"
+    react-dom: *react
+    "@types/react": "{{version:reactTypes}}"
   media:
     ffmpeg-static: "{{version:ffmpegStatic}}"
     h264-mp4-encoder: "{{version:h264Mp4Encoder}}"

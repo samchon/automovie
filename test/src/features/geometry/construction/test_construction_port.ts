@@ -26,12 +26,14 @@ type V3 = [number, number, number];
  * 5. Watertight skin: every edge is used by two triangles except on the free ends (`z = 0`, `z = -0.1`, `x = 0.072` m).
  * 6. Refusal: a rail of 0.5 m leaves one diagnostic on the port, no band, no hole and no part face.
  * 7. Red: the loop check read against a port curve about station 0.04 fails.
+ * 8. Shape: with the share `1 + 0.2 cos 2c` per column, the band's station-0 point at clock `c` is the host's point at `(50 + s 10 cos c, s 0.45 sin c)`, within 1e-6 mm, and some column stands more than 1 mm from the plain ellipse's.
+ * 9. Shape admission: a shape of 3 shares for 32 columns is refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Realizes port trees with `realizeAutoMovieConstruction` and reads the band's, host's and part's surfaces, the published body's cycles and the skin. It catches a band off the port curve or the rail, a band whose cross jets are not the host's, a hole not shared with the band, an open skin and a refusal that leaves a partial cut.
  * @evidence contracts/development/testing.md#independent-expectations Port points from the cylinder's closed form on the declared chart ellipse; cross jets read on the host's realized surface along the ellipse's inward chart direction (the node contract); rail points on the part's knot circle, exact for ConstructionShapes; watertightness from the manifold edge rule.
- * @evidence contracts/development/testing.md#distinguishing-cases A positive port, a rail outside the part as the rollback case and a shifted curve as the red reading; the strip's scale law belongs to `test_construction_strip_law`, the split to `test_construction_split`.
+ * @evidence contracts/development/testing.md#distinguishing-cases A positive port, a rail outside the part as the rollback case, a shifted curve as the red reading, and a shaped loop read against both its own curve and the plain ellipse; the strip's scale law belongs to `test_construction_strip_law`, the split to `test_construction_split`.
  * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include construction_port`; it realizes made trees in process and starts no host, browser or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: No diagnostic; the faces are exactly the host, the part and the band; the host carries one hole cycle.).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 9 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: No diagnostic; the faces are exactly the host, the part and the band; the host carries one hole cycle.).
  */
 export function test_construction_port(): void {
   const failures: string[] = [];
@@ -258,6 +260,63 @@ export function test_construction_port(): void {
     failures.push(
       "proof: the band's loop reads equal to a port curve about station 40 mm",
     );
+
+  // 8. A shaped loop: each column's share of the ellipse's distance from the centre.
+  const share: (k: number) => number = (k: number): number =>
+    1 + 0.2 * Math.cos(2 * clock(k));
+  const shaped: AutoMovieConstructionRealization.IRealization = realize({
+    ...port(0.02),
+    loop: {
+      ...port(0.02).loop,
+      shape: Array.from({ length: n }, (_: unknown, k: number): number =>
+        share(k),
+      ),
+    },
+  });
+  if (shaped.diagnostics.length !== 0)
+    failures.push(`shape: ${ConstructionRead.diagnostics(shaped)}`);
+  else {
+    const bent: IAutoMovieSolidSurface = ConstructionRead.surface(
+      shaped,
+      "band.port",
+    );
+    let plain: number = 0;
+    for (let k: number = 0; k < n; ++k) {
+      const c: number = clock(k);
+      const at: (s: number) => V3 = (s: number): V3 => {
+        const phi: number = s * 0.45 * Math.sin(c);
+        return [
+          20 * Math.cos(phi),
+          20 * Math.sin(phi),
+          -(50 + s * 10 * Math.cos(c)),
+        ];
+      };
+      const p: readonly number[] = bent.jet(0, c).p;
+      const gap: number = len(sub(p, at(share(k))));
+      if (!(gap <= 1e-6))
+        failures.push(
+          `shaped loop column ${k}: ${gap} mm off the ellipse's point scaled by ${share(k)}`,
+        );
+      plain = Math.max(plain, len(sub(p, at(1))));
+    }
+    if (!(plain > 1))
+      failures.push(
+        `shape: the shaped loop stands only ${plain} mm from the plain ellipse, so the shares are not told apart`,
+      );
+  }
+
+  // 9. A shape of another length than the columns.
+  let refused: boolean = false;
+  try {
+    realize({
+      ...port(0.02),
+      loop: { ...port(0.02).loop, shape: [1, 1, 1] },
+    });
+  } catch {
+    refused = true;
+  }
+  if (!refused)
+    failures.push("a loop shape of 3 shares was admitted for 32 columns");
   if (failures.length !== 0)
     throw new Error(
       `${failures.length} port failures:\n${failures.join("\n")}`,

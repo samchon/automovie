@@ -14,8 +14,8 @@ The skills name installed packages by role. This table is the one place that say
 | Human package | `@automovie/human` | Prepare a person's canonical body |
 | Motion vocabulary | `@automovie/motions` | Chain a person's actions and read the pose at any second |
 | Engine | `@automovie/engine` | Validate the data, schedule a scene's actions and compute each film second |
-| Viewer | `@automovie/viewer` | Draw the polygon man and every other form, and capture the picture |
-| Renderer | `@automovie/render` | Plan the frames, cuts and encoding that the production's commands run |
+| Viewer | `@automovie/viewer` | Mount the picture on a page, play it back and review it |
+| Renderer | `@automovie/render` | Draw the polygon man and every other form, inspect and capture the picture, and plan the frames, cuts and encoding that the production's commands run |
 | Ingest package | `@automovie/ingest` | Decode external models, motion, audio and images |
 | Recovery package | `@automovie/recovery` | Recover curves from a fixed mesh so parameters can drive it |
 | Evidence package | `@automovie/evidence` | Configure the check that code and writing answer their contracts |

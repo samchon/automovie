@@ -13,7 +13,7 @@ import type {
 import {
   type AutoMovieHumanPolygon,
   buildHumanPolygon,
-} from "@automovie/viewer";
+} from "@automovie/render";
 import * as THREE from "three";
 
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";

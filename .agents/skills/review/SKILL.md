@@ -9,7 +9,11 @@ description: Runs automovie's Overall Self-Review of a complete change, which an
 
 Read the whole declared surface in the current checkout, without splitting it by file, package, or concern, and follow it into consumers, tests, generated output, CI, and platforms.
 
-Collect a round's findings, fix them together, then run a fresh complete round. Stop only after a complete round finds nothing.
+Judge each finding before acting on it. Fix a defect the change introduces or worsens; report a pre-existing one without fixing it here; drop a preference no rule supports.
+
+Collect a round's findings, fix the ones that hold together, then run a fresh complete round. Stop after a complete round finds no defect the change introduced.
+
+When rounds keep returning findings, look for the change's own design error and simplify or revert, rather than adding a rule or mechanism for each finding. Answering every finding with more text made one small skill change run twelve rounds and grow verbose.
 
 For maintained code, check that each checklist answer is true and complete for its declaration under [contracts](../contracts/SKILL.md). A passing test or renamed wrapper does not prove a cause was fixed.
 

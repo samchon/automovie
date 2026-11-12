@@ -7,7 +7,7 @@ import type {
   IAutoMoviePlantingPlacement,
   IAutoMoviePlantingState,
 } from "@automovie/interface";
-import { buildPlantingObject } from "@automovie/viewer";
+import { buildPlantingObject } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

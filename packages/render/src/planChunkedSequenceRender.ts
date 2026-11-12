@@ -1,20 +1,20 @@
 import { AutoMovieGuidePass, IAutoMovieRenderSpec } from "@automovie/interface";
 
-import type { IAutoMovieRenderChunk } from "./IAutoMovieRenderChunk";
-import type { IAutoMovieRenderChunkPlan } from "./IAutoMovieRenderChunkPlan";
-import type { IAutoMovieRenderPassManifest } from "./IAutoMovieRenderPassManifest";
-import { ffmpegArgs } from "./ffmpegArgs";
-import { frameName } from "./frameName";
-import { framePattern } from "./framePattern";
+import type { IAutoMovieRenderChunk } from "./IAutoMovieRenderChunk.js";
+import type { IAutoMovieRenderChunkPlan } from "./IAutoMovieRenderChunkPlan.js";
+import type { IAutoMovieRenderPassManifest } from "./IAutoMovieRenderPassManifest.js";
+import { ffmpegArgs } from "./ffmpegArgs.js";
+import { frameName } from "./frameName.js";
+import { framePattern } from "./framePattern.js";
 import {
   guidePassFramePattern,
   normalizeGuidePasses,
   planGuidePassOutputs,
-} from "./guidePasses";
+} from "./guidePasses.js";
 import {
   IAutoMovieSequenceRenderFrame,
   IAutoMovieSequenceRenderPlan,
-} from "./sequenceRenderPlan";
+} from "./sequenceRenderPlan.js";
 
 /**
  * Split a `planSequenceRender` manifest into `chunkFrames`-sized, independently renderable chunks and the plan to concatenate them.

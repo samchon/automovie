@@ -8,7 +8,7 @@ import {
   IAutoMovieModel,
   IAutoMovieWorldDesign,
 } from "@automovie/interface";
-import { buildInstancedInstanceSet, buildMaterial } from "@automovie/viewer";
+import { buildInstancedInstanceSet, buildMaterial } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

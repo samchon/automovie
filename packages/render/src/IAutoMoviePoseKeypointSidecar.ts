@@ -1,4 +1,4 @@
-import type { IAutoMoviePoseKeypointFrame } from "./IAutoMoviePoseKeypointFrame";
+import type { IAutoMoviePoseKeypointFrame } from "./IAutoMoviePoseKeypointFrame.js";
 
 /**
  * The per-frame pose-keypoint sidecar of one sequence render: the machine-readable, OpenPose-style companion to the rendered `pose` guide pass, as the caption sidecar accompanies the beauty frames.

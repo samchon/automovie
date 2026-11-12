@@ -1,4 +1,4 @@
-import { readAutoMovieRenderTextureTarget } from "@automovie/viewer";
+import { readAutoMovieRenderTextureTarget } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import type { Texture, TextureEventMap, WebGLRenderTarget } from "three";
 

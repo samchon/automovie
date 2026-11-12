@@ -8,7 +8,7 @@ import type {
 import {
   buildInstancedFormation,
   regenerateFormationSlot,
-} from "@automovie/viewer";
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import type * as ThreeTypes from "three";
 

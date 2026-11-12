@@ -3,7 +3,7 @@ import {
   AutoMovieSkinnedMesh,
   applyDualQuaternionSkinning,
   createAutoMovieSurfaceAppearance,
-} from "@automovie/viewer";
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 import * as THREE from "three";

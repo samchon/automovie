@@ -1,4 +1,4 @@
-import type { IAutoMovieCapturedFrame } from "./IAutoMovieCapturedFrame";
+import type { IAutoMovieCapturedFrame } from "./IAutoMovieCapturedFrame.js";
 
 /**
  * The outcome of a render: encoded video plus frame metadata an agent can inspect without inferring paths from the ffmpeg pattern.

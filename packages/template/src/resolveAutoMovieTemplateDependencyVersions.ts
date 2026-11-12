@@ -4,7 +4,7 @@ import { createAutoMovieCatalogVersionResolver } from "./createAutoMovieCatalogV
 /**
  * Build the version table behind the scaffold's `{{version:<key>}}` tokens.
  *
- * Workspace package ranges are copied unchanged. Every external dependency is read from the pnpm catalog that owns it: `media` for the media and runtime libraries, `three`, `gltf` for the model exporter, `vite`, `utils` for `@types/node`, `samchon` for the compiler, lint, evidence and test tools, and `typescript`. For `@huggingface/transformers`, `kokoro-js`, and `onnxruntime-node`, whose runtime graphs must agree on one exact version, a leading `^` or `~` is removed; any other range form is kept as written.
+ * Workspace package ranges are copied unchanged. Every external dependency is read from the pnpm catalog that owns it: `media` for the media and runtime libraries, `three`, `gltf` for the model exporter, `vite`, `react` for the inspector page, `utils` for `@types/node`, `samchon` for the compiler, lint, evidence and test tools, and `typescript`. For `@huggingface/transformers`, `kokoro-js`, and `onnxruntime-node`, whose runtime graphs must agree on one exact version, a leading `^` or `~` is removed; any other range form is kept as written.
  *
  * @param props The manifest text and the workspace package ranges.
  * @returns The table keyed by token name, such as `engine` or `kokoroJs`.
@@ -14,9 +14,9 @@ import { createAutoMovieCatalogVersionResolver } from "./createAutoMovieCatalogV
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The function owns only the mapping from token names to catalog entries; YAML reading belongs to `createAutoMovieCatalogVersionResolver`, and file access to the build script.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The exact-version rule applies to the three named runtime packages by their catalog names because their graphs need one version, and no value is hard-coded; every version comes from the inputs.
  * @evidence contracts/development/common.md#meaningful-documentation The comment states which catalog owns each group, which entries become exact and how, the keys of the result, and what throws.
- * @evidence contracts/development/implementation.md#efficient-algorithms The manifest is parsed once; each of twenty-two lookups scans the direct keys of the root, catalogs mapping and requested catalog, including alias resolution where needed. The fixed lookup count keeps total work linear in manifest size, with one parsed document and thirty-three result strings.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work All twenty-two lookups share one resolver and therefore one parsed document of `props.workspace`, the only input they depend on; nothing outlives the call, so no invalidation is needed.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The resolver and its parsed document are released when the function returns; only the result table, thirty-three strings, is retained by the caller.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The manifest is parsed once; each of twenty-five lookups scans the direct keys of the root, catalogs mapping and requested catalog, including alias resolution where needed. The fixed lookup count keeps total work linear in manifest size, with one parsed document and thirty-six result strings.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work All twenty-five lookups share one resolver and therefore one parsed document of `props.workspace`, the only input they depend on; nothing outlives the call, so no invalidation is needed.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The resolver and its parsed document are released when the function returns; only the result table, thirty-six strings, is retained by the caller.
  */
 export const resolveAutoMovieTemplateDependencyVersions: (
   props: IAutoMovieTemplateDependencyVersionsProps,
@@ -59,6 +59,9 @@ export const resolveAutoMovieTemplateDependencyVersions: (
     gltfTransformCore: catalogVersion("gltf", "@gltf-transform/core"),
     threeTypes: catalogVersion("three", "@types/three"),
     vite: catalogVersion("vite", "vite"),
+    react: catalogVersion("react", "react"),
+    reactDom: catalogVersion("react", "react-dom"),
+    reactTypes: catalogVersion("react", "@types/react"),
     nodeTypes: catalogVersion("utils", "@types/node"),
     nestiaE2e: catalogVersion("samchon", "@nestia/e2e"),
     ttsc: catalogVersion("samchon", "ttsc"),

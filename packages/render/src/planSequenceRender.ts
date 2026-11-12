@@ -9,14 +9,14 @@ import {
   IAutoMovieShot,
 } from "@automovie/interface";
 
-import type { IAutoMovieSequenceRenderFrame } from "./IAutoMovieSequenceRenderFrame";
-import type { IAutoMovieSequenceRenderPlan } from "./IAutoMovieSequenceRenderPlan";
-import type { IAutoMovieSequenceRenderTransitionSpan } from "./IAutoMovieSequenceRenderTransitionSpan";
-import { ffmpegArgs } from "./ffmpegArgs";
-import { frameName } from "./frameName";
-import { framePattern } from "./framePattern";
-import { frameTimes } from "./frameTimes";
-import { renderPathStem } from "./renderPathStem";
+import type { IAutoMovieSequenceRenderFrame } from "./IAutoMovieSequenceRenderFrame.js";
+import type { IAutoMovieSequenceRenderPlan } from "./IAutoMovieSequenceRenderPlan.js";
+import type { IAutoMovieSequenceRenderTransitionSpan } from "./IAutoMovieSequenceRenderTransitionSpan.js";
+import { ffmpegArgs } from "./ffmpegArgs.js";
+import { frameName } from "./frameName.js";
+import { framePattern } from "./framePattern.js";
+import { frameTimes } from "./frameTimes.js";
+import { renderPathStem } from "./renderPathStem.js";
 
 /**
  * Build the render-layer manifest for a committed sequence. The output FPS is controlled by the render spec; the cut's fps is preserved as editorial metadata. Trim and transition arithmetic is delegated to the engine playback timeline, then copied into the manifest so the capture host has no hidden timing rules.

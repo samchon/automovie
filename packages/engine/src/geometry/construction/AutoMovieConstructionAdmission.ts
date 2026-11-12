@@ -224,6 +224,17 @@ export namespace AutoMovieConstructionAdmission {
             throw new Error(
               `realizeAutoMovieConstruction: ${name}'s rail ${node.rail} m is not positive`,
             );
+          const shape: number[] | undefined = node.loop.shape;
+          if (
+            shape !== undefined &&
+            !(
+              shape.length === node.count &&
+              shape.every((x: number): boolean => Number.isFinite(x) && x > 0)
+            )
+          )
+            throw new Error(
+              `realizeAutoMovieConstruction: ${name}'s loop shape is not ${node.count} finite positive shares, one per column`,
+            );
           if (seen.has(node.band))
             throw new Error(
               `realizeAutoMovieConstruction: the name ${node.band} is used twice`,

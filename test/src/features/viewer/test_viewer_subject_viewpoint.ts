@@ -8,7 +8,7 @@ import {
   captureAutoMovieViewerSubjectView,
   frameAutoMovieViewerSubject,
   parseAutoMovieViewerSubjectKey,
-} from "@automovie/viewer";
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -100,7 +100,7 @@ export function test_viewer_subject_viewpoint(): void {
     "a turntable plan names its viewpoints deterministically",
     plan.map(
       (
-        viewpoint: import("@automovie/viewer").IAutoMovieViewerViewpoint,
+        viewpoint: import("@automovie/render").IAutoMovieViewerViewpoint,
       ): string => viewpoint.id,
     ),
     [
@@ -168,7 +168,7 @@ export function test_viewer_subject_viewpoint(): void {
     fovDeg: 40,
     aspect: 16 / 9,
   };
-  const mullion: import("@automovie/viewer").IAutoMovieViewerSubjectPose =
+  const mullion: import("@automovie/render").IAutoMovieViewerSubjectPose =
     frameAutoMovieViewerSubject(
       {
         min: { x: 0, y: 2, z: 0 },
@@ -182,7 +182,7 @@ export function test_viewer_subject_viewpoint(): void {
       },
       lens,
     );
-  const elevation: import("@automovie/viewer").IAutoMovieViewerSubjectPose =
+  const elevation: import("@automovie/render").IAutoMovieViewerSubjectPose =
     frameAutoMovieViewerSubject(
       {
         min: { x: -25, y: 0, z: -6 },
@@ -212,7 +212,7 @@ export function test_viewer_subject_viewpoint(): void {
     "the depth-buffer ratio is the same at both scales",
     nclose(mullion.far / mullion.near, elevation.far / elevation.near),
   );
-  const portrait: import("@automovie/viewer").IAutoMovieViewerSubjectPose =
+  const portrait: import("@automovie/render").IAutoMovieViewerSubjectPose =
     frameAutoMovieViewerSubject(
       {
         min: { x: -25, y: 0, z: -6 },
@@ -230,7 +230,7 @@ export function test_viewer_subject_viewpoint(): void {
     "a portrait viewport backs off further, fitting the narrower field",
     (): boolean => portrait.position.z > elevation.position.z,
   );
-  const orbit: import("@automovie/viewer").IAutoMovieViewerSubjectPose =
+  const orbit: import("@automovie/render").IAutoMovieViewerSubjectPose =
     frameAutoMovieViewerSubject(
       { min: { x: -1, y: -1, z: -1 }, max: { x: 1, y: 1, z: 1 } },
       {
@@ -249,7 +249,7 @@ export function test_viewer_subject_viewpoint(): void {
       nclose(orbit.position.z, 0, 1e-9) &&
       Math.abs(orbit.position.z) < 1e-9,
   );
-  const wide: import("@automovie/viewer").IAutoMovieViewerSubjectPose =
+  const wide: import("@automovie/render").IAutoMovieViewerSubjectPose =
     frameAutoMovieViewerSubject(
       { min: { x: -1, y: -1, z: -1 }, max: { x: 1, y: 1, z: 1 } },
       { id: "az000-el000", azimuthDeg: 0, elevationDeg: 0, distanceFactor: 1 },
@@ -291,7 +291,7 @@ export function test_viewer_subject_viewpoint(): void {
   //----
   // 4. A subject with no measured extent is still aimable.
   //----
-  const degenerate: import("@automovie/viewer").IAutoMovieViewerSubjectPose =
+  const degenerate: import("@automovie/render").IAutoMovieViewerSubjectPose =
     frameAutoMovieViewerSubject(
       { min: { x: 3, y: 1, z: -2 }, max: { x: 3, y: 1, z: -2 } },
       { id: "az000-el000", azimuthDeg: 0, elevationDeg: 0, distanceFactor: 1 },
@@ -309,7 +309,7 @@ export function test_viewer_subject_viewpoint(): void {
   //----
   // 5. The existing callbacks record pose application and encoding requests.
   //----
-  const heading: import("@automovie/viewer").IAutoMovieViewerSubjectPose =
+  const heading: import("@automovie/render").IAutoMovieViewerSubjectPose =
     autoMovieViewerPoseFromHeading(
       { x: 1, y: 2, z: 3 },
       { yaw: 90, pitch: 0 },

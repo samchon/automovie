@@ -9,7 +9,7 @@ import {
   applyRenderMode,
   buildFluidSprayObject,
   buildFluidSurfaceObject,
-} from "@automovie/viewer";
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -392,7 +392,7 @@ export function test_viewer_water_feature_passes(): void {
     (
       frame: import("@automovie/engine").IAutoMovieWaterFeatureFrame,
       index: number,
-    ): import("@automovie/viewer").IAutoMovieFluidSurfaceObject =>
+    ): import("@automovie/render").IAutoMovieFluidSurfaceObject =>
       buildFluidSurfaceObject({
         surface: frame.surface,
         mode: features[index].mode,
@@ -401,7 +401,7 @@ export function test_viewer_water_feature_passes(): void {
   const sprays: ReturnType<typeof buildFluidSprayObject>[] = frames.map(
     (
       frame: import("@automovie/engine").IAutoMovieWaterFeatureFrame,
-    ): import("@automovie/viewer").IAutoMovieFluidSprayObject =>
+    ): import("@automovie/render").IAutoMovieFluidSprayObject =>
       buildFluidSprayObject({ sample: frame.spray }),
   );
 
@@ -431,7 +431,7 @@ export function test_viewer_water_feature_passes(): void {
         (): boolean =>
           waters.every(
             (
-              water: import("@automovie/viewer").IAutoMovieFluidSurfaceObject,
+              water: import("@automovie/render").IAutoMovieFluidSurfaceObject,
             ): boolean => water.object.visible === true,
           ),
       ],
@@ -441,7 +441,7 @@ export function test_viewer_water_feature_passes(): void {
           waters
             .map(
               (
-                water: import("@automovie/viewer").IAutoMovieFluidSurfaceObject,
+                water: import("@automovie/render").IAutoMovieFluidSurfaceObject,
               ): string => water.object.name,
             )
             .join("|") ===
@@ -474,7 +474,7 @@ export function test_viewer_water_feature_passes(): void {
           waters
             .map(
               (
-                water: import("@automovie/viewer").IAutoMovieFluidSurfaceObject,
+                water: import("@automovie/render").IAutoMovieFluidSurfaceObject,
               ): boolean => water.object.userData.flowing === true,
             )
             .join(",") === "false,true,false,false",
@@ -500,7 +500,7 @@ export function test_viewer_water_feature_passes(): void {
     | THREE.Material<THREE.MaterialEventMap>[]
   )[] = waters.map(
     (
-      water: import("@automovie/viewer").IAutoMovieFluidSurfaceObject,
+      water: import("@automovie/render").IAutoMovieFluidSurfaceObject,
     ):
       | THREE.Material<THREE.MaterialEventMap>
       | THREE.Material<THREE.MaterialEventMap>[] => water.object.material,
@@ -525,17 +525,17 @@ export function test_viewer_water_feature_passes(): void {
       restored: boolean;
       mistShown: boolean;
     } => {
-      const handle: import("@automovie/viewer").IAutoMovieRenderModeHandle =
+      const handle: import("@automovie/render").IAutoMovieRenderModeHandle =
         applyRenderMode(scene, mode);
       const overridden: boolean = waters.every(
         (
-          water: import("@automovie/viewer").IAutoMovieFluidSurfaceObject,
+          water: import("@automovie/render").IAutoMovieFluidSurfaceObject,
           index: number,
         ): boolean => water.object.material !== originals[index],
       );
       const mistHidden: boolean = misted.every(
         (
-          spray: import("@automovie/viewer").IAutoMovieFluidSprayObject,
+          spray: import("@automovie/render").IAutoMovieFluidSprayObject,
         ): boolean => spray.object.visible === false,
       );
       handle.restore();
@@ -544,23 +544,23 @@ export function test_viewer_water_feature_passes(): void {
         mistHidden,
         restored: waters.every(
           (
-            water: import("@automovie/viewer").IAutoMovieFluidSurfaceObject,
+            water: import("@automovie/render").IAutoMovieFluidSurfaceObject,
             index: number,
           ): boolean => water.object.material === originals[index],
         ),
         mistShown: misted.every(
           (
-            spray: import("@automovie/viewer").IAutoMovieFluidSprayObject,
+            spray: import("@automovie/render").IAutoMovieFluidSprayObject,
           ): boolean => spray.object.visible === true,
         ),
       };
     },
   );
-  const beauty: import("@automovie/viewer").IAutoMovieRenderModeHandle =
+  const beauty: import("@automovie/render").IAutoMovieRenderModeHandle =
     applyRenderMode(scene, "beauty");
   const untouched: boolean = waters.every(
     (
-      water: import("@automovie/viewer").IAutoMovieFluidSurfaceObject,
+      water: import("@automovie/render").IAutoMovieFluidSurfaceObject,
       index: number,
     ): boolean => water.object.material === originals[index],
   );
@@ -623,7 +623,7 @@ export function test_viewer_water_feature_passes(): void {
         (): boolean =>
           misted.every(
             (
-              spray: import("@automovie/viewer").IAutoMovieFluidSprayObject,
+              spray: import("@automovie/render").IAutoMovieFluidSprayObject,
               at: number,
             ): boolean =>
               spray.count() === frames[at + 2].spray.particles.length,
@@ -635,7 +635,7 @@ export function test_viewer_water_feature_passes(): void {
         (): boolean =>
           misted.every(
             (
-              spray: import("@automovie/viewer").IAutoMovieFluidSprayObject,
+              spray: import("@automovie/render").IAutoMovieFluidSprayObject,
             ): boolean => spray.count() === 8,
           ),
       ],

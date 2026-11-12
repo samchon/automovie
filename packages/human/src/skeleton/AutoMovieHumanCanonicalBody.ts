@@ -233,7 +233,7 @@ export namespace AutoMovieHumanCanonicalBody {
    * `(x, y, z) -> (z, y, x)`. The drawing's parent must carry that same
    * reflection (`REFLECTION`, a column-major 4x4) so the figure shows in the
    * canonical world; a reflected world matrix keeps faces outward because
-   * three.js and the CPU rasterizer reverse winding for it.
+   * three.js reverses winding for it.
    *
    * @param body The canonical body.
    * @param pose A canonical pose; omitted, the T-pose rest.

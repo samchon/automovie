@@ -11,7 +11,7 @@ AutoMovie produces film-generation diffusion hints from an LLM-authored screenpl
 
 ### Coarse models, detailed motion
 
-A production's person is the polygon man, drawn by `viewer` from the canonical body `human` prepares, and every other model is as simple as identification allows. Motion is authored in detail and must accurately realize the intended performance and interactions.
+A production's person is the polygon man, drawn by `render` from the canonical body `human` prepares, and every other model is as simple as identification allows. Motion is authored in detail and must accurately realize the intended performance and interactions.
 
 Develop on the coarse models with verified motion. Detail is an option of the same entity that a delivery switches on, such as a detailed Human surface a commission selects, so scene intent never depends on surface complexity.
 
@@ -66,11 +66,17 @@ The [root README](../../../README.md#packages) and package READMEs own inventori
 | `motions` | Human action content |
 | `human` | The human figure generated from typed parameters by code |
 | `recovery` | Reference-mesh reconstruction |
-| `viewer` | GPU display, capture and inspection transport; the only library importing `three.js` |
+| `render` | Building and drawing scenes, the passes, the inspection core, the capture plan and record, frame schedules and encoding plans; launches nothing |
+| `viewer` | The interactive display, a React library |
+| `cli` | The `automovie` command: creating a production, and the hosts that capture, render and review it |
 | `evidence` | Reusable engineering defaults and optional narrative evidence composition, for native checking |
 | `template/scaffold` | The generated production instructions, editable contracts and thin configuration, which `cli` installs |
 
-The parameter-only Human surface has no viewer or capture entry point.
+`render` and `viewer` are the only libraries whose public surface imports `three.js`; a package's subject module, kept out of its barrel, may import it to build what the shared instrument draws. The Human figure is inspected that way, through a subject module of `human`.
+
+### Hosts
+
+`render` reaches files, processes and the page only through what a host injects, and imports no `node:` module and no React, so one rule runs the same in a page, a Node host and a unit test against an in-memory host. A rule that does not depend on one production belongs in `render` with a logic unit test; a host holds wiring only. The page is `viewer`'s interactive display, and the Node host that drives FFmpeg and a headless browser is `cli`.
 
 ### Motion
 

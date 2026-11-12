@@ -1,2 +1,2 @@
-export * from "./encodeAutoMovieWavPcm16";
-export * from "./mixAutoMovieAudioPcm";
+export * from "./encodeAutoMovieWavPcm16.js";
+export * from "./mixAutoMovieAudioPcm.js";

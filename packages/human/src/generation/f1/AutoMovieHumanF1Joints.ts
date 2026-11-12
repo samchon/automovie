@@ -103,20 +103,53 @@ export namespace AutoMovieHumanF1Joints {
   /** Reference joint `littletoe_02_r`. */
   export const littletoe2: V3 = [131.85, 12.21, 201.42];
 
-  /** Foot of the vertical axis the torso and the upper body are read about, below the crotch on the median line. */
+  /** Foot of the vertical axis the trunk is read about, below the crotch on the median line. */
   export const axisFloor: V3 = [0, 780, 0];
 
-  /** Top of the torso's axis, in the neck. */
-  export const axisNeck: V3 = [0, 1480, 0];
-
-  /** Top of the upper body's axis, above the crown. */
+  /** Top of the trunk's axis, above the crown. */
   export const axisCrown: V3 = [0, 1705, 0];
 
-  /** Rear end of the midfoot's axis, under the ankle. */
-  export const footRear: V3 = [1, 45, 134];
-
-  /** Front end of the midfoot's axis, in the ball of the foot. */
+  /** Where the leg's course ends past the ankle, in the ball of the foot. */
   export const footBall: V3 = [133, 20, 157];
+
+  /**
+   * The armpit's crease, where the arm's inner side meets the trunk's side. The armscye is the sagittal plane at its side distance: the trunk
+   * owns the skin medial of that plane, the arm the rest.
+   */
+  export const armpit: V3 = [-25, 1276, 151];
+
+  /**
+   * Where the arm's course starts, inside the trunk beside the armscye's plane, 35 mm above the armpit's crease and midway between the
+   * shoulder's fore and aft edges. The course leaves it straight to the side, so the arm's first sections lie beside that plane.
+   */
+  export const armRoot: V3 = [-12, 1300, 121];
+
+  /** The corner the arm's course turns at, round the shoulder, from straight to the side to the line down to the elbow. */
+  export const armTurn: V3 = [-12, 1300, 203];
+
+  /** Where the ear's course starts, under its root in the side of the head. */
+  export const earRoot: V3 = [3, 1579, 74];
+
+  /** Where the ear's course ends, straight to the side past the auricle's rim. */
+  export const earTip: V3 = [3, 1579, 100];
+
+  /** Centre of the auricle's root on the sagittal plane it leaves the skull at. */
+  export const earBase: V3 = [9.5, 1572, 77];
+
+  /** Half extents of the auricle's root in height and fore and aft. */
+  export const earHalf: [number, number] = [29, 10.5];
+
+  /** Where the nose's course starts, inside the face behind the nose's free end. */
+  export const noseRoot: V3 = [118, 1561, 0];
+
+  /** Where the nose's course ends, straight forward past its tip. */
+  export const noseTip: V3 = [140, 1561, 0];
+
+  /** Centre of the nose's root on the frontal plane it stands free of the lips and cheeks at. */
+  export const noseBase: V3 = [122, 1561, 0];
+
+  /** Half extents of the nose's root in height and across. */
+  export const noseHalf: [number, number] = [21, 18];
 
   /** The point `length` millimetres past `b` on the line from `a` through `b`: where a digit's course ends beyond its last joint. */
   export function beyond(a: V3, b: V3, length: number): V3 {

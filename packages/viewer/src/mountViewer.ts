@@ -1,3 +1,10 @@
+import {
+  guardAutoMovieRenderModeRetirement,
+  guardAutoMovieSceneShadowRetirement,
+  releaseViewerRenderer,
+  restoreAutoMovieRenderModeOnce,
+  restoreAutoMovieRenderModeState,
+} from "@automovie/render";
 import * as THREE from "three";
 
 import type { IAutoMovieViewerCompletedFrame } from "./IAutoMovieViewerCompletedFrame.js";
@@ -6,14 +13,9 @@ import type { IMountViewerOptions } from "./IMountViewerOptions.js";
 import { createViewerDisplayClock } from "./createViewerDisplayClock.js";
 import { createViewerFrameControl } from "./createViewerFrameControl.js";
 import { createViewerViewportResize } from "./createViewerViewportResize.js";
-import { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRetirement.js";
-import { guardAutoMovieSceneShadowRetirement } from "./guardAutoMovieSceneShadowRetirement.js";
 import { publishViewerCompletedFrame } from "./publishViewerCompletedFrame.js";
 import { redrawViewerCompletedFrame } from "./redrawViewerCompletedFrame.js";
 import { releaseMountedViewer } from "./releaseMountedViewer.js";
-import { releaseViewerRenderer } from "./releaseViewerRenderer.js";
-import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
-import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /** A synchronous producer may report a handled draw or discard its return. */
 type ViewerFrameProducer =

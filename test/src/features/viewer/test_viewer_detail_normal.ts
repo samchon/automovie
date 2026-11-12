@@ -3,7 +3,7 @@ import type {
   IAutoMovieMaterial,
   IAutoMovieTextureReference,
 } from "@automovie/interface";
-import { buildMaterial } from "@automovie/viewer";
+import { buildMaterial } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

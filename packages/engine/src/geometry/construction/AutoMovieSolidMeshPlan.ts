@@ -311,48 +311,88 @@ function bridge(
   scale: number,
 ): Candidate | string {
   type Ranked = { candidate: Candidate; length: number };
-  /** Visit every candidate with its squared metric length; a string stops the visit. */
-  const each: (visit: (ranked: Ranked) => void) => string | null = (
-    visit: (ranked: Ranked) => void,
+  /** Whether a pair already holds a prior global edge, which no bridge may reuse. */
+  const taken: (a: number, b: number) => boolean = (
+    a: number,
+    b: number,
+  ): boolean =>
+    occupied?.has(`${Math.min(a, b)}/${Math.max(a, b)}`) === true;
+  /**
+   * Visit every candidate of a pair that may hold a bridge, with its squared
+   * metric length; a string stops the visit. A taken pair is no candidate, but
+   * the visitor asks `taken` itself, and only of a candidate it would keep:
+   * the pairs are the product of two boundaries' vertices, and keying every
+   * one of them cost more than the search. A pair whose image cannot be
+   * represented is refused only when it is not taken, as before.
+   */
+  const each: (
+    visit: (a: number, b: number, turn: number, length: number) => void,
+  ) => string | null = (
+    visit: (a: number, b: number, turn: number, length: number) => void,
   ): string | null => {
-    for (const a of boundaries[selected]!.walk.vertices)
+    const span: number = period ?? 0;
+    for (const a of boundaries[selected]!.walk.vertices) {
+      const first: Point = vertices.get(a)!;
       for (let j: number = 0; j < boundaries.length; j++) {
         if (j === selected) continue;
         for (const b of boundaries[j]!.walk.vertices) {
-          if (
-            a === b ||
-            occupied?.has(`${Math.min(a, b)}/${Math.max(a, b)}`) === true
-          )
-            continue;
-          const first: Point = vertices.get(a)!;
+          if (a === b) continue;
           const last: Point = vertices.get(b)!;
           const nearest: number =
             period === undefined
               ? 0
               : Math.round((first[1] - last[1]) / period);
-          if (!Number.isSafeInteger(nearest))
+          if (!Number.isSafeInteger(nearest)) {
+            if (taken(a, b)) continue;
             return "visibility bridge cover image is not representable";
-          const turns: number[] =
-            period === undefined ? [0] : [nearest - 1, nearest, nearest + 1];
-          for (const turn of turns) {
-            const end: Point = [last[0], last[1] + turn * (period ?? 0)];
-            if (!Number.isSafeInteger(turn) || !end.every(Number.isFinite))
-              return "visibility bridge endpoint is not representable";
+          }
+          for (
+            let turn: number = period === undefined ? 0 : nearest - 1;
+            turn <= (period === undefined ? 0 : nearest + 1);
+            turn++
+          ) {
+            const phase: number = last[1] + turn * span;
             if (
-              period !== undefined &&
-              Math.abs(end[1] - first[1]) > period / 2
-            )
+              !Number.isSafeInteger(turn) ||
+              !Number.isFinite(last[0]) ||
+              !Number.isFinite(phase)
+            ) {
+              if (taken(a, b)) break;
+              return "visibility bridge endpoint is not representable";
+            }
+            if (period !== undefined && Math.abs(phase - first[1]) > period / 2)
               continue;
             const length: number =
-              (end[0] - first[0]) ** 2 + (scale * (end[1] - first[1])) ** 2;
-            if (!Number.isFinite(length))
+              (last[0] - first[0]) ** 2 + (scale * (phase - first[1])) ** 2;
+            if (!Number.isFinite(length)) {
+              if (taken(a, b)) break;
               return "visibility bridge length is not representable";
-            visit({ candidate: { a, b, turn }, length });
+            }
+            visit(a, b, turn, length);
           }
         }
       }
+    }
     return null;
   };
+  /** Whether a candidate comes strictly before a ranked one in the exact total order. */
+  const sooner: (
+    a: number,
+    b: number,
+    turn: number,
+    length: number,
+    than: Ranked,
+  ) => boolean = (
+    a: number,
+    b: number,
+    turn: number,
+    length: number,
+    than: Ranked,
+  ): boolean =>
+    (length - than.length ||
+      a - than.candidate.a ||
+      b - than.candidate.b ||
+      turn - than.candidate.turn) < 0;
   /** The exact total order: length, then IDs and turn. */
   const before: (x: Ranked, y: Ranked) => number = (
     x: Ranked,
@@ -404,11 +444,14 @@ function bridge(
 
   // Each selected vertex's own shortest candidate.
   const own: Map<number, Ranked> = new Map();
-  const failed: string | null = each((ranked: Ranked): void => {
-    const known: Ranked | undefined = own.get(ranked.candidate.a);
-    if (known === undefined || before(ranked, known) < 0)
-      own.set(ranked.candidate.a, ranked);
-  });
+  const failed: string | null = each(
+    (a: number, b: number, turn: number, length: number): void => {
+      const known: Ranked | undefined = own.get(a);
+      if (known !== undefined && !sooner(a, b, turn, length, known)) return;
+      if (taken(a, b)) return;
+      own.set(a, { candidate: { a, b, turn }, length });
+    },
+  );
   if (failed !== null) return failed;
   const label: (c: Candidate) => string = (c: Candidate): string =>
     `${c.a}/${c.b}/${c.turn}`;
@@ -420,12 +463,11 @@ function bridge(
 
   // Every other candidate that could still be shorter than it.
   const shorter: Ranked[] = [];
-  each((ranked: Ranked): void => {
-    if (
-      (found === null || before(ranked, found) < 0) &&
-      !tested.has(label(ranked.candidate))
-    )
-      shorter.push(ranked);
+  each((a: number, b: number, turn: number, length: number): void => {
+    if (found !== null && !sooner(a, b, turn, length, found)) return;
+    if (taken(a, b)) return;
+    const candidate: Candidate = { a, b, turn };
+    if (!tested.has(label(candidate))) shorter.push({ candidate, length });
   });
   const better: Ranked | string | null = admit(shorter);
   if (typeof better === "string") return better;

@@ -4,10 +4,10 @@ import type {
   IAutoMovieProductionDesign,
 } from "@automovie/interface";
 
-import type { IAutoMovieProductionAudioAssetIdentity } from "./IAutoMovieProductionAudioAssetIdentity";
-import type { IAutoMovieProductionRenderChunk } from "./IAutoMovieProductionRenderChunk";
-import type { IAutoMovieProductionRenderRuntimeIdentity } from "./IAutoMovieProductionRenderRuntimeIdentity";
-import type { IAutoMovieProductionRenderTier } from "./IAutoMovieProductionRenderTier";
+import type { IAutoMovieProductionAudioAssetIdentity } from "./IAutoMovieProductionAudioAssetIdentity.js";
+import type { IAutoMovieProductionRenderChunk } from "./IAutoMovieProductionRenderChunk.js";
+import type { IAutoMovieProductionRenderRuntimeIdentity } from "./IAutoMovieProductionRenderRuntimeIdentity.js";
+import type { IAutoMovieProductionRenderTier } from "./IAutoMovieProductionRenderTier.js";
 
 /**
  * One tier's render plan, containing its output frame ranges and non-video tracks.

@@ -1,5 +1,5 @@
-import { IAutoMovieSequenceRenderFrame } from "./IAutoMovieSequenceRenderFrame";
-import { IAutoMovieSequenceRenderPlan } from "./IAutoMovieSequenceRenderPlan";
+import { IAutoMovieSequenceRenderFrame } from "./IAutoMovieSequenceRenderFrame.js";
+import { IAutoMovieSequenceRenderPlan } from "./IAutoMovieSequenceRenderPlan.js";
 
 /**
  * The outcome of rendering a sequence through injected host I/O.

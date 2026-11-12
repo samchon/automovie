@@ -1,4 +1,4 @@
-import type { IAutoMovieCaptionEntry } from "./IAutoMovieCaptionEntry";
+import type { IAutoMovieCaptionEntry } from "./IAutoMovieCaptionEntry.js";
 
 /**
  * The per-beat caption track of one sequence render: the machine-readable sidecar a guide-frame consumer reads next to the captured frames.

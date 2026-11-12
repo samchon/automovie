@@ -7,7 +7,16 @@
   "scripts": {
     "build": "ttsc --noEmit",
     "start": "ttsx src/index.ts",
-    "evidence": "evidence"
+    "evidence": "evidence",
+    "conic:build": "esbuild \"src/reference-conics/FamilyConic*.ts\" --bundle --platform=node --format=cjs --external:@napi-rs/canvas --outdir=.shots/esbuild --out-extension:.js=.cjs --log-level=warning",
+    "conic:armscye": "pnpm conic:build && node .shots/esbuild/FamilyConicArmscye.cjs",
+    "conic:fit": "pnpm conic:build && node .shots/esbuild/FamilyConicBody.cjs",
+    "conic:figure": "pnpm conic:build && node .shots/esbuild/FamilyConicFigure.cjs",
+    "conic:scan": "pnpm conic:build && node .shots/esbuild/FamilyConicScan.cjs",
+    "conic:tree": "pnpm conic:build && node .shots/esbuild/FamilyConicTree.cjs",
+    "conic:tip": "pnpm conic:build && node .shots/esbuild/FamilyConicTip.cjs",
+    "conic:merge": "pnpm conic:build && node .shots/esbuild/FamilyConicMerge.cjs",
+    "conic:ports": "pnpm conic:build && node .shots/esbuild/FamilyConicPorts.cjs"
   },
   "author": "Samchon",
   "license": "MIT",
@@ -49,6 +58,7 @@
     "@wrtnlabs/evidence": "catalog:samchon",
     "chalk": "catalog:utils",
     "devalue": "6.0.2",
+    "esbuild": "catalog:vite",
     "jsdom": "26.1.0",
     "mp4box": "catalog:media",
     "playwright": "catalog:media",

@@ -1,9 +1,9 @@
 import { compareCodeUnits } from "@automovie/engine";
 import type { IAutoMovieProductionSoundPlan } from "@automovie/interface";
 
-import type { IAutoMovieProductionAudioAssetIdentity } from "./IAutoMovieProductionAudioAssetIdentity";
-import { validDigest } from "./validDigest";
-import { validWaveAudioIdentity } from "./validWaveAudioIdentity";
+import type { IAutoMovieProductionAudioAssetIdentity } from "./IAutoMovieProductionAudioAssetIdentity.js";
+import { validDigest } from "./validDigest.js";
+import { validWaveAudioIdentity } from "./validWaveAudioIdentity.js";
 
 /** Sample rate of a placeholder stem: the sound plan's fixed mix rate. */
 const PLACEHOLDER_SAMPLE_RATE: IAutoMovieProductionSoundPlan["sampleRate"] = 48_000;

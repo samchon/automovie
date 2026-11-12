@@ -6,7 +6,7 @@ import type {
   IAutoMovieSceneEnvironment,
   IAutoMovieTextureReference,
 } from "@automovie/interface";
-import { buildGeometry, buildMaterial } from "@automovie/viewer";
+import { buildGeometry, buildMaterial } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

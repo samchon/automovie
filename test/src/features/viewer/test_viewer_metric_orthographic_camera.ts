@@ -1,4 +1,4 @@
-import { createAutoMovieMetricOrthographicCamera } from "@automovie/viewer";
+import { createAutoMovieMetricOrthographicCamera } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

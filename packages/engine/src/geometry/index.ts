@@ -1,4 +1,5 @@
 export * from "./AutoMovieMeshCrossingGeometry";
+export * from "./IAutoMovieMark";
 export * from "./IAutoMovieMeshAssembly";
 export * from "./IAutoMovieMeshAttachmentCap";
 export * from "./IAutoMovieMeshClearanceWitness";
@@ -135,3 +136,4 @@ export * from "./trianglesOf";
 export * from "./triangulateAutoMovieRegion";
 export * from "./triangulateRegion";
 export * from "./weldedDegenerateTriangles";
+export * from "./markAutoMovieMeshClearance";

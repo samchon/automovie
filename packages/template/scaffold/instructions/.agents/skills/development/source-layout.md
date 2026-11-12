@@ -16,7 +16,7 @@ One folder owns each responsibility, and the folders follow the chain from setti
 | `src/composition/scenes/catalog/<module>/` | One module's [catalog case](../motion/catalog-cases.md) composition, which takes the case parameters: the action with its target, partner response and outcome, the movement, the behavior, the fall or the entity state | The research section or settings or brief fact it exhibits, composition |
 | `src/composition/films/catalog.ts`, registered in `src/composition/films/index.ts` | The review catalog: every case the screenplay uses, in its own labeled interval with named review views; never delivered | Its cases' research and settings or brief, composition |
 | `src/composition/films/<film>.ts`, registered in `src/composition/films/index.ts` | One delivered video: scene order, transitions, titles and subtitles, grade, the [delivery profile](../production/project-context.md) and control channels | The screenplay file, composition |
-| `src/*.ts` | The Viewer host entry, the film interfaces and the film selector | Nothing |
+| `src/*.ts` | The inspector and draw pages' entries, the subjects module, the film interfaces and the film selector | Nothing |
 | `src/executable/` | The Node commands the README documents and the Node tooling they run, shipped with the scaffold | Nothing |
 | `src/integrations/<provider>/` | Code for a provider or local tool the production adopts, such as a video-generation service | The generation requests in `docs/prompts/` for providers |
 | `test/features/<source path>/` | Logic unit tests of the source at the same path | Nothing |
