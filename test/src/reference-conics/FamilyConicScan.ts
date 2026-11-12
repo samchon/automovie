@@ -1,6 +1,6 @@
 import path from "node:path";
 import { AutoMovieLoftChain, AutoMovieMeshExtract as M, AutoMovieViewAxis } from "@automovie/engine";
-import { AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
+import { AutoMovieHumanConicLoft, AutoMovieHumanF1, AutoMovieHumanF1Joints } from "@automovie/human";
 import { FamilyConicSection as C } from "./FamilyConicSection";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 
@@ -228,6 +228,36 @@ namespace FamilyConicScan {
             return a[1] > y !== b[1] > y ? [a[0] + ((b[0] - a[0]) * (y - a[1])) / (b[1] - a[1])] : [];
           })).filter((z: number): boolean => z > 50);
           process.stdout.write("x " + x + " y " + y + ": " + hits.sort((p: number, q: number): number => p - q).map((z: number): string => z.toFixed(1)).join(" ") + "\n");
+        }
+      }
+      return;
+    }
+    if (process.argv[2] === "lobule-course") {
+      // The lobule cutter's own section planes (`AutoMovieHumanF1Lobule`, its course and chart): on each, along lines of constant u every
+      // 2 mm, every v where the reference head's surface crosses the line. The first crossing is the skull, the next two the lobule's medial
+      // and lateral faces where the line passes under the lobule; a line with one crossing is past the gap.
+      const axis: AutoMovieViewAxis.IAxis = AutoMovieViewAxis.jointed([AutoMovieHumanF1Joints.lobuleRoot, AutoMovieHumanF1Joints.lobuleTip], [], [1, 0, 0]) as AutoMovieViewAxis.IAxis;
+      const mesh: R.ISource["head"] = source.head;
+      for (const s of [4, 7, 10, 13, 16, 19, 21, 22, 24]) {
+        const f = axis.at(s);
+        const n: R.V = [f.v[1] * f.u[2] - f.v[2] * f.u[1], f.v[2] * f.u[0] - f.v[0] * f.u[2], f.v[0] * f.u[1] - f.v[1] * f.u[0]];
+        const dot = (i: number, w: readonly number[]): number => (mesh.positions[i * 3]! - f.origin[0]) * w[0]! + (mesh.positions[i * 3 + 1]! - f.origin[1]) * w[1]! + (mesh.positions[i * 3 + 2]! - f.origin[2]) * w[2]!;
+        process.stdout.write("station " + s + " origin " + f.origin.map((x: number): string => x.toFixed(1)).join(",") + "\n");
+        for (let u: number = -14; u <= 14; u += 2) {
+          const vs: number[] = [];
+          for (let t: number = 0; t < mesh.indices.length; t += 3) {
+            const ids: number[] = [mesh.indices[t]!, mesh.indices[t + 1]!, mesh.indices[t + 2]!];
+            const d: number[] = ids.map((i: number): number => dot(i, n));
+            if (Math.min(...d) > 0 || Math.max(...d) < 0) continue;
+            const us: number[] = ids.map((i: number): number => dot(i, f.u));
+            if (Math.min(...us) > u || Math.max(...us) < u) continue;
+            const ws: number[] = ids.map((i: number): number => dot(i, f.v));
+            if (Math.min(...ws) > 30 || Math.max(...ws) < -30) continue;
+            const ends: number[][] = [0, 1, 2].flatMap((k: number): number[][] => (d[k]! > 0 === d[(k + 1) % 3]! > 0 || d[k] === d[(k + 1) % 3] ? [] : [[us[k]! + (d[k]! / (d[k]! - d[(k + 1) % 3]!)) * (us[(k + 1) % 3]! - us[k]!), ws[k]! + (d[k]! / (d[k]! - d[(k + 1) % 3]!)) * (ws[(k + 1) % 3]! - ws[k]!)]]));
+            if (ends.length < 2 || ends[0]![0]! > u === ends[1]![0]! > u) continue;
+            vs.push(ends[0]![1]! + ((ends[1]![1]! - ends[0]![1]!) * (u - ends[0]![0]!)) / (ends[1]![0]! - ends[0]![0]!));
+          }
+          process.stdout.write("  u " + String(u).padStart(3) + ": " + vs.sort((p: number, q: number): number => p - q).filter((v: number, i: number, all: number[]): boolean => i === 0 || v - all[i - 1]! > 0.05).map((v: number): string => v.toFixed(1)).join(" ") + "\n");
         }
       }
       return;

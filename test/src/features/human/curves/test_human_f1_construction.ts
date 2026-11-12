@@ -6,10 +6,10 @@ import type { AutoMovieConstructionNode } from "@automovie/interface";
  * The declaration of f1's sewn body, against the anatomy it declares.
  *
  * Scenarios:
- * 1. One body: the tree is one split of the trunk into two legs, five ports (an arm and an ear on each side, and the nose), twenty-two merges (five fingers, five toes and a helix on each side) and six cuts (a nostril, an ear's trough and an ear's bowl on each side), over thirty-six source leaves.
+ * 1. One body: the tree is one split of the trunk into two legs, five ports (an arm and an ear on each side, and the nose), twenty-two merges (five fingers, five toes and a helix on each side) and eight cuts (a nostril, an ear's trough, an ear's bowl and the gap under its lobule on each side), over thirty-eight source leaves.
  * 2. Every leaf has its part: each source leaf's name is a key of the sources, and each part carries that name.
  * 3. Sides mirror: every operator on the +Z side has a twin whose part face is the same name with `.mirror`, and the two armscye loops and the two auricle loops have the same station and semi-axes and opposite phases; the armscye loops also run in opposite senses and carry the same 192 shares, near one and not all one, since each follows its arm's ring and the two rings are reflections.
- * 4. A digit is merged onto its own limb before that limb is attached, and a helix onto its own ear before that ear is attached: each merge's host face is an arm, a leg or, for a helix, the ear of the merge's own side, and no merge's host subtree holds the trunk. A nostril is cut from the whole head: its cut is seeded on the nose and its host subtree holds the trunk. An ear's bowl (the concha) is cut after the ear is attached: seeded on its own side's ear, with the trunk under its host. An ear's trough (the fossa) is cut from that ear alone: seeded on it, with no trunk under its host.
+ * 4. A digit is merged onto its own limb before that limb is attached, and a helix onto its own ear before that ear is attached: each merge's host face is an arm, a leg or, for a helix, the ear of the merge's own side, and no merge's host subtree holds the trunk. A nostril is cut from the whole head: its cut is seeded on the nose and its host subtree holds the trunk. An ear's bowl (the concha) is cut after the ear is attached: seeded on its own side's ear, with the trunk under its host. An ear's trough (the fossa) is cut from that ear alone: seeded on it, with no trunk under its host. The gap under a lobule is cut from the head after its ear is attached and before that ear's bowl: seeded on the trunk, its own side's ear port under its host, and its cut under that bowl's host.
  * 5. A port stands on the trunk: each loop's centre station lies inside the trunk part's stations and its phase semi-axis is under pi.
  * 6. Rings round a turn stand no farther apart on the skin than the layers: on the arm and the leg, between neighbouring stations before the closed end, no ring point moves more than the declared 4 mm (5 % allowed for the part's own interpolation) by the course frame's sweep. Round the shoulder the deltoid's cap moved 7 to 10 mm between layers 4 mm apart and showed every ring as a stripe.
  *
@@ -37,7 +37,7 @@ export function test_human_f1_construction(): void {
   const count = (type: string): number => nodes.filter((node: AutoMovieConstructionNode): boolean => node.type === type).length;
 
   // 1. The body's parts.
-  for (const [type, expected] of [["split", 1], ["port", 5], ["join", 28], ["source", 36]] as [string, number][]) if (count(type) !== expected) failures.push(`${count(type)} ${type} nodes, expected ${expected}`);
+  for (const [type, expected] of [["split", 1], ["port", 5], ["join", 30], ["source", 38]] as [string, number][]) if (count(type) !== expected) failures.push(`${count(type)} ${type} nodes, expected ${expected}`);
 
   // 2. Leaves and their parts.
   for (const node of nodes)
@@ -45,9 +45,9 @@ export function test_human_f1_construction(): void {
       const part = declared.sources.get(node.source);
       if (part === undefined || part.name !== node.name) failures.push(`source leaf ${node.name} has ${part === undefined ? "no part" : "the part " + part.name}`);
     }
-  if (declared.sources.size !== 36) failures.push(`${declared.sources.size} source parts, expected 36`);
+  if (declared.sources.size !== 38) failures.push(`${declared.sources.size} source parts, expected 38`);
   const kinds = (kind: string): number => nodes.filter((node: AutoMovieConstructionNode): boolean => node.type === "join" && node.kind === kind).length;
-  if (kinds("merge") !== 22 || kinds("diff") !== 6) failures.push(`${kinds("merge")} merges and ${kinds("diff")} cuts, expected 22 and 6`);
+  if (kinds("merge") !== 22 || kinds("diff") !== 8) failures.push(`${kinds("merge")} merges and ${kinds("diff")} cuts, expected 22 and 8`);
 
   // 3. Both sides; the nose stands on the median plane and has no twin.
   const faces: string[] = nodes.flatMap((node: AutoMovieConstructionNode): string[] => (node.type === "port" ? [node.partFace] : node.type === "join" ? [node.seed.partFace] : node.type === "split" ? node.children.map((child): string => child.partFace) : [])).filter((name: string): boolean => name !== "nose");
@@ -79,6 +79,9 @@ export function test_human_f1_construction(): void {
         if (node.seed.hostFace !== "ear" + side || !attached) failures.push(`${node.name} is not cut at its own ear after the ear is attached`);
       } else if (node.name.startsWith("cut.fossa")) {
         if (node.seed.hostFace !== "ear" + side || attached) failures.push(`${node.name} is not cut from its own ear alone`);
+      } else if (node.name.startsWith("cut.lobule")) {
+        const bowl: AutoMovieConstructionNode | undefined = nodes.find((other: AutoMovieConstructionNode): boolean => other.name === "cut.concha" + side);
+        if (node.seed.hostFace !== "trunk" || !under.some((inner: AutoMovieConstructionNode): boolean => inner.name === "auricle.ear" + side) || bowl === undefined || bowl.type !== "join" || bowl.host !== node) failures.push(`${node.name} is not cut from the head after its ear is attached and before that ear's bowl`);
       } else if (node.seed.hostFace !== "nose" || !attached) failures.push(`${node.name} is not cut from the head at the nose`);
     } else if (node.type === "join") {
       const side: string = node.seed.partFace.endsWith(".mirror") ? ".mirror" : "";
