@@ -180,7 +180,7 @@ export namespace stepOver {
           unit: "m",
         },
         reason: `an obstacle ${obstacle.height.toFixed(3)} m high is above the ${(0.55 * m.hipHeight).toFixed(3)} m this body steps over`,
-        fix: "use a lower obstacle, or climb it instead of stepping over",
+        fix: "use an obstacle no higher than that",
       });
     const far: number = near + obstacle.depth;
     const heelBack: number = -HumanFoot.offset(body, lead, "heel").z;
@@ -198,7 +198,7 @@ export namespace stepOver {
         axis: "obstacle",
         value: obstacle.depth,
         reason: `an obstacle ${obstacle.depth.toFixed(3)} m deep is too deep to cross in one step`,
-        fix: "use a shallower obstacle, or step onto it and off",
+        fix: "use a shallower obstacle",
       });
     const landing: number = Math.min(
       farthest,

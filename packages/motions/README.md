@@ -64,7 +64,7 @@ try {
 } catch (error) {
   if (error instanceof HumanRefusal) console.log(error.kind, error.axis, error.value, error.feasible, error.fix);
 }
-// a.gesture#1 hand: gesture needs the right hand, which holds bottle since pickUp (pickUp); feasible: left; fix: put bottle down or hand it over first, or perform gesture with the free hand
+// a.handshake#1 hand: handshake needs the right hand, which holds bottle since pickUp (pickUp); feasible: left; fix: put bottle down or hand it over first, or perform handshake with the free hand
 ```
 
 Repair a refusal at the axis it names. `HumanRefusal.Kind` lists the classes with the place each is repaired. A refusal never depends on the seed, so a composition that plans under one seed plans under every seed.

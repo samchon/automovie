@@ -62,7 +62,7 @@ interface ICase {
  *    `target`; with `b` at arm's length the same chain plans.
  * 4. Picking a bottle up by a grip it does not have: an `affordance` refusal
  *    on `handle` listing the bottle's grips; the first listed grip plans.
- * 5. Waving with the hand that holds the bottle: an `affordance` refusal on
+ * 5. Shaking hands with the hand that holds the bottle: an `affordance` refusal on
  *    `hand` listing the free hand; the listed hand plans.
  * 6. A touch cut at half its length into standing: a `cut` refusal listing
  *    the legal windows; cutting at the listed window's opening plans.
@@ -215,18 +215,18 @@ export function test_human_refusal_contract(): void {
     {
       title: "a hand that is already full",
       kind: "affordance",
-      act: "gesture",
+      act: "handshake",
       axis: "hand",
-      gap: 3,
+      gap: 0.9,
       refused: start()
         .pickUp({ prop: "bottle", handle: "low", hand: "right" })
-        .gesture({ kind: "wave", side: "right" }),
+        .handshake({ partner: "b", hand: "right" }),
       repaired: (r) =>
         start()
           .pickUp({ prop: "bottle", handle: "low", hand: "right" })
-          .gesture({
-            kind: "wave",
-            side: alternatives(r)[0] === "left" ? "left" : "right",
+          .handshake({
+            partner: "b",
+            hand: alternatives(r)[0] === "left" ? "left" : "right",
           }),
       holds: (r) => r.value === "right" && alternatives(r).join() === "left",
     },
@@ -308,43 +308,53 @@ export function test_human_refusal_contract(): void {
     return null;
   };
 
+  // Every case is read before anything is asserted, so one run lists every
+  // refusal that falls short.
+  const complaints: string[] = [];
+  const expect = (label: string, holds: boolean): void => {
+    if (!holds) complaints.push(label);
+  };
   for (const c of cases) {
     const thrown: unknown = refusal("refusal", c.gap, c.refused);
-    TestValidator.predicate(
-      `${c.title}: refused with a HumanRefusal, got ${thrown instanceof Error ? `${thrown.name}: ${thrown.message}` : String(thrown)}`,
-      thrown instanceof HumanRefusal,
-    );
-    if (!(thrown instanceof HumanRefusal)) continue;
+    if (!(thrown instanceof HumanRefusal)) {
+      complaints.push(
+        `${c.title}: refused with a HumanRefusal, got ${thrown instanceof Error ? `${thrown.name}: ${thrown.message}` : String(thrown)}`,
+      );
+      continue;
+    }
 
-    // 1 to 8. The class, the place, the axis and the case's own facts.
-    TestValidator.equals(
-      `${c.title}: kind (${thrown.message})`,
-      thrown.kind,
-      c.kind,
+    // 1 to 8. The class, the axis and the case's own facts.
+    expect(
+      `${c.title}: kind ${c.kind}, got ${thrown.kind} (${thrown.message})`,
+      thrown.kind === c.kind,
     );
-    TestValidator.equals(
-      `${c.title}: axis (${thrown.message})`,
-      thrown.axis,
-      c.axis,
+    expect(
+      `${c.title}: axis ${c.axis}, got ${thrown.axis} (${thrown.message})`,
+      thrown.axis === c.axis,
     );
-    TestValidator.predicate(
+    expect(
       `${c.title}: carries its facts (${thrown.message})`,
       c.holds(thrown),
     );
 
     // 9. Who, which action, which occurrence, why and what to change.
-    TestValidator.equals(`${c.title}: performer`, thrown.performer, "a");
-    TestValidator.equals(
-      `${c.title}: act (${thrown.message})`,
-      thrown.act,
-      c.act,
+    expect(
+      `${c.title}: performer a, got ${thrown.performer}`,
+      thrown.performer === "a",
     );
-    TestValidator.equals(`${c.title}: instance`, thrown.instance, 1);
-    TestValidator.predicate(
+    expect(
+      `${c.title}: act ${c.act}, got ${thrown.act} (${thrown.message})`,
+      thrown.act === c.act,
+    );
+    expect(
+      `${c.title}: occurrence 1, got ${thrown.instance}`,
+      thrown.instance === 1,
+    );
+    expect(
       `${c.title}: states a reason and a fix`,
       thrown.reason.length > 0 && thrown.fix.length > 0,
     );
-    TestValidator.predicate(
+    expect(
       `${c.title}: the message states the place, the axis, the reason and the fix (${thrown.message})`,
       thrown.message.startsWith(`a.${c.act}#1 ${c.axis}: `) &&
         thrown.message.includes(thrown.reason) &&
@@ -357,7 +367,7 @@ export function test_human_refusal_contract(): void {
       c.kind === "reach" ? near : c.gap,
       c.repaired(thrown),
     );
-    TestValidator.predicate(
+    expect(
       `${c.title}: the fix plans, got ${after instanceof Error ? after.message : String(after)}`,
       after === null,
     );
@@ -365,10 +375,11 @@ export function test_human_refusal_contract(): void {
     // 10. The seed never decides a refusal.
     for (const seed of ["seed-1", "seed-2", "seed-3"]) {
       const again: unknown = refusal(seed, c.gap, c.refused);
-      TestValidator.predicate(
+      expect(
         `${c.title}: the same refusal under ${seed}`,
         again instanceof HumanRefusal && again.message === thrown.message,
       );
     }
   }
+  TestValidator.equals("every refusal keeps its contract", complaints, []);
 }
