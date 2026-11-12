@@ -23,11 +23,11 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  * 5. An omitted outline stage follows activated settings and rejects an unanswered outline principle.
  * 6. Enabled research and behavior stages require each study's detached answers and each law's answers, and a law must cite its study.
  * 7. An enabled composition stage requires every screenplay beat realized: a scene citing one of two beats fails, and citing their scene covers both.
- * 8. Narrative mode none adds no instruction relation without composition, and with composition requires every instruction section realized: one realized section of two fails, and a film realizing the other passes.
+ * 8. Narrative mode none adds no instruction relation without instructions or without composition, and otherwise requires every instruction section realized: one realized section of two fails, excluding the other fails, and a film realizing it passes.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Evaluates the public configuration's real source/test and narrative claims through native Evidence, preserving engineering selection, additional claim coverage and outline stage inheritance.
  * @evidence contracts/development/testing.md#independent-expectations Explicitly authored answers satisfy the shipped common, design, implementation and testing checklists for one interface, one function and one test; an unrelated unfinished story creates no engineering obligation. Established one-scene fixtures supply reviewed content; removing the outline principle answer must fail when its omitted stage inherits active settings, just as an added unanswered work question must block a ready short pass.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts missing and complete engineering answers, a type answering the design checklist against one answering the implementation checklist, coding and explicit narrative, additional native requirements, inherited outline stages, relative location rejection, independent default objects, a law's answers with and without its study citation, a scene citing one beat against one citing the whole scene, and mode none without composition against with it, then one instruction section realized against both.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts missing and complete engineering answers, a type answering the design checklist against one answering the implementation checklist, coding and explicit narrative, additional native requirements, inherited outline stages, relative location rejection, independent default objects, a law's answers with and without its study citation, a scene citing one beat against one citing the whole scene, and mode none without instructions or composition against with both, then one instruction section realized, the other excluded, and both realized.
  * @evidence contracts/development/testing.md#execution-ownership Runs in-process through workspace source exports with temporary files beneath the existing monorepo cache so normal ancestor dependency resolution finds already linked compiler packages. It installs no consumer, starts no process/browser/GPU, and removes its owned fixtures in finally.
  * @evidence contracts/development/common.md#meaningful-documentation The comment states the behavior under test and lists each scenario with the property it pins.
  */
@@ -434,30 +434,34 @@ export async function test_evidence_package(): Promise<void> {
       JSON.stringify(whole.report.diagnostics),
     );
 
-    // Under narrative mode none, composition must realize every instruction
-    // section; the scene realizes one and the film the other.
+    // Under narrative mode none, the code must realize every instruction
+    // section without exclusion; the scene realizes one and the film the
+    // other. Without instructions or without composition there is no relation.
+    const relates = (config: IEvidenceConfig): boolean =>
+      config.claims.some(
+        (claim: IEvidenceConfig["claims"][number]): boolean =>
+          claim.name === "the code realizes every instruction section",
+      );
+    const passless = (): IEvidenceConfig =>
+      createEvidenceConfig({
+        location: production,
+        research: "evidence",
+        narrative: { mode: "none" },
+        development: { behaviors: "evidence", composition: "evidence" },
+      });
+    assert.equal(relates(passless()), false);
     ProductionWorkflowFixture.write(
       production,
       "docs/instructions/commission.md",
       "# Commission\n\n## One round {#one-round}\n\nOne round.\n\n## The finish {#finish}\n\nA kick ends it.\n",
     );
-    const uncomposed: IEvidenceConfig = createEvidenceConfig({
-      location: production,
-      narrative: { mode: "none" },
-    });
     assert.equal(
-      uncomposed.claims.some(
-        (claim: IEvidenceConfig["claims"][number]): boolean =>
-          claim.name === "composition realizes every instruction section",
+      relates(
+        createEvidenceConfig({ location: production, narrative: { mode: "none" } }),
       ),
       false,
     );
-    const instructed: IEvidenceConfig = createEvidenceConfig({
-      location: production,
-      research: "evidence",
-      narrative: { mode: "none" },
-      development: { behaviors: "evidence", composition: "evidence" },
-    });
+    const instructed: IEvidenceConfig = passless();
     ProductionWorkflowFixture.write(
       production,
       "src/composition/scenes/bout/ring/ring.ts",
@@ -473,6 +477,21 @@ export async function test_evidence_package(): Promise<void> {
       createEvidenceConfigPlan(instructed, stagedFile),
     );
     assert.equal(unrealized.report.success, false);
+    ProductionWorkflowFixture.write(
+      production,
+      "src/composition/films/bout.ts",
+      compose(
+        "bout",
+        [
+          " * @evidence docs/body/screenplay/bout.md The film delivers the bout.",
+          " * @evidenceExclude docs/instructions/commission.md#one-round The film skips the round limit.",
+        ].join("\n"),
+      ),
+    );
+    const excluded: IEvidenceCheckAnalysis = await EvidenceChecker.evaluate(
+      createEvidenceConfigPlan(instructed, stagedFile),
+    );
+    assert.equal(excluded.report.success, false);
     ProductionWorkflowFixture.write(
       production,
       "src/composition/films/bout.ts",
