@@ -37,7 +37,7 @@ The default spacing skips frames, so around every contact, cut and join add the 
 
 Repeat the pass on every segment a fix touches.
 
-Measure the research's targets for what a viewer sees where the viewer sees them, on the displayed bodies and camera in those stills; the resolved schedule only plans them. Targets for what a viewer hears are measured on the decoded audio and confirmed by the user's listening.
+Measure the research's targets for what a viewer sees where the viewer sees them, on the displayed bodies and camera in those stills; the resolved schedule only plans them. A target no study holds yet is studied first under [when to study](../story/planning/research.md#when-to-study). Targets for what a viewer hears are measured on the decoded audio and confirmed by the user's listening.
 
 A capture replaces its previous run unless the run names a round, so keep an accepted delivery's contact sheets and measures under the film's [media records](../production/media-records.md) folder by its delivered revision.
 

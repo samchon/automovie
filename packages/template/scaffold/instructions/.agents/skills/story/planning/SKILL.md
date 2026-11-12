@@ -5,7 +5,7 @@ description: Settles the adopted requirements, direction and uncovered work requ
 
 # Planning
 
-Settle the requirements, direction and uncovered work requirements before writing the layers, because a layer can only realize what was decided before it; research continues as each layer is written.
+Settle the requirements, direction and uncovered work requirements before writing the layers, because a layer can only realize what was decided before it. Each layer and its code study what they decide as they are written.
 
 | Task | Read |
 | --- | --- |

@@ -4,7 +4,7 @@ Contract: [principles/research.md](../../principles/research.md).
 
 ## Depicted practice {#depicted-practice}
 
-Name each statement the studied subject does not have, such as an outcome table for a camera style, or that nothing written yet uses, which is added with its first consumer under [when to study](../../../../../story/planning/research.md#when-to-study).
+Name each statement the studied subject does not have, such as an outcome table for a camera style, and each that no written consumer uses yet, which is added with its first consumer under [when to study](../../../../../story/planning/research.md#when-to-study).
 
 1. Each technique has its law:
     - its key poses in the performer's own body frame;
