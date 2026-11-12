@@ -2,7 +2,7 @@
 
 A short's canon: the decisions its screenplays must keep true, written once and cited by every film, under the brief questions in the [story contracts](../../contracts/story/SKILL.md). The brief is prose for readers and never describes code.
 
-Read the [instructions](../planning/requirements.md#requirements) and finish [discovery](../planning/discovery.md) first, research every practice the films show through [research](../planning/research.md), and work backward from the planned films to the decisions they need.
+Read the [instructions](../planning/requirements.md#requirements) and finish [discovery](../planning/discovery.md) first, then work backward from the planned films to the decisions they need, studying each practice through [research](../planning/research.md) as the brief fixes it.
 
 ## Records
 

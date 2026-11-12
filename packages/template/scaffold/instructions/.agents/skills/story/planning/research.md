@@ -1,10 +1,12 @@
 # Research
 
-Study what the film must show truthfully before the screenplay decides it or code programs it: each practice, the conduct of officials and crowds, and how the genre is actually shot and heard. Settings or brief, screenplay beats, entity measurements and every production [behavior](../../motion/SKILL.md) cite the study.
+Study what the film must show truthfully while writing the layer or code that decides it: each practice, the conduct of officials and crowds, and how the genre is actually shot and heard. Settings or brief, screenplay beats, entity measurements and every production [behavior](../../motion/SKILL.md) cite the study.
 
 ## When to study {#when-to-study}
 
-Study each fact just before the first layer or code that uses it is written, and add to the study as later consumers need more. Before the canon, study what the story must not get wrong: the rules and legal actions, the outcome table, the conduct of officials and crowds, the patterns at the depicted level and how the genre is shot. Before an entity, a behavior or delivery review, study the laws, timing and measurable targets it programs or measures. A value nothing written yet uses is not gathered, because reading its sources costs time and its consumer often needs a different value when it is written.
+Research belongs to the work that uses it and goes as deep as that work decides. Before the first decision of settings or a brief, study only what could change the [direction](direction.md), such as whether a commissioned ending is possible. Settings or a brief then studies each fact as it fixes it: the rules and legal actions, the conduct of officials and crowds, the patterns at the depicted level and how the genre is shot. The screenplay studies the law and outcomes of each action a beat names that the installed packages do not carry, and code and delivery review study the measurements they program or measure.
+
+So a short's brief studies less than a series' settings, and a value nothing written yet uses is not gathered, because its consumer often needs a different value when it is written.
 
 ## What needs a study {#what-needs-a-study}
 
@@ -22,7 +24,7 @@ Read each passage in context and study footage as consecutive frames through its
 
 Check each value against its source once, when it is written, and record its locator. Cross-check disputed claims and record what stays unavailable.
 
-Save permitted originals in `references/`, rights-unconfirmed ones in ignored `references/private/` and footage in ignored `media/acquired/videos/`, then open the saved files. Keep one `docs/research/index.md` naming each original's creator, URL, retrieval date, locator, rights and use, and write each study in `docs/research/<discipline>/<topic>.md`. A URL or an empty index is not a retained source.
+Save permitted originals in `references/`, rights-unconfirmed ones in ignored `references/private/` and footage in ignored `media/acquired/videos/`, then open the saved files. Keep one `docs/research/index.md` naming each original's creator, URL, retrieval date, locator, rights and use, and write each topic once, in `docs/research/<discipline>/<topic>.md`, for other studies to cite rather than repeat. A URL or an empty index is not a retained source.
 
 ## Use
 
