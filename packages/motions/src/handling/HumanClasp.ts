@@ -28,10 +28,13 @@ import { HumanGrip } from "./HumanGrip";
  * offers, the turn each hand takes in its palm's plane, chosen for both
  * together, and the partner's hand as the colliders the fingers close on.
  *
- * The offered hand is flat with the thumb's carpometacarpal joint extended to
- * the end of its range, the first web space opened to take the partner's
- * hand, the thumb clear of the fingers before it closes over the partner's
- * hand (Napier 1956, the power grip's thumb closing last).
+ * The offered hand is flat with the thumb's three joints extended to the end
+ * of their ranges, the first web space opened to take the partner's hand,
+ * the thumb clear of the fingers and of the partner's wrist before it closes
+ * over the partner's hand (Napier 1956, the power grip's thumb closing
+ * last). Measured on the sweep's bodies, a thumb extended at its base alone
+ * lies 1 to 2 mm inside the partner's wrist at the turn both low elbows
+ * take, and one at its resting flexion 9 mm inside.
  *
  * The palms' contact fixes each hand only up to a turn about its palm's
  * normal, and the two turns decide where each hand's fingers lie on the
@@ -42,11 +45,19 @@ import { HumanGrip } from "./HumanGrip";
  * candidate whose open hand already intersects an obstacle is rejected before
  * closing (GraspIt!, Miller and Allen 2004, IEEE Robot. Autom. Mag.
  * 11(4):110), and among the rest the one the arms reach best is taken (Miller
- * et al. 2003, Automatic grasp planning using shape primitives). Here a pair
+ * et al. 2003, Automatic grasp planning using shape primitives). A turn is a
+ * candidate for an arm only when the arm reaches it at the clasp and at the
+ * pump's top and bottom (`REACHED`), and of those only the turns in the
+ * lowest upper-arm band of the Rapid Upper Limb Assessment the arm attains
+ * (`BANDS`), so no clearance is bought with a raised elbow or a wrist the
+ * pump takes past its range. Here a pair
  * is clear when no phalanx of either open hand, the capsule the closing curl
  * moves (`HumanGrip.chain`), enters the other's forearm collider at the clasp;
  * a pair's error is the worse of the two arms' errors over the clasp and the
- * pump (`HumanGrasp.reachable`), the smaller turns winning ties by a
+ * pump, the hand's miss plus the elbow's turn from its hanging hint
+ * (`HumanGrasp.reachable`), so a clasp both arms take with the elbow low
+ * ranks above one an arm reaches only by raising it; the smaller turns win
+ * ties by a
  * hundredth of a degree per degree. When no pair is clear, the pair with the
  * largest clearance is taken. Both partners compute the same choice from the
  * same two standing postures, enumerating the pairs in the order of their
@@ -98,8 +109,8 @@ export namespace HumanClasp {
   }
 
   /**
-   * The offered hand: flat, the thumb's carpometacarpal joint extended to the
-   * end of the body's range.
+   * The offered hand: flat, the thumb's three joints extended to the end of
+   * the body's range.
    *
    * @param body The body.
    * @param side The hand.
@@ -109,15 +120,55 @@ export namespace HumanClasp {
     body: IHumanBody,
     side: HumanHand.Side,
   ): IHumanPosture["joints"] {
-    const bone: AutoMovieHumanoidBone =
-      `${side}ThumbMetacarpal` as AutoMovieHumanoidBone;
-    const flexion: number =
-      clampJointToSkeleton(
-        { bone, flexion: -180, abduction: 0, twist: 0 },
-        body.skeleton,
-      ).flexion ?? 0;
-    return { ...HumanHand.shape(side, "flat"), [bone]: [flexion, 0, 0] };
+    const joints: IHumanPosture["joints"] = {
+      ...HumanHand.shape(side, "flat"),
+    };
+    for (const part of ["Metacarpal", "Proximal", "Distal"] as const) {
+      const bone: AutoMovieHumanoidBone =
+        `${side}Thumb${part}` as AutoMovieHumanoidBone;
+      joints[bone] = [
+        clampJointToSkeleton(
+          { bone, flexion: -180, abduction: 0, twist: 0 },
+          body.skeleton,
+        ).flexion ?? 0,
+        0,
+        0,
+      ];
+    }
+    return joints;
   }
+
+  /**
+   * The turns of a clasping hand about its palm's normal that {@link choose}
+   * tries, degrees: half a quarter turn either way in steps of 7.5. A hand
+   * turned farther than the wrist deviates is no longer offered along its
+   * forearm, and the low elbow ends between two steps of 15 on the sweep's
+   * bodies.
+   */
+  export const TURNS: readonly number[] = Array.from(
+    { length: 13 },
+    (_: unknown, i: number): number => -45 + 7.5 * i,
+  );
+
+  /**
+   * The upper limits of the upper-arm bands of the Rapid Upper Limb
+   * Assessment, degrees of the upper arm from hanging: 20, 45 and 90
+   * (McAtamney and Corlett 1993, Applied Ergonomics 24(2):91). A higher band
+   * is a costlier posture, so a turn an arm takes in a lower band outranks
+   * any it takes in a higher one.
+   */
+  export const BANDS: readonly number[] = [20, 45, 90];
+
+  /**
+   * The largest miss of a fit that still counts as reaching the clasp and
+   * the pump's top and bottom: 1, a degree of hand rotation plus a millimetre
+   * of position, the bound the carried object's cases hold a grip to. A turn
+   * past it leaves the wrist short at one end of the pump (the wrist's ulnar
+   * deviation ends at 30 degrees and the pump takes about 5.5 more), where
+   * the hand then swings 15 mm into the partner's forearm on the sweep's
+   * bodies.
+   */
+  export const REACHED: number = 1;
 
   /**
    * Choose both hands' turns about their palms' normals, with each palm
@@ -151,7 +202,7 @@ export namespace HumanClasp {
         fingers: hand.fingers,
         palm: hand.palm,
       });
-      return HumanGrasp.TURNS.map(
+      return TURNS.map(
         (turn: number): HumanGrasp.IReach =>
           HumanGrasp.reachable(
             hand.body,
@@ -203,15 +254,49 @@ export namespace HumanClasp {
     const bBones: Bones[] = b.map(
       (r: HumanGrasp.IReach): Bones => poseBones(two.body, r.pose),
     );
+    // Each arm's admissible turns: those it reaches through the pump, and of
+    // those the ones in the lowest upper-arm band any of them attains.
+    const admitted = (
+      reaches: HumanGrasp.IReach[],
+      bones: Bones[],
+    ): number[] => {
+      const band = (index: number): number => {
+        const upper: IAutoMovieVector3 = Vector3.subtract(
+          bones[index]!.get(`${side}LowerArm`)!.worldPosition,
+          bones[index]!.get(`${side}UpperArm`)!.worldPosition,
+        );
+        const raised: number =
+          (Math.acos(
+            Math.max(-1, Math.min(1, -upper.y / Vector3.length(upper))),
+          ) *
+            180) /
+          Math.PI;
+        const found: number = BANDS.findIndex(
+          (limit: number): boolean => raised <= limit,
+        );
+        return found === -1 ? BANDS.length : found;
+      };
+      const all: number[] = reaches.map(
+        (_: HumanGrasp.IReach, index: number): number => index,
+      );
+      const reached: number[] = all.filter(
+        (index: number): boolean => reaches[index]!.miss <= REACHED,
+      );
+      if (reached.length === 0) return all;
+      const lowest: number = Math.min(...reached.map(band));
+      return reached.filter((index: number): boolean => band(index) === lowest);
+    };
+    const aAdmitted: number[] = admitted(a, aBones);
+    const bAdmitted: number[] = admitted(b, bBones);
     let best: { i: number; j: number; clear: number; cost: number } | undefined;
-    for (let i: number = 0; i < a.length; i++)
-      for (let j: number = 0; j < b.length; j++) {
+    for (const i of aAdmitted)
+      for (const j of bAdmitted) {
         const clear: number = Math.min(
           clearance(one.body, aBones[i]!, two.body, bBones[j]!, side),
           clearance(two.body, bBones[j]!, one.body, aBones[i]!, side),
         );
         const cost: number =
-          Math.max(a[i]!.miss, b[j]!.miss) +
+          Math.max(a[i]!.miss + a[i]!.departure, b[j]!.miss + b[j]!.departure) +
           0.01 * (Math.abs(a[i]!.turn) + Math.abs(b[j]!.turn));
         const better: boolean =
           best === undefined ||

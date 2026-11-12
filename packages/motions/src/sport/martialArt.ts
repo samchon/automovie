@@ -6,6 +6,7 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
+import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
@@ -34,10 +35,12 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  *   at the same time (hikite). Each punch extends in 0.2 s and stays 0.2 s,
  *   inside the 400 ms a choku-zuki takes (VencesBrito et al. 2011); the
  *   hands alternate.
- * - Tai chi push: the lead foot steps ahead 0.35 statures (provisional), and
- *   over 3 s the weight shifts forward six tenths of the step as the palms
- *   push from before the chest to an arm's reach ahead, then shift back
- *   over 3 s: the slow, continuous form of tai chi (Wu and Hitt 2005).
+ * - Tai chi push: the lead foot steps ahead 0.35 statures (provisional)
+ *   over 3 s as the hips come half the step forward and sink until both
+ *   legs reach their feet; over 3 s more the weight shifts to six tenths of
+ *   the step as the palms push from before the chest to an arm's reach
+ *   ahead, then shifts back over 3 s, and the foot returns over 3 s: the
+ *   slow, continuous form of tai chi (Wu and Hitt 2005).
  *
  * Forms are authored as ordered technique lists; no named form's content is
  * shipped. Not drafted: front and back stances as their own rows, blocks,
@@ -141,7 +144,8 @@ export namespace martialArt {
         rotation: context.entry.feet.right.rotation,
       },
     };
-    const step: number = 0.6;
+    // Tai chi is slow throughout: its step takes the push's time.
+    const step: number = p.kind === "taiChiPush" ? PUSH : 0.6;
     const middle: number =
       p.kind === "chokuZuki" ? count * 2 * PUNCH + PUNCH : hold;
     const clock: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
@@ -166,6 +170,21 @@ export namespace martialArt {
         root: Vector3.add(posture.root, offset(s)),
       }),
     });
+    const lead = (
+      side: "left" | "right",
+      by: IAutoMovieVector3,
+      s: number,
+    ): HumanFoot.IPlacement =>
+      AutoMovieMotionHumanLeg.arc(
+        stance[side],
+        {
+          ankle: Vector3.add(stance[side].ankle, by),
+          rotation: stance[side].rotation,
+        },
+        0.03 * m.stature,
+        into(s),
+      );
+    const bearing = (s: number): boolean => into(s) <= 0 || into(s) >= 1;
     const stepped = (
       side: "left" | "right",
       by: IAutoMovieVector3,
@@ -176,16 +195,8 @@ export namespace martialArt {
         from: 0,
         to: clock.duration,
         placement: (_: IHumanPosture, s: number): HumanFoot.IPlacement =>
-          AutoMovieMotionHumanLeg.arc(
-            stance[side],
-            {
-              ankle: Vector3.add(stance[side].ankle, by),
-              rotation: stance[side].rotation,
-            },
-            0.03 * m.stature,
-            into(s),
-          ),
-        planted: (s: number): boolean => into(s) <= 0 || into(s) >= 1,
+          lead(side, by, s),
+        planted: bearing,
       });
     const rest = (side: "left" | "right"): AutoMovieMotionHumanArm.IAngles =>
       AutoMovieMotionHumanArm.angles(context.entry.pose, side);
@@ -289,15 +300,40 @@ export namespace martialArt {
       const stride: number = 0.35 * m.stature * modifiers.extent;
       const shift = (s: number): number =>
         clock.envelope(["strokeStart", "stroke"], ["stroke", "strokeEnd"], s);
+      // The hips travel between the feet and sink until each bearing leg
+      // reaches its foot: the bow stance's depth follows from the stride.
       primitives.push(
-        stepped("left", Vector3.scale(forward, stride)),
-        root(
-          (s: number): IAutoMovieVector3 =>
-            Vector3.add(
-              Vector3.scale(forward, stride * (0.5 * into(s) + 0.1 * shift(s))),
-              { x: 0, y: -0.03 * m.stature * into(s), z: 0 },
+        AutoMovieMotionHumanLean.sway({
+          body,
+          from: 0,
+          to: clock.duration,
+          angles: (): AutoMovieMotionHumanLean.IAngles => ({
+            pitch: 0,
+            roll: 0,
+          }),
+          shift: (s: number): IAutoMovieVector3 => ({
+            x: 0,
+            y: 0,
+            z: stride * (0.5 * into(s) + 0.1 * shift(s)),
+          }),
+          legs: (s: number) => ({
+            leftLeg: AutoMovieMotionHumanLeg.goal(
+              body,
+              entry,
+              "left",
+              lead("left", Vector3.scale(forward, stride), s),
+              bearing(s),
             ),
-        ),
+            rightLeg: AutoMovieMotionHumanLeg.goal(
+              body,
+              entry,
+              "right",
+              stance.right,
+              true,
+            ),
+          }),
+        }),
+        stepped("left", Vector3.scale(forward, stride)),
       );
       for (const side of ["left", "right"] as const)
         primitives.push(

@@ -6,6 +6,8 @@ import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanCourse } from "../compose/AutoMovieMotionHumanCourse";
+import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
@@ -15,31 +17,32 @@ import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFoot } from "../posture/HumanFoot";
-import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { hipJoints } from "../posture/hipJoints";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanBalance } from "./HumanBalance";
 import { crouch } from "./crouch";
+import { kneelKeys } from "./kneelKeys";
 
 /**
  * Kneeling from standing: on one knee (half kneel), on both knees upright,
  * or sitting back on the heels, held, then rising the way it went down.
  *
- * The goals are floor points. The kneeling leg steps back onto the ball of
- * its foot, then the hips lower until its knee touches the floor straight
- * under its hip joint with the thigh upright, the shin lying back along the
- * floor to the foot, whose toes stay on the floor as it pivots about their
- * joint to the tucked toes of kneeling. The front foot stays planted with
- * its shank upright, so the hips stand behind its knee by what the thigh's
- * length leaves after the height difference; every place follows from the
- * leg's two lengths and the knee's radius over the floor. For both knees the
- * front leg then swings back and its knee lands beside the first, and for
- * sitting back the hips lower toward the heels until the knees flex
- * `SIT` degrees, the high-flexion band measured in kneeling (141.6 degrees,
- * Acker et al. 2011, J Arthroplasty 26:319; up to 157 +- 6 in deep postures,
- * Hemmerich et al. 2006, J Orthop Res 24:770). Pollard, Porter and Redfern
- * (2011, J Appl Biomech 27:233) give the four kneeling postures. The hands
- * rest on the thighs as the body settles.
+ * The goals are floor points, solved by {@link kneelKeys}. The kneeling leg
+ * steps back onto its tucked toes while the hips run a course along the
+ * heading that keeps the extrapolated centre of mass between the feet
+ * ({@link AutoMovieMotionHumanCourse}; Hof, Gazendam and Sinke 2005): it goes
+ * from where it stands to the middle between the two feet as the foot
+ * travels, so the hips trail the foot and arrive after it lands. Through the
+ * step the hips ride as high as the less extended leg reaches its foot, the
+ * reach going from the standing leg's to `REACH` of its length, a reverse
+ * lunge, and the pelvis tips forward by what keeps the leg behind inside the
+ * hip's extension range (`kneelKeys.lean`). Then the hips lower until the knee touches the floor straight under
+ * its hip joint with the thigh upright, the shin lying back along the floor
+ * to the foot. For both knees the front leg then swings back and its knee
+ * lands beside the first, and for sitting back the hips turn about the knees
+ * toward the heels until the knees flex `kneelKeys.SIT` degrees. Pollard,
+ * Porter and Redfern (2011, J Appl Biomech 27:233) give the four kneeling
+ * postures. The hands rest on the thighs as the body settles.
  *
  * Each phase moves on minimum-jerk progress; its length is provisional,
  * scaled by the square root of the hip height (Alexander 1984) and by the
@@ -101,14 +104,8 @@ export namespace kneel {
     manner?: AutoMovieMotionManner.IManner;
   }
 
-  /** The foot's pitch on its tucked toes, degrees toes down (provisional, inside the toes' 80 degree extension). */
-  export const TUCK: number = 60;
-
-  /** The foot's pitch on its ball as it lands behind, degrees toes down (provisional). */
-  export const BALL: number = 20;
-
-  /** Knee flexion sitting back on the heels, degrees (Acker et al. 2011; inside the range table's 150). */
-  export const SIT: number = 145;
+  /** How far of its full length the stepping leg extends to reach its foot behind (provisional). */
+  export const REACH: number = 0.98;
 
   /** Seconds of each phase for a 0.93 m hip height (provisional). */
   export const PHASES: Readonly<
@@ -126,10 +123,10 @@ export namespace kneel {
    * @throws {Error} When the hold is negative.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the plan and its refusal; the namespace gives the law.
-   * @evidence contracts/development/implementation.md#principled-implementation Key states solved from the leg lengths and the knee's radius, joined by minimum-jerk phases; a foot whose toes' joint does not move pivots on it, one that moves swings on an arc.
+   * @evidence contracts/development/implementation.md#principled-implementation Key states joined by minimum-jerk phases; on its feet the hips follow the balance course and the legs' reach, sitting back they turn about the knees; a foot whose toes' joint does not move pivots on it, one that moves swings on an arc.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Key states, a phase list, one body row and two hand rows.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The constants are named and provisional; the root is lowered only where a planted leg cannot reach.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two 40-step bisections per plan; each posture costs one lowering and two arm solves.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One key solve and a balance course down and up per plan, about a hundred posture solves each; each posture costs one lowering and two arm solves.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Key states are computed once.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its key states and the base.
    */
@@ -140,7 +137,6 @@ export namespace kneel {
     const m = body.measure;
     const kind: Kind = context.params.kind ?? "one";
     const k: "left" | "right" = context.params.knee ?? "right";
-    const f: "left" | "right" = k === "left" ? "right" : "left";
     const hold: number = context.params.hold ?? 1.5;
     const rise: boolean = context.params.rise ?? true;
     if (!(hold >= 0)) throw new Error("A kneel's hold is not negative");
@@ -152,156 +148,13 @@ export namespace kneel {
     });
     const standing: IHumanPosture = probe.posture(0);
     const yaw: number = standing.yaw;
-    const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-    const forward: IAutoMovieVector3 = HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw },
-      { x: 0, y: 0, z: 1 },
+    const solved: kneelKeys.IKeys = kneelKeys.solve(body, standing, kind, k);
+    const keys: kneelKeys.IKey[] = solved.keys;
+    const length: number = m.thigh + m.shank;
+    const kneeling: number = Vector3.dot(
+      Vector3.subtract(keys[2]!.root, standing.root),
+      solved.forward,
     );
-
-    // Standing feet as toes' joints on the floor with their headings.
-    const flat = (side: "left" | "right"): HumanFoot.IPlacement => {
-      const goal: IHumanPosture.IGoal = standing.limbs[`${side}Leg`]!;
-      return {
-        ankle: goal.point,
-        rotation: goal.rotation ?? HumanFrame.turn(yaw),
-      };
-    };
-    const foot0: Record<"left" | "right", IFoot> = {
-      left: {
-        at: HumanFoot.point(body, "left", "mtp", flat("left")),
-        heading: HumanFoot.heading(flat("left").rotation),
-        pitch: 0,
-      },
-      right: {
-        at: HumanFoot.point(body, "right", "mtp", flat("right")),
-        heading: HumanFoot.heading(flat("right").rotation),
-        pitch: 0,
-      },
-    };
-    const ankleOf = (side: "left" | "right", foot: IFoot): IAutoMovieVector3 =>
-      HumanFoot.pivot(body, side, "mtp", foot.at, foot.heading, foot.pitch)
-        .ankle;
-
-    // The kneeling height: the knee joint a shank radius over the floor, the
-    // hip joint a thigh above it (provisional knee radius).
-    const knee: number = m.shankRadius;
-    const hipY: number = knee + m.thigh;
-    const frontAnkle: IAutoMovieVector3 = flat(f).ankle;
-    const above: number = hipY - (frontAnkle.y + m.shank);
-    const behind: number = Math.sqrt(
-      Math.max(0, m.thigh * m.thigh - above * above),
-    );
-    const rest = hipJoints(body, { x: 0, y: 0, z: 0 }, HumanFrame.turn(yaw));
-    const standingHips = hipJoints(body, standing.root, HumanFrame.turn(yaw));
-    const hipK: IAutoMovieVector3 = {
-      ...Vector3.add(
-        standingHips[k],
-        Vector3.scale(
-          forward,
-          Vector3.dot(Vector3.subtract(frontAnkle, standingHips[k]), forward) -
-            behind,
-        ),
-      ),
-      y: hipY,
-    };
-    const rootKneel: IAutoMovieVector3 = Vector3.subtract(hipK, rest[k]);
-
-    // A tucked foot behind a knee: the toes' joint as far back as puts the
-    // ankle a shank from the knee.
-    const tucked = (
-      side: "left" | "right",
-      kneeAt: IAutoMovieVector3,
-    ): IFoot => {
-      const foot = (d: number): IFoot => ({
-        at: {
-          ...Vector3.subtract(kneeAt, Vector3.scale(forward, d)),
-          y: foot0[side].at.y,
-        },
-        heading: foot0[side].heading,
-        pitch: -TUCK,
-      });
-      let lo: number = 0;
-      let hi: number = m.shank + m.footLength;
-      for (let i: number = 0; i < 40; i++) {
-        const mid: number = (lo + hi) / 2;
-        if (
-          Vector3.length(Vector3.subtract(ankleOf(side, foot(mid)), kneeAt)) <
-          m.shank
-        )
-          lo = mid;
-        else hi = mid;
-      }
-      return foot((lo + hi) / 2);
-    };
-    const kneeK: IAutoMovieVector3 = Vector3.subtract(
-      hipK,
-      Vector3.scale(up, m.thigh),
-    );
-    const backFoot: IFoot = tucked(k, kneeK);
-    const kneeF: IAutoMovieVector3 = {
-      ...Vector3.add(rootKneel, rest[f]),
-      y: knee,
-    };
-    const secondFoot: IFoot = tucked(f, kneeF);
-
-    // Sitting back: each thigh turns back about its knee until the knee
-    // flexes SIT degrees, the hips coming down toward the heels.
-    const shankDir: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(ankleOf(k, backFoot), kneeK),
-    );
-    const across: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.cross(shankDir, up),
-    );
-    const normal: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.cross(across, shankDir),
-    );
-    const open: number = ((180 - SIT) * Math.PI) / 180;
-    const hipSit: IAutoMovieVector3 = Vector3.add(
-      kneeK,
-      Vector3.scale(
-        Vector3.add(
-          Vector3.scale(shankDir, Math.cos(open)),
-          Vector3.scale(normal, Math.sin(open)),
-        ),
-        m.thigh,
-      ),
-    );
-    const rootSit: IAutoMovieVector3 = Vector3.subtract(hipSit, rest[k]);
-
-    // Key states, from standing down.
-    const stepped: IKey = {
-      root: Vector3.lerp(standing.root, rootKneel, 0.4),
-      feet: {
-        [f]: { ...foot0[f], planted: true },
-        [k]: { ...backFoot, pitch: -BALL, planted: true },
-      } as IKey["feet"],
-    };
-    const keys: IKey[] = [
-      {
-        root: standing.root,
-        feet: {
-          left: { ...foot0.left, planted: true },
-          right: { ...foot0.right, planted: true },
-        },
-      },
-      stepped,
-      {
-        root: rootKneel,
-        feet: {
-          [f]: { ...foot0[f], planted: true },
-          [k]: { ...backFoot, planted: true },
-        } as IKey["feet"],
-      },
-    ];
-    if (kind !== "one")
-      keys.push({
-        root: rootKneel,
-        feet: {
-          [f]: { ...secondFoot, planted: true },
-          [k]: { ...backFoot, planted: true },
-        } as IKey["feet"],
-      });
-    if (kind === "sitBack") keys.push({ ...keys.at(-1)!, root: rootSit });
 
     // Phases: down through the keys, a hold, and back up when rising.
     const scale: number = Math.sqrt(m.hipHeight / 0.93);
@@ -370,20 +223,20 @@ export namespace kneel {
     // swinging on an arc when it moves.
     const footAt = (
       side: "left" | "right",
-      a: IFoot & { planted: boolean },
-      b: IFoot & { planted: boolean },
+      a: kneelKeys.IFoot,
+      b: kneelKeys.IFoot,
       u: number,
     ): { placement: HumanFoot.IPlacement; planted: boolean; toes: number } => {
       const moves: boolean =
         Vector3.length(Vector3.subtract(a.at, b.at)) > 1e-4;
-      const placed = (foot: IFoot): HumanFoot.IPlacement =>
+      const placed = (foot: kneelKeys.IFoot): HumanFoot.IPlacement =>
         HumanFoot.pivot(body, side, "mtp", foot.at, foot.heading, foot.pitch);
-      const pitch: number = a.pitch + (b.pitch - a.pitch) * u;
+      const toes: number = a.toes + (b.toes - a.toes) * u;
       if (!moves)
         return {
-          placement: placed({ ...a, pitch }),
-          planted: a.planted && b.planted,
-          toes: Math.max(0, -pitch),
+          placement: placed({ ...a, pitch: a.pitch + (b.pitch - a.pitch) * u }),
+          planted: true,
+          toes,
         };
       return {
         placement: AutoMovieMotionHumanLeg.arc(
@@ -393,35 +246,177 @@ export namespace kneel {
           u,
         ),
         planted: u <= 0 || u >= 1,
-        toes: Math.max(0, -pitch),
+        toes,
       };
     };
 
+    // The body at a second. While it stands on its feet (the step and the
+    // lowering, and their way back) the hips run a course along the heading
+    // and ride as high as the less extended leg reaches its foot, down to the
+    // kneeling height as the knee comes to the floor. `along` asks the hips'
+    // place for the course's solve.
+    const courses: ((seconds: number) => number)[] = [];
+    const heights: { landed?: number } = {};
+    const write = (
+      posture: IHumanPosture,
+      seconds: number,
+      along?: number,
+    ): IHumanPosture => {
+      const { phase, u } = at(seconds);
+      const a: kneelKeys.IKey = keys[phase.from]!;
+      const b: kneelKeys.IKey = keys[phase.to]!;
+      const feet = {
+        left: footAt("left", a.feet.left, b.feet.left, u),
+        right: footAt("right", a.feet.right, b.feet.right, u),
+      };
+      const pair: number = phase.from + phase.to;
+      let root: IAutoMovieVector3;
+      let pitch: number = 0;
+      if (phase.from !== phase.to && pair <= 3) {
+        const step: number = pair === 3 ? 1 : phase.from === 0 ? u : 1 - u;
+        const low: number = pair === 1 ? 0 : phase.from === 1 ? u : 1 - u;
+        const course: number = (courses[phase.from < phase.to ? 0 : 1] ??
+          ((): number => 0))(seconds);
+        const s: number =
+          along ??
+          (pair === 3
+            ? course + (kneeling - course) * low ** 4
+            : phase.from === 1
+              ? course * (1 - u ** 4)
+              : course);
+        const flat: IAutoMovieVector3 = Vector3.add(
+          standing.root,
+          Vector3.scale(solved.forward, s),
+        );
+        const reach: number =
+          (solved.extension + (REACH - solved.extension) * step) * length;
+        const high: number = Math.min(
+          ...(["left", "right"] as const).map((side): number => {
+            const ankle: IAutoMovieVector3 = feet[side].placement.ankle;
+            const hip: IAutoMovieVector3 = Vector3.add(flat, solved.rest[side]);
+            const d: number = Math.hypot(ankle.x - hip.x, ankle.z - hip.z);
+            return (
+              ankle.y +
+              Math.sqrt(Math.max(0, reach * reach - d * d)) -
+              solved.rest[side].y
+            );
+          }),
+        );
+        // Once the foot has landed the hips never ride above the straight
+        // way between the neighbouring states' heights.
+        const landed: number | undefined = heights.landed;
+        const cap: number =
+          landed === undefined || (pair === 1 && phase.from === 0)
+            ? Infinity
+            : pair === 3
+              ? landed + (keys[2]!.root.y - landed) * low
+              : landed + (standing.root.y - landed) * u;
+        root = { ...flat, y: Math.min(high, cap) };
+        pitch = kneelKeys.lean(
+          body,
+          {
+            left: Vector3.add(root, solved.rest.left),
+            right: Vector3.add(root, solved.rest.right),
+          },
+          { left: feet.left.placement.ankle, right: feet.right.placement.ankle },
+          solved.forward,
+        );
+      } else if (kind === "sitBack" && Math.max(phase.from, phase.to) === 4) {
+        root = kneelKeys.turn(solved.pivot, a.root, b.root, u);
+      } else root = Vector3.lerp(a.root, b.root, u);
+      const placed: IHumanPosture = AutoMovieMotionHumanLean.tip(
+        body,
+        { ...posture, root, yaw },
+        pitch,
+        0,
+      );
+      const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+      const joints: IHumanPosture["joints"] = { ...posture.joints };
+      for (const side of ["left", "right"] as const) {
+        limbs[`${side}Leg`] = AutoMovieMotionHumanLeg.goal(
+          body,
+          placed,
+          side,
+          feet[side].placement,
+          feet[side].planted,
+        );
+        joints[`${side}Toes`] = [feet[side].toes, 0, 0];
+      }
+      return resolveHumanPosture.lower(body, { ...placed, joints, limbs });
+    };
+
+    // The courses: going down, the extrapolated centre of mass goes from
+    // where it stands to the middle between the feet as the foot travels;
+    // coming up it is back over the standing foot while the knee leaves the
+    // floor, before the foot behind lifts. The landing height is read from
+    // the step's own course first.
+    const centre = (posture: IHumanPosture): number =>
+      Vector3.dot(HumanBalance.support(body, posture).centre, solved.forward);
+    const stood: number = centre(standing);
+    const middle: number =
+      (["left", "right"] as const)
+        .map((side): number => {
+          const foot: kneelKeys.IFoot = keys[1]!.feet[side];
+          return Vector3.dot(
+            HumanFoot.point(
+              body,
+              side,
+              "sole",
+              HumanFoot.pivot(
+                body,
+                side,
+                "mtp",
+                foot.at,
+                foot.heading,
+                foot.pitch,
+              ),
+              foot.toes,
+            ),
+            solved.forward,
+          );
+        })
+        .reduce((x: number, y: number): number => x + y, 0) / 2;
+    const course = (from: number, to: number, start: number) =>
+      AutoMovieMotionHumanCourse.solve({
+        body,
+        yaw,
+        posture: (seconds: number, along: number): IHumanPosture =>
+          write(standing, seconds, along),
+        target: (seconds: number): number => {
+          const { phase, u } = at(seconds);
+          const share: number =
+            phase.from < phase.to
+              ? phase.from === 0
+                ? u
+                : 1
+              : phase.from === 2
+                ? 1 - u
+                : 0;
+          return stood + (middle - stood) * share;
+        },
+        from,
+        to,
+        start,
+      });
+    const landing: number = clock.at(phases[1]!.name);
+    heights.landed = write(
+      standing,
+      landing,
+      course(0, landing, 0)(landing),
+    ).root.y;
+    courses[0] = course(0, clock.at(phases[2]!.name), 0);
+    const off: IPhase | undefined = phases.find(
+      (p: IPhase) => p.from === 2 && p.to === 1,
+    );
+    if (off !== undefined)
+      courses[1] = course(clock.at(off.name), duration, kneeling);
+
     const kneelBody: IAutoMovieMotionHumanPrimitive = {
-      channels: ["root", "leftLeg", "rightLeg"],
+      channels: ["root", "trunk", "leftLeg", "rightLeg"],
       from: 0,
       to: duration,
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
-        const { phase, u } = at(seconds);
-        const a: IKey = keys[phase.from]!;
-        const b: IKey = keys[phase.to]!;
-        const root: IAutoMovieVector3 = Vector3.lerp(a.root, b.root, u);
-        const placed: IHumanPosture = { ...posture, root, yaw };
-        const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
-        const joints: IHumanPosture["joints"] = { ...posture.joints };
-        for (const side of ["left", "right"] as const) {
-          const foot = footAt(side, a.feet[side], b.feet[side], u);
-          limbs[`${side}Leg`] = AutoMovieMotionHumanLeg.goal(
-            body,
-            placed,
-            side,
-            foot.placement,
-            foot.planted,
-          );
-          joints[`${side}Toes`] = [foot.toes, 0, 0];
-        }
-        return resolveHumanPosture.lower(body, { ...placed, joints, limbs });
-      },
+      write: (posture: IHumanPosture, seconds: number): IHumanPosture =>
+        write(posture, seconds),
     };
 
     // The hands come onto the thighs while the hips lower and leave them as
@@ -447,12 +442,13 @@ export namespace kneel {
     for (const side of ["left", "right"] as const) {
       let open: number | undefined;
       for (const phase of phases) {
-        const a = keys[phase.from]!.feet[side];
-        const b = keys[phase.to]!.feet[side];
         const still: boolean =
-          Vector3.length(Vector3.subtract(a.at, b.at)) <= 1e-4 &&
-          a.planted &&
-          b.planted;
+          Vector3.length(
+            Vector3.subtract(
+              keys[phase.from]!.feet[side].at,
+              keys[phase.to]!.feet[side].at,
+            ),
+          ) <= 1e-4;
         const t: number = clock.at(phase.name) / duration;
         if (still && open === undefined) open = t;
         if (!still && open !== undefined) {
@@ -473,19 +469,6 @@ export namespace kneel {
       contact: marks[0]!,
       primitives: [kneelBody, hand("left"), hand("right")],
     });
-  }
-
-  /** A foot's place on the floor: its toes' joint, heading and pitch. */
-  interface IFoot {
-    at: IAutoMovieVector3;
-    heading: number;
-    pitch: number;
-  }
-
-  /** A key state: the root and both feet. */
-  interface IKey {
-    root: IAutoMovieVector3;
-    feet: Record<"left" | "right", IFoot & { planted: boolean }>;
   }
 
   /** A phase between two key states. */

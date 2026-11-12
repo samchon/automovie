@@ -13,6 +13,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanColliders } from "../posture/HumanColliders";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
@@ -208,5 +209,45 @@ export namespace HumanTrunk {
       resolve(body, posture).get(frame.bone)!,
     );
     return { point: placed.point, normal: placed.normal };
+  }
+
+  /**
+   * Where a ray meets the trunk or the head of a posture: the point on their
+   * colliders and the outward normal there (`HumanColliders.cast`). Only the
+   * midline segments are tested (the pelvis, spine, chest, neck and head),
+   * since the limbs are not placed here, so a hand already lying on the trunk
+   * does not hide it. A hand rest takes a place between two named regions
+   * from this, on the surface itself.
+   *
+   * @param body The body.
+   * @param posture The posture; its limb goals are ignored.
+   * @param from The ray's start, world metres, outside the trunk.
+   * @param toward Where it runs; any non-zero vector.
+   * @returns The point (metres) and the unit normal.
+   * @throws {Error} When the ray misses the trunk within two statures.
+   */
+  export function surface(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    from: IAutoMovieVector3,
+    toward: IAutoMovieVector3,
+  ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
+    const midline: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
+      [...resolve(body, posture)].filter(
+        ([bone]): boolean => !/^(left|right)/.test(bone),
+      ),
+    );
+    const hit: HumanColliders.IHit | undefined = HumanColliders.cast(
+      body,
+      midline,
+      from,
+      toward,
+      2 * body.measure.stature,
+    );
+    if (hit === undefined)
+      throw new Error(
+        `No trunk surface lies along the ray from (${from.x.toFixed(3)}, ${from.y.toFixed(3)}, ${from.z.toFixed(3)}) m`,
+      );
+    return { point: hit.point, normal: hit.normal };
   }
 }

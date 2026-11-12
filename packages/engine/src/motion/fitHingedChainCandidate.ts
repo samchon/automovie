@@ -26,7 +26,8 @@ import type { prepareChainPlant } from "./prepareChainPlant";
 /**
  * The hinged chain's candidate: `hingedArmArticulation`'s swivel sweep with
  * each candidate decomposed through the prepared clinical domains, scored
- * first by the rig's ROM overshoot and then by one continuous cost: the
+ * first by the rig's ROM overshoot plus the request's `obstruction` of the
+ * candidate's mid and end joints, and then by one continuous cost: the
  * requested effector rotation's error in degrees (when one is requested),
  * plus two degrees per unit of the mid joint's swing away from the bend
  * hint's side of the root-to-target axis (`1 - cos`; without a hint, the side
@@ -145,6 +146,12 @@ export function fitHingedChainCandidate(
     a: IAutoMovieQuaternion,
     b: IAutoMovieQuaternion | null,
   ): number => (b === null ? 0 : (Quaternion.angle(a, b) * 180) / Math.PI);
+  const range: { min: number; max: number } | null = hingeRange(
+    props,
+    prepared,
+    axes,
+    lowerBasis,
+  );
   const solved: ReturnType<typeof hingedArmArticulation> =
     hingedArmArticulation({
       upper: prepared.upper,
@@ -153,6 +160,7 @@ export function fitHingedChainCandidate(
       endOffset: prepared.effectorOffset,
       hinge: axes.flexion,
       target: props.target,
+      ...(range === null ? {} : { range }),
       score: (
         upper: IAutoMovieQuaternion,
         lower: IAutoMovieQuaternion,
@@ -165,6 +173,28 @@ export function fitHingedChainCandidate(
             prepared.lowerOffset,
           ),
         );
+        const blocked: number =
+          props.obstruction === undefined
+            ? 0
+            : props.obstruction(
+                mid,
+                Vector3.add(
+                  mid,
+                  Quaternion.rotateVector(
+                    Quaternion.multiply(
+                      Quaternion.multiply(
+                        Quaternion.multiply(
+                          prepared.upper.worldRotation,
+                          upper,
+                        ),
+                        prepared.lowerRotation,
+                      ),
+                      lower,
+                    ),
+                    prepared.effectorOffset,
+                  ),
+                ),
+              );
         const offset: IAutoMovieVector3 = across(mid);
         const away: number =
           side === null || Vector3.length(offset) < 1e-9
@@ -184,7 +214,8 @@ export function fitHingedChainCandidate(
         return {
           overshoot:
             jointRomOvershoot(u, prepared.upperDomain.constraint) +
-            jointRomOvershoot(l, prepared.lowerDomain.constraint),
+            jointRomOvershoot(l, prepared.lowerDomain.constraint) +
+            blocked,
           deviation:
             (turn === null ? 0 : turn(upper, lower)) +
             2 * away +
@@ -197,7 +228,57 @@ export function fitHingedChainCandidate(
     });
   if (solved === null) return null;
   const [upper, lower] = joints(solved.upper, solved.lower);
-  return { hinge: prepared.hinge, upper, lower };
+  return {
+    hinge: prepared.hinge,
+    upper,
+    lower,
+    shortfall: solved.shortfall,
+  };
+}
+
+/**
+ * The mid joint's flexion range as rotation about its own hinge, radians:
+ * what `hingedArmArticulation` takes as `range`. The clinical flexion of a
+ * pure hinge rotation is linear in the hinge angle, with a sign and an offset
+ * that differ between an elbow and a knee and between rigs, so both are read
+ * numerically from the principal decomposition at zero and at one degree
+ * rather than assumed.
+ *
+ * @param props The fit request.
+ * @param prepared The chain's preparation; its lower domain carries the range.
+ * @param axes The mid bone's axes; its flexion is the hinge.
+ * @param basis The mid bone's normalized basis.
+ * @returns The range, or null when the joint has no flexion range to keep or the reading is degenerate.
+ */
+function hingeRange(
+  props: IFitChainToTargetProps,
+  prepared: NonNullable<ReturnType<typeof prepareChainPlant>>,
+  axes: IAutoMovieJointAxes,
+  basis: IAutoMovieJointAxes,
+): { min: number; max: number } | null {
+  const flexion: { min: number; max: number } | null | undefined =
+    prepared.lowerDomain.constraint?.flexion;
+  if (flexion === null || flexion === undefined) return null;
+  const length: number = Vector3.length(axes.flexion);
+  if (length < 1e-6) return null;
+  const hinge: IAutoMovieVector3 = Vector3.scale(axes.flexion, 1 / length);
+  const read = (degrees: number): number =>
+    decomposeJointRotationOnBasis(
+      Quaternion.fromAxisAngle(hinge, degrees),
+      basis,
+      props.restFrames?.[props.chain.lower],
+    ).flexion ?? 0;
+  const offset: number = read(0);
+  const slope: number = read(1) - offset;
+  if (Math.abs(Math.abs(slope) - 1) > 1e-6) return null;
+  const ends: [number, number] = [
+    (flexion.min - offset) / slope,
+    (flexion.max - offset) / slope,
+  ];
+  return {
+    min: (Math.min(...ends) * Math.PI) / 180,
+    max: (Math.max(...ends) * Math.PI) / 180,
+  };
 }
 
 /**

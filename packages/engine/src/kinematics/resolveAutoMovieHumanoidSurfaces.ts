@@ -39,7 +39,8 @@ import { resolvePose } from "./resolvePose";
  * the back of the sole, ball under the toe joint, toe at the front, sole at
  * the middle, seat under the pelvis, back behind the thorax; when the profile
  * gives the toes their own segment, the toe socket is the front of the toes'
- * colliders and rides the toes bone, so it bends at the ball); the palm is the
+ * colliders on the sole's plane and rides the toes bone, so it bends at the
+ * ball and bears when the heel rises about the toes' joint); the palm is the
  * ray exit below the palm's middle, the grip lies 0.025 m out from it, the
  * radius of a 50 mm handle, the power grip's optimal handle size (Grant,
  * Habes and Steward 1992), and the fist lies 0.012 m ahead of the middle
@@ -155,7 +156,7 @@ export function resolveAutoMovieHumanoidSurfaces(
     );
     sockets[`toe${Side}` as AutoMovieHumanoidSocket] = local(
       jointed ? bone("Toes") : bone("Foot"),
-      { x: ankle.x, y: front.min.y, z: front.max.z },
+      { x: ankle.x, y: foot.min.y, z: front.max.z },
       down,
       forward,
     );

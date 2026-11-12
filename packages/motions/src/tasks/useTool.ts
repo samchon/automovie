@@ -30,10 +30,19 @@ import { poseBones } from "../posture/poseBones";
  * The tool is rigid in the hand: its working point (a hammer's face, a saw's
  * teeth, a spoon's bowl, a screwdriver's tip) sits at a fixed offset in the
  * hand's frame, `TOOLS` long from the grip (provisional lengths), so the
- * goal is that point on the work and the hand follows from it. A hammer
+ * goal is that point on the work and the hand follows from it. The work
+ * fixes the tool's line (a hammer's handle level at the strike, a spoon
+ * upright, a screwdriver along the heading, a saw's blade sloping down to
+ * the cut) and the grip fixes the hand on it: a handle lies obliquely across
+ * the fist in a power grip (Napier 1956, J Bone Joint Surg 38-B:902), so the
+ * fingers point `across` degrees off the tool, and of the directions that
+ * leaves they take the one nearest the line from the shoulder to the grip,
+ * which the forearm follows; a saw and a screwdriver run on with the forearm,
+ * palm inward. The saw's slope is the one of `SLOPES` the arm holds with the
+ * least strain ({@link AutoMovieMotionHumanBend.strain}). A hammer
  * turns about the wrist up to `RAISE` degrees and strikes back down onto the
  * work point once a cycle, the handle level at the strike; a saw pushes and
- * pulls its teeth along the heading over the work point by a stroke of half
+ * pulls its teeth along its blade over the work point by a stroke of half
  * the forearm; a spoon circles the work point at a third of the forearm; a
  * screwdriver turns about its own axis into the work, the forearm's
  * pronation and supination of 60 degrees each way (inside the functional
@@ -99,21 +108,42 @@ export namespace useTool {
     manner?: AutoMovieMotionManner.IManner;
   }
 
-  /** Each tool's working point from the grip in metres and its cycle in seconds (provisional). */
+  /**
+   * Each tool's working point from the grip in metres, its cycle in seconds,
+   * and how it lies in the fist: `across` degrees from where the fingers
+   * point, toward the thumb's side (`exit` 1) or out of the little finger's
+   * side (`exit` -1). All provisional.
+   */
   export const TOOLS: Readonly<
-    Record<Kind, { length: number; period: number }>
+    Record<
+      Kind,
+      { length: number; period: number; across: number; exit: 1 | -1 }
+    >
   > = {
-    hammer: { length: 0.3, period: 0.6 },
-    saw: { length: 0.3, period: 0.8 },
-    stir: { length: 0.22, period: 1.0 },
-    screwdriver: { length: 0.2, period: 0.7 },
+    hammer: { length: 0.3, period: 0.6, across: 60, exit: 1 },
+    saw: { length: 0.3, period: 0.8, across: 0, exit: 1 },
+    stir: { length: 0.22, period: 1.0, across: 90, exit: -1 },
+    screwdriver: { length: 0.2, period: 0.7, across: 0, exit: 1 },
   };
+
+  /** The slopes below the horizontal a saw's blade is tried at, degrees; the arm's least strain picks one (provisional band about the crosscut's 45). */
+  export const SLOPES: readonly number[] = [20, 30, 40, 50, 60];
+
+  /** How far a saw's grip stands over its tooth line, metres (provisional). */
+  export const HANDLE: number = 0.08;
 
   /** The hammer's raise about the wrist, degrees (provisional). */
   export const RAISE: number = 60;
 
   /** The screwdriver's turn each way, degrees (Giachino et al. 2015's functional band). */
   export const TURN: number = 60;
+
+  /** A working pose: the tool's unit axis toward its working point, the grip's place and the hand's rotation. */
+  interface IWork {
+    axis: IAutoMovieVector3;
+    grip: IAutoMovieVector3;
+    rotation: IAutoMovieQuaternion;
+  }
 
   /** A tool's plan: the working point's offset in the hand's frame and the work point. */
   export interface IPlan extends IHumanActionPlan {
@@ -165,46 +195,110 @@ export namespace useTool {
 
     // The working pose: where the grip is and how the hand is turned when the
     // working point is on the work, and the tool's axis from the grip.
-    const work = ((): {
-      grip: IAutoMovieVector3;
-      rotation: IAutoMovieQuaternion;
-    } => {
+    const shoulder: IAutoMovieVector3 = poseBones(
+      body,
+      context.entry.pose,
+    ).get(`${side}UpperArm`)!.worldPosition;
+    const posed = (axis: IAutoMovieVector3, rise: number): IWork => {
+      // The grip stands `rise` over the tool's line, square to it.
+      const base: IAutoMovieVector3 = Vector3.subtract(
+        on,
+        Vector3.scale(axis, length),
+      );
+      const place: IAutoMovieVector3 =
+        rise === 0
+          ? base
+          : Vector3.add(
+              base,
+              Vector3.scale(
+                Vector3.normalize(
+                  Vector3.subtract(
+                    up,
+                    Vector3.scale(axis, Vector3.dot(up, axis)),
+                  ),
+                ),
+                rise,
+              ),
+            );
+      const across: number = (TOOLS[kind].across * Math.PI) / 180;
+      if (across === 0)
+        return {
+          axis,
+          grip: place,
+          rotation: HumanHand.rotation(side, { fingers: axis, palm: inward }),
+        };
+      // The fingers lie `across` from the tool, on the side of that cone
+      // nearest the line from the shoulder to the grip.
+      const out: IAutoMovieVector3 = Vector3.scale(axis, TOOLS[kind].exit);
+      const reach: IAutoMovieVector3 = Vector3.subtract(place, shoulder);
+      const aside: IAutoMovieVector3 = Vector3.subtract(
+        reach,
+        Vector3.scale(out, Vector3.dot(reach, out)),
+      );
+      const fingers: IAutoMovieVector3 = Vector3.add(
+        Vector3.scale(out, Math.cos(across)),
+        Vector3.scale(
+          Vector3.normalize(Vector3.length(aside) > 1e-6 ? aside : forward),
+          Math.sin(across),
+        ),
+      );
+      const thumb: IAutoMovieVector3 = Vector3.subtract(
+        out,
+        Vector3.scale(fingers, Math.cos(across)),
+      );
+      return {
+        axis,
+        grip: place,
+        rotation: HumanHand.rotation(side, {
+          fingers,
+          palm:
+            side === "right"
+              ? Vector3.cross(thumb, fingers)
+              : Vector3.cross(fingers, thumb),
+        }),
+      };
+    };
+    const strain = (pose: IWork): number => {
+      const props: AutoMovieMotionHumanBend.ISolve = {
+        body,
+        posture: context.entry.posture,
+        side,
+        point: HumanHand.place(
+          body,
+          side,
+          "grip",
+          pose.grip,
+          pose.rotation,
+          "relaxed",
+        ).point,
+        rotation: pose.rotation,
+      };
+      return AutoMovieMotionHumanBend.strain(
+        props,
+        AutoMovieMotionHumanBend.solve({ ...props, fallback: "hang" }),
+      );
+    };
+    const work: IWork = ((): IWork => {
       switch (kind) {
         case "hammer":
-          return {
-            grip: Vector3.subtract(on, Vector3.scale(forward, length)),
-            rotation: HumanHand.rotation(side, {
-              fingers: Vector3.scale(up, -1),
-              palm: inward,
-            }),
-          };
-        case "saw":
-          return {
-            grip: Vector3.add(
-              Vector3.subtract(on, Vector3.scale(forward, length)),
-              Vector3.scale(up, 0.08),
-            ),
-            rotation: HumanHand.rotation(side, {
-              fingers: Vector3.scale(up, -1),
-              palm: inward,
-            }),
-          };
-        case "stir":
-          return {
-            grip: Vector3.add(on, Vector3.scale(up, length)),
-            rotation: HumanHand.rotation(side, {
-              fingers: inward,
-              palm: Vector3.scale(forward, -1),
-            }),
-          };
         case "screwdriver":
-          return {
-            grip: Vector3.subtract(on, Vector3.scale(forward, length)),
-            rotation: HumanHand.rotation(side, {
-              fingers: Vector3.scale(up, -1),
-              palm: inward,
-            }),
-          };
+          return posed(forward, 0);
+        case "stir":
+          return posed(Vector3.scale(up, -1), 0);
+        case "saw": {
+          const poses: IWork[] = SLOPES.map((degrees: number): IWork => {
+            const slope: number = (degrees * Math.PI) / 180;
+            return posed(
+              Vector3.subtract(
+                Vector3.scale(forward, Math.cos(slope)),
+                Vector3.scale(up, Math.sin(slope)),
+              ),
+              HANDLE,
+            );
+          });
+          const strains: number[] = poses.map(strain);
+          return poses[strains.indexOf(Math.min(...strains))]!;
+        }
       }
     })();
     const offset: IAutoMovieVector3 = Quaternion.rotateVector(
@@ -277,7 +371,7 @@ export namespace useTool {
             grip: Vector3.add(
               work.grip,
               Vector3.scale(
-                forward,
+                work.axis,
                 0.25 * m.forearm * Math.sin(2 * Math.PI * phase),
               ),
             ),

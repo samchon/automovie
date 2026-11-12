@@ -9,6 +9,7 @@ import {
   resolveAutoMovieContactEvents,
   resolveAutoMovieHumanoidSurfaces,
   resolveAutoMovieSchedule,
+  segmentSegmentDistance,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -720,6 +721,8 @@ export class HumanPerformance {
    * shown with that limb frozen at the stop. Weapons are live only inside
    * their window clipped to their action's span; bodies are the other
    * people's colliders, and the person a stop met is the nearest of them.
+   * A contact is mutual: when the limb a weapon meets is striking too, its
+   * capsule nearest the striker stops at the same second.
    */
   private contacts(): void {
     const weapons: resolveAutoMovieContactEvents.IWeapon[] = [];
@@ -729,6 +732,9 @@ export class HumanPerformance {
         person: HumanSegment.IPerson;
         segment: HumanSegment.ISegment;
         id: string;
+        limb: IHumanActionPlan.IWeapon["limb"];
+        from: number;
+        to: number;
       }
     > = new Map();
     const far: IAutoMovieVector3 = { x: 1e6, y: 1e6, z: 1e6 };
@@ -741,7 +747,14 @@ export class HumanPerformance {
           const b: number = Math.min(w.to, segment.end);
           if (!(b > a)) continue;
           const key: string = `${person.performer.subject}|${HumanSegment.weapon(segment, w.id)}`;
-          owners.set(key, { person, segment, id: w.id });
+          owners.set(key, {
+            person,
+            segment,
+            id: w.id,
+            limb: w.limb,
+            from: a,
+            to: b,
+          });
           const tail = w.tail;
           weapons.push({
             id: key,
@@ -872,6 +885,47 @@ export class HumanPerformance {
                 a,
                 b,
               ).distance;
+            },
+
+            // The limb a weapon met may be striking too. Its capsule and the
+            // collider the striker measured are two measures of that one
+            // limb, so the capsule nearest the striker's axis stops with it.
+            carried: (
+              a: IAutoMovieVector3,
+              b: IAutoMovieVector3,
+              seconds: number,
+              stops: resolveAutoMovieContactEvents.IStops,
+            ): string | undefined => {
+              apply(stops);
+              const bone: AutoMovieHumanoidBone =
+                HumanColliders.distanceToSegment(
+                  person.performer.body,
+                  this.bones(person.performer.subject, seconds),
+                  a,
+                  b,
+                ).bone;
+              const part: RegExpExecArray | null =
+                /^(left|right)(?:(UpperLeg|LowerLeg|Foot|Toes)|(UpperArm|LowerArm|Hand|Thumb|Index|Middle|Ring|Little))/.exec(
+                  bone,
+                );
+              if (part === null) return undefined;
+              const limb: string = `${part[1]}${part[2] === undefined ? "Arm" : "Leg"}`;
+              let best: { key: string; distance: number } | undefined;
+              for (const [key, owner] of owners) {
+                if (
+                  owner.person !== person ||
+                  owner.limb !== limb ||
+                  stops.has(key) ||
+                  seconds < owner.from ||
+                  seconds > owner.to
+                )
+                  continue;
+                const [p, q] = paths.get(key)!(seconds);
+                const distance: number = segmentSegmentDistance(a, b, p, q);
+                if (best === undefined || distance < best.distance)
+                  best = { key, distance };
+              }
+              return best?.key;
             },
           }),
         ),

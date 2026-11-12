@@ -4,6 +4,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { HumanColliders } from "./HumanColliders";
+
 /**
  * One instant of a performer as an action law writes it: where the body
  * stands and faces, the clinical angles of the joints it sets directly, and
@@ -109,6 +111,16 @@ export namespace IHumanPosture {
      * configurations nearly tie instead of letting it switch between them.
      */
     reference?: IHumanPosture.IReference;
+
+    /**
+     * Another body's colliders, placed in the world, an arm keeps clear of on
+     * its way and at its goal (a partner whose head, cheek or back the hand
+     * is sent to): its forearm keeps the clearance it keeps from its own
+     * trunk, except that the wrist's own depth in them excuses nothing, since
+     * no goal put the wrist inside another person (`HumanArmClearance`).
+     * Ignored on a leg.
+     */
+    clear?: readonly HumanColliders.IPlaced[];
   }
 
   /** A limb's reference solution: its upper and lower bones' clinical degrees. */

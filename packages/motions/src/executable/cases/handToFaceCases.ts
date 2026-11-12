@@ -31,12 +31,12 @@ import { everydayVerdicts } from "./everydayVerdicts";
  * - a task that strokes at the face (brushing, combing, washing, wiping):
  *   the tip within 10 mm of the region's surface along its normal over the
  *   strokes;
- * - drinking: the cup's axis (the thumb's) within 10 degrees of vertical at
+ * - drinking: the cup's axis (the fist's grasp axis) within 10 degrees of vertical at
  *   `atMouth` (the level container of Mayer and Krechetnikov 2012 before a
  *   sip tilts it);
  * - reading: the sheet between 17.5 and 58 cm from the eyes (Bababekova et
- *   al. 2011's range for text) and the neck's and head's flexion between 33
- *   and 45 degrees at `atSheet` (Lee et al. 2015).
+ *   al. 2011's range for text) and the neck's and head's flexion from the
+ *   upright entry between 33 and 45 degrees at `atSheet` (Lee et al. 2015).
  *
  * @param bodies The bodies; `m-average` when absent.
  * @returns The cases.
@@ -99,6 +99,7 @@ export function handToFaceCases(
       const entered = TouchVerdicts.entry(
         performance,
         "a",
+        body,
         "right",
         { subject: "a", body },
         0,
@@ -165,13 +166,14 @@ export function handToFaceCases(
       if (task === "drink") {
         const at: number = TouchVerdicts.event(performance, "a", "atMouth");
         const hand = performance.bones("a", at).get("rightHand")!;
-        const thumb: IAutoMovieVector3 = Vector3.normalize(
+        // The cup's axis is the axis of the cylinder the fist holds.
+        const cup: IAutoMovieVector3 = Vector3.normalize(
           Quaternion.rotateVector(
             hand.worldRotation,
-            AutoMovieMotionHumanTouchEffector.axis("right", "thumb"),
+            AutoMovieMotionHumanTouchEffector.axis("right", "grasp"),
           ),
         );
-        const tilt: number = (Math.acos(Math.min(1, thumb.y)) * 180) / Math.PI;
+        const tilt: number = (Math.acos(Math.min(1, cup.y)) * 180) / Math.PI;
         verdicts.push(
           everydayVerdicts.within(
             "cup axis off vertical at atMouth",
@@ -204,11 +206,17 @@ export function handToFaceCases(
           passed: distance >= 0.175 && distance <= 0.58,
           detail: `${(distance * 100).toFixed(1)} cm`,
         });
+        // Lee et al. measure the flexion from the upright stance, which is
+        // the entry here.
         let flexion: number = 0;
-        for (const joint of performance.pose("a", at)
-          .joints as IAutoMovieJointPose[])
-          if (joint.bone === "neck" || joint.bone === "head")
-            flexion += joint.flexion ?? 0;
+        for (const [seconds, sign] of [
+          [at, 1],
+          [0, -1],
+        ] as const)
+          for (const joint of performance.pose("a", seconds)
+            .joints as IAutoMovieJointPose[])
+            if (joint.bone === "neck" || joint.bone === "head")
+              flexion += sign * (joint.flexion ?? 0);
         verdicts.push({
           name: "neck and head flexion 33 to 45 deg at atSheet",
           passed: flexion >= 33 && flexion <= 45,

@@ -9,6 +9,7 @@ import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanLeanInto } from "../compose/AutoMovieMotionHumanLeanInto";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
@@ -31,11 +32,21 @@ import { poseBones } from "../posture/poseBones";
  * about its axis, a slider's handle travels along its axis, a door's handle
  * turns about the vertical hinge line. The hand is shaped to the part (the
  * index fingertip on a button, a closed grip on a knob, a drawer handle or a
- * door handle) and laid on it by `AutoMovieMotionHumanTarget.hand`; on a knob
- * the hand also rolls about the knob's axis with it, the forearm's pronation
- * and supination (Magermans et al. 2005, Clin Biomech 20:591, give the
- * ranges daily tasks use). Each part's place is a target, so it can be a
- * prop's point; the part's outward normal is its axis.
+ * door handle) and laid on it by `AutoMovieMotionHumanTarget.hand`. A part
+ * on an upright face is grasped with the hand along the face's normal: a
+ * handle overhand, the palm on its top; a knob with that grasp rolled about
+ * the axis, and the hand rolls with the knob as it turns, the forearm's
+ * pronation and supination (Magermans et al. 2005, Clin Biomech 20:591, give
+ * the ranges daily tasks use), the grip starting half the turn before the
+ * forearm's neutral so the turn is centred in that range. A lid's knob, its
+ * axis nearer the vertical than `UPRIGHT`, takes the palm from above. Each
+ * part's place is a target, so it can be a
+ * prop's point; the part's outward normal is its axis. A part beyond the
+ * standing arm is leaned into (`AutoMovieMotionHumanLeanInto`): the trunk
+ * tips about the hips by the least pitch that keeps the wrist within `REACH`
+ * of the arm's length and straightens as the part comes nearer (a drawer
+ * pulled out); a part still out of reach at the lean's limit is refused,
+ * since it is walked up to first.
  *
  * The action is one arm phrase (`AutoMovieMotionHumanArm.stroke`): the hand
  * reaches the part by `ready` in the aimed movement time to its width
@@ -142,6 +153,12 @@ export namespace operate {
     slide: number;
     swing: number;
   }> = { press: 0.25, turn: 180, slide: 0.4, swing: 0.6 };
+
+  /** The share of the arm's length the wrist is kept within, so the elbow never locks straight on a part (provisional). */
+  export const REACH: number = 0.97;
+
+  /** The vertical share of a knob's axis from which it counts as a lid's, turned with the fingers ahead instead of up. */
+  export const UPRIGHT: number = Math.SQRT1_2;
 
   /** The width of each part a hand aims at, metres (provisional). */
   export const WIDTH: Readonly<Record<Mechanism["kind"], number>> = {
@@ -294,11 +311,99 @@ export namespace operate {
       mechanism.kind === "button" ? "indexTip" : "grip";
     const shape: HumanHand.Shape =
       mechanism.kind === "button" ? "point" : "relaxed";
+    const target = (
+      posture: IHumanPosture,
+      progress: number,
+    ): AutoMovieMotionHumanArm.ITarget => {
+      const now = state(mechanism, place, hinge, progress);
+      const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+      const ahead: IAutoMovieVector3 = HumanFrame.point(
+        { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
+        { x: 0, y: 0, z: 1 },
+      );
+      // A grasped part on an upright face is taken with the forearm along
+      // the face's normal: overhand on a handle, the palm on its top and the
+      // fingers hooked over it; on a knob that grasp rolled about the axis
+      // to the forearm's neutral, the palm facing inward, and from there
+      // half the turn back, so the turn is centred in the forearm's
+      // pronation and supination. A lid's knob takes the palm from above.
+      // The knob's roll turns the grasp itself, so the elbow's place is
+      // solved for the hand as it is turned.
+      const upright: boolean =
+        mechanism.kind !== "button" && Math.abs(now.normal.y) < UPRIGHT;
+      const spin = Quaternion.fromAxisAngle(
+        now.normal,
+        mechanism.kind !== "knob"
+          ? 0
+          : (upright ? (side === "left" ? 90 : -90) : 0) +
+              mechanism.turn / 2 -
+              now.roll,
+      );
+      return AutoMovieMotionHumanTarget.hand(
+        body,
+        posture,
+        side,
+        upright
+          ? { point: now.point, normal: Quaternion.rotateVector(spin, up) }
+          : now,
+        {
+          surface,
+          shape,
+          forward:
+            mechanism.kind === "button"
+              ? up
+              : upright
+                ? Quaternion.rotateVector(
+                    spin,
+                    Vector3.scale(
+                      Vector3.normalize(Vector3.cross(up, now.normal)),
+                      side === "left" ? 1 : -1,
+                    ),
+                  )
+                : mechanism.kind === "knob"
+                  ? Quaternion.rotateVector(spin, ahead)
+                  : Quaternion.rotateVector(
+                      Quaternion.fromAxisAngle(up, side === "left" ? -90 : 90),
+                      ahead,
+                    ),
+          curl: mechanism.kind === "button" ? 0 : 40,
+        },
+      );
+    };
+
+    // The lean into a part beyond the standing arm.
+    const standing: IHumanPosture = base.posture(0);
+    const lean: AutoMovieMotionHumanLeanInto.ILean =
+      AutoMovieMotionHumanLeanInto.solve({
+        body,
+        standing,
+        side,
+        share: REACH,
+        wrist: (posture: IHumanPosture, progress: number) => {
+          const goal: AutoMovieMotionHumanArm.ITarget = target(
+            posture,
+            progress,
+          );
+          return HumanHand.place(
+            body,
+            side,
+            goal.surface,
+            goal.point,
+            goal.rotation,
+            goal.shape,
+          ).point;
+        },
+        refuse: (beyond: number, limit: number): string =>
+          `${context.subject}: the ${mechanism.kind} stays ${(1000 * beyond).toFixed(0)} mm beyond the ${side} arm at a lean of ${limit} degrees; a part this far is walked up to first`,
+      });
+    // Refuse at plan time a part whose movement leaves the reach.
+    for (let k: number = 0; k <= 8; k++) lean.pitch(standing, k / 8);
     return composeAutoMovieMotionHumanAction({
       base,
       clock,
       contact: "strokeEnd",
       primitives: [
+        lean.primitive(clock),
         AutoMovieMotionHumanArm.stroke({
           body,
           clock,
@@ -311,31 +416,8 @@ export namespace operate {
                 ? { kind: "prop", subject: mechanism.at.subject }
                 : { kind: "ground" },
           },
-          path: (posture: IHumanPosture, _: number, progress: number) => {
-            const now = state(mechanism, place, hinge, progress);
-            const target: AutoMovieMotionHumanArm.ITarget =
-              AutoMovieMotionHumanTarget.hand(body, posture, side, now, {
-                surface,
-                shape,
-                forward:
-                  mechanism.kind === "button"
-                    ? { x: 0, y: 1, z: 0 }
-                    : HumanFrame.point(
-                        { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
-                        { x: side === "left" ? -1 : 1, y: 0, z: 0 },
-                      ),
-                curl: mechanism.kind === "button" ? 0 : 40,
-              });
-            return now.roll === 0
-              ? target
-              : {
-                  ...target,
-                  rotation: Quaternion.multiply(
-                    Quaternion.fromAxisAngle(now.normal, -now.roll),
-                    target.rotation,
-                  ),
-                };
-          },
+          path: (posture: IHumanPosture, _: number, progress: number) =>
+            target(posture, progress),
         }),
       ],
     });

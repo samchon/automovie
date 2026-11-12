@@ -1,19 +1,17 @@
-import { Vector3, minimumJerk, physicalHullFaces } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
-import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import type { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { HumanTrunk } from "./HumanTrunk";
+import { gestureJoints } from "./gestureJoints";
+import { gestureSignal } from "./gestureSignal";
+import { gestureTouch } from "./gestureTouch";
 
 /**
  * The stroke of each gesture: where each hand surface goes, turned which
@@ -61,19 +59,9 @@ import { HumanTrunk } from "./HumanTrunk";
  *   12 mm up the nose bridge; `scratchHead` rubs it 15 mm on the head's side
  *   four times a second (provisional).
  *
- * Gestures of the head, shoulders and trunk are joint angles because no body
- * point is brought anywhere; the movement is the segment's own rotation:
- * `nod` flexes the head lightly (11.25 degrees) and back twice a second (head
- * nods in conversation are small and quick, Hadar et al. 1985, J Nonverbal
- * Behav 9:214; values provisional), `shakeHead` turns it lightly (17.5
- * degrees) either way about 2.2 cycles a second (provisional), `shrug`
- * raises both shoulder girdles 18 degrees (provisional, inside the 30 degree
- * elevation range), `chinLift` extends the head 15 degrees,
- * `squareShoulders` retracts the girdles about 10 and extends the chest 4,
- * `slump` flexes the chest 12, the spine 6, the head about 10 and protracts
- * the girdles about 10 (display postures, provisional). `ANGLES` states each
- * as a level of the joint's range. `bow` is the trunk's pitch, handled by
- * the gesture law.
+ * Gestures of the head, shoulders and trunk are joint angles, stated by
+ * {@link gestureJoints}; pointing and self-touch read the posed trunk in
+ * {@link gestureTouch}; the strokes ride the signals of {@link gestureSignal}.
  * Amplitudes and distances that express the gesture's size scale with the
  * Effort extent; contact points and the pointing line do not.
  *
@@ -238,78 +226,6 @@ export namespace gestureStroke {
     slump: { cycles: 1, period: "long" },
   };
 
-  /**
-   * The size of each joint gesture at full extent, signed clinical degrees:
-   * a level of the joint's range, scaled where the shipped size lay between
-   * two levels (provisional; `everydayGestureVerdicts` checks each gesture
-   * happens).
-   */
-  export const ANGLES = {
-    /** The head's flexion in a nod. */
-    nod: AutoMovieMotionHumanRange.degrees("head", "flexion", "light"),
-
-    /** The head's turn either way in a shake. */
-    shake: AutoMovieMotionHumanRange.degrees("head", "external", "light"),
-
-    /** The girdles' rise in a shrug. */
-    shrug: AutoMovieMotionHumanRange.degrees("leftShoulder", "abduction", {
-      level: "half",
-      scale: 1.2,
-    }),
-
-    /** The head's tilt in a shrug. */
-    shrugHead: AutoMovieMotionHumanRange.degrees("head", "abduction", "slight"),
-
-    /** The head's extension in a chin lift. */
-    chinLift: AutoMovieMotionHumanRange.degrees("head", "extension", {
-      level: "light",
-      scale: 1.2,
-    }),
-
-    /** The girdles' retraction in squared shoulders. */
-    square: AutoMovieMotionHumanRange.degrees("leftShoulder", "extension", {
-      level: "deep",
-      scale: 0.9,
-    }),
-
-    /** The chest's extension in squared shoulders. */
-    squareChest: AutoMovieMotionHumanRange.degrees("chest", "extension", {
-      level: "light",
-      scale: 0.8,
-    }),
-
-    /** The chest's flexion in a slump. */
-    slumpChest: AutoMovieMotionHumanRange.degrees("chest", "flexion", {
-      level: "light",
-      scale: 1.2,
-    }),
-
-    /** The spine's flexion in a slump. */
-    slumpSpine: AutoMovieMotionHumanRange.degrees("spine", "flexion", {
-      level: "slight",
-      scale: 0.75,
-    }),
-
-    /** The head's flexion in a slump. */
-    slumpHead: AutoMovieMotionHumanRange.degrees("head", "flexion", {
-      level: "light",
-      scale: 0.9,
-    }),
-
-    /** The girdles' protraction in a slump. */
-    slumpGirdle: AutoMovieMotionHumanRange.degrees("leftShoulder", "flexion", {
-      level: "light",
-      scale: 1.3,
-    }),
-
-    /** The fingers' curl in a beckon. */
-    beckon: AutoMovieMotionHumanRange.degrees(
-      "leftIndexProximal",
-      "flexion",
-      "deep",
-    ),
-  } as const;
-
   /** Which hands each gesture moves: `one` the chosen side, `both`, or `none`. */
   export const HANDS: Readonly<Record<Kind, "one" | "both" | "none">> = {
     wave: "one",
@@ -345,8 +261,8 @@ export namespace gestureStroke {
    * @throws {Error} For a gesture that moves no hand, or `point` without a target.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the result, the stroke share's range and meaning, and the refusals; the namespace doc gives each gesture's goal and its provisional values.
-   * @evidence contracts/development/implementation.md#principled-implementation Builds each goal in the performer's frame from the body's own measure (arm length, shoulder and waist heights), on the eye-to-target line for pointing (Henriques and Crawford 2002, the reach solved as a ray-sphere intersection from the shoulder), or on the body's face regions offset by the finger's collider radius for self-touch, so every gesture fits any stature; periodic strokes ride `oscillation`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One exhaustive switch over the kind; pointing and self-touch, which need the posed trunk, are private helpers; joint gestures live in `joints`.
+   * @evidence contracts/development/implementation.md#principled-implementation Builds each goal in the performer's frame from the body's own measure (arm length, shoulder and waist heights), on the eye-to-target line for pointing (Henriques and Crawford 2002, the reach solved as a ray-sphere intersection from the shoulder), or on the body's face regions offset by the finger's collider radius for self-touch, so every gesture fits any stature; periodic strokes ride {@link gestureSignal.oscillation}.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One exhaustive switch over the kind; pointing and self-touch, which need the posed trunk, live in {@link gestureTouch}; joint gestures live in {@link gestureJoints}.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The arm-length shares, swing sizes and outward elbow shares are documented provisional values; no body or scene is special-cased.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work for the frame gestures; pointing and self-touch add one trunk forward-kinematics pass.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure function of the instant's input; the gesture law calls it once per hand per evaluated posture, since the base posture changes each instant.
@@ -408,7 +324,7 @@ export namespace gestureStroke {
       palm: HumanHand.Direction,
     ): IAutoMovieQuaternion =>
       HumanHand.facing(side, frame.yaw, { fingers, palm });
-    const wave: number = oscillation(u, cycles);
+    const wave: number = gestureSignal.oscillation(u, cycles);
     const e: number = input.extent;
     switch (kind) {
       case "wave": {
@@ -457,7 +373,7 @@ export namespace gestureStroke {
           point: put(
             {
               at: { height: "shoulder", lateral: "inside", distance: "far" },
-              nudge: { forward: 0.05 * bump(u) },
+              nudge: { forward: 0.05 * gestureSignal.bump(u) },
             },
             Math.min(1, e),
             { height: "shoulder", lateral: "inside", distance: "far" },
@@ -466,7 +382,7 @@ export namespace gestureStroke {
           out: 0,
         };
       case "point":
-        return point(input, side);
+        return gestureTouch.point(input, side);
       case "palmsUp":
       case "shrug":
         return {
@@ -474,7 +390,11 @@ export namespace gestureStroke {
           shape: "flat",
           point: put({
             at: { height: "waist", lateral: "shoulder", distance: "near" },
-            nudge: { out: 0.15 * e, up: 0.03 * e * bump(u), forward: 0.15 },
+            nudge: {
+              out: 0.15 * e,
+              up: 0.03 * e * gestureSignal.bump(u),
+              forward: 0.15,
+            },
           }),
           rotation: facing({ between: ["forward", "out"], share: 0.25 }, "up"),
           out: 0.2,
@@ -490,7 +410,7 @@ export namespace gestureStroke {
           rotation: facing("forward", "up"),
           out: 0,
           curl:
-            ANGLES.beckon *
+            gestureJoints.ANGLES.beckon *
             e *
             (0.5 - 0.5 * Math.cos(2 * Math.PI * cycles * u)),
         };
@@ -525,7 +445,7 @@ export namespace gestureStroke {
       case "touchFace":
       case "pushGlasses":
       case "scratchHead":
-        return touch(kind, input, side, u, cycles);
+        return gestureTouch.touch(kind, input, side, u, cycles);
       case "nod":
       case "shakeHead":
       case "bow":
@@ -537,108 +457,6 @@ export namespace gestureStroke {
   }
 
   /**
-   * The joints a gesture sets directly at a share of the stroke, given its
-   * envelope (0 at rest, 1 in the stroke).
-   *
-   * @param kind The gesture.
-   * @param u Stroke share in [0, 1].
-   * @param cycles Stroke cycles.
-   * @param envelope How far into the gesture the body is, in [0, 1].
-   * @param extent Effort extent multiplier.
-   * @returns Clinical degrees to add.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result's unit (clinical degrees added to the posture) and each argument's range; the namespace doc gives each gesture's angles and sources.
-   * @evidence contracts/development/implementation.md#principled-implementation Joint angles because these gestures bring no body point anywhere: the movement is the segment's own rotation (head nods after Hadar et al. 1985, shrug inside the 30 degree elevation range); each amplitude scales by the envelope times the Effort extent, with nods and shakes on the stroke's cycles.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One exhaustive switch; hand gestures and the bow return no angles, since their movement is owned by `hand` and the gesture law.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The amplitudes are documented provisional values; no body is special-cased.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure function with nothing to share.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new record and retains nothing.
-   */
-  export function joints(
-    kind: Kind,
-    u: number,
-    cycles: number,
-    envelope: number,
-    extent: number,
-  ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
-    const a: number = envelope * extent;
-    switch (kind) {
-      case "nod":
-        return {
-          head: [
-            ANGLES.nod * a * (0.5 - 0.5 * Math.cos(2 * Math.PI * cycles * u)),
-            0,
-            0,
-          ],
-        };
-      case "shakeHead":
-        return { head: [0, 0, ANGLES.shake * a * oscillation(u, cycles)] };
-      case "shrug":
-        return {
-          leftShoulder: [0, ANGLES.shrug * a, 0],
-          rightShoulder: [0, ANGLES.shrug * a, 0],
-          head: [0, ANGLES.shrugHead * a, 0],
-        };
-      case "chinLift":
-        return { head: [ANGLES.chinLift * a, 0, 0] };
-      case "squareShoulders":
-        return {
-          leftShoulder: [ANGLES.square * a, 0, 0],
-          rightShoulder: [ANGLES.square * a, 0, 0],
-          chest: [ANGLES.squareChest * a, 0, 0],
-        };
-      case "slump":
-        return {
-          chest: [ANGLES.slumpChest * a, 0, 0],
-          spine: [ANGLES.slumpSpine * a, 0, 0],
-          head: [ANGLES.slumpHead * a, 0, 0],
-          leftShoulder: [ANGLES.slumpGirdle * a, 0, 0],
-          rightShoulder: [ANGLES.slumpGirdle * a, 0, 0],
-        };
-      case "wave":
-      case "raiseHand":
-      case "cheer":
-      case "stopPalm":
-      case "point":
-      case "palmsUp":
-      case "beckon":
-      case "clap":
-      case "rubHands":
-      case "touchFace":
-      case "pushGlasses":
-      case "scratchHead":
-      case "bow":
-        return {};
-    }
-  }
-
-  /**
-   * A periodic stroke signal that starts and ends at rest: `sin(2 pi n u)`
-   * under a window easing in over the first and out over the last 15 % of
-   * the stroke, so the hand leaves and rejoins its held goal smoothly.
-   *
-   * @param u Stroke share.
-   * @param cycles Cycles.
-   * @returns The signal in [-1, 1]; 0 at and outside the stroke's ends.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the signal, the window and its 15 % ramps, the range and the value outside the stroke.
-   * @evidence contracts/development/implementation.md#principled-implementation A sine of the stroke's cycles under the smaller of two minimum-jerk ramps, so the signal and its slope start and end at zero and the hand joins its held goal without a jump.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pure signal shared by the wave, rub, scratch and head-shake strokes.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 15 % ramp is a provisional shaping value named in the doc.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure function with nothing to share.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function oscillation(u: number, cycles: number): number {
-    if (!(u > 0 && u < 1)) return 0;
-    return (
-      Math.sin(2 * Math.PI * cycles * u) *
-      Math.min(minimumJerk(u / 0.15).s, minimumJerk((1 - u) / 0.15).s)
-    );
-  }
-
-  /**
    * Where the fingers of two palms held together point: up and forward, 30
    * degrees above the horizontal (provisional).
    */
@@ -647,139 +465,4 @@ export namespace gestureStroke {
     up: 0.5,
     forward: 0.866,
   };
-
-  /** A single rise and fall over the stroke, `sin^2(pi u)`. */
-  function bump(u: number): number {
-    return u > 0 && u < 1 ? Math.sin(Math.PI * u) ** 2 : 0;
-  }
-
-  /** The pointing goal: the fingertip on the eye-to-target line at the arm's reach. */
-  function point(input: IInput, side: HumanHand.Side): IHand {
-    const { body } = input;
-    if (input.target === undefined) throw new Error("Pointing needs a target");
-    const bones = HumanTrunk.resolve(body, input.base);
-    const eye: IAutoMovieVector3 = bones.get(`${side}Eye`)!.worldPosition;
-    const shoulder: IAutoMovieVector3 = bones.get(
-      `${side}UpperArm`,
-    )!.worldPosition;
-    const line: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(input.target, eye),
-    );
-    const tip: number = Vector3.length(
-      HumanHand.offset(body, side, "indexTip", "point").point,
-    );
-    const reach: number =
-      0.95 * (body.measure.upperArm + body.measure.forearm) + tip;
-
-    // The point on the line at the reach from the shoulder: |eye + s d - shoulder| = reach.
-    const w: IAutoMovieVector3 = Vector3.subtract(eye, shoulder);
-    const b: number = Vector3.dot(w, line);
-    const c: number = Vector3.dot(w, w) - reach * reach;
-    const s: number = -b + Math.sqrt(Math.max(0, b * b - c));
-    const distance: number = Math.min(
-      s,
-      Vector3.length(Vector3.subtract(input.target, eye)),
-    );
-    const palm: IAutoMovieVector3 =
-      Math.abs(line.y) > 0.9
-        ? HumanFrame.point(
-            { origin: { x: 0, y: 0, z: 0 }, yaw: input.base.yaw },
-            { x: 0, y: 0, z: -Math.sign(line.y) },
-          )
-        : { x: 0, y: -1, z: 0 };
-    return {
-      surface: "indexTip",
-      shape: "point",
-      point: Vector3.add(eye, Vector3.scale(line, distance)),
-      rotation: HumanHand.rotation(side, { fingers: line, palm }),
-      out: 0,
-    };
-  }
-
-  /** A self-touch goal: the fingertip on a face region, palm toward the face, fingers up. */
-  function touch(
-    kind: "touchFace" | "pushGlasses" | "scratchHead",
-    input: IInput,
-    side: HumanHand.Side,
-    u: number,
-    cycles: number,
-  ): IHand {
-    const { body } = input;
-    const region: AutoMovieHumanoidRegion =
-      kind === "pushGlasses"
-        ? "noseBridge"
-        : kind === "scratchHead"
-          ? side === "left"
-            ? "templeLeft"
-            : "templeRight"
-          : input.region;
-    const surface = HumanTrunk.region(body, input.base, region);
-    const up: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(
-        { x: 0, y: 1, z: 0 },
-        Vector3.scale(surface.normal, surface.normal.y),
-      ),
-    );
-    const slide: number =
-      kind === "pushGlasses"
-        ? 0.012 * bumpUp(u)
-        : kind === "scratchHead"
-          ? 0.015 * oscillation(u, cycles)
-          : 0;
-    const pad: number = padding(body, side);
-    return {
-      surface: "indexTip",
-      shape: "flat",
-      point: Vector3.add(
-        Vector3.add(surface.point, Vector3.scale(surface.normal, pad)),
-        Vector3.scale(up, slide),
-      ),
-      rotation: HumanHand.rotation(side, {
-        fingers: up,
-        palm: Vector3.scale(surface.normal, -1),
-      }),
-      out: 0.15,
-    };
-  }
-
-  /** A rise held to the end, for a push: minimum-jerk over the first 60 % of the stroke. */
-  function bumpUp(u: number): number {
-    return minimumJerk(u / 0.6).s;
-  }
-
-  /**
-   * How far the finger's axis stands off the skin it touches: the distal
-   * index phalanx's collider radius (the hand's thinnest half-extent on a
-   * profile without finger colliders: a box's least half extent, or the
-   * radius of the sphere a hull holds about its centre), so a fingertip laid on a surface
-   * touches it rather than sinking its axis into it.
-   */
-  function padding(body: IHumanBody, side: HumanHand.Side): number {
-    const segment =
-      body.profile.segments.find((s) => s.bone === `${side}IndexDistal`) ??
-      body.profile.segments.find((s) => s.bone === `${side}Hand`);
-    let thin: number = 0;
-    for (const shape of segment?.shapes ?? []) {
-      const half: number = thickness(shape);
-      thin = thin === 0 ? half : Math.min(thin, half);
-    }
-    return thin;
-  }
-
-  /** A shape's thinnest half extent, metres. */
-  function thickness(
-    shape: IHumanBody["profile"]["segments"][number]["shapes"][number],
-  ): number {
-    if (shape.kind === "sphere") return shape.radius;
-    if (shape.kind === "capsule") return shape.radius;
-    if (shape.kind === "box")
-      return Math.min(
-        shape.halfExtents.x,
-        shape.halfExtents.y,
-        shape.halfExtents.z,
-      );
-    if (shape.kind === "hull") return physicalHullFaces(shape.points).depth;
-    shape satisfies never;
-    throw new Error("Unknown physical shape kind");
-  }
 }

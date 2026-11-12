@@ -8,6 +8,7 @@ import { ballStrikeCases } from "./ballStrikeCases";
 import { baseballCases } from "./baseballCases";
 import { carryCases } from "./carryCases";
 import { climbCases } from "./climbCases";
+import { colliderCases } from "./colliderCases";
 import { crouchCases } from "./crouchCases";
 import { danceCases } from "./danceCases";
 import { dressCases } from "./dressCases";
@@ -75,6 +76,8 @@ export const MOTION_CAPTURE_CASES: Readonly<
   "jump-e1-sweep": function* (): Iterable<IMotionCaptureCase> {
     for (const who of MotionBodies.SWEEP) yield* jumpCases(who);
   },
+  colliders: (only?: (name: string) => boolean): Iterable<IMotionCaptureCase> =>
+    colliderCases(MotionBodies.SWEEP, only),
   stand: (): IMotionCaptureCase[] => standCases(),
   "stand-sweep": (): IMotionCaptureCase[] =>
     standCases(MotionBodies.SWEEP, "stand-sweep"),

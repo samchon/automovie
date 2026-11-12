@@ -29,6 +29,14 @@ export interface IHumanEntryState {
   /** Its velocity. */
   velocity: samplePoseVelocity.IVelocity;
 
+  /**
+   * The root's linear acceleration as displayed up to the entry, world metres
+   * per second squared: a path that continues the root from the entry starts
+   * with it, so the rates of the joints a planted foot is re-solved through
+   * do not change slope at the cut.
+   */
+  acceleration: IAutoMovieVector3;
+
   /** The posture the previous action wrote at the entry, or the initial standing posture. */
   posture: IHumanPosture;
 
@@ -60,6 +68,9 @@ export namespace IHumanEntryState {
 
     /** The ankle's velocity as displayed up to the entry, world metres per second. */
     velocity: IAutoMovieVector3;
+
+    /** The ankle's acceleration as displayed up to the entry, world metres per second squared. */
+    acceleration: IAutoMovieVector3;
 
     /** The foot's angular velocity as displayed up to the entry, world radians per second. */
     spin: IAutoMovieVector3;

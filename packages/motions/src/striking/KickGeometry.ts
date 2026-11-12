@@ -263,6 +263,7 @@ export namespace KickGeometry {
       back: Vector3.add(origin, Vector3.scale(line, carriage.step)),
       contacts: windows(timing, side, support, carriage.step !== 0),
       record: {
+        limb: side === "left" ? "leftFoot" : "rightFoot",
         offset,
         planned: tracker.planned,
         reached: fit.reached,
@@ -332,7 +333,10 @@ export namespace KickGeometry {
         leg: parts.leg(
           back,
           base,
-          Vector3.scale(Vector3.subtract(parts.back, parts.origin), stepped * w),
+          Vector3.scale(
+            Vector3.subtract(parts.back, parts.origin),
+            stepped * w,
+          ),
         ),
       };
     };

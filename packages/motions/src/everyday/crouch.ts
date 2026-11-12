@@ -23,6 +23,7 @@ import { hipJoints } from "../posture/hipJoints";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
+import { HumanTrunk } from "./HumanTrunk";
 
 /**
  * A crouch or a squat held in place: the hips sink over the planted feet to
@@ -46,9 +47,16 @@ import { HumanBalance } from "./HumanBalance";
  * range table's 20 degrees, so it asks for `heels: "up"` (Hemmerich et al.
  * 2006 measure heels-flat squats only on bodies with that ankle range).
  *
- * The trunk's forward pitch about the hips is found by bisection so that the
- * whole-body centre of mass lies over the middle of the soles
- * (`HumanBalance.offset`), capped by the hip's flexion range; the hands rest
+ * The trunk's forward inclination is found by bisection at every eighth of
+ * the descent, and by a secant search from those between them, so that the
+ * whole-body centre of mass (`HumanBalance.offset`) keeps a straight course
+ * over the soles, with no speed to carry it off them: it stays where it
+ * stands with the heels flat, or as near to that as the lumbar range brings
+ * it at the lowest pose, and goes to the soles' middle when the heels rise.
+ * The inclination is shared by
+ * the lumbopelvic rhythm: the pelvis tilts about the hips as far as the
+ * folded thighs leave the hip room and the spine flexes for the rest, the
+ * rounded back of a deep squat (`HumanTrunk.incline`); the hands rest
  * on the thighs just above the knees, as people support the trunk on the
  * thighs (Kingma, Faber and van Dieen 2016, J Biomech 49:881). The descent
  * takes 1.0 s for a partial and 1.3 s for a full squat at a 0.93 m hip
@@ -133,6 +141,9 @@ export namespace crouch {
   /** The heel lift of `heels: "up"`, degrees about the toes' joint (provisional, the bend law's squat lift). */
   export const HEEL: number = 30;
 
+  /** Shares of the descent at which the balancing inclination is solved. */
+  export const SHARES: number = 8;
+
   /** Descent seconds by depth for a 0.93 m hip height (provisional). */
   export const DESCENT: Readonly<Record<Depth, number>> = {
     partial: 1.0,
@@ -150,8 +161,8 @@ export namespace crouch {
    * @evidence contracts/development/implementation.md#principled-implementation The hip's place follows from the knee flexion and the shank's tilt by the leg's two lengths, the pitch from a bisection on the centre of mass over the soles.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One clock, a standing base, one body row and two arm rows.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An infeasible depth throws with the feasible knee flexion instead of being clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The pitch is solved once per plan in 24 bisection steps; each posture costs one lowering and one arm solve per side.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The hip shift and the pitch are computed once and every posture scales them.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The inclination is solved once per plan in 12 bisection steps at each of 8 shares; each posture then costs at most six lowerings of the secant search and one arm solve per side.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The hip shift and the inclinations are computed once and every posture reads them.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its solved numbers and the base.
    */
   export function plan(
@@ -269,20 +280,31 @@ export namespace crouch {
       );
     }
 
-    // The body at a share: root moved, trunk pitched about the hips, feet lifted.
+    // The body at a share: root moved, trunk inclined by the lumbopelvic
+    // rhythm (the pelvis about the hips as far as the folded thighs leave
+    // the hip room, the spine the rest), feet lifted.
     const lowered = (
       posture: IHumanPosture,
       s: number,
-      pitch: number,
+      inclination: number,
     ): IHumanPosture => {
       const moved: IHumanPosture = {
         ...posture,
         root: Vector3.add(posture.root, Vector3.scale(move, s)),
       };
+      const stood: IHumanPosture["limbs"] = feet(moved, s);
+      const inclined = HumanTrunk.incline(
+        moved.joints,
+        inclination,
+        HumanTrunk.pelvisLimit(body, moved.root, yaw, {
+          left: stood.leftLeg!.point,
+          right: stood.rightLeg!.point,
+        }),
+      );
       const tipped: IHumanPosture = AutoMovieMotionHumanLean.tip(
         body,
-        moved,
-        pitch * s,
+        { ...moved, joints: inclined.joints },
+        inclined.pitch,
         0,
       );
       return resolveHumanPosture.lower(body, {
@@ -300,32 +322,70 @@ export namespace crouch {
       });
     };
 
-    // The pitch that brings the centre of mass over the soles, within the
-    // hip's remaining flexion range.
-    const most: number = hipRange - thighTilt - 5;
-    const error = (q: number): number =>
-      HumanBalance.offset(body, lowered(standing, 1, q));
-    let pitch: number = 0;
-    if (error(0) < 0) {
-      if (error(most) <= 0) pitch = most;
-      else {
-        let lo: number = 0;
-        let hi: number = most;
-        for (let i: number = 0; i < 24; i++) {
+    // The inclination that keeps the centre of mass over the soles, solved
+    // at each of `SHARES` shares of the descent and read linearly between
+    // them, so the body is balanced on the way down and not only at the
+    // bottom. The most is what the lumbar spine's range allows when the
+    // pelvis takes none.
+    const most: number =
+      ((AutoMovieMotionHumanRange.limit("spine", "flexion") ?? 0) *
+        (HumanTrunk.RHYTHM.lumbar + HumanTrunk.RHYTHM.thorax)) /
+      HumanTrunk.RHYTHM.lumbar;
+    // The centre keeps a straight course, so it has no speed to carry it
+    // off the soles: from where it stands over them to their middle when
+    // the heels rise, and otherwise staying where it stands, or as near to
+    // that as the most inclination brings it at the lowest pose.
+    const ahead = (s: number, q: number): number =>
+      HumanBalance.offset(body, lowered(standing, s, q));
+    const upright: number = ahead(0, 0);
+    const low: number = heel === 0 ? Math.min(upright, ahead(1, most)) : 0;
+    const inclinations: number[] = [0];
+    for (let k: number = 1; k <= SHARES; k++) {
+      const error = (q: number): number =>
+        ahead(k / SHARES, q) - (upright + (low - upright) * (k / SHARES));
+      let lo: number = 0;
+      let hi: number = most;
+      if (error(lo) >= 0) hi = lo;
+      else if (error(hi) <= 0) lo = hi;
+      else
+        for (let i: number = 0; i < 12; i++) {
           const mid: number = (lo + hi) / 2;
           if (error(mid) < 0) lo = mid;
           else hi = mid;
         }
-        pitch = (lo + hi) / 2;
-      }
+      inclinations.push((lo + hi) / 2);
     }
+    // Between the shares the linear reading only starts a secant search for
+    // the same course, because the pelvis's hip room turns a corner there
+    // that a reading between two shares would cut with a jump in speed.
+    const inclination = (s: number): number => {
+      const at: number = Math.max(0, Math.min(1, s)) * SHARES;
+      const k: number = Math.min(SHARES - 1, Math.floor(at));
+      const within = (q: number): number => Math.max(0, Math.min(most, q));
+      const error = (q: number): number =>
+        ahead(at / SHARES, q) - (upright + ((low - upright) * at) / SHARES);
+      let a: number =
+        inclinations[k]! + (inclinations[k + 1]! - inclinations[k]!) * (at - k);
+      if (at === k || at === SHARES) return a;
+      let ea: number = error(a);
+      let b: number = within(a + (ea < 0 ? 0.5 : -0.5));
+      for (let i: number = 0; i < 5 && b !== a; i++) {
+        const eb: number = error(b);
+        if (Math.abs(eb) < 1e-5 || eb === ea) break;
+        const next: number = within(b - (eb * (b - a)) / (eb - ea));
+        [a, ea, b] = [b, eb, next];
+      }
+      return b;
+    };
 
     const sink: IAutoMovieMotionHumanPrimitive = {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],
       from: 0,
       to: duration,
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture =>
-        lowered(posture, share(seconds), pitch),
+      write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
+        const s: number = share(seconds);
+        return lowered(posture, s, inclination(s));
+      },
     };
     const rest = (side: "left" | "right"): IAutoMovieMotionHumanPrimitive =>
       brace(

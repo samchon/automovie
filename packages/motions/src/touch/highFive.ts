@@ -195,6 +195,14 @@ export namespace highFive {
       AutoMovieMotionHumanTarget.IPlace,
       "point" | "normal"
     > => place;
+    const bend: IAutoMovieVector3 = AutoMovieMotionHumanTouch.bend(
+      body,
+      entry,
+      side,
+      effector,
+      place,
+      "up",
+    );
     return composeAutoMovieMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(
         clock.duration,
@@ -212,13 +220,15 @@ export namespace highFive {
         kind: "press",
         count: 1,
         tangent: "up",
-        bend: AutoMovieMotionHumanTouch.bend(
+        bend,
+        reference: AutoMovieMotionHumanTouch.laid(
           body,
           entry,
           side,
           effector,
           place,
           "up",
+          bend,
         ),
         entry,
       }),

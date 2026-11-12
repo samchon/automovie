@@ -207,6 +207,7 @@ export function selfCases(
         const entered = TouchVerdicts.entry(
           performance,
           "a",
+          body,
           side,
           { subject: "a", body },
           0,

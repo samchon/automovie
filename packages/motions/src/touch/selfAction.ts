@@ -1,3 +1,4 @@
+import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
@@ -31,8 +32,9 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * in the rise's time. The arms are carried in joint space from the entry's
  * angles to a named place of the air (`AutoMovieMotionHumanTarget.place`):
  * overhead above the shoulders for the stretch, overhead and outside them
- * for victory, at the shoulder's side for the fist pump, whose fist drops a
- * fifth of the arm and rises again `count` times. A neck roll circles the
+ * for victory, at eye height a forearm ahead of the shoulder for the fist
+ * pump, the forearm rising to it from an elbow near the body; its fist drops
+ * a fifth of the arm and rises again `count` times. A neck roll circles the
  * head through a light share of the neck's flexion and lateral range, a
  * shoulder roll circles both shoulder girdles through a light share of
  * theirs. The stretch lasts 6 s in all, the yawn's duration of Provine 1986
@@ -98,7 +100,18 @@ export namespace selfAction {
   > = {
     stretch: { height: "overhead", lateral: "shoulder", distance: "close" },
     victory: { height: "overhead", lateral: "outside", distance: "close" },
-    fistPump: { height: "eye", lateral: "outside", distance: "close" },
+    fistPump: { height: "eye", lateral: "outside", distance: "mid" },
+  };
+
+  /**
+   * Where the pumping arm's elbow hangs, which the fist's forearm rises
+   * from: the knuckles face away from it. With the fist a forearm ahead of
+   * the shoulder, the whole drop stays within the elbow's flexion range.
+   */
+  const ELBOW: AutoMovieMotionHumanTarget.IGrid = {
+    height: "shoulder",
+    lateral: "outside",
+    distance: "near",
   };
 
   /**
@@ -201,7 +214,19 @@ export namespace selfAction {
                 body,
                 posture,
                 side,
-                { point, normal: { x: 0, y: -1, z: 0 } },
+                {
+                  point,
+                  normal: pump
+                    ? Vector3.subtract(
+                        AutoMovieMotionHumanTarget.fallback(
+                          body,
+                          posture,
+                          AutoMovieMotionHumanTarget.place(body, side, ELBOW),
+                        ).point,
+                        place.point,
+                      )
+                    : { x: 0, y: -1, z: 0 },
+                },
                 { surface, shape, bend: "raised" },
               ),
             );

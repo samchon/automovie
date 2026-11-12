@@ -13,9 +13,12 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import { HumanArmClearance } from "../posture/HumanArmClearance";
+import type { HumanColliders } from "../posture/HumanColliders";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanHand } from "./AutoMovieMotionHumanHand";
@@ -333,14 +336,22 @@ export namespace AutoMovieMotionHumanArm {
    * A posture whose arms are carried in joint space between held angles and
    * the solution of their goals: at share 0 each named arm holds the given
    * angles, at share 1 the posture is returned as it is, and between them
-   * each joint angle is the blend of the held angle and the angle the goal
-   * solves to, written as joints with the arm's goal removed.
+   * each joint is the blend of its held rotation and the rotation the goal
+   * solves to (`blendHumanJoint`), written as joints with the arm's goal
+   * removed.
    *
    * A hand that leaves its rest for a goal, or returns from one, is not on a
    * surface, so nothing asks its path to be straight; blending the solved
-   * angles keeps the elbow on one continuous course, where a blend of hand
+   * joints keeps the elbow on one continuous course, where a blend of hand
    * goals solved afresh at each second may change the arm's solution from one
-   * second to the next.
+   * second to the next. The shoulder is blended as a rotation and not as three
+   * angles, because a raised shoulder has two clinical triples and the solve
+   * may return either; the elbow and the wrist, which lack a freedom, are
+   * blended angle by angle so they stay on their own axes. The blended
+   * forearm is then kept clear of the trunk, the thighs, the other arm and
+   * the other bodies its goal names (`IHumanPosture.IGoal.clear`) by the
+   * shoulder's abduction and the elbow's flexion
+   * (`HumanArmClearance.cleared`), each end keeping the room it holds.
    *
    * @param body The body.
    * @param posture The posture, with the goals of the arms to carry.
@@ -349,11 +360,11 @@ export namespace AutoMovieMotionHumanArm {
    * @returns The posture.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States both ends, what is blended, why and what the result holds.
-   * @evidence contracts/development/implementation.md#principled-implementation Free arm movements are smooth in joint angles (Soechting and Lacquaniti 1981), so the transport blends the angles of the two ends and solves the goal only to read its angles.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture solve, then three blended triples per arm.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Each angle takes the shorter way round, so a twist near 180 degrees does not spin the arm; the share is clamped so the arm cannot pass either end.
+   * @evidence contracts/development/implementation.md#principled-implementation Free arm movements are smooth in joint space (Soechting and Lacquaniti 1981), so the transport blends the joints of the two ends and solves the goal only to read its joints; `blendHumanJoint` blends a ball joint as a rotation, which does not depend on the chart its triple is written in, and a joint with fewer freedoms angle by angle.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture solve, then three blended joints and one clearance per arm, each arm cleared in the pose the arms before it were written into.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shoulder takes the shorter arc between its two rotations, so neither a twist near 180 degrees nor a solution in its other chart swings the arm; the share is clamped so the arm cannot pass either end.
    * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve for both arms, and none at either end.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `resolveHumanPosture` and `angles`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `resolveHumanPosture`, `angles`, `blendHumanJoint` and `HumanArmClearance`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function carry(
@@ -369,30 +380,52 @@ export namespace AutoMovieMotionHumanArm {
     if (s >= 1 || sides.length === 0) return posture;
     const solved: IAutoMoviePose | null =
       s <= 0 ? null : resolveHumanPosture(body, posture);
-    const blend = (
-      a: readonly [number, number, number],
-      b: readonly [number, number, number],
-    ): readonly [number, number, number] => [
-      a[0] + turn(b[0] - a[0]) * s,
-      a[1] + turn(b[1] - a[1]) * s,
-      a[2] + turn(b[2] - a[2]) * s,
-    ];
     const joints: IHumanPosture["joints"] = { ...posture.joints };
     const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+    // The pose each arm is cleared in: the solved one with every arm cleared
+    // before it written in, so a second arm keeps clear of the first as it is
+    // shown and not as its goal would put it.
+    let current: IAutoMoviePose | null = solved;
     for (const side of sides) {
       const held: IAngles = from[side]!;
       const goal: IAngles = solved === null ? held : angles(solved, side);
-      joints[`${side}UpperArm`] = blend(held.upper, goal.upper);
-      joints[`${side}LowerArm`] = blend(held.lower, goal.lower);
-      joints[`${side}Hand`] = blend(held.hand, goal.hand);
+      const blend = (
+        bone: AutoMovieHumanoidBone,
+        a: readonly [number, number, number],
+        b: readonly [number, number, number],
+      ): void => {
+        joints[bone] = blendHumanJoint(body, bone, a, b, s);
+      };
+      blend(`${side}UpperArm`, held.upper, goal.upper);
+      blend(`${side}LowerArm`, held.lower, goal.lower);
+      blend(`${side}Hand`, held.hand, goal.hand);
+      // Between two arms that clear the body the blended one may not, so its
+      // elbow is let out by as much as the forearm lacks; each end keeps the
+      // room it holds, so the carry leaves and joins them without a step.
+      if (current !== null) {
+        const others: readonly HumanColliders.IPlaced[] =
+          posture.limbs[`${side}Arm`]?.clear ?? [];
+        const clear: HumanArmClearance.IArm = HumanArmClearance.cleared(
+          body,
+          current,
+          side,
+          {
+            upper: joints[`${side}UpperArm`]!,
+            lower: joints[`${side}LowerArm`]!,
+            hand: joints[`${side}Hand`]!,
+          },
+          HumanArmClearance.room(body, current, side, held, others) * (1 - s) +
+            HumanArmClearance.room(body, current, side, goal, others) * s,
+          others,
+        );
+        joints[`${side}UpperArm`] = clear.upper;
+        joints[`${side}LowerArm`] = clear.lower;
+        current = HumanArmClearance.posed(current, side, clear);
+      }
       delete limbs[`${side}Arm`];
     }
     return { ...posture, joints, limbs };
   }
-
-  /** An angle difference wrapped into [-180, 180), degrees. */
-  const turn = (degrees: number): number =>
-    ((((degrees + 180) % 360) + 360) % 360) - 180;
 
   /**
    * One arm carried in joint space toward a goal.

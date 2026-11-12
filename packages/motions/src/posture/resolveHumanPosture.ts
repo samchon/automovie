@@ -17,6 +17,8 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanArmClearance } from "./HumanArmClearance";
+import type { HumanColliders } from "./HumanColliders";
 import { HumanFoot } from "./HumanFoot";
 import type { IHumanPosture } from "./IHumanPosture";
 import { hipJoints } from "./hipJoints";
@@ -92,10 +94,13 @@ export function resolveHumanPosture(
     },
     body.skeleton,
   );
+  const placed: ("left" | "right")[] = [];
   for (const limb of resolveHumanPosture.order(posture.limbs)) {
     const goal: IHumanPosture.IGoal | undefined = posture.limbs[limb];
     if (goal === undefined) continue;
-    pose = fitLimb(body, pose, limb, goal);
+    pose = fitLimb(body, pose, limb, goal, placed);
+    if (limb === "leftArm") placed.push("left");
+    if (limb === "rightArm") placed.push("right");
   }
   return pose;
 }
@@ -244,7 +249,8 @@ export namespace resolveHumanPosture {
   }
 
   /**
-   * Re-solve one limb of a pose onto a goal, keeping everything else.
+   * Re-solve one limb of a pose onto a goal, keeping everything else; an arm
+   * keeps clear of the other arm where the pose already places it.
    *
    * @param body The performer's body.
    * @param pose The pose.
@@ -258,7 +264,7 @@ export namespace resolveHumanPosture {
     limb: IHumanPosture.Limb,
     goal: IHumanPosture.IGoal,
   ): IAutoMoviePose {
-    return fitLimb(body, pose, limb, goal);
+    return fitLimb(body, pose, limb, goal, ["left", "right"]);
   }
 
   /**
@@ -288,7 +294,9 @@ export namespace resolveHumanPosture {
   }
 
   /**
-   * The order to fit a posture's limbs in: arms then legs, each limb after
+   * The order to fit a posture's limbs in: legs then arms, so an arm is
+   * chosen beside thighs that already stand where the posture puts them
+   * (`HumanArmClearance`), each limb after
    * any limb whose bones its goal is attached to (`on`), so an attachment
    * reads that limb's solved frame (a palm under the other elbow follows the
    * other arm). A limb's bones are its chain, its hand or foot, and the
@@ -303,10 +311,10 @@ export namespace resolveHumanPosture {
    */
   export function order(limbs: IHumanPosture["limbs"]): IHumanPosture.Limb[] {
     const all: readonly IHumanPosture.Limb[] = [
-      "leftArm",
-      "rightArm",
       "leftLeg",
       "rightLeg",
+      "leftArm",
+      "rightArm",
     ];
     // The limb a bone belongs to, when it belongs to one.
     const owner = (
@@ -463,13 +471,17 @@ function chainOf(limb: IHumanPosture.Limb): IChain {
  * 2011, SIAM J. Numer. Anal. 49), at most `REAIM_PASSES` fits. A goal attached to a bone (`on`) is first carried into
  * the world by that bone as the pose being fitted places it, so whatever
  * moved the bone before the fit (a trunk joint, a layer, a transition
- * offset) moves the goal with it.
+ * offset) moves the goal with it. An arm fitted after the other arm keeps
+ * clear of it too, so two hands sent across each other stack their forearms
+ * instead of passing one through the other, and an arm keeps clear of the
+ * other bodies its goal names (`IHumanPosture.IGoal.clear`).
  */
 function fitLimb(
   body: IHumanBody,
   pose: IAutoMoviePose,
   limb: IHumanPosture.Limb,
   attached: IHumanPosture.IGoal,
+  placed: readonly ("left" | "right")[],
 ): IAutoMoviePose {
   const goal: IHumanPosture.IGoal = resolveHumanPosture.world(
     body,
@@ -477,9 +489,31 @@ function fitLimb(
     limb,
     attached,
   );
-  let fitted: IAutoMoviePose = fitOnce(body, pose, limb, goal);
-  if (goal.contact === undefined || goal.rotation === undefined) return fitted;
+  // An arm's forearm stays clear of the trunk, the thighs and an arm fitted
+  // before it as the pose being fitted places them (`HumanArmClearance`),
+  // whatever the hint or the hand's turn prefer.
   const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
+  const trunk: HumanColliders.IPlaced[] | null = limb.endsWith("Arm")
+    ? HumanArmClearance.obstacles(
+        body,
+        poseBones(body, pose),
+        placed.filter((arm: "left" | "right"): boolean => arm !== side),
+      )
+    : null;
+  const clear: IObstruction | undefined =
+    trunk === null
+      ? undefined
+      : (elbow: IAutoMovieVector3, wrist: IAutoMovieVector3): number =>
+          HumanArmClearance.overshoot(
+            body,
+            trunk,
+            elbow,
+            wrist,
+            side,
+            attached.clear ?? [],
+          );
+  let fitted: IAutoMoviePose = fitOnce(body, pose, limb, goal, clear);
+  if (goal.contact === undefined || goal.rotation === undefined) return fitted;
   const leg: boolean = limb.endsWith("Leg");
   const effector: AutoMovieHumanoidBone = leg ? `${side}Foot` : `${side}Hand`;
   const anchor: IAutoMovieVector3 = Vector3.add(
@@ -524,7 +558,7 @@ function fitLimb(
     }
     last = { image: off.ankle, miss };
     point = next;
-    fitted = fitOnce(body, pose, limb, { ...goal, point });
+    fitted = fitOnce(body, pose, limb, { ...goal, point }, clear);
   }
   if (!leg || toes === 0) return fitted;
   const bone: AutoMovieHumanoidBone = `${side}Toes`;
@@ -537,12 +571,16 @@ function fitLimb(
   };
 }
 
-/** One fit of a limb by the engine's two-bone solver. */
+/** What a limb's fit must keep clear of: the degrees a mid joint and an end joint, world metres, count as out of range. */
+type IObstruction = (mid: IAutoMovieVector3, end: IAutoMovieVector3) => number;
+
+/** One fit of a limb by the engine's two-bone solver, clear of an obstruction when one is given. */
 function fitOnce(
   body: IHumanBody,
   pose: IAutoMoviePose,
   limb: IHumanPosture.Limb,
   goal: IHumanPosture.IGoal,
+  obstruction?: IObstruction,
 ): IAutoMoviePose {
   const chain: IChain = chainOf(limb);
   const angles = (
@@ -561,6 +599,7 @@ function fitOnce(
     target: goal.point,
     bend: goal.bend,
     ...(goal.rotation === undefined ? {} : { effectorRotation: goal.rotation }),
+    ...(obstruction === undefined ? {} : { obstruction }),
     // A reference of no weight decides nothing, so it is left out entirely.
     ...(goal.reference === undefined || goal.reference.weight === 0
       ? {}

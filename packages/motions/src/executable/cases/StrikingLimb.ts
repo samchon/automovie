@@ -1,5 +1,6 @@
 import {
   type IAutoMovieResolvedBone,
+  Quaternion,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
@@ -12,11 +13,12 @@ import type { IHumanBody } from "../../body/IHumanBody";
 import type { HumanPerformance } from "../../perform/HumanPerformance";
 import type { HumanSegment } from "../../perform/HumanSegment";
 import { HumanColliders } from "../../posture/HumanColliders";
+import { StrikingRecord } from "../../striking/StrikingRecord";
 
 /**
- * A striking limb as the capture audits it, read from the displayed bones and
- * the body's own measure, never from the striking laws: which hand or foot
- * carries the strike, the limb as capsules, the capsules' signed gap to
+ * A striking limb as the capture audits it, measured on the displayed bones
+ * and the body's own measure: which hand or foot carries the strike (the one
+ * its record declares), the limb as capsules, the capsules' signed gap to
  * another posed body, and the bare limb's length from its root joint.
  *
  * The capsules are the upper arm, the forearm and the fist, or the thigh, the
@@ -29,7 +31,10 @@ export namespace StrikingLimb {
   export type End = "leftHand" | "rightHand" | "leftFoot" | "rightFoot";
 
   /** A body's posed bones, world frame. */
-  export type Bones = ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+  export type Bones = ReadonlyMap<
+    AutoMovieHumanoidBone,
+    IAutoMovieResolvedBone
+  >;
 
   /** One capsule of a limb on shown bones: an axis swept by a radius, world metres. */
   export interface ICapsule {
@@ -59,11 +64,24 @@ export namespace StrikingLimb {
   }
 
   /**
-   * The end joint carrying a strike: the hand (a punch) or the foot (a kick
-   * or a knee) that moves farthest from the segment's entry to the instant
+   * The end joint carrying a strike: the limb the strike's record declares,
+   * which every verdict then measures on the displayed bones, so a strike
+   * shown with another limb than it declared fails its extension and its
+   * contact. The other limbs move too (the guard follows the head, which
+   * stays on the opponent while the trunk turns), so travel alone does not
+   * name the weapon. A strike without a record is read from the display: the
+   * hand (a punch) or the foot (a kick or a knee) that moves farthest from
+   * the segment's entry to the instant
    * the strike is audited at: its stop when it met something, its peak
    * otherwise. A strike stopped early has not moved its limb at the planned
    * contact it never reaches, so that instant is not the one read.
+   *
+   * A hand's travel is read in the frame of the highest chest bone the
+   * skeleton has (the upper chest, or the chest), a foot's in the
+   * world: a rear-hand punch turns the trunk by about 60 degrees, which
+   * carries the guarding lead hand farther through the world than the
+   * punching fist travels, while only the punching arm moves against the
+   * chest it hangs from. A kick's support foot is planted in the world.
    *
    * @param performance The performance.
    * @param subject The striker.
@@ -77,20 +95,29 @@ export namespace StrikingLimb {
     segment: HumanSegment.ISegment,
     until: number,
   ): End {
+    const declared: End | undefined = StrikingRecord.of(segment.plan)?.limb;
+    if (declared !== undefined) return declared;
     const start: Bones = performance.bones(subject, segment.entryTime);
     const mid: Bones = performance.bones(subject, until);
-    const candidates: readonly End[] =
-      segment.name === "punch"
-        ? ["leftHand", "rightHand"]
-        : ["leftFoot", "rightFoot"];
+    const punch: boolean = segment.name === "punch";
+    const candidates: readonly End[] = punch
+      ? ["leftHand", "rightHand"]
+      : ["leftFoot", "rightFoot"];
+    const seen = (bones: Bones, bone: End): IAutoMovieVector3 => {
+      const world: IAutoMovieVector3 = bones.get(bone)!.worldPosition;
+      if (!punch) return world;
+      const chest: IAutoMovieResolvedBone = (bones.get("upperChest") ??
+        bones.get("chest"))!;
+      return Quaternion.rotateVector(
+        Quaternion.inverse(chest.worldRotation),
+        Vector3.subtract(world, chest.worldPosition),
+      );
+    };
     let best: End = candidates[0]!;
     let far: number = -1;
     for (const bone of candidates) {
       const moved: number = Vector3.length(
-        Vector3.subtract(
-          mid.get(bone)!.worldPosition,
-          start.get(bone)!.worldPosition,
-        ),
+        Vector3.subtract(seen(mid, bone), seen(start, bone)),
       );
       if (moved > far) {
         far = moved;
@@ -165,7 +192,11 @@ export namespace StrikingLimb {
    * @param limb The end joint.
    * @returns The capsules, from the root outward.
    */
-  export function capsules(body: IHumanBody, bones: Bones, limb: End): ICapsule[] {
+  export function capsules(
+    body: IHumanBody,
+    bones: Bones,
+    limb: End,
+  ): ICapsule[] {
     const s: "left" | "right" = side(limb);
     if (leg(limb)) {
       const foot: IAutoMovieResolvedBone = bones.get(`${s}Foot`)!;

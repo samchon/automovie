@@ -26,16 +26,21 @@ import { HumanClasp } from "./HumanClasp";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
+import { handshakeOffer } from "./handshakeOffer";
 
 /**
  * Shaking hands with a partner: both bring the same hand's palm to one
  * shared point, clasp, pump together and let go.
  *
  * The goal is the meeting, not the arm: each palm socket is brought to the
- * point `resolveAutoMovieMutualGoal` places midway between the two acting
- * shoulders, at the height both comfortable reaches agree on, with the palm
- * facing the partner's palm across the line between the two people and the
- * fingers pointing at the partner, so two right hands meet web to web with
+ * point `handshakeOffer.point` places between the two offering elbows, where both forearms
+ * reach it with the upper arms as they offer (the taller of two unequal
+ * partners extends the elbow and reaches down, lowering the upper arm toward
+ * hanging before the arm straightens, the shorter flexes the elbow and
+ * raises the forearm, and neither raises the upper arm), with the palm facing
+ * the partner's palm across the line between the two people and the
+ * fingers pointing at the partner along the line that halves the angle
+ * between the two forearms, so two right hands meet web to web with
  * their thumbs up; the two hands then turn in their palms' planes together,
  * the palms' contact unchanged, to the pair of turns whose open hands keep
  * every phalanx off the other's forearm and which both arms reach best at the
@@ -50,8 +55,14 @@ import { HumanPrehension } from "./HumanPrehension";
  * shoulders, so the palms meet without either reading the other's moving
  * hand. The comfortable reach is the shoulder-to-palm distance of an arm
  * offering a hand: the upper arm 30 degrees forward of hanging and the elbow
- * flexed 60 degrees, which holds the forearm level, both provisional, as no
- * measurement of the offering arm was located; `gap` is the chest gap at
+ * flexed 45 degrees, which slopes the forearm 15 degrees down to the hand,
+ * both provisional, as no measurement of the offering arm was located. The
+ * slope is what lets two hands clasp with both elbows low: each hand's
+ * fingers clear the partner's forearm only when they point about 65 degrees
+ * off it (measured on the sweep's bodies between two turns of 30 and two of
+ * 37.5 degrees), the wrist deviates 30 degrees less the 5.5 the pump takes,
+ * and two level forearms leave the rest to a raised elbow; two forearms each
+ * sloping 15 degrees down supply it. `gap` is the chest gap at
  * which both such arms meet, the distance partners stand at to shake hands.
  * The limit is the straight arm less the pump's amplitude, so the pump stays
  * within reach above and below the meeting point.
@@ -110,12 +121,6 @@ export namespace handshake {
     pumps?: number;
   }
 
-  /** Elbow flexion of the offering arm, degrees; provisional. */
-  export const ELBOW: number = 60;
-
-  /** Shoulder flexion of the offering arm, degrees; provisional. */
-  export const SHOULDER: number = 30;
-
   /** Pump frequency, hertz (Tagne et al. 2016, greeting). */
   export const FREQUENCY: number = 2.43;
 
@@ -150,10 +155,13 @@ export namespace handshake {
       .performer(context.params.partner)
       .bones(context.start)
       .get(`${side}UpperArm`)!.worldPosition;
-    const meet: IAutoMovieVector3 = resolveAutoMovieMutualGoal({
-      a: arm(body, side, mine),
-      b: arm(partner, side, theirs),
-    }).point;
+    const meeting: handshakeOffer.IMeeting = handshakeOffer.point(
+      { body, shoulder: mine },
+      { body: partner, shoulder: theirs },
+      side,
+      AMPLITUDE,
+    );
+    const meet: IAutoMovieVector3 = meeting.point;
 
     // Shared timing: the slower partner's reach, then the pump, then the return.
     const reach: number = Math.max(
@@ -169,9 +177,9 @@ export namespace handshake {
     });
 
     // The hand's grasp frame: palm toward the partner's palm, fingers at the
-    // partner, then both hands turned in their palms' planes together
-    // (`HumanClasp.choose`), from both standing postures, so both partners
-    // agree on the clasp.
+    // partner along the line that halves the two forearms' angle, then both
+    // hands turned in their palms' planes together (`HumanClasp.choose`),
+    // from both standing postures, so both partners agree on the clasp.
     const across: IAutoMovieVector3 = Vector3.normalize({
       x: theirs.x - mine.x,
       y: 0,
@@ -186,7 +194,7 @@ export namespace handshake {
         body,
         posture: HumanGrasp.standing(body, entered),
         palm,
-        fingers: across,
+        fingers: meeting.fingers,
       },
       {
         subject: context.params.partner,
@@ -196,7 +204,7 @@ export namespace handshake {
           context.performer(context.params.partner).bones(context.start),
         ),
         palm: Vector3.scale(palm, -1),
-        fingers: Vector3.scale(across, -1),
+        fingers: Vector3.scale(meeting.fingers, -1),
       },
     ];
     const choice: HumanClasp.IChoice = HumanClasp.choose(
@@ -340,6 +348,9 @@ export namespace handshake {
 
   /** Where a standing body's chest and acting shoulder lie from its floor point. */
   export interface IStance {
+    /** How high the shoulder joint stands above the floor, metres. */
+    height: number;
+
     /** How far the sternum region lies ahead of the floor point, metres. */
     sternum: number;
 
@@ -368,6 +379,7 @@ export namespace handshake {
       `${side}UpperArm`,
     )!.worldPosition;
     return {
+      height: shoulder.y,
       sternum: HumanTrunk.region(body, posture, "sternum").point.z,
       shoulder: shoulder.z,
       across: Math.abs(shoulder.x),
@@ -378,14 +390,17 @@ export namespace handshake {
    * The horizontal sternum-to-sternum gap at which two partners facing each
    * other shake hands, the gap an approach stops at.
    *
-   * Each offering arm reaches forward `u sin(SHOULDER) + l sin(SHOULDER +
-   * ELBOW)` from its shoulder, the forearm `l` carrying the palm socket as
-   * `arm` does; the two reaches sum to the shoulders' horizontal distance,
+   * Each offering arm reaches forward `u sin(handshakeOffer.SHOULDER) + l cos(slope)` from
+   * its shoulder, the forearm `l` carrying the palm socket as `handshakeOffer.forearm` does
+   * and sloping `90 - SHOULDER - ELBOW` degrees below level, further down by
+   * `handshakeOffer.shape` under the higher elbow and less under the lower,
+   * the higher upper arm lowered as that shape says; the two reaches sum to
+   * the shoulders' horizontal distance,
    * across which the shaking shoulders sit each to its own side, and each
    * sternum leads its shoulder as the standing body places them
    * ({@link stance}). Partners whose floor points stand this gap plus both
-   * sternum offsets apart therefore meet palm to palm with both arms at the
-   * comfortable reach.
+   * sternum offsets apart therefore meet palm to palm where `handshakeOffer.point`
+   * places the point, both upper arms in the offering shape.
    *
    * @param a One partner.
    * @param b The other.
@@ -397,19 +412,33 @@ export namespace handshake {
     b: IHumanBody,
     side: HumanHand.Side = "right",
   ): number {
-    const ahead = (body: IHumanBody): number => {
-      const s: number = (SHOULDER * Math.PI) / 180;
-      const e: number = ((SHOULDER + ELBOW) * Math.PI) / 180;
-      return (
-        body.measure.upperArm * Math.sin(s) +
-        (body.measure.forearm +
-          Vector3.length(HumanHand.offset(body, side, "palm").point)) *
-          Math.sin(e)
-      );
-    };
     const sa: IStance = stance(a, side);
     const sb: IStance = stance(b, side);
-    const shoulders: number = ahead(a) + ahead(b);
+    const s: number = (handshakeOffer.SHOULDER * Math.PI) / 180;
+    const elbow = (body: IHumanBody, stood: IStance): number =>
+      stood.height - body.measure.upperArm * Math.cos(s);
+    const drop: number = elbow(a, sa) - elbow(b, sb);
+    const [higher, lower]: [IHumanBody, IHumanBody] =
+      drop >= 0 ? [a, b] : [b, a];
+    const shaped: handshakeOffer.IShape = handshakeOffer.shape(
+      higher.measure.upperArm,
+      handshakeOffer.forearm(higher, side),
+      handshakeOffer.forearm(lower, side),
+      Math.abs(drop),
+      AMPLITUDE,
+    );
+    const ahead = (body: IHumanBody, lowered: number, down: number): number =>
+      body.measure.upperArm *
+        Math.sin(((handshakeOffer.SHOULDER - lowered) * Math.PI) / 180) +
+      handshakeOffer.forearm(body, side) *
+        Math.cos(
+          ((90 - handshakeOffer.SHOULDER - handshakeOffer.ELBOW + down) *
+            Math.PI) /
+            180,
+        );
+    const shoulders: number =
+      ahead(higher, shaped.lowered, shaped.turn) +
+      ahead(lower, 0, -shaped.turn);
     const across: number = sa.across + sb.across;
     return (
       Math.sqrt(Math.max(0, shoulders * shoulders - across * across)) -
@@ -434,10 +463,8 @@ export namespace handshake {
     shoulder: IAutoMovieVector3,
   ): resolveAutoMovieMutualGoal.ISide {
     const upper: number = body.measure.upperArm;
-    const lower: number =
-      body.measure.forearm +
-      Vector3.length(HumanHand.offset(body, side, "palm").point);
-    const flexion: number = (ELBOW * Math.PI) / 180;
+    const lower: number = handshakeOffer.forearm(body, side);
+    const flexion: number = (handshakeOffer.ELBOW * Math.PI) / 180;
     return {
       shoulder,
       reach: Math.sqrt(

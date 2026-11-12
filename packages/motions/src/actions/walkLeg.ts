@@ -19,7 +19,13 @@ export namespace walkLeg {
 
   /**
    * The shank's forward lean from vertical along a heading, with the knee
-   * placed in the plane of the hip, the ankle and the heading.
+   * placed where the leg solve places it: the foot has no twist joint, so of
+   * the knee's circle about the hip-to-ankle line the knee takes the place,
+   * nearest the heading's side, at which a foot of that heading needs no
+   * twist against its shank. Where the hip-to-ankle line lies in the
+   * heading's vertical plane that is the plane itself; with the heel kicked
+   * up behind a sprinting body the line leans sideways and the two places
+   * differ by tens of degrees about the line and by about 3 degrees of lean.
    *
    * @param body The body.
    * @param hip The hip joint, world metres.
@@ -51,11 +57,44 @@ export namespace walkLeg {
     );
     if (Vector3.length(perpendicular) < 1e-9) return 0;
     perpendicular = Vector3.normalize(perpendicular);
+    // The swing about the hip-to-ankle line at which the foot needs no twist:
+    // the shank's forward axis, `across * axis - (along - d) * e` in the leg's
+    // plane, is perpendicular to the foot's lateral axis, so
+    // `e . lateral = across * (axis . lateral) / (along - d)`.
+    const lateral: IAutoMovieVector3 = { x: forward.z, y: 0, z: -forward.x };
+    const side: IAutoMovieVector3 = Vector3.cross(axis, perpendicular);
+    const p: number = Vector3.dot(perpendicular, lateral);
+    const q: number = Vector3.dot(side, lateral);
+    const size: number = Math.hypot(p, q);
+    let swing: number = 0;
+    if (size > 1e-9 && d - along > 1e-9) {
+      const middle: number = Math.atan2(q, p);
+      const half: number = Math.acos(
+        Math.min(
+          1,
+          Math.max(
+            -1,
+            (across * Vector3.dot(axis, lateral)) / ((along - d) * size),
+          ),
+        ),
+      );
+      const wrap = (angle: number): number =>
+        Math.atan2(Math.sin(angle), Math.cos(angle));
+      const one: number = wrap(middle + half);
+      const other: number = wrap(middle - half);
+      swing = Math.abs(one) <= Math.abs(other) ? one : other;
+    }
     const knee: IAutoMovieVector3 = Vector3.add(
       hip,
       Vector3.add(
         Vector3.scale(axis, along),
-        Vector3.scale(perpendicular, across),
+        Vector3.scale(
+          Vector3.add(
+            Vector3.scale(perpendicular, Math.cos(swing)),
+            Vector3.scale(side, Math.sin(swing)),
+          ),
+          across,
+        ),
       ),
     );
     const shank: IAutoMovieVector3 = Vector3.subtract(knee, ankle);

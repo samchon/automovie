@@ -9,6 +9,7 @@ import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHead } from "../compose/AutoMovieMotionHumanHead";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
@@ -28,6 +29,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { handToFaceRows } from "./handToFaceRows";
 
 /**
  * A hand-to-face task of daily living while standing: drinking, sipping,
@@ -79,207 +81,13 @@ export namespace handToFace {
     });
 
   /** The tasks. */
-  export type Task =
-    | "drink"
-    | "sip"
-    | "eat"
-    | "bite"
-    | "phone"
-    | "read"
-    | "brushTeeth"
-    | "comb"
-    | "washFace"
-    | "wipeMouth";
+  export type Task = handToFaceRows.Task;
 
-  /**
-   * One task's row.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The touch row's data plus the head's share of the approach.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The members `plan` reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Regions are the interface's; the right hand's region is named and the left hand's mirrored.
-   */
-  export interface IRow {
-    /** The region the right hand works on; `null` for a held sheet before the eyes. */
-    region: AutoMovieHumanoidRegion | null;
+  /** One task's row. */
+  export type IRow = handToFaceRows.IRow;
 
-    /** The region the left hand works on at the same time; one hand when absent. */
-    other?: AutoMovieHumanoidRegion;
-
-    /** The effector. */
-    effector: AutoMovieMotionHumanTouchEffector.IEffector;
-
-    /** The movement at the face. */
-    kind: AutoMovieMotionHumanTouchForm.Kind;
-
-    /** Repetitions when the parameters give none. */
-    count: number;
-
-    /** Seconds at the face after the repetitions when the parameters give none. */
-    hold: number;
-
-    /** The travel's direction. */
-    tangent: AutoMovieMotionHumanTouchForm.Tangent;
-
-    /** The head's flexion at the face, degrees; negative extends it. */
-    head: number;
-
-    /** The event name at `ready`. */
-    at: string;
-  }
-
-  /** The tasks' rows (tool lengths and head angles provisional, except the reading head flexion). */
-  export const ROWS: Readonly<Record<Task, IRow>> = {
-    drink: {
-      region: "mouth",
-      effector: {
-        surface: "grip",
-        shape: "fist",
-        tool: { thumb: 0.4 },
-        facing: "-fingers",
-        along: "thumb",
-      },
-      kind: "hold",
-      count: 1,
-      hold: 1.2,
-      tangent: "up",
-      head: -10,
-      at: "atMouth",
-    },
-    sip: {
-      region: "mouth",
-      effector: {
-        surface: "grip",
-        shape: "fist",
-        tool: { thumb: 0.4 },
-        facing: "-fingers",
-        along: "thumb",
-      },
-      kind: "hold",
-      count: 1,
-      hold: 0.5,
-      tangent: "up",
-      head: -5,
-      at: "atMouth",
-    },
-    eat: {
-      region: "mouth",
-      effector: {
-        surface: "grip",
-        shape: "fist",
-        tool: { thumb: 0.9 },
-        facing: "thumb",
-        along: "palm",
-      },
-      kind: "hold",
-      count: 1,
-      hold: 0.3,
-      tangent: "up",
-      head: 10,
-      at: "atMouth",
-    },
-    bite: {
-      region: "mouth",
-      effector: {
-        surface: "grip",
-        shape: "fist",
-        tool: { thumb: 0.3 },
-        facing: "thumb",
-        along: "palm",
-      },
-      kind: "hold",
-      count: 1,
-      hold: 0.4,
-      tangent: "up",
-      head: 5,
-      at: "atMouth",
-    },
-    phone: {
-      region: "earRight",
-      effector: {
-        surface: "palm",
-        shape: "relaxed",
-        tool: { palm: 0.05 },
-        facing: "palm",
-        along: "fingers",
-      },
-      kind: "hold",
-      count: 1,
-      hold: 3,
-      tangent: "up",
-      head: 0,
-      at: "atEar",
-    },
-    read: {
-      region: null,
-      effector: {
-        surface: "grip",
-        shape: "fist",
-        tool: { thumb: 0.3 },
-        facing: "-palm",
-        along: "thumb",
-      },
-      kind: "hold",
-      count: 1,
-      hold: 3,
-      tangent: "up",
-      head: 35,
-      at: "atSheet",
-    },
-    brushTeeth: {
-      region: "mouth",
-      effector: {
-        surface: "grip",
-        shape: "fist",
-        tool: { thumb: 0.8 },
-        facing: "thumb",
-        along: "-palm",
-      },
-      kind: "rub",
-      count: 8,
-      hold: 0.2,
-      tangent: "across",
-      head: 0,
-      at: "atMouth",
-    },
-    comb: {
-      region: "templeRight",
-      effector: {
-        surface: "grip",
-        shape: "fist",
-        tool: { palm: 0.15 },
-        facing: "palm",
-        along: "fingers",
-      },
-      kind: "rub",
-      count: 3,
-      hold: 0.2,
-      tangent: "up",
-      head: 0,
-      at: "atHead",
-    },
-    washFace: {
-      region: "jawRight",
-      other: "jawLeft",
-      effector: { surface: "palm", shape: "flat" },
-      kind: "rub",
-      count: 3,
-      hold: 0.2,
-      tangent: "up",
-      head: 15,
-      at: "atFace",
-    },
-    wipeMouth: {
-      region: "mouth",
-      effector: { surface: "palm", shape: "relaxed" },
-      kind: "rub",
-      count: 2,
-      hold: 0.2,
-      tangent: "across",
-      head: 0,
-      at: "atMouth",
-    },
-  };
+  /** The tasks' rows. */
+  export const ROWS: Readonly<Record<Task, IRow>> = handToFaceRows.ROWS;
 
   /** The reading distance from the eyes to a held text, metres (Bababekova et al. 2011, mean for text). */
   export const READING: number = 0.362;
@@ -500,7 +308,31 @@ export namespace handToFace {
         ...AutoMovieMotionHumanHead.share(0, row.head * modifiers.extent),
       },
     };
-    for (const [side, name] of hands)
+    for (const [side, name] of hands) {
+      const lay: AutoMovieMotionHumanTouch.ITouch["lay"] =
+        row.upright === true ? "upright" : "tangent";
+      // A held vessel faces the way its arm turns it best at the face.
+      const facing: IAutoMovieVector3 | undefined =
+        row.upright === true
+          ? AutoMovieMotionHumanTouch.upright(
+              body,
+              atFace,
+              side,
+              row.effector,
+              region(side, name)(atFace, 0),
+              AutoMovieMotionHumanBend.hang(body, atFace, side),
+            )
+          : undefined;
+      const bend: IAutoMovieVector3 = AutoMovieMotionHumanTouch.bend(
+        body,
+        atFace,
+        side,
+        row.effector,
+        region(side, name)(atFace, 0),
+        row.tangent,
+        lay,
+        facing,
+      );
       primitives.push(
         ...AutoMovieMotionHumanTouch.touch({
           body,
@@ -513,14 +345,20 @@ export namespace handToFace {
           count,
           tangent: row.tangent,
           extent: modifiers.extent,
-          bend: AutoMovieMotionHumanTouch.bend(
+          bend,
+          reference: AutoMovieMotionHumanTouch.laid(
             body,
             atFace,
             side,
             row.effector,
             region(side, name)(atFace, 0),
             row.tangent,
+            bend,
+            lay,
+            facing,
           ),
+          lay,
+          ...(facing === undefined ? {} : { facing }),
           entry,
           ...(name === null
             ? {}
@@ -533,6 +371,7 @@ export namespace handToFace {
               }),
         }),
       );
+    }
     return composeAutoMovieMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(
         clock.duration,

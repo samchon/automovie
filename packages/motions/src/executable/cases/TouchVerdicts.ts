@@ -1,11 +1,13 @@
 import {
   type IAutoMovieResolvedBone,
+  Quaternion,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMoviePhysicalProfile,
   IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -183,12 +185,16 @@ export namespace TouchVerdicts {
   }
 
   /**
-   * The deepest the acting forearm and hand enter the colliders of a body,
-   * metres (negative inside), over the 24 Hz grid of a window: the forearm's
-   * axis less its radius against every segment but the acting arm's own.
+   * The deepest the acting forearm enters the colliders of a body, metres
+   * (negative inside), over the 24 Hz grid of a window: the displayed
+   * forearm collider's surface points and its axis against every segment but
+   * the acting arm's own. The collider is read as drawn, so a wrist that
+   * lies on the surface its palm is laid on reads the wrist's own thickness
+   * and not a uniform radius.
    *
    * @param performance The performance.
    * @param subject The acting performer.
+   * @param body Their body.
    * @param side The acting arm.
    * @param other The body entered and its subject (the performer's own, or a partner's).
    * @param from Film seconds.
@@ -198,12 +204,12 @@ export namespace TouchVerdicts {
   export function entry(
     performance: HumanPerformance,
     subject: string,
+    body: IHumanBody,
     side: HumanHand.Side,
     other: { subject: string; body: IHumanBody },
     from: number,
     to: number,
   ): { gap: number; at: number } {
-    const radius: number = other.body.measure.forearmRadius;
     const own = (bone: AutoMovieHumanoidBone): boolean =>
       other.subject === subject &&
       bone.startsWith(side) &&
@@ -223,9 +229,31 @@ export namespace TouchVerdicts {
             !own(bone),
         ),
       );
-      const d: number =
-        HumanColliders.distanceToSegment(other.body, bones, a, b).distance -
-        radius;
+      let d: number = HumanColliders.distanceToSegment(
+        other.body,
+        bones,
+        a,
+        b,
+      ).distance;
+      for (const segment of HumanColliders.placed(body, arm))
+        if (segment.bone === `${side}LowerArm`)
+          for (const shape of segment.shapes)
+            for (const local of skin(shape)) {
+              const point: IAutoMovieVector3 = Vector3.add(
+                segment.pose.position,
+                Quaternion.rotateVector(
+                  segment.pose.rotation,
+                  Vector3.add(
+                    shape.transform.position,
+                    Quaternion.rotateVector(shape.transform.rotation, local),
+                  ),
+                ),
+              );
+              d = Math.min(
+                d,
+                HumanColliders.distance(other.body, bones, point).distance,
+              );
+            }
       if (d < best.gap) best = { gap: d, at: t };
     }
     return best;
@@ -233,7 +261,9 @@ export namespace TouchVerdicts {
 
   /**
    * How many times an effector comes down on its region in a window: the
-   * local minima of its miss on a 96 Hz grid that lie within a limit.
+   * local minima of its miss on a 96 Hz grid that lie within a limit. The
+   * window's first sample is where the effector already lies, not a coming
+   * down, and is not counted.
    *
    * @param measure The miss at a film second, metres.
    * @param from Film seconds.
@@ -254,7 +284,7 @@ export namespace TouchVerdicts {
     let n: number = 0;
     for (let i: number = 0; i < values.length; i++) {
       const v: number = values[i]!;
-      const before: number = i === 0 ? Infinity : values[i - 1]!;
+      const before: number = i === 0 ? -Infinity : values[i - 1]!;
       const after: number = i === values.length - 1 ? Infinity : values[i + 1]!;
       if (v <= limit && v <= before && v < after) n++;
     }
@@ -333,3 +363,35 @@ export namespace TouchVerdicts {
     return out.sort((a, b) => a.seconds - b.seconds);
   }
 }
+
+/** Surface points of a collider shape in its own frame: a hull's vertices, a box's corners, and the six axis ends of a sphere or of each end and the middle of a capsule. */
+const skin = (shape: IAutoMoviePhysicalProfile.IShape): IAutoMovieVector3[] => {
+  if (shape.kind === "hull") return shape.points;
+  if (shape.kind === "box") {
+    const h: IAutoMovieVector3 = shape.halfExtents;
+    return [-1, 1].flatMap((x: number): IAutoMovieVector3[] =>
+      [-1, 1].flatMap((y: number): IAutoMovieVector3[] =>
+        [-1, 1].map(
+          (z: number): IAutoMovieVector3 => ({
+            x: x * h.x,
+            y: y * h.y,
+            z: z * h.z,
+          }),
+        ),
+      ),
+    );
+  }
+  const r: number = shape.radius;
+  const half: number = shape.kind === "capsule" ? shape.halfLength : 0;
+  const rings: number[] = half === 0 ? [0] : [-half, 0, half];
+  return [
+    { x: 0, y: half + r, z: 0 },
+    { x: 0, y: -half - r, z: 0 },
+    ...rings.flatMap((y: number): IAutoMovieVector3[] => [
+      { x: r, y, z: 0 },
+      { x: -r, y, z: 0 },
+      { x: 0, y, z: r },
+      { x: 0, y, z: -r },
+    ]),
+  ];
+};

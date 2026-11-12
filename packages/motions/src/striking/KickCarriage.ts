@@ -82,9 +82,8 @@ export namespace KickCarriage {
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const w: number =
       minimumJerk(turning / timing.chamber).s -
-      minimumJerk(
-        (turning - timing.impact) / (timing.duration - timing.impact),
-      ).s;
+      minimumJerk((turning - timing.impact) / (timing.duration - timing.impact))
+        .s;
     const stepped: number =
       carriage.step *
       minimumJerk(
@@ -120,7 +119,10 @@ export namespace KickCarriage {
       yaw: entry.yaw + carriage.turn * w,
       pitch: entry.pitch + carriage.pitch * w,
       roll: entry.roll,
-      joints: { ...entry.joints, ...StrikingStance.joints() },
+      joints: StrikingStance.facing(
+        { ...entry.joints, ...StrikingStance.joints() },
+        carriage.turn * w,
+      ),
       limbs: {},
     };
     const tilted: IHumanPosture =
