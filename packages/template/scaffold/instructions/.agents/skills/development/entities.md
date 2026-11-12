@@ -22,7 +22,7 @@ What a person holds, uses, sits on, rides or fights with comes from the installe
 
 An archetype declares its affordances, the places where a person meets it, such as a grip, a seat, a surface or a hinge. The installed motion vocabulary attaches an action to an affordance, so one action fits every size the object takes.
 
-Build such an object in the production only when no archetype offers it, as a coarse form like any other subject, and declare on it the affordances the scenes' actions attach to, as the installed packages type them. Without them the object can be drawn but not sat on, gripped or opened.
+An object no archetype offers is built in the production as a coarse form like any other subject, and declares the affordances the scenes' actions attach to, as the installed packages type them. Without them the object can be drawn but not sat on, gripped or opened.
 
 ### Everything else
 

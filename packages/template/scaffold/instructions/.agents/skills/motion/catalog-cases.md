@@ -20,7 +20,7 @@ Accept a person's case on three things together:
 
 The vocabulary's README names the report and the measures. Each of the three catches what the others miss: the report knows no intent, the test reads one value, and stills miss a hand a centimetre inside a hip.
 
-The studied value comes from the performance study where the production studied the practice, and otherwise from the source the action's documentation cites. A value read back from the composition's own output proves only that the code repeats itself.
+The studied value comes from the performance study where the production studied the practice, and otherwise from the action's own documentation, which names its sources. A value read back from the composition's own output proves only that the code repeats itself.
 
 A finding that remains in a vocabulary action composed as its README shows is a defect of the package. Hand the user the case and its numbers under [a defect or a gap](../development/reuse.md#a-defect-or-a-gap) rather than correct it with an offset in the production.
 
