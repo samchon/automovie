@@ -121,10 +121,11 @@ export namespace HumanArmClearance {
    * @param wrist The wrist, world metres.
    * @param side The arm.
    * @param others Placed colliders the wrist has no goal on (another body's); none when absent.
+   * @param goal Whether the wrist is where a goal put it, which excuses its own depth in `shapes`; a carried arm between its ends has none.
    * @returns Degrees; 0 when the forearm clears every shape and the elbow keeps its side.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the unit, each input's frame and the meaning of 0.
-   * @evidence contracts/development/implementation.md#principled-implementation Two arms sent to places on their own sides do not cross, so the elbow keeps the forearm's radius on its own side of the chest's median plane, or the wrist's own distance when the goal lies nearer or across; and the deepest of `SAMPLES` axis points below its needed clearance, the forearm's radius at the elbow falling linearly to the wrist's own signed clearance (0 for a wrist outside the body), divided by the upper arm's length: the angle the upper arm turns to carry the elbow that far. Against `others` the needed clearance falls to 0 at the wrist whatever the wrist's own depth, since no goal put the wrist there.
+   * @evidence contracts/development/implementation.md#principled-implementation Two arms sent to places on their own sides do not cross, so the elbow keeps the forearm's radius on its own side of the chest's median plane, or the wrist's own distance when the goal lies nearer or across; and the deepest of `SAMPLES` axis points below its needed clearance, the forearm's radius at the elbow falling linearly toward the wrist but never below the radius less `TISSUE`, the skin the contact verdicts let press in, plus the wrist's own signed clearance where a goal put it (0 for a wrist outside the body), divided by the upper arm's length: the angle the upper arm turns to carry the elbow that far. Against `others` the needed clearance falls to 0 at the wrist whatever the wrist's own depth, since no goal put the wrist there.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One bounding-sphere test per hull, then the samples of the shapes that pass it.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The wrist end asks no more than the goal itself gives, so a palm laid on the trunk is not refused; nothing is clamped.
    * @evidence contracts/development/implementation.md#efficient-algorithms A hull whose bounding sphere the axis stays a radius from costs one point-to-segment distance; a shape that passes costs one point query per sample, where an exact segment query would cost the tens of point queries of its line search to decide what the samples decide anyway.
@@ -138,6 +139,7 @@ export namespace HumanArmClearance {
     wrist: IAutoMovieVector3,
     side: "left" | "right",
     others: readonly HumanColliders.IPlaced[] = [],
+    goal: boolean = true,
   ): number {
     const radius: number = body.measure.forearmRadius;
     const degrees = (metres: number): number =>
@@ -195,7 +197,7 @@ export namespace HumanArmClearance {
     // which no elbow place changes; 0 for a wrist outside the body.
     let grazing: number = 0;
     for (const { pose, shape, free } of near)
-      if (!free)
+      if (goal && !free)
         grazing = Math.min(
           grazing,
           physicalShapeSegmentDistance(pose, shape, wrist, wrist),
@@ -203,10 +205,13 @@ export namespace HumanArmClearance {
     for (let i: number = 0; i < SAMPLES; i++) {
       const s: number = i / SAMPLES;
       const at: IAutoMovieVector3 = Vector3.lerp(elbow, wrist, s);
+      // The skin may press `TISSUE` into a surface anywhere along the
+      // forearm, as the contact verdicts allow, and no deeper.
+      const needed: number = Math.max(radius * (1 - s), radius - TISSUE);
       for (const { pose, shape, free } of near)
         depth = Math.max(
           depth,
-          radius * (1 - s) +
+          needed +
             (free ? 0 : grazing * s) -
             physicalShapeSegmentDistance(pose, shape, at, at),
         );
@@ -315,6 +320,7 @@ export namespace HumanArmClearance {
       bones.get(`${side}Hand`)!.worldPosition,
       side,
       others,
+      false,
     );
   }
 
@@ -329,8 +335,9 @@ export namespace HumanArmClearance {
    * folds the elbow and brings the hand up near their own chest. Both are
    * one rule: the overshoot's slope is read over the upper arm's abduction
    * and the elbow's flexion, and the arm takes the step down that slope the
-   * slope says clears it, at most `PASSES` times. A step that leaves a
-   * joint's range is tried on each joint alone, and a pass no step of which
+   * slope says clears it, at most `PASSES` times. A step that does not lessen
+   * the overshoot or leaves a joint's range is halved, up to `HALVINGS`
+   * times, then tried on each joint alone, and a pass no step of which
    * lessens the overshoot ends the loop.
    *
    * @param body The body.
@@ -345,7 +352,7 @@ export namespace HumanArmClearance {
    * @evidence contracts/development/implementation.md#principled-implementation A Newton step on the overshoot over the two freedoms that move a forearm without a goal, the shoulder's abduction and the elbow's flexion; the direction comes from the shapes in the way, so no obstacle is named.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop of slope, step and compare.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No margin is added and no joint leaves its range; a pass that does not help ends the loop with the last arm that did.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One forward-kinematics pass when the arm is clear, and at most six a pass when it is not.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One forward-kinematics pass when the arm is clear, and at most two plus three times `HALVINGS + 1` a pass when it is not.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `room` and the engine's range reading.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
@@ -381,18 +388,23 @@ export namespace HumanArmClearance {
       ] as const) {
         const square: number = a * a + f * f;
         if (square < 1e-9) continue;
-        const scale: number = Math.min(
+        // The slope holds only near the arm, so a step that lands past the
+        // valley is halved until it lessens the overshoot (backtracking).
+        let scale: number = Math.min(
           lacking / square,
           STEP / Math.sqrt(square),
         );
-        const candidate: IArm = turned(now, -a * scale, -f * scale);
-        if (range(candidate) > range(now) + 1e-9) continue;
-        const value: number = over(candidate);
-        if (value < then) {
-          next = candidate;
-          then = value;
-          break;
+        for (let h: number = 0; h <= HALVINGS && next === null; h++) {
+          const candidate: IArm = turned(now, -a * scale, -f * scale);
+          scale /= 2;
+          if (range(candidate) > range(now) + 1e-9) continue;
+          const value: number = over(candidate);
+          if (value < then) {
+            next = candidate;
+            then = value;
+          }
         }
+        if (next !== null) break;
       }
       if (next === null) break;
       now = next;
@@ -441,6 +453,9 @@ const TRUNK: ReadonlySet<AutoMovieHumanoidBone> =
     "head",
   ]);
 
+/** How far a forearm's skin may press into a surface, metres: the soft tissue the contact verdicts allow (decision 11). */
+const TISSUE: number = 0.01;
+
 /** The intervals a forearm's axis is sampled in, from the elbow to short of the wrist. */
 const SAMPLES: number = 8;
 
@@ -455,3 +470,6 @@ const PROBE: number = 1;
 
 /** The most a clearing turns the arm in one pass, degrees (provisional: the slope is read at one arm and holds only near it). */
 const STEP: number = 20;
+
+/** How many times a clearing step that fails is halved before the next direction is tried (provisional: down to a sixteenth). */
+const HALVINGS: number = 4;

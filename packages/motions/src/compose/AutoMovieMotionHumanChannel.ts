@@ -31,7 +31,11 @@ export namespace AutoMovieMotionHumanChannel {
   /**
    * The order channels are written in: the body is placed first and the
    * arms last, so a primitive reads every part its own part hangs from as
-   * the action already placed it.
+   * the action already placed it. The hands' fingers come before the arms
+   * although they hang from them: an arm's goal lays a surface of the hand
+   * (the palm, a fingertip, the fist) on its target, and the arm's fit reads
+   * that surface with the fingers as their own primitive shapes them, while
+   * a finger's angles read nothing of the arm.
    */
   export const ORDER: readonly AutoMovieMotionHumanChannel[] = [
     "root",

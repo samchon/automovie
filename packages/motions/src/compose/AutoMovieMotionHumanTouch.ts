@@ -515,8 +515,9 @@ export namespace AutoMovieMotionHumanTouch {
    * more than their range, so the resolver gives way on the rotation and the
    * vessel tilts. Each candidate turns the region's level normal by a
    * multiple of `UPRIGHT_STEP` degrees within `UPRIGHT_SPAN` either way; each
-   * is solved on the posture and the one whose reached hand rotation is
-   * nearest the asked one is kept, the nearest to head on on a tie.
+   * is solved on the posture and the one whose reached hand keeps the
+   * vessel's axis nearest the world's up is kept, the nearest to head on on
+   * a tie; the turn about that axis is not counted, since it is free.
    *
    * @param body The body.
    * @param posture The posture the arm is solved on.
@@ -580,9 +581,19 @@ export namespace AutoMovieMotionHumanTouch {
           limbs: { ...posture.limbs, [limb]: goal },
         }),
       ).get(`${side}Hand`)!.worldRotation;
-      const error: number = Quaternion.angle(
+      // The asked rotation lays the effector's along axis on the world's up,
+      // so that axis at rest is the up turned back by it; the vessel's tilt
+      // is how far the reached rotation carries it off the up.
+      const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+      const axis: IAutoMovieVector3 = Quaternion.rotateVector(
         Quaternion.normalize(reached),
-        Quaternion.normalize(goal.rotation!),
+        Quaternion.rotateVector(
+          Quaternion.inverse(Quaternion.normalize(goal.rotation!)),
+          up,
+        ),
+      );
+      const error: number = Math.acos(
+        Math.min(1, Math.max(-1, Vector3.dot(Vector3.normalize(axis), up))),
       );
       if (error < least - 1e-9) {
         least = error;
