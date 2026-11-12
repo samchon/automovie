@@ -8,7 +8,7 @@
  * @throws When the name is refused.
  *
  * @evidence contracts/development/implementation.md#principled-implementation After trim, explicit separator, ASCII control and device-name checks refuse the listed unsafe names; excluding quote, backslash and ASCII controls keeps plain substitution inside package.json's JSON string valid. This is a partial filename policy rather than npm-name or universal filesystem validation.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Every renderer admits its `{{name}}` through this one rule, so a production, a workspace and a workspace production refuse the same names.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure `createAutoMovieScaffold` admits its `{{name}}` through this one rule, so a production, a workspace and a workspace production refuse the same names.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A refused name throws; nothing is rewritten into an admitted spelling.
  * @evidence contracts/development/common.md#meaningful-documentation The comment states the trim, every refusal and why it matters, and what the rule does not establish.
  * @evidence contracts/development/implementation.md#efficient-algorithms Two regular-expression scans and fixed comparisons cost linear time in the name's length.
