@@ -4,7 +4,7 @@ The production's `PROJECT.md` holds the current overview, commissioned scope, ad
 
 ## What to record
 
-Record only what this project needs; an instance-only request needs no story, and a screenplay-only request no renderer. Leave an undecided nonblocking choice explicit and continue the work that does not depend on it.
+Record only what this project needs; an instance-only request needs no story, and a screenplay-only request no renderer. Leave an undecided choice or an unanswered question explicit and continue only the work that does not depend on it, because a guessed answer is not a delegation.
 
 | Topic | Record when relevant |
 | --- | --- |
@@ -23,3 +23,7 @@ The recorded scope selects the skills and the acceptance boundary. An adopted us
 The delivery profile has this one owner. A brief or settings scope record states running time and frame as the story conditions they are and must agree with it, and each film module realizes it. When the three disagree, correct the profile from the user's commission first and the other two from the profile, because each check otherwise passes against its own copy.
 
 Keep every other fact with its owner and link to it: creative instructions in `docs/instructions`, canon and text in their layers, findings and reviews in their records, and setup and secrets under [source layout](../development/source-layout.md). A recorded preference proves no execution or approval.
+
+## Asking for operating choices {#asking-for-operating-choices}
+
+Ask for an operating choice the user neither made nor delegated, such as the video model, a cost limit or the container and codec, when the first task that uses it begins, and record the answer here. Asked earlier, the user answers before knowing what the choice changes. When the agent writes the story, running time, frame and the rest of the story are asked under [creative requirements](../story/planning/requirements.md#asking-the-user).
