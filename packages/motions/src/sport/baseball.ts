@@ -13,6 +13,7 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { exercise } from "../exercise/exercise";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -109,7 +110,7 @@ export namespace baseball {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the hold is negative.
+   * @throws {HumanRefusal} When the hold is negative.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation One phrase; each position's crouch, step and arm places on its envelope.
@@ -126,8 +127,7 @@ export namespace baseball {
     const body = context.body;
     const m = body.measure;
     const hold: number = p.seconds ?? 1;
-    if (!(hold >= 0))
-      throw new Error("A baseball position's hold is not negative");
+    HumanBound.least("seconds", hold, 0, "s");
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     const clock: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(

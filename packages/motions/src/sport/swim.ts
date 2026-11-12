@@ -12,6 +12,7 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanTrunk } from "../everyday/HumanTrunk";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -115,7 +116,7 @@ export namespace swim {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the cycle count is not a positive whole number.
+   * @throws {HumanRefusal} When the cycle count is not a positive whole number.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The root floats at the plane by the body's own mouth or chest depth; each limb's angles are periodic functions of the cycle's phase.
@@ -132,8 +133,7 @@ export namespace swim {
     const body = context.body;
     const m = body.measure;
     const cycles: number = p.cycles ?? 3;
-    if (!(Number.isInteger(cycles) && cycles > 0))
-      throw new Error("A swim lasts a positive whole number of cycles");
+    HumanBound.whole("cycles", cycles);
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     const entry: IHumanPosture = context.entry.posture;

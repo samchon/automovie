@@ -12,6 +12,7 @@ import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -120,7 +121,7 @@ export namespace kneel {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the hold is negative.
+   * @throws {HumanRefusal} When the hold is negative.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the plan and its refusal; the namespace gives the law.
    * @evidence contracts/development/implementation.md#principled-implementation Key states joined by minimum-jerk phases; on its feet the hips follow the balance course and the legs' reach, sitting back they turn about the knees; a foot whose toes' joint does not move pivots on it, one that moves swings on an arc.
@@ -139,7 +140,7 @@ export namespace kneel {
     const k: "left" | "right" = context.params.knee ?? "right";
     const hold: number = context.params.hold ?? 1.5;
     const rise: boolean = context.params.rise ?? true;
-    if (!(hold >= 0)) throw new Error("A kneel's hold is not negative");
+    HumanBound.least("hold", hold, 0, "s");
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
     const probe: IHumanActionPlan = stand.plan({
@@ -275,8 +276,9 @@ export namespace kneel {
       if (phase.from !== phase.to && pair <= 3) {
         const step: number = pair === 3 ? 1 : phase.from === 0 ? u : 1 - u;
         const low: number = pair === 1 ? 0 : phase.from === 1 ? u : 1 - u;
-        const course: number = (courses[phase.from < phase.to ? 0 : 1] ??
-          ((): number => 0))(seconds);
+        const course: number = (
+          courses[phase.from < phase.to ? 0 : 1] ?? ((): number => 0)
+        )(seconds);
         const s: number =
           along ??
           (pair === 3
@@ -318,7 +320,10 @@ export namespace kneel {
             left: Vector3.add(root, solved.rest.left),
             right: Vector3.add(root, solved.rest.right),
           },
-          { left: feet.left.placement.ankle, right: feet.right.placement.ankle },
+          {
+            left: feet.left.placement.ankle,
+            right: feet.right.placement.ankle,
+          },
           solved.forward,
         );
       } else if (kind === "sitBack" && Math.max(phase.from, phase.to) === 4) {

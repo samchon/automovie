@@ -4,6 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -193,9 +194,13 @@ export namespace defend {
       attack.plan.feigned ??
       (shown === undefined ? undefined : shown * attack.plan.duration);
     if (decisive === undefined)
-      throw new Error(
-        `${p.against} has no contact or shown peak to defend against`,
-      );
+      throw new HumanRefusal({
+        kind: "participant",
+        axis: "against",
+        value: p.against,
+        reason: `${p.against} has no contact or shown peak to defend against`,
+        fix: "defend against the anchor of a strike that lands or is shown",
+      });
     const at = (
       attack.params as {
         at?: {
@@ -211,7 +216,13 @@ export namespace defend {
       at.subject !== context.subject ||
       at.region === undefined
     )
-      throw new Error(`${p.against} does not strike ${context.subject}`);
+      throw new HumanRefusal({
+        kind: "participant",
+        axis: "against",
+        value: p.against,
+        reason: `${p.against} does not strike ${context.subject}`,
+        fix: "name the anchor of a strike aimed at this performer",
+      });
     const region: AutoMovieHumanoidRegion = at.region;
     const launch: number =
       attack.start +

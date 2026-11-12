@@ -13,6 +13,8 @@ import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarge
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanBound } from "../law/HumanBound";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -155,7 +157,7 @@ export namespace crouch {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the hold is negative, or the depth leaves the hip's flexion range no room with the heels asked for.
+   * @throws {HumanRefusal} When the hold is negative, or the depth leaves the hip's flexion range no room with the heels asked for.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the plan and both refusals; the namespace gives the law.
    * @evidence contracts/development/implementation.md#principled-implementation The hip's place follows from the knee flexion and the shank's tilt by the leg's two lengths, the pitch from a bisection on the centre of mass over the soles.
@@ -174,7 +176,7 @@ export namespace crouch {
     const heels: Heels =
       context.params.heels ?? (depth === "full" ? "up" : "flat");
     const hold: number = context.params.hold ?? 1;
-    if (!(hold >= 0)) throw new Error("A crouch's hold is not negative");
+    HumanBound.least("hold", hold, 0, "s");
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
 
@@ -189,9 +191,13 @@ export namespace crouch {
     const knee: number = KNEE[depth];
     const thighTilt: number = knee - shankTilt;
     if (thighTilt >= hipRange)
-      throw new Error(
-        `${context.subject}: a ${depth} crouch with the heels ${heels} needs ${thighTilt.toFixed(0)} degrees of hip flexion before the trunk inclines, past the ${hipRange} degree range; the deepest knee flexion with these heels is ${(hipRange - 5 + shankTilt).toFixed(0)} degrees${heels === "flat" ? ", or raise the heels" : ""}`,
-      );
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "depth",
+        value: depth,
+        reason: `a ${depth} crouch with the heels ${heels} needs ${thighTilt.toFixed(0)} degrees of hip flexion before the trunk inclines, past the ${hipRange} degree range; the deepest knee flexion with these heels is ${(hipRange - 5 + shankTilt).toFixed(0)} degrees${heels === "flat" ? ", or raise the heels" : ""}`,
+        fix: `choose a shallower depth${heels === "flat" ? ", or raise the heels" : ""}`,
+      });
 
     // The clock: descent, hold, rise.
     const down: number = DESCENT[depth] * Math.sqrt(m.hipHeight / 0.93);

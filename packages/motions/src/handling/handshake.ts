@@ -15,6 +15,7 @@ import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanTrunk } from "../everyday/HumanTrunk";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -132,15 +133,14 @@ export namespace handshake {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the partners stand beyond reach of each other, or the pump count is not a positive integer.
+   * @throws {HumanRefusal} When the partners stand beyond reach of each other, or the pump count is not a positive integer.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
   ): IHumanActionPlan {
     const side: HumanHand.Side = context.params.hand ?? "right";
     const pumps: number = context.params.pumps ?? 2;
-    if (!(Number.isInteger(pumps) && pumps > 0))
-      throw new Error("A handshake pumps a positive whole number of times");
+    HumanBound.whole("pumps", pumps);
     const body: IHumanBody = context.body;
     const partner: IHumanBody = context.performer(context.params.partner).body;
     const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";

@@ -23,6 +23,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanArmClearance } from "../posture/HumanArmClearance";
 import type { HumanColliders } from "../posture/HumanColliders";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -312,13 +313,17 @@ export namespace AutoMovieMotionHumanBend {
     if (typeof found !== "string" && found.overshoot === 0) return found.elbow;
     if (props.fallback !== undefined)
       return arm(props.body, props.posture, props.side, props.fallback);
-    throw new Error(
-      `AutoMovieMotionHumanBend.solve found no elbow place for the ${props.side} hand: ${
+    throw new HumanRefusal({
+      kind: "reach",
+      axis: "target",
+      value: props.side,
+      reason: `AutoMovieMotionHumanBend.solve found no elbow place for the ${props.side} hand: ${
         typeof found === "string"
           ? found
           : "every place leaves a joint out of range or the forearm inside the body"
       }`,
-    );
+      fix: "move the target to where the arm can bend to it: nearer the shoulder's side and off the body",
+    });
   }
 
   /**

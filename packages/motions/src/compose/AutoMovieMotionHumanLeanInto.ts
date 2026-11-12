@@ -2,6 +2,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanBalance } from "../everyday/HumanBalance";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -128,7 +129,15 @@ export namespace AutoMovieMotionHumanLeanInto {
       if (beyond(0) <= 0) return 0;
       let low: number = 0;
       let high: number = limit;
-      if (beyond(high) > 0) throw new Error(props.refuse(beyond(high), high));
+      if (beyond(high) > 0)
+        throw new HumanRefusal({
+          kind: "reach",
+          axis: "target",
+          value: beyond(high),
+          feasible: { kind: "range", minimum: null, maximum: 0, unit: "m" },
+          reason: props.refuse(beyond(high), high),
+          fix: "come nearer first (approach the target), or aim at a region within the arm's reach",
+        });
       while (high - low > 0.01) {
         const middle: number = (low + high) / 2;
         if (beyond(middle) <= 0) high = middle;

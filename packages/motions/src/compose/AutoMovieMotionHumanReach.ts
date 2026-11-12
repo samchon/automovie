@@ -3,6 +3,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanTrunk } from "../everyday/HumanTrunk";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -182,9 +183,14 @@ export namespace AutoMovieMotionHumanReach {
   ): void {
     if (check.shortfall <= 0) return;
     const mm = (metres: number): string => (1000 * metres).toFixed(0);
-    throw new Error(
-      `The ${limb} cannot reach (${mm(point.x)}, ${mm(point.y)}, ${mm(point.z)}) mm: it is ${mm(check.shortfall)} mm beyond the limb's ${mm(check.length)} mm`,
-    );
+    throw new HumanRefusal({
+      kind: "reach",
+      axis: "target",
+      value: check.shortfall,
+      feasible: { kind: "range", minimum: 0, maximum: check.length, unit: "m" },
+      reason: `The ${limb} cannot reach (${mm(point.x)}, ${mm(point.y)}, ${mm(point.z)}) mm: it is ${mm(check.shortfall)} mm beyond the limb's ${mm(check.length)} mm`,
+      fix: "bring the target within the limb's length, or move the body nearer first",
+    });
   }
 
   /**

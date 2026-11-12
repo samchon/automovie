@@ -17,6 +17,7 @@ import type {
 
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -87,7 +88,7 @@ export namespace HumanGrasp {
    * @param id The affordance id.
    * @param seconds Film seconds.
    * @returns The target.
-   * @throws {Error} When the prop declares no such affordance or no colliders.
+   * @throws {HumanRefusal} When the prop declares no such affordance or no colliders.
    */
   export function target(
     context: Pick<IHumanActionContext, "prop">,
@@ -107,7 +108,7 @@ export namespace HumanGrasp {
    * @param id The affordance id.
    * @param frame The prop's world frame.
    * @returns The target.
-   * @throws {Error} When the prop declares no such affordance or no colliders.
+   * @throws {HumanRefusal} When the prop declares no such affordance or no colliders.
    */
   export function at(
     prop: IHumanProp,
@@ -119,14 +120,28 @@ export namespace HumanGrasp {
       (a: IAutoMovieAffordance): boolean => a.id === id,
     );
     if (affordance === undefined)
-      throw new Error(
-        `Prop ${subject} has no affordance ${id}; it has ${(prop.affordances ?? []).map((a: IAutoMovieAffordance): string => a.id).join(", ") || "none"}`,
-      );
+      throw new HumanRefusal({
+        kind: "affordance",
+        axis: "handle",
+        value: id,
+        feasible: {
+          kind: "alternatives",
+          values: (prop.affordances ?? []).map(
+            (a: IAutoMovieAffordance): string => a.id,
+          ),
+        },
+        reason: `Prop ${subject} has no affordance ${id}; it has ${(prop.affordances ?? []).map((a: IAutoMovieAffordance): string => a.id).join(", ") || "none"}`,
+        fix: "name one of the prop's affordances, or declare this one on the prop",
+      });
     const shapes: readonly P.IShape[] = prop.shapes ?? [];
     if (shapes.length === 0)
-      throw new Error(
-        `Prop ${subject} declares no colliders; a grasp closes the fingers on them`,
-      );
+      throw new HumanRefusal({
+        kind: "affordance",
+        axis: "prop",
+        value: subject,
+        reason: `Prop ${subject} declares no colliders; a grasp closes the fingers on them`,
+        fix: "give the prop the shapes the fingers close on",
+      });
     const turn: IAutoMovieQuaternion = Quaternion.multiply(
       frame.rotation,
       affordance.frame.rotation,

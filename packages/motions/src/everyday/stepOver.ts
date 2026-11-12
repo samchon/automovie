@@ -8,6 +8,7 @@ import { walk } from "../actions/walk";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanClearance } from "../compose/AutoMovieMotionHumanClearance";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -121,7 +122,7 @@ export namespace stepOver {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the obstacle is too far, behind, too high or too deep to cross in one step.
+   * @throws {HumanRefusal} When the obstacle is too far, behind, too high or too deep to cross in one step.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -146,15 +147,41 @@ export namespace stepOver {
     const near: number = HumanFrame.local(frame, obstacle.at).z;
     const leg: number = m.thigh + m.shank;
     if (!(obstacle.height > 0 && obstacle.depth > 0))
-      throw new Error("An obstacle has a positive height and depth");
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "obstacle",
+        value: obstacle,
+        reason: "An obstacle has a positive height and depth",
+        fix: "give the obstacle a positive height and depth",
+      });
     if (near < 0.5 * m.footLength || near > leg)
-      throw new Error(
-        `${context.subject}: the obstacle's near side is ${near.toFixed(3)} m ahead; stand ${(0.5 * m.footLength).toFixed(3)} to ${leg.toFixed(3)} m before it`,
-      );
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "obstacle",
+        value: near,
+        feasible: {
+          kind: "range",
+          minimum: 0.5 * m.footLength,
+          maximum: leg,
+          unit: "m",
+        },
+        reason: `the obstacle's near side is ${near.toFixed(3)} m ahead; stand ${(0.5 * m.footLength).toFixed(3)} to ${leg.toFixed(3)} m before it`,
+        fix: "stand before the obstacle within that distance of its near side",
+      });
     if (obstacle.height > 0.55 * m.hipHeight)
-      throw new Error(
-        `${context.subject}: an obstacle ${obstacle.height.toFixed(3)} m high is above the ${(0.55 * m.hipHeight).toFixed(3)} m this body steps over`,
-      );
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "obstacle",
+        value: obstacle.height,
+        feasible: {
+          kind: "range",
+          minimum: 0,
+          maximum: 0.55 * m.hipHeight,
+          unit: "m",
+        },
+        reason: `an obstacle ${obstacle.height.toFixed(3)} m high is above the ${(0.55 * m.hipHeight).toFixed(3)} m this body steps over`,
+        fix: "use an obstacle no higher than that",
+      });
     const far: number = near + obstacle.depth;
     const heelBack: number = -HumanFoot.offset(body, lead, "heel").z;
     const nearest: number = far + 0.1 * m.footLength + heelBack;
@@ -166,9 +193,13 @@ export namespace stepOver {
           Math.max(0, leg * leg - (0.9 * m.hipHeight - m.ankleHeight) ** 2),
         );
     if (nearest > farthest)
-      throw new Error(
-        `${context.subject}: an obstacle ${obstacle.depth.toFixed(3)} m deep is too deep to cross in one step`,
-      );
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "obstacle",
+        value: obstacle.depth,
+        reason: `an obstacle ${obstacle.depth.toFixed(3)} m deep is too deep to cross in one step`,
+        fix: "use a shallower obstacle",
+      });
     const landing: number = Math.min(
       farthest,
       Math.max(nearest, near + far - HumanFrame.local(frame, feet[lead]).z),

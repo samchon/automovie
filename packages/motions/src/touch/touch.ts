@@ -18,6 +18,7 @@ import { AutoMovieMotionHumanTouchForm } from "../compose/AutoMovieMotionHumanTo
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -137,7 +138,7 @@ export namespace touch {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the count is not a positive whole number or the hold is negative.
+   * @throws {HumanRefusal} When the count is not a positive whole number or the hold is negative.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives the timing and the sources.
    * @evidence contracts/development/implementation.md#principled-implementation A phrase clock from the free-space transport of the farther hand, the kind's repetitions and the hold, with one touch stroke per hand over a held standing base.
@@ -157,7 +158,7 @@ export namespace touch {
       kind === "press" || kind === "squeeze" || kind === "hold";
     const count: number = p.count ?? (kind === "stroke" || still ? 1 : 3);
     const hold: number = p.hold ?? (still ? 1.2 : 0.4);
-    if (!(hold >= 0)) throw new Error("A touch's hold is not negative");
+    HumanBound.least("hold", hold, 0, "s");
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     const effector: AutoMovieMotionHumanTouchEffector.IEffector =

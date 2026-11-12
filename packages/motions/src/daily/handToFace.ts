@@ -22,6 +22,7 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanTrunk } from "../everyday/HumanTrunk";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -202,7 +203,7 @@ export namespace handToFace {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the count is not a positive whole number or the time at the face is negative.
+   * @throws {HumanRefusal} When the count is not a positive whole number or the time at the face is negative.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives the phases, the rows and the sources.
    * @evidence contracts/development/implementation.md#principled-implementation The drinking task's phases (Alt Murphy et al. 2006) as a phrase clock, with the task's row run by the touch stroke per hand and the head's flexion pulsed on the same envelope.
@@ -220,8 +221,7 @@ export namespace handToFace {
     const body = context.body;
     const count: number = p.count ?? row.count;
     const hold: number = p.seconds ?? row.hold;
-    if (!(hold >= 0))
-      throw new Error("A hand-to-face task's time is not negative");
+    HumanBound.least("seconds", hold, 0, "s");
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     const entry: IHumanPosture = context.entry.posture;

@@ -1,6 +1,7 @@
 import { minimumJerk } from "@automovie/engine";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanLayer } from "../law/IHumanLayer";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 
@@ -100,7 +101,7 @@ export namespace HumanAffect {
    * @param seconds Its length, seconds.
    * @param intensity Amplitude scale.
    * @returns Clinical degrees to add; empty outside the display.
-   * @throws {Error} When the length is not positive.
+   * @throws {HumanRefusal} When the length is not positive.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs' units, the clinical-degree output, the empty result outside the display and the refusal; each pattern is documented on the namespace.
    * @evidence contracts/development/implementation.md#principled-implementation Joint-angle pulses under minimum-jerk envelopes, zero with zero velocity at both ends; the laugh note interval is Provine's 210 ms and the yawn length Provine's, other amplitudes and timings provisional as documented. Angles are the rig's clinical degrees per bone.
@@ -116,7 +117,7 @@ export namespace HumanAffect {
     seconds: number,
     intensity: number = 1,
   ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
-    if (!(seconds > 0)) throw new Error("A display lasts a positive time");
+    HumanBound.above("seconds", seconds, 0, "s");
     if (!(t > 0 && t < seconds)) return {};
     const u: number = t / seconds;
     const k: number = intensity;

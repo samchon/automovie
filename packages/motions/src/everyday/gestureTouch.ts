@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanTrunk } from "./HumanTrunk";
@@ -54,7 +55,14 @@ export namespace gestureTouch {
     side: HumanHand.Side,
   ): gestureStroke.IHand {
     const { body } = input;
-    if (input.target === undefined) throw new Error("Pointing needs a target");
+    if (input.target === undefined)
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "target",
+        value: undefined,
+        reason: "Pointing needs a target",
+        fix: "give the point gesture a target",
+      });
     const bones = HumanTrunk.resolve(body, input.base);
     const eye: IAutoMovieVector3 = bones.get(`${side}Eye`)!.worldPosition;
     const shoulder: IAutoMovieVector3 = bones.get(

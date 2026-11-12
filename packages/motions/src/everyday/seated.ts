@@ -9,15 +9,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
-import type { IHumanBody } from "../body/IHumanBody";
+import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { handGoals } from "./handGoals";
-import { poseBones } from "../posture/poseBones";
 
 /**
  * The geometry every seat law shares: where on a seat the body's seat
@@ -83,14 +84,24 @@ export namespace seated {
    *
    * @param body The body.
    * @param seat The seat.
-   * @throws {Error} When the seat height lies outside the band.
+   * @throws {HumanRefusal} When the seat height lies outside the band.
    */
   export function check(body: IHumanBody, seat: ISeat): void {
     const r: number = ratio(body, seat);
     if (r < RATIO[0] || r > RATIO[1])
-      throw new Error(
-        `A seat ${seat.at.y.toFixed(3)} m high is ${r.toFixed(2)} of this body's popliteal height; seats from ${(RATIO[0] * popliteal(body)).toFixed(3)} to ${(RATIO[1] * popliteal(body)).toFixed(3)} m suit it`,
-      );
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "seat",
+        value: seat.at.y,
+        feasible: {
+          kind: "range",
+          minimum: RATIO[0] * popliteal(body),
+          maximum: RATIO[1] * popliteal(body),
+          unit: "m",
+        },
+        reason: `A seat ${seat.at.y.toFixed(3)} m high is ${r.toFixed(2)} of this body's popliteal height; seats from ${(RATIO[0] * popliteal(body)).toFixed(3)} to ${(RATIO[1] * popliteal(body)).toFixed(3)} m suit it`,
+        fix: "use a seat whose height suits this body",
+      });
   }
 
   /**

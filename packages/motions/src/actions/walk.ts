@@ -9,6 +9,7 @@ import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { HumanTrunk } from "../everyday/HumanTrunk";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -233,12 +234,9 @@ export namespace walk {
     const stride: number = p.stride ?? 1;
     const arms: number = p.armSwing ?? 1;
     const elbows: number = p.elbows ?? 0;
-    if (!(stride >= 0.6 && stride <= 1.3))
-      throw new Error(`walk.stride must lie in [0.6, 1.3], got ${stride}`);
-    if (!(arms >= 0 && arms <= 2))
-      throw new Error(`walk.armSwing must lie in [0, 2], got ${arms}`);
-    if (!(elbows >= 0 && elbows <= 30))
-      throw new Error(`walk.elbows must lie in [0, 30], got ${elbows}`);
+    HumanBound.within("stride", stride, 0.6, 1.3);
+    HumanBound.within("armSwing", arms, 0, 2);
+    HumanBound.within("elbows", elbows, 0, 30, "degrees");
     const longest: number = stride * l * gait.step(froude);
     const steps: walkSteps.IPlan = walkSteps.plan({
       body,

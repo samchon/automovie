@@ -16,6 +16,7 @@ import type {
 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -255,9 +256,24 @@ export namespace HumanSegment {
                 `[${r.window.join(", ")}] (${r.kind})`,
             )
             .join(", ");
-    throw new Error(
-      `${subject}: ${previous.name} cannot be cut into ${name} at share ${share.toFixed(3)}; legal windows: ${legal}`,
-    );
+    const next: string[] = Object.keys(previous.law.interrupts);
+    throw new HumanRefusal({
+      kind: "cut",
+      performer: subject,
+      axis: "cut",
+      value: share,
+      feasible: {
+        kind: "alternatives",
+        values: rows.map(
+          (r: IHumanInterruptRow): string => `[${r.window.join(", ")}]`,
+        ),
+      },
+      reason: `${previous.name} cannot be cut into ${name} at share ${share.toFixed(3)} of itself; its legal windows into ${name}: ${legal}`,
+      fix:
+        rows.length === 0
+          ? `let ${previous.name} end before ${name}, or cut it into an action it declares a window for (${next.join(", ") || "none"})`
+          : `cut ${previous.name} inside one of those windows (a share or an event name of it), or let it end`,
+    });
   }
 
   /**
@@ -271,9 +287,17 @@ export namespace HumanSegment {
     if (typeof at === "number") return at;
     const event = plan.events.find((e) => e.name === at);
     if (event === undefined)
-      throw new Error(
-        `No event ${at}; events are ${plan.events.map((e) => e.name).join(", ") || "none"}`,
-      );
+      throw new HumanRefusal({
+        kind: "cut",
+        axis: "event",
+        value: at,
+        feasible: {
+          kind: "alternatives",
+          values: plan.events.map((e): string => e.name),
+        },
+        reason: `the action publishes no event named ${at}`,
+        fix: "name one of the action's events, or give the instant as a share from 0 to 1",
+      });
     return event.share;
   }
 

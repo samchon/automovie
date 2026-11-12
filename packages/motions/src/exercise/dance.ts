@@ -10,6 +10,7 @@ import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -100,7 +101,7 @@ export namespace dance {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the tempo is not positive or the beat count is not a positive whole number.
+   * @throws {HumanRefusal} When the tempo is not positive or the beat count is not a positive whole number.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation A beat clock with one instant per beat; each step's root and foot curves are written against the beats.
@@ -118,9 +119,8 @@ export namespace dance {
     const m = body.measure;
     const bpm: number = p.bpm ?? BPM;
     const beats: number = p.beats ?? 8;
-    if (!(bpm > 0)) throw new Error("A dance's tempo is positive");
-    if (!(Number.isInteger(beats) && beats > 0))
-      throw new Error("A dance lasts a positive whole number of beats");
+    HumanBound.above("bpm", bpm, 0, "beats per minute");
+    HumanBound.whole("beats", beats);
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     const period: number = 60 / bpm;

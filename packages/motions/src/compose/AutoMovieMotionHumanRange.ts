@@ -6,6 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanBound } from "../law/HumanBound";
 import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
 
 /**
@@ -277,8 +278,5 @@ function checked(
 ): void {
   if (amount.source.trim() === "")
     throw new Error("Explicit degrees state their source");
-  if (!(amount.degrees >= 0 && amount.degrees <= most))
-    throw new Error(
-      `${amount.degrees} degrees of ${what} lie outside [0, ${most}]`,
-    );
+  HumanBound.within(what, amount.degrees, 0, most, "degrees");
 }

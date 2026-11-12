@@ -1,6 +1,7 @@
 import type { IAutoMovieRandom } from "@automovie/engine";
 
 import { HumanEffort } from "../everyday/HumanEffort";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 
@@ -134,15 +135,15 @@ export namespace AutoMovieMotionManner {
     const pace: number = manner.pace ?? 1;
     const proficiency: number = manner.proficiency ?? 1;
     const variation: number = manner.variation ?? 0;
-    if (!(intensity > 0 && intensity <= 1))
-      throw new Error("A manner's intensity lies in (0, 1]");
-    if (!(pace > 0)) throw new Error("A manner's pace is positive");
-    if (!(proficiency >= 0 && proficiency <= 1))
-      throw new Error("A manner's proficiency lies in [0, 1]");
-    if (!(variation >= 0 && variation <= 1))
-      throw new Error("A manner's variation lies in [0, 1]");
+    HumanBound.within("manner.intensity", intensity, 0, 1, "", "minimum");
+    HumanBound.above("manner.pace", pace, 0);
+    HumanBound.within("manner.proficiency", proficiency, 0, 1);
+    HumanBound.within("manner.variation", variation, 0, 1);
     const effort: HumanEffort.IModifiers = HumanEffort.modifiers(manner.effort);
-    const offset = (bounds: readonly [number, number], index: number): number =>
+    const offset = (
+      bounds: readonly [number, number],
+      index: number,
+    ): number =>
       variation === 0
         ? 1
         : 1 +

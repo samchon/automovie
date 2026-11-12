@@ -20,6 +20,7 @@ import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk"
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -194,7 +195,7 @@ export namespace throwObject {
    *
    * @param context The action's context.
    * @returns The plan with its launch.
-   * @throws {Error} When the release angle cannot reach the target.
+   * @throws {HumanRefusal} When the release angle cannot reach the target.
    */
   export function plan(context: IHumanActionContext<IParams>): IPlan {
     const body: IHumanBody = context.body;
@@ -235,9 +236,13 @@ export namespace throwObject {
     const angle: number = (ANGLE[style] * Math.PI) / 180;
     const lift: number = d * Math.tan(angle) - delta.y;
     if (!(d > 1e-6 && lift > 0))
-      throw new Error(
-        `${context.subject}: a ${style} throw at ${ANGLE[style]} degrees cannot reach a target ${delta.y.toFixed(2)} m above and ${d.toFixed(2)} m from its release`,
-      );
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "at",
+        value: d,
+        reason: `a ${style} throw at ${ANGLE[style]} degrees cannot reach a target ${delta.y.toFixed(2)} m above and ${d.toFixed(2)} m from its release`,
+        fix: "aim at a nearer or lower target, or choose a style with a steeper release",
+      });
     const speed: number = Math.sqrt(
       (GRAVITY * d * d) / (2 * Math.cos(angle) ** 2 * lift),
     );

@@ -15,6 +15,8 @@ import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
+import { HumanBound } from "../law/HumanBound";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -129,7 +131,7 @@ export namespace rest {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When a paired place names one hand only, or the time is not positive.
+   * @throws {HumanRefusal} When a paired place names one hand only, or the time is not positive.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -141,19 +143,27 @@ export namespace rest {
     };
     for (const place of PAIRED)
       if ((places.left === place) !== (places.right === place))
-        throw new Error(
-          `${context.subject}: ${place} holds both hands; name it for both`,
-        );
+        throw new HumanRefusal({
+          kind: "parameter",
+          axis: "rest",
+          value: place,
+          reason: `${place} holds both hands; name it for both`,
+          fix: `name ${place} for both hands`,
+        });
     for (const side of ["left", "right"] as const)
       if (
         places[side] === "elbowSupport" &&
         places[side === "left" ? "right" : "left"] !== "chinRest"
       )
-        throw new Error(
-          `${context.subject}: elbowSupport holds the other arm's elbow; the other hand must be at chinRest`,
-        );
+        throw new HumanRefusal({
+          kind: "parameter",
+          axis: "rest",
+          value: "elbowSupport",
+          reason: `elbowSupport holds the other arm's elbow; the other hand must be at chinRest`,
+          fix: "put the other hand at chinRest",
+        });
     const duration: number = context.params.seconds ?? 2;
-    if (!(duration > 0)) throw new Error("A rest lasts a positive time");
+    HumanBound.above("seconds", duration, 0, "s");
     const base: IHumanActionPlan = stand.plan({
       ...context,
       params: { seconds: duration },
@@ -288,7 +298,7 @@ export namespace rest {
    * @param posture The standing posture.
    * @param places Each hand's place.
    * @returns The goals of the hands that move.
-   * @throws {Error} When the trunk has no surface where a clasp is laid.
+   * @throws {HumanRefusal} When the trunk has no surface where a clasp is laid.
    */
   export function goals(
     body: IHumanBody,

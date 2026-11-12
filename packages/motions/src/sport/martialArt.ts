@@ -13,6 +13,7 @@ import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarge
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -99,7 +100,7 @@ export namespace martialArt {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the count is not a positive whole number or the hold is negative.
+   * @throws {HumanRefusal} When the count is not a positive whole number or the hold is negative.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation A stance entered by a step and a sink, then the technique's arm rows on named places.
@@ -117,9 +118,8 @@ export namespace martialArt {
     const m = body.measure;
     const count: number = p.count ?? 4;
     const hold: number = p.seconds ?? 1;
-    if (!(Number.isInteger(count) && count > 0))
-      throw new Error("A punch series counts a positive whole number");
-    if (!(hold >= 0)) throw new Error("A stance's hold is not negative");
+    HumanBound.whole("count", count);
+    HumanBound.least("seconds", hold, 0, "s");
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     const entry: IHumanPosture = context.entry.posture;

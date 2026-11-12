@@ -10,6 +10,7 @@ import type { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHuman
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -176,7 +177,7 @@ export namespace lieDown {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the hold is negative.
+   * @throws {HumanRefusal} When the hold is negative.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -184,7 +185,7 @@ export namespace lieDown {
     const body: IHumanBody = context.body;
     const position: Position = context.params.position ?? "supine";
     const hold: number = context.params.hold ?? 2;
-    if (!(hold >= 0)) throw new Error("A lie down's hold is not negative");
+    HumanBound.least("hold", hold, 0, "s");
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
     const standing: IHumanPosture = stand

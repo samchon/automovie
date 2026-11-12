@@ -17,6 +17,8 @@ import type {
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanBound } from "../law/HumanBound";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -130,7 +132,7 @@ export namespace jump {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When no foot is planted to push off from, or the apex is not positive.
+   * @throws {HumanRefusal} When no foot is planted to push off from, or the apex is not positive.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -158,9 +160,13 @@ export namespace jump {
       (s) => entry.feet[s].planted,
     );
     if (planted.length === 0)
-      throw new Error(
-        `${context.subject}: a jump takes off from a planted foot, and neither is planted`,
-      );
+      throw new HumanRefusal({
+        kind: "base",
+        axis: "base",
+        value: null,
+        reason: `a jump takes off from a planted foot, and neither is planted`,
+        fix: "enter the jump from an action that leaves a foot planted, such as stand or walk",
+      });
     // In double support the front foot bears the body forward; the rear one is the reaching leg.
     const ahead = (s: "left" | "right"): number =>
       HumanFrame.local(frame(root0), entry.feet[s].ankle).z;
@@ -307,7 +313,7 @@ export namespace jump {
     };
     const length: number = Math.hypot(comL.x - comT.x, comL.z - comT.z);
     const apex: number = context.params.apex ?? 0.06 * l + 0.1 * length;
-    if (!(apex > 0)) throw new Error(`jump.apex must be positive, got ${apex}`);
+    HumanBound.above("apex", apex, 0, "m");
     const vy: number = Math.sqrt(2 * G * apex);
     const T: number =
       (vy + Math.sqrt(Math.max(0, vy * vy - 2 * G * (comL.y - comT.y)))) / G;
