@@ -18,9 +18,9 @@ Follow [independent reading](independent-reading.md) before opening author recor
 
 ## Findings and decisions {#findings-and-decisions}
 
-A loss that rests only on how a passage reads, with no contract failure, parent or requirement it contradicts, is a finding only when both the reviewer and its [independent classification](../story/correction/inspection.md#independent-classification) record it, or the user names it.
+A loss that rests only on how a passage reads, failing no contract statement and contradicting no parent or requirement, is a finding only when both the reviewer and its [independent classification](../story/correction/inspection.md#independent-classification) record it, or the user names it, because one reader's taste alone would keep every round open.
 
-The author decides each finding and records in the verdict whether it accepts or declines it, with the reason. Only accepted findings are repaired, under [cause rounds](../story/correction/repair.md#cause-rounds), by the author's method and changing only what they need. A round in which the author accepts no finding closes the review it belongs to.
+The author decides each finding and records in the verdict whether it accepts or declines it, with the reason. The reviewer answers each declined finding in the verdict, withdrawing it or rebutting the reason, and the author decides a rebutted finding again; that decision stands. Only accepted findings are repaired, under [cause rounds](../story/correction/repair.md#cause-rounds), by the author's method and changing only what they need.
 
 When screenplay naturalness traces a finding to frozen construction content, record its cause and earliest owner as an upstream report in the verdict instead of repeating it each round. It is repaired under [upstream repair](../story/correction/repair.md#upstream-defects) and remains an open limit until then.
 
@@ -43,7 +43,7 @@ Grade each body finding by what its repair changes:
 | Minor | Wording only, with no fact, decision, event or audience experience beyond that passage | The scoped round that confirms it |
 | Moderate or higher | Anything more | A closing round that rereads every current H2 |
 
-A complete round with no body finding the author accepts closes creative review directly.
+A complete round in which the author's final decisions accept no body finding closes creative review, and one that accepts no evidence finding closes the audit. Reviewers keep finding matters of their own style, so a review that waited for no findings would never close.
 
 Once creative review closes, audit the evidence once under [answer writing](../story/evidence/answer-writing.md). A round whose only accepted findings are evidence statements closes when the author corrects those statements and the reviewer confirms them in the same record, provided the body, inputs and requirements are unchanged. A body defect found there returns to creative review.
 
