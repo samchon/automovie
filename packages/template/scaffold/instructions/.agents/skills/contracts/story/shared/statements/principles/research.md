@@ -4,7 +4,7 @@ Contract: [principles/research.md](../../principles/research.md).
 
 ## Depicted practice {#depicted-practice}
 
-Name each statement the studied subject does not have, such as an outcome table for a camera style.
+Name each statement the studied subject does not have, such as an outcome table for a camera style, and each that no written consumer uses yet, under [when to study](../../../../../story/planning/research.md#when-to-study).
 
 1. Each technique has its law:
     - its key poses in the performer's own body frame;
@@ -24,7 +24,7 @@ Name each statement the studied subject does not have, such as an outcome table 
 11. An invented action names its closest real analogue and states where it departs.
 12. No value is a rank or an adjective, and none is borrowed from another discipline without a stated translation.
 13. Every value has a source.
-14. The study covers what the production must write or decide itself. Exception: a single movement the installed motion vocabulary performs is not restudied.
+14. The study covers what the production must write or decide itself. Exception: a single movement the installed motion vocabulary performs, or a rule or table an installed package exports, is not restudied.
 15. The level, patterns and targets of a practice built from such movements are studied here.
 
 ## Traceable sources {#traceable-sources}

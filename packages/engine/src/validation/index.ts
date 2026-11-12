@@ -55,6 +55,7 @@ export * from "./readContinuityTolerances";
 export * from "./toValidation";
 export * from "./unsupportedAutoMovieMaterialExtensions";
 export * from "./validateAffordance";
+export * from "./validateAffordanceArticulation";
 export * from "./validateArrayArtifact";
 export * from "./validateAutoMovieEffects";
 export * from "./validateAutoMovieFormationGround";
