@@ -8,6 +8,7 @@ import type { AutoMovieSolidMeshPlan } from "./AutoMovieSolidMeshPlan";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 import { domainAutoMovieSolidMesh } from "./domainAutoMovieSolidMesh";
+import { incircleAutoMovieSolidChart } from "./incircleAutoMovieSolidChart";
 
 /** Native station/phase point. */
 type Point = readonly [number, number];
@@ -221,6 +222,50 @@ export function gridAutoMovieSolidMesh(
     reserved.set(key, id);
     return id;
   };
+
+  // A quadrilateral's own first fundamental form: the least-squares linear map from its four chart points to their skin points about
+  // their centroids, `J = (sum dX dC^T)(sum dC dC^T)^-1`, read as the shear and scale of `J^T J` over its first entry.
+  const point = (id: number): readonly number[] | undefined =>
+    id < base
+      ? [mesh.positions[3 * id]!, mesh.positions[3 * id + 1]!, mesh.positions[3 * id + 2]!]
+      : samples.get(id)?.point;
+  const local = (ids: readonly number[], charts: readonly Point[]): [number, number] => {
+    const skins: (readonly number[] | undefined)[] = ids.map(point);
+    if (skins.some((x: readonly number[] | undefined): boolean => x === undefined)) return [0, metric];
+    const n: number = charts.length;
+    const cu: number = charts.reduce((s: number, c: Point): number => s + c[0], 0) / n;
+    const cv: number = charts.reduce((s: number, c: Point): number => s + c[1], 0) / n;
+    const mean: number[] = [0, 1, 2].map((a: number): number => skins.reduce((s: number, x: readonly number[] | undefined): number => s + x![a]!, 0) / n);
+    let suu: number = 0;
+    let suv: number = 0;
+    let svv: number = 0;
+    const xu: number[] = [0, 0, 0];
+    const xv: number[] = [0, 0, 0];
+    charts.forEach((c: Point, k: number): void => {
+      const du: number = c[0] - cu;
+      const dv: number = c[1] - cv;
+      suu += du * du;
+      suv += du * dv;
+      svv += dv * dv;
+      for (let a: number = 0; a < 3; a++) {
+        const dx: number = skins[k]![a]! - mean[a]!;
+        xu[a] = xu[a]! + dx * du;
+        xv[a] = xv[a]! + dx * dv;
+      }
+    });
+    const det: number = suu * svv - suv * suv;
+    if (!(det > 0)) return [0, metric];
+    const su: number[] = [0, 1, 2].map((a: number): number => (xu[a]! * svv - xv[a]! * suv) / det);
+    const sv: number[] = [0, 1, 2].map((a: number): number => (xv[a]! * suu - xu[a]! * suv) / det);
+    const e: number = su[0]! ** 2 + su[1]! ** 2 + su[2]! ** 2;
+    const f: number = su[0]! * sv[0]! + su[1]! * sv[1]! + su[2]! * sv[2]!;
+    const g: number = sv[0]! ** 2 + sv[1]! ** 2 + sv[2]! ** 2;
+    const shear: number = f / e;
+    const scale: number = Math.sqrt(g / e - shear * shear);
+    return Number.isFinite(shear) && Number.isFinite(scale) && scale > 0
+      ? [shear, scale]
+      : [0, metric];
+  };
   const classify: ReturnType<typeof AutoMovieSolidMeshLoop.prepare> =
     AutoMovieSolidMeshLoop.prepare(loops, period);
   const du: number[] = stations.map((u: number, i: number): number =>
@@ -318,10 +363,37 @@ export function gridAutoMovieSolidMesh(
       const c: number = at(i + 1, next);
       const d: number = at(i, next);
       const wrap: number = next === 0 ? 1 : 0;
-      full.push(
-        { vertices: [a, b, c], lifts: [0, 0, wrap] },
-        { vertices: [a, c, d], lifts: [0, wrap, wrap] },
-      );
+
+      // A full cell is cut along its Delaunay diagonal in the form its own
+      // four points span, as legalization cuts a residual quadrilateral. Cut
+      // always from its first corner, a cell sheared by a chart whose phase
+      // lines wind round the part took its long diagonal, and its two
+      // triangles stood at different slopes in a check over the whole face.
+      const corners: Point[] = [
+        [stations[i]!, phases[j]!],
+        [stations[i + 1]!, phases[j]!],
+        [stations[i + 1]!, phases[j + 1] ?? phases[0]! + period!],
+        [stations[i]!, phases[j + 1] ?? phases[0]! + period!],
+      ];
+      const [shear, scale]: [number, number] = local([a, b, c, d], corners);
+      const cu: number = (stations[i]! + stations[i + 1]!) / 2;
+      const cv: number = (corners[0]![1] + corners[2]![1]) / 2;
+      const [P, Q, R, S] = corners.map(
+        (corner: Point): Point => [
+          corner[0] - cu + shear * (corner[1] - cv),
+          (corner[1] - cv) * scale,
+        ],
+      ) as [Point, Point, Point, Point];
+      if (incircleAutoMovieSolidChart(P, Q, R, S) > 0)
+        full.push(
+          { vertices: [a, b, d], lifts: [0, 0, wrap] },
+          { vertices: [b, c, d], lifts: [0, wrap, wrap] },
+        );
+      else
+        full.push(
+          { vertices: [a, b, c], lifts: [0, 0, wrap] },
+          { vertices: [a, c, d], lifts: [0, wrap, wrap] },
+        );
       for (const edge of [
         { a, b, turn: 0 },
         { a: b, b: c, turn: wrap },
@@ -399,49 +471,6 @@ export function gridAutoMovieSolidMesh(
       if (typeof contact === "string") return contact;
       if (!contact) interior.push(at(i, j));
     }
-  // A quadrilateral's own first fundamental form: the least-squares linear map from its four chart points to their skin points about
-  // their centroids, `J = (sum dX dC^T)(sum dC dC^T)^-1`, read as the shear and scale of `J^T J` over its first entry.
-  const point = (id: number): readonly number[] | undefined =>
-    id < base
-      ? [mesh.positions[3 * id]!, mesh.positions[3 * id + 1]!, mesh.positions[3 * id + 2]!]
-      : samples.get(id)?.point;
-  const local = (ids: readonly number[], charts: readonly Point[]): [number, number] => {
-    const skins: (readonly number[] | undefined)[] = ids.map(point);
-    if (skins.some((x: readonly number[] | undefined): boolean => x === undefined)) return [0, metric];
-    const n: number = charts.length;
-    const cu: number = charts.reduce((s: number, c: Point): number => s + c[0], 0) / n;
-    const cv: number = charts.reduce((s: number, c: Point): number => s + c[1], 0) / n;
-    const mean: number[] = [0, 1, 2].map((a: number): number => skins.reduce((s: number, x: readonly number[] | undefined): number => s + x![a]!, 0) / n);
-    let suu: number = 0;
-    let suv: number = 0;
-    let svv: number = 0;
-    const xu: number[] = [0, 0, 0];
-    const xv: number[] = [0, 0, 0];
-    charts.forEach((c: Point, k: number): void => {
-      const du: number = c[0] - cu;
-      const dv: number = c[1] - cv;
-      suu += du * du;
-      suv += du * dv;
-      svv += dv * dv;
-      for (let a: number = 0; a < 3; a++) {
-        const dx: number = skins[k]![a]! - mean[a]!;
-        xu[a] = xu[a]! + dx * du;
-        xv[a] = xv[a]! + dx * dv;
-      }
-    });
-    const det: number = suu * svv - suv * suv;
-    if (!(det > 0)) return [0, metric];
-    const su: number[] = [0, 1, 2].map((a: number): number => (xu[a]! * svv - xv[a]! * suv) / det);
-    const sv: number[] = [0, 1, 2].map((a: number): number => (xv[a]! * suu - xu[a]! * suv) / det);
-    const e: number = su[0]! ** 2 + su[1]! ** 2 + su[2]! ** 2;
-    const f: number = su[0]! * sv[0]! + su[1]! * sv[1]! + su[2]! * sv[2]!;
-    const g: number = sv[0]! ** 2 + sv[1]! ** 2 + sv[2]! ** 2;
-    const shear: number = f / e;
-    const scale: number = Math.sqrt(g / e - shear * shear);
-    return Number.isFinite(shear) && Number.isFinite(scale) && scale > 0
-      ? [shear, scale]
-      : [0, metric];
-  };
   return {
     base,
     chart,

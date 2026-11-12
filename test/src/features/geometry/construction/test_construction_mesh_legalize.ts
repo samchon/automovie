@@ -59,16 +59,18 @@ interface Case {
  *    `(R cos(v + k u), R sin(v + k u), u)` with `k = 0.02`, its station lines
  *    winding round it as a twisted band's columns do, a shear `F / E` of 25 mm
  *    a radian. Legalized without the shear, edges are not locally Delaunay
- *    in the metric their quadrilaterals span.
- * 5. All four: every interior edge off the rails, the grid lines and the
- *    retained cells' diagonals is locally Delaunay in the chart mapped by its
+ *    in the metric their quadrilaterals span, and a full cell cut always from
+ *    its first corner takes the diagonal that winds with the twist, 22 mm on
+ *    the skin against 10.
+ * 5. All four: every interior edge off the rails and the grid lines, a
+ *    retained full cell's diagonal included, is locally Delaunay in the chart mapped by its
  *    quadrilateral's own first fundamental form, the least-squares linear map
  *    from its four chart points to its four emitted skin points, read as
  *    `(u, v) -> (u + F / E v, sqrt(G / E - (F / E)^2) v)`; every rail edge is used once and
  *    every interior edge once each way; the chart area equals the elementary
  *    polygon area; a second identical face emits the same indices.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls AutoMovieSolidMesh.face on four analytic charts and reads only emitted indices, positions and owner coordinates: world normals against the analytic outward normal, chart in-circle signs over shared edges, rail-edge use, chart area and repeated output.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AutoMovieSolidMesh.face on four analytic charts and reads only emitted indices, positions and owner coordinates: world normals against the analytic outward normal, chart in-circle signs over shared edges and full cells' diagonals, rail-edge use, chart area and repeated output.
  * @evidence contracts/development/testing.md#independent-expectations The sheared plane's world-inverted rail triangles follow from the smile's two curvatures, `v''` against `v'' + 2c`; each quadrilateral's metric is fitted here from the emitted chart and skin points of its four vertices, not read from the engine (the analytic forms behind them: plane `E = 1 + 4 c^2 u^2`, `F = 2 c u`, `G = 1`; cylinder `G` 2500; flared tube `G = (20 + u)^2`, `E` 2; twisted cylinder `E` 2, `F` 50, `G` 2500); areas are the domain minus the hole's shoelace area and the trapezoids under the wavy rail; the in-circle determinant is evaluated here in floating point, not by the engine predicate.
  * @evidence contracts/development/testing.md#distinguishing-cases A planar hole whose rail is convex in the chart but concave in the world, a periodic winding rail on a chart 50 times longer in phase and the same rail on a chart whose phase scale grows sixfold along it separate a chart-only ear triangulation, an unscaled Delaunay, a Delaunay in the face's mean metric, one without the form's shear and a legalization that flips a rail edge.
  * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by --include construction_mesh_legalize. It generates no person and starts no renderer, host or process.
@@ -280,14 +282,6 @@ function fitted(charts: Chart[], skins: number[][]): [number, number] {
   return [shear, Math.sqrt(dot(sv, sv) / e - shear * shear)];
 }
 
-/** Whether two grid points are opposite corners of one grid cell, the diagonal a retained full cell is cut along. */
-function neighbours(input: Case, a: Chart, b: Chart): boolean {
-  const n: number = input.phases.length;
-  const di: number = Math.abs(input.stations.indexOf(a[0]) - input.stations.indexOf(b[0]));
-  const dj: number = Math.abs(input.phases.indexOf(a[1]) - input.phases.indexOf(b[1]));
-  return di === 1 && (dj === 1 || (input.surface.period !== undefined && dj === n - 1));
-}
-
 /** Build one face and record every finding. */
 function inspect(input: Case, failures: string[]): void {
   const report = (finding: string): void => {
@@ -401,8 +395,8 @@ function inspect(input: Case, failures: string[]): void {
     if (c === undefined || rails.has(`${a},${b}`)) continue;
     const A: Chart = chart(a);
     const B: Chart = chart(b);
-    // A grid line, or the fixed diagonal of a retained full cell, which legalization never reads.
-    if (grid(A) && grid(B) && (A[0] === B[0] || A[1] === B[1] || neighbours(input, A, B))) continue;
+    // A grid line. A retained full cell's diagonal is read as any other edge: the cell is cut along its Delaunay diagonal in its own form.
+    if (grid(A) && grid(B) && (A[0] === B[0] || A[1] === B[1])) continue;
     const corners: Chart[] = [A, B, chart(d), chart(c)].map(
       (p: Chart): Chart => [p[0], near(p[1], A[1])],
     );

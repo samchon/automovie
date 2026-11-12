@@ -61,6 +61,12 @@ export namespace AutoMovieSolidClip {
   /** Largest world distance between the rail's last point on one face and its first on the next for a crossing to be placed between them, mm: a hundredth of a millimetre, a hundredth of the chord tolerance a skin is drawn at. */
   export const CROSSING: number = 1e-2;
 
+  /**
+   * Largest chart distance from a crossing to the trim it is placed into, as a share of one plus its coordinates' magnitudes, for the
+   * crossing to be moved onto the trim: rounding, a few thousand units in the last place, never a crossing that truly stands off it.
+   */
+  export const SNAP: number = 1e-12;
+
   /** Local side-probe distance is a quarter of neighbouring world spacing in the unit-world-speed chart direction; this relative sampling choice is not a global curved-cell bound. */
   export const SIDE: number = 0.25;
 
@@ -342,6 +348,19 @@ export namespace AutoMovieSolidClip {
     }
     if (best === null) return null;
     const { cycle, foot } = best;
+
+    // A crossing found off its trim by no more than the rounding of its chart point is moved onto the trim: the bisection that placed it
+    // reads the next face's surface, and a crossing left 7e-15 off the station line of f1's ear band, where the concha's cut crosses
+    // the band's end, stood one unit in the last place inside the band and fenced a sliver no triangulation could open.
+    if (foot.share > 0 && foot.share < 1 && foot.distance <= SNAP * (1 + Math.abs(c[0]) + Math.abs(c[1]))) {
+      const a: [number, number] = cycle.chart[foot.segment]!;
+      const b: [number, number] = cycle.chart[(foot.segment + 1) % cycle.chart.length]!;
+      const bv: number = AutoMovieSolidCycle.shift(b[1], a[1], period);
+      const snapped: [number, number] = [a[0] === b[0] ? a[0] : a[0] + foot.share * (b[0] - a[0]), a[1] === bv ? a[1] : a[1] + foot.share * (bv - a[1])];
+      c[0] = snapped[0];
+      c[1] = AutoMovieSolidCycle.shift(snapped[1], c[1], period);
+      p.chart.set(face, [c[0], c[1]]);
+    }
     const other: number = p.faces.find((x: number): boolean => x !== face)!;
     const old: AutoMovieSolidCycle.INeighbour = cycle.neighbours[foot.segment]!;
     const there: [number, number] =
