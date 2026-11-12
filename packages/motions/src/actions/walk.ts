@@ -7,6 +7,8 @@ import type {
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
+import { HumanTrunk } from "../everyday/HumanTrunk";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -174,7 +176,7 @@ export namespace walk {
     /** Shoulder swing amplitude, elbow flexion and its swing, degrees. */
     arms: { shoulder: number; elbow: number; swing: number };
 
-    /** Forward trunk lean added to the upright alignment, degrees of chest and spine flexion each. */
+    /** The trunk's forward inclination from the upright alignment, degrees, shared between the pelvis and the spine by the lumbopelvic rhythm (`HumanTrunk.incline`) and tipped about the hips. */
     lean: number;
   }
 
@@ -191,8 +193,11 @@ export namespace walk {
     swing: 0.8,
     lift: 0.07,
     arms: { shoulder: 15, elbow: 22, swing: 8 },
-    lean: 0,
+    lean: LEAN,
   });
+
+  /** A walk's forward trunk inclination, degrees (provisional: walkers carry the trunk a few degrees forward of upright, and the inclination grows with speed, Thorstensson et al. 1984, Acta Physiol Scand 121:179). */
+  export const LEAN: number = 3;
 
   /**
    * Plan a walk.
@@ -413,17 +418,21 @@ export namespace walk {
         const { feet, hips, settled, reached } = solve(t);
         const root: IAutoMovieVector3 = settled.root;
         const yaw: number = settled.yaw;
-        const upright: standUpright.IAlignment = standUpright.of(body);
+        // The trunk inclines by the gait's lean, the pelvis and the spine
+        // sharing it, from the upright alignment.
+        const inclined = HumanTrunk.incline(
+          standUpright.of(body).joints,
+          gait.lean,
+        );
         const joints: Partial<
           Record<AutoMovieHumanoidBone, readonly [number, number, number]>
         > = {
           ...stand.RELAXED,
-          ...upright.joints,
-          spine: [(upright.joints.spine?.[0] ?? 0) + gait.lean, 0, 0],
+          ...inclined.joints,
           hips,
           leftToes: [reached.left.toes, 0, 0],
           rightToes: [reached.right.toes, 0, 0],
-          chest: [(upright.joints.chest?.[0] ?? 0) + gait.lean, 0, -4 * swing],
+          chest: [inclined.joints.chest?.[0] ?? 0, 0, -4 * swing],
           leftUpperArm: [-gait.arms.shoulder * arms * swing, 5 + elbows, 0],
           rightUpperArm: [gait.arms.shoulder * arms * swing, 5 + elbows, 0],
           leftLowerArm: [
@@ -463,7 +472,13 @@ export namespace walk {
               : {}),
           };
         }
-        return { root, yaw, pitch: 0, roll: 0, joints, limbs };
+        // The pelvis's share tips the body about the hips, so the legs stay
+        // on their footprints.
+        return AutoMovieMotionHumanLean.pivot(
+          body,
+          { root, yaw, pitch: 0, roll: 0, joints, limbs },
+          { pitch: inclined.pitch, roll: 0 },
+        );
       },
     };
   }

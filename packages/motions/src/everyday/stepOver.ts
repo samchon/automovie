@@ -4,7 +4,9 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
+import { walk } from "../actions/walk";
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -13,6 +15,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanTrunk } from "./HumanTrunk";
 
 /**
  * Stepping over a low obstacle from standing in front of it: the lead foot
@@ -346,14 +349,27 @@ export namespace stepOver {
               : {}),
           };
         }
-        let posture: IHumanPosture = resolveHumanPosture.lower(body, {
-          root,
-          yaw,
-          pitch: 0,
-          roll: 0,
-          joints: { ...stand.RELAXED, ...standUpright.of(body).joints },
-          limbs,
-        });
+        // The trunk carries a walk's forward inclination over the step, the
+        // pelvis's share tipping the body about the hips.
+        const inclined = HumanTrunk.incline(
+          standUpright.of(body).joints,
+          walk.LEAN,
+        );
+        let posture: IHumanPosture = resolveHumanPosture.lower(
+          body,
+          AutoMovieMotionHumanLean.pivot(
+            body,
+            {
+              root,
+              yaw,
+              pitch: 0,
+              roll: 0,
+              joints: { ...stand.RELAXED, ...inclined.joints },
+              limbs,
+            },
+            { pitch: inclined.pitch, roll: 0 },
+          ),
+        );
 
         // A swinging foot whose ankle cannot dorsiflex enough to stay level
         // droops its toes, and raising its ankle folds the knee and droops them
