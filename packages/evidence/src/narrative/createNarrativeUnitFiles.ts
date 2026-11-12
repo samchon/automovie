@@ -23,10 +23,14 @@ import type { NarrativeScope } from "./NarrativeScope";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This selector builds one result from supplied values and coordinates no cross-request work; independent arrays avoid shared mutable selector state.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only the returned small selector array survives the call; no descriptor, task or module cache is acquired.
  */
-export function createNarrativeUnitFiles(
-  layer: NarrativeLayer,
-  scope: NarrativeScope,
-): string[] {
+export function createNarrativeUnitFiles(props: {
+  /** The narrative layer whose unit files are selected. */
+  layer: NarrativeLayer;
+
+  /** The complete work, or the exact first part a pilot authors. */
+  scope: NarrativeScope;
+}): string[] {
+  const { layer, scope } = props;
   if (
     scope.mode !== "complete-work" &&
     (scope.mode !== "first-part-pilot" ||

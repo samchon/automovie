@@ -13,7 +13,7 @@ import { SKILLS_ROOT } from "./internal/SKILLS_ROOT";
  * Each enabled stage selects the exported declarations of its source folders
  * and requires each to answer every item of
  * `contracts/development/<stage>.md` in its doc comment, read from the skills
- * tree at `options.skills`, by default the production's own `.agents/skills`.
+ * tree at `props.skills`, by default the production's own `.agents/skills`.
  * Entities answer with their types, classes, functions and methods, because an
  * entity is a class whose methods are its capabilities. Behaviors (laws,
  * interactions and consequences) also cite the research studies they follow,
@@ -26,16 +26,15 @@ import { SKILLS_ROOT } from "./internal/SKILLS_ROOT";
  * rather than required for every settings heading.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Native TypeScript claims carry the checklist, and a second Markdown reference uses native target coverage to make the study-to-behavior, screenplay-to-scene and screenplay-to-film relations mechanical.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One table maps each population to its stage, folders, symbol kinds and cited population; disabled stages produce no claim, and the options carry only where the checklists are read.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One table maps each population to its stage, folders, symbol kinds and cited population; disabled stages produce no claim, and the one props object carries the stages and where the checklists are read.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Source folders are the scaffold layout's documented locations, not fixture paths; nothing is inferred from file presence.
- * @evidence contracts/development/common.md#meaningful-documentation The comment states each stage's respondents, the relation it enforces and which skills tree holds the checklists; the option states its form and default.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states each stage's respondents, the relation it enforces and which skills tree holds the checklists; the `skills` member states its form and default.
  * @evidence contracts/development/implementation.md#efficient-algorithms Builds at most four fixed-size claim trees in constant time; it performs no discovery or file I/O.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Fresh objects are returned so one configuration's edits cannot reach another; there is no expensive shared work.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the returned claims; nothing is retained.
  */
 export function createDevelopmentContractClaims(
-  props: IAutoMovieDevelopmentProps,
-  options: {
+  props: IAutoMovieDevelopmentProps & {
     /**
      * Reference root of the skills tree holding the stage checklists, relative
      * to the directory of `evidence.config.ts` with `/` separators; `..`
@@ -101,7 +100,7 @@ export function createDevelopmentContractClaims(
         reference: [
           {
             type: "markdown",
-            root: options.skills ?? SKILLS_ROOT,
+            root: props.skills ?? SKILLS_ROOT,
             files: [`contracts/development/${entry.stage}.md`],
             symbol: "h2",
             checklist: true,

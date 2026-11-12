@@ -43,12 +43,12 @@ Asset-only work has no narrative passes. Choose form and scale through [directio
 
 Inherit through actual parents, repairing a missing handoff rather than bypassing it, and run [discovery](planning/discovery.md) before bulk settings or brief and again at each of its [checkpoints](planning/discovery.md#checkpoints).
 
-1. Finish the whole body while its pass is disabled.
-2. Complete [inspection and cause repair](correction/repair.md#cause-rounds), enable the stage through [evidence configuration](../evidence/configuration.md), and write [answers](evidence/answer-writing.md).
-3. Submit the body, boundaries and population to independent [review](../review/SKILL.md).
-4. [Decide](../review/narrative-rounds.md#findings-and-decisions) each finding, and repair the accepted ones at their owners until a round has none.
+1. The author finishes the whole body while its pass is disabled, and completes [inspection and cause repair](correction/repair.md#cause-rounds).
+2. The [evidence answerer](evidence/answer-writing.md) enables the stage through [evidence configuration](../evidence/configuration.md), writes the answers and hands the author the gaps it cannot answer truthfully; the author fills them.
+3. The body, boundaries and population go to independent [review](../review/SKILL.md), which judges only the body.
+4. The author [decides](../review/narrative-rounds.md#findings-and-decisions) each finding and repairs the accepted ones at their owners.
 
-Review runs through creative closure and the evidence audit, and [narrative rounds](../review/narrative-rounds.md) says when a pass closes.
+Each role is its own context, because an author answering for its own body states what it meant rather than what the body holds, and a reviewer reading answers judges paperwork instead of the work. [Narrative rounds](../review/narrative-rounds.md) says when a pass closes.
 
 ## Completion
 

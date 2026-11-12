@@ -1,7 +1,7 @@
 import {
-  type IProductionConfigProps,
   createProductionConfig,
-} from "@automovie/evidence";
+  type IProductionConfigProps,
+} from "@automovie/evidence/internal";
 import {
   EvidenceFingerprint,
   type IEvidenceCheckAnalysis,

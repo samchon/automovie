@@ -1,7 +1,7 @@
 import {
   createNarrativeUnitFiles,
   createSettingsFiles,
-} from "@automovie/evidence";
+} from "@automovie/evidence/internal";
 import {
   EvidenceMarkdownAdapter,
   EvidenceSourceLoader,
@@ -45,7 +45,7 @@ export async function test_template_production_flat_short(): Promise<void> {
       body,
     );
     const flat: IEvidenceInventory = await capture(root, "flat", [
-      ...createNarrativeUnitFiles("screenplay", { mode: "complete-work" }),
+      ...createNarrativeUnitFiles({ layer: "screenplay", scope: { mode: "complete-work" } }),
       ...createSettingsFiles(),
     ]);
     assert.equal(flat.sources.length, 2);
@@ -57,18 +57,18 @@ export async function test_template_production_flat_short(): Promise<void> {
     const excluded: IEvidenceInventory = await capture(
       root,
       "flat",
-      createNarrativeUnitFiles("screenplay", {
-        mode: "first-part-pilot",
-        part: "001-bout",
+      createNarrativeUnitFiles({
+        layer: "screenplay",
+        scope: { mode: "first-part-pilot", part: "001-bout" },
       }),
     );
     assert.equal(excluded.sources.length, 0);
     const pilot: IEvidenceInventory = await capture(
       root,
       "partitioned",
-      createNarrativeUnitFiles("screenplay", {
-        mode: "first-part-pilot",
-        part: "001-bout",
+      createNarrativeUnitFiles({
+        layer: "screenplay",
+        scope: { mode: "first-part-pilot", part: "001-bout" },
       }),
     );
     assert.equal(pilot.sources.length, 1);

@@ -1,7 +1,7 @@
 import {
-  type IProductionConfigProps,
   createProductionClaims,
-} from "@automovie/evidence";
+  type IProductionConfigProps,
+} from "@automovie/evidence/internal";
 import type {
   IEvidenceCheckAnalysis,
   IEvidenceClaim,

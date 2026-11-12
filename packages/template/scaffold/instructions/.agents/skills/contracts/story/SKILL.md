@@ -13,17 +13,17 @@ Do not make every scene testify for an entire film or attach a conditional requi
 
 | Family | Unit or record questions | Complete-population questions |
 | --- | --- | --- |
-| Shared ownership | [Common authoring principles](shared/principles/common.md): scope and specificity | [Common population obligations](shared/obligations/common.md): ownership and layer boundaries |
+| Shared ownership | [Common authoring principles](shared/principles/common.md): the assigned scope, filled with this work's choices | [Common population obligations](shared/obligations/common.md): ownership at the right layer |
 | Research | [Research principles](shared/principles/research.md): studied practice and sources, answered by each study | |
-| Settings | [Settings principles](shared/principles/settings.md): needed decisions and boundaries | [Settings population obligations](shared/obligations/settings.md): promise, scope, and a coherent world |
-| Brief, short route | [Brief principles](shared/principles/brief.md): needed decisions and currency | [Brief population obligations](shared/obligations/brief.md): a coherent brief |
+| Settings | [Settings principles](shared/principles/settings.md): needed decisions | [Settings population obligations](shared/obligations/settings.md): promise, scope, a coherent world and its records |
+| Brief, short route | [Brief principles](shared/principles/brief.md): needed decisions | [Brief population obligations](shared/obligations/brief.md): a coherent, current brief |
 | Settings index | [Settings index section principles](shared/principles/index.md): reference groups | [Settings index population obligations](shared/obligations/index.md): whole-index navigation |
 | Treatments | [Treatment principles](shared/principles/treatments.md): decided events and information | [Treatment population obligations](shared/obligations/treatments.md): whole event design and handoff |
-| Scripts | [Script principles](shared/principles/scripts.md): executable scenes and staging | [Script population obligations](shared/obligations/scripts.md): partition and complete execution |
+| Scripts | [Script principles](shared/principles/scripts.md): performable, staged scenes | [Script population obligations](shared/obligations/scripts.md): partition and complete execution |
 | Final screenplay | [Final screenplay principles](shared/principles/screenplay.md): audiovisual realization and beat decisions | [Final screenplay population obligations](shared/obligations/screenplay.md): delivery and version accountability |
 | Narrative | [Narrative unit principles](shared/principles/narratives.md): progression and layer contribution | [Narrative population obligations](shared/obligations/narratives.md): continuity, promises, and distribution |
 | Actual speech | [Realized speech principles](shared/principles/realized.md): speakers and action order | [Speech expression population obligation](shared/naturalness/obligations/realized.md): finished voice distribution |
-| Independent review | [Review unit principles](shared/principles/review.md): grounded reading and literal audit | [Review population obligations](shared/obligations/review.md): complete rounds and verdict |
+| Independent review | [Review unit principles](shared/principles/review.md): grounded reading and complete finding classes | [Review population obligations](shared/obligations/review.md): complete rounds and verdict |
 
 ## The short route
 

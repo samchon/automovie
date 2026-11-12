@@ -12,9 +12,11 @@ Raw independent reads and sentence tables stay in ignored `.cache/`.
 
 ## Reviewers
 
-One author and one independent reviewer carry a pass, the same reviewer through every round. Add another reader only for a question the reviewer cannot judge.
+Each round uses a fresh reviewer, and a pass has at most two rounds. A reviewer judges only the body, as its recipient receives it, and never opens the evidence answers, whose truth the [evidence answerer](../story/evidence/answer-writing.md) owns. Add another reader only for a question the reviewer cannot judge.
 
 Follow [independent reading](independent-reading.md) before opening author records, and record the revision, inputs, scope, findings with literal support, causes, protected achievements, author decisions, limits and outcome. Send a recurring uncovered loss to [discovery](../story/planning/discovery.md).
+
+A whole-work review rereads every selected body afresh and carries no unit verdict.
 
 ## Findings and decisions {#findings-and-decisions}
 
@@ -24,27 +26,12 @@ The author decides each finding and records in the verdict whether it accepts or
 
 When screenplay naturalness traces a finding to frozen construction content, record its cause and earliest owner as an upstream report in the verdict instead of repeating it each round. It is repaired under [upstream repair](../story/correction/repair.md#upstream-defects) and remains an open limit until then.
 
-## Scoped rounds
+## Closure {#grading-and-closure}
 
-A scoped round verifies findings in an open pass and rereads their whole affected dependency closure, carrying an unaffected judgment only with its source and grounds. A fact, number or conclusion a repair introduces is verified across its whole range, through every passage and consumer that depends on it.
+A round in which the author's final decisions accept no finding closes the pass. Reviewers keep finding matters of their own style, so a review that waited for no findings would never close.
 
-A whole-work review rereads every selected body afresh and carries no unit verdict.
+Otherwise a second round, by a fresh reviewer, reads the repaired body. Its accepted findings are repaired, and the pass closes without a third round. The second reviewer reads the first round's verdict only after locking its own reading, and raises again a finding the author declined only on new body, parent or source evidence.
 
-An item judged an observation in an earlier round becomes a finding only on new body, parent or source evidence.
-
-After the first round, every round, a closing round included, raises new findings only in text a repair changed or that depends on it, unless new body, parent or source evidence appears. Judging settled text afresh each round finds new readings forever, so the pass never closes.
-
-## Grading and closure {#grading-and-closure}
-
-Grade each body finding by what its repair changes:
-
-| Grade | Its repair changes | Creative review closes by |
-| --- | --- | --- |
-| Minor | Wording only, with no fact, decision, event or audience experience beyond that passage | The scoped round that confirms it |
-| Moderate or higher | Anything more | A closing round that rereads every current H2 |
-
-A complete round in which the author's final decisions accept no body finding closes creative review, and one that accepts no evidence finding closes the audit. Reviewers keep finding matters of their own style, so a review that waited for no findings would never close.
-
-Once creative review closes, audit the evidence once under [answer writing](../story/evidence/answer-writing.md). A round whose only accepted findings are evidence statements closes when the author corrects those statements and the reviewer confirms them in the same record, provided the body, inputs and requirements are unchanged. A body defect found there returns to creative review.
+Once the pass closes, the evidence answerer brings the answers up to date with the final body.
 
 Close with the actual result, not a stage flag.

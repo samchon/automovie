@@ -6,18 +6,18 @@ import type { IAutoMovieNarrativeProps } from "./IAutoMovieNarrativeProps";
 /**
  * Configures a project's engineering evidence and optional narrative workflow.
  *
- * @evidence contracts/development/design.md#principled-representation The absolute project location anchors the production's own contracts and an optional absolute skills directory anchors the bundled shared ones; native claims configure engineering while an explicit narrative option adds creative relationships and independent-review structure.
+ * @evidence contracts/development/design.md#principled-representation The absolute project location anchors the production's own contracts and an optional skills directory, absolute or relative to that location, anchors the bundled shared ones; native claims configure engineering while an explicit narrative option adds creative relationships and independent-review structure.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One object contains the two contract locations, native engineering claims and optional narrative choices with disabled stage defaults.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No narrative mode is inferred from existing files or imposed on ordinary coding and standalone assets, and no workspace is inferred from the filesystem: a shared tree elsewhere is named explicitly.
- * @evidence contracts/development/common.md#meaningful-documentation Members state path ownership, the shared tree's default, replacement semantics for engineering claims, and narrative opt-in behavior.
+ * @evidence contracts/development/common.md#meaningful-documentation Members state path ownership, the shared tree's default, that supplied claims add to the engineering defaults, and narrative opt-in behavior.
  */
 export interface IAutoMovieEvidenceConfigProps {
   /** Absolute project directory containing the production-owned contracts. */
   location: string;
 
   /**
-   * Absolute directory of the shared `.agents/skills` tree holding the bundled
-   * contracts.
+   * Directory of the shared `.agents/skills` tree holding the bundled
+   * contracts, absolute or relative to `location`.
    *
    * The engineering and development checklists (`contracts/development/**`)
    * and the shared story contracts (`contracts/story/shared/**`) resolve here.
@@ -31,7 +31,7 @@ export interface IAutoMovieEvidenceConfigProps {
    */
   skills?: string;
 
-  /** Replaces the default source/test engineering claims when supplied. */
+  /** Native claims added to the default source and test engineering claims. */
   claims?: IEvidenceClaim[];
 
   /** Omit for ordinary coding and standalone assets; provide for video writing. */

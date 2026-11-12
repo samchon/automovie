@@ -1,6 +1,6 @@
 # Review population obligations
 
-One current verdict document answers for the complete declared review surface, identifying its creative reading and evidence audit. Unit notes do not substitute for this population record.
+One current verdict document answers for the complete declared review surface, identifying its creative reading. Unit notes do not substitute for this population record.
 
 Statements: [statements/obligations/review.md](../statements/obligations/review.md).
 

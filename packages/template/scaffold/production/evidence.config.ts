@@ -1,5 +1,4 @@
 import { createEvidenceConfig } from "@automovie/evidence";
-import { resolve } from "node:path";
 
 /**
  * The default project checks source and tests without selecting a narrative.
@@ -8,5 +7,5 @@ import { resolve } from "node:path";
  */
 export default createEvidenceConfig({
   location: import.meta.dirname,
-  skills: resolve(import.meta.dirname, "{{skills}}"),
+  skills: "{{skills}}",
 });

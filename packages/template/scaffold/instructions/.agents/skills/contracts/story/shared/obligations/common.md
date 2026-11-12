@@ -4,10 +4,6 @@ Each question compares the complete declared layer population and has exactly on
 
 Statements: [statements/obligations/common.md](../statements/obligations/common.md).
 
-## Is the complete scope assigned to useful, unique owners? {#scope-and-ownership}
+## Is the complete scope assigned to useful, unique owners at the right layer? {#scope-and-ownership}
 
-Does every required part of the complete scope have one useful owner? An omission, a duplicate owner or a file whose removal changes nothing leaves the next author guessing where a fact lives.
-
-## Are layer boundaries and work-wide choices consistent? {#layer-boundaries}
-
-Is each decision made by the layer that owns it, and each work-wide choice by one identifiable owner? A downstream invention or a duplicated authority gives the work two versions of one decision.
+Does every required part of the complete scope have one useful owner, at the layer that owns that decision, with each work-wide choice owned once? An omission, a duplicate owner, a file whose removal changes nothing or a downstream invention leaves the next author guessing which of two versions holds.
