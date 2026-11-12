@@ -5,6 +5,7 @@ import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
+import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
@@ -30,11 +31,15 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  *   % of the stature (provisional; vertical bounce follows the rhythm,
  *   Burger et al. 2013), the feet planted.
  * - Sway: the hips travel side to side over two beats, at each side on a
- *   beat, by half the feet's spacing, the feet planted.
+ *   beat, by half the feet's spacing, the feet planted. They leave the
+ *   middle for the first side through the first beat and return to it
+ *   after the last, and ride the arc that keeps both legs at their standing
+ *   length.
  * - Step-touch: on odd beats one foot steps a shoulder width to its side,
  *   on even beats the other closes beside it; the direction turns every two
  *   beats. Each foot travels over the half beat before its footfall, so
- *   the footfall lands on the beat, and the hips follow the feet's mean.
+ *   the footfall lands on the beat; the hips follow the feet's mean and
+ *   sink until each bearing leg reaches its foot.
  *
  * Not drafted: box step, turns and spins with spotting, and partner figures
  * (closed hold, lead and follow, the underarm turn).
@@ -184,17 +189,30 @@ export namespace dance {
             2) *
           modifiers.extent;
         const first: number = (p.side ?? "right") === "right" ? -1 : 1;
+        // The hips' height over the ankles while standing: each hip joint
+        // stands over its ankle, so a sideways travel at this height would
+        // stretch both legs past their standing length.
+        const height: number =
+          m.hipHeight +
+          entry.root.y -
+          (stance.left.ankle.y + stance.right.ankle.y) / 2;
+        const ease = (u: number): number => u * u * (3 - 2 * u);
+        const side = (s: number): number =>
+          s <= period
+            ? ease(s / period)
+            : s >= beats * period
+              ? Math.cos(Math.PI * (beats - 1)) *
+                (1 - ease(Math.min(1, (s - beats * period) / period)))
+              : Math.cos((Math.PI * (s - period)) / period);
         primitives.push(
-          root(
-            (s: number): IAutoMovieVector3 =>
-              Vector3.scale(
-                leftward,
-                first *
-                  half *
-                  settle(s) *
-                  Math.sin((Math.PI * (s - period)) / period + Math.PI / 2),
-              ),
-          ),
+          root((s: number): IAutoMovieVector3 => {
+            const x: number = first * half * side(s);
+            return Vector3.add(Vector3.scale(leftward, x), {
+              x: 0,
+              y: Math.sqrt(height * height - x * x) - height,
+              z: 0,
+            });
+          }),
         );
         break;
       }
@@ -234,6 +252,63 @@ export namespace dance {
             }
           return { at, swing: 1, from: at };
         };
+        const placed = (
+          foot: "left" | "right",
+          s: number,
+        ): HumanFoot.IPlacement => {
+          const l = lateral(foot, s);
+          const shift = (x: number): HumanFoot.IPlacement => ({
+            ankle: Vector3.add(stance[foot].ankle, Vector3.scale(leftward, x)),
+            rotation: stance[foot].rotation,
+          });
+          return AutoMovieMotionHumanLeg.arc(
+            shift(l.from),
+            shift(l.at),
+            0.04 * m.stature,
+            l.swing,
+          );
+        };
+        const planted = (foot: "left" | "right", s: number): boolean =>
+          lateral(foot, s).swing >= 1;
+        const along = (foot: "left" | "right", s: number): number => {
+          const l = lateral(foot, s);
+          return l.from + (l.at - l.from) * l.swing;
+        };
+        // The hips follow the feet's mean and sink until each bearing leg
+        // reaches its foot: feet a shoulder width further apart lie beyond
+        // the legs' standing length.
+        primitives.push(
+          AutoMovieMotionHumanLean.sway({
+            body,
+            from: 0,
+            to: duration,
+            angles: (): AutoMovieMotionHumanLean.IAngles => ({
+              pitch: 0,
+              roll: 0,
+            }),
+            shift: (s: number): IAutoMovieVector3 => ({
+              x: (along("left", s) + along("right", s)) / 2,
+              y: 0,
+              z: 0,
+            }),
+            legs: (s: number) => ({
+              leftLeg: AutoMovieMotionHumanLeg.goal(
+                body,
+                entry,
+                "left",
+                placed("left", s),
+                planted("left", s),
+              ),
+              rightLeg: AutoMovieMotionHumanLeg.goal(
+                body,
+                entry,
+                "right",
+                placed("right", s),
+                planted("right", s),
+              ),
+            }),
+          }),
+        );
         for (const foot of ["left", "right"] as const)
           primitives.push(
             AutoMovieMotionHumanLeg.place({
@@ -241,41 +316,11 @@ export namespace dance {
               side: foot,
               from: 0,
               to: duration,
-              placement: (
-                _: IHumanPosture,
-                s: number,
-              ): HumanFoot.IPlacement => {
-                const l = lateral(foot, s);
-                const shift = (x: number): HumanFoot.IPlacement => ({
-                  ankle: Vector3.add(
-                    stance[foot].ankle,
-                    Vector3.scale(leftward, x),
-                  ),
-                  rotation: stance[foot].rotation,
-                });
-                return AutoMovieMotionHumanLeg.arc(
-                  shift(l.from),
-                  shift(l.at),
-                  0.04 * m.stature,
-                  l.swing,
-                );
-              },
-              planted: (s: number): boolean => lateral(foot, s).swing >= 1,
+              placement: (_: IHumanPosture, s: number): HumanFoot.IPlacement =>
+                placed(foot, s),
+              planted: (s: number): boolean => planted(foot, s),
             }),
           );
-        primitives.push(
-          root((s: number): IAutoMovieVector3 => {
-            const mean: number =
-              (lateral("left", s).from +
-                (lateral("left", s).at - lateral("left", s).from) *
-                  lateral("left", s).swing +
-                lateral("right", s).from +
-                (lateral("right", s).at - lateral("right", s).from) *
-                  lateral("right", s).swing) /
-              2;
-            return Vector3.scale(leftward, mean);
-          }),
-        );
         contacts = [];
         break;
       }

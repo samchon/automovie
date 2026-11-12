@@ -260,7 +260,15 @@ const fitChainBend: (input: IFitChainToTargetProps) => IAutoMoviePose = (
           restFrames: props.restFrames,
         }),
       );
-      if (plantResidualBucket(residual) === 0)
+      // A limb at its full length, or a knee or an elbow stopped at the end
+      // of its range, rests the effector on the reachable shell along the
+      // line to the target, the nearest point the chain allows, so that
+      // candidate is the answer as well: handing
+      // it to the search below would trade it between frames for whichever
+      // free-swing candidate the clamp happened to leave a micrometre nearer.
+      if (
+        plantResidualBucket(Math.abs(residual - (hinged.shortfall ?? 0))) === 0
+      )
         return {
           ...props.pose,
           joints: [

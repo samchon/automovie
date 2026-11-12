@@ -358,6 +358,8 @@ export namespace HumanSegment {
       const b: IAutoMovieResolvedBone = far.get(`${side}Foot`)!;
       const rate = (x: number, y: number, z: number): number =>
         (3 * x - 4 * y + z) / (2 * step);
+      const bend = (x: number, y: number, z: number): number =>
+        (x - 2 * y + z) / (step * step);
       const inverse: IAutoMovieQuaternion = Quaternion.inverse(
         here.worldRotation,
       );
@@ -376,6 +378,11 @@ export namespace HumanSegment {
           y: rate(here.worldPosition.y, a.worldPosition.y, b.worldPosition.y),
           z: rate(here.worldPosition.z, a.worldPosition.z, b.worldPosition.z),
         },
+        acceleration: {
+          x: bend(here.worldPosition.x, a.worldPosition.x, b.worldPosition.x),
+          y: bend(here.worldPosition.y, a.worldPosition.y, b.worldPosition.y),
+          z: bend(here.worldPosition.z, a.worldPosition.z, b.worldPosition.z),
+        },
         spin: {
           x: rate(0, ar.x, br.x),
           y: rate(0, ar.y, br.y),
@@ -383,10 +390,31 @@ export namespace HumanSegment {
         },
       };
     };
+    // The root's acceleration by the one-sided second difference of the same
+    // three samples; a body with no previous action stands at rest.
+    const place = (t: number): IAutoMovieVector3 =>
+      shown(t).root?.translation ?? { x: 0, y: 0, z: 0 };
+    const p0: IAutoMovieVector3 = state.pose.root?.translation ?? {
+      x: 0,
+      y: 0,
+      z: 0,
+    };
+    const p1: IAutoMovieVector3 = place(seconds - step);
+    const p2: IAutoMovieVector3 = place(seconds - 2 * step);
+    const second = (x: number, y: number, z: number): number =>
+      (x - 2 * y + z) / (step * step);
     return {
       seconds,
       pose: state.pose,
       velocity: state.velocity,
+      acceleration:
+        previous === undefined
+          ? { x: 0, y: 0, z: 0 }
+          : {
+              x: second(p0.x, p1.x, p2.x),
+              y: second(p0.y, p1.y, p2.y),
+              z: second(p0.z, p1.z, p2.z),
+            },
       posture,
       feet: { left: foot("left"), right: foot("right") },
       ...(previous === undefined

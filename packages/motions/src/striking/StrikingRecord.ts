@@ -28,6 +28,9 @@ export namespace StrikingRecord {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the reach status union.
    */
   export interface IRecord {
+    /** The end joint of the limb that carries the weapon: the punching hand, or the foot of the kicking or kneeing leg. */
+    limb: "leftHand" | "rightHand" | "leftFoot" | "rightFoot";
+
     /** The intended landing offset from the aim point, world metres. */
     offset: IAutoMovieVector3;
 

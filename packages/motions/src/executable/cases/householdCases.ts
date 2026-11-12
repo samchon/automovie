@@ -19,7 +19,8 @@ import { everydayVerdicts } from "./everydayVerdicts";
  *
  * - `household-wipe`: three circles wiping the counter;
  * - `household-drawer-wipe`: a composed task, a drawer under the counter
- *   pulled 0.25 m open, then the counter wiped.
+ *   pulled 0.15 m open, which stops its handle short of the thighs, then the
+ *   counter wiped.
  *
  * Every case reports foot slip at most 5 mm and no range-of-motion overshoot,
  * and that from `strokeStart` to `strokeEnd` of the wipe the palm socket
@@ -60,7 +61,7 @@ export function householdCases(
           frame: "world",
           normal: { x: 0, y: 0, z: -1 },
         },
-        travel: 0.25,
+        travel: 0.15,
       },
     };
     const chains: [string, HumanChain][] = [

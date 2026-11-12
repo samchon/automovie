@@ -99,6 +99,7 @@ export function handToFaceCases(
       const entered = TouchVerdicts.entry(
         performance,
         "a",
+        body,
         "right",
         { subject: "a", body },
         0,

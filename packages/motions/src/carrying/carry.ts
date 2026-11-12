@@ -220,7 +220,8 @@ export namespace carry {
     // The trunk's lean: lateral away from a one-hand or hip load, back over a
     // front box, forward over a pushed handle; chest and spine share it.
     const degrees: number = LEAN[how] * load;
-    const away: number = loaded === "left" ? -1 : 1;
+    // A positive lateral bend of the trunk leans it to the body's right.
+    const away: number = loaded === "left" ? 1 : -1;
     const lean = (share: number): readonly [number, number, number] =>
       how === "oneHand" || how === "hip"
         ? [0, away * degrees * share * 0.5, 0]

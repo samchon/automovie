@@ -13,6 +13,7 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanGrip } from "./HumanGrip";
 import { HumanHandover } from "./HumanHandover";
@@ -182,18 +183,23 @@ export namespace handOver {
       }),
       limb,
     );
-    const mix = (
-      from: readonly [number, number, number],
-      to: readonly [number, number, number],
-      share: number,
-    ): readonly [number, number, number] => [
-      from[0] + (to[0] - from[0]) * share,
-      from[1] + (to[1] - from[1]) * share,
-      from[2] + (to[2] - from[2]) * share,
-    ];
+    // Blended as rotations: the two solutions may be written in different
+    // charts of the shoulder.
     const between = (share: number): IHumanPosture.IReference => ({
-      upper: mix(carried.upper, offered.upper, share),
-      lower: mix(carried.lower, offered.lower, share),
+      upper: blendHumanJoint(
+        body,
+        `${side}UpperArm`,
+        carried.upper,
+        offered.upper,
+        share,
+      ),
+      lower: blendHumanJoint(
+        body,
+        `${side}LowerArm`,
+        carried.lower,
+        offered.lower,
+        share,
+      ),
     });
     const part: IHumanContactWindow["part"] =
       side === "left" ? "leftHand" : "rightHand";

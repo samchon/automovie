@@ -1,5 +1,6 @@
 import {
   type IAutoMovieResolvedBone,
+  Quaternion,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
@@ -22,6 +23,7 @@ import { AutoMovieMotionHumanHand } from "./AutoMovieMotionHumanHand";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchForm } from "./AutoMovieMotionHumanTouchForm";
+import { AutoMovieMotionHumanTouchPath } from "./AutoMovieMotionHumanTouchPath";
 import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
 /**
@@ -33,12 +35,16 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  *
  * The kinds and their movement in the region's frame are
  * `AutoMovieMotionHumanTouchForm`'s, the effector (a hand surface or a held
- * tool's tip) `AutoMovieMotionHumanTouchEffector`'s. The arm is carried in
- * joint space from the angles the entry held to the solution of the goal
- * (`AutoMovieMotionHumanArm.carried`), the fingers take their shape on the
- * same envelope, and the elbow's hint is solved once, on the entry posture,
- * and carried with the root, so the arm keeps one side of its swivel through
- * the whole stroke.
+ * tool's tip) `AutoMovieMotionHumanTouchEffector`'s. The effector travels
+ * from where the entry held it to the region on a path that bows away from
+ * the surface and toward the performer, the hand turning on the way
+ * (`AutoMovieMotionHumanTouchPath`), so it arrives from the free side and
+ * the arm never sweeps through the body it is about to touch;
+ * the arm's angles leave the entry's over the path's first share
+ * (`AutoMovieMotionHumanArm.carried`) and follow the path's solution after
+ * it. The fingers take their shape on the same envelope, and the elbow's
+ * hint is solved once, on the entry posture, and carried with the root, so
+ * the arm keeps one side of its swivel through the whole stroke.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the generator does, which owners it reads and how the arm, the fingers and the elbow are moved.
  * @evidence contracts/development/design.md#principled-representation A touch is an effector frame laid against a region frame with a periodic offset in that frame, the form the social touch taxonomy describes.
@@ -108,6 +114,12 @@ export namespace AutoMovieMotionHumanTouch {
     /** The elbow's bend hint, world, on the entry posture; carried with the root. */
     bend: IAutoMovieVector3;
 
+    /** The effector at the entry, world; carried with the root and the heading. */
+    origin: AutoMovieMotionHumanTouchPath.IOrigin;
+
+    /** What the effector's along axis lies on: the travel's tangent, or `arm`, the direction away from the hanging elbow (`AutoMovieMotionHumanTouchPath.lay`); the tangent when absent. */
+    lay?: "tangent" | "arm";
+
     /** The entry posture the hint was solved on. */
     entry: Pick<IHumanPosture, "root" | "yaw">;
 
@@ -163,8 +175,10 @@ export namespace AutoMovieMotionHumanTouch {
   }
 
   /**
-   * A touch: the arm and the fingers on one clock. The arm is carried from
-   * its rest angles to the effector's goal by `ready` and back from `relax`;
+   * A touch: the arm and the fingers on one clock. The effector is carried
+   * from its entry place to its goal by `ready` and back from `relax` along
+   * `AutoMovieMotionHumanTouchPath.approach`, the arm's angles blending from
+   * the entry's to the path's solution over the first `TAKE` of the way;
    * between `strokeStart` and `strokeEnd` the goal is lifted along the
    * region's normal by `lift sin^2(pi n u)`, which touches down at every
    * repetition's end, and moved along its tangent by the clock's windowed
@@ -175,7 +189,7 @@ export namespace AutoMovieMotionHumanTouch {
    * @throws {Error} When the count is not a positive whole number.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the phases, the lift and travel formulas and the contact window.
-   * @evidence contracts/development/implementation.md#principled-implementation Joint-space carry (Soechting and Lacquaniti 1981) to a goal laid on the region frame each second, with the kind's offsets in that frame.
+   * @evidence contracts/development/implementation.md#principled-implementation A hand path through a via direction (Flash and Hogan 1985) to a goal laid on the region frame each second, with the kind's offsets in that frame; the joint-space carry (Soechting and Lacquaniti 1981) takes the arm off its held angles.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One arm carry and one hand form.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The lift and travel are shares of the hand; a count that is not whole throws.
    * @evidence contracts/development/implementation.md#efficient-algorithms One region read and one posture solve per written second.
@@ -192,10 +206,20 @@ export namespace AutoMovieMotionHumanTouch {
     const standoff: number =
       (props.standoff ?? 0) +
       AutoMovieMotionHumanTouchEffector.pad(body, side, props.effector);
-    const hint: IAutoMovieVector3 = HumanFrame.local(
-      { origin: props.entry.root, yaw: props.entry.yaw },
-      props.bend,
-    );
+    const held: HumanFrame.IFrame = {
+      origin: props.entry.root,
+      yaw: props.entry.yaw,
+    };
+    const hint: IAutoMovieVector3 = HumanFrame.local(held, props.bend);
+    const origin: AutoMovieMotionHumanTouchPath.IOrigin = {
+      point: HumanFrame.local(held, props.origin.point),
+      rotation: Quaternion.multiply(
+        HumanFrame.turn(-held.yaw),
+        props.origin.rotation,
+      ),
+    };
+    const share = (seconds: number): number =>
+      clock.envelope(["start", "ready"], ["relax", "end"], seconds);
     const arm: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanArm.carried(
       {
         body,
@@ -203,8 +227,13 @@ export namespace AutoMovieMotionHumanTouch {
         from: 0,
         to: clock.duration,
         rest: props.rest,
-        weight: (seconds: number): number =>
-          clock.envelope(["start", "ready"], ["relax", "end"], seconds),
+        weight: (seconds: number): number => {
+          const s: number = Math.min(
+            1,
+            Math.max(0, share(seconds) / AutoMovieMotionHumanTouchPath.TAKE),
+          );
+          return s * s * (3 - 2 * s);
+        },
         goal: (
           posture: IHumanPosture,
           seconds: number,
@@ -235,14 +264,42 @@ export namespace AutoMovieMotionHumanTouch {
             Vector3.add(place.point, Vector3.scale(normal, standoff + lift)),
             Vector3.scale(along, travel),
           );
-          return AutoMovieMotionHumanTouchEffector.goal(
+          const frame: HumanFrame.IFrame = {
+            origin: posture.root,
+            yaw: posture.yaw,
+          };
+          return AutoMovieMotionHumanTouchPath.goal(
             body,
+            posture,
             side,
-            props.effector,
+            {
+              point: HumanFrame.point(frame, origin.point),
+              rotation: Quaternion.multiply(
+                HumanFrame.turn(posture.yaw),
+                origin.rotation,
+              ),
+            },
+            AutoMovieMotionHumanTouchEffector.goal(
+              body,
+              side,
+              props.effector,
+              at,
+              normal,
+              props.lay === "arm"
+                ? AutoMovieMotionHumanTouchPath.lay(
+                    body,
+                    posture,
+                    side,
+                    place.point,
+                    normal,
+                    along,
+                  )
+                : along,
+              HumanFrame.point(frame, hint),
+            ),
             at,
             normal,
-            along,
-            HumanFrame.point({ origin: posture.root, yaw: posture.yaw }, hint),
+            share(seconds),
           );
         },
       },
@@ -285,6 +342,7 @@ export namespace AutoMovieMotionHumanTouch {
    * @param effector The effector.
    * @param place The region at the entry.
    * @param tangent Which tangent.
+   * @param along What the effector's along axis lies on; the tangent when absent.
    * @returns The hint, world.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States when and on what the hint is solved.
@@ -302,15 +360,30 @@ export namespace AutoMovieMotionHumanTouch {
     effector: AutoMovieMotionHumanTouchEffector.IEffector,
     place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
     tangent: AutoMovieMotionHumanTouchForm.Tangent,
+    along: "tangent" | "arm" = "tangent",
   ): IAutoMovieVector3 {
     const normal: IAutoMovieVector3 = Vector3.normalize(place.normal);
+    const travel: IAutoMovieVector3 = AutoMovieMotionHumanTouchForm.tangent(
+      normal,
+      posture.yaw,
+      tangent,
+    );
     const g: IHumanPosture.IGoal = AutoMovieMotionHumanTouchEffector.goal(
       body,
       side,
       effector,
       place.point,
       normal,
-      AutoMovieMotionHumanTouchForm.tangent(normal, posture.yaw, tangent),
+      along === "arm"
+        ? AutoMovieMotionHumanTouchPath.lay(
+            body,
+            posture,
+            side,
+            place.point,
+            normal,
+            travel,
+          )
+        : travel,
       AutoMovieMotionHumanBend.hang(body, posture, side),
     );
     return AutoMovieMotionHumanBend.solve({

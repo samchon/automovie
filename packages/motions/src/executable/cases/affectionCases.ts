@@ -204,6 +204,7 @@ export function affectionCases(
       const entered = TouchVerdicts.entry(
         performance,
         "a",
+        body,
         "right",
         { subject: "b", body },
         0,

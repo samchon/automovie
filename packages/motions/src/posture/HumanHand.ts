@@ -57,8 +57,10 @@ import { poseBones } from "./poseBones";
  * a posture of the fingers themselves, not a goal any effector reaches
  * (Jeannerod 1984 describes prehension as transport plus a separate shaping):
  *
- * - `relaxed`: every finger joint flexed 15 degrees and the thumb 10, the
- *   resting cascade the stand law also uses;
+ * - `relaxed`: the hand's position of rest, the fingers partly flexed at
+ *   every joint (knuckles 35, middle joints 30, end joints 20 degrees) and
+ *   the thumb's two hinges 25 each, measured from the straight finger of the
+ *   canonical body; the stand law hangs the same hand;
  * - `flat`: every finger straight, an open palm (offer, stop, wave, a palm
  *   on a surface);
  * - `point`: the index straight, the other fingers curled as the fist and the
@@ -153,13 +155,20 @@ export namespace HumanHand {
         form === "fist" || (form === "point" && digit !== "Index");
       for (const segment of ["Proximal", "Intermediate", "Distal"]) {
         if (curled) set(`${digit}${segment}`, segment === "Proximal" ? 85 : 95);
-        else set(`${digit}${segment}`, form === "relaxed" ? 15 : 0);
+        else if (form !== "relaxed") set(`${digit}${segment}`, 0);
+        // The position of rest on a finger whose zero is straight: the
+        // body's rest pose no longer carries a curl of its own.
+        else
+          set(
+            `${digit}${segment}`,
+            segment === "Proximal" ? 35 : segment === "Intermediate" ? 30 : 20,
+          );
       }
     }
     const folded: boolean = form === "fist" || form === "point";
     set("ThumbMetacarpal", 0);
-    set("ThumbProximal", folded ? 40 : form === "relaxed" ? 10 : 0);
-    set("ThumbDistal", folded ? 50 : form === "relaxed" ? 10 : 0);
+    set("ThumbProximal", folded ? 40 : form === "relaxed" ? 25 : 0);
+    set("ThumbDistal", folded ? 50 : form === "relaxed" ? 25 : 0);
     return out;
   }
 

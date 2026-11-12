@@ -6,6 +6,7 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
+import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
@@ -28,16 +29,17 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  *   palm faces down at the hand's side ahead of the hip, pushes down a
  *   quarter of the arm and rises again `count` times at 2 bounces a second
  *   (provisional).
- * - Dig: in a crouch, both arms reach forward and down to a platform before
- *   the hips, the palms together; the arms lift a tenth of the arm at the
- *   contact.
+ * - Dig: in a crouch, both arms reach from the displayed shoulders, nearly
+ *   straight, to a platform pointing 40 degrees below the horizontal, the
+ *   palms together; the platform lifts 10 degrees at the contact.
  * - Set: in a crouch, both hands stand above the forehead, palms up and
  *   forward; at the contact the legs extend and the hands rise overhead.
  * - Throw-in: both feet stay on the ground (the Laws of the Game), both
- *   hands are drawn behind the head while the trunk arches back, and they
- *   come over the head and forward as the trunk flexes; the hands leave
- *   rising at about 30 degrees, the distance-best release angle (Linthorne
- *   and Everett 2006).
+ *   hands are drawn behind the head while the trunk arches back about the
+ *   hips, and they come over the head and forward as the trunk flexes, along
+ *   a line rising at 30 degrees, the distance-best release angle (Linthorne
+ *   and Everett 2006), to where it meets the arms' reach about the flexed
+ *   shoulders.
  *
  * Every skill is a phrase: `ready` in the skill's set position after 0.5 s
  * (provisional), the stroke, and back to standing in 0.5 s.
@@ -68,6 +70,30 @@ export namespace ballSport {
 
   /** Dribble bounces per second (provisional). */
   export const BOUNCES: number = 2;
+
+  /** How far behind the head's joint the throw-in's hands are drawn, arm lengths (provisional). */
+  export const BEHIND: number = 0.15;
+
+  /** The throw-in's backward arch of the trunk about the hips at `ready`, degrees (provisional). */
+  export const ARCH: number = 10;
+
+  /** The throw-in's forward flexion of the trunk about the hips at the release, degrees (provisional). */
+  export const FLEX: number = 15;
+
+  /** The rise of the throw-in's hand path, degrees: the distance-best release angle (Linthorne and Everett 2006). */
+  export const RELEASE: number = 30;
+
+  /** A football's radius, metres (size 5, 68 to 70 cm around, the Laws of the Game). */
+  export const BALL: number = 0.11;
+
+  /** How far below the horizontal the dig's platform points before the contact, degrees (provisional). */
+  export const PLATFORM: number = 40;
+
+  /** How far the dig's platform lifts at the contact, degrees (provisional). */
+  export const LIFT: number = 10;
+
+  /** The share of the arm's length the hands of a dig or a throw-in's release reach from the shoulders (provisional). */
+  export const REACH: number = 0.9;
 
   /** The set position's entry and the return, seconds (provisional). */
   export const READY: number = 0.5;
@@ -221,19 +247,20 @@ export namespace ballSport {
               rest: rest(side),
               weight: into,
               place: (posture: IHumanPosture, s: number) => {
-                const at: IAutoMovieVector3 = AutoMovieMotionHumanPlaced.grid(
-                  body,
-                  posture,
-                  side,
-                  {
-                    height: "hip",
-                    lateral: "centre",
-                    distance: "far",
-                  },
-                );
+                // The platform: nearly straight arms from the displayed shoulders, lifted at the contact.
+                const below: number =
+                  ((PLATFORM - LIFT * stroke(s)) * Math.PI) / 180;
+                const along: IAutoMovieVector3 = local(posture, {
+                  x: 0,
+                  y: -Math.sin(below),
+                  z: Math.cos(below),
+                });
                 return {
                   point: Vector3.add(
-                    { ...at, y: at.y + 0.1 * arm * stroke(s) },
+                    Vector3.add(
+                      AutoMovieMotionHumanPlaced.shoulders(body, posture),
+                      Vector3.scale(along, REACH * arm),
+                    ),
                     local(posture, {
                       x: (side === "left" ? 1 : -1) * pad,
                       y: 0,
@@ -245,7 +272,7 @@ export namespace ballSport {
                     y: 0,
                     z: 0,
                   }),
-                  forward: local(posture, { x: 0, y: 0, z: 1 }),
+                  forward: along,
                 };
               },
               bend: "forward",
@@ -284,17 +311,56 @@ export namespace ballSport {
             }),
           );
         break;
-      case "throwIn":
-        primitives.push({
-          channels: ["trunk"],
-          from: 0,
-          to: clock.duration,
-          write: (posture: IHumanPosture, s: number): IHumanPosture => ({
-            ...posture,
-            pitch: posture.pitch + into(s) * (-10 + 25 * stroke(s)),
+      case "throwIn": {
+        primitives.push(
+          AutoMovieMotionHumanLean.sway({
+            body,
+            from: 0,
+            to: clock.duration,
+            angles: (s: number) => ({
+              pitch: into(s) * (-ARCH + (ARCH + FLEX) * stroke(s)),
+              roll: 0,
+            }),
           }),
-        });
-        for (const side of ["left", "right"] as const)
+        );
+        const heading: IAutoMovieVector3 = local(entry, { x: 0, y: 0, z: 1 });
+        const tilted = (pitch: number): IHumanPosture =>
+          AutoMovieMotionHumanLean.pivot(body, entry, { pitch, roll: 0 });
+        // Behind the head as the arched trunk carries it, at the head's middle.
+        const drawn: IAutoMovieVector3 = Vector3.add(
+          AutoMovieMotionHumanPlaced.joint(body, tilted(-ARCH), "head"),
+          Vector3.add(Vector3.scale(heading, -BEHIND * arm), {
+            x: 0,
+            y: m.headRadius,
+            z: 0,
+          }),
+        );
+        // The release lies where the line rising at RELEASE from there meets the arms' reach about the flexed shoulders.
+        const rise: number = (RELEASE * Math.PI) / 180;
+        const line: IAutoMovieVector3 = Vector3.add(
+          Vector3.scale(heading, Math.cos(rise)),
+          { x: 0, y: Math.sin(rise), z: 0 },
+        );
+        const from: IAutoMovieVector3 = Vector3.subtract(
+          drawn,
+          AutoMovieMotionHumanPlaced.shoulders(body, tilted(FLEX)),
+        );
+        const b: number = Vector3.dot(from, line);
+        const travel: number =
+          -b +
+          Math.sqrt(
+            Math.max(0, b * b - Vector3.dot(from, from) + (REACH * arm) ** 2),
+          );
+        const released: IAutoMovieVector3 = Vector3.add(
+          drawn,
+          Vector3.scale(line, travel),
+        );
+        for (const side of ["left", "right"] as const) {
+          const beside: IAutoMovieVector3 = local(entry, {
+            x: (side === "left" ? 1 : -1) * BALL,
+            y: 0,
+            z: 0,
+          });
           primitives.push(
             ...AutoMovieMotionHumanPlaced.arm({
               body,
@@ -303,47 +369,24 @@ export namespace ballSport {
               to: clock.duration,
               rest: rest(side),
               weight: into,
-              place: (posture: IHumanPosture, s: number) => {
-                const behind: IAutoMovieVector3 =
-                  AutoMovieMotionHumanPlaced.grid(
-                    body,
-                    posture,
-                    side,
-                    { height: "crown", lateral: "inside", distance: "close" },
-                    { forward: -0.25 },
-                  );
-                const release: IAutoMovieVector3 =
-                  AutoMovieMotionHumanPlaced.grid(
-                    body,
-                    posture,
-                    side,
-                    { height: "overhead", lateral: "inside", distance: "near" },
-                    { forward: 0.25, up: -0.1 },
-                  );
-                const u: number = stroke(s);
-                // Over the top: the straight line between the two places bowed up by a sixth of the arm.
-                const point: IAutoMovieVector3 = Vector3.add(
-                  Vector3.lerp(behind, release, u),
-                  {
-                    x: 0,
-                    y: (arm / 6) * Math.sin(Math.PI * u),
-                    z: 0,
-                  },
-                );
-                return {
-                  point,
-                  facing: local(posture, {
-                    x: side === "left" ? -1 : 1,
-                    y: 0,
-                    z: 0,
-                  }),
-                  forward: { x: 0, y: 1, z: 0 },
-                };
-              },
+              place: (_posture: IHumanPosture, s: number) => ({
+                point: Vector3.add(
+                  Vector3.lerp(drawn, released, stroke(s)),
+                  beside,
+                ),
+                facing: local(entry, {
+                  x: side === "left" ? -1 : 1,
+                  y: 0,
+                  z: 0,
+                }),
+                forward: { x: 0, y: 1, z: 0 },
+              }),
               bend: "raised",
             }),
           );
+        }
         break;
+      }
     }
     return composeAutoMovieMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(

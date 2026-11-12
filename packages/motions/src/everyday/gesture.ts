@@ -26,6 +26,7 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
 import { HumanEffort } from "./HumanEffort";
+import { gestureJoints } from "./gestureJoints";
 import { gestureStroke } from "./gestureStroke";
 import { handGoals } from "./handGoals";
 
@@ -325,7 +326,7 @@ export namespace gesture {
         // Head, shoulder and trunk angles, added to what the stand holds.
         const joints: IHumanPosture["joints"] = { ...posture.joints };
         for (const [bone, add] of Object.entries(
-          gestureStroke.joints(p.kind, u, cycles, envelope, mods.extent),
+          gestureJoints.at(p.kind, u, cycles, envelope, mods.extent),
         ) as [AutoMovieHumanoidBone, readonly [number, number, number]][]) {
           const was: readonly [number, number, number] = joints[bone] ?? [
             0, 0, 0,

@@ -17,6 +17,8 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanArmClearance } from "./HumanArmClearance";
+import type { HumanColliders } from "./HumanColliders";
 import { HumanFoot } from "./HumanFoot";
 import type { IHumanPosture } from "./IHumanPosture";
 import { hipJoints } from "./hipJoints";
@@ -288,7 +290,9 @@ export namespace resolveHumanPosture {
   }
 
   /**
-   * The order to fit a posture's limbs in: arms then legs, each limb after
+   * The order to fit a posture's limbs in: legs then arms, so an arm is
+   * chosen beside thighs that already stand where the posture puts them
+   * (`HumanArmClearance`), each limb after
    * any limb whose bones its goal is attached to (`on`), so an attachment
    * reads that limb's solved frame (a palm under the other elbow follows the
    * other arm). A limb's bones are its chain, its hand or foot, and the
@@ -303,10 +307,10 @@ export namespace resolveHumanPosture {
    */
   export function order(limbs: IHumanPosture["limbs"]): IHumanPosture.Limb[] {
     const all: readonly IHumanPosture.Limb[] = [
-      "leftArm",
-      "rightArm",
       "leftLeg",
       "rightLeg",
+      "leftArm",
+      "rightArm",
     ];
     // The limb a bone belongs to, when it belongs to one.
     const owner = (
@@ -477,7 +481,18 @@ function fitLimb(
     limb,
     attached,
   );
-  let fitted: IAutoMoviePose = fitOnce(body, pose, limb, goal);
+  // An arm's forearm stays clear of the trunk and the thighs as the pose
+  // being fitted places them (`HumanArmClearance`), whatever the hint or the
+  // hand's turn prefer.
+  const trunk: HumanColliders.IPlaced[] | null = limb.endsWith("Arm")
+    ? HumanArmClearance.obstacles(body, poseBones(body, pose))
+    : null;
+  const clear: IObstruction | undefined =
+    trunk === null
+      ? undefined
+      : (elbow: IAutoMovieVector3, wrist: IAutoMovieVector3): number =>
+          HumanArmClearance.overshoot(body, trunk, elbow, wrist);
+  let fitted: IAutoMoviePose = fitOnce(body, pose, limb, goal, clear);
   if (goal.contact === undefined || goal.rotation === undefined) return fitted;
   const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
   const leg: boolean = limb.endsWith("Leg");
@@ -524,7 +539,7 @@ function fitLimb(
     }
     last = { image: off.ankle, miss };
     point = next;
-    fitted = fitOnce(body, pose, limb, { ...goal, point });
+    fitted = fitOnce(body, pose, limb, { ...goal, point }, clear);
   }
   if (!leg || toes === 0) return fitted;
   const bone: AutoMovieHumanoidBone = `${side}Toes`;
@@ -537,12 +552,16 @@ function fitLimb(
   };
 }
 
-/** One fit of a limb by the engine's two-bone solver. */
+/** What a limb's fit must keep clear of: the degrees a mid joint and an end joint, world metres, count as out of range. */
+type IObstruction = (mid: IAutoMovieVector3, end: IAutoMovieVector3) => number;
+
+/** One fit of a limb by the engine's two-bone solver, clear of an obstruction when one is given. */
 function fitOnce(
   body: IHumanBody,
   pose: IAutoMoviePose,
   limb: IHumanPosture.Limb,
   goal: IHumanPosture.IGoal,
+  obstruction?: IObstruction,
 ): IAutoMoviePose {
   const chain: IChain = chainOf(limb);
   const angles = (
@@ -561,6 +580,7 @@ function fitOnce(
     target: goal.point,
     bend: goal.bend,
     ...(goal.rotation === undefined ? {} : { effectorRotation: goal.rotation }),
+    ...(obstruction === undefined ? {} : { obstruction }),
     // A reference of no weight decides nothing, so it is left out entirely.
     ...(goal.reference === undefined || goal.reference.weight === 0
       ? {}

@@ -29,13 +29,22 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * another stops is stopped at that same second, so the result does not
  * depend on the order the weapons are listed in.
  *
+ * A contact is mutual. A weapon and the body that carries it are two
+ * measures of one limb (a capsule and that body's signed distance), and they
+ * need not agree to the millimetre, so of two limbs swung into each other
+ * one weapon touches the other body before the other weapon touches back.
+ * When the part a weapon meets carries a weapon of its own that is still
+ * moving (the body says so through `carried`), that weapon stops at the same
+ * second against the striker's body: neither limb is driven on into the one
+ * that has already stopped on it.
+ *
  * This resolves simultaneous strikes consistently: two fists crossing each
  * other's arms, two shins meeting, a block that arrives first. It is a
  * kinematic resolution of contact times, not a force simulation.
  *
  * @param input The weapons, the bodies and the span.
  * @returns The stops, in time order.
- * @throws {Error} When the span or the step is not positive, a weapon id repeats, or a capsule weapon meets a body that measures no segment.
+ * @throws {Error} When the span or the step is not positive, a weapon id repeats, a capsule weapon meets a body that measures no segment, or a body names a carried weapon that is not its own.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the method, its determinism, its tie rule and what it does not model.
  * @evidence contracts/development/implementation.md#principled-implementation The time-ordered event loop of impulse-based simulation over continuous first-impact times.
@@ -79,8 +88,40 @@ export function resolveAutoMovieContactEvents(
         best = { weapon: weapon.id, ...hit };
     }
     if (best === undefined) return events;
+
+    // The contact is mutual: when the part met carries a weapon of its own
+    // that is still moving, that weapon has met the striker in the same
+    // touch and stops at the same second.
+    const striker: resolveAutoMovieContactEvents.IWeapon = weapons.find(
+      (w: resolveAutoMovieContactEvents.IWeapon): boolean =>
+        w.id === best!.weapon,
+    )!;
+    const p: IAutoMovieVector3 = striker.position(best.seconds, stopped);
+    const own: string | undefined = input.bodies
+      .find(
+        (b: resolveAutoMovieContactEvents.IBody): boolean =>
+          b.id === best!.against,
+      )
+      ?.carried?.(
+        p,
+        striker.tail?.(best.seconds, stopped) ?? p,
+        best.seconds,
+        stopped,
+        striker.owner,
+      );
     stopped.set(best.weapon, best.seconds);
     events.push(best);
+    if (own === undefined) continue;
+    if (
+      !weapons.some(
+        (w: resolveAutoMovieContactEvents.IWeapon): boolean =>
+          w.id === own && w.owner === best!.against,
+      )
+    )
+      throw new Error(`Body ${best.against} carries no contact weapon ${own}`);
+    if (stopped.has(own)) continue;
+    stopped.set(own, best.seconds);
+    events.push({ weapon: own, against: striker.owner, seconds: best.seconds });
   }
 }
 
@@ -161,6 +202,27 @@ export namespace resolveAutoMovieContactEvents {
       seconds: number,
       stops: IStops,
     ): number;
+
+    /**
+     * The body's own weapon carried by the part a striking weapon met, when
+     * that weapon is still on its free path at the second: the contact is
+     * mutual, so it stops with the striker. Absent, or undefined, when the
+     * part met carries none.
+     *
+     * @param a The striking weapon's centre, or its axis's first end, world metres.
+     * @param b The axis's other end; the centre again for a sphere.
+     * @param seconds The contact second.
+     * @param stops The stops before this contact.
+     * @param by The id of the body carrying the striking weapon.
+     * @returns The id of one of this body's weapons, or undefined.
+     */
+    carried?(
+      a: IAutoMovieVector3,
+      b: IAutoMovieVector3,
+      seconds: number,
+      stops: IStops,
+      by: string,
+    ): string | undefined;
   }
 
   /** The input. */

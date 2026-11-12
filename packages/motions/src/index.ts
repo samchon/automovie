@@ -77,6 +77,7 @@ export * from "./dressing/dress";
 export * from "./carrying/carry";
 export * from "./posture/poseBones";
 export * from "./everyday/gesture";
+export * from "./everyday/gestureSignal";
 export * from "./everyday/gestureStroke";
 export * from "./everyday/handGoals";
 export * from "./everyday/look";

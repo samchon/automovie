@@ -12,6 +12,7 @@ import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTimin
 import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchForm } from "../compose/AutoMovieMotionHumanTouchForm";
+import { AutoMovieMotionHumanTouchPath } from "../compose/AutoMovieMotionHumanTouchPath";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
@@ -236,7 +237,15 @@ export namespace touch {
             effector,
             region(target)(entry, 0),
             tangent,
+            "arm",
           ),
+          origin: AutoMovieMotionHumanTouchPath.origin(
+            body,
+            bones,
+            side,
+            effector,
+          ),
+          lay: "arm",
           entry,
           ...(support === undefined ? {} : { contact: support }),
         }),

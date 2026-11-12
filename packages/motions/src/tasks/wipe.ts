@@ -9,6 +9,7 @@ import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanLeanInto } from "../compose/AutoMovieMotionHumanLeanInto";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
@@ -17,10 +18,9 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { HumanHand } from "../posture/HumanHand";
+import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
  * Wiping a table, counter or other level surface with the flat palm in
@@ -31,13 +31,15 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * radius of a quarter of the forearm (provisional) `cycles` times. The hand
  * comes to the surface in the aimed movement time (McIntosh et al. 2018),
  * circles over `PERIOD` seconds a cycle (provisional) with the palm on the
- * surface throughout, and returns. A surface whose farthest circling point
- * lies beyond the arm's reach from the shoulder (0.95 of the arm and the
- * hand, provisional) is refused with the farthest reachable distance. The
- * preferred working height lies 200 to 250 mm below the elbow (Li, Chang and
- * Zhang 2024, Sensors 24:7056); the law accepts any reachable height and the
- * author places the surface. Events: the phrase's `ready` (palm down),
- * `strokeStart`, `strokeEnd`, `relax` (palm lifted).
+ * surface throughout, and returns. A patch whose far side lies beyond the
+ * standing arm is leaned into (`AutoMovieMotionHumanLeanInto`): the trunk
+ * tips about the hips by the least pitch that keeps the wrist within `REACH`
+ * of the arm's length; one still out of reach at the lean's limit is
+ * refused, since it is walked up to first. The preferred working height lies
+ * 200 to 250 mm below the elbow (Li, Chang and Zhang 2024, Sensors 24:7056);
+ * the law accepts any reachable height and the author places the surface.
+ * Events: the phrase's `ready` (palm down), `strokeStart`, `strokeEnd`,
+ * `relax` (palm lifted).
  *
  * Not yet: leaning on the counter with the free hand (Iwakiri et al. 2007),
  * a held cloth as a prop, and the task sequences (dishwashing, laundry, bed
@@ -45,7 +47,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the goal, the stroke, the refusal, the working height's source, the events and what is missing.
  * @evidence contracts/development/design.md#principled-representation A law record of one arm stroke over a standing base.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the period and the plan.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the reach share, the period and the plan.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The surface is a target; the circle is a share of the forearm.
  */
 export namespace wipe {
@@ -84,6 +86,9 @@ export namespace wipe {
     /** How it is performed. */
     manner?: AutoMovieMotionManner.IManner;
   }
+
+  /** The share of the arm's length the wrist is kept within, so the elbow never locks straight on the surface (provisional). */
+  export const REACH: number = 0.97;
 
   /** One circle's seconds (provisional). */
   export const PERIOD: number = 0.9;
@@ -136,22 +141,50 @@ export namespace wipe {
     ).point;
     const radius: number = m.forearm / 4;
     const yaw: number = context.entry.posture.yaw;
+    const forward: IAutoMovieVector3 = HumanFrame.point(
+      { origin: { x: 0, y: 0, z: 0 }, yaw },
+      { x: 0, y: 0, z: 1 },
+    );
+    const palm = (
+      posture: IHumanPosture,
+      progress: number,
+    ): AutoMovieMotionHumanArm.ITarget =>
+      AutoMovieMotionHumanTarget.hand(
+        body,
+        posture,
+        side,
+        {
+          point: circle(centre, radius, yaw, cycles, progress),
+          normal: { x: 0, y: 1, z: 0 },
+        },
+        { surface: "palm", shape: "flat", forward },
+      );
+    // The lean into a patch whose far side lies beyond the standing arm.
     const standing: IHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
-    const shoulder: IAutoMovieVector3 = poseBones(
-      body,
-      resolveHumanPosture(body, standing),
-    ).get(`${side}UpperArm`)!.worldPosition;
-    const reach: number = 0.95 * (m.upperArm + m.forearm + m.hand);
-    const far: number = Vector3.length(
-      Vector3.subtract(circle(centre, radius, yaw, 1, 0.5), shoulder),
-    );
-    if (far > reach)
-      throw new Error(
-        `${context.subject}: the patch's far side lies ${far.toFixed(2)} m from the shoulder, beyond the ${reach.toFixed(2)} m this arm reaches`,
-      );
-
+    const lean: AutoMovieMotionHumanLeanInto.ILean =
+      AutoMovieMotionHumanLeanInto.solve({
+        body,
+        standing,
+        side,
+        share: REACH,
+        wrist: (posture: IHumanPosture, progress: number) => {
+          const goal: AutoMovieMotionHumanArm.ITarget = palm(posture, progress);
+          return HumanHand.place(
+            body,
+            side,
+            goal.surface,
+            goal.point,
+            goal.rotation,
+            goal.shape,
+          ).point;
+        },
+        refuse: (beyond: number, limit: number): string =>
+          `${context.subject}: the patch's far side stays ${(1000 * beyond).toFixed(0)} mm beyond the ${side} arm at a lean of ${limit} degrees; a surface this far is walked up to first`,
+      });
+    // Refuse at plan time a patch a circle of which leaves the reach.
+    for (let k: number = 0; k <= 8; k++) lean.pitch(standing, k / (8 * cycles));
     const origin: AutoMovieMotionHumanArm.IOrigin =
       AutoMovieMotionHumanArm.origin(
         body,
@@ -177,15 +210,12 @@ export namespace wipe {
       }),
       modifiers,
     );
-    const forward: IAutoMovieVector3 = HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw },
-      { x: 0, y: 0, z: 1 },
-    );
     return composeAutoMovieMotionHumanAction({
       base: stand.plan({ ...context, params: { seconds: clock.duration } }),
       clock,
       contact: "stroke",
       primitives: [
+        lean.primitive(clock),
         AutoMovieMotionHumanArm.stroke({
           body,
           clock,
@@ -199,16 +229,7 @@ export namespace wipe {
                 : { kind: "ground" },
           },
           path: (posture: IHumanPosture, _: number, progress: number) =>
-            AutoMovieMotionHumanTarget.hand(
-              body,
-              posture,
-              side,
-              {
-                point: circle(centre, radius, yaw, cycles, progress),
-                normal: { x: 0, y: 1, z: 0 },
-              },
-              { surface: "palm", shape: "flat", forward },
-            ),
+            palm(posture, progress),
         }),
       ],
     });
