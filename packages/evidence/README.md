@@ -23,15 +23,14 @@ export default createEvidenceConfig({ location: import.meta.dirname });
 
 A declaration answers a checklist in its doc comment, with one `@evidence <checklist>#<item>` tag per item followed by the answer.
 
-The bundled contracts are read from `<location>/.agents/skills`. A production inside a pnpm workspace, where the root holds the one shared skills tree, passes that tree's absolute path:
+The bundled contracts are read from `<location>/.agents/skills`. A production inside a pnpm workspace, where the root holds the one shared skills tree, names that tree, absolute or relative to `location`:
 
 ```ts
 import { createEvidenceConfig } from "@automovie/evidence";
-import { resolve } from "node:path";
 
 export default createEvidenceConfig({
   location: import.meta.dirname,
-  skills: resolve(import.meta.dirname, "../../../.agents/skills"),
+  skills: "../../../.agents/skills",
 });
 ```
 
@@ -83,7 +82,9 @@ Every study must be cited by some behavior, and every screenplay scene, beat and
 
 ### Your own claims
 
-A claim binds a set of declarations to the checklist they answer. Top-level `claims` replaces the engineering defaults, so start from `createEngineeringClaims()` to extend them. `narrative.claims` adds claims to the ones `narrative` configures. Both take `IEvidenceClaim[]` from `@wrtnlabs/evidence`.
+A claim binds a set of declarations to the checklist they answer. Top-level `claims` adds claims to the engineering defaults, and `narrative.claims` adds claims to the ones `narrative` configures. Both take `IEvidenceClaim[]` from `@wrtnlabs/evidence`.
+
+`createEvidenceConfig` is the package's only entry. The `@automovie/evidence/internal` subpath serves this repository's own tests and tools and promises no stability.
 
 ## Run
 

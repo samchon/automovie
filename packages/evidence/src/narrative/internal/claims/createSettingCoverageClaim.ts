@@ -40,7 +40,7 @@ export function createSettingCoverageClaim(
     name: `${layer} H2 consumers cite their ${canon} dependencies`,
     type: "markdown",
     root: passRoot("draft"),
-    files: createNarrativeUnitFiles(layer, props.narrativeScope),
+    files: createNarrativeUnitFiles({ layer, scope: props.narrativeScope }),
     symbol: "h2",
     disabled: stage === "disabled",
     reference,

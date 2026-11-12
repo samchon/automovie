@@ -1,7 +1,7 @@
+import { createEvidenceConfig } from "@automovie/evidence";
 import {
   createEngineeringClaims,
-  createEvidenceConfig,
-} from "@automovie/evidence";
+} from "@automovie/evidence/internal";
 import {
   EvidenceChecker,
   type IEvidenceCheckAnalysis,

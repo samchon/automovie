@@ -4,10 +4,6 @@ The complete index answers once per question against all sections and actual set
 
 Statements: [statements/obligations/index.md](../statements/obligations/index.md).
 
-## Does the index give every subject one clear reference home? {#canonical-navigation}
+## Does the index give every subject one clear reference home, in an order that supports finding? {#canonical-navigation}
 
-Can a reader predict the next location from each sibling level's stated organizing axis, distinguish group purposes and reach every actual owner? A subject scattered without owner routes is rebuilt differently by every reader.
-
-## Does its order and size support finding rather than rereading? {#reference-order}
-
-Can a reader find and understand the needed fact without guessing owners, traversing unexplained levels or reassembling copied fragments? An index that must be reread from the top each time has stopped being one.
+Can a reader predict the next location from each sibling level's stated organizing axis, distinguish group purposes and reach every actual owner, without traversing unexplained levels or reassembling copied fragments? A subject scattered without owner routes is rebuilt differently by every reader, and an index that must be reread from the top each time has stopped being one.
