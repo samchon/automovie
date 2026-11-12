@@ -545,6 +545,14 @@ namespace FamilyConicBody {
           // its image, and one side's net reflected onto the other left patches 2 to 4 mm full over one shoulder.
           { name: "trunk.chest.side", stations: [400, 680], phases: [Math.PI / 2 - 0.82, Math.PI / 2 + 0.82], axis: [0, 0, -1], turn: [1, 0, 0], rows: 59, columns: 53, mirror: false, uncut: true, reach: 25, fade: [30, 25] },
           { name: "trunk.chest.side.twin", stations: [400, 680], phases: [-Math.PI / 2 - 0.82, -Math.PI / 2 + 0.82], axis: [0, 0, 1], turn: [-1, 0, 0], rows: 59, columns: 53, mirror: false, uncut: true, reach: 25, fade: [30, 25] },
+          // The fold under each breast, from the sternum round to the side, where the reference's skin turns from the breast's underside
+          // to the chest within a few millimetres. The chest's nets are 5 mm a row, and a cubic net that coarse rounded the fold over 10 to
+          // 15 mm, a soft shelf drawn in level bands 4 mm tall. A net 2 mm a row over the fold's stations lets the crease turn within a row
+          // (its heights reach only 0.32 mm: the sections already fit there), and the layers inside it are cut as fine (`leaf`). Its
+          // columns stand 0.024 rad apart, 3.6 mm at the breast: at 0.016 rad, with the sections 2 mm apart, the net drew the reference's
+          // facets as blotches. Cast square to the wall about its middle phase, 0.75 rad, as the chest's windows are, and fitted after them.
+          { name: "trunk.fold", stations: [400, 490], phases: [0.05, 1.45], axis: [-0.7317, 0, -0.6816], turn: [0.6816, 0, -0.7317], rows: 48, columns: 61, mirror: false, reach: 25, fade: [15, 15], fadePhase: [0.15, 0.15] },
+          { name: "trunk.fold.twin", stations: [400, 490], phases: [-1.45, -0.05], axis: [-0.7317, 0, 0.6816], turn: [-0.6816, 0, -0.7317], rows: 48, columns: 61, mirror: false, reach: 25, fade: [15, 15], fadePhase: [0.15, 0.15] },
           // The neck and head: windows whose cast turns with the phase (`turn`), square to the wall all the way round. One net goes round the
           // whole head with its seam down the back, and ends at the crown's tip, 918.88 mm, where a relief must vanish for the pole. With
           // fixed axes the head took four windows, front, back and two sides, whose edges met in a seam down the cheek and over the skull
@@ -576,8 +584,11 @@ namespace FamilyConicBody {
           { name: "chin", stations: [690, 734], phases: [-0.8, 0.8], axis: [-Math.SQRT1_2, Math.SQRT1_2, 0], turn: [0, 0, -1], skin: (p: R.V): number => Math.max(ear(p), nose(p)), rows: 47, columns: 57, reach: 30, mirror: true },
           // The top of each shoulder, between the neck's muscle and the shoulder's point: the skin there faces up, a cast round the axis
           // grazes it, and it stood 2 to 4 mm full on both sides (`FamilyConicDeviation.ts`). A coarse net cast straight down takes it.
-          { name: "shoulder", stations: [596, 664], phases: [0.95, 1.95], axis: [0, -1, 0], rows: 17, columns: 27, reach: 8, nearest: true },
-          { name: "shoulder.twin", stations: [596, 664], phases: [-1.95, -0.95], axis: [0, -1, 0], rows: 17, columns: 27, reach: 8, nearest: true },
+          // It lands only on skin that faces up within 37 degrees, as the sole's does: toward the window's sides the skin turns to face
+          // outward and a height straight down slides the wall along itself. Landing anywhere, the -Z net left the slope streaked with
+          // folds of 44 degrees; landing on skin that faces up, 33.
+          { name: "shoulder", stations: [596, 664], phases: [0.95, 1.95], axis: [0, -1, 0], rows: 17, columns: 27, reach: 8, facing: 0.8, nearest: true },
+          { name: "shoulder.twin", stations: [596, 664], phases: [-1.95, -0.95], axis: [0, -1, 0], rows: 17, columns: 27, reach: 8, facing: 0.8, nearest: true },
           // No net over the crown. The conic cap stood 3 to 4 mm under the skull and a coarse net cast along the course lifted it; the cap
           // that bends as the wall does is full enough, and meshed in rings the net drew rings round the pole.
         ] },
