@@ -211,7 +211,8 @@ export namespace AutoMovieSolidIntersectionWalk {
     // The first walk: the loop's length.
 
     /** Original phase-sized initial chord, reduced only by existing failed halvings. */
-    let h: number = (norm(a0.v) * 2 * Math.PI) / count;
+    const stride: number = (norm(a0.v) * 2 * Math.PI) / count;
+    let h: number = stride;
 
     /** Current accepted point of the first length walk. */
     let p: IPoint = start;
@@ -251,6 +252,10 @@ export namespace AutoMovieSolidIntersectionWalk {
       length += norm(sub(next.point, p.point));
       previous = p;
       p = next;
+
+      // A step that was halved to pass a tight turn grows back once it is
+      // past: kept halved, the walk ran out of steps before it came round.
+      h = Math.min(stride, 2 * h);
 
       /** Continue the first walk with the same tangent orientation. */
       const t: Vec3 | null = tangent(p, T);

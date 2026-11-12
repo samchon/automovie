@@ -34,8 +34,8 @@ namespace FamilyConicBody {
    * Where the ear's course starts and ends, mm: `AutoMovieHumanF1Joints.earRoot` and `earTip`. It runs straight to the side through the middle
    * of the auricle's outline, so the closed end's pole stands in the middle of the face a relief carves there.
    */
-  const EAR_ROOT: R.V = [4, 1574, 74];
-  const EAR_TIP: R.V = [4, 1574, 100];
+  const EAR_ROOT: R.V = [4, 1584, 74];
+  const EAR_TIP: R.V = [4, 1584, 100];
 
   /** Height of the armpit's crease, mm: `AutoMovieHumanF1Joints.armpit[1]`. */
   const ARMPIT_Y_MM: number = 1276;
@@ -394,14 +394,14 @@ namespace FamilyConicBody {
         // pole stands on the antihelix at the height of the skin there: the helix's fold and the concha face the side, under that dome, and
         // a relief over the dome carves them (`face`). The relief starts 3.5 mm up the dome: nearer its edge the dome stands upright and a
         // height along the course slides along it, which broke the band at the ear's root.
-        { name: "ear", centres: [EAR_ROOT, EAR_TIP], course: "[J.earRoot, J.earTip]", halves: [], up: [0, 1, 0], domain: [4, 12], head: true, loose: true, step: 1, gap: 3, tip: 17, cap: 5, mirrored: true, layouts: LIMB, clip: (p: R.V): number => -ear(p), reliefs: [], casts: [{ name: "face", stations: [6.5, 17], axis: "course", rows: 27, columns: 99, reach: 16 }] },
+        { name: "ear", centres: [EAR_ROOT, EAR_TIP], course: "[J.earRoot, J.earTip]", halves: [], up: [0, 1, 0], domain: [4, 12], head: true, loose: true, step: 1, gap: 3, tip: 17, cap: 5, mirrored: true, layouts: LIMB, clip: (p: R.V): number => -ear(p), reliefs: [], casts: [] },
 
         // The nose's free end as a short loft straight forward out of the face, closed at its tip.
         { name: "nose", centres: [[118, 1561, 0], [140, 1561, 0]], course: "[J.noseRoot, J.noseTip]", halves: [], up: [0, 1, 0], domain: [5, 14], head: true, loose: true, step: 1, gap: 3, tip: 18, mirrored: false, layouts: LIMB, clip: (p: R.V): number => -nose(p), reliefs: [], casts: [{ name: "under", stations: [5.6, 14], phases: [Math.PI - 1.1, Math.PI + 1.1], axis: [0, 1, 0], rows: 31, columns: 39, reach: 10, mirror: true }] },
         // The ear's hollow as a loft of its own. The auricle is a thin shell: a sagittal plane cuts it in one loop shaped like a C, and what
         // the C stands round, the concha and the scapha, is the pocket between that loop and its hull, open to the front
         // (`FamilyConicScan.ts concha`: 435 mm2 at 78 mm out, 33 at 94). The loft runs out through those pockets.
-        { name: "concha", centres: [[-0.7, 1580, 99.5], [15, 1580, 77.5]], course: "[J.conchaRoot, J.conchaTip]", halves: [], up: [0, 1, 0], domain: [11.5, 23], head: true, loose: true, step: 0.5, gap: 3, tip: 28, lead: 12, pocket: 5, mirrored: true, layouts: [LIMB[0]!], clip: (p: R.V): number => -ear(p), reliefs: [] },
+        { name: "concha", centres: [[-0.7, 1580, 99.5], [15, 1580, 77.5]], course: "[J.conchaRoot, J.conchaTip]", halves: [], up: [0, 1, 0], domain: [11.5, 23], head: true, loose: true, step: 0.5, gap: 3, tip: 24.5, lead: 12, pocket: 5, mirrored: true, layouts: [LIMB[0]!], clip: (p: R.V): number => -ear(p), reliefs: [] },
         // A nostril as a hollow of its own: level planes cut one closed loop of it from 1,551 to 1,555 mm, 10 by 8 mm at its mouth
         // (`FamilyConicScan.ts nostril`). Its loft runs straight up through that loop, closes where the loop vanishes and is carried 8 mm
         // down out of the nose, to be cut from the head (`diff`).
@@ -1119,10 +1119,10 @@ namespace FamilyConicBody {
       "  export const armTurn: V3 = " + JSON.stringify(ARM_TURN).replaceAll(",", ", ") + ";",
       "",
       "  /** Where the ear's course starts, in the side of the head under the middle of the auricle's outline. */",
-      "  export const earRoot: V3 = [4, 1574, 74];",
+      "  export const earRoot: V3 = [4, 1584, 74];",
       "",
       "  /** Where the ear's course ends, straight to the side past the auricle's rim, so the pole of its closed end stands in the middle of its outer face. */",
-      "  export const earTip: V3 = [4, 1574, 100];",
+      "  export const earTip: V3 = [4, 1584, 100];",
       "",
       "  /** Centre of the auricle's root on the sagittal plane it leaves the skull at. */",
       "  export const earBase: V3 = [9.5, 1572, 77];",

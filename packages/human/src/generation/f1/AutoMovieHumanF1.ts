@@ -3,6 +3,7 @@ import type { AutoMovieConstructionNode, IAutoMovieConstructionPort } from "@aut
 
 import { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanF1Arm } from "./AutoMovieHumanF1Arm";
+import { AutoMovieHumanF1Concha } from "./AutoMovieHumanF1Concha";
 import { AutoMovieHumanF1Ear } from "./AutoMovieHumanF1Ear";
 import { AutoMovieHumanF1FingerIndex } from "./AutoMovieHumanF1FingerIndex";
 import { AutoMovieHumanF1FingerMiddle } from "./AutoMovieHumanF1FingerMiddle";
@@ -40,8 +41,9 @@ import { AutoMovieHumanF1Trunk } from "./AutoMovieHumanF1Trunk";
  *
  * The hand's sections leave out the thumb past where it stands free, as the
  * trunk's leave out the arms, the ears and the nose. The face's eyes and
- * mouth are height fields over the trunk's wall, and the ear's helix and
- * concha a height field over its closed end.
+ * mouth are height fields over the trunk's wall. A hollow with a wall of its
+ * own is a loft cut out: each nostril from the head, and each ear's hollow
+ * from the ear before the ear is attached.
  */
 export namespace AutoMovieHumanF1 {
   /** One generated surface piece. */
@@ -150,7 +152,7 @@ export namespace AutoMovieHumanF1 {
 
   /**
    * Where each limb's band lands on it, mm from the limb's first station: the limb keeps its stations beyond. The arm's first station is 2 mm
-   * past the armscye's plane and its course is nearly square to that plane for its first 25 mm, so its ring 10 mm on lies beside the plane. The ear's band lands half a millimetre in: its dome starts 5 mm out, and a ring farther in ran through what the relief carves there. The nose's lands 4 mm in, so the band is wide where a nostril's cut crosses it: 0.5 mm wide, its triangulation failed on another machine's arithmetic, and 2 mm in the nostril's own face failed.
+   * past the armscye's plane and its course is nearly square to that plane for its first 25 mm, so its ring 10 mm on lies beside the plane. The ear's band lands half a millimetre in: its dome starts 5 mm out and its hollow is cut to within 1.5 mm of its root. The nose's lands 4 mm in, so the band is wide where a nostril's cut crosses it: 0.5 mm wide, its triangulation failed on another machine's arithmetic, and 2 mm in the nostril's own face failed.
    */
   export const RAIL_MM: { arm: number; leg: number; ear: number; nose: number } = { arm: 10, leg: 6, ear: 0.5, nose: 4 };
 
@@ -366,7 +368,12 @@ export namespace AutoMovieHumanF1 {
       const arm: { node: AutoMovieConstructionNode; face: string } = limb("arm", side);
       root = { type: "port", name: "armscye." + arm.face, host: root, hostFace: trunk, loop: armscye(side), band: "band." + arm.face, part: arm.node, partFace: arm.face, partEnd: "bottom", rail: RAIL_MM.arm / 1000, count: SHOULDER_COLUMNS, rows: BAND.rows };
       const ear: AutoMovieHumanConicLoft.IFamily = side > 0 ? BODY.ear : twin(BODY.ear);
-      root = { type: "port", name: "auricle." + ear.name, host: root, hostFace: trunk, loop: auricle(side), band: "band." + ear.name, part: leaf(ear), partFace: ear.name, partEnd: "bottom", rail: RAIL_MM.ear / 1000, count: BAND.count, rows: BAND.rows };
+      // The ear owns its hollow: a loft cut out of the ear alone before the ear is attached. The cutter comes in through the ear's front
+      // and its dome and closes above the ear's root. Its whole front stands outside the ear, so the curve where the two meet is walked
+      // by its own length, not by the cutter's phase.
+      const concha: AutoMovieHumanConicLoft.IFamily = side > 0 ? AutoMovieHumanF1Concha : twin(AutoMovieHumanF1Concha);
+      const hollowed: AutoMovieConstructionNode = { type: "join", kind: "diff", name: "cut." + concha.name, host: leaf(ear), part: leaf(concha), seed: { type: "search", partFace: concha.name, hostFace: ear.name, phase: 0, from: 0, to: 0.9 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.0005 }, hostWidth: { type: "chord", value: 0.0005 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.05 };
+      root = { type: "port", name: "auricle." + ear.name, host: root, hostFace: trunk, loop: auricle(side), band: "band." + ear.name, part: hollowed, partFace: ear.name, partEnd: "bottom", rail: RAIL_MM.ear / 1000, count: BAND.count, rows: BAND.rows };
     }
     root = { type: "port", name: "nostril." + BODY.nose.name, host: root, hostFace: trunk, loop: nostril(), band: "band." + BODY.nose.name, part: leaf(BODY.nose), partFace: BODY.nose.name, partEnd: "bottom", rail: RAIL_MM.nose / 1000, count: BAND.count, rows: BAND.rows };
     // Each nostril is cut from the head: its loft comes up out of the nose's underside and closes inside it.
