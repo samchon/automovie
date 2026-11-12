@@ -27,8 +27,6 @@ interface Case {
   /** Chart area of the kept region, from elementary polygon areas. */
   area: number;
 
-  /** The analytic first fundamental form's `E` and `G` at a chart point. */
-  form: (u: number, v: number) => [number, number];
 
   /** Whether a chart edge lies on a domain side, so it has one triangle. */
   side: (a: Chart, b: Chart) => boolean;
@@ -57,22 +55,28 @@ interface Case {
  *    against the face's mean of 54, the trunk's case beside the armscye's loop, where
  *    the skin spans twice its face's mean. Legalized in the mean metric, edges
  *    near the end rail are not locally Delaunay in their own.
- * 4. All three: every interior edge off the rails and grid lines is locally
- *    Delaunay in the chart with phase scaled by the local scale at its
- *    quadrilateral's centroid, `sqrt(G / E)` from the means of the analytic `E`
- *    and `G` at the cell's four grid corners; every rail edge is used once and
+ * 4. Twisted cylinder: the cylinder of scenario 2 charted as
+ *    `(R cos(v + k u), R sin(v + k u), u)` with `k = 0.02`, its station lines
+ *    winding round it as a twisted band's columns do, a shear `F / E` of 25 mm
+ *    a radian. Legalized without the shear, edges are not locally Delaunay
+ *    in the metric their quadrilaterals span.
+ * 5. All four: every interior edge off the rails, the grid lines and the
+ *    retained cells' diagonals is locally Delaunay in the chart mapped by its
+ *    quadrilateral's own first fundamental form, the least-squares linear map
+ *    from its four chart points to its four emitted skin points, read as
+ *    `(u, v) -> (u + F / E v, sqrt(G / E - (F / E)^2) v)`; every rail edge is used once and
  *    every interior edge once each way; the chart area equals the elementary
  *    polygon area; a second identical face emits the same indices.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls AutoMovieSolidMesh.face on three analytic charts and reads only emitted indices, positions and owner coordinates: world normals against the analytic outward normal, chart in-circle signs over shared edges, rail-edge use, chart area and repeated output.
- * @evidence contracts/development/testing.md#independent-expectations The sheared plane's world-inverted rail triangles follow from the smile's two curvatures, `v''` against `v'' + 2c`; the scales follow from the analytic `E` and `G` at the grid corners (plane `E = 1 + 4 c^2 u^2` against `G` 1, cylinder `G` 2500 against `E` 1, flared tube `G = (20 + u)^2` against `E` 2); areas are the domain minus the hole's shoelace area and the trapezoids under the wavy rail; the in-circle determinant is evaluated here in floating point, not by the engine predicate.
- * @evidence contracts/development/testing.md#distinguishing-cases A planar hole whose rail is convex in the chart but concave in the world, a periodic winding rail on a chart 50 times longer in phase and the same rail on a chart whose phase scale grows sixfold along it separate a chart-only ear triangulation, an unscaled Delaunay, a Delaunay in the face's mean metric and a legalization that flips a rail edge.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AutoMovieSolidMesh.face on four analytic charts and reads only emitted indices, positions and owner coordinates: world normals against the analytic outward normal, chart in-circle signs over shared edges, rail-edge use, chart area and repeated output.
+ * @evidence contracts/development/testing.md#independent-expectations The sheared plane's world-inverted rail triangles follow from the smile's two curvatures, `v''` against `v'' + 2c`; each quadrilateral's metric is fitted here from the emitted chart and skin points of its four vertices, not read from the engine (the analytic forms behind them: plane `E = 1 + 4 c^2 u^2`, `F = 2 c u`, `G = 1`; cylinder `G` 2500; flared tube `G = (20 + u)^2`, `E` 2; twisted cylinder `E` 2, `F` 50, `G` 2500); areas are the domain minus the hole's shoelace area and the trapezoids under the wavy rail; the in-circle determinant is evaluated here in floating point, not by the engine predicate.
+ * @evidence contracts/development/testing.md#distinguishing-cases A planar hole whose rail is convex in the chart but concave in the world, a periodic winding rail on a chart 50 times longer in phase and the same rail on a chart whose phase scale grows sixfold along it separate a chart-only ear triangulation, an unscaled Delaunay, a Delaunay in the face's mean metric, one without the form's shear and a legalization that flips a rail edge.
  * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by --include construction_mesh_legalize. It generates no person and starts no renderer, host or process.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Sheared plane: the plane `(u, v + c u^2, 0)` with `c = -0.05` (Jacobian).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Sheared plane: the plane `(u, v + c u^2, 0)` with `c = -0.05` (Jacobian).
  */
 export function test_construction_mesh_legalize(): void {
   const failures: string[] = [];
-  for (const input of [plane(), cylinder(), flare()]) inspect(input, failures);
+  for (const input of [plane(), cylinder(), flare(), twisted()]) inspect(input, failures);
   exactness(failures);
   if (failures.length > 0)
     throw new Error(
@@ -120,8 +124,6 @@ function plane(): Case {
     phases: grid,
     loops: [{ kind: "hole", points: hole }],
     area: 16 - Math.abs(shoelace(hole)),
-    // E = 1 + 4 c^2 u^2 (1 to 1.16 over the grid) and G = 1.
-    form: (u: number): [number, number] => [1 + 4 * c * c * u * u, 1],
     side: (a: Chart, b: Chart): boolean =>
       (a[0] === b[0] && (a[0] === 0 || a[0] === 4)) ||
       (a[1] === b[1] && (a[1] === 0 || a[1] === 4)),
@@ -180,8 +182,6 @@ function cylinder(): Case {
       { kind: "end", points: end },
     ],
     area,
-    // E = 1 and G = R^2 = 2500, so sqrt(G / E) = 50 mm of skin per radian everywhere.
-    form: (): [number, number] => [1, R * R],
     side: (): boolean => false,
   };
 }
@@ -213,45 +213,79 @@ function flare(): Case {
     ...base,
     name: "flared tube",
     surface,
-    form: (u: number): [number, number] => [2, radius(u) ** 2],
   };
 }
 
 /**
- * The face's phase scale at a chart point, as residual legalization reads it: `sqrt(G / E)` from the means of the analytic `E` and `G`
- * over the four grid corners of the cell holding the point.
+ * Scenario 4: the radius-50 cylinder charted with a twist, `p = (R cos(v + k u), R sin(v + k u), u)` with `k = 0.02` rad/mm, so its
+ * station lines wind round it as a twisted band's columns do: `E = 1 + R^2 k^2 = 2`, `F = R^2 k = 50` and `G = R^2 = 2500`, a shear
+ * `F / E = 25` mm a radian. Legalized without the shear, edges are not locally Delaunay in the form.
  */
-function local(input: Case, u: number, v: number): number {
-  const period: number | undefined = input.surface.period;
-  const below = (values: number[], x: number): number => {
-    let k: number = 0;
-    while (k + 2 < values.length && x >= values[k + 1]!) ++k;
-    return k;
+function twisted(): Case {
+  const R: number = 50;
+  const k: number = 0.02;
+  const turn: number = 2 * Math.PI;
+  const surface: IAutoMovieSolidSurface = {
+    name: "twisted cylinder",
+    period: turn,
+    // S_u x S_v = (-R cos w, -R sin w, 0) with w = v + k u points into the axis.
+    orientation: -1,
+    jet: (u: number, v: number): IAutoMovieSolidSurface.IJet => {
+      const w: number = v + k * u;
+      const [c, s] = [Math.cos(w), Math.sin(w)];
+      return {
+        p: [R * c, R * s, u],
+        u: [-R * k * s, R * k * c, 1],
+        v: [-R * s, R * c, 0],
+        uu: [-R * k * k * c, -R * k * k * s, 0],
+        uv: [-R * k * c, -R * k * s, 0],
+        vv: [-R * c, -R * s, 0],
+      };
+    },
   };
-  const i: number = below(input.stations, u);
-  const phase: number =
-    period === undefined
-      ? v
-      : v - period * Math.floor((v - input.phases[0]!) / period);
-  const last: number = input.phases.length - 1;
-  const j: number =
-    period !== undefined && phase >= input.phases[last]!
-      ? last
-      : below(input.phases, phase);
-  const k: number = period === undefined ? Math.min(j + 1, last) : (j + 1) % input.phases.length;
-  let e: number = 0;
-  let g: number = 0;
-  for (const [s, t] of [
-    [input.stations[i]!, input.phases[j]!],
-    [input.stations[i]!, input.phases[k]!],
-    [input.stations[i + 1]!, input.phases[j]!],
-    [input.stations[i + 1]!, input.phases[k]!],
-  ] as [number, number][]) {
-    const [E, G] = input.form(s, t);
-    e += E;
-    g += G;
-  }
-  return Math.sqrt(g / e);
+  return {
+    ...cylinder(),
+    name: "twisted cylinder",
+    surface,
+  };
+}
+
+/**
+ * A quadrilateral's own first fundamental form, as legalization reads it: the least-squares linear map from its four chart points to its
+ * four emitted skin points about their centroids, read as `[F / E, sqrt(G / E - (F / E)^2)]`.
+ */
+function fitted(charts: Chart[], skins: number[][]): [number, number] {
+  const n: number = charts.length;
+  const cu: number = charts.reduce((s: number, c: Chart): number => s + c[0], 0) / n;
+  const cv: number = charts.reduce((s: number, c: Chart): number => s + c[1], 0) / n;
+  const mean: number[] = [0, 1, 2].map((a: number): number => skins.reduce((s: number, x: number[]): number => s + x[a]!, 0) / n);
+  let [suu, suv, svv] = [0, 0, 0];
+  const xu: number[] = [0, 0, 0];
+  const xv: number[] = [0, 0, 0];
+  charts.forEach((c: Chart, k: number): void => {
+    const [du, dv] = [c[0] - cu, c[1] - cv];
+    suu += du * du;
+    suv += du * dv;
+    svv += dv * dv;
+    for (let a: number = 0; a < 3; a++) {
+      xu[a] = xu[a]! + (skins[k]![a]! - mean[a]!) * du;
+      xv[a] = xv[a]! + (skins[k]![a]! - mean[a]!) * dv;
+    }
+  });
+  const det: number = suu * svv - suv * suv;
+  const su: number[] = xu.map((x: number, a: number): number => (x * svv - xv[a]! * suv) / det);
+  const sv: number[] = xv.map((x: number, a: number): number => (x * suu - xu[a]! * suv) / det);
+  const e: number = dot(su, su);
+  const shear: number = dot(su, sv) / e;
+  return [shear, Math.sqrt(dot(sv, sv) / e - shear * shear)];
+}
+
+/** Whether two grid points are opposite corners of one grid cell, the diagonal a retained full cell is cut along. */
+function neighbours(input: Case, a: Chart, b: Chart): boolean {
+  const n: number = input.phases.length;
+  const di: number = Math.abs(input.stations.indexOf(a[0]) - input.stations.indexOf(b[0]));
+  const dj: number = Math.abs(input.phases.indexOf(a[1]) - input.phases.indexOf(b[1]));
+  return di === 1 && (dj === 1 || (input.surface.period !== undefined && dj === n - 1));
 }
 
 /** Build one face and record every finding. */
@@ -367,17 +401,16 @@ function inspect(input: Case, failures: string[]): void {
     if (c === undefined || rails.has(`${a},${b}`)) continue;
     const A: Chart = chart(a);
     const B: Chart = chart(b);
-    if (grid(A) && grid(B) && (A[0] === B[0] || A[1] === B[1])) continue;
+    // A grid line, or the fixed diagonal of a retained full cell, which legalization never reads.
+    if (grid(A) && grid(B) && (A[0] === B[0] || A[1] === B[1] || neighbours(input, A, B))) continue;
     const corners: Chart[] = [A, B, chart(d), chart(c)].map(
       (p: Chart): Chart => [p[0], near(p[1], A[1])],
     );
-    const scale: number = local(
-      input,
-      corners.reduce((s: number, p: Chart): number => s + p[0], 0) / 4,
-      corners.reduce((s: number, p: Chart): number => s + p[1], 0) / 4,
-    );
+    const cu: number = corners.reduce((s: number, p: Chart): number => s + p[0], 0) / 4;
+    const cv: number = corners.reduce((s: number, p: Chart): number => s + p[1], 0) / 4;
+    const [shear, scale] = fitted(corners, [a, b, d, c].map(position));
     const points: Chart[] = corners.map(
-      (p: Chart): Chart => [p[0], p[1] * scale],
+      (p: Chart): Chart => [p[0] - cu + shear * (p[1] - cv), (p[1] - cv) * scale],
     );
     // (a, b, d) is positive in the face's chart order; c is the far vertex across a-b.
     const [P, Q, S, T] = (
@@ -435,7 +468,7 @@ function loops(input: Case): number[][] {
 }
 
 /**
- * Scenario 5: the legalization's in-circle sign is exact on represented
+ * Scenario 6: the legalization's in-circle sign is exact on represented
  * points. The unit circle through `(-1, 0)`, `(1, 0)` and `(0, 1)` is
  * tested at the 17 by 17 points `(i u, -1 + j u)` around its lowest point,
  * `u = 2^-52` and `i, j` in -8..8: every coordinate is a multiple of `u`

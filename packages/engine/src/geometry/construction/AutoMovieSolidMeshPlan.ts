@@ -87,7 +87,7 @@ export namespace AutoMovieSolidMeshPlan {
    * @param indexed Whether the consumer drops explicit lifts into a global index buffer; then half-period ties are unavailable.
    * @param occupied Immutable prior global endpoint-pair keys `minID/maxID`; new interior bridges/ears cannot reuse them. Existing source boundaries retain their identities and final global incidence belongs to the caller.
    * @param scale Phase scale of the uniform metric the bridges are chosen and the free diagonals legalized in, positive and finite, length units per radian; 1 reads the chart as given.
-   * @param local The face's phase scale where a chart point lies, which legalization reads in place of `scale` (`legalizeAutoMovieSolidMesh`); absent, the free diagonals are legalized in `scale` too.
+   * @param local A quadrilateral's own first fundamental form from its vertex IDs and chart points, `[shear, scale]`, which legalization reads in place of `scale` (`legalizeAutoMovieSolidMesh`); absent, the free diagonals are legalized in `scale` too.
    * @returns Positive native-chart index triples with split-source provenance, or a named construction failure.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Subdivides shared constraints, uses explicit left probes and winding to identify hole/periodic boundary components, joins them visibly and validates the indexed ears against the residual source partition.
@@ -106,7 +106,7 @@ export namespace AutoMovieSolidMeshPlan {
     indexed: boolean = false,
     occupied?: ReadonlySet<string>,
     scale: number = 1,
-    local?: (u: number, v: number) => number,
+    local?: (ids: readonly number[], charts: readonly [number, number][]) => [number, number],
   ): IPlan | string {
     const split: AutoMovieSolidMeshConstraints.IEdge[] | string =
       AutoMovieSolidMeshConstraints.split(vertices, constraints, period);
