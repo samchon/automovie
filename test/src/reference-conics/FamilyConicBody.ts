@@ -118,6 +118,51 @@ namespace FamilyConicBody {
     return best;
   }
 
+  /**
+   * Least area of a connected piece of the reference mesh for a cast to land on it, mm2. The head's skin and each eyeball are pieces of
+   * their own; so are the eyelashes and the brows' hairs, which are no skin and are not modelled, and a cast that landed on them stood the
+   * upper lids out as shelves. An eyeball is 2,800 mm2; a lash strip a few hundred.
+   */
+  const SOLID_MM2: number = 1500;
+
+  /** For each triangle of a mesh, 1 when its connected piece (by shared vertices) is at least `SOLID_MM2` in area, else 0; kept per mesh. */
+  const solidCache: WeakMap<object, Uint8Array> = new WeakMap();
+  function solids(mesh: R.ISource["body"]): Uint8Array {
+    const known: Uint8Array | undefined = solidCache.get(mesh);
+    if (known !== undefined) return known;
+    const count: number = mesh.positions.length / 3;
+    const parent: Int32Array = new Int32Array(count).map((_: number, i: number): number => i);
+    const find = (i: number): number => {
+      while (parent[i] !== i) {
+        parent[i] = parent[parent[i]!]!;
+        i = parent[i]!;
+      }
+      return i;
+    };
+    for (let t: number = 0; t + 2 < mesh.indices.length; t += 3) {
+      const a: number = find(mesh.indices[t]!);
+      for (const k of [1, 2]) {
+        const b: number = find(mesh.indices[t + k]!);
+        if (a !== b) parent[b] = a;
+      }
+    }
+    const area: Map<number, number> = new Map();
+    const at = (v: number): R.V => [mesh.positions[v * 3]!, mesh.positions[v * 3 + 1]!, mesh.positions[v * 3 + 2]!];
+    for (let t: number = 0; t + 2 < mesh.indices.length; t += 3) {
+      const [a, b, c]: R.V[] = [0, 1, 2].map((k: number): R.V => at(mesh.indices[t + k]!));
+      const u: R.V = [b![0] - a![0], b![1] - a![1], b![2] - a![2]];
+      const w: R.V = [c![0] - a![0], c![1] - a![1], c![2] - a![2]];
+      const root: number = find(mesh.indices[t]!);
+      area.set(root, (area.get(root) ?? 0) + Math.hypot(u[1] * w[2] - u[2] * w[1], u[2] * w[0] - u[0] * w[2], u[0] * w[1] - u[1] * w[0]) / 2);
+    }
+    const out: Uint8Array = new Uint8Array(mesh.indices.length / 3);
+    for (let t: number = 0; t + 2 < mesh.indices.length; t += 3) out[t / 3] = (area.get(find(mesh.indices[t]!)) ?? 0) >= SOLID_MM2 ? 1 : 0;
+    solidCache.set(mesh, out);
+    log0("family-body-solids", { pieces: area.size, kept: [...area.values()].filter((a: number): boolean => a >= SOLID_MM2).map((a: number): number => Math.round(a)) });
+    return out;
+  }
+  let log0: (event: string, detail: object) => void = (): void => undefined;
+
   /** How far a cutter's pocket is drawn in from the loop it is read between, at its farthest point, mm. */
   const POCKET_INSET_MM: number = 1.5;
 
@@ -291,6 +336,7 @@ namespace FamilyConicBody {
     const out: string = path.join(root, "test/.shots/family-conic-body", new Date().toISOString().replaceAll(":", "-"));
     await fs.mkdir(out, { recursive: true });
     const log = (event: string, detail: object): void => void process.stdout.write(JSON.stringify({ event, ...detail, elapsedMs: Math.round(performance.now() - started) }) + "\n");
+    log0 = log;
     const source: R.ISource = await R.load(root);
     const joint = (name: string): R.V => source.joints.get(name)!;
     const only: string[] = process.argv.slice(2).filter((argument: string): boolean => !argument.startsWith("--"));
@@ -465,10 +511,14 @@ namespace FamilyConicBody {
           { name: "trunk.collar.back", stations: [680, 734], phases: [Math.PI - 0.8, Math.PI + 0.8], axis: [1, 0, 0], turn: [0, 0, 1], rows: 39, columns: 37, mirror: true, reach: 10, fade: [8, 8] },
           // The face: a finer net, 2.6 mm apart, between the throat and the brow.
           { name: "trunk.face", stations: [690, 890], phases: [-1.2, 1.2], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 81, columns: 69, mirror: true, reach: 30, fade: [15, 15] },
-          // The eyes and the mouth: nets 1.5 mm apart over two bands of the face, which the face's net left a slit and a block.
-          { name: "trunk.eyes", stations: [792, 826], phases: [-0.8, 0.8], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 26, columns: 105, mirror: true, reach: 12, fade: [5, 5] },
+          // The mouth: a net 1.5 mm apart over its band of the face, which the face's net left a block.
           { name: "trunk.mouth", stations: [722, 758], phases: [-0.5, 0.5], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 27, columns: 67, mirror: true, reach: 12, fade: [5, 5] },
         ], casts: [
+          // The eyes: a net 1.5 mm apart over their band, cast in space onto the outermost skin. The reference's eyeball is a closed
+          // surface of its own behind the lids (`FamilyConicScan.ts eye`), which no section of the trunk holds: cast in the section
+          // planes, the eyes' net ran past the lids into the socket and drew a dark slit. Cast in space, between the lids it lands on the
+          // eyeball and over them on the lids.
+          { name: "eyes", stations: [792, 826], phases: [-0.8, 0.8], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 26, columns: 105, reach: 12, mirror: true },
           // The chin, which the sections leave out (`CHIN`): cast from the cone's wall forward and down at 45 degrees on the median line,
           // so the chin's front and the level skin under it are both seen at 45 degrees and the chin is one height over the wall.
           { name: "chin", stations: [690, 734], phases: [-0.8, 0.8], axis: [-Math.SQRT1_2, Math.SQRT1_2, 0], turn: [0, 0, -1], skin: (p: R.V): number => Math.max(ear(p), nose(p)), rows: 47, columns: 57, reach: 30, mirror: true },
@@ -908,7 +958,9 @@ namespace FamilyConicBody {
         // The reference triangles a ray can meet: the part's own skin within the reach of the points' box.
         const box: [R.V, R.V] = [[0, 1, 2].map((c: number): number => Math.min(...bases.map((b): number => b.p[c]!)) - face.reach) as R.V, [0, 1, 2].map((c: number): number => Math.max(...bases.map((b): number => b.p[c]!)) + face.reach) as R.V];
         const triangles: [R.V, R.V, R.V][] = [];
+        const solid: Uint8Array = solids(skin);
         for (let t: number = 0; t + 2 < skin.indices.length; t += 3) {
+          if (solid[t / 3] === 0) continue;
           const corners: R.V[] = [0, 1, 2].map((k: number): R.V => [skin.positions[skin.indices[t + k]! * 3]!, skin.positions[skin.indices[t + k]! * 3 + 1]!, skin.positions[skin.indices[t + k]! * 3 + 2]!]);
           if (corners.some((p: R.V): boolean => p.every((x: number, c: number): boolean => x >= box[0][c]! && x <= box[1][c]!)) && (outside === undefined || corners.some((p: R.V): boolean => outside(p) <= 3))) triangles.push(corners as [R.V, R.V, R.V]);
         }

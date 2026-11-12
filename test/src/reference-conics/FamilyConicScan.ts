@@ -46,6 +46,18 @@ namespace FamilyConicScan {
       }
       return;
     }
+    if (process.argv[2] === "eye") {
+      // Sagittal planes through the +Z eye, 2 mm apart: every closed loop in the eye's box by its extents forward and up and its area,
+      // to tell an eyeball of its own (a round loop) from the lids' skin.
+      for (let z: number = 16; z <= 46; z += 2) {
+        const frame = { origin: [0, 0, z] as R.V, u: [1, 0, 0] as R.V, v: [0, 1, 0] as R.V } as Parameters<typeof R.loops>[1];
+        const cells: string[] = R.loops(source.head, frame)
+          .filter((loop: C.P[]): boolean => centre(loop)[0] > 60 && centre(loop)[1] > 1570 && centre(loop)[1] < 1615 && Math.abs(R.area(loop)) < 2000)
+          .map((loop: C.P[]): string => "(x " + Math.min(...loop.map((p: C.P): number => p[0])).toFixed(1) + ".." + Math.max(...loop.map((p: C.P): number => p[0])).toFixed(1) + " y " + Math.min(...loop.map((p: C.P): number => p[1])).toFixed(1) + ".." + Math.max(...loop.map((p: C.P): number => p[1])).toFixed(1) + " a" + R.area(loop).toFixed(0) + " n" + loop.length + ")");
+        process.stdout.write("z " + z + ": " + cells.join(" ") + "\n");
+      }
+      return;
+    }
     if (process.argv[2] === "concha") {
       // Sagittal planes out through the ear, 2 mm apart: every closed loop inside the ear's box by its extents forward and up and its
       // area. The auricle's rim is the large loop; a loop inside it is a hollow the rim stands round, read before a cutter is declared.
