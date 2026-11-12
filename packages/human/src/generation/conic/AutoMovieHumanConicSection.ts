@@ -93,6 +93,23 @@ export namespace AutoMovieHumanConicSection {
     return layout;
   }
 
+  /**
+   * The bilateral layout: the front and back extremes on the median line and one side extreme between them, each arc halved `depth` times
+   * by nested medians, the half reflected in the median line (4, 8 or 16 conics). A section symmetric about the median plane has its
+   * front and back extremes on that plane with their tangents square to it, so those extremes cost one number each and the half the rest;
+   * fitted as a limb, such a section spends twice the numbers and its front and back anchors wander off the median line wherever the
+   * front is flat, each drawing the crease where two conics meet along the skin.
+   */
+  export function bilateral(depth: number): ILayout {
+    let anchors: IAnchor[] = [
+      { kind: "u", mid: true, guide: true, window: [-Math.PI / 2, Math.PI / 2] },
+      { kind: "v", guide: true, pick: "max" },
+      { kind: "u", mid: true, guide: true, window: [Math.PI / 2, (3 * Math.PI) / 2] },
+    ];
+    for (let level: number = 1; level <= depth; ++level) anchors = anchors.flatMap((anchor: IAnchor, k: number): IAnchor[] => (k < anchors.length - 1 ? [anchor, { kind: "m", level }] : [anchor]));
+    return { mirror: true, anchors };
+  }
+
   /** Unit of every field of a layout, in field order: each anchor's numbers, then one shoulder per arc. */
   export function units(layout: ILayout): Unit[] {
     const out: Unit[] = [];

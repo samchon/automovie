@@ -27,6 +27,9 @@ export namespace FamilyConicSection {
   /** The limb layout of the given median depth. */
   export const limb: (depth: number) => ILayout = S.limb;
 
+  /** The bilateral layout of the given median depth. */
+  export const bilateral: (depth: number) => ILayout = S.bilateral;
+
   /** Unit of every field of a layout. */
   export const units: (layout: ILayout) => Unit[] = S.units;
 

@@ -69,7 +69,7 @@ export const AutoMovieHumanF1Leg: AutoMovieHumanConicLoft.IFamily = {
   ],
 
   // The part closes in a point at `tip`, a station placed by anatomy; its cap starts at `from`.
-  tips: [null, {from: 956, tip: 990}],
+  tips: [null, {from: 956, tip: 990, covered: true}],
 
   // Reliefs: heights in mm of a uniform cubic B-spline net over a window of the wall's chart, moved along `axis`; they carry the skin that lies inside the tape wall.
   reliefs: [

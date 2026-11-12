@@ -19,6 +19,11 @@ namespace FamilyConicFigure {
     const out: string = path.join(root, "test/.shots/family-conic-figure", new Date().toISOString().replaceAll(":", "-"));
     await fs.mkdir(out, { recursive: true });
 
+    // `--bare=<name,...>` drops the named reliefs from the body's families, to see what the wall alone draws under them.
+    const bare: string[] = (process.argv.find((arg: string): boolean => arg.startsWith("--bare="))?.slice("--bare=".length) ?? "").split(",").filter((name: string): boolean => name.length > 0);
+    if (bare.length > 0)
+      for (const family of Object.values(AutoMovieHumanF1.BODY)) family.reliefs = family.reliefs?.filter((relief): boolean => !bare.includes(relief.name));
+
     // Generation first, timed, before any reference byte is read.
     const started: number = performance.now();
     const pieces: AutoMovieHumanF1.IPiece[] = AutoMovieHumanF1.create();
@@ -56,6 +61,7 @@ namespace FamilyConicFigure {
       ["eyes", (p: N.Point): boolean => p[0] > 0.08 && p[1] > 1.565 && p[1] < 1.62 && Math.abs(p[2]) < 0.06],
       ["mouth", (p: N.Point): boolean => p[0] > 0.09 && p[1] > 1.5 && p[1] < 1.55 && Math.abs(p[2]) < 0.035],
       ["fold",(p: N.Point): boolean => p[1] > 1.19 && p[1] < 1.27 && p[2] > 0 && p[2] < 0.13 && p[0] > 0],
+      ["toes", (p: N.Point): boolean => p[2] > 0 && p[1] < 0.05 && p[0] > 0.16],
     ];
     for (const [zone, inside] of zones) {
       const near: N.Point[] = bounds.filter(inside);

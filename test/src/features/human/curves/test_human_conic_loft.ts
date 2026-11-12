@@ -7,11 +7,11 @@ import { AutoMovieHumanConicLoft, AutoMovieHumanConicSection } from "@automovie/
  * Scenarios:
  * 1. A cylinder: a family of circular sections of radius 20 along a straight course lofts to points 20 mm from the course at every station and phase.
  * 2. The twin is the reflection: on a slanted course with an off-centre section whose four shoulders differ, the twin's point at phase `-phi` is the original's point at `phi` reflected in `z = 0`.
- * 3. A cylinder's cap is half an ellipsoid: with a tip 12 mm past the cap's start the taper is zero, so the cap is the quarter ellipse of semi-axes 12 and 20 turned about the course, `r = 20 sqrt(1 - ((12 - d) / 12)^2)` at distance `d` from the tip, and the loft carries a pole at the tip on the course.
- * 4. A cap starts where its tip says: stations past `from` are not lofted from the fields, so the part's stations end at `from` and the tip.
+ * 3. A cylinder's cap leaves it with neither slope nor bend: with a tip 12 mm past the cap's start the wall's taper and bend are zero, so the cap is `r = 20 sqrt(1 - u^3)` with `u = (s - 80) / 12`, the one cubic in `u` for `r^2` that is 400 at the start with zero first and second derivatives there and 0 at the tip, turned about the course, and the loft carries a pole at the tip on the course.
+ * 4. A cap starts where its tip says and is meshed in rings: stations past `from` are not lofted from the fields, so the part's stations end at `from`, twelve rings at `92 - 12 (k / 13)^2` and the tip.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanConicLoft.create`, `mirror` and `part` and reads the engine's chain with `AutoMovieLoftChain.point`.
- * @evidence contracts/development/testing.md#independent-expectations A circle's radius, a reflection in a plane and an ellipse's equation are closed forms that owe nothing to this code.
+ * @evidence contracts/development/testing.md#independent-expectations A circle's radius, a reflection in a plane and the cubic fixed by four end conditions are closed forms that owe nothing to this code.
  * @evidence contracts/development/testing.md#distinguishing-cases A centred circle, an off-centre section with unequal shoulders on a slanted course, a closed end and an open one.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU unit on made numbers, reached by `--include human_conic_loft`, with no reference body or figure.
  * @evidence contracts/development/common.md#meaningful-documentation Lists each scenario with the closed form it is checked against.
@@ -63,22 +63,24 @@ export function test_human_conic_loft(): void {
         if (!(apart <= 1e-9)) failures.push(`twin at station ${s}, phase ${phi.toFixed(3)}: ${apart} mm from the reflected original`);
       }
 
-  // 3. A cylinder closed 12 mm past station 80: half an ellipsoid of semi-axes 12 along the course and 20 across it.
+  // 3. A cylinder closed 12 mm past station 80: the cap with no slope and no bend at its start, r^2 = 400 (1 - u^3) with u = (s - 80) / 12.
   const capped: AutoMovieHumanConicLoft.IFamily = { ...cylinder, name: "capped", tips: [null, { from: 80, tip: 92 }] };
   const closed: NonNullable<AutoMovieViewLoft.IResult["chain"]> | null = lofted(capped, "capped");
   if (closed !== null) {
     const pole: number[] | undefined = closed.pole?.point;
     if (closed.pole?.end !== "top" || pole === undefined || !(Math.hypot(pole[0]!, pole[1]! - 92, pole[2]!) <= 1e-9)) failures.push(`capped: pole ${JSON.stringify(closed.pole?.point)} at the ${closed.pole?.end}, expected (0, 92, 0) at the top`);
     for (const s of closed.layers.map((layer: { y: number }): number => layer.y).filter((y: number): boolean => y > 80)) {
-      const expected: number = 20 * Math.sqrt(1 - ((s - 80) / 12) ** 2);
+      const expected: number = 20 * Math.sqrt(1 - ((s - 80) / 12) ** 3);
       const p: number[] = AutoMovieLoftChain.point(closed, s, 0.7);
       if (!(Math.abs(Math.hypot(p[0]!, p[2]!) - expected) <= 0.02)) failures.push(`capped at station ${s}: radius ${Math.hypot(p[0]!, p[2]!)}, expected ${expected}`);
     }
   }
 
-  // 4. The part's stations: the requested ones short of the cap's start, that start, and the tip.
+  // 4. The part's stations: the requested ones short of the cap's start, that start, the cap's twelve rings at 92 - 12 (k / 13)^2, and the tip.
   const part: number[] = AutoMovieHumanConicLoft.part(capped, stations).stations;
-  if (part.at(-1) !== 92 || part.at(-2) !== 80 || part.at(-3) !== 78 || part.length !== 42) failures.push(`capped part: stations end ${part.slice(-3).join(", ")} with ${part.length} in all, expected 78, 80, 92 and 42`);
+  const rings: number[] = Array.from({ length: 12 }, (_: unknown, i: number): number => 92 - 12 * ((12 - i) / 13) ** 2);
+  const cap: number[] = part.slice(-13, -1);
+  if (part.at(-1) !== 92 || part.at(-14) !== 80 || part.at(-15) !== 78 || part.length !== 54 || cap.some((s: number, i: number): boolean => !(Math.abs(s - rings[i]!) <= 1e-9))) failures.push(`capped part: stations end ${part.slice(-15).join(", ")} with ${part.length} in all, expected 78, 80, the twelve rings, 92 and 54`);
 
   if (failures.length > 0) throw new Error("human conic loft:\n" + failures.join("\n"));
 }

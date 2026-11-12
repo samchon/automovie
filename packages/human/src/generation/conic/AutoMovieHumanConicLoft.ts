@@ -48,11 +48,15 @@ export namespace AutoMovieHumanConicLoft {
   /**
    * One closed end of a part.
    *
-   * Between `from` and `tip` the part is its section at `from` shrunk by one factor, with that section's tangent angles and shoulders kept. The
-   * factor is a conic in the plane of station and size: with `d` the distance to the tip and `H` that of `from`, `g^2 = A d + B d^2`, the ellipse
-   * or hyperbola on the course that stands upright at the tip (`A > 0`), reaches 1 at `from` and leaves `from` at the wall's own taper there, so
-   * the cap continues the wall without a crease. With `q = H mu`, `mu` the wall's relative growth per millimetre away from the tip, and
-   * `x = sqrt(d / H)`, that is `g = x sqrt(2 (1 - q) + (2 q - 1) x^2)`; `q = 1/2` is the paraboloid.
+   * Between `from` and `tip` the part is its section at `from` shrunk by one factor, with that section's tangent angles and shoulders kept. With
+   * `t = d / H`, `d` the distance to the tip and `H` that of `from`, the factor is `g = sqrt(P(t))` for the cubic `P(t) = a t + b t^2 + c t^3`:
+   * upright at the tip (`a > 0`, so `g` grows as `sqrt(t)`), 1 at `from`, leaving `from` at the wall's own taper `q = H mu` (`mu` the wall's
+   * relative growth per millimetre away from the tip) and bending there as the wall bends (`g'' = k`, the wall's relative second derivative
+   * times `H^2`), so the cap continues the wall without a crease in its slope or its curvature. Those three conditions at `t = 1`, `P = 1`,
+   * `P' = 2 q` and `P'' = 2 q^2 + 2 k`, give `c = (1 - q)^2 + k`, `b = 2 q - 1 - 2 c` and `a = 1 - b - c = 2 (1 - q) + c`; `c` is held at 0
+   * or more, which keeps `P` positive on the cap. With `c = 0` this is the conic `P = 2 (1 - q) t + (2 q - 1) t^2`, which bends by
+   * `-(1 - q)^2` at `from`: the earlier law, which met the slope of every wall but not its bend and left a ring round every finger's and toe's
+   * tip, where the wall runs on straight.
    */
   export interface ITip {
     /** Station of the last section the fields own, between the first and the last knot, mm. */
@@ -60,6 +64,13 @@ export namespace AutoMovieHumanConicLoft {
 
     /** Station of the point, mm. */
     tip: number;
+
+    /**
+     * The end is not the figure's skin: buried inside another part, as a digit's root inside its limb, or under the digits merged onto it,
+     * as a hand's or a foot's closed end. It closes as the conic (`c = 0`), the slimmest the law allows, instead of bending on as its wall
+     * bends: the fuller cap brought the foot's end 5.9 mm below the sole and moved where the outer digits come out of their limbs' ends.
+     */
+    covered?: boolean;
   }
 
   /**
@@ -68,6 +79,13 @@ export namespace AutoMovieHumanConicLoft {
    * coordinate out of proportion to break its chain.
    */
   const CAP_KNOTS: number = 12;
+
+  /**
+   * Bounds of a cap's taper `q` (`ITip`): below 1 the tip stands upright, and at 0 the cap leaves a wall that still widens toward its tip
+   * level instead of widening on. Allowed to widen on (to -0.5), the nose's cap swelled 14 % past its bulb and the nostrils' cuts came out
+   * through its sides: a cap that widens on extrapolates past the skin the wall was fitted to.
+   */
+  const TAPER: { least: number; most: number } = { least: 0, most: 0.95 };
 
   /**
    * When a station is added midway between two: the model's section there stands off the mean of the two by more than `length` mm in a point's
@@ -153,25 +171,42 @@ export namespace AutoMovieHumanConicLoft {
     if (guides.length !== 4) throw new Error("the layout names " + guides.length + " engine guides instead of four");
 
     // The wall's taper at a cap's first section: the relative growth of the mean of its four extents over a millimetre away from the tip,
-    // times the cap's length, held to [0, 0.95] so the cap neither flares nor loses its upright tangent at the tip.
+    // times the cap's length, held to [TAPER.least, TAPER.most].
+    const size = (s: number): number => {
+      const chain: AutoMovieHumanConicSection.IChain = AutoMovieHumanConicSection.resolve(read(s), family.layout);
+      return chain.guides.reduce((sum: number, g: number, q: number): number => sum + Math.abs(chain.input.points[g]![q % 2]), 0);
+    };
     const taper = (end: ITip): number => {
-      const size = (s: number): number => {
-        const chain: AutoMovieHumanConicSection.IChain = AutoMovieHumanConicSection.resolve(read(s), family.layout);
-        return chain.guides.reduce((sum: number, g: number, q: number): number => sum + Math.abs(chain.input.points[g]![q % 2]), 0);
-      };
       const inward: number = Math.sign(end.from - end.tip);
-      return Math.min(0.95, Math.max(0, (size(end.from + inward) / size(end.from) - 1) * Math.abs(end.from - end.tip)));
+      return Math.min(TAPER.most, Math.max(TAPER.least, (size(end.from + inward) / size(end.from) - 1) * Math.abs(end.from - end.tip)));
     };
 
-    // A coordinate is zero at a tip; an angle or a shoulder keeps the cap's first section's value there. The cap's own knots stand at equal
-    // steps of the root of the distance to the tip, the engine's pole parameter, each that section scaled by the tip's conic factor.
+    // The wall's bend at a cap's first section in the cap's own measure: the second difference of the mean extent over millimetres away from
+    // the tip, relative to the extent, times the square of the cap's length.
+    const bend = (end: ITip): number => {
+      const inward: number = Math.sign(end.from - end.tip);
+      const [s0, s1, s2]: number[] = [0, 1, 2].map((k: number): number => size(end.from + k * inward));
+      return ((s2! - 2 * s1! + s0!) / s0!) * (end.from - end.tip) ** 2;
+    };
+
+    // The cap's knots and its rings both stand at equal steps of the root of the distance to the tip, the engine's pole parameter.
+    const capShares: number[] = Array.from({ length: CAP_KNOTS + 1 }, (_: unknown, k: number): number => k / (CAP_KNOTS + 1));
+
+    // A coordinate is zero at a tip; an angle or a shoulder keeps the cap's first section's value there. Each cap knot is that section scaled
+    // by the tip's factor (`ITip`).
     const cap = (end: ITip, value: number, length: boolean, site: string): IAutoMovieViewPart.IKnot[] => {
       const q: number = taper(end);
-      return Array.from({ length: CAP_KNOTS + 1 }, (_: unknown, k: number): IAutoMovieViewPart.IKnot => {
-        const x: number = k / (CAP_KNOTS + 1);
-        return { site: site + "." + k, station: end.tip + (end.from - end.tip) * x * x, value: length ? value * x * Math.sqrt(2 * (1 - q) + (2 * q - 1) * x * x) : value };
+      const c: number = end.covered === true ? 0 : Math.max(0, (1 - q) ** 2 + bend(end));
+      const b: number = 2 * q - 1 - 2 * c;
+      const a: number = 1 - b - c;
+      return capShares.map((x: number, k: number): IAutoMovieViewPart.IKnot => {
+        const t: number = x * x;
+        return { site: site + "." + k, station: end.tip + (end.from - end.tip) * t, value: length ? value * Math.sqrt(t * (a + t * (b + t * c))) : value };
       });
     };
+
+    // The cap's rings: without them the engine meshed a cap from its first section straight to its pole, a cone ending in a flat disc.
+    const rings = (end: ITip): number[] => capShares.slice(1).map((x: number): number => end.tip + (end.from - end.tip) * x * x);
     const closing = (pick: (chain: AutoMovieHumanConicSection.IChain) => number, length: boolean): IAutoMovieViewPart.IOutline => ({
       knots: [
         ...(bottom === null ? [] : cap(bottom, pick(chains[0]!), length, "tip.bottom")),
@@ -216,7 +251,7 @@ export namespace AutoMovieHumanConicLoft {
     return {
       name: family.name,
       axis: axis(family),
-      stations: [...(bottom === null ? [] : [bottom.tip]), ...stations, ...(top === null ? [] : [top.tip])],
+      stations: [...(bottom === null ? [] : [bottom.tip, ...rings(bottom)]), ...stations, ...(top === null ? [] : [...rings(top).reverse(), top.tip])],
       ...(bottom === null && top === null ? {} : { pole: bottom === null ? ("top" as const) : top === null ? ("bottom" as const) : ("both" as const) }),
       front: { positive: coordinate(0, 0), negative: coordinate(2, 0) },
       side: { positive: coordinate(1, 1), negative: coordinate(3, 1) },
