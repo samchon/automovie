@@ -51,6 +51,14 @@ export interface IAutoMovieConstructionPort {
    */
   rails?: number[];
 
+  /**
+   * How the part's rail is matched to the port curve column by column. `angle` (the default): the rail point at the curve point's angle
+   * about the rail ring's centroid, which both curves must turn round once monotonically. `length`: the first column by that angle, every
+   * other at the same share of the rail's length round it as the column's of the port curve's, so neither need be star-shaped about the
+   * centroid, as a nose's rail is not where it runs back behind each nostril and its underside is lifted onto the skin.
+   */
+  correspondence?: "angle" | "length";
+
   /** Columns of the band round its loop, a multiple of 4 of at least 8. */
   count: number;
 

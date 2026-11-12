@@ -181,14 +181,19 @@ export namespace AutoMovieHumanF1 {
    * box's chords at the top, inside the dorsum, and at the bottom, inside the lip behind the subnasale. Read off the nose's own wall by its
    * distance to the reference skin (`FamilyConicScan.ts nose-rail`, the station from which it lies within 0.3 mm of the skin): the wings'
    * faces from the first station, and the dorsum from 10 mm in (x 123.5). Below, the wall leaves the lip's flesh for the skin 7 to 10.5 mm
-   * in, but there the nostrils lie, back to 117.6 mm forward, and a cut that crossed the band admitted only a knife-edged blend: so behind
-   * the nostrils, from 124 to 236 degrees round, the band lands 3 mm in (x 116.5), clear of each cut and its 1.5 mm blend
-   * (`NOSTRIL_RIM_MM`), rising to 6 mm under the columella. Landed 10.5 mm in at the subnasale between nostrils landed 3 mm in, it stood as
-   * a notch. Where the wall is skin from the first station the band still lands 2 mm in, so it rounds the alar groove. Above the wings the
+   * in, but there the nostrils lie, back to 117.6 mm forward, and a cut that crossed the band admitted only a knife-edged blend. Below,
+   * from 135 to 225 degrees round, the band lands on the line where the lip's front meets the nose's floor at 1,543 mm, read off level
+   * sections at 1,542 and 1,544 mm (`FamilyConicScan.ts alar`): x 123 on the median line (9 mm in), 122.8 at 2.6 mm across (8.5), 122.2
+   * at 5.4 mm (8), 120 at 8.7 mm (5.5, just behind each nostril's blended rim at 120.2 to 120.9) and 116.5 at 13 mm (3), so the band
+   * rises from the lip straight into the floor. Landed 3 mm in all along, behind the nostrils, the band ran 4 to 6 mm back under the sill
+   * from the lip's front and turned on itself (folds of 110 to 161 degrees along y 1,543); landed 10.5 mm in at the subnasale alone,
+   * between neighbours at 3 mm, it stood as a notch. Where the wall is skin from the first station the band still lands 2 mm in, so it
+   * rounds the alar groove; under the back of each wing, where the alar groove is sharpest (110 to 125 and 235 to 250 degrees), only
+   * 1.5 mm in, so the crease there is crisp and softer above. Above the wings the
    * face keeps the sidewalls (`FamilyConicBody.ts noseCut`), and the band lands 5 to 8 mm in, the farther the higher, so its loop, 2.5 mm
    * outside this curve, stays on the face's own skin.
    */
-  const NOSE_RAILS_MM: number[] = [10, 9.5, 8, 7, 6, 5, 3.5, 2.5, 2, 2, 2.5, 3, 3, 3, 3, 4.5, 6, 4.5, 3, 3, 3, 3, 2.5, 2, 2, 2.5, 3.5, 5, 6, 7, 8, 9.5];
+  const NOSE_RAILS_MM: number[] = [10, 9.5, 8, 7, 6, 5, 3.5, 2.5, 2, 2, 1.5, 1.5, 3, 5.5, 8, 8.5, 9, 8.5, 8, 5.5, 3, 1.5, 1.5, 2, 2, 2.5, 3.5, 5, 6, 7, 8, 9.5];
 
   /**
    * How far outside the nose's rail curve its port loop stands on the face, and outside the auricle's root the ear's stands on the skull, mm.
