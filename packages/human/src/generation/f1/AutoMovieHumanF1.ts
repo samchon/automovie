@@ -150,6 +150,9 @@ export namespace AutoMovieHumanF1 {
    */
   const ARMPIT_DROP_MM: number = -6;
 
+  /** Width of the smooth maximum by which the loop meets that floor, mm: the loop rounds onto the floor over about this much height. */
+  const ARMPIT_ROUND_MM: number = 12;
+
   /**
    * Where each limb's band lands on it, mm from the limb's first station: the limb keeps its stations beyond. The arm's first station is 2 mm
    * past the armscye's plane and its course is nearly square to that plane for its first 25 mm, so its ring 10 mm on lies beside the plane. The ear's band lands half a millimetre in: its dome starts 5 mm out and its hollow is cut to within 1.5 mm of its root. The nose's lands 4 mm in, so the band is wide where a nostril's cut crosses it: 0.5 mm wide, its triangulation failed on another machine's arithmetic, and 2 mm in the nostril's own face failed.
@@ -218,7 +221,10 @@ export namespace AutoMovieHumanF1 {
     const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> = loft.chain;
     const outline: [number, number][] = Array.from({ length: 4 * SHOULDER_COLUMNS }, (_: unknown, j: number): [number, number] => {
       const p: number[] = AutoMovieLoftChain.point(chain, rail, (2 * Math.PI * j) / (4 * SHOULDER_COLUMNS));
-      return [Math.max(p[1]!, J.armpit[1] - ARMPIT_DROP_MM) - J.axisFloor[1], Math.atan2(p[2]!, p[0]!)];
+      // The floor under the crease, met by a smooth maximum: held by a plain one, the loop ran level along the floor and turned up at a
+      // corner at each end, and the band stood a box-shaped notch at the back of the armpit.
+      const floor: number = J.armpit[1] - ARMPIT_DROP_MM;
+      return [(p[1]! + floor + Math.hypot(p[1]! - floor, ARMPIT_ROUND_MM)) / 2 - J.axisFloor[1], Math.atan2(p[2]!, p[0]!)];
     });
     const span = (c: 0 | 1): [number, number] => [Math.min(...outline.map((q: [number, number]): number => q[c])), Math.max(...outline.map((q: [number, number]): number => q[c]))];
     const [stations, phases]: [number, number][] = [span(0), span(1)];
