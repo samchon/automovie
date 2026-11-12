@@ -14,7 +14,7 @@ Choose the route option that matches the route [workflow](../story/workflow.md#r
 
 Narrative stages follow a finished draft, never the presence of files: enable each layer's construction, and the screenplay's naturalness stage, when its complete draft is ready, because a stage opened on a half-written layer demands answers for text that will change.
 
-Turn on the research stage when its first study is complete. Complete work is the default scope; a pilot follows [scope expansion](../story/correction/repair.md#scope-expansion).
+Turn on the research stage when its first study holds what its first consumer uses. Complete work is the default scope; a pilot follows [scope expansion](../story/correction/repair.md#scope-expansion).
 
 Scripts expression and population questions belong to scripts construction, and only screenplay expression belongs to the final pass, as the [workflow](../story/workflow.md#route-and-parents) sets. A contract folder named `naturalness` does not choose its pass.
 

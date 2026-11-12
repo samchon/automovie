@@ -41,8 +41,6 @@ The user chooses, whatever route the folder fixes, and the choice is recorded wi
 | The user's, refined | The route's | Enters through [intake](document-layout.md#intake-of-existing-work) as material |
 | The user's, fixed | None | Used exactly as given |
 
-When no narrative pass runs, the code studies the law of each action a beat names.
-
 A fixed screenplay is never edited, reviewed or rewritten, because it is the user's. An exchange, outcome or reaction it lacks, or a beat that cannot be performed, goes back to the user to write into it, because only the screenplay decides them.
 
 ## Construction
