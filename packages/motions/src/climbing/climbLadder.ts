@@ -148,7 +148,7 @@ export namespace climbLadder {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the spacing lies outside the OSHA band or the rung count is not a positive integer.
+   * @throws {HumanRefusal} When the spacing lies outside the OSHA band or the rung count is not a positive integer.
    */
   export function plan(context: IHumanActionContext<IParams>): IPlan {
     const body: IHumanBody = context.body;

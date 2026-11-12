@@ -168,7 +168,7 @@ export namespace clinch {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the hold is negative.
+   * @throws {HumanRefusal} When the hold is negative.
    */
   export function plan(
     context: IHumanActionContext<IParams>,

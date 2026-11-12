@@ -80,7 +80,7 @@ export namespace step {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the step count is not a whole number of at least one, or the length leaves (0, one stance length].
+   * @throws {HumanRefusal} When the step count is not a whole number of at least one, or the length leaves (0, one stance length].
    *
    * @evidence contracts/development/common.md#meaningful-documentation States its input, its plan and its refusals; the namespace states the method.
    * @evidence contracts/development/implementation.md#principled-implementation The coached foot order in the stance's line frame, each foot on a lifted minimum-jerk path in its half step, the root on its own minimum-jerk profile, the legs and guard solved by the shared fit.

@@ -8,6 +8,7 @@ import type {
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanTrunk } from "../everyday/HumanTrunk";
+import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -390,8 +391,7 @@ export namespace AutoMovieMotionHumanTarget {
         place.at,
       );
     if ("between" in place) {
-      if (!(place.share >= 0 && place.share <= 1))
-        throw new Error("A between share lies in [0, 1]");
+      HumanBound.within("between.share", place.share, 0, 1);
       const a: IDefault = named(body, side, place.between[0]);
       const b: IDefault = named(body, side, place.between[1]);
       if (a.facing !== b.facing)

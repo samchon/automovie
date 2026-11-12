@@ -101,7 +101,7 @@ export namespace dance {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the tempo is not positive or the beat count is not a positive whole number.
+   * @throws {HumanRefusal} When the tempo is not positive or the beat count is not a positive whole number.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation A beat clock with one instant per beat; each step's root and foot curves are written against the beats.

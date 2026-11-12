@@ -114,7 +114,7 @@ export namespace approach {
    *
    * @param context The action's context.
    * @returns The walk's plan to the stop point.
-   * @throws {Error} When the target is already nearer than the gap, or a side is asked of a target that is not a person.
+   * @throws {HumanRefusal} When the target is already nearer than the gap, or a side is asked of a target that is not a person.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is planned, the arrival correction, the returned plan and both refusals.
    * @evidence contracts/development/implementation.md#principled-implementation The stop is the proxemic gap (Hall) measured from the sternum region along the line to the target, the partner's own measure for the handing gap; the walk law places whole footprints to it, and one correction moves the stop by the arriving sternum's measured gap error, since the walk's arrival lean shifts the chest off the standing estimate.

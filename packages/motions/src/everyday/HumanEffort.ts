@@ -110,7 +110,7 @@ export namespace HumanEffort {
    *
    * @param effort The factors; absent ones are neutral.
    * @returns The modifiers.
-   * @throws {Error} When a factor lies outside [-1, 1].
+   * @throws {HumanRefusal} When a factor lies outside [-1, 1].
    */
   export function modifiers(effort: IEffort = {}): IModifiers {
     const f = (value: number | undefined, name: string): number => {

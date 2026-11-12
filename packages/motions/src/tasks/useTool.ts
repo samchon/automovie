@@ -166,7 +166,7 @@ export namespace useTool {
    *
    * @param context The action's context.
    * @returns The plan with its tool.
-   * @throws {Error} When the cycle count is not a positive integer.
+   * @throws {HumanRefusal} When the cycle count is not a positive integer.
    */
   export function plan(context: IHumanActionContext<IParams>): IPlan {
     const body: IHumanBody = context.body;

@@ -133,7 +133,7 @@ export namespace bend {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the target lies beyond the strategy's reach, or the hold is negative.
+   * @throws {HumanRefusal} When the target lies beyond the strategy's reach, or the hold is negative.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the solve, the timing, the postures and both refusals; the law's doc gives the sources and the provisional constants.
    * @evidence contracts/development/implementation.md#principled-implementation The palm goal is solved by the arm's inverse kinematics on a body lowered by the strategy and inclined by the lumbopelvic rhythm (Esola et al. 1996); the hips' back shift keeps the engine's centre of mass over the feet (HumanBalance.shift), found once at 60 degrees and again at the needed pitch; descent time is Fitts's law; the free hand braces on the thigh (Kingma et al. 2016). Limitation: the doc promises the refusal names the lowest height the strategy reaches, but the message names only the target's height.
@@ -499,7 +499,7 @@ export namespace bend {
    * @param strategy The strategy.
    * @param lean The balance shift per unit sine of the inclination, metres.
    * @returns Degrees.
-   * @throws {Error} When even 150 degrees leaves the target out of reach.
+   * @throws {HumanRefusal} When even 150 degrees leaves the target out of reach.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the quantity solved, the search range, the reach model and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation Bisects the inclination on the gap between the shoulder-to-target distance and the arm's reach (0.92 of upper arm plus forearm, near full extension, plus the palm offset), reading the shoulder from the lowered trunk's forward kinematics. Premise: the gap falls as the trunk inclines; this holds while the shoulder descends toward the target and is not checked beyond, and the 150 degree end is only a refusal test.

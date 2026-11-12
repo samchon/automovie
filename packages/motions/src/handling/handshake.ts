@@ -133,7 +133,7 @@ export namespace handshake {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the partners stand beyond reach of each other, or the pump count is not a positive integer.
+   * @throws {HumanRefusal} When the partners stand beyond reach of each other, or the pump count is not a positive integer.
    */
   export function plan(
     context: IHumanActionContext<IParams>,

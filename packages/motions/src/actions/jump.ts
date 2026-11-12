@@ -132,7 +132,7 @@ export namespace jump {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When no foot is planted to push off from, or the apex is not positive.
+   * @throws {HumanRefusal} When no foot is planted to push off from, or the apex is not positive.
    */
   export function plan(
     context: IHumanActionContext<IParams>,

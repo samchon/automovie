@@ -116,7 +116,7 @@ export namespace catchObject {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the anchor is not a throw, the path never comes within reach, or the catch would start before the action.
+   * @throws {HumanRefusal} When the anchor is not a throw, the path never comes within reach, or the catch would start before the action.
    */
   export function plan(context: IHumanActionContext<IParams>): IPlan {
     const body: IHumanBody = context.body;

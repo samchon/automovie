@@ -200,7 +200,7 @@ export namespace handshakeOffer {
    * @param side The shaking hand of both.
    * @param pump How far the hands travel below the point after meeting, metres.
    * @returns The meeting; the point is the same for either order.
-   * @throws {Error} When the partners stand beyond reach of each other.
+   * @throws {HumanRefusal} When the partners stand beyond reach of each other.
    */
   export function point(
     a: ISide,

@@ -157,7 +157,7 @@ export namespace crouch {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the hold is negative, or the depth leaves the hip's flexion range no room with the heels asked for.
+   * @throws {HumanRefusal} When the hold is negative, or the depth leaves the hip's flexion range no room with the heels asked for.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the plan and both refusals; the namespace gives the law.
    * @evidence contracts/development/implementation.md#principled-implementation The hip's place follows from the knee flexion and the shank's tilt by the leg's two lengths, the pitch from a bisection on the centre of mass over the soles.

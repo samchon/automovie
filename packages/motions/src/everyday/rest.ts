@@ -131,7 +131,7 @@ export namespace rest {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When a paired place names one hand only, or the time is not positive.
+   * @throws {HumanRefusal} When a paired place names one hand only, or the time is not positive.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -298,7 +298,7 @@ export namespace rest {
    * @param posture The standing posture.
    * @param places Each hand's place.
    * @returns The goals of the hands that move.
-   * @throws {Error} When the trunk has no surface where a clasp is laid.
+   * @throws {HumanRefusal} When the trunk has no surface where a clasp is laid.
    */
   export function goals(
     body: IHumanBody,

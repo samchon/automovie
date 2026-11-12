@@ -111,7 +111,7 @@ export namespace rise {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the feet stand too far ahead to rise over them.
+   * @throws {HumanRefusal} When the feet stand too far ahead to rise over them.
    */
   export function plan(
     context: IHumanActionContext<IParams>,

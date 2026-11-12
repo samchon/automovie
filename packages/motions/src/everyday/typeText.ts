@@ -93,7 +93,7 @@ export namespace typeText {
    *
    * @param key A letter or a space.
    * @returns The centre and the hand that presses it.
-   * @throws {Error} When the layout has no such key.
+   * @throws {HumanRefusal} When the layout has no such key.
    */
   export function key(key: string): {
     at: IAutoMovieVector3;
@@ -125,7 +125,7 @@ export namespace typeText {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} On an unknown key, an empty text, or a keyboard too high, low or far for the body.
+   * @throws {HumanRefusal} On an unknown key, an empty text, or a keyboard too high, low or far for the body.
    */
   export function plan(
     context: IHumanActionContext<IParams>,

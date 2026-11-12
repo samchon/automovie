@@ -1,6 +1,7 @@
 import type { IAutoMovieRandom } from "@automovie/engine";
 import type { AutoMovieMotionTarget } from "@automovie/interface";
 
+import { HumanBound } from "../law/HumanBound";
 import { HumanGaze } from "./HumanGaze";
 
 /**
@@ -83,8 +84,7 @@ export namespace HumanConversation {
     const exponential = (mean: number): number =>
       -mean * Math.log(Math.max(1e-12, 1 - random.float(draw++)));
     for (const turn of turns) {
-      if (!(turn.to > turn.from))
-        throw new Error("A turn ends after it starts");
+      HumanBound.above("turns.to", turn.to, turn.from, "s");
       const role: "speaking" | "listening" =
         turn.speaker === subject ? "speaking" : "listening";
       const mean = GLANCES[role];

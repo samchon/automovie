@@ -195,7 +195,7 @@ export namespace throwObject {
    *
    * @param context The action's context.
    * @returns The plan with its launch.
-   * @throws {Error} When the release angle cannot reach the target.
+   * @throws {HumanRefusal} When the release angle cannot reach the target.
    */
   export function plan(context: IHumanActionContext<IParams>): IPlan {
     const body: IHumanBody = context.body;

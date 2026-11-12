@@ -88,7 +88,7 @@ export namespace HumanGrasp {
    * @param id The affordance id.
    * @param seconds Film seconds.
    * @returns The target.
-   * @throws {Error} When the prop declares no such affordance or no colliders.
+   * @throws {HumanRefusal} When the prop declares no such affordance or no colliders.
    */
   export function target(
     context: Pick<IHumanActionContext, "prop">,
@@ -108,7 +108,7 @@ export namespace HumanGrasp {
    * @param id The affordance id.
    * @param frame The prop's world frame.
    * @returns The target.
-   * @throws {Error} When the prop declares no such affordance or no colliders.
+   * @throws {HumanRefusal} When the prop declares no such affordance or no colliders.
    */
   export function at(
     prop: IHumanProp,

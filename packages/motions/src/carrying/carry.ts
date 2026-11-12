@@ -192,7 +192,7 @@ export namespace carry {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the load's share lies outside [0, 0.25], or the walk refuses its destination.
+   * @throws {HumanRefusal} When the load's share lies outside [0, 0.25], or the walk refuses its destination.
    */
   export function plan(
     context: IHumanActionContext<IParams>,

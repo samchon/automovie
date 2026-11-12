@@ -71,7 +71,7 @@ export namespace shift {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the shift exceeds the planted legs' side reach.
+   * @throws {HumanRefusal} When the shift exceeds the planted legs' side reach.
    */
   export function plan(
     context: IHumanActionContext<IParams>,

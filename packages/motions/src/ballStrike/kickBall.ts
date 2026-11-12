@@ -131,7 +131,7 @@ export namespace kickBall {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the ball lies beyond the kicking leg's reach.
+   * @throws {HumanRefusal} When the ball lies beyond the kicking leg's reach.
    */
   export function plan(
     context: IHumanActionContext<IParams>,

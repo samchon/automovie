@@ -123,7 +123,7 @@ export namespace wipe {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the cycle count is not a positive integer, or the patch lies beyond reach.
+   * @throws {HumanRefusal} When the cycle count is not a positive integer, or the patch lies beyond reach.
    */
   export function plan(
     context: IHumanActionContext<IParams>,

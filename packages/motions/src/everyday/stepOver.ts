@@ -122,7 +122,7 @@ export namespace stepOver {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the obstacle is too far, behind, too high or too deep to cross in one step.
+   * @throws {HumanRefusal} When the obstacle is too far, behind, too high or too deep to cross in one step.
    */
   export function plan(
     context: IHumanActionContext<IParams>,

@@ -107,7 +107,7 @@ export namespace HumanProxemics {
    * @param self The approaching person.
    * @param other The other person; the approaching person when absent (a prop or point target).
    * @returns Metres; positive.
-   * @throws {Error} When a metre request is not positive.
+   * @throws {HumanRefusal} When a metre request is not positive.
    */
   export function gap(
     request: Band | number,

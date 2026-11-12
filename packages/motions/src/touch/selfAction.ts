@@ -120,7 +120,7 @@ export namespace selfAction {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the count is not a positive whole number.
+   * @throws {HumanRefusal} When the count is not a positive whole number.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal; the law's doc gives the places and timing.
    * @evidence contracts/development/implementation.md#principled-implementation Arms carried in joint space (Soechting and Lacquaniti 1981) to named places solved by the arm's inverse kinematics; head and shoulder circles as joint angles on the clock.

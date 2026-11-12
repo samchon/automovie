@@ -110,7 +110,7 @@ export namespace sit {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the seat does not suit the body, the performer does not face away from it, the feet are out of reach, or `lean` has no backrest.
+   * @throws {HumanRefusal} When the seat does not suit the body, the performer does not face away from it, the feet are out of reach, or `lean` has no backrest.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -267,7 +267,7 @@ export namespace sit {
    * @param goal The socket's point on the seat.
    * @param feet The planted ankles.
    * @param pitch The seated pitch, degrees.
-   * @throws {Error} When a foot is out of reach, with the reachable distances ahead of the front edge.
+   * @throws {HumanRefusal} When a foot is out of reach, with the reachable distances ahead of the front edge.
    */
   export function reach(
     body: IHumanBody,

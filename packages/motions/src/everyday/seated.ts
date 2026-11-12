@@ -84,7 +84,7 @@ export namespace seated {
    *
    * @param body The body.
    * @param seat The seat.
-   * @throws {Error} When the seat height lies outside the band.
+   * @throws {HumanRefusal} When the seat height lies outside the band.
    */
   export function check(body: IHumanBody, seat: ISeat): void {
     const r: number = ratio(body, seat);

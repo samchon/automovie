@@ -93,7 +93,7 @@ export namespace look {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When an uncued target lies outside the attended field, or the duration is not positive.
+   * @throws {HumanRefusal} When an uncued target lies outside the attended field, or the duration is not positive.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the steps and both refusals; the law's doc gives the field, the reaction-time sources and the events.
    * @evidence contracts/development/implementation.md#principled-implementation The gaze goal is the eyes' lines on the target, recruited eyes, head and trunk in that order by HumanGaze.split; the eyes take the saccade's main-sequence duration (capped at twice the eyes' range) and head and trunk their turn durations, each on a minimum-jerk weight from the reaction delay; the target is re-aimed every instant, so a moving target is tracked.

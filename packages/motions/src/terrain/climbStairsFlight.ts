@@ -103,7 +103,7 @@ export namespace climbStairsFlight {
    * @param posture The standing posture.
    * @param params The parameters.
    * @returns The flight.
-   * @throws {Error} When the count is not a positive integer, or the riser or the tread is outside what the body can climb.
+   * @throws {HumanRefusal} When the count is not a positive integer, or the riser or the tread is outside what the body can climb.
    */
   export function flight(
     body: IHumanBody,
