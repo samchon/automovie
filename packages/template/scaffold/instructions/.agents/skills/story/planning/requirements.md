@@ -18,7 +18,7 @@ A changed or withdrawn requirement reaches its consumers through [repair](../cor
 
 ## Asking the user {#asking-the-user}
 
-Handing the story to the agent leaves what it is with the user unless they delegate that too: its events, people, ending, tone, form, running time and frame. A story built on a guessed one is rewritten once the user reads it, with every layer written on it. Each layer's own decisions within what the user decided, such as a researched fact, are delegated and not asked.
+When the user hands over the story, its events, people, ending, tone, form, running time and frame stay theirs unless delegated. A story built on a guessed element is rewritten once the user reads it, with every layer written on it. Each layer's own decisions within what the user decided, such as a researched fact, are delegated and not asked.
 
 Before research, ask about each such element the user neither fixed nor delegated. Ask in rounds and record each round's answers at their owners, because an answer often raises a new element. Stop when the conversation and the user's materials leave none, or when the user delegates the rest, recorded as one delegated choice.
 
