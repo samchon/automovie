@@ -6,11 +6,11 @@ Make `evidence.config.ts` select the work the commission actually has. The insta
 
 Keep the default engineering claims: every source declaration and test answers its [development contracts](../contracts/development/SKILL.md). Turn on the entities, behaviors and composition stages when the entity folders, the behavior folders and the composition folder gain their first declaration, so entities cite the facts they realize, behaviors the studies they follow, scenes the screenplay scenes and beats they realize and films the screenplay files they deliver.
 
-Source stages follow the code: a folder with declarations and no stage answers nothing.
+Source stages follow the code: a folder with declarations and no stage answers nothing. Turn on composition over a user's [fixed screenplay](../story/workflow.md#who-writes-the-screenplay) only when its headings mark scenes and beats, because its text is never changed to add them.
 
 ## Story
 
-Choose the route option that matches the route [workflow](../story/workflow.md#route-and-parents) adopted, and none when [no story pass runs](../story/workflow.md#who-writes-the-screenplay). Turn on composition over a user's fixed screenplay only when its headings mark scenes and beats, because its text is never changed to add them.
+Choose the route option that matches the route [workflow](../story/workflow.md#route-and-parents) adopted, and none when [no story pass runs](../story/workflow.md#who-writes-the-screenplay).
 
 Narrative stages follow a finished draft, never the presence of files: enable each layer's construction, and the screenplay's naturalness stage, when its complete draft is ready, because a stage opened on a half-written layer demands answers for text that will change.
 

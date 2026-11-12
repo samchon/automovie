@@ -4,7 +4,7 @@ The production's `PROJECT.md` holds the current overview, commissioned scope, ad
 
 ## What to record
 
-Record only what this project needs; an instance-only request needs no story, and a screenplay-only request no renderer. Leave an undecided nonblocking choice explicit and continue the work that does not depend on it. A question the user cannot answer during the run, as in an unattended run, is recorded as unresolved and the work that depends on it stops, because a guessed answer is not a delegation.
+Record only what this project needs; an instance-only request needs no story, and a screenplay-only request no renderer. Leave an undecided nonblocking choice explicit and continue the work that does not depend on it. A question the user cannot answer during the run is recorded as unresolved and the work that depends on it stops, because a guessed answer is not a delegation.
 
 | Topic | Record when relevant |
 | --- | --- |

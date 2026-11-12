@@ -41,7 +41,7 @@ The user chooses, whatever route the folder fixes, and the choice is recorded wi
 | The user's, refined | The route's | Enters through [intake](document-layout.md#intake-of-existing-work) as material |
 | The user's, fixed | None | Used exactly as given |
 
-A fixed screenplay is never edited, reviewed or rewritten, because it is the user's. An exchange, outcome or reaction it lacks, or a beat that cannot be performed, is [asked of the user](planning/requirements.md#asking-the-user) and recorded in the instructions, where the code's concretizations go too. Research still serves the laws the code needs whenever no story pass runs.
+A fixed screenplay is never edited, reviewed or rewritten, because it is the user's. An exchange, outcome or reaction it lacks, or a beat that cannot be performed, is asked of the user and recorded in the instructions. Research still serves the laws the code needs whenever no story pass runs.
 
 ## Construction
 
