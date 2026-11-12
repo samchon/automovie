@@ -401,7 +401,7 @@ namespace FamilyConicBody {
         // The ear's hollow as a loft of its own. The auricle is a thin shell: a sagittal plane cuts it in one loop shaped like a C, and what
         // the C stands round, the concha and the scapha, is the pocket between that loop and its hull, open to the front
         // (`FamilyConicScan.ts concha`: 435 mm2 at 78 mm out, 33 at 94). The loft runs out through those pockets.
-        { name: "concha", centres: [[1.5, 1587, 98], [17.5, 1574, 72]], course: "[J.conchaRoot, J.conchaTip]", halves: [], up: [0, 1, 0], domain: [12.2, 20.7], head: true, loose: true, step: 0.5, gap: 2, tip: 26.7, lead: 10, pocket: 5, mirrored: true, layouts: [LIMB[0]!], clip: (p: R.V): number => -ear(p), reliefs: [] },
+        { name: "concha", centres: [[-0.7, 1580, 99.5], [15, 1580, 77.5]], course: "[J.conchaRoot, J.conchaTip]", halves: [], up: [0, 1, 0], domain: [11.5, 23], head: true, loose: true, step: 0.5, gap: 3, tip: 28, lead: 12, pocket: 5, mirrored: true, layouts: [LIMB[0]!], clip: (p: R.V): number => -ear(p), reliefs: [] },
         // A nostril as a hollow of its own: level planes cut one closed loop of it from 1,551 to 1,555 mm, 10 by 8 mm at its mouth
         // (`FamilyConicScan.ts nostril`). Its loft runs straight up through that loop, closes where the loop vanishes and is carried 8 mm
         // down out of the nose, to be cut from the head (`diff`).
@@ -1137,10 +1137,10 @@ namespace FamilyConicBody {
       "  export const noseTip: V3 = [140, 1561, 0];",
       "",
       "  /** Where the course of the ear's hollow starts, out past the auricle's rim. */",
-      "  export const conchaRoot: V3 = [1.5, 1587, 98];",
+      "  export const conchaRoot: V3 = [-0.7, 1580, 99.5];",
       "",
       "  /** Where it ends, inside the head behind the concha's floor. */",
-      "  export const conchaTip: V3 = [17.5, 1574, 72];",
+      "  export const conchaTip: V3 = [15, 1580, 77.5];",
       "",
       "  /** Where a nostril's course starts, below the nose under the middle of the nostril's mouth. */",
       "  export const nostrilRoot: V3 = [127.1, 1540.4, 7.7];",

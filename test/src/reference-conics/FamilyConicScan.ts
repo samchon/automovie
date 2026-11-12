@@ -65,12 +65,17 @@ namespace FamilyConicScan {
         const hull: C.P[] = R.hull(ear);
         const at = (p: C.P): number => ear.findIndex((q: C.P): boolean => q[0] === p[0] && q[1] === p[1]);
         let best: C.P[] = [];
+        const pockets: C.P[][] = [];
         for (let h: number = 0; h < hull.length; ++h) {
           const [i, j]: [number, number] = [at(hull[h]!), at(hull[(h + 1) % hull.length]!)];
           if (i < 0 || j < 0) continue;
           for (const run of [((): C.P[] => { const out: C.P[] = []; for (let k: number = i; ; k = (k + 1) % ear.length) { out.push(ear[k]!); if (k === j) break; } return out; })(), ((): C.P[] => { const out: C.P[] = []; for (let k: number = i; ; k = (k - 1 + ear.length) % ear.length) { out.push(ear[k]!); if (k === j) break; } return out; })()])
-            if (run.length >= 3 && !run.slice(1, -1).some((p: C.P): boolean => hull.some((q: C.P): boolean => q[0] === p[0] && q[1] === p[1])) && Math.abs(R.area(run)) > Math.abs(R.area(best.length < 3 ? [[0, 0], [0, 0], [0, 0]] : best))) best = run;
+            if (run.length >= 3 && !run.slice(1, -1).some((p: C.P): boolean => hull.some((q: C.P): boolean => q[0] === p[0] && q[1] === p[1]))) {
+              if (Math.abs(R.area(run)) > 15) pockets.push(run);
+              if (Math.abs(R.area(run)) > Math.abs(R.area(best.length < 3 ? [[0, 0], [0, 0], [0, 0]] : best))) best = run;
+            }
         }
+        if (pockets.length > 1) process.stdout.write("   all pockets: " + pockets.sort((a: C.P[], b: C.P[]): number => Math.abs(R.area(b)) - Math.abs(R.area(a))).map((run: C.P[]): string => "(" + centre(run).map((x: number): string => x.toFixed(0)).join(",") + " a" + Math.abs(R.area(run)).toFixed(0) + ")").join(" ") + "\n");
         if (best.length >= 3) process.stdout.write("   pocket centre " + centre(best).map((x: number): string => x.toFixed(1)).join(",") + " area " + Math.abs(R.area(best)).toFixed(0) + " chord " + best[0]!.map((x: number): string => x.toFixed(0)).join(",") + " -> " + best.at(-1)!.map((x: number): string => x.toFixed(0)).join(",") + " points " + best.length + "\n");
       }
       return;
