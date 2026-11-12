@@ -28,6 +28,12 @@ Choose the long route when the work's causes, setups and payoffs span many scene
 
 Record the choice in [project context](../production/project-context.md); in an AutoMovie workspace the production's folder fixes it: `movies/shorts/<name>` runs the short route and `movies/series/<name>` the long route.
 
+### The user's own screenplay {#users-own-screenplay}
+
+The user may write the screenplay themselves or decline this workflow, in any folder. Then no story pass runs, and their screenplay, if any, is used exactly as given: never edit, review or rewrite it, because it is theirs. Record the choice in project context.
+
+A decision the code needs that their screenplay leaves open is [asked of the user](planning/requirements.md#asking-the-user) and recorded in the instructions, and the code realizes the screenplay and those answers. Research still serves the laws the code needs.
+
 Asset-only work has no narrative passes. Choose form and scale through [direction](planning/direction.md); complete work is the default.
 
 ## Construction

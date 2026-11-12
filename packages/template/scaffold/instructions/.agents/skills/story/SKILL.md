@@ -9,7 +9,7 @@ Make the commissioned audience experience and a usable handoff to the next layer
 
 | Part | Covers |
 | --- | --- |
-| [Workflow](workflow.md) | Choosing the short or long route, layer order and parents, pass steps and completion |
+| [Workflow](workflow.md) | Choosing the short or long route or the user's own screenplay, layer order and parents, pass steps and completion |
 | [Planning](planning/SKILL.md) | Requirements, direction, research and discovery |
 | [Layers](layers/SKILL.md) | Settings or brief, treatments, scripts, screenplay and notation |
 | [Naturalness](naturalness/SKILL.md) | The screenplay expression pass and its transfer |

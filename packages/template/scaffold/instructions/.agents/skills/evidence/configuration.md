@@ -10,7 +10,7 @@ Source stages follow the code: a folder with declarations and no stage answers n
 
 ## Story
 
-Choose the route option that matches the route [workflow](../story/workflow.md#route-and-parents) adopted. Narrative stages follow a finished draft, never the presence of files: enable each layer's construction, and the screenplay's naturalness stage, when its complete draft is ready, because a stage opened on a half-written layer demands answers for text that will change.
+Choose the route option that matches the route [workflow](../story/workflow.md#route-and-parents) adopted, and no narrative option for the [user's own screenplay](../story/workflow.md#users-own-screenplay). Turn on composition over that screenplay only when its headings mark scenes and beats, because its text is never changed to add them. Narrative stages follow a finished draft, never the presence of files: enable each layer's construction, and the screenplay's naturalness stage, when its complete draft is ready, because a stage opened on a half-written layer demands answers for text that will change.
 
 Turn on the research stage once the research studies exist. Complete work is the default scope; a pilot follows [scope expansion](../story/correction/repair.md#scope-expansion).
 
