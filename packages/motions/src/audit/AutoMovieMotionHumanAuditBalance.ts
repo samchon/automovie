@@ -22,7 +22,12 @@ import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMo
  * step or fall, so a motion that keeps both feet planted while it lies
  * outside shows a body no one could hold. An instant where a hand grips, a
  * seat or a back bears, or a foot is not planted is not read: the feet are
- * not the only support there.
+ * not the only support there. Nor is an instant within the pendulum's own
+ * time constant (the square root of its length over gravity, about a third
+ * of a second) of a foot leaving the ground: that body is taking the step
+ * Hof et al.'s condition demands, and in steady walking the extrapolated
+ * centre does lie ahead of the leading foot through the double support
+ * (Hof 2008, Hum Mov Sci 27:112).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the measure with its source, its pendulum length, the support hull and which instants are read.
  * @evidence contracts/development/implementation.md#principled-implementation Hof et al.'s extrapolated centre of mass through the engine's owners of the centre, the extrapolation and the hull margin.
@@ -61,6 +66,7 @@ export namespace AutoMovieMotionHumanAuditBalance {
       seconds: 0,
       where: "none",
     };
+    const hold: number = Math.sqrt((1.34 * body.measure.hipHeight) / 9.81);
     const times: number[] = IAutoMovieMotionHumanAuditMotion.grid(
       0,
       motion.duration,
@@ -68,7 +74,9 @@ export namespace AutoMovieMotionHumanAuditBalance {
     );
     for (let i: number = 0; i < times.length; i++) {
       const t: number = times[i]!;
-      if (!standing(windows, t)) continue;
+      // A foot that lifts within the pendulum's own time is a step being
+      // taken: the body is walking there, not standing.
+      if (!standing(windows, t, Math.min(motion.duration, t + hold))) continue;
       const value: number = -margin(
         motion,
         subject,
@@ -134,12 +142,34 @@ export namespace AutoMovieMotionHumanAuditBalance {
    *
    * @param windows The person's contact windows, film seconds.
    * @param seconds Film seconds.
+   * @param until The second both feet must stay planted to, without a gap; `seconds` itself when absent.
    * @returns Whether the instant is read.
    */
   export function standing(
     windows: readonly IAutoMovieMotionHumanAuditMotion.IWindow[],
     seconds: number,
+    until: number = seconds,
   ): boolean {
+    if (until > seconds)
+      for (const part of ["leftFoot", "rightFoot"] as const) {
+        // How long this foot stays planted from the instant on, through
+        // plant windows that follow one another without a gap.
+        let kept: number = seconds;
+        for (let grown: boolean = true; grown && kept < until; ) {
+          grown = false;
+          for (const window of windows)
+            if (
+              window.contact.part === part &&
+              window.contact.kind === "plant" &&
+              window.from <= kept + 1e-9 &&
+              window.to > kept + 1e-9
+            ) {
+              kept = window.to;
+              grown = true;
+            }
+        }
+        if (kept < until - 1e-9) return false;
+      }
     let left: boolean = false;
     let right: boolean = false;
     for (const window of windows) {
