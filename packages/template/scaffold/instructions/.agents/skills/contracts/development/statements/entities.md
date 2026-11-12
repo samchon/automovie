@@ -11,7 +11,7 @@ Contract: [entities.md](../entities.md).
 5. Each parameter of a research law or of an installed action, such as stature, proficiency or style, derives from a cited fact and stays within the range its law gives.
 6. Each measurement names its study and section.
 7. Placements, weights, texture coordinates and measurements derive from the subject's generating definition, so changing the detail option moves none of them.
-8. A decision the settings or brief do not establish is written there first, and a measurement no research supports is studied first. Exception: when no narrative pass runs, it is recorded in the screenplay, or for a fixed screenplay in the instructions.
+8. A decision the settings or brief do not establish is written there first, and a measurement no research supports is studied first. Exception: when [no narrative pass runs](../../../story/workflow.md#who-writes-the-screenplay), it is recorded in the screenplay, or for a fixed screenplay in the instructions.
 
 ## Object shape {#object-shape}
 
