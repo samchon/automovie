@@ -420,6 +420,9 @@ export namespace AutoMovieConstructionSplitBand {
 
     /** How the child's rail is matched to the loop (IAutoMovieConstructionSplit.IChild.correspondence); absent, by angle. */
     correspondence?: "angle" | "length";
+
+    /** The share of its length a ribbon keeps at a fork (`IAutoMovieConstructionSplit.IProfile.reach`), in `(0, 1]`; absent, 1. */
+    reach?: number;
   }
 
   /**
@@ -491,7 +494,16 @@ export namespace AutoMovieConstructionSplitBand {
       const x: number = d / input.corner;
       return 1 - x * x * x * (10 - 15 * x + 6 * x * x);
     };
+    // The ribbons' reach toward each fork (`IAutoMovieConstructionSplit.IProfile.reach`): first derivative by the share, second by its
+    // square, so each column only slows across its start and its curvature there, and the band's G2 to the host, are kept.
+    const reach: number = input.reach ?? 1;
     const near = (k: number, L: number): AutoMovieSolidRibbon.IRibbon | string => {
+      const made: AutoMovieSolidRibbon.IRibbon | string = turned(k, L);
+      if (typeof made === "string" || reach === 1) return made;
+      const lambda: number = reach + (1 - reach) * (1 - turn(Math.min(within[k]!, stretches[owner[k]!]!.columns - within[k]!) * step));
+      return { point: made.point, first: scale(made.first, lambda), second: scale(made.second, lambda * lambda) };
+    };
+    const turned = (k: number, L: number): AutoMovieSolidRibbon.IRibbon | string => {
       const i: number = owner[k]!;
       const s: IStretch = stretches[i]!;
       const fromStart: number = within[k]! * step;

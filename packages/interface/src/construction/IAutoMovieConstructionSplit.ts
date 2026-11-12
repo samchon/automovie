@@ -67,7 +67,7 @@ export namespace IAutoMovieConstructionSplit {
    *
    * Within `corner` of clock on each side of a fork, the cross ribbons turn by the quintic smoothstep through the inward diagonal at the fork. On the arc they turn from the host's own ribbon toward the ruling, inside the host's tangent plane. On the seam they turn from the ruling toward the seam's direction away from the fork. The corner column then leaves the fork between both boundaries instead of along either one. The bands are G1 to the host there, not G2. The forks are G1 when the host's normal at each fork lies in the seam plane, as on the midline of a mirror-symmetric host. Otherwise the remaining angle stays measurable and is not hidden.
    *
-   * Engine admission: at least one knot; every knot finite, `along` not negative, and apart from the knot before it (the first from the seam's first end, `[0, 0]`); the realization refuses a knot whose `along` exceeds the chord's length, which needs the host's geometry; `corner` finite, positive and below `pi / 2`.
+   * Engine admission: at least one knot; every knot finite, `along` not negative, and apart from the knot before it (the first from the seam's first end, `[0, 0]`); the realization refuses a knot whose `along` exceeds the chord's length, which needs the host's geometry; `corner` finite, positive and below `pi / 2`; `reach`, when given, finite in `(0, 1]`.
    *
    * @evidence contracts/development/design.md#principled-representation A seam tangent to the host at the forks lies in the host's tangent plane there, so the arc's ribbons (the host's own 2-jet), the seam and its lateral ruling share one tangent plane at each fork, the G1 condition a straight chord in the end plane cannot meet; the clamped cubic spline is the C2 interpolant of authored knots with prescribed end tangents (de Boor 1978), and the corner turn keeps every ribbon in its side's tangent plane while giving the corner column a direction transverse to both boundaries.
    * @evidence contracts/development/design.md#minimal-and-owned-surface A knot list and one corner width; the seam's ends, tangents and ruling come from the host and the chord, and its parameter from its own knots.
@@ -80,6 +80,16 @@ export namespace IAutoMovieConstructionSplit {
 
     /** The ribbons' turn at each fork: radians of the loop clock on each side, positive, below `pi / 2`. */
     corner: number;
+
+    /**
+     * In a split into more than two (`outer`), the share of its length each band's cross ribbon keeps at a fork, rising to the whole by the
+     * quintic smoothstep over `corner` of clock on each side: the first derivative by the share, the second by its square, so a column only
+     * slows across its start and the band's tangent plane and curvature there, G2 to the host along an arc, are kept. Inside a fork the
+     * band's corner is convex, and columns leaving square to the ring and to the seam converge within about the turn's window; shorter
+     * ribbons leave the rest of each column to its rail, which runs round the child in order. In `(0, 1]`; absent, 1. The first seam with
+     * a profile gives the split's, as it gives `corner`.
+     */
+    reach?: number;
 
     /**
      * A world direction the seam plane holds in place of the host end's outward normal, unit or not, not along the chord; `depth` is then

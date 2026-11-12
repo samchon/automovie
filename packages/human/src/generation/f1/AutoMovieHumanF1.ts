@@ -150,6 +150,9 @@ export namespace AutoMovieHumanF1 {
     /** The bands' turn at each fork, radians of clock. */
     corner: number;
 
+    /** The share of its length each band's ribbon keeps at a fork (`IAutoMovieConstructionSplit.IProfile.reach`); absent, the whole. */
+    reach?: number;
+
     /** Where each digit's band lands on it, mm past its first station, the web. */
     rail: number;
 
@@ -184,7 +187,9 @@ export namespace AutoMovieHumanF1 {
     // its fork and stood a pointed tent between the toes on top. The bands turn over 0.75 rad of clock at each fork, nearly half of a
     // stretch's 1.57: columns square to the ring and to the seam converge inside a fork's corner within about the turn's window, and the
     // toe bands, 16 to 20 mm long, folded beside their forks over 185 of 3,840 clocks at 0.6 rad, 110 at 0.75 and 237 at 0.3 (sampled
-    // every 0.008 rad and 1/40 of each band's span, normals flipping between neighbours).
+    // every 0.008 rad and 1/40 of each band's span, normals flipping between neighbours). Their ribbons keep a quarter of their length at
+    // each fork (`reach`): 110 clocks fold at the whole length, 44 at a half, 24 at a quarter and 28 at a tenth, and the webs' blades on top
+    // become grooves. The hand's bands keep their whole length: theirs fold in 13 clocks of 3,072 at the whole, 48 at a quarter.
     leg: {
       digits: ["toe.little", "toe.ring", "toe.middle", "toe.index", "toe.big"],
       webs: [
@@ -194,6 +199,7 @@ export namespace AutoMovieHumanF1 {
         [[0.0001, 0.001], [0.0001, 0.002], [0.0003, 0.003], [0.0006, 0.004], [0.0008, 0.005], [0.001, 0.006], [0.0013, 0.007], [0.002, 0.0094], [0.004, 0.0135], [0.006, 0.0158], [0.02, 0.0128], [0.022, 0.0104], [0.024, 0.0069], [0.026, 0.0031], [0.0265, 0.002], [0.027, 0.001]],
       ],
       corner: 0.75,
+      reach: 0.25,
       rail: 3,
       columns: 192,
     },
@@ -531,8 +537,8 @@ export namespace AutoMovieHumanF1 {
         const chord: number = Math.hypot(pb[0]! - pa[0]!, pb[1]! - pa[1]!, pb[2]! - pa[2]!) / 1000;
         const h: [number, number, number] = fan.headings[j]!;
         return side > 0
-          ? { seam: [a, b], profile: { knots, corner: fanned.corner, heading: h } }
-          : { seam: [-b, -a], profile: { knots: knots.map(([along, depth]: [number, number]): [number, number] => [chord - along, depth]).reverse(), corner: fanned.corner, heading: [h[0], h[1], -h[2]] } };
+          ? { seam: [a, b], profile: { knots, corner: fanned.corner, heading: h, ...(fanned.reach === undefined ? {} : { reach: fanned.reach }) } }
+          : { seam: [-b, -a], profile: { knots: knots.map(([along, depth]: [number, number]): [number, number] => [chord - along, depth]).reverse(), corner: fanned.corner, heading: [h[0], h[1], -h[2]], ...(fanned.reach === undefined ? {} : { reach: fanned.reach }) } };
       };
       const children: IAutoMovieConstructionSplit.IChild[] = fanned.digits.map((name: string): IAutoMovieConstructionSplit.IChild => {
         const digit: IDigit = DIGITS.find((d: IDigit): boolean => d.family.name === name)!;

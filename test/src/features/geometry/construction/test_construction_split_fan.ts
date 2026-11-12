@@ -27,12 +27,13 @@ import { ConstructionShapes } from "../../internal/construction/ConstructionShap
  * 8. Heading (`IProfile.heading`): seam 0 curved with one knot 4 mm deep at its middle and the heading `(0.6, 0, -0.8)` stands in the plane through its chord that holds the heading, its points within 1e-6 mm of it, and leaves the plane `x = 8` mm that the end normal alone would give by more than 1 mm.
  * 9. Correspondence by length starts where the loop and the rail stand closest: with child `f.0` hung 4 mm aside (`y = 0.004`), its band's loop and rail points, each about its own centroid and read in the rail's plane `z = const`, turn by less than 3 degrees on average (anchored by its first point's angle about the rail's centroid, 6.6 degrees).
  * 10. Rows as fine as the loop's columns at the loop: every band's mesh has a row of its own vertices no farther from its loop, along its station, than its loop's columns stand apart on average, and short of a quarter of its span (on rows `length / rows` apart the first stood 5.4 to 5.9 mm off against columns 3.1 to 3.7 mm apart).
+ * 11. Reach (`IProfile.reach`): the headed tree of scenario 8 on 96 columns folds, read every 1/384 turn and 1/40 of each band's span where a normal flips from its neighbour's, in 77 clocks with its ribbons at their whole length; with them kept at a quarter at each fork, in fewer than a quarter as many (8). A reach of 0 is refused by admission.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Realizes the tree with `realizeAutoMovieConstruction` and reads the bands' realized surfaces and the skin mesh. It catches a loop that leaves the host's ring or a seam, a seam read twice instead of shared (an open skin), a band ruled across a seam in the wrong direction and a split that ignores its further seams; any band whose loop is its arcs and its seams and that shares every seam passes.
  * @evidence contracts/development/testing.md#independent-expectations Points come from the fixture's closed forms at the host's knot station, where the view loft's section is the exact circle (ConstructionShapes), and from the chords' equations; the ruling from the node contract (the seam plane's normal toward the band, square to the chord in the end plane); watertightness from the manifold rule. Oracle limit: between columns the band is the strip's B-spline and is not asserted here.
  * @evidence contracts/development/testing.md#distinguishing-cases The middle child, the only one with two arcs and two seams, against the outer ones; two refusals at admission and a red reading without the further seam; a child hung aside against centred ones, and a band's rows near its loop against those near its rail.
  * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include construction_split_fan`; it realizes made trees in process and starts no host, browser or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 10 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: No diagnostic; the body's faces are exactly the host, the three children and the three bands.).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 11 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: No diagnostic; the body's faces are exactly the host, the three children and the three bands.).
  */
 export function test_construction_split_fan(): void {
   const failures: string[] = [];
@@ -205,6 +206,49 @@ export function test_construction_split_fan(): void {
     const first: number = Math.min(...rows);
     if (!(first <= (1 + 1e-9) * (perimeter / n) && first < band.domain![1] / 4)) failures.push(`${name}: its first row stands ${first.toFixed(3)} mm from its loop, its columns ${(perimeter / n).toFixed(3)} mm apart`);
   }
+  // 11. Reach: the headed tree's bands, their ribbons kept at a quarter of their length at each fork, fold in fewer clocks than with
+  // their whole length, read every 1/384 turn and 1/40 of each band's span where the normal flips from its neighbour's.
+  const folds = (r: AutoMovieConstructionRealization.IRealization): number => {
+    let count: number = 0;
+    const normal = (s: IAutoMovieSolidSurface, w: number, c: number): number[] => {
+      const j: IAutoMovieSolidSurface.IJet = s.jet(w, c);
+      return [j.u[1]! * j.v[2]! - j.u[2]! * j.v[1]!, j.u[2]! * j.v[0]! - j.u[0]! * j.v[2]!, j.u[0]! * j.v[1]! - j.u[1]! * j.v[0]!];
+    };
+    const dot = (a: number[], b: number[]): number => a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
+    for (const name of ["band.f.0", "band.f.1", "band.f.2"]) {
+      const s: IAutoMovieSolidSurface = ConstructionRead.surface(r, name);
+      const L: number = s.domain![1];
+      for (let k: number = 0; k < 384; ++k) {
+        const c: number = (turn * k) / 384;
+        let before: number[] = normal(s, 0.001 * L, c);
+        for (let i: number = 0; i < 40; ++i) {
+          const here: number[] = normal(s, (L * (i + 0.5)) / 40, c);
+          if (dot(here, before) < 0 || dot(here, normal(s, (L * (i + 0.5)) / 40, c + turn / 1536)) < 0) {
+            ++count;
+            break;
+          }
+          before = here;
+        }
+      }
+    }
+    return count;
+  };
+  const fine: AutoMovieConstructionRealization.IRealization = realize({
+    ...split({ outer, children: [child("f.0", 0.0165), child("f.1", 0), child("f.2", -0.0165)].map((c: IAutoMovieConstructionSplit.IChild): IAutoMovieConstructionSplit.IChild => ({ ...c, correspondence: "length" })) }),
+    count: 96,
+    profile: { knots: [[half / 1000, 0.004]], corner: 0.3, heading: [0.6, 0, -0.8] },
+  });
+  const reached: AutoMovieConstructionRealization.IRealization = realize({
+    ...split({ outer, children: [child("f.0", 0.0165), child("f.1", 0), child("f.2", -0.0165)].map((c: IAutoMovieConstructionSplit.IChild): IAutoMovieConstructionSplit.IChild => ({ ...c, correspondence: "length" })) }),
+    count: 96,
+    profile: { knots: [[half / 1000, 0.004]], corner: 0.3, heading: [0.6, 0, -0.8], reach: 0.25 },
+  });
+  if (reached.diagnostics.length !== 0) failures.push(`reach: ${ConstructionRead.diagnostics(reached)}`);
+  else {
+    const [whole, quarter] = [folds(fine), folds(reached)];
+    if (!(whole > 0 && quarter * 4 < whole)) failures.push(`reach: ${whole} folded clocks at the whole length, ${quarter} at a quarter`);
+  }
+  refused({ ...split({ outer }), profile: { knots: [[half / 1000, 0.004]], corner: 0.3, reach: 0 } }, "a reach of 0");
   // 6. Red: without its further seam the tree has two bands.
   const red: AutoMovieConstructionRealization.IRealization = realize(split({ children: [child("f.0", 0.0165), child("f.2", -0.0165)] }));
   if (red.body.faces.filter((f: { chain: string }): boolean => f.chain.startsWith("band.")).length !== 2) failures.push("red: a two-way split did not realize two bands");

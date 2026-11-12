@@ -158,6 +158,8 @@ export namespace AutoMovieConstructionAdmission {
               refuse(
                 `profile corner ${profile.corner} rad is not in (0, pi / 2)`,
               );
+            if (profile.reach !== undefined && !(Number.isFinite(profile.reach) && profile.reach > 0 && profile.reach <= 1))
+              refuse(`profile reach ${profile.reach} is not in (0, 1]`);
             const heading: [number, number, number] | undefined = profile.heading;
             if (heading !== undefined && !(heading.every(Number.isFinite) && Math.hypot(...heading) > 0))
               refuse(`profile heading [${heading.join(", ")}] is not a finite nonzero direction`);
