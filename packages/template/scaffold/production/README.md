@@ -53,9 +53,9 @@ In the inspector, the capture's keys are the address's parameters of the same na
 
    Include the intended execution/capture path. Make routine choices within the user's delegation and keep creative requirements with their owners. [Ask for operating choices]({{skills}}/production/project-context.md#asking-for-operating-choices) when the task that uses them begins.
 
-2. When the agent writes the story, first [ask the user]({{skills}}/story/planning/requirements.md#asking-the-user) about it. Study every practice and style the film shows through [research]({{skills}}/story/planning/research.md), then, unless the user [chooses otherwise]({{skills}}/story/workflow.md#who-writes-the-screenplay), write the story with evidence and independent review.
+2. When the agent writes the story, first [ask the user]({{skills}}/story/planning/requirements.md#asking-the-user) about it. Study every practice and style the film shows through [research]({{skills}}/story/planning/research.md).
 
-   Write the [settings]({{skills}}/story/layers/settings.md), or a short's [brief]({{skills}}/story/layers/brief.md), that draw on the study, then the complete [screenplay]({{skills}}/story/SKILL.md) along its [writing route]({{skills}}/story/workflow.md#route-and-parents).
+   Unless the user [chose another writer]({{skills}}/story/workflow.md#who-writes-the-screenplay), write the [settings]({{skills}}/story/layers/settings.md), or a short's [brief]({{skills}}/story/layers/brief.md), that draw on the study, then the complete [screenplay]({{skills}}/story/SKILL.md) along its [writing route]({{skills}}/story/workflow.md#route-and-parents), with evidence and independent review.
 
 3. Build the coarse entities under [entity work]({{skills}}/development/entities.md) and accept every module in its [catalog cases]({{skills}}/motion/catalog-cases.md).
 
