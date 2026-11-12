@@ -6,15 +6,15 @@ import type { AutoMovieConstructionNode } from "@automovie/interface";
  * The declaration of f1's sewn body, against the anatomy it declares.
  *
  * Scenarios:
- * 1. One body: the tree is one split of the trunk into two legs, five ports (an arm and an ear on each side, and the nose), twenty merges (five fingers and five toes on each side) and six cuts (a nostril and an ear's two hollows on each side), over thirty-four source leaves.
+ * 1. One body: the tree is one split of the trunk into two legs, seven ports (an arm, an ear and a breast on each side, and the nose), twenty merges (five fingers and five toes on each side) and six cuts (a nostril and an ear's two hollows on each side), over thirty-six source leaves.
  * 2. Every leaf has its part: each source leaf's name is a key of the sources, and each part carries that name.
- * 3. Sides mirror: every operator on the +Z side has a twin whose part face is the same name with `.mirror`, and the two armscye loops and the two auricle loops have the same station and semi-axes and opposite phases; the armscye loops also run in opposite senses and carry the same 192 shares, near one and not all one, since each follows its arm's ring and the two rings are reflections.
+ * 3. Sides mirror: every operator on the +Z side has a twin whose part face is the same name with `.mirror`, and the two armscye loops, the two auricle loops and the two breasts' loops have the same station and semi-axes and opposite phases; the armscye loops also run in opposite senses and carry the same 192 shares, near one and not all one, since each follows its arm's ring and the two rings are reflections.
  * 4. A digit is merged onto its own limb before that limb is attached: each merge's host face is an arm or a leg of the merge's own side, and no merge's host subtree holds the trunk. A nostril is cut from the whole head: its cut is seeded on the nose and its host subtree holds the trunk. An ear's upper hollow (the scapha) is cut from the ear alone, before the ear is attached: its cut is seeded on its own side's ear and its host is that ear's leaf. Its bowl (the concha) is cut after: seeded on its own side's ear, with the trunk under its host.
  * 5. A port stands on the trunk: each loop's centre station lies inside the trunk part's stations and its phase semi-axis is under pi.
  * 6. Rings round a turn stand no farther apart on the skin than the layers: on the arm and the leg, between neighbouring stations before the closed end, no ring point moves more than the declared 4 mm (5 % allowed for the part's own interpolation) by the course frame's sweep. Round the shoulder the deltoid's cap moved 7 to 10 mm between layers 4 mm apart and showed every ring as a stripe.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanF1.construction`, `armscye` and `auricle` and walks the tree they return.
- * @evidence contracts/development/testing.md#independent-expectations The counts are the body's own: two legs, two arms, two ears, five fingers and five toes a side; mirror symmetry of the reference is a property of f1, not of this code.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanF1.construction`, `armscye`, `auricle` and `mammary` and walks the tree they return.
+ * @evidence contracts/development/testing.md#independent-expectations The counts are the body's own: two legs, two arms, two ears, two breasts, five fingers and five toes a side; mirror symmetry of the reference is a property of f1, not of this code.
  * @evidence contracts/development/testing.md#distinguishing-cases Splits, ports and merges are counted apart, both sides are compared, and the nesting of merges under limbs is told from merges over the whole body.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU unit that declares the tree and resolves its parts without realizing a surface, reached by `--include human_f1_construction`.
  * @evidence contracts/development/common.md#meaningful-documentation Lists each scenario with the anatomical fact it is checked against.
@@ -37,7 +37,7 @@ export function test_human_f1_construction(): void {
   const count = (type: string): number => nodes.filter((node: AutoMovieConstructionNode): boolean => node.type === type).length;
 
   // 1. The body's parts.
-  for (const [type, expected] of [["split", 1], ["port", 5], ["join", 26], ["source", 34]] as [string, number][]) if (count(type) !== expected) failures.push(`${count(type)} ${type} nodes, expected ${expected}`);
+  for (const [type, expected] of [["split", 1], ["port", 7], ["join", 26], ["source", 36]] as [string, number][]) if (count(type) !== expected) failures.push(`${count(type)} ${type} nodes, expected ${expected}`);
 
   // 2. Leaves and their parts.
   for (const node of nodes)
@@ -45,7 +45,7 @@ export function test_human_f1_construction(): void {
       const part = declared.sources.get(node.source);
       if (part === undefined || part.name !== node.name) failures.push(`source leaf ${node.name} has ${part === undefined ? "no part" : "the part " + part.name}`);
     }
-  if (declared.sources.size !== 34) failures.push(`${declared.sources.size} source parts, expected 34`);
+  if (declared.sources.size !== 36) failures.push(`${declared.sources.size} source parts, expected 36`);
   const kinds = (kind: string): number => nodes.filter((node: AutoMovieConstructionNode): boolean => node.type === "join" && node.kind === kind).length;
   if (kinds("merge") !== 20 || kinds("diff") !== 6) failures.push(`${kinds("merge")} merges and ${kinds("diff")} cuts, expected 20 and 6`);
 
@@ -53,7 +53,7 @@ export function test_human_f1_construction(): void {
   const faces: string[] = nodes.flatMap((node: AutoMovieConstructionNode): string[] => (node.type === "port" ? [node.partFace] : node.type === "join" ? [node.seed.partFace] : node.type === "split" ? node.children.map((child): string => child.partFace) : [])).filter((name: string): boolean => name !== "nose");
   for (const face of faces.filter((name: string): boolean => !name.endsWith(".mirror"))) if (!faces.includes(face + ".mirror")) failures.push(`${face} has no twin`);
   if (faces.filter((name: string): boolean => name.endsWith(".mirror")).length !== faces.length / 2) failures.push(`${faces.length} operator faces are not half twins`);
-  for (const [name, loop] of [["armscye", AutoMovieHumanF1.armscye], ["auricle", AutoMovieHumanF1.auricle]] as const) {
+  for (const [name, loop] of [["armscye", AutoMovieHumanF1.armscye], ["auricle", AutoMovieHumanF1.auricle], ["mammary", AutoMovieHumanF1.mammary]] as const) {
     const left = loop(1);
     const right = loop(-1);
     if (left.centre[0] !== right.centre[0] || left.centre[1] !== -right.centre[1] || left.semi[0] !== right.semi[0] || left.semi[1] !== right.semi[1]) failures.push(`${name} loops are not mirror images: ${JSON.stringify([left, right])}`);
