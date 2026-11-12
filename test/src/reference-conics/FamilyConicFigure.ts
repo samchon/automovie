@@ -60,12 +60,14 @@ namespace FamilyConicFigure {
       ["knee", (p: N.Point): boolean => p[2] > 0 && p[1] > 0.38 && p[1] < 0.6],
       ["eyes", (p: N.Point): boolean => p[0] > 0.08 && p[1] > 1.565 && p[1] < 1.62 && Math.abs(p[2]) < 0.06],
       ["mouth", (p: N.Point): boolean => p[0] > 0.09 && p[1] > 1.5 && p[1] < 1.55 && Math.abs(p[2]) < 0.035],
+      // The nose's base: its wings, the alar grooves and the nostrils, with a view from below, which the face's zones lack.
+      ["nose", (p: N.Point): boolean => p[0] > 0.105 && p[1] > 1.538 && p[1] < 1.568 && Math.abs(p[2]) < 0.024],
       ["fold",(p: N.Point): boolean => p[1] > 1.19 && p[1] < 1.27 && p[2] > 0 && p[2] < 0.13 && p[0] > 0],
       ["toes", (p: N.Point): boolean => p[2] > 0 && p[1] < 0.05 && p[0] > 0.16],
     ];
     for (const [zone, inside] of zones) {
       const near: N.Point[] = bounds.filter(inside);
-      for (const view of zone.startsWith("shoulder") ? ["front", "back", zone === "shoulder" ? "left" : "right", "high-oblique"] : ["front", "left", "high-oblique"]) {
+      for (const view of zone.startsWith("shoulder") ? ["front", "back", zone === "shoulder" ? "left" : "right", "high-oblique"] : zone === "nose" ? ["front", "left", "high-oblique", "low-oblique"] : ["front", "left", "high-oblique"]) {
         const camera: N.Camera = NodeCanvasCamera.fit(view, near, 900, 900);
         for (const [stage, shown] of [["reference", reference], ["generated", generated]] as [string, N.Mesh[]][]) {
           const file: string = zone + "." + view + "." + stage + ".png";
