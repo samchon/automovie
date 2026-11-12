@@ -4,7 +4,7 @@ Study what the film must show truthfully: each practice, the conduct of official
 
 ## When to study {#when-to-study}
 
-Before the first decision of settings or a brief, study only what could change the [direction](direction.md), such as whether a commissioned ending is possible. Settings or a brief then studies each fact as it fixes it. The screenplay studies the law and outcomes of each action a beat names that the installed packages do not carry; when [no narrative pass runs](../workflow.md#who-writes-the-screenplay), the code studies that law. Code and delivery review study the measurements they program or measure.
+Before choosing the [direction](direction.md), study only what could change it, such as whether a commissioned ending is possible. Settings or a brief then studies each fact as it fixes it. The screenplay studies the law and outcomes of each action a beat names that the installed packages do not carry; when [no narrative pass runs](../workflow.md#who-writes-the-screenplay), the code studies them. Code and delivery review study the measurements they program or measure.
 
 A value nothing written yet uses is not gathered, because its consumer often needs a different value when it is written.
 
