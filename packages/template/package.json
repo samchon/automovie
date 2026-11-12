@@ -9,7 +9,8 @@
   },
   "scripts": {
     "prepare": "ttsx --no-plugins build/prepare.ts",
-    "build": "rimraf lib && pnpm run prepare && ttsc",    "evidence": "evidence"
+    "build": "rimraf lib && pnpm run prepare && ttsc",
+    "evidence": "evidence"
   },
   "keywords": [
     "automovie",
