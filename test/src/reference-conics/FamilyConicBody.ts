@@ -373,7 +373,7 @@ namespace FamilyConicBody {
         // pole stands on the antihelix at the height of the skin there: the helix's fold and the concha face the side, under that dome, and
         // a relief over the dome carves them (`face`). The relief starts 3.5 mm up the dome: nearer its edge the dome stands upright and a
         // height along the course slides along it, which broke the band at the ear's root.
-        { name: "ear", centres: [EAR_ROOT, EAR_TIP], course: "[J.earRoot, J.earTip]", halves: [], up: [0, 1, 0], domain: [4, 12], head: true, loose: true, step: 1, gap: 3, tip: 17, cap: 8, mirrored: true, layouts: LIMB, clip: (p: R.V): number => -ear(p), reliefs: [], casts: [{ name: "face", stations: [11.5, 17], axis: "course", rows: 27, columns: 99, reach: 14 }] },
+        { name: "ear", centres: [EAR_ROOT, EAR_TIP], course: "[J.earRoot, J.earTip]", halves: [], up: [0, 1, 0], domain: [4, 12], head: true, loose: true, step: 1, gap: 3, tip: 17, cap: 5, mirrored: true, layouts: LIMB, clip: (p: R.V): number => -ear(p), reliefs: [], casts: [{ name: "face", stations: [6.5, 17], axis: "course", rows: 27, columns: 99, reach: 16 }] },
 
         // The nose's free end as a short loft straight forward out of the face, closed at its tip.
         { name: "nose", centres: [[118, 1561, 0], [140, 1561, 0]], course: "[J.noseRoot, J.noseTip]", halves: [], up: [0, 1, 0], domain: [5, 14], head: true, loose: true, step: 1, gap: 3, tip: 18, mirrored: false, layouts: LIMB, clip: (p: R.V): number => -nose(p), reliefs: [], casts: [{ name: "under", stations: [5.6, 14], phases: [Math.PI - 1.1, Math.PI + 1.1], axis: [0, 1, 0], rows: 31, columns: 39, reach: 10, mirror: true }] },
