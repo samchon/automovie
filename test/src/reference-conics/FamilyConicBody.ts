@@ -376,11 +376,12 @@ namespace FamilyConicBody {
         { name: "ear", centres: [EAR_ROOT, EAR_TIP], course: "[J.earRoot, J.earTip]", halves: [], up: [0, 1, 0], domain: [4, 12], head: true, loose: true, step: 1, gap: 3, tip: 17, cap: 8, mirrored: true, layouts: LIMB, clip: (p: R.V): number => -ear(p), reliefs: [], casts: [{ name: "face", stations: [11.5, 17], axis: "course", rows: 27, columns: 99, reach: 14 }] },
 
         // The nose's free end as a short loft straight forward out of the face, closed at its tip.
-        { name: "nose", centres: [[118, 1561, 0], [140, 1561, 0]], course: "[J.noseRoot, J.noseTip]", halves: [], up: [0, 1, 0], domain: [5, 14], head: true, loose: true, step: 1, gap: 3, tip: 18, mirrored: false, layouts: LIMB, clip: (p: R.V): number => -nose(p), reliefs: [] },
+        { name: "nose", centres: [[118, 1561, 0], [140, 1561, 0]], course: "[J.noseRoot, J.noseTip]", halves: [], up: [0, 1, 0], domain: [5, 14], head: true, loose: true, step: 1, gap: 3, tip: 18, mirrored: false, layouts: LIMB, clip: (p: R.V): number => -nose(p), reliefs: [], casts: [{ name: "under", stations: [5.6, 14], phases: [Math.PI - 1.1, Math.PI + 1.1], axis: [0, 1, 0], rows: 31, columns: 39, reach: 10, mirror: true }] },
         // The nostrils open downward, and a frontal section shows only the nose's outline round them. A net over the nose's underside, cast
         // straight up, reads the first skin a ray from below meets, and found them: 3 to 5 mm deep and more, from 124 to 128 mm forward
-        // (`--casts`). That is where the band lands: with the dimples in it the rail's ring is no longer star-shaped and the port refuses
-        // the nose. The nostrils lie across the nose's root, which is the band's.
+        // (`--casts`). That is where a band 2 mm in landed: with the dimples in it the rail's ring was no longer star-shaped and the port
+        // refused the nose. The net starts 0.6 mm from the nose's first station and the band lands 0.5 mm in (`RAIL_MM.nose`), on a ring
+        // the net leaves whole.
 
         // The trunk from the crotch to the crown as one wall. Knots 4 mm apart from the neck up followed every step of the face's hull and left
         // the wall streaked, so they keep 8 mm and the face is the reliefs'. Under the jaw alone, stations 692 to 732, they may stand 3 mm

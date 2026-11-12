@@ -142,9 +142,9 @@ export namespace AutoMovieHumanF1 {
 
   /**
    * Where each limb's band lands on it, mm from the limb's first station: the limb keeps its stations beyond. The arm's first station is 2 mm
-   * past the armscye's plane and its course is nearly square to that plane for its first 25 mm, so its ring 10 mm on lies beside the plane.
+   * past the armscye's plane and its course is nearly square to that plane for its first 25 mm, so its ring 10 mm on lies beside the plane. The nose's band lands half a millimetre in: the nostrils lie across its root, and a ring farther in ran through them.
    */
-  export const RAIL_MM: { arm: number; leg: number; ear: number } = { arm: 10, leg: 12, ear: 2 };
+  export const RAIL_MM: { arm: number; leg: number; ear: number; nose: number } = { arm: 10, leg: 12, ear: 2, nose: 0.5 };
 
   /** How far outside the auricle's root the ear's port loop stands on the skull, mm. */
   const AURICLE_MARGIN_MM: number = 4;
@@ -360,7 +360,7 @@ export namespace AutoMovieHumanF1 {
       const ear: AutoMovieHumanConicLoft.IFamily = side > 0 ? BODY.ear : twin(BODY.ear);
       root = { type: "port", name: "auricle." + ear.name, host: root, hostFace: trunk, loop: auricle(side), band: "band." + ear.name, part: leaf(ear), partFace: ear.name, partEnd: "bottom", rail: RAIL_MM.ear / 1000, count: BAND.count, rows: BAND.rows };
     }
-    root = { type: "port", name: "nostril." + BODY.nose.name, host: root, hostFace: trunk, loop: nostril(), band: "band." + BODY.nose.name, part: leaf(BODY.nose), partFace: BODY.nose.name, partEnd: "bottom", rail: RAIL_MM.ear / 1000, count: BAND.count, rows: BAND.rows };
+    root = { type: "port", name: "nostril." + BODY.nose.name, host: root, hostFace: trunk, loop: nostril(), band: "band." + BODY.nose.name, part: leaf(BODY.nose), partFace: BODY.nose.name, partEnd: "bottom", rail: RAIL_MM.nose / 1000, count: BAND.count, rows: BAND.rows };
     return { root, sources };
   }
 
