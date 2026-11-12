@@ -161,8 +161,14 @@ export namespace AutoMovieHumanF1Joints {
   export const earRoot: V3 = [5, 1582, 74];
 
   /**
-   * Where the ear's course ends, leaning back 20 degrees and up 9 with the auricle's shell, past the helix's back: the pole of its closed end,
-   * 24 mm along, stands on the helix's back, the auricle's outermost skin.
+   * Where the ear's course turns from straight out of the head to leaning back with the auricle's shell: the root's sections up to 78 mm out
+   * stand in sagittal planes, so the root's ring holds the auricle's whole footprint, the front and the lobule included.
+   */
+  export const earTurn: V3 = [5, 1582, 82];
+
+  /**
+   * Where the ear's course ends, leaning back and up with the auricle's shell past the helix's back: the pole of its closed end stands on
+   * the helix's back, the auricle's outermost skin.
    */
   export const earTip: V3 = [-4, 1586, 98];
 
