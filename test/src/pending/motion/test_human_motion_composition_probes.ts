@@ -49,7 +49,7 @@ import { motionHumanBody } from "../../features/internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership Prepares polygon men and performs nine films with their reports, about eight minutes; a pending specification until its findings are fixed.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 9 probes, what a pass means and why the file is pending.
  */
-export function test_human_composition_probes(): void {
+export function test_human_motion_composition_probes(): void {
   const a: IHumanBody = motionHumanBody("m-average");
   const b: IHumanBody = motionHumanBody("f-small");
   const reach: number = a.measure.upperArm + a.measure.forearm;

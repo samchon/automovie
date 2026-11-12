@@ -35,7 +35,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and plans without sampling a film; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, what it made stageable and the 4 scenarios.
  */
-export function test_human_cut_tables(): void {
+export function test_human_motion_cut_tables(): void {
   const body: IHumanBody = motionHumanBody("m-average");
   const outcome = (chain: HumanChain): unknown => {
     try {

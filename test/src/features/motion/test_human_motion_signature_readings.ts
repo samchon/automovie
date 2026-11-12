@@ -40,7 +40,7 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit on plain points; it runs in CI.
  * @evidence contracts/development/common.md#meaningful-documentation States the figure, the 7 scenarios and why the readings must be exact.
  */
-export function test_human_signature_readings(): void {
+export function test_human_motion_signature_readings(): void {
   const rad = (degrees: number): number => (degrees * Math.PI) / 180;
   const close = (a: number, b: number): boolean => Math.abs(a - b) <= 1e-9;
 

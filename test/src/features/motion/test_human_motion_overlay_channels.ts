@@ -57,7 +57,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership Prepares polygon men, so it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the act, the 6 scenarios and the source and provisional bound of the trunk-held hand.
  */
-export function test_human_overlay_channels(): void {
+export function test_human_motion_overlay_channels(): void {
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(2);
   const gap = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>

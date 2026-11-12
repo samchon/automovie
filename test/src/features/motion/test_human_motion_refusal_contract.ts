@@ -82,7 +82,7 @@ interface ICase {
  * @evidence contracts/development/testing.md#execution-ownership Prepares polygon men, so it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 10 scenarios and why a refusal is a contract for its reader.
  */
-export function test_human_refusal_contract(): void {
+export function test_human_motion_refusal_contract(): void {
   const a: IHumanBody = motionHumanBody("m-average");
   const b: IHumanBody = motionHumanBody("f-small");
   const shoulder: AutoMovieMotionTarget = {

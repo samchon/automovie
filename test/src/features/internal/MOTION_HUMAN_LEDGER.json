@@ -345,6 +345,13 @@
     },
     {
       "layer": "compose",
+      "symbol": "AutoMovieMotionHumanBase.under",
+      "tests": [
+        "test_human_motion_overlay_channels"
+      ]
+    },
+    {
+      "layer": "compose",
       "symbol": "AutoMovieMotionHumanBend.ARM",
       "tests": [
         "test_motion_compose_bend_presets"

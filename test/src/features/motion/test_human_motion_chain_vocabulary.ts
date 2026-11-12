@@ -52,7 +52,7 @@ type Mistyped = {
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit that builds compositions and performs nothing; it runs in CI.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 scenarios and why the chain must be typed for its reader.
  */
-export function test_human_chain_vocabulary(): void {
+export function test_human_motion_chain_vocabulary(): void {
   const names: HumanActionName[] = Object.keys(
     HUMAN_ACTIONS,
   ) as HumanActionName[];

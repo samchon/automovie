@@ -38,7 +38,7 @@ import { motionHumanBody } from "../../features/internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership Prepares polygon men, so it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the 3 scenarios and why both directions matter.
  */
-export function test_human_verdicts_stand_walk(): void {
+export function test_human_motion_verdicts_stand_walk(): void {
   const a: IHumanBody = motionHumanBody("m-average");
   const b: IHumanBody = motionHumanBody("f-small");
   const perform = (gap: number, chain: HumanChain): HumanPerformance =>
