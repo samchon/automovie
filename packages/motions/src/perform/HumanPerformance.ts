@@ -496,6 +496,13 @@ export class HumanPerformance {
       });
     const params: object =
       (intent.parameters?.params as object | undefined) ?? {};
+
+    // The parameter through which this action named an id, so a refusal of a
+    // missing performer, prop or anchor points at what the author wrote.
+    const named = (id: string, otherwise: string): string =>
+      Object.entries(params).find(
+        ([, value]: [string, unknown]): boolean => value === id,
+      )?.[0] ?? otherwise;
     const previous: HumanSegment.ISegment | undefined = person.segments.at(-1);
     const before: IAutoMovieSchedule.IEntry | undefined = [...entries]
       .reverse()
@@ -548,14 +555,28 @@ export class HumanPerformance {
         ),
         index: instance,
       }),
-      performer: (subject: string): IHumanActionContext.IPerformer => ({
-        body: this.person(subject).performer.body,
-        bones: (seconds: number) => this.bones(subject, seconds),
-      }),
+      performer: (subject: string): IHumanActionContext.IPerformer => {
+        if (!this.people.has(subject))
+          throw this.missing(
+            "performer",
+            subject,
+            [...this.people.keys()],
+            named(subject, "performer"),
+          );
+        return {
+          body: this.person(subject).performer.body,
+          bones: (seconds: number) => this.bones(subject, seconds),
+        };
+      },
       prop: (subject: string): IHumanActionContext.IProp => {
         const prop: IHumanProp | undefined = this.props.get(subject);
         if (prop === undefined)
-          throw this.missing("prop", subject, [...this.props.keys()]);
+          throw this.missing(
+            "prop",
+            subject,
+            [...this.props.keys()],
+            named(subject, "prop"),
+          );
         return {
           prop,
           frame: (seconds: number): IHumanProp.IFrame =>
@@ -609,7 +630,7 @@ export class HumanPerformance {
         if (placed === undefined)
           throw new HumanRefusal({
             kind: "participant",
-            axis: "anchor",
+            axis: named(anchor, "anchor"),
             value: anchor,
             feasible: {
               kind: "alternatives",
@@ -1119,10 +1140,11 @@ export class HumanPerformance {
     what: "performer" | "prop",
     subject: string,
     known: readonly string[],
+    axis: string = what,
   ): HumanRefusal {
     return new HumanRefusal({
       kind: what === "prop" ? "affordance" : "participant",
-      axis: what,
+      axis,
       value: subject,
       feasible: { kind: "alternatives", values: known },
       reason: `the performance has no ${what} named ${subject}`,

@@ -67,7 +67,8 @@ interface ICase {
  * 6. A touch cut at half its length into standing: a `cut` refusal listing
  *    the legal windows; cutting at the listed window's opening plans.
  * 7. A handshake with a partner who is not in the scene: a `participant`
- *    refusal listing the performers; the listed partner plans.
+ *    refusal on `partner`, the parameter that named them, listing the performers;
+ *    the listed partner plans.
  * 8. Sitting on a seat the performer faces: a `base` refusal on `seat`;
  *    the seat turned to face the performer's way plans.
  * 9. Every refusal names performer `a`, its action, occurrence 1, a
@@ -252,7 +253,7 @@ export function test_human_refusal_contract(): void {
       title: "a partner who is not in the scene",
       kind: "participant",
       act: "handshake",
-      axis: "performer",
+      axis: "partner",
       gap: 0.9,
       refused: start().handshake({ partner: "c" }),
       repaired: (r) =>
