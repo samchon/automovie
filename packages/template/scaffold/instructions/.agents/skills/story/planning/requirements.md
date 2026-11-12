@@ -20,7 +20,7 @@ When the agent writes the story, its events, people, ending, tone, form, running
 
 Before research, ask about each such element the user neither fixed nor delegated. Ask in rounds and record each round's answers at their owners, because an answer often raises a new element. Stop when the conversation and the user's materials leave none, or when the user delegates the rest, recorded as one delegated choice.
 
-Afterwards, ask only when a [discovery](discovery.md) checkpoint finds a new such element or two fixed conditions conflict. A question the user cannot answer during the run waits as [project context](../../production/project-context.md#what-to-record) sets.
+Afterwards, ask only when a [discovery](discovery.md) checkpoint finds a new such element or two fixed conditions conflict. A question the user leaves unanswered is recorded as unresolved under [project context](../../production/project-context.md#what-to-record).
 
 ## Factual basis {#factual-basis}
 

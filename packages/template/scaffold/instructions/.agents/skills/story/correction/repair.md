@@ -28,7 +28,7 @@ A closed screenplay stays closed: the edited beat keeps its answers and reviews,
 
 An exchange, an outcome or a reaction is never a concretization. A screenplay that lacks one is defective and returns to its author under [upstream defects](#upstream-defects).
 
-A user's [fixed screenplay](../workflow.md#who-writes-the-screenplay) is never edited: its concretizations and what it lacks go to the instructions.
+A user's [fixed screenplay](../workflow.md#who-writes-the-screenplay) is never edited: its concretizations go to the instructions.
 
 ## Scope expansion
 

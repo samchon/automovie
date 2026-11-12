@@ -51,7 +51,7 @@ In the inspector, the capture's keys are the address's parameters of the same na
 
 1. Adopt the request and output boundary in [PROJECT.md](PROJECT.md) through [project context]({{skills}}/production/project-context.md).
 
-   Include the intended execution/capture path. Make routine choices within the user's delegation and keep creative requirements with their owners. [Ask for operating choices]({{skills}}/production/project-context.md#asking-operating-choices) when the task that uses them begins.
+   Include the intended execution/capture path. Make routine choices within the user's delegation and keep creative requirements with their owners. [Ask for operating choices]({{skills}}/production/project-context.md#asking-for-operating-choices) when the task that uses them begins.
 
 2. [Ask the user]({{skills}}/story/planning/requirements.md#asking-the-user) about the story and study every practice and style the film shows through [research]({{skills}}/story/planning/research.md). Unless the user [chooses otherwise]({{skills}}/story/workflow.md#who-writes-the-screenplay), write the story with evidence and independent review.
 
