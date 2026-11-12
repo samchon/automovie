@@ -177,11 +177,15 @@ export function realizeAutoMovieConstruction(
             last,
             chord,
           ).filter((station: number): boolean => !tips.includes(station)),
-          phases: Array.from(
-            { length: chain.samples },
-            (_: unknown, k: number): number =>
-              (2 * Math.PI * k) / chain.samples,
-          ),
+          // The chain's own ring phases: declared (`IAutoMovieLoftChain.phases`), or uniform.
+          phases:
+            chain.phases !== undefined
+              ? [...chain.phases]
+              : Array.from(
+                  { length: chain.samples },
+                  (_: unknown, k: number): number =>
+                    (2 * Math.PI * k) / chain.samples,
+                ),
           cycles: [],
         }) - 1;
       state.faces.set(node.name, index);

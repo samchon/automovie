@@ -559,6 +559,15 @@ export namespace AutoMovieViewLoft {
     // them (`{ ...chain, reliefs }`), so the surface and every reader of the
     // chain, a realized construction face included, carry them.
     if (part.reliefs !== undefined) chain = { ...chain, reliefs: part.reliefs };
+    // Declared ring phases ride on it the same way; a list that is not `samples` phases strictly increasing within one turn is refused.
+    if (part.phases !== undefined) {
+      const phases: number[] = part.phases;
+      if (!(phases.length === part.samples && phases.every((p: number, k: number): boolean => Number.isFinite(p) && (k === 0 || p > phases[k - 1]!)) && phases[phases.length - 1]! - phases[0]! < 2 * Math.PI)) {
+        report("ring phases", "the declared ring phases are not `samples` finite phases strictly increasing within one turn");
+        return { ...empty(), sections, chains };
+      }
+      chain = { ...chain, phases: [...phases] };
+    }
     const surface: IAutoMovieSolidSurface | null =
       AutoMovieSolidChain.surface(chain);
     if (surface === null)

@@ -212,6 +212,16 @@ export namespace AutoMovieHumanF1 {
     },
   };
 
+  /**
+   * The largest turn of a limb's ring between two neighbouring phases, radians (`AutoMovieHumanConicLoft.IFamily.turn`); a limb absent here
+   * keeps uniform phases. The leg's 160 uniform phases, set by the thigh's girth, turned by up to 0.83 rad each round the forefoot's outer
+   * edge and up to 0.94 at the ankle (the lofted rings read every millimetre of station), and the outer edge of the forefoot showed as level
+   * stripes, the phases' facets; they went with phases 2 mm apart everywhere. Spaced so that no ring turns by more than 0.2 rad between
+   * two phases, the leg takes 360 phases, most of them round the foot's edges, and its rings, read every millimetre, turn by at
+   * most 0.37 rad on the forefoot.
+   */
+  const PHASE_TURN: { arm?: number; leg?: number } = { leg: 0.2 };
+
   /** Chord of the thumb's blend on either side of the curve where it meets the hand, mm: at 1 mm it folds in the acute web beside the index finger. */
   const THUMB_CHORD_MM: number = 0.5;
 
@@ -680,7 +690,7 @@ export namespace AutoMovieHumanF1 {
       // The limb's end stays open and is split into its knuckled digits (`FANS`); the thumb is merged onto the hand's side first, as a
       // capsule closed `ROOT_MM` behind its first joint, inside the hand.
       const fanned: IFan = FANS[which];
-      const leaned: AutoMovieHumanConicLoft.IFamily = { ...BODY[which], tips: [BODY[which].tips![0], null] };
+      const leaned: AutoMovieHumanConicLoft.IFamily = { ...BODY[which], tips: [BODY[which].tips![0], null], ...(PHASE_TURN[which] === undefined ? {} : { turn: PHASE_TURN[which] }) };
       const family: AutoMovieHumanConicLoft.IFamily = side > 0 ? leaned : twin(leaned);
       let node: AutoMovieConstructionNode = leaf(family);
       for (const digit of DIGITS.filter((d: IDigit): boolean => d.limb === which && !d.knuckle)) {

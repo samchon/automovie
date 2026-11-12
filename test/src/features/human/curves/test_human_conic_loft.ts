@@ -9,6 +9,7 @@ import { AutoMovieHumanConicLoft, AutoMovieHumanConicSection } from "@automovie/
  * 2. The twin is the reflection: on a slanted course with an off-centre section whose four shoulders differ, the twin's point at phase `-phi` is the original's point at `phi` reflected in `z = 0`.
  * 3. A cylinder's cap leaves it with neither slope nor bend: with a tip 12 mm past the cap's start the wall's taper and bend are zero, so the cap is `r = 20 sqrt(1 - u^3)` with `u = (s - 80) / 12`, the one cubic in `u` for `r^2` that is 400 at the start with zero first and second derivatives there and 0 at the tip, turned about the course, and the loft carries a pole at the tip on the course.
  * 4. A cap starts where its tip says and is meshed in rings: stations past `from` are not lofted from the fields, so the part's stations end at `from`, twelve rings at `92 - 12 (k / 13)^2` and the tip.
+ * 5. Phases spaced by turn (`IFamily.turn`): a flat section with sharp ends turns by more than 0.3 rad between uniform phases; with a turn of 0.1 rad the part declares ordered phases and its lofted rings turn by at most 0.12 rad between neighbours.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanConicLoft.create`, `mirror` and `part` and reads the engine's chain with `AutoMovieLoftChain.point`.
  * @evidence contracts/development/testing.md#independent-expectations A circle's radius, a reflection in a plane and the cubic fixed by four end conditions are closed forms that owe nothing to this code.
@@ -81,6 +82,36 @@ export function test_human_conic_loft(): void {
   const rings: number[] = Array.from({ length: 12 }, (_: unknown, i: number): number => 92 - 12 * ((12 - i) / 13) ** 2);
   const cap: number[] = part.slice(-13, -1);
   if (part.at(-1) !== 92 || part.at(-14) !== 80 || part.at(-15) !== 78 || part.length !== 54 || cap.some((s: number, i: number): boolean => !(Math.abs(s - rings[i]!) <= 1e-9))) failures.push(`capped part: stations end ${part.slice(-15).join(", ")} with ${part.length} in all, expected 78, 80, the twelve rings, 92 and 54`);
+
+  // 5. Phases spaced by turn: an elliptic section 40 by 5 mm turns by half a turn round each narrow end within about 2 mm (its radius of
+  // curvature there is 5^2 / 40 = 0.6 mm). Uniform, its 48 phases (the least count; girth 4 mm apart asks fewer) turn by more than
+  // 0.3 rad between neighbours there; with `turn` 0.1 the part declares its phases, `samples` of them from 0, strictly increasing, and
+  // its lofted rings turn by at most 0.12 rad between neighbours (the spacing reads the rings on 1024 phases, finer than the end).
+  const flat: AutoMovieHumanConicLoft.IFamily = { ...cylinder, name: "flat", values: [[40, 40, 40], [0, 0, 0], [0, 0, 0], [5, 5, 5], [-40, -40, -40], [0, 0, 0], [0, 0, 0], [-5, -5, -5], ...[0, 1, 2, 3].map((): number[] => [ellipse, ellipse, ellipse])] };
+  const widest = (family: AutoMovieHumanConicLoft.IFamily): { turn: number; phases: number[] | undefined; samples: number } => {
+    const made = AutoMovieHumanConicLoft.part(family, stations);
+    const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> | null = lofted(family, family.name);
+    const ring: number[] = made.phases ?? Array.from({ length: made.samples }, (_: unknown, k: number): number => (2 * Math.PI * k) / made.samples);
+    let turn: number = 0;
+    if (chain !== null)
+      for (const s of [0, 50, 100]) {
+        const points: number[][] = ring.map((phi: number): number[] => AutoMovieLoftChain.point(chain, s, phi));
+        points.forEach((b: number[], k: number): void => {
+          const a: number[] = points[(k + points.length - 1) % points.length]!;
+          const c: number[] = points[(k + 1) % points.length]!;
+          const u: number[] = [0, 1, 2].map((i: number): number => b[i]! - a[i]!);
+          const w: number[] = [0, 1, 2].map((i: number): number => c[i]! - b[i]!);
+          const cosine: number = (u[0]! * w[0]! + u[1]! * w[1]! + u[2]! * w[2]!) / (Math.hypot(u[0]!, u[1]!, u[2]!) * Math.hypot(w[0]!, w[1]!, w[2]!));
+          turn = Math.max(turn, Math.acos(Math.max(-1, Math.min(1, cosine))));
+        });
+      }
+    return { turn, phases: made.phases, samples: made.samples };
+  };
+  const even = widest(flat);
+  const spaced = widest({ ...flat, name: "flat.spaced", turn: 0.1 });
+  if (even.phases !== undefined || !(even.turn > 0.3)) failures.push(`flat, uniform: phases ${even.phases === undefined ? "absent" : "declared"}, largest turn ${even.turn.toFixed(3)} rad, expected absent and above 0.3`);
+  const ordered: boolean = spaced.phases !== undefined && spaced.phases.length === spaced.samples && spaced.phases[0] === 0 && spaced.phases.every((phi: number, k: number): boolean => k === 0 || phi > spaced.phases![k - 1]!) && spaced.phases.at(-1)! < 2 * Math.PI;
+  if (!ordered || !(spaced.turn <= 0.12)) failures.push(`flat, spaced: ${spaced.samples} phases ${ordered ? "in order" : "not in order"}, largest turn ${spaced.turn.toFixed(3)} rad, expected at most 0.12`);
 
   if (failures.length > 0) throw new Error("human conic loft:\n" + failures.join("\n"));
 }

@@ -70,6 +70,13 @@ export interface IAutoMovieLoftChain {
    */
   samples: number;
 
+  /**
+   * The phases of the chain's own rings, radians, strictly increasing within one turn from the first, `samples` of them, when they are not
+   * uniform: a section that turns fast over a few phases, as a sole's edge does, takes its rings' vertices closer there. Absent, the
+   * `samples` uniform phases `2 pi k / samples`.
+   */
+  phases?: number[];
+
   /** Principal layers ordered by strictly increasing height, at least two. */
   layers: IAutoMovieLoftChain.ILayer[];
 
