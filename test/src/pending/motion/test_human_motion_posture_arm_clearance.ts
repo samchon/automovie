@@ -21,8 +21,8 @@ import {
   stand,
 } from "@automovie/motions";
 
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionComplaints } from "../../features/internal/motionComplaints";
+import { motionHumanBody } from "../../features/internal/motionHumanBody";
 
 /**
  * A forearm's need for room beside the trunk (`HumanArmClearance`) and the
@@ -36,13 +36,15 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * acts: an elbow `e` metres across it with its wrist on its own side lacks
  * the forearm's radius `r` plus `e`, and an elbow that stays nearer the
  * median plane than a wrist sent across it lacks nothing. Against the chest
- * itself, a forearm standing 250 mm out along the surface's normal from a
- * wrist 10 mm under a palm laid on the chest's front lacks nothing beyond
- * the median plane's term, because the wrist's own depth is the goal's and
- * every sample of the axis stands at least 21 mm out; a forearm whose wrist
- * is 60 mm into another body's chest lacks more than an eighth of `r`,
- * because its last sample, 7/8 of the way to the wrist, lies inside the
- * shape and nothing excuses it.
+ * itself, the needed clearance falls from `r` at the elbow toward the wrist
+ * but never below `r` less the 10 mm of tissue the contact verdicts let
+ * press in, plus the wrist's own depth where a goal put it: an axis standing
+ * 400 mm out along the surface's normal from a wrist 10 mm under a palm laid
+ * on the chest's front lacks nothing beyond the median plane's term, because
+ * every sample stands at least 40 mm out, more than `r - 0.01` for every
+ * body; a 250 mm forearm whose wrist is 60 mm into another body's chest
+ * lacks more than an eighth of `r`, because its last sample, 7/8 of the way
+ * to the wrist, lies inside the shape and nothing excuses it.
  *
  * A clearing (`cleared`) turns only the upper arm's abduction and the
  * elbow's flexion, never further out of range, never to a larger overshoot,
@@ -245,6 +247,7 @@ export function test_human_motion_posture_arm_clearance(): void {
       else {
         const forearm = (
           depth: number,
+          length: number,
         ): [IAutoMovieVector3, IAutoMovieVector3] => {
           const wrist: IAutoMovieVector3 = toward(
             hit.point,
@@ -255,14 +258,14 @@ export function test_human_motion_posture_arm_clearance(): void {
           return [
             toward(
               wrist,
-              hit.normal.x * 0.25,
-              hit.normal.y * 0.25,
-              hit.normal.z * 0.25,
+              hit.normal.x * length,
+              hit.normal.y * length,
+              hit.normal.z * length,
             ),
             wrist,
           ];
         };
-        const [elbow, wrist] = forearm(0.01);
+        const [elbow, wrist] = forearm(0.01, 0.4);
         const out: IAutoMovieVector3 = Quaternion.rotateVector(
           chest.pose.rotation,
           { x: sign, y: 0, z: 0 },
@@ -285,7 +288,7 @@ export function test_human_motion_posture_arm_clearance(): void {
           `${cell}: a palm laid 10 mm into the own chest lacks ${laid.toFixed(4)} deg, the median plane's ${plane.toFixed(4)}`,
           Math.abs(laid - plane) <= 1e-6,
         );
-        const [deepElbow, deepWrist] = forearm(0.06);
+        const [deepElbow, deepWrist] = forearm(0.06, 0.25);
         const foreign: number = HumanArmClearance.overshoot(
           body,
           [],

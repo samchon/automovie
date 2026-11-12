@@ -22,8 +22,8 @@ import {
   stand,
 } from "@automovie/motions";
 
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionComplaints } from "../../features/internal/motionComplaints";
+import { motionHumanBody } from "../../features/internal/motionHumanBody";
 
 /**
  * An arm carried in joint space between the angles it holds and the solution

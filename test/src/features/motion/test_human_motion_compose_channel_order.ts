@@ -1,4 +1,3 @@
-import type { IAutoMovieBone } from "@automovie/interface";
 import {
   AutoMovieMotionHumanChannel,
   type IHumanBody,
@@ -8,67 +7,91 @@ import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
- * The channels are written in an order in which every part comes after the
- * parts it hangs from (`AutoMovieMotionHumanChannel.ORDER`).
+ * The channels are written in the order their document gives
+ * (`AutoMovieMotionHumanChannel.ORDER`): the body first, the hands before
+ * the arms, the arms last.
  *
- * The order's document states its rule: the body is placed first and the
- * arms last, "so a primitive reads every part its own part hangs from as the
- * action already placed it". What a part hangs from is the rig's own
- * hierarchy: for every bone of the average man's skeleton, the channel that
- * owns its parent bone (`AutoMovieMotionHumanChannel.of`) is written no
- * later than the channel that owns the bone.
+ * The body (the root, the trunk, the head and the legs) is placed before
+ * anything that hangs from it, so a part reads the trunk it hangs from as
+ * the action already placed it. The fingers are written before the arms
+ * because an arm's goal lays a hand surface whose place depends on the
+ * fingers' shape, while the finger angles read nothing of the arm. Which
+ * part a bone belongs to is the partition `AutoMovieMotionHumanChannel.of`
+ * gives on the average man's skeleton.
  *
  * Scenarios:
  * 1. The order lists every channel exactly once, `root` first.
- * 2. For every bone whose parent lies in another channel, the parent's
- *    channel comes first.
+ * 2. Every channel of the body (the root, the trunk, the head, the legs)
+ *    comes before every hand and arm channel.
+ * 3. Each hand comes before both arms, and the two arms are last.
+ * 4. The partition puts every finger bone in its side's hand channel and
+ *    the hand bone itself in its side's arm channel, so the rule is about
+ *    the bones the skeleton has.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Reads the shipped order against the real skeleton's hierarchy through the channel partition; a part written before the part it hangs from fails, naming the bone and both channels.
- * @evidence contracts/development/testing.md#independent-expectations The expectation is the rule the order's document states, applied to the rig's parent links, which the order does not read.
- * @evidence contracts/development/testing.md#distinguishing-cases Every bone of the skeleton, across all nine channels.
- * @evidence contracts/development/testing.md#execution-ownership In memory on one prepared body; named `test_human_` because it fails on the shipped order (the hands are written before the arms they hang from), which the CI test job leaves to local runs until the order or its rule changes.
- * @evidence contracts/development/common.md#meaningful-documentation Quotes the rule, states how the hierarchy is read and lists the 2 scenarios.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the shipped order and the partition on the real skeleton; a hand written after its arm, an arm before the trunk or a finger in another channel fails.
+ * @evidence contracts/development/testing.md#independent-expectations The order is the rule the document states with its reason; the partition is read bone by bone.
+ * @evidence contracts/development/testing.md#distinguishing-cases All nine channels, every finger bone and both hand bones.
+ * @evidence contracts/development/testing.md#execution-ownership In memory on one prepared body; named `test_human_` with the other real-body composition tests, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule with its reason and the 4 scenarios.
  */
 export function test_human_motion_compose_channel_order(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
   const order: readonly AutoMovieMotionHumanChannel[] =
     AutoMovieMotionHumanChannel.ORDER;
-  const all: AutoMovieMotionHumanChannel[] = [
+  const at = (channel: AutoMovieMotionHumanChannel): number =>
+    order.indexOf(channel);
+  const body: AutoMovieMotionHumanChannel[] = [
     "root",
     "trunk",
     "head",
     "leftLeg",
     "rightLeg",
-    "leftHand",
-    "rightHand",
-    "leftArm",
-    "rightArm",
   ];
+  const hands: AutoMovieMotionHumanChannel[] = ["leftHand", "rightHand"];
+  const arms: AutoMovieMotionHumanChannel[] = ["leftArm", "rightArm"];
+  const all: AutoMovieMotionHumanChannel[] = [...body, ...hands, ...arms];
   complaints.check(
     "every channel once, root first",
     order.length === all.length &&
       all.every((c) => order.filter((o) => o === c).length === 1) &&
       order[0] === "root",
   );
-  const body: IHumanBody = motionHumanBody("m-average");
-  const parents: string[] = [];
-  for (const bone of body.skeleton.bones as readonly IAutoMovieBone[]) {
-    if (bone.parent === null) continue;
-    const own: AutoMovieMotionHumanChannel = AutoMovieMotionHumanChannel.of(
-      bone.bone,
-    );
-    const above: AutoMovieMotionHumanChannel = AutoMovieMotionHumanChannel.of(
-      bone.parent,
-    );
-    if (order.indexOf(above) > order.indexOf(own))
-      parents.push(
-        `${bone.bone} (${own}) hangs from ${bone.parent} (${above})`,
+  complaints.check(
+    "the body comes before the hands and the arms",
+    body.every((b) => [...hands, ...arms].every((h) => at(b) < at(h))),
+  );
+  complaints.check(
+    "the hands come before the arms, and the arms are last",
+    hands.every((h) => arms.every((a) => at(h) < at(a))) &&
+      arms.every((a) => at(a) >= order.length - arms.length),
+  );
+  const person: IHumanBody = motionHumanBody("m-average");
+  const misplaced: string[] = [];
+  for (const { bone } of person.skeleton.bones) {
+    const side: "left" | "right" | undefined = bone.startsWith("left")
+      ? "left"
+      : bone.startsWith("right")
+        ? "right"
+        : undefined;
+    if (side === undefined) continue;
+    const finger: boolean = /(Thumb|Index|Middle|Ring|Little)/.test(bone);
+    const expected: AutoMovieMotionHumanChannel | undefined = finger
+      ? `${side}Hand`
+      : bone === `${side}Hand`
+        ? `${side}Arm`
+        : undefined;
+    if (
+      expected !== undefined &&
+      AutoMovieMotionHumanChannel.of(bone) !== expected
+    )
+      misplaced.push(
+        `${bone} is in ${AutoMovieMotionHumanChannel.of(bone)}, not ${expected}`,
       );
   }
   complaints.equals(
-    "every part is written after the part it hangs from",
-    parents,
+    "fingers in the hands, hand bones in the arms",
+    misplaced,
     [],
   );
-  complaints.assert("the channel order follows the body's hierarchy");
+  complaints.assert("the channel order follows its documented rule");
 }

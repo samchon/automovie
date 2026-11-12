@@ -1,0 +1,6430 @@
+{
+  "note": "Coverage ledger of the motions safety net. `primitives[].tests` and `laws[].tests` name tests that exercise the symbol or the row; `laws[].audit` names the spec-audit sweep that runs every check of `checks` on the row. A primitive without tests, and a law row without an audit, is open work. `sweep` is `reduced` while the audit runs on the temporary reduced body set, `full` on all fourteen bodies.",
+  "checks": {
+    "tangle": {
+      "detector": "AutoMovieMotionHumanAuditTangle",
+      "proof": "test_human_motion_audit_tangle"
+    },
+    "partner": {
+      "detector": "AutoMovieMotionHumanAuditPartner",
+      "proof": "test_human_motion_audit_partner"
+    },
+    "range": {
+      "detector": "AutoMovieMotionHumanAuditRange",
+      "proof": "test_motion_audit_range"
+    },
+    "jump": {
+      "detector": "AutoMovieMotionHumanAuditContinuity",
+      "proof": "test_motion_audit_continuity_jump"
+    },
+    "reversal": {
+      "detector": "AutoMovieMotionHumanAuditContinuity",
+      "proof": "test_motion_audit_continuity_reversal"
+    },
+    "speed": {
+      "detector": "AutoMovieMotionHumanAuditContinuity",
+      "proof": "test_motion_audit_continuity_smooth"
+    },
+    "stall": {
+      "detector": "AutoMovieMotionHumanAuditContinuity",
+      "proof": "test_motion_audit_continuity_digits"
+    },
+    "digits": {
+      "detector": "AutoMovieMotionHumanAuditContinuity",
+      "proof": "test_motion_audit_continuity_digits"
+    },
+    "turn": {
+      "detector": "AutoMovieMotionHumanAuditSpin",
+      "proof": "test_motion_audit_spin"
+    },
+    "floor": {
+      "detector": "AutoMovieMotionHumanAuditGround",
+      "proof": "test_human_motion_audit_ground"
+    },
+    "slip": {
+      "detector": "AutoMovieMotionHumanAuditGround",
+      "proof": "test_human_motion_audit_ground"
+    },
+    "lift": {
+      "detector": "AutoMovieMotionHumanAuditGround",
+      "proof": "test_human_motion_audit_ground"
+    },
+    "skate": {
+      "detector": "AutoMovieMotionHumanAuditContact",
+      "proof": "test_human_motion_audit_contact"
+    },
+    "loose": {
+      "detector": "AutoMovieMotionHumanAuditContact",
+      "proof": "test_human_motion_audit_contact"
+    },
+    "afloat": {
+      "detector": "AutoMovieMotionHumanAuditContact",
+      "proof": "test_human_motion_audit_contact"
+    },
+    "balance": {
+      "detector": "AutoMovieMotionHumanAuditBalance",
+      "proof": "test_human_motion_audit_balance"
+    },
+    "contact": {
+      "detector": "AutoMovieMotionHumanAuditReach",
+      "proof": "test_motion_audit_reach"
+    },
+    "orientation": {
+      "detector": "AutoMovieMotionHumanAuditReach",
+      "proof": "test_motion_audit_reach"
+    },
+    "count": {
+      "detector": "AutoMovieMotionHumanAuditStroke",
+      "proof": "test_motion_audit_stroke"
+    },
+    "amplitude": {
+      "detector": "AutoMovieMotionHumanAuditStroke",
+      "proof": "test_motion_audit_stroke"
+    },
+    "timing": {
+      "detector": "AutoMovieMotionHumanAuditTiming",
+      "proof": "test_motion_audit_timing"
+    },
+    "shared": {
+      "detector": "AutoMovieMotionHumanAuditTiming",
+      "proof": "test_motion_audit_timing"
+    },
+    "return": {
+      "detector": "AutoMovieMotionHumanAuditReturn",
+      "proof": "test_motion_audit_return"
+    },
+    "mirror": {
+      "detector": "AutoMovieMotionHumanAuditDifference",
+      "proof": "test_motion_audit_difference"
+    },
+    "determinism": {
+      "detector": "AutoMovieMotionHumanAuditDifference",
+      "proof": "test_motion_audit_difference"
+    },
+    "variation": {
+      "detector": "AutoMovieMotionHumanAuditDifference",
+      "proof": "test_motion_audit_difference"
+    },
+    "cuts": {
+      "detector": "AutoMovieMotionHumanAuditContinuity",
+      "proof": "test_motion_audit_continuity_jump"
+    },
+    "literature": {
+      "detector": "AutoMovieMotionHumanAuditReach",
+      "proof": "test_motion_audit_reach"
+    }
+  },
+  "primitives": [
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionClock.START",
+      "tests": [
+        "test_motion_compose_clock_spans"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionClock.END",
+      "tests": [
+        "test_motion_compose_clock_spans"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionClock.of",
+      "tests": [
+        "test_motion_clock",
+        "test_motion_compose_action",
+        "test_motion_compose_goal",
+        "test_motion_compose_moves"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionClock.sequence",
+      "tests": [
+        "test_motion_clock",
+        "test_motion_compose_clock_spans"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionClock.PHRASE",
+      "tests": [
+        "test_motion_compose_clock_spans"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionClock.phrase",
+      "tests": [
+        "test_human_motion_compose_gaze",
+        "test_human_motion_compose_lean_into",
+        "test_human_motion_compose_touch_laid",
+        "test_human_motion_compose_trunk",
+        "test_motion_compose_arm_transport",
+        "test_motion_compose_clock_spans",
+        "test_motion_compose_leg_place",
+        "test_motion_compose_manner",
+        "test_motion_compose_meeting",
+        "test_motion_compose_phrase"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionClock.repeat",
+      "tests": [
+        "test_motion_compose_clock_spans"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionClock.through",
+      "tests": [
+        "test_motion_compose_phrase"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionClock.wave",
+      "tests": [
+        "test_motion_compose_phrase"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionClock.stretch",
+      "tests": [
+        "test_motion_compose_clock_spans"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionClock.scale",
+      "tests": [
+        "test_motion_compose_manner"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionClock.align",
+      "tests": [
+        "test_motion_compose_meeting"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanArm.origin",
+      "tests": [
+        "test_motion_compose_placed"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanArm.point",
+      "tests": [
+        "test_motion_compose_arm_transport",
+        "test_motion_compose_parts",
+        "test_motion_compose_placed"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanArm.goal",
+      "tests": [
+        "test_motion_compose_placed"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanArm.angles",
+      "tests": [
+        "test_human_motion_compose_arm_carry",
+        "test_human_motion_compose_touch_laid",
+        "test_motion_compose_placed"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanArm.carry",
+      "tests": [
+        "test_human_motion_compose_arm_carry"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanArm.carried",
+      "tests": [
+        "test_motion_compose_placed"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanArm.move",
+      "tests": [
+        "test_motion_compose_arm_transport"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanArm.reach",
+      "tests": [
+        "test_motion_compose_arm_transport"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanArm.hold",
+      "tests": [
+        "test_motion_compose_arm_transport"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanArm.retract",
+      "tests": [
+        "test_motion_compose_arm_transport"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanArm.bearing",
+      "tests": [
+        "test_motion_compose_arm_transport"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanArm.visit",
+      "tests": [
+        "test_motion_compose_manner",
+        "test_motion_compose_phrase"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanArm.stroke",
+      "tests": [
+        "test_motion_compose_arm_transport"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanArm.strike",
+      "tests": [
+        "test_motion_compose_phrase"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanArm.oscillate",
+      "tests": [
+        "test_motion_compose_phrase"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanArm.swing",
+      "tests": [
+        "test_motion_compose_phrase"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanBase.still",
+      "tests": [
+        "test_motion_compose_goal"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanBase.plants",
+      "tests": [
+        "test_motion_compose_goal"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanBend.ARM",
+      "tests": [
+        "test_motion_compose_bend_presets"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanBend.arm",
+      "tests": [
+        "test_motion_compose_bend",
+        "test_motion_compose_bend_presets",
+        "test_motion_compose_swivel"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanBend.hang",
+      "tests": [
+        "test_human_motion_compose_arm_carry",
+        "test_motion_compose_bend"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanBend.knee",
+      "tests": [
+        "test_motion_compose_bend"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanBend.solve",
+      "tests": [
+        "test_motion_compose_swivel",
+        "test_motion_compose_variation_bounded"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanBend.strain",
+      "tests": [
+        "test_motion_compose_swivel",
+        "test_motion_compose_variation_bounded"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanBend.turn",
+      "tests": [
+        "test_motion_compose_bend_presets"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanChannel.ORDER",
+      "tests": [
+        "test_human_motion_compose_channel_order"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanChannel.of",
+      "tests": [
+        "test_human_motion_compose_channel_order",
+        "test_motion_compose_channel"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanChannel.merge",
+      "tests": [
+        "test_motion_compose_channel"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanClearance.RADIUS",
+      "tests": [
+        "test_motion_compose_clearance",
+        "test_motion_compose_tables"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanClearance.SPACING",
+      "tests": [
+        "test_motion_compose_tables"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanClearance.path",
+      "tests": [
+        "test_motion_compose_clearance",
+        "test_motion_compose_tables"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanCourse.STEP",
+      "tests": [
+        "test_motion_compose_tables"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanCourse.CORRECTIONS",
+      "tests": [
+        "test_motion_compose_tables"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanCourse.solve",
+      "tests": [
+        "test_human_motion_compose_course"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanGaze.look",
+      "tests": [
+        "test_human_motion_compose_gaze"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanGaze.glance",
+      "tests": [
+        "test_human_motion_compose_gaze"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanGoal.mix",
+      "tests": [
+        "test_motion_compose_goal"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanGoal.toward",
+      "tests": [
+        "test_motion_compose_goal_toward"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanGoal.drive",
+      "tests": [
+        "test_motion_compose_goal"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanGoal.pulse",
+      "tests": [
+        "test_motion_compose_goal"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanHand.fingers",
+      "tests": [
+        "test_motion_compose_parts"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanHand.shape",
+      "tests": [
+        "test_motion_compose_shares"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanHand.form",
+      "tests": [
+        "test_motion_compose_moves"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanHead.NECK",
+      "tests": [
+        "test_motion_compose_shares"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanHead.share",
+      "tests": [
+        "test_motion_compose_shares"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanHead.nod",
+      "tests": [
+        "test_motion_compose_phrase"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanHead.shake",
+      "tests": [
+        "test_motion_compose_phrase"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanHead.tilt",
+      "tests": [
+        "test_motion_compose_phrase"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanInterrupt.BLENDS",
+      "tests": [
+        "test_motion_compose_tables"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanInterrupt.row",
+      "tests": [
+        "test_motion_compose_interrupt"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanInterrupt.table",
+      "tests": [
+        "test_motion_compose_interrupt"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanJoints.channels",
+      "tests": [
+        "test_motion_compose_parts"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanJoints.add",
+      "tests": [
+        "test_motion_compose_parts"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanJoints.pulse",
+      "tests": [
+        "test_motion_compose_moves"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanLean.tilt",
+      "tests": [
+        "test_human_motion_compose_lean",
+        "test_motion_compose_goal"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanLean.pivot",
+      "tests": [
+        "test_human_motion_compose_lean",
+        "test_human_motion_compose_reach_fit"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanLean.sway",
+      "tests": [
+        "test_human_motion_compose_lean"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanLean.tip",
+      "tests": [
+        "test_human_motion_compose_lean",
+        "test_human_motion_compose_reach_fit"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanLean.bow",
+      "tests": [
+        "test_human_motion_compose_lean"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanLeanInto.solve",
+      "tests": [
+        "test_human_motion_compose_lean_into"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanLeg.arc",
+      "tests": [
+        "test_motion_compose_moves"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanLeg.goal",
+      "tests": [
+        "test_motion_compose_leg_place"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanLeg.place",
+      "tests": [
+        "test_motion_compose_leg_place"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanLeg.plant",
+      "tests": [
+        "test_motion_compose_leg_place"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanLeg.step",
+      "tests": [
+        "test_motion_compose_leg_place"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanLeg.bearing",
+      "tests": [
+        "test_motion_compose_leg_place"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanLeg.between",
+      "tests": [
+        "test_motion_compose_leg_place"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanLeg.lift",
+      "tests": [
+        "test_motion_compose_manner",
+        "test_motion_compose_phrase"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanLeg.tap",
+      "tests": [
+        "test_motion_compose_phrase"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanLeg.swing",
+      "tests": [
+        "test_motion_compose_phrase"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanLeg.pivot",
+      "tests": [
+        "test_motion_compose_phrase"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanPlaced.arm",
+      "tests": [
+        "test_motion_compose_placed"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanPlaced.grid",
+      "tests": [
+        "test_motion_compose_placed"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanPlaced.joint",
+      "tests": [
+        "test_motion_compose_placed"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanPlaced.carried",
+      "tests": [
+        "test_motion_compose_placed"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanPlaced.shoulders",
+      "tests": [
+        "test_motion_compose_placed"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanPlaced.wrist",
+      "tests": [
+        "test_motion_compose_placed"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanPlaced.root",
+      "tests": [
+        "test_motion_compose_placed"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanPlaced.girdle",
+      "tests": [
+        "test_motion_compose_placed"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanPlaced.pitch",
+      "tests": [
+        "test_motion_compose_placed"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanRange.LEVELS",
+      "tests": [
+        "test_motion_compose_tables"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanRange.share",
+      "tests": [
+        "test_motion_compose_range"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanRange.degrees",
+      "tests": [
+        "test_motion_compose_range"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanRange.limit",
+      "tests": [
+        "test_motion_compose_range"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanRange.lean",
+      "tests": [
+        "test_motion_compose_range"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanRange.shift",
+      "tests": [
+        "test_motion_compose_range"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanReach.LEAN_LIMIT",
+      "tests": [
+        "test_human_motion_compose_lean_into",
+        "test_human_motion_compose_reach_fit"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanReach.measure",
+      "tests": [
+        "test_motion_compose_reach"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanReach.clamp",
+      "tests": [
+        "test_motion_compose_reach"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanReach.refuse",
+      "tests": [
+        "test_motion_compose_reach"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanReach.check",
+      "tests": [
+        "test_human_motion_compose_reach_fit"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanReach.lean",
+      "tests": [
+        "test_human_motion_compose_reach_fit"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanReach.fit",
+      "tests": [
+        "test_human_motion_compose_reach_fit"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanResolve.place",
+      "tests": [
+        "test_motion_compose_resolve"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanResolve.shares",
+      "tests": [
+        "test_motion_compose_resolve"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanResolve.bend",
+      "tests": [
+        "test_motion_compose_resolve"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanResolve.amount",
+      "tests": [
+        "test_motion_compose_resolve"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanResolve.table",
+      "tests": [
+        "test_motion_compose_resolve"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanResolve.swivel",
+      "tests": [
+        "test_motion_compose_goal_toward"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanRise.foot",
+      "tests": [
+        "test_human_motion_compose_rise"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanRise.lift",
+      "tests": [
+        "test_human_motion_compose_rise"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanRise.legs",
+      "tests": [
+        "test_human_motion_compose_rise"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanRoot.place",
+      "tests": [
+        "test_motion_compose_moves"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanRoot.scale",
+      "tests": [
+        "test_motion_compose_shares"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanRoot.travel",
+      "tests": [
+        "test_motion_compose_shares"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanRoot.excursion",
+      "tests": [
+        "test_motion_compose_moves"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanRoot.shift",
+      "tests": [
+        "test_motion_compose_phrase"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanRoot.face",
+      "tests": [
+        "test_motion_compose_phrase"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTarget.DEFAULTS",
+      "tests": [
+        "test_motion_compose_target",
+        "test_motion_compose_variation_named"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTarget.HEIGHTS",
+      "tests": [
+        "test_motion_compose_nearest",
+        "test_motion_compose_tables",
+        "test_motion_compose_variation_named"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTarget.OVERHEAD",
+      "tests": [
+        "test_motion_compose_tables"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTarget.LATERALS",
+      "tests": [
+        "test_motion_compose_variation_named"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTarget.DISTANCES",
+      "tests": [
+        "test_motion_compose_variation_named"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTarget.NUDGE",
+      "tests": [
+        "test_motion_compose_tables"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTarget.height",
+      "tests": [
+        "test_motion_compose_tables"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTarget.place",
+      "tests": [
+        "test_motion_compose_nearest",
+        "test_motion_compose_place",
+        "test_motion_compose_tables",
+        "test_motion_compose_variation_named"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTarget.nearest",
+      "tests": [
+        "test_motion_compose_nearest",
+        "test_motion_compose_variation_named"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTarget.fallback",
+      "tests": [
+        "test_motion_compose_nearest",
+        "test_motion_compose_target",
+        "test_motion_compose_variation_named"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTarget.resolve",
+      "tests": [
+        "test_motion_compose_target"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTarget.away",
+      "tests": [
+        "test_motion_compose_tables"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTarget.hand",
+      "tests": [
+        "test_motion_compose_placed"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTarget.foot",
+      "tests": [
+        "test_motion_compose_placed"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTiming.BASE",
+      "tests": [
+        "test_motion_compose_tables"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTiming.RATE",
+      "tests": [
+        "test_motion_compose_tables"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTiming.INTERCEPT",
+      "tests": [
+        "test_motion_compose_tables"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTiming.AMPLITUDE",
+      "tests": [
+        "test_motion_compose_tables"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTiming.WIDTH",
+      "tests": [
+        "test_motion_compose_tables"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTiming.SHORTEST",
+      "tests": [
+        "test_motion_compose_tables"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTiming.transport",
+      "tests": [
+        "test_motion_compose_tables",
+        "test_motion_compose_timing"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTiming.aimed",
+      "tests": [
+        "test_motion_compose_tables",
+        "test_motion_compose_timing"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTiming.of",
+      "tests": [
+        "test_motion_compose_timing"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTiming.PAUSES",
+      "tests": [
+        "test_motion_compose_tables"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTiming.seconds",
+      "tests": [
+        "test_motion_compose_roles"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTiming.phrase",
+      "tests": [
+        "test_motion_compose_roles"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTouch.region",
+      "tests": [
+        "test_human_motion_compose_touch_laid"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTouch.touch",
+      "tests": [
+        "test_human_motion_compose_touch_laid"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTouch.bend",
+      "tests": [
+        "test_human_motion_compose_touch_laid"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTouch.laid",
+      "tests": [
+        "test_human_motion_compose_touch_laid"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTouch.rest",
+      "tests": [
+        "test_human_motion_compose_touch_laid"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTouch.upright",
+      "tests": [
+        "test_human_motion_compose_touch_laid"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTouchEffector.axis",
+      "tests": [
+        "test_human_motion_compose_touch_effector"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTouchEffector.local",
+      "tests": [
+        "test_human_motion_compose_touch_effector"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTouchEffector.point",
+      "tests": [
+        "test_human_motion_compose_touch_effector",
+        "test_human_motion_compose_touch_laid"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTouchEffector.pad",
+      "tests": [
+        "test_human_motion_compose_touch_effector",
+        "test_human_motion_compose_touch_laid"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTouchEffector.goal",
+      "tests": [
+        "test_human_motion_compose_touch_effector"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTouchForm.FORMS",
+      "tests": [
+        "test_motion_compose_touch_form"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTouchForm.period",
+      "tests": [
+        "test_motion_compose_touch_form"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTouchForm.tangent",
+      "tests": [
+        "test_motion_compose_touch_form"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTouchPath.lay",
+      "tests": [
+        "test_human_motion_compose_touch_path"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTrunk.CHEST",
+      "tests": [
+        "test_human_motion_compose_trunk"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTrunk.turn",
+      "tests": [
+        "test_human_motion_compose_trunk",
+        "test_motion_compose_phrase"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTrunk.sunk",
+      "tests": [
+        "test_human_motion_compose_trunk"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTrunk.crouch",
+      "tests": [
+        "test_human_motion_compose_trunk",
+        "test_motion_compose_phrase"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTrunk.counterbalance",
+      "tests": [
+        "test_human_motion_compose_trunk"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanVariation.ACROSS",
+      "tests": [
+        "test_motion_compose_tables"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanVariation.SPREADS",
+      "tests": [
+        "test_motion_compose_tables",
+        "test_motion_compose_variation_draw"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanVariation.BOUNDS",
+      "tests": [
+        "test_motion_compose_tables"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanVariation.of",
+      "tests": [
+        "test_motion_compose_variation_existing",
+        "test_motion_compose_variation_identity"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanVariation.CENTRE",
+      "tests": [
+        "test_motion_compose_variation_identity"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanVariation.strike",
+      "tests": [
+        "test_motion_compose_variation_bounded",
+        "test_motion_compose_variation_identity",
+        "test_motion_compose_variation_reproducible"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanVariation.direction",
+      "tests": [
+        "test_motion_compose_variation_bounded",
+        "test_motion_compose_variation_identity",
+        "test_motion_compose_variation_reproducible"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanVariation.duration",
+      "tests": [
+        "test_motion_compose_variation_bounded",
+        "test_motion_compose_variation_existing",
+        "test_motion_compose_variation_identity",
+        "test_motion_compose_variation_reproducible"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanVariation.pause",
+      "tests": [
+        "test_motion_compose_variation_bounded",
+        "test_motion_compose_variation_existing",
+        "test_motion_compose_variation_identity",
+        "test_motion_compose_variation_reproducible"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanVariationDraw.TRUNCATE",
+      "tests": [
+        "test_motion_compose_tables",
+        "test_motion_compose_variation_draw"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanVariationDraw.MARGIN",
+      "tests": [
+        "test_motion_compose_tables"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanVariationDraw.ALPHA",
+      "tests": [
+        "test_motion_compose_tables"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanVariationDraw.uniforms",
+      "tests": [
+        "test_motion_compose_variation_spaced"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanVariationDraw.normals",
+      "tests": [
+        "test_motion_compose_variation_draw"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanVariationDraw.disc",
+      "tests": [
+        "test_motion_compose_variation_draw"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanVariationDraw.cell",
+      "tests": [
+        "test_motion_compose_variation_draw"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanVariationDraw.basis",
+      "tests": [
+        "test_motion_compose_variation_draw"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanVariationDraw.quantity",
+      "tests": [
+        "test_motion_compose_variation_draw"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanVariationDraw.scalar",
+      "tests": [
+        "test_motion_compose_variation_draw"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanVariationForm.amount",
+      "tests": [
+        "test_motion_compose_variation_bounded",
+        "test_motion_compose_variation_existing",
+        "test_motion_compose_variation_identity",
+        "test_motion_compose_variation_reproducible"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanVariationForm.swivel",
+      "tests": [
+        "test_motion_compose_variation_bounded"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanVariationForm.bend",
+      "tests": [
+        "test_motion_compose_variation_bounded",
+        "test_motion_compose_variation_existing",
+        "test_motion_compose_variation_identity",
+        "test_motion_compose_variation_independent",
+        "test_motion_compose_variation_reproducible",
+        "test_motion_compose_variation_spaced"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanVariationForm.curvature",
+      "tests": [
+        "test_motion_compose_variation_bounded",
+        "test_motion_compose_variation_identity",
+        "test_motion_compose_variation_reproducible"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanVariationPlace.vary",
+      "tests": [
+        "test_motion_compose_variation_bounded",
+        "test_motion_compose_variation_identity",
+        "test_motion_compose_variation_keyed",
+        "test_motion_compose_variation_named",
+        "test_motion_compose_variation_reproducible"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionManner.NEUTRAL",
+      "tests": [
+        "test_motion_compose_manner"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionManner.HOLD",
+      "tests": [
+        "test_motion_compose_tables"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionManner.BOUNDS",
+      "tests": [
+        "test_motion_compose_tables"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionManner.resolve",
+      "tests": [
+        "test_motion_compose_manner",
+        "test_motion_compose_tables"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionManner.of",
+      "tests": [
+        "test_motion_compose_manner",
+        "test_motion_compose_variation_existing"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionManner.time",
+      "tests": [
+        "test_motion_compose_manner"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionMeeting.of",
+      "tests": [
+        "test_motion_compose_meeting"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionMeeting.place",
+      "tests": [
+        "test_motion_compose_meeting"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionMeeting.local",
+      "tests": [
+        "test_motion_compose_meeting"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "composeAutoMovieMotionHumanAction",
+      "tests": [
+        "test_motion_compose_action"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "blendHumanJoint",
+      "tests": [
+        "test_human_motion_compose_arm_carry"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "hipJoints",
+      "tests": [
+        "test_motion_posture_frames",
+        "test_motion_posture_resolve_helpers"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanArmClearance.trunk",
+      "tests": [
+        "test_human_motion_posture_arm_clearance"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanArmClearance.obstacles",
+      "tests": [
+        "test_human_motion_posture_arm_clearance"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanArmClearance.overshoot",
+      "tests": [
+        "test_human_motion_compose_arm_carry",
+        "test_human_motion_posture_arm_clearance"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanArmClearance.posed",
+      "tests": [
+        "test_human_motion_posture_arm_clearance"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanArmClearance.room",
+      "tests": [
+        "test_human_motion_posture_arm_clearance"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanArmClearance.cleared",
+      "tests": [
+        "test_human_motion_posture_arm_clearance"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanColliders.distance",
+      "tests": [
+        "test_human_motion_posture_arm_clearance"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanColliders.distanceToSegment",
+      "tests": [
+        "test_human_motion_posture_arm_clearance"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanColliders.cast",
+      "tests": [
+        "test_human_motion_audit_partner",
+        "test_human_motion_audit_tangle",
+        "test_human_motion_posture_arm_clearance"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanColliders.lowest",
+      "tests": [
+        "test_human_motion_posture_arm_clearance"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanColliders.placed",
+      "tests": [
+        "test_human_motion_compose_arm_carry",
+        "test_human_motion_posture_arm_clearance"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanFoot.sockets",
+      "tests": [
+        "test_motion_posture_frames"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanFoot.base",
+      "tests": [
+        "test_human_motion_audit_balance"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanFoot.rotation",
+      "tests": [
+        "test_motion_heel_off",
+        "test_motion_posture_frames"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanFoot.heading",
+      "tests": [
+        "test_human_motion_compose_rise",
+        "test_motion_compose_moves",
+        "test_motion_compose_placed"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanFoot.pitch",
+      "tests": [
+        "test_human_motion_compose_rise",
+        "test_motion_compose_placed"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanFoot.offset",
+      "tests": [
+        "test_motion_posture_frames"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanFoot.pivot",
+      "tests": [
+        "test_motion_posture_frames"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanFoot.heelOff",
+      "tests": [
+        "test_motion_heel_off"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanFoot.point",
+      "tests": [
+        "test_human_motion_compose_rise",
+        "test_motion_compose_placed",
+        "test_motion_posture_frames"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanFrame.point",
+      "tests": [
+        "test_motion_compose_bend_presets",
+        "test_motion_posture_frames"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanFrame.local",
+      "tests": [
+        "test_motion_posture_frames"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanFrame.turn",
+      "tests": [
+        "test_motion_posture_frames"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanFrame.heading",
+      "tests": [
+        "test_motion_compose_goal"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanHand.shape",
+      "tests": [
+        "test_motion_compose_moves",
+        "test_motion_compose_parts"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanHand.offset",
+      "tests": [
+        "test_human_motion_compose_touch_laid",
+        "test_motion_compose_placed",
+        "test_motion_posture_hand"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanHand.align",
+      "tests": [
+        "test_motion_posture_hand"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanHand.rotation",
+      "tests": [
+        "test_motion_posture_hand"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanHand.direction",
+      "tests": [
+        "test_motion_compose_direction"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanHand.facing",
+      "tests": [
+        "test_motion_posture_hand"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanHand.place",
+      "tests": [
+        "test_motion_posture_hand"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanHand.reach",
+      "tests": [
+        "test_motion_compose_placed",
+        "test_motion_posture_hand"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanHand.frame",
+      "tests": [
+        "test_motion_compose_placed",
+        "test_motion_posture_hand"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "humanRig",
+      "tests": [
+        "test_motion_posture_frames"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "poseBones",
+      "tests": [
+        "test_human_motion_audit_tangle",
+        "test_human_motion_compose_arm_carry",
+        "test_human_motion_compose_gaze",
+        "test_human_motion_compose_lean",
+        "test_human_motion_compose_lean_into",
+        "test_human_motion_compose_reach_fit",
+        "test_human_motion_compose_rise",
+        "test_human_motion_compose_touch_laid",
+        "test_human_motion_compose_trunk",
+        "test_human_motion_posture_arm_clearance",
+        "test_motion_compose_placed",
+        "test_motion_posture_frames",
+        "test_motion_posture_hand",
+        "test_motion_posture_resolve_helpers"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "resolveHumanPosture",
+      "tests": [
+        "test_human_motion_compose_arm_carry",
+        "test_human_motion_compose_gaze",
+        "test_human_motion_compose_lean",
+        "test_human_motion_compose_lean_into",
+        "test_human_motion_compose_reach_fit",
+        "test_human_motion_compose_rise",
+        "test_human_motion_compose_touch_laid",
+        "test_human_motion_compose_trunk",
+        "test_human_motion_posture_arm_clearance",
+        "test_motion_compose_placed",
+        "test_motion_posture_frames",
+        "test_motion_posture_hand",
+        "test_motion_posture_resolve_helpers"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "resolveHumanPosture.heading",
+      "tests": [
+        "test_motion_compose_placed",
+        "test_motion_posture_resolve_helpers"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "resolveHumanPosture.angles",
+      "tests": [
+        "test_motion_posture_resolve_helpers"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "resolveHumanPosture.lower",
+      "tests": [
+        "test_human_motion_compose_course",
+        "test_motion_posture_resolve_helpers"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "resolveHumanPosture.short",
+      "tests": [
+        "test_motion_posture_resolve_helpers"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "resolveHumanPosture.limb",
+      "tests": [
+        "test_motion_posture_resolve_helpers"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "resolveHumanPosture.reference",
+      "tests": [
+        "test_motion_posture_resolve_helpers"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "resolveHumanPosture.order",
+      "tests": [
+        "test_motion_posture_resolve_helpers"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "resolveHumanPosture.world",
+      "tests": [
+        "test_motion_posture_resolve_helpers"
+      ]
+    }
+  ],
+  "laws": [
+    {
+      "law": "stand",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "walk",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "pace=slow",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "pace=normal",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "pace=fast",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "run",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "pace=jog",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "pace=run",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "pace=sprint",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "jump",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "approach",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "partner",
+        "shared",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "at=intimate",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "at=faceToFace",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "at=personal",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "at=social",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "at=handing",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=front",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=behind",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "look",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "with=auto",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "with=eyes",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "with=head",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "with=trunk",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "cue=seen",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "cue=signal",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "gesture",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "count",
+        "amplitude",
+        "contact",
+        "orientation",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=wave",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=raiseHand",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=cheer",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=stopPalm",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=point",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=palmsUp",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=beckon",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=clap",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=rubHands",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=touchFace",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=pushGlasses",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=scratchHead",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=shrug",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=nod",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=shakeHead",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=bow",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=chinLift",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=squareShoulders",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=slump",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "region=forehead",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "region=noseBridge",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "region=mouth",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "region=chin",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "region=templeLeft",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "region=templeRight",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "region=earLeft",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "region=earRight",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "region=nape",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "rest",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "contact",
+        "orientation"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "place=side",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "place=pocket",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "place=hip",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "place=crossed",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "place=claspedFront",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "place=claspedBehind",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "place=behindHead",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "place=chinRest",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "place=elbowSupport",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "punch",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "partner",
+        "shared",
+        "contact",
+        "orientation",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "technique=straight",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "technique=hook",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "technique=uppercut",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "hand=lead",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "hand=rear",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "accuracy=hit",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "accuracy=graze",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "accuracy=miss",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "accuracy=vector",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "feint=true",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "feint=false",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "kick",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "partner",
+        "shared",
+        "contact",
+        "orientation",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "technique=round",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "technique=push",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "leg=lead",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "leg=rear",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "accuracy=hit",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "accuracy=graze",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "accuracy=miss",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "accuracy=vector",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "feint=true",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "feint=false",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "guard",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "stance=orthodox",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "stance=southpaw",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "step",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "count",
+        "amplitude"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "direction=forward",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "direction=back",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "direction=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "direction=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "defend",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "partner",
+        "shared",
+        "contact",
+        "orientation"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=cover",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=parry",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=elbowBlock",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=highBlock",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=slip",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=roll",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=sway",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=check",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "outcome=inTime",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "outcome=late",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "outcome=fail",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "flinch",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "stagger",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "knockdown",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "knee",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "partner",
+        "shared",
+        "contact",
+        "orientation",
+        "mirror"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "leg=lead",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "leg=rear",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "sit",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "contact",
+        "orientation",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "back=upright",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "back=lean",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "back=slump",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "rise",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "shift",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "handshake",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "partner",
+        "shared",
+        "count",
+        "amplitude",
+        "contact",
+        "orientation",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "hand=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "hand=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "pickUp",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "contact",
+        "orientation",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "hand=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "hand=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "putDown",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "contact",
+        "orientation",
+        "mirror"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "hand=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "hand=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "handOver",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "partner",
+        "shared",
+        "contact",
+        "orientation",
+        "mirror"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "outcome=transfer",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "outcome=withdraw",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "outcome=decline",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "hand=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "hand=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "receiverHand=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "receiverHand=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "receive",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "partner",
+        "shared",
+        "contact",
+        "orientation",
+        "mirror"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "outcome=transfer",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "outcome=withdraw",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "outcome=decline",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "hand=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "hand=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "bend",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "strategy=stoop",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "strategy=semiSquat",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "strategy=squat",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "strategy=auto",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "stepOver",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "lead=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "lead=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "brace",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "contact",
+        "orientation",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=impact",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=push",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=catchBody",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "typeText",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "count",
+        "amplitude",
+        "contact",
+        "orientation",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "touch",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "partner",
+        "shared",
+        "count",
+        "amplitude",
+        "contact",
+        "orientation",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_touch_self",
+            "test_human_motion_law_touch_partner",
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=tap",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_touch_partner",
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=pat",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_touch_self",
+            "test_human_motion_law_touch_partner",
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=stroke",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_touch_partner",
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=rub",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_touch_self",
+            "test_human_motion_law_touch_partner",
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=press",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_touch_self",
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=squeeze",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_touch_self",
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=hold",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_touch_self",
+            "test_human_motion_law_touch_partner",
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=scratch",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_touch_self",
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "with=palm",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "with=fingertips",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_touch_self",
+            "test_human_motion_law_touch_partner",
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "with=handBack",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_touch_self",
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "with=fist",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "tangent=up",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "tangent=across",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_touch_self",
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "handToFace",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "count",
+        "amplitude",
+        "contact",
+        "orientation",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_hand_to_face",
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "task=drink",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_hand_to_face",
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "task=sip",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_hand_to_face",
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "task=eat",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_hand_to_face",
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "task=bite",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_hand_to_face",
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "task=phone",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_hand_to_face",
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "task=read",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_hand_to_face",
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "task=brushTeeth",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_hand_to_face",
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "task=comb",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_hand_to_face",
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "task=washFace",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_hand_to_face",
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "task=wipeMouth",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_hand_to_face",
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "crouch",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "depth=partial",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "depth=full",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "heels=flat",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "heels=up",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "kneel",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "contact",
+        "orientation",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=one",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=both",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=sitBack",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "knee=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "knee=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "climbStairs",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "direction=up",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "direction=down",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "pattern=stepOverStep",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "pattern=stepByStep",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "lead=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "lead=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "throwObject",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "style=overarm",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "style=underarm",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "style=toss",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "hand=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "hand=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "catchObject",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "contact",
+        "orientation",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "hands=one",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "hands=two",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "operate",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "contact",
+        "orientation",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "mechanism=button",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "mechanism=knob",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "mechanism=slider",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "mechanism=hinge",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "hand=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "hand=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "lieDown",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "contact",
+        "orientation",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "position=supine",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "position=prone",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "position=lateralLeft",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "position=lateralRight",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "crawl",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "count",
+        "amplitude",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "climbLadder",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "count",
+        "amplitude",
+        "contact",
+        "orientation",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "clinch",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "partner",
+        "shared",
+        "contact",
+        "orientation",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "grip=plum",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "grip=collarSleeve",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "hand=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "hand=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_striking"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "kickBall",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "contact",
+        "orientation",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "foot=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "foot=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "useTool",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "count",
+        "amplitude",
+        "contact",
+        "orientation",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "tool=hammer",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "tool=saw",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "tool=stir",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "tool=screwdriver",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "hand=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "hand=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "wipe",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "count",
+        "amplitude",
+        "contact",
+        "orientation",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "hand=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "hand=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "dress",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "contact",
+        "orientation",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "item=hat",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "item=glasses",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_handling"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "carry",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "contact",
+        "orientation",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "how=oneHand",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "how=twoHands",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "how=hip",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "how=push",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_locomotion"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "kiss",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "partner",
+        "shared",
+        "contact",
+        "orientation",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "region=jawLeft",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "region=jawRight",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "region=forehead",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "region=crown",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "region=mouth",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "region=handBackLeft",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "region=handBackRight",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "highFive",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "partner",
+        "shared",
+        "contact",
+        "orientation",
+        "mirror"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=high",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=low",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=fist",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "selfAction",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "count",
+        "amplitude",
+        "contact",
+        "orientation",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=stretch",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=victory",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=fistPump",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=neckRoll",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=shoulderRoll",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_touch"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "exercise",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "count",
+        "amplitude",
+        "mirror"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=squat",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=lunge",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=highKnees",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=jumpingJack",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "depth=quarter",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "depth=half",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "depth=parallel",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "stretch",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "contact",
+        "orientation",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=neckSide",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=crossBody",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=overheadSide",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=quadriceps",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=tree",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "intensity=mild",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "intensity=moderate",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "dance",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "count",
+        "amplitude",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=bounce",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=sway",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=stepTouch",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "athletics",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "front=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "front=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "gymnastics",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "martialArt",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "count",
+        "amplitude",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=horseStance",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=chokuZuki",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=taiChiPush",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "ballSport",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "count",
+        "amplitude",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=dribble",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=dig",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=set",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=throwIn",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "baseball",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=catcherCrouch",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=groundBall",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=battingStance",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "racket",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=readyPosition",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=splitStep",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=golfAddress",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=left",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "side=right",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "swim",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "count",
+        "amplitude",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=treadWater",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=frontCrawl",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        }
+      ]
+    }
+  ]
+}
