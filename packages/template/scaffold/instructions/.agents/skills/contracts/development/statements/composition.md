@@ -9,7 +9,7 @@ Contract: [composition.md](../composition.md).
 3. A film plays every scene in screenplay order with the screenplay's transitions, titles and subtitles, and fills its running time.
 4. A film takes its raster, frame rate and running time from the delivery profile in [project context](../../../production/project-context.md), and its grade and control channels from the screenplay and that record.
 5. The scene's comment opens with its screenplay citation and a summary of what happens.
-6. A `Concretization:` paragraph names each decision the code had to make where the screenplay was vague. It never holds an exchange, an outcome or a reaction, which only the screenplay, or a fixed screenplay's instructions, decides.
+6. A `Concretization:` paragraph names each decision the code had to make where the screenplay was vague. It never holds an exchange, an outcome or a reaction, which only the screenplay decides.
 7. The same change records each concretization in the screenplay, under [concretization](../../../story/correction/repair.md#concretization). Exception: a user's fixed screenplay, whose concretizations go to the instructions.
 8. A catalog case composition takes its case parameters and cites the research section or fact each case exhibits, and the catalog film lists every case the screenplay uses.
 

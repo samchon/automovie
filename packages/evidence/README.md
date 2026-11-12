@@ -55,7 +55,7 @@ export default createEvidenceConfig({
 
 `short` is a brief under `docs/body/brief` followed by the screenplay, and `long`, the mode of a series, has four layers: settings, treatments, scripts and screenplay. A layer you leave out stays a disabled draft. The checks cover the complete work unless `scope` names the first part that a pilot covers.
 
-`none` runs no story pass, for a screenplay written without the workflow or fixed by the user. It makes no narrative check and takes no `construction`, `naturalness` or `scope`.
+`none` checks no narrative layer, for a screenplay written outside them, and takes no `construction`, `naturalness` or `scope`.
 
 ### Research and development contracts
 
@@ -80,7 +80,7 @@ export default createEvidenceConfig({
 | `development.behaviors` | Exports under `src/laws/`, `src/interactions/` and `src/consequences/` | `contracts/development/behaviors.md`, each citing the study it follows |
 | `development.composition` | Exports under `src/composition/` | `contracts/development/composition.md`, citing the screenplay scenes, beats and files they realize |
 
-Every study must be cited by some behavior, and every screenplay scene, beat and file must be realized by some composition. Under `narrative: { mode: "none" }`, where no story pass runs, every `docs/instructions/` section must be realized by some composition too. An option you leave out stays disabled.
+Every study must be cited by some behavior, and every screenplay scene, beat and file must be realized by some composition. Under `narrative: { mode: "none" }`, every section of `docs/instructions/` must be realized by some composition too, because no narrative layer cites them. An option you leave out stays disabled.
 
 ### Your own claims
 

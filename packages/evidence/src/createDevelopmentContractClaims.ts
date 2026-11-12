@@ -21,16 +21,15 @@ import { SKILLS_ROOT } from "./internal/SKILLS_ROOT";
  * behavior cannot be written without its study and no study goes unused.
  * Scenes cite the screenplay scenes and beats they realize, and every H2 scene
  * and H3 beat must be realized; films cite the screenplay file they deliver,
- * and every screenplay file must become a film. With `instructions`, set when
- * no story pass runs, composition must also realize every instruction H2,
- * which a screenplay pass would otherwise cite. Entities answer their
- * checklist alone, because their settings citations are judged by review
+ * and every screenplay file must become a film. With `instructions`,
+ * composition must also realize every instruction section, which no narrative
+ * layer then cites. Entities answer their checklist alone, because their settings citations are judged by review
  * rather than required for every settings heading.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Native TypeScript claims carry the checklist, and a second Markdown reference uses native target coverage to make the study-to-behavior, screenplay-to-scene and screenplay-to-film relations mechanical; `instructions` uses the same coverage alone for instruction-to-composition.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One table maps each population to its stage, folders, symbol kinds and cited population; disabled stages produce no claim, and the one props object carries the stages and where the checklists are read.
+ * @evidence contracts/development/implementation.md#principled-implementation Native TypeScript claims carry the checklist, and a second Markdown reference uses native target coverage to make the study-to-behavior, screenplay-to-scene and screenplay-to-film relations mechanical; `instructions` adds the instruction-to-composition relation with the same coverage and no checklist.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One table maps each checklist population to its stage, folders, symbol kinds and cited population, and the one instruction relation, which has no checklist, follows it; disabled stages produce no claim, and the one props object carries the stages, the instruction switch and where the checklists are read.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Source folders are the scaffold layout's documented locations, not fixture paths; nothing is inferred from file presence.
- * @evidence contracts/development/common.md#meaningful-documentation The comment states each stage's respondents, the relation it enforces and which skills tree holds the checklists; the `skills` member states its form and default.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states each stage's respondents, the relation it enforces and which skills tree holds the checklists; the `skills` member states its form and default, and `instructions` when composition must realize every instruction section.
  * @evidence contracts/development/implementation.md#efficient-algorithms Builds at most five fixed-size claim trees in constant time; it performs no discovery or file I/O.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Fresh objects are returned so one configuration's edits cannot reach another; there is no expensive shared work.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the returned claims; nothing is retained.
@@ -46,7 +45,11 @@ export function createDevelopmentContractClaims(
      */
     skills?: string;
 
-    /** No story pass runs, so an enabled composition stage also realizes every instruction. */
+    /**
+     * Whether an enabled composition stage must also realize every instruction
+     * section, as under narrative mode none, where no narrative layer cites
+     * them.
+     */
     instructions?: boolean;
   } = {},
 ): IEvidenceClaim[] {
@@ -116,7 +119,7 @@ export function createDevelopmentContractClaims(
     );
   if (props.instructions === true && props.composition === "evidence")
     claims.push({
-      name: "composition realizes every instruction",
+      name: "composition realizes every instruction section",
       type: "typescript",
       files: ["src/composition/**/*.ts"],
       symbol: ["function"],
