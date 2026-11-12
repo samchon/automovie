@@ -161,7 +161,8 @@ export namespace AutoMovieHumanF1 {
    * The limbs split at their ends, Birn's hand: the palm lofted on past the knuckles, its end cut into one opening per finger along the
    * webs, and each opening bridged to its finger by a band. The hand's end at 595 mm on the arm's course, which turns at the middle
    * finger's first joint toward the four fingers' mean direction, faces the fingers, so each band runs on to its finger. The web lines are
-   * `FamilyConicScan.ts webs` every 2 mm along each seam's chord, depths of 0 left out so the seam leaves its fork along the host.
+   * `FamilyConicScan.ts webs` every 2 mm along each seam's chord, depths of 0 left out so the seam leaves its fork along the host. Each band
+   * takes 192 columns: on 96, 0.5 to 1 mm apart along a seam, its quads stood as a comb of steps along every seam.
    */
   const FANS: { arm: IFan; leg: IFan } = {
     arm: {
@@ -173,21 +174,25 @@ export namespace AutoMovieHumanF1 {
       ],
       corner: 0.6,
       rail: 3,
-      columns: 96,
+      columns: 192,
     },
     // The foot's end at 975 mm on the leg's course, turned at the ball of the foot toward the five toes. Between the index and the big toe
     // the rays from 8 to 18 mm along the chord ran on into the big toe (31 to 47 mm against 16 and 13 on either side) and are left out.
+    // Beside each fork the web stands up to 10 mm out of the end, on the sole as on top, so each seam first runs out along the foot and
+    // then turns across: the knots before the first web knot and after the last are `FamilyConicScan.ts webs`' run-out readings, rays
+    // along the chord every millimetre out from the end; read only every 2 mm along the chord, the seam turned down within 1 to 2 mm of
+    // its fork and stood a pointed tent between the toes on top.
     leg: {
       digits: ["toe.little", "toe.ring", "toe.middle", "toe.index", "toe.big"],
       webs: [
-        [[0.002, 0.0031], [0.004, 0.0038], [0.006, 0.0039], [0.008, 0.0037], [0.01, 0.0034], [0.012, 0.0024], [0.014, 0.0008]],
-        [[0.002, 0.0076], [0.004, 0.0116], [0.006, 0.0127], [0.008, 0.013], [0.01, 0.0128], [0.012, 0.0121], [0.014, 0.0113], [0.016, 0.0102], [0.018, 0.0088], [0.02, 0.0071], [0.022, 0.0035]],
-        [[0.002, 0.007], [0.004, 0.0145], [0.006, 0.0172], [0.008, 0.018], [0.01, 0.0185], [0.012, 0.0184], [0.014, 0.018], [0.016, 0.0177], [0.018, 0.0171], [0.02, 0.0162], [0.022, 0.0145], [0.024, 0.0104]],
-        [[0.002, 0.0094], [0.004, 0.0135], [0.006, 0.0158], [0.02, 0.0128], [0.022, 0.0104], [0.024, 0.0069], [0.026, 0.0031]],
+        [[0.0004, 0.001], [0.0009, 0.002], [0.002, 0.0031], [0.004, 0.0038], [0.006, 0.0039], [0.008, 0.0037], [0.01, 0.0034], [0.012, 0.0024], [0.014, 0.0008]],
+        [[0.0005, 0.001], [0.0007, 0.002], [0.0009, 0.003], [0.0012, 0.004], [0.0014, 0.005], [0.002, 0.0076], [0.004, 0.0116], [0.006, 0.0127], [0.008, 0.013], [0.01, 0.0128], [0.012, 0.0121], [0.014, 0.0113], [0.016, 0.0102], [0.018, 0.0088], [0.02, 0.0071], [0.022, 0.0035], [0.0225, 0.001]],
+        [[0.0008, 0.001], [0.001, 0.002], [0.0012, 0.003], [0.0014, 0.004], [0.002, 0.007], [0.004, 0.0145], [0.006, 0.0172], [0.008, 0.018], [0.01, 0.0185], [0.012, 0.0184], [0.014, 0.018], [0.016, 0.0177], [0.018, 0.0171], [0.02, 0.0162], [0.022, 0.0145], [0.024, 0.0104], [0.0248, 0.009], [0.025, 0.008], [0.0252, 0.007], [0.0254, 0.006], [0.0257, 0.005], [0.0258, 0.004], [0.0258, 0.003], [0.0258, 0.002], [0.0258, 0.001]],
+        [[0.0001, 0.001], [0.0001, 0.002], [0.0003, 0.003], [0.0006, 0.004], [0.0008, 0.005], [0.001, 0.006], [0.0013, 0.007], [0.002, 0.0094], [0.004, 0.0135], [0.006, 0.0158], [0.02, 0.0128], [0.022, 0.0104], [0.024, 0.0069], [0.026, 0.0031], [0.0265, 0.002], [0.027, 0.001]],
       ],
       corner: 0.6,
       rail: 3,
-      columns: 96,
+      columns: 192,
     },
   };
 

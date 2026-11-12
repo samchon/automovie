@@ -260,6 +260,33 @@ namespace FamilyConicScan {
           const rl: number = Math.hypot(...raw) * Math.sign(raw[0] * normal[0]! + raw[1] * normal[1]! + raw[2] * normal[2]!);
           const e2: R.V = [raw[0] / rl, raw[1] / rl, raw[2] / rl];
           const knots: string[] = [];
+          // Beside the first fork the web may stand well out of the end, where the skin between the two digits runs on along the host
+          // before it turns across: there the line is no graph over the chord. Rays along the chord from 4 mm before the fork, every
+          // millimetre out along the plane's second axis, read where they first enter the skin, as `[along, depth]` knots that run out
+          // first (`IAutoMovieConstructionSplit.IProfile`, parameterized by its own length); they stop where the ray no longer enters
+          // within 2 mm of the fork, which is where the line turns across.
+          // The same at the second fork, read back along the chord. Each run stops 0.5 mm short of the first or last web knot so no two
+          // knots coincide.
+          const runOut = (from: R.V, sign: 1 | -1): [number, number][] => {
+            const run: [number, number][] = [];
+            for (let out: number = 1; out < 20; out += 1) {
+              const back: R.V = [from[0] + out * e2[0] - sign * 4 * e1[0], from[1] + out * e2[1] - sign * 4 * e1[1], from[2] + out * e2[2] - sign * 4 * e1[2]];
+              const hits: number[] = cast(back, [sign * e1[0], sign * e1[1], sign * e1[2]]);
+              const along: number = hits.length > 0 && hits[0]! < 0 ? -hits[0]! - 4 : Infinity;
+              if (!(along < 1.5)) break;
+              // At least 0.1 mm from the fork, so a mirrored knot stays inside the chord as the engine measures it.
+              run.push([Math.max(0.1, along), out]);
+            }
+            return run;
+          };
+          for (const [along, out] of runOut(A, 1)) knots.push("[" + (along / 1000).toFixed(4) + ", " + (out / 1000).toFixed(4) + "]");
+          let last: number = 2;
+          while (last + 2 < length - 1) last += 2;
+          const tail: string[] = runOut(B, -1)
+            .filter(([along]: [number, number]): boolean => length - along > last + 0.5)
+            .reverse()
+            .map(([along, out]: [number, number]): string => "[" + (Math.floor((length - along) * 10) / 10 / 1000).toFixed(4) + ", " + (out / 1000).toFixed(4) + "]");
+          process.stdout.write(which + " seam " + j + " last web knot at " + last + " mm, " + tail.length + " run-out knots at the second fork\n");
           for (let along: number = 2; along < length - 1; along += 2) {
             const o: R.V = [A[0] + along * e1[0], A[1] + along * e1[1], A[2] + along * e1[2]];
             const hits: number[] = cast(o, e2);
@@ -267,7 +294,7 @@ namespace FamilyConicScan {
             const depth: number = hits.length > 0 && hits[0]! > 0 ? hits[0]! : 0;
             knots.push("[" + (along / 1000).toFixed(4) + ", " + (depth / 1000).toFixed(4) + "]");
           }
-          process.stdout.write(which + " seam " + j + " phases [" + a.toFixed(4) + ", " + b.toFixed(4) + "] chord " + length.toFixed(1) + " mm from " + A.map((x: number): string => x.toFixed(1)).join("/") + " to " + B.map((x: number): string => x.toFixed(1)).join("/") + "\n  knots " + knots.join(", ") + "\n");
+          process.stdout.write(which + " seam " + j + " phases [" + a.toFixed(4) + ", " + b.toFixed(4) + "] chord " + length.toFixed(1) + " mm from " + A.map((x: number): string => x.toFixed(1)).join("/") + " to " + B.map((x: number): string => x.toFixed(1)).join("/") + "\n  knots " + [...knots, ...tail].join(", ") + "\n");
         });
       }
       return;
