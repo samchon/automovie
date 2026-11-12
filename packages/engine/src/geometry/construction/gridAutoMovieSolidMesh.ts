@@ -64,6 +64,18 @@ interface Grid {
    * the length unit, so a body in another unit legalizes alike.
    */
   metric: number;
+
+  /**
+   * Phase scale of the face's metric where a chart point lies, length units
+   * per radian: `sqrt(G / E)` from the means of `E = |S_u|^2` and
+   * `G = |S_v|^2` over the four grid jets of the cell holding the point (the
+   * nearest cell outside the grid). Residual legalization reads it, so a face
+   * whose phase scale changes across it is made Delaunay in its own local
+   * metric, not the face's mean: beside the armscye's loop the trunk spans 231
+   * mm a radian where its mean is about half that, and triangles fair in the
+   * mean metric stood 4 to 7 degrees thin on the skin and folded 135 degrees.
+   */
+  local: (u: number, v: number) => number;
 }
 
 /**
@@ -381,6 +393,27 @@ export function gridAutoMovieSolidMesh(
       if (typeof contact === "string") return contact;
       if (!contact) interior.push(at(i, j));
     }
+  const local = (u: number, v: number): number => {
+    const i: number = Math.min(
+      stations.length - 2,
+      Math.max(0, interval(stations, Math.min(Math.max(u, stations[0]!), stations[stations.length - 1]!))),
+    );
+    const phase: number =
+      period === undefined
+        ? Math.min(Math.max(v, phases[0]!), phases[phases.length - 1]!)
+        : v - period * Math.floor((v - phases[0]!) / period);
+    const j: number = interval(phases, phase, period !== undefined);
+    const k: number =
+      period === undefined ? Math.min(j + 1, phases.length - 1) : (j + 1) % phases.length;
+    let e: number = 0;
+    let g: number = 0;
+    for (const jet of [jets[i]![j]!, jets[i]![k]!, jets[i + 1]![j]!, jets[i + 1]![k]!]) {
+      e += norm(jet.u) ** 2;
+      g += norm(jet.v) ** 2;
+    }
+    const scale: number = Math.sqrt(g / e);
+    return Number.isFinite(scale) && scale > 0 ? scale : metric;
+  };
   return {
     base,
     chart,
@@ -393,6 +426,7 @@ export function gridAutoMovieSolidMesh(
     source,
     residual,
     metric,
+    local,
   };
 }
 

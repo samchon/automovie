@@ -40,6 +40,16 @@ interface Side {
  * occur for `n` vertices (Edelsbrunner 2001, Geometry and Topology for Mesh
  * Generation); a longer run is a named failure.
  *
+ * A face whose phase scale changes across it is legalized in its local
+ * metric instead (`local`): each quadrilateral is read with the scale at its
+ * own centroid, the anisotropic Delaunay criterion of the same authors with
+ * the metric frozen per test. A face's mean scale left the trunk's
+ * triangles beside the armscye's loop, where the skin spans twice the mean
+ * per radian, 4 to 7 degrees thin on the skin. A flip and its reverse read one
+ * quadrilateral and so one scale, so no pair of flips undoes itself; the
+ * lifting argument no longer bounds longer cycles, and the same flip count
+ * stays the named failure.
+ *
  * Every source constraint (trim, domain and retained-cell boundaries) is
  * fixed, so the rails, their vertices and the seam they share with another
  * face are unchanged. A flip is admitted only when both new triangles keep the
@@ -58,6 +68,7 @@ interface Side {
  * @param indexed Whether the consumer drops lifts into a global index buffer, which forbids a half-period span.
  * @param occupied Prior global endpoint pairs `minID/maxID` a new diagonal cannot reuse.
  * @param scale Phase scale of the uniform metric, positive and finite, in length units per radian.
+ * @param local The face's phase scale where a chart point lies, read in place of `scale` at the centroid of each quadrilateral, so the face is Delaunay in its own local metric where its phase scale changes across it; absent, `scale` holds everywhere. A flip and its reverse read the same four points and so the same scale.
  * @returns New positive triangle occurrences over the same region and vertices, or the broken premise.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Lawson's flip algorithm reaches the constrained Delaunay triangulation by exact lifted in-circle and orientation signs on one scaled chart that carries the length unit; the planner's own representability rules admit each flip.
@@ -76,6 +87,7 @@ export function legalizeAutoMovieSolidMesh(
   indexed: boolean,
   occupied: ReadonlySet<string> | undefined,
   scale: number,
+  local?: (u: number, v: number) => number,
 ): AutoMovieSolidMeshPlan.ITriangle[] | string {
   if (!(Number.isFinite(scale) && scale > 0))
     return "legalization metric scale must be positive and finite";
@@ -175,6 +187,7 @@ export function legalizeAutoMovieSolidMesh(
       period,
       indexed,
       scale,
+      local,
     );
     if (made === null) continue;
     const apart: string = pair(made[0].vertices[1], made[0].vertices[2]);
@@ -214,7 +227,8 @@ function flip(
   two: Side,
   period: number | undefined,
   indexed: boolean,
-  scale: number,
+  uniform: number,
+  local: ((u: number, v: number) => number) | undefined,
 ): [AutoMovieSolidMeshPlan.ITriangle, AutoMovieSolidMeshPlan.ITriangle] | null {
   const t1: AutoMovieSolidMeshPlan.ITriangle = triangles[one.triangle]!;
   const t2: AutoMovieSolidMeshPlan.ITriangle = triangles[two.triangle]!;
@@ -244,6 +258,14 @@ function flip(
   });
   if (!points.every((point: Point): boolean => point.every(Number.isFinite)))
     return null;
+  const scale: number =
+    local === undefined
+      ? uniform
+      : local(
+          (points[0]![0] + points[1]![0] + points[2]![0] + points[3]![0]) / 4,
+          (points[0]![1] + points[1]![1] + points[2]![1] + points[3]![1]) / 4,
+        );
+  if (!(Number.isFinite(scale) && scale > 0)) return null;
   const scaled: Point[] = points.map(
     (point: Point): Point => [point[0], point[1] * scale],
   );

@@ -71,6 +71,7 @@ export function faceAutoMovieSolidMesh(
       true,
       occupied,
       prepared.metric,
+      prepared.local,
     );
   if (typeof plan === "string") {
     const detail: string =
