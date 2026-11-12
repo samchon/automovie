@@ -8,7 +8,7 @@ Contract: [principles/review.md](../../principles/review.md).
 2. Headings, annotations, another unit, remembered wording and quotations selected after a verdict do not establish the reading.
 3. An evidence audit identifies the completed creative reading instead of claiming another independent read.
 4. Every finding identifies its passage, violated obligation and failure condition, recipient loss, and earliest repair owner.
-5. A factual objection is resolved with the actual quotation, definition, permitted exception and parent or cited record.
+5. Each finding the author declined is recorded with the author's reason.
 6. Upstream knowledge fills no gap the recipient experienced, and author confidence, repair cost, previous verdicts and taste dismiss no loss.
 7. Named failures were classified under the [selected decision rule](../../naturalness/common.md#reads-as-written) before author defenses, and the independent classifier resolved ambiguity in context.
 8. A named failure is protected only under a proven contractual exception. Other candidates use the [retention test](../../../../../story/evidence/answer-writing.md#grounds-for-retaining-a-candidate).
