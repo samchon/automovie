@@ -5,13 +5,34 @@ import { ViolationCollector } from "./ViolationCollector";
 import { collectNonEmptyId } from "./collectNonEmptyId";
 import { validateTransformScalars } from "./validateTransformScalars";
 
+/** The optional dimensions of an affordance, each a positive length in metres or angle in degrees when present. */
+const DIMENSIONS: readonly (
+  | "aperture"
+  | "depth"
+  | "back"
+  | "length"
+  | "width"
+  | "height"
+  | "radius"
+  | "travel"
+)[] = [
+  "aperture",
+  "depth",
+  "back",
+  "length",
+  "width",
+  "height",
+  "radius",
+  "travel",
+];
+
 /**
- * Admit nonempty id and finite frame, then require stack-top extent plan points to span area or point-like kinds to have null extent.
+ * Admit nonempty id and finite frame, require every optional dimension present to be finite and positive, then require stack-top extent plan points to span area or point-like kinds to have null extent.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Admit nonempty id and finite frame, then require stack-top extent plan points to span area or point-like kinds to have null extent.
+ * @evidence contracts/development/implementation.md#principled-implementation Admit nonempty id and finite frame, the positivity `IAutoMovieAffordance` states for its optional dimensions, then require stack-top extent plan points to span area or point-like kinds to have null extent.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Transform scalar admission and convexHull2D own frame/collinearity rules; affordance kind owns extent meaning.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only XZ finiteness is checked for the extent, and its convex hull is not a simple authored-polygon certificate.
- * @evidence contracts/development/common.md#meaningful-documentation Null extent semantics and exact caller-relative frame/point fault paths are stated.
+ * @evidence contracts/development/common.md#meaningful-documentation Null extent semantics and exact caller-relative frame, point and dimension fault paths (`<path>.<dimension>`) are stated.
  * @evidence contracts/development/implementation.md#efficient-algorithms P extent points require linear finite checks and O(P log P) hull construction when admitted.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Canonical transform and hull owners are shared; changed affordance data is checked anew.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns diagnostic rows, while temporary hull storage releases and no seat/contact solve is created.
@@ -32,6 +53,18 @@ export const validateAffordance: (
     label: "affordance frame",
     collector,
   });
+
+  // Every optional dimension an action law reads is a positive length or angle.
+  for (const name of DIMENSIONS) {
+    const value: number | undefined = affordance[name];
+    if (value !== undefined && !(Number.isFinite(value) && value > 0))
+      collector.push(
+        "range",
+        `${path}.${name}`,
+        `affordance ${name} must be a finite number > 0, but was ${value}`,
+        value,
+      );
+  }
 
   if (affordance.kind !== "stack-top") {
     if (affordance.extent !== null)

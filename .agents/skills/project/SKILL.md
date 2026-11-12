@@ -65,6 +65,7 @@ The [root README](../../../README.md#packages) and package READMEs own inventori
 | `engine` | Deterministic computation and runtime admission, and the universal motion primitives |
 | `motions` | Human action content |
 | `human` | The human figure generated from typed parameters by code |
+| `archetypes` | Coarse seeded producers of the objects, furniture, architecture, vehicles, animals and weapons a person acts with, and their affordances; no product package depends on it |
 | `recovery` | Reference-mesh reconstruction |
 | `render` | Building and drawing scenes, the passes, the inspection core, the capture plan and record, frame schedules and encoding plans; launches nothing |
 | `viewer` | The interactive display, a React library |

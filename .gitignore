@@ -14,6 +14,8 @@ packages/template/generated/
 packages/motions/.cache/
 packages/motions/media/
 packages/human/media/
+packages/archetypes/media/
+packages/archetypes/.cache/
 lib/
 dist/
 # ttsc plugin cache the rolldown build's @ttsc/unplugin writes beside each package.
