@@ -549,7 +549,7 @@ function fan(
       (child: (typeof children)[number]): number =>
         body.faces.push({
           surface: child.band.surface,
-          stations: Array.from({ length: node.rows + 1 }, (_: unknown, i: number): number => (child.band.length * i) / node.rows),
+          stations: graded(child.band.length, node.rows, child.band.loop),
           phases: Array.from({ length: n }, (_: unknown, k: number): number => clock(k)),
           cycles: [],
         }) - 1,
@@ -624,6 +624,24 @@ function fan(
   }
 }
 
+/**
+ * The grid stations of a band of a split into more than two: from the loop, rows as tall as the loop's columns are apart on average, each
+ * half again as tall as the one before until it reaches the declared `length / rows`, then that, scaled to end at the child's rail. At a
+ * fork the loop turns a quarter turn between the host's ring and the seam, and the band's columns fan through that turn within a distance
+ * of the loop the size of their own spacing; rows `length / rows` apart, up to 2 mm against columns 0.2 to 1 mm apart, drew the band's
+ * first triangles across the fan, folded back between the host and the seam (a quarter of a hand's finger forks stood as spikes).
+ */
+function graded(length: number, rows: number, loop: readonly Vec3[]): number[] {
+  let perimeter: number = 0;
+  loop.forEach((p: Vec3, k: number): void => {
+    perimeter += AutoMovieSolidVector.norm(AutoMovieSolidVector.sub(loop[(k + 1) % loop.length]!, p));
+  });
+  const coarse: number = length / rows;
+  const stations: number[] = [0];
+  for (let h: number = Math.min(coarse, perimeter / loop.length); stations.at(-1)! < length - 1e-9; h = Math.min(coarse, 1.5 * h)) stations.push(stations.at(-1)! + h);
+  const scale: number = length / stations.at(-1)!;
+  return stations.map((s: number): number => s * scale);
+}
 /** A real pole cannot be split. */
 function closed(chain: IAutoMovieLoftChain, side: "bottom" | "top"): boolean {
   return chain.pole?.end === side || chain.opposite?.end === side;

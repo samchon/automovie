@@ -121,9 +121,11 @@ export namespace AutoMovieConstructionAdmission {
             refuse(`count ${node.count} is not a multiple of 4 of at least 8`);
           if (!(Number.isInteger(node.rows) && node.rows >= 1))
             refuse(`rows ${node.rows} is not a positive integer`);
-          // A curved seam's knots advance along the chord from its first end;
-          // whether the last stays short of the chord needs the host, so the
-          // realization refuses that one.
+          // A curved seam is parameterized by its own length, so its knots
+          // need not advance along the chord; each stands off the one before
+          // (the seam's first end the origin) at no negative `along`. Whether
+          // they stay within the chord's length needs the host, so the
+          // realization refuses a knot beyond it.
           const admit: (
             profile: IAutoMovieConstructionSplit.IProfile | undefined,
           ) => void = (
@@ -131,19 +133,20 @@ export namespace AutoMovieConstructionAdmission {
           ): void => {
             if (profile === undefined) return;
             if (profile.knots.length === 0) refuse("profile has no knot");
-            let previous: number = 0;
+            let previous: [number, number] = [0, 0];
             for (const [along, depth] of profile.knots) {
               if (
                 !(
                   Number.isFinite(along) &&
                   Number.isFinite(depth) &&
-                  along > previous
+                  along >= 0 &&
+                  (along !== previous[0] || depth !== previous[1])
                 )
               )
                 refuse(
-                  `profile knot [${along}, ${depth}] m is not finite and advancing along the chord`,
+                  `profile knot [${along}, ${depth}] m is not finite, at no negative along and apart from the knot before`,
                 );
-              previous = along;
+              previous = [along, depth];
             }
             if (
               !(

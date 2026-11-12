@@ -817,9 +817,10 @@ export namespace AutoMovieConstructionSplitBand {
   }
 
   /**
-   * The child's rail phase at each loop point by arclength: column 0 takes the phase at its angle about the rail ring's centroid, in the
-   * ring's Newell plane, and every later column the phase that stands as far round the ring, as a share of the ring's length, as the column
-   * stands round the loop, the two run the same way when their Newell normals agree. Neither curve need be star-shaped about the centroid.
+   * The child's rail phase at each loop point by arclength: every column takes the phase that stands as far round the ring, as a share of
+   * the ring's length, as the column stands round the loop, the two run the same way when their Newell normals agree, from the start on the
+   * ring at which the two curves, each about its own centroid, stand closest in the least-squares sense. Neither curve need be star-shaped
+   * about the centroid.
    */
   function lengths(child: ISide, loop: readonly Vec3[]): number[] | string {
     const turn: number = 2 * Math.PI;
@@ -851,26 +852,45 @@ export namespace AutoMovieConstructionSplitBand {
     for (let k: number = 1; k <= loop.length; ++k) lapAlong.push(lapAlong[k - 1]! + norm(sub(loop[k % loop.length]!, loop[k - 1]!)));
     const lapTotal: number = lapAlong[loop.length]!;
     if (!(total > 0 && lapTotal > 0)) return "the child's rail ring or the loop has no length";
-    // Column 0's phase: the ring's sample nearest in angle about the centroid, in the ring's plane.
-    const d0: Vec3 = sub(ring[0]!, rim.centre);
-    const e1: Vec3 | null = unit(sub(d0, scale(rim.normal, dot(d0, rim.normal))));
-    if (e1 === null) return "the child's rail ring starts at its centroid";
-    const e2: Vec3 = cross(rim.normal, e1);
-    const angle = (p: Vec3): number => {
-      const d: Vec3 = sub(p, rim.centre);
-      return Math.atan2(dot(d, e2), dot(d, e1));
+    // The sample at an arclength round the ring: the last whose arclength does not pass it, by bisection.
+    const below = (x: number): number => {
+      let lo: number = 0;
+      let hi: number = samples - 1;
+      while (lo < hi) {
+        const mid: number = (lo + hi + 1) >> 1;
+        if (along[mid]! <= x) lo = mid;
+        else hi = mid - 1;
+      }
+      return lo;
     };
-    const wrap = (x: number): number => x - turn * Math.round(x / turn);
-    let anchor: number = 0;
-    for (let j: number = 1; j < samples; ++j) if (Math.abs(wrap(angle(ring[j]!) - angle(loop[0]!))) < Math.abs(wrap(angle(ring[anchor]!) - angle(loop[0]!)))) anchor = j;
-    // The phase at an arclength round the ring, by the samples and linear reading between them.
+    // The phase and the point at an arclength round the ring, read linearly between its samples.
     const phaseAt = (length: number): number => {
       const x: number = ((length % total) + total) % total;
-      let j: number = 0;
-      while (j < samples - 1 && along[j + 1]! < x) ++j;
+      const j: number = below(x);
       const span: number = along[j + 1]! - along[j]!;
       return (turn * (j + (span > 0 ? (x - along[j]!) / span : 0))) / samples;
     };
+    const pointAt = (length: number): Vec3 => {
+      const x: number = ((length % total) + total) % total;
+      const j: number = below(x);
+      const span: number = along[j + 1]! - along[j]!;
+      const f: number = span > 0 ? (x - along[j]!) / span : 0;
+      return add(scale(ring[j]!, 1 - f), scale(ring[j + 1]!, f));
+    };
+    // Where round the ring the loop's first column lands: of every sample, the one at which the loop's points and the ring's points taken
+    // at the same shares of their lengths stand closest about their own centroids (the least sum of squared distances), the start a loft
+    // between two closed curves takes so that the band does not twist. Read by the angle of the loop's first point about the ring's
+    // centroid, every toe's band of f1's foot turned 14 to 18 degrees about its toe on average.
+    let anchor: number = 0;
+    let least: number = Infinity;
+    for (let j: number = 0; j < samples; ++j) {
+      let cost: number = 0;
+      for (let k: number = 0; k < loop.length && cost < least; ++k) {
+        const d: Vec3 = sub(sub(pointAt(along[j]! + sense * (lapAlong[k]! / lapTotal) * total), rim.centre), sub(loop[k]!, lap.centre));
+        cost += dot(d, d);
+      }
+      if (cost < least) [least, anchor] = [cost, j];
+    }
     const start: number = along[anchor]!;
     const out: number[] = [];
     for (let k: number = 0; k < loop.length; ++k) {

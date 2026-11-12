@@ -8,7 +8,7 @@ const { add, cross, dot, norm, scale, sub, unit } = AutoMovieSolidVector;
 /**
  * A split's curved seam (`IAutoMovieConstructionSplit.IProfile`): the curve both bands start from in place of the straight chord, in the seam plane that holds the chord and the host end's outward normal.
  *
- * The curve is the clamped cubic spline, on chord-length parameters (mm), through the seam's first end (the host's end ring at phase `a`), the authored knots and its second end (phase `b`). At each end its unit tangent is the line where the host's tangent plane meets the seam plane: out of the host at the first end, into it at the second. The seam therefore leaves both forks along the host's own surface. Columns read it at equal arclength shares.
+ * The curve is the clamped cubic spline, on chord-length parameters (mm) between its knots, so it is parameterized by its own course and may run out along the host before it turns across the end, through the seam's first end (the host's end ring at phase `a`), the authored knots and its second end (phase `b`). At each end its unit tangent is the line where the host's tangent plane meets the seam plane: out of the host at the first end, into it at the second. The seam therefore leaves both forks along the host's own surface. Columns read it at equal arclength shares.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the plane, the curve, its end tangents, its parameter and its refusals.
  * @evidence contracts/development/design.md#principled-representation Represents A split's curved seam (`IAutoMovieConstructionSplit.IProfile`): the curve both bands start from in place of the straight chord, in the seam plane that holds the chord and the host end's outward normal: companion namespace of 4 members (`IPoint`, `ISeam`, `create`, `GAUSS`); units and frames named in its text: second, radians, world. It has no optional member, so no absent-value state combines with another.
@@ -80,7 +80,7 @@ export namespace AutoMovieConstructionSplitSeam {
    *
    * @evidence contracts/development/implementation.md#principled-implementation Plane from the chord and the end normal, end tangents from the host's tangent planes, then the clamped spline and its arclength.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass: plane, knots, tangents, solve, lengths.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses a collapsed chord, an end normal along the chord, knots that do not advance inside the chord, and an end whose tangent plane holds no direction of the seam plane.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses a collapsed chord, an end normal along the chord, a knot outside the chord's span or on its neighbour, and an end whose tangent plane holds no direction of the seam plane.
    * @evidence contracts/development/common.md#meaningful-documentation States its refusals in its result.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in knots.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The two end jets serve both the ends and their tangents.
@@ -116,21 +116,19 @@ export namespace AutoMovieConstructionSplitSeam {
     const e2: Vec3 = dot(square, input.normal) < 0 ? scale(square, -1) : square;
     const normal: Vec3 = cross(e1, e2);
 
-    // Knots in the plane's coordinates: (along e1 from A, along e2), mm.
+    // Knots in the plane's coordinates: (along e1 from A, along e2), mm. The
+    // spline below is parameterized by chord length between knots, so a knot
+    // need not advance along the chord: a seam may first run out along the
+    // host before it turns across the end. Each knot stays within the
+    // chord's span; coincident neighbours are refused with the spans below.
     const points: [number, number][] = [[0, 0]];
     for (const [along, depth] of input.knots) {
-      if (
-        !(
-          Number.isFinite(along) &&
-          Number.isFinite(depth) &&
-          along > points[points.length - 1]![0]
-        )
-      )
-        return `the seam's knot (${along}, ${depth}) mm does not advance along the chord`;
+      if (!(Number.isFinite(along) && Number.isFinite(depth)))
+        return `the seam's knot (${along}, ${depth}) mm is not finite`;
+      if (!(along >= 0 && along <= chord))
+        return `the seam's knot (${along}, ${depth}) mm stands beyond the chord's span [0, ${chord}] mm`;
       points.push([along, depth]);
     }
-    if (!(points[points.length - 1]![0] < chord))
-      return `the seam's last knot stands at or beyond the chord's length ${chord} mm`;
     points.push([chord, 0]);
 
     // End tangents: the host's tangent plane meets the seam plane along
