@@ -34,7 +34,7 @@ Launch so that the worker can actually work, be found and be resumed:
 | Need | How |
 | --- | --- |
 | The production's instructions load | Its CLAUDE.md or AGENTS.md is discovered, which Claude's `--bare` mode prevents |
-| The worker may write | The write access and permission mode the user allows for the role, including starting the isolated classification the production's inspection needs |
+| The worker may write | The write access and permission mode the user allows for the role |
 | The session is saved | No Codex `--ephemeral` |
 | The observer can find the process | A unique run marker among the process's own arguments, such as Claude's `--session-id` with a UUID you generate or Codex's `-o` with a file named for the run |
 | The run leaves a log | Background execution with its event stream, such as Claude's `--output-format stream-json --verbose` or Codex's `--json`, written to a log named for the run under the production's ignored `.cache/` |

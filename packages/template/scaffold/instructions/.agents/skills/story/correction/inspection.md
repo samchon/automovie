@@ -22,7 +22,9 @@ Lock the whole initial table before author defenses. The author repairs or raise
 
 Keep the same author through the correction cycle.
 
-The author's first table and the reviewer's first table cover the whole body. Each one's later tables classify only each sentence changed since its own last table, with their neighbors and every statement whose meaning depends on them, and carry the other rows; changed parents or requirements reopen their comparisons. Classifying the whole body again after each repair judges settled sentences anew, and every new reading becomes another repair that widens the change. Within the author's tables, or the reviewer's, do not reverse an unchanged classification for a preferred reading, only for new body, parent, source or contract evidence, an objection the reviewer upheld, or membership in a finding's class. A repaired passage receives another yes only for a clear applicable failure.
+The author's first table and the reviewer's first table cover the whole body. Each one's later tables classify only each sentence changed since its own last table, with their neighbors and every statement whose meaning depends on them, and carry the other rows; changed parents or requirements reopen their comparisons. Classifying the whole body again after each repair judges settled sentences anew, and every new reading becomes another repair that widens the change.
+
+Within the author's tables, or the reviewer's, do not reverse an unchanged classification for a preferred reading, only for new body, parent, source or contract evidence, an objection the reviewer upheld, or membership in a finding's class. A repaired passage receives another yes only for a clear applicable failure.
 
 The cycle is complete when coverage is complete and no unprotected yes remains after the affected rows are rechecked.
 

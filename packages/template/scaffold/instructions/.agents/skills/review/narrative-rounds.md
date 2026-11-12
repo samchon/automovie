@@ -20,13 +20,13 @@ Follow [independent reading](independent-reading.md) before opening author recor
 
 ## Findings and objections {#findings-and-objections}
 
-A finding the text itself shows needs one finder. The reviewer's [independent classification](../story/correction/inspection.md#independent-classification) decides the named failures and parent comparisons it records. The reviewer's quoted comparison alone shows a passage that contradicts or leaves unmet a parent, the frozen original, a requirement, a cited record, or a contract statement whose failure needs no judgment of how it reads.
+A finding the text itself shows needs one finder. The reviewer's [independent classification](../story/correction/inspection.md#independent-classification) decides the named failures and parent comparisons it records. A passage that contradicts or leaves unmet a parent, the frozen original, a requirement or a cited record, or literally fails a contract statement, is a finding on the reviewer's quoted comparison alone.
 
 Any other loss rests on how the passage reads to its recipient. It is a finding only when the reviewer's locked judgment and its independent classification both record it, or when the user names it, because one reading of an experience may be that reader's own, and every finding reopens the work. Below that threshold the loss stays in the verdict as an observation.
 
 Once a loss is a finding, every member of its class that a search finds belongs to it.
 
-Before repairing a review finding, the author records its decision beside that finding in the verdict, accepted or a factual objection, and after repairing, the repair. Repair begins once the reviewer has resolved every objection of the round, so the round's standing findings are repaired together by cause. A factual objection quotes its evidence and is raised only when:
+Before repairing a review finding, the author records its decision beside that finding in the verdict, accepted or a factual objection, and after repairing, the repair. A factual objection quotes its evidence and is raised only when:
 
 - the quotation is absent from the body;
 - the passage does not literally match the definition the finding names;
@@ -36,7 +36,7 @@ Before repairing a review finding, the author records its decision beside that f
 
 Intent, taste, repair cost and earlier approval are not factual objections. The reviewer resolves every objection in the verdict from the actual inputs. An upheld objection withdraws the finding; otherwise it stands.
 
-The author repairs every finding that stands under [cause rounds](../story/correction/repair.md#cause-rounds), choosing the method, and the repair goes to the round the [grading](#grading-and-closure) requires.
+Once every objection of the round is resolved, the author repairs the findings that stand together under [cause rounds](../story/correction/repair.md#cause-rounds), choosing the method, and the repair goes to the round the [grading](#grading-and-closure) requires.
 
 When screenplay naturalness traces a finding to frozen construction content, record its cause and earliest owner as an upstream report in the verdict instead of repeating it each round. It is repaired under [upstream repair](../story/correction/repair.md#upstream-defects) and remains an open limit until then.
 
