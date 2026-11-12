@@ -40,4 +40,4 @@ Accounting:
 13. Findings, already covered choices and the remaining inspected scope are accounted together.
 14. A negative names the concrete risks inspected and their adequate existing owners.
 15. One finding establishes no absence elsewhere, and unread or unresolved scope stays open.
-16. Every story element the user must decide under [asking the user](../../../../../story/planning/requirements.md#asking-the-user) is fixed or delegated in the instructions, or open in project context.
+16. Every story element the user must decide under [asking the user](../../../../../story/planning/requirements.md#asking-the-user) is fixed or delegated at its owner, or open in project context.
