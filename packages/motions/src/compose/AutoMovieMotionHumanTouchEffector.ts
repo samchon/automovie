@@ -30,21 +30,26 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  */
 export namespace AutoMovieMotionHumanTouchEffector {
   /**
-   * A hand axis at rest: the fingers' direction, the palm's facing or the
-   * thumb's, or their opposites.
+   * A hand axis at rest: the fingers' direction, the palm's facing, the
+   * thumb's, or the axis of a cylinder the fist holds (`grasp`), or their
+   * opposites. A held cylinder lies obliquely across the palm, from the heel
+   * on the little finger's side to the index finger's knuckle (Napier 1956),
+   * so its axis is the thumb's leaned toward the fingers.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the three anatomical directions and that a leading minus is the opposite.
-   * @evidence contracts/development/design.md#principled-representation The hand's three anatomical axes and their negatives, the six directions a held tool or a surface can point in the hand's rest frame.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six literals, read by the effector's tool offset and its two laid axes.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the anatomical directions, what the grasp axis is and that a leading minus is the opposite.
+   * @evidence contracts/development/design.md#principled-representation The hand's three anatomical axes, the power grip's oblique axis and their negatives, the directions a held tool or a surface can point in the hand's rest frame.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Eight literals, read by the effector's tool offset and its two laid axes.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Anatomical names, not bone-space x, y and z, so a left and a right hand state the same effector.
    */
   export type Axis =
     | "fingers"
     | "palm"
     | "thumb"
+    | "grasp"
     | "-fingers"
     | "-palm"
-    | "-thumb";
+    | "-thumb"
+    | "-grasp";
 
   /**
    * An effector.
@@ -74,14 +79,15 @@ export namespace AutoMovieMotionHumanTouchEffector {
   /**
    * A hand axis at rest, in the hand's rest frame: the rig rests in a T pose
    * with the palms down, so the fingers point out to the hand's side, the
-   * palm faces down and the thumb points forward.
+   * palm faces down and the thumb points forward. The grasp axis is the
+   * thumb's leaned `GRASP` degrees toward the fingers.
    *
    * @param side The hand.
    * @param axis The axis.
    * @returns The unit vector.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the rest pose the axes are read in and each axis's direction.
-   * @evidence contracts/development/implementation.md#principled-implementation The rig's rest pose fixes the three anatomical axes, mirrored by side for the fingers.
+   * @evidence contracts/development/implementation.md#principled-implementation The rig's rest pose fixes the three anatomical axes, mirrored by side for the fingers; the grasp axis is the oblique axis of the power grip in the plane of the palm.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One sign and one choice.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The same axes `HumanHand.rotation` aligns from.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
@@ -91,12 +97,16 @@ export namespace AutoMovieMotionHumanTouchEffector {
   export function axis(side: HumanHand.Side, axis: Axis): IAutoMovieVector3 {
     const sign: number = axis.startsWith("-") ? -1 : 1;
     const name: string = axis.replace("-", "");
+    const fingers: number = side === "left" ? 1 : -1;
+    const lean: number = (GRASP * Math.PI) / 180;
     const v: IAutoMovieVector3 =
       name === "fingers"
-        ? { x: side === "left" ? 1 : -1, y: 0, z: 0 }
+        ? { x: fingers, y: 0, z: 0 }
         : name === "palm"
           ? { x: 0, y: -1, z: 0 }
-          : { x: 0, y: 0, z: 1 };
+          : name === "thumb"
+            ? { x: 0, y: 0, z: 1 }
+            : { x: fingers * Math.sin(lean), y: 0, z: Math.cos(lean) };
     return Vector3.scale(v, sign);
   }
 
@@ -279,3 +289,6 @@ export namespace AutoMovieMotionHumanTouchEffector {
     };
   }
 }
+
+/** How far a held cylinder's axis leans from the thumb's toward the fingers, degrees (provisional). */
+const GRASP: number = 20;

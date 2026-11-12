@@ -5,6 +5,7 @@ import {
   Quaternion,
   decomposeJointRotation,
   getConstraint,
+  jointRomOvershoot,
   jointToQuaternion,
   skeletonJointAxes,
 } from "@automovie/engine";
@@ -34,6 +35,15 @@ import type { IHumanBody } from "../body/IHumanBody";
  * read back as the clinical triple of the chart the joint's range of motion
  * admits best, the reading the limb fit gives its own solutions.
  *
+ * The shorter arc between two rotations inside a joint's range may leave the
+ * range on the way: the range is a box in the clinical angles, not a convex
+ * set of rotations. A pose resolved from such a triple is clamped, so the limb
+ * stalls and then jumps. When both ends lie in the range and the arc, checked
+ * at eighths of the way, leaves it, the ball joint is therefore blended angle
+ * by angle too: a straight line between two points of a box stays in the box.
+ * The choice is made on the whole arc, never on the share, so one blend takes
+ * one path.
+ *
  * A joint whose range lacks a freedom (the elbow with the forearm's turn has
  * no abduction, the wrist no twist, the knee only flexion) has one triple per
  * rotation, and the shorter arc between two of its rotations leaves the
@@ -54,7 +64,7 @@ import type { IHumanBody } from "../body/IHumanBody";
  * @evidence contracts/development/implementation.md#principled-implementation Spherical linear interpolation of the two joint rotations is the constant-speed shortest turn between them and does not depend on either end's chart; the triple is recovered by the engine's exact inverse. A joint with fewer than three freedoms moves only about its own axes, so its angles are its coordinates and are interpolated as such.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch on the joint's range, then either three linear blends or two forward conversions, one interpolation and one inverse; the single owner of a blend of joint triples, read by the arm's carry and by every reference blended between two solutions.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bone is named: the joint's own range of motion says whether it is a ball joint. The share is clamped so the joint cannot pass either end, and an end keeps its own triple instead of a re-read one.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant time per joint.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant time per joint: at most eight decompositions.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the engine's `jointToQuaternion`, `Quaternion.slerp` and `decomposeJointRotation` with the canonical axes and rest frames the limb fit reads.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
  */
@@ -98,11 +108,43 @@ export function blendHumanJoint(
         HUMANOID_REST_FRAME[bone],
       ),
     );
-  const read: IAutoMovieResolvedJointAngles = decomposeJointRotation(
-    Quaternion.normalize(Quaternion.slerp(rotation(from), rotation(to), s)),
-    axes,
-    HUMANOID_REST_FRAME[bone],
-    { bone, constraint },
-  );
+  const a: IAutoMovieQuaternion = rotation(from);
+  const b: IAutoMovieQuaternion = rotation(to);
+  const arc = (at: number): IAutoMovieResolvedJointAngles =>
+    decomposeJointRotation(
+      Quaternion.normalize(Quaternion.slerp(a, b, at)),
+      axes,
+      HUMANOID_REST_FRAME[bone],
+      { bone, constraint },
+    );
+  // The arc is judged whole, at fixed shares, so every share of one blend
+  // takes the same path.
+  if (
+    constraint !== null &&
+    jointRomOvershoot({ bone, ...triple(from) }, constraint) === 0 &&
+    jointRomOvershoot({ bone, ...triple(to) }, constraint) === 0 &&
+    ARC.some(
+      (at: number): boolean =>
+        jointRomOvershoot({ bone, ...arc(at) }, constraint) > 0,
+    )
+  )
+    return [
+      from[0] + (to[0] - from[0]) * s,
+      from[1] + (to[1] - from[1]) * s,
+      from[2] + (to[2] - from[2]) * s,
+    ];
+  const read: IAutoMovieResolvedJointAngles = arc(s);
   return [read.flexion, read.abduction, read.twist];
+}
+
+/** The shares at which a ball joint's arc is checked against its range. */
+const ARC: readonly number[] = [0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875];
+
+/** A triple as named angles. */
+function triple(of: readonly [number, number, number]): {
+  flexion: number;
+  abduction: number;
+  twist: number;
+} {
+  return { flexion: of[0], abduction: of[1], twist: of[2] };
 }

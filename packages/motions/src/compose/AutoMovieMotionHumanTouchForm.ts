@@ -149,7 +149,7 @@ export namespace AutoMovieMotionHumanTouchForm {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which direction is taken and the fallbacks.
    * @evidence contracts/development/implementation.md#principled-implementation The first candidate whose part across the normal is long enough, normalised.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two candidates and one loop.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two perpendicular candidates and one choice.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A candidate shorter than 0.3 across the normal is skipped so a near-parallel direction is never normalised.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanFrame.point`.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
@@ -171,10 +171,11 @@ export namespace AutoMovieMotionHumanTouchForm {
             HumanFrame.point(frame, { x: 1, y: 0, z: 0 }),
             HumanFrame.point(frame, { x: 0, y: 0, z: 1 }),
           ];
-    for (const c of candidates) {
-      const t: IAutoMovieVector3 = across(c);
-      if (Vector3.length(t) > 0.3) return Vector3.normalize(t);
-    }
-    return Vector3.normalize(across({ x: 0, y: 1, z: 0.5 }));
+    // The two candidates are perpendicular, so when the first lies within
+    // 0.3 of the normal the second lies almost fully across it.
+    const first: IAutoMovieVector3 = across(candidates[0]!);
+    return Vector3.normalize(
+      Vector3.length(first) > 0.3 ? first : across(candidates[1]!),
+    );
   }
 }

@@ -240,15 +240,28 @@ export namespace kiss {
     );
     const head = AutoMovieMotionHumanHead.share(0, s.flexion);
     const turn = AutoMovieMotionHumanHead.share(2, twist);
+    // The plan adds the flexion and the turn to what the neck and the head
+    // hold, so the solve reads them added too.
+    const held = (bone: "neck" | "head"): readonly [number, number, number] =>
+      leaned.joints[bone] ?? [0, 0, 0];
     return {
       ...leaned,
       joints: {
         ...leaned.joints,
-        neck: [head.neck![0], 0, turn.neck![2]],
-        head: [head.head![0], 0, turn.head![2]],
+        neck: [
+          held("neck")[0] + head.neck![0],
+          held("neck")[1],
+          held("neck")[2] + turn.neck![2],
+        ],
+        head: [
+          held("head")[0] + head.head![0],
+          held("head")[1],
+          held("head")[2] + turn.head![2],
+        ],
       },
     };
   }
+
   /**
    * Plan a kiss.
    *

@@ -10,7 +10,6 @@ import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarge
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
-import { AutoMovieMotionHumanTouchPath } from "../compose/AutoMovieMotionHumanTouchPath";
 import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -18,7 +17,6 @@ import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { poseBones } from "../posture/poseBones";
 
 /**
  * A high five, a low five or a fist bump between two standing partners: both
@@ -197,6 +195,14 @@ export namespace highFive {
       AutoMovieMotionHumanTarget.IPlace,
       "point" | "normal"
     > => place;
+    const bend: IAutoMovieVector3 = AutoMovieMotionHumanTouch.bend(
+      body,
+      entry,
+      side,
+      effector,
+      place,
+      "up",
+    );
     return composeAutoMovieMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(
         clock.duration,
@@ -214,19 +220,15 @@ export namespace highFive {
         kind: "press",
         count: 1,
         tangent: "up",
-        bend: AutoMovieMotionHumanTouch.bend(
+        bend,
+        reference: AutoMovieMotionHumanTouch.laid(
           body,
           entry,
           side,
           effector,
           place,
           "up",
-        ),
-        origin: AutoMovieMotionHumanTouchPath.origin(
-          body,
-          poseBones(body, context.entry.pose),
-          side,
-          effector,
+          bend,
         ),
         entry,
       }),

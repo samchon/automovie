@@ -9,6 +9,7 @@ import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHead } from "../compose/AutoMovieMotionHumanHead";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
@@ -17,7 +18,6 @@ import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTimin
 import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchForm } from "../compose/AutoMovieMotionHumanTouchForm";
-import { AutoMovieMotionHumanTouchPath } from "../compose/AutoMovieMotionHumanTouchPath";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
@@ -308,7 +308,31 @@ export namespace handToFace {
         ...AutoMovieMotionHumanHead.share(0, row.head * modifiers.extent),
       },
     };
-    for (const [side, name] of hands)
+    for (const [side, name] of hands) {
+      const lay: AutoMovieMotionHumanTouch.ITouch["lay"] =
+        row.upright === true ? "upright" : "tangent";
+      // A held vessel faces the way its arm turns it best at the face.
+      const facing: IAutoMovieVector3 | undefined =
+        row.upright === true
+          ? AutoMovieMotionHumanTouch.upright(
+              body,
+              atFace,
+              side,
+              row.effector,
+              region(side, name)(atFace, 0),
+              AutoMovieMotionHumanBend.hang(body, atFace, side),
+            )
+          : undefined;
+      const bend: IAutoMovieVector3 = AutoMovieMotionHumanTouch.bend(
+        body,
+        atFace,
+        side,
+        row.effector,
+        region(side, name)(atFace, 0),
+        row.tangent,
+        lay,
+        facing,
+      );
       primitives.push(
         ...AutoMovieMotionHumanTouch.touch({
           body,
@@ -321,20 +345,20 @@ export namespace handToFace {
           count,
           tangent: row.tangent,
           extent: modifiers.extent,
-          bend: AutoMovieMotionHumanTouch.bend(
+          bend,
+          reference: AutoMovieMotionHumanTouch.laid(
             body,
             atFace,
             side,
             row.effector,
             region(side, name)(atFace, 0),
             row.tangent,
+            bend,
+            lay,
+            facing,
           ),
-          origin: AutoMovieMotionHumanTouchPath.origin(
-            body,
-            bones,
-            side,
-            row.effector,
-          ),
+          lay,
+          ...(facing === undefined ? {} : { facing }),
           entry,
           ...(name === null
             ? {}
@@ -347,6 +371,7 @@ export namespace handToFace {
               }),
         }),
       );
+    }
     return composeAutoMovieMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(
         clock.duration,

@@ -121,7 +121,9 @@ export function test_motion_compose_phrase(): void {
           normal: { x: 0, y: -1, z: 0 },
           forward: { x: 0, y: 0, z: 1 },
         },
+        heelLeft: { bone: "leftFoot", point: { x: 0, y: -0.08, z: -0.05 } },
         ballLeft: { bone: "leftFoot", point: { x: 0, y: -0.08, z: 0.12 } },
+        toeLeft: { bone: "leftFoot", point: { x: 0, y: -0.08, z: 0.2 } },
       },
     },
   } as unknown as IHumanBody;
@@ -131,11 +133,14 @@ export function test_motion_compose_phrase(): void {
     pitch: 0,
     roll: 0,
     joints: {},
-    limbs: { rightArm: { point: { x: 9, y: 9, z: 9 }, bend: { x: 0, y: 0, z: 0 } } },
+    limbs: {
+      rightArm: { point: { x: 9, y: 9, z: 9 }, bend: { x: 0, y: 0, z: 0 } },
+    },
   };
   const identity = { x: 0, y: 0, z: 0, w: 1 };
   const bend: IAutoMovieVector3 = { x: 0, y: 0, z: -1 };
-  const target = (point: IAutoMovieVector3): AutoMovieMotionHumanArm.Frame =>
+  const target =
+    (point: IAutoMovieVector3): AutoMovieMotionHumanArm.Frame =>
     (): AutoMovieMotionHumanArm.ITarget => ({
       surface: "wrist",
       shape: "relaxed",
@@ -180,7 +185,11 @@ export function test_motion_compose_phrase(): void {
       speed((s) => hand(visit, s), 0.625) < 1e-3 &&
       speed((s) => hand(visit, s), 0.3) > 0.5,
   );
-  TestValidator.equals("a visit in the air bears on nothing", visit.contacts, []);
+  TestValidator.equals(
+    "a visit in the air bears on nothing",
+    visit.contacts,
+    [],
+  );
   TestValidator.equals(
     "a visit on a solid place bears from stroke to relax",
     AutoMovieMotionHumanArm.visit({
@@ -246,10 +255,14 @@ export function test_motion_compose_phrase(): void {
     1.25,
     () => ({ upper: [20, 5, 0], elbow: 30 }),
   ).write(posture, 0.5);
-  TestValidator.equals("a swing writes the shoulder and the elbow", swung.joints, {
-    rightUpperArm: [20, 5, 0],
-    rightLowerArm: [30, 0, 0],
-  });
+  TestValidator.equals(
+    "a swing writes the shoulder and the elbow",
+    swung.joints,
+    {
+      rightUpperArm: [20, 5, 0],
+      rightLowerArm: [30, 0, 0],
+    },
+  );
   TestValidator.equals("a swing releases the arm's goal", swung.limbs, {});
 
   // 6. The leg.
@@ -257,7 +270,8 @@ export function test_motion_compose_phrase(): void {
     ankle: { x: 0.1, y: 0.08, z: 0 },
     rotation: identity,
   };
-  const placed = (ankle: IAutoMovieVector3): AutoMovieMotionHumanLeg.Frame =>
+  const placed =
+    (ankle: IAutoMovieVector3): AutoMovieMotionHumanLeg.Frame =>
     (): HumanFoot.IPlacement => ({ ankle, rotation: identity });
   const leg = { body, side: "left" as const, stance };
   const foot = (
@@ -287,7 +301,12 @@ export function test_motion_compose_phrase(): void {
       target: placed({ x: 0.1, y: 0.08, z: 0.3 }),
       clearance: 0.05,
       ...(solid
-        ? { contact: { kind: "plant" as const, support: { kind: "ground" as const } } }
+        ? {
+            contact: {
+              kind: "plant" as const,
+              support: { kind: "ground" as const },
+            },
+          }
         : {}),
     });
   TestValidator.predicate(

@@ -161,8 +161,14 @@ export function test_motion_compose_manner(): void {
     }) as unknown as Parameters<typeof AutoMovieMotionManner.of>[0];
   TestValidator.predicate(
     "an action reads the performer's timing skill",
-    close(AutoMovieMotionManner.of(context(1), { variation: 1 }).tempo, 1.025) &&
-      close(AutoMovieMotionManner.of(context(0), { variation: 1 }).tempo, 1.07) &&
+    close(
+      AutoMovieMotionManner.of(context(1), { variation: 1 }).tempo,
+      1.025,
+    ) &&
+      close(
+        AutoMovieMotionManner.of(context(0), { variation: 1 }).tempo,
+        1.07,
+      ) &&
       close(
         AutoMovieMotionManner.of(context(0), { variation: 1, proficiency: 1 })
           .tempo,
@@ -200,6 +206,9 @@ export function test_motion_compose_manner(): void {
           normal: { x: 0, y: -1, z: 0 },
           forward: { x: 0, y: 0, z: 1 },
         },
+        heelLeft: { bone: "leftFoot", point: { x: 0, y: -0.08, z: -0.05 } },
+        ballLeft: { bone: "leftFoot", point: { x: 0, y: -0.08, z: 0.12 } },
+        toeLeft: { bone: "leftFoot", point: { x: 0, y: -0.08, z: 0.2 } },
       },
     },
   } as unknown as IHumanBody;

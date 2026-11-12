@@ -282,7 +282,11 @@ export namespace AutoMovieMotionHumanBend {
    * angle an unloaded hanging arm has, each divided by half that axis's
    * range. A hand rotation adds the forearm's twist and the wrist's bend the
    * rotation needs, each squared and divided by half its range. The weights
-   * are 1 and provisional.
+   * are 1 and provisional. A place whose forearm twist, wrist flexion or
+   * wrist deviation would come within `RESERVE` of the end of its range,
+   * each read signed about its own axis, is one where the hand cannot make
+   * the rotation with room to spare; it ranks behind every place that makes
+   * it, by the degrees left unmade.
    *
    * @param props The request.
    * @returns The elbow's place, world metres, usable as a bend hint.
@@ -391,6 +395,16 @@ export namespace AutoMovieMotionHumanBend {
     );
   }
 }
+
+/** The strain from which a place counts as leaving the hand's turn unmade; every made place strains less. */
+const UNMADE: number = 1e6;
+
+/**
+ * The share of a range kept free at each end when a hand's turn is judged
+ * (provisional): the place is solved once while the region then moves with
+ * the head, so a turn that ends on a limit is lost a moment later.
+ */
+const RESERVE: number = 0.1;
 
 /** The hanging arm's shoulder angles by body and side, clinical degrees. */
 const NEUTRAL: WeakMap<
@@ -624,14 +638,14 @@ function best(
   const forearm: number | null = half(
     prepared.lowerDomain.constraint?.twist ?? null,
   );
-  const wrist: number | null = half(
-    getConstraint(
-      `${side}Hand`,
-      body.skeleton.bones.find(
-        (b: IAutoMovieBone): boolean => b.bone === `${side}Hand`,
-      )?.constraint ?? null,
-    )?.flexion ?? null,
+  const hand: IAutoMovieJointConstraint | null = getConstraint(
+    `${side}Hand`,
+    body.skeleton.bones.find(
+      (b: IAutoMovieBone): boolean => b.bone === `${side}Hand`,
+    )?.constraint ?? null,
   );
+  const wrist: number | null = half(hand?.flexion ?? null);
+  const handAxes: IAutoMovieJointAxes | undefined = chain.axes[`${side}Hand`];
   const share = (value: number, of: number | null): number =>
     of === null ? 0 : (value / of) ** 2;
   const read = (
@@ -686,6 +700,41 @@ function best(
       strain +=
         share(degrees(split.twist), forearm) +
         share(degrees(split.swing), wrist);
+      // A turn the forearm and the wrist cannot make leaves the hand off its
+      // rotation, so such a place ranks behind every place that makes it.
+      // Each turn is read signed about its own axis, since a wrist's range
+      // is not symmetric about its rest.
+      const about = (
+        q: IAutoMovieQuaternion,
+        axis: IAutoMovieVector3 | undefined,
+      ): number => {
+        const n: IAutoMovieQuaternion = Quaternion.normalize(q);
+        const sign: number = n.w < 0 ? -1 : 1;
+        const sine: number = Math.hypot(n.x, n.y, n.z);
+        return axis === undefined || sine < 1e-9
+          ? 0
+          : ((Vector3.dot({ x: n.x, y: n.y, z: n.z }, axis) * sign) / sine) *
+              ((2 * Math.atan2(sine, Math.abs(n.w)) * 180) / Math.PI);
+      };
+      const past = (
+        value: number,
+        range: { min: number; max: number } | null | undefined,
+      ): number =>
+        range === null || range === undefined
+          ? 0
+          : Math.max(
+              0,
+              range.min + RESERVE * (range.max - range.min) - value,
+              value - range.max + RESERVE * (range.max - range.min),
+            );
+      const unmade: number =
+        past(
+          about(split.twist, lowerAxes.twist),
+          prepared.lowerDomain.constraint?.twist,
+        ) +
+        past(about(split.swing, handAxes?.flexion), hand?.flexion) +
+        past(about(split.swing, handAxes?.abduction), hand?.abduction);
+      if (unmade > 0) strain = UNMADE + unmade;
     }
     return {
       elbow,
@@ -696,7 +745,7 @@ function best(
           { bone: lowerBone, ...l },
           prepared.lowerDomain.constraint,
         ) +
-        HumanArmClearance.overshoot(body, chain.shapes, elbow, point),
+        HumanArmClearance.overshoot(body, chain.shapes, elbow, point, side),
       strain,
     };
   };

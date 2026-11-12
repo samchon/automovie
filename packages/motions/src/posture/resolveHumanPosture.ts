@@ -94,10 +94,13 @@ export function resolveHumanPosture(
     },
     body.skeleton,
   );
+  const placed: ("left" | "right")[] = [];
   for (const limb of resolveHumanPosture.order(posture.limbs)) {
     const goal: IHumanPosture.IGoal | undefined = posture.limbs[limb];
     if (goal === undefined) continue;
-    pose = fitLimb(body, pose, limb, goal);
+    pose = fitLimb(body, pose, limb, goal, placed);
+    if (limb === "leftArm") placed.push("left");
+    if (limb === "rightArm") placed.push("right");
   }
   return pose;
 }
@@ -246,7 +249,8 @@ export namespace resolveHumanPosture {
   }
 
   /**
-   * Re-solve one limb of a pose onto a goal, keeping everything else.
+   * Re-solve one limb of a pose onto a goal, keeping everything else; an arm
+   * keeps clear of the other arm where the pose already places it.
    *
    * @param body The performer's body.
    * @param pose The pose.
@@ -260,7 +264,7 @@ export namespace resolveHumanPosture {
     limb: IHumanPosture.Limb,
     goal: IHumanPosture.IGoal,
   ): IAutoMoviePose {
-    return fitLimb(body, pose, limb, goal);
+    return fitLimb(body, pose, limb, goal, ["left", "right"]);
   }
 
   /**
@@ -467,13 +471,17 @@ function chainOf(limb: IHumanPosture.Limb): IChain {
  * 2011, SIAM J. Numer. Anal. 49), at most `REAIM_PASSES` fits. A goal attached to a bone (`on`) is first carried into
  * the world by that bone as the pose being fitted places it, so whatever
  * moved the bone before the fit (a trunk joint, a layer, a transition
- * offset) moves the goal with it.
+ * offset) moves the goal with it. An arm fitted after the other arm keeps
+ * clear of it too, so two hands sent across each other stack their forearms
+ * instead of passing one through the other, and an arm keeps clear of the
+ * other bodies its goal names (`IHumanPosture.IGoal.clear`).
  */
 function fitLimb(
   body: IHumanBody,
   pose: IAutoMoviePose,
   limb: IHumanPosture.Limb,
   attached: IHumanPosture.IGoal,
+  placed: readonly ("left" | "right")[],
 ): IAutoMoviePose {
   const goal: IHumanPosture.IGoal = resolveHumanPosture.world(
     body,
@@ -481,20 +489,31 @@ function fitLimb(
     limb,
     attached,
   );
-  // An arm's forearm stays clear of the trunk and the thighs as the pose
-  // being fitted places them (`HumanArmClearance`), whatever the hint or the
-  // hand's turn prefer.
+  // An arm's forearm stays clear of the trunk, the thighs and an arm fitted
+  // before it as the pose being fitted places them (`HumanArmClearance`),
+  // whatever the hint or the hand's turn prefer.
+  const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
   const trunk: HumanColliders.IPlaced[] | null = limb.endsWith("Arm")
-    ? HumanArmClearance.obstacles(body, poseBones(body, pose))
+    ? HumanArmClearance.obstacles(
+        body,
+        poseBones(body, pose),
+        placed.filter((arm: "left" | "right"): boolean => arm !== side),
+      )
     : null;
   const clear: IObstruction | undefined =
     trunk === null
       ? undefined
       : (elbow: IAutoMovieVector3, wrist: IAutoMovieVector3): number =>
-          HumanArmClearance.overshoot(body, trunk, elbow, wrist);
+          HumanArmClearance.overshoot(
+            body,
+            trunk,
+            elbow,
+            wrist,
+            side,
+            attached.clear ?? [],
+          );
   let fitted: IAutoMoviePose = fitOnce(body, pose, limb, goal, clear);
   if (goal.contact === undefined || goal.rotation === undefined) return fitted;
-  const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
   const leg: boolean = limb.endsWith("Leg");
   const effector: AutoMovieHumanoidBone = leg ? `${side}Foot` : `${side}Hand`;
   const anchor: IAutoMovieVector3 = Vector3.add(

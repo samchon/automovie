@@ -58,6 +58,9 @@ export namespace handToFaceRows {
     /** The travel's direction. */
     tangent: AutoMovieMotionHumanTouchForm.Tangent;
 
+    /** `true` when the held tool stands on the world's up at the face, as a vessel does, instead of lying on the region. */
+    upright?: boolean;
+
     /** The head's flexion at the face, degrees; negative extends it. */
     head: number;
 
@@ -72,14 +75,15 @@ export namespace handToFaceRows {
       effector: {
         surface: "grip",
         shape: "fist",
-        tool: { thumb: 0.4 },
-        facing: "-fingers",
-        along: "thumb",
+        tool: { thumb: 0.4, palm: 0.2 },
+        facing: "palm",
+        along: "grasp",
       },
       kind: "hold",
       count: 1,
       hold: 1.2,
       tangent: "up",
+      upright: true,
       head: -10,
       at: "atMouth",
     },
@@ -88,14 +92,15 @@ export namespace handToFaceRows {
       effector: {
         surface: "grip",
         shape: "fist",
-        tool: { thumb: 0.4 },
-        facing: "-fingers",
-        along: "thumb",
+        tool: { thumb: 0.4, palm: 0.2 },
+        facing: "palm",
+        along: "grasp",
       },
       kind: "hold",
       count: 1,
       hold: 0.5,
       tangent: "up",
+      upright: true,
       head: -5,
       at: "atMouth",
     },
