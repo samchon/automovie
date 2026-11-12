@@ -572,8 +572,11 @@ namespace FamilyConicBody {
           // skin the front and back windows have already brought home and it has nothing to take there; across the arm's cut it reads the
           // arm's own skin as far as its reach (`uncut`). Each side is fitted on its own skin: the trunk is fitted whole, not as a half and
           // its image, and one side's net reflected onto the other left patches 2 to 4 mm full over one shoulder.
-          { name: "trunk.chest.side", stations: [400, 680], phases: [Math.PI / 2 - 0.82, Math.PI / 2 + 0.82], axis: [0, 0, -1], turn: [1, 0, 0], rows: 59, columns: 53, mirror: false, uncut: true, reach: 25, fade: [30, 25] },
-          { name: "trunk.chest.side.twin", stations: [400, 680], phases: [-Math.PI / 2 - 0.82, -Math.PI / 2 + 0.82], axis: [0, 0, 1], turn: [-1, 0, 0], rows: 59, columns: 53, mirror: false, uncut: true, reach: 25, fade: [30, 25] },
+          // Over the shoulder's top, from 610 mm up, the skin faces up and a height square to the side slides along it: there the window
+          // dug a notch beside the neck at [8..28, 1391..1413, 85..101] on `shoulder.high-oblique`, gone with this window taken off and only
+          // softened with the shoulder's casts taken off. It hands that skin over to the casts straight down (`shoulder`) over its last 90 mm; over its last 70 the notch was softened but still there.
+          { name: "trunk.chest.side", stations: [400, 680], phases: [Math.PI / 2 - 0.82, Math.PI / 2 + 0.82], axis: [0, 0, -1], turn: [1, 0, 0], rows: 59, columns: 53, mirror: false, uncut: true, reach: 25, fade: [30, 90] },
+          { name: "trunk.chest.side.twin", stations: [400, 680], phases: [-Math.PI / 2 - 0.82, -Math.PI / 2 + 0.82], axis: [0, 0, 1], turn: [-1, 0, 0], rows: 59, columns: 53, mirror: false, uncut: true, reach: 25, fade: [30, 90] },
           // The fold under each breast, from the sternum round to the side, where the reference's skin turns from the breast's underside
           // to the chest within a few millimetres. The chest's nets are 5 mm a row, and a cubic net that coarse rounded the fold over 10 to
           // 15 mm, a soft shelf drawn in level bands 4 mm tall. A net 3 mm a row over the fold's stations lets the crease turn within two
@@ -617,8 +620,10 @@ namespace FamilyConicBody {
           // It lands only on skin that faces up within 37 degrees, as the sole's does: toward the window's sides the skin turns to face
           // outward and a height straight down slides the wall along itself. Landing anywhere, the -Z net left the slope streaked with
           // folds of 44 degrees; landing on skin that faces up, 33.
-          { name: "shoulder", stations: [596, 664], phases: [0.95, 1.95], axis: [0, -1, 0], rows: 17, columns: 27, reach: 8, facing: 0.8, nearest: true },
-          { name: "shoulder.twin", stations: [596, 664], phases: [-1.95, -0.95], axis: [0, -1, 0], rows: 17, columns: 27, reach: 8, facing: 0.8, nearest: true },
+          // Its edges hand over (`fade`, 12 mm and 0.2 rad): the side window now leaves it the shoulder's top, and a net asked for the
+          // whole height right up to its zero edge falls off within two rows.
+          { name: "shoulder", stations: [596, 664], phases: [0.95, 1.95], axis: [0, -1, 0], rows: 17, columns: 27, reach: 8, facing: 0.8, nearest: true, fade: [12, 12], fadePhase: [0.2, 0.2] },
+          { name: "shoulder.twin", stations: [596, 664], phases: [-1.95, -0.95], axis: [0, -1, 0], rows: 17, columns: 27, reach: 8, facing: 0.8, nearest: true, fade: [12, 12], fadePhase: [0.2, 0.2] },
           // No net over the crown. The conic cap stood 3 to 4 mm under the skull and a coarse net cast along the course lifted it; the cap
           // that bends as the wall does is full enough, and meshed in rings the net drew rings round the pole.
         ] },
