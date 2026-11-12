@@ -127,6 +127,19 @@ export namespace AutoMovieHumanF1 {
     ...LOOSE,
   ];
 
+  /**
+   * The crotch's seam: the curve both legs' bands start from, under the perineum from the front fork to the back one, in place of the
+   * straight chord across the trunk's end. On the chord the two bands met at each fork in a corner, and their triangles folded through
+   * each other there (178 degrees), a slit seen from the front.
+   *
+   * The forks are the trunk's end ring on the median line, 808 mm high, 53.08 mm forward and 17.73 mm back; the chord between them is
+   * 70.81 mm. Each knot is `[along, depth]` in metres: the distance from the front fork, `53.08 - x` for a point `x` mm forward, and how far
+   * the reference's midline lies under the ring, `808 - y`, both read off `FamilyConicScan.ts crotch` (`midline`) every 10 mm from 30 mm
+   * forward to 10 mm back. The midline rises above the ring toward the front fork (809.4 mm at 40 mm forward), where the seam must leave
+   * the fork down along the trunk, so the knot at 40 mm holds the ring's level. The bands turn round each fork over 0.6 rad of their clock.
+   */
+  const CROTCH: { knots: [number, number][]; corner: number } = { knots: [[0.0131, 0], [0.0231, 0.0011], [0.0331, 0.0028], [0.0431, 0.0031], [0.0531, 0.0029], [0.0631, 0.0018]], corner: 0.6 };
+
   /** How far behind its first joint a sewn digit closes in a point, mm. */
   const ROOT_MM: number = 10;
 
@@ -369,6 +382,7 @@ export namespace AutoMovieHumanF1 {
       hostFace: trunk,
       hostEnd: "bottom",
       seam: [0, Math.PI],
+      profile: CROTCH,
       count: THIGH_COLUMNS,
       rows: BAND.rows,
       children: [

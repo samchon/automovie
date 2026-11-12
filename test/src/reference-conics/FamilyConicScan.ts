@@ -32,6 +32,22 @@ namespace FamilyConicScan {
         const loop: C.P[] | null = R.cut(source.body, axis.at(s)).loop;
         process.stdout.write("y " + (780 + s) + " loops " + loops.length + (loop === null ? " none round the axis" : " forward " + C.radius(loop, 0).toFixed(1) + " backward " + C.radius(loop, Math.PI).toFixed(1) + " side " + C.radius(loop, Math.PI / 2).toFixed(1)) + "\n");
       }
+      // The crotch's midline: on the median plane, for each forward position 5 mm apart, the first skin a ray going straight up from below
+      // meets between 700 and 900 mm high, which the split's curved seam follows from the front fork to the back one.
+      const body: R.ISource["body"] = source.body;
+      for (let x: number = -40; x <= 70; x += 5) {
+        let lowest: number = Infinity;
+        for (let t: number = 0; t + 2 < body.indices.length; t += 3) {
+          const [a, b, c]: R.V[] = [0, 1, 2].map((k: number): R.V => [body.positions[body.indices[t + k]! * 3]!, body.positions[body.indices[t + k]! * 3 + 1]!, body.positions[body.indices[t + k]! * 3 + 2]!]);
+          if (Math.max(a![1], b![1], c![1]) < 700 || Math.min(a![1], b![1], c![1]) > 900) continue;
+          const d: number = (b![0] - a![0]) * (c![2] - a![2]) - (c![0] - a![0]) * (b![2] - a![2]);
+          if (d === 0) continue;
+          const u: number = ((x - a![0]) * (c![2] - a![2]) - (c![0] - a![0]) * (0 - a![2])) / d;
+          const v: number = ((b![0] - a![0]) * (0 - a![2]) - (x - a![0]) * (b![2] - a![2])) / d;
+          if (u >= 0 && v >= 0 && u + v <= 1) lowest = Math.min(lowest, a![1] + u * (b![1] - a![1]) + v * (c![1] - a![1]));
+        }
+        process.stdout.write("midline x " + x + " y " + (Number.isFinite(lowest) ? lowest.toFixed(1) : "none") + "\n");
+      }
       return;
     }
     if (process.argv[2] === "nostril") {
