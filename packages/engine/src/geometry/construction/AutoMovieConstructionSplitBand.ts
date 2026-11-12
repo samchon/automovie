@@ -101,6 +101,9 @@ export namespace AutoMovieConstructionSplitBand {
 
     /** The curved seam both bands share and the ribbons' turn at each fork, radians of clock (`IAutoMovieConstructionSplit.IProfile`), or absent for the straight chord. */
     seam?: { curve: AutoMovieConstructionSplitSeam.ISeam; corner: number };
+
+    /** How the child's rail is matched to the loop (`IAutoMovieConstructionSplit.IChild.correspondence`); absent, by angle. */
+    correspondence?: "angle" | "length";
   }
 
   /**
@@ -393,8 +396,172 @@ export namespace AutoMovieConstructionSplitBand {
       outward,
       input.child,
       input.crease,
+      input.correspondence ?? "angle",
     );
     return typeof made === "string" ? made : { ...made, hostPhases };
+  }
+
+  /**
+   * One stretch of a band's loop in a split into more than two: a host arc, or a seam read from one of its forks to the other.
+   *
+   * @evidence contracts/development/design.md#principled-representation An arc is two host phases and a seam a built curve and the direction the loop reads it in; together they are every stretch a loop is made of.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A discriminated pair and its column count.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values only; the realization decides the stretches and their columns.
+   * @evidence contracts/development/common.md#meaningful-documentation States each field's unit and direction.
+   */
+  export type IStretch =
+    | { kind: "arc"; from: number; to: number; columns: number }
+    | { kind: "seam"; curve: AutoMovieConstructionSplitSeam.ISeam; forward: boolean; columns: number };
+
+  /**
+   * What one band of a split into more than two is built from.
+   *
+   * @evidence contracts/development/design.md#principled-representation The loop's stretches, the host's and the child's sides and the corner turn determine the loop and both ribbons, as one arc and one seam do for a two-way split.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The split's per-band slice of its declaration, in kernel units.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values only; admission belongs to the realization.
+   * @evidence contracts/development/common.md#meaningful-documentation States each field's role and unit.
+   */
+  export interface IFanInput {
+    /** The band's chain name. */
+    name: string;
+
+    /** The host side: its surface, its end station, `into` leaving the host. */
+    host: ISide;
+
+    /** The child side: its surface, its rail station, `into` into its kept side. */
+    child: ISide;
+
+    /** The loop's stretches in clock order, the first an arc and arcs and seams alternating; their columns sum to the band's. */
+    stretches: IStretch[];
+
+    /** The ribbons' turn at each fork, radians of clock. */
+    corner: number;
+
+    /** The declared crease window, or absent. */
+    crease?: IAutoMovieConstructionSplit.ICrease;
+
+    /** How the child's rail is matched to the loop (IAutoMovieConstructionSplit.IChild.correspondence); absent, by angle. */
+    correspondence?: "angle" | "length";
+
+    /** The share of its length a ribbon keeps at a fork (`IAutoMovieConstructionSplit.IProfile.reach`), in `(0, 1]`; absent, 1. */
+    reach?: number;
+  }
+
+  /**
+   * Build one band of a split into more than two, or the reason it cannot be built.
+   *
+   * The loop runs through its stretches in order: on an arc its columns stand at equal steps of host phase from the arc's first phase, on a
+   * seam at equal arclength shares from the fork it is read from, and a seam's first column is the fork that ends the arc before it. The
+   * ribbons are a two-way band's (`create`): on an arc the host's own 2-jet, on a seam the seam plane's normal toward the band's own loop,
+   * and within `corner` of clock of each fork both turn by the quintic smoothstep to the inward diagonal there, the arc's toward the
+   * adjacent seam's ruling inside the host's tangent plane and the seam's toward its direction away from the fork. Two bands that read one
+   * seam from its two ends therefore meet G1 across it.
+   *
+   * @param input The band's sides, stretches, corner and crease.
+   * @returns The band with each column's host phase (NaN on a seam's inner columns), or the refusal.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation The two-way band's ribbons applied stretch by stretch, so every seam is ruled and every fork turned alike, and the shared strip builder (`strip`) does the rest.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Columns, ribbons, then the shared strip.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses a loop that does not start on an arc, a column count that does not add up, a degenerate tangent plane and a seam whose plane holds the direction toward the band.
+   * @evidence contracts/development/common.md#meaningful-documentation States the loop, the ribbons, the corner and the refusals.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in columns apart from the strip's correspondence.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each column's host jet serves its point and its ribbon.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary columns are released; the result is caller-owned.
+   */
+  export function fan(input: IFanInput, count: number): (IStrip & { phases: number[] }) | string {
+    const stretches: IStretch[] = input.stretches;
+    if (stretches[0]?.kind !== "arc") return "the loop does not start on an arc";
+    if (stretches.reduce((sum: number, s: IStretch): number => sum + s.columns, 0) !== count) return "the stretches' columns do not add up to the band's";
+    const n: number = count;
+    const step: number = (2 * Math.PI) / n;
+
+    // Each column: its stretch and its index in it; a stretch's first column is a fork.
+    const owner: number[] = [];
+    const within: number[] = [];
+    stretches.forEach((s: IStretch, i: number): void => {
+      for (let j: number = 0; j < s.columns; ++j) {
+        owner.push(i);
+        within.push(j);
+      }
+    });
+    const previous = (i: number): IStretch => stretches[(i - 1 + stretches.length) % stretches.length]!;
+
+    // A seam's first column is the fork ending the arc before it: read as that arc's last phase.
+    const phases: number[] = owner.map((i: number, k: number): number => {
+      const s: IStretch = stretches[i]!;
+      if (s.kind === "arc") return s.from + ((s.to - s.from) * within[k]!) / s.columns;
+      const before: IStretch = previous(i);
+      return within[k] === 0 && before.kind === "arc" ? before.to : NaN;
+    });
+    const jets: (IAutoMovieSolidSurface.IJet | null)[] = phases.map((phi: number): IAutoMovieSolidSurface.IJet | null => (Number.isNaN(phi) ? null : input.host.surface.jet(input.host.station, phi)));
+    const share = (s: Extract<IStretch, { kind: "seam" }>, j: number): number => (s.forward ? j / s.columns : 1 - j / s.columns);
+    const loop: Vec3[] = owner.map((i: number, k: number): Vec3 => {
+      const jet: IAutoMovieSolidSurface.IJet | null = jets[k]!;
+      if (jet !== null) return [jet.p[0]!, jet.p[1]!, jet.p[2]!];
+      const s: IStretch = stretches[i]!;
+      return s.kind === "seam" ? s.curve.at(share(s, within[k]!)).point : [NaN, NaN, NaN];
+    });
+    const centroid: Vec3 = scale(loop.reduce((sum: Vec3, p: Vec3): Vec3 => add(sum, p), [0, 0, 0]), 1 / n);
+
+    // Each seam's ruling: its plane's normal toward this band's loop.
+    const ruling: (Vec3 | null)[] = stretches.map((s: IStretch): Vec3 | null => {
+      if (s.kind !== "seam") return null;
+      const middle: Vec3 = scale(add(s.curve.ends[0], s.curve.ends[1]), 0.5);
+      const toward: number = dot(s.curve.normal, sub(centroid, middle));
+      return toward === 0 ? null : scale(s.curve.normal, Math.sign(toward));
+    });
+    if (stretches.some((s: IStretch, i: number): boolean => s.kind === "seam" && ruling[i] === null)) return "a seam plane holds the direction toward the band's loop";
+    const turn = (d: number): number => {
+      if (!(d < input.corner)) return 0;
+      const x: number = d / input.corner;
+      return 1 - x * x * x * (10 - 15 * x + 6 * x * x);
+    };
+    // The ribbons' reach toward each fork (`IAutoMovieConstructionSplit.IProfile.reach`): first derivative by the share, second by its
+    // square, so each column only slows across its start and its curvature there, and the band's G2 to the host, are kept.
+    const reach: number = input.reach ?? 1;
+    const near = (k: number, L: number): AutoMovieSolidRibbon.IRibbon | string => {
+      const made: AutoMovieSolidRibbon.IRibbon | string = turned(k, L);
+      if (typeof made === "string" || reach === 1) return made;
+      const lambda: number = reach + (1 - reach) * (1 - turn(Math.min(within[k]!, stretches[owner[k]!]!.columns - within[k]!) * step));
+      return { point: made.point, first: scale(made.first, lambda), second: scale(made.second, lambda * lambda) };
+    };
+    const turned = (k: number, L: number): AutoMovieSolidRibbon.IRibbon | string => {
+      const i: number = owner[k]!;
+      const s: IStretch = stretches[i]!;
+      const fromStart: number = within[k]! * step;
+      const toEnd: number = (s.columns - within[k]!) * step;
+      const jet: IAutoMovieSolidSurface.IJet | null = jets[k]!;
+      if (jet === null && s.kind === "seam") {
+        const reading: AutoMovieConstructionSplitSeam.IPoint = s.curve.at(share(s, within[k]!));
+        const angle: number = (Math.PI / 4) * turn(Math.min(fromStart, toEnd));
+        const along: Vec3 = scale(reading.tangent, s.forward ? 1 : -1);
+        const away: Vec3 = scale(along, fromStart <= toEnd ? 1 : -1);
+        return { point: loop[k]!, first: scale(add(scale(ruling[i]!, Math.cos(angle)), scale(away, Math.sin(angle))), L), second: [0, 0, 0] };
+      }
+      if (jet === null) return `column ${k}: neither on an arc nor on a seam`;
+      const hostSpeed: number = norm(jet.u);
+      if (!(hostSpeed > 0)) return `column ${k}: the host's station speed vanishes at its end`;
+      const own: AutoMovieSolidRibbon.IRibbon = AutoMovieSolidRibbon.of(input.host.surface, input.host.station, phases[k]!, input.host.into, 0, L / hostSpeed);
+      // On an arc the nearer fork is its first column or the next seam's; a seam's first column is that seam's own fork.
+      const onArc: boolean = s.kind === "arc";
+      const d: number = onArc ? Math.min(fromStart, toEnd) : 0;
+      const seamIndex: number = onArc ? (fromStart <= toEnd ? (i - 1 + stretches.length) % stretches.length : (i + 1) % stretches.length) : i;
+      const w: number = turn(d);
+      const lateral: Vec3 | null = ruling[seamIndex] ?? null;
+      if (w === 0 || lateral === null) return own;
+      const ahead: Vec3 | null = unit(own.first);
+      const normal: Vec3 | null = unit(cross(jet.u, jet.v));
+      if (ahead === null || normal === null) return `column ${k}: the host's tangent plane is degenerate`;
+      const side: Vec3 | null = unit(sub(sub(lateral, scale(normal, dot(lateral, normal))), scale(ahead, dot(lateral, ahead))));
+      if (side === null) return `column ${k}: the seam's ruling has no direction in the host's tangent plane square to its ribbon`;
+      const angle: number = (Math.PI / 4) * w;
+      return { point: own.point, first: scale(add(scale(ahead, Math.cos(angle)), scale(side, Math.sin(angle))), L), second: scale(own.second, 1 - w) };
+    };
+    const first: IAutoMovieSolidSurface.IJet = jets[0]!;
+    const outward: Vec3 | null = unit(scale(cross(first.u, first.v), input.host.surface.orientation));
+    if (outward === null) return "the host's tangent plane at the loop's start is degenerate";
+    const made: IStrip | string = strip(input.name, loop, near, outward, input.child, input.crease, input.correspondence ?? "angle");
+    return typeof made === "string" ? made : { ...made, phases };
   }
 
   /**
@@ -415,6 +582,7 @@ export namespace AutoMovieConstructionSplitBand {
    * @param outward The start surface's outward normal at column 0.
    * @param child The child side: its surface, its rail station, `into` into its kept side.
    * @param crease The declared crease window on the child side, or absent.
+   * @param correspondence How the child's rail is matched to the loop: by angle about the rail's centroid, or by arclength share.
    * @returns The strip, or the refusal.
    */
   export function strip(
@@ -424,9 +592,10 @@ export namespace AutoMovieConstructionSplitBand {
     outward: Vec3,
     child: ISide,
     crease?: IAutoMovieConstructionSplit.ICrease,
+    correspondence: "angle" | "length" = "angle",
   ): IStrip | string {
     const n: number = loop.length;
-    const childPhases: number[] | string = phases(child, loop);
+    const childPhases: number[] | string = correspondence === "length" ? lengths(child, loop) : phases(child, loop);
     if (typeof childPhases === "string") return childPhases;
 
     const columns: {
@@ -680,6 +849,97 @@ export namespace AutoMovieConstructionSplitBand {
       else hi = mid;
     }
     return lo;
+  }
+
+  /**
+   * The child's rail phase at each loop point by arclength, for a split's child and a port's alike: the ring is the child's rail read at
+   * its station at each phase (`railAt`, a port's rail curve when it has one), and every column takes the phase that stands as far round
+   * the ring, as a share of the ring's length, as the column stands round the loop, the two run the same way when their Newell normals
+   * agree, from the start on the ring at which the two curves, each about its own centroid, stand closest in the least-squares sense.
+   * Neither curve need be star-shaped about the centroid.
+   */
+  function lengths(child: ISide, loop: readonly Vec3[]): number[] | string {
+    const turn: number = 2 * Math.PI;
+    const samples: number = 8 * loop.length;
+    const at = (psi: number): Vec3 => {
+      const p: readonly number[] = child.surface.point?.(railAt(child, psi), psi) ?? child.surface.jet(railAt(child, psi), psi).p;
+      return [p[0]!, p[1]!, p[2]!];
+    };
+    const ring: Vec3[] = Array.from({ length: samples + 1 }, (_: unknown, j: number): Vec3 => at((turn * j) / samples));
+    const newell = (points: readonly Vec3[]): { centre: Vec3; normal: Vec3 | null } => {
+      let centre: Vec3 = [0, 0, 0];
+      for (const q of points) centre = add(centre, scale(q, 1 / points.length));
+      let area: Vec3 = [0, 0, 0];
+      points.forEach((q: Vec3, j: number): void => {
+        area = add(area, cross(sub(q, centre), sub(points[(j + 1) % points.length]!, centre)));
+      });
+      return { centre, normal: unit(area) };
+    };
+    const rim = newell(ring.slice(0, samples));
+    const lap = newell(loop);
+    if (rim.normal === null) return "the child's rail ring encloses no area";
+    if (lap.normal === null) return "the loop encloses no area";
+    const sense: 1 | -1 = dot(rim.normal, lap.normal) > 0 ? 1 : -1;
+    // Cumulative arclength round the ring at its samples, and round the loop at its columns.
+    const along: number[] = [0];
+    for (let j: number = 1; j <= samples; ++j) along.push(along[j - 1]! + norm(sub(ring[j]!, ring[j - 1]!)));
+    const total: number = along[samples]!;
+    const lapAlong: number[] = [0];
+    for (let k: number = 1; k <= loop.length; ++k) lapAlong.push(lapAlong[k - 1]! + norm(sub(loop[k % loop.length]!, loop[k - 1]!)));
+    const lapTotal: number = lapAlong[loop.length]!;
+    if (!(total > 0 && lapTotal > 0)) return "the child's rail ring or the loop has no length";
+    // The sample at an arclength round the ring: the last whose arclength does not pass it, by bisection.
+    const below = (x: number): number => {
+      let lo: number = 0;
+      let hi: number = samples - 1;
+      while (lo < hi) {
+        const mid: number = (lo + hi + 1) >> 1;
+        if (along[mid]! <= x) lo = mid;
+        else hi = mid - 1;
+      }
+      return lo;
+    };
+    // The phase and the point at an arclength round the ring, read linearly between its samples.
+    const phaseAt = (length: number): number => {
+      const x: number = ((length % total) + total) % total;
+      const j: number = below(x);
+      const span: number = along[j + 1]! - along[j]!;
+      return (turn * (j + (span > 0 ? (x - along[j]!) / span : 0))) / samples;
+    };
+    const pointAt = (length: number): Vec3 => {
+      const x: number = ((length % total) + total) % total;
+      const j: number = below(x);
+      const span: number = along[j + 1]! - along[j]!;
+      const f: number = span > 0 ? (x - along[j]!) / span : 0;
+      return add(scale(ring[j]!, 1 - f), scale(ring[j + 1]!, f));
+    };
+    // Where round the ring the loop's first column lands: of every sample, the one at which the loop's points and the ring's points taken
+    // at the same shares of their lengths stand closest about their own centroids (the least sum of squared distances), the start a loft
+    // between two closed curves takes so that the band does not twist. Read by the angle of the loop's first point about the ring's
+    // centroid, every toe's band of f1's foot turned 14 to 18 degrees about its toe on average.
+    let anchor: number = 0;
+    let least: number = Infinity;
+    for (let j: number = 0; j < samples; ++j) {
+      let cost: number = 0;
+      for (let k: number = 0; k < loop.length && cost < least; ++k) {
+        const d: Vec3 = sub(sub(pointAt(along[j]! + sense * (lapAlong[k]! / lapTotal) * total), rim.centre), sub(loop[k]!, lap.centre));
+        cost += dot(d, d);
+      }
+      if (cost < least) [least, anchor] = [cost, j];
+    }
+    const start: number = along[anchor]!;
+    const out: number[] = [];
+    for (let k: number = 0; k < loop.length; ++k) {
+      const psi: number = phaseAt(start + sense * (lapAlong[k]! / lapTotal) * total);
+      if (k === 0) {
+        out.push(psi);
+        continue;
+      }
+      const step: number = sense * ((((sense * (psi - out[k - 1]!)) % turn) + turn) % turn);
+      if (!(step !== 0)) return `the child's rail phase does not advance at column ${k}`;
+      out.push(out[k - 1]! + step);
+    }
+    return out;
   }
 
   /**

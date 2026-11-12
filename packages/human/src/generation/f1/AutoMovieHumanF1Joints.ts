@@ -157,11 +157,27 @@ export namespace AutoMovieHumanF1Joints {
   /** The corner the arm's course turns at, round the shoulder, from straight to the side to the line down to the elbow. */
   export const armTurn: V3 = [-12, 1300, 203];
 
-  /** Where the ear's course starts, in the side of the head under the antihelix, between the ear's two hollows. */
-  export const earRoot: V3 = [5, 1570, 74];
+  /** Where the ear's course starts, in the side of the head under the middle of the auricle's root. */
+  export const earRoot: V3 = [5, 1582, 74];
 
-  /** Where the ear's course ends, straight to the side past the auricle's rim, so the pole of its closed end stands on the antihelix, where neither hollow's cut walks. */
-  export const earTip: V3 = [5, 1570, 100];
+  /**
+   * Where the ear's course turns from straight out of the head to leaning back with the auricle's shell: the root's sections up to 78 mm out
+   * stand in sagittal planes, so the root's ring holds the auricle's whole footprint, the front and the lobule included.
+   */
+  export const earTurn: V3 = [5, 1582, 82];
+
+  /**
+   * Where the ear's course ends, leaning back and up with the auricle's shell past the helix's back: the pole of its closed end stands on
+   * the helix's back, the auricle's outermost skin.
+   */
+  export const earTip: V3 = [-4, 1586, 98];
+
+  /**
+   * The helix's course, along the rim's crest from the front limb over the top and down the back to the lobule. Each inner centre is the
+   * crest read by `FamilyConicScan.ts helix` at 70, 90, 110, 130, 160, 200, 240 and 270 degrees round the ear's middle, sunk 1.8 mm toward
+   * the head; the two ends lie inside the ear's leaf, in front under the front limb and in the lobule.
+   */
+  export const helix: V3[] = [[17, 1586, 79], [15.8, 1596.2, 83.1], [7, 1598.3, 89.1], [-0.5, 1592.7, 93.4], [-3.8, 1584.8, 94.6], [-3.8, 1575.9, 92.6], [-0.8, 1569.2, 90.9], [2.3, 1563.8, 89.2], [7, 1555.5, 85.3], [13, 1551, 81]];
 
   /** Centre of the auricle's root on the sagittal plane it leaves the skull at. */
   export const earBase: V3 = [9.5, 1572, 77];
@@ -181,11 +197,11 @@ export namespace AutoMovieHumanF1Joints {
   /** Where it ends, square into the head under the bowl. */
   export const conchaTip: V3 = [16.5, 1563, 60];
 
-  /** Where the course of the ear's upper hollow, the scapha and the fossa above the bowl, starts, out along the shell's normal. */
-  export const scaphaRoot: V3 = [9.5, 1585, 100];
+  /** Where the course of the trough above the concha starts, the cymba's floor behind the helix's crus. */
+  export const fossaRoot: V3 = [13.5, 1574, 84];
 
-  /** Where it ends, inside the auricle under that hollow. */
-  export const scaphaTip: V3 = [-3.5, 1585, 80];
+  /** Where it ends, straight up the triangular fossa under the helix's front limb. */
+  export const fossaTip: V3 = [13.5, 1594, 84];
 
   /**
    * Where the breast's course starts, inside the chest 30 mm behind the dome's top along the skin's normal there: the top is the skin's
@@ -206,5 +222,16 @@ export namespace AutoMovieHumanF1Joints {
   export function beyond(a: V3, b: V3, length: number): V3 {
     const d: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
     return [b[0] + ((b[0] - a[0]) * length) / d, b[1] + ((b[1] - a[1]) * length) / d, b[2] + ((b[2] - a[2]) * length) / d];
+  }
+
+  /** The point `length` millimetres past `from` along the mean of the unit directions of `segments`: where a limb's course runs on past its knuckles toward its digits. */
+  export function toward(from: V3, segments: [V3, V3][], length: number): V3 {
+    const sum: number[] = [0, 0, 0];
+    for (const [a, b] of segments) {
+      const d: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+      for (let c: number = 0; c < 3; ++c) sum[c] = sum[c]! + (b[c]! - a[c]!) / d;
+    }
+    const l: number = Math.hypot(sum[0]!, sum[1]!, sum[2]!);
+    return [from[0] + (sum[0]! * length) / l, from[1] + (sum[1]! * length) / l, from[2] + (sum[2]! * length) / l];
   }
 }
