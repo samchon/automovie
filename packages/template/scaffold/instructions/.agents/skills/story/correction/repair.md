@@ -2,8 +2,6 @@
 
 Identify the earliest owner, the consumers that use it, the current pass and the closed boundaries before changing the work. For a requested revision, name the change, what the user wants preserved and the smallest useful scope, then trace its impact through dependent facts, scenes, assets, performance and edit.
 
-A user's [fixed screenplay](../workflow.md#who-writes-the-screenplay) is never repaired.
-
 ## Upstream defects
 
 A construction author who finds a missing, conflicting or unrealizable parent decision repairs its earliest owner before writing from it, using the selected [upstream questions](../../contracts/story/SKILL.md); a downstream workaround leaves every other consumer with the defect. During expression work, report it instead of changing frozen content.
@@ -29,6 +27,8 @@ When scene composition must make a decision the screenplay left vague, the decis
 A closed screenplay stays closed: the edited beat keeps its answers and reviews, its stale fingerprint is reported as a remaining diagnostic under [closed passes](#closed-passes), and the next review of that screenplay reads the beat afresh.
 
 An exchange, an outcome or a reaction is never a concretization. A screenplay that lacks one is defective and returns to its author under [upstream defects](#upstream-defects).
+
+A user's [fixed screenplay](../workflow.md#who-writes-the-screenplay) is the exception to both: it is never edited, and what it lacks goes to the instructions as that table sets.
 
 ## Scope expansion
 

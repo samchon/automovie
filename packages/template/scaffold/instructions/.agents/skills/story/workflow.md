@@ -32,7 +32,7 @@ Asset-only work has no narrative passes. Choose form and scale through [directio
 
 ### Who writes the screenplay {#who-writes-the-screenplay}
 
-The user chooses, in any folder, and the choice is recorded with the route; ask when they supply a screenplay without saying which.
+The user chooses, whatever route the folder fixes, and the choice is recorded with the route; ask when they supply a screenplay without saying which.
 
 | Choice | Story passes | Screenplay |
 | --- | --- | --- |
