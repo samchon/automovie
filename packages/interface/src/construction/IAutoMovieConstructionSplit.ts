@@ -92,6 +92,16 @@ export namespace IAutoMovieConstructionSplit {
     reach?: number;
 
     /**
+     * In a split into more than two (`outer`), whether each band leaves the host's arc square to the end ring: along the chart line
+     * `(into, -into (S_u . S_v) / (S_v . S_v))`, whose image is square to the ring in the host's tangent plane, with the host's own 2-jet
+     * along that line, so the band stays G2 to the host. Absent or false, along the host's station line, whose image leans along the ring
+     * wherever the host's points slide round it with the station (a section changing shape under a polar phase): on f1's foot the
+     * station lines at the end ring swung by 40 degrees within 0.07 rad of phase round the top of the big toe's root, and the big toe's
+     * band pleated there. The first seam with a profile gives the split's, as it gives `corner`.
+     */
+    square?: boolean;
+
+    /**
      * A world direction the seam plane holds in place of the host end's outward normal, unit or not, not along the chord; `depth` is then
      * measured along its part square to the chord, oriented out of the host. A seam between two digits that leave a limb's end aslant to
      * its course lies in the plane between the digits, which holds their direction and not the course's. Absent, the end normal.

@@ -443,6 +443,7 @@ function fan(
     }
     const corner: number = seams.find((s: IAutoMovieConstructionSplit.ISeam): boolean => s.profile !== undefined)?.profile?.corner ?? 0;
     const reach: number | undefined = seams.find((s: IAutoMovieConstructionSplit.ISeam): boolean => s.profile !== undefined)?.profile?.reach;
+    const square: boolean = seams.find((s: IAutoMovieConstructionSplit.ISeam): boolean => s.profile !== undefined)?.profile?.square === true;
     const a = (j: number): number => seams[j]!.seam[0];
     const b = (j: number): number => seams[j]!.seam[1];
 
@@ -485,6 +486,7 @@ function fan(
           stretches: plan[c]!.map((s: Arc | Seam): AutoMovieConstructionSplitBand.IStretch => (s.kind === "arc" ? { kind: "arc", from: s.from, to: s.to, columns: s.columns } : { kind: "seam", curve: curves[s.index]!, forward: s.forward, columns: s.columns })),
           corner,
           ...(reach === undefined ? {} : { reach }),
+          ...(square ? { square } : {}),
           ...(child.crease === undefined ? {} : { crease: child.crease }),
           ...(child.correspondence === undefined ? {} : { correspondence: child.correspondence }),
         },

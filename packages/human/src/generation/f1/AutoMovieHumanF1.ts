@@ -155,6 +155,10 @@ export namespace AutoMovieHumanF1 {
 
     /** The share of its length each band's ribbon keeps at a fork (`IAutoMovieConstructionSplit.IProfile.reach`); absent, the whole. */
     reach?: number;
+
+    /** Whether the bands leave the limb's end square to its ring (`IAutoMovieConstructionSplit.IProfile.square`); absent, along its station lines. */
+    square?: boolean;
+
     /** Where each digit's band lands on it, mm past its first station, the web. */
     rail: number;
 
@@ -170,7 +174,10 @@ export namespace AutoMovieHumanF1 {
    * run-out knots it reads beside a palm fork; they were read again once the palm's net (`arm.palm`) brought the end ring's palm side onto
    * the skin, where every web now starts at its palm fork instead of 6 to 10 mm along the chord. Each band
    * takes 192 columns: on 96, 0.5 to 1 mm apart along a seam, its quads stood as a comb of steps along every seam. The hand's ribbons keep
-   * half their length at each fork (`reach`): the skin's edges folding by more than 90 degrees over the hand fall from 168 to 119.
+   * half their length at each fork (`reach`): the skin's edges folding by more than 90 degrees over the hand fall from 168 to 119. Both
+   * limbs' bands leave the end square to its ring (`square`): along the station lines, which lean along the ring where the sections change
+   * shape under their polar phase, the toes' bands folded more (edges folding by 60 degrees or more round the toe roots, 197 against 149),
+   * and the big toe's band drew a dark slit from its top fork; the hand's are unchanged (62 against 60).
    */
   const FANS: { arm: IFan; leg: IFan } = {
     arm: {
@@ -182,6 +189,7 @@ export namespace AutoMovieHumanF1 {
       ],
       corner: 0.6,
       reach: 0.5,
+      square: true,
       rail: 3,
       columns: 192,
     },
@@ -206,6 +214,7 @@ export namespace AutoMovieHumanF1 {
       ],
       corner: 0.75,
       reach: 0.25,
+      square: true,
       rail: 3,
       columns: 192,
     },
@@ -746,9 +755,10 @@ export namespace AutoMovieHumanF1 {
         const [pa, pb]: number[][] = [AutoMovieLoftChain.point(chain, fan.station, a), AutoMovieLoftChain.point(chain, fan.station, b)];
         const chord: number = Math.hypot(pb[0]! - pa[0]!, pb[1]! - pa[1]!, pb[2]! - pa[2]!) / 1000;
         const h: [number, number, number] = fan.headings[j]!;
+        const tuned: Pick<IAutoMovieConstructionSplit.IProfile, "reach" | "square"> = { ...(fanned.reach === undefined ? {} : { reach: fanned.reach }), ...(fanned.square === true ? { square: true } : {}) };
         return side > 0
-          ? { seam: [a, b], profile: { knots, corner: fanned.corner, heading: h, ...(fanned.reach === undefined ? {} : { reach: fanned.reach }) } }
-          : { seam: [-b, -a], profile: { knots: knots.map(([along, depth]: [number, number]): [number, number] => [chord - along, depth]).reverse(), corner: fanned.corner, heading: [h[0], h[1], -h[2]], ...(fanned.reach === undefined ? {} : { reach: fanned.reach }) } };
+          ? { seam: [a, b], profile: { knots, corner: fanned.corner, heading: h, ...tuned } }
+          : { seam: [-b, -a], profile: { knots: knots.map(([along, depth]: [number, number]): [number, number] => [chord - along, depth]).reverse(), corner: fanned.corner, heading: [h[0], h[1], -h[2]], ...tuned } };
       };
       const children: IAutoMovieConstructionSplit.IChild[] = fanned.digits.map((name: string): IAutoMovieConstructionSplit.IChild => {
         const digit: IDigit = DIGITS.find((d: IDigit): boolean => d.family.name === name)!;
