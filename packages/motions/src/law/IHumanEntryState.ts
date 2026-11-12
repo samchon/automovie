@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
+import type { HumanActionKey } from "../HumanActionKey";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { IHumanActionPlan } from "./IHumanActionPlan";
 import type { IHumanContactWindow } from "./IHumanContactWindow";
@@ -101,7 +101,7 @@ export namespace IHumanEntryState {
   /** The interrupted action. */
   export interface IFrom {
     /** Its name. */
-    name: HumanActionName;
+    name: HumanActionKey;
 
     /** Its parameters. */
     params: object;

@@ -1,0 +1,265 @@
+import type { IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  HumanChain,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSignature,
+  type IHumanActionContext,
+  type IHumanActionLaw,
+  type IHumanActionPlan,
+  type IHumanBody,
+  touch,
+} from "@automovie/motions";
+import { TestValidator } from "@nestia/e2e";
+
+import { motionHumanBody } from "../internal/motionHumanBody";
+
+/** The parameters of the worked example. */
+interface ISalute {
+  /** Seconds the salute is held; 1 when absent. */
+  hold?: number;
+}
+
+/** `true` only when two types are each assignable to the other. */
+type Same<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
+
+/**
+ * A production registers a law of its own and performs it like the
+ * vocabulary's: under its own name, with a typed chain method, with cuts in
+ * and out, deterministically, and without changing any other action.
+ *
+ * The worked example is the military hand salute, written as a row of the
+ * shipped `touch` law with its target, effector and kind fixed: the right
+ * forefinger's tip to the forehead near and slightly to the right of the
+ * right eyebrow (US Army TC 3-21.5, Drill and Ceremonies, the hand salute).
+ *
+ * Scenarios, on the average man:
+ * 1. Registered and chained between two stands, the salute is placed as an
+ *    action named `salute`, and during its hold the right forefinger's last
+ *    joint lies within 30 mm of the right temple region (the fingertip is a
+ *    finger joint's length beyond it).
+ * 2. The same performance built twice gives the same pose at every sampled
+ *    instant.
+ * 3. A performance that does not use the salute gives the same poses with
+ *    and without the law registered: registering changes no other action.
+ * 4. A law registered under a vocabulary name (`walk`), and one name
+ *    registered twice, each refuse the performance as a `parameter` refusal
+ *    on `laws` naming the name.
+ * 5. An unregistered name is refused listing the names that exist, the
+ *    registered one among them.
+ * 6. Cuts: standing is cut into the salute at any instant; the salute cut
+ *    at 0.1 of its length into standing is refused as a `cut`; cut at its
+ *    `relax` it plans.
+ * 7. `HumanChain.extend` refuses a key that differs from its law's name and
+ *    a key the chain already has.
+ * 8. Compile time: the extended chain's `salute` takes the law's own
+ *    parameters and returns a chain that still has the vocabulary and the
+ *    salute.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Registers a law through the public input and chain, performs it on a real body and reads placed actions, poses and refusals; a law that cannot be performed, changes another action, shadows a name or cuts where it declares no window fails.
+ * @evidence contracts/development/testing.md#independent-expectations Where the fingertip goes is the drill manual's; sameness is compared between runs, never against stored poses; the refusals follow from what a name and a cut window mean.
+ * @evidence contracts/development/testing.md#distinguishing-cases A used and an unused registration, a shadow and a duplicate, an unknown name, cuts in both directions inside and outside a window, and both ways `extend` can be misused.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and samples short films; it runs locally and wherever CI runs the human motion tests.
+ * @evidence contracts/development/common.md#meaningful-documentation States the example with its source and the 8 scenarios.
+ */
+export function test_human_motion_registered_law(): void {
+  const body: IHumanBody = motionHumanBody("m-average");
+  const salute: IHumanActionLaw<ISalute> = {
+    name: "salute",
+    interrupts: {
+      any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
+    },
+    plan: (context: IHumanActionContext<ISalute>): IHumanActionPlan =>
+      touch.plan({
+        ...context,
+        params: {
+          target: { kind: "self", region: "templeRight" },
+          with: "fingertips",
+          kind: "hold",
+          side: "right",
+          hold: context.params.hold ?? 1,
+        },
+      }),
+  };
+  const Chain = HumanChain.extend({ salute });
+  const perform = (
+    composition: HumanChain,
+    laws: readonly IHumanActionLaw<never>[] = [salute],
+  ): HumanPerformance =>
+    new HumanPerformance({
+      seed: "registered",
+      performers: [
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+      ],
+      laws,
+      composition: composition.node,
+    });
+  const refused = (build: () => unknown): unknown => {
+    try {
+      build();
+    } catch (error) {
+      return error;
+    }
+    return null;
+  };
+  const complaints: string[] = [];
+  const expect = (label: string, holds: boolean): void => {
+    if (!holds) complaints.push(label);
+  };
+  const said = (thrown: unknown): string =>
+    thrown instanceof Error ? thrown.message : String(thrown);
+  const poses = (performance: HumanPerformance): IAutoMoviePose[] => {
+    const out: IAutoMoviePose[] = [];
+    for (let t: number = 0; t <= performance.duration; t += 0.25)
+      out.push(performance.pose("a", t));
+    return out;
+  };
+  const scene = (): HumanChain =>
+    Chain.subject("a")
+      .stand({ seconds: 0.5 })
+      .salute({ hold: 0.5 })
+      .stand({ seconds: 0.5 });
+
+  // 1. Performed under its own name, the fingertip at the brow.
+  const first: HumanPerformance = perform(scene());
+  const placed = first.segments("a")[1];
+  expect(
+    `the second action is named ${placed?.name}, salute expected`,
+    placed?.name === "salute",
+  );
+  if (placed !== undefined) {
+    const instant = (event: string): number =>
+      placed.start +
+      (placed.plan.events.find((e): boolean => e.name === event)?.share ?? 0) *
+        placed.plan.duration;
+    const reader: HumanSignature.IReader = HumanSignature.of(
+      first,
+      "a",
+      body,
+      0,
+    );
+    const held: number = (instant("ready") + instant("relax")) / 2;
+    const finger: IAutoMovieVector3 = HumanSignature.joint(
+      reader,
+      held,
+      "rightIndexDistal",
+    );
+    const brow: IAutoMovieVector3 = HumanSignature.region(
+      reader,
+      "templeRight",
+      held,
+    );
+    const gap: number = Math.hypot(
+      finger.x - brow.x,
+      finger.y - brow.y,
+      finger.z - brow.z,
+    );
+    expect(
+      `the forefinger's last joint is ${(gap * 1000).toFixed(0)} mm from the right temple while the salute is held, within 30 mm expected (TC 3-21.5)`,
+      gap <= 0.03,
+    );
+  }
+
+  // 2. The same film twice.
+  expect(
+    "the same composition and seed give the same poses",
+    JSON.stringify(poses(first)) === JSON.stringify(poses(perform(scene()))),
+  );
+
+  // 3. Registering changes no other action.
+  const plain = (): HumanChain =>
+    HumanChain.subject("a")
+      .stand({ seconds: 0.5 })
+      .touch({ target: { kind: "self", region: "sternum" }, kind: "pat" });
+  expect(
+    "an unused registration changes no pose",
+    JSON.stringify(poses(perform(plain(), []))) ===
+      JSON.stringify(poses(perform(plain(), [salute]))),
+  );
+
+  // 4. A name means one thing.
+  for (const [label, laws, name] of [
+    ["a vocabulary name", [{ ...salute, name: "walk" }], "walk"],
+    ["one name twice", [salute, salute], "salute"],
+  ] as const) {
+    const thrown: unknown = refused(() => perform(plain(), laws));
+    expect(
+      `${label}: expected a parameter refusal on laws naming ${name}, got ${said(thrown)}`,
+      thrown instanceof HumanRefusal &&
+        thrown.kind === "parameter" &&
+        thrown.axis === "laws" &&
+        thrown.value === name,
+    );
+  }
+
+  // 5. An unknown name lists what exists.
+  const unknown: unknown = refused(() =>
+    perform(HumanChain.subject("a").registered("curtsy")),
+  );
+  expect(
+    `an unregistered name: expected the names that exist, got ${said(unknown)}`,
+    unknown instanceof HumanRefusal &&
+      unknown.axis === "act" &&
+      unknown.feasible?.kind === "alternatives" &&
+      unknown.feasible.values.includes("salute") &&
+      unknown.feasible.values.includes("walk"),
+  );
+
+  // 6. Cuts in and out.
+  expect(
+    `standing cut into the salute: ${said(refused(() => perform(Chain.subject("a").stand({ seconds: 2 }).until({ share: 0.3 }).salute())))}`,
+    refused(() =>
+      perform(
+        Chain.subject("a").stand({ seconds: 2 }).until({ share: 0.3 }).salute(),
+      ),
+    ) === null,
+  );
+  const early: unknown = refused(() =>
+    perform(Chain.subject("a").salute().until({ share: 0.1 }).stand()),
+  );
+  expect(
+    `the salute cut at 0.1 into standing: expected a cut refusal, got ${said(early)}`,
+    early instanceof HumanRefusal && early.kind === "cut",
+  );
+  expect(
+    `the salute cut at its relax: ${said(refused(() => perform(Chain.subject("a").salute().until({ event: "relax" }).stand())))}`,
+    refused(() =>
+      perform(Chain.subject("a").salute().until({ event: "relax" }).stand()),
+    ) === null,
+  );
+
+  // 7. What extend refuses.
+  expect(
+    "a key that differs from its law's name is refused",
+    refused(() => HumanChain.extend({ greet: salute })) instanceof Error,
+  );
+  expect(
+    "a key the chain already has is refused",
+    refused(() =>
+      HumanChain.extend({ walk: { ...salute, name: "walk" } }),
+    ) instanceof Error,
+  );
+
+  // 8. Compile time: the method is typed by the law and keeps the chain.
+  const typed: Same<
+    NonNullable<
+      Parameters<HumanChain.Extended<{ salute: typeof salute }>["salute"]>[0]
+    >,
+    ISalute
+  > = true;
+  const chained: HumanChain.Extended<{ salute: typeof salute }> = Chain.subject(
+    "a",
+  )
+    .salute()
+    .walk({ to: { x: 0, y: 0, z: 1 } })
+    .salute({ hold: 2 });
+  expect("the type pins hold", typed && chained.subject === "a");
+
+  TestValidator.equals("a registered law", complaints, []);
+}

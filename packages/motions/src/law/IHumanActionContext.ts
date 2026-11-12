@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
+import type { HumanActionKey } from "../HumanActionKey";
 import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import type { IHumanProp } from "../perform/IHumanProp";
@@ -169,7 +169,7 @@ export namespace IHumanActionContext {
   /** The action an overlay is performed over. */
   export interface ICarrier {
     /** Its name. */
-    name: HumanActionName;
+    name: HumanActionKey;
 
     /**
      * Its posture under the overlay.
@@ -209,7 +209,7 @@ export namespace IHumanActionContext {
     subject: string;
 
     /** Its name. */
-    name: HumanActionName;
+    name: HumanActionKey;
 
     /** Its parameters. */
     params: object;

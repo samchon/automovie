@@ -1,4 +1,4 @@
-import type { HumanActionName } from "../HumanActionName";
+import type { HumanActionKey } from "../HumanActionKey";
 import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import type { IHumanActionContext } from "./IHumanActionContext";
 import type { IHumanActionPlan } from "./IHumanActionPlan";
@@ -17,8 +17,8 @@ import type { IHumanInterruptRow } from "./IHumanInterruptRow";
  * interruption sources fire only declared transitions.
  */
 export interface IHumanActionLaw<P = object> {
-  /** The action's name. */
-  name: HumanActionName;
+  /** The action's name: a vocabulary name, or the name a production registers the law under. */
+  name: HumanActionKey;
 
   /**
    * The cancel table: target action to the windows a cut may use. The key
@@ -26,7 +26,7 @@ export interface IHumanActionLaw<P = object> {
    * a person can leave for anything, as quiet standing is.
    */
   interrupts: Partial<
-    Record<HumanActionName | "any", readonly IHumanInterruptRow[]>
+    Record<HumanActionKey | "any", readonly IHumanInterruptRow[]>
   >;
 
   /**
@@ -38,7 +38,7 @@ export interface IHumanActionLaw<P = object> {
    * these rows are read when it has none.
    */
   accepts?: Partial<
-    Record<HumanActionName | "any", readonly IHumanInterruptRow[]>
+    Record<HumanActionKey | "any", readonly IHumanInterruptRow[]>
   >;
 
   /**

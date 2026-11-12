@@ -1,4 +1,4 @@
-import type { HumanActionName } from "../HumanActionName";
+import type { HumanActionKey } from "../HumanActionKey";
 import type { IHumanInterruptRow } from "../law/IHumanInterruptRow";
 
 /**
@@ -100,11 +100,12 @@ export namespace AutoMovieMotionHumanInterrupt {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function table(
-    rows: Partial<Record<HumanActionName, readonly [Window, Blend]>>,
-  ): Partial<Record<HumanActionName, IHumanInterruptRow[]>> {
-    const out: Partial<Record<HumanActionName, IHumanInterruptRow[]>> = {};
+    rows: Partial<Record<HumanActionKey | "any", readonly [Window, Blend]>>,
+  ): Partial<Record<HumanActionKey | "any", IHumanInterruptRow[]>> {
+    const out: Partial<Record<HumanActionKey | "any", IHumanInterruptRow[]>> =
+      {};
     for (const [name, spec] of Object.entries(rows) as [
-      HumanActionName,
+      HumanActionKey | "any",
       readonly [Window, Blend],
     ][])
       out[name] = [row(spec[0], spec[1])];

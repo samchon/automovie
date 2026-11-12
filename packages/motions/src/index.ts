@@ -1,3 +1,4 @@
+export * from "./HumanActionKey";
 export * from "./HumanActionName";
 export * from "./HumanChain";
 export * from "./IHumanActionParams";

@@ -19,7 +19,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
+import type { HumanActionKey } from "../HumanActionKey";
 import { HUMAN_ACTIONS } from "../actions/HUMAN_ACTIONS";
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
@@ -101,6 +101,9 @@ export class HumanPerformance {
     { subject: string; meeting: AutoMovieMotionMeeting.IMeeting }
   > = new Map();
 
+  /** Every law the performance runs, by name: the vocabulary's and the ones it was given. */
+  private readonly laws: Map<string, IHumanActionLaw<never>>;
+
   /** The schedule entries that are overlays, by walk-order index: they ride a carrier and never follow or precede one. */
   private readonly riding: Set<number> = new Set();
 
@@ -119,6 +122,23 @@ export class HumanPerformance {
       ]),
     );
     this.performers = [...input.performers];
+    this.laws = new Map(Object.entries(HUMAN_ACTIONS));
+    for (const law of input.laws ?? []) {
+      // A registered name never changes what a vocabulary name means, and
+      // two registered laws never share one.
+      if (this.laws.has(law.name))
+        throw new HumanRefusal({
+          kind: "parameter",
+          axis: "laws",
+          value: law.name,
+          reason:
+            law.name in HUMAN_ACTIONS
+              ? `a registered law is named ${law.name}, which the vocabulary already performs`
+              : `two registered laws are named ${law.name}`,
+          fix: "register the law under a name of its own",
+        });
+      this.laws.set(law.name, law as IHumanActionLaw<never>);
+    }
     this.people = new Map();
     this.anchors = new Map();
     for (const performer of input.performers) {
@@ -499,16 +519,16 @@ export class HumanPerformance {
     where: HumanRefusal.IWhere,
   ) {
     const person: HumanSegment.IPerson = this.person(intent.subject);
-    const name: HumanActionName = intent.capability as HumanActionName;
-    const law: IHumanActionLaw<never> | undefined = HUMAN_ACTIONS[name];
+    const name: HumanActionKey = intent.capability;
+    const law: IHumanActionLaw<never> | undefined = this.laws.get(name);
     if (law === undefined)
       throw new HumanRefusal({
         kind: "parameter",
         axis: "act",
         value: intent.capability,
-        feasible: { kind: "alternatives", values: Object.keys(HUMAN_ACTIONS) },
+        feasible: { kind: "alternatives", values: [...this.laws.keys()] },
         reason: `no action is named ${intent.capability}`,
-        fix: "name an action of the vocabulary",
+        fix: "name an action of the vocabulary, or register the law that performs it (the performance's laws)",
       });
     const params: object =
       (intent.parameters?.params as object | undefined) ?? {};
@@ -530,10 +550,12 @@ export class HumanPerformance {
         value: name,
         feasible: {
           kind: "alternatives",
-          values: Object.keys(HUMAN_ACTIONS).filter(
-            (n: string): boolean =>
-              HUMAN_ACTIONS[n as HumanActionName].overlay === true,
-          ),
+          values: [...this.laws]
+            .filter(
+              ([, each]: [string, IHumanActionLaw<never>]): boolean =>
+                each.overlay === true,
+            )
+            .map(([key]: [string, IHumanActionLaw<never>]): string => key),
         },
         reason: `${name} moves the whole body, so it cannot be performed over another action`,
         fix: `perform ${name} as an action of its own, or put one of the listed actions over the carrier`,
@@ -1334,6 +1356,17 @@ export namespace HumanPerformance {
      * every broken rule in the message. None when absent.
      */
     rules?: readonly checkAutoMovieLegality.IRule[];
+
+    /**
+     * Laws of the production's own, performed like the vocabulary's under
+     * the names they carry: an act the vocabulary lacks, written on the same
+     * kernel (a clock, a base and part primitives), or a row of an existing
+     * law with some of its parameters fixed. A name the vocabulary already
+     * has, or one given twice, refuses the performance. A registered law
+     * draws from streams keyed by its own name, so registering it changes no
+     * other action's draws. `HumanChain.extend` gives its typed method.
+     */
+    laws?: readonly IHumanActionLaw<never>[];
 
     /** Additive layers per subject, applied in order over every action. */
     layers?: Readonly<Record<string, readonly IHumanLayer[]>>;

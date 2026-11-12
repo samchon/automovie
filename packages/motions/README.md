@@ -55,6 +55,34 @@ With `over`, the last action carries the body and the actions put over it take o
 
 What an action is directed at is an `AutoMovieMotionTarget`: a region of another person, a region of the performer's own body, a named point of a prop, a point in the world, or none.
 
+## Extend
+
+An act the vocabulary lacks is a law of your own. A law is a record with a `name`, the cuts it allows (`interrupts`, and `accepts` for what may be cut into it) and a `plan`; the simplest is a row of a shipped law with some parameters fixed. Give the performance your laws and extend the chain with them:
+
+```ts
+import { HumanChain, HumanPerformance, touch, type IHumanActionLaw } from "@automovie/motions";
+
+const salute: IHumanActionLaw<{ hold?: number }> = {
+  name: "salute",
+  interrupts: { any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }] },
+  plan: (context) =>
+    touch.plan({
+      ...context,
+      params: { target: { kind: "self", region: "templeRight" }, with: "fingertips", kind: "hold", hold: context.params.hold ?? 1 },
+    }),
+};
+
+const Chain = HumanChain.extend({ salute });
+new HumanPerformance({
+  seed,
+  performers,
+  laws: [salute],
+  composition: Chain.subject("a").walk({ to }).salute({ hold: 1.5 }).stand().node,
+});
+```
+
+A registered name never replaces a vocabulary name, and registering a law changes no other action's motion. A law that owns a movement of its own is composed from the same kernel the vocabulary uses: a clock, a base and part primitives passed to `composeAutoMovieMotionHumanAction`.
+
 ## Refusals
 
 A composition the vocabulary cannot perform throws a `HumanRefusal` when the performance is built. It names the performer, the action and its occurrence, the axis at fault, the value given, what the axis accepts and one sentence saying what to change, as fields and in its message:

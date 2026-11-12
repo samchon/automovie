@@ -54,10 +54,26 @@ export class HumanChainCore extends AutoMovieChain {
     // Both shapes of the argument tuple hold the parameters first and the
     // anchor second, each possibly absent.
     const [params, anchor]: readonly [object?, string?] = args;
+    return this.registered(name, params ?? {}, anchor);
+  }
+
+  /**
+   * Append an action a production registered with the performance
+   * (`HumanPerformance.IInput.laws`), by the name its law carries. The
+   * parameters are the registered law's own and are not checked here;
+   * `HumanChain.extend` gives the same action a typed method, which is the
+   * way to call it from code that knows the law.
+   *
+   * @param name The registered law's name.
+   * @param params Its parameters.
+   * @param anchor A stable id another chain can align to or cut on.
+   * @returns The chain.
+   */
+  public registered(name: string, params: object = {}, anchor?: string): this {
     const intent: IAutoMovieIntent = {
       subject: this.subject,
       capability: name,
-      parameters: { params: params ?? {} },
+      parameters: { params },
       ...(anchor === undefined ? {} : { anchor }),
     };
     return this.next(intent);

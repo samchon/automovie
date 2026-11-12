@@ -3,6 +3,9 @@ import { AutoMovieChain, AutoMovieComposition } from "@automovie/engine";
 import { HumanChainSport } from "./chain/HumanChainSport";
 import type { handOver } from "./handling/handOver";
 import type { handshake } from "./handling/handshake";
+import type { IHumanActionContext } from "./law/IHumanActionContext";
+import type { IHumanActionLaw } from "./law/IHumanActionLaw";
+import type { IHumanActionPlan } from "./law/IHumanActionPlan";
 
 /**
  * The fluent authoring surface of one person's actions: one typed method per
@@ -39,6 +42,54 @@ export class HumanChain extends HumanChainSport {
    */
   public static subject(subject: string): HumanChain {
     return new HumanChain(subject, { kind: "sequence", parts: [] });
+  }
+
+  /**
+   * The chain with a typed method for each law a production registers: the
+   * production's own actions are appended exactly like the vocabulary's.
+   *
+   * ```ts
+   * const Chain = HumanChain.extend({ salute });
+   * Chain.subject("a").walk({ to }).salute({ hold: 1.5 }).stand();
+   * new HumanPerformance({ seed, performers, laws: [salute], composition });
+   * ```
+   *
+   * @param laws The registered laws, each under the name it carries.
+   * @returns What starts a chain of the extended kind.
+   * @throws {Error} When a key differs from its law's name, or names something the chain already has.
+   */
+  public static extend<
+    Laws extends Readonly<Record<string, IHumanActionLaw<never>>>,
+  >(laws: Laws): HumanChain.IExtension<Laws> {
+    class Extended extends HumanChain {}
+    for (const [key, law] of Object.entries(laws)) {
+      if (key !== law.name)
+        throw new Error(
+          `The law named ${law.name} is registered as ${key}; register it under its own name`,
+        );
+      if (key in Extended.prototype)
+        throw new Error(
+          `The chain already has ${key}; register the law under a name of its own`,
+        );
+
+      // A method of an object literal, so it reads the chain it is called on.
+      const methods = {
+        [key](this: HumanChain, params: object = {}, anchor?: string) {
+          return this.registered(law.name, params, anchor);
+        },
+      };
+      Object.defineProperty(Extended.prototype, key, {
+        value: methods[key],
+        writable: false,
+      });
+    }
+    return {
+      subject: (subject: string): HumanChain.Extended<Laws> =>
+        new Extended(subject, {
+          kind: "sequence",
+          parts: [],
+        }) as HumanChain.Extended<Laws>,
+    };
   }
 
   /**
@@ -101,5 +152,42 @@ export class HumanChain extends HumanChainSport {
           }).node,
         ),
     };
+  }
+}
+
+/**
+ * Companion types of {@link HumanChain}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Documents each member.
+ * @evidence contracts/development/design.md#principled-representation The chain intersected with one method per registered law, each typed by that law's own parameters.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface What `extend` returns and the types it is built from.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The parameter type is read from the law's plan, not restated.
+ */
+export namespace HumanChain {
+  /** The parameters a law plans from. */
+  export type Parameters<Law> = Law extends {
+    plan(context: IHumanActionContext<infer P>): IHumanActionPlan;
+  }
+    ? P
+    : never;
+
+  /** A chain with a typed method for each registered law. */
+  export type Extended<Laws> = HumanChain & {
+    [Key in keyof Laws]: (
+      ...args: {} extends Parameters<Laws[Key]>
+        ? [params?: Parameters<Laws[Key]>, anchor?: string]
+        : [params: Parameters<Laws[Key]>, anchor?: string]
+    ) => Extended<Laws>;
+  };
+
+  /** What starts a chain of an extended kind. */
+  export interface IExtension<Laws> {
+    /**
+     * An empty chain of a person.
+     *
+     * @param subject The person.
+     * @returns The chain.
+     */
+    subject(subject: string): Extended<Laws>;
   }
 }

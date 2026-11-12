@@ -16,7 +16,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
+import type { HumanActionKey } from "../HumanActionKey";
 import { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -176,7 +176,7 @@ export namespace HumanSegment {
     id: string;
 
     /** The action. */
-    name: HumanActionName;
+    name: HumanActionKey;
 
     /** Its parameters. */
     params: object;
@@ -240,7 +240,7 @@ export namespace HumanSegment {
     subject: string,
     previous: ISegment | undefined,
     before: IAutoMovieSchedule.IEntry | undefined,
-    name: HumanActionName,
+    name: HumanActionKey,
     start: number,
     accepts: IHumanActionLaw["accepts"] = {},
   ): IHumanInterruptRow | undefined {
