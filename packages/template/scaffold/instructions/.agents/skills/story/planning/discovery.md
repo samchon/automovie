@@ -1,9 +1,6 @@
 # Discovery
 
 Before bulk writing, break the adopted instructions, references, research and delegated choices into consequential elements and assign each to its existing owner or a missing one, under the discovery questions in the [story contracts](../../contracts/story/SKILL.md). A genre label or a general reading of the brief does not establish coverage. Discover the chosen form too: what each unit presents or withholds, how it guides its recipient, and the visible difference a named style makes.
-
-A consequential element of what the story is that the user neither fixed nor delegated is a question for the user under [asking the user](requirements.md#asking-the-user), not a choice for discovery or [direction](direction.md) to make.
-
 Facts and constraints belong in settings or a short's brief, events and release in their layer, and a production-specific judgment in the production's own work contracts, adopted with its population through [adoption](../../evidence/adoption.md). A requirement that lives only in status notes, selector names or repeated guidance needs a canonical owner.
 
 ## Checkpoints {#checkpoints}

@@ -18,7 +18,7 @@ A changed or withdrawn requirement reaches its consumers through [repair](../cor
 
 ## Asking the user {#asking-the-user}
 
-A user who hands the story to the agent still decides what it is, such as its events, the people they happen to, its ending, tone and form, and its running time and frame, unless they delegate that too. Before research and the first canon layer, ask about each consequential element of what the story is that they have neither fixed nor delegated, in rounds, recording each round's answers at their owners before asking the next, because an answer often raises elements the request did not show. The asking is complete when every such element the request and the user's materials show is fixed or delegated. A story built on a guessed element is rewritten once the user reads it, and every layer written on it goes with it.
+A user who hands the story to the agent still decides what it is, such as its events, the people they happen to, its ending, tone and form, and its running time and frame, unless they delegate that too. Before research and the first canon layer, ask about each consequential element of what the story is that they have neither fixed nor delegated, in rounds, recording each round's answers at their owners before asking the next, because an answer often raises elements the request did not show. The asking is complete when every such element the conversation and the user's materials show is fixed or delegated. A story built on a guessed element is rewritten once the user reads it, and every layer written on it goes with it.
 
 Handing over the story delegates each layer's own decisions within what the user decided, so a researched fact or a layer's contribution is not a question.
 
