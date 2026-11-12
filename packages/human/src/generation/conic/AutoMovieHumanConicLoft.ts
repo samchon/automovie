@@ -43,6 +43,12 @@ export namespace AutoMovieHumanConicLoft {
 
     /** Where the part closes in a point, toward its first knot and toward its last; null leaves that end an open section. */
     tips?: [ITip | null, ITip | null];
+
+    /**
+     * Largest distance between two neighbouring phases at the part's widest section, mm; absent, `PHASE_MM`. A small part whose skin turns
+     * within a few millimetres takes a finer pitch: at 4 mm the ear's thin rim was sampled by three phases and its edge drew a row of teeth.
+     */
+    pitch?: number;
   }
 
   /**
@@ -257,7 +263,7 @@ export namespace AutoMovieHumanConicLoft {
       side: { positive: coordinate(1, 1), negative: coordinate(3, 1) },
       fullness: { kind: "top", shoulders: quarters((q: number): IAutoMovieViewPart.IOutline => share((chain: AutoMovieHumanConicSection.IChain): number => chain.input.shoulders[guides[q]!]!)), touch: quarters((q: number): IAutoMovieViewPart.IOutline => coordinate(q, q % 2 === 0 ? 1 : 0)), pieces: quarters(pieces) },
       order: 32,
-      samples: Math.max(48, 8 * Math.ceil(Math.max(girth / PHASE_MM, (2 * Math.PI) / finest) / 8)),
+      samples: Math.max(48, 8 * Math.ceil(Math.max(girth / (family.pitch ?? PHASE_MM), (2 * Math.PI) / finest) / 8)),
       ...(family.reliefs === undefined || family.reliefs.length === 0 ? {} : { reliefs: family.reliefs }),
     };
   }
@@ -293,10 +299,11 @@ export namespace AutoMovieHumanConicLoft {
       centres: family.centres.map(flip),
       halves: [...family.halves],
       up: flip(family.up),
-      layout: { mirror: false, anchors: anchors.map((_: AutoMovieHumanConicSection.IAnchor, j: number): AutoMovieHumanConicSection.IAnchor => anchors[(K - j) % K]!) },
+      layout: { mirror: false, anchors: anchors.map((_: AutoMovieHumanConicSection.IAnchor, j: number): AutoMovieHumanConicSection.IAnchor => anchors[(K - j) % K]!), ...(family.layout.least === undefined ? {} : { least: family.layout.least }) },
       knots: [...family.knots],
       values,
       ...(family.tips === undefined ? {} : { tips: [family.tips[0], family.tips[1]] as [ITip | null, ITip | null] }),
+      ...(family.pitch === undefined ? {} : { pitch: family.pitch }),
       ...(family.reliefs === undefined
         ? {}
         : {

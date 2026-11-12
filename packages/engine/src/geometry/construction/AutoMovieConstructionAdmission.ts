@@ -121,26 +121,32 @@ export namespace AutoMovieConstructionAdmission {
             refuse(`count ${node.count} is not a multiple of 4 of at least 8`);
           if (!(Number.isInteger(node.rows) && node.rows >= 1))
             refuse(`rows ${node.rows} is not a positive integer`);
-          // A curved seam's knots advance along the chord from its first end;
-          // whether the last stays short of the chord needs the host, so the
-          // realization refuses that one.
-          const profile: IAutoMovieConstructionSplit.IProfile | undefined =
-            node.profile;
-          if (profile !== undefined) {
+          // A curved seam is parameterized by its own length, so its knots
+          // need not advance along the chord; each stands off the one before
+          // (the seam's first end the origin) at no negative `along`. Whether
+          // they stay within the chord's length needs the host, so the
+          // realization refuses a knot beyond it.
+          const admit: (
+            profile: IAutoMovieConstructionSplit.IProfile | undefined,
+          ) => void = (
+            profile: IAutoMovieConstructionSplit.IProfile | undefined,
+          ): void => {
+            if (profile === undefined) return;
             if (profile.knots.length === 0) refuse("profile has no knot");
-            let previous: number = 0;
+            let previous: [number, number] = [0, 0];
             for (const [along, depth] of profile.knots) {
               if (
                 !(
                   Number.isFinite(along) &&
                   Number.isFinite(depth) &&
-                  along > previous
+                  along >= 0 &&
+                  (along !== previous[0] || depth !== previous[1])
                 )
               )
                 refuse(
-                  `profile knot [${along}, ${depth}] m is not finite and advancing along the chord`,
+                  `profile knot [${along}, ${depth}] m is not finite, at no negative along and apart from the knot before`,
                 );
-              previous = along;
+              previous = [along, depth];
             }
             if (
               !(
@@ -152,7 +158,37 @@ export namespace AutoMovieConstructionAdmission {
               refuse(
                 `profile corner ${profile.corner} rad is not in (0, pi / 2)`,
               );
+            if (profile.reach !== undefined && !(Number.isFinite(profile.reach) && profile.reach > 0 && profile.reach <= 1))
+              refuse(`profile reach ${profile.reach} is not in (0, 1]`);
+            const heading: [number, number, number] | undefined = profile.heading;
+            if (heading !== undefined && !(heading.every(Number.isFinite) && Math.hypot(...heading) > 0))
+              refuse(`profile heading [${heading.join(", ")}] is not a finite nonzero direction`);
+          };
+          admit(node.profile);
+          // Further seams each enclose the one before, and the children are one
+          // more than the seams.
+          let inner: [number, number] = [a, b];
+          for (const outer of node.outer ?? []) {
+            const [oa, ob]: [number, number] = outer.seam;
+            if (
+              !(
+                Number.isFinite(oa) &&
+                Number.isFinite(ob) &&
+                oa < inner[0] &&
+                ob > inner[1] &&
+                ob < oa + 2 * Math.PI
+              )
+            )
+              refuse(
+                `outer seam [${oa}, ${ob}] does not enclose [${inner[0]}, ${inner[1]}] within one turn`,
+              );
+            admit(outer.profile);
+            inner = [oa, ob];
           }
+          if (node.children.length !== 2 + (node.outer ?? []).length)
+            refuse(
+              `${node.children.length} children for ${1 + (node.outer ?? []).length} seams`,
+            );
           let views: Set<string> = host.views;
           let faces: Set<string> = host.faces;
           for (const child of node.children) {

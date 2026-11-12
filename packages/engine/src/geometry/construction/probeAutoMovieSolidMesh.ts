@@ -7,14 +7,20 @@ import { witnessAutoMovieSolidChartTriangle } from "./witnessAutoMovieSolidChart
 type Point = readonly [number, number];
 
 /**
- * Select a represented left-side probe with an independently checked corridor, beside the walk's first edge that admits one.
+ * Select a represented left-side probe with an independently checked corridor.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Floating edge clearance proposes a nearby point; exact represented-point orientation and the empty-triangle witness verify connection to the requested boundary side before membership is read. Every edge of a boundary walk has the walk's face on its left, so any edge's corridor reaches the same face.
+ * A boundary walk is one face cycle: the face lies on the left of every one of its edges, so a probe witnessed beside any edge reads that
+ * face's membership. The edges are tried in walk order and the first witnessed corridor is returned. Reading the first edge alone failed
+ * where a curve met a straight constraint at a grazing angle: the curve's last vertex stood 1e-14 off the line, a few units of the last
+ * place at the chart's scale, so its short edge to the line had no represented corridor on either side, though the face beside every other
+ * edge of the same walk was wide.
+ *
+ * @evidence contracts/development/implementation.md#principled-implementation Floating edge clearance proposes a nearby point; exact represented-point orientation and the empty-triangle witness verify connection to the requested boundary side before membership is read. Any edge of a face cycle bounds the same face, so trying the next edge does not change which face is read.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Probe construction is one responsibility shared by component classification; the witness owns exact partition checks and Plan owns membership.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not call approximate distance an exact bound. At most 64 smaller proposals are attempted beside each walk edge; when no edge's clearance is representable or every local search is exhausted it returns an explicit failure, not an empty region.
- * @evidence contracts/development/common.md#meaningful-documentation States represented-number corridor meaning, one-period primitive premise and finite search/precision failure.
- * @evidence contracts/development/implementation.md#efficient-algorithms Scans S segments for a proposal and at most 64 witnesses with O(V+S) exact-predicate work each, for each walk edge tried in order; the first admitted edge ends the search, which is the first edge unless it lies within a unit in the last place of another constraint. No source callback is evaluated here.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares original indexed endpoints, one edge length and the proposed clearance across attempts; source membership remains with Plan.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not call approximate distance an exact bound. At most 64 smaller proposals are attempted per edge; unrepresentable cover arithmetic returns an explicit failure, and a walk none of whose edges admits a corridor returns the named failure, not an empty region.
+ * @evidence contracts/development/common.md#meaningful-documentation States represented-number corridor meaning, face-cycle premise, one-period primitive premise and finite search/precision failure.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Scans S segments for a proposal and at most 64 witnesses with O(V+S) exact-predicate work each, per edge tried; the first edge serves every walk that is not degenerate there.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares original indexed endpoints, one edge length and the proposed clearance across attempts on one edge; source membership remains with Plan.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Probe, local image arrays and witness scratch expire on return; no source map, callback or cache is retained.
  */
 export function probeAutoMovieSolidMesh(
@@ -23,43 +29,38 @@ export function probeAutoMovieSolidMesh(
   walk: AutoMovieSolidMeshIncidence.IWalk,
   period: number | undefined,
 ): Point | string {
-  if (walk.vertices.length === 0)
-    return "visibility has an empty boundary walk";
-
-  // Every edge of a boundary walk has the walk's face on its left, so the probe may stand beside any of them. Beside the first alone, a
-  // walk whose first edge runs within a unit in the last place of another constraint, as where a rail's vertex stood 7e-15 off its
-  // face's station line beside f1's ear band, has no represented point between the two and was refused.
   const count: number = walk.vertices.length;
+  if (count === 0) return "visibility has an empty boundary walk";
   for (let k: number = 0; k < count; k++) {
+    // Edge k from the walk's k-th vertex to the next, read in the cover image where the k-th vertex is unlifted.
     const next: number = (k + 1) % count;
     const turn: number =
       (next === 0 ? walk.winding : walk.lifts[next]!) - walk.lifts[k]!;
-    const probe: Point | string | null = beside(
+    const found: Point | string | null = corridor(
       vertices,
       edges,
       { a: walk.vertices[k]!, b: walk.vertices[next]!, turn },
       period,
     );
-    if (probe !== null) return probe;
+    if (typeof found === "string") return found;
+    if (found !== null)
+      return k === 0 || walk.lifts[k] === 0
+        ? found
+        : [found[0], found[1] + walk.lifts[k]! * (period ?? 0)];
   }
   return "visibility left-side probe has no admitted represented corridor";
 }
 
-/**
- * A represented probe on the left of one directed walk edge, the edge's start read at its stored cover; `null` when no admitted corridor
- * is found beside it.
- */
-function beside(
+/** A witnessed probe on the left of one boundary edge, null when that edge admits no represented corridor, or a named arithmetic failure. */
+function corridor(
   vertices: ReadonlyMap<number, Point>,
   edges: readonly AutoMovieSolidMeshConstraints.ISegment[],
   edge: AutoMovieSolidMeshConstraints.ISegment,
   period: number | undefined,
 ): Point | string | null {
-  const target: number = edge.b;
   const first: Point = vertices.get(edge.a)!;
-  const stored: Point = vertices.get(target)!;
-  const turn: number = edge.turn;
-  const end: Point = [stored[0], stored[1] + turn * (period ?? 0)];
+  const stored: Point = vertices.get(edge.b)!;
+  const end: Point = [stored[0], stored[1] + edge.turn * (period ?? 0)];
   const middle: Point = midpoint(first, end);
   const dx: number = end[0] - first[0];
   const dy: number = end[1] - first[1];
@@ -92,7 +93,7 @@ function beside(
       clearance = Math.min(clearance, distance(middle, c, d));
     }
   }
-  // No clearance beside this edge: another constraint passes through its midpoint, or the edge has no length; the next edge may serve.
+  // Another constraint through this edge's midpoint, or an edge too short to measure, leaves this edge no corridor.
   if (
     !(
       Number.isFinite(clearance) &&
