@@ -1,3 +1,4 @@
+import { AutoMovieLoftChain, type AutoMovieLoftFrame, AutoMovieViewLoft, type IAutoMovieViewPart } from "@automovie/engine";
 import { AutoMovieHumanF1 } from "@automovie/human";
 import type { AutoMovieConstructionNode } from "@automovie/interface";
 
@@ -10,6 +11,7 @@ import type { AutoMovieConstructionNode } from "@automovie/interface";
  * 3. Sides mirror: every operator on the +Z side has a twin whose part face is the same name with `.mirror`, and the two armscye loops and the two auricle loops have the same station and semi-axes and opposite phases; the armscye loops also run in opposite senses and carry the same 192 shares, near one and not all one, since each follows its arm's ring and the two rings are reflections.
  * 4. A digit is merged onto its own limb before that limb is attached: each merge's host face is an arm or a leg of the merge's own side, and no merge's host subtree holds the trunk. A nostril is cut from the whole head: its cut is seeded on the nose and its host subtree holds the trunk. An ear's upper hollow (the scapha) is cut from the ear alone, before the ear is attached: its cut is seeded on its own side's ear and its host is that ear's leaf. Its bowl (the concha) is cut after: seeded on its own side's ear, with the trunk under its host.
  * 5. A port stands on the trunk: each loop's centre station lies inside the trunk part's stations and its phase semi-axis is under pi.
+ * 6. Rings round a turn stand no farther apart on the skin than the layers: on the arm and the leg, between neighbouring stations before the closed end, no ring point moves more than the declared 4 mm (5 % allowed for the part's own interpolation) by the course frame's sweep. Round the shoulder the deltoid's cap moved 7 to 10 mm between layers 4 mm apart and showed every ring as a stripe.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanF1.construction`, `armscye` and `auricle` and walks the tree they return.
  * @evidence contracts/development/testing.md#independent-expectations The counts are the body's own: two legs, two arms, two ears, five fingers and five toes a side; mirror symmetry of the reference is a property of f1, not of this code.
@@ -100,6 +102,30 @@ export function test_human_f1_construction(): void {
       const station: number = node.loop.centre[0] * 1000;
       if (trunk === undefined || node.hostFace !== "trunk" || !(station > trunk.stations[0]! && station < trunk.stations.at(-1)!) || !(node.loop.semi[1] > 0 && node.loop.semi[1] < Math.PI)) failures.push(`${node.name} does not stand on the trunk: station ${station} mm, phase semi-axis ${node.loop.semi[1]}`);
     }
+
+  // 6. Rings round a turn.
+  for (const name of ["arm", "leg"] as const) {
+    const part: IAutoMovieViewPart | undefined = declared.sources.get(name);
+    const chain = part === undefined ? null : AutoMovieViewLoft.create({ ...part, reliefs: undefined }).chain;
+    if (part === undefined || chain === null) {
+      failures.push(`the ${name} does not loft`);
+      continue;
+    }
+    const end: number = AutoMovieHumanF1.BODY[name].tips?.[1]?.from ?? Infinity;
+    const stations: number[] = part.stations.filter((s: number): boolean => s >= AutoMovieHumanF1.BODY[name].knots[0]! && s <= end);
+    let worst: [number, number] = [0, 0];
+    for (let i: number = 1; i < stations.length; ++i) {
+      const [a, b]: AutoMovieLoftFrame.IFrame[] = [part.axis.at(stations[i - 1]!), part.axis.at(stations[i]!)];
+      for (let j: number = 0; j < 96; ++j) {
+        const p: number[] = AutoMovieLoftChain.point(chain, stations[i - 1]!, (2 * Math.PI * j) / 96);
+        const r: number[] = [0, 1, 2].map((k: number): number => p[k]! - a.origin[k]);
+        const [x, y]: number[] = [a.u, a.v].map((e: [number, number, number]): number => r[0]! * e[0] + r[1]! * e[1] + r[2]! * e[2]);
+        const moved: number = Math.hypot(...[0, 1, 2].map((k: number): number => b.origin[k] + x! * b.u[k] + y! * b.v[k] - p[k]!));
+        if (moved > worst[0]) worst = [moved, stations[i - 1]!];
+      }
+    }
+    if (worst[0] > 4 * 1.05) failures.push(`a ring point of the ${name} moves ${worst[0].toFixed(2)} mm by the course's sweep after station ${worst[1].toFixed(1)}, more than the 4 mm layers`);
+  }
 
   if (failures.length > 0) throw new Error("human f1 construction:\n" + failures.join("\n"));
 }

@@ -187,6 +187,15 @@ export namespace AutoMovieHumanF1Joints {
   /** Where it ends, inside the auricle under that hollow. */
   export const scaphaTip: V3 = [-3.5, 1585, 80];
 
+  /**
+   * Where the breast's course starts, inside the chest 30 mm behind the apex along the breast's axis. The axis is the vector area of the
+   * skin within 70 mm of the apex, which is the vector area of that patch's boundary loop and so is not tilted by the mound itself.
+   */
+  export const breastRoot: V3 = [98.9, 1252.1, 54.4];
+
+  /** Where the breast's course ends, along the same axis 8 mm past the apex. */
+  export const breastTip: V3 = [136.1, 1254, 61.9];
+
   /** Where a nostril's course starts, below the nose under the middle of the nostril's mouth. */
   export const nostrilRoot: V3 = [127.1, 1540.4, 7.7];
 
