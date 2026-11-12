@@ -34,11 +34,12 @@ namespace FamilyConicBody {
   const BILATERAL: { layout: C.ILayout; depth: number }[] = [{ layout: C.bilateral(1), depth: 1 }];
 
   /**
-   * Where the ear's course starts and ends, mm: `AutoMovieHumanF1Joints.earRoot` and `earTip`. It runs straight to the side through the middle
-   * of the auricle's outline, so the closed end's pole stands in the middle of the face a relief carves there.
+   * Where the ear's course starts and ends, mm: `AutoMovieHumanF1Joints.earRoot` and `earTip`. It runs straight to the side through the
+   * antihelix, between the bowl and the upper hollow, so the closed end's pole stands where neither hollow's cut walks: on the auricle's
+   * middle, (4, 1584), the upper hollow's walk was lost at the pole.
    */
-  const EAR_ROOT: R.V = [4, 1584, 74];
-  const EAR_TIP: R.V = [4, 1584, 100];
+  const EAR_ROOT: R.V = [5, 1570, 74];
+  const EAR_TIP: R.V = [5, 1570, 100];
 
   /** `--ear-course=<x,y,z>/<x,y,z>/...`: a trial course for the ear through those centres, turning at each inner one by `--ear-half=<mm>` (4). */
   const EAR_TRIAL: R.V[] | undefined = process.argv
@@ -1279,11 +1280,11 @@ namespace FamilyConicBody {
       "  /** The corner the arm's course turns at, round the shoulder, from straight to the side to the line down to the elbow. */",
       "  export const armTurn: V3 = " + JSON.stringify(ARM_TURN).replaceAll(",", ", ") + ";",
       "",
-      "  /** Where the ear's course starts, in the side of the head under the middle of the auricle's outline. */",
-      "  export const earRoot: V3 = [4, 1584, 74];",
+      "  /** Where the ear's course starts, in the side of the head under the antihelix, between the ear's two hollows. */",
+      "  export const earRoot: V3 = " + JSON.stringify(EAR_ROOT).replaceAll(",", ", ") + ";",
       "",
-      "  /** Where the ear's course ends, straight to the side past the auricle's rim, so the pole of its closed end stands in the middle of its outer face. */",
-      "  export const earTip: V3 = [4, 1584, 100];",
+      "  /** Where the ear's course ends, straight to the side past the auricle's rim, so the pole of its closed end stands on the antihelix, where neither hollow's cut walks. */",
+      "  export const earTip: V3 = " + JSON.stringify(EAR_TIP).replaceAll(",", ", ") + ";",
       "",
       "  /** Centre of the auricle's root on the sagittal plane it leaves the skull at. */",
       "  export const earBase: V3 = [9.5, 1572, 77];",
@@ -1297,11 +1298,17 @@ namespace FamilyConicBody {
       "  /** Where the nose's course ends, straight forward past its tip. */",
       "  export const noseTip: V3 = [140, 1561, 0];",
       "",
-      "  /** Where the course of the ear's hollow starts, out past the auricle's rim. */",
-      "  export const conchaRoot: V3 = [-0.7, 1580, 99.5];",
+      "  /** Where the course of the concha's bowl starts, out past the auricle over the bowl's deepest point: 15.5 mm out from the course it was fitted on. */",
+      "  export const conchaRoot: V3 = [16.5, 1563, 105.5];",
       "",
-      "  /** Where it ends, inside the head behind the concha's floor. */",
-      "  export const conchaTip: V3 = [15, 1580, 77.5];",
+      "  /** Where it ends, square into the head under the bowl. */",
+      "  export const conchaTip: V3 = [16.5, 1563, 75.5];",
+      "",
+      "  /** Where the course of the ear's upper hollow, the scapha and the fossa above the bowl, starts, out along the shell's normal. */",
+      "  export const scaphaRoot: V3 = [9.5, 1585, 100];",
+      "",
+      "  /** Where it ends, inside the auricle under that hollow. */",
+      "  export const scaphaTip: V3 = [-3.5, 1585, 80];",
       "",
       "  /** Where a nostril's course starts, below the nose under the middle of the nostril's mouth. */",
       "  export const nostrilRoot: V3 = [127.1, 1540.4, 7.7];",

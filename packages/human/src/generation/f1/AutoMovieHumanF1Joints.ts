@@ -157,11 +157,11 @@ export namespace AutoMovieHumanF1Joints {
   /** The corner the arm's course turns at, round the shoulder, from straight to the side to the line down to the elbow. */
   export const armTurn: V3 = [-12, 1300, 203];
 
-  /** Where the ear's course starts, in the side of the head under the middle of the auricle's outline. */
-  export const earRoot: V3 = [4, 1584, 74];
+  /** Where the ear's course starts, in the side of the head under the antihelix, between the ear's two hollows. */
+  export const earRoot: V3 = [5, 1570, 74];
 
-  /** Where the ear's course ends, straight to the side past the auricle's rim, so the pole of its closed end stands in the middle of its outer face. */
-  export const earTip: V3 = [4, 1584, 100];
+  /** Where the ear's course ends, straight to the side past the auricle's rim, so the pole of its closed end stands on the antihelix, where neither hollow's cut walks. */
+  export const earTip: V3 = [5, 1570, 100];
 
   /** Centre of the auricle's root on the sagittal plane it leaves the skull at. */
   export const earBase: V3 = [9.5, 1572, 77];
@@ -175,11 +175,17 @@ export namespace AutoMovieHumanF1Joints {
   /** Where the nose's course ends, straight forward past its tip. */
   export const noseTip: V3 = [140, 1561, 0];
 
-  /** Where the course of the ear's hollow starts, out past the auricle's rim. */
-  export const conchaRoot: V3 = [-0.7, 1580, 99.5];
+  /** Where the course of the concha's bowl starts, out past the auricle over the bowl's deepest point: 15.5 mm out from the course it was fitted on. */
+  export const conchaRoot: V3 = [16.5, 1563, 105.5];
 
-  /** Where it ends, inside the head behind the concha's floor. */
-  export const conchaTip: V3 = [15, 1580, 77.5];
+  /** Where it ends, square into the head under the bowl. */
+  export const conchaTip: V3 = [16.5, 1563, 75.5];
+
+  /** Where the course of the ear's upper hollow, the scapha and the fossa above the bowl, starts, out along the shell's normal. */
+  export const scaphaRoot: V3 = [9.5, 1585, 100];
+
+  /** Where it ends, inside the auricle under that hollow. */
+  export const scaphaTip: V3 = [-3.5, 1585, 80];
 
   /** Where a nostril's course starts, below the nose under the middle of the nostril's mouth. */
   export const nostrilRoot: V3 = [127.1, 1540.4, 7.7];
