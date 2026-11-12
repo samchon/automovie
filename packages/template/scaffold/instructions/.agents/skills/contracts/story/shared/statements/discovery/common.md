@@ -12,31 +12,32 @@ Requirements:
 4. An adopted form states its observable choices, scope, audience effect, representative failure, semantic owner and repair boundary.
 5. Language baselines belong to their language owner, creative form to the work and world facts to settings. A possibly universal candidate stays research until adopted into shared contracts.
 6. A requirement found only in guide prose, selectors, status notes or repeated explanations moved to its owner with its consumers updated, under the [closed-pass boundary](../../../../../story/correction/repair.md#closed-passes).
+7. Each element the user neither fixed nor delegated was [asked of the user](../../../../../story/planning/requirements.md#asking-the-user) and its answer adopted as a requirement, or stays recorded as an open question. Exception: a blanket delegation adopted as a requirement covers every remaining element.
 
 Language:
 
-7. Language was inspected separately:
+8. Language was inspected separately:
     - regional, period, social, medium, translation, register, address and honorific boundaries;
     - names and titles;
     - number, date, age, color, material, dimension and unit wording.
-8. Affected speakers and passages, audience cues and canonical owners are identified, and the concrete language risks existing owners cover are recorded.
-9. Under a declared [factual basis](../../../../../story/planning/requirements.md#factual-basis), period usage is checked against the cited record or the adopted departure identified. Notation serves the actual audience and medium, not artificial period weight.
+9. Affected speakers and passages, audience cues and canonical owners are identified, and the concrete language risks existing owners cover are recorded.
+10. Under a declared [factual basis](../../../../../story/planning/requirements.md#factual-basis), period usage is checked against the cited record or the adopted departure identified. Notation serves the actual audience and medium, not artificial period weight.
 
 Production coverage:
 
-10. The settings, research, screenplay, source and, after delivery review, the acceptance record were inspected for:
+11. The settings, research, screenplay, source and, after delivery review, the acceptance record were inspected for:
     - an element kind no source folder owns;
     - a behavior, camera or staging choice no research supports;
     - a failure no contract asks about;
     - a skill, folder or instruction the work needed but lacked.
-11. Each gap that inspection found was answered in one of three ways:
+12. Each gap that inspection found was answered in one of three ways:
     - by adopting a work-specific contract or folder;
     - by recording a scaffold candidate with its motivating evidence, which stays local until other productions show the same need;
     - by recording its absence with the inspected scope.
-12. The inspection was repeated at each [discovery checkpoint](../../../../../story/planning/discovery.md#checkpoints) reached so far. An unchecked checkpoint stays open.
+13. The inspection was repeated at each [discovery checkpoint](../../../../../story/planning/discovery.md#checkpoints) reached so far. An unchecked checkpoint stays open.
 
 Accounting:
 
-13. Findings, already covered choices and the remaining inspected scope are accounted together.
-14. A negative names the concrete risks inspected and their adequate existing owners.
-15. One finding establishes no absence elsewhere, and unread or unresolved scope stays open.
+14. Findings, already covered choices and the remaining inspected scope are accounted together.
+15. A negative names the concrete risks inspected and their adequate existing owners.
+16. One finding establishes no absence elsewhere, and unread or unresolved scope stays open.
