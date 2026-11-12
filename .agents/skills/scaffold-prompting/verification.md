@@ -8,7 +8,7 @@ Follow each changed rule from its entry point to the actual task and contract, r
 
 A Markdown-only change needs these checks and its affected-consumer review; it does not justify inventing a test or generating a disposable production.
 
-Inspect the materializer's rendered file map when changing what production instructions ship, including substitutions and any generated shared resources the changed links use.
+Inspect the file map `createAutoMovieScaffold` returns when changing what production instructions ship, including substitutions and any generated shared resources the changed links use.
 
 Installed files are project-owned: an existing production update follows [scaffold](../scaffold/SKILL.md), not an assumed upstream sync. Changed installation or program behavior requires development's actual consumer checks.
 

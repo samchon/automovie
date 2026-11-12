@@ -1,7 +1,7 @@
 /**
  * One admitted CLI request, discriminated by `command`.
  *
- * `help` and `version` carry nothing because they are standalone requests. `create`, `add` and `sync` carry their targets exactly as typed; `run` resolves them against the working directory. An explicit `name` is carried as typed; `run` chooses the name when it is absent.
+ * `help` and `version` carry nothing because they are standalone requests. `create` and `add` carry their targets exactly as typed; `run` resolves them against the working directory. An explicit `name` is carried as typed; `run` chooses the name when it is absent.
  *
  * @evidence contracts/development/design.md#principled-representation Each variant carries exactly what its command needs after admission, so `run` performs no further argument parsing, except `capture`, `inspect`, `render` and `review`, whose options are read by the production's renderer's option reader once that renderer is loaded.
  * @evidence contracts/development/design.md#minimal-and-owned-surface A closed union over the command name lets `run` switch on one field, and the workspace family is a closed pair instead of a free path.
@@ -27,7 +27,7 @@ export type AutoMovieCommand =
       /** Install a pnpm workspace root instead of a single production. */
       workspace: boolean;
 
-      /** Admit a non-empty target, as `publishFiles`' `force` option defines it. */
+      /** Admit a non-empty target, writing over same-path files and keeping the rest. */
       force: boolean;
 
       /** Package name as typed; absent, `run` derives or asks for one. */
@@ -43,24 +43,11 @@ export type AutoMovieCommand =
       /** The production's directory under `movies/<family>`, one admitted path segment. */
       directory: string;
 
-      /** Admit a non-empty production directory, as `publishFiles`' `force` option defines it. */
+      /** Admit a non-empty production directory, writing over same-path files and keeping the rest. */
       force: boolean;
 
       /** Package name as typed; absent, `run` derives one from the directory segment. */
       name?: string;
-    }
-  | {
-      /** Update only generated instructions. */
-      command: "sync";
-
-      /** The directory holding `AGENTS.md`, resolved by run. */
-      directory: string;
-
-      /** Inspect pending changes and conflicts without writing. */
-      check: boolean;
-
-      /** Explicit prior adopted instruction root; the files it supplies govern over stored sync state. */
-      baseline?: string;
     }
   | {
       /** Capture stills of a subject or a video file in the production at the working directory. */

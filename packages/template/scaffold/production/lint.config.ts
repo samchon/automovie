@@ -1,6 +1,6 @@
 import type { ITtscLintConfig } from "@ttsc/lint";
 
-/** Source correctness and formatting, the same for every folder; the dependency direction between source folders is the source layout's rule, and checklist answers run through `npm run evidence`. */
+/** Source correctness and formatting, the same for every folder; the dependency direction between source folders is the source layout's rule, and checklist answers run through `pnpm run evidence`. */
 export default {
   format: {
     severity: "off",

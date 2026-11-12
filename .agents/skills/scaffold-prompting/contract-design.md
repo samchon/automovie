@@ -30,7 +30,7 @@ Keep stable family paths and explicit H2 identities where Evidence addresses the
 
 Follow the production's [closed-pass boundary](../../../packages/template/scaffold/instructions/.agents/skills/story/correction/repair.md#closed-passes), preserving historical proof and unresolved diagnostics.
 
-Keep the reason for a failure in its item and each protection with its statement, both of which the recipient reads. Retain verified source support and limits in the appropriate source record or comment, without assuming the materializer, the template library that renders the scaffold into a project's files, strips comments or provides a novel-style migration tool.
+Keep the reason for a failure in its item and each protection with its statement, both of which the recipient reads. Retain verified source support and limits in the appropriate source record or comment, without assuming `createAutoMovieScaffold`, the template function that turns the scaffold into a project's files, strips comments or provides a novel-style migration tool.
 
 Shared criteria must work across subjects; local observations remain local until their proposed generalization is supported.
 
