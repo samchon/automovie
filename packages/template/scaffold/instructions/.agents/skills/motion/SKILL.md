@@ -9,7 +9,7 @@ Realize the screenplay's performance through code. Read [project context](../pro
 
 Work in this order, because each step can only use what the one before settled:
 
-1. Confirm the [research](../story/planning/research.md) for every practice, crowd conduct and camera style the scenes show.
+1. Study the laws and measurements the scenes need that no study holds yet, under [research](../story/planning/research.md#when-to-study).
 2. Start from the coarse entities [entity work](../development/entities.md#coarse-first) builds.
 3. [Compose](#compose-the-vocabulary) each person's performance from the installed motion vocabulary.
 4. [Extend](extend.md) only for what composing cannot stage.

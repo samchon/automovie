@@ -8,8 +8,8 @@ Facts and constraints belong in settings or a short's brief, events and release 
 
 Discovery runs again at four points, because each one exposes kinds of requirement the one before could not see:
 
-1. after direction, for what the practice needs that no instruction named;
-2. after settings or the brief, for what the canon needs that the research did not foresee;
+1. after direction, for what the depicted practice needs that no instruction named;
+2. after settings or the brief, for what the canon needs that direction did not foresee;
 3. before composition, for an element kind no source folder owns, a behavior, camera or staging choice no research supports, and a failure no contract asks about;
 4. after delivery review, for what the acceptance record shows the work needed and lacked.
 

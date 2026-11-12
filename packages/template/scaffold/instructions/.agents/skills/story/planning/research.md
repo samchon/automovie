@@ -22,7 +22,7 @@ Read each passage in context and study footage as consecutive frames through its
 
 Check each value against its source once, when it is written, and record its locator. Cross-check disputed claims and record what stays unavailable.
 
-Save permitted originals in `references/`, rights-unconfirmed ones in ignored `references/private/` and footage in ignored `media/acquired/videos/`, then open the saved files. Keep one `docs/research/index.md` naming each original's creator, URL, retrieval date, locator, rights and use, and write each topic once, in `docs/research/<discipline>/<topic>.md`, for other studies to cite rather than repeat. A URL or an empty index is not a retained source.
+Save permitted originals in `references/`, rights-unconfirmed ones in ignored `references/private/` and footage in ignored `media/acquired/videos/`, then open the saved files. Keep one `docs/research/index.md` naming each original's creator, URL, retrieval date, locator, rights and use, and keep each topic in one file, `docs/research/<discipline>/<topic>.md`, for other studies to cite rather than repeat. A URL or an empty index is not a retained source.
 
 ## Use
 
