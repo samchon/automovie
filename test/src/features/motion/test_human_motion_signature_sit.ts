@@ -33,21 +33,28 @@ import { motionHumanSignature as M } from "../internal/motionHumanSignature";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs the real sit law on real bodies and reads displayed joints and soles; a perched or sunk sit, an upright back that leans, a descent with an upright trunk or a lifted foot fails with its cell, value, bound and source.
  * @evidence contracts/development/testing.md#independent-expectations The seated posture is the standard's, the descent Kralj et al.'s, every limit marked provisional.
- * @evidence contracts/development/testing.md#distinguishing-cases Three backs and the default on four bodies.
+ * @evidence contracts/development/testing.md#distinguishing-cases Three backs on four bodies, compared on each, and the default on one.
  * @evidence contracts/development/testing.md#execution-ownership In memory; named `test_human_` because a film of fitted poses is costly, so the CI test job leaves it to local runs.
  * @evidence contracts/development/common.md#meaningful-documentation States every bound with its source and status.
  */
 export function test_human_motion_signature_sit(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
+  // The backs are compared on one body, so each is staged on every body; the
+  // default joins one body.
   for (const name of motionHumanBody.EXTREMES) {
     const back: Record<string, number> = {};
     const forward: Record<string, number> = {};
-    for (const row of ["default", "back=upright", "back=lean", "back=slump"]) {
+    for (const row of [
+      ...(name === motionHumanBody.EXTREMES[0] ? ["default"] : []),
+      "back=upright",
+      "back=lean",
+      "back=slump",
+    ]) {
       const cell: string = `sit ${row} ${name}`;
       const s: M.IStaged = M.stage("sit", row, name);
       const contact: number = M.event(s, "seatContact")!;
       const seated: number = M.event(s, "seated")!;
-      const ts: number[] = M.times(seated, s.film.duration, 30);
+      const ts: number[] = M.times(seated, s.film.duration, M.HELD);
       for (const side of ["left", "right"] as const) {
         const hip: number = M.mean(ts, (t) => M.hip(s, t, side));
         const knee: number = M.mean(ts, (t) => M.knee(s, t, side));
@@ -67,7 +74,7 @@ export function test_human_motion_signature_sit(): void {
       });
       let peak: number = -Infinity;
       let lifted: number = 0;
-      for (const t of M.times(0, s.film.duration, 30)) {
+      for (const t of M.times(0, s.film.duration, M.HELD)) {
         if (t <= contact) peak = Math.max(peak, M.trunk(s, t));
         if (!M.bears(s, t, "left") || !M.bears(s, t, "right")) lifted++;
       }
@@ -76,7 +83,7 @@ export function test_human_motion_signature_sit(): void {
         peak >= 15 && peak <= 60,
       );
       complaints.check(
-        `${cell}: a foot is off the floor at ${lifted} instants of 30 a second`,
+        `${cell}: a foot is off the floor at ${lifted} instants of ${M.HELD} a second`,
         lifted === 0,
       );
     }

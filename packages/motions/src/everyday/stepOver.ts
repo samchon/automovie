@@ -6,6 +6,7 @@ import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { walk } from "../actions/walk";
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionHumanClearance } from "../compose/AutoMovieMotionHumanClearance";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
@@ -13,6 +14,7 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { hipJoints } from "../posture/hipJoints";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanTrunk } from "./HumanTrunk";
@@ -22,28 +24,36 @@ import { HumanTrunk } from "./HumanTrunk";
  * lifts over it and lands beyond, then the trail foot follows and lands
  * beside it, both feet clearing the obstacle's top.
  *
- * The goals are footprints and clearance: each swinging foot travels from
- * its footprint to its landing on a minimum-jerk path and is lifted so its
- * lowest sole point (heel, ball or toe) stays at least `MARGIN` above the
- * obstacle's top while any part of the foot is over it; where the ankle
- * cannot dorsiflex enough to keep the foot level and the toes droop, the
- * ankle is raised until the lowest sole point is at the lift. Patla and Rietdyk
- * (1993, Gait Posture 1:45) found that the lead toe clears an obstacle by a
- * roughly constant margin whatever its height, so the lift grows with the
- * obstacle and the margin does not; 0.1 m is the margin used (provisional,
- * of the order they report). The lead foot lands so the obstacle's middle
- * falls at mid-swing, where the lift is fullest, at least one tenth of a
- * foot length beyond the far side and no farther than the legs' stride
- * allows; the trail foot lands beside it at the
- * body's rest separation. The pelvis moves halfway between the feet while
- * the lead foot swings, stays there through the double support, and moves
- * over the landed feet while the trail foot swings, each leg on a
- * minimum-jerk path, lowered wherever a planted leg could not
- * reach its foot with the knee 0.5 % short of straight, so no plant is
- * stretched off its footprint. A planted foot whose shank leans past the
- * ankle's dorsal range raises its heel about the toes' joint, the toes
- * staying flat (the forefoot rocker, Perry and Burnfield), as the trail foot
- * does while the lead foot lands.
+ * The goals are footprints and clearance: each swinging foot takes the
+ * shortest path from its footprint to its landing that keeps every sole
+ * point over the obstacle at least `MARGIN` above its top and every other
+ * one on or above the floor, the taut string over the obstacle
+ * (`AutoMovieMotionHumanClearance`), travelled on minimum-jerk progress.
+ * Patla and Rietdyk (1993, Gait Posture 1:45) found that the lead toe
+ * clears an obstacle by a roughly constant margin whatever its height, so
+ * the lift grows with the obstacle and the margin does not; 0.1 m is the
+ * margin used (provisional, of the order they report). The lead foot lifts
+ * its toes by up to `TOE_UP` as they pass over the near side and is level
+ * again once its heel does, so the toe clears the edge with the ankle and
+ * the knee lower than a level foot would need; where the ankle cannot take
+ * the planned pitch and the toes droop, the ankle is raised until every
+ * sole point clears. The lead foot lands so the obstacle's middle falls at
+ * mid-swing, at least one tenth of a foot length beyond the far side and
+ * no farther than the legs' stride allows; the trail foot lands beside it
+ * at the body's rest separation.
+ *
+ * While the lead foot swings, the trail foot rises on its ball by `PUSH`,
+ * the forefoot rocker of a stance foot the body passes over (Perry and
+ * Burnfield), and the pelvis rises with it as far as it lifts that ankle,
+ * so the lead hip stands higher over the obstacle; the trail foot later
+ * leaves from that pitch and levels by the time its toe reaches the near
+ * side. The pelvis stays back over the trail foot until the lead foot is
+ * crossing, moves halfway between the feet by the double support and over
+ * the landed feet while the trail foot swings, each leg on a minimum-jerk
+ * path. It is lowered wherever a planted leg could not reach its foot,
+ * and over the second half of each swing toward where the swinging leg
+ * will reach its landing, so it has come down when the foot lands instead
+ * of dropping at the contact.
  *
  * Time scales with leg length by dynamic similarity (Alexander 1984): the
  * whole action takes `2.4 sqrt(l / 0.93)` seconds for a hip height `l`
@@ -97,8 +107,11 @@ export namespace stepOver {
     lead?: "left" | "right";
   }
 
-  /** How far before and beyond the obstacle the full lift is held, metres: room for a drooping toe and the ramp's start (provisional). */
-  export const SPAN: number = 0.06;
+  /** How far the lead foot lifts its toes as they pass over the obstacle's near side, degrees toes-up (provisional): the toe clears the edge with the ankle lower than a level foot's would be. */
+  export const TOE_UP: number = 35;
+
+  /** How far the trail foot rises on its ball while the pelvis leaves it during the lead swing, degrees toes-down (provisional, the forefoot rocker of a stance foot the body passes over, Perry and Burnfield). */
+  export const PUSH: number = 30;
 
   /** Sole clearance over the obstacle's top, metres (provisional; Patla and Rietdyk 1993). */
   export const MARGIN: number = 0.1;
@@ -191,76 +204,127 @@ export namespace stepOver {
       [trail]: [0.5 * duration, 0.82 * duration],
     } as Record<"left" | "right", [number, number]>;
 
-    // Lift each swing so the foot's sole clears the top by the margin over the
-    // whole span in which any part of the foot is above the obstacle, easing
-    // in before it and out after it on minimum-jerk ramps.
+    // Each swing takes the shortest path over what its sole must clear, the
+    // taut string over the obstacle (`AutoMovieMotionHumanClearance`): every
+    // sole point over the obstacle at least `MARGIN` above its top and every
+    // other one on or above the floor. The trail foot leaves from its ball,
+    // pitched as the pelvis left it, and levels by the time its toe reaches
+    // the near side; the lead foot lifts its toes by up to `TOE_UP` as its
+    // toe passes over the near side and is level again once its heel does,
+    // so the ankle need not rise as high as a level foot's.
     const top: number = obstacle.height + MARGIN;
-    const reachAt = (
+    const heeled = (
       side: "left" | "right",
-      point: "heel" | "toe",
-      z: number,
-    ): number => {
-      const at = (s: number): number =>
-        HumanFrame.local(
-          frame,
-          HumanFoot.point(
+      ankle: IAutoMovieVector3,
+      pitch: number,
+    ): HumanFoot.IPlacement =>
+      pitch === 0
+        ? flat(side, ankle)
+        : HumanFoot.pivot(
             body,
             side,
-            point,
-            flat(side, lerp(feet[side], end[side], minimumJerk(s).s)),
-          ),
-        ).z;
-      let lo: number = 0;
-      let hi: number = 1;
-      for (let i: number = 0; i < 40; i++) {
-        const mid: number = (lo + hi) / 2;
-        if (at(mid) < z) lo = mid;
-        else hi = mid;
-      }
-      return hi;
-    };
-    const spans: Record<"left" | "right", [number, number]> = {
-      left: [
-        reachAt("left", "toe", near - SPAN),
-        reachAt("left", "heel", far + SPAN),
-      ],
-      right: [
-        reachAt("right", "toe", near - SPAN),
-        reachAt("right", "heel", far + SPAN),
-      ],
-    };
-    const swing = (
+            "mtp",
+            HumanFoot.point(body, side, "mtp", flat(side, ankle)),
+            heading(side),
+            pitch,
+          );
+    const surface = (z: number): number => (z >= near && z <= far ? top : 0);
+    const sole = (
       side: "left" | "right",
-      s: number,
-    ): { placement: HumanFoot.IPlacement; lift: number } => {
-      const [s0, s1] = spans[side];
-      const w: number =
-        s < s0
-          ? minimumJerk(s / s0).s
-          : s > s1
-            ? 1 - minimumJerk((s - s1) / (1 - s1)).s
-            : 1;
-      const ankle: IAutoMovieVector3 = lerp(
-        feet[side],
-        end[side],
-        minimumJerk(s).s,
+      pitch: number,
+    ): AutoMovieMotionHumanClearance.IPoint[] =>
+      (["heel", "ball", "toe"] as const).map((point) => {
+        const at: IAutoMovieVector3 = HumanFrame.local(
+          frame,
+          HumanFoot.point(body, side, point, {
+            ankle: origin,
+            rotation: HumanFoot.rotation(heading(side), pitch),
+          }),
+        );
+        return { z: at.z, y: at.y };
+      });
+    const smooth = (x: number, a: number, b: number): number =>
+      b <= a
+        ? x >= b
+          ? 1
+          : 0
+        : minimumJerk(Math.min(1, Math.max(0, (x - a) / (b - a)))).s;
+    const pitches = (
+      side: "left" | "right",
+      start: number,
+      from: number,
+    ): ((z: number) => number) => {
+      const level: AutoMovieMotionHumanClearance.IPoint[] = sole(side, 0);
+      const toe: number = near - level[2]!.z;
+      const heel: number = near - level[0]!.z;
+      return (z: number): number =>
+        start * (1 - smooth(z, from, toe)) +
+        (side === lead
+          ? TOE_UP * (smooth(z, from, toe) - smooth(z, toe, heel))
+          : 0);
+    };
+    const path = (
+      side: "left" | "right",
+      start: number,
+    ): ((u: number) => HumanFoot.IPlacement) => {
+      const a: IAutoMovieVector3 = HumanFrame.local(
+        frame,
+        heeled(side, feet[side], start).ankle,
       );
-      return {
-        placement: flat(side, { ...ankle, y: m.ankleHeight + top * w }),
-        lift: top * w,
+      const pitch = pitches(side, start, a.z);
+      const b: IAutoMovieVector3 = HumanFrame.local(frame, end[side]);
+      const line = AutoMovieMotionHumanClearance.path(
+        { z: a.z, y: a.y },
+        { z: b.z, y: b.y },
+        (z: number): number =>
+          Math.max(...sole(side, pitch(z)).map((p) => surface(z + p.z) - p.y)),
+      );
+      return (u: number): HumanFoot.IPlacement => {
+        const at = line(minimumJerk(Math.min(1, Math.max(0, u))).s);
+        return {
+          ankle: HumanFrame.point(frame, {
+            x: a.x + ((b.x - a.x) * (at.z - a.z)) / Math.max(1e-9, b.z - a.z),
+            y: at.y,
+            z: at.z,
+          }),
+          rotation: HumanFoot.rotation(heading(side), pitch(at.z)),
+        };
       };
     };
+    const swings: Record<
+      "left" | "right",
+      (u: number) => HumanFoot.IPlacement
+    > = {
+      [lead]: path(lead, 0),
+      [trail]: path(trail, -PUSH),
+    } as Record<"left" | "right", (u: number) => HumanFoot.IPlacement>;
+    // The trail foot rises on its ball as the pelvis leaves it during the
+    // lead swing, the forefoot rocker of a stance foot the body passes over.
+    const rising = (t: number): number =>
+      smooth(
+        t,
+        windows[lead][0],
+        windows[lead][0] + 0.4 * (windows[lead][1] - windows[lead][0]),
+      );
     const footAt = (
       side: "left" | "right",
       t: number,
-    ): { placement: HumanFoot.IPlacement; planted: boolean; lift: number } => {
+    ): { placement: HumanFoot.IPlacement; planted: boolean } => {
       const [a, b] = windows[side];
       if (t <= a)
-        return { placement: flat(side, feet[side]), planted: true, lift: 0 };
-      if (t >= b)
-        return { placement: flat(side, end[side]), planted: true, lift: 0 };
-      return { ...swing(side, (t - a) / (b - a)), planted: false };
+        return {
+          placement:
+            side === trail
+              ? heeled(side, feet[side], -PUSH * rising(t))
+              : flat(side, feet[side]),
+          planted: true,
+        };
+      if (t >= b) return { placement: flat(side, end[side]), planted: true };
+      return { placement: swings[side]((t - a) / (b - a)), planted: false };
     };
+    // How far a sole socket at a frame-local place must stand above the floor.
+    const needed = (p: IAutoMovieVector3): number =>
+      surface(HumanFrame.local(frame, p).z);
 
     // The pelvis: from over the start to over the end, lowered where a planted leg needs it.
     const centre: IAutoMovieVector3 = HumanFrame.point(
@@ -277,13 +341,27 @@ export namespace stepOver {
       y: -0.005,
       z: (end.left.z + end.right.z) / 2 - centre.z,
     };
+    // The trail foot's heel rise lifts the pelvis as far as it lifts that
+    // ankle, so the trail leg stands as straight as at the start while the
+    // lead foot crosses, and the lift is shed as the trail foot swings.
+    const hike: number =
+      heeled(trail, feet[trail], -PUSH).ankle.y -
+      flat(trail, feet[trail]).ankle.y;
+    const hiked = (t: number): number =>
+      rising(t) *
+      (1 -
+        smooth(
+          t,
+          windows[trail][0],
+          (windows[trail][0] + windows[trail][1]) / 2,
+        ));
     const rootAt = (t: number): IAutoMovieVector3 => {
       const s: number =
-        0.5 * minimumJerk((t - 0.04 * duration) / (0.42 * duration)).s +
+        0.5 * minimumJerk((t - 0.12 * duration) / (0.38 * duration)).s +
         0.5 * minimumJerk((t - 0.7 * duration) / (0.28 * duration)).s;
       return {
         x: startRoot.x + (endMid.x - startRoot.x) * s,
-        y: startRoot.y + (endMid.y - startRoot.y) * s,
+        y: startRoot.y + (endMid.y - startRoot.y) * s + hike * hiked(t),
         z: startRoot.z + (endMid.z - startRoot.z) * s,
       };
     };
@@ -331,6 +409,7 @@ export namespace stepOver {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const root: IAutoMovieVector3 = rootAt(t);
         const limbs: IHumanPosture["limbs"] = {};
+        const toes: Record<"left" | "right", number> = { left: 0, right: 0 };
         for (const side of ["left", "right"] as const) {
           const f = footAt(side, t);
           const knee: IAutoMovieVector3 = HumanFrame.point(
@@ -340,6 +419,8 @@ export namespace stepOver {
               z: body.rest.get(`${side}LowerLeg`)!.z + 1,
             },
           );
+          // A foot on its ball extends its toes so they stay on the floor.
+          toes[side] = Math.max(0, -HumanFoot.pitch(f.placement.rotation));
           limbs[side === "left" ? "leftLeg" : "rightLeg"] = {
             point: f.placement.ankle,
             bend: knee,
@@ -364,53 +445,82 @@ export namespace stepOver {
               yaw,
               pitch: 0,
               roll: 0,
-              joints: { ...stand.RELAXED, ...inclined.joints },
+              joints: {
+                ...stand.RELAXED,
+                ...inclined.joints,
+                leftToes: [toes.left, 0, 0],
+                rightToes: [toes.right, 0, 0],
+              },
               limbs,
             },
             { pitch: inclined.pitch, roll: 0 },
           ),
         );
+        // A swinging foot's leg reaches for its landing over the second half
+        // of its swing, so the pelvis has come down to where that leg stands
+        // when it lands rather than dropping at the contact.
+        const hips: Record<"left" | "right", IAutoMovieVector3> = hipJoints(
+          body,
+          posture.root,
+          resolveHumanPosture.heading(posture),
+          posture.joints.hips,
+        );
+        let landing: number = 0;
+        for (const side of ["left", "right"] as const) {
+          const [a, b] = windows[side];
+          if (t <= a || t >= b) continue;
+          landing = Math.max(
+            landing,
+            smooth(t, (a + b) / 2, b) *
+              resolveHumanPosture.short(body, hips[side], end[side], 5),
+          );
+        }
+        if (landing > 0)
+          posture = {
+            ...posture,
+            root: { ...posture.root, y: posture.root.y - landing },
+          };
 
-        // A swinging foot whose ankle cannot dorsiflex enough to stay level
-        // droops its toes, and raising its ankle folds the knee and droops them
-        // further, so each lifted ankle rises by secant steps on its lowest sole
-        // point's height (the step scaled by the last round's ankle-to-sole
-        // ratio, 1 to 4) until that point is within 2 mm of the planned lift,
-        // in at most six rounds, so the clearance holds on the sole itself.
+        // A swinging foot whose ankle cannot take the planned pitch droops its
+        // toes, and raising its ankle folds the knee and droops them further,
+        // so each swinging ankle rises by secant steps on its sole's deficit,
+        // the most any sole socket stands under what it must clear there (the
+        // step scaled by the last round's ankle-to-deficit ratio, 1 to 4),
+        // until no socket is more than 2 mm under, in at most six rounds, so
+        // the clearance holds on the sole itself.
         const lifted = (["left", "right"] as const).filter(
-          (side) => footAt(side, t).lift > 0,
+          (side) => !footAt(side, t).planted,
         );
         const last: Partial<
-          Record<"left" | "right", { ankle: number; lowest: number }>
+          Record<"left" | "right", { ankle: number; short: number }>
         > = {};
         for (let round: number = 0; round < 6 && lifted.length > 0; round++) {
           const bones = poseBones(body, resolveHumanPosture(body, posture));
           const next: IHumanPosture["limbs"] = { ...posture.limbs };
           let moved: boolean = false;
           for (const side of lifted) {
-            const lowest: number = Math.min(
+            const short: number = Math.max(
               ...HumanFoot.sockets(body, bones, side).map(
-                (s: HumanFoot.ISocket): number => s.point.y,
+                (s: HumanFoot.ISocket): number => needed(s.point) - s.point.y,
               ),
             );
-            const short: number = footAt(side, t).lift - lowest;
             if (short <= 0.002) continue;
             const limb: "leftLeg" | "rightLeg" =
               side === "left" ? "leftLeg" : "rightLeg";
             const goal = next[limb]!;
             const previous = last[side];
             const ratio: number =
-              previous === undefined
+              previous === undefined || previous.short - short < 1e-3
                 ? 1
                 : Math.min(
                     4,
                     Math.max(
                       1,
                       (goal.point.y - previous.ankle) /
-                        Math.max(1e-4, lowest - previous.lowest),
+                        Math.max(1e-4, previous.short - short),
                     ),
                   );
-            last[side] = { ankle: goal.point.y, lowest };
+            last[side] = { ankle: goal.point.y, short };
             next[limb] = {
               ...goal,
               point: { ...goal.point, y: goal.point.y + short * ratio },
@@ -424,17 +534,4 @@ export namespace stepOver {
       },
     };
   }
-}
-
-/** A point a share of the way from one point to another. */
-function lerp(
-  a: IAutoMovieVector3,
-  b: IAutoMovieVector3,
-  s: number,
-): IAutoMovieVector3 {
-  return {
-    x: a.x + (b.x - a.x) * s,
-    y: a.y + (b.y - a.y) * s,
-    z: a.z + (b.z - a.z) * s,
-  };
 }

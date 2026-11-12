@@ -1,6 +1,6 @@
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { motionHumanSignature as M } from "../internal/motionHumanSignature";
+import { motionComplaints } from "../../features/internal/motionComplaints";
+import { motionHumanBody } from "../../features/internal/motionHumanBody";
+import { motionHumanSignature as M } from "../../features/internal/motionHumanSignature";
 
 /**
  * A walk looks like human walking: its kinematic signature, read on the

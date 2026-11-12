@@ -1,6 +1,6 @@
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { motionHumanSignature as M } from "../internal/motionHumanSignature";
+import { motionComplaints } from "../../features/internal/motionComplaints";
+import { motionHumanBody } from "../../features/internal/motionHumanBody";
+import { motionHumanSignature as M } from "../../features/internal/motionHumanSignature";
 
 /**
  * Rising from a chair looks like a human sit-to-stand, on the four extreme

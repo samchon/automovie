@@ -35,70 +35,66 @@ import { motionHumanSignature as M } from "../internal/motionHumanSignature";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs the real kneel on real bodies and reads displayed joints and soles; a knee hovering above the floor, a thigh tipped forward, a front shin slanted or a heel sit not folded fails with its cell, value, bound and source.
  * @evidence contracts/development/testing.md#independent-expectations The postures are the standard kneeling postures; every numeric bound is marked provisional with its reason.
- * @evidence contracts/development/testing.md#distinguishing-cases Three kinds and both kneeling knees on four bodies.
+ * @evidence contracts/development/testing.md#distinguishing-cases Three kinds and both kneeling knees, each row on one body and every body in some row (`motionHumanSignature.cells`).
  * @evidence contracts/development/testing.md#execution-ownership In memory; named `test_human_` because a film of fitted poses is costly, so the CI test job leaves it to local runs.
  * @evidence contracts/development/common.md#meaningful-documentation States every posture and bound with its status.
  */
 export function test_human_motion_signature_kneel(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
-  for (const name of motionHumanBody.EXTREMES)
-    for (const row of [
-      "default",
-      "kind=one",
-      "kind=both",
-      "kind=sitBack",
-      "knee=left",
-      "knee=right",
-    ]) {
-      const cell: string = `kneel ${row} ${name}`;
-      const kind: string = row.startsWith("kind=") ? row.slice(5) : "one";
-      const s: M.IStaged = M.stage("kneel", row, name);
-      const t: number =
-        ((M.event(s, "settled") ?? 0) +
-          (M.event(s, "kneeOff") ?? s.film.duration)) /
-        2;
-      const height = (side: "left" | "right"): number =>
-        M.joint(s, t, `${side}LowerLeg`).y;
-      const down: "left" | "right" =
-        height("left") < height("right") ? "left" : "right";
-      const up: "left" | "right" = down === "left" ? "right" : "left";
-      const kneeling: ("left" | "right")[] =
-        kind === "one" ? [down] : [down, up];
-      for (const side of kneeling) {
-        complaints.check(
-          `${cell}: the ${side} knee joint stands ${(height(side) * 1000).toFixed(0)} mm off the floor, within 80 expected (provisional)`,
-          height(side) <= 0.08,
-        );
-        if (kind === "sitBack")
-          complaints.check(
-            `${cell}: the ${side} knee is folded ${M.knee(s, t, side).toFixed(1)} deg sitting back, at least 130 expected (provisional)`,
-            M.knee(s, t, side) >= 130,
-          );
-        else {
-          complaints.check(
-            `${cell}: the kneeling ${side} hip is flexed ${M.hip(s, t, side).toFixed(1)} deg, at most 30 expected (provisional)`,
-            M.hip(s, t, side) <= 30,
-          );
-          if (kind === "both")
-            complaints.check(
-              `${cell}: the ${side} knee is flexed ${M.knee(s, t, side).toFixed(1)} deg, [70, 110] expected (provisional)`,
-              M.knee(s, t, side) >= 70 && M.knee(s, t, side) <= 110,
-            );
-        }
-      }
-      if (kind === "one")
-        complaints.check(
-          `${cell}: the front (${up}) knee is flexed ${M.knee(s, t, up).toFixed(1)} deg with its foot ${M.bears(s, t, up) ? "down" : "up"}, [70, 110] and down expected (provisional)`,
-          M.knee(s, t, up) >= 70 &&
-            M.knee(s, t, up) <= 110 &&
-            M.bears(s, t, up),
-        );
-      const lean: number = M.trunk(s, t);
+  for (const { row, name } of M.cells([
+    "default",
+    "kind=one",
+    "kind=both",
+    "kind=sitBack",
+    "knee=left",
+    "knee=right",
+  ])) {
+    const cell: string = `kneel ${row} ${name}`;
+    const kind: string = row.startsWith("kind=") ? row.slice(5) : "one";
+    const s: M.IStaged = M.stage("kneel", row, name);
+    const t: number =
+      ((M.event(s, "settled") ?? 0) +
+        (M.event(s, "kneeOff") ?? s.film.duration)) /
+      2;
+    const height = (side: "left" | "right"): number =>
+      M.joint(s, t, `${side}LowerLeg`).y;
+    const down: "left" | "right" =
+      height("left") < height("right") ? "left" : "right";
+    const up: "left" | "right" = down === "left" ? "right" : "left";
+    const kneeling: ("left" | "right")[] = kind === "one" ? [down] : [down, up];
+    for (const side of kneeling) {
       complaints.check(
-        `${cell}: trunk inclination ${lean.toFixed(1)} deg while kneeling, [-10, 15] expected (provisional)`,
-        lean >= -10 && lean <= 15,
+        `${cell}: the ${side} knee joint stands ${(height(side) * 1000).toFixed(0)} mm off the floor, within 80 expected (provisional)`,
+        height(side) <= 0.08,
       );
+      if (kind === "sitBack")
+        complaints.check(
+          `${cell}: the ${side} knee is folded ${M.knee(s, t, side).toFixed(1)} deg sitting back, at least 130 expected (provisional)`,
+          M.knee(s, t, side) >= 130,
+        );
+      else {
+        complaints.check(
+          `${cell}: the kneeling ${side} hip is flexed ${M.hip(s, t, side).toFixed(1)} deg, at most 30 expected (provisional)`,
+          M.hip(s, t, side) <= 30,
+        );
+        if (kind === "both")
+          complaints.check(
+            `${cell}: the ${side} knee is flexed ${M.knee(s, t, side).toFixed(1)} deg, [70, 110] expected (provisional)`,
+            M.knee(s, t, side) >= 70 && M.knee(s, t, side) <= 110,
+          );
+      }
     }
+    if (kind === "one")
+      complaints.check(
+        `${cell}: the front (${up}) knee is flexed ${M.knee(s, t, up).toFixed(1)} deg with its foot ${M.bears(s, t, up) ? "down" : "up"}, [70, 110] and down expected (provisional)`,
+        M.knee(s, t, up) >= 70 && M.knee(s, t, up) <= 110 && M.bears(s, t, up),
+      );
+    const lean: number = M.trunk(s, t);
+    complaints.check(
+      `${cell}: trunk inclination ${lean.toFixed(1)} deg while kneeling, [-10, 15] expected (provisional)`,
+      lean >= -10 && lean <= 15,
+    );
+  }
   for (const name of motionHumanBody.EXTREMES)
     for (const c of M.calibrate(name)) complaints.check(c, false);
   complaints.assert("the kneel has the signature of human kneeling");

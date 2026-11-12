@@ -1650,6 +1650,11 @@
     },
     {
       "layer": "posture",
+      "symbol": "HumanArmClearance.swung",
+      "tests": []
+    },
+    {
+      "layer": "posture",
       "symbol": "HumanColliders.distance",
       "tests": [
         "test_human_motion_posture_arm_clearance"

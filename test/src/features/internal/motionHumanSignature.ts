@@ -11,6 +11,7 @@ import type {
 import { HumanColliders, HumanFoot, type IHumanBody } from "@automovie/motions";
 
 import { MOTION_HUMAN_LAW_STAGES } from "./MOTION_HUMAN_LAW_STAGES";
+import { motionCoveringArray } from "./motionCoveringArray";
 import { motionHumanBody } from "./motionHumanBody";
 import { motionHumanLaw } from "./motionHumanLaw";
 import type { motionHumanLawSweep } from "./motionHumanLawSweep";
@@ -94,6 +95,34 @@ export namespace motionHumanSignature {
       body: scene.people[0]!.body,
       yaw: scene.people[0]!.yaw,
     };
+  }
+
+  /** A row of a law performed on one body. */
+  export interface ICell {
+    /** `default` or `param=value`. */
+    row: string;
+
+    /** The body of `a`. */
+    name: motionHumanBody.Name;
+  }
+
+  /**
+   * The cells that cover every row and every extreme body at least once: the
+   * strength-1 covering array of the two factors. Rows that only vary one
+   * parameter from the default carry no interaction with the body's shape
+   * beyond what one body per row and every body in some row already reach
+   * (Kuhn, Kacker and Lei 2010), so the test's cost grows with the larger of
+   * the two counts, not their product. A bound that compares rows of one
+   * body stages those rows on every body itself.
+   *
+   * @param rows The rows.
+   * @returns The cells, rows in order, each body at least once.
+   */
+  export function cells(rows: readonly string[]): ICell[] {
+    return motionCoveringArray(
+      { row: rows, name: motionHumanBody.EXTREMES },
+      1,
+    ).map((c) => ({ row: c.row!, name: c.name as motionHumanBody.Name }));
   }
 
   /** The bones of `a` at a second. */
@@ -317,6 +346,15 @@ export namespace motionHumanSignature {
 
   /** The horizontal speed below which a low sole counts as bearing, metres per second (provisional: a fifth of a slow walk's speed). */
   export const SLIDE: number = 0.2;
+
+  /**
+   * Samples a second for a mean or an extreme over a held posture or a whole
+   * act: a body settles or moves its trunk over tenths of a second, so ten a
+   * second reads it within the bounds' resolution at a third of a 30 Hz
+   * film's frames. Swing clearances and contact events keep their own finer
+   * rates.
+   */
+  export const HELD: number = 10;
 
   /** Instants from `from` to `to` at a rate. */
   export function times(from: number, to: number, rate: number = 60): number[] {
