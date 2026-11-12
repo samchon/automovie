@@ -106,6 +106,12 @@ export function composeAutoMovieMotionHumanAction(
     duration,
     events: props.clock.events(),
     contacts,
+    channels: AutoMovieMotionHumanChannel.ORDER.filter(
+      (c: AutoMovieMotionHumanChannel): boolean =>
+        primitives.some((p: IAutoMovieMotionHumanPrimitive): boolean =>
+          p.channels.includes(c),
+        ),
+    ),
     ...(props.contact === undefined
       ? {}
       : { contact: props.clock.at(props.contact) }),

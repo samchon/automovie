@@ -1,4 +1,5 @@
 import type { HumanActionName } from "../HumanActionName";
+import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import type { IHumanActionContext } from "./IHumanActionContext";
 import type { IHumanActionPlan } from "./IHumanActionPlan";
 import type { IHumanInterruptRow } from "./IHumanInterruptRow";
@@ -39,6 +40,20 @@ export interface IHumanActionLaw<P = object> {
   accepts?: Partial<
     Record<HumanActionName | "any", readonly IHumanInterruptRow[]>
   >;
+
+  /**
+   * The channels this action lets an overlay take while it carries the body:
+   * a walk yields its arms, its hands and its head, so a wave or a phone can
+   * be performed during it. None when absent.
+   */
+  yields?: readonly AutoMovieMotionHumanChannel[];
+
+  /**
+   * Whether the action can be performed over a carrier (`HumanChain.over`):
+   * it plans on the carrier's posture and claims only the channels its plan
+   * names. An action that moves the whole body cannot.
+   */
+  overlay?: boolean;
 
   /**
    * Plan one instance of the action.

@@ -23,6 +23,7 @@ import type { HumanActionName } from "../HumanActionName";
 import { HUMAN_ACTIONS } from "../actions/HUMAN_ACTIONS";
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
+import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -100,6 +101,9 @@ export class HumanPerformance {
     { subject: string; meeting: AutoMovieMotionMeeting.IMeeting }
   > = new Map();
 
+  /** The schedule entries that are overlays, by walk-order index: they ride a carrier and never follow or precede one. */
+  private readonly riding: Set<number> = new Set();
+
   private resolving: boolean = true;
 
   /**
@@ -141,6 +145,7 @@ export class HumanPerformance {
         performer,
         skill,
         segments: [],
+        overlays: [],
         initial,
         cache: new Map(),
         resolving: true,
@@ -222,9 +227,9 @@ export class HumanPerformance {
     this.resolving = false;
     for (const entry of this.schedule.entries) {
       const person: HumanSegment.IPerson = this.person(entry.subject);
-      const segment: HumanSegment.ISegment | undefined = person.segments.find(
-        (s: HumanSegment.ISegment): boolean => s.entry === entry.index,
-      );
+      const segment: HumanSegment.ISegment | undefined = (
+        this.riding.has(entry.index) ? person.overlays : person.segments
+      ).find((s: HumanSegment.ISegment): boolean => s.entry === entry.index);
       if (segment !== undefined) segment.end = entry.end;
     }
     this.duration = this.schedule.duration;
@@ -357,6 +362,17 @@ export class HumanPerformance {
    */
   public segments(subject: string): readonly HumanSegment.ISegment[] {
     return this.person(subject).segments;
+  }
+
+  /**
+   * The actions a person performs over their placed actions, in placement
+   * order: each rides a carrier and takes only its claimed channels.
+   *
+   * @param subject The person.
+   * @returns The overlays.
+   */
+  public overlays(subject: string): readonly HumanSegment.IOverlay[] {
+    return this.person(subject).overlays;
   }
 
   /**
@@ -503,28 +519,65 @@ export class HumanPerformance {
       Object.entries(params).find(
         ([, value]: [string, unknown]): boolean => value === id,
       )?.[0] ?? otherwise;
-    const previous: HumanSegment.ISegment | undefined = person.segments.at(-1);
+
+    // An overlay rides the action that carries the body at its start; any
+    // other action follows the person's last one.
+    const over: boolean = intent.parameters?.over === true;
+    if (over && law.overlay !== true)
+      throw new HumanRefusal({
+        kind: "channel",
+        axis: "over",
+        value: name,
+        feasible: {
+          kind: "alternatives",
+          values: Object.keys(HUMAN_ACTIONS).filter(
+            (n: string): boolean =>
+              HUMAN_ACTIONS[n as HumanActionName].overlay === true,
+          ),
+        },
+        reason: `${name} moves the whole body, so it cannot be performed over another action`,
+        fix: `perform ${name} as an action of its own, or put one of the listed actions over the carrier`,
+      });
+    const previous: HumanSegment.ISegment | undefined = over
+      ? [...person.segments]
+          .reverse()
+          .find(
+            (s: HumanSegment.ISegment): boolean => s.entryTime <= start + 1e-9,
+          )
+      : person.segments.at(-1);
+    if (over && previous === undefined)
+      throw new HumanRefusal({
+        kind: "base",
+        axis: "over",
+        value: name,
+        reason: `${name} is performed over an action, and ${intent.subject} performs none at ${start.toFixed(2)} s`,
+        fix: "append the action that carries the body first, then put this one over it",
+      });
     const before: IAutoMovieSchedule.IEntry | undefined = [...entries]
       .reverse()
       .find(
-        (e: IAutoMovieSchedule.IEntry): boolean => e.subject === intent.subject,
+        (e: IAutoMovieSchedule.IEntry): boolean =>
+          e.subject === intent.subject && !this.riding.has(e.index),
       );
-    if (previous !== undefined && before !== undefined)
+    if (!over && previous !== undefined && before !== undefined)
       previous.end = before.end;
-    const row = HumanSegment.row(
-      intent.subject,
-      previous,
-      before,
-      name,
-      start,
-      law.accepts,
-    );
+    const row = over
+      ? undefined
+      : HumanSegment.row(
+          intent.subject,
+          previous,
+          before,
+          name,
+          start,
+          law.accepts,
+        );
     const entry = HumanSegment.entry(person, previous, start);
-    const instance: number = person.segments.filter(
+    const instance: number = [...person.segments, ...person.overlays].filter(
       (s: HumanSegment.ISegment): boolean => s.id === (intent.anchor ?? name),
     ).length;
     const body = person.performer.body;
     const range: number = 0.9 * (body.measure.thigh + body.measure.shank);
+    const carried: Map<number, IHumanPosture> = new Map();
     const context: IHumanActionContext<never> = {
       subject: intent.subject,
       body,
@@ -532,6 +585,30 @@ export class HumanPerformance {
       skill: person.skill,
       entry,
       start,
+      ...(over && previous !== undefined
+        ? {
+            carrier: {
+              name: previous.name,
+              posture: (seconds: number): IHumanPosture => {
+                // The overlay's primitives and the display each ask for the
+                // carrier at the same few instants, and a gait's posture is
+                // costly, so the latest ones are kept.
+                const at: number = Math.min(
+                  previous.plan.duration,
+                  Math.max(0, start + seconds - previous.start),
+                );
+                let posture: IHumanPosture | undefined = carried.get(at);
+                if (posture === undefined) {
+                  posture = previous.plan.posture(at);
+                  if (carried.size >= 64)
+                    carried.delete(carried.keys().next().value!);
+                  carried.set(at, posture);
+                }
+                return posture;
+              },
+            },
+          }
+        : {}),
       aim: (target: AutoMovieMotionTarget, seconds: number) =>
         this.aim(target, seconds, {
           root: entry.posture.root,
@@ -676,6 +753,69 @@ export class HumanPerformance {
         throw error instanceof HumanRefusal ? error.locate(where) : error;
       }
     };
+    if (over && previous !== undefined) {
+      // The overlay takes what its plan claims, which the carrier must yield
+      // and no other overlay of the same span may hold.
+      const channels: readonly AutoMovieMotionHumanChannel[] =
+        plan.channels ?? [];
+      const yielded: readonly AutoMovieMotionHumanChannel[] =
+        previous.law.yields ?? [];
+      const kept: AutoMovieMotionHumanChannel[] = channels.filter(
+        (c: AutoMovieMotionHumanChannel): boolean => !yielded.includes(c),
+      );
+      if (kept.length !== 0)
+        throw new HumanRefusal({
+          kind: "channel",
+          axis: "over",
+          value: kept,
+          feasible: { kind: "alternatives", values: [...yielded] },
+          reason: `${name} claims ${channels.join(", ")}, and ${previous.name} keeps ${kept.join(", ")} for itself (it yields ${yielded.join(", ") || "nothing"})`,
+          fix: `perform ${name} over an action that yields those channels, or as an action of its own`,
+        });
+      const end: number = start + plan.duration;
+      for (const other of person.overlays) {
+        if (!(other.end > start + 1e-9 && other.entryTime < end - 1e-9))
+          continue;
+        const shared: AutoMovieMotionHumanChannel[] = channels.filter(
+          (c: AutoMovieMotionHumanChannel): boolean =>
+            other.channels.includes(c),
+        );
+        if (shared.length !== 0)
+          throw new HumanRefusal({
+            kind: "channel",
+            axis: "over",
+            value: shared,
+            reason: `${name} claims ${channels.join(", ")} while ${other.name} (${other.id}) claims ${other.channels.join(", ")}: both take ${shared.join(", ")} from ${start.toFixed(2)} s`,
+            fix: `give one of them the other hand, or let ${other.name} end first (put ${name} after it in the same overlay)`,
+          });
+      }
+      const overlay: HumanSegment.IOverlay = {
+        index: person.overlays.length,
+        entry: entries.length,
+        id: intent.anchor ?? name,
+        name,
+        params,
+        law,
+        context,
+        plan,
+        start,
+        entryTime: start,
+        end,
+        channels,
+      };
+      this.riding.add(entries.length);
+      person.overlays.push(overlay);
+      if (intent.anchor !== undefined)
+        this.anchors.set(
+          intent.anchor,
+          Object.assign(overlay, { subject: intent.subject }),
+        );
+      return {
+        duration: plan.duration,
+        ...(plan.contact === undefined ? {} : { contact: plan.contact }),
+        events: plan.events.map((e) => ({ name: e.name, share: e.share })),
+      };
+    }
     const active: number = (1 - share) * plan.duration;
     const segment: HumanSegment.ISegment = {
       index: person.segments.length,
@@ -769,6 +909,9 @@ export class HumanPerformance {
     const until = intent.until;
     if (until === undefined || !("proximity" in until)) return undefined;
     const person: HumanSegment.IPerson = this.person(intent.subject);
+
+    // A proximity cut reads the carrier's reach; an overlay's is not found.
+    if (intent.parameters?.over === true) return undefined;
     const segment: HumanSegment.ISegment = person.segments.at(-1)!;
     const frame =
       person.performer.body.surfaces.regions[until.proximity.effector];
@@ -1136,9 +1279,10 @@ export class HumanPerformance {
       performer: intent.subject,
       act: intent.capability,
       instance:
-        (this.people.get(intent.subject)?.segments ?? []).filter(
-          (s: HumanSegment.ISegment): boolean => s.id === id,
-        ).length + 1,
+        [
+          ...(this.people.get(intent.subject)?.segments ?? []),
+          ...(this.people.get(intent.subject)?.overlays ?? []),
+        ].filter((s: HumanSegment.ISegment): boolean => s.id === id).length + 1,
     };
   }
 

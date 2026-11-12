@@ -5,6 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { IHumanContactWindow } from "./IHumanContactWindow";
 
@@ -27,6 +28,13 @@ export interface IHumanActionPlan {
 
   /** Contact windows, shares of the duration. */
   contacts: IHumanContactWindow[];
+
+  /**
+   * The channels the plan's own movements write, when it is composed of part
+   * primitives over a base: what an overlay takes from its carrier. Absent
+   * for a plan that writes the whole body.
+   */
+  channels?: readonly AutoMovieMotionHumanChannel[];
 
   /** Seconds from the start to the decisive instant (an impact, a landing, a grip), when the action has one. */
   contact?: number;

@@ -12,6 +12,7 @@ import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import type { IHumanProp } from "../perform/IHumanProp";
+import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { HumanSkill } from "../skill/HumanSkill";
 import type { IHumanActionPlan } from "./IHumanActionPlan";
 import type { IHumanEntryState } from "./IHumanEntryState";
@@ -47,6 +48,15 @@ export interface IHumanActionContext<P = object> {
 
   /** Film second of the action's time zero. */
   start: number;
+
+  /**
+   * The action this one is performed over, when it is an overlay: a wave
+   * during a walk. The carrier keeps the root and the legs and whatever else
+   * it does not yield; this action writes only the channels it claims, on
+   * the carrier's posture of the same instant. Absent for an action that
+   * carries the body itself.
+   */
+  carrier?: IHumanActionContext.ICarrier;
 
   /**
    * A target's world point and outward unit normal at a film second.
@@ -154,6 +164,20 @@ export namespace IHumanActionContext {
      * @returns Resolved bones by rig bone.
      */
     bones(seconds: number): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+  }
+
+  /** The action an overlay is performed over. */
+  export interface ICarrier {
+    /** Its name. */
+    name: HumanActionName;
+
+    /**
+     * Its posture under the overlay.
+     *
+     * @param seconds Seconds of the overlay's own clock.
+     * @returns The carrier's posture at that instant; its last posture once it has ended.
+     */
+    posture(seconds: number): IHumanPosture;
   }
 
   /** A prop and its displayed frame. */

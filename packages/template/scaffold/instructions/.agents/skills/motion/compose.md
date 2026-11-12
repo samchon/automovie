@@ -25,6 +25,7 @@ The vocabulary joins acts in a small number of ways, and a beat rarely needs ano
 | --- | --- |
 | One act, then the next | A sequence |
 | An act ends early, at a moment or when something comes near | A cut on that act, inside a window the act declares |
+| One person does two things at once, such as reading while walking | An overlay: the act that moves the body carries, and the other is put over it on the parts the carrier yields |
 | Two people act at the same time | Their compositions in parallel |
 | Two people perform one act together, such as a handshake or handing an object over | The vocabulary's mutual join, which plans both roles from one meeting |
 | An act answers another person's act | An anchor on the answered act, named by the answering one |

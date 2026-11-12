@@ -30,6 +30,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { handToFaceRows } from "./handToFaceRows";
 
 /**
@@ -80,6 +81,9 @@ export namespace handToFace {
       walk: ["fromRelax", "smooth"],
       flinch: ["anytime", "reflex"],
     });
+
+  /** A hand-to-face task may be performed over a carrier: it claims the acting arms, their hands and the head. */
+  export const overlay: boolean = true;
 
   /** The tasks. */
   export type Task = handToFaceRows.Task;
@@ -248,7 +252,12 @@ export namespace handToFace {
               { kind: "self", region: name } satisfies AutoMovieMotionTarget,
               context.start + seconds,
               posture,
-              bones,
+
+              // Over a carrier the face travels with the body, so the region
+              // is read on the bones the posture of that instant gives.
+              context.carrier === undefined
+                ? bones
+                : poseBones(body, resolveHumanPosture(body, posture)),
             );
 
     // The transport's length: the farther hand's distance to its place.
@@ -373,9 +382,9 @@ export namespace handToFace {
       );
     }
     return composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.still(
+      base: AutoMovieMotionHumanBase.under(
+        context,
         clock.duration,
-        entry,
         AutoMovieMotionHumanBase.plants(),
       ),
       clock,

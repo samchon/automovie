@@ -87,6 +87,74 @@ export class HumanChainCore extends AutoMovieChain {
   }
 
   /**
+   * Perform other actions over the last appended one, at the same time and
+   * on other parts of the body: a wave or a phone during a walk.
+   *
+   * The last action carries the body (its root, its legs and whatever it
+   * does not yield); the actions `build` appends to the empty chain it is
+   * given start with it, follow one another, and each takes only the
+   * channels it claims. The performance refuses an action that cannot ride
+   * a carrier, a carrier that does not yield the channels asked, and two
+   * overlays that claim one channel at one time, naming both claims.
+   *
+   * ```ts
+   * a.walk({ to }).over((u) => u.handToFace({ task: "phone" }));
+   * ```
+   *
+   * @param build Appends the overlaid actions to an empty chain of this person.
+   * @returns The chain.
+   * @throws {Error} When the chain ends in no action.
+   */
+  public over(build: (overlay: this) => HumanChainCore): this {
+    const parts: readonly AutoMovieComposition[] =
+      this.node.kind === "sequence" ? this.node.parts : [this.node];
+    const last: AutoMovieComposition | undefined = parts.at(-1);
+    const carried: boolean =
+      last !== undefined &&
+      last.kind === "parallel" &&
+      last.parts[0]?.kind === "intent" &&
+      last.parts[0].intent.subject === this.subject;
+    if (last === undefined || !(last.kind === "intent" || carried))
+      throw new Error("over rides an action; append one first");
+
+    // Every intent of the overlaid chain is marked, so the performance plans
+    // it on the carrier instead of after it.
+    const mark = (node: AutoMovieComposition): AutoMovieComposition => {
+      switch (node.kind) {
+        case "intent":
+          return {
+            kind: "intent",
+            intent: {
+              ...node.intent,
+              parameters: { ...node.intent.parameters, over: true },
+            },
+          };
+        case "sequence":
+        case "parallel":
+          return { kind: node.kind, parts: node.parts.map(mark) };
+        case "at":
+          return { ...node, part: mark(node.part) };
+      }
+    };
+    const overlay: AutoMovieComposition = mark(
+      build(this.derive({ kind: "sequence", parts: [] })).node,
+    );
+    return this.derive({
+      kind: "sequence",
+      parts: [
+        ...parts.slice(0, -1),
+        {
+          kind: "parallel",
+          parts:
+            last.kind === "parallel"
+              ? [...last.parts, overlay]
+              : [last, overlay],
+        },
+      ],
+    });
+  }
+
+  /**
    * A new chain of the same person and class holding another node.
    *
    * @param node The node.

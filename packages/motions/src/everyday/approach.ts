@@ -69,6 +69,9 @@ export namespace approach {
   /** Cancel table: an approach is a walk and is cut as one. */
   export const interrupts: IHumanActionLaw["interrupts"] = walk.interrupts;
 
+  /** What it yields to an overlay: the walk's own. */
+  export const yields: IHumanActionLaw["yields"] = walk.yields;
+
   /**
    * Parameters of an approach: what to walk up to, the gap to stop at, the
    * side to stop on, the pace, the movement quality and the people to walk

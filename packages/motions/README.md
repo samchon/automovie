@@ -46,9 +46,12 @@ To see that pose, draw `prepared` as a polygon man; the [Human README](../human/
 | Perform one action after another | `chain.sit({ seat }).rise()` |
 | Name the action as data | `chain.act("sit", { seat })`, typed by the name |
 | Interrupt the last action | `chain.walk({ to }).until({ share: 0.5 }).stand()` |
+| Do two things at once with one body | `chain.walk({ to }).over((u) => u.handToFace({ task: "read" }))` |
 | Run two people at once | `a.with(b)` |
 | Join two people in a mutual action | `HumanChain.pair(a, b).handshake()` |
 | Let another chain align to an action | Pass an anchor id as the last argument, `chain.punch(params, "jab")` |
+
+With `over`, the last action carries the body and the actions put over it take only the parts they move: a walk keeps the pelvis and the legs and yields its arms, hands and head. An action's `overlay` and `yields` in `HUMAN_ACTIONS` say which actions can ride a carrier and what a carrier gives up. Two overlays that need one hand at one time are refused, naming both.
 
 What an action is directed at is an `AutoMovieMotionTarget`: a region of another person, a region of the performer's own body, a named point of a prop, a point in the world, or none.
 

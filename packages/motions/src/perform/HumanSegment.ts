@@ -6,6 +6,7 @@ import {
   Vector3,
   clampPose,
   inertializePose,
+  minimumJerk,
   samplePoseVelocity,
 } from "@automovie/engine";
 import type {
@@ -16,6 +17,7 @@ import type {
 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
+import { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
@@ -25,6 +27,7 @@ import type { IHumanEntryState } from "../law/IHumanEntryState";
 import type { IHumanInterruptRow } from "../law/IHumanInterruptRow";
 import type { IHumanLayer } from "../law/IHumanLayer";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { humanRig } from "../posture/humanRig";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -60,6 +63,9 @@ export namespace HumanSegment {
 
     /** Placed actions, in film order. */
     segments: ISegment[];
+
+    /** Actions placed over those, in placement order: each takes its claimed channels from the carrier while it runs. */
+    overlays: IOverlay[];
 
     /** The standing posture before the first action. */
     initial: IHumanPosture;
@@ -207,6 +213,15 @@ export namespace HumanSegment {
       offset?: (elapsed: number, pose: IAutoMoviePose) => IAutoMoviePose;
     };
   }
+
+  /** One action placed over a carrier. */
+  export interface IOverlay extends ISegment {
+    /** The channels it takes from the carrier. */
+    channels: readonly AutoMovieMotionHumanChannel[];
+  }
+
+  /** How long an overlay takes to come in over its carrier and to give its channels back, seconds (provisional, the voluntary blend of a cancel row doubled so both ends fit a short gesture). */
+  export const FADE: number = 0.2;
 
   /**
    * The interrupt row that legalises entering an action at a second, or
@@ -494,6 +509,83 @@ export namespace HumanSegment {
   }
 
   /**
+   * A carrier's posture resolved with every overlay active at a second
+   * written over it: each overlay's claimed channels come from its own plan,
+   * which was composed on this carrier, and an overlay coming in or going
+   * out is blended joint by joint against the body without it over `FADE`,
+   * so neither end steps.
+   *
+   * @param person The person.
+   * @param posture The carrier's posture at the second, layers applied.
+   * @param seconds Film seconds.
+   * @returns The pose.
+   */
+  export function overlaid(
+    person: IPerson,
+    posture: IHumanPosture,
+    seconds: number,
+  ): IAutoMoviePose {
+    const body = person.performer.body;
+    const active: IOverlay[] = person.overlays.filter(
+      (o: IOverlay): boolean =>
+        seconds >= o.entryTime - 1e-12 && seconds <= o.end + 1e-12,
+    );
+    const build = (k: number, under: IHumanPosture): IAutoMoviePose => {
+      const overlay: IOverlay | undefined = active[k];
+      if (overlay === undefined) return resolveHumanPosture(body, under);
+      const written: IHumanPosture = AutoMovieMotionHumanChannel.merge(
+        under,
+        overlay.plan.posture(
+          Math.min(overlay.plan.duration, Math.max(0, seconds - overlay.start)),
+        ),
+        overlay.channels,
+      );
+      const weight: number = Math.min(
+        minimumJerk(
+          Math.min(1, Math.max(0, (seconds - overlay.entryTime) / FADE)),
+        ).s,
+        minimumJerk(Math.min(1, Math.max(0, (overlay.end - seconds) / FADE))).s,
+      );
+      const over: IAutoMoviePose = build(k + 1, written);
+      if (weight >= 1) return over;
+      const without: IAutoMoviePose = build(k + 1, under);
+      const angles = (
+        pose: IAutoMoviePose,
+        bone: AutoMovieHumanoidBone,
+      ): readonly [number, number, number] => {
+        const joint = pose.joints.find((j): boolean => j.bone === bone);
+        return [joint?.flexion ?? 0, joint?.abduction ?? 0, joint?.twist ?? 0];
+      };
+      const owned: AutoMovieHumanoidBone[] = [
+        ...new Set(
+          [...without.joints, ...over.joints].map(
+            (j): AutoMovieHumanoidBone => j.bone,
+          ),
+        ),
+      ].filter((bone: AutoMovieHumanoidBone): boolean =>
+        overlay.channels.includes(AutoMovieMotionHumanChannel.of(bone)),
+      );
+      return {
+        ...without,
+        joints: [
+          ...without.joints.filter((j): boolean => !owned.includes(j.bone)),
+          ...owned.map((bone: AutoMovieHumanoidBone) => {
+            const [flexion, abduction, twist] = blendHumanJoint(
+              body,
+              bone,
+              angles(without, bone),
+              angles(over, bone),
+              weight,
+            );
+            return { bone, flexion, abduction, twist };
+          }),
+        ],
+      };
+    };
+    return build(0, posture);
+  }
+
+  /**
    * One action's displayed pose at a film second, whether or not it is the
    * active one: its posture, its entering offset, its re-planted contacts and
    * the range-of-motion clamp.
@@ -530,7 +622,7 @@ export namespace HumanSegment {
     );
     for (const h of carried)
       posture = { ...posture, joints: { ...posture.joints, ...h.fingers } };
-    let pose: IAutoMoviePose = resolveHumanPosture(body, posture);
+    let pose: IAutoMoviePose = overlaid(person, posture, seconds);
     if (carried.length !== 0) {
       // The carry: each held hand rides the chest with the offset it had when
       // its action ended, the trunk-relative goal of a carried object.

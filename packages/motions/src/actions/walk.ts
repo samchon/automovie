@@ -131,6 +131,15 @@ export namespace walk {
     ],
   };
 
+  /** What a gait lets an overlay take: the arms it would swing, the hands and the head. */
+  export const yields: IHumanActionLaw["yields"] = [
+    "head",
+    "leftHand",
+    "rightHand",
+    "leftArm",
+    "rightArm",
+  ];
+
   /** Parameters. */
   export interface IParams {
     /** The floor point to stop at, world metres. */

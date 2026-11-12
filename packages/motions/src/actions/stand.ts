@@ -47,6 +47,15 @@ export namespace stand {
     any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
   };
 
+  /** What quiet standing lets an overlay take: the arms, the hands and the head. */
+  export const yields: IHumanActionLaw["yields"] = [
+    "head",
+    "leftHand",
+    "rightHand",
+    "leftArm",
+    "rightArm",
+  ];
+
   /**
    * Plan a stand.
    *
