@@ -6,15 +6,15 @@ The installed engine and renderer own frame schedules, trims, transitions and sh
 
 Keep output frame, output time, shot-local time and simulation time distinct, and give each shot in a transition its own local time and state.
 
-Compose action instances by their phase markers, carrying the exit pose, velocity, support and interaction state into the successor, and synchronize interacting participants and their sound to the same resolved contact event.
+Join actions at their named instants through the installed motion vocabulary's [operators](compose.md#join-the-actions), which carry the exit pose, velocity, support and held objects into the successor, and synchronize interacting participants and their sound to the same resolved contact event.
 
 Verify the first and last frames, both sides of cuts and trim boundaries against the plan; a duration in seconds does not fix the encoded frame count.
 
 ## Separate sampling from retained state
 
-A law evaluates from its plan and the requested time, as [laws](laws.md#plan-once-evaluate-by-time) requires.
+The installed packages evaluate every pose from the resolved plan and the requested time, and a production's own behavior does the same under the [deterministic evaluation](../contracts/development/behaviors.md#deterministic-evaluation) item.
 
-Before allowing seeking, retries or split renders, identify state the host still carries in springs, physics, callbacks, random draws or imported runtimes: seeded randomness draws from [identity-keyed streams](variation.md#draws-that-do-not-disturb-each-other), and retained state needs a repeatable update from a defined initial state or a supported cache, recovered before capturing a later frame.
+Before allowing seeking, retries or split renders, identify state the host still carries in springs, physics, callbacks, random draws or imported runtimes. Such state needs a repeatable update from a defined initial state or a supported cache, recovered before capturing a later frame.
 
 Choose simulation steps for solver stability, independent of display refresh, and sample results onto output times. Use supported lifecycle operations, never private-field resets.
 

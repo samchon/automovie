@@ -1,6 +1,6 @@
 # Coarse forms
 
-A coarse form is the few primitives that tell a reader of the hint what a subject is, how big it is and where its parts are. A person takes the polygon man under [entity work](../development/entities.md#people); this page covers every other subject.
+A coarse form is the few primitives that tell a reader of the hint what a subject is, how big it is and where its parts are. A person takes the polygon man under [entity work](../development/entities.md#people), and an object people use takes an [installed archetype](../development/entities.md#objects) where one offers it; this page covers every other subject.
 
 ## Parts
 
@@ -8,7 +8,7 @@ People recognize an object quickly once two or three of its simple volumes and t
 
 The generation prompt names the subject, so the form only has to be told apart from the other subjects in its scene.
 
-Add a further part only when a scene uses it: one a body grips, sits on, strikes or opens, or one that moves on its own pivot, such as a door or a lid.
+Add a further part only when a scene uses it: one a body grips, sits on, strikes or opens, or one that moves on its own pivot, such as a gate or a lid. A part a body acts on declares its [affordance](../development/entities.md#objects).
 
 ## Size
 
