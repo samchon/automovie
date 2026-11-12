@@ -12,7 +12,7 @@ A campaign carries commissioned work through its actual authoring and delivery o
 | Preparing a production, launching writers and reviewers, their write scope | [Launching workers](launching-workers.md) |
 | Writing the run record, resuming a run, handing off | [Run records](run-records.md) |
 | The observer subagent's ticks and the revival of a stopped run | [Observing runs](observing-runs.md) |
-| Fixing a submission, launching an independent reviewer, relaying verdicts and rebuttals | [Connecting review](connecting-review.md) |
+| Fixing a submission, launching an independent reviewer, relaying verdicts, decisions and objections | [Connecting review](connecting-review.md) |
 | Staging and committing beside other workers | [Git ownership](git-ownership.md) |
 | Comparing productions | [Comparing productions](comparing-productions.md) |
 

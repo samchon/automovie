@@ -34,7 +34,7 @@ Launch so that the worker can actually work, be found and be resumed:
 | Need | How |
 | --- | --- |
 | The production's instructions load | Its CLAUDE.md or AGENTS.md is discovered, which Claude's `--bare` mode prevents |
-| The worker may write | The write access and permission mode the user allows for the role |
+| The worker may write | The write access and permission mode the user allows for the role, including starting the isolated classification the production's inspection needs |
 | The session is saved | No Codex `--ephemeral` |
 | The observer can find the process | A unique run marker among the process's own arguments, such as Claude's `--session-id` with a UUID you generate or Codex's `-o` with a file named for the run |
 | The run leaves a log | Background execution with its event stream, such as Claude's `--output-format stream-json --verbose` or Codex's `--json`, written to a log named for the run under the production's ignored `.cache/` |
@@ -43,4 +43,4 @@ Without a granted mode a worker fails quietly: a Claude print run denies every c
 
 ## Roles and write scope
 
-Assign film and module writers as the production's campaign guide divides them, one writer at a time per changing body. Reviewers write only review records and their own run-record lines, and never edit bodies. The coordinator writes when no writer is assigned. Repairs to shared packages, skills and programs go to their repository owner.
+Assign film and module writers as the production's campaign guide divides them, one writer at a time per changing body. Reviewers write only review records and their own run-record lines, and never edit bodies. A writer writes into the verdict only its decisions and repairs beside their findings. The coordinator writes when no writer is assigned. Repairs to shared packages, skills and programs go to their repository owner.

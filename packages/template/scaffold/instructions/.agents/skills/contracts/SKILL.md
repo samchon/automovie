@@ -26,7 +26,7 @@ Statements are how you question your own compliance:
 2. Repair what fails.
 3. Write an answer that is true against all of them and names each statement that does not apply, with its reason. The answer does not recite the list.
 
-A reviewer audits the answer against the same list. Unless an item says its statements are its whole boundary, another proven loss on the item's question is still a finding.
+A reviewer audits the answer against the same list. Unless an item says its statements are its whole boundary, another proven loss on the item's question is still a finding. For story, [narrative rounds](../review/narrative-rounds.md#findings-and-objections) set what proves a body finding.
 
 Statement documents are not evidence targets: no selector reaches them, and a citation names the item, never a statement.
 

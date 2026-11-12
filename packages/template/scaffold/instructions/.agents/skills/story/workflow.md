@@ -46,7 +46,7 @@ Inherit through actual parents, repairing a missing handoff rather than bypassin
 1. Finish the whole body while its pass is disabled.
 2. Complete [inspection and cause repair](correction/repair.md#cause-rounds), enable the stage through [evidence configuration](../evidence/configuration.md), and write [answers](evidence/answer-writing.md).
 3. Submit the body, boundaries and population to independent [review](../review/SKILL.md).
-4. Repair findings at their owners until the pass closes.
+4. Record a [decision](../review/narrative-rounds.md#findings-and-objections) on each finding, and repair those that stand at their owners until the pass closes.
 
 Review runs through creative closure and the evidence audit, and [narrative rounds](../review/narrative-rounds.md) says when a pass closes.
 

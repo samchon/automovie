@@ -4,7 +4,7 @@ Use a fresh context of the author's model, without the author's working memory. 
 
 ## Read as the recipient
 
-Give the reviewer the task, recipient and annotation-free body before parents, contracts, evidence or earlier verdicts. Read the whole declared scope, splitting a large one into non-overlapping chunks rather than sampling, and lock the first response and concrete losses under the [independent-reading questions](../contracts/story/shared/principles/review.md#independent-reading).
+Give the reviewer the task, recipient and annotation-free body before parents, contracts or earlier verdicts. Read the whole declared scope, splitting a large one into non-overlapping chunks rather than sampling, and lock the first response and concrete losses under the [independent-reading questions](../contracts/story/shared/principles/review.md#independent-reading).
 
 Read each layer as its recipient:
 
@@ -16,7 +16,9 @@ Read each layer as its recipient:
 | Scripts | Screenplay writer and performer |
 | Screenplay | Filmmaker and audience |
 
-A recipient's loss stays a finding even when upstream knowledge explains it, and a defective parent is reported with its earliest owner under [upstream repair](../story/correction/repair.md#upstream-defects).
+Until creative review closes, the reviewer reads the body only in its annotation-free form and never opens the evidence answers. Keeping them true to the body is the author's job until the audit, and findings on answers raised in every round of creative review would add rounds without changing the work.
+
+Upstream knowledge does not withdraw a recipient's loss, and a defective parent is reported with its earliest owner under [upstream repair](../story/correction/repair.md#upstream-defects).
 
 ## Compare with parents and contracts
 
