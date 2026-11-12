@@ -12,15 +12,15 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 import type { AutoMovieCommand } from "./AutoMovieCommand";
-import { captureAutoMovie } from "./captureAutoMovie";
-import { inspectAutoMovie } from "./inspectAutoMovie";
-import { renderAutoMovie } from "./renderAutoMovie";
-import { reviewAutoMovie } from "./reviewAutoMovie";
 import type { IAutoMoviePackageManager } from "./IAutoMoviePackageManager";
+import { captureAutoMovie } from "./captureAutoMovie";
 import { deriveAutoMovieProjectName } from "./deriveAutoMovieProjectName";
+import { inspectAutoMovie } from "./inspectAutoMovie";
 import { promptAutoMovieProjectName } from "./promptAutoMovieProjectName";
 import { readAutoMovieCommandArguments } from "./readAutoMovieCommandArguments";
+import { renderAutoMovie } from "./renderAutoMovie";
 import { renderAutoMovieScaffoldNextSteps } from "./renderAutoMovieScaffoldNextSteps";
+import { reviewAutoMovie } from "./reviewAutoMovie";
 import { selectAutoMoviePackageManager } from "./selectAutoMoviePackageManager";
 import { selectAutoMovieProjectName } from "./selectAutoMovieProjectName";
 
@@ -133,11 +133,22 @@ export async function run(argv: readonly string[]): Promise<number> {
         env: process.env,
       });
     if (command.command === "inspect")
-      return await inspectAutoMovie({ args: command.args, root: process.cwd() });
+      return await inspectAutoMovie({
+        args: command.args,
+        root: process.cwd(),
+      });
     if (command.command === "render")
-      return await renderAutoMovie({ args: command.args, root: process.cwd(), env: process.env });
+      return await renderAutoMovie({
+        args: command.args,
+        root: process.cwd(),
+        env: process.env,
+      });
     if (command.command === "review")
-      return await reviewAutoMovie({ args: command.args, root: process.cwd(), env: process.env });
+      return await reviewAutoMovie({
+        args: command.args,
+        root: process.cwd(),
+        env: process.env,
+      });
     if (command.command === "sync") {
       const targetDir: string = path.resolve(process.cwd(), command.directory);
       const result: ReturnType<typeof syncScaffold> = syncScaffold({

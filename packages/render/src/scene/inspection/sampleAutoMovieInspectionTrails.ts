@@ -84,7 +84,10 @@ export async function sampleAutoMovieInspectionTrails(props: {
     });
   }
   return objects.map(
-    ([path]: [string, THREE.Object3D], i: number): IAutoMovieInspectionTrail => {
+    (
+      [path]: [string, THREE.Object3D],
+      i: number,
+    ): IAutoMovieInspectionTrail => {
       const samples: number[] = positions[i]!;
       let stationary: boolean = true;
       for (let k: number = 3; k < samples.length && stationary; k += 3)

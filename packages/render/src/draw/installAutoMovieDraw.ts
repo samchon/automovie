@@ -1,10 +1,7 @@
 import type { IAutoMovieMark } from "@automovie/engine";
 import * as THREE from "three";
 
-import type { IAutoMovieViewerSubjectBounds } from "../scene/subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
 import { resolveAutoMovieCapturePatterns } from "../capture/resolveAutoMovieCapturePatterns.js";
-import { applyAutoMovieInspection } from "../scene/inspection/applyAutoMovieInspection.js";
-import { formatAutoMovieInspectionRequest } from "../scene/inspection/formatAutoMovieInspectionRequest.js";
 import type { IAutoMovieInspectionCamera } from "../scene/inspection/IAutoMovieInspectionCamera.js";
 import type { IAutoMovieInspectionHandle } from "../scene/inspection/IAutoMovieInspectionHandle.js";
 import type { IAutoMovieInspectionLabel } from "../scene/inspection/IAutoMovieInspectionLabel.js";
@@ -13,12 +10,15 @@ import type { IAutoMovieInspectionPath } from "../scene/inspection/IAutoMovieIns
 import type { IAutoMovieInspectionRequest } from "../scene/inspection/IAutoMovieInspectionRequest.js";
 import type { IAutoMovieInspectionTrail } from "../scene/inspection/IAutoMovieInspectionTrail.js";
 import type { IAutoMovieInspectionView } from "../scene/inspection/IAutoMovieInspectionView.js";
+import { applyAutoMovieInspection } from "../scene/inspection/applyAutoMovieInspection.js";
+import { formatAutoMovieInspectionRequest } from "../scene/inspection/formatAutoMovieInspectionRequest.js";
 import { listAutoMovieInspectionPaths } from "../scene/inspection/listAutoMovieInspectionPaths.js";
 import { markAutoMovieInspectionTrails } from "../scene/inspection/markAutoMovieInspectionTrails.js";
 import { parseAutoMovieInspectionView } from "../scene/inspection/parseAutoMovieInspectionView.js";
 import { planAutoMovieInspectionTrailTimes } from "../scene/inspection/planAutoMovieInspectionTrailTimes.js";
 import { resolveAutoMovieInspectionView } from "../scene/inspection/resolveAutoMovieInspectionView.js";
 import { sampleAutoMovieInspectionTrails } from "../scene/inspection/sampleAutoMovieInspectionTrails.js";
+import type { IAutoMovieViewerSubjectBounds } from "../scene/subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
 import { AUTO_MOVIE_DRAW_GLOBALS } from "./AUTO_MOVIE_DRAW_GLOBALS.js";
 import type { AutoMovieDrawSubjects } from "./AutoMovieDrawSubjects.js";
 import type { IAutoMovieDrawCall } from "./IAutoMovieDrawCall.js";
@@ -71,9 +71,9 @@ export function installAutoMovieDraw(
     unknown
   >,
 ): void {
-  const injected: IAutoMovieDrawProps = (target[AUTO_MOVIE_DRAW_GLOBALS.props] as
-    | IAutoMovieDrawProps
-    | undefined) ?? { subject: null, props: null };
+  const injected: IAutoMovieDrawProps = (target[
+    AUTO_MOVIE_DRAW_GLOBALS.props
+  ] as IAutoMovieDrawProps | undefined) ?? { subject: null, props: null };
   const offered: Readonly<Record<string, IAutoMovieDrawSubject>> = subjects(
     injected.props,
   );
@@ -132,7 +132,8 @@ export function installAutoMovieDraw(
   };
 
   // The applied inspection, kept while its request is unchanged.
-  let applied: { key: string; handle: IAutoMovieInspectionHandle } | null = null;
+  let applied: { key: string; handle: IAutoMovieInspectionHandle } | null =
+    null;
   const inspect: (
     loaded: ILoaded,
     request: IAutoMovieInspectionRequest,
@@ -142,7 +143,9 @@ export function installAutoMovieDraw(
     request: IAutoMovieInspectionRequest,
     seconds: number,
   ): Promise<IAutoMovieInspectionHandle> => {
-    const key: string = JSON.stringify(formatAutoMovieInspectionRequest(request));
+    const key: string = JSON.stringify(
+      formatAutoMovieInspectionRequest(request),
+    );
     if (applied !== null && applied.key === key) return applied.handle;
     applied?.handle.restore();
     applied = null;
@@ -221,7 +224,9 @@ export function installAutoMovieDraw(
       );
 
       // 2. A fitted view's framing over the call's seconds.
-      const view: IAutoMovieInspectionView = parseAutoMovieInspectionView(call.view);
+      const view: IAutoMovieInspectionView = parseAutoMovieInspectionView(
+        call.view,
+      );
       const fitted: boolean =
         view.type === "named" &&
         !(scene.views !== undefined && Object.hasOwn(scene.views, view.name));
@@ -281,14 +286,18 @@ export function installAutoMovieDraw(
         width: call.width,
         height: call.height,
         labels: labels.map(
-          (label: IAutoMovieInspectionLabel): IAutoMovieDrawResult["labels"][number] => ({
+          (
+            label: IAutoMovieInspectionLabel,
+          ): IAutoMovieDrawResult["labels"][number] => ({
             text: label.text,
             x: label.x,
             y: label.y,
           }),
         ),
         legend: handle.legend.map(
-          (entry: IAutoMovieInspectionLegendEntry): IAutoMovieInspectionLegendEntry => ({ ...entry }),
+          (
+            entry: IAutoMovieInspectionLegendEntry,
+          ): IAutoMovieInspectionLegendEntry => ({ ...entry }),
         ),
         camera: resolved.record,
         resolved: resolveAutoMovieCapturePatterns({

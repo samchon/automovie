@@ -32,13 +32,27 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Each of the eight named viewpoints on a known box stands on its documented side).
  */
 export function test_inspection_views(): void {
-  const film: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
-  const bounds: IAutoMovieViewerSubjectBounds = { min: { x: -1, y: 0, z: -0.5 }, max: { x: 1, y: 2, z: 0.5 } };
+  const film: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
+    40,
+    1,
+    0.1,
+    100,
+  );
+  const bounds: IAutoMovieViewerSubjectBounds = {
+    min: { x: -1, y: 0, z: -0.5 },
+    max: { x: 1, y: 2, z: 0.5 },
+  };
   const resolve = (
     text: string,
     box: IAutoMovieViewerSubjectBounds | null = bounds,
     seconds: number = 0,
-    views?: Record<string, (seconds: number) => { position: [number, number, number]; target: [number, number, number] }>,
+    views?: Record<
+      string,
+      (seconds: number) => {
+        position: [number, number, number];
+        target: [number, number, number];
+      }
+    >,
   ) =>
     resolveAutoMovieInspectionView({
       view: parseAutoMovieInspectionView(text),
@@ -50,7 +64,10 @@ export function test_inspection_views(): void {
       width: 1280,
       height: 720,
     });
-  const holds = (camera: THREE.Camera, box: IAutoMovieViewerSubjectBounds): boolean =>
+  const holds = (
+    camera: THREE.Camera,
+    box: IAutoMovieViewerSubjectBounds,
+  ): boolean =>
     [box.min.x, box.max.x].every((x: number) =>
       [box.min.y, box.max.y].every((y: number) =>
         [box.min.z, box.max.z].every((z: number): boolean => {
@@ -69,9 +86,21 @@ export function test_inspection_views(): void {
     top: [0, 1, 0],
     bottom: [0, -1, 0],
   };
-  for (const name of ["front", "back", "right", "left", "top", "bottom", "three-quarter", "three-quarter-back"]) {
+  for (const name of [
+    "front",
+    "back",
+    "right",
+    "left",
+    "top",
+    "bottom",
+    "three-quarter",
+    "three-quarter-back",
+  ]) {
     const { camera, record } = resolve(name);
-    const side: THREE.Vector3 = camera.position.clone().sub(new THREE.Vector3(0, 1, 0)).normalize();
+    const side: THREE.Vector3 = camera.position
+      .clone()
+      .sub(new THREE.Vector3(0, 1, 0))
+      .normalize();
     const expected: [number, number, number] | undefined = sides[name];
     TestValidator.predicate(
       `${name} stands on its side, looks at the centre and holds the box`,
@@ -79,7 +108,9 @@ export function test_inspection_views(): void {
         ? name === "three-quarter"
           ? side.x > 0 && side.y > 0 && side.z > 0
           : side.x < 0 && side.y > 0 && side.z < 0
-        : nclose(side.x, expected[0]) && nclose(side.y, expected[1]) && nclose(side.z, expected[2])) &&
+        : nclose(side.x, expected[0]) &&
+          nclose(side.y, expected[1]) &&
+          nclose(side.z, expected[2])) &&
         nclose(record.target.x, 0) &&
         nclose(record.target.y, 1) &&
         nclose(record.target.z, 0) &&
@@ -91,15 +122,21 @@ export function test_inspection_views(): void {
   }
   TestValidator.predicate(
     "top looks down with -Z up",
-    nclose(resolve("top").record.up.z, -1) && nclose(resolve("bottom").record.up.z, 1),
+    nclose(resolve("top").record.up.z, -1) &&
+      nclose(resolve("bottom").record.up.z, 1),
   );
 
   // 2. Repeatable.
-  TestValidator.equals("the same text and bounds give the same camera", resolve("three-quarter@ortho").record, resolve("three-quarter@ortho").record);
+  TestValidator.equals(
+    "the same text and bounds give the same camera",
+    resolve("three-quarter@ortho").record,
+    resolve("three-quarter@ortho").record,
+  );
 
   // 3. Orthographic.
   const flat = resolve("front@ortho");
-  const ortho: THREE.OrthographicCamera = flat.camera as THREE.OrthographicCamera;
+  const ortho: THREE.OrthographicCamera =
+    flat.camera as THREE.OrthographicCamera;
   const a: THREE.Vector3 = new THREE.Vector3(0, 1, 0).project(ortho);
   const b: THREE.Vector3 = new THREE.Vector3(1, 1, 0).project(ortho);
   const pixels: number = ((b.x - a.x) / 2) * 1280;
@@ -113,33 +150,62 @@ export function test_inspection_views(): void {
   );
 
   // 4. Focus.
-  const stage: THREE.Scene = InspectionScene.scene(InspectionScene.quad("near", -3, 1), InspectionScene.quad("far", 3, 1));
+  const stage: THREE.Scene = InspectionScene.scene(
+    InspectionScene.quad("near", -3, 1),
+    InspectionScene.quad("far", 3, 1),
+  );
   const handle: IAutoMovieInspectionHandle = applyAutoMovieInspection({
     scene: stage,
     request: InspectionScene.ask({ marks: ["probe"] }),
-    marks: [InspectionScene.mark("far/probe", "probe", 0x00aa00, { type: "points", points: [3, 2, 0] }, { flagged: true })],
+    marks: [
+      InspectionScene.mark(
+        "far/probe",
+        "probe",
+        0x00aa00,
+        { type: "points", points: [3, 2, 0] },
+        { flagged: true },
+      ),
+    ],
   });
-  const view: IAutoMovieInspectionView = parseAutoMovieInspectionView("front@focus=near");
-  const focused: IAutoMovieViewerSubjectBounds | null = handle.bounds(view.type === "named" ? view.focus : null);
+  const view: IAutoMovieInspectionView =
+    parseAutoMovieInspectionView("front@focus=near");
+  const focused: IAutoMovieViewerSubjectBounds | null = handle.bounds(
+    view.type === "named" ? view.focus : null,
+  );
   TestValidator.predicate(
     `a focus frames the matched quad: ${JSON.stringify(focused)}`,
-    focused !== null && nclose(focused.min.x, -3.5) && nclose(focused.max.x, -2.5),
+    focused !== null &&
+      nclose(focused.min.x, -3.5) &&
+      nclose(focused.max.x, -2.5),
   );
   TestValidator.predicate(
     "the focused camera centres on that quad",
     nclose(resolve("front@focus=near", focused).record.target.x, -3),
   );
-  const flagged: IAutoMovieViewerSubjectBounds | null = handle.bounds({ type: "flagged" });
-  TestValidator.predicate("a flagged focus frames the flagged mark", flagged !== null && nclose(flagged.min.y, 2) && nclose(flagged.max.x, 3));
+  const flagged: IAutoMovieViewerSubjectBounds | null = handle.bounds({
+    type: "flagged",
+  });
+  TestValidator.predicate(
+    "a flagged focus frames the flagged mark",
+    flagged !== null && nclose(flagged.min.y, 2) && nclose(flagged.max.x, 3),
+  );
   handle.restore();
-  const plain: IAutoMovieInspectionHandle = applyAutoMovieInspection({ scene: stage, request: InspectionScene.ask({}) });
+  const plain: IAutoMovieInspectionHandle = applyAutoMovieInspection({
+    scene: stage,
+    request: InspectionScene.ask({}),
+  });
   try {
     plain.bounds({ type: "flagged" });
     TestValidator.predicate("no flagged mark is refused", false);
   } catch (error) {
-    TestValidator.predicate("no flagged mark is refused saying so", error instanceof Error && error.message.includes("flagged"));
+    TestValidator.predicate(
+      "no flagged mark is refused saying so",
+      error instanceof Error && error.message.includes("flagged"),
+    );
   }
-  TestValidator.error("a focus matching nothing is refused", (): unknown => plain.bounds({ type: "pattern", pattern: "nobody" }));
+  TestValidator.error("a focus matching nothing is refused", (): unknown =>
+    plain.bounds({ type: "pattern", pattern: "nobody" }),
+  );
   plain.restore();
 
   // 5. Fixed and film.
@@ -150,17 +216,37 @@ export function test_inspection_views(): void {
       nclose(fixed.camera.getWorldDirection(new THREE.Vector3()).z, -1) &&
       fixed.record.target.z === 0,
   );
-  TestValidator.predicate("film is the delivery camera itself", resolve("film").camera === film);
+  TestValidator.predicate(
+    "film is the delivery camera itself",
+    resolve("film").camera === film,
+  );
 
   // 6. Refusals.
-  for (const text of ["", "1,2:3", "front@zoom", "front@ortho@ortho", "film@ortho", "1,1,1:2,2,2@ortho", "front@focus=", "front@flagged@focus=a"])
+  for (const text of [
+    "",
+    "1,2:3",
+    "front@zoom",
+    "front@ortho@ortho",
+    "film@ortho",
+    "1,1,1:2,2,2@ortho",
+    "front@focus=",
+    "front@flagged@focus=a",
+  ])
     try {
       parseAutoMovieInspectionView(text);
       TestValidator.predicate(`"${text}" is refused`, false);
     } catch (error) {
-      TestValidator.predicate(`"${text}" is refused listing the forms`, error instanceof Error && error.message.includes("x,y,z:tx,ty,tz"));
+      TestValidator.predicate(
+        `"${text}" is refused listing the forms`,
+        error instanceof Error && error.message.includes("x,y,z:tx,ty,tz"),
+      );
     }
-  const orbit = (seconds: number): { position: [number, number, number]; target: [number, number, number] } => ({
+  const orbit = (
+    seconds: number,
+  ): {
+    position: [number, number, number];
+    target: [number, number, number];
+  } => ({
     position: [seconds, 1, 4],
     target: [seconds, 1, 0],
   });
@@ -170,10 +256,14 @@ export function test_inspection_views(): void {
   } catch (error) {
     TestValidator.predicate(
       "an unknown name is refused listing the names",
-      error instanceof Error && error.message.includes("orbit") && error.message.includes("three-quarter-back"),
+      error instanceof Error &&
+        error.message.includes("orbit") &&
+        error.message.includes("three-quarter-back"),
     );
   }
-  TestValidator.error("a switch on a subject's view is refused", (): unknown => resolve("orbit@ortho", bounds, 0, { orbit }));
+  TestValidator.error("a switch on a subject's view is refused", (): unknown =>
+    resolve("orbit@ortho", bounds, 0, { orbit }),
+  );
 
   // 7. A subject's view at two seconds.
   TestValidator.equals(

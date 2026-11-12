@@ -23,7 +23,9 @@ import { InspectionScene } from "../internal/InspectionScene";
  */
 export function test_inspection_mark_xray(): void {
   const read = (xray: boolean): (boolean | number)[][] => {
-    const stage: THREE.Scene = InspectionScene.scene(InspectionScene.quad("panel"));
+    const stage: THREE.Scene = InspectionScene.scene(
+      InspectionScene.quad("panel"),
+    );
     const handle: IAutoMovieInspectionHandle = applyAutoMovieInspection({
       scene: stage,
       request: InspectionScene.ask({ marks: ["probe"], xray }),
@@ -44,8 +46,14 @@ export function test_inspection_mark_xray(): void {
     ];
     const out: (boolean | number)[][] = objects.map(
       (object: THREE.Object3D): (boolean | number)[] => {
-        const material: THREE.Material = (object as THREE.Mesh).material as THREE.Material;
-        return [material.depthTest, material.depthWrite, material.transparent, object.renderOrder];
+        const material: THREE.Material = (object as THREE.Mesh)
+          .material as THREE.Material;
+        return [
+          material.depthTest,
+          material.depthWrite,
+          material.transparent,
+          object.renderOrder,
+        ];
       },
     );
     handle.restore();

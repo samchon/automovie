@@ -48,7 +48,8 @@ export function encodeAutoMovieDrawPixels(
         for (let dy: number = 0; dy < factor; dy++) {
           const source: number = height - 1 - (row * factor + dy);
           for (let dx: number = 0; dx < factor; dx++)
-            sum += bytes[(source * width + column * factor + dx) * 4 + channel]!;
+            sum +=
+              bytes[(source * width + column * factor + dx) * 4 + channel]!;
         }
         out[(row * outWidth + column) * 4 + channel] = Math.round(sum / area);
       }

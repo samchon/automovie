@@ -23,7 +23,9 @@ export function planAutoMovieDrawCall(
   cell: IAutoMovieCaptureCell,
   plan: Pick<IAutoMovieCapturePlan, "subject" | "times" | "layout">,
 ): IAutoMovieDrawCall {
-  const view: IAutoMovieInspectionView = parseAutoMovieInspectionView(cell.view);
+  const view: IAutoMovieInspectionView = parseAutoMovieInspectionView(
+    cell.view,
+  );
   return {
     seconds: cell.time.seconds,
     view: cell.view,

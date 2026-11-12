@@ -21,7 +21,9 @@ export function test_render_no_scene_rasterizer(): void {
   // 1. No rasterizer.
   TestValidator.equals(
     "no export rasterizes a scene",
-    names.filter((name: string): boolean => /rasteri[sz]e|submit\w*Raster/i.test(name)),
+    names.filter((name: string): boolean =>
+      /rasteri[sz]e|submit\w*Raster/i.test(name),
+    ),
     [],
   );
 

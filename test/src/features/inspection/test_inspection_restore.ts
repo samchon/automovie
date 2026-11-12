@@ -28,8 +28,13 @@ export function test_inspection_restore(): void {
   const left: THREE.Mesh = InspectionScene.quad("left", -2, 1);
   const right: THREE.Mesh = InspectionScene.quad("right", 2, 1);
   const stage: THREE.Scene = InspectionScene.scene(left, right);
-  const own: (THREE.Material | THREE.Material[])[] = [left.material, right.material];
-  const planes: THREE.Plane[] = [new THREE.Plane(new THREE.Vector3(1, 0, 0), 5)];
+  const own: (THREE.Material | THREE.Material[])[] = [
+    left.material,
+    right.material,
+  ];
+  const planes: THREE.Plane[] = [
+    new THREE.Plane(new THREE.Vector3(1, 0, 0), 5),
+  ];
   (left.material as THREE.Material).clippingPlanes = planes;
   const renderer: IAutoMovieSectionRenderer = { localClippingEnabled: false };
 
@@ -42,8 +47,13 @@ export function test_inspection_restore(): void {
         (object as THREE.Mesh).geometry,
         (object as THREE.Mesh).material,
       ] as (THREE.EventDispatcher<{ dispose: {} }> | undefined)[])
-        if (resource !== undefined && !watched.has(resource) && !own.includes(resource as THREE.Material)) {
-          if (resource === left.geometry || resource === right.geometry) continue;
+        if (
+          resource !== undefined &&
+          !watched.has(resource) &&
+          !own.includes(resource as THREE.Material)
+        ) {
+          if (resource === left.geometry || resource === right.geometry)
+            continue;
           watched.add(resource);
           resource.addEventListener("dispose", (): void => {
             if (disposed.has(resource)) disposed.add({});
@@ -66,7 +76,10 @@ export function test_inspection_restore(): void {
         type: "segments",
         points: [0, 0, 0, 1, 0, 0],
       }),
-      InspectionScene.mark("left/dot", "probe", 0x00aa00, { type: "points", points: [0, 0, 0] }),
+      InspectionScene.mark("left/dot", "probe", 0x00aa00, {
+        type: "points",
+        points: [0, 0, 0],
+      }),
     ],
     renderer,
   });
@@ -123,5 +136,9 @@ export function test_inspection_restore(): void {
 
   // 4. A second restore.
   handle.restore();
-  TestValidator.equals("a second restore disposes nothing again", disposed.size, watched.size);
+  TestValidator.equals(
+    "a second restore disposes nothing again",
+    disposed.size,
+    watched.size,
+  );
 }

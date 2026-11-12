@@ -1,4 +1,7 @@
-import { type IAutoMovieMark, markAutoMovieConstructionCurves } from "@automovie/engine";
+import {
+  type IAutoMovieMark,
+  markAutoMovieConstructionCurves,
+} from "@automovie/engine";
 import {
   type IAutoMovieInspectionHandle,
   applyAutoMovieInspection,
@@ -34,18 +37,26 @@ export function test_inspection_select(): void {
     points: [0, 0, z, 1, 0, z, 0, 1, z],
     flagged: false,
   });
-  const marks: IAutoMovieMark[] = markAutoMovieConstructionCurves([ring(0, 0), ring(1, 1), ring(2, 2)], "hero");
+  const marks: IAutoMovieMark[] = markAutoMovieConstructionCurves(
+    [ring(0, 0), ring(1, 1), ring(2, 2)],
+    "hero",
+  );
 
   // 1. One curve.
   const one: IAutoMovieInspectionHandle = applyAutoMovieInspection({
     scene: stage,
-    request: InspectionScene.ask({ parts: ["hero/torso/section/1"], marks: ["curve"] }),
+    request: InspectionScene.ask({
+      parts: ["hero/torso/section/1"],
+      marks: ["curve"],
+    }),
     marks,
   });
   TestValidator.equals(
     "one curve alone",
     [
-      InspectionScene.segments(InspectionScene.strokes(stage)[0]!).map((s: number[]): number => s[2]!),
+      InspectionScene.segments(InspectionScene.strokes(stage)[0]!).map(
+        (s: number[]): number => s[2]!,
+      ),
       hero.layers.mask,
       one.selected,
     ],
@@ -61,8 +72,21 @@ export function test_inspection_select(): void {
   });
   TestValidator.equals(
     "the object brings its marks",
-    [InspectionScene.segments(InspectionScene.strokes(stage)[0]!).length, hero.layers.mask, whole.selected],
-    [9, 1, ["hero", "hero/torso/section/0", "hero/torso/section/1", "hero/torso/section/2"]],
+    [
+      InspectionScene.segments(InspectionScene.strokes(stage)[0]!).length,
+      hero.layers.mask,
+      whole.selected,
+    ],
+    [
+      9,
+      1,
+      [
+        "hero",
+        "hero/torso/section/0",
+        "hero/torso/section/1",
+        "hero/torso/section/2",
+      ],
+    ],
   );
   whole.restore();
 
@@ -80,5 +104,9 @@ export function test_inspection_select(): void {
         marks,
       });
     });
-  TestValidator.equals("the refusals leave the scene", [stage.children.length, hero.layers.mask], [1, 1]);
+  TestValidator.equals(
+    "the refusals leave the scene",
+    [stage.children.length, hero.layers.mask],
+    [1, 1],
+  );
 }

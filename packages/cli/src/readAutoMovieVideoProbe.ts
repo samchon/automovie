@@ -27,19 +27,27 @@ export function readAutoMovieVideoProbe(log: string): {
   const duration: RegExpMatchArray | null = log.match(
     /Duration:\s*(\d+):(\d{2}):(\d{2}(?:\.\d+)?)/u,
   );
-  if (duration === null) throw new Error("FFmpeg reported no duration for the video");
+  if (duration === null)
+    throw new Error("FFmpeg reported no duration for the video");
   const stream: string | undefined = log
     .split(/\r?\n/u)
     .find((line: string): boolean => /Stream #.*Video:/u.test(line));
-  if (stream === undefined) throw new Error("FFmpeg reported no video stream in the file");
-  const size: RegExpMatchArray | null = stream.match(/[ ,](\d{2,5})x(\d{2,5})[ ,[]/u);
+  if (stream === undefined)
+    throw new Error("FFmpeg reported no video stream in the file");
+  const size: RegExpMatchArray | null = stream.match(
+    /[ ,](\d{2,5})x(\d{2,5})[ ,[]/u,
+  );
   const rate: RegExpMatchArray | null =
     stream.match(/([\d.]+) fps/u) ?? stream.match(/([\d.]+) tbr/u);
   if (size === null || rate === null)
-    throw new Error(`FFmpeg reported no size or rate for the video stream: ${stream.trim()}`);
+    throw new Error(
+      `FFmpeg reported no size or rate for the video stream: ${stream.trim()}`,
+    );
   return {
     durationSeconds:
-      Number(duration[1]) * 3600 + Number(duration[2]) * 60 + Number(duration[3]),
+      Number(duration[1]) * 3600 +
+      Number(duration[2]) * 60 +
+      Number(duration[3]),
     fps: Number(rate[1]),
     width: Number(size[1]),
     height: Number(size[2]),

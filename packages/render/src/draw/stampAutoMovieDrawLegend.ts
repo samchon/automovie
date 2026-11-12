@@ -1,6 +1,6 @@
 import type { IAutoMovieCaptureDrawing } from "../capture/IAutoMovieCaptureDrawing.js";
-import type { IAutoMovieInspectionLegendEntry } from "../scene/inspection/IAutoMovieInspectionLegendEntry.js";
 import type { IAutoMovieRasterImage } from "../picture/IAutoMovieRasterImage.js";
+import type { IAutoMovieInspectionLegendEntry } from "../scene/inspection/IAutoMovieInspectionLegendEntry.js";
 
 /** Rows of a stamped label box in font pixels: five glyph rows and two of padding above and below, as the label stamp draws it. */
 const ROW: number = 9;
@@ -27,20 +27,31 @@ export function stampAutoMovieDrawLegend(
   const { width, height, pixels } = picture;
   const side: number = ROW * scale;
   const texts: string[] = legend.map(
-    (entry: IAutoMovieInspectionLegendEntry): string => `${entry.label} ${entry.count}`,
+    (entry: IAutoMovieInspectionLegendEntry): string =>
+      `${entry.label} ${entry.count}`,
   );
 
   // The block: swatches, then the widest stamped text box (two pads, four font pixels a character less one).
   const blockWidth: number = Math.min(
     width,
-    side + Math.max(...texts.map((text: string): number => 4 * scale + text.length * 4 * scale - scale)),
+    side +
+      Math.max(
+        ...texts.map(
+          (text: string): number => 4 * scale + text.length * 4 * scale - scale,
+        ),
+      ),
   );
   const blockHeight: number = Math.min(height, legend.length * side);
 
   // The corner whose block hides the fewest pixels unlike that corner's own pixel.
   const corners: { left: number; top: number; x: number; y: number }[] = [
     { left: 0, top: height - blockHeight, x: 0, y: height - 1 },
-    { left: width - blockWidth, top: height - blockHeight, x: width - 1, y: height - 1 },
+    {
+      left: width - blockWidth,
+      top: height - blockHeight,
+      x: width - 1,
+      y: height - 1,
+    },
     { left: width - blockWidth, top: 0, x: width - 1, y: 0 },
     { left: 0, top: 0, x: 0, y: 0 },
   ];
@@ -67,10 +78,21 @@ export function stampAutoMovieDrawLegend(
 
   // Swatches now, texts for the run to stamp.
   return legend.map(
-    (entry: IAutoMovieInspectionLegendEntry, index: number): IAutoMovieCaptureDrawing.ILabel => {
+    (
+      entry: IAutoMovieInspectionLegendEntry,
+      index: number,
+    ): IAutoMovieCaptureDrawing.ILabel => {
       const top: number = best.top + index * side;
-      for (let y: number = Math.max(0, top); y < Math.min(height, top + side); y++)
-        for (let x: number = best.left; x < Math.min(width, best.left + side); x++) {
+      for (
+        let y: number = Math.max(0, top);
+        y < Math.min(height, top + side);
+        y++
+      )
+        for (
+          let x: number = best.left;
+          x < Math.min(width, best.left + side);
+          x++
+        ) {
           const offset: number = (y * width + x) * 4;
           pixels[offset] = (entry.color >> 16) & 0xff;
           pixels[offset + 1] = (entry.color >> 8) & 0xff;

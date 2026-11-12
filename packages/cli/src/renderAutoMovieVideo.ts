@@ -63,23 +63,33 @@ export async function renderAutoMovieVideo(props: {
     props: props.props,
   });
   const name: string = session.subject.name;
-  const out: string = path.resolve(props.root, props.out ?? path.join("media", "automovie", name, "videos"));
-  const scratch: string = path.join(props.root, ".cache", "render", `${name}-${process.pid}-${Date.now()}`);
+  const out: string = path.resolve(
+    props.root,
+    props.out ?? path.join("media", "automovie", name, "videos"),
+  );
+  const scratch: string = path.join(
+    props.root,
+    ".cache",
+    "render",
+    `${name}-${process.pid}-${Date.now()}`,
+  );
   const partial: string = path.join(out, `.film-${process.pid}.mp4`);
   try {
     await fs.mkdir(scratch, { recursive: true });
     await fs.mkdir(out, { recursive: true });
-    const result: Awaited<ReturnType<typeof Render.renderAutoMovieDrawnVideo>> = await props.host.render.renderAutoMovieDrawnVideo({
-      session,
-      spec: SPEC,
-      frameDir: scratch.split(path.sep).join("/"),
-      outputPath: partial,
-      audio: null,
-      write: (file: string, data: Uint8Array): Promise<void> => fs.writeFile(file, data),
-      encode: async (args: readonly string[]): Promise<void> => {
-        await runAutoMovieFfmpeg(props.ffmpeg, args);
-      },
-    });
+    const result: Awaited<ReturnType<typeof Render.renderAutoMovieDrawnVideo>> =
+      await props.host.render.renderAutoMovieDrawnVideo({
+        session,
+        spec: SPEC,
+        frameDir: scratch.split(path.sep).join("/"),
+        outputPath: partial,
+        audio: null,
+        write: (file: string, data: Uint8Array): Promise<void> =>
+          fs.writeFile(file, data),
+        encode: async (args: readonly string[]): Promise<void> => {
+          await runAutoMovieFfmpeg(props.ffmpeg, args);
+        },
+      });
     const video: string = path.join(out, "film.mp4");
     await fs.rename(partial, video);
     const report: string = path.join(out, "render-report.json");
@@ -93,7 +103,11 @@ export async function renderAutoMovieVideo(props: {
           video: "film.mp4",
           args: result.args,
           frames: result.frames.map(
-            (frame: { index: number; seconds: number; hash: string }): { index: number; seconds: number; hash: string } => ({
+            (frame: {
+              index: number;
+              seconds: number;
+              hash: string;
+            }): { index: number; seconds: number; hash: string } => ({
               index: frame.index,
               seconds: frame.seconds,
               hash: frame.hash,

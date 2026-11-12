@@ -1,4 +1,7 @@
-import type { IAutoMovieDrawCall, IAutoMovieDrawResult } from "@automovie/render";
+import type {
+  IAutoMovieDrawCall,
+  IAutoMovieDrawResult,
+} from "@automovie/render";
 
 /**
  * What a recording draw page answers for a call: a picture at the call's raster, rows from the top, each pixel `[row, column, 7, 255]` so a flipped or shifted picture is told apart, with one label, a legend of one blue kind, a perspective camera named by the call's view, and one resolved `parts` pattern.

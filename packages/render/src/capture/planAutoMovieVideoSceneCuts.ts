@@ -27,8 +27,16 @@ export function planAutoMovieVideoSceneCuts(props: {
   /** Score from 0 to 100 at which a frame starts a new scene. */
   threshold: number;
 }): string[] {
-  if (!(Number.isFinite(props.threshold) && props.threshold >= 0 && props.threshold <= 100))
-    throw new Error(`A scene-cut threshold of ${props.threshold} is not a score from 0 to 100`);
+  if (
+    !(
+      Number.isFinite(props.threshold) &&
+      props.threshold >= 0 &&
+      props.threshold <= 100
+    )
+  )
+    throw new Error(
+      `A scene-cut threshold of ${props.threshold} is not a score from 0 to 100`,
+    );
 
   // Level one escapes a filter option's value, level two the filter graph around it.
   const option: string = props.report.replace(/[\\':]/gu, "\\$&");

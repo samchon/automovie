@@ -16,7 +16,9 @@ const SUBJECT: IAutoMovieCaptureSubject = {
   width: 640,
   height: 360,
   views: ["front"],
-  drawables: [{ path: "hero", min: { x: 0, y: 0, z: 0 }, max: { x: 1, y: 2, z: 1 } }],
+  drawables: [
+    { path: "hero", min: { x: 0, y: 0, z: 0 }, max: { x: 1, y: 2, z: 1 } },
+  ],
   marks: ["curve/section", "defect/open"],
 };
 
@@ -39,7 +41,10 @@ const SUBJECT: IAutoMovieCaptureSubject = {
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export function test_capture_plan_refusals(): void {
-  const plan: (text: string, subject?: IAutoMovieCaptureSubject) => IAutoMovieCapturePlan = (
+  const plan: (
+    text: string,
+    subject?: IAutoMovieCaptureSubject,
+  ) => IAutoMovieCapturePlan = (
     text: string,
     subject: IAutoMovieCaptureSubject = SUBJECT,
   ): IAutoMovieCapturePlan =>
@@ -48,11 +53,21 @@ export function test_capture_plan_refusals(): void {
       subject,
       cuts: [],
     });
-  const refuses: (text: string, fragments: string[], subject?: IAutoMovieCaptureSubject) => boolean = (text: string, fragments: string[], subject?: IAutoMovieCaptureSubject): boolean =>
-    throwsError((): unknown => plan(text, subject), fragments);
+  const refuses: (
+    text: string,
+    fragments: string[],
+    subject?: IAutoMovieCaptureSubject,
+  ) => boolean = (
+    text: string,
+    fragments: string[],
+    subject?: IAutoMovieCaptureSubject,
+  ): boolean => throwsError((): unknown => plan(text, subject), fragments);
 
   // 1. Views the subject does not name.
-  TestValidator.predicate("an unknown view is refused", refuses("at=1&views=side", ['"side"', "front"]));
+  TestValidator.predicate(
+    "an unknown view is refused",
+    refuses("at=1&views=side", ['"side"', "front"]),
+  );
   TestValidator.predicate(
     "an unknown view with switches is refused",
     refuses("at=1&views=front;back@ortho", ['"back"']),
@@ -77,13 +92,29 @@ export function test_capture_plan_refusals(): void {
   );
 
   // 4. Sweeps.
-  TestValidator.predicate("a sweep matching nothing is refused", refuses("at=1&sweep=lamp", ['"lamp"']));
+  TestValidator.predicate(
+    "a sweep matching nothing is refused",
+    refuses("at=1&sweep=lamp", ['"lamp"']),
+  );
 
   // 5. Times.
-  TestValidator.predicate("a sampling past the end is refused", refuses("from=1&to=5", ["5"]));
-  TestValidator.predicate("a second past the end is refused", refuses("at=4.5", ["4.5"]));
-  TestValidator.predicate("an event past the end is refused", refuses("events=4.01", ["4.01"]));
-  TestValidator.equals("the last second is planned", plan("at=4").cells.length, 1);
+  TestValidator.predicate(
+    "a sampling past the end is refused",
+    refuses("from=1&to=5", ["5"]),
+  );
+  TestValidator.predicate(
+    "a second past the end is refused",
+    refuses("at=4.5", ["4.5"]),
+  );
+  TestValidator.predicate(
+    "an event past the end is refused",
+    refuses("events=4.01", ["4.01"]),
+  );
+  TestValidator.equals(
+    "the last second is planned",
+    plan("at=4").cells.length,
+    1,
+  );
 
   // 6. Subjects.
   TestValidator.predicate(

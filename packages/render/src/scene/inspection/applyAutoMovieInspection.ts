@@ -85,7 +85,9 @@ export function applyAutoMovieInspection(
   // Kinds: what the owners supplied and what the inspection measures itself.
   const supplied: readonly IAutoMovieMark[] = props.marks ?? [];
   const defects: IAutoMovieMeshDefect.Kind[] = (
-    Object.keys(AUTO_MOVIE_INSPECTION_PALETTE.defect) as IAutoMovieMeshDefect.Kind[]
+    Object.keys(
+      AUTO_MOVIE_INSPECTION_PALETTE.defect,
+    ) as IAutoMovieMeshDefect.Kind[]
   ).filter(
     (kind: IAutoMovieMeshDefect.Kind): boolean =>
       kind !== "sliver" || request.sliver !== null,
@@ -104,17 +106,15 @@ export function applyAutoMovieInspection(
     throw new Error(
       `Inspection marks patterns match no kind: ${unknown.join(", ")}; the kinds available are ${available.join(", ") || "none"}`,
     );
-  const asks: (kind: string) => boolean = memo(
-    (kind: string): boolean =>
-      request.marks.some((pattern: string): boolean =>
-        matchAutoMovieInspectionPath(kind, pattern),
-      ),
+  const asks: (kind: string) => boolean = memo((kind: string): boolean =>
+    request.marks.some((pattern: string): boolean =>
+      matchAutoMovieInspectionPath(kind, pattern),
+    ),
   );
-  const hidden: (path: string) => boolean = memo(
-    (path: string): boolean =>
-      request.hide.some((pattern: string): boolean =>
-        matchAutoMovieInspectionPath(path, pattern),
-      ),
+  const hidden: (path: string) => boolean = memo((path: string): boolean =>
+    request.hide.some((pattern: string): boolean =>
+      matchAutoMovieInspectionPath(path, pattern),
+    ),
   );
 
   // Measured marks on every drawn, visible mesh the request does not hide, read before any state changes.
@@ -175,7 +175,10 @@ export function applyAutoMovieInspection(
         )) &&
       !hidden(path),
   );
-  const anchors: Map<string, THREE.Object3D> = new Map<string, THREE.Object3D>();
+  const anchors: Map<string, THREE.Object3D> = new Map<
+    string,
+    THREE.Object3D
+  >();
   scene.traverse((object: THREE.Object3D): void => {
     const path: string = autoMovieInspectionPathOf(scene, object);
     if (!anchors.has(path)) anchors.set(path, object);
@@ -196,8 +199,14 @@ export function applyAutoMovieInspection(
       ? [{ use: "the clay shade", color: AUTO_MOVIE_INSPECTION_PALETTE.clay }]
       : request.shade === "faces"
         ? [
-            { use: "the front of a surface", color: AUTO_MOVIE_INSPECTION_PALETTE.front },
-            { use: "the back of a surface", color: AUTO_MOVIE_INSPECTION_PALETTE.back },
+            {
+              use: "the front of a surface",
+              color: AUTO_MOVIE_INSPECTION_PALETTE.front,
+            },
+            {
+              use: "the back of a surface",
+              color: AUTO_MOVIE_INSPECTION_PALETTE.back,
+            },
           ]
         : []),
   ];
@@ -213,14 +222,19 @@ export function applyAutoMovieInspection(
     kinds: ReadonlyMap<string, { color: number }>,
   ): IAutoMovieInspectionMarkSet[] =>
     [...sets].map(
-      ([anchor, marks]: [THREE.Object3D | null, readonly IAutoMovieMark[]]): IAutoMovieInspectionMarkSet => ({
+      ([anchor, marks]: [
+        THREE.Object3D | null,
+        readonly IAutoMovieMark[],
+      ]): IAutoMovieInspectionMarkSet => ({
         anchor,
-        marks: marks.map((mark: IAutoMovieMark): { mark: IAutoMovieMark; color: number } => ({
-          mark,
-          color: mark.flagged
-            ? AUTO_MOVIE_INSPECTION_PALETTE.flagged
-            : kinds.get(mark.kind)!.color,
-        })),
+        marks: marks.map(
+          (mark: IAutoMovieMark): { mark: IAutoMovieMark; color: number } => ({
+            mark,
+            color: mark.flagged
+              ? AUTO_MOVIE_INSPECTION_PALETTE.flagged
+              : kinds.get(mark.kind)!.color,
+          }),
+        ),
       }),
     );
   const objectPaths: string[] = [
@@ -286,9 +300,13 @@ export function applyAutoMovieInspection(
     const own: IAutoMovieInspectionOverlay = buildAutoMovieInspectionMarks(
       paint(
         measured.map(
-          (set: IAutoMovieInspectionMeasured): [THREE.Object3D, IAutoMovieMark[]] => [
+          (
+            set: IAutoMovieInspectionMeasured,
+          ): [THREE.Object3D, IAutoMovieMark[]] => [
             set.anchor,
-            set.marks.filter((mark: IAutoMovieMark): boolean => selects(mark.path)),
+            set.marks.filter((mark: IAutoMovieMark): boolean =>
+              selects(mark.path),
+            ),
           ],
         ),
         kinds,
@@ -334,7 +352,9 @@ export function applyAutoMovieInspection(
         0,
         selected.length,
         ...objectPaths,
-        ...new Set<string>(marks.map((mark: IAutoMovieMark): string => mark.path)),
+        ...new Set<string>(
+          marks.map((mark: IAutoMovieMark): string => mark.path),
+        ),
       );
     };
     describe();
@@ -352,10 +372,8 @@ export function applyAutoMovieInspection(
             reserved,
             recolor: request.color,
           });
-        const built: IAutoMovieInspectionOverlay = buildAutoMovieInspectionMarks(
-          paint(next.sets, nextKinds),
-          style,
-        );
+        const built: IAutoMovieInspectionOverlay =
+          buildAutoMovieInspectionMarks(paint(next.sets, nextKinds), style);
         if (request.section !== null)
           applyAutoMovieSectionPlanes({
             renderer,
@@ -381,13 +399,18 @@ export function applyAutoMovieInspection(
     // The drawn marks with the objects their frames belong to, for labels and focus.
     const placed: () => IPlaced[] = (): IPlaced[] => [
       ...[...current.sets].flatMap(
-        ([anchor, marks]: [THREE.Object3D | null, IAutoMovieMark[]]): IPlaced[] =>
+        ([anchor, marks]: [
+          THREE.Object3D | null,
+          IAutoMovieMark[],
+        ]): IPlaced[] =>
           marks.map((mark: IAutoMovieMark): IPlaced => ({ mark, anchor })),
       ),
       ...measured.flatMap((set: IAutoMovieInspectionMeasured): IPlaced[] =>
         set.marks
           .filter((mark: IAutoMovieMark): boolean => selects(mark.path))
-          .map((mark: IAutoMovieMark): IPlaced => ({ mark, anchor: set.anchor })),
+          .map(
+            (mark: IAutoMovieMark): IPlaced => ({ mark, anchor: set.anchor }),
+          ),
       ),
     ];
     const shownObjects: IAutoMovieInspectionPath[] = drawn.filter(

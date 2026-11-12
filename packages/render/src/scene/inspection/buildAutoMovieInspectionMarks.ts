@@ -207,8 +207,7 @@ function write(entry: IBuilt): void {
     else
       for (let i: number = 0; i < shape.origins.length / 3; i++) {
         const arrow: number[] = arrowLines(shape.origins, shape.vectors, i);
-        for (let s: number = 0; s < 5; s++)
-          segment(arrow, s * 2, s * 2 + 1);
+        for (let s: number = 0; s < 5; s++) segment(arrow, s * 2, s * 2 + 1);
       }
   }
 
@@ -230,7 +229,8 @@ function arrowLines(
 
   // A zero vector has no direction, so its head collapses onto its tip.
   if (length === 0) {
-    for (let s: number = 0; s < 4; s++) out.push(...tip.toArray(), ...tip.toArray());
+    for (let s: number = 0; s < 4; s++)
+      out.push(...tip.toArray(), ...tip.toArray());
     return out;
   }
   const along: THREE.Vector3 = vector.clone().divideScalar(length);
@@ -242,9 +242,7 @@ function arrowLines(
     .crossVectors(along, helper)
     .normalize();
   const other: THREE.Vector3 = new THREE.Vector3().crossVectors(along, side);
-  const back: THREE.Vector3 = tip
-    .clone()
-    .addScaledVector(along, -length / 4);
+  const back: THREE.Vector3 = tip.clone().addScaledVector(along, -length / 4);
   for (const direction of [side, other])
     for (const sign of [1, -1])
       out.push(

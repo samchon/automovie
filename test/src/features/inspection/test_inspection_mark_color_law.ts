@@ -27,8 +27,19 @@ export function test_inspection_mark_color_law(): void {
   const panel: THREE.Mesh = InspectionScene.quad("panel");
   const material: THREE.Material | THREE.Material[] = panel.material;
   const stage: THREE.Scene = InspectionScene.scene(panel);
-  const dot = (path: string, kind: string, color: number, label: string = kind): IAutoMovieMark =>
-    InspectionScene.mark(path, kind, color, { type: "points", points: [0, 0, 0] }, { label });
+  const dot = (
+    path: string,
+    kind: string,
+    color: number,
+    label: string = kind,
+  ): IAutoMovieMark =>
+    InspectionScene.mark(
+      path,
+      kind,
+      color,
+      { type: "points", points: [0, 0, 0] },
+      { label },
+    );
   const refused = (
     title: string,
     marks: IAutoMovieMark[],
@@ -54,7 +65,10 @@ export function test_inspection_mark_color_law(): void {
       stage.children.length === 1 && panel.material === material,
     );
   };
-  const accepted = (marks: IAutoMovieMark[], changes: Parameters<typeof InspectionScene.ask>[0]): void => {
+  const accepted = (
+    marks: IAutoMovieMark[],
+    changes: Parameters<typeof InspectionScene.ask>[0],
+  ): void => {
     applyAutoMovieInspection({
       scene: stage,
       request: InspectionScene.ask(changes),
@@ -77,10 +91,12 @@ export function test_inspection_mark_color_law(): void {
   accepted(pair, { marks: ["joint"] });
 
   // 3. Reserved colours.
-  refused("the flag colour", [dot("panel/knee", "joint", 0xff00ff)], { marks: ["joint"] }, [
-    "joint",
-    "flag",
-  ]);
+  refused(
+    "the flag colour",
+    [dot("panel/knee", "joint", 0xff00ff)],
+    { marks: ["joint"] },
+    ["joint", "flag"],
+  );
   refused(
     "the clay grey under clay",
     [dot("panel/knee", "joint", 0xbdbdbd)],
@@ -104,7 +120,10 @@ export function test_inspection_mark_color_law(): void {
   );
   refused(
     "one kind under two labels",
-    [dot("panel/a", "joint", 0x111111, "knee"), dot("panel/b", "joint", 0x111111, "elbow")],
+    [
+      dot("panel/a", "joint", 0x111111, "knee"),
+      dot("panel/b", "joint", 0x111111, "elbow"),
+    ],
     { marks: ["joint"] },
     ["joint"],
   );

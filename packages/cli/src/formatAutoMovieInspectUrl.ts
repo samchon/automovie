@@ -16,7 +16,10 @@ export function formatAutoMovieInspectUrl(
   values: readonly (readonly [key: string, value: string])[],
 ): string {
   const query: string = new URLSearchParams(
-    values.map(([key, value]: readonly [string, string]): [string, string] => [key, value]),
+    values.map(([key, value]: readonly [string, string]): [string, string] => [
+      key,
+      value,
+    ]),
   ).toString();
   return query === "" ? base : `${base}?${query}`;
 }

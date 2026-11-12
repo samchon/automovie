@@ -22,7 +22,9 @@ const LONGEST: number = 86_400;
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per command.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh record and keeps nothing.
  */
-export function readAutoMovieReviewOptions(values: ReadonlyMap<string, string>): {
+export function readAutoMovieReviewOptions(
+  values: ReadonlyMap<string, string>,
+): {
   /** The page's address. */
   url: string;
 
@@ -34,8 +36,11 @@ export function readAutoMovieReviewOptions(values: ReadonlyMap<string, string>):
 } {
   for (const [key, value] of values) {
     if (!AUTOMOVIE_REVIEW_OPTIONS.includes(key))
-      throw new Error(`Review takes no option --${key}; it takes ${AUTOMOVIE_REVIEW_OPTIONS.map((option: string): string => `--${option}`).join(", ")}`);
-    if (value.trim() === "") throw new Error(`Review option --${key} needs a value`);
+      throw new Error(
+        `Review takes no option --${key}; it takes ${AUTOMOVIE_REVIEW_OPTIONS.map((option: string): string => `--${option}`).join(", ")}`,
+      );
+    if (value.trim() === "")
+      throw new Error(`Review option --${key} needs a value`);
   }
   const url: string | undefined = values.get("url");
   const text: string | undefined = values.get("seconds");
@@ -45,12 +50,21 @@ export function readAutoMovieReviewOptions(values: ReadonlyMap<string, string>):
   try {
     address = new URL(url);
   } catch (error) {
-    throw new Error(`Review --url "${url}" is not an address`, { cause: error });
+    throw new Error(`Review --url "${url}" is not an address`, {
+      cause: error,
+    });
   }
-  if (address.protocol !== "http:" || !["127.0.0.1", "localhost", "[::1]"].includes(address.hostname))
-    throw new Error(`Review --url "${url}" is not an HTTP page on this machine`);
+  if (
+    address.protocol !== "http:" ||
+    !["127.0.0.1", "localhost", "[::1]"].includes(address.hostname)
+  )
+    throw new Error(
+      `Review --url "${url}" is not an HTTP page on this machine`,
+    );
   const seconds: number = Number(text);
   if (!(Number.isFinite(seconds) && seconds > 0 && seconds <= LONGEST))
-    throw new Error(`Review --seconds "${text}" is not a number of seconds above 0 and at most ${LONGEST}`);
+    throw new Error(
+      `Review --seconds "${text}" is not a number of seconds above 0 and at most ${LONGEST}`,
+    );
   return { url: address.href, seconds, out: values.get("out") ?? null };
 }

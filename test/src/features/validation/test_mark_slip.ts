@@ -27,13 +27,22 @@ export function test_mark_slip(): void {
   // 1. Past the limit.
   TestValidator.equals(
     "a flagged segment from the plant to the foot",
-    markAutoMovieSlip([foot({ x: 0.03, y: 0, z: 0 }, 0.02)]).map((mark: IAutoMovieMark) => [
-      mark.path,
-      mark.kind,
-      mark.flagged,
-      mark.shape,
-    ]),
-    [["hero/leftFoot/slip", "slip", true, { type: "segments", points: [0, 0, 0, 0.03, 0, 0] }]],
+    markAutoMovieSlip([foot({ x: 0.03, y: 0, z: 0 }, 0.02)]).map(
+      (mark: IAutoMovieMark) => [
+        mark.path,
+        mark.kind,
+        mark.flagged,
+        mark.shape,
+      ],
+    ),
+    [
+      [
+        "hero/leftFoot/slip",
+        "slip",
+        true,
+        { type: "segments", points: [0, 0, 0, 0.03, 0, 0] },
+      ],
+    ],
   );
 
   // 2. Within the limit, and vertical motion.
@@ -49,7 +58,10 @@ export function test_mark_slip(): void {
   // 3. Refusals.
   for (const [title, entry] of [
     ["a negative limit", foot({ x: 0.03, y: 0, z: 0 }, -1)],
-    ["an infinite limit", foot({ x: 0.03, y: 0, z: 0 }, Number.POSITIVE_INFINITY)],
+    [
+      "an infinite limit",
+      foot({ x: 0.03, y: 0, z: 0 }, Number.POSITIVE_INFINITY),
+    ],
     ["a non-finite point", foot({ x: Number.NaN, y: 0, z: 0 }, 0.02)],
   ] as const)
     TestValidator.error(`${title} is refused`, (): void => {

@@ -24,29 +24,53 @@ export function test_draw_subject_selection(): void {
   const two: string[] = ["starter", "sequel"];
 
   // 1. A named subject.
-  TestValidator.equals("sequel is created", selectAutoMovieDrawSubject(two, "sequel"), "sequel");
-  TestValidator.equals("starter is created", selectAutoMovieDrawSubject(two, "starter"), "starter");
+  TestValidator.equals(
+    "sequel is created",
+    selectAutoMovieDrawSubject(two, "sequel"),
+    "sequel",
+  );
+  TestValidator.equals(
+    "starter is created",
+    selectAutoMovieDrawSubject(two, "starter"),
+    "starter",
+  );
 
   // 2 and 3. Refusals list both.
   TestValidator.predicate(
     "an unknown name lists both",
-    throwsError((): string => selectAutoMovieDrawSubject(two, "prequel"), "starter, sequel"),
+    throwsError(
+      (): string => selectAutoMovieDrawSubject(two, "prequel"),
+      "starter, sequel",
+    ),
   );
   TestValidator.predicate(
     "no name among several lists both",
-    throwsError((): string => selectAutoMovieDrawSubject(two, null), "starter, sequel"),
+    throwsError(
+      (): string => selectAutoMovieDrawSubject(two, null),
+      "starter, sequel",
+    ),
   );
 
   // 4. The only subject.
-  TestValidator.equals("the only subject", selectAutoMovieDrawSubject(["starter"], null), "starter");
+  TestValidator.equals(
+    "the only subject",
+    selectAutoMovieDrawSubject(["starter"], null),
+    "starter",
+  );
 
   // 5. No subject.
   TestValidator.predicate(
     "an empty module, unnamed",
-    throwsError((): string => selectAutoMovieDrawSubject([], null), "offers no subject"),
+    throwsError(
+      (): string => selectAutoMovieDrawSubject([], null),
+      "offers no subject",
+    ),
   );
   TestValidator.predicate(
     "an empty module, named",
-    throwsError((): string => selectAutoMovieDrawSubject([], "starter"), "offers no subject"),
+    throwsError(
+      (): string => selectAutoMovieDrawSubject([], "starter"),
+      "offers no subject",
+    ),
   );
 }

@@ -37,23 +37,76 @@ export function test_inspection_mark_curves_defects(): void {
     closed: boolean,
     points: number[],
     flagged: boolean = false,
-  ): IAutoMovieConstructionCurve => ({ id, kind, part: "torso", closed, points, flagged });
+  ): IAutoMovieConstructionCurve => ({
+    id,
+    kind,
+    part: "torso",
+    closed,
+    points,
+    flagged,
+  });
   const ring: IAutoMovieConstructionCurve = curve(
     "torso/section/0",
     "section",
     true,
     [-0.5, -0.5, 0, 0.5, -0.5, 0, 0.5, 0.5, 0, -0.5, 0.5, 0],
   );
-  const guide: IAutoMovieConstructionCurve = curve("torso/guide/0", "guide", false, [0, 0, 0, 0, 1, 0]);
-  const axis: IAutoMovieConstructionCurve = curve("torso/axis", "axis", false, [0, 0, -1, 0, 0, 1], true);
-  const marks: IAutoMovieMark[] = markAutoMovieConstructionCurves([ring, guide, axis], "panel");
+  const guide: IAutoMovieConstructionCurve = curve(
+    "torso/guide/0",
+    "guide",
+    false,
+    [0, 0, 0, 0, 1, 0],
+  );
+  const axis: IAutoMovieConstructionCurve = curve(
+    "torso/axis",
+    "axis",
+    false,
+    [0, 0, -1, 0, 0, 1],
+    true,
+  );
+  const marks: IAutoMovieMark[] = markAutoMovieConstructionCurves(
+    [ring, guide, axis],
+    "panel",
+  );
   TestValidator.equals(
     "each curve becomes one anchored polyline mark",
-    marks.map((mark: IAutoMovieMark) => [mark.path, mark.kind, mark.label, mark.color, mark.flagged, mark.anchor, mark.shape.type]),
+    marks.map((mark: IAutoMovieMark) => [
+      mark.path,
+      mark.kind,
+      mark.label,
+      mark.color,
+      mark.flagged,
+      mark.anchor,
+      mark.shape.type,
+    ]),
     [
-      ["panel/torso/section/0", "curve/section", "section curve", 0x59a0f4, false, "panel", "polyline"],
-      ["panel/torso/guide/0", "curve/guide", "guide curve", 0x59cb89, false, "panel", "polyline"],
-      ["panel/torso/axis", "curve/axis", "axis curve", 0x00e5ff, true, "panel", "polyline"],
+      [
+        "panel/torso/section/0",
+        "curve/section",
+        "section curve",
+        0x59a0f4,
+        false,
+        "panel",
+        "polyline",
+      ],
+      [
+        "panel/torso/guide/0",
+        "curve/guide",
+        "guide curve",
+        0x59cb89,
+        false,
+        "panel",
+        "polyline",
+      ],
+      [
+        "panel/torso/axis",
+        "curve/axis",
+        "axis curve",
+        0x00e5ff,
+        true,
+        "panel",
+        "polyline",
+      ],
     ],
   );
   TestValidator.predicate(
@@ -64,7 +117,10 @@ export function test_inspection_mark_curves_defects(): void {
   );
   TestValidator.equals(
     "a form at the root anchors to the empty path",
-    markAutoMovieConstructionCurves([guide], "").map((mark: IAutoMovieMark) => [mark.path, mark.anchor]),
+    markAutoMovieConstructionCurves([guide], "").map((mark: IAutoMovieMark) => [
+      mark.path,
+      mark.anchor,
+    ]),
     [["torso/guide/0", ""]],
   );
 
@@ -82,9 +138,8 @@ export function test_inspection_mark_curves_defects(): void {
     "the curves lie at their points under panel's placement",
     InspectionScene.segments(lines[0]!).flat(),
     [
-      2.5, -0.5, 0, 3.5, -0.5, 0, 3.5, -0.5, 0, 3.5, 0.5, 0, 3.5, 0.5, 0, 2.5, 0.5, 0, 2.5, 0.5, 0, 2.5, -0.5, 0,
-      3, 0, 0, 3, 1, 0,
-      3, 0, -1, 3, 0, 1,
+      2.5, -0.5, 0, 3.5, -0.5, 0, 3.5, -0.5, 0, 3.5, 0.5, 0, 3.5, 0.5, 0, 2.5,
+      0.5, 0, 2.5, 0.5, 0, 2.5, -0.5, 0, 3, 0, 0, 3, 1, 0, 3, 0, -1, 3, 0, 1,
     ],
   );
   TestValidator.equals(
@@ -110,8 +165,12 @@ export function test_inspection_mark_curves_defects(): void {
   const sorted = (segments: number[][]): string[] =>
     segments
       .map((s: number[]): string => {
-        const ends: string[] = [s.slice(0, 3), s.slice(3)].map((p: number[]) => p.map((v: number) => v.toFixed(6)).join(","));
-        return ends.sort((a: string, b: string): number => a.localeCompare(b)).join("|");
+        const ends: string[] = [s.slice(0, 3), s.slice(3)].map((p: number[]) =>
+          p.map((v: number) => v.toFixed(6)).join(","),
+        );
+        return ends
+          .sort((a: string, b: string): number => a.localeCompare(b))
+          .join("|");
       })
       .sort((a: string, b: string): number => a.localeCompare(b));
   TestValidator.equals(
@@ -126,28 +185,37 @@ export function test_inspection_mark_curves_defects(): void {
   );
   TestValidator.equals(
     "in the open edge red, at their paths, counted as four",
-    [
-      InspectionScene.colors(boundary[0]!),
-      edges.selected,
-      edges.legend,
-    ],
+    [InspectionScene.colors(boundary[0]!), edges.selected, edges.legend],
     [
       [0xff3b30, 0xff3b30, 0xff3b30, 0xff3b30],
-      ["open", "open/defect/open/0", "open/defect/open/1", "open/defect/open/2", "open/defect/open/3"],
+      [
+        "open",
+        "open/defect/open/0",
+        "open/defect/open/1",
+        "open/defect/open/2",
+        "open/defect/open/3",
+      ],
       [{ label: "open edge", color: 0xff3b30, count: 4 }],
     ],
   );
 
   // 4. The marks follow a moved vertex.
-  const position: THREE.BufferAttribute = open.geometry.getAttribute("position") as THREE.BufferAttribute;
-  const corner: number[] = [position.getX(0), position.getY(0), position.getZ(0)];
+  const position: THREE.BufferAttribute = open.geometry.getAttribute(
+    "position",
+  ) as THREE.BufferAttribute;
+  const corner: number[] = [
+    position.getX(0),
+    position.getY(0),
+    position.getZ(0),
+  ];
   position.setY(0, 3);
   edges.update();
   TestValidator.predicate(
     "an edge at the moved vertex now ends at its new place",
     InspectionScene.segments(boundary[0]!).some(
       (s: number[]): boolean =>
-        (s[0] === corner[0] && s[1] === 3) || (s[3] === corner[0] && s[4] === 3),
+        (s[0] === corner[0] && s[1] === 3) ||
+        (s[3] === corner[0] && s[4] === 3),
     ),
   );
   edges.restore();

@@ -21,7 +21,11 @@ import type { IAutoMovieMark } from "../geometry/IAutoMovieMark";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh marks and keeps nothing.
  */
 export function markAutoMovieRomOvershoot(
-  entries: readonly { path: string; at: IAutoMovieVector3; overshoot: number }[],
+  entries: readonly {
+    path: string;
+    at: IAutoMovieVector3;
+    overshoot: number;
+  }[],
 ): IAutoMovieMark[] {
   const marks: IAutoMovieMark[] = [];
   for (const entry of entries) {

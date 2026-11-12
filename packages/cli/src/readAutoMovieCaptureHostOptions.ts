@@ -49,7 +49,8 @@ export function readAutoMovieCaptureHostOptions(
     const value: string | undefined = request.get(key);
     request.delete(key);
     if (value === undefined) continue;
-    if (value.trim() === "") throw new Error(`Capture option --${key} needs a value`);
+    if (value.trim() === "")
+      throw new Error(`Capture option --${key} needs a value`);
     taken.set(key, value);
   }
   const module: string | null = taken.get("module") ?? null;
@@ -64,5 +65,12 @@ export function readAutoMovieCaptureHostOptions(
     );
   if (backend !== "software" && backend !== "gpu")
     throw new Error(`Capture --backend "${backend}" is not software or gpu`);
-  return { module, file, props: taken.get("props") ?? null, out, backend, request };
+  return {
+    module,
+    file,
+    props: taken.get("props") ?? null,
+    out,
+    backend,
+    request,
+  };
 }

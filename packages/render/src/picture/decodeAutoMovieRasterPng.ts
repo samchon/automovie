@@ -37,7 +37,9 @@ export async function decodeAutoMovieRasterPng(
 ): Promise<IAutoMovieRasterImage> {
   if (
     bytes.length < 8 ||
-    !SIGNATURE.every((byte: number, index: number): boolean => bytes[index] === byte)
+    !SIGNATURE.every(
+      (byte: number, index: number): boolean => bytes[index] === byte,
+    )
   )
     throw new Error("The bytes are not a PNG file");
 
@@ -58,7 +60,10 @@ export async function decodeAutoMovieRasterPng(
       throw new Error("A PNG chunk is truncated");
     const type: string = String.fromCharCode(...bytes.subarray(at + 4, at + 8));
     const body: Uint8Array = bytes.subarray(at + 8, at + 8 + length);
-    if (crcAutoMoviePngChunk(bytes.subarray(at + 4, at + 8 + length)) !== view.getUint32(at + 8 + length))
+    if (
+      crcAutoMoviePngChunk(bytes.subarray(at + 4, at + 8 + length)) !==
+      view.getUint32(at + 8 + length)
+    )
       throw new Error(`The PNG chunk ${type} fails its CRC`);
     if (type === "IHDR") header = body;
     else if (type === "PLTE") palette = body;
@@ -84,7 +89,8 @@ export async function decodeAutoMovieRasterPng(
     COLOUR_TYPES[colour];
   if (width === 0 || height === 0)
     throw new Error(`The PNG's size ${width}x${height} is empty`);
-  if (form === undefined) throw new Error(`PNG colour type ${colour} is unknown`);
+  if (form === undefined)
+    throw new Error(`PNG colour type ${colour} is unknown`);
   if (!form.depths.includes(depth))
     throw new Error(`PNG colour type ${colour} has no bit depth ${depth}`);
   if (header[10] !== 0 || header[11] !== 0)
@@ -95,7 +101,10 @@ export async function decodeAutoMovieRasterPng(
 
   // Inflate the joined image data.
   const joined: Uint8Array<ArrayBuffer> = new Uint8Array(
-    data.reduce((sum: number, part: Uint8Array): number => sum + part.length, 0),
+    data.reduce(
+      (sum: number, part: Uint8Array): number => sum + part.length,
+      0,
+    ),
   );
   let offset: number = 0;
   for (const part of data) {
@@ -106,7 +115,9 @@ export async function decodeAutoMovieRasterPng(
   try {
     rows = new Uint8Array(
       await new Response(
-        new Blob([joined]).stream().pipeThrough(new DecompressionStream("deflate")),
+        new Blob([joined])
+          .stream()
+          .pipeThrough(new DecompressionStream("deflate")),
       ).arrayBuffer(),
     );
   } catch (error) {

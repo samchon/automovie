@@ -76,7 +76,9 @@ export function measureAutoMovieInspectionPaths(props: {
     for (const list of lists)
       for (let i: number = 0; i + 2 < list.length; i += 3)
         target.expandByPoint(
-          point.set(list[i]!, list[i + 1]!, list[i + 2]!).applyMatrix4(placement),
+          point
+            .set(list[i]!, list[i + 1]!, list[i + 2]!)
+            .applyMatrix4(placement),
         );
   }
 

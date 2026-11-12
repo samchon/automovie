@@ -40,7 +40,14 @@ export function planAutoMovieInspectionTrailTimes(props: {
     throw new Error(
       `Trail second ${props.seconds} is outside the subject's ${props.durationSeconds} seconds`,
     );
-  if (!(Number.isFinite(reach) && reach > 0 && Number.isFinite(ticks) && ticks > 0))
+  if (
+    !(
+      Number.isFinite(reach) &&
+      reach > 0 &&
+      Number.isFinite(ticks) &&
+      ticks > 0
+    )
+  )
     throw new Error(
       `Trail reach ${reach} and ticks ${ticks} are not positive finite numbers`,
     );

@@ -37,8 +37,7 @@ export function buildAutoMovieInspectorPathTree(
         node = {
           name: names[depth]!,
           path: prefix,
-          pattern:
-            prefix === "" ? null : depth === 0 ? `${prefix}/**` : prefix,
+          pattern: prefix === "" ? null : depth === 0 ? `${prefix}/**` : prefix,
           drawn: false,
           children: [],
         };

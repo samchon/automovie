@@ -31,14 +31,25 @@ export function test_draw_pixels_round_trip(): void {
     bottomUp.set([0, column, 200, 255], (1 * 3 + column) * 4);
   }
   const raster: IAutoMovieRasterImage = decodeAutoMovieDrawPixels(
-    { pixels: encodeAutoMovieDrawPixels(bottomUp, 3, 2, 1), width: 3, height: 2 },
+    {
+      pixels: encodeAutoMovieDrawPixels(bottomUp, 3, 2, 1),
+      width: 3,
+      height: 2,
+    },
     { width: 3, height: 2 },
   );
-  TestValidator.equals("the size is kept", [raster.width, raster.height], [3, 2]);
+  TestValidator.equals(
+    "the size is kept",
+    [raster.width, raster.height],
+    [3, 2],
+  );
   TestValidator.equals(
     "the top row is the blue row read last",
     Array.from(raster.pixels),
-    [0, 0, 200, 255, 0, 1, 200, 255, 0, 2, 200, 255, 200, 0, 0, 255, 200, 1, 0, 255, 200, 2, 0, 255],
+    [
+      0, 0, 200, 255, 0, 1, 200, 255, 0, 2, 200, 255, 200, 0, 0, 255, 200, 1, 0,
+      255, 200, 2, 0, 255,
+    ],
   );
 
   // 2. A supersampled target averaged by blocks.
@@ -54,26 +65,50 @@ export function test_draw_pixels_round_trip(): void {
     { pixels: encodeAutoMovieDrawPixels(large, 4, 2, 2), width: 2, height: 1 },
     { width: 2, height: 1 },
   );
-  TestValidator.equals("each block is its mean", Array.from(reduced.pixels), [15, 0, 0, 255, 101, 0, 0, 255]);
+  TestValidator.equals(
+    "each block is its mean",
+    Array.from(reduced.pixels),
+    [15, 0, 0, 255, 101, 0, 0, 255],
+  );
 
   // 3. Decoding refusals.
   const text: string = encodeAutoMovieDrawPixels(bottomUp, 3, 2, 1);
   TestValidator.predicate(
     "another size than asked",
-    throwsError((): unknown => decodeAutoMovieDrawPixels({ pixels: text, width: 3, height: 2 }, { width: 2, height: 3 }), "3x2"),
+    throwsError(
+      (): unknown =>
+        decodeAutoMovieDrawPixels(
+          { pixels: text, width: 3, height: 2 },
+          { width: 2, height: 3 },
+        ),
+      "3x2",
+    ),
   );
   TestValidator.predicate(
     "bytes of another size",
-    throwsError((): unknown => decodeAutoMovieDrawPixels({ pixels: text, width: 2, height: 2 }, { width: 2, height: 2 }), "24 bytes"),
+    throwsError(
+      (): unknown =>
+        decodeAutoMovieDrawPixels(
+          { pixels: text, width: 2, height: 2 },
+          { width: 2, height: 2 },
+        ),
+      "24 bytes",
+    ),
   );
 
   // 4. Encoding refusals.
   TestValidator.predicate(
     "a short buffer",
-    throwsError((): unknown => encodeAutoMovieDrawPixels(new Uint8Array(7), 3, 2, 1), "7 bytes"),
+    throwsError(
+      (): unknown => encodeAutoMovieDrawPixels(new Uint8Array(7), 3, 2, 1),
+      "7 bytes",
+    ),
   );
   TestValidator.predicate(
     "a factor that does not divide",
-    throwsError((): unknown => encodeAutoMovieDrawPixels(bottomUp, 3, 2, 2), "factor 2"),
+    throwsError(
+      (): unknown => encodeAutoMovieDrawPixels(bottomUp, 3, 2, 2),
+      "factor 2",
+    ),
   );
 }

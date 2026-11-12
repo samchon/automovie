@@ -64,7 +64,9 @@ export function test_inspection_mark_anchor(): void {
   handle.restore();
 
   // 3. World space under a moved root.
-  const root: THREE.Scene = InspectionScene.scene(InspectionScene.quad("panel"));
+  const root: THREE.Scene = InspectionScene.scene(
+    InspectionScene.quad("panel"),
+  );
   root.position.set(0, 5, 0);
   root.updateMatrixWorld(true);
   const world: IAutoMovieInspectionHandle = applyAutoMovieInspection({
@@ -85,7 +87,9 @@ export function test_inspection_mark_anchor(): void {
   world.restore();
 
   // 4. Replacing marks.
-  const swap: THREE.Scene = InspectionScene.scene(InspectionScene.quad("panel"));
+  const swap: THREE.Scene = InspectionScene.scene(
+    InspectionScene.quad("panel"),
+  );
   const replaced: IAutoMovieInspectionHandle = applyAutoMovieInspection({
     scene: swap,
     request: InspectionScene.ask({ marks: ["probe"] }),
@@ -115,8 +119,18 @@ export function test_inspection_mark_anchor(): void {
   );
   TestValidator.equals(
     "and the same selection and legend arrays describe them",
-    [selected === replaced.selected, selected, legend === replaced.legend, legend],
-    [true, ["panel", "panel/second"], true, [{ label: "probe", color: 0x00aa00, count: 1 }]],
+    [
+      selected === replaced.selected,
+      selected,
+      legend === replaced.legend,
+      legend,
+    ],
+    [
+      true,
+      ["panel", "panel/second"],
+      true,
+      [{ label: "probe", color: 0x00aa00, count: 1 }],
+    ],
   );
   replaced.restore();
   try {

@@ -38,8 +38,10 @@ export function reduceAutoMovieInspectorState(
   if (action.type === "restore")
     return { request: action.request, error: action.error };
   if (action.type === "text")
-    return read(state, (): IAutoMovieCapturePlanRequest =>
-      readAutoMovieInspectorAddress(action.text),
+    return read(
+      state,
+      (): IAutoMovieCapturePlanRequest =>
+        readAutoMovieInspectorAddress(action.text),
     );
 
   // Every other edit changes the text of the keys it names.
@@ -66,7 +68,9 @@ export function reduceAutoMovieInspectorState(
         ),
         ...(action.color === null
           ? []
-          : [`${action.pattern}=${action.color.toString(16).padStart(6, "0")}`]),
+          : [
+              `${action.pattern}=${action.color.toString(16).padStart(6, "0")}`,
+            ]),
       ]);
       break;
     case "shade":
@@ -89,8 +93,10 @@ export function reduceAutoMovieInspectorState(
       else values.set("subject", action.name);
       break;
   }
-  return read(state, (): IAutoMovieCapturePlanRequest =>
-    parseAutoMovieCapturePlanRequest(values),
+  return read(
+    state,
+    (): IAutoMovieCapturePlanRequest =>
+      parseAutoMovieCapturePlanRequest(values),
   );
 }
 

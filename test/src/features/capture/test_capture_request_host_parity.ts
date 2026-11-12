@@ -109,7 +109,9 @@ export function test_capture_request_host_parity(): void {
     parseAutoMovieCapturePlanRequest(
       readAutoMovieCaptureArguments(["--xray", "1", "--stroke", "2"]),
     ),
-  ].map((request: IAutoMovieCapturePlanRequest): boolean => request.inspection.xray);
+  ].map(
+    (request: IAutoMovieCapturePlanRequest): boolean => request.inspection.xray,
+  );
   TestValidator.equals("a switch reads alike in every form", switched, [
     true,
     true,
@@ -121,7 +123,15 @@ export function test_capture_request_host_parity(): void {
   // 3. Values that start with one dash, and an empty value.
   TestValidator.equals(
     "a dash-leading value is a value",
-    [...readAutoMovieCaptureArguments(["--section", "-x:0.2", "--from", "-1", "--wire="])],
+    [
+      ...readAutoMovieCaptureArguments([
+        "--section",
+        "-x:0.2",
+        "--from",
+        "-1",
+        "--wire=",
+      ]),
+    ],
     [
       ["section", "-x:0.2"],
       ["from", "-1"],

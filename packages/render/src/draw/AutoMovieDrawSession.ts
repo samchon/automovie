@@ -2,10 +2,10 @@ import type { IAutoMovieCaptureCell } from "../capture/IAutoMovieCaptureCell.js"
 import type { IAutoMovieCaptureDrawing } from "../capture/IAutoMovieCaptureDrawing.js";
 import type { IAutoMovieCapturePlan } from "../capture/IAutoMovieCapturePlan.js";
 import type { IAutoMovieCaptureSubject } from "../capture/IAutoMovieCaptureSubject.js";
-import { formatAutoMovieInspectionCameraView } from "../scene/inspection/formatAutoMovieInspectionCameraView.js";
-import type { IAutoMovieInspectionRequest } from "../scene/inspection/IAutoMovieInspectionRequest.js";
-import { parseAutoMovieInspectionRequest } from "../scene/inspection/parseAutoMovieInspectionRequest.js";
 import type { IAutoMovieRasterImage } from "../picture/IAutoMovieRasterImage.js";
+import type { IAutoMovieInspectionRequest } from "../scene/inspection/IAutoMovieInspectionRequest.js";
+import { formatAutoMovieInspectionCameraView } from "../scene/inspection/formatAutoMovieInspectionCameraView.js";
+import { parseAutoMovieInspectionRequest } from "../scene/inspection/parseAutoMovieInspectionRequest.js";
 import { AUTO_MOVIE_DRAW_GLOBALS } from "./AUTO_MOVIE_DRAW_GLOBALS.js";
 import type { IAutoMovieDrawCall } from "./IAutoMovieDrawCall.js";
 import type { IAutoMovieDrawDescription } from "./IAutoMovieDrawDescription.js";
@@ -153,7 +153,10 @@ export class AutoMovieDrawSession {
       this.timeout,
       what,
       this.page.evaluate(
-        (arg: { name: string; call: IAutoMovieDrawCall }): Promise<IAutoMovieDrawResult> =>
+        (arg: {
+          name: string;
+          call: IAutoMovieDrawCall;
+        }): Promise<IAutoMovieDrawResult> =>
           (
             (globalThis as unknown as Record<string, unknown>)[arg.name] as {
               draw(call: IAutoMovieDrawCall): Promise<IAutoMovieDrawResult>;
@@ -209,7 +212,12 @@ export class AutoMovieDrawSession {
   public async frame(
     seconds: number,
     passes: readonly IAutoMovieInspectionRequest.Shade[],
-  ): Promise<{ pass: IAutoMovieInspectionRequest.Shade; picture: IAutoMovieRasterImage }[]> {
+  ): Promise<
+    {
+      pass: IAutoMovieInspectionRequest.Shade;
+      picture: IAutoMovieRasterImage;
+    }[]
+  > {
     const plain: IAutoMovieInspectionRequest = parseAutoMovieInspectionRequest(
       (): undefined => undefined,
     );

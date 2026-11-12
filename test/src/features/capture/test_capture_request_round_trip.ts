@@ -78,7 +78,8 @@ export function test_capture_request_round_trip(): void {
   ];
   for (const pairs of cases) {
     const request: IAutoMovieCapturePlanRequest = read(pairs);
-    const written: [string, string][] = formatAutoMovieCapturePlanRequest(request);
+    const written: [string, string][] =
+      formatAutoMovieCapturePlanRequest(request);
     TestValidator.equals(
       `${pairs.map(([key]: [string, string]): string => key).join(",")} reads back`,
       read(written),
@@ -100,8 +101,12 @@ export function test_capture_request_round_trip(): void {
     formatAutoMovieCapturePlanRequest(read(pairs)).map(
       ([key]: [string, string]): string => key,
     );
-  TestValidator.equals("one pass is the shade", keys([["passes", "clay"]]), ["shade"]);
-  TestValidator.equals("several passes are passes", keys([["passes", "clay,depth"]]), [
-    "passes",
+  TestValidator.equals("one pass is the shade", keys([["passes", "clay"]]), [
+    "shade",
   ]);
+  TestValidator.equals(
+    "several passes are passes",
+    keys([["passes", "clay,depth"]]),
+    ["passes"],
+  );
 }

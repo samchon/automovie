@@ -116,7 +116,8 @@ export function AutoMovieInspector(
         refused: (
           drawn: IAutoMovieInspectorState["request"],
           message: string,
-        ): void => dispatch({ type: "restore", request: drawn, error: message }),
+        ): void =>
+          dispatch({ type: "restore", request: drawn, error: message }),
       },
     });
     scene.current = mounted;
@@ -135,7 +136,14 @@ export function AutoMovieInspector(
   }, [request, onRequestChange]);
 
   return (
-    <div style={{ display: "flex", gap: 12, fontFamily: "sans-serif", fontSize: 13 }}>
+    <div
+      style={{
+        display: "flex",
+        gap: 12,
+        fontFamily: "sans-serif",
+        fontSize: 13,
+      }}
+    >
       <div style={{ flex: "1 1 auto", minWidth: 0 }}>
         <div style={{ position: "relative" }}>
           <canvas
@@ -149,7 +157,9 @@ export function AutoMovieInspector(
             }}
           />
           {labels.labels.map(
-            (label: IAutoMovieInspectorScene.ILabels["labels"][number]): JSX.Element => (
+            (
+              label: IAutoMovieInspectorScene.ILabels["labels"][number],
+            ): JSX.Element => (
               <span
                 key={label.path}
                 style={{
@@ -177,10 +187,16 @@ export function AutoMovieInspector(
           dispatch={dispatch}
         />
         {[unnamed, failure, state.error]
-          .filter((message: string | null): message is string => message !== null)
+          .filter(
+            (message: string | null): message is string => message !== null,
+          )
           .map(
             (message: string): JSX.Element => (
-              <p key={message} role="alert" style={{ color: "#c00", margin: "4px 0" }}>
+              <p
+                key={message}
+                role="alert"
+                style={{ color: "#c00", margin: "4px 0" }}
+              >
                 {message}
               </p>
             ),

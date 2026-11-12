@@ -37,42 +37,91 @@ export async function test_capture_folder_ownership(): Promise<void> {
     "a foreign file refuses the folder",
     await rejectsError(
       (): Promise<unknown> =>
-        AutoMovieCaptureFolder.open({ storage: foreign.storage, root: "out", round: null, compare: null }),
+        AutoMovieCaptureFolder.open({
+          storage: foreign.storage,
+          root: "out",
+          round: null,
+          compare: null,
+        }),
       ["notes.txt"],
     ),
   );
   TestValidator.equals(
     "nothing is deleted or written",
-    [[...foreign.files.keys()].sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0)), foreign.log.filter((call: string): boolean => !/^(mkdir|readdir|readFile) /u.test(call))],
+    [
+      [...foreign.files.keys()].sort((a: string, b: string): number =>
+        a < b ? -1 : a > b ? 1 : 0,
+      ),
+      foreign.log.filter(
+        (call: string): boolean => !/^(mkdir|readdir|readFile) /u.test(call),
+      ),
+    ],
     [["out/a.png", "out/notes.txt", "out/record.json"], []],
   );
 
   // 2. Kept rounds.
-  const rounds: createCaptureMemory.IMemory = createCaptureMemory({ "out/rounds/before/record.json": complete([]) });
-  await AutoMovieCaptureFolder.open({ storage: rounds.storage, root: "out/", round: null, compare: null });
-  TestValidator.predicate("the rounds folder stays", rounds.files.has("out/rounds/before/record.json"));
+  const rounds: createCaptureMemory.IMemory = createCaptureMemory({
+    "out/rounds/before/record.json": complete([]),
+  });
+  await AutoMovieCaptureFolder.open({
+    storage: rounds.storage,
+    root: "out/",
+    round: null,
+    compare: null,
+  });
+  TestValidator.predicate(
+    "the rounds folder stays",
+    rounds.files.has("out/rounds/before/record.json"),
+  );
 
   // 3. An interrupted capture.
   const interrupted: createCaptureMemory.IMemory = createCaptureMemory({
-    "out/record.json": JSON.stringify({ state: "running", files: ["a.png", "b.png"] }),
+    "out/record.json": JSON.stringify({
+      state: "running",
+      files: ["a.png", "b.png"],
+    }),
     "out/a.png": "a",
   });
-  await AutoMovieCaptureFolder.open({ storage: interrupted.storage, root: "out", round: null, compare: null });
-  TestValidator.equals("its files are deleted", [...interrupted.files.keys()], ["out/record.json"]);
+  await AutoMovieCaptureFolder.open({
+    storage: interrupted.storage,
+    root: "out",
+    round: null,
+    compare: null,
+  });
+  TestValidator.equals(
+    "its files are deleted",
+    [...interrupted.files.keys()],
+    ["out/record.json"],
+  );
 
   // 4. A round's folder.
-  const round: createCaptureMemory.IMemory = createCaptureMemory({ "out/rounds/r1/stray.png": "x", "out/rounds/r2/rounds/x": "x" });
+  const round: createCaptureMemory.IMemory = createCaptureMemory({
+    "out/rounds/r1/stray.png": "x",
+    "out/rounds/r2/rounds/x": "x",
+  });
   TestValidator.predicate(
     "a foreign file in a round is refused",
     await rejectsError(
-      (): Promise<unknown> => AutoMovieCaptureFolder.open({ storage: round.storage, root: "out", round: "r1", compare: null }),
+      (): Promise<unknown> =>
+        AutoMovieCaptureFolder.open({
+          storage: round.storage,
+          root: "out",
+          round: "r1",
+          compare: null,
+        }),
       ["stray.png"],
     ),
   );
   TestValidator.predicate(
     "rounds inside a round is not owned",
     await rejectsError(
-      (): Promise<unknown> => AutoMovieCaptureFolder.open({ storage: round.storage, root: "out", round: "r2", compare: null }),
+      (): Promise<unknown> =>
+        AutoMovieCaptureFolder.open({
+          storage: round.storage,
+          root: "out",
+          round: "r2",
+          compare: null,
+        }),
       ["rounds"],
     ),
   );
@@ -80,7 +129,15 @@ export async function test_capture_folder_ownership(): Promise<void> {
   // 5. The compared round is confirmed before anything is deleted.
   for (const [title, seed] of [
     ["missing", {}],
-    ["running", { "out/rounds/before/record.json": JSON.stringify({ state: "running", files: [] }) }],
+    [
+      "running",
+      {
+        "out/rounds/before/record.json": JSON.stringify({
+          state: "running",
+          files: [],
+        }),
+      },
+    ],
   ] as const) {
     const memory: createCaptureMemory.IMemory = createCaptureMemory({
       ...seed,
@@ -90,19 +147,36 @@ export async function test_capture_folder_ownership(): Promise<void> {
     TestValidator.predicate(
       `a ${title} compared round is refused`,
       await rejectsError(
-        (): Promise<unknown> => AutoMovieCaptureFolder.open({ storage: memory.storage, root: "out", round: null, compare: "before" }),
+        (): Promise<unknown> =>
+          AutoMovieCaptureFolder.open({
+            storage: memory.storage,
+            root: "out",
+            round: null,
+            compare: "before",
+          }),
         ['"before"'],
       ),
     );
-    TestValidator.predicate(`the previous capture stays when the round is ${title}`, memory.files.has("out/a.png"));
+    TestValidator.predicate(
+      `the previous capture stays when the round is ${title}`,
+      memory.files.has("out/a.png"),
+    );
   }
 
   // 6. A malformed record.
-  const broken: createCaptureMemory.IMemory = createCaptureMemory({ "out/record.json": "{ not json" });
+  const broken: createCaptureMemory.IMemory = createCaptureMemory({
+    "out/record.json": "{ not json",
+  });
   TestValidator.predicate(
     "a malformed record is refused",
     await rejectsError(
-      (): Promise<unknown> => AutoMovieCaptureFolder.open({ storage: broken.storage, root: "out", round: null, compare: null }),
+      (): Promise<unknown> =>
+        AutoMovieCaptureFolder.open({
+          storage: broken.storage,
+          root: "out",
+          round: null,
+          compare: null,
+        }),
       ["out/record.json"],
     ),
   );
@@ -121,6 +195,9 @@ export async function test_capture_folder_ownership(): Promise<void> {
     );
   TestValidator.predicate(
     "an unclaimed write is refused",
-    await rejectsError((): Promise<unknown> => folder.write("t.png", "x"), ["t.png"]),
+    await rejectsError(
+      (): Promise<unknown> => folder.write("t.png", "x"),
+      ["t.png"],
+    ),
   );
 }

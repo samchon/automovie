@@ -5,7 +5,10 @@ import path from "node:path";
 import ts from "typescript-compiler";
 
 /** Root of the `render` package's source. */
-const SOURCE: string = path.resolve(__dirname, "../../../../packages/render/src");
+const SOURCE: string = path.resolve(
+  __dirname,
+  "../../../../packages/render/src",
+);
 
 /** Root of the `viewer` package, which `render` must never reach. */
 const VIEWER: string = path.resolve(__dirname, "../../../../packages/viewer");
@@ -25,16 +28,24 @@ const NODE_EXCEPTIONS: Readonly<Record<string, readonly string[]>> = {};
  */
 function forbidden(file: string, source: string): string[] {
   const allowed: readonly string[] =
-    NODE_EXCEPTIONS[path.relative(SOURCE, file).split(path.sep).join("/")] ?? [];
+    NODE_EXCEPTIONS[path.relative(SOURCE, file).split(path.sep).join("/")] ??
+    [];
   return ts
     .preProcessFile(source, true, true)
     .importedFiles.map((entry: ts.FileReference): string => entry.fileName)
     .flatMap((specifier: string): string[] => {
       const root: string = specifier.split("/")[0]!;
-      if (specifier === "@automovie/viewer" || specifier.startsWith("@automovie/viewer/"))
+      if (
+        specifier === "@automovie/viewer" ||
+        specifier.startsWith("@automovie/viewer/")
+      )
         return [`viewer ${specifier}`];
-      if (root === "react" || root === "react-dom") return [`react ${specifier}`];
-      if ((specifier.startsWith("node:") || BUILTINS.has(root)) && !allowed.includes(specifier))
+      if (root === "react" || root === "react-dom")
+        return [`react ${specifier}`];
+      if (
+        (specifier.startsWith("node:") || BUILTINS.has(root)) &&
+        !allowed.includes(specifier)
+      )
         return [`node ${specifier}`];
       if (!specifier.startsWith(".")) return [];
       const target: string = path.resolve(path.dirname(file), specifier);
@@ -72,10 +83,21 @@ export function test_render_import_boundary(): void {
     `import { x } from "@automovie/viewer/lib/index.js";`,
     `import { x } from "../../../viewer/src/mountViewer.js";`,
   ])
-    TestValidator.equals(`flagged: ${source}`, forbidden(inside, source).length, 1);
+    TestValidator.equals(
+      `flagged: ${source}`,
+      forbidden(inside, source).length,
+      1,
+    );
 
   // 2. React and Node built-ins are flagged.
-  for (const specifier of ["react", "react-dom/client", "node:fs/promises", "node:zlib", "zlib", "fs/promises"])
+  for (const specifier of [
+    "react",
+    "react-dom/client",
+    "node:fs/promises",
+    "node:zlib",
+    "zlib",
+    "fs/promises",
+  ])
     TestValidator.equals(
       `flagged: ${specifier}`,
       forbidden(inside, `import x from "${specifier}";`).length,
@@ -98,10 +120,14 @@ export function test_render_import_boundary(): void {
   )
     .filter((name: string): boolean => name.endsWith(".ts"))
     .map((name: string): string => path.join(SOURCE, name));
-  TestValidator.predicate("the scan reads the package's source", files.length >= 100);
+  TestValidator.predicate(
+    "the scan reads the package's source",
+    files.length >= 100,
+  );
   const found: string[] = files.flatMap((file: string): string[] =>
     forbidden(file, fs.readFileSync(file, "utf8")).map(
-      (crossing: string): string => `${path.relative(SOURCE, file)} imports ${crossing}`,
+      (crossing: string): string =>
+        `${path.relative(SOURCE, file)} imports ${crossing}`,
     ),
   );
   TestValidator.equals("no render module crosses a boundary", found, []);

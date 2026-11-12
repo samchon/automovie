@@ -47,10 +47,22 @@ export async function test_draw_drawn_video(): Promise<void> {
     pixelFormat: "yuv420p",
     crf: 18,
   };
-  const open: (subject: IAutoMovieCaptureSubject) => Promise<{ session: AutoMovieDrawSession; double: createDrawPageDouble.IDouble }> = async (
+  const open: (
     subject: IAutoMovieCaptureSubject,
-  ): Promise<{ session: AutoMovieDrawSession; double: createDrawPageDouble.IDouble }> => {
-    const double: createDrawPageDouble.IDouble = createDrawPageDouble({ subject, renderer: "test", answer: answerDrawCall });
+  ) => Promise<{
+    session: AutoMovieDrawSession;
+    double: createDrawPageDouble.IDouble;
+  }> = async (
+    subject: IAutoMovieCaptureSubject,
+  ): Promise<{
+    session: AutoMovieDrawSession;
+    double: createDrawPageDouble.IDouble;
+  }> => {
+    const double: createDrawPageDouble.IDouble = createDrawPageDouble({
+      subject,
+      renderer: "test",
+      answer: answerDrawCall,
+    });
     return {
       double,
       session: await AutoMovieDrawSession.open({
@@ -66,57 +78,101 @@ export async function test_draw_drawn_video(): Promise<void> {
   const { session, double } = await open(SUBJECT);
   const log: string[] = [];
   const files: Map<string, Uint8Array> = new Map();
-  const result: Awaited<ReturnType<typeof renderAutoMovieDrawnVideo>> = await renderAutoMovieDrawnVideo({
-    session,
-    spec,
-    frameDir: "frames",
-    outputPath: "film.mp4",
-    audio: null,
-    write: async (path: string, data: Uint8Array): Promise<void> => {
-      log.push(`write ${path}`);
-      files.set(path, data);
-    },
-    encode: async (args: readonly string[]): Promise<void> => {
-      log.push(`encode ${args.join(" ")}`);
-    },
-  });
+  const result: Awaited<ReturnType<typeof renderAutoMovieDrawnVideo>> =
+    await renderAutoMovieDrawnVideo({
+      session,
+      spec,
+      frameDir: "frames",
+      outputPath: "film.mp4",
+      audio: null,
+      write: async (path: string, data: Uint8Array): Promise<void> => {
+        log.push(`write ${path}`);
+        files.set(path, data);
+      },
+      encode: async (args: readonly string[]): Promise<void> => {
+        log.push(`encode ${args.join(" ")}`);
+      },
+    });
 
   // 1. The draws.
   const calls: IAutoMovieDrawCall[] = double.calls
     .slice(4)
-    .map((call: createDrawPageDouble.ICall): IAutoMovieDrawCall => (call.arg as { call: IAutoMovieDrawCall }).call);
+    .map(
+      (call: createDrawPageDouble.ICall): IAutoMovieDrawCall =>
+        (call.arg as { call: IAutoMovieDrawCall }).call,
+    );
   TestValidator.equals(
     "four frames through the film camera",
-    calls.map((call: IAutoMovieDrawCall): unknown[] => [call.seconds, call.view, call.request.shade, call.width, call.height]),
-    [0, 0.125, 0.25, 0.375].map((seconds: number): unknown[] => [seconds, "film", "beauty", 16, 10]),
+    calls.map((call: IAutoMovieDrawCall): unknown[] => [
+      call.seconds,
+      call.view,
+      call.request.shade,
+      call.width,
+      call.height,
+    ]),
+    [0, 0.125, 0.25, 0.375].map((seconds: number): unknown[] => [
+      seconds,
+      "film",
+      "beauty",
+      16,
+      10,
+    ]),
   );
 
   // 2. The writes, in order, with the page's pixels.
   TestValidator.equals(
     "numbered files in order, then one encode",
-    log.map((line: string): string => line.split(" ")[0] === "encode" ? "encode" : line),
-    ["write frames/frame_00000.png", "write frames/frame_00001.png", "write frames/frame_00002.png", "write frames/frame_00003.png", "encode"],
+    log.map((line: string): string =>
+      line.split(" ")[0] === "encode" ? "encode" : line,
+    ),
+    [
+      "write frames/frame_00000.png",
+      "write frames/frame_00001.png",
+      "write frames/frame_00002.png",
+      "write frames/frame_00003.png",
+      "encode",
+    ],
   );
-  const decoded: { width: number; height: number; pixels: Uint8ClampedArray } = await decodeAutoMovieRasterPng(files.get("frames/frame_00002.png")!);
+  const decoded: { width: number; height: number; pixels: Uint8ClampedArray } =
+    await decodeAutoMovieRasterPng(files.get("frames/frame_00002.png")!);
   TestValidator.equals(
     "the page's picture",
-    [decoded.width, decoded.height, Array.from(decoded.pixels.subarray((3 * 16 + 5) * 4, (3 * 16 + 5) * 4 + 4))],
+    [
+      decoded.width,
+      decoded.height,
+      Array.from(
+        decoded.pixels.subarray((3 * 16 + 5) * 4, (3 * 16 + 5) * 4 + 4),
+      ),
+    ],
     [16, 10, [3, 5, 7, 255]],
   );
-  TestValidator.equals("the result lists the frames", result.frames.map((frame: { file: string }): string => frame.file), [...files.keys()]);
+  TestValidator.equals(
+    "the result lists the frames",
+    result.frames.map((frame: { file: string }): string => frame.file),
+    [...files.keys()],
+  );
 
   // 3. The encode uses the subject's clock and raster.
   const encoded: string = log.at(-1)!;
   TestValidator.predicate(
     "the subject's rate, raster and clock",
-    ["-framerate 24", "-framerate 30", "-s 1280x720"].every((part: string): boolean => !encoded.includes(part)) &&
-      ["-framerate 8", "-s 16x10", "-frames:v 4", "-t 0.5", "frames/frame_%05d.png"].every((part: string): boolean =>
-        encoded.includes(part),
-      ),
+    ["-framerate 24", "-framerate 30", "-s 1280x720"].every(
+      (part: string): boolean => !encoded.includes(part),
+    ) &&
+      [
+        "-framerate 8",
+        "-s 16x10",
+        "-frames:v 4",
+        "-t 0.5",
+        "frames/frame_%05d.png",
+      ].every((part: string): boolean => encoded.includes(part)),
   );
 
   // 4. A fractional clock.
-  const odd: { session: AutoMovieDrawSession; double: createDrawPageDouble.IDouble } = await open({ ...SUBJECT, durationSeconds: 0.51 });
+  const odd: {
+    session: AutoMovieDrawSession;
+    double: createDrawPageDouble.IDouble;
+  } = await open({ ...SUBJECT, durationSeconds: 0.51 });
   const message: string = await renderAutoMovieDrawnVideo({
     session: odd.session,
     spec,
@@ -127,7 +183,12 @@ export async function test_draw_drawn_video(): Promise<void> {
     encode: async (): Promise<void> => {},
   })
     .then((): string => "")
-    .catch((error: unknown): string => (error instanceof Error ? error.message : String(error)));
-  TestValidator.predicate("a fractional clock is refused", message.includes("whole number of frames"));
+    .catch((error: unknown): string =>
+      error instanceof Error ? error.message : String(error),
+    );
+  TestValidator.predicate(
+    "a fractional clock is refused",
+    message.includes("whole number of frames"),
+  );
   TestValidator.equals("before any draw", odd.double.calls.length, 4);
 }

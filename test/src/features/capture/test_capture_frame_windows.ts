@@ -24,45 +24,75 @@ import { TestValidator } from "@nestia/e2e";
 export function test_capture_frame_windows(): void {
   const frames: (times: IAutoMovieCaptureTime[]) => (number | null)[] = (
     times: IAutoMovieCaptureTime[],
-  ): (number | null)[] => times.map((time: IAutoMovieCaptureTime): number | null => time.frame);
-  const even: { kind: "even"; from: number; to: number | null; rate: number } = {
-    kind: "even",
-    from: 0,
-    to: null,
-    rate: 5,
-  };
+  ): (number | null)[] =>
+    times.map((time: IAutoMovieCaptureTime): number | null => time.frame);
+  const even: { kind: "even"; from: number; to: number | null; rate: number } =
+    {
+      kind: "even",
+      from: 0,
+      to: null,
+      rate: 5,
+    };
 
   // 1. One event inside the subject.
-  const event: ReturnType<typeof planAutoMovieCaptureFrames> = planAutoMovieCaptureFrames({
-    durationSeconds: 4,
-    fps: 30,
-    sampling: even,
-    events: [2],
-    cuts: [],
-    window: 3,
-  });
-  const sampled: number[] = Array.from({ length: 20 }, (_: unknown, index: number): number => index * 6);
+  const event: ReturnType<typeof planAutoMovieCaptureFrames> =
+    planAutoMovieCaptureFrames({
+      durationSeconds: 4,
+      fps: 30,
+      sampling: even,
+      events: [2],
+      cuts: [],
+      window: 3,
+    });
+  const sampled: number[] = Array.from(
+    { length: 20 },
+    (_: unknown, index: number): number => index * 6,
+  );
   TestValidator.equals(
     "frames 57 to 63 merge once with the samples",
     frames(event.times),
-    [...new Set([...sampled, 57, 58, 59, 60, 61, 62, 63])].sort((a: number, b: number): number => a - b),
+    [...new Set([...sampled, 57, 58, 59, 60, 61, 62, 63])].sort(
+      (a: number, b: number): number => a - b,
+    ),
   );
   TestValidator.equals("the window is recorded", event.windows, [
-    { kind: "event", seconds: 2, frame: 60, first: 57, last: 63, clipped: false },
+    {
+      kind: "event",
+      seconds: 2,
+      frame: 60,
+      first: 57,
+      last: 63,
+      clipped: false,
+    },
   ]);
 
   // 2. Events at the bounds.
-  const bounds: ReturnType<typeof planAutoMovieCaptureFrames> = planAutoMovieCaptureFrames({
-    durationSeconds: 4,
-    fps: 30,
-    sampling: { kind: "at", seconds: [1] },
-    events: [0.05, 3.98],
-    cuts: [],
-    window: 3,
-  });
+  const bounds: ReturnType<typeof planAutoMovieCaptureFrames> =
+    planAutoMovieCaptureFrames({
+      durationSeconds: 4,
+      fps: 30,
+      sampling: { kind: "at", seconds: [1] },
+      events: [0.05, 3.98],
+      cuts: [],
+      window: 3,
+    });
   TestValidator.equals("windows are cut at the bounds", bounds.windows, [
-    { kind: "event", seconds: 0.05, frame: 2, first: 0, last: 5, clipped: true },
-    { kind: "event", seconds: 3.98, frame: 119, first: 116, last: 119, clipped: true },
+    {
+      kind: "event",
+      seconds: 0.05,
+      frame: 2,
+      first: 0,
+      last: 5,
+      clipped: true,
+    },
+    {
+      kind: "event",
+      seconds: 3.98,
+      frame: 119,
+      first: 116,
+      last: 119,
+      clipped: true,
+    },
   ]);
   TestValidator.equals(
     "no frame lies outside the subject",
@@ -71,18 +101,28 @@ export function test_capture_frame_windows(): void {
   );
 
   // 3. Two cuts.
-  const cut: ReturnType<typeof planAutoMovieCaptureFrames> = planAutoMovieCaptureFrames({
-    durationSeconds: 4,
-    fps: 30,
-    sampling: { kind: "at", seconds: [0] },
-    events: [],
-    cuts: [1, 2.5],
-    window: 1,
-  });
-  TestValidator.equals("frames around both cuts", frames(cut.times), [0, 29, 30, 31, 74, 75, 76]);
+  const cut: ReturnType<typeof planAutoMovieCaptureFrames> =
+    planAutoMovieCaptureFrames({
+      durationSeconds: 4,
+      fps: 30,
+      sampling: { kind: "at", seconds: [0] },
+      events: [],
+      cuts: [1, 2.5],
+      window: 1,
+    });
+  TestValidator.equals(
+    "frames around both cuts",
+    frames(cut.times),
+    [0, 29, 30, 31, 74, 75, 76],
+  );
   TestValidator.equals(
     "cut windows are recorded",
-    cut.windows.map((window: { kind: string; frame: number }): [string, number] => [window.kind, window.frame]),
+    cut.windows.map(
+      (window: { kind: string; frame: number }): [string, number] => [
+        window.kind,
+        window.frame,
+      ],
+    ),
     [
       ["cut", 30],
       ["cut", 75],
@@ -90,16 +130,27 @@ export function test_capture_frame_windows(): void {
   );
 
   // 4. No cut, and a zero window.
-  const none: ReturnType<typeof planAutoMovieCaptureFrames> = planAutoMovieCaptureFrames({
-    durationSeconds: 4,
-    fps: 30,
-    sampling: { kind: "at", seconds: [0] },
-    events: [2],
-    cuts: [],
-    window: 0,
-  });
-  TestValidator.equals("a zero window is the nearest frame", frames(none.times), [0, 60]);
-  TestValidator.equals("no cut gives no cut window", none.windows.filter((window: { kind: string }): boolean => window.kind === "cut"), []);
+  const none: ReturnType<typeof planAutoMovieCaptureFrames> =
+    planAutoMovieCaptureFrames({
+      durationSeconds: 4,
+      fps: 30,
+      sampling: { kind: "at", seconds: [0] },
+      events: [2],
+      cuts: [],
+      window: 0,
+    });
+  TestValidator.equals(
+    "a zero window is the nearest frame",
+    frames(none.times),
+    [0, 60],
+  );
+  TestValidator.equals(
+    "no cut gives no cut window",
+    none.windows.filter(
+      (window: { kind: string }): boolean => window.kind === "cut",
+    ),
+    [],
+  );
 
   // 5. Explicit seconds.
   TestValidator.equals(

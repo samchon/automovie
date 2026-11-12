@@ -32,20 +32,22 @@ export function focusAutoMovieInspection(props: {
 }): IAutoMovieViewerSubjectBounds {
   const focus: IAutoMovieInspectionView.IFocus = props.focus;
   const flagged: boolean = focus.type === "flagged";
-  const boxes: { min: { x: number; y: number; z: number }; max: { x: number; y: number; z: number } }[] =
-    measureAutoMovieInspectionPaths({
-      objects: flagged ? [] : props.objects,
-      marks: flagged
-        ? props.marks.filter(
-            (entry: { mark: IAutoMovieMark }): boolean => entry.mark.flagged,
-          )
-        : props.marks,
-      choose:
-        focus.type === "pattern"
-          ? (path: string): boolean =>
-              matchAutoMovieInspectionPath(path, focus.pattern)
-          : (): boolean => true,
-    });
+  const boxes: {
+    min: { x: number; y: number; z: number };
+    max: { x: number; y: number; z: number };
+  }[] = measureAutoMovieInspectionPaths({
+    objects: flagged ? [] : props.objects,
+    marks: flagged
+      ? props.marks.filter(
+          (entry: { mark: IAutoMovieMark }): boolean => entry.mark.flagged,
+        )
+      : props.marks,
+    choose:
+      focus.type === "pattern"
+        ? (path: string): boolean =>
+            matchAutoMovieInspectionPath(path, focus.pattern)
+        : (): boolean => true,
+  });
   if (boxes.length === 0)
     throw new Error(
       focus.type === "flagged"
@@ -54,14 +56,26 @@ export function focusAutoMovieInspection(props: {
     );
   return {
     min: {
-      x: Math.min(...boxes.map((box: { min: { x: number } }): number => box.min.x)),
-      y: Math.min(...boxes.map((box: { min: { y: number } }): number => box.min.y)),
-      z: Math.min(...boxes.map((box: { min: { z: number } }): number => box.min.z)),
+      x: Math.min(
+        ...boxes.map((box: { min: { x: number } }): number => box.min.x),
+      ),
+      y: Math.min(
+        ...boxes.map((box: { min: { y: number } }): number => box.min.y),
+      ),
+      z: Math.min(
+        ...boxes.map((box: { min: { z: number } }): number => box.min.z),
+      ),
     },
     max: {
-      x: Math.max(...boxes.map((box: { max: { x: number } }): number => box.max.x)),
-      y: Math.max(...boxes.map((box: { max: { y: number } }): number => box.max.y)),
-      z: Math.max(...boxes.map((box: { max: { z: number } }): number => box.max.z)),
+      x: Math.max(
+        ...boxes.map((box: { max: { x: number } }): number => box.max.x),
+      ),
+      y: Math.max(
+        ...boxes.map((box: { max: { y: number } }): number => box.max.y),
+      ),
+      z: Math.max(
+        ...boxes.map((box: { max: { z: number } }): number => box.max.z),
+      ),
     },
   };
 }

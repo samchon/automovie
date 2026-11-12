@@ -1,4 +1,7 @@
-import { AutoMovieRasterSheet, type IAutoMovieRasterImage } from "@automovie/render";
+import {
+  AutoMovieRasterSheet,
+  type IAutoMovieRasterImage,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -17,25 +20,57 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export function test_capture_sheet_nearest(): void {
-  const still: (size: number, white: [number, number][]) => IAutoMovieRasterImage = (size: number, white: [number, number][]): IAutoMovieRasterImage => {
+  const still: (
+    size: number,
+    white: [number, number][],
+  ) => IAutoMovieRasterImage = (
+    size: number,
+    white: [number, number][],
+  ): IAutoMovieRasterImage => {
     const pixels: Uint8ClampedArray = new Uint8ClampedArray(size * size * 4);
-    for (let offset: number = 3; offset < pixels.length; offset += 4) pixels[offset] = 255;
-    for (const [x, y] of white) pixels.set([255, 255, 255, 255], (y * size + x) * 4);
+    for (let offset: number = 3; offset < pixels.length; offset += 4)
+      pixels[offset] = 255;
+    for (const [x, y] of white)
+      pixels.set([255, 255, 255, 255], (y * size + x) * 4);
     return { width: size, height: size, pixels };
   };
-  const reduce: (picture: IAutoMovieRasterImage, cell: number, reduction: "area" | "nearest") => IAutoMovieRasterImage = (picture: IAutoMovieRasterImage, cell: number, reduction: "area" | "nearest"): IAutoMovieRasterImage => {
-    const sheet: AutoMovieRasterSheet = new AutoMovieRasterSheet(1, 1, cell, cell, reduction);
+  const reduce: (
+    picture: IAutoMovieRasterImage,
+    cell: number,
+    reduction: "area" | "nearest",
+  ) => IAutoMovieRasterImage = (
+    picture: IAutoMovieRasterImage,
+    cell: number,
+    reduction: "area" | "nearest",
+  ): IAutoMovieRasterImage => {
+    const sheet: AutoMovieRasterSheet = new AutoMovieRasterSheet(
+      1,
+      1,
+      cell,
+      cell,
+      reduction,
+    );
     sheet.add(picture, "");
     return sheet.finish();
   };
-  const red: (picture: IAutoMovieRasterImage, x: number, y: number) => number = (picture: IAutoMovieRasterImage, x: number, y: number): number =>
-    picture.pixels[(y * picture.width + x) * 4]!;
+  const red: (
+    picture: IAutoMovieRasterImage,
+    x: number,
+    y: number,
+  ) => number = (
+    picture: IAutoMovieRasterImage,
+    x: number,
+    y: number,
+  ): number => picture.pixels[(y * picture.width + x) * 4]!;
 
   // 1. A sampled detail; pixels are read at the bottom-right, away from the caption box.
   const detail: IAutoMovieRasterImage = still(40, [[39, 39]]);
   TestValidator.equals(
     "nearest keeps the sampled pixel exactly",
-    [red(reduce(detail, 20, "nearest"), 19, 19), red(reduce(detail, 20, "area"), 19, 19)],
+    [
+      red(reduce(detail, 20, "nearest"), 19, 19),
+      red(reduce(detail, 20, "area"), 19, 19),
+    ],
     [255, 64],
   );
 
@@ -47,11 +82,16 @@ export function test_capture_sheet_nearest(): void {
   );
 
   // 3. Identity size.
-  const same: IAutoMovieRasterImage = still(40, [[39, 39], [38, 39]]);
+  const same: IAutoMovieRasterImage = still(40, [
+    [39, 39],
+    [38, 39],
+  ]);
   for (const reduction of ["area", "nearest"] as const)
     TestValidator.equals(
       `${reduction} copies a still at the cell's size`,
-      [39, 38, 37].map((x: number): number => red(reduce(same, 40, reduction), x, 39)),
+      [39, 38, 37].map((x: number): number =>
+        red(reduce(same, 40, reduction), x, 39),
+      ),
       [255, 255, 0],
     );
 }

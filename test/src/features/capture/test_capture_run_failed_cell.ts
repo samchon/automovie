@@ -33,31 +33,61 @@ import { createCaptureMemory } from "./createCaptureMemory";
 export async function test_capture_run_failed_cell(): Promise<void> {
   const memory: createCaptureMemory.IMemory = createCaptureMemory();
   const plan: IAutoMovieCapturePlan = planAutoMovieCapture({
-    request: parseAutoMovieCapturePlanRequest(new URLSearchParams("at=0.5,1,1.5")),
-    subject: { name: "s", durationSeconds: 2, fps: 10, width: 64, height: 36, views: [], drawables: [], marks: [] },
+    request: parseAutoMovieCapturePlanRequest(
+      new URLSearchParams("at=0.5,1,1.5"),
+    ),
+    subject: {
+      name: "s",
+      durationSeconds: 2,
+      fps: 10,
+      width: 64,
+      height: 36,
+      views: [],
+      drawables: [],
+      marks: [],
+    },
     cuts: [],
   });
-  const fill: (width: number, height: number) => IAutoMovieRasterImage = (width: number, height: number): IAutoMovieRasterImage => {
+  const fill: (width: number, height: number) => IAutoMovieRasterImage = (
+    width: number,
+    height: number,
+  ): IAutoMovieRasterImage => {
     const pixels: Uint8ClampedArray = new Uint8ClampedArray(width * height * 4);
-    for (let offset: number = 0; offset < pixels.length; offset += 4) pixels.set([10, 220, 30, 255], offset);
+    for (let offset: number = 0; offset < pixels.length; offset += 4)
+      pixels.set([10, 220, 30, 255], offset);
     return { width, height, pixels };
   };
-  const draw: (cell: IAutoMovieCaptureCell) => Promise<IAutoMovieCaptureDrawing> = async (cell: IAutoMovieCaptureCell): Promise<IAutoMovieCaptureDrawing> => {
+  const draw: (
+    cell: IAutoMovieCaptureCell,
+  ) => Promise<IAutoMovieCaptureDrawing> = async (
+    cell: IAutoMovieCaptureCell,
+  ): Promise<IAutoMovieCaptureDrawing> => {
     if (cell.index === 1) throw new Error("the lamp is missing");
-    return { picture: cell.index === 2 ? fill(32, 18) : fill(64, 36), labels: [] };
+    return {
+      picture: cell.index === 2 ? fill(32, 18) : fill(64, 36),
+      labels: [],
+    };
   };
 
   // 1. The run continues past both failures.
-  const record: Extract<IAutoMovieCaptureRecord, { state: "complete" }> = await runAutoMovieCapture({
-    plan,
-    draw,
-    folder: await AutoMovieCaptureFolder.open({ storage: memory.storage, root: "out", round: null, compare: null }),
-    revision: "r",
-    match: "cell",
-  });
+  const record: Extract<IAutoMovieCaptureRecord, { state: "complete" }> =
+    await runAutoMovieCapture({
+      plan,
+      draw,
+      folder: await AutoMovieCaptureFolder.open({
+        storage: memory.storage,
+        root: "out",
+        round: null,
+        compare: null,
+      }),
+      revision: "r",
+      match: "cell",
+    });
   TestValidator.equals(
     "only the drawn still is written",
-    [...memory.files.keys()].sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0)),
+    [...memory.files.keys()].sort((a: string, b: string): number =>
+      a < b ? -1 : a > b ? 1 : 0,
+    ),
     ["out/record.json", "out/sheet-001.png", "out/t000.500-film-beauty.png"],
   );
 
@@ -73,14 +103,29 @@ export async function test_capture_run_failed_cell(): Promise<void> {
     [
       ["drawn", "t000.500-film-beauty.png", 0, null],
       ["failed", "the lamp is missing", 1, "no backend"],
-      ["failed", "the draw returned 32x18 pixels where the subject is 64x36", 2, "no backend"],
+      [
+        "failed",
+        "the draw returned 32x18 pixels where the subject is 64x36",
+        2,
+        "no backend",
+      ],
     ],
   );
 
   // 3. Marked cells on the sheet.
-  const sheet: IAutoMovieRasterImage = await decodeAutoMovieRasterPng(memory.files.get("out/sheet-001.png")!);
-  const at: (x: number, y: number) => number[] = (x: number, y: number): number[] =>
-    Array.from(sheet.pixels.subarray((y * sheet.width + x) * 4, (y * sheet.width + x) * 4 + 3));
+  const sheet: IAutoMovieRasterImage = await decodeAutoMovieRasterPng(
+    memory.files.get("out/sheet-001.png")!,
+  );
+  const at: (x: number, y: number) => number[] = (
+    x: number,
+    y: number,
+  ): number[] =>
+    Array.from(
+      sheet.pixels.subarray(
+        (y * sheet.width + x) * 4,
+        (y * sheet.width + x) * 4 + 3,
+      ),
+    );
   TestValidator.equals(
     "failed cells are marked and the drawn one shown",
     [sheet.width, sheet.height, at(60, 30), at(124, 30), at(188, 30)],

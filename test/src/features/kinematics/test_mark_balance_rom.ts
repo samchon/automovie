@@ -37,19 +37,30 @@ export function test_mark_balance_rom(): void {
   });
   TestValidator.equals(
     "an unflagged centre and a closed base",
-    inside.map((mark: IAutoMovieMark) => [mark.path, mark.kind, mark.flagged, mark.shape.type]),
+    inside.map((mark: IAutoMovieMark) => [
+      mark.path,
+      mark.kind,
+      mark.flagged,
+      mark.shape.type,
+    ]),
     [
       ["hero/com", "com", false, "points"],
       ["hero/support", "support", false, "polyline"],
     ],
   );
-  const base: IAutoMovieMark.IPolyline = inside[1]!.shape as IAutoMovieMark.IPolyline;
+  const base: IAutoMovieMark.IPolyline = inside[1]!
+    .shape as IAutoMovieMark.IPolyline;
   const corners: string[] = [];
   for (let i: number = 0; i < base.points.length; i += 3)
-    corners.push(`${base.points[i]},${base.points[i + 1]},${base.points[i + 2]}`);
+    corners.push(
+      `${base.points[i]},${base.points[i + 1]},${base.points[i + 2]}`,
+    );
   TestValidator.equals(
     "the base runs through the four corners",
-    [base.closed, [...corners].sort((a: string, b: string): number => a.localeCompare(b))],
+    [
+      base.closed,
+      [...corners].sort((a: string, b: string): number => a.localeCompare(b)),
+    ],
     [true, ["0,0,0", "0,0,1", "1,0,0", "1,0,1"]],
   );
 
@@ -57,8 +68,16 @@ export function test_mark_balance_rom(): void {
   TestValidator.equals(
     "outside is flagged, the edge is not",
     [
-      markAutoMovieBalance({ path: "hero", centre: { x: 1.2, y: 1, z: 0.5 }, support: square })[0]!.flagged,
-      markAutoMovieBalance({ path: "hero", centre: { x: 1, y: 1, z: 0.5 }, support: square })[0]!.flagged,
+      markAutoMovieBalance({
+        path: "hero",
+        centre: { x: 1.2, y: 1, z: 0.5 },
+        support: square,
+      })[0]!.flagged,
+      markAutoMovieBalance({
+        path: "hero",
+        centre: { x: 1, y: 1, z: 0.5 },
+        support: square,
+      })[0]!.flagged,
     ],
     [true, false],
   );
@@ -67,33 +86,68 @@ export function test_mark_balance_rom(): void {
   TestValidator.equals(
     "one support point is a point and two a segment",
     [
-      markAutoMovieBalance({ path: "hero", centre: { x: 0, y: 1, z: 0 }, support: [square[0]!] })[1]!.shape.type,
-      markAutoMovieBalance({ path: "hero", centre: { x: 0, y: 1, z: 0 }, support: square.slice(0, 2) })[1]!.shape.type,
+      markAutoMovieBalance({
+        path: "hero",
+        centre: { x: 0, y: 1, z: 0 },
+        support: [square[0]!],
+      })[1]!.shape.type,
+      markAutoMovieBalance({
+        path: "hero",
+        centre: { x: 0, y: 1, z: 0 },
+        support: square.slice(0, 2),
+      })[1]!.shape.type,
     ],
     ["points", "segments"],
   );
   TestValidator.error("no support point is refused", (): void => {
-    markAutoMovieBalance({ path: "hero", centre: { x: 0, y: 1, z: 0 }, support: [] });
+    markAutoMovieBalance({
+      path: "hero",
+      centre: { x: 0, y: 1, z: 0 },
+      support: [],
+    });
   });
 
   // 4. Range overshoot.
   const rom: IAutoMovieMark[] = markAutoMovieRomOvershoot([
     { path: "hero/leftKnee", at: { x: 0, y: 0.5, z: 0 }, overshoot: 0 },
     { path: "hero/rightKnee", at: { x: 0.2, y: 0.5, z: 0 }, overshoot: 4 },
-    { path: "hero/neck", at: { x: 0, y: 1.5, z: 0 }, overshoot: Number.POSITIVE_INFINITY },
+    {
+      path: "hero/neck",
+      at: { x: 0, y: 1.5, z: 0 },
+      overshoot: Number.POSITIVE_INFINITY,
+    },
   ]);
   TestValidator.equals(
     "joints past their range are flagged points",
-    rom.map((mark: IAutoMovieMark) => [mark.path, mark.kind, mark.flagged, mark.shape]),
+    rom.map((mark: IAutoMovieMark) => [
+      mark.path,
+      mark.kind,
+      mark.flagged,
+      mark.shape,
+    ]),
     [
-      ["hero/rightKnee/rom", "rom", true, { type: "points", points: [0.2, 0.5, 0] }],
+      [
+        "hero/rightKnee/rom",
+        "rom",
+        true,
+        { type: "points", points: [0.2, 0.5, 0] },
+      ],
       ["hero/neck/rom", "rom", true, { type: "points", points: [0, 1.5, 0] }],
     ],
   );
   for (const [title, entry] of [
-    ["a negative overshoot", { path: "j", at: { x: 0, y: 0, z: 0 }, overshoot: -1 }],
-    ["a NaN overshoot", { path: "j", at: { x: 0, y: 0, z: 0 }, overshoot: Number.NaN }],
-    ["a non-finite position", { path: "j", at: { x: Number.NaN, y: 0, z: 0 }, overshoot: 1 }],
+    [
+      "a negative overshoot",
+      { path: "j", at: { x: 0, y: 0, z: 0 }, overshoot: -1 },
+    ],
+    [
+      "a NaN overshoot",
+      { path: "j", at: { x: 0, y: 0, z: 0 }, overshoot: Number.NaN },
+    ],
+    [
+      "a non-finite position",
+      { path: "j", at: { x: Number.NaN, y: 0, z: 0 }, overshoot: 1 },
+    ],
   ] as const)
     TestValidator.error(`${title} is refused`, (): void => {
       markAutoMovieRomOvershoot([entry]);

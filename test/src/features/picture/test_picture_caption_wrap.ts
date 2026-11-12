@@ -1,4 +1,7 @@
-import { AutoMovieRasterSheet, type IAutoMovieRasterImage } from "@automovie/render";
+import {
+  AutoMovieRasterSheet,
+  type IAutoMovieRasterImage,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -32,18 +35,31 @@ export function test_picture_caption_wrap(): void {
   );
 
   // 2. Short and empty captions.
-  TestValidator.equals("a caption that fits is one line", AutoMovieRasterSheet.wrap("f8 0.25s", 40, 12), ["f8 0.25s"]);
-  TestValidator.equals("an empty caption is one empty line", AutoMovieRasterSheet.wrap("", 40, 12), [""]);
+  TestValidator.equals(
+    "a caption that fits is one line",
+    AutoMovieRasterSheet.wrap("f8 0.25s", 40, 12),
+    ["f8 0.25s"],
+  );
+  TestValidator.equals(
+    "an empty caption is one empty line",
+    AutoMovieRasterSheet.wrap("", 40, 12),
+    [""],
+  );
 
   // 3. Lines and strip heights.
   TestValidator.equals(
     "the most lines of any caption",
-    [AutoMovieRasterSheet.lines([], 40, 12), AutoMovieRasterSheet.lines(["a", "f8 0.250s r toeoff1 front"], 40, 12)],
+    [
+      AutoMovieRasterSheet.lines([], 40, 12),
+      AutoMovieRasterSheet.lines(["a", "f8 0.250s r toeoff1 front"], 40, 12),
+    ],
     [1, 3],
   );
   TestValidator.equals(
     "a strip grows six font pixels a line",
-    [1, 2, 3].map((lines: number): number => AutoMovieRasterSheet.caption(12, lines)),
+    [1, 2, 3].map((lines: number): number =>
+      AutoMovieRasterSheet.caption(12, lines),
+    ),
     [9, 15, 21],
   );
 
@@ -53,11 +69,25 @@ export function test_picture_caption_wrap(): void {
     height: 12,
     pixels: new Uint8ClampedArray(8 * 12 * 4).fill(100),
   };
-  const two: AutoMovieRasterSheet = new AutoMovieRasterSheet(1, 1, 8, 12, "area", 2);
+  const two: AutoMovieRasterSheet = new AutoMovieRasterSheet(
+    1,
+    1,
+    8,
+    12,
+    "area",
+    2,
+  );
   two.add(picture, "1 1");
   const sheet: IAutoMovieRasterImage = two.finish();
-  const red: (x: number, y: number) => number = (x: number, y: number): number => sheet.pixels[(y * 8 + x) * 4]!;
-  TestValidator.equals("a two-line strip is 15 px under the 12 px cell", [sheet.width, sheet.height], [8, 27]);
+  const red: (x: number, y: number) => number = (
+    x: number,
+    y: number,
+  ): number => sheet.pixels[(y * 8 + x) * 4]!;
+  TestValidator.equals(
+    "a two-line strip is 15 px under the 12 px cell",
+    [sheet.width, sheet.height],
+    [8, 27],
+  );
 
   // The 8 px cell fits one character a line, so "1 1" wraps to "1" and "1"; the glyph's top row lights its middle column, two pixels into each line's box.
   TestValidator.equals(
@@ -65,10 +95,24 @@ export function test_picture_caption_wrap(): void {
     [red(3, 12 + 2), red(3, 12 + 6 + 2), red(0, 12 + 2)],
     [255, 255, 16],
   );
-  const cut: AutoMovieRasterSheet = new AutoMovieRasterSheet(1, 1, 8, 12, "area", 2);
+  const cut: AutoMovieRasterSheet = new AutoMovieRasterSheet(
+    1,
+    1,
+    8,
+    12,
+    "area",
+    2,
+  );
   cut.add(picture, "1 1 1");
-  TestValidator.equals("a caption longer than the strip keeps its first lines", cut.finish().height, 27);
+  TestValidator.equals(
+    "a caption longer than the strip keeps its first lines",
+    cut.finish().height,
+    27,
+  );
 
   // 5. Refusal.
-  TestValidator.error("zero lines are refused", (): unknown => new AutoMovieRasterSheet(1, 1, 8, 12, "area", 0));
+  TestValidator.error(
+    "zero lines are refused",
+    (): unknown => new AutoMovieRasterSheet(1, 1, 8, 12, "area", 0),
+  );
 }

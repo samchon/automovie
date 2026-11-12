@@ -21,16 +21,21 @@ import { throwsError } from "../internal/predicates";
  */
 export function test_cli_capture_ffmpeg_missing(): void {
   const loaded: string[] = [];
-  const load: (binary: unknown) => (id: string) => unknown = (binary: unknown): ((id: string) => unknown) => (id: string): unknown => {
-    loaded.push(id);
-    if (binary === undefined) throw new Error(`Cannot find module '${id}'`);
-    return binary;
-  };
+  const load: (binary: unknown) => (id: string) => unknown =
+    (binary: unknown): ((id: string) => unknown) =>
+    (id: string): unknown => {
+      loaded.push(id);
+      if (binary === undefined) throw new Error(`Cannot find module '${id}'`);
+      return binary;
+    };
 
   // 1. The environment wins.
   TestValidator.equals(
     "FFMPEG_PATH",
-    resolveAutoMovieFfmpeg({ env: { FFMPEG_PATH: "/opt/ffmpeg" }, load: load("/static/ffmpeg") }),
+    resolveAutoMovieFfmpeg({
+      env: { FFMPEG_PATH: "/opt/ffmpeg" },
+      load: load("/static/ffmpeg"),
+    }),
     "/opt/ffmpeg",
   );
   TestValidator.equals("ffmpeg-static is not loaded", loaded, []);
@@ -49,11 +54,21 @@ export function test_cli_capture_ffmpeg_missing(): void {
   ] as const) {
     TestValidator.predicate(
       `${what}: names FFMPEG_PATH`,
-      throwsError((): string => resolveAutoMovieFfmpeg({ env: { FFMPEG_PATH: " " }, load: load(binary) }), "FFMPEG_PATH"),
+      throwsError(
+        (): string =>
+          resolveAutoMovieFfmpeg({
+            env: { FFMPEG_PATH: " " },
+            load: load(binary),
+          }),
+        "FFMPEG_PATH",
+      ),
     );
     TestValidator.predicate(
       `${what}: names ffmpeg-static`,
-      throwsError((): string => resolveAutoMovieFfmpeg({ env: {}, load: load(binary) }), "ffmpeg-static"),
+      throwsError(
+        (): string => resolveAutoMovieFfmpeg({ env: {}, load: load(binary) }),
+        "ffmpeg-static",
+      ),
     );
   }
 }

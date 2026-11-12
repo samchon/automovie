@@ -50,10 +50,17 @@ export function readAutoMovieInspectHostOptions(
 
   const module: string | undefined = taken.get("module");
   if (module === undefined)
-    throw new Error("Inspect needs --module <subject module>, the module whose subjects the page offers");
+    throw new Error(
+      "Inspect needs --module <subject module>, the module whose subjects the page offers",
+    );
   const text: string | undefined = taken.get("port");
   const port: number | null = text === undefined ? null : Number(text);
-  if (port !== null && !(Number.isSafeInteger(port) && port >= 1 && port <= PORTS))
-    throw new Error(`Inspect --port "${text}" is not a whole number from 1 to ${PORTS}`);
+  if (
+    port !== null &&
+    !(Number.isSafeInteger(port) && port >= 1 && port <= PORTS)
+  )
+    throw new Error(
+      `Inspect --port "${text}" is not a whole number from 1 to ${PORTS}`,
+    );
   return { module, port, props: taken.get("props") ?? null, request };
 }

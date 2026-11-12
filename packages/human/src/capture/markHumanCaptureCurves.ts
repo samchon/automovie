@@ -42,38 +42,78 @@ export function markHumanCaptureCurves(
       for (let k: number = 1; k < count; k++)
         stations.push(knot + ((next - knot) * k) / count);
     });
-    const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(family, stations);
+    const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(
+      family,
+      stations,
+    );
     if (loft.chain === null) continue;
     const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> = loft.chain;
 
     // One ring per station, millimetres converted to metres; a sample the chain refuses is null.
     let flagged: boolean = loft.diagnostics.length !== 0;
-    const rings: (number[] | null)[][] = stations.map((station: number): (number[] | null)[] =>
-      Array.from({ length: PHASES }, (_: unknown, j: number): number[] | null => {
-        try {
-          const p: number[] = AutoMovieLoftChain.point(chain, station, (2 * Math.PI * j) / PHASES);
-          if (![p[0], p[1], p[2]].every((v: number | undefined): boolean => Number.isFinite(v))) throw new Error("not finite");
-          return [p[0]! / 1000, p[1]! / 1000, p[2]! / 1000];
-        } catch {
-          flagged = true;
-          return null;
-        }
-      }),
+    const rings: (number[] | null)[][] = stations.map(
+      (station: number): (number[] | null)[] =>
+        Array.from(
+          { length: PHASES },
+          (_: unknown, j: number): number[] | null => {
+            try {
+              const p: number[] = AutoMovieLoftChain.point(
+                chain,
+                station,
+                (2 * Math.PI * j) / PHASES,
+              );
+              if (
+                ![p[0], p[1], p[2]].every((v: number | undefined): boolean =>
+                  Number.isFinite(v),
+                )
+              )
+                throw new Error("not finite");
+              return [p[0]! / 1000, p[1]! / 1000, p[2]! / 1000];
+            } catch {
+              flagged = true;
+              return null;
+            }
+          },
+        ),
     );
     const own: IAutoMovieConstructionCurve[] = [];
-    const curve: (id: string, kind: IAutoMovieConstructionCurve.Kind, closed: boolean, points: (number[] | null)[]) => void = (
+    const curve: (
+      id: string,
+      kind: IAutoMovieConstructionCurve.Kind,
+      closed: boolean,
+      points: (number[] | null)[],
+    ) => void = (
       id: string,
       kind: IAutoMovieConstructionCurve.Kind,
       closed: boolean,
       points: (number[] | null)[],
     ): void => {
-      const kept: number[][] = points.filter((p: number[] | null): p is number[] => p !== null);
+      const kept: number[][] = points.filter(
+        (p: number[] | null): p is number[] => p !== null,
+      );
       if (kept.length >= 2)
-        own.push({ id: `${family.name}/${id}`, kind, part: family.name, closed, points: kept.flat(), flagged: flagged || kept.length !== points.length });
+        own.push({
+          id: `${family.name}/${id}`,
+          kind,
+          part: family.name,
+          closed,
+          points: kept.flat(),
+          flagged: flagged || kept.length !== points.length,
+        });
     };
-    family.knots.forEach((knot: number, i: number): void => curve(`section/${i}`, "section", true, rings[stations.indexOf(knot)]!));
+    family.knots.forEach((knot: number, i: number): void =>
+      curve(`section/${i}`, "section", true, rings[stations.indexOf(knot)]!),
+    );
     for (let quarter: number = 0; quarter < 4; quarter++)
-      curve(`guide/${quarter}`, "guide", false, rings.map((ring: (number[] | null)[]): number[] | null => ring[(quarter * PHASES) / 4]!));
+      curve(
+        `guide/${quarter}`,
+        "guide",
+        false,
+        rings.map(
+          (ring: (number[] | null)[]): number[] | null =>
+            ring[(quarter * PHASES) / 4]!,
+        ),
+      );
     curve(
       "axis",
       "axis",
@@ -81,7 +121,8 @@ export function markHumanCaptureCurves(
       rings.map((ring: (number[] | null)[]): number[] | null => {
         if (ring.some((p: number[] | null): boolean => p === null)) return null;
         const sum: number[] = [0, 0, 0];
-        for (const p of ring as number[][]) for (let c: number = 0; c < 3; c++) sum[c]! += p[c]! / PHASES;
+        for (const p of ring as number[][])
+          for (let c: number = 0; c < 3; c++) sum[c]! += p[c]! / PHASES;
         return sum;
       }),
     );
@@ -92,7 +133,9 @@ export function markHumanCaptureCurves(
           ...original,
           id: `${original.part}.mirror${original.id.slice(original.part.length)}`,
           part: `${original.part}.mirror`,
-          points: original.points.map((value: number, i: number): number => (i % 3 === 2 ? -value : value)),
+          points: original.points.map((value: number, i: number): number =>
+            i % 3 === 2 ? -value : value,
+          ),
         });
   }
   return markAutoMovieConstructionCurves(curves, person);

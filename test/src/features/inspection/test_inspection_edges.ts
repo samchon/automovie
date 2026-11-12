@@ -28,7 +28,11 @@ import { InspectionScene } from "../internal/InspectionScene";
  */
 export function test_inspection_edges(): void {
   const EDGE: number = 0x2b3a67;
-  const cube = (name: string, x: number = 0, indexed: boolean = true): THREE.Mesh => {
+  const cube = (
+    name: string,
+    x: number = 0,
+    indexed: boolean = true,
+  ): THREE.Mesh => {
     const geometry: THREE.BufferGeometry = new THREE.BoxGeometry(1, 1, 1);
     const mesh: THREE.Mesh = new THREE.Mesh(
       indexed ? geometry : geometry.toNonIndexed(),
@@ -43,18 +47,29 @@ export function test_inspection_edges(): void {
       .flatMap((line) => InspectionScene.segments(line))
       .map((s: number[]): string =>
         [s.slice(0, 3), s.slice(3)]
-          .map((p: number[]): string => p.map((v: number): string => v.toFixed(4)).join(","))
+          .map((p: number[]): string =>
+            p.map((v: number): string => v.toFixed(4)).join(","),
+          )
           .sort((a: string, b: string): number => a.localeCompare(b))
           .join("|"),
       )
       .sort((a: string, b: string): number => a.localeCompare(b));
-  const apply = (stage: THREE.Scene, changes: Partial<IAutoMovieInspectionRequest>): IAutoMovieInspectionHandle =>
-    applyAutoMovieInspection({ scene: stage, request: InspectionScene.ask(changes) });
+  const apply = (
+    stage: THREE.Scene,
+    changes: Partial<IAutoMovieInspectionRequest>,
+  ): IAutoMovieInspectionHandle =>
+    applyAutoMovieInspection({
+      scene: stage,
+      request: InspectionScene.ask(changes),
+    });
 
   // 1. Over the clay shade.
   const box: THREE.Mesh = cube("box");
   const stage: THREE.Scene = InspectionScene.scene(box);
-  const over: IAutoMovieInspectionHandle = apply(stage, { marks: ["edge"], shade: "clay" });
+  const over: IAutoMovieInspectionHandle = apply(stage, {
+    marks: ["edge"],
+    shade: "clay",
+  });
   TestValidator.equals(
     "the faces stay and 18 sides are drawn in the edge colour",
     [
@@ -65,29 +80,57 @@ export function test_inspection_edges(): void {
       over.legend,
       over.selected,
     ],
-    [1, "MeshLambertMaterial", 18, [EDGE], [{ label: "mesh edge", color: EDGE, count: 1 }], ["box", "box/edge"]],
+    [
+      1,
+      "MeshLambertMaterial",
+      18,
+      [EDGE],
+      [{ label: "mesh edge", color: EDGE, count: 1 }],
+      ["box", "box/edge"],
+    ],
   );
   const drawnSides: string[] = sides(stage);
   over.restore();
 
   // 2. Alone.
-  const alone: IAutoMovieInspectionHandle = apply(stage, { marks: ["edge"], surface: false });
-  TestValidator.equals("with surfaces off the sides are drawn alone", [box.layers.mask, sides(stage)], [0, drawnSides]);
+  const alone: IAutoMovieInspectionHandle = apply(stage, {
+    marks: ["edge"],
+    surface: false,
+  });
+  TestValidator.equals(
+    "with surfaces off the sides are drawn alone",
+    [box.layers.mask, sides(stage)],
+    [0, drawnSides],
+  );
   alone.restore();
 
   // 3. A part selection.
   const pair: THREE.Scene = InspectionScene.scene(cube("near"), cube("far", 5));
-  const near: IAutoMovieInspectionHandle = apply(pair, { marks: ["edge"], parts: ["near"] });
+  const near: IAutoMovieInspectionHandle = apply(pair, {
+    marks: ["edge"],
+    parts: ["near"],
+  });
   TestValidator.predicate(
     "only the selected cube has edges",
-    sides(pair).length === 18 && InspectionScene.strokes(pair).every((line) => InspectionScene.segments(line).every((s: number[]): boolean => s[0]! < 1 && s[3]! < 1)),
+    sides(pair).length === 18 &&
+      InspectionScene.strokes(pair).every((line) =>
+        InspectionScene.segments(line).every(
+          (s: number[]): boolean => s[0]! < 1 && s[3]! < 1,
+        ),
+      ),
   );
   near.restore();
 
   // 4. Edges and open edges.
-  const sheet: THREE.Scene = InspectionScene.scene(InspectionScene.quad("sheet"));
-  const both: IAutoMovieInspectionHandle = apply(sheet, { marks: ["edge", "defect/open"] });
-  const colours: number[] = InspectionScene.strokes(sheet).flatMap((line) => InspectionScene.colors(line));
+  const sheet: THREE.Scene = InspectionScene.scene(
+    InspectionScene.quad("sheet"),
+  );
+  const both: IAutoMovieInspectionHandle = apply(sheet, {
+    marks: ["edge", "defect/open"],
+  });
+  const colours: number[] = InspectionScene.strokes(sheet).flatMap((line) =>
+    InspectionScene.colors(line),
+  );
   TestValidator.equals(
     "both kinds are drawn in their own colours and listed",
     [
@@ -108,21 +151,40 @@ export function test_inspection_edges(): void {
 
   // 5. Indexed and non-indexed.
   const loose: THREE.Scene = InspectionScene.scene(cube("box", 0, false));
-  const unindexed: IAutoMovieInspectionHandle = apply(loose, { marks: ["edge"] });
-  TestValidator.equals("a non-indexed cube has the same sides", sides(loose), drawnSides);
+  const unindexed: IAutoMovieInspectionHandle = apply(loose, {
+    marks: ["edge"],
+  });
+  TestValidator.equals(
+    "a non-indexed cube has the same sides",
+    sides(loose),
+    drawnSides,
+  );
   unindexed.restore();
 
   // 6. No flag changes.
-  const flags = (): boolean[] => [stage, loose].flatMap((scene: THREE.Scene) => {
-    const out: boolean[] = [];
-    scene.traverse((object: THREE.Object3D): void => {
-      const material: unknown = (object as THREE.Mesh).material;
-      if (material instanceof THREE.MeshBasicMaterial || material instanceof THREE.MeshLambertMaterial) out.push(material.wireframe);
+  const flags = (): boolean[] =>
+    [stage, loose].flatMap((scene: THREE.Scene) => {
+      const out: boolean[] = [];
+      scene.traverse((object: THREE.Object3D): void => {
+        const material: unknown = (object as THREE.Mesh).material;
+        if (
+          material instanceof THREE.MeshBasicMaterial ||
+          material instanceof THREE.MeshLambertMaterial
+        )
+          out.push(material.wireframe);
+      });
+      return out;
     });
-    return out;
-  });
   const during: IAutoMovieInspectionHandle = apply(stage, { marks: ["edge"] });
-  TestValidator.equals("no wireframe flag is set while edges are drawn", flags().includes(true), false);
+  TestValidator.equals(
+    "no wireframe flag is set while edges are drawn",
+    flags().includes(true),
+    false,
+  );
   during.restore();
-  TestValidator.equals("nor after, and the scene has its own children", [flags().includes(true), stage.children.length], [false, 1]);
+  TestValidator.equals(
+    "nor after, and the scene has its own children",
+    [flags().includes(true), stage.children.length],
+    [false, 1],
+  );
 }

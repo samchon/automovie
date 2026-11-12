@@ -46,17 +46,29 @@ const SUBJECT: IAutoMovieCaptureSubject = {
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export async function test_capture_plan_instants(): Promise<void> {
-  const plan: (text: string, subject?: IAutoMovieCaptureSubject) => IAutoMovieCapturePlan = (
+  const plan: (
+    text: string,
+    subject?: IAutoMovieCaptureSubject,
+  ) => IAutoMovieCapturePlan = (
     text: string,
     subject: IAutoMovieCaptureSubject = SUBJECT,
   ): IAutoMovieCapturePlan =>
-    planAutoMovieCapture({ request: parseAutoMovieCapturePlanRequest(new URLSearchParams(text)), subject, cuts: [] });
+    planAutoMovieCapture({
+      request: parseAutoMovieCapturePlanRequest(new URLSearchParams(text)),
+      subject,
+      cuts: [],
+    });
 
   // 1. Labels and captions.
-  const six: IAutoMovieCapturePlan = plan("at=0.6202217844988447,1,2&views=front;film");
+  const six: IAutoMovieCapturePlan = plan(
+    "at=0.6202217844988447,1,2&views=front;film",
+  );
   TestValidator.equals(
     "labels and captions",
-    six.cells.map((cell: IAutoMovieCaptureCell): [string | null, string] => [cell.label, cell.caption]),
+    six.cells.map((cell: IAutoMovieCaptureCell): [string | null, string] => [
+      cell.label,
+      cell.caption,
+    ]),
     [
       ["heel strike", "0.620s heel strike front"],
       ["heel strike", "0.620s heel strike film"],
@@ -70,7 +82,9 @@ export async function test_capture_plan_instants(): Promise<void> {
   // 2. The millisecond decides.
   TestValidator.equals(
     "a match and a near miss",
-    plan("at=0.6202,0.621").cells.map((cell: IAutoMovieCaptureCell): string | null => cell.label),
+    plan("at=0.6202,0.621").cells.map(
+      (cell: IAutoMovieCaptureCell): string | null => cell.label,
+    ),
     ["heel strike", null],
   );
 
@@ -87,26 +101,43 @@ export async function test_capture_plan_instants(): Promise<void> {
   };
   TestValidator.equals(
     "no instant, no label",
-    plan("at=2", bare).cells.map((cell: IAutoMovieCaptureCell): [string | null, string] => [cell.label, cell.caption]),
+    plan("at=2", bare).cells.map(
+      (cell: IAutoMovieCaptureCell): [string | null, string] => [
+        cell.label,
+        cell.caption,
+      ],
+    ),
     [[null, "f60 2.000s"]],
   );
 
   // 4. The record keeps the label.
   const memory: createCaptureMemory.IMemory = createCaptureMemory();
   const planned: IAutoMovieCapturePlan = plan("at=1,2");
-  const record: Extract<IAutoMovieCaptureRecord, { state: "complete" }> = await runAutoMovieCapture({
-    plan: planned,
-    draw: async (): Promise<IAutoMovieCaptureDrawing> => ({
-      picture: { width: 32, height: 18, pixels: new Uint8ClampedArray(32 * 18 * 4).fill(255) },
-      labels: [],
-    }),
-    folder: await AutoMovieCaptureFolder.open({ storage: memory.storage, root: "out/walk", round: null, compare: null }),
-    revision: "abc",
-    match: "cell",
-  });
+  const record: Extract<IAutoMovieCaptureRecord, { state: "complete" }> =
+    await runAutoMovieCapture({
+      plan: planned,
+      draw: async (): Promise<IAutoMovieCaptureDrawing> => ({
+        picture: {
+          width: 32,
+          height: 18,
+          pixels: new Uint8ClampedArray(32 * 18 * 4).fill(255),
+        },
+        labels: [],
+      }),
+      folder: await AutoMovieCaptureFolder.open({
+        storage: memory.storage,
+        root: "out/walk",
+        round: null,
+        compare: null,
+      }),
+      revision: "abc",
+      match: "cell",
+    });
   TestValidator.equals(
     "rows carry the labels",
-    record.rows.map((row: IAutoMovieCaptureRecord.Row): string | null => row.label),
+    record.rows.map(
+      (row: IAutoMovieCaptureRecord.Row): string | null => row.label,
+    ),
     [null, "arrive"],
   );
 }

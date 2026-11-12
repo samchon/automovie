@@ -26,10 +26,19 @@ export function test_picture_label_stamp(): void {
     for (let i: number = 3; i < pixels.length; i += 4) pixels[i] = 255;
     return { width: 64, height: 64, pixels };
   };
-  const at = (image: IAutoMovieRasterImage, x: number, y: number): number => image.pixels[(y * image.width + x) * 4]!;
-  const box = (image: IAutoMovieRasterImage, left: number, top: number, width: number, height: number): number[] => {
+  const at = (image: IAutoMovieRasterImage, x: number, y: number): number =>
+    image.pixels[(y * image.width + x) * 4]!;
+  const box = (
+    image: IAutoMovieRasterImage,
+    left: number,
+    top: number,
+    width: number,
+    height: number,
+  ): number[] => {
     const values: number[] = [];
-    for (let y: number = top; y < top + height; y++) for (let x: number = left; x < left + width; x++) values.push(at(image, x, y));
+    for (let y: number = top; y < top + height; y++)
+      for (let x: number = left; x < left + width; x++)
+        values.push(at(image, x, y));
     return values;
   };
 
@@ -39,7 +48,9 @@ export function test_picture_label_stamp(): void {
   const inside: number[] = box(one, 10, 20, 14, 18);
   TestValidator.predicate(
     "the box is dark with white glyphs",
-    inside.every((value: number): boolean => value === 16 || value === 255) && inside.includes(16) && inside.includes(255),
+    inside.every((value: number): boolean => value === 16 || value === 255) &&
+      inside.includes(16) &&
+      inside.includes(255),
   );
   TestValidator.equals(
     "just outside the box stays black",
@@ -50,12 +61,20 @@ export function test_picture_label_stamp(): void {
   // 2. Kept inside.
   const edge: IAutoMovieRasterImage = picture();
   stampAutoMovieRasterLabel(edge, "1", 2, { x: 60, y: 60 });
-  TestValidator.equals("the box moves back against the edges", [at(edge, 50, 46), at(edge, 63, 63), at(edge, 49, 46)], [16, 16, 0]);
+  TestValidator.equals(
+    "the box moves back against the edges",
+    [at(edge, 50, 46), at(edge, 63, 63), at(edge, 49, 46)],
+    [16, 16, 0],
+  );
 
   // 3. No anchor.
   const corner: IAutoMovieRasterImage = picture();
   stampAutoMovieRasterLabel(corner, "1", 1);
-  TestValidator.equals("the box starts at the corner", [at(corner, 0, 0), at(corner, 6, 8), at(corner, 7, 0)], [16, 16, 0]);
+  TestValidator.equals(
+    "the box starts at the corner",
+    [at(corner, 0, 0), at(corner, 6, 8), at(corner, 7, 0)],
+    [16, 16, 0],
+  );
 
   // 4. Refusal.
   for (const scale of [0, 1.5, -1])

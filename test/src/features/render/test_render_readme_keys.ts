@@ -89,11 +89,7 @@ export function test_render_readme_keys(): void {
     sort(requestKeys),
     sort(AUTO_MOVIE_CAPTURE_PLAN_KEYS),
   );
-  TestValidator.equals(
-    "each key has one row",
-    new Set(keys).size,
-    keys.length,
-  );
+  TestValidator.equals("each key has one row", new Set(keys).size, keys.length);
 
   // 2. Request keys pass through the host to the request reader.
   const passed: ReturnType<typeof readAutoMovieCaptureHostOptions> =
@@ -115,7 +111,9 @@ export function test_render_readme_keys(): void {
         parseAutoMovieCapturePlanRequest(new Map([[key, "1"]]));
         return true;
       } catch (error) {
-        return !(error instanceof Error && error.message.includes(`key "${key}"`));
+        return !(
+          error instanceof Error && error.message.includes(`key "${key}"`)
+        );
       }
     }),
   );

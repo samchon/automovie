@@ -86,5 +86,7 @@ export namespace IAutoMovieInspectionView {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The flagged form is its own member rather than a reserved pattern, so no path name is taken from the path grammar.
    * @evidence contracts/development/common.md#meaningful-documentation States what each form frames.
    */
-  export type IFocus = { type: "pattern"; pattern: string } | { type: "flagged" };
+  export type IFocus =
+    | { type: "pattern"; pattern: string }
+    | { type: "flagged" };
 }

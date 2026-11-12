@@ -94,16 +94,43 @@ export function test_cli_command_arguments(): void {
   );
   TestValidator.equals(
     "capture keeps its tokens",
-    read("capture", "--module", "src/subjects.ts", "--at", "1,2", "--views", "front;top"),
-    { command: "capture", args: ["--module", "src/subjects.ts", "--at", "1,2", "--views", "front;top"] },
+    read(
+      "capture",
+      "--module",
+      "src/subjects.ts",
+      "--at",
+      "1,2",
+      "--views",
+      "front;top",
+    ),
+    {
+      command: "capture",
+      args: [
+        "--module",
+        "src/subjects.ts",
+        "--at",
+        "1,2",
+        "--views",
+        "front;top",
+      ],
+    },
   );
-  TestValidator.equals("capture without tokens", read("capture"), { command: "capture", args: [] });
+  TestValidator.equals("capture without tokens", read("capture"), {
+    command: "capture",
+    args: [],
+  });
   TestValidator.equals(
     "render and review keep their tokens",
-    [read("render", "--module", "src/subjects.ts"), read("review", "--url", "http://127.0.0.1:5173/", "--seconds", "5")],
+    [
+      read("render", "--module", "src/subjects.ts"),
+      read("review", "--url", "http://127.0.0.1:5173/", "--seconds", "5"),
+    ],
     [
       { command: "render", args: ["--module", "src/subjects.ts"] },
-      { command: "review", args: ["--url", "http://127.0.0.1:5173/", "--seconds", "5"] },
+      {
+        command: "review",
+        args: ["--url", "http://127.0.0.1:5173/", "--seconds", "5"],
+      },
     ],
   );
   // Each refusal names its correction: the one command, the one option, the
@@ -124,9 +151,18 @@ export function test_cli_command_arguments(): void {
       ["sync", "movie", "--baseline", "old", "--baseline", "other"],
       "only once",
     ],
-    [["unknown"], "the commands are create, add, sync, capture, inspect, render and review"],
-    [["start", "project"], "the commands are create, add, sync, capture, inspect, render and review"],
-    [["toc"], "the commands are create, add, sync, capture, inspect, render and review"],
+    [
+      ["unknown"],
+      "the commands are create, add, sync, capture, inspect, render and review",
+    ],
+    [
+      ["start", "project"],
+      "the commands are create, add, sync, capture, inspect, render and review",
+    ],
+    [
+      ["toc"],
+      "the commands are create, add, sync, capture, inspect, render and review",
+    ],
     [
       ["inspect-external", "model.glb", "--profile", "gltf-static-v1"],
       "the commands are create, add, sync, capture, inspect, render and review",

@@ -23,11 +23,15 @@ export function createCaptureMemory(
   const storage: IAutoMovieCaptureStorage = {
     readdir: async (path: string): Promise<string[]> => {
       log.push(`readdir ${path}`);
-      if (!folders.has(path)) throw new Error(`ENOENT: no such directory ${path}`);
+      if (!folders.has(path))
+        throw new Error(`ENOENT: no such directory ${path}`);
       const names: Set<string> = new Set();
       for (const entry of [...files.keys(), ...folders])
-        if (entry !== path && parent(entry) === path) names.add(entry.slice(path.length + 1));
-      return [...names].sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0));
+        if (entry !== path && parent(entry) === path)
+          names.add(entry.slice(path.length + 1));
+      return [...names].sort((a: string, b: string): number =>
+        a < b ? -1 : a > b ? 1 : 0,
+      );
     },
     mkdir: async (path: string): Promise<unknown> => {
       log.push(`mkdir ${path}`);
@@ -40,9 +44,13 @@ export function createCaptureMemory(
       if (data === undefined) throw new Error(`ENOENT: no such file ${path}`);
       return new Uint8Array(data);
     },
-    writeFile: async (path: string, data: Uint8Array | string): Promise<void> => {
+    writeFile: async (
+      path: string,
+      data: Uint8Array | string,
+    ): Promise<void> => {
       log.push(`writeFile ${path}`);
-      if (!folders.has(parent(path))) throw new Error(`ENOENT: no folder for ${path}`);
+      if (!folders.has(parent(path)))
+        throw new Error(`ENOENT: no folder for ${path}`);
       files.set(path, bytes(data));
     },
     rm: async (path: string): Promise<void> => {

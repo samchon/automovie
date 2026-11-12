@@ -21,7 +21,9 @@ import type { AutoMovieCaptureBackend } from "./AutoMovieCaptureBackend";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per command.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh record and keeps nothing.
  */
-export function readAutoMovieRenderOptions(values: ReadonlyMap<string, string>): {
+export function readAutoMovieRenderOptions(
+  values: ReadonlyMap<string, string>,
+): {
   /** Subject module path, relative to the production or absolute. */
   module: string;
 
@@ -43,13 +45,23 @@ export function readAutoMovieRenderOptions(values: ReadonlyMap<string, string>):
     const value: string | undefined = request.get(key);
     request.delete(key);
     if (value === undefined) continue;
-    if (value.trim() === "") throw new Error(`Render option --${key} needs a value`);
+    if (value.trim() === "")
+      throw new Error(`Render option --${key} needs a value`);
     taken.set(key, value);
   }
   const module: string | undefined = taken.get("module");
-  if (module === undefined) throw new Error("Render needs --module <subject module>, the module whose subjects the draw page offers");
+  if (module === undefined)
+    throw new Error(
+      "Render needs --module <subject module>, the module whose subjects the draw page offers",
+    );
   const backend: string = taken.get("backend") ?? "software";
   if (backend !== "software" && backend !== "gpu")
     throw new Error(`Render --backend "${backend}" is not software or gpu`);
-  return { module, props: taken.get("props") ?? null, out: taken.get("out") ?? null, backend, request };
+  return {
+    module,
+    props: taken.get("props") ?? null,
+    out: taken.get("out") ?? null,
+    backend,
+    request,
+  };
 }

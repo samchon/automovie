@@ -147,14 +147,17 @@ export function mountAutoMovieInspectorScene(props: {
       const renderer: IAutoMovieInspectorSceneHost.IRenderer =
         host.createRenderer();
       held.push((): void => renderer.dispose());
-      const inspect: (request: IAutoMovieCapturePlanRequest) => IAutoMovieInspectionHandle =
-        (request: IAutoMovieCapturePlanRequest): IAutoMovieInspectionHandle =>
-          applyAutoMovieInspection({
-            scene: instance.scene,
-            request: request.inspection,
-            renderer,
-            marks,
-          });
+      const inspect: (
+        request: IAutoMovieCapturePlanRequest,
+      ) => IAutoMovieInspectionHandle = (
+        request: IAutoMovieCapturePlanRequest,
+      ): IAutoMovieInspectionHandle =>
+        applyAutoMovieInspection({
+          scene: instance.scene,
+          request: request.inspection,
+          renderer,
+          marks,
+        });
 
       // The newest request, or the one that asks for nothing when the scene refuses it.
       let applied: IAutoMovieCapturePlanRequest = wanted;
@@ -164,7 +167,10 @@ export function mountAutoMovieInspectorScene(props: {
         inspection = inspect(applied);
       } catch (error) {
         refusal = messageOf(error);
-        applied = { ...readAutoMovieInspectorAddress(""), subject: wanted.subject };
+        applied = {
+          ...readAutoMovieInspectorAddress(""),
+          subject: wanted.subject,
+        };
         inspection = inspect(applied);
       }
       held.push((): void => inspection.restore());
@@ -221,14 +227,18 @@ export function mountAutoMovieInspectorScene(props: {
       now.dirty = true;
     }
 
-    const snapshot: AutoMovieInspectorPlayhead.ISnapshot = playhead.getSnapshot();
+    const snapshot: AutoMovieInspectorPlayhead.ISnapshot =
+      playhead.getSnapshot();
     if (drawable && !now.seeking && (now.dirty || snapshot !== now.drawn))
       draw(now, snapshot);
     now.frame = host.requestFrame(frame);
   }
 
   /** Seek one second and draw it once the subject is ready there; frames skip drawing while a seek is pending. */
-  function draw(now: ILive, snapshot: AutoMovieInspectorPlayhead.ISnapshot): void {
+  function draw(
+    now: ILive,
+    snapshot: AutoMovieInspectorPlayhead.ISnapshot,
+  ): void {
     now.dirty = false;
     now.drawn = snapshot;
     now.seeking = true;
@@ -236,7 +246,9 @@ export function mountAutoMovieInspectorScene(props: {
     try {
       ready = now.instance.seek(snapshot.seconds);
     } catch (error) {
-      ready = Promise.reject(error instanceof Error ? error : new Error(String(error)));
+      ready = Promise.reject(
+        error instanceof Error ? error : new Error(String(error)),
+      );
     }
     ready
       .then((): void => {
@@ -250,7 +262,10 @@ export function mountAutoMovieInspectorScene(props: {
   }
 
   /** Draw the second the subject is now at through the applied request's first view. */
-  function paint(now: ILive, snapshot: AutoMovieInspectorPlayhead.ISnapshot): void {
+  function paint(
+    now: ILive,
+    snapshot: AutoMovieInspectorPlayhead.ISnapshot,
+  ): void {
     const { instance } = now;
     try {
       now.inspection.update(instance.marks?.(snapshot.seconds));
@@ -316,14 +331,17 @@ export function mountAutoMovieInspectorScene(props: {
       // The inspection is re-applied only when its text changed; a refusal re-applies the previous one.
       if (written(request) !== written(now.applied)) {
         const seconds: number = playhead.getSnapshot().seconds;
-        const inspect: (next: IAutoMovieCapturePlanRequest) => IAutoMovieInspectionHandle =
-          (next: IAutoMovieCapturePlanRequest): IAutoMovieInspectionHandle =>
-            applyAutoMovieInspection({
-              scene: now.instance.scene,
-              request: next.inspection,
-              renderer: now.renderer,
-              marks: now.instance.marks?.(seconds) ?? [],
-            });
+        const inspect: (
+          next: IAutoMovieCapturePlanRequest,
+        ) => IAutoMovieInspectionHandle = (
+          next: IAutoMovieCapturePlanRequest,
+        ): IAutoMovieInspectionHandle =>
+          applyAutoMovieInspection({
+            scene: now.instance.scene,
+            request: next.inspection,
+            renderer: now.renderer,
+            marks: now.instance.marks?.(seconds) ?? [],
+          });
         now.inspection.restore();
         try {
           now.inspection = inspect(request);
@@ -361,7 +379,10 @@ export function mountAutoMovieInspectorScene(props: {
 }
 
 /** The labels of a paused picture in CSS pixels of the canvas. */
-function place(now: ILive, camera: THREE.Camera): IAutoMovieInspectorScene.ILabels {
+function place(
+  now: ILive,
+  camera: THREE.Camera,
+): IAutoMovieInspectorScene.ILabels {
   const { width, height } = now.instance;
   const shown: IAutoMovieInspectorSceneHost.ISize = now.size!;
 
@@ -371,7 +392,9 @@ function place(now: ILive, camera: THREE.Camera): IAutoMovieInspectorScene.ILabe
     now.inspection.labels(camera, width, height, scale);
   return {
     labels: placed.labels.map(
-      (label: IAutoMovieInspectionLabel): IAutoMovieInspectorScene.ILabels["labels"][number] => ({
+      (
+        label: IAutoMovieInspectionLabel,
+      ): IAutoMovieInspectorScene.ILabels["labels"][number] => ({
         path: label.path,
         text: label.text,
         left: (label.x * shown.width) / width,

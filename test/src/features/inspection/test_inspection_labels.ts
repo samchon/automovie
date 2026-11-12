@@ -26,12 +26,28 @@ import { InspectionScene } from "../internal/InspectionScene";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: label on three one-metre quads spread along X).
  */
 export function test_inspection_labels(): void {
-  const camera: THREE.OrthographicCamera = new THREE.OrthographicCamera(-5, 5, 5, -5, 0.1, 100);
+  const camera: THREE.OrthographicCamera = new THREE.OrthographicCamera(
+    -5,
+    5,
+    5,
+    -5,
+    0.1,
+    100,
+  );
   camera.position.set(0, 0, 10);
   camera.lookAt(0, 0, 0);
   camera.updateMatrixWorld(true);
-  const at = (labels: IAutoMovieInspectionLabel[]): [string, string, number, number][] =>
-    labels.map((label: IAutoMovieInspectionLabel): [string, string, number, number] => [label.path, label.text, label.x, label.y]);
+  const at = (
+    labels: IAutoMovieInspectionLabel[],
+  ): [string, string, number, number][] =>
+    labels.map(
+      (label: IAutoMovieInspectionLabel): [string, string, number, number] => [
+        label.path,
+        label.text,
+        label.x,
+        label.y,
+      ],
+    );
 
   // 1. Three quads.
   const stage: THREE.Scene = InspectionScene.scene(
@@ -43,52 +59,91 @@ export function test_inspection_labels(): void {
     scene: stage,
     request: InspectionScene.ask({ label: ["a", "b", "c"] }),
   });
-  const placed: { labels: IAutoMovieInspectionLabel[]; dropped: IAutoMovieInspectionLabel[] } = three.labels(camera, 1000, 1000, 2);
-  TestValidator.equals("three labels at their projected centres", [at(placed.labels), placed.dropped], [
+  const placed: {
+    labels: IAutoMovieInspectionLabel[];
+    dropped: IAutoMovieInspectionLabel[];
+  } = three.labels(camera, 1000, 1000, 2);
+  TestValidator.equals(
+    "three labels at their projected centres",
+    [at(placed.labels), placed.dropped],
     [
-      ["a", "a", 300, 500],
-      ["b", "b", 500, 500],
-      ["c", "c", 700, 500],
+      [
+        ["a", "a", 300, 500],
+        ["b", "b", 500, 500],
+        ["c", "c", 700, 500],
+      ],
+      [],
     ],
-    [],
-  ]);
+  );
   three.restore();
 
   // 2. A mark.
   const marked: IAutoMovieInspectionHandle = applyAutoMovieInspection({
     scene: stage,
     request: InspectionScene.ask({ marks: ["probe"], label: ["b/probe"] }),
-    marks: [InspectionScene.mark("b/probe", "probe", 0x00aa00, { type: "points", points: [1, 1, 0, 1, 3, 0] })],
+    marks: [
+      InspectionScene.mark("b/probe", "probe", 0x00aa00, {
+        type: "points",
+        points: [1, 1, 0, 1, 3, 0],
+      }),
+    ],
   });
-  TestValidator.equals("a mark is labelled at its centre", at(marked.labels(camera, 1000, 1000, 2).labels), [
-    ["b/probe", "probe", 600, 300],
-  ]);
+  TestValidator.equals(
+    "a mark is labelled at its centre",
+    at(marked.labels(camera, 1000, 1000, 2).labels),
+    [["b/probe", "probe", 600, 300]],
+  );
   marked.restore();
 
   // 3. Overlap.
-  const close: THREE.Scene = InspectionScene.scene(InspectionScene.quad("p", 0, 1), InspectionScene.quad("q", 0.1, 1));
+  const close: THREE.Scene = InspectionScene.scene(
+    InspectionScene.quad("p", 0, 1),
+    InspectionScene.quad("q", 0.1, 1),
+  );
   const crowded: IAutoMovieInspectionHandle = applyAutoMovieInspection({
     scene: close,
     request: InspectionScene.ask({ label: ["p", "q"] }),
   });
-  const result: { labels: IAutoMovieInspectionLabel[]; dropped: IAutoMovieInspectionLabel[] } = crowded.labels(camera, 1000, 1000, 2);
-  TestValidator.equals("the second label is dropped", [at(result.labels), at(result.dropped)], [[["p", "p", 500, 500]], [["q", "q", 510, 500]]]);
+  const result: {
+    labels: IAutoMovieInspectionLabel[];
+    dropped: IAutoMovieInspectionLabel[];
+  } = crowded.labels(camera, 1000, 1000, 2);
+  TestValidator.equals(
+    "the second label is dropped",
+    [at(result.labels), at(result.dropped)],
+    [[["p", "p", 500, 500]], [["q", "q", 510, 500]]],
+  );
   crowded.restore();
 
   // 4. Outside, and refusals.
   const outside = placeAutoMovieInspectionLabels({
-    boxes: [{ path: "far", min: { x: 20, y: 0, z: 0 }, max: { x: 20, y: 0, z: 0 } }],
+    boxes: [
+      { path: "far", min: { x: 20, y: 0, z: 0 }, max: { x: 20, y: 0, z: 0 } },
+    ],
     camera,
     width: 1000,
     height: 1000,
     scale: 2,
   });
-  TestValidator.equals("a centre outside the picture is dropped", [outside.labels.length, outside.dropped.length], [0, 1]);
+  TestValidator.equals(
+    "a centre outside the picture is dropped",
+    [outside.labels.length, outside.dropped.length],
+    [0, 1],
+  );
   for (const [width, scale] of [
     [0, 2],
     [1000, 1.5],
   ])
-    TestValidator.error(`size ${width} and scale ${scale} are refused`, (): void => {
-      placeAutoMovieInspectionLabels({ boxes: [], camera, width: width!, height: 1000, scale: scale! });
-    });
+    TestValidator.error(
+      `size ${width} and scale ${scale} are refused`,
+      (): void => {
+        placeAutoMovieInspectionLabels({
+          boxes: [],
+          camera,
+          width: width!,
+          height: 1000,
+          scale: scale!,
+        });
+      },
+    );
 }

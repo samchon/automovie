@@ -66,14 +66,29 @@ export function test_render_video_encoding_plan(): void {
   // 1. Silent.
   TestValidator.equals(
     "the silent vector",
-    planAutoMovieVideoEncoding({ spec: SPEC, durationSeconds: 2, frameDir: "frames", outputPath: "out/film.mp4", audio: null }),
-    { frameCount: 48, args: [...base, ...video, "-an", "-t", "2", "out/film.mp4"] },
+    planAutoMovieVideoEncoding({
+      spec: SPEC,
+      durationSeconds: 2,
+      frameDir: "frames",
+      outputPath: "out/film.mp4",
+      audio: null,
+    }),
+    {
+      frameCount: 48,
+      args: [...base, ...video, "-an", "-t", "2", "out/film.mp4"],
+    },
   );
 
   // 2. A soundtrack.
   TestValidator.equals(
     "the soundtrack vector",
-    planAutoMovieVideoEncoding({ spec: SPEC, durationSeconds: 2, frameDir: "frames", outputPath: "out/film.mp4", audio: "mix.wav" }).args,
+    planAutoMovieVideoEncoding({
+      spec: SPEC,
+      durationSeconds: 2,
+      frameDir: "frames",
+      outputPath: "out/film.mp4",
+      audio: "mix.wav",
+    }).args,
     [
       ...base,
       "-i",
@@ -102,7 +117,14 @@ export function test_render_video_encoding_plan(): void {
     TestValidator.predicate(
       `a clock of ${seconds} s is refused`,
       throwsError(
-        (): unknown => planAutoMovieVideoEncoding({ spec: SPEC, durationSeconds: seconds, frameDir: "f", outputPath: "o.mp4", audio: null }),
+        (): unknown =>
+          planAutoMovieVideoEncoding({
+            spec: SPEC,
+            durationSeconds: seconds,
+            frameDir: "f",
+            outputPath: "o.mp4",
+            audio: null,
+          }),
         "whole number of frames",
       ),
     );
@@ -125,7 +147,14 @@ export function test_render_video_encoding_plan(): void {
   TestValidator.predicate(
     "a blank soundtrack",
     throwsError(
-      (): unknown => planAutoMovieVideoEncoding({ spec: SPEC, durationSeconds: 2, frameDir: "f", outputPath: "o.mp4", audio: " " }),
+      (): unknown =>
+        planAutoMovieVideoEncoding({
+          spec: SPEC,
+          durationSeconds: 2,
+          frameDir: "f",
+          outputPath: "o.mp4",
+          audio: " ",
+        }),
       "blank",
     ),
   );

@@ -12,7 +12,11 @@ import { nclose } from "./nclose";
  */
 export namespace InspectionScene {
   /** A named two-metre square in the XY plane centred at `x`, facing +Z. */
-  export function quad(name: string, x: number = 0, size: number = 2): THREE.Mesh {
+  export function quad(
+    name: string,
+    x: number = 0,
+    size: number = 2,
+  ): THREE.Mesh {
     const mesh: THREE.Mesh = new THREE.Mesh(
       new THREE.PlaneGeometry(size, size),
       new THREE.MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide }),
@@ -101,24 +105,31 @@ export namespace InspectionScene {
       line.geometry.getAttribute("instanceEnd");
     const a: THREE.Vector3 = new THREE.Vector3();
     const b: THREE.Vector3 = new THREE.Vector3();
-    return Array.from({ length: start.count }, (_: unknown, i: number): number[] => {
-      a.fromBufferAttribute(start, i).applyMatrix4(line.matrixWorld);
-      b.fromBufferAttribute(end, i).applyMatrix4(line.matrixWorld);
-      return [a.x, a.y, a.z, b.x, b.y, b.z];
-    });
+    return Array.from(
+      { length: start.count },
+      (_: unknown, i: number): number[] => {
+        a.fromBufferAttribute(start, i).applyMatrix4(line.matrixWorld);
+        b.fromBufferAttribute(end, i).applyMatrix4(line.matrixWorld);
+        return [a.x, a.y, a.z, b.x, b.y, b.z];
+      },
+    );
   }
 
   /** The sRGB hex colour of every segment's start of a line object. */
   export function colors(line: LineSegments2): number[] {
     const start: THREE.BufferAttribute | THREE.InterleavedBufferAttribute =
       line.geometry.getAttribute("instanceColorStart");
-    return Array.from({ length: start.count }, (_: unknown, i: number): number =>
-      new THREE.Color(start.getX(i), start.getY(i), start.getZ(i)).getHex(),
+    return Array.from(
+      { length: start.count },
+      (_: unknown, i: number): number =>
+        new THREE.Color(start.getX(i), start.getY(i), start.getZ(i)).getHex(),
     );
   }
 
   /** The world-space position and sRGB hex colour of every point of a points object. */
-  export function points(dots: THREE.Points): { at: number[]; color: number }[] {
+  export function points(
+    dots: THREE.Points,
+  ): { at: number[]; color: number }[] {
     dots.updateMatrixWorld(true);
     const position: THREE.BufferAttribute | THREE.InterleavedBufferAttribute =
       dots.geometry.getAttribute("position");
@@ -131,7 +142,11 @@ export namespace InspectionScene {
         at.fromBufferAttribute(position, i).applyMatrix4(dots.matrixWorld);
         return {
           at: [at.x, at.y, at.z],
-          color: new THREE.Color(color.getX(i), color.getY(i), color.getZ(i)).getHex(),
+          color: new THREE.Color(
+            color.getX(i),
+            color.getY(i),
+            color.getZ(i),
+          ).getHex(),
         };
       },
     );

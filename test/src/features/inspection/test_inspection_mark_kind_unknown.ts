@@ -24,7 +24,9 @@ import { InspectionScene } from "../internal/InspectionScene";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: With supplied kinds curve/section and joint, the pattern curve/spline is refused).
  */
 export function test_inspection_mark_kind_unknown(): void {
-  const stage: THREE.Scene = InspectionScene.scene(InspectionScene.quad("panel"));
+  const stage: THREE.Scene = InspectionScene.scene(
+    InspectionScene.quad("panel"),
+  );
   const marks = [
     InspectionScene.mark("panel/ring", "curve/section", 0x59a0f4, {
       type: "polyline",
@@ -88,7 +90,8 @@ export function test_inspection_mark_kind_unknown(): void {
       marks,
     });
     const count: number =
-      InspectionScene.strokes(stage).length + InspectionScene.dots(stage).length;
+      InspectionScene.strokes(stage).length +
+      InspectionScene.dots(stage).length;
     handle.restore();
     return count;
   };
@@ -106,7 +109,11 @@ export function test_inspection_mark_kind_unknown(): void {
   });
   TestValidator.equals(
     "without marks patterns nothing is drawn",
-    [InspectionScene.strokes(stage).length, InspectionScene.dots(stage).length, none.legend],
+    [
+      InspectionScene.strokes(stage).length,
+      InspectionScene.dots(stage).length,
+      none.legend,
+    ],
     [0, 0, []],
   );
   none.restore();

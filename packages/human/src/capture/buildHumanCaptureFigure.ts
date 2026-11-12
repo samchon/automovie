@@ -21,7 +21,8 @@ export function buildHumanCaptureFigure(name: string): {
   dispose: () => void;
 } {
   const person: string = resolveHumanCaptureSubject(name).person;
-  const offered: (typeof HUMAN_CAPTURE_PEOPLE)[string] = HUMAN_CAPTURE_PEOPLE[person]!;
+  const offered: (typeof HUMAN_CAPTURE_PEOPLE)[string] =
+    HUMAN_CAPTURE_PEOPLE[person]!;
   const object: THREE.Group = new THREE.Group();
   object.name = person;
   object.rotation.y = -Math.PI / 2;
@@ -34,7 +35,10 @@ export function buildHumanCaptureFigure(name: string): {
   for (const piece of offered.create()) {
     if (piece.indices.length === 0) continue;
     const geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
-    geometry.setAttribute("position", new THREE.Float32BufferAttribute(piece.positions, 3));
+    geometry.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute(piece.positions, 3),
+    );
     geometry.setIndex(piece.indices);
     geometry.computeVertexNormals();
     geometries.push(geometry);

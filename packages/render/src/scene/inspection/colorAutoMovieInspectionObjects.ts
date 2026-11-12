@@ -34,8 +34,10 @@ export function colorAutoMovieInspectionObjects(props: {
   /** The request's colours. */
   color: readonly IAutoMovieInspectionRequest.IColor[];
 }): () => void {
-  const swaps: { mesh: THREE.Mesh; prior: THREE.Material | THREE.Material[] }[] =
-    [];
+  const swaps: {
+    mesh: THREE.Mesh;
+    prior: THREE.Material | THREE.Material[];
+  }[] = [];
   const made: THREE.Material[] = [];
   const restore: () => void = (): void => {
     for (const { mesh, prior } of swaps.reverse()) mesh.material = prior;
@@ -45,7 +47,8 @@ export function colorAutoMovieInspectionObjects(props: {
     for (const { path, mesh } of props.meshes) {
       let hex: number | null = null;
       for (const entry of props.color)
-        if (matchAutoMovieInspectionPath(path, entry.pattern)) hex = entry.color;
+        if (matchAutoMovieInspectionPath(path, entry.pattern))
+          hex = entry.color;
       if (hex === null) continue;
       if (props.shade !== "beauty" && props.shade !== "clay")
         throw new Error(

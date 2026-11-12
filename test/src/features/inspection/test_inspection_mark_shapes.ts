@@ -51,7 +51,9 @@ export function test_inspection_mark_shapes(): void {
       points: [1, 2, 3, -1, -2, -3],
     }),
   ];
-  const stage: THREE.Scene = InspectionScene.scene(InspectionScene.quad("panel"));
+  const stage: THREE.Scene = InspectionScene.scene(
+    InspectionScene.quad("panel"),
+  );
   const handle: IAutoMovieInspectionHandle = applyAutoMovieInspection({
     scene: stage,
     request: InspectionScene.ask({
@@ -63,17 +65,21 @@ export function test_inspection_mark_shapes(): void {
   const lines: LineSegments2[] = InspectionScene.strokes(stage);
   TestValidator.equals("one line object", lines.length, 1);
   const ends: number[] = InspectionScene.segments(lines[0]!).flat();
-  InspectionScene.close("every segment end", ends, [
-    // open polyline
-    0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0,
-    // closed polyline
-    0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1,
-    // segments
-    0, 0, 2, 0, 1, 2, 5, 5, 5, 6, 5, 5,
-    // arrow: shaft, then the head
-    0, 0, 0, 2, 0, 0, 2, 0, 0, 1.5, 0, 0.25, 2, 0, 0, 1.5, 0, -0.25, 2, 0, 0,
-    1.5, -0.25, 0, 2, 0, 0, 1.5, 0.25, 0,
-  ]);
+  InspectionScene.close(
+    "every segment end",
+    ends,
+    [
+      // open polyline
+      0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0,
+      // closed polyline
+      0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1,
+      // segments
+      0, 0, 2, 0, 1, 2, 5, 5, 5, 6, 5, 5,
+      // arrow: shaft, then the head
+      0, 0, 0, 2, 0, 0, 2, 0, 0, 1.5, 0, 0.25, 2, 0, 0, 1.5, 0, -0.25, 2, 0, 0,
+      1.5, -0.25, 0, 2, 0, 0, 1.5, 0.25, 0,
+    ],
+  );
   TestValidator.equals(
     "every segment takes its kind's colour",
     InspectionScene.colors(lines[0]!),
@@ -115,7 +121,10 @@ export function test_inspection_mark_shapes(): void {
   const malformed: [string, IAutoMovieMark.Shape][] = [
     ["one place", { type: "polyline", points: [0, 0, 0], closed: false }],
     ["odd ends", { type: "segments", points: [0, 0, 0, 1, 0, 0, 2, 0, 0] }],
-    ["more origins", { type: "arrows", origins: [0, 0, 0, 1, 1, 1], vectors: [1, 0, 0] }],
+    [
+      "more origins",
+      { type: "arrows", origins: [0, 0, 0, 1, 1, 1], vectors: [1, 0, 0] },
+    ],
     ["not triples", { type: "points", points: [0, 0] }],
     ["not finite", { type: "points", points: [0, Number.NaN, 0] }],
     ["no point", { type: "points", points: [] }],
@@ -135,7 +144,11 @@ export function test_inspection_mark_shapes(): void {
         error instanceof Error && error.message.includes(`odd/${title}`),
       );
     }
-    TestValidator.equals(`${title} leaves the scene`, stage.children.length, before);
+    TestValidator.equals(
+      `${title} leaves the scene`,
+      stage.children.length,
+      before,
+    );
   }
 
   // 3. Depth lead.
@@ -180,6 +193,8 @@ export function test_inspection_mark_shapes(): void {
   );
   TestValidator.predicate(
     "x-ray shaders are not patched",
-    compiled(true).every((text: string): boolean => !text.includes("isOrthographic ?")),
+    compiled(true).every(
+      (text: string): boolean => !text.includes("isOrthographic ?"),
+    ),
   );
 }

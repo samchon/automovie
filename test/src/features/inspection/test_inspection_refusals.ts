@@ -29,7 +29,10 @@ export function test_inspection_refusals(): void {
   const left: THREE.Mesh = InspectionScene.quad("left", -2, 1);
   const right: THREE.Mesh = InspectionScene.quad("right", 2, 1);
   const kept: THREE.Scene = InspectionScene.scene(left, right);
-  const materials: (THREE.Material | THREE.Material[])[] = [left.material, right.material];
+  const materials: (THREE.Material | THREE.Material[])[] = [
+    left.material,
+    right.material,
+  ];
   const untouched = (): boolean =>
     left.layers.mask === 1 &&
     right.layers.mask === 1 &&
@@ -38,10 +41,19 @@ export function test_inspection_refusals(): void {
     kept.children.length === 2;
   const refusals: [title: string, request: IAutoMovieInspectionRequest][] = [
     ["parts that match nothing", InspectionScene.ask({ parts: ["nobody"] })],
-    ["one unmatched pattern among matched ones", InspectionScene.ask({ parts: ["left", "nobody"] })],
-    ["hide that matches nothing", InspectionScene.ask({ hide: ["nobody"], shade: "clay" })],
+    [
+      "one unmatched pattern among matched ones",
+      InspectionScene.ask({ parts: ["left", "nobody"] }),
+    ],
+    [
+      "hide that matches nothing",
+      InspectionScene.ask({ hide: ["nobody"], shade: "clay" }),
+    ],
     ["a zero stroke", InspectionScene.ask({ stroke: 0 })],
-    ["a stroke that is not a number", InspectionScene.ask({ stroke: Number.NaN })],
+    [
+      "a stroke that is not a number",
+      InspectionScene.ask({ stroke: Number.NaN }),
+    ],
   ];
   for (const [title, request] of refusals) {
     TestValidator.error(`${title} is refused`, (): void => {
@@ -54,7 +66,11 @@ export function test_inspection_refusals(): void {
   TestValidator.error("a mark that cannot be built is refused", (): void => {
     applyAutoMovieInspection({
       scene: kept,
-      request: InspectionScene.ask({ parts: ["left"], shade: "clay", marks: ["probe"] }),
+      request: InspectionScene.ask({
+        parts: ["left"],
+        shade: "clay",
+        marks: ["probe"],
+      }),
       marks: [
         InspectionScene.mark("left/rail", "probe", 0x00aa00, {
           type: "polyline",
@@ -64,12 +80,17 @@ export function test_inspection_refusals(): void {
       ],
     });
   });
-  TestValidator.predicate("and the isolation and shade made before it are undone", untouched());
+  TestValidator.predicate(
+    "and the isolation and shade made before it are undone",
+    untouched(),
+  );
 
   // 3. A cut.
   const slab: THREE.Mesh = InspectionScene.quad("slab");
   const clipped: THREE.Material = slab.material as THREE.Material;
-  const prior: THREE.Plane[] = [new THREE.Plane(new THREE.Vector3(0, 1, 0), 100)];
+  const prior: THREE.Plane[] = [
+    new THREE.Plane(new THREE.Vector3(0, 1, 0), 100),
+  ];
   clipped.clippingPlanes = prior;
   clipped.clipIntersection = true;
   const solid: THREE.Scene = InspectionScene.scene(slab);
@@ -100,7 +121,11 @@ export function test_inspection_refusals(): void {
   cut.restore();
   TestValidator.equals(
     "the restore puts the plane list, the intersection flag and the switch back",
-    [clipped.clippingPlanes === prior, clipped.clipIntersection, renderer.localClippingEnabled],
+    [
+      clipped.clippingPlanes === prior,
+      clipped.clipIntersection,
+      renderer.localClippingEnabled,
+    ],
     [true, true, false],
   );
 }

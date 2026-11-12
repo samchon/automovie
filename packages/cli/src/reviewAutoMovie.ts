@@ -30,19 +30,36 @@ export async function reviewAutoMovie(props: {
   env: Readonly<Record<string, string | undefined>>;
 }): Promise<number> {
   const { root } = props;
-  const render: typeof Render = loadAutoMovieProductionModule(root, "@automovie/render") as typeof Render;
-  const options: ReturnType<typeof readAutoMovieReviewOptions> = readAutoMovieReviewOptions(
-    render.readAutoMovieCaptureArguments(props.args),
+  const render: typeof Render = loadAutoMovieProductionModule(
+    root,
+    "@automovie/render",
+  ) as typeof Render;
+  const options: ReturnType<typeof readAutoMovieReviewOptions> =
+    readAutoMovieReviewOptions(
+      render.readAutoMovieCaptureArguments(props.args),
+    );
+  const out: string = path.resolve(
+    root,
+    options.out ?? path.join("media", "automovie", "review"),
   );
-  const out: string = path.resolve(root, options.out ?? path.join("media", "automovie", "review"));
-  const recorded: Awaited<ReturnType<typeof recordAutoMoviePlayback>> = await recordAutoMoviePlayback({
-    chromium: (loadAutoMovieProductionModule(root, "playwright-core") as { chromium: unknown }).chromium,
-    url: options.url,
-    seconds: options.seconds,
-    out,
-    env: props.env,
-  });
-  await fs.writeFile(path.join(out, "playback.json"), JSON.stringify(recorded, null, 2));
-  process.stdout.write(`review: ${recorded.video}\n${recorded.errors.length} page errors\n`);
+  const recorded: Awaited<ReturnType<typeof recordAutoMoviePlayback>> =
+    await recordAutoMoviePlayback({
+      chromium: (
+        loadAutoMovieProductionModule(root, "playwright-core") as {
+          chromium: unknown;
+        }
+      ).chromium,
+      url: options.url,
+      seconds: options.seconds,
+      out,
+      env: props.env,
+    });
+  await fs.writeFile(
+    path.join(out, "playback.json"),
+    JSON.stringify(recorded, null, 2),
+  );
+  process.stdout.write(
+    `review: ${recorded.video}\n${recorded.errors.length} page errors\n`,
+  );
   return recorded.errors.length === 0 ? 0 : 1;
 }

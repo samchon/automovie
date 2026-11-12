@@ -36,12 +36,24 @@ export function test_mark_mesh_clearance(): void {
     }) as IAutoMovieMesh;
   const measure = (front: IAutoMovieMesh): IAutoMovieMark[] => {
     const witnesses: IAutoMovieMeshClearanceWitness[] = [];
-    measureAutoMovieMeshClearance(front, triangle(0), "z", (witness: IAutoMovieMeshClearanceWitness): void => {
-      witnesses.push(witness);
+    measureAutoMovieMeshClearance(
+      front,
+      triangle(0),
+      "z",
+      (witness: IAutoMovieMeshClearanceWitness): void => {
+        witnesses.push(witness);
+      },
+    );
+    return markAutoMovieMeshClearance({
+      path: "lid",
+      front,
+      axis: "z",
+      witnesses,
+      anchor: "box",
     });
-    return markAutoMovieMeshClearance({ path: "lid", front, axis: "z", witnesses, anchor: "box" });
   };
-  const ends = (mark: IAutoMovieMark): number[] => (mark.shape as IAutoMovieMark.ISegments).points;
+  const ends = (mark: IAutoMovieMark): number[] =>
+    (mark.shape as IAutoMovieMark.ISegments).points;
 
   // 1. Clear.
   const clear: IAutoMovieMark[] = measure(triangle(0.1));
@@ -65,7 +77,12 @@ export function test_mark_mesh_clearance(): void {
   TestValidator.predicate(
     "crossed witnesses end above their start and are flagged",
     crossed.length > 0 &&
-      crossed.every((mark: IAutoMovieMark): boolean => mark.flagged && nclose(ends(mark)[2]!, -0.1) && nclose(ends(mark)[5]!, 0)),
+      crossed.every(
+        (mark: IAutoMovieMark): boolean =>
+          mark.flagged &&
+          nclose(ends(mark)[2]!, -0.1) &&
+          nclose(ends(mark)[5]!, 0),
+      ),
   );
 
   // 3. Identity.
@@ -77,8 +94,26 @@ export function test_mark_mesh_clearance(): void {
 
   // 4. Malformed witnesses.
   for (const [title, witness] of [
-    ["a vertex outside the mesh", { triangle: 0, backTriangle: 0, vertices: [0, 1, 7], weights: [1, 0, 0], gap: 0 }],
-    ["two weights", { triangle: 0, backTriangle: 0, vertices: [0, 1, 2], weights: [1, 0], gap: 0 }],
+    [
+      "a vertex outside the mesh",
+      {
+        triangle: 0,
+        backTriangle: 0,
+        vertices: [0, 1, 7],
+        weights: [1, 0, 0],
+        gap: 0,
+      },
+    ],
+    [
+      "two weights",
+      {
+        triangle: 0,
+        backTriangle: 0,
+        vertices: [0, 1, 2],
+        weights: [1, 0],
+        gap: 0,
+      },
+    ],
   ] as const)
     TestValidator.error(`${title} is refused`, (): void => {
       markAutoMovieMeshClearance({

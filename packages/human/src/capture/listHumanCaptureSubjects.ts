@@ -7,7 +7,10 @@ import { HUMAN_CAPTURE_PEOPLE } from "./HUMAN_CAPTURE_PEOPLE";
  */
 export function listHumanCaptureSubjects(): string[] {
   return Object.entries(HUMAN_CAPTURE_PEOPLE).flatMap(
-    ([person, offered]: [string, (typeof HUMAN_CAPTURE_PEOPLE)[string]]): string[] =>
+    ([person, offered]: [
+      string,
+      (typeof HUMAN_CAPTURE_PEOPLE)[string],
+    ]): string[] =>
       offered.poses.map((pose: string, index: number): string =>
         index === 0 ? person : `${person}@${pose}`,
       ),

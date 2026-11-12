@@ -67,7 +67,10 @@ export async function encodeAutoMovieRasterPng(
     chunk("IEND", new Uint8Array(0)),
   ];
   const file: Uint8Array = new Uint8Array(
-    parts.reduce((sum: number, part: Uint8Array): number => sum + part.length, 0),
+    parts.reduce(
+      (sum: number, part: Uint8Array): number => sum + part.length,
+      0,
+    ),
   );
   let offset: number = 0;
   for (const part of parts) {

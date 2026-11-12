@@ -34,48 +34,83 @@ import * as THREE from "three";
  */
 export function test_human_capture_subjects(): void {
   // 1. The list.
-  TestValidator.equals("every person is offered", listHumanCaptureSubjects(), Object.keys(HUMAN_CAPTURE_PEOPLE));
+  TestValidator.equals(
+    "every person is offered",
+    listHumanCaptureSubjects(),
+    Object.keys(HUMAN_CAPTURE_PEOPLE),
+  );
   TestValidator.equals("f1 is offered", listHumanCaptureSubjects(), ["f1"]);
-  TestValidator.equals("f1 is its reference pose", resolveHumanCaptureSubject("f1"), { person: "f1", pose: "reference" });
+  TestValidator.equals(
+    "f1 is its reference pose",
+    resolveHumanCaptureSubject("f1"),
+    { person: "f1", pose: "reference" },
+  );
 
   // 2. Identity paths: the sewn skin and each loose family.
-  const figure: ReturnType<typeof buildHumanCaptureFigure> = buildHumanCaptureFigure("f1");
+  const figure: ReturnType<typeof buildHumanCaptureFigure> =
+    buildHumanCaptureFigure("f1");
   const scene: THREE.Scene = new THREE.Scene();
   scene.add(figure.object);
   const named = (members: readonly AutoMovieHumanF1.IMember[]): string[] =>
     members.flatMap((member: AutoMovieHumanF1.IMember): string[] =>
-      member.mirrored ? [`f1/${member.family.name}`, `f1/${member.family.name}.mirror`] : [`f1/${member.family.name}`],
+      member.mirrored
+        ? [`f1/${member.family.name}`, `f1/${member.family.name}.mirror`]
+        : [`f1/${member.family.name}`],
     );
   const pieces: string[] = ["f1/body", ...named(AutoMovieHumanF1.LOOSE)];
-  const paths: string[] = listAutoMovieInspectionPaths(scene).map((entry: IAutoMovieInspectionPath): string => entry.path);
-  const sort = (values: string[]): string[] => [...values].sort((a: string, b: string): number => a.localeCompare(b));
-  TestValidator.equals("the sewn skin and each loose piece", sort(paths), sort(pieces));
+  const paths: string[] = listAutoMovieInspectionPaths(scene).map(
+    (entry: IAutoMovieInspectionPath): string => entry.path,
+  );
+  const sort = (values: string[]): string[] =>
+    [...values].sort((a: string, b: string): number => a.localeCompare(b));
+  TestValidator.equals(
+    "the sewn skin and each loose piece",
+    sort(paths),
+    sort(pieces),
+  );
   TestValidator.equals("each path once", new Set(paths).size, paths.length);
 
   // 3. Curves as marks, named by the family they construct.
   const owners: string[] = named(AutoMovieHumanF1.FAMILIES);
-  const kinds: Set<string> = new Set(figure.marks.map((mark: IAutoMovieMark): string => mark.kind));
-  TestValidator.equals("the curve kinds", sort([...kinds]), ["curve/axis", "curve/guide", "curve/section"]);
+  const kinds: Set<string> = new Set(
+    figure.marks.map((mark: IAutoMovieMark): string => mark.kind),
+  );
+  TestValidator.equals("the curve kinds", sort([...kinds]), [
+    "curve/axis",
+    "curve/guide",
+    "curve/section",
+  ]);
   TestValidator.predicate(
     "every curve lies beneath the family it constructs and follows the figure",
     figure.marks.every(
       (mark: IAutoMovieMark): boolean =>
-        mark.anchor === "f1" && owners.some((owner: string): boolean => mark.path.startsWith(`${owner}/`)),
+        mark.anchor === "f1" &&
+        owners.some((owner: string): boolean =>
+          mark.path.startsWith(`${owner}/`),
+        ),
     ),
   );
-  const marked: string[] = figure.marks.map((mark: IAutoMovieMark): string => mark.path);
+  const marked: string[] = figure.marks.map(
+    (mark: IAutoMovieMark): string => mark.path,
+  );
   TestValidator.predicate(
     "an arm's section and its twin's guide are named by the family",
-    marked.includes("f1/arm/section/0") && marked.includes("f1/arm.mirror/guide/0"),
+    marked.includes("f1/arm/section/0") &&
+      marked.includes("f1/arm.mirror/guide/0"),
   );
   const handle: IAutoMovieInspectionHandle = applyAutoMovieInspection({
     scene,
-    request: parseAutoMovieInspectionRequest((key: string): string | null => (key === "marks" ? "curve/*" : null)),
+    request: parseAutoMovieInspectionRequest((key: string): string | null =>
+      key === "marks" ? "curve/*" : null,
+    ),
     marks: figure.marks,
   });
   TestValidator.predicate(
     "marks=curve/* selects the curves",
-    handle.selected.includes("f1/arm/section/0") && handle.legend.some((entry: { label: string }): boolean => entry.label.startsWith("section curve")),
+    handle.selected.includes("f1/arm/section/0") &&
+      handle.legend.some((entry: { label: string }): boolean =>
+        entry.label.startsWith("section curve"),
+      ),
   );
   handle.restore();
   figure.dispose();
@@ -89,6 +124,9 @@ export function test_human_capture_subjects(): void {
       resolveHumanCaptureSubject(name);
       TestValidator.predicate(`${name} is refused`, false);
     } catch (error) {
-      TestValidator.predicate(`${name} is refused listing ${listed}`, error instanceof Error && error.message.includes(listed));
+      TestValidator.predicate(
+        `${name} is refused listing ${listed}`,
+        error instanceof Error && error.message.includes(listed),
+      );
     }
 }

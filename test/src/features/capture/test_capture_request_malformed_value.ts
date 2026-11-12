@@ -28,7 +28,8 @@ export function test_capture_request_malformed_value(): void {
     fragments: string[],
   ): boolean =>
     throwsError(
-      (): unknown => parseAutoMovieCapturePlanRequest(new URLSearchParams(text)),
+      (): unknown =>
+        parseAutoMovieCapturePlanRequest(new URLSearchParams(text)),
       fragments,
     );
 
@@ -85,7 +86,10 @@ export function test_capture_request_malformed_value(): void {
     ["tolerance=1", ["tolerance", "compare"]],
     ["round=r1&compare=r1", ["r1", "itself"]],
   ] as const)
-    TestValidator.predicate(`${text} is refused`, refuses(text, [...fragments]));
+    TestValidator.predicate(
+      `${text} is refused`,
+      refuses(text, [...fragments]),
+    );
 
   // 3. Inspection values go through the inspection reader.
   TestValidator.predicate(

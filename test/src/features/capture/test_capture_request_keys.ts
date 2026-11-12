@@ -78,16 +78,24 @@ export function test_capture_request_keys(): void {
   );
   TestValidator.equals(
     "every key has a sample",
-    [...AUTO_MOVIE_CAPTURE_PLAN_KEYS].sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0)),
-    Object.keys(SAMPLES).sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0)),
+    [...AUTO_MOVIE_CAPTURE_PLAN_KEYS].sort((a: string, b: string): number =>
+      a < b ? -1 : a > b ? 1 : 0,
+    ),
+    Object.keys(SAMPLES).sort((a: string, b: string): number =>
+      a < b ? -1 : a > b ? 1 : 0,
+    ),
   );
 
   // 2 and 3. Each key through both hosts, and against its absence.
-  const address: (pairs: readonly [string, string][]) => IAutoMovieCapturePlanRequest = (
+  const address: (
+    pairs: readonly [string, string][],
+  ) => IAutoMovieCapturePlanRequest = (
     pairs: readonly [string, string][],
   ): IAutoMovieCapturePlanRequest =>
     parseAutoMovieCapturePlanRequest(new URLSearchParams([...pairs]));
-  const command: (pairs: readonly [string, string][]) => IAutoMovieCapturePlanRequest = (
+  const command: (
+    pairs: readonly [string, string][],
+  ) => IAutoMovieCapturePlanRequest = (
     pairs: readonly [string, string][],
   ): IAutoMovieCapturePlanRequest =>
     parseAutoMovieCapturePlanRequest(
@@ -102,7 +110,11 @@ export function test_capture_request_keys(): void {
     const without: readonly [string, string][] = pairs.filter(
       ([name]: readonly [string, string]): boolean => name !== key,
     );
-    TestValidator.equals(`${key} reads alike in both hosts`, command(pairs), address(pairs));
+    TestValidator.equals(
+      `${key} reads alike in both hosts`,
+      command(pairs),
+      address(pairs),
+    );
     TestValidator.predicate(
       `${key} changes the request`,
       JSON.stringify(address(pairs)) !== JSON.stringify(address(without)),

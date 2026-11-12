@@ -41,9 +41,7 @@ export function parseAutoMovieInspectionView(
   text: string,
 ): IAutoMovieInspectionView {
   const refuse: (problem: string) => never = (problem: string): never => {
-    throw new Error(
-      `Inspection view "${text}" ${problem}; a view is ${FORMS}`,
-    );
+    throw new Error(`Inspection view "${text}" ${problem}; a view is ${FORMS}`);
   };
   if (text.trim() === "") return refuse("is empty");
   if (text === "film") return { type: "film" };
@@ -84,10 +82,14 @@ export function parseAutoMovieInspectionView(
       const value: string = written.slice(key.length + 1);
       if (key === "ortho") {
         if (!written.startsWith("ortho="))
-          return refuse("is a fixed camera, whose @ortho states its metres per pixel as @ortho=<m>");
+          return refuse(
+            "is a fixed camera, whose @ortho states its metres per pixel as @ortho=<m>",
+          );
         const scale: number = value.trim() === "" ? Number.NaN : Number(value);
         if (!(Number.isFinite(scale) && scale > 0))
-          return refuse(`has @ortho=${value}, which is not a positive number of metres per pixel`);
+          return refuse(
+            `has @ortho=${value}, which is not a positive number of metres per pixel`,
+          );
         metresPerPixel = scale;
       } else if (key === "up" && written.startsWith("up=")) {
         const direction: number[] = triple(value);
@@ -99,23 +101,35 @@ export function parseAutoMovieInspectionView(
           up.z * sight.x - up.x * sight.z,
           up.x * sight.y - up.y * sight.x,
         );
-        if (!(cross > 1e-12 * Math.hypot(up.x, up.y, up.z) * Math.hypot(sight.x, sight.y, sight.z)))
-          return refuse(`has @up=${value}, which is zero or lies along the line of sight`);
-      } else
-        return refuse(`is a fixed camera, which takes no @${written}`);
+        if (
+          !(
+            cross >
+            1e-12 *
+              Math.hypot(up.x, up.y, up.z) *
+              Math.hypot(sight.x, sight.y, sight.z)
+          )
+        )
+          return refuse(
+            `has @up=${value}, which is zero or lies along the line of sight`,
+          );
+      } else return refuse(`is a fixed camera, which takes no @${written}`);
     }
     return { type: "fixed", position, target, metresPerPixel, up };
   }
 
   // Named: a name, then the switches of a fit.
   if (!/^[^@:;,\s]+$/u.test(head!)) return refuse("does not start with a name");
-  if (head === "film") return refuse("is the film camera, which takes no switch");
+  if (head === "film")
+    return refuse("is the film camera, which takes no switch");
   let orthographic: boolean = false;
   let follow: boolean = false;
   let focus: IAutoMovieInspectionView.IFocus | null = null;
   for (const written of switches) {
     const key: string = once(written);
-    if ((key === "focus" && seen.has("flagged")) || (key === "flagged" && seen.has("focus")))
+    if (
+      (key === "focus" && seen.has("flagged")) ||
+      (key === "flagged" && seen.has("focus"))
+    )
       return refuse(`contradicts its focus with @${written}`);
     if (written === "ortho") orthographic = true;
     else if (written === "follow") follow = true;
@@ -124,7 +138,10 @@ export function parseAutoMovieInspectionView(
       const pattern: string = written.slice("focus=".length);
       if (pattern === "") return refuse("has an empty focus pattern");
       focus = { type: "pattern", pattern };
-    } else return refuse(`has the switch @${written}, which a named view does not take`);
+    } else
+      return refuse(
+        `has the switch @${written}, which a named view does not take`,
+      );
   }
   return { type: "named", name: head!, orthographic, follow, focus };
 }

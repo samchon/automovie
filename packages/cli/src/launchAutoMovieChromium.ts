@@ -46,7 +46,8 @@ export async function launchAutoMovieChromium(props: {
         : { executablePath: plan.executablePath }),
     });
   } catch (error) {
-    const message: string = error instanceof Error ? error.message : String(error);
+    const message: string =
+      error instanceof Error ? error.message : String(error);
     if (/executable doesn't exist|executable does not exist/iu.test(message))
       throw new Error(
         `No Chromium is installed for capture; run ${INSTALL} in the production, or set CHROME_PATH to a Chromium executable`,

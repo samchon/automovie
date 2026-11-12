@@ -23,14 +23,21 @@ import { createHash } from "node:crypto";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export async function test_capture_still_hash(): Promise<void> {
-  const picture: (width: number, height: number, alpha?: number) => IAutoMovieRasterImage = (
+  const picture: (
+    width: number,
+    height: number,
+    alpha?: number,
+  ) => IAutoMovieRasterImage = (
     width: number,
     height: number,
     alpha: number = 255,
   ): IAutoMovieRasterImage => {
     const pixels: Uint8ClampedArray = new Uint8ClampedArray(width * height * 4);
     for (let index: number = 0; index < width * height; index++)
-      pixels.set([(index * 31) % 256, (index * 7 + 3) % 256, 255 - (index % 256), alpha], index * 4);
+      pixels.set(
+        [(index * 31) % 256, (index * 7 + 3) % 256, 255 - (index % 256), alpha],
+        index * 4,
+      );
     return { width, height, pixels };
   };
   const oracle: (image: IAutoMovieRasterImage) => string = (
@@ -40,7 +47,10 @@ export async function test_capture_still_hash(): Promise<void> {
     message.writeUInt32BE(image.width, 0);
     message.writeUInt32BE(image.height, 4);
     for (let index: number = 0; index < image.width * image.height; index++)
-      message.set(image.pixels.subarray(index * 4, index * 4 + 3), 8 + index * 3);
+      message.set(
+        image.pixels.subarray(index * 4, index * 4 + 3),
+        8 + index * 3,
+      );
     return `sha256:${createHash("sha256").update(message).digest("hex")}`;
   };
 
@@ -53,14 +63,20 @@ export async function test_capture_still_hash(): Promise<void> {
     [4, 4],
   ] as const) {
     const image: IAutoMovieRasterImage = picture(width, height);
-    TestValidator.equals(`${width}x${height} matches SHA-256`, hashAutoMovieRasterImage(image), oracle(image));
+    TestValidator.equals(
+      `${width}x${height} matches SHA-256`,
+      hashAutoMovieRasterImage(image),
+      oracle(image),
+    );
   }
 
   // 2. Equal pixels hash alike.
   const still: IAutoMovieRasterImage = picture(64, 36);
   TestValidator.equals(
     "a decoded still hashes as it was drawn",
-    hashAutoMovieRasterImage(await decodeAutoMovieRasterPng(await encodeAutoMovieRasterPng(still))),
+    hashAutoMovieRasterImage(
+      await decodeAutoMovieRasterPng(await encodeAutoMovieRasterPng(still)),
+    ),
     hashAutoMovieRasterImage(still),
   );
   TestValidator.equals(
@@ -72,10 +88,14 @@ export async function test_capture_still_hash(): Promise<void> {
   // 3. Changes that must count.
   const changed: IAutoMovieRasterImage = picture(64, 36);
   changed.pixels[1000 * 4 + 1] ^= 1;
-  TestValidator.predicate("one channel changes the hash", hashAutoMovieRasterImage(changed) !== hashAutoMovieRasterImage(still));
+  TestValidator.predicate(
+    "one channel changes the hash",
+    hashAutoMovieRasterImage(changed) !== hashAutoMovieRasterImage(still),
+  );
   const narrow: IAutoMovieRasterImage = picture(3, 6);
   TestValidator.predicate(
     "the shape changes the hash",
-    hashAutoMovieRasterImage({ width: 6, height: 3, pixels: narrow.pixels }) !== hashAutoMovieRasterImage(narrow),
+    hashAutoMovieRasterImage({ width: 6, height: 3, pixels: narrow.pixels }) !==
+      hashAutoMovieRasterImage(narrow),
   );
 }

@@ -75,7 +75,8 @@ export function expandAutoMovieInspectionSweep(props: {
       const inside: (path: string) => boolean = (path: string): boolean =>
         unit === "" || path === unit || path.startsWith(`${unit}/`);
       const members: typeof props.objects = props.objects.filter(
-        (object: (typeof props.objects)[number]): boolean => inside(object.path),
+        (object: (typeof props.objects)[number]): boolean =>
+          inside(object.path),
       );
       const low: IAutoMovieVector3 = corner(members, "min");
       const high: IAutoMovieVector3 = corner(members, "max");
@@ -108,8 +109,23 @@ function corner(
       ? (values: number[]): number => Math.min(...values)
       : (values: number[]): number => Math.max(...values);
   return {
-    x: pick(boxes.map((box: { min: IAutoMovieVector3; max: IAutoMovieVector3 }): number => box[side].x)),
-    y: pick(boxes.map((box: { min: IAutoMovieVector3; max: IAutoMovieVector3 }): number => box[side].y)),
-    z: pick(boxes.map((box: { min: IAutoMovieVector3; max: IAutoMovieVector3 }): number => box[side].z)),
+    x: pick(
+      boxes.map(
+        (box: { min: IAutoMovieVector3; max: IAutoMovieVector3 }): number =>
+          box[side].x,
+      ),
+    ),
+    y: pick(
+      boxes.map(
+        (box: { min: IAutoMovieVector3; max: IAutoMovieVector3 }): number =>
+          box[side].y,
+      ),
+    ),
+    z: pick(
+      boxes.map(
+        (box: { min: IAutoMovieVector3; max: IAutoMovieVector3 }): number =>
+          box[side].z,
+      ),
+    ),
   };
 }

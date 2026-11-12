@@ -26,18 +26,25 @@ import { throwsError } from "../internal/predicates";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export function test_cli_render_review_options(): void {
-  const render: (values: [string, string][]) => unknown = (values: [string, string][]): unknown => {
-    const read: ReturnType<typeof readAutoMovieRenderOptions> = readAutoMovieRenderOptions(new Map(values));
+  const render: (values: [string, string][]) => unknown = (
+    values: [string, string][],
+  ): unknown => {
+    const read: ReturnType<typeof readAutoMovieRenderOptions> =
+      readAutoMovieRenderOptions(new Map(values));
     return { ...read, request: [...read.request] };
   };
   // 1. Render's options.
-  TestValidator.equals("render with a module", render([["module", "src/subjects.ts"]]), {
-    module: "src/subjects.ts",
-    props: null,
-    out: null,
-    backend: "software",
-    request: [],
-  });
+  TestValidator.equals(
+    "render with a module",
+    render([["module", "src/subjects.ts"]]),
+    {
+      module: "src/subjects.ts",
+      props: null,
+      out: null,
+      backend: "software",
+      request: [],
+    },
+  );
   TestValidator.equals(
     "render with every option",
     render([
@@ -47,23 +54,52 @@ export function test_cli_render_review_options(): void {
       ["out", "media/out"],
       ["backend", "gpu"],
     ]),
-    { module: "src/subjects.ts", props: "case.json", out: "media/out", backend: "gpu", request: [["subject", "starter"]] },
+    {
+      module: "src/subjects.ts",
+      props: "case.json",
+      out: "media/out",
+      backend: "gpu",
+      request: [["subject", "starter"]],
+    },
   );
 
   // 2. Render's refusals; a request key passes on.
   TestValidator.equals(
     "a request key passes to the request",
-    [...readAutoMovieRenderOptions(new Map([["module", "m.ts"], ["at", "1"]])).request.keys()],
+    [
+      ...readAutoMovieRenderOptions(
+        new Map([
+          ["module", "m.ts"],
+          ["at", "1"],
+        ]),
+      ).request.keys(),
+    ],
     ["at"],
   );
   for (const [values, fragment] of [
-    [[["module", "m.ts"], ["out", " "]], "--out needs a value"],
+    [
+      [
+        ["module", "m.ts"],
+        ["out", " "],
+      ],
+      "--out needs a value",
+    ],
     [[["subject", "starter"]], "--module"],
-    [[["module", "m.ts"], ["backend", "vulkan"]], "vulkan"],
+    [
+      [
+        ["module", "m.ts"],
+        ["backend", "vulkan"],
+      ],
+      "vulkan",
+    ],
   ] as [string[][], string][])
     TestValidator.predicate(
       `render refuses ${JSON.stringify(values)}`,
-      throwsError((): unknown => readAutoMovieRenderOptions(new Map(values as [string, string][])), fragment),
+      throwsError(
+        (): unknown =>
+          readAutoMovieRenderOptions(new Map(values as [string, string][])),
+        fragment,
+      ),
     );
 
   // 3. Review's options.
@@ -93,24 +129,83 @@ export function test_cli_render_review_options(): void {
   for (const [values, fragment] of [
     [[["seconds", "3"]], "--url"],
     [[["url", "http://127.0.0.1:5173/"]], "--seconds"],
-    [[["url", "http://example.com/"], ["seconds", "3"]], "on this machine"],
-    [[["url", "https://127.0.0.1/"], ["seconds", "3"]], "on this machine"],
-    [[["url", "http://127.0.0.1/"], ["seconds", "0"]], "above 0"],
-    [[["url", "http://127.0.0.1/"], ["seconds", "-1"]], "above 0"],
-    [[["url", "http://127.0.0.1/"], ["seconds", "86401"]], "at most 86400"],
-    [[["url", "http://127.0.0.1/"], ["seconds", "soon"]], "soon"],
-    [[["url", "http://127.0.0.1/"], ["seconds", "3"], ["module", "m.ts"]], "--module"],
+    [
+      [
+        ["url", "http://example.com/"],
+        ["seconds", "3"],
+      ],
+      "on this machine",
+    ],
+    [
+      [
+        ["url", "https://127.0.0.1/"],
+        ["seconds", "3"],
+      ],
+      "on this machine",
+    ],
+    [
+      [
+        ["url", "http://127.0.0.1/"],
+        ["seconds", "0"],
+      ],
+      "above 0",
+    ],
+    [
+      [
+        ["url", "http://127.0.0.1/"],
+        ["seconds", "-1"],
+      ],
+      "above 0",
+    ],
+    [
+      [
+        ["url", "http://127.0.0.1/"],
+        ["seconds", "86401"],
+      ],
+      "at most 86400",
+    ],
+    [
+      [
+        ["url", "http://127.0.0.1/"],
+        ["seconds", "soon"],
+      ],
+      "soon",
+    ],
+    [
+      [
+        ["url", "http://127.0.0.1/"],
+        ["seconds", "3"],
+        ["module", "m.ts"],
+      ],
+      "--module",
+    ],
   ] as [string[][], string][])
     TestValidator.predicate(
       `review refuses ${JSON.stringify(values)}`,
-      throwsError((): unknown => readAutoMovieReviewOptions(new Map(values as [string, string][])), fragment),
+      throwsError(
+        (): unknown =>
+          readAutoMovieReviewOptions(new Map(values as [string, string][])),
+        fragment,
+      ),
     );
 
   // 5. The lists and the readers agree.
   TestValidator.predicate(
     "every render option is admitted",
     AUTOMOVIE_RENDER_OPTIONS.every((option: string): boolean => {
-      readAutoMovieRenderOptions(new Map([["module", "m.ts"], [option, option === "backend" ? "gpu" : option === "module" ? "m.ts" : "value"]]));
+      readAutoMovieRenderOptions(
+        new Map([
+          ["module", "m.ts"],
+          [
+            option,
+            option === "backend"
+              ? "gpu"
+              : option === "module"
+                ? "m.ts"
+                : "value",
+          ],
+        ]),
+      );
       return true;
     }),
   );
@@ -121,7 +216,14 @@ export function test_cli_render_review_options(): void {
         new Map([
           ["url", "http://127.0.0.1/"],
           ["seconds", "1"],
-          [option, option === "url" ? "http://127.0.0.1/" : option === "seconds" ? "1" : "value"],
+          [
+            option,
+            option === "url"
+              ? "http://127.0.0.1/"
+              : option === "seconds"
+                ? "1"
+                : "value",
+          ],
         ]),
       );
       return true;

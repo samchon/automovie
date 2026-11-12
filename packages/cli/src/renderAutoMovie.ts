@@ -32,18 +32,29 @@ export async function renderAutoMovie(props: {
   env: Readonly<Record<string, string | undefined>>;
 }): Promise<number> {
   const { root } = props;
-  const render: typeof Render = loadAutoMovieProductionModule(root, "@automovie/render") as typeof Render;
-  const options: ReturnType<typeof readAutoMovieRenderOptions> = readAutoMovieRenderOptions(
-    render.readAutoMovieCaptureArguments(props.args),
-  );
+  const render: typeof Render = loadAutoMovieProductionModule(
+    root,
+    "@automovie/render",
+  ) as typeof Render;
+  const options: ReturnType<typeof readAutoMovieRenderOptions> =
+    readAutoMovieRenderOptions(
+      render.readAutoMovieCaptureArguments(props.args),
+    );
 
   // The request names the subject; a render draws its whole clock through its own camera, so no other key applies.
-  const request: Render.IAutoMovieCapturePlanRequest = render.parseAutoMovieCapturePlanRequest(options.request);
+  const request: Render.IAutoMovieCapturePlanRequest =
+    render.parseAutoMovieCapturePlanRequest(options.request);
   for (const key of options.request.keys())
     if (key !== "subject")
-      throw new Error(`Render draws a subject's whole clock through its own camera; the request key --${key} does not apply, only --subject`);
+      throw new Error(
+        `Render draws a subject's whole clock through its own camera; the request key --${key} does not apply, only --subject`,
+      );
   const data: unknown =
-    options.props === null ? null : JSON.parse(await fs.readFile(path.resolve(root, options.props), "utf8"));
+    options.props === null
+      ? null
+      : JSON.parse(
+          await fs.readFile(path.resolve(root, options.props), "utf8"),
+        );
   const ffmpeg: string = resolveAutoMovieFfmpeg({
     env: props.env,
     load: (id: string): unknown => loadAutoMovieProductionModule(root, id),
@@ -56,14 +67,15 @@ export async function renderAutoMovie(props: {
     env: props.env,
   });
   try {
-    const written: Awaited<ReturnType<typeof renderAutoMovieVideo>> = await renderAutoMovieVideo({
-      host,
-      root,
-      subject: request.subject,
-      props: data,
-      ...(options.out === null ? {} : { out: options.out }),
-      ffmpeg,
-    });
+    const written: Awaited<ReturnType<typeof renderAutoMovieVideo>> =
+      await renderAutoMovieVideo({
+        host,
+        root,
+        subject: request.subject,
+        props: data,
+        ...(options.out === null ? {} : { out: options.out }),
+        ffmpeg,
+      });
     process.stdout.write(
       `render: ${written.frames} frames into ${written.video}\nbackend ${host.backend}\n${written.report}\n`,
     );

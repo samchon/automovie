@@ -40,38 +40,81 @@ export function test_inspector_address(): void {
   // 1. Address round trip and readability.
   for (const request of requests) {
     const address: string = formatAutoMovieInspectorAddress(request);
-    TestValidator.equals(`${address} reads back`, readAutoMovieInspectorAddress(address), request);
-    TestValidator.predicate(`${address} keeps separators readable`, !/%2C|%3A|%3B|%2F|%40|%3D/u.test(address));
+    TestValidator.equals(
+      `${address} reads back`,
+      readAutoMovieInspectorAddress(address),
+      request,
+    );
+    TestValidator.predicate(
+      `${address} keeps separators readable`,
+      !/%2C|%3A|%3B|%2F|%40|%3D/u.test(address),
+    );
   }
   const second: string = formatAutoMovieInspectorAddress(requests[1]!);
-  TestValidator.predicate("the subject's &, space and quote are escaped", second.includes("subject=a%26b%20c's"));
-  TestValidator.predicate("views stay readable", second.includes("views=front@ortho@follow@focus=hero/arm;-1,1.6,4:0,1,0@ortho=0.005@up=0,0,-1;film"));
-  TestValidator.predicate("a colour pair keeps its =", formatAutoMovieInspectorAddress(requests[0]!).includes("color=hero/arm=ff8800"));
+  TestValidator.predicate(
+    "the subject's &, space and quote are escaped",
+    second.includes("subject=a%26b%20c's"),
+  );
+  TestValidator.predicate(
+    "views stay readable",
+    second.includes(
+      "views=front@ortho@follow@focus=hero/arm;-1,1.6,4:0,1,0@ortho=0.005@up=0,0,-1;film",
+    ),
+  );
+  TestValidator.predicate(
+    "a colour pair keeps its =",
+    formatAutoMovieInspectorAddress(requests[0]!).includes(
+      "color=hero/arm=ff8800",
+    ),
+  );
 
   // 2. Empty request and leading question mark.
   const empty: IAutoMovieCapturePlanRequest = readAutoMovieInspectorAddress("");
-  TestValidator.equals("the empty request is the empty address", formatAutoMovieInspectorAddress(empty), "");
-  TestValidator.equals("a leading ? is accepted", readAutoMovieInspectorAddress(`?${texts[2]!}`), requests[2]!);
+  TestValidator.equals(
+    "the empty request is the empty address",
+    formatAutoMovieInspectorAddress(empty),
+    "",
+  );
+  TestValidator.equals(
+    "a leading ? is accepted",
+    readAutoMovieInspectorAddress(`?${texts[2]!}`),
+    requests[2]!,
+  );
 
   // 3. Refusals.
-  for (const [text, key] of [["colour=1", "colour"], ["views=", "views"]] as const)
-    TestValidator.predicate(`${text} is refused naming ${key}`, refusal((): void => {
-      readAutoMovieInspectorAddress(text);
-    }).includes(key));
+  for (const [text, key] of [
+    ["colour=1", "colour"],
+    ["views=", "views"],
+  ] as const)
+    TestValidator.predicate(
+      `${text} is refused naming ${key}`,
+      refusal((): void => {
+        readAutoMovieInspectorAddress(text);
+      }).includes(key),
+    );
 
   // 4. The command reads back through the command's reader and splits back as a shell splits it.
   for (const request of requests) {
-    const command: { options: string[]; text: string } = formatAutoMovieInspectorCommand(request);
+    const command: { options: string[]; text: string } =
+      formatAutoMovieInspectorCommand(request);
     TestValidator.equals(
       `${command.text} reads back`,
-      parseAutoMovieCapturePlanRequest(readAutoMovieCaptureArguments(command.options)),
+      parseAutoMovieCapturePlanRequest(
+        readAutoMovieCaptureArguments(command.options),
+      ),
       request,
     );
-    TestValidator.equals(`${command.text} splits back`, split(command.text), ["automovie", "capture", ...command.options]);
+    TestValidator.equals(`${command.text} splits back`, split(command.text), [
+      "automovie",
+      "capture",
+      ...command.options,
+    ]);
   }
   TestValidator.predicate(
     "an argument holding a quote is quoted",
-    formatAutoMovieInspectorCommand(requests[1]!).text.includes(`'--subject=a&b c'\\''s'`),
+    formatAutoMovieInspectorCommand(requests[1]!).text.includes(
+      `'--subject=a&b c'\\''s'`,
+    ),
   );
 }
 

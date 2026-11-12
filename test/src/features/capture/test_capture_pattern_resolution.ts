@@ -33,20 +33,27 @@ const PATHS: readonly string[] = [
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export function test_capture_pattern_resolution(): void {
-  const resolve: (text: string, view: string) => IAutoMovieCaptureResolution[] = (
+  const resolve: (
+    text: string,
+    view: string,
+  ) => IAutoMovieCaptureResolution[] = (
     text: string,
     view: string,
   ): IAutoMovieCaptureResolution[] =>
     resolveAutoMovieCapturePatterns({
       paths: PATHS,
-      request: parseAutoMovieCapturePlanRequest(new URLSearchParams(text)).inspection,
+      request: parseAutoMovieCapturePlanRequest(new URLSearchParams(text))
+        .inspection,
       view,
     });
 
   // 1. Every role, in order.
   TestValidator.equals(
     "each pattern resolves to its topmost paths",
-    resolve("parts=hero/arm,lamp&hide=hero/torso&label=hand&color=hero=ff8800", "front@focus=hero/torso"),
+    resolve(
+      "parts=hero/arm,lamp&hide=hero/torso&label=hand&color=hero=ff8800",
+      "front@focus=hero/torso",
+    ),
     [
       { role: "parts", pattern: "hero/arm", paths: ["hero/arm"], count: 2 },
       { role: "parts", pattern: "lamp", paths: ["lamp"], count: 1 },
@@ -65,7 +72,11 @@ export function test_capture_pattern_resolution(): void {
   );
 
   // 3. Nothing to resolve.
-  TestValidator.equals("no pattern resolves to nothing", resolve("", "front@ortho"), []);
+  TestValidator.equals(
+    "no pattern resolves to nothing",
+    resolve("", "front@ortho"),
+    [],
+  );
 
   // 4. The broadest pattern.
   TestValidator.equals(

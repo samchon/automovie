@@ -28,11 +28,17 @@ import { InspectionScene } from "../internal/InspectionScene";
  */
 export function test_inspection_request(): void {
   const parse = (values: Record<string, string>): IAutoMovieInspectionRequest =>
-    parseAutoMovieInspectionRequest((key: string): string | null => values[key] ?? null);
+    parseAutoMovieInspectionRequest(
+      (key: string): string | null => values[key] ?? null,
+    );
   const defaults: IAutoMovieInspectionRequest = InspectionScene.ask({});
 
   // 1. Defaults and the keys read.
-  TestValidator.equals("a reader answering null gives the defaults", parse({}), defaults);
+  TestValidator.equals(
+    "a reader answering null gives the defaults",
+    parse({}),
+    defaults,
+  );
   const asked: string[] = [];
   TestValidator.equals(
     "a reader answering undefined gives the defaults",
@@ -90,16 +96,37 @@ export function test_inspection_request(): void {
     }),
     full,
   );
-  const shades: IAutoMovieInspectionRequest.Shade[] = ["beauty", "depth", "mask", "normal", "outline", "pose", "clay", "faces"];
+  const shades: IAutoMovieInspectionRequest.Shade[] = [
+    "beauty",
+    "depth",
+    "mask",
+    "normal",
+    "outline",
+    "pose",
+    "clay",
+    "faces",
+  ];
   for (const shade of shades)
-    TestValidator.equals(`shade ${shade} is accepted`, parse({ shade }).shade, shade);
+    TestValidator.equals(
+      `shade ${shade} is accepted`,
+      parse({ shade }).shade,
+      shade,
+    );
 
   // 3. Switch forms.
   for (const key of ["surface", "xray"] as const) {
     for (const text of ["", "1", "true"])
-      TestValidator.equals(`${key} is on for "${text}"`, parse({ [key]: text })[key], true);
+      TestValidator.equals(
+        `${key} is on for "${text}"`,
+        parse({ [key]: text })[key],
+        true,
+      );
     for (const text of ["0", "false"])
-      TestValidator.equals(`${key} is off for "${text}"`, parse({ [key]: text })[key], false);
+      TestValidator.equals(
+        `${key} is off for "${text}"`,
+        parse({ [key]: text })[key],
+        false,
+      );
     for (const text of ["yes", "TRUE", "on", "2"])
       TestValidator.error(`${key} refuses "${text}"`, (): void => {
         parse({ [key]: text });
@@ -116,10 +143,14 @@ export function test_inspection_request(): void {
     ["0.1,0.2,0.3:0,2,0", [0.1, 0.2, 0.3], [0, 2, 0]],
   ];
   for (const [text, point, normal] of cuts)
-    TestValidator.equals(`section "${text}" is read`, parse({ section: text }).section, {
-      point: { x: point[0]!, y: point[1]!, z: point[2]! },
-      normal: { x: normal[0]!, y: normal[1]!, z: normal[2]! },
-    });
+    TestValidator.equals(
+      `section "${text}" is read`,
+      parse({ section: text }).section,
+      {
+        point: { x: point[0]!, y: point[1]!, z: point[2]! },
+        normal: { x: normal[0]!, y: normal[1]!, z: normal[2]! },
+      },
+    );
 
   // 5. Refusals.
   const refused: Record<string, string>[] = [
@@ -131,8 +162,18 @@ export function test_inspection_request(): void {
     { color: "hero=gg0000" },
   ];
   for (const key of ["sliver", "stroke", "reach", "ticks"])
-    for (const text of ["0", "-1", "", "abc", "Infinity"]) refused.push({ [key]: text });
-  for (const text of ["x", "x:1:2", "w:1", "x:abc", "x:", "1,2:0,0,1", "1,2,3:0,a,0", "1,2,3:0,0,0"])
+    for (const text of ["0", "-1", "", "abc", "Infinity"])
+      refused.push({ [key]: text });
+  for (const text of [
+    "x",
+    "x:1:2",
+    "w:1",
+    "x:abc",
+    "x:",
+    "1,2:0,0,1",
+    "1,2,3:0,a,0",
+    "1,2,3:0,0,0",
+  ])
     refused.push({ section: text });
   for (const values of refused)
     TestValidator.error(`${JSON.stringify(values)} is refused`, (): void => {
@@ -140,10 +181,20 @@ export function test_inspection_request(): void {
     });
 
   // 6. Writing reads back.
-  TestValidator.equals("the default request writes no value", formatAutoMovieInspectionRequest(defaults), []);
+  TestValidator.equals(
+    "the default request writes no value",
+    formatAutoMovieInspectionRequest(defaults),
+    [],
+  );
   const requests: IAutoMovieInspectionRequest[] = [
     full,
-    { ...full, section: { point: { x: -0.5, y: 0, z: 0 }, normal: { x: -1, y: 0, z: 0 } } },
+    {
+      ...full,
+      section: {
+        point: { x: -0.5, y: 0, z: 0 },
+        normal: { x: -1, y: 0, z: 0 },
+      },
+    },
     InspectionScene.ask({ parts: ["a/b", "**"] }),
     InspectionScene.ask({ shade: "clay" }),
     InspectionScene.ask({ surface: false }),
@@ -156,13 +207,23 @@ export function test_inspection_request(): void {
     InspectionScene.ask({ color: [{ pattern: "a", color: 0x00000f }] }),
   ];
   for (const request of requests) {
-    const written: [string, string][] = formatAutoMovieInspectionRequest(request);
+    const written: [string, string][] =
+      formatAutoMovieInspectionRequest(request);
     const values: Record<string, string> = Object.fromEntries(written);
-    TestValidator.equals(`${JSON.stringify(written)} reads back`, parse(values), request);
-    const order: number[] = written.map(([key]: [string, string]): number => AUTO_MOVIE_INSPECTION_KEYS.indexOf(key));
+    TestValidator.equals(
+      `${JSON.stringify(written)} reads back`,
+      parse(values),
+      request,
+    );
+    const order: number[] = written.map(([key]: [string, string]): number =>
+      AUTO_MOVIE_INSPECTION_KEYS.indexOf(key),
+    );
     TestValidator.predicate(
       `${JSON.stringify(written)} writes listed keys in order`,
-      order.every((index: number, i: number): boolean => index >= 0 && (i === 0 || index > order[i - 1]!)),
+      order.every(
+        (index: number, i: number): boolean =>
+          index >= 0 && (i === 0 || index > order[i - 1]!),
+      ),
     );
   }
 }

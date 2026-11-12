@@ -46,11 +46,14 @@ export async function test_draw_ready_timeout(): Promise<void> {
       subject: session.subject,
       cuts: [],
     });
-  const open: (answer: Parameters<typeof createDrawPageDouble>[0]["answer"]) => Promise<AutoMovieDrawSession> = (
+  const open: (
+    answer: Parameters<typeof createDrawPageDouble>[0]["answer"],
+  ) => Promise<AutoMovieDrawSession> = (
     answer: Parameters<typeof createDrawPageDouble>[0]["answer"],
   ): Promise<AutoMovieDrawSession> =>
     AutoMovieDrawSession.open({
-      page: createDrawPageDouble({ subject: SUBJECT, renderer: "test", answer }).page,
+      page: createDrawPageDouble({ subject: SUBJECT, renderer: "test", answer })
+        .page,
       url: "http://127.0.0.1:1/index.html",
       props: { subject: null, props: null },
       backend: "swiftshader",
@@ -64,17 +67,30 @@ export async function test_draw_ready_timeout(): Promise<void> {
   const message: string = await stalled
     .drawing(planned.cells[0]!, planned)
     .then((): string => "")
-    .catch((error: unknown): string => (error instanceof Error ? error.message : String(error)));
-  TestValidator.predicate("the cell is named", message.includes("Cell t001.000-film-beauty"));
+    .catch((error: unknown): string =>
+      error instanceof Error ? error.message : String(error),
+    );
+  TestValidator.predicate(
+    "the cell is named",
+    message.includes("Cell t001.000-film-beauty"),
+  );
   TestValidator.predicate("the timeout is stated", message.includes("0.04 s"));
-  TestValidator.predicate("it rejects within a second", Date.now() - started < 1000);
+  TestValidator.predicate(
+    "it rejects within a second",
+    Date.now() - started < 1000,
+  );
 
   // 2. A delivery frame that never finishes.
   const frame: string = await stalled
     .frame(1, ["beauty"])
     .then((): string => "")
-    .catch((error: unknown): string => (error instanceof Error ? error.message : String(error)));
-  TestValidator.predicate("the frame's second and pass are named", frame.includes("1 s in pass beauty"));
+    .catch((error: unknown): string =>
+      error instanceof Error ? error.message : String(error),
+    );
+  TestValidator.predicate(
+    "the frame's second and pass are named",
+    frame.includes("1 s in pass beauty"),
+  );
 
   // 3. A ready subject.
   const ready: AutoMovieDrawSession = await open(answerDrawCall);

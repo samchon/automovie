@@ -30,10 +30,17 @@ export function test_inspection_color(): void {
   const own: THREE.Material | THREE.Material[] = left.material;
   const stage: THREE.Scene = InspectionScene.scene(left, right);
   const marks = [
-    InspectionScene.mark("left/knee", "joint", 0x111111, { type: "segments", points: [0, 0, 0, 1, 0, 0] }),
-    InspectionScene.mark("left/push", "contact", 0x222222, { type: "segments", points: [0, 1, 0, 1, 1, 0] }),
+    InspectionScene.mark("left/knee", "joint", 0x111111, {
+      type: "segments",
+      points: [0, 0, 0, 1, 0, 0],
+    }),
+    InspectionScene.mark("left/push", "contact", 0x222222, {
+      type: "segments",
+      points: [0, 1, 0, 1, 1, 0],
+    }),
   ];
-  const hex = (mesh: THREE.Mesh): number => ((mesh.material as THREE.MeshBasicMaterial).color as THREE.Color).getHex();
+  const hex = (mesh: THREE.Mesh): number =>
+    ((mesh.material as THREE.MeshBasicMaterial).color as THREE.Color).getHex();
 
   // 1. Beauty.
   const beauty: IAutoMovieInspectionHandle = applyAutoMovieInspection({
@@ -67,15 +74,25 @@ export function test_inspection_color(): void {
       ],
     ],
   );
-  TestValidator.predicate("the other quad keeps its own material", hex(right) === 0xff0000);
+  TestValidator.predicate(
+    "the other quad keeps its own material",
+    hex(right) === 0xff0000,
+  );
   beauty.restore();
 
   // 2. Clay.
   const clay: IAutoMovieInspectionHandle = applyAutoMovieInspection({
     scene: stage,
-    request: InspectionScene.ask({ shade: "clay", color: [{ pattern: "left", color: 0x336699 }] }),
+    request: InspectionScene.ask({
+      shade: "clay",
+      color: [{ pattern: "left", color: 0x336699 }],
+    }),
   });
-  TestValidator.equals("under clay it is lit in its colour", [(left.material as THREE.Material).type, hex(left)], ["MeshLambertMaterial", 0x336699]);
+  TestValidator.equals(
+    "under clay it is lit in its colour",
+    [(left.material as THREE.Material).type, hex(left)],
+    ["MeshLambertMaterial", 0x336699],
+  );
   clay.restore();
 
   // 3. A later entry wins.
@@ -92,20 +109,35 @@ export function test_inspection_color(): void {
   later.restore();
 
   // 4. Refusals.
-  TestValidator.error("a kind colour that clashes with another kind is refused", (): void => {
-    applyAutoMovieInspection({
-      scene: stage,
-      request: InspectionScene.ask({ marks: ["joint", "contact"], color: [{ pattern: "joint", color: 0x222222 }] }),
-      marks,
-    });
-  });
-  TestValidator.error("an object colour under a guide pass is refused", (): void => {
-    applyAutoMovieInspection({
-      scene: stage,
-      request: InspectionScene.ask({ shade: "depth", color: [{ pattern: "left", color: 0x336699 }] }),
-    });
-  });
+  TestValidator.error(
+    "a kind colour that clashes with another kind is refused",
+    (): void => {
+      applyAutoMovieInspection({
+        scene: stage,
+        request: InspectionScene.ask({
+          marks: ["joint", "contact"],
+          color: [{ pattern: "joint", color: 0x222222 }],
+        }),
+        marks,
+      });
+    },
+  );
+  TestValidator.error(
+    "an object colour under a guide pass is refused",
+    (): void => {
+      applyAutoMovieInspection({
+        scene: stage,
+        request: InspectionScene.ask({
+          shade: "depth",
+          color: [{ pattern: "left", color: 0x336699 }],
+        }),
+      });
+    },
+  );
 
   // 5. Restored.
-  TestValidator.predicate("the quad has its own material back", left.material === own && stage.children.length === 2);
+  TestValidator.predicate(
+    "the quad has its own material back",
+    left.material === own && stage.children.length === 2,
+  );
 }

@@ -28,25 +28,32 @@ export const subjects: AutoMovieDrawSubjects = (): Readonly<
   Record<string, IAutoMovieDrawSubject>
 > =>
   Object.fromEntries(
-    Object.entries(films).map(([name, film]: [string, IFilm]): [string, IAutoMovieDrawSubject] => [
-      name,
-      {
-        create: async (): Promise<IAutoMovieDrawScene> => {
-          const production: IFilmProduction = await film.create();
-          return {
-            scene: production.scene,
-            camera: production.camera,
-            durationSeconds: film.durationSeconds,
-            fps: film.fps,
-            width: film.width ?? 1280,
-            height: film.height ?? 720,
-            ...(production.views === undefined ? {} : { views: production.views }),
-            marks: (seconds: number): IAutoMovieMark[] => markFilmProduction(production, seconds),
-            seek: async (seconds: number): Promise<void> =>
-              production.seek(clampProductionSeconds(seconds, film.durationSeconds)),
-            dispose: (): void => production.dispose(),
-          };
+    Object.entries(films).map(
+      ([name, film]: [string, IFilm]): [string, IAutoMovieDrawSubject] => [
+        name,
+        {
+          create: async (): Promise<IAutoMovieDrawScene> => {
+            const production: IFilmProduction = await film.create();
+            return {
+              scene: production.scene,
+              camera: production.camera,
+              durationSeconds: film.durationSeconds,
+              fps: film.fps,
+              width: film.width ?? 1280,
+              height: film.height ?? 720,
+              ...(production.views === undefined
+                ? {}
+                : { views: production.views }),
+              marks: (seconds: number): IAutoMovieMark[] =>
+                markFilmProduction(production, seconds),
+              seek: async (seconds: number): Promise<void> =>
+                production.seek(
+                  clampProductionSeconds(seconds, film.durationSeconds),
+                ),
+              dispose: (): void => production.dispose(),
+            };
+          },
         },
-      },
-    ]),
+      ],
+    ),
   );

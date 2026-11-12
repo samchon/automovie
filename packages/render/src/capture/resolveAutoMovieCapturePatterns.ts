@@ -33,20 +33,37 @@ export function resolveAutoMovieCapturePatterns(props: {
   view: string;
 }): IAutoMovieCaptureResolution[] {
   const paths: string[] = [...new Set(props.paths)];
-  const view: IAutoMovieInspectionView = parseAutoMovieInspectionView(props.view);
+  const view: IAutoMovieInspectionView = parseAutoMovieInspectionView(
+    props.view,
+  );
   const patterns: [IAutoMovieCaptureResolution["role"], string][] = [
-    ...props.request.parts.map((pattern: string): ["parts", string] => ["parts", pattern]),
-    ...props.request.hide.map((pattern: string): ["hide", string] => ["hide", pattern]),
-    ...props.request.label.map((pattern: string): ["label", string] => ["label", pattern]),
+    ...props.request.parts.map((pattern: string): ["parts", string] => [
+      "parts",
+      pattern,
+    ]),
+    ...props.request.hide.map((pattern: string): ["hide", string] => [
+      "hide",
+      pattern,
+    ]),
+    ...props.request.label.map((pattern: string): ["label", string] => [
+      "label",
+      pattern,
+    ]),
     ...props.request.color.map(
-      (entry: IAutoMovieInspectionRequest.IColor): ["color", string] => ["color", entry.pattern],
+      (entry: IAutoMovieInspectionRequest.IColor): ["color", string] => [
+        "color",
+        entry.pattern,
+      ],
     ),
     ...(view.type === "named" && view.focus?.type === "pattern"
       ? [["focus", view.focus.pattern] as ["focus", string]]
       : []),
   ];
   return patterns.map(
-    ([role, pattern]: [IAutoMovieCaptureResolution["role"], string]): IAutoMovieCaptureResolution => {
+    ([role, pattern]: [
+      IAutoMovieCaptureResolution["role"],
+      string,
+    ]): IAutoMovieCaptureResolution => {
       const matched: string[] = paths.filter((path: string): boolean =>
         matchAutoMovieInspectionPath(path, pattern),
       );

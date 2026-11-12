@@ -16,7 +16,9 @@ import { type IAutoMovieChromium, launchAutoMovieChromium } from "automovie";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export async function test_cli_capture_chromium_missing(): Promise<void> {
-  const failing: (message: string) => IAutoMovieChromium = (message: string): IAutoMovieChromium => ({
+  const failing: (message: string) => IAutoMovieChromium = (
+    message: string,
+  ): IAutoMovieChromium => ({
     launch: async (): Promise<IAutoMovieChromium.IBrowser> => {
       throw new Error(message);
     },
@@ -26,7 +28,9 @@ export async function test_cli_capture_chromium_missing(): Promise<void> {
   ): Promise<Error | null> =>
     launchAutoMovieChromium({ chromium, backend: "software", env: {} })
       .then((): null => null)
-      .catch((error: unknown): Error | null => (error instanceof Error ? error : null));
+      .catch((error: unknown): Error | null =>
+        error instanceof Error ? error : null,
+      );
 
   // 1. No browser installed.
   const missing: Error | null = await failure(
@@ -37,19 +41,29 @@ export async function test_cli_capture_chromium_missing(): Promise<void> {
   TestValidator.predicate(
     "names the install command and CHROME_PATH",
     missing !== null &&
-      missing.message.includes("npx playwright-core install chromium-headless-shell") &&
+      missing.message.includes(
+        "npx playwright-core install chromium-headless-shell",
+      ) &&
       missing.message.includes("CHROME_PATH"),
   );
   TestValidator.predicate(
     "keeps the cause",
-    missing?.cause instanceof Error && missing.cause.message.includes("Executable doesn't exist"),
+    missing?.cause instanceof Error &&
+      missing.cause.message.includes("Executable doesn't exist"),
   );
 
   // 2. Another failure.
-  const other: Error | null = await failure(failing("Target page, context or browser has been closed"));
+  const other: Error | null = await failure(
+    failing("Target page, context or browser has been closed"),
+  );
   TestValidator.predicate(
     "names the backend without the install command",
-    other !== null && other.message.includes("swiftshader") && !other.message.includes("playwright install"),
+    other !== null &&
+      other.message.includes("swiftshader") &&
+      !other.message.includes("playwright install"),
   );
-  TestValidator.predicate("keeps that cause too", other?.cause instanceof Error);
+  TestValidator.predicate(
+    "keeps that cause too",
+    other?.cause instanceof Error,
+  );
 }

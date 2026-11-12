@@ -25,10 +25,14 @@ export function readAutoMovieVideoSceneCuts(report: string): {
   const close: () => void = (): void => {
     if (frame === null) return;
     const header: RegExpExecArray | null = /pts_time:(\S+)/u.exec(frame.header);
-    const seconds: number = Number(frame.values.get("lavfi.scd.time") ?? header?.[1]);
+    const seconds: number = Number(
+      frame.values.get("lavfi.scd.time") ?? header?.[1],
+    );
     const score: number = Number(frame.values.get("lavfi.scd.score"));
     if (!Number.isFinite(seconds) || !Number.isFinite(score))
-      throw new Error(`The scene-cut report's frame "${frame.header}" has no readable time and score`);
+      throw new Error(
+        `The scene-cut report's frame "${frame.header}" has no readable time and score`,
+      );
     cuts.push({ seconds, score });
   };
   for (const line of report.split(/\r?\n/u)) {

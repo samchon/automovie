@@ -10,7 +10,11 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../internal/throwsError";
 
 /** The Claude vision guide's reader: downsized above 1568 px, unreliable under 200 px. */
-const READER: IAutoMovieCaptureBudget = { longest: 1568, smallest: 200, reduction: "area" };
+const READER: IAutoMovieCaptureBudget = {
+  longest: 1568,
+  smallest: 200,
+  reduction: "area",
+};
 
 /**
  * Sheet layout follows the reader budget, never a fixed cell size: every sheet within the longest edge, every cell at least the smallest edge, cells as large as both allow, and as many sheets as the cells need.
@@ -34,9 +38,29 @@ const READER: IAutoMovieCaptureBudget = { longest: 1568, smallest: 200, reductio
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 9 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export function test_capture_layout_budget(): void {
-  const layout: (width: number, height: number, count: number, group?: number) => IAutoMovieCaptureLayout = (width: number, height: number, count: number, group: number = 1): IAutoMovieCaptureLayout =>
-    planAutoMovieCaptureLayout({ width, height, count, group, budget: READER, captions: [] });
-  const within: (title: string, sheet: IAutoMovieCaptureLayout) => void = (title: string, sheet: IAutoMovieCaptureLayout): void => {
+  const layout: (
+    width: number,
+    height: number,
+    count: number,
+    group?: number,
+  ) => IAutoMovieCaptureLayout = (
+    width: number,
+    height: number,
+    count: number,
+    group: number = 1,
+  ): IAutoMovieCaptureLayout =>
+    planAutoMovieCaptureLayout({
+      width,
+      height,
+      count,
+      group,
+      budget: READER,
+      captions: [],
+    });
+  const within: (title: string, sheet: IAutoMovieCaptureLayout) => void = (
+    title: string,
+    sheet: IAutoMovieCaptureLayout,
+  ): void => {
     TestValidator.predicate(
       `${title}: the sheet is within the longest edge`,
       sheet.columns * sheet.cell.width <= READER.longest &&
@@ -57,26 +81,45 @@ export function test_capture_layout_budget(): void {
   within("16:9", wide);
   TestValidator.equals(
     "16:9 cells and sheets",
-    [wide.cell, wide.caption, wide.lines, wide.columns, wide.rows, wide.perSheet, wide.sheets],
+    [
+      wide.cell,
+      wide.caption,
+      wide.lines,
+      wide.columns,
+      wide.rows,
+      wide.perSheet,
+      wide.sheets,
+    ],
     [{ width: 366, height: 206 }, 18, 1, 4, 7, 25, 2],
   );
 
   // 2. Portrait.
   const tall: IAutoMovieCaptureLayout = layout(720, 1280, 50);
   within("portrait", tall);
-  TestValidator.predicate("portrait cells are upright", tall.cell.height > tall.cell.width);
+  TestValidator.predicate(
+    "portrait cells are upright",
+    tall.cell.height > tall.cell.width,
+  );
 
   // 3. Many sheets.
   const many: IAutoMovieCaptureLayout = layout(1280, 720, 500);
   within("500 cells", many);
   TestValidator.predicate(
     "the sheets hold every cell",
-    many.sheets * many.perSheet >= 500 && (many.sheets - 1) * many.perSheet < 500,
+    many.sheets * many.perSheet >= 500 &&
+      (many.sheets - 1) * many.perSheet < 500,
   );
 
   // 4. No enlargement.
-  TestValidator.equals("one still keeps its size", layout(1280, 720, 1).cell, { width: 1280, height: 720 });
-  TestValidator.equals("a small still is never enlarged", layout(160, 90, 4).cell, { width: 160, height: 90 });
+  TestValidator.equals("one still keeps its size", layout(1280, 720, 1).cell, {
+    width: 1280,
+    height: 720,
+  });
+  TestValidator.equals(
+    "a small still is never enlarged",
+    layout(160, 90, 4).cell,
+    { width: 160, height: 90 },
+  );
 
   // 5. Groups.
   const grouped: IAutoMovieCaptureLayout = layout(640, 360, 30, 3);
@@ -100,7 +143,10 @@ export function test_capture_layout_budget(): void {
     ["a fractional width", (): unknown => layout(640.5, 360, 1)],
     ["a zero group", (): unknown => layout(640, 360, 1, 0)],
   ] as const)
-    TestValidator.predicate(`${title} is refused`, throwsError(run, "positive whole number"));
+    TestValidator.predicate(
+      `${title} is refused`,
+      throwsError(run, "positive whole number"),
+    );
 
   // 8. A real sheet filled with the first layout.
   const sheet: AutoMovieRasterSheet = new AutoMovieRasterSheet(
@@ -118,11 +164,17 @@ export function test_capture_layout_budget(): void {
   for (let index: number = 0; index < wide.perSheet; index++)
     sheet.add(still, "f30 1.000s");
   const filled: IAutoMovieRasterImage = sheet.finish();
-  const red: (x: number, y: number) => number = (x: number, y: number): number =>
-    filled.pixels[(y * filled.width + x) * 4]!;
+  const red: (x: number, y: number) => number = (
+    x: number,
+    y: number,
+  ): number => filled.pixels[(y * filled.width + x) * 4]!;
   TestValidator.equals(
     "the filled sheet stays within the longest edge",
-    [filled.width, filled.height, Math.max(filled.width, filled.height) <= READER.longest],
+    [
+      filled.width,
+      filled.height,
+      Math.max(filled.width, filled.height) <= READER.longest,
+    ],
     [1464, 1568, true],
   );
   TestValidator.equals(
@@ -132,7 +184,8 @@ export function test_capture_layout_budget(): void {
   );
 
   // 9. Long captions wrap and the strip grows, still within the budget.
-  const long: string = "f8 0.250s r toeoff1 three-quarter-back@ortho@follow depth neighbours hero_arm not drawn";
+  const long: string =
+    "f8 0.250s r toeoff1 three-quarter-back@ortho@follow depth neighbours hero_arm not drawn";
   const captioned: IAutoMovieCaptureLayout = planAutoMovieCaptureLayout({
     width: 1280,
     height: 720,
@@ -145,7 +198,12 @@ export function test_capture_layout_budget(): void {
   TestValidator.predicate(
     `the strip holds every line of the longest caption: ${captioned.lines} lines`,
     captioned.lines >= 2 &&
-      AutoMovieRasterSheet.wrap(long, captioned.cell.width, captioned.cell.height).length <= captioned.lines &&
-      captioned.caption === AutoMovieRasterSheet.caption(captioned.cell.height, captioned.lines),
+      AutoMovieRasterSheet.wrap(
+        long,
+        captioned.cell.width,
+        captioned.cell.height,
+      ).length <= captioned.lines &&
+      captioned.caption ===
+        AutoMovieRasterSheet.caption(captioned.cell.height, captioned.lines),
   );
 }

@@ -30,10 +30,21 @@ export function test_inspection_bounds_legend(): void {
   const box = (bounds: IAutoMovieViewerSubjectBounds | null): number[] =>
     bounds === null
       ? []
-      : [bounds.min.x, bounds.min.y, bounds.min.z, bounds.max.x, bounds.max.y, bounds.max.z];
+      : [
+          bounds.min.x,
+          bounds.min.y,
+          bounds.min.z,
+          bounds.max.x,
+          bounds.max.y,
+          bounds.max.z,
+        ];
 
   // 1. Merging legends.
-  const first: IAutoMovieInspectionLegendEntry = { label: "open edge", color: 0xff3b30, count: 2 };
+  const first: IAutoMovieInspectionLegendEntry = {
+    label: "open edge",
+    color: 0xff3b30,
+    count: 2,
+  };
   TestValidator.equals(
     "counts are summed by label, in first order",
     mergeAutoMovieInspectionLegends([
@@ -64,10 +75,16 @@ export function test_inspection_bounds_legend(): void {
   isolated.layers.mask = 0;
   const invisible: THREE.Mesh = InspectionScene.quad("invisible", -100);
   invisible.visible = false;
-  const lit: THREE.Scene = InspectionScene.scene(InspectionScene.quad("lit", 3), isolated, invisible);
-  TestValidator.equals("the bounds are the drawn mesh's world box", box(measureAutoMovieInspectionBounds(lit)), [
-    2, -1, 0, 4, 1, 0,
-  ]);
+  const lit: THREE.Scene = InspectionScene.scene(
+    InspectionScene.quad("lit", 3),
+    isolated,
+    invisible,
+  );
+  TestValidator.equals(
+    "the bounds are the drawn mesh's world box",
+    box(measureAutoMovieInspectionBounds(lit)),
+    [2, -1, 0, 4, 1, 0],
+  );
   isolated.add(InspectionScene.quad("child", -95));
   TestValidator.equals(
     "a child of an object off every layer still counts",
@@ -78,10 +95,16 @@ export function test_inspection_bounds_legend(): void {
   sprite.position.set(50, 0, 0);
   const strokes: THREE.Scene = InspectionScene.scene(
     new THREE.Line(
-      new THREE.BufferGeometry().setAttribute("position", new THREE.Float32BufferAttribute([0, 5, 0, 0, 6, 0], 3)),
+      new THREE.BufferGeometry().setAttribute(
+        "position",
+        new THREE.Float32BufferAttribute([0, 5, 0, 0, 6, 0], 3),
+      ),
     ),
     new THREE.Points(
-      new THREE.BufferGeometry().setAttribute("position", new THREE.Float32BufferAttribute([1, 0, -2], 3)),
+      new THREE.BufferGeometry().setAttribute(
+        "position",
+        new THREE.Float32BufferAttribute([1, 0, -2], 3),
+      ),
     ),
     sprite,
   );
@@ -97,7 +120,10 @@ export function test_inspection_bounds_legend(): void {
   );
 
   // 3. Marks count toward an inspection's bounds.
-  const stage: THREE.Scene = InspectionScene.scene(InspectionScene.quad("left", -2, 1), InspectionScene.quad("right", 2, 1));
+  const stage: THREE.Scene = InspectionScene.scene(
+    InspectionScene.quad("left", -2, 1),
+    InspectionScene.quad("right", 2, 1),
+  );
   const handle: IAutoMovieInspectionHandle = applyAutoMovieInspection({
     scene: stage,
     request: InspectionScene.ask({ parts: ["left"], marks: ["probe"] }),
@@ -108,8 +134,10 @@ export function test_inspection_bounds_legend(): void {
       }),
     ],
   });
-  InspectionScene.close("the bounds hold the quad and the mark", box(handle.bounds()), [
-    -2.5, -0.5, 0, -1.5, 4, 0,
-  ]);
+  InspectionScene.close(
+    "the bounds hold the quad and the mark",
+    box(handle.bounds()),
+    [-2.5, -0.5, 0, -1.5, 4, 0],
+  );
   handle.restore();
 }

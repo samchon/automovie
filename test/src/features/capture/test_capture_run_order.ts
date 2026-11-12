@@ -54,14 +54,20 @@ const SUBJECT: IAutoMovieCaptureSubject = {
  */
 export async function test_capture_run_order(): Promise<void> {
   const memory: createCaptureMemory.IMemory = createCaptureMemory();
-  const plan: (text: string) => IAutoMovieCapturePlan = (text: string): IAutoMovieCapturePlan =>
+  const plan: (text: string) => IAutoMovieCapturePlan = (
+    text: string,
+  ): IAutoMovieCapturePlan =>
     planAutoMovieCapture({
       request: parseAutoMovieCapturePlanRequest(new URLSearchParams(text)),
       subject: SUBJECT,
       cuts: [],
     });
   const drawn: string[] = [];
-  const draw: (cell: IAutoMovieCaptureCell) => Promise<IAutoMovieCaptureDrawing> = async (cell: IAutoMovieCaptureCell): Promise<IAutoMovieCaptureDrawing> => {
+  const draw: (
+    cell: IAutoMovieCaptureCell,
+  ) => Promise<IAutoMovieCaptureDrawing> = async (
+    cell: IAutoMovieCaptureCell,
+  ): Promise<IAutoMovieCaptureDrawing> => {
     drawn.push(cell.name);
     const pixels: Uint8ClampedArray = new Uint8ClampedArray(64 * 36 * 4);
     for (let offset: number = 0; offset < pixels.length; offset += 4)
@@ -78,7 +84,13 @@ export async function test_capture_run_order(): Promise<void> {
       repeat: "0,1,4:0,1,0@ortho=0.01",
     };
   };
-  const capture: (text: string) => Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> = async (text: string): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> => {
+  const capture: (
+    text: string,
+  ) => Promise<
+    Extract<IAutoMovieCaptureRecord, { state: "complete" }>
+  > = async (
+    text: string,
+  ): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> => {
     const planned: IAutoMovieCapturePlan = plan(text);
     return runAutoMovieCapture({
       plan: planned,
@@ -95,8 +107,12 @@ export async function test_capture_run_order(): Promise<void> {
   };
 
   // 1. The order of calls.
-  const record: Extract<IAutoMovieCaptureRecord, { state: "complete" }> = await capture("at=1,2&subject=duel");
-  TestValidator.equals("cells are drawn in plan order", drawn, ["t001.000-film-beauty", "t002.000-film-beauty"]);
+  const record: Extract<IAutoMovieCaptureRecord, { state: "complete" }> =
+    await capture("at=1,2&subject=duel");
+  TestValidator.equals("cells are drawn in plan order", drawn, [
+    "t001.000-film-beauty",
+    "t002.000-film-beauty",
+  ]);
   TestValidator.equals("files are touched in the stated order", memory.log, [
     "mkdir out/duel",
     "readdir out/duel",
@@ -110,7 +126,9 @@ export async function test_capture_run_order(): Promise<void> {
   // 2. Nothing outside the root.
   TestValidator.predicate(
     "every path lies under the root",
-    memory.log.every((call: string): boolean => /^\w+ out\/duel(\/|$)/u.test(call)),
+    memory.log.every((call: string): boolean =>
+      /^\w+ out\/duel(\/|$)/u.test(call),
+    ),
   );
 
   // 3. The record.
@@ -129,7 +147,9 @@ export async function test_capture_run_order(): Promise<void> {
         row.sheet,
         row.row,
         row.column,
-        row.state === "drawn" ? [row.file, row.backend, row.camera, row.repeat, row.resolved] : null,
+        row.state === "drawn"
+          ? [row.file, row.backend, row.camera, row.repeat, row.resolved]
+          : null,
       ]),
     ],
     [
@@ -141,10 +161,41 @@ export async function test_capture_run_order(): Promise<void> {
         ["at", "1,2"],
       ],
       ["sheet-001.png"],
-      ["t001.000-film-beauty.png", "t002.000-film-beauty.png", "sheet-001.png", "record.json"],
       [
-        ["t001.000-film-beauty", "drawn", "sheet-001.png", 0, 0, ["t001.000-film-beauty.png", "memory", "0,1,4:0,1,0", "0,1,4:0,1,0@ortho=0.01", [{ role: "parts", pattern: "hero", paths: ["hero"], count: 2 }]]],
-        ["t002.000-film-beauty", "drawn", "sheet-001.png", 0, 1, ["t002.000-film-beauty.png", "memory", "0,1,4:0,1,0", "0,1,4:0,1,0@ortho=0.01", [{ role: "parts", pattern: "hero", paths: ["hero"], count: 2 }]]],
+        "t001.000-film-beauty.png",
+        "t002.000-film-beauty.png",
+        "sheet-001.png",
+        "record.json",
+      ],
+      [
+        [
+          "t001.000-film-beauty",
+          "drawn",
+          "sheet-001.png",
+          0,
+          0,
+          [
+            "t001.000-film-beauty.png",
+            "memory",
+            "0,1,4:0,1,0",
+            "0,1,4:0,1,0@ortho=0.01",
+            [{ role: "parts", pattern: "hero", paths: ["hero"], count: 2 }],
+          ],
+        ],
+        [
+          "t002.000-film-beauty",
+          "drawn",
+          "sheet-001.png",
+          0,
+          1,
+          [
+            "t002.000-film-beauty.png",
+            "memory",
+            "0,1,4:0,1,0",
+            "0,1,4:0,1,0@ortho=0.01",
+            [{ role: "parts", pattern: "hero", paths: ["hero"], count: 2 }],
+          ],
+        ],
       ],
     ],
   );
@@ -157,9 +208,18 @@ export async function test_capture_run_order(): Promise<void> {
   // 4. Hashes and labels.
   for (const row of record.rows) {
     if (row.state !== "drawn") continue;
-    const still: IAutoMovieRasterImage = await decodeAutoMovieRasterPng(memory.files.get(`out/duel/${row.file}`)!);
-    TestValidator.equals(`${row.name} hash`, row.hash, hashAutoMovieRasterImage(still));
-    const at: (x: number, y: number) => number[] = (x: number, y: number): number[] =>
+    const still: IAutoMovieRasterImage = await decodeAutoMovieRasterPng(
+      memory.files.get(`out/duel/${row.file}`)!,
+    );
+    TestValidator.equals(
+      `${row.name} hash`,
+      row.hash,
+      hashAutoMovieRasterImage(still),
+    );
+    const at: (x: number, y: number) => number[] = (
+      x: number,
+      y: number,
+    ): number[] =>
       Array.from(still.pixels.subarray((y * 64 + x) * 4, (y * 64 + x) * 4 + 3));
     TestValidator.equals(
       `${row.name} label boxes start at their anchor, or inside the edge`,
@@ -172,8 +232,14 @@ export async function test_capture_run_order(): Promise<void> {
   await capture("at=0.5");
   TestValidator.equals(
     "only the second capture's files remain",
-    [...memory.files.keys()].sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0)),
-    ["out/duel/record.json", "out/duel/sheet-001.png", "out/duel/t000.500-film-beauty.png"],
+    [...memory.files.keys()].sort((a: string, b: string): number =>
+      a < b ? -1 : a > b ? 1 : 0,
+    ),
+    [
+      "out/duel/record.json",
+      "out/duel/sheet-001.png",
+      "out/duel/t000.500-film-beauty.png",
+    ],
   );
 
   // 6. A folder opened for another round.
@@ -183,7 +249,12 @@ export async function test_capture_run_order(): Promise<void> {
     await runAutoMovieCapture({
       plan: plan("at=1&round=r2"),
       draw,
-      folder: await AutoMovieCaptureFolder.open({ storage: memory.storage, root: "out/duel", round: null, compare: null }),
+      folder: await AutoMovieCaptureFolder.open({
+        storage: memory.storage,
+        root: "out/duel",
+        round: null,
+        compare: null,
+      }),
       revision: "abc123",
       match: "cell",
     });
@@ -193,9 +264,15 @@ export async function test_capture_run_order(): Promise<void> {
   TestValidator.predicate("a folder of another round is refused", refused);
   TestValidator.predicate(
     "the refusal writes nothing",
-    memory.log.slice(before).every((call: string): boolean => !call.startsWith("writeFile")),
+    memory.log
+      .slice(before)
+      .every((call: string): boolean => !call.startsWith("writeFile")),
   );
 
   // 7. The Node storage type-checks; it is never called.
-  TestValidator.equals("node:fs/promises has every storage method", typeof NODE.writeFile, "function");
+  TestValidator.equals(
+    "node:fs/promises has every storage method",
+    typeof NODE.writeFile,
+    "function",
+  );
 }

@@ -1,17 +1,16 @@
 import { AutoMovieRasterSheet } from "../picture/AutoMovieRasterSheet.js";
-import { compareAutoMovieRasters } from "../picture/compareAutoMovieRasters.js";
 import type { IAutoMovieRasterComparison } from "../picture/IAutoMovieRasterComparison.js";
 import type { IAutoMovieRasterImage } from "../picture/IAutoMovieRasterImage.js";
-import type { AutoMovieCaptureFolder } from "./AutoMovieCaptureFolder.js";
+import { compareAutoMovieRasters } from "../picture/compareAutoMovieRasters.js";
 import { decodeAutoMovieRasterPng } from "../picture/decodeAutoMovieRasterPng.js";
 import { encodeAutoMovieRasterPng } from "../picture/encodeAutoMovieRasterPng.js";
+import type { AutoMovieCaptureFolder } from "./AutoMovieCaptureFolder.js";
 import type { IAutoMovieCaptureBudget } from "./IAutoMovieCaptureBudget.js";
 import type { IAutoMovieCaptureComparison } from "./IAutoMovieCaptureComparison.js";
 import type { IAutoMovieCaptureLayout } from "./IAutoMovieCaptureLayout.js";
 import type { IAutoMovieCaptureRecord } from "./IAutoMovieCaptureRecord.js";
 import { markAutoMovieCaptureCell } from "./markAutoMovieCaptureCell.js";
 import { planAutoMovieCaptureLayout } from "./planAutoMovieCaptureLayout.js";
-
 
 /**
  * Compare the cells a capture just wrote against an earlier round's, write a difference image for every changed pair, and lay every pair on comparison sheets.
@@ -51,10 +50,14 @@ export async function compareAutoMovieCaptureRounds(props: {
   raster: { width: number; height: number };
 }): Promise<IAutoMovieCaptureComparison> {
   const { folder, match } = props;
-  const earlier: Extract<IAutoMovieCaptureRecord, { state: "complete" }> | null =
-    folder.earlier;
+  const earlier: Extract<
+    IAutoMovieCaptureRecord,
+    { state: "complete" }
+  > | null = folder.earlier;
   if (earlier === null)
-    throw new Error("A capture compares only with a folder opened against a round");
+    throw new Error(
+      "A capture compares only with a folder opened against a round",
+    );
 
   // Pair rows by the values that must agree.
   const key: (row: IAutoMovieCaptureRecord.Row) => string = (
@@ -64,15 +67,24 @@ export async function compareAutoMovieCaptureRounds(props: {
       ? row.time.seconds.toFixed(6)
       : JSON.stringify([
           row.selection.kind,
-          row.selection.kind === "whole" ? row.selection.parts : row.selection.unit,
+          row.selection.kind === "whole"
+            ? row.selection.parts
+            : row.selection.unit,
           row.time.seconds.toFixed(6),
           row.view,
           row.pass,
         ]);
   const before: Map<string, IAutoMovieCaptureRecord.Row> = new Map(
-    earlier.rows.map((row: IAutoMovieCaptureRecord.Row): [string, IAutoMovieCaptureRecord.Row] => [key(row), row]),
+    earlier.rows.map(
+      (
+        row: IAutoMovieCaptureRecord.Row,
+      ): [string, IAutoMovieCaptureRecord.Row] => [key(row), row],
+    ),
   );
-  const pairs: [IAutoMovieCaptureRecord.Row | null, IAutoMovieCaptureRecord.Row | null][] = [];
+  const pairs: [
+    IAutoMovieCaptureRecord.Row | null,
+    IAutoMovieCaptureRecord.Row | null,
+  ][] = [];
   for (const row of props.rows) {
     const other: IAutoMovieCaptureRecord.Row | undefined = before.get(key(row));
     before.delete(key(row));
@@ -89,7 +101,10 @@ export async function compareAutoMovieCaptureRounds(props: {
     budget: props.budget,
     // Every caption a comparison row can carry: each side's name, and the longest third caption.
     captions: pairs.flatMap(
-      ([old, now]: [IAutoMovieCaptureRecord.Row | null, IAutoMovieCaptureRecord.Row | null]): string[] => [
+      ([old, now]: [
+        IAutoMovieCaptureRecord.Row | null,
+        IAutoMovieCaptureRecord.Row | null,
+      ]): string[] => [
         `${props.round} ${old?.name ?? "missing"}`,
         `now ${now?.name ?? "missing"}`,
         `changed ${props.raster.width * props.raster.height}`,
@@ -103,7 +118,9 @@ export async function compareAutoMovieCaptureRounds(props: {
       `comparison-${String(index + 1).padStart(3, "0")}.png`,
   );
   await folder.claim([
-    ...props.rows.map((row: IAutoMovieCaptureRecord.Row): string => `diff-${row.name}.png`),
+    ...props.rows.map(
+      (row: IAutoMovieCaptureRecord.Row): string => `diff-${row.name}.png`,
+    ),
     ...sheetNames,
   ]);
 
@@ -140,15 +157,32 @@ export async function compareAutoMovieCaptureRounds(props: {
     if (filled % layout.perSheet === 0) await flush();
   };
   for (const [old, now] of pairs) {
-    const entry: IAutoMovieCaptureComparison.Entry = decide(props.round, match, old, now);
+    const entry: IAutoMovieCaptureComparison.Entry = decide(
+      props.round,
+      match,
+      old,
+      now,
+    );
     const oldPicture: IAutoMovieRasterImage | null =
-      old?.state === "drawn" ? await decodeAutoMovieRasterPng(await folder.read(old.file, true)) : null;
+      old?.state === "drawn"
+        ? await decodeAutoMovieRasterPng(await folder.read(old.file, true))
+        : null;
     const nowPicture: IAutoMovieRasterImage | null =
-      now?.state === "drawn" ? await decodeAutoMovieRasterPng(await folder.read(now.file)) : null;
+      now?.state === "drawn"
+        ? await decodeAutoMovieRasterPng(await folder.read(now.file))
+        : null;
     let difference: IAutoMovieRasterImage | null = null;
     let final: IAutoMovieCaptureComparison.Entry = entry;
-    if (entry.state === "paired" && entry.mode === "difference" && oldPicture !== null && nowPicture !== null) {
-      if (oldPicture.width !== nowPicture.width || oldPicture.height !== nowPicture.height)
+    if (
+      entry.state === "paired" &&
+      entry.mode === "difference" &&
+      oldPicture !== null &&
+      nowPicture !== null
+    ) {
+      if (
+        oldPicture.width !== nowPicture.width ||
+        oldPicture.height !== nowPicture.height
+      )
         final = {
           state: "unmatched",
           current: entry.current,
@@ -156,10 +190,18 @@ export async function compareAutoMovieCaptureRounds(props: {
           cause: `the rasters differ: ${oldPicture.width}x${oldPicture.height} in round ${props.round} against ${nowPicture.width}x${nowPicture.height}`,
         };
       else {
-        const measured: IAutoMovieRasterComparison = compareAutoMovieRasters(oldPicture, nowPicture, props.tolerance);
-        const file: string | null = measured.changed > 0 ? `diff-${entry.current}.png` : null;
+        const measured: IAutoMovieRasterComparison = compareAutoMovieRasters(
+          oldPicture,
+          nowPicture,
+          props.tolerance,
+        );
+        const file: string | null =
+          measured.changed > 0 ? `diff-${entry.current}.png` : null;
         if (file !== null) {
-          await folder.write(file, await encodeAutoMovieRasterPng(measured.image));
+          await folder.write(
+            file,
+            await encodeAutoMovieRasterPng(measured.image),
+          );
           difference = measured.image;
         }
         final = {
@@ -185,7 +227,13 @@ export async function compareAutoMovieCaptureRounds(props: {
     );
   }
   if (filled % layout.perSheet !== 0) await flush();
-  return { round: props.round, match, tolerance: props.tolerance, entries, sheets };
+  return {
+    round: props.round,
+    match,
+    tolerance: props.tolerance,
+    entries,
+    sheets,
+  };
 }
 
 /** Whether two rows pair, and in which mode, before any pixel is read. */
@@ -209,8 +257,15 @@ function decide(
     return unmatched(`round ${round} did not draw it: ${old.cause}`);
   if (now.state === "failed")
     return unmatched(`this capture did not draw it: ${now.cause}`);
-  if (match === "cell" && old.camera !== null && now.camera !== null && old.camera !== now.camera)
-    return unmatched(`the resolved cameras differ: ${old.camera} in round ${round} against ${now.camera}`);
+  if (
+    match === "cell" &&
+    old.camera !== null &&
+    now.camera !== null &&
+    old.camera !== now.camera
+  )
+    return unmatched(
+      `the resolved cameras differ: ${old.camera} in round ${round} against ${now.camera}`,
+    );
   return old.backend !== null && old.backend === now.backend
     ? {
         state: "paired",
@@ -223,5 +278,10 @@ function decide(
         bounds: null,
         difference: null,
       }
-    : { state: "paired", mode: "side-by-side", current: now.name, earlier: old.name };
+    : {
+        state: "paired",
+        mode: "side-by-side",
+        current: now.name,
+        earlier: old.name,
+      };
 }

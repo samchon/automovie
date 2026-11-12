@@ -210,7 +210,9 @@ export class AutoMovieCaptureHost {
         });
       return await render.runAutoMovieCapture({
         plan,
-        draw: (cell: Render.IAutoMovieCaptureCell): Promise<Render.IAutoMovieCaptureDrawing> =>
+        draw: (
+          cell: Render.IAutoMovieCaptureCell,
+        ): Promise<Render.IAutoMovieCaptureDrawing> =>
           session.drawing(cell, plan),
         folder,
         revision: readAutoMovieRevision(this.root),

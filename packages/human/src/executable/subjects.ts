@@ -25,15 +25,18 @@ export const subjects: AutoMovieDrawSubjects = (): Readonly<
   Record<string, IAutoMovieDrawSubject>
 > =>
   Object.fromEntries(
-    listHumanCaptureSubjects().map((name: string): [string, IAutoMovieDrawSubject] => [
-      name,
-      { create: async (): Promise<IAutoMovieDrawScene> => build(name) },
-    ]),
+    listHumanCaptureSubjects().map(
+      (name: string): [string, IAutoMovieDrawSubject] => [
+        name,
+        { create: async (): Promise<IAutoMovieDrawScene> => build(name) },
+      ],
+    ),
   );
 
 /** Build one subject's scene. */
 function build(name: string): IAutoMovieDrawScene {
-  const figure: ReturnType<typeof buildHumanCaptureFigure> = buildHumanCaptureFigure(name);
+  const figure: ReturnType<typeof buildHumanCaptureFigure> =
+    buildHumanCaptureFigure(name);
   const scene: THREE.Scene = new THREE.Scene();
   scene.background = new THREE.Color(0xeef1f5);
   scene.add(new THREE.AmbientLight(0xffffff, 0.6));
@@ -45,8 +48,15 @@ function build(name: string): IAutoMovieDrawScene {
   const box: THREE.Box3 = new THREE.Box3().setFromObject(figure.object);
   const centre: THREE.Vector3 = box.getCenter(new THREE.Vector3());
   const size: number = box.getSize(new THREE.Vector3()).length();
-  const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(35, 1, 0.05, size * 10);
-  camera.position.copy(centre).add(new THREE.Vector3(0.6, 0.1, 1).normalize().multiplyScalar(size * 1.8));
+  const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
+    35,
+    1,
+    0.05,
+    size * 10,
+  );
+  camera.position
+    .copy(centre)
+    .add(new THREE.Vector3(0.6, 0.1, 1).normalize().multiplyScalar(size * 1.8));
   camera.lookAt(centre);
   camera.updateMatrixWorld(true);
   return {

@@ -89,7 +89,11 @@ export function AutoMovieInspectorMarksPanel(props: {
           type="checkbox"
           checked={props.request.inspection.xray}
           onChange={(event: ChangeEvent<HTMLInputElement>): void =>
-            props.dispatch({ type: "switch", key: "xray", on: event.target.checked })
+            props.dispatch({
+              type: "switch",
+              key: "xray",
+              on: event.target.checked,
+            })
           }
         />{" "}
         x-ray

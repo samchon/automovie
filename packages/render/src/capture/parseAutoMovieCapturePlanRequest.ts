@@ -101,7 +101,8 @@ export function parseAutoMovieCapturePlanRequest(
         (text: string): IAutoMovieInspectionRequest.Shade => shadeOf(text),
       )
     : [inspection.shade];
-  if (passes.length === 0) refuse("passes", read("passes")!, "one or more shades");
+  if (passes.length === 0)
+    refuse("passes", read("passes")!, "one or more shades");
 
   // Seconds: explicit, or an even sampling.
   if (
@@ -126,7 +127,11 @@ export function parseAutoMovieCapturePlanRequest(
             .filter((view: string): boolean => view !== ""),
         );
   if (views.length === 0)
-    refuse("views", read("views")!, `view texts separated by ${VIEW_SEPARATOR}`);
+    refuse(
+      "views",
+      read("views")!,
+      `view texts separated by ${VIEW_SEPARATOR}`,
+    );
   for (const view of views)
     try {
       parseAutoMovieInspectionView(view);
@@ -157,15 +162,19 @@ export function parseAutoMovieCapturePlanRequest(
   const round: string | null = roundName("round", read("round"));
   const compare: string | null = roundName("compare", read("compare"));
   if (compare !== null && compare === round)
-    throw new Error(`Capture round "${round}" cannot be compared against itself`);
+    throw new Error(
+      `Capture round "${round}" cannot be compared against itself`,
+    );
   if (given.has("tolerance") && compare === null)
     throw new Error("Capture tolerance applies only with compare");
-  const tolerance: number = bounded("tolerance", read("tolerance"), 0, 255) ?? 0;
+  const tolerance: number =
+    bounded("tolerance", read("tolerance"), 0, 255) ?? 0;
 
   return {
     subject: subject(read("subject")),
     sampling,
-    events: read("events") === null ? [] : seconds("events", read("events")!, false),
+    events:
+      read("events") === null ? [] : seconds("events", read("events")!, false),
     window: whole("window", read("window"), 0) ?? WINDOW,
     threshold: bounded("threshold", read("threshold"), 0, 100) ?? THRESHOLD,
     views,
@@ -261,7 +270,8 @@ function whole(
 function seconds(key: string, text: string, required: boolean): number[] {
   const values: number[] = items(text).map((item: string): number => {
     const value: number = finite(item);
-    if (!(value >= 0)) refuse(key, text, "seconds of zero or more separated by commas");
+    if (!(value >= 0))
+      refuse(key, text, "seconds of zero or more separated by commas");
     return value;
   });
   if (required && values.length === 0)
@@ -287,7 +297,11 @@ function even(
 function roundName(key: string, text: string | null): string | null {
   if (text === null) return null;
   if (!ROUND.test(text))
-    refuse(key, text, "a name of letters, digits, dots, underscores and hyphens");
+    refuse(
+      key,
+      text,
+      "a name of letters, digits, dots, underscores and hyphens",
+    );
   return text;
 }
 

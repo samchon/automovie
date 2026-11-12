@@ -52,7 +52,10 @@ export class AutoMovieCaptureFolder {
   public readonly compare: string | null;
 
   /** The compared round's complete record, or null without a comparison. */
-  public readonly earlier: Extract<IAutoMovieCaptureRecord, { state: "complete" }> | null;
+  public readonly earlier: Extract<
+    IAutoMovieCaptureRecord,
+    { state: "complete" }
+  > | null;
 
   /** Path of the compared round's folder, or null without a comparison. */
   public readonly reference: string | null;
@@ -117,8 +120,10 @@ export class AutoMovieCaptureFolder {
     // 1. The compared round, before anything changes.
     const reference: string | null =
       props.compare === null ? null : `${root}/${ROUNDS}/${props.compare}`;
-    let earlier: Extract<IAutoMovieCaptureRecord, { state: "complete" }> | null =
-      null;
+    let earlier: Extract<
+      IAutoMovieCaptureRecord,
+      { state: "complete" }
+    > | null = null;
     if (reference !== null) {
       const record: IAutoMovieCaptureRecord | null = await readRecord(
         storage,
@@ -239,8 +244,12 @@ export class AutoMovieCaptureFolder {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each still is read once by the comparison.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The bytes are the caller's.
    */
-  public async read(name: string, earlier: boolean = false): Promise<Uint8Array> {
-    if (!FILE_NAME.test(name)) throw new Error(`A capture cannot read "${name}"`);
+  public async read(
+    name: string,
+    earlier: boolean = false,
+  ): Promise<Uint8Array> {
+    if (!FILE_NAME.test(name))
+      throw new Error(`A capture cannot read "${name}"`);
     if (earlier && this.reference === null)
       throw new Error("This capture compares against no round");
     return this.storage.readFile(
@@ -260,7 +269,10 @@ export class AutoMovieCaptureFolder {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Nothing stays open after the call.
    */
   public async close(
-    record: Omit<Extract<IAutoMovieCaptureRecord, { state: "complete" }>, "files" | "state">,
+    record: Omit<
+      Extract<IAutoMovieCaptureRecord, { state: "complete" }>,
+      "files" | "state"
+    >,
   ): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> {
     const complete: Extract<IAutoMovieCaptureRecord, { state: "complete" }> = {
       state: "complete",

@@ -26,13 +26,22 @@ import * as THREE from "three";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming its input and the behaviour it pins.
  */
 export function test_inspector_path_tree(): void {
-  const mesh: (name: string, ...children: THREE.Object3D[]) => THREE.Mesh = (name: string, ...children: THREE.Object3D[]): THREE.Mesh => {
-    const object: THREE.Mesh = new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshBasicMaterial());
+  const mesh: (name: string, ...children: THREE.Object3D[]) => THREE.Mesh = (
+    name: string,
+    ...children: THREE.Object3D[]
+  ): THREE.Mesh => {
+    const object: THREE.Mesh = new THREE.Mesh(
+      new THREE.BoxGeometry(),
+      new THREE.MeshBasicMaterial(),
+    );
     object.name = name;
     if (children.length !== 0) object.add(...children);
     return object;
   };
-  const group: (name: string, ...children: THREE.Object3D[]) => THREE.Group = (name: string, ...children: THREE.Object3D[]): THREE.Group => {
+  const group: (name: string, ...children: THREE.Object3D[]) => THREE.Group = (
+    name: string,
+    ...children: THREE.Object3D[]
+  ): THREE.Group => {
     const object: THREE.Group = new THREE.Group();
     object.name = name;
     object.add(...children);
@@ -50,7 +59,9 @@ export function test_inspector_path_tree(): void {
     mesh(""),
   );
   const paths: string[] = [
-    ...listAutoMovieInspectionPaths(scene).map(({ path }: { path: string }): string => path),
+    ...listAutoMovieInspectionPaths(scene).map(
+      ({ path }: { path: string }): string => path,
+    ),
     "hero/torso/section/3",
   ];
   TestValidator.equals("the scene lists its paths", paths, [
@@ -64,9 +75,12 @@ export function test_inspector_path_tree(): void {
     "",
     "hero/torso/section/3",
   ]);
-  const tree: IAutoMovieInspectorPathNode[] = buildAutoMovieInspectorPathTree(paths);
+  const tree: IAutoMovieInspectorPathNode[] =
+    buildAutoMovieInspectorPathTree(paths);
   const nodes: IAutoMovieInspectorPathNode[] = [];
-  const walk: (node: IAutoMovieInspectorPathNode) => void = (node: IAutoMovieInspectorPathNode): void => {
+  const walk: (node: IAutoMovieInspectorPathNode) => void = (
+    node: IAutoMovieInspectorPathNode,
+  ): void => {
     nodes.push(node);
     node.children.forEach(walk);
   };
@@ -75,18 +89,56 @@ export function test_inspector_path_tree(): void {
   // 1. Every drawn path once, in first-appearance order.
   TestValidator.equals(
     "drawn nodes are the distinct paths in order",
-    nodes.filter((node: IAutoMovieInspectorPathNode): boolean => node.drawn).map((node: IAutoMovieInspectorPathNode): string => node.path),
-    ["hero/torso", "hero/torso/arm", "hero/torso/section/3", "hero/legs/left", "hero/legs/right", "hero/legs/prop", "prop", ""],
+    nodes
+      .filter((node: IAutoMovieInspectorPathNode): boolean => node.drawn)
+      .map((node: IAutoMovieInspectorPathNode): string => node.path),
+    [
+      "hero/torso",
+      "hero/torso/arm",
+      "hero/torso/section/3",
+      "hero/legs/left",
+      "hero/legs/right",
+      "hero/legs/prop",
+      "prop",
+      "",
+    ],
   );
 
   // 2. Groups, marks and the empty path.
-  const at: (path: string) => IAutoMovieInspectorPathNode = (path: string): IAutoMovieInspectorPathNode =>
-    nodes.find((node: IAutoMovieInspectorPathNode): boolean => node.path === path)!;
-  TestValidator.equals("top-level nodes", tree.map((node: IAutoMovieInspectorPathNode): string => node.name), ["hero", "prop", ""]);
-  TestValidator.predicate("groups are not drawn", !at("hero").drawn && !at("hero/legs").drawn && !at("hero/torso/section").drawn);
-  TestValidator.equals("a mark nests under its object", at("hero/torso").children.map((node: IAutoMovieInspectorPathNode): string => node.name), ["arm", "section"]);
-  TestValidator.equals("the empty path has no pattern", [at("").name, at("").pattern], ["", null]);
-  TestValidator.equals("patterns", [at("hero").pattern, at("prop").pattern, at("hero/legs").pattern], ["hero/**", "prop/**", "hero/legs"]);
+  const at: (path: string) => IAutoMovieInspectorPathNode = (
+    path: string,
+  ): IAutoMovieInspectorPathNode =>
+    nodes.find(
+      (node: IAutoMovieInspectorPathNode): boolean => node.path === path,
+    )!;
+  TestValidator.equals(
+    "top-level nodes",
+    tree.map((node: IAutoMovieInspectorPathNode): string => node.name),
+    ["hero", "prop", ""],
+  );
+  TestValidator.predicate(
+    "groups are not drawn",
+    !at("hero").drawn &&
+      !at("hero/legs").drawn &&
+      !at("hero/torso/section").drawn,
+  );
+  TestValidator.equals(
+    "a mark nests under its object",
+    at("hero/torso").children.map(
+      (node: IAutoMovieInspectorPathNode): string => node.name,
+    ),
+    ["arm", "section"],
+  );
+  TestValidator.equals(
+    "the empty path has no pattern",
+    [at("").name, at("").pattern],
+    ["", null],
+  );
+  TestValidator.equals(
+    "patterns",
+    [at("hero").pattern, at("prop").pattern, at("hero/legs").pattern],
+    ["hero/**", "prop/**", "hero/legs"],
+  );
 
   // 3. A pattern reaches its node and the paths beneath it, and nothing else.
   const distinct: string[] = [...new Set<string>(paths)];
@@ -95,11 +147,20 @@ export function test_inspector_path_tree(): void {
     const pattern: string = node.pattern;
     TestValidator.equals(
       `${pattern} selects ${node.path} and beneath`,
-      distinct.filter((path: string): boolean => matchAutoMovieInspectionPath(path, pattern)),
-      distinct.filter((path: string): boolean => path === node.path || path.startsWith(`${node.path}/`)),
+      distinct.filter((path: string): boolean =>
+        matchAutoMovieInspectionPath(path, pattern),
+      ),
+      distinct.filter(
+        (path: string): boolean =>
+          path === node.path || path.startsWith(`${node.path}/`),
+      ),
     );
   }
 
   // 4. Empty list.
-  TestValidator.equals("an empty list is an empty tree", buildAutoMovieInspectorPathTree([]), []);
+  TestValidator.equals(
+    "an empty list is an empty tree",
+    buildAutoMovieInspectorPathTree([]),
+    [],
+  );
 }

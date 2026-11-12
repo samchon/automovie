@@ -39,7 +39,9 @@ export function markAutoMovieSlip(
       entry.at.z,
     ];
     if (!values.every(Number.isFinite))
-      throw new Error(`markAutoMovieSlip: contact ${entry.path} has no finite points`);
+      throw new Error(
+        `markAutoMovieSlip: contact ${entry.path} has no finite points`,
+      );
     if (!(Number.isFinite(entry.limit) && entry.limit >= 0))
       throw new Error(
         `markAutoMovieSlip: contact ${entry.path} has the limit ${entry.limit}, not a finite distance of zero or more`,

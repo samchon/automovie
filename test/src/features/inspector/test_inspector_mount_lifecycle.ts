@@ -38,64 +38,145 @@ import { InspectionScene } from "../internal/InspectionScene";
 export async function test_inspector_mount_lifecycle(): Promise<void> {
   const host: RecordingHost = new RecordingHost();
   const playhead: AutoMovieInspectorPlayhead = new AutoMovieInspectorPlayhead();
-  const request: IAutoMovieCapturePlanRequest = readAutoMovieInspectorAddress("at=0.25");
+  const request: IAutoMovieCapturePlanRequest =
+    readAutoMovieInspectorAddress("at=0.25");
 
   // 1. Mount, dispose before arrival, mount again.
   const first: RecordingSubject = new RecordingSubject(2);
   const firstReport: RecordingReport = new RecordingReport();
-  mountAutoMovieInspectorScene({ name: "recorded", subject: first, request, playhead, host, report: firstReport }).dispose();
+  mountAutoMovieInspectorScene({
+    name: "recorded",
+    subject: first,
+    request,
+    playhead,
+    host,
+    report: firstReport,
+  }).dispose();
   const second: RecordingSubject = new RecordingSubject(2);
   const report: RecordingReport = new RecordingReport();
-  const mounted: IAutoMovieInspectorScene = mountAutoMovieInspectorScene({ name: "recorded", subject: second, request, playhead, host, report });
+  const mounted: IAutoMovieInspectorScene = mountAutoMovieInspectorScene({
+    name: "recorded",
+    subject: second,
+    request,
+    playhead,
+    host,
+    report,
+  });
   await first.arrive();
   await second.arrive();
-  TestValidator.equals("the early instance is disposed on arrival", first.disposed, 1);
-  TestValidator.equals("one renderer, one pending frame", [host.renderers.length, host.frames.size], [1, 1]);
-  TestValidator.equals("the disposed mount reports nothing", firstReport.facts.length, 0);
+  TestValidator.equals(
+    "the early instance is disposed on arrival",
+    first.disposed,
+    1,
+  );
+  TestValidator.equals(
+    "one renderer, one pending frame",
+    [host.renderers.length, host.frames.size],
+    [1, 1],
+  );
+  TestValidator.equals(
+    "the disposed mount reports nothing",
+    firstReport.facts.length,
+    0,
+  );
   TestValidator.equals("one ready report", report.facts.length, 1);
   const facts: IAutoMovieInspectorScene.IFacts = report.facts[0]!;
-  TestValidator.equals("object and mark paths", facts.paths, ["hero", "prop", "hero/axis"]);
+  TestValidator.equals("object and mark paths", facts.paths, [
+    "hero",
+    "prop",
+    "hero/axis",
+  ]);
   TestValidator.predicate(
     "the first second's supplied marks",
     facts.marks.length === 1 && facts.marks[0]!.kind === "curve/axis",
   );
   TestValidator.predicate("named views", facts.views.includes("front"));
-  TestValidator.equals("the playhead takes the duration and the address's second", [playhead.getSnapshot().durationSeconds, playhead.getSnapshot().seconds], [2, 0.25]);
+  TestValidator.equals(
+    "the playhead takes the duration and the address's second",
+    [playhead.getSnapshot().durationSeconds, playhead.getSnapshot().seconds],
+    [2, 0.25],
+  );
 
   // 2. Draw only on change.
   const renderer: RecordingRenderer = host.renderers[0]!;
   await host.run(0);
   TestValidator.equals("the first frame renders", renderer.renders, 1);
-  TestValidator.equals("at the address's second", second.instance!.seeks.at(-1), 0.25);
+  TestValidator.equals(
+    "at the address's second",
+    second.instance!.seeks.at(-1),
+    0.25,
+  );
   await host.run(16);
-  TestValidator.equals("an unchanged frame renders nothing", renderer.renders, 1);
+  TestValidator.equals(
+    "an unchanged frame renders nothing",
+    renderer.renders,
+    1,
+  );
   host.width = 800;
   await host.run(32);
-  TestValidator.equals("a new size resizes and renders", [renderer.sizes.at(-1), renderer.renders], [[800, 360], 2]);
+  TestValidator.equals(
+    "a new size resizes and renders",
+    [renderer.sizes.at(-1), renderer.renders],
+    [[800, 360], 2],
+  );
 
   // 3. Playback.
   playhead.play();
   await host.run(532);
-  TestValidator.equals("half a second later", second.instance!.seeks.at(-1), 0.75);
+  TestValidator.equals(
+    "half a second later",
+    second.instance!.seeks.at(-1),
+    0.75,
+  );
   await host.run(10_000);
-  TestValidator.equals("the end stops playback", [playhead.getSnapshot().seconds, playhead.getSnapshot().playing], [2, false]);
+  TestValidator.equals(
+    "the end stops playback",
+    [playhead.getSnapshot().seconds, playhead.getSnapshot().playing],
+    [2, false],
+  );
 
   // 4. Refused and accepted requests.
-  const refused: IAutoMovieCapturePlanRequest = readAutoMovieInspectorAddress("marks=nothing");
+  const refused: IAutoMovieCapturePlanRequest =
+    readAutoMovieInspectorAddress("marks=nothing");
   mounted.apply(refused);
-  TestValidator.equals("a refused request is reported", report.refusals.length, 1);
-  TestValidator.predicate("with the request still drawn", report.refusals[0]![0] === request);
-  const marked: IAutoMovieCapturePlanRequest = readAutoMovieInspectorAddress("marks=curve/*&at=1");
+  TestValidator.equals(
+    "a refused request is reported",
+    report.refusals.length,
+    1,
+  );
+  TestValidator.predicate(
+    "with the request still drawn",
+    report.refusals[0]![0] === request,
+  );
+  const marked: IAutoMovieCapturePlanRequest =
+    readAutoMovieInspectorAddress("marks=curve/*&at=1");
   mounted.apply(marked);
-  TestValidator.equals("an accepted request is not refused", report.refusals.length, 1);
+  TestValidator.equals(
+    "an accepted request is not refused",
+    report.refusals.length,
+    1,
+  );
   TestValidator.predicate(
     "its legend is reported",
-    report.legends.at(-1)!.some((entry: IAutoMovieInspectionLegendEntry): boolean => entry.label === "curve/axis" && entry.count === 1),
+    report.legends
+      .at(-1)!
+      .some(
+        (entry: IAutoMovieInspectionLegendEntry): boolean =>
+          entry.label === "curve/axis" && entry.count === 1,
+      ),
   );
-  TestValidator.equals("the request's new second is sought", playhead.getSnapshot().seconds, 1);
+  TestValidator.equals(
+    "the request's new second is sought",
+    playhead.getSnapshot().seconds,
+    1,
+  );
   const drawn: number = renderer.renders;
   await host.run(10_100);
-  TestValidator.equals("and drawn on the next frame", renderer.renders, drawn + 1);
+  TestValidator.equals(
+    "and drawn on the next frame",
+    renderer.renders,
+    drawn + 1,
+  );
 
   // 5. A seek that resolves late.
   const instance: RecordingInstance = second.instance!;
@@ -107,12 +188,24 @@ export async function test_inspector_mount_lifecycle(): Promise<void> {
   playhead.seek(1.75);
   const started: number = instance.seeks.length;
   await host.run(10_216);
-  TestValidator.equals("no second seek starts while one is pending", instance.seeks.length, started);
+  TestValidator.equals(
+    "no second seek starts while one is pending",
+    instance.seeks.length,
+    started,
+  );
   instance.hold = false;
   await instance.settle();
-  TestValidator.equals("the picture is drawn when the seek resolves", renderer.renders, drawn + 2);
+  TestValidator.equals(
+    "the picture is drawn when the seek resolves",
+    renderer.renders,
+    drawn + 2,
+  );
   await host.run(10_232);
-  TestValidator.equals("the next frame seeks the newest second", [instance.seeks.at(-1), renderer.renders], [1.75, drawn + 3]);
+  TestValidator.equals(
+    "the next frame seeks the newest second",
+    [instance.seeks.at(-1), renderer.renders],
+    [1.75, drawn + 3],
+  );
   instance.hold = true;
   playhead.seek(0.5);
   await host.run(10_248);
@@ -120,18 +213,45 @@ export async function test_inspector_mount_lifecycle(): Promise<void> {
   // 6. Dispose, with a seek still pending, and mount again.
   mounted.dispose();
   await instance.settle();
-  TestValidator.equals("a seek resolving after dispose draws nothing", renderer.renders, drawn + 3);
+  TestValidator.equals(
+    "a seek resolving after dispose draws nothing",
+    renderer.renders,
+    drawn + 3,
+  );
   TestValidator.equals("no frame pending", host.frames.size, 0);
-  TestValidator.equals("only the two quads the test built remain", second.instance!.scene.children.map((child: THREE.Object3D): string => child.name), ["hero", "prop"]);
-  TestValidator.equals("renderer and instance disposed once", [renderer.disposed, second.disposed], [1, 1]);
+  TestValidator.equals(
+    "only the two quads the test built remain",
+    second.instance!.scene.children.map(
+      (child: THREE.Object3D): string => child.name,
+    ),
+    ["hero", "prop"],
+  );
+  TestValidator.equals(
+    "renderer and instance disposed once",
+    [renderer.disposed, second.disposed],
+    [1, 1],
+  );
   mounted.dispose();
-  TestValidator.equals("a second dispose does nothing", [renderer.disposed, second.disposed], [1, 1]);
+  TestValidator.equals(
+    "a second dispose does nothing",
+    [renderer.disposed, second.disposed],
+    [1, 1],
+  );
   const third: RecordingSubject = new RecordingSubject(2);
-  const again: IAutoMovieInspectorScene = mountAutoMovieInspectorScene({ name: "recorded", subject: third, request, playhead, host, report: new RecordingReport() });
+  const again: IAutoMovieInspectorScene = mountAutoMovieInspectorScene({
+    name: "recorded",
+    subject: third,
+    request,
+    playhead,
+    host,
+    report: new RecordingReport(),
+  });
   await third.arrive();
   TestValidator.equals(
     "one renderer alive after mounting again",
-    host.renderers.filter((candidate: RecordingRenderer): boolean => candidate.disposed === 0).length,
+    host.renderers.filter(
+      (candidate: RecordingRenderer): boolean => candidate.disposed === 0,
+    ).length,
     1,
   );
   TestValidator.equals("one frame pending", host.frames.size, 1);
@@ -140,18 +260,39 @@ export async function test_inspector_mount_lifecycle(): Promise<void> {
   // 7. Failures.
   const failing: RecordingSubject = new RecordingSubject(2);
   const failed: RecordingReport = new RecordingReport();
-  mountAutoMovieInspectorScene({ name: "recorded", subject: failing, request, playhead, host, report: failed });
+  mountAutoMovieInspectorScene({
+    name: "recorded",
+    subject: failing,
+    request,
+    playhead,
+    host,
+    report: failed,
+  });
   await failing.fail(new Error("no such film"));
-  TestValidator.equals("a failed creation is reported", failed.errors, ["no such film"]);
+  TestValidator.equals("a failed creation is reported", failed.errors, [
+    "no such film",
+  ]);
   const empty: RecordingSubject = new RecordingSubject(0);
   const invalid: RecordingReport = new RecordingReport();
-  mountAutoMovieInspectorScene({ name: "recorded", subject: empty, request, playhead, host, report: invalid });
+  mountAutoMovieInspectorScene({
+    name: "recorded",
+    subject: empty,
+    request,
+    playhead,
+    host,
+    report: invalid,
+  });
   await empty.arrive();
-  TestValidator.predicate("a zero duration is reported", invalid.errors.length === 1 && invalid.errors[0]!.includes("duration"));
+  TestValidator.predicate(
+    "a zero duration is reported",
+    invalid.errors.length === 1 && invalid.errors[0]!.includes("duration"),
+  );
   TestValidator.equals("and its instance disposed", empty.disposed, 1);
   TestValidator.equals(
     "no renderer stays alive",
-    host.renderers.filter((candidate: RecordingRenderer): boolean => candidate.disposed === 0).length,
+    host.renderers.filter(
+      (candidate: RecordingRenderer): boolean => candidate.disposed === 0,
+    ).length,
     0,
   );
 }
@@ -219,7 +360,12 @@ class RecordingInstance implements IAutoMovieDrawScene {
     InspectionScene.quad("hero", -2),
     InspectionScene.quad("prop", 2),
   );
-  public readonly camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(40, 16 / 9, 0.1, 100);
+  public readonly camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
+    40,
+    16 / 9,
+    0.1,
+    100,
+  );
   public readonly fps: number = 30;
   public readonly width: number = 640;
   public readonly height: number = 360;
@@ -235,15 +381,21 @@ class RecordingInstance implements IAutoMovieDrawScene {
   }
 
   public marks = (): ReturnType<NonNullable<IAutoMovieDrawScene["marks"]>> => [
-    InspectionScene.mark("hero/axis", "curve/axis", 0x00a0ff, { type: "polyline", points: [-2, -1, 0, -2, 1, 0], closed: false }),
+    InspectionScene.mark("hero/axis", "curve/axis", 0x00a0ff, {
+      type: "polyline",
+      points: [-2, -1, 0, -2, 1, 0],
+      closed: false,
+    }),
   ];
 
   public seek(seconds: number): Promise<void> {
     this.seeks.push(seconds);
     if (!this.hold) return Promise.resolve();
-    return new Promise<undefined>((resolve: (value: undefined) => void): void => {
-      this.held_.push((): void => resolve(undefined));
-    });
+    return new Promise<undefined>(
+      (resolve: (value: undefined) => void): void => {
+        this.held_.push((): void => resolve(undefined));
+      },
+    );
   }
 
   /** Resolve every held seek and let the mount react. */
@@ -268,7 +420,10 @@ class RecordingSubject implements IAutoMovieDrawSubject {
 
   public create(): Promise<RecordingInstance> {
     return new Promise<RecordingInstance>(
-      (resolve: (instance: RecordingInstance) => void, reject: (error: Error) => void): void => {
+      (
+        resolve: (instance: RecordingInstance) => void,
+        reject: (error: Error) => void,
+      ): void => {
         this.settle_ = resolve;
         this.reject_ = reject;
       },

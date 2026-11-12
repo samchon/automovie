@@ -24,9 +24,7 @@ export function selectFilm(
     throw new Error("No film is registered in src/composition/films/index.ts");
   if (name === null || name === "") {
     if (names.length === 1) return { name: names[0]!, film: films[names[0]!]! };
-    throw new Error(
-      `Select a film with --film <name>: ${names.join(", ")}`,
-    );
+    throw new Error(`Select a film with --film <name>: ${names.join(", ")}`);
   }
   if (!Object.hasOwn(films, name))
     throw new Error(`Unknown film "${name}"; registered: ${names.join(", ")}`);

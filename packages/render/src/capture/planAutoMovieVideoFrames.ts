@@ -28,19 +28,27 @@ export function planAutoMovieVideoFrames(props: {
   /** Folder the stills are written into. */
   directory: string;
 }): string[] {
-  if (props.frames.length === 0) throw new Error("A video extraction needs at least one frame");
+  if (props.frames.length === 0)
+    throw new Error("A video extraction needs at least one frame");
   for (const frame of props.frames)
     if (!(Number.isSafeInteger(frame) && frame >= 0))
-      throw new Error(`Video frame ${frame} is not a whole number of zero or more`);
+      throw new Error(
+        `Video frame ${frame} is not a whole number of zero or more`,
+      );
 
   // Runs of consecutive indices, in ascending order.
-  const sorted: number[] = [...new Set(props.frames)].sort((a: number, b: number): number => a - b);
+  const sorted: number[] = [...new Set(props.frames)].sort(
+    (a: number, b: number): number => a - b,
+  );
   const terms: string[] = [];
   for (let start: number = 0; start < sorted.length; ) {
     let end: number = start;
-    while (end + 1 < sorted.length && sorted[end + 1] === sorted[end]! + 1) end++;
+    while (end + 1 < sorted.length && sorted[end + 1] === sorted[end]! + 1)
+      end++;
     terms.push(
-      start === end ? `eq(n,${sorted[start]})` : `between(n,${sorted[start]},${sorted[end]})`,
+      start === end
+        ? `eq(n,${sorted[start]})`
+        : `between(n,${sorted[start]},${sorted[end]})`,
     );
     start = end + 1;
   }

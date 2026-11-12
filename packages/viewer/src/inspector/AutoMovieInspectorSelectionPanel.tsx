@@ -32,7 +32,8 @@ export function AutoMovieInspectorSelectionPanel(props: {
   dispatch: (action: IAutoMovieInspectorAction) => void;
 }): JSX.Element {
   const tree: IAutoMovieInspectorPathNode[] = useMemo(
-    (): IAutoMovieInspectorPathNode[] => buildAutoMovieInspectorPathTree(props.paths),
+    (): IAutoMovieInspectorPathNode[] =>
+      buildAutoMovieInspectorPathTree(props.paths),
     [props.paths],
   );
   return (
@@ -111,7 +112,9 @@ function Row(props: {
           <button
             type="button"
             title="clear colour"
-            onClick={(): void => dispatch({ type: "color", pattern, color: null })}
+            onClick={(): void =>
+              dispatch({ type: "color", pattern, color: null })
+            }
           >
             x
           </button>

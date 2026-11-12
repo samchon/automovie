@@ -55,11 +55,12 @@ export function measureAutoMovieInspectionMeshes(props: {
   if (props.asks("edge"))
     for (const { path, mesh } of kept)
       measured.push(measureAutoMovieInspectionEdges({ mesh, path }));
-  const kinds: Set<IAutoMovieMeshDefect.Kind> = new Set<IAutoMovieMeshDefect.Kind>(
-    props.defects.filter((kind: IAutoMovieMeshDefect.Kind): boolean =>
-      props.asks(`defect/${kind}`),
-    ),
-  );
+  const kinds: Set<IAutoMovieMeshDefect.Kind> =
+    new Set<IAutoMovieMeshDefect.Kind>(
+      props.defects.filter((kind: IAutoMovieMeshDefect.Kind): boolean =>
+        props.asks(`defect/${kind}`),
+      ),
+    );
   if (kinds.size !== 0) {
     const cache: Map<THREE.BufferGeometry, IAutoMovieMeshDefect[]> = new Map<
       THREE.BufferGeometry,

@@ -31,15 +31,25 @@ export function createDrawPageDouble(props: {
       calls.push({ method: "goto", arg: url });
       return null;
     },
-    waitForFunction: async <T>(_predicate: (arg: T) => unknown, arg: T): Promise<unknown> => {
+    waitForFunction: async <T>(
+      _predicate: (arg: T) => unknown,
+      arg: T,
+    ): Promise<unknown> => {
       calls.push({ method: "waitForFunction", arg });
       return true;
     },
-    evaluate: async <R, T>(_task: (arg: T) => R | Promise<R>, arg: T): Promise<R> => {
+    evaluate: async <R, T>(
+      _task: (arg: T) => R | Promise<R>,
+      arg: T,
+    ): Promise<R> => {
       calls.push({ method: "evaluate", arg });
       if (typeof arg === "string")
-        return { subject: props.subject, renderer: props.renderer } satisfies IAutoMovieDrawDescription as R;
-      const call: IAutoMovieDrawCall = (arg as { call: IAutoMovieDrawCall }).call;
+        return {
+          subject: props.subject,
+          renderer: props.renderer,
+        } satisfies IAutoMovieDrawDescription as R;
+      const call: IAutoMovieDrawCall = (arg as { call: IAutoMovieDrawCall })
+        .call;
       if (props.answer === null) return new Promise<R>((): void => {});
       return props.answer(call) as R;
     },

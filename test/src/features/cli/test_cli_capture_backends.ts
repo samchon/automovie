@@ -23,10 +23,14 @@ import {
  */
 export async function test_cli_capture_backends(): Promise<void> {
   // 1 and 2. Switches and names.
-  TestValidator.equals("software", planAutoMovieChromiumLaunch("software", {}), {
-    args: ["--use-gl=angle", "--use-angle=swiftshader"],
-    name: "swiftshader",
-  });
+  TestValidator.equals(
+    "software",
+    planAutoMovieChromiumLaunch("software", {}),
+    {
+      args: ["--use-gl=angle", "--use-angle=swiftshader"],
+      name: "swiftshader",
+    },
+  );
   TestValidator.equals("gpu", planAutoMovieChromiumLaunch("gpu", {}), {
     args: ["--use-gl=angle", "--use-angle=default", "--ignore-gpu-blocklist"],
     name: "gpu",
@@ -35,19 +39,24 @@ export async function test_cli_capture_backends(): Promise<void> {
   // 3. The executable.
   TestValidator.equals(
     "CHROME_PATH is the executable",
-    planAutoMovieChromiumLaunch("software", { CHROME_PATH: "C:/chrome/chrome.exe" }).executablePath,
+    planAutoMovieChromiumLaunch("software", {
+      CHROME_PATH: "C:/chrome/chrome.exe",
+    }).executablePath,
     "C:/chrome/chrome.exe",
   );
   TestValidator.equals(
     "a blank CHROME_PATH is ignored",
-    planAutoMovieChromiumLaunch("software", { CHROME_PATH: " " }).executablePath,
+    planAutoMovieChromiumLaunch("software", { CHROME_PATH: " " })
+      .executablePath,
     undefined,
   );
 
   // 4. The launch and its description.
   const launches: unknown[] = [];
   const chromium: IAutoMovieChromium = {
-    launch: async (options: Parameters<IAutoMovieChromium["launch"]>[0]): Promise<IAutoMovieChromium.IBrowser> => {
+    launch: async (
+      options: Parameters<IAutoMovieChromium["launch"]>[0],
+    ): Promise<IAutoMovieChromium.IBrowser> => {
       launches.push(options);
       return {
         version: (): string => "151.0.7922.34",
@@ -58,13 +67,20 @@ export async function test_cli_capture_backends(): Promise<void> {
       };
     },
   };
-  const launched: Awaited<ReturnType<typeof launchAutoMovieChromium>> = await launchAutoMovieChromium({
-    chromium,
-    backend: "software",
-    env: {},
-  });
-  TestValidator.equals("a headless launch with the backend's switches", launches, [
-    { headless: true, args: ["--use-gl=angle", "--use-angle=swiftshader"] },
-  ]);
-  TestValidator.equals("the record's backend", launched.backend, "swiftshader; Chromium 151.0.7922.34");
+  const launched: Awaited<ReturnType<typeof launchAutoMovieChromium>> =
+    await launchAutoMovieChromium({
+      chromium,
+      backend: "software",
+      env: {},
+    });
+  TestValidator.equals(
+    "a headless launch with the backend's switches",
+    launches,
+    [{ headless: true, args: ["--use-gl=angle", "--use-angle=swiftshader"] }],
+  );
+  TestValidator.equals(
+    "the record's backend",
+    launched.backend,
+    "swiftshader; Chromium 151.0.7922.34",
+  );
 }

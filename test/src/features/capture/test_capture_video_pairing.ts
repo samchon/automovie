@@ -33,7 +33,8 @@ const SOURCE: IAutoMovieCaptureSubject = {
 /** A flat 16 by 9 picture of one shade. */
 function flat(shade: number): IAutoMovieRasterImage {
   const pixels: Uint8ClampedArray = new Uint8ClampedArray(16 * 9 * 4);
-  for (let offset: number = 0; offset < pixels.length; offset += 4) pixels.set([shade, shade, shade, 255], offset);
+  for (let offset: number = 0; offset < pixels.length; offset += 4)
+    pixels.set([shade, shade, shade, 255], offset);
   return { width: 16, height: 9, pixels };
 }
 
@@ -61,8 +62,14 @@ export async function test_capture_video_pairing(): Promise<void> {
   const calls: string[][] = [];
 
   // A runner that does what FFmpeg would: print the cuts, or write the selected frames the file holds.
-  const runner: (report: string, held: number) => (args: readonly string[]) => Promise<void> =
-    (report: string, held: number): ((args: readonly string[]) => Promise<void>) =>
+  const runner: (
+    report: string,
+    held: number,
+  ) => (args: readonly string[]) => Promise<void> =
+    (
+      report: string,
+      held: number,
+    ): ((args: readonly string[]) => Promise<void>) =>
     async (args: readonly string[]): Promise<void> => {
       calls.push([...args]);
       const filter: string = args[args.indexOf("-vf") + 1]!;
@@ -75,8 +82,14 @@ export async function test_capture_video_pairing(): Promise<void> {
       for (let n: number = 0; n < held; n++)
         if (
           terms.some((term: string): boolean => {
-            const values: number[] = term.replace(/[a-z()]/gu, "").split(",").slice(1).map(Number);
-            return term.startsWith("eq") ? n === values[0] : n >= values[0]! && n <= values[1]!;
+            const values: number[] = term
+              .replace(/[a-z()]/gu, "")
+              .split(",")
+              .slice(1)
+              .map(Number);
+            return term.startsWith("eq")
+              ? n === values[0]
+              : n >= values[0]! && n <= values[1]!;
           })
         )
           selected.push(n);
@@ -87,7 +100,9 @@ export async function test_capture_video_pairing(): Promise<void> {
           await encodeAutoMovieRasterPng(flat(n * 10)),
         );
     };
-  const request: (text: string) => ReturnType<typeof parseAutoMovieCapturePlanRequest> = (
+  const request: (
+    text: string,
+  ) => ReturnType<typeof parseAutoMovieCapturePlanRequest> = (
     text: string,
   ): ReturnType<typeof parseAutoMovieCapturePlanRequest> =>
     parseAutoMovieCapturePlanRequest(new URLSearchParams(text));
@@ -111,13 +126,24 @@ export async function test_capture_video_pairing(): Promise<void> {
     });
 
   // The source's round, drawn by another backend.
-  const plan: IAutoMovieCapturePlan = planAutoMovieCapture({ request: request("rate=2&round=source"), subject: SOURCE, cuts: [] });
+  const plan: IAutoMovieCapturePlan = planAutoMovieCapture({
+    request: request("rate=2&round=source"),
+    subject: SOURCE,
+    cuts: [],
+  });
   await runAutoMovieCapture({
     plan,
-    folder: await AutoMovieCaptureFolder.open({ storage: memory.storage, root: "out", round: "source", compare: null }),
+    folder: await AutoMovieCaptureFolder.open({
+      storage: memory.storage,
+      root: "out",
+      round: "source",
+      compare: null,
+    }),
     revision: "r",
     match: "cell",
-    draw: async (cell: IAutoMovieCaptureCell): Promise<IAutoMovieCaptureDrawing> => ({
+    draw: async (
+      cell: IAutoMovieCaptureCell,
+    ): Promise<IAutoMovieCaptureDrawing> => ({
       picture: flat(cell.time.frame! * 10),
       labels: [],
       backend: "swiftshader",
@@ -125,20 +151,22 @@ export async function test_capture_video_pairing(): Promise<void> {
   });
 
   // 1 and 2. Two runs, frames around the cut, the cut recorded.
-  const cutReport: string = "frame:10 pts:10 pts_time:1\nlavfi.scd.score=37.5\nlavfi.scd.time=1\n";
-  const full: Extract<IAutoMovieCaptureRecord, { state: "complete" }> = await video(
-    "rate=2&window=1&round=file&compare=source",
-    cutReport,
-    20,
-  );
+  const cutReport: string =
+    "frame:10 pts:10 pts_time:1\nlavfi.scd.score=37.5\nlavfi.scd.time=1\n";
+  const full: Extract<IAutoMovieCaptureRecord, { state: "complete" }> =
+    await video("rate=2&window=1&round=file&compare=source", cutReport, 20);
   TestValidator.equals(
     "two FFmpeg runs, detection then extraction",
-    calls.map((args: string[]): string => args[args.indexOf("-vf") + 1]!.split("=")[0]!),
+    calls.map(
+      (args: string[]): string => args[args.indexOf("-vf") + 1]!.split("=")[0]!,
+    ),
     ["scdet", "select"],
   );
   TestValidator.equals(
     "frames around the cut join the samples",
-    full.rows.map((row: IAutoMovieCaptureRecord.Row): number | null => row.time.frame),
+    full.rows.map(
+      (row: IAutoMovieCaptureRecord.Row): number | null => row.time.frame,
+    ),
     [0, 5, 9, 10, 11, 15],
   );
   TestValidator.equals("the cut is recorded", full.video, {
@@ -150,8 +178,11 @@ export async function test_capture_video_pairing(): Promise<void> {
   // 3. One side-by-side pair per planned second the source holds; the cut frames the source lacks are unmatched.
   TestValidator.equals(
     "pairs with the source by second",
-    full.comparison!.entries.map((entry: IAutoMovieCaptureComparison.Entry): string =>
-      entry.state === "paired" ? `${entry.current} ${entry.mode}` : `${entry.current} unmatched`,
+    full.comparison!.entries.map(
+      (entry: IAutoMovieCaptureComparison.Entry): string =>
+        entry.state === "paired"
+          ? `${entry.current} ${entry.mode}`
+          : `${entry.current} unmatched`,
     ),
     [
       "t000.000-file-beauty side-by-side",
@@ -164,11 +195,13 @@ export async function test_capture_video_pairing(): Promise<void> {
   );
 
   // 4. A shorter file.
-  const short: Extract<IAutoMovieCaptureRecord, { state: "complete" }> = await video("rate=2&round=short&compare=source", "", 12);
+  const short: Extract<IAutoMovieCaptureRecord, { state: "complete" }> =
+    await video("rate=2&round=short&compare=source", "", 12);
   TestValidator.equals(
     "missing frames are failed cells and unmatched seconds",
-    short.comparison!.entries.map((entry: IAutoMovieCaptureComparison.Entry): string =>
-      entry.state === "paired" ? entry.mode : entry.cause,
+    short.comparison!.entries.map(
+      (entry: IAutoMovieCaptureComparison.Entry): string =>
+        entry.state === "paired" ? entry.mode : entry.cause,
     ),
     [
       "side-by-side",
@@ -179,12 +212,15 @@ export async function test_capture_video_pairing(): Promise<void> {
   );
 
   // 5. File against file.
-  const again: Extract<IAutoMovieCaptureRecord, { state: "complete" }> = await video("rate=2&window=1&round=again&compare=file", cutReport, 20);
+  const again: Extract<IAutoMovieCaptureRecord, { state: "complete" }> =
+    await video("rate=2&window=1&round=again&compare=file", cutReport, 20);
   TestValidator.predicate(
     "one backend pairs as unchanged differences",
     again.comparison!.entries.every(
       (entry: IAutoMovieCaptureComparison.Entry): boolean =>
-        entry.state === "paired" && entry.mode === "difference" && entry.changed === 0,
+        entry.state === "paired" &&
+        entry.mode === "difference" &&
+        entry.changed === 0,
     ),
   );
 
@@ -197,10 +233,19 @@ export async function test_capture_video_pairing(): Promise<void> {
 
   // 7. A request a file cannot honour.
   const before: number = calls.length;
-  for (const text of ["views=front", "passes=clay,depth", "marks=curve/**", "at=0.05"])
+  for (const text of [
+    "views=front",
+    "passes=clay,depth",
+    "marks=curve/**",
+    "at=0.05",
+  ])
     TestValidator.predicate(
       `${text} is refused`,
       await rejectsError((): Promise<unknown> => video(text, "", 20)),
     );
-  TestValidator.equals("nothing ran for a refused request", calls.length, before);
+  TestValidator.equals(
+    "nothing ran for a refused request",
+    calls.length,
+    before,
+  );
 }

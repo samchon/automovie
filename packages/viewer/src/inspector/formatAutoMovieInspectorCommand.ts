@@ -35,8 +35,7 @@ export function formatAutoMovieInspectorCommand(
   text: string;
 } {
   const options: string[] = formatAutoMovieCapturePlanRequest(request).map(
-    ([key, value]: [key: string, value: string]): string =>
-      `--${key}=${value}`,
+    ([key, value]: [key: string, value: string]): string => `--${key}=${value}`,
   );
   return {
     options,

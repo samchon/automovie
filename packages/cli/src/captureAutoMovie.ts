@@ -59,10 +59,17 @@ export async function captureAutoMovie(props: {
     const file: string = path.resolve(root, options.file);
     const probe: ReturnType<typeof readAutoMovieVideoProbe> =
       readAutoMovieVideoProbe(
-        await runAutoMovieFfmpeg(ffmpeg, ["-hide_banner", "-i", file], (): boolean => true),
+        await runAutoMovieFfmpeg(
+          ffmpeg,
+          ["-hide_banner", "-i", file],
+          (): boolean => true,
+        ),
       );
     const name: string = request.subject ?? path.parse(file).name;
-    folder = path.resolve(root, options.out ?? path.join("media", "capture", name));
+    folder = path.resolve(
+      root,
+      options.out ?? path.join("media", "capture", name),
+    );
     record = await render.runAutoMovieVideoCapture({
       file,
       subject: { name, ...probe },
@@ -89,7 +96,9 @@ export async function captureAutoMovie(props: {
         props:
           options.props === null
             ? null
-            : JSON.parse(await fs.readFile(path.resolve(root, options.props), "utf8")),
+            : JSON.parse(
+                await fs.readFile(path.resolve(root, options.props), "utf8"),
+              ),
         ...(options.out === null ? {} : { out: options.out }),
       });
     } finally {
@@ -103,18 +112,25 @@ export async function captureAutoMovie(props: {
   }
 
   // What was written, and what was not drawn.
-  const failed: Extract<Render.IAutoMovieCaptureRecord.Row, { state: "failed" }>[] =
-    record.rows.filter(
-      (row: Render.IAutoMovieCaptureRecord.Row): row is Extract<Render.IAutoMovieCaptureRecord.Row, { state: "failed" }> =>
-        row.state === "failed",
-    );
+  const failed: Extract<
+    Render.IAutoMovieCaptureRecord.Row,
+    { state: "failed" }
+  >[] = record.rows.filter(
+    (
+      row: Render.IAutoMovieCaptureRecord.Row,
+    ): row is Extract<
+      Render.IAutoMovieCaptureRecord.Row,
+      { state: "failed" }
+    > => row.state === "failed",
+  );
   const lines: string[] = [
     `capture ${record.subject.name}: ${record.rows.length - failed.length} of ${record.rows.length} cells drawn into ${folder}`,
     `backend ${backend}`,
     ...record.sheets.map((sheet: string): string => path.join(folder, sheet)),
     ...failed.map(
-      (row: Extract<Render.IAutoMovieCaptureRecord.Row, { state: "failed" }>): string =>
-        `not drawn ${row.name}: ${row.cause}`,
+      (
+        row: Extract<Render.IAutoMovieCaptureRecord.Row, { state: "failed" }>,
+      ): string => `not drawn ${row.name}: ${row.cause}`,
     ),
     ...(record.comparison === null
       ? []

@@ -52,14 +52,21 @@ export async function test_draw_delivery_frame(): Promise<void> {
     backend: "swiftshader",
     timeout: 1000,
   });
-  const pictures: { pass: IAutoMovieInspectionRequest.Shade; picture: IAutoMovieRasterImage }[] =
-    await session.frame(1.25, ["beauty", "depth"]);
+  const pictures: {
+    pass: IAutoMovieInspectionRequest.Shade;
+    picture: IAutoMovieRasterImage;
+  }[] = await session.frame(1.25, ["beauty", "depth"]);
 
   // 1 and 2. Two draw calls, film camera, plain request per pass.
   const draws: IAutoMovieDrawCall[] = double.calls
     .slice(4)
-    .map((call: createDrawPageDouble.ICall): IAutoMovieDrawCall => (call.arg as { call: IAutoMovieDrawCall }).call);
-  const plain: IAutoMovieInspectionRequest = parseAutoMovieInspectionRequest((): undefined => undefined);
+    .map(
+      (call: createDrawPageDouble.ICall): IAutoMovieDrawCall =>
+        (call.arg as { call: IAutoMovieDrawCall }).call,
+    );
+  const plain: IAutoMovieInspectionRequest = parseAutoMovieInspectionRequest(
+    (): undefined => undefined,
+  );
   TestValidator.equals(
     "one call per pass",
     draws,
@@ -79,12 +86,22 @@ export async function test_draw_delivery_frame(): Promise<void> {
   // 3. Pictures in pass order, rows from the top.
   TestValidator.equals(
     "pictures in pass order",
-    pictures.map(({ pass, picture }: { pass: string; picture: IAutoMovieRasterImage }): unknown[] => [
-      pass,
-      picture.width,
-      picture.height,
-      Array.from(picture.pixels.subarray((2 * 32 + 5) * 4, (2 * 32 + 5) * 4 + 4)),
-    ]),
+    pictures.map(
+      ({
+        pass,
+        picture,
+      }: {
+        pass: string;
+        picture: IAutoMovieRasterImage;
+      }): unknown[] => [
+        pass,
+        picture.width,
+        picture.height,
+        Array.from(
+          picture.pixels.subarray((2 * 32 + 5) * 4, (2 * 32 + 5) * 4 + 4),
+        ),
+      ],
+    ),
     [
       ["beauty", 32, 18, [2, 5, 7, 255]],
       ["depth", 32, 18, [2, 5, 7, 255]],
@@ -95,6 +112,13 @@ export async function test_draw_delivery_frame(): Promise<void> {
   TestValidator.equals(
     "the page's calls",
     double.calls.map((call: createDrawPageDouble.ICall): string => call.method),
-    ["addInitScript", "goto", "waitForFunction", "evaluate", "evaluate", "evaluate"],
+    [
+      "addInitScript",
+      "goto",
+      "waitForFunction",
+      "evaluate",
+      "evaluate",
+      "evaluate",
+    ],
   );
 }

@@ -1,19 +1,18 @@
 import { AutoMovieRasterSheet } from "../picture/AutoMovieRasterSheet.js";
 import type { IAutoMovieRasterImage } from "../picture/IAutoMovieRasterImage.js";
+import { encodeAutoMovieRasterPng } from "../picture/encodeAutoMovieRasterPng.js";
+import { hashAutoMovieRasterImage } from "../picture/hashAutoMovieRasterImage.js";
 import { stampAutoMovieRasterLabel } from "../picture/stampAutoMovieRasterLabel.js";
 import type { AutoMovieCaptureFolder } from "./AutoMovieCaptureFolder.js";
-import { compareAutoMovieCaptureRounds } from "./compareAutoMovieCaptureRounds.js";
-import { encodeAutoMovieRasterPng } from "../picture/encodeAutoMovieRasterPng.js";
-import { formatAutoMovieCapturePlanRequest } from "./formatAutoMovieCapturePlanRequest.js";
-import { hashAutoMovieRasterImage } from "../picture/hashAutoMovieRasterImage.js";
 import type { IAutoMovieCaptureCell } from "./IAutoMovieCaptureCell.js";
 import type { IAutoMovieCaptureComparison } from "./IAutoMovieCaptureComparison.js";
 import type { IAutoMovieCaptureDrawing } from "./IAutoMovieCaptureDrawing.js";
 import type { IAutoMovieCapturePlan } from "./IAutoMovieCapturePlan.js";
 import type { IAutoMovieCaptureRecord } from "./IAutoMovieCaptureRecord.js";
+import { compareAutoMovieCaptureRounds } from "./compareAutoMovieCaptureRounds.js";
+import { formatAutoMovieCapturePlanRequest } from "./formatAutoMovieCapturePlanRequest.js";
 import { markAutoMovieCaptureCell } from "./markAutoMovieCaptureCell.js";
 import { scaleAutoMovieCaptureLabels } from "./scaleAutoMovieCaptureLabels.js";
-
 
 /**
  * Draw a planned capture through the host's draw function and write its stills, contact sheets and record into its opened folder, so every rule of a capture runs the same in a Node host, a page and a test.
@@ -73,7 +72,9 @@ export async function runAutoMovieCapture(props: {
       `sheet-${String(index + 1).padStart(3, "0")}.png`,
   );
   await folder.claim([
-    ...plan.cells.map((cell: IAutoMovieCaptureCell): string => `${cell.name}.png`),
+    ...plan.cells.map(
+      (cell: IAutoMovieCaptureCell): string => `${cell.name}.png`,
+    ),
     ...sheetNames,
   ]);
 
@@ -85,11 +86,12 @@ export async function runAutoMovieCapture(props: {
   const sheets: string[] = [];
   let sheet: AutoMovieRasterSheet | null = null;
   for (const cell of plan.cells) {
-    const place: Pick<IAutoMovieCaptureRecord.Row, "sheet" | "row" | "column"> = {
-      sheet: sheetNames[Math.floor(cell.index / layout.perSheet)]!,
-      row: Math.floor((cell.index % layout.perSheet) / layout.columns),
-      column: (cell.index % layout.perSheet) % layout.columns,
-    };
+    const place: Pick<IAutoMovieCaptureRecord.Row, "sheet" | "row" | "column"> =
+      {
+        sheet: sheetNames[Math.floor(cell.index / layout.perSheet)]!,
+        row: Math.floor((cell.index % layout.perSheet) / layout.columns),
+        column: (cell.index % layout.perSheet) % layout.columns,
+      };
     const fixed: Pick<
       IAutoMovieCaptureRecord.Row,
       "index" | "name" | "selection" | "time" | "view" | "pass" | "label"
@@ -121,9 +123,13 @@ export async function runAutoMovieCapture(props: {
           `the draw returned ${drawing.picture.width}x${drawing.picture.height} pixels where the subject is ${subject.width}x${subject.height}`,
         );
     } catch (error) {
-      const cause: string = error instanceof Error ? error.message : String(error);
+      const cause: string =
+        error instanceof Error ? error.message : String(error);
       rows.push({ ...fixed, ...place, state: "failed", cause });
-      sheet.add(markAutoMovieCaptureCell(layout.cell), `${cell.caption} not drawn`);
+      sheet.add(
+        markAutoMovieCaptureCell(layout.cell),
+        `${cell.caption} not drawn`,
+      );
       sheet = await full(sheet, cell, folder, sheets, sheetNames, plan);
       continue;
     }

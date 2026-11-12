@@ -46,29 +46,55 @@ export async function test_inspection_motion(): Promise<void> {
   const times: number[] = [0, 1, 2, 3, 4];
 
   // 1. A moving object.
-  const [moving]: IAutoMovieInspectionTrail[] = await sampleAutoMovieInspectionTrails({ scene: stage, pattern: "mover", times, seek });
-  TestValidator.equals("five samples along X", [moving!.path, moving!.positions, moving!.stationary], [
-    "mover",
-    [0, 0, 0, 1, 0, 0, 2, 0, 0, 3, 0, 0, 4, 0, 0],
-    false,
-  ]);
+  const [moving]: IAutoMovieInspectionTrail[] =
+    await sampleAutoMovieInspectionTrails({
+      scene: stage,
+      pattern: "mover",
+      times,
+      seek,
+    });
+  TestValidator.equals(
+    "five samples along X",
+    [moving!.path, moving!.positions, moving!.stationary],
+    ["mover", [0, 0, 0, 1, 0, 0, 2, 0, 0, 3, 0, 0, 4, 0, 0], false],
+  );
   const marks: IAutoMovieMark[] = markAutoMovieInspectionTrails([moving!], 2);
   TestValidator.equals(
     "a line, five ticks and the drawn second emphasised",
-    marks.map((mark: IAutoMovieMark) => [mark.kind, mark.shape.type, (mark.shape as IAutoMovieMark.IPoints).points.length / 3]),
+    marks.map((mark: IAutoMovieMark) => [
+      mark.kind,
+      mark.shape.type,
+      (mark.shape as IAutoMovieMark.IPoints).points.length / 3,
+    ]),
     [
       ["trail", "polyline", 5],
       ["trail", "points", 5],
       ["trail/now", "points", 1],
     ],
   );
-  TestValidator.equals("the emphasised tick is the second drawn", (marks[2]!.shape as IAutoMovieMark.IPoints).points, [2, 0, 0]);
+  TestValidator.equals(
+    "the emphasised tick is the second drawn",
+    (marks[2]!.shape as IAutoMovieMark.IPoints).points,
+    [2, 0, 0],
+  );
 
   // 2. A still object.
-  const [still]: IAutoMovieInspectionTrail[] = await sampleAutoMovieInspectionTrails({ scene: stage, pattern: "post", times, seek });
+  const [still]: IAutoMovieInspectionTrail[] =
+    await sampleAutoMovieInspectionTrails({
+      scene: stage,
+      pattern: "post",
+      times,
+      seek,
+    });
   TestValidator.equals(
     "one tick and stationary",
-    [still!.stationary, markAutoMovieInspectionTrails([still!], 0).map((mark: IAutoMovieMark) => [mark.kind, mark.shape.type])],
+    [
+      still!.stationary,
+      markAutoMovieInspectionTrails([still!], 0).map((mark: IAutoMovieMark) => [
+        mark.kind,
+        mark.shape.type,
+      ]),
+    ],
     [
       true,
       [
@@ -79,8 +105,26 @@ export async function test_inspection_motion(): Promise<void> {
   );
 
   // 3. Refusals.
-  await TestValidator.error("a pattern matching nothing", (): Promise<unknown> => sampleAutoMovieInspectionTrails({ scene: stage, pattern: "ghost", times, seek }));
-  await TestValidator.error("no times", (): Promise<unknown> => sampleAutoMovieInspectionTrails({ scene: stage, pattern: "mover", times: [], seek }));
+  await TestValidator.error(
+    "a pattern matching nothing",
+    (): Promise<unknown> =>
+      sampleAutoMovieInspectionTrails({
+        scene: stage,
+        pattern: "ghost",
+        times,
+        seek,
+      }),
+  );
+  await TestValidator.error(
+    "no times",
+    (): Promise<unknown> =>
+      sampleAutoMovieInspectionTrails({
+        scene: stage,
+        pattern: "mover",
+        times: [],
+        seek,
+      }),
+  );
 
   // 4. Marks per second.
   const profile: IAutoMoviePhysicalProfile = {
@@ -94,8 +138,14 @@ export async function test_inspection_motion(): Promise<void> {
         seconds,
         bodies: {
           arm: {
-            root: { position: { x: seconds, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0, w: 1 } },
-            tip: { position: { x: seconds, y: 1, z: 0 }, rotation: { x: 0, y: 0, z: 0, w: 1 } },
+            root: {
+              position: { x: seconds, y: 0, z: 0 },
+              rotation: { x: 0, y: 0, z: 0, w: 1 },
+            },
+            tip: {
+              position: { x: seconds, y: 1, z: 0 },
+              rotation: { x: 0, y: 0, z: 0, w: 1 },
+            },
           },
         },
       } as unknown as AutoMoviePhysicsCache.IFrame,
@@ -105,10 +155,17 @@ export async function test_inspection_motion(): Promise<void> {
     request: InspectionScene.ask({ marks: ["bone", "joint"] }),
     marks: skeleton(0),
   });
-  const joints = (): number[] => InspectionScene.dots(stage).flatMap((dots: THREE.Points) => InspectionScene.points(dots).map((p) => p.at[0]!));
+  const joints = (): number[] =>
+    InspectionScene.dots(stage).flatMap((dots: THREE.Points) =>
+      InspectionScene.points(dots).map((p) => p.at[0]!),
+    );
   TestValidator.equals("the first second's joints", joints(), [0, 0]);
   handle.update(skeleton(1));
-  TestValidator.equals("only the next second's joints after an update", joints(), [1, 1]);
+  TestValidator.equals(
+    "only the next second's joints after an update",
+    joints(),
+    [1, 1],
+  );
   handle.restore();
 
   // 5. A flagged joint.
@@ -117,13 +174,17 @@ export async function test_inspection_motion(): Promise<void> {
     request: InspectionScene.ask({ marks: ["joint", "rom"] }),
     marks: [
       ...skeleton(0),
-      ...markAutoMovieRomOvershoot([{ path: "arm/tip", at: { x: 0, y: 1, z: 0 }, overshoot: 7 }]),
+      ...markAutoMovieRomOvershoot([
+        { path: "arm/tip", at: { x: 0, y: 1, z: 0 }, overshoot: 7 },
+      ]),
     ],
   });
   TestValidator.predicate(
     "the overshoot is a magenta point",
     InspectionScene.dots(stage).some((dots: THREE.Points) =>
-      InspectionScene.points(dots).some((p) => p.color === 0xff00ff && p.at[1] === 1),
+      InspectionScene.points(dots).some(
+        (p) => p.color === 0xff00ff && p.at[1] === 1,
+      ),
     ),
   );
   TestValidator.equals("and a flag entry", flagged.legend, [
@@ -137,8 +198,16 @@ export async function test_inspection_motion(): Promise<void> {
   TestValidator.equals(
     "the grid through the drawn second, clipped to the subject",
     [
-      planAutoMovieInspectionTrailTimes({ request: window, seconds: 2, durationSeconds: 10 }),
-      planAutoMovieInspectionTrailTimes({ request: window, seconds: 0, durationSeconds: 10 }),
+      planAutoMovieInspectionTrailTimes({
+        request: window,
+        seconds: 2,
+        durationSeconds: 10,
+      }),
+      planAutoMovieInspectionTrailTimes({
+        request: window,
+        seconds: 0,
+        durationSeconds: 10,
+      }),
     ],
     [
       [1.5, 1.75, 2, 2.25, 2.5],
@@ -146,6 +215,10 @@ export async function test_inspection_motion(): Promise<void> {
     ],
   );
   TestValidator.error("a second outside the subject", (): unknown =>
-    planAutoMovieInspectionTrailTimes({ request: window, seconds: 11, durationSeconds: 10 }),
+    planAutoMovieInspectionTrailTimes({
+      request: window,
+      seconds: 11,
+      durationSeconds: 10,
+    }),
   );
 }

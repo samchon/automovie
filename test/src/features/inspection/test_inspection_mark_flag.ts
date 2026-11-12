@@ -23,7 +23,9 @@ import { InspectionScene } from "../internal/InspectionScene";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two unflagged and one flagged curve/axis marks draw their segments in cyan, cyan and magenta).
  */
 export function test_inspection_mark_flag(): void {
-  const stage: THREE.Scene = InspectionScene.scene(InspectionScene.quad("panel"));
+  const stage: THREE.Scene = InspectionScene.scene(
+    InspectionScene.quad("panel"),
+  );
   const axis = (path: string, flagged: boolean) =>
     InspectionScene.mark(
       path,
@@ -37,7 +39,11 @@ export function test_inspection_mark_flag(): void {
   const mixed: IAutoMovieInspectionHandle = applyAutoMovieInspection({
     scene: stage,
     request: InspectionScene.ask({ marks: ["curve"] }),
-    marks: [axis("panel/a", false), axis("panel/b", true), axis("panel/c", false)],
+    marks: [
+      axis("panel/a", false),
+      axis("panel/b", true),
+      axis("panel/c", false),
+    ],
   });
   TestValidator.equals(
     "a flagged mark takes the flag colour",
@@ -56,9 +62,11 @@ export function test_inspection_mark_flag(): void {
     request: InspectionScene.ask({ marks: ["curve"] }),
     marks: [axis("panel/b", true)],
   });
-  TestValidator.equals("a kind with only flagged marks has only its flag entry", only.legend, [
-    { label: "axis curve (flagged)", color: 0xff00ff, count: 1 },
-  ]);
+  TestValidator.equals(
+    "a kind with only flagged marks has only its flag entry",
+    only.legend,
+    [{ label: "axis curve (flagged)", color: 0xff00ff, count: 1 }],
+  );
   only.restore();
 
   // 3. None flagged.

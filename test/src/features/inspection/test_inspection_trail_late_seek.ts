@@ -28,7 +28,9 @@ export async function test_inspection_trail_late_seek(): Promise<void> {
   const stage: THREE.Scene = InspectionScene.scene(mover);
   const log: string[] = [];
   let busy: boolean = false;
-  const late: (seconds: number) => Promise<void> = async (seconds: number): Promise<void> => {
+  const late: (seconds: number) => Promise<void> = async (
+    seconds: number,
+  ): Promise<void> => {
     if (busy) log.push("overlap");
     busy = true;
     log.push(`start ${seconds}`);
@@ -41,16 +43,21 @@ export async function test_inspection_trail_late_seek(): Promise<void> {
   };
 
   // 1. Positions at the asked seconds.
-  const [trail]: IAutoMovieInspectionTrail[] = await sampleAutoMovieInspectionTrails({
-    scene: stage,
-    pattern: "mover",
-    times: [2, 0, 3, 1],
-    seek: late,
-  });
-  TestValidator.equals("the asked seconds along X", [trail!.times, trail!.positions], [
-    [0, 1, 2, 3],
-    [0, 0, 0, 1, 0, 0, 2, 0, 0, 3, 0, 0],
-  ]);
+  const [trail]: IAutoMovieInspectionTrail[] =
+    await sampleAutoMovieInspectionTrails({
+      scene: stage,
+      pattern: "mover",
+      times: [2, 0, 3, 1],
+      seek: late,
+    });
+  TestValidator.equals(
+    "the asked seconds along X",
+    [trail!.times, trail!.positions],
+    [
+      [0, 1, 2, 3],
+      [0, 0, 0, 1, 0, 0, 2, 0, 0, 3, 0, 0],
+    ],
+  );
 
   // 2. One seek at a time, ascending.
   TestValidator.equals("seeks in order, never overlapping", log, [
@@ -68,12 +75,21 @@ export async function test_inspection_trail_late_seek(): Promise<void> {
   TestValidator.equals("left at the last seek", mover.position.x, 3);
 
   // 4. A failing seek.
-  const failing: (seconds: number) => Promise<void> = async (seconds: number): Promise<void> => {
+  const failing: (seconds: number) => Promise<void> = async (
+    seconds: number,
+  ): Promise<void> => {
     if (seconds === 1) throw new Error("no pose at 1 s");
     mover.position.set(seconds, 0, 0);
   };
-  const message: string = await sampleAutoMovieInspectionTrails({ scene: stage, pattern: "mover", times: [0, 1, 2], seek: failing })
+  const message: string = await sampleAutoMovieInspectionTrails({
+    scene: stage,
+    pattern: "mover",
+    times: [0, 1, 2],
+    seek: failing,
+  })
     .then((): string => "")
-    .catch((error: unknown): string => (error instanceof Error ? error.message : String(error)));
+    .catch((error: unknown): string =>
+      error instanceof Error ? error.message : String(error),
+    );
   TestValidator.equals("the seek's own error", message, "no pose at 1 s");
 }

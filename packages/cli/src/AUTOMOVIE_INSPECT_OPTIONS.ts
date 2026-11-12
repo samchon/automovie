@@ -3,4 +3,8 @@
  *
  * A test enumerates them against the render README's key table, so each option the command takes is documented with the requirement it serves.
  */
-export const AUTOMOVIE_INSPECT_OPTIONS: readonly string[] = ["module", "port", "props"];
+export const AUTOMOVIE_INSPECT_OPTIONS: readonly string[] = [
+  "module",
+  "port",
+  "props",
+];

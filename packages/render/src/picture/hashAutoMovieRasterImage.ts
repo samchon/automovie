@@ -58,7 +58,8 @@ export function hashAutoMovieRasterImage(image: IAutoMovieRasterImage): string {
   ]);
   const w: Uint32Array = new Uint32Array(64);
   for (let block: number = 0; block < blocks; block++) {
-    for (let t: number = 0; t < 16; t++) w[t] = view.getUint32(block * 64 + t * 4);
+    for (let t: number = 0; t < 16; t++)
+      w[t] = view.getUint32(block * 64 + t * 4);
     for (let t: number = 16; t < 64; t++) {
       const older: number = w[t - 15]!;
       const recent: number = w[t - 2]!;

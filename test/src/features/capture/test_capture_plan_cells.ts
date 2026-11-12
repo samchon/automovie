@@ -16,8 +16,16 @@ const SUBJECT: IAutoMovieCaptureSubject = {
   height: 720,
   views: ["front", "top"],
   drawables: [
-    { path: "hero/arm", min: { x: 0, y: 1, z: 0 }, max: { x: 0.5, y: 1.5, z: 0.2 } },
-    { path: "hero/torso", min: { x: 0.5, y: 1, z: 0 }, max: { x: 1, y: 1.8, z: 0.3 } },
+    {
+      path: "hero/arm",
+      min: { x: 0, y: 1, z: 0 },
+      max: { x: 0.5, y: 1.5, z: 0.2 },
+    },
+    {
+      path: "hero/torso",
+      min: { x: 0.5, y: 1, z: 0 },
+      max: { x: 1, y: 1.8, z: 0.3 },
+    },
     { path: "lamp", min: { x: 9, y: 0, z: 9 }, max: { x: 10, y: 2, z: 10 } },
   ],
   marks: ["curve/section"],
@@ -41,7 +49,9 @@ const SUBJECT: IAutoMovieCaptureSubject = {
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export function test_capture_plan_cells(): void {
-  const plan: (text: string) => IAutoMovieCapturePlan = (text: string): IAutoMovieCapturePlan =>
+  const plan: (text: string) => IAutoMovieCapturePlan = (
+    text: string,
+  ): IAutoMovieCapturePlan =>
     planAutoMovieCapture({
       request: parseAutoMovieCapturePlanRequest(new URLSearchParams(text)),
       subject: SUBJECT,
@@ -49,7 +59,9 @@ export function test_capture_plan_cells(): void {
     });
 
   // 1. Two times, two views, two passes.
-  const eight: IAutoMovieCapturePlan = plan("at=1,2&views=front;top&passes=clay,depth");
+  const eight: IAutoMovieCapturePlan = plan(
+    "at=1,2&views=front;top&passes=clay,depth",
+  );
   TestValidator.equals(
     "eight cells by time, view and pass",
     eight.cells.map((cell: IAutoMovieCaptureCell): string => cell.name),
@@ -77,8 +89,22 @@ export function test_capture_plan_cells(): void {
         cell.caption,
       ]),
     [
-      [0, { seconds: 1, frame: 30 }, "front", "clay", "clay", "f30 1.000s front clay"],
-      [1, { seconds: 1, frame: 30 }, "front", "depth", "depth", "f30 1.000s front depth"],
+      [
+        0,
+        { seconds: 1, frame: 30 },
+        "front",
+        "clay",
+        "clay",
+        "f30 1.000s front clay",
+      ],
+      [
+        1,
+        { seconds: 1, frame: 30 },
+        "front",
+        "depth",
+        "depth",
+        "f30 1.000s front depth",
+      ],
     ],
   );
 
@@ -117,15 +143,24 @@ export function test_capture_plan_cells(): void {
       ["t001.000-film-beauty-alone-hero_arm", ["hero/arm"]],
       ["t001.000-film-beauty-neighbours-hero_arm", ["hero/arm", "hero/torso"]],
       ["t001.000-film-beauty-alone-hero_torso", ["hero/torso"]],
-      ["t001.000-film-beauty-neighbours-hero_torso", ["hero/torso", "hero/arm"]],
+      [
+        "t001.000-film-beauty-neighbours-hero_torso",
+        ["hero/torso", "hero/arm"],
+      ],
     ],
   );
   TestValidator.equals(
     "a unit with no neighbour is drawn once",
-    plan("at=1&sweep=lamp").cells.map((cell: IAutoMovieCaptureCell): string => cell.name),
+    plan("at=1&sweep=lamp").cells.map(
+      (cell: IAutoMovieCaptureCell): string => cell.name,
+    ),
     ["t001.000-film-beauty-alone-lamp"],
   );
 
   // 5. One row per time.
-  TestValidator.equals("a row holds one time's four cells", eight.layout.columns % 4, 0);
+  TestValidator.equals(
+    "a row holds one time's four cells",
+    eight.layout.columns % 4,
+    0,
+  );
 }

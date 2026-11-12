@@ -29,7 +29,10 @@ export function test_inspector_reducer(): void {
     "?parts=prop/**&marks=edge&views=front&from=0.5&rate=10&subject=a",
   );
   TestValidator.equals("the starting address is read", start.error, null);
-  const reduce: (state: IAutoMovieInspectorState, action: IAutoMovieInspectorAction) => IAutoMovieInspectorState = (
+  const reduce: (
+    state: IAutoMovieInspectorState,
+    action: IAutoMovieInspectorAction,
+  ) => IAutoMovieInspectorState = (
     state: IAutoMovieInspectorState,
     action: IAutoMovieInspectorAction,
   ): IAutoMovieInspectorState => reduceAutoMovieInspectorState(state, action);
@@ -40,40 +43,146 @@ export function test_inspector_reducer(): void {
     members: string[],
     check: (request: IAutoMovieCapturePlanRequest) => boolean,
   ][] = [
-    [{ type: "select", pattern: "hero/**", on: true }, ["inspection.parts"], (r: IAutoMovieCapturePlanRequest): boolean => same(r.inspection.parts, ["prop/**", "hero/**"])],
-    [{ type: "hide", pattern: "hero/arm", on: true }, ["inspection.hide"], (r: IAutoMovieCapturePlanRequest): boolean => same(r.inspection.hide, ["hero/arm"])],
-    [{ type: "label", pattern: "hero/**", on: true }, ["inspection.label"], (r: IAutoMovieCapturePlanRequest): boolean => same(r.inspection.label, ["hero/**"])],
-    [{ type: "color", pattern: "hero/arm", color: 0xff8800 }, ["inspection.color"], (r: IAutoMovieCapturePlanRequest): boolean => same(r.inspection.color, [{ pattern: "hero/arm", color: 0xff8800 }])],
-    [{ type: "marks", pattern: "defect/*", on: true }, ["inspection.marks"], (r: IAutoMovieCapturePlanRequest): boolean => same(r.inspection.marks, ["edge", "defect/*"])],
-    [{ type: "shade", shade: "clay" }, ["passes", "inspection.shade"], (r: IAutoMovieCapturePlanRequest): boolean => same(r.passes, ["clay"]) && r.inspection.shade === "clay"],
-    [{ type: "switch", key: "surface", on: false }, ["inspection.surface"], (r: IAutoMovieCapturePlanRequest): boolean => r.inspection.surface === false],
-    [{ type: "switch", key: "xray", on: true }, ["inspection.xray"], (r: IAutoMovieCapturePlanRequest): boolean => r.inspection.xray === true],
-    [{ type: "view", view: "side@ortho@follow@focus=hero/arm" }, ["views"], (r: IAutoMovieCapturePlanRequest): boolean => same(r.views, ["side@ortho@follow@focus=hero/arm"])],
-    [{ type: "time", seconds: 1.5 }, ["sampling"], (r: IAutoMovieCapturePlanRequest): boolean => same(r.sampling, { kind: "at", seconds: [1.5] })],
-    [{ type: "subject", name: "b" }, ["subject"], (r: IAutoMovieCapturePlanRequest): boolean => r.subject === "b"],
-    [{ type: "subject", name: null }, ["subject"], (r: IAutoMovieCapturePlanRequest): boolean => r.subject === null],
+    [
+      { type: "select", pattern: "hero/**", on: true },
+      ["inspection.parts"],
+      (r: IAutoMovieCapturePlanRequest): boolean =>
+        same(r.inspection.parts, ["prop/**", "hero/**"]),
+    ],
+    [
+      { type: "hide", pattern: "hero/arm", on: true },
+      ["inspection.hide"],
+      (r: IAutoMovieCapturePlanRequest): boolean =>
+        same(r.inspection.hide, ["hero/arm"]),
+    ],
+    [
+      { type: "label", pattern: "hero/**", on: true },
+      ["inspection.label"],
+      (r: IAutoMovieCapturePlanRequest): boolean =>
+        same(r.inspection.label, ["hero/**"]),
+    ],
+    [
+      { type: "color", pattern: "hero/arm", color: 0xff8800 },
+      ["inspection.color"],
+      (r: IAutoMovieCapturePlanRequest): boolean =>
+        same(r.inspection.color, [{ pattern: "hero/arm", color: 0xff8800 }]),
+    ],
+    [
+      { type: "marks", pattern: "defect/*", on: true },
+      ["inspection.marks"],
+      (r: IAutoMovieCapturePlanRequest): boolean =>
+        same(r.inspection.marks, ["edge", "defect/*"]),
+    ],
+    [
+      { type: "shade", shade: "clay" },
+      ["passes", "inspection.shade"],
+      (r: IAutoMovieCapturePlanRequest): boolean =>
+        same(r.passes, ["clay"]) && r.inspection.shade === "clay",
+    ],
+    [
+      { type: "switch", key: "surface", on: false },
+      ["inspection.surface"],
+      (r: IAutoMovieCapturePlanRequest): boolean =>
+        r.inspection.surface === false,
+    ],
+    [
+      { type: "switch", key: "xray", on: true },
+      ["inspection.xray"],
+      (r: IAutoMovieCapturePlanRequest): boolean => r.inspection.xray === true,
+    ],
+    [
+      { type: "view", view: "side@ortho@follow@focus=hero/arm" },
+      ["views"],
+      (r: IAutoMovieCapturePlanRequest): boolean =>
+        same(r.views, ["side@ortho@follow@focus=hero/arm"]),
+    ],
+    [
+      { type: "time", seconds: 1.5 },
+      ["sampling"],
+      (r: IAutoMovieCapturePlanRequest): boolean =>
+        same(r.sampling, { kind: "at", seconds: [1.5] }),
+    ],
+    [
+      { type: "subject", name: "b" },
+      ["subject"],
+      (r: IAutoMovieCapturePlanRequest): boolean => r.subject === "b",
+    ],
+    [
+      { type: "subject", name: null },
+      ["subject"],
+      (r: IAutoMovieCapturePlanRequest): boolean => r.subject === null,
+    ],
   ];
   for (const [action, members, check] of cases) {
-    const next: IAutoMovieInspectorState = reduce({ ...start, error: "old" }, action);
+    const next: IAutoMovieInspectorState = reduce(
+      { ...start, error: "old" },
+      action,
+    );
     TestValidator.equals(`${action.type} is accepted`, next.error, null);
-    TestValidator.equals(`${action.type} changes ${members.join(", ")} only`, differing(start.request, next.request), [...members].sort((a: string, b: string): number => a.localeCompare(b)));
-    TestValidator.predicate(`${action.type} writes the asked value`, check(next.request));
+    TestValidator.equals(
+      `${action.type} changes ${members.join(", ")} only`,
+      differing(start.request, next.request),
+      [...members].sort((a: string, b: string): number => a.localeCompare(b)),
+    );
+    TestValidator.predicate(
+      `${action.type} writes the asked value`,
+      check(next.request),
+    );
   }
 
   // 2. Repeated toggles and colours.
-  const once: IAutoMovieInspectorState = reduce(start, { type: "hide", pattern: "x", on: true });
-  TestValidator.equals("a repeated toggle changes nothing", reduce(once, { type: "hide", pattern: "x", on: true }).request, once.request);
-  TestValidator.equals("off restores the start", reduce(once, { type: "hide", pattern: "x", on: false }).request, start.request);
-  const red: IAutoMovieInspectorState = reduce(start, { type: "color", pattern: "a/b", color: 0xff0000 });
-  const blue: IAutoMovieInspectorState = reduce(red, { type: "color", pattern: "a/b", color: 0x0000ff });
-  TestValidator.equals("a newer colour replaces the pair", blue.request.inspection.color, [{ pattern: "a/b", color: 0x0000ff }]);
-  TestValidator.equals("a null colour removes it", reduce(blue, { type: "color", pattern: "a/b", color: null }).request, start.request);
+  const once: IAutoMovieInspectorState = reduce(start, {
+    type: "hide",
+    pattern: "x",
+    on: true,
+  });
+  TestValidator.equals(
+    "a repeated toggle changes nothing",
+    reduce(once, { type: "hide", pattern: "x", on: true }).request,
+    once.request,
+  );
+  TestValidator.equals(
+    "off restores the start",
+    reduce(once, { type: "hide", pattern: "x", on: false }).request,
+    start.request,
+  );
+  const red: IAutoMovieInspectorState = reduce(start, {
+    type: "color",
+    pattern: "a/b",
+    color: 0xff0000,
+  });
+  const blue: IAutoMovieInspectorState = reduce(red, {
+    type: "color",
+    pattern: "a/b",
+    color: 0x0000ff,
+  });
+  TestValidator.equals(
+    "a newer colour replaces the pair",
+    blue.request.inspection.color,
+    [{ pattern: "a/b", color: 0x0000ff }],
+  );
+  TestValidator.equals(
+    "a null colour removes it",
+    reduce(blue, { type: "color", pattern: "a/b", color: null }).request,
+    start.request,
+  );
 
   // 3. Several passes and even sampling collapse to one.
-  const passes: IAutoMovieInspectorState = createAutoMovieInspectorState("passes=clay,normal");
-  TestValidator.equals("several passes are read", passes.request.passes, ["clay", "normal"]);
-  TestValidator.equals("a shade leaves one pass", reduce(passes, { type: "shade", shade: "faces" }).request.passes, ["faces"]);
-  TestValidator.predicate("the start samples evenly", start.request.sampling.kind === "even");
+  const passes: IAutoMovieInspectorState =
+    createAutoMovieInspectorState("passes=clay,normal");
+  TestValidator.equals("several passes are read", passes.request.passes, [
+    "clay",
+    "normal",
+  ]);
+  TestValidator.equals(
+    "a shade leaves one pass",
+    reduce(passes, { type: "shade", shade: "faces" }).request.passes,
+    ["faces"],
+  );
+  TestValidator.predicate(
+    "the start samples evenly",
+    start.request.sampling.kind === "even",
+  );
 
   // 4. Refusals keep the previous request and name the key.
   const refusals: [action: IAutoMovieInspectorAction, key: string][] = [
@@ -83,19 +192,44 @@ export function test_inspector_reducer(): void {
   ];
   for (const [action, key] of refusals) {
     const refused: IAutoMovieInspectorState = reduce(start, action);
-    TestValidator.predicate(`${JSON.stringify(action)} keeps the previous request`, refused.request === start.request);
-    TestValidator.predicate(`${JSON.stringify(action)} names ${key}`, refused.error !== null && refused.error.includes(key));
+    TestValidator.predicate(
+      `${JSON.stringify(action)} keeps the previous request`,
+      refused.request === start.request,
+    );
+    TestValidator.predicate(
+      `${JSON.stringify(action)} names ${key}`,
+      refused.error !== null && refused.error.includes(key),
+    );
   }
 
   // 5. First states and restore.
   const empty: IAutoMovieInspectorState = createAutoMovieInspectorState("");
   TestValidator.equals("the empty address has no error", empty.error, null);
-  TestValidator.equals("the empty address asks for the film view", empty.request.views, ["film"]);
-  const opened: IAutoMovieInspectorState = createAutoMovieInspectorState("shade=wire");
-  TestValidator.equals("a refused address opens the empty request", opened.request, empty.request);
-  TestValidator.predicate("a refused address shows why", opened.error !== null && opened.error.includes("shade"));
-  const restored: IAutoMovieInspectorState = reduce(start, { type: "restore", request: empty.request, error: "refused" });
-  TestValidator.predicate("restore sets the request and reason", restored.request === empty.request && restored.error === "refused");
+  TestValidator.equals(
+    "the empty address asks for the film view",
+    empty.request.views,
+    ["film"],
+  );
+  const opened: IAutoMovieInspectorState =
+    createAutoMovieInspectorState("shade=wire");
+  TestValidator.equals(
+    "a refused address opens the empty request",
+    opened.request,
+    empty.request,
+  );
+  TestValidator.predicate(
+    "a refused address shows why",
+    opened.error !== null && opened.error.includes("shade"),
+  );
+  const restored: IAutoMovieInspectorState = reduce(start, {
+    type: "restore",
+    request: empty.request,
+    error: "refused",
+  });
+  TestValidator.predicate(
+    "restore sets the request and reason",
+    restored.request === empty.request && restored.error === "refused",
+  );
 }
 
 /** Whether two values are deeply equal as JSON. */
@@ -109,10 +243,15 @@ function differing(
   after: IAutoMovieCapturePlanRequest,
 ): string[] {
   const names: string[] = [];
-  for (const key of Object.keys(before) as (keyof IAutoMovieCapturePlanRequest)[])
+  for (const key of Object.keys(
+    before,
+  ) as (keyof IAutoMovieCapturePlanRequest)[])
     if (key === "inspection") {
-      for (const member of Object.keys(before.inspection) as (keyof IAutoMovieCapturePlanRequest["inspection"])[])
-        if (!same(before.inspection[member], after.inspection[member])) names.push(`inspection.${member}`);
+      for (const member of Object.keys(
+        before.inspection,
+      ) as (keyof IAutoMovieCapturePlanRequest["inspection"])[])
+        if (!same(before.inspection[member], after.inspection[member]))
+          names.push(`inspection.${member}`);
     } else if (!same(before[key], after[key])) names.push(key);
   return names.sort((a: string, b: string): number => a.localeCompare(b));
 }

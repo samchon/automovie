@@ -50,7 +50,9 @@ export async function test_capture_round_comparison(): Promise<void> {
   const capture: (
     text: string,
     draw: (cell: IAutoMovieCaptureCell) => IAutoMovieCaptureDrawing,
-  ) => Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> = async (
+  ) => Promise<
+    Extract<IAutoMovieCaptureRecord, { state: "complete" }>
+  > = async (
     text: string,
     draw: (cell: IAutoMovieCaptureCell) => IAutoMovieCaptureDrawing,
   ): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> => {
@@ -61,7 +63,9 @@ export async function test_capture_round_comparison(): Promise<void> {
     });
     return runAutoMovieCapture({
       plan,
-      draw: async (cell: IAutoMovieCaptureCell): Promise<IAutoMovieCaptureDrawing> => draw(cell),
+      draw: async (
+        cell: IAutoMovieCaptureCell,
+      ): Promise<IAutoMovieCaptureDrawing> => draw(cell),
       folder: await AutoMovieCaptureFolder.open({
         storage: memory.storage,
         root: "out",
@@ -72,92 +76,157 @@ export async function test_capture_round_comparison(): Promise<void> {
       match: "cell",
     });
   };
-  const flat: (changed: boolean, backend?: string, camera?: string) => IAutoMovieCaptureDrawing = (
+  const flat: (
+    changed: boolean,
+    backend?: string,
+    camera?: string,
+  ) => IAutoMovieCaptureDrawing = (
     changed: boolean,
     backend: string = "cpu",
     camera: string = "0,0,4:0,0,0",
   ): IAutoMovieCaptureDrawing => {
     const pixels: Uint8ClampedArray = new Uint8ClampedArray(32 * 18 * 4);
-    for (let offset: number = 0; offset < pixels.length; offset += 4) pixels.set([0, 90, 180, 255], offset);
+    for (let offset: number = 0; offset < pixels.length; offset += 4)
+      pixels.set([0, 90, 180, 255], offset);
     if (changed) pixels.set([255, 255, 255, 255], (10 * 32 + 20) * 4);
-    return { picture: { width: 32, height: 18, pixels }, labels: [], backend, camera };
+    return {
+      picture: { width: 32, height: 18, pixels },
+      labels: [],
+      backend,
+      camera,
+    };
   };
-  const hash: (record: Extract<IAutoMovieCaptureRecord, { state: "complete" }>, index: number) => string = (record: Extract<IAutoMovieCaptureRecord, { state: "complete" }>, index: number): string => {
+  const hash: (
+    record: Extract<IAutoMovieCaptureRecord, { state: "complete" }>,
+    index: number,
+  ) => string = (
+    record: Extract<IAutoMovieCaptureRecord, { state: "complete" }>,
+    index: number,
+  ): string => {
     const row: IAutoMovieCaptureRecord.Row = record.rows[index]!;
     return row.state === "drawn" ? row.hash : "";
   };
 
   // 1. A cell missing in the second round.
-  const before: Extract<IAutoMovieCaptureRecord, { state: "complete" }> = await capture("at=1,2&round=before", (): IAutoMovieCaptureDrawing => flat(false));
-  const after: Extract<IAutoMovieCaptureRecord, { state: "complete" }> = await capture("at=1&round=after&compare=before", (): IAutoMovieCaptureDrawing => flat(false));
-  TestValidator.equals("the missing cell is unmatched and the kept one unchanged", after.comparison!.entries, [
-    {
-      state: "paired",
-      mode: "difference",
-      current: "t001.000-film-beauty",
-      earlier: "t001.000-film-beauty",
-      changed: 0,
-      ratio: 0,
-      maximum: 0,
-      bounds: null,
-      difference: null,
-    },
-    { state: "unmatched", current: null, earlier: "t002.000-film-beauty", cause: "this capture has no such cell" },
-  ]);
-  TestValidator.equals("an unchanged still keeps its hash", hash(after, 0), hash(before, 0));
+  const before: Extract<IAutoMovieCaptureRecord, { state: "complete" }> =
+    await capture(
+      "at=1,2&round=before",
+      (): IAutoMovieCaptureDrawing => flat(false),
+    );
+  const after: Extract<IAutoMovieCaptureRecord, { state: "complete" }> =
+    await capture(
+      "at=1&round=after&compare=before",
+      (): IAutoMovieCaptureDrawing => flat(false),
+    );
+  TestValidator.equals(
+    "the missing cell is unmatched and the kept one unchanged",
+    after.comparison!.entries,
+    [
+      {
+        state: "paired",
+        mode: "difference",
+        current: "t001.000-film-beauty",
+        earlier: "t001.000-film-beauty",
+        changed: 0,
+        ratio: 0,
+        maximum: 0,
+        bounds: null,
+        difference: null,
+      },
+      {
+        state: "unmatched",
+        current: null,
+        earlier: "t002.000-film-beauty",
+        cause: "this capture has no such cell",
+      },
+    ],
+  );
+  TestValidator.equals(
+    "an unchanged still keeps its hash",
+    hash(after, 0),
+    hash(before, 0),
+  );
 
   // 2. A changed pixel and a cell the earlier round lacks.
-  const third: Extract<IAutoMovieCaptureRecord, { state: "complete" }> = await capture(
-    "at=1,2,3&round=third&compare=before",
-    (cell: IAutoMovieCaptureCell): IAutoMovieCaptureDrawing => flat(cell.index === 1),
-  );
-  const changed: IAutoMovieCaptureComparison.Entry = third.comparison!.entries[1]!;
+  const third: Extract<IAutoMovieCaptureRecord, { state: "complete" }> =
+    await capture(
+      "at=1,2,3&round=third&compare=before",
+      (cell: IAutoMovieCaptureCell): IAutoMovieCaptureDrawing =>
+        flat(cell.index === 1),
+    );
+  const changed: IAutoMovieCaptureComparison.Entry =
+    third.comparison!.entries[1]!;
   TestValidator.equals(
     "one changed pixel is measured with its box and image",
     changed.state === "paired" && changed.mode === "difference"
       ? [changed.changed, changed.bounds, changed.difference]
       : null,
-    [1, { left: 20, top: 10, right: 20, bottom: 10 }, "diff-t002.000-film-beauty.png"],
+    [
+      1,
+      { left: 20, top: 10, right: 20, bottom: 10 },
+      "diff-t002.000-film-beauty.png",
+    ],
   );
-  TestValidator.predicate("the changed still's hash differs", hash(third, 1) !== hash(before, 1));
-  const image: IAutoMovieRasterImage = await decodeAutoMovieRasterPng(memory.files.get("out/rounds/third/diff-t002.000-film-beauty.png")!);
+  TestValidator.predicate(
+    "the changed still's hash differs",
+    hash(third, 1) !== hash(before, 1),
+  );
+  const image: IAutoMovieRasterImage = await decodeAutoMovieRasterPng(
+    memory.files.get("out/rounds/third/diff-t002.000-film-beauty.png")!,
+  );
   TestValidator.equals(
     "the difference image marks the pixel in magenta",
-    Array.from(image.pixels.subarray((10 * 32 + 20) * 4, (10 * 32 + 20) * 4 + 3)),
+    Array.from(
+      image.pixels.subarray((10 * 32 + 20) * 4, (10 * 32 + 20) * 4 + 3),
+    ),
     [255, 0, 255],
   );
-  TestValidator.equals("a cell the earlier round lacks is unmatched", third.comparison!.entries[2], {
-    state: "unmatched",
-    current: "t003.000-film-beauty",
-    earlier: null,
-    cause: "round before has no such cell",
-  });
+  TestValidator.equals(
+    "a cell the earlier round lacks is unmatched",
+    third.comparison!.entries[2],
+    {
+      state: "unmatched",
+      current: "t003.000-film-beauty",
+      earlier: null,
+      cause: "round before has no such cell",
+    },
+  );
 
   // 3. Another backend.
-  const other: Extract<IAutoMovieCaptureRecord, { state: "complete" }> = await capture(
-    "at=1&round=other&compare=before",
-    (): IAutoMovieCaptureDrawing => flat(false, "gpu"),
+  const other: Extract<IAutoMovieCaptureRecord, { state: "complete" }> =
+    await capture(
+      "at=1&round=other&compare=before",
+      (): IAutoMovieCaptureDrawing => flat(false, "gpu"),
+    );
+  TestValidator.equals(
+    "another backend is laid side by side",
+    other.comparison!.entries[0],
+    {
+      state: "paired",
+      mode: "side-by-side",
+      current: "t001.000-film-beauty",
+      earlier: "t001.000-film-beauty",
+    },
   );
-  TestValidator.equals("another backend is laid side by side", other.comparison!.entries[0], {
-    state: "paired",
-    mode: "side-by-side",
-    current: "t001.000-film-beauty",
-    earlier: "t001.000-film-beauty",
-  });
 
   // 4. Another camera, and an earlier failure.
-  await capture("at=1,2&round=failing", (cell: IAutoMovieCaptureCell): IAutoMovieCaptureDrawing => {
-    if (cell.index === 1) throw new Error("no light");
-    return flat(false);
-  });
-  const moved: Extract<IAutoMovieCaptureRecord, { state: "complete" }> = await capture(
-    "at=1,2&round=moved&compare=failing",
-    (): IAutoMovieCaptureDrawing => flat(false, "cpu", "0,0,5:0,0,0"),
+  await capture(
+    "at=1,2&round=failing",
+    (cell: IAutoMovieCaptureCell): IAutoMovieCaptureDrawing => {
+      if (cell.index === 1) throw new Error("no light");
+      return flat(false);
+    },
   );
+  const moved: Extract<IAutoMovieCaptureRecord, { state: "complete" }> =
+    await capture(
+      "at=1,2&round=moved&compare=failing",
+      (): IAutoMovieCaptureDrawing => flat(false, "cpu", "0,0,5:0,0,0"),
+    );
   TestValidator.equals(
     "a moved camera and an earlier failure are unmatched",
-    moved.comparison!.entries.map((entry: IAutoMovieCaptureComparison.Entry): string =>
-      entry.state === "unmatched" ? entry.cause : entry.state,
+    moved.comparison!.entries.map(
+      (entry: IAutoMovieCaptureComparison.Entry): string =>
+        entry.state === "unmatched" ? entry.cause : entry.state,
     ),
     [
       "the resolved cameras differ: 0,0,4:0,0,0 in round failing against 0,0,5:0,0,0",
@@ -168,9 +237,19 @@ export async function test_capture_round_comparison(): Promise<void> {
   // 5. Comparison sheets.
   TestValidator.equals(
     "a comparison sheet is written and recorded",
-    [after.comparison!.sheets, memory.files.has("out/rounds/after/comparison-001.png"), after.files.includes("comparison-001.png")],
+    [
+      after.comparison!.sheets,
+      memory.files.has("out/rounds/after/comparison-001.png"),
+      after.files.includes("comparison-001.png"),
+    ],
     [["comparison-001.png"], true, true],
   );
-  const sheet: IAutoMovieRasterImage = await decodeAutoMovieRasterPng(memory.files.get("out/rounds/after/comparison-001.png")!);
-  TestValidator.equals("two entries of three cells share one row with its caption strip", [sheet.width, sheet.height], [192, 45]);
+  const sheet: IAutoMovieRasterImage = await decodeAutoMovieRasterPng(
+    memory.files.get("out/rounds/after/comparison-001.png")!,
+  );
+  TestValidator.equals(
+    "two entries of three cells share one row with its caption strip",
+    [sheet.width, sheet.height],
+    [192, 45],
+  );
 }

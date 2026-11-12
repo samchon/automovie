@@ -35,7 +35,10 @@ export function markAutoMovieMeshClearance(props: {
   const vertices: number = props.front.positions.length / 3;
   const axis: number = { x: 0, y: 1, z: 2 }[props.axis];
   return props.witnesses.map(
-    (witness: IAutoMovieMeshClearanceWitness, ordinal: number): IAutoMovieMark => {
+    (
+      witness: IAutoMovieMeshClearanceWitness,
+      ordinal: number,
+    ): IAutoMovieMark => {
       if (witness.vertices.length !== 3 || witness.weights.length !== 3)
         throw new Error(
           `markAutoMovieMeshClearance: witness ${ordinal} does not hold three vertices and three weights`,
@@ -47,7 +50,8 @@ export function markAutoMovieMeshClearance(props: {
             `markAutoMovieMeshClearance: witness ${ordinal} names vertex ${vertex}, outside the ${vertices} vertices of the front mesh`,
           );
         for (let c: number = 0; c < 3; c++)
-          front[c]! += witness.weights[k]! * props.front.positions[vertex * 3 + c]!;
+          front[c]! +=
+            witness.weights[k]! * props.front.positions[vertex * 3 + c]!;
       });
       const back: number[] = [...front];
       back[axis]! -= witness.gap;

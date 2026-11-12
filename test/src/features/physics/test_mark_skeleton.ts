@@ -25,9 +25,13 @@ export function test_mark_skeleton(): void {
   const profile = (bones: string[]): IAutoMoviePhysicalProfile =>
     ({
       segments: bones.map((bone: string) => ({ bone })),
-      joints: bones.slice(1).map((child: string, i: number) => ({ parent: bones[i]!, child })),
+      joints: bones
+        .slice(1)
+        .map((child: string, i: number) => ({ parent: bones[i]!, child })),
     }) as unknown as IAutoMoviePhysicalProfile;
-  const frame = (bodies: Record<string, Record<string, [number, number, number]>>): AutoMoviePhysicsCache.IFrame =>
+  const frame = (
+    bodies: Record<string, Record<string, [number, number, number]>>,
+  ): AutoMoviePhysicsCache.IFrame =>
     ({
       seconds: 0,
       bodies: Object.fromEntries(
@@ -42,7 +46,12 @@ export function test_mark_skeleton(): void {
         ]),
       ),
     }) as unknown as AutoMoviePhysicsCache.IFrame;
-  const shape = (mark: IAutoMovieMark): unknown[] => [mark.path, mark.kind, mark.shape, mark.anchor];
+  const shape = (mark: IAutoMovieMark): unknown[] => [
+    mark.path,
+    mark.kind,
+    mark.shape,
+    mark.anchor,
+  ];
 
   // 1. A two-bone chain.
   const chain: IAutoMovieMark[] = markAutoMovieSkeleton({
@@ -50,8 +59,18 @@ export function test_mark_skeleton(): void {
     frame: frame({ arm: { root: [0, 1, 0], mid: [0, 2, 0], tip: [1, 2, 0] } }),
   });
   TestValidator.equals("two bones and three joints", chain.map(shape), [
-    ["arm/mid/bone", "bone", { type: "segments", points: [0, 1, 0, 0, 2, 0] }, null],
-    ["arm/tip/bone", "bone", { type: "segments", points: [0, 2, 0, 1, 2, 0] }, null],
+    [
+      "arm/mid/bone",
+      "bone",
+      { type: "segments", points: [0, 1, 0, 0, 2, 0] },
+      null,
+    ],
+    [
+      "arm/tip/bone",
+      "bone",
+      { type: "segments", points: [0, 2, 0, 1, 2, 0] },
+      null,
+    ],
     ["arm/root/joint", "joint", { type: "points", points: [0, 1, 0] }, null],
     ["arm/mid/joint", "joint", { type: "points", points: [0, 2, 0] }, null],
     ["arm/tip/joint", "joint", { type: "points", points: [1, 2, 0] }, null],
@@ -65,9 +84,19 @@ export function test_mark_skeleton(): void {
         { id: "a", profile: profile(["p", "q"]) },
         { id: "b", profile: profile(["p", "q"]) },
       ],
-      frame: frame({ a: { p: [0, 0, 0], q: [1, 0, 0] }, b: { p: [5, 0, 0], q: [6, 0, 0] } }),
+      frame: frame({
+        a: { p: [0, 0, 0], q: [1, 0, 0] },
+        b: { p: [5, 0, 0], q: [6, 0, 0] },
+      }),
     }).map((mark: IAutoMovieMark): string => mark.path),
-    ["a/q/bone", "a/p/joint", "a/q/joint", "b/q/bone", "b/p/joint", "b/q/joint"],
+    [
+      "a/q/bone",
+      "a/p/joint",
+      "a/q/joint",
+      "b/q/bone",
+      "b/p/joint",
+      "b/q/joint",
+    ],
   );
 
   // 3. A missing segment.

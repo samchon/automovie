@@ -64,18 +64,26 @@ export function test_inspection_mark_anchor_hidden(): void {
   });
 
   // 2. The anchor hidden.
-  TestValidator.equals("hiding the anchor hides the mark", drawn({ hide: ["hero"] }), {
-    drawn: 0,
-    selected: ["prop"],
-    heroMask: 0,
-  });
+  TestValidator.equals(
+    "hiding the anchor hides the mark",
+    drawn({ hide: ["hero"] }),
+    {
+      drawn: 0,
+      selected: ["prop"],
+      heroMask: 0,
+    },
+  );
 
   // 3. A sibling hidden.
-  TestValidator.equals("hiding a sibling leaves the mark", drawn({ hide: ["prop"] }), {
-    drawn: 1,
-    selected: ["hero", "probe/contact"],
-    heroMask: 1,
-  });
+  TestValidator.equals(
+    "hiding a sibling leaves the mark",
+    drawn({ hide: ["prop"] }),
+    {
+      drawn: 1,
+      selected: ["hero", "probe/contact"],
+      heroMask: 1,
+    },
+  );
 
   // 4. An invisible anchor.
   hero.visible = false;

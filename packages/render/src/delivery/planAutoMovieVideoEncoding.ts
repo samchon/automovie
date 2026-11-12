@@ -43,7 +43,8 @@ export function planAutoMovieVideoEncoding(props: {
   /** FFmpeg's arguments. */
   args: string[];
 } {
-  const { fps, width, height }: IAutoMovieRenderSpec["frameFormat"] = props.spec.frameFormat;
+  const { fps, width, height }: IAutoMovieRenderSpec["frameFormat"] =
+    props.spec.frameFormat;
   const frameCount: number = props.durationSeconds * fps;
   if (
     !(Number.isFinite(fps) && fps > 0) ||
@@ -57,10 +58,13 @@ export function planAutoMovieVideoEncoding(props: {
     );
   if (
     ![width, height].every(
-      (size: number): boolean => Number.isSafeInteger(size) && size > 0 && size % 2 === 0,
+      (size: number): boolean =>
+        Number.isSafeInteger(size) && size > 0 && size % 2 === 0,
     )
   )
-    throw new Error(`A video raster of ${width}x${height} is not positive and even on both sides`);
+    throw new Error(
+      `A video raster of ${width}x${height} is not positive and even on both sides`,
+    );
   if (props.audio !== null && props.audio.trim() === "")
     throw new Error("A video's soundtrack path is blank");
 
@@ -88,7 +92,20 @@ export function planAutoMovieVideoEncoding(props: {
       "0:v:0",
       ...(props.audio === null
         ? ["-an"]
-        : ["-map", "1:a:0", "-af", "apad", "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2"]),
+        : [
+            "-map",
+            "1:a:0",
+            "-af",
+            "apad",
+            "-c:a",
+            "aac",
+            "-b:a",
+            "192k",
+            "-ar",
+            "48000",
+            "-ac",
+            "2",
+          ]),
       "-t",
       String(props.durationSeconds),
       props.outputPath,

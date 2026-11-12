@@ -113,8 +113,7 @@ export function planAutoMovieCaptureLayout(props: {
         ),
       ),
     );
-    while (cell > 1 && cell + strip(cell).height > rowHeight)
-      cell--;
+    while (cell > 1 && cell + strip(cell).height > rowHeight) cell--;
     const scale: number = cell / height;
     if (
       best === null ||

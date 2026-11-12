@@ -30,70 +30,137 @@ export function test_draw_legend_corner(): void {
   ];
   const blank: () => IAutoMovieRasterImage = (): IAutoMovieRasterImage => {
     const pixels: Uint8ClampedArray = new Uint8ClampedArray(100 * 60 * 4);
-    for (let offset: number = 0; offset < pixels.length; offset += 4) pixels.set([200, 200, 200, 255], offset);
+    for (let offset: number = 0; offset < pixels.length; offset += 4)
+      pixels.set([200, 200, 200, 255], offset);
     return { width: 100, height: 60, pixels };
   };
-  const draw: (picture: IAutoMovieRasterImage, left: number, top: number) => void = (
+  const draw: (
+    picture: IAutoMovieRasterImage,
+    left: number,
+    top: number,
+  ) => void = (
     picture: IAutoMovieRasterImage,
     left: number,
     top: number,
   ): void => {
     for (let y: number = top; y < top + 15; y++)
-      for (let x: number = left; x < left + 15; x++) picture.pixels.set([40, 40, 40, 255], (y * 100 + x) * 4);
+      for (let x: number = left; x < left + 15; x++)
+        picture.pixels.set([40, 40, 40, 255], (y * 100 + x) * 4);
   };
-  const at: (picture: IAutoMovieRasterImage, x: number, y: number) => number[] = (
+  const at: (
     picture: IAutoMovieRasterImage,
     x: number,
     y: number,
-  ): number[] => Array.from(picture.pixels.subarray((y * 100 + x) * 4, (y * 100 + x) * 4 + 3));
+  ) => number[] = (
+    picture: IAutoMovieRasterImage,
+    x: number,
+    y: number,
+  ): number[] =>
+    Array.from(
+      picture.pixels.subarray((y * 100 + x) * 4, (y * 100 + x) * 4 + 3),
+    );
 
   // 1. Empty picture: bottom-left.
   const empty: IAutoMovieRasterImage = blank();
-  const first: IAutoMovieCaptureDrawing.ILabel[] = stampAutoMovieDrawLegend(empty, legend, 1);
+  const first: IAutoMovieCaptureDrawing.ILabel[] = stampAutoMovieDrawLegend(
+    empty,
+    legend,
+    1,
+  );
   TestValidator.equals("bottom-left anchors", first, [
     { text: "trail 1", x: 9, y: 42 },
     { text: "drift 2", x: 9, y: 51 },
   ]);
-  TestValidator.equals("swatches", [at(empty, 0, 42), at(empty, 8, 59)], [[0x30, 0x70, 0xc0], [0x7b, 0x4f, 0xa8]]);
+  TestValidator.equals(
+    "swatches",
+    [at(empty, 0, 42), at(empty, 8, 59)],
+    [
+      [0x30, 0x70, 0xc0],
+      [0x7b, 0x4f, 0xa8],
+    ],
+  );
 
   // 2. A figure in the bottom-left corner.
   const left: IAutoMovieRasterImage = blank();
   draw(left, 0, 45);
-  const second: IAutoMovieCaptureDrawing.ILabel[] = stampAutoMovieDrawLegend(left, legend, 1);
+  const second: IAutoMovieCaptureDrawing.ILabel[] = stampAutoMovieDrawLegend(
+    left,
+    legend,
+    1,
+  );
   const width: number = 9 + 4 + 7 * 4 - 1;
-  TestValidator.equals("bottom-right anchors", second[0], { text: "trail 1", x: 100 - width + 9, y: 42 });
-  TestValidator.equals("the figure is untouched", at(left, 2, 50), [40, 40, 40]);
+  TestValidator.equals("bottom-right anchors", second[0], {
+    text: "trail 1",
+    x: 100 - width + 9,
+    y: 42,
+  });
+  TestValidator.equals(
+    "the figure is untouched",
+    at(left, 2, 50),
+    [40, 40, 40],
+  );
 
   // 3. Both bottom corners drawn.
   const bottoms: IAutoMovieRasterImage = blank();
   draw(bottoms, 0, 45);
   draw(bottoms, 85, 45);
-  TestValidator.equals("top-right anchors", stampAutoMovieDrawLegend(bottoms, legend, 1)[0], {
-    text: "trail 1",
-    x: 100 - width + 9,
-    y: 0,
-  });
+  TestValidator.equals(
+    "top-right anchors",
+    stampAutoMovieDrawLegend(bottoms, legend, 1)[0],
+    {
+      text: "trail 1",
+      x: 100 - width + 9,
+      y: 0,
+    },
+  );
 
   // 4. Three corners drawn: the top-left, free now that captions sit under the cell.
   const three: IAutoMovieRasterImage = blank();
-  for (const [x, y] of [[0, 45], [85, 45], [85, 0]] as const) draw(three, x, y);
-  TestValidator.equals("top-left anchors", stampAutoMovieDrawLegend(three, legend, 1)[0], {
-    text: "trail 1",
-    x: 9,
-    y: 0,
-  });
+  for (const [x, y] of [
+    [0, 45],
+    [85, 45],
+    [85, 0],
+  ] as const)
+    draw(three, x, y);
+  TestValidator.equals(
+    "top-left anchors",
+    stampAutoMovieDrawLegend(three, legend, 1)[0],
+    {
+      text: "trail 1",
+      x: 9,
+      y: 0,
+    },
+  );
 
   // 5. Every corner drawn.
   const full: IAutoMovieRasterImage = blank();
-  for (const [x, y] of [[0, 45], [85, 45], [85, 0], [0, 0]] as const) draw(full, x, y);
-  TestValidator.equals("bottom-left among equals", stampAutoMovieDrawLegend(full, legend, 1)[0], {
-    text: "trail 1",
-    x: 9,
-    y: 42,
-  });
+  for (const [x, y] of [
+    [0, 45],
+    [85, 45],
+    [85, 0],
+    [0, 0],
+  ] as const)
+    draw(full, x, y);
+  TestValidator.equals(
+    "bottom-left among equals",
+    stampAutoMovieDrawLegend(full, legend, 1)[0],
+    {
+      text: "trail 1",
+      x: 9,
+      y: 42,
+    },
+  );
 
   // 6. No legend.
   const untouched: IAutoMovieRasterImage = blank();
-  TestValidator.equals("nothing returned", stampAutoMovieDrawLegend(untouched, [], 1), []);
-  TestValidator.equals("nothing painted", at(untouched, 0, 59), [200, 200, 200]);
+  TestValidator.equals(
+    "nothing returned",
+    stampAutoMovieDrawLegend(untouched, [], 1),
+    [],
+  );
+  TestValidator.equals(
+    "nothing painted",
+    at(untouched, 0, 59),
+    [200, 200, 200],
+  );
 }

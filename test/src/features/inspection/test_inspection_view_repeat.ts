@@ -27,12 +27,20 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export function test_inspection_view_repeat(): void {
-  const film: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(40, 16 / 9, 0.1, 100);
+  const film: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
+    40,
+    16 / 9,
+    0.1,
+    100,
+  );
   const box: IAutoMovieViewerSubjectBounds = {
     min: { x: -0.4, y: 0, z: -0.3 },
     max: { x: 0.4, y: 1.8, z: 0.3 },
   };
-  const resolve: (text: string, bounds: IAutoMovieViewerSubjectBounds | null) => IAutoMovieInspectionCamera = (
+  const resolve: (
+    text: string,
+    bounds: IAutoMovieViewerSubjectBounds | null,
+  ) => IAutoMovieInspectionCamera = (
     text: string,
     bounds: IAutoMovieViewerSubjectBounds | null,
   ): IAutoMovieInspectionCamera =>
@@ -45,21 +53,33 @@ export function test_inspection_view_repeat(): void {
       width: 960,
       height: 540,
     }).record;
-  const same: (a: IAutoMovieInspectionCamera, b: IAutoMovieInspectionCamera) => boolean = (
+  const same: (
+    a: IAutoMovieInspectionCamera,
+    b: IAutoMovieInspectionCamera,
+  ) => boolean = (
     a: IAutoMovieInspectionCamera,
     b: IAutoMovieInspectionCamera,
   ): boolean =>
     a.projection === b.projection &&
-    (["position", "target", "up"] as const).every((key: "position" | "target" | "up"): boolean =>
-      (["x", "y", "z"] as const).every((axis: "x" | "y" | "z"): boolean => nclose(a[key][axis], b[key][axis])),
+    (["position", "target", "up"] as const).every(
+      (key: "position" | "target" | "up"): boolean =>
+        (["x", "y", "z"] as const).every((axis: "x" | "y" | "z"): boolean =>
+          nclose(a[key][axis], b[key][axis]),
+        ),
     ) &&
-    (a.fovDeg === null ? b.fovDeg === null : b.fovDeg !== null && nclose(a.fovDeg, b.fovDeg)) &&
+    (a.fovDeg === null
+      ? b.fovDeg === null
+      : b.fovDeg !== null && nclose(a.fovDeg, b.fovDeg)) &&
     (a.metresPerPixel === null
       ? b.metresPerPixel === null
-      : b.metresPerPixel !== null && nclose(a.metresPerPixel, b.metresPerPixel));
+      : b.metresPerPixel !== null &&
+        nclose(a.metresPerPixel, b.metresPerPixel));
 
   // 1. A fixed orthographic view.
-  const fixed: IAutoMovieInspectionCamera = resolve("0,1,6:0,1,0@ortho=0.005", null);
+  const fixed: IAutoMovieInspectionCamera = resolve(
+    "0,1,6:0,1,0@ortho=0.005",
+    null,
+  );
   TestValidator.predicate(
     "a fixed orthographic view keeps its points, scale and clips",
     fixed.projection === "orthographic" &&
@@ -75,20 +95,40 @@ export function test_inspection_view_repeat(): void {
   for (const text of ["front@ortho", "top@ortho", "three-quarter"]) {
     const fitted: IAutoMovieInspectionCamera = resolve(text, box);
     const repeat: string = formatAutoMovieInspectionCameraView(fitted);
-    TestValidator.equals(`${text} repeats as a fixed view`, parseAutoMovieInspectionView(repeat).type, "fixed");
+    TestValidator.equals(
+      `${text} repeats as a fixed view`,
+      parseAutoMovieInspectionView(repeat).type,
+      "fixed",
+    );
     const again: IAutoMovieInspectionCamera = resolve(repeat, null);
-    TestValidator.predicate(`${text} repeats its camera: ${repeat}`, same(fitted, again));
+    TestValidator.predicate(
+      `${text} repeats its camera: ${repeat}`,
+      same(fitted, again),
+    );
     if (fitted.projection === "orthographic")
       TestValidator.predicate(
         `${text} repeats its clips`,
         nclose(fitted.near, again.near) && nclose(fitted.far, again.far),
       );
   }
-  TestValidator.predicate("a view looking straight down writes its up", formatAutoMovieInspectionCameraView(resolve("top@ortho", box)).includes("@up="));
-  TestValidator.predicate("a level view needs no up", !formatAutoMovieInspectionCameraView(resolve("front@ortho", box)).includes("@up="));
+  TestValidator.predicate(
+    "a view looking straight down writes its up",
+    formatAutoMovieInspectionCameraView(resolve("top@ortho", box)).includes(
+      "@up=",
+    ),
+  );
+  TestValidator.predicate(
+    "a level view needs no up",
+    !formatAutoMovieInspectionCameraView(resolve("front@ortho", box)).includes(
+      "@up=",
+    ),
+  );
 
   // 3. Following resolves as the plain fit.
-  TestValidator.predicate("a followed view resolves as its fit", same(resolve("front@follow@ortho", box), resolve("front@ortho", box)));
+  TestValidator.predicate(
+    "a followed view resolves as its fit",
+    same(resolve("front@follow@ortho", box), resolve("front@ortho", box)),
+  );
 
   // 4. Refusals.
   for (const text of [
@@ -100,14 +140,21 @@ export function test_inspection_view_repeat(): void {
     "front@ortho=0.1",
     "front@up=0,1,0",
   ])
-    TestValidator.error(`${text} is refused`, (): unknown => parseAutoMovieInspectionView(text));
+    TestValidator.error(`${text} is refused`, (): unknown =>
+      parseAutoMovieInspectionView(text),
+    );
   TestValidator.error("a subject's own view refuses @follow", (): unknown =>
     resolveAutoMovieInspectionView({
       view: parseAutoMovieInspectionView("orbit@follow"),
       text: "orbit@follow",
       bounds: box,
       camera: film,
-      views: { orbit: (): { position: [number, number, number]; target: [number, number, number] } => ({ position: [0, 1, 4], target: [0, 1, 0] }) },
+      views: {
+        orbit: (): {
+          position: [number, number, number];
+          target: [number, number, number];
+        } => ({ position: [0, 1, 4], target: [0, 1, 0] }),
+      },
       seconds: 0,
       width: 960,
       height: 540,

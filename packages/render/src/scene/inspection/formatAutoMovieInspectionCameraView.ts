@@ -26,11 +26,17 @@ export function formatAutoMovieInspectionCameraView(
     camera.target.z - camera.position.z,
   ];
   const length: number = Math.hypot(...sight);
-  const forward: number[] = sight.map((value: number): number => value / length);
+  const forward: number[] = sight.map(
+    (value: number): number => value / length,
+  );
 
   // The up `+Y` gives: Y without its part along the line of sight.
   const along: number = forward[1]!;
-  const implied: number[] = [-along * forward[0]!, 1 - along * forward[1]!, -along * forward[2]!];
+  const implied: number[] = [
+    -along * forward[0]!,
+    1 - along * forward[1]!,
+    -along * forward[2]!,
+  ];
   const size: number = Math.hypot(...implied);
   const recorded: number[] = [camera.up.x, camera.up.y, camera.up.z];
   const norm: number = Math.hypot(...recorded);
@@ -44,7 +50,8 @@ export function formatAutoMovieInspectionCameraView(
     type: "fixed",
     position: { ...camera.position },
     target: { ...camera.target },
-    metresPerPixel: camera.projection === "orthographic" ? camera.metresPerPixel : null,
+    metresPerPixel:
+      camera.projection === "orthographic" ? camera.metresPerPixel : null,
     up: same ? null : { ...camera.up },
   });
 }

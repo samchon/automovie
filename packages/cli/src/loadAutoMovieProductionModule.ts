@@ -14,7 +14,10 @@ import * as path from "node:path";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Node's module cache serves a second load of the same package.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The module stays in Node's cache for the process, as any import does.
  */
-export function loadAutoMovieProductionModule(root: string, id: string): unknown {
+export function loadAutoMovieProductionModule(
+  root: string,
+  id: string,
+): unknown {
   const load: NodeJS.Require = createRequire(path.join(root, "package.json"));
   try {
     return load(id);

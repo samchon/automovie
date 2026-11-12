@@ -19,7 +19,13 @@ import * as path from "node:path";
  */
 export function test_cli_module_page_vite_config(): void {
   // 1. A production with a configuration file and a public folder.
-  const folder: string = path.resolve("production", "node_modules", ".cache", "automovie", "inspect-1-2");
+  const folder: string = path.resolve(
+    "production",
+    "node_modules",
+    ".cache",
+    "automovie",
+    "inspect-1-2",
+  );
   TestValidator.equals(
     "the page's configuration",
     planAutoMovieModulePageViteConfig({
@@ -38,16 +44,39 @@ export function test_cli_module_page_vite_config(): void {
   );
 
   // 2. A production with neither.
-  const bare: ReturnType<typeof planAutoMovieModulePageViteConfig> = planAutoMovieModulePageViteConfig({
-    folder,
-    configFile: false,
-    publicDir: false,
-  });
-  TestValidator.equals("no configuration file and no public folder", [bare.configFile, bare.publicDir], [false, false]);
+  const bare: ReturnType<typeof planAutoMovieModulePageViteConfig> =
+    planAutoMovieModulePageViteConfig({
+      folder,
+      configFile: false,
+      publicDir: false,
+    });
+  TestValidator.equals(
+    "no configuration file and no public folder",
+    [bare.configFile, bare.publicDir],
+    [false, false],
+  );
 
   // 3. The entry is a plain name that resolves to the page.
-  const awkward: string = path.resolve("Program Files (x86)", "production", "node_modules", ".cache", "automovie", "draw-1-2");
-  const entries: string[] = planAutoMovieModulePageViteConfig({ folder: awkward, configFile: false, publicDir: false }).optimizeDeps.entries;
-  TestValidator.predicate("no glob character", entries.every((entry: string): boolean => !/[*?[\]{}()!]/u.test(entry)));
-  TestValidator.equals("the page's own index.html", entries.map((entry: string): string => path.resolve(awkward, entry)), [path.join(awkward, "index.html")]);
+  const awkward: string = path.resolve(
+    "Program Files (x86)",
+    "production",
+    "node_modules",
+    ".cache",
+    "automovie",
+    "draw-1-2",
+  );
+  const entries: string[] = planAutoMovieModulePageViteConfig({
+    folder: awkward,
+    configFile: false,
+    publicDir: false,
+  }).optimizeDeps.entries;
+  TestValidator.predicate(
+    "no glob character",
+    entries.every((entry: string): boolean => !/[*?[\]{}()!]/u.test(entry)),
+  );
+  TestValidator.equals(
+    "the page's own index.html",
+    entries.map((entry: string): string => path.resolve(awkward, entry)),
+    [path.join(awkward, "index.html")],
+  );
 }

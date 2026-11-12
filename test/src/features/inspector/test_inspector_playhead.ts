@@ -26,34 +26,69 @@ export function test_inspector_playhead(): void {
 
   // 1. Duration, clamps and identity.
   playhead.play();
-  TestValidator.equals("play before a duration does nothing", playhead.getSnapshot().playing, false);
+  TestValidator.equals(
+    "play before a duration does nothing",
+    playhead.getSnapshot().playing,
+    false,
+  );
   playhead.setDuration(2);
   playhead.seek(5);
-  TestValidator.equals("a seek past the end lands on it", playhead.getSnapshot().seconds, 2);
+  TestValidator.equals(
+    "a seek past the end lands on it",
+    playhead.getSnapshot().seconds,
+    2,
+  );
   playhead.seek(-1);
-  TestValidator.equals("a seek before zero lands on zero", playhead.getSnapshot().seconds, 0);
+  TestValidator.equals(
+    "a seek before zero lands on zero",
+    playhead.getSnapshot().seconds,
+    0,
+  );
   const still: AutoMovieInspectorPlayhead.ISnapshot = playhead.getSnapshot();
   const before: number = heard;
   playhead.seek(0);
   playhead.pause();
-  TestValidator.predicate("a change that moves nothing keeps the snapshot", playhead.getSnapshot() === still && heard === before);
+  TestValidator.predicate(
+    "a change that moves nothing keeps the snapshot",
+    playhead.getSnapshot() === still && heard === before,
+  );
 
   // 2. Rate and wall time.
   playhead.setRate(0.5);
   playhead.advance(1);
-  TestValidator.equals("a paused playhead does not move", playhead.getSnapshot().seconds, 0);
+  TestValidator.equals(
+    "a paused playhead does not move",
+    playhead.getSnapshot().seconds,
+    0,
+  );
   playhead.play();
   playhead.advance(1);
-  TestValidator.equals("one wall second at half rate", playhead.getSnapshot().seconds, 0.5);
+  TestValidator.equals(
+    "one wall second at half rate",
+    playhead.getSnapshot().seconds,
+    0.5,
+  );
   playhead.advance(-1);
   playhead.advance(Number.NaN);
-  TestValidator.equals("negative and NaN wall time move nothing", playhead.getSnapshot().seconds, 0.5);
+  TestValidator.equals(
+    "negative and NaN wall time move nothing",
+    playhead.getSnapshot().seconds,
+    0.5,
+  );
 
   // 3. The end.
   playhead.advance(10);
-  TestValidator.equals("the end stops and pauses", [playhead.getSnapshot().seconds, playhead.getSnapshot().playing], [2, false]);
+  TestValidator.equals(
+    "the end stops and pauses",
+    [playhead.getSnapshot().seconds, playhead.getSnapshot().playing],
+    [2, false],
+  );
   playhead.play();
-  TestValidator.equals("play from the end restarts", [playhead.getSnapshot().seconds, playhead.getSnapshot().playing], [0, true]);
+  TestValidator.equals(
+    "play from the end restarts",
+    [playhead.getSnapshot().seconds, playhead.getSnapshot().playing],
+    [0, true],
+  );
 
   // 4. Listeners and refusals.
   const counted: number = heard;
@@ -61,7 +96,11 @@ export function test_inspector_playhead(): void {
   TestValidator.equals("a listener hears a change", heard, counted + 1);
   unsubscribe();
   playhead.seek(1);
-  TestValidator.equals("an unsubscribed listener hears nothing", heard, counted + 1);
+  TestValidator.equals(
+    "an unsubscribed listener hears nothing",
+    heard,
+    counted + 1,
+  );
   for (const [name, call] of [
     ["duration 0", (): void => playhead.setDuration(0)],
     ["rate -1", (): void => playhead.setRate(-1)],

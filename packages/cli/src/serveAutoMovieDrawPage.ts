@@ -92,8 +92,8 @@ export async function serveAutoMovieDrawPage(props: {
     return {
       url: `http://127.0.0.1:${port}/index.html`,
       close: async (): Promise<void> => {
-        await promisify(
-          (done: (error?: Error) => void): void => server.httpServer.close(done),
+        await promisify((done: (error?: Error) => void): void =>
+          server.httpServer.close(done),
         )();
         remove();
       },

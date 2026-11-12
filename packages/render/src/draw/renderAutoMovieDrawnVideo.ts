@@ -3,9 +3,9 @@ import type { IAutoMovieRenderSpec } from "@automovie/interface";
 import { planAutoMovieVideoEncoding } from "../delivery/planAutoMovieVideoEncoding.js";
 import { frameName } from "../frameName.js";
 import { frameTimes } from "../frameTimes.js";
+import type { IAutoMovieRasterImage } from "../picture/IAutoMovieRasterImage.js";
 import { encodeAutoMovieRasterPng } from "../picture/encodeAutoMovieRasterPng.js";
 import { hashAutoMovieRasterImage } from "../picture/hashAutoMovieRasterImage.js";
-import type { IAutoMovieRasterImage } from "../picture/IAutoMovieRasterImage.js";
 import type { AutoMovieDrawSession } from "./AutoMovieDrawSession.js";
 
 /**
@@ -54,24 +54,41 @@ export async function renderAutoMovieDrawnVideo(props: {
   const { subject } = props.session;
   const spec: IAutoMovieRenderSpec = {
     ...props.spec,
-    frameFormat: { width: subject.width, height: subject.height, fps: subject.fps },
+    frameFormat: {
+      width: subject.width,
+      height: subject.height,
+      fps: subject.fps,
+    },
   };
-  const plan: ReturnType<typeof planAutoMovieVideoEncoding> = planAutoMovieVideoEncoding({
-    spec,
-    durationSeconds: subject.durationSeconds,
-    frameDir: props.frameDir,
-    outputPath: props.outputPath,
-    audio: props.audio,
-  });
+  const plan: ReturnType<typeof planAutoMovieVideoEncoding> =
+    planAutoMovieVideoEncoding({
+      spec,
+      durationSeconds: subject.durationSeconds,
+      frameDir: props.frameDir,
+      outputPath: props.outputPath,
+      audio: props.audio,
+    });
 
   // Every frame of the clock, drawn and written in order.
-  const frames: { index: number; seconds: number; file: string; hash: string }[] = [];
+  const frames: {
+    index: number;
+    seconds: number;
+    file: string;
+    hash: string;
+  }[] = [];
   const times: number[] = frameTimes(subject.fps, subject.durationSeconds);
   for (const [index, seconds] of times.entries()) {
-    const picture: IAutoMovieRasterImage = (await props.session.frame(seconds, ["beauty"]))[0]!.picture;
+    const picture: IAutoMovieRasterImage = (
+      await props.session.frame(seconds, ["beauty"])
+    )[0]!.picture;
     const file: string = `${props.frameDir}/${frameName(index)}`;
     await props.write(file, await encodeAutoMovieRasterPng(picture));
-    frames.push({ index, seconds, file, hash: hashAutoMovieRasterImage(picture) });
+    frames.push({
+      index,
+      seconds,
+      file,
+      hash: hashAutoMovieRasterImage(picture),
+    });
   }
 
   await props.encode(plan.args);

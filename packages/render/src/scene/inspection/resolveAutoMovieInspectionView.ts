@@ -117,24 +117,27 @@ export function resolveAutoMovieInspectionView(props: {
       ? props.views[view.name]
       : undefined;
   if (view.type === "fixed" || own !== undefined) {
-    if (view.type === "named" && (view.orthographic || view.follow || view.focus !== null))
+    if (
+      view.type === "named" &&
+      (view.orthographic || view.follow || view.focus !== null)
+    )
       throw new Error(
         `Inspection view "${props.text}" is the subject's own view, which takes no switch`,
       );
     const placed: { position: IAutoMovieVector3; target: IAutoMovieVector3 } =
       view.type === "fixed"
         ? view
-        : ((
-            pose: {
-              position: readonly [number, number, number];
-              target: readonly [number, number, number];
-            },
-          ): { position: IAutoMovieVector3; target: IAutoMovieVector3 } => ({
+        : ((pose: {
+            position: readonly [number, number, number];
+            target: readonly [number, number, number];
+          }): { position: IAutoMovieVector3; target: IAutoMovieVector3 } => ({
             position: vector(pose.position),
             target: vector(pose.target),
           }))(own!(props.seconds));
     const up: IAutoMovieVector3 =
-      view.type === "fixed" && view.up !== null ? view.up : { x: 0, y: 1, z: 0 };
+      view.type === "fixed" && view.up !== null
+        ? view.up
+        : { x: 0, y: 1, z: 0 };
 
     // A fixed orthographic camera: its scale as written, its clips a quarter and three and a half times the eye's distance, a fitted orthographic view's own clips.
     if (view.type === "fixed" && view.metresPerPixel !== null) {
@@ -172,15 +175,19 @@ export function resolveAutoMovieInspectionView(props: {
   }
 
   // A named viewpoint is fitted to the bounds.
-  const viewpoints: IAutoMovieViewerViewpoint[] = autoMovieViewerNamedViewpoints();
+  const viewpoints: IAutoMovieViewerViewpoint[] =
+    autoMovieViewerNamedViewpoints();
   const viewpoint: IAutoMovieViewerViewpoint | undefined = viewpoints.find(
-    (candidate: IAutoMovieViewerViewpoint): boolean => candidate.id === view.name,
+    (candidate: IAutoMovieViewerViewpoint): boolean =>
+      candidate.id === view.name,
   );
   if (viewpoint === undefined)
     throw new Error(
       `Inspection view "${props.text}" names no view; the names are ${[
         ...Object.keys(props.views ?? {}),
-        ...viewpoints.map((candidate: IAutoMovieViewerViewpoint): string => candidate.id),
+        ...viewpoints.map(
+          (candidate: IAutoMovieViewerViewpoint): string => candidate.id,
+        ),
       ].join(", ")}, besides film and x,y,z:tx,ty,tz`,
     );
   if (props.bounds === null)

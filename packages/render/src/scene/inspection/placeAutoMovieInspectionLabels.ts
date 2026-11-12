@@ -39,7 +39,10 @@ export function placeAutoMovieInspectionLabels(props: {
 
   /** Size of one font pixel of the stamp, in picture pixels. */
   scale: number;
-}): { labels: IAutoMovieInspectionLabel[]; dropped: IAutoMovieInspectionLabel[] } {
+}): {
+  labels: IAutoMovieInspectionLabel[];
+  dropped: IAutoMovieInspectionLabel[];
+} {
   for (const [name, value] of [
     ["width", props.width],
     ["height", props.height],

@@ -54,7 +54,9 @@ export function applyAutoMovieInspectionSection(props: {
   });
   return (): void => {
     for (const [material, prior] of clipping) {
-      if ((material.clippingPlanes?.length ?? 0) !== (prior.planes?.length ?? 0))
+      if (
+        (material.clippingPlanes?.length ?? 0) !== (prior.planes?.length ?? 0)
+      )
         material.needsUpdate = true;
       material.clippingPlanes = prior.planes;
       material.clipIntersection = prior.intersection;

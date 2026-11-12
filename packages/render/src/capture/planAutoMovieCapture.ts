@@ -1,6 +1,6 @@
-import { expandAutoMovieInspectionSweep } from "../scene/inspection/expandAutoMovieInspectionSweep.js";
 import type { IAutoMovieInspectionRequest } from "../scene/inspection/IAutoMovieInspectionRequest.js";
 import type { IAutoMovieInspectionView } from "../scene/inspection/IAutoMovieInspectionView.js";
+import { expandAutoMovieInspectionSweep } from "../scene/inspection/expandAutoMovieInspectionSweep.js";
 import { matchAutoMovieInspectionPath } from "../scene/inspection/matchAutoMovieInspectionPath.js";
 import { parseAutoMovieInspectionView } from "../scene/inspection/parseAutoMovieInspectionView.js";
 import type { IAutoMovieCaptureCell } from "./IAutoMovieCaptureCell.js";
@@ -11,7 +11,6 @@ import type { IAutoMovieCaptureSubject } from "./IAutoMovieCaptureSubject.js";
 import type { IAutoMovieCaptureTime } from "./IAutoMovieCaptureTime.js";
 import { planAutoMovieCaptureFrames } from "./planAutoMovieCaptureFrames.js";
 import { planAutoMovieCaptureLayout } from "./planAutoMovieCaptureLayout.js";
-
 
 /**
  * Plan a capture as data before anything is drawn: check the request against what the subject offers, then list every cell, fixed by selection, time, view and pass, and lay them out for the reader budget.
@@ -41,7 +40,8 @@ export function planAutoMovieCapture(props: {
   cuts: readonly number[];
 }): IAutoMovieCapturePlan {
   const { request, subject } = props;
-  if (subject.name.trim() === "") throw new Error("A capture subject has no name");
+  if (subject.name.trim() === "")
+    throw new Error("A capture subject has no name");
   if (
     ![subject.width, subject.height].every(
       (size: number): boolean => Number.isSafeInteger(size) && size > 0,
@@ -80,13 +80,13 @@ export function planAutoMovieCapture(props: {
   // Times, then every cell.
   const frames: ReturnType<typeof planAutoMovieCaptureFrames> =
     planAutoMovieCaptureFrames({
-    durationSeconds: subject.durationSeconds,
-    fps: subject.fps,
-    sampling: request.sampling,
-    events: request.events,
-    cuts: props.cuts,
-    window: request.window,
-  });
+      durationSeconds: subject.durationSeconds,
+      fps: subject.fps,
+      sampling: request.sampling,
+      events: request.events,
+      cuts: props.cuts,
+      window: request.window,
+    });
   const { times, windows } = frames;
   const cells: IAutoMovieCaptureCell[] = [];
   const names: Set<string> = new Set();
@@ -117,7 +117,8 @@ export function planAutoMovieCapture(props: {
               `Two capture cells take the name ${name}; give seconds at least a millisecond apart and views that differ in letters or digits`,
             );
           names.add(name);
-          const label: string | null = labels.get(time.seconds.toFixed(3)) ?? null;
+          const label: string | null =
+            labels.get(time.seconds.toFixed(3)) ?? null;
           cells.push({
             index: cells.length,
             name,
@@ -127,7 +128,15 @@ export function planAutoMovieCapture(props: {
             pass,
             request: inspect(request.inspection, pass, selection),
             label,
-            caption: caption(request, selections.length, time, label, view, pass, selection),
+            caption: caption(
+              request,
+              selections.length,
+              time,
+              label,
+              view,
+              pass,
+              selection,
+            ),
           });
         }
 
@@ -144,7 +153,9 @@ export function planAutoMovieCapture(props: {
       group: request.views.length * request.passes.length,
       budget: request.budget,
       // A cell the draw fails is captioned with " not drawn" after its caption.
-      captions: cells.map((cell: IAutoMovieCaptureCell): string => `${cell.caption} not drawn`),
+      captions: cells.map(
+        (cell: IAutoMovieCaptureCell): string => `${cell.caption} not drawn`,
+      ),
     }),
   };
 }
@@ -213,7 +224,11 @@ function caption(
     ...(request.views.length > 1 ? [view] : []),
     ...(request.passes.length > 1 ? [pass] : []),
     ...(selections > 1
-      ? [selection.kind === "whole" ? "whole" : `${selection.kind} ${selection.unit}`]
+      ? [
+          selection.kind === "whole"
+            ? "whole"
+            : `${selection.kind} ${selection.unit}`,
+        ]
       : []),
   ].join(" ");
 }

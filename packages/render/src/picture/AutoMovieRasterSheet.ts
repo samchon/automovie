@@ -97,7 +97,9 @@ export class AutoMovieRasterSheet {
     );
     const lines: string[] = [];
     let line: string = "";
-    for (const word of caption.split(" ").filter((part: string): boolean => part !== "")) {
+    for (const word of caption
+      .split(" ")
+      .filter((part: string): boolean => part !== "")) {
       for (let rest: string = word; rest !== ""; ) {
         const joined: string = line === "" ? rest : `${line} ${rest}`;
         if (joined.length <= room) {
@@ -181,7 +183,8 @@ export class AutoMovieRasterSheet {
       );
     const used: number = Math.min(columns, capacity);
     const width: number = used * cellWidth;
-    const height: number = Math.ceil(capacity / used) * (cellHeight + this.strip);
+    const height: number =
+      Math.ceil(capacity / used) * (cellHeight + this.strip);
     if (width * height > 64_000_000)
       throw new Error("Sheet exceeds 64 megapixels");
     this.sheet = {
@@ -273,7 +276,10 @@ export class AutoMovieRasterSheet {
     AutoMovieRasterSheet.wrap(caption, this.cellWidth, this.cellHeight)
       .slice(0, this.lines)
       .forEach((line: string, index: number): void =>
-        stampAutoMovieRasterLabel(strip, line, scale, { x: 0, y: index * 6 * scale }),
+        stampAutoMovieRasterLabel(strip, line, scale, {
+          x: 0,
+          y: index * 6 * scale,
+        }),
       );
     for (const [picture, offset] of [
       [cell, 0],

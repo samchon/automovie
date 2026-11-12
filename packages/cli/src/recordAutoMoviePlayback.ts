@@ -13,7 +13,11 @@ const READOUT: RegExp = /\d+\.\d+ \/ \d+\.\d+ s/u;
 
 /** The part of `playwright-core`'s `chromium` a playback recording calls. */
 interface IRecordingChromium {
-  launch(options: { headless: true; args: string[]; executablePath?: string }): Promise<IRecordingBrowser>;
+  launch(options: {
+    headless: true;
+    args: string[];
+    executablePath?: string;
+  }): Promise<IRecordingBrowser>;
 }
 
 /** A launched browser that opens recording contexts. */
@@ -34,8 +38,14 @@ interface IRecordingContext {
 /** The page calls a recording makes. */
 interface IRecordingPage {
   on(event: "pageerror", listener: (error: Error) => void): unknown;
-  goto(url: string, options: { waitUntil: "domcontentloaded"; timeout: number }): Promise<unknown>;
-  getByRole(role: "button", options: { name: string; exact: true }): IRecordingLocator;
+  goto(
+    url: string,
+    options: { waitUntil: "domcontentloaded"; timeout: number },
+  ): Promise<unknown>;
+  getByRole(
+    role: "button",
+    options: { name: string; exact: true },
+  ): IRecordingLocator;
   locator(selector: string, options: { hasText: RegExp }): IRecordingLocator;
   waitForTimeout(milliseconds: number): Promise<void>;
   video(): { path(): Promise<string> } | null;
@@ -90,15 +100,25 @@ export async function recordAutoMoviePlayback(props: {
   errors: string[];
 }> {
   const chromium: IRecordingChromium = props.chromium as IRecordingChromium;
-  const plan: ReturnType<typeof planAutoMovieChromiumLaunch> = planAutoMovieChromiumLaunch("gpu", props.env);
+  const plan: ReturnType<typeof planAutoMovieChromiumLaunch> =
+    planAutoMovieChromiumLaunch("gpu", props.env);
   await fs.mkdir(props.out, { recursive: true });
   const browser: IRecordingBrowser = await chromium.launch({
     headless: true,
-    args: [...plan.args, "--autoplay-policy=no-user-gesture-required", "--disable-background-timer-throttling"],
-    ...(plan.executablePath === undefined ? {} : { executablePath: plan.executablePath }),
+    args: [
+      ...plan.args,
+      "--autoplay-policy=no-user-gesture-required",
+      "--disable-background-timer-throttling",
+    ],
+    ...(plan.executablePath === undefined
+      ? {}
+      : { executablePath: plan.executablePath }),
   });
   try {
-    const viewport: { width: number; height: number } = { width: 1280, height: 900 };
+    const viewport: { width: number; height: number } = {
+      width: 1280,
+      height: 900,
+    };
     const context: IRecordingContext = await browser.newContext({
       viewport,
       recordVideo: { dir: props.out, size: viewport },
@@ -108,9 +128,16 @@ export async function recordAutoMoviePlayback(props: {
     page.on("pageerror", (error: Error): void => {
       errors.push(error.message);
     });
-    await page.goto(props.url, { waitUntil: "domcontentloaded", timeout: PREPARE });
-    const play: IRecordingLocator = page.getByRole("button", { name: "Play", exact: true }).first();
-    const readout: IRecordingLocator = page.locator("output", { hasText: READOUT }).first();
+    await page.goto(props.url, {
+      waitUntil: "domcontentloaded",
+      timeout: PREPARE,
+    });
+    const play: IRecordingLocator = page
+      .getByRole("button", { name: "Play", exact: true })
+      .first();
+    const readout: IRecordingLocator = page
+      .locator("output", { hasText: READOUT })
+      .first();
     await play.waitFor({ timeout: PREPARE });
     await readout.waitFor({ timeout: PREPARE });
 
@@ -119,12 +146,21 @@ export async function recordAutoMoviePlayback(props: {
     const started: number = performance.now();
     const readings: { elapsedSeconds: number; text: string }[] = [];
     while (performance.now() - started < props.seconds * 1000) {
-      readings.push({ elapsedSeconds: (performance.now() - started) / 1000, text: await readout.innerText() });
-      await page.waitForTimeout(Math.min(READING, Math.max(1, props.seconds * 1000 - (performance.now() - started))));
+      readings.push({
+        elapsedSeconds: (performance.now() - started) / 1000,
+        text: await readout.innerText(),
+      });
+      await page.waitForTimeout(
+        Math.min(
+          READING,
+          Math.max(1, props.seconds * 1000 - (performance.now() - started)),
+        ),
+      );
     }
     const video: { path(): Promise<string> } | null = page.video();
     await context.close();
-    if (video === null) throw new Error("The browser produced no playback recording");
+    if (video === null)
+      throw new Error("The browser produced no playback recording");
     return { video: await video.path(), readings, errors };
   } finally {
     await browser.close();

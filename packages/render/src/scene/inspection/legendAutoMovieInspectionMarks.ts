@@ -40,7 +40,11 @@ export function legendAutoMovieInspectionMarks(
   for (const [kind, count] of counts) {
     const entry: { label: string; color: number } = kinds.get(kind)!;
     if (count.plain !== 0)
-      legend.push({ label: entry.label, color: entry.color, count: count.plain });
+      legend.push({
+        label: entry.label,
+        color: entry.color,
+        count: count.plain,
+      });
     if (count.flagged !== 0)
       legend.push({
         label: `${entry.label} (flagged)`,

@@ -37,7 +37,9 @@ export function planAutoMovieChromiumLaunch(
       backend === "software"
         ? ["--use-gl=angle", "--use-angle=swiftshader"]
         : ["--use-gl=angle", "--use-angle=default", "--ignore-gpu-blocklist"],
-    ...(chrome === undefined || chrome === "" ? {} : { executablePath: chrome }),
+    ...(chrome === undefined || chrome === ""
+      ? {}
+      : { executablePath: chrome }),
     name: backend === "software" ? "swiftshader" : "gpu",
   };
 }

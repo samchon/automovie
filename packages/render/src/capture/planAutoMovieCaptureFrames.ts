@@ -54,9 +54,13 @@ export function planAutoMovieCaptureFrames(props: {
   if (!(Number.isFinite(fps) && fps > 0))
     throw new Error(`A capture's frame rate ${fps} is not positive`);
   if (!(Number.isFinite(durationSeconds) && durationSeconds > 0))
-    throw new Error(`A capture's duration ${durationSeconds} s is not positive`);
+    throw new Error(
+      `A capture's duration ${durationSeconds} s is not positive`,
+    );
   if (!(Number.isSafeInteger(window) && window >= 0))
-    throw new Error(`A capture window of ${window} frames is not a whole number`);
+    throw new Error(
+      `A capture window of ${window} frames is not a whole number`,
+    );
   const count: number = Math.ceil(durationSeconds * fps - ON_GRID);
   const inside: (seconds: number) => boolean = (seconds: number): boolean =>
     Number.isFinite(seconds) && seconds >= 0 && seconds <= durationSeconds;
@@ -69,7 +73,9 @@ export function planAutoMovieCaptureFrames(props: {
   if (sampling.kind === "at")
     for (const seconds of sampling.seconds) {
       if (!inside(seconds))
-        throw new Error(`Capture second ${seconds} lies outside 0-${durationSeconds} s`);
+        throw new Error(
+          `Capture second ${seconds} lies outside 0-${durationSeconds} s`,
+        );
       const nearest: number = Math.round(seconds * fps);
       if (Math.abs(seconds * fps - nearest) < ON_GRID && nearest < count)
         addFrame(nearest);

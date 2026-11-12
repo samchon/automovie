@@ -36,7 +36,9 @@ const SUBJECT: IAutoMovieCaptureSubject = {
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export function test_draw_follow_call(): void {
-  const calls: (text: string) => [IAutoMovieCaptureCell, IAutoMovieDrawCall][] = (
+  const calls: (
+    text: string,
+  ) => [IAutoMovieCaptureCell, IAutoMovieDrawCall][] = (
     text: string,
   ): [IAutoMovieCaptureCell, IAutoMovieDrawCall][] => {
     const plan: IAutoMovieCapturePlan = planAutoMovieCapture({
@@ -44,17 +46,24 @@ export function test_draw_follow_call(): void {
       subject: SUBJECT,
       cuts: [],
     });
-    return plan.cells.map((cell: IAutoMovieCaptureCell): [IAutoMovieCaptureCell, IAutoMovieDrawCall] => [
-      cell,
-      planAutoMovieDrawCall(cell, plan),
-    ]);
+    return plan.cells.map(
+      (
+        cell: IAutoMovieCaptureCell,
+      ): [IAutoMovieCaptureCell, IAutoMovieDrawCall] => [
+        cell,
+        planAutoMovieDrawCall(cell, plan),
+      ],
+    );
   };
 
   // 1. Followed against plain.
   TestValidator.equals(
     "a followed view frames its own second, a plain one every second",
     calls("at=1,2,3&views=side@follow;side").map(
-      ([cell, call]: [IAutoMovieCaptureCell, IAutoMovieDrawCall]): [string, number[]] => [cell.view, call.frame],
+      ([cell, call]: [IAutoMovieCaptureCell, IAutoMovieDrawCall]): [
+        string,
+        number[],
+      ] => [cell.view, call.frame],
     ),
     [
       ["side@follow", [1]],
@@ -67,6 +76,12 @@ export function test_draw_follow_call(): void {
   );
 
   // 2. Other switches stay.
-  const [cell, call]: [IAutoMovieCaptureCell, IAutoMovieDrawCall] = calls("at=2,3&views=side@ortho@follow@focus=hero")[1]!;
-  TestValidator.equals("a followed view with other switches", [call.view, call.frame], [cell.view, [3]]);
+  const [cell, call]: [IAutoMovieCaptureCell, IAutoMovieDrawCall] = calls(
+    "at=2,3&views=side@ortho@follow@focus=hero",
+  )[1]!;
+  TestValidator.equals(
+    "a followed view with other switches",
+    [call.view, call.frame],
+    [cell.view, [3]],
+  );
 }

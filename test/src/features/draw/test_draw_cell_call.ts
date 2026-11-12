@@ -68,38 +68,65 @@ export async function test_draw_cell_call(): Promise<void> {
     double.calls[0]!.arg,
     'globalThis["__automovieDrawProps"] = {"subject":"duel","props":{"seed":3}};',
   );
-  TestValidator.equals("the session plans against the described subject", session.subject, SUBJECT);
+  TestValidator.equals(
+    "the session plans against the described subject",
+    session.subject,
+    SUBJECT,
+  );
 
   // 1. Every cell drawn in plan order.
   const plan: IAutoMovieCapturePlan = planAutoMovieCapture({
     request: parseAutoMovieCapturePlanRequest(
-      new URLSearchParams("subject=duel&at=1,2&views=front;film&passes=beauty,depth&marks=edge"),
+      new URLSearchParams(
+        "subject=duel&at=1,2&views=front;film&passes=beauty,depth&marks=edge",
+      ),
     ),
     subject: session.subject,
     cuts: [],
   });
   const drawings: IAutoMovieCaptureDrawing[] = [];
-  for (const cell of plan.cells) drawings.push(await session.drawing(cell, plan));
+  for (const cell of plan.cells)
+    drawings.push(await session.drawing(cell, plan));
   const sent: IAutoMovieDrawCall[] = double.calls
     .slice(4)
-    .map((call: createDrawPageDouble.ICall): IAutoMovieDrawCall => (call.arg as { call: IAutoMovieDrawCall }).call);
+    .map(
+      (call: createDrawPageDouble.ICall): IAutoMovieDrawCall =>
+        (call.arg as { call: IAutoMovieDrawCall }).call,
+    );
   TestValidator.equals("one page call per cell", sent.length, 8);
 
   // 2 and 3. Each call as its cell fixes it.
   const expected: [number, string, string][] = [];
   for (const seconds of [1, 2])
     for (const view of ["front", "film"])
-      for (const pass of ["beauty", "depth"]) expected.push([seconds, view, pass]);
+      for (const pass of ["beauty", "depth"])
+        expected.push([seconds, view, pass]);
   TestValidator.equals(
     "second, view and pass in plan order",
-    sent.map((call: IAutoMovieDrawCall): [number, string, string] => [call.seconds, call.view, call.request.shade]),
+    sent.map((call: IAutoMovieDrawCall): [number, string, string] => [
+      call.seconds,
+      call.view,
+      call.request.shade,
+    ]),
     expected,
   );
   sent.forEach((call: IAutoMovieDrawCall, index: number): void => {
     const cell: IAutoMovieCaptureCell = plan.cells[index]!;
-    TestValidator.equals(`call ${index} carries the cell's request`, call.request, cell.request);
-    TestValidator.equals(`call ${index} keeps the asked marks`, call.request.marks, ["edge"]);
-    TestValidator.equals(`call ${index} raster and span`, [call.width, call.height, call.frame], [48, 30, [1, 2]]);
+    TestValidator.equals(
+      `call ${index} carries the cell's request`,
+      call.request,
+      cell.request,
+    );
+    TestValidator.equals(
+      `call ${index} keeps the asked marks`,
+      call.request.marks,
+      ["edge"],
+    );
+    TestValidator.equals(
+      `call ${index} raster and span`,
+      [call.width, call.height, call.frame],
+      [48, 30, [1, 2]],
+    );
     TestValidator.equals(
       `call ${index} label scale`,
       call.scale,
@@ -111,7 +138,13 @@ export async function test_draw_cell_call(): Promise<void> {
   const scale: number = scaleAutoMovieCaptureLabels(SUBJECT, plan.layout);
   TestValidator.equals(
     "legend, labels, backend, camera and resolved patterns",
-    [drawings[0]!.labels, drawings[0]!.backend, JSON.parse(drawings[0]!.camera!).view, drawings[0]!.repeat, drawings[0]!.resolved],
+    [
+      drawings[0]!.labels,
+      drawings[0]!.backend,
+      JSON.parse(drawings[0]!.camera!).view,
+      drawings[0]!.repeat,
+      drawings[0]!.resolved,
+    ],
     [
       [
         { text: "trail 2", x: 9 * scale, y: 30 - 9 * scale },
@@ -126,8 +159,15 @@ export async function test_draw_cell_call(): Promise<void> {
   TestValidator.equals(
     "the swatch is the kind's colour, and the picture beside it is the page's",
     [
-      Array.from(drawings[0]!.picture.pixels.subarray(29 * 48 * 4, 29 * 48 * 4 + 4)),
-      Array.from(drawings[0]!.picture.pixels.subarray((2 * 48 + 30) * 4, (2 * 48 + 30) * 4 + 4)),
+      Array.from(
+        drawings[0]!.picture.pixels.subarray(29 * 48 * 4, 29 * 48 * 4 + 4),
+      ),
+      Array.from(
+        drawings[0]!.picture.pixels.subarray(
+          (2 * 48 + 30) * 4,
+          (2 * 48 + 30) * 4 + 4,
+        ),
+      ),
     ],
     [
       [0x30, 0x70, 0xc0, 255],

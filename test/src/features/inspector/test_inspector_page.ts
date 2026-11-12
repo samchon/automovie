@@ -30,13 +30,27 @@ export function test_inspector_page(): void {
     hash: "#notes",
   };
   const written: [state: unknown, url: string][] = [];
-  const history: { state: unknown; replaceState: (state: unknown, unused: string, url?: string | URL | null) => void } = {
+  const history: {
+    state: unknown;
+    replaceState: (
+      state: unknown,
+      unused: string,
+      url?: string | URL | null,
+    ) => void;
+  } = {
     state: { kept: true },
-    replaceState: (state: unknown, _unused: string, url?: string | URL | null): void => {
+    replaceState: (
+      state: unknown,
+      _unused: string,
+      url?: string | URL | null,
+    ): void => {
       written.push([state, String(url)]);
     },
   };
-  const write: (text: string) => void = createAutoMovieInspectorAddressWriter({ location, history });
+  const write: (text: string) => void = createAutoMovieInspectorAddressWriter({
+    location,
+    history,
+  });
 
   // 1. Write, then read back.
   const request: IAutoMovieCapturePlanRequest = readAutoMovieInspectorAddress(
@@ -44,32 +58,62 @@ export function test_inspector_page(): void {
   );
   const text: string = formatAutoMovieInspectorAddress(request);
   write(text);
-  TestValidator.equals("one entry replaced with path, query and fragment", written, [[{ kept: true }, `/inspect/?${text}#notes`]]);
+  TestValidator.equals(
+    "one entry replaced with path, query and fragment",
+    written,
+    [[{ kept: true }, `/inspect/?${text}#notes`]],
+  );
   const address: URL = new URL(written[0]![1], "http://page.test");
-  TestValidator.equals("the written query reads back", readAutoMovieInspectorAddress(address.search), request);
+  TestValidator.equals(
+    "the written query reads back",
+    readAutoMovieInspectorAddress(address.search),
+    request,
+  );
 
   // 2. Unchanged and empty queries.
   location.search = `?${text}`;
   write(text);
   TestValidator.equals("an unchanged query writes nothing", written.length, 1);
   write("");
-  TestValidator.equals("the empty text clears the query", written.at(-1)![1], "/inspect/#notes");
+  TestValidator.equals(
+    "the empty text clears the query",
+    written.at(-1)![1],
+    "/inspect/#notes",
+  );
   location.search = "";
   write("");
-  TestValidator.equals("an already empty query writes nothing", written.length, 2);
+  TestValidator.equals(
+    "an already empty query writes nothing",
+    written.length,
+    2,
+  );
 
   // 3. Refusals name the key.
   const empty: IAutoMovieCapturePlanRequest = readAutoMovieInspectorAddress("");
-  for (const [query, key] of [["?parts=hero/**&unknown=1", "unknown"], ["?shade=clay&shade=faces", "shade"]] as const) {
+  for (const [query, key] of [
+    ["?parts=hero/**&unknown=1", "unknown"],
+    ["?shade=clay&shade=faces", "shade"],
+  ] as const) {
     let message: string = "";
     try {
       readAutoMovieInspectorAddress(query);
     } catch (error) {
       message = error instanceof Error ? error.message : String(error);
     }
-    TestValidator.predicate(`${query} is refused naming ${key}`, message.includes(`"${key}"`));
-    const opened: IAutoMovieInspectorState = createAutoMovieInspectorState(query);
-    TestValidator.equals(`${query} opens the empty request`, opened.request, empty);
-    TestValidator.predicate(`${query} opens with the refusal`, opened.error === message);
+    TestValidator.predicate(
+      `${query} is refused naming ${key}`,
+      message.includes(`"${key}"`),
+    );
+    const opened: IAutoMovieInspectorState =
+      createAutoMovieInspectorState(query);
+    TestValidator.equals(
+      `${query} opens the empty request`,
+      opened.request,
+      empty,
+    );
+    TestValidator.predicate(
+      `${query} opens with the refusal`,
+      opened.error === message,
+    );
   }
 }

@@ -57,7 +57,12 @@ export namespace IAutoMovieCaptureComparison {
         maximum: number;
 
         /** Smallest box holding every changed pixel, inclusive pixel bounds, or null when none changed. */
-        bounds: { left: number; top: number; right: number; bottom: number } | null;
+        bounds: {
+          left: number;
+          top: number;
+          right: number;
+          bottom: number;
+        } | null;
 
         /** File name of the difference image, or null when no pixel changed. */
         difference: string | null;

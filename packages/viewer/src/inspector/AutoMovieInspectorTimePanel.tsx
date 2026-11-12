@@ -31,7 +31,9 @@ export function AutoMovieInspectorTimePanel(props: {
   dispatch: (action: IAutoMovieInspectorAction) => void;
 }): JSX.Element {
   return (
-    <div style={{ display: "flex", gap: 8, alignItems: "center", margin: "6px 0" }}>
+    <div
+      style={{ display: "flex", gap: 8, alignItems: "center", margin: "6px 0" }}
+    >
       <button type="button" onClick={(): void => props.playhead.play()}>
         Play
       </button>

@@ -66,12 +66,25 @@ export function AutoMovieInspectorViewPanel(props: {
           const chosen: string = event.target.value;
           setTyped(null);
           if (chosen === "film") send({ type: "film" });
-          else if (chosen === "fixed") props.dispatch({ type: "view", view: FIXED });
-          else send({ type: "named", name: chosen, orthographic: false, follow: false, focus: null });
+          else if (chosen === "fixed")
+            props.dispatch({ type: "view", view: FIXED });
+          else
+            send({
+              type: "named",
+              name: chosen,
+              orthographic: false,
+              follow: false,
+              focus: null,
+            });
         }}
       >
         <option value="film">film</option>
-        {[...new Set<string>([...props.views, ...(view.type === "named" ? [view.name] : [])])].map(
+        {[
+          ...new Set<string>([
+            ...props.views,
+            ...(view.type === "named" ? [view.name] : []),
+          ]),
+        ].map(
           (name: string): JSX.Element => (
             <option key={name} value={name}>
               {name}

@@ -24,7 +24,9 @@ export function readAutoMovieCaptureArguments(
   for (let index: number = 0; index < argv.length; index++) {
     const argument: string = argv[index]!;
     if (!argument.startsWith("--") || argument.length === 2)
-      throw new Error(`Capture argument "${argument}" is not an option --<key>`);
+      throw new Error(
+        `Capture argument "${argument}" is not an option --<key>`,
+      );
 
     // The value is after `=`, the next argument that is not an option, or empty.
     const equals: number = argument.indexOf("=");

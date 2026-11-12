@@ -21,7 +21,12 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A solver receipt whose step at 1.0 s carries 0.5 N s over 0.01 s).
  */
 export function test_mark_contacts(): void {
-  const step = (seconds: number, impulse: number, duration: number, separation: number = 0) => ({
+  const step = (
+    seconds: number,
+    impulse: number,
+    duration: number,
+    separation: number = 0,
+  ) => ({
     seconds,
     duration,
     impulse,
@@ -47,21 +52,29 @@ export function test_mark_contacts(): void {
     compression: 0,
     samples,
   });
-  const mark = (receipts: IAutoMovieContactReceipt[], seconds: number): IAutoMovieMark[] =>
+  const mark = (
+    receipts: IAutoMovieContactReceipt[],
+    seconds: number,
+  ): IAutoMovieMark[] =>
     markAutoMovieContacts({ receipts, seconds, metresPerNewton: 0.002 });
 
   // 1. One acting contact.
-  const acting: IAutoMovieMark[] = mark([receipt("solver", [step(1, 0.5, 0.01)])], 1.005);
-  const arrow: IAutoMovieMark.IArrows = acting[0]!.shape as IAutoMovieMark.IArrows;
-  TestValidator.equals("one contact mark", [acting.length, acting[0]!.kind, acting[0]!.path, arrow.origins], [
-    1,
-    "contact",
-    "hero/leftHand/contact/c1",
-    [1, 0, 0],
-  ]);
+  const acting: IAutoMovieMark[] = mark(
+    [receipt("solver", [step(1, 0.5, 0.01)])],
+    1.005,
+  );
+  const arrow: IAutoMovieMark.IArrows = acting[0]!
+    .shape as IAutoMovieMark.IArrows;
+  TestValidator.equals(
+    "one contact mark",
+    [acting.length, acting[0]!.kind, acting[0]!.path, arrow.origins],
+    [1, "contact", "hero/leftHand/contact/c1", [1, 0, 0]],
+  );
   TestValidator.predicate(
     `the arrow is 0.1 m along +Y: ${arrow.vectors.join(",")}`,
-    nclose(arrow.vectors[0]!, 0, 1e-12) && nclose(arrow.vectors[1]!, 0.1, 1e-12) && nclose(arrow.vectors[2]!, 0, 1e-12),
+    nclose(arrow.vectors[0]!, 0, 1e-12) &&
+      nclose(arrow.vectors[1]!, 0.1, 1e-12) &&
+      nclose(arrow.vectors[2]!, 0, 1e-12),
   );
 
   // 2. Nothing acting.
@@ -77,7 +90,10 @@ export function test_mark_contacts(): void {
   );
 
   // 3. The later step.
-  const later: IAutoMovieMark[] = mark([receipt("solver", [step(1, 0.5, 0.01), step(1.01, 1, 0.01)])], 1.015);
+  const later: IAutoMovieMark[] = mark(
+    [receipt("solver", [step(1, 0.5, 0.01), step(1.01, 1, 0.01)])],
+    1.015,
+  );
   TestValidator.predicate(
     "the later step is read",
     nclose((later[0]!.shape as IAutoMovieMark.IArrows).vectors[1]!, 0.2, 1e-12),
@@ -86,9 +102,16 @@ export function test_mark_contacts(): void {
   // 4. Refusals.
   for (const scale of [0, Number.POSITIVE_INFINITY, Number.NaN])
     TestValidator.error(`a scale of ${scale} is refused`, (): void => {
-      markAutoMovieContacts({ receipts: [], seconds: 0, metresPerNewton: scale });
+      markAutoMovieContacts({
+        receipts: [],
+        seconds: 0,
+        metresPerNewton: scale,
+      });
     });
-  TestValidator.error("an acting step with no duration is refused", (): void => {
-    mark([receipt("solver", [step(1, 0.5, 0)])], 1);
-  });
+  TestValidator.error(
+    "an acting step with no duration is refused",
+    (): void => {
+      mark([receipt("solver", [step(1, 0.5, 0)])], 1);
+    },
+  );
 }

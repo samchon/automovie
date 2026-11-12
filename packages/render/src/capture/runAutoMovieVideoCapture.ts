@@ -1,6 +1,6 @@
+import { decodeAutoMovieRasterPng } from "../picture/decodeAutoMovieRasterPng.js";
 import { formatAutoMovieInspectionRequest } from "../scene/inspection/formatAutoMovieInspectionRequest.js";
 import { AutoMovieCaptureFolder } from "./AutoMovieCaptureFolder.js";
-import { decodeAutoMovieRasterPng } from "../picture/decodeAutoMovieRasterPng.js";
 import type { IAutoMovieCaptureCell } from "./IAutoMovieCaptureCell.js";
 import type { IAutoMovieCaptureDrawing } from "./IAutoMovieCaptureDrawing.js";
 import type { IAutoMovieCapturePlan } from "./IAutoMovieCapturePlan.js";
@@ -50,7 +50,10 @@ export async function runAutoMovieVideoCapture(props: {
   file: string;
 
   /** The file's clock and raster, which the host knows from its source or a probe. */
-  subject: Pick<IAutoMovieCaptureSubject, "name" | "durationSeconds" | "fps" | "width" | "height">;
+  subject: Pick<
+    IAutoMovieCaptureSubject,
+    "name" | "durationSeconds" | "fps" | "width" | "height"
+  >;
 
   /** What the capture asks for. */
   request: IAutoMovieCapturePlanRequest;
@@ -84,16 +87,25 @@ export async function runAutoMovieVideoCapture(props: {
     drawables: [],
     marks: [],
   };
-  const fileRequest: IAutoMovieCapturePlanRequest = { ...request, views: [FILE_VIEW] };
+  const fileRequest: IAutoMovieCapturePlanRequest = {
+    ...request,
+    views: [FILE_VIEW],
+  };
   const plan: (cuts: readonly number[]) => IAutoMovieCapturePlan = (
     cuts: readonly number[],
   ): IAutoMovieCapturePlan => {
-    const planned: IAutoMovieCapturePlan = planAutoMovieCapture({ request: fileRequest, subject, cuts });
+    const planned: IAutoMovieCapturePlan = planAutoMovieCapture({
+      request: fileRequest,
+      subject,
+      cuts,
+    });
     const between: IAutoMovieCaptureCell | undefined = planned.cells.find(
       (cell: IAutoMovieCaptureCell): boolean => cell.time.frame === null,
     );
     if (between !== undefined)
-      throw new Error(`Second ${between.time.seconds} falls between the frames of ${props.file}`);
+      throw new Error(
+        `Second ${between.time.seconds} falls between the frames of ${props.file}`,
+      );
     return planned;
   };
   plan([]);
@@ -113,9 +125,10 @@ export async function runAutoMovieVideoCapture(props: {
       threshold: request.threshold,
     }),
   );
-  const cuts: { seconds: number; score: number }[] = readAutoMovieVideoSceneCuts(
-    new TextDecoder().decode(await folder.read(REPORT)),
-  );
+  const cuts: { seconds: number; score: number }[] =
+    readAutoMovieVideoSceneCuts(
+      new TextDecoder().decode(await folder.read(REPORT)),
+    );
   await folder.remove(REPORT);
 
   // 3. Plan with the cuts, keeping only those within the file's stated duration.
@@ -127,14 +140,20 @@ export async function runAutoMovieVideoCapture(props: {
 
   // 4. Extract the planned frames, then capture them as cells.
   const extracted: Map<number, string> = new Map(
-    planned.times.map((time: { frame: number | null }, index: number): [number, string] => [
-      time.frame!,
-      `s${String(index).padStart(5, "0")}.png`,
-    ]),
+    planned.times.map(
+      (time: { frame: number | null }, index: number): [number, string] => [
+        time.frame!,
+        `s${String(index).padStart(5, "0")}.png`,
+      ],
+    ),
   );
   await folder.claim([...extracted.values()]);
   await props.run(
-    planAutoMovieVideoFrames({ file: props.file, frames: [...extracted.keys()], directory: folder.directory }),
+    planAutoMovieVideoFrames({
+      file: props.file,
+      frames: [...extracted.keys()],
+      directory: folder.directory,
+    }),
   );
   return runAutoMovieCapture({
     plan: planned,
@@ -142,7 +161,9 @@ export async function runAutoMovieVideoCapture(props: {
     revision: props.revision,
     match: "time",
     video: { file: props.file, threshold: request.threshold, cuts },
-    draw: async (cell: IAutoMovieCaptureCell): Promise<IAutoMovieCaptureDrawing> => {
+    draw: async (
+      cell: IAutoMovieCaptureCell,
+    ): Promise<IAutoMovieCaptureDrawing> => {
       const name: string = extracted.get(cell.time.frame!)!;
       let bytes: Uint8Array;
       try {
@@ -154,7 +175,11 @@ export async function runAutoMovieVideoCapture(props: {
         );
       }
       await folder.remove(name);
-      return { picture: await decodeAutoMovieRasterPng(bytes), labels: [], backend: BACKEND };
+      return {
+        picture: await decodeAutoMovieRasterPng(bytes),
+        labels: [],
+        backend: BACKEND,
+      };
     },
   });
 }

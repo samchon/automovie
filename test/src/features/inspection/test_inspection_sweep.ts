@@ -29,7 +29,12 @@ export function test_inspection_sweep(): void {
   rack.name = "rack";
   const a: THREE.Mesh = InspectionScene.quad("a", 0, 1);
   a.add(InspectionScene.quad("pin", 0, 0.2));
-  rack.add(a, InspectionScene.quad("b", 1.05, 1), InspectionScene.quad("c", 2.1, 1), InspectionScene.quad("d", 5, 1));
+  rack.add(
+    a,
+    InspectionScene.quad("b", 1.05, 1),
+    InspectionScene.quad("c", 2.1, 1),
+    InspectionScene.quad("d", 5, 1),
+  );
   const stage: THREE.Scene = InspectionScene.scene(rack);
   const objects = measureAutoMovieInspectionPaths({
     objects: listAutoMovieInspectionPaths(stage),
@@ -56,14 +61,20 @@ export function test_inspection_sweep(): void {
 
   // 4. Refusals.
   TestValidator.error("a pattern matching nothing", (): void => {
-    expandAutoMovieInspectionSweep({ objects, pattern: "shelf/*", margin: 0.1 });
+    expandAutoMovieInspectionSweep({
+      objects,
+      pattern: "shelf/*",
+      margin: 0.1,
+    });
   });
   TestValidator.error("a negative margin", (): void => {
     expandAutoMovieInspectionSweep({ objects, pattern: "rack/*", margin: -1 });
   });
   TestValidator.error("an unordered box", (): void => {
     expandAutoMovieInspectionSweep({
-      objects: [{ path: "x", min: { x: 1, y: 0, z: 0 }, max: { x: 0, y: 0, z: 0 } }],
+      objects: [
+        { path: "x", min: { x: 1, y: 0, z: 0 }, max: { x: 0, y: 0, z: 0 } },
+      ],
       pattern: "x",
       margin: 0,
     });
