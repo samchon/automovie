@@ -160,8 +160,13 @@ export namespace AutoMovieHumanF1 {
    */
   export const RAIL_MM: { arm: number; leg: number; ear: number; nose: number } = { arm: 10, leg: 6, ear: 0.5, nose: 4 };
 
-  /** How far outside the auricle's root the ear's port loop stands on the skull, mm. */
-  const AURICLE_MARGIN_MM: number = 4;
+  /**
+   * How far outside the nose's root its port loop stands on the face, and outside the auricle's root the ear's stands on the skull, mm.
+   * The ear's is wider: the concha's bowl is cut across the ear's band down to its floor, and at 4 mm its front edge, by the tragus, came
+   * out past the loop onto the head's own skin, where the cut left the skin open along it.
+   */
+  const NOSE_MARGIN_MM: number = 4;
+  const AURICLE_MARGIN_MM: number = 6;
 
   /**
    * Spacing of a digit's layers at its root, mm, and how far from its first station that holds, mm. Each digit meets its limb in a curve a few
@@ -276,7 +281,7 @@ export namespace AutoMovieHumanF1 {
     const J = AutoMovieHumanF1Joints;
     return {
       centre: [(J.noseBase[1] - J.axisFloor[1]) / 1000, 0],
-      semi: [(J.noseHalf[0] + AURICLE_MARGIN_MM) / 1000, Math.atan((J.noseHalf[1] + AURICLE_MARGIN_MM) / J.noseBase[0])],
+      semi: [(J.noseHalf[0] + NOSE_MARGIN_MM) / 1000, Math.atan((J.noseHalf[1] + NOSE_MARGIN_MM) / J.noseBase[0])],
       sense: 1,
     };
   }
@@ -377,14 +382,14 @@ export namespace AutoMovieHumanF1 {
       const ear: AutoMovieHumanConicLoft.IFamily = side > 0 ? BODY.ear : twin(BODY.ear);
       // The ear owns two hollows, each a loft cut out of it, both read from the reference. The upper one, the scapha and the fossa above
       // the bowl, runs along the shell's normal and is cut from the ear alone before the ear is attached. The concha's bowl, low and
-      // forward behind the tragus, is read from the skin's depth and cut after the ear is attached; its cutter runs square into the head,
-      // is closed at both ends and stays within the ear's leaf, since across the ear's band the trim is refused. The leaf's pole stands
-      // on the antihelix between the two. Each curve is walked by its own length.
+      // forward behind the tragus, is read from the skin's depth and cut after the ear is attached; its cutter runs square into the head
+      // to the bowl's floor, is closed at both ends, and its cut crosses the ear's band from rim to rim and back, with a blend 0.1 mm
+      // wide (at 0.25 mm it folded). The leaf's pole stands on the antihelix between the two. Each curve is walked by its own length.
       const cutter = (family: AutoMovieHumanConicLoft.IFamily, host: AutoMovieConstructionNode, chord: number, phase: number): AutoMovieConstructionNode => ({ type: "join", kind: "diff", name: "cut." + family.name, host, part: leaf(family), seed: { type: "search", partFace: family.name, hostFace: ear.name, phase, from: 0, to: 0.9 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: chord / 1000 }, hostWidth: { type: "chord", value: chord / 1000 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04 });
       const scapha: AutoMovieHumanConicLoft.IFamily = side > 0 ? AutoMovieHumanF1Scapha : twin(AutoMovieHumanF1Scapha);
       const concha: AutoMovieHumanConicLoft.IFamily = side > 0 ? AutoMovieHumanF1Concha : twin(AutoMovieHumanF1Concha);
       root = { type: "port", name: "auricle." + ear.name, host: root, hostFace: trunk, loop: auricle(side), band: "band." + ear.name, part: cutter(scapha, leaf(ear), 0.25, Math.PI), partFace: ear.name, partEnd: "bottom", rail: RAIL_MM.ear / 1000, count: BAND.count, rows: BAND.rows };
-      root = cutter(concha, root, 0.25, Math.PI);
+      root = cutter(concha, root, 0.1, Math.PI);
     }
     root = { type: "port", name: "nostril." + BODY.nose.name, host: root, hostFace: trunk, loop: nostril(), band: "band." + BODY.nose.name, part: leaf(BODY.nose), partFace: BODY.nose.name, partEnd: "bottom", rail: RAIL_MM.nose / 1000, count: BAND.count, rows: BAND.rows };
     // Each nostril is cut from the head: its loft comes up out of the nose's underside and closes inside it.

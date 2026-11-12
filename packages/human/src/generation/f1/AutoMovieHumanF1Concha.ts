@@ -9,10 +9,10 @@ import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
  * Its sections are not plane cuts of the skin: the bowl's sides open toward the cheek, only 3 to 5 mm above its floor, so no plane
  * holds a loop of it. Each is read from the skin's depth over the ear: at the plane `|z| = c` the region round the course where the
  * outermost skin lies deeper than `c` (`FamilyConicBody.ts concha --concha-depth=-5,35,1540,1590 --concha-course=16.5,1563,90/16.5,1563,60
- * --concha-up=0,1,0 --concha-domain=21,24 --concha-tip=25 --concha-lead=18`). Fitted 65.5 to 69 mm out, where those regions close,
- * it is then moved 15.5 mm outward along its course (`conchaRoot`, `conchaTip`) so it stays within the ear's leaf, which starts 78 mm
- * out: a cut across the ear's band is refused by the trim. Its outer end is closed 9 mm past its lead's start, so the curve where it
- * meets the leaf never runs along an open end.
+ * --concha-up=0,1,0 --concha-domain=21,24 --concha-tip=25 --concha-lead=18`), fitted 65.5 to 69 mm out, where those regions close.
+ * It reaches the bowl's floor, past the ear's leaf, which starts 78 mm out: its cut crosses the ear's band from rim to rim and back,
+ * which the engine clips as one pair of runs (`AutoMovieSolidClip`). Its outer end is closed 9 mm past its lead's start, so the curve
+ * where it meets the leaf never runs along an open end.
  *
  * Frame: the figure's absolute reference pose, millimetres, forward +X, up +Y, +Z the reference's left. The course runs
  * through `centres` with a turn of half length `halves` at each joint; stations are arclength from the first centre and each

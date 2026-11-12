@@ -129,7 +129,7 @@ export namespace AutoMovieSolidCycle {
   ): (u: number, v: number) => boolean {
     const prepared: IPrepared =
       cycle.kind === "hole" || cycle.kind === "island"
-        ? { centreV: centre(cycle)[1] }
+        ? { centreV: middle(cycle) }
         : {
             ends: cycle.chart.map(
               (a: [number, number], k: number): [number, number, number] => {
@@ -164,6 +164,25 @@ export namespace AutoMovieSolidCycle {
     return [u, v, Math.round((a[1] - v) / period)];
   }
 
+  /**
+   * The middle of a hole's or island's phase span along its own unwrapped chart. A point's phase is moved by whole periods to within half a
+   * period of it before the parity test: every point of a cycle narrower than one period then reads its own image. The mean of the
+   * cycle's points served as long as every such cycle was narrow; a band cut through from rim to rim leaves an island almost a whole
+   * period wide, whose points crowd one end, and the mean moved the far end's points to the wrong image.
+   */
+  function middle(cycle: Pick<ICycle, "chart">): number {
+    let low: number = Infinity;
+    let high: number = -Infinity;
+    // Each point's coordinates are read once, `u` then `v`, as `centre` reads them.
+    for (const p of cycle.chart) {
+      void p[0];
+      const v: number = p[1];
+      low = Math.min(low, v);
+      high = Math.max(high, v);
+    }
+    return (low + high) / 2;
+  }
+
   /** The original parity and tie arithmetic, with optional invariant values. */
   function read(
     cycle: Pick<ICycle, "kind" | "chart">,
@@ -176,7 +195,7 @@ export namespace AutoMovieSolidCycle {
     if (cycle.kind === "hole" || cycle.kind === "island") {
       const w: number = shift(
         v,
-        prepared === undefined ? centre(cycle)[1] : prepared.centreV!,
+        prepared === undefined ? middle(cycle) : prepared.centreV!,
         period,
       );
       let inside: boolean = false;

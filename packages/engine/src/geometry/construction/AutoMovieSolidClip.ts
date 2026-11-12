@@ -265,7 +265,11 @@ export namespace AutoMovieSolidClip {
       return null;
     }
 
-    // Runs from crossing to crossing, each on one face.
+    // Runs from crossing to crossing, each on one face. A run that joins two
+    // of a face's trims (a cut across a band, from its one rim to its other)
+    // cuts nothing off by itself; it waits for the face's next such run, and
+    // the two are clipped together (`clipPair`).
+    const pending: Map<number, IRailPoint[]> = new Map();
     const start: number = rail.findIndex(
       (r: IRailPoint): boolean => r.faces.length === 2,
     );
@@ -288,9 +292,182 @@ export namespace AutoMovieSolidClip {
       if (face === undefined)
         return `the rail's run from phase ${entry.phase} to ${exit.phase} lies on no one face`;
       const failed: string | null = clip(body, face, run, along);
-      if (failed !== null) return failed;
+      if (failed === ACROSS) {
+        const first: IRailPoint[] | undefined = pending.get(face);
+        if (first === undefined) pending.set(face, run);
+        else {
+          pending.delete(face);
+          const paired: string | null = clipPair(body, face, first, run, along);
+          if (paired !== null) return paired;
+        }
+      } else if (failed !== null) return failed;
       k = j;
     }
+    for (const face of pending.keys())
+      return `the rail enters face ${body.faces[face]!.surface.name} through one trim and leaves through another, and crosses it only once`;
+    return null;
+  }
+
+  /** What `clip` returns for a run that joins two of the face's trims. */
+  const ACROSS: string = "across";
+
+  /**
+   * Place a rail crossing into the face's trim it lies on: the trim that
+   * already holds its vertex, or the one nearest it in the face's chart, split
+   * at the crossing's foot.
+   */
+  function place(
+    body: AutoMovieSolidBody.IBody,
+    face: number,
+    p: IRailPoint,
+  ): [AutoMovieSolidCycle.ICycle, number] | null {
+    const f: AutoMovieSolidBody.IFace = body.faces[face]!;
+    const period: number | undefined = f.surface.period;
+    const c: [number, number] = p.chart.get(face)!;
+    let best: {
+      cycle: AutoMovieSolidCycle.ICycle;
+      foot: AutoMovieSolidCycle.IFoot;
+    } | null = null;
+    for (const cycle of f.cycles) {
+      const at: number = cycle.vertices.indexOf(p.vertex);
+      if (at >= 0) return [cycle, at];
+      const foot: AutoMovieSolidCycle.IFoot = AutoMovieSolidCycle.foot(
+        cycle,
+        c[0],
+        c[1],
+        period,
+      );
+      if (best === null || foot.distance < best.foot.distance)
+        best = { cycle, foot };
+    }
+    if (best === null) return null;
+    const { cycle, foot } = best;
+    const other: number = p.faces.find((x: number): boolean => x !== face)!;
+    const old: AutoMovieSolidCycle.INeighbour = cycle.neighbours[foot.segment]!;
+    const there: [number, number] =
+      old.face === other
+        ? p.chart.get(other)!
+        : [
+            old.from[0] + foot.share * (old.to[0] - old.from[0]),
+            old.from[1] + foot.share * (old.to[1] - old.from[1]),
+          ];
+    const k: number = foot.segment + 1;
+    cycle.vertices.splice(k, 0, p.vertex);
+    cycle.chart.splice(k, 0, [
+      c[0],
+      AutoMovieSolidCycle.shift(c[1], cycle.chart[foot.segment]![1], period),
+    ]);
+    cycle.neighbours.splice(
+      foot.segment,
+      1,
+      { face: old.face, from: old.from, to: there },
+      { face: old.face, from: there, to: old.to },
+    );
+    return [cycle, k];
+  }
+
+  /**
+   * Clip one face by two runs of the rail that each join its two trims, as a
+   * cut does that crosses a band from rim to rim and back. Neither run cuts
+   * anything off alone; together they replace the two trims by one island: one
+   * trim's arc between the runs, the first run, the other trim's arc, the second
+   * run. It no longer winds round the period, so the face keeps its inside.
+   * Of the two such cycles, the one that keeps the side past the rail is kept,
+   * read by the same probe across the rail as `clip`'s.
+   */
+  function clipPair(
+    body: AutoMovieSolidBody.IBody,
+    face: number,
+    first: IRailPoint[],
+    second: IRailPoint[],
+    along: (a: IRailPoint, b: IRailPoint) => AutoMovieSolidCycle.INeighbour,
+  ): string | null {
+    const f: AutoMovieSolidBody.IFace = body.faces[face]!;
+    const period: number | undefined = f.surface.period;
+    const [e1, x1, e2, x2]: IRailPoint[] = [first[0]!, first[first.length - 1]!, second[0]!, second[second.length - 1]!];
+    const placed: ([AutoMovieSolidCycle.ICycle, number] | null)[] = [e1, x1, e2, x2].map((p: IRailPoint): [AutoMovieSolidCycle.ICycle, number] | null => place(body, face, p));
+    if (placed.some((p: [AutoMovieSolidCycle.ICycle, number] | null): boolean => p === null))
+      return `face ${f.surface.name} has no trim for the rail to cross`;
+    const a: AutoMovieSolidCycle.ICycle = placed[0]![0];
+    const b: AutoMovieSolidCycle.ICycle = placed[1]![0];
+    if (a === b || placed[2]![0] !== b || placed[3]![0] !== a)
+      return `the rail's two runs across face ${f.surface.name} do not each join its two trims`;
+    // An arc of a trim from one crossing to another, walked in the trim's own
+    // order (`step` 1) or against it (-1). The band's two rims run the same way
+    // round, so one of the two arcs is walked against its trim's order, or the
+    // new cycle would wind once round the period.
+    const arc = (cycle: AutoMovieSolidCycle.ICycle, from: IRailPoint, to: IRailPoint, step: 1 | -1): number[] => {
+      const m: number = cycle.vertices.length;
+      const out: number[] = [];
+      for (let k: number = cycle.vertices.indexOf(from.vertex); ; k = (k + step + m) % m) {
+        out.push(k);
+        if (cycle.vertices[k] === to.vertex) break;
+      }
+      return out;
+    };
+    const reverse = (n: AutoMovieSolidCycle.INeighbour): AutoMovieSolidCycle.INeighbour => ({ face: n.face, from: n.to, to: n.from });
+
+    // One closed cycle: the arc of `p`, then the run `r`, the arc of `q`, then the run `s`, each run starting where its arc ends.
+    const build = (
+      p: AutoMovieSolidCycle.ICycle,
+      pArc: number[],
+      r: IRailPoint[],
+      q: AutoMovieSolidCycle.ICycle,
+      qArc: number[],
+      s: IRailPoint[],
+    ): AutoMovieSolidCycle.ICycle => {
+      const vertices: number[] = [];
+      const chart: [number, number][] = [];
+      const neighbours: AutoMovieSolidCycle.INeighbour[] = [];
+      for (const [cycle, positions, run] of [[p, pArc, r], [q, qArc, s]] as [AutoMovieSolidCycle.ICycle, number[], IRailPoint[]][]) {
+        const m: number = cycle.vertices.length;
+        positions.forEach((k: number, i: number): void => {
+          vertices.push(cycle.vertices[k]!);
+          chart.push(cycle.chart[k]!);
+          if (i + 1 < positions.length) {
+            const next: number = positions[i + 1]!;
+            neighbours.push(next === (k + 1) % m ? cycle.neighbours[k]! : reverse(cycle.neighbours[next]!));
+          }
+        });
+        for (let i: number = 0; i + 1 < run.length; i++) {
+          if (i > 0) {
+            vertices.push(run[i]!.vertex);
+            chart.push(run[i]!.chart.get(face)!);
+          }
+          neighbours.push(along(run[i]!, run[i + 1]!));
+        }
+      }
+      for (let k: number = 1; k < chart.length; k++)
+        chart[k] = [chart[k]![0], AutoMovieSolidCycle.shift(chart[k]![1], chart[k - 1]![1], period)];
+      return { kind: "island", vertices, chart, neighbours };
+    };
+    // Of the arc directions on the second trim, the one whose cycle closes without winding round the period.
+    const unwound = (make: (step: 1 | -1) => AutoMovieSolidCycle.ICycle): AutoMovieSolidCycle.ICycle => {
+      const turn = (k: AutoMovieSolidCycle.ICycle): number => (period === undefined ? 0 : Math.abs(k.chart[k.chart.length - 1]![1] - k.chart[0]![1]));
+      const [plus, minus]: AutoMovieSolidCycle.ICycle[] = [make(1), make(-1)];
+      return turn(plus) <= turn(minus) ? plus : minus;
+    };
+    const one: AutoMovieSolidCycle.ICycle = unwound((step: 1 | -1): AutoMovieSolidCycle.ICycle => build(a, arc(a, x2, e1, 1), first, b, arc(b, x1, e2, step), second));
+    const two: AutoMovieSolidCycle.ICycle = unwound((step: 1 | -1): AutoMovieSolidCycle.ICycle => build(a, arc(a, e1, x2, 1), [...second].reverse(), b, arc(b, e2, x1, step), [...first].reverse()));
+
+    // The candidate that keeps the side past the rail, probed as `clip` does.
+    const inner: IRailPoint[] = first.slice(1, -1);
+    const probe: IRailPoint | undefined = inner[Math.floor(inner.length / 2)];
+    let chosen: AutoMovieSolidCycle.ICycle = one;
+    if (probe !== undefined && probe.across !== undefined) {
+      const at = (p: IRailPoint): number[] => body.mesh.positions.slice(3 * p.vertex, 3 * p.vertex + 3);
+      const gap = (u: IRailPoint, v: IRailPoint): number => Math.hypot(...[0, 1, 2].map((i: number): number => at(u)[i]! - at(v)[i]!));
+      const index: number = first.indexOf(probe);
+      const side: number = SIDE * Math.min(gap(probe, first[index - 1]!), gap(probe, first[index + 1]!));
+      const c: [number, number] = probe.chart.get(face)!;
+      const e: [number, number] = probe.across;
+      const keeps = (k: AutoMovieSolidCycle.ICycle): boolean =>
+        AutoMovieSolidCycle.kept(k, c[0] + side * e[0], c[1] + side * e[1], period) && !AutoMovieSolidCycle.kept(k, c[0] - side * e[0], c[1] - side * e[1], period);
+      if (keeps(two) && !keeps(one)) chosen = two;
+      else if (!keeps(one)) return `neither side of the rail's two runs across face ${f.surface.name} keeps the face past the rail`;
+    }
+    f.cycles.splice(f.cycles.indexOf(a), 1, chosen);
+    f.cycles.splice(f.cycles.indexOf(b), 1);
     return null;
   }
 
@@ -307,58 +484,12 @@ export namespace AutoMovieSolidClip {
     const exit: IRailPoint = run[run.length - 1]!;
 
     // Both crossings into the cycle they lie on.
-    const place = (
-      p: IRailPoint,
-    ): [AutoMovieSolidCycle.ICycle, number] | null => {
-      const c: [number, number] = p.chart.get(face)!;
-      let best: {
-        cycle: AutoMovieSolidCycle.ICycle;
-        foot: AutoMovieSolidCycle.IFoot;
-      } | null = null;
-      for (const cycle of f.cycles) {
-        const at: number = cycle.vertices.indexOf(p.vertex);
-        if (at >= 0) return [cycle, at];
-        const foot: AutoMovieSolidCycle.IFoot = AutoMovieSolidCycle.foot(
-          cycle,
-          c[0],
-          c[1],
-          period,
-        );
-        if (best === null || foot.distance < best.foot.distance)
-          best = { cycle, foot };
-      }
-      if (best === null) return null;
-      const { cycle, foot } = best;
-      const other: number = p.faces.find((x: number): boolean => x !== face)!;
-      const old: AutoMovieSolidCycle.INeighbour =
-        cycle.neighbours[foot.segment]!;
-      const there: [number, number] =
-        old.face === other
-          ? p.chart.get(other)!
-          : [
-              old.from[0] + foot.share * (old.to[0] - old.from[0]),
-              old.from[1] + foot.share * (old.to[1] - old.from[1]),
-            ];
-      const k: number = foot.segment + 1;
-      cycle.vertices.splice(k, 0, p.vertex);
-      cycle.chart.splice(k, 0, [
-        c[0],
-        AutoMovieSolidCycle.shift(c[1], cycle.chart[foot.segment]![1], period),
-      ]);
-      cycle.neighbours.splice(
-        foot.segment,
-        1,
-        { face: old.face, from: old.from, to: there },
-        { face: old.face, from: there, to: old.to },
-      );
-      return [cycle, k];
-    };
-    const inPlace: [AutoMovieSolidCycle.ICycle, number] | null = place(entry);
-    const outPlace: [AutoMovieSolidCycle.ICycle, number] | null = place(exit);
+    const inPlace: [AutoMovieSolidCycle.ICycle, number] | null = place(body, face, entry);
+    const outPlace: [AutoMovieSolidCycle.ICycle, number] | null = place(body, face, exit);
     if (inPlace === null || outPlace === null)
       return `face ${f.surface.name} has no trim for the rail to cross`;
-    if (inPlace[0] !== outPlace[0])
-      return `the rail enters face ${f.surface.name} through one trim and leaves through another`;
+    // A run that joins two trims cuts nothing off by itself; `trim` pairs it with the next such run.
+    if (inPlace[0] !== outPlace[0]) return ACROSS;
     const cycle: AutoMovieSolidCycle.ICycle = inPlace[0];
     const ia: number = cycle.vertices.indexOf(entry.vertex);
     const ib: number = cycle.vertices.indexOf(exit.vertex);

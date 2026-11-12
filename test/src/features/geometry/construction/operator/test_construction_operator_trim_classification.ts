@@ -31,12 +31,15 @@ type Loop = AutoMovieSolidMesh.ILoop;
  *    rows, outward triangles, paired interior edges and the sole open top ring.
  * 5. A surface failure keeps its identity and station-major jet call order;
  *    empty/singleton face grids do not acquire new admission requirements.
+ * 6. A periodic island 5.9 of 6.28 wide, its points crowded at one end: a
+ *    point at its far end is kept, at its own phase and a period lower, and
+ *    points in its gap are not.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls live/prepared Cycle and MeshLoop readers and the real Mesh.face consumer. Boolean decisions, getter/exception effects, chart-read counts, owner coordinates, edge uses and triangle normals catch stale snapshots, reordered failure, wrong metric margins or changed tessellation. Equivalent immutable numeric preparation is allowed.
  * @evidence contracts/development/testing.md#independent-expectations Rectangle distances follow the affine plane map: 2 mm on the stretched chart and sqrt(2) mm on the sheared chart. The turnback polygon crosses v=1.5 at u=1.5,3,4.5. The cylinder has four columns and two retained rows, hence 8 grid and 8 zipper triangles, 12 total vertices and one open four-edge top. Floating owner round trips allow 64 EPSILON at this unit scale. A separate literal legacy arithmetic oracle checks compatibility only, including ambiguous zero-margin boundary ties; it does not establish the currently unmet inclusive-on-cycle contract.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers all four kinds, positive/zero margins, periodic aliases and ties, empty/singleton/duplicate charts, singular metrics, unsupported accessors/non-finite data, short-circuit exceptions, copied-data reuse and new preparation after mutation. The unchanged five construction failures and full merge/clip topology are observed by the same construction_ round, not redefined here.
  * @evidence contracts/development/testing.md#execution-ownership Discoverable synchronous CPU unit test_construction_operator_trim_classification, reached by --include construction_. All surfaces and accessor probes belong to this test; it generates no person and starts no process, host, renderer or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Rectangular holes/islands in stretched and sheared planes, with margins).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Rectangular holes/islands in stretched and sheared planes, with margins).
  */
 export function test_construction_operator_trim_classification(): void {
   const square: Point[] = [
@@ -100,7 +103,22 @@ export function test_construction_operator_trim_classification(): void {
       );
   }
 
-  // This oracle deliberately owns legacy equivalence, not correct boundary ownership.
+  // A periodic island almost a whole period wide, its points crowded at one end, as a band cut through from rim to rim leaves: a point
+  // at its far end is inside it and a point in its gap is not. The mean of its points' phases lies near the crowded end, and a phase
+  // moved to within half a period of that mean read the far end's points in the gap's image.
+  const wide: Point[] = [
+    [0, 0.1],
+    ...Array.from({ length: 40 }, (_: unknown, k: number): Point => [0, 0.1 + (0.5 * k) / 39]),
+    [0, 6.0],
+    [1, 6.0],
+    [1, 0.1],
+  ];
+  const wideRead: (u: number, v: number) => boolean = AutoMovieSolidCycle.prepare(loop("island", wide), 2 * Math.PI);
+  TestValidator.predicate("wide island keeps its far end", wideRead(0.5, 5.8) && AutoMovieSolidCycle.kept(loop("island", wide), 0.5, 5.8, 2 * Math.PI));
+  TestValidator.predicate("wide island keeps its far end through a lifted phase", wideRead(0.5, 5.8 - 2 * Math.PI));
+  TestValidator.predicate("wide island leaves its gap", !wideRead(0.5, 6.2) && !wideRead(0.5, 0.05));
+
+  // This oracle owns equivalence with the face's arithmetic, not correct boundary ownership.
   const turn: number = 2 * Math.PI;
   const charts: Point[][] = [
     square,
@@ -214,9 +232,13 @@ function legacy(
   ): number => (p === undefined ? x : x + p * Math.round((reference - x) / p));
   let kept: boolean;
   if (shape.kind === "hole" || shape.kind === "island") {
-    let sum: number = 0;
-    for (const p of points) sum += p[1];
-    const w: number = shift(v, sum / points.length, period);
+    let low: number = Infinity;
+    let high: number = -Infinity;
+    for (const p of points) {
+      low = Math.min(low, p[1]);
+      high = Math.max(high, p[1]);
+    }
+    const w: number = shift(v, (low + high) / 2, period);
     let inside: boolean = false;
     for (let k: number = 0; k < points.length; k++) {
       const a: Point = points[k]!;
