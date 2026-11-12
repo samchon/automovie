@@ -30,11 +30,13 @@ Record the choice in [project context](../production/project-context.md); in an 
 
 Asset-only work has no narrative passes. Choose form and scale through [direction](planning/direction.md); complete work is the default.
 
+### Without this workflow {#without-the-workflow}
+
+The user may decline this workflow, in any folder. Then no story pass runs, and the agent writes the screenplay directly from the instructions, or the user writes [their own](#users-own-screenplay). Research still serves the laws the code needs. Record the choice in project context.
+
 ### The user's own screenplay {#users-own-screenplay}
 
-The user may write the screenplay themselves or decline this workflow, in any folder. Then no story pass runs, and their screenplay, if any, is used exactly as given: never edit, review or rewrite it, because it is theirs. Record the choice in project context.
-
-A decision the code needs that their screenplay leaves open is [asked of the user](planning/requirements.md#asking-the-user) and recorded in the instructions, and the code realizes the screenplay and those answers. Research still serves the laws the code needs.
+A screenplay the user writes either enters this workflow through [intake](document-layout.md#intake-of-existing-work) as material to refine, or stays fixed, as the user chooses; ask when they have not said. A fixed screenplay is used exactly as given: never edit, review or rewrite it, because it is theirs. A decision the code needs that it leaves open is [asked of the user](planning/requirements.md#asking-the-user) and recorded in the instructions, and the code realizes the screenplay and those answers.
 
 ## Construction
 

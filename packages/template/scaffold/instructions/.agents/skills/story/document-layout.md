@@ -35,4 +35,4 @@ A part can be an act, release block, or another division suited to the format. A
 
 ## Intake of existing work
 
-Identify supplied settings, scripts or completed works by their original source revision or retained reference. Through [instructions](planning/requirements.md#requirements), record their identity, adopted requirements, fixed quotations, and reinterpretation boundaries. Existing finished work supplies material and choices to assess; it does not approve this production's layers. The [user's own screenplay](workflow.md#users-own-screenplay) is the exception: it is the screenplay, kept unchanged in the screenplay location.
+Identify supplied settings, scripts or completed works by their original source revision or retained reference. Through [instructions](planning/requirements.md#requirements), record their identity, adopted requirements, fixed quotations, and reinterpretation boundaries. Existing finished work supplies material and choices to assess; it does not approve this production's layers. A user's [fixed screenplay](workflow.md#users-own-screenplay) is the exception: it is the screenplay, kept unchanged in the screenplay location.

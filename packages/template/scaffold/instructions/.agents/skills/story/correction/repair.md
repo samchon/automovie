@@ -2,7 +2,7 @@
 
 Identify the earliest owner, the consumers that use it, the current pass and the closed boundaries before changing the work. For a requested revision, name the change, what the user wants preserved and the smallest useful scope, then trace its impact through dependent facts, scenes, assets, performance and edit.
 
-The [user's own screenplay](../workflow.md#users-own-screenplay) is never repaired: ask the user what it leaves open or cannot be performed, and record the answer in the instructions.
+A user's [fixed screenplay](../workflow.md#users-own-screenplay) is never repaired: ask the user what it leaves open or cannot be performed, and record the answer in the instructions.
 
 ## Upstream defects
 

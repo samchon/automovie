@@ -14,7 +14,7 @@ Statements: [statements/composition.md](statements/composition.md).
 
 Does the scene compose every decision of the beats it cites, without omitting, altering or adding to them, and does a film play every scene as the screenplay orders it, at the delivery profile the production records? The screenplay is the last place a decision is made, so a choice made in code leaves the screenplay and the film disagreeing.
 
-State the beats realized and what happens in them, each decision the code had to make where the screenplay was vague, and where the screenplay, or the instructions for the user's own screenplay, now record it.
+State the beats realized and what happens in them, each decision the code had to make where the screenplay was vague, and where the screenplay, or the instructions for a user's fixed screenplay, now record it.
 
 ## Does it only compose? {#composition-only}
 
