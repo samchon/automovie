@@ -19,7 +19,10 @@ import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
  * 70 to 74 mm at x -10 to 30): carried straight in to the floor at 65 mm, the cut's lower wall stood 20 mm deep as a flat lit shelf over
  * the lobe. Its back (+v) extreme widens from that section's 8.66 mm to 11.5 and 13.5 mm toward the mouth, so the back wall slopes back
  * toward the antihelix's crest (x 0 to 6 at 88 to 91 mm out, `FamilyConicEar.ts --map`) instead of standing square to the face. Its lower
- * (-u) extreme reads -6 mm across in place of the fit's -10.6; the model holds a guide within 0.92 of its neighbours' box either way.
+ * (-u) extreme reads -6 mm across in place of the fit's -10.6; the model holds a guide within 0.92 of its neighbours' box either way. Its
+ * front (-v) extreme reaches 8.5 mm forward at the mouth and 7 mm at the floor's level (x 25 to 23.5) in place of the fit's 4.9: the leaf's
+ * hull spans the concha's mouth in front, 79 to 80 mm out at x 20 to 25 where the reference's tragus and cheek stand 72 to 74 mm out
+ * (`FamilyConicEar.ts --map`), and the narrow cutter left that span as a flat wall seen from the front.
  *
  * Frame: the figure's absolute reference pose, millimetres, forward +X, up +Y, +Z the reference's left. The course runs
  * through `centres` with a turn of half length `halves` at each joint; stations are arclength from the first centre and each
@@ -57,7 +60,7 @@ export const AutoMovieHumanF1Concha: AutoMovieHumanConicLoft.IFamily = {
     // side (-v) extreme: u, mm
     [-8.73, -8.73, -8.73],
     // side (-v) extreme: v, mm
-    [-4.89, -4.89, -4.89],
+    [-8.5, -7.75, -7],
     // shoulder rho of the arc after anchor 0, share
     [0.4816, 0.4816, 0.4816],
     // shoulder rho of the arc after anchor 1, share
