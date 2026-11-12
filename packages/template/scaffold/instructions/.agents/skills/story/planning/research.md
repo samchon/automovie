@@ -4,7 +4,7 @@ Study what the film must show truthfully: each practice, the conduct of official
 
 ## When to study {#when-to-study}
 
-Before choosing the [direction](direction.md), study only what could change it, such as whether a commissioned ending is possible. Settings or a brief then studies each fact as it fixes it. The screenplay studies the law and outcomes of each action a beat names that the installed packages do not carry; when [no narrative pass runs](../workflow.md#who-writes-the-screenplay), the code studies them. Code and delivery review study the measurements they program or measure.
+Before choosing the [direction](direction.md), study only what could change it. Settings or a brief then studies each fact as it fixes it. The layer that first names an action studies its law and outcomes; when [no narrative pass runs](../workflow.md#who-writes-the-screenplay), the code does. Code and delivery review study the measurements they program or measure.
 
 A value nothing written yet uses is not gathered, because its consumer often needs a different value when it is written.
 
@@ -24,7 +24,7 @@ Read each passage in context and study footage as consecutive frames through its
 
 Check each value against its source once, when it is written. Cross-check disputed claims and record what stays unavailable.
 
-Save permitted originals in `references/`, rights-unconfirmed ones in ignored `references/private/` and footage in ignored `media/acquired/videos/`, then open the saved files. Keep one `docs/research/index.md` naming each original's creator, URL, retrieval date, locator, rights and use, and keep each topic in one file, `docs/research/<discipline>/<topic>.md`, for other studies to cite rather than repeat. A URL or an empty index is not a retained source.
+Save permitted originals in `references/`, rights-unconfirmed ones in ignored `references/private/` and footage in ignored `media/acquired/videos/`, then open the saved files. Keep one `docs/research/index.md` naming each original's creator, URL, retrieval date, locator, rights and use, and write each study in `docs/research/<discipline>/<topic>.md`. A URL or an empty index is not a retained source.
 
 ## Use
 
