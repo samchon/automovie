@@ -12,7 +12,7 @@ Give the classifier the current body and needed neighbors, the selected contract
 
 For scripts and screenplay, classify every sentence against every applicable named failure. For narrative construction, also pair each paragraph with its parent passages, or the brief for a short, to test [parent differentiation](../../contracts/story/shared/principles/narratives.md#parent-differentiation), and compare inherited names, address, quantities, dates, places, states and certainty with the parents.
 
-Record the revision and covered ranges, list the tested failures once, and give one row per sentence with its locator and the names of the failures found, or `-`.
+Record the revision and covered ranges, list the tested failures once, and give one row per sentence with its locator and the names of the failures found, or `-`, noting any other loss the recipient would suffer there.
 
 An ambiguous candidate is decided in context by the recipient loss; ambiguity alone is not yes. Keep the raw table in ignored `.cache/` and its supported findings in the accountable record.
 
