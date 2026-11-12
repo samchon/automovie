@@ -1,5 +1,5 @@
 import path from "node:path";
-import { AutoMovieLoftChain, AutoMovieViewAxis } from "@automovie/engine";
+import { AutoMovieLoftChain, AutoMovieMeshExtract as M, AutoMovieViewAxis } from "@automovie/engine";
 import { AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
 import { FamilyConicSection as C } from "./FamilyConicSection";
 import { FamilyConicSource as R } from "./FamilyConicSource";
@@ -213,6 +213,22 @@ namespace FamilyConicScan {
           return "x" + x + ":" + (hits.length === 0 ? "." : Math.max(...hits).toFixed(0));
         });
         process.stdout.write("y " + y + " half width " + widths.join(" ") + "\n");
+      }
+      return;
+    }
+    if (process.argv[2] === "lobule") {
+      // Frontal planes through the +Z lobule, 4 mm apart: at each height every side distance where the plane's cut of the head crosses it.
+      // Below the lobule's crease a height crosses the skull and then the lobule's underside and outer face; the crease is the height where the
+      // underside's crossing meets the skull's.
+      for (let x: number = 6; x <= 18; x += 4) {
+        const pieces: C.P[][] = M.outline(source.head, { origin: [x, 0, 0], axes: [[1, 0, 0], [0, 0, 1], [0, 1, 0]] }, [0], 0, 0.5, 0)[0]!.loops.map((loop: M.ILoop): C.P[] => [...loop.points, ...(loop.closed ? [loop.points[0]!] : [])]);
+        for (let y: number = 1538; y <= 1562; y += 1) {
+          const hits: number[] = pieces.flatMap((piece: C.P[]): number[] => piece.slice(1).flatMap((b: C.P, i: number): number[] => {
+            const a: C.P = piece[i]!;
+            return a[1] > y !== b[1] > y ? [a[0] + ((b[0] - a[0]) * (y - a[1])) / (b[1] - a[1])] : [];
+          })).filter((z: number): boolean => z > 50);
+          process.stdout.write("x " + x + " y " + y + ": " + hits.sort((p: number, q: number): number => p - q).map((z: number): string => z.toFixed(1)).join(" ") + "\n");
+        }
       }
       return;
     }

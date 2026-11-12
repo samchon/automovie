@@ -24,7 +24,15 @@ import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
  * pole stands. On a course leaning from the root the band owned the auricle's front third and the lobule's lower half. The rolled rim is
  * the helix merged onto this leaf (`AutoMovieHumanF1Helix`) and the hollows are cuts, so the leaf carries no relief: a net over its outer
  * face converged with the dome's phases and drew a fan of creases on the upper inner face. Re-emitted from `test` by
- * `node .shots/esbuild/FamilyConicBody.cjs ear --emit`, with this paragraph kept.
+ * `node .shots/esbuild/FamilyConicBody.cjs ear --emit`, with this paragraph and the next kept.
+ *
+ * Hand edit after that fit: the front (+u) extreme's `v` at the knots at 19 and 22 mm is -0.8 and -1.5 mm in place of the fit's 0.78 and
+ * 0.12. The fit put the front extreme within 0.5 to 1.8 mm of the side (+v) extreme's `v` there, so the arc between them, which leaves the
+ * front extreme square to `u`, turned by about 80 degrees within 0.15 mm of the wall (read every 0.003 rad of phase across the front
+ * extreme at stations 21.5 to 23.5): a crease along the rim's top, over which the helix is merged. The curve where the tube crosses it
+ * turned as sharply, and the merge was lost or its blend folded at that crossing for one setting in two of the tube's buried end, its
+ * radius's knots or its columns (192 columns passed, 256 folded). Held 3.4 and 2.1 mm apart, every one of those settings merges on both
+ * ears, the ear's own subtree realized from the construction's sources.
  */
 export const AutoMovieHumanF1Ear: AutoMovieHumanConicLoft.IFamily = {
   name: "ear",
@@ -36,8 +44,8 @@ export const AutoMovieHumanF1Ear: AutoMovieHumanConicLoft.IFamily = {
   values: [
     // front (+u) extreme: u, mm
     [17.68, 20.13, 19.87, 16.71, 13.27],
-    // front (+u) extreme: v, mm
-    [8.15, 3.98, 2.56, 0.78, 0.12],
+    // front (+u) extreme: v, mm; at the last two knots a hand edit after the fit (above)
+    [8.15, 3.98, 2.56, -0.8, -1.5],
     // side (+v) extreme: u, mm
     [-20.77, -46.35, -22.66, -9.9, 3.47],
     // side (+v) extreme: v, mm
