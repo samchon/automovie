@@ -26,6 +26,6 @@ Keep every other fact with its owner and link to it: creative instructions in `d
 
 ## Asking operating choices {#asking-operating-choices}
 
-Ask for an operating choice the user has neither made nor delegated, such as the video model, a provider, a cost limit or the rest of the delivery profile, when the first task that uses it begins, and record the answer here before that task relies on it. Asked at the start, the user answers before knowing what the choice changes, and the answer is often revised by the time it is used. Running time and frame are asked with the story. The story's own questions follow [creative requirements](../story/planning/requirements.md#asking-the-user).
+Ask for an operating choice the user neither made nor delegated, such as the video model, a cost limit or the delivery format, when the first task that uses it begins, and record the answer here. Asked earlier, the user answers before knowing what the choice changes. Running time, frame and the rest of the story are asked under [creative requirements](../story/planning/requirements.md#asking-the-user).
 
-When the user cannot answer a question during the run, as in an unattended run, record it under authority and unresolved choices, stop the work that depends on it and report it, because a guessed answer is not a delegation.
+A question the user cannot answer during the run, as in an unattended run, is recorded under authority and unresolved choices, and the work that depends on it stops, because a guessed answer is not a delegation.

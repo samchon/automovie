@@ -18,13 +18,11 @@ A changed or withdrawn requirement reaches its consumers through [repair](../cor
 
 ## Asking the user {#asking-the-user}
 
-A user who hands the story to the agent still decides what it is, such as its events, the people they happen to, its ending, tone and form, and its running time and frame, unless they delegate that too. Before research and the first canon layer, ask about each consequential element of what the story is that they have neither fixed nor delegated, in rounds, recording each round's answers at their owners before asking the next, because an answer often raises elements the request did not show. The asking is complete when every such element the conversation and the user's materials show is fixed or delegated. A story built on a guessed element is rewritten once the user reads it, and every layer written on it goes with it.
+Handing the story to the agent leaves what it is with the user unless they delegate that too: its events, people, ending, tone, form, running time and frame. A story built on a guessed one is rewritten once the user reads it, with every layer written on it. Each layer's own decisions within what the user decided, such as a researched fact, are delegated and not asked.
 
-Handing over the story delegates each layer's own decisions within what the user decided, so a researched fact or a layer's contribution is not a question.
+Before research, ask about each such element the user neither fixed nor delegated. Ask in rounds and record each round's answers at their owners, because an answer often raises a new element. Stop when the conversation and the user's materials leave none, or when the user delegates the rest, recorded as one delegated choice.
 
-A blanket delegation, such as "decide the rest", ends the asking: record it as one delegated choice covering every remaining element.
-
-Afterwards, ask only when a [discovery](discovery.md) checkpoint finds an element of what the story is that the user neither fixed nor delegated, or when two fixed conditions conflict. A question the user cannot answer during the run waits as [project context](../../production/project-context.md#asking-operating-choices) sets.
+Afterwards, ask only when a [discovery](discovery.md) checkpoint finds a new such element or two fixed conditions conflict. A question the user cannot answer during the run waits as [project context](../../production/project-context.md#asking-operating-choices) sets.
 
 ## Factual basis {#factual-basis}
 
