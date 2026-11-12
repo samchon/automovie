@@ -169,11 +169,11 @@ export namespace AutoMovieHumanF1Joints {
   /** Half extents of the auricle's root in height and fore and aft. */
   export const earHalf: [number, number] = [29, 10.5];
 
-  /** Where the nose's course starts, inside the face behind the nose's free end. */
-  export const noseRoot: V3 = [118, 1561, 0];
+  /** Where the nose's course starts, inside the face 5 mm behind the frontal plane through the alar grooves. */
+  export const noseRoot: V3 = [108, 1556, 0];
 
   /** Where the nose's course ends, straight forward past its tip. */
-  export const noseTip: V3 = [140, 1561, 0];
+  export const noseTip: V3 = [140, 1556, 0];
 
   /** Where the course of the concha's bowl starts, out past the auricle over the bowl's deepest point. */
   export const conchaRoot: V3 = [16.5, 1563, 90];
@@ -192,12 +192,6 @@ export namespace AutoMovieHumanF1Joints {
 
   /** Where a nostril's course ends, straight up inside the nose. */
   export const nostrilTip: V3 = [119.1, 1560.4, 7.7];
-
-  /** Centre of the nose's root on the frontal plane it stands free of the lips and cheeks at. */
-  export const noseBase: V3 = [122, 1561, 0];
-
-  /** Half extents of the nose's root in height and across. */
-  export const noseHalf: [number, number] = [21, 18];
 
   /** The point `length` millimetres past `b` on the line from `a` through `b`: where a digit's course ends beyond its last joint. */
   export function beyond(a: V3, b: V3, length: number): V3 {
