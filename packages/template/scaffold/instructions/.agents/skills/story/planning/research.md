@@ -14,7 +14,7 @@ Read the installed packages' READMEs before deciding what to study. A movement t
 
 ## Performance study {#performance-study}
 
-Study real practice at the depicted level, such as a sport, fight, dance, craft or procedure, and the broadcast or film practice of shooting it; an invented action studies its closest real analogue and states where it departs. Record, as each consumer is written, what it needs so none invents the practice: its laws, its outcome table, the patterns of top-level performance and the measurable targets for what a viewer sees and hears. The [depicted-practice question](../../contracts/story/shared/principles/research.md#depicted-practice) and its statements hold the study to them.
+Study real practice at the depicted level, such as a sport, fight, dance, craft or procedure, and the broadcast or film practice of shooting it; an invented action studies its closest real analogue and states where it departs. Record what each consumer needs so none invents the practice: its laws, its outcome table, the patterns of top-level performance and the measurable targets for what a viewer sees and hears. The [depicted-practice question](../../contracts/story/shared/principles/research.md#depicted-practice) and its statements hold the study to them.
 
 ## Sources
 
