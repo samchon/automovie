@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { createHash } from "node:crypto";
 import { AutoMovieLoftChain, type AutoMovieLoftFrame, AutoMovieLoftRelief, AutoMovieNaturalSpline, AutoMovieViewAxis, type AutoMovieViewLoft as L, AutoMovieViewChain as Q, type IAutoMovieLoftRelief } from "@automovie/engine";
+import { AutoMovieHumanF1 } from "@automovie/human";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
@@ -302,6 +303,17 @@ namespace FamilyConicBody {
     return Math.min(nose(p), p[0] - (113 + 9 * t * t * (3 - 2 * t)));
   }
 
+  /**
+   * `--side-net=rows,columns,from,to,phase,reach,fade,fadePhase,top[,fadeIn[,held]]`: a trial net over the nose's sidewalls, mirrored across
+   * the dorsum to `phase` rad either side and cast inward round the course, the skin above `top` mm left unobserved, faded in over `fadeIn`
+   * mm and held at zero up to `held` mm past the rail curve. Not kept (`docs/work/f1-conic-families.md`, Open): its edge drew a line along
+   * the rail however it was placed, since the supra-alar hollow's deepest part lies on the band.
+   */
+  const SIDE_NET: number[] | undefined = process.argv.find((a: string): boolean => a.startsWith("--side-net="))?.slice(11).split(",").map(Number);
+
+  /** Where the nose's band lands on it at a phase, mm from its first station (`AutoMovieHumanF1.NOSE_RAILS_MM`). */
+  const NOSE_RAIL: (phi: number) => number = AutoMovieNaturalSpline.periodic(AutoMovieHumanF1.NOSE_RAILS_MM);
+
   /** `--floor-net=<rows>,<columns>`: the nose's floor net's control points; absent, 15 by 17 (about 1.3 mm along by 1.8 mm round). */
   const FLOOR_NET: [number, number] = (process.argv.find((a: string): boolean => a.startsWith("--floor-net="))?.slice(12).split(",").map(Number) as [number, number] | undefined) ?? [15, 17];
 
@@ -452,6 +464,16 @@ namespace FamilyConicBody {
     /** How far in from its first and last station, mm, and its first and last phase, radians, the window takes less than the whole height (`H.IWindow`). */
     fade?: [number, number];
     fadePhase?: [number, number];
+
+    /**
+     * The first station a ray is cast from, mm; absent, the window's first. A window may start before the part's first section, where no
+     * point of the part stands, so that its zero edge lies under the band that replaces the part's first stations and the net is whole where
+     * the band lands.
+     */
+    observe?: number;
+
+    /** Where the net is held at zero instead of cast: by station, mm, and phase, radians. */
+    held?: (s: number, phi: number) => boolean;
   }
 
   /** A relief window of a part. */
@@ -731,6 +753,7 @@ namespace FamilyConicBody {
           // The lobule's underside. Its net asked for the whole height up to its edges stood 2.4 to 4.4 mm deep one column from its zero
           // edge columns, and the cliff showed as upright slivers on either side of the tip in profile; it hands its edges over (`fade`).
           { name: "under", stations: [22.5, 27], phases: [Math.PI - 1.1, Math.PI + 1.1], axis: [0, 1, 0], rows: 31, columns: 39, reach: 2.5, mirror: true, fade: [1, 1.5], fadePhase: [0.35, 0.35] },
+          ...(SIDE_NET === undefined ? [] : [{ name: "side", stations: [SIDE_NET[2]!, SIDE_NET[3]!] as [number, number], phases: [-SIDE_NET[4]!, SIDE_NET[4]!] as [number, number], axis: [0, -1, 0] as R.V, turn: [0, 0, 1] as R.V, skin: (p: R.V): number => Math.max(-nose(p), p[1] - SIDE_NET[8]!), rows: SIDE_NET[0]!, columns: SIDE_NET[1]!, reach: SIDE_NET[5]!, mirror: true, fade: [SIDE_NET[9] ?? 0, SIDE_NET[6]!] as [number, number], fadePhase: [SIDE_NET[7]!, SIDE_NET[7]!] as [number, number], observe: Math.max(5.5, SIDE_NET[2]!), ...(SIDE_NET[10] === undefined ? {} : { held: (s: number, phi: number): boolean => s < 5.5 + NOSE_RAIL(phi) + SIDE_NET[10]! }) }]),
         ] },
         // The breast as a loft of its own through its dome's top (`BREAST_ROOT`), attached at a port on the chest that the trunk's sections
         // leave out (`breasts`), so the fold under it is the band's short side. Its sections read the skin inside a cylinder about the course
@@ -1353,6 +1376,7 @@ namespace FamilyConicBody {
           for (let j: number = face.phases === undefined ? 0 : 1; j < about; ++j) {
             const s: number = window.stations[0] + ((window.stations[1] - window.stations[0]) * i) / along;
             const phi: number = window.phases[0] + ((window.phases[1] - window.phases[0]) * j) / about;
+            if (face.observe !== undefined && s < face.observe) continue;
             bases.push({ s, phi, p: AutoMovieLoftChain.point(capped.chain, s, phi) as R.V, heldout: i % 2 === 1 });
           }
 
@@ -1407,7 +1431,7 @@ namespace FamilyConicBody {
         };
         const observed: H.IObserved[] = [];
         for (const base of bases) {
-          const target: number | null = cast(base.p, toward(base.phi));
+          const target: number | null = face.held?.(base.s, base.phi) === true ? 0 : cast(base.p, toward(base.phi));
           if (target !== null) observed.push({ s: base.s, phi: base.phi, target, heldout: base.heldout });
         }
         // `--casts`: the cast heights as a table, one row per station step and eleven phases across, each with its point's forward and
@@ -1416,6 +1440,7 @@ namespace FamilyConicBody {
           const cell = (i: number, j: number): string => {
             const s: number = window.stations[0] + ((window.stations[1] - window.stations[0]) * i) / along;
             const phi: number = window.phases[0] + ((window.phases[1] - window.phases[0]) * j) / about;
+            if (face.observe !== undefined && s < face.observe) return "".padStart(15);
             const hit: H.IObserved | undefined = observed.find((o: H.IObserved): boolean => Math.abs(o.s - s) < 1e-9 && Math.abs(o.phi - phi) < 1e-9);
             const p: R.V = AutoMovieLoftChain.point(capped.chain!, s, phi) as R.V;
             return (hit === undefined ? "." : hit.target.toFixed(1)).padStart(6) + ("@" + p[0].toFixed(0) + "," + p[1].toFixed(0)).padStart(9);
