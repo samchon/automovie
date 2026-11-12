@@ -335,6 +335,85 @@ export namespace AutoMovieHumanF1 {
   }
 
   /**
+   * Where the plane between two neighbouring digits crosses a limb's open end: the two host phases at which the end's ring crosses the
+   * plane through the midpoints of the two digits' first joints and of their second joints that holds `up`, increasing in `[0, 2 pi)`.
+   *
+   * @param family The limb's family, its end open.
+   * @param station The end's station, mm.
+   * @param joints The two digits' first and second joints: `[[first, second], [first, second]]`.
+   * @param up The palm's or the sole's normal, or any direction the plane must hold.
+   */
+  export function valley(family: AutoMovieHumanConicLoft.IFamily, station: number, joints: [[number[], number[]], [number[], number[]]], up: number[]): [number, number] {
+    const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(family, family.knots);
+    if (loft.chain === null) throw new Error("valley: the limb does not loft");
+    const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> = loft.chain;
+    const mid = (a: number[], b: number[]): number[] => [(a[0]! + b[0]!) / 2, (a[1]! + b[1]!) / 2, (a[2]! + b[2]!) / 2];
+    const m1: number[] = mid(joints[0][0], joints[1][0]);
+    const m2: number[] = mid(joints[0][1], joints[1][1]);
+    const d: number[] = [m2[0]! - m1[0]!, m2[1]! - m1[1]!, m2[2]! - m1[2]!];
+    const normal: number[] = [d[1]! * up[2]! - d[2]! * up[1]!, d[2]! * up[0]! - d[0]! * up[2]!, d[0]! * up[1]! - d[1]! * up[0]!];
+    const side = (t: number): number => {
+      const p: number[] = AutoMovieLoftChain.point(chain, station, t);
+      return (p[0]! - m1[0]!) * normal[0]! + (p[1]! - m1[1]!) * normal[1]! + (p[2]! - m1[2]!) * normal[2]!;
+    };
+    const count: number = 720;
+    const crossings: number[] = [];
+    for (let k: number = 0; k < count; ++k) {
+      let [lo, hi]: number[] = [(2 * Math.PI * k) / count, (2 * Math.PI * (k + 1)) / count];
+      if (side(lo!) <= 0 === side(hi!) <= 0) continue;
+      for (let i: number = 0; i < 50; ++i) {
+        const middle: number = (lo! + hi!) / 2;
+        if (side(middle) <= 0 === side(lo!) <= 0) lo = middle;
+        else hi = middle;
+      }
+      crossings.push((lo! + hi!) / 2);
+    }
+    if (crossings.length !== 2) throw new Error("valley: the plane crosses the limb's end " + crossings.length + " times");
+    return [crossings[0]!, crossings[1]!];
+  }
+
+  /**
+   * The seams a limb's open end would be split along between its knuckled digits (`IAutoMovieConstructionSplit.outer`), from the little
+   * finger's or the little toe's valley inward, each a pair of host phases on the end's ring enclosing the one before; each seam's heading,
+   * the two digits' mean direction (`IAutoMovieConstructionSplit.IProfile.heading`); and the end's station, outward normal and palm or
+   * sole normal. Read by `FamilyConicScan.ts webs`; the figure does not split its limbs yet.
+   *
+   * @param which The limb.
+   */
+  export function fanSeams(which: "arm" | "leg"): { station: number; seams: [number, number][]; headings: [number, number, number][]; normal: number[]; up: number[] } {
+    const J = AutoMovieHumanF1Joints;
+    const family: AutoMovieHumanConicLoft.IFamily = { ...BODY[which], tips: undefined };
+    const station: number = family.knots.at(-1)!;
+    const sub = (a: number[], b: number[]): number[] => [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
+    const [a, b]: number[][] = [sub(J.index1, J.hand), sub(J.pinky1, J.hand)];
+    const up: number[] = which === "arm" ? [a[1]! * b[2]! - a[2]! * b[1]!, a[2]! * b[0]! - a[0]! * b[2]!, a[0]! * b[1]! - a[1]! * b[0]!] : [0, -1, 0];
+    const rows: [number[], number[]][] = which === "arm" ? [[J.pinky1, J.pinky2], [J.ring1, J.ring2], [J.middle1, J.middle2], [J.index1, J.index2]] : [[J.littletoe1, J.littletoe2], [J.ringtoe1, J.ringtoe2], [J.middletoe1, J.middletoe2], [J.indextoe1, J.indextoe2], [J.bigtoe1, J.bigtoe2]];
+    const seams: [number, number][] = [];
+    for (let i: number = 0; i + 1 < rows.length; ++i) {
+      const [p, q]: [number, number] = valley(family, station, [rows[i]!, rows[i + 1]!], up);
+      if (seams.length === 0) {
+        seams.push([p, q]);
+        continue;
+      }
+      // Of the three readings of the same two crossings, the one that encloses the seam before.
+      const [ia, ib]: [number, number] = seams.at(-1)!;
+      const enclosing: [number, number] | undefined = ([[p, q], [q, p + 2 * Math.PI], [q - 2 * Math.PI, p]] as [number, number][]).find(([x, y]: [number, number]): boolean => x < ia && y > ib && y < x + 2 * Math.PI);
+      if (enclosing === undefined) throw new Error("fanSeams: the valleys of the " + which + " do not nest");
+      seams.push(enclosing);
+    }
+    const frame = AutoMovieHumanConicLoft.axis(family).at(station);
+    const normal: number[] = [frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1], frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2], frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0]];
+    // Each seam's plane holds the two digits' mean direction, the line from their first joints' midpoint to their second joints'.
+    const headings: [number, number, number][] = rows.slice(1).map((row: [number[], number[]], i: number): [number, number, number] => {
+      const before: [number[], number[]] = rows[i]!;
+      const d: number[] = [0, 1, 2].map((c: number): number => (row[1][c]! + before[1][c]! - row[0][c]! - before[0][c]!) / 2);
+      const l: number = Math.hypot(d[0]!, d[1]!, d[2]!);
+      return [Math.round((d[0]! / l) * 1e4) / 1e4, Math.round((d[1]! / l) * 1e4) / 1e4, Math.round((d[2]! / l) * 1e4) / 1e4];
+    });
+    return { station, seams, headings, normal, up };
+  }
+
+  /**
    * Declare the sewn body.
    *
    * @param layer Station spacing of each family's layers and derived outlines, mm.

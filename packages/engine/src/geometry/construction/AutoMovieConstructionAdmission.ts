@@ -124,9 +124,12 @@ export namespace AutoMovieConstructionAdmission {
           // A curved seam's knots advance along the chord from its first end;
           // whether the last stays short of the chord needs the host, so the
           // realization refuses that one.
-          const profile: IAutoMovieConstructionSplit.IProfile | undefined =
-            node.profile;
-          if (profile !== undefined) {
+          const admit: (
+            profile: IAutoMovieConstructionSplit.IProfile | undefined,
+          ) => void = (
+            profile: IAutoMovieConstructionSplit.IProfile | undefined,
+          ): void => {
+            if (profile === undefined) return;
             if (profile.knots.length === 0) refuse("profile has no knot");
             let previous: number = 0;
             for (const [along, depth] of profile.knots) {
@@ -152,7 +155,35 @@ export namespace AutoMovieConstructionAdmission {
               refuse(
                 `profile corner ${profile.corner} rad is not in (0, pi / 2)`,
               );
+            const heading: [number, number, number] | undefined = profile.heading;
+            if (heading !== undefined && !(heading.every(Number.isFinite) && Math.hypot(...heading) > 0))
+              refuse(`profile heading [${heading.join(", ")}] is not a finite nonzero direction`);
+          };
+          admit(node.profile);
+          // Further seams each enclose the one before, and the children are one
+          // more than the seams.
+          let inner: [number, number] = [a, b];
+          for (const outer of node.outer ?? []) {
+            const [oa, ob]: [number, number] = outer.seam;
+            if (
+              !(
+                Number.isFinite(oa) &&
+                Number.isFinite(ob) &&
+                oa < inner[0] &&
+                ob > inner[1] &&
+                ob < oa + 2 * Math.PI
+              )
+            )
+              refuse(
+                `outer seam [${oa}, ${ob}] does not enclose [${inner[0]}, ${inner[1]}] within one turn`,
+              );
+            admit(outer.profile);
+            inner = [oa, ob];
           }
+          if (node.children.length !== 2 + (node.outer ?? []).length)
+            refuse(
+              `${node.children.length} children for ${1 + (node.outer ?? []).length} seams`,
+            );
           let views: Set<string> = host.views;
           let faces: Set<string> = host.faces;
           for (const child of node.children) {

@@ -1,5 +1,6 @@
 import path from "node:path";
-import { AutoMovieViewAxis } from "@automovie/engine";
+import { AutoMovieLoftChain, AutoMovieViewAxis } from "@automovie/engine";
+import { AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
 import { FamilyConicSection as C } from "./FamilyConicSection";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 
@@ -212,6 +213,62 @@ namespace FamilyConicScan {
           return "x" + x + ":" + (hits.length === 0 ? "." : Math.max(...hits).toFixed(0));
         });
         process.stdout.write("y " + y + " half width " + widths.join(" ") + "\n");
+      }
+      return;
+    }
+    if (process.argv[2] === "webs") {
+      // The web line between each two neighbouring digits, in the plane each seam of the limb's split stands in: from the seam's first fork
+      // along its chord every 2 mm, how far a ray along the plane's second axis (the seam's heading square to the chord) runs from
+      // the chord before it leaves the reference skin, mm. Where the chord point already lies outside the skin the depth is 0. These are the
+      // seams' profile knots (`IAutoMovieConstructionSplit.IProfile`) for a split of the limb's end (`AutoMovieHumanF1.fanSeams`).
+      for (const which of ["arm", "leg"] as const) {
+        const { station, seams, headings, normal } = AutoMovieHumanF1.fanSeams(which);
+        const family = { ...AutoMovieHumanF1.BODY[which], tips: undefined };
+        const loft = AutoMovieHumanConicLoft.create(family, family.knots);
+        const ring = (t: number): R.V => AutoMovieLoftChain.point(loft.chain!, station, t) as R.V;
+        const mesh = source.body;
+        const cast = (o: R.V, d: R.V): number[] => {
+          const hits: number[] = [];
+          for (let t: number = 0; t + 2 < mesh.indices.length; t += 3) {
+            const [a, b, c]: R.V[] = [0, 1, 2].map((k: number): R.V => [mesh.positions[mesh.indices[t + k]! * 3]!, mesh.positions[mesh.indices[t + k]! * 3 + 1]!, mesh.positions[mesh.indices[t + k]! * 3 + 2]!]);
+            const e1: R.V = [b![0] - a![0], b![1] - a![1], b![2] - a![2]];
+            const e2: R.V = [c![0] - a![0], c![1] - a![1], c![2] - a![2]];
+            const p: R.V = [d[1] * e2[2] - d[2] * e2[1], d[2] * e2[0] - d[0] * e2[2], d[0] * e2[1] - d[1] * e2[0]];
+            const det: number = e1[0] * p[0] + e1[1] * p[1] + e1[2] * p[2];
+            if (Math.abs(det) < 1e-12) continue;
+            const s: R.V = [o[0] - a![0], o[1] - a![1], o[2] - a![2]];
+            const u: number = (s[0] * p[0] + s[1] * p[1] + s[2] * p[2]) / det;
+            if (u < 0 || u > 1) continue;
+            const qv: R.V = [s[1] * e1[2] - s[2] * e1[1], s[2] * e1[0] - s[0] * e1[2], s[0] * e1[1] - s[1] * e1[0]];
+            const v: number = (d[0] * qv[0] + d[1] * qv[1] + d[2] * qv[2]) / det;
+            if (v < 0 || u + v > 1) continue;
+            const l: number = (e2[0] * qv[0] + e2[1] * qv[1] + e2[2] * qv[2]) / det;
+            // Signed by the triangle's facing: an exit where its outward normal runs along the ray.
+            const facing: number = d[0] * (e1[1] * e2[2] - e1[2] * e2[1]) + d[1] * (e1[2] * e2[0] - e1[0] * e2[2]) + d[2] * (e1[0] * e2[1] - e1[1] * e2[0]);
+            if (l > 0) hits.push(facing > 0 ? l : -l);
+          }
+          return hits.sort((x: number, y: number): number => Math.abs(x) - Math.abs(y));
+        };
+        seams.forEach(([a, b]: [number, number], j: number): void => {
+          const A: R.V = ring(a);
+          const B: R.V = ring(b);
+          const length: number = Math.hypot(B[0] - A[0], B[1] - A[1], B[2] - A[2]);
+          const e1: R.V = [(B[0] - A[0]) / length, (B[1] - A[1]) / length, (B[2] - A[2]) / length];
+          const h: R.V = headings[j]!;
+          const k: number = h[0] * e1[0] + h[1] * e1[1] + h[2] * e1[2];
+          const raw: R.V = [h[0] - k * e1[0], h[1] - k * e1[1], h[2] - k * e1[2]];
+          const rl: number = Math.hypot(...raw) * Math.sign(raw[0] * normal[0]! + raw[1] * normal[1]! + raw[2] * normal[2]!);
+          const e2: R.V = [raw[0] / rl, raw[1] / rl, raw[2] / rl];
+          const knots: string[] = [];
+          for (let along: number = 2; along < length - 1; along += 2) {
+            const o: R.V = [A[0] + along * e1[0], A[1] + along * e1[1], A[2] + along * e1[2]];
+            const hits: number[] = cast(o, e2);
+            // Inside the skin when the first crossing ahead is an exit; the depth is then that crossing.
+            const depth: number = hits.length > 0 && hits[0]! > 0 ? hits[0]! : 0;
+            knots.push("[" + (along / 1000).toFixed(4) + ", " + (depth / 1000).toFixed(4) + "]");
+          }
+          process.stdout.write(which + " seam " + j + " phases [" + a.toFixed(4) + ", " + b.toFixed(4) + "] chord " + length.toFixed(1) + " mm from " + A.map((x: number): string => x.toFixed(1)).join("/") + " to " + B.map((x: number): string => x.toFixed(1)).join("/") + "\n  knots " + knots.join(", ") + "\n");
+        });
       }
       return;
     }

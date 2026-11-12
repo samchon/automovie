@@ -1,7 +1,7 @@
 import type { AutoMovieConstructionNode } from "./AutoMovieConstructionNode";
 
 /**
- * Two parts continued from one open end of a host face, the end split into the two children's loops along a shared seam chord: the pants topology, a trunk's crotch end into both thighs, where a closing pole has no room for two ports of the children's girth.
+ * Two or more parts continued from one open end of a host face (`outer` for more than two), the end split into the children's loops along shared seam chords: the pants topology, a trunk's crotch end into both thighs, where a closing pole has no room for two ports of the children's girth.
  *
  * The seam's two ends are host phases `a < b` on that end's ring. Child 0's loop is the ring arc from `a` to `b`, then the straight chord back from the ring point at `b` to the one at `a`; child 1's loop is the arc from `b` to `a + 2 pi`, then the same chord the other way, so the two loops share it. Each loop clock `c` runs over `[0, 2 pi)`: `[0, pi]` on the arc, linear in host phase, `[pi, 2 pi)` on the chord, linear in its length. Each child's band spans from its loop to the child face's ring at `rail`, and the child keeps its stations beyond that ring.
  *
@@ -38,17 +38,25 @@ export interface IAutoMovieConstructionSplit {
    */
   profile?: IAutoMovieConstructionSplit.IProfile;
 
-  /** Columns of each band round its loop, a multiple of 4 of at least 8: half on the arc, half on the chord. */
+  /**
+   * Further seams for an end split into more than two children, each enclosing the one before: seam `j` runs from host phase `a_j` to `b_j`
+   * with `a_j < a_(j-1)` and `b_j > b_(j-1)` (`seam` is seam 0), and `b_j < a_j + 2 pi`, so the seams cross the end side by side, as the webs
+   * between the fingers cross a hand's end from its back to its palm. Child 0 takes the arc `[a_0, b_0]` and seam 0; child `j` between seams
+   * `j - 1` and `j` takes the arc `[a_j, a_(j-1)]`, seam `j - 1`, the arc `[b_(j-1), b_j]` and seam `j`; the last child takes the arc
+   * `[b_last, a_last + 2 pi]` and the last seam. Every seam is shared by the two children beside it, and its bands meet G1 across it as a
+   * two-way split's do. With further seams each band's loop gives a quarter of its columns to each seam it takes and the rest to its arcs:
+   * three quarters to the one arc of an outer child, a quarter to each arc of an inner one. Absent or empty, the end is split in two.
+   */
+  outer?: IAutoMovieConstructionSplit.ISeam[];
+
+  /** Columns of each band round its loop, a multiple of 4 of at least 8: half on the arc, half on the chord (a quarter per seam with `outer`). */
   count: number;
 
   /** Grid stations of each band face across its span, at least 1. */
   rows: number;
 
-  /** The two children, in the seam's order. */
-  children: [
-    IAutoMovieConstructionSplit.IChild,
-    IAutoMovieConstructionSplit.IChild,
-  ];
+  /** The children in the seams' order, one more than the seams. */
+  children: [IAutoMovieConstructionSplit.IChild, IAutoMovieConstructionSplit.IChild, ...IAutoMovieConstructionSplit.IChild[]];
 }
 
 export namespace IAutoMovieConstructionSplit {
@@ -72,6 +80,31 @@ export namespace IAutoMovieConstructionSplit {
 
     /** The ribbons' turn at each fork: radians of the loop clock on each side, positive, below `pi / 2`. */
     corner: number;
+
+    /**
+     * A world direction the seam plane holds in place of the host end's outward normal, unit or not, not along the chord; `depth` is then
+     * measured along its part square to the chord, oriented out of the host. A seam between two digits that leave a limb's end aslant to
+     * its course lies in the plane between the digits, which holds their direction and not the course's. Absent, the end normal.
+     */
+    heading?: [number, number, number];
+  }
+
+  /**
+   * One further seam of a split into more than two children (`outer`): its two forks as host phases and its curve.
+   *
+   * Engine admission: as the split's own `seam` and `profile`, and each seam encloses the one before it.
+   *
+   * @evidence contracts/development/design.md#principled-representation A seam is the same two forks and curve as the split's own, so every seam of an end is read and ruled alike and shared by the two bands beside it.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two phases and an optional profile, the split's own seam fields.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Authored forks and knots only; seams that do not nest are refused, never reordered.
+   * @evidence contracts/development/common.md#meaningful-documentation States the fields, their units and the admission rule.
+   */
+  export interface ISeam {
+    /** The seam's two ends as host phases `[a, b]` on the end's ring, radians. */
+    seam: [number, number];
+
+    /** The seam's curve, or absent for the straight chord. */
+    profile?: IProfile;
   }
 
   /**
@@ -100,6 +133,14 @@ export namespace IAutoMovieConstructionSplit {
 
     /** A declared crease where the band meets the child, or absent for G2 all round. */
     crease?: ICrease;
+
+    /**
+     * How the child's rail is matched to the band's loop column by column. `angle` (the default): the rail point at the loop point's angle
+     * about the rail ring's centroid, which both curves must turn round once monotonically. `length`: the first column by that angle, every
+     * other at the same share of the rail's length round it as the column's of the loop's, so neither need be star-shaped about the
+     * centroid, as a finger's loop, its back on the hand's end and its sides on the webs, is not about its rail far down the finger.
+     */
+    correspondence?: "angle" | "length";
   }
 
   /**
