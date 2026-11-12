@@ -9,7 +9,7 @@ One folder owns each responsibility, and the folders follow the chain from setti
 | Location | Owns | Realizes, under |
 | --- | --- | --- |
 | `src/entities/<kind>/<subject>/`, with `<kind>` one of `cast`, `crowds`, `props`, `sets`, `cameras`, `lights` | One subject: its public entry class `<Subject>.ts` and the fragments it composes, such as body, look, rig, wardrobe, habits or affordances | Its settings or brief record's facts and the research its measurements follow, [entities](../contracts/development/entities.md) |
-| `src/laws/<discipline>/` | Pure laws of a practice the installed motion vocabulary does not carry: key poses and timing, reach, legality, outcome tables and variation ranges | `docs/research/<discipline>/`, [behaviors](../contracts/development/behaviors.md) |
+| `src/laws/<discipline>/` | Pure laws of a practice the installed packages do not carry: the rows and laws [extend](../motion/extend.md) registers with the motion vocabulary, the laws of what is not a person, and legality, outcome tables and variation ranges | `docs/research/<discipline>/`, [behaviors](../contracts/development/behaviors.md) |
 | `src/interactions/<discipline>/` | Relations between entities by role: alignment, timing and rule-first outcomes, including how cameras and lights follow the action | Research and world rules, behaviors |
 | `src/consequences/effects/`, `src/consequences/sound/` | What computed outcomes leave: sweat, scuffs, dust and other marks, and the effect cues a preview or commissioned soundtrack uses | Research, behaviors |
 | `src/composition/scenes/<film>/<scene>/` | One screenplay scene's composition | That scene and its beats, [composition](../contracts/development/composition.md) |
@@ -32,9 +32,9 @@ Settings or brief domains map onto code: cast, crowds, props and sets become ent
 
 An entity is constructed from its settings or brief facts and composes small fragments. Its methods are capabilities that return intent records: what the subject means to do and to whom, never a pose, a coordinate or a time.
 
-A person's capability carries the installed motion vocabulary. Its intent is the vocabulary's own composition of that action, built with the body prepared for the cast member, the proficiency the cast record gives and the targets the scene passes, as the vocabulary's README shows. The entity adds no motion of its own, and a production law enters the same way for an action the vocabulary lacks.
+A person's capability carries the installed motion vocabulary. Its intent is the vocabulary's own [composition](../motion/compose.md) of that action, built with the body prepared for the cast member, the proficiency the cast record gives and the targets the scene passes, as the vocabulary's README shows. The entity adds no motion of its own. The vocabulary performs an action the production [registers](../motion/extend.md) like one of its own, so it reaches a scene the same way.
 
-A scene chains capabilities in sequence and in parallel through the installed engine's combinators, as its README shows. Interactions then align the participants, derive timing from the laws and decide outcomes from the outcome tables, and consequences follow from those outcomes. Logic lives in pure laws the methods call, so a unit test needs no mock.
+A scene joins capabilities through the operators of the installed motion vocabulary and engine, as their READMEs show. Interactions then align the participants, derive timing from the laws and decide outcomes from the outcome tables, and consequences follow from those outcomes. Logic lives in pure laws the methods call, so a unit test needs no mock.
 
 The whole composition resolves once per film into a frozen schedule, and every film second is a pure function of that schedule. Each film has one seed, and every seeded stream derives from it, the motion vocabulary's included, so reseeding a film reseeds every performer together. A film that continues another starts from that film's final state snapshots.
 
@@ -54,7 +54,7 @@ Node-only tooling (processes, files, browser launch, FFmpeg) is not published: t
 
 Each file exports one declaration named as the file and stays under 500 lines; a larger one is a responsibility to split into fragments.
 
-A new subject starts from its settings or brief record, then its entity folder and tests. A new action starts from the installed motion vocabulary, and only when the vocabulary lacks it from its research, then its law and the interaction that uses it. A new scene starts from its screenplay H2 and beats, then its composition folder and its place in the film.
+A new subject starts from its settings or brief record, then its entity folder and tests. A new action starts from the installed motion vocabulary. Only when [extend](../motion/extend.md) finds the vocabulary lacks it does it start from its research, then its registered row or law and the interaction that uses it. A new scene starts from its screenplay H2 and beats, then its composition folder and its place in the film.
 
 ## Shared modules {#shared-modules}
 

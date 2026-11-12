@@ -10,7 +10,7 @@ A value nothing written yet uses is not gathered, because its consumer often nee
 
 ## What needs a study {#what-needs-a-study}
 
-Read the installed packages' READMEs before deciding what to study. A movement the motion vocabulary performs, everyday movement included, needs no production study: the screenplay names the action and the scenes compose it. Neither does a rule or table a package exports; a study records only where the production departs from it. Study what the packages do not carry: a specialist practice or its level and patterns, and what is not a person. A study that no behavior follows has no consumer, and the evidence graph reports it.
+Read the installed packages' READMEs before deciding what to study. A movement the motion vocabulary performs, everyday movement included, needs no production study: the screenplay names the action and the scenes compose it. Neither does a rule or table a package exports; a study records only where the production departs from it. Study what the packages do not carry: a specialist practice or its level and patterns, and what is not a person where no package provides it. A study that no behavior follows has no consumer, and the evidence graph reports it.
 
 ## Performance study {#performance-study}
 
