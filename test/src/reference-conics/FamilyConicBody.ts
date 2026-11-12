@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { createHash } from "node:crypto";
-import { AutoMovieLoftChain, type AutoMovieLoftFrame, AutoMovieLoftRelief, AutoMovieViewAxis, type AutoMovieViewLoft as L, AutoMovieViewChain as Q, type IAutoMovieLoftRelief } from "@automovie/engine";
+import { AutoMovieLoftChain, type AutoMovieLoftFrame, AutoMovieLoftRelief, AutoMovieNaturalSpline, AutoMovieViewAxis, type AutoMovieViewLoft as L, AutoMovieViewChain as Q, type IAutoMovieLoftRelief } from "@automovie/engine";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
@@ -182,30 +182,82 @@ namespace FamilyConicBody {
   const TOE_TURN: { half: number; reach: number; end: number; relief: number } = { half: 10, reach: 40, end: 975, relief: 960 };
 
   /**
-   * Where the breast's course starts and ends, mm: `AutoMovieHumanF1Joints.breastRoot` and `breastTip`. The course runs along the breast's
-   * axis through its apex, [128.3, 1253.6, 60.3] (the skin's foremost point between 1,150 and 1,320 mm high and 20 to 150 mm to the side),
-   * from 30 mm behind it to 8 mm past it. The axis, [0.9793, 0.0502, 0.1961], is the vector area of the skin within 70 mm of the apex: the
-   * vector area of that patch's boundary loop, so the mound does not tilt it. On it the chest under the fold stands 20 mm behind the apex
-   * (`breastaxis`, a scratch survey of the skin's profile in half-planes about the axis).
+   * Where the breast's course starts and ends, mm: `AutoMovieHumanF1Joints.breastRoot` and `breastTip`. The course runs through the dome's
+   * top along the skin's normal there, from 30 mm behind the top to 8 mm past it. The top, [126.8, 1261.2, 70.4], is the skin's point
+   * farthest along that normal within 60 mm of the foremost point, and the normal, [0.9801, 0.093, 0.1753], is the vector area of the skin
+   * within 12 mm of the top; the two agree with each other from the first pass on (`dometop`, a scratch probe). The course first tried ran
+   * through the skin's foremost point along the vector area of the skin within 70 mm, [0.9793, 0.0502, 0.1961]: the dome's top lay 7.6 mm
+   * above and 10 mm lateral of that course, every section near the front stood off it by as much, and the cap, which shrinks a section
+   * toward the course, drew a rim where it started.
    */
-  const BREAST_ROOT: R.V = [98.9, 1252.1, 54.4];
-  const BREAST_TIP: R.V = [136.1, 1254, 61.9];
+  const BREAST_ROOT: R.V = [97.4, 1258.41, 65.14];
+  const BREAST_TIP: R.V = [134.64, 1261.94, 71.8];
 
-  /** Radius of the cylinder about the breast's course inside which its sections read the skin, mm: the fold under it is 42 to 50 mm out. */
-  const BREAST_RADIUS_MM: number = 56;
+  /**
+   * Radius of the cylinder about the breast's course inside which its sections read the skin, mm. From 11 mm along the course the skin
+   * there is one loop inside 58 mm at every phase, the upper slope's widest; the fold under the breast stands 48 to 52 mm out
+   * (`breastaxis`, a scratch survey of the skin's profile in half-planes about the course).
+   */
+  const BREAST_RADIUS_MM: number = 62;
 
   /** How far a point stands outside the breast's cylinder, mm; negative inside it. */
   function breast(p: R.V): number {
     return breastFrame(p)[1] - BREAST_RADIUS_MM;
   }
 
-  /** A point's station along the breast's course from its root and its distance from that course, mm. */
-  function breastFrame(p: R.V): [number, number] {
+  /**
+   * How far from the breast's course the trunk's sections leave the skin out, mm, at the clocks `2 pi j / 8` round it: 0 up, a quarter turn
+   * to the side, a half turn down, three quarters toward the median line. The trunk's sections leave the breast out as they leave out the
+   * arms and the nose, so that the trunk's skin round the port is its own: with the breast in them, the reliefs drew the fold as a soft
+   * shelf. Under the breast, down and down inward, it is 1.5 mm inside the fold's foot, where the chest begins
+   * (`AutoMovieHumanF1.BREAST_CHEST_MM`; the skin's profile about the course, `breastaxis`: straight down the chest stands level 24 to
+   * 26 mm behind the top from 52 mm out, down and inward 21 mm behind it from 50 mm out), so the breast's underside is left out down to
+   * the fold's foot and the band spans the fold. Elsewhere it is 1 mm inside
+   * the breast's ring at its rail (56.5 mm up, 46.5 to the side, 49 inward, 42 down and to the side, read off the breast's fitted wall at
+   * 12 mm), so the trunk's reliefs see the skin up to the ring and the band joins two walls that agree: left out to 1.5 mm inside the
+   * loop, they fell away inside it and drew a groove along the loop over the upper inner slope on `fold.front`.
+   */
+  const BREAST_CLIP_MM: number[] = [55.5, 51, 45.5, 41, 50.5, 48.5, 48, 52];
+
+  /**
+   * How far a point stands inside the skin either breast leaves to the trunk, mm, positive inside: nearer either breast's course than
+   * `BREAST_CLIP_MM`, and in front of the course's root.
+   */
+  function breasts(p: R.V): number {
+    return Math.max(
+      ...[1, -1].map((side: number): number => {
+        const [along, r, psi]: [number, number, number] = breastFrame([p[0], p[1], side * p[2]]);
+        return Math.min(along, BREAST_CLIP(psi) - r);
+      }),
+    );
+  }
+
+  /** `BREAST_CLIP_MM` round the clock, by the periodic cubic. */
+  const BREAST_CLIP: (psi: number) => number = AutoMovieNaturalSpline.periodic(BREAST_CLIP_MM);
+
+  /**
+   * The breast's last fitted section and the station its cap starts at, mm along its course; the top is 30 mm along it and the loop
+   * vanishes at 29.88 (`--breast=<to>,<cap>` for a trial). Within 2 mm of the top the sections are 16 to 22 mm across over a dome less than
+   * a millimetre high, and fitted to 29.5 mm they missed by 4.1 mm there; to 28 mm the wall is 105 numbers at 0.12 mm, and the cap from
+   * 26 mm, 3.9 mm long, continues the dome with no rim on `fold.front`.
+   */
+  const [BREAST_TO, BREAST_CAP]: number[] = (process.argv.find((argument: string): boolean => argument.startsWith("--breast="))?.slice(9) ?? "28,26").split(",").map(Number);
+
+  /**
+   * A +Z point's station along the breast's course from its root, its distance from that course, mm, and its clock about the course,
+   * radians: 0 up, a quarter turn to +Z.
+   */
+  function breastFrame(p: R.V): [number, number, number] {
     const d: R.V = [BREAST_TIP[0] - BREAST_ROOT[0], BREAST_TIP[1] - BREAST_ROOT[1], BREAST_TIP[2] - BREAST_ROOT[2]];
     const length: number = Math.hypot(d[0], d[1], d[2]);
+    const w: R.V = [d[0] / length, d[1] / length, d[2] / length];
     const q: R.V = [p[0] - BREAST_ROOT[0], p[1] - BREAST_ROOT[1], p[2] - BREAST_ROOT[2]];
-    const along: number = (q[0] * d[0] + q[1] * d[1] + q[2] * d[2]) / length;
-    return [along, Math.hypot(q[0] - (along * d[0]) / length, q[1] - (along * d[1]) / length, q[2] - (along * d[2]) / length)];
+    const along: number = q[0] * w[0] + q[1] * w[1] + q[2] * w[2];
+    const off: R.V = [q[0] - along * w[0], q[1] - along * w[1], q[2] - along * w[2]];
+    const up: R.V = [-w[1] * w[0], 1 - w[1] * w[1], -w[1] * w[2]];
+    const side: R.V = [w[1] * up[2] - w[2] * up[1], w[2] * up[0] - w[0] * up[2], w[0] * up[1] - w[1] * up[0]];
+    const psi: number = Math.atan2(off[0] * side[0] + off[1] * side[1] + off[2] * side[2], off[0] * up[0] + off[1] * up[1] + off[2] * up[2]);
+    return [along, Math.hypot(off[0], off[1], off[2]), psi < 0 ? psi + 2 * Math.PI : psi];
   }
 
   /** Half length of the shoulder's turn, mm. */
@@ -486,6 +538,12 @@ namespace FamilyConicBody {
     clip?: (p: R.V) => number;
 
     /**
+     * Part of `clip` that a window reading each section whole (`IWindow.uncut`) leaves out as well: a neighbour on a port whose skin the
+     * window must not carry, as the breasts are to the side windows, where the arm's is the skin a band to the arm leaves along.
+     */
+    kept?: (p: R.V) => number;
+
+    /**
      * Part of `clip` whose boundary is a surface of revolution about the course, positive outside it: where it alone cuts a stretch out, the
      * loop closes along that surface's circle instead of the chord.
      */
@@ -674,13 +732,11 @@ namespace FamilyConicBody {
           // edge columns, and the cliff showed as upright slivers on either side of the tip in profile; it hands its edges over (`fade`).
           { name: "under", stations: [22.5, 27], phases: [Math.PI - 1.1, Math.PI + 1.1], axis: [0, 1, 0], rows: 31, columns: 39, reach: 2.5, mirror: true, fade: [1, 1.5], fadePhase: [0.35, 0.35] },
         ] },
-        // The breast as a loft of its own along its axis (`BREAST_ROOT`), fitted for a port on the chest whose band is short under the fold
-        // and long over the upper slope; not attached yet (the doc's Open). Its sections read the skin inside a cylinder about the course
-        // (`BREAST_RADIUS_MM`), closed along the cylinder where the upper slope runs out past it. They start 17.5 mm behind the apex: on the axis
-        // the chest under the fold stands 20 mm behind it and level with the planes for 10 mm below the fold, and started 19.5 mm behind, the
-        // first planes grazed that chest and read a hollow of 13.8 mm there (9.6 mm off at most against 2.1). They run to 1 mm short of the tip
-        // and the cap starts 5 mm short of it (`cap`): the front is a shallow dome, 2 to 5 mm deep over 20 mm.
-        { name: "breast", centres: [BREAST_ROOT, BREAST_TIP], course: "[J.breastRoot, J.breastTip]", halves: [], up: [0, 1, 0], domain: [12.5, 29], loose: true, step: 1, gap: 3, tip: true, cap: 25, mirrored: true, layouts: LIMB, clip: breast, round: breast, reliefs: [] },
+        // The breast as a loft of its own through its dome's top (`BREAST_ROOT`), attached at a port on the chest that the trunk's sections
+        // leave out (`breasts`), so the fold under it is the band's short side. Its sections read the skin inside a cylinder about the course
+        // (`BREAST_RADIUS_MM`). They start 19 mm behind the top: straight down the chest stands 24 to 26 mm behind it, down and inward 21 mm,
+        // so the first plane cuts the breast's underside clear of the chest at every phase.
+        { name: "breast", centres: [BREAST_ROOT, BREAST_TIP], course: "[J.breastRoot, J.breastTip]", halves: [], up: [0, 1, 0], domain: [11, BREAST_TO], loose: true, step: 1, gap: 3, tip: true, cap: BREAST_CAP, mirrored: true, layouts: LIMB, clip: breast, round: breast, reliefs: [] },
         // The ear's hollow as a loft of its own. The auricle is a thin shell: a sagittal plane cuts it in one loop shaped like a C, and what
         // the C stands round, the concha and the scapha, is the pocket between that loop and its hull, open to the front
         // (`FamilyConicScan.ts concha`: 435 mm2 at 78 mm out, 33 at 94). The loft runs out through those pockets.
@@ -702,7 +758,7 @@ namespace FamilyConicBody {
         // kept is the earlier one below station 640 and this one above it, with every relief fitted again over the splice
         // (`--wall=<earlier> --splice=<this>@640 --refit`): 693 numbers at 0.66 mm. The ears are left out of its sections. It owns the shoulders down to the armscye plane through the armpit's
         // crease; past that plane, lateral of the crease and inside the arm's own tube, the skin is the arm's and is left out of the trunk's sections.
-        { name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], course: "[J.axisFloor, J.axisCrown]", halves: [], up: [1, 0, 0], domain: [28, 912], whole: true, step: 2, gap: (s: number): number => (s >= 692 && s <= 732 ? Number(process.argv.find((argument: string): boolean => argument.startsWith("--jaw="))?.slice(6) ?? 3) : s > 740 ? FACE_GAP_MM : 12), tip: true, cap: 906, mirrored: false, layouts: BILATERAL, round: chin, clip: (p: R.V): number => Math.max(ear(p), noseCut(p), chin(p), ...[1, -1].map((side: number): number => {
+        { name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], course: "[J.axisFloor, J.axisCrown]", halves: [], up: [1, 0, 0], domain: [28, 912], whole: true, step: 2, gap: (s: number): number => (s >= 692 && s <= 732 ? Number(process.argv.find((argument: string): boolean => argument.startsWith("--jaw="))?.slice(6) ?? 3) : s > 740 ? FACE_GAP_MM : 12), tip: true, cap: 906, mirrored: false, layouts: BILATERAL, round: chin, kept: breasts, clip: (p: R.V): number => Math.max(ear(p), noseCut(p), chin(p), breasts(p), ...[1, -1].map((side: number): number => {
           const a: R.V = joint("upperarm_r");
           const b: R.V = joint("lowerarm_r");
           const length: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
@@ -1161,10 +1217,12 @@ namespace FamilyConicBody {
             const frame: AutoMovieLoftFrame.IFrame = course.at(row.s);
             const inChart = (axis: readonly number[]): C.P => [axis[0]! * frame.u[0] + axis[1]! * frame.u[1] + axis[2]! * frame.u[2], axis[0]! * frame.v[0] + axis[1]! * frame.v[1] + axis[2]! * frame.v[2]];
             // A cast that lands on the chord closing a neighbour's cut (the ear's, the nose's, the arm's) has found no skin: inside the cut the clip is positive.
-            const open = part.clip === undefined || window.uncut === true || window.chord === true ? undefined : (p: C.P): boolean => part.clip!([frame.origin[0] + p[0] * frame.u[0] + p[1] * frame.v[0], frame.origin[1] + p[0] * frame.u[1] + p[1] * frame.v[1], frame.origin[2] + p[0] * frame.u[2] + p[1] * frame.v[2]]) > 0.05;
+            const left: ((p: R.V) => number) | undefined = window.uncut === true ? part.kept : window.chord === true ? undefined : part.clip;
+            const open = left === undefined ? undefined : (p: C.P): boolean => left([frame.origin[0] + p[0] * frame.u[0] + p[1] * frame.v[0], frame.origin[1] + p[0] * frame.u[1] + p[1] * frame.v[1], frame.origin[2] + p[0] * frame.u[2] + p[1] * frame.v[2]]) > 0.05;
             const hold = window.hold === undefined ? undefined : (p: C.P): boolean => window.hold!([frame.origin[0] + p[0] * frame.u[0] + p[1] * frame.v[0], frame.origin[1] + p[0] * frame.u[1] + p[1] * frame.v[1], frame.origin[2] + p[0] * frame.u[2] + p[1] * frame.v[2]]) > 0;
             const own: C.P[] = window.chord === true ? loops[i]! : skins[i]!;
-            const whole: C.P[] | null = window.uncut === true && row.s > window.stations[0] && row.s < window.stations[1] ? R.cut(skin, frame).loop : null;
+            const uncut: C.P[] | null = window.uncut === true && row.s > window.stations[0] && row.s < window.stations[1] ? R.cut(skin, frame).loop : null;
+            const whole: C.P[] | null = uncut === null || part.kept === undefined ? uncut : without(uncut, frame, part.kept);
             return { s: row.s, ...(hold === undefined ? {} : { hold }), skin: whole ?? own, heldout: row.heldout, ...(open === undefined ? {} : { open }), wall: (phi: number): C.P => {
               const r: number = Q.radius(section, phi);
               const p: C.P = [r * Math.cos(phi), r * Math.sin(phi)];
@@ -1569,12 +1627,21 @@ namespace FamilyConicBody {
       "  export const fossaTip: V3 = [13.5, 1594, 84];",
       "",
       "  /**",
-      "   * Where the breast's course starts, inside the chest 30 mm behind the apex along the breast's axis. The axis is the vector area of the",
-      "   * skin within 70 mm of the apex, which is the vector area of that patch's boundary loop and so is not tilted by the mound itself.",
+      "   * Where the course of the gap under the lobule starts, below the lobule's free edge and in front of the gap's middle, in the air beside the",
+      "   * skull: the gap, read in frontal planes (`FamilyConicScan.ts lobule`), is widest at x 14 to 18 low down and narrows back and up to its apex.",
+      "   */",
+      "  export const lobuleRoot: V3 = [14, 1530, 68];",
+      "",
+      "  /** Where it ends, at the apex of the gap under the lobule's attachment crease (x 6 to 8, 1,555 mm, between the skull at 65 mm and the lobule). */",
+      "  export const lobuleTip: V3 = [7.5, 1555.5, 65.5];",
+      "",
+      "  /**",
+      "   * Where the breast's course starts, inside the chest 30 mm behind the dome's top along the skin's normal there: the top is the skin's",
+      "   * point farthest along that normal, and the normal the vector area of the skin within 12 mm of the top.",
       "   */",
       "  export const breastRoot: V3 = " + JSON.stringify(BREAST_ROOT).replaceAll(",", ", ") + ";",
       "",
-      "  /** Where the breast's course ends, along the same axis 8 mm past the apex. */",
+      "  /** Where the breast's course ends, along the same normal 8 mm past the top. */",
       "  export const breastTip: V3 = " + JSON.stringify(BREAST_TIP).replaceAll(",", ", ") + ";",
       "",
       "  /** Where a nostril's course starts, below the nose under the middle of the nostril's mouth. */",

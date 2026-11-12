@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieLoftChain, AutoMovieNaturalSpline } from "@automovie/engine";
 import { AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
 
 /**
@@ -23,7 +23,8 @@ namespace FamilyConicArmscye {
   /** Read the columns and print them. */
   export function main(): void {
     const numbers = (text: string | undefined, fallback: number): number[] => (text === undefined || text.startsWith("--") ? [fallback] : text.split(",").map(Number));
-    const rails: number[] = numbers(process.argv[2], AutoMovieHumanF1.RAIL_MM.arm);
+    // NaN stands for the rail curve the body declares (`AutoMovieHumanF1.armRails`).
+    const rails: number[] = numbers(process.argv[2], NaN);
     const table: boolean = process.argv.includes("--table");
     const n: number = AutoMovieHumanF1.armscye(1).shape?.length ?? 96;
     const turn: number = 2 * Math.PI;
@@ -51,9 +52,10 @@ namespace FamilyConicArmscye {
           const inward: V3[] = loop.map((p: V3, k: number): V3 => sub(at(k, 0.01), p));
 
           // The rail ring, its centroid and Newell plane, as the engine's correspondence reads them.
-          const station: number = first + rail;
+          const curve: (psi: number) => number = Number.isNaN(rail) ? AutoMovieNaturalSpline.periodic(AutoMovieHumanF1.armRails(side)) : (): number => rail;
+          const station = (psi: number): number => first + curve(psi);
           const samples: number = 8 * n;
-          const ring: V3[] = Array.from({ length: samples }, (_: unknown, j: number): V3 => part(station, (turn * j) / samples));
+          const ring: V3[] = Array.from({ length: samples }, (_: unknown, j: number): V3 => part(station((turn * j) / samples), (turn * j) / samples));
           let c: V3 = [0, 0, 0];
           for (const q of ring) c = [c[0] + q[0] / samples, c[1] + q[1] / samples, c[2] + q[2] / samples];
           let area: V3 = [0, 0, 0];
@@ -88,7 +90,7 @@ namespace FamilyConicArmscye {
             const psi: number = (turn * best) / samples;
             const q: V3 = ring[best]!;
             const chord: V3 = sub(q, loop[k]!);
-            const into: V3 = sub(part(station + 0.5, psi), q);
+            const into: V3 = sub(part(station(psi) + 0.5, psi), q);
             const h: number = cosine(inward[k]!, chord);
             const p: number = cosine(into, chord);
             if (!(h > 0)) ++hostBack;
@@ -97,7 +99,7 @@ namespace FamilyConicArmscye {
             worstPart = Math.min(worstPart, p);
             longest = Math.max(longest, norm(chord));
             shortest = Math.min(shortest, norm(chord));
-            if (table && k % 4 === 0) rows.push("  k " + String(k).padStart(2) + " loop " + loop[k]!.map((x: number): string => x.toFixed(0).padStart(5)).join("") + " rail " + q.map((x: number): string => x.toFixed(0).padStart(5)).join("") + " chord " + norm(chord).toFixed(1).padStart(5) + " host " + h.toFixed(2).padStart(5) + " part " + p.toFixed(2).padStart(5));
+            if (table && k % 4 === 0) rows.push("  k " + String(k).padStart(2) + " loop " + loop[k]!.map((x: number): string => x.toFixed(0).padStart(5)).join("") + " rail " + q.map((x: number): string => x.toFixed(0).padStart(5)).join("") + " at " + ((psi * 180) / Math.PI).toFixed(0).padStart(4) + " deg chord " + norm(chord).toFixed(1).padStart(5) + " host " + h.toFixed(2).padStart(5) + " part " + p.toFixed(2).padStart(5));
           }
           process.stdout.write(JSON.stringify({ side, rail, reversals, hostBack, partBack, worstHost: Number(worstHost.toFixed(2)), worstPart: Number(worstPart.toFixed(2)), chord: [Number(shortest.toFixed(1)), Number(longest.toFixed(1))], ringNormal: normal.map((x: number): number => Number(x.toFixed(2))), ringCentre: c.map(Math.round) }) + "\n");
           for (const row of rows) process.stdout.write(row + "\n");

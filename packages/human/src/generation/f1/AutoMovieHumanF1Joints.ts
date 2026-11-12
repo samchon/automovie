@@ -204,13 +204,22 @@ export namespace AutoMovieHumanF1Joints {
   export const fossaTip: V3 = [13.5, 1594, 84];
 
   /**
-   * Where the breast's course starts, inside the chest 30 mm behind the apex along the breast's axis. The axis is the vector area of the
-   * skin within 70 mm of the apex, which is the vector area of that patch's boundary loop and so is not tilted by the mound itself.
+   * Where the course of the gap under the lobule starts, below the lobule's free edge and in front of the gap's middle, in the air beside the
+   * skull: the gap, read in frontal planes (`FamilyConicScan.ts lobule`), is widest at x 14 to 18 low down and narrows back and up to its apex.
    */
-  export const breastRoot: V3 = [98.9, 1252.1, 54.4];
+  export const lobuleRoot: V3 = [14, 1530, 68];
 
-  /** Where the breast's course ends, along the same axis 8 mm past the apex. */
-  export const breastTip: V3 = [136.1, 1254, 61.9];
+  /** Where it ends, at the apex of the gap under the lobule's attachment crease (x 6 to 8, 1,555 mm, between the skull at 65 mm and the lobule). */
+  export const lobuleTip: V3 = [7.5, 1555.5, 65.5];
+
+  /**
+   * Where the breast's course starts, inside the chest 30 mm behind the dome's top along the skin's normal there: the top is the skin's
+   * point farthest along that normal, and the normal the vector area of the skin within 12 mm of the top.
+   */
+  export const breastRoot: V3 = [97.4, 1258.41, 65.14];
+
+  /** Where the breast's course ends, along the same normal 8 mm past the top. */
+  export const breastTip: V3 = [134.64, 1261.94, 71.8];
 
   /** Where a nostril's course starts, below the nose under the middle of the nostril's mouth. */
   export const nostrilRoot: V3 = [127.1, 1540.4, 7.7];

@@ -23,7 +23,10 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
  * replaced by the run: of the two cycles the arcs make with the run, the one
  * that keeps a point just past the rail and removes a point just before it
  * (the clipping of one boundary by another of Weiler and Atherton, Hidden
- * surface removal using polygon area sorting, SIGGRAPH 1977).
+ * surface removal using polygon area sorting, SIGGRAPH 1977). Where both
+ * do, as when the run stands outside a hole it starts and ends on, the one
+ * that still removes everything the cycle removed is kept: a cut only takes
+ * more of a face away.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the crossing search, the two candidates and the side test.
  * @evidence contracts/development/design.md#principled-representation Represents A host rail laid onto the faces of a body: its points with the crossings between faces, and each face it runs over trimmed by it: companion namespace of 6 members (`IRailPoint`, `BISECTIONS`, `SIDE`, `rail`, `trim`, `clip`); units and frames named in its text: world, local, second. It has no optional member, so no absent-value state combines with another.
@@ -65,6 +68,12 @@ export namespace AutoMovieSolidClip {
    * within it of each other, or each within it of the shared boundary's chord beyond the boundary's own sagitta (`seam`).
    */
   export const CROSSING: number = 1e-2;
+
+  /**
+   * Largest chart distance from a crossing to the trim it is placed into, as a share of one plus its coordinates' magnitudes, for the
+   * crossing to be moved onto the trim: rounding, a few thousand units in the last place, never a crossing that truly stands off it.
+   */
+  export const SNAP: number = 1e-12;
 
   /** Local side-probe distance is a quarter of neighbouring world spacing in the unit-world-speed chart direction; this relative sampling choice is not a global curved-cell bound. */
   export const SIDE: number = 0.25;
@@ -409,6 +418,19 @@ export namespace AutoMovieSolidClip {
     }
     if (best === null) return null;
     const { cycle, foot } = best;
+
+    // A crossing found off its trim by no more than the rounding of its chart point is moved onto the trim: the bisection that placed it
+    // reads the next face's surface, and a crossing left 7e-15 off the station line of f1's ear band, where the concha's cut crosses
+    // the band's end, stood one unit in the last place inside the band and fenced a sliver no triangulation could open.
+    if (foot.share > 0 && foot.share < 1 && foot.distance <= SNAP * (1 + Math.abs(c[0]) + Math.abs(c[1]))) {
+      const a: [number, number] = cycle.chart[foot.segment]!;
+      const b: [number, number] = cycle.chart[(foot.segment + 1) % cycle.chart.length]!;
+      const bv: number = AutoMovieSolidCycle.shift(b[1], a[1], period);
+      const snapped: [number, number] = [a[0] === b[0] ? a[0] : a[0] + foot.share * (b[0] - a[0]), a[1] === bv ? a[1] : a[1] + foot.share * (bv - a[1])];
+      c[0] = snapped[0];
+      c[1] = AutoMovieSolidCycle.shift(snapped[1], c[1], period);
+      p.chart.set(face, [c[0], c[1]]);
+    }
     const other: number = p.faces.find((x: number): boolean => x !== face)!;
     const old: AutoMovieSolidCycle.INeighbour = cycle.neighbours[foot.segment]!;
     const there: [number, number] =
@@ -663,8 +685,37 @@ export namespace AutoMovieSolidClip {
       if (keeps(two) && !keeps(one)) chosen = two;
       else if (!keeps(one))
         return `neither side of the rail's run on face ${f.surface.name} keeps the face past the rail`;
+      // Both keep the side past the rail where the run's two crossings lie on a trim whose removed side the run stands outside, as a
+      // cut under a port's band runs over the host's skin below the port's hole: one candidate is the hole widened by the cut, the
+      // other the cut alone, which would give the face back the hole's whole inside. A cut only takes more of a face away, so the one
+      // that removes everything the trim removed is kept.
+      else if (keeps(two) && lost(cycle, two, period) < lost(cycle, one, period)) chosen = two;
     }
     f.cycles.splice(f.cycles.indexOf(cycle), 1, chosen);
     return null;
+  }
+
+  /**
+   * How many points the trim `old` removes the candidate would keep: one point beside the middle of each of the trim's segments, on the
+   * side the trim removes, a quarter of the segment's chart length off it. A candidate that removes at least what the trim did keeps none.
+   */
+  function lost(old: AutoMovieSolidCycle.ICycle, candidate: AutoMovieSolidCycle.ICycle, period: number | undefined): number {
+    let count: number = 0;
+    const n: number = old.chart.length;
+    for (let k: number = 0; k < n; k++) {
+      const a: [number, number] = old.chart[k]!;
+      const raw: [number, number] = old.chart[(k + 1) % n]!;
+      const b: [number, number] = [raw[0], AutoMovieSolidCycle.shift(raw[1], a[1], period)];
+      const middle: [number, number] = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+      const off: [number, number] = [-SIDE * (b[1] - a[1]), SIDE * (b[0] - a[0])];
+      if (!(Math.hypot(off[0], off[1]) > 0)) continue;
+      const plus: [number, number] = [middle[0] + off[0], middle[1] + off[1]];
+      const minus: [number, number] = [middle[0] - off[0], middle[1] - off[1]];
+      const keepsPlus: boolean = AutoMovieSolidCycle.kept(old, plus[0], plus[1], period);
+      if (keepsPlus === AutoMovieSolidCycle.kept(old, minus[0], minus[1], period)) continue;
+      const removed: [number, number] = keepsPlus ? minus : plus;
+      if (AutoMovieSolidCycle.kept(candidate, removed[0], removed[1], period)) count++;
+    }
+    return count;
   }
 }
