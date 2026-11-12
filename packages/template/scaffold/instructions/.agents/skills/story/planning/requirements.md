@@ -18,11 +18,13 @@ A changed or withdrawn requirement reaches its consumers through [repair](../cor
 
 ## Asking the user {#asking-the-user}
 
-A user who hands the story to the agent still decides what it is, such as what happens, to whom, how it ends and its tone and form, unless they delegate that too. Before research and the first canon layer, ask about each consequential element they have neither fixed nor delegated, in rounds, recording each round's answers here before asking the next, because an answer often raises elements the request did not show. The asking is complete when every consequential element the request and the user's materials show is fixed or delegated. A story built on a guessed element is rewritten once the user reads it, and every layer written on it goes with it.
+A user who hands the work to the agent still decides what it is, such as a story's events, the people they happen to, its ending, tone and form, or an asset's form and scale, unless they delegate that too. Before research and the first canon layer, ask about each consequential element of what the work is that they have neither fixed nor delegated, in rounds, recording each round's answers at their owners before asking the next, because an answer often raises elements the request did not show. The asking is complete when every such element the request and the user's materials show is fixed or delegated. A story built on a guessed element is rewritten once the user reads it, and every layer written on it goes with it.
+
+Handing over the work delegates each layer's own decisions within what the user decided, so a researched fact or a layer's contribution is not a question.
 
 A blanket delegation, such as "decide the rest", ends the asking: record it as one delegated choice covering every remaining element. Under a supplied story or screenplay, ask only about what it leaves undecided.
 
-Afterwards, ask only when a [discovery](discovery.md) checkpoint finds an element the user neither fixed nor delegated, or when two fixed conditions conflict. When the user cannot answer during the run, as in an unattended run, record the open questions in [project context](../../production/project-context.md), stop the work that depends on them and report them, because a guessed answer is not a delegation.
+Afterwards, ask only when a [discovery](discovery.md) checkpoint finds an element of what the work is that the user neither fixed nor delegated, or when two fixed conditions conflict. A question the user cannot answer during the run waits as [project context](../../production/project-context.md#asking-operating-choices) sets.
 
 ## Factual basis {#factual-basis}
 

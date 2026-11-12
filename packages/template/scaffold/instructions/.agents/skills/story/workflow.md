@@ -28,7 +28,7 @@ Choose the long route when the work's causes, setups and payoffs span many scene
 
 Record the choice in [project context](../production/project-context.md); in an AutoMovie workspace the production's folder fixes it: `movies/shorts/<name>` runs the short route and `movies/series/<name>` the long route.
 
-Asset-only work has no narrative passes. Choose delegated form and scale through [direction](planning/direction.md) and ask the user about undelegated ones; complete work is the default.
+Asset-only work has no narrative passes. Choose delegated form and scale through [direction](planning/direction.md) and [ask the user](planning/requirements.md#asking-the-user) about undelegated ones; complete work is the default.
 
 ## Construction
 
