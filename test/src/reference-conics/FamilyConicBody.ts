@@ -101,14 +101,16 @@ namespace FamilyConicBody {
   /**
    * The arm's course past the middle finger's first joint, mm: on toward the four fingers' mean first-segment direction by `reach`, turned
    * there over `half` on either side of the joint. The turn is 24 degrees (from the line from the wrist to the middle finger's first joint),
-   * so its radius is `2 half / 0.41` = 59 mm, outside the hand's section in the turn's plane (its half thickness about 15 mm and a quarter
-   * of its half width, 40 mm, across): a course folds where its turn's radius is smaller than the section it carries. At 10 mm the
-   * thumb's merge held and at 14 mm it was lost. On that course the hand is one loop round it to 596 mm, the little finger parts at 597, the index
+   * so its radius is `2 half / 0.41`: a course folds where its turn's radius is smaller than the section it carries. At 12 mm, a radius of
+   * 59 mm, the hand's sections crossed at its ulnar edge from 581 to 588 mm (each phase's point advancing along the course between rings
+   * 1 mm apart, down to -0.21 mm at [155, 914, 462]: the edge stands about 69 mm inside the turn), a fold of 168 degrees and the ragged
+   * patch beside the little finger; at 16 mm, 78 mm, the least advance is 0.09 mm. At 10 mm the thumb's merge held and at 14 mm it was
+   * lost on a wall refitted there; on the wall fitted at 12 mm the thumb merges at 16. On that course the hand is one loop round it to 596 mm, the little finger parts at 597, the index
    * finger at 601 and the ring and middle fingers at 603 (every plane's loops 2 mm apart), so the hand's sections run to `end` and its end
    * is split there into the fingers. Its reliefs end at `relief`, before the turn: the net round the hand, the knuckles' cast and a hollow
    * window carried on to the end each drew a jagged band across the knuckles, which the wall alone draws smooth.
    */
-  const KNUCKLE: { half: number; reach: number; end: number; relief: number } = { half: 12, reach: 40, end: 595, relief: 575 };
+  const KNUCKLE: { half: number; reach: number; end: number; relief: number } = { half: 16, reach: 40, end: 595, relief: 575 };
 
   /**
    * The leg's course past the ball of the foot, mm, as the arm's past the knuckles (`KNUCKLE`): on toward the five toes' mean first-segment

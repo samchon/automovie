@@ -165,7 +165,8 @@ export namespace AutoMovieHumanF1 {
    * webs, and each opening bridged to its finger by a band. The hand's end at 595 mm on the arm's course, which turns at the middle
    * finger's first joint toward the four fingers' mean direction, faces the fingers, so each band runs on to its finger. The web lines are
    * `FamilyConicScan.ts webs` every 2 mm along each seam's chord, depths of 0 left out so the seam leaves its fork along the host. Each band
-   * takes 192 columns: on 96, 0.5 to 1 mm apart along a seam, its quads stood as a comb of steps along every seam.
+   * takes 192 columns: on 96, 0.5 to 1 mm apart along a seam, its quads stood as a comb of steps along every seam. The hand's ribbons keep
+   * half their length at each fork (`reach`): the skin's edges folding by more than 90 degrees over the hand fall from 168 to 119.
    */
   const FANS: { arm: IFan; leg: IFan } = {
     arm: {
@@ -176,6 +177,7 @@ export namespace AutoMovieHumanF1 {
         [[0.006, 0.0036], [0.008, 0.0065], [0.01, 0.0072], [0.012, 0.0064], [0.014, 0.0052], [0.016, 0.0037], [0.018, 0.0019]],
       ],
       corner: 0.6,
+      reach: 0.5,
       rail: 3,
       columns: 192,
     },

@@ -21,7 +21,7 @@ import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 export const AutoMovieHumanF1Arm: AutoMovieHumanConicLoft.IFamily = {
   name: "arm",
   centres: [AutoMovieHumanF1Joints.armRoot, AutoMovieHumanF1Joints.armTurn, AutoMovieHumanF1Joints.lowerarm, AutoMovieHumanF1Joints.hand, AutoMovieHumanF1Joints.middle1, AutoMovieHumanF1Joints.toward(AutoMovieHumanF1Joints.middle1, [[AutoMovieHumanF1Joints.index1, AutoMovieHumanF1Joints.index2], [AutoMovieHumanF1Joints.middle1, AutoMovieHumanF1Joints.middle2], [AutoMovieHumanF1Joints.ring1, AutoMovieHumanF1Joints.ring2], [AutoMovieHumanF1Joints.pinky1, AutoMovieHumanF1Joints.pinky2]], 40)],
-  halves: [65,30,10,12],
+  halves: [65,30,10,16],
   up: [0.9998, -0.0212, 0],
   layout: AutoMovieHumanConicSection.limb(1),
   knots: [32, 40, 48, 60, 68, 80, 100, 124, 144, 190.73, 228, 240, 256, 268, 288, 300, 312, 423.45, 447.45, 470, 482, 494, 506, 518, 532.5, 554, 566, 578, 595],
