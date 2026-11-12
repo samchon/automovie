@@ -30,13 +30,18 @@ Record the choice in [project context](../production/project-context.md); in an 
 
 Asset-only work has no narrative passes. Choose form and scale through [direction](planning/direction.md); complete work is the default.
 
-### Without this workflow {#without-the-workflow}
+### Who writes the screenplay {#who-writes-the-screenplay}
 
-The user may decline this workflow, in any folder. Then no story pass runs, and the agent writes the screenplay directly from the instructions, or the user writes [their own](#users-own-screenplay). Research still serves the laws the code needs. Record the choice in project context.
+The user chooses, in any folder, and the choice is recorded with the route; ask when they supply a screenplay without saying which.
 
-### The user's own screenplay {#users-own-screenplay}
+| Choice | Story passes | Screenplay |
+| --- | --- | --- |
+| This workflow, the default | The route's | The agent writes it through them |
+| Without this workflow | None | The agent writes it directly from the instructions |
+| The user's, refined | The route's | Enters through [intake](document-layout.md#intake-of-existing-work) as material |
+| The user's, fixed | None | Used exactly as given |
 
-A screenplay the user writes either enters this workflow through [intake](document-layout.md#intake-of-existing-work) as material to refine, or stays fixed, as the user chooses; ask when they have not said. A fixed screenplay is used exactly as given: never edit, review or rewrite it, because it is theirs. A decision the code needs that it leaves open is [asked of the user](planning/requirements.md#asking-the-user) and recorded in the instructions, and the code realizes the screenplay and those answers.
+A fixed screenplay is never edited, reviewed or rewritten, because it is the user's. An exchange, outcome or reaction it lacks, or a beat that cannot be performed, is [asked of the user](planning/requirements.md#asking-the-user) and recorded in the instructions, where the code's concretizations go too. Research still serves the laws the code needs whenever no story pass runs.
 
 ## Construction
 

@@ -18,7 +18,7 @@ Record only what this project needs; an instance-only request needs no story, an
 
 ## How it controls the work
 
-The recorded scope selects the skills and the acceptance boundary. An adopted user decision is fixed within its scope; routine delegated decisions are made and recorded without another permission round, and a proposal or inference is not an adopted choice. When the user changes direction, update this file and the affected owners together, keeping closed narrative work under [upstream repair](../story/correction/repair.md).
+The recorded scope selects the skills and the acceptance boundary. An adopted user decision is fixed within its scope; routine delegated decisions are made and recorded without another permission round, and a proposal or inference is not an adopted choice. A question the user cannot answer during the run, as in an unattended run, is recorded as unresolved and the work that depends on it stops, because a guessed answer is not a delegation. When the user changes direction, update this file and the affected owners together, keeping closed narrative work under [upstream repair](../story/correction/repair.md).
 
 The delivery profile has this one owner. A brief or settings scope record states running time and frame as the story conditions they are and must agree with it, and each film module realizes it. When the three disagree, correct the profile from the user's commission first and the other two from the profile, because each check otherwise passes against its own copy.
 
@@ -26,6 +26,4 @@ Keep every other fact with its owner and link to it: creative instructions in `d
 
 ## Asking operating choices {#asking-operating-choices}
 
-Ask for an operating choice the user neither made nor delegated, such as the video model, a cost limit or the delivery format, when the first task that uses it begins, and record the answer here. Asked earlier, the user answers before knowing what the choice changes. Running time, frame and the rest of the story are asked under [creative requirements](../story/planning/requirements.md#asking-the-user).
-
-A question the user cannot answer during the run, as in an unattended run, is recorded under authority and unresolved choices, and the work that depends on it stops, because a guessed answer is not a delegation.
+Ask for an operating choice the user neither made nor delegated, such as the video model, a cost limit or the container and codec, when the first task that uses it begins, and record the answer here. Asked earlier, the user answers before knowing what the choice changes. Running time, frame and the rest of the story are asked under [creative requirements](../story/planning/requirements.md#asking-the-user).
