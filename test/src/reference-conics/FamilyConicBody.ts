@@ -98,6 +98,16 @@ namespace FamilyConicBody {
   const ARM_ROOT: R.V = [-12, 1300, 121];
   const ARM_TURN: R.V = [-12, 1300, 203];
 
+  /**
+   * The arm's course past the middle finger's first joint, mm: on toward the four fingers' mean first-segment direction by `reach`, turned
+   * there over `half` on either side of the joint. The turn is 24 degrees (from the line from the wrist to the middle finger's first joint),
+   * so its radius is `2 half / 0.41` = 49 mm, outside the hand's section in the turn's plane (its half thickness about 15 mm and a quarter
+   * of its half width, 40 mm, across): a course folds where its turn's radius is smaller than the section it carries. On that course the hand
+   * is one loop round it to 596 mm, the little finger parts at 597, the index finger at 601 and the ring and middle fingers at 603 (every
+   * plane's loops 2 mm apart), so the hand's sections run to end and its end is split there into the fingers.
+   */
+  const KNUCKLE: { half: number; reach: number; end: number; relief: number } = { half: 12, reach: 40, end: 595, relief: 575 };
+
   /** Half length of the shoulder's turn, mm. */
   const SHOULDER_HALF_MM: number = 65;
 
@@ -304,6 +314,9 @@ namespace FamilyConicBody {
     /** Fitted station interval, mm of course arclength; `auto` takes the longest run of single loops round the course whose area stays near the part's own. */
     domain: [number, number] | "auto";
 
+    /** Where the part's reliefs end, mm: its hollow windows are cut there; absent, at its tip. */
+    reliefEnd?: number;
+
     /** Cut the body and head skins together instead of the body alone. */
     whole?: boolean;
 
@@ -414,10 +427,23 @@ namespace FamilyConicBody {
     // The arm's course past the elbow is the line it was first fitted on, from the shoulder joint straight down. Its stations there are the
     // earlier ones moved by `shift`, and `up` is turned about the first segment so the chart there is the earlier chart: the hand end of that
     // earlier fit, which every finger was sewn on, can then be spliced in unchanged (`--splice=<directory>@<station>+<shift>`).
-    const armCentres: R.V[] = [ARM_ROOT, ARM_TURN, joint("lowerarm_r"), joint("hand_r"), joint("middle_01_r")];
-    const armHalves: number[] = [SHOULDER_HALF_MM, 30, 10];
+    // Past the knuckles the course turns toward the fingers (`KNUCKLE`), so the hand's end faces them: the end is split into the fingers
+    // (`IAutoMovieConstructionSplit.outer`), and a band that leaves an end facing along the hand's own line turned 24 degrees as it left and
+    // folded there.
+    const fingers: [R.V, R.V][] = ["index", "middle", "ring", "pinky"].map((f: string): [R.V, R.V] => [joint(f + "_01_r"), joint(f + "_02_r")]);
+    const toward = (from: R.V, segments: [R.V, R.V][], length: number): R.V => {
+      const sum: number[] = [0, 0, 0];
+      for (const [a, b] of segments) {
+        const d: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+        for (let c: number = 0; c < 3; ++c) sum[c] = sum[c]! + (b[c]! - a[c]!) / d;
+      }
+      const l: number = Math.hypot(sum[0]!, sum[1]!, sum[2]!);
+      return [from[0] + (sum[0]! * length) / l, from[1] + (sum[1]! * length) / l, from[2] + (sum[2]! * length) / l];
+    };
+    const armCentres: R.V[] = [ARM_ROOT, ARM_TURN, joint("lowerarm_r"), joint("hand_r"), joint("middle_01_r"), toward(joint("middle_01_r"), fingers, KNUCKLE.reach)];
+    const armHalves: number[] = [SHOULDER_HALF_MM, 30, 10, KNUCKLE.half];
     const arm: { shift: number; up: R.V; plane: number; turned: number } = ((): { shift: number; up: R.V; plane: number; turned: number } => {
-      const formerCentres: R.V[] = [joint("upperarm_r"), ...armCentres.slice(2)];
+      const formerCentres: R.V[] = [joint("upperarm_r"), ...armCentres.slice(2, 5)];
       const former: AutoMovieViewAxis.IRun[] = AutoMovieViewAxis.runs(formerCentres, [30, 10]) as AutoMovieViewAxis.IRun[];
       const next: AutoMovieViewAxis.IRun[] = AutoMovieViewAxis.runs(armCentres, armHalves) as AutoMovieViewAxis.IRun[];
       const shift: number = round(next[2]!.start - next[2]!.from - (former[1]!.start - former[1]!.from));
@@ -445,12 +471,12 @@ namespace FamilyConicBody {
         // section's chain lost an arc. Until that is understood the hand keeps this course and closes at the webs.
         // It starts 2 mm past the armscye's plane and fans round the shoulder (`ARM_ROOT`); round that turn the cap's top sweeps about 2.5
         // times faster than the station, so its knots may stand 6 mm apart, as round the ankle.
-        { name: "arm", centres: armCentres, course: "[J.armRoot, J.armTurn, J.lowerarm, J.hand, J.middle1]", halves: armHalves, up: arm.up, domain: [arm.plane + 2, round(590 + arm.shift)], gap: (s: number): number => (s < arm.turned ? 6 : GAP_MM), tip: round(605 + arm.shift), cap: 570.45, covered: true, mirrored: true, layouts: LIMB, reliefs: "auto", rounds: [
+        { name: "arm", centres: armCentres, course: "[J.armRoot, J.armTurn, J.lowerarm, J.hand, J.middle1, J.toward(J.middle1, [[J.index1, J.index2], [J.middle1, J.middle2], [J.ring1, J.ring2], [J.pinky1, J.pinky2]], " + KNUCKLE.reach + ")]", halves: armHalves, up: arm.up, domain: [arm.plane + 2, KNUCKLE.end], gap: (s: number): number => (s < arm.turned ? 6 : GAP_MM), tip: KNUCKLE.end + 15, cap: 570.45, covered: true, mirrored: true, layouts: LIMB, reliefs: "auto", rounds: [
           // The forearm and the hand: the wall of two conics a quarter left the ulna's head 2 to 4 mm inside the skin at the wrist, the web
           // between the thumb and the hand up to 11 mm full and stripes of 1 to 4 mm along the forearm (`FamilyConicDeviation.ts`), which
           // are not hollows under the tape but the wall's own misfit, on both sides of it. A net round each run takes them.
           { name: "fore", stations: [300, 440], rows: 19, columns: 26, reach: 10 },
-          { name: "hand", stations: [425, round(590 + arm.shift)], rows: 34, columns: 38, reach: 14, hold: (p: R.V): number => {
+          { name: "hand", stations: [425, KNUCKLE.relief], rows: 34, columns: 38, reach: 14, hold: (p: R.V): number => {
             // Within 24 mm of the thumb's course from 20 mm past its first joint: the web beside the thumb and the face the thumb comes out of.
             const a: R.V = joint("thumb_01_r");
             const b: R.V = joint("thumb_03_r");
@@ -469,16 +495,7 @@ namespace FamilyConicBody {
 
           // The arm owns the shoulder's cap as well, the skin lateral of the armpit's sagittal plane, and gives up what lies medial.
           return Math.max(thumb, ARMPIT_MM - p[2]);
-        }, casts: [
-          // The back of the hand and the palm round the knuckles, as the sole under the toe roots: cast square to the hand's own plane, the
-          // plane through the wrist and the index and little fingers' first joints, onto the triangles that face that way.
-          { name: "knuckles", stations: [round(560 + arm.shift), round(590 + arm.shift)], axis: ((): R.V => {
-            const [o, a, b]: R.V[] = [joint("hand_r"), joint("index_01_r"), joint("pinky_01_r")];
-            const n: R.V = [(a[1] - o[1]) * (b[2] - o[2]) - (a[2] - o[2]) * (b[1] - o[1]), (a[2] - o[2]) * (b[0] - o[0]) - (a[0] - o[0]) * (b[2] - o[2]), (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])];
-            const length: number = Math.hypot(n[0], n[1], n[2]);
-            return [round4(n[0] / length), round4(n[1] / length), round4(n[2] / length)];
-          })(), rows: 13, columns: 35, reach: 6, facing: 0.8, nearest: true, skin: (): number => -1 },
-        ] },
+        }, reliefEnd: KNUCKLE.relief },
 
         // The leg turns at the ankle and runs on to the ball of the foot, its sections fanning round the instep, so the heel is lofted and the ankle
         // is no seam. The ankle's turn is long enough that its tightest radius, 2 h / (1.875 angle) = 46 mm, stays outside the instep. Round the
@@ -917,7 +934,7 @@ namespace FamilyConicBody {
         const below: number = Number(process.argv.find((argument: string): boolean => argument.startsWith("--coarse-below="))?.slice(15) ?? Infinity);
         const scaled = (window: IWindow): IWindow => (coarse === 1 || window.stations[1] > below ? window : { ...window, rows: Math.max(7, Math.round(window.rows * coarse)), columns: Math.max(7, Math.round(window.columns * coarse)) });
         // `--bare`: the wall alone, no relief of any kind, for a wall that is spliced and given its reliefs in a later run (`--wall`).
-        const windows: IWindow[] = BARE ? [] : part.reliefs === "auto" ?hollowWindows(part.name, rows, skins, course).map((window: H.IWindow): IWindow => ({ ...window, stations: [window.stations[0], Math.min(window.stations[1], tip ?? Infinity)], fade: [50, 50], fadePhase: [0.6, 0.6] })) : part.reliefs.map(scaled);
+        const windows: IWindow[] = BARE ? [] : part.reliefs === "auto" ?hollowWindows(part.name, rows, skins, course).map((window: H.IWindow): IWindow => ({ ...window, stations: [window.stations[0], Math.min(window.stations[1], part.reliefEnd ?? tip ?? Infinity)], fade: [50, 50], fadePhase: [0.6, 0.6] })) : part.reliefs.map(scaled);
 
         // Phases from 0 to a whole turn have their middle at pi, where the inward radial direction is +u, and a quarter turn on it is +v.
         const rounds: IWindow[] = (BARE ? [] : part.rounds ?? []).map((net): IWindow => {
@@ -1338,6 +1355,17 @@ namespace FamilyConicBody {
       "  export function beyond(a: V3, b: V3, length: number): V3 {",
       "    const d: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);",
       "    return [b[0] + ((b[0] - a[0]) * length) / d, b[1] + ((b[1] - a[1]) * length) / d, b[2] + ((b[2] - a[2]) * length) / d];",
+      "  }",
+      "",
+      "  /** The point `length` millimetres past `from` along the mean of the unit directions of `segments`: where a limb's course runs on past its knuckles toward its digits. */",
+      "  export function toward(from: V3, segments: [V3, V3][], length: number): V3 {",
+      "    const sum: number[] = [0, 0, 0];",
+      "    for (const [a, b] of segments) {",
+      "      const d: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);",
+      "      for (let c: number = 0; c < 3; ++c) sum[c] = sum[c]! + (b[c]! - a[c]!) / d;",
+      "    }",
+      "    const l: number = Math.hypot(sum[0]!, sum[1]!, sum[2]!);",
+      "    return [from[0] + (sum[0]! * length) / l, from[1] + (sum[1]! * length) / l, from[2] + (sum[2]! * length) / l];",
       "  }",
       "}",
       "",

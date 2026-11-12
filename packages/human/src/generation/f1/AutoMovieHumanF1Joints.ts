@@ -204,4 +204,15 @@ export namespace AutoMovieHumanF1Joints {
     const d: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
     return [b[0] + ((b[0] - a[0]) * length) / d, b[1] + ((b[1] - a[1]) * length) / d, b[2] + ((b[2] - a[2]) * length) / d];
   }
+
+  /** The point `length` millimetres past `from` along the mean of the unit directions of `segments`: where a limb's course runs on past its knuckles toward its digits. */
+  export function toward(from: V3, segments: [V3, V3][], length: number): V3 {
+    const sum: number[] = [0, 0, 0];
+    for (const [a, b] of segments) {
+      const d: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+      for (let c: number = 0; c < 3; ++c) sum[c] = sum[c]! + (b[c]! - a[c]!) / d;
+    }
+    const l: number = Math.hypot(sum[0]!, sum[1]!, sum[2]!);
+    return [from[0] + (sum[0]! * length) / l, from[1] + (sum[1]! * length) / l, from[2] + (sum[2]! * length) / l];
+  }
 }

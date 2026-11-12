@@ -1,5 +1,5 @@
 import { AutoMovieLoftChain, type AutoMovieConstructionRealization, type AutoMovieViewLoft, type IAutoMovieViewPart, realizeAutoMovieConstruction } from "@automovie/engine";
-import type { AutoMovieConstructionNode, IAutoMovieConstructionPort } from "@automovie/interface";
+import type { AutoMovieConstructionNode, IAutoMovieConstructionPort, IAutoMovieConstructionSplit } from "@automovie/interface";
 
 import { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
@@ -96,7 +96,8 @@ export namespace AutoMovieHumanF1 {
     chord: number;
 
     /**
-     * The digit leaves its limb's end over a knuckle in the row of knuckles, so its root runs back over that knuckle (`ROOTS`). The thumb
+     * The digit leaves its limb's end over a knuckle in the row of knuckles: from a split end it is one of the split's children (`FANS`),
+     * else its root runs back over that knuckle (`ROOTS`). The thumb
      * leaves the hand's side, its first joint deep in the palm, and keeps the root closed `ROOT_MM` behind its first joint.
      */
     knuckle: boolean;
@@ -147,36 +148,64 @@ export namespace AutoMovieHumanF1 {
    */
   const CROTCH: { knots: [number, number][]; corner: number } = { knots: [[0.0131, 0], [0.0231, 0.0011], [0.0331, 0.0028], [0.0431, 0.0031], [0.0531, 0.0029], [0.0631, 0.0018]], corner: 0.6 };
 
+  /** A limb whose open end is split into its knuckled digits. */
+  interface IFan {
+    /** The digits in the seams' order, from the little finger or the little toe (`fanSeams`). */
+    digits: string[];
+
+    /** Each seam's web line, knots `[along, depth]` in metres in its plane (`IAutoMovieConstructionSplit.IProfile`). */
+    webs: [number, number][][];
+
+    /** The bands' turn at each fork, radians of clock. */
+    corner: number;
+
+    /** Where each digit's band lands on it, mm past its first station, the web. */
+    rail: number;
+
+    /** Columns round each band, a quarter on each seam it takes. */
+    columns: number;
+  }
+
+  /**
+   * The limbs split at their ends, Birn's hand: the palm lofted on past the knuckles, its end cut into one opening per finger along the
+   * webs, and each opening bridged to its finger by a band. The hand's end at 595 mm on the arm's course, which turns at the middle
+   * finger's first joint toward the four fingers' mean direction, faces the fingers, so each band runs on to its finger. The web lines are
+   * `FamilyConicScan.ts webs` every 2 mm along each seam's chord, depths of 0 left out so the seam leaves its fork along the host.
+   */
+  const FANS: { arm?: IFan; leg?: IFan } = {
+    arm: {
+      digits: ["finger.pinky", "finger.ring", "finger.middle", "finger.index"],
+      webs: [
+        [[0.006, 0.0007], [0.008, 0.002], [0.01, 0.0019], [0.012, 0.0005]],
+        [[0.01, 0.003], [0.012, 0.0061], [0.014, 0.0081], [0.016, 0.0087], [0.018, 0.0082], [0.02, 0.0064], [0.022, 0.0037], [0.024, 0.0003]],
+        [[0.006, 0.0036], [0.008, 0.0065], [0.01, 0.0072], [0.012, 0.0064], [0.014, 0.0052], [0.016, 0.0037], [0.018, 0.0019]],
+      ],
+      corner: 0.6,
+      rail: 3,
+      columns: 96,
+    },
+  };
+
   /** How far behind its first joint the thumb's root closes in a point, inside the hand, mm. */
   const ROOT_MM: number = 10;
 
   /**
-   * How a sewn digit's root runs back over its knuckle, per limb, mm and shares. A digit's sections are read only from its web on, where its
-   * loop first stands free; behind it its first section is held back to `back` mm past its first joint, swelled there by `swell` of its own
-   * size (half of that midway), and it closes in a point `root` mm further back, inside the hand or the foot.
-   *
-   * Closed from its web, as before, a finger tapered over 31 mm to a point and came out of the hand's end as a cone in a collar. Measured in
-   * planes square to each finger's first segment, the reference's skin over the knuckles stands 7.5 to 10.7 mm from the first joints, about
-   * as far as each finger's own back at its web, 7.6 to 9.0 mm, and over the index knuckle 1.8 mm and the little finger's 0.8 mm farther: a
-   * held section swelled by a tenth carries the knuckles, the middle and ring ones up to 0.7 mm proud. The fingers run back to 4 mm past
-   * their joints and close 20 mm further back, so a root dives into the back of the hand over about a finger's width:
-   * closed 10 mm back, each root stood on the back of the hand as a rounded end. The toes stand closer together, 7.8 to 8.7 mm from their
-   * neighbours' midlines against their own 8 to 9 mm half widths: held back to 4 mm or swelled, neighbouring roots met and the rails between
-   * them could not be placed, so they run back to 8 mm, unswelled, and close 15 mm further back.
+   * How a toe's root runs back over its knuckle, mm and a share: its sections are read only from its web on, where its loop first stands
+   * free; behind it its first section is held back to `back` mm past its first joint, swelled there by `swell` of its own size (half of that
+   * midway), and it closes in a point `root` mm further back, inside the foot. Closed from its web, a digit tapered 31 mm to a point and came
+   * out of its limb's end as a cone in a collar. The toes stand close together, 7.8 to 8.7 mm from their neighbours' midlines against
+   * their own 8 to 9 mm half widths: held back to 4 mm or swelled, neighbouring roots met and the rails between them could not be placed, so
+   * they run back to 8 mm, unswelled, and close 15 mm further back. The fingers leave the hand's split end instead (`FANS`).
    */
-  const ROOTS: { arm: { back: number; root: number; swell: number }; leg: { back: number; root: number; swell: number } } = { arm: { back: 4, root: 20, swell: 0.1 }, leg: { back: 8, root: 15, swell: 0 } };
+  const ROOTS: { back: number; root: number; swell: number } = { back: 8, root: 15, swell: 0 };
 
   /**
-   * How far a limb's covered end leans toward the palm or the sole under its digits, mm (`AutoMovieHumanConicLoft.ITip.lean`). The hand's end
-   * is shrunk about its course, which runs through the middle finger's first joint, 8 to 10 mm under the back of the hand and 14 to 19 mm above
-   * the palm; shrunk alone it drew the palm back first, and the webs opened 3 mm early while the back of the hand stood at the tape between
-   * the knuckles, 0 to 1 mm under it where the reference lies 2 to 7 mm under. Leaning 50 mm (a shift of at most 3.1 mm, a sixteenth of it,
-   * midway down the cap) brings the valley between the index and middle knuckles 2.4 mm down 3 mm past their joints and the palm's web 5 mm
-   * out 12 mm past them, read in planes square to the line through the two fingers' first and second joints; at 60 mm the section near the
-   * tip no longer holds the course and the engine refuses the arm. The foot's end leans 40 mm the same way, toward the sole; leaned 30 to
-   * 50 mm it looks alike on the frames and every toe merges.
+   * How far the foot's covered end leans toward the sole under its toes, mm (`AutoMovieHumanConicLoft.ITip.lean`): a cap shrunk about its
+   * course draws its sole back as fast as its top. Leaned 50 mm, the hand's end, before the hand was split, brought the valleys between its
+   * knuckles 2.4 mm down and its palm's webs 5 mm out; at 60 mm the section near the tip no longer held the course and the engine refused
+   * the arm. The foot leans 40 mm; leaned 30 to 50 mm it looks alike on the frames and every toe merges.
    */
-  const LEAN_MM: { arm: number; leg: number } = { arm: 50, leg: 40 };
+  const LEAN_MM: number = 40;
 
   /**
    * Station spacing of the layers and derived outlines of a sewn family, mm. Each part adds stations of its own where its section turns fast,
@@ -376,7 +405,7 @@ export namespace AutoMovieHumanF1 {
    * The seams a limb's open end would be split along between its knuckled digits (`IAutoMovieConstructionSplit.outer`), from the little
    * finger's or the little toe's valley inward, each a pair of host phases on the end's ring enclosing the one before; each seam's heading,
    * the two digits' mean direction (`IAutoMovieConstructionSplit.IProfile.heading`); and the end's station, outward normal and palm or
-   * sole normal. Read by `FamilyConicScan.ts webs`; the figure does not split its limbs yet.
+   * sole normal. The split of a fanned limb's end (`FANS`) and `FamilyConicScan.ts webs` read it.
    *
    * @param which The limb.
    */
@@ -470,13 +499,15 @@ export namespace AutoMovieHumanF1 {
       const down: number[] = which === "arm" ? [a[1]! * b[2]! - a[2]! * b[1]!, a[2]! * b[0]! - a[0]! * b[2]!, a[0]! * b[1]! - a[1]! * b[0]!] : [0, -1, 0];
       const end: AutoMovieHumanConicLoft.ITip = BODY[which].tips![1]!;
       const frame = AutoMovieHumanConicLoft.axis(BODY[which]).at(end.from);
-      const along = (w: number[]): number => (LEAN_MM[which] * (down[0]! * w[0]! + down[1]! * w[1]! + down[2]! * w[2]!)) / Math.hypot(down[0]!, down[1]!, down[2]!);
-      const leaned: AutoMovieHumanConicLoft.IFamily = { ...BODY[which], tips: [BODY[which].tips![0], { ...end, lean: [along(frame.u), along(frame.v)] }] };
+      const along = (w: number[]): number => (LEAN_MM * (down[0]! * w[0]! + down[1]! * w[1]! + down[2]! * w[2]!)) / Math.hypot(down[0]!, down[1]!, down[2]!);
+      // A fanned limb's end stays open and is split into its knuckled digits (`FANS`); the others close in a leaning covered cap.
+      const fanned: IFan | undefined = FANS[which];
+      const leaned: AutoMovieHumanConicLoft.IFamily = { ...BODY[which], tips: [BODY[which].tips![0], fanned === undefined ? { ...end, lean: [along(frame.u), along(frame.v)] } : null] };
       const family: AutoMovieHumanConicLoft.IFamily = side > 0 ? leaned : twin(leaned);
       let node: AutoMovieConstructionNode = leaf(family);
-      for (const digit of DIGITS.filter((d: IDigit): boolean => d.limb === which)) {
+      for (const digit of DIGITS.filter((d: IDigit): boolean => d.limb === which && !(fanned !== undefined && d.knuckle))) {
         const first: number = digit.family.knots[0]!;
-        const { back, root, swell } = ROOTS[which];
+        const { back, root, swell } = ROOTS;
 
         // A knuckled digit's first section held back over its knuckle, its coordinates swelled, and closed past it (`ROOTS`).
         const { at } = AutoMovieHumanConicSection.offsets(digit.family.layout);
@@ -506,6 +537,44 @@ export namespace AutoMovieHumanF1 {
           grazing: 0.05,
         };
       }
+      if (fanned === undefined) return { node, face: family.name };
+
+      // The split: the end's seams along the valleys between the knuckled digits (`fanSeams`), each curved along its web line (`IFan.webs`)
+      // in the plane that holds the two digits' mean direction. The twin's phases run the other way, so a seam `[a, b]` is `[-b, -a]` there,
+      // read from its other fork: its knots run back along the chord, and its heading is reflected.
+      const fan = fanSeams(which);
+      const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(leaned, leaned.knots);
+      if (loft.chain === null) throw new Error("the " + which + " does not loft");
+      const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> = loft.chain;
+      const seam = (j: number): IAutoMovieConstructionSplit.ISeam => {
+        const [a, b]: [number, number] = fan.seams[j]!;
+        const knots: [number, number][] = fanned.webs[j]!;
+        const [pa, pb]: number[][] = [AutoMovieLoftChain.point(chain, fan.station, a), AutoMovieLoftChain.point(chain, fan.station, b)];
+        const chord: number = Math.hypot(pb[0]! - pa[0]!, pb[1]! - pa[1]!, pb[2]! - pa[2]!) / 1000;
+        const h: [number, number, number] = fan.headings[j]!;
+        return side > 0
+          ? { seam: [a, b], profile: { knots, corner: fanned.corner, heading: h } }
+          : { seam: [-b, -a], profile: { knots: knots.map(([along, depth]: [number, number]): [number, number] => [chord - along, depth]).reverse(), corner: fanned.corner, heading: [h[0], h[1], -h[2]] } };
+      };
+      const children: IAutoMovieConstructionSplit.IChild[] = fanned.digits.map((name: string): IAutoMovieConstructionSplit.IChild => {
+        const digit: IDigit = DIGITS.find((d: IDigit): boolean => d.family.name === name)!;
+        const part: AutoMovieHumanConicLoft.IFamily = side > 0 ? digit.family : twin(digit.family);
+        return { band: "band." + part.name, part: leaf(part), partFace: part.name, partEnd: "bottom", rail: fanned.rail / 1000, correspondence: "length" };
+      });
+      const first: IAutoMovieConstructionSplit.ISeam = seam(0);
+      node = {
+        type: "split",
+        name: "fan." + family.name,
+        host: node,
+        hostFace: family.name,
+        hostEnd: "top",
+        seam: first.seam,
+        ...(first.profile === undefined ? {} : { profile: first.profile }),
+        outer: fan.seams.slice(1).map((_: [number, number], j: number): IAutoMovieConstructionSplit.ISeam => seam(j + 1)),
+        count: fanned.columns,
+        rows: BAND.rows,
+        children: children as IAutoMovieConstructionSplit["children"],
+      };
       return { node, face: family.name };
     };
 
