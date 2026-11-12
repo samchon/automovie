@@ -18,7 +18,7 @@ A changed or withdrawn requirement reaches its consumers through [repair](../cor
 
 When the agent writes the story, its events, people, ending, tone, form, running time and frame stay the user's unless delegated. A story built on a guessed element is rewritten once the user reads it, with every layer written on it. Each layer's own decisions within what the user decided, such as a researched fact, are delegated and not asked; decide delegated choices through [direction](direction.md).
 
-Before research, ask about each such element the user neither fixed nor delegated. Ask in rounds and record each round's answers at their owners, because an answer often raises a new element. Stop when the conversation and the user's materials leave none, or when the user delegates the rest, recorded as one delegated choice.
+Before direction, ask about each such element the user neither fixed nor delegated. Ask in rounds and record each round's answers at their owners, because an answer often raises a new element. Stop when the conversation and the user's materials leave none, or when the user delegates the rest, recorded as one delegated choice.
 
 Afterwards, ask only when a [discovery](discovery.md) checkpoint finds a new such element or two fixed conditions conflict. A question the user leaves unanswered is recorded as unresolved under [project context](../../production/project-context.md#what-to-record).
 

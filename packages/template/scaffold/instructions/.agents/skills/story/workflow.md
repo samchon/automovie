@@ -14,7 +14,7 @@ Choose the commissioned route from the request, project context, adopted instruc
 
 ## Route and parents
 
-Commissioned video follows one traceable chain: research, settings or a short's brief, screenplay, entities and the laws the installed motion vocabulary lacks, with their tests and accepted [catalog cases](../motion/catalog-cases.md), scene composition, then the film. When [no narrative pass runs](#who-writes-the-screenplay), the instructions stand in for settings or the brief.
+Commissioned video follows one traceable chain: settings or a short's brief, screenplay, entities and the laws the installed motion vocabulary lacks, with their tests and accepted [catalog cases](../motion/catalog-cases.md), scene composition, then the film. When [no narrative pass runs](#who-writes-the-screenplay), the instructions stand in for settings or the brief.
 
 Each link cites the addresses it realizes from the links above it, so no code exists without a cited basis and no requirement stays unrealized; a later link can only realize what an earlier one decided, and motion written before the screenplay settles its action is fitted to guesses.
 
@@ -40,8 +40,6 @@ The user chooses, whatever route the folder fixes, and the choice is recorded wi
 | Without this workflow | None | The agent writes it directly from the instructions |
 | The user's, refined | The route's | Enters through [intake](document-layout.md#intake-of-existing-work) as material |
 | The user's, fixed | None | Used exactly as given |
-
-Research still serves the laws the code needs whenever no narrative pass runs.
 
 A fixed screenplay is never edited, reviewed or rewritten, because it is the user's. An exchange, outcome or reaction it lacks, or a beat that cannot be performed, goes back to the user to write into it, because only the screenplay decides them.
 

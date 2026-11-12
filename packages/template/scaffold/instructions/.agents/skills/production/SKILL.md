@@ -25,7 +25,7 @@ Each task has one owner, in the [writing order](../story/workflow.md#route-and-p
 
 | Work | Owner |
 | --- | --- |
-| Research, canon and the screenplay | [Story](../story/SKILL.md) |
+| Canon, the screenplay and their research | [Story](../story/SKILL.md) |
 | Entities, source, integrations and tests | [Development](../development/SKILL.md) |
 | Performance, staging, camera and the motion hint's control channels | [Motion](../motion/SKILL.md) |
 | Generated images | [Image](../image/SKILL.md) |

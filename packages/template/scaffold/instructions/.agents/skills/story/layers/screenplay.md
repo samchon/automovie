@@ -4,7 +4,7 @@ Compose the audience's complete viewing and listening experience, understandable
 
 For long work, extract concise notes of the required identities, decisions, states, chronology, space and audience knowledge from completed treatments and scripts, draft in an [isolated context](../correction/inspection.md#isolated-context) with those notes, the requirements and fixed quotations, then compare against the actual parents.
 
-Keep the decided event order while composing the realization afresh under [parent differentiation](../../contracts/story/shared/principles/narratives.md#parent-differentiation). A short composes events, action and realization from its [brief](brief.md) and research.
+Keep the decided event order while composing the realization afresh under [parent differentiation](../../contracts/story/shared/principles/narratives.md#parent-differentiation). A short composes events, action and realization from its [brief](brief.md) and research, studying what [when to study](../planning/research.md#when-to-study) assigns to the screenplay.
 
 On either route, write only what the adopted representation and frame can show, as the canon's scope record states them. A polygon man has no face, so its attention is the turn of its head and torso, and a fact it cannot carry reaches a generated film through canon images and the generation prompt.
 
