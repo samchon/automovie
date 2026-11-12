@@ -141,6 +141,13 @@ export namespace AutoMovieHumanF1 {
   const ARMSCYE_MARGIN_MM: number = 6;
 
   /**
+   * How far below the armpit's crease the arm's ring is still followed by the loop, mm. The ring 10 mm into the arm dips 25 mm below the
+   * crease, since the arm hangs down from it; a loop that follows it there cuts away the trunk's side up to the crease, and the band is a
+   * web across the hollow.
+   */
+  const ARMPIT_DROP_MM: number = -6;
+
+  /**
    * Where each limb's band lands on it, mm from the limb's first station: the limb keeps its stations beyond. The arm's first station is 2 mm
    * past the armscye's plane and its course is nearly square to that plane for its first 25 mm, so its ring 10 mm on lies beside the plane. The nose's and the ear's bands land half a millimetre in: the nostrils lie across the nose's root and the ear's dome starts 5 mm out, and a ring farther in ran through what a relief carves there.
    */
@@ -208,7 +215,7 @@ export namespace AutoMovieHumanF1 {
     const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> = loft.chain;
     const outline: [number, number][] = Array.from({ length: 4 * SHOULDER_COLUMNS }, (_: unknown, j: number): [number, number] => {
       const p: number[] = AutoMovieLoftChain.point(chain, rail, (2 * Math.PI * j) / (4 * SHOULDER_COLUMNS));
-      return [p[1]! - J.axisFloor[1], Math.atan2(p[2]!, p[0]!)];
+      return [Math.max(p[1]!, J.armpit[1] - ARMPIT_DROP_MM) - J.axisFloor[1], Math.atan2(p[2]!, p[0]!)];
     });
     const span = (c: 0 | 1): [number, number] => [Math.min(...outline.map((q: [number, number]): number => q[c])), Math.max(...outline.map((q: [number, number]): number => q[c]))];
     const [stations, phases]: [number, number][] = [span(0), span(1)];
