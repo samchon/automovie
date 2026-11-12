@@ -334,6 +334,15 @@ export namespace AutoMovieHumanF1 {
    */
   const NOSTRIL_RIM_MM: number = 1.5;
 
+  /**
+   * Spacing of a nostril cutter's layers over its whole length, mm. The cutter's wall turns from its flared mouth into the canal within
+   * about 2.5 mm of station above the cut (its station line at 0.4 rad round turns 72 degrees between 10.4 and 13 mm along its course,
+   * where its knots at 9 and 11 mm change its section by 7 mm), and on layers 1.6 mm apart there the mesh folded 64 to 72 degrees along
+   * one ring inside each nostril, a faint streak down its walls (mouth.front px 555..600 x 190..260). On layers 1 mm apart the folds were
+   * 44 degrees.
+   */
+  const NOSTRIL_LAYER_MM: number = 0.5;
+
   /** The sewn body's declaration: its construction tree and the view parts its source leaves name. */
   export interface IConstruction {
     /** The tree: both arm ports over the crotch split over the trunk. */
@@ -574,7 +583,7 @@ export namespace AutoMovieHumanF1 {
    */
   export function construction(layer: number = LAYER_MM): IConstruction {
     const sources: Map<string, IAutoMovieViewPart> = new Map();
-    const leaf = (family: AutoMovieHumanConicLoft.IFamily, fine: number = -Infinity): AutoMovieConstructionNode => {
+    const leaf = (family: AutoMovieHumanConicLoft.IFamily, fine: number = -Infinity, close: number = WEB_LAYER_MM): AutoMovieConstructionNode => {
       const from: number = family.knots[0]!;
       const to: number = family.knots.at(-1)!;
       const count: number = Math.ceil((to - from) / layer) + 1;
@@ -585,7 +594,7 @@ export namespace AutoMovieHumanF1 {
       const stations: number[] = even.flatMap((s: number, i: number): number[] => {
         if (i === 0) return [s];
         const before: number = even[i - 1]!;
-        const pitch: number = Math.min(layer, before < fine ? WEB_LAYER_MM : layer, ...(family.reliefs ?? []).filter((relief): boolean => relief.stations[0] < s && relief.stations[1] > before).map((relief): number => (relief.stations[1] - relief.stations[0]) / (relief.rows - 3)));
+        const pitch: number = Math.min(layer, before < fine ? close : layer, ...(family.reliefs ?? []).filter((relief): boolean => relief.stations[0] < s && relief.stations[1] > before).map((relief): number => (relief.stations[1] - relief.stations[0]) / (relief.rows - 3)));
         const cuts: number = Math.ceil((s - before) / pitch - 1e-9);
         return Array.from({ length: cuts }, (_: unknown, k: number): number => before + ((s - before) * (k + 1)) / cuts);
       });
@@ -782,7 +791,7 @@ export namespace AutoMovieHumanF1 {
     for (const side of [1, -1] as const) {
       const drawn: AutoMovieHumanConicLoft.IFamily = drawnIn(AutoMovieHumanF1Nostril, NOSTRIL_RIM_MM);
       const hollow: AutoMovieHumanConicLoft.IFamily = side > 0 ? drawn : twin(drawn);
-      root = { type: "join", kind: "diff", name: "cut." + hollow.name, host: root, part: leaf(hollow), seed: { type: "search", partFace: hollow.name, hostFace: BODY.nose.name, phase: 0, from: 0, to: 0.9 }, parameter: { type: "phase" }, partWidth: { type: "chord", value: NOSTRIL_RIM_MM / 1000 }, hostWidth: { type: "chord", value: NOSTRIL_RIM_MM / 1000 }, continuity: "G2", count: 48, rows: 4, tolerance: 1e-12, grazing: 0.05 };
+      root = { type: "join", kind: "diff", name: "cut." + hollow.name, host: root, part: leaf(hollow, Infinity, NOSTRIL_LAYER_MM), seed: { type: "search", partFace: hollow.name, hostFace: BODY.nose.name, phase: 0, from: 0, to: 0.9 }, parameter: { type: "phase" }, partWidth: { type: "chord", value: NOSTRIL_RIM_MM / 1000 }, hostWidth: { type: "chord", value: NOSTRIL_RIM_MM / 1000 }, continuity: "G2", count: 48, rows: 4, tolerance: 1e-12, grazing: 0.05 };
     }
     return { root, sources };
   }
