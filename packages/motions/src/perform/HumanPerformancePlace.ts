@@ -3,7 +3,10 @@ import {
   type IAutoMovieSchedule,
   resolveAutoMovieSchedule,
 } from "@automovie/engine";
-import type { AutoMovieMotionTarget } from "@automovie/interface";
+import type {
+  AutoMovieMotionTarget,
+  IAutoMovieMotionEvent,
+} from "@automovie/interface";
 
 import type { HumanActionKey } from "../HumanActionKey";
 import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
@@ -384,11 +387,26 @@ export namespace HumanPerformancePlace {
       context.start = start - share * plan.duration;
       plan = law.plan(context);
     }
-    if (trial)
-      return {
-        duration: plan.duration,
-        events: plan.events.map((e) => ({ name: e.name, share: e.share })),
-      };
+
+    // The timing the schedule reads: the part of the plan left after the
+    // share it enters at, its contact and events on that part. A trial
+    // reads the same timing the placed action gives.
+    const active: number = (1 - share) * plan.duration;
+    const timing: resolveAutoMovieSchedule.ITiming = {
+      duration: active,
+      ...(plan.contact === undefined || plan.contact < share * plan.duration
+        ? {}
+        : { contact: plan.contact - share * plan.duration }),
+      events: plan.events
+        .filter((e: IAutoMovieMotionEvent): boolean => e.share >= share)
+        .map(
+          (e: IAutoMovieMotionEvent): IAutoMovieMotionEvent => ({
+            name: e.name,
+            share: active === 0 ? 0 : (e.share - share) / (1 - share),
+          }),
+        ),
+    };
+    if (trial) return timing;
 
     // An action aligned into its performer's previous one ends that one
     // where it starts, as the cut the cancel table just allowed.
@@ -424,7 +442,6 @@ export namespace HumanPerformancePlace {
           start,
         },
       );
-    const active: number = (1 - share) * plan.duration;
     const segment: HumanSegment.ISegment = {
       index: person.segments.length,
       entry: entries.length,
@@ -454,17 +471,6 @@ export namespace HumanPerformancePlace {
         intent.anchor,
         Object.assign(segment, { subject: intent.subject }),
       );
-    return {
-      duration: active,
-      ...(plan.contact === undefined || plan.contact < share * plan.duration
-        ? {}
-        : { contact: plan.contact - share * plan.duration }),
-      events: plan.events
-        .filter((e): boolean => e.share >= share)
-        .map((e) => ({
-          name: e.name,
-          share: active === 0 ? 0 : (e.share - share) / (1 - share),
-        })),
-    };
+    return timing;
   }
 }

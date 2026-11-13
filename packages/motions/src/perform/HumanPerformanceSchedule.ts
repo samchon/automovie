@@ -6,8 +6,12 @@ import {
   resolveAutoMovieHumanoidSurfaces,
   resolveAutoMovieSchedule,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionEvent,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
+import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanPerformance } from "./HumanPerformance";
 import { HumanPerformancePlace } from "./HumanPerformancePlace";
@@ -137,19 +141,25 @@ export namespace HumanPerformanceSchedule {
     let lead: number = 0;
     for (let round: number = 0; round < 3; ++round) {
       // Planning a mutual action records its meeting; a trial must not.
-      const meetings = [...self.meetings];
-      const timing = HumanPerformancePlace.place(
-        self,
-        intent,
-        Math.max(floor, start),
-        entries,
-        where,
-        true,
-      );
+      const meetings: [
+        string,
+        { subject: string; meeting: AutoMovieMotionMeeting.IMeeting },
+      ][] = [...self.meetings];
+      const timing: resolveAutoMovieSchedule.ITiming =
+        HumanPerformancePlace.place(
+          self,
+          intent,
+          Math.max(floor, start),
+          entries,
+          where,
+          true,
+        );
       self.meetings.clear();
       for (const [key, value] of meetings) self.meetings.set(key, value);
       const share: number | undefined =
-        timing.events.find((e): boolean => e.name === instant)?.share ??
+        (timing.events ?? []).find(
+          (e: IAutoMovieMotionEvent): boolean => e.name === instant,
+        )?.share ??
         (instant === "start" ? 0 : instant === "end" ? 1 : undefined);
       if (share === undefined)
         throw new HumanRefusal({
@@ -158,7 +168,13 @@ export namespace HumanPerformanceSchedule {
           value: instant,
           feasible: {
             kind: "alternatives",
-            values: ["start", ...timing.events.map((e) => e.name), "end"],
+            values: [
+              "start",
+              ...(timing.events ?? []).map(
+                (e: IAutoMovieMotionEvent): string => e.name,
+              ),
+              "end",
+            ],
           },
           reason: `${intent.capability} has no instant named ${instant}`,
           fix: "align one of the instants the action has",
