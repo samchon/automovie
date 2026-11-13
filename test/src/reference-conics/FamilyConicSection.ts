@@ -350,6 +350,9 @@ export namespace FamilyConicSection {
    */
   const FAIR_MM: number = 6;
 
+  /** The least share of its run's arclength a feature line keeps from the run's ends: the model's `EDGE` of 0.03 on the chord, with a margin. */
+  const LINE_EDGE: number = 0.05;
+
   /** The recovery converter's sampled tolerance on a faired section, mm, and its work limits. */
   const CONVERT: { toleranceMm: number; maximumArcs: number; maximumDepth: number } = { toleranceMm: 0.25, maximumArcs: 256, maximumDepth: 16 };
 
@@ -402,7 +405,10 @@ export namespace FamilyConicSection {
     // The curve p(phi) = r(phi) e(phi), e = (cos, sin): its derivatives by Leibniz's rule, e's k-th derivative being e turned by k quarter turns.
     const binomial = (n: number, k: number): number => (k === 0 || k === n ? 1 : binomial(n - 1, k - 1) + binomial(n - 1, k));
     const curve = {
-      domain: [0, 2 * Math.PI] as const,
+      // The closed curve's seam, where the converter starts and ends, at an eighth of a turn: started on the median line (phase 0), the
+      // converter cut dozens of short arcs there whose bends flipped sign, a concavity and inflections on the front median of a section with
+      // none (f1's made falling groove at 0 mm).
+      domain: [Math.PI / 4, Math.PI / 4 + 2 * Math.PI] as const,
       breaks: [] as number[],
       closed: true,
       evaluate: (phi: number): readonly [number, number] => [rAt(phi, 0) * Math.cos(phi), rAt(phi, 0) * Math.sin(phi)],
@@ -521,7 +527,7 @@ export namespace FamilyConicSection {
       // needed an S.
       const conversion = converted(points);
       const faired: P[] = Array.from({ length: 1440 }, (_: unknown, i: number): P => conversion.at((2 * Math.PI * i) / 1440).point);
-      return seed(faired, layout, (found: readonly (P | null)[]): Map<number, { point: P; tangent: P }> => {
+      return seed(faired, layout, (found: readonly (P | null)[], tangentOf: readonly (P | null)[]): Map<number, { point: P; tangent: P }> => {
         const out: Map<number, { point: P; tangent: P }> = new Map();
         layout.anchors.forEach((anchor: IAnchor, k: number): void => {
           if (anchor.kind !== "f" || (k > 0 && layout.anchors[k - 1]!.kind === "f")) return;
@@ -612,7 +618,10 @@ export namespace FamilyConicSection {
             const neighbour: number = i === 0 ? (median ? NaN : next[1] ?? NaN) : i === next.length - 1 ? next[i - 1]! : Math.abs(next[i - 1]! - next[i]!) < Math.abs(next[i + 1]! - next[i]!) ? next[i - 1]! : next[i + 1]!;
             const meeting: number = i === 0 && median ? 0 : Number.isNaN(neighbour) ? next[i]! : (next[i]! + neighbour) / 2;
             const shown: number = alive[i] ? meeting + ramp(strengths[i]!) * (next[i]! - meeting) : next[i]!;
-            shares[run.indexOf(j)] = Math.min(0.97, Math.max(0.03, shown));
+            // Kept inside the model's share bound with a margin: the model reads a feature's share along its frame's chord and clamps
+            // it to [EDGE, 1 - EDGE] (`AutoMovieHumanConicSection.along`), and a line at 3% of its run's arclength stood at 2.9% of the
+            // chord on the made section, so the model moved it along the chord and the arc from the median needed an S.
+            shares[run.indexOf(j)] = Math.min(1 - LINE_EDGE, Math.max(LINE_EDGE, shown));
           });
           for (let i: number = 0; i < run.length; ++i) {
             if (!Number.isNaN(shares[i]!)) continue;
@@ -623,7 +632,46 @@ export namespace FamilyConicSection {
             const from: number = lo < 0 ? 0 : shares[lo]!, to: number = hi >= run.length ? 1 : shares[hi]!;
             for (let m: number = lo + 1; m < hi; ++m) shares[m] = from + ((to - from) * (m - lo)) / (hi - lo);
           }
-          run.forEach((j: number, i: number): void => void out.set(j, conversion.at(phiOf(shares[i]!))));
+          // A fading line's point and tangent go by the same ramp to the base conic's at its share: the one conic from the run's first
+          // extreme to its other, the extremes' tangents meeting at the box's corner, its shoulder where the section crosses its median line.
+          // The share bound (`EDGE`) stops a line at 3% of its run short of a median meeting point, and there the converted chain still
+          // carried the fading groove's concavity (its tangent turned outward by 0.21 to 0.08 of a unit at 2.4 to 0.96 mm deep, f1's made
+          // falling groove), so the arc from the median needed an S; on the base conic the stop is a piece of one admissible arc.
+          const q0: P = found[fb]!, q2: P = found[fa]!;
+          const corner: P = meet(q0, tangentOf[fb]!, q2, tangentOf[fa]!);
+          const rho: number = Math.min(0.97, Math.max(0.03, crossing(faired, [(q0[0] + q2[0]) / 2, (q0[1] + q2[1]) / 2], corner)));
+          const wb: number = rho / (1 - rho);
+          const baseAt = (t: number): { point: P; tangent: P } => {
+            const b0: number = (1 - t) ** 2, b1: number = 2 * t * (1 - t) * wb, b2: number = t * t;
+            const D: number = b0 + b1 + b2;
+            const N: P = [b0 * q0[0] + b1 * corner[0] + b2 * q2[0], b0 * q0[1] + b1 * corner[1] + b2 * q2[1]];
+            const dD: number = -2 * (1 - t) + 2 * (1 - 2 * t) * wb + 2 * t;
+            const d: P = [-2 * (1 - t) * q0[0] + 2 * (1 - 2 * t) * wb * corner[0] + 2 * t * q2[0] - (N[0] * dD) / D, -2 * (1 - t) * q0[1] + 2 * (1 - 2 * t) * wb * corner[1] + 2 * t * q2[1] - (N[1] * dD) / D];
+            const l: number = Math.hypot(d[0], d[1]) || 1;
+            return { point: [N[0] / D, N[1] / D], tangent: [d[0] / l, d[1] / l] };
+          };
+          const baseLengths: number[] = [0];
+          for (let i: number = 1; i <= 400; ++i) {
+            const p: P = baseAt((i - 1) / 400).point, q: P = baseAt(i / 400).point;
+            baseLengths.push(baseLengths[i - 1]! + Math.hypot(q[0] - p[0], q[1] - p[1]));
+          }
+          const baseShare = (share: number): { point: P; tangent: P } => {
+            const target: number = share * baseLengths[400]!;
+            let i: number = 0;
+            while (i < 399 && baseLengths[i + 1]! < target) ++i;
+            const piece: number = baseLengths[i + 1]! - baseLengths[i]! || 1;
+            return baseAt((i + (target - baseLengths[i]!) / piece) / 400);
+          };
+          run.forEach((j: number, i: number): void => {
+            const onChain = conversion.at(phiOf(shares[i]!));
+            const line: number = kinds.indexOf(j);
+            if (line < 0 || !alive[line]) return void out.set(j, onChain);
+            const r: number = ramp(strengths[line]!);
+            const onBase = baseShare(shares[i]!);
+            const turned: number = Math.atan2(onChain.tangent[1], onChain.tangent[0]) - Math.atan2(onBase.tangent[1], onBase.tangent[0]);
+            const heading: number = Math.atan2(onBase.tangent[1], onBase.tangent[0]) + r * Math.atan2(Math.sin(turned), Math.cos(turned));
+            out.set(j, { point: [onBase.point[0] + r * (onChain.point[0] - onBase.point[0]), onBase.point[1] + r * (onChain.point[1] - onBase.point[1])], tangent: [Math.cos(heading), Math.sin(heading)] });
+          });
         });
         return out;
       });

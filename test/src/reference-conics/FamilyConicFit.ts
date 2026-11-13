@@ -275,7 +275,8 @@ export namespace FamilyConicFit {
     const failed = (fault: string): IResult => ({ layout, knots: [...knots], values: [], training: NONE, heldout: NONE, rows: [], chordMaximumMm: Infinity, iterations: 0, folds: folds.count, fault, milliseconds: performance.now() - started });
 
     // Start from each section's own geometric reading, projected onto the shared knots by linear least squares.
-    const seeds: number[][] = train.map((row: IRow): number[] => C.seed(row.points, layout));
+    // The sections' own seeds, in station order, their feature lines tracked along the stations (`FamilyConicSection.seedAll`).
+    const seeds: number[][] = C.seedAll(train.map((row: IRow): readonly C.P[] => row.points), layout);
     // A feature's heading is an angle read on each section alone; carried along the stations it is unwrapped onto one branch, so the
     // projection onto the knots does not average two readings a turn apart.
     for (let f: number = 0; f < F; ++f) {
