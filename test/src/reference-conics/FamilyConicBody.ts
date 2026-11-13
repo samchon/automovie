@@ -835,6 +835,12 @@ namespace FamilyConicBody {
     /** With `skin`: a section whose rays fold is fitted as its hull instead of being skipped. */
     folded?: "hull";
 
+    /** With `skin`: the station from which every section is fitted as its hull, the stretch whose detail its reliefs own. */
+    hullFrom?: number;
+
+    /** Of `clip`, the part of it that is an opening another part fills: across it each section closes by the opening's closure (`without`). */
+    opening?: (p: R.V) => number;
+
     /** The name of an excursion (`FamilyConicExcursion.PARTS`) the sections are cut as, out of the reference head's level planes. */
     excursion?: string;
 
@@ -983,7 +989,16 @@ namespace FamilyConicBody {
     const joint = (name: string): R.V => source.joints.get(name)!;
     // The armscye's landmark loop on the skin (`FamilyConicLoop`), which divides the shoulder's skin between the trunk and the arm.
     const armscye: FamilyConicLoop.ILoop = FamilyConicLoop.build(source);
-    const only: string[] = process.argv.slice(2).filter((argument: string): boolean => !argument.startsWith("--"));
+    // The arm's opening in the trunk, either side: past the loop's swept surface and inside the arm's tube.
+    const armHole = (p: R.V): number => Math.max(...[1, -1].map((side: number): number => {
+      const a: R.V = joint("upperarm_r");
+      const b: R.V = joint("lowerarm_r");
+      const length: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+      const d: R.V = [(b[0] - a[0]) / length, (b[1] - a[1]) / length, (b[2] - a[2]) / length];
+      const q: R.V = [p[0] - a[0], p[1] - a[1], side * p[2] - a[2]];
+      const along: number = q[0] * d[0] + q[1] * d[1] + q[2] * d[2];
+      return Math.min(armscye.side([p[0], p[1], side * p[2]]), ARM_TUBE_MM - Math.hypot(q[0] - along * d[0], q[1] - along * d[1], q[2] - along * d[2]));
+    }));    const only: string[] = process.argv.slice(2).filter((argument: string): boolean => !argument.startsWith("--"));
     if (process.argv.includes("--emit-joints")) await fs.writeFile(path.join(root, "packages/human/src/generation/f1/AutoMovieHumanF1Joints.ts"), joints(source));
     // A digit's course runs through its joints and on past the last one by the length of its distal segment.
     const beyond = (a: R.V, b: R.V, length: number): R.V => {
@@ -1183,19 +1198,15 @@ namespace FamilyConicBody {
         // turned 50 to 79 degrees within 2 mm where the plane met the skin, a corner the fairing rang round. The tube still bounds the loop's
         // side: the surface swept from the loop is a graph over its plane and reaches the hip's side, 32 of f1's vertices at 758 to 884 mm
         // up standing up to 4.7 mm past it.
+        // With feature lines (`--trunk-lines`) the arm's opening is closed across by its own closure, not the clip's chord (`IPart.opening`),
+        // and from the chin's start (`CHIN.y`, 1,476 mm, station 696) to the crown each section is its hull: the face's pairs of inflections,
+        // 10 to 56 degrees, outnumber any trunk layout's lines, and the face's detail is its reliefs' (face, mouth, eyes, chin), refitted on
+        // the new wall (construction.md, Repair).
         // The front arcs' shoulders at knot 792 are laid from their neighbours (`--relay=792,814,834:6 --relay-stored=792:6,7`): the face's refit
         // without the nose stored -0.20, 0.03 and 1.17 there, out of the model's bounds, and the curvature match then held both arcs either side
         // of the front median at 0.09 to 0.14, near-chords that turned within 0.26 mm and drew an upright slash down each cheek (`head.front`
         // px 288..300 x 440..525). Laid as the natural cubic through 740, 814 to 912, they stand at 0.48 to 0.49 and the turn's radius at 9 mm.
-        { name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], course: "[J.axisFloor, J.axisCrown]", halves: [], up: [1, 0, 0], domain: [28, 912], whole: true, step: 2, gap: (s: number): number => (s >= 692 && s <= 732 ? Number(process.argv.find((argument: string): boolean => argument.startsWith("--jaw="))?.slice(6) ?? 3) : s > 740 ? FACE_GAP_MM : 12), tip: true, cap: 906, centre: [16, 0], own: true, mirrored: false, layouts: TRUNK_LINES ? TRUNK_LINED : BILATERAL, ...(TRUNK_LINES ? { skin: "outer" as const, folded: "hull" as const } : {}), round: chin, kept: breasts, clip: (p: R.V): number => Math.max(ear(p), noseCut(p), chin(p), breasts(p), ...[1, -1].map((side: number): number => {
-          const a: R.V = joint("upperarm_r");
-          const b: R.V = joint("lowerarm_r");
-          const length: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
-          const d: R.V = [(b[0] - a[0]) / length, (b[1] - a[1]) / length, (b[2] - a[2]) / length];
-          const q: R.V = [p[0] - a[0], p[1] - a[1], side * p[2] - a[2]];
-          const along: number = q[0] * d[0] + q[1] * d[1] + q[2] * d[2];
-          return Math.min(armscye.side([p[0], p[1], side * p[2]]), ARM_TUBE_MM - Math.hypot(q[0] - along * d[0], q[1] - along * d[1], q[2] - along * d[2]));
-        })), reliefs: [
+        { name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], course: "[J.axisFloor, J.axisCrown]", halves: [], up: [1, 0, 0], domain: [28, 912], whole: true, step: 2, gap: (s: number): number => (s >= 692 && s <= 732 ? Number(process.argv.find((argument: string): boolean => argument.startsWith("--jaw="))?.slice(6) ?? 3) : s > 740 ? FACE_GAP_MM : 12), tip: true, cap: 906, centre: [16, 0], own: true, mirrored: false, layouts: TRUNK_LINES ? TRUNK_LINED : BILATERAL, ...(TRUNK_LINES ? { skin: "outer" as const, folded: "hull" as const, hullFrom: CHIN.y - 780, opening: armHole } : {}), round: chin, kept: breasts, clip: (p: R.V): number => Math.max(ear(p), noseCut(p), chin(p), breasts(p), armHole(p)), reliefs: [
           // Every window's cast turns with the phase (`turn`), so it is square to the wall across its whole width. On fixed axes the windows
           // had to stop at 1.0 to 1.2 rad: farther round a height slid a point along the wall instead of moving it in or out, which folded
           // the skin at the sides of the head and the shoulders.
@@ -1500,6 +1511,8 @@ namespace FamilyConicBody {
       let excursion: ((y: number) => X.ISection | null) | null = null;
       // The skin's two ends of the last guided excursion cut (`X.ISection.ends`): its invented closure lies behind both.
       let ends: [C.P, C.P] | null = null;
+      // Each section's closure across its part's opening (`IPart.opening`), by station: one conic, an S of two, or the chord where neither is admissible.
+      const closures: { s: number; kind: "conic" | "s" | "chord" }[] = [];
       const cut = (frame: AutoMovieLoftFrame.IFrame, s: number): C.P[] | null => {
         piece = null;
         if (part.air !== undefined) return air(frame, part.air);
@@ -1532,7 +1545,7 @@ namespace FamilyConicBody {
         if (part.name === "concha" && CONCHA_DEPTH !== undefined) return depthLoop(s);
         if (part.loose !== true || (part.surround !== undefined && s < part.surround.from)) {
           const whole: C.P[] | null = R.cut(skin, frame).loop;
-          return whole === null || part.clip === undefined ? whole : without(whole, frame, part.clip, part.round);
+          return whole === null || part.clip === undefined ? whole : without(whole, frame, part.clip, part.round, part.opening, (kind: "conic" | "s" | "chord"): void => void closures.push({ s, kind }));
         }
         const inside = (hull: readonly C.P[]): boolean => hull.every((p: C.P, i: number): boolean => p[0] * hull[(i + 1) % hull.length]![1] - p[1] * hull[(i + 1) % hull.length]![0] > 0);
         const clipped: C.P[][] = R.loops(skin, frame)
@@ -1682,7 +1695,7 @@ namespace FamilyConicBody {
         // A section whose rays fold (`IPart.folded` `hull`) is fitted as its hull, the tape, and its folds are left to the reliefs: on the trunk the
         // armpit, the shoulders' tops, under the chin, the lip's corners, the ear's root and the lids, 91 of 885 sections; skipped, the face had
         // no section from 750 to 830 mm.
-        const loop: C.P[] | null = part.skin === undefined ? cutLoop : (starred?.points ?? (part.folded === "hull" && cutLoop !== null ? R.hull(cutLoop) : null));
+        const loop: C.P[] | null = part.skin === undefined ? cutLoop : part.hullFrom !== undefined && s >= part.hullFrom && cutLoop !== null ? R.hull(cutLoop) : (starred?.points ?? (part.folded === "hull" && cutLoop !== null ? R.hull(cutLoop) : null));
         // `--seeds` with `--seed-stations=<s>,<s>...`: at those stations, the outer-skin reading and the hull along the front and back
         // median rays (phases 0 and pi), how many rays fold, and which of the two the fitted section is.
         const seedStations: number[] = (process.argv.find((a: string): boolean => a.startsWith("--seed-stations="))?.slice("--seed-stations=".length) ?? "").split(",").filter((x: string): boolean => x.length > 0).map(Number);
@@ -1762,6 +1775,7 @@ namespace FamilyConicBody {
       const dump: string | undefined = process.argv.find((a: string): boolean => a.startsWith("--dump-sections="))?.slice("--dump-sections=".length);
       if (dump !== undefined) await fs.writeFile(dump, JSON.stringify(dumped));
       if (part.skin !== undefined) log("family-body-star", { part: part.name, sections: star.length, refused: star.filter((r): boolean => r.folds !== 0).map((r): string => r.s.toFixed(1) + (r.folds < 0 ? ":outside" : ":" + r.folds)) });
+      if (part.opening !== undefined) log("family-body-opening", { part: part.name, sections: new Set(closures.map((c): number => c.s)).size, from: closures[0]?.s ?? null, to: closures.at(-1)?.s ?? null, conic: closures.filter((c): boolean => c.kind === "conic").length, s: closures.filter((c): boolean => c.kind === "s").length, chord: closures.filter((c): boolean => c.kind === "chord").map((c): number => c.s) });
       log("family-body-hollows", { part: part.name, deepestMmAtDegrees: hollows.filter((_: string, i: number): boolean => i % 6 === 0).join(" ") });
       log("family-body-observed", { part: part.name, sections: rows.length, skipped });
 
@@ -2828,7 +2842,7 @@ namespace FamilyConicBody {
    * A section loop without the stretch a neighbouring part owns: the vertices where `outside` is positive are dropped and each crossing of zero,
    * found by bisection on its edge, becomes a vertex, so the loop closes by a straight chord from where it leaves to where it returns.
    */
-  function without(loop: readonly C.P[], frame: AutoMovieLoftFrame.IFrame, outside: (p: R.V) => number, round?: (p: R.V) => number): C.P[] | null {
+  function without(loop: readonly C.P[], frame: AutoMovieLoftFrame.IFrame, outside: (p: R.V) => number, round?: (p: R.V) => number, opening?: (p: R.V) => number, report?: (kind: "conic" | "s" | "chord") => void): C.P[] | null {
     const world = (p: C.P): R.V => [frame.origin[0] + p[0] * frame.u[0] + p[1] * frame.v[0], frame.origin[1] + p[0] * frame.u[1] + p[1] * frame.v[1], frame.origin[2] + p[0] * frame.u[2] + p[1] * frame.v[2]];
     const g = (p: C.P): number => outside(world(p));
     const values: number[] = loop.map(g);
@@ -2836,6 +2850,8 @@ namespace FamilyConicBody {
     const out: C.P[] = [];
     // Each kept point: a vertex of the loop, or the crossing where the loop leaves the kept skin, or where it comes back.
     const kinds: ("vertex" | "exit" | "entry")[] = [];
+    // Whether each exit leaves the skin into the opening (`opening`): the first vertex it drops is that clip's.
+    const opened: boolean[] = [];
     for (let i: number = 0; i < loop.length; ++i) {
       const j: number = (i + 1) % loop.length;
       if (values[i]! <= 0) {
@@ -2852,10 +2868,70 @@ namespace FamilyConicBody {
       }
       out.push(inside);
       kinds.push(values[i]! <= 0 ? "exit" : "entry");
+      opened[out.length - 1] = values[i]! <= 0 && opening !== undefined && opening(world(loop[j]!)) > 0;
     }
     if (out.length < 3) return null;
-    if (round === undefined) return out;
+    if (round === undefined && opening === undefined) return out;
 
+    // Across a part's opening (`opening`) the loop closes by the opening's own closure through its two ends, with the skin's values and
+    // tangents there (construction.md, Ports: the parent's field across the hole is its own extension, which the port removes), not by the
+    // chord: the chord's two corners and its straight run were read as skin, inflections of 8 to 31 degrees round f1's arm opening. One conic
+    // where the ends' tangent lines meet ahead of both; otherwise two, through a point on the chord with one inflection between them, at
+    // the share and turn nearest the chord's middle and direction that admit both (the pre-check's closure); the chord where neither does.
+    const step = (k: number, by: 1 | -1): C.P => {
+      let run: number = 0, m: number = k;
+      while (run < 2) {
+        const n: number = (m + by + out.length) % out.length;
+        if (n === k) break;
+        run += Math.hypot(out[n]![0] - out[m]![0], out[n]![1] - out[m]![1]);
+        m = n;
+      }
+      return out[m]!;
+    };
+    const unit = (a: C.P, b: C.P): C.P => {
+      const l: number = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
+      return [(b[0] - a[0]) / l, (b[1] - a[1]) / l];
+    };
+    const meet = (p: C.P, d: C.P, q: C.P, e: C.P): { a: number; b: number; X: C.P } => {
+      const den: number = d[0] * e[1] - d[1] * e[0];
+      const w: C.P = [q[0] - p[0], q[1] - p[1]];
+      const a: number = (w[0] * e[1] - w[1] * e[0]) / den;
+      return { a, b: (w[0] * d[1] - w[1] * d[0]) / den, X: [p[0] + a * d[0], p[1] + a * d[1]] };
+    };
+    // A conic arc of shoulder one half (a parabola) from p0 to p2 under its corner, one point a millimetre of its chord, ends excluded.
+    const arc = (p0: C.P, corner: C.P, p2: C.P): C.P[] => {
+      const n: number = Math.max(2, Math.ceil(Math.hypot(p2[0] - p0[0], p2[1] - p0[1])));
+      return Array.from({ length: n - 1 }, (_: unknown, i: number): C.P => {
+        const t: number = (i + 1) / n;
+        return [(1 - t) ** 2 * p0[0] + 2 * t * (1 - t) * corner[0] + t * t * p2[0], (1 - t) ** 2 * p0[1] + 2 * t * (1 - t) * corner[1] + t * t * p2[1]];
+      });
+    };
+    const closure = (k: number): C.P[] | null => {
+      const e1: C.P = out[k]!, e2: C.P = out[(k + 1) % out.length]!;
+      const t1: C.P = unit(step(k, -1), e1), t2: C.P = unit(e2, step((k + 1) % out.length, 1));
+      const plain = meet(e1, t1, e2, [-t2[0], -t2[1]]);
+      if (plain.a > 0 && plain.b > 0) {
+        report?.("conic");
+        return arc(e1, plain.X, e2);
+      }
+      const chord: C.P = unit(e1, e2);
+      let best: { t: number; d: number; A1: C.P; A2: C.P; I: C.P } | null = null;
+      for (let t: number = 0.2; t <= 0.801; t += 0.05)
+        for (let d: number = -85; d <= 85; ++d) {
+          const I: C.P = [e1[0] + t * (e2[0] - e1[0]), e1[1] + t * (e2[1] - e1[1])];
+          const r: number = (d * Math.PI) / 180;
+          const tau: C.P = [chord[0] * Math.cos(r) - chord[1] * Math.sin(r), chord[0] * Math.sin(r) + chord[1] * Math.cos(r)];
+          const m1 = meet(e1, t1, I, [-tau[0], -tau[1]]);
+          const m2 = meet(I, tau, e2, [-t2[0], -t2[1]]);
+          if (m1.a > 0 && m1.b > 0 && m2.a > 0 && m2.b > 0 && (best === null || Math.abs(t - 0.5) + Math.abs(d) / 90 < Math.abs(best.t - 0.5) + Math.abs(best.d) / 90)) best = { t, d, A1: m1.X, A2: m2.X, I };
+        }
+      if (best === null) {
+        report?.("chord");
+        return null;
+      }
+      report?.("s");
+      return [...arc(e1, best.A1, best.I), best.I, ...arc(best.I, best.A2, e2)];
+    };
     // Where the stretch left out was cut away by `round`, a surface of revolution about the course, the loop closes along that surface's
     // circle instead of the chord: the circle is the wall there, and a chord across it leaves the hull a corner where the chord meets the
     // skin. One point every 2 degrees, its radius running from the exit's to the entry's.
@@ -2863,7 +2939,11 @@ namespace FamilyConicBody {
     out.forEach((p: C.P, k: number): void => {
       closed.push(p);
       const next: C.P = out[(k + 1) % out.length]!;
-      if (kinds[k] !== "exit" || kinds[(k + 1) % out.length] !== "entry" || Math.abs(round(world(p))) > 0.5 || Math.abs(round(world(next))) > 0.5) return;
+      if (kinds[k] === "exit" && kinds[(k + 1) % out.length] === "entry" && opened[k] === true) {
+        closed.push(...(closure(k) ?? []));
+        return;
+      }
+      if (round === undefined || kinds[k] !== "exit" || kinds[(k + 1) % out.length] !== "entry" || Math.abs(round(world(p))) > 0.5 || Math.abs(round(world(next))) > 0.5) return;
       const [a, b]: number[] = [Math.atan2(p[1], p[0]), Math.atan2(next[1], next[0])];
       const sweep: number = Math.atan2(Math.sin(b - a), Math.cos(b - a));
       const [ra, rb]: number[] = [Math.hypot(p[0], p[1]), Math.hypot(next[0], next[1])];
