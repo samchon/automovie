@@ -303,6 +303,12 @@ namespace FamilyConicBody {
   const PINNA_DOMAIN: number[] = (process.argv.find((a: string): boolean => a.startsWith("--pinna-domain="))?.slice("--pinna-domain=".length) ?? "6,58").split(",").map(Number);
   const PINNA_GAP: number = Number(process.argv.find((a: string): boolean => a.startsWith("--pinna-gap="))?.slice("--pinna-gap=".length) ?? 4);
   const PINNA_DEPTH: number = Number(process.argv.find((a: string): boolean => a.startsWith("--pinna-depth="))?.slice("--pinna-depth=".length) ?? 1);
+  /**
+   * `--arm-grooves=<anchor indices>`: the arm fitted with a groove `[i, m, i]` after each listed anchor of `limb(1)`
+   * (`FamilyConicSection.inflected`), for the hand end's dorsal valleys; with `--arm-skin` to the skin itself rather than its hull. A trial;
+   * the stored arm uses neither.
+   */
+  const ARM_GROOVES: number[] = (process.argv.find((a: string): boolean => a.startsWith("--arm-grooves="))?.slice("--arm-grooves=".length) ?? "").split(",").filter((x: string): boolean => x.length > 0).map(Number);
   const PINNA_GROOVES: number[] = (process.argv.find((a: string): boolean => a.startsWith("--pinna-grooves="))?.slice("--pinna-grooves=".length) ?? "").split(",").filter((x: string): boolean => x.length > 0).map(Number);
 
   /**
@@ -701,6 +707,12 @@ namespace FamilyConicBody {
     /** Station where the cap starts when the wall is not followed to its last fitted section, mm; absent, the domain's end. */
     cap?: number;
 
+    /** The chart point the cap's sections gather about while it closes (`AutoMovieHumanConicLoft.ITip.centre`), mm; absent, the course. */
+    centre?: [number, number];
+
+    /** Each coordinate of the cap takes its own outline's taper and bend (`AutoMovieHumanConicLoft.ITip.own`). */
+    own?: boolean;
+
     /** Also emitted mirrored in the median plane `z = 0`. */
     mirrored: boolean;
 
@@ -729,9 +741,10 @@ namespace FamilyConicBody {
      * Relief nets that go once round the part over a run of its stations, fitted after its windows: each takes what the wall and the windows
      * leave, outside the wall as well as inside it, cast toward the course all the way round. Its two directions are the chart's at the middle
      * of the run, so the run should be one the course does not turn much along. With `window` it covers only those phases, still cast toward
-     * the course at every phase, and fades over its edges (`FamilyConicRelief.IWindow.fade`, `fadePhase`).
+     * the course at every phase, and fades over its edges (`FamilyConicRelief.IWindow.fade`, `fadePhase`). Without `window`, `fade` alone
+     * hands its first and last stations over, mm.
      */
-    rounds?: { name: string; stations: [number, number]; rows: number; columns: number; reach: number; hold?: (p: R.V) => number; window?: { phases: [number, number]; fade: [number, number]; fadePhase: [number, number] } }[];
+    rounds?: { name: string; stations: [number, number]; rows: number; columns: number; reach: number; hold?: (p: R.V) => number; fade?: [number, number]; window?: { phases: [number, number]; fade: [number, number]; fadePhase: [number, number] } }[];
   }
 
   /** Run every part and write the receipt and the renders. */
@@ -822,12 +835,16 @@ namespace FamilyConicBody {
         // section's chain lost an arc. Until that is understood the hand keeps this course and closes at the webs.
         // It starts 2 mm past the armscye's plane and fans round the shoulder (`ARM_ROOT`); round that turn the cap's top sweeps about 2.5
         // times faster than the station, so its knots may stand 6 mm apart, as round the ankle.
-        { name: "arm", centres: armCentres, course: "[J.armRoot, J.armTurn, J.lowerarm, J.hand, J.middle1, J.toward(J.middle1, [[J.index1, J.index2], [J.middle1, J.middle2], [J.ring1, J.ring2], [J.pinky1, J.pinky2]], " + KNUCKLE.reach + ")]", halves: armHalves, up: arm.up, domain: [arm.plane + 2, KNUCKLE.end], gap: (s: number): number => (s < arm.turned ? 6 : GAP_MM), tip: KNUCKLE.end + 15, cap: 570.45, covered: true, mirrored: true, layouts: LIMB, reliefs: "auto", rounds: [
+        { name: "arm", centres: armCentres, course: "[J.armRoot, J.armTurn, J.lowerarm, J.hand, J.middle1, J.toward(J.middle1, [[J.index1, J.index2], [J.middle1, J.middle2], [J.ring1, J.ring2], [J.pinky1, J.pinky2]], " + KNUCKLE.reach + ")]", halves: armHalves, up: arm.up, domain: [arm.plane + 2, KNUCKLE.end], gap: (s: number): number => (s < arm.turned ? 6 : GAP_MM), tip: KNUCKLE.end + 15, cap: 570.45, covered: true, mirrored: true, layouts: ARM_GROOVES.length === 0 ? LIMB : [{ layout: C.inflected(1, ARM_GROOVES), depth: 1 }], ...(process.argv.includes("--arm-skin") ? { skin: "outer" as const } : {}), reliefs: "auto", rounds: [
           // The forearm and the hand: the wall of two conics a quarter left the ulna's head 2 to 4 mm inside the skin at the wrist, the web
           // between the thumb and the hand up to 11 mm full and stripes of 1 to 4 mm along the forearm (`FamilyConicDeviation.ts`), which
-          // are not hollows under the tape but the wall's own misfit, on both sides of it. A net round each run takes them.
-          { name: "fore", stations: [300, 440], rows: 19, columns: 26, reach: 10 },
-          { name: "hand", stations: [425, KNUCKLE.relief], rows: 34, columns: 38, reach: 14, hold: thumbHold },
+          // are not hollows under the tape but the wall's own misfit, on both sides of it. A net round each run takes them. Meeting in three
+          // zero rows each at 425 to 440 mm they drew an oval ring with level bars round the forearm above the wrist and a ring across the
+          // wrist (`hand.high-oblique` px 360..415 x 150..215, `figure.left` px 455..470 x 615..640), gone with both nets off. The forearm's
+          // now hands over (`fade`) over its last 40 mm and the hand's starts at 400 mm and fades in over 30; faded over 15 mm each the
+          // oval stayed.
+          { name: "fore", stations: [300, 440], rows: 19, columns: 26, reach: 10, fade: [0, 40] },
+          { name: "hand", stations: [400, KNUCKLE.relief], rows: 36, columns: 38, reach: 14, hold: thumbHold, fade: [30, 0] },
           // The palm on to the hand's end (`PALM`): past `KNUCKLE.relief` the wall alone is the tape across the palm's hollow.
           { name: "palm", stations: PALM.stations, rows: PALM.rows, columns: PALM.columns, reach: 14, hold: thumbHold, window: { phases: PALM.phases, fade: PALM.fade, fadePhase: PALM.fadePhase } },
         ], clip: (p: R.V): number => {
@@ -915,7 +932,7 @@ namespace FamilyConicBody {
         // kept is the earlier one below station 640 and this one above it, with every relief fitted again over the splice
         // (`--wall=<earlier> --splice=<this>@640 --refit`): 693 numbers at 0.66 mm. The ears are left out of its sections. It owns the shoulders down to the armscye plane through the armpit's
         // crease; past that plane, lateral of the crease and inside the arm's own tube, the skin is the arm's and is left out of the trunk's sections.
-        { name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], course: "[J.axisFloor, J.axisCrown]", halves: [], up: [1, 0, 0], domain: [28, 912], whole: true, step: 2, gap: (s: number): number => (s >= 692 && s <= 732 ? Number(process.argv.find((argument: string): boolean => argument.startsWith("--jaw="))?.slice(6) ?? 3) : s > 740 ? FACE_GAP_MM : 12), tip: true, cap: 906, mirrored: false, layouts: BILATERAL, round: chin, kept: breasts, clip: (p: R.V): number => Math.max(ear(p), noseCut(p), chin(p), breasts(p), ...[1, -1].map((side: number): number => {
+        { name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], course: "[J.axisFloor, J.axisCrown]", halves: [], up: [1, 0, 0], domain: [28, 912], whole: true, step: 2, gap: (s: number): number => (s >= 692 && s <= 732 ? Number(process.argv.find((argument: string): boolean => argument.startsWith("--jaw="))?.slice(6) ?? 3) : s > 740 ? FACE_GAP_MM : 12), tip: true, cap: 906, centre: [16, 0], own: true, mirrored: false, layouts: BILATERAL, round: chin, kept: breasts, clip: (p: R.V): number => Math.max(ear(p), noseCut(p), chin(p), breasts(p), ...[1, -1].map((side: number): number => {
           const a: R.V = joint("upperarm_r");
           const b: R.V = joint("lowerarm_r");
           const length: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
@@ -969,29 +986,38 @@ namespace FamilyConicBody {
           // and whose casts grazed the jaw's side; cast round, the cheek, the jaw's side, the temple and the ear's root are one smooth net
           // of fewer heights. A cast that lands farther than `reach` is not observed: between the lips one slipped through to what lies
           // behind, 78 mm on, and dug a pit in the mouth.
-          { name: "trunk.head", stations: [620, 918.88], phases: [-Math.PI + 0.15, Math.PI - 0.15], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 61, columns: 109, mirror: true, reach: 35, fade: [30, 0] },
+          // Both head nets end where the crown's cap starts and hand over to it over their last 12 mm: carried on over the cap, which is
+          // meshed in rings round its pole, they drew concentric rings and a mottled ridge round the crown (folds of 13 degrees, none without
+          // them).
+          { name: "trunk.head", stations: [620, 906], phases: [-Math.PI + 0.15, Math.PI - 0.15], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 59, columns: 109, mirror: true, reach: 35, fade: [30, 12] },
           // The head's net is zero along its seam down the back, where the skin still lies inside the tape and a ridge stood; this window
-          // over the back takes what the first leaves there.
-          { name: "trunk.head.back", stations: [620, 918.88], phases: [Math.PI - 1.0, Math.PI + 1.0], axis: [1, 0, 0], turn: [0, 0, 1], rows: 61, columns: 39, mirror: true, reach: 20, fade: [30, 0] },
+          // over the back takes what the first leaves there. Its edges round the head hand over (`fadePhase`): with hard edges at 2.14 rad
+          // they drew upright lines down the back of the head and behind each ear (`figure.back` px 400..500 x 160..230, `head.left` px 270..290).
+          { name: "trunk.head.back", stations: [620, 906], phases: [Math.PI - 1.0, Math.PI + 1.0], axis: [1, 0, 0], turn: [0, 0, 1], rows: 60, columns: 39, mirror: true, reach: 20, fade: [30, 12], fadePhase: [0.3, 0.3] },
           // Under the jaw the wall's knots stand 3 mm apart for the chin's step, and every field rippled with them: a ring 1.5 mm high
           // stood round the whole neck at that level, the nape included. A band 1.4 mm apart along the station, round the neck and again
           // over its back for the seam, takes the ring and follows the jaw's line where it rises to the sides. What stays is in front,
           // under the chin: that skin is level, a level section cannot sample it and a cast round the axis only grazes it.
           { name: "trunk.collar", stations: [680, 734], phases: [-Math.PI + 0.15, Math.PI - 0.15], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 39, columns: 131, mirror: true, reach: 30, fade: [8, 8] },
-          { name: "trunk.collar.back", stations: [680, 734], phases: [Math.PI - 0.8, Math.PI + 0.8], axis: [1, 0, 0], turn: [0, 0, 1], rows: 39, columns: 37, mirror: true, reach: 10, fade: [8, 8] },
           // The face: a finer net, 2.6 mm apart, between the throat and the brow.
           { name: "trunk.face", stations: [690, 890], phases: [-1.2, 1.2], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 81, columns: 69, mirror: true, reach: 30, fade: [15, 15] },
           // The mouth: a net 1.5 mm apart over its band of the face, which the face's net left a block.
           { name: "trunk.mouth", stations: [722, 758], phases: [-0.5, 0.5], axis: [-1, 0, 0], turn: [0, 0, -1], rows: MOUTH_NET[0], columns: MOUTH_NET[1], mirror: true, reach: 12, fade: [5, 5] },
+          // The navel: the round net, 9.5 mm a row, left a soft dimple where the reference has a pit. A net 2 mm apart over it, cast as the
+          // belly's is and handing its edges over.
+          { name: "trunk.navel", stations: [258, 290], phases: [-0.3, 0.3], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 19, columns: 23, mirror: true, reach: 20, fade: [8, 8], fadePhase: [0.12, 0.12] },
         ], casts: [
           // The eyes: a net 1.5 mm apart over their band, cast in space onto the outermost skin. The reference's eyeball is a closed
           // surface of its own behind the lids (`FamilyConicScan.ts eye`), which no section of the trunk holds: cast in the section
           // planes, the eyes' net ran past the lids into the socket and drew a dark slit. Cast in space, between the lids it lands on the
           // eyeball and over them on the lids.
-          { name: "eyes", stations: [792, 826], phases: [-0.8, 0.8], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 26, columns: 105, reach: 12, mirror: true },
+          // At 1.3 mm a row (26 by 105) the net turned within one row where its cast jumps from the lid to the eyeball and drew a hard
+          // crease along each upper lid; at 2 mm the lid rolls into the socket.
+          { name: "eyes", stations: [792, 826], phases: [-0.8, 0.8], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 20, columns: 73, reach: 12, mirror: true },
           // The chin, which the sections leave out (`CHIN`): cast from the cone's wall forward and down at 45 degrees on the median line,
-          // so the chin's front and the level skin under it are both seen at 45 degrees and the chin is one height over the wall.
-          { name: "chin", stations: [690, 734], phases: [-0.8, 0.8], axis: [-Math.SQRT1_2, Math.SQRT1_2, 0], turn: [0, 0, -1], skin: (p: R.V): number => Math.max(ear(p), noseCut(p)), rows: 47, columns: 57, reach: 30, mirror: true },
+          // so the chin's front and the level skin under it are both seen at 45 degrees and the chin is one height over the wall. 1.4 mm a
+          // row: at 0.95 (47 by 57) it drew the reference's facets over the chin as a checker.
+          { name: "chin", stations: [690, 734], phases: [-0.8, 0.8], axis: [-Math.SQRT1_2, Math.SQRT1_2, 0], turn: [0, 0, -1], skin: (p: R.V): number => Math.max(ear(p), noseCut(p)), rows: 33, columns: 41, reach: 30, mirror: true },
           // The top of each shoulder, between the neck's muscle and the shoulder's point: the skin there faces up, a cast round the axis
           // grazes it, and it stood 2 to 4 mm full on both sides (`FamilyConicDeviation.ts`). A coarse net cast straight down takes it.
           // It lands only on skin that faces up within 37 degrees, as the sole's does: toward the window's sides the skin turns to face
@@ -1305,6 +1331,22 @@ namespace FamilyConicBody {
           wall.values = wall.values.map((field: number[], f: number): number[] => [...head.map((k: number): number => field[k]!), ...rest.map((k: number): number => tail.values[f]![k]!)]);
           wall.knots = [...head.map((k: number): number => wall.knots[k]!), ...rest.map((k: number): number => tail.knots[k]!)];
         }
+        // `--graft=<directory>:<field>,<field>...`: at every knot the two walls share, the listed fields of another stored wall of the same part
+        // and layout replace this one's. The trunk's face was refitted without the nose on its own knots (`--seed --held`), and only the
+        // section's front half is taken from it (on `bilateral(1)`, fields 0, 1, 6 and 7: the front extreme, the front median and the two
+        // arcs between them): the whole refit moved the wall under the ears' roots and the engine refused the lobule's cuts.
+        const graft: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--graft="))?.slice(8);
+        if (graft !== undefined) {
+          const colon: number = graft.lastIndexOf(":");
+          const donor: K.IStored = JSON.parse(await fs.readFile(path.join(graft.slice(0, colon), part.name + ".family.json"), "utf8")) as K.IStored;
+          const fields: number[] = graft.slice(colon + 1).split(",").map(Number);
+          wall.values = wall.values.map((field: number[], f: number): number[] =>
+            !fields.includes(f) ? field : field.map((x: number, k: number): number => {
+              const j: number = donor.knots.indexOf(wall.knots[k]!);
+              return j < 0 ? x : donor.values[f]![j]!;
+            }),
+          );
+        }
         best = { layout: wall.layout, knots: wall.knots, values: wall.values, rows: [], training: { maximumMm: NaN, meanMm: NaN }, heldout: { maximumMm: NaN, meanMm: NaN }, fault: null, milliseconds: 0 } as unknown as F.IResult;
       }
       // `--deepen=<directory>`: the stored wall of an earlier run is cut once more, every arc at its median, and fitted again on the same knots,
@@ -1320,6 +1362,19 @@ namespace FamilyConicBody {
       // values raised to it and the layout without it, so a wall spliced onto another fitted without the bound keeps one layout: the leg's
       // knee, fitted at 0.3 and spliced into the stored wall, loses the crease its arcs of 0.06 to 0.14 drew while the foot keeps its own.
       const least: number | undefined = ((value: string | undefined): number | undefined => (value === undefined ? undefined : Number(value)))(process.argv.find((argument: string): boolean => argument.startsWith("--least="))?.slice(8));
+      // `--seed=<directory>`: the first layout's fit starts from a stored wall of the same part and layout, its knots inside the domain and
+      // its values resampled there, and grows and prunes as usual. Started from three knots, the trunk's head refitted alone (`--from=600`)
+      // stayed at 58 mm with every growth round refused; a wall refitted over changed sections starts near the wall it replaces.
+      const seed: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--seed="))?.slice(7);
+      const seeded: { knots: number[]; values: number[][] } | null = await (async (): Promise<{ knots: number[]; values: number[][] } | null> => {
+        if (seed === undefined) return null;
+        const wall: K.IStored = JSON.parse(await fs.readFile(path.join(seed, part.name + ".family.json"), "utf8")) as K.IStored;
+        const knots: number[] = [domain[0], ...wall.knots.filter((k: number): boolean => k > domain[0] + gap(domain[0]) && k < domain[1] - gap(domain[1])), domain[1]];
+        return { knots, values: F.resample(wall.values, wall.knots, knots) };
+      })();
+      // `--held`: with `--seed`, the seed's knots are kept as they are, neither grown nor pruned, so a wall refitted over changed sections keeps
+      // the knots its neighbours were sewn on.
+      const seedHeld: boolean = seeded !== null && process.argv.includes("--held");
       for (const { layout: plain, depth } of reuse !== undefined ? [] : deepen !== undefined ? [{ layout: C.limb(deeper), depth: deeper }] : part.layouts) {
         const layout: C.ILayout = least === undefined ? plain : { ...plain, least };
         // A deeper layout starts from the shallower one's final knots and values, cut exactly at every arc's median.
@@ -1365,8 +1420,8 @@ namespace FamilyConicBody {
           log("family-body-fading", { part: part.name, stations: fading });
         }
         const base: number[] = lined ? Array.from({ length: spaced }, (_: unknown, k: number): number => domain[0] + ((domain[1] - domain[0]) * k) / (spaced - 1)) : [domain[0], (domain[0] + domain[1]) / 2, domain[1]];
-        const knots0: number[] = best === null ? base : [...best.knots];
-        let result: F.IResult = attempt(knots0, layout, best === null ? undefined : F.refine(best.values, depth - 1), "depth " + depth);
+        const knots0: number[] = best === null ? (seeded?.knots ?? base) : [...best.knots];
+        let result: F.IResult = attempt(knots0, layout, best === null ? seeded?.values : F.refine(best.values, depth - 1), "depth " + depth);
         // The feature knots inserted into the first fit, one trial, kept as any growth round is.
         const inserted: number[] = fading.filter((s: number, i: number): boolean => s > domain[0] && s < domain[1] && result.knots.every((k: number): boolean => Math.abs(k - s) >= gap(s)) && fading.slice(0, i).every((t: number): boolean => Math.abs(t - s) >= gap(s)));
         if (result.fault === null && inserted.length > 0) {
@@ -1380,7 +1435,7 @@ namespace FamilyConicBody {
         // Going on from a dropped round instead carried a failed solve into every later one and left the trunk and the leg above 2 mm.
         const refused: Set<number> = new Set();
         let idle: number = 0;
-        while (deepen === undefined && result.fault === null && result.training.maximumMm > 0.9 * TARGET_MM && idle < 3) {
+        while (deepen === undefined && !seedHeld && result.fault === null && result.training.maximumMm > 0.9 * TARGET_MM && idle < 3) {
           const held: F.IResult = result;
           const open: F.IResult["rows"] = held.rows.filter((r: F.IResult["rows"][number]): boolean => !r.heldout && !refused.has(r.s) && r.maximumMm > 0.9 * TARGET_MM && held.knots.every((k: number): boolean => Math.abs(k - r.s) >= gap(r.s))).sort((a, b) => b.maximumMm - a.maximumMm);
           const added: number[] = [];
@@ -1401,7 +1456,7 @@ namespace FamilyConicBody {
       }
 
       // Prune: drop every knot whose removal keeps the maximum and the mean within 3 % and 5 % of the grown family.
-      if (best !== null && reuse === undefined && deepen === undefined) {
+      if (best !== null && reuse === undefined && deepen === undefined && !seedHeld) {
         // The limits are read from the grown family under the same plain pass the trials run, so a trial is compared like for like. The grown
         // family itself stays: the thinned one replaces it only if, refitted with the reweighted passes, its mean is within 10 % of the grown one's.
         const base: F.IResult = attempt(best.knots, best.layout, best.values, "prune base", 2);
@@ -1431,6 +1486,13 @@ namespace FamilyConicBody {
       // A cutter is carried straight back from its first section by `lead`: three knots more with that section's values, so it comes out
       // of the skin it is cut from with the girth of its mouth. One knot alone let the fields' cubics swing between it and the first
       // section, and the engine lost an arc of the chain there.
+
+      // `--raise=<shoulder>`: every shoulder of the wall raised to that least as it is stored, the reliefs then fitted over it, for a wall
+      // whose fit under the bound stalls. The leg's ankle, refitted under 0.3 from 640 or 740 to 900 or 880 mm, stopped at 7 and 10 knots
+      // and 1.4 and 0.26 mm, since the heel sweeps faster than knots 12 mm apart follow; its arcs of 0.11 to 0.24 drew a crescent round the
+      // lateral malleolus.
+      const raise: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--raise="))?.slice(8);
+      if (raise !== undefined) best = { ...best, layout: { ...best.layout, least: Math.max(best.layout.least ?? 0, Number(raise)) } };
       if (best.layout.least !== undefined) {
         const bound: number = best.layout.least;
         const unbounded: C.ILayout = { anchors: best.layout.anchors, mirror: best.layout.mirror };
@@ -1441,15 +1503,21 @@ namespace FamilyConicBody {
       // `--g2=<anchor>@<from>-<to>`: at every knot from `from` to `to` mm the two arcs meeting at that anchor take the shoulders that make
       // the section's curvature continuous there (`AutoMovieHumanConicSection.continuous`), before the reliefs are fitted over the wall.
       // The trunk's first median over the hips met with curvatures of 1.2 and 308 per metre, an upright line down each hip.
+      // Several anchors may be named, `--g2=1,2,3@28-912`, each made continuous in turn at every knot of the range.
       const g2: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--g2="))?.slice(5);
       if (g2 !== undefined) {
-        const [anchor, range]: string[] = g2.split("@");
-        const [from, to]: number[] = range!.split("-").map(Number);
+        const [anchors, ranges]: string[] = g2.split("@");
+        // Several ranges may be given, `28-740+800-912`.
+        const spans: number[][] = ranges!.split("+").map((range: string): number[] => range.split("-").map(Number));
         const fields: number[][] = best.values.map((field: number[]): number[] => [...field]);
         best.knots.forEach((s: number, j: number): void => {
-          if (s < from! || s > to!) return;
-          const smooth: number[] = C.continuous(fields.map((field: number[]): number => field[j]!), best!.layout, Number(anchor));
-          smooth.forEach((x: number, f: number): void => void (fields[f]![j] = x));
+          if (!spans.some(([from, to]: number[]): boolean => s >= from! && s <= to!)) return;
+          // Neighbouring anchors share an arc, so the matches are repeated until each holds with the others (Gauss-Seidel sweeps).
+          for (let sweep: number = 0; sweep < 8; ++sweep)
+            for (const anchor of anchors!.split(",").map(Number)) {
+              const smooth: number[] = C.continuous(fields.map((field: number[]): number => field[j]!), best!.layout, anchor);
+              smooth.forEach((x: number, f: number): void => void (fields[f]![j] = x));
+            }
         });
         best = { ...best, values: fields };
       }
@@ -1482,7 +1550,7 @@ namespace FamilyConicBody {
           const c: number = (phases[0] + phases[1]) / 2;
           const axis: R.V = net.window === undefined ? [frame.u[0], frame.u[1], frame.u[2]] : ([0, 1, 2].map((k: number): number => -(Math.cos(c) * frame.u[k]! + Math.sin(c) * frame.v[k]!)) as R.V);
           const turn: R.V = net.window === undefined ? [frame.v[0], frame.v[1], frame.v[2]] : ([0, 1, 2].map((k: number): number => Math.sin(c) * frame.u[k]! - Math.cos(c) * frame.v[k]!) as R.V);
-          return { name: part.name + "." + net.name, stations: net.stations, phases, axis, turn, rows: net.rows, columns: net.columns, mirror: false, ...(net.window === undefined ? { periodic: true } : { fade: net.window.fade, fadePhase: net.window.fadePhase }), chord: true, reach: net.reach, ...(net.hold === undefined ? {} : { hold: net.hold }) };
+          return { name: part.name + "." + net.name, stations: net.stations, phases, axis, turn, rows: net.rows, columns: net.columns, mirror: false, ...(net.window === undefined ? { periodic: true, ...(net.fade === undefined ? {} : { fade: net.fade }) } : { fade: net.window.fade, fadePhase: net.window.fadePhase }), chord: true, reach: net.reach, ...(net.hold === undefined ? {} : { hold: net.hold }) };
         });
         definition.reliefs = [];
         const fitAll = (list: readonly IWindow[], judged: boolean): void => {
@@ -1514,7 +1582,9 @@ namespace FamilyConicBody {
           }));
           // A window placed by the hollow search is kept only when its net takes away at least half of its deepest hollow on the withheld
           // sections. Round a turn a section's hollow lies across the cast's axis, and a net that cannot reach it leaves scratches instead.
-          const kept: boolean = !judged || fitted.heldMaxMm <= 0.5 * fitted.deepestMm;
+          // Nor is one kept whose deepest hollow is shallower than half the fit's target: the leg's window over the foot's end (924 to
+          // 960 mm) stored 473 heights for a hollow 0.11 mm deep, which is the wall's own misfit (the conic audit's leg rows).
+          const kept: boolean = !judged || (fitted.heldMaxMm <= 0.5 * fitted.deepestMm && fitted.deepestMm >= 0.5 * TARGET_MM);
           definition.reliefs ??= [];
           if (kept) definition.reliefs.push(fitted.relief);
 
@@ -1608,7 +1678,7 @@ namespace FamilyConicBody {
       await fs.writeFile(path.join(out, "receipt.json"), JSON.stringify({ schema: "f1-family-conic-body-v1", targetMm: TARGET_MM, parts: receipt, milliseconds: performance.now() - started }, null, 2));
 
       // The authored module: the same definition as TypeScript, written beside the receipt and, with --emit, into the Human package.
-      if (tip !== null) definition.tips = [null, { from: part.cap ?? domain[1], tip, ...(part.covered === true ? { covered: true } : {}) }];
+      if (tip !== null) definition.tips = [null, { from: part.cap ?? domain[1], tip, ...(part.covered === true ? { covered: true } : {}), ...(part.centre === undefined ? {} : { centre: part.centre }), ...(part.own === true ? { own: true } : {}) }];
 
       // Cast reliefs: skin that faces along the course, which no section sees. From points of the finished surface, by station and phase,
       // a ray runs along the relief's axis, and its distance to the reference triangle it meets is the height there. The ear's outer face

@@ -103,8 +103,67 @@ export namespace AutoMovieHumanF1 {
   }
 
   /**
+   * The least shoulder of a toe's arcs (`AutoMovieHumanConicSection.ILayout.least`). The big toe's arc from its top to its medial side held
+   * shoulders of 0.24 and 0.27 at its last two knots, 43 and 53 mm: an arc that hugs its chord turns at its ends, and the toe's medial side
+   * stood a corner that its short cap carried into a fan of facets (`toes.front` px 640..790 x 440..540, folds of 33 degrees). The bound is
+   * the knee's (`FamilyConicBody.ts --least=0.3`); every other toe's arcs and every toe's first section already hold 0.34 or more, so the
+   * seams read on the toes' first rings (`fanSeams`) do not move.
+   */
+  const TOE_LEAST: number = 0.3;
+
+  /**
+   * The length of a toe's dome as a share of its section's mean reach where the dome starts (`rounded`). The big toe's reference section
+   * reaches 7.95 mm on average 3.13 mm before its tip and 10.97 mm at 13.13 mm (its fitted fields at 53 and 43 mm, within 0.6 mm of the
+   * skin): a half ellipse through the first whose foot stands on the wall is 8 mm long on a reach of 10 mm. A dome as long as its reach
+   * (share 1) drew the big toe's end as a tapered ellipsoid on `toes.left`, where the reference's is blunt.
+   */
+  const TOE_DOME: number = 0.8;
+
+  /**
+   * The largest turn of a toe's ring between two neighbouring phases, radians (`AutoMovieHumanConicLoft.IFamily.turn`), the arm's. On the
+   * uniform 48 phases a toe takes by its girth, the big toe's medial side, where its section turns fastest, stood as flat strips along the toe
+   * that read as a fan of facets from the front (`toes.front` px 640..790 x 440..540), as the forefoot's edge did on the leg's uniform phases.
+   * Only a toe whose fit held an arc under `TOE_LEAST` has such a corner, the big toe alone: spaced by turn at 0.1 or 0.2 rad, the little
+   * toe's band folded at its plantar fork (edges of 130 to 170 degrees over 32 to 53 edges at [132, 1, 198], against none past 112 on its
+   * uniform phases), since its ring's phases moved under the fork's fill.
+   */
+  const TOE_TURN: number = 0.1;
+
+  /**
+   * A toe whose closed end is a round dome: its cap starts as far before its tip as `TOE_DOME` of the mean reach of its section there
+   * (the mean of its four extents), so the end is a half ellipsoid on that section.
+   *
+   * Each toe's fields were fitted up to the last station whose plane still cuts a loop of the reference, 3.1 to 3.6 mm before its tip, and the
+   * cap closed from there (`ITip.from` at the last knot). There the reference's section is already the dome's (the big toe's 15 by 17 mm
+   * at 53 mm against 19 by 25 at 43), but a natural cubic has no bend at its last knot, so the wall ran on straight to 53 mm and the cap,
+   * 3.1 mm long, closed it as a flat disc ringed where the cap starts (`toes.left` px 700..840 x 330..600); on the small toes, whose walls
+   * still shrink fast there, the cap continued their taper to a point. Started where the dome's length is its share of the reach (found by
+   * fixed-point iteration from the last knot), the cap's law draws the dome itself. A toe also holds its arcs at `TOE_LEAST`, and one
+   * whose fit held an arc under it spaces its phases by `TOE_TURN`.
+   *
+   * @param family A toe as fitted, closing at its last knot.
+   */
+  function rounded(family: AutoMovieHumanConicLoft.IFamily): AutoMovieHumanConicLoft.IFamily {
+    const layout: AutoMovieHumanConicSection.ILayout = { ...family.layout, least: TOE_LEAST };
+    const end: AutoMovieHumanConicLoft.ITip = family.tips![1]!;
+    const read: (s: number) => number[] = AutoMovieHumanConicLoft.reader(family);
+    const reach = (s: number): number => {
+      const chain: AutoMovieHumanConicSection.IChain = AutoMovieHumanConicSection.resolve(read(s), layout);
+      return chain.guides.reduce((sum: number, g: number, q: number): number => sum + Math.abs(chain.input.points[g]![q % 2]!), 0) / 4;
+    };
+    let from: number = end.from;
+    for (let k: number = 0; k < 16; ++k) from = Math.max(family.knots[1]!, end.tip - TOE_DOME * reach(from));
+
+    // Only a toe whose fit held an arc under the bound has a corner to space its phases about.
+    const { shoulders }: { shoulders: number } = AutoMovieHumanConicSection.offsets(family.layout);
+    const cornered: boolean = family.values.slice(shoulders).some((field: number[]): boolean => field.some((x: number): boolean => x < TOE_LEAST));
+    return { ...family, layout, ...(cornered ? { turn: TOE_TURN } : {}), tips: [family.tips![0], { ...end, from: Math.round(from * 100) / 100 }] };
+  }
+
+  /**
    * The digits sewn to the body. A knuckled digit is a child of its limb's split (`FANS`). The thumb is merged onto the hand's side as a
    * capsule: besides its tip it closes in a point inside the hand (`ROOT_MM`), so it meets the hand in a closed curve wherever it comes out.
+   * A toe's end is a round dome (`rounded`).
    */
   export const DIGITS: readonly IDigit[] = [
     { family: AutoMovieHumanF1FingerMiddle, limb: "arm", knuckle: true },
@@ -112,11 +171,11 @@ export namespace AutoMovieHumanF1 {
     { family: AutoMovieHumanF1FingerIndex, limb: "arm", knuckle: true },
     { family: AutoMovieHumanF1FingerPinky, limb: "arm", knuckle: true },
     { family: AutoMovieHumanF1FingerThumb, limb: "arm", knuckle: false },
-    { family: AutoMovieHumanF1ToeBig, limb: "leg", knuckle: true },
-    { family: AutoMovieHumanF1ToeIndex, limb: "leg", knuckle: true },
-    { family: AutoMovieHumanF1ToeMiddle, limb: "leg", knuckle: true },
-    { family: AutoMovieHumanF1ToeRing, limb: "leg", knuckle: true },
-    { family: AutoMovieHumanF1ToeLittle, limb: "leg", knuckle: true },
+    { family: rounded(AutoMovieHumanF1ToeBig), limb: "leg", knuckle: true },
+    { family: rounded(AutoMovieHumanF1ToeIndex), limb: "leg", knuckle: true },
+    { family: rounded(AutoMovieHumanF1ToeMiddle), limb: "leg", knuckle: true },
+    { family: rounded(AutoMovieHumanF1ToeRing), limb: "leg", knuckle: true },
+    { family: rounded(AutoMovieHumanF1ToeLittle), limb: "leg", knuckle: true },
   ];
 
   /** The families not sewn: none now. A loose family is emitted as a closed tube of its own, carried by its reach under its neighbour's skin. */
@@ -146,7 +205,7 @@ export namespace AutoMovieHumanF1 {
    * forward to 10 mm back. The midline rises above the ring toward the front fork (809.4 mm at 40 mm forward), where the seam must leave
    * the fork down along the trunk, so the knot at 40 mm holds the ring's level. The bands turn round each fork over 0.6 rad of their clock.
    */
-  const CROTCH: { knots: [number, number][]; corner: number } = { knots: [[0.0131, 0], [0.0231, 0.0011], [0.0331, 0.0028], [0.0431, 0.0031], [0.0531, 0.0029], [0.0631, 0.0018]], corner: 0.6 };
+  const CROTCH: { knots: [number, number][]; corner: number; fair: [number, number] } = { knots: [[0.0131, 0], [0.0231, 0.0011], [0.0331, 0.0028], [0.0431, 0.0031], [0.0531, 0.0029], [0.0631, 0.0018]], corner: 0.6, fair: [0.35, 0.35] };
 
   /** A limb whose open end is split into its knuckled digits. */
   interface IFan {
@@ -268,9 +327,12 @@ export namespace AutoMovieHumanF1 {
    * crisp ledge round the thumb's dorsal root (`limbview` close to [212, 972, 425], a scratch render of the arm's split alone). Faired over
    * 1.5 mm the fill folded the blend itself (edges folding by 90 degrees or more on the arm's split, 8 to 38); over 3 to 6 mm the ledge
    * softened and a fin stood in the web beside the index finger; over 8 mm, about the thumb's half width at its root, the root runs into
-   * the hand with no ledge and the web is clean, with 6 edges folding by 115 to 138 degrees on the hand beside the root.
+   * the hand with no ledge and the web is clean, with 6 edges folding by 115 to 138 degrees on the hand beside the root. Those folds, the
+   * dark crevice in the web and the thin crease along the index metacarpal (`hand.left` px 640..650 x 370..405) are the fill's own rim
+   * crossing the root's tight turn: over 11 mm the folds are 106 to 119 degrees, over 14 mm, the thumb's whole root, they are under 91 and
+   * the crease is gone.
    */
-  const THUMB_FAIR_MM: number = 8;
+  const THUMB_FAIR_MM: number = 14;
 
   /** How far behind its first joint the thumb's root closes in a point, inside the hand, mm. */
   const ROOT_MM: number = 10;
@@ -423,6 +485,26 @@ export namespace AutoMovieHumanF1 {
    * millimetres across with a blend 1 mm wide; on layers 4 mm apart the digit's root was a few flat facets.
    */
   const WEB_LAYER_MM: number = 1;
+
+  /**
+   * Trunk station from which its layers are spaced on the skin over the crown (`construction` `domed`), mm: 1,640 mm high, above the ears
+   * (their roots reach 1,610 mm) and below where the skull's top turns over toward the vertex.
+   */
+  const CROWN_MM: number = 860;
+
+  /**
+   * Station spacing of the fingers' and the thumb's layers past their roots, mm. At the body's 4 mm the digits' rings showed as fine level
+   * stripes along the thumb and the fingers under flat shading (`hand.high-oblique` px 610..660 x 520..580, a fold of 30 degrees at the
+   * thumb's [238.8, 942, 427.7]), where a finger's section turns faster along it than the trunk's does; at 2 mm they are gone.
+   */
+  const FINGER_LAYER_MM: number = 2;
+
+  /**
+   * The largest turn of a finger's or the thumb's ring between two neighbouring phases, radians (`AutoMovieHumanConicLoft.IFamily.turn`),
+   * as the arm's (`PHASE_TURN`). On phases set by its girth the thumb's flat side turned into its edges between few columns and drew a
+   * sawtooth of long thin facets along the thumb (`limbview` close to [236, 945, 427]), the stripes `hand.high-oblique` showed.
+   */
+  const FINGER_TURN: number = 0.1;
   const WEB_REACH_MM: number = 12;
 
   /**
@@ -840,10 +922,10 @@ export namespace AutoMovieHumanF1 {
    */
   export function construction(layer: number = LAYER_MM): IConstruction {
     const sources: Map<string, IAutoMovieViewPart> = new Map();
-    const leaf = (family: AutoMovieHumanConicLoft.IFamily, fine: number = -Infinity, close: number = WEB_LAYER_MM): AutoMovieConstructionNode => {
+    const leaf = (family: AutoMovieHumanConicLoft.IFamily, fine: number = -Infinity, close: number = WEB_LAYER_MM, pitch: number = layer, dome: number = Infinity): AutoMovieConstructionNode => {
       const from: number = family.knots[0]!;
       const to: number = family.knots.at(-1)!;
-      const count: number = Math.ceil((to - from) / layer) + 1;
+      const count: number = Math.ceil((to - from) / pitch) + 1;
       const even: number[] = Array.from({ length: count }, (_: unknown, i: number): number => from + ((to - from) * i) / (count - 1));
 
       // Inside a relief whose net is finer along the station than the layers, each layer interval is cut until it is as fine: rings 4 mm
@@ -851,12 +933,37 @@ export namespace AutoMovieHumanF1 {
       const stations: number[] = even.flatMap((s: number, i: number): number[] => {
         if (i === 0) return [s];
         const before: number = even[i - 1]!;
-        const pitch: number = Math.min(layer, before < fine ? close : layer, ...(family.reliefs ?? []).filter((relief): boolean => relief.stations[0] < s && relief.stations[1] > before).map((relief): number => (relief.stations[1] - relief.stations[0]) / (relief.rows - 3)));
-        const cuts: number = Math.ceil((s - before) / pitch - 1e-9);
+        const step: number = Math.min(pitch, before < fine ? close : pitch, ...(family.reliefs ?? []).filter((relief): boolean => relief.stations[0] < s && relief.stations[1] > before).map((relief): number => (relief.stations[1] - relief.stations[0]) / (relief.rows - 3)));
+        const cuts: number = Math.ceil((s - before) / step - 1e-9);
         return Array.from({ length: cuts }, (_: unknown, k: number): number => before + ((s - before) * (k + 1)) / cuts);
       });
-      sources.set(family.name, AutoMovieHumanConicLoft.part(family, folded(family, swept(family, stations))));
+      sources.set(family.name, AutoMovieHumanConicLoft.part(family, folded(family, domed(family, swept(family, stations), dome))));
       return { type: "source", name: family.name, source: family.name };
+    };
+
+    // The same stations with each interval from `from` on cut until no ring point of the wall moves farther than a layer between two
+    // rings. Over a dome the skin faces up, and a ring point moves across it several times as far as the station: on f1's crown the wall
+    // narrows 1.2 to 1.3 mm a millimetre of station, rings 4 mm apart stood 6 to 7 mm apart on the skin and drew concentric terraces on
+    // `head.high-oblique`. Measured on the wall alone, without the reliefs, and only over the crown, so the head's rings below, which the
+    // ear's band is triangulated against, stay where they were.
+    const domed = (family: AutoMovieHumanConicLoft.IFamily, stations: number[], from: number): number[] => {
+      if (!Number.isFinite(from)) return stations;
+      const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create({ ...family, reliefs: undefined }, stations);
+      if (loft.chain === null) return stations;
+      const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> = loft.chain;
+      const moved = (s: number, t: number): number =>
+        Math.max(
+          ...Array.from({ length: FOLD.phases }, (_: unknown, j: number): number => {
+            const [p, q]: number[][] = [s, t].map((x: number): number[] => AutoMovieLoftChain.point(chain, x, (2 * Math.PI * j) / FOLD.phases));
+            return Math.hypot(p![0]! - q![0]!, p![1]! - q![1]!, p![2]! - q![2]!);
+          }),
+        );
+      return stations.flatMap((s: number, i: number): number[] => {
+        if (i === 0) return [s];
+        const before: number = stations[i - 1]!;
+        const cuts: number = before < from ? 1 : Math.max(1, Math.ceil(moved(before, s) / layer - 1e-9));
+        return Array.from({ length: cuts }, (_: unknown, k: number): number => before + ((s - before) * (k + 1)) / cuts);
+      });
     };
 
     // The same stations with each interval cut until no ring point moves farther than a layer by the course frame's own sweep. Round a
@@ -939,14 +1046,14 @@ export namespace AutoMovieHumanF1 {
       const family: AutoMovieHumanConicLoft.IFamily = side > 0 ? leaned : twin(leaned);
       let node: AutoMovieConstructionNode = leaf(family);
       for (const digit of DIGITS.filter((d: IDigit): boolean => d.limb === which && !d.knuckle)) {
-        const capsule: AutoMovieHumanConicLoft.IFamily = { ...digit.family, tips: [{ from: digit.family.knots[0]!, tip: -ROOT_MM, covered: true }, digit.family.tips?.[1] ?? null] };
+        const capsule: AutoMovieHumanConicLoft.IFamily = { ...digit.family, tips: [{ from: digit.family.knots[0]!, tip: -ROOT_MM, covered: true }, digit.family.tips?.[1] ?? null], ...(which === "arm" ? { turn: FINGER_TURN } : {}) };
         const part: AutoMovieHumanConicLoft.IFamily = side > 0 ? capsule : twin(capsule);
         node = {
           type: "join",
           kind: "merge",
           name: "web." + part.name,
           host: node,
-          part: leaf(part, digit.family.knots[0]! + WEB_REACH_MM),
+          part: leaf(part, digit.family.knots[0]! + WEB_REACH_MM, WEB_LAYER_MM, which === "arm" ? FINGER_LAYER_MM : layer),
           seed: { type: "search", partFace: part.name, hostFace: family.name, phase: 0, from: 0, to: 0.7 },
           parameter: { type: "phase" },
           partWidth: { type: "chord", value: THUMB_CHORD_MM / 1000 },
@@ -980,8 +1087,9 @@ export namespace AutoMovieHumanF1 {
       };
       const children: IAutoMovieConstructionSplit.IChild[] = fanned.digits.map((name: string): IAutoMovieConstructionSplit.IChild => {
         const digit: IDigit = DIGITS.find((d: IDigit): boolean => d.family.name === name)!;
-        const part: AutoMovieHumanConicLoft.IFamily = side > 0 ? digit.family : twin(digit.family);
-        return { band: "band." + part.name, part: leaf(part), partFace: part.name, partEnd: "bottom", rail: fanned.rail / 1000, correspondence: "length" };
+        const own: AutoMovieHumanConicLoft.IFamily = which === "arm" ? { ...digit.family, turn: FINGER_TURN } : digit.family;
+        const part: AutoMovieHumanConicLoft.IFamily = side > 0 ? own : twin(own);
+        return { band: "band." + part.name, part: leaf(part, -Infinity, WEB_LAYER_MM, which === "arm" ? FINGER_LAYER_MM : layer), partFace: part.name, partEnd: "bottom", rail: fanned.rail / 1000, correspondence: "length" };
       });
       const first: IAutoMovieConstructionSplit.ISeam = seam(0);
       node = {
@@ -1005,7 +1113,7 @@ export namespace AutoMovieHumanF1 {
     let root: AutoMovieConstructionNode = {
       type: "split",
       name: "crotch",
-      host: leaf(BODY.trunk),
+      host: leaf(BODY.trunk, -Infinity, WEB_LAYER_MM, layer, CROWN_MM),
       hostFace: trunk,
       hostEnd: "bottom",
       seam: [0, Math.PI],

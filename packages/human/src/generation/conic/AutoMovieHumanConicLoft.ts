@@ -86,7 +86,30 @@ export namespace AutoMovieHumanConicLoft {
      * bends: the fuller cap brought the foot's end 5.9 mm below the sole and moved where the outer digits come out of their limbs' ends.
      */
     covered?: boolean;
+
+    /**
+     * The point of the chart, `[u, v]` mm, the cap's sections gather about while it closes, when the end's top does not stand over the
+     * course. A coordinate `x` of the cap is `x g + 2 c g (1 - g)^2` for its centre's coordinate `c`: at `from` it and its slope in `g` are
+     * the plain cap's, so the cap leaves the wall as before; it bulges toward the centre over its middle, by `8 c / 27` at most at
+     * `g = 1 / 3`; and it still closes on the course, where the pole is, since `x / g` tends to `x + 2 c`, which keeps the course inside
+     * every section while `|2 c|` is less than the section's extent on the far side. f1's crown: the course runs 16 mm behind the skull's
+     * top (the reference's top contour at 1,699 mm spans x -4 to 40), and the plain cap shrank the last section, 34 mm behind the course
+     * and 83 mm in front, toward it, so the back of the crown stood 4 mm proud of the reference at x -20 and the top was a flat lid with a
+     * corner behind.
+     */
+    centre?: [number, number];
+
+    /**
+     * Each coordinate of the cap takes the taper and the bend of its own outline at `from`, instead of the mean extent's. One factor for the
+     * whole section met the mean slope but not each side's: f1's crown section narrows 0.95 mm a millimetre in front (on 83 mm) and 1.2 behind
+     * (on 34 mm), and the shared factor took 1.9 in front and 0.77 behind, a dip at the crown's front and a corner at its back. A coordinate
+     * within `OWN_LEAST` of the section's size of zero keeps the shared factor, since its relative change has no meaning there.
+     */
+    own?: boolean;
   }
+
+  /** Share of a cap's first section's size under which a coordinate keeps the shared factor (`ITip.own`). */
+  const OWN_LEAST: number = 0.05;
 
   /**
    * Knots of a cap between its end section and its tip, besides those two. Where the tube's taper meets the cap's law the outlines' natural
@@ -209,28 +232,38 @@ export namespace AutoMovieHumanConicLoft {
 
     // A coordinate is zero at a tip; an angle or a shoulder keeps the cap's first section's value there. Each cap knot is that section scaled
     // by the tip's factor (`ITip`).
-    const cap = (end: ITip, value: number, length: boolean, site: string): IAutoMovieViewPart.IKnot[] => {
-      const q: number = taper(end);
-      const c: number = end.covered === true ? 0 : Math.max(0, (1 - q) ** 2 + bend(end));
+    // A coordinate along chart axis `along` gathers about the end's `centre` while it shrinks (`ITip.centre`).
+    // With `own`, a coordinate that stands clear of its centre takes the taper and the bend of its own outline (`ITip.own`), from its values
+    // one and two millimetres away from the tip.
+    const cap = (end: ITip, value: number, along: 0 | 1 | null, site: string, pick?: (chain: AutoMovieHumanConicSection.IChain) => number): IAutoMovieViewPart.IKnot[] => {
+      const middle: number = along === null ? 0 : (end.centre?.[along] ?? 0);
+      const inward: number = Math.sign(end.from - end.tip);
+      const length: number = Math.abs(end.from - end.tip);
+      const [x1, x2]: number[] = end.own === true && along !== null && pick !== undefined ? [1, 2].map((k: number): number => pick(AutoMovieHumanConicSection.resolve(read(end.from + k * inward), family.layout))) : [NaN, NaN];
+      const x0: number = value;
+      const own: boolean = Number.isFinite(x1) && Math.abs(x0) > OWN_LEAST * size(end.from);
+      const q: number = own ? Math.min(TAPER.most, Math.max(TAPER.least, (x1! / x0 - 1) * length)) : taper(end);
+      const c: number = end.covered === true ? 0 : Math.max(0, (1 - q) ** 2 + (own ? ((x2! - 2 * x1! + x0) / x0) * length ** 2 : bend(end)));
       const b: number = 2 * q - 1 - 2 * c;
       const a: number = 1 - b - c;
       return capShares.map((x: number, k: number): IAutoMovieViewPart.IKnot => {
         const t: number = x * x;
-        return { site: site + "." + k, station: end.tip + (end.from - end.tip) * t, value: length ? value * Math.sqrt(t * (a + t * (b + t * c))) : value };
+        const g: number = Math.sqrt(t * (a + t * (b + t * c)));
+        return { site: site + "." + k, station: end.tip + (end.from - end.tip) * t, value: along === null ? value : value * g + 2 * middle * g * (1 - g) ** 2 };
       });
     };
 
     // The cap's rings: without them the engine meshed a cap from its first section straight to its pole, a cone ending in a flat disc.
     const rings = (end: ITip): number[] => capShares.slice(1).map((x: number): number => end.tip + (end.from - end.tip) * x * x);
-    const closing = (pick: (chain: AutoMovieHumanConicSection.IChain) => number, length: boolean): IAutoMovieViewPart.IOutline => ({
+    const closing = (pick: (chain: AutoMovieHumanConicSection.IChain) => number, along: 0 | 1 | null): IAutoMovieViewPart.IOutline => ({
       knots: [
-        ...(bottom === null ? [] : cap(bottom, pick(chains[0]!), length, "tip.bottom")),
+        ...(bottom === null ? [] : cap(bottom, pick(chains[0]!), along, "tip.bottom", pick)),
         ...stations.map((station: number, i: number): IAutoMovieViewPart.IKnot => ({ site: "s" + i, station, value: pick(chains[i]!) })),
-        ...(top === null ? [] : cap(top, pick(chains.at(-1)!), length, "tip.top").reverse()),
+        ...(top === null ? [] : cap(top, pick(chains.at(-1)!), along, "tip.top", pick).reverse()),
       ],
     });
-    const outline = (pick: (chain: AutoMovieHumanConicSection.IChain) => number): IAutoMovieViewPart.IOutline => closing(pick, true);
-    const share = (pick: (chain: AutoMovieHumanConicSection.IChain) => number): IAutoMovieViewPart.IOutline => closing(pick, false);
+    const outline = (pick: (chain: AutoMovieHumanConicSection.IChain) => number, along: 0 | 1): IAutoMovieViewPart.IOutline => closing(pick, along);
+    const share = (pick: (chain: AutoMovieHumanConicSection.IChain) => number): IAutoMovieViewPart.IOutline => closing(pick, null);
     const quarters = <X>(make: (q: number) => X): IAutoMovieViewPart.IQuarters<X> => [make(0), make(1), make(2), make(3)];
 
     // A tangent angle is kept on one branch along the station so its outline never jumps by a turn.
@@ -247,11 +280,11 @@ export namespace AutoMovieHumanConicLoft {
       const out: IAutoMovieViewPart.ISplit[] = [];
       for (let at: number = (guides[q]! + 1) % count; at !== guides[(q + 1) % 4]!; at = (at + 1) % count) {
         const index: number = at;
-        out.push({ u: outline((chain: AutoMovieHumanConicSection.IChain): number => chain.input.points[index]![0]), v: outline((chain: AutoMovieHumanConicSection.IChain): number => chain.input.points[index]![1]), angle: angle(index), shoulder: share((chain: AutoMovieHumanConicSection.IChain): number => chain.input.shoulders[index]!) });
+        out.push({ u: outline((chain: AutoMovieHumanConicSection.IChain): number => chain.input.points[index]![0], 0), v: outline((chain: AutoMovieHumanConicSection.IChain): number => chain.input.points[index]![1], 1), angle: angle(index), shoulder: share((chain: AutoMovieHumanConicSection.IChain): number => chain.input.shoulders[index]!) });
       }
       return out;
     };
-    const coordinate = (q: number, axisIndex: 0 | 1): IAutoMovieViewPart.IOutline => outline((chain: AutoMovieHumanConicSection.IChain): number => chain.input.points[guides[q]!]![axisIndex]);
+    const coordinate = (q: number, axisIndex: 0 | 1): IAutoMovieViewPart.IOutline => outline((chain: AutoMovieHumanConicSection.IChain): number => chain.input.points[guides[q]!]![axisIndex], axisIndex);
 
     // Phases round the part: its widest section's girth, as the ellipse on its half extents (Ramanujan's perimeter), at `PHASE_MM` apart.
     const girth: number = Math.max(
@@ -375,7 +408,8 @@ export namespace AutoMovieHumanConicLoft {
       layout: { mirror: false, anchors: anchors.map((_: AutoMovieHumanConicSection.IAnchor, j: number): AutoMovieHumanConicSection.IAnchor => anchors[(K - j) % K]!), ...(family.layout.least === undefined ? {} : { least: family.layout.least }) },
       knots: [...family.knots],
       values,
-      ...(family.tips === undefined ? {} : { tips: [family.tips[0], family.tips[1]] as [ITip | null, ITip | null] }),
+      // A cap's centre lies in the chart, whose `v` the twin negates.
+      ...(family.tips === undefined ? {} : { tips: family.tips.map((tip: ITip | null): ITip | null => (tip === null || tip.centre === undefined ? tip : { ...tip, centre: [tip.centre[0], -tip.centre[1]] })) as [ITip | null, ITip | null] }),
       ...(family.pitch === undefined ? {} : { pitch: family.pitch }),
       ...(family.turn === undefined ? {} : { turn: family.turn }),
       ...(family.reliefs === undefined
