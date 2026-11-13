@@ -131,6 +131,11 @@ export namespace HumanSportGym {
     kind: "stepUp",
   });
 
+  /** Hip thrusts, the upper back on the bench's edge the composition names (`on`), the performer standing with the back to it. */
+  export const hipThrust = HumanActionRow.of("hipThrust", workout, {
+    kind: "hipThrust",
+  });
+
   /** Incline push-ups, the hands on the bench the composition names (`on`). */
   export const inclinePushUp = HumanActionRow.of("inclinePushUp", workout, {
     kind: "inclinePushUp",

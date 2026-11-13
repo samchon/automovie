@@ -17,8 +17,9 @@ import { throwObject } from "../throwing/throwObject";
  * ball's ballistic flight from its release, a catch's interception, a kick's
  * ball flight, a jump's flight from its take-off speed. First pass: a row
  * fixes only the style its name means; an event's own technique (a pitcher's
- * windup, a jump shot's leap before the release, a hurdle's trail leg, a
- * high jump's arch) is not planned, and the row says so.
+ * windup, a jump shot's leap before the release, a hurdle's trail leg) is
+ * not planned, and the row says so; a high jump's arch over the bar is
+ * `HumanGymnastics.fosburyFlop`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each row is a row of, what the composition gives, whose physics a row inherits and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped action (`HumanActionRow`), so it is data over a law that already fits the body, refuses and is checked.
@@ -61,7 +62,7 @@ export namespace HumanSportThrow {
     foot: "left",
   });
 
-  /** A rebound, a block, a long jump or a hurdle clearance: a jump to the place the composition gives. The run-up is a run before it; a hurdle's trail leg and a high jump's arch are not planned. */
+  /** A rebound, a block, a long jump or a hurdle clearance: a jump to the place the composition gives. The run-up is a run before it; a hurdle's trail leg is not planned, and a high jump's arch over the bar is `HumanGymnastics.fosburyFlop`. */
   export const leap = HumanActionRow.of("leap", jump, {});
 
   /** A box jump: a jump onto a box, landing on its top. The composition gives `to` as the top's place with its height as `y`, `on` as the box's prop, and an `apex` above the climb. */

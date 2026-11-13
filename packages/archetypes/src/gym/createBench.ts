@@ -19,16 +19,18 @@ const IPF: string =
  *
  * It stands on the floor with the middle of its footprint at the origin,
  * its length along `Z`. `surface` is the top, lain on along its length;
- * `seat` is the same top at its `+Z` end, sat on facing `+Z`.
+ * `seat` is the same top at its `+Z` end, sat on facing `+Z`; `edge` is the
+ * middle of the top's `+X` long side, which the upper back leans on across
+ * the bench (a hip thrust) with the body out along `+X`.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The bench.
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States how it stands, which way it runs and the two contacts.
+ * @evidence contracts/development/common.md#meaningful-documentation States how it stands, which way it runs and the three contacts.
  * @evidence contracts/development/implementation.md#principled-implementation A pad of the rule's length, width and top height on four legs set in from its corners.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, one box, four rods, two contacts.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, one box, four rods, three contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The pad's thickness and the legs' inset are estimates; no uprights or bar rests, which are the rack's.
  * @evidence contracts/development/implementation.md#efficient-algorithms Five shapes.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -105,6 +107,13 @@ export function createBench(
     depth: createBench.SEAT,
     width,
   });
+  builder.affordance({
+    id: "edge",
+    kind: "surface",
+    frame: ArchetypeFrame.upright(Vector3.create(width / 2, height, 0)),
+    extent: null,
+    depth: length,
+  });
   return builder.build(d.mass!);
 }
 
@@ -113,7 +122,7 @@ export function createBench(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
  * @evidence contracts/development/design.md#principled-representation A closed union and one cited band per dimension; what no rule fixes is a named estimate.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The top's size and height a lying or sitting body reads, and the two contacts.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The top's size and height a lying or sitting body reads, and the three contacts.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No balance point or inertia is declared.
  */
 export namespace createBench {
@@ -140,8 +149,9 @@ export namespace createBench {
    *
    * - `surface`: the top, lain on along `Z`.
    * - `seat`: the top's `+Z` end, sat on facing `+Z`.
+   * - `edge`: the middle of the top's `+X` long side, leaned on across the bench.
    */
-  export type Affordance = "surface" | "seat";
+  export type Affordance = "surface" | "seat" | "edge";
 
   /**
    * The free dimensions, metres unless stated:

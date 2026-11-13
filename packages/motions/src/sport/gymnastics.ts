@@ -39,9 +39,10 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * Events: `handsDown` at the entry's middle, `inverted` (`ready`), `release`
  * (`relax`), with the phrase instants.
  *
- * Not drafted: rolls, cartwheels, round-offs, handsprings, salti, the vault,
- * bars and rings; they need ballistic flight (A4), angular momentum checks
- * and floor and bar supports.
+ * Other laws plan the floor rolls, the cartwheel (`cartwheel`), the salto
+ * (`salto`), the round-off (`roundOff`), the handspring (`handspring`) and
+ * the vault (`vault`). Not drafted: bars and rings, which need swings about
+ * a bar support.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the placement, the entry's two halves, the inverted pose, the timing, the source of the balance and what is not drafted.
  * @evidence contracts/development/design.md#principled-representation A law record of a root row, leg rows and placed arms over one phrase.
