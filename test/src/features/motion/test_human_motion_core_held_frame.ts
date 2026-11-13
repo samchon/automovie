@@ -4,7 +4,7 @@ import {
   Quaternion,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieBone, IAutoMovieVector3 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanHeld,
   HumanChain,
@@ -42,12 +42,14 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 3. Asked of the left hand, which holds nothing, the reading is an
  *    `affordance` refusal on `prop`; asked for a contact the glass lacks,
  *    it is an `affordance` refusal on `point` that lists `lip`.
+ * 4. Asked of a body whose skeleton lacks the right hand's bone, the reading
+ *    is a `participant` refusal on `side` that lists only `left`.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs the chain through the public input and compares the point the reading gives, carried by the displayed hand, with the displayed prop's own point; a reading in another frame, one that drifts, or a missing refusal fails.
  * @evidence contracts/development/testing.md#independent-expectations The displayed glass comes from the performance's own carry of the prop and the hand from the displayed pose; the 1 mm is the campaign's grip bound. Neither is computed by the reading.
- * @evidence contracts/development/testing.md#distinguishing-cases Two bodies; the holding action itself and a later action that only carries; the holding hand, the empty hand and a contact the prop lacks.
+ * @evidence contracts/development/testing.md#distinguishing-cases Two bodies; the holding action itself and a later action that only carries; the holding hand, the empty hand, a contact the prop lacks and a body without the hand.
  * @evidence contracts/development/testing.md#execution-ownership Prepares polygon men and one archetype and builds short performances in memory; it runs locally and wherever CI runs the human motion tests.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule, how it is read and the 3 scenarios with their bound.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule, how it is read and the 4 scenarios with their bound.
  */
 export function test_human_motion_core_held_frame(): void {
   const complaints: string[] = [];
@@ -57,6 +59,7 @@ export function test_human_motion_core_held_frame(): void {
       lip?: { point: IAutoMovieVector3; direction: IAutoMovieVector3 };
       left?: unknown;
       missing?: unknown;
+      handless?: unknown;
     } = {};
     const refused = (build: () => unknown): unknown => {
       try {
@@ -78,6 +81,25 @@ export function test_human_motion_core_held_frame(): void {
         );
         read.missing = refused((): unknown =>
           AutoMovieMotionHumanHeld.point(held, "spout"),
+        );
+        read.handless = refused((): unknown =>
+          AutoMovieMotionHumanHeld.of(
+            {
+              ...context,
+              body: {
+                ...context.body,
+                skeleton: {
+                  ...context.body.skeleton,
+                  bones: context.body.skeleton.bones.filter(
+                    (bone: IAutoMovieBone): boolean =>
+                      bone.bone !== "rightHand",
+                  ),
+                },
+              },
+            },
+            "right",
+            "glass",
+          ),
         );
         return {
           duration: 0.5,
@@ -210,6 +232,20 @@ export function test_human_motion_core_held_frame(): void {
     )
       complaints.push(
         `${name}: a contact the glass lacks: expected an affordance refusal on point listing lip, got ${read.missing instanceof Error ? read.missing.message : String(read.missing)}`,
+      );
+
+    // 4. A body without the hand.
+    if (
+      !(
+        read.handless instanceof HumanRefusal &&
+        read.handless.kind === "participant" &&
+        read.handless.axis === "side" &&
+        read.handless.feasible?.kind === "alternatives" &&
+        read.handless.feasible.values.join() === "left"
+      )
+    )
+      complaints.push(
+        `${name}: a body without the right hand's bone: expected a participant refusal on side listing left, got ${read.handless instanceof Error ? read.handless.message : String(read.handless)}`,
       );
   }
   TestValidator.equals(

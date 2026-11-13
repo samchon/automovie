@@ -6,6 +6,7 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
+  IAutoMovieBone,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -70,9 +71,9 @@ export namespace AutoMovieMotionHumanHeld {
    * @param side The holding hand.
    * @param prop The prop's subject id.
    * @returns The prop in the hand's grip frame.
-   * @throws {HumanRefusal} An `affordance` refusal when that hand does not hold that prop at the entry, naming what it holds.
+   * @throws {HumanRefusal} An `affordance` refusal when that hand does not hold that prop at the entry, naming what it holds; a `participant` refusal on `side` when the body has no bone for that hand, naming the hands it has.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input, the result's frame and the refusal.
+   * @evidence contracts/development/common.md#meaningful-documentation States each input, the result's frame and the two refusals.
    * @evidence contracts/development/implementation.md#principled-implementation The prop's displayed frame at the entry second taken into the displayed hand's grip frame (inverse(hand) times prop), the offset the performance itself keeps while the grip holds.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The fact of holding, then one change of frame.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A prop that is not in the hand is refused instead of being carried from where it lies.
@@ -98,6 +99,31 @@ export namespace AutoMovieMotionHumanHeld {
         reason: `the ${side} hand ${held === undefined ? "holds nothing" : `holds ${held}`}, not ${prop}`,
         fix: `pick ${prop} up with the ${side} hand first, or perform the action with the hand that holds it`,
       });
+    // A body without that hand's bone has no frame to hold anything in.
+    const handless = (): HumanRefusal =>
+      new HumanRefusal({
+        kind: "participant",
+        axis: "side",
+        value: side,
+        feasible: {
+          kind: "alternatives",
+          values: (["left", "right"] as const).filter(
+            (other: "left" | "right"): boolean =>
+              context.body.skeleton.bones.some(
+                (bone: IAutoMovieBone): boolean =>
+                  bone.bone === `${other}Hand`,
+              ),
+          ),
+        },
+        reason: `the body has no ${side}Hand bone to hold ${prop} in`,
+        fix: "perform the action with a hand the body has, or with a body whose skeleton has that hand",
+      });
+    if (
+      !context.body.skeleton.bones.some(
+        (bone: IAutoMovieBone): boolean => bone.bone === `${side}Hand`,
+      )
+    )
+      throw handless();
     const read: IHumanActionContext.IProp = context.prop(prop);
     const world: IHumanProp.IFrame = read.frame(context.entry.seconds);
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
@@ -107,8 +133,7 @@ export namespace AutoMovieMotionHumanHeld {
     const rotation: IAutoMovieQuaternion | undefined = bones.get(
       `${side}Hand`,
     )?.worldRotation;
-    if (rotation === undefined)
-      throw new Error(`The body has no ${side} hand bone`);
+    if (rotation === undefined) throw handless();
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(rotation);
     return {
       prop,
