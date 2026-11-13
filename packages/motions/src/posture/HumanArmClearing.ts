@@ -136,14 +136,20 @@ export namespace HumanArmClearing {
     return best;
   }
 
-  /** The equal parts of a carry at whose ends its clearing is solved (provisional: tenths, each a few centimetres of a hand's way). */
+  /** The equal parts of a carry at whose ends its clearing is solved before any refinement (provisional: tenths, each a few centimetres of a hand's way). */
   const KEYS: number = 10;
+
+  /** How many times a part of the way is halved where its proportion leaves the arm uncleared (provisional: four halvings reach a hundred-and-sixtieth of the way). */
+  const DEPTH: number = 4;
 
   /**
    * An arm on its way between two poses, kept clear along the way by one
    * course: the clearing turn is solved at the `KEYS` equal shares of the
    * way and carried between two neighbouring ones in proportion, and both
-   * ends, which hold the room they hold, take none.
+   * ends, which hold the room they hold, take none. Where the proportion of
+   * two neighbouring keys leaves the arm uncleared at their midpoint, the
+   * midpoint becomes a key of its own and each half is read the same way,
+   * up to `DEPTH` halvings.
    *
    * The room an arm lacks does not fall steadily as it is let out: a
    * forearm that leaves the flank meets the ridge between two shapes of the
@@ -152,17 +158,22 @@ export namespace HumanArmClearing {
    * between two instants. A reach read 9 degrees of clearing at one share and
    * 12 degrees a two-hundredth earlier, a step of 32 mm at the wrist. Solved
    * at fixed shares and carried between them, the turn is a continuous
-   * function of the share while the rest of the body holds still; between
-   * two keys the arm is as clear as the proportion of two clear arms is.
+   * function of the share while the rest of the body holds still.
    *
-   * @param props The arm at a share of the way before any clearing (`plain`); the arm the keys' turns are solved on (`planned`: the carry toward a fixed arrival, so the course is a constant of the carry; `plain` when absent); the share asked for; and the clearing of an arm at a share (`clear`, which returns it turned in its upper arm's abduction and its elbow's flexion only).
+   * Between two clear keys the arm need not be clear: a blown kiss's hand
+   * leaves a thigh its fingertips rest against, and its wrist's first flexion
+   * pressed them 11.3 mm into the thigh inside the first tenth of the way,
+   * whose two ends were clear. A key is added only where the proportion
+   * fails, so the tenths keep the course they had wherever it already holds.
+   *
+   * @param props The arm at a share of the way before any clearing (`plain`); the arm the keys' turns are solved on (`planned`: the carry toward a fixed arrival, so the course is a constant of the carry; `plain` when absent); the share asked for; and the clearing of an arm at a share (`clear`, which returns it turned in its upper arm's abduction and its elbow's flexion only, and as given when it is already clear).
    * @returns The arm's joint angles at the share.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the course, the measured defect of a clearing solved per instant, what is continuous under which condition and what holds between two keys.
-   * @evidence contracts/development/implementation.md#principled-implementation A course fixed at shares of the way does not depend on the instant it is read at, so two neighbouring instants read two neighbouring points of one piecewise-linear turn.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The two keys around the share, their two turns and one proportion.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is remembered between calls, so the course is the same in whatever order its instants are read; a body that moves under the arm changes the keys' turns from instant to instant, the remaining place a carried arm can step.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two clearings a call, none at an end.
+   * @evidence contracts/development/common.md#meaningful-documentation States the course, its refinement and why, the measured defects of a clearing solved per instant and of the tenths alone, and what is continuous under which condition.
+   * @evidence contracts/development/implementation.md#principled-implementation A course fixed at shares of the way does not depend on the instant it is read at, so two neighbouring instants read two neighbouring points of one piecewise-linear turn; the halving depends only on the planned arm, so every share reads the same tree of keys and the turn stays continuous at an added key.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The two tenths around the share, then one loop that halves the part holding the share while its midpoint's proportion is uncleared, and one proportion.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is remembered between calls, so the course is the same in whatever order its instants are read; a body that moves under the arm changes the keys' turns from instant to instant, the remaining place a carried arm can step; past `DEPTH` halvings the proportion is taken as it is.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two clearings a call, none at an end, and per halving one reading of the midpoint's proportion and one clearing when it fails.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Stateless by design: a memory of the keys would have to be keyed by the whole pose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
@@ -175,32 +186,55 @@ export namespace HumanArmClearing {
       share: number,
     ) => HumanArmClearance.IArm;
   }): HumanArmClearance.IArm {
-    const turn = (key: number): readonly [number, number] => {
-      if (key <= 0 || key >= KEYS) return [0, 0];
-      const arm: HumanArmClearance.IArm = (props.planned ?? props.plain)(
-        key / KEYS,
-      );
-      const clear: HumanArmClearance.IArm = props.clear(arm, key / KEYS);
+    const planned = (share: number): HumanArmClearance.IArm =>
+      (props.planned ?? props.plain)(share);
+    const turned = (
+      arm: HumanArmClearance.IArm,
+      turn: readonly [number, number],
+    ): HumanArmClearance.IArm => ({
+      upper: [arm.upper[0], arm.upper[1] + turn[0], arm.upper[2]],
+      lower: [arm.lower[0] + turn[1], arm.lower[1], arm.lower[2]],
+      hand: arm.hand,
+    });
+    const turn = (share: number): readonly [number, number] => {
+      if (share <= 0 || share >= 1) return [0, 0];
+      const arm: HumanArmClearance.IArm = planned(share);
+      const clear: HumanArmClearance.IArm = props.clear(arm, share);
       return [clear.upper[1] - arm.upper[1], clear.lower[0] - arm.lower[0]];
     };
-    const at: number = Math.min(1, Math.max(0, props.share)) * KEYS;
-    const before: number = Math.min(KEYS - 1, Math.floor(at));
-    const weight: number = at - before;
-    const a: readonly [number, number] = turn(before);
-    const b: readonly [number, number] = weight === 0 ? a : turn(before + 1);
-    const arm: HumanArmClearance.IArm = props.plain(props.share);
-    return {
-      upper: [
-        arm.upper[0],
-        arm.upper[1] + a[0] + (b[0] - a[0]) * weight,
-        arm.upper[2],
-      ],
-      lower: [
-        arm.lower[0] + a[1] + (b[1] - a[1]) * weight,
-        arm.lower[1],
-        arm.lower[2],
-      ],
-      hand: arm.hand,
-    };
+    const share: number = Math.min(1, Math.max(0, props.share));
+    const before: number = Math.min(KEYS - 1, Math.floor(share * KEYS));
+    let from: number = before / KEYS;
+    let to: number = (before + 1) / KEYS;
+    let a: readonly [number, number] = turn(from);
+    let b: readonly [number, number] = share === from ? a : turn(to);
+    // The part of the way holding the share is halved while the proportion
+    // of its two keys leaves the planned arm uncleared at its midpoint.
+    for (let depth: number = 0; depth < DEPTH && share !== from; depth++) {
+      const middle: number = (from + to) / 2;
+      const blended: HumanArmClearance.IArm = turned(planned(middle), [
+        (a[0] + b[0]) / 2,
+        (a[1] + b[1]) / 2,
+      ]);
+      const cleared: HumanArmClearance.IArm = props.clear(blended, middle);
+      if (
+        cleared.upper[1] === blended.upper[1] &&
+        cleared.lower[0] === blended.lower[0]
+      )
+        break;
+      const own: readonly [number, number] = turn(middle);
+      if (share < middle) {
+        to = middle;
+        b = own;
+      } else {
+        from = middle;
+        a = own;
+      }
+    }
+    const weight: number = (share - from) / (to - from);
+    return turned(props.plain(props.share), [
+      a[0] + (b[0] - a[0]) * weight,
+      a[1] + (b[1] - a[1]) * weight,
+    ]);
   }
 }
