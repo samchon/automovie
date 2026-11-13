@@ -36,7 +36,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
   export const LEAN_STEP: number = 5;
 
   /** The most a held vessel is leaned toward the face to let the arm hold it as a drinker does, degrees (provisional: past it the vessel pours). */
-  export const LEAN: number = 60;
+  const LEAN: number = 60;
 
   /**
    * A vessel held by a kept grasp, leaned toward the face: the lean and the
@@ -56,7 +56,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
   }
 
   /** The step between the leans the search tries first, degrees, inside whose first admitting bracket it tries every `LEAN_STEP` (provisional). */
-  export const COARSE: number = 15;
+  const COARSE: number = 15;
 
   /**
    * Where the vessel is held after it arrives, while the drinker drinks: the
@@ -105,7 +105,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
    * @evidence contracts/development/implementation.md#principled-implementation Every candidate is solved by the resolver and read on its displayed bones; the arm is admitted by the posture a person drinks in (Murphy et al. 2011), the least lean that admits one is taken so the vessel tips no more than the arm needs, and of the admitted facings the hand's tilt decides.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One coarse-to-fine walk of the leans (`least`), each lean one `trial`.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The monotone admission the refinement relies on is stated here and read by the drinking signature spec, which checks that the lean a step below the returned one does not admit; with none admitted the law is refused, never given a raised arm.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Five coarse leans and at most two fine ones, each thirteen entry fits and one referred fit, where every 5-degree lean took thirteen.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most five coarse leans and two fine ones; each lean thirteen entry fits, then for its best one referred fit (its reference's entry fit is in the resolver's memory) and, with `after`, a referred fit in the drinking phase (two solves: its reference and the fit). Every 5-degree lean from 0 took up to thirteen leans.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `trial`, `least` and `AutoMovieMotionHumanDrinkingArm`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
@@ -169,7 +169,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
    * @evidence contracts/development/implementation.md#principled-implementation The admitted arm is the one the stroke shows, fitted to the same goal and reference.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation to `trial`.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every facing is solved; a tie keeps the one nearest head on.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Thirteen entry fits and one referred fit, whose own entry fit the resolver's memory already holds.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Thirteen entry fits and one referred fit, whose reference's entry fit the resolver's memory already holds; with `after`, two more solves for the drinking phase's reference and referred fit.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by `drinking` and by the spec that checks its least lean.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
@@ -221,7 +221,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
    * @evidence contracts/development/implementation.md#principled-implementation A kept grasp fixes the hand-to-vessel rotation, not the hand, so the same drink is admitted by the same posture (Murphy et al. 2011) however the vessel came to the hand; the vessel's point stays on the region as the stroke keeps it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One coarse-to-fine walk (`least`) of a goal, a screen and an admission per lean.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The admitted arm is the referred one the stroke shows; with none admitted the law is refused.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One entry fit per lean tried, five coarse and at most two fine, and one referred fit of a lean that passes it.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Per lean tried (at most five coarse and two fine): one entry fit, and for a lean that passes it one referred fit (its reference's entry fit in the resolver's memory) and, with `after`, the drinking phase's reference and referred fit, two solves.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanTouchLaid.rest` for the vessel's point and contact, `tip` and `AutoMovieMotionHumanDrinkingArm`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */

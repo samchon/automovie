@@ -62,7 +62,7 @@ export namespace HumanHandAttitude {
    * @evidence contracts/development/implementation.md#principled-implementation The wrist's local rotation decomposed on its chart inside its range and clamped; the residual's twist about the forearm's axis, converted to the forearm's clinical twist by its rate read off the rig, added to the current twist.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A wrist solve, one twist share and a second wrist solve.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both joints are clamped by the rig's range; what neither can turn stays a residual, never reported as reached.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve and four forward kinematics.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve and its forward kinematics, then at most three resolves of the arm written as joints (no limb fit), each with its forward kinematics: the wrist's result, the forearm's rate and the turned forearm.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the resolver, `poseBones` and the engine's `decomposeJointRotation`, `getConstraint` and `clampJointToSkeleton`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
@@ -105,7 +105,7 @@ export namespace HumanHandAttitude {
     const first: [number, number, number] = wrist(
       body,
       hand,
-      bones(written(forearm, read(hand))).get(lower)!.worldRotation,
+      poseBones(body, pose).get(lower)!.worldRotation,
       rotation,
     );
 

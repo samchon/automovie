@@ -90,12 +90,13 @@ export function test_human_motion_posture_arm_clearing(): void {
         side,
       );
 
-      // 7. Clearing.
+      // 1. An arm within its allowance is kept.
       complaints.equals(
         `${cell}: an arm within its allowance is kept`,
         HumanArmClearance.cleared(body, pose, side, own, stance + 1),
         own,
       );
+      // 2. The cells' arms, each cleared only as the function promises.
       const arms: [string, HumanArmClearance.IArm, HumanColliders.IPlaced[]][] =
         [];
       for (const twist of [-60, 60])

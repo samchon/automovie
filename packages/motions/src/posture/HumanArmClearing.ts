@@ -22,21 +22,21 @@ import type { HumanArmClearance } from "./HumanArmClearance";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is turned, the order of directions with its reason, the continuity it gives, the measured defect of the search it replaces and where a step can remain.
  * @evidence contracts/development/design.md#principled-representation A direction is a unit pair of abduction and flexion; the order is data; the search is one function of the arm and two readings of it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The four bounds, the order and the search; read by `HumanArmClearance.cleared`, which owns the room and range readings.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Two exports: the search (`of`), read by `HumanArmClearance.cleared`, which owns the room and range readings, and the course (`course`) over `KEYS` shares of a carry, read by the arm's carry; the bounds, the order and the keys are module constants.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No obstacle is named: the room reading decides what is in the way, and a turn that leaves a joint's range ends its direction instead of being clamped.
  */
 export namespace HumanArmClearing {
   /** The most a clearing turns either freedom from the given arm, degrees (provisional: beyond it the arm is no longer the carry's). */
-  export const SPAN: number = 40;
+  const SPAN: number = 40;
 
   /** The step a direction is scanned in for its first clear turn, degrees (provisional: a few centimetres at the hand). */
-  export const STEP: number = 5;
+  const STEP: number = 5;
 
   /** The room over its allowance a clearing leaves, degrees (provisional: a twentieth of a degree, a quarter of a millimetre at the elbow). */
-  export const TOLERANCE: number = 0.05;
+  const TOLERANCE: number = 0.05;
 
   /** The bisections that find the least clear turn inside one step: eight halve it to 1/256 of the step, a fiftieth of a degree (provisional). */
-  export const HALVINGS: number = 8;
+  const HALVINGS: number = 8;
 
   /**
    * The directions a clearing tries, in order, as shares of abduction and of
@@ -45,7 +45,7 @@ export namespace HumanArmClearing {
    * eight that lie midway between two of them, in the same order of their
    * angles from out through folded.
    */
-  export const ORDER: readonly (readonly [number, number])[] = [
+  const ORDER: readonly (readonly [number, number])[] = [
     [1, 0],
     [0, 1],
     [Math.SQRT1_2, Math.SQRT1_2],
@@ -137,7 +137,7 @@ export namespace HumanArmClearing {
   }
 
   /** The equal parts of a carry at whose ends its clearing is solved (provisional: tenths, each a few centimetres of a hand's way). */
-  export const KEYS: number = 10;
+  const KEYS: number = 10;
 
   /**
    * An arm on its way between two poses, kept clear along the way by one
@@ -155,7 +155,7 @@ export namespace HumanArmClearing {
    * function of the share while the rest of the body holds still; between
    * two keys the arm is as clear as the proportion of two clear arms is.
    *
-   * @param props The arm at a share of the way before any clearing (`plain`), the share asked for, and the clearing of an arm at a share (`clear`, which returns it turned in its upper arm's abduction and its elbow's flexion only).
+   * @param props The arm at a share of the way before any clearing (`plain`); the arm the keys' turns are solved on (`planned`: the carry toward a fixed arrival, so the course is a constant of the carry; `plain` when absent); the share asked for; and the clearing of an arm at a share (`clear`, which returns it turned in its upper arm's abduction and its elbow's flexion only).
    * @returns The arm's joint angles at the share.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the course, the measured defect of a clearing solved per instant, what is continuous under which condition and what holds between two keys.

@@ -3,6 +3,7 @@ import {
   Quaternion,
   Vector3,
   getConstraint,
+  rotationBetween,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -30,7 +31,8 @@ import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
  * Willén and Sunnerhagen 2011: the shoulder raised about 40 to 50 degrees,
  * the elbow low and in front of the body), and the hand's attitude on the
  * way there. `AutoMovieMotionHumanTouchUpright` searches a vessel's facing
- * and lean by it, and the touch stroke carries a held vessel by its attitude.
+ * and `AutoMovieMotionHumanTouchDrink` its lean by it, and the touch stroke
+ * carries a held vessel by its attitude.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is read, the admission and its source, and who reads them.
  * @evidence contracts/development/design.md#principled-representation A drinking arm is four readings of one fit: the vessel's tilt, the upper arm's elevation, the elbow's drop and the forearm's twist room.
@@ -178,7 +180,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One shortest arc per second.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The asked axis is the goal's at the same second, so the vessel tips exactly as the goal does.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per written second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the touch's goal.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the touch's goal and the engine's `rotationBetween`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The function closes over its inputs only.
    */
   export function carried(
@@ -213,7 +215,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
       );
       return Quaternion.normalize(
         Quaternion.multiply(
-          arc(Quaternion.rotateVector(hand, axis), wanted, 1),
+          rotationBetween(Quaternion.rotateVector(hand, axis), wanted),
           hand,
         ),
       );
@@ -244,22 +246,6 @@ export namespace AutoMovieMotionHumanDrinkingArm {
       arm.room >= AutoMovieMotionHumanTouchLaid.MARGIN
     );
   }
-}
-
-/** The share of the shorter turn that carries one unit direction onto another; none when they are parallel or opposite. */
-function arc(
-  from: IAutoMovieVector3,
-  to: IAutoMovieVector3,
-  share: number,
-): IAutoMovieQuaternion {
-  const a: IAutoMovieVector3 = Vector3.normalize(from);
-  const b: IAutoMovieVector3 = Vector3.normalize(to);
-  const across: IAutoMovieVector3 = Vector3.cross(a, b);
-  if (!(Vector3.length(across) > 1e-9)) return Quaternion.identity();
-  return Quaternion.fromAxisAngle(
-    Vector3.normalize(across),
-    degrees(Vector3.dot(a, b)) * share,
-  );
 }
 
 /** How far a reached hand carries the vessel's asked axis, degrees: the asked rotation's axis is the up turned back by it, read again through the reached rotation. */

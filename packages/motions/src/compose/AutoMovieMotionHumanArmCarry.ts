@@ -107,9 +107,9 @@ export namespace AutoMovieMotionHumanArmCarry {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States both ends, what is blended, why and what the result holds.
    * @evidence contracts/development/implementation.md#principled-implementation Free arm movements are smooth in joint space (Soechting and Lacquaniti 1981), so the transport blends the joints of the two ends and solves the goal only to read its joints; `blendHumanJoint` blends a ball joint as a rotation, which does not depend on the chart its triple is written in, and a joint with fewer freedoms angle by angle.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture solve, then three blended joints and one clearing course per arm (`HumanArmClearing.course`, solved at fixed shares of the carry so the turn does not step between two instants), each arm cleared in the pose the arms before it were written into.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture solve (two with a planned arrival), then three blended joints and one clearing course per arm (`HumanArmClearing.course`, solved at fixed shares of the carry so the turn does not step between two instants), each arm cleared in the pose the arms before it were written into.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shoulder takes the shorter arc between its two rotations, so neither a twist near 180 degrees nor a solution in its other chart swings the arm; the share is clamped so the arm cannot pass either end.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve for both arms, and none at either end.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve for both arms and a second for the planned arrival when one is given, none at either end; per arm a course reads at most two keys, each one clearing (`HumanArmClearing.of`) in a pose read once per key.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `resolveHumanPosture`, `angles`, `blendHumanJoint` and `HumanArmClearance`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
@@ -294,7 +294,7 @@ export namespace AutoMovieMotionHumanArmCarry {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, its unit and the range of the weight.
    * @evidence contracts/development/design.md#principled-representation The span the arm is written over, the angles it holds at weight 0, the goal it solves to at weight 1 and the weight between them.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Seven members, all read by `carried`.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Nine members, all read by `carried`: seven that every carry needs, the clearing's `arrival` and the hand's `attitude`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The goal is the posture's own goal type as a function of the posture so far, so any owner of arm goals fits.
    */
   export interface ICarry {
@@ -401,9 +401,9 @@ export namespace AutoMovieMotionHumanArmCarry {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is carried, by what, and the channel claimed.
    * @evidence contracts/development/implementation.md#principled-implementation The goal is written on the posture so far and `carry` blends its solved angles with the held ones; with an attitude, the hand between the ends is solved to it on the carried arm.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One goal evaluation and one call of `carry`, then one wrist solve with an attitude.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One goal evaluation (a second at the arrival when given) and one call of `carry`, then one hand solve with an attitude.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The hand's fingers are not claimed, so a row that shapes them composes with this one.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per written second, and none at weight 0 or 1; an attitude adds two forward kinematics and one wrist solve between the ends.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Per written second `carry`'s posture solves (one, two with an arrival), none at weight 0 or 1; between the ends an attitude adds one forward kinematics of the blend, the attitude's own reading and `HumanHandAttitude.held` (one posture solve and at most three resolves of the arm written as joints).
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `carry` and `HumanHandAttitude.held`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props only and holds no per-second state.
    */

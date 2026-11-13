@@ -1286,13 +1286,6 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTouchLaid.upright",
-      "tests": [
-        "test_human_motion_compose_touch_laid"
-      ]
-    },
-    {
-      "layer": "compose",
       "symbol": "AutoMovieMotionHumanTouchEffector.axis",
       "tests": [
         "test_human_motion_compose_touch_effector"

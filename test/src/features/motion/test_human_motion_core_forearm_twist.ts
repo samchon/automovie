@@ -33,7 +33,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#behavioral-verification Resolves real postures and reads the displayed hand's axes; a twist reading turned by a quarter turn or mirrored on one side fails with the angles.
  * @evidence contracts/development/testing.md#independent-expectations The expectations are the clinical forearm positions (mid-position thumb up with the elbow at 90, supination palm up, pronation palm down), not the rig's numbers.
  * @evidence contracts/development/testing.md#distinguishing-cases Both arms, the neutral and both ends.
- * @evidence contracts/development/testing.md#execution-ownership Six posture solves on one prepared body; named `test_human_` so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership Six posture solves on one prepared body, in memory; the test program discovers every `test_` function under `features`, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the convention, its reason and the 3 scenarios with their bound.
  */
 export function test_human_motion_core_forearm_twist(): void {

@@ -123,7 +123,10 @@ export namespace motionFitArms {
    * Whether a joint lies inside its default range, 1e-6 degrees allowed for
    * rounding, by the engine's own measure: the shoulder's range is a swing and
    * a twist (IAutoMovieJointConstraint.swingTwist), which its three clinical
-   * angles only read, and the elbow's is its three angles.
+   * angles only read, and the elbow's is its three angles. The measure is the
+   * engine's own (`jointRomOvershoot`), the one the fit clamps by, so this is
+   * no independent oracle of the range: it shows the fit stays inside the
+   * range it is given, not that the range or its measure is right.
    */
   export function inRange(j: IAutoMovieJointPose): boolean {
     return jointRomOvershoot(j, DEFAULT_HUMANOID_ROM[j.bone]!) <= 1e-6;

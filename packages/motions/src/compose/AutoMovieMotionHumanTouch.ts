@@ -239,7 +239,7 @@ export namespace AutoMovieMotionHumanTouch {
    * @evidence contracts/development/implementation.md#principled-implementation A free arm movement is smooth in joint space (Soechting and Lacquaniti 1981) and carries the hand with it (Desmurget et al. 1996), so the transport is the joint-space carry on the clock's envelope toward the goal laid on the region frame each second, with the kind's offsets in that frame.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One arm carry and one hand form.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The lift and travel are shares of the hand; a count that is not whole throws.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One region read and one posture solve per written second.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Per written second two goal evaluations, each one region read (the second's and the arrival's), and the carry's two posture solves; a vessel laid upright adds a third goal evaluation and one hand solve (`AutoMovieMotionHumanArm.ICarry.attitude`).
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `AutoMovieMotionHumanArm.carried`, `AutoMovieMotionHumanHand.form` and the effector's goal.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitives close over their props and one hint.
    */

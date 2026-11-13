@@ -224,9 +224,11 @@ export namespace pickUp {
           ? [
               {
                 posture: held,
+                // Lifted, the hand keeps the rotation it shows at the grasp,
+                // as the lift holds it (`HumanHandAttitude`).
                 wrist: {
                   point: { ...wrist.point, y: wrist.point.y + lift },
-                  rotation: wrist.rotation,
+                  rotation: shown.rotation,
                 },
                 bend,
               },

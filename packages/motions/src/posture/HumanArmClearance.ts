@@ -303,7 +303,9 @@ export namespace HumanArmClearance {
 
   /**
    * An arm turned at the shoulder and the elbow until its room (`room`) is
-   * within an allowance: the clear arm nearest the given one.
+   * within an allowance: the least turn, along the first direction of a
+   * fixed order that clears it (`HumanArmClearing`), not the nearest clear
+   * arm in every direction.
    *
    * A hanging arm lies along the flank, so a forearm that swings forward
    * from it while the upper arm turns inward crosses the front of the waist,
