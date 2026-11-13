@@ -488,15 +488,14 @@ namespace FamilyConicBody {
   /**
    * The armpit slit cutter's course, mm: low in the slit, about 4 mm over its floor and midway between its walls there, where each
    * section's kernel is (the reference's planes x = const and the course's own planes, `sect` and `airsect`, scratch plots), from the
-   * anterior fold, where the arm's band stands 1,284 mm high against the fold's 1,305, out through the posterior fold, where the slit's
-   * apex stands at 1,288 mm at x -50 and 1,299 at -62 and the slit opens to the back: ended inside, at x -53, the cutter's closed back cap
-   * was a lens-shaped end wall facing the back camera, a lit tooth at the slit's foot (`shoulder.back` px 360..375 x 570..640). Its last
-   * centre stands 3 to 4 mm over the floor through x -60 to -64 (`AXILLA_FLOOR`).
+   * anterior fold, where the arm's band stands 1,284 mm high against the fold's 1,305, to x -56, closing inside the slit. Run on out
+   * through the posterior fold to x -66, no fit or construction of it was cut (the doc's armpit record), so the course is the stored
+   * cutter's (`AutoMovieHumanF1Axilla`).
    */
-  const AXILLA: R.V[] = [[16, 1287, 147.5], [-25, 1262, 150.5], [-45, 1269.5, 151], [-56, 1283, 151.5], [-66, 1303, 153]];
+  const AXILLA: R.V[] = [[16, 1287, 147.5], [-25, 1262, 150.5], [-45, 1269.5, 151], [-56, 1283, 151.5]];
 
   /** The slit cutter's fitted stations, mm along its course (`--axilla-domain=<from>,<to>`): x 16 is station 0, the crease about 48, x -62 about 97. */
-  const AXILLA_DOMAIN: [number, number] = (process.argv.find((a: string): boolean => a.startsWith("--axilla-domain="))?.slice("--axilla-domain=".length) ?? "25,96").split(",").map(Number) as [number, number];
+  const AXILLA_DOMAIN: [number, number] = (process.argv.find((a: string): boolean => a.startsWith("--axilla-domain="))?.slice("--axilla-domain=".length) ?? "25,78").split(",").map(Number) as [number, number];
 
   /** `--construct`: how far from where invented points meet skin a corner is looked for, and the span its sides' directions are read over, mm. */
   const CONSTRUCT_SEARCH_MM: number = 3;
@@ -522,14 +521,16 @@ namespace FamilyConicBody {
   const AXILLA_FLOOR: [number, number][] = [[-56, 3], [-62, 8], [-68, 12]];
 
   /**
-   * How far the slit cutter is drawn in from the slit's walls, mm, at its floor and at its apex. At the floor 0.8: drawn in 1.5 mm, the band's
-   * stubs between the cut and the walls stood 1.5 mm wide and read as a white sliver along the slit's foot, and behind the crease the band
-   * leaves each wall sharply (its columns there hold ribbon scales of 0.09 to 0.3), so 0.8 mm still crosses the band, not the wall. At the
-   * apex 0.3, which keeps the cusp's top; on the earlier cutter, whose back end closed inside the slit, the top 2 to 5 mm stayed closed at
-   * 0.8. At 0.3 the plain fit was refused between its fitted stations (the apex's arc did not advance in phase at station 55.8), and the
-   * barrier fit (`--barrier`) on the native path (the arc after a groove's inflection met behind its end, b -0.006 of its chord).
+   * How far the slit cutter is drawn in from the slit's walls, mm, at its floor and at its apex: the stored cutter's 1.5 and 0.8, the
+   * one whose cut the body carries. Drawn in 0.8 at the floor and 0.3 at the apex the cutter keeps more of the slit (its band stubs 1.5 mm
+   * wide read as a white sliver along the slit's foot, and at 0.8 its top 2 to 5 mm stays closed), but at 0.3 the plain fit was refused
+   * between its fitted stations (the apex's arc did not advance in phase at station 55.8) and the barrier fit on the native path (the arc
+   * after a groove's inflection met behind its end, b -0.006 of its chord).
    */
-  const AXILLA_INSET: [number, number] = [0.8, 0.3];
+  const AXILLA_INSET: [number, number] = [1.5, 0.8];
+
+  /** How far the vault cutter is drawn in from the vault's walls, mm, at its floor and at its apex (its constructed form, `AutoMovieHumanF1Vault`, not in the body). */
+  const VAULT_INSET: [number, number] = [0.8, 0.3];
 
   /**
    * The least share of its chord at which each arc's tangent lines may meet in the slit cutter's fit (`IPart.margin`). An inflection's
@@ -989,14 +990,14 @@ namespace FamilyConicBody {
         // under its apex. Each section is the air round a course laid low in the slit, in its kernel (`air`): capped under the generated band
         // (`AXILLA_FLOOR`) and drawn in from the walls (`AXILLA_INSET`); its arm-side reach is 12 mm, short of the band's ring end. Its
         // arm-side flank is concave under the apex: a groove after the apex (`inflected(1, [0])`; on the 8-conic layout a groove seeds only
-        // after a `u` extreme). Its front end closes inside the band's span; its back end runs out through the posterior fold.
-        { name: "axilla", centres: AXILLA, course: JSON.stringify(AXILLA).replaceAll(",", ", "), halves: [8, 5, 5], up: [0, 1, 0], domain: AXILLA_DOMAIN, step: 1, gap: 4, first: AXILLA_DOMAIN[0] - 4, tip: AXILLA_DOMAIN[1] + 3, mirrored: true, skin: "inner", margin: AXILLA_MARGIN, construct: { knots: [25, 34, 43, 52, 61, 70, 79, 88, 96], corner: CONSTRUCT_CORNER_MM, apex: CONSTRUCT_APEX_MM }, air: { band: AXILLA_BAND, floor: AXILLA_FLOOR, reach: 12, inset: AXILLA_INSET }, layouts: AXILLA_LAYOUTS[process.argv.find((a: string): boolean => a.startsWith("--axilla-layout="))?.slice("--axilla-layout=".length) ?? "groove"]!, reliefs: [] },
+        // after a `u` extreme). Both ends close inside the slit, as the stored cutter's (`AutoMovieHumanF1Axilla`): refitted on the same course and insets whenever the band it is capped under moves (`AXILLA_BAND`).
+        { name: "axilla", centres: AXILLA, course: JSON.stringify(AXILLA).replaceAll(",", ", "), halves: [8, 5], up: [0, 1, 0], domain: AXILLA_DOMAIN, step: 1, gap: 4, first: AXILLA_DOMAIN[0] - 4, tip: AXILLA_DOMAIN[1] + 3, mirrored: true, skin: "inner", margin: AXILLA_MARGIN, construct: { knots: [25, 34, 43, 52, 61, 70, 78], corner: CONSTRUCT_CORNER_MM, apex: CONSTRUCT_APEX_MM }, air: { band: AXILLA_BAND, floor: AXILLA_FLOOR, reach: 12, inset: AXILLA_INSET }, layouts: AXILLA_LAYOUTS[process.argv.find((a: string): boolean => a.startsWith("--axilla-layout="))?.slice("--axilla-layout=".length) ?? "groove"]!, reliefs: [] },
         // The vault in front of the armpit as a cutter of its own (G11): the arm's band crosses it flat, 12 to 16 mm under the reference's
         // vault, its columns running aslant to the vault's planes. Every section of the vault is convex, so the plain 8-conic limb carries it
         // (0.56 mm on the same sections, where the slit's groove stalled at 1.67 mm). Its sections are the vault's air, read as the slit's
         // are, with a reach of 20 mm, since the vault is up to 28 mm wide. Both ends close: its back tip at x about 0, clear of the slit
         // cutter's front tip at x -1.9.
-        { name: "vault", centres: VAULT, course: JSON.stringify(VAULT).replaceAll(",", ", "), halves: [], up: [0, 1, 0], domain: [2, 18], step: 1, gap: 4, first: -1, tip: 20, mirrored: true, skin: "inner", construct: { knots: [2, 10, 18], corner: CONSTRUCT_CORNER_MM, apex: CONSTRUCT_APEX_MM }, air: { band: AXILLA_BAND, floor: [[0, VAULT_FLOOR_MM]], reach: 20, inset: AXILLA_INSET }, layouts: [{ layout: C.limb(1), depth: 1 }], reliefs: [] },
+        { name: "vault", centres: VAULT, course: JSON.stringify(VAULT).replaceAll(",", ", "), halves: [], up: [0, 1, 0], domain: [2, 18], step: 1, gap: 4, first: -1, tip: 20, mirrored: true, skin: "inner", construct: { knots: [2, 10, 18], corner: CONSTRUCT_CORNER_MM, apex: CONSTRUCT_APEX_MM }, air: { band: AXILLA_BAND, floor: [[0, VAULT_FLOOR_MM]], reach: 20, inset: VAULT_INSET }, layouts: [{ layout: C.limb(1), depth: 1 }], reliefs: [] },
         // The nostrils open downward, and a frontal section shows only the nose's outline round them. A net over the nose's underside, cast
         // straight up, reads the first skin a ray from below meets, and found them: 3 to 5 mm deep and more, from 124 to 128 mm forward
         // (`--casts`). That is where a band 2 mm in landed: with the dimples in it the rail's ring was no longer star-shaped and the port
