@@ -161,6 +161,7 @@ export namespace AutoMovieConstructionAdmission {
             if (profile.reach !== undefined && !(Number.isFinite(profile.reach) && profile.reach > 0 && profile.reach <= 1))
               refuse(`profile reach ${profile.reach} is not in (0, 1]`);
             if (profile.square !== undefined && typeof profile.square !== "boolean") refuse(`profile square ${String(profile.square)} is not a boolean`);
+            if (profile.fair !== undefined && !(Number.isFinite(profile.fair) && profile.fair > 0 && profile.fair <= 1)) refuse(`profile fair ${profile.fair} is not in (0, 1]`);
             const heading: [number, number, number] | undefined = profile.heading;
             if (heading !== undefined && !(heading.every(Number.isFinite) && Math.hypot(...heading) > 0))
               refuse(`profile heading [${heading.join(", ")}] is not a finite nonzero direction`);

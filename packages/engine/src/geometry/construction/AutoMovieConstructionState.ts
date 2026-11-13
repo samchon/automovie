@@ -48,6 +48,9 @@ export namespace AutoMovieConstructionState {
     /** Actual collapsed profile ends awaiting drawn-boundary admission. */
     profileEnds?: AutoMovieConstructionProfileBody.IEnd[];
 
+    /** The discs the drawn skin is faired over (`fairAutoMovieSolidMesh`): each centre a mesh vertex, each radius mm; absent, none. */
+    fairs?: { vertex: number; radius: number }[];
+
     /** The kept joins. */
     joins: AutoMovieConstructionRealization.IJoin[];
 
@@ -141,6 +144,9 @@ export namespace AutoMovieConstructionState {
     /** Actual collapsed-end record count. */
     profileEnds: number;
 
+    /** The fairing disc list's length; zero when the state keeps none. */
+    fairs: number;
+
     /** The kept join list's length. */
     joins: number;
 
@@ -183,6 +189,7 @@ export namespace AutoMovieConstructionState {
       blendSurfaces: state.blendSurfaces.length,
       profiles: state.profiles?.length ?? 0,
       profileEnds: state.profileEnds?.length ?? 0,
+      fairs: state.fairs?.length ?? 0,
       joins: state.joins.length,
       trims: state.trims.length,
     };
@@ -227,6 +234,7 @@ export namespace AutoMovieConstructionState {
     if (state.profiles !== undefined) state.profiles.length = s.profiles;
     if (state.profileEnds !== undefined)
       state.profileEnds.length = s.profileEnds;
+    if (state.fairs !== undefined) state.fairs.length = s.fairs;
     state.joins.length = s.joins;
     state.trims.length = s.trims;
   }

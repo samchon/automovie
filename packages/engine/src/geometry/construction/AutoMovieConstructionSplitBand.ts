@@ -46,7 +46,17 @@ export namespace AutoMovieConstructionSplitBand {
     /** The station's sign leaving the rail: out of the host into the band, or from the child's rail into the child's kept side. */
     into: 1 | -1;
 
-    /** The rail's station at a phase when the rail is a curve round the face (a port's `rails`), mm; absent, `station` at every phase. */
+    /**
+     * The rail's station at a phase when the rail is a curve round the face (a port's `rails`), mm; absent, `station` at every phase.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the argument, the unit and the absent case.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; the caller's curve is the implementation.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body; its cost is the caller's curve.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
+     */
     along?: (psi: number) => number;
   }
 

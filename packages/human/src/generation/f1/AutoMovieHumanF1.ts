@@ -163,6 +163,9 @@ export namespace AutoMovieHumanF1 {
     /** Whether the bands leave the limb's end square to its ring (`IAutoMovieConstructionSplit.IProfile.square`); absent, along its station lines. */
     square?: boolean;
 
+    /** The radius of the skin faired about each fork, as a share of its seam's chord (`IAutoMovieConstructionSplit.IProfile.fair`); absent, the forks stay as drawn. */
+    fair?: number;
+
     /** Where each digit's band lands on it, mm past its first station, the web. */
     rail: number;
 
@@ -181,7 +184,11 @@ export namespace AutoMovieHumanF1 {
    * half their length at each fork (`reach`): the skin's edges folding by more than 90 degrees over the hand fall from 168 to 119. Both
    * limbs' bands leave the end square to its ring (`square`): along the station lines, which lean along the ring where the sections change
    * shape under their polar phase, the toes' bands folded more (edges folding by 60 degrees or more round the toe roots, 197 against 149),
-   * and the big toe's band drew a dark slit from its top fork; the hand's are unchanged (62 against 60).
+   * and the big toe's band drew a dark slit from its top fork; the hand's are unchanged (62 against 60). Both limbs fair the skin about
+   * every fork over a disc half the seam's chord across (`fair`, `fairAutoMovieSolidMesh`): at a fork the end and two bands meet in a corner
+   * no one surface owns, and the bands' ribbons turn beside it over the corner window, a share of the seam, so the marks there run as long
+   * as the window (8 to 15 mm along the toes' top forks, `limbview`, a scratch render of one limb). Discs of 4 and 5 mm left every mark;
+   * at half the chord, 9 to 14 mm, the top forks of the toes open into a V as the reference's do and the hand's dorsal notches soften.
    */
   const FANS: { arm: IFan; leg: IFan } = {
     arm: {
@@ -194,6 +201,7 @@ export namespace AutoMovieHumanF1 {
       corner: 0.6,
       reach: 0.5,
       square: true,
+      fair: 0.5,
       rail: 3,
       columns: 192,
     },
@@ -219,6 +227,7 @@ export namespace AutoMovieHumanF1 {
       corner: 0.75,
       reach: 0.25,
       square: true,
+      fair: 0.5,
       rail: 3,
       columns: 192,
     },
@@ -230,9 +239,11 @@ export namespace AutoMovieHumanF1 {
    * edge and up to 0.94 at the ankle (the lofted rings read every millimetre of station), and the outer edge of the forefoot showed as level
    * stripes, the phases' facets; they went with phases 2 mm apart everywhere. Spaced so that no ring turns by more than 0.2 rad between
    * two phases, the leg takes 360 phases, most of them round the foot's edges, and its rings, read every millimetre, turn by at
-   * most 0.37 rad on the forefoot.
+   * most 0.37 rad on the forefoot. The arm's 104 uniform phases, set by the shoulder's girth, stood as flat strips 2.7 mm wide down the
+   * hand's ulnar edge, a row of terraces on `hand.left` (px 440..520 x 480..600) that stayed with every net of the hand taken off; at 0.2
+   * rad (312 phases) faint ones stayed, and at 0.1 (568) they are gone.
    */
-  const PHASE_TURN: { arm?: number; leg?: number } = { leg: 0.2 };
+  const PHASE_TURN: { arm?: number; leg?: number } = { arm: 0.1, leg: 0.2 };
 
   /** Chord of the thumb's blend on either side of the curve where it meets the hand, mm: at 1 mm it folds in the acute web beside the index finger. */
   const THUMB_CHORD_MM: number = 0.5;
@@ -889,7 +900,7 @@ export namespace AutoMovieHumanF1 {
         const [pa, pb]: number[][] = [AutoMovieLoftChain.point(chain, fan.station, a), AutoMovieLoftChain.point(chain, fan.station, b)];
         const chord: number = Math.hypot(pb[0]! - pa[0]!, pb[1]! - pa[1]!, pb[2]! - pa[2]!) / 1000;
         const h: [number, number, number] = fan.headings[j]!;
-        const tuned: Pick<IAutoMovieConstructionSplit.IProfile, "reach" | "square"> = { ...(fanned.reach === undefined ? {} : { reach: fanned.reach }), ...(fanned.square === true ? { square: true } : {}) };
+        const tuned: Pick<IAutoMovieConstructionSplit.IProfile, "reach" | "square" | "fair"> = { ...(fanned.reach === undefined ? {} : { reach: fanned.reach }), ...(fanned.square === true ? { square: true } : {}), ...(fanned.fair === undefined ? {} : { fair: fanned.fair }) };
         return side > 0
           ? { seam: [a, b], profile: { knots, corner: fanned.corner, heading: h, ...tuned } }
           : { seam: [-b, -a], profile: { knots: knots.map(([along, depth]: [number, number]): [number, number] => [chord - along, depth]).reverse(), corner: fanned.corner, heading: [h[0], h[1], -h[2]], ...tuned } };
