@@ -380,6 +380,15 @@ namespace FamilyConicBody {
   const NOSE_FLOOR_MM: [number, number] = [12, 6];
 
   /**
+   * Where the head's nets are held on the wall under the ear, mm, positive inside: the ear's cut (`ear`) less the concha's bowl. Held over
+   * the whole cut, the head's skin under the bowl stood up to 8.3 mm farther out ([10.5, 1566, 77.9]), past the rail the concha's cutter
+   * trims on the antihelix, and its cut kept neither side; the bowl, x 5 to 23, 1,557 to 1,569 mm high on the merged ear, keeps its nets.
+   */
+  function earHeld(p: R.V): number {
+    return Math.min(ear(p), -Math.min(p[0] - 2, 26 - p[0], p[1] - 1554, 1572 - p[1]));
+  }
+
+  /**
    * The net over the nose's sidewalls (`nose.side`), as `rows,columns,from,to,phase,reach,fade,fadePhase,top[,fadeIn[,held]]`: mirrored
    * across the dorsum to `phase` rad either side and cast inward round the course, the skin above `top` mm (the box's chord under the
    * dorsum) left unobserved, faded in over `fadeIn` mm and held at zero up to `held` mm past the rail curve; `--side-net=` overrides it.
@@ -1156,11 +1165,11 @@ namespace FamilyConicBody {
           // them). Over the ear's footprint (`ear`) both are held on the wall: casts there land in the ear's cut and are not observed, and the
           // nets carried the heights round it (up to 17 mm) under the ear, fitted for the old ear's band. With the hold the concha's cut on the
           // new ear loses its kept side (`cut.concha` trim), to be fixed on the held skin with the ear's owner.
-          { name: "trunk.head", stations: [620, 906], phases: [-Math.PI + 0.15, Math.PI - 0.15], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 59, columns: 109, mirror: true, reach: 35, fade: [30, 12], hold: ear },
+          { name: "trunk.head", stations: [620, 906], phases: [-Math.PI + 0.15, Math.PI - 0.15], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 59, columns: 109, mirror: true, reach: 35, fade: [30, 12], hold: earHeld },
           // The head's net is zero along its seam down the back, where the skin still lies inside the tape and a ridge stood; this window
           // over the back takes what the first leaves there. Its edges round the head hand over (`fadePhase`): with hard edges at 2.14 rad
           // they drew upright lines down the back of the head and behind each ear (`figure.back` px 400..500 x 160..230, `head.left` px 270..290).
-          { name: "trunk.head.back", stations: [620, 906], phases: [Math.PI - 1.0, Math.PI + 1.0], axis: [1, 0, 0], turn: [0, 0, 1], rows: 60, columns: 39, mirror: true, reach: 20, fade: [30, 12], fadePhase: [0.3, 0.3], hold: ear },
+          { name: "trunk.head.back", stations: [620, 906], phases: [Math.PI - 1.0, Math.PI + 1.0], axis: [1, 0, 0], turn: [0, 0, 1], rows: 60, columns: 39, mirror: true, reach: 20, fade: [30, 12], fadePhase: [0.3, 0.3], hold: earHeld },
           // Under the jaw the wall's knots stand 3 mm apart for the chin's step, and every field rippled with them: a ring 1.5 mm high
           // stood round the whole neck at that level, the nape included. A band 1.4 mm apart along the station, round the neck and again
           // over its back for the seam, takes the ring and follows the jaw's line where it rises to the sides. What stays is in front,

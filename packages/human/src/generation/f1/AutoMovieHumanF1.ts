@@ -514,6 +514,16 @@ export namespace AutoMovieHumanF1 {
   const CROWN_MM: number = 860;
 
   /**
+   * The trunk's mesh over the face, apart from its nets: from station 690 to 830 mm (the chin to the brow) layers at most 1 mm apart, and
+   * phases at most 0.016 rad apart round the whole trunk (`IFamily.phase`). The layers and phases had followed the face's finest nets (the
+   * chin's 0.95 mm rows, the eyes' 105 columns); with those nets coarsened for their own sake to 1.4 to 2 mm rows and 73 columns, the face's
+   * mesh read in level bands across the cheeks and the nose and in blocks over the lips and the chin, and the head's skin round the ear
+   * in steps.
+   */
+  const TRUNK_FACE_LAYERS: [number, number, number] = [690, 830, 1];
+  const TRUNK_PHASE: number = 0.016;
+
+  /**
    * Station spacing of the fingers' and the thumb's layers past their roots, mm. At the body's 4 mm the digits' rings showed as fine level
    * stripes along the thumb and the fingers under flat shading (`hand.high-oblique` px 610..660 x 520..580, a fold of 30 degrees at the
    * thumb's [238.8, 942, 427.7]), where a finger's section turns faster along it than the trunk's does; at 2 mm they are gone.
@@ -945,7 +955,7 @@ export namespace AutoMovieHumanF1 {
       const stations: number[] = even.flatMap((s: number, i: number): number[] => {
         if (i === 0) return [s];
         const before: number = even[i - 1]!;
-        const step: number = Math.min(pitch, before < fine ? close : pitch, ...(family.reliefs ?? []).filter((relief): boolean => relief.stations[0] < s && relief.stations[1] > before).map((relief): number => (relief.stations[1] - relief.stations[0]) / (relief.rows - 3)));
+        const step: number = Math.min(pitch, before < fine ? close : pitch, ...(family.name === BODY.trunk.name && s > TRUNK_FACE_LAYERS[0] && before < TRUNK_FACE_LAYERS[1] ? [TRUNK_FACE_LAYERS[2]] : []), ...(family.reliefs ?? []).filter((relief): boolean => relief.stations[0] < s && relief.stations[1] > before).map((relief): number => (relief.stations[1] - relief.stations[0]) / (relief.rows - 3)));
         const cuts: number = Math.ceil((s - before) / step - 1e-9);
         return Array.from({ length: cuts }, (_: unknown, k: number): number => before + ((s - before) * (k + 1)) / cuts);
       });
@@ -1135,7 +1145,7 @@ export namespace AutoMovieHumanF1 {
     let root: AutoMovieConstructionNode = {
       type: "split",
       name: "crotch",
-      host: leaf(BODY.trunk, -Infinity, WEB_LAYER_MM, layer, Infinity, CROWN_MM),
+      host: leaf({ ...BODY.trunk, phase: TRUNK_PHASE }, -Infinity, WEB_LAYER_MM, layer, Infinity, CROWN_MM),
       hostFace: trunk,
       hostEnd: "bottom",
       seam: [0, Math.PI],
