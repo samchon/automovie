@@ -416,6 +416,27 @@ export namespace AutoMovieHumanF1 {
    */
   const THIGH_COLUMNS: number = 288;
   const SHOULDER_COLUMNS: number = 192;
+
+  /**
+   * Grid stations across each arm's band. Each column's ribbons take their own scale (`ribbons: "column"`), so in front of the armpit and
+   * over the cap the band arches from the trunk to the arm over its whole length instead of hugging its chord, and its rows must follow
+   * that arch as the splits' rows follow theirs (`IFan.rows`).
+   */
+  const ARMSCYE_ROWS: number = 24;
+
+  /**
+   * Spacing of the breast's layers, mm. Over the dome a ring moves 1.5 to 4 mm across the skin for each millimetre of station, so layers
+   * 4 mm apart stood as concentric steps on `fold.front`, and at 1 mm the rings still showed as ring facets folding by about 4 degrees
+   * ([118, 1272, 90]).
+   */
+  const BREAST_LAYER_MM: number = 0.5;
+
+  /**
+   * Largest distance between the breast's neighbouring phases, mm (`AutoMovieHumanConicLoft.IFamily.pitch`). At the figure's 4 mm the
+   * breast's girth of about 315 mm took about 80 phases, and with its layers half a millimetre apart the dome still showed radial spokes
+   * and ring facets on `fold.front` (px 300..500 x 200..300): the phases' facets, converging on the tip. 1.5 mm is the ear rim's pitch.
+   */
+  const BREAST_PITCH_MM: number = 1.5;
   /**
    * Columns round the nose's band. Its rail is a curve on the nose, which the band's end meets exactly only at its columns; between them the
    * band's own interpolation stood 0.03 mm off the nose's rail at 96 columns, and a nostril's cut, which crosses there, could not place its
@@ -984,7 +1005,7 @@ export namespace AutoMovieHumanF1 {
     };
     for (const side of [1, -1] as const) {
       const arm: { node: AutoMovieConstructionNode; face: string } = limb("arm", side);
-      root = { type: "port", name: "armscye." + arm.face, host: root, hostFace: trunk, loop: armscye(side), band: "band." + arm.face, part: arm.node, partFace: arm.face, partEnd: "bottom", rail: Math.min(...ARM_RAILS_MM) / 1000, rails: armRails(side).map((mm: number): number => mm / 1000), count: SHOULDER_COLUMNS, rows: BAND.rows };
+      root = { type: "port", name: "armscye." + arm.face, host: root, hostFace: trunk, loop: armscye(side), band: "band." + arm.face, part: arm.node, partFace: arm.face, partEnd: "bottom", rail: Math.min(...ARM_RAILS_MM) / 1000, rails: armRails(side).map((mm: number): number => mm / 1000), ribbons: "column", count: SHOULDER_COLUMNS, rows: ARMSCYE_ROWS };
       const ear: AutoMovieHumanConicLoft.IFamily = side > 0 ? BODY.ear : twin(BODY.ear);
       // The ear's outer face is its leaf's, with the trough of the cymba and the fossa cut from it (below). Its bowl, the concha, low and forward
       // behind the tragus, is a loft read from the skin's depth and cut after the ear is attached: its cutter runs square into the head to
@@ -1016,10 +1037,9 @@ export namespace AutoMovieHumanF1 {
       root = { type: "join", kind: "diff", name: "cut." + concha.name, host: root, part: leaf(concha), seed: { type: "search", partFace: concha.name, hostFace: ear.name, phase: side > 0 ? Math.PI / 2 : (3 * Math.PI) / 2, from: 0, to: 0.9 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.00025 }, hostWidth: { type: "chord", value: 0.00025 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04 };
 
       // The breast, which the trunk's sections leave out: its band spans the fold under it from the chest to the breast's own wall. Its
-      // layers stand a millimetre apart all along it (`WEB_LAYER_MM`): over the dome a ring moves 1.5 to 4 mm across the skin for each
-      // millimetre of station, and layers 4 mm apart stood as concentric steps on `fold.front`.
-      const breast: AutoMovieHumanConicLoft.IFamily = side > 0 ? BODY.breast : twin(BODY.breast);
-      root = { type: "port", name: "mammary." + breast.name, host: root, hostFace: trunk, loop: mammary(side), band: "band." + breast.name, part: leaf(breast, Infinity), partFace: breast.name, partEnd: "bottom", rail: RAIL_MM.breast / 1000, count: SHOULDER_COLUMNS, rows: BAND.rows };
+      // layers stand half a millimetre apart all along it (`BREAST_LAYER_MM`) and its phases 1.5 mm (`BREAST_PITCH_MM`).
+      const breast: AutoMovieHumanConicLoft.IFamily = side > 0 ? { ...BODY.breast, pitch: BREAST_PITCH_MM } : twin({ ...BODY.breast, pitch: BREAST_PITCH_MM });
+      root = { type: "port", name: "mammary." + breast.name, host: root, hostFace: trunk, loop: mammary(side), band: "band." + breast.name, part: leaf(breast, Infinity, BREAST_LAYER_MM), partFace: breast.name, partEnd: "bottom", rail: RAIL_MM.breast / 1000, count: SHOULDER_COLUMNS, rows: BAND.rows };
     }
     root = { type: "port", name: "nostril." + BODY.nose.name, host: root, hostFace: trunk, loop: nostril(), band: "band." + BODY.nose.name, part: leaf(BODY.nose), partFace: BODY.nose.name, partEnd: "bottom", rail: Math.min(...NOSE_RAILS_MM) / 1000, rails: NOSE_RAILS_MM.map((rail: number): number => rail / 1000), correspondence: "length", count: NOSE_COLUMNS, rows: BAND.rows };
     // Each nostril is cut from the head: its loft comes up out of the nose's underside and closes inside it. The band lands behind it, so the
