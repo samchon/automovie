@@ -146,7 +146,7 @@ export function test_human_motion_blade_skill(): void {
           return `${bone} ${(found?.flexion ?? 0).toFixed(0)}/${(found?.abduction ?? 0).toFixed(0)}/${(found?.twist ?? 0).toFixed(0)}`;
         })
         .join(", ");
-      return `at ${seconds.toFixed(3)} s ${joints} (flexion/abduction/twist), shown hand ${asked === undefined ? "with no asked rotation" : `${turn(asked, hand).toFixed(0)} degrees from the asked one, asked ${turn(asked, { x: 0, y: 0, z: 0, w: 1 }).toFixed(0)} degrees from rest`}`;
+      return `at ${seconds.toFixed(3)} s ${joints} (flexion/abduction/twist), shown hand ${asked === undefined ? "with no asked rotation" : `${turn(asked, hand).toFixed(0)} degrees from the asked one, asked ${turn(asked, { x: 0, y: 0, z: 0, w: 1 }).toFixed(0)} degrees from rest`}, the arm's goal (seed skill) ${JSON.stringify(film.posture("a", seconds).limbs.rightArm)}`;
     };
 
     // 1. The point's peak speed by skill.
