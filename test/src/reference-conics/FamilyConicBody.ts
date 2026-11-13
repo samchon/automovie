@@ -2438,14 +2438,18 @@ namespace FamilyConicBody {
 
     // Same cameras for the reference and the regenerated parts, framed on the reference.
     const reference: N.Mesh = { id: "reference.body", positions: Array.from(source.body.positions, (x: number): number => x / 1000), indices: Array.from(source.body.indices), colour: [0.64, 0.65, 0.67] };
+    // `--frame=<from>,<to>`: the cameras framed on the reference's skin between those heights, mm (a close-up such as the face's), instead
+    // of on the whole body; the frames are named for the band.
+    const band: number[] | undefined = process.argv.find((a: string): boolean => a.startsWith("--frame="))?.slice("--frame=".length).split(",").map(Number);
     const bounds: N.Point[] = [];
-    for (let i: number = 0; i < reference.positions.length; i += 3) bounds.push([reference.positions[i]!, reference.positions[i + 1]!, reference.positions[i + 2]!]);
+    for (let i: number = 0; i < reference.positions.length; i += 3)
+      if (band === undefined || (reference.positions[i + 1]! * 1000 >= band[0]! && reference.positions[i + 1]! * 1000 <= band[1]!)) bounds.push([reference.positions[i]!, reference.positions[i + 1]!, reference.positions[i + 2]!]);
     NodeCanvasRaster.initialize();
     const frames: { file: string; sha256: string }[] = [];
     for (const view of ["front", "back", "left", "right", "high-oblique", "low-oblique"]) {
       const camera: N.Camera = NodeCanvasCamera.fit(view, bounds, 900, 1500);
       for (const [stage, shown, lines] of [["reference", [reference], []], ["family-clay", meshes, []], ["family-knots", meshes, curves]] as [string, N.Mesh[], N.Curve[]][]) {
-        const file: string = "body." + view + "." + stage + ".png";
+        const file: string = "body." + (band === undefined ? "" : "band" + band.join("-") + ".") + view + "." + stage + ".png";
         const png: Buffer = NodeCanvasRaster.render(camera, shown, lines, "depth", "f1 | " + stage + " | " + view).png;
         await fs.writeFile(path.join(out, file), png);
         frames.push({ file, sha256: createHash("sha256").update(png).digest("hex") });
