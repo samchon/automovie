@@ -33,6 +33,6 @@ Run this cycle every ten minutes while any worker runs, and schedule the next on
    - a commit of an unverified or red state;
    - an emit or round started before its pre-checks were read.
 5. **Research.** When a worker has failed one item three times, or spent two cycles without a measured cause, research it yourself before the next order. Reread the governing skill sections, read the engine and interface code at the operator (the capabilities it already has first), read the record, and check the literature. Then give the decision and its basis.
-6. **Order.** Send one message per worker: what is accepted and that you saw it, what is rejected and why, the next steps, the checks before any round, and the report time. Relay between workers yourself.
+6. **Order.** Send one message per worker: what is accepted and that you saw it, what is rejected and why, the next steps, the checks before any round, and the report time. Reject a method only for a measured cause under [Repair](construction.md#repair), never for a failed run. Relay between workers yourself.
 7. **Checks.** Read the pull request's checks, and compare every failing job with the same job on the main branch before calling it the main branch's.
 8. **Report.** Tell the owner in a few lines what each worker did, what you saw, what you stopped, and what blocks the merge. Send the frames behind every claim.

@@ -49,6 +49,8 @@ Fix a defect where it is made, in this order. A fix at a later stage hides the e
 
 When one item has failed three attempts, stop changing it. Reread the governing skill sections, read the engine code at the operator and the record, research the method, and decide by the measured cause. A fourth variant of the same idea repeats the failure.
 
+A method grounded in the skills is not dropped for a failed run. A refusal measures a binding cause in the run, such as its target, windows, seed, knots or bounds. Isolate that cause with controls: the tool's existing mode as designed, then one change at a time against it. Fix the cause and keep the method. A method is set aside only when a measured cause shows it cannot express the form.
+
 ## Parametric Identity And Binding
 
 - Keep logical anatomical names, source controls, generated streams and surface charts as distinct identities. Map each logical region to its source subdomain, ports and material charts. Duplicating geometry to keep an old chain name forks it.
