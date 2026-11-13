@@ -70,6 +70,9 @@ export function test_human_motion_lexicon_rows(): void {
 
   // What a row done alone leaves open.
   const alone: Readonly<Record<string, object>> = {
+    // Mimed without a cigarette: the hand itself on the performer's belly.
+    ashTap: { target: { kind: "self", region: "abdomen" } },
+    stubOut: { target: { kind: "self", region: "abdomen" } },
     stroll: ahead,
     hurry: ahead,
     march: ahead,

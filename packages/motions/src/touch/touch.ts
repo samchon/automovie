@@ -1,4 +1,3 @@
-import { Quaternion } from "@automovie/engine";
 import type {
   AutoMovieMotionTarget,
   IAutoMovieVector3,
@@ -19,6 +18,7 @@ import { AutoMovieMotionHumanTouchStance } from "../compose/AutoMovieMotionHuman
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanHeld } from "../handling/HumanHeld";
 import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
@@ -26,11 +26,11 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { HumanColliders } from "../posture/HumanColliders";
-import { HumanFrame } from "../posture/HumanFrame";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { touchPresented } from "./touchPresented";
 
 /**
  * A touch while standing: one hand, or both, laid on a region of a partner
@@ -135,6 +135,12 @@ export namespace touch {
     /** The hand; `right` when absent. */
     side?: HumanHand.Side;
 
+    /** The subject id of the prop that hand holds, whose point touches in place of the hand part: a cigarette's lit end tapped on an ashtray, a pen's tip on a page. No prop when absent. */
+    prop?: string;
+
+    /** The held prop's point that touches, one of its affordance ids; required with `prop`. */
+    point?: string;
+
     /**
      * Where the elbow lies while the hand is on the region: `natural`, the
      * place of least strain, or `level`, raised to the shoulder's height so
@@ -167,7 +173,7 @@ export namespace touch {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the count is not a positive whole number or the hold is negative.
+   * @throws {HumanRefusal} When the count is not a positive whole number, the hold is negative, the region is out of reach, or `prop` names a prop the hand does not hold or a point it lacks.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives the timing and the sources.
    * @evidence contracts/development/implementation.md#principled-implementation A phrase clock from the free-space transport of the farther hand, the kind's repetitions and the hold, with one touch stroke per hand over the base it was entered on or its carrier; a region the arm does not reach as it stands is closed by the girdle, the heels and the lean of `AutoMovieMotionHumanTouchStance`.
@@ -190,13 +196,23 @@ export namespace touch {
     HumanBound.least("hold", hold, 0, "s");
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
+    const first: HumanHand.Side = p.side ?? "right";
+
+    // The hand part that touches, or the point of the prop the hand holds.
     const effector: AutoMovieMotionHumanTouchEffector.IEffector =
-      EFFECTORS[p.with ?? "palm"];
+      p.prop === undefined
+        ? EFFECTORS[p.with ?? "palm"]
+        : HumanHeld.effector(
+            context,
+            { effector: EFFECTORS[p.with ?? "palm"] },
+            first,
+            p.prop,
+            p.point,
+          );
     const tangent: AutoMovieMotionHumanTouchForm.Tangent = p.tangent ?? "up";
     const entry: IHumanPosture = context.entry.posture;
-    const first: HumanHand.Side = p.side ?? "right";
-    const shown: IPresented | null =
-      p.other === undefined ? present(context, first, p.target) : null;
+    const shown: touchPresented.IPresented | null =
+      p.other === undefined ? touchPresented.of(context, first, p.target) : null;
     const bones = shown?.bones ?? poseBones(body, context.entry.pose);
     const hands: [HumanHand.Side, AutoMovieMotionTarget][] = [
       [first, p.target],
@@ -392,6 +408,9 @@ export namespace touch {
           ...(from === undefined ? {} : { from }),
           ...(p.elbow === undefined ? {} : { elbow: p.elbow }),
           entry: risen,
+          ...(p.prop !== undefined && side === first
+            ? { fingers: "keep" as const }
+            : {}),
           ...(support === undefined ? {} : { contact: support }),
           ...(target.kind === "person"
             ? {
@@ -407,84 +426,16 @@ export namespace touch {
         }),
       );
     }
-    return composeAutoMovieMotionHumanAction({
+    const plan: IHumanActionPlan = composeAutoMovieMotionHumanAction({
       base: AutoMovieMotionHumanBase.under(context, clock.duration),
       clock,
       primitives,
       contact: "ready",
     });
+    return p.prop === undefined
+      ? plan
+      : HumanHeld.kept(context, plan, first, p.prop);
   }
-}
-
-/** An arm brought up to be touched. */
-interface IPresented {
-  /** The arm. */
-  side: HumanHand.Side;
-
-  /** Its goal, world, on the entry posture. */
-  goal: IHumanPosture.IGoal;
-
-  /** The body's bones with that arm at its goal. */
-  bones: ReturnType<typeof poseBones>;
-}
-
-/**
- * The other arm brought up for a hand to touch a region on it: its forearm
- * held across the front of the waist, the wrist on the body's midline half
- * way from the hips to the shoulders and a forearm's length ahead of the
- * hips, the palm down and the fingers toward the touching hand, the elbow on
- * the hanging arm's side. Null when the region does not ride the other arm.
- */
-function present(
-  context: IHumanActionContext<touch.IParams>,
-  side: HumanHand.Side,
-  target: AutoMovieMotionTarget,
-): IPresented | null {
-  if (target.kind !== "self") return null;
-  const body = context.body;
-  const other: HumanHand.Side = side === "right" ? "left" : "right";
-  const bone = body.surfaces.regions[target.region].bone;
-  if (
-    bone !== `${other}UpperArm` &&
-    bone !== `${other}LowerArm` &&
-    bone !== `${other}Hand`
-  )
-    return null;
-  const entry: IHumanPosture = context.entry.posture;
-  const frame: HumanFrame.IFrame = { origin: entry.root, yaw: entry.yaw };
-  const hips: IAutoMovieVector3 = body.rest.get("hips")!;
-  const shoulder: IAutoMovieVector3 = body.rest.get(`${other}UpperArm`)!;
-  const at: IAutoMovieVector3 = HumanFrame.point(frame, {
-    x: 0,
-    y: (hips.y + shoulder.y) / 2,
-    z: hips.z + body.measure.forearm,
-  });
-  // The fingers point toward the touching hand's side: world +X is the
-  // body's left at yaw 0.
-  const across: IAutoMovieVector3 = Quaternion.rotateVector(
-    HumanFrame.turn(entry.yaw),
-    { x: side === "left" ? 1 : -1, y: 0, z: 0 },
-  );
-  const goal: IHumanPosture.IGoal = AutoMovieMotionHumanTouchEffector.goal(
-    body,
-    other,
-    touch.EFFECTORS.palm,
-    at,
-    { x: 0, y: 1, z: 0 },
-    across,
-    AutoMovieMotionHumanBend.arm(body, entry, other, "hang"),
-  );
-  return {
-    side: other,
-    goal,
-    bones: poseBones(
-      body,
-      resolveHumanPosture(body, {
-        ...entry,
-        limbs: { ...entry.limbs, [`${other}Arm`]: goal },
-      }),
-    ),
-  };
 }
 
 /** Whether a self region rides a leg, which a lean moves with the hips. */
