@@ -26,7 +26,6 @@ import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
 import { HumanCarriedDrag } from "./HumanCarriedDrag";
-import { HumanCarriedLean } from "./HumanCarriedLean";
 
 /**
  * Being carried by another person: on the back, in the arms or over a
@@ -412,7 +411,7 @@ export namespace HumanCarried {
   };
 
   /**
-   * Hold a person in a named carry: the carrier's hands where the carry takes the carried body. Performed over the carrier's own action (`carrier.walk(...).over((o) => o.registered("bearing", ...))`), it claims the arms that hold and the trunk, which leans against the load by the carry's angle (`HumanCarriedLean`).
+   * Hold a person in a named carry: the carrier's hands where the carry takes the carried body. Performed over the carrier's own action (`carrier.walk(...).over((o) => o.registered("bearing", ...))`), it claims only the arms that hold. The lean against the load is a layer the composition schedules over the carry (`HumanCarriedLean`), since a walk keeps its trunk for itself.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the hands do, how it is composed and what is missing.
    * @evidence contracts/development/implementation.md#principled-implementation Each holding wrist goes to a place measured from one of the carrier's own regions on the trunk the carrier's action has placed, in arm lengths, so the hold follows the walk; the arm is carried in joint space from what it held (`AutoMovieMotionHumanArm.carried`).
@@ -437,9 +436,7 @@ export namespace HumanCarried {
         seconds,
         [{ name: "held", seconds: Math.min(seconds, TAKE) }],
       );
-      const primitives: IAutoMovieMotionHumanPrimitive[] = [
-        HumanCarriedLean.of(context.params.carry ?? "piggyback", clock, seconds),
-      ];
+      const primitives: IAutoMovieMotionHumanPrimitive[] = [];
       (["left", "right"] as const).forEach(
         (side: "left" | "right", index: number): void => {
           const hold: IHold | null = row.holds[index] ?? null;

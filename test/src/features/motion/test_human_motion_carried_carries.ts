@@ -1,10 +1,11 @@
-import { Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidRegion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanCarried,
+  HumanCarriedLean,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
@@ -46,12 +47,18 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 3. In the piggyback the carrier's wrists, 1 s into the carry, are more
  *    than 50 mm from where they are in the same walk without the hold.
  * 4. A person named as their own carrier is refused on `by`.
+ * 5. With the lean layer scheduled over the piggyback (`HumanCarriedLean`,
+ *    20 degrees forward, the family's stated provisional size), the
+ *    carrier's chest tips 20 degrees farther forward than without it,
+ *    within 1 degree, at three instants of the walk, and its turn about the
+ *    vertical, the walk's counter-rotation, differs by at most 1 degree:
+ *    the lean is summed onto the walk's trunk and takes nothing from it.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds two-person performances through the public chain and overlay and reads both displayed bodies; a carried body that drifts off the carrier, a carrier whose hands do not hold, or an accepted self-carry fails.
  * @evidence contracts/development/testing.md#independent-expectations The bound is the campaign's hold bound and the regions are the carries' descriptions; both bodies are read as displayed, never from a plan.
  * @evidence contracts/development/testing.md#distinguishing-cases Eight carries, both orders of two bodies of opposite build for the two carries a small carrier performs, the carrier's hands with and without the hold, one refusal.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds ten short performances; it runs locally and wherever CI runs the human motion tests.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule, the bound with its source and the 4 scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule, the bound with its source and the 5 scenarios.
  */
 export function test_human_motion_carried_carries(): void {
   const RESTS: Readonly<
@@ -74,6 +81,7 @@ export function test_human_motion_carried_carries(): void {
     names: readonly ["m-average" | "f-small", "m-average" | "f-small"],
     carry: HumanCarried.Carry | null,
     by: string = "a",
+    lean: boolean = false,
   ): { film: HumanPerformance; bodies: Record<"a" | "b", IHumanBody> } => {
     const bodies: Record<"a" | "b", IHumanBody> = {
       a: motionHumanBody(names[0]),
@@ -106,6 +114,20 @@ export function test_human_motion_carried_carries(): void {
               seconds: 2,
             }),
         ).node,
+        // The lean against the load, scheduled over the carry.
+        ...(lean && carry !== null
+          ? {
+              layers: {
+                a: [
+                  {
+                    layer: HumanCarriedLean.layer(carry),
+                    from: 0.3,
+                    fade: HumanCarried.TAKE,
+                  },
+                ],
+              },
+            }
+          : {}),
       }),
     };
   };
@@ -181,6 +203,41 @@ export function test_human_motion_carried_carries(): void {
     if (!(moved > 0.05))
       complaints.push(
         `piggyback: the carrier's ${side} wrist is ${(moved * 1000).toFixed(0)} mm from where it swings in the same walk without the hold, more than 50 mm expected`,
+      );
+  }
+
+  // 5. The lean against the load is summed onto the walk's own trunk.
+  const leaned: ReturnType<typeof stage> = stage(pair, "piggyback", "a", true);
+  const chest = (
+    film: HumanPerformance,
+    seconds: number,
+    axis: IAutoMovieVector3,
+  ): IAutoMovieVector3 =>
+    Quaternion.rotateVector(
+      HumanSignature.bones(
+        HumanSignature.of(film, "a", held.bodies.a, 0),
+        seconds,
+      ).get("chest")!.worldRotation,
+      axis,
+    );
+  for (const seconds of [1.3, 1.6, 1.9]) {
+    const tip = (film: HumanPerformance): number => {
+      const up: IAutoMovieVector3 = chest(film, seconds, { x: 0, y: 1, z: 0 });
+      return (Math.atan2(up.z, up.y) * 180) / Math.PI;
+    };
+    const turn = (film: HumanPerformance): number => {
+      const side: IAutoMovieVector3 = chest(film, seconds, { x: 1, y: 0, z: 0 });
+      return (Math.atan2(-side.z, side.x) * 180) / Math.PI;
+    };
+    const forward: number = tip(leaned.film) - tip(held.film);
+    if (!(Math.abs(forward - 20) <= 1))
+      complaints.push(
+        `piggyback: at ${seconds} s the leaning carrier's chest tips ${forward.toFixed(1)} degrees farther forward than without the lean, 20 within 1 expected`,
+      );
+    const kept: number = Math.abs(turn(leaned.film) - turn(held.film));
+    if (!(kept <= 1))
+      complaints.push(
+        `piggyback: at ${seconds} s the lean changes the chest's turn in the walk by ${kept.toFixed(1)} degrees, 1 at most expected`,
       );
   }
 

@@ -1,6 +1,5 @@
-import type { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
-import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
+import type { IHumanLayer } from "../law/IHumanLayer";
+import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { HumanCarried } from "./HumanCarried";
 
 /**
@@ -9,23 +8,30 @@ import type { HumanCarried } from "./HumanCarried";
  * from ahead brings it back, so the carrier's and the load's common centre
  * of mass stays over the feet.
  *
+ * The lean is an additive layer, as breath and affect are: it adds flexion
+ * to the spine and the chest, half each, onto whatever the carrier's own
+ * action holds there, so a walk keeps its counter-rotation and its pelvis
+ * and legs are left alone. A walk keeps its trunk for itself, so the lean
+ * cannot be part of `bearing`, which is an overlay; the composition
+ * schedules the layer over the carry:
+ * `layers: { carrier: [{ layer: HumanCarriedLean.layer("piggyback"), from: { of: "carry" }, to: { of: "carry", event: "end" }, fade: HumanCarried.TAKE }] }`,
+ * with `carry` the anchor of the carrier's action.
+ *
  * The direction is the mechanics' and the load-carriage literature's: the
  * trunk's forward lean grows with a load carried on the back (Knapik,
  * Harman and Reynolds 1996, "Load carriage using packs", Applied Ergonomics
  * 27, a review). The sizes are provisional: no study of carrying a whole
  * person was read for them. A piggyback leans 20 degrees forward, a load
- * over the shoulder 10; a cradle and the drags lean back 10. The lean is
- * written in the spine and the chest, half each, so the pelvis and the legs
- * the carrier's own action places are left alone.
+ * over the shoulder 10; a cradle and the drags lean back 10.
  *
- * First pass: the lean is a constant of the carry, taken up with the hold;
- * it does not follow the carried body's mass or the carrier's stride, and a
- * supported walk's sideways lean toward the supported person is not
- * written.
+ * First pass: the lean is a constant of the carry, coming in over the
+ * window's fade; it does not follow the carried body's mass or the
+ * carrier's stride, and a supported walk's sideways lean toward the
+ * supported person is not written.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the rule, the cited direction, which sizes are provisional and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation One angle per carry as data and one joint primitive over the carrier's own action.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The table and the primitive `bearing` adds.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule, why it is a layer and how it is scheduled, the cited direction, which sizes are provisional and what the first pass leaves out.
+ * @evidence contracts/development/design.md#principled-representation One angle per carry as data and one additive layer, the form every trunk addition over a running action has.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The table and the layer.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The lean is added to what the carrier's action holds, never set over it.
  */
 export namespace HumanCarriedLean {
@@ -42,38 +48,38 @@ export namespace HumanCarriedLean {
   };
 
   /**
-   * The lean of a carry, taken up as the hands take their hold.
+   * The lean of a carry as a layer.
    *
    * @param carry The carry.
-   * @param clock The hold's clock, with its `held` instant.
-   * @param seconds The hold's length, seconds.
-   * @returns The trunk's primitive.
+   * @returns The layer, named `carryLean`; schedule it over the carry, with the take-up as its fade.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Half the carry's angle is added to the spine's flexion and half to the chest's, growing with the clock's progress to `held`, so the trunk leans while the hands arrive.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One joint addition.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A carry with no lean still returns a primitive that adds nothing, so every carry composes the same way.
+   * @evidence contracts/development/common.md#meaningful-documentation States the input, the layer's name and how it is used.
+   * @evidence contracts/development/implementation.md#principled-implementation Half the carry's angle is added to the spine's flexion and half to the chest's, onto the posture's own joints, so the base action's trunk is kept and the lean summed; limb goals are untouched, so the holding arms are solved after the leaned trunk.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two joint sums.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A carry with no lean still returns a layer that adds nothing, so every carry composes the same way.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the joint addition every trunk overlay uses.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over the clock and one angle.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Postures are evaluated independently; nothing is cached.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The layer closes over one angle.
    */
-  export function of(
-    carry: HumanCarried.Carry,
-    clock: AutoMovieMotionClock.IClock,
-    seconds: number,
-  ): IAutoMovieMotionHumanPrimitive {
+  export function layer(carry: HumanCarried.Carry): IHumanLayer {
     const half: number = LEANS[carry] / 2;
-    return AutoMovieMotionHumanJoints.add({
+    return {
+      name: "carryLean",
       channels: ["trunk"],
-      from: 0,
-      to: seconds,
-      delta: (at: number): AutoMovieMotionHumanJoints.Angles => {
-        const taken: number = clock.progress("start", "held", at);
+      apply: (posture: IHumanPosture): IHumanPosture => {
+        const spine: readonly [number, number, number] = posture.joints
+          .spine ?? [0, 0, 0];
+        const chest: readonly [number, number, number] = posture.joints
+          .chest ?? [0, 0, 0];
         return {
-          spine: [half * taken, 0, 0],
-          chest: [half * taken, 0, 0],
+          ...posture,
+          joints: {
+            ...posture.joints,
+            spine: [spine[0] + half, spine[1], spine[2]],
+            chest: [chest[0] + half, chest[1], chest[2]],
+          },
         };
       },
-    });
+    };
   }
 }
