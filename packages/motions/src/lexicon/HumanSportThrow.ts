@@ -2,6 +2,7 @@ import { jump } from "../actions/jump";
 import { run } from "../actions/run";
 import { kickBall } from "../ballStrike/kickBall";
 import { HumanActionRow } from "../law/HumanActionRow";
+import { cartwheel } from "../sport/cartwheel";
 import { salto } from "../sport/salto";
 import { catchObject } from "../throwing/catchObject";
 import { throwObject } from "../throwing/throwObject";
@@ -71,6 +72,16 @@ export namespace HumanSportThrow {
   /** A backward salto to the place the composition gives. */
   export const backSalto = HumanActionRow.of("backSalto", salto, {
     way: "backward",
+  });
+
+  /** A cartwheel to the performer's left: one sideways turn over a foot, the two hands and the other foot. */
+  export const cartwheelLeft = HumanActionRow.of("cartwheelLeft", cartwheel, {
+    to: "left",
+  });
+
+  /** A cartwheel to the performer's right. */
+  export const cartwheelRight = HumanActionRow.of("cartwheelRight", cartwheel, {
+    to: "right",
   });
 
   /** A sprint: the acceleration out of the start, a base run or a run-up, at sprint pace. */
