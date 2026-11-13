@@ -88,7 +88,7 @@ export namespace FamilyConicFit {
   const DENSE_MM: number = 0.25;
 
   /** Rounds of fitting the feature lines' headings before the sections (`fit`), and the step their headings are searched in, radians. */
-  const LINE_ROUNDS: number = 16;
+  const LINE_ROUNDS: number = 48;
   const HEADING_STEP: number = 0.01;
 
   /** `--barrier`: the first barrier weight as a share of the starting misfit per margin, and how many tenfold falls follow it. */
@@ -284,6 +284,7 @@ export namespace FamilyConicFit {
           for (let m: number = 0; m < M; ++m) for (let n: number = 0; n < M; ++n) denseGram[m]![n]! += stationWeight[d]! * b[m]! * b[n]!;
         });
         const targets: number[][] = featured.map((): number[] => []);
+        const places: number[][][] = featured.map((): number[][] => [[], []]);
         for (const b of dense) {
           const values: number[] = theta(Y, b);
           const input = C.resolve(values, layout).input;
@@ -293,7 +294,7 @@ export namespace FamilyConicFit {
           featured.forEach((k: number, j: number): void => {
             const [before, after]: [number, number] = [(k + n - 1) % n, (k + 1) % n];
             const reading: number = values[at[k]! + 2]!;
-            let chosen: number = reading;
+            let chosen: number | null = null;
             for (let step: number = 0; step <= Math.PI / HEADING_STEP; ++step) {
               const tried: number[] = step === 0 ? [reading] : [reading + step * HEADING_STEP, reading - step * HEADING_STEP];
               const found: number | undefined = tried.find((h: number): boolean => {
@@ -304,20 +305,37 @@ export namespace FamilyConicFit {
               chosen = found;
               break;
             }
+            // Where no heading makes both arcs conics, the feature stands too near its neighbours' chord for its turn: it is drawn a third
+            // of the way toward that chord's middle, along the chord, and its line follows it there in the next round.
+            let place: number[] = points[k]!;
+            if (chosen === null) {
+              const middle: number[] = [(points[before]![0]! + points[after]![0]!) / 2, (points[before]![1]! + points[after]![1]!) / 2];
+              place = [place[0]! + (middle[0]! - place[0]!) / 3, place[1]! + (middle[1]! - place[1]!) / 3];
+              chosen = Math.atan2(points[after]![1]! - points[before]![1]!, points[after]![0]! - points[before]![0]!);
+              points[k] = place;
+            }
             tangents[k] = [Math.cos(chosen), Math.sin(chosen)];
             targets[j]!.push(chosen);
+            places[j]![0]!.push(place[0]!);
+            places[j]![1]!.push(place[1]!);
           });
         }
-        featured.forEach((k: number, j: number): void => {
+        const project = (field: number, target: number[]): void => {
           const right: number[] = new Array<number>(M).fill(0);
           dense.forEach((b: number[], d: number): void => {
-            for (let m: number = 0; m < M; ++m) right[m]! += stationWeight[d]! * b[m]! * targets[j]![d]!;
+            for (let m: number = 0; m < M; ++m) right[m]! += stationWeight[d]! * b[m]! * target[d]!;
           });
           const solved: number[] | null = solve(denseGram.map((r: number[]): number[] => [...r]), right);
-          if (solved !== null) Y[at[k]! + 2] = solved;
+          if (solved !== null) Y[field] = solved;
+        };
+        featured.forEach((k: number, j: number): void => {
+          project(at[k]!, places[j]![0]!);
+          project(at[k]! + 1, places[j]![1]!);
+          project(at[k]! + 2, targets[j]!);
         });
       }
-    }    if (process.argv.includes("--seeds")) {
+    }
+    if (process.argv.includes("--seeds")) {
       const refused: string[] = dense.map((b: number[], d: number): string => { const fault: string | null = C.chain(theta(Y, b), layout).fault; return fault === null ? "" : (knots[0]! + d * DENSE_MM).toFixed(2) + ": " + fault.slice(0, 120); }).filter((x: string): boolean => x.length > 0);
       process.stderr.write("lines held: " + refused.length + " of " + dense.length + " stations refused" + (refused.length === 0 ? "" : "; first " + refused[0] + "; last " + refused.at(-1)) + "\n");
     }
