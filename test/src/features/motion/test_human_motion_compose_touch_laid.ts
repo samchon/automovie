@@ -14,6 +14,7 @@ import {
   AutoMovieMotionHumanTouch,
   AutoMovieMotionHumanTouchEffector,
   AutoMovieMotionHumanTouchLaid,
+  AutoMovieMotionHumanTouchUpright,
   HumanHand,
   type IAutoMovieMotionHumanPrimitive,
   type IHumanBody,
@@ -45,8 +46,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    forearm, without the hand's turn) whose displayed wrist lies within the
  *    palm's reach of the region, plus the pad and 10 mm.
  *    `rest`'s goal stands the effector exactly a pad off the region along
- *    its normal; `upright` faces a level unit direction, and the region's
- *    own normal when that has no level part.
+ *    its normal; an upright vessel's facing
+ *    (`AutoMovieMotionHumanTouchUpright.solve`) is a level unit direction,
+ *    and the region's own normal when that has no level part.
  * 3. `touch` refuses a count of 0 or 1.5, claims the arm and the hand, holds
  *    the rest angles at the start and, held between `ready` and
  *    `strokeStart`, shows the palm on the region within 10 mm beyond the pad.
@@ -221,22 +223,22 @@ export function test_human_motion_compose_touch_laid(): void {
         z: place.point.z - pad,
       }) <= 1e-6,
     );
-    const level: IAutoMovieVector3 = AutoMovieMotionHumanTouchLaid.upright(
+    const level: IAutoMovieVector3 = AutoMovieMotionHumanTouchUpright.solve(
       body,
       quiet,
       side,
       effector,
       { point: place.point, normal: { x: 0.2, y: 0.5, z: -1 } },
       hint,
-    );
-    const flat: IAutoMovieVector3 = AutoMovieMotionHumanTouchLaid.upright(
+    ).facing;
+    const flat: IAutoMovieVector3 = AutoMovieMotionHumanTouchUpright.solve(
       body,
       quiet,
       side,
       effector,
       { point: place.point, normal: { x: 0, y: 1, z: 0 } },
       hint,
-    );
+    ).facing;
     complaints.check(
       `${side}: an upright vessel faces a level unit direction, and a level region keeps its normal`,
       Math.abs(level.y) <= 1e-9 &&

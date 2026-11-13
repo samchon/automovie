@@ -2,6 +2,7 @@ import {
   type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
+  minimumJerk,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
@@ -21,11 +22,13 @@ import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "./AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanDrinkingArm } from "./AutoMovieMotionHumanDrinkingArm";
 import { AutoMovieMotionHumanHand } from "./AutoMovieMotionHumanHand";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchForm } from "./AutoMovieMotionHumanTouchForm";
 import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
+import { AutoMovieMotionHumanTouchUpright } from "./AutoMovieMotionHumanTouchUpright";
 import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
 /**
@@ -127,8 +130,11 @@ export namespace AutoMovieMotionHumanTouch {
     /** The hand's rotation the stroke keeps, world, on the entry posture, turned with the posture's heading: a held tool laid as the grasp chosen for its use presents it (`HumanGraspUse.presented`), so only its point moves. The effector is laid by `lay` when absent. */
     held?: IAutoMovieQuaternion;
 
-    /** With `upright`, the level world direction the effector faces against (`AutoMovieMotionHumanTouch.upright`); the region's level normal when absent. */
+    /** With `upright`, the level world direction the effector faces against (`AutoMovieMotionHumanTouchUpright`); the region's level normal when absent. */
     facing?: IAutoMovieVector3;
+
+    /** With `upright` or `held`, how far the vessel leans toward the region at the face, degrees (`AutoMovieMotionHumanTouchUpright.tip`): it is carried as it is laid or held, tipped over the last `TIP` of the carry's progress and righted over the first `TIP` of the way back; no lean when absent. */
+    lean?: number;
 
     /** Where the elbow lies while the hand is on the region, which `arm` lays the effector from: the place of least strain (`natural`) or `level` with the shoulder; `natural` when absent. */
     elbow?: "natural" | "level";
@@ -222,7 +228,8 @@ export namespace AutoMovieMotionHumanTouch {
    * Between `strokeStart` and `strokeEnd` the goal is lifted along the
    * region's normal by `lift sin^2(pi n u)`, which touches down at every
    * repetition's end, and moved along its tangent by the clock's windowed
-   * wave of `n` cycles.
+   * wave of `n` cycles. A held vessel keeps its attitude on the way
+   * (`AutoMovieMotionHumanDrinkingArm.carried`).
    *
    * @param props The touch.
    * @returns The arm's and the hand's primitives, the arm's alone when the fingers are kept; the arm carries the contact window from `ready` to `relax` when a support is given and the hand, not a held tool, is what touches it.
@@ -253,6 +260,17 @@ export namespace AutoMovieMotionHumanTouch {
         // at by `ready`, and on the way back the one it leaves at `relax`.
         arrival: (seconds: number): number =>
           seconds < clock.at("relax") ? clock.at("ready") : clock.at("relax"),
+        ...(props.held === undefined || props.lay !== "upright"
+          ? {}
+          : {
+              attitude: AutoMovieMotionHumanDrinkingArm.carried(
+                body,
+                side,
+                props.rest,
+                goal(props),
+                (seconds: number): number => share(clock, seconds),
+              ),
+            }),
       },
     );
     // A held tool's point touches the body, not the hand: the hand gripping
@@ -316,6 +334,9 @@ export namespace AutoMovieMotionHumanTouch {
   ): number {
     return clock.envelope(["start", "ready"], ["relax", "end"], seconds);
   }
+
+  /** The last share of a carry's progress (`share`) over which a vessel leaned at the face (`ITouch.lean`) tips toward it, and the first share of the way back over which it is righted (provisional: a drinker tips the glass at the lips). */
+  export const TIP: number = 0.25;
 
   /**
    * The goal a touch's arm is carried toward at each second: the effector
@@ -381,7 +402,12 @@ export namespace AutoMovieMotionHumanTouch {
       // normal by the share of the carry still to go, up to a hand's
       // length, so the hand comes onto the region and draws back off it
       // along the normal instead of sinking along the surface.
-      const off: number = APPROACH * hand * (1 - share(clock, seconds));
+      const carried: number = share(clock, seconds);
+      const off: number = APPROACH * hand * (1 - carried);
+      // A vessel tips toward the lips only as it arrives (`TIP`).
+      const lean: number =
+        (props.lean ?? 0) *
+        minimumJerk(Math.max(0, (carried - (1 - TIP)) / TIP)).s;
       const at: IAutoMovieVector3 = Vector3.add(
         Vector3.add(place.point, Vector3.scale(normal, standoff + lift + off)),
         Vector3.scale(along, travel),
@@ -406,22 +432,26 @@ export namespace AutoMovieMotionHumanTouch {
           props.facing,
           props.elbow,
           from === undefined ? undefined : HumanFrame.point(frame, from),
+          lean,
         ),
         HumanFrame.point(frame, hint),
       );
 
-      // A held rotation turns with the heading, and the wrist follows from
-      // it so that the effector still meets its place.
+      // A held rotation turns with the heading and leans with the vessel; the
+      // wrist follows from it so the effector still meets its place.
       const rotation: IAutoMovieQuaternion | undefined =
         props.held === undefined
           ? undefined
           : Quaternion.normalize(
               Quaternion.multiply(
-                Quaternion.fromAxisAngle(
-                  { x: 0, y: 1, z: 0 },
-                  posture.yaw - props.entry.yaw,
+                AutoMovieMotionHumanTouchUpright.tip(normal, lean),
+                Quaternion.multiply(
+                  Quaternion.fromAxisAngle(
+                    { x: 0, y: 1, z: 0 },
+                    posture.yaw - props.entry.yaw,
+                  ),
+                  props.held,
                 ),
-                props.held,
               ),
             );
       return {

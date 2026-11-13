@@ -1,7 +1,8 @@
-import { Vector3, getConstraint } from "@automovie/engine";
+import { Quaternion, Vector3, getConstraint } from "@automovie/engine";
 import type {
   IAutoMovieAngleRange,
   IAutoMovieBone,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -27,7 +28,7 @@ import { AutoMovieMotionHumanTouchUpright } from "./AutoMovieMotionHumanTouchUpr
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is solved here, when, and who reads it.
  * @evidence contracts/development/design.md#principled-representation A laid effector is a goal, a hint and a reference of one arm, each a function of the body, the posture, the effector and the region.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The goal, its directions, the hint, the reference, the settled elbow and a vessel's facing; split from the stroke so each file holds one responsibility.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The goal, its directions, the hint, the reference and the settled elbow (a vessel's facing and lean are `AutoMovieMotionHumanTouchUpright`'s); split from the stroke so each file holds one responsibility.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the effector's goal, the bend solver, the posture resolver and the path's directions; no region, effector or body is named.
  */
 export namespace AutoMovieMotionHumanTouchLaid {
@@ -44,6 +45,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
    * @param along What the effector's along axis lies on; the tangent when absent.
    * @param facing What the effector faces, when the lay needs it.
    * @param elbow Where the elbow lies: the place of least strain, or `level` with the shoulder; least strain when absent.
+   * @param lean With `upright`, how far the vessel leans toward the region, degrees (`lie`); upright when absent.
    * @returns The hint, world.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States when and on what the hint is solved.
@@ -64,6 +66,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
     along: AutoMovieMotionHumanTouch.ITouch["lay"] = "tangent",
     facing?: IAutoMovieVector3,
     elbow: "natural" | "level" = "natural",
+    lean?: number,
   ): IAutoMovieVector3 {
     const normal: IAutoMovieVector3 = Vector3.normalize(place.normal);
     const travel: IAutoMovieVector3 = AutoMovieMotionHumanTouchForm.tangent(
@@ -86,6 +89,8 @@ export namespace AutoMovieMotionHumanTouchLaid {
         travel,
         facing,
         elbow,
+        undefined,
+        lean,
       ),
       AutoMovieMotionHumanBend.hang(body, posture, side),
     );
@@ -119,6 +124,8 @@ export namespace AutoMovieMotionHumanTouchLaid {
    * @param along What the effector's along axis lies on; the tangent when absent.
    * @param facing What the effector faces, when the lay needs it.
    * @param elbow Where the elbow lies, which `arm` lays the effector from; natural when absent.
+   * @param from With `reach`, the elbow's place, world.
+   * @param lean With `upright`, how far the vessel leans toward the region, degrees (`lie`); upright when absent.
    * @returns The reference.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States when and on what the arm is solved and who reads it.
@@ -141,6 +148,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
     facing?: IAutoMovieVector3,
     elbow?: AutoMovieMotionHumanTouch.ITouch["elbow"],
     from?: IAutoMovieVector3,
+    lean?: number,
   ): NonNullable<IHumanPosture.IGoal["reference"]> {
     return reference(
       body,
@@ -158,6 +166,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
         facing,
         elbow,
         from,
+        lean,
       ),
     );
   }
@@ -237,6 +246,8 @@ export namespace AutoMovieMotionHumanTouchLaid {
    * @param along What the effector's along axis lies on; the tangent when absent.
    * @param facing What the effector faces, when the lay needs it.
    * @param elbow Where the elbow lies, which `arm` lays the effector from; natural when absent.
+   * @param from With `reach`, the elbow's place, world.
+   * @param lean With `upright`, how far the vessel leans toward the region, degrees (`lie`); upright when absent.
    * @returns The goal.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is laid, where, and who reads it.
@@ -259,6 +270,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
     facing?: IAutoMovieVector3,
     elbow?: AutoMovieMotionHumanTouch.ITouch["elbow"],
     from?: IAutoMovieVector3,
+    lean?: number,
   ): IHumanPosture.IGoal {
     const normal: IAutoMovieVector3 = Vector3.normalize(place.normal);
     const travel: IAutoMovieVector3 = AutoMovieMotionHumanTouchForm.tangent(
@@ -288,6 +300,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
         facing,
         elbow,
         from,
+        lean,
       ),
       hint,
     );
@@ -363,46 +376,6 @@ export namespace AutoMovieMotionHumanTouchLaid {
   }
 
   /**
-   * The level direction a held vessel's effector faces against at a region:
-   * the turn about the vessel's upright axis the arm reaches best.
-   *
-   * `AutoMovieMotionHumanTouchUpright` owns the search and states it.
-   *
-   * @param body The body.
-   * @param posture The posture the arm is solved on.
-   * @param side The hand.
-   * @param effector The effector.
-   * @param place The region.
-   * @param hint The elbow's hint, world.
-   * @returns The level direction, world; the region's normal when it has no level part.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is returned and who owns the search.
-   * @evidence contracts/development/implementation.md#principled-implementation The facing of `AutoMovieMotionHumanTouchUpright.solve`, which solves every candidate turn about the vessel's axis.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation, kept so a stroke's caller reads the facing where it reads the hint and the reference.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is decided here.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to the search's one owner.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The cost is the owner's.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
-   */
-  export function upright(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
-    effector: AutoMovieMotionHumanTouchEffector.IEffector,
-    place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
-    hint: IAutoMovieVector3,
-  ): IAutoMovieVector3 {
-    return AutoMovieMotionHumanTouchUpright.solve(
-      body,
-      posture,
-      side,
-      effector,
-      place,
-      hint,
-    ).facing;
-  }
-
-  /**
    * What an effector's facing and along axes lie on at a region: the
    * region's normal and the travel's tangent (`tangent`); the normal and the
    * arm's own direction across it (`arm`); the line from the elbow straight
@@ -423,6 +396,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
    * @param facing With `upright`, the level direction the effector faces against; the region's level normal when absent.
    * @param elbow Where the elbow lies, which `arm` and `reach` lay the effector from; the place of least strain when absent.
    * @param from With `reach`, the elbow's place, world; read from the body's measures when absent.
+   * @param lean With `upright`, how far the vessel's axis leans from the world's up toward the region, degrees, the facing turned with it; upright when absent.
    * @returns The direction the effector faces against and the direction its along axis lies on, world, as `AutoMovieMotionHumanTouchEffector.goal` takes them.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each lay's two directions, every input and the two fall-backs.
@@ -444,6 +418,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
     facing?: IAutoMovieVector3,
     elbow?: AutoMovieMotionHumanTouch.ITouch["elbow"],
     from?: IAutoMovieVector3,
+    lean: number = 0,
   ): [IAutoMovieVector3, IAutoMovieVector3] {
     if (lay === "arm")
       return [
@@ -482,11 +457,20 @@ export namespace AutoMovieMotionHumanTouchLaid {
     if (lay !== "upright") return [normal, travel];
     const toward: IAutoMovieVector3 = facing ?? normal;
     const level: number = Math.hypot(toward.x, toward.z);
-    return level > 1e-6
-      ? [
-          { x: toward.x / level, y: 0, z: toward.z / level },
-          { x: 0, y: 1, z: 0 },
-        ]
-      : [normal, travel];
+    if (!(level > 1e-6)) return [normal, travel];
+    const faced: IAutoMovieVector3 = {
+      x: toward.x / level,
+      y: 0,
+      z: toward.z / level,
+    };
+    // A vessel leaned toward the face, its facing turned with it.
+    const turn: IAutoMovieQuaternion = AutoMovieMotionHumanTouchUpright.tip(
+      normal,
+      lean,
+    );
+    return [
+      Quaternion.rotateVector(turn, faced),
+      Quaternion.rotateVector(turn, { x: 0, y: 1, z: 0 }),
+    ];
   }
 }

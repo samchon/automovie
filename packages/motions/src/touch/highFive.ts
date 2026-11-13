@@ -12,6 +12,7 @@ import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTimin
 import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTouchLaid";
+import { AutoMovieMotionHumanTouchUpright } from "../compose/AutoMovieMotionHumanTouchUpright";
 import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanHeld } from "../handling/HumanHeld";
@@ -280,14 +281,14 @@ export namespace highFive {
     const facing: IAutoMovieVector3 | undefined =
       p.prop === undefined
         ? undefined
-        : AutoMovieMotionHumanTouchLaid.upright(
+        : AutoMovieMotionHumanTouchUpright.solve(
             body,
             entry,
             side,
             effector,
             place,
             AutoMovieMotionHumanBend.hang(body, entry, side),
-          );
+          ).facing;
 
     // The palm faces the partner with the fingers up: the region's normal
     // faces back at this performer, so laying the palm against it turns it

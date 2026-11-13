@@ -1,6 +1,13 @@
+import {
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  orientChainEffector,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
   IAutoMoviePose,
+  IAutoMovieQuaternion,
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
@@ -8,8 +15,10 @@ import { HumanArmClearance } from "../posture/HumanArmClearance";
 import { HumanArmClearing } from "../posture/HumanArmClearing";
 import type { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
+import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
@@ -360,6 +369,26 @@ export namespace AutoMovieMotionHumanArmCarry {
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
      */
     arrival?(seconds: number): number;
+
+    /**
+     * The hand's world rotation on the way, for a hand that holds an object
+     * whose attitude matters (a glass kept upright): solved on the carried
+     * arm (the engine's `orientChainEffector`, the step that ends every limb fit) between the two ends, in place of the
+     * hand's angle-by-angle blend. The blend when absent.
+     *
+     * @param posture The posture so far at this second.
+     * @param seconds Seconds since the action's start.
+     * @returns The hand's world rotation.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States what is solved, where, and the default.
+     * @evidence contracts/development/implementation.md#principled-implementation A blend of the wrist's angles does not hold a world attitude, since the forearm turns under it; solving the hand on the arm as carried does.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second by `carried`.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Neither end is touched, so the carry still starts at the held angles and arrives at the goal.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
+     */
+    attitude?(posture: IHumanPosture, seconds: number): IAutoMovieQuaternion;
   }
 
   /**
@@ -371,11 +400,11 @@ export namespace AutoMovieMotionHumanArmCarry {
    * @returns The primitive, on the arm's channel.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is carried, by what, and the channel claimed.
-   * @evidence contracts/development/implementation.md#principled-implementation The goal is written on the posture so far and `carry` blends its solved angles with the held ones.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One goal evaluation and one call of `carry`.
+   * @evidence contracts/development/implementation.md#principled-implementation The goal is written on the posture so far and `carry` blends its solved angles with the held ones; with an attitude, the hand between the ends is solved to it on the carried arm.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One goal evaluation and one call of `carry`, then one hand solve with an attitude.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The hand's fingers are not claimed, so a row that shapes them composes with this one.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per written second, and none at weight 0 or 1.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `carry`.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per written second, and none at weight 0 or 1; an attitude adds one forward kinematics and one hand solve between the ends.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `carry` and the engine's `orientChainEffector` with the frames every limb fit uses.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props only and holds no per-second state.
    */
   export function carried(props: ICarry): IAutoMovieMotionHumanPrimitive {
@@ -384,15 +413,16 @@ export namespace AutoMovieMotionHumanArmCarry {
       channels: [limb],
       from: props.from,
       to: props.to,
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture =>
-        carry(
+      write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
+        const weight: number = props.weight(seconds);
+        const out: IHumanPosture = carry(
           props.body,
           {
             ...posture,
             limbs: { ...posture.limbs, [limb]: props.goal(posture, seconds) },
           },
           { [props.side]: props.rest },
-          props.weight(seconds),
+          weight,
           props.arrival === undefined
             ? undefined
             : {
@@ -402,7 +432,48 @@ export namespace AutoMovieMotionHumanArmCarry {
                   [limb]: props.goal(posture, props.arrival(seconds)),
                 },
               },
-        ),
+        );
+        if (props.attitude === undefined || !(weight > 0 && weight < 1))
+          return out;
+        // The hand held to its attitude on the arm as carried; the forearm
+        // takes its share of the turn about its own length.
+        const pose: IAutoMoviePose = resolveHumanPosture(props.body, out);
+        const chain: HumanLimbFit.IChain = HumanLimbFit.chain(limb);
+        const turned: IAutoMoviePose = orientChainEffector(
+          {
+            skeleton: props.body.skeleton,
+            pose,
+            chain,
+            target: poseBones(props.body, pose).get(chain.effector)!
+              .worldPosition,
+            effectorRotation: props.attitude(posture, seconds),
+            topology: props.body.topology,
+            jointAxes: HUMANOID_JOINT_AXES,
+            restFrames: HUMANOID_REST_FRAME,
+          },
+          pose,
+        );
+        const read = (
+          bone: AutoMovieHumanoidBone,
+        ): readonly [number, number, number] => {
+          const joint: IAutoMovieJointPose | undefined = turned.joints.find(
+            (j: IAutoMovieJointPose): boolean => j.bone === bone,
+          );
+          return [
+            joint?.flexion ?? 0,
+            joint?.abduction ?? 0,
+            joint?.twist ?? 0,
+          ];
+        };
+        return {
+          ...out,
+          joints: {
+            ...out.joints,
+            [`${props.side}LowerArm`]: read(`${props.side}LowerArm`),
+            [`${props.side}Hand`]: read(`${props.side}Hand`),
+          },
+        };
+      },
     };
   }
 }
