@@ -280,8 +280,8 @@ export namespace handToFace {
     }).write(entry, 0);
     const atFace: IHumanPosture = row.upright === true ? entry : turned;
 
-    // The held prop's effector, on the side of a vessel's rim the arm holds
-    // upright best at the face.
+    // The held prop's effector, on the side of the rim held most upright; a
+    // drink leans it at the lips (`AutoMovieMotionHumanTouchDrink`).
     const grasped = (
       subject: string,
     ): AutoMovieMotionHumanTouchEffector.IEffector =>
@@ -295,6 +295,7 @@ export namespace handToFace {
             p.point,
             atFace,
             region(first, mirrored(row.region, first))(atFace, 0),
+            row.upright === true,
           );
 
     // The transport's length: the farther hand's distance to its place.
@@ -340,8 +341,7 @@ export namespace handToFace {
       primitives.push(
         AutoMovieMotionHumanJoints.pulse(clock, rises, ["relax", "end"], turn),
       );
-    // A held tool used as the grasp it was taken up by presents it: the
-    // first hand keeps that grasp's rotation at the row's region.
+    // A tool held as the grasp it was taken up by keeps that grasp's turn.
     const kept: HumanGrasp.IKey | null = HumanHeldUse.kept(
       context,
       first,

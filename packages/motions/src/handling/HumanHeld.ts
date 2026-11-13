@@ -237,13 +237,14 @@ export namespace HumanHeld {
    * @param point The prop's point; the row's own when absent.
    * @param posture The posture the arm is solved on at the region.
    * @param place The region there.
+   * @param leans Whether the act leans the vessel toward the region as it arrives, as a drink does (`AutoMovieMotionHumanTouchDrink`, which admits the lean or refuses it): the side is still the one held most nearly upright, but a tilt there is no refusal, since the vessel is not brought upright. False when absent.
    * @returns The effector.
-   * @throws {HumanRefusal} As `effector`; and a `reach` refusal on `prop` when the arm leaves the vessel tilted more than `LEVEL` on every side.
+   * @throws {HumanRefusal} As `effector`; and, unless the act leans the vessel, a `reach` refusal on `prop` when the arm leaves the vessel tilted more than `LEVEL` on every side.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the freedom used, the choice, the tie and each input.
    * @evidence contracts/development/implementation.md#principled-implementation A pick-up takes the grip its reach allows, so which side of the rim then faces a region is not the act's to assume; each side is solved by the upright search and its reached tilt compared.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop of effector, search and compare.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No side is preferred for any prop or hand beyond the tie; the tilt is the resolver's reached one, and a vessel no side holds level is refused, never brought tilted.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No side is preferred for any prop or hand beyond the tie; the tilt is the resolver's reached one, and a vessel no side holds level is refused, never brought tilted, unless the act leans it, whose own search then admits the lean or refuses it.
    * @evidence contracts/development/implementation.md#efficient-algorithms Eight sides of thirteen arm solves each, once per plan.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `effector` and `AutoMovieMotionHumanTouchUpright.solve`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
@@ -256,6 +257,7 @@ export namespace HumanHeld {
     point: string | undefined,
     posture: IHumanPosture,
     place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    leans: boolean = false,
   ): AutoMovieMotionHumanTouchEffector.IEffector {
     let best: AutoMovieMotionHumanTouchEffector.IEffector = effector(
       context,
@@ -310,8 +312,11 @@ export namespace HumanHeld {
       }
     }
 
-    // A vessel the arm cannot hold level there is not brought tilted.
-    if (least > LEVEL)
+    // A vessel the arm cannot hold level there is not brought tilted, unless
+    // the act leans it there: a drinker tips the glass at the lips with the
+    // elbow low (Murphy, Willen and Sunnerhagen 2011), and a drink over a
+    // walk was refused at 13.5 degrees by the level a toast keeps.
+    if (!leans && least > LEVEL)
       throw new HumanRefusal({
         kind: "reach",
         axis: "prop",

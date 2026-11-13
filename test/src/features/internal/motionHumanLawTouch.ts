@@ -6,6 +6,7 @@ import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   AutoMovieMotionTarget,
+  IAutoMovieJointPose,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -211,9 +212,26 @@ export function motionHumanLawTouch(
   }
   for (const bone of ["rightLowerArm", "leftLowerArm"] as const) {
     const elbow = motionHumanLaw.travel(film, "a", bone);
+    // The arm's joints at the frame's two ends, so a complaint says which
+    // joint moved: the clearing turns only the upper arm's abduction and the
+    // elbow's flexion, a fit every joint.
+    const side: "left" | "right" = bone === "rightLowerArm" ? "right" : "left";
+    const arm = (t: number): string =>
+      film.performance
+        .pose("a", t)
+        .joints.filter((joint: IAutoMovieJointPose): boolean =>
+          [`${side}UpperArm`, `${side}LowerArm`, `${side}Hand`].includes(
+            joint.bone,
+          ),
+        )
+        .map(
+          (joint: IAutoMovieJointPose): string =>
+            `[${(joint.flexion ?? 0).toFixed(0)}, ${(joint.abduction ?? 0).toFixed(0)}, ${(joint.twist ?? 0).toFixed(0)}]`,
+        )
+        .join(" ");
     out.push(
       ...motionHumanLaw.expect(
-        `${label}: ${bone} travels ${mm(elbow.value)} mm in the frame from ${elbow.seconds.toFixed(3)} s (limit 80.0)`,
+        `${label}: ${bone} travels ${mm(elbow.value)} mm in the frame from ${elbow.seconds.toFixed(3)} s (limit 80.0; the arm ${arm(elbow.seconds)} then ${arm(elbow.seconds + 1 / 24)}; ready ${ready.toFixed(2)}, relax ${relax.toFixed(2)})`,
         elbow.value <= 0.08,
       ),
     );
