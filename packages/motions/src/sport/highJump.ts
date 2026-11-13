@@ -31,10 +31,10 @@ import { GymnasticsTakeoff } from "./GymnasticsTakeoff";
  * about one axis at a time at a constant rate: first half round about the
  * vertical over the first `TWIST` of the rise, then backward about its left
  * axis so it lies level at the apex, a rate it keeps to the touchdown. The
- * twist and the somersault of a real flop overlap from the take-off on
- * (Dapena's 1980 analyses in Med. Sci. Sports Exerc. 12 treat both; known
- * here through a review, the paper itself not read); taking them one after the other is
- * this law's simplification, and #3416 keeps the case of both at once.
+ * twist and the somersault of a real flop overlap from the take-off on (the
+ * figure's common description; no source read); taking them one after the
+ * other is this law's simplification, and #3416 keeps the case of both at
+ * once.
  * The arch is keyed: the joints go from the take-off's to `ARCHED` at the
  * apex and to `PIKED`, the legs lifted, after it. The body comes down when
  * the lowest of its shapes reaches the landing surface, and lies on its
@@ -50,7 +50,7 @@ import { GymnasticsTakeoff } from "./GymnasticsTakeoff";
  *
  * Events: `takeoff`, `apex` (the bar), `touchdown`, `settled`, `relax`.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the figure, the take-off's aim, the flight's physics, the one-axis turns with the source and the follow-up, the keyed arch, the landing, the bar's place, the refusals and the first pass.
+ * @evidence contracts/development/common.md#meaningful-documentation States the figure, the take-off's aim, the flight's physics, the one-axis turns and the follow-up, the keyed arch, the landing, the bar's place, the refusals and the first pass.
  * @evidence contracts/development/design.md#principled-representation The jump's push-off, a parabola from it and a posture of joints turned and placed on it; the rates follow from the flight time.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the bound, the turn's share, the keyed postures, the parameters and the plan.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The bar and the landing place are the author's; every speed and time follows from them.
@@ -65,7 +65,7 @@ export namespace highJump {
       rise: ["fromRelax", "smooth"],
     });
 
-  /** The greatest vertical take-off speed, m/s (provisional: 4.42 m/s for a 2.06 m jump, as a review of high-jump studies lists it without attribution). */
+  /** The greatest vertical take-off speed, m/s (provisional: the order of an elite jumper's, no source read; it lifts the centre of mass about 1 m). */
   export const RISE: number = 4.42;
 
   /** The share of the rise over which the half turn about the vertical is made (provisional). */
