@@ -19,7 +19,7 @@ These are representative examples, not a complete or required list; read the cho
 | A hosted image API, such as [OpenAI GPT Image](https://developers.openai.com/api/docs/guides/image-generation) or [Google Gemini image generation](https://aistudio.google.com/docs/image-generation) | A script with the user's key | |
 | The Stable Diffusion family and its open successors, such as [SDXL](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0) with [ControlNet](https://huggingface.co/docs/diffusers/main/en/using-diffusers/controlnet) and [IP-Adapter](https://huggingface.co/docs/diffusers/main/en/using-diffusers/ip_adapter) | diffusers or ComfyUI | The route that conditions on the hint's geometry exactly and repeats from a fixed seed |
 
-## Decide how much the hint controls
+## Hint control
 
 Prompting alone suffices when no camera or pose has to match: canon sheets, set plates, style frames and early exploration.
 

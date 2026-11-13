@@ -2,7 +2,7 @@
 
 Contract: [entities.md](../entities.md).
 
-## Settings realization {#settings-realization}
+## Settings realization
 
 1. Every fact the entity realizes is named by its record path and anchor, with how it is realized.
 2. Every cited fact is either shown by the entity's form or handed on with the consumer that carries it, such as a canon image, the generation prompt or a shot's sound description.
@@ -13,7 +13,7 @@ Contract: [entities.md](../entities.md).
 7. Placements, weights, texture coordinates and measurements derive from the subject's generating definition, so changing the detail option moves none of them.
 8. A decision the settings or brief do not establish is written there first, and a measurement no research supports is [studied](../../../story/planning/research.md#when-to-study) first. Exceptions: on a short, a decision the [brief leaves to the screenplay](../../../story/layers/brief.md#what-it-holds) is cited from the screenplay; when [no narrative pass runs](../../../story/workflow/SKILL.md#who-writes-the-screenplay), such a decision is recorded in the screenplay, or for a fixed screenplay in the instructions.
 
-## Object shape {#object-shape}
+## Object shape
 
 1. The entity is a class with `readonly` fields, constructed only from its cited facts and immutable configuration.
 2. It is composed of small fragments rather than inherited.
@@ -23,7 +23,7 @@ Contract: [entities.md](../entities.md).
 6. State such as wardrobe by story day, wounds, fatigue or a learned habit exists only as an explicit snapshot computed at schedule resolution.
 7. A habit is a trigger-to-response rule, with the trigger and response its fact describes and the timing its research supports.
 
-## Controls and source {#controls-and-source}
+## Controls and source
 
 1. The entity exposes the controls its scenes' behaviors and variation use.
 2. A deformation a scene needs is present. Rig complexity no scene uses is not required.

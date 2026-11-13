@@ -2,7 +2,7 @@
 
 Contract: [principles/common.md](../../principles/common.md).
 
-## Scope preservation {#scope-preservation}
+## Scope preservation
 
 1. Every element the unit's title, instructions and lineage promise is present in the body.
 2. A decision deliberately left to the next layer is told apart from an unfinished decision owned here.

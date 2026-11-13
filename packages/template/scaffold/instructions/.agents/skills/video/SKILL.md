@@ -18,11 +18,11 @@ Its limits on length, frame rate, references and prompt size decide how scenes b
 5. Write each request's prompt under [prompts](prompts.md), with the sound decided under [audio](../audio/SKILL.md).
 6. Submit, inspect and adopt takes under [generation](generation.md).
 
-## Read the model {#read-the-model}
+## Read the model
 
 Read the chosen model's current documentation for its input and output lengths, frame rate and frame grid, sizes, the controls and references it accepts with their roles, prompt length, negative prompt, seed and sound. The model decides which controls are used, and this step is the one place its input contract is verified.
 
-## Plan the requests {#plan-the-requests}
+## Plan the requests
 
 Render each request's hint and control channels at the model's frame rate, frame grid and size under [control channels](../motion/control-channels.md).
 

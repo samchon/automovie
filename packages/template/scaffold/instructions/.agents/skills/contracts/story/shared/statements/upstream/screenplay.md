@@ -2,7 +2,7 @@
 
 Contract: [upstream/screenplay.md](../../upstream/screenplay.md).
 
-## Screenplay upstream repair {#screenplay-upstream-repair}
+## Screenplay upstream repair
 
 1. The exact earliest owner of each defective inherited decision is identified, including a design that forces a defined downstream failure or prevents an adopted goal or promise.
 2. Script defects are traced to their treatment or settings causes.

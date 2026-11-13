@@ -2,7 +2,7 @@
 
 Contract: [naturalness/obligations/scripts.md](../../../naturalness/obligations/scripts.md).
 
-## Execution distribution {#execution-distribution}
+## Execution distribution
 
 1. Entry, action-response ordering, speaking turns, direction density, block duration, silence, view changes and exits are compared across the whole.
 2. The answer reports habitual beat sequences and mechanically equal blocks that flatten different situations, including:

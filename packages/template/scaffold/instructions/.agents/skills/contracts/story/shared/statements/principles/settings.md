@@ -2,7 +2,7 @@
 
 Contract: [principles/settings.md](../../principles/settings.md).
 
-## Usable facts {#usable-facts}
+## Usable facts
 
 1. The record names its subject and settles a value, its scope and the conditions, limits, costs or exceptions that affect use.
 2. It records a decision of these kinds:

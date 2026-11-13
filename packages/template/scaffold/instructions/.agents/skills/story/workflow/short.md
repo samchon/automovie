@@ -4,7 +4,7 @@ A short is drafted all the way to its film and checked once at the end. The brie
 
 A short has no settings, treatments, scripts or outline. Wherever a skill or contract cites settings or brief facts, a short cites its brief, or its screenplay for what the [brief leaves to it](../layers/brief.md#what-it-holds).
 
-## Steps {#steps}
+## Steps
 
 1. Questions.
 

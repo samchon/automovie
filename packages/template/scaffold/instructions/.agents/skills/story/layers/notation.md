@@ -4,7 +4,7 @@ Unless the commission adopts another form, use conventional screenplay blocks: a
 
 Read the blocks as a continuous sequence, each entry following the preceding exit; final duration comes from the performed action, speech, pauses and edit.
 
-## Identities {#identities}
+## Identities
 
 A script file is one episode: its H1 names the episode and each H2 is a [scene](screenplay.md#scenes). A screenplay file is one scene: its H1 names the scene, each H2 is a section of it, such as a phase or a movement, and each H3 a beat. Every heading below the H1 has an explicit anchor such as `{#s03}` and `{#s03-b04}`. Headings are addresses for code, evidence and reviews; they prescribe neither shot boundaries nor duration.
 
@@ -15,7 +15,7 @@ Never reuse or renumber an anchor or a scene file's number, so an existing citat
 - an inserted script scene, or screenplay section or beat, takes a new anchor, such as `{#s03-b04a}`;
 - an inserted screenplay scene file takes an unused number between its neighbors, so number scene files with room, such as `010-` and `020-`.
 
-## Records {#records}
+## Records
 
 A screenplay scene file's first section opens with the scene's standing state as a list, inside the section so its answers and review cover it; each entry links the settings or brief decision that owns it, where one does. Each beat's action and dialogue blocks end with its beat record. Both hold what the [beat-decisions question](../../contracts/story/shared/principles/screenplay.md#beat-decisions) asks:
 

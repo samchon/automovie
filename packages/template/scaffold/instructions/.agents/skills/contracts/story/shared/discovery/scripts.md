@@ -4,6 +4,6 @@ The discovery result covers the complete executable scene and partition populati
 
 Statements: [statements/discovery/scripts.md](../statements/discovery/scripts.md).
 
-## Are the work's execution and presentation rules discovered? {#script-requirements}
+## Script requirements
 
 Were the work's own rules of scene execution and presentation found, in a form their hosts can be checked against? A convention nobody wrote down is kept in one script and lost in the next.

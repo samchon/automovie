@@ -2,7 +2,7 @@
 
 Compose the audience's complete viewing and listening experience, understandable without its parents, under the screenplay questions in the [story contracts](../../contracts/story/SKILL.md). Choose what is seen and heard, how attention moves, and when the audience recognizes, waits and connects, through speech, action, reactions, sound, detail, duration and transitions in [readable notation](notation.md). A fixed view, silence, caption or narration serves the form when its contribution earns the attention.
 
-## Scenes {#scenes}
+## Scenes
 
 Each film's screenplay is a folder, and each scene is one file in it, because a long film cannot fit one file and a scene is the unit code composes. A scene is one continuous place and time: a cut to another place or time starts the next scene, and no stretch of continuous place and time is split across files. On the long route each script scene becomes one scene file of its episode's folder. The [document layout](../document-layout.md#documents) gives the folders and [notation](notation.md#identities) the headings.
 

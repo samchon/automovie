@@ -7,7 +7,7 @@ description: Keeps what belongs to the production as a whole and to no single ta
 
 Carry the commission from its adopted scope to the handed-off output. Read the request and [project context](project-context.md) first, because the commissioned output decides which skills run and what completes the work.
 
-## Commissioned outputs {#commissioned-outputs}
+## Commissioned outputs
 
 | Output | Complete when |
 | --- | --- |

@@ -18,7 +18,7 @@ Completed layers stay closed when their bodies or parents change: do not reopen 
 
 Replacing a unit from scratch removes its obsolete answers, reviews and replaced descendants while keeping other material; a reused filename grants no approval, and the new unit begins its own cycle.
 
-## Concretization {#concretization}
+## Concretization
 
 When scene composition must make a decision the screenplay left vague, the decision belongs to the screenplay, not to the code. Add it to the beat's record in the same change, or to the scene file's standing state when it holds for the whole scene. When another scene or film must keep it, also add it as a new anchored fact citing that beat, to settings, or to the brief when it is of a kind the [brief holds](../layers/brief.md#what-it-holds); otherwise the screenplay alone holds it.
 

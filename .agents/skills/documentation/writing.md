@@ -30,6 +30,12 @@ Text reads as written by a person for this reader. These habits mark text as pro
 - one template stamped on every document, whatever it holds;
 - three parallel items where the content has two or four.
 
+## Headings
+
+A heading names its topic in a few words. A question, claim or instruction belongs in the text under it, because a sentence in a heading is read twice and hides the topic it names.
+
+Link to a heading by its title's slug and give it no explicit anchor such as `{#name}`, because the title already gives one and a renderer that does not read the syntax shows it as text.
+
 ## Paragraphs
 
 A paragraph is one topic. Start a new one when the topic changes, keep sentences on the same topic together, and write each paragraph on one source line.

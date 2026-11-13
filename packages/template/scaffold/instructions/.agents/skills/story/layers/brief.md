@@ -4,7 +4,7 @@ A short's canon: the few decisions its screenplay cites, under the brief questio
 
 Write it after [discovery](../planning/discovery.md), studying what [when to study](../planning/research.md#when-to-study) assigns it.
 
-## What it holds {#what-it-holds}
+## What it holds
 
 Hold only what the [needed-decisions statements](../../contracts/story/shared/statements/principles/brief.md#needed-decisions) list: the decisions about the people, places and recurring props that several scenes must keep true. Everything else, such as a person or object only one scene shows, the camera and the sound, is decided in the screenplay, which code then cites, because a brief decision binds every scene that cites it.
 

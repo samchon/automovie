@@ -2,7 +2,7 @@
 
 Study what the film must show truthfully: each practice, the conduct of officials and crowds, and how the genre is actually shot and heard. Settings or brief, screenplay beats, entity measurements and every production [behavior](../../motion/SKILL.md) cite the study.
 
-## When to study {#when-to-study}
+## When to study
 
 Before choosing the [direction](direction.md), study only what could change it.
 
@@ -14,11 +14,11 @@ When [no narrative pass runs](../workflow/SKILL.md#who-writes-the-screenplay), t
 
 A value nothing written yet uses is not gathered, because its consumer often needs a different value when it is written. A study made for a decision goes as deep as the depicted level requires.
 
-## What needs a study {#what-needs-a-study}
+## What needs a study
 
 Read the installed packages' READMEs before deciding what to study. A movement the motion vocabulary performs, everyday movement included, needs no production study: the screenplay names the action and the scenes compose it. Neither does a rule or table a package exports; a study records only where the production departs from it. Study what the packages do not carry: a specialist practice or its level and patterns, and what is not a person where no package provides it. A study that no behavior follows has no consumer, and the evidence graph reports it.
 
-## Performance study {#performance-study}
+## Performance study
 
 Study real practice at the depicted level, such as a sport, fight, dance, craft or procedure, and the broadcast or film practice of shooting it; an invented action studies its closest real analogue and states where it departs.
 

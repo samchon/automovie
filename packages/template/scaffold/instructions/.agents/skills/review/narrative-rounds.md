@@ -18,7 +18,7 @@ Follow [independent reading](independent-reading.md) before opening author recor
 
 A whole-work review rereads every selected body afresh and carries no unit verdict.
 
-## Findings and decisions {#findings-and-decisions}
+## Findings and decisions
 
 Every finding meets the [independent-reading statements](../contracts/story/shared/statements/principles/review.md#independent-reading). A matter of how a passage reads that fails no contract statement and contradicts no parent or requirement is no finding unless the user names it, because one reader's taste alone would keep every round open.
 

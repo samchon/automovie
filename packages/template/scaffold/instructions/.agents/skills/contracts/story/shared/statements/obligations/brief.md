@@ -2,7 +2,7 @@
 
 Contract: [obligations/brief.md](../../obligations/brief.md).
 
-## Coherent brief {#coherent-brief}
+## Coherent brief
 
 Scope and coherence:
 

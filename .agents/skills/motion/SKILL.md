@@ -31,7 +31,7 @@ Work in this order, because each step fixes what the next one builds on.
 
 2. Declare the law's surface under [laws](laws.md).
 
-   The surface is the law's parameters and targets, its events and decisive instant, its outcomes and its [out-of-reach rule](authoring.md#decide-what-happens-out-of-reach).
+   The surface is the law's parameters and targets, its events and decisive instant, its outcomes and its [out-of-reach rule](authoring.md#out-of-reach).
 
 3. Write the plan as [effector goals](authoring.md) with their [contact windows](contacts.md).
 

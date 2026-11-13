@@ -4,10 +4,10 @@ Each study in `docs/research/`, apart from its index, answers these items in the
 
 Statements: [statements/principles/research.md](../statements/principles/research.md).
 
-## Does the study capture the depicted practice? {#depicted-practice}
+## Depicted practice
 
 Can each author who cites the study use it to write or program the practice at the depicted level without inventing it, including, for a performed practice, how densely its actions come and how they are distributed? A rank or an adjective, a list of technique names without laws, an outcome no table covers or a value with no source leaves the next author to invent the practice. A deliberately stylized departure is recorded as a choice and is not a gap.
 
-## Can each observation be traced to its source? {#traceable-sources}
+## Traceable sources
 
 Does every observation name its retained source with a locator such as a page, figure or timestamp, and say what kind of observation it is? A search summary, a portal page or a remembered fact is a route to evidence, not a source.
