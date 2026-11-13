@@ -150,7 +150,7 @@ export namespace HumanVerdicts {
       const who: string = person.subject;
       const spans = performance.segments(who);
       const airborne: boolean = spans.some((s): boolean =>
-        AIRBORNE.includes(s.name),
+        AIRBORNE.includes(s.law.family ?? s.name),
       );
       for (const fault of AutoMovieMotionHumanAuditTiming.faults(spans))
         findings.push({

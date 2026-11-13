@@ -1,24 +1,20 @@
 import type { IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 import {
+  HumanActionRow,
   HumanChain,
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
-  type IHumanActionContext,
   type IHumanActionLaw,
-  type IHumanActionPlan,
   type IHumanBody,
+  handToFace,
+  seated,
+  sit,
   touch,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
-
-/** The parameters of the worked example. */
-interface ISalute {
-  /** Seconds the salute is held; 1 when absent. */
-  hold?: number;
-}
 
 /** `true` only when two types are each assignable to the other. */
 type Same<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
@@ -28,8 +24,8 @@ type Same<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
  * vocabulary's: under its own name, with a typed chain method, with cuts in
  * and out, deterministically, and without changing any other action.
  *
- * The worked example is the military hand salute, written as a row of the
- * shipped `touch` law with its target, effector and kind fixed: the right
+ * The worked example is the military hand salute, a row of the shipped
+ * `touch` with its target, effector, kind and hand fixed: the right
  * forefinger's tip to the forehead near and slightly to the right of the
  * right eyebrow (US Army TC 3-21.5, Drill and Ceremonies, the hand salute).
  *
@@ -52,9 +48,16 @@ type Same<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
  *    `relax` it plans.
  * 7. `HumanChain.extend` refuses a key that differs from its law's name and
  *    a key the chain already has.
- * 8. Compile time: the extended chain's `salute` takes the law's own
- *    parameters and returns a chain that still has the vocabulary and the
- *    salute.
+ * 8. Compile time: the extended chain's `salute` takes the parameters the
+ *    row leaves open and returns a chain that still has the vocabulary and
+ *    the salute.
+ * 9. A row counts as its family. A row of `sit` with the chair fixed, then
+ *    `rise`, gives the poses of `sit` on that chair then `rise`: the rise
+ *    reads the seat it leaves through the row.
+ * 10. A row of data: a shave is a hand-to-face task the table lacks, given
+ *    as its own row (a razor's head on the jaw, rubbed). It plans alone and
+ *    over a walk, as the shipped tasks do, and a walk cut into it and it cut
+ *    at 0.1 into standing follow the hand-to-face table.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Registers a law through the public input and chain, performs it on a real body and reads placed actions, poses and refusals; a law that cannot be performed, changes another action, shadows a name or cuts where it declares no window fails.
  * @evidence contracts/development/testing.md#independent-expectations Where the fingertip goes is the drill manual's; sameness is compared between runs, never against stored poses; the refusals follow from what a name and a cut window mean.
@@ -64,27 +67,44 @@ type Same<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
  */
 export function test_human_motion_registered_law(): void {
   const body: IHumanBody = motionHumanBody("m-average");
-  const salute: IHumanActionLaw<ISalute> = {
-    name: "salute",
-    interrupts: {
-      any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
+  const salute = HumanActionRow.of("salute", touch, {
+    target: { kind: "self", region: "templeRight" },
+    with: "fingertips",
+    kind: "hold",
+    side: "right",
+  });
+  const chair: seated.ISeat = {
+    at: {
+      x: 0,
+      y: seated.popliteal(body),
+      z: body.rest.get("leftFoot")!.z - 0.1,
     },
-    plan: (context: IHumanActionContext<ISalute>): IHumanActionPlan =>
-      touch.plan({
-        ...context,
-        params: {
-          target: { kind: "self", region: "templeRight" },
-          with: "fingertips",
-          kind: "hold",
-          side: "right",
-          hold: context.params.hold ?? 1,
-        },
-      }),
+    yaw: 0,
+    depth: 0.45,
   };
-  const Chain = HumanChain.extend({ salute });
+  const takeSeat = HumanActionRow.of("takeSeat", sit, { seat: chair });
+  const shave = HumanActionRow.of("shave", handToFace, {
+    task: {
+      region: "jawRight",
+      effector: {
+        surface: "grip",
+        shape: "fist",
+        tool: { thumb: 0.5 },
+        facing: "thumb",
+        along: "palm",
+      },
+      kind: "rub",
+      count: 3,
+      hold: 0.2,
+      tangent: "up",
+      head: 0,
+      at: "atJaw",
+    },
+  });
+  const Chain = HumanChain.extend({ salute, takeSeat, shave });
   const perform = (
     composition: HumanChain,
-    laws: readonly IHumanActionLaw<never>[] = [salute],
+    laws: readonly IHumanActionLaw<never>[] = [salute, takeSeat, shave],
   ): HumanPerformance =>
     new HumanPerformance({
       seed: "registered",
@@ -180,7 +200,7 @@ export function test_human_motion_registered_law(): void {
   expect(
     "an unused registration changes no pose",
     JSON.stringify(poses(perform(plain(), []))) ===
-      JSON.stringify(poses(perform(plain(), [salute]))),
+      JSON.stringify(poses(perform(plain()))),
   );
 
   // 4. A name means one thing.
@@ -248,10 +268,10 @@ export function test_human_motion_registered_law(): void {
 
   // 8. Compile time: the method is typed by the law and keeps the chain.
   const typed: Same<
-    NonNullable<
+    keyof NonNullable<
       Parameters<HumanChain.Extended<{ salute: typeof salute }>["salute"]>[0]
     >,
-    ISalute
+    Exclude<keyof touch.IParams, "target" | "with" | "kind" | "side">
   > = true;
   const chained: HumanChain.Extended<{ salute: typeof salute }> = Chain.subject(
     "a",
@@ -259,7 +279,51 @@ export function test_human_motion_registered_law(): void {
     .salute()
     .walk({ to: { x: 0, y: 0, z: 1 } })
     .salute({ hold: 2 });
-  expect("the type pins hold", typed && chained.subject === "a");
+  expect("the type pins the open parameters", typed && chained.subject === "a");
+
+  // 9. A row counts as its family.
+  expect(
+    "a rise after a row of sit differs from a rise after sit on the same chair",
+    JSON.stringify(
+      poses(perform(Chain.subject("a").takeSeat({ seconds: 0.3 }).rise())),
+    ) ===
+      JSON.stringify(
+        poses(
+          perform(Chain.subject("a").sit({ seat: chair, seconds: 0.3 }).rise()),
+        ),
+      ),
+  );
+
+  // 10. A row of data, cut and carried like its table's tasks.
+  for (const [label, build, legal] of [
+    ["alone", () => Chain.subject("a").shave(), true],
+    [
+      "over a walk",
+      () =>
+        Chain.subject("a")
+          .walk({ to: { x: 0, y: 0, z: 4 } })
+          .over((o) => o.shave()),
+      true,
+    ],
+    [
+      "cut at 0.1 into standing",
+      () => Chain.subject("a").shave().until({ share: 0.1 }).stand(),
+      false,
+    ],
+    [
+      "cut at its relax into standing",
+      () => Chain.subject("a").shave().until({ event: "relax" }).stand(),
+      true,
+    ],
+  ] as const) {
+    const thrown: unknown = refused(() => perform(build()));
+    expect(
+      `a shave ${label}: ${legal ? "expected to plan" : "expected a cut refusal"}, got ${said(thrown)}`,
+      legal
+        ? thrown === null
+        : thrown instanceof HumanRefusal && thrown.kind === "cut",
+    );
+  }
 
   TestValidator.equals("a registered law", complaints, []);
 }

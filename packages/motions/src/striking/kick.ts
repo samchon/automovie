@@ -303,7 +303,7 @@ export namespace kick {
 
     // Only a cut before the source's chamber key is a redirect: the cancel
     // table admits no other kick-to-kick cut.
-    if (from === undefined || from.name !== "kick" || !(from.share < 1 - 1e-9))
+    if (from === undefined || from.family !== "kick" || !(from.share < 1 - 1e-9))
       return undefined;
     if (!continues(from.plan))
       throw new Error("A kick redirect needs its source kick's plan");

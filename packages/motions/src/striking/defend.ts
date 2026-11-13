@@ -126,9 +126,9 @@ export namespace defend {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function telegraph(attack: IHumanActionContext.IPlaced): number {
-    if (attack.name === "kick")
+    if (attack.family === "kick")
       return (attack.params as kick.IParams).technique === "round" ? 1 : 0.8;
-    if (attack.name === "punch") {
+    if (attack.family === "punch") {
       const p: punch.IParams = attack.params as punch.IParams;
       return p.technique === "straight" && (p.hand ?? "lead") === "lead"
         ? 0.4

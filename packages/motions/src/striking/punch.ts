@@ -173,7 +173,7 @@ export namespace punch {
     let delivery: number = StrikingSkill.JAB_DELIVERY;
     if (
       from !== undefined &&
-      from.name === "punch" &&
+      from.family === "punch" &&
       from.plan.contact !== undefined
     ) {
       const elapsed: number =

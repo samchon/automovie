@@ -57,32 +57,40 @@ What an action is directed at is an `AutoMovieMotionTarget`: a region of another
 
 ## Extend
 
-An act the vocabulary lacks is a law of your own. A law is a record with a `name`, the cuts it allows (`interrupts`, and `accepts` for what may be cut into it) and a `plan`; the simplest is a row of a shipped law with some parameters fixed. Give the performance your laws and extend the chain with them:
+An action the vocabulary lacks is registered with it. Take the first of these that fits.
+
+**A row** is a shipped action under a name of its own with some parameters fixed. It writes no motion: the action it is a row of plans it, so it is fitted, refused and checked as that action is, cuts like it and is carried over a walk where that action can be.
 
 ```ts
-import { HumanChain, HumanPerformance, touch, type IHumanActionLaw } from "@automovie/motions";
+import { HumanActionRow, HumanChain, HumanPerformance, handToFace, touch } from "@automovie/motions";
 
-const salute: IHumanActionLaw<{ hold?: number }> = {
-  name: "salute",
-  interrupts: { any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }] },
-  plan: (context) =>
-    touch.plan({
-      ...context,
-      params: { target: { kind: "self", region: "templeRight" }, with: "fingertips", kind: "hold", hold: context.params.hold ?? 1 },
-    }),
-};
+// A touch with its target, effector, kind and hand fixed.
+const salute = HumanActionRow.of("salute", touch, {
+  target: { kind: "self", region: "templeRight" },
+  with: "fingertips",
+  kind: "hold",
+  side: "right",
+});
 
-const Chain = HumanChain.extend({ salute });
+// An entry a table lacks, given as the table's own row type.
+const shave = HumanActionRow.of("shave", handToFace, {
+  task: { region: "jawRight", effector, kind: "rub", count: 3, hold: 0.2, tangent: "up", head: 0, at: "atJaw" },
+});
+
+const Chain = HumanChain.extend({ salute, shave });
 new HumanPerformance({
   seed,
   performers,
-  laws: [salute],
+  laws: [salute, shave],
   composition: Chain.subject("a").walk({ to }).salute({ hold: 1.5 }).stand().node,
 });
 ```
 
-A registered name never replaces a vocabulary name, and registering a law changes no other action's motion. A law that owns a movement of its own is composed from the same kernel the vocabulary uses: a clock, a base and part primitives passed to `composeAutoMovieMotionHumanAction`.
+The chain method takes the parameters the row leaves open.
 
+**A law** is for an action that owns what no shipped action plans: a change of base, an outcome between performers, a planner of its own. It is a record satisfying `IHumanActionLaw<Params>`: a `name`, the cuts it allows (`interrupts`, and `accepts` for what may be cut into it) and a `plan`, composed from the kernel the vocabulary uses (a clock, a base and part primitives passed to `composeAutoMovieMotionHumanAction`). It is registered the same way.
+
+A registered name never replaces a vocabulary name, and registering changes no other action's motion.
 ## Refusals
 
 A composition the vocabulary cannot perform throws a `HumanRefusal` when the performance is built. It names the performer, the action and its occurrence, the axis at fault, the value given, what the axis accepts and one sentence saying what to change, as fields and in its message:

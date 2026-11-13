@@ -103,6 +103,9 @@ export namespace IHumanEntryState {
     /** Its name. */
     name: HumanActionKey;
 
+    /** The action it is a row of; its own name when it is none. */
+    family: HumanActionKey;
+
     /** Its parameters. */
     params: object;
 

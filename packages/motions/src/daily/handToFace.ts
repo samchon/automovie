@@ -109,8 +109,8 @@ export namespace handToFace {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The row supplies every default.
    */
   export interface IParams {
-    /** The task. */
-    task: Task;
+    /** The task: one of the table's by name, or a row of the production's own. */
+    task: Task | IRow;
 
     /** The hand of a one-hand task; `right` when absent. */
     side?: HumanHand.Side;
@@ -221,7 +221,7 @@ export namespace handToFace {
     context: IHumanActionContext<IParams>,
   ): IHumanActionPlan {
     const p: IParams = context.params;
-    const row: IRow = ROWS[p.task];
+    const row: IRow = typeof p.task === "string" ? ROWS[p.task] : p.task;
     const body = context.body;
     const count: number = p.count ?? row.count;
     const hold: number = p.seconds ?? row.hold;

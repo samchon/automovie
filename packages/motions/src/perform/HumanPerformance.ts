@@ -530,8 +530,9 @@ export class HumanPerformance {
         reason: `no action is named ${intent.capability}`,
         fix: "name an action of the vocabulary, or register the law that performs it (the performance's laws)",
       });
-    const params: object =
+    const given: object =
       (intent.parameters?.params as object | undefined) ?? {};
+    const params: object = law.resolve?.(given) ?? given;
 
     // The parameter through which this action named an id, so a refusal of a
     // missing performer, prop or anchor points at what the author wrote.
@@ -592,6 +593,7 @@ export class HumanPerformance {
           name,
           start,
           law.accepts,
+          law.family,
         );
     const entry = HumanSegment.entry(person, previous, start);
     const instance: number = [...person.segments, ...person.overlays].filter(
@@ -748,6 +750,7 @@ export class HumanPerformance {
         return {
           subject: placed.subject,
           name: placed.name,
+          family: placed.law.family ?? placed.name,
           params: placed.params,
           plan: placed.plan,
           start: placed.start,

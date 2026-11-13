@@ -98,6 +98,7 @@ export * from "./everyday/sit";
 export * from "./everyday/stepOver";
 export * from "./everyday/typeText";
 export * from "./law/HumanBound";
+export * from "./law/HumanActionRow";
 export * from "./law/HumanRefusal";
 export * from "./law/IHumanActionContext";
 export * from "./law/IHumanActionLaw";

@@ -149,7 +149,7 @@ export namespace rise {
     );
     const from = context.entry.from;
     const sat =
-      from !== undefined && from.name === "sit"
+      from !== undefined && from.family === "sit"
         ? (from.params as { seat?: seated.ISeat }).seat
         : undefined;
     if (sat !== undefined)

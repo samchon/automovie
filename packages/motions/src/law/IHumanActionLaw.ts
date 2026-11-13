@@ -21,6 +21,25 @@ export interface IHumanActionLaw<P = object> {
   name: HumanActionKey;
 
   /**
+   * The action this one is a row of: the same law under another name with
+   * some of its parameters fixed, as a salute is a touch. Wherever an action
+   * is told apart by what it is (a cancel table's key, a follow-up that
+   * continues its own kind, an answer to a kind of attack), a row counts as
+   * its family. Absent for an action that is its own.
+   */
+  family?: HumanActionKey;
+
+  /**
+   * The parameters the plan reads, from those the composition gave: a row
+   * adds its fixed ones. The performance records and passes on the result,
+   * so whatever reads a placed action's parameters reads the whole set.
+   *
+   * @param given The parameters the composition gave.
+   * @returns The parameters planned from.
+   */
+  resolve?(given: object): object;
+
+  /**
    * The cancel table: target action to the windows a cut may use. The key
    * `any` gives the windows a cut into every action may use, for an action
    * a person can leave for anything, as quiet standing is.

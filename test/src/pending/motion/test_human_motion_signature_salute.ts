@@ -1,11 +1,9 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
+  HumanActionRow,
   HumanChain,
   HumanPerformance,
   HumanSignature,
-  type IHumanActionContext,
-  type IHumanActionLaw,
-  type IHumanActionPlan,
   type IHumanBody,
   touch,
 } from "@automovie/motions";
@@ -40,23 +38,12 @@ import { motionHumanBody } from "../../features/internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the source, why the file is pending with its numbers, and the 2 scenarios.
  */
 export function test_human_motion_signature_salute(): void {
-  const salute: IHumanActionLaw<{ hold?: number }> = {
-    name: "salute",
-    interrupts: {
-      any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
-    },
-    plan: (context: IHumanActionContext<{ hold?: number }>): IHumanActionPlan =>
-      touch.plan({
-        ...context,
-        params: {
-          target: { kind: "self", region: "templeRight" },
-          with: "fingertips",
-          kind: "hold",
-          side: "right",
-          hold: context.params.hold ?? 1,
-        },
-      }),
-  };
+  const salute = HumanActionRow.of("salute", touch, {
+    target: { kind: "self", region: "templeRight" },
+    with: "fingertips",
+    kind: "hold",
+    side: "right",
+  });
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
     const body: IHumanBody = motionHumanBody(name);

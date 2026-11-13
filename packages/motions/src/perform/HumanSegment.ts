@@ -243,6 +243,7 @@ export namespace HumanSegment {
     name: HumanActionKey,
     start: number,
     accepts: IHumanActionLaw["accepts"] = {},
+    family: HumanActionKey = name,
   ): IHumanInterruptRow | undefined {
     if (
       previous === undefined ||
@@ -254,10 +255,13 @@ export namespace HumanSegment {
     const D: number = previous.plan.duration;
     const share: number = (previous.end - previous.start) / D;
     // The source's row for this action, then what the entered action accepts
-    // from this source, then either side's rule for every action.
+    // from this source, then either side's rule for every action. A row of
+    // an action is read under its own name first and its family's after.
     const rows: readonly IHumanInterruptRow[] =
       previous.law.interrupts[name] ??
+      previous.law.interrupts[family] ??
       accepts[previous.name] ??
+      accepts[previous.law.family ?? previous.name] ??
       previous.law.interrupts.any ??
       accepts.any ??
       [];
@@ -470,6 +474,7 @@ export namespace HumanSegment {
         : {
             from: {
               name: previous.name,
+              family: previous.law.family ?? previous.name,
               params: previous.params,
               plan: previous.plan,
               start: previous.start,
