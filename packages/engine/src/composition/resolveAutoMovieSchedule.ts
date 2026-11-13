@@ -1,8 +1,8 @@
 import type { IAutoMovieMotionEvent } from "@automovie/interface";
 
 import type { AutoMovieComposition } from "./AutoMovieComposition";
-import { AutoMovieScheduleError } from "./AutoMovieScheduleError";
-import type { IAutoMovieIntent } from "./IAutoMovieIntent";
+import { AutoMovieSchedulePlace } from "./AutoMovieSchedulePlace";
+import { AutoMovieScheduleWalk } from "./AutoMovieScheduleWalk";
 import type { IAutoMovieSchedule } from "./IAutoMovieSchedule";
 
 /**
@@ -33,255 +33,32 @@ import type { IAutoMovieSchedule } from "./IAutoMovieSchedule";
  * @returns The frozen schedule.
  * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Place a composition on the film clock with the production's pure laws) and documents parameters `composition`, `laws`, the returned value as stated in this comment.
  * @evidence contracts/development/implementation.md#principled-implementation A single depth-first walk of the composition tree in declaration order, the interval-placement scheme of a timeline composer: a sequence chains ends to starts, a parallel group takes the latest end, an `at` takes an anchor's instant plus an offset. The premises are seconds on the film clock, the laws being pure (the same inputs give the same schedule, and an aligned part is timed again at the start `laws.align` returns), and every reference resolving to a placed anchor, a cue track or an event, which the walk checks and refuses with an `AutoMovieScheduleError` naming the code, the subject and capability, the value and the alternatives (anchor, event, index, duplicate, share, timing and law). A cut is a share in [0, 1] of the duration, found from a share, an own event, another anchor's or a cue track's event, or the `until` law's proximity share; a proximity never met cuts nothing. A start-aligned part places once, an aligned one asks `laws.align` first.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One function holding a recursive `place` over the four node kinds, with the instant lookup (`instants`, `instant`) and the leading-intent finder as its local helpers, because they close over the anchors, tracks and entries of the one walk; the error shapes sit in `AutoMovieScheduleError`. The function is long (about 350 lines) because the walk owns all four node kinds and the cut rules together.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One recursive `place` over the four node kinds: the sequence and the group are its own joints, an intent and an `at` are placed by `AutoMovieSchedulePlace`, the cut by `AutoMovieScheduleCut`, and the instant lookups and the walk's state are `AutoMovieScheduleWalk`'s; the error shapes sit in `AutoMovieScheduleError`.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Scanning the body finds no `any`, suppression directive or TODO, and no branch keyed on a consumer, fixture or expected answer; two non-null assertions (`entries[first]!`, `interrupted.get(e.index)!`) follow a length or `has` check. The only numeric literals are the structural 0 and 1 of the [0, 1] share range and indices; every value comes from the composition or the laws.
- * @evidence contracts/development/implementation.md#efficient-algorithms One pass over the n nodes of the composition; each anchor lookup is a map read, and each event lookup builds the anchor's instants and filters them, O(e) in that anchor's events. The result is one sort of the m entries, O(m log m), and a `Math.max` over their ends spread as arguments, which holds for any m a film reaches. No speedup is claimed and none is measured. * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One pass over the n nodes of the composition; each anchor lookup is a map read, and each event lookup builds the anchor's instants and filters them, O(e) in that anchor's events. The result is one sort of the m entries, O(m log m), and one loop over their ends for the duration. No speedup is claimed and none is measured. * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 17 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function resolveAutoMovieSchedule(
   composition: AutoMovieComposition,
   laws: resolveAutoMovieSchedule.ILaws,
 ): IAutoMovieSchedule {
-  const entries: IAutoMovieSchedule.IEntry[] = [];
-  const anchors: Map<string, number> = new Map();
-  const interrupted: Map<number, number> = new Map();
-  const anchored: Map<string, IAutoMovieSchedule.IEntry> = new Map();
-  const tracks: Map<string, readonly resolveAutoMovieSchedule.ICue[]> = new Map(
-    Object.entries(laws.cues ?? {}),
-  );
-
-  // The named instants of an anchored entry (its events, and its own start
-  // and end where it names none so) or of a cue track.
-  const instants = (
-    of: string,
-  ): readonly resolveAutoMovieSchedule.ICue[] | undefined => {
-    const entry: IAutoMovieSchedule.IEntry | undefined = anchored.get(of);
-    if (entry === undefined) return tracks.get(of);
-    const events: readonly resolveAutoMovieSchedule.ICue[] = entry.events ?? [];
-    const named = (name: string): boolean =>
-      events.some(
-        (e: resolveAutoMovieSchedule.ICue): boolean => e.name === name,
-      );
-    return [
-      ...(named("start") ? [] : [{ name: "start", seconds: entry.start }]),
-      ...events,
-      ...(named("end") ? [] : [{ name: "end", seconds: entry.end }]),
-    ];
-  };
-  const placed = (): string[] => [...anchored.keys(), ...tracks.keys()];
-  const instant = (
-    of: string,
-    events: readonly resolveAutoMovieSchedule.ICue[],
-    name: string,
-    index: number,
-    by: IAutoMovieIntent | undefined,
-  ): number => {
-    const same: resolveAutoMovieSchedule.ICue[] = events.filter(
-      (e: resolveAutoMovieSchedule.ICue): boolean => e.name === name,
-    );
-    const names: string[] = [
-      ...new Set(
-        events.map((e: resolveAutoMovieSchedule.ICue): string => e.name),
-      ),
-    ];
-    if (same.length === 0)
-      throw new AutoMovieScheduleError(
-        `${of} has no event ${name}; its events are ${names.join(", ") || "none"}`,
-        {
-          code: "event",
-          subject: by?.subject,
-          capability: by?.capability,
-          of,
-          value: name,
-          alternatives: names,
-        },
-      );
-    const found: resolveAutoMovieSchedule.ICue | undefined = same[index];
-    if (found === undefined)
-      throw new AutoMovieScheduleError(
-        `${of} has ${same.length} ${name} events, so index ${index} names none (the first is 0)`,
-        {
-          code: "index",
-          subject: by?.subject,
-          capability: by?.capability,
-          of,
-          value: index,
-          alternatives: same.map(
-            (_: resolveAutoMovieSchedule.ICue, i: number): string => String(i),
-          ),
-        },
-      );
-    return found.seconds;
-  };
-  const leading = (node: AutoMovieComposition): IAutoMovieIntent | undefined =>
-    node.kind === "intent"
-      ? node.intent
-      : node.kind === "at" || node.parts[0] === undefined
-        ? undefined
-        : leading(node.parts[0]);
+  const walk: AutoMovieScheduleWalk.IWalk = AutoMovieScheduleWalk.create(laws);
   const place = (node: AutoMovieComposition, start: number): number => {
-    if (node.kind === "intent") {
-      const context: resolveAutoMovieSchedule.IContext = { start, entries };
-      const timing: resolveAutoMovieSchedule.ITiming = laws.timing(
-        node.intent,
-        context,
-      );
-      const who: Pick<
-        AutoMovieScheduleError.IProps,
-        "subject" | "capability"
-      > = {
-        subject: node.intent.subject,
-        capability: node.intent.capability,
-      };
-      if (!(timing.duration >= 0) || !Number.isFinite(timing.duration))
-        throw new AutoMovieScheduleError(
-          `Invalid duration of ${node.intent.subject}.${node.intent.capability}`,
-          { ...who, code: "timing", value: timing.duration },
-        );
-      if (
-        timing.contact !== undefined &&
-        !(timing.contact >= 0 && timing.contact <= timing.duration)
-      )
-        throw new AutoMovieScheduleError(
-          `Contact outside ${node.intent.subject}.${node.intent.capability}`,
-          { ...who, code: "timing", value: timing.contact },
-        );
-      // A cut ends the entry early at a share or a named event; a contact
-      // after the cut never happens.
-      const until: IAutoMovieIntent["until"] = node.intent.until;
-      let cut: { share: number; event?: string } | undefined;
-      if (until !== undefined) {
-        if ("proximity" in until) {
-          if (laws.until === undefined)
-            throw new AutoMovieScheduleError(
-              `${node.intent.subject}.${node.intent.capability} cuts on proximity, which these laws cannot resolve`,
-              { ...who, code: "law", value: "until" },
-            );
-          // A proximity the motion never reaches leaves the intent uncut: it
-          // runs to its own end, as an `until` that never fires does.
-          const share: number | undefined = laws.until(
-            node.intent,
-            { start, duration: timing.duration },
-            context,
-          );
-          if (share !== undefined) cut = { share };
-        } else if ("of" in until) {
-          const events: readonly resolveAutoMovieSchedule.ICue[] | undefined =
-            instants(until.of);
-          if (events === undefined)
-            throw new AutoMovieScheduleError(
-              `Cut of ${node.intent.subject}.${node.intent.capability} waits for ${until.of}, which is not placed earlier`,
-              {
-                ...who,
-                code: "anchor",
-                of: until.of,
-                value: until.of,
-                alternatives: placed(),
-              },
-            );
-          const seconds: number = instant(
-            until.of,
-            events,
-            until.event,
-            until.index ?? 0,
-            node.intent,
-          );
-          cut = {
-            share:
-              timing.duration === 0 ? 0 : (seconds - start) / timing.duration,
-            event: `${until.of}.${until.event}`,
-          };
-        } else if ("event" in until) {
-          const event: IAutoMovieMotionEvent | undefined = timing.events?.find(
-            (e: IAutoMovieMotionEvent): boolean => e.name === until.event,
-          );
-          if (event === undefined)
-            throw new AutoMovieScheduleError(
-              `${node.intent.subject}.${node.intent.capability} has no event ${until.event}; its events are ${(timing.events ?? []).map((e: IAutoMovieMotionEvent): string => e.name).join(", ") || "none"}`,
-              {
-                ...who,
-                code: "event",
-                value: until.event,
-                alternatives: (timing.events ?? []).map(
-                  (e: IAutoMovieMotionEvent): string => e.name,
-                ),
-              },
-            );
-          cut = { share: event.share, event: event.name };
-        } else cut = { share: until.share };
-        if (cut !== undefined && !(cut.share >= 0 && cut.share <= 1))
-          throw new AutoMovieScheduleError(
-            `Cut share of ${node.intent.subject}.${node.intent.capability} lies outside [0, 1]`,
-            {
-              ...who,
-              code: "share",
-              value: cut.share,
-              ...("of" in until ? { of: until.of } : {}),
-            },
-          );
-      }
-      const length: number =
-        cut === undefined ? timing.duration : cut.share * timing.duration;
-      const draft: IAutoMovieSchedule.IEntry = {
-        index: entries.length,
-        subject: node.intent.subject,
-        intent: node.intent,
-        start,
-        ...(timing.contact === undefined || timing.contact > length
-          ? {}
-          : { contact: start + timing.contact }),
-        end: start + length,
-        ...(cut === undefined ? {} : { cut }),
-        ...(timing.events === undefined
-          ? {}
-          : {
-              events: timing.events.map(
-                (
-                  e: IAutoMovieMotionEvent,
-                ): { name: string; seconds: number } => ({
-                  name: e.name,
-                  seconds: start + e.share * timing.duration,
-                }),
-              ),
-            }),
-      };
-      const outcome: string | undefined = laws.outcome?.(draft, context);
-      const state: unknown = laws.state?.(draft, context);
-      entries.push({
-        ...draft,
-        ...(outcome === undefined ? {} : { outcome }),
-        ...(state === undefined ? {} : { state }),
-      });
-      if (node.intent.anchor !== undefined) {
-        if (anchors.has(node.intent.anchor) || tracks.has(node.intent.anchor))
-          throw new AutoMovieScheduleError(
-            `Duplicate composition anchor ${node.intent.anchor}`,
-            {
-              ...who,
-              code: "duplicate",
-              of: node.intent.anchor,
-              value: node.intent.anchor,
-              alternatives: placed(),
-            },
-          );
-        anchors.set(node.intent.anchor, draft.contact ?? start);
-        anchored.set(node.intent.anchor, draft);
-      }
-      return draft.end;
-    }
+    if (node.kind === "intent")
+      return AutoMovieSchedulePlace.intent(walk, node.intent, start);
     if (node.kind === "sequence") {
       // The entry an intent's cut interrupts is the first one the next part places.
       let cutIndex: number | undefined;
       return node.parts.reduce(
         (at: number, part: AutoMovieComposition): number => {
-          const first: number = entries.length;
+          const first: number = walk.entries.length;
           const end: number = place(part, at);
-          if (cutIndex !== undefined && entries.length > first)
-            interrupted.set(cutIndex, first);
+          if (cutIndex !== undefined && walk.entries.length > first)
+            walk.interrupted.set(cutIndex, first);
           cutIndex =
             part.kind === "intent" &&
-            entries.length === first + 1 &&
-            entries[first]!.cut !== undefined
+            walk.entries.length === first + 1 &&
+            walk.entries[first]!.cut !== undefined
               ? first
               : undefined;
           return end;
@@ -295,105 +72,29 @@ export function resolveAutoMovieSchedule(
           Math.max(end, place(part, start)),
         start,
       );
-    const events: readonly resolveAutoMovieSchedule.ICue[] | undefined =
-      instants(node.anchor);
-    const first: IAutoMovieIntent | undefined = leading(node.part);
-    const anchor: number | undefined =
-      node.event === undefined
-        ? anchors.get(node.anchor)
-        : events === undefined
-          ? undefined
-          : instant(node.anchor, events, node.event, node.index ?? 0, first);
-    if (anchor === undefined)
-      throw new AutoMovieScheduleError(
-        events === undefined
-          ? `Composition anchor ${node.anchor} is not placed earlier`
-          : `Composition anchor ${node.anchor} is a cue track, so the part aligned to it must name one of its events`,
-        events === undefined
-          ? {
-              code: "anchor",
-              subject: first?.subject,
-              capability: first?.capability,
-              of: node.anchor,
-              value: node.anchor,
-              alternatives: placed(),
-            }
-          : {
-              code: "event",
-              subject: first?.subject,
-              capability: first?.capability,
-              of: node.anchor,
-              value: "",
-              alternatives: [
-                ...new Set(
-                  events.map(
-                    (e: resolveAutoMovieSchedule.ICue): string => e.name,
-                  ),
-                ),
-              ],
-            },
-      );
-    const target: number = anchor + node.offset;
-    if (node.align === undefined)
-      return Math.max(start, place(node.part, target));
-
-    // The part's own instant falls on the target: the laws say when it must
-    // start for that, since only they know how long it takes to get there.
-    if (first === undefined)
-      throw new AutoMovieScheduleError(
-        `The part aligned to ${node.anchor} by its ${node.align} begins with no intent`,
-        { code: "law", of: node.anchor, value: node.align },
-      );
-    if (laws.align === undefined)
-      throw new AutoMovieScheduleError(
-        `${first.subject}.${first.capability} aligns its ${node.align}, which these laws cannot resolve`,
-        {
-          code: "law",
-          subject: first.subject,
-          capability: first.capability,
-          of: node.anchor,
-          value: "align",
-        },
-      );
-    return Math.max(
-      start,
-      place(
-        node.part,
-        laws.align(first, node.align, target, {
-          start: target,
-          entries,
-          anchor: {
-            of: node.anchor,
-            offset: node.offset,
-            ...(node.event === undefined ? {} : { event: node.event }),
-            ...(node.index === undefined ? {} : { index: node.index }),
-            instants: events ?? [],
-          },
-        }),
-      ),
-    );
+    return AutoMovieSchedulePlace.at(walk, node, start, place);
   };
   const end: number = place(composition, 0);
-  const sorted: IAutoMovieSchedule.IEntry[] = [...entries].sort(
+  const sorted: IAutoMovieSchedule.IEntry[] = [...walk.entries].sort(
     (a: IAutoMovieSchedule.IEntry, b: IAutoMovieSchedule.IEntry): number =>
       a.start - b.start || a.index - b.index,
   );
+  let duration: number = end;
+  for (const entry of walk.entries) if (entry.end > duration) duration = entry.end;
   return Object.freeze({
     entries: Object.freeze(
       sorted.map((e: IAutoMovieSchedule.IEntry) =>
         Object.freeze(
-          interrupted.has(e.index)
-            ? { ...e, interruptedBy: interrupted.get(e.index)! }
+          walk.interrupted.has(e.index)
+            ? { ...e, interruptedBy: walk.interrupted.get(e.index)! }
             : e,
         ),
       ),
     ),
-    duration: Math.max(
-      end,
-      ...entries.map((e: IAutoMovieSchedule.IEntry): number => e.end),
-    ),
+    duration,
   });
 }
+
 /**
  * Companion types of {@link resolveAutoMovieSchedule}.
  *
