@@ -1,9 +1,11 @@
 import {
+  AutoMovieMotionHumanAuditTangle,
   HUMAN_LEXICON,
   HumanChain,
   HumanPerformance,
   HumanVerdicts,
   type IHumanActionLaw,
+  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -31,28 +33,42 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_hand_verdicts_kiss(): void {
   const laws: IHumanActionLaw<never>[] = Object.values(HUMAN_LEXICON).flat();
-  const report: HumanVerdicts.IReport = HumanVerdicts.of(
-    new HumanPerformance({
-      seed: "verdict",
-      laws,
-      performers: [
-        {
-          subject: "a",
-          body: motionHumanBody("f-small"),
-          at: { x: 0, y: 0, z: 0 },
-          yaw: 0,
-          proficiency: { level: "trained" },
-        },
-      ],
-      composition: HumanChain.subject("a")
-        .stand({ seconds: 0.3 })
-        .registered("blownKiss", {}).node,
-    }),
-    24,
-  );
+  const body: IHumanBody = motionHumanBody("f-small");
+  const performance: HumanPerformance = new HumanPerformance({
+    seed: "verdict",
+    laws,
+    performers: [
+      {
+        subject: "a",
+        body,
+
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+    ],
+    composition: HumanChain.subject("a")
+      .stand({ seconds: 0.3 })
+      .registered("blownKiss", {}).node,
+  });
+  const report: HumanVerdicts.IReport = HumanVerdicts.of(performance, 24);
+
+  // A finding is read beside the quiet stance's own depths, so a tangle the
+  // resting body already holds is told from one the row adds.
+  const resting: string = AutoMovieMotionHumanAuditTangle.pose(
+    body,
+    performance.bones("a", 0.1),
+  )
+    .map(
+      (pair: AutoMovieMotionHumanAuditTangle.IPair): string =>
+        `${pair.a} in ${pair.b} ${(pair.depth * 1000).toFixed(1)} mm`,
+    )
+    .join(", ");
   TestValidator.equals(
     "a blown kiss holds the physical bounds",
-    HumanVerdicts.describe(report),
+    report.clean
+      ? "clean"
+      : `${HumanVerdicts.describe(report)}; standing at 0.1 s: ${resting || "nothing in anything"}`,
     "clean",
   );
 }

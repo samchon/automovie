@@ -123,8 +123,8 @@
     { "layer": "compose", "symbol": "AutoMovieMotionHumanRange.MOTIONS", "tests": ["test_human_motion_core_closed_unions"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanReach.LIMBS", "tests": ["test_human_motion_core_closed_unions"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanReach.POLICIES", "tests": ["test_human_motion_core_closed_unions"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanTargetGrid.DISTANCE_NAMES", "tests": ["test_human_motion_core_closed_unions"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanTargetGrid.LATERAL_NAMES", "tests": ["test_human_motion_core_closed_unions"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTarget.DISTANCE_NAMES", "tests": ["test_human_motion_core_closed_unions"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTarget.LATERAL_NAMES", "tests": ["test_human_motion_core_closed_unions"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTiming.PAUSE_NAMES", "tests": ["test_human_motion_core_closed_unions"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchEffector.AXES", "tests": ["test_human_motion_core_closed_unions"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchForm.KINDS", "tests": ["test_human_motion_core_closed_unions"] },
@@ -720,21 +720,21 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanLegPhrase.bearing",
+      "symbol": "AutoMovieMotionHumanLeg.bearing",
       "tests": [
         "test_motion_compose_leg_place"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanLegPhrase.between",
+      "symbol": "AutoMovieMotionHumanLeg.between",
       "tests": [
         "test_motion_compose_leg_place"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanLegPhrase.lift",
+      "symbol": "AutoMovieMotionHumanLeg.lift",
       "tests": [
         "test_motion_compose_manner",
         "test_motion_compose_phrase"
@@ -742,21 +742,21 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanLegPhrase.tap",
+      "symbol": "AutoMovieMotionHumanLeg.tap",
       "tests": [
         "test_motion_compose_phrase"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanLegPhrase.swing",
+      "symbol": "AutoMovieMotionHumanLeg.swing",
       "tests": [
         "test_motion_compose_phrase"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanLegPhrase.pivot",
+      "symbol": "AutoMovieMotionHumanLeg.pivot",
       "tests": [
         "test_motion_compose_phrase"
       ]
@@ -1031,7 +1031,7 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTargetGrid.HEIGHTS",
+      "symbol": "AutoMovieMotionHumanTarget.HEIGHTS",
       "tests": [
         "test_motion_compose_nearest",
         "test_motion_compose_tables",
@@ -1040,42 +1040,42 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTargetGrid.OVERHEAD",
+      "symbol": "AutoMovieMotionHumanTarget.OVERHEAD",
       "tests": [
         "test_motion_compose_tables"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTargetGrid.LATERALS",
+      "symbol": "AutoMovieMotionHumanTarget.LATERALS",
       "tests": [
         "test_motion_compose_variation_named"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTargetGrid.DISTANCES",
+      "symbol": "AutoMovieMotionHumanTarget.DISTANCES",
       "tests": [
         "test_motion_compose_variation_named"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTargetGrid.NUDGE",
+      "symbol": "AutoMovieMotionHumanTarget.NUDGE",
       "tests": [
         "test_motion_compose_tables"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTargetGrid.height",
+      "symbol": "AutoMovieMotionHumanTarget.height",
       "tests": [
         "test_motion_compose_tables"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTargetGrid.place",
+      "symbol": "AutoMovieMotionHumanTarget.place",
       "tests": [
         "test_motion_compose_nearest",
         "test_motion_compose_place",
@@ -1085,7 +1085,7 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTargetGrid.nearest",
+      "symbol": "AutoMovieMotionHumanTarget.nearest",
       "tests": [
         "test_motion_compose_nearest",
         "test_motion_compose_variation_named"
@@ -4418,7 +4418,7 @@
           "row": "default",
           "tests": [],
           "audit": [
-            "test_human_motion_law_hand_to_face",
+            "test_human_motion_law_hand_to_face_drink",
             "test_human_motion_law_sweep_touch"
           ],
           "sweep": "reduced"
@@ -4427,7 +4427,7 @@
           "row": "task=drink",
           "tests": [],
           "audit": [
-            "test_human_motion_law_hand_to_face",
+            "test_human_motion_law_hand_to_face_drink",
             "test_human_motion_law_sweep_touch"
           ],
           "sweep": "reduced"
@@ -4436,7 +4436,7 @@
           "row": "task=sip",
           "tests": [],
           "audit": [
-            "test_human_motion_law_hand_to_face",
+            "test_human_motion_law_hand_to_face_sip",
             "test_human_motion_law_sweep_touch"
           ],
           "sweep": "reduced"
@@ -4445,7 +4445,7 @@
           "row": "task=eat",
           "tests": [],
           "audit": [
-            "test_human_motion_law_hand_to_face",
+            "test_human_motion_law_hand_to_face_eat",
             "test_human_motion_law_sweep_touch"
           ],
           "sweep": "reduced"
@@ -4454,7 +4454,7 @@
           "row": "task=bite",
           "tests": [],
           "audit": [
-            "test_human_motion_law_hand_to_face",
+            "test_human_motion_law_hand_to_face_bite",
             "test_human_motion_law_sweep_touch"
           ],
           "sweep": "reduced"
@@ -4463,7 +4463,7 @@
           "row": "task=phone",
           "tests": [],
           "audit": [
-            "test_human_motion_law_hand_to_face",
+            "test_human_motion_law_hand_to_face_phone",
             "test_human_motion_law_sweep_touch"
           ],
           "sweep": "reduced"
@@ -4472,7 +4472,7 @@
           "row": "task=read",
           "tests": [],
           "audit": [
-            "test_human_motion_law_hand_to_face",
+            "test_human_motion_law_hand_to_face_read",
             "test_human_motion_law_sweep_touch"
           ],
           "sweep": "reduced"
@@ -4481,7 +4481,7 @@
           "row": "task=brushTeeth",
           "tests": [],
           "audit": [
-            "test_human_motion_law_hand_to_face",
+            "test_human_motion_law_hand_to_face_brush_teeth",
             "test_human_motion_law_sweep_touch"
           ],
           "sweep": "reduced"
@@ -4490,7 +4490,7 @@
           "row": "task=comb",
           "tests": [],
           "audit": [
-            "test_human_motion_law_hand_to_face",
+            "test_human_motion_law_hand_to_face_comb",
             "test_human_motion_law_sweep_touch"
           ],
           "sweep": "reduced"
@@ -4499,7 +4499,7 @@
           "row": "task=washFace",
           "tests": [],
           "audit": [
-            "test_human_motion_law_hand_to_face",
+            "test_human_motion_law_hand_to_face_wash_face",
             "test_human_motion_law_sweep_touch"
           ],
           "sweep": "reduced"
@@ -4508,7 +4508,7 @@
           "row": "task=wipeMouth",
           "tests": [],
           "audit": [
-            "test_human_motion_law_hand_to_face",
+            "test_human_motion_law_hand_to_face_wipe_mouth",
             "test_human_motion_law_sweep_touch"
           ],
           "sweep": "reduced"

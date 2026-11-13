@@ -1,19 +1,17 @@
-import { handToFace } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanLawHandToFace } from "../internal/motionHumanLawHandToFace";
 
 /**
- * Every hand-to-face task moves the body as it means to and tangles
- * nothing, on the displayed bones of the average man.
+ * The hand-to-face task `phone` moves the body as it means to and tangles
+ * nothing, on the displayed bones of the average man: one task of the law's
+ * table per spec, so each runs within the time a test may take.
  *
- * Each task of the law's table (drink, sip, eat, bite, phone, read,
- * brushTeeth, comb, washFace, wipeMouth) is performed from quiet standing
- * and read by `motionHumanLawHandToFace`, whose complaints are gathered
- * over every task before the one assertion, so a failing task does not
- * hide the others.
+ * The task is performed from quiet standing and read by
+ * `motionHumanLawHandToFace`, whose complaints are gathered before the one
+ * assertion.
  *
- * Scenarios, per task:
+ * Scenarios:
  * 1. The generic audit over the whole film is clean: no body part inside
  *    another by more than 10 mm, no sunk collider, no slipping or lifted
  *    planted foot, no jump over 5 mm, no out-and-back over 50 mm, balance
@@ -31,13 +29,14 @@ import { motionHumanLawHandToFace } from "../internal/motionHumanLawHandToFace";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs the real law through the chain and reads displayed bones; an arm through the chest, an elbow that flips, a tilted cup or a hand that does not return fails with its measured number.
  * @evidence contracts/development/testing.md#independent-expectations Each bound is a physical requirement, a cited range or the mirror symmetry of the body, stated in the checker's document; none is read from the law.
- * @evidence contracts/development/testing.md#distinguishing-cases Every row of the law's table: holds and strokes, one hand and two, a region on the face and a sheet in the air.
- * @evidence contracts/development/testing.md#execution-ownership In memory; slow because fitting an arm on the body costs a second a frame; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
- * @evidence contracts/development/common.md#meaningful-documentation States how the complaints are gathered and lists the 8 scenarios with their bounds.
+ * @evidence contracts/development/testing.md#distinguishing-cases One row of the law's table; its siblings `test_human_motion_law_hand_to_face_*` hold the others.
+ * @evidence contracts/development/testing.md#execution-ownership In memory; slow because fitting an arm on the body costs a second a frame, so the table is split one task per spec; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
+ * @evidence contracts/development/common.md#meaningful-documentation States the task, why it stands alone and the 8 scenarios with their bounds.
  */
-export function test_human_motion_law_hand_to_face(): void {
-  const complaints: string[] = [];
-  for (const task of Object.keys(handToFace.ROWS) as handToFace.Task[])
-    complaints.push(...motionHumanLawHandToFace(task));
-  TestValidator.equals("every hand-to-face task is right", complaints, []);
+export function test_human_motion_law_hand_to_face_phone(): void {
+  TestValidator.equals(
+    "the phone task is right",
+    motionHumanLawHandToFace("phone"),
+    [],
+  );
 }
