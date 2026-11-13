@@ -160,7 +160,9 @@ export namespace lieDown {
 
     // Seated cross-legged, and with the legs folded to the right and the trunk leant to the left hand (provisional angles). The legs here are only what the pelvis is rested on the floor with: a thigh both flexed level and spread is not a set of these angles, so `floorSeat` folds the legs by goals on the floor.
     sitCrossed: pose(0, 0, { hip: 90, knee: 5, shoulder: 10, elbow: 40 }),
-    sitSide: pose(0, -15, { hip: 90, knee: 5, shoulder: 0, elbow: 20 }),
+    sitSide: bent(pose(0, -8, { hip: 90, knee: 5, shoulder: 0, elbow: 20 }), [
+      -20, -10,
+    ]),
   };
 
   /** The sittings whose legs `floorSeat` folds. */
@@ -368,6 +370,27 @@ export namespace lieDown {
       primitives: [lying],
     });
     return sitting ? { ...planned, base: { kind: "seated" } } : planned;
+  }
+
+  /** A floor posture with its trunk bent to the side at the spine and the chest, degrees of abduction: about the forward axis, so a negative bend tips the trunk to the body's left (`HUMANOID_JOINT_AXES`' default basis). The pelvis stays down while the shoulder comes over the hand leant on. */
+  function bent(posture: IPose, side: readonly [number, number]): IPose {
+    const spine: readonly [number, number, number] = posture.joints.spine ?? [
+      0, 0, 0,
+    ];
+    const chest: readonly [number, number, number] = posture.joints.chest ?? [
+      0, 0, 0,
+    ];
+    return {
+      ...posture,
+      joints: {
+        ...posture.joints,
+        spine: [spine[0], spine[1] + side[0], spine[2]],
+        chest: [chest[0], chest[1] + side[1], chest[2]],
+
+        // The arm on the bent side is held out from the trunk, so the body is rested on the floor by its seat and not by a hand hanging under it; the hand is then set down by its goal.
+        leftUpperArm: [0, 45, 0],
+      },
+    };
   }
 
   /**

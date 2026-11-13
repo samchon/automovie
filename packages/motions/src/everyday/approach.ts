@@ -7,6 +7,7 @@ import type {
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import { walk } from "../actions/walk";
+import { walkClear } from "../actions/walkClear";
 import { walkDelayed } from "../actions/walkDelayed";
 import { walkFollowed } from "../actions/walkFollowed";
 import type { IHumanBody } from "../body/IHumanBody";
@@ -342,11 +343,9 @@ export namespace approach {
       };
     }
 
-    // Walk round people in the way: a waypoint abeam each one the straight
-    // leg would pass nearer than the clearance plus their half breadth, on
-    // the side that deviates least.
-    // The person approached is walked round too when the stop lies on a side
-    // of them the straight leg would reach through them.
+    if (target.kind === "person") walkClear.between(context, stop.at, point);
+
+    // Walk round people in the way: a waypoint abeam each one the straight leg would pass nearer than the clearance plus their half breadth, on the side that deviates least. The person approached is walked round too when the stop lies on a side of them the straight leg would reach through them.
     const round: string[] = [...(p.avoid ?? [])];
     if (
       p.side !== undefined &&

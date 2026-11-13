@@ -446,7 +446,20 @@ export namespace HumanRide {
               limbs[`${pedal.side}Leg`] = HumanMountRider.ankled(
                 context.body,
                 pedal.side,
-                goal,
+
+                // A pedalling foot faces the way the body does and its knee tracks ahead of its hip, over the pedal, whichever way the leg came onto it.
+                {
+                  ...goal,
+                  rotation: resolveHumanPosture.heading(out),
+                  bend: Vector3.add(
+                    hips[pedal.side],
+                    Quaternion.rotateVector(resolveHumanPosture.heading(out), {
+                      x: 0,
+                      y: 0.3 * context.body.measure.thigh,
+                      z: context.body.measure.thigh,
+                    }),
+                  ),
+                },
                 hips[pedal.side],
                 resolveHumanPosture.heading(out),
               );

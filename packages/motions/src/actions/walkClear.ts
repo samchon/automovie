@@ -90,3 +90,56 @@ export function walkClear(
     });
   }
 }
+
+/**
+ * Companion check of {@link walkClear}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what the check refuses and what its refusal carries.
+ * @evidence contracts/development/design.md#principled-representation The same blocking test on one more stretch, the one between two people rather than a walked one.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One function, read by the approach that ends beside or before a person.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No obstacle is named; an opening the two could see each other through still counts as a wall between people who are to stand together.
+ */
+export namespace walkClear {
+  /**
+   * Refuses a place to stand by a person when something solid lies between
+   * the two: a walker escorting, following or meeting someone ends on their
+   * side of a wall, not across it.
+   *
+   * @param context The action's context.
+   * @param place Where the walker would stand, world metres.
+   * @param person Where the person is, world metres.
+   * @throws {HumanRefusal} A `reach` refusal on `path` naming the obstacle between them.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the rule and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation The stretch between the two is asked of the performance's obstacles as a body's own passage would be, so an open door wide and high enough for the walker does not count as a wall between them.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One question, one refusal.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refused, never moved to the person's side: which side to stand on is the composition's.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the obstacles.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to cache.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function between(
+    context: IHumanActionContext<object>,
+    place: IAutoMovieVector3,
+    person: IAutoMovieVector3,
+  ): void {
+    const block: HumanObstacle.IBlock | null = HumanObstacle.blocking(
+      context.obstacles(),
+      place,
+      person,
+      {
+        breadth: context.body.measure.chestBreadth,
+        height: context.body.measure.stature,
+      },
+    );
+    if (block !== null)
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "path",
+        value: block.subject,
+        feasible: null,
+        reason: `${block.subject} stands between the place to stop at and the person, ${block.distance.toFixed(2)} m from that place`,
+        fix: "stop on the person's own side of it: name another side of them or another gap",
+      });
+  }
+}

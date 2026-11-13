@@ -31,6 +31,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    stands.
  * 5. With the bare wall, a walk by a place 3 m to its side that goes round
  *    its end plans.
+ * 6. An approach to the small woman standing 0.6 m beyond the bare wall,
+ *    whose stop at a personal distance lies on his own side of it, is
+ *    refused on `path` for the wall between them: nobody walks up to a
+ *    person and stops across a wall from them.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Gives the performance real obstacles through its public input and walks at them through the public chain; a walk through the wall, a door that refuses a walker it fits, or a slot or a hatch that lets him through fails.
  * @evidence contracts/development/testing.md#independent-expectations That a solid stops a walker, and that a door must be as wide as the shoulders and as high as the body, is what a wall and a door are; the walker's breadth and stature are the body's own measures, read from the body and not from the walk.
@@ -163,5 +167,50 @@ export function test_human_motion_travel_obstacles(): void {
       `a walk round the wall: ${error instanceof Error ? error.message : String(error)}`,
     );
   }
+
+  // 6. Nobody stops across a wall from the person they walk up to.
+  let across: unknown = null;
+  try {
+    new HumanPerformance({
+      seed: "obstacles",
+      obstacles: [wall()],
+      performers: [
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+        {
+          subject: "b",
+          body: motionHumanBody("f-small"),
+          at: { x: 0, y: 0, z: 2.6 },
+          yaw: 180,
+          proficiency: { level: "trained" },
+        },
+      ],
+      composition: HumanChain.subject("b")
+        .stand({ seconds: 3 })
+        .with(
+          HumanChain.subject("a").approach({
+            target: { kind: "person", subject: "b", region: "sternum" },
+          }),
+        ).node,
+    });
+  } catch (error) {
+    across = error;
+  }
+  if (
+    !(
+      across instanceof HumanRefusal &&
+      across.kind === "reach" &&
+      across.axis === "path" &&
+      across.message.includes("between")
+    )
+  )
+    complaints.push(
+      `an approach to a person just beyond a wall: expected a reach refusal on path for the wall between them, got ${across instanceof Error ? across.message : String(across)}`,
+    );
   TestValidator.equals("nobody walks through a wall", complaints, []);
 }
