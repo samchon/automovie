@@ -93,6 +93,13 @@ export namespace StrikingStroke {
 
     /** The share of peak speed left at the contact. */
     speed: number;
+
+    /**
+     * The joint's peak speed on the delivery unit, m/s: the unit then starts
+     * so late that it reaches this peak, the joint holding its place before.
+     * Absent, the unit spans the whole delivery from the launch.
+     */
+    peak?: number;
   }
 
   /**
@@ -105,7 +112,7 @@ export namespace StrikingStroke {
    * @throws {Error} When the delivery would end before it begins.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the units produced and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation A via unit to the chamber, a delivery unit aimed through the contact so the measured share of peak speed remains at it, and a correcting unit over the same span that lands the joint exactly on the contact point.
+   * @evidence contracts/development/implementation.md#principled-implementation A via unit to the chamber, a delivery unit aimed through the contact so the measured share of peak speed remains at it, and a correcting unit over the same span that lands the joint exactly on the contact point. With a peak speed, the unit lasts as long as a minimum-jerk unit over its length takes to peak at that speed (its peak is 1.875 times its mean speed), ending at the contact share, so the joint's own movement is as fast as measured while the delivery keeps its measured length.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Via, delivery and correction in order.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A non-positive span throws; a correction under 1e-12 m is omitted as rounding.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
@@ -127,7 +134,7 @@ export namespace StrikingStroke {
     }
     const u: number = impactShare(d.speed);
     const s: number = minimumJerk(u).s;
-    const span: number = d.contact - begin;
+    let span: number = d.contact - begin;
     if (!(span > 0))
       throw new Error("A strike's delivery ends after it begins");
     const length: number = Vector3.length(Vector3.subtract(d.impact, from));
@@ -135,6 +142,17 @@ export namespace StrikingStroke {
       d.impact,
       Vector3.scale(Vector3.normalize(d.direction), length * (1 / s - 1)),
     );
+    // A unit that peaks at the given speed lasts 1.875 times its length
+    // over that speed; it starts that share of itself before the contact.
+    if (d.peak !== undefined) {
+      const fast: number =
+        (u * 1.875 * Vector3.length(Vector3.subtract(through, from))) /
+        d.peak;
+      if (fast < span) {
+        begin = d.contact - fast;
+        span = fast;
+      }
+    }
     units.push({
       displacement: Vector3.subtract(through, from),
       start: begin,

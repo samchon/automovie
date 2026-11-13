@@ -23,6 +23,7 @@ import { StrikingRoom } from "./StrikingRoom";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
+import { StrikingTwist } from "./StrikingTwist";
 import type { punch } from "./punch";
 import { punchFootwork } from "./punchFootwork";
 import type { punchGeometry } from "./punchGeometry";
@@ -203,8 +204,7 @@ export namespace punchContact {
       yaw: entry.yaw + 0.4 * turn,
       joints: {
         ...entry.joints,
-        spine: [0, 0, 0.3 * turn],
-        chest: [0, 0, 0.3 * turn],
+        ...StrikingTwist.trunk(entry.joints, 0.3 * turn),
       },
     }).get(`${side}UpperArm` as AutoMovieHumanoidBone)!.worldPosition;
     const dip: number = Math.min(

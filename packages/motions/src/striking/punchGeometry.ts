@@ -215,6 +215,11 @@ export namespace punchGeometry {
       launch: t0 + lag,
       contact: t0 + shown,
       speed: p.feint === undefined ? StrikingSkill.IMPACT_SPEED_SHARE.punch : 1,
+      // The fist's own movement reaches the measured peak; the body turns
+      // and steps over the whole delivery.
+      ...(p.feint === undefined
+        ? { peak: StrikingSkill.punchPeak(context.skill) }
+        : {}),
     });
     // The stop is the performance's joint resolution of the arm's capsules
     // (`fixed`); the stroke scans nothing itself.

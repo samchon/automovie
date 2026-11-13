@@ -147,6 +147,7 @@ export * from "./striking/StrikingSkill";
 export * from "./striking/StrikingStance";
 export * from "./striking/StrikingStroke";
 export * from "./striking/StrikingTarget";
+export * from "./striking/StrikingTwist";
 export * from "./striking/StrikingRecord";
 export * from "./striking/defend";
 export * from "./striking/guard";

@@ -68,7 +68,8 @@ export namespace StrikingSkill {
    * 7.16 m/s against 6.32 m/s for national-level juniors (Liu et al. 2022,
    * Front Physiol 13:1015154); untrained novices were not measured, so the
    * novice end, 0.45 of elite as for the kick, is provisional until an
-   * untrained group's straight-punch speed is located. An audit reference.
+   * untrained group's straight-punch speed is located. The punch's fist
+   * reaches it ({@link punchPeak}); an audit checks it against this band.
    */
   export const PUNCH_PEAK_SPEED: readonly [number, number] = [
     0.45 * 7.16,
@@ -93,6 +94,29 @@ export namespace StrikingSkill {
    * longer seen in time to change the strike.
    */
   export const CORRECTION_LATENCY: number = 0.11;
+
+  /**
+   * The peak fist speed a punch reaches.
+   *
+   * @param skill The skill.
+   * @returns m/s, between the ends of `PUNCH_PEAK_SPEED` on the `speed` axis.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the unit, the band and the axis.
+   * @evidence contracts/development/implementation.md#principled-implementation The skill's reading between the measured elite speed and the provisional novice end, the lead straight's (Liu et al. 2022), taken for both hands for want of a measured rear straight in the same study.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One quantity read.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The novice end is named provisional on the band.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function punchPeak(skill: HumanSkill.ISkill): number {
+    return HumanSkill.quantity(
+      skill,
+      "speed",
+      PUNCH_PEAK_SPEED[0],
+      PUNCH_PEAK_SPEED[1],
+    );
+  }
 
   /**
    * Strike-phase (launch to contact) duration factor.

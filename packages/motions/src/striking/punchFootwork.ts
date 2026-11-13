@@ -9,6 +9,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingArrest } from "./StrikingArrest";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
+import { StrikingTwist } from "./StrikingTwist";
 import type { punch } from "./punch";
 import type { punchGeometry } from "./punchGeometry";
 
@@ -253,8 +254,7 @@ export namespace punchFootwork {
             {
               ...entry.joints,
               ...StrikingStance.joints(),
-              spine: [0, 0, 0.3 * turn * turning],
-              chest: [0, 0, 0.3 * turn * turning],
+              ...StrikingTwist.trunk(entry.joints, 0.3 * turn * turning),
             },
             turn * turning,
           ),
