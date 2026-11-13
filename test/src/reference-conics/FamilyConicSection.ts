@@ -251,6 +251,13 @@ export namespace FamilyConicSection {
    */
   const FAIR_MM: number = 20;
 
+  /**
+   * The largest cutoff a section's fairing is raised to where a run holds more inflections than lines (`seedAll`), mm: above the kept
+   * grooves' 12 to 20 mm, and short of the chest's anterior axillary fold, the feature the lined trunk carries, which a 70 mm fairing
+   * erased (f1's chest, where the raise went first to 70 mm).
+   */
+  const FAIR_LIMIT_MM: number = 30;
+
   /** The least share of its run's arclength a feature line keeps from the run's ends: the model's `EDGE` of 0.03 on the chord, with a margin. */
   const LINE_EDGE: number = 0.05;
 
@@ -262,7 +269,7 @@ export namespace FamilyConicSection {
    * wavelength `FAIR_MM` of girth, converted by Ahn's conic approximation (`approximateAutoMovieRecoveryConicsAhn`), and the ends of its
    * arcs with their tangents.
    */
-  export function converted(points: readonly P[]): { ends: IEnd[]; at: (phi: number) => { point: P; tangent: P } } {
+  export function converted(points: readonly P[], cutoff: number = FAIR_MM): { ends: IEnd[]; at: (phi: number) => { point: P; tangent: P } } {
     const M: number = 720;
     const radii: number[] = Array.from({ length: M }, (_: unknown, k: number): number => radius(points, (2 * Math.PI * k) / M));
     let girth: number = 0;
@@ -273,7 +280,7 @@ export namespace FamilyConicSection {
     // fixed controls has no such cutoff: at a control every 6 mm it followed f1's facets.
     const H: number = M / 2;
     const A: number[] = [], B: number[] = [], W: number[] = [];
-    const cut: number = girth / FAIR_MM;
+    const cut: number = girth / cutoff;
     for (let n: number = 0; n <= H; ++n) {
       let a: number = 0, b: number = 0;
       for (let k: number = 0; k < M; ++k) {
@@ -462,8 +469,9 @@ export namespace FamilyConicSection {
    *
    * @param sections The sections' observed polygons, in station order.
    * @param layout The family's layout.
+   * @param cutoffs Filled, when given, with each section's fairing cutoff, mm.
    */
-  export function seedAll(sections: readonly (readonly P[])[], layout: ILayout): number[][] {
+  export function seedAll(sections: readonly (readonly P[])[], layout: ILayout, cutoffs?: number[]): number[][] {
     const K: number = layout.anchors.length;
     if (!layout.anchors.some((a: IAnchor): boolean => a.kind === "f")) return sections.map((points: readonly P[]): number[] => seed(points, layout));
     const lines: Map<number, number[]> = new Map();
@@ -477,8 +485,35 @@ export namespace FamilyConicSection {
       // The section is read faired throughout, its extremes and medians too, so the anchors and the features stand on one curve: read off
       // the raw section, a median on a 1.7 mm groove's floor stood inside the faired curve its features stand on, and the arc between them
       // needed an S.
-      const conversion = converted(points);
-      const faired: P[] = Array.from({ length: 1440 }, (_: unknown, i: number): P => conversion.at((2 * Math.PI * i) / 1440).point);
+      // A run's inflections past the ramp's floor are the lines it needs; where they outnumber its inflection slots the section carries
+      // features finer than the wall's form scale, and the section is faired at the least cutoff, in steps of a millimetre above
+      // `FAIR_MM`, that brings every run within its slots. The trunk's layout carries the form; the face's finer features, 4 to 6 strong
+      // inflections in a run of 3 lines and 2 in a run of 1 at 620 to 790 mm, are its reliefs' (construction.md: features get their own
+      // surfaces), so the wall's departure there shows in its error table, owned by the reliefs. The search stops at `FAIR_LIMIT_MM`.
+
+      const phaseOf = (q: P): number => Math.atan2(q[1], q[0]);
+      const inside = (phi: number, a: number, b: number): boolean => {
+        const span: number = (((b - a) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+        const off: number = (((phi - a) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+        return off > 1e-9 && off < span - 1e-9;
+      };
+      const crowded = (ends: readonly IEnd[], faired: readonly P[]): boolean =>
+        layout.anchors.some((anchor: IAnchor, k: number): boolean => {
+          if (anchor.kind !== "f" || (k > 0 && layout.anchors[k - 1]!.kind === "f")) return false;
+          let slots: number = 0;
+          for (let j: number = k; layout.anchors[j % K]!.kind === "f"; ++j) if (layout.anchors[j % K]!.feature === "inflection") ++slots;
+          const [fb, fa]: [number, number] = S.frame(k, layout);
+          const a: number = phaseOf(extreme(faired, layout.anchors[fb]!)), b: number = phaseOf(extreme(faired, layout.anchors[fa]!));
+          return ends.filter((end: IEnd): boolean => end.inflection && (end.strength ?? 0) >= FEATURE_LEAST / 2 && inside(phaseOf(end.point), a, b)).length > slots;
+        });
+      const fair = (cutoff: number): { conversion: ReturnType<typeof converted>; faired: P[] } => {
+        const conversion = converted(points, cutoff);
+        return { conversion, faired: Array.from({ length: 1440 }, (_: unknown, i: number): P => conversion.at((2 * Math.PI * i) / 1440).point) };
+      };
+      let cutoff: number = FAIR_MM;
+      let { conversion, faired } = fair(cutoff);
+      while (cutoff + 1 <= FAIR_LIMIT_MM && crowded(conversion.ends, faired)) ({ conversion, faired } = fair(++cutoff));
+      cutoffs?.push(cutoff);
       return seed(faired, layout, (found: readonly (P | null)[]): Map<number, { point: P; tangent: P }> => {
         const out: Map<number, { point: P; tangent: P }> = new Map();
         layout.anchors.forEach((anchor: IAnchor, k: number): void => {
@@ -600,14 +635,34 @@ export namespace FamilyConicSection {
           // convex span: at the crotch's front the base conic from a median on the notch floor is a vertical line inside the thigh's crest,
           // and of the 60 own seeds refused that way, 50 are admitted on the chain; the other 10 have more inflections past the floor in a run
           // than the layout has lines (f1's neck and face, 620 to 790 mm).
-          run.forEach((j: number, i: number): void => void out.set(j, conversion.at(phiOf(shares[i]!))));        });
+          run.forEach((j: number, i: number): void => void out.set(j, conversion.at(phiOf(shares[i]!))));
+        });
         return out;
       });
     });
   }
 
-  /** Feature anchors placed from outside (`seedAll`): each listed anchor's point and unit tangent. */
-  export type Placement = (found: readonly (P | null)[], tangent: readonly (P | null)[]) => Map<number, { point: P; tangent: P }>;
+  /**
+   * An extreme anchor's point on a section: a median extreme where the median ray meets it, any other the point of its window farthest
+   * along its axis (`pick`: the largest, the least, or the largest in size).
+   */
+  export function extreme(points: readonly P[], anchor: IAnchor): P {
+    const axis: 0 | 1 = anchor.kind === "u" ? 0 : 1;
+    if (anchor.mid === true) {
+      const front: boolean = anchor.window === undefined || Math.cos((anchor.window[0] + anchor.window[1]) / 2) > 0;
+      return [(front ? 1 : -1) * radius(points, front ? 0 : Math.PI), 0];
+    }
+    const inside: P[] = points.filter((q: P): boolean => {
+      if (anchor.window === undefined) return true;
+      let phi: number = Math.atan2(q[1], q[0]);
+      while (phi < anchor.window[0]) phi += 2 * Math.PI;
+      return phi <= anchor.window[1];
+    });
+    const sign: number = anchor.pick === "max" ? 1 : anchor.pick === "min" ? -1 : 0;
+    return inside.reduce((a: P, b: P): P => ((sign === 0 ? Math.abs(b[axis]) > Math.abs(a[axis]) : sign * b[axis] > sign * a[axis]) ? b : a));
+  }
+
+  /** Feature anchors placed from outside (`seedAll`): each listed anchor's point and unit tangent. */  export type Placement = (found: readonly (P | null)[], tangent: readonly (P | null)[]) => Map<number, { point: P; tangent: P }>;
 
   /**
    * A starting field vector read from one observed polygon: each extreme in
@@ -628,21 +683,9 @@ export namespace FamilyConicSection {
       else if (anchor.kind === "f") values.push(0, 0, 0);
       else {
         const axis: 0 | 1 = anchor.kind === "u" ? 0 : 1;
-        let p: P;
-        if (anchor.mid === true) {
-          const front: boolean = anchor.window === undefined || Math.cos((anchor.window[0] + anchor.window[1]) / 2) > 0;
-          p = [(front ? 1 : -1) * radius(points, front ? 0 : Math.PI), 0];
-        } else {
-          const inside: P[] = points.filter((q: P): boolean => {
-            if (anchor.window === undefined) return true;
-            let phi: number = Math.atan2(q[1], q[0]);
-            while (phi < anchor.window[0]) phi += 2 * Math.PI;
-            return phi <= anchor.window[1];
-          });
-          const sign: number = anchor.pick === "max" ? 1 : anchor.pick === "min" ? -1 : 0;
-          p = inside.reduce((a: P, b: P): P => ((sign === 0 ? Math.abs(b[axis]) > Math.abs(a[axis]) : sign * b[axis] > sign * a[axis]) ? b : a));
-        }
+        const p: P = extreme(points, anchor);
         found[k] = p;
+
         tangent[k] = axis === 0 ? [0, p[0] > 0 ? 1 : -1] : [p[1] > 0 ? -1 : 1, 0];
         if (anchor.mid === true) values.push(p[0]);
         else values.push(p[0], p[1]);
