@@ -1,24 +1,17 @@
 import {
-  AutoMovieStationHermite,
   type IAutoMovieResolvedBone,
-  Quaternion,
-  carriedAcceleration,
-  carriedRate,
   minimumJerk,
   resolveAutoMovieCenterOfMass,
-  wrapDegrees,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionEvent,
-  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
-import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
@@ -27,12 +20,14 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { hipJoints } from "../posture/hipJoints";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { jumpFlight } from "./jumpFlight";
+import { jumpLanding } from "./jumpLanding";
+import { jumpPath } from "./jumpPath";
+import { jumpPush } from "./jumpPush";
 import { stand } from "./stand";
 import { standUpright } from "./standUpright";
-import { walkLeg } from "./walkLeg";
 
 /**
  * A jump to a floor point: a push-off from a planted foot, a ballistic flight
@@ -59,7 +54,7 @@ import { walkLeg } from "./walkLeg";
  * Whatever the push-off moves on a path of its own (the take-off foot's
  * pitch, the reaching foot, the turn to the jump's heading, the shoulders)
  * also continues the rate it was entered with: the path starts at rest, and
- * the entry rate times the engine's {@link carriedRate} term (unit slope and
+ * the entry rate times the engine's `carriedRate` term (unit slope and
  * no acceleration at the cut, zero value, velocity and acceleration at its
  * end) is added to it over the push. A rate is carried only as long as its
  * room affords, the term peaking at `carriedRate.PEAK` of its duration times
@@ -93,7 +88,9 @@ import { walkLeg } from "./walkLeg";
  * heights low with the flight's velocity, absorbs to 0.12 hip heights low on
  * a quintic path that brings that velocity to rest over `ABSORB` seconds,
  * then rises to the upright stand ({@link standUpright}) over `RISE` seconds.
- * Planted legs are kept reachable by `resolveHumanPosture.lower`.
+ * Planted legs are kept reachable by `resolveHumanPosture.lower`. The
+ * push-off is drawn by `jumpPush`, the landing's places by `jumpLanding`
+ * and the paths by `jumpPath`.
  */
 export namespace jump {
   /** The action's name. */
@@ -130,15 +127,15 @@ export namespace jump {
   /** Rise to standing after the absorption, seconds (provisional). */
   export const RISE: number = 0.45;
 
-  /** Gravity, m/s². */
-  const G: number = 9.81;
+  /** Gravity, m/s² (jumpFlight.G). */
+  const G: number = jumpFlight.G;
 
   /**
    * Plan a jump.
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When no foot is planted to push off from, or the apex is not positive.
+   * @throws {HumanRefusal} When no foot is planted to push off from, or the apex is not positive or does not clear a raised landing (jumpFlight).
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -157,7 +154,7 @@ export namespace jump {
 
     // The landing surface's height: the floor's, a box's top or a step's.
     const rise: number = context.params.to.y;
-    const heading: number = unwrap(
+    const heading: number = jumpPath.unwrap(
       (Math.atan2(to.x - root0.x, to.z - root0.z) * 180) / Math.PI,
       entry.posture.yaw,
     );
@@ -229,36 +226,17 @@ export namespace jump {
       y: root0.y + 0.03 * l,
       z: 0.25 * l,
     });
-    const footprint = (s: "left" | "right"): HumanFoot.IPlacement => ({
-      ankle: HumanFrame.point(frame(to), {
-        x: (s === "left" ? 1 : -1) * Math.abs(body.rest.get(`${s}Foot`)!.x),
-        y: m.ankleHeight + rise,
-        z: 0,
-      }),
-      rotation: HumanFoot.rotation(
-        heading + (s === "left" ? stand.TOE_OUT : -stand.TOE_OUT),
-        0,
-      ),
-    });
-    const landing: Record<"left" | "right", HumanFoot.IPlacement> = {
-      left: footprint("left"),
-      right: footprint("right"),
-    };
-    const rootL: IAutoMovieVector3 = HumanFrame.point(frame(to), {
-      x: 0,
-      y: rise - 0.005 - 0.03 * l,
-      z: -0.1 * l,
-    });
-    const rootS: IAutoMovieVector3 = HumanFrame.point(frame(to), {
-      x: 0,
-      y: rise - 0.005,
-      z: upright.lean,
-    });
-    const rootA: IAutoMovieVector3 = HumanFrame.point(frame(to), {
-      x: 0,
-      y: rise - 0.005 - 0.12 * l,
-      z: 0.3 * upright.lean,
-    });
+    const landed: jumpLanding.ILanding = jumpLanding.of(
+      body,
+      to,
+      heading,
+      rise,
+      upright.lean,
+    );
+    const landing: Record<"left" | "right", HumanFoot.IPlacement> = landed.feet;
+    const rootL: IAutoMovieVector3 = landed.touched;
+    const rootS: IAutoMovieVector3 = landed.stood;
+    const rootA: IAutoMovieVector3 = landed.absorbed;
 
     // Body-frame placements at take-off and touchdown, for the flight.
     const tuck: IAutoMovieVector3 = {
@@ -320,42 +298,20 @@ export namespace jump {
       y: rootL.y + offL.y,
       z: rootL.z + offL.z,
     };
-    const length: number = Math.hypot(comL.x - comT.x, comL.z - comT.z);
-    // A flight that lands higher must rise past the landing height first: the default apex clears it by the floor jump's own, and a given apex that does not reach it is refused.
-    const climb: number = Math.max(0, comL.y - comT.y);
-    const apex: number =
-      context.params.apex ?? 0.06 * l + 0.1 * length + climb;
-    HumanBound.above("apex", apex, 0, "m");
-    if (apex <= climb)
-      throw new HumanRefusal({
-        kind: "reach",
-        axis: "apex",
-        value: apex,
-        feasible: {
-          kind: "range",
-          minimum: climb,
-          maximum: null,
-          unit: "m",
-          open: "minimum",
-        },
-        reason: `the landing lies ${rise.toFixed(3)} m up and the body's centre must rise ${climb.toFixed(3)} m to reach it, above the ${apex.toFixed(3)} m apex asked`,
-        fix: "jump higher, or onto a lower surface",
-      });
-    const vy: number = Math.sqrt(2 * G * apex);
-    const T: number =
-      (vy + Math.sqrt(Math.max(0, vy * vy - 2 * G * (comL.y - comT.y)))) / G;
-    const launch: IAutoMovieVector3 = {
-      x: (comL.x - comT.x) / T,
-      y: vy,
-      z: (comL.z - comT.z) / T,
-    };
-    const land: IAutoMovieVector3 = { x: launch.x, y: vy - G * T, z: launch.z };
+    const flight: jumpFlight.IFlight = jumpFlight.solve(
+      comT,
+      comL,
+      context.params.apex,
+      l,
+      rise,
+    );
+    const { vy, T, launch, land } = flight;
 
     const P: number = PUSH;
     const touchdown: number = P + T;
     const settled: number = touchdown + ABSORB;
     const duration: number = settled + RISE;
-    const landed: IHumanContactWindow["support"] =
+    const bearing: IHumanContactWindow["support"] =
       context.params.on === undefined
         ? { kind: "ground" }
         : { kind: "prop", subject: context.params.on };
@@ -378,100 +334,28 @@ export namespace jump {
         kind: "plant",
         from: touchdown / duration,
         to: 1,
-        support: landed,
+        support: bearing,
       },
       {
         part: "rightFoot",
         kind: "plant",
         from: touchdown / duration,
         to: 1,
-        support: landed,
+        support: bearing,
       },
     ];
 
-    // What an entry rate adds to a push-off path that starts at rest: the
-    // rate times this term, whose slope is one at the cut.
-    const carry = (t: number): number => carriedRate(P, t);
-    const stride: IAutoMovieVector3 = entry.feet[reaching].velocity;
-    const spin: IAutoMovieVector3 = entry.feet[reaching].spin;
-    const spinRate: number = Math.hypot(spin.x, spin.y, spin.z);
-    // The reaching foot's velocity and spin are one rigid motion, carried for
-    // no longer than brings a sole point to the floor: a point `h` above it
-    // coming down at `v` affords `h / (PEAK v)` seconds. A point descending
-    // slower than 1 cm/s is one the foot was turning about, and is passed.
-    let reachingCarry: number = P;
-    for (const point of ["heel", "ball"] as const) {
-      const arm: IAutoMovieVector3 = Quaternion.rotateVector(
-        entry.feet[reaching].rotation,
-        HumanFoot.offset(body, reaching, point),
-      );
-      const falling: number = -(stride.y + spin.z * arm.x - spin.x * arm.z);
-      if (falling > 0.01)
-        reachingCarry = Math.min(
-          reachingCarry,
-          Math.max(0, entry.feet[reaching].ankle.y + arm.y) /
-            (carriedRate.PEAK * falling),
-        );
-    }
-    const reach = (t: number): number =>
-      reachingCarry > 1e-6 ? carriedRate(reachingCarry, t) : 0;
-    // The reaching ankle's entry acceleration fades over the same carry, so
-    // the leg continues what the root's carried acceleration asks of it.
-    const surge: IAutoMovieVector3 = entry.feet[reaching].acceleration;
-    const reachBend = (t: number): number =>
-      reachingCarry > 1e-6 ? carriedAcceleration(reachingCarry, t) : 0;
-    // The take-off foot's pitch rate about its lateral axis, degrees per
-    // second, positive lifting the toes.
-    const lateral: IAutoMovieVector3 = Quaternion.rotateVector(
-      support.rotation,
-      { x: 1, y: 0, z: 0 },
-    );
-    const roll: IAutoMovieVector3 = entry.feet[takeoff].spin;
-    const rolling: number =
-      (-(roll.x * lateral.x + roll.y * lateral.y + roll.z * lateral.z) * 180) /
-      Math.PI;
-    // The pelvis joint through the push, from the entry's own angles and
-    // their rates to the upright ones. The hip joints hang from the pelvis,
-    // so a pelvis listed and turned by a stride puts the take-off hip
-    // millimetres from where an upright one has it, and the heel's rule would
-    // read a leg the entry does not show.
-    const level: readonly [number, number, number] = upright.joints.hips ?? [
-      0, 0, 0,
-    ];
-    const listed: readonly [number, number, number] =
-      entry.posture.joints.hips ?? level;
-    const listing: readonly [number, number, number] =
-      entry.velocity.joints.get("hips") ?? [0, 0, 0];
-    const pelvisAt = (t: number): readonly [number, number, number] => {
-      if (t >= P) return level;
-      const s: number = minimumJerk(t / P).s;
-      const k: number = carry(t);
-      return [
-        listed[0] + (level[0] - listed[0]) * s + listing[0] * k,
-        listed[1] + (level[1] - listed[1]) * s + listing[1] * k,
-        listed[2] + (level[2] - listed[2]) * s + listing[2] * k,
-      ];
-    };
-    // The take-off leg's hip joint under a root, a heading and that pelvis.
-    const hipAt = (t: number): IAutoMovieVector3 =>
-      hipJoints(
-        body,
-        rootAt(t),
-        resolveHumanPosture.heading({ yaw: yawAt(t), pitch: 0, roll: 0 }),
-        pelvisAt(t),
-      )[takeoff];
-    const turning: number = (entry.velocity.angular.y * 180) / Math.PI;
-    const swinging = (side: "left" | "right"): number =>
-      entry.velocity.joints.get(`${side}UpperArm`)?.[0] ?? 0;
-    // The heading through the push, from the entry's own and its rate.
-    const yawAt = (t: number): number =>
-      entry.posture.yaw +
-      (heading - entry.posture.yaw) * minimumJerk(t / P).s +
-      turning * carry(t);
-
     const rootAt = (t: number): IAutoMovieVector3 => {
       if (t <= P)
-        return hermite(root0, v0, rootT, launch, P, t, entry.acceleration);
+        return jumpPath.hermite(
+          root0,
+          v0,
+          rootT,
+          launch,
+          P,
+          t,
+          entry.acceleration,
+        );
       if (t <= touchdown) {
         const u: number = t - P;
         const c: IAutoMovieVector3 = {
@@ -483,7 +367,7 @@ export namespace jump {
         return { x: c.x - o.x, y: c.y - o.y, z: c.z - o.z };
       }
       if (t <= settled)
-        return hermite(
+        return jumpPath.hermite(
           rootL,
           land,
           rootA,
@@ -491,7 +375,7 @@ export namespace jump {
           ABSORB,
           t - touchdown,
         );
-      return hermite(
+      return jumpPath.hermite(
         rootA,
         { x: 0, y: 0, z: 0 },
         rootS,
@@ -501,54 +385,25 @@ export namespace jump {
       );
     };
 
-    // A foot entered on its heel rocker is laid flat before its heel rises,
-    // as a walking foot is (Perry and Burnfield), so the pivot passes from
-    // the heel to the toes' joint with the foot at rest: passed at a rate,
-    // the ankle's velocity would step by that rate times the foot's length.
-    // The foot comes flat in the share of the push its pitch is of the whole
-    // turn, and no later than keeps a foot entered rolling down above the
-    // floor: toward the end the carried rate's term falls as four times the
-    // cube of the time left and the pitch as ten times it.
-    const lowered: number =
-      supportPitch > 0
-        ? Math.min(
-            (P * supportPitch) / (supportPitch + 40),
-            rolling < 0 ? (2.5 * supportPitch) / -rolling : P,
-          )
-        : 0;
-    const span: number = P - lowered;
-    const start: number = Math.min(supportPitch, 0);
-    // The flat foot's heel then rises by the rule a walking stance rises by:
-    // asked from flat to its take-off pitch, and no later than the ankle's
-    // dorsal limit asks. A foot the walk held by that rule is met by it.
-    const ruled = (t: number): number =>
-      walkLeg.heelRise(
-        body,
-        takeoff,
-        hipAt(t),
-        ball,
-        supportHeading,
-        Math.min(start, -40) * minimumJerk((t - lowered) / span).s,
-        walkLeg.ROCKER,
-      );
-    // What the entry's pitch and pitch rate differ from the rule's by is
-    // eased out over the rise. A heel coming down about the ball is carried
-    // no longer than lays the foot flat, where the pivot would pass to the
-    // heel.
-    const met: number = ruled(lowered);
-    const gap: number = start - met;
-    const excess: number =
-      (supportPitch > 0 ? 0 : rolling) -
-      (-3 * met + 4 * ruled(lowered + 1e-3) - ruled(lowered + 2e-3)) / 2e-3;
-    const carried: number =
-      excess > 0 ? Math.min(span, -start / (carriedRate.PEAK * excess)) : span;
-    const pitchAt = (t: number): number =>
-      t < lowered
-        ? supportPitch * (1 - minimumJerk(t / lowered).s) +
-          rolling * carriedRate(lowered, t)
-        : ruled(t) +
-          gap * (1 - minimumJerk((t - lowered) / span).s) +
-          (carried > 1e-6 ? excess * carriedRate(carried, t - lowered) : 0);
+    // The push-off: the pelvis, the heading, the take-off foot's rocker and
+    // the reaching leg, each from the entry's own value and rate.
+    const push: jumpPush.IPush = jumpPush.of({
+      body,
+      entry,
+      takeoff,
+      reaching,
+      support,
+      supportHeading,
+      supportPitch,
+      heel,
+      ball,
+      upright,
+      heading,
+      push: P,
+      tuck,
+      rootAt,
+      knee,
+    });
 
     /** The airborne posture at a root and a share of the flight. */
     function airborne(root: IAutoMovieVector3, u: number): IHumanPosture {
@@ -567,7 +422,11 @@ export namespace jump {
       };
       const limbs: IHumanPosture["limbs"] = {};
       for (const side of ["left", "right"] as const) {
-        const p: IAutoMovieVector3 = lerp(startLocal[side], endLocal[side], s);
+        const p: IAutoMovieVector3 = jumpPath.lerp(
+          startLocal[side],
+          endLocal[side],
+          s,
+        );
         const point: IAutoMovieVector3 = HumanFrame.point(
           { origin: root, yaw: heading },
           { ...p, y: p.y + 0.1 * l * Math.sin(Math.PI * u) },
@@ -592,13 +451,13 @@ export namespace jump {
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const root: IAutoMovieVector3 = rootAt(t);
-        const yaw: number = yawAt(t);
+        const yaw: number = push.yawAt(t);
         // Arms: forward and up with the push, held through flight, lowered as the landing absorbs.
         const raise = (side: "left" | "right"): number =>
           t <= P
             ? arm(side) +
               (60 - arm(side)) * minimumJerk(t / P).s +
-              swinging(side) * carry(t)
+              push.swinging(side) * push.carry(t)
             : t <= touchdown
               ? 60 - 30 * minimumJerk((t - P) / T).s
               : 30 * (1 - minimumJerk((t - touchdown) / (ABSORB + RISE)).s);
@@ -614,73 +473,9 @@ export namespace jump {
           rightLowerArm: [12 + raise("right") / 3, 0, 0],
         };
         const limbs: IHumanPosture["limbs"] = {};
-        if (t <= P) {
-          joints.hips = pelvisAt(t);
-          // Push-off: the take-off foot rolls over its ball; the reaching leg withdraws under the body.
-          // From the entry's own pitch and pitch rate, so a foot rolling on
-          // its heel or its ball keeps rolling.
-          const pitch: number = pitchAt(t);
-          const about: "heel" | "mtp" = t < lowered ? "heel" : "mtp";
-          const foot: HumanFoot.IPlacement = HumanFoot.pivot(
-            body,
-            takeoff,
-            about,
-            about === "heel" ? heel : ball,
-            supportHeading,
-            pitch,
-          );
-          limbs[`${takeoff}Leg`] = {
-            point: foot.ankle,
-            rotation: foot.rotation,
-            bend: knee(root, takeoff, supportHeading),
-            planted: true,
-            // The point the foot turns about is the one that stays on the floor.
-            contact: HumanFoot.offset(body, takeoff, about),
-          };
-          joints[`${takeoff}Toes`] = [-pitch, 0, 0];
-          // The reaching foot leaves at once on a minimum-jerk path, carrying
-          // the velocity and the spin it was entered with.
-          const s: number = minimumJerk(t / P).s;
-          const k: number = reach(t);
-          const b: number = reachBend(t);
-          const from: IAutoMovieVector3 = entry.feet[reaching].ankle;
-          const into: IAutoMovieVector3 = HumanFrame.point(
-            { origin: root, yaw: heading },
-            tuck,
-          );
-          const path: IAutoMovieVector3 = lerp(from, into, s);
-          const turned: IAutoMovieQuaternion = Quaternion.slerp(
-            entry.feet[reaching].rotation,
-            HumanFoot.rotation(heading, 0),
-            s,
-          );
-          limbs[`${reaching}Leg`] = {
-            point: {
-              x: path.x + stride.x * k + surge.x * b,
-              y: path.y + stride.y * k + surge.y * b,
-              z: path.z + stride.z * k + surge.z * b,
-            },
-            rotation:
-              spinRate < 1e-9
-                ? turned
-                : Quaternion.normalize(
-                    Quaternion.multiply(
-                      Quaternion.fromAxisAngle(
-                        {
-                          x: spin.x / spinRate,
-                          y: spin.y / spinRate,
-                          z: spin.z / spinRate,
-                        },
-                        (spinRate * k * 180) / Math.PI,
-                      ),
-                      turned,
-                    ),
-                  ),
-            bend: knee(root, reaching, heading),
-          };
-        } else if (t <= touchdown) {
-          return airborne(root, (t - P) / T);
-        } else {
+        if (t <= P) push.write(t, root, joints, limbs);
+        else if (t <= touchdown) return airborne(root, (t - P) / T);
+        else
           for (const side of ["left", "right"] as const)
             limbs[`${side}Leg`] = {
               point: landing[side].ankle,
@@ -689,7 +484,6 @@ export namespace jump {
               planted: true,
               contact: HumanFoot.offset(body, side, "mtp"),
             };
-        }
         return resolveHumanPosture.lower(body, {
           root,
           yaw,
@@ -699,57 +493,6 @@ export namespace jump {
           limbs,
         });
       },
-    };
-  }
-
-  /** The equivalent of a heading nearest another, so a turn takes the shorter way. */
-  function unwrap(angle: number, near: number): number {
-    return near + wrapDegrees(angle - near);
-  }
-
-  /**
-   * A quintic Hermite path from a point and velocity to a point and velocity
-   * over a duration, ending at rest acceleration and starting at `a0`, rest
-   * when absent: the push-off continues the interrupted motion's own root
-   * acceleration, which a planted leg's knee would otherwise show as a step
-   * in its flexion rate's slope at the cut.
-   */
-  function hermite(
-    p0: IAutoMovieVector3,
-    v0: IAutoMovieVector3,
-    p1: IAutoMovieVector3,
-    v1: IAutoMovieVector3,
-    duration: number,
-    t: number,
-    a0: IAutoMovieVector3 = { x: 0, y: 0, z: 0 },
-  ): IAutoMovieVector3 {
-    // The engine's quintic Hermite rule over seconds: values, velocities and
-    // accelerations (curvatures) at both ends.
-    const u: number = Math.min(1, Math.max(0, t / duration));
-    const rest: readonly number[] = [0, 0, 0];
-    const [x, y, z] = AutoMovieStationHermite.combine(
-      {
-        value: [p0.x, p0.y, p0.z],
-        slope: [v0.x, v0.y, v0.z],
-        curvature: [a0.x, a0.y, a0.z],
-      },
-      { value: [p1.x, p1.y, p1.z], slope: [v1.x, v1.y, v1.z], curvature: rest },
-      AutoMovieStationHermite.weights(u, duration, 0, true),
-    );
-    // combine maps the three-entry value array entry by entry, so all three exist.
-    return { x: x!, y: y!, z: z! };
-  }
-
-  /** A straight interpolation. */
-  function lerp(
-    a: IAutoMovieVector3,
-    b: IAutoMovieVector3,
-    s: number,
-  ): IAutoMovieVector3 {
-    return {
-      x: a.x + (b.x - a.x) * s,
-      y: a.y + (b.y - a.y) * s,
-      z: a.z + (b.z - a.z) * s,
     };
   }
 }
