@@ -6,6 +6,7 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
   IAutoMovieAffordance,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -52,12 +53,14 @@ export namespace HumanGraspUse {
      * Where the tool is used, which is where the grasp must also hold:
      * `ahead` presents it ahead of the shoulder, as a blade or a barrel is
      * aimed; `mouth` brings its working point to the performer's own mouth,
-     * as a vessel's lip is drunk from. `ahead` when absent. At the mouth
-     * the level part of the line runs from the hand back into the face (a
-     * cigarette's or a spoon's `forearm` line points at the lips), and
-     * `square` stays upright.
+     * as a vessel's lip is drunk from; a `region` brings it to that named
+     * region of the performer's own body, as a razor's edge is laid on the
+     * jaw or a comb on the scalp. `ahead` when absent. At the mouth or a
+     * region the level part of the line runs from the hand back into the
+     * body (a cigarette's or a spoon's `forearm` line points at the lips),
+     * and `square` stays upright.
      */
-    at?: "ahead" | "mouth";
+    at?: "ahead" | "mouth" | { region: AutoMovieHumanoidRegion };
   }
 
   /** The tool line's rise above the level forward line when presented, degrees, by use. */
@@ -158,11 +161,17 @@ export namespace HumanGraspUse {
       z: Math.cos(yaw),
     };
 
-    // Ahead of the body the tool's line runs away from it. At the mouth it
-    // runs back into the face, from the hand before it to the working point
-    // at the lips: a line that ran forward there would put the handle
+    // Ahead of the body the tool's line runs away from it. At the mouth or
+    // a region it runs back into the body, from the hand before it to the
+    // working point there: a line that ran forward would put the handle
     // inside the head.
-    const level: number = props.use.at === "mouth" ? -1 : 1;
+    const at: AutoMovieHumanoidRegion | undefined =
+      props.use.at === "mouth"
+        ? "mouth"
+        : typeof props.use.at === "object"
+          ? props.use.at.region
+          : undefined;
+    const level: number = at === undefined ? 1 : -1;
     const asked: IAutoMovieVector3 = {
       x: level * forward.x * Math.cos(rise),
       y: Math.sin(rise),
@@ -212,15 +221,16 @@ export namespace HumanGraspUse {
       z: shoulder.z + 0.6 * arm * forward.z,
     };
 
-    // At the mouth, the tool's working point goes to the mouth and the
-    // wrist follows from the hand's rotation: the point is rigid in the
+    // At the mouth or a region, the tool's working point goes there and
+    // the wrist follows from the hand's rotation: the point is rigid in the
     // hand, at the offset it has in the candidate grasp.
-    const region: IHumanBody["surfaces"]["regions"]["mouth"] =
-      context.body.surfaces.regions.mouth;
-    const jaw: IAutoMovieResolvedBone | undefined = bones.get(region.bone);
-    const mouth: IAutoMovieVector3 | undefined =
-      props.use.at === "mouth" && jaw !== undefined
-        ? resolveAutoMovieHumanoidSurfaces.place(region, jaw).point
+    const region: IHumanBody["surfaces"]["regions"]["mouth"] | undefined =
+      at === undefined ? undefined : context.body.surfaces.regions[at];
+    const bearer: IAutoMovieResolvedBone | undefined =
+      region === undefined ? undefined : bones.get(region.bone);
+    const site: IAutoMovieVector3 | undefined =
+      region !== undefined && bearer !== undefined
+        ? resolveAutoMovieHumanoidSurfaces.place(region, bearer).point
         : undefined;
     const inHand: IAutoMovieVector3 = Quaternion.rotateVector(
       Quaternion.inverse(props.wrist.rotation),
@@ -237,12 +247,12 @@ export namespace HumanGraspUse {
     );
 
     // Of the rolls about the asked line, the one nearest the hand's own
-    // rotation there (near the mouth, read a hand's length ahead of it,
-    // where the wrist comes to lie).
+    // rotation there (near the mouth or a region, read a hand's length
+    // ahead of it, where the wrist comes to lie).
     const own: IAutoMovieQuaternion = props.natural(
-      mouth === undefined
+      site === undefined
         ? ahead
-        : Vector3.add(mouth, Vector3.scale(forward, Vector3.length(inHand))),
+        : Vector3.add(site, Vector3.scale(forward, Vector3.length(inHand))),
     );
     let rotation: IAutoMovieQuaternion = Quaternion.normalize(laid);
     let nearest: number = -1;
@@ -262,9 +272,9 @@ export namespace HumanGraspUse {
       }
     }
     const point: IAutoMovieVector3 =
-      mouth === undefined
+      site === undefined
         ? ahead
-        : Vector3.subtract(mouth, Quaternion.rotateVector(rotation, inHand));
+        : Vector3.subtract(site, Quaternion.rotateVector(rotation, inHand));
 
     // The elbow's hint of this pose, not the reach's: below the middle of
     // the line from the shoulder to the wrist, by half the arm, where an
