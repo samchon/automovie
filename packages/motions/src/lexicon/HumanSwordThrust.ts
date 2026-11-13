@@ -55,8 +55,7 @@ export namespace HumanSwordThrust {
       );
 
       // A thrust states no edge, so the blade is turned about its own line
-      // the way the arm holds it with the least strain, and keeps that turn
-      // from the chamber on.
+      // the way the arm holds it with the least strain.
       const landed: StrikingHeld.IHandFrame = StrikingRoll.hand(
         context,
         s.tool,
@@ -65,10 +64,6 @@ export namespace HumanSwordThrust {
         Vector3.subtract(a.target, a.reach),
         HumanSword.CONE,
         a.posture,
-      );
-      const down: IAutoMovieVector3 = Quaternion.rotateVector(
-        landed.rotation,
-        s.tool.edge,
       );
       if (context.params.target !== undefined)
         try {
@@ -113,12 +108,19 @@ export namespace HumanSwordThrust {
           s.arm,
         ),
       );
-      const drawn: StrikingHeld.IHandFrame = StrikingHeld.hand(
+
+      // The chamber's turn about the blade is chosen for the chamber itself,
+      // as the landing's is: with the landing's turn carried back, the arm
+      // of a small body could not hold the chamber (the hand 35 degrees off
+      // what was asked, the wrist at its limits) and the fit jumped there.
+      const drawn: StrikingHeld.IHandFrame = StrikingRoll.hand(
+        context,
         s.tool,
         s.tool.length,
         hilt,
         Vector3.subtract(a.target, hilt),
-        down,
+        0,
+        context.entry.posture,
       );
       return StrikingBlade.plan(context, {
         tool: s.tool,
