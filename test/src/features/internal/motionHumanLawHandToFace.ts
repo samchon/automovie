@@ -8,6 +8,7 @@ import {
   AutoMovieMotionHumanAuditDifference,
   AutoMovieMotionHumanTouchEffector,
   HumanChain,
+  HumanSegment,
   IAutoMovieMotionHumanAuditMotion,
   type IHumanBody,
   handToFace,
@@ -39,7 +40,8 @@ import { motionHumanLaw } from "./motionHumanLaw";
  *    the entry, the task being performed from standing and back to it.
  * 5. A one-hand task leaves the other hand within 80 mm of its place.
  * 6. A two-hand task keeps each elbow on its own side of the body's
- *    median plane from the arrival to the leave.
+ *    median plane, read through the chest's joint, from the arrival to the
+ *    leave.
  * 7. Drinking and sipping hold the cup level at the mouth: the thumb's
  *    axis within 10 degrees of world up (Mayer and Krechetnikov 2012), on
  *    every body of the population sample.
@@ -50,7 +52,7 @@ import { motionHumanLaw } from "./motionHumanLaw";
  *
  * @param task The task.
  * @param name The body audited over the whole film.
- * @returns One complaint per expectation that does not hold, with its measured numbers; empty when the task is right.
+ * @returns One complaint per expectation that does not hold, with its measured numbers (an elbow's travel and the mirror also with the task's events in film seconds); empty when the task is right.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists every expectation with its bound and where the bound comes from.
  * @evidence contracts/development/implementation.md#principled-implementation Each expectation is a physical requirement, a cited range or a symmetry, read off displayed bones; none is the law's own goal.
@@ -85,13 +87,24 @@ export function motionHumanLawHandToFace(
   const mm = (metres: number): string => (metres * 1000).toFixed(1);
   const both: boolean = row.other !== undefined;
   const out: string[] = [];
+  // The task's events in film seconds, so a complaint at a second says
+  // which phase it falls in.
+  const events: string = film.performance
+    .segments("a")
+    .flatMap((segment: HumanSegment.ISegment): string[] =>
+      segment.plan.events.map(
+        (event: { name: string; share: number }): string =>
+          `${event.name} ${(segment.start + event.share * segment.plan.duration).toFixed(2)}`,
+      ),
+    )
+    .join(", ");
 
   out.push(...motionHumanLaw.audit(film, `${task} ${name}`, "a", body));
   for (const bone of ["rightLowerArm", "leftLowerArm"] as const) {
     const elbow = motionHumanLaw.travel(film, "a", bone);
     out.push(
       ...motionHumanLaw.expect(
-        `${task}: ${bone} travels ${mm(elbow.value)} mm in the frame from ${elbow.seconds.toFixed(3)} s (limit 80.0)`,
+        `${task}: ${bone} travels ${mm(elbow.value)} mm in the frame from ${elbow.seconds.toFixed(3)} s (limit 80.0; events ${events})`,
         elbow.value <= 0.08,
       ),
     );
@@ -165,8 +178,7 @@ export function motionHumanLawHandToFace(
         ...times
           .filter((t: number): boolean => t >= ready && t <= relax)
           .map(
-            (t: number): number =>
-              -own * (at(bone, t).x - at("upperChest", t).x),
+            (t: number): number => -own * (at(bone, t).x - at("chest", t).x),
           ),
       );
       out.push(
@@ -233,7 +245,7 @@ export function motionHumanLawHandToFace(
     );
     out.push(
       ...motionHumanLaw.expect(
-        `${task}: the left-hand task is ${mm(mirrored.distance.value)} mm off the right-hand task's mirror at ${mirrored.distance.seconds.toFixed(2)} s on ${mirrored.distance.where} (limit 5.0)`,
+        `${task}: the left-hand task is ${mm(mirrored.distance.value)} mm off the right-hand task's mirror at ${mirrored.distance.seconds.toFixed(2)} s on ${mirrored.distance.where} (limit 5.0; events ${events})`,
         mirrored.distance.value <= 0.005 && mirrored.duration <= 1e-9,
       ),
     );
