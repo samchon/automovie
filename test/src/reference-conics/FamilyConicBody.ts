@@ -958,8 +958,15 @@ namespace FamilyConicBody {
           // softened with the shoulder's casts taken off. It hands that skin over to the casts straight down (`shoulder`) over its last 90 mm; over its last 70 the notch was softened but still there.
           { name: "trunk.chest.side", stations: [400, 680], phases: [Math.PI / 2 - 0.82, Math.PI / 2 + 0.82], axis: [0, 0, -1], turn: [1, 0, 0], rows: 59, columns: 53, mirror: false, uncut: true, reach: 25, fade: [30, 90] },
           { name: "trunk.chest.side.twin", stations: [400, 680], phases: [-Math.PI / 2 - 0.82, -Math.PI / 2 + 0.82], axis: [0, 0, 1], turn: [-1, 0, 0], rows: 59, columns: 53, mirror: false, uncut: true, reach: 25, fade: [30, 90] },
-          // No net over the fold under each breast: its heights stayed under 1.3 mm on a chest that is star-shaped about the course, the wall's own
-          // misfit, and the crease itself is the breast's band. The fine layers over the fold are keyed on its stations (`AutoMovieHumanF1` `FOLD`).
+          // The fold under each breast, from the sternum round to the side, where the reference's skin turns from the breast's underside
+          // to the chest within a few millimetres. The chest's nets are 5 mm a row, and a cubic net that coarse rounded the fold over 10 to
+          // 15 mm, a soft shelf drawn in level bands 4 mm tall. A net 3 mm a row over the fold's stations lets the crease turn within two
+          // rows (its heights reach only 0.3 mm: the sections already fit there), and the layers inside it are cut as fine (`leaf`). The
+          // sections are 2 mm apart and every other one is withheld, so a net 2 mm a row, and one 0.016 or 0.024 rad a column, had rows the
+          // fit saw once and drew the reference's facets as a mottle; 3 mm and 0.035 rad, 5 mm at the breast, see each row twice. Cast
+          // square to the wall about its middle phase, 0.75 rad, as the chest's windows are, and fitted after them.
+          { name: "trunk.fold", stations: [400, 490], phases: [0.05, 1.45], axis: [-0.7317, 0, -0.6816], turn: [0.6816, 0, -0.7317], rows: 33, columns: 43, mirror: false, reach: 25, fade: [15, 15], fadePhase: [0.15, 0.15] },
+          { name: "trunk.fold.twin", stations: [400, 490], phases: [-1.45, -0.05], axis: [-0.7317, 0, 0.6816], turn: [-0.6816, 0, -0.7317], rows: 33, columns: 43, mirror: false, reach: 25, fade: [15, 15], fadePhase: [0.15, 0.15] },
           // The neck and head: windows whose cast turns with the phase (`turn`), square to the wall all the way round. One net goes round the
           // whole head with its seam down the back, and ends at the crown's tip, 918.88 mm, where a relief must vanish for the pole. With
           // fixed axes the head took four windows, front, back and two sides, whose edges met in a seam down the cheek and over the skull
@@ -1204,8 +1211,31 @@ namespace FamilyConicBody {
       // a phase. The skin is read along rays from the course, the innermost or outermost crossing kept, and each section whose rays crossed
       // its skin more than once, or missed it, is reported by station.
       const star: { s: number; folds: number }[] = [];
+      // `--plain=<directory> --skin-range=<from>-<to>`: outside that station range the sections fitted are another stored wall's own, read
+      // round its course every quarter degree, so a layout with feature lines refitted to the skin over a range keeps that wall elsewhere,
+      // its features at no depth there. The trunk's median and off-axis lines live where its sections are star-shaped about the course,
+      // 810 to 1,270 mm high (stations 30 to 490); above that, under the arms, the chin and the face, the sections fold.
+      const plain: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--plain="))?.slice(8);
+      const plainWall: K.IStored | null = plain === undefined ? null : (JSON.parse(await fs.readFile(path.join(plain, part.name + ".family.json"), "utf8")) as K.IStored);
+      const plainRead: ((s: number) => number[]) | null = plainWall === null ? null : K.reader(plainWall);
+      const skinRange: number[] = process.argv.find((argument: string): boolean => argument.startsWith("--skin-range="))?.slice(13).split("-").map(Number) ?? [-Infinity, Infinity];
+      const own = (s: number): C.P[] => {
+        const section: Q.ISection = C.chain(plainRead!(s), plainWall!.layout);
+        return Array.from({ length: 1440 }, (_: unknown, j: number): C.P => {
+          const phi: number = (2 * Math.PI * j) / 1440;
+          const r: number = Q.radius(section, phi);
+          return [r * Math.cos(phi), r * Math.sin(phi)];
+        });
+      };
       for (let s: number = domain[0], i: number = 0; s <= domain[1] + 1e-9; s += step / 2, ++i) {
         const frame: AutoMovieLoftFrame.IFrame = axis.at(s);
+        if (plainRead !== null && (s < skinRange[0]! || s > skinRange[1]!)) {
+          const points: C.P[] = own(s);
+          rows.push({ s, points, heldout: i % 2 === 1 });
+          skins.push(points);
+          loops.push(points);
+          continue;
+        }
         const cutLoop: C.P[] | null = cut(frame, s);
         const starred: { points: C.P[]; folds: number } | null = part.skin === undefined || cutLoop === null ? null : X.star(cutLoop, SKIN_RAYS, part.skin);
         if (part.skin !== undefined && cutLoop !== null) star.push({ s, folds: starred === null ? -1 : starred.folds });
@@ -1263,6 +1293,33 @@ namespace FamilyConicBody {
       log("family-body-hollows", { part: part.name, deepestMmAtDegrees: hollows.filter((_: string, i: number): boolean => i % 6 === 0).join(" ") });
       log("family-body-observed", { part: part.name, sections: rows.length, skipped });
 
+      // `--diagnose`: a fit that misses, decomposed instead of retried. For the part's first layout:
+      // - layout capacity: every tenth fitting section fitted alone (two knots 1 mm apart on the same section), its misfit and fault;
+      // - admissibility: how many sections' own seeds are no conic chain, and the first refusal;
+      // - longitudinal capacity: the joint fit on the seed's knots (`--seed`), then on twice and four times as many (each interval halved);
+      // - weighting: each fit's misfit by 50 mm band of stations, and training against withheld.
+      if (process.argv.includes("--diagnose") || process.argv.includes("--diagnose-alone")) {
+        const layout: C.ILayout = part.layouts[0]!.layout;
+        const train: F.IRow[] = rows.filter((row: F.IRow): boolean => !row.heldout);
+        const alone = train.filter((_: F.IRow, i: number): boolean => i % 10 === 0).map((row: F.IRow): string => {
+          const result: F.IResult = F.fit([row, { ...row, s: row.s + 1 }], [row.s, row.s + 1], layout, 4);
+          return row.s.toFixed(0) + ":" + (result.fault === null ? result.training.maximumMm.toFixed(2) + "/" + result.training.meanMm.toFixed(2) : "fault(" + String(result.fault).slice(0, 90) + ")");
+        });
+        log("family-body-diagnose-alone", { part: part.name, sections: alone.join(" ") });
+        const refusals: string[] = train.map((row: F.IRow): string | null => C.chain(C.seed(row.points, layout), layout).fault).filter((x: string | null): x is string => x !== null);
+        log("family-body-diagnose-seeds", { part: part.name, refused: refusals.length, of: train.length, first: refusals[0] ?? null });
+        const seedDir: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--seed="))?.slice(7);
+        const wall: K.IStored | null = seedDir === undefined ? null : (JSON.parse(await fs.readFile(path.join(seedDir, part.name + ".family.json"), "utf8")) as K.IStored);
+        let knots: number[] = wall === null ? [domain[0], (domain[0] + domain[1]) / 2, domain[1]] : [domain[0], ...wall.knots.filter((k: number): boolean => k > domain[0] + 1 && k < domain[1] - 1), domain[1]];
+        for (const times of process.argv.includes("--diagnose-alone") ? [] : [1, 2, 4]) {
+          const result: F.IResult = F.fit(rows, knots, layout, 4);
+          const bands: Map<number, number[]> = new Map();
+          for (const r of result.rows) bands.set(Math.floor(r.s / 50) * 50, [...(bands.get(Math.floor(r.s / 50) * 50) ?? []), r.maximumMm]);
+          log("family-body-diagnose-knots", { part: part.name, times, knots: knots.length, fault: result.fault, trainMaxMm: round(result.training.maximumMm), trainMeanMm: round(result.training.meanMm), heldMeanMm: round(result.heldout.meanMm), byBand: [...bands].map(([s, m]: [number, number[]]): string => s + ":" + (m.reduce((a: number, b: number): number => a + b, 0) / m.length).toFixed(1)).join(" "), ms: Math.round(result.milliseconds) });
+          knots = knots.flatMap((k: number, i: number): number[] => (i === 0 ? [k] : [(knots[i - 1]! + k) / 2, k]));
+        }
+        continue;
+      }
       // `--observe`: the sections alone, every fourth one's extents in its chart and how near its hull comes to the course, and no fit.
       if (process.argv.includes("--observe")) {
         log("family-body-sections", { part: part.name, rows: rows.filter((_: F.IRow, i: number): boolean => i % 4 === 0).map((row: F.IRow): string => row.s.toFixed(0) + " u " + Math.min(...row.points.map((p: C.P): number => p[0])).toFixed(0) + ".." + Math.max(...row.points.map((p: C.P): number => p[0])).toFixed(0) + " v " + Math.min(...row.points.map((p: C.P): number => p[1])).toFixed(0) + ".." + Math.max(...row.points.map((p: C.P): number => p[1])).toFixed(0) + " near " + Math.min(...Array.from({ length: 72 }, (_: unknown, j: number): number => C.radius(row.points, (Math.PI * j) / 36))).toFixed(0)) });
@@ -1345,7 +1402,7 @@ namespace FamilyConicBody {
         if (seed === undefined) return null;
         const wall: K.IStored = JSON.parse(await fs.readFile(path.join(seed, part.name + ".family.json"), "utf8")) as K.IStored;
         const knots: number[] = [domain[0], ...wall.knots.filter((k: number): boolean => k > domain[0] + gap(domain[0]) && k < domain[1] - gap(domain[1])), domain[1]];
-        return { knots, values: F.resample(wall.values, wall.knots, knots) };
+        return { knots, values: wall.values.length === C.units(part.layouts[0]!.layout).length ? F.resample(wall.values, wall.knots, knots) : [] };
       })();
       // `--held`: with `--seed`, the seed's knots are kept as they are, neither grown nor pruned, so a wall refitted over changed sections keeps
       // the knots its neighbours were sewn on.
@@ -1396,7 +1453,7 @@ namespace FamilyConicBody {
         }
         const base: number[] = lined ? Array.from({ length: spaced }, (_: unknown, k: number): number => domain[0] + ((domain[1] - domain[0]) * k) / (spaced - 1)) : [domain[0], (domain[0] + domain[1]) / 2, domain[1]];
         const knots0: number[] = best === null ? (seeded?.knots ?? base) : [...best.knots];
-        let result: F.IResult = attempt(knots0, layout, best === null ? seeded?.values : F.refine(best.values, depth - 1), "depth " + depth);
+        let result: F.IResult = attempt(knots0, layout, best === null ? (seeded !== null && seeded.values.length > 0 ? seeded.values : undefined) : F.refine(best.values, depth - 1), "depth " + depth);
         // The feature knots inserted into the first fit, one trial, kept as any growth round is.
         const inserted: number[] = fading.filter((s: number, i: number): boolean => s > domain[0] && s < domain[1] && result.knots.every((k: number): boolean => Math.abs(k - s) >= gap(s)) && fading.slice(0, i).every((t: number): boolean => Math.abs(t - s) >= gap(s)));
         if (result.fault === null && inserted.length > 0) {
