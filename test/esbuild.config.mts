@@ -9,11 +9,17 @@ import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
+import { parseScenarioSelection } from "./src/parseScenarioSelection.ts";
+import { selectScenarioNames } from "./src/selectScenarioNames.ts";
+
 /**
- * Builds the test program and runs it: `src/index.ts` and every test file as
- * entry points of one esbuild bundle, then the built program in this process,
- * so `node esbuild.config.mts <arguments>` runs the same program with the
- * same arguments as `ttsx src/index.ts <arguments>`.
+ * Builds the test program and runs it: `src/index.ts` and the test files the
+ * arguments select as entry points of one esbuild bundle, then the built
+ * program in this process, so `node esbuild.config.mts <arguments>` runs the
+ * same program with the same arguments as `ttsx src/index.ts <arguments>`.
+ *
+ * Only the selected test files are built, by the program's own selection
+ * rules, because building every test file costs more than running a few.
  *
  * Each run builds into a directory of its own, `bin/<process id>`, and
  * removes it when the process ends, so runs started at the same time in one
@@ -86,9 +92,22 @@ process.on("exit", (): void =>
   fs.rmSync(output, { recursive: true, force: true }),
 );
 
+const tests: Map<string, string> = new Map(
+  fs
+    .globSync("src/features/**/test_*.ts", { cwd: root })
+    .map((file: string): [string, string] => [path.parse(file).name, file]),
+);
+const selected: Set<string> = selectScenarioNames(
+  parseScenarioSelection(process.argv.slice(2)),
+  [...tests.keys()],
+);
+
 await build({
   absWorkingDir: root,
-  entryPoints: ["src/index.ts", "src/features/**/test_*.ts"],
+  entryPoints: [
+    "src/index.ts",
+    ...[...selected].map((name: string): string => tests.get(name)!),
+  ],
   outdir: output,
   outbase: "src",
   outExtension: { ".js": ".mjs" },
