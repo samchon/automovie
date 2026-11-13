@@ -222,8 +222,7 @@ export namespace FamilyConicSection {
     return { points: out, closed: radius / Math.sin(alpha / 2) - radius };
   }
 
-  /** Arclength either side over which a feature anchor's turning is read, mm, and the least turning, radians, that counts as a feature. */
-  const FEATURE_SPAN: number = 1.5;
+  /** The least turning, radians, that counts as a feature: an inflection's strength from which its line stands wholly on it. */
   const FEATURE_LEAST: number = 0.05;
 
   /** Step of the headings a feature's seed tangent is searched in where its reading does not make both its arcs conics, radians. */
@@ -232,107 +231,6 @@ export namespace FamilyConicSection {
   /** The share of its chord a seeded feature's arcs keep between their tangent lines' meeting and their ends: over the fit's 0.02 margin. */
   const SEED_MARGIN: number = 0.05;
 
-  /**
-   * Where a feature anchor (`f`) stands on an observed counter-clockwise polygon, on its run from the polygon's point `from` to `to` (the
-   * extremes either side of the run, in order): within the share `window` of the arclength of that whole run, the point of largest convex
-   * turning (`convex`), of largest concave turning (`concave`), or the sign change of turning nearest the window's middle (`inflection`,
-   * `FamilyConicExcursion.inflections`), turning read over `FEATURE_SPAN` mm either side; without a reading, the window's middle, so a
-   * feature that fades away seeds on its smooth stretch. Its tangent is the direction across the same span. Only points past `after`
-   * (the feature placed before it in the run, or the run's start) are candidates, so the run keeps its order.
-   *
-   * The window is a share of the whole run, frame extreme to frame extreme, because every feature of a run stands on one chord, its
-   * frame's (`AutoMovieHumanConicSection.frame`). Read on the stretch left after the feature before it, the windows compounded: on a
-   * convex section, where no inflection or concave feature has a reading, the trunk's six front features fell to their windows'
-   * middles at 0.14, 0.33, 0.60, 0.82, 0.95 and 0.99 of the run, the last three within its last twentieth, and an arc between them
-   * swung round the course point at every station (`--seeds`, the lined trunk on its stored wall). A run of one feature reads as before.
-   */
-  function feature(points: readonly P[], anchor: IAnchor, from: number, to: number, after: number = from): { index: number; point: P; heading: number; weight: number } {
-    const n: number = points.length;
-    const run: number[] = [];
-    for (let i: number = from; ; i = (i + 1) % n) {
-      run.push(i);
-      if (i === to || run.length > n) break;
-    }
-    const along: number[] = [0];
-    for (let k: number = 1; k < run.length; ++k) along.push(along[k - 1]! + Math.hypot(points[run[k]!]![0] - points[run[k - 1]!]![0], points[run[k]!]![1] - points[run[k - 1]!]![1]));
-    const total: number = along.at(-1)! || 1;
-    const window: [number, number] = anchor.window ?? [0.1, 0.9];
-    // Candidates stand past the feature before it in the run.
-    const floor: number = run.indexOf(after);
-    const past = (k: number): boolean => floor < 0 || k >= floor;
-    const inside: number[] = run.filter((_: number, k: number): boolean => past(k) && along[k]! / total >= window[0] && along[k]! / total <= window[1]);
-    const middle: number = ((window[0] + window[1]) / 2) * total;
-    const nearest = (candidates: number[]): number => candidates.reduce((a: number, b: number): number => (Math.abs(along[run.indexOf(b)]! - middle) < Math.abs(along[run.indexOf(a)]! - middle) ? b : a));
-    const step = (i: number, direction: 1 | -1): number => {
-      let k: number = i;
-      let length: number = 0;
-      while (length < FEATURE_SPAN) {
-        const next: number = (k + direction + n) % n;
-        length += Math.hypot(points[next]![0] - points[k]![0], points[next]![1] - points[k]![1]);
-        k = next;
-        if (k === i) break;
-      }
-      return k;
-    };
-    const turn = (i: number): number => {
-      const a: P = points[step(i, -1)]!;
-      const p: P = points[i]!;
-      const b: P = points[step(i, 1)]!;
-      const d: number = Math.atan2(b[1] - p[1], b[0] - p[0]) - Math.atan2(p[1] - a[1], p[0] - a[0]);
-      return Math.atan2(Math.sin(d), Math.cos(d));
-    };
-    const heading = (i: number): number => {
-      const a: P = points[step(i, -1)]!;
-      const b: P = points[step(i, 1)]!;
-      return Math.atan2(b[1] - a[1], b[0] - a[0]);
-    };
-    // The default, where the feature has no reading: the point of the run past the feature before it whose projection on the frame's chord
-    // stands at the window's middle share of that chord, the same place on every section.
-    const c0: P = points[run[0]!]!;
-    const c1: P = points[to]!;
-    const chord: P = [c1[0] - c0[0], c1[1] - c0[1]];
-    const square: number = chord[0] * chord[0] + chord[1] * chord[1] || 1;
-    const share = (i: number): number => ((points[i]![0] - c0[0]) * chord[0] + (points[i]![1] - c0[1]) * chord[1]) / square;
-    const share0: number = (window[0] + window[1]) / 2;
-    const candidates: number[] = run.filter((_: number, k: number): boolean => past(k));
-    const fallback: number = candidates.reduce((a: number, b: number): number => (Math.abs(share(b) - share0) < Math.abs(share(a) - share0) ? b : a));
-    // The reading and its strength: a convex or concave feature's largest turn of its sign; an inflection's sign change nearest the
-    // window's middle, its strength the lesser of the largest turns of either sign within `FEATURE_SPAN` of it.
-    let reading: number = fallback;
-    let strength: number = 0;
-    if (inside.length > 0) {
-      if (anchor.feature === "inflection") {
-        const bends: number[] = X.inflections(points).filter((i: number): boolean => inside.includes(i));
-        if (bends.length > 0) {
-          reading = nearest(bends);
-          const k0: number = run.indexOf(reading);
-          const near: number[] = run.filter((_: number, k: number): boolean => Math.abs(along[k]! - along[k0]!) <= 2 * FEATURE_SPAN);
-          strength = Math.min(Math.max(...near.map(turn)), -Math.min(...near.map(turn)));
-        }
-      } else {
-        const sign: number = anchor.feature === "concave" ? -1 : 1;
-        reading = inside.reduce((a: number, b: number): number => (sign * turn(b) > sign * turn(a) ? b : a));
-        strength = sign * turn(reading);
-      }
-    }
-    // The default moved toward the reading by a C2 ramp of the reading's strength: 0 below half `FEATURE_LEAST`, 1 above it. A hard
-    // switch between a weak reading and the default made the feature jump between stations wherever its groove was faint, and lofting.md
-    // has it that a hard clamp or switch in a target becomes a crease however finely it is sampled; blended, a feature fades into its
-    // chord where its groove fades and stands on the groove where it is real.
-    const x: number = Math.min(1, Math.max(0, (strength - FEATURE_LEAST / 2) / (FEATURE_LEAST / 2)));
-    const w: number = x * x * x * (10 - 15 * x + 6 * x * x);
-    const pa: P = points[fallback]!, pb: P = points[reading]!;
-    const ha: number = heading(fallback), hb: number = heading(reading);
-    const turned: number = Math.atan2(Math.sin(hb - ha), Math.cos(hb - ha));
-    void pa;
-    void turned;
-    return { index: reading, point: pb, heading: hb, weight: inside.length === 0 ? 0 : w };
-  }  /**
-   * A starting field vector read from one observed polygon: each extreme in
-   * its window, each median and inflection where the polygon crosses its
-   * segment, and each shoulder where the polygon crosses its arc's median.
-   * The joint fit owns the final values; this only has to be admissible.
-   */
   /** One end of an arc of a section's conic conversion: its point, its unit tangent, whether its two arcs bend opposite ways, and the arc it starts. */
   interface IEnd {
     point: P;
@@ -343,12 +241,15 @@ export namespace FamilyConicSection {
   }
 
   /**
-   * Fairing scale of a section before its conversion, mm: the spacing of the periodic cubic B-spline through its radius. The trunk's
-   * narrowest grooves that its form keeps, the linea alba's and the sternal groove's, are 12 to 20 mm wide on f1, so a control every 6 mm
-   * keeps them and removes the facets' ripple (lofting.md: "fair each section to the scale of the form, which means removing the ripples
-   * smaller than the features the form keeps").
+   * Fairing cutoff of a section before its conversion, mm of girth: the wavelength the fairing halves. lofting.md: "fair each section to
+   * the scale of the form, which means removing the ripples smaller than the features the form keeps". f1's ripple is its facets': the
+   * sections' turning per unit arclength peaks at 9 to 14 mm of wavelength on the trunk (the median of each 100 mm stretch). The narrowest
+   * grooves the form keeps, the linea alba's and the sternal groove's, are 12 to 20 mm wide. A cutoff at the grooves' upper width takes a
+   * 14 mm ripple to a fifth while the front median and back grooves keep their inflections on the chest (450 to 600 mm), and on the abdomen (300 to 400 mm) it leaves
+   * 2.4 inflections on a side's back quarter where the least-squares cubic B-spline with a control every 6 mm left 11.8: that ripple, cut
+   * by the converter into arcs at every inflection, spent its arc budget and the rest of the turn was dropped (a partial conversion).
    */
-  const FAIR_MM: number = 6;
+  const FAIR_MM: number = 20;
 
   /** The least share of its run's arclength a feature line keeps from the run's ends: the model's `EDGE` of 0.03 on the chord, with a margin. */
   const LINE_EDGE: number = 0.05;
@@ -357,50 +258,44 @@ export namespace FamilyConicSection {
   const CONVERT: { toleranceMm: number; maximumArcs: number; maximumDepth: number } = { toleranceMm: 0.25, maximumArcs: 256, maximumDepth: 16 };
 
   /**
-   * A section's conic conversion: its radius faired as the least-squares periodic uniform cubic B-spline in phase at `FAIR_MM` of girth a
-   * control, converted by Ahn's conic approximation (`approximateAutoMovieRecoveryConicsAhn`), and the ends of its arcs with their tangents.
+   * A section's conic conversion: its radius faired as the periodic smoothing spline of curvature penalty in phase, its half-power
+   * wavelength `FAIR_MM` of girth, converted by Ahn's conic approximation (`approximateAutoMovieRecoveryConicsAhn`), and the ends of its
+   * arcs with their tangents.
    */
   function converted(points: readonly P[]): { ends: IEnd[]; at: (phi: number) => { point: P; tangent: P } } {
     const M: number = 720;
     const radii: number[] = Array.from({ length: M }, (_: unknown, k: number): number => radius(points, (2 * Math.PI * k) / M));
     let girth: number = 0;
     for (let i: number = 0; i < points.length; ++i) girth += Math.hypot(points[(i + 1) % points.length]![0] - points[i]![0], points[(i + 1) % points.length]![1] - points[i]![1]);
-    const NB: number = Math.max(16, Math.round(girth / FAIR_MM));
-    const basis = (u: number, order: number): number[] => {
-      const t: number = u - Math.floor(u);
-      if (order === 0) return [(1 - t) ** 3 / 6, (3 * t ** 3 - 6 * t ** 2 + 4) / 6, (-3 * t ** 3 + 3 * t ** 2 + 3 * t + 1) / 6, t ** 3 / 6];
-      if (order === 1) return [-((1 - t) ** 2) / 2, (3 * t ** 2 - 4 * t) / 2, (-3 * t ** 2 + 2 * t + 1) / 2, t ** 2 / 2];
-      if (order === 2) return [1 - t, 3 * t - 2, -3 * t + 1, t];
-      if (order === 3) return [-1, 3, -3, 1];
-      return [0, 0, 0, 0];
-    };
-    const G: number[][] = Array.from({ length: NB }, (): number[] => new Array<number>(NB + 1).fill(0));
-    radii.forEach((r: number, k: number): void => {
-      const u: number = (k / M) * NB;
-      const i: number = Math.floor(u);
-      const b: number[] = basis(u, 0);
-      for (let x: number = 0; x < 4; ++x) {
-        for (let y: number = 0; y < 4; ++y) G[(i - 1 + x + NB) % NB]![(i - 1 + y + NB) % NB]! += b[x]! * b[y]!;
-        G[(i - 1 + x + NB) % NB]![NB]! += b[x]! * r;
+    // The periodic smoothing spline that penalises the radius's second derivative is, in the trigonometric basis, each harmonic n of the
+    // data shrunk by 1 / (1 + lambda n^4) (Wahba, Spline Models for Observational Data, 1990, ch. 2, the periodic space W2), a roll-off that
+    // passes the form and halves the harmonic whose wavelength is the cutoff: lambda = (FAIR_MM / girth)^4. A least-squares spline on
+    // fixed controls has no such cutoff: at a control every 6 mm it followed f1's facets.
+    const H: number = M / 2;
+    const A: number[] = [], B: number[] = [], W: number[] = [];
+    const cut: number = girth / FAIR_MM;
+    for (let n: number = 0; n <= H; ++n) {
+      let a: number = 0, b: number = 0;
+      for (let k: number = 0; k < M; ++k) {
+        a += radii[k]! * Math.cos((2 * Math.PI * n * k) / M);
+        b += radii[k]! * Math.sin((2 * Math.PI * n * k) / M);
       }
-    });
-    for (let c: number = 0; c < NB; ++c) {
-      let piv: number = c;
-      for (let r: number = c + 1; r < NB; ++r) if (Math.abs(G[r]![c]!) > Math.abs(G[piv]![c]!)) piv = r;
-      [G[c], G[piv]] = [G[piv]!, G[c]!];
-      for (let r: number = 0; r < NB; ++r) {
-        if (r === c) continue;
-        const m: number = G[r]![c]! / G[c]![c]!;
-        for (let x: number = c; x <= NB; ++x) G[r]![x]! -= m * G[c]![x]!;
-      }
+      const half: boolean = n === 0 || n === H;
+      A.push(((half ? 1 : 2) * a) / M);
+      B.push(((half ? 1 : 2) * b) / M);
+      W.push(1 / (1 + (n / cut) ** 4));
     }
-    const ctrl: number[] = G.map((row: number[], i: number): number => row[NB]! / row[i]!);
-    const scale: number = NB / (2 * Math.PI);
+    // r's derivative of an order: each harmonic's a cos + b sin turned by the order's quarter turns, its own number to the order a factor.
     const rAt = (phi: number, order: number): number => {
-      const u: number = (((phi / (2 * Math.PI)) % 1) + 1) % 1 * NB;
-      const i: number = Math.floor(u);
-      const b: number[] = basis(u, order);
-      return b.reduce((sum: number, w: number, x: number): number => sum + w * ctrl[(i - 1 + x + NB) % NB]!, 0) * scale ** order;
+      const c1: number = Math.cos(phi), s1: number = Math.sin(phi);
+      let c: number = 1, s: number = 0, even: number = 0, odd: number = 0;
+      for (let n: number = 0; n <= H; ++n) {
+        const f: number = W[n]! * n ** order;
+        even += f * (A[n]! * c + B[n]! * s);
+        odd += f * (B[n]! * c - A[n]! * s);
+        [c, s] = [c * c1 - s * s1, s * c1 + c * s1];
+      }
+      return [even, odd, -even, -odd][order % 4]!;
     };
     // The curve p(phi) = r(phi) e(phi), e = (cos, sin): its derivatives by Leibniz's rule, e's k-th derivative being e turned by k quarter turns.
     const binomial = (n: number, k: number): number => (k === 0 || k === n ? 1 : binomial(n - 1, k - 1) + binomial(n - 1, k));
@@ -425,6 +320,16 @@ export namespace FamilyConicSection {
     };
     const result = approximateAutoMovieRecoveryConicsAhn(curve, CONVERT);
     const arcs = [...result.arcs].sort((p, q): number => p.domain[0] - q.domain[0]);
+    // The converter fits no interval whose curvature changes sign, so it bisects toward each inflection to its depth limit and leaves the
+    // last sliver there (the domain over 2 to the depth) unresolved: a partial result made only of such slivers is the whole section. Each
+    // of its leaves ends an arc or unresolved, so while its arc budget lasts its arcs and slivers number at most `maximumArcs`; past it, it
+    // leaves wider stretches unconverted and they number more. Then the chain read across them is not the section (f1's ripple at a 6 mm
+    // fairing: at station 28 the chain stopped at 107 degrees and the ray at phase 0 met nothing), so it is refused rather than drawn.
+    const sliver: number = (curve.domain[1] - curve.domain[0]) / 2 ** CONVERT.maximumDepth;
+    const covered: number = arcs.reduce((sum: number, arc): number => sum + (arc.domain[1] - arc.domain[0]), 0);
+    const slivers: number = (curve.domain[1] - curve.domain[0] - covered) / sliver;
+    if (arcs.length + slivers > CONVERT.maximumArcs + 0.5)
+      throw new Error(`the section's conic conversion ran out of arcs (${arcs.length} arcs, ${slivers.toFixed(0)} slivers' width unconverted): ${result.diagnostics.join(" / ")}`);
     const bend = (arc: (typeof arcs)[number]): number => {
       const [p0, p1, p2] = arc.controls;
       return Math.sign((p1[0] - p0[0]) * (p2[1] - p1[1]) - (p1[1] - p0[1]) * (p2[0] - p1[0]));
@@ -681,6 +586,12 @@ export namespace FamilyConicSection {
   /** Feature anchors placed from outside (`seedAll`): each listed anchor's point and unit tangent. */
   export type Placement = (found: readonly (P | null)[], tangent: readonly (P | null)[]) => Map<number, { point: P; tangent: P }>;
 
+  /**
+   * A starting field vector read from one observed polygon: each extreme in
+   * its window, each median and inflection where the polygon crosses its
+   * segment, and each shoulder where the polygon crosses its arc's median.
+   * The joint fit owns the final values; this only has to be admissible.
+   */
   export function seed(points: readonly P[], layout: ILayout, place?: Placement): number[] {
     const K: number = layout.anchors.length;
     const values: number[] = [];
