@@ -226,6 +226,19 @@ export namespace StrikingBlade {
       stroke.stay
         ? clock.progress("start", "ready", seconds)
         : clock.envelope(["start", "ready"], ["relax", "end"], seconds);
+    const shoulderOf = (posture: IHumanPosture): IAutoMovieVector3 =>
+      HumanTrunk.resolve(body, posture).get(`${tool.side}UpperArm`)!
+        .worldPosition;
+
+    // The holding shoulder where the stroke starts and where it lands.
+    let ends: readonly [IAutoMovieVector3, IAutoMovieVector3] | undefined;
+    const borne = (): readonly [IAutoMovieVector3, IAutoMovieVector3] =>
+      (ends ??= [
+        shoulderOf(base.posture(0)),
+        shoulderOf(
+          turned(base.posture(clock.at("stroke")), stroke.turn ?? 0),
+        ),
+      ]);
     const frame = (
       posture: IHumanPosture,
       seconds: number,
@@ -237,10 +250,33 @@ export namespace StrikingBlade {
           ["strokeStart", "stroke", "strokeEnd"],
           seconds,
         );
-      const at: StrikingHeld.IHandFrame = stroke.path(
+      const sought: StrikingHeld.IHandFrame = stroke.path(
         stroke.stop < 1 ? Math.min(stroke.stop, progress) : progress,
         seconds,
       );
+
+      // A path is laid from the shoulder as it stands to the shoulder the
+      // advance brings, as if the body advanced with the stroke's own
+      // progress. The body advances on its own time, so the hand is carried
+      // by what the shoulder is ahead of or behind that: otherwise a lunge
+      // drives the body through its own hand and folds the arm to its limit.
+      const at: StrikingHeld.IHandFrame =
+        stroke.advance === "none" || !(stroke.stop > 0)
+          ? sought
+          : {
+              ...sought,
+              point: Vector3.add(
+                sought.point,
+                Vector3.subtract(
+                  shoulderOf(posture),
+                  Vector3.lerp(
+                    borne()[0],
+                    borne()[1],
+                    Math.min(1, Math.max(0, progress / stroke.stop)),
+                  ),
+                ),
+              ),
+            };
       const weight: number = present(seconds);
       if (weight >= 1) return at;
       return {
