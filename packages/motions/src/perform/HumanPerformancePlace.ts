@@ -18,6 +18,7 @@ import type { HumanObstacle } from "./HumanObstacle";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
 import { HumanPerformanceOverlays } from "./HumanPerformanceOverlays";
+import { HumanPerformanceParams } from "./HumanPerformanceParams";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import type { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanSegment } from "./HumanSegment";
@@ -63,6 +64,10 @@ export namespace HumanPerformancePlace {
       });
     const given: object =
       (intent.parameters?.params as object | undefined) ?? {};
+
+    // An action's or a row's parameters are read against its schema first,
+    // so a missing or a wrong value is refused at its entry.
+    HumanPerformanceParams.check(name, given);
     const params: object = law.resolve?.(given) ?? given;
 
     // The parameter through which this action named an id, so a refusal of a

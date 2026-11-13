@@ -359,6 +359,25 @@ export namespace LexiconRowNet {
   }
 
   /**
+   * What the net gives a row: its partner scene's parameters, else what it
+   * leaves open alone; none when the row needs nothing.
+   *
+   * @param row The row's name.
+   * @returns The parameters, or undefined.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is returned and when nothing is.
+   * @evidence contracts/development/implementation.md#principled-implementation The net's own tables, so a caller that varies a row's parameters starts from the scene the net plans.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two lookups.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None; a row the tables do not name gives nothing.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns the table's own record.
+   */
+  export function given(row: string): object | undefined {
+    return PAIRED[row]?.[1] ?? ALONE[row];
+  }
+
+  /**
    * Build one row in the scene the net stages it in, on the average man
    * with the small woman as the partner, with some of its parameters
    * replaced, and return what the build threw.

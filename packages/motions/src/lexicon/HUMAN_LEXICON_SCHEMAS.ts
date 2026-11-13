@@ -5,7 +5,9 @@ import schemas from "./HUMAN_LEXICON_SCHEMAS.json";
  * file `pnpm --filter @automovie/motions schemas` generates with typia from
  * the laws' own parameter types (`IHumanLexiconParams`), so a page lists a
  * row's parameters with their types, bounds, defaults and meanings as the
- * checker reads them. A row's schema may be a `$ref` into `components`.
+ * checker reads them, and every action's (`actions`), which a performance
+ * checks an action's parameters against at its entry. A schema may be a
+ * `$ref` into `components`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the record holds, where it comes from and how a reference is read.
  * @evidence contracts/development/design.md#principled-representation The generated file as typed data: rows by name and the components their references name, OpenAPI 3.1 JSON schema.
@@ -33,6 +35,9 @@ export namespace HUMAN_LEXICON_SCHEMAS {
 
     /** Each row's parameter schema, or a reference into `components`, by row name. */
     rows: Record<string, ISchema>;
+
+    /** Each action's parameter schema, or a reference into `components`, by action name, for an action named directly. */
+    actions: Record<string, ISchema>;
 
     /** The named schemas the rows' references point to. */
     components: { schemas?: Record<string, ISchema> };

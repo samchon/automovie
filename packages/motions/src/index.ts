@@ -122,6 +122,7 @@ export * from "./law/IHumanEntryState";
 export * from "./law/IHumanInterruptRow";
 export * from "./law/IHumanLayer";
 export * from "./perform/HumanPerformance";
+export * from "./perform/HumanPerformanceParams";
 export * from "./perform/HumanSegment";
 export * from "./perform/IHumanPerformer";
 export * from "./perform/IHumanProp";
