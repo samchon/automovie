@@ -1,12 +1,9 @@
-import { Quaternion } from "@automovie/engine";
 import type {
   AutoMovieMotionTarget,
-  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -22,10 +19,9 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import type { HumanGrasp } from "../handling/HumanGrasp";
-import { HumanGraspUse } from "../handling/HumanGraspUse";
 import { HumanHeld } from "../handling/HumanHeld";
+import { HumanHeldUse } from "../handling/HumanHeldUse";
 import { HumanBound } from "../law/HumanBound";
-import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -35,7 +31,6 @@ import { HumanColliders } from "../posture/HumanColliders";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { touchPresented } from "./touchPresented";
 import { touchRegion } from "./touchRegion";
 import type { touchSite } from "./touchSite";
@@ -181,7 +176,7 @@ export namespace touch {
      * only its point, as a razor keeps its angle on the jaw. Absent, the
      * prop's point faces into the region.
      */
-    grasp?: { handle: string; line: HumanGraspUse.IUse["line"] };
+    grasp?: HumanHeldUse.IGrasp;
 
     /** A miss staged as a touch: the effector passes the region this far off its surface along its normal, in the hand's lengths, at the stroke's full speed, and no contact is declared (a stage slap). A touch that lands when absent. */
     clear?: number;
@@ -261,7 +256,16 @@ export namespace touch {
 
     // A tool held for its use keeps the rotation its grasp presents it in at
     // the region; the first hand alone holds it.
-    const kept: HumanGrasp.IKey | null = held(context, first);
+    const kept: HumanGrasp.IKey | null = HumanHeldUse.kept(
+      context,
+      first,
+      {
+        ...(p.prop === undefined ? {} : { prop: p.prop }),
+        ...(p.point === undefined ? {} : { point: p.point }),
+        ...(p.grasp === undefined ? {} : { grasp: p.grasp }),
+      },
+      p.target.kind === "self" ? p.target.region : null,
+    );
     const shown: touchPresented.IPresented | null =
       p.other === undefined ? touchPresented.of(context, first, p.target) : null;
     const bones = shown?.bones ?? poseBones(body, context.entry.pose);
@@ -478,77 +482,5 @@ export namespace touch {
     return p.prop === undefined
       ? plan
       : HumanHeld.kept(context, plan, first, p.prop);
-  }
-
-  /**
-   * The pose a held tool is laid on its region in, when the touch names the
-   * grasp it was taken up by for its use: the use's presented key
-   * (`HumanGraspUse.presented`) with the region as the use's place, from the
-   * hand as the entry holds it.
-   *
-   * @param context The action's context.
-   * @param side The holding hand.
-   * @returns The key, or null when the touch names no grasp.
-   * @throws {HumanRefusal} A `parameter` refusal on `grasp` when it comes without a prop and its point or on a region that is not the performer's own.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the key, its inputs and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The grasp was chosen so that this key holds (`pickUp`'s use), so the stroke that keeps its rotation asks only a pose the grip was taken for; the hand's own rotation at a place is the arm's fit there with the hanging elbow, as `pickUp` reads it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The check, the entry hand, the hand's own rotation, one delegation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tool is named; a grasp on a partner's region is refused, since the use's place is a region of the performer's own body.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `HumanGraspUse.presented`, the posture resolver and `AutoMovieMotionHumanBend.hang`.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One entry pose read and a few arm fits per touch.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
-   */
-  function held(
-    context: IHumanActionContext<IParams>,
-    side: HumanHand.Side,
-  ): HumanGrasp.IKey | null {
-    const p: IParams = context.params;
-    if (p.grasp === undefined) return null;
-    if (
-      p.prop === undefined ||
-      p.point === undefined ||
-      p.target.kind !== "self"
-    )
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "grasp",
-        value: p.grasp,
-        feasible: null,
-        reason:
-          "a grasp kept through a touch lays a held prop's point on a region of the performer's own body, and this touch names no such prop, point or region",
-        fix: "name the held prop and its point and touch a region of the performer's own body, or leave out the grasp",
-      });
-    const body: IHumanBody = context.body;
-    const hand = poseBones(body, context.entry.pose).get(`${side}Hand`);
-    const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
-      body,
-      context.entry.posture,
-      side,
-    );
-    const limb: IHumanPosture.Limb = `${side}Arm`;
-    return HumanGraspUse.presented({
-      context,
-      prop: p.prop,
-      handle: p.grasp.handle,
-      side,
-      wrist: {
-        point: hand?.worldPosition ?? { x: 0, y: 0, z: 0 },
-        rotation: hand?.worldRotation ?? Quaternion.identity(),
-      },
-      use: {
-        tip: p.point,
-        line: p.grasp.line,
-        at: { region: p.target.region },
-      },
-      natural: (point: IAutoMovieVector3): IAutoMovieQuaternion =>
-        poseBones(
-          body,
-          resolveHumanPosture(body, {
-            ...context.entry.posture,
-            limbs: { ...context.entry.posture.limbs, [limb]: { point, bend } },
-          }),
-        ).get(`${side}Hand`)?.worldRotation ?? Quaternion.identity(),
-    });
   }
 }

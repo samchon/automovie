@@ -67,7 +67,7 @@ export namespace HumanHabit {
     task: "read",
   });
 
-  /** A look at a wristwatch: the left wrist raised before the eyes at the reading distance (`handToFace.READING`), its back turned to them and the forearm across the body, the head bowed 20 degrees to it (provisional), held a second and a half (provisional). */
+  /** A look at a wristwatch: the left wrist raised before the eyes at the reading distance (`handToFaceSheet.READING`), its back turned to them and the forearm across the body, the head bowed 20 degrees to it (provisional), held a second and a half (provisional). */
   export const checkWatch = HumanActionRow.of("checkWatch", handToFace, {
     task: {
       region: null,

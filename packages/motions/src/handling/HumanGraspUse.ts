@@ -31,8 +31,8 @@ import type { HumanGrasp } from "./HumanGrasp";
  * shoulder on the line of its use.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a use names, why the reach alone is not enough and how the use enters the grasp's choice.
- * @evidence contracts/development/design.md#principled-representation A use is the tool's working point by its affordance id and one of three lines to the forearm, the hammer, oblique and in-line grips of the grasp taxonomies (Feix et al. 2016); the search ranges are data beside it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The use, its three lines, the bounds of the search and the presented key; read by `pickUp`.
+ * @evidence contracts/development/design.md#principled-representation A use is the tool's working point by its affordance id and one of four lines: three to the forearm, the hammer, oblique and in-line grips of the grasp taxonomies (Feix et al. 2016), and one across the body, the long axis of a thing held in both hands; the search ranges are data beside it.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The use, its four lines, the bounds of the search and the presented key; read by `pickUp`, `touch` and `handToFace`.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No tool kind is named: a sword and a pistol differ only in the id of their working point and the line asked.
  */
 export namespace HumanGraspUse {
@@ -45,9 +45,11 @@ export namespace HumanGraspUse {
      * How the tool's line lies to the forearm when it is presented: `forearm`
      * continues it, as a pistol's bore and a thrusting point do; `oblique`
      * rises 45 degrees from it, a sabre grip across the palm; `square`
-     * stands upright on it, a hammer grip.
+     * stands upright on it, a hammer grip; `across` runs level across the
+     * body toward the other hand, as a camera or a bar held in both hands
+     * lies, whatever the place.
      */
-    line: "forearm" | "oblique" | "square";
+    line: "forearm" | "oblique" | "square" | "across";
 
     /**
      * Where the tool is used, which is where the grasp must also hold:
@@ -63,11 +65,12 @@ export namespace HumanGraspUse {
     at?: "ahead" | "mouth" | { region: AutoMovieHumanoidRegion };
   }
 
-  /** The tool line's rise above the level forward line when presented, degrees, by use. */
+  /** The tool line's rise above the level line when presented, degrees, by use. */
   export const RISE: Readonly<Record<IUse["line"], number>> = {
     forearm: 0,
     oblique: 45,
     square: 90,
+    across: 0,
   };
 
   /** The most a grasp chosen for a use may leave unmet at its presented pose, as `HumanGrasp.IReach.miss` counts it (degrees of hand rotation plus millimetres of wrist place; provisional: 15, about what a wrist takes up unseen). */
@@ -172,11 +175,21 @@ export namespace HumanGraspUse {
           ? props.use.at.region
           : undefined;
     const level: number = at === undefined ? 1 : -1;
-    const asked: IAutoMovieVector3 = {
-      x: level * forward.x * Math.cos(rise),
-      y: Math.sin(rise),
-      z: level * forward.z * Math.cos(rise),
-    };
+
+    // A line across the body runs level toward the other hand: the body's
+    // left from the right hand, its right from the left.
+    const asked: IAutoMovieVector3 =
+      props.use.line === "across"
+        ? {
+            x: (props.side === "right" ? 1 : -1) * Math.cos(yaw),
+            y: 0,
+            z: (props.side === "right" ? -1 : 1) * Math.sin(yaw),
+          }
+        : {
+            x: level * forward.x * Math.cos(rise),
+            y: Math.sin(rise),
+            z: level * forward.z * Math.cos(rise),
+          };
 
     // The shortest turn from one line to the other; lines that oppose each
     // other turn about the body's left, which keeps the turn in the plane

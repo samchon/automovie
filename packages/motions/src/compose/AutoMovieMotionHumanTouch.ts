@@ -237,23 +237,9 @@ export namespace AutoMovieMotionHumanTouch {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitives close over their props and one hint.
    */
   export function touch(props: ITouch): IAutoMovieMotionHumanPrimitive[] {
-    HumanBound.whole("count", props.count);
     const { body, clock, side } = props;
     const form: AutoMovieMotionHumanTouchForm.IForm =
       AutoMovieMotionHumanTouchForm.FORMS[props.kind];
-    const hand: number = body.measure.hand * (props.extent ?? 1);
-    const standoff: number =
-      (props.standoff ?? 0) +
-      AutoMovieMotionHumanTouchEffector.pad(body, side, props.effector);
-    const held: HumanFrame.IFrame = {
-      origin: props.entry.root,
-      yaw: props.entry.yaw,
-    };
-    const hint: IAutoMovieVector3 = HumanFrame.local(held, props.bend);
-    const from: IAutoMovieVector3 | undefined =
-      props.from === undefined ? undefined : HumanFrame.local(held, props.from);
-    const share = (seconds: number): number =>
-      clock.envelope(["start", "ready"], ["relax", "end"], seconds);
     const arm: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanArm.carried(
       {
         body,
@@ -261,106 +247,8 @@ export namespace AutoMovieMotionHumanTouch {
         from: 0,
         to: clock.duration,
         rest: props.rest,
-        weight: share,
-        goal: (
-          posture: IHumanPosture,
-          seconds: number,
-        ): IHumanPosture.IGoal => {
-          const place = props.region(posture, seconds);
-          const normal: IAutoMovieVector3 = Vector3.normalize(place.normal);
-          const along: IAutoMovieVector3 =
-            AutoMovieMotionHumanTouchForm.tangent(
-              normal,
-              posture.yaw,
-              props.tangent ?? "up",
-            );
-          const u: number = clock.linear("strokeStart", "strokeEnd", seconds);
-          const lift: number =
-            form.lift * hand * Math.sin(Math.PI * props.count * u) ** 2;
-          const travel: number =
-            form.travel === 0
-              ? 0
-              : form.travel *
-                hand *
-                AutoMovieMotionClock.wave(
-                  clock,
-                  ["strokeStart", "strokeEnd"],
-                  props.count,
-                  seconds,
-                );
-          // Arriving and leaving, the goal stands off the region along its
-          // normal by the share of the carry still to go, up to a hand's
-          // length, so the hand comes onto the region and draws back off it
-          // along the normal instead of sinking along the surface.
-          const off: number = APPROACH * hand * (1 - share(seconds));
-          const at: IAutoMovieVector3 = Vector3.add(
-            Vector3.add(
-              place.point,
-              Vector3.scale(normal, standoff + lift + off),
-            ),
-            Vector3.scale(along, travel),
-          );
-          const frame: HumanFrame.IFrame = {
-            origin: posture.root,
-            yaw: posture.yaw,
-          };
-          const laid: IHumanPosture.IGoal =
-            AutoMovieMotionHumanTouchEffector.goal(
-              body,
-              side,
-              props.effector,
-              at,
-              ...AutoMovieMotionHumanTouchLaid.lie(
-                body,
-                posture,
-                side,
-                props.lay,
-                place.point,
-                normal,
-                along,
-                props.facing,
-                props.elbow,
-                from === undefined ? undefined : HumanFrame.point(frame, from),
-              ),
-              HumanFrame.point(frame, hint),
-            );
-
-          // A held rotation turns with the heading, and the wrist follows
-          // from it so that the effector still meets its place.
-          const rotation: IAutoMovieQuaternion | undefined =
-            props.held === undefined
-              ? undefined
-              : Quaternion.normalize(
-                  Quaternion.multiply(
-                    Quaternion.fromAxisAngle(
-                      { x: 0, y: 1, z: 0 },
-                      posture.yaw - props.entry.yaw,
-                    ),
-                    props.held,
-                  ),
-                );
-          return {
-            ...laid,
-            ...(rotation === undefined
-              ? {}
-              : {
-                  rotation,
-                  point: Vector3.subtract(
-                    at,
-                    Quaternion.rotateVector(
-                      rotation,
-                      laid.contact ?? { x: 0, y: 0, z: 0 },
-                    ),
-                  ),
-                }),
-            ...(props.reference === undefined
-              ? {}
-              : { reference: props.reference }),
-            ...(props.others === undefined
-              ? {}
-              : { clear: props.others(posture, seconds) }),
-          };
-        },
+        weight: (seconds: number): number => share(clock, seconds),
+        goal: goal(props),
       },
     );
     return [
@@ -393,6 +281,161 @@ export namespace AutoMovieMotionHumanTouch {
             ),
           ]),
     ];
+  }
+
+  /**
+   * How far a touch's arm is from its entry angles to its goal at a second:
+   * the clock's envelope, rising from `start` to `ready` and falling from
+   * `relax` to `end`.
+   *
+   * @param clock The touch's clock.
+   * @param seconds Seconds since the action's start.
+   * @returns A share in [0, 1].
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two ramps and the range.
+   * @evidence contracts/development/implementation.md#principled-implementation The arm's carry and the goal's stand-off read one envelope, so the hand arrives on the region as the carry completes.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation to the clock.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The instants are the clock's own names.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionClock.IClock.envelope`.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function share(
+    clock: AutoMovieMotionClock.IClock,
+    seconds: number,
+  ): number {
+    return clock.envelope(["start", "ready"], ["relax", "end"], seconds);
+  }
+
+  /**
+   * The goal a touch's arm is carried toward at each second: the effector
+   * laid on the region, lifted along its normal by `lift sin^2(pi n u)` and
+   * moved along its tangent by the clock's windowed wave of `n` cycles
+   * between `strokeStart` and `strokeEnd`, and stood off along the normal
+   * by the share of the carry still to go. Another arm that works with the
+   * same hand (a second hand on a held tool) reads the same goal.
+   *
+   * @param props The touch.
+   * @returns The goal at a posture and a second since the action's start.
+   * @throws {Error} When the count is not a positive whole number.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the lift, the travel, the stand-off and who else reads it.
+   * @evidence contracts/development/implementation.md#principled-implementation The goal is laid on the region frame each second with the kind's offsets in that frame; a held rotation turns with the heading and the wrist follows from it so the effector still meets its place.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The constants once, then one region read, the offsets and one effector goal per second.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The lift, the travel and the stand-off are shares of the hand; a count that is not whole throws.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One region read per second.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the effector's goal, the laid directions and the form's tangent.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The function closes over its props and one hint.
+   */
+  export function goal(
+    props: ITouch,
+  ): (posture: IHumanPosture, seconds: number) => IHumanPosture.IGoal {
+    HumanBound.whole("count", props.count);
+    const { body, clock, side } = props;
+    const form: AutoMovieMotionHumanTouchForm.IForm =
+      AutoMovieMotionHumanTouchForm.FORMS[props.kind];
+    const hand: number = body.measure.hand * (props.extent ?? 1);
+    const standoff: number =
+      (props.standoff ?? 0) +
+      AutoMovieMotionHumanTouchEffector.pad(body, side, props.effector);
+    const held: HumanFrame.IFrame = {
+      origin: props.entry.root,
+      yaw: props.entry.yaw,
+    };
+    const hint: IAutoMovieVector3 = HumanFrame.local(held, props.bend);
+    const from: IAutoMovieVector3 | undefined =
+      props.from === undefined ? undefined : HumanFrame.local(held, props.from);
+    return (posture: IHumanPosture, seconds: number): IHumanPosture.IGoal => {
+      const place = props.region(posture, seconds);
+      const normal: IAutoMovieVector3 = Vector3.normalize(place.normal);
+      const along: IAutoMovieVector3 = AutoMovieMotionHumanTouchForm.tangent(
+        normal,
+        posture.yaw,
+        props.tangent ?? "up",
+      );
+      const u: number = clock.linear("strokeStart", "strokeEnd", seconds);
+      const lift: number =
+        form.lift * hand * Math.sin(Math.PI * props.count * u) ** 2;
+      const travel: number =
+        form.travel === 0
+          ? 0
+          : form.travel *
+            hand *
+            AutoMovieMotionClock.wave(
+              clock,
+              ["strokeStart", "strokeEnd"],
+              props.count,
+              seconds,
+            );
+      // Arriving and leaving, the goal stands off the region along its
+      // normal by the share of the carry still to go, up to a hand's
+      // length, so the hand comes onto the region and draws back off it
+      // along the normal instead of sinking along the surface.
+      const off: number = APPROACH * hand * (1 - share(clock, seconds));
+      const at: IAutoMovieVector3 = Vector3.add(
+        Vector3.add(place.point, Vector3.scale(normal, standoff + lift + off)),
+        Vector3.scale(along, travel),
+      );
+      const frame: HumanFrame.IFrame = {
+        origin: posture.root,
+        yaw: posture.yaw,
+      };
+      const laid: IHumanPosture.IGoal = AutoMovieMotionHumanTouchEffector.goal(
+        body,
+        side,
+        props.effector,
+        at,
+        ...AutoMovieMotionHumanTouchLaid.lie(
+          body,
+          posture,
+          side,
+          props.lay,
+          place.point,
+          normal,
+          along,
+          props.facing,
+          props.elbow,
+          from === undefined ? undefined : HumanFrame.point(frame, from),
+        ),
+        HumanFrame.point(frame, hint),
+      );
+
+      // A held rotation turns with the heading, and the wrist follows from
+      // it so that the effector still meets its place.
+      const rotation: IAutoMovieQuaternion | undefined =
+        props.held === undefined
+          ? undefined
+          : Quaternion.normalize(
+              Quaternion.multiply(
+                Quaternion.fromAxisAngle(
+                  { x: 0, y: 1, z: 0 },
+                  posture.yaw - props.entry.yaw,
+                ),
+                props.held,
+              ),
+            );
+      return {
+        ...laid,
+        ...(rotation === undefined
+          ? {}
+          : {
+              rotation,
+              point: Vector3.subtract(
+                at,
+                Quaternion.rotateVector(
+                  rotation,
+                  laid.contact ?? { x: 0, y: 0, z: 0 },
+                ),
+              ),
+            }),
+        ...(props.reference === undefined
+          ? {}
+          : { reference: props.reference }),
+        ...(props.others === undefined
+          ? {}
+          : { clear: props.others(posture, seconds) }),
+      };
+    };
   }
 }
 

@@ -1,42 +1,42 @@
-import { Vector3 } from "@automovie/engine";
+import { createDevice } from "@automovie/archetypes";
+import { Quaternion } from "@automovie/engine";
 import type {
-  AutoMovieMotionTarget,
+  IAutoMovieAffordance,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionClock,
   AutoMovieMotionHumanAuditContinuity,
-  AutoMovieMotionHumanTouch,
-  AutoMovieMotionHumanTouchEffector,
-  AutoMovieMotionHumanTouchForm,
-  AutoMovieMotionHumanTouchLaid,
   HumanChain,
   HumanHabit,
+  HumanObject,
   HumanPerformance,
   type HumanSegment,
   HumanSignature,
   type IAutoMovieMotionHumanAuditMeasure,
   type IAutoMovieMotionHumanAuditMotion,
-  type IHumanActionContext,
   type IHumanBody,
   type IHumanPosture,
-  type handToFace,
-  poseBones,
-  resolveHumanPosture,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
- * The lexicon's `photograph` row, both hands bringing an implied camera to
- * the eye, keeps the two hands apart and moves its arms without a break.
+ * The lexicon's `photograph` row, a camera held in both hands before the
+ * eyes, keeps the two hands apart and moves its arms without a break.
  *
- * With both palms turned to the face at one point the hands lay 24.7 mm
- * inside each other; they now stand at the camera's two sides. The whole
- * verdict report took a quarter of an hour on this row, so the test reads
- * the two bounds the row has broken, on one body (the claim is the row's
- * hand attitude, not a stature) and a short hold of 0.3 s.
+ * The camera is held, not implied: the right hand picks it up by its grip
+ * for its use, its back (`screen`) at the bridge of the nose and its long
+ * axis across the face (`HumanGraspUse`, line `across`), and the row keeps
+ * that grasp while the left hand takes the camera's other end. Laid by an
+ * implied tool's facing, the right hand stood at the forearm's twist and
+ * the wrist's deviation limits and its arm changed solution between two
+ * frames (a 20.7 mm step); the grasp chosen for the use asks only what the
+ * grip was taken for. The device archetype's compact camera declares one
+ * handle, so the stand-in adds its far end as a second handle (a film-props
+ * follow-up for the archetype). The whole verdict report took a quarter of
+ * an hour on this row, so the test reads the two bounds the row has broken,
+ * on one body and a short hold of 0.3 s.
  *
  * Scenarios, on the average man:
  * 1. At the middle of the hold the two wrists are at least half a hand's
@@ -44,22 +44,61 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    hands nearer than this are in each other or in the camera).
  * 2. No joint centre steps more than 5 mm anywhere in the film, read at 6
  *    samples a second with every departing interval quartered (the verdict
- *    report's own continuity bound): the arm that changed its solution
- *    between two frames stepped 243 mm. A bound on a joint's acceleration
- *    read here before called the fast smooth return to rest a break (60.8 mm
- *    second difference at 2.08 s with the joint angles changing steadily).
+ *    report's own continuity bound).
  *
- * @evidence contracts/development/testing.md#behavioral-verification Registers the row, performs it through the public chain and reads displayed joint centres; hands on one spot or an arm that changes its solution between two instants fails, with the posture around the step printed.
+ * @evidence contracts/development/testing.md#behavioral-verification Picks the camera up and performs the row through the public chain and reads displayed joint centres; hands on one spot or an arm that changes its solution between two instants fails, with the posture around the step printed.
  * @evidence contracts/development/testing.md#independent-expectations The 5 mm step is the verdict report's bound for any human motion; the half hand is a compact camera's width, provisional and stated as such.
  * @evidence contracts/development/testing.md#distinguishing-cases The two bounds this row broke; the other rows' full reports are its siblings'.
- * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and reads one short film; it runs locally and wherever CI runs the human motion tests.
- * @evidence contracts/development/common.md#meaningful-documentation States what the row was, why the reading is cut to two bounds, one body and a short hold, and the 2 scenarios.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and one archetype and reads one short film; it runs locally and wherever CI runs the human motion tests.
+ * @evidence contracts/development/common.md#meaningful-documentation States what the row was, the held camera and its stand-in, why the reading is cut to two bounds, one body and a short hold, and the 2 scenarios.
  */
 export function test_human_motion_hand_verdicts_photograph(): void {
   const body: IHumanBody = motionHumanBody("m-average");
+
+  // The compact camera with its far end declared as a second handle: the
+  // grip's frame turned half round the vertical to the body's other end.
+  const camera = createDevice({ kind: "camera" });
+  const grip: IAutoMovieAffordance = camera.affordance("grip");
+  const width: number = camera.dimensions.width!;
+  const depth: number = camera.dimensions.thickness!;
+  const support: IAutoMovieAffordance = {
+    ...grip,
+    id: "support",
+    frame: {
+      ...grip.frame,
+      translation: {
+        x: width / 2 - depth / 2,
+        y: grip.frame.translation.y,
+        z: grip.frame.translation.z,
+      },
+      rotation: Quaternion.normalize(
+        Quaternion.multiply(
+          Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 180),
+          grip.frame.rotation,
+        ),
+      ),
+    },
+  };
   const performance: HumanPerformance = new HumanPerformance({
     seed: "verdict",
     laws: [HumanHabit.photograph],
+    props: [
+      HumanObject.prop(
+        "camera",
+        {
+          affordances: [...camera.affordances, support],
+          shapes: () => camera.shapes(),
+        },
+        {
+          at: {
+            x: -body.measure.shoulderHalfWidth,
+            y: body.measure.waistHeight,
+            z: 0.6 * (body.measure.upperArm + body.measure.forearm),
+          },
+          yaw: 0,
+        },
+      ),
+    ],
     performers: [
       {
         subject: "a",
@@ -70,10 +109,19 @@ export function test_human_motion_hand_verdicts_photograph(): void {
       },
     ],
     composition: HumanChain.subject("a")
-      .stand({ seconds: 0.3 })
-      .registered("photograph", { seconds: 0.3 }).node,
-  });
-  const complaints: string[] = [];
+      .pickUp({
+        prop: "camera",
+        handle: "grip",
+        use: { tip: "screen", line: "across", at: { region: "noseBridge" } },
+      })
+      .registered("photograph", {
+        seconds: 0.3,
+        prop: "camera",
+        point: "screen",
+        grasp: { handle: "grip", line: "across" },
+        other: "support",
+      }).node,
+  });  const complaints: string[] = [];
 
   // 1. The hands at the camera's two sides.
   const placed: HumanSegment.ISegment = performance.segments("a")[1]!;
@@ -120,106 +168,6 @@ export function test_human_motion_hand_verdicts_photograph(): void {
   };
   const jump: IAutoMovieMotionHumanAuditMeasure =
     AutoMovieMotionHumanAuditContinuity.measure(motion, "a", 6).jump;
-  // The touch's arm goal as its stroke builds it each second, rebuilt from
-  // the placed action's own context and parameters, with the end the carry
-  // goes toward and the carry's weight: what the reach blends the arm to.
-  const touchGoals = (instants: readonly number[]): string[] => {
-    const placed = performance.segments("a")[1]!;
-    const context = placed.context as IHumanActionContext<never>;
-    const body = context.body;
-    const row = (placed.params as { task: handToFace.IRow }).task;
-    const effector = row.effector;
-    const entry: IHumanPosture = context.entry.posture;
-    const entryBones = poseBones(body, context.entry.pose);
-    const target: AutoMovieMotionTarget = { kind: "self", region: row.region ?? "noseBridge" };
-    const place = (posture: IHumanPosture, seconds: number) =>
-      AutoMovieMotionHumanTouch.region(
-        context,
-        target,
-        context.start + seconds,
-        posture,
-        entryBones,
-      );
-    const bend = AutoMovieMotionHumanTouchLaid.bend(
-      body,
-      entry,
-      "right",
-      effector,
-      place(entry, 0),
-      row.tangent,
-      "tangent",
-    );
-    const reference = AutoMovieMotionHumanTouchLaid.laid(
-      body,
-      entry,
-      "right",
-      effector,
-      place(entry, 0),
-      row.tangent,
-      bend,
-      "tangent",
-    );
-    const clock = AutoMovieMotionClock.of(
-      placed.plan.duration,
-      placed.plan.events.map((e) => ({
-        name: e.name,
-        seconds: e.share * placed.plan.duration,
-      })),
-    );
-    const standoff: number = AutoMovieMotionHumanTouchEffector.pad(
-      body,
-      "right",
-      effector,
-    );
-    const round = (_k: string, v: unknown): unknown =>
-      typeof v === "number" ? Math.round(v * 1e4) / 1e4 : v;
-    return instants.map((film: number): string => {
-      const seconds: number = film - placed.start;
-      const posture: IHumanPosture = performance.posture("a", film);
-      const at = place(posture, seconds);
-      const normal = Vector3.normalize(at.normal);
-      const along = AutoMovieMotionHumanTouchForm.tangent(
-        normal,
-        posture.yaw,
-        row.tangent,
-      );
-      const weight: number = clock.envelope(
-        ["start", "ready"],
-        ["relax", "end"],
-        seconds,
-      );
-      const point = Vector3.add(
-        at.point,
-        Vector3.scale(normal, standoff + body.measure.hand * (1 - weight)),
-      );
-      const goal: IHumanPosture.IGoal = {
-        ...AutoMovieMotionHumanTouchEffector.goal(
-          body,
-          "right",
-          effector,
-          point,
-          ...AutoMovieMotionHumanTouchLaid.lie(
-            body,
-            posture,
-            "right",
-            "tangent",
-            at.point,
-            normal,
-            along,
-          ),
-          bend,
-        ),
-        reference,
-      };
-      const solved = resolveHumanPosture(body, {
-        ...posture,
-        limbs: { ...posture.limbs, rightArm: goal },
-      });
-      const angles = (bone: string): unknown =>
-        solved.joints.find((j): boolean => j.bone === bone) ?? null;
-      return `touch at ${film.toFixed(3)} s: weight ${weight.toFixed(4)} goal ${JSON.stringify(goal, round)} end ${JSON.stringify([angles("rightUpperArm"), angles("rightLowerArm"), angles("rightHand")], round)}`;
-    });
-  };
   if (!(jump.value <= 0.005)) {
     const side: "left" | "right" = jump.where.startsWith("left")
       ? "left"
@@ -258,9 +206,24 @@ export function test_human_motion_hand_verdicts_photograph(): void {
             .worldPosition;
           return `${at.toFixed(4)}:(${q.x.toFixed(4)},${q.y.toFixed(4)},${q.z.toFixed(4)})`;
         },
-      ).join(" ")}; ${touchGoals(
-        [-2, -1, 0, 1].map((k: number): number => jump.seconds + k / 192),
-      ).join(" | ")}`,
+      ).join(" ")}; displayed ${[4, 5]
+        .map((k: number): string => {
+          const at: number = jump.seconds - 1 / 48 + k / 192;
+          const pose = performance.pose("a", at);
+          const bones = performance.bones("a", at);
+          const triple = (bone: string): string => {
+            const j = pose.joints.find((x): boolean => x.bone === bone);
+            return j === undefined
+              ? "null"
+              : `[${(j.flexion ?? 0).toFixed(3)},${(j.abduction ?? 0).toFixed(3)},${(j.twist ?? 0).toFixed(3)}]`;
+          };
+          const where = (bone: "hips" | "chest" | "rightUpperArm" | "rightLowerArm" | "rightHand"): string => {
+            const q = bones.get(bone)!.worldPosition;
+            return `${bone}(${q.x.toFixed(4)},${q.y.toFixed(4)},${q.z.toFixed(4)})`;
+          };
+          return `${at.toFixed(4)} s: upper ${triple(`${side}UpperArm`)} lower ${triple(`${side}LowerArm`)} hand ${triple(`${side}Hand`)} ${(["hips", "chest", "rightUpperArm", "rightLowerArm", "rightHand"] as const).map(where).join(" ")}`;
+        })
+        .join(" | ")}`,
     );
   }
   TestValidator.equals("a photograph's two hands", complaints, []);

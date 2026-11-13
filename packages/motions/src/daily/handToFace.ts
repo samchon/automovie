@@ -14,7 +14,6 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHead } from "../compose/AutoMovieMotionHumanHead";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
-import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
@@ -24,18 +23,19 @@ import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTo
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import { HumanTrunk } from "../everyday/HumanTrunk";
+import type { HumanGrasp } from "../handling/HumanGrasp";
 import { HumanHeld } from "../handling/HumanHeld";
+import { HumanHeldUse } from "../handling/HumanHeldUse";
 import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import { HumanFrame } from "../posture/HumanFrame";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { handToFaceRows } from "./handToFaceRows";
+import { handToFaceSheet } from "./handToFaceSheet";
 
 /**
  * A hand-to-face task of daily living while standing: drinking, sipping,
@@ -67,7 +67,12 @@ import { handToFaceRows } from "./handToFaceRows";
  * (a glass a `pickUp` took): the prop's own point, a vessel's `lip` or a
  * phone's `screen`, replaces the implied tool (`HumanHeld`), the
  * fingers keep their grip, and the hand holds the prop through the task and
- * after it. A prop that is not in the hand is refused.
+ * after it. A prop that is not in the hand is refused. With the `grasp` the
+ * prop was taken up by for its use, the hand holds it at the face as that
+ * grasp presents it there (`HumanHeldUse`), so the task asks the wrist only
+ * what the grip was chosen for; with `other` as well, the other hand takes
+ * the prop's other handle where the first carries it, as a camera is held
+ * in both hands.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the tasks, the phases with their source, how each task is a row, the sourced and the provisional values, the events and what a held prop changes.
  * @evidence contracts/development/design.md#principled-representation A law record whose tasks are rows of one touch generator with an implied tool.
@@ -100,12 +105,6 @@ export namespace handToFace {
   /** The tasks' rows. */
   export const ROWS: Readonly<Record<Task, IRow>> = handToFaceRows.ROWS;
 
-  /** The reading distance from the eyes to a held text, metres (Bababekova et al. 2011, mean for text). */
-  export const READING: number = 0.362;
-
-  /** The eyes' depression below the head's own line when reading, degrees (provisional). */
-  export const GAZE: number = 15;
-
   /**
    * Parameters.
    *
@@ -134,6 +133,18 @@ export namespace handToFace {
 
     /** The prop's point that meets the face, one of its affordance ids; the row's (`lip` for a drink, `screen` for a phone) when absent. */
     point?: string;
+
+    /**
+     * With `prop`, the grasp it was taken up by for its use
+     * (`HumanHeldUse.IGrasp`): the hand holds the prop at the face as that
+     * grasp presents it at the row's region, the prop's point as the use's
+     * working point, and moves only the point. The prop's point faces into
+     * the region when absent.
+     */
+    grasp?: HumanHeldUse.IGrasp;
+
+    /** With `grasp`, the prop's handle the other hand takes (a camera's far end): that hand is laid on it where the holding hand carries the prop, in place of the row's other region. The row's other hand when absent. */
+    other?: string;
 
     /** How it is performed. */
     manner?: AutoMovieMotionManner.IManner;
@@ -168,60 +179,11 @@ export namespace handToFace {
   }
 
   /**
-   * Where a held sheet is read: on the line from the eyes pitched down by
-   * the head's flexion and the eyes' depression, at the reading distance,
-   * facing back at the eyes.
-   *
-   * @param context The body.
-   * @param posture The posture so far, whose head carries the eyes.
-   * @param side The hand.
-   * @returns The place.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the line, the distance and the facing.
-   * @evidence contracts/development/implementation.md#principled-implementation The eyes' midpoint on the posture's trunk, the reading distance of Bababekova et al. 2011 along the gaze line pitched by the head's flexion and the provisional eye depression.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One trunk resolve and one line.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The distance and the depression are named constants.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanTrunk.resolve` and `HumanFrame.point`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One forward-kinematics pass.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
-   */
-  export function sheet(
-    context: Pick<IHumanActionContext, "body">,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
-  ): Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal"> {
-    const bones = HumanTrunk.resolve(context.body, posture);
-    const eyes: IAutoMovieVector3 = Vector3.scale(
-      Vector3.add(
-        bones.get("leftEye")!.worldPosition,
-        bones.get("rightEye")!.worldPosition,
-      ),
-      0.5,
-    );
-    const head = posture.joints.head ?? [0, 0, 0];
-    const neck = posture.joints.neck ?? [0, 0, 0];
-    const down: number = ((head[0] + neck[0] + GAZE) * Math.PI) / 180;
-    const line: IAutoMovieVector3 = HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
-      {
-        x: (side === "left" ? 1 : -1) * 0.05,
-        y: -Math.sin(down),
-        z: Math.cos(down),
-      },
-    );
-    const unit: IAutoMovieVector3 = Vector3.normalize(line);
-    return {
-      point: Vector3.add(eyes, Vector3.scale(unit, READING)),
-      normal: Vector3.scale(unit, -1),
-    };
-  }
-
-  /**
    * Plan a hand-to-face task.
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the count is not a positive whole number, the time at the face is negative, or `prop` names a prop the hand does not hold or a point the prop lacks.
+   * @throws {HumanRefusal} When the count is not a positive whole number, the time at the face is negative, `prop` names a prop the hand does not hold or a point the prop lacks, `grasp` comes without a held prop, its point or a region of the face, or `other` comes without `grasp` or names a handle the prop lacks.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives the phases, the rows and the sources.
    * @evidence contracts/development/implementation.md#principled-implementation The drinking task's phases (Alt Murphy et al. 2006) as a phrase clock, with the task's row run by the touch stroke per hand and the head's flexion pulsed on the same envelope; with `prop`, the acting hand's effector is the held prop's own point on its steadiest side (`HumanHeld`), the fingers are kept and the grip is declared.
@@ -265,7 +227,8 @@ export namespace handToFace {
         : (held ??= grasped(p.prop));
     const hands: [HumanHand.Side, AutoMovieHumanoidRegion | null][] = [
       [first, row.region === null ? null : mirrored(row.region, first)],
-      ...(row.other === undefined
+      // A second hand on the held prop takes the place of the row's other.
+      ...(row.other === undefined || p.other !== undefined
         ? []
         : [
             [first === "right" ? "left" : "right", row.other] as [
@@ -278,7 +241,7 @@ export namespace handToFace {
       (side: HumanHand.Side, name: AutoMovieHumanoidRegion | null) =>
       (posture: IHumanPosture, seconds: number) =>
         name === null
-          ? sheet(context, posture, side)
+          ? handToFaceSheet.of(context, posture, side)
           : AutoMovieMotionHumanTouch.region(
               context,
               { kind: "self", region: name } satisfies AutoMovieMotionTarget,
@@ -367,7 +330,19 @@ export namespace handToFace {
           AutoMovieMotionHumanHead.share(0, row.head * modifiers.extent),
         ),
       );
+    // A held tool used as the grasp it was taken up by presents it: the
+    // first hand keeps that grasp's rotation at the row's region.
+    const kept: HumanGrasp.IKey | null = HumanHeldUse.kept(
+      context,
+      first,
+      {
+        ...p,
+        ...(row.point === undefined ? {} : { point: p.point ?? row.point }),
+      },
+      row.region === null ? null : mirrored(row.region, first),
+    );
     for (const [side, name] of hands) {
+      const own: HumanGrasp.IKey | null = side === first ? kept : null;
       const lay: AutoMovieMotionHumanTouch.ITouch["lay"] =
         row.upright === true ? "upright" : "tangent";
       // A held vessel faces the way its arm turns it best at the face.
@@ -382,59 +357,84 @@ export namespace handToFace {
               AutoMovieMotionHumanBend.hang(body, atFace, side),
             )
           : undefined;
-      const bend: IAutoMovieVector3 = AutoMovieMotionHumanTouchLaid.bend(
-        body,
-        atFace,
-        side,
-        effector(side),
-        region(side, name)(atFace, 0),
-        row.tangent,
-        lay,
-        facing,
-      );
-      primitives.push(
-        ...AutoMovieMotionHumanTouch.touch({
+      const bend: IAutoMovieVector3 =
+        own?.bend ??
+        AutoMovieMotionHumanTouchLaid.bend(
           body,
-          clock,
+          atFace,
           side,
-          rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-          effector: effector(side),
-          region: region(side, name),
-          kind: row.kind,
-          count,
-          tangent: row.tangent,
-          extent: modifiers.extent,
-          bend,
-          reference: AutoMovieMotionHumanTouchLaid.laid(
-            body,
-            atFace,
-            side,
-            effector(side),
-            region(side, name)(atFace, 0),
-            row.tangent,
-            bend,
-            lay,
-            facing,
-          ),
+          effector(side),
+          region(side, name)(atFace, 0),
+          row.tangent,
           lay,
-          ...(facing === undefined ? {} : { facing }),
-          entry,
-          ...(p.prop !== undefined && side === first
-            ? { fingers: "keep" as const }
-            : {}),
-          ...(name === null || (p.prop !== undefined && side === first)
-            ? {}
-            : {
-                contact: {
-                  kind: "person",
-                  subject: context.subject,
-                  region: name,
-                },
+          facing,
+        );
+      const stroke: AutoMovieMotionHumanTouch.ITouch = {
+        body,
+        clock,
+        side,
+        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
+        effector: effector(side),
+        region: region(side, name),
+        kind: row.kind,
+        count,
+        tangent: row.tangent,
+        extent: modifiers.extent,
+        bend,
+        reference:
+          own === null
+            ? AutoMovieMotionHumanTouchLaid.laid(
+                body,
+                atFace,
+                side,
+                effector(side),
+                region(side, name)(atFace, 0),
+                row.tangent,
+                bend,
+                lay,
+                facing,
+              )
+            : AutoMovieMotionHumanTouchLaid.reference(body, atFace, side, {
+                point: own.wrist.point,
+                rotation: own.wrist.rotation,
+                bend,
               }),
-        }),
-      );
-    }
-    const plan: IHumanActionPlan = composeAutoMovieMotionHumanAction({
+        lay,
+        ...(facing === undefined ? {} : { facing }),
+        ...(own === null ? {} : { held: own.wrist.rotation }),
+        entry,
+        ...(p.prop !== undefined && side === first
+          ? { fingers: "keep" as const }
+          : {}),
+        ...(name === null || (p.prop !== undefined && side === first)
+          ? {}
+          : {
+              contact: {
+                kind: "person",
+                subject: context.subject,
+                region: name,
+              },
+            }),
+      };
+      primitives.push(...AutoMovieMotionHumanTouch.touch(stroke));
+
+      // The other hand on the held prop's other handle, where this hand's
+      // goal carries it.
+      if (own !== null && p.prop !== undefined && p.other !== undefined)
+        primitives.push(
+          ...HumanHeldUse.second({
+            context,
+            clock,
+            side,
+            prop: p.prop,
+            handle: p.other,
+            key: own,
+            goal: AutoMovieMotionHumanTouch.goal(stroke),
+            weight: (seconds: number): number =>
+              AutoMovieMotionHumanTouch.share(clock, seconds),
+          }),
+        );
+    }    const plan: IHumanActionPlan = composeAutoMovieMotionHumanAction({
       base: AutoMovieMotionHumanBase.under(context, clock.duration),
       clock,
       primitives,

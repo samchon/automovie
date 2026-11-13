@@ -1215,7 +1215,21 @@
     },
     {
       "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTouch.goal",
+      "tests": [
+        "test_human_motion_hand_verdicts_photograph"
+      ]
+    },
+    {
+      "layer": "compose",
       "symbol": "AutoMovieMotionHumanTouch.region",
+      "tests": [
+        "test_human_motion_compose_touch_laid"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTouch.share",
       "tests": [
         "test_human_motion_compose_touch_laid"
       ]
