@@ -274,6 +274,25 @@ export namespace AutoMovieConstructionAdmission {
             );
           if (node.correspondence !== undefined && node.correspondence !== "angle" && node.correspondence !== "length")
             throw new Error(`realizeAutoMovieConstruction: ${name}'s correspondence ${String(node.correspondence)} is neither angle nor length`);
+          for (const profile of node.profiles ?? []) {
+            const knots: boolean =
+              profile.knots.length >= 1 &&
+              profile.knots.every(
+                ([t, depth]: [number, number], k: number): boolean =>
+                  Number.isFinite(t) && t > 0 && t < 1 && Number.isFinite(depth) && (k === 0 || t > profile.knots[k - 1]![0]),
+              );
+            const window: boolean =
+              Number.isFinite(profile.start) &&
+              Number.isFinite(profile.end) &&
+              profile.start <= profile.end &&
+              profile.end < profile.start + 2 * Math.PI &&
+              Number.isFinite(profile.transition) &&
+              profile.transition > 0;
+            if (!knots)
+              throw new Error(`realizeAutoMovieConstruction: ${name}'s profile knots are not increasing shares in (0, 1) with finite depths`);
+            if (!window)
+              throw new Error(`realizeAutoMovieConstruction: ${name}'s profile window is not start <= end < start + 2 pi with a positive transition`);
+          }
           const shape: number[] | undefined = node.loop.shape;
           if (
             shape !== undefined &&

@@ -383,6 +383,25 @@ export namespace AutoMovieHumanF1 {
    * profile showed a notch under the band (mouth.left px 580..598 x 235..265). Landed 5 mm below, the band spans the whole turn.
    */
   const NOSE_SUBNASAL_MM: number = 2.5;
+
+  /**
+   * The nose's band's cross profiles (`IAutoMovieConstructionPort.IProfile`), depths in metres along its inward normal, on its loop clock
+   * (0 at the dorsum, a quarter turn at the +Z wing, a half turn under the columella). Read by `FamilyConicScan.ts band band.nose 64`: the
+   * reference skin's depth below the plain band along its normal at shares 0.1 to 0.9 of its span, with the sidewall's net
+   * (`AutoMovieHumanF1Nose`, `nose.side`) on, averaged over each window's columns and over the two sides (`+Z` and its mirror clock):
+   * - Behind each wing, the alar-facial groove (clocks 1.57 to 2.36 and 3.93 to 4.71): the plain band stands 0.42, 0.70, 0.45 and 0.09 mm
+   *   proud of the skin at the shares 0.2, 0.4, 0.6 and 0.8, a hollow nearer the face than the wing.
+   * - Under each nostril's sill (clocks 2.6 to 3.0 and 3.28 to 3.68): the plain band lies 0.12, 0.52 and 0.87 mm inside the skin at 0.4, 0.6
+   *   and 0.8, where the lip rolls into the floor; the band must end flat on the nose's ring, which lies 0.9 to 1.2 mm inside there itself,
+   *   so the last knot takes 0.6 mm and the ring's own share is left to the floor's net.
+   * Each window fades over 0.2 rad of clock (0.15 under the sill, where the columella's columns between the two stand within 0.35 mm).
+   */
+  const NOSE_PROFILES: IAutoMovieConstructionPort.IProfile[] = [
+    { start: 1.57, end: 2.36, transition: 0.2, knots: [[0.3, 0.0003], [0.5, 0.0004], [0.7, 0.0002]] },
+    { start: 3.93, end: 4.71, transition: 0.2, knots: [[0.3, 0.0003], [0.5, 0.0004], [0.7, 0.0002]] },
+    { start: 2.6, end: 3.0, transition: 0.15, knots: [[0.4, -0.0001], [0.6, -0.0002]] },
+    { start: 3.28, end: 3.68, transition: 0.15, knots: [[0.4, -0.0001], [0.6, -0.0002]] },
+  ];
   const AURICLE_MARGIN_MM: number = 6;
 
   /**
@@ -402,9 +421,11 @@ export namespace AutoMovieHumanF1 {
    * skin turns along the station by more than `turn` degrees between the two halves of the interval, at `fine` phases. Flat shading shows
    * the turn, not the sagitta: the fold turned 14 to 20 degrees across one layer 2 to 4 mm tall, a sagitta of 0.1 mm, and stood in level
    * steps from the front. The rule holds only there: everywhere on the trunk it added 166 rings and moved the head's, whose rings the
-   * ear's band is triangulated against.
+   * ear's band is triangulated against. The mouth's net (`trunk.mouth`) takes it too: the lips turn through their whole roll within a few
+   * millimetres of height, and on the layers the sagitta left there, 2 to 2.6 mm apart, each lip stood in level bands of light and dark
+   * from the front and in steps in profile (mouth.front px 200..720 x 330..640, mouth.left).
    */
-  const FOLD: { sagitta: number; least: number; phases: number; turn: number; fine: number; creases: string[] } = { sagitta: 0.15, least: 0.5, phases: 96, turn: 4, fine: 192, creases: ["trunk.fold", "trunk.fold.twin"] };
+  const FOLD: { sagitta: number; least: number; phases: number; turn: number; fine: number; creases: string[] } = { sagitta: 0.15, least: 0.5, phases: 96, turn: 4, fine: 192, creases: ["trunk.fold", "trunk.fold.twin", "trunk.mouth"] };
 
   /** Columns round each band and rows across it. */
   const BAND: { count: number; rows: number } = { count: 96, rows: 8 };
@@ -1021,7 +1042,7 @@ export namespace AutoMovieHumanF1 {
       const breast: AutoMovieHumanConicLoft.IFamily = side > 0 ? BODY.breast : twin(BODY.breast);
       root = { type: "port", name: "mammary." + breast.name, host: root, hostFace: trunk, loop: mammary(side), band: "band." + breast.name, part: leaf(breast, Infinity), partFace: breast.name, partEnd: "bottom", rail: RAIL_MM.breast / 1000, count: SHOULDER_COLUMNS, rows: BAND.rows };
     }
-    root = { type: "port", name: "nostril." + BODY.nose.name, host: root, hostFace: trunk, loop: nostril(), band: "band." + BODY.nose.name, part: leaf(BODY.nose), partFace: BODY.nose.name, partEnd: "bottom", rail: Math.min(...NOSE_RAILS_MM) / 1000, rails: NOSE_RAILS_MM.map((rail: number): number => rail / 1000), correspondence: "length", count: NOSE_COLUMNS, rows: BAND.rows };
+    root = { type: "port", name: "nostril." + BODY.nose.name, host: root, hostFace: trunk, loop: nostril(), band: "band." + BODY.nose.name, part: leaf(BODY.nose), partFace: BODY.nose.name, partEnd: "bottom", rail: Math.min(...NOSE_RAILS_MM) / 1000, rails: NOSE_RAILS_MM.map((rail: number): number => rail / 1000), correspondence: "length", profiles: NOSE_PROFILES, count: NOSE_COLUMNS, rows: BAND.rows };
     // Each nostril is cut from the head: its loft comes up out of the nose's underside and closes inside it. The band lands behind it, so the
     // cut lies wholly on the nose's own face and its blend may be as wide as the rim's roll; while the cut crossed the band at the sill only
     // a blend 0.15 mm wide found its rails there.
