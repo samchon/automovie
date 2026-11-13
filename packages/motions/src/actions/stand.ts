@@ -3,6 +3,7 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
@@ -121,7 +122,7 @@ export namespace stand {
   /** Parameters. */
   export interface IParams {
     /** How long to stand, seconds; 1.5 when absent. */
-    seconds?: number;
+    seconds?: number & tags.ExclusiveMinimum<0>;
   }
 
   /** Foot progression angle, degrees outward from the heading (Perry and Burnfield). */

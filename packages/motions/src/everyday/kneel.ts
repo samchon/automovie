@@ -96,7 +96,7 @@ export namespace kneel {
     knee?: "left" | "right";
 
     /** Seconds held kneeling; 1.5 when absent. */
-    hold?: number;
+    hold?: number & import("typia").tags.Minimum<0>;
 
     /** Whether the body rises again at the end; `true` when absent. */
     rise?: boolean;

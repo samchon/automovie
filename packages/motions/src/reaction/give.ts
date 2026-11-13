@@ -3,6 +3,7 @@ import type {
   AutoMovieMotionTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionKey } from "../HumanActionKey";
 import type { IHumanBody } from "../body/IHumanBody";
@@ -80,7 +81,7 @@ export namespace give {
     way?: "away" | "toward";
 
     /** How strong, in (0, 1]; 1 when absent. */
-    intensity?: number;
+    intensity?: number & tags.ExclusiveMinimum<0> & tags.Maximum<1>;
   }
 
   /** The head's turn at full intensity, degrees (provisional), inside the neck's rotation of about 80 degrees each way. */

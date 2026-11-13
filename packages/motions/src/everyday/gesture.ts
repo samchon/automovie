@@ -5,6 +5,7 @@ import type {
   IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
@@ -122,13 +123,13 @@ export namespace gesture {
     region?: gestureStroke.FaceRegion;
 
     /** Stroke repetitions (waves, nods, claps); the gesture's own count when absent. */
-    count?: number;
+    count?: number & tags.Type<"uint32"> & tags.Minimum<1>;
 
     /** Post-stroke hold, seconds; 0 when absent. */
-    hold?: number;
+    hold?: number & tags.Minimum<0>;
 
     /** A bow's depth, degrees in (0, 60]; 30 when absent. */
-    depth?: number;
+    depth?: number & tags.ExclusiveMinimum<0> & tags.Maximum<60>;
 
     /** Movement quality. */
     effort?: HumanEffort.IEffort;

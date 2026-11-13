@@ -3,6 +3,7 @@ import type {
   AutoMovieMotionTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
@@ -108,7 +109,7 @@ export namespace bend {
     strategy?: Strategy;
 
     /** Seconds the hand stays at the target; 0.5 when absent. */
-    hold?: number;
+    hold?: number & tags.Minimum<0>;
   }
 
   /** Hip height kept by each strategy, a share of the standing hip height (provisional). */

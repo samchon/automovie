@@ -4,6 +4,7 @@ import type {
   AutoMovieMotionTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
@@ -124,7 +125,9 @@ export namespace handToFace {
     count?: number;
 
     /** Seconds at the face after the repetitions, or two bounds the seed draws them between, evenly (a puff on a cigarette lasts 1.6 to 2.1 s); the row's when absent. */
-    seconds?: number | { between: readonly [number, number] };
+    seconds?:
+      | (number & tags.Minimum<0>)
+      | { between: readonly [number, number] };
 
     /** The subject id of the prop the acting hand holds, performed with instead of the implied tool; no prop when absent. */
     prop?: string;

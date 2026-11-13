@@ -3,6 +3,7 @@ import type {
   AutoMovieMotionTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
@@ -83,7 +84,7 @@ export namespace look {
     cue?: "seen" | "signal";
 
     /** How long the action lasts, seconds; 0.6 s after `settled` when absent. */
-    seconds?: number;
+    seconds?: number & tags.ExclusiveMinimum<0>;
   }
 
   /** Half the attended field ahead, degrees. */

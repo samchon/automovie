@@ -1,5 +1,6 @@
 import { minimumJerk } from "@automovie/engine";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type { tags } from "typia";
 
 import { HumanBound } from "../law/HumanBound";
 import type { IHumanLayer } from "../law/IHumanLayer";
@@ -74,7 +75,7 @@ export namespace HumanAffect {
     at: number;
 
     /** How long, seconds; the display's own length when absent. */
-    seconds?: number;
+    seconds?: number & tags.ExclusiveMinimum<0>;
 
     /** Amplitude scale; 1 when absent. */
     intensity?: number;

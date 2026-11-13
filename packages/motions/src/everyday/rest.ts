@@ -9,6 +9,7 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
@@ -122,7 +123,7 @@ export namespace rest {
     right?: Place;
 
     /** How long, seconds; 2 when absent. */
-    seconds?: number;
+    seconds?: number & tags.ExclusiveMinimum<0>;
   }
 
   /** Places that hold both hands together, so both hands must name them. */

@@ -3,6 +3,7 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
@@ -97,7 +98,7 @@ export namespace sit {
     back?: "upright" | "lean" | "slump";
 
     /** Seconds to stay seated after `seated`; 1 when absent. */
-    seconds?: number;
+    seconds?: number & tags.Minimum<0>;
 
     /**
      * How the legs rest once seated on a seat inside the band: `parallel`,

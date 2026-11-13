@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
@@ -128,7 +129,7 @@ export namespace crouch {
     heels?: Heels;
 
     /** Seconds held at the lowest pose; 1 when absent. */
-    hold?: number;
+    hold?: number & tags.Minimum<0>;
 
     /** How it is performed. */
     manner?: AutoMovieMotionManner.IManner;

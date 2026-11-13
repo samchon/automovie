@@ -14,6 +14,7 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
@@ -112,7 +113,7 @@ export namespace jump {
     to: IAutoMovieVector3;
 
     /** Apex height of the flight above take-off, metres; positive. */
-    apex?: number;
+    apex?: number & tags.ExclusiveMinimum<0>;
   }
 
   /** Push-off duration, seconds (provisional; take-off contact of a one-foot jump from walking). */
