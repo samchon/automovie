@@ -53,7 +53,7 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  * @evidence contracts/development/testing.md#behavioral-verification Reads the public floor, slip and lift measures; a sink read from the wrong shape, a slip that counts height, a lift read on a prop or a lifted heel counted as sliding fails.
  * @evidence contracts/development/testing.md#independent-expectations Every reading is the translation the test wrote times the time it lasted; the stance's own sole height cancels in the differences.
  * @evidence contracts/development/testing.md#distinguishing-cases Still, raised and sunk; sliding and rising; plant, pivot, hand and prop; a contact that changes socket; a window end off the grid.
- * @evidence contracts/development/testing.md#execution-ownership In memory on one prepared body; named `test_human_` because preparing a body takes seconds, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory on one prepared body; slow because preparing a body takes seconds; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the film and lists the 9 scenarios with their numbers.
  */
 export function test_human_motion_audit_ground(): void {

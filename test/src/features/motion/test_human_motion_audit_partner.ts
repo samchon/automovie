@@ -51,7 +51,7 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  * @evidence contracts/development/testing.md#behavioral-verification Reads the public measure on two real bodies' colliders; a limb in a partner that goes unread, is read at the wrong instant or is excused by a declared contact fails.
  * @evidence contracts/development/testing.md#independent-expectations The depth is the distance the test itself set below a surface point found by the collider owner's ray, bounded by a forearm's anatomical half thickness; the instants are those of the written films.
  * @evidence contracts/development/testing.md#distinguishing-cases Apart, inside and outside, either naming order, a ramp against a pass, and a declared against an undeclared contact.
- * @evidence contracts/development/testing.md#execution-ownership In memory on two prepared bodies; named `test_human_` because preparing a body takes seconds, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory on two prepared bodies; slow because preparing a body takes seconds; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the two people, the construction of "set inside" and the 6 scenarios with their numbers.
  */
 export function test_human_motion_audit_partner(): void {

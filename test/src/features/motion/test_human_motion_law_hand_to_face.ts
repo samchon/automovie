@@ -32,7 +32,7 @@ import { motionHumanLawHandToFace } from "../internal/motionHumanLawHandToFace";
  * @evidence contracts/development/testing.md#behavioral-verification Performs the real law through the chain and reads displayed bones; an arm through the chest, an elbow that flips, a tilted cup or a hand that does not return fails with its measured number.
  * @evidence contracts/development/testing.md#independent-expectations Each bound is a physical requirement, a cited range or the mirror symmetry of the body, stated in the checker's document; none is read from the law.
  * @evidence contracts/development/testing.md#distinguishing-cases Every row of the law's table: holds and strokes, one hand and two, a region on the face and a sheet in the air.
- * @evidence contracts/development/testing.md#execution-ownership In memory; named `test_human_` because fitting an arm on the body costs a second a frame, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory; slow because fitting an arm on the body costs a second a frame; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States how the complaints are gathered and lists the 8 scenarios with their bounds.
  */
 export function test_human_motion_law_hand_to_face(): void {

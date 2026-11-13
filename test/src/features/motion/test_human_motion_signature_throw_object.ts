@@ -27,7 +27,7 @@ import { motionHumanSignature as M } from "../internal/motionHumanSignature";
  * @evidence contracts/development/testing.md#behavioral-verification Performs the real throw to a real catcher and reads displayed joints and soles; a throw without a cocked elbow, a release on a bent arm, a trunk leaning back or both feet off the floor fails with its cell, value, bound and source.
  * @evidence contracts/development/testing.md#independent-expectations The phase shapes are Fleisig et al.'s; every limit is marked provisional.
  * @evidence contracts/development/testing.md#distinguishing-cases The overarm style and both hands on four bodies; the underarm and the toss have other shapes and are not read here.
- * @evidence contracts/development/testing.md#execution-ownership In memory; named `test_human_` because a film of fitted poses is costly, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory; slow because a film of fitted poses is costly; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States every bound with its source and status.
  */
 export function test_human_motion_signature_throw_object(): void {

@@ -48,7 +48,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public turn on a real body's ranges and reads the joints it writes and the trunk the posture places; a wrong side, a share read from zero instead of the start, a head left to turn with the trunk or carried past its range fails with the numbers.
  * @evidence contracts/development/testing.md#independent-expectations The ends are the rig's ranges read through the engine's constraint; the halfway points and the take-back are arithmetic on them; the righting is read on the placed bones.
  * @evidence contracts/development/testing.md#distinguishing-cases Both sides, the shares 0, 0.2, 0.5, -0.5 and 1, a turned start.
- * @evidence contracts/development/testing.md#execution-ownership In memory, a few trunk placements on one prepared body; named `test_human_` so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory, a few trunk placements on one prepared body; it is a real-body test; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the posture and the 5 scenarios with their bounds.
  */
 export function test_human_motion_core_trunk_turn(): void {

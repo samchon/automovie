@@ -51,7 +51,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#behavioral-verification Reads the resolver's bones and the balance owner's measures for each written posture; a crouch that stays down, drags a planted foot or falls forward fails.
  * @evidence contracts/development/testing.md#independent-expectations The hips' place is the standing one lowered by the stated depth, the pitch is the stated degrees read between two bone axes, the plants are the standing ones and the balance is the centre of mass against the soles.
  * @evidence contracts/development/testing.md#distinguishing-cases Six crouches from none to deep with and without a pitch, both ends, both middles and the held span, refusals of each bad input, on two bodies. The turn and the sunk posture are `test_human_motion_compose_trunk`'s, the counterbalance `test_human_motion_compose_trunk_counterbalance`'s.
- * @evidence contracts/development/testing.md#execution-ownership In memory on two prepared bodies; named `test_human_` because preparing a body takes seconds, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory on two prepared bodies; slow because preparing a body takes seconds; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States what is read, which point a plant is, the clock, the bounds, why two bodies are enough and the 3 scenarios.
  */
 export function test_human_motion_compose_trunk_crouch(): void {

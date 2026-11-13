@@ -38,7 +38,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#behavioral-verification Reads the public direction on real bodies; a wrong side of the shoulder, a direction off the surface, a heading that is not followed or a fallback on the wrong side of the boundary fails.
  * @evidence contracts/development/testing.md#independent-expectations Each direction is written from the body's measures and the geometry of the place; the turned case is turned by a rotation written in the test.
  * @evidence contracts/development/testing.md#distinguishing-cases A place across the body and one under the shoulder, both hands, two headings, the fallback and both sides of its boundary, on four builds.
- * @evidence contracts/development/testing.md#execution-ownership In memory; named `test_human_` because it prepares real bodies, which the CI test job leaves to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory; slow because it prepares real bodies; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the elbow's place and lists the 7 scenarios with their numbers.
  */
 export function test_human_motion_compose_touch_path(): void {

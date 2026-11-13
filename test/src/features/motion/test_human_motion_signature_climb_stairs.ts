@@ -35,7 +35,7 @@ import { motionHumanSignature as M } from "../internal/motionHumanSignature";
  * @evidence contracts/development/testing.md#behavioral-verification Performs the real stair law on real bodies and reads displayed joints at its own tread contacts; a trunk tipped back on the way up, a stiff swing or a landing on a straight knee fails with its cell, value, bound and source.
  * @evidence contracts/development/testing.md#independent-expectations Every bound is from McFadyen and Winter's stair kinematics or marked provisional with its reason.
  * @evidence contracts/development/testing.md#distinguishing-cases Both directions, both patterns and both lead feet on four bodies.
- * @evidence contracts/development/testing.md#execution-ownership In memory; named `test_human_` because a film of fitted poses is costly, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory; slow because a film of fitted poses is costly; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States every bound with its source and status.
  */
 export function test_human_motion_signature_climb_stairs(): void {

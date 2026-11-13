@@ -60,7 +60,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#behavioral-verification Carries real arms of real bodies and reads the displayed bones of the resolved posture; a forearm left through the waist or the partner, an end that misses its angles, a joint turned out of its range or a changed hand fails with its cell.
  * @evidence contracts/development/testing.md#independent-expectations The ends are the stance and the goal's own solution; the allowance is the documented blend of the two ends' needs measured on their displayed bones; the range bound is the blend's own overshoot.
  * @evidence contracts/development/testing.md#distinguishing-cases Four bodies from the lightest to the heaviest, both arms, a goal across the belly, one across the chest, one clear ahead and one into a partner's space, at both ends and four shares between.
- * @evidence contracts/development/testing.md#execution-ownership In memory; named `test_human_` because each cell solves a fitted posture, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory; slow because each cell solves a fitted posture; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the stance, the goals, the reading of the forearm's room, the allowance and the 3 scenarios with their bounds.
  */
 export function test_human_motion_compose_arm_carry(): void {

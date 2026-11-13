@@ -35,7 +35,7 @@ import { motionHumanSignature as M } from "../internal/motionHumanSignature";
  * @evidence contracts/development/testing.md#behavioral-verification Performs the real kick against a real partner and reads displayed joints and soles; a kick without a chamber, one that lands on a bent knee, a slow foot, a hopping support foot or a low foot fails with its cell, value, bound and source.
  * @evidence contracts/development/testing.md#independent-expectations The chamber and snap and the speed are cited; the other limits are marked provisional.
  * @evidence contracts/development/testing.md#distinguishing-cases Both techniques and both legs on four bodies.
- * @evidence contracts/development/testing.md#execution-ownership In memory; named `test_human_` because a film of fitted poses is costly, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory; slow because a film of fitted poses is costly; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States every bound with its source and status.
  */
 export function test_human_motion_signature_kick(): void {

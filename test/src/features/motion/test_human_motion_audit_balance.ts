@@ -51,7 +51,7 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  * @evidence contracts/development/testing.md#behavioral-verification Reads the public measure and margin on a real body's mass model; a velocity taken over the wrong span, a pendulum of the wrong length, or an instant read while a hand bears the body fails.
  * @evidence contracts/development/testing.md#independent-expectations The distance outside is Hof's closed form over the stance's own centre of mass and sole points, with the eigenfrequency written out from the body's hip height.
  * @evidence contracts/development/testing.md#distinguishing-cases Still, slow, fast forward and fast backward; two statures; declared, partly declared and gripped.
- * @evidence contracts/development/testing.md#execution-ownership In memory on two prepared bodies; named `test_human_` because preparing a body takes seconds, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory on two prepared bodies; slow because preparing a body takes seconds; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the construction with its formula and lists the 6 scenarios.
  */
 export function test_human_motion_audit_balance(): void {

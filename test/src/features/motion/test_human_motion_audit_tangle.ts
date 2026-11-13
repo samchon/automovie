@@ -58,7 +58,7 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  * @evidence contracts/development/testing.md#behavioral-verification Reads the public pose and motion measures on a real body's colliders; a missed limb in the trunk, a reading that moves with the body's place, or an exemption that leaks to another part, person or second fails.
  * @evidence contracts/development/testing.md#independent-expectations The depth is the distance the test itself set below a surface point found by the collider owner's ray, bounded by a forearm's anatomical half thickness; the symmetry and the invariance are properties of the body.
  * @evidence contracts/development/testing.md#distinguishing-cases Sound postures, inside and outside, left and right, a ramp in time, a declared contact inside and outside its window and for other parts, and a related pair.
- * @evidence contracts/development/testing.md#execution-ownership In memory on one prepared body; named `test_human_` because preparing a body takes seconds, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory on one prepared body; slow because preparing a body takes seconds; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the construction of "set inside" and lists the 9 scenarios with their numbers.
  */
 export function test_human_motion_audit_tangle(): void {

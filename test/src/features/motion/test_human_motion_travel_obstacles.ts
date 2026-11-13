@@ -45,9 +45,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Gives the performance real obstacles through its public input and walks at them through the public chain; a walk through the wall, a door that refuses a walker it fits, or a slot or a hatch that lets him through fails.
  * @evidence contracts/development/testing.md#independent-expectations That a solid stops a walker, and that a door must be as wide as the shoulders and as high as the body, is what a wall and a door are; the walker's breadth and stature are the body's own measures, read from the body and not from the walk.
- * @evidence contracts/development/testing.md#distinguishing-cases A solid, a fitting door, a narrow one, a low one and a way round, on one wall.
- * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and builds two short walks and three refused plans in memory, reading one instant: one body, since each claim compares an opening with that body's own measures.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 5 scenarios with their bounds.
+ * @evidence contracts/development/testing.md#distinguishing-cases A solid, a fitting door, a narrow one, a low one and a way round, on one wall; an approach that would stop across the wall from its partner; and `passThrough` at the door and at the bare wall.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and builds short walks and refused plans in memory, reading the pelvis eight times a second in one walk: one body, since each claim compares an opening with that body's own measures.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 7 scenarios with their bounds.
  */
 export function test_human_motion_travel_obstacles(): void {
   const complaints: string[] = [];

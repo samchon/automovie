@@ -37,7 +37,7 @@ import { motionHumanSignature as M } from "../internal/motionHumanSignature";
  * @evidence contracts/development/testing.md#behavioral-verification Performs real laws in pairs and compares their displayed bones, gaits and events; a lopsided side, a law that depends on where it stands, a gait whose timing does not scale with size or a tempo that leaves a span fails with its numbers.
  * @evidence contracts/development/testing.md#independent-expectations Each relation is a symmetry of the body, of space, of dynamic similarity or of the manner's definition; no expected value is read from a law.
  * @evidence contracts/development/testing.md#distinguishing-cases Every side parameter of every law, five laws placed twice, six gait paces on four bodies, three laws at two paces.
- * @evidence contracts/development/testing.md#execution-ownership In memory; named `test_human_` because films of fitted poses are costly, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory; slow because films of fitted poses are costly; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the four relations with their sources and tolerances.
  */
 export function test_human_motion_metamorphic(): void {

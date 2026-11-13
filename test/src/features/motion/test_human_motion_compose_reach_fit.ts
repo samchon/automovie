@@ -47,7 +47,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#behavioral-verification Compares the measurement with the displayed bones and each policy's result with its definition; a root read from the rest pose, a lean that stops short or overshoots, a clamp off the line or a leg that silently clamps fails.
  * @evidence contracts/development/testing.md#independent-expectations Roots and lengths come from the resolver's bones, lean answers from the construction of the point, the clamp from the line and the stated length.
  * @evidence contracts/development/testing.md#distinguishing-cases Four limbs, two postures, inside and outside reach, three chosen pitches, two limits, three policies, fourteen bodies; every failing cell is named with its body, its parameters and its measured numbers.
- * @evidence contracts/development/testing.md#execution-ownership In memory on the fourteen prepared bodies; named `test_human_` because preparing a body takes seconds, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory on the fourteen prepared bodies; slow because preparing a body takes seconds; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the contract, how a lean's answer is known and lists the 3 scenarios.
  */
 export function test_human_motion_compose_reach_fit(): void {

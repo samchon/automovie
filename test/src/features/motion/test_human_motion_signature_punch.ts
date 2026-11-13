@@ -41,7 +41,7 @@ import { motionHumanSignature as M } from "../internal/motionHumanSignature";
  * @evidence contracts/development/testing.md#behavioral-verification Performs the real punch against a real partner and reads displayed joints of both; a straight punch on a bent arm, a hook on a straight one, a slow or instant fist, a hit that misses or a trunk leaning back fails with its cell, value, bound and source.
  * @evidence contracts/development/testing.md#independent-expectations The arm shapes are each technique's definition; the speed is cited; the other limits are marked provisional.
  * @evidence contracts/development/testing.md#distinguishing-cases Three techniques, both hands and the hit row on four bodies.
- * @evidence contracts/development/testing.md#execution-ownership In memory; named `test_human_` because a film of fitted poses is costly, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory; slow because a film of fitted poses is costly; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States every bound with its source and status.
  */
 export function test_human_motion_signature_punch(): void {

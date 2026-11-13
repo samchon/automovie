@@ -54,7 +54,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#behavioral-verification Lays real arms through the touch owner and reads displayed bones; a region read on the wrong pose, a hint that sends the arm elsewhere, a reference off the region, a missing refusal or a hold off its region fails with its numbers.
  * @evidence contracts/development/testing.md#independent-expectations The region is a stated place; the displayed palm is read from the engine's forward kinematics, the pad from the effector owner.
  * @evidence contracts/development/testing.md#distinguishing-cases Both hands, a limb and a trunk region, the start and the hold of a touch, two refused counts.
- * @evidence contracts/development/testing.md#execution-ownership In memory; named `test_human_` because a touch solves fitted postures, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory; slow because a touch solves fitted postures; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the region, the effector, the pad's allowance and the 3 scenarios.
  */
 export function test_human_motion_compose_touch_laid(): void {

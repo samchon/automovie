@@ -43,7 +43,7 @@ import { motionHumanSignature as M } from "../internal/motionHumanSignature";
  * @evidence contracts/development/testing.md#behavioral-verification Performs the real walk law on real bodies and reads displayed bones; a trunk tipped back, a gait without double support, a wrong cadence, a centre of mass that dips at mid-stance or a head looking up fails with its cell, value, bound and source.
  * @evidence contracts/development/testing.md#independent-expectations Every bound is a cited human-gait value or marked provisional with its reason; none is read from the law.
  * @evidence contracts/development/testing.md#distinguishing-cases Three paces and the default on four bodies from the lightest to the heaviest.
- * @evidence contracts/development/testing.md#execution-ownership In memory; named `test_human_` because a film of fitted poses is costly, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory; slow because a film of fitted poses is costly; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States every bound with its source and status.
  */
 export function test_human_motion_signature_walk(): void {

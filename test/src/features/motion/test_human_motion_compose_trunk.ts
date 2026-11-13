@@ -51,7 +51,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#behavioral-verification Reads the resolver's bones for each written posture; a turn that moves the pelvis or a sink that drags a planted foot fails.
  * @evidence contracts/development/testing.md#independent-expectations The hips' place is the standing one moved by the stated distances, the angles are the stated degrees read between two bone axes, and the plants are the standing ones.
  * @evidence contracts/development/testing.md#distinguishing-cases Both turn directions, two depths against three inclinations with and without a backward move at two headings, on four bodies; every failing cell is named with its body, its parameters and its measured numbers. The crouch is `test_human_motion_compose_trunk_crouch`'s and the counterbalance `test_human_motion_compose_trunk_counterbalance`'s.
- * @evidence contracts/development/testing.md#execution-ownership In memory on four prepared bodies; named `test_human_` because preparing a body takes seconds, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory on four prepared bodies; slow because preparing a body takes seconds; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States what is read, which point a plant is, the clock and the bounds, why four bodies are enough, and lists the 2 scenarios.
  */
 export function test_human_motion_compose_trunk(): void {

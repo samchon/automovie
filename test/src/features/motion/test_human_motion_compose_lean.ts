@@ -55,7 +55,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#behavioral-verification Reads the resolver's bones for each written posture; a tilt about the root, a shift applied in the world frame, a sway that lets a foot leave its plant, a bow without its balance shift or an unclamped weight fails.
  * @evidence contracts/development/testing.md#independent-expectations The hips' place is the standing one moved by the stated distance, the feet's places are the standing goals, the bow's shift ratio is the stated ratio of sines and the balance is the centre of mass over the soles.
  * @evidence contracts/development/testing.md#distinguishing-cases Pitch against roll, two headings, a shift with and without a height, weights at, inside and outside [0, 1], refused peaks at and under 0, three bow peaks, the fourteen bodies of the sweep; every failing cell is named with its body and its measured numbers.
- * @evidence contracts/development/testing.md#execution-ownership In memory on the fourteen prepared bodies; named `test_human_` because preparing a body takes seconds, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory on the fourteen prepared bodies; slow because preparing a body takes seconds; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States what is read, the frame and the ratio, and lists the 4 scenarios.
  */
 export function test_human_motion_compose_lean(): void {

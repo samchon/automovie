@@ -44,7 +44,7 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  * @evidence contracts/development/testing.md#behavioral-verification Reads the public report; a check read despite a null limit, a finding at its limit, findings out of order or a pose resolved once per check fails.
  * @evidence contracts/development/testing.md#independent-expectations The slip and the speed are the written translation over the written time; the instant count is the grid's own.
  * @evidence contracts/development/testing.md#distinguishing-cases A clean film, three defects at once, unread checks, replaced limits at and above the reading, and a speed finding.
- * @evidence contracts/development/testing.md#execution-ownership In memory on one prepared body; named `test_human_` because preparing a body takes seconds, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory on one prepared body; slow because preparing a body takes seconds; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the film and lists the 6 scenarios with their numbers.
  */
 export function test_human_motion_audit_run(): void {

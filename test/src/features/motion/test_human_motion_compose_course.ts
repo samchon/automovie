@@ -43,7 +43,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#behavioral-verification Reads the centre of mass of the posture at the solved place; a course that puts the hips rather than the centre on the filter, a wrong time constant, a target sampled a step late or a heading ignored fails.
  * @evidence contracts/development/testing.md#independent-expectations The expected centres are the closed forms of the stated differential equation with the cited eigenfrequency, computed here from the body's hip height.
  * @evidence contracts/development/testing.md#distinguishing-cases A held, a stepped and a moving target, two headings, a rigid carry against planted feet, inside and outside the span, on fourteen bodies; every failing cell is named with its body, its instant and its measured numbers.
- * @evidence contracts/development/testing.md#execution-ownership In memory on the fourteen prepared bodies; named `test_human_` because preparing a body takes seconds, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory on the fourteen prepared bodies; slow because preparing a body takes seconds; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the law, its source and its closed forms, and lists the 5 scenarios.
  */
 export function test_human_motion_compose_course(): void {

@@ -51,7 +51,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#behavioral-verification Resolves postures through the public resolver and compares the displayed finger with the forward kinematics of the written angles; a resolver that clamps one reading of a rotation and not the other fails with the distances.
  * @evidence contracts/development/testing.md#independent-expectations The angles are another specification's measured frames; the expected places are forward kinematics of those angles, not the resolver's.
  * @evidence contracts/development/testing.md#distinguishing-cases The two readings of one rotation, at two neighbouring frames.
- * @evidence contracts/development/testing.md#execution-ownership Two posture solves on one prepared body; named `test_human_` so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership Two posture solves on one prepared body; it is a real-body test; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, where the angles come from and the 3 scenarios with their bounds.
  */
 export function test_human_motion_core_arm_readings(): void {

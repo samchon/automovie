@@ -52,9 +52,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Places real archetypes, builds performances through the public chain and reads the seat given to the actions, the displayed body and the prop's place; a seat read off its contact, a body beside the chair or a glass left on the table fails.
  * @evidence contracts/development/testing.md#independent-expectations Where the seat lies is the archetype's own placement of its contact, computed by that package; the seat height is the chair's drawn dimension; the lift is the action's documented default.
- * @evidence contracts/development/testing.md#distinguishing-cases A seat and a grip, a turned placement, and three ways an object cannot be sat on as asked.
+ * @evidence contracts/development/testing.md#distinguishing-cases A seat and a grip, a turned placement, three ways an object cannot be sat on as asked, and the foot rests of an astride seat with stirrups, a stool with a rung and a chair with none.
  * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and three archetypes; it runs locally and wherever CI runs the human motion tests.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 4 scenarios with their bounds.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 5 scenarios with their bounds.
  */
 export function test_human_motion_object_affordances(): void {
   const body: IHumanBody = motionHumanBody("m-average");

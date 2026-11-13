@@ -31,7 +31,7 @@ import { motionHumanSignature as M } from "../internal/motionHumanSignature";
  * @evidence contracts/development/testing.md#behavioral-verification Performs the real bend law on real bodies and reads displayed joints, soles and the centre of mass; a stoop with bent knees, a squat with straight ones, strategies in the wrong order or a body balanced outside its feet fails with its cell, value, bound and source.
  * @evidence contracts/development/testing.md#independent-expectations The strategies are Burgess-Limerick's classification; the thresholds are marked provisional.
  * @evidence contracts/development/testing.md#distinguishing-cases Three strategies, the automatic choice and both hands on four bodies.
- * @evidence contracts/development/testing.md#execution-ownership In memory; named `test_human_` because a film of fitted poses is costly, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory; slow because a film of fitted poses is costly; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States every bound with its source and status.
  */
 export function test_human_motion_signature_bend(): void {

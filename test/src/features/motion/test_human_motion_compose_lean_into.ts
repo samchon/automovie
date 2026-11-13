@@ -57,7 +57,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#behavioral-verification Reads the solved pitch against goals whose answer is known by construction, and the resolver's bones and the balance owner's margin on each written posture; a lean that overshoots, stops short, forgets the balance, drags a foot or stays down fails.
  * @evidence contracts/development/testing.md#independent-expectations Each goal is placed from the displayed shoulder at a chosen pitch, so the expected pitch is the chosen one; the refusal's distance is the 0.1 m the goal was placed beyond.
  * @evidence contracts/development/testing.md#distinguishing-cases Near, three far and one unreachable goal, both hands, two shares, five phases of the primitive, fourteen bodies; every failing cell is named with its body, its parameters and its measured numbers.
- * @evidence contracts/development/testing.md#execution-ownership In memory on the fourteen prepared bodies; named `test_human_` because preparing a body takes seconds, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory on the fourteen prepared bodies; slow because preparing a body takes seconds; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the contract, how each goal's answer is known and lists the 4 scenarios.
  */
 export function test_human_motion_compose_lean_into(): void {

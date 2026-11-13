@@ -34,7 +34,7 @@ import { motionHumanLawTouch } from "../internal/motionHumanLawTouch";
  * @evidence contracts/development/testing.md#behavioral-verification Performs the real law beside a standing partner and reads displayed bones and colliders of both; a hand short of the partner, a missing repetition or an elbow that flips fails with its measured number.
  * @evidence contracts/development/testing.md#independent-expectations Contact is the hand's collider on the region's point of the partner's displayed body, the repetitions and amplitudes are the kind's definition, and the mirror is the scene's own symmetry.
  * @evidence contracts/development/testing.md#distinguishing-cases Every kind the family uses, the palm and the fingertips, a partner facing and one turned away, regions from the crown to the back.
- * @evidence contracts/development/testing.md#execution-ownership In memory; named `test_human_` because fitting an arm on a body costs up to a second a frame, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory; slow because fitting an arm on a body costs up to a second a frame; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the rows, the partner's place and the 8 scenarios with their bounds.
  */
 export function test_human_motion_law_touch_partner(): void {

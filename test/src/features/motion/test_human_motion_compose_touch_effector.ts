@@ -48,7 +48,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#behavioral-verification Reads the public axes, point, pad and goal; a mirrored axis, a tool in metres, a goal whose hand faces away or whose effector misses the point fails.
  * @evidence contracts/development/testing.md#independent-expectations The axes are the rig's rest pose, the tool's offset is written in hand lengths, the quarter turn is written by hand, and the goal is checked by posing a hand at it and reading the effector back.
  * @evidence contracts/development/testing.md#distinguishing-cases Both hands, bare surfaces and tools, a named and a default facing, a vertical and a level region, on four builds.
- * @evidence contracts/development/testing.md#execution-ownership In memory; named `test_human_` because it prepares real bodies, which the CI test job leaves to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory; slow because it prepares real bodies; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States what an effector is and lists the 7 scenarios with their numbers.
  */
 export function test_human_motion_compose_touch_effector(): void {

@@ -25,7 +25,7 @@ import PEOPLE from "../internal/MOTION_HUMAN_PEOPLE.json";
  * @evidence contracts/development/testing.md#behavioral-verification Asks the public producer and compares the objects it returns and the table's size; a producer that prepares every time, or shares a body across ids or masses, fails.
  * @evidence contracts/development/testing.md#independent-expectations Sameness is object identity, difference is a new object; nothing is read from the producer's key.
  * @evidence contracts/development/testing.md#distinguishing-cases The same three, another id, another mass, and a release.
- * @evidence contracts/development/testing.md#execution-ownership Four preparations of one canonical body, 22 seconds in all; named `test_human_` so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership Four preparations of one canonical body, 22 seconds in all, in memory with no process, browser or render; the test program discovers every `test_` function under `features`, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the parameter set and the 4 scenarios.
  */
 export function test_human_bodies_prepare(): void {

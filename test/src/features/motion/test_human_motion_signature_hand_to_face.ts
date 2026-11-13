@@ -37,7 +37,7 @@ import { motionHumanSignature as M } from "../internal/motionHumanSignature";
  * @evidence contracts/development/testing.md#behavioral-verification Performs the real law on real bodies and reads displayed joints; a hand brought to the face on a straight arm, a head craned up to meet it or a body leaning far fails with its cell, value, bound and source.
  * @evidence contracts/development/testing.md#independent-expectations The elbow's range is van Andel et al.'s; the other limits are marked provisional.
  * @evidence contracts/development/testing.md#distinguishing-cases Every task and both hands on four bodies.
- * @evidence contracts/development/testing.md#execution-ownership In memory; named `test_human_` because a film of fitted poses is costly, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory; slow because a film of fitted poses is costly; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States every bound with its source and status.
  */
 export function test_human_motion_signature_hand_to_face(): void {

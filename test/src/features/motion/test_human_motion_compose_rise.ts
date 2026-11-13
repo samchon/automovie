@@ -50,7 +50,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#behavioral-verification Reads the placements and the resolver's bones; a turn about the ankle or the toe tip, a lever that stretches, a lift of one foot only, or toes that turn up with the foot fails.
  * @evidence contracts/development/testing.md#independent-expectations The ankle's height is the rigid turn's closed form on the flat lever, the joint's place is the flat one and the displayed toes are compared with the standing body's.
  * @evidence contracts/development/testing.md#distinguishing-cases Four raises including none, both feet, two headings and fourteen foot sizes; every failing cell is named with its body, its parameters and its measured numbers.
- * @evidence contracts/development/testing.md#execution-ownership In memory on the fourteen prepared bodies; named `test_human_` because preparing a body takes seconds, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory on the fourteen prepared bodies; slow because preparing a body takes seconds; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the rigid turn, its closed form and what the displayed body shows, and lists the 3 scenarios.
  */
 export function test_human_motion_compose_rise(): void {

@@ -62,9 +62,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Rides real archetypes, gives each to the performance as a moving prop and reads the rider's displayed seat region and sternum in the mount's frame through the ride; a rider left behind, upright on a banked bicycle or level on a bobbing horse fails.
  * @evidence contracts/development/testing.md#independent-expectations Where the mount is at each instant is the archetype ride's own placement; that a seated rider does not slide is what being carried means. The 10 mm is the campaign's support bound, the bank is the steady-turn balance and the trot's speed and bob are the cited measurements.
- * @evidence contracts/development/testing.md#distinguishing-cases A mount that banks and yaws and one that bobs, two bodies of opposite build, and a control that the mount really moved, without which a still rider on a still mount would pass.
+ * @evidence contracts/development/testing.md#distinguishing-cases A mount that banks and yaws and one that bobs, two bodies of opposite build, and a control that the mount really moved, without which a still rider on a still mount would pass; getting off, a wave over the ride, and the horse's seat from its wrong side.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and two archetype rides in memory; it runs locally and wherever CI runs the human motion tests.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 5 scenarios with their bounds and sources.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 6 scenarios with their bounds and sources.
  */
 export function test_human_motion_ride_mounts(): void {
   const complaints: string[] = [];

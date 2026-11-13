@@ -59,9 +59,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads the balance owner's measure on the written posture; a counterbalance that stops short, moves along the world axis, lifts the body or stays after its end fails.
  * @evidence contracts/development/testing.md#independent-expectations Static balance is the centre of mass over the base of support; the direction is the heading's; none is read from the phrase's solve.
- * @evidence contracts/development/testing.md#distinguishing-cases A pose that needs no shift, one that needs a moderate one and one whose hips start most of a leg's length ahead, at two headings, on two bodies. The crouch's balance is `test_human_motion_compose_trunk_crouch`'s.
- * @evidence contracts/development/testing.md#execution-ownership In memory on two prepared bodies; named `test_human_` because preparing a body takes seconds, so the CI test job leaves it to local runs.
- * @evidence contracts/development/common.md#meaningful-documentation States the extended postures and what a pitch does to them, the measure and bound, why two bodies are enough and the 5 scenarios.
+ * @evidence contracts/development/testing.md#distinguishing-cases A pose that needs no shift, one that needs a moderate one one whose hips start most of a leg's length ahead, and one no place of the hips balances (refused), at two headings, on two bodies. The crouch's balance is `test_human_motion_compose_trunk_crouch`'s.
+ * @evidence contracts/development/testing.md#execution-ownership In memory on two prepared bodies; slow because preparing a body takes seconds; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
+ * @evidence contracts/development/common.md#meaningful-documentation States the extended postures and what a pitch does to them, the measure and bound, why two bodies are enough and the 6 scenarios, the sixth being the refusal of a pose no hips place balances.
  */
 export function test_human_motion_compose_trunk_counterbalance(): void {
   type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;

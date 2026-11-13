@@ -64,9 +64,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs the pick-up and a presenting action through the public input and reads the displayed sword's line; a grasp that ignores the use, or a missing refusal, fails with the measured angle.
  * @evidence contracts/development/testing.md#independent-expectations The asked line is built in the test from the body's heading; the displayed line comes from the performance's own carry of the prop. The 15 degrees is the contract the parameter states, marked provisional there, and the comparison with the unnamed use is a relation between two runs.
- * @evidence contracts/development/testing.md#distinguishing-cases Two bodies, two lines a quarter turn apart, with and without the use, and a working point the prop lacks. What a cut or a thrust then does with the blade is the blade tests'.
+ * @evidence contracts/development/testing.md#distinguishing-cases Two bodies, two lines a quarter turn apart, with and without the use, a working point the prop lacks, and a use at the mouth for a glass and for a cigarette (each must plan; no angle is read there). What a cut or a thrust then does with the blade is the blade tests'.
  * @evidence contracts/development/testing.md#execution-ownership Prepares polygon men and one archetype and builds short performances in memory; it runs locally and wherever CI runs the human motion tests.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule, the staging, the reading and the 3 scenarios with their bounds.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule, the staging, the reading and the 5 scenarios with their bounds.
  */
 export function test_human_motion_core_grasp_use(): void {
   const complaints: string[] = [];

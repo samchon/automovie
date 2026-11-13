@@ -53,7 +53,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#independent-expectations The even share of the turn follows from what a blend is; the factor of three and the half degree allow an eased path and the conversion's rounding, and are stated. The third pair is a measured row of issue #3400, not a value from the blend.
  * @evidence contracts/development/testing.md#distinguishing-cases A pair in one chart, a pair across the chart's singular flexion, and a pair that is one arm in two charts; both ends, and one hundred interior weights.
  * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic on two prepared bodies' joint axes; no performance is built.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule, the reading, the 3 scenarios with their bounds and where each pair comes from.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule, the reading, the 4 scenarios with their bounds and where each pair comes from.
  */
 export function test_human_motion_core_joint_blend(): void {
   const complaints: string[] = [];

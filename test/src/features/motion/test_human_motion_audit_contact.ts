@@ -52,7 +52,7 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  * @evidence contracts/development/testing.md#behavioral-verification Reads the public readings; a skate read in the air or inside a declared window, a share that counts slow steps, a loose plant missed, or a height read on a prop fails.
  * @evidence contracts/development/testing.md#independent-expectations Every speed is the translation the test wrote, every share a count of the film's steps, and the stance's own sole height cancels in the difference of two raises.
  * @evidence contracts/development/testing.md#distinguishing-cases Still, sliding fast and slow, rising, in the air and just on the floor, declared and undeclared feet, plant, pivot, prop and hand windows, and a bad rate.
- * @evidence contracts/development/testing.md#execution-ownership In memory on one prepared body; named `test_human_` because preparing a body takes seconds, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory on one prepared body; slow because preparing a body takes seconds; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the film and lists the 9 scenarios with their numbers.
  */
 export function test_human_motion_audit_contact(): void {

@@ -152,7 +152,7 @@ const STRAIGHT_PATH: IAutoMovieVector3[] = [
  * @evidence contracts/development/testing.md#independent-expectations Straight developed frames have area ratio one; taper ruling tilt gives 1/hypot(1,0.125), and circular geometry gives R/(R+d). The 96-segment bend only approximates an arc, with the retained 1e-3 inner and 1e-9 outer tolerances. Ratios from emitted triangles measure area, not directional shear, texel filtering or a rendered finish.
  * @evidence contracts/development/testing.md#distinguishing-cases Keeps straight, tapered, region and projected-face frames; bends at two absolute scales; tall, narrow and wide sections; common path-v span; and zero small-area exclusions for all nine meshes. Atlas anisotropy and malformed builder inputs belong to other procedural tests.
  * @evidence contracts/development/testing.md#execution-ownership The named geometry entry directly calls portable builders and the existing canonical area observer on its unchanged fixtures. It starts no process, browser, GPU or native build, and dynamically registers no cases; the measurements cannot establish visual appearance.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 9 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A straight run of constant section is exactly equiareal, every triangle).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A straight run of constant section is exactly equiareal, every triangle).
  */
 export function test_geometry_loft_atlas_density(): void {
   const straight: IAutoMovieMesh = sweepPolygonLoft({

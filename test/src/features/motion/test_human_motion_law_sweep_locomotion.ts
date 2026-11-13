@@ -35,7 +35,7 @@ import { motionHumanLawSweep } from "../internal/motionHumanLawSweep";
  * @evidence contracts/development/testing.md#behavioral-verification Performs each real law through the chain and reads displayed bones and colliders; a refusal, a penetration, a slipped foot, a jump or a joint out of range fails with its cell and number.
  * @evidence contracts/development/testing.md#independent-expectations Every bound is the audit's own physical limit or the body's symmetry; none is read from a law's output.
  * @evidence contracts/development/testing.md#distinguishing-cases A covering array per law of the family: every pair (or triple) of parameter values, extreme bodies and seeds.
- * @evidence contracts/development/testing.md#execution-ownership In memory; named `test_human_` because a fitted pose is costly, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory; slow because a fitted pose is costly; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the covering design, how the complaints are gathered and the 5 scenarios with their bounds.
  */
 export function test_human_motion_law_sweep_locomotion(): void {
