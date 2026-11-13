@@ -5,7 +5,10 @@ import {
   createKettlebell,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanObject,
@@ -56,12 +59,17 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    at `back1` and at `float1` the right wrist is within 0.12 m of the
  *    grip, and the bell is more than a quarter of the stature higher at
  *    `float1` (from between the legs to the chest's height, an estimate).
+ * 6. In the deadlift, at `bottom1` and at the lift's end, the bar's middle stands within
+ *    30 mm, along the performer's heading, of the middle between the ankle
+ *    joints and the toes' joints (the bar of a deadlift travels over the
+ *    middle of the foot: Rippetoe and Kilgore, Starting Strength, 3rd ed.,
+ *    2011; the joints' middle is an estimate of the mid-foot, with room).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds a performance through the public chain, the pick-up and the row's `load`, and reads the displayed bar and the displayed wrists; a refused load, a hand off its handle, a tilted bar or a bar left behind fails with the measure.
  * @evidence contracts/development/testing.md#independent-expectations The handles are the archetype's own contacts placed by the displayed prop frame; the bounds are the campaign's contact bound and a stated estimate of the hand; nothing is read from the law.
  * @evidence contracts/development/testing.md#distinguishing-cases Both hands, two instants at the ends of the lift's range, the bar's level and its travel, on two bodies of opposite build.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men, one barbell, one dumbbell, one kettlebell and three films each; it runs locally and wherever CI runs the human motion tests.
- * @evidence contracts/development/common.md#meaningful-documentation States what is pinned, the bounds and which is an estimate, the scene and the 5 scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation States what is pinned, the bounds and which is an estimate, the scene and the 6 scenarios.
  */
 export function test_human_motion_sport_loaded(): void {
   const bar: ReturnType<typeof createBarbell> = createBarbell({
@@ -212,6 +220,22 @@ export function test_human_motion_sport_loaded(): void {
           `${name}: at ${seconds.toFixed(2)} s the bar's handles differ by ${tilt.toFixed(1)} mm in height, 15 mm at most expected; the bar runs along (${line.x.toFixed(2)}, ${line.y.toFixed(2)}, ${line.z.toFixed(2)}) from the right handle to the left, and the shown right hand is ${off.toFixed(0)} degrees from the turn its goal asks`,
         );
       }
+    }
+    for (const seconds of [bottom, lift.end]) {
+      const feet: number =
+        (["leftFoot", "rightFoot", "leftToes", "rightToes"] as const).reduce(
+          (sum: number, bone: AutoMovieHumanoidBone): number =>
+            sum + HumanSignature.joint(reader, seconds, bone).z,
+          0,
+        ) / 4;
+      const off: number =
+        1000 *
+        ((handle("gripLeft", seconds).z + handle("gripRight", seconds).z) / 2 -
+          feet);
+      if (!(Math.abs(off) <= 30))
+        complaints.push(
+          `${name}: at ${seconds.toFixed(2)} s the bar's middle stands ${off.toFixed(1)} mm ahead of the feet's middle, within 30 mm expected`,
+        );
     }
     const rise: number =
       film.prop("bar", lift.end).position.y -

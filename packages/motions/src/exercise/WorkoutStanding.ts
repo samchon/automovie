@@ -15,7 +15,9 @@ import { WorkoutStance } from "./WorkoutStance";
  * description (ACSM's Guidelines, 11th ed.; NSCA's Essentials of Strength
  * Training, 4th ed.).
  *
- * First pass: no bar, bell or rope is held or moved.
+ * First pass: no bar, bell or rope is held or moved unless the author names
+ * a load; a deadlift's and an overhead press's bar then travels over the
+ * middle of the feet (`WorkoutLoad`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the kinds, what keeps the feet, what is provisional with its sources and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation One `WorkoutKind` per exercise: data over the one planner.
@@ -38,7 +40,7 @@ export namespace WorkoutStanding {
   /** The exercises. */
   export const KINDS: Readonly<Record<Name, WorkoutKind>> = {
     /** A deadlift: from standing down to the bar's height at the shins, the trunk at 70 degrees over knees bent 75, the arms hanging, and back. */
-    deadlift: WorkoutStance.of(WorkoutStance.ANKLES, WorkoutStance.FEET, 0, 5, (): WorkoutKind.IStep[] => [
+    deadlift: { midfoot: true, ...WorkoutStance.of(WorkoutStance.ANKLES, WorkoutStance.FEET, 0, 5, (): WorkoutKind.IStep[] => [
       WorkoutStance.rest(1.2),
       WorkoutKind.step(
         ExerciseKey.of(
@@ -49,7 +51,7 @@ export namespace WorkoutStanding {
         "lower",
         "bottom",
       ),
-    ]),
+    ]) },
 
     /** A back squat: the hands at the shoulders, down to a level thigh and up. */
     backSquat: WorkoutStance.of(WorkoutStance.ANKLES, WorkoutStance.FEET, 0.8, 5, (): WorkoutKind.IStep[] => [
@@ -103,7 +105,7 @@ export namespace WorkoutStanding {
     ]),
 
     /** An overhead press: from the hands at the shoulders to the arms locked out overhead. */
-    overheadPress: WorkoutStance.of(WorkoutStance.ANKLES, WorkoutStance.FEET, 0.8, 5, (): WorkoutKind.IStep[] => [
+    overheadPress: { midfoot: true, ...WorkoutStance.of(WorkoutStance.ANKLES, WorkoutStance.FEET, 0.8, 5, (): WorkoutKind.IStep[] => [
       WorkoutKind.step(
         ExerciseKey.of({}, { shoulder: 70, raise: 20, elbow: 140 }),
         1,
@@ -116,7 +118,7 @@ export namespace WorkoutStanding {
         "press",
         "lockout",
       ),
-    ]),
+    ]) },
 
     /** Arm circles: both straight arms forward, overhead, out to the side and down. */
     armCircles: WorkoutStance.of(WorkoutStance.ANKLES, WorkoutStance.FEET, 0.3, 5, (): WorkoutKind.IStep[] => [

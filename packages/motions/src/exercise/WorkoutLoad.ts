@@ -15,6 +15,7 @@ import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -35,8 +36,17 @@ import { StrikingHeld } from "../striking/StrikingHeld";
  * the other hand is laid on that handle by the arm's solve, as a long gun's
  * support hand is.
  *
+ * A lift whose kind says so (`WorkoutKind.midfoot`) carries the bar's middle
+ * over the middle of the feet: the bar and the lifter balance over the
+ * mid-foot, so the bar of a deadlift or a press travels in a vertical line
+ * over it (Rippetoe and Kilgore, Starting Strength: Basic Barbell Training,
+ * 3rd ed., 2011). The holding hand is swung about its shoulder, forward or
+ * back at the arm's own reach, by what the key's arms leave the bar's
+ * middle off that line; the mid-foot is
+ * the middle between the heel and the toe of each foot the entry stands on.
+ *
  * First pass: the load weighs nothing in the motion (no lean, no slower
- * tempo, no bar path over the knees); a bar is kept level across the body
+ * tempo, no bar path round the knees); a bar is kept level across the body
  * whatever the key, so a one-sided or turned carry is not written; the
  * holding hand's turn about the bar is the straight wrist's, whatever the
  * lift (no hook or mixed grip).
@@ -95,6 +105,7 @@ export namespace WorkoutLoad {
    *
    * @param context The action's context.
    * @param load The load's parameters.
+   * @param midfoot Whether a bar in both hands travels over the middle of the feet.
    * @returns What the plan needs of it.
    * @throws {HumanRefusal} When the hand does not hold the prop, or the prop lacks the other handle.
    *
@@ -109,6 +120,7 @@ export namespace WorkoutLoad {
   export function of(
     context: Pick<IHumanActionContext, "body" | "entry" | "prop" | "subject">,
     load: IParams,
+    midfoot: boolean = false,
   ): ILoad {
     const body: IHumanActionContext["body"] = context.body;
     const side: HumanHand.Side = load.hand ?? "right";
@@ -152,6 +164,29 @@ export namespace WorkoutLoad {
           ),
     );
     const bare: StrikingHeld.ITool = StrikingHeld.of(context, other);
+
+    // The middle of the feet the entry stands on, over which a lift's bar
+    // travels.
+    const balance: IAutoMovieVector3 = Vector3.scale(
+      (["left", "right"] as const).reduce(
+        (sum: IAutoMovieVector3, foot: "left" | "right"): IAutoMovieVector3 =>
+          Vector3.add(
+            sum,
+            Vector3.add(
+              HumanFoot.point(body, foot, "heel", {
+                ankle: context.entry.feet[foot].ankle,
+                rotation: context.entry.feet[foot].rotation,
+              }),
+              HumanFoot.point(body, foot, "toe", {
+                ankle: context.entry.feet[foot].ankle,
+                rotation: context.entry.feet[foot].rotation,
+              }),
+            ),
+          ),
+        { x: 0, y: 0, z: 0 },
+      ),
+      0.25,
+    );
     const bend = (
       posture: IHumanPosture,
       arm: HumanHand.Side,
@@ -201,10 +236,64 @@ export namespace WorkoutLoad {
                 : { x: 0, y: -1, z: 0 },
           },
         );
-        const frame: StrikingHeld.IHandFrame = {
+        const keyed: StrikingHeld.IHandFrame = {
           point: HumanHand.frame(body, bones, side, "grip").point,
           rotation: turn,
         };
+        // The bar's middle is carried over the mid-foot: the hand swings
+        // about its shoulder, in the plane of the performer's heading, by
+        // what the key leaves the bar off along that heading. It keeps its
+        // distance from the shoulder: moved level instead, a straight arm
+        // fell short of the handle and the other hand slid 20.6 mm along
+        // the bar on the small woman.
+        const ahead: IAutoMovieVector3 = HumanFrame.point(
+          { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
+          { x: 0, y: 0, z: 1 },
+        );
+        const shoulder: IAutoMovieVector3 = bones.get(
+          `${side}UpperArm`,
+        )!.worldPosition;
+        const reach: IAutoMovieVector3 = Vector3.subtract(
+          keyed.point,
+          shoulder,
+        );
+        const radius: number = Math.hypot(Vector3.dot(reach, ahead), reach.y);
+        const forth: number = Math.max(
+          -radius,
+          Math.min(
+            radius,
+            Vector3.dot(reach, ahead) +
+              Vector3.dot(
+                Vector3.subtract(
+                  balance,
+                  Vector3.lerp(
+                    keyed.point,
+                    StrikingHeld.point(tool, keyed, 0),
+                    0.5,
+                  ),
+                ),
+                ahead,
+              ),
+          ),
+        );
+        const frame: StrikingHeld.IHandFrame = !midfoot
+          ? keyed
+          : {
+              ...keyed,
+              point: Vector3.add(
+                Vector3.add(
+                  shoulder,
+                  Vector3.scale(across, Vector3.dot(reach, across)),
+                ),
+                Vector3.add(Vector3.scale(ahead, forth), {
+                  x: 0,
+                  y:
+                    (reach.y > 0 ? 1 : -1) *
+                    Math.sqrt(radius * radius - forth * forth),
+                  z: 0,
+                }),
+              ),
+            };
         const first: IHumanPosture.IGoal = StrikingHeld.goal(
           context,
           tool,

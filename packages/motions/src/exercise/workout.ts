@@ -23,6 +23,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { knockdown } from "../reaction/knockdown";
 import { ExerciseKey } from "./ExerciseKey";
+import { WorkoutBodyweight } from "./WorkoutBodyweight";
 import { WorkoutEquipment } from "./WorkoutEquipment";
 import { WorkoutFeet } from "./WorkoutFeet";
 import { WorkoutFloor } from "./WorkoutFloor";
@@ -86,6 +87,7 @@ export namespace workout {
     | WorkoutFloor.Name
     | WorkoutEquipment.Name
     | WorkoutGym.Name
+    | WorkoutBodyweight.Name
     | WorkoutLying.Name
     | WorkoutStanding.Name
     | WorkoutPoses.Name
@@ -96,6 +98,7 @@ export namespace workout {
     ...WorkoutFloor.KINDS,
     ...WorkoutEquipment.KINDS,
     ...WorkoutGym.KINDS,
+    ...WorkoutBodyweight.KINDS,
     ...WorkoutLying.KINDS,
     ...WorkoutStanding.KINDS,
     ...WorkoutPoses.KINDS,
@@ -308,7 +311,9 @@ export namespace workout {
       ...(kind.hands === true ? [] : (["leftArm", "rightArm"] as const)),
     ];
     const load: WorkoutLoad.ILoad | null =
-      p.load === undefined ? null : WorkoutLoad.of(context, p.load);
+      p.load === undefined
+        ? null
+        : WorkoutLoad.of(context, p.load, kind.midfoot === true);
     const primitives: IAutoMovieMotionHumanPrimitive[] = [
       {
         channels,

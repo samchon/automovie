@@ -56,6 +56,9 @@ export interface WorkoutKind {
   /** Whether a `stance` kind moves its bearing feet into a stance of its own (a split, a straddle); otherwise the feet that bear are held on the places they stand on at the entry. */
   strides?: boolean;
 
+  /** Whether a bar held in both hands (`load` with `other`) travels over the middle of the feet, as a deadlift's and a press's does; where the key's arms put it when absent. */
+  midfoot?: boolean;
+
   /** Whether every other repetition is done on the other side. */
   alternate?: boolean;
 
