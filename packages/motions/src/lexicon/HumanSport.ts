@@ -189,4 +189,19 @@ export namespace HumanSport {
   export const frontCrawl = HumanActionRow.of("frontCrawl", swim, {
     kind: "frontCrawl",
   });
+
+  /** Swimming the breaststroke. */
+  export const breaststroke = HumanActionRow.of("breaststroke", swim, {
+    kind: "breaststroke",
+  });
+
+  /** Swimming the backstroke, head first the way the back faced. */
+  export const backstroke = HumanActionRow.of("backstroke", swim, {
+    kind: "backstroke",
+  });
+
+  /** Floating on the back. */
+  export const floating = HumanActionRow.of("floating", swim, {
+    kind: "float",
+  });
 }
