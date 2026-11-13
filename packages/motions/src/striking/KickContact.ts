@@ -26,7 +26,9 @@ import { StrikingStance } from "./StrikingStance";
  * nearer the point along the line than {@link KickForm.STEP_ROOM_SHARE} of
  * the thigh, where the knee would pass the target. A leg jammed by a point
  * closer than its flexion band's shortest reach steps the support foot back
- * by the difference instead, so the weapon it declared lands, not the knee.
+ * by the difference instead, so the weapon it declared lands, not the knee;
+ * a step back is no longer than the longest backward step measured
+ * ({@link KickForm.STEP_BACK_SHARE}).
  * A fitted weapon that the hip's range of motion leaves beyond the point (a
  * high point too near for the thigh to rise to) steps the support foot back
  * by the excess in the same rounds.
@@ -74,6 +76,7 @@ export namespace KickContact {
     const m: IHumanBody["measure"] = props.body.measure;
     const limit: number =
       KickForm.STEP_SHARE * StrikingStance.length(props.body);
+    const back: number = KickForm.STEP_BACK_SHARE * m.stature;
     const under = (carriage: IKickGeometry.ICarriage): IContact => {
       const base: IHumanPosture = KickCarriage.posture(
         props,
@@ -119,7 +122,7 @@ export namespace KickContact {
           carriage = {
             ...carriage,
             step: -Math.min(
-              limit,
+              back,
               Math.max(
                 0,
                 StrikingReach.reach(
@@ -168,7 +171,7 @@ export namespace KickContact {
         );
         if (!(ahead > 1e-3)) break;
         const next: number = Math.max(
-          -limit,
+          -back,
           Math.min(forward, carriage.step + lack / ahead),
         );
         if (Math.abs(next - carriage.step) < 1e-6) break;
