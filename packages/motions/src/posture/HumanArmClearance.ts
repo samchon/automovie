@@ -232,6 +232,55 @@ export namespace HumanArmClearance {
     };
   }
 
+  /** The bones of the five digits, by their names. */
+  export const DIGITS: RegExp = /(Thumb|Index|Middle|Ring|Little)/;
+
+  /**
+   * A pose with one hand's fingers written at given angles, so an arm's room
+   * reads the fingers it is shown with: the ones the hand holds at that
+   * instant, or those it held where the arm was read.
+   *
+   * @param pose The pose.
+   * @param side The hand.
+   * @param fingers Clinical triples by bone; the other hand's and every other bone's are ignored.
+   * @returns The pose, every other joint as it was.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is written, what is ignored and why.
+   * @evidence contracts/development/implementation.md#principled-implementation The tangle audit reads the fingers as the pose shows them, so the room that keeps them clear must read the same fingers; the pose holds each joint's clinical triple.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One map over the joints, as `posed`.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only that hand's digit bones are written.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the joints with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing computed twice.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function fingered(
+    pose: IAutoMoviePose,
+    side: "left" | "right",
+    fingers: Readonly<
+      Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>
+    >,
+  ): IAutoMoviePose {
+    return {
+      ...pose,
+      joints: pose.joints.map(
+        (joint: IAutoMovieJointPose): IAutoMovieJointPose => {
+          const angles: readonly [number, number, number] | undefined =
+            joint.bone.startsWith(side) && DIGITS.test(joint.bone)
+              ? fingers[joint.bone]
+              : undefined;
+          return angles === undefined
+            ? joint
+            : {
+                ...joint,
+                flexion: angles[0],
+                abduction: angles[1],
+                twist: angles[2],
+              };
+        },
+      ),
+    };
+  }
+
   /**
    * A forearm's overshoot (`overshoot`) with the arm at given joint angles
    * in a pose.

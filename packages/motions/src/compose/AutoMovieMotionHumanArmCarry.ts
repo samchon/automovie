@@ -46,6 +46,11 @@ export namespace AutoMovieMotionHumanArmCarry {
 
     /** The hand's flexion, abduction and twist. */
     hand: readonly [number, number, number];
+
+    /** The fingers' joints of that hand as the arm holds them, read off the pose with the arm; the posture's own when absent. */
+    fingers?: Readonly<
+      Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>
+    >;
   }
 
   /**
@@ -70,10 +75,24 @@ export namespace AutoMovieMotionHumanArmCarry {
       const joint = pose.joints.find((j): boolean => j.bone === bone);
       return [joint?.flexion ?? 0, joint?.abduction ?? 0, joint?.twist ?? 0];
     };
+    const fingers: Partial<
+      Record<AutoMovieHumanoidBone, readonly [number, number, number]>
+    > = {};
+    for (const joint of pose.joints)
+      if (
+        HumanArmClearance.DIGITS.test(joint.bone) &&
+        joint.bone.startsWith(side)
+      )
+        fingers[joint.bone] = [
+          joint.flexion ?? 0,
+          joint.abduction ?? 0,
+          joint.twist ?? 0,
+        ];
     return {
       upper: read(`${side}UpperArm`),
       lower: read(`${side}LowerArm`),
       hand: read(`${side}Hand`),
+      fingers,
     };
   }
 
@@ -213,6 +232,7 @@ export namespace AutoMovieMotionHumanArmCarry {
                   ? courses[other]!
                   : plains[other]!)(share),
               );
+          at = HumanArmClearance.fingered(at, side, posture.joints);
           posed.set(share, at);
         }
         return at;
@@ -224,11 +244,21 @@ export namespace AutoMovieMotionHumanArmCarry {
         of: HumanArmClearance.IArm,
         share: number,
         which: keyof HumanArmClearance.IBaseline,
+        fingers?: IAngles["fingers"],
       ): number =>
-        HumanArmClearance.room(body, pose(share), side, of, others, {
-          forearm: which === "forearm" ? 0 : Infinity,
-          segments: which === "segments" ? 0 : Infinity,
-        });
+        HumanArmClearance.room(
+          body,
+          fingers === undefined
+            ? pose(share)
+            : HumanArmClearance.fingered(pose(share), side, fingers),
+          side,
+          of,
+          others,
+          {
+            forearm: which === "forearm" ? 0 : Infinity,
+            segments: which === "segments" ? 0 : Infinity,
+          },
+        );
       let ends:
         | Record<keyof HumanArmClearance.IBaseline, readonly [number, number]>
         | undefined;
@@ -251,11 +281,11 @@ export namespace AutoMovieMotionHumanArmCarry {
             ): HumanArmClearance.IArm => {
               ends ??= {
                 forearm: [
-                  reading(held, 0, "forearm"),
+                  reading(held, 0, "forearm", held.fingers),
                   reading(aimed, 1, "forearm"),
                 ],
                 segments: [
-                  reading(held, 0, "segments"),
+                  reading(held, 0, "segments", held.fingers),
                   reading(aimed, 1, "segments"),
                 ],
               };
