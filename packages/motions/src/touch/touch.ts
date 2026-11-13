@@ -477,7 +477,7 @@ export namespace touch {
             ? {}
             : { contact: support }),
           ...(target.kind === "person"
-            ? { others: touchHold.others(context, target.subject, clock) }
+            ? { others: touchHold.others(context, target, clock) }
             : {}),
         }),
       );

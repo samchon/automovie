@@ -124,6 +124,7 @@ export namespace HumanArmClearance {
    * @param goal Whether the wrist is where a goal put it, which excuses its own depth in `shapes`; a carried arm between its ends has none.
    * @param rival The world point the other arm's goal will put its wrist at, while that arm is still to be fitted; absent, the room is kept unless the other arm's colliders are among `shapes`.
    * @param hint The world point the goal hints the elbow toward; none when absent.
+   * @param rests Placed colliders of another body the goal lays the hand on; none when absent.
    * @returns Degrees; 0 when the forearm clears every shape and the elbow keeps its side.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the unit, each input and the meaning of 0; the rule is the reading's own.
@@ -144,6 +145,7 @@ export namespace HumanArmClearance {
     goal: boolean = true,
     rival?: IAutoMovieVector3,
     hint?: IAutoMovieVector3,
+    rests: readonly HumanColliders.IPlaced[] = [],
   ): number {
     return HumanArmOvershoot.of(
       body,
@@ -155,6 +157,7 @@ export namespace HumanArmClearance {
       goal,
       rival,
       hint,
+      rests,
     );
   }
 

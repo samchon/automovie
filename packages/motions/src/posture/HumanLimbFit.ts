@@ -182,7 +182,7 @@ export namespace HumanLimbFit {
    * offset) moves the goal with it. An arm fitted after the other arm keeps
    * clear of it too, so two hands sent across each other stack their forearms
    * instead of passing one through the other, and an arm keeps clear of the
-   * other bodies its goal names (`IHumanPosture.IGoal.clear`).
+   * other bodies its goal names (`IHumanPosture.IGoal.clear`) and of the ones it lays the hand on (`rests`).
    *
    * @param body The performer's body.
    * @param pose The pose before the fit.
@@ -234,6 +234,7 @@ export namespace HumanLimbFit {
               true,
               rival,
               goal.bend,
+              attached.rests ?? [],
             );
     let fitted: IAutoMoviePose = once(body, pose, limb, goal, clear);
     if (goal.contact === undefined || goal.rotation === undefined)

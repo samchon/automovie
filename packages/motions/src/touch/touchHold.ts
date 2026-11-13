@@ -1,4 +1,6 @@
 import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
   AutoMovieMotionTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -123,30 +125,45 @@ export namespace touchHold {
   }
 
   /**
-   * The partner's colliders a touch keeps its arm clear of.
+   * The partner's colliders a touch keeps its arm clear of, and the ones it
+   * lays the hand on: the segments of the bone that carries the touched
+   * region (`IHumanPosture.IGoal.rests`), whose surface the goal puts the hand
+   * on, apart from the rest (`IHumanPosture.IGoal.clear`).
    *
    * @param context The action's context.
-   * @param subject The partner.
+   * @param target The partner and the region the hand is laid on.
    * @param clock The touch's clock.
-   * @returns The colliders at a second since the action's start: where the partner was one frame before during the hold, where the performer saw them a reaction time earlier otherwise.
+   * @returns The colliders at a second since the action's start, `clear` and `rests`: where the partner was one frame before during the hold, where the performer saw them a reaction time earlier otherwise.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States both readings.
-   * @evidence contracts/development/implementation.md#principled-implementation The partner's bones read `LOOK` before the second during the hold and `REACTION` before it outside, placed by their collider profile.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch on the window.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/common.md#meaningful-documentation States both readings and the split.
+   * @evidence contracts/development/implementation.md#principled-implementation The partner's bones read `LOOK` before the second during the hold and `REACTION` before it outside, placed by their collider profile, and split by the bone the body's surface table names for the region.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch on the window and one partition.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every segment is kept, in one list or the other.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One collider placement per call.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanColliders.placed`.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The function closes over the context, the subject and the clock.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanColliders.placed` and the body's surface table.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The function closes over the context, the target and the clock.
    */
   export function others(
     context: Pick<IHumanActionContext, "performer" | "start">,
-    subject: string,
+    target: { subject: string; region: AutoMovieHumanoidRegion },
     clock: AutoMovieMotionClock.IClock,
-  ): (posture: IHumanPosture, seconds: number) => HumanColliders.IPlaced[] {
-    return (_: IHumanPosture, seconds: number): HumanColliders.IPlaced[] => {
-      const partner: IHumanActionContext.IPerformer =
-        context.performer(subject);
-      return HumanColliders.placed(
+  ): (
+    posture: IHumanPosture,
+    seconds: number,
+  ) => {
+    clear: HumanColliders.IPlaced[];
+    rests: HumanColliders.IPlaced[];
+  } {
+    return (
+      _: IHumanPosture,
+      seconds: number,
+    ): { clear: HumanColliders.IPlaced[]; rests: HumanColliders.IPlaced[] } => {
+      const partner: IHumanActionContext.IPerformer = context.performer(
+        target.subject,
+      );
+      const bone: AutoMovieHumanoidBone | undefined =
+        partner.body.surfaces.regions[target.region]?.bone;
+      const placed: HumanColliders.IPlaced[] = HumanColliders.placed(
         partner.body,
         partner.bones(
           context.start +
@@ -156,6 +173,14 @@ export namespace touchHold {
               : HumanPerception.REACTION),
         ),
       );
+      return {
+        clear: placed.filter(
+          (segment: HumanColliders.IPlaced): boolean => segment.bone !== bone,
+        ),
+        rests: placed.filter(
+          (segment: HumanColliders.IPlaced): boolean => segment.bone === bone,
+        ),
+      };
     };
   }
 }

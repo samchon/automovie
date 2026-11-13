@@ -37,12 +37,13 @@ export namespace HumanArmOvershoot {
    * @param goal Whether the wrist is where a goal put it, which excuses its own depth in `shapes`; a carried arm between its ends has none.
    * @param rival The world point the other arm's goal will put its wrist at, while that arm is still to be fitted: the plane keeps that arm's room only when it lies on this arm's side; absent, the room is kept unless the other arm's colliders are among `shapes`.
    * @param hint The world point the goal hints the elbow toward, which the elbow may follow across the median plane by up to the forearm's radius beyond it; none when absent.
+   * @param rests Placed colliders of another body the goal lays the hand on (the partner's segment a palm rests on); none when absent.
    * @returns Degrees; 0 when the forearm clears every shape and the elbow keeps its side.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the unit, each input's frame and the meaning of 0.
-   * @evidence contracts/development/implementation.md#principled-implementation An elbow goes no farther across the chest's median plane than its wrist's goal, or a forearm's radius beyond its hint, and while the other arm is still to come and its goal is not across, two arms sent to places on their own sides do not cross, so the elbow then keeps the forearm's radius on its own side, or the wrist's own distance when the goal lies nearer or across; and the deepest of `SAMPLES` axis points below its needed clearance, the forearm's radius at the elbow falling linearly toward the wrist but never below the radius less `TISSUE`, the skin the contact verdicts let press in, plus the wrist's own signed clearance where a goal put it (0 for a wrist outside the body), divided by the upper arm's length: the angle the upper arm turns to carry the elbow that far. Against `others` the needed clearance falls to 0 at the wrist whatever the wrist's own depth, since no goal put the wrist there.
+   * @evidence contracts/development/implementation.md#principled-implementation An elbow goes no farther across the chest's median plane than its wrist's goal, or a forearm's radius beyond its hint, and while the other arm is still to come and its goal is not across, two arms sent to places on their own sides do not cross, so the elbow then keeps the forearm's radius on its own side, or the wrist's own distance when the goal lies nearer or across; and the deepest of `SAMPLES` axis points below its needed clearance, the forearm's radius at the elbow falling linearly toward the wrist but never below the radius less `TISSUE`, the skin the contact verdicts let press in, plus the wrist's own signed clearance where a goal put it (0 for a wrist outside the body), divided by the upper arm's length: the angle the upper arm turns to carry the elbow that far. Against `others` the wrist's own depth excuses nothing, since no goal put the wrist there. Against `rests` the goal puts the hand on the surface, so the wrist lies nearer it than the forearm's room needs (a palm on a partner's chest left the wrist 1.2 mm from it, where a 41 mm forearm needs 31 mm, and the fit gave up 61 mm of its reach to clear it): the needed clearance falls by the wrist's shortfall from the room it needs there, in proportion along the forearm as the wrist's own depth does, so the wrist end asks no more than the goal gives.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One bounding-sphere test per hull, then the samples of the shapes that pass it.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The wrist end asks no more than the goal itself gives, so a palm laid on the trunk is not refused; nothing is clamped.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The wrist end asks no more than the goal itself gives, so a palm laid on the trunk or on a partner is not refused; nothing is clamped.
    * @evidence contracts/development/implementation.md#efficient-algorithms A hull whose bounding sphere the axis stays a radius from costs one point-to-segment distance; a shape that passes costs one point query per sample, where an exact segment query would cost the tens of point queries of its line search to decide what the samples decide anyway, and a sample or a wrist whose distance from the shape's bounding sphere already shows the query cannot raise the depth found (or lower the wrist's clearance) is not queried at all, which leaves the reading exactly as it is (`broad`).
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Every distance is the engine's `physicalShapeSegmentDistance`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -57,6 +58,7 @@ export namespace HumanArmOvershoot {
     goal: boolean = true,
     rival?: IAutoMovieVector3,
     hint?: IAutoMovieVector3,
+    rests: readonly HumanColliders.IPlaced[] = [],
   ): number {
     const radius: number = body.measure.forearmRadius;
     const degrees = (metres: number): number =>
@@ -107,9 +109,10 @@ export namespace HumanArmOvershoot {
     // A shape whose bounding sphere the forearm's axis stays a radius from
     // cannot be within a radius of any axis point, so it is not sampled.
     const near: IShape[] = [];
-    for (const [segment, free] of [
-      ...shapes.map((s: HumanColliders.IPlaced) => [s, false] as const),
-      ...others.map((s: HumanColliders.IPlaced) => [s, true] as const),
+    for (const [segment, free, rest] of [
+      ...shapes.map((s: HumanColliders.IPlaced) => [s, false, false] as const),
+      ...others.map((s: HumanColliders.IPlaced) => [s, true, false] as const),
+      ...rests.map((s: HumanColliders.IPlaced) => [s, true, true] as const),
     ])
       for (const shape of segment.shapes) {
         const bound: { centre: IAutoMovieVector3; radius: number } = bounding(
@@ -139,6 +142,7 @@ export namespace HumanArmOvershoot {
           pose: segment.pose,
           shape,
           free,
+          rest,
           ...bound,
           ...(shape.kind === "hull"
             ? {
@@ -193,6 +197,20 @@ export namespace HumanArmOvershoot {
           grazing,
           physicalShapeSegmentDistance(shape.pose, shape.shape, wrist, wrist),
         );
+    // The wrist's shortfall from the room it needs from a shape the goal
+    // lays the hand on: the goal puts the hand on its surface.
+    let resting: number = 0;
+    for (const shape of near)
+      if (
+        goal &&
+        shape.rest &&
+        !(BROAD.on && outside(wrist, shape) > radius - TISSUE + MARGIN)
+      )
+        resting = Math.min(
+          resting,
+          physicalShapeSegmentDistance(shape.pose, shape.shape, wrist, wrist) -
+            (radius - TISSUE),
+        );
     for (let i: number = 0; i < SAMPLES; i++) {
       const s: number = i / SAMPLES;
       const at: IAutoMovieVector3 = Vector3.lerp(elbow, wrist, s);
@@ -207,7 +225,7 @@ export namespace HumanArmOvershoot {
         depth = Math.max(
           depth,
           needed +
-            (shape.free ? 0 : grazing * s) -
+            (shape.rest ? resting * s : shape.free ? 0 : grazing * s) -
             physicalShapeSegmentDistance(shape.pose, shape.shape, at, at),
         );
       }
@@ -239,6 +257,9 @@ interface IShape {
 
   /** Whether the wrist has no goal on the shape, so its own depth excuses nothing. */
   free: boolean;
+
+  /** Whether the goal lays the hand on the shape, so the wrist's shortfall from its room excuses that much. */
+  rest: boolean;
 
   /** The centre of a sphere the shape lies inside, world metres. */
   centre: IAutoMovieVector3;

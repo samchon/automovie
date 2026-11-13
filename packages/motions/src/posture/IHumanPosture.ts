@@ -124,6 +124,15 @@ export namespace IHumanPosture {
      * Ignored on a leg.
      */
     clear?: readonly HumanColliders.IPlaced[];
+
+    /**
+     * Another body's colliders, placed in the world, the goal lays the hand
+     * on (the partner's segment a palm rests on): the forearm keeps clear of
+     * them as of `clear`, except that near the wrist it asks no more room
+     * than the goal gives, since the goal puts the hand on their surface
+     * (`HumanArmClearance`). Ignored on a leg.
+     */
+    rests?: readonly HumanColliders.IPlaced[];
   }
 
   /** A limb's reference solution: its upper and lower bones' clinical degrees. */

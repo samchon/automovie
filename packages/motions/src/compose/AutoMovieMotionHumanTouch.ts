@@ -16,7 +16,6 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { HumanColliders } from "../posture/HumanColliders";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -152,11 +151,11 @@ export namespace AutoMovieMotionHumanTouch {
     fingers?: "keep";
 
     /**
-     * Another body's placed colliders the arm keeps clear of at a second (`IHumanPosture.IGoal.clear`); none when absent.
+     * Another body's placed colliders the arm keeps clear of at a second (`IHumanPosture.IGoal.clear`), and the ones it lays the hand on (`IHumanPosture.IGoal.rests`); none when absent.
      *
      * @param posture The posture written so far in this frame.
      * @param seconds Seconds since the action's start.
-     * @returns The colliders, placed in the world.
+     * @returns The colliders, placed in the world, kept clear of and rested on.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States both arguments, the result's frame and the default.
      * @evidence contracts/development/implementation.md#principled-implementation A partner moves, so their colliders are read at the second the goal is written.
@@ -169,7 +168,7 @@ export namespace AutoMovieMotionHumanTouch {
     others?(
       posture: IHumanPosture,
       seconds: number,
-    ): readonly HumanColliders.IPlaced[];
+    ): Pick<IHumanPosture.IGoal, "clear" | "rests">;
   }
 
   /**
@@ -256,9 +255,8 @@ export namespace AutoMovieMotionHumanTouch {
         rest: props.rest,
         weight: (seconds: number): number => share(clock, seconds),
         goal: goal(props),
-        // The way there runs from `start` to `ready` and the way back from
-        // `end` (held) to `relax` (the goal it leaves): the goal is fitted at
-        // keyed seconds of each and the clearing course planned against it.
+        // There from `start` to `ready`, back from `end` (held) to `relax`:
+        // the goal fitted at keyed seconds, the course planned on the arrival.
         stretch: (seconds: number): readonly [number, number] =>
           seconds < clock.at("relax")
             ? [clock.at("start"), clock.at("ready")]
@@ -268,8 +266,7 @@ export namespace AutoMovieMotionHumanTouch {
           : {
               attitude: AutoMovieMotionHumanDrinkingArm.carried(
                 props,
-                // The share of the lean the vessel shows at a weight of the
-                // carry: none until the last `TIP` of the way.
+                // The lean's share shown at a weight: none until the last `TIP`.
                 (weight: number): number =>
                   minimumJerk(Math.max(0, (weight - (1 - TIP)) / TIP)).s,
               ),
@@ -475,9 +472,7 @@ export namespace AutoMovieMotionHumanTouch {
         ...(props.reference === undefined
           ? {}
           : { reference: props.reference }),
-        ...(props.others === undefined
-          ? {}
-          : { clear: props.others(posture, seconds) }),
+        ...props.others?.(posture, seconds),
       };
     };
   }
