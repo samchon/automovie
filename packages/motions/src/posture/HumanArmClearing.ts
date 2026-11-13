@@ -72,7 +72,7 @@ export namespace HumanArmClearing {
    * @evidence contracts/development/implementation.md#principled-implementation Each direction is scanned outward in `STEP` degrees for its first clear turn, and the least clear turn is bisected inside that step; the first direction of `ORDER` that clears is taken, so the choice does not depend on which of several clear turns happens to lie nearest.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the directions, one scan and one bisection.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No margin is added; a turn that takes a joint farther out of its range than the given arm is ends its direction. A clearing that opens and closes inside one step is missed, the remaining gap.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One reading when the arm is clear; otherwise at most eight readings per direction scanned and `HALVINGS` more for the one taken.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One reading when the arm is clear; otherwise at most twelve readings per direction scanned (a diagonal's length reaches `SPAN` times the square root of 2) and `HALVINGS` more for the one taken.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its readings with nothing to reuse.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
@@ -102,14 +102,22 @@ export namespace HumanArmClearing {
     const limit: number = props.range(arm) + 1e-9;
     let best: HumanArmClearance.IArm = arm;
     let least: number = props.over(arm);
-    for (const direction of ORDER)
-      for (let far: number = STEP; far <= SPAN + 1e-9; far += STEP) {
+    for (const direction of ORDER) {
+      // `SPAN` bounds each freedom, so a ray between the two runs until its
+      // larger share reaches it: a diagonal ray stopped at a length of
+      // `SPAN` turned each freedom only 28 degrees, and an arm a turn of 40
+      // out and 40 unfolded clears was left 3 degrees short of its room.
+      const reach: number =
+        SPAN / Math.max(Math.abs(direction[0]), Math.abs(direction[1]));
+      let near: number = 0;
+      while (near < reach - 1e-9) {
+        const far: number = Math.min(near + STEP, reach);
         const candidate: HumanArmClearance.IArm = turned(direction, far);
         if (props.range(candidate) > limit) break;
         const value: number = props.over(candidate);
         if (value <= TOLERANCE) {
           // The least turn of this direction that still clears the arm.
-          let lo: number = far - STEP;
+          let lo: number = near;
           let hi: number = far;
           for (let i: number = 0; i < HALVINGS; i++) {
             const mid: number = (lo + hi) / 2;
@@ -122,7 +130,9 @@ export namespace HumanArmClearing {
           least = value;
           best = candidate;
         }
+        near = far;
       }
+    }
     return best;
   }
 

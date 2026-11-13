@@ -131,7 +131,7 @@ export namespace swingTwistRange {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading, one radius and one interval.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The twist is aliased to the interval before it is measured, so a full turn is never counted.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work once the radius table is built.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads ead and the cached adius.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads `read` and the cached `radius`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function overshoot(
@@ -166,7 +166,7 @@ export namespace swingTwistRange {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading, one radius, one shortest turn and one twist.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No nearest point is sought, since a nearest point jumps where two tie.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work once the radius table is built.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads ead and adius.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads `read` and `radius`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function project(

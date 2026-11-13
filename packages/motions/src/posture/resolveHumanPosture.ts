@@ -94,11 +94,28 @@ export function resolveHumanPosture(
     },
     body.skeleton,
   );
-  const placed: ("left" | "right")[] = [];
+  // An arm with no goal hangs or rests where its joints put it, so its own
+  // colliders keep its room from the first fit on.
+  const placed: ("left" | "right")[] = (["left", "right"] as const).filter(
+    (side: "left" | "right"): boolean =>
+      posture.limbs[`${side}Arm`] === undefined,
+  );
   for (const limb of resolveHumanPosture.order(posture.limbs)) {
     const goal: IHumanPosture.IGoal | undefined = posture.limbs[limb];
     if (goal === undefined) continue;
-    pose = fitRemembered(body, pose, limb, goal, placed);
+    // The other arm's goal, while that arm is still to be fitted: where its
+    // wrist will be, for the room the clearance keeps it.
+    const other: IHumanPosture.Limb | undefined =
+      limb === "leftArm" ? "rightArm" : limb === "rightArm" ? "leftArm" : undefined;
+    const coming: IHumanPosture.IGoal | undefined =
+      other === undefined || placed.includes(other === "leftArm" ? "left" : "right")
+        ? undefined
+        : posture.limbs[other];
+    const rival: IAutoMovieVector3 | undefined =
+      coming === undefined || other === undefined
+        ? undefined
+        : resolveHumanPosture.world(body, pose, other, coming).point;
+    pose = fitRemembered(body, pose, limb, goal, placed, rival);
     if (limb === "leftArm") placed.push("left");
     if (limb === "rightArm") placed.push("right");
   }
@@ -493,6 +510,7 @@ function fitLimb(
   limb: IHumanPosture.Limb,
   attached: IHumanPosture.IGoal,
   placed: readonly ("left" | "right")[],
+  rival?: IAutoMovieVector3,
 ): IAutoMoviePose {
   const goal: IHumanPosture.IGoal = resolveHumanPosture.world(
     body,
@@ -522,6 +540,9 @@ function fitLimb(
             wrist,
             side,
             attached.clear ?? [],
+            true,
+            rival,
+            goal.bend,
           );
   let fitted: IAutoMoviePose = fitOnce(body, pose, limb, goal, clear);
   if (goal.contact === undefined || goal.rotation === undefined) return fitted;
@@ -623,11 +644,13 @@ function fitRemembered(
   limb: IHumanPosture.Limb,
   goal: IHumanPosture.IGoal,
   placed: readonly ("left" | "right")[],
+  rival?: IAutoMovieVector3,
 ): IAutoMoviePose {
-  if (!REMEMBERING.on) return fitLimb(body, pose, limb, goal, placed);
+  if (!REMEMBERING.on) return fitLimb(body, pose, limb, goal, placed, rival);
   const key: string = JSON.stringify([
     limb,
     placed,
+    rival ?? null,
     goal,
     pose.root,
     pose.joints,
@@ -638,7 +661,7 @@ function fitRemembered(
     FITS.set(body, fits);
   }
   let out: IAutoMoviePose | undefined = fits.get(key);
-  if (out === undefined) out = fitLimb(body, pose, limb, goal, placed);
+  if (out === undefined) out = fitLimb(body, pose, limb, goal, placed, rival);
   else fits.delete(key);
   fits.set(key, out);
   if (fits.size > FIT_MEMORY) fits.delete(fits.keys().next().value!);

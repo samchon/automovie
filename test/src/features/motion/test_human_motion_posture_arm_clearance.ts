@@ -35,7 +35,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * collider is within a forearm's radius, so only the chest's median plane
  * acts: an elbow `e` metres across it with its wrist on its own side lacks
  * the forearm's radius `r` plus `e`, and an elbow that stays nearer the
- * median plane than a wrist sent across it lacks nothing. Against the chest
+ * median plane than a wrist sent across it lacks nothing. The radius is the
+ * other arm's room, kept only while that arm is not placed and its coming
+ * goal is not on its own side; without it the same elbow lacks `e`, and an
+ * elbow hinted `h` metres across may lie `h + r` across. Against the chest
  * itself, the needed clearance falls from `r` at the elbow toward the wrist
  * but never below `r` less the 10 mm of tissue the contact verdicts let
  * press in, plus the wrist's own depth where a goal put it: an axis standing
@@ -64,7 +67,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    each arm named as already placed; all are `placed`'s own entries.
  * 2. A forearm held straight out sideways lacks nothing.
  * 3. The median plane: an elbow 50 mm across lacks `r + 0.05` metres; an
- *    elbow nearer the plane than a wrist sent across lacks nothing.
+ *    elbow nearer the plane than a wrist sent across lacks nothing; with the
+ *    other arm placed, or its coming goal 200 mm on its own side, the elbow
+ *    50 mm across lacks 0.05 metres, and one 100 mm across hinted 40 mm
+ *    across lacks `0.06 - r`.
  * 4. A forearm through the chest from side to side lacks more than half
  *    `r`.
  * 5. The palm laid on the chest lacks no more than the median plane's term
@@ -219,6 +225,47 @@ export function test_human_motion_posture_arm_clearance(): void {
       complaints.check(
         `${cell}: an elbow following a wrist sent across lacks ${sent.toFixed(4)} deg`,
         sent === 0,
+      );
+      // Without the other arm's room: that arm is placed, or its coming goal
+      // lies on its own side; and an elbow hinted across.
+      const placedOther: HumanColliders.IPlaced[] = HumanArmClearance.obstacles(
+        body,
+        bones,
+        [side === "left" ? "right" : "left"],
+      );
+      const kept: number = HumanArmClearance.overshoot(
+        body,
+        placedOther,
+        toward(ahead, -sign * 0.05, 0, 0),
+        toward(ahead, sign * 0.25, 0, 0),
+        side,
+      );
+      const yielded: number = HumanArmClearance.overshoot(
+        body,
+        obstacles,
+        toward(ahead, -sign * 0.05, 0, 0),
+        toward(ahead, sign * 0.25, 0, 0),
+        side,
+        [],
+        true,
+        toward(ahead, -sign * 0.2, 0, 0),
+      );
+      const hinted: number = HumanArmClearance.overshoot(
+        body,
+        placedOther,
+        toward(ahead, -sign * 0.1, 0, 0),
+        toward(ahead, sign * 0.25, 0, 0),
+        side,
+        [],
+        true,
+        undefined,
+        toward(ahead, -sign * 0.04, 0, 0),
+      );
+      complaints.check(
+        `${cell}: with the other arm placed, or its goal on its own side, an elbow 50 mm across lacks ${kept.toFixed(4)} and ${yielded.toFixed(4)} deg, ${degrees(0.05).toFixed(4)} expected; one 100 mm across, hinted 40 mm across, lacks ${hinted.toFixed(4)}, ${degrees(0.06 - r).toFixed(4)} expected`,
+        Math.abs(kept - degrees(0.05)) <= 1e-3 &&
+          Math.abs(yielded - degrees(0.05)) <= 1e-3 &&
+          Math.abs(hinted - degrees(Math.max(0, 0.06 - r))) <= 1e-3,
       );
 
       // 4. Through the chest from side to side.

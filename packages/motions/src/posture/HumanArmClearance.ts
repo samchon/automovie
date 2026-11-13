@@ -127,10 +127,12 @@ export namespace HumanArmClearance {
    * @param side The arm.
    * @param others Placed colliders the wrist has no goal on (another body's); none when absent.
    * @param goal Whether the wrist is where a goal put it, which excuses its own depth in `shapes`; a carried arm between its ends has none.
+   * @param rival The world point the other arm's goal will put its wrist at, while that arm is still to be fitted: the plane keeps that arm's room only when it lies on this arm's side; absent, the room is kept unless the other arm's colliders are among `shapes`.
+   * @param hint The world point the goal hints the elbow toward, which the elbow may follow across the median plane by up to the forearm's radius beyond it; none when absent.
    * @returns Degrees; 0 when the forearm clears every shape and the elbow keeps its side.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the unit, each input's frame and the meaning of 0.
-   * @evidence contracts/development/implementation.md#principled-implementation Two arms sent to places on their own sides do not cross, so the elbow keeps the forearm's radius on its own side of the chest's median plane, or the wrist's own distance when the goal lies nearer or across; and the deepest of `SAMPLES` axis points below its needed clearance, the forearm's radius at the elbow falling linearly toward the wrist but never below the radius less `TISSUE`, the skin the contact verdicts let press in, plus the wrist's own signed clearance where a goal put it (0 for a wrist outside the body), divided by the upper arm's length: the angle the upper arm turns to carry the elbow that far. Against `others` the needed clearance falls to 0 at the wrist whatever the wrist's own depth, since no goal put the wrist there.
+   * @evidence contracts/development/implementation.md#principled-implementation An elbow goes no farther across the chest's median plane than its wrist's goal, or a forearm's radius beyond its hint, and while the other arm is still to come and its goal is not across, two arms sent to places on their own sides do not cross, so the elbow then keeps the forearm's radius on its own side, or the wrist's own distance when the goal lies nearer or across; and the deepest of `SAMPLES` axis points below its needed clearance, the forearm's radius at the elbow falling linearly toward the wrist but never below the radius less `TISSUE`, the skin the contact verdicts let press in, plus the wrist's own signed clearance where a goal put it (0 for a wrist outside the body), divided by the upper arm's length: the angle the upper arm turns to carry the elbow that far. Against `others` the needed clearance falls to 0 at the wrist whatever the wrist's own depth, since no goal put the wrist there.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One bounding-sphere test per hull, then the samples of the shapes that pass it.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The wrist end asks no more than the goal itself gives, so a palm laid on the trunk is not refused; nothing is clamped.
    * @evidence contracts/development/implementation.md#efficient-algorithms A hull whose bounding sphere the axis stays a radius from costs one point-to-segment distance; a shape that passes costs one point query per sample, where an exact segment query would cost the tens of point queries of its line search to decide what the samples decide anyway, and a sample or a wrist whose distance from the shape's bounding sphere already shows the query cannot raise the depth found (or lower the wrist's clearance) is not queried at all, which leaves the reading exactly as it is (`broad`).
@@ -145,17 +147,36 @@ export namespace HumanArmClearance {
     side: "left" | "right",
     others: readonly HumanColliders.IPlaced[] = [],
     goal: boolean = true,
+    rival?: IAutoMovieVector3,
+    hint?: IAutoMovieVector3,
   ): number {
     const radius: number = body.measure.forearmRadius;
     const degrees = (metres: number): number =>
       ((metres / body.measure.upperArm) * 180) / Math.PI;
-    // The other arm's room: the elbow keeps to its own side of the chest's
-    // median plane by the forearm's radius, or by as much as the wrist's goal
-    // does when that is less, so a hand sent across the body still takes its
-    // elbow as far as the goal asks and no farther.
+    // The elbow's side: it goes no farther across the chest's median plane
+    // than its goal asks, by the wrist or by the elbow's own hint, so a hand
+    // sent across the body takes its elbow as far as the goal asks and no
+    // farther, and a hand on its own side keeps its elbow there unless the
+    // hint asks it across (a hand put ahead of its own shoulder, with a
+    // partner too close to clear, had its elbow fitted 61 mm across). An
+    // elbow is at its hint while its flesh covers the hint's place, so its
+    // axis may lie a forearm's radius beyond it: an arm wrestle hints its
+    // elbow onto the midline, where the place the elbow's circle offers
+    // nearest the hint lies a few millimetres across.
+    // While the other arm is still to come, the plane also stands in for that
+    // arm's room, by the forearm's radius; only then, since an arm fitted,
+    // hanging or resting has its own colliders among the shapes, and only
+    // while the goal it will be fitted to (`rival`) lies on this arm's side:
+    // an arm wrestle's elbow on the midline ahead of the sternum, its other
+    // hand on its own side, was lifted 50 mm off its place by the margin.
     const chest: HumanColliders.IPlaced | undefined =
       shapes.find((s: HumanColliders.IPlaced) => s.bone === "upperChest") ??
       shapes.find((s: HumanColliders.IPlaced) => s.bone === "chest");
+    const other: "left" | "right" = side === "left" ? "right" : "left";
+    const present: boolean = shapes.some(
+      (s: HumanColliders.IPlaced): boolean =>
+        s.bone === `${other}UpperArm` || s.bone === `${other}LowerArm`,
+    );
     let depth: number = 0;
     if (chest !== undefined) {
       const out: IAutoMovieVector3 = Quaternion.rotateVector(
@@ -164,7 +185,16 @@ export namespace HumanArmClearance {
       );
       const own = (p: IAutoMovieVector3): number =>
         Vector3.dot(Vector3.subtract(p, chest.pose.position), out);
-      depth = Math.max(0, Math.min(radius, own(wrist)) - own(elbow));
+      const room: boolean =
+        !present && (rival === undefined || own(rival) > -radius);
+      depth = Math.max(
+        0,
+        Math.min(
+          room ? radius : 0,
+          own(wrist),
+          hint === undefined ? Infinity : own(hint) - radius,
+        ) - own(elbow),
+      );
     }
     // A shape whose bounding sphere the forearm's axis stays a radius from
     // cannot be within a radius of any axis point, so it is not sampled.
