@@ -331,7 +331,7 @@ export namespace AutoMovieMotionHumanArmPhrase {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the record is; each member gives its axes and unit.
    * @evidence contracts/development/design.md#principled-representation A pendular arm is described by its joint angles, not by a hand goal: the shoulder's three clinical angles and the elbow's one, in the degrees a posture's joints are written in.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, read only by `swing`. No law reads it yet; the gaits rebuilt for #3286 are the consumers.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, read only by `swing`; the swim law's arm strokes (`sport/swim.ts`) are its consumer so far, and the gaits rebuilt for #3286 are the next.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Both members are required; the elbow is one number because a hinge has one angle.
    */
   export interface ISwing {

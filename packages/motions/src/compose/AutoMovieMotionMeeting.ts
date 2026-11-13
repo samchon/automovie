@@ -196,7 +196,7 @@ export namespace AutoMovieMotionMeeting {
    * @throws {Error} With no role, more roles than the kind has, or a role the kind does not name.
    * @throws {HumanRefusal} When the window ends before the contact can be made.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, that the roles' order is free and the three refusals.
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, that the roles' order is free, the three plain errors (no role, too many roles, a role the kind does not name) and the `window` refusal that names the earliest second the contact can be made.
    * @evidence contracts/development/implementation.md#principled-implementation The roles are sorted by name and then subject before anything is read, so the result does not depend on who asks. The frame sits at the mean floor point heading from the first role to the second; each contact is the kind's own placement or the mean of the roles' default places; each shared instant is the latest of the roles' natural ones, since the pair can meet only when the slower role arrives; a window moves the instants later to its start and holds the contact to its end.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Validate, order, frame, contacts, instants, record, in that order with one local each.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An empty, oversized or misnamed role list throws with the kind's roles named. Roles on one floor point take the first role's heading instead of an undefined direction. A role count is checked against the kind's, not each name's multiplicity.

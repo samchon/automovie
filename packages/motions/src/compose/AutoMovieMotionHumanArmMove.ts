@@ -28,7 +28,7 @@ export namespace AutoMovieMotionHumanArmMove {
    * @returns The primitive, on the arm's and the hand's channels.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what moves, by what, and the channels claimed.
-   * @evidence contracts/development/implementation.md#principled-implementation A straight path of the surface and a spherical interpolation of the hand by one weight, with the fingers shaped by the same weight (Jeannerod 1984).
+   * @evidence contracts/development/implementation.md#principled-implementation A path of the surface that is straight, or bows out to the arm's own side by the movement's `curvature` (a manner's share of the path's length, EMOTE's indirect Space; none when absent), and a spherical interpolation of the hand, both by one weight, with the fingers shaped by the same weight (Jeannerod 1984).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One target evaluation, one blend and one posture update.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The weight is clamped to [0, 1] so an overshooting time course cannot extrapolate the hand past its target; at weight 1 the target is used as it is, with no blend error.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per written second.

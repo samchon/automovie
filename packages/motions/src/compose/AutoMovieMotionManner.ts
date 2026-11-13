@@ -19,7 +19,7 @@ import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a manner is, which modifiers act through the clock and which through the phrases, and what a manner never changes.
  * @evidence contracts/development/design.md#principled-representation The manner of the Parameterized Action Representation (Badler et al. 2000) and the Effort of the EMOTE model (Chi et al. 2000): a record apart from the action's kind and participants, resolved once into factors, so a law states its natural timing and size and reads the factors where it differs.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two records, the neutral value, two named constants, two resolvers and the clock's retiming. `flinch` and `stagger` read it; the other laws read it with #3286. The Effort record and its mapping stay `HumanEffort`'s.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Two records, a spans record, the neutral value, two named constants (`HOLD`, `BOUNDS`), two resolvers, the clock's retiming and the named preset table with its names (`PRESETS`, `Preset`, `PRESET_NAMES`). `flinch` and `stagger` read it; the other laws read it with #3286. The Effort record and its mapping stay `HumanEffort`'s.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The modifiers are plain factors and shares with neutral values, not flags; a goal on a solid place is outside what a manner reaches, by the phrases' contact rule rather than by a switch here.
  */
 export namespace AutoMovieMotionManner {

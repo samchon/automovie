@@ -16,13 +16,15 @@ import { AutoMovieMotionHumanArmTarget } from "./AutoMovieMotionHumanArmTarget";
  * the surface stays on its point and the rotation gives way
  * (`IHumanPosture.IGoal.contact`).
  *
- * Between its origin and its target the surface moves on a straight path and
- * the hand turns by spherical interpolation, both by one weight, and the
+ * Between its origin and its target the surface moves on a straight path,
+ * or one that bows to the arm's own side when the movement states a
+ * curvature, and the hand turns by spherical interpolation, both by one
+ * weight, and the
  * fingers go from the relaxed cascade to the target's shape by the same
  * weight (Jeannerod 1984: the hand is shaped during its transport). The
  * origin is held in the performer's own floor frame, so it follows the body.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what a target is and when it is evaluated, how the hand is solved, the path and the turn between origin and target, and the frame an origin is held in.
+ * @evidence contracts/development/common.md#meaningful-documentation States what a target is and when it is evaluated, how the hand is solved, the path (straight or bowed) and the turn between origin and target, and the frame an origin is held in.
  * @evidence contracts/development/design.md#principled-representation An arm movement is an effector goal blended between a body-carried origin and a per-second target frame by one weight, the form reach-to-grasp studies describe (transport and hand shaping on one time course).
  * @evidence contracts/development/design.md#minimal-and-owned-surface One movement (`move`) with three named weights over it (`reach`, `hold`, `retract`) and the three conversions they need; the only owner of arm goals built from a hand surface.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the hand's surface and shape unions and the posture's goal type; no action name and no fixed body size appears.

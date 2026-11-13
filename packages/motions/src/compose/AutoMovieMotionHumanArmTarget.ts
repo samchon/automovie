@@ -96,7 +96,7 @@ export namespace AutoMovieMotionHumanArmTarget {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, its unit and the range of the weight.
    * @evidence contracts/development/design.md#principled-representation The span the arm is written over, its two ends and the weight between them: a blend of two hand states on a time course.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Seven members, all read by `move`; `reach`, `hold` and `retract` fill them from a clock.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Eight members, all read by `move`, the optional `curvature` among them (a straight path when absent); `reach`, `hold` and `retract` fill them from a clock.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The weight is a function of seconds and not a named easing, so any time course fits without a new member.
    */
   export interface IMove {

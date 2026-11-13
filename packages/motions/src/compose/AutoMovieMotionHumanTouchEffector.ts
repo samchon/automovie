@@ -38,7 +38,7 @@ export namespace AutoMovieMotionHumanTouchEffector {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the anatomical directions, what the grasp axis is and that a leading minus is the opposite.
    * @evidence contracts/development/design.md#principled-representation The hand's three anatomical axes, the power grip's oblique axis and their negatives, the directions a held tool or a surface can point in the hand's rest frame.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Eight literals, read by the effector's tool offset and its two laid axes.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Eight literals, the entries of `AXES`, read by `axis` and, through `Direction`, by the effector's two laid directions; the tool offset weights the three anatomical axes directly.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Anatomical names, not bone-space x, y and z, so a left and a right hand state the same effector.
    */
   export type Axis = (typeof AXES)[number];

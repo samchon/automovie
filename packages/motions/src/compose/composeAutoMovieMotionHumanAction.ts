@@ -14,13 +14,14 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  * second, the base's posture is taken and every primitive whose window holds
  * that second writes its channels onto it, in {@link AutoMovieMotionHumanChannel.ORDER}, so
  * an arm reads the trunk the action already placed. The plan's contact
- * windows and weapons are the base's followed by the primitives'.
+ * windows and weapons are the base's followed by the primitives', and its
+ * `channels` are the channels some primitive claims, in that order.
  *
  * @param props The base, the clock and the primitives.
  * @returns The plan.
  * @throws {Error} When the base and the clock differ in duration, a primitive claims no channel, a primitive's window is reversed or leaves the clock, or two primitives claim one channel over overlapping windows.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what the base and the clock give, the writing order, where contacts and weapons come from and every refusal.
+ * @evidence contracts/development/common.md#meaningful-documentation States what the base and the clock give, the writing order, where contacts and weapons come from, which channels the plan reports and every refusal.
  * @evidence contracts/development/implementation.md#principled-implementation The posture at a second is the base's with each active primitive's channels merged in, in the order of the kinematic tree, so a part reads the parts it hangs from as already placed.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Sort once, validate once, collect contacts and weapons once, then one loop per posture.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Two primitives on one channel at one time throw instead of the later one winning; windows that only touch at an instant are allowed, and the sort is stable by the given order.

@@ -7,14 +7,15 @@ import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
- * The direction a hand lies on a surface region when the arm chooses it. Read
- * by the touch stroke
+ * The direction a hand lies on a surface region when the arm chooses it
+ * (`lay`), and the direction a hand that continues its forearm points at a
+ * place (`reach`). Read by the touch stroke
  * (`AutoMovieMotionHumanTouch`), whose transport is a joint-space carry and
  * so needs no path of its own.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the question the namespace answers and its reader.
- * @evidence contracts/development/design.md#principled-representation A projection on the region's frame from the performer's hanging elbow; no region or body is named.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One function, read by the touch stroke.
+ * @evidence contracts/development/common.md#meaningful-documentation States the two questions the namespace answers and its reader.
+ * @evidence contracts/development/design.md#principled-representation A projection on the region's frame (`lay`), or the plain line (`reach`), from the performer's elbow hanging under the shoulder or held level with it; no region or body is named.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Two functions, `lay` and `reach`, sharing one private elbow place (`elbowOf`); read by the touch stroke.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reads the body's measures and the posture's floor frame; nothing is solved or stored.
  */
 export namespace AutoMovieMotionHumanTouchPath {
@@ -37,10 +38,10 @@ export namespace AutoMovieMotionHumanTouchPath {
    * @returns The unit direction.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the direction, what it is read from and the fallback.
-   * @evidence contracts/development/implementation.md#principled-implementation A hand laid on a surface keeps the wrist near neutral when its long axis continues the forearm; the forearm's direction is read from the elbow hanging under the shoulder, the place the elbow leaves least.
+   * @evidence contracts/development/implementation.md#principled-implementation A hand laid on a surface keeps the wrist near neutral when its long axis continues the forearm; the forearm's direction is read from the elbow hanging under the shoulder, the place the elbow leaves least, or, for an arm held level, out to the side at the shoulder's height (`elbow: "level"`).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One elbow place and one projection.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A direction shorter than 0.3 of the way across the normal falls back, so a near-parallel direction is never normalised.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanFrame.point`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the elbow place through `elbowOf`, the one `reach` shares, and `HumanFrame.point`.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
