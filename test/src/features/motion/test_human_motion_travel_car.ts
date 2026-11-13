@@ -26,14 +26,14 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * above the opening's top while it is in the doorway or inside the car, and
  * the body ends seated facing the way the seat faces.
  *
- * Scenarios, the average man and the large man, each standing in the
- * driver's doorway of a mid-band sedan with the back to the seat, getting
+ * Scenarios, the average man and the large man, each standing just outside
+ * the driver's doorway of a mid-band sedan with the back to the seat, getting
  * into the driver's seat:
  * 1. The entry plans.
- * 2. Read ten times a second, whenever the crown is within 0.12 m outside
+ * 2. Read ten times a second, whenever the crown is within 0.1 m outside
  *    the door's plane or inside it, the crown is no higher than the
  *    opening's top (a head under the roof's edge does not pass through it;
- *    the 0.12 m is about a head's depth, provisional).
+ *    the 0.1 m is half a head's depth, the back of a head facing out, provisional).
  * 3. At the end the seat region rests within 10 mm of the seat's height
  *    (the campaign's bound for a held contact) and the pelvis faces the
  *    seat's heading within 15 degrees (provisional).
@@ -87,9 +87,9 @@ export function test_human_motion_travel_car(): void {
           subject: "a",
           body,
           at: {
-            x: middle.x + out.x * (depth / 2 + 0.2),
+            x: middle.x + out.x * (depth / 2 + 0.35),
             y: 0,
-            z: middle.z + out.z * (depth / 2 + 0.2),
+            z: middle.z + out.z * (depth / 2 + 0.35),
           },
           yaw: outward,
           proficiency: { level: "trained" },
@@ -130,7 +130,7 @@ export function test_human_motion_travel_car(): void {
       );
       const beyond: number =
         (crown.x - door.at.x) * out.x + (crown.z - door.at.z) * out.z;
-      if (beyond <= 0.12 && crown.y - top > highest.over)
+      if (beyond <= 0.1 && crown.y - top > highest.over)
         highest = { over: crown.y - top, at: t };
     }
     if (highest.over > 0)

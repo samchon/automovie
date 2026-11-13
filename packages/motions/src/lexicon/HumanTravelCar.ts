@@ -69,8 +69,8 @@ export namespace HumanTravelCar {
   /** The least gap kept between the crown and the opening's top, metres (provisional: a hair's thickness and a little more). */
   export const CLEAR: number = 0.03;
 
-  /** How far outside the door's plane the crown is still ducked, metres (provisional: about a head's depth). */
-  export const HEAD: number = 0.12;
+  /** How far outside the door's plane the crown is still ducked, metres (provisional: half a head's depth, the back of a head facing out of the door). */
+  export const HEAD: number = 0.1;
 
   /** The most the spine flexes forward to duck, degrees (provisional, inside the spine's 80 of flexion). */
   export const DUCK: number = 60;
@@ -78,8 +78,8 @@ export namespace HumanTravelCar {
   /** Seconds before and after an instant that needs a duck over which the duck grows and fades (provisional). */
   export const LEAD: number = 0.4;
 
-  /** Instants of the entry at which the duck is solved. */
-  export const SAMPLES: number = 24;
+  /** Instants of the entry at which the duck is solved; each holds its duck until the next, so the crown keeps `CLEAR` between them up to how far it moves in one interval. */
+  export const SAMPLES: number = 48;
 
   /** Get into a car seat through its door. */
   export const getIn: IHumanActionLaw<IParams> = {
@@ -210,6 +210,8 @@ export namespace HumanTravelCar {
         }
         needs.push({ at: t, degrees: high });
       }
+      // A duck is held in full over the interval on either side of its instant and grows and fades over `LEAD` beyond it.
+      const spacing: number = duration / SAMPLES;
       const duck = (t: number): number =>
         needs.reduce(
           (most: number, need: { at: number; degrees: number }): number =>
@@ -217,7 +219,13 @@ export namespace HumanTravelCar {
               most,
               need.degrees *
                 minimumJerk(
-                  Math.max(0, 1 - Math.abs(t - need.at) / LEAD),
+                  Math.min(
+                    1,
+                    Math.max(
+                      0,
+                      (LEAD + spacing - Math.abs(t - need.at)) / LEAD,
+                    ),
+                  ),
                 ).s,
             ),
           0,
