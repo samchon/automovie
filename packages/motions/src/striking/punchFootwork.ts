@@ -160,7 +160,8 @@ export namespace punchFootwork {
     const feet: Record<"left" | "right", HumanFoot.IPlacement> =
       StrikingTarget.feet(context.entry);
     const rear: "left" | "right" = StrikingStance.rear({ lead });
-    const stepping: boolean = advance > 0.02;
+    // A step in or, before a target too close, a step back along the line.
+    const stepping: boolean = Math.abs(advance) > 0.02;
     const lift: number = 0.015 * body.measure.stature;
     const turnBack = (t: number): number =>
       stepping

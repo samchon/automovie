@@ -113,6 +113,9 @@ export namespace punchContact {
     /** The online tracker of the target. */
     tracker: StrikingAim.ITracker;
 
+    /** How far the tracker's goal at the contact lies from its launch plan, world metres: what its corrections add over the delivery. */
+    drift: IAutoMovieVector3;
+
     /** The bones of the displayed entry pose. */
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
@@ -261,13 +264,17 @@ export namespace punchContact {
       offset,
     );
 
-    // Reach: the step-in along the line that brings the wrist the fist needs
+    // Reach: the step along the line that brings the wrist the fist needs
     // within the arm's comfortable reach, then the arm's goals at contact.
+    // Both are planned against where the fist lands, the tracker's goal at
+    // the contact, not its launch plan: the launch extrapolates the target's
+    // motion over the whole delivery, and the corrections land the fist on
+    // the target itself. Planned against the launch, a jab from a guard
+    // facing a settling guard planned 15 degrees at the elbow and landed
+    // with 37 to 55, the face 5 to 6 cm nearer than planned.
     const band: readonly [number, number] = FLEXION[p.technique];
-    const wristAt: IAutoMovieVector3 = Vector3.subtract(
-      tracker.planned,
-      socket,
-    );
+    const landing: IAutoMovieVector3 = tracker.goal(t0 + delivery);
+    const wristAt: IAutoMovieVector3 = Vector3.subtract(landing, socket);
     const comfortable: number = StrikingReach.reach(
       m.upperArm,
       m.forearm,
@@ -302,22 +309,21 @@ export namespace punchContact {
 
     // The punch returns to the guard where the step ends, so the step never
     // closes past the room in front of the arms ({@link StrikingRoom}). A
-    // wrist off the line by more than the band's longest reach (a target
-    // above the arm) is out of reach from every place on the line, so it is
-    // not stepped toward: the nearest place is under it, the other's own.
+    // target nearer than the band's reach is backed away from by the same
+    // step along the line, so the arm still lands within its band. A wrist
+    // off the line by more than the band's longest reach (a target above the
+    // arm) is out of reach from every place on the line, so it is not
+    // stepped toward: the nearest place is under it, the other's own.
     const longest: number = StrikingReach.reach(m.upperArm, m.forearm, band[0]);
     const advance: number =
       p.feint === undefined && across <= longest
-        ? Math.max(
-            0,
-            Math.min(
-              StrikingReach.advance(
-                along,
-                needed,
-                carried * StrikingStance.length(body),
-              ) / carried,
-              StrikingRoom.ahead(context, at, bones, line, t0),
-            ),
+        ? Math.min(
+            StrikingReach.advance(
+              along,
+              needed,
+              carried * StrikingStance.length(body),
+            ) / carried,
+            StrikingRoom.ahead(context, at, bones, line, t0),
           )
         : 0;
     const shoulder: IAutoMovieVector3 = Vector3.add(
@@ -349,6 +355,7 @@ export namespace punchContact {
       socket,
       offset,
       tracker,
+      drift: Vector3.subtract(landing, tracker.planned),
       bones,
       advance,
       shoulder,
