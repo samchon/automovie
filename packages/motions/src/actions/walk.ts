@@ -4,6 +4,7 @@ import type {
   IAutoMovieMotionEvent,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IWalkGait } from "./IWalkGait";
@@ -158,13 +159,13 @@ export namespace walk {
     face?: number;
 
     /** Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent. */
-    stride?: number;
+    stride?: number & tags.Minimum<0.6> & tags.Maximum<1.3> & tags.Default<1>;
 
     /** Arm-swing scale, an Effort hook, in [0, 2]; 1 when absent. */
-    armSwing?: number;
+    armSwing?: number & tags.Minimum<0> & tags.Maximum<2> & tags.Default<1>;
 
     /** Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent. */
-    elbows?: number;
+    elbows?: number & tags.Minimum<0> & tags.Maximum<30> & tags.Default<0>;
   }
 
   /** Froude number of each pace (Alexander 1984; Bohannon 1997 speeds at a 0.93 m hip). */
@@ -276,8 +277,7 @@ export namespace walk {
         toes: foot.toes,
       };
     };
-    // A swinging foot between two stances as `at` has them, leaving the first
-    // with the rates that stance ends with.
+    // A swinging foot between two stances as `at` has them, leaving the first with the rates that stance ends with.
     const swung = (
       side: "left" | "right",
       swing: { off: number; on: number },
@@ -359,8 +359,7 @@ export namespace walk {
         walkLeg.ROCKER * steps.amount(t),
       );
     };
-    // A foot's stance as reached at a swing's end, memoised by its second:
-    // every sample of that swing reads the same three.
+    // A foot's stance as reached at a swing's end, memoised by its second: every sample of that swing reads the same three.
     const ends: Map<string, walkFoot.IEnd> = new Map();
     const end = (side: "left" | "right", t: number): walkFoot.IEnd => {
       const key: string = `${side}:${t}`;

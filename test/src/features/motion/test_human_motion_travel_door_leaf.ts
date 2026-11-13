@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 import {
   HumanChain,
+  HumanFoot,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
@@ -34,9 +35,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    is (the palm's middle lies about half a hand from the wrist; the share
  *    is provisional), and the middle finger's last joint is nearer the
  *    wrist than its knuckle is (the hand is closed).
- * 3. The soles of both feet move at most 5 mm over the hold (the
+ * 3. The balls of both feet move at most 5 mm over the hold (the
  *    campaign's slip bound).
- * 4. The same door swung 110 degrees, which carries the handle past the
+ * 4. The same door swung 85 degrees, which carries the handle past the
  *    person's shoulder, is refused as a `reach` refusal on `handle`.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Places a real door archetype whose leaf the scene swings, performs the opening through the public chain and reads the displayed wrist, fingers and feet; a hand left where the handle was, an open hand, a body dragged by the door or an impossible swing accepted fails.
@@ -121,13 +122,15 @@ export function test_human_motion_travel_door_leaf(): void {
     const span = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
       Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
     const ball = (side: "left" | "right", t: number): IAutoMovieVector3 =>
-      HumanSignature.sole(reader, t, side);
+      HumanFoot.sockets(body, HumanSignature.bones(reader, t), side).find(
+        (s: HumanFoot.ISocket): boolean => s.socket === "ball",
+      )!.point;
     const first: Record<"left" | "right", IAutoMovieVector3> = {
       left: ball("left", hold.entryTime + 0.05),
       right: ball("right", hold.entryTime + 0.05),
     };
     let far: number = 0;
-    let open: boolean = false;
+    let open: string | null = null;
     let slip: number = 0;
     for (const t of HumanSignature.times(
       hold.entryTime + HumanTravelLeaf.TAKE + 0.05,
@@ -145,7 +148,7 @@ export function test_human_motion_travel_door_leaf(): void {
         span(bones.get("rightMiddleDistal")!.worldPosition, wrist) >=
         span(bones.get("rightMiddleProximal")!.worldPosition, wrist)
       )
-        open = true;
+        open = `${(span(bones.get("rightMiddleDistal")!.worldPosition, wrist) * 1000).toFixed(1)} mm from the wrist to the middle finger's last joint and ${(span(bones.get("rightMiddleProximal")!.worldPosition, wrist) * 1000).toFixed(1)} mm to its knuckle at ${t.toFixed(2)} s`;
       for (const side of ["left", "right"] as const)
         slip = Math.max(slip, span(ball(side, t), first[side]));
     }
@@ -153,8 +156,8 @@ export function test_human_motion_travel_door_leaf(): void {
       complaints.push(
         `${name}: the wrist is up to ${(far * 1000).toFixed(1)} mm from the handle as the door swings, within ${(700 * body.measure.hand).toFixed(1)} mm expected`,
       );
-    if (open)
-      complaints.push(`${name}: the hand holding the door is open`);
+    if (open !== null)
+      complaints.push(`${name}: the hand holding the door is open: ${open}`);
     if (slip > 0.005)
       complaints.push(
         `${name}: a sole moves ${(slip * 1000).toFixed(1)} mm while the door is held, within 5 mm expected`,
@@ -163,7 +166,7 @@ export function test_human_motion_travel_door_leaf(): void {
     // 4. A swing beyond the arm.
     let thrown: unknown = null;
     try {
-      perform(body, 110);
+      perform(body, 85);
     } catch (error) {
       thrown = error;
     }
@@ -175,7 +178,7 @@ export function test_human_motion_travel_door_leaf(): void {
       )
     )
       complaints.push(
-        `${name}: a door swung 110 degrees, expected a reach refusal on handle, got ${thrown instanceof Error ? thrown.message : String(thrown)}`,
+        `${name}: a door swung 85 degrees, expected a reach refusal on handle, got ${thrown instanceof Error ? thrown.message : String(thrown)}`,
       );
   }
   TestValidator.equals("a door is opened and held", complaints, []);

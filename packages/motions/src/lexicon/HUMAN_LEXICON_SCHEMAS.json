@@ -746,6 +746,9 @@
     "shoved": {
       "$ref": "#/components/schemas/OmitIParamsspeed"
     },
+    "shrug": {
+      "$ref": "#/components/schemas/OmitIParamskind-o1"
+    },
     "sidePlank": {
       "$ref": "#/components/schemas/OmitIParamskind-o1"
     },
@@ -817,9 +820,6 @@
     },
     "stabOverhand": {
       "$ref": "#/components/schemas/OmitICutfrom"
-    },
-    "stageSlap": {
-      "$ref": "#/components/schemas/OmitICutfromshort"
     },
     "startle": {
       "$ref": "#/components/schemas/OmitIParamsintensity"
@@ -1743,6 +1743,9 @@
           "shoved": {
             "$ref": "#/components/schemas/OmitIParamsspeed"
           },
+          "shrug": {
+            "$ref": "#/components/schemas/OmitIParamskind-o1"
+          },
           "sidePlank": {
             "$ref": "#/components/schemas/OmitIParamskind-o1"
           },
@@ -1814,9 +1817,6 @@
           },
           "stabOverhand": {
             "$ref": "#/components/schemas/OmitICutfrom"
-          },
-          "stageSlap": {
-            "$ref": "#/components/schemas/OmitICutfromshort"
           },
           "startle": {
             "$ref": "#/components/schemas/OmitIParamsintensity"
@@ -2233,6 +2233,7 @@
           "shoulderStretch",
           "shove",
           "shoved",
+          "shrug",
           "sidePlank",
           "sideStretch",
           "sitCrossLegged",
@@ -2257,7 +2258,6 @@
           "squats",
           "stab",
           "stabOverhand",
-          "stageSlap",
           "startle",
           "stepTouch",
           "stiffLimp",
@@ -4233,10 +4233,6 @@
           "feint": {
             "type": "number",
             "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried."
-          },
-          "short": {
-            "type": "number",
-            "description": "A stage blow: how far short of the target, toward the performer and in arm lengths, the stroke passes at full speed, so it sells a contact it does not make; 0 when absent."
           }
         },
         "required": [],
@@ -4430,10 +4426,6 @@
           "feint": {
             "type": "number",
             "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried."
-          },
-          "short": {
-            "type": "number",
-            "description": "A stage blow: how far short of the target, toward the performer and in arm lengths, the stroke passes at full speed, so it sells a contact it does not make; 0 when absent."
           }
         },
         "required": [],
@@ -5588,10 +5580,6 @@
               }
             ],
             "description": "Whether it lands or is stopped short for a parry to meet; `lands` when absent."
-          },
-          "short": {
-            "type": "number",
-            "description": "A stage blow: how far short of the target, toward the performer and in arm lengths, the stroke passes at full speed, so it sells a contact it does not make; 0 when absent."
           }
         },
         "required": [],
@@ -6158,10 +6146,6 @@
           "feint": {
             "type": "number",
             "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried."
-          },
-          "short": {
-            "type": "number",
-            "description": "A stage blow: how far short of the target, toward the performer and in arm lengths, the stroke passes at full speed, so it sells a contact it does not make; 0 when absent."
           }
         },
         "required": [],
@@ -7331,10 +7315,6 @@
             "type": "number",
             "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried."
           },
-          "short": {
-            "type": "number",
-            "description": "A stage blow: how far short of the target, toward the performer and in arm lengths, the stroke passes at full speed, so it sells a contact it does not make; 0 when absent."
-          },
           "from": {
             "oneOf": [
               {
@@ -7604,10 +7584,6 @@
           "feint": {
             "type": "number",
             "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried."
-          },
-          "short": {
-            "type": "number",
-            "description": "A stage blow: how far short of the target, toward the performer and in arm lengths, the stroke passes at full speed, so it sells a contact it does not make; 0 when absent."
           }
         },
         "required": [],
@@ -7633,7 +7609,10 @@
           },
           "elbows": {
             "type": "number",
-            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent."
+            "minimum": 0,
+            "maximum": 30,
+            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent.",
+            "default": 0
           }
         },
         "required": [
@@ -8167,10 +8146,6 @@
               }
             ],
             "description": "Whether it lands or is stopped short for a parry to meet; `lands` when absent."
-          },
-          "short": {
-            "type": "number",
-            "description": "A stage blow: how far short of the target, toward the performer and in arm lengths, the stroke passes at full speed, so it sells a contact it does not make; 0 when absent."
           },
           "from": {
             "oneOf": [
@@ -9655,7 +9630,10 @@
           },
           "elbows": {
             "type": "number",
-            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent."
+            "minimum": 0,
+            "maximum": 30,
+            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent.",
+            "default": 0
           }
         },
         "required": [
@@ -9978,7 +9956,10 @@
           },
           "elbows": {
             "type": "number",
-            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent."
+            "minimum": 0,
+            "maximum": 30,
+            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent.",
+            "default": 0
           },
           "side": {
             "oneOf": [
@@ -10183,10 +10164,6 @@
           "feint": {
             "type": "number",
             "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried."
-          },
-          "short": {
-            "type": "number",
-            "description": "A stage blow: how far short of the target, toward the performer and in arm lengths, the stroke passes at full speed, so it sells a contact it does not make; 0 when absent."
           }
         },
         "required": [],
@@ -11293,15 +11270,24 @@
           },
           "stride": {
             "type": "number",
-            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent."
+            "minimum": 0.6,
+            "maximum": 1.3,
+            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent.",
+            "default": 1
           },
           "armSwing": {
             "type": "number",
-            "description": "Arm-swing scale, an Effort hook, in [0, 2]; 1 when absent."
+            "minimum": 0,
+            "maximum": 2,
+            "description": "Arm-swing scale, an Effort hook, in [0, 2]; 1 when absent.",
+            "default": 1
           },
           "elbows": {
             "type": "number",
-            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent."
+            "minimum": 0,
+            "maximum": 30,
+            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent.",
+            "default": 0
           }
         },
         "required": [
@@ -12570,210 +12556,6 @@
         "required": [],
         "additionalProperties": false
       },
-      "OmitICutfromshort": {
-        "type": "object",
-        "properties": {
-          "blade": {
-            "type": "string",
-            "description": "The held blade's prop subject id; the bare hand when absent."
-          },
-          "hand": {
-            "oneOf": [
-              {
-                "const": "left"
-              },
-              {
-                "const": "right"
-              }
-            ],
-            "description": "The hand that holds it; `right` when absent."
-          },
-          "hands": {
-            "oneOf": [
-              {
-                "const": 1
-              },
-              {
-                "const": 2
-              }
-            ],
-            "description": "How many hands are on the grip; 2 for a blade whose grip declares a two-hand grasp, else 1."
-          },
-          "tip": {
-            "type": "string",
-            "description": "The affordance ids of the held thing's working point and of its edge, for an implement that is no blade (a bat's `barrel`, a racket's `face`, a club's `head`); `point` and `edge` when absent."
-          },
-          "edge": {
-            "type": "string",
-            "description": "See `tip`."
-          },
-          "target": {
-            "oneOf": [
-              {
-                "type": "object",
-                "properties": {
-                  "kind": {
-                    "const": "person",
-                    "description": "Discriminator."
-                  },
-                  "subject": {
-                    "type": "string",
-                    "description": "The other subject's id."
-                  },
-                  "region": {
-                    "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
-                    "description": "The region aimed at."
-                  }
-                },
-                "required": [
-                  "kind",
-                  "subject",
-                  "region"
-                ],
-                "additionalProperties": false
-              },
-              {
-                "type": "object",
-                "properties": {
-                  "kind": {
-                    "const": "self",
-                    "description": "Discriminator."
-                  },
-                  "region": {
-                    "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
-                    "description": "The region of the performer's own body."
-                  }
-                },
-                "required": [
-                  "kind",
-                  "region"
-                ],
-                "additionalProperties": false
-              },
-              {
-                "type": "object",
-                "properties": {
-                  "kind": {
-                    "const": "prop",
-                    "description": "Discriminator."
-                  },
-                  "subject": {
-                    "type": "string",
-                    "description": "The prop subject's id."
-                  },
-                  "point": {
-                    "type": "string",
-                    "description": "The prop's named point."
-                  }
-                },
-                "required": [
-                  "kind",
-                  "subject",
-                  "point"
-                ],
-                "additionalProperties": false
-              },
-              {
-                "type": "object",
-                "properties": {
-                  "kind": {
-                    "const": "point",
-                    "description": "Discriminator."
-                  },
-                  "at": {
-                    "$ref": "#/components/schemas/IAutoMovieVector3",
-                    "description": "The point, metres."
-                  },
-                  "frame": {
-                    "oneOf": [
-                      {
-                        "const": "performer"
-                      },
-                      {
-                        "const": "world"
-                      }
-                    ],
-                    "description": "The frame the point is stated in."
-                  },
-                  "normal": {
-                    "$ref": "#/components/schemas/IAutoMovieVector3",
-                    "description": "The outward direction of the surface at the point, in the same frame; any non-zero vector. Faces the performer when absent."
-                  }
-                },
-                "required": [
-                  "kind",
-                  "at",
-                  "frame"
-                ],
-                "additionalProperties": false
-              },
-              {
-                "type": "object",
-                "properties": {
-                  "kind": {
-                    "const": "none",
-                    "description": "Discriminator."
-                  },
-                  "line": {
-                    "oneOf": [
-                      {
-                        "const": "high"
-                      },
-                      {
-                        "const": "low"
-                      },
-                      {
-                        "const": "middle"
-                      }
-                    ],
-                    "description": "The virtual opponent's height line; `middle` when absent."
-                  },
-                  "range": {
-                    "type": "number",
-                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
-                  }
-                },
-                "required": [
-                  "kind"
-                ],
-                "additionalProperties": false
-              }
-            ],
-            "description": "What it is aimed at; a place at the blade's reach ahead when absent."
-          },
-          "advance": {
-            "oneOf": [
-              {
-                "const": "lunge"
-              },
-              {
-                "const": "none"
-              },
-              {
-                "const": "step"
-              }
-            ],
-            "description": "How the body goes with it; when absent, the least of none, a step and a lunge that brings the target inside the arm."
-          },
-          "outcome": {
-            "oneOf": [
-              {
-                "const": "lands"
-              },
-              {
-                "const": "parried"
-              }
-            ],
-            "description": "Whether it lands or is stopped short for a parry to meet; `lands` when absent."
-          },
-          "feint": {
-            "type": "number",
-            "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried."
-          }
-        },
-        "required": [],
-        "additionalProperties": false
-      },
       "OmitIParamsintensity": {
         "type": "object",
         "properties": {
@@ -12939,7 +12721,10 @@
           },
           "stride": {
             "type": "number",
-            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent."
+            "minimum": 0.6,
+            "maximum": 1.3,
+            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent.",
+            "default": 1
           }
         },
         "required": [
@@ -13179,10 +12964,6 @@
           "feint": {
             "type": "number",
             "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried."
-          },
-          "short": {
-            "type": "number",
-            "description": "A stage blow: how far short of the target, toward the performer and in arm lengths, the stroke passes at full speed, so it sells a contact it does not make; 0 when absent."
           }
         },
         "required": [],
