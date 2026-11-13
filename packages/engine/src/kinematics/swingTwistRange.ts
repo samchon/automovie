@@ -59,8 +59,14 @@ export namespace swingTwistRange {
   /** The great circles from the rest direction the swing region's radius is read on. */
   export const RAYS: number = 360;
 
-
-  /** A rotation read by swing and twist. */
+  /**
+   * A rotation read by swing and twist.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each member's frame and unit: the limb's unit direction in the rest frame, the swing in degrees, the azimuth in degrees about the rest direction from the flexion axis and the clinical twist in (-180, 180].
+   * @evidence contracts/development/design.md#principled-representation The two quantities a ball joint's range limits independently, where the limb points (the direction with its swing and azimuth) and how it is turned about itself (the twist), in degrees and the bone's rest frame.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members, all read by `overshoot`, `room` and `project`; the direction is kept so `project` need not recompute it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Neither the swing nor the twist is read through a three-angle chart; the record names no joint and no bone.
+   */
   export interface IReading {
     /** The limb's direction, unit, in the bone's rest frame. */
     direction: IAutoMovieVector3;
@@ -75,7 +81,14 @@ export namespace swingTwistRange {
     twist: number;
   }
 
-  /** The joint's frame: its axes and its rest frame. */
+  /**
+   * The joint's frame: its axes and its rest frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States that the axes are the joint's clinical basis and that the rest frame lifts its angles, and that an absent frame leaves angles rest-relative.
+   * @evidence contracts/development/design.md#principled-representation The caller's clinical axis basis and rest frame, the two things that turn a rotation's angles into the joint's clinical ones; both come from `@automovie/interface` and the engine's rest frame type.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, both read by every function here; the radius table is cached on them.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No joint or bone is named, and no type is duplicated.
+   */
   export interface IJoint {
     /** The joint's clinical axes. */
     axes: IAutoMovieJointAxes;
@@ -241,9 +254,9 @@ export namespace swingTwistRange {
    * @returns The radius, degrees.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the reading and its interpolation.
-   * @evidence contracts/development/implementation.md#principled-implementation The radius is read on `RAYS` great circles once, from the farthest reached swing on each, found by a scan from the far end and a bisection, raised to turn no faster than `SLOPE` with the azimuth, and interpolated linearly between them, which is continuous in the azimuth.
+   * @evidence contracts/development/implementation.md#principled-implementation The radius is read on `RAYS` great circles once, from the farthest reached swing on each, found by a scan from the far end and a bisection, widened for a proximal twist by the reach of every twist in its interval, raised to turn no faster than `SLOPE` with the azimuth, and interpolated linearly between them, which is continuous in the azimuth.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One table lookup and one interpolation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scan runs from the far end, so a ray the ranges leave and re-enter keeps its farthest reach: the radius is the star's, not the first exit's.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scan runs from the far end, so a ray the ranges leave and re-enter keeps its farthest reach: the radius is the star's, not the first exit's. `SLOPE` (3) is provisional; `SCAN` and `HALVINGS` are resolutions, not fitted to a case.
    * @evidence contracts/development/implementation.md#efficient-algorithms The table is built once per constraint and basis and kept.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Every call after the first reads the cached table.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The tables are kept in a WeakMap keyed by the constraint object and released with it.
