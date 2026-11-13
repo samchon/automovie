@@ -60,7 +60,7 @@ const UNLABELLED: IAutoMovieInspectorScene.ILabels = {
  * );
  * ```
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what the component shows and how it is laid out, where its state lives and changes, how the address follows it, why playback renders only the readout, the keys, the effect split and the StrictMode behaviour, and shows the mount.
+ * @evidence contracts/development/common.md#meaningful-documentation States what the component shows and how it is laid out, where its state lives and changes, how the address follows it, why a playing frame renders only the readout and a start or stop the play button too, the keys, the effect split and the StrictMode behaviour, and shows the mount.
  * @evidence contracts/development/implementation.md#principled-implementation React owns layout and dispatch only: `useReducer` holds the request, `useEffect` owns the scene's lifetime per subject and forwards each request, and the canvas is drawn by three.js outside React's render, as the campaign decides against a React scene graph.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One component composes six panels, each a function of the request and a dispatch, five of them in collapsible sections of the platform's `details` element; every state change is the reducer's and every scene change the mount's.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No panel writes the scene, and a scene refusal is answered by restoring the request, never by drawing a picture the address does not name.

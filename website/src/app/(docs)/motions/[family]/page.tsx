@@ -28,9 +28,11 @@ export const dynamicParams: boolean = false;
 export function generateStaticParams(): { family: string }[] {
   return [
     { family: ACTIONS },
-    ...MotionReference.read().families.map((f: IMotionReference.IFamily) => ({
-      family: f.name,
-    })),
+    ...MotionReference.read().families.map(
+      (f: IMotionReference.IFamily): { family: string } => ({
+        family: f.name,
+      }),
+    ),
   ];
 }
 
@@ -41,7 +43,7 @@ export function generateStaticParams(): { family: string }[] {
  * @returns The metadata.
  */
 export async function generateMetadata(props: IPageProps): Promise<Metadata> {
-  const { family } = await props.params;
+  const { family }: { family: string } = await props.params;
   return { title: family === ACTIONS ? "Actions" : `Motions: ${family}` };
 }
 
@@ -55,7 +57,7 @@ export async function generateMetadata(props: IPageProps): Promise<Metadata> {
 export default async function MotionFamilyPage(
   props: IPageProps,
 ): Promise<ReactElement> {
-  const { family } = await props.params;
+  const { family }: { family: string } = await props.params;
   const reference: IMotionReference = MotionReference.read();
   const rows: IMotionReference.IRow[] =
     family === ACTIONS
@@ -81,10 +83,12 @@ export default async function MotionFamilyPage(
       </header>
       <div className="am-motion-layout">
         <MotionNav
-          families={reference.families.map((f: IMotionReference.IFamily) => ({
-            name: f.name,
-            rows: f.rows.length,
-          }))}
+          families={reference.families.map(
+            (f: IMotionReference.IFamily): { name: string; rows: number } => ({
+              name: f.name,
+              rows: f.rows.length,
+            }),
+          )}
           actions={reference.actions.length}
           current={family}
         />

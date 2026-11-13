@@ -36,10 +36,12 @@ export default function MotionsPage(): ReactElement {
       </header>
       <div className="am-motion-layout">
         <MotionNav
-          families={reference.families.map((f: IMotionReference.IFamily) => ({
-            name: f.name,
-            rows: f.rows.length,
-          }))}
+          families={reference.families.map(
+            (f: IMotionReference.IFamily): { name: string; rows: number } => ({
+              name: f.name,
+              rows: f.rows.length,
+            }),
+          )}
           actions={reference.actions.length}
           current={null}
         />

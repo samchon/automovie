@@ -75,8 +75,8 @@ export function ObjectCard(props: {
         hovered.current = false;
       }}
     >
-      {/* A full navigation: the gallery and an archetype's page are one
-          route, which reads its query once when it opens. */}
+      {/* A full navigation: an archetype's page reads its request from the
+          address once, when it mounts. */}
       <a
         href={`/automovie/objects/?subject=${subject.id}${subject.variants[0] === undefined ? "" : `&variant=${subject.variants[0].id}`}`}
         className="am-scene-card-link"

@@ -3,6 +3,7 @@
 How the site's pages are laid out and styled, and why. Campaign [#3507](https://github.com/samchon/automovie/issues/3507) fixes what the site shows and holds the research behind it; [#3381](https://github.com/samchon/automovie/issues/3381) fixes the playground's behaviour and [#3397](https://github.com/samchon/automovie/issues/3397) the archetypes'. This note fixes how the pages look and are arranged. The tokens are in `src/app/tokens.css`, the layout in `src/app/global.css` and `src/app/scenes.css`.
 
 Two readers come. A visitor comes to see what composing the packages makes, so every page that is not a reference opens on something playing, and parameters wait behind Customise. A developer or a coding agent comes to read what the vocabulary takes, so the reference pages and the playground are dense, plain and exact: numbers, ids and messages in monospace.
+
 ## What was studied
 
 Pages looked at as screenshots, taken with `pnpm shots`:
@@ -65,7 +66,8 @@ A scene's page puts the player (named views over the canvas, the canvas, the tra
 
 ## The player
 
-Every view draws on one WebGL renderer per page (`src/stage/SharedStage.ts`), which draws each view in the window into the corner of its canvas and copies it into the view's own 2D canvas, because a browser keeps only a few contexts at once. The transport is one Play/Pause button, the scrubber, the time, the speed and Loop; while the player has focus, Space and K play or pause, J and L seek a second, comma and full stop step a frame, Home and End go to the ends. A drag turns the camera, the wheel zooms only while the view has focus, and a double-click frames it again. Under `prefers-reduced-motion` nothing plays until asked.
+Every view draws on one WebGL renderer per page (`src/stage/SharedStage.ts`), which draws each view in the window into the corner of its canvas and copies it into the view's own 2D canvas, because a browser keeps only a few contexts at once. The transport is one Play/Pause button, the scrubber, the time, the speed and Loop; while the player has focus, Space and K play or pause, J and L seek a second, comma and full stop step a frame, Home and End go to the ends. A drag turns the camera, the wheel zooms only while the view has focus or a modifier key is held, and a double-click frames it again. Under `prefers-reduced-motion` nothing plays until asked.
+
 ## Playground
 
 Regions on a screen 1280 px wide or wider:
@@ -106,9 +108,10 @@ The site's bodies stand side by side on one floor, from the bake, with the chose
 ## Motions
 
 A column lists the overview, the actions and each family with its count, and stays in view while the page scrolls. A family's page has one panel per row: its parameters from its schema with their types and meanings, the scenes that use it, and Try it alone. Below 768 px the column goes above the content.
+
 ## Visual system
 
-**Type.** The text face is Nextra's system stack. Ids, values and messages are monospaced, because they are copied into code. Five sizes: 12, 13, 14, 16 and 20 px. The body of both pages is 14 px, denser than the 16 px of a reading page.
+**Type.** The text face is Nextra's system stack. Ids, values and messages are monospaced, because they are copied into code. Five sizes: 12, 13, 14, 16 and 20 px. The body of every application page is 14 px, denser than the 16 px of a reading page.
 
 **Colour.** Every colour is a token in `src/app/tokens.css` with a light and a dark value:
 

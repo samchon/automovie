@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import type { ReactElement } from "react";
 
-import SceneMovie from "../../../../movies/SceneMovie";
 import { MotionReference } from "../../../../motions/package/MotionReference";
 import type { IMotionReference } from "../../../../motions/structures/IMotionReference";
+import SceneMovie from "../../../../movies/SceneMovie";
 import { SCENES } from "../../../../scenes/SCENES";
 import { readBakedManifest } from "../../../../scenes/readBakedManifest";
 import type { IScene } from "../../../../scenes/structures/IScene";
@@ -36,8 +36,10 @@ export function generateStaticParams(): { id: string }[] {
  * @returns The metadata.
  */
 export async function generateMetadata(props: IPageProps): Promise<Metadata> {
-  const { id } = await props.params;
-  const scene: IScene | undefined = SCENES.find((s: IScene): boolean => s.id === id);
+  const { id }: { id: string } = await props.params;
+  const scene: IScene | undefined = SCENES.find(
+    (s: IScene): boolean => s.id === id,
+  );
   return scene === undefined
     ? {}
     : { title: scene.title, description: scene.summary };
@@ -49,8 +51,10 @@ export async function generateMetadata(props: IPageProps): Promise<Metadata> {
  * @param props The route's parameters.
  * @returns The page.
  */
-export default async function ScenePage(props: IPageProps): Promise<ReactElement> {
-  const { id } = await props.params;
+export default async function ScenePage(
+  props: IPageProps,
+): Promise<ReactElement> {
+  const { id }: { id: string } = await props.params;
   const scene: IScene = SCENES.find((s: IScene): boolean => s.id === id)!;
   const manifest: ISceneManifest | null = readBakedManifest();
 

@@ -80,22 +80,24 @@ export namespace ScenePlayer {
     if (baked === undefined)
       throw new Error(`The scene ${scene.id} has no baked take ${take}`);
 
-    const [values, rests] = await Promise.all([
-      fetch(`${BAKED}/${baked.file}`).then(
-        async (response: Response): Promise<Int16Array> => {
-          if (!response.ok)
-            throw new Error(`The take did not load (${response.status})`);
-          return new Int16Array(await response.arrayBuffer());
-        },
-      ),
-      Promise.all(
-        baked.figures.map(
-          (
-            figure: ISceneManifest.IFigure,
-          ): Promise<AutoMovieHumanPolygon.IBone[]> => rest(read, figure.body),
+    const [values, rests]: [Int16Array, AutoMovieHumanPolygon.IBone[][]] =
+      await Promise.all([
+        fetch(`${BAKED}/${baked.file}`).then(
+          async (response: Response): Promise<Int16Array> => {
+            if (!response.ok)
+              throw new Error(`The take did not load (${response.status})`);
+            return new Int16Array(await response.arrayBuffer());
+          },
         ),
-      ),
-    ]);
+        Promise.all(
+          baked.figures.map(
+            (
+              figure: ISceneManifest.IFigure,
+            ): Promise<AutoMovieHumanPolygon.IBone[]> =>
+              rest(read, figure.body),
+          ),
+        ),
+      ]);
     const track: SceneTrack.ITrack = {
       fps: baked.fps,
       frames: baked.frames,

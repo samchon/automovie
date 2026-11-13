@@ -48,7 +48,9 @@ export namespace PlaygroundPerformance {
     const input: HumanPerformance.IInput = {
       seed: composition.seed,
       performers: composition.performers.map(
-        (performer: IPlaygroundComposition.IPerformer) => {
+        (
+          performer: IPlaygroundComposition.IPerformer,
+        ): HumanPerformance.IInput["performers"][number] => {
           const prepared: PlaygroundBodies.IPrepared = PlaygroundBodies.get(
             performer.body,
           );
