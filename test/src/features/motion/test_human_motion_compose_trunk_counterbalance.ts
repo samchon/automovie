@@ -7,6 +7,7 @@ import {
   AutoMovieMotionClock,
   AutoMovieMotionHumanTrunk,
   HumanBalance,
+  HumanRefusal,
   type IAutoMovieMotionHumanPrimitive,
   type IHumanBody,
   type IHumanPosture,
@@ -27,10 +28,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * at 0.92 of their length and the whole posture pitched by 0, 30 and 60
  * degrees. A posture's pitch turns the body about its root on the floor, so
  * a pitch of 30 degrees stands the hips about half a hip height ahead of the
- * planted feet and one of 60 degrees most of a leg's length: bodies that
- * fall forward as they are, and that a person holds as a bow with the hips
- * behind the feet. The counterbalance has to find that place, however far
- * back it lies.
+ * planted feet: a body that falls forward as it is, and that a person holds
+ * as a bow with the hips behind the feet, a place the counterbalance has to
+ * find however far back it lies. A pitch of 60 degrees with the hands kept
+ * at their places ahead leaves the centre of mass some 0.2 m ahead of the
+ * soles' middle wherever the hips go within the legs' reach (measured:
+ * 195 mm with the hips 1.19 m back), outside the feet: a pose no standing
+ * person holds, which is refused.
  *
  * The balance is `HumanBalance.offset`, the centre of mass ahead of the
  * soles' middle, within 2 mm of it after the shift. The clock has `ready`
@@ -39,7 +43,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * Scenarios, on the average man and the long-armed man, whose arms carry
  * the most mass farthest ahead; each cell costs a balance search of up to
  * some fifty solved postures, so two bodies keep the test under a minute.
- * At headings of 0 and 90 degrees, for each pitch:
+ * At headings of 0 and 90 degrees, for the pitches of 0 and 30 degrees
+ * (scenarios 1 to 5) and of 60 degrees (scenario 6):
  * 1. The phrase claims the root.
  * 2. At the middle of its hold the centre of mass is over the soles' middle
  *    and the hips have moved back; a pose whose centre is not ahead of the
@@ -49,6 +54,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 4. The phrase is gone at both ends.
  * 5. At each heading at least one pitch puts the centre ahead of the soles,
  *    so the counterbalance is exercised; and the standing body is not moved.
+ * 6. The pitch of 60 degrees is refused with a `HumanRefusal` of kind `base`
+ *    on the axis `balance`.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads the balance owner's measure on the written posture; a counterbalance that stops short, moves along the world axis, lifts the body or stays after its end fails.
  * @evidence contracts/development/testing.md#independent-expectations Static balance is the centre of mass over the base of support; the direction is the heading's; none is read from the phrase's solve.
@@ -104,16 +111,43 @@ export function test_human_motion_compose_trunk_counterbalance(): void {
         };
       };
       let unbalanced: number = 0;
-      for (const pitch of [0, 30, 60] as const) {
-        const extended: IHumanPosture = {
-          ...turned,
-          pitch,
-          limbs: {
-            ...turned.limbs,
-            leftArm: arm("left"),
-            rightArm: arm("right"),
-          },
-        };
+      const extend = (pitch: number): IHumanPosture => ({
+        ...turned,
+        pitch,
+        limbs: {
+          ...turned.limbs,
+          leftArm: arm("left"),
+          rightArm: arm("right"),
+        },
+      });
+
+      // 6. A body no place of the hips balances is refused. Read at one
+      // heading: the search runs its whole range before it refuses, the
+      // costliest cell, and the heading's part is scenario 3's.
+      if (yaw === 0) {
+        let refusal: unknown;
+        try {
+          AutoMovieMotionHumanTrunk.counterbalance(
+            body,
+            clock,
+            rise,
+            fall,
+            extend(60),
+          );
+        } catch (error) {
+          refusal = error;
+        }
+        all.equals(
+          `${name}: a counterbalance of a trunk pitched 60 is refused on its balance${refusal instanceof Error ? ` (${refusal.message})` : ""}`,
+          refusal instanceof HumanRefusal
+            ? [refusal.kind, refusal.axis]
+            : "no refusal",
+          ["base", "balance"],
+        );
+      }
+
+      for (const pitch of [0, 30] as const) {
+        const extended: IHumanPosture = extend(pitch);
         const phrase: IAutoMovieMotionHumanPrimitive =
           AutoMovieMotionHumanTrunk.counterbalance(
             body,

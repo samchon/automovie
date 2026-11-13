@@ -417,10 +417,24 @@ export namespace AutoMovieMotionHumanArm {
         const pose: IAutoMoviePose = current;
         const others: readonly HumanColliders.IPlaced[] =
           posture.limbs[`${side}Arm`]?.clear ?? [];
-        const ends: readonly [number, number] = [
-          HumanArmClearance.room(body, pose, side, held, others),
-          HumanArmClearance.room(body, pose, side, goal, others),
-        ];
+        // Each of the room's two readings keeps the share's blend of its own
+        // two ends: the depth an end's upper arm lies in the chest is not
+        // room for the forearm on the way.
+        const reading = (
+          of: HumanArmClearance.IArm,
+          which: keyof HumanArmClearance.IBaseline,
+        ): number =>
+          HumanArmClearance.room(body, pose, side, of, others, {
+            forearm: which === "forearm" ? 0 : Infinity,
+            segments: which === "segments" ? 0 : Infinity,
+          });
+        const ends: Record<
+          keyof HumanArmClearance.IBaseline,
+          readonly [number, number]
+        > = {
+          forearm: [reading(held, "forearm"), reading(goal, "forearm")],
+          segments: [reading(held, "segments"), reading(goal, "segments")],
+        };
         arm = HumanArmClearing.course({
           plain,
           share: s,
@@ -428,14 +442,12 @@ export namespace AutoMovieMotionHumanArm {
             of: HumanArmClearance.IArm,
             share: number,
           ): HumanArmClearance.IArm =>
-            HumanArmClearance.cleared(
-              body,
-              pose,
-              side,
-              of,
-              ends[0] * (1 - share) + ends[1] * share,
-              others,
-            ),
+            HumanArmClearance.cleared(body, pose, side, of, 0, others, {
+              forearm:
+                ends.forearm[0] * (1 - share) + ends.forearm[1] * share,
+              segments:
+                ends.segments[0] * (1 - share) + ends.segments[1] * share,
+            }),
         });
         current = HumanArmClearance.posed(pose, side, arm);
       }

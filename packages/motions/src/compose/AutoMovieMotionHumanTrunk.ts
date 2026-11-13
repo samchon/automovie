@@ -4,6 +4,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanBalance } from "../everyday/HumanBalance";
 import { HumanTrunk } from "../everyday/HumanTrunk";
+import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -218,11 +219,12 @@ export namespace AutoMovieMotionHumanTrunk {
    * @param fall The instants the limb starts returning and is back at.
    * @param extended The action's posture at the limb's fullest extension.
    * @returns The primitive, on the root.
+   * @throws {HumanRefusal} `base` on `balance` when no place of the hips within `HumanBalance.REACH` brings the centre of mass inside the feet.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the movement, the two windows and which pose the shift is solved on.
+   * @evidence contracts/development/common.md#meaningful-documentation States the movement, the two windows, which pose the shift is solved on and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation A limb held out ahead moves the centre of mass forward, and the body answers by moving the hips back; the shift is the one `HumanBalance.shift` finds for the extended pose, applied along the heading by the clock's envelope.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One solve and one excursion.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: no distance is stated, and a pose already balanced solves to no shift.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No distance is stated, and a pose already balanced solves to no shift; a pose no shift balances is refused with the measured remainder instead of being shown falling.
    * @evidence contracts/development/implementation.md#efficient-algorithms The balance is solved once when the phrase is built.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `HumanBalance.shift`, `AutoMovieMotionHumanRoot.place` and `AutoMovieMotionHumanRoot.excursion`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive keeps the clock, the windows and one solved number; the extended posture is read only during the solve.
@@ -234,18 +236,33 @@ export namespace AutoMovieMotionHumanTrunk {
     fall: readonly [string, string],
     extended: IHumanPosture,
   ): IAutoMovieMotionHumanPrimitive {
+    const shifted = (b: number): IHumanPosture =>
+      AutoMovieMotionHumanRoot.place(extended, {
+        point: { x: 0, y: 0, z: -b },
+        yaw: 0,
+      });
     const back: number = HumanBalance.shift(
       body,
-      (b: number): IHumanPosture =>
-        AutoMovieMotionHumanRoot.place(extended, {
-          point: { x: 0, y: 0, z: -b },
-          yaw: 0,
-        }),
+      shifted,
       // The extended posture is the caller's, so its hips may stand anywhere
       // the planted legs let them: a body tipped whole about its feet has
       // them most of a leg's length ahead.
       HumanBalance.REACH,
     );
+    // No place of the hips holds the pose when the nearest one still leaves
+    // the centre of mass outside the feet.
+    const margin: number = HumanBalance.margin(body, shifted(back));
+    if (back > 0 && !(margin > 0)) {
+      const ahead: number = HumanBalance.offset(body, shifted(back));
+      throw new HumanRefusal({
+        kind: "base",
+        axis: "balance",
+        value: Number(ahead.toFixed(4)),
+        feasible: { kind: "range", minimum: null, maximum: 0, unit: "m" },
+        reason: `the extended pose cannot be balanced over the feet: with the hips ${(back * 1000).toFixed(0)} mm back, the nearest place the search reaches, the centre of mass still stands ${(ahead * 1000).toFixed(0)} mm ahead of the soles' middle and ${(-margin * 1000).toFixed(0)} mm outside the feet`,
+        fix: "pitch the trunk less, hold the limbs nearer, or give the body a support or a step",
+      });
+    }
     return AutoMovieMotionHumanRoot.excursion(clock, rise, fall, {
       point: { x: 0, y: 0, z: -back },
       yaw: 0,
