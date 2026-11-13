@@ -42,7 +42,10 @@ import { GymnasticsTakeoff } from "./GymnasticsTakeoff";
  *
  * The bar's place along the run is where the apex falls; the bar is not a
  * prop. A bar no higher than the take-off's centre is refused, and so is
- * one that needs a vertical take-off speed past `RISE`.
+ * one that needs a vertical take-off speed past `RISE`. The horizontal
+ * take-off speed is not stated: it follows from the landing place the
+ * author gives, which world-class finalists reach leaving the floor at
+ * 4.14 ± 0.37 m/s (the same table of Nicholson et al. 2022).
  *
  * First pass: no curved run-up and no lean into the take-off; the arms do
  * not lead; the angular momentum appears at the take-off instead of being
@@ -65,8 +68,18 @@ export namespace highJump {
       rise: ["fromRelax", "smooth"],
     });
 
-  /** The greatest vertical take-off speed, m/s (provisional: the order of an elite jumper's, no source read; it lifts the centre of mass about 1 m). */
-  export const RISE: number = 4.42;
+  /**
+   * The greatest vertical take-off speed, m/s: the world-class men's mean
+   * plus two standard deviations, 4.65 + 2 × 0.20 (Nicholson, Jongerius,
+   * Tucker, Thomas, Merlino and Bissas 2022, "The Association Between
+   * Hip-Shoulder Separation Angles and Technique Characteristics in
+   * World-Class High Jumpers", Front. Sports Act. Living 4:873526, Table 3:
+   * the 29 finalists of the 2017 and 2018 World Championships, vertical
+   * centre-of-mass velocity at take-off 4.65 ± 0.20 m/s for the men and
+   * 3.96 ± 0.17 for the women). The two deviations are this law's choice,
+   * so a bar the best measured jumpers clear is never refused.
+   */
+  export const RISE: number = 5.05;
 
   /** The share of the rise over which the half turn about the vertical is made (provisional). */
   export const TWIST: number = 0.5;

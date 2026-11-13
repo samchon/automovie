@@ -48,8 +48,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    quarter of the stature; at `settled` the body lies on the box's top.
  * 2. The same flop over a 3 m bar is refused as a `parameter` refusal on
  *    `bar`: from either body's take-off centre, about 1 m high, it needs a
- *    vertical speed near 6 m/s, far past the law's provisional cap of
- *    4.42 m/s, so the case does not hang on the cap's exact value.
+ *    vertical speed near 6 m/s, past the world-class men's measured
+ *    4.65 ± 0.20 m/s (Nicholson et al. 2022, Front. Sports Act. Living
+ *    4:873526, Table 3) by more than six deviations, and past the law's cap
+ *    of their mean plus two, so the case does not hang on the cap's exact
+ *    value.
  * 3. A vault on the spear out of a sprint cut at its third left heel strike,
  *    a foot planted to take off from: from
  *    `takeoff` to `release`, read at both and between, the spear's butt
