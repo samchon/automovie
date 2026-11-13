@@ -1096,6 +1096,14 @@ namespace FamilyConicBody {
         const cutLoop: C.P[] | null = cut(frame, s);
         const starred: { points: C.P[]; folds: number } | null = part.skin === undefined || cutLoop === null ? null : X.star(cutLoop, SKIN_RAYS, part.skin);
         if (part.skin !== undefined && cutLoop !== null) star.push({ s, folds: starred === null ? -1 : starred.folds });
+        // `--kernels`: each section's kernel point (the centre of its largest inscribed circle) in the world, and how many of 720 rays from
+        // it and from the course point cross the section more than once, to lay a course through the kernels before fitting the skin.
+        if (process.argv.includes("--kernels") && cutLoop !== null) {
+          const core: { point: C.P; clearance: number } = X.kernel(cutLoop);
+          const world: number[] = [0, 1, 2].map((k: number): number => frame.origin[k]! + core.point[0] * frame.u[k]! + core.point[1] * frame.v[k]!);
+          const shifted: C.P[] = cutLoop.map((p: C.P): C.P => [p[0] - core.point[0], p[1] - core.point[1]]);
+          log("family-body-kernel", { part: part.name, s, kernel: world.map(round), clearanceMm: round(core.clearance), foldsFromKernel: X.star(shifted, SKIN_RAYS, "inner")?.folds ?? -1, foldsFromCourse: X.star(cutLoop, SKIN_RAYS, "inner")?.folds ?? -1 });
+        }
         const loop: C.P[] | null = part.skin === undefined ? cutLoop : (starred?.points ?? null);
         if (loop === null) skipped.push(s);
         else if (part.skin !== undefined) {
