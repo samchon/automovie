@@ -86,7 +86,9 @@ import { walkLeg } from "./walkLeg";
  * from the posture there, lies on that parabola, so moving the limbs in
  * flight shifts the trunk the way it would. The legs travel in the body's frame from their
  * take-off placements to their landing footprints, lifted at mid-flight.
- * Both feet land flat on footprints at the destination, at the body's rest
+ * Both feet land flat on footprints at the destination and at its height (a
+ * box's top, a step; the flight's default apex then also clears that rise,
+ * and an apex that does not is refused), at the body's rest
  * separation, turned out by the stance angle; the root lands 0.03 hip
  * heights low with the flight's velocity, absorbs to 0.12 hip heights low on
  * a quintic path that brings that velocity to rest over `ABSORB` seconds,
@@ -109,8 +111,11 @@ export namespace jump {
 
   /** Parameters. */
   export interface IParams {
-    /** The floor point to land on, world metres. */
+    /** The point to land on, world metres: its height is the landing surface's, the floor's 0, a box's top or a step's. */
     to: IAutoMovieVector3;
+
+    /** The prop whose top is landed on, its subject id, so the feet bear on it; the floor when absent. */
+    on?: string;
 
     /** Apex height of the flight above take-off, metres; positive. */
     apex?: number & tags.ExclusiveMinimum<0>;
@@ -149,6 +154,9 @@ export namespace jump {
       y: 0,
       z: context.params.to.z,
     };
+
+    // The landing surface's height: the floor's, a box's top or a step's.
+    const rise: number = context.params.to.y;
     const heading: number = unwrap(
       (Math.atan2(to.x - root0.x, to.z - root0.z) * 180) / Math.PI,
       entry.posture.yaw,
@@ -224,7 +232,7 @@ export namespace jump {
     const footprint = (s: "left" | "right"): HumanFoot.IPlacement => ({
       ankle: HumanFrame.point(frame(to), {
         x: (s === "left" ? 1 : -1) * Math.abs(body.rest.get(`${s}Foot`)!.x),
-        y: m.ankleHeight,
+        y: m.ankleHeight + rise,
         z: 0,
       }),
       rotation: HumanFoot.rotation(
@@ -238,17 +246,17 @@ export namespace jump {
     };
     const rootL: IAutoMovieVector3 = HumanFrame.point(frame(to), {
       x: 0,
-      y: -0.005 - 0.03 * l,
+      y: rise - 0.005 - 0.03 * l,
       z: -0.1 * l,
     });
     const rootS: IAutoMovieVector3 = HumanFrame.point(frame(to), {
       x: 0,
-      y: -0.005,
+      y: rise - 0.005,
       z: upright.lean,
     });
     const rootA: IAutoMovieVector3 = HumanFrame.point(frame(to), {
       x: 0,
-      y: -0.005 - 0.12 * l,
+      y: rise - 0.005 - 0.12 * l,
       z: 0.3 * upright.lean,
     });
 
@@ -313,8 +321,26 @@ export namespace jump {
       z: rootL.z + offL.z,
     };
     const length: number = Math.hypot(comL.x - comT.x, comL.z - comT.z);
-    const apex: number = context.params.apex ?? 0.06 * l + 0.1 * length;
+    // A flight that lands higher must rise past the landing height first: the default apex clears it by the floor jump's own, and a given apex that does not reach it is refused.
+    const climb: number = Math.max(0, comL.y - comT.y);
+    const apex: number =
+      context.params.apex ?? 0.06 * l + 0.1 * length + climb;
     HumanBound.above("apex", apex, 0, "m");
+    if (apex <= climb)
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "apex",
+        value: apex,
+        feasible: {
+          kind: "range",
+          minimum: climb,
+          maximum: null,
+          unit: "m",
+          open: "minimum",
+        },
+        reason: `the landing lies ${rise.toFixed(3)} m up and the body's centre must rise ${climb.toFixed(3)} m to reach it, above the ${apex.toFixed(3)} m apex asked`,
+        fix: "jump higher, or onto a lower surface",
+      });
     const vy: number = Math.sqrt(2 * G * apex);
     const T: number =
       (vy + Math.sqrt(Math.max(0, vy * vy - 2 * G * (comL.y - comT.y)))) / G;
@@ -329,6 +355,10 @@ export namespace jump {
     const touchdown: number = P + T;
     const settled: number = touchdown + ABSORB;
     const duration: number = settled + RISE;
+    const landed: IHumanContactWindow["support"] =
+      context.params.on === undefined
+        ? { kind: "ground" }
+        : { kind: "prop", subject: context.params.on };
     const events: IAutoMovieMotionEvent[] = [
       { name: "takeoff", share: P / duration },
       { name: "apex", share: (P + vy / G) / duration },
@@ -348,14 +378,14 @@ export namespace jump {
         kind: "plant",
         from: touchdown / duration,
         to: 1,
-        support: { kind: "ground" },
+        support: landed,
       },
       {
         part: "rightFoot",
         kind: "plant",
         from: touchdown / duration,
         to: 1,
-        support: { kind: "ground" },
+        support: landed,
       },
     ];
 
