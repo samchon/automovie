@@ -1,13 +1,5 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
   IAutoMovieMotionEvent,
-  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import type { tags } from "typia";
@@ -21,8 +13,7 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { GymnasticsFlight } from "./GymnasticsFlight";
 
 /**
  * A salto: a jump whose flight turns the whole body head over heels about
@@ -103,7 +94,7 @@ export namespace salto {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The jump's plan, the flight's two instants, the bound, the turned posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rate past the bound refuses with the apex that affords the turns; the turn is whole, so the landing posture is the jump's own.
    * @evidence contracts/development/implementation.md#efficient-algorithms One centre of mass per evaluated airborne second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the jump's plan and the engine's mass model, built once per plan.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the jump's plan, and the gymnastic flight kernel's mass model (built once per plan), centre and rigid turn.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the jump's plan and the mass model.
    */
   export function plan(
@@ -141,52 +132,19 @@ export namespace salto {
       });
     }
     const total: number = (p.way === "backward" ? -1 : 1) * 360 * turns;
-    const model: ReturnType<typeof resolveAutoMovieCenterOfMass> =
-      resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
+    const model: GymnasticsFlight.Model = GymnasticsFlight.model(body);
     const posture = (seconds: number): IHumanPosture => {
       const base: IHumanPosture = inner.posture(seconds);
       const share: number = (seconds - off) / flight;
       if (share <= 0 || share >= 1) return base;
-      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        poseBones(body, resolveHumanPosture(body, base));
-      const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
-        model,
-        bones,
+
+      // The jump's posture turned rigidly about its own centre of mass.
+      return GymnasticsFlight.turned(
+        base,
+        GymnasticsFlight.centre(body, model, base),
+        0,
+        total * share,
       );
-      const angle: number = total * share;
-      const turn: IAutoMovieQuaternion = Quaternion.multiply(
-        resolveHumanPosture.heading({ yaw: base.yaw, pitch: angle, roll: 0 }),
-        Quaternion.inverse(
-          resolveHumanPosture.heading({ yaw: base.yaw, pitch: 0, roll: 0 }),
-        ),
-      );
-      const round = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.add(
-          centre,
-          Quaternion.rotateVector(turn, Vector3.subtract(point, centre)),
-        );
-      const limbs: IHumanPosture["limbs"] = {};
-      for (const [limb, goal] of Object.entries(base.limbs) as [
-        keyof IHumanPosture["limbs"],
-        IHumanPosture.IGoal,
-      ][])
-        limbs[limb] =
-          goal.on !== undefined
-            ? goal
-            : {
-                ...goal,
-                point: round(goal.point),
-                bend: round(goal.bend),
-                ...(goal.rotation === undefined
-                  ? {}
-                  : { rotation: Quaternion.multiply(turn, goal.rotation) }),
-              };
-      return {
-        ...base,
-        root: round(base.root),
-        pitch: base.pitch + angle,
-        limbs,
-      };
     };
     return { ...inner, posture };
   }

@@ -24,9 +24,9 @@ import { StrikingBody } from "../striking/StrikingBody";
  * from where the old one holds the root, so the root is continuous. A spoke
  * of two joints (both feet, both hands) bears at their middle.
  *
- * This is the cartwheel's table (`cartwheel`) for any shape, axis and set of
- * spokes; the cartwheel keeps its own copy, a first pass this kernel can
- * replace. Nothing is integrated: how fast the angle grows is the law's.
+ * This is the cartwheel's rolling rule for any shape, axis and set of
+ * spokes, and the cartwheel, the round-off and the handspring all roll on
+ * it. Nothing is integrated: how fast the angle grows is the law's.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the rolling rule, the hand-over of the place, the pair rule and the relation to the cartwheel.
  * @evidence contracts/development/design.md#principled-representation A table of root and bearing spoke by angle, built from the body's own joints, so every body rolls by its own spokes.

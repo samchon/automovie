@@ -25,11 +25,11 @@ import { StrikingBody } from "../striking/StrikingBody";
  * flight is a set of joint angles, a heading and a tip, placed where its
  * centre of mass lies on the drag-free parabola its take-off speed gives.
  *
- * Every posture this kernel places is written by its joints alone, with no
- * limb goal, so turning it rigidly is a change of heading or tip and a move
- * of its root, and the centre of mass read from it is the one the film
- * shows. A posture a law wrote with limb goals is first frozen into the
- * joints its own resolution gives.
+ * A flight posture is written by its joints alone, with no limb goal, so
+ * placing it by its centre moves only its root and the centre read from it
+ * is the one the film shows; a posture a law wrote with limb goals is first
+ * frozen into the joints its own resolution gives. A rigid turn carries
+ * either kind, its world goals going round with its root.
  *
  * The physics is the drag-free projectile's closed form, as the jump's
  * flight uses it: the centre rises and falls under gravity alone,
@@ -160,23 +160,25 @@ export namespace GymnasticsFlight {
   }
 
   /**
-   * A posture of joints with no roll turned rigidly about a world point:
-   * about the vertical by `yaw`, then about the turned body's left axis by
-   * `pitch`, so its heading becomes its own plus `yaw` and its tip its own
-   * plus `pitch`.
+   * A posture with no roll turned rigidly about a world point: about the
+   * vertical by `yaw`, then about the turned body's left axis by `pitch`, so
+   * its heading becomes its own plus `yaw` and its tip its own plus `pitch`.
+   * The root and every world limb goal (its point, its bend hint and its
+   * rotation) go round with it; a goal attached to a bone moves with that
+   * bone already and is kept.
    *
-   * @param posture A posture written by joints, its roll 0.
+   * @param posture The posture, its roll 0.
    * @param pivot The world point that stays.
    * @param yaw Degrees about +Y.
    * @param pitch Degrees of forward tip.
    * @returns The turned posture.
-   * @throws {Error} When the posture has a roll or limb goals, which this turn would not carry.
+   * @throws {Error} When the posture has a roll, which this turn would not carry.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the order of the two turns, what stays and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation With no roll the root rotation is Ry(yaw)Rx(pitch), so the world rotation taking the old heading to the new one is H(new) H(old)⁻¹; the root goes round the pivot by it and every bone follows the root.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two headings, one quaternion, one rotated point.
+   * @evidence contracts/development/common.md#meaningful-documentation States the order of the two turns, what stays, what goes round and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation With no roll the root rotation is Ry(yaw)Rx(pitch), so the world rotation taking the old heading to the new one is H(new) H(old)⁻¹; the root and the world goals go round the pivot by it and every bone follows, one rigid motion of the shown body.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two headings, one quaternion, one rotated point per world place.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A posture the turn cannot carry is refused, never turned in part.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the four limb goals.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
@@ -186,10 +188,8 @@ export namespace GymnasticsFlight {
     yaw: number,
     pitch: number,
   ): IHumanPosture {
-    if (posture.roll !== 0 || Object.keys(posture.limbs).length !== 0)
-      throw new Error(
-        "GymnasticsFlight.turned turns a posture of joints with no roll",
-      );
+    if (Math.abs(posture.roll) > 1e-9)
+      throw new Error("GymnasticsFlight.turned turns a posture with no roll");
     const after: Pick<IHumanPosture, "yaw" | "pitch" | "roll"> = {
       yaw: posture.yaw + yaw,
       pitch: posture.pitch + pitch,
@@ -199,14 +199,28 @@ export namespace GymnasticsFlight {
       resolveHumanPosture.heading(after),
       Quaternion.inverse(resolveHumanPosture.heading(posture)),
     );
-    return {
-      ...posture,
-      ...after,
-      root: Vector3.add(
+    const round = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+      Vector3.add(
         pivot,
-        Quaternion.rotateVector(turn, Vector3.subtract(posture.root, pivot)),
-      ),
-    };
+        Quaternion.rotateVector(turn, Vector3.subtract(point, pivot)),
+      );
+    const limbs: IHumanPosture["limbs"] = {};
+    for (const [limb, goal] of Object.entries(posture.limbs) as [
+      IHumanPosture.Limb,
+      IHumanPosture.IGoal,
+    ][])
+      limbs[limb] =
+        goal.on !== undefined
+          ? goal
+          : {
+              ...goal,
+              point: round(goal.point),
+              bend: round(goal.bend),
+              ...(goal.rotation === undefined
+                ? {}
+                : { rotation: Quaternion.multiply(turn, goal.rotation) }),
+            };
+    return { ...posture, ...after, root: round(posture.root), limbs };
   }
 
   /**

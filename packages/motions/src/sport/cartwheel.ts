@@ -2,7 +2,6 @@ import type { IAutoMovieResolvedBone } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionEvent,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 import type { tags } from "typia";
 
@@ -10,7 +9,6 @@ import type { HumanActionKey } from "../HumanActionKey";
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -19,7 +17,7 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
-import { StrikingBody } from "../striking/StrikingBody";
+import { GymnasticsWheel } from "./GymnasticsWheel";
 
 /**
  * A cartwheel (#3377): the body turns once about its front-to-back axis,
@@ -93,22 +91,9 @@ export namespace cartwheel {
     seconds?: number & tags.ExclusiveMinimum<0>;
   }
 
-  /** One row of the wheel's table. */
-  interface IRow {
-    /** The root, world metres. */
-    root: IAutoMovieVector3;
-
-    /** The joint that bears. */
-    bears: AutoMovieHumanoidBone;
-  }
-
   /** The joints a wheel may bear on. */
-  const SPOKES: readonly AutoMovieHumanoidBone[] = [
-    "leftFoot",
-    "rightFoot",
-    "leftHand",
-    "rightHand",
-  ];
+  const SPOKES: readonly ("leftFoot" | "rightFoot" | "leftHand" | "rightHand")[] =
+    ["leftFoot", "rightFoot", "leftHand", "rightHand"];
 
   /**
    * Plan a cartwheel.
@@ -122,7 +107,7 @@ export namespace cartwheel {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The shape by angle, the table, the posture by time, the supports from the table's runs.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The final posture is returned with no roll, which is the same body as a whole turn, so the next action does not unwind it.
    * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics per table row, 73 rows per plan, and one per evaluated second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the exercise keys' blend and pose and the standing plan.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the exercise keys' blend and pose, the standing plan and the gymnastic wheel's table (GymnasticsWheel), which this law's rolling rule became.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the table.
    */
   export function plan(
@@ -157,53 +142,28 @@ export namespace cartwheel {
       roll: sign * angle,
     });
 
-    // The height each spoke's joint has when it bears: an ankle's when the
-    // body stands on it, a wrist's over a laid palm.
+    // The spokes, each bearing at the height its joint has when it bears:
+    // an ankle's when the body stands on it, a wrist's over a laid palm.
     const entered: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       poseBones(body, context.entry.pose);
-    const laid: number = AutoMovieMotionHumanPlaced.wrist(body, "left", {
-      point: { x: 0, y: 0, z: 0 },
-      facing: { x: 0, y: -1, z: 0 },
-      forward: { x: 0, y: 0, z: 1 },
-    }).y;
-    const bearing = (bone: AutoMovieHumanoidBone): number =>
-      bone.endsWith("Hand") ? laid : entered.get(bone)!.worldPosition.y;
-
-    const rows: IRow[] = [];
-    let place: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-    for (let angle: number = 0; angle <= 360; angle += STEP) {
-      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        StrikingBody.trunk(body, shaped(angle));
-      const at = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
-        bones.get(bone)!.worldPosition;
-      let bears: AutoMovieHumanoidBone = SPOKES[0]!;
-      for (const bone of SPOKES)
-        if (at(bone).y - bearing(bone) < at(bears).y - bearing(bears))
-          bears = bone;
-      const before: IRow | undefined = rows.at(-1);
-      if (before === undefined)
-        place = {
-          x: standing.root.x + at(bears).x,
-          y: 0,
-          z: standing.root.z + at(bears).z,
-        };
-      else if (before.bears !== bears)
-        // Both spokes are down: the new one takes its place from where the
-        // old one holds the root.
-        place = {
-          x: place.x - at(before.bears).x + at(bears).x,
-          y: 0,
-          z: place.z - at(before.bears).z + at(bears).z,
-        };
-      rows.push({
-        root: {
-          x: place.x - at(bears).x,
-          y: bearing(bears) - at(bears).y,
-          z: place.z - at(bears).z,
-        },
-        bears,
-      });
-    }
+    const laid: number = GymnasticsWheel.laid(body);
+    const spokes: GymnasticsWheel.ISpoke[] = SPOKES.map(
+      (bone: (typeof SPOKES)[number]): GymnasticsWheel.ISpoke => ({
+        bones: [bone],
+        height: bone.endsWith("Hand")
+          ? laid
+          : entered.get(bone)!.worldPosition.y,
+        support: { kind: "ground" },
+      }),
+    );
+    const wheel: GymnasticsWheel.IWheel = GymnasticsWheel.roll({
+      body,
+      shaped,
+      spokes,
+      start: standing.root,
+      until: 360,
+      step: STEP,
+    });
 
     // The seconds at which the turn reaches an angle.
     const when = (angle: number): number => {
@@ -216,20 +176,11 @@ export namespace cartwheel {
       }
       return ((low + high) / 2) * duration;
     };
-    const contacts: IHumanContactWindow[] = [];
-    rows.forEach((row: IRow, index: number): void => {
-      const share: number = when(index * STEP) / duration;
-      const open: IHumanContactWindow | undefined = contacts.at(-1);
-      if (open !== undefined && open.part === row.bears) open.to = share;
-      else
-        contacts.push({
-          part: row.bears as IHumanContactWindow["part"],
-          kind: "plant",
-          from: share,
-          to: share,
-          support: { kind: "ground" },
-        });
-    });
+    const contacts: IHumanContactWindow[] = GymnasticsWheel.contacts(
+      wheel,
+      spokes,
+      (angle: number): number => when(angle) / duration,
+    );
     const first = (suffix: string, after: number): number =>
       contacts.find(
         (window: IHumanContactWindow, index: number): boolean =>
@@ -255,20 +206,10 @@ export namespace cartwheel {
       contacts,
       contact: when(180),
       posture: (seconds: number): IHumanPosture => {
-        if (seconds >= duration) return { ...shaped(0), root: rows.at(-1)!.root };
+        if (seconds >= duration)
+          return { ...shaped(0), root: wheel.rows.at(-1)!.root };
         const angle: number = 360 * ease(seconds / duration);
-        const index: number = Math.min(rows.length - 2, Math.floor(angle / STEP));
-        const a: IAutoMovieVector3 = rows[index]!.root;
-        const b: IAutoMovieVector3 = rows[index + 1]!.root;
-        const u: number = angle / STEP - index;
-        return {
-          ...shaped(angle),
-          root: {
-            x: a.x + (b.x - a.x) * u,
-            y: a.y + (b.y - a.y) * u,
-            z: a.z + (b.z - a.z) * u,
-          },
-        };
+        return { ...shaped(angle), root: wheel.root(angle) };
       },
     };
   }
