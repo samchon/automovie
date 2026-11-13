@@ -1675,6 +1675,15 @@ namespace FamilyConicBody {
         // armpit, the shoulders' tops, under the chin, the lip's corners, the ear's root and the lids, 91 of 885 sections; skipped, the face had
         // no section from 750 to 830 mm.
         const loop: C.P[] | null = part.skin === undefined ? cutLoop : (starred?.points ?? (part.folded === "hull" && cutLoop !== null ? R.hull(cutLoop) : null));
+        // `--seeds` with `--seed-stations=<s>,<s>...`: at those stations, the outer-skin reading and the hull along the front and back
+        // median rays (phases 0 and pi), how many rays fold, and which of the two the fitted section is.
+        const seedStations: number[] = (process.argv.find((a: string): boolean => a.startsWith("--seed-stations="))?.slice("--seed-stations=".length) ?? "").split(",").filter((x: string): boolean => x.length > 0).map(Number);
+        if (process.argv.includes("--seeds") && cutLoop !== null && seedStations.some((x: number): boolean => Math.abs(x - s) < 0.26)) {
+          const outer: { points: C.P[]; folds: number } | null = X.star(cutLoop, SKIN_RAYS, "outer");
+          const hull: C.P[] = R.hull(cutLoop);
+          const along = (points: readonly C.P[] | undefined, phi: number): string => (points === undefined ? "-" : C.radius(points, phi).toFixed(1));
+          process.stderr.write(`station ${s}: outer reading ${outer === null ? "none" : `folds ${outer.folds}`}; front median (phase 0) outer ${along(outer?.points, 0)} hull ${along(hull, 0)}; back median (phase pi) outer ${along(outer?.points, Math.PI)} hull ${along(hull, Math.PI)}; fitted as ${starred !== null ? "the outer reading" : loop === null ? "nothing" : "its hull"}\n`);
+        }
         if (loop === null) skipped.push(s);
         else if (part.skin !== undefined) {
           // Fitted to the skin itself: its concavities are the wall's own inward arcs, between inflection anchors (`inflected`). A guided

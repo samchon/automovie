@@ -470,6 +470,28 @@ export namespace FamilyConicFit {
         });
       }
     }
+    // `--seeds` with `--seed-stations=<s>,...`: at each listed station, the held lines' chain and the nearest fitting section's own seed,
+    // each anchor by its chain index, layout anchor and kind at its chart point, and the chain's refusal (`AutoMovieViewChain.of`).
+    const listed: number[] = (process.argv.find((a: string): boolean => a.startsWith("--seed-stations="))?.slice("--seed-stations=".length) ?? "").split(",").filter((x: string): boolean => x.length > 0).map(Number);
+    if (process.argv.includes("--seeds") && listed.length > 0) {
+      const K: number = layout.anchors.length;
+      const describe = (t: number[]): string => {
+        const points = C.resolve(t, layout).input.points;
+        return points.map((p, j: number): string => {
+          const k: number = j < K ? j : K - 2 - (j - K);
+          const anchor = layout.anchors[k]!;
+          return `${j}=a${k}${anchor.kind}${anchor.kind === "f" ? ":" + (anchor.feature ?? "") : anchor.mid === true ? ":mid" : ""}(${p[0]!.toFixed(1)},${p[1]!.toFixed(1)})`;
+        }).join(" ");
+      };
+      for (const s of listed) {
+        const d: number = Math.max(0, Math.min(dense.length - 1, Math.round((s - knots[0]!) / DENSE_MM)));
+        const t: number[] = theta(Y, dense[d]!);
+        process.stderr.write(`held lines at ${s}: ${C.chain(t, layout).fault ?? "admitted"}\n  ${describe(t)}\n`);
+        const i: number = train.reduce((b: number, row: IRow, j: number): number => (Math.abs(row.s - s) < Math.abs(train[b]!.s - s) ? j : b), 0);
+        const own: number[] = seeds[i]!;
+        process.stderr.write(`own seed at ${train[i]!.s}: ${C.chain(own, layout).fault ?? "admitted"}\n  ${describe(own)}\n`);
+      }
+    }
     if (process.argv.includes("--seeds")) {
       const refused: string[] = dense.map((b: number[], d: number): string => { const fault: string | null = C.chain(theta(Y, b), layout).fault; return fault === null ? "" : (knots[0]! + d * DENSE_MM).toFixed(2) + ": " + fault.slice(0, 120); }).filter((x: string): boolean => x.length > 0);
       process.stderr.write("lines held: " + refused.length + " of " + dense.length + " stations refused" + (refused.length === 0 ? "" : "; first " + refused[0] + "; last " + refused.at(-1)) + "\n");
