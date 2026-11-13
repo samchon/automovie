@@ -988,10 +988,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/OmitIAttacknever"
     },
     "thumbsDown": {
-      "$ref": "#/components/schemas/OmitIParamskindshape"
+      "$ref": "#/components/schemas/OmitIParamsaimkindshape"
     },
     "thumbsUp": {
-      "$ref": "#/components/schemas/OmitIParamskindshapeturn"
+      "$ref": "#/components/schemas/OmitIParamsaimkindshapeturn"
     },
     "tiptoe": {
       "$ref": "#/components/schemas/HumanGait.IParams"
@@ -1516,10 +1516,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "$ref": "#/components/schemas/OmitIParamskindshape"
           },
           "thumbsDown": {
-            "$ref": "#/components/schemas/OmitIParamskindshape"
+            "$ref": "#/components/schemas/OmitIParamsaimkindshape"
           },
           "thumbsUp": {
-            "$ref": "#/components/schemas/OmitIParamskindshapeturn"
+            "$ref": "#/components/schemas/OmitIParamsaimkindshapeturn"
           },
           "victorySign": {
             "$ref": "#/components/schemas/OmitIParamskindshape"
@@ -1757,6 +1757,37 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "turn": {
             "type": "number",
             "description": "Degrees the moving hands are turned in the plane of their own palms from the gesture's attitude, the thumb's side rising for a positive turn (provisional sign, held by `test_human_motion_emblem_thumbs`): a quarter turn stands a held-out fist's thumb up, the opposite one points it down. No turn when absent."
+          },
+          "aim": {
+            "type": "object",
+            "properties": {
+              "digit": {
+                "oneOf": [
+                  {
+                    "const": "forefinger"
+                  },
+                  {
+                    "const": "thumb"
+                  }
+                ]
+              },
+              "toward": {
+                "oneOf": [
+                  {
+                    "const": "down"
+                  },
+                  {
+                    "const": "up"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "digit",
+              "toward"
+            ],
+            "additionalProperties": false,
+            "description": "A digit of `shape` aimed straight at the world's up or down: the moving hands turn by the least rotation from the gesture's attitude, after `turn`, that points the digit's own direction (`HumanHandShape.digit`) there, since a straight digit does not lie along the hand's axes (a thumbs up's thumb stands about 35 degrees off the knuckle line). Requires `shape`; no aim when absent."
           },
           "manner": {
             "$ref": "#/components/schemas/PickIMannerproficiencyvariation",
@@ -2690,6 +2721,37 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             ],
             "description": "A hand shape with a meaning of its own, taken by the moving hands in place of the gesture's working shape: a thumbs up, an OK ring, a V, a count; the gesture's own shape when absent."
           },
+          "aim": {
+            "type": "object",
+            "properties": {
+              "digit": {
+                "oneOf": [
+                  {
+                    "const": "forefinger"
+                  },
+                  {
+                    "const": "thumb"
+                  }
+                ]
+              },
+              "toward": {
+                "oneOf": [
+                  {
+                    "const": "down"
+                  },
+                  {
+                    "const": "up"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "digit",
+              "toward"
+            ],
+            "additionalProperties": false,
+            "description": "A digit of `shape` aimed straight at the world's up or down: the moving hands turn by the least rotation from the gesture's attitude, after `turn`, that points the digit's own direction (`HumanHandShape.digit`) there, since a straight digit does not lie along the hand's axes (a thumbs up's thumb stands about 35 degrees off the knuckle line). Requires `shape`; no aim when absent."
+          },
           "manner": {
             "$ref": "#/components/schemas/PickIMannerproficiencyvariation",
             "description": "How much repeats of the gesture differ: `variation` in [0, 1] scales\nthe spread of the preparation's length and of where a `wave` or a\n`stopPalm` holds the hand within its named place, and `proficiency`\nreplaces the performer's skill for those spreads. Absent or 0, every\nrepeat is the same."
@@ -3318,7 +3380,217 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "required": [],
         "additionalProperties": false
       },
-      "OmitIParamskindshapeturn": {
+      "OmitIParamsaimkindshape": {
+        "type": "object",
+        "properties": {
+          "side": {
+            "oneOf": [
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The hand of a one-hand gesture; `right` when absent."
+          },
+          "target": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "person",
+                    "description": "Discriminator."
+                  },
+                  "subject": {
+                    "type": "string",
+                    "description": "The other subject's id."
+                  },
+                  "region": {
+                    "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                    "description": "The region aimed at."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "subject",
+                  "region"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "self",
+                    "description": "Discriminator."
+                  },
+                  "region": {
+                    "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                    "description": "The region of the performer's own body."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "region"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "prop",
+                    "description": "Discriminator."
+                  },
+                  "subject": {
+                    "type": "string",
+                    "description": "The prop subject's id."
+                  },
+                  "point": {
+                    "type": "string",
+                    "description": "The prop's named point."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "subject",
+                  "point"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "point",
+                    "description": "Discriminator."
+                  },
+                  "at": {
+                    "$ref": "#/components/schemas/IAutoMovieVector3",
+                    "description": "The point, metres."
+                  },
+                  "frame": {
+                    "oneOf": [
+                      {
+                        "const": "performer"
+                      },
+                      {
+                        "const": "world"
+                      }
+                    ],
+                    "description": "The frame the point is stated in."
+                  },
+                  "normal": {
+                    "$ref": "#/components/schemas/IAutoMovieVector3",
+                    "description": "The outward direction of the surface at the point, in the same frame; any non-zero vector. Faces the performer when absent."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "at",
+                  "frame"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "none",
+                    "description": "Discriminator."
+                  },
+                  "line": {
+                    "oneOf": [
+                      {
+                        "const": "high"
+                      },
+                      {
+                        "const": "low"
+                      },
+                      {
+                        "const": "middle"
+                      }
+                    ],
+                    "description": "The virtual opponent's height line; `middle` when absent."
+                  },
+                  "range": {
+                    "type": "number",
+                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "description": "What to point at; required by `point`."
+          },
+          "region": {
+            "oneOf": [
+              {
+                "const": "chin"
+              },
+              {
+                "const": "earLeft"
+              },
+              {
+                "const": "earRight"
+              },
+              {
+                "const": "forehead"
+              },
+              {
+                "const": "mouth"
+              },
+              {
+                "const": "nape"
+              },
+              {
+                "const": "noseBridge"
+              },
+              {
+                "const": "templeLeft"
+              },
+              {
+                "const": "templeRight"
+              }
+            ],
+            "description": "The face region a `touchFace` reaches; `forehead` when absent."
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Stroke repetitions (waves, nods, claps); the gesture's own count when absent."
+          },
+          "hold": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Post-stroke hold, seconds; 0 when absent."
+          },
+          "depth": {
+            "type": "number",
+            "description": "A bow's depth, degrees in (0, 60], refused outside that range only for a bow, so it carries no schema bound; 30 when absent."
+          },
+          "effort": {
+            "$ref": "#/components/schemas/HumanEffort.IEffort",
+            "description": "Movement quality."
+          },
+          "turn": {
+            "type": "number",
+            "description": "Degrees the moving hands are turned in the plane of their own palms from the gesture's attitude, the thumb's side rising for a positive turn (provisional sign, held by `test_human_motion_emblem_thumbs`): a quarter turn stands a held-out fist's thumb up, the opposite one points it down. No turn when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/PickIMannerproficiencyvariation",
+            "description": "How much repeats of the gesture differ: `variation` in [0, 1] scales\nthe spread of the preparation's length and of where a `wave` or a\n`stopPalm` holds the hand within its named place, and `proficiency`\nreplaces the performer's skill for those spreads. Absent or 0, every\nrepeat is the same."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "OmitIParamsaimkindshapeturn": {
         "type": "object",
         "properties": {
           "side": {
@@ -4392,6 +4664,37 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               }
             ],
             "description": "A hand shape with a meaning of its own, taken by the moving hands in place of the gesture's working shape: a thumbs up, an OK ring, a V, a count; the gesture's own shape when absent."
+          },
+          "aim": {
+            "type": "object",
+            "properties": {
+              "digit": {
+                "oneOf": [
+                  {
+                    "const": "forefinger"
+                  },
+                  {
+                    "const": "thumb"
+                  }
+                ]
+              },
+              "toward": {
+                "oneOf": [
+                  {
+                    "const": "down"
+                  },
+                  {
+                    "const": "up"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "digit",
+              "toward"
+            ],
+            "additionalProperties": false,
+            "description": "A digit of `shape` aimed straight at the world's up or down: the moving hands turn by the least rotation from the gesture's attitude, after `turn`, that points the digit's own direction (`HumanHandShape.digit`) there, since a straight digit does not lie along the hand's axes (a thumbs up's thumb stands about 35 degrees off the knuckle line). Requires `shape`; no aim when absent."
           },
           "manner": {
             "$ref": "#/components/schemas/PickIMannerproficiencyvariation",
@@ -9635,6 +9938,37 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               }
             ],
             "description": "A hand shape with a meaning of its own, taken by the moving hands in place of the gesture's working shape: a thumbs up, an OK ring, a V, a count; the gesture's own shape when absent."
+          },
+          "aim": {
+            "type": "object",
+            "properties": {
+              "digit": {
+                "oneOf": [
+                  {
+                    "const": "forefinger"
+                  },
+                  {
+                    "const": "thumb"
+                  }
+                ]
+              },
+              "toward": {
+                "oneOf": [
+                  {
+                    "const": "down"
+                  },
+                  {
+                    "const": "up"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "digit",
+              "toward"
+            ],
+            "additionalProperties": false,
+            "description": "A digit of `shape` aimed straight at the world's up or down: the moving hands turn by the least rotation from the gesture's attitude, after `turn`, that points the digit's own direction (`HumanHandShape.digit`) there, since a straight digit does not lie along the hand's axes (a thumbs up's thumb stands about 35 degrees off the knuckle line). Requires `shape`; no aim when absent."
           },
           "manner": {
             "$ref": "#/components/schemas/PickIMannerproficiencyvariation",
@@ -16599,6 +16933,37 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             ],
             "description": "A hand shape with a meaning of its own, taken by the moving hands in place of the gesture's working shape: a thumbs up, an OK ring, a V, a count; the gesture's own shape when absent."
           },
+          "aim": {
+            "type": "object",
+            "properties": {
+              "digit": {
+                "oneOf": [
+                  {
+                    "const": "forefinger"
+                  },
+                  {
+                    "const": "thumb"
+                  }
+                ]
+              },
+              "toward": {
+                "oneOf": [
+                  {
+                    "const": "down"
+                  },
+                  {
+                    "const": "up"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "digit",
+              "toward"
+            ],
+            "additionalProperties": false,
+            "description": "A digit of `shape` aimed straight at the world's up or down: the moving hands turn by the least rotation from the gesture's attitude, after `turn`, that points the digit's own direction (`HumanHandShape.digit`) there, since a straight digit does not lie along the hand's axes (a thumbs up's thumb stands about 35 degrees off the knuckle line). Requires `shape`; no aim when absent."
+          },
           "manner": {
             "$ref": "#/components/schemas/PickIMannerproficiencyvariation",
             "description": "How much repeats of the gesture differ: `variation` in [0, 1] scales\nthe spread of the preparation's length and of where a `wave` or a\n`stopPalm` holds the hand within its named place, and `proficiency`\nreplaces the performer's skill for those spreads. Absent or 0, every\nrepeat is the same."
@@ -19231,6 +19596,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "upright": {
             "type": "boolean",
             "description": "`true` when the held tool stands on the world's up at the face, as a vessel does, instead of lying on the region."
+          },
+          "level": {
+            "type": "boolean",
+            "description": "`true` when the region's normal is read level, so an effector laid along `up` stands on the world's up instead of on the region's slope: a forefinger held upright across the lips, whose surface faces down as well as forward. The region's own normal when absent."
           },
           "point": {
             "type": "string",

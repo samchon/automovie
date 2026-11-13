@@ -7,6 +7,7 @@ import {
   HumanChain,
   HumanEmblem,
   HumanPerformance,
+  HumanRefusal,
   type HumanSegment,
   HumanSignature,
   type IHumanActionLaw,
@@ -29,12 +30,14 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 2. `thumbsDown`: it points within 30 degrees of straight down.
  * 3. In both the forefinger is folded: its last joint lies nearer the wrist
  *    than a straight finger's would, under 0.7 of the hand's length.
+ * 4. A gesture that aims a digit with no emblem shape to take it from is
+ *    refused with a `parameter` refusal on `aim`.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Registers the two rows, performs each through the public chain and reads displayed joint centres; a thumb that points sideways, the two rows showing the same hand, or an open hand fails.
  * @evidence contracts/development/testing.md#independent-expectations Up and down are what the emblems mean; the 30 degrees and the 0.7 are provisional and stated as such.
  * @evidence contracts/development/testing.md#distinguishing-cases The two opposite rows on two statures; the other emblems' forms are `test_human_motion_emblem_signatures`'s.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds four short performances, each read at one instant; it runs locally and wherever CI runs the human motion tests.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 3 scenarios with their bounds.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 4 scenarios with their bounds.
  */
 export function test_human_motion_emblem_thumbs(): void {
   // How far the shown hand turns from the rotation its arm goal asks, and
@@ -173,5 +176,34 @@ export function test_human_motion_emblem_thumbs(): void {
         );
       }
   }
+  // 4. An aim with no shape to take the digit from.
+  let aimed: string = "accepted";
+  try {
+    new HumanPerformance({
+      seed: "thumbs",
+      performers: [
+        {
+          subject: "a",
+          body: motionHumanBody("m-average"),
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+      ],
+      composition: HumanChain.subject("a").act("gesture", {
+        kind: "stopPalm",
+        aim: { digit: "thumb", toward: "up" },
+      }).node,
+    });
+  } catch (error) {
+    aimed =
+      error instanceof HumanRefusal
+        ? `${error.kind} ${error.axis}`
+        : `not a refusal: ${String(error)}`;
+  }
+  if (aimed !== "parameter aim")
+    complaints.push(
+      `an aim with no shape: ${aimed}, a parameter refusal on aim expected`,
+    );
   TestValidator.equals("thumbs up and thumbs down", complaints, []);
 }

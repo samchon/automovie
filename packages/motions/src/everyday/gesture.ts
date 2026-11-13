@@ -3,6 +3,7 @@ import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionTarget,
   IAutoMoviePose,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import type { tags } from "typia";
@@ -141,6 +142,9 @@ export namespace gesture {
     /** A hand shape with a meaning of its own, taken by the moving hands in place of the gesture's working shape: a thumbs up, an OK ring, a V, a count; the gesture's own shape when absent. */
     shape?: HumanHandShape.Emblem;
 
+    /** A digit of `shape` aimed straight at the world's up or down: the moving hands turn by the least rotation from the gesture's attitude, after `turn`, that points the digit's own direction (`HumanHandShape.digit`) there, since a straight digit does not lie along the hand's axes (a thumbs up's thumb stands about 35 degrees off the knuckle line). Requires `shape`; no aim when absent. */
+    aim?: { digit: "thumb" | "forefinger"; toward: "up" | "down" };
+
     /**
      * How much repeats of the gesture differ: `variation` in [0, 1] scales
      * the spread of the preparation's length and of where a `wave` or a
@@ -189,6 +193,15 @@ export namespace gesture {
         value: undefined,
         reason: "Pointing needs a target",
         fix: "give the point gesture a target",
+      });
+    if (p.aim !== undefined && p.shape === undefined)
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "aim",
+        value: p.aim,
+        reason:
+          "an aim points a digit of the hand's emblem shape, and no shape is given",
+        fix: "give the gesture a shape whose digit is aimed, or leave out aim",
       });
 
     const sides: HumanHand.Side[] = ((): HumanHand.Side[] => {
@@ -254,9 +267,18 @@ export namespace gesture {
     const rest: Partial<
       Record<HumanHand.Side, AutoMovieMotionHumanArm.IAngles>
     > = {};
+    // The aimed digit's own direction in each moving hand's frame, read once.
+    const digits: Partial<Record<HumanHand.Side, IAutoMovieVector3>> = {};
     for (const side of sides) {
       begin[side] = AutoMovieMotionHumanArm.angles(context.entry.pose, side);
       rest[side] = AutoMovieMotionHumanArm.angles(restPose, side);
+      if (p.aim !== undefined && p.shape !== undefined)
+        digits[side] = HumanHandShape.digit(
+          body,
+          side,
+          HumanHandShape.emblem(side, p.shape),
+          p.aim.digit === "thumb" ? "Thumb" : "Index",
+        );
     }
     // The farthest a hand travels from the entry to its stroke's start.
     const span = (): number => {
@@ -401,23 +423,29 @@ export namespace gesture {
             cycles,
             input(posture, t, side),
           );
+          // A turn of the hand in its own palm's plane, mirrored for the
+          // left hand, over the stroke's attitude; then the least rotation
+          // that points an aimed digit at the world's up or down.
+          const turned: IAutoMovieQuaternion =
+            p.turn === undefined
+              ? goal.rotation
+              : Quaternion.multiply(
+                  goal.rotation,
+                  Quaternion.fromAxisAngle(
+                    { x: 0, y: -1, z: 0 },
+                    (side === "left" ? -1 : 1) * p.turn,
+                  ),
+                );
+          const digit: IAutoMovieVector3 | undefined = digits[side];
           requests.push({
             side,
             surface: goal.surface,
             shape: goal.shape,
             point: goal.point,
-            // A turn of the hand in its own palm's plane, mirrored for the
-            // left hand, over the stroke's attitude.
             rotation:
-              p.turn === undefined
-                ? goal.rotation
-                : Quaternion.multiply(
-                    goal.rotation,
-                    Quaternion.fromAxisAngle(
-                      { x: 0, y: -1, z: 0 },
-                      (side === "left" ? -1 : 1) * p.turn,
-                    ),
-                  ),
+              digit === undefined || p.aim === undefined
+                ? turned
+                : HumanHandShape.aim(turned, digit, p.aim.toward),
             bend:
               goal.elbow === undefined
                 ? AutoMovieMotionHumanBend.hang(

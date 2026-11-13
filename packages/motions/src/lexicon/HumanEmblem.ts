@@ -38,6 +38,9 @@ export namespace HumanEmblem {
       count: 1,
       hold: 1,
       tangent: "up",
+      // The lips face down as well as forward, so a finger laid up their
+      // slope stood 16.6 to 18.1 degrees off upright; it stands upright.
+      level: true,
       head: 0,
       at: "atLips",
     },
@@ -120,17 +123,19 @@ export namespace HumanEmblem {
     kind: "shrug",
   });
 
-  /** A thumbs up: the fist held out before the shoulder, turned a quarter in its palm's plane so the straight thumb stands up. */
+  /** A thumbs up: the fist held out before the shoulder, turned a quarter in its palm's plane and then aimed so the straight thumb itself stands up (it lies about 35 degrees off the knuckle line, so the quarter turn alone left it 42 degrees off). */
   export const thumbsUp = HumanActionRow.of("thumbsUp", gesture, {
     kind: "stopPalm",
     shape: "thumbUp",
     turn: 90,
+    aim: { digit: "thumb", toward: "up" },
   });
 
-  /** A thumbs down: the fist ahead of the shoulder with the forearm turned over and the elbow raised outward, the straight thumb pointing down. */
+  /** A thumbs down: the fist ahead of the shoulder with the forearm turned over and the elbow raised outward, aimed so the straight thumb itself points down. */
   export const thumbsDown = HumanActionRow.of("thumbsDown", gesture, {
     kind: "thumbsDown",
     shape: "thumbUp",
+    aim: { digit: "thumb", toward: "down" },
   });
 
   /** The OK sign: the forefinger and thumb in a ring, held out (first pass, provisional attitude). */

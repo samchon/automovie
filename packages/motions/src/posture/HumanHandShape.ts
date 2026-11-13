@@ -1,17 +1,31 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import {
+  type IAutoMovieResolvedBone,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
+import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanHand } from "./HumanHand";
+import { poseBones } from "./poseBones";
 
 /**
  * The finger joints of a named hand shape: the angles `HumanHand.Shape`
  * stands for on every finger and thumb segment of one hand.
  *
  * The angles themselves are stated with their sources in `HumanHand`'s own
- * document; this module holds only their table.
+ * document; this module holds their tables and the direction a digit takes
+ * under them.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the module gives and where the angles are sourced.
  * @evidence contracts/development/design.md#principled-representation One function from a closed shape name to clinical flexion per finger segment.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The table alone; `HumanHand` owns the shape names and calls it as its `shape`.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The tables, and the direction a digit takes under them (`digit`); and the least turn that aims a digit (`aim`); `HumanHand` owns the shape names and calls the table as its `shape`.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No hand is special: the side only prefixes the bone names.
  */
 export namespace HumanHandShape {
@@ -187,5 +201,122 @@ export namespace HumanHandShape {
     out[`${side}ThumbProximal` as AutoMovieHumanoidBone] = [thumb[0], 0, 0];
     out[`${side}ThumbDistal` as AutoMovieHumanoidBone] = [thumb[1], 0, 0];
     return out;
+  }
+
+  /**
+   * A digit's own direction under a set of finger angles: from its first
+   * joint (the knuckle of a finger, the thumb's middle joint) to its last,
+   * in the hand's rest frame. A shape's straight digit does not lie along
+   * the hand's own axes: the forefinger leans off the knuckle line toward
+   * the thumb, and a straight thumb stands about 35 degrees off it, so a
+   * request that means a digit to point somewhere aims this direction, not
+   * an axis of the hand.
+   *
+   * @param body The body, whose rig places the digit's joints.
+   * @param side The hand.
+   * @param joints The finger angles, clinical degrees by bone; a bone left out stands at rest.
+   * @param name The digit: the thumb or the forefinger.
+   * @returns The unit direction.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is measured, from which joint to which, the frame and why it differs from the hand's axes.
+   * @evidence contracts/development/implementation.md#principled-implementation The rig's own forward kinematics of the hand at rest with the angles applied, read back into the hand's frame, so the direction is the one the displayed digit takes.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose, one resolve, one difference and one rotation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The joints are the ones the verdicts read a digit by, never a guessed axis.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One forward-kinematics pass.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `poseBones`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function digit(
+    body: IHumanBody,
+    side: HumanHand.Side,
+    joints: Partial<
+      Record<AutoMovieHumanoidBone, readonly [number, number, number]>
+    >,
+    name: "Thumb" | "Index",
+  ): IAutoMovieVector3 {
+    const pose: IAutoMoviePose = {
+      skeleton: body.skeleton.id,
+      root: null,
+      joints: (
+        Object.entries(joints) as [
+          AutoMovieHumanoidBone,
+          readonly [number, number, number],
+        ][]
+      ).map(
+        ([bone, a]: [
+          AutoMovieHumanoidBone,
+          readonly [number, number, number],
+        ]): IAutoMovieJointPose => ({
+          bone,
+          flexion: a[0],
+          abduction: a[1],
+          twist: a[2],
+        }),
+      ),
+    };
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      pose,
+    );
+    const at = (segment: "Proximal" | "Distal"): IAutoMovieVector3 =>
+      bones.get(`${side}${name}${segment}` as AutoMovieHumanoidBone)!
+        .worldPosition;
+    return Vector3.normalize(
+      Quaternion.rotateVector(
+        Quaternion.inverse(bones.get(`${side}Hand`)!.worldRotation),
+        Vector3.subtract(at("Distal"), at("Proximal")),
+      ),
+    );
+  }
+
+  /**
+   * A hand's world rotation turned by the least rotation that points one of
+   * its digits straight at the world's up or down: the digit's own
+   * direction (`digit`) carried by the rotation is turned onto the vertical
+   * about their common normal, so the hand keeps as much of its attitude as
+   * the aim allows.
+   *
+   * @param rotation The hand's world rotation from rest.
+   * @param digit The digit's own direction in the hand's rest frame (`digit`).
+   * @param toward Up or down.
+   * @returns The turned rotation.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is turned, onto what, and what is kept.
+   * @evidence contracts/development/implementation.md#principled-implementation The shortest arc between the digit's world direction and the vertical, applied before the hand's rotation; opposite directions take half a turn about a direction across the digit.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One carried direction, one arc and one product.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A digit already on the vertical keeps the rotation unchanged.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function aim(
+    rotation: IAutoMovieQuaternion,
+    digit: IAutoMovieVector3,
+    toward: "up" | "down",
+  ): IAutoMovieQuaternion {
+    const from: IAutoMovieVector3 = Vector3.normalize(
+      Quaternion.rotateVector(rotation, digit),
+    );
+    const to: IAutoMovieVector3 = { x: 0, y: toward === "up" ? 1 : -1, z: 0 };
+    const axis: IAutoMovieVector3 = Vector3.cross(from, to);
+    const cos: number = Math.max(-1, Math.min(1, Vector3.dot(from, to)));
+    const arc: IAutoMovieQuaternion =
+      Vector3.length(axis) > 1e-9
+        ? Quaternion.fromAxisAngle(
+            axis,
+            (Math.atan2(Vector3.length(axis), cos) * 180) / Math.PI,
+          )
+        : cos > 0
+          ? Quaternion.identity()
+          : Quaternion.fromAxisAngle(
+              Vector3.cross(
+                from,
+                Math.abs(from.x) < 0.9
+                  ? { x: 1, y: 0, z: 0 }
+                  : { x: 0, y: 0, z: 1 },
+              ),
+              180,
+            );
+    return Quaternion.normalize(Quaternion.multiply(arc, rotation));
   }
 }

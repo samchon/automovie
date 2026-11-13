@@ -14,6 +14,7 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHead } from "../compose/AutoMovieMotionHumanHead";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
+import type { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
 import { AutoMovieMotionHumanTouchDrink } from "../compose/AutoMovieMotionHumanTouchDrink";
@@ -243,21 +244,37 @@ export namespace handToFace {
     ];
     const region =
       (side: HumanHand.Side, name: AutoMovieHumanoidRegion | null) =>
-      (posture: IHumanPosture, seconds: number) =>
-        name === null
-          ? handToFaceSheet.of(context, posture, side)
-          : AutoMovieMotionHumanTouch.region(
-              context,
-              { kind: "self", region: name } satisfies AutoMovieMotionTarget,
-              context.start + seconds,
-              posture,
+      (posture: IHumanPosture, seconds: number) => {
+        if (name === null) return handToFaceSheet.of(context, posture, side);
+        const place: Pick<
+          AutoMovieMotionHumanTarget.IPlace,
+          "point" | "normal"
+        > = AutoMovieMotionHumanTouch.region(
+          context,
+          { kind: "self", region: name } satisfies AutoMovieMotionTarget,
+          context.start + seconds,
+          posture,
 
-              // Over a carrier the face travels with the body, so the region
-              // is read on the bones the posture of that instant gives.
-              context.carrier === undefined
-                ? bones
-                : poseBones(body, resolveHumanPosture(body, posture)),
-            );
+          // Over a carrier the face travels with the body, so the region
+          // is read on the bones the posture of that instant gives.
+          context.carrier === undefined
+            ? bones
+            : poseBones(body, resolveHumanPosture(body, posture)),
+        );
+        // A row that stands its effector upright reads the region's normal
+        // level, so its tangent `up` is the world's up.
+        const level: number = Math.hypot(place.normal.x, place.normal.z);
+        return row.level === true && level > 1e-6
+          ? {
+              ...place,
+              normal: {
+                x: place.normal.x / level,
+                y: 0,
+                z: place.normal.z / level,
+              },
+            }
+          : place;
+      };
 
     // The head turns as the hand arrives, or, drinking from a vessel, once
     // the vessel is at the lips: the head tips back with the vessel in the

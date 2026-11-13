@@ -61,6 +61,9 @@ export namespace handToFaceRows {
     /** `true` when the held tool stands on the world's up at the face, as a vessel does, instead of lying on the region. */
     upright?: boolean;
 
+    /** `true` when the region's normal is read level, so an effector laid along `up` stands on the world's up instead of on the region's slope: a forefinger held upright across the lips, whose surface faces down as well as forward. The region's own normal when absent. */
+    level?: boolean;
+
     /** The point of a held prop that meets the region when the task is performed with one (`handToFace.IParams.prop`): a vessel's `lip`, a phone's `screen`; the parameters name it when absent. */
     point?: string;
 
