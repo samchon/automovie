@@ -17,10 +17,10 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "ttsc --noEmit -P tsconfig.executable.json && rimraf lib && ttsc",
+    "build": "rimraf lib && ttsc",
     "evidence": "evidence",
-    "capture": "ttsx --no-plugins --noCheck -P tsconfig.executable.json node_modules/automovie/src/bin.ts capture --module src/executable/subjects.ts",
-    "inspect": "ttsx --no-plugins --noCheck -P tsconfig.executable.json node_modules/automovie/src/bin.ts inspect --module src/executable/subjects.ts"
+    "capture": "ttsx --no-plugins --noCheck node_modules/automovie/src/bin.ts capture --module src/executable/subjects.ts",
+    "inspect": "ttsx --no-plugins --noCheck node_modules/automovie/src/bin.ts inspect --module src/executable/subjects.ts"
   },
   "keywords": [],
   "author": "Samchon",
@@ -32,6 +32,8 @@
   "files": [
     "lib",
     "src",
+    "!lib/executable",
+    "!src/executable",
     "package.json",
     "LICENSE",
     "README.md"

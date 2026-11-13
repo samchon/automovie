@@ -10,6 +10,8 @@
   "files": [
     "lib",
     "src",
+    "!lib/executable",
+    "!src/executable",
     "package.json",
     "LICENSE",
     "README.md"
@@ -27,11 +29,11 @@
     }
   },
   "scripts": {
-    "build": "ttsc --noEmit -P tsconfig.executable.json && rimraf lib && ttsc",
+    "build": "rimraf lib && ttsc",
     "evidence": "evidence",
-    "node:capture": "ttsx --no-plugins --noCheck -P tsconfig.executable.json src/executable/motionCapture.ts",
-    "node:props": "ttsx --no-plugins --noCheck -P tsconfig.executable.json src/executable/motionProps.ts",
-    "node:resolve": "ttsx --no-plugins --noCheck -P tsconfig.executable.json src/executable/motionResolve.ts"
+    "node:capture": "ttsx --no-plugins --noCheck src/executable/motionCapture.ts",
+    "node:props": "ttsx --no-plugins --noCheck src/executable/motionProps.ts",
+    "node:resolve": "ttsx --no-plugins --noCheck src/executable/motionResolve.ts"
   },
   "keywords": [],
   "author": "Samchon",
