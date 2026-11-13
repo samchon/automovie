@@ -19,7 +19,8 @@ import { motionHumanBody } from "./motionHumanBody";
  * actions a screenplay needs (a knock on a door, a turn on the spot, a drink,
  * a wave and a touch from a chair, a phone held while walking, a push that
  * staggers a partner, a chase), written with the vocabulary as it is and
- * performed by the average man with the small woman as partner. A probe that
+ * performed by the average man, with the small woman as partner in the
+ * probes that involve her (the push and the chases). A probe that
  * plans with a clean verdict report is expressible by composition; one that
  * is refused or breaks a bound names what the grammar or a law still lacks.
  * Each probe is its own test (`test_human_motion_composition_probe_<name>`),
@@ -86,13 +87,19 @@ export namespace motionCompositionProbe {
             yaw: 0,
             proficiency: { level: "trained" },
           },
-          {
-            subject: "b",
-            body: b,
-            at: { x: 0, y: 0, z: probe.gap },
-            yaw: name.startsWith("chase") ? 0 : 180,
-            proficiency: { level: "trained" },
-          },
+          // The partner is staged only where the composition involves her,
+          // so a solo probe reads one person's verdicts.
+          ...(probe.partner === true
+            ? [
+                {
+                  subject: "b",
+                  body: b,
+                  at: { x: 0, y: 0, z: probe.gap },
+                  yaw: name.startsWith("chase") ? 0 : 180,
+                  proficiency: { level: "trained" as const },
+                },
+              ]
+            : []),
         ],
         props: [door],
         composition: probe.composition(),
@@ -112,6 +119,9 @@ export namespace motionCompositionProbe {
   interface IProbe {
     /** How far ahead the partner stands, metres. */
     gap: number;
+
+    /** Whether the composition involves the partner, who is staged only then. */
+    partner?: true;
 
     /** Production layers by performer. */
     layers?: Record<string, IHumanLayer[]>;
@@ -209,6 +219,7 @@ export namespace motionCompositionProbe {
       },
       push: {
         gap: 0.75 * reach,
+        partner: true,
         composition: (): HumanChain["node"] =>
           start()
             .touch({ target: chestOfB, kind: "press" }, "push")
@@ -224,6 +235,7 @@ export namespace motionCompositionProbe {
       },
       chaseApproach: {
         gap: 2,
+        partner: true,
         composition: (): HumanChain["node"] =>
           start()
             .approach({ target: chestOfB, pace: "fast" })
@@ -231,6 +243,7 @@ export namespace motionCompositionProbe {
       },
       chaseRun: {
         gap: 2,
+        partner: true,
         composition: (): HumanChain["node"] =>
           start()
             .run({ to: { x: 0, y: 0, z: 5 } })
