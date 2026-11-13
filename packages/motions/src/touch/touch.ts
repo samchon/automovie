@@ -29,8 +29,9 @@ import { HumanColliders } from "../posture/HumanColliders";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { touchPresented } from "./touchPresented";
+import { touchRegion } from "./touchRegion";
+import type { touchSite } from "./touchSite";
 
 /**
  * A touch while standing: one hand, or both, laid on a region of a partner
@@ -89,7 +90,14 @@ export namespace touch {
   export const overlay: boolean = true;
 
   /** Which part of the hand touches. */
-  export type With = "palm" | "fingertips" | "forefinger" | "handBack" | "fist";
+  export type With =
+    | "palm"
+    | "fingertips"
+    | "forefinger"
+    | "handBack"
+    | "fist"
+    | "handEdge"
+    | "heel";
 
   /** Each part's effector. */
   export const EFFECTORS: Readonly<
@@ -108,6 +116,20 @@ export namespace touch {
     },
     handBack: { surface: "handBack", shape: "relaxed" },
     fist: { surface: "fist", shape: "fist" },
+
+    // The little finger's edge of a flat hand, as a chop meets a surface, and
+    // the heel of the palm above the wrist, as a push meets it (first pass:
+    // the offsets are shares of the hand's length from the palm's centre,
+    // provisional; the body's other surfaces, forearm, elbow, knee and the
+    // rest of #3357's set, are not hand effectors and are not staged here).
+    handEdge: {
+      surface: "palm",
+      shape: "flat",
+      tool: { thumb: -0.25 },
+      facing: "-thumb",
+      along: "fingers",
+    },
+    heel: { surface: "palm", shape: "flat", tool: { fingers: -0.3 } },
   };
 
   /**
@@ -134,6 +156,9 @@ export namespace touch {
 
     /** The hand; `right` when absent. */
     side?: HumanHand.Side;
+
+    /** Where on the region the first hand lands (`touchSite`): an offset, a place the seed draws, or the place a rule chooses; the region's own point when absent. */
+    site?: touchSite.ISite;
 
     /** The subject id of the prop that hand holds, whose point touches in place of the hand part: a cigarette's lit end tapped on an ashtray, a pen's tip on a page. No prop when absent. */
     prop?: string;
@@ -173,7 +198,7 @@ export namespace touch {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the count is not a positive whole number, the hold is negative, the region is out of reach, or `prop` names a prop the hand does not hold or a point it lacks.
+   * @throws {HumanRefusal} When the count is not a positive whole number, the hold is negative, a site's radius is negative, the region is out of reach, or `prop` names a prop the hand does not hold or a point it lacks.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives the timing and the sources.
    * @evidence contracts/development/implementation.md#principled-implementation A phrase clock from the free-space transport of the farther hand, the kind's repetitions and the hold, with one touch stroke per hand over the base it was entered on or its carrier; a region the arm does not reach as it stands is closed by the girdle, the heels and the lean of `AutoMovieMotionHumanTouchStance`.
@@ -225,34 +250,15 @@ export namespace touch {
             ],
           ]),
     ];
-    // A leg's region moves with the hips once the trunk leans, so with `legs`
-    // it is read on the legs the posture so far places; otherwise on the
-    // entry's bones.
-    const placed =
-      (target: AutoMovieMotionTarget, legs: boolean) =>
-      (posture: IHumanPosture, seconds: number) =>
-        AutoMovieMotionHumanTouch.region(
-          context,
-          target,
-          context.start + seconds,
-          posture,
-          legs && onLeg(body, target)
-            ? poseBones(
-                body,
-                resolveHumanPosture(body, {
-                  ...posture,
-                  limbs: {
-                    ...(posture.limbs.leftLeg === undefined
-                      ? {}
-                      : { leftLeg: posture.limbs.leftLeg }),
-                    ...(posture.limbs.rightLeg === undefined
-                      ? {}
-                      : { rightLeg: posture.limbs.rightLeg }),
-                  },
-                }),
-              )
-            : bones,
-        );
+    // Each region at a second, a leg's on the leaning legs and the first
+    // hand's at its site.
+    const placed: ReturnType<typeof touchRegion.reader> = touchRegion.reader(
+      context,
+      bones,
+      first,
+      p.target,
+      p.site,
+    );
 
     // The rise and the lean for a region beyond the standing arm, measured to
     // the first hand's wrist. Only a body on its own two feet rises.
@@ -436,15 +442,4 @@ export namespace touch {
       ? plan
       : HumanHeld.kept(context, plan, first, p.prop);
   }
-}
-
-/** Whether a self region rides a leg, which a lean moves with the hips. */
-function onLeg(
-  body: IHumanActionContext["body"],
-  target: AutoMovieMotionTarget,
-): boolean {
-  if (target.kind !== "self") return false;
-  return /(UpperLeg|LowerLeg|Foot|Toes)$/.test(
-    body.surfaces.regions[target.region].bone,
-  );
 }

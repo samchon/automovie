@@ -191,6 +191,7 @@ export * from "./posture/humanRig";
 export * from "./daily/handToFace";
 export * from "./handling/HumanHeld";
 export * from "./touch/touch";
+export * from "./touch/touchSite";
 export * from "./touch/highFive";
 export * from "./touch/kiss";
 export * from "./touch/selfAction";
