@@ -611,9 +611,10 @@ namespace FamilyConicBody {
      * Relief nets that go once round the part over a run of its stations, fitted after its windows: each takes what the wall and the windows
      * leave, outside the wall as well as inside it, cast toward the course all the way round. Its two directions are the chart's at the middle
      * of the run, so the run should be one the course does not turn much along. With `window` it covers only those phases, still cast toward
-     * the course at every phase, and fades over its edges (`FamilyConicRelief.IWindow.fade`, `fadePhase`).
+     * the course at every phase, and fades over its edges (`FamilyConicRelief.IWindow.fade`, `fadePhase`). Without `window`, `fade` alone
+     * hands its first and last stations over, mm.
      */
-    rounds?: { name: string; stations: [number, number]; rows: number; columns: number; reach: number; hold?: (p: R.V) => number; window?: { phases: [number, number]; fade: [number, number]; fadePhase: [number, number] } }[];
+    rounds?: { name: string; stations: [number, number]; rows: number; columns: number; reach: number; hold?: (p: R.V) => number; fade?: [number, number]; window?: { phases: [number, number]; fade: [number, number]; fadePhase: [number, number] } }[];
   }
 
   /** Run every part and write the receipt and the renders. */
@@ -707,7 +708,11 @@ namespace FamilyConicBody {
         { name: "arm", centres: armCentres, course: "[J.armRoot, J.armTurn, J.lowerarm, J.hand, J.middle1, J.toward(J.middle1, [[J.index1, J.index2], [J.middle1, J.middle2], [J.ring1, J.ring2], [J.pinky1, J.pinky2]], " + KNUCKLE.reach + ")]", halves: armHalves, up: arm.up, domain: [arm.plane + 2, KNUCKLE.end], gap: (s: number): number => (s < arm.turned ? 6 : GAP_MM), tip: KNUCKLE.end + 15, cap: 570.45, covered: true, mirrored: true, layouts: LIMB, reliefs: "auto", rounds: [
           // The forearm and the hand: the wall of two conics a quarter left the ulna's head 2 to 4 mm inside the skin at the wrist, the web
           // between the thumb and the hand up to 11 mm full and stripes of 1 to 4 mm along the forearm (`FamilyConicDeviation.ts`), which
-          // are not hollows under the tape but the wall's own misfit, on both sides of it. A net round each run takes them.
+          // are not hollows under the tape but the wall's own misfit, on both sides of it. A net round each run takes them. They meet in
+          // three zero rows each, 425 to 440 mm, and drew an oval ring with level bars round the forearm above the wrist (`hand.high-oblique`
+          // px 360..415 x 150..215), gone with both nets off. Handed over (`fade`), the forearm's over its last 40 mm and the hand's from
+          // 400 mm over 30, the oval is gone, but the -Z little finger's band then fails its face triangulation ("unavailable source
+          // physical2"); faded over 15 mm each the band is admitted and the oval stays. Not kept: the nets stand as they were emitted.
           { name: "fore", stations: [300, 440], rows: 19, columns: 26, reach: 10 },
           { name: "hand", stations: [425, KNUCKLE.relief], rows: 34, columns: 38, reach: 14, hold: thumbHold },
           // The palm on to the hand's end (`PALM`): past `KNUCKLE.relief` the wall alone is the tape across the palm's hollow.
@@ -1252,7 +1257,7 @@ namespace FamilyConicBody {
           const c: number = (phases[0] + phases[1]) / 2;
           const axis: R.V = net.window === undefined ? [frame.u[0], frame.u[1], frame.u[2]] : ([0, 1, 2].map((k: number): number => -(Math.cos(c) * frame.u[k]! + Math.sin(c) * frame.v[k]!)) as R.V);
           const turn: R.V = net.window === undefined ? [frame.v[0], frame.v[1], frame.v[2]] : ([0, 1, 2].map((k: number): number => Math.sin(c) * frame.u[k]! - Math.cos(c) * frame.v[k]!) as R.V);
-          return { name: part.name + "." + net.name, stations: net.stations, phases, axis, turn, rows: net.rows, columns: net.columns, mirror: false, ...(net.window === undefined ? { periodic: true } : { fade: net.window.fade, fadePhase: net.window.fadePhase }), chord: true, reach: net.reach, ...(net.hold === undefined ? {} : { hold: net.hold }) };
+          return { name: part.name + "." + net.name, stations: net.stations, phases, axis, turn, rows: net.rows, columns: net.columns, mirror: false, ...(net.window === undefined ? { periodic: true, ...(net.fade === undefined ? {} : { fade: net.fade }) } : { fade: net.window.fade, fadePhase: net.window.fadePhase }), chord: true, reach: net.reach, ...(net.hold === undefined ? {} : { hold: net.hold }) };
         });
         definition.reliefs = [];
         const fitAll = (list: readonly IWindow[], judged: boolean): void => {
