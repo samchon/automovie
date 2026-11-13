@@ -30,7 +30,14 @@ import { swingTwistBasis } from "./swingTwistBasis";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No joint is named: the axes, the rest frame and the intervals are the caller's.
  */
 export namespace swingTwistRegion {
-  /** The joint's frame the region is read in: its axes and its rest frame. */
+  /**
+   * The joint's frame the region is read in: its axes and its rest frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States that the axes are the joint's clinical basis, that the rest frame lifts its angles and that an absent frame leaves them rest-relative.
+   * @evidence contracts/development/design.md#principled-representation The caller's clinical axis basis and rest frame, the two things that turn a rotation's angles into the joint's clinical ones.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, both read by the table and by the key it is kept under.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No joint or bone is named, and the members are the engine's own types.
+   */
   export interface IJoint {
     /** The joint's clinical axes. */
     axes: IAutoMovieJointAxes;
