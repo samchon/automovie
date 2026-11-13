@@ -22,15 +22,26 @@ export namespace FamilyConicConvert {
     /** The part's name, as the command line gives it. */
     name: string;
 
-    /** The excursion it is cut as (`FamilyConicExcursion.PARTS`). */
-    excursion: string;
+    /** The excursion it is cut as (`FamilyConicExcursion.PARTS`), or none when its sections come from `dump`. */
+    excursion?: string;
+
+    /**
+     * A `FamilyConicBody.ts --dump=<file>` of the part's observed sections, read from `test`, each already in its course's chart with its
+     * invented points flagged (the air provider's floor and reach), which break the conversion as a closure does.
+     */
+    dump?: string;
 
     /** The course point in the excursion's chart, mm: the section is converted about it. */
     course: C.P;
   }
 
   /** The parts, the nose first: its course runs down the median plane 11 mm in front of x 100 (`FamilyConicBody.ts nose --nose-vertical`). */
-  export const ENTRIES: IEntry[] = [{ name: "nose", excursion: "nose", course: [11, 0] }];
+  export const ENTRIES: IEntry[] = [
+    { name: "nose", excursion: "nose", course: [11, 0] },
+    // The armpit's slit and vault cutters: their sections are the air round each course (`FamilyConicBody.ts axilla` and `vault`, `IPart.air`).
+    { name: "axilla", dump: ".shots/family-conic-convert/axilla.rows.json", course: [0, 0] },
+    { name: "vault", dump: ".shots/family-conic-convert/vault.rows.json", course: [0, 0] },
+  ];
 
   /** Arclength step a section is resampled at before conversion, mm. */
   const STEP_MM: number = 1;
@@ -101,10 +112,12 @@ export namespace FamilyConicConvert {
   }
 
   /** Convert one section about the course point. */
-  export function convert(section: X.ISection, course: C.P): Omit<IStation, "y"> {
+  export function convert(section: X.ISection, course: C.P, invented?: readonly boolean[]): Omit<IStation, "y"> {
     const shifted: C.P[] = section.points.map((p: C.P): C.P => [p[0] - course[0], p[1] - course[1]]);
-    const behind: number | null = section.ends === undefined ? null : Math.min(section.ends[0][0], section.ends[1][0]) - course[0];
-    const flags: boolean[] = shifted.map((p: C.P): boolean => behind !== null && p[0] < behind - 0.01);
+    // `ends` (the excursion's closure ends) exists where the excursion carries it; a section read from elsewhere has none.
+    const ends: readonly [C.P, C.P] | undefined = (section as X.ISection & { ends?: readonly [C.P, C.P] }).ends;
+    const behind: number | null = ends === undefined ? null : Math.min(ends[0][0], ends[1][0]) - course[0];
+    const flags: boolean[] = invented !== undefined && invented.length === shifted.length ? [...invented] : shifted.map((p: C.P): boolean => behind !== null && p[0] < behind - 0.01);
     const even = resample(shifted, flags, STEP_MM);
     const n: number = even.points.length;
     const breaks: number[] = even.flags.map((f: boolean, i: number): number => (f !== even.flags[(i + 1) % n] ? i + 1 : -1)).filter((i: number): boolean => i > 0 && i < n);
@@ -119,13 +132,20 @@ export namespace FamilyConicConvert {
     const name: string = process.argv[2] ?? "nose";
     const entry: IEntry | undefined = ENTRIES.find((e: IEntry): boolean => e.name === name);
     if (entry === undefined) throw new Error("No convert entry " + name);
-    const part: X.IPart | undefined = X.PARTS.find((p: X.IPart): boolean => p.name === entry.excursion);
-    if (part === undefined) throw new Error("No excursion " + entry.excursion);
     const root: string = path.resolve(process.cwd(), "..");
-    const source: R.ISource = await R.load(root);
-    const stations: IStation[] = X.sections(source, part)
-      .filter((row): boolean => row.section !== null)
-      .map((row): IStation => ({ y: row.y, ...convert(row.section!, entry.course) }));
+    let stations: IStation[];
+    if (entry.dump !== undefined) {
+      // A dump's rows: `y` is the station along the part's course.
+      const dumped = JSON.parse(await fs.readFile(path.resolve(process.cwd(), entry.dump), "utf8")) as { rows: { s: number; points: C.P[]; invented: boolean[] | null }[] };
+      stations = dumped.rows.map((row): IStation => ({ y: row.s, ...convert({ points: row.points } as X.ISection, entry.course, row.invented ?? undefined) }));
+    } else {
+      const part: X.IPart | undefined = X.PARTS.find((p: X.IPart): boolean => p.name === entry.excursion);
+      if (part === undefined) throw new Error("No excursion " + entry.excursion);
+      const source: R.ISource = await R.load(root);
+      stations = X.sections(source, part)
+        .filter((row): boolean => row.section !== null)
+        .map((row): IStation => ({ y: row.y, ...convert(row.section!, entry.course) }));
+    }
     const out: string = path.join(root, "test/.shots/family-conic-convert", new Date().toISOString().replaceAll(":", "-"));
     await fs.mkdir(out, { recursive: true });
     // Families: runs of stations with one skin-arc count.
