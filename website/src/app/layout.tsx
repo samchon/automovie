@@ -3,6 +3,7 @@ import { Head } from "nextra/components";
 import type { ReactElement, ReactNode } from "react";
 
 import "./global.css";
+import "./scenes.css";
 
 const title: string = "AutoMovie";
 const description: string =

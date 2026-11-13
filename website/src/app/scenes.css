@@ -1,0 +1,547 @@
+/* The scene pages, the shared player and its transport. DESIGN.md states the
+   layout in words; every value comes from tokens.css. */
+
+.am-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.am-small {
+  font-size: var(--am-text-xs);
+}
+
+.am-plain {
+  margin: 0 0 var(--am-space-4);
+  padding: 0;
+  list-style: none;
+}
+
+.am-plain li + li {
+  margin-top: var(--am-space-1);
+}
+
+.am-danger-text {
+  color: var(--am-danger);
+}
+
+.am-badge {
+  display: inline-block;
+  border: 1px solid var(--am-border-control);
+  border-radius: 999px;
+  padding: 0 var(--am-space-2);
+  color: var(--am-fg-muted);
+  font-size: var(--am-text-xs);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.am-code {
+  margin: 0;
+  overflow-x: auto;
+  border: 1px solid var(--am-border);
+  border-radius: var(--am-radius);
+  background: var(--am-bg-panel);
+  padding: var(--am-space-3);
+  font-family: var(--am-font-mono);
+  font-size: var(--am-text-sm);
+  line-height: 1.5;
+}
+
+.am-app a.am-button {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--am-control-height);
+  border: 1px solid var(--am-accent-bg);
+  border-radius: var(--am-radius);
+  background: var(--am-accent-bg);
+  padding: 0 var(--am-space-3);
+  color: var(--am-accent-fg);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.am-app a.am-button-quiet {
+  border-color: var(--am-border-control);
+  background: var(--am-bg-inset);
+  color: var(--am-fg);
+}
+
+/* A 3D view drawn by the page's shared renderer. */
+.am-scene-view {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--am-border);
+  border-radius: var(--am-radius);
+  background: var(--am-viewport);
+}
+
+.am-scene-view canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: pan-y;
+}
+
+.am-scene-view-note {
+  position: absolute;
+  inset: auto var(--am-space-2) var(--am-space-2);
+  color: var(--am-fg-muted);
+  font-size: var(--am-text-xs);
+}
+
+/* The gallery */
+.am-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--am-space-3);
+  margin-bottom: var(--am-space-5);
+}
+
+.am-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--am-space-2);
+}
+
+.am-app button.am-chip {
+  border-radius: 999px;
+}
+
+.am-app button.am-chip[aria-pressed="true"] {
+  border-color: var(--am-accent-bg);
+  background: var(--am-accent-soft);
+  color: var(--am-fg);
+  font-weight: 700;
+}
+
+.am-search {
+  flex: 1 1 14rem;
+  max-width: 22rem;
+}
+
+.am-app section + section {
+  margin-top: var(--am-space-6);
+}
+
+.am-scene-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+  gap: var(--am-space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.am-scene-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--am-space-1);
+}
+
+.am-scene-card-link {
+  display: flex;
+  flex-direction: column;
+  gap: var(--am-space-2);
+  color: inherit;
+  text-decoration: none;
+}
+
+.am-scene-card-link:hover .am-scene-card-title {
+  text-decoration: underline;
+}
+
+.am-scene-card-title {
+  font-size: var(--am-text-lg);
+  font-weight: 700;
+}
+
+.am-scene-card-facts {
+  font-size: var(--am-text-xs);
+}
+
+.am-roadmap-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+  gap: var(--am-space-3);
+  margin: var(--am-space-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.am-roadmap-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--am-space-1);
+  border: 1px solid var(--am-border);
+  border-radius: var(--am-radius);
+  background: var(--am-bg-panel);
+  padding: var(--am-space-3);
+}
+
+.am-roadmap-item .am-badge {
+  align-self: flex-start;
+}
+
+.am-issues {
+  font-size: var(--am-text-xs);
+}
+
+/* A scene's page */
+.am-scene-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 18rem;
+  gap: var(--am-space-4);
+  align-items: start;
+}
+
+.am-player {
+  display: flex;
+  flex-direction: column;
+  gap: var(--am-space-2);
+  min-width: 0;
+}
+
+.am-scene-aside {
+  border: 1px solid var(--am-border);
+  border-radius: var(--am-radius);
+  background: var(--am-bg-panel);
+  padding: var(--am-space-3);
+}
+
+.am-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--am-space-2);
+  margin: var(--am-space-4) 0;
+}
+
+.am-tabs-inline {
+  display: flex;
+  gap: var(--am-space-1);
+  margin-right: auto;
+}
+
+.am-app .am-tabs-inline button[aria-selected="true"] {
+  border-color: var(--am-accent-bg);
+  background: var(--am-accent-soft);
+  font-weight: 700;
+}
+
+.am-take-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  gap: var(--am-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.am-take {
+  display: flex;
+  flex-direction: column;
+  gap: var(--am-space-1);
+}
+
+.am-take-label {
+  font-weight: 600;
+}
+
+/* The transport */
+.am-transport {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--am-space-2);
+}
+
+.am-app .am-transport-play {
+  min-width: 4.5rem;
+}
+
+.am-app .am-transport-scrub {
+  flex: 1 1 10rem;
+  width: auto;
+}
+
+.am-transport-time {
+  min-width: 8.5rem;
+  text-align: right;
+}
+
+.am-app .am-transport-speed select {
+  width: auto;
+}
+
+.am-transport-loop {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--am-space-1);
+}
+
+/* The timeline of a take */
+.am-scene-timeline {
+  margin: 0;
+}
+
+.am-scene-timeline-tracks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--am-space-1);
+  margin-bottom: var(--am-space-2);
+}
+
+.am-scene-timeline-track {
+  display: grid;
+  grid-template-columns: 4rem minmax(0, 1fr);
+  align-items: center;
+  gap: var(--am-space-2);
+}
+
+.am-scene-timeline-lane {
+  position: relative;
+  height: 1.5rem;
+  border-radius: var(--am-radius);
+  background: var(--am-bg-panel);
+}
+
+.am-scene-timeline-span {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  overflow: hidden;
+  border-right: 1px solid var(--am-bg);
+  background: var(--am-accent-bg);
+  padding: 0 var(--am-space-1);
+  color: var(--am-accent-fg);
+  font-family: var(--am-font-mono);
+  font-size: var(--am-text-xs);
+  line-height: 1.5rem;
+  white-space: nowrap;
+}
+
+.am-scene-timeline-span[data-overlay="true"] {
+  top: 50%;
+  opacity: 0.75;
+}
+
+/* The motion reference */
+.am-motion-layout {
+  display: grid;
+  grid-template-columns: 12rem minmax(0, 1fr);
+  gap: var(--am-space-5);
+  align-items: start;
+}
+
+.am-motion-nav {
+  position: sticky;
+  top: calc(var(--am-navbar) + var(--am-space-3));
+  max-height: calc(100dvh - var(--am-navbar) - var(--am-space-6));
+  overflow-y: auto;
+}
+
+.am-motion-nav-link {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--am-space-2);
+  border-radius: var(--am-radius);
+  padding: var(--am-space-1) var(--am-space-2);
+  color: inherit;
+  text-decoration: none;
+}
+
+.am-motion-nav-link:hover {
+  background: var(--am-bg-hover);
+}
+
+.am-motion-nav-link[aria-current="page"] {
+  background: var(--am-accent-soft);
+  font-weight: 700;
+}
+
+.am-family-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: var(--am-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* The object gallery */
+.am-object-view {
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: 1px solid var(--am-border);
+  border-radius: var(--am-radius);
+  background: var(--am-viewport);
+}
+
+.am-object-view canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.am-object-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--am-space-1);
+}
+
+.am-object-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: var(--am-space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.am-app .am-gallery.am-gallery-detail {
+  grid-template-columns: minmax(0, 1fr) var(--am-side);
+  grid-template-areas: "view facts";
+}
+
+@media (max-width: 767px) {
+  .am-motion-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .am-motion-nav {
+    position: static;
+    max-height: none;
+  }
+}
+
+@media (max-width: 1023px) {
+  .am-scene-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .am-app .am-gallery.am-gallery-detail {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "view"
+      "facts";
+  }
+}
+
+/* The landing page */
+.am-landing-page {
+  max-width: 80rem;
+  margin: 0 auto;
+}
+
+.am-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  align-items: center;
+  gap: var(--am-space-6);
+  min-height: calc(100dvh - var(--am-navbar) - var(--am-space-6));
+  padding: var(--am-space-4) 0 var(--am-space-6);
+}
+
+.am-app .am-hero h1 {
+  font-size: clamp(2rem, 4.2vw, 3.25rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.am-hero-lede {
+  margin: var(--am-space-4) 0 var(--am-space-5) !important;
+  color: var(--am-fg-muted);
+  font-size: 1.125rem;
+  line-height: 1.55;
+}
+
+.am-hero-stage {
+  margin: 0;
+}
+
+.am-hero-caption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--am-space-1) var(--am-space-3);
+  margin-top: var(--am-space-2);
+}
+
+.am-hero-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--am-space-2);
+  margin-left: auto;
+}
+
+.am-figures {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: var(--am-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.am-figures a {
+  display: block;
+  height: 100%;
+  border: 1px solid var(--am-border);
+  border-radius: var(--am-radius);
+  background: var(--am-bg-panel);
+  padding: var(--am-space-4);
+  color: inherit;
+  text-decoration: none;
+}
+
+.am-figures a:hover {
+  border-color: var(--am-accent-bg);
+}
+
+.am-figures strong {
+  font-size: var(--am-text-xl);
+}
+
+.am-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: var(--am-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.am-steps li {
+  border-top: 2px solid var(--am-accent-bg);
+  padding-top: var(--am-space-2);
+}
+
+.am-steps strong {
+  display: block;
+  margin-bottom: var(--am-space-1);
+}
+
+.am-landing-page > section + section {
+  margin-top: var(--am-space-6);
+}
+
+@media (max-width: 1023px) {
+  .am-hero {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .am-app * {
+    transition: none !important;
+  }
+}
