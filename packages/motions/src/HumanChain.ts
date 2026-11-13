@@ -12,9 +12,14 @@ import type { IHumanMutual } from "./law/IHumanMutual";
 
 /**
  * The fluent authoring surface of one person's actions: one typed method per
- * action of the vocabulary, `act` for the same action by its name, `until`
- * to cut the last one, and `next` and `with` (from `AutoMovieChain`) to
- * sequence and parallel whole chains, people with people.
+ * action of the vocabulary, `act` for the same action by its name,
+ * `registered` for a production's own law by its name, `until` to cut the
+ * last one, `sync` to time it to another action or a cue, `over` to perform
+ * other actions on it at once (`HumanChainCore`), and `next` and `with`
+ * (from `AutoMovieChain`) to sequence and parallel whole chains, people with
+ * people. Its statics start a chain (`subject`), give registered laws typed
+ * methods (`extend`) and join people in a mutual action (`mutual`, and
+ * `pair` for a handshake and a handover).
  *
  * ```ts
  * const a = HumanChain.subject("a").stand({ seconds: 1 }).until({ share: 0.5 }).stand();
@@ -31,9 +36,10 @@ import type { IHumanMutual } from "./law/IHumanMutual";
  * one's ancestry, so every action of `HumanActionName` is a method here and
  * each takes its law's own parameter type.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the surface, its immutability, what the performance owns and where the vocabulary methods are declared.
- * @evidence contracts/development/design.md#principled-representation The engine's immutable chain of one subject with the whole vocabulary as typed methods.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two constructors of a chain; the vocabulary is inherited.
+ * @evidence contracts/development/common.md#meaningful-documentation States the surface with its operators and statics, its immutability, what the performance owns and where the vocabulary methods are declared.
+ * @evidence contracts/development/design.md#principled-representation The engine's immutable chain of one subject with the whole vocabulary as typed methods; a mutual action joins several subjects' chains.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Four statics (`subject`, `extend`, `mutual`, `pair`); the vocabulary and the core operators (`act`, `registered`, `until`, `sync`, `over`) are inherited.
+egistered, until, sync, over) are inherited.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No action is reachable only through an untyped call.
  */
 export class HumanChain extends HumanChainSport {
@@ -76,8 +82,15 @@ export class HumanChain extends HumanChainSport {
         );
 
       // A method of an object literal, so it reads the chain it is called on.
-      const methods = {
-        [key](this: HumanChain, params: object = {}, anchor?: string) {
+      const methods: Record<
+        string,
+        (this: HumanChain, params?: object, anchor?: string) => HumanChain
+      > = {
+        [key](
+          this: HumanChain,
+          params: object = {},
+          anchor?: string,
+        ): HumanChain {
           return this.registered(law.name, params, anchor);
         },
       };
@@ -123,7 +136,7 @@ export class HumanChain extends HumanChainSport {
       : [params: Params, anchor?: string]
   ): AutoMovieChain {
     const [params, anchor]: readonly [Params?, string?] = args;
-    const subjects = Object.fromEntries(
+    const subjects: Record<Role, string> = Object.fromEntries(
       mutual.roles.map((role: Role): [Role, string] => [
         role,
         cast[role].subject,
@@ -190,6 +203,7 @@ export class HumanChain extends HumanChainSport {
     };
   }
 }
+
 /**
  * Companion types of {@link HumanChain}.
  *

@@ -17,9 +17,9 @@ import type { IHumanActionParams } from "../IHumanActionParams";
  * action's name, so `chain.touch(params)` and `chain.act("touch", params)`
  * append the same intent and are checked against the same parameter type.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what the class owns and how the vocabulary methods relate to `act`.
+ * @evidence contracts/development/common.md#meaningful-documentation States what the class owns and how the vocabulary methods relate to `act`; each operator states its own rule.
  * @evidence contracts/development/design.md#principled-representation An immutable chain of one subject over the engine's composition, with the action name indexing its parameter type.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The subject, the named append, the cut and the derive hook.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The subject, the typed append (`act`), the registered append (`registered`), the cut (`until`), the timing (`sync`), the overlay (`over`) and the derive hook.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No parameter is typed `object`: a name selects its law's parameter type.
  */
 export class HumanChainCore extends AutoMovieChain {
@@ -85,12 +85,16 @@ export class HumanChainCore extends AutoMovieChain {
    *
    * @param until The cut.
    * @returns The chain.
-   * @throws {Error} When the chain ends in no action.
+   * @throws {Error} When the chain ends in no action, or in one already synced (cut it before syncing it).
    */
   public until(until: NonNullable<IAutoMovieIntent["until"]>): this {
     const parts: readonly AutoMovieComposition[] =
       this.node.kind === "sequence" ? this.node.parts : [this.node];
     const last: AutoMovieComposition | undefined = parts.at(-1);
+    if (last?.kind === "at")
+      throw new Error(
+        "until cuts an action before it is synced; cut it first, then sync it",
+      );
     if (last === undefined || last.kind !== "intent")
       throw new Error("until cuts an action; append one first");
     return this.derive({
@@ -123,13 +127,17 @@ export class HumanChainCore extends AutoMovieChain {
    *
    * @param sync The instant to meet and which instant of the action meets it.
    * @returns The chain.
-   * @throws {Error} When the chain ends in no action.
+   * @throws {Error} When the chain ends in no action, or in one already synced (an action meets one instant).
    */
   public sync(sync: HumanChainCore.ISync): this {
     const parts: readonly AutoMovieComposition[] =
       this.node.kind === "sequence" ? this.node.parts : [this.node];
     const last: AutoMovieComposition | undefined = parts.at(-1);
-    if (last === undefined || last.kind === "at" || last.kind === "sequence")
+    if (last?.kind === "at")
+      throw new Error(
+        `sync times an action once, and the last one is already synced to ${last.anchor}`,
+      );
+    if (last === undefined || last.kind === "sequence")
       throw new Error("sync times an action; append one first");
     return this.derive({
       kind: "sequence",
@@ -161,7 +169,7 @@ export class HumanChainCore extends AutoMovieChain {
    *
    * @param build Appends the overlaid actions to an empty chain of this person.
    * @returns The chain.
-   * @throws {Error} When the chain ends in no action.
+   * @throws {Error} When the chain ends in no action, or in one already synced (put the overlays on it before syncing it).
    */
   public over(build: (overlay: this) => HumanChainCore): this {
     const parts: readonly AutoMovieComposition[] =
@@ -172,6 +180,10 @@ export class HumanChainCore extends AutoMovieChain {
       last.kind === "parallel" &&
       last.parts[0]?.kind === "intent" &&
       last.parts[0].intent.subject === this.subject;
+    if (last?.kind === "at")
+      throw new Error(
+        "over rides an action before it is synced; put the overlays on it first, then sync it",
+      );
     if (last === undefined || !(last.kind === "intent" || carried))
       throw new Error("over rides an action; append one first");
 
@@ -228,10 +240,10 @@ export class HumanChainCore extends AutoMovieChain {
 /**
  * Companion types of {@link HumanChainCore}.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Documents the member.
- * @evidence contracts/development/design.md#principled-representation The argument list of a named append as a tuple type.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One type, read by `act`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Derived from the parameter table, not restated per action.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents each member.
+ * @evidence contracts/development/design.md#principled-representation The instant a synced action meets, as data, and the argument list of a named append as a tuple type.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Two types: `ISync`, read by `sync`, and `Arguments`, read by `act`.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The arguments are derived from the parameter table, not restated per action.
  */
 export namespace HumanChainCore {
   /** An instant to meet, and which instant of the synced action meets it. */
