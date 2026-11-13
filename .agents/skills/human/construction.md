@@ -24,7 +24,7 @@ The parts' topology selects the operator:
 
 **Ports.**
 
-- The parent publishes the landmark loop, its outline values and slopes in every view, in its frame, and owns the contours that lead to it.
+- The parent publishes the landmark loop, its outline values and slopes in every view, in its frame, and owns the contours that lead to it. The loop passes through the landmarks that define it by their published definitions, such as the armscye over the shoulder joint, the anterior and posterior axillary folds and the axilla. A loop placed for the band's convenience leaves the joint without an anatomical owner.
 - The child's view curves start from those values in its own frame, chained from the parent's. The two sides' lines are checked overlaid at the joint before either side is lofted.
 - The child owns the mass between its joint and the port and extends its field past its root rail, so the band blends two real fields. The engine's strip takes each side's own 2-jet across its rail and spans them with the quintic Hermite blend, G2 to both sides.
 - A band that must span a radial gap or turn through a steep angle shows that the 2D lines were not shared. Correct the lines. A band's margins, rails, ribbons, profiles and ring placement follow from the shared lines, because a band tuned to hide a gap carries the gap into every person.

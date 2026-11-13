@@ -52,6 +52,8 @@ Trace each [connection](construction.md#connections) into both production source
 
 For a port, overlay both sides' 2D lines at the joint in every view, then inspect the realized band and its neighbouring strips. A band that spans a gap or turns steeply fails here, at the lines.
 
+Before a connection or a family is realized, pre-check every premise the engine admits it on, not one of them: the sections' star-shape and their conic layout's admissibility at every station, the rings and loops the bands start and land on, every band column's direction, and the correspondence's own condition, such as a monotone angle. A premise left out of the pre-check surfaces as a refusal after the build, when a fit and a figure have already been spent on it.
+
 ## Inspection Round
 
 Inspect the candidate following [visual debugging](../visual-debugging/SKILL.md) and [form inspection](../3d-modeling/inspection.md), for every affected part and join, against the existing figure and the reference under matching camera, light, shade, size and backend.
