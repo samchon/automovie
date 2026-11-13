@@ -1,15 +1,15 @@
 ---
 name: story-workflow
-description: Chooses the story route and who writes the screenplay, and routes to the short or long route's steps and completion. Use when starting, resuming or completing narrative work.
+description: Chooses the story route and who writes the screenplay, and routes to each route's steps and to completion. Use when starting, resuming or completing narrative work.
 ---
 
 # Workflow
 
-Choose the route, record who writes the screenplay, then follow the route's page.
+Choose the route and who writes the screenplay, then follow the route's page.
 
 | Route | Read |
 | --- | --- |
-| A short: brief, screenplay, film draft, evidence and one review | [Short route](short.md) |
+| A short: a minimal brief, the screenplay and a film draft, then evidence once and one review | [Short route](short.md) |
 | Long work: settings, treatments, scripts and screenplay, each a closed pass | [Long route](long.md) |
 
 ## Choosing the route {#choosing-the-route}
@@ -39,10 +39,7 @@ Commissioned video follows one traceable chain: settings or a short's brief, scr
 
 Each link cites the addresses it realizes from the links above it, so no code exists without a cited basis and no requirement stays unrealized; a later link can only realize what an earlier one decided.
 
-## Rules both routes share
-
-- Study a fact when [when to study](../planning/research.md#when-to-study) assigns it.
-- Repair a defective parent at its owner under [upstream defects](../correction/repair.md#upstream-defects).
+## Separate contexts
 
 Keep the author, the [evidence answerer](../evidence/answer-writing.md) and the independent reviewer in separate contexts, because an author answering for its own body states what it meant rather than what the body holds, and a reviewer reading answers judges paperwork instead of the work.
 

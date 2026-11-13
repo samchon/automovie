@@ -27,7 +27,7 @@ Do not make every scene testify for an entire film or attach a conditional requi
 
 ## The short route
 
-A short has no treatments, scripts or settings index, so those rows have no respondent there, and its studies answer no research contract under [evidence configuration](../../evidence/configuration.md#story).
+A short has no settings, settings index, treatments or scripts, so those rows have no respondent there, and its studies answer no research contract under [evidence configuration](../../evidence/configuration.md#story).
 
 Its event design and scene execution are asked of the screenplay instead: [audiovisual realization](shared/principles/screenplay.md#audiovisual-realization) and [beat decisions](shared/principles/screenplay.md#beat-decisions) for each section, and [continuity](shared/obligations/narratives.md#continuity-and-progression), [promises](shared/obligations/narratives.md#promises-and-distribution) and [complete realization](shared/obligations/screenplay.md#complete-realization) for the whole, which cover setup and payoff, the ending and the established space.
 

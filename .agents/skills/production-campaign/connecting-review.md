@@ -18,7 +18,7 @@ Relay the reviewer's verdict verbatim to the writer, ask for its decision on eac
 
 For a finding the writer declines, resume that round's reviewer session for its rebuttal or withdrawal and pass that back to the writer's session for a final decision. A narrative pass then runs the rounds its route sets, the [short](../../../packages/template/scaffold/instructions/.agents/skills/story/workflow/short.md#steps) or [long](../../../packages/template/scaffold/instructions/.agents/skills/story/workflow/long.md#each-layers-pass) route, and each later round goes to a fresh reviewer process.
 
-Before a narrative pass goes to review, start its evidence answerer as its own process. It writes the answers and hands the writer the gaps it cannot answer truthfully, and brings them up to date after the repairs only where the route says so. Never ask a reviewer to audit answers.
+Before a narrative pass goes to review, start its evidence answerer as its own process. It writes the answers and hands the writer the gaps it cannot answer truthfully, and brings the answers up to date after the repairs only where the route says so. Never ask a reviewer to audit answers.
 
 Check the submission, scope, frames read and required records. A partial review or another edition's verdict is not current acceptance, and a repeated handled finding or a missing reply is not a new verdict.
 

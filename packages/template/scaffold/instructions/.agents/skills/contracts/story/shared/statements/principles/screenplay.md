@@ -58,11 +58,11 @@ Language:
 
 The scene file:
 
-1. The standing state, the place, the cast present, any person or object only this scene shows, the camera default and the sound bed, is stated once, at the opening of the scene file's first section.
+1. The scene file's first section opens with the standing state, stated once: the place, the cast present, any person or object only this scene shows, the camera default and the sound bed.
 
 What each beat decides:
 
-2. The beat names who and what acts by their settings facts, or on a short by brief decisions or, for a person or object only this scene shows, by the standing state.
+2. The beat names who and what acts by their settings facts; on a short, by brief decisions, or by the standing state for a person or object only this scene shows.
 3. Each participant has an intent.
 4. The beat states its outcome and each body's reaction or consequence.
 5. Position, camera and sound appear only where they change from the standing state as earlier beats left it. Exception: stillness the scene decides is stated where it matters.

@@ -60,7 +60,7 @@ The screenplay is one folder per film with one file per scene: `docs/body/screen
 
 ### Research and development contracts
 
-Add `research` when the production keeps research studies, and `development` when it builds the film's entities, behaviors and scenes in code:
+Add `research` to hold each study in `docs/research/` to the research contract, and `development` when it builds the film's entities, behaviors and scenes in code:
 
 ```ts
 export default createEvidenceConfig({

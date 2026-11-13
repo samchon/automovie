@@ -6,7 +6,7 @@ Facts and constraints belong in settings, or on a short where the [brief's bound
 
 ## Checkpoints {#checkpoints}
 
-Discovery runs again at three points, because each one exposes kinds of requirement the one before could not see:
+Discovery runs again at the checkpoints its route sets, because each one exposes kinds of requirement the one before could not see:
 
 1. after settings or the brief, for what the canon needs that direction did not foresee;
 2. before composition, for an element kind no source folder owns, a behavior, camera or staging choice no research supports, and a failure no contract asks about;

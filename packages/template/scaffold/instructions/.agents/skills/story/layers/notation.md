@@ -6,13 +6,18 @@ Read the blocks as a continuous sequence, each entry following the preceding exi
 
 ## Identities {#identities}
 
-A script file is one episode: its H1 names the episode and each H2 is a [scene](screenplay.md#scenes) of one continuous place and time, because it becomes one screenplay scene file. A screenplay file is one [scene](screenplay.md#scenes): its H1 names the scene, each H2 is a section of it, such as a phase or a movement, and each H3 a beat. Every heading below the H1 has an explicit anchor such as `{#s03}` and `{#s03-b04}`. Headings are addresses for code, evidence and reviews; they prescribe neither shot boundaries nor duration.
+A script file is one episode: its H1 names the episode and each H2 is a [scene](screenplay.md#scenes). A screenplay file is one scene: its H1 names the scene, each H2 is a section of it, such as a phase or a movement, and each H3 a beat. Every heading below the H1 has an explicit anchor such as `{#s03}` and `{#s03-b04}`. Headings are addresses for code, evidence and reviews; they prescribe neither shot boundaries nor duration.
 
-Never reuse or renumber an anchor or a scene file's number: a removed script scene, section or beat keeps its heading over the single line `OMITTED`, a removed screenplay scene file keeps only its H1 over `OMITTED` and retires its section and beat anchors with it, an inserted script scene, section or beat takes a new anchor such as `{#s03-b04a}`, and an inserted screenplay scene file an unused number between its neighbors, so number scene files with room between them, such as `010-` and `020-`. An existing citation then never silently points at different content.
+Never reuse or renumber an anchor or a scene file's number, so an existing citation never silently points at different content:
+
+- a removed script scene, or screenplay section or beat, keeps its heading over the single line `OMITTED`;
+- a removed screenplay scene file keeps only its H1 over `OMITTED`, retiring its section and beat anchors;
+- an inserted script scene, or screenplay section or beat, takes a new anchor, such as `{#s03-b04a}`;
+- an inserted screenplay scene file takes an unused number between its neighbors, so number scene files with room, such as `010-` and `020-`.
 
 ## Records {#records}
 
-A screenplay scene file's first section opens with its standing state as a list, each entry linked to its settings or brief decision where one owns it, as [the brief's boundary](brief.md#what-it-holds) decides, so that the section's answers and review cover it; each beat's action and dialogue blocks end with its beat record. Both hold what the [beat-decisions question](../../contracts/story/shared/principles/screenplay.md#beat-decisions) asks:
+A screenplay scene file's first section opens with the scene's standing state as a list, inside the section so its answers and review cover it; each entry links the settings or brief decision that owns it, where one does. Each beat's action and dialogue blocks end with its beat record. Both hold what the [beat-decisions question](../../contracts/story/shared/principles/screenplay.md#beat-decisions) asks:
 
 ```markdown
 ### Mara cues the lift {#s03-b04}

@@ -14,9 +14,9 @@ Answer only what the question asks; an unneeded inventory becomes a stale fact. 
 
 An inapplicable question states its inspected scope and reason through the mechanism its relationship permits, and a population exclusion requires the whole population to be inapplicable. [Answer placement](answer-placement.md) says where each answer goes.
 
-After the author edits within the open pass while its stage is enabled, the answerer reconciles the dependent answers; changes touching closed work follow [upstream repair](../correction/repair.md).
+When the author edits an open pass whose stage is enabled, the answerer reconciles the dependent answers; changes touching closed work follow [closed passes](../correction/repair.md#closed-passes).
 
-Pass the body and answers to the next step of the [route](../workflow/SKILL.md). Independent [review](../../review/narrative-rounds.md) judges only the body, and a refreshed hash grants no creative judgment.
+Pass the body and answers to the next step of the [route](../workflow/SKILL.md). Independent [review](../../review/narrative-rounds.md) judges only the body, and a refreshed fingerprint grants no creative judgment.
 
 ## Grounds for retaining a candidate
 

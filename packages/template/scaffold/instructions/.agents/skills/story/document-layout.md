@@ -8,7 +8,7 @@ The evidence and review locations below are the installed evidence package's def
 
 Commit instructions, creative bodies and evidence answers. Review records stay local.
 
-Keep one current record per purpose, identified by its actual inputs; Git preserves earlier tracked editions. Raw logs, classification tables, run records and temporary comparisons belong in ignored `.cache/`, with their relevant conclusions in the current record.
+Keep one current record per purpose, identified by its actual inputs; Git preserves earlier tracked editions. Raw logs, classification tables, performance plans, run records and temporary comparisons belong in ignored `.cache/`, with their relevant conclusions in the current record.
 
 | Location, when used | Owns |
 | --- | --- |
@@ -18,7 +18,7 @@ Keep one current record per purpose, identified by its actual inputs; Git preser
 | `docs/body/brief/<domain>/<subject>.md` | A short's [brief](layers/brief.md), one subject per file in a settings domain |
 | `docs/body/treatments/NNN-event.md` | Flat ordered events, causes, consequences, and information release |
 | `docs/body/scripts/NNN-part/NNN-episode.md` | Executable scenes and release partition, with part indexes |
-| `docs/body/screenplay/<film>/NNN-<scene>.md`, or `NNN-part/NNN-episode/NNN-<scene>.md` on the long route | Complete final audiovisual text: one folder per delivered video, from whose path the [film name](../development/source-layout.md#source) derives, and one file per [scene](layers/screenplay.md#scenes), ordered by its number; on the long route each episode folder holds the scenes of its script episode |
+| `docs/body/screenplay/<film>/NNN-<scene>.md`, or `NNN-part/NNN-episode/NNN-<scene>.md` on the long route | Complete final audiovisual text: one folder per delivered video, from whose path the [film name](../development/source-layout.md#source) derives, and one file per [scene](layers/screenplay.md#scenes), ordered by its number |
 | `docs/research/index.md`, `docs/research/<discipline>/<topic>.md` | The source index and the studies of each practice and style: laws, outcome tables and measurable targets, under [research](planning/research.md) |
 | `references/`, ignored `references/private/` | Retained research originals: permitted copies, and those whose rights are unconfirmed |
 | `docs/contracts/work/...`, `docs/contracts/language/...` | This production's own story contracts supplementing the shared ones, cited as `work/...` and `language/...`; discovery writes `work/discovery/results.md` |

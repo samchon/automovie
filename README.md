@@ -58,7 +58,7 @@ flowchart LR
 
 A short runs brief → screenplay and a series settings → treatments → scripts → screenplay; in a workspace the production's folder, `movies/shorts/<name>` or `movies/series/<name>`, fixes the route. The agent follows one chain, and each link cites the decisions of the link above it, so no scene exists without a written basis and no decision goes unrealized. A series inspects, repairs and independently reviews each layer before the next starts; a short drafts its brief, screenplay and film together, then answers its checklists and takes one independent review. A gap found downstream is repaired in the layer that owns it.
 
-The agent studies every practice and style the film shows, a sport, a craft, a crowd's conduct, a camera style, when a decision first needs it, starting from how densely and in what mix the practice is really performed, and keeps the sources under `references/`, because a law written without a study invents the practice.
+The agent studies every practice and style the film shows, a sport, a craft, a crowd's conduct, a camera style, when a decision first needs it, starting from the density and distribution of the practice as it is really performed, and keeps the sources under `references/`, because a law written without a study invents the practice.
 
 ### A short: brief, then screenplay
 

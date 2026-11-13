@@ -20,9 +20,9 @@ A recipient's loss stays a finding even when upstream knowledge explains it, and
 
 ## Compare with parents and contracts
 
-Compare the body's decisions, names, notation, quotations and consequential action, image and sound with the selected contracts, actual parents and requirements, looking for contradictions. Fiction's own derived quantities belong to research and code, so do not recompute them.
+Compare the body's decisions, names, notation, quotations and consequential action, image and sound with the selected contracts, actual parents and requirements, looking for contradictions; matching quotations cannot replace this comparison. Fiction's own derived quantities belong to research and code, so do not recompute them.
 
-On long work, lock the [independent classification](../story/correction/inspection.md#independent-classification) in an isolated worker before reading author defenses; matching quotations cannot replace this comparison.
+Where the route runs [independent classification](../story/correction/inspection.md#independent-classification), lock it in an isolated worker before reading author defenses.
 
 Apply the contract's decision rule to named failures and the [retention test](../story/evidence/answer-writing.md#grounds-for-retaining-a-candidate) to other candidates. Intent or a function label cannot overturn the locked judgment.
 

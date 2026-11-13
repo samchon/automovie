@@ -5,7 +5,7 @@ Contract: [obligations/narratives.md](../../obligations/narratives.md).
 ## Continuity and progression {#continuity-and-progression}
 
 1. Every unit is classified by its actual event, understanding, relationship, emotion, pressure, rhythm or formal contribution.
-2. Functionless duplication and independently addressable progressions hidden together are identified, while inseparable montage, continuous action, parallel and other owned forms are preserved, in scripts and the screenplay across consecutive scene units of one place and time each.
+2. Functionless duplication and independently addressable progressions hidden together are identified, while inseparable montage, continuous action, parallel and other owned forms are preserved, including those spanning consecutive scenes of one place and time each.
 3. Exits and entries connect through their causal or declared formal relation.
 4. The order of movable units is tested for what it contributes, without imposing linearity on episodic, nonlinear or nonhuman work.
 5. Inherited time, place, knowledge, injury, appearance, clothing, possession, resources, status, relationships and promises are compared across units.

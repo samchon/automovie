@@ -9,7 +9,7 @@ Extent:
 1. The verdict identifies the exact revision, declared layer and pass, files, H2s, upstream relationships, descendants and observations reviewed.
 2. It reconciles the inventory and defined measurements with what was read.
 3. The round's extent is the one [narrative rounds](../../../../../review/narrative-rounds.md) requires for its kind, and each carried judgment identifies its source, reader and grounds.
-4. On long work, stable sentence classifications follow [inspection](../../../../../story/correction/inspection.md#verify-changed-work). They waive no whole reading and carry no unit approval.
+4. Where the pass ran independent classification, stable sentence classifications follow [inspection](../../../../../story/correction/inspection.md#verify-changed-work). They waive no whole reading and carry no unit approval.
 5. Closed layers stay closed under the [closed-pass boundary](../../../../../story/correction/repair.md#closed-passes), and partial or unavailable inspection is stated.
 6. The current review tree holds the complete inventory and verdict, including explicit carries, without relying on missing units in earlier folders.
 
@@ -31,5 +31,5 @@ Classes:
     - the author's decision on each finding with its reason, and the repair of each accepted one, with decisions not yet received marked.
 2. The verdict preserves the function of achievements actually read and judged.
 3. It distinguishes expressive surplus removed below a duration target from insufficient event material.
-4. On long work, all accepted findings were repaired by cause with their affected descendants, and the pass closed as the [long route](../../../../../story/workflow/long.md#each-layers-pass) requires.
+4. All accepted findings were repaired by cause with their affected descendants, and the pass closed as its [route](../../../../../story/workflow/SKILL.md) requires.
 5. The verdict states the actual open or clean result and any unverified host or output claim.

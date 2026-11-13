@@ -34,7 +34,7 @@ Idiomatic language:
 Concrete realization:
 
 18. Viewpoint and movement, object use, and bodily conditions such as cold, hunger, weight or injury are concrete enough to understand and feel the current action.
-19. Scripts serve executable placement and conditions, and the final screenplay selects their audience experience and emphasis.
+19. Scripts serve executable placement and conditions, and leave audience emphasis to the final screenplay.
 20. None of these remains:
     - an unlocated inventory;
     - an unmarked change of gaze;
