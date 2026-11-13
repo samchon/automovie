@@ -115,8 +115,8 @@ export namespace HumanMountRider {
     return turnedBy(sign * high);
   }
 
-  /** How far off a held point the wrist stays along the point's outward normal, hand lengths: about the palm's thickness (provisional, as the armrests' rest). */
-  export const PALM: number = 0.2;
+  /** How far off a held point the wrist stays along the point's outward normal, hand lengths (provisional): half the hand's thickness, about 0.075 of its length, plus the radius of a grip of a bar's size, about 11 mm of a 190 mm hand, so the palm's skin lies on the grip and the fingers wrap it. A grip's own radius is not read yet. */
+  export const PALM: number = 0.13;
 
   /** How far ahead of the wrist the middle of the palm lies, hand lengths (provisional: the palm is about half the hand and its middle a little short of that). */
   export const CENTRE: number = 0.35;
