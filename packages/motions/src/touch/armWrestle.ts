@@ -35,8 +35,9 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * The forearms turn about the line through the two elbows: upright from
  * `set`, swaying `SWAY` degrees through the struggle from `go`, then down to
  * the pin's angle (`PIN` degrees when none is asked) toward the winner's
- * left by `pin`, an angle past either arm's own range being refused with the
- * angle it holds, and back up to leave from `relax`. The
+ * left by `pin`, the trunk bending and turning to that side with the arm
+ * (`BEND`, `TWIST`) and the lean re-solved as it rolls, an angle past what
+ * trunk and arm hold being refused with the angle they hold, and back up to leave from `relax`. The
  * author declares the winner (#3350's outcome-first rule).
  *
  * First pass: the elbow's bearing on the table is not declared as a contact
@@ -65,6 +66,12 @@ export namespace armWrestle {
 
   /** How far from upright the forearms end at the pin when none is asked, degrees (provisional: the back of the loser's hand a hand's breadth off the table). */
   export const PIN: number = 70;
+
+  /** How far the trunk bends to the pin's side with the forearm a quarter turn from upright, degrees (provisional, inside the trunk's side bend). */
+  export const BEND: number = 20;
+
+  /** How far the chest turns toward the pin's side with the forearm a quarter turn from upright, degrees (provisional, inside the trunk's rotation). */
+  export const TWIST: number = 30;
 
   /** How much further above or below the table's top than with the forearm upright the displayed elbow may lie for a pin's angle to count as held, metres (the campaign's contact bound). */
   export const HELD: number = 0.015;
@@ -201,36 +208,90 @@ export namespace armWrestle {
       ]);
     };
 
-    const short = (pitch: number): number =>
+    // The trunk rolls with the arm: it bends to the pin's side and turns its
+    // chest toward it by the forearm's share of a quarter turn, half in the
+    // spine and half in the chest. The spine's side bend is about its +Z,
+    // negative to the performer's left, and its twist about +Y turns the
+    // chest to the left (`HUMANOID_JOINT_AXES`); `toLeft` is 1 when the pin
+    // goes to this performer's left and -1 when to the right.
+    const toLeft: number = Vector3.dot(
+      left,
+      Vector3.cross(up, Vector3.scale(own, -1)),
+    );
+    const rolled = (posture: IHumanPosture, degrees: number): IHumanPosture => {
+      const share: number = (toLeft * degrees) / 90;
+      const joints: IHumanPosture["joints"] = { ...posture.joints };
+      for (const bone of ["spine", "chest"] as const) {
+        const was: readonly [number, number, number] = joints[bone] ?? [
+          0, 0, 0,
+        ];
+        joints[bone] = [
+          was[0],
+          was[1] - (BEND / 2) * share,
+          was[2] + (TWIST / 2) * share,
+        ];
+      }
+      return { ...posture, joints };
+    };
+
+    // The lean at a turn: the shoulder an upper arm from the elbow with the
+    // trunk rolled as that turn rolls it, kept per whole degree.
+    const short = (pitch: number, degrees: number): number =>
       Vector3.length(
         Vector3.subtract(
-          HumanTrunk.resolve(body, leaned(pitch, entry)).get(
+          HumanTrunk.resolve(body, leaned(pitch, rolled(entry, degrees))).get(
             `${side}UpperArm`,
           )!.worldPosition,
           elbow,
         ),
       ) - upperArm;
-    let low: number = -20;
-    let high: number = 70;
-    if (!(short(low) * short(high) <= 0))
-      throw new HumanRefusal({
-        kind: "reach",
-        axis: "table",
-        value: `${(short(high) * 1000).toFixed(0)} mm`,
-        feasible: {
-          kind: "alternatives",
-          values: ["a table nearer the shoulder's height", "a seat at the table"],
-        },
-        reason: `No lean from the hips puts the shoulder an upper arm from the elbow's place on the table: it stays ${(short(low) * 1000).toFixed(0)} mm off leaning 20 degrees back and ${(short(high) * 1000).toFixed(0)} mm off leaning 70 degrees forward`,
-        fix: "sit the performer at the table, or give a table point nearer the shoulder",
-      });
-    for (let i: number = 0; i < 40; i++) {
-      const mid: number = (low + high) / 2;
-      if (short(low) * short(mid) <= 0) high = mid;
-      else low = mid;
-    }
-    const pitch: number = (low + high) / 2;
+    const leans: Map<number, number> = new Map();
+    const lean = (whole: number): number => {
+      const kept: number | undefined = leans.get(whole);
+      if (kept !== undefined) return kept;
+      let low: number = -20;
+      let high: number = 70;
+      if (!(short(low, whole) * short(high, whole) <= 0))
+        throw new HumanRefusal({
+          kind: "reach",
+          axis: "table",
+          value: `${(short(high, whole) * 1000).toFixed(0)} mm`,
+          feasible: {
+            kind: "alternatives",
+            values: [
+              "a table nearer the shoulder's height",
+              "a seat at the table",
+            ],
+          },
+          reason: `With the forearm ${whole} degrees from upright no lean from the hips puts the shoulder an upper arm from the elbow's place on the table: it stays ${(short(low, whole) * 1000).toFixed(0)} mm off leaning 20 degrees back and ${(short(high, whole) * 1000).toFixed(0)} mm off leaning 70 degrees forward`,
+          fix: "sit the performer at the table, or give a table point nearer the shoulder",
+        });
+      for (let i: number = 0; i < 24; i++) {
+        const mid: number = (low + high) / 2;
+        if (short(low, whole) * short(mid, whole) <= 0) high = mid;
+        else low = mid;
+      }
+      leans.set(whole, (low + high) / 2);
+      return (low + high) / 2;
+    };
+    const pitched = (degrees: number): number => {
+      const floor: number = Math.floor(degrees);
+      return (
+        lean(floor) + (lean(floor + 1) - lean(floor)) * (degrees - floor)
+      );
+    };
 
+    // The body at a turn: rolled, leant, the arm on its goal.
+    const set = (
+      posture: IHumanPosture,
+      degrees: number,
+      share: number,
+    ): IHumanPosture =>
+      armed(
+        leaned(pitched(degrees) * share, rolled(posture, degrees * share)),
+        degrees,
+      );
+    pitched(0);
     // The pin stops at this arm's own range: past it the arm leaves the
     // elbow's place for its other solution, which only a force would do.
     const asked: number = p.pin ?? PIN;
@@ -240,7 +301,7 @@ export namespace armWrestle {
       Math.abs(
         poseBones(
           body,
-          resolveHumanPosture(body, armed(leaned(pitch, entry), degrees)),
+          resolveHumanPosture(body, set(entry, degrees, 1)),
         ).get(`${side}LowerArm`)!.worldPosition.y - elbow.y,
       );
     const upright: number = off(0);
@@ -328,7 +389,7 @@ export namespace armWrestle {
                 : asked;
         return AutoMovieMotionHumanArm.carry(
           body,
-          armed(leaned(pitch * envelope, base.posture(t)), degrees),
+          set(base.posture(t), degrees, envelope),
           { right: begin },
           envelope,
         );
