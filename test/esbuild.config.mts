@@ -7,18 +7,26 @@ import {
 } from "esbuild";
 import fs from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 /**
- * Builds the test program for a fast run: `src/index.ts` and every test file
- * as entry points of one esbuild bundle in `bin/`, so `node bin/index.mjs`
- * runs the same program with the same arguments as `ttsx src/index.ts`.
+ * Builds the test program and runs it: `src/index.ts` and every test file as
+ * entry points of one esbuild bundle, then the built program in this process,
+ * so `node esbuild.config.mts <arguments>` runs the same program with the
+ * same arguments as `ttsx src/index.ts <arguments>`.
+ *
+ * Each run builds into a directory of its own, `bin/<process id>`, and
+ * removes it when the process ends, so runs started at the same time in one
+ * checkout never read each other's files. `bin/` is git-ignored and outside
+ * `src`, because a compiled file beside a source is what Node would load
+ * instead of it.
  *
  * The build type-checks and lints nothing; the type-check watch and CI's
- * `pnpm test` own that. `bin/` is git-ignored and outside `src`, because a
- * compiled file beside a source is what Node would load instead of it.
+ * `pnpm test` own that.
  */
 const root: string = import.meta.dirname;
-const output: string = path.join(root, "bin");
+const runs: string = path.join(root, "bin");
+const output: string = path.join(runs, String(process.pid));
 
 /**
  * Leaves installed packages to Node and bundles the workspace's own sources.
@@ -54,8 +62,30 @@ const installed: Plugin = {
   },
 };
 
-// A test removed from the sources must not stay runnable from an old build.
-fs.rmSync(output, { recursive: true, force: true });
+/**
+ * Whether a process of this machine is still alive.
+ *
+ * @param pid The process id.
+ * @returns `false` only when the system reports no such process.
+ */
+const alive = (pid: number): boolean => {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error) {
+    return (error as NodeJS.ErrnoException).code !== "ESRCH";
+  }
+};
+
+// A killed run leaves its directory behind; the next run clears it.
+if (fs.existsSync(runs))
+  for (const name of fs.readdirSync(runs))
+    if (/^\d+$/.test(name) && alive(Number(name)) === false)
+      fs.rmSync(path.join(runs, name), { recursive: true, force: true });
+process.on("exit", (): void =>
+  fs.rmSync(output, { recursive: true, force: true }),
+);
+
 await build({
   absWorkingDir: root,
   entryPoints: ["src/index.ts", "src/features/**/test_*.ts"],
@@ -82,3 +112,4 @@ await build({
   },
   logLevel: "warning",
 });
+await import(pathToFileURL(path.join(output, "index.mjs")).href);

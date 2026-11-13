@@ -7,8 +7,7 @@
   "scripts": {
     "build": "ttsc --noEmit",
     "start": "ttsx src/index.ts",
-    "esbuild:build": "node esbuild.config.mts",
-    "esbuild": "pnpm esbuild:build && node bin/index.mjs",
+    "esbuild": "node esbuild.config.mts",
     "evidence": "evidence",
     "conic:build": "esbuild \"src/reference-conics/FamilyConic*.ts\" --bundle --platform=node --format=cjs --external:@napi-rs/canvas --outdir=.shots/esbuild --out-extension:.js=.cjs --log-level=warning",
     "conic:armscye": "pnpm conic:build && node .shots/esbuild/FamilyConicArmscye.cjs",
