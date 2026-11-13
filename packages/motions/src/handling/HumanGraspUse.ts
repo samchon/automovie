@@ -31,8 +31,8 @@ import type { HumanGrasp } from "./HumanGrasp";
  * shoulder on the line of its use.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a use names, why the reach alone is not enough and how the use enters the grasp's choice.
- * @evidence contracts/development/design.md#principled-representation A use is the tool's working point by its affordance id and one of four lines: three to the forearm, the hammer, oblique and in-line grips of the grasp taxonomies (Feix et al. 2016), and one across the body, the long axis of a thing held in both hands; the search ranges are data beside it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The use, its four lines, the bounds of the search and the presented key; read by `pickUp`, `touch` and `handToFace`.
+ * @evidence contracts/development/design.md#principled-representation A use is the tool's working point by its affordance id and one of five lines: three to the forearm, the hammer, oblique and in-line grips of the grasp taxonomies (Feix et al. 2016), one across the body, the long axis of a thing held in both hands, and one along a surface of the body, the working face laid on it; the search ranges are data beside it.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The use, its five lines, the bounds of the search and the presented key; read by `pickUp`, `touch` and `handToFace`.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No tool kind is named: a sword and a pistol differ only in the id of their working point and the line asked.
  */
 export namespace HumanGraspUse {
@@ -47,9 +47,12 @@ export namespace HumanGraspUse {
      * rises 45 degrees from it, a sabre grip across the palm; `square`
      * stands upright on it, a hammer grip; `across` runs level across the
      * body toward the other hand, as a camera or a bar held in both hands
-     * lies, whatever the place.
+     * lies, whatever the place; `along` lays the tool along the surface of
+     * its place with the working point's own face on it, as a razor lies on
+     * the jaw or a comb on the scalp, its way along the surface the hand's
+     * own (a place on the body only).
      */
-    line: "forearm" | "oblique" | "square" | "across";
+    line: "forearm" | "oblique" | "square" | "across" | "along";
 
     /**
      * Where the tool is used, which is where the grasp must also hold:
@@ -71,6 +74,7 @@ export namespace HumanGraspUse {
     oblique: 45,
     square: 90,
     across: 0,
+    along: 0,
   };
 
   /** The most a grasp chosen for a use may leave unmet at its presented pose, as `HumanGrasp.IReach.miss` counts it (degrees of hand rotation plus millimetres of wrist place; provisional: 15, about what a wrist takes up unseen). */
@@ -104,15 +108,15 @@ export namespace HumanGraspUse {
    * hand turned so that the tool's line lies on the line the use names, in
    * the plane the body faces.
    *
-   * @param props The action's context, the prop and its handle, the hand, the hand the arm shows for the candidate grasp, the use, and the hand's own rotation at a place (what the arm gives it there when none is asked).
+   * @param props The action's context, the prop and its handle, the hand, the hand the arm shows for the candidate grasp, the use, the hand's own rotation at a place (what the arm gives it there when none is asked), and how far the closed hand at a wrist keeps out of the body's other parts, metres, negative inside (every roll alike when absent).
    * @returns The key pose.
-   * @throws {HumanRefusal} An `affordance` refusal on `use` when the prop declares no such working point, listing its contacts.
+   * @throws {HumanRefusal} An `affordance` refusal on `use` when the prop declares no such working point, listing its contacts; a `parameter` refusal on `use` for an `along` line ahead of the body, listing the other lines.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the pose, each input and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The tool is rigid in the hand from the grasp on, so the hand's rotation there is the candidate grasp's rotation turned by the shortest turn that takes the tool's line, as it lies now, onto the asked line. The roll about that line is free in a use that names only a line, so of the rolls tried the hand takes the one nearest its own rotation at that place.
+   * @evidence contracts/development/implementation.md#principled-implementation The tool is rigid in the hand from the grasp on, so the hand's rotation there is the candidate grasp's rotation turned by the shortest turn that takes the tool's line, as it lies now, onto the asked line, or, laid along a surface, the working point's own face onto the surface. The roll about that line, or the turn about the surface's normal, is free in a use that names only that much, so of the rolls tried the hand takes the one nearest its own rotation at that place.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The two contacts, the two lines, the turn between them, the place, the roll.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Lines that oppose each other turn about the body's left instead of an undefined axis. The place's shares of the arm (0.6 ahead, 0.1 below) are provisional and named at the code.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work and twenty-four quaternion products; the caller keeps the hand's own rotation per place.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Lines that oppose each other turn about the body's left instead of an undefined axis. Given the closed hand's clearance, no roll is taken that puts the hand inside the body while one keeps it out. The place's shares of the arm (0.6 ahead, 0.1 below) are provisional and named at the code.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Twenty-four quaternion products and, with a clearance, twenty-four of its readings; the caller keeps the hand's own rotation per place.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the entry pose's bones once.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
@@ -124,6 +128,7 @@ export namespace HumanGraspUse {
     wrist: HumanHand.IWrist;
     use: IUse;
     natural: (point: IAutoMovieVector3) => IAutoMovieQuaternion;
+    clear?: (wrist: HumanHand.IWrist) => number;
   }): HumanGrasp.IKey {
     const context: (typeof props)["context"] = props.context;
     const held: IHumanActionContext.IProp = context.prop(props.prop);
@@ -176,25 +181,69 @@ export namespace HumanGraspUse {
           : undefined;
     const level: number = at === undefined ? 1 : -1;
 
-    // A line across the body runs level toward the other hand: the body's
-    // left from the right hand, its right from the left.
-    const asked: IAutoMovieVector3 =
-      props.use.line === "across"
-        ? {
-            x: (props.side === "right" ? 1 : -1) * Math.cos(yaw),
-            y: 0,
-            z: (props.side === "right" ? -1 : 1) * Math.sin(yaw),
-          }
-        : {
-            x: level * forward.x * Math.cos(rise),
-            y: Math.sin(rise),
-            z: level * forward.z * Math.cos(rise),
-          };
+    // At the mouth or a region, the tool's working point goes there and
+    // the wrist follows from the hand's rotation: the point is rigid in the
+    // hand, at the offset it has in the candidate grasp.
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      context.body,
+      context.entry.pose,
+    );
+    const region: IHumanBody["surfaces"]["regions"]["mouth"] | undefined =
+      at === undefined ? undefined : context.body.surfaces.regions[at];
+    const bearer: IAutoMovieResolvedBone | undefined =
+      region === undefined ? undefined : bones.get(region.bone);
+    const placed:
+      | { point: IAutoMovieVector3; normal: IAutoMovieVector3 }
+      | undefined =
+      region !== undefined && bearer !== undefined
+        ? resolveAutoMovieHumanoidSurfaces.place(region, bearer)
+        : undefined;
+    const site: IAutoMovieVector3 | undefined = placed?.point;
+    if (props.use.line === "along" && placed === undefined)
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "use",
+        value: props.use.line,
+        feasible: {
+          kind: "alternatives",
+          values: ["forearm", "oblique", "square", "across"],
+        },
+        reason:
+          "a tool laid along a surface needs a surface of the performer's own body to lie on, and this use is ahead of the body",
+        fix: "name the mouth or a region as the use's place, or another line",
+      });
 
-    // The shortest turn from one line to the other; lines that oppose each
+    // What is laid and onto what: the tool's line onto the asked line,
+    // turned about it; laid along a surface, the working point's own face
+    // onto the surface, turned about its normal. A line across the body
+    // runs level toward the other hand: the body's left from the right
+    // hand, its right from the left.
+    const face: IAutoMovieVector3 = Vector3.normalize(
+      Quaternion.rotateVector(
+        held.frame(context.start).rotation,
+        Quaternion.rotateVector(tip.frame.rotation, { x: 0, y: 1, z: 0 }),
+      ),
+    );
+    const from: IAutoMovieVector3 = props.use.line === "along" ? face : lying;
+    const asked: IAutoMovieVector3 =
+      props.use.line === "along"
+        ? Vector3.scale(Vector3.normalize(placed!.normal), -1)
+        : props.use.line === "across"
+          ? {
+              x: (props.side === "right" ? 1 : -1) * Math.cos(yaw),
+              y: 0,
+              z: (props.side === "right" ? -1 : 1) * Math.sin(yaw),
+            }
+          : {
+              x: level * forward.x * Math.cos(rise),
+              y: Math.sin(rise),
+              z: level * forward.z * Math.cos(rise),
+            };
+
+    // The shortest turn from one to the other; directions that oppose each
     // other turn about the body's left, which keeps the turn in the plane
     // the body faces.
-    const across: IAutoMovieVector3 = Vector3.cross(lying, asked);
+    const across: IAutoMovieVector3 = Vector3.cross(from, asked);
     const axis: IAutoMovieVector3 =
       Vector3.length(across) > 1e-9
         ? Vector3.normalize(across)
@@ -202,19 +251,14 @@ export namespace HumanGraspUse {
     const laid: IAutoMovieQuaternion = Quaternion.multiply(
       Quaternion.fromAxisAngle(
         axis,
-        (Math.acos(Math.max(-1, Math.min(1, Vector3.dot(lying, asked)))) *
+        (Math.acos(Math.max(-1, Math.min(1, Vector3.dot(from, asked)))) *
           180) /
           Math.PI,
       ),
       props.wrist.rotation,
     );
-
     // Ahead of the shoulder by six tenths of the arm and a tenth below it,
     // where a tool is held to be aimed (provisional shares).
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
-      context.body,
-      context.entry.pose,
-    );
     const joint = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
       bones.get(bone)?.worldPosition ?? { x: 0, y: 0, z: 0 };
     const shoulder: IAutoMovieVector3 = joint(`${props.side}UpperArm`);
@@ -234,17 +278,6 @@ export namespace HumanGraspUse {
       z: shoulder.z + 0.6 * arm * forward.z,
     };
 
-    // At the mouth or a region, the tool's working point goes there and
-    // the wrist follows from the hand's rotation: the point is rigid in the
-    // hand, at the offset it has in the candidate grasp.
-    const region: IHumanBody["surfaces"]["regions"]["mouth"] | undefined =
-      at === undefined ? undefined : context.body.surfaces.regions[at];
-    const bearer: IAutoMovieResolvedBone | undefined =
-      region === undefined ? undefined : bones.get(region.bone);
-    const site: IAutoMovieVector3 | undefined =
-      region !== undefined && bearer !== undefined
-        ? resolveAutoMovieHumanoidSurfaces.place(region, bearer).point
-        : undefined;
     const inHand: IAutoMovieVector3 = Quaternion.rotateVector(
       Quaternion.inverse(props.wrist.rotation),
       Vector3.subtract(
@@ -261,30 +294,50 @@ export namespace HumanGraspUse {
 
     // Of the rolls about the asked line, the one nearest the hand's own
     // rotation there (near the mouth or a region, read a hand's length
-    // ahead of it, where the wrist comes to lie).
+    // ahead of it, where the wrist comes to lie). With the closed hand's
+    // clearance given, a roll that keeps the hand out of the body comes
+    // before any that does not, and with none, the one that keeps most.
     const own: IAutoMovieQuaternion = props.natural(
       site === undefined
         ? ahead
         : Vector3.add(site, Vector3.scale(forward, Vector3.length(inHand))),
     );
-    let rotation: IAutoMovieQuaternion = Quaternion.normalize(laid);
-    let nearest: number = -1;
+    const clearance = (rolled: IAutoMovieQuaternion): number =>
+      props.clear === undefined || site === undefined
+        ? Infinity
+        : props.clear({
+            point: Vector3.subtract(
+              site,
+              Quaternion.rotateVector(rolled, inHand),
+            ),
+            rotation: rolled,
+          });    let rotation: IAutoMovieQuaternion = Quaternion.normalize(laid);
+    let best: { clear: boolean; score: number } = {
+      clear: false,
+      score: -Infinity,
+    };
     for (const roll of ROLLS) {
       const rolled: IAutoMovieQuaternion = Quaternion.normalize(
         Quaternion.multiply(Quaternion.fromAxisAngle(asked, roll), laid),
       );
-      const alike: number = Math.abs(
-        rolled.x * own.x +
-          rolled.y * own.y +
-          rolled.z * own.z +
-          rolled.w * own.w,
-      );
-      if (alike > nearest) {
-        nearest = alike;
+      const kept: number = clearance(rolled);
+      const clear: boolean = kept >= 0;
+      const score: number = clear
+        ? Math.abs(
+            rolled.x * own.x +
+              rolled.y * own.y +
+              rolled.z * own.z +
+              rolled.w * own.w,
+          )
+        : kept;
+      if (
+        (clear && !best.clear) ||
+        (clear === best.clear && score > best.score)
+      ) {
+        best = { clear, score };
         rotation = rolled;
       }
-    }
-    const point: IAutoMovieVector3 =
+    }    const point: IAutoMovieVector3 =
       site === undefined
         ? ahead
         : Vector3.subtract(site, Quaternion.rotateVector(rotation, inHand));

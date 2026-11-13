@@ -1,5 +1,10 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import {
+  type IAutoMovieResolvedBone,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -16,6 +21,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanProp } from "../perform/IHumanProp";
+import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -23,6 +29,7 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanGraspUse } from "./HumanGraspUse";
+import { HumanGrip } from "./HumanGrip";
 
 /**
  * A held tool used as the grasp it was taken up by presents it: the act
@@ -38,6 +45,15 @@ import { HumanGraspUse } from "./HumanGraspUse";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No tool kind is named: the handle, the working point and the second handle are the prop's own affordance ids.
  */
 export namespace HumanHeldUse {
+  /** The digits whose phalanges and tips a held tool's hand keeps out of the body. */
+  export const DIGITS: readonly HumanGrip.Digit[] = [
+    "Thumb",
+    "Index",
+    "Middle",
+    "Ring",
+    "Little",
+  ];
+
   /** The grasp a held tool was taken up by for its use (`pickUp`'s `handle` and `use.line`), which an act that uses it keeps. */
   export interface IGrasp {
     /** The handle the tool was taken by. */
@@ -120,7 +136,8 @@ export namespace HumanHeldUse {
   /**
    * The pose a held tool is used in at a region of the performer's own: the
    * use's presented key (`HumanGraspUse.presented`) with the region as the
-   * use's place, from the hand as the entry holds it.
+   * use's place, from the hand as the entry holds it, turned about the
+   * line where the closed hand keeps out of the body.
    *
    * @param context The action's context.
    * @param side The holding hand.
@@ -132,8 +149,8 @@ export namespace HumanHeldUse {
    * @throws {HumanRefusal} As `HumanGraspUse.presented` does for a point the prop lacks.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the key, its inputs and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The grasp was chosen so that this key holds (`pickUp`'s use), so an act that keeps its rotation asks only a pose the grip was taken for; the hand's own rotation at a place is the arm's fit there with the hanging elbow, as `pickUp` reads it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The entry hand, the hand's own rotation, one delegation.
+   * @evidence contracts/development/implementation.md#principled-implementation The grasp was chosen so that this key holds (`pickUp`'s use), so an act that keeps its rotation asks only a pose the grip was taken for; the hand's own rotation at a place is the arm's fit there with the hanging elbow, as `pickUp` reads it; the closed hand is the entry's own digits, each phalanx and tip less its radius from the body's colliders, so a roll that would put a finger in the face is not taken while another keeps it out.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The entry hand and its digits, the clearance, the hand's own rotation, one delegation.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tool is named; the region is the act's own.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `HumanGraspUse.presented`, the posture resolver and `AutoMovieMotionHumanBend.hang`.
    * @evidence contracts/development/implementation.md#efficient-algorithms One entry pose read and a few arm fits per act.
@@ -148,7 +165,80 @@ export namespace HumanHeldUse {
     region: AutoMovieHumanoidRegion,
   ): HumanGrasp.IKey {
     const body: IHumanBody = context.body;
-    const hand = poseBones(body, context.entry.pose).get(`${side}Hand`);
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      context.entry.pose,
+    );
+    const hand: IAutoMovieResolvedBone | undefined = bones.get(`${side}Hand`);
+
+    // The closed hand as the entry holds it, in the hand's frame: each
+    // phalanx's joint centre and each digit's tip, with the digit's radius;
+    // and the body it must stay out of, all of it but that arm and hand.
+    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+      hand?.worldRotation ?? Quaternion.identity(),
+    );
+    const local = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+      Quaternion.rotateVector(
+        inverse,
+        Vector3.subtract(point, hand?.worldPosition ?? point),
+      );
+    const digits: { point: IAutoMovieVector3; radius: number }[] = [];
+    for (const digit of DIGITS) {
+      const chain: ReturnType<typeof HumanGrip.chain> = HumanGrip.chain(
+        body,
+        side,
+        digit,
+      );
+      const phalanges: IAutoMovieResolvedBone[] = HumanGrip.bones(side, digit)
+        .map((bone: AutoMovieHumanoidBone) => bones.get(bone))
+        .filter(
+          (
+            bone: IAutoMovieResolvedBone | undefined,
+          ): bone is IAutoMovieResolvedBone => bone !== undefined,
+        );
+      for (const phalanx of phalanges)
+        digits.push({
+          point: local(phalanx.worldPosition),
+          radius: chain.radius,
+        });
+      const distal: IAutoMovieResolvedBone | undefined =
+        phalanges[phalanges.length - 1];
+      if (distal !== undefined)
+        digits.push({
+          point: local(
+            Vector3.add(
+              distal.worldPosition,
+              Quaternion.rotateVector(distal.worldRotation, chain.tip),
+            ),
+          ),
+          radius: chain.radius,
+        });
+    }
+    const holding: RegExp = new RegExp(
+      `^${side}(UpperArm|LowerArm|Hand|Thumb|Index|Middle|Ring|Little)`,
+    );
+    const apart: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
+      [...bones].filter(
+        ([bone]: [AutoMovieHumanoidBone, IAutoMovieResolvedBone]): boolean =>
+          !holding.test(bone),
+      ),
+    );
+    const clear = (wrist: HumanHand.IWrist): number => {
+      let least: number = Infinity;
+      for (const digit of digits)
+        least = Math.min(
+          least,
+          HumanColliders.distance(
+            body,
+            apart,
+            Vector3.add(
+              wrist.point,
+              Quaternion.rotateVector(wrist.rotation, digit.point),
+            ),
+          ).distance - digit.radius,
+        );
+      return least;
+    };
     const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
       body,
       context.entry.posture,
@@ -173,6 +263,7 @@ export namespace HumanHeldUse {
             limbs: { ...context.entry.posture.limbs, [limb]: { point: at, bend } },
           }),
         ).get(`${side}Hand`)?.worldRotation ?? Quaternion.identity(),
+      clear,
     });
   }
 

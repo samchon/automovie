@@ -28,7 +28,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * ends through the stroke whatever its turn about the razor's line, so the
  * row takes the razor as a held tool, as the drink and the cigarette do;
  * laid by its head's facing alone, the held razor asked a turn beyond the
- * wrist, so its angle is the grasp's, chosen for the jaw.
+ * wrist, so its angle is the grasp's, chosen for the jaw. Its line laid
+ * oblique into the face put the fingers round the handle 13 mm inside the
+ * head through the whole stroke, so the razor lies along the jaw with its
+ * head's face on it (`along`), the hand away from the skin.
  * Each finding carries the posture at its instant, so the fit it came from
  * can be read off the complaint.
  *
@@ -73,12 +76,12 @@ export function test_human_motion_hand_verdicts_shave(): void {
       .pickUp({
         prop: "razor",
         handle: "grip",
-        use: { tip: "face", line: "oblique", at: { region: "jawRight" } },
+        use: { tip: "face", line: "along", at: { region: "jawRight" } },
       })
       .registered("shave", {
         prop: "razor",
         point: "face",
-        grasp: { handle: "grip", line: "oblique" },
+        grasp: { handle: "grip", line: "along" },
       }).node,
   });
   const report: HumanVerdicts.IReport = HumanVerdicts.of(performance, 6);
