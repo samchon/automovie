@@ -126,6 +126,21 @@ export namespace HumanSportGym {
     kind: "deadBug",
   });
 
+  /** Step-ups onto the box the composition names (`on`); an imagined one when none is named. */
+  export const stepUp = HumanActionRow.of("stepUp", workout, {
+    kind: "stepUp",
+  });
+
+  /** Incline push-ups, the hands on the bench the composition names (`on`). */
+  export const inclinePushUp = HumanActionRow.of("inclinePushUp", workout, {
+    kind: "inclinePushUp",
+  });
+
+  /** Decline push-ups, the toes on the bench the composition names (`on`). */
+  export const declinePushUp = HumanActionRow.of("declinePushUp", workout, {
+    kind: "declinePushUp",
+  });
+
   /** Dips, the bars not shown. */
   export const dip = HumanActionRow.of("dip", workout, {
     kind: "dip",

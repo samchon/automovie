@@ -70,9 +70,10 @@ export interface WorkoutKind {
    * exercise starts and each repetition ends.
    *
    * @param body The body.
+   * @param support The height above the floor of the prop's place the body bears on, metres, when the author names one (`on`); a kind done on equipment solves its angles from it, and others ignore it.
    * @returns The steps, at least one.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and what the first step is.
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and what the first step is.
    * @evidence contracts/development/implementation.md#principled-implementation A function of the body, so an angle two supports share (a split stance's two legs, a plank's pitch over its arms) is solved from the body's lengths.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One list.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Stated angles are provisional and named so in each table.
@@ -80,7 +81,25 @@ export interface WorkoutKind {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
    */
-  route(body: IHumanBody): readonly WorkoutKind.IStep[];
+  route(body: IHumanBody, support?: number): readonly WorkoutKind.IStep[];
+
+  /**
+   * How high the pinned joints stand above the place a `bar` anchor gives
+   * them, when they do not lie on it: an ankle above a box's top, a wrist
+   * above a bench's. On the place itself when absent.
+   *
+   * @param body The body.
+   * @returns Metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the input, the unit and the default.
+   * @evidence contracts/development/implementation.md#principled-implementation A function of the body, since the height is a joint's own above what its part bears on.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One number.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
+   */
+  rise?(body: IHumanBody): number;
 }
 /** Companion types of {@link WorkoutKind}. */
 export namespace WorkoutKind {

@@ -60,7 +60,7 @@ export namespace WorkoutFloor {
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the unit and the result.
    * @evidence contracts/development/implementation.md#principled-implementation The height is read by forward kinematics of the key itself, feet and toes included, so the foot stood on its toes raises the ankles as it does on the body; the first pass measured 0.2 m of error from treating the body as a line from the ankles.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One bisection over the pitch.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The pitch is sought between 30 degrees and level; a height outside what that range gives ends at the nearer end.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The pitch is sought between 10 degrees (nearly upright, the hands on something high) and 150 (the head lower than the feet, the feet on something high); a height outside what that range gives ends at the nearer end.
    * @evidence contracts/development/implementation.md#efficient-algorithms Twenty forward kinematics per key, once per plan.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -77,8 +77,8 @@ export namespace WorkoutFloor {
         ExerciseKey.mean(body, posed, ["leftToes", "rightToes"]).y
       );
     };
-    let steep: number = 30;
-    let level: number = 90;
+    let steep: number = 10;
+    let level: number = 150;
     for (let i: number = 0; i < 20; i++) {
       const middle: number = (steep + level) / 2;
       if (above(middle) > height) steep = middle;

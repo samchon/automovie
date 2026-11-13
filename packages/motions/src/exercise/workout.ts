@@ -1,12 +1,5 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Vector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { tags } from "typia";
 
 import type { HumanActionKey } from "../HumanActionKey";
@@ -28,10 +21,9 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
 import { ExerciseKey } from "./ExerciseKey";
+import { WorkoutEquipment } from "./WorkoutEquipment";
 import { WorkoutFeet } from "./WorkoutFeet";
 import { WorkoutFloor } from "./WorkoutFloor";
 import { WorkoutGym } from "./WorkoutGym";
@@ -39,6 +31,7 @@ import { WorkoutHanging } from "./WorkoutHanging";
 import type { WorkoutKind } from "./WorkoutKind";
 import { WorkoutLoad } from "./WorkoutLoad";
 import { WorkoutLying } from "./WorkoutLying";
+import { WorkoutPlace } from "./WorkoutPlace";
 import { WorkoutPoses } from "./WorkoutPoses";
 import { WorkoutStanding } from "./WorkoutStanding";
 import { WorkoutSupport } from "./WorkoutSupport";
@@ -91,6 +84,7 @@ export namespace workout {
   export type Kind =
 
     | WorkoutFloor.Name
+    | WorkoutEquipment.Name
     | WorkoutGym.Name
     | WorkoutLying.Name
     | WorkoutStanding.Name
@@ -100,21 +94,13 @@ export namespace workout {
   /** The exercises. */
   export const KINDS: Readonly<Record<Kind, WorkoutKind>> = {
     ...WorkoutFloor.KINDS,
+    ...WorkoutEquipment.KINDS,
     ...WorkoutGym.KINDS,
     ...WorkoutLying.KINDS,
     ...WorkoutStanding.KINDS,
     ...WorkoutPoses.KINDS,
     ...WorkoutHanging.KINDS,
   };
-
-  /** The hip joints, by which a body on a raised support is placed. */
-  const HIPS: readonly AutoMovieHumanoidBone[] = [
-    "leftUpperLeg",
-    "rightUpperLeg",
-  ];
-
-  /** How far above the standing body's overhead grip a bar is when the author places none, a share of the stature (provisional): the feet clear the floor. */
-  export const BAR: number = 0.08;
 
   /**
    * Parameters.
@@ -134,7 +120,7 @@ export namespace workout {
     /** Seconds a held pose is stayed in; the kind's own when absent. */
     hold?: number & tags.Minimum<0>;
 
-    /** The middle of the bar between the hands, world metres, for a hanging kind; `BAR` above the standing reach when absent. */
+    /** The middle of the bar between the hands, world metres, for a hanging kind; `WorkoutPlace.BAR` above the standing reach when absent. */
     bar?: IAutoMovieVector3;
 
     /** The prop the body bears on, by one of its affordances: a bench's `surface` under a kind that lies or sits raised, a bar's `bar` between the hands of a hanging kind. Its place when the action starts replaces the height the kind computes from the body, and the body goes to it. None when absent. */
@@ -192,7 +178,11 @@ export namespace workout {
     const standing: IHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
-    const route: readonly WorkoutKind.IStep[] = kind.route(body);
+
+    // The support a prop gives: its affordance's place as the action starts.
+    const borne: IAutoMovieVector3 | null =
+      p.on === undefined ? null : WorkoutSupport.at(context, p.on);
+    const route: readonly WorkoutKind.IStep[] = kind.route(body, borne?.y);
     const first: WorkoutKind.IStep = route[0]!;
     const stayed = (step: WorkoutKind.IStep): number =>
       step.held === true && p.hold !== undefined ? p.hold : step.hold;
@@ -237,102 +227,19 @@ export namespace workout {
 
     // Where the bearing bones stay.
     const yaw: number = standing.yaw;
-    const based: IHumanPosture = ExerciseKey.posed(first.key, yaw);
-    const pelvis = (posture: IHumanPosture): IAutoMovieVector3 =>
-      Quaternion.rotateVector(
-        resolveHumanPosture.heading(posture),
-        body.rest.get("hips")!,
-      );
-
-    // The support a prop gives: its affordance's place as the action starts.
-    const borne: IAutoMovieVector3 | null =
-      p.on === undefined ? null : WorkoutSupport.at(context, p.on);
-    const stood: IAutoMovieVector3 = Vector3.add(
-      standing.root,
-      pelvis(standing),
-    );
-    const hips: IAutoMovieVector3 =
-      borne === null ? stood : { x: borne.x, y: stood.y, z: borne.z };
-    // Where the entry shows the bearing bones: a stance is kept there, not
-    // where the keys' own joints would stand it.
-    const entered: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(body, context.entry.pose);
-    const shown: IAutoMovieVector3 = Vector3.scale(
-      kind.pin.reduce(
-        (sum: IAutoMovieVector3, bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
-          Vector3.add(sum, entered.get(bone)!.worldPosition),
-        { x: 0, y: 0, z: 0 },
-      ),
-      1 / kind.pin.length,
-    );
     const footed: (placed: IHumanPosture) => IHumanPosture = WorkoutFeet.keep(
       context,
       kind,
       yaw,
     );
-    // Feet or toes that bear on the floor are as high above it as when the
-    // body stands on them, and hands as high as a laid palm's wrist; only a
-    // body that bears on its trunk is rested by its shapes.
-    const grounded: number | null =
-      kind.anchor !== "hips" || kind.raise !== undefined || borne !== null
-        ? null
-        : kind.pin.every((bone: AutoMovieHumanoidBone): boolean =>
-              /(Foot|Toes)$/.test(bone),
-            )
-          ? shown.y
-          : kind.pin.every((bone: AutoMovieHumanoidBone): boolean =>
-                bone.endsWith("Hand"),
-              )
-            ? AutoMovieMotionHumanPlaced.wrist(body, "left", {
-                point: { x: 0, y: 0, z: 0 },
-                facing: { x: 0, y: -1, z: 0 },
-                forward: { x: 0, y: 0, z: 1 },
-              }).y
-            : null;
-
-    // A body on a raised support (a bench, a seat, a saddle) has its hip
-    // joints as high above it as they are above the floor when it lies
-    // flat: resting the key's own shapes on the floor first would count
-    // the legs that hang beside a bench and float the body by their length
-    // (0.51 m on the first run of the supported test).
-    const raised: number | null = borne?.y ?? kind.raise?.(body) ?? null;
-    const flat: IHumanPosture = ExerciseKey.posed(
-      ExerciseKey.of({ pitch: -90 }, {}),
-      yaw,
-    );
-    const lain: number =
-      knockdown.rest(body, flat) + ExerciseKey.mean(body, flat, HIPS).y;
-    const rested: IAutoMovieVector3 =
-      kind.anchor === "stance"
-        ? shown
-        : kind.anchor === "hips"
-          ? ExerciseKey.mean(
-              body,
-              {
-                ...based,
-                root: {
-                  x: hips.x - pelvis(based).x,
-                  y:
-                    raised === null
-                      ? knockdown.rest(body, based)
-                      : raised + lain - ExerciseKey.mean(body, based, HIPS).y,
-                  z: hips.z - pelvis(based).z,
-                },
-              },
-              kind.pin,
-            )
-          : (p.bar ??
-            borne ??
-            Vector3.add(
-              ExerciseKey.mean(
-                body,
-                { ...based, root: standing.root },
-                kind.pin,
-              ),
-              { x: 0, y: BAR * body.measure.stature, z: 0 },
-            ));
-    const at: IAutoMovieVector3 =
-      grounded === null ? rested : { ...rested, y: grounded };
+    const at: IAutoMovieVector3 = WorkoutPlace.of({
+      context,
+      kind,
+      standing,
+      first: first.key,
+      borne,
+      bar: p.bar,
+    });
 
     const posture = (seconds: number): IHumanPosture => {
       let index: number = 0;

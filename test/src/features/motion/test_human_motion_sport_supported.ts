@@ -1,6 +1,7 @@
 import {
   createBench,
   createParallelBars,
+  createPlyoBox,
   createPullUpBar,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
@@ -46,12 +47,23 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 3. Dip `on` the station's `barLeft` and `barRight`: at `top1` and at
  *    `bottom1` the wrists' middle is within 15 mm of the middle between the
  *    two bars.
+ * 4. Step-up `on` a 0.508 m box's `surface` behind: at `up1` the right ankle
+ *    is 0 to 0.15 m above the box's top (an ankle's own height with room),
+ *    and at `down1` the left ankle is within 30 mm of its standing height,
+ *    so the other foot is on the floor.
+ * 5. Incline push-up `on` the bench's `surface`: at `top1` the wrists are 0
+ *    to 0.08 m above the bench's top and the toes' joints 0 to 0.06 m above
+ *    the floor (a laid hand's and a toe joint's own heights with room,
+ *    estimates).
+ * 6. Decline push-up `on` the same: at `top1` the toes' joints are 0 to
+ *    0.06 m above the bench's top and the wrists 0 to 0.08 m above the
+ *    floor.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds a performance through the public chain with real archetypes as props and reads displayed joints against the props' own affordances; a body that ignores the prop and bears where the body's own measure would put it fails with the distance.
  * @evidence contracts/development/testing.md#independent-expectations The places are the archetypes' affordances carried by the props' placements; the bound is the campaign's and one stated estimate; nothing is read from the law.
  * @evidence contracts/development/testing.md#distinguishing-cases A lying support, a hanging one and a pressed one, each off the performer's own place so a height computed from the body cannot pass, on two bodies of opposite build.
- * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men, three archetypes and one film each; it runs locally and wherever CI runs the human motion tests.
- * @evidence contracts/development/common.md#meaningful-documentation States what is pinned, the bounds and which is an estimate, and the 3 scenarios.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men, four archetypes and one film each; it runs locally and wherever CI runs the human motion tests.
+ * @evidence contracts/development/common.md#meaningful-documentation States what is pinned, the bounds and which is an estimate, and the 6 scenarios.
  */
 export function test_human_motion_sport_supported(): void {
   const bench: ReturnType<typeof createBench> = createBench({});
@@ -61,8 +73,12 @@ export function test_human_motion_sport_supported(): void {
   const station: ReturnType<typeof createParallelBars> = createParallelBars({
     kind: "dipStation",
   });
-  const places: Readonly<Record<"bench" | "bar" | "station", IAutoMovieVector3>> =
+  const box: ReturnType<typeof createPlyoBox> = createPlyoBox({ height: 0.508 });
+  const places: Readonly<
+    Record<"bench" | "bar" | "station" | "box", IAutoMovieVector3>
+  > =
     {
+      box: { x: 0, y: 0, z: -1.2 },
       bench: { x: 0, y: 0, z: 1.2 },
       bar: { x: 1.2, y: 0, z: 0 },
       station: { x: -1.2, y: 0, z: 0 },
@@ -83,6 +99,9 @@ export function test_human_motion_sport_supported(): void {
           HumanSportWorkout.benchPress,
           HumanSportWorkout.pullUp,
           HumanSportGym.dip,
+          HumanSportGym.stepUp,
+          HumanSportGym.inclinePushUp,
+          HumanSportGym.declinePushUp,
         ],
         performers: [
           {
@@ -106,6 +125,10 @@ export function test_human_motion_sport_supported(): void {
             position: places.station,
             rotation: upright,
           }),
+          HumanObject.prop("box", box, {
+            position: places.box,
+            rotation: upright,
+          }),
         ],
         composition: HumanChain.subject("a")
           .stand({ seconds: 0.3 })
@@ -122,6 +145,21 @@ export function test_human_motion_sport_supported(): void {
           .registered("dip", {
             reps: 1,
             on: { prop: "station", affordance: "barLeft", other: "barRight" },
+          })
+          .stand({ seconds: 0.3 })
+          .registered("stepUp", {
+            reps: 1,
+            on: { prop: "box", affordance: "surface" },
+          })
+          .stand({ seconds: 0.3 })
+          .registered("inclinePushUp", {
+            reps: 1,
+            on: { prop: "bench", affordance: "surface" },
+          })
+          .stand({ seconds: 0.3 })
+          .registered("declinePushUp", {
+            reps: 1,
+            on: { prop: "bench", affordance: "surface" },
           }).node,
       });
     } catch (error) {
@@ -160,7 +198,7 @@ export function test_human_motion_sport_supported(): void {
         0.5,
       );
     const of = (
-      prop: "bench" | "bar" | "station",
+      prop: "bench" | "bar" | "station" | "box",
       local: IAutoMovieVector3,
     ): IAutoMovieVector3 => Vector3.add(places[prop], local);
 
@@ -194,6 +232,64 @@ export function test_human_motion_sport_supported(): void {
       of("station", station.affordance("barRight").frame.translation),
       0.5,
     );
+    // 4 to 6. A foot on the box, the hands and then the toes on the bench.
+    const height = (
+      row: string,
+      event: string,
+      a: "leftHand" | "leftToes" | "rightFoot" | "leftFoot",
+      b: "rightHand" | "rightToes" | "rightFoot" | "leftFoot",
+    ): number =>
+      (HumanSignature.joint(reader, when(row, event), a).y +
+        HumanSignature.joint(reader, when(row, event), b).y) /
+      2;
+    const boxTop: number = of(
+      "box",
+      box.affordance("surface").frame.translation,
+    ).y;
+    const floor: number = HumanSignature.joint(reader, 0.1, "leftFoot").y;
+    for (const [label, measured, least, most] of [
+      [
+        "the step-up's right ankle above the box's top at up1",
+        height("stepUp", "up1", "rightFoot", "rightFoot") - boxTop,
+        0,
+        0.15,
+      ],
+      [
+        "the step-up's left ankle above its standing height at down1",
+        height("stepUp", "down1", "leftFoot", "leftFoot") - floor,
+        -0.03,
+        0.03,
+      ],
+      [
+        "the incline push-up's wrists above the bench's top at top1",
+        height("inclinePushUp", "top1", "leftHand", "rightHand") - top.y,
+        0,
+        0.08,
+      ],
+      [
+        "the incline push-up's toes' joints above the floor at top1",
+        height("inclinePushUp", "top1", "leftToes", "rightToes"),
+        0,
+        0.06,
+      ],
+      [
+        "the decline push-up's toes' joints above the bench's top at top1",
+        height("declinePushUp", "top1", "leftToes", "rightToes") - top.y,
+        0,
+        0.06,
+      ],
+      [
+        "the decline push-up's wrists above the floor at top1",
+        height("declinePushUp", "top1", "leftHand", "rightHand"),
+        0,
+        0.08,
+      ],
+    ] as const)
+      if (!(measured >= least && measured <= most))
+        complaints.push(
+          `${name}: ${label} is ${measured.toFixed(3)} m, ${least} to ${most} m expected`,
+        );
+
     for (const [row, event, place] of [
       ["pullUp", "hang1", hung],
       ["pullUp", "top1", hung],
