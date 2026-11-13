@@ -232,13 +232,20 @@ export namespace FamilyConicSection {
   const SEED_MARGIN: number = 0.05;
 
   /**
-   * Where a feature anchor (`f`) stands on an observed counter-clockwise polygon, between the polygon's points `from` and `to` (its
-   * resolved neighbours, in order): within the share `window` of the arclength between them, the point of largest convex turning
-   * (`convex`), of largest concave turning (`concave`), or the sign change of turning nearest the window's middle (`inflection`,
+   * Where a feature anchor (`f`) stands on an observed counter-clockwise polygon, on its run from the polygon's point `from` to `to` (the
+   * extremes either side of the run, in order): within the share `window` of the arclength of that whole run, the point of largest convex
+   * turning (`convex`), of largest concave turning (`concave`), or the sign change of turning nearest the window's middle (`inflection`,
    * `FamilyConicExcursion.inflections`), turning read over `FEATURE_SPAN` mm either side; without a reading, the window's middle, so a
-   * feature that fades away seeds on its smooth stretch. Its tangent is the direction across the same span.
+   * feature that fades away seeds on its smooth stretch. Its tangent is the direction across the same span. Only points past `after`
+   * (the feature placed before it in the run, or the run's start) are candidates, so the run keeps its order.
+   *
+   * The window is a share of the whole run, frame extreme to frame extreme, because every feature of a run stands on one chord, its
+   * frame's (`AutoMovieHumanConicSection.frame`). Read on the stretch left after the feature before it, the windows compounded: on a
+   * convex section, where no inflection or concave feature has a reading, the trunk's six front features fell to their windows'
+   * middles at 0.14, 0.33, 0.60, 0.82, 0.95 and 0.99 of the run, the last three within its last twentieth, and an arc between them
+   * swung round the course point at every station (`--seeds`, the lined trunk on its stored wall). A run of one feature reads as before.
    */
-  function feature(points: readonly P[], anchor: IAnchor, from: number, to: number): { index: number; heading: number } {
+  function feature(points: readonly P[], anchor: IAnchor, from: number, to: number, after: number = from): { index: number; heading: number } {
     const n: number = points.length;
     const run: number[] = [];
     for (let i: number = from; ; i = (i + 1) % n) {
@@ -249,7 +256,10 @@ export namespace FamilyConicSection {
     for (let k: number = 1; k < run.length; ++k) along.push(along[k - 1]! + Math.hypot(points[run[k]!]![0] - points[run[k - 1]!]![0], points[run[k]!]![1] - points[run[k - 1]!]![1]));
     const total: number = along.at(-1)! || 1;
     const window: [number, number] = anchor.window ?? [0.1, 0.9];
-    const inside: number[] = run.filter((_: number, k: number): boolean => along[k]! / total >= window[0] && along[k]! / total <= window[1]);
+    // Candidates stand past the feature before it in the run.
+    const floor: number = run.indexOf(after);
+    const past = (k: number): boolean => floor < 0 || k >= floor;
+    const inside: number[] = run.filter((_: number, k: number): boolean => past(k) && along[k]! / total >= window[0] && along[k]! / total <= window[1]);
     const middle: number = ((window[0] + window[1]) / 2) * total;
     const nearest = (candidates: number[]): number => candidates.reduce((a: number, b: number): number => (Math.abs(along[run.indexOf(b)]! - middle) < Math.abs(along[run.indexOf(a)]! - middle) ? b : a));
     const step = (i: number, direction: 1 | -1): number => {
@@ -276,7 +286,7 @@ export namespace FamilyConicSection {
       return Math.atan2(b[1] - a[1], b[0] - a[0]);
     };
     if (inside.length === 0) {
-      const index: number = nearest(run);
+      const index: number = nearest(run.filter((_: number, k: number): boolean => past(k)));
       return { index, heading: heading(index) };
     }
     let index: number;
@@ -336,10 +346,13 @@ export namespace FamilyConicSection {
       if (anchor.kind !== "f") return;
       let before: number = (k + K - 1) % K;
       while (found[before] === null) before = (before + K - 1) % K;
+      // The run's start: the extreme before it, past any feature already placed in the run.
+      let start: number = before;
+      while (layout.anchors[start]!.kind === "f") start = (start + K - 1) % K;
       let after: number = (k + 1) % K;
       while (found[after] === null || layout.anchors[after]!.kind === "f") after = (after + 1) % K;
-      const from: number = (closest(found[before]!) + 1) % points.length;
-      const reading: { index: number; heading: number } = feature(points, anchor, from, closest(found[after]!));
+      const from: number = (closest(found[start]!) + 1) % points.length;
+      const reading: { index: number; heading: number } = feature(points, anchor, from, closest(found[after]!), (closest(found[before]!) + 1) % points.length);
       const p: P = points[reading.index]!;
       found[k] = p;
       tangent[k] = [Math.cos(reading.heading), Math.sin(reading.heading)];
