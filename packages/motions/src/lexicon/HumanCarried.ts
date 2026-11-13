@@ -25,6 +25,7 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
+import { HumanCarriedDrag } from "./HumanCarriedDrag";
 
 /**
  * Being carried by another person: on the back, in the arms or over a
@@ -146,7 +147,7 @@ export namespace HumanCarried {
     | "overShoulder"
     | "supported"
     | "supportedLeft"
-    | "armpitDrag";
+    | HumanCarriedDrag.Name;
 
   /** An offset by its parts in a performer's floor frame: toward the named hand's side, up and forward. */
   export interface IOffset {
@@ -196,7 +197,7 @@ export namespace HumanCarried {
     offset: IOffset;
   }
 
-  /** The carries. Every angle and offset is provisional, set from the carries' common descriptions: piggyback, chest on the back, legs about the waist, hands under the thighs; cradle, across the forearms before the chest; over the shoulder, folded at the waist over one shoulder; supported, side by side with an arm across the helper's shoulders (`supportedLeft` is a second helper's side); armpit drag, the upper back against the dragger's front, reclined, the dragger walking backward. #3349's sources give trunk flexion and stability findings, not these places. */
+  /** The carries. Every angle and offset is provisional, set from the carries' common descriptions: piggyback, chest on the back, legs about the waist, hands under the thighs; cradle, across the forearms before the chest; over the shoulder, folded at the waist over one shoulder; supported, side by side with an arm across the helper's shoulders (`supportedLeft` is a second helper's side); the drags are `HumanCarriedDrag`'s. #3349's sources give trunk flexion and stability findings, not these places. */
   export const CARRIES: Readonly<Record<Carry, IRow>> = {
     piggyback: {
       mine: "sternum",
@@ -258,18 +259,7 @@ export namespace HumanCarried {
         null,
       ],
     },
-    armpitDrag: {
-      mine: "upperBack",
-      theirs: "abdomen",
-      turn: 0,
-      pitch: -55,
-      legs: [10, 5, 0],
-      clings: [null, null],
-      holds: [
-        { region: "abdomen", offset: { out: 0.2, up: -0.1, forward: 0.2 } },
-        { region: "abdomen", offset: { out: 0.2, up: -0.1, forward: 0.2 } },
-      ],
-    },
+    ...HumanCarriedDrag.CARRIES,
   };
 
   /** Parameters of being carried in a named carry. */

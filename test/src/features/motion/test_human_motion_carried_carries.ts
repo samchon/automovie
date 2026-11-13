@@ -32,9 +32,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * Scenarios, the carrier walking 2 m, sampled every 0.1 s from 0.5 s after
  * the carry is taken up (the lift into a carry is not planned yet, so the
  * take-up is a transition and not part of the hold):
- * 1. Each of the six carries (the four, a second helper's side of a
- *    supported walk, and the armpit drag's hold while the carrier walks
- *    forward), the average man carrying the small woman:
+ * 1. Each of the eight carries (the four, a second helper's side of a
+ *    supported walk, and the armpit, collar and ankle drags' holds while
+ *    the carrier walks forward; the drags' regions are a first-aid manual's:
+ *    the neck before the dragger's thigh, a calf before the other thigh),
+ *    the average man carrying the small woman:
  *    the carried person's resting region is within 10 mm of the carrier's.
  * 2. Piggyback and the supported walk with the small woman carrying the
  *    average man: the same bound.
@@ -44,8 +46,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds two-person performances through the public chain and overlay and reads both displayed bodies; a carried body that drifts off the carrier, a carrier whose hands do not hold, or an accepted self-carry fails.
  * @evidence contracts/development/testing.md#independent-expectations The bound is the campaign's hold bound and the regions are the carries' descriptions; both bodies are read as displayed, never from a plan.
- * @evidence contracts/development/testing.md#distinguishing-cases Six carries, both orders of two bodies of opposite build for the two carries a small carrier performs, the carrier's hands with and without the hold, one refusal.
- * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds eight short performances; it runs locally and wherever CI runs the human motion tests.
+ * @evidence contracts/development/testing.md#distinguishing-cases Eight carries, both orders of two bodies of opposite build for the two carries a small carrier performs, the carrier's hands with and without the hold, one refusal.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds ten short performances; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the bound with its source and the 4 scenarios.
  */
 export function test_human_motion_carried_carries(): void {
@@ -61,6 +63,8 @@ export function test_human_motion_carried_carries(): void {
     supported: ["ribsLeft", "ribsRight"],
     supportedLeft: ["ribsRight", "ribsLeft"],
     armpitDrag: ["upperBack", "abdomen"],
+    collarDrag: ["nape", "thighFrontLeft"],
+    ankleDrag: ["calfLeft", "thighFrontRight"],
   };
   const complaints: string[] = [];
   const stage = (
@@ -107,7 +111,16 @@ export function test_human_motion_carried_carries(): void {
   for (const [names, carries] of [
     [
       ["m-average", "f-small"],
-      ["piggyback", "cradle", "overShoulder", "supported", "supportedLeft", "armpitDrag"],
+      [
+        "piggyback",
+        "cradle",
+        "overShoulder",
+        "supported",
+        "supportedLeft",
+        "armpitDrag",
+        "collarDrag",
+        "ankleDrag",
+      ],
     ],
     [
       ["f-small", "m-average"],

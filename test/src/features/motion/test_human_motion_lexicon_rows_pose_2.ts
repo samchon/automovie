@@ -3,7 +3,7 @@ import { TestValidator } from "@nestia/e2e";
 import { LexiconRowNet } from "../internal/LexiconRowNet";
 
 /**
- * Every row of the `drill` family of the lexicon is something a body can
+ * Every row of part 2 of 2 of the `pose` family of the lexicon (the rows whose position in the family leaves 1 when divided by 2) is something a body can
  * do: on the average man and on the small woman, alone or on a partner of
  * the other build, it is accepted and planned, in its own name.
  *
@@ -11,7 +11,7 @@ import { LexiconRowNet } from "../internal/LexiconRowNet";
  * fits a body. Its first possible fault is a fixed combination that action
  * refuses on some body or at a natural distance, and this test is the net
  * for that. Whether a planned row keeps the physical bounds is the verdict
- * net's, and what a row should look like its own signature test's.
+ * net's, and what a row should look like its own signature test's. The family is cast in 2 parts so each test stays under a minute.
  *
  * Scenarios, for each performer of the two bodies:
  * 1. Each row performed alone, with what it leaves open given by the net's
@@ -26,6 +26,6 @@ import { LexiconRowNet } from "../internal/LexiconRowNet";
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds one short performance per row and body; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States what the net catches, what it leaves to the verdict net and to signature tests, and the 2 scenarios.
  */
-export function test_human_motion_lexicon_rows_drill(): void {
-  TestValidator.equals("every row is performable", LexiconRowNet.rows("drill"), []);
+export function test_human_motion_lexicon_rows_pose_2(): void {
+  TestValidator.equals("every row is performable", LexiconRowNet.rows("pose", [1, 2]), []);
 }

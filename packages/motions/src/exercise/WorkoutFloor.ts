@@ -1,4 +1,5 @@
 import type { IHumanBody } from "../body/IHumanBody";
+import type { IHumanPosture } from "../posture/IHumanPosture";
 import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
 
@@ -47,26 +48,68 @@ export namespace WorkoutFloor {
     return 90 - (Math.asin(Math.min(1, height / length)) * 180) / Math.PI;
   }
 
+  /**
+   * The key of a family of keys by pitch whose shoulders stand a height
+   * above its toes' joints.
+   *
+   * @param body The body.
+   * @param height The shoulders' height above the toes' joints, metres.
+   * @param key The key at a pitch, degrees.
+   * @returns The key whose pitch gives that height.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the unit and the result.
+   * @evidence contracts/development/implementation.md#principled-implementation The height is read by forward kinematics of the key itself, feet and toes included, so the foot stood on its toes raises the ankles as it does on the body; the first pass measured 0.2 m of error from treating the body as a line from the ankles.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One bisection over the pitch.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The pitch is sought between 30 degrees and level; a height outside what that range gives ends at the nearer end.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Twenty forward kinematics per key, once per plan.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function pitched(
+    body: IHumanBody,
+    height: number,
+    key: (pitch: number) => ExerciseKey.IKey,
+  ): ExerciseKey.IKey {
+    const above = (pitch: number): number => {
+      const posed: IHumanPosture = ExerciseKey.posed(key(pitch), 0);
+      return (
+        ExerciseKey.mean(body, posed, ["leftUpperArm", "rightUpperArm"]).y -
+        ExerciseKey.mean(body, posed, ["leftToes", "rightToes"]).y
+      );
+    };
+    let steep: number = 30;
+    let level: number = 90;
+    for (let i: number = 0; i < 20; i++) {
+      const middle: number = (steep + level) / 2;
+      if (above(middle) > height) steep = middle;
+      else level = middle;
+    }
+    return key((steep + level) / 2);
+  }
+
   /** The top of a push-up: a straight body on the toes and the straight arms; the hands `raise` degrees out. */
-  const top = (body: IHumanBody, raise: number = 5): ExerciseKey.IKey => {
-    const pitch: number = plank(
+  const top = (body: IHumanBody, raise: number = 5): ExerciseKey.IKey =>
+    pitched(
       body,
       REACH * (body.measure.upperArm + body.measure.forearm),
+      (pitch: number): ExerciseKey.IKey =>
+        ExerciseKey.of(
+          { pitch, neck: -20 },
+          { toes: 70, shoulder: pitch, raise, elbow: 5 },
+        ),
     );
-    return ExerciseKey.of(
-      { pitch, neck: -20 },
-      { toes: 70, shoulder: pitch, raise, elbow: 5 },
-    );
-  };
 
   /** The bottom of a push-up: the same line lowered until the upper arms are level, the shoulders at the elbows' height over upright forearms (NSCA's description of the bottom position). */
-  const bottom = (body: IHumanBody, raise: number = 5): ExerciseKey.IKey => {
-    const pitch: number = plank(body, body.measure.forearm);
-    return ExerciseKey.of(
-      { pitch, neck: -25 },
-      { toes: 70, shoulder: pitch - 60, raise, elbow: 100 },
+  const bottom = (body: IHumanBody, raise: number = 5): ExerciseKey.IKey =>
+    pitched(
+      body,
+      body.measure.forearm,
+      (pitch: number): ExerciseKey.IKey =>
+        ExerciseKey.of(
+          { pitch, neck: -25 },
+          { toes: 70, shoulder: pitch - 60, raise, elbow: 100 },
+        ),
     );
-  };
 
   /** The hands and the toes bear. */
   const PRONE: readonly WorkoutKind.ISupport[] = [

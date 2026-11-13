@@ -26,6 +26,7 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
@@ -253,6 +254,16 @@ export namespace workout {
                   support.part === `${side}Foot` && support.kind === "plant",
               ),
           );
+    const pivots: readonly ("left" | "right")[] =
+      kind.anchor !== "stance"
+        ? []
+        : (["left", "right"] as const).filter(
+            (side: "left" | "right"): boolean =>
+              kind.supports.some(
+                (support: WorkoutKind.ISupport): boolean =>
+                  support.part === `${side}Foot` && support.kind === "pivot",
+              ),
+          );
     const footed = (placed: IHumanPosture): IHumanPosture => {
       const limbs: IHumanPosture["limbs"] = { ...placed.limbs };
       for (const side of planted)
@@ -266,6 +277,27 @@ export namespace workout {
           },
           true,
         );
+      // A foot the body turns on stays on its ball, turned by the key.
+      for (const side of pivots) {
+        const stance: HumanFoot.IPlacement = {
+          ankle: context.entry.feet[side].ankle,
+          rotation: context.entry.feet[side].rotation,
+        };
+        limbs[`${side}Leg`] = AutoMovieMotionHumanLeg.goal(
+          body,
+          placed,
+          side,
+          HumanFoot.pivot(
+            body,
+            side,
+            "mtp",
+            HumanFoot.point(body, side, "mtp", stance),
+            HumanFoot.heading(stance.rotation) + (placed.yaw - yaw),
+            0,
+          ),
+          true,
+        );
+      }
       return { ...placed, limbs };
     };
     const at: IAutoMovieVector3 =

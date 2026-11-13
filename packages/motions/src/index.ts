@@ -241,3 +241,4 @@ export * from "./sport/salto";
 export * from "./exercise/WorkoutStance";
 export * from "./exercise/WorkoutLying";
 export * from "./exercise/WorkoutPoses";
+export * from "./lexicon/HumanCarriedDrag";
