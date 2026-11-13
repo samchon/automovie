@@ -51,6 +51,9 @@ export namespace FamilyConicExcursion {
 
     /** How far inside the host's line the root is closed, mm. */
     sink: number;
+
+    /** Close the root by a smooth cubic along the skin's own end directions instead of the host's sunk line. */
+    smooth?: boolean;
   }
 
   /** A plane's closed section of the part. */
@@ -84,7 +87,7 @@ export namespace FamilyConicExcursion {
     // 1 mm apart; chart u straight forward (+x) and v toward +Z, so v x u is up. Its box spans the wings, which stand within 18.5 to 20 mm of
     // the median plane (`FamilyConicScan.ts alar`: the alar groove at 18.2 to 20 mm to the side), and the face's line is fitted to the
     // cheeks 22 to 34 mm to either side. A threshold of 1.5 mm keeps the alar groove (1.4 mm under the hull, Open) inside the excursion.
-    { name: "nose", heights: [1542.5, 1582, 1], origin: [100, 0], u: [1, 0, 0], v: [0, 0, 1], box: [-22, 22], beside: [[-34, -22], [22, 34]], threshold: 1.5, sink: 4 },
+    { name: "nose", heights: [1542.5, 1582, 1], origin: [100, 0], u: [1, 0, 0], v: [0, 0, 1], box: [-22, 22], beside: [[-34, -22], [22, 34]], threshold: 1.5, sink: 4, smooth: true },
   ];
 
   /** Cut every plane of a part out of the reference head. */
@@ -238,7 +241,30 @@ export namespace FamilyConicExcursion {
               const v: number = b[1] + ((a[1] - b[1]) * k) / across;
               return [line(v) - part.sink, v];
             });
-            excursion = [...piece, ...sunk];
+            // A part fitted to its skin as one wall (`IPart.smooth`) closes its root by a cubic that leaves each end along the skin's own
+            // direction there and passes `sink` under the host's line midway, so the buried closure has no corner a conic chain must turn.
+            if (part.smooth === true) {
+              const back = (from: number, step: number): C.P => {
+                let k: number = from;
+                while (k + step >= 0 && k + step < piece.length && Math.hypot(piece[k + step]![0] - piece[from]![0], piece[k + step]![1] - piece[from]![1]) < 1.5) k += step;
+                const q: C.P = piece[k]!;
+                const p: C.P = piece[from]!;
+                const l: number = Math.hypot(p[0] - q[0], p[1] - q[1]) || 1;
+                return [(p[0] - q[0]) / l, (p[1] - q[1]) / l];
+              };
+              const tb: C.P = back(piece.length - 1, -1);
+              const ta: C.P = back(0, 1);
+              const reach: number = Math.max(2 * part.sink, Math.hypot(a[0] - b[0], a[1] - b[1]) / 3);
+              const p1: C.P = [b[0] + reach * tb[0], b[1] + reach * tb[1]];
+              const p2: C.P = [a[0] + reach * ta[0], a[1] + reach * ta[1]];
+              const across: number = Math.max(8, Math.ceil(Math.abs(a[1] - b[1])));
+              const curve: C.P[] = Array.from({ length: across - 1 }, (_: unknown, j: number): C.P => {
+                const s: number = (j + 1) / across;
+                const w: number[] = [(1 - s) ** 3, 3 * s * (1 - s) ** 2, 3 * s * s * (1 - s), s ** 3];
+                return [w[0]! * b[0] + w[1]! * p1[0] + w[2]! * p2[0] + w[3]! * a[0], w[0]! * b[1] + w[1]! * p1[1] + w[2]! * p2[1] + w[3]! * a[1]];
+              });
+              excursion = [...piece, ...curve];
+            } else excursion = [...piece, ...sunk];
           }
         }
       }
