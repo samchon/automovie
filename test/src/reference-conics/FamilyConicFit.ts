@@ -403,8 +403,13 @@ export namespace FamilyConicFit {
     // and each next a tenth of the last, so the solution travels inside the admissible region toward the plain least-squares fit.
     const barrierLevels: number[] = [0];
     if (process.argv.includes("--barrier") && current !== null) {
-      const count: number = dense.length * (margins(theta(Y, dense[0]!))?.length ?? 1);
-      const start: number = (BARRIER_SHARE * current.total) / count;
+      // The first weight is read from the start's own margins (Nocedal and Wright, ch. 19, on initialising mu): the first barrier term,
+      // `mu sum |log m|`, is `BARRIER_SHARE` of the data term. Spread evenly over the number of margins instead, a start near the region's
+      // wall at many stations (large `|log m|`) took a barrier many times its misfit and was pushed toward the region's centre: f1's nose
+      // went from 1.1 to 5.9 to 11.4 mm at each knot inserted.
+      let logs: number = 0;
+      for (const b of dense) for (const m of margins(theta(Y, b)) ?? []) logs += Math.abs(Math.log(m));
+      const start: number = (BARRIER_SHARE * current.total) / Math.max(logs, 1);
       barrierLevels.splice(0, 1, ...Array.from({ length: BARRIER_LEVELS }, (_: unknown, k: number): number => start / 10 ** k), 0);
     }
     const passes: number = power > 2 ? 3 : 1;
