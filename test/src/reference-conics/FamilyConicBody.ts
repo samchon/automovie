@@ -12,6 +12,7 @@ import { FamilyConicRelief as H } from "./FamilyConicRelief";
 import { FamilyConicSection as C } from "./FamilyConicSection";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 import { FamilyConicExcursion as X } from "./FamilyConicExcursion";
+import { FamilyConicLoop } from "./FamilyConicLoop";
 
 /**
  * Whole-part conic families on the f1 reference: each part is cut along its
@@ -980,6 +981,8 @@ namespace FamilyConicBody {
     log0 = log;
     const source: R.ISource = await R.load(root);
     const joint = (name: string): R.V => source.joints.get(name)!;
+    // The armscye's landmark loop on the skin (`FamilyConicLoop`), which divides the shoulder's skin between the trunk and the arm.
+    const armscye: FamilyConicLoop.ILoop = FamilyConicLoop.build(source);
     const only: string[] = process.argv.slice(2).filter((argument: string): boolean => !argument.startsWith("--"));
     if (process.argv.includes("--emit-joints")) await fs.writeFile(path.join(root, "packages/human/src/generation/f1/AutoMovieHumanF1Joints.ts"), joints(source));
     // A digit's course runs through its joints and on past the last one by the length of its distal segment.
@@ -1174,7 +1177,12 @@ namespace FamilyConicBody {
         // into flaps along the jaw. Fitted whole with those knots the chest's reliefs came out worse (882 numbers, 0.74 mm), so the wall
         // kept is the earlier one below station 640 and this one above it, with every relief fitted again over the splice
         // (`--wall=<earlier> --splice=<this>@640 --refit`): 693 numbers at 0.66 mm. The ears are left out of its sections. It owns the shoulders down to the armscye plane through the armpit's
-        // crease; past that plane, lateral of the crease and inside the arm's own tube, the skin is the arm's and is left out of the trunk's sections.
+        // crease. The skin past the armscye's landmark loop (construction.md, Ports: "The loop passes through the landmarks that define it by
+        // their published definitions"), on the arm's side of the surface its lifted rays sweep (`FamilyConicLoop`), and inside the arm's own
+        // tube is the arm's and is left out of the trunk's sections. Cut by the sagittal plane through the crease instead, the chest's sections
+        // turned 50 to 79 degrees within 2 mm where the plane met the skin, a corner the fairing rang round. The tube still bounds the loop's
+        // side: the surface swept from the loop is a graph over its plane and reaches the hip's side, 32 of f1's vertices at 758 to 884 mm
+        // up standing up to 4.7 mm past it.
         // The front arcs' shoulders at knot 792 are laid from their neighbours (`--relay=792,814,834:6 --relay-stored=792:6,7`): the face's refit
         // without the nose stored -0.20, 0.03 and 1.17 there, out of the model's bounds, and the curvature match then held both arcs either side
         // of the front median at 0.09 to 0.14, near-chords that turned within 0.26 mm and drew an upright slash down each cheek (`head.front`
@@ -1186,7 +1194,7 @@ namespace FamilyConicBody {
           const d: R.V = [(b[0] - a[0]) / length, (b[1] - a[1]) / length, (b[2] - a[2]) / length];
           const q: R.V = [p[0] - a[0], p[1] - a[1], side * p[2] - a[2]];
           const along: number = q[0] * d[0] + q[1] * d[1] + q[2] * d[2];
-          return Math.min(side * p[2] - ARMPIT_MM, ARM_TUBE_MM - Math.hypot(q[0] - along * d[0], q[1] - along * d[1], q[2] - along * d[2]));
+          return Math.min(armscye.side([p[0], p[1], side * p[2]]), ARM_TUBE_MM - Math.hypot(q[0] - along * d[0], q[1] - along * d[1], q[2] - along * d[2]));
         })), reliefs: [
           // Every window's cast turns with the phase (`turn`), so it is square to the wall across its whole width. On fixed axes the windows
           // had to stop at 1.0 to 1.2 rad: farther round a height slid a point along the wall instead of moving it in or out, which folded

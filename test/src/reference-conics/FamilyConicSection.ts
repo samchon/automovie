@@ -223,7 +223,7 @@ export namespace FamilyConicSection {
   }
 
   /** The least turning, radians, that counts as a feature: an inflection's strength from which its line stands wholly on it. */
-  const FEATURE_LEAST: number = 0.05;
+  export const FEATURE_LEAST: number = 0.05;
 
   /** Step of the headings a feature's seed tangent is searched in where its reading does not make both its arcs conics, radians. */
   const FEATURE_STEP: number = 0.01;
@@ -232,7 +232,7 @@ export namespace FamilyConicSection {
   const SEED_MARGIN: number = 0.05;
 
   /** One end of an arc of a section's conic conversion: its point, its unit tangent, whether its two arcs bend opposite ways, and the arc it starts. */
-  interface IEnd {
+  export interface IEnd {
     point: P;
     tangent: P;
     inflection: boolean;
@@ -262,7 +262,7 @@ export namespace FamilyConicSection {
    * wavelength `FAIR_MM` of girth, converted by Ahn's conic approximation (`approximateAutoMovieRecoveryConicsAhn`), and the ends of its
    * arcs with their tangents.
    */
-  function converted(points: readonly P[]): { ends: IEnd[]; at: (phi: number) => { point: P; tangent: P } } {
+  export function converted(points: readonly P[]): { ends: IEnd[]; at: (phi: number) => { point: P; tangent: P } } {
     const M: number = 720;
     const radii: number[] = Array.from({ length: M }, (_: unknown, k: number): number => radius(points, (2 * Math.PI * k) / M));
     let girth: number = 0;
@@ -318,6 +318,33 @@ export namespace FamilyConicSection {
         return [x, y];
       },
     };
+    // The faired curve's inflections, the sign changes of cross(p', p''), are the converter's breaks: it never fits an interval whose
+    // curvature changes sign, so without them it bisects toward each inflection to its depth limit and a section of 28 spent its arc budget
+    // (f1's chest at a 20 mm fairing). Recovery's own cubic adapter hands it the same roots (`AutoMovieRecoveryConicApproximation`
+    // `.ICubicCriticalParameters`). The faired radius is a trigonometric polynomial of degree H, so the numerator is one of degree 2H, with
+    // at most 4H roots a turn; each is bracketed on 16H samples and bisected to the double's resolution. On a straight stretch the curvature
+    // is a residue of the harmonics past the cutoff, 1e-6 to 1e-5 a millimetre on f1's chest, whose sign flips every 0.3 to 0.7 degrees:
+    // bracketed on eight samples a cutoff wavelength those roots went unseen, the converter met them inside its intervals, refused and
+    // bisected, and 16 of 443 sections ran out of arcs. A pair of them costs two short arcs.
+    const numerator = (phi: number): number => {
+      const d1 = curve.derivative(phi, 1), d2 = curve.derivative(phi, 2);
+      return d1[0] * d2[1] - d1[1] * d2[0];
+    };
+    const steps: number = 16 * H;
+    for (let i: number = 0; i < steps; ++i) {
+      let lo: number = curve.domain[0] + (2 * Math.PI * i) / steps, hi: number = curve.domain[0] + (2 * Math.PI * (i + 1)) / steps;
+      let below: number = numerator(lo);
+      if (below === 0 || Math.sign(below) === Math.sign(numerator(hi))) continue;
+      for (let k: number = 0; k < 64; ++k) {
+        const mid: number = (lo + hi) / 2;
+        if (mid === lo || mid === hi) break;
+        const value: number = numerator(mid);
+        if (Math.sign(value) === Math.sign(below)) [lo, below] = [mid, value];
+        else hi = mid;
+      }
+      const root: number = (lo + hi) / 2;
+      if (root > curve.domain[0] && root < curve.domain[1]) curve.breaks.push(root);
+    }
     const result = approximateAutoMovieRecoveryConicsAhn(curve, CONVERT);
     const arcs = [...result.arcs].sort((p, q): number => p.domain[0] - q.domain[0]);
     // The converter fits no interval whose curvature changes sign, so it bisects toward each inflection to its depth limit and leaves the
@@ -328,8 +355,29 @@ export namespace FamilyConicSection {
     const sliver: number = (curve.domain[1] - curve.domain[0]) / 2 ** CONVERT.maximumDepth;
     const covered: number = arcs.reduce((sum: number, arc): number => sum + (arc.domain[1] - arc.domain[0]), 0);
     const slivers: number = (curve.domain[1] - curve.domain[0] - covered) / sliver;
-    if (arcs.length + slivers > CONVERT.maximumArcs + 0.5)
-      throw new Error(`the section's conic conversion ran out of arcs (${arcs.length} arcs, ${slivers.toFixed(0)} slivers' width unconverted): ${result.diagnostics.join(" / ")}`);
+    if (arcs.length + slivers > CONVERT.maximumArcs + 0.5) {
+      // The widest unconverted stretches, where they lie, how far the faired curve turns across each, and the breaks beside them.
+      const heading = (phi: number): number => {
+        const d = curve.derivative(phi, 1);
+        return Math.atan2(d[1], d[0]);
+      };
+      const deg = (x: number): string => ((x * 180) / Math.PI).toFixed(3);
+      const gaps: [number, number][] = [];
+      for (let i: number = 0; i < arcs.length; ++i) {
+        const end: number = arcs[i]!.domain[1], next: number = i + 1 < arcs.length ? arcs[i + 1]!.domain[0] : arcs[0]!.domain[0] + (curve.domain[1] - curve.domain[0]);
+        if (next - end > sliver * 1.5) gaps.push([end, next]);
+      }
+      const named: string = gaps
+        .sort((x, y): number => y[1] - y[0] - (x[1] - x[0]))
+        .slice(0, 3)
+        .map(([a, b]): string => {
+          const turn: number = heading(b) - heading(a);
+          const near: number[] = curve.breaks.filter((x: number): boolean => x >= a - 0.05 && x <= b + 0.05);
+          return `${deg(a)}..${deg(b)} deg turning ${deg(Math.abs(Math.atan2(Math.sin(turn), Math.cos(turn))))} deg, breaks at ${near.map(deg).join(",") || "none"}`;
+        })
+        .join("; ");
+      throw new Error(`the section's conic conversion ran out of arcs (${arcs.length} arcs, ${slivers.toFixed(0)} slivers' width unconverted; ${named}): ${result.diagnostics.join(" / ")}`);
+    }
     const bend = (arc: (typeof arcs)[number]): number => {
       const [p0, p1, p2] = arc.controls;
       return Math.sign((p1[0] - p0[0]) * (p2[1] - p1[1]) - (p1[1] - p0[1]) * (p2[0] - p1[0]));

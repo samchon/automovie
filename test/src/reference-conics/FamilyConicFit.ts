@@ -1,3 +1,4 @@
+import { writeFileSync } from "node:fs";
 import { AutoMovieNaturalSpline as S, AutoMovieViewChain as Q } from "@automovie/engine";
 import { FamilyConicSection as C } from "./FamilyConicSection";
 
@@ -273,6 +274,41 @@ export namespace FamilyConicFit {
     const basis = (s: number): number[] => cardinals.map((spline: S.ISpline): number => S.evaluate(spline, s));
     const B: number[][] = train.map((row: IRow): number[] => basis(row.s));
     const failed = (fault: string): IResult => ({ layout, knots: [...knots], values: [], training: NONE, heldout: NONE, rows: [], chordMaximumMm: Infinity, iterations: 0, folds: folds.count, fault, milliseconds: performance.now() - started });
+
+    // `--seeds`: each fitting section's conic conversion (`FamilyConicSection.converted`) over each 100 mm of course: how many ran out of
+    // arcs, and the inflections on the +Z side's front quarter (phase 0 to 90 degrees) and back quarter (90 to 180), mean and most, with
+    // how many of them turn less than the line ramp's floor (half `FEATURE_LEAST` on either side) and so seed no line.
+    // `--sections=<file>`: the fitting sections' stations and polygons, written as JSON, so a section the conversion refuses can be studied
+    // apart from the tool. They are the reference's: the file stays in a private scratch folder and is deleted once read.
+    const sectionsFile: string | undefined = process.argv.find((a: string): boolean => a.startsWith("--sections="))?.slice("--sections=".length);
+    if (sectionsFile !== undefined) writeFileSync(sectionsFile, JSON.stringify({ layout, rows: train.map((row: IRow): { s: number; points: C.P[] } => ({ s: row.s, points: row.points })) }));
+    if (process.argv.includes("--seeds")) {
+      const stretches: Map<number, { n: number; out: string[]; front: number[]; back: number[]; faint: number }> = new Map();
+      for (const row of train) {
+        const key: number = Math.floor(row.s / 100) * 100;
+        const cell = stretches.get(key) ?? { n: 0, out: [], front: [], back: [], faint: 0 };
+        ++cell.n;
+        try {
+          const ends: C.IEnd[] = C.converted(row.points).ends.filter((end: C.IEnd): boolean => end.inflection);
+          const phase = (end: C.IEnd): number => Math.atan2(end.point[1], end.point[0]);
+          cell.front.push(ends.filter((end: C.IEnd): boolean => phase(end) >= 0 && phase(end) < Math.PI / 2).length);
+          cell.back.push(ends.filter((end: C.IEnd): boolean => phase(end) >= Math.PI / 2).length);
+          cell.faint += ends.filter((end: C.IEnd): boolean => phase(end) >= 0 && (end.strength ?? 0) < C.FEATURE_LEAST / 2).length;
+        } catch (error) {
+          cell.out.push(`${row.s.toFixed(1)}: ${(error as Error).message.replace(/\): Numerical adaptation.*$/, ")")}`);
+        }
+        stretches.set(key, cell);
+      }
+      const stat = (x: number[]): string => (x.length === 0 ? "-" : `${(x.reduce((s: number, v: number): number => s + v, 0) / x.length).toFixed(1)}/${Math.max(...x)}`);
+      process.stderr.write(
+        "conversions by stretch: " +
+          [...stretches.entries()]
+            .sort((a, b): number => a[0] - b[0])
+            .map(([key, cell]): string => `${key}-${key + 100}: ${cell.n} sections, ${cell.out.length} out of arcs${cell.out.length ? ` (first ${cell.out[0]})` : ""}; inflections front ${stat(cell.front)}, back ${stat(cell.back)}, under the ramp's floor ${cell.faint}`)
+            .join(" | ") +
+          "\n",
+      );
+    }
 
     // Start from each section's own geometric reading, projected onto the shared knots by linear least squares.
     // The sections' own seeds, in station order, their feature lines tracked along the stations (`FamilyConicSection.seedAll`).
