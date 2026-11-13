@@ -68,6 +68,19 @@ export namespace FamilyConicSection {
       anchors: base.anchors.flatMap((anchor: IAnchor, k: number): IAnchor[] => [anchor, ...features.filter((f): boolean => f.after === k).flatMap((f): IAnchor[] => f.anchors)]),
     };
   }
+  /**
+   * Whether one conic arc joins `p0` leaving along `t0` to `p1` arriving along `t1`: the two tangents stand on opposite sides of the chord
+   * and their lines meet ahead of the start and behind the end, as the engine's native chain asks of every arc.
+   */
+  export function arc(p0: readonly number[], t0: readonly number[], p1: readonly number[], t1: readonly number[]): boolean {
+    const c: P = [p1[0]! - p0[0]!, p1[1]! - p0[1]!];
+    const side = (d: readonly number[]): number => c[0] * d[1]! - c[1] * d[0]!;
+    const det: number = t0[0]! * t1[1]! - t0[1]! * t1[0]!;
+    if (det === 0 || side(t0) * side(t1) >= 0) return false;
+    const s: number = (c[0] * t1[1]! - c[1] * t1[0]!) / det;
+    const q: number = (t0[0]! * c[1] - t0[1]! * c[0]) / det;
+    return s > 0 && q > 0;
+  }
   /** Unit of every field of a layout. */
   export const units: (layout: ILayout) => Unit[] = S.units;
 
@@ -80,7 +93,8 @@ export namespace FamilyConicSection {
   /** The field vector with the two arcs at an anchor given the shoulders that make the curvature continuous there. */
   export const continuous: (values: readonly number[], layout: ILayout, k: number) => number[] = S.continuous;
 
-  const offsets: typeof S.offsets = S.offsets;
+  /** Offsets of every anchor's first field, and of the first shoulder. */
+  export const offsets: typeof S.offsets = S.offsets;
   const dependents: typeof S.dependents = S.dependents;
   const neighbours: typeof S.neighbours = S.neighbours;
   const clamp: typeof S.clamp = S.clamp;
@@ -266,15 +280,7 @@ export namespace FamilyConicSection {
     // reading, in steps of `FEATURE_STEP`, with which the arcs to the anchors before and after it are both conics, in order round the
     // resolved anchors, so the seed is a chain of conics.
     const resolved: number[] = layout.anchors.map((_: IAnchor, k: number): number => k).filter((k: number): boolean => found[k] !== null);
-    const conic = (a: number, tA: P, b: number, tB: P): boolean => {
-      const c: P = [found[b]![0] - found[a]![0], found[b]![1] - found[a]![1]];
-      const side = (d: P): number => c[0] * d[1] - c[1] * d[0];
-      const det: number = tA[0] * tB[1] - tA[1] * tB[0];
-      if (det === 0 || side(tA) * side(tB) >= 0) return false;
-      const s: number = (c[0] * tB[1] - c[1] * tB[0]) / det;
-      const q: number = (tA[0] * c[1] - tA[1] * c[0]) / det;
-      return s > 0 && q > 0;
-    };
+    const conic = (a: number, tA: P, b: number, tB: P): boolean => arc(found[a]!, tA, found[b]!, tB);
     resolved.forEach((k: number, r: number): void => {
       if (layout.anchors[k]!.kind !== "f") return;
       const before: number = resolved[(r + resolved.length - 1) % resolved.length]!;

@@ -87,6 +87,10 @@ export namespace FamilyConicFit {
   /** Spacing of the stations at which every candidate must be an admissible chain, mm (`fit`). */
   const DENSE_MM: number = 0.25;
 
+  /** Rounds of fitting the feature lines' headings before the sections (`fit`), and the step their headings are searched in, radians. */
+  const LINE_ROUNDS: number = 16;
+  const HEADING_STEP: number = 0.01;
+
   /** Phases per section used by the chord report. */
   const REPORT: number = 180;
 
@@ -212,6 +216,63 @@ export namespace FamilyConicFit {
       }
       return { total, residuals };
     };
+    // Feature lines first (`AutoMovieHumanConicSection` kind `f`), as conic lofting draws its control lines before its sections: each
+    // feature's position along the stations is the projection of its sections' own readings, and its heading is fitted to the heading
+    // nearest its reading, at every `DENSE_MM` station, with which both its arcs are conics, so the held lines make a seed admissible at every
+    // station. The sections' other numbers are then fitted with the lines held (`held`).
+    const featured: number[] = layout.anchors.map((_: C.IAnchor, k: number): number => k).filter((k: number): boolean => layout.anchors[k]!.kind === "f");
+    const held: Set<number> = new Set<number>();
+    if (featured.length > 0 && initial === undefined) {
+      const { at }: { at: number[]; shoulders: number } = C.offsets(layout);
+      for (const k of featured) for (let j: number = 0; j < 3; ++j) held.add(at[k]! + j);
+      // A station still refused weighs more in the next round, so the heading lines bend toward where their arcs are conics.
+      const stationWeight: number[] = dense.map((): number => 1);
+      for (let round: number = 0; round < LINE_ROUNDS && !admissible(Y); ++round) {
+        dense.forEach((b: number[], d: number): void => {
+          if (C.chain(theta(Y, b), layout).fault !== null) stationWeight[d]! *= 4;
+        });
+        const denseGram: number[][] = zeros(M, M);
+        dense.forEach((b: number[], d: number): void => {
+          for (let m: number = 0; m < M; ++m) for (let n: number = 0; n < M; ++n) denseGram[m]![n]! += stationWeight[d]! * b[m]! * b[n]!;
+        });
+        const targets: number[][] = featured.map((): number[] => []);
+        for (const b of dense) {
+          const values: number[] = theta(Y, b);
+          const input = C.resolve(values, layout).input;
+          const points: number[][] = input.points as number[][];
+          const tangents: number[][] = input.tangents as number[][];
+          const n: number = points.length;
+          featured.forEach((k: number, j: number): void => {
+            const [before, after]: [number, number] = [(k + n - 1) % n, (k + 1) % n];
+            const reading: number = values[at[k]! + 2]!;
+            let chosen: number = reading;
+            for (let step: number = 0; step <= Math.PI / HEADING_STEP; ++step) {
+              const tried: number[] = step === 0 ? [reading] : [reading + step * HEADING_STEP, reading - step * HEADING_STEP];
+              const found: number | undefined = tried.find((h: number): boolean => {
+                const d: number[] = [Math.cos(h), Math.sin(h)];
+                return C.arc(points[before]!, tangents[before]!, points[k]!, d) && C.arc(points[k]!, d, points[after]!, tangents[after]!);
+              });
+              if (found === undefined) continue;
+              chosen = found;
+              break;
+            }
+            tangents[k] = [Math.cos(chosen), Math.sin(chosen)];
+            targets[j]!.push(chosen);
+          });
+        }
+        featured.forEach((k: number, j: number): void => {
+          const right: number[] = new Array<number>(M).fill(0);
+          dense.forEach((b: number[], d: number): void => {
+            for (let m: number = 0; m < M; ++m) right[m]! += stationWeight[d]! * b[m]! * targets[j]![d]!;
+          });
+          const solved: number[] | null = solve(denseGram.map((r: number[]): number[] => [...r]), right);
+          if (solved !== null) Y[at[k]! + 2] = solved;
+        });
+      }
+    }    if (process.argv.includes("--seeds")) {
+      const refused: string[] = dense.map((b: number[], d: number): string => { const fault: string | null = C.chain(theta(Y, b), layout).fault; return fault === null ? "" : (knots[0]! + d * DENSE_MM).toFixed(2) + ": " + fault.slice(0, 120); }).filter((x: string): boolean => x.length > 0);
+      process.stderr.write("lines held: " + refused.length + " of " + dense.length + " stations refused" + (refused.length === 0 ? "" : "; first " + refused[0] + "; last " + refused.at(-1)) + "\n");
+    }
     let current: { total: number; residuals: number[][] } | null = cost(Y);
     // A projection of sections' own seeds onto few knots can leave stations whose chain is no conic chain, where features appear and
     // fade along the part. One section's seed held at every knot is the same admissible chain at every station; the joint fit starts from
@@ -289,7 +350,7 @@ export namespace FamilyConicFit {
         for (let attempt: number = 0; attempt < 12 && !accepted; ++attempt) {
           const A: number[][] = JTJ.map((row: number[], a: number): number[] => {
             const copy: number[] = [...row];
-            copy[a] = row[a]! * (1 + lambda) + 1e-12;
+            copy[a] = row[a]! * (1 + lambda) + 1e-12 + (held.has(Math.floor(a / M)) ? 1e12 : 0);
             return copy;
           });
           const delta: number[] | null = solve(A, JTr.map((v: number): number => -v));

@@ -370,6 +370,8 @@ namespace FamilyConicBody {
    * `--nose-grooves=<anchors>`: the nose fitted to its skin (`IPart.skin`, outermost crossing) with a groove of two inflection lines after
    * each listed anchor of the depth-1 limb layout (`inflected`), its nostrils' pits left out so the cutters keep them, and no cast nets.
    */
+  /** `--feature-knot=<mm>`: a family with feature lines starts from knots this far apart; absent, from the domain's ends and middle. */
+  const FEATURE_KNOT_MM: number | undefined = ((value: string | undefined): number | undefined => (value === undefined ? undefined : Number(value)))(process.argv.find((a: string): boolean => a.startsWith("--feature-knot="))?.slice(15));
   const NOSE_FEATURES: boolean = process.argv.includes("--nose-features");
   const NOSE_VERTICAL: boolean = process.argv.includes("--nose-vertical");
   const NOSE_DEPTH: number = Number(process.argv.find((a: string): boolean => a.startsWith("--nose-depth="))?.slice(13) ?? 1);
@@ -1289,7 +1291,10 @@ namespace FamilyConicBody {
       for (const { layout: plain, depth } of reuse !== undefined ? [] : deepen !== undefined ? [{ layout: C.limb(deeper), depth: deeper }] : part.layouts) {
         const layout: C.ILayout = least === undefined ? plain : { ...plain, least };
         // A deeper layout starts from the shallower one's final knots and values, cut exactly at every arc's median.
-        const knots0: number[] = best === null ? [domain[0], (domain[0] + domain[1]) / 2, domain[1]] : [...best.knots];
+        // A layout with feature lines starts from knots every `FEATURE_KNOT_MM`, so its lines can follow where each feature appears and fades.
+        const lined: boolean = FEATURE_KNOT_MM !== undefined && layout.anchors.some((anchor: C.IAnchor): boolean => anchor.kind === "f");
+        const spaced: number = Math.max(2, Math.round((domain[1] - domain[0]) / (FEATURE_KNOT_MM ?? 1)) + 1);
+        const knots0: number[] = best === null ? (lined ? Array.from({ length: spaced }, (_: unknown, k: number): number => domain[0] + ((domain[1] - domain[0]) * k) / (spaced - 1)) : [domain[0], (domain[0] + domain[1]) / 2, domain[1]]) : [...best.knots];
         let result: F.IResult = attempt(knots0, layout, best === null ? undefined : F.refine(best.values, depth - 1), "depth " + depth);
 
         // Growth always starts from the family of least mean so far. A round that lowers that mean by 3 % is kept; one that does not is dropped
