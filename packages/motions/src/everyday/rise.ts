@@ -33,17 +33,17 @@ import { seated } from "./seated";
  * the legs are solved onto the unmoved feet. The trunk flexes on a
  * minimum-jerk profile over the first half of the rise to a peak of at least
  * `35 + 50 (1 - r)` degrees, so it is still flexing fast when the seat is
- * left (peak trunk flexion follows seat-off, Schenkman et al.). Seat-off
- * comes at the first frame, from 15 to 45 % of the rise, at which the
- * extrapolated centre of mass of the engine's whole-body model (Hof,
- * Gazendam and Sinke 2005) enters the feet's base of support: the forward
- * momentum of the flexing trunk then carries the body over the feet. When no
- * frame does, the peak is raised in 5 degree steps up to 70 degrees, then
- * the feet are drawn further back (below), and a rise whose feet stand too
- * far ahead even then is refused. From seat-off the socket travels forward
- * and up to standing at 85 %, the trunk returns upright by the end, and the
- * hands leave the thighs, or the armrests they pushed on, over the next 30 %. The
- * time is `2 (1 + 0.6 (1 - r))` seconds for a seat at `r` of the popliteal
+ * left (peak trunk flexion closely follows seat-off, Schenkman et al.).
+ * Seat-off comes at the first frame from 40 % of the rise (the flexion then
+ * 94 % of its peak; provisional) to 45 %, at which the extrapolated centre
+ * of mass of the engine's whole-body model (Hof, Gazendam and Sinke 2005)
+ * enters the feet's base of support: the forward momentum of the flexing
+ * trunk then carries the body over the feet. When no frame does, the peak
+ * is raised in 5 degree steps up to 70 degrees, then the feet are drawn
+ * further back (below), and a rise whose feet stand too far ahead even then
+ * is refused. From seat-off the socket travels forward and up to standing
+ * at 85 %, the trunk returns upright by the end, and the hands leave the
+ * thighs, or the armrests they pushed on, over the next 30 %. The time is `2 (1 + 0.6 (1 - r))` seconds for a seat at `r` of the popliteal
  * height, the seat height being where the socket rests (provisional, as the
  * sit's).
  *
@@ -282,7 +282,7 @@ export namespace rise {
         peak += 5
       )
         for (
-          let t: number = 0.15 * rising;
+          let t: number = 0.4 * rising;
           t <= 0.45 * rising + 1e-9;
           t += 1 / 24
         )
