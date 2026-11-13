@@ -289,6 +289,11 @@ export function AutoMovieConstructionPortRealize(
         railAt(band.childPhases[k]!),
         band.childPhases[k]!,
       ]),
+      // A curved rail is the exact curve the band ends on between its columns (each column ends on it, `AutoMovieConstructionSplitBand.strip`,
+      // and the band's chain runs between them), so the part keeps the stations past that curve, not past the chords through the columns:
+      // on f1's arm under its armpit band those chords stood up to 0.032 mm past the band's end mid-column, a strip of the arm that belonged
+      // to neither face, and the slit cutter's host rail crossed the seam through it. A straight rail's chords are the rail itself.
+      ...(profile === undefined ? {} : { along: railAt }),
       neighbours: order.map(
         (k: number, j: number): AutoMovieSolidCycle.INeighbour => {
           const next: number = order[(j + 1) % n]!;

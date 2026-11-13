@@ -48,10 +48,10 @@ export namespace AutoMovieSolidRailSolve {
    * @returns One actually retained solution, or null on numerical/open-boundary failure.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Solves the same plane and squared-chord equations on each actual face; a declared neighbour foot initializes another chart and must satisfy the actual equations before publication.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Face, chart and admitted jet move together through bounded Newton trials; final kept-region membership is separate from original chart ownership.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Face, chart and admitted jet move together through bounded Newton trials; a Newton step stays in its face's kept chart and changes face only by a recorded crossing, never straight back to the face the last crossing left.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No exterior surface, coordinate clamp, invented seam or tolerance change is used. Open adjacency, singular solves and exhausted budgets return null; original callback errors propagate.
    * @evidence contracts/development/common.md#meaningful-documentation Distinguishes an approximate starting chart from a solved retained rail, world-mm residuals from chart coordinates, and local convergence from global branch certification.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most steps iterations each use up to twenty backtracking trials and at most switches accepted face changes; atlas and surface callback costs remain part of this bound.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most steps iterations each use up to twenty backtracking trials, a trial past the kept boundary at most 52 bisections of its step share and, when it crosses, one Newton step of up to twenty halvings on the neighbour, and at most switches accepted face changes; atlas and surface callback costs remain part of this bound.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each admitted trial jet supplies both plane/chord residuals and the next accepted Jacobian; no scalar full-chord solve is repeated in each face.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources All trial records and borrowed atlas references are call-local; the small returned chart/direction arrays belong to the caller, with no new cache.
    */
@@ -85,6 +85,40 @@ export namespace AutoMovieSolidRailSolve {
     // The face the last crossing left: a step is not taken straight back across that seam.
     let came: number | null = current.crossed ? face : null;
     const scale: number = width + norm(from);
+
+    /** The plane-and-chord residual of an admitted trial, mm. */
+    const residual = (trial: { jet: IJet }): number => {
+      const q: Vec3 = sub(trial.jet.p, from);
+      return Math.hypot(dot(q, m), (dot(q, q) - width * width) / (2 * width));
+    };
+
+    /** The foot itself, or one Newton step on its face from it, halved within that face's region (kept when the foot is kept), whose residual is below bound; null when none is. */
+    const onward = (
+      foot: NonNullable<ReturnType<typeof AutoMovieSolidTraceTrial>>,
+      bound: number,
+    ): ReturnType<typeof AutoMovieSolidTraceTrial> => {
+      if (residual(foot) < bound) return foot;
+      const j: IJet = foot.jet;
+      const r: Vec3 = sub(j.p, from);
+      const dx: [number, number] | null = AutoMovieSolidVector.solve2(
+        dot(j.u, m),
+        dot(j.v, m),
+        2 * dot(r, j.u),
+        2 * dot(r, j.v),
+        [-dot(r, m), -(dot(r, r) - width * width)],
+      );
+      if (dx === null) return null;
+      const surface: IAutoMovieSolidSurface = host.faces[foot.face]!;
+      const held: boolean = host.kept(foot.face, foot.u, foot.v);
+      let k: number = 1;
+      for (let trial: number = 0; trial < 20; trial++, k /= 2) {
+        const [u1, v1]: [number, number] = [foot.u + k * dx[0], foot.v + k * dx[1]];
+        if (!AutoMovieSolidDomain.contains(surface, u1, v1) || (held && !host.kept(foot.face, u1, v1))) continue;
+        const next: ReturnType<typeof AutoMovieSolidTraceTrial> = AutoMovieSolidTraceTrial(host, foot.face, u1, v1, false);
+        if (next !== null && residual(next) < bound) return next;
+      }
+      return null;
+    };
     for (let step: number = 0; step < steps; step++) {
       const j: IJet = current.jet;
       const r: Vec3 = sub(j.p, from);
@@ -138,13 +172,13 @@ export namespace AutoMovieSolidRailSolve {
       );
       if (dx === null) return fail("the plane-and-chord Jacobian is singular", here);
       const merit: number = Math.hypot(f1, f2 / (2 * width));
-      const lower = (trial: { jet: IJet }): boolean => {
-        const q: Vec3 = sub(trial.jet.p, from);
-        return Math.hypot(dot(q, m), (dot(q, q) - width * width) / (2 * width)) < merit;
-      };
-      // Inside the current face's owned and kept chart: the face a step stays on.
+      const lower = (trial: { jet: IJet }): boolean => residual(trial) < merit;
+      // The region a step stays in: the face's kept chart when the iterate is kept, else its owned chart. A first-order start or a mapped
+      // foot can stand on a trimmed-away part of its face (the operator body test's beam starts on the column's trimmed part), and from
+      // there no step is kept; it moves in the chart as before and leaves by the solved-but-not-kept crossing.
       const face0: number = current.face;
-      const inside = (u: number, v: number): boolean => AutoMovieSolidDomain.contains(host.faces[face0]!, u, v) && host.kept(face0, u, v);
+      const held: boolean = host.kept(face0, current.u, current.v);
+      const inside = (u: number, v: number): boolean => AutoMovieSolidDomain.contains(host.faces[face0]!, u, v) && (!held || host.kept(face0, u, v));
       let accepted: boolean = false;
       let k: number = 1;
       for (let trial: number = 0; trial < 20; trial++, k /= 2) {
@@ -176,14 +210,16 @@ export namespace AutoMovieSolidRailSolve {
           const crossed: ReturnType<typeof AutoMovieSolidTraceTrial> = reached !== null ? { ...reached, crossed: true } : AutoMovieSolidTraceTrial(host, face0, u1, v1, true);
           if (crossed !== null && !crossed.crossed) continue;
           if (crossed === null || crossed.face === came) continue;
-          // From the boundary the crossing's foot is the same point on the neighbour, so it is taken at an equal residual too.
-          const q: Vec3 = sub(crossed.jet.p, from);
-          if (Math.hypot(dot(q, m), (dot(q, q) - width * width) / (2 * width)) <= merit + rounding * scale) {
-            if (crossed.crossed) {
-              left--;
-              came = face0;
-            }
-            current = crossed;
+          // The crossing is judged by where the solve goes on the neighbour, not by its foot: the foot is mapped by the boundary's chord
+          // share, a different world point from the iterate's (on f1's arm past its armpit band it stood 0.0035 to 0.0113 mm off the
+          // section plane, so every foot's residual exceeded the band end's and the crossing was refused though the arm kept a root).
+          // It is taken when one Newton step on the neighbour from the foot, backtracked within the neighbour's region, lowers the
+          // residual below this iterate's.
+          const settled: ReturnType<typeof AutoMovieSolidTraceTrial> = onward(crossed, merit);
+          if (settled !== null) {
+            left--;
+            came = face0;
+            current = settled;
             accepted = true;
             break;
           }

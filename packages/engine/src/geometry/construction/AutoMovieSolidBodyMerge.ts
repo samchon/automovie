@@ -439,6 +439,8 @@ export namespace AutoMovieSolidBodyMerge {
           to: [n.to[0], n.to[1]],
         }),
       ),
+      // The exact curve is a pure function of the chart, shared rather than copied.
+      ...(c.along === undefined ? {} : { along: c.along }),
     };
   }
 }
