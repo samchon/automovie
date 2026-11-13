@@ -1,3 +1,4 @@
+import { minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionEvent,
@@ -226,8 +227,7 @@ export namespace SwimStroke {
           }
           within -= span;
         }
-        const u: number =
-          within * within * within * (within * (6 * within - 15) + 10);
+        const u: number = minimumJerk(within).s;
         const from: ExerciseKey.IKey =
           stroke.keys[
             (index + stroke.keys.length - 1) % stroke.keys.length

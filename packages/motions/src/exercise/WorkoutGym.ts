@@ -150,6 +150,7 @@ export namespace WorkoutGym {
       [ExerciseKey.of({}, { elbow: 5 }), 0.8, "lower", "down"],
       [ExerciseKey.of({}, { elbow: 5, shrug: 20 }), 0.6, "shrug", "top"],
     ),
+
     /** A calf raise: both heels lifted over the toes' joints, which stay. */
     calfRaise: WorkoutStance.of(
       ["leftToes", "rightToes"],

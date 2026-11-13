@@ -1,4 +1,4 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
+import { type IAutoMovieResolvedBone, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionEvent,
@@ -128,10 +128,7 @@ export namespace cartwheel {
     const standing: IHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
-    const ease = (x: number): number => {
-      const u: number = Math.min(1, Math.max(0, x));
-      return u * u * u * (u * (6 * u - 15) + 10);
-    };
+    const ease = (x: number): number => minimumJerk(x).s;
 
     // The body at an angle of the turn, its root at the origin.
     const shaped = (angle: number): IHumanPosture => ({
@@ -170,16 +167,8 @@ export namespace cartwheel {
     });
 
     // The seconds at which the turn reaches an angle.
-    const when = (angle: number): number => {
-      let low: number = 0;
-      let high: number = 1;
-      for (let i: number = 0; i < 30; i++) {
-        const middle: number = (low + high) / 2;
-        if (360 * ease(middle) < angle) low = middle;
-        else high = middle;
-      }
-      return ((low + high) / 2) * duration;
-    };
+    const when = (angle: number): number =>
+      GymnasticsWheel.when(angle, 360, duration);
     const contacts: IHumanContactWindow[] = GymnasticsWheel.contacts(
       wheel,
       spokes,

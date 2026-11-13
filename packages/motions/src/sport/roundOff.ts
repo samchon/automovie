@@ -1,4 +1,4 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
+import { type IAutoMovieResolvedBone, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionEvent,
@@ -33,9 +33,12 @@ import { cartwheel } from "./cartwheel";
  * wheel rolls along the heading; past the handstand it turns the second
  * quarter about the bearing hand while the legs close, so both feet come
  * down together, knees bent to take the landing. The roll is one axis and
- * each quarter turn is another, about the vertical: the round-off's twist
- * and its wheel are not mixed in one instant's rotation, a simplification
- * of a skill where they overlap (#3416 keeps the multi-axis case).
+ * each quarter turn is another, about the vertical, and the two run at once
+ * while a quarter is being made (over the wheel's first `ENTRY` degrees and
+ * over `SNAP` degrees past the handstand): the posture's heading turns and
+ * its roll grows in the same instant, composed as heading then roll, not
+ * solved as one rotation about a moving axis (#3416 keeps that multi-axis
+ * case).
  *
  * The angle follows minimum-jerk progress over the seconds; nothing is
  * integrated, and no hurdle step, push off the second hand or flight before
@@ -44,7 +47,7 @@ import { cartwheel } from "./cartwheel";
  * Events: `handsDown` (the first hand bears), `inverted` (half the wheel),
  * `feetDown` (the feet bear again), `relax` (the end).
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the figure, the two turns and where each happens, the one-axis simplification with its follow-up, the timing, the events and what is left out.
+ * @evidence contracts/development/common.md#meaningful-documentation States the figure, the two turns and where each happens, where the twist and the roll overlap and how they compose with its follow-up, the timing, the events and what is left out.
  * @evidence contracts/development/design.md#principled-representation A wheel table from the body's own joints, the quarter turns a function of the wheel's angle.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the seconds, the closing shape, the parameters and the plan.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No length in metres: the travel follows from the spokes.
@@ -122,10 +125,7 @@ export namespace roundOff {
     const standing: IHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
-    const ease = (x: number): number => {
-      const u: number = Math.min(1, Math.max(0, x));
-      return u * u * u * (u * (6 * u - 15) + 10);
-    };
+    const ease = (x: number): number => minimumJerk(x).s;
 
     // The heading's turn at an angle of the wheel: a quarter toward the
     // trailing side on the way to the hands, so the leading side faces the
@@ -181,16 +181,8 @@ export namespace roundOff {
     });
 
     // The seconds at which the wheel reaches an angle.
-    const when = (angle: number): number => {
-      let low: number = 0;
-      let high: number = 1;
-      for (let i: number = 0; i < 30; i++) {
-        const middle: number = (low + high) / 2;
-        if (360 * ease(middle) < angle) low = middle;
-        else high = middle;
-      }
-      return ((low + high) / 2) * duration;
-    };
+    const when = (angle: number): number =>
+      GymnasticsWheel.when(angle, 360, duration);
     const contacts: IHumanContactWindow[] = GymnasticsWheel.contacts(
       wheel,
       spokes,

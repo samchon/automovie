@@ -9,12 +9,12 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
-import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
+import { GymnasticsWheel } from "../sport/GymnasticsWheel";
 import { ExerciseKey } from "./ExerciseKey";
 import type { WorkoutKind } from "./WorkoutKind";
 
@@ -119,11 +119,7 @@ export namespace WorkoutPlace {
           : kind.pin.every((bone: AutoMovieHumanoidBone): boolean =>
                 bone.endsWith("Hand"),
               )
-            ? AutoMovieMotionHumanPlaced.wrist(body, "left", {
-                point: { x: 0, y: 0, z: 0 },
-                facing: { x: 0, y: -1, z: 0 },
-                forward: { x: 0, y: 0, z: 1 },
-              }).y
+            ? GymnasticsWheel.laid(body)
             : null;
 
     // A body on a raised support (a bench, a seat, a saddle) has its hip

@@ -4,10 +4,10 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
-import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { knockdown } from "../reaction/knockdown";
+import { GymnasticsWheel } from "../sport/GymnasticsWheel";
 import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutFloor } from "./WorkoutFloor";
 import { WorkoutKind } from "./WorkoutKind";
@@ -69,14 +69,6 @@ export namespace WorkoutEquipment {
         { pitch, neck: -20 },
         { toes: 70, shoulder: pitch - drop, elbow, wrist: -90 },
       );
-
-  /** A wrist's height over a laid palm. */
-  const laid = (body: IHumanBody): number =>
-    AutoMovieMotionHumanPlaced.wrist(body, "left", {
-      point: { x: 0, y: 0, z: 0 },
-      facing: { x: 0, y: -1, z: 0 },
-      forward: { x: 0, y: 0, z: 1 },
-    }).y;
 
   /** The joint a hip thrust's back turns about. */
   const BACK: readonly AutoMovieHumanoidBone[] = ["chest"];
@@ -265,7 +257,7 @@ export namespace WorkoutEquipment {
       base: "leaning",
       anchor: "bar",
       pin: ["leftHand", "rightHand"],
-      rise: laid,
+      rise: GymnasticsWheel.laid,
       supports: [
         { part: "leftHand", kind: "plant" },
         { part: "rightHand", kind: "plant" },

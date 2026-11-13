@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Vector3, minimumJerk } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { tags } from "typia";
 
@@ -257,7 +257,7 @@ export namespace workout {
         length > 1e-9
           ? Math.min(1, Math.max(0, (seconds - opened) / length))
           : 1;
-      const u: number = x * x * x * (x * (6 * x - 15) + 10);
+      const u: number = minimumJerk(x).s;
       const placed: IHumanPosture = ExerciseKey.pinned(
         body,
         ExerciseKey.blend(s.a, s.b, u),

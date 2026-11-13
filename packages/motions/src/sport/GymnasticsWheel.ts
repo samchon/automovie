@@ -1,4 +1,4 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
+import { type IAutoMovieResolvedBone, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieVector3,
@@ -215,6 +215,35 @@ export namespace GymnasticsWheel {
   }
 
   /**
+   * The seconds at which a wheel turned through `until` degrees on one
+   * minimum-jerk progress over `duration` reaches an angle: the inverse of
+   * the progress, by bisection.
+   *
+   * @param angle The angle, degrees.
+   * @param until The whole turn, degrees.
+   * @param duration The turn's seconds.
+   * @returns Seconds since the turn's start.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the unit and the method.
+   * @evidence contracts/development/implementation.md#principled-implementation The engine's minimum-jerk share is monotone on [0, 1], so its inverse is found by bisection.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One bisection.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts 30 halvings: a share within 1e-9 of the root.
+   * @evidence contracts/development/implementation.md#efficient-algorithms 30 evaluations.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the engine's `minimumJerk`, the progress the wheels turn on.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function when(angle: number, until: number, duration: number): number {
+    let low: number = 0;
+    let high: number = 1;
+    for (let i: number = 0; i < 30; i++) {
+      const middle: number = (low + high) / 2;
+      if (until * minimumJerk(middle).s < angle) low = middle;
+      else high = middle;
+    }
+    return ((low + high) / 2) * duration;
+  }
+
+  /**
    * The height of a wrist over a palm laid flat on the floor, the height a
    * hand's spoke bears at above its surface.
    *
@@ -222,7 +251,7 @@ export namespace GymnasticsWheel {
    * @returns Metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the meaning and the unit.
-   * @evidence contracts/development/implementation.md#principled-implementation The hand owner's laid wrist, as the cartwheel and the workout bear hands.
+   * @evidence contracts/development/implementation.md#principled-implementation The hand owner's laid wrist, the one reading of it the cartwheel, the round-off and the workout's hands share.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `AutoMovieMotionHumanPlaced.wrist`.

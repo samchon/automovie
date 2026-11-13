@@ -1,3 +1,4 @@
+import { minimumJerk } from "@automovie/engine";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 import type { tags } from "typia";
 
@@ -71,10 +72,7 @@ export namespace HumanCarriedLift {
     const lift: number = asked[0] * fit;
     const setDown: number = asked[1] * fit;
     const entry: IHumanPosture = context.entry.posture;
-    const ease = (x: number): number => {
-      const u: number = Math.min(1, Math.max(0, x));
-      return u * u * u * (u * (6 * u - 15) + 10);
-    };
+    const ease = (x: number): number => minimumJerk(x).s;
     const mix = (
       from: IHumanPosture,
       to: IHumanPosture,
