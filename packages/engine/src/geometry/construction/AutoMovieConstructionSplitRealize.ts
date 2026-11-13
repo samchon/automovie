@@ -650,8 +650,10 @@ function graded(length: number, rows: number, loop: readonly Vec3[]): number[] {
   const coarse: number = length / rows;
   const stations: number[] = [0];
   for (let h: number = Math.min(coarse, perimeter / loop.length); stations.at(-1)! < length - 1e-9; h = Math.min(coarse, 1.5 * h)) stations.push(stations.at(-1)! + h);
+  // The last station is the band's length itself, never its scaled image: `s * (length / s)` may round past the length, outside the
+  // band's own domain, and its face's grid was then refused ("unavailable source physical2"), as f1's -Z little finger's band was.
   const scale: number = length / stations.at(-1)!;
-  return stations.map((s: number): number => s * scale);
+  return stations.map((s: number, k: number): number => (k === stations.length - 1 ? length : s * scale));
 }
 /** A real pole cannot be split. */
 function closed(chain: IAutoMovieLoftChain, side: "bottom" | "top"): boolean {
