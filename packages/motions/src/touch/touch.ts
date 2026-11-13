@@ -166,6 +166,9 @@ export namespace touch {
     /** The held prop's point that touches, one of its affordance ids; required with `prop`. */
     point?: string;
 
+    /** A miss staged as a touch: the effector passes the region this far off its surface along its normal, in the hand's lengths, at the stroke's full speed, and no contact is declared (a stage slap). A touch that lands when absent. */
+    clear?: number;
+
     /**
      * Where the elbow lies while the hand is on the region: `natural`, the
      * place of least strain, or `level`, raised to the shoulder's height so
@@ -198,7 +201,7 @@ export namespace touch {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the count is not a positive whole number, the hold is negative, a site's radius is negative, the region is out of reach, or `prop` names a prop the hand does not hold or a point it lacks.
+   * @throws {HumanRefusal} When the count is not a positive whole number, the hold is negative, the clearance is not positive, a site's radius is negative, the region is out of reach, or `prop` names a prop the hand does not hold or a point it lacks.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives the timing and the sources.
    * @evidence contracts/development/implementation.md#principled-implementation A phrase clock from the free-space transport of the farther hand, the kind's repetitions and the hold, with one touch stroke per hand over the base it was entered on or its carrier; a region the arm does not reach as it stands is closed by the girdle, the heels and the lean of `AutoMovieMotionHumanTouchStance`.
@@ -219,6 +222,8 @@ export namespace touch {
     const count: number = p.count ?? (kind === "stroke" || still ? 1 : 3);
     const hold: number = p.hold ?? (still ? 1.2 : 0.4);
     HumanBound.least("hold", hold, 0, "s");
+    if (p.clear !== undefined) HumanBound.above("clear", p.clear, 0, "hand");
+    const standoff: number = (p.clear ?? 0) * body.measure.hand;
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     const first: HumanHand.Side = p.side ?? "right";
@@ -417,7 +422,8 @@ export namespace touch {
           ...(p.prop !== undefined && side === first
             ? { fingers: "keep" as const }
             : {}),
-          ...(support === undefined ? {} : { contact: support }),
+          ...(standoff > 0 ? { standoff } : {}),
+          ...(support === undefined || standoff > 0 ? {} : { contact: support }),
           ...(target.kind === "person"
             ? {
                 others: (_: IHumanPosture, seconds: number) => {
