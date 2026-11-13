@@ -1516,7 +1516,7 @@ namespace FamilyConicBody {
       // The skin's two ends of the last guided excursion cut (`X.ISection.ends`): its invented closure lies behind both.
       let ends: [C.P, C.P] | null = null;
       // Each section's closure across its part's opening (`IPart.opening`), by station: one conic, an S of two, or the chord where neither is admissible.
-      const closures: { s: number; kind: "conic" | "s" | "chord" | "short" | "bulge" }[] = [];
+      const closures: { s: number; kind: "conic" | "s" | "chord" | "short" | "outside"; detail?: string }[] = [];
       const cut = (frame: AutoMovieLoftFrame.IFrame, s: number): C.P[] | null => {
         piece = null;
         if (part.air !== undefined) return air(frame, part.air);
@@ -1549,7 +1549,7 @@ namespace FamilyConicBody {
         if (part.name === "concha" && CONCHA_DEPTH !== undefined) return depthLoop(s);
         if (part.loose !== true || (part.surround !== undefined && s < part.surround.from)) {
           const whole: C.P[] | null = R.cut(skin, frame).loop;
-          return whole === null || part.clip === undefined ? whole : without(whole, frame, part.clip, part.round, part.opening, (kind: "conic" | "s" | "chord" | "short" | "bulge"): void => void closures.push({ s, kind }));
+          return whole === null || part.clip === undefined ? whole : without(whole, frame, part.clip, part.round, part.opening, (kind: "conic" | "s" | "chord" | "short" | "outside", detail?: string): void => void closures.push({ s, kind, ...(detail === undefined ? {} : { detail }) }));
         }
         const inside = (hull: readonly C.P[]): boolean => hull.every((p: C.P, i: number): boolean => p[0] * hull[(i + 1) % hull.length]![1] - p[1] * hull[(i + 1) % hull.length]![0] > 0);
         const clipped: C.P[][] = R.loops(skin, frame)
@@ -1779,7 +1779,7 @@ namespace FamilyConicBody {
       const dump: string | undefined = process.argv.find((a: string): boolean => a.startsWith("--dump-sections="))?.slice("--dump-sections=".length);
       if (dump !== undefined) await fs.writeFile(dump, JSON.stringify(dumped));
       if (part.skin !== undefined) log("family-body-star", { part: part.name, sections: star.length, refused: star.filter((r): boolean => r.folds !== 0).map((r): string => r.s.toFixed(1) + (r.folds < 0 ? ":outside" : ":" + r.folds)) });
-      if (part.opening !== undefined) log("family-body-opening", { part: part.name, sections: new Set(closures.map((c): number => c.s)).size, from: closures[0]?.s ?? null, to: closures.at(-1)?.s ?? null, conic: closures.filter((c): boolean => c.kind === "conic").length, s: closures.filter((c): boolean => c.kind === "s").length, chord: closures.filter((c): boolean => c.kind === "chord").map((c): number => c.s), short: closures.filter((c): boolean => c.kind === "short").map((c): number => c.s), bulge: closures.filter((c): boolean => c.kind === "bulge").map((c): number => c.s) });
+      if (part.opening !== undefined) log("family-body-opening", { part: part.name, sections: new Set(closures.map((c): number => c.s)).size, from: closures[0]?.s ?? null, to: closures.at(-1)?.s ?? null, conic: closures.filter((c): boolean => c.kind === "conic").length, s: closures.filter((c): boolean => c.kind === "s").length, chord: closures.filter((c): boolean => c.kind === "chord").map((c): number => c.s), short: closures.filter((c): boolean => c.kind === "short").map((c): number => c.s), outside: closures.filter((c): boolean => c.kind === "outside").map((c): string => `${c.s} ${c.detail ?? ""}`) });
       log("family-body-hollows", { part: part.name, deepestMmAtDegrees: hollows.filter((_: string, i: number): boolean => i % 6 === 0).join(" ") });
       log("family-body-observed", { part: part.name, sections: rows.length, skipped });
 
@@ -2846,7 +2846,7 @@ namespace FamilyConicBody {
    * A section loop without the stretch a neighbouring part owns: the vertices where `outside` is positive are dropped and each crossing of zero,
    * found by bisection on its edge, becomes a vertex, so the loop closes by a straight chord from where it leaves to where it returns.
    */
-  function without(loop: readonly C.P[], frame: AutoMovieLoftFrame.IFrame, outside: (p: R.V) => number, round?: (p: R.V) => number, opening?: (p: R.V) => number, report?: (kind: "conic" | "s" | "chord" | "short" | "bulge") => void): C.P[] | null {
+  function without(loop: readonly C.P[], frame: AutoMovieLoftFrame.IFrame, outside: (p: R.V) => number, round?: (p: R.V) => number, opening?: (p: R.V) => number, report?: (kind: "conic" | "s" | "chord" | "short" | "outside", detail?: string) => void): C.P[] | null {
     const world = (p: C.P): R.V => [frame.origin[0] + p[0] * frame.u[0] + p[1] * frame.v[0], frame.origin[1] + p[0] * frame.u[1] + p[1] * frame.v[1], frame.origin[2] + p[0] * frame.u[2] + p[1] * frame.v[2]];
     const g = (p: C.P): number => outside(world(p));
     const values: number[] = loop.map(g);
@@ -2910,12 +2910,22 @@ namespace FamilyConicBody {
         return [(1 - t) ** 2 * p0[0] + 2 * t * (1 - t) * corner[0] + t * t * p2[0], (1 - t) ** 2 * p0[1] + 2 * t * (1 - t) * corner[1] + t * t * p2[1]];
       });
     };
-    // A closure stays within the form's scale and the opening it spans. An opening narrower than the sections' fairing scale (`FAIR_MM`,
-    // 20 mm) closes by its chord, since the fairing removes any shape a closure could have there; a closure whose control point stands
-    // farther from the chord than the chord is long leaves the opening, and closes by the chord too. Where the opening's ends nearly meet
-    // at the armpit's crease (f1 at 1,279 mm, 2.5 mm above the saddle) their skin tangents point almost opposite ways, their tangent lines
-    // meet far off, and the conic through them ran out 200 mm either side, crossing 103 of the section's rays more than once.
-    const off = (p: C.P, e1: C.P, e2: C.P): number => Math.abs((e2[0] - e1[0]) * (p[1] - e1[1]) - (e2[1] - e1[1]) * (p[0] - e1[0])) / (Math.hypot(e2[0] - e1[0], e2[1] - e1[1]) || 1);
+    // A closure stays within the form's scale and within the part of the section the port removes. An opening narrower than the sections'
+    // fairing scale (`FAIR_MM`, 20 mm) closes by its chord, since the fairing removes any shape a closure could have there. A closure that
+    // leaves the reference's cut-away region (inside the reference's own cut and on the opening's side, `opening` at least -0.5 mm) closes
+    // by the chord too: where the opening's ends nearly meet at the armpit's crease (f1 at 1,279 mm, 2.5 mm above the saddle) their skin
+    // tangents point almost opposite ways, their tangent lines meet far off, and the conic through them ran out 200 mm either side, off both
+    // skins, crossing 103 of the section's rays more than once.
+    const insideLoop = (p: C.P): boolean => {
+      let inside: boolean = false;
+      for (let i: number = 0, j: number = loop.length - 1; i < loop.length; j = i++) {
+        const [a, b] = [loop[i]!, loop[j]!];
+        if (a[1] > p[1] !== b[1] > p[1] && p[0] < ((b[0] - a[0]) * (p[1] - a[1])) / (b[1] - a[1]) + a[0]) inside = !inside;
+      }
+      return inside;
+    };
+    const contained = (points: readonly C.P[]): boolean => points.every((p: C.P): boolean => insideLoop(p) && opening!(world(p)) >= -0.5);
+    const leaves = (points: readonly C.P[]): string => `${points.filter((p: C.P): boolean => !insideLoop(p)).length} of ${points.length} off the cut, opening down to ${Math.min(...points.map((p: C.P): number => opening!(world(p)))).toFixed(1)} mm`;
     const closure = (k: number): C.P[] | null => {
       const e1: C.P = out[k]!, e2: C.P = out[(k + 1) % out.length]!;
       const length: number = Math.hypot(e2[0] - e1[0], e2[1] - e1[1]);
@@ -2926,12 +2936,13 @@ namespace FamilyConicBody {
       const t1: C.P = unit(step(k, -1), e1), t2: C.P = unit(e2, step((k + 1) % out.length, 1));
       const plain = meet(e1, t1, e2, [-t2[0], -t2[1]]);
       if (plain.a > 0 && plain.b > 0) {
-        if (off(plain.X, e1, e2) > length) {
-          report?.("bulge");
+        const single: C.P[] = arc(e1, plain.X, e2);
+        if (!contained(single)) {
+          report?.("outside", `conic: ${leaves(single)}`);
           return null;
         }
         report?.("conic");
-        return arc(e1, plain.X, e2);
+        return single;
       }
       const chord: C.P = unit(e1, e2);
       let best: { t: number; d: number; A1: C.P; A2: C.P; I: C.P } | null = null;
@@ -2948,12 +2959,13 @@ namespace FamilyConicBody {
         report?.("chord");
         return null;
       }
-      if (off(best.A1, e1, e2) > length || off(best.A2, e1, e2) > length) {
-        report?.("bulge");
+      const twin: C.P[] = [...arc(e1, best.A1, best.I), best.I, ...arc(best.I, best.A2, e2)];
+      if (!contained(twin)) {
+        report?.("outside", `s: ${leaves(twin)}`);
         return null;
       }
       report?.("s");
-      return [...arc(e1, best.A1, best.I), best.I, ...arc(best.I, best.A2, e2)];
+      return twin;
     };
     // Where the stretch left out was cut away by `round`, a surface of revolution about the course, the loop closes along that surface's
     // circle instead of the chord: the circle is the wall there, and a chord across it leaves the hull a corner where the chord meets the

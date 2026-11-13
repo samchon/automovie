@@ -468,8 +468,9 @@ export namespace FamilyConicSection {
    *
    * @param sections The sections' observed polygons, in station order.
    * @param layout The family's layout.
+   * @param changes Filled, when given, with each section's largest change by `bridged`, mm.
    */
-  export function seedAll(sections: readonly (readonly P[])[], layout: ILayout): number[][] {
+  export function seedAll(sections: readonly (readonly P[])[], layout: ILayout, changes?: number[]): number[][] {
     const K: number = layout.anchors.length;
     if (!layout.anchors.some((a: IAnchor): boolean => a.kind === "f")) return sections.map((points: readonly P[]): number[] => seed(points, layout));
     const lines: Map<number, number[]> = new Map();
@@ -483,9 +484,8 @@ export namespace FamilyConicSection {
       // The section is read faired throughout, its extremes and medians too, so the anchors and the features stand on one curve: read off
       // the raw section, a median on a 1.7 mm groove's floor stood inside the faired curve its features stand on, and the arc between them
       // needed an S.
-      const conversion = converted(points);
-      const faired: P[] = Array.from({ length: 1440 }, (_: unknown, i: number): P => conversion.at((2 * Math.PI * i) / 1440).point);
-      return seed(faired, layout, (found: readonly (P | null)[]): Map<number, { point: P; tangent: P }> => {
+      const conversion = bridged(converted(points), changes);
+      const faired: P[] = Array.from({ length: 1440 }, (_: unknown, i: number): P => conversion.at((2 * Math.PI * i) / 1440).point);      return seed(faired, layout, (found: readonly (P | null)[]): Map<number, { point: P; tangent: P }> => {
         const out: Map<number, { point: P; tangent: P }> = new Map();
         layout.anchors.forEach((anchor: IAnchor, k: number): void => {
           if (anchor.kind !== "f" || (k > 0 && layout.anchors[k - 1]!.kind === "f")) return;
@@ -675,7 +675,115 @@ export namespace FamilyConicSection {
     return inside.reduce((a: P, b: P): P => ((sign === 0 ? Math.abs(b[axis]) > Math.abs(a[axis]) : sign * b[axis] > sign * a[axis]) ? b : a));
   }
 
-  /** Feature anchors placed from outside (`seedAll`): each listed anchor's point and unit tangent. */  export type Placement = (found: readonly (P | null)[], tangent: readonly (P | null)[]) => Map<number, { point: P; tangent: P }>;
+  /**
+   * A section's conversion with its ripples removed (lofting.md, Fitting: "fair each section to the scale of the form, which means removing
+   * the ripples smaller than the features the form keeps"): each run of the converted chain's pieces between consecutive inflections whose
+   * own turn is below the ramp's floor (half `FEATURE_LEAST`), a ripple that binds no line, is replaced by its convex hull on the side its
+   * neighbouring pieces turn, so no layout arc spans a sign change of the chain's curvature. Its inflections leave the conversion's ends.
+   * A run whose neighbours turn opposite ways holds a real inflection and is left as it is. On f1's head read as its hull, a faired edge
+   * flipped its curvature at bends of 0.1 to 0.3 degrees, and arcs between anchors across the flips were refused.
+   *
+   * @param conversion The section's conversion (`converted`).
+   * @param changes Filled, when given, with the largest distance any point moved, mm.
+   */
+  function bridged(conversion: ReturnType<typeof converted>, changes?: number[]): ReturnType<typeof converted> {
+    const ends: IEnd[] = conversion.ends;
+    const turnOf = (end: IEnd): number => {
+      const [p0, p1, p2] = end.arc!.controls;
+      const d: number = Math.atan2(p2[1] - p1[1], p2[0] - p1[0]) - Math.atan2(p1[1] - p0[1], p1[0] - p0[0]);
+      return Math.atan2(Math.sin(d), Math.cos(d));
+    };
+    const at: number[] = ends.map((end: IEnd, i: number): number => (end.inflection ? i : -1)).filter((i: number): boolean => i >= 0);
+    const n: number = at.length;
+    // Each piece from one inflection to the next: its signed turn.
+    const pieces: number[] = at.map((first: number, k: number): number => {
+      let sum: number = 0;
+      for (let i: number = first; i !== at[(k + 1) % n]!; i = (i + 1) % ends.length) sum += turnOf(ends[i]!);
+      return sum;
+    });
+    const ripple: boolean[] = pieces.map((turn: number): boolean => Math.abs(turn) < FEATURE_LEAST / 2);
+    if (n < 2 || ripple.every((x: boolean): boolean => x) || !ripple.some((x: boolean): boolean => x)) {
+      changes?.push(0);
+      return conversion;
+    }
+    // Windows: maximal runs of ripple pieces, from the inflection that starts the first to the one that ends the last, with the side the
+    // pieces either side turn; a run between pieces of opposite turns keeps its inflection.
+    const windows: { from: number; to: number; side: number; first: number; last: number }[] = [];
+    const phase = (k: number): number => Math.atan2(ends[at[k]!]!.point[1], ends[at[k]!]!.point[0]);
+    const begin: number = ripple.findIndex((x: boolean, k: number): boolean => !x && ripple[(k + 1) % n]!);
+    for (let step: number = 0, k: number = (begin + 1) % n; step < n; ) {
+      if (!ripple[k]!) {
+        k = (k + 1) % n;
+        ++step;
+        continue;
+      }
+      const first: number = k;
+      while (ripple[k]! && step < n) {
+        k = (k + 1) % n;
+        ++step;
+      }
+      const last: number = (k - 1 + n) % n;
+      const before: number = Math.sign(pieces[(first - 1 + n) % n]!), after: number = Math.sign(pieces[k]!);
+      if (before === after) windows.push({ from: phase(first), to: phase((last + 1) % n), side: before, first, last });
+    }
+    // Each window's hull as a graph over its chord, from samples every quarter degree: the outer hull on the side its neighbours turn (a
+    // left turn bulges to the right of its chord: the least ordinate in the chord's frame), by the monotone chain.
+    type Bridge = { a: number; span: number; origin: P; along: P; hull: P[] };
+    const chart = (b: Bridge, p: P): P => [(p[0] - b.origin[0]) * b.along[0] + (p[1] - b.origin[1]) * b.along[1], -(p[0] - b.origin[0]) * b.along[1] + (p[1] - b.origin[1]) * b.along[0]];
+    const onHull = (hull: readonly P[], x: number): { y: number; p: P; q: P } => {
+      let j: number = 0;
+      while (j + 1 < hull.length - 1 && hull[j + 1]![0] < x) ++j;
+      const [p, q] = [hull[j]!, hull[j + 1] ?? hull[j]!];
+      return { y: q[0] === p[0] ? p[1] : p[1] + ((q[1] - p[1]) * (x - p[0])) / (q[0] - p[0]), p, q };
+    };
+    let moved: number = 0;
+    const bridges: Bridge[] = windows.map((w): Bridge => {
+      const span: number = (((w.to - w.from) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+      const count: number = Math.max(8, Math.ceil(span / ((0.25 * Math.PI) / 180)));
+      const samples: P[] = Array.from({ length: count + 1 }, (_: unknown, i: number): P => conversion.at(w.from + (span * i) / count).point);
+      const origin: P = samples[0]!, end: P = samples[count]!;
+      const length: number = Math.hypot(end[0] - origin[0], end[1] - origin[1]) || 1;
+      const bridge: Bridge = { a: w.from, span, origin, along: [(end[0] - origin[0]) / length, (end[1] - origin[1]) / length], hull: [] };
+      const local: P[] = samples.map((p: P): P => chart(bridge, p));
+      for (const p of [...local].sort((x: P, y: P): number => x[0] - y[0])) {
+        while (bridge.hull.length >= 2) {
+          const [o, q] = [bridge.hull[bridge.hull.length - 2]!, bridge.hull[bridge.hull.length - 1]!];
+          const cross: number = (q[0] - o[0]) * (p[1] - o[1]) - (q[1] - o[1]) * (p[0] - o[0]);
+          if (w.side > 0 ? cross <= 0 : cross >= 0) bridge.hull.pop();
+          else break;
+        }
+        bridge.hull.push(p);
+      }
+      for (const p of local) moved = Math.max(moved, Math.abs(onHull(bridge.hull, p[0]).y - p[1]));
+      return bridge;
+    });
+    changes?.push(moved);
+    const removed: Set<number> = new Set();
+    for (const w of windows)
+      for (let k: number = w.first; ; k = (k + 1) % n) {
+        removed.add(at[k]!);
+        if (k === (w.last + 1) % n) break;
+      }
+    return {
+      ends: ends.map((end: IEnd, i: number): IEnd => (removed.has(i) ? { ...end, inflection: false } : end)),
+      at: (phi: number): { point: P; tangent: P } => {
+        const got = conversion.at(phi);
+        for (const b of bridges) {
+          const off: number = (((phi - b.a) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+          if (off > b.span) continue;
+          const x: number = chart(b, got.point)[0];
+          const { y, p, q } = onHull(b.hull, x);
+          const l: number = Math.hypot(q[0] - p[0], q[1] - p[1]) || 1;
+          const d: P = [(q[0] - p[0]) / l, (q[1] - p[1]) / l];
+          return { point: [b.origin[0] + x * b.along[0] - y * b.along[1], b.origin[1] + x * b.along[1] + y * b.along[0]], tangent: [d[0] * b.along[0] - d[1] * b.along[1], d[0] * b.along[1] + d[1] * b.along[0]] };
+        }
+        return got;
+      },
+    };
+  }
+
+  /** Feature anchors placed from outside (`seedAll`): each listed anchor's point and unit tangent. */
+  export type Placement = (found: readonly (P | null)[], tangent: readonly (P | null)[]) => Map<number, { point: P; tangent: P }>;
 
   /**
    * A starting field vector read from one observed polygon: each extreme in
