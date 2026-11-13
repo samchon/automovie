@@ -122,14 +122,32 @@ export namespace HumanSocial {
     manner: AutoMovieMotionManner.PRESETS.flick,
   });
 
-  /** Arm wrestling, first pass: both clasp right hands and hold the clasp through three slow pumps (the elbows on a table, the struggle and the pin are not staged yet). */
-  export const armWrestle: IHumanMutual<object, "one" | "other"> = {
+  /** Arm wrestling across a table: both perform `armWrestle` on one point of the table's top, `table` in world metres, and `winner` pins the other after `seconds` of struggle (3 when absent). Register the `armWrestle` law with it. */
+  export const armWrestle: IHumanMutual<
+    {
+      table: { x: number; y: number; z: number };
+      winner: "one" | "other";
+      seconds?: number;
+    },
+    "one" | "other"
+  > = {
     name: "armWrestle",
     roles: ["one", "other"],
-    act: (role, _params, cast) => ({
-      name: "handshake",
-      params: { partner: cast[role === "one" ? "other" : "one"], pumps: 3 },
-    }),
+    act: (role, params, cast) => {
+      if (params === undefined)
+        throw new Error(
+          "An arm wrestle states its table point and its winner",
+        );
+      return {
+        name: "armWrestle",
+        params: {
+          partner: cast[role === "one" ? "other" : "one"],
+          table: params.table,
+          wins: params.winner === role,
+          ...(params.seconds === undefined ? {} : { seconds: params.seconds }),
+        },
+      };
+    },
   };
 
   /** Thumb wrestling, first pass: the clasp of a handshake held through five small pumps (the thumbs' own play is not staged yet). */
