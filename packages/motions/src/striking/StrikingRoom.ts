@@ -7,7 +7,9 @@ import type {
 
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
+import { HumanObstacle } from "../perform/HumanObstacle";
 import { HumanColliders } from "../posture/HumanColliders";
+import { HumanFoot } from "../posture/HumanFoot";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import { StrikingWeapon } from "./StrikingWeapon";
@@ -31,12 +33,16 @@ import { StrikingWeapon } from "./StrikingWeapon";
  * meet the other body first; the trunk and the legs behind them are not
  * swept.
  *
+ * A step back, before a target nearer than the arm's band, has room too
+ * ({@link behind}): the scene's solids behind the feet bound it as the other
+ * person bounds a step in.
+ *
  * A feint has room of its own: it stops short of the other person's guard
  * ({@link feint}), so the defender bites on a fist that never touches.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States why a step is bounded, what is swept, the monotonicity the search rests on and what is not swept.
  * @evidence contracts/development/design.md#principled-representation A pure function of two posed bodies and a line in world metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The room between two posed bodies, a strike's reading of it toward its target and a feint's depth, which the punch's step and feint use.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The room between two posed bodies, a strike's reading of it toward its target, the room behind its feet and a feint's depth, which the punch's step and feint use.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture package's collider distances and the weapon's arm axes.
  */
 export namespace StrikingRoom {
@@ -150,6 +156,52 @@ export namespace StrikingRoom {
       line,
       limit: StrikingStance.length(context.body),
     });
+  }
+
+  /**
+   * How far a striker may step back along the line before a heel meets one
+   * of the scene's solids, at most one stance length (the longest step a
+   * strike takes).
+   *
+   * @param context The striker's action context.
+   * @param feet Where the feet stand at the launch.
+   * @param line The horizontal unit line toward the target; the step back runs along its opposite.
+   * @returns Metres in `[0, stance length]`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is measured, from where, the bound and the range.
+   * @evidence contracts/development/implementation.md#principled-implementation Each heel's straight path back along the line is clipped against the scene's obstacles (`HumanObstacle.blocking`, with the body's breadth and stature), and the nearer block bounds the step.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One path per heel, the least distance kept.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Other people behind are not read: the context lists no performers, only the scene's solids.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two clips, linear in the obstacles' edges.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanObstacle.blocking` and `HumanFoot.point`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function behind(
+    context: Pick<IHumanActionContext, "body" | "obstacles">,
+    feet: Readonly<Record<"left" | "right", HumanFoot.IPlacement>>,
+    line: IAutoMovieVector3,
+  ): number {
+    const limit: number = StrikingStance.length(context.body);
+    let room: number = limit;
+    for (const side of ["left", "right"] as const) {
+      const heel: IAutoMovieVector3 = HumanFoot.point(
+        context.body,
+        side,
+        "heel",
+        feet[side],
+      );
+      const block: HumanObstacle.IBlock | null = HumanObstacle.blocking(
+        context.obstacles(),
+        heel,
+        Vector3.subtract(heel, Vector3.scale(line, limit)),
+        {
+          breadth: context.body.measure.chestBreadth,
+          height: context.body.measure.stature,
+        },
+      );
+      if (block !== null) room = Math.min(room, block.distance);
+    }
+    return room;
   }
 
   /**

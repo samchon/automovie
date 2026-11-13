@@ -310,20 +310,28 @@ export namespace punchContact {
     // The punch returns to the guard where the step ends, so the step never
     // closes past the room in front of the arms ({@link StrikingRoom}). A
     // target nearer than the band's reach is backed away from by the same
-    // step along the line, so the arm still lands within its band. A wrist
+    // step along the line, so the arm still lands within its band, no
+    // farther than the room behind the heels allows. A wrist
     // off the line by more than the band's longest reach (a target above the
     // arm) is out of reach from every place on the line, so it is not
     // stepped toward: the nearest place is under it, the other's own.
     const longest: number = StrikingReach.reach(m.upperArm, m.forearm, band[0]);
     const advance: number =
       p.feint === undefined && across <= longest
-        ? Math.min(
-            StrikingReach.advance(
-              along,
-              needed,
-              carried * StrikingStance.length(body),
-            ) / carried,
-            StrikingRoom.ahead(context, at, bones, line, t0),
+        ? Math.max(
+            -StrikingRoom.behind(
+              context,
+              StrikingTarget.feet(context.entry),
+              line,
+            ),
+            Math.min(
+              StrikingReach.advance(
+                along,
+                needed,
+                carried * StrikingStance.length(body),
+              ) / carried,
+              StrikingRoom.ahead(context, at, bones, line, t0),
+            ),
           )
         : 0;
     const shoulder: IAutoMovieVector3 = Vector3.add(
