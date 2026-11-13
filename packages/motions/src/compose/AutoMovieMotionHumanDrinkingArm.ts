@@ -165,22 +165,33 @@ export namespace AutoMovieMotionHumanDrinkingArm {
    * The hand's world rotation on the way to a vessel's place and back
    * (`AutoMovieMotionHumanArm.ICarry.attitude`): the hand the carry's blend
    * gives, turned by the shortest arc that brings the vessel's axis onto the
-   * axis the goal asks at that second, upright until the vessel tips at the
-   * lips (`AutoMovieMotionHumanTouch.TIP`). The swing is removed and the
-   * blend's twist about the axis kept (a swing-twist split), so the arm is
-   * asked no more than the axis needs. A blend of the wrist's angles does not
-   * hold a world attitude, since the forearm turns under the hand on the way.
+   * axis asked at that second. The touch's goal holds the vessel leaned as at
+   * the lips, so the arm is carried toward the arm that drinks; the vessel
+   * shows the share of the lean its goal's end shows (the goal as its fit
+   * reaches it) that `tipped` gives at the carry's weight, from upright (none
+   * until the last `AutoMovieMotionHumanTouch.TIP` of the way). The asked
+   * axis is the one the held end shows, turned toward that along their
+   * shortest arc by the carry's weight: a glass held upright stays upright
+   * until it tips at the lips, a hand hanging with an implied vessel turns it
+   * up as the arm rises instead of turning over in the frame the carry leaves
+   * it, and the hand joins the fit at the lips without the step the fit's
+   * own reach (a few degrees short of the asked lean) would leave if the
+   * goal's asked axis were sought. The swing is removed and
+   * the blend's twist about the axis kept (a swing-twist split), so the arm
+   * is asked no more than the axis needs. A blend of the wrist's angles does
+   * not hold a world attitude, since the forearm turns under the hand on the
+   * way.
    *
    * @param touch The touch: its body, hand, effector and held rotation. The vessel's axis in the hand is the one its held rotation stands upright, or without one the effector's along axis, which an upright lay stands on the world's up.
-   * @param goal The touch's goal at a posture and a second.
-   * @returns The rotation at a posture, a second and the blend's hand rotation, world.
+   * @param tipped The share of the lean at the goal's end the vessel shows at a weight of the carry, in [0, 1].
+   * @returns The rotation at a posture, a second, the blend's hand rotation, the two ends' and the carry's weight, world.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the asked axis, the swing removed, the twist kept and why the blend does not do.
-   * @evidence contracts/development/implementation.md#principled-implementation The vessel's attitude is its axis alone, so only the swing of the blend's hand off the asked axis is removed (the shortest arc), its twist about the axis left free.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One shortest arc per second.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The asked axis is the goal's at the same second, so the vessel tips exactly as the goal does.
+   * @evidence contracts/development/common.md#meaningful-documentation States the asked axis and its two ends, the swing removed, the twist kept and why the blend does not do.
+   * @evidence contracts/development/implementation.md#principled-implementation The vessel's attitude is its axis alone, so only the swing of the blend's hand off the asked axis is removed (the shortest arc), its twist about the axis left free; the asked axis meets the held end's at weight 0 and the goal's at weight 1, so the hand is continuous where the carry leaves its ends, and the arm's own goal is the drinking one throughout, so the carry's blend and its clearing course aim at one arm.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two interpolated axes (the tip from upright, then the way from the held end) and one shortest arc per second.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The end's axis is the one the goal's fit shows at the same second, so at the lips the vessel leans exactly as the arm shows it; neither end is moved.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per written second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the touch's goal and the engine's `rotationBetween`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the carry's two ends and the engine's `rotationBetween` and `Quaternion.slerp`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The function closes over its inputs only.
    */
   export function carried(
@@ -188,11 +199,14 @@ export namespace AutoMovieMotionHumanDrinkingArm {
       AutoMovieMotionHumanTouch.ITouch,
       "body" | "side" | "rest" | "effector" | "held"
     >,
-    goal: (posture: IHumanPosture, seconds: number) => IHumanPosture.IGoal,
+    tipped: (weight: number) => number,
   ): (
     posture: IHumanPosture,
     seconds: number,
     hand: IAutoMovieQuaternion,
+    start: IAutoMovieQuaternion,
+    end: IAutoMovieQuaternion,
+    weight: number,
   ) => IAutoMovieQuaternion {
     const { body, side } = touch;
     const axis: IAutoMovieVector3 =
@@ -205,13 +219,31 @@ export namespace AutoMovieMotionHumanDrinkingArm {
             z: 0,
           });
     return (
-      posture: IHumanPosture,
-      seconds: number,
+      _posture: IHumanPosture,
+      _seconds: number,
       hand: IAutoMovieQuaternion,
+      start: IAutoMovieQuaternion,
+      end: IAutoMovieQuaternion,
+      weight: number,
     ): IAutoMovieQuaternion => {
-      const wanted: IAutoMovieVector3 = Quaternion.rotateVector(
-        goal(posture, seconds).rotation!,
-        axis,
+      // The vessel's axis tipped from upright by its share of the goal's
+      // end's lean, then the axis the held end shows turned toward it by the
+      // carry's weight, each along the shortest arc.
+      const toward = (
+        a: IAutoMovieVector3,
+        b: IAutoMovieVector3,
+        share: number,
+      ): IAutoMovieVector3 =>
+        Quaternion.rotateVector(
+          Quaternion.slerp(Quaternion.identity(), rotationBetween(a, b), share),
+          a,
+        );
+      const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+      const from: IAutoMovieVector3 = Quaternion.rotateVector(start, axis);
+      const wanted: IAutoMovieVector3 = toward(
+        from,
+        toward(up, Quaternion.rotateVector(end, axis), tipped(weight)),
+        weight,
       );
       return Quaternion.normalize(
         Quaternion.multiply(

@@ -398,11 +398,16 @@ export namespace AutoMovieMotionHumanArmCarry {
      * whose attitude matters (a glass kept upright), from the rotation the
      * angle-by-angle blend gives it: the hand is solved to it at the wrist on
      * the arm as the blend places it (`HumanHandAttitude.held`). The blend
-     * when absent.
+     * when absent. It is read only between the ends, so it must meet the held
+     * end's hand at weight 0 and the goal's at weight 1, or the hand steps in
+     * the frame the carry leaves an end or joins it.
      *
      * @param posture The posture so far at this second.
      * @param seconds Seconds since the action's start.
      * @param hand The hand's world rotation the blend gives.
+     * @param start The hand's world rotation the held end (weight 0) shows at this second.
+     * @param end The hand's world rotation the goal's end (weight 1) shows at this second: the goal as its fit reaches it.
+     * @param weight The carry's weight at this second, in (0, 1).
      * @returns The hand's world rotation.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States what is solved, where, and the default.
@@ -417,6 +422,9 @@ export namespace AutoMovieMotionHumanArmCarry {
       posture: IHumanPosture,
       seconds: number,
       hand: IAutoMovieQuaternion,
+      start: IAutoMovieQuaternion,
+      end: IAutoMovieQuaternion,
+      weight: number,
     ): IAutoMovieQuaternion;
   }
 
@@ -432,7 +440,7 @@ export namespace AutoMovieMotionHumanArmCarry {
    * @evidence contracts/development/implementation.md#principled-implementation The goal is written on the posture so far and `carry` blends its solved angles with the held ones; with an attitude, the hand between the ends is solved to it on the carried arm.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One goal evaluation (a second at the arrival when given) and one call of `carry`, then one hand solve with an attitude.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The hand's fingers are not claimed, so a row that shapes them composes with this one.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Per written second `carry`'s posture solves (one, two with an arrival), none at weight 0 or 1; between the ends an attitude adds one forward kinematics of the blend, the attitude's own reading and `HumanHandAttitude.held` (one posture solve and at most three resolves of the arm written as joints).
+   * @evidence contracts/development/implementation.md#efficient-algorithms Per written second `carry`'s posture solves (one, two with an arrival), none at weight 0 or 1; between the ends an attitude adds the hand's forward kinematics on the blend, on the held end (the arm written as joints, no limb fit) and on the goal's end (the goal's fit, which `carry`'s solve has just asked the resolver for), the attitude's own reading and `HumanHandAttitude.held` (one posture solve and at most three resolves of the arm written as joints).
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `carry` and `HumanHandAttitude.held`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props only and holds no per-second state.
    */
@@ -444,12 +452,13 @@ export namespace AutoMovieMotionHumanArmCarry {
       to: props.to,
       write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
         const weight: number = props.weight(seconds);
+        const aimed: IHumanPosture = {
+          ...posture,
+          limbs: { ...posture.limbs, [limb]: props.goal(posture, seconds) },
+        };
         const out: IHumanPosture = carry(
           props.body,
-          {
-            ...posture,
-            limbs: { ...posture.limbs, [limb]: props.goal(posture, seconds) },
-          },
+          aimed,
           { [props.side]: props.rest },
           weight,
           props.arrival === undefined
@@ -465,16 +474,25 @@ export namespace AutoMovieMotionHumanArmCarry {
         if (props.attitude === undefined || !(weight > 0 && weight < 1))
           return out;
         // The hand held to its attitude at the wrist, the arm as the blend
-        // places it, the forearm's twist included (`HumanHandAttitude`).
-        const hand: IAutoMovieQuaternion = poseBones(
-          props.body,
-          resolveHumanPosture(props.body, out),
-        ).get(`${props.side}Hand`)!.worldRotation;
+        // places it, the forearm's twist included (`HumanHandAttitude`); the
+        // hands the two ends show at this second are what the attitude leaves
+        // and joins.
+        const hand = (at: IHumanPosture): IAutoMovieQuaternion =>
+          poseBones(props.body, resolveHumanPosture(props.body, at)).get(
+            `${props.side}Hand`,
+          )!.worldRotation;
         return HumanHandAttitude.held(
           props.body,
           out,
           props.side,
-          props.attitude(posture, seconds, hand),
+          props.attitude(
+            posture,
+            seconds,
+            hand(out),
+            hand(carry(props.body, posture, { [props.side]: props.rest }, 0)),
+            hand(aimed),
+            weight,
+          ),
         );
       },
     };
