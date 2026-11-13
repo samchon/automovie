@@ -38,6 +38,7 @@ export * from "./resolveLookAt";
 export * from "./resolvePose";
 export * from "./skeletonJointAxes";
 export * from "./solveTwoBoneIK";
+export * from "./swingTwistRange";
 export * from "./twoBoneChainArticulation";
 export * from "./validateJointAxesBasis";
 export * from "./markAutoMovieBalance";
