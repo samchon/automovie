@@ -45,7 +45,7 @@ export function test_human_f1_construction(): void {
       const part = declared.sources.get(node.source);
       if (part === undefined || part.name !== node.name) failures.push(`source leaf ${node.name} has ${part === undefined ? "no part" : "the part " + part.name}`);
     }
-  if (declared.sources.size !== 44) failures.push(`${declared.sources.size} source parts, expected 44`);
+  if (declared.sources.size !== 46) failures.push(`${declared.sources.size} source parts, expected 46`);
   const kinds = (kind: string): number => nodes.filter((node: AutoMovieConstructionNode): boolean => node.type === "join" && node.kind === kind).length;
   if (kinds("merge") !== 4 || kinds("diff") !== 12) failures.push(`${kinds("merge")} merges and ${kinds("diff")} cuts, expected 4 and 12`);
 

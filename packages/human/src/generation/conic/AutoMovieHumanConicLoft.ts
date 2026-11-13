@@ -106,6 +106,12 @@ export namespace AutoMovieHumanConicLoft {
      * within `OWN_LEAST` of the section's size of zero keeps the shared factor, since its relative change has no meaning there.
      */
     own?: boolean;
+
+    /**
+     * How many rings the cap is meshed in between its first section and its tip; absent, one at each of its knots (`CAP_KNOTS`). A dome
+     * turns its normal through a quarter turn over its rings, and twelve showed as a bullseye of flat bands on a toe's tip.
+     */
+    rings?: number;
   }
 
   /** Share of a cap's first section's size under which a coordinate keeps the shared factor (`ITip.own`). */
@@ -254,7 +260,8 @@ export namespace AutoMovieHumanConicLoft {
     };
 
     // The cap's rings: without them the engine meshed a cap from its first section straight to its pole, a cone ending in a flat disc.
-    const rings = (end: ITip): number[] => capShares.slice(1).map((x: number): number => end.tip + (end.from - end.tip) * x * x);
+    const rings = (end: ITip): number[] =>
+      (end.rings === undefined ? capShares : Array.from({ length: end.rings + 1 }, (_: unknown, k: number): number => k / (end.rings! + 1))).slice(1).map((x: number): number => end.tip + (end.from - end.tip) * x * x);
     const closing = (pick: (chain: AutoMovieHumanConicSection.IChain) => number, along: 0 | 1 | null): IAutoMovieViewPart.IOutline => ({
       knots: [
         ...(bottom === null ? [] : cap(bottom, pick(chains[0]!), along, "tip.bottom", pick)),

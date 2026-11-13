@@ -208,6 +208,26 @@ namespace FamilyConicBody {
   const TOE_TURN: { half: number; reach: number; end: number; relief: number } = { half: 10, reach: 40, end: 975, relief: 960 };
 
   /**
+   * A trial stretch of the leg fitted to its skin with grooves (`--segment`), or none. `--segment-features=<after>:<from>:<to>;...` puts a
+   * groove of three feature anchors (an inflection, the concave floor, an inflection) after a limb anchor, inside the share `[from, to]`
+   * of the arclength to the next one (`FamilyConicSection.featured`), where `inflected` seats a groove only after a `u` extreme.
+   */
+  const SEGMENT: { domain: [number, number]; grooves: number[]; features: { after: number; anchors: C.IAnchor[] }[]; up: R.V; gap: number } | undefined = ((arg: string | undefined): { domain: [number, number]; grooves: number[]; features: { after: number; anchors: C.IAnchor[] }[]; up: R.V; gap: number } | undefined =>
+    arg === undefined
+      ? undefined
+      : {
+          domain: arg.split(",").map(Number) as [number, number],
+          features: (process.argv.find((a: string): boolean => a.startsWith("--segment-features="))?.slice("--segment-features=".length) ?? "").split(";").filter((x: string): boolean => x.length > 0).map((spec: string): { after: number; anchors: C.IAnchor[] } => {
+            const [after, from, to] = spec.split(":").map(Number) as [number, number, number];
+            const w: number = to - from;
+            return { after, anchors: [{ kind: "f", feature: "inflection", window: [from, from + 0.55 * w] }, { kind: "f", feature: "concave", window: [from + 0.2 * w, to - 0.2 * w] }, { kind: "f", feature: "inflection", window: [from + 0.45 * w, to] }] as C.IAnchor[] };
+          }),
+          grooves: (process.argv.find((a: string): boolean => a.startsWith("--segment-grooves="))?.slice("--segment-grooves=".length) ?? "").split(",").filter((x: string): boolean => x.length > 0).map(Number),
+          up: (process.argv.find((a: string): boolean => a.startsWith("--segment-up="))?.slice("--segment-up=".length) ?? "1,0,0").split(",").map(Number) as R.V,
+          gap: Number(process.argv.find((a: string): boolean => a.startsWith("--segment-gap="))?.slice("--segment-gap=".length) ?? 6),
+        })(process.argv.find((a: string): boolean => a.startsWith("--segment="))?.slice("--segment=".length));
+
+  /**
    * Where the breast's course starts and ends, mm: `AutoMovieHumanF1Joints.breastRoot` and `breastTip`. The course runs through the dome's
    * top along the skin's normal there, from 30 mm behind the top to 8 mm past it. The top, [126.8, 1261.2, 70.4], is the skin's point
    * farthest along that normal within 60 mm of the foremost point, and the normal, [0.9801, 0.093, 0.1753], is the vector area of the skin
@@ -1040,6 +1060,11 @@ namespace FamilyConicBody {
         // A course that leaves the ankle square to the row of toe joints, with the forefoot read as the curve round all the toes, was tried;
         // its wall stalled above 3 mm, so the foot keeps this course and closes at the toe webs, and the toes are merged onto that cap.
         { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r"), [133, 20, 157], toward([133, 20, 157], toes, TOE_TURN.reach)], course: "[J.thigh, J.calf, J.foot, J.footBall, J.toward(J.footBall, [[J.bigtoe1, J.bigtoe2], [J.indextoe1, J.indextoe2], [J.middletoe1, J.middletoe2], [J.ringtoe1, J.ringtoe2], [J.littletoe1, J.littletoe2]], " + TOE_TURN.reach + ")]", halves: [40, 62, TOE_TURN.half], up: [1, 0, 0], domain: [104, TOE_TURN.end], gap: 12, tip: TOE_TURN.end + 15, covered: true, mirrored: true, layouts: LIMB, reliefs: "auto", reliefEnd: TOE_TURN.relief, casts: [{ name: "sole", stations: [930, TOE_TURN.relief], axis: [0, 1, 0], rows: 16, columns: 35, reach: 6, facing: 0.8, nearest: true }] },
+
+        // A stretch of the leg as a family of its own on the leg's course, fitted to its skin with grooves carried by inflection lines
+        // (`FamilyConicSection.inflected`): `--segment=<from>,<to>`, `--segment-grooves=<anchors>`, `--segment-up=<x,y,z>` (the chart's seed,
+        // turned so a hollow falls after a `u` extreme), `--segment-gap=<mm>`. A trial for the foot's end before its split and the heel.
+        ...(SEGMENT === undefined ? [] : [{ name: "segment", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r"), [133, 20, 157], toward([133, 20, 157], toes, TOE_TURN.reach)] as R.V[], course: "[J.thigh, J.calf, J.foot, J.footBall, J.toward(J.footBall, [[J.bigtoe1, J.bigtoe2], [J.indextoe1, J.indextoe2], [J.middletoe1, J.middletoe2], [J.ringtoe1, J.ringtoe2], [J.littletoe1, J.littletoe2]], " + TOE_TURN.reach + ")]", halves: [40, 62, TOE_TURN.half], up: SEGMENT.up, domain: SEGMENT.domain, gap: SEGMENT.gap, mirrored: true, layouts: [{ layout: SEGMENT.features.length > 0 ? C.featured(C.limb(1), SEGMENT.features) : SEGMENT.grooves.length === 0 ? C.limb(1) : C.inflected(1, SEGMENT.grooves), depth: 1 }], reliefs: [] as IWindow[], skin: "inner" as const }]),
         // The auricle as a short loft straight out of the side of the head, then turning to lean back with the shell (`EAR_ROOT`). Of each
         // plane's loops inside the ear's box a section reads the hull, so the wall is the auricle's outline at every depth and its outer face is
         // the hull's, which recedes toward the helix's back as the sections go out. It is fitted to 22 mm along, 94 mm out, and closes where
@@ -1874,8 +1899,10 @@ namespace FamilyConicBody {
 
       // Every shoulder is stored as the model reads it (`AutoMovieHumanConicSection.shoulder`), so the stored wall is the one generated. The
       // trunk's face refitted without the nose stored -0.20 at 792 mm and 1.17 at 834 mm; the model reads 0.03 and 0.85 at those knots, and
-      // between them the field's cubic crossed the bound, where its arc held still while its neighbours moved.
-      {
+      // between them the field's cubic crossed the bound, where its arc held still while its neighbours moved. Only with `--bounded-shoulders`:
+      // the trunk's stored wall relies on its out-of-bound shoulders, and stored bounded it moved by up to 10 mm under the armpit (1,250 to
+      // 1,300 mm high, 60 to 85 degrees) and the armpit's slit cutter lost its trace; applied, the reliefs and that cutter are refitted with it.
+      if (process.argv.includes("--bounded-shoulders")) {
         const arcs: number = best.layout.mirror ? best.layout.anchors.length - 1 : best.layout.anchors.length;
         const first: number = C.units(best.layout).length - arcs;
         const layout: C.ILayout = best.layout;
