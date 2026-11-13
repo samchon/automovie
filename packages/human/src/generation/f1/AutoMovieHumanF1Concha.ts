@@ -22,7 +22,10 @@ import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
  * (-u) extreme reads -6 mm across in place of the fit's -10.6; the model holds a guide within 0.92 of its neighbours' box either way. Its
  * front (-v) extreme reaches 8.5 mm forward at the mouth and 7 mm at the floor's level (x 25 to 23.5) in place of the fit's 4.9: the leaf's
  * hull spans the concha's mouth in front, 79 to 80 mm out at x 20 to 25 where the reference's tragus and cheek stand 72 to 74 mm out
- * (`FamilyConicEar.ts --map`), and the narrow cutter left that span as a flat wall seen from the front.
+ * (`FamilyConicEar.ts --map`), and the narrow cutter left that span as a flat wall seen from the front. Its floor (-u extreme) rises
+ * toward the mouth, 7.13 mm under the course at the floor's knot, 5.5 at the middle and 3.5 at the mouth (y 1,556 to 1,559.5), so the
+ * bowl's lower wall slopes up to the antitragus (79 to 84 mm out at y 1,556 to 1,560 on the reference's map) instead of standing level
+ * the bowl's whole depth as a lit ledge.
  *
  * Frame: the figure's absolute reference pose, millimetres, forward +X, up +Y, +Z the reference's left. The course runs
  * through `centres` with a turn of half length `halves` at each joint; stations are arclength from the first centre and each
@@ -54,7 +57,7 @@ export const AutoMovieHumanF1Concha: AutoMovieHumanConicLoft.IFamily = {
     // side (+v) extreme: v, mm
     [13.5, 11.5, 8.66],
     // back (-u) extreme: u, mm
-    [-7.13, -7.13, -7.13],
+    [-3.5, -5.5, -7.13],
     // back (-u) extreme: v, mm
     [-6, -6, -6],
     // side (-v) extreme: u, mm
