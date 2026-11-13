@@ -1,8 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { type ReactElement, useCallback, useEffect, useState } from "react";
 
-import { GalleryCatalogueNav } from "../components/gallery/GalleryCatalogueNav";
 import { GalleryDetails } from "../components/gallery/GalleryDetails";
 import { GalleryViewport } from "../components/gallery/GalleryViewport";
 import { GalleryAddress } from "../gallery/GalleryAddress";
@@ -11,6 +11,9 @@ import { loadGalleryAdapter } from "../gallery/loadGalleryAdapter";
 import type { IGalleryCatalogue } from "../gallery/structures/IGalleryCatalogue";
 import type { IGalleryRequest } from "../gallery/structures/IGalleryRequest";
 import type { IGalleryView } from "../gallery/structures/IGalleryView";
+import type { IPlaygroundComposition } from "../playground/structures/IPlaygroundComposition";
+import { SCENES } from "../scenes/SCENES";
+import type { IScene } from "../scenes/structures/IScene";
 
 /** What the page has of the adapter. */
 type Loaded =
@@ -19,12 +22,10 @@ type Loaded =
   | { kind: "ready"; adapter: IGalleryAdapter };
 
 /**
- * The gallery: the polygon man and every archetype, one at a time.
- *
- * The catalogue on the left lists every subject the packages export. The
- * view in the middle draws the chosen one, built in the browser. The panel
- * on the right holds its variant, its seed, the dimensions the seed drew
- * and its affordances, with a slider for each articulation.
+ * One archetype: the view, built in the browser, beside its name and kind,
+ * its specs (the dimensions its seed drew, its affordances) and, on request,
+ * the controls that customise it (seed, affordance marks, articulations).
+ * Under them, the scenes that place it.
  *
  * What is shown is kept in the address's query, so a link shows the same
  * subject in the same state.
@@ -75,11 +76,9 @@ export default function GalleryMovie(): ReactElement {
 
   const head: ReactElement = (
     <header className="am-app-head">
-      <h1>Gallery</h1>
+      <h1>Objects</h1>
       <p className="am-lede">
-        The body and the objects the motion vocabulary works with: the polygon
-        man of <code>@automovie/human</code> and every archetype of{" "}
-        <code>@automovie/archetypes</code>, built in your browser.
+        <a href="/automovie/objects/">All objects</a>
       </p>
     </header>
   );
@@ -109,28 +108,19 @@ export default function GalleryMovie(): ReactElement {
   const subject: IGalleryCatalogue.ISubject | undefined = subjects.find(
     (s: IGalleryCatalogue.ISubject): boolean => s.id === request.subject,
   );
+  const used: IScene[] = SCENES.filter(
+    (scene: IScene): boolean =>
+      scene.hidden !== true &&
+      (scene.composition?.objects ?? []).some(
+        (o: IPlaygroundComposition.IObject): boolean =>
+          o.producer === request.subject,
+      ),
+  );
 
   return (
     <div className="am-app">
       {head}
-      <div className="am-gallery">
-        <GalleryCatalogueNav
-          catalogue={catalogue}
-          selected={request.subject}
-          onSelect={(id: string): void => {
-            const next: IGalleryCatalogue.ISubject | undefined = subjects.find(
-              (s: IGalleryCatalogue.ISubject): boolean => s.id === id,
-            );
-            if (next === undefined) return;
-            setView(null);
-            setRequest({
-              ...request,
-              subject: next.id,
-              variant: next.variants[0]?.id ?? "",
-              state: {},
-            });
-          }}
-        />
+      <div className="am-gallery am-gallery-detail">
         <GalleryViewport
           adapter={loaded.adapter}
           request={request}
@@ -145,6 +135,22 @@ export default function GalleryMovie(): ReactElement {
           />
         )}
       </div>
+      <section aria-labelledby="am-used" className="am-stack">
+        <h2 id="am-used">Used in scenes</h2>
+        {used.length === 0 ? (
+          <p className="am-muted">No scene places it yet.</p>
+        ) : (
+          <ul className="am-plain">
+            {used.map(
+              (scene: IScene): ReactElement => (
+                <li key={scene.id}>
+                  <Link href={`/scenes/${scene.id}/`}>{scene.title}</Link>
+                </li>
+              ),
+            )}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }

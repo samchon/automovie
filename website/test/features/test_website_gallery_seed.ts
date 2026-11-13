@@ -23,10 +23,6 @@ export function test_website_gallery_seed(): void {
     .groups.flatMap(
       (group: IGalleryCatalogue.IGroup): IGalleryCatalogue.ISubject[] =>
         group.subjects,
-    )
-    .filter(
-      (subject: IGalleryCatalogue.ISubject): boolean =>
-        subject.id !== GalleryCatalogue.HUMAN,
     );
 
   for (const subject of subjects)

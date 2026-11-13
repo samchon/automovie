@@ -1,22 +1,21 @@
-import type { Archetype, IArchetypeBand } from "@automovie/archetypes";
-import * as animals from "@automovie/archetypes/animals";
-import * as architecture from "@automovie/archetypes/architecture";
-import * as furniture from "@automovie/archetypes/furniture";
-import * as props from "@automovie/archetypes/props";
-import * as vehicles from "@automovie/archetypes/vehicles";
-import * as weapons from "@automovie/archetypes/weapons";
+import {
+  ARCHETYPE_FAMILIES,
+  type Archetype,
+  type IArchetypeBand,
+} from "@automovie/archetypes";
 
-import { PLAYGROUND_BODIES } from "../../playground/data/PLAYGROUND_BODIES";
 import type { IGalleryCatalogue } from "../structures/IGalleryCatalogue";
 
 /**
  * The gallery's catalogue, read from the packages.
  *
- * An archetype family is one subpath of `@automovie/archetypes`. A producer
+ * An archetype family is one entry of the package's `ARCHETYPE_FAMILIES`,
+ * which names each subpath it exports with that subpath's module. A producer
  * is every function a family exports whose name starts with `create`. Its
  * variants are the closed list it carries beside it, `KINDS` or `FRAMES`,
  * and its bands are its `BANDS`. Nothing here names a producer or a kind, so
- * one a package adds appears without a change to the site.
+ * one a package adds, in a family it already has or a new one, appears
+ * without a change to the site.
  */
 export namespace GalleryCatalogue {
   /** A producer as the gallery calls it: the function with the tables it carries. */
@@ -37,20 +36,11 @@ export namespace GalleryCatalogue {
     BANDS?: Readonly<Record<string, unknown>>;
   }
 
-  /** The id of the polygon man in the catalogue. */
-  export const HUMAN: string = "human";
 
-  /** The archetype families: the subpaths of `@automovie/archetypes`, in the order its README lists them. */
+  /** The archetype families, by subpath, in the package's order. */
   export const FAMILIES: Readonly<
     Record<string, Readonly<Record<string, unknown>>>
-  > = {
-    props,
-    furniture,
-    architecture,
-    vehicles,
-    animals,
-    weapons,
-  };
+  > = ARCHETYPE_FAMILIES;
 
   /**
    * The producers of a family.
@@ -135,28 +125,11 @@ export namespace GalleryCatalogue {
   /**
    * Everything the gallery can show.
    *
-   * @returns The catalogue: the polygon man with the site's bodies, then every family's producers with their variants.
+   * @returns The catalogue: every family's producers with their variants.
    */
   export function catalogue(): IGalleryCatalogue {
     return {
       groups: [
-        {
-          name: HUMAN,
-          subjects: [
-            {
-              id: HUMAN,
-              label: "Polygon man",
-              group: HUMAN,
-              variantKey: "body",
-              variants: Object.entries(PLAYGROUND_BODIES).map(
-                ([id, entry]): { id: string; label: string } => ({
-                  id,
-                  label: entry.label,
-                }),
-              ),
-            },
-          ],
-        },
         ...Object.entries(FAMILIES).map(
           ([name, family]): IGalleryCatalogue.IGroup => ({
             name,

@@ -1,32 +1,27 @@
 import { ArchetypeMarks } from "@automovie/archetypes";
 import type { IAutoMovieMark } from "@automovie/engine";
-import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import {
-  type AutoMovieHumanPolygon,
   type IAutoMovieInspectionHandle,
   type IAutoMovieModelObject,
   applyAutoMovieInspection,
-  buildHumanPolygon,
   buildModel,
   parseAutoMovieInspectionRequest,
 } from "@automovie/render";
 import { type IAutoMovieViewerHandle, mountViewer } from "@automovie/viewer";
 import * as THREE from "three";
 
-import { PlaygroundBodies } from "../../playground/package/PlaygroundBodies";
 import type { IGalleryAdapter } from "../IGalleryAdapter";
 import type { IGalleryRequest } from "../structures/IGalleryRequest";
 import type { IGalleryView } from "../structures/IGalleryView";
 import { GalleryArchetype } from "./GalleryArchetype";
-import { GalleryCatalogue } from "./GalleryCatalogue";
 
 /**
  * The gallery's drawing: one subject on a floor grid, turned by an orbiting
  * camera.
  *
  * Everything drawn comes from the packages. A model is built by `render`'s
- * `buildModel`, the polygon man by its `buildHumanPolygon`, the affordance
- * marks by `ArchetypeMarks` and drawn by `render`'s inspection, and the
+ * `buildModel`, the affordance marks by `ArchetypeMarks` and drawn by
+ * `render`'s inspection, and the
  * canvas loop is `viewer`'s `mountViewer`. This module owns only the camera's
  * orbit and where the affordance ids are placed over the canvas.
  */
@@ -309,9 +304,7 @@ export namespace GalleryStage {
           setTimeout(resolve, 30);
         });
         const made: { content: IContent; view: Omit<IGalleryView, "grid"> } =
-          request.subject === GalleryCatalogue.HUMAN
-            ? human(request)
-            : archetype(request);
+          archetype(request);
         clear();
         content = made.content;
         scene.add(content.object);
@@ -353,52 +346,6 @@ export namespace GalleryStage {
         if (grid !== null) grid.geometry.dispose();
         gridMaterial.dispose();
         viewer.stop();
-      },
-    };
-  }
-
-  /** The polygon man of a body, in its rest pose. */
-  function human(request: IGalleryRequest): {
-    content: IContent;
-    view: Omit<IGalleryView, "grid">;
-  } {
-    const prepared: PlaygroundBodies.IPrepared = PlaygroundBodies.get(
-      request.variant,
-    );
-    const drawing: AutoMovieHumanPolygon.IDrawing = buildHumanPolygon(
-      AutoMovieHumanCanonicalBody.display(prepared.canonical),
-    );
-
-    // Human's own frame mirrors the canonical world, so the drawing sits
-    // under the matrix that puts it there.
-    const group: THREE.Group = new THREE.Group();
-    group.name = "human";
-    group.matrixAutoUpdate = false;
-    group.matrix.fromArray([...AutoMovieHumanCanonicalBody.REFLECTION]);
-    group.add(drawing.object);
-    return {
-      content: {
-        object: group,
-        marks: [],
-        anchors: [],
-        release: (): void => drawing.dispose(),
-      },
-      view: {
-        name: "polygon man",
-        dimensions: [],
-        affordances: [],
-        measures: Object.entries(prepared.body.measure)
-          .filter(
-            (entry: [string, unknown]): entry is [string, number] =>
-              typeof entry[1] === "number",
-          )
-          .map(
-            ([name, value]: [string, number]): IGalleryView.IMeasure => ({
-              name,
-              value,
-              unit: name === "mass" ? "kg" : "m",
-            }),
-          ),
       },
     };
   }

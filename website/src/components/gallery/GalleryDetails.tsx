@@ -1,15 +1,17 @@
 "use client";
 
-import type { ReactElement } from "react";
+import { type ReactElement, useState } from "react";
 
 import type { IGalleryCatalogue } from "../../gallery/structures/IGalleryCatalogue";
 import type { IGalleryRequest } from "../../gallery/structures/IGalleryRequest";
 import type { IGalleryView } from "../../gallery/structures/IGalleryView";
 
 /**
- * The facts of the subject shown and the controls that change it: its
- * variant, its seed, the dimensions the seed drew against their bands, and
- * its affordances with a slider for each articulation.
+ * The facts of the subject shown and the controls that change it. Its name
+ * and kind stay on top; under them two tabs: Specs, the dimensions the seed
+ * drew against their bands and the affordances an action attaches to, and
+ * Customise, the seed, the affordance marks and a slider for each
+ * articulation, for a visitor who wants to change them.
  *
  * @param props The subject, the request, what was built and the listener.
  * @returns The panel.
@@ -28,7 +30,7 @@ export function GalleryDetails(props: {
   onChange: (request: IGalleryRequest) => void;
 }): ReactElement {
   const { subject, request, view } = props;
-  const seeded: boolean = subject.variantKey !== "body";
+  const [tab, setTab] = useState<"specs" | "customise">("specs");
   return (
     <aside className="am-gallery-facts" aria-label="Details">
       <section className="am-panel am-stack">
@@ -36,9 +38,7 @@ export function GalleryDetails(props: {
         {subject.variants.length === 0 ? null : (
           <label className="am-field">
             <span className="am-label">
-              {subject.variantKey === "body"
-                ? "Body"
-                : `${subject.variantKey[0]!.toUpperCase()}${subject.variantKey.slice(1)}`}
+              {`${subject.variantKey[0]!.toUpperCase()}${subject.variantKey.slice(1)}`}
             </span>
             <select
               value={request.variant}
@@ -60,8 +60,29 @@ export function GalleryDetails(props: {
             </select>
           </label>
         )}
-        {seeded ? (
-          <>
+
+        <div className="am-tabs-inline" role="tablist" aria-label="Details">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={tab === "specs"}
+            onClick={(): void => setTab("specs")}
+          >
+            Specs
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={tab === "customise"}
+            onClick={(): void => setTab("customise")}
+          >
+            Customise
+          </button>
+        </div>
+      </section>
+
+      {tab !== "customise" ? null : (
+        <section className="am-panel am-stack">
             <div className="am-row">
               <label className="am-field">
                 <span className="am-label">Seed</span>
@@ -104,16 +125,10 @@ export function GalleryDetails(props: {
               />
               <span>Show the affordances on the model</span>
             </label>
-          </>
-        ) : (
-          <p className="am-muted">
-            The body is generated from typed parameters and drawn as the
-            polygon man in its rest pose.
-          </p>
-        )}
-      </section>
+        </section>
+      )}
 
-      {view === null || view.dimensions.length === 0 ? null : (
+      {tab !== "specs" || view === null || view.dimensions.length === 0 ? null : (
         <section className="am-panel">
           <h2>Dimensions</h2>
           <div className="am-table-wrap">
@@ -185,7 +200,7 @@ export function GalleryDetails(props: {
         </section>
       )}
 
-      {view === null || view.measures.length === 0 ? null : (
+      {tab !== "specs" || view === null || view.measures.length === 0 ? null : (
         <section className="am-panel">
           <h2>Measures</h2>
           <div className="am-table-wrap">
@@ -214,7 +229,7 @@ export function GalleryDetails(props: {
         </section>
       )}
 
-      {view === null || view.affordances.length === 0 ? null : (
+      {tab !== "specs" || view === null || view.affordances.length === 0 ? null : (
         <section className="am-panel am-stack">
           <h2>Affordances</h2>
           <p className="am-muted">
@@ -248,6 +263,16 @@ export function GalleryDetails(props: {
               </tbody>
             </table>
           </div>
+
+        </section>
+      )}
+      {tab !== "customise" ||
+      view === null ||
+      !view.affordances.some(
+        (a: IGalleryView.IAffordance): boolean => a.travel !== null,
+      ) ? null : (
+        <section className="am-panel am-stack">
+          <h2>Articulations</h2>
           {view.affordances
             .filter(
               (a: IGalleryView.IAffordance): boolean => a.travel !== null,

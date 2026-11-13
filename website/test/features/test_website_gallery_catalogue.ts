@@ -16,7 +16,7 @@ import type { IGalleryCatalogue } from "../../src/gallery/structures/IGalleryCat
  * 1. The archetype subjects of the catalogue are exactly the package's `create*` function exports, so none is missing and none is invented.
  * 2. Each subject's variants are exactly its producer's `KINDS` or `FRAMES`, in the package's order; a producer with neither has no variant.
  * 3. Every subject in every variant builds through the gallery's own path into a model with at least one part, so each is reachable and not only listed.
- * 4. The polygon man is listed once, under its own group, with at least two bodies.
+ * 4. The catalogue's groups are the package's families, in its order, so a family a release adds is a group with no change to the site.
  */
 export function test_website_gallery_catalogue(): void {
   const catalogue: IGalleryCatalogue = GalleryCatalogue.catalogue();
@@ -24,10 +24,7 @@ export function test_website_gallery_catalogue(): void {
     (group: IGalleryCatalogue.IGroup): IGalleryCatalogue.ISubject[] =>
       group.subjects,
   );
-  const listed: IGalleryCatalogue.ISubject[] = subjects.filter(
-    (subject: IGalleryCatalogue.ISubject): boolean =>
-      subject.id !== GalleryCatalogue.HUMAN,
-  );
+  const listed: IGalleryCatalogue.ISubject[] = subjects;
 
   // 1. The package's producers, from its root entry.
   const exported: Record<string, unknown> = archetypes as unknown as Record<
@@ -88,14 +85,10 @@ export function test_website_gallery_catalogue(): void {
       }
   TestValidator.equals("every subject and variant builds", unbuilt, []);
 
-  // 4. The polygon man.
-  const humans: IGalleryCatalogue.ISubject[] = subjects.filter(
-    (subject: IGalleryCatalogue.ISubject): boolean =>
-      subject.id === GalleryCatalogue.HUMAN,
-  );
-  TestValidator.equals("one polygon man", humans.length, 1);
-  TestValidator.predicate(
-    "the polygon man has several bodies",
-    humans[0]!.variants.length >= 2,
+  // 4. The groups are the package's families.
+  TestValidator.equals(
+    "the groups are the package's families",
+    catalogue.groups.map((group: IGalleryCatalogue.IGroup): string => group.name),
+    Object.keys(archetypes.ARCHETYPE_FAMILIES),
   );
 }
