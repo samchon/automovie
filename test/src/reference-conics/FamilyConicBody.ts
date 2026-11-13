@@ -584,6 +584,14 @@ namespace FamilyConicBody {
   const CONSTRUCT_CORNER_MM: number = 1;
   const CONSTRUCT_APEX_MM: number = 0.25;
 
+  /** How a fit candidate the construction's own path refused is marked (`attempt`). */
+  const NATIVE_REFUSAL: string = "refused on the construction's path: ";
+
+  /** Whether a candidate holds a fit and was refused only on the construction's path. */
+  function refusedNative(result: F.IResult): boolean {
+    return result.fault !== null && result.fault.startsWith(NATIVE_REFUSAL) && result.values.length > 0;
+  }
+
   /** Length of the station bands `--decompose` tabulates, mm. */
   const DECOMPOSE_BAND_MM: number = 5;
 
@@ -610,17 +618,39 @@ namespace FamilyConicBody {
    * tangent points almost at its neighbour, so in the barrier fit the arcs beside the groove's inflections met at 0.000 to 0.05 of their
    * chords all along the cutter, and the engine's spline between stations dipped to -0.006 (`meetcheck`, a scratch probe). Under the
    * default 0.1, which forbids the groove itself, the fit stayed at its seed, 2.19 mm mean, standing up to 5.9 mm past the air (2.32 mm
-   * with the apex drawn in 0.8 mm), and its cut left the band onto the trunk.
+   * with the apex drawn in 0.8 mm), and its cut left the band onto the trunk. At 0.02, on the corrected trunk, the arcs either side of
+   * the cusp held it on 7 to 10 of every 10 sections from 35 to 65 mm and the fit stood 1.5 to 4.1 mm past the air, its cut reaching onto
+   * the arm's and the trunk's faces (`--decompose`, `isect`). The stored cutter, whose cut crosses the band alone, was fitted with none:
+   * so is this one, the native chain's admission and every share held inside (0, 1) guarding it.
    */
-  const AXILLA_MARGIN: number = 0.02;
+  const AXILLA_MARGIN: number = 0;
+
+  /**
+   * How much further the slit cutter is drawn in on its arm side (+v), mm, at a ray square to the course on that side. Its cut crossed the
+   * arm band 0.0 to 0.3 mm from the band's seam with the arm at stations 25 to 35 and 0.5 to 1.0 mm at 55 to 75, on both sides (`isect`,
+   * a scratch probe), and the twin's host rail, 0.25 mm off the cut, found no band there ("no rail at t 2.618"). The band leaves the arm at
+   * a shallow angle, so the crossing moves along the band several times as far as the wall moves in. Drawn in 2.5 mm at the floor on both
+   * sides, or 1 mm on the arm side at every height or fading to the apex, the slit's sections pinched and every candidate was refused on the
+   * construction's path. The rail's own refusal there was then read (`AutoMovieSolidRail.explain`): the twin's host rail, not its seam
+   * distance, failed, its host normal-section solve alternating across one seam of an asymmetric trunk. So it is 0.
+   */
+  const AXILLA_ARM_SIDE_MM: number = 0;
+
+  /**
+   * How far the slit cutter closes past its first and last fitted sections, mm. Closed 4 and 3 mm past them, each end was a short steep cone
+   * whose face stood upright at the slit's lower ends and caught the light, a shard on `shoulder.front` (px 520, 620) and on `shoulder.back`
+   * (px 375, 605): the owner pick there found the cutter's own face (`ownerbox`, a scratch probe).
+   */
+  const AXILLA_CAPS_MM: [number, number] = [10, 8];
 
   /**
    * How far the vault cutter's floor stands under the arm band, mm. Its floor meets its walls in corners of 0.07 to 0.22 mm radius, 1 to 5
    * mm above the section's lowest point (`corner`, a scratch probe); at 3 mm the band crossed the cutter through them, and the 0.25 mm blend
-   * reversed there ("the blend's normal reverses") and the cutter's face did not triangulate. Under the band is the air outside the
-   * armpit, so a deeper floor cuts nothing more.
+   * reversed there ("the blend's normal reverses") and the cutter's face did not triangulate; constructed, its corners are drawn round by
+   * 1 mm (`CONSTRUCT_CORNER_MM`). At 8 mm the floor reached under the trunk's port loop on the trunk side, and the cutter crossed the
+   * trunk's own face in three small loops besides its crossing of the band (229 to 251 degrees, `isect`, a scratch probe).
    */
-  const VAULT_FLOOR_MM: number = 8;
+  const VAULT_FLOOR_MM: number = 3;
 
   /**
    * The vault cutter's course, mm: under the reference's vault in front of the crease (its apex at 1,300 mm at x 14, 1,297 at 10, 1,294 at 6
@@ -896,7 +926,7 @@ namespace FamilyConicBody {
      * its own normal from `inset[0]` mm at the floor to `inset[1]` mm at its top. The course must lie in each section's kernel; the section
      * is then star-shaped about it, and `skin: "inner"` reads it.
      */
-    air?: { band: [number, number][]; floor: [number, number][]; reach: number; inset: [number, number] };
+    air?: { band: [number, number][]; floor: [number, number][]; reach: number; inset: [number, number]; sag?: number; side?: number };
 
     /** For a cutter, a hollow's own loft that is cut from its host: how far before its first section it is carried straight back, mm. */
     lead?: number;
@@ -1099,7 +1129,7 @@ namespace FamilyConicBody {
         // (`AXILLA_FLOOR`) and drawn in from the walls (`AXILLA_INSET`); its arm-side reach is 12 mm, short of the band's ring end. Its
         // arm-side flank is concave under the apex: a groove after the apex (`inflected(1, [0])`; on the 8-conic layout a groove seeds only
         // after a `u` extreme). Both ends close inside the slit, as the stored cutter's (`AutoMovieHumanF1Axilla`): refitted on the same course and insets whenever the band it is capped under moves (`AXILLA_BAND`).
-        { name: "axilla", centres: AXILLA, course: JSON.stringify(AXILLA).replaceAll(",", ", "), halves: [8, 5], up: [0, 1, 0], domain: AXILLA_DOMAIN, step: 1, gap: 4, first: AXILLA_DOMAIN[0] - 4, tip: AXILLA_DOMAIN[1] + 3, mirrored: true, skin: "inner", margin: AXILLA_MARGIN, construct: { knots: [25, 34, 43, 52, 61, 70, 78], corner: CONSTRUCT_CORNER_MM, apex: CONSTRUCT_APEX_MM }, air: { band: AXILLA_BAND, floor: AXILLA_FLOOR, reach: 12, inset: AXILLA_INSET }, layouts: AXILLA_LAYOUTS[process.argv.find((a: string): boolean => a.startsWith("--axilla-layout="))?.slice("--axilla-layout=".length) ?? "groove"]!, reliefs: [] },
+        { name: "axilla", centres: AXILLA, course: JSON.stringify(AXILLA).replaceAll(",", ", "), halves: [8, 5], up: [0, 1, 0], domain: AXILLA_DOMAIN, step: 1, gap: 4, first: AXILLA_DOMAIN[0] - AXILLA_CAPS_MM[0], tip: AXILLA_DOMAIN[1] + AXILLA_CAPS_MM[1], mirrored: true, skin: "inner", margin: AXILLA_MARGIN, construct: { knots: [25, 34, 43, 52, 61, 70, 78], corner: CONSTRUCT_CORNER_MM, apex: CONSTRUCT_APEX_MM }, air: { band: AXILLA_BAND, floor: AXILLA_FLOOR, reach: 12, inset: AXILLA_INSET, sag: 0, side: AXILLA_ARM_SIDE_MM }, layouts: AXILLA_LAYOUTS[process.argv.find((a: string): boolean => a.startsWith("--axilla-layout="))?.slice("--axilla-layout=".length) ?? "groove"]!, reliefs: [] },
         // The vault in front of the armpit as a cutter of its own (G11): the arm's band crosses it flat, 12 to 16 mm under the reference's
         // vault, its columns running aslant to the vault's planes. Every section of the vault is convex, so the plain 8-conic limb carries it
         // (0.56 mm on the same sections, where the slit's groove stalled at 1.67 mm). Its sections are the vault's air, read as the slit's
@@ -1251,6 +1281,24 @@ namespace FamilyConicBody {
       const step: number = part.step ?? STEP_MM;
       const gap = (s: number): number => (typeof part.gap === "function" ? part.gap(s) : (part.gap ?? GAP_MM));
       const skin: R.ISource["body"] = part.head === true ? source.head : part.whole === true ? source.all : source.body;
+      // `--air-skin=<directory>`: an air part's walls are the reference's skin and the generated trunk's together (a `zone` dump:
+      // `mesh.positions.bin` in metres, `mesh.indices.bin`, `mesh.owners.json`, its faces owned by `trunk`), the nearest crossing along
+      // each ray kept. A cutter must stay inside the walls it cuts: the stored slit cutter, read from the reference's walls alone, lost its
+      // walk where the generated trunk's wall stands 10 mm inside the reference's air. The generated body alone has no slit to read (its
+      // armpit, slit and vault included, is the arm band), and with the generated arm's faces as walls too the cutter hugged the arm's own
+      // face 1.5 mm inside it and its walk was lost on that face at the cutter's front end.
+      const airFrom: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--air-skin="))?.slice(11);
+      const generated: { positions: Float64Array; indices: Uint32Array } | null = part.air === undefined || airFrom === undefined ? null : await (async () => {
+        const pb: Buffer = await fs.readFile(path.join(airFrom, "mesh.positions.bin"));
+        const ib: Buffer = await fs.readFile(path.join(airFrom, "mesh.indices.bin"));
+        const owners: { owners: string[]; triangle: number[] } = JSON.parse(await fs.readFile(path.join(airFrom, "mesh.owners.json"), "utf8"));
+        const metres: Float64Array = new Float64Array(pb.buffer, pb.byteOffset, pb.length / 8);
+        const all: Uint32Array = new Uint32Array(ib.buffer, ib.byteOffset, ib.length / 4);
+        const offset: number = skin.positions.length / 3;
+        const kept: number[] = Array.from(skin.indices);
+        for (let t: number = 0; t < all.length / 3; ++t) if (owners.owners[owners.triangle[t]!] === "trunk") kept.push(offset + all[3 * t]!, offset + all[3 * t + 1]!, offset + all[3 * t + 2]!);
+        return { positions: Float64Array.from([...Array.from(skin.positions), ...Array.from(metres, (x: number): number => x * 1000)]), indices: Uint32Array.from(kept) };
+      })();
 
       // `--concha-depth=<half width>`: a hollow read from the depth of the skin along the course instead of from plane cuts. Over the square
       // of that half width round the course's first centre, in the plane square to the course, the first skin met along the course is
@@ -1327,9 +1375,10 @@ namespace FamilyConicBody {
         const o: number[] = [...frame.origin];
         const n: number[] = [frame.u[1] * frame.v[2] - frame.u[2] * frame.v[1], frame.u[2] * frame.v[0] - frame.u[0] * frame.v[2], frame.u[0] * frame.v[1] - frame.u[1] * frame.v[0]];
         const segments: [number, number, number, number][] = [];
-        const at = (k: number): number[] => [0, 1, 2].map((a: number): number => skin.positions[3 * k + a]! - o[a]!);
-        for (let t: number = 0; t + 2 < skin.indices.length; t += 3) {
-          const q: number[][] = [at(skin.indices[t]!), at(skin.indices[t + 1]!), at(skin.indices[t + 2]!)];
+        const walls: { positions: ArrayLike<number>; indices: ArrayLike<number> } = generated ?? skin;
+        const at = (k: number): number[] => [0, 1, 2].map((a: number): number => walls.positions[3 * k + a]! - o[a]!);
+        for (let t: number = 0; t + 2 < walls.indices.length; t += 3) {
+          const q: number[][] = [at(walls.indices[t]!), at(walls.indices[t + 1]!), at(walls.indices[t + 2]!)];
           if (q.some((p: number[]): boolean => Math.hypot(p[0]!, p[1]!, p[2]!) > 2 * spec.reach)) continue;
           const d: number[] = q.map((p: number[]): number => p[0]! * n[0]! + p[1]! * n[1]! + p[2]! * n[2]!);
           const ends: C.P[] = [];
@@ -1377,7 +1426,7 @@ namespace FamilyConicBody {
           if (dir[0] < 0) {
             // The bowed floor along the ray, by a fixed point from the level line's crossing: the bow is shallow, so it converges at once.
             let reach: number = u0 / dir[0];
-            for (let i: number = 0; i < 8; ++i) reach = (u0 - AIR_SAG_MM * (1 - Math.min(1, ((reach * dir[1]) / width) ** 2))) / dir[0];
+            for (let i: number = 0; i < 8; ++i) reach = (u0 - (spec.sag ?? AIR_SAG_MM) * (1 - Math.min(1, ((reach * dir[1]) / width) ** 2))) / dir[0];
             r = Math.min(r, reach);
           }
           const lift: number = dir[0] * frame.u[1] + dir[1] * frame.v[1];
@@ -1392,7 +1441,10 @@ namespace FamilyConicBody {
           const [a, b]: C.P[] = [hits[(j + rays - 2) % rays]!.p, hits[(j + 2) % rays]!.p];
           const l: number = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
           const share: number = Math.max(0, Math.min(1, (h.y - floor) / Math.max(1e-6, top - floor)));
-          const d: number = spec.inset[0] + (spec.inset[1] - spec.inset[0]) * share;
+          // `side`: drawn in further on the +v side, by the ray's `v` share of it and fading from the floor to the apex as the inset does,
+          // so a cut crossing a band near where that band meets the wall on that side stands clear of the seam; at every height, it pinched
+          // the slit's arm-side flank under its apex and the fit was refused.
+          const d: number = spec.inset[0] + (spec.inset[1] - spec.inset[0]) * share + (spec.side ?? 0) * Math.max(0, directions[j]![1]) * (1 - share);
           return [h.p[0] - (d * (b[1] - a[1])) / l, h.p[1] + (d * (b[0] - a[0])) / l];
         });
         return X.star(drawn, rays, "inner")?.points ?? null;
@@ -1742,7 +1794,12 @@ namespace FamilyConicBody {
       let spliced: { tail: K.IStored; at: number; head: IAutoMovieLoftRelief[] } | null = null;
       const trail: unknown[] = [];
       const attempt = (knots: number[], layout: C.ILayout, initial: number[][] | undefined, note: string, power: number = 4): F.IResult => {
-        const result: F.IResult = F.fit(rows, knots, layout, power, initial, part.margin);
+        const fitted: F.IResult = F.fit(rows, knots, layout, power, initial, part.margin);
+        // A candidate the construction's own path refuses is no candidate: the fit's admissibility reads the fields at each station, the
+        // engine reads the derived numbers between stations by its own spline, and the slit cutter refitted on the corrected trunk, held
+        // admissible every 0.25 mm, was refused there (arc 5's tangent lines meeting behind its end, b -0.227).
+        const native: string[] = fitted.fault !== null ? [] : K.refusals({ name: part.name, centres: part.centres.map((c: R.V): number[] => c.map(round)), halves: part.halves, up: part.up, ...(part.roll === undefined ? {} : { roll: part.roll }), layout: fitted.layout, knots: fitted.knots.map(round), values: fitted.values.map((field: number[], f: number): number[] => field.map(C.units(fitted.layout)[f] === "mm" ? round : round4)) } as unknown as K.IStored);
+        const result: F.IResult = native.length === 0 ? fitted : { ...fitted, fault: NATIVE_REFUSAL + native[0]!.slice(0, 200) };
         const row = { note, fields: result.layout.anchors.length === 0 ? 0 : C.units(layout).length, knots: knots.length, scalars: knots.length * (1 + C.units(layout).length), trainMaxMm: round(result.training.maximumMm), trainMeanMm: round(result.training.meanMm), heldMaxMm: round(result.heldout.maximumMm), heldMeanMm: round(result.heldout.meanMm), fault: result.fault, ms: Math.round(result.milliseconds) };
         trail.push(row);
         log("family-body-candidate", { part: part.name, ...row });
@@ -1926,7 +1983,9 @@ namespace FamilyConicBody {
         // Going on from a dropped round instead carried a failed solve into every later one and left the trunk and the leg above 2 mm.
         const refused: Set<number> = new Set();
         let idle: number = 0;
-        while (deepen === undefined && !seedHeld && result.fault === null && result.training.maximumMm > 0.9 * TARGET_MM && idle < 3) {
+        // A candidate the construction's path refused still carries its fit, so growth goes on from it: the slit cutter's first candidate on
+        // its corrected walls was refused there while finer ones had been admitted.
+        while (deepen === undefined && !seedHeld && (result.fault === null || refusedNative(result)) && result.training.maximumMm > 0.9 * TARGET_MM && idle < 3) {
           const held: F.IResult = result;
           const open: F.IResult["rows"] = held.rows.filter((r: F.IResult["rows"][number]): boolean => !r.heldout && !refused.has(r.s) && r.maximumMm > 0.9 * TARGET_MM && held.knots.every((k: number): boolean => Math.abs(k - r.s) >= gap(r.s))).sort((a, b) => b.maximumMm - a.maximumMm);
           const added: number[] = [];
@@ -1934,7 +1993,7 @@ namespace FamilyConicBody {
           if (added.length === 0) break;
           const next: number[] = [...held.knots, ...added].sort((a: number, b: number): number => a - b);
           const trial: F.IResult = attempt(next, layout, F.resample(held.values, held.knots, next), "grow");
-          if (trial.fault === null && trial.training.meanMm < 0.97 * held.training.meanMm) {
+          if (trial.fault === null && (held.fault !== null || trial.training.meanMm < 0.97 * held.training.meanMm)) {
             result = trial;
             idle = 0;
           } else {

@@ -329,9 +329,13 @@ export namespace FamilyConicFit {
       const least: number = Math.min(...leastMeetings(t, layout));
       return Number.isFinite(least) ? least : -Infinity;
     };
+    // Every share strictly inside (0, 1) as the engine reads it, unclamped: the share barrier (`EDGE`) is a residual, not a wall, and f1's
+    // slit cutter, fitted on the corrected trunk, stored a shoulder whose spline between knots fell to -0.010 ("shoulder outside (0, 1)").
+    const shares: number[] = units.map((unit: C.Unit, f: number): number => (unit === "share" ? f : -1)).filter((f: number): boolean => f >= 0);
+    const inside = (t: number[]): boolean => shares.every((f: number): boolean => t[f]! > 0 && t[f]! < 1);
     const admissible = (values: number[][]): boolean => {
       const rounded: number[][] = stored(values);
-      return dense.every((b: number[]): boolean => C.chain(theta(values, b), layout).fault === null && C.chain(theta(rounded, b), layout).fault === null && meeting(theta(values, b)) >= margin && meeting(theta(rounded, b)) >= margin);
+      return dense.every((b: number[]): boolean => C.chain(theta(values, b), layout).fault === null && C.chain(theta(rounded, b), layout).fault === null && meeting(theta(values, b)) >= margin && meeting(theta(rounded, b)) >= margin && inside(theta(values, b)) && inside(theta(rounded, b)));
     };
     // `--barrier`: an interior-point term over the same stations (Nocedal and Wright, ch. 19). The margins of a chain are what its
     // admissibility asks to be positive: every arc's two tangent-meeting distances (`AutoMovieViewChain`'s `a` and `b`, mm) and every

@@ -44,6 +44,7 @@ export namespace AutoMovieSolidRailSolve {
    * @param steps Newton iteration bound.
    * @param rounding Original relative plane/chord residual allowance.
    * @param switches Maximum accepted chart transitions.
+   * @param report Filled, when given, with why a null was returned and the face, chart, residuals and remaining switches at that moment.
    * @returns One actually retained solution, or null on numerical/open-boundary failure.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Solves the same plane and squared-chord equations on each actual face; a declared neighbour foot initializes another chart and must satisfy the actual equations before publication.
@@ -65,12 +66,21 @@ export namespace AutoMovieSolidRailSolve {
     steps: number,
     rounding: number,
     switches: number,
+    report?: { reason: string; numbers: Record<string, number> },
   ): AtlasSection | null {
-    if (!(width > 0) || !(norm(m) > 0)) return null;
+    const visited: number[] = [face];
+    const fail = (reason: string, numbers: Record<string, number> = {}): null => {
+      if (report !== undefined) {
+        report.reason = reason;
+        report.numbers = { ...numbers, ...Object.fromEntries(visited.map((f: number, k: number): [string, number] => ["visit" + k, f])) };
+      }
+      return null;
+    };
+    if (!(width > 0) || !(norm(m) > 0)) return fail("no positive chord or no section plane");
     let left: number = switches;
     let current: ReturnType<typeof AutoMovieSolidTraceTrial> =
       AutoMovieSolidTraceTrial(host, face, start[0], start[1], left > 0);
-    if (current === null) return null;
+    if (current === null) return fail("the start chart lies on no face", { face, startU: start[0], startV: start[1] });
     if (current.crossed) left--;
     const scale: number = width + norm(from);
     for (let step: number = 0; step < steps; step++) {
@@ -81,24 +91,30 @@ export namespace AutoMovieSolidRailSolve {
       const done: boolean =
         Math.abs(f1) <= rounding * scale &&
         Math.abs(f2) <= 2 * width * rounding * scale;
+      if (visited.at(-1) !== current.face) visited.push(current.face);
+      const here: Record<string, number> = { step, face: current.face, u: current.u, v: current.v, planeResidual: f1, chordResidual: f2, switchesLeft: left };
       if (done) {
         if (host.kept(current.face, current.u, current.v)) {
           const d: [number, number] | null = project(j, direction);
+          if (d !== null && report !== undefined) {
+            report.reason = "solved";
+            report.numbers = { ...here, ...Object.fromEntries(visited.map((f: number, k: number): [string, number] => ["visit" + k, f])) };
+          }
           return d === null
-            ? null
+            ? fail("the outward direction does not project onto the solved face", here)
             : {
                 face: current.face,
                 chart: [current.u, current.v],
                 direction: d,
               };
         }
-        if (left === 0) return null;
+        if (left === 0) return fail("solved on a trimmed-away part of a face with no chart switch left", here);
         const next: ReturnType<IAutoMovieSolidAtlas["across"]> = host.across(
           current.face,
           current.u,
           current.v,
         );
-        if (next === null) return null;
+        if (next === null) return fail("solved on a trimmed-away part of a face with no neighbour across", here);
         current = AutoMovieSolidTraceTrial(
           host,
           next.face,
@@ -106,7 +122,7 @@ export namespace AutoMovieSolidRailSolve {
           next.v,
           false,
         );
-        if (current === null) return null;
+        if (current === null) return fail("the neighbour's foot lies on no face", { ...here, nextFace: next.face, nextU: next.u, nextV: next.v });
         left--;
         continue;
       }
@@ -117,7 +133,7 @@ export namespace AutoMovieSolidRailSolve {
         2 * dot(r, j.v),
         [-f1, -f2],
       );
-      if (dx === null) return null;
+      if (dx === null) return fail("the plane-and-chord Jacobian is singular", here);
       const merit: number = Math.hypot(f1, f2 / (2 * width));
       let accepted: boolean = false;
       let k: number = 1;
@@ -142,9 +158,9 @@ export namespace AutoMovieSolidRailSolve {
           break;
         }
       }
-      if (!accepted) return null;
+      if (!accepted) return fail("no Newton trial lowered the residual in twenty halvings", here);
     }
-    return null;
+    return fail("the Newton iterations ran out", { steps });
   }
 
   /** Unit-world-speed projection of the original kept-side direction. */

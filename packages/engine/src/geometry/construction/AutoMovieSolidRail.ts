@@ -126,6 +126,67 @@ export namespace AutoMovieSolidRail {
     hostWidth: number,
     mode: Mode = "station",
   ): IRail | null {
+    return explain(part, host, curve, keep, partWidth, hostWidth, mode).rail;
+  }
+
+  /**
+   * The rails at a curve point with the reading of every premise the solve checks: the quantities it computed, in the order computed, and,
+   * when it returns no rail, the premise that failed.
+   *
+   * @evidence contracts/development/design.md#principled-representation The rail and a nullable refusal partition success from the failed premise; quantities are the solve's own numbers keyed by what they measure.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One record reports what `at` already computes, so a join can name a refusal without a second solver.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It changes no solve, threshold or result: `at` returns exactly its rail.
+   * @evidence contracts/development/common.md#meaningful-documentation States the units of the recorded quantities: mm, chart units and dimensionless dot products.
+   */
+  export interface IExplanation {
+    /** The rails, or null. */
+    rail: IRail | null;
+
+    /** The failed premise, or null with a rail. */
+    refusal: string | null;
+
+    /** The quantities read on the way, by name. */
+    quantities: Record<string, number>;
+  }
+
+  /**
+   * The rails at a curve point, as `at`, with the quantities read and the failed premise named.
+   *
+   * @param part The attached part.
+   * @param host The host as an atlas.
+   * @param curve The curve point.
+   * @param keep Which side of the host the part keeps.
+   * @param partWidth Positive chord, mm, or a fixed `{ station }` in station mode.
+   * @param hostWidth Chord from the curve to the host's rail, mm.
+   * @param mode How the part's rail leaves the curve.
+   * @returns The explanation; `rail` is what `at` returns.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation The single rail solve, its every early return naming the checked premise it failed.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure `at` reads this one evaluator, so a reported refusal is the solve's own and not a reconstruction.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Records the quantities without changing any of them, and adds no tolerance.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Adds a constant number of record writes to the solve.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The same jets and directions feed the record and the rail.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The record is call-local and returned; nothing is retained.
+   */
+  export function explain(
+    part: IAutoMovieSolidSurface,
+    host: IAutoMovieSolidAtlas,
+    curve: AutoMovieSolidIntersection.IPoint,
+    keep: Keep,
+    partWidth: number | { station: number },
+    hostWidth: number,
+    mode: Mode = "station",
+  ): IExplanation {
+    const quantities: Record<string, number> = {
+      face: curve.face,
+      s: curve.s,
+      phi: curve.phi,
+      y: curve.y,
+      theta: curve.theta,
+      hostWidth,
+      ...(typeof partWidth === "number" ? { partWidth } : { partStation: partWidth.station }),
+    };
+    const refuse = (premise: string): IExplanation => ({ rail: null, refusal: premise, quantities });
     const a: IJet | null = AutoMovieSolidDomain.jet(part, curve.s, curve.phi);
     const surface: IAutoMovieSolidSurface = host.faces[curve.face]!;
     const b: IJet | null = AutoMovieSolidDomain.jet(
@@ -133,10 +194,13 @@ export namespace AutoMovieSolidRail {
       curve.y,
       curve.theta,
     );
-    if (a === null || b === null) return null;
+    if (a === null) return refuse("the part has no jet at the curve point");
+    if (b === null) return refuse("the host face has no jet at the curve point");
     const outA: Vec3 | null = unit(cross(a.u, a.v));
     const outB: Vec3 | null = unit(cross(b.u, b.v));
-    if (outA === null || outB === null) return null;
+    if (outA === null) return refuse("the part's normal vanishes at the curve point");
+    if (outB === null) return refuse("the host's normal vanishes at the curve point");
+    quantities.normals = dot(outA, outB);
     const nA: Vec3 = [
       outA[0] * part.orientation,
       outA[1] * part.orientation,
@@ -155,8 +219,11 @@ export namespace AutoMovieSolidRail {
     let sigma: number;
     if (mode === "station") {
       const facing: number = dot(a.u, nB);
-      if (!(Math.abs(facing) > 0)) return null;
+      quantities.facing = facing;
+      quantities.stationSpeed = norm(a.u);
+      if (!(Math.abs(facing) > 0)) return refuse("the part's station line is parallel to the host (facing 0)");
       const side: number = facing > 0 === (keep === "outside") ? 1 : -1;
+      quantities.side = side;
       sigma = side;
       partAcross = [side / norm(a.u), 0];
       if (typeof partWidth === "number") {
@@ -167,21 +234,26 @@ export namespace AutoMovieSolidRail {
           curve.point,
           partWidth,
         );
-        if (lambda === null) return null;
+        if (lambda === null) return refuse("the part's chord along its station line found no solution");
+        quantities.lambda = lambda;
         s = curve.s + side * lambda;
       } else {
-        if (!(side * (partWidth.station - curve.s) > 0)) return null;
+        if (!(side * (partWidth.station - curve.s) > 0)) return refuse(`the part's rail station ${partWidth.station} does not lie on its kept side (side ${side}) of the curve point's station ${curve.s}`);
         s = partWidth.station;
       }
     } else {
-      if (typeof partWidth !== "number") return null;
+      if (typeof partWidth !== "number") return refuse("a fixed part station needs the station mode");
       const e: [number, number] | null = square(
         a,
         [curve.rate[0], curve.rate[1]],
         nB,
         keep === "outside" ? 1 : -1,
+        quantities,
+        "part",
       );
-      if (e === null) return null;
+      if (e === null) return refuse("the part's square direction failed (metric solve, vanishing speed or no side toward the host's normal)");
+      quantities.partSquareS = e[0];
+      quantities.partSquarePhi = e[1];
       partAcross = e;
       sigma = e[0] >= 0 ? 1 : -1;
       const lambda: number | null = offset(
@@ -195,7 +267,8 @@ export namespace AutoMovieSolidRail {
         curve.point,
         partWidth,
       );
-      if (lambda === null) return null;
+      if (lambda === null) return refuse("the part's chord along its square direction found no solution");
+      quantities.lambda = lambda;
       const refined: [number, number] | null = section(
         part,
         [curve.s + lambda * e[0], curve.phi + lambda * e[1]],
@@ -203,20 +276,30 @@ export namespace AutoMovieSolidRail {
         plane(a, e),
         partWidth,
       );
-      if (refined === null) return null;
+      if (refined === null) return refuse("the part's normal-section refinement did not converge");
       s = refined[0];
       phi = refined[1];
     }
+    quantities.partS = s;
+    quantities.partPhi = phi;
 
     // The host's direction square to the preimage, turned toward the
     // outside of the part.
+    quantities.hostRateY = curve.rate[2];
+    quantities.hostRateTheta = curve.rate[3];
+    quantities.hostToward = dot(cross(b.u, b.v), nA) / (norm(cross(b.u, b.v)) || 1);
     const across: [number, number] | null = square(
       b,
       [curve.rate[2], curve.rate[3]],
       nA,
       1,
+      quantities,
+      "host",
     );
-    if (across === null) return null;
+    if (across === null) return refuse("the host's square direction failed (metric solve, vanishing speed or no side toward the part's normal)");
+    quantities.acrossY = across[0];
+    quantities.acrossTheta = across[1];
+    const report: { reason: string; numbers: Record<string, number> } = { reason: "", numbers: {} };
     // The initial chart displacement selects a local branch; every equation
     // is subsequently read on its actual retained face, including neighbours.
     const settled: ReturnType<typeof AutoMovieSolidRailSolve.atlas> =
@@ -234,29 +317,41 @@ export namespace AutoMovieSolidRail {
         STEPS,
         ROUNDING,
         SWITCHES,
+        report,
       );
-    if (settled === null) return null;
+    for (const [key, value] of Object.entries(report.numbers)) quantities["atlas." + key] = value;
+    if (settled === null) {
+      return refuse("the host's normal-section solve across the atlas: " + report.reason);
+    }
     const face: number = settled.face;
     const hostChart: [number, number] = settled.chart;
     const direction: [number, number] = settled.direction;
+    quantities.hostFace = face;
+    quantities.hostY = hostChart[0];
+    quantities.hostTheta = hostChart[1];
     const partJet: IJet | null = AutoMovieSolidDomain.jet(part, s, phi);
     const hostJet: IJet | null = AutoMovieSolidDomain.jet(
       host.faces[face]!,
       hostChart[0],
       hostChart[1],
     );
-    if (partJet === null || hostJet === null) return null;
+    if (partJet === null) return refuse("the part has no jet at its rail");
+    if (hostJet === null) return refuse("the host face has no jet at its rail");
     return {
-      curve,
-      s,
-      phi,
-      sigma,
-      partAcross,
-      partPoint: partJet.p,
-      hostFace: face,
-      host: hostChart,
-      across: direction,
-      hostPoint: hostJet.p,
+      rail: {
+        curve,
+        s,
+        phi,
+        sigma,
+        partAcross,
+        partPoint: partJet.p,
+        hostFace: face,
+        host: hostChart,
+        across: direction,
+        hostPoint: hostJet.p,
+      },
+      refusal: null,
+      quantities,
     };
   }
 
@@ -294,6 +389,8 @@ export namespace AutoMovieSolidRail {
     tangent: readonly [number, number],
     toward: Readonly<Vec3>,
     side: number,
+    note?: Record<string, number>,
+    key: string = "",
   ): [number, number] | null {
     const E: number = dot(j.u, j.u);
     const F: number = dot(j.u, j.v);
@@ -314,6 +411,10 @@ export namespace AutoMovieSolidRail {
       ]),
       toward,
     );
+    if (note !== undefined) {
+      note[key + "Out"] = out / speed;
+      note[key + "Speed"] = speed;
+    }
     if (!(Math.abs(out) > 0)) return null;
     const turn: number = ((out > 0 ? 1 : -1) * side) / speed;
     return [e[0] * turn, e[1] * turn];
