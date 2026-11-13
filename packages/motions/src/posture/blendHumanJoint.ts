@@ -205,28 +205,6 @@ export function blendHumanJoint(
   // end's other reading brought into the range, or the near end's.
   const far: readonly [number, number, number] = clamped(other(to));
   const near: readonly [number, number, number] = clamped(other(from));
-  let route: {
-    length: number;
-    legs: readonly [number, number];
-    gate: readonly [
-      readonly [number, number, number],
-      readonly [number, number, number],
-    ];
-  } | null = null;
-  for (const gate of [
-    [far, other(far)],
-    [other(near), near],
-  ] as const) {
-    if (!within(gate[0]) || !within(gate[1])) continue;
-    const legs: readonly [number, number] = [
-      turn(from, gate[0]),
-      turn(gate[1], to),
-    ];
-    const length: number = legs[0] + legs[1];
-    if (route === null || length < route.length)
-      route = { length, legs, gate };
-  }
-  if (route === null || turn(from, to) === 0) return line(from, to, s);
   // The direct line's turn is read along it, since its ends' rotations may
   // be near while the line between their triples is long.
   let direct: number = 0;
@@ -235,15 +213,117 @@ export function blendHumanJoint(
   direct +=
     turn(from, line(from, to, ARC[0]!)) +
     turn(line(from, to, ARC[ARC.length - 1]!), to);
-  if (direct <= route.length || route.length === 0) return line(from, to, s);
-  const meet: number = route.legs[0] / route.length;
-  return s < meet
-    ? line(from, route.gate[0], s / meet)
-    : line(route.gate[1], to, meet >= 1 ? 1 : (s - meet) / (1 - meet));
+  if (direct === 0) return line(from, to, s);
+  // A gate's route counts in full when it is clearly the shorter way and
+  // not at all when it is not, and by an eased share between; and by less
+  // the farther one of its readings lies outside the range. So the joint
+  // stands a share of the way from the line's rotation to each route's, and
+  // nothing is chosen: between two ends that move (an overlay fading in over
+  // a walk) every one of these measures changes from instant to instant, and
+  // a choice of one route or another would step where it changes.
+  const eased = (x: number): number => {
+    const c: number = Math.min(1, Math.max(0, x));
+    return c * c * (3 - 2 * c);
+  };
+  let rotated: IAutoMovieQuaternion = rotation(line(from, to, s));
+  let left: number = 1;
+  for (const gate of [
+    [far, other(far)],
+    [other(near), near],
+  ] as const) {
+    const lacks: number =
+      jointRomOvershoot({ bone, ...triple(gate[0]) }, constraint) +
+      jointRomOvershoot({ bone, ...triple(gate[1]) }, constraint);
+    const legs: readonly [number, number] = [
+      turn(from, gate[0]),
+      turn(gate[1], to),
+    ];
+    const length: number = legs[0] + legs[1];
+    if (lacks >= SLACK || length === 0) continue;
+    const counts: number =
+      left *
+      eased((GATE[1] - length / direct) / (GATE[1] - GATE[0])) *
+      eased(1 - lacks / SLACK);
+    if (counts <= 0) continue;
+    const meet: number = legs[0] / length;
+    rotated = Quaternion.normalize(
+      Quaternion.slerp(
+        rotated,
+        rotation(
+          s < meet
+            ? line(from, gate[0], s / meet)
+            : line(gate[1], to, meet >= 1 ? 1 : (s - meet) / (1 - meet)),
+        ),
+        counts,
+      ),
+    );
+    left *= 1 - counts;
+  }
+  if (left >= 1) return line(from, to, s);
+  const mixed: IAutoMovieResolvedJointAngles = decomposeJointRotation(
+    rotated,
+    axes,
+    HUMANOID_REST_FRAME[bone],
+    { bone, constraint },
+  );  // Two rotations inside the range may have one a little outside it between
+  // them. In the angles of one reading the range is two boxes, its own and
+  // the other reading's, which meet at a corner; a rotation in the corner is
+  // nearest one box's face on one side of the corner's diagonal and the
+  // other's on the other side, so the nearest point steps across the
+  // diagonal. It is brought into the range along the diagonal instead: by
+  // the whole of the shorter way into a box and the same length of the
+  // longer one, which lands on a face of the nearer box and moves
+  // continuously with the rotation.
+  const here: readonly [number, number, number] = [
+    mixed.flexion,
+    mixed.abduction,
+    mixed.twist,
+  ];
+  const there: readonly [number, number, number] = other(here);
+  const into = (
+    of: readonly [number, number, number],
+  ): readonly [number, number, number] => {
+    const inside: readonly [number, number, number] = clamped(of);
+    return [inside[0] - of[0], inside[1] - of[1], inside[2] - of[2]];
+  };
+  const inward: readonly [number, number, number] = into(here);
+  const across: readonly [number, number, number] = into(there);
+  const short: number = Math.hypot(inward[0], inward[1], inward[2]);
+  const long: number = Math.hypot(across[0], across[1], across[2]);
+  if (short === 0) return here;
+  if (long === 0) return there;
+  // How each angle of the other reading turns with the same angle of this
+  // one: with it or against it, read from the readings themselves.
+  const nudged: readonly [number, number, number] = other([
+    here[0] + 1,
+    here[1] + 1,
+    here[2] + 1,
+  ]);
+  const sense: readonly number[] = [0, 1, 2].map((i: number): number => {
+    const change: number = nudged[i]! - there[i]!;
+    return change - 360 * Math.round(change / 360) >= 0 ? 1 : -1;
+  });
+  return short <= long
+    ? clamped([
+        here[0] + inward[0] + (short / long) * sense[0]! * across[0],
+        here[1] + inward[1] + (short / long) * sense[1]! * across[1],
+        here[2] + inward[2] + (short / long) * sense[2]! * across[2],
+      ])
+    : clamped([
+        there[0] + across[0] + (long / short) * sense[0]! * inward[0],
+        there[1] + across[1] + (long / short) * sense[1]! * inward[1],
+        there[2] + across[2] + (long / short) * sense[2]! * inward[2],
+      ]);
 }
 
 /** How far outside its range an end may read and still count as on its edge, degrees: a millionth, far above a rounding error and far below any turn that shows; without it an end a solver left on the edge would change the route with its rounding. */
 const EDGE: number = 1e-6;
+
+/** How far outside the range a gate's readings may lie in all, degrees, before the gate no longer serves; its route counts for less as they near it (provisional: five degrees, the turn the continuity audit's bound is at a hand's length many times over, and small beside the half turn between two readings). */
+const SLACK: number = 5;
+
+/** The shares of the direct line's turn between which a gate's route comes in: taken whole at or under the first, not at all at or over the second, and by an eased share between (provisional: a half and five sixths, so a route a little shorter than the line does not displace it, and the long way round between two readings, several times the gate's turn, always yields to the gate). */
+const GATE: readonly [number, number] = [1 / 2, 5 / 6];
 
 /** The shares between which the turn along a line of angles is summed. */
 const ARC: readonly number[] = [0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875];

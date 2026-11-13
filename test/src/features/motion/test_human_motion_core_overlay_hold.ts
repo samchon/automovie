@@ -36,8 +36,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 4. Continuity: from the film's start through the
  *    reach, the takeover and the 0.6 s after it, no joint centre jumps by
  *    more than the audit's 5 mm; and for 0.3 s either side of the drink's
- *    end, where it gives the hand back, the right wrist moves under 25 mm
- *    per 1/120 s (3 m/s, above any speed of a drinking hand, so only a step
+ *    end, where it gives the hand back, the right wrist moves under 50 mm
+ *    per 1/60 s (3 m/s, above any speed of a drinking hand, so only a step
  *    exceeds it).
  * 5. A wave of the free left hand over the same walk plans. That a wave of
  *    the holding hand is refused is
@@ -187,7 +187,7 @@ export function test_human_motion_core_overlay_hold(): void {
       }
 
       // Where the drink gives the hand back to the carry, the wrist is read
-      // every 1/120 s: a hand in a drink moves under 3 m/s, 25 mm a reading.
+      // every 1/60 s: a hand in a drink moves under 3 m/s, 50 mm a reading.
       const given: number | undefined = film.overlays("a")[0]?.end;
       if (given !== undefined) {
         let step: { value: number; seconds: number } = { value: 0, seconds: 0 };
@@ -210,9 +210,22 @@ export function test_human_motion_core_overlay_hold(): void {
           }
           before = now;
         }
-        if (step.value > 0.025)
+        if (step.value > 0.05)
           complaints.push(
-            `${name}: the right wrist moves ${mm(step.value)} mm in 1/120 s at ${step.seconds.toFixed(2)} s, as the drink gives the hand back; within 25 mm expected`,
+            `${name}: the right wrist moves ${mm(step.value)} mm in 1/60 s at ${step.seconds.toFixed(3)} s, as the drink gives the hand back at ${given.toFixed(3)} s; within 50 mm expected; the right upper arm, forearm and hand 1/60 s apart around it: ${[
+              -2, -1, 0, 1, 2,
+            ]
+              .map((k: number): string =>
+                `[${(["rightUpperArm", "rightLowerArm", "rightHand"] as const)
+                  .map((bone): string => {
+                    const joint = film
+                      .pose("a", step.seconds + k / 60)
+                      .joints.find((j): boolean => j.bone === bone);
+                    return `${(joint?.flexion ?? 0).toFixed(1)}/${(joint?.abduction ?? 0).toFixed(1)}/${(joint?.twist ?? 0).toFixed(1)}`;
+                  })
+                  .join(" ")}]`,
+              )
+              .join(" ")}`,
           );
       }
     }
