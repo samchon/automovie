@@ -109,11 +109,7 @@ export const decomposeJointRotationOnBasis: (
   // Right-handedness of the basis: +1 when flex × abd = +twist. A left-handed
   // triple is made right-handed by extracting against −twist, then negating the
   // recovered twist (a rotation about −t by θ is one about t by −θ).
-  const handed: 1 | -1 =
-    Vector3.dot(basis.twist, Vector3.cross(basis.flexion, basis.abduction)) >= 0
-      ? 1
-      : -1;
-  const twistAxis: IAutoMovieVector3 = Vector3.scale(basis.twist, handed);
+  const { handed, twistAxis }: IHandedness = handednessOf(basis);
   const lift: (
     rig: IAutoMovieResolvedJointAngles,
   ) => IAutoMovieResolvedJointAngles = (
@@ -125,11 +121,7 @@ export const decomposeJointRotationOnBasis: (
     // gated by swing and twist, under which both readings of one rotation are
     // equally inside: the choice is of a reading, the one a pose reports in,
     // and stays the one it always was.
-    const constraint: IAutoMovieJointConstraint =
-      domain.constraint.swingTwist === undefined ||
-      domain.constraint.swingTwist === null
-        ? domain.constraint
-        : { ...domain.constraint, swingTwist: null };
+    const constraint: IAutoMovieJointConstraint = boxOf(domain.constraint);
     const align: (
       candidate: IAutoMovieResolvedJointAngles,
     ) => IAutoMovieResolvedJointAngles = (
@@ -215,4 +207,96 @@ export const decomposeJointRotationOnBasis: (
     abduction: Math.atan2(-m20, cosine) * RAD2DEG,
     twist: handed * Math.atan2(m10, m00) * RAD2DEG,
   });
+};
+
+/** A basis's handedness and the twist axis an extraction reads against. */
+interface IHandedness {
+  /** +1 when flexion × abduction = +twist, else -1. */
+  handed: 1 | -1;
+
+  /** The twist axis times the handedness. */
+  twistAxis: IAutoMovieVector3;
+}
+
+/** Each basis's handedness, remembered with the components it was read from. */
+const HANDEDNESS: WeakMap<
+  IAutoMovieJointAxes,
+  { values: readonly number[]; read: IHandedness }
+> = new WeakMap();
+
+/** A basis's nine components, flexion, abduction and twist, each x, y, z. */
+const componentsOf = (basis: IAutoMovieJointAxes): number[] => [
+  basis.flexion.x,
+  basis.flexion.y,
+  basis.flexion.z,
+  basis.abduction.x,
+  basis.abduction.y,
+  basis.abduction.z,
+  basis.twist.x,
+  basis.twist.y,
+  basis.twist.z,
+];
+
+/**
+ * A basis's handedness and signed twist axis, read once per basis record
+ * while it holds the components it was read from (compared exactly), so the
+ * hundreds of candidates a limb fit decomposes through one basis share it.
+ */
+const handednessOf = (basis: IAutoMovieJointAxes): IHandedness => {
+  const now: number[] = componentsOf(basis);
+  const known: { values: readonly number[]; read: IHandedness } | undefined =
+    HANDEDNESS.get(basis);
+  if (
+    known !== undefined &&
+    known.values.every((v: number, i: number): boolean => Object.is(v, now[i]))
+  )
+    return known.read;
+  // Right-handedness of the basis: +1 when flex × abd = +twist. A left-handed
+  // triple is made right-handed by extracting against −twist, then negating the
+  // recovered twist (a rotation about −t by θ is one about t by −θ).
+  const handed: 1 | -1 =
+    Vector3.dot(basis.twist, Vector3.cross(basis.flexion, basis.abduction)) >= 0
+      ? 1
+      : -1;
+  const read: IHandedness = {
+    handed,
+    twistAxis: Vector3.scale(basis.twist, handed),
+  };
+  HANDEDNESS.set(basis, { values: now, read });
+  return read;
+};
+
+/** Each gated constraint's copy without its swing-twist gate. */
+const BOXES: WeakMap<IAutoMovieJointConstraint, IAutoMovieJointConstraint> =
+  new WeakMap();
+
+/**
+ * A constraint as the readings are ranked by: itself, or for one gated by
+ * swing and twist a copy with that gate set aside, the copy remembered per
+ * constraint and returned only while every other member is still the one it
+ * was copied from.
+ */
+const boxOf = (
+  constraint: IAutoMovieJointConstraint,
+): IAutoMovieJointConstraint => {
+  if (constraint.swingTwist === undefined || constraint.swingTwist === null)
+    return constraint;
+  const known: IAutoMovieJointConstraint | undefined = BOXES.get(constraint);
+  if (known !== undefined) {
+    const keys: string[] = Object.keys(constraint);
+    const same: boolean =
+      keys.length === Object.keys(known).length &&
+      keys.every(
+        (key: string): boolean =>
+          key === "swingTwist" ||
+          Object.is(
+            (known as unknown as Record<string, unknown>)[key],
+            (constraint as unknown as Record<string, unknown>)[key],
+          ),
+      );
+    if (same) return known;
+  }
+  const box: IAutoMovieJointConstraint = { ...constraint, swingTwist: null };
+  BOXES.set(constraint, box);
+  return box;
 };
