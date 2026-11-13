@@ -1,4 +1,8 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieJointPose,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanEmblem,
@@ -33,6 +37,45 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 3 scenarios with their bounds.
  */
 export function test_human_motion_emblem_thumbs(): void {
+  // How far the shown hand turns from the rotation its arm goal asks, and
+  // the right arm's joints, so a miss says whether the fit or the goal
+  // holds the thumb off.
+  const fitted = (performance: HumanPerformance, seconds: number): string => {
+    const asked: IAutoMovieQuaternion | undefined = performance.posture(
+      "a",
+      seconds,
+    ).limbs.rightArm?.rotation;
+    const shown: IAutoMovieQuaternion = performance
+      .bones("a", seconds)
+      .get("rightHand")!.worldRotation;
+    const dot: number =
+      asked === undefined
+        ? 1
+        : Math.min(
+            1,
+            Math.abs(
+              asked.x * shown.x +
+                asked.y * shown.y +
+                asked.z * shown.z +
+                asked.w * shown.w,
+            ),
+          );
+    const turn: string =
+      asked === undefined
+        ? "no hand rotation asked"
+        : `the hand ${((2 * Math.acos(dot) * 180) / Math.PI).toFixed(1)} degrees off its asked rotation`;
+    const joints: string = performance
+      .pose("a", seconds)
+      .joints.filter((joint: IAutoMovieJointPose): boolean =>
+        ["rightUpperArm", "rightLowerArm", "rightHand"].includes(joint.bone),
+      )
+      .map(
+        (joint: IAutoMovieJointPose): string =>
+          `${joint.bone} ${(joint.flexion ?? 0).toFixed(0)}/${(joint.abduction ?? 0).toFixed(0)}/${(joint.twist ?? 0).toFixed(0)}`,
+      )
+      .join(", ");
+    return `${turn}; ${joints}`;
+  };
   const laws: IHumanActionLaw<never>[] = [
     HumanEmblem.thumbsUp,
     HumanEmblem.thumbsDown,
@@ -110,7 +153,7 @@ export function test_human_motion_emblem_thumbs(): void {
           Math.PI;
         if (!(off <= 30))
           complaints.push(
-            `${name}: ${row}: the thumb points ${off.toFixed(0)} degrees from straight ${sense > 0 ? "up" : "down"}, within 30 expected (thumb ${way(base, tip)}, wrist to knuckle ${way(at("rightHand"), at("rightIndexProximal"))}, as right, up, ahead)`,
+            `${name}: ${row}: the thumb points ${off.toFixed(0)} degrees from straight ${sense > 0 ? "up" : "down"}, within 30 expected (thumb ${way(base, tip)}, wrist to knuckle ${way(at("rightHand"), at("rightIndexProximal"))}, as right, up, ahead; ${fitted(performance, held)})`,
           );
         const wrist: IAutoMovieVector3 = at("rightHand");
         const finger: IAutoMovieVector3 = at("rightIndexDistal");
