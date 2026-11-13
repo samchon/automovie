@@ -777,13 +777,13 @@ namespace FamilyConicBody {
         { name: "arm", centres: armCentres, course: "[J.armRoot, J.armTurn, J.lowerarm, J.hand, J.middle1, J.toward(J.middle1, [[J.index1, J.index2], [J.middle1, J.middle2], [J.ring1, J.ring2], [J.pinky1, J.pinky2]], " + KNUCKLE.reach + ")]", halves: armHalves, up: arm.up, domain: [arm.plane + 2, KNUCKLE.end], gap: (s: number): number => (s < arm.turned ? 6 : GAP_MM), tip: KNUCKLE.end + 15, cap: 570.45, covered: true, mirrored: true, layouts: ARM_GROOVES.length === 0 ? LIMB : [{ layout: C.inflected(1, ARM_GROOVES), depth: 1 }], ...(process.argv.includes("--arm-skin") ? { skin: "outer" as const } : {}), reliefs: "auto", rounds: [
           // The forearm and the hand: the wall of two conics a quarter left the ulna's head 2 to 4 mm inside the skin at the wrist, the web
           // between the thumb and the hand up to 11 mm full and stripes of 1 to 4 mm along the forearm (`FamilyConicDeviation.ts`), which
-          // are not hollows under the tape but the wall's own misfit, on both sides of it. A net round each run takes them. They meet in
-          // three zero rows each, 425 to 440 mm, and drew an oval ring with level bars round the forearm above the wrist (`hand.high-oblique`
-          // px 360..415 x 150..215), gone with both nets off. Handed over (`fade`), the forearm's over its last 40 mm and the hand's from
-          // 400 mm over 30, the oval is gone, but the -Z little finger's band then fails its face triangulation ("unavailable source
-          // physical2"); faded over 15 mm each the band is admitted and the oval stays. Not kept: the nets stand as they were emitted.
-          { name: "fore", stations: [300, 440], rows: 19, columns: 26, reach: 10 },
-          { name: "hand", stations: [425, KNUCKLE.relief], rows: 34, columns: 38, reach: 14, hold: thumbHold },
+          // are not hollows under the tape but the wall's own misfit, on both sides of it. A net round each run takes them. Meeting in three
+          // zero rows each at 425 to 440 mm they drew an oval ring with level bars round the forearm above the wrist and a ring across the
+          // wrist (`hand.high-oblique` px 360..415 x 150..215, `figure.left` px 455..470 x 615..640), gone with both nets off. The forearm's
+          // now hands over (`fade`) over its last 40 mm and the hand's starts at 400 mm and fades in over 30; faded over 15 mm each the
+          // oval stayed.
+          { name: "fore", stations: [300, 440], rows: 19, columns: 26, reach: 10, fade: [0, 40] },
+          { name: "hand", stations: [400, KNUCKLE.relief], rows: 36, columns: 38, reach: 14, hold: thumbHold, fade: [30, 0] },
           // The palm on to the hand's end (`PALM`): past `KNUCKLE.relief` the wall alone is the tape across the palm's hollow.
           { name: "palm", stations: PALM.stations, rows: PALM.rows, columns: PALM.columns, reach: 14, hold: thumbHold, window: { phases: PALM.phases, fade: PALM.fade, fadePhase: PALM.fadePhase } },
         ], clip: (p: R.V): number => {
