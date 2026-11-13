@@ -1175,6 +1175,12 @@ namespace FamilyConicBody {
           // over the back takes what the first leaves there. Its edges round the head hand over (`fadePhase`): with hard edges at 2.14 rad
           // they drew upright lines down the back of the head and behind each ear (`figure.back` px 400..500 x 160..230, `head.left` px 270..290).
           { name: "trunk.head.back", stations: [620, 906], phases: [Math.PI - 1.0, Math.PI + 1.0], axis: [1, 0, 0], turn: [0, 0, 1], rows: 60, columns: 39, mirror: true, reach: 20, fade: [30, 30], fadePhase: [0.3, 0.3], hold: earHeld },
+          // The crown's own net, over the cap to its pole, fitted after the head's two nets so their rows below stay as they were (the concha's
+          // rails stand on them). The head's nets end at the cap's base and leave the plain wall's misfit there, 2.3 mm inside the skull at
+          // x -34 (the hull wall on convex skin), from which the cap rose 1.4 mm proud by x -24, a corner at the crown's back. Its rows are
+          // 1 mm apart, the cap's own ring spacing near its base, and it vanishes with zero slope over the cap's last third (`fade`), where a
+          // height that varied with the phase would draw rings round the pole.
+          { name: "trunk.crown", stations: [886, 918.88], phases: [0, 2 * Math.PI], axis: [1, 0, 0], turn: [0, 0, 1], rows: 36, columns: 83, mirror: false, periodic: true, reach: 10, fade: [12, 4.3] },
           // Under the jaw the wall's knots stand 3 mm apart for the chin's step, and every field rippled with them: a ring 1.5 mm high
           // stood round the whole neck at that level, the nape included. A band 1.4 mm apart along the station, round the neck and again
           // over its back for the seam, takes the ring and follows the jaw's line where it rises to the sides. What stays is in front,
