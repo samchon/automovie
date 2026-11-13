@@ -60,9 +60,41 @@ export namespace PlaygroundAddress {
     if (
       typeof composition.seed !== "string" ||
       !Array.isArray(composition.performers) ||
-      !Array.isArray(composition.mutuals)
+      !composition.performers.every(performer) ||
+      !Array.isArray(composition.mutuals) ||
+      !composition.mutuals.every(
+        (mutual: unknown): boolean =>
+          record(mutual) &&
+          typeof mutual.name === "string" &&
+          record(mutual.cast) &&
+          record(mutual.params),
+      )
     )
       throw new Error("The address carries a composition that cannot be read");
     return composition;
   }
+
+  /** Whether a value is a plain object, which every record of a composition is. */
+  const record = (value: unknown): value is Record<string, unknown> =>
+    typeof value === "object" && value !== null && !Array.isArray(value);
+
+  /** Whether a value has the members the editor reads of an action, through the actions performed over it. */
+  const action = (value: unknown): boolean =>
+    record(value) &&
+    typeof value.name === "string" &&
+    record(value.params) &&
+    (value.over === undefined ||
+      (Array.isArray(value.over) && value.over.every(action)));
+
+  /** Whether a value has the members the editor reads of a performer. */
+  const performer = (value: unknown): boolean =>
+    record(value) &&
+    typeof value.subject === "string" &&
+    typeof value.body === "string" &&
+    typeof value.x === "number" &&
+    typeof value.z === "number" &&
+    typeof value.yaw === "number" &&
+    typeof value.proficiency === "string" &&
+    Array.isArray(value.actions) &&
+    value.actions.every(action);
 }

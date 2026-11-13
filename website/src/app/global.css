@@ -12,7 +12,7 @@
   font-size: 1.1rem;
 }
 
-/* ── The application frame ── */
+/* The application frame */
 .am-app {
   box-sizing: border-box;
   width: 100%;
@@ -93,7 +93,7 @@
   margin-top: var(--am-space-3);
 }
 
-/* ── Panels ── */
+/* Panels */
 .am-panel {
   border: 1px solid var(--am-border);
   border-radius: var(--am-radius);
@@ -105,7 +105,7 @@
   margin-top: var(--am-space-4);
 }
 
-/* ── Controls ── */
+/* Controls */
 .am-app input:not(.am-instrument *),
 .am-app select:not(.am-instrument *),
 .am-app textarea:not(.am-instrument *),
@@ -230,7 +230,7 @@
   font-size: var(--am-text-xs);
 }
 
-/* ── Messages ── */
+/* Messages */
 .am-message {
   margin: 0;
   overflow-x: auto;
@@ -294,7 +294,7 @@
   overflow-wrap: anywhere;
 }
 
-/* ── Tables ── */
+/* Tables */
 .am-table-wrap {
   overflow-x: auto;
 }
@@ -337,7 +337,7 @@
   vertical-align: baseline;
 }
 
-/* ── Toolbars ── */
+/* Toolbars */
 .am-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -349,7 +349,7 @@
   flex: 1 1 auto;
 }
 
-/* ── Pane tabs: shown only where the two panes of a page stack ── */
+/* Pane tabs: shown only where the two panes of a page stack */
 .am-tabs {
   display: none;
   gap: var(--am-space-1);
@@ -367,7 +367,7 @@
   font-weight: 700;
 }
 
-/* ── Playground: the composition on the left, the result on the right ── */
+/* Playground: the composition on the left, the result on the right */
 .am-split {
   display: grid;
   grid-template-columns: var(--am-side) minmax(0, 1fr);
@@ -496,7 +496,7 @@
   padding: var(--am-space-2);
 }
 
-/* ── Timeline ── */
+/* Timeline */
 .am-track {
   display: flex;
   align-items: center;
@@ -560,7 +560,7 @@
   font-size: var(--am-text-xs);
 }
 
-/* ── 3D viewport ── */
+/* 3D viewport */
 .am-viewport {
   position: relative;
   width: 100%;
@@ -638,7 +638,7 @@
   color: var(--am-danger);
 }
 
-/* ── Gallery: the catalogue, the view, the facts ── */
+/* Gallery: the catalogue, the view, the facts */
 .am-gallery {
   display: grid;
   grid-template-columns: var(--am-catalogue) minmax(0, 1fr) var(--am-side);
@@ -772,7 +772,7 @@
   background: var(--am-accent);
 }
 
-/* ── Landing: one readable column ── */
+/* Landing: one readable column */
 .am-landing {
   max-width: 48rem;
   margin: 0 auto;

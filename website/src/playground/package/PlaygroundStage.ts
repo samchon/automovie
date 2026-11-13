@@ -107,7 +107,7 @@ export namespace PlaygroundStage {
     });
 
     // The floor under every place a performer's root passes, read from the
-    // postures at eight instants of the film.
+    // postures at nine evenly spaced instants of the film.
     const extent: THREE.Box3 = new THREE.Box3();
     for (const figure of figures)
       for (let k: number = 0; k <= 8; ++k) {

@@ -115,7 +115,7 @@ export namespace PlaygroundChain {
    *
    * @param data The composition data.
    * @returns The composition and the lexicon laws it names.
-   * @throws {Error} When the data asks for an operator the installed package lacks, or names no action at all.
+   * @throws {Error} When the data asks for an operator the installed package lacks, names no action at all, or leaves a role of a mutual action without a performer.
    */
   export function build(data: IPlaygroundComposition): IBuilt {
     const rows: Map<string, ILaw> = new Map(
@@ -195,12 +195,19 @@ export namespace PlaygroundChain {
           throw new Error(
             `The installed @automovie/motions has no mutual action named ${mutual.name}; it has ${Object.keys(known).join(", ") || "none"}`,
           );
+        const uncast: string[] = record.roles.filter(
+          (role: string): boolean => (mutual.cast[role] ?? "") === "",
+        );
+        if (uncast.length !== 0)
+          throw new Error(
+            `The mutual action ${mutual.name} has no performer cast as ${uncast.join(", ")}; choose one for each role`,
+          );
         return join(
           record,
           Object.fromEntries(
             record.roles.map((role: string): [string, ILoose] => [
               role,
-              empty(mutual.cast[role] ?? ""),
+              empty(mutual.cast[role]!),
             ]),
           ),
           mutual.params,

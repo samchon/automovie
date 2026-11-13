@@ -13,6 +13,7 @@ import type { IPlaygroundComposition } from "../../src/playground/structures/IPl
  * 2. A fragment without a composition gives null, so the page opens its default.
  * 3. A composition of another version is refused with a message naming both that version and the version the page reads.
  * 4. A fragment whose text is not a compressed composition is refused, not read as an empty one.
+ * 5. A composition of the right version whose performer lacks its actions, or whose overlaid action lacks its parameters, is refused, so a damaged link never reaches the editor.
  */
 export function test_website_playground_address(): void {
   // 1. Round trip.
@@ -96,6 +97,32 @@ export function test_website_playground_address(): void {
       PlaygroundAddress.decode("#c=not-a-composition");
     }) !== "",
   );
+
+  // 5. Damaged structure.
+  const damaged: unknown[] = [
+    {
+      ...full,
+      performers: [{ ...full.performers[0]!, actions: undefined }],
+    },
+    {
+      ...full,
+      performers: [
+        {
+          ...full.performers[0]!,
+          actions: [{ name: "walk", params: {}, over: [{ name: "wave" }] }],
+        },
+      ],
+    },
+  ];
+  for (const value of damaged)
+    TestValidator.predicate(
+      "a damaged composition is refused",
+      thrown((): void => {
+        PlaygroundAddress.decode(
+          `#c=${compressToEncodedURIComponent(JSON.stringify(value))}`,
+        );
+      }) !== "",
+    );
 }
 
 /** The message a call throws, or the empty text when it throws nothing. */
