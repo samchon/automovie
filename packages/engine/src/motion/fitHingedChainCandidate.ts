@@ -165,7 +165,7 @@ export function fitHingedChainCandidate(
       score: (
         upper: IAutoMovieQuaternion,
         lower: IAutoMovieQuaternion,
-      ): { overshoot: number; deviation: number } => {
+      ): { overshoot: number; deviation: number; exact?: () => number } => {
         const [u, l] = joints(upper, lower);
         const mid: IAutoMovieVector3 = Vector3.add(
           root,
@@ -212,18 +212,28 @@ export function fitHingedChainCandidate(
             abduction: l.abduction ?? 0,
             twist: l.twist ?? 0,
           });
+        const overshoot: number =
+          jointRomOvershoot(u, prepared.upperDomain.constraint) +
+          jointRomOvershoot(l, prepared.lowerDomain.constraint) +
+          blocked;
+        const turned: number =
+          anchor *
+          (apart(Quaternion.normalize(upper), before[0]) +
+            apart(Quaternion.normalize(lower), before[1]));
+        // The effector's error is the costly term and is never negative, so
+        // the sum without it, added in the same order, is a lower bound of
+        // the tie-break (rounding is monotone), and the error is computed
+        // only for a comparison the bound cannot decide.
+        if (turn === null)
+          return {
+            overshoot,
+            deviation: 0 + 2 * away + turned + 1e-9 * effort,
+          };
         return {
-          overshoot:
-            jointRomOvershoot(u, prepared.upperDomain.constraint) +
-            jointRomOvershoot(l, prepared.lowerDomain.constraint) +
-            blocked,
-          deviation:
-            (turn === null ? 0 : turn(upper, lower)) +
-            2 * away +
-            anchor *
-              (apart(Quaternion.normalize(upper), before[0]) +
-                apart(Quaternion.normalize(lower), before[1])) +
-            1e-9 * effort,
+          overshoot,
+          deviation: 0 + 2 * away + turned + 1e-9 * effort,
+          exact: (): number =>
+            turn(upper, lower) + 2 * away + turned + 1e-9 * effort,
         };
       },
     });

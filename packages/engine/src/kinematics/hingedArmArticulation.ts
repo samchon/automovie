@@ -93,7 +93,7 @@ export const hingedArmArticulation: (props: {
   score: (
     upper: IAutoMovieQuaternion,
     lower: IAutoMovieQuaternion,
-  ) => { overshoot: number; deviation: number };
+  ) => { overshoot: number; deviation: number; exact?: () => number };
 }) => IAutoMovieHingedArticulation | null = (props: {
   /** Chain-root bone (the shoulder) resolved under the rig's rest FK. */
   upper: IAutoMovieChainBone;
@@ -125,12 +125,16 @@ export const hingedArmArticulation: (props: {
    * Score one candidate's bone-local root and mid rotations: `overshoot` is
    * the total ROM overshoot in degrees, compared first, and `deviation` the
    * effort tie-break, compared second. The caller owns the decomposition
-   * convention and the rig's constraints.
+   * convention and the rig's constraints. With `exact`, `deviation` is a
+   * lower bound of the tie-break and `exact` gives it exactly: a caller
+   * whose tie-break ends in a costly non-negative term passes the rest as
+   * the bound, and the term is computed only for a comparison the bound
+   * cannot decide.
    */
   score: (
     upper: IAutoMovieQuaternion,
     lower: IAutoMovieQuaternion,
-  ) => { overshoot: number; deviation: number };
+  ) => { overshoot: number; deviation: number; exact?: () => number };
 }): IAutoMovieHingedArticulation | null => {
   const root: IAutoMovieVector3 = props.upper.worldPosition;
   const midOffset: IAutoMovieVector3 = props.midOffset;
@@ -229,9 +233,18 @@ export const hingedArmArticulation: (props: {
   // toward the ROM box's edges, which is precisely where that happens, so
   // the ordering has to put "inside the box" ahead of "closer to neutral"
   // without qualification.
-  const better = (a: IScored, b: IScored): boolean =>
-    a.overshoot < b.overshoot ||
-    (a.overshoot === b.overshoot && a.deviation < b.deviation);
+  //
+  // A tie on the overshoot is decided by the deviation. A candidate scored
+  // with a lower bound of it first tries the bound: a bound already no less
+  // than the other's exact deviation decides that it is not ahead, since the
+  // exact one is no smaller, and only otherwise is the exact one computed.
+  // The answer is the one the exact deviations give, every time.
+  const better = (a: IScored, b: IScored): boolean => {
+    if (a.overshoot !== b.overshoot) return a.overshoot < b.overshoot;
+    const theirs: number = exactOf(b);
+    if (a.exact !== undefined && a.deviation >= theirs) return false;
+    return exactOf(a) < theirs;
+  };
 
   let chosen: IScored | null = null;
   for (const { theta } of stops.filter(
@@ -295,9 +308,22 @@ interface IStop {
 
 /** One scored candidate: its rotations, its ROM overshoot and its effort tie-break. */
 interface IScored extends IAutoMovieHingedArticulation {
-  /** The effort tie-break, compared after the overshoot. */
+  /** The effort tie-break, compared after the overshoot; a lower bound of it when `exact` is given. */
   deviation: number;
+
+  /** The exact tie-break, when `deviation` is only its lower bound; its value is kept in `known` once read. */
+  exact?: () => number;
+
+  /** The exact tie-break once read. */
+  known?: number;
 }
+
+/** A candidate's exact tie-break, read once. */
+const exactOf = (scored: IScored): number => {
+  if (scored.exact === undefined) return scored.deviation;
+  if (scored.known === undefined) scored.known = scored.exact();
+  return scored.known;
+};
 
 /**
  * Refine the swivel between a sweep step's neighbours by golden-section
