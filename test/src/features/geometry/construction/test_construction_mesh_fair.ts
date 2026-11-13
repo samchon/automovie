@@ -33,13 +33,15 @@ interface Sheet {
  *    does not open, and the result equals scenario 1's.
  * 4. Gap: a second dented sheet 1 mm under the first, unconnected. Faired over 4 mm about the first sheet's middle, the second sheet keeps
  *    every position, since a disc is gathered along the mesh's edges and not through space.
- * 5. Premise: a disc whose centre is no vertex of the mesh or whose radius is not positive is refused by a thrown error.
+ * 5. Premise: a region with no source, with a source that is no vertex of the mesh, or whose radius is not positive is refused by a thrown error.
+ * 6. Groove: the plane with a groove 1 mm deep along x = 0 from y = -6 to 6 mm, the trace a merge's narrow blend leaves. Faired over a band 3 mm
+ *    wide about the groove's 13 vertices, every vertex lies within 1e-9 mm of the plane: a band about a curve is filled as a disc is.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls fairAutoMovieSolidMesh on analytic grids and reads only the returned positions: distances to the plane, dihedrals between neighbouring triangles, coincidence of duplicated IDs and the untouched positions outside the disc.
  * @evidence contracts/development/testing.md#independent-expectations A plane holds its flat rim exactly, so the dent's fill is the plane; the fold's dihedral is 60 degrees by construction, and the unfaired pleat's is measured here before the call, so the expectation does not read the engine.
- * @evidence contracts/development/testing.md#distinguishing-cases The dent separates a fill from no fill, the fold separates a G1 fill from a harmonic one that only meets the rim's positions (27.3 degrees at the rim against 8.8), the seam separates a weld of coincident IDs from per-ID moves that open a crack, and the gap separates a disc walked along the mesh from a ball in space.
+ * @evidence contracts/development/testing.md#distinguishing-cases The dent separates a fill from no fill, the fold separates a G1 fill from a harmonic one that only meets the rim's positions (27.3 degrees at the rim against 8.8), the seam separates a weld of coincident IDs from per-ID moves that open a crack, the gap separates a disc walked along the mesh from a ball in space, and the groove separates a band about many sources from a disc about one.
  * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by --include construction_mesh_fair. It generates no person and starts no renderer, host or process.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the five numbered scenarios it runs, each naming its input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the six numbered scenarios it runs, each naming its input and the behavior it pins.
  */
 export function test_construction_mesh_fair(): void {
   const failures: string[] = [];
@@ -48,7 +50,7 @@ export function test_construction_mesh_fair(): void {
   const dented: Sheet = grid(20, (x: number, y: number): number => (Math.hypot(x, y) < 2 ? -1 : 0));
   const middle: number = 20 * 41 + 20;
   const before: number[] = dented.positions.slice();
-  fair(dented, [{ vertex: middle, radius: 4 }]);
+  fair(dented, [{ vertices: [middle], radius: 4 }]);
   const flatness: number = Math.max(...range(dented.positions.length / 3).map((v: number): number => Math.abs(dented.positions[3 * v + 2]!)));
   if (!(flatness < 1e-9)) failures.push(`dented plane: a vertex stands ${flatness} mm off the plane after the fill`);
   const outside: number = range(dented.positions.length / 3).filter((v: number): boolean => Math.hypot(before[3 * v]!, before[3 * v + 1]!) > 4 * Math.SQRT2 && [0, 1, 2].some((a: number): boolean => dented.positions[3 * v + a] !== before[3 * v + a])).length;
@@ -61,7 +63,7 @@ export function test_construction_mesh_fair(): void {
   const centre = (p: number[]): boolean => Math.hypot(p[0]!, p[1]!) < 2.5;
   const flank = (p: number[]): boolean => Math.abs(p[0]!) > 1.5 && Math.hypot(p[0]!, p[1]!) > 3.5 && Math.hypot(p[0]!, p[1]!) < 6.5;
   const rough: number = sharpest(folded, centre);
-  fair(folded, [{ vertex: middle, radius: 5 }]);
+  fair(folded, [{ vertices: [middle], radius: 5 }]);
   const smooth: number = sharpest(folded, centre);
   const rim: number = sharpest(folded, flank);
   if (!(rough > fold)) failures.push(`folded plane: the pleat's sharpest dihedral ${rough} degrees is not above the fold's ${fold}, so the case does not test a pleat`);
@@ -70,7 +72,7 @@ export function test_construction_mesh_fair(): void {
 
   // Scenario 3.
   const seamed: Sheet = split(grid(20, (x: number, y: number): number => (Math.hypot(x, y) < 2 ? -1 : 0)));
-  fair(seamed, [{ vertex: middle, radius: 4 }]);
+  fair(seamed, [{ vertices: [middle], radius: 4 }]);
   const copies: number = 41 * 41;
   let opened: number = 0;
   let differs: number = 0;
@@ -87,12 +89,12 @@ export function test_construction_mesh_fair(): void {
   const lower: Sheet = grid(20, (x: number, y: number): number => (Math.hypot(x, y) < 2 ? -2 : -1));
   const pair: Sheet = { positions: [...upper.positions, ...lower.positions], indices: [...upper.indices, ...lower.indices.map((i: number): number => i + copies)] };
   const kept: number[] = pair.positions.slice(3 * copies);
-  fair(pair, [{ vertex: middle, radius: 4 }]);
+  fair(pair, [{ vertices: [middle], radius: 4 }]);
   const moved: number = range(copies).filter((v: number): boolean => [0, 1, 2].some((a: number): boolean => pair.positions[3 * (copies + v) + a] !== kept[3 * v + a])).length;
   if (moved !== 0) failures.push(`gap: ${moved} vertices of the unconnected sheet moved`);
 
   // Scenario 5.
-  for (const disc of [{ vertex: copies, radius: 4 }, { vertex: middle, radius: 0 }, { vertex: middle, radius: Number.NaN }]) {
+  for (const disc of [{ vertices: [copies], radius: 4 }, { vertices: [], radius: 4 }, { vertices: [middle], radius: 0 }, { vertices: [middle], radius: Number.NaN }]) {
     let thrown: boolean = false;
     try {
       fair(grid(20, (): number => 0), [disc]);
@@ -101,6 +103,12 @@ export function test_construction_mesh_fair(): void {
     }
     if (!thrown) failures.push(`premise: the disc ${JSON.stringify(disc)} was not refused`);
   }
+
+  // Scenario 6.
+  const grooved: Sheet = grid(20, (x: number, y: number): number => (x === 0 && Math.abs(y) <= 6 ? -1 : 0));
+  fair(grooved, [{ vertices: range(13).map((k: number): number => 20 * 41 + 14 + k), radius: 3 }]);
+  const groove: number = Math.max(...range(grooved.positions.length / 3).map((v: number): number => Math.abs(grooved.positions[3 * v + 2]!)));
+  if (!(groove < 1e-9)) failures.push(`groove: a vertex stands ${groove} mm off the plane after the band's fill`);
   if (failures.length > 0) throw new Error(`${failures.length} fairing failures:\n${failures.join("\n")}`);
 }
 
@@ -133,7 +141,7 @@ function split(sheet: Sheet): Sheet {
 }
 
 /** Run the fill on a sheet as a mesh with no owners. */
-function fair(sheet: Sheet, discs: { vertex: number; radius: number }[]): void {
+function fair(sheet: Sheet, discs: { vertices: number[]; radius: number }[]): void {
   const mesh: AutoMovieSolidMesh.IMesh = { positions: sheet.positions, indices: sheet.indices, coordinates: [], owners: [] };
   fairAutoMovieSolidMesh(mesh, discs);
 }

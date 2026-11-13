@@ -303,6 +303,9 @@ export function realizeAutoMovieConstruction(
     const blendFace: number = body.faces.length - 1;
     state.faces.set(node.name, blendFace);
     state.blendSurfaces.push(body.faces[blendFace]!.surface);
+
+    // The blend's band, faired once the skin is drawn (`IAutoMovieConstructionJoin.fair`).
+    if (node.fair !== undefined) (state.fairs ??= []).push({ surface: body.faces[blendFace]!.surface, radius: node.fair * S });
     state.joins.push({
       name: node.name,
       hostFace: node.seed.hostFace,
@@ -429,8 +432,18 @@ export function realizeAutoMovieConstruction(
       report,
     );
 
-    // The forks a split declares a fill for, once every face is drawn and closed, so each disc reads the whole skin round it.
-    fairAutoMovieSolidMesh(body.mesh, state.fairs ?? []);
+    // The fills a split or a merge declares, once every face is drawn and closed, so each region reads the whole skin round it; a region
+    // about a surface (a merge's blend) starts from every vertex that surface owns.
+    fairAutoMovieSolidMesh(
+      body.mesh,
+      (state.fairs ?? []).map((fair: NonNullable<AutoMovieConstructionState.IState["fairs"]>[number]): { vertices: number[]; radius: number } => {
+        if (fair.surface === undefined) return { vertices: fair.vertices ?? [], radius: fair.radius };
+        const owner: number = AutoMovieSolidMesh.owner(body.mesh, fair.surface);
+        const vertices: number[] = [];
+        for (let v: number = 0; 3 * v < body.mesh.positions.length; ++v) if (body.mesh.coordinates[3 * v] === owner) vertices.push(v);
+        return { vertices, radius: fair.radius };
+      }).filter((fair: { vertices: number[] }): boolean => fair.vertices.length > 0),
+    );
   }
   const published: AutoMovieSolidBody.IPublished =
     AutoMovieSolidBody.publish(body);

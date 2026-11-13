@@ -625,9 +625,8 @@ function fan(
       const share: number | undefined = s.profile?.fair;
       if (share === undefined) return;
       const radius: number = share * AutoMovieSolidVector.norm(AutoMovieSolidVector.sub(curves[j]!.ends[1], curves[j]!.ends[0]));
-      for (const fork of ["a" + j, "b" + j]) (state.fairs ??= []).push({ vertex: ring.get(fork + ":0")!, radius });
-    });
-  } catch (error: unknown) {
+      for (const fork of ["a" + j, "b" + j]) (state.fairs ??= []).push({ vertices: [ring.get(fork + ":0")!], radius });
+    });  } catch (error: unknown) {
     AutoMovieConstructionState.restore(body, state, snapshot);
     if (!(error instanceof AutoMovieLoftAdmissionError)) throw error;
     report(node.name, "split", error.message);
