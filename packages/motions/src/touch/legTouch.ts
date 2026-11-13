@@ -1,7 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieMotionTarget,
-  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -18,6 +17,7 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
  * A touch with the leg while standing (#3357's effectors below the hip): the
@@ -172,12 +172,12 @@ export namespace legTouch {
     );
     const turned = (local: IAutoMovieVector3): IAutoMovieVector3 =>
       Quaternion.rotateVector(foot.rotation, local);
-    // The hip rides the root, so the entry's hip moved by a shift gives it.
-    const joint: IAutoMovieVector3 = poseBones(body, context.entry.pose).get(
-      `${side}UpperLeg`,
-    )!.worldPosition;
+    // The hip as the body displays it under a shift: the pelvis is fitted
+    // over the planted leg, so the hip is read, not carried with the root.
     const hip = (by: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.add(joint, by);
+      poseBones(body, resolveHumanPosture(body, moved(entry, by))).get(
+        `${side}UpperLeg`,
+      )!.worldPosition;
     let shift: IAutoMovieVector3 = over;
     let goal: IHumanPosture.IGoal;
     if (part === "knee") {
@@ -185,36 +185,53 @@ export namespace legTouch {
         place.point,
         Vector3.scale(place.normal, KNEE),
       );
-      const from: IAutoMovieVector3 = Vector3.subtract(knee, hip(over));
-      const line: IAutoMovieVector3 =
-        Vector3.length(level(from)) > 1e-6
-          ? Vector3.normalize(level(from))
-          : { x: 0, y: 0, z: 1 };
-      const along: number = Vector3.dot(from, line);
-      const inside: number =
-        along ** 2 - (Vector3.dot(from, from) - thigh ** 2);
-      const far: number =
-        inside < 0
-          ? NaN
-          : [along - Math.sqrt(inside), along + Math.sqrt(inside)].sort(
-              (a: number, b: number): number => Math.abs(a) - Math.abs(b),
-            )[0]!;
-      if (!(Math.abs(far) <= SHIFT))
+      // The shift that puts the displayed hip a thigh from the knee: the
+      // nearer root of the thigh's length along the level line to the knee,
+      // taken again from the hip each shift displays, four times.
+      let residual: number = Infinity;
+      for (let i: number = 0; i < 4; i++) {
+        const from: IAutoMovieVector3 = Vector3.subtract(knee, hip(shift));
+        const line: IAutoMovieVector3 =
+          Vector3.length(level(from)) > 1e-6
+            ? Vector3.normalize(level(from))
+            : { x: 0, y: 0, z: 1 };
+        const along: number = Vector3.dot(from, line);
+        const inside: number =
+          along ** 2 - (Vector3.dot(from, from) - thigh ** 2);
+        const far: number =
+          inside < 0
+            ? NaN
+            : [along - Math.sqrt(inside), along + Math.sqrt(inside)].sort(
+                (a: number, b: number): number => Math.abs(a) - Math.abs(b),
+              )[0]!;
+        shift = Vector3.add(shift, Vector3.scale(line, far));
+        residual = Math.abs(
+          Vector3.length(Vector3.subtract(knee, hip(shift))) - thigh,
+        );
+        if (!(Vector3.length(Vector3.subtract(shift, over)) <= SHIFT)) break;
+      }
+      if (
+        !(Vector3.length(Vector3.subtract(shift, over)) <= SHIFT) ||
+        !(residual <= 0.005)
+      )
         throw new HumanRefusal({
           kind: "reach",
           axis: "target",
-          value: `${(Vector3.length(from) * 1000).toFixed(0)} mm`,
+          value: `${(Vector3.length(Vector3.subtract(knee, hip(over))) * 1000).toFixed(0)} mm`,
           feasible: { kind: "alternatives", values: ["a nearer place"] },
-          reason: `The knee is a thigh of ${(thigh * 1000).toFixed(0)} mm from the hip, and the place lies ${(Vector3.length(from) * 1000).toFixed(0)} mm from it, which a shift of the body within ${(SHIFT * 1000).toFixed(0)} mm does not close`,
+          reason: `The knee is a thigh of ${(thigh * 1000).toFixed(0)} mm from the hip, and the place lies ${(Vector3.length(Vector3.subtract(knee, hip(over))) * 1000).toFixed(0)} mm from it, which a shift of the body within ${(SHIFT * 1000).toFixed(0)} mm does not close (the hip stays ${(residual * 1000).toFixed(0)} mm off the thigh's length)`,
           fix: "stand nearer the place, or aim the knee at a place at the hip's height or below",
         });
-      shift = Vector3.add(over, Vector3.scale(line, far));
+      const line: IAutoMovieVector3 = Vector3.normalize(
+        level(Vector3.subtract(knee, hip(shift))),
+      );
       const down: IAutoMovieVector3 = Vector3.normalize(
         Vector3.subtract({ x: 0, y: -1, z: 0 }, Vector3.scale(line, 0.5)),
       );
+      // No rotation is asked of the foot: a foot turned as it stood would
+      // state the knee's plane against the bend point.
       goal = {
         point: Vector3.add(knee, Vector3.scale(down, shank)),
-        rotation: foot.rotation,
         bend: knee,
       };
     } else {
@@ -265,7 +282,6 @@ export namespace legTouch {
             : t <= relax
               ? 1
               : 1 - minimumJerk((t - relax) / reach).s;
-        const rotation: IAutoMovieQuaternion = foot.rotation;
         return moved(base.posture(t), Vector3.scale(shift, s), {
           point: Vector3.add(
             Vector3.add(
@@ -274,7 +290,7 @@ export namespace legTouch {
             ),
             { x: 0, y: lift * Math.sin(Math.PI * s), z: 0 },
           ),
-          rotation,
+          ...(goal.rotation === undefined ? {} : { rotation: goal.rotation }),
           // The hint rides the root, which is short of its full shift by 1 - s.
           bend: Vector3.subtract(goal.bend, Vector3.scale(shift, 1 - s)),
           ...(s === 0 ? { planted: true } : {}),

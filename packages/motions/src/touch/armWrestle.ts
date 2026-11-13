@@ -172,11 +172,10 @@ export namespace armWrestle {
     const leaned = (pitch: number, posture: IHumanPosture): IHumanPosture =>
       gesture.bow(body, posture, pitch, 0);
 
-    // The palm faces this performer's own left, where the partner's palm is.
-    const across: IAutoMovieVector3 = Vector3.cross(
-      up,
-      Vector3.scale(own, -1),
-    );
+    // The palm faces back at this performer, the forearm neither turned in
+    // nor out, as the clasp holds it: a palm asked across the table would
+    // state the arm's plane against the elbow's place.
+    const across: IAutoMovieVector3 = own;
 
     // A posture with the arm asked onto the wrist's place at a turn, the
     // elbow hinted onto the table.
