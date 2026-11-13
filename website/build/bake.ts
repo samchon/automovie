@@ -515,7 +515,10 @@ const local = async (): Promise<void> => {
   ).length;
   if (failed !== 0)
     throw new Error(`${failed} of ${options.shards} shares of the bake failed`);
-  merge();
+
+  // A machine baking one runner's part leaves its parts for the job that
+  // joins every runner's; on its own it joins them itself.
+  if (options.runner === null) merge();
   console.log(
     `bake: ${options.shards} shares in ${((Date.now() - started) / 1000).toFixed(1)} s`,
   );
