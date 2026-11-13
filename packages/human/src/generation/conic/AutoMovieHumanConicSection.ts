@@ -186,6 +186,140 @@ export namespace AutoMovieHumanConicSection {
     };
   }
 
+  /** One run of feature anchors inserted after an anchor of a base layout (`featured`). */
+  export interface IFeatureRun {
+    /** Index in the base layout's anchors after which the run stands. */
+    after: number;
+
+    /** The feature anchors (`f`), in increasing phase. */
+    anchors: IAnchor[];
+  }
+
+  /**
+   * A base layout with feature runs inserted after given anchors, and the listed median anchors (`m`) of the base turned into feature
+   * anchors (`f`) at the same place in the order. Only the model's own anchor kinds are used.
+   *
+   * A median stands on the triangle of the nearest anchors already resolved when it is (`neighbours`), which are the feature anchors
+   * once any stand in its run, since features resolve before every median (`resolve`); its tangent is then parallel to a different
+   * chord (`resolve`: a median's tangent is its neighbours' chord). So a feature inserted beside a median moves that median, and no field
+   * vector of the featured layout reproduces the stored section there. Turned into a feature anchor, the old median keeps its own point
+   * and tangent, and a stored wall of the base layout converts exactly (`convert`): each inserted feature splits a stored conic arc at
+   * an interior point into two conic arcs, which de Casteljau's construction on the rational quadratic's homogeneous controls gives
+   * exactly (Farin, Curves and Surfaces for CAGD, rational quadratic Bezier curves).
+   *
+   * @param base The layout the features go into.
+   * @param runs After which anchor of `base` each run of feature anchors stands.
+   * @param freed Indices in `base` of median anchors (`m`) turned into feature anchors.
+   */
+  export function featured(base: ILayout, runs: readonly IFeatureRun[], freed: readonly number[] = []): ILayout {
+    for (const k of freed) if (base.anchors[k]?.kind !== "m") throw new Error(`featured: anchor ${k} of the base is not a median`);
+    return {
+      mirror: base.mirror,
+      ...(base.least === undefined ? {} : { least: base.least }),
+      anchors: base.anchors.flatMap((anchor: IAnchor, k: number): IAnchor[] => [
+        freed.includes(k) ? { kind: "f", feature: "convex" } : anchor,
+        ...runs.filter((r: IFeatureRun): boolean => r.after === k).flatMap((r: IFeatureRun): IAnchor[] => r.anchors),
+      ]),
+    };
+  }
+
+  /**
+   * The field vector of `featured(base, runs, freed)` that draws the same closed chain as `values` on `base`: every base anchor where it
+   * was (a freed median as a feature at its own point and tangent), each run's features on the base arc that follows the anchor they
+   * stand after, splitting it at equal steps of the arc's rational parameter, and every shoulder that of its piece of the base arc.
+   * A piece `[a, b]` of the rational quadratic with homogeneous controls `(P0, 1), (w P1, w), (P2, 1)` has the blossom controls
+   * `B(a, a)`, `B(a, b)`, `B(b, b)`, so its middle weight normalised by its end weights is `W1 / sqrt(W0 W2)` and its shoulder
+   * `w / (1 + w)` (the shoulder `rho = |M S| / |M A|` of a conic of middle weight `w`).
+   *
+   * @param values A section's field vector on `base`.
+   * @param base Its layout.
+   * @param runs The inserted feature runs (`featured`); a run after anchor `k` lies on the base arc from anchor `k` to `k + 1`.
+   * @param freed The base medians turned into features.
+   * @returns The field vector on `featured(base, runs, freed)`.
+   */
+  export function convert(values: readonly number[], base: ILayout, runs: readonly IFeatureRun[], freed: readonly number[] = []): number[] {
+    const target: ILayout = featured(base, runs, freed);
+    const chain: AutoMovieViewChain.IInput = resolve(values, base).input;
+    const K: number = base.anchors.length;
+    const arcs: number = base.mirror ? K - 1 : K;
+    // Each target anchor as a base arc and a rational parameter on it (an end of an arc for a base anchor).
+    const placed: { arc: number; t: number }[] = [];
+    base.anchors.forEach((_: IAnchor, k: number): void => {
+      placed.push({ arc: Math.min(k, arcs - 1), t: k < arcs ? 0 : 1 });
+      const n: number = runs.filter((r: IFeatureRun): boolean => r.after === k).reduce((sum: number, r: IFeatureRun): number => sum + r.anchors.length, 0);
+      for (let j: number = 1; j <= n; ++j) placed.push({ arc: k, t: j / (n + 1) });
+    });
+    // The base arc `k` as homogeneous controls: its ends, and the meeting of their tangents weighted by the arc's middle weight.
+    const controls = (k: number): { p: [P, P, P]; w: number } => {
+      const p0: P = chain.points[k] as P;
+      const p2: P = chain.points[(k + 1) % chain.points.length] as P;
+      const rho: number = chain.shoulders[k]!;
+      return { p: [p0, meet(p0, chain.tangents[k] as P, p2, chain.tangents[(k + 1) % chain.points.length] as P), p2], w: rho / (1 - rho) };
+    };
+    // The blossom of the arc's homogeneous quadratic at (s, t): a weighted point.
+    const blossom = (k: number, s: number, t: number): { x: P; weight: number } => {
+      const { p, w } = controls(k);
+      const b0: number = (1 - s) * (1 - t), b1: number = ((1 - s) * t + s * (1 - t)) * w, b2: number = s * t;
+      const weight: number = b0 + b1 + b2;
+      return { x: [(b0 * p[0][0] + b1 * p[1][0] + b2 * p[2][0]) / weight, (b0 * p[0][1] + b1 * p[1][1] + b2 * p[2][1]) / weight], weight };
+    };
+    // The point and the heading of travel on arc `k` at `t`.
+    const at = (k: number, t: number): { point: P; heading: number } => {
+      const { p, w } = controls(k);
+      const point: P = blossom(k, t, t).x;
+      // The derivative of the rational curve: (N' D - N D') / D^2, whose direction is that of N' D - N D'.
+      const D: number = (1 - t) ** 2 + 2 * t * (1 - t) * w + t * t;
+      const dD: number = -2 * (1 - t) + 2 * (1 - 2 * t) * w + 2 * t;
+      const N: P = [(1 - t) ** 2 * p[0][0] + 2 * t * (1 - t) * w * p[1][0] + t * t * p[2][0], (1 - t) ** 2 * p[0][1] + 2 * t * (1 - t) * w * p[1][1] + t * t * p[2][1]];
+      const dN: P = [-2 * (1 - t) * p[0][0] + 2 * (1 - 2 * t) * w * p[1][0] + 2 * t * p[2][0], -2 * (1 - t) * p[0][1] + 2 * (1 - 2 * t) * w * p[1][1] + 2 * t * p[2][1]];
+      const d: P = [dN[0] * D - N[0] * dD, dN[1] * D - N[1] * dD];
+      return { point, heading: Math.atan2(d[1], d[0]) };
+    };
+    const { at: offset, shoulders }: { at: number[]; shoulders: number } = offsets(target);
+    const out: number[] = new Array<number>(units(target).length).fill(0);
+    // Points of the target anchors, and each anchor's values.
+    const points: P[] = placed.map((q: { arc: number; t: number }): P => at(q.arc, q.t).point);
+    let previous: number = 0;
+    target.anchors.forEach((anchor: IAnchor, k: number): void => {
+      const o: number = offset[k]!;
+      if (anchor.kind === "u" || anchor.kind === "v") {
+        out[o] = points[k]![0];
+        if (anchor.mid !== true) out[o + 1] = points[k]![1];
+        return;
+      }
+      if (anchor.kind === "m") {
+        // A median the conversion keeps: its share on its neighbours' triangle, read as `resolve` places it.
+        const [before, after]: [number, number] = [k - 1, k + 1];
+        const p0: P = points[before]!, p2: P = points[after]!;
+        const corner: P = meet(p0, [Math.cos(at(placed[before]!.arc, placed[before]!.t).heading), Math.sin(at(placed[before]!.arc, placed[before]!.t).heading)], p2, [Math.cos(at(placed[after]!.arc, placed[after]!.t).heading), Math.sin(at(placed[after]!.arc, placed[after]!.t).heading)]);
+        const middle: P = [(p0[0] + p2[0]) / 2, (p0[1] + p2[1]) / 2];
+        const span: number = Math.hypot(corner[0] - middle[0], corner[1] - middle[1]) || 1;
+        out[o] = ((points[k]![0] - middle[0]) * (corner[0] - middle[0]) + (points[k]![1] - middle[1]) * (corner[1] - middle[1])) / span ** 2;
+        return;
+      }
+      if (anchor.kind !== "f") throw new Error(`convert: anchor kind ${anchor.kind} is not converted`);
+      if (k === 0 || target.anchors[k - 1]!.kind !== "f") previous = 0;
+      const [before, after]: [number, number] = frame(k, target);
+      const read: { values: [number, number, number]; t: number } = unplace(points[before]!, points[after]!, points[k]!, at(placed[k]!.arc, placed[k]!.t).heading, previous);
+      out[o] = read.values[0];
+      out[o + 1] = read.values[1];
+      out[o + 2] = read.values[2];
+      previous = read.t;
+    });
+    // Each target arc is the piece of its base arc between its two ends' parameters.
+    const pieces: number = target.mirror ? target.anchors.length - 1 : target.anchors.length;
+    for (let j: number = 0; j < pieces; ++j) {
+      const a: { arc: number; t: number } = placed[j]!;
+      const b: { arc: number; t: number } = placed[(j + 1) % placed.length]!;
+      const k: number = a.arc;
+      const tb: number = b.arc === k ? b.t : 1;
+      const W0: number = blossom(k, a.t, a.t).weight, W1: number = blossom(k, a.t, tb).weight, W2: number = blossom(k, tb, tb).weight;
+      const w: number = W1 / Math.sqrt(W0 * W2);
+      out[shoulders + j] = w / (1 + w);
+    }
+    return out;
+  }
+
   /** Unit of every field of a layout, in field order: each anchor's numbers, then one shoulder per arc. */
   export function units(layout: ILayout): Unit[] {
     const out: Unit[] = [];
