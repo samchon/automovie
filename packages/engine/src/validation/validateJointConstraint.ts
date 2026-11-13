@@ -37,6 +37,24 @@ export const validateJointConstraint: (
     if (range !== null) validateAngleRange(range, `${path}.${axis}`, collector);
   }
 
+  if (constraint.swingTwist !== undefined && constraint.swingTwist !== null) {
+    validateAngleRange(
+      constraint.swingTwist.twist,
+      `${path}.swingTwist.twist`,
+      collector,
+    );
+    // The swing is read from the flexion and abduction intervals, so a
+    // swing-twist joint must have both.
+    for (const axis of ["flexion", "abduction"] as const)
+      if (constraint[axis] === null)
+        collector.push(
+          "range",
+          `${path}.${axis}`,
+          `a swing-twist joint reads its swing from its flexion and abduction ranges, so ${axis} must not be null`,
+          null,
+        );
+  }
+
   if (constraint.swingDeg !== undefined && constraint.swingDeg !== null) {
     const swingDeg: number = constraint.swingDeg;
     if (!Number.isFinite(swingDeg) || swingDeg <= 0)
