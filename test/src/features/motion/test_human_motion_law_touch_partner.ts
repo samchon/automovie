@@ -58,7 +58,7 @@ export function test_human_motion_law_touch_partner(): void {
       true,
     ],
     ["stroke-arm", { target: person("upperArmLeft"), kind: "stroke" }, true],
-    ["cup-cheek", { target: person("jawLeft"), kind: "hold" }, true],
+    ["cup-cheek", { target: person("cheekLeft"), kind: "hold" }, true],
     ["rub-back", { target: person("upperBack"), kind: "rub" }, false],
   ];
   const complaints: string[] = [];

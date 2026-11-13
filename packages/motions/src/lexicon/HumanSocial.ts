@@ -26,7 +26,7 @@ export namespace HumanSocial {
 
   /** A kiss on the cheek. */
   export const cheekKiss = HumanActionRow.of("cheekKiss", kiss, {
-    region: "jawLeft",
+    region: "cheekLeft",
   });
 
   /** A kiss on the forehead. */
