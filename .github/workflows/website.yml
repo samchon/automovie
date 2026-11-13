@@ -8,6 +8,16 @@ on:
       - ".github/workflows/website.yml"
       - "config/**"
       - "website/**"
+      # The site bundles these packages from source, so a change to one of
+      # them is built into the site in the pull request that makes it.
+      - "packages/archetypes/**"
+      - "packages/engine/**"
+      - "packages/human/**"
+      - "packages/ingest/**"
+      - "packages/interface/**"
+      - "packages/motions/**"
+      - "packages/render/**"
+      - "packages/viewer/**"
       - "package.json"
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
@@ -16,6 +26,14 @@ on:
       - ".github/workflows/website.yml"
       - "config/**"
       - "website/**"
+      - "packages/archetypes/**"
+      - "packages/engine/**"
+      - "packages/human/**"
+      - "packages/ingest/**"
+      - "packages/interface/**"
+      - "packages/motions/**"
+      - "packages/render/**"
+      - "packages/viewer/**"
       - "package.json"
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
@@ -42,21 +60,39 @@ jobs:
         with:
           node-version: 22.x
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+
+      # The site is a workspace member, so one root install links the packages
+      # it imports. Their `exports` point at TypeScript source, which Next
+      # compiles with the site, so no package is built first.
       - run: pnpm install
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: node_modules/.cache/ttsc
           key: ttsc-website-${{ hashFiles('pnpm-lock.yaml') }}
 
+      - name: Type check
+        run: pnpm --filter @automovie/website typecheck
+
+      - name: Test
+        run: pnpm --filter @automovie/website test
+
       - name: Build website
         run: pnpm --filter @automovie/website build
+
+      # The built pages are opened in a headless browser, because only the
+      # browser bundle shows a package source the bundler compiled wrongly.
+      - name: Install the headless browser
+        run: pnpm --filter @automovie/website exec playwright-core install --with-deps chromium-headless-shell
+
+      - name: Smoke test
+        run: pnpm --filter @automovie/website smoke
 
       - name: Deploy
         if: github.event_name != 'pull_request'
         uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445 # v4.9.0
         with:
           branch: gh-pages
-          folder: website/dist
-          # keep gh-pages at one commit; full-history snapshots of a 20 MB
-          # texture set would bloat the repository
+          folder: website/out
+          # keep gh-pages at one commit: every deploy overwrites the branch
+          # instead of adding to a history
           single-commit: true
