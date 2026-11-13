@@ -209,8 +209,11 @@ export namespace handToFaceRows {
       at: "atHead",
     },
     washFace: {
-      region: "jawRight",
-      other: "jawLeft",
+      // The palms on the cheeks, the fingers up and the elbows low before
+      // the chest; laid on the jaw, whose surface faces down, the palms
+      // turned up under it and asked the wrists to their ends.
+      region: "cheekRight",
+      other: "cheekLeft",
       effector: { surface: "palm", shape: "flat" },
       kind: "rub",
       count: 3,
