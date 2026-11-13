@@ -135,12 +135,12 @@ export namespace AutoMovieSchedulePlace {
    * @param start The cursor, film seconds.
    * @param place The walk's placement of a node, for the part.
    * @returns The later of the cursor and the part's end, film seconds.
-   * @throws {AutoMovieScheduleError} When the anchor or its event is not placed, the part has no intent to align, or the laws cannot align.
+   * @throws {AutoMovieScheduleError} When the anchor or its event is not placed, an occurrence index names no event, the part has no intent to align, or the laws cannot align.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the end and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation The anchor's contact instant (its start when it has none) or its named event, plus the offset, is the target; an aligned part asks `laws.align` for the start that puts its own instant on it and is then timed again there.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the target, then place directly or through the alignment.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A cue track named without an event, an unplaced anchor, a part with no intent to align and laws without `align` are refused.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A cue track named without an event, an occurrence index named without an event, an unplaced anchor, a part with no intent to align and laws without `align` are refused.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work besides the part and the anchor's instants.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reads the walk's instants.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -156,6 +156,19 @@ export namespace AutoMovieSchedulePlace {
     const first: IAutoMovieIntent | undefined = AutoMovieScheduleWalk.leading(
       node.part,
     );
+    // An index counts the occurrences of an event; with no event it would
+    // be read as nothing and the part placed at the anchor's contact.
+    if (node.event === undefined && node.index !== undefined)
+      throw new AutoMovieScheduleError(
+        `The part aligned to ${node.anchor} names occurrence ${node.index} of no event; name the event the index counts`,
+        {
+          code: "index",
+          subject: first?.subject,
+          capability: first?.capability,
+          of: node.anchor,
+          value: node.index,
+        },
+      );
     const anchor: number | undefined =
       node.event === undefined
         ? walk.anchors.get(node.anchor)

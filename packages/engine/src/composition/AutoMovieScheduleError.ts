@@ -58,7 +58,7 @@ export namespace AutoMovieScheduleError {
    *
    * - `anchor`: an anchor or cue track named by an `at` or an `until` is not placed earlier in walk order;
    * - `event`: the anchor, the track or the intent itself has no event of that name;
-   * - `index`: the event exists but not that occurrence of it;
+   * - `index`: the event exists but not that occurrence of it, or an occurrence is named of no event;
    * - `duplicate`: an anchor id is used twice, or names a cue track;
    * - `share`: a cut falls outside the intent's span;
    * - `timing`: the laws gave an invalid duration or contact;
