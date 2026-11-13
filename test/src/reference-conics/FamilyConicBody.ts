@@ -271,6 +271,16 @@ namespace FamilyConicBody {
   const AURICLE: R.V[] = JSON.parse(process.argv.find((a: string): boolean => a.startsWith("--auricle="))?.slice("--auricle=".length) ?? "[[9,1606,86],[7,1590,86],[2,1572,85],[5,1558,83],[15.5,1542,78.5],[18,1534,77]]");
   const AURICLE_HALVES: number[] = JSON.parse(process.argv.find((a: string): boolean => a.startsWith("--auricle-halves="))?.slice("--auricle-halves=".length) ?? "[4,5,5,3]");
   const AURICLE_DOMAIN: number[] = (process.argv.find((a: string): boolean => a.startsWith("--auricle-domain="))?.slice("--auricle-domain=".length) ?? "6,68").split(",").map(Number);
+  /**
+   * The auricle's clip, `--auricle-root=<x>,<y>,<semi y>,<semi x>,<level>` and `--auricle-level=<level>`: inside the ellipse about the
+   * root in the side view the head's skin is left out under its own level, elsewhere under the other. Both at 76.5 the sections are the
+   * helix's crescent and the C opens over the bowl; with the root at 70 and the rest at 77.5 they run from the rim over the antihelix to
+   * the crus and the tragus, but split round the concha's floor below 1,566 mm. `--auricle-surround=<reach>` then takes each section as
+   * the hull of every piece within that reach (`IPart.surround`), which closes the C over the bowl.
+   */
+  const AURICLE_ROOT: number[] = (process.argv.find((a: string): boolean => a.startsWith("--auricle-root="))?.slice("--auricle-root=".length) ?? "9.5,1572,31,12.5,76.5").split(",").map(Number);
+  const AURICLE_LEVEL: number = Number(process.argv.find((a: string): boolean => a.startsWith("--auricle-level="))?.slice("--auricle-level=".length) ?? 76.5);
+  const AURICLE_SURROUND: number | undefined = ((s: string | undefined): number | undefined => (s === undefined ? undefined : Number(s)))(process.argv.find((a: string): boolean => a.startsWith("--auricle-surround="))?.slice("--auricle-surround=".length));
   const AURICLE_GAP: number = Number(process.argv.find((a: string): boolean => a.startsWith("--auricle-gap="))?.slice("--auricle-gap=".length) ?? 6);
 
   /**
@@ -279,7 +289,8 @@ namespace FamilyConicBody {
    * stands 77 to 78 mm out round the helix's top; and everything outside the ear's box.
    */
   function auricle(p: R.V): number {
-    return -Math.min(p[2] - 76.5 - Math.max(0, (p[1] - 1596) * 0.45), p[0] + 10, 28 - p[0], p[1] - 1534, 1603 - p[1]);
+    const root: boolean = ((p[0] - AURICLE_ROOT[0]!) / AURICLE_ROOT[3]!) ** 2 + ((p[1] - AURICLE_ROOT[1]!) / AURICLE_ROOT[2]!) ** 2 < 1;
+    return -Math.min(p[2] - (root ? AURICLE_ROOT[4]! : AURICLE_LEVEL + Math.max(0, (p[1] - 1596) * 0.45)), p[0] + 10, 28 - p[0], p[1] - 1534, 1603 - p[1]);
   }
 
   /**
@@ -725,7 +736,7 @@ namespace FamilyConicBody {
         // a side distance of 76.5 mm (rising toward the helix's top, where the head stands 77 to 78 mm out), so the helix's curl, the scapha,
         // the antihelix and the lobule are each section's own skin and the fossa and the concha are its hollows. Its medial side, closed along
         // that level, is sunk into the head when it is merged.
-        { name: "auricle", centres: AURICLE, course: "J.auricle", halves: AURICLE_HALVES, up: JSON.parse(process.argv.find((a: string): boolean => a.startsWith("--auricle-up="))?.slice("--auricle-up=".length) ?? "[0, 0, 1]"), domain: [AURICLE_DOMAIN[0]!, AURICLE_DOMAIN[1]!], head: true, loose: true, step: 1, gap: AURICLE_GAP, tip: true, mirrored: true, layouts: process.argv.includes("--ear-deep") ? LIMB : [LIMB[0]!], clip: auricle, reliefs: process.argv.includes("--auricle-auto") ? "auto" : [], pitch: EAR_PITCH },
+        { name: "auricle", centres: AURICLE, course: "J.auricle", halves: AURICLE_HALVES, up: JSON.parse(process.argv.find((a: string): boolean => a.startsWith("--auricle-up="))?.slice("--auricle-up=".length) ?? "[0, 0, 1]"), domain: [AURICLE_DOMAIN[0]!, AURICLE_DOMAIN[1]!], head: true, loose: true, step: 1, gap: AURICLE_GAP, tip: true, mirrored: true, layouts: process.argv.includes("--ear-deep") ? LIMB : [LIMB[0]!], clip: auricle, ...(AURICLE_SURROUND === undefined ? {} : { surround: { from: AURICLE_DOMAIN[0]!, reach: AURICLE_SURROUND } }), reliefs: process.argv.includes("--auricle-auto") ? "auto" : [], pitch: EAR_PITCH },
 
         // The nose's free end as a short loft straight forward out of the face, closed at its tip.
         // Its course starts 5 mm behind the box's frontal plane, so its first section, half a millimetre into the box, lies on the wings.
