@@ -37,7 +37,7 @@ import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMo
  * @evidence contracts/development/implementation.md#principled-implementation The definition of continuity applied directly: over equal sub-intervals a smooth path's displacements differ by acceleration times the interval squared, which vanishes sixteenfold per quartering, while a step keeps its size.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the grid for the three readings, one recursive quartering per departing interval.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads displayed bones only; no bone, action or instant is exempt, and every bone is followed, so a small flip is not hidden by a faster limb.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in grid frames and bones; a quartering costs three poses a level and is entered only where a displacement departs from its neighbours, and a turn on a grid coarser than `REVERSAL` costs the poses of its two intervals at that rate, read once per turn.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Linear in grid frames and bones; a quartering costs three poses a level and is entered only where a displacement departs from its neighbours, and a turn on a grid coarser than `REVERSAL` costs the poses of its two intervals at that rate, read once per grid instant and only where the grid's own reading exceeds the worst found.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of the motion handed in.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -67,6 +67,7 @@ export namespace AutoMovieMotionHumanAuditContinuity {
    * @param subject The person.
    * @param rate Grid samples per second.
    * @param limit The smallest jump resolved, metres.
+   * @param floor The reversal below which a turn on a coarse grid is taken as the grid reads it, metres: a caller that bounds the reversal passes its bound, since a reading under it decides nothing; 0 when absent, every turn read on the reversal's own intervals.
    * @returns The three readings.
    */
   export function measure(
@@ -74,6 +75,7 @@ export namespace AutoMovieMotionHumanAuditContinuity {
     subject: string,
     rate: number = 24,
     limit: number = 0.005,
+    floor: number = 0,
   ): IResult {
     const times: number[] = IAutoMovieMotionHumanAuditMotion.grid(
       0,
@@ -124,9 +126,23 @@ export namespace AutoMovieMotionHumanAuditContinuity {
         const speed: number = length(now) / (times[i + 1]! - times[i]!);
         if (speed > result.speed.value)
           result.speed = { value: speed, seconds: times[i]!, where: bone };
-        if (i + 2 < times.length && -dot(now, after) > 0) {
+        const coarse: number =
+          i + 2 < times.length
+            ? -dot(now, after) / Math.max(length(now), length(after))
+            : 0;
+        if (coarse > result.reversal.value && coarse <= floor)
+          result.reversal = {
+            value: coarse,
+            seconds: times[i + 1]!,
+            where: bone,
+          };
+        else if (coarse > result.reversal.value) {
           // A turn on the grid, read on the reversal's own intervals across
           // its two grid intervals when the grid is coarser than they are.
+          // A smooth turn goes out and back less over the shorter intervals
+          // than over the grid's, and a spike at a grid instant reads its
+          // height on both, so a turn the grid reads below the worst found,
+          // or below the caller's floor, is not read again.
           const fine: IPoints[] = finer(i);
           const at: number[] = finerTimes(i);
           for (let k: number = 0; k + 2 < fine.length; k++) {

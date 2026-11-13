@@ -36,7 +36,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * can be read off the complaint.
  *
  * Scenarios:
- * 1. A clean report on the average man at 6 samples a second: the report quarters every interval a joint departs in, so a step is found on a coarse grid too, and the finer grid only costs time.
+ * 1. A clean report on the average man at 4 samples a second: the report quarters every interval a joint departs in, so a step is found on a coarse grid too, and reads a reversal on 1/24 s intervals across every turn it finds, so the finer grid only costs time (at 6 a second the run took 60 s).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Registers the lexicon, performs the row through the public chain and reads the shipped verdict report on the displayed film; a hand in the head, a joint that steps or a bone that spins fails with the finding's place and the posture there.
  * @evidence contracts/development/testing.md#independent-expectations The bounds are the verdict report's own, which hold for any human motion; none is read from the row.
@@ -84,7 +84,7 @@ export function test_human_motion_hand_verdicts_shave(): void {
         grasp: { handle: "grip", line: "along" },
       }).node,
   });
-  const report: HumanVerdicts.IReport = HumanVerdicts.of(performance, 6);
+  const report: HumanVerdicts.IReport = HumanVerdicts.of(performance, 4);
 
   TestValidator.equals(
     "a shave holds the physical bounds",
