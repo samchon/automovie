@@ -245,7 +245,7 @@ export namespace FamilyConicSection {
    * middles at 0.14, 0.33, 0.60, 0.82, 0.95 and 0.99 of the run, the last three within its last twentieth, and an arc between them
    * swung round the course point at every station (`--seeds`, the lined trunk on its stored wall). A run of one feature reads as before.
    */
-  function feature(points: readonly P[], anchor: IAnchor, from: number, to: number, after: number = from): { index: number; heading: number } {
+  function feature(points: readonly P[], anchor: IAnchor, from: number, to: number, after: number = from): { index: number; point: P; heading: number } {
     const n: number = points.length;
     const run: number[] = [];
     for (let i: number = from; ; i = (i + 1) % n) {
@@ -285,22 +285,46 @@ export namespace FamilyConicSection {
       const b: P = points[step(i, 1)]!;
       return Math.atan2(b[1] - a[1], b[0] - a[0]);
     };
-    if (inside.length === 0) {
-      const index: number = nearest(run.filter((_: number, k: number): boolean => past(k)));
-      return { index, heading: heading(index) };
+    // The default, where the feature has no reading: the point of the run past the feature before it whose projection on the frame's chord
+    // stands at the window's middle share of that chord, the same place on every section.
+    const c0: P = points[run[0]!]!;
+    const c1: P = points[to]!;
+    const chord: P = [c1[0] - c0[0], c1[1] - c0[1]];
+    const square: number = chord[0] * chord[0] + chord[1] * chord[1] || 1;
+    const share = (i: number): number => ((points[i]![0] - c0[0]) * chord[0] + (points[i]![1] - c0[1]) * chord[1]) / square;
+    const share0: number = (window[0] + window[1]) / 2;
+    const candidates: number[] = run.filter((_: number, k: number): boolean => past(k));
+    const fallback: number = candidates.reduce((a: number, b: number): number => (Math.abs(share(b) - share0) < Math.abs(share(a) - share0) ? b : a));
+    // The reading and its strength: a convex or concave feature's largest turn of its sign; an inflection's sign change nearest the
+    // window's middle, its strength the lesser of the largest turns of either sign within `FEATURE_SPAN` of it.
+    let reading: number = fallback;
+    let strength: number = 0;
+    if (inside.length > 0) {
+      if (anchor.feature === "inflection") {
+        const bends: number[] = X.inflections(points).filter((i: number): boolean => inside.includes(i));
+        if (bends.length > 0) {
+          reading = nearest(bends);
+          const k0: number = run.indexOf(reading);
+          const near: number[] = run.filter((_: number, k: number): boolean => Math.abs(along[k]! - along[k0]!) <= 2 * FEATURE_SPAN);
+          strength = Math.min(Math.max(...near.map(turn)), -Math.min(...near.map(turn)));
+        }
+      } else {
+        const sign: number = anchor.feature === "concave" ? -1 : 1;
+        reading = inside.reduce((a: number, b: number): number => (sign * turn(b) > sign * turn(a) ? b : a));
+        strength = sign * turn(reading);
+      }
     }
-    let index: number;
-    if (anchor.feature === "inflection") {
-      const bends: number[] = X.inflections(points).filter((i: number): boolean => inside.includes(i));
-      index = nearest(bends.length === 0 ? inside : bends);
-    } else {
-      const sign: number = anchor.feature === "concave" ? -1 : 1;
-      const best: number = inside.reduce((a: number, b: number): number => (sign * turn(b) > sign * turn(a) ? b : a));
-      index = sign * turn(best) > FEATURE_LEAST ? best : nearest(inside);
-    }
-    return { index, heading: heading(index) };
-  }
-  /**
+    // The default moved toward the reading by a C2 ramp of the reading's strength: 0 below half `FEATURE_LEAST`, 1 above it. A hard
+    // switch between a weak reading and the default made the feature jump between stations wherever its groove was faint, and lofting.md
+    // has it that a hard clamp or switch in a target becomes a crease however finely it is sampled; blended, a feature fades into its
+    // chord where its groove fades and stands on the groove where it is real.
+    const x: number = Math.min(1, Math.max(0, (strength - FEATURE_LEAST / 2) / (FEATURE_LEAST / 2)));
+    const w: number = x * x * x * (10 - 15 * x + 6 * x * x);
+    const pa: P = points[fallback]!, pb: P = points[reading]!;
+    const ha: number = heading(fallback), hb: number = heading(reading);
+    const turned: number = Math.atan2(Math.sin(hb - ha), Math.cos(hb - ha));
+    return { index: w >= 0.5 ? reading : fallback, point: [pa[0] + w * (pb[0] - pa[0]), pa[1] + w * (pb[1] - pa[1])], heading: ha + w * turned };
+  }  /**
    * A starting field vector read from one observed polygon: each extreme in
    * its window, each median and inflection where the polygon crosses its
    * segment, and each shoulder where the polygon crosses its arc's median.
@@ -352,8 +376,8 @@ export namespace FamilyConicSection {
       let after: number = (k + 1) % K;
       while (found[after] === null || layout.anchors[after]!.kind === "f") after = (after + 1) % K;
       const from: number = (closest(found[start]!) + 1) % points.length;
-      const reading: { index: number; heading: number } = feature(points, anchor, from, closest(found[after]!), (closest(found[before]!) + 1) % points.length);
-      const p: P = points[reading.index]!;
+      const reading: { index: number; point: P; heading: number } = feature(points, anchor, from, closest(found[after]!), (closest(found[before]!) + 1) % points.length);
+      const p: P = reading.point;
       found[k] = p;
       tangent[k] = [Math.cos(reading.heading), Math.sin(reading.heading)];
       values[at[k]!] = p[0];
