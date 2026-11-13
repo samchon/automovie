@@ -8,6 +8,7 @@ export * from "./AutoMovieConicHermiteField";
 export * from "./AutoMovieConicPreparation";
 export * from "./AutoMovieConstructionAdmission";
 export * from "./AutoMovieConstructionBoundary";
+export * from "./AutoMovieConstructionBridgeRealize";
 export * from "./AutoMovieConstructionContinuation";
 export * from "./AutoMovieConstructionContinuationRealize";
 export * from "./AutoMovieConstructionKnownPort";

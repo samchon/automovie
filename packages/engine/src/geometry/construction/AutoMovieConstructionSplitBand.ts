@@ -1,4 +1,4 @@
-import type { IAutoMovieConstructionSplit } from "@automovie/interface";
+import type { IAutoMovieConstructionPort, IAutoMovieConstructionSplit } from "@automovie/interface";
 
 import type { AutoMovieConstructionSplitSeam } from "./AutoMovieConstructionSplitSeam";
 import { AutoMovieSolidBlendChain } from "./AutoMovieSolidBlendChain";
@@ -600,6 +600,8 @@ export namespace AutoMovieConstructionSplitBand {
    * @param child The child side: its surface, its rail station, `into` into its kept side.
    * @param crease The declared crease window on the child side, or absent.
    * @param correspondence How the child's rail is matched to the loop: by angle about the rail's centroid, or by arclength share.
+   * @param ribbons Whether every column takes the band's one common ribbon scale, or its own (`local`).
+   * @param profiles A port band's cross profiles, their depths in mm (`IAutoMovieConstructionPort.IProfile`); absent, none.
    * @returns The strip, or the refusal.
    */
   export function strip(
@@ -610,6 +612,8 @@ export namespace AutoMovieConstructionSplitBand {
     child: ISide,
     crease?: IAutoMovieConstructionSplit.ICrease,
     correspondence: "angle" | "length" = "angle",
+    ribbons: "common" | "column" = "common",
+    profiles: readonly IAutoMovieConstructionPort.IProfile[] = [],
   ): IStrip | string {
     const n: number = loop.length;
     const childPhases: number[] | string = correspondence === "length" ? lengths(child, loop) : phases(child, loop);
@@ -672,8 +676,8 @@ export namespace AutoMovieConstructionSplitBand {
     // ribbon's first derivative by `f` and its second by `f^2` changes only
     // the cross parameter's speed, so both rails stay G2. One factor for the
     // whole band keeps the ribbon fields as smooth along the loop as the
-    // chord law's. Debt: a factor varying smoothly along the loop would
-    // keep longer tangents where the turn is gentle.
+    // chord law's; a factor varying smoothly along the loop (`local`) keeps
+    // longer tangents where the turn is gentle.
     // A column whose ribbon points back against its chord turns back at any
     // scale (its child rail point lies behind the side's own tangent
     // continuation, as where a port's ring and the child's rail differ in
@@ -719,23 +723,41 @@ export namespace AutoMovieConstructionSplitBand {
         settled = false;
       }
     }
+
+    // Each column's own factor, when the band asks for it (`ribbons:
+    // "column"`): the smooth field below each forward column's largest
+    // monotone factor, so one hard stretch shortens only its own
+    // neighbourhood. A port's single hard stretch (the arm's band behind the
+    // armpit held every one of its 192 columns at 0.093 where nine in ten
+    // hold at 1) otherwise turns the whole band within a tenth of its chord
+    // at both rails, which shows as a line along each rail.
+    const field: number[] | string =
+      ribbons === "column"
+        ? local(columns, backward, factors, forward)
+        : columns.map((): number => factor);
+    if (typeof field === "string") return field;
     const scaled: typeof columns = columns.map(
-      (column: (typeof columns)[number]): (typeof columns)[number] => ({
+      (column: (typeof columns)[number], k: number): (typeof columns)[number] => ({
         start: {
           point: column.start.point,
-          first: scale(column.start.first, factor),
-          second: scale(column.start.second, factor * factor),
+          first: scale(column.start.first, field[k]!),
+          second: scale(column.start.second, field[k]! * field[k]!),
         },
         end: {
           point: column.end.point,
-          first: scale(column.end.first, factor),
-          second: scale(column.end.second, factor * factor),
+          first: scale(column.end.first, field[k]!),
+          second: scale(column.end.second, field[k]! * field[k]!),
         },
       }),
     );
 
-    const published: { chain: IAutoMovieLoftChain; length: number } | null =
+    const plain: { chain: IAutoMovieLoftChain; length: number } | null =
       AutoMovieSolidBlendChain.strip(name, scaled, outward);
+    const flat: IAutoMovieSolidSurface | null = plain === null ? null : AutoMovieSolidChain.surface(plain.chain);
+    const published: { chain: IAutoMovieLoftChain; length: number } | null =
+      profiles.length === 0 || plain === null || flat === null
+        ? plain
+        : AutoMovieSolidBlendChain.strip(name, scaled, outward, sections(flat, plain.length, n, profiles));
     if (published === null)
       return "the strip has no positive span or no outward side";
     const surface: IAutoMovieSolidSurface | null = AutoMovieSolidChain.surface(
@@ -748,7 +770,97 @@ export namespace AutoMovieConstructionSplitBand {
       length: published.length,
       loop: [...loop],
       childPhases,
-      scale: { applied: factor, columns: factors, backward },
+      scale: { applied: Math.min(...field), columns: factors, backward },
+    };
+  }
+
+  /**
+   * A profiled band's interior cross sections (`IAutoMovieConstructionPort.IProfile`): at every share any profile names, each column's
+   * point and station derivatives on the plain band, per unit share, carried in along the plain band's inward unit normal by the sum of the
+   * profiles' depths there, each weighted by its window at the column's clock, with the depth's own slope and bend across the band. The
+   * normal's own turn across the band is left out of the derivatives; the strip stays a C2 piecewise quintic through its rails and these
+   * sections, and its rails keep their 2-jets.
+   *
+   * @param plain The plain band's surface: station mm from 0 at the loop to `L` at the rail, phase the loop clock.
+   * @param L The plain band's span, mm.
+   * @param n The columns, at clocks `2 pi k / n`.
+   * @param profiles The profiles, depths in mm.
+   * @returns The sections in increasing share.
+   */
+  function sections(
+    plain: IAutoMovieSolidSurface,
+    L: number,
+    n: number,
+    profiles: readonly IAutoMovieConstructionPort.IProfile[],
+  ): { t: number; jets: [Vec3, Vec3, Vec3][] }[] {
+    const shares: number[] = [...new Set(profiles.flatMap((p: IAutoMovieConstructionPort.IProfile): number[] => p.knots.map((k: [number, number]): number => k[0])))].sort(
+      (a: number, b: number): number => a - b,
+    );
+    const depths: ((t: number) => [number, number, number])[] = profiles.map(
+      (p: IAutoMovieConstructionPort.IProfile): ((t: number) => [number, number, number]) =>
+        clamped([0, ...p.knots.map((k: [number, number]): number => k[0]), 1], [0, ...p.knots.map((k: [number, number]): number => k[1]), 0]),
+    );
+    return shares.map((t: number): { t: number; jets: [Vec3, Vec3, Vec3][] } => ({
+      t,
+      jets: Array.from({ length: n }, (_: unknown, k: number): [Vec3, Vec3, Vec3] => {
+        const c: number = (2 * Math.PI * k) / n;
+        const jet: IAutoMovieSolidSurface.IJet = plain.jet(t * L, c);
+        const p: Vec3 = [jet.p[0], jet.p[1], jet.p[2]];
+        const d1: Vec3 = scale([jet.u[0], jet.u[1], jet.u[2]], L);
+        const d2: Vec3 = scale([jet.uu[0], jet.uu[1], jet.uu[2]], L * L);
+        const normal: Vec3 | null = unit(scale(cross(jet.u, jet.v), plain.orientation));
+        let depth: [number, number, number] = [0, 0, 0];
+        profiles.forEach((profile: IAutoMovieConstructionPort.IProfile, i: number): void => {
+          const w: number = weight(c, profile);
+          const [v, s, b]: [number, number, number] = depths[i]!(t);
+          depth = [depth[0] + w * v, depth[1] + w * s, depth[2] + w * b];
+        });
+        if (normal === null) return [p, d1, d2];
+        return [sub(p, scale(normal, depth[0])), sub(d1, scale(normal, depth[1])), sub(d2, scale(normal, depth[2]))];
+      }),
+    }));
+  }
+
+  /**
+   * The cubic spline through `(x_i, y_i)` with zero slope at both ends, read as its value and its first and second derivatives: the clamped
+   * spline's second derivatives solved by the tridiagonal (Thomas) sweep.
+   */
+  function clamped(x: readonly number[], y: readonly number[]): (t: number) => [number, number, number] {
+    const m: number = x.length;
+    const h: number[] = Array.from({ length: m - 1 }, (_: unknown, i: number): number => x[i + 1]! - x[i]!);
+    const a: number[] = new Array<number>(m).fill(0);
+    const b: number[] = new Array<number>(m).fill(0);
+    const c: number[] = new Array<number>(m).fill(0);
+    const r: number[] = new Array<number>(m).fill(0);
+    b[0] = h[0]! / 3;
+    c[0] = h[0]! / 6;
+    r[0] = (y[1]! - y[0]!) / h[0]!;
+    for (let i: number = 1; i < m - 1; ++i) {
+      a[i] = h[i - 1]! / 6;
+      b[i] = (h[i - 1]! + h[i]!) / 3;
+      c[i] = h[i]! / 6;
+      r[i] = (y[i + 1]! - y[i]!) / h[i]! - (y[i]! - y[i - 1]!) / h[i - 1]!;
+    }
+    a[m - 1] = h[m - 2]! / 6;
+    b[m - 1] = h[m - 2]! / 3;
+    r[m - 1] = -(y[m - 1]! - y[m - 2]!) / h[m - 2]!;
+    for (let i: number = 1; i < m; ++i) {
+      const f: number = a[i]! / b[i - 1]!;
+      b[i] = b[i]! - f * c[i - 1]!;
+      r[i] = r[i]! - f * r[i - 1]!;
+    }
+    const M: number[] = new Array<number>(m).fill(0);
+    M[m - 1] = r[m - 1]! / b[m - 1]!;
+    for (let i: number = m - 2; i >= 0; --i) M[i] = (r[i]! - c[i]! * M[i + 1]!) / b[i]!;
+    return (t: number): [number, number, number] => {
+      let i: number = 0;
+      while (i < m - 2 && t > x[i + 1]!) ++i;
+      const hi: number = h[i]!;
+      const A: number = (x[i + 1]! - t) / hi;
+      const B: number = (t - x[i]!) / hi;
+      const value: number = A * y[i]! + B * y[i + 1]! + (((A * A * A - A) * M[i]! + (B * B * B - B) * M[i + 1]!) * hi * hi) / 6;
+      const slope: number = (y[i + 1]! - y[i]!) / hi + ((-(3 * A * A - 1) * M[i]! + (3 * B * B - 1) * M[i + 1]!) * hi) / 6;
+      return [value, slope, A * M[i]! + B * M[i + 1]!];
     };
   }
 
@@ -830,6 +942,84 @@ export namespace AutoMovieConstructionSplitBand {
     return along.every(
       (x: number, i: number): boolean => i === 0 || x >= along[i - 1]!,
     );
+  }
+
+  /**
+   * How fast a column's ribbon scale may grow away from a column that needs a smaller one, in natural log per radian of clock: from a
+   * column held at a tenth, the field is back at 1 about 0.6 rad round the loop.
+   */
+  const LOCAL_SLOPE: number = 4;
+
+  /** The width of the Gaussian that smooths the scale field along the loop, radians of clock: about five columns of 192. */
+  const LOCAL_SMOOTH: number = 0.15;
+
+  /**
+   * Each column's own ribbon scale: a field smooth along the loop that stays at or below every forward column's largest monotone scale.
+   * In log scale it is the lower envelope of the columns' targets, each widened by `LOCAL_SLOPE` per radian of clock, smoothed by a
+   * periodic Gaussian of `LOCAL_SMOOTH`. A column's target starts at its own log scale; where the smoothing carries the field above a
+   * column's own (it rounds off the envelope's corner at a hard column) that column's target is pushed down by the excess, and a column
+   * that still fails at its field value takes its largest monotone scale below it, and the field is read again, so the field is lowered
+   * only about the columns that need it. A backward column takes the field of its neighbours, since it turns back at any scale.
+   *
+   * @param columns Every column's ribbons, in clock order at `2 pi k / n`.
+   * @param backward The indices of the columns that point back against their chord.
+   * @param factors The forward columns' largest monotone scales at or below 1, in their order.
+   * @param forward The forward columns, in their order.
+   * @returns The scale of every column, or the refusal when a column has no monotone scale.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Scaling one column's first derivatives by `f` and its second by `f^2` reparameterizes it across the band, so each rail stays G2; a field smooth in the clock keeps the columns' periodic spline interpolation smooth along the loop, and the envelope keeps every forward column monotone.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Envelope, smoothing, one lowering, and a check per column, repeated only for a column that fails.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No column is given more than its own monotone scale; a column with none refuses the band as the common scale does.
+   * @evidence contracts/development/common.md#meaningful-documentation States the field, its two constants and the backward columns' treatment.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(n^2) for n columns per pass, a few hundred columns once per band.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A numeric field over already built columns coordinates no work.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one array of n numbers.
+   */
+  function local(columns: readonly IColumn[], backward: readonly number[], factors: readonly number[], forward: readonly IColumn[]): number[] | string {
+    const n: number = columns.length;
+    if (forward.length === 0) return columns.map((): number => 1);
+    const turn: number = 2 * Math.PI;
+    const own: number[] = columns.map((column: IColumn): number => {
+      const i: number = forward.indexOf(column);
+      return i < 0 ? Infinity : Math.log(factors[i]!);
+    });
+    const distance = (j: number, k: number): number => {
+      const d: number = Math.abs(j - k) % n;
+      return (turn * Math.min(d, n - d)) / n;
+    };
+    // The targets the envelope is built on: each forward column's own log scale, pushed further down wherever the smoothing still carries
+    // the field above the column's own.
+    const goal: number[] = [...own];
+    for (let pass: number = 0; pass < 64; ++pass) {
+      const envelope: number[] = columns.map((_: IColumn, k: number): number => Math.min(0, ...goal.map((g: number, j: number): number => g + LOCAL_SLOPE * distance(j, k))));
+      const smooth: number[] = columns.map((_: IColumn, k: number): number => {
+        let [sum, weight]: [number, number] = [0, 0];
+        for (let j: number = 0; j < n; ++j) {
+          const w: number = Math.exp(-((distance(j, k) / LOCAL_SMOOTH) ** 2) / 2);
+          sum += w * envelope[j]!;
+          weight += w;
+        }
+        return sum / weight;
+      });
+      const field: number[] = smooth.map((h: number): number => Math.exp(h));
+      let settled: boolean = true;
+      for (const [k, column] of columns.entries()) {
+        if (backward.includes(k)) continue;
+        if (smooth[k]! > own[k]!) {
+          goal[k] = goal[k]! - (smooth[k]! - own[k]!) - 1e-9;
+          settled = false;
+          continue;
+        }
+        if (monotone(column, field[k]!)) continue;
+        const lower: number | null = largest(column, field[k]!);
+        if (lower === null) return "no ribbon scale keeps every column monotone along its chord";
+        own[k] = Math.log(lower);
+        goal[k] = Math.min(goal[k]!, own[k]!);
+        settled = false;
+      }
+      if (settled) return field;
+    }
+    return "no smooth ribbon scale keeps every column monotone along its chord";
   }
 
   /**

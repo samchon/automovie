@@ -15,7 +15,8 @@ import { AutoMovieHumanConicSection } from "@automovie/human";
  * 8. `continuous` makes the curvature continuous at a median: on f1's trunk section over the hips the polar curve's one-sided curvatures at its first median differ more than twentyfold as stored and agree within 3 % after, with every anchor in place.
  * 9. A feature anchor (`f`) stands where its numbers put it with its own tangent: on the ellipse, at its point of parameter 45 degrees with the ellipse's tangent there, read on the chord of its frame (share, outward offset, turn from the chord), its fields are a share, mm and an angle, the chain is admitted and the resolved anchor is that point and direction.
  * 10. Feature anchors keep their order wherever their frame moves: two features after the forward extreme with fixed numbers stay admitted with rising phases while the side extreme stands at four places.
- * 11. The lens layout reads an ellipse 6 by 40 mm, its length along `v`, from its faces' extremes on the median line and its ends' extremes, with its four guides in order.
+ * 11. The features of a run share one chord: moving the first off it, or turning it, leaves the second where it was.
+ * 12. The lens layout reads an ellipse 6 by 40 mm, its length along `v`, from its faces' extremes on the median line and its ends' extremes, with its four guides in order.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanConicSection.chain`, `resolve`, `limb`, `bilateral` and `units` and reads the resulting engine chain with `AutoMovieViewChain.radius`.
  * @evidence contracts/development/testing.md#independent-expectations The ellipse's polar radius `1 / sqrt((cos / a)^2 + (sin / b)^2)` is a closed form; the subdivision weights are Farin's rational de Casteljau step at `t = 1/2` with end weights renormalised, a property of conics independent of this code; mirror symmetry is a geometric identity.
@@ -163,14 +164,27 @@ export function test_human_conic_section(): void {
   // stretch between two extremes shrinks or swings (free chart coordinates held fixed would stand outside that stretch).
   const run: AutoMovieHumanConicSection.ILayout = { mirror: false, anchors: [S.limb(0).anchors[0]!, { kind: "f", feature: "inflection" }, { kind: "f", feature: "concave" }, ...S.limb(0).anchors.slice(1)] };
   for (const side of [[0, 25], [0, 18], [-6, 40], [12, 30]] as const) {
-    const values: number[] = [40, 0, 0.2375, 7.74, -0.267, 0.4576, 3.65, 0.002, side[0], side[1], -40, 0, 0, -25, ...new Array<number>(6).fill(0.4)];
+    const values: number[] = [40, 0, 0.2375, 7.74, -0.267, 0.4791, 7.76, 0.213, side[0], side[1], -40, 0, 0, -25, ...new Array<number>(6).fill(0.4)];
     const fault: string | null = S.chain(values, run).fault;
     if (fault !== null) failures.push(`features with the side extreme at (${side.join(", ")}): chain refused: ${fault}`);
     const phases: number[] = S.resolve(values, run).input.points.slice(0, 4).map((p: AutoMovieHumanConicSection.P): number => Math.atan2(p[1], p[0]));
     if (!phases.every((phi: number, k: number): boolean => k === 0 || phi > phases[k - 1]!)) failures.push(`features with the side extreme at (${side.join(", ")}): phases ${phases.map((x: number): string => x.toFixed(3)).join(", ")} do not rise`);
   }
+  // 11. Both features of a run stand on one chord, the extremes either side of the run: moving the first one off the chord (its offset by
+  // 0.1 mm) or turning its tangent (by 0.01 rad) leaves the second exactly where it was.
+  {
+    const values: number[] = [40, 0, 0.2375, 7.74, -0.267, 0.4791, 7.76, 0.213, 0, 25, -40, 0, 0, -25, ...new Array<number>(6).fill(0.4)];
+    const second = (v: number[]): AutoMovieHumanConicSection.P => S.resolve(v, run).input.points[2]!;
+    const kept: AutoMovieHumanConicSection.P = second(values);
+    for (const [field, by] of [[3, 0.1], [4, 0.01]] as const) {
+      const moved: number[] = [...values];
+      moved[field] = moved[field]! + by;
+      const p: AutoMovieHumanConicSection.P = second(moved);
+      if (!(p[0] === kept[0] && p[1] === kept[1])) failures.push(`moving the first feature's field ${field} moved the second from (${kept.join(", ")}) to (${p.join(", ")})`);
+    }
+  }
 
-  // 11. The lens layout: its faces' extremes on the median line, one number each, and its ends' extremes free. An ellipse 6 by 40 mm
+  // 12. The lens layout: its faces' extremes on the median line, one number each, and its ends' extremes free. An ellipse 6 by 40 mm
   // (half extents 3 and 20, its length along v) with the ellipse shoulder reads `(u / 3)^2 + (v / 20)^2 = 1` at every phase from its
   // six numbers and four shoulders, and its four guides are its anchors in order.
   const lens: AutoMovieHumanConicSection.ILayout = S.lens(0);

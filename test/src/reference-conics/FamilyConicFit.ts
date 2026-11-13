@@ -33,6 +33,9 @@ export namespace FamilyConicFit {
      * the whole of both faces and the fit gives the faces up to them.
      */
     normal?: boolean;
+
+    /** Whether an observed point is invented and not skin (a guided excursion's closure, `FamilyConicExcursion.IPart.guided`). */
+    free?: (p: C.P) => boolean;
   }
 
   /** The fitted family and its sampled errors. */
@@ -95,6 +98,9 @@ export namespace FamilyConicFit {
   /** Spacing of the stations at which every candidate must be an admissible chain, mm (`fit`). */
   const DENSE_MM: number = 0.25;
 
+  /** Rounds of fitting the feature lines' headings before the sections (`fit`), and the step their headings are searched in, radians. */
+  const LINE_ROUNDS: number = 48;
+
   /**
    * The least share of its chord at which every arc's two tangent lines must meet ahead of its start and behind its end (`AutoMovieViewChain`'s
    * `a` and `b`), at every dense station, as fitted and as stored. Admissible at zero alone, a fit settles against that wall: f1's armpit slit
@@ -103,9 +109,6 @@ export namespace FamilyConicFit {
    * may ask for less (`IPart.margin`) where a tight groove needs it.
    */
   export const ADMISSIBLE_MARGIN: number = 0.1;
-
-  /** Rounds of fitting the feature lines' headings before the sections (`fit`), and the step their headings are searched in, radians. */
-  const LINE_ROUNDS: number = 48;
 
   /** `--barrier`: the first barrier weight as a share of the starting misfit per margin, and how many tenfold falls follow it. */
   const BARRIER_SHARE: number = 0.01;
@@ -147,7 +150,8 @@ export namespace FamilyConicFit {
       const a: C.P = row.points[(k + n - 1) % n]!;
       const b: C.P = row.points[(k + 1) % n]!;
       const weight: number = (Math.hypot(p[0] - a[0], p[1] - a[1]) + Math.hypot(b[0] - p[0], b[1] - p[1])) / 2;
-      if (!(weight > 0)) continue;
+      // An invented point (`IRow.free`, a guided excursion's closure) is no observation: it carried 57 % of the nose's summed misfit.
+      if (!(weight > 0) || row.free?.(p) === true) continue;
       const radius: number = Math.hypot(p[0], p[1]);
       // The wall's tangent at the vertex is the chord of its two neighbours; the cosine between the ray and the wall's normal is the sine
       // between the ray and that tangent. Held at a twentieth, so a vertex the ray only grazes still counts a little.
@@ -162,6 +166,80 @@ export namespace FamilyConicFit {
     const mean: number = total / sample.weights.length;
     sample.weights = sample.weights.map((w: number): number => w / mean);
     return sample;
+  }
+
+  /** One section's misfit to a given family, split between skin and invented points (`misfit`). */
+  export interface IMisfit {
+    /** The row's station, mm. */
+    s: number;
+
+    /** Whether the row was withheld from the fit. */
+    heldout: boolean;
+
+    /** Radial misses at the skin's points: their sum, count and largest, mm, and the largest's phase, radians. */
+    skin: { sum: number; n: number; max: number; phase: number };
+
+    /** Radial misses at the invented points (`IRow.free`): their sum, count and largest, mm. */
+    free: { sum: number; n: number; max: number };
+
+    /** Why the family's chain is refused at this station, or null. */
+    fault: string | null;
+  }
+
+  /** Station basis of a knot vector: each knot's cardinal natural cubic, read at a station. */
+  export function basisOf(knots: readonly number[]): (s: number) => number[] {
+    const cardinals: S.ISpline[] = knots.map((_: number, m: number): S.ISpline => S.create([...knots], knots.map((__: number, k: number): number => (k === m ? 1 : 0))));
+    return (s: number): number[] => cardinals.map((spline: S.ISpline): number => S.evaluate(spline, s));
+  }
+
+  /** A family's section numbers at a station: its knot values read through the knots' basis. */
+  export function at(knots: readonly number[], values: readonly (readonly number[])[], s: number): number[] {
+    const b: number[] = basisOf(knots)(s);
+    return values.map((field: readonly number[]): number => field.reduce((sum: number, y: number, m: number): number => sum + y * b[m]!, 0));
+  }
+
+  /**
+   * The radial misfit of a given family at every row's observed points, with no fitting: the skin's and the invented points' apart
+   * (`IRow.free`), and the worst skin point's phase.
+   */
+  export function misfit(rows: readonly IRow[], knots: readonly number[], layout: C.ILayout, values: readonly (readonly number[])[]): IMisfit[] {
+    const basis = basisOf(knots);
+    return rows.map((row: IRow): IMisfit => {
+      const b: number[] = basis(row.s);
+      const t: number[] = values.map((field: readonly number[]): number => field.reduce((sum: number, y: number, m: number): number => sum + y * b[m]!, 0));
+      const section: Q.ISection = C.chain(t, layout);
+      const out: IMisfit = { s: row.s, heldout: row.heldout, skin: { sum: 0, n: 0, max: 0, phase: NaN }, free: { sum: 0, n: 0, max: 0 }, fault: section.fault };
+      if (section.fault !== null) return out;
+      for (const p of row.points) {
+        const phi: number = Math.atan2(p[1], p[0]);
+        const e: number = Math.abs(Q.radius(section, phi) - Math.hypot(p[0], p[1]));
+        if (!Number.isFinite(e)) continue;
+        const into = row.free?.(p) === true ? out.free : out.skin;
+        into.sum += e;
+        ++into.n;
+        if (e > into.max) {
+          into.max = e;
+          if (into === out.skin) out.skin.phase = phi;
+        }
+      }
+      return out;
+    });
+  }
+
+  /** Every arc's two tangent-meeting distances over unit tangents, as shares of its chord, in chain order (`ADMISSIBLE_MARGIN`). */
+  export function meetings(t: readonly number[], layout: C.ILayout): { a: number; b: number }[] {
+    const input = C.resolve([...t], layout).input;
+    const points: number[][] = input.points as number[][];
+    const tangents: number[][] = input.tangents as number[][];
+    return points.map((_: number[], j: number): { a: number; b: number } => {
+      const [p0, p2, t0, t2] = [points[j]!, points[(j + 1) % points.length]!, tangents[j]!, tangents[(j + 1) % points.length]!];
+      const [n0, n2]: number[] = [Math.hypot(t0[0]!, t0[1]!), Math.hypot(t2[0]!, t2[1]!)];
+      const [u, w]: number[][] = [[t0[0]! / n0, t0[1]! / n0], [t2[0]! / n2, t2[1]! / n2]];
+      const den: number = u[0]! * w[1]! - u[1]! * w[0]!;
+      const d: number[] = [p2[0]! - p0[0]!, p2[1]! - p0[1]!];
+      const chord: number = Math.hypot(d[0]!, d[1]!) || 1;
+      return { a: (d[0]! * w[1]! - d[1]! * w[0]!) / den / chord, b: (u[0]! * d[1]! - u[1]! * d[0]!) / den / chord };
+    });
   }
 
   /**
@@ -239,21 +317,8 @@ export namespace FamilyConicFit {
     // candidate must be admissible as stored as well: on the hand's end a feature's heading within 5e-5 of its neighbour extreme's axis
     // rounded to exactly parallel, the median between them fell on its chord and the engine refused the stored wall (`a` of 0 at 448 mm).
     const stored = (values: number[][]): number[][] => values.map((field: number[], f: number): number[] => field.map((y: number): number => (units[f] === "mm" ? Math.round(y * 100) / 100 : Math.round(y * 1e4) / 1e4)));
-    // Every arc's two tangent-meeting distances over unit tangents, as shares of its chord: what `ADMISSIBLE_MARGIN` holds.
     const meeting = (t: number[]): number => {
-      const input = C.resolve(t, layout).input;
-      const points: number[][] = input.points as number[][];
-      const tangents: number[][] = input.tangents as number[][];
-      let least: number = Infinity;
-      for (let j: number = 0; j < points.length; ++j) {
-        const [p0, p2, t0, t2] = [points[j]!, points[(j + 1) % points.length]!, tangents[j]!, tangents[(j + 1) % points.length]!];
-        const [n0, n2]: number[] = [Math.hypot(t0[0]!, t0[1]!), Math.hypot(t2[0]!, t2[1]!)];
-        const [u, w]: number[][] = [[t0[0]! / n0, t0[1]! / n0], [t2[0]! / n2, t2[1]! / n2]];
-        const den: number = u[0]! * w[1]! - u[1]! * w[0]!;
-        const d: number[] = [p2[0]! - p0[0]!, p2[1]! - p0[1]!];
-        const chord: number = Math.hypot(d[0]!, d[1]!);
-        least = Math.min(least, (d[0]! * w[1]! - d[1]! * w[0]!) / den / chord, (u[0]! * d[1]! - u[1]! * d[0]!) / den / chord);
-      }
+      const least: number = Math.min(...leastMeetings(t, layout));
       return Number.isFinite(least) ? least : -Infinity;
     };
     const admissible = (values: number[][]): boolean => {
@@ -342,7 +407,9 @@ export namespace FamilyConicFit {
           const points: number[][] = input.points as number[][];
           const tangents: number[][] = input.tangents as number[][];
           const n: number = points.length;
+          let previous: number = 0;
           featured.forEach((k: number, j: number): void => {
+            if (k === 0 || layout.anchors[k - 1]!.kind !== "f") previous = 0;
             const [before, after]: [number, number] = [(k + n - 1) % n, (k + 1) % n];
             // The feature's frame (`AutoMovieHumanConicSection.frame`): its numbers are read on that chord.
             const [from, to]: [number, number] = C.frame(k, layout);
@@ -353,7 +420,7 @@ export namespace FamilyConicFit {
               const tried: number[] = step === 0 ? [reading] : [reading + step * HEADING_STEP, reading - step * HEADING_STEP];
               const found: number | undefined = tried.find((h: number): boolean => {
                 const d: number[] = [Math.cos(h), Math.sin(h)];
-                return C.arc(points[before]!, tangents[before]!, points[k]!, d) && C.arc(points[k]!, d, points[after]!, tangents[after]!);
+                return C.arc(points[before]!, tangents[before]!, points[k]!, d, margin) && C.arc(points[k]!, d, points[after]!, tangents[after]!, margin);
               });
               if (found === undefined) continue;
               chosen = found;
@@ -369,10 +436,11 @@ export namespace FamilyConicFit {
               points[k] = place;
             }
             tangents[k] = [Math.cos(chosen), Math.sin(chosen)];
-            const [t, o, h]: [number, number, number] = C.unplace(points[from] as C.P, points[to] as C.P, place as C.P, chosen);
-            targets[j]!.push(h);
-            places[j]![0]!.push(t);
-            places[j]![1]!.push(o);
+            const read: { values: [number, number, number]; t: number } = C.unplace(points[from] as C.P, points[to] as C.P, place as C.P, chosen, previous);
+            previous = C.along(previous, read.values[0]);
+            targets[j]!.push(read.values[2]);
+            places[j]![0]!.push(read.values[0]);
+            places[j]![1]!.push(read.values[1]);
           });
         }
         const project = (field: number, target: number[]): void => {
@@ -447,8 +515,13 @@ export namespace FamilyConicFit {
     // and each next a tenth of the last, so the solution travels inside the admissible region toward the plain least-squares fit.
     const barrierLevels: number[] = [0];
     if (process.argv.includes("--barrier") && current !== null) {
-      const count: number = dense.length * (margins(theta(Y, dense[0]!))?.length ?? 1);
-      const start: number = (BARRIER_SHARE * current.total) / count;
+      // The first weight is read from the start's own margins (Nocedal and Wright, ch. 19, on initialising mu): the first barrier term,
+      // `mu sum |log m|`, is `BARRIER_SHARE` of the data term. Spread evenly over the number of margins instead, a start near the region's
+      // wall at many stations (large `|log m|`) took a barrier many times its misfit and was pushed toward the region's centre: f1's nose
+      // went from 1.1 to 5.9 to 11.4 mm at each knot inserted.
+      let logs: number = 0;
+      for (const b of dense) for (const m of margins(theta(Y, b)) ?? []) logs += Math.abs(Math.log(m));
+      const start: number = (BARRIER_SHARE * current.total) / Math.max(logs, 1);
       barrierLevels.splice(0, 1, ...Array.from({ length: BARRIER_LEVELS }, (_: unknown, k: number): number => start / 10 ** k), 0);
     }
     const passes: number = power > 2 ? 3 : 1;
@@ -604,6 +677,154 @@ export namespace FamilyConicFit {
     const M: number = values[0]!.length;
     const columns: number[][] = Array.from({ length: M }, (_: unknown, m: number): number[] => C.refine(values.map((field: readonly number[]): number => field[m]!), depth));
     return columns[0]!.map((_: number, f: number): number[] => columns.map((column: number[]): number => column[f]!));
+  }
+
+  /** Each arc's lesser tangent-meeting distance over unit tangents, as a share of its chord, by arc: what `ADMISSIBLE_MARGIN` holds. */
+  export function leastMeetings(t: readonly number[], layout: C.ILayout): number[] {
+    const input = C.resolve([...t], layout).input;
+    const points: number[][] = input.points as number[][];
+    const tangents: number[][] = input.tangents as number[][];
+    return points.map((_: number[], j: number): number => {
+      const [p0, p2, t0, t2] = [points[j]!, points[(j + 1) % points.length]!, tangents[j]!, tangents[(j + 1) % points.length]!];
+      const [n0, n2]: number[] = [Math.hypot(t0[0]!, t0[1]!), Math.hypot(t2[0]!, t2[1]!)];
+      const [u, w]: number[][] = [[t0[0]! / n0, t0[1]! / n0], [t2[0]! / n2, t2[1]! / n2]];
+      const den: number = u[0]! * w[1]! - u[1]! * w[0]!;
+      const d: number[] = [p2[0]! - p0[0]!, p2[1]! - p0[1]!];
+      const chord: number = Math.hypot(d[0]!, d[1]!);
+      const least: number = Math.min((d[0]! * w[1]! - d[1]! * w[0]!) / den / chord, (u[0]! * d[1]! - u[1]! * d[0]!) / den / chord);
+      return Number.isFinite(least) ? least : -Infinity;
+    });
+  }
+
+  /** Where a stored family's misfit comes from, section by section (`decompose`). */
+  export interface IDecomposition {
+    /** By observed section, in the order given. */
+    rows: {
+      /** Station, mm. */
+      s: number;
+
+      /** The stored family's largest and mean radial miss at the section's vertices, mm, and the phase of the largest, radians. */
+      joint: { maximumMm: number; meanMm: number; phase: number };
+
+      /** The section fitted alone under the same admissibility: the layout's own capacity. Null where no admissible fit was found. */
+      alone: { maximumMm: number; meanMm: number; least: number } | null;
+
+      /** The alone fits' values projected onto 1, 2 and 4 times the stored knots and read back at this station: the knots' capacity. */
+      longitudinal: { maximumMm: number; meanMm: number; admissible: boolean }[];
+
+      /** Mean radial miss of the stored family at the section's invented points and at its skin points, mm, and the invented points' share of the vertex weight. */
+      weighting: { inventedMm: number; skinMm: number; share: number } | null;
+    }[];
+
+    /** At every dense station of the stored family, each arc whose tangent-meeting share stands within `slack` of the margin, and each share field within `slack` of its edge. */
+    binding: { s: number; kind: "meeting" | "share"; index: number; value: number }[];
+  }
+
+  /**
+   * Decompose a stored family's misfit into its sources (Nocedal and Wright's active-set view): what the layout can do on each section
+   * alone, what the knots can carry of those per-section fits, which admissibility constraints are active at the stored optimum, and how
+   * the misfit splits between invented points and skin.
+   *
+   * @param rows Observed sections by increasing station.
+   * @param stored The stored family's knots and values.
+   * @param layout The family's layout.
+   * @param margin The admissibility margin it was fitted under.
+   * @param invented By row, which of its points are invented (not skin), or null where all are skin.
+   */
+  export function decompose(rows: readonly IRow[], stored: { knots: readonly number[]; values: readonly (readonly number[])[] }, layout: C.ILayout, margin: number, invented: readonly (readonly boolean[] | null)[]): IDecomposition {
+    const units: C.Unit[] = C.units(layout);
+    const read = (knots: readonly number[], values: readonly (readonly number[])[], s: number): number[] => values.map((field: readonly number[]): number => S.evaluate(S.create([...knots], [...field]), Math.max(knots[0]!, Math.min(knots.at(-1)!, s))));
+    const misses = (t: number[], row: IRow): number[] | null => {
+      const section: Q.ISection = C.chain(t, layout);
+      if (section.fault !== null) return null;
+      return row.points.map((p: C.P): number => Math.abs(Q.radius(section, Math.atan2(p[1], p[0])) - Math.hypot(p[0], p[1])));
+    };
+    const summary = (e: number[] | null): { maximumMm: number; meanMm: number } => (e === null ? { maximumMm: Infinity, meanMm: Infinity } : { maximumMm: Math.max(...e), meanMm: e.reduce((a: number, b: number): number => a + b, 0) / e.length });
+
+    // Each section alone: two copies one millimetre apart on their own two knots, so the fit holds one section at every station.
+    const alone: (number[] | null)[] = rows.map((row: IRow): number[] | null => {
+      const copy: IRow = { ...row, heldout: false };
+      const result: IResult = fit([copy, { ...copy, s: row.s + 1 }], [row.s, row.s + 1], layout, 2, undefined, margin);
+      return result.fault === null ? result.values.map((field: number[]): number => field[0]!) : null;
+    });
+    // Those per-section fields projected onto a knot vector by linear least squares over the sections that have one, headings unwrapped.
+    const kept: number[] = rows.map((_: IRow, i: number): number => i).filter((i: number): boolean => alone[i] !== null);
+    for (let f: number = 0; f < units.length; ++f) {
+      if (units[f] !== "angle") continue;
+      for (let k: number = 1; k < kept.length; ++k) {
+        const previous: number = alone[kept[k - 1]!]![f]!;
+        while (alone[kept[k]!]![f]! - previous > Math.PI) alone[kept[k]!]![f]! -= 2 * Math.PI;
+        while (alone[kept[k]!]![f]! - previous < -Math.PI) alone[kept[k]!]![f]! += 2 * Math.PI;
+      }
+    }
+    const project = (knots: number[]): number[][] | null => {
+      const M: number = knots.length;
+      const cardinals: S.ISpline[] = knots.map((_: number, m: number): S.ISpline => S.create(knots, knots.map((__: number, k: number): number => (k === m ? 1 : 0))));
+      const B: number[][] = kept.map((i: number): number[] => cardinals.map((c: S.ISpline): number => S.evaluate(c, rows[i]!.s)));
+      const gram: number[][] = zeros(M, M);
+      for (const b of B) for (let m: number = 0; m < M; ++m) for (let n: number = 0; n < M; ++n) gram[m]![n]! += b[m]! * b[n]!;
+      const values: number[][] = [];
+      for (let f: number = 0; f < units.length; ++f) {
+        const right: number[] = new Array<number>(M).fill(0);
+        kept.forEach((i: number, k: number): void => {
+          for (let m: number = 0; m < M; ++m) right[m]! += B[k]![m]! * alone[i]![f]!;
+        });
+        const solved: number[] | null = solve(gram.map((r: number[]): number[] => [...r]), right);
+        if (solved === null) return null;
+        values.push(solved);
+      }
+      return values;
+    };
+    const finer = (knots: readonly number[]): number[] => knots.flatMap((k: number, i: number): number[] => (i === 0 ? [k] : [(knots[i - 1]! + k) / 2, k]));
+    const vectors: number[][] = [[...stored.knots], finer(stored.knots), finer(finer(stored.knots))];
+    const projected: (number[][] | null)[] = vectors.map(project);
+
+    const out: IDecomposition["rows"] = rows.map((row: IRow, i: number): IDecomposition["rows"][number] => {
+      const joint: number[] | null = misses(read(stored.knots, stored.values, row.s), row);
+      const worst: number = joint === null ? -1 : joint.indexOf(Math.max(...joint));
+      const own: number[] | null = alone[i] === null ? null : misses(alone[i]!, row);
+      const flags: readonly boolean[] | null = invented[i] ?? null;
+      let weighting: IDecomposition["rows"][number]["weighting"] = null;
+      if (joint !== null && flags !== null && flags.length === row.points.length) {
+        const n: number = row.points.length;
+        const weight: number[] = row.points.map((p: C.P, k: number): number => {
+          const [a, b]: C.P[] = [row.points[(k + n - 1) % n]!, row.points[(k + 1) % n]!];
+          return (Math.hypot(p[0] - a[0], p[1] - a[1]) + Math.hypot(b[0] - p[0], b[1] - p[1])) / 2;
+        });
+        const mean = (pick: boolean): number => {
+          const ks: number[] = joint.map((_: number, k: number): number => k).filter((k: number): boolean => flags[k] === pick);
+          return ks.length === 0 ? 0 : ks.reduce((sum: number, k: number): number => sum + joint[k]!, 0) / ks.length;
+        };
+        const total: number = weight.reduce((a: number, b: number): number => a + b, 0);
+        weighting = { inventedMm: mean(true), skinMm: mean(false), share: weight.reduce((sum: number, w: number, k: number): number => sum + (flags[k] ? w : 0), 0) / total };
+      }
+      return {
+        s: row.s,
+        joint: { ...summary(joint), phase: worst < 0 ? NaN : Math.atan2(row.points[worst]![1], row.points[worst]![0]) },
+        alone: own === null ? null : { ...summary(own), least: Math.min(...leastMeetings(alone[i]!, layout)) },
+        longitudinal: projected.map((values: number[][] | null, v: number): { maximumMm: number; meanMm: number; admissible: boolean } => {
+          if (values === null) return { maximumMm: Infinity, meanMm: Infinity, admissible: false };
+          const t: number[] = read(vectors[v]!, values, row.s);
+          const e: number[] | null = misses(t, row);
+          return { ...summary(e), admissible: e !== null && Math.min(...leastMeetings(t, layout)) >= margin };
+        }),
+        weighting,
+      };
+    });
+
+    // The constraints active at the stored optimum, every `DENSE_MM` over its knots.
+    const slack: number = 0.02;
+    const binding: IDecomposition["binding"] = [];
+    for (let s: number = stored.knots[0]!; s <= stored.knots.at(-1)! + 1e-9; s += DENSE_MM) {
+      const t: number[] = read(stored.knots, stored.values, s);
+      leastMeetings(t, layout).forEach((m: number, j: number): void => {
+        if (m < margin + slack) binding.push({ s, kind: "meeting", index: j, value: m });
+      });
+      t.forEach((v: number, f: number): void => {
+        if (units[f] === "share" && (v < EDGE + slack || v > 1 - EDGE - slack)) binding.push({ s, kind: "share", index: f, value: v });
+      });
+    }
+    return { rows: out, binding };
   }
 
   /** An error record for a result that holds no family. */

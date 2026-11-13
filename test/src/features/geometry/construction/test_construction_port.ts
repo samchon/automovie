@@ -32,12 +32,14 @@ type V3 = [number, number, number];
  * 11. Curved rail admission: a curved rail of 2 distances is refused.
  * 12. Correspondence by length: a tilted rail ring that runs back along its tilt, not star-shaped about its centroid, is refused as not monotone when matched by angle; matched by length it realizes, every band column ends on the part at the rail curve's station within 1e-6 mm, and each column's share of the ring's length from column 0 is its share of the port curve's within 0.002.
  * 13. Correspondence admission: a correspondence of `chord` is refused.
+ * 14. Ribbons per column: with the part's axis 4 mm off the loop's centre (z = -54 mm), the columns at clock 0 hug their chords; with one common scale (red) the opposite column, clock pi, is held under 0.2 of the chord law as well, and per column (`ribbons: "column"`) it takes at least 0.95 while the hard columns keep at most 1.5 times the common scale, no column turns back along its own chord by more than 0.01 mm at 41 samples, and every loop column keeps the host's cross direction and curvature within 1e-9.
+ * 15. Ribbons admission: ribbons of `band` are refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Realizes port trees with `realizeAutoMovieConstruction` and reads the band's, host's and part's surfaces, the published body's cycles and the skin. It catches a band off the port curve or the rail, a band whose cross jets are not the host's, a hole not shared with the band, an open skin and a refusal that leaves a partial cut.
  * @evidence contracts/development/testing.md#independent-expectations Port points from the cylinder's closed form on the declared chart ellipse; cross jets read on the host's realized surface along the ellipse's inward chart direction (the node contract); rail points on the part's knot circle, exact for ConstructionShapes; watertightness from the manifold edge rule.
- * @evidence contracts/development/testing.md#distinguishing-cases A positive port, a rail outside the part as the rollback case, a shifted curve as the red reading, a shaped loop read against both its own curve and the plain ellipse, and one ring matched by angle (refused) and by length (realized); the strip's scale law belongs to `test_construction_strip_law`, the split to `test_construction_split`.
+ * @evidence contracts/development/testing.md#distinguishing-cases A positive port, a rail outside the part as the rollback case, a shifted curve as the red reading, a shaped loop read against both its own curve and the plain ellipse, one ring matched by angle (refused) and by length (realized), and one off-centre part with one common ribbon scale (red) and a scale per column; the strip's scale law belongs to `test_construction_strip_law`, the split to `test_construction_split`.
  * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include construction_port`; it realizes made trees in process and starts no host, browser or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 13 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: No diagnostic; the faces are exactly the host, the part and the band; the host carries one hole cycle.).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 15 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: No diagnostic; the faces are exactly the host, the part and the band; the host carries one hole cycle.).
  */
 export function test_construction_port(): void {
   const failures: string[] = [];
@@ -499,6 +501,76 @@ export function test_construction_port(): void {
     unknown = true;
   }
   if (!unknown) failures.push("a correspondence of chord was admitted");
+
+  // 14. Ribbons per column. With the part 4 mm off the loop's centre (its axis at z = -54 mm), the columns at clock 0 must hug their
+  // chords: the host's direction into the loop there points away from the part's ring. A column's scale is its cross derivative at the
+  // loop times the band's span over its own chord, the factor applied to the chord law.
+  const offset: AutoMovieConstructionNode = ConstructionShapes.cylinder(
+    "arm",
+    { origin: { x: 0.012, y: 0, z: -0.054 }, u: { x: 0, y: 0, z: 1 }, v: { x: 0, y: 1, z: 0 } },
+    0.007,
+    0.06,
+    7,
+  );
+  const scales = (ribbons: "common" | "column"): { factors: number[]; real: AutoMovieConstructionRealization.IRealization } | string => {
+    const made: AutoMovieConstructionRealization.IRealization = realize({ ...port(0.02), part: offset, ribbons });
+    if (made.diagnostics.length !== 0) return ConstructionRead.diagnostics(made);
+    const strip: IAutoMovieSolidSurface = ConstructionRead.surface(made, "band.port");
+    const span: number = made.chains.find((c: { name: string }): boolean => c.name === "band.port")?.layers[1]?.y ?? NaN;
+    return {
+      real: made,
+      factors: Array.from({ length: n }, (_: unknown, k: number): number => {
+        const a: IAutoMovieSolidSurface.IJet = strip.jet(0, clock(k));
+        return (len(a.u) * span) / len(sub(strip.jet(span, clock(k)).p, a.p));
+      }),
+    };
+  };
+  const common = scales("common");
+  const column = scales("column");
+  if (typeof common === "string" || typeof column === "string") failures.push(`ribbons: ${String(common)} ${String(column)}`);
+  else {
+    // Red: one common scale holds the column opposite the hard ones at theirs.
+    if (!(common.factors[n / 2]! < 0.2)) failures.push(`ribbons: the common scale holds the opposite column at ${common.factors[n / 2]}, not under 0.2`);
+    // Green: per column, the opposite column takes the whole chord law, and the hard ones keep a scale as small as the common one.
+    if (!(column.factors[n / 2]! >= 0.95)) failures.push(`ribbons: per column, the opposite column holds only ${column.factors[n / 2]}`);
+    if (!(Math.min(...column.factors) <= Math.min(...common.factors) * 1.5)) failures.push(`ribbons: per column, the hard columns take ${Math.min(...column.factors)} against the common ${Math.min(...common.factors)}`);
+    // No column turns back along its own chord by more than 0.01 mm (a column whose ribbon points back against its chord turns back by
+    // a few thousandths at any scale), and the loop keeps the host's cross direction and curvature.
+    const strip: IAutoMovieSolidSurface = ConstructionRead.surface(column.real, "band.port");
+    const span: number = column.real.chains.find((c: { name: string }): boolean => c.name === "band.port")?.layers[1]?.y ?? NaN;
+    let deepest: number = 0;
+    for (let k: number = 0; k < n; ++k) {
+      const a: readonly number[] = strip.jet(0, clock(k)).p;
+      const chord: V3 = sub(strip.jet(span, clock(k)).p, a);
+      const along: number[] = Array.from({ length: 41 }, (_: unknown, i: number): number => [0, 1, 2].reduce((sum: number, c: number): number => sum + (strip.jet((span * i) / 40, clock(k)).p[c]! - a[c]!) * chord[c]!, 0) / len(chord));
+      let most: number = -Infinity;
+      for (const x of along) {
+        deepest = Math.max(deepest, most - x);
+        most = Math.max(most, x);
+      }
+    }
+    if (!(deepest <= 0.01)) failures.push(`ribbons: per column, a column turns back ${deepest} mm along its chord`);
+    for (let k: number = 0; k < n; ++k) {
+      const c: number = clock(k);
+      const h: IAutoMovieSolidSurface.IJet = ConstructionRead.surface(column.real, "trunk").jet(50 + 10 * Math.cos(c), 0.45 * Math.sin(c));
+      const [du, dv]: [number, number] = [-10 * Math.cos(c), -0.45 * Math.sin(c)];
+      const first: V3 = [0, 1, 2].map((i: number): number => h.u[i]! * du + h.v[i]! * dv) as V3;
+      const second: V3 = [0, 1, 2].map((i: number): number => h.uu[i]! * du * du + 2 * h.uv[i]! * du * dv + h.vv[i]! * dv * dv) as V3;
+      const b: IAutoMovieSolidSurface.IJet = strip.jet(0, c);
+      if (!(angle(b.u, first) <= 1e-9)) failures.push(`ribbons: per column, column ${k}'s cross direction stands ${angle(b.u, first)} off the host's`);
+      const bend: number = len(sub(scaled(b.uu, 1 / (len(b.u) * len(b.u))), scaled(second, 1 / (len(first) * len(first)))));
+      if (!(bend <= 1e-9)) failures.push(`ribbons: per column, column ${k}'s cross curvature stands ${bend} mm^-1 off the host's`);
+    }
+  }
+
+  // 15. Ribbons that are neither common nor column are refused.
+  let ribbonsRefused: boolean = false;
+  try {
+    realize({ ...port(0.02), ribbons: "band" as unknown as "common" });
+  } catch {
+    ribbonsRefused = true;
+  }
+  if (!ribbonsRefused) failures.push("ribbons of band were admitted");
   if (failures.length !== 0)
     throw new Error(
       `${failures.length} port failures:\n${failures.join("\n")}`,

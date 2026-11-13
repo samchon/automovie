@@ -1,5 +1,5 @@
 import path from "node:path";
-import { AutoMovieLoftChain, AutoMovieMeshExtract as M, AutoMovieViewAxis } from "@automovie/engine";
+import { AutoMovieLoftChain, AutoMovieMeshExtract as M, AutoMovieViewAxis, realizeAutoMovieConstruction } from "@automovie/engine";
 import { AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
 import { FamilyConicSection as C } from "./FamilyConicSection";
 import { FamilyConicSource as R } from "./FamilyConicSource";
@@ -239,7 +239,8 @@ namespace FamilyConicScan {
       // seams' profile knots (`IAutoMovieConstructionSplit.IProfile`) for a split of the limb's end (`AutoMovieHumanF1.fanSeams`).
       for (const which of ["arm", "leg"] as const) {
         const { station, seams, headings, normal } = AutoMovieHumanF1.fanSeams(which);
-        const family = { ...AutoMovieHumanF1.BODY[which], tips: undefined };
+        // The arm's fan splits the hand's own family (`AutoMovieHumanF1Hand`), which the arm continues across the wrist.
+        const family = { ...(which === "arm" ? AutoMovieHumanF1.BODY.hand : AutoMovieHumanF1.BODY.leg), tips: undefined };
         const loft = AutoMovieHumanConicLoft.create(family, family.knots);
         const ring = (t: number): R.V => AutoMovieLoftChain.point(loft.chain!, station, t) as R.V;
         const mesh = source.body;
@@ -338,6 +339,64 @@ namespace FamilyConicScan {
           .filter((loop: C.P[]): boolean => loop !== big && Math.abs(R.area(loop)) < 600 && loop.some((p: C.P): boolean => p[0] > 100 && p[1] > 0 && p[1] < 30))
           .map((loop: C.P[]): string => "[x " + Math.min(...loop.map((p: C.P): number => p[0])).toFixed(1) + ".." + Math.max(...loop.map((p: C.P): number => p[0])).toFixed(1) + " z " + Math.min(...loop.map((p: C.P): number => p[1])).toFixed(1) + ".." + Math.max(...loop.map((p: C.P): number => p[1])).toFixed(1) + "]");
         process.stdout.write("y " + y + ": " + run.join(" ") + (small.length === 0 ? "" : "  small " + small.join(" ")) + "\n");
+      }
+      return;
+    }
+    if (process.argv[2] === "band") {
+      // `band [name] [columns]`: a port's band read in its own rows against the reference. The figure is realized as it stands; at every
+      // `columns`-th share of its loop clock and at shares of its span from 0.1 to 0.9, the band's point and its inward unit normal, and
+      // the reference skin's depth below the band along that normal (the nearest crossing of the line through the point along the normal
+      // within 6 mm either way, in mm, positive inward; a dot where none), so a cross profile's knots are read off the skin it must reach.
+      const name: string = process.argv[3] ?? "band.nose";
+      const every: number = Number(process.argv[4] ?? 48);
+      const declared = AutoMovieHumanF1.construction();
+      const real = realizeAutoMovieConstruction({ name: "f1.body", root: declared.root }, { chord: 0.001, sources: declared.sources });
+      const face = { surface: real.surfaces.find((s: { name: string }): boolean => s.name === name)! };
+      const L: number | undefined = real.chains.find((c: { name: string }): boolean => c.name === name)?.layers.at(-1)?.y;
+      if (face.surface === undefined || L === undefined) throw new Error("no band " + name);
+      const head: R.ISource["head"] = source.head;
+      const triangles: R.V[][] = [];
+      for (let t: number = 0; t + 2 < head.indices.length; t += 3) {
+        const corners: R.V[] = [0, 1, 2].map((k: number): R.V => [head.positions[head.indices[t + k]! * 3]!, head.positions[head.indices[t + k]! * 3 + 1]!, head.positions[head.indices[t + k]! * 3 + 2]!]);
+        if (corners.some((p: R.V): boolean => p[0] > 95 && p[1] > 1525 && p[1] < 1600 && Math.abs(p[2]) < 35)) triangles.push(corners);
+      }
+      const sub = (a: readonly number[], b: readonly number[]): R.V => [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
+      const dot = (a: readonly number[], b: readonly number[]): number => a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
+      const cross = (a: readonly number[], b: readonly number[]): R.V => [a[1]! * b[2]! - a[2]! * b[1]!, a[2]! * b[0]! - a[0]! * b[2]!, a[0]! * b[1]! - a[1]! * b[0]!];
+      // The signed distance along `d` from `p` to the nearest crossing with the reference (Moeller and Trumbore), within 6 mm.
+      const along = (p: readonly number[], d: R.V): number | null => {
+        let best: number | null = null;
+        for (const [a, b, c] of triangles) {
+          const e1: R.V = sub(b!, a!);
+          const e2: R.V = sub(c!, a!);
+          const h: R.V = cross(d, e2);
+          const det: number = dot(e1, h);
+          if (Math.abs(det) < 1e-12) continue;
+          const s: R.V = sub(p, a!);
+          const u: number = dot(s, h) / det;
+          if (u < 0 || u > 1) continue;
+          const q: R.V = cross(s, e1);
+          const v: number = dot(d, q) / det;
+          if (v < 0 || u + v > 1) continue;
+          const t: number = dot(e2, q) / det;
+          if (Math.abs(t) <= 6 && (best === null || Math.abs(t) < Math.abs(best))) best = t;
+        }
+        return best;
+      };
+      const shares: number[] = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9];
+      process.stdout.write("band " + name + " span " + L.toFixed(2) + " mm; columns: clock rad, point at 0.5, depth mm at shares " + shares.join(" ") + "\n");
+      for (let k: number = 0; k < every; ++k) {
+        const c: number = (2 * Math.PI * k) / every;
+        const cells: string[] = shares.map((t: number): string => {
+          const jet = face.surface.jet(t * L, c);
+          const n: R.V = cross(jet.u, jet.v);
+          const m: number = Math.hypot(...n);
+          const inward: R.V = n.map((x: number): number => (-x * face.surface.orientation) / m) as R.V;
+          const hit: number | null = along(jet.p, inward);
+          return hit === null ? "." : hit.toFixed(2);
+        });
+        const p = face.surface.jet(0.5 * L, c).p;
+        process.stdout.write(c.toFixed(3).padStart(6) + "  [" + p.map((x: number): string => x.toFixed(1)).join(", ") + "]  " + cells.map((x: string): string => x.padStart(6)).join("") + "\n");
       }
       return;
     }
