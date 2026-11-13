@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieAffordance,
   IAutoMoviePhysicalProfile,
   IAutoMovieQuaternion,
@@ -10,9 +11,9 @@ import type {
  * frame at rest, and its named points in that frame, such as a heavy bag's
  * striking surface, a pad's face or a cup's handle.
  *
- * The prop stays at its rest frame until a hand grips it; while gripped it
- * rides the hand, and it stays where the last grip released it (see
- * `HumanPerformance.prop`). A point's normal points out of the prop's
+ * The prop stays at its rest frame, or on the bone it is worn on, until a
+ * hand grips it; while gripped it rides the hand, worn it rides its bone,
+ * and it stays where the last grip released it (see `HumanPerformance.prop`). A point's normal points out of the prop's
  * surface.
  */
 export interface IHumanProp {
@@ -55,6 +56,15 @@ export interface IHumanProp {
     seconds: number,
   ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } | undefined;
 
+  /**
+   * The person and bone the prop is worn on from the film's start, with its
+   * frame in the bone's posed frame: a hat on the head, a holster on the
+   * hips. While worn it rides that bone and `frame` is not read; a grip
+   * takes it off, and an action's `wears` puts it on again. Not worn when
+   * absent.
+   */
+  worn?: IHumanProp.IWorn;
+
   /** Contact frames in the prop's frame (a handle's `+Y` approach and `+X` wrapped axis), which a grasp plans from by id. */
   affordances?: readonly IAutoMovieAffordance[];
 
@@ -70,6 +80,18 @@ export interface IHumanProp {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses interface vectors and quaternions.
  */
 export namespace IHumanProp {
+  /** Where a prop is worn. */
+  export interface IWorn {
+    /** The wearer's subject id. */
+    subject: string;
+
+    /** The bone it rides. */
+    bone: AutoMovieHumanoidBone;
+
+    /** The prop's frame in the bone's posed frame, metres. */
+    offset: IFrame;
+  }
+
   /** A rigid world frame. */
   export interface IFrame {
     /** Origin, world metres. */

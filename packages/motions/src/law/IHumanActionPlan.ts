@@ -95,6 +95,14 @@ export interface IHumanActionPlan {
   holds?: readonly IHumanActionPlan.IHold[];
 
   /**
+   * Props this action puts on the performer's body: from its instant the
+   * prop rides the named bone with the offset it has there, as a worn hat,
+   * holster or watch does, until a later grip takes it off
+   * (`IHumanProp.worn`).
+   */
+  wears?: readonly IHumanActionPlan.IWear[];
+
+  /**
    * Hands this action drives with no contact window, such as a wave or a
    * point. A hand with a contact window is driven anyway. An action that
    * drives a held hand without taking its prop over is refused.
@@ -199,6 +207,18 @@ export namespace IHumanActionPlan {
 
     /** The affordance id of its edge or sighting direction, where it has one. */
     edge?: string;
+  }
+
+  /** A prop put on one of the performer's bones. */
+  export interface IWear {
+    /** The prop's subject. */
+    prop: string;
+
+    /** The bone it rides. */
+    bone: AutoMovieHumanoidBone;
+
+    /** Share of this action from which the prop is worn. */
+    from: number;
   }
 
   /** A prop left held in one hand. */

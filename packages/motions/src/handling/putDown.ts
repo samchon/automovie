@@ -4,6 +4,7 @@ import {
   Vector3,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -14,6 +15,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanHand } from "../posture/HumanHand";
@@ -33,7 +35,10 @@ import { pickUp } from "./pickUp";
  * placed wherever holds the prop there, by the rigid hand-to-prop offset the
  * grip has kept since it closed (the prop's displayed frame and the hand's at
  * the start, so whatever the grasp was, the same grasp lays the prop down).
- * A prop is put down as it rested: its resting rotation is the one it was
+ * With `on`, the prop is put on a bone of the performer's own body instead,
+ * at its frame on that bone as the body stands at the start, and is worn
+ * there from `placed` (`IHumanActionPlan.wears`). A prop is put down as it
+ * rested: its resting rotation is the one it was
  * declared with, turned about the vertical to the asked heading, so a bottle
  * carried at a tilt still lands upright. The arm keeps the configuration it
  * carried the prop in (`IHumanPosture.IGoal.reference`). Inverse kinematics solves the arm; the rest of the body holds the posture
@@ -48,8 +53,9 @@ import { pickUp } from "./pickUp";
  * movement time.
  *
  * Events: `placed` when the prop reaches its frame, `release` when the grip
- * ends. The hand grips the prop until `release`. A placing frame beyond the
- * arm's reach is refused.
+ * ends. The hand grips the prop until `release` (until `placed` when it is
+ * put on a bone, which wears it from there). A placing frame beyond the
+ * arm's reach is refused, as is a put down that names neither `at` nor `on`.
  */
 export namespace putDown {
   /** The action's name. */
@@ -70,8 +76,17 @@ export namespace putDown {
     /** The held prop's subject id. */
     prop: string;
 
-    /** Where the prop's origin goes, world metres. */
-    at: IAutoMovieVector3;
+    /** Where the prop's origin goes, world metres; required unless `on` is given. */
+    at?: IAutoMovieVector3;
+
+    /** The bone of the performer's own body the prop is put on, worn there from `placed` with its frame `offset` in the bone's posed frame (a hat on the head, a pistol in a hip holster); set down at `at` when absent. */
+    on?: {
+      /** The bone. */
+      bone: AutoMovieHumanoidBone;
+
+      /** The prop's frame in the bone's posed frame, metres. */
+      offset: IHumanProp.IFrame;
+    };
 
     /** The prop's heading about +Y at rest, degrees; its current heading when absent. */
     yaw?: number;
@@ -150,7 +165,7 @@ export namespace putDown {
       );
       return {
         point: Vector3.subtract(
-          context.params.at,
+          context.params.at!,
           Quaternion.rotateVector(r, offset.position),
         ),
         rotation: r,
@@ -160,8 +175,52 @@ export namespace putDown {
     // An authored heading is kept; otherwise the prop may rest at whichever
     // heading the arm can lay it down at exactly.
     const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(body, held, side);
+    const on = context.params.on;
+    const wearing: IHumanProp.IFrame | undefined =
+      on === undefined
+        ? undefined
+        : ((): IHumanProp.IFrame => {
+            const bone: IAutoMovieResolvedBone = poseBones(
+              body,
+              context.entry.pose,
+            ).get(on.bone)!;
+            return {
+              position: Vector3.add(
+                bone.worldPosition,
+                Quaternion.rotateVector(bone.worldRotation, on.offset.position),
+              ),
+              rotation: Quaternion.normalize(
+                Quaternion.multiply(bone.worldRotation, on.offset.rotation),
+              ),
+            };
+          })();
+    if (wearing === undefined && context.params.at === undefined)
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "at",
+        value: "absent",
+        feasible: { kind: "alternatives", values: ["at", "on"] },
+        reason: "a put down names where the prop goes: a place or a bone",
+        fix: "give `at`, a world point, or `on`, a bone of the performer and the prop's frame on it",
+      });
     const chosen: HumanHand.IWrist =
-      context.params.yaw === undefined
+      wearing !== undefined
+        ? ((): HumanHand.IWrist => {
+            const r: IAutoMovieQuaternion = Quaternion.normalize(
+              Quaternion.multiply(
+                wearing.rotation,
+                Quaternion.inverse(offset.rotation),
+              ),
+            );
+            return {
+              point: Vector3.subtract(
+                wearing.position,
+                Quaternion.rotateVector(r, offset.position),
+              ),
+              rotation: r,
+            };
+          })()
+        : context.params.yaw === undefined
         ? HumanGrasp.reachable(
             body,
             held,
@@ -256,6 +315,17 @@ export namespace putDown {
           support: { kind: "prop", subject: context.params.prop },
         },
       ],
+      ...(on === undefined
+        ? {}
+        : {
+            wears: [
+              {
+                prop: context.params.prop,
+                bone: on.bone,
+                from: down / duration,
+              },
+            ],
+          }),
       contact: down,
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));

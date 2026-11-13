@@ -67,9 +67,12 @@ export namespace HumanPerformanceRead {
   }
 
   /**
-   * A prop's world frame at a film second: its rest frame until a hand grips
-   * it, then carried by the gripping hand with the offset it had when the
-   * grip closed, and left where the last grip released it.
+   * A prop's world frame at a film second: its rest frame, or the bone it
+   * is worn on, until a hand grips it, then carried by the gripping hand
+   * with the offset it had when the grip closed, and left where the last
+   * grip released it. A worn span is a grip by a bone: from the film's start
+   * for a prop declared worn, from the instant an action puts it on
+   * (`IHumanActionPlan.wears`), each to the next grip that takes it off.
    *
    * A grip is any action's contact window of kind `grip` on a hand whose
    * support is this prop. The hand's grip socket rides the hand bone, so the
@@ -90,34 +93,52 @@ export namespace HumanPerformanceRead {
     if (prop === undefined)
       throw HumanPerformanceRead.missing("prop", subject, [...self.props.keys()]);
     if (prop.motion !== undefined) return prop.motion(seconds);
-    const grips = HumanPerformanceRead.grips(self, subject);
+    const grips: HumanPerformanceState.IGrip[] = HumanPerformanceRead.grips(
+      self,
+      subject,
+    );
     // The latest grip still holding carries it; with none holding, the one released last left it.
-    let active: (typeof grips)[number] | undefined;
-    let released: (typeof grips)[number] | undefined;
+    let active: HumanPerformanceState.IGrip | undefined;
+    let released: HumanPerformanceState.IGrip | undefined;
     for (const g of grips) {
       if (g.from > seconds) continue;
       if (seconds <= g.to) active = g;
       else if (released === undefined || g.to >= released.to) released = g;
     }
-    const window: (typeof grips)[number] | undefined = active ?? released;
+    const window: HumanPerformanceState.IGrip | undefined = active ?? released;
     if (window === undefined) return prop.frame;
     const at: number = Math.min(seconds, window.to);
     // A window opening on a hand that already holds the prop (a put down
     // after a pick up) keeps that grip's offset: the hand never re-seats what
     // it holds, so no action boundary moves the prop in the hand.
-    const seat = (w: (typeof grips)[number]): IHumanProp.IFrame => {
+    // A worn span rides its bone; a held one, its hand's grip socket.
+    const carrier = (w: HumanPerformanceState.IGrip, at: number): IHumanProp.IFrame => {
+      if (w.bone === undefined)
+        return HumanPerformanceRead.hand(self, w.subject, w.side, at);
+      const bone: IAutoMovieResolvedBone = HumanPerformanceRead.bones(
+        self,
+        w.subject,
+        at,
+      ).get(w.bone)!;
+      return { position: bone.worldPosition, rotation: bone.worldRotation };
+    };
+    const seat = (w: HumanPerformanceState.IGrip): IHumanProp.IFrame => {
       if (w.offset !== undefined) return w.offset;
-      const earlier: (typeof grips)[number] | undefined = grips.find(
-        (g: (typeof grips)[number]): boolean =>
-          g !== w &&
-          g.subject === w.subject &&
-          g.side === w.side &&
-          g.from < w.from &&
-          g.to >= w.from - 1e-6,
-      );
+      const earlier: HumanPerformanceState.IGrip | undefined =
+        w.bone !== undefined
+          ? undefined
+          : grips.find(
+              (g: HumanPerformanceState.IGrip): boolean =>
+                g !== w &&
+                g.bone === undefined &&
+                g.subject === w.subject &&
+                g.side === w.side &&
+                g.from < w.from &&
+                g.to >= w.from - 1e-6,
+            );
       if (earlier !== undefined) return (w.offset = seat(earlier));
       const before: IHumanProp.IFrame = HumanPerformanceRead.prop(self, subject, w.from - 1e-6);
-      const hand: IHumanProp.IFrame = HumanPerformanceRead.hand(self, w.subject, w.side, w.from);
+      const hand: IHumanProp.IFrame = carrier(w, w.from);
       const inverse: IAutoMovieQuaternion = Quaternion.inverse(hand.rotation);
       return (w.offset = {
         position: Quaternion.rotateVector(
@@ -128,7 +149,7 @@ export namespace HumanPerformanceRead {
       });
     };
     const offset: IHumanProp.IFrame = seat(window);
-    const hand: IHumanProp.IFrame = HumanPerformanceRead.hand(self, window.subject, window.side, at);
+    const hand: IHumanProp.IFrame = carrier(window, at);
     return {
       position: Vector3.add(
         hand.position,
@@ -161,24 +182,40 @@ export namespace HumanPerformanceRead {
     return HumanPerformanceRead.person(self, subject).overlays;
   }
 
-  /** Every grip window on a prop across every person, in film order, computed once after construction. */
-  export function grips(self: HumanPerformanceState, subject: string): {
-    subject: string;
-    side: "left" | "right";
-    from: number;
-    to: number;
-    offset?: IHumanProp.IFrame;
-  }[] {
-    const known = self.gripCache.get(subject);
+  /** Every grip window on a prop across every person, and every span it is worn on a bone, in film order, computed once after construction. */
+  export function grips(
+    self: HumanPerformanceState,
+    subject: string,
+  ): HumanPerformanceState.IGrip[] {
+    const known: HumanPerformanceState.IGrip[] | undefined =
+      self.gripCache.get(subject);
     if (known !== undefined) return known;
-    const out: {
-      subject: string;
-      side: "left" | "right";
-      from: number;
-      to: number;
-      offset?: IHumanProp.IFrame;
-    }[] = [];
+    const out: HumanPerformanceState.IGrip[] = [];
+    const worn: HumanPerformanceState.IGrip[] = [];
+    const declared: IHumanProp.IWorn | undefined = self.props.get(subject)?.worn;
+    if (declared !== undefined)
+      worn.push({
+        subject: declared.subject,
+        side: "right",
+        bone: declared.bone,
+        from: -Infinity,
+        to: Infinity,
+        offset: declared.offset,
+      });
     for (const person of self.people.values()) {
+      for (const segment of [...person.segments, ...person.overlays])
+        for (const w of segment.plan.wears ?? [])
+          if (w.prop === subject) {
+            const from: number = segment.start + w.from * segment.plan.duration;
+            if (from >= segment.entryTime - 1e-9 && from <= segment.end + 1e-9)
+              worn.push({
+                subject: person.performer.subject,
+                side: "right",
+                bone: w.bone,
+                from,
+                to: Infinity,
+              });
+          }
       for (const held of person.holds)
         if (held.prop === subject)
           out.push({
@@ -212,7 +249,16 @@ export namespace HumanPerformanceRead {
               });
           }
     }
-    out.sort((a, b): number => a.from - b.from);
+    // A worn span lasts until the first grip that starts after it.
+    for (const w of worn) {
+      for (const g of out)
+        if (g.from > w.from + 1e-9 && g.from < w.to) w.to = g.from;
+      out.push(w);
+    }
+    out.sort(
+      (a: HumanPerformanceState.IGrip, b: HumanPerformanceState.IGrip): number =>
+        a.from - b.from,
+    );
     if (!self.resolving) self.gripCache.set(subject, out);
     return out;
   }

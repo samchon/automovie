@@ -1,5 +1,8 @@
 import { type AutoMovieComposition, type IAutoMovieSchedule, checkAutoMovieLegality, resolveAutoMovieSchedule } from "@automovie/engine";
-import type { AutoMovieMotionTarget } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieMotionTarget,
+} from "@automovie/interface";
 import { HUMAN_ACTIONS } from "../actions/HUMAN_ACTIONS";
 import { stand } from "../actions/stand";
 import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
@@ -59,17 +62,9 @@ export class HumanPerformanceState {
     HumanSegment.ISegment & { subject: string }
   >;
 
-  /** The spans in which each prop is held, by the prop: who holds it, in which hand, from when to when and at which offset from the hand; found once the performance is placed. */
-  public readonly gripCache: Map<
-    string,
-    {
-      subject: string;
-      side: "left" | "right";
-      from: number;
-      to: number;
-      offset?: IHumanProp.IFrame;
-    }[]
-  > = new Map();
+  /** The spans in which each prop is held or worn, by the prop: who holds it in which hand or wears it on which bone, from when to when and at which offset from the hand or the bone; found once the performance is placed. */
+  public readonly gripCache: Map<string, HumanPerformanceState.IGrip[]> =
+    new Map();
 
   /** The meetings of the mutual actions, by their kind, start and performers: the performer who computed each and the meeting every role reads. */
   public readonly meetings: Map<
@@ -310,5 +305,35 @@ export class HumanPerformanceState {
         segment.end = this.clipped.get(entry.index) ?? entry.end;
     }
     this.duration = this.schedule.duration;
+  }
+}
+/**
+ * Companion types of {@link HumanPerformanceState}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what the record is; each member gives its meaning.
+ * @evidence contracts/development/design.md#principled-representation A held prop rides a hand and a worn one a bone; both are one span of film seconds with the offset kept from its start.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One record, read by `HumanPerformanceRead.prop`.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A worn span names its bone; a held span leaves it absent, so one list orders both.
+ */
+export namespace HumanPerformanceState {
+  /** One span in which a prop is held in a hand or worn on a bone. */
+  export interface IGrip {
+    /** The person who holds or wears it. */
+    subject: string;
+
+    /** The holding hand; for a worn span, the side of nothing and unread. */
+    side: "left" | "right";
+
+    /** The bone it is worn on; held in the hand when absent. */
+    bone?: AutoMovieHumanoidBone;
+
+    /** The span's first film second. */
+    from: number;
+
+    /** The span's last film second. */
+    to: number;
+
+    /** The prop's frame in the hand's or the bone's frame, kept from the span's start. */
+    offset?: IHumanProp.IFrame;
   }
 }
