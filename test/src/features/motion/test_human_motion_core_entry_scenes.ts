@@ -43,12 +43,15 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 9. A tote picked up and handed over to a partner who receives it: it
  *    plans, the receiver's reference weight never rounding below 0 as the
  *    take-away ends.
+ * 10. Two performers each with a hand on the other's shoulder, pressed and
+ *    held at once: it plans, each hand riding the other body a frame
+ *    behind it instead of reading the posture the other is still solving.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds each scene through the public input and reads what the build throws; a JavaScript error, a stack overflow or a refusal naming `undefined` fails with the scene and the message.
  * @evidence contracts/development/testing.md#independent-expectations Each scene is one a production wrote; that a missing or a wrong value is refused and a mutual reading is no recursion is the grammar's contract for any scene.
- * @evidence contracts/development/testing.md#distinguishing-cases A performer reading itself, two reading each other, an unknown parameter, a scene that needs no prop, a missing nested member, a missing partner, a missing prop, a region no body has and a handover received.
- * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds ten short performances; it runs locally and wherever CI runs the human motion tests.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 9 scenarios.
+ * @evidence contracts/development/testing.md#distinguishing-cases A performer reading itself, two reading each other, an unknown parameter, a scene that needs no prop, a missing nested member, a missing partner, a missing prop, a region no body has, a handover received and two hands each held on the other body.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds eleven short performances; it runs locally and wherever CI runs the human motion tests.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 10 scenarios.
  */
 export function test_human_motion_core_entry_scenes(): void {
   const man: IHumanBody = motionHumanBody("m-average");
@@ -261,6 +264,21 @@ export function test_human_motion_core_entry_scenes(): void {
     ),
     (got: string): boolean =>
       got === "planned" || got.startsWith("refused on "),
+  );
+
+  // 10. Two hands, each held on the other body.
+  partnerAt = 0.5;
+  const held = (subject: string, other: string): HumanChain =>
+    stand(subject).touch({
+      target: { kind: "person", subject: other, region: "shoulderLeft" },
+      with: "palm",
+      kind: "press",
+      hold: 1,
+    });
+  expect(
+    "two hands each held on the other's shoulder",
+    outcome(held("a", "b").with(held("b", "a")), true),
+    (got: string): boolean => got === "planned",
   );
   TestValidator.equals("each scene plans or refuses", complaints, []);
 }
