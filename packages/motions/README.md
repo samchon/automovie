@@ -48,7 +48,8 @@ To see that pose, draw `prepared` as a polygon man; the [Human README](../human/
 | Interrupt the last action | `chain.walk({ to }).until({ share: 0.5 }).stand()` |
 | Do two things at once with one body | `chain.walk({ to }).over((u) => u.handToFace({ task: "read" }))` |
 | Run two people at once | `a.with(b)` |
-| Join two people in a mutual action | `HumanChain.pair(a, b).handshake()` |
+| Join people in a mutual action | `HumanChain.mutual(HumanMutual.highFive, { one: a, other: b })`, or `HumanChain.pair(a, b).handshake()` |
+| Sit on an object, or take it | `chain.sit({ seat: HumanObject.seat(chair, placement) })`, `chain.pickUp({ prop: "glass", handle: "body" })` |
 | Let another chain align to an action | Pass an anchor id as the last argument, `chain.punch(params, "jab")` |
 | Time an action to an instant of another action | `b.stand().flinch().sync({ of: "jab", event: "contact" })` |
 | Time an action to speech or music | `a.stand().gesture({ kind: "wave" }).sync({ of: "dialogue", event: "accent", index: 2, align: "strokeStart" })` |
@@ -71,6 +72,39 @@ new HumanPerformance({
 With `over`, the last action carries the body and the actions put over it take only the parts they move: a walk keeps the pelvis and the legs and yields its arms, hands and head. An action's `overlay` and `yields` in `HUMAN_ACTIONS` say which actions can ride a carrier and what a carrier gives up. Two overlays that need one hand at one time are refused, naming both.
 
 What an action is directed at is an `AutoMovieMotionTarget`: a region of another person, a region of the performer's own body, a named point of a prop, a point in the world, or none.
+
+## Objects
+
+An object says where a person meets it through its affordances: a seat, a handle, a surface. `HumanObject` gives the actions what they read of it, placed where the scene puts it, so no coordinate of the object is written by hand. The object is any model that declares affordances, such as one from `@automovie/archetypes`:
+
+```ts
+const chair = createSeat({ kind: "dining" }, "scene-3/chair-1");
+const glass = createDrinkware({ kind: "glass" });
+
+new HumanPerformance({
+  seed,
+  performers,
+  props: [HumanObject.prop("glass", glass, { at: { x: 0.2, y: 0.74, z: 0.4 }, yaw: 0 })],
+  composition: HumanChain.subject("a")
+    .sit({ seat: HumanObject.seat(chair, { at: { x: 0, y: 0, z: -0.5 }, yaw: 0 }) })
+    .pickUp({ prop: "glass", handle: "body" }).node,
+});
+```
+
+A prop's affordance ids are also its named points, so `{ kind: "prop", subject: "glass", point: "lip" }` is a target. A seat the body cannot use, or an affordance the object lacks, is refused with what would fit.
+
+## Mutual actions
+
+A mutual action is one thing several people do together. It is stated once: its roles, and the action each role performs. `HumanChain.mutual` plays every chain of the cast, then has every role perform its part at once from one meeting, so no role chases another. `HumanMutual` holds the vocabulary's (`handshake`, `highFive`, `handOver`); a production states its own as an `IHumanMutual` over its registered actions:
+
+```ts
+const toast: IHumanMutual<object, "host" | "guest"> = {
+  name: "toast",
+  roles: ["host", "guest"],
+  act: (role, params, cast) => ({ name: "raiseGlass", params: { toward: cast[role === "host" ? "guest" : "host"] } }),
+};
+HumanChain.mutual(toast, { host: a, guest: b }, {}, "toast"); // anchored toast.host and toast.guest
+```
 
 ## Layers
 
@@ -103,12 +137,13 @@ An action the vocabulary lacks is registered with it. Take the first of these th
 ```ts
 import { HumanActionRow, HumanChain, HumanPerformance, handToFace, touch } from "@automovie/motions";
 
-// A touch with its target, effector, kind and hand fixed.
+// A touch with its target, effector, kind, hand and elbow fixed.
 const salute = HumanActionRow.of("salute", touch, {
   target: { kind: "self", region: "templeRight" },
-  with: "fingertips",
+  with: "forefinger", // the hand continues the forearm, palm down
   kind: "hold",
   side: "right",
+  elbow: "level", // the upper arm horizontal
 });
 
 // An entry a table lacks, given as the table's own row type.
@@ -171,6 +206,7 @@ const lean = HumanSignature.trunk(reader, 1.5) - HumanSignature.trunk(reader, 0)
 | --- | --- |
 | `HumanChain` | One typed method per action, `act` for an action by name, `until` to interrupt, `over` for two things at once, `sync` to time, `with` and `pair` for several people, `extend` for registered actions. |
 | `HumanActionRow`, `HumanCue` | A registered row of a shipped action; the cue tracks of speech and music. |
+| `HumanMutual`, `HumanObject` | The vocabulary's mutual actions; an object's affordances as a seat or a prop. |
 | `HumanPerformance` | Places a composition and samples it: `pose`, `posture`, `bones`, `prop`, `segments` and `aim`. It refuses a composition that breaks a law or a rule you pass in. |
 | `HumanRefusal` | The error a refused composition throws, with the axis and the fix. |
 | `HumanVerdicts`, `HumanSignature` | The physical bounds of a performance, and the kinematic readings a unit test asserts. |

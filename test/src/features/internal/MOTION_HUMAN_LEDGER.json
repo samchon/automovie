@@ -359,6 +359,12 @@
     },
     {
       "layer": "compose",
+      "symbol": "AutoMovieMotionHumanBend.level",
+      "tests": [
+        "test_human_motion_signature_salute"
+      ]
+    },    {
+      "layer": "compose",
       "symbol": "AutoMovieMotionHumanBend.arm",
       "tests": [
         "test_motion_compose_bend",
@@ -1223,6 +1229,13 @@
     },
     {
       "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTouch.settled",
+      "tests": [
+        "test_human_motion_signature_salute"
+      ]
+    },
+    {
+      "layer": "compose",
       "symbol": "AutoMovieMotionHumanTouch.upright",
       "tests": [
         "test_human_motion_compose_touch_laid"
@@ -1291,6 +1304,13 @@
       "symbol": "AutoMovieMotionHumanTouchPath.lay",
       "tests": [
         "test_human_motion_compose_touch_path"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTouchPath.reach",
+      "tests": [
+        "test_human_motion_signature_salute"
       ]
     },
     {

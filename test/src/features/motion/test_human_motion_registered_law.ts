@@ -25,7 +25,7 @@ type Same<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
  * and out, deterministically, and without changing any other action.
  *
  * The worked example is the military hand salute, a row of the shipped
- * `touch` with its target, effector, kind and hand fixed: the right
+ * `touch` with its target, effector, kind, hand and elbow fixed: the right
  * forefinger's tip to the forehead near and slightly to the right of the
  * right eyebrow (US Army TC 3-21.5, Drill and Ceremonies, the hand salute).
  *
@@ -69,9 +69,10 @@ export function test_human_motion_registered_law(): void {
   const body: IHumanBody = motionHumanBody("m-average");
   const salute = HumanActionRow.of("salute", touch, {
     target: { kind: "self", region: "templeRight" },
-    with: "fingertips",
+    with: "forefinger",
     kind: "hold",
     side: "right",
+    elbow: "level",
   });
   const chair: seated.ISeat = {
     at: {
@@ -271,7 +272,7 @@ export function test_human_motion_registered_law(): void {
     keyof NonNullable<
       Parameters<HumanChain.Extended<{ salute: typeof salute }>["salute"]>[0]
     >,
-    Exclude<keyof touch.IParams, "target" | "with" | "kind" | "side">
+    Exclude<keyof touch.IParams, "target" | "with" | "kind" | "side" | "elbow">
   > = true;
   const chained: HumanChain.Extended<{ salute: typeof salute }> = Chain.subject(
     "a",

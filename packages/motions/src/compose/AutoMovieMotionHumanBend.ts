@@ -327,6 +327,53 @@ export namespace AutoMovieMotionHumanBend {
   }
 
   /**
+   * The elbow place that holds the upper arm level for a hand goal: on the
+   * circle the wrist's place leaves the elbow, the allowed place whose
+   * height is nearest the shoulder's, as a salute, a toast and a shading
+   * hand hold the arm. Where two places are as near, the one of less strain.
+   *
+   * @param props The request.
+   * @returns The elbow's place, world metres, usable as a bend hint.
+   * @throws When the wrist is out of reach or no place on the circle is allowed, and no `fallback` is given.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States which place is chosen, the tie rule, the result's frame and the refusals.
+   * @evidence contracts/development/implementation.md#principled-implementation The same swivel circle and legality as `solve`, ranked by the elbow's height from the shoulder's instead of by strain: a level upper arm is an elbow at the shoulder's height.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One search with another ranking, and `solve`'s refusal.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An arm that cannot be level at this wrist takes the allowed place nearest to it, never a place out of range.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The same bounded sweep as `solve`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares `search` with `solve` and `strain`.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only what `solve` retains.
+   */
+  export function level(props: ISolve): IAutoMovieVector3 {
+    const found: ICandidate | string = search(
+      props,
+      (chain: IChain): ((candidate: ICandidate) => IScore) =>
+        (candidate: ICandidate): IScore => ({
+          overshoot: candidate.overshoot,
+
+          // Metres from the shoulder's height; the strain only breaks a tie.
+          deviation:
+            Math.abs(candidate.elbow.y - chain.shoulder.y) +
+            1e-4 * Math.min(candidate.strain, 10),
+        }),
+    );
+    if (typeof found !== "string" && found.overshoot === 0) return found.elbow;
+    if (props.fallback !== undefined)
+      return arm(props.body, props.posture, props.side, props.fallback);
+    throw new HumanRefusal({
+      kind: "reach",
+      axis: "elbow",
+      value: "level",
+      reason: `no elbow place holds the ${props.side} upper arm for this hand goal: ${
+        typeof found === "string"
+          ? found
+          : "every place leaves a joint out of range or the forearm inside the body"
+      }`,
+      fix: "leave the elbow natural, or move the target to where the arm can bend to it",
+    });
+  }
+
+  /**
    * The strain of a hand goal with its elbow toward a given point.
    *
    * @param props The request; its `fallback` is not read.

@@ -81,7 +81,7 @@ export namespace touch {
   };
 
   /** Which part of the hand touches. */
-  export type With = "palm" | "fingertips" | "handBack" | "fist";
+  export type With = "palm" | "fingertips" | "forefinger" | "handBack" | "fist";
 
   /** Each part's effector. */
   export const EFFECTORS: Readonly<
@@ -89,6 +89,15 @@ export namespace touch {
   > = {
     palm: { surface: "palm", shape: "flat" },
     fingertips: { surface: "indexTip", shape: "flat" },
+
+    // The end of the forefinger of a flat hand that continues its forearm,
+    // the palm turned down: a salute's hand at the brow.
+    forefinger: {
+      surface: "indexTip",
+      shape: "flat",
+      facing: "fingers",
+      along: "-palm",
+    },
     handBack: { surface: "handBack", shape: "relaxed" },
     fist: { surface: "fist", shape: "fist" },
   };
@@ -108,11 +117,23 @@ export namespace touch {
     /** The kind; `pat` when absent. */
     kind?: AutoMovieMotionHumanTouchForm.Kind;
 
-    /** The part of the hand; the palm when absent. */
+    /**
+     * The part of the hand; the palm when absent. `forefinger` is the end of
+     * the forefinger of a flat hand held in line with its forearm, the palm
+     * turned down, as a salute meets the brow.
+     */
     with?: With;
 
     /** The hand; `right` when absent. */
     side?: HumanHand.Side;
+
+    /**
+     * Where the elbow lies while the hand is on the region: `natural`, the
+     * place of least strain, or `level`, raised to the shoulder's height so
+     * the upper arm is horizontal, as a salute or a hand shading the eyes
+     * holds it. `natural` when absent.
+     */
+    elbow?: "natural" | "level";
 
     /** The other hand's region, touched the same way at the same time; one hand when absent. */
     other?: AutoMovieMotionTarget;
@@ -297,15 +318,35 @@ export namespace touch {
                 region: target.region,
               }
             : undefined;
-      const bend: IAutoMovieVector3 = AutoMovieMotionHumanTouch.bend(
-        body,
-        entry,
-        side,
-        effector,
-        region(target)(entry, 0),
-        tangent,
-        "arm",
-      );
+      const lay: "arm" | "reach" = p.with === "forefinger" ? "reach" : "arm";
+
+      // A hand that meets its place end on runs from its elbow, so the
+      // elbow's place is settled with the hand and serves as the hint too.
+      const from: IAutoMovieVector3 | undefined =
+        lay === "reach"
+          ? AutoMovieMotionHumanTouch.settled(
+              body,
+              entry,
+              side,
+              effector,
+              region(target)(entry, 0),
+              tangent,
+              p.elbow,
+            )
+          : undefined;
+      const bend: IAutoMovieVector3 =
+        from ??
+        AutoMovieMotionHumanTouch.bend(
+          body,
+          entry,
+          side,
+          effector,
+          region(target)(entry, 0),
+          tangent,
+          lay,
+          undefined,
+          p.elbow,
+        );
       primitives.push(
         ...AutoMovieMotionHumanTouch.touch({
           body,
@@ -327,9 +368,14 @@ export namespace touch {
             region(target)(entry, 0),
             tangent,
             bend,
-            "arm",
+            lay,
+            undefined,
+            p.elbow,
+            from,
           ),
-          lay: "arm",
+          lay,
+          ...(from === undefined ? {} : { from }),
+          ...(p.elbow === undefined ? {} : { elbow: p.elbow }),
           entry,
           ...(support === undefined ? {} : { contact: support }),
           ...(target.kind === "person"
