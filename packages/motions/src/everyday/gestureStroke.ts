@@ -6,12 +6,12 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
-import type { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { gestureJoints } from "./gestureJoints";
 import { gestureSignal } from "./gestureSignal";
+import { gestureStrokeTables } from "./gestureStrokeTables";
 import { gestureTouch } from "./gestureTouch";
 
 /**
@@ -86,7 +86,7 @@ export namespace gestureStroke {
    * the trunk's pitch, which the gesture law applies.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the two families of gesture and where `bow` is handled; the namespace doc describes each gesture's goal.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the communicative gestures supported; `RHYTHM` and `HANDS` are total records over it, so every kind has a timing and a hand count by type.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the communicative gestures supported; `gestureStrokeTables.RHYTHM` and `gestureStrokeTables.HANDS` are total records over it, so every kind has a timing and a hand count by type.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here and read by the gesture law's parameters, the capture cases, the gesture verdicts and the CI breath and gaze test that walks the tables.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Variation enters as table rows keyed by the union and exhaustive switches, not as per-gesture members.
    */
@@ -207,66 +207,13 @@ export namespace gestureStroke {
     curl?: number;
   }
 
-  /**
-   * A gesture's timing: cycles in the stroke and the time of one cycle, a
-   * named pause or a pause scaled (the seconds each resolves to are the ones
-   * the gestures shipped with; the clap's three beats a second is no scaled
-   * pause and stays explicit).
-   */
-  export const RHYTHM: Readonly<
-    Record<Kind, { cycles: number; period: AutoMovieMotionHumanTiming.Span }>
-  > = {
-    wave: { cycles: 3, period: "beat" },
-    raiseHand: { cycles: 1, period: { pause: "beat", scale: 1.25 } },
-    cheer: { cycles: 2, period: { pause: "beat", scale: 1.25 } },
-    stopPalm: { cycles: 1, period: { pause: "beat", scale: 0.875 } },
-    point: { cycles: 1, period: { pause: "beat", scale: 1.25 } },
-    palmsUp: { cycles: 1, period: { pause: "beat", scale: 1.5 } },
-    beckon: { cycles: 2, period: { pause: "beat", scale: 1.5 } },
-    clap: {
-      cycles: 4,
-      period: { seconds: 1 / 3, source: "provisional: everyday-gesture-clap" },
-    },
-    rubHands: { cycles: 3, period: { pause: "beat", scale: 0.875 } },
-    palmsTogether: { cycles: 1, period: "long" },
-    thumbsDown: { cycles: 1, period: "long" },
-    touchFace: { cycles: 1, period: "long" },
-    pushGlasses: { cycles: 1, period: { pause: "beat", scale: 0.75 } },
-    scratchHead: { cycles: 4, period: { pause: "beat", scale: 0.625 } },
-    shrug: { cycles: 1, period: { pause: "long", scale: 0.875 } },
-    nod: { cycles: 2, period: { pause: "beat", scale: 1.25 } },
-    shakeHead: { cycles: 3, period: { pause: "beat", scale: 1.125 } },
-    bow: { cycles: 1, period: { pause: "beat", scale: 1.5 } },
-    chinLift: { cycles: 1, period: "long" },
-    squareShoulders: { cycles: 1, period: "long" },
-    slump: { cycles: 1, period: "long" },
-  };
+  /** Each gesture's timing (`gestureStrokeTables.RHYTHM`), read here with its kind. */
+  export const RHYTHM: typeof gestureStrokeTables.RHYTHM =
+    gestureStrokeTables.RHYTHM;
 
-  /** Which hands each gesture moves: `one` the chosen side, `both`, or `none`. */
-  export const HANDS: Readonly<Record<Kind, "one" | "both" | "none">> = {
-    wave: "one",
-    raiseHand: "one",
-    cheer: "both",
-    stopPalm: "one",
-    point: "one",
-    palmsUp: "both",
-    beckon: "one",
-    clap: "both",
-    rubHands: "both",
-    palmsTogether: "both",
-    thumbsDown: "one",
-    touchFace: "one",
-    pushGlasses: "one",
-    scratchHead: "one",
-    shrug: "both",
-    nod: "none",
-    shakeHead: "none",
-    bow: "none",
-    chinLift: "none",
-    squareShoulders: "none",
-    slump: "none",
-  };
-
+  /** Which hands each gesture moves (`gestureStrokeTables.HANDS`), read here with its kind. */
+  export const HANDS: typeof gestureStrokeTables.HANDS =
+    gestureStrokeTables.HANDS;
   /**
    * A hand's goal at a share of the stroke.
    *

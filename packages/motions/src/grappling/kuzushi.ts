@@ -19,7 +19,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * degrees forward over `TIP` seconds, holds there for `hold` seconds and
  * comes back over `TIP` seconds; the feet keep their planted goals, so the
  * ankles bend and the centre of mass passes ahead of the toes. A balanced
- * person leans from the hips and moves them back (`gesture.bow`); a broken
+ * person leans from the hips and moves them back (`gestureBow.bowed`); a broken
  * base is the lean that does not, which is what the partner's pull and the
  * thrower's entry produce.
  *

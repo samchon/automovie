@@ -6,7 +6,7 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { HumanTrunk } from "../everyday/HumanTrunk";
-import { gesture } from "../everyday/gesture";
+import { gestureBow } from "../everyday/gestureBow";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -172,7 +172,7 @@ export namespace armWrestle {
 
     // The lean that puts the shoulder an upper arm from the elbow.
     const leaned = (pitch: number, posture: IHumanPosture): IHumanPosture =>
-      gesture.bow(body, posture, pitch, 0);
+      gestureBow.bowed(body, posture, pitch, 0);
 
     // A posture with the arm asked onto the wrist's place at a turn, the
     // elbow hinted onto the table. No hand rotation is asked: the fit gives

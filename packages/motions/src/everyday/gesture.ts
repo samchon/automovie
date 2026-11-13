@@ -24,7 +24,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandShape } from "../posture/HumanHandShape";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -32,8 +31,10 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
 import { HumanEffort } from "./HumanEffort";
+import { gestureBow } from "./gestureBow";
 import { gestureJoints } from "./gestureJoints";
 import { gestureStroke } from "./gestureStroke";
+import { gestureStrokeTables } from "./gestureStrokeTables";
 import { handGoals } from "./handGoals";
 
 /**
@@ -173,7 +174,7 @@ export namespace gesture {
     const p: IParams = context.params;
     const body: IHumanBody = context.body;
     const mods: HumanEffort.IModifiers = HumanEffort.modifiers(p.effort);
-    const rhythm = gestureStroke.RHYTHM[p.kind];
+    const rhythm = gestureStrokeTables.RHYTHM[p.kind];
     const cycles: number = p.count ?? rhythm.cycles;
     HumanBound.whole("count", cycles);
     const hold: number = p.hold ?? 0;
@@ -191,7 +192,7 @@ export namespace gesture {
       });
 
     const sides: HumanHand.Side[] = ((): HumanHand.Side[] => {
-      const which = gestureStroke.HANDS[p.kind];
+      const which = gestureStrokeTables.HANDS[p.kind];
       return which === "both"
         ? ["left", "right"]
         : which === "one"
@@ -336,7 +337,8 @@ export namespace gesture {
       p.kind === "bow"
         ? HumanBalance.shift(
             body,
-            (back: number): IHumanPosture => bow(body, at0, peak, back),
+            (back: number): IHumanPosture =>
+              gestureBow.bowed(body, at0, peak, back),
           ) / Math.sin((peak * Math.PI) / 180)
         : 0;
 
@@ -370,7 +372,7 @@ export namespace gesture {
         const u: number = Math.min(1, Math.max(0, (t - prepare) / stroke));
         let posture: IHumanPosture = base.posture(t);
         if (p.kind === "bow")
-          posture = bow(
+          posture = gestureBow.bowed(
             body,
             posture,
             peak * envelope,
@@ -461,45 +463,5 @@ export namespace gesture {
         );
       },
     };
-  }
-
-  /**
-   * A standing posture bowed by a trunk pitch: the whole body above the feet
-   * tips about the hips, the hips move back by the balance shift, and the
-   * planted legs are re-solved by their unchanged goals.
-   *
-   * @param body The body.
-   * @param posture The standing posture.
-   * @param pitch Forward pitch, degrees.
-   * @param back How far the hips move back, metres.
-   * @returns The bowed posture.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the pivot, what moves, the units of the pitch and the shift, and that the legs keep their goals.
-   * @evidence contracts/development/implementation.md#principled-implementation Adds the pitch to the posture's root pitch and places the root so the rest hips land at their standing point moved back by `back` in the posture's frame, a rotation about the hips; the leg goals stay on the feet and are solved when the posture is resolved.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pure posture transform shared by the plan and its balance solve.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No constants; the pitch and shift come from the caller.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time: one heading quaternion and one rotated offset.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure function with nothing to share.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new posture and retains nothing.
-   */
-  export function bow(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    pitch: number,
-    back: number,
-  ): IHumanPosture {
-    const hips: IAutoMovieVector3 = body.rest.get("hips")!;
-    const frame: HumanFrame.IFrame = { origin: posture.root, yaw: posture.yaw };
-    const target: IAutoMovieVector3 = HumanFrame.point(frame, {
-      x: hips.x,
-      y: hips.y,
-      z: hips.z - back,
-    });
-    const tipped: IHumanPosture = { ...posture, pitch: posture.pitch + pitch };
-    const offset: IAutoMovieVector3 = Quaternion.rotateVector(
-      resolveHumanPosture.heading(tipped),
-      hips,
-    );
-    return { ...tipped, root: Vector3.subtract(target, offset) };
   }
 }

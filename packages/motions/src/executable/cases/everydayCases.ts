@@ -15,6 +15,7 @@ import { createHumanBody } from "../../body/createHumanBody";
 import { HumanBalance } from "../../everyday/HumanBalance";
 import { HumanProxemics } from "../../everyday/HumanProxemics";
 import { gestureStroke } from "../../everyday/gestureStroke";
+import { gestureStrokeTables } from "../../everyday/gestureStrokeTables";
 import { rest } from "../../everyday/rest";
 import { seated } from "../../everyday/seated";
 import { typeText } from "../../everyday/typeText";
@@ -364,7 +365,7 @@ export function everydayCases(
             body,
             s,
             e,
-            gestureStroke.RHYTHM[kind].cycles,
+            gestureStrokeTables.RHYTHM[kind].cycles,
           ),
         );
         if (kind === "clap")
