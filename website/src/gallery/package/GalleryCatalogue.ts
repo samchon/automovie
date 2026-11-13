@@ -2,6 +2,7 @@ import type { Archetype, IArchetypeBand } from "@automovie/archetypes";
 import * as animals from "@automovie/archetypes/animals";
 import * as architecture from "@automovie/archetypes/architecture";
 import * as furniture from "@automovie/archetypes/furniture";
+import * as gym from "@automovie/archetypes/gym";
 import * as props from "@automovie/archetypes/props";
 import * as vehicles from "@automovie/archetypes/vehicles";
 import * as weapons from "@automovie/archetypes/weapons";
@@ -50,6 +51,7 @@ export namespace GalleryCatalogue {
     vehicles,
     animals,
     weapons,
+    gym,
   };
 
   /**

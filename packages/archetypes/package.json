@@ -14,6 +14,7 @@
     "./vehicles": "./src/vehicles/index.ts",
     "./animals": "./src/animals/index.ts",
     "./weapons": "./src/weapons/index.ts",
+    "./gym": "./src/gym/index.ts",
     "./package.json": "./package.json"
   },
   "scripts": {
@@ -70,6 +71,10 @@
       "./weapons": {
         "types": "./lib/weapons/index.d.ts",
         "default": "./lib/weapons/index.js"
+      },
+      "./gym": {
+        "types": "./lib/gym/index.d.ts",
+        "default": "./lib/gym/index.js"
       },
       "./package.json": "./package.json"
     }
