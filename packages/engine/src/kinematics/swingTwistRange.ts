@@ -1,16 +1,26 @@
 import {
+  AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieQuaternion,
+  IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { nearestAngleAlias } from "../math/nearestAngleAlias";
+import { positiveModulo } from "../math/positiveModulo";
+import { rotationBetween } from "../math/rotationBetween";
+import { swingTwist } from "../math/swingTwist";
+import { wrapDegrees } from "../math/wrapDegrees";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
+import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { toRigAngle } from "../rom/toRigAngle";
+import { HUMANOID_JOINT_AXES } from "./constants/HUMANOID_JOINT_AXES";
+import { skeletonJointAxes } from "./skeletonJointAxes";
 import { swingTwistBasis } from "./swingTwistBasis";
 import { swingTwistRegion } from "./swingTwistRegion";
 
@@ -35,7 +45,7 @@ const DEG: number = swingTwistBasis.DEG;
  * angles turn about one axis (a hip flexed to 90 degrees, where abduction
  * turns the thigh about itself), and the star fills the pinch, so a flexed
  * hip may still swing aside. The star is stored as its radius along each
- * great circle leaving the rest direction, `RAYS` of them, the farthest swing
+ * great circle leaving the rest direction, `swingTwistBasis.RAYS` of them, the farthest swing
  * along it that the ranges reach, raised where it would turn faster than
  * `SLOPE` with the azimuth (beside an edge of the region that runs along a
  * ray, where the farthest reach jumps), and interpolated linearly between
@@ -52,19 +62,16 @@ const DEG: number = swingTwistBasis.DEG;
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the decomposition, its singular direction, how the swing region is read from the constraint, how a direction outside it is brought back and the premise that keeps that continuous.
  * @evidence contracts/development/design.md#principled-representation A rotation is split into the two quantities a ball joint's range limits independently, where the limb points and how it is turned about itself, neither read through a three-angle chart.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The reading, the measure outside the range and the projection into it; the radius table is cached per constraint and basis.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The joint frame of a rig's bone, the reading, the measure outside the range, the projection into it and the radius on a circle; the radius table is cached per constraint and basis.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No joint is named: the axes, the rest frame and the intervals are the caller's.
  */
 export namespace swingTwistRange {
-  /** The great circles from the rest direction the swing region's radius is read on. */
-  export const RAYS: number = swingTwistBasis.RAYS;
-
   /**
    * A rotation read by swing and twist.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's frame and unit: the limb's unit direction in the rest frame, the swing in degrees, the azimuth in degrees about the rest direction from the flexion axis and the clinical twist in (-180, 180].
+   * @evidence contracts/development/common.md#meaningful-documentation States each member's frame and unit: the limb's unit direction in the rest frame, the swing in degrees, the azimuth in degrees about the rest direction from the flexion axis and the clinical twist in [-180, 180).
    * @evidence contracts/development/design.md#principled-representation The two quantities a ball joint's range limits independently, where the limb points (the direction with its swing and azimuth) and how it is turned about itself (the twist), in degrees and the bone's rest frame.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members, all read by `overshoot`, `room` and `project`; the direction is kept so `project` need not recompute it.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members, all read by `overshoot` and `project`; the direction is kept so `project` need not recompute it.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Neither the swing nor the twist is read through a three-angle chart; the record names no joint and no bone.
    */
   export interface IReading {
@@ -77,7 +84,7 @@ export namespace swingTwistRange {
     /** The great circle the direction lies on, degrees about the rest direction from the flexion axis. */
     azimuth: number;
 
-    /** The twist about the rest direction, clinical degrees in (-180, 180]. */
+    /** The twist about the rest direction, clinical degrees in [-180, 180). */
     twist: number;
   }
 
@@ -86,7 +93,7 @@ export namespace swingTwistRange {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States that the axes are the joint's clinical basis and that the rest frame lifts its angles, and that an absent frame leaves angles rest-relative.
    * @evidence contracts/development/design.md#principled-representation The caller's clinical axis basis and rest frame, the two things that turn a rotation's angles into the joint's clinical ones; both come from `@automovie/interface` and the engine's rest frame type.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, both read by every function here; the radius table is cached on them.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, both read by every function here; the radius table is cached on them; `of` gives them for a rig's bone.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No joint or bone is named, and no type is duplicated.
    */
   export interface IJoint {
@@ -98,6 +105,38 @@ export namespace swingTwistRange {
   }
 
   /**
+   * The frame a rig's bone is read in: its clinical axes as the skeleton
+   * resolves them (`skeletonJointAxes`, the bone's own declaration over the
+   * humanoid table) and the humanoid rest frame; the humanoid table's axes
+   * when no skeleton is given.
+   *
+   * @param bone The bone.
+   * @param skeleton The rig; the humanoid tables alone when absent.
+   * @returns The frame; none for a bone that has no axes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the precedence, the fallback and the empty case.
+   * @evidence contracts/development/implementation.md#principled-implementation The skeleton's own axes win over the family table, the precedence every engine entry with a skeleton reads.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One table read and one record.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bone is special-cased.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One scan of the bones when a skeleton is given.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `skeletonJointAxes`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function of(
+    bone: AutoMovieHumanoidBone,
+    skeleton?: IAutoMovieSkeleton,
+  ): IJoint | undefined {
+    const axes: IAutoMovieJointAxes | undefined = (
+      skeleton === undefined
+        ? HUMANOID_JOINT_AXES
+        : skeletonJointAxes(skeleton, HUMANOID_JOINT_AXES)
+    )[bone];
+    return axes === undefined
+      ? undefined
+      : { axes, frame: HUMANOID_REST_FRAME[bone] };
+  }
+
+  /**
    * A rotation read by swing and twist.
    *
    * @param q The joint's rest-relative rotation.
@@ -105,11 +144,11 @@ export namespace swingTwistRange {
    * @returns The reading.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, its frame and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The twist is the angle of the quaternion's part about the rest axis (the swing-twist split), so the swing that remains carries the rest axis to the limb's direction by the shortest turn.
+   * @evidence contracts/development/implementation.md#principled-implementation The twist is the angle of the rotation's twist about the rest axis (the engine's `swingTwist`), so the swing that remains carries the rest axis to the limb's direction by the shortest turn.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One rotation of the axis, one projection and two angles.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The twist is lifted by the joint's own rest frame, so its sign is the clinical one.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `swingTwist` and `wrapDegrees`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function read(q: IAutoMovieQuaternion, joint: IJoint): IReading {
@@ -118,9 +157,14 @@ export namespace swingTwistRange {
     const direction: IAutoMovieVector3 = Vector3.normalize(
       Quaternion.rotateVector(unit, basis.u),
     );
-    const along: number =
-      unit.x * basis.u.x + unit.y * basis.u.y + unit.z * basis.u.z;
-    const rig: number = 2 * Math.atan2(along, unit.w) * DEG;
+    const twisted: IAutoMovieQuaternion = swingTwist(unit, basis.u).twist;
+    const rig: number =
+      2 *
+      Math.atan2(
+        twisted.x * basis.u.x + twisted.y * basis.u.y + twisted.z * basis.u.z,
+        twisted.w,
+      ) *
+      DEG;
     return {
       direction,
       swing:
@@ -128,8 +172,8 @@ export namespace swingTwistRange {
           swingTwistBasis.clamp(Vector3.dot(direction, basis.u), -1, 1),
         ) * DEG,
       azimuth: swingTwistBasis.azimuth(basis, direction),
-      twist: swingTwistBasis.wrap(
-        toClinicalAngle(swingTwistBasis.wrap(rig), joint.frame?.twist)!,
+      twist: wrapDegrees(
+        toClinicalAngle(wrapDegrees(rig), joint.frame?.twist)!,
       ),
     };
   }
@@ -159,44 +203,10 @@ export namespace swingTwistRange {
   ): number {
     const reading: IReading = read(q, joint);
     const twist: IAutoMovieAngleRange = constraint.swingTwist!.twist;
-    const turned: number = swingTwistBasis.alias(reading.twist, twist);
+    const turned: number = nearestAngleAlias(reading.twist, twist);
     return (
       Math.max(0, reading.swing - radius(constraint, joint, reading.azimuth)) +
       Math.max(0, twist.min - turned, turned - twist.max)
-    );
-  }
-
-  /**
-   * How far a rotation lies inside a swing-twist range, degrees: the least
-   * of the swing's room to the region's radius on its great circle and the
-   * twist's room to either end of its interval; negative outside, where it
-   * is the larger of the two parts `overshoot` adds, negated.
-   *
-   * @param q The joint's rest-relative rotation.
-   * @param constraint The constraint, with `swingTwist`.
-   * @param joint The joint's axes and rest frame.
-   * @returns Degrees; positive inside, 0 on the edge, negative outside.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the parts, their unit and the sign.
-   * @evidence contracts/development/implementation.md#principled-implementation The same two limits `overshoot` measures past, measured from inside, so a caller can keep a joint a margin inside its range.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading, one radius and one interval.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The twist is aliased to the interval as `overshoot` aliases it.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work once the radius table is built.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads `read` and the cached `radius`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
-   */
-  export function room(
-    q: IAutoMovieQuaternion,
-    constraint: IAutoMovieJointConstraint,
-    joint: IJoint,
-  ): number {
-    const reading: IReading = read(q, joint);
-    const twist: IAutoMovieAngleRange = constraint.swingTwist!.twist;
-    const turned: number = swingTwistBasis.alias(reading.twist, twist);
-    return Math.min(
-      radius(constraint, joint, reading.azimuth) - reading.swing,
-      turned - twist.min,
-      twist.max - turned,
     );
   }
 
@@ -213,7 +223,7 @@ export namespace swingTwistRange {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States how the swing and the twist are each brought back and that a rotation inside is returned as given.
    * @evidence contracts/development/implementation.md#principled-implementation The swing is brought back along its own great circle from the rest direction, a radial map onto a region star-shaped about the rest direction, which moves continuously with the rotation wherever the radius does; the twist is clamped to its interval.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading, one radius, one shortest turn and one twist.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading, one radius, one shortest turn (`rotationBetween`) and one twist.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No nearest point is sought, since a nearest point jumps where two tie.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work once the radius table is built.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads `read` and `radius`.
@@ -227,7 +237,7 @@ export namespace swingTwistRange {
     const basis: swingTwistBasis.IBasis = swingTwistBasis.of(joint.axes);
     const reading: IReading = read(q, joint);
     const interval: IAutoMovieAngleRange = constraint.swingTwist!.twist;
-    const turned: number = swingTwistBasis.alias(reading.twist, interval);
+    const turned: number = nearestAngleAlias(reading.twist, interval);
     const twist: number = swingTwistBasis.clamp(
       turned,
       interval.min,
@@ -242,7 +252,7 @@ export namespace swingTwistRange {
         : swingTwistBasis.direction(basis, swing, reading.azimuth);
     return Quaternion.normalize(
       Quaternion.multiply(
-        arc(basis.u, direction),
+        rotationBetween(basis.u, direction),
         Quaternion.fromAxisAngle(
           basis.u,
           toRigAngle(twist, joint.frame?.twist)!,
@@ -261,7 +271,7 @@ export namespace swingTwistRange {
    * @returns The radius, degrees.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the reading and its interpolation.
-   * @evidence contracts/development/implementation.md#principled-implementation The radius is read on `RAYS` great circles once, from the farthest reached swing on each, found by a scan from the far end and a bisection, widened for a proximal twist by the reach of every twist in its interval, raised to turn no faster than `SLOPE` with the azimuth, and interpolated linearly between them, which is continuous in the azimuth.
+   * @evidence contracts/development/implementation.md#principled-implementation The radius is read on `swingTwistBasis.RAYS` great circles once, from the farthest reached swing on each, found by a scan from the far end and a bisection, widened for a proximal twist by the reach of every twist in its interval, raised to turn no faster than `SLOPE` with the azimuth, and interpolated linearly between them, which is continuous in the azimuth.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One table lookup and one interpolation.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scan runs from the far end, so a ray the ranges leave and re-enter keeps its farthest reach: the radius is the star's, not the first exit's. `SLOPE` (3) is provisional; `SCAN` and `HALVINGS` are resolutions, not fitted to a case.
    * @evidence contracts/development/implementation.md#efficient-algorithms The table is built once per constraint and basis and kept.
@@ -274,27 +284,11 @@ export namespace swingTwistRange {
     azimuth: number,
   ): number {
     const table: Float64Array = swingTwistRegion.table(constraint, joint);
-    const at: number = (((azimuth % 360) + 360) % 360) / (360 / RAYS);
-    const before: number = Math.floor(at) % RAYS;
-    const after: number = (before + 1) % RAYS;
+    const rays: number = swingTwistBasis.RAYS;
+    const at: number = positiveModulo(azimuth, 360) / (360 / rays);
+    const before: number = Math.floor(at) % rays;
+    const after: number = (before + 1) % rays;
     const share: number = at - Math.floor(at);
     return table[before]! + (table[after]! - table[before]!) * share;
   }
-}
-
-/** A joint's unit axes: `u` its limb's rest direction (the twist axis), `f` and `a` its flexion and abduction axes, `w` the flexion's turn of `u`. */
-
-/** The shortest turn from one unit direction to another. */
-function arc(
-  from: IAutoMovieVector3,
-  to: IAutoMovieVector3,
-): IAutoMovieQuaternion {
-  const axis: IAutoMovieVector3 = Vector3.cross(from, to);
-  const sine: number = Vector3.length(axis);
-  const cosine: number = Vector3.dot(from, to);
-  if (sine < 1e-12) return Quaternion.identity();
-  return Quaternion.fromAxisAngle(
-    Vector3.scale(axis, 1 / sine),
-    Math.atan2(sine, cosine) * DEG,
-  );
 }

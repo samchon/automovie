@@ -1,5 +1,4 @@
 import {
-  IAutoMovieAngleRange,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieQuaternion,
@@ -8,6 +7,7 @@ import {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { nearestAngleAlias } from "../math/nearestAngleAlias";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { IAutoMovieJointRotationDomain } from "./IAutoMovieJointRotationDomain";
@@ -37,35 +37,6 @@ const QUATERNION_AXES: readonly ["x", "y", "z", "w"] = ["x", "y", "z", "w"];
  * right angle, stay active.
  */
 const GIMBAL_COSINE_EPSILON: number = Math.sqrt(Number.EPSILON);
-
-/**
- * Choose the full-turn alias of an angle nearest its admitted range: one
- * inside the range when any is, otherwise the alias with the least overshoot
- * (the lower one on a tie); never clamp an angle.
- *
- * The nearest alias matters for a range no alias can hit exactly. An immobile
- * axis admits only 0, and an extraction returns its half turn as 180 degrees
- * less a rounding error, so the alternate chart's 360 degrees less that error
- * has no alias at exactly 0; left unaliased it would score a full turn of
- * overshoot and lose the chart choice to a far worse chart, on rounding
- * noise alone.
- */
-const periodicAngle: (
-  angle: number,
-  range: IAutoMovieAngleRange | null,
-) => number = (angle: number, range: IAutoMovieAngleRange | null): number => {
-  const minimum: number = range?.min ?? 0;
-  const maximum: number = range?.max ?? 0;
-  if (angle >= minimum && angle <= maximum) return angle;
-  const first: number = Math.ceil((minimum - angle) / 360);
-  const last: number = Math.floor((maximum - angle) / 360);
-  if (first <= last) return angle + 360 * Math.max(first, Math.min(last, 0));
-  // No alias is inside: `last` is the nearest one below the range and `first`
-  // the nearest one above it.
-  const below: number = angle + 360 * last;
-  const above: number = angle + 360 * first;
-  return minimum - below <= above - maximum ? below : above;
-};
 
 const assertFiniteQuaternion: (q: IAutoMovieQuaternion) => void = (
   q: IAutoMovieQuaternion,
@@ -104,7 +75,7 @@ const assertFiniteQuaternion: (q: IAutoMovieQuaternion) => void = (
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the caller must have done to the basis, why the split exists, that the conventions are `decomposeJointRotation`'s, what is thrown and what an unnormalized basis silently gives.
  * @evidence contracts/development/implementation.md#principled-implementation Closed-form Euler extraction reads each angle's sine and projected cosine through atan2; a projected cosine within the square root of the binary64 unit roundoff, where a rounding error and the pin's truncation error meet, takes the undetermined-angle convention. Among the principal chart, the alternate chart and each angle's full-turn alias nearest its range, the least ROM overshoot wins, and every candidate is the same rotation. A constraint's `swingTwist` is set aside while the readings are ranked, since both readings of one rotation lie equally inside such a gate; the three-angle box ranks them, so the reading a pose reports stays the one it always was.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The extraction, the handedness correction, the clinical lift and the chart choice sit in one inverse because each depends on the others' convention; ROM scoring is delegated to `jointRomOvershoot` and frame arithmetic to `toClinicalAngle`, and `decomposeJointRotation` is this function behind one normalization.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The extraction, the handedness correction, the clinical lift and the chart choice sit in one inverse because each depends on the others' convention; ROM scoring is delegated to `jointRomOvershoot`, the alias to `nearestAngleAlias` and frame arithmetic to `toClinicalAngle`, and `decomposeJointRotation` is this function behind one normalization.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Selection compares the caller's unchanged constraint and never clamps an angle into range; the gimbal pin is the standard convention for an undetermined pair, and no bone is special-cased.
  * @evidence contracts/development/implementation.md#efficient-algorithms Three vector rotations, a few dot products and at most three overshoot scores in constant time; taking the basis already normalized removes one validation and normalization from each of the hundreds of candidates a limb fit decomposes.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller normalizes a joint's basis once per solve and passes it to every call, which is the reason this entry exists beside `decomposeJointRotation`.
@@ -164,9 +135,9 @@ export const decomposeJointRotationOnBasis: (
     ) => IAutoMovieResolvedJointAngles = (
       candidate: IAutoMovieResolvedJointAngles,
     ): IAutoMovieResolvedJointAngles => ({
-      flexion: periodicAngle(candidate.flexion, constraint.flexion),
-      abduction: periodicAngle(candidate.abduction, constraint.abduction),
-      twist: periodicAngle(candidate.twist, constraint.twist),
+      flexion: nearestAngleAlias(candidate.flexion, constraint.flexion),
+      abduction: nearestAngleAlias(candidate.abduction, constraint.abduction),
+      twist: nearestAngleAlias(candidate.twist, constraint.twist),
     });
     const alternate: IAutoMovieResolvedJointAngles = clinical(
       alternateRigJointAngles(rig, basis.twistPlacement, handed),

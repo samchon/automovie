@@ -61,7 +61,7 @@ const SKELETON: IAutoMovieSkeleton = {
  *    the clamp output remains finite.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs clampJointRom/clampPose and observes override/default/unconstrained values, null preservation, root preservation and neutral repair of specified nonfinite angles.
- * @evidence contracts/development/testing.md#independent-expectations The authored elbow override caps120 at90 and immobile abduction at0; current engine defaults supply shoulder min-60 and elbow max150, while null remains rest. These defaults are API conventions, not independently sourced clinical norms.
+ * @evidence contracts/development/testing.md#independent-expectations The authored elbow override caps120 at90 and immobile abduction at0; current engine defaults supply the wrist's (leftHand) flexion min -80 and the elbow's max 150, while null remains rest. These defaults are API conventions, not independently sourced clinical norms.
  * @evidence contracts/development/testing.md#distinguishing-cases Override/default/absent-bone/unconstrained paths, in-range/null axes, borrowed root and NaN/Infinity repair contrast projection with preservation; coupled cone behavior and broad fixed-point sweeps have separate tests.
  * @evidence contracts/development/testing.md#execution-ownership The named test_rom_clamp_pose entry directly executes portable synchronous angular projection on existing records, without new Human assets, live inspection or physiological validation.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Per-bone override: leftLowerArm flexion 120 → 90 (above max), its `null`).

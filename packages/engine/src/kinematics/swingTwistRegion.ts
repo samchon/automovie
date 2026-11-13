@@ -7,6 +7,8 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { nearestAngleAlias } from "../math/nearestAngleAlias";
+import { positiveModulo } from "../math/positiveModulo";
 import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { swingConeAngle } from "../rom/swingConeAngle";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
@@ -55,36 +57,46 @@ export namespace swingTwistRegion {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the table, its units and that it is kept.
    * @evidence contracts/development/implementation.md#principled-implementation Each radius is the farthest reached swing found by a scan from the far end and a bisection, widened for a proximal twist and raised to the slope bound.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A lookup, and the build in three steps on a miss.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A lookup by identity, and the build in three steps on a miss.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scan runs from the far end, so a ray the ranges leave and re-enter keeps its farthest reach. `SLOPE` (3) is provisional; `SCAN` and `HALVINGS` are resolutions.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The table is built once per constraint and frame.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A hit is three map reads by identity, no serialization; a miss builds the table once per constraint, axes and frame: on each of `swingTwistBasis.RAYS` (360) rays a scan of up to 360 half-degree steps and 20 bisections, each one reach test of two flexions; the widening reads one ray per degree of the twist's interval; the raise compares every pair of rays, 360 squared.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Every call after the first reads the kept table.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The tables are kept in a WeakMap keyed by the constraint object and released with it.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The tables are kept in weak maps keyed by the constraint and the axes and released with either; the frame map under them holds the rest-frame records, which are table constants.
    */
   export function table(
     constraint: IAutoMovieJointConstraint,
     joint: IJoint,
   ): Float64Array {
-    let byJoint: Map<string, Float64Array> | undefined = TABLES.get(constraint);
-    if (byJoint === undefined) {
-      byJoint = new Map();
-      TABLES.set(constraint, byJoint);
+    let byAxes:
+      | WeakMap<IAutoMovieJointAxes, Map<object, Float64Array>>
+      | undefined = TABLES.get(constraint);
+    if (byAxes === undefined) {
+      byAxes = new WeakMap();
+      TABLES.set(constraint, byAxes);
     }
-    const key: string = JSON.stringify([joint.axes, joint.frame ?? null]);
-    let kept: Float64Array | undefined = byJoint.get(key);
+    let byFrame: Map<object, Float64Array> | undefined = byAxes.get(joint.axes);
+    if (byFrame === undefined) {
+      byFrame = new Map();
+      byAxes.set(joint.axes, byFrame);
+    }
+    const frame: object = joint.frame ?? NO_FRAME;
+    let kept: Float64Array | undefined = byFrame.get(frame);
     if (kept === undefined) {
       kept = build(constraint, joint);
-      byJoint.set(key, kept);
+      byFrame.set(frame, kept);
     }
     return kept;
   }
 }
 
-/** The radius tables, per constraint and per frame. */
+/** The radius tables, by the identity of the constraint, the axes and the rest frame: the tables of a rig are kept as long as its records are. */
 const TABLES: WeakMap<
   IAutoMovieJointConstraint,
-  Map<string, Float64Array>
+  WeakMap<IAutoMovieJointAxes, Map<object, Float64Array>>
 > = new WeakMap();
+
+/** The key of a joint read with no rest frame. */
+const NO_FRAME: object = Object.freeze({});
 
 /** The fastest the region's radius may change with the azimuth, degrees per degree (provisional: three, so a projection's step is at most about three times the azimuth's step). */
 const SLOPE: number = 3;
@@ -116,7 +128,7 @@ function reach(
   const table: Float64Array = new Float64Array(swingTwistBasis.RAYS);
   for (let ray: number = 0; ray < swingTwistBasis.RAYS; ++ray) {
     const azimuth: number = (360 * ray) / swingTwistBasis.RAYS;
-    const inside = (swing: number): boolean =>
+    const inside: (swing: number) => boolean = (swing: number): boolean =>
       reached(
         constraint,
         joint,
@@ -167,10 +179,10 @@ function widen(
   for (let ray: number = 0; ray < swingTwistBasis.RAYS; ++ray) {
     let most: number = table[ray]!;
     for (let shift: number = low; shift <= high + 1e-9; shift += width) {
-      const from: number =
-        ((Math.round(ray - shift / width) % swingTwistBasis.RAYS) +
-          swingTwistBasis.RAYS) %
-        swingTwistBasis.RAYS;
+      const from: number = positiveModulo(
+        Math.round(ray - shift / width),
+        swingTwistBasis.RAYS,
+      );
       most = Math.max(most, table[from]!);
     }
     turned[ray] = most;
@@ -219,12 +231,15 @@ function reached(
 ): boolean {
   const flexion: IAutoMovieAngleRange = constraint.flexion!;
   const abduction: IAutoMovieAngleRange = constraint.abduction!;
-  const admits = (rigFlexion: number, rigAbduction: number): boolean => {
-    const f: number = swingTwistBasis.alias(
+  const admits: (rigFlexion: number, rigAbduction: number) => boolean = (
+    rigFlexion: number,
+    rigAbduction: number,
+  ): boolean => {
+    const f: number = nearestAngleAlias(
       toClinicalAngle(rigFlexion, joint.frame?.flexion)!,
       flexion,
     );
-    const a: number = swingTwistBasis.alias(
+    const a: number = nearestAngleAlias(
       toClinicalAngle(rigAbduction, joint.frame?.abduction)!,
       abduction,
     );

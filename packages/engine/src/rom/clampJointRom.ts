@@ -6,11 +6,9 @@ import {
 } from "@automovie/interface";
 
 import { IAutoMovieResolvedJointAngles } from "../kinematics/IAutoMovieResolvedJointAngles";
-import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
 import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
-import { HUMANOID_REST_FRAME } from "./constants/HUMANOID_REST_FRAME";
 import { swingConeBlend } from "./swingConeBlend";
 
 const clampAxis: (
@@ -33,7 +31,12 @@ const clampAxis: (
 /**
  * Project one joint into admitted axis intervals, preserving null rest and forcing specified immobile axes to zero. Specified nonfinite angles first become neutral. A swing cap blends toward the box point nearest neutral; unrestricted multi-turn overrides are outside the bisection's monotonic-segment guarantee.
  *
- * A ball joint whose constraint declares `swingTwist`, on a bone the humanoid tables name, is instead brought into its range as a rotation (`swingTwistRange.project`: its direction along its great circle from rest, its twist clamped) and read back in the reading the three-angle box prefers; a joint already inside comes back as given.
+ * A ball joint whose constraint declares `swingTwist`, on a bone with axes in its frame (the caller's `rig`, or the humanoid tables' through `swingTwistRange.of`), is instead brought into its range as a rotation (`swingTwistRange.project`: its direction along its great circle from rest, its twist clamped) and read back in the reading the three-angle box prefers; a joint already inside comes back as given.
+ *
+ * @param joint The joint's clinical angles.
+ * @param constraint Its resolved range.
+ * @param rig The bone's frame as the caller's rig resolves it; the humanoid tables' when absent.
+ * @returns The joint in range.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Project finite-or-repaired axes into admitted intervals, force specified immobile axes to zero, preserve null rest and blend swing toward the box-nearest-neutral point.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Axis projection and combined swing are distinct constraints; swingConeBlend supplies fixed bisection and the result preserves bone identity.
@@ -46,25 +49,24 @@ const clampAxis: (
 export const clampJointRom: (
   joint: IAutoMovieJointPose,
   constraint: IAutoMovieJointConstraint,
+  rig?: swingTwistRange.IJoint,
 ) => IAutoMovieJointPose = (
   joint: IAutoMovieJointPose,
   constraint: IAutoMovieJointConstraint,
+  rig?: swingTwistRange.IJoint,
 ): IAutoMovieJointPose => {
   // A ball joint gated by swing and twist is brought into its range as a
   // rotation (`swingTwistRange.project`) and read back in the reading the
   // three-angle box prefers.
-  if (
-    constraint.swingTwist !== undefined &&
-    constraint.swingTwist !== null &&
-    HUMANOID_JOINT_AXES[joint.bone] !== undefined
-  ) {
-    const range: swingTwistRange.IJoint = {
-      axes: HUMANOID_JOINT_AXES[joint.bone]!,
-      frame: HUMANOID_REST_FRAME[joint.bone],
-    };
+  const range: swingTwistRange.IJoint | undefined =
+    constraint.swingTwist === undefined || constraint.swingTwist === null
+      ? undefined
+      : (rig ?? swingTwistRange.of(joint.bone));
+  if (range !== undefined) {
     // A non-finite angle first becomes its rest, as on every other joint.
-    const finite = (value: number | null): number | null =>
-      value === null || Number.isFinite(value) ? value : 0;
+    const finite: (value: number | null) => number | null = (
+      value: number | null,
+    ): number | null => (value === null || Number.isFinite(value) ? value : 0);
     const sanitized: IAutoMovieJointPose = {
       bone: joint.bone,
       flexion: finite(joint.flexion),

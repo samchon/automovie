@@ -4,6 +4,7 @@ import {
   IAutoMovieJointPose,
 } from "@automovie/interface";
 
+import type { swingTwistRange } from "../kinematics/swingTwistRange";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { scanJointRom } from "./scanJointRom";
 
@@ -23,6 +24,7 @@ export const validateJointRom: (props: {
   constraint: IAutoMovieJointConstraint;
   path: string;
   collector: ViolationCollector;
+  rig?: swingTwistRange.IJoint;
 }) => void = (props: {
   /** Borrowed joint angles in the constraint's degree frame; null means rest. */
   joint: IAutoMovieJointPose;
@@ -35,6 +37,9 @@ export const validateJointRom: (props: {
 
   /** Caller-owned append-only diagnostic sink, advanced by this validation. */
   collector: ViolationCollector;
+
+  /** The bone's frame as the caller's rig resolves it, for a joint gated by swing and twist; the humanoid tables' when absent. */
+  rig?: swingTwistRange.IJoint;
 }): void => {
   const {
     joint,
@@ -106,5 +111,6 @@ export const validateJointRom: (props: {
           overshoot,
         );
     },
+    props.rig,
   );
 };

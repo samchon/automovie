@@ -4,10 +4,9 @@ import {
   IAutoMovieJointPose,
 } from "@automovie/interface";
 
-import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
-import { HUMANOID_REST_FRAME } from "./constants/HUMANOID_REST_FRAME";
+import { nearestAngleAlias } from "../math/nearestAngleAlias";
 import { swingConeAngle } from "./swingConeAngle";
 
 const AXES: readonly ["flexion", "abduction", "twist"] = [
@@ -34,18 +33,19 @@ const AXES: readonly ["flexion", "abduction", "twist"] = [
  * rotation, `0`, and overshoots by what it exceeds `swingDeg`.
  *
  * A ball joint whose constraint declares `swingTwist` is measured by its
- * rotation instead (`swingTwistRange`), with the humanoid's axes and rest
- * frame for its bone: a `swing` fault by the degrees its direction lies past
+ * rotation instead (`swingTwistRange`), in the frame of its bone the caller's
+ * rig resolves (`rig`), or the humanoid tables' (`swingTwistRange.of`): a `swing` fault by the degrees its direction lies past
  * the reach of its flexion and abduction ranges, then a `twist` fault by the
  * degrees its turn about its own axis lies past `swingTwist.twist`. A
  * non-finite angle is reported as above and nothing else is measured. A bone
- * the humanoid tables do not name keeps the three-angle scan.
+ * with no axes in that frame keeps the three-angle scan.
  *
  * @param joint Joint angles in the constraint's degree frame; `null` is rest.
  * @param constraint Finite ordered axis intervals and an optional swing cone.
  * @param report Called once per fault with the faulted part, the measured
  *   value in degrees and its overshoot in degrees, `undefined` for a
  *   non-finite value.
+ * @param rig The bone's frame as the caller's rig resolves it (`swingTwistRange.of(bone, skeleton)`); the humanoid tables' when absent.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States who reads the scan and why it builds no message, the report order, what `null`, `0` and a non-finite angle mean on each kind of axis, how each overshoot is measured, the swing coupling, and each callback argument's unit.
  * @evidence contracts/development/implementation.md#principled-implementation An interval's overshoot is the distance to its nearer bound and an immobile axis's is the whole angle, the distances a clamp would move the joint; the swing is measured by `swingConeAngle` on the rotation the renderer reads, so a resting axis counts as its actual 0.
@@ -63,6 +63,7 @@ export const scanJointRom: (
     actual: number,
     overshoot: number | undefined,
   ) => void,
+  rig?: swingTwistRange.IJoint,
 ) => void = (
   joint: IAutoMovieJointPose,
   constraint: IAutoMovieJointConstraint,
@@ -71,27 +72,33 @@ export const scanJointRom: (
     actual: number,
     overshoot: number | undefined,
   ) => void,
+  rig?: swingTwistRange.IJoint,
 ): void => {
   // A ball joint gated by swing and twist reads its rotation, not its three
   // angles: the swing past the reach of its flexion and abduction ranges,
-  // then the twist past its interval. Its axes and rest frame are the
-  // humanoid's own tables, the frame its clinical angles are written in.
+  // then the twist past its interval, in the frame its clinical angles are
+  // written in: the caller's rig's, or the humanoid tables'.
+  const range: swingTwistRange.IJoint | undefined =
+    constraint.swingTwist === undefined || constraint.swingTwist === null
+      ? undefined
+      : (rig ?? swingTwistRange.of(joint.bone));
   if (
+    range !== undefined &&
     constraint.swingTwist !== undefined &&
-    constraint.swingTwist !== null &&
-    HUMANOID_JOINT_AXES[joint.bone] !== undefined
+    constraint.swingTwist !== null
   ) {
     for (const axis of AXES) {
       const angle: number | null = joint[axis];
       if (angle !== null && !Number.isFinite(angle))
         report(axis, angle, undefined);
     }
-    if (AXES.some((axis): boolean => !Number.isFinite(joint[axis] ?? 0)))
+    if (
+      AXES.some(
+        (axis: (typeof AXES)[number]): boolean =>
+          !Number.isFinite(joint[axis] ?? 0),
+      )
+    )
       return;
-    const range: swingTwistRange.IJoint = {
-      axes: HUMANOID_JOINT_AXES[joint.bone]!,
-      frame: HUMANOID_REST_FRAME[joint.bone],
-    };
     const reading: swingTwistRange.IReading = swingTwistRange.read(
       jointToQuaternion(joint, range.axes, range.frame),
       range,
@@ -104,9 +111,7 @@ export const scanJointRom: (
     if (reading.swing > reach)
       report("swing", reading.swing, reading.swing - reach);
     const twist: IAutoMovieAngleRange = constraint.swingTwist.twist;
-    const turned: number =
-      reading.twist -
-      360 * Math.round((reading.twist - (twist.min + twist.max) / 2) / 360);
+    const turned: number = nearestAngleAlias(reading.twist, twist);
     if (turned < twist.min) report("twist", turned, twist.min - turned);
     else if (turned > twist.max) report("twist", turned, turned - twist.max);
     return;

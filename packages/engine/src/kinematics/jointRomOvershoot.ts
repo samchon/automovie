@@ -4,6 +4,7 @@ import {
 } from "@automovie/interface";
 
 import { scanJointRom } from "../rom/scanJointRom";
+import type { swingTwistRange } from "./swingTwistRange";
 
 /**
  * The total range-of-motion overshoot of one joint's clinical angles, in
@@ -19,6 +20,7 @@ import { scanJointRom } from "../rom/scanJointRom";
  *
  * @param joint Clinical angles of one joint; `null` axes are at rest.
  * @param constraint The joint's resolved ROM, or `null` when unconstrained.
+ * @param rig The bone's frame as the caller's rig resolves it, for a joint gated by swing and twist; the humanoid tables' when absent.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Reduces the gate's own per-axis and swing-cone violations to one comparable sum, so ordering by it is ordering by the gate's distances; a violation without a measured distance is a non-finite angle, which the sum treats as infinitely far instead of free.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Sums `scanJointRom`'s faults instead of restating its limits, so `decomposeJointRotation`'s chart choice and `reachPose`'s candidate scoring read exactly the rule `validatePose` enforces.
@@ -31,9 +33,11 @@ import { scanJointRom } from "../rom/scanJointRom";
 export const jointRomOvershoot: (
   joint: IAutoMovieJointPose,
   constraint: IAutoMovieJointConstraint | null,
+  rig?: swingTwistRange.IJoint,
 ) => number = (
   joint: IAutoMovieJointPose,
   constraint: IAutoMovieJointConstraint | null,
+  rig?: swingTwistRange.IJoint,
 ): number => {
   if (constraint === null) return 0;
   let total: number = 0;
@@ -52,6 +56,7 @@ export const jointRomOvershoot: (
     ): void => {
       total += overshoot ?? Number.POSITIVE_INFINITY;
     },
+    rig,
   );
   return total;
 };

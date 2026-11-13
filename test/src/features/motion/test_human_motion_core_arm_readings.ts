@@ -126,8 +126,8 @@ export function test_human_motion_core_arm_readings(): void {
     Math.hypot(p.x - q.x, p.y - q.y, p.z - q.z);
   const turn: number =
     (Quaternion.angle(rotations[0]!, rotations[1]!) * 180) / Math.PI;
-  const rooms: number[] = rotations.map((q: IAutoMovieQuaternion): number =>
-    swingTwistRange.room(q, constraint, joint),
+  const pasts: number[] = rotations.map((q: IAutoMovieQuaternion): number =>
+    swingTwistRange.overshoot(q, constraint, joint),
   );
   if (!(turn <= 5))
     complaints.push(
@@ -136,7 +136,7 @@ export function test_human_motion_core_arm_readings(): void {
   for (const k of [0, 1] as const)
     if (!(apart(shown[k]!, written[k]!) <= 1e-4))
       complaints.push(
-        `frame ${k}: the little finger is shown ${(apart(shown[k]!, written[k]!) * 1000).toFixed(2)} mm from where its angles put it (the shoulder ${rooms[k]!.toFixed(2)} degrees inside its range), within 0.1 mm expected`,
+        `frame ${k}: the little finger is shown ${(apart(shown[k]!, written[k]!) * 1000).toFixed(2)} mm from where its angles put it (the shoulder ${pasts[k]!.toFixed(2)} degrees past its range), within 0.1 mm expected`,
       );
   if (!(apart(shown[0]!, shown[1]!) <= apart(written[0]!, written[1]!) + 1e-4))
     complaints.push(

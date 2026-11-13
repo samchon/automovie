@@ -1,5 +1,4 @@
 import type {
-  IAutoMovieAngleRange,
   IAutoMovieJointAxes,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -10,7 +9,8 @@ import { normalizeJointAxes } from "./normalizeJointAxes";
 /**
  * The frame a ball joint's swing and twist are read in: its unit axes, the
  * great circle (azimuth) a direction lies on, the direction a swing along a
- * circle reaches, and the angle arithmetic the reading shares.
+ * circle reaches, and the clamp the reading shares; angles wrap and alias by
+ * the engine's `wrapDegrees` and `nearestAngleAlias`.
  *
  * `swingTwistRange` reads and bounds a rotation, and the region's radius table
  * is built in the same frame (`swingTwistRegion`); both take it from here so
@@ -18,7 +18,7 @@ import { normalizeJointAxes } from "./normalizeJointAxes";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frame, its members and their units.
  * @evidence contracts/development/design.md#principled-representation The rest direction, the flexion axis and their cross product span the planes the great circles lie in; angles are degrees.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The frame, the circle of a direction, the direction of a circle and three angle functions, each read by both owners of the swing-twist range.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The frame, the circle of a direction, the direction of a circle and a clamp, each read by both owners of the swing-twist range.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No joint is named; the axes are the caller's.
  */
 export namespace swingTwistBasis {
@@ -138,50 +138,6 @@ export namespace swingTwistBasis {
         Vector3.scale(basis.e2, Math.sin(s) * Math.sin(t)),
       ),
     );
-  }
-
-  /**
-   * An angle's full-turn alias nearest an interval, the one inside it when
-   * any is.
-   *
-   * @param angle Degrees.
-   * @param range The interval.
-   * @returns The alias, degrees.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the alias chosen.
-   * @evidence contracts/development/implementation.md#principled-implementation The alias nearest the interval's middle, then its neighbours when that one lies outside and another lies inside.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One rounding and one scan of two neighbours.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function alias(angle: number, range: IAutoMovieAngleRange): number {
-    const middle: number = (range.min + range.max) / 2;
-    const near: number = angle - 360 * Math.round((angle - middle) / 360);
-    if (near >= range.min && near <= range.max) return near;
-    for (const other of [near - 360, near + 360])
-      if (other >= range.min && other <= range.max) return other;
-    return near;
-  }
-
-  /**
-   * An angle wrapped to (-180, 180].
-   *
-   * @param degrees Degrees.
-   * @returns The wrapped angle, 180 for a half turn either way.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the interval and the end it keeps.
-   * @evidence contracts/development/implementation.md#principled-implementation Whole turns are taken off by rounding.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One rounding.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function wrap(degrees: number): number {
-    const turned: number = degrees - 360 * Math.round(degrees / 360);
-    return turned === -180 ? 180 : turned;
   }
 
   /**
