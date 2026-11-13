@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { Quaternion, minimumJerk } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -29,8 +29,10 @@ import { HumanPrehension } from "./HumanPrehension";
  * fingers and returns the hand to where it hangs; inverse kinematics solves
  * the arm, whose reference (`IHumanPosture.IGoal.reference`) passes from the
  * configuration it carried the prop in to the offer's own solution with the
- * transport's progress and back on the way home, and the rest of the body
- * holds the posture it was entered in. The
+ * transport's progress and back on the way home; on the way out the prop is
+ * turned about the vertical where the arm keeps it upright so, back to the
+ * offer's own turn at the handover point (`HumanHandover.upright`); and the
+ * rest of the body holds the posture it was entered in. The
  * prop rides the giver's hand until the receiver's grip closes, then the
  * receiver's (the latest grip carries a prop), so it never jumps.
  *
@@ -201,6 +203,77 @@ export namespace handOver {
         share,
       ),
     });
+    // The body at a second with the held hand turned by a yaw, degrees,
+    // about the world's up. The offer's rotation is shared with the
+    // receiver's grip, so the way out keeps it at both ends and chooses the
+    // turn between them its arm meets with the prop upright
+    // (`HumanHandover.upright`).
+    const pose = (seconds: number, yaw: number): IHumanPosture => {
+      const t: number = Math.min(duration, Math.max(0, seconds));
+      let wrist: IAutoMovieVector3;
+      let rotation: IAutoMovieQuaternion;
+      let digits: IHumanPosture["joints"] = closed;
+      let share: number = 1;
+      if (t <= shared.offer) {
+        wrist = out.wrist(t);
+        rotation = Quaternion.multiply(
+          Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
+          out.turn(t),
+        );
+        share = minimumJerk(t / shared.offer).s;
+      } else if (t <= pullback) {
+        wrist = shared.giverAt.point;
+        rotation = shared.giverAt.rotation;
+      } else if (opens && t <= pullback + OPEN) {
+        wrist = shared.giverAt.point;
+        rotation = shared.giverAt.rotation;
+        digits = HumanPrehension.shape(
+          { entry: closed, open: flat, closed: flat },
+          1,
+          minimumJerk((t - pullback) / OPEN).s,
+        );
+      } else {
+        const r: number = t - pullback - (opens ? OPEN : 0);
+        wrist = home.wrist(r);
+        rotation = home.turn(r);
+        share = 1 - minimumJerk(r / back).s;
+        if (opens)
+          digits = HumanPrehension.shape(
+            { entry: flat, open: relaxed, closed: relaxed },
+            1,
+            r / back,
+          );
+      }
+      return {
+        ...held,
+        joints: { ...held.joints, ...digits },
+        limbs: {
+          ...held.limbs,
+          [limb]: {
+            point: wrist,
+            rotation,
+            bend,
+            // Each named instant's solution counts in full at its instant.
+            // Between them the blend is no arm's solution of the goal
+            // there, so it only keeps the arm on its side and gives way to
+            // the hand's rotation, which holds the prop upright.
+            reference: {
+              ...between(share),
+              weight: (2 * share - 1) ** 2,
+            },
+            ...(t >= shared.offer && t <= pullback ? { planted: true } : {}),
+          },
+        },
+      };
+    };
+    const turn: (seconds: number) => number = HumanHandover.upright(
+      body,
+      side,
+      pose,
+      0,
+      shared.offer,
+      [0, 0],
+    );
     const part: IHumanContactWindow["part"] =
       side === "left" ? "leftHand" : "rightHand";
     return {
@@ -233,61 +306,7 @@ export namespace handOver {
         },
       ],
       contact: shared.offer,
-      posture: (seconds: number): IHumanPosture => {
-        const t: number = Math.min(duration, Math.max(0, seconds));
-        let wrist: IAutoMovieVector3;
-        let rotation: IAutoMovieQuaternion;
-        let digits: IHumanPosture["joints"] = closed;
-        let share: number = 1;
-        if (t <= shared.offer) {
-          wrist = out.wrist(t);
-          rotation = out.turn(t);
-          share = minimumJerk(t / shared.offer).s;
-        } else if (t <= pullback) {
-          wrist = shared.giverAt.point;
-          rotation = shared.giverAt.rotation;
-        } else if (opens && t <= pullback + OPEN) {
-          wrist = shared.giverAt.point;
-          rotation = shared.giverAt.rotation;
-          digits = HumanPrehension.shape(
-            { entry: closed, open: flat, closed: flat },
-            1,
-            minimumJerk((t - pullback) / OPEN).s,
-          );
-        } else {
-          const r: number = t - pullback - (opens ? OPEN : 0);
-          wrist = home.wrist(r);
-          rotation = home.turn(r);
-          share = 1 - minimumJerk(r / back).s;
-          if (opens)
-            digits = HumanPrehension.shape(
-              { entry: flat, open: relaxed, closed: relaxed },
-              1,
-              r / back,
-            );
-        }
-        return {
-          ...held,
-          joints: { ...held.joints, ...digits },
-          limbs: {
-            ...held.limbs,
-            [limb]: {
-              point: wrist,
-              rotation,
-              bend,
-              // Each named instant's solution counts in full at its instant.
-              // Between them the blend is no arm's solution of the goal
-              // there, so it only keeps the arm on its side and gives way to
-              // the hand's rotation, which holds the prop upright.
-              reference: {
-                ...between(share),
-                weight: (2 * share - 1) ** 2,
-              },
-              ...(t >= shared.offer && t <= pullback ? { planted: true } : {}),
-            },
-          },
-        };
-      },
+      posture: (seconds: number): IHumanPosture => pose(seconds, turn(seconds)),
     };
   }
 }
