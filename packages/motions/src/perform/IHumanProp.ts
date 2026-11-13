@@ -27,6 +27,17 @@ export interface IHumanProp {
     Record<string, { point: IAutoMovieVector3; normal: IAutoMovieVector3 }>
   >;
 
+  /**
+   * The prop's world frame at a film second, for a prop that moves by
+   * itself: a vehicle on its course, a horse at its gait, a lift. While
+   * set, the prop is where this says and no grip carries it; what bears on
+   * it (a rider's seat, a hand on its wheel) is carried with it.
+   *
+   * @param seconds Film seconds.
+   * @returns The frame.
+   */
+  motion?(seconds: number): IHumanProp.IFrame;
+
   /** Contact frames in the prop's frame (a handle's `+Y` approach and `+X` wrapped axis), which a grasp plans from by id. */
   affordances?: readonly IAutoMovieAffordance[];
 

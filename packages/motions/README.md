@@ -165,6 +165,36 @@ The chain method takes the parameters the row leaves open.
 **A law** is for an action that owns what no shipped action plans: a change of base, an outcome between performers, a planner of its own. It is a record satisfying `IHumanActionLaw<Params>`: a `name`, the cuts it allows (`interrupts`, and `accepts` for what may be cut into it) and a `plan`, composed from the kernel the vocabulary uses (a clock, a base and part primitives passed to `composeAutoMovieMotionHumanAction`). It is registered the same way.
 
 A registered name never replaces a vocabulary name, and registering changes no other action's motion.
+## Lexicon
+
+Named rows over the shipped actions, ready to register. Each namespace is one family; a row leaves open only what the scene decides (a target, a partner, a destination).
+
+| Namespace | Rows |
+| --- | --- |
+| `HumanEmblem` | `salute`, `hush`, `palmsTogether`, `handOnHeart`, `blownKiss`, `facepalm`, `handsUp`, `halt`, `comeHere`, `dontKnow` |
+| `HumanHabit` | `smoke`, `photograph`, `checkPhone`, `checkWatch`, `applyLipstick`, `shave`, `rubEyes`, `scratchNape` |
+| `HumanStance` | `armsCrossed`, `handsOnHips`, `handsInPockets`, `paradeRest`, `handsClasped`, `handsBehindHead`, `thinking`, `victory`, `fistPump`, `bigStretch`, `neckRoll` |
+| `HumanGait` | `stroll`, `hurry`, `march`, `sneak`, `trudge`, `swagger`, `jog`, `sprint` |
+| `HumanPursuit` | `follow`, `escort`, `chase`, `confront` |
+| `HumanSocial` | `whisper`, `cheekKiss`, `foreheadKiss`, `shoulderPat`, `comfort`, `fistBump`, `lowFive`, `toastSip`, and the mutual records `bump` and `toast` |
+| `HumanStageFight` | `slap`, `backhand`, `shove`, `grab`, `poke`, `restrain` |
+| `HumanDrill` | `jab`, `cross`, `hook`, `uppercut`, `frontKick`, `roundKick`, `southpaw`, `aim`, `squats`, `jumpingJacks`, `sway` |
+| `HumanBlade` | `enGarde`, `cut`, `slash`, `thrust`, `draw` (the arm's stroke only, for now) |
+| `HumanLabour` | `carryBox`, `carryBag`, `carryOnHip`, `pushCart`, `haul`, `hammer`, `saw`, `stir`, `screw`, `scrub`, `toss`, `hurl` |
+| `HumanRide` | `ride`: a seated person carried by a prop that moves by itself (`HumanObject.prop` with a motion) |
+
+```ts
+const { salute } = HumanEmblem;
+const { slap } = HumanStageFight;
+const Chain = HumanChain.extend({ salute, slap });
+new HumanPerformance({
+  seed,
+  performers,
+  laws: [salute, slap],
+  composition: Chain.subject("a").salute().slap({ target: { kind: "person", subject: "b", region: "jawLeft" } }).node,
+});
+```
+
 ## Refusals
 
 A composition the vocabulary cannot perform throws a `HumanRefusal` when the performance is built. It names the performer, the action and its occurrence, the axis at fault, the value given, what the axis accepts and one sentence saying what to change, as fields and in its message:

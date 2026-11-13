@@ -81,6 +81,7 @@ export namespace HumanObject {
    * @param subject The prop's subject id in the performance.
    * @param model The object.
    * @param placement Where it rests before any hand takes it.
+   * @param motion Where it is at a film second, for an object that moves by itself, such as a vehicle on its course; it stays at its placement when absent.
    * @returns The prop.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the prop offers the actions and how a contact becomes a target.
@@ -95,6 +96,7 @@ export namespace HumanObject {
     subject: string,
     model: IModel,
     placement: Placement,
+    motion?: (seconds: number) => Placement,
   ): IHumanProp {
     const affordances: readonly IAutoMovieAffordance[] =
       model.affordances ?? [];
@@ -118,6 +120,12 @@ export namespace HumanObject {
       ),
       affordances,
       ...(shapes === undefined ? {} : { shapes }),
+      ...(motion === undefined
+        ? {}
+        : {
+            motion: (seconds: number): IHumanProp.IFrame =>
+              frame(motion(seconds)),
+          }),
     };
   }
 

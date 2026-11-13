@@ -368,6 +368,7 @@ export class HumanPerformance {
     const prop: IHumanProp | undefined = this.props.get(subject);
     if (prop === undefined)
       throw this.missing("prop", subject, [...this.props.keys()]);
+    if (prop.motion !== undefined) return prop.motion(seconds);
     const grips = this.grips(subject);
     // The latest grip still holding carries it; with none holding, the one released last left it.
     let active: (typeof grips)[number] | undefined;
