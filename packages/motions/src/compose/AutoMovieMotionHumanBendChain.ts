@@ -26,7 +26,14 @@ import type { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The chain is the engine's preparation; nothing is measured here.
  */
 export namespace AutoMovieMotionHumanBendChain {
-  /** An arm chain prepared on a posture's trunk. */
+  /**
+   * An arm chain prepared on a posture's trunk.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states what it holds and its unit: the engine's preparation, the shoulder in world metres, the arm's span in metres, the rig's clinical axes and the trunk's placed colliders in world metres.
+   * @evidence contracts/development/design.md#principled-representation Everything the swivel search reads that depends on the trunk alone: the chain the engine prepared, the shoulder and span derived from it, the clinical axes of the rig and the colliders the forearm must clear, all in the world frame.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Five members, all read by `AutoMovieMotionHumanBendSearch`; `prepared` and `axes` are the engine's own types, not restated.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The engine's preparation and axes types are derived from the engine's functions rather than declared again, and no member is optional, so a half-prepared chain cannot be written.
+   */
   export interface IChain {
     /** The engine's preparation of the chain. */
     prepared: NonNullable<ReturnType<typeof prepareChainPlant>>;

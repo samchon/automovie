@@ -51,7 +51,14 @@ export namespace AutoMovieMotionHumanBendSearch {
     Partial<Record<AutoMovieMotionHumanBend.Side, IAngles>>
   > = new WeakMap();
 
-  /** Three clinical angles of a joint, degrees. */
+  /**
+   * Three clinical angles of a joint, degrees.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States that the members are the clinical flexion, abduction and twist in degrees.
+   * @evidence contracts/development/design.md#principled-representation A ball joint's three clinical angles in degrees, the form the rig's range-of-motion tables and the hanging arm's reading use.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, all read by `ICandidate` and by the hanging-arm cache; no member is added for another joint.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts All three members are required and named by axis, not a positional tuple.
+   */
   export interface IAngles {
     /** Flexion. */
     flexion: number;
@@ -63,7 +70,14 @@ export namespace AutoMovieMotionHumanBendSearch {
     twist: number;
   }
 
-  /** One elbow place of a hand goal as the search reads it. */
+  /**
+   * One elbow place of a hand goal as the search reads it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame and unit: the elbow in world metres, the shoulder's angles in degrees, the overshoot in degrees (0 when the place is allowed) and the strain unitless.
+   * @evidence contracts/development/design.md#principled-representation A place on the swivel circle with the two readings the choice is made by: how far it is from being allowed (joints out of range plus the forearm inside its clearance, in degrees) and how strained the arm is.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members, all read by the rankings that `solve`, `level` and `strain` pass; the elbow is what the solver returns.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Allowed is the overshoot being 0, not a separate flag that could disagree with it.
+   */
   export interface ICandidate {
     /** The elbow's place, world metres. */
     elbow: IAutoMovieVector3;
@@ -78,7 +92,14 @@ export namespace AutoMovieMotionHumanBendSearch {
     strain: number;
   }
 
-  /** What the engine's swivel sweep orders candidates by: `overshoot` first, compared exactly, then `deviation`. */
+  /**
+   * What the engine's swivel sweep orders candidates by: `overshoot` first, compared exactly, then `deviation`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two keys, their order and that the first is compared exactly.
+   * @evidence contracts/development/design.md#principled-representation A lexicographic key of two numbers, legality before preference, the form the engine's swivel sweep orders candidates by.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, both read by the engine's sweep; each ranking the solver passes builds one.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The first key is compared exactly, so no tolerance lets a disallowed place outrank an allowed one.
+   */
   export interface IScore {
     /** The first key. */
     overshoot: number;
