@@ -13,9 +13,9 @@ import type { IAutoMovieInspectorAction } from "./IAutoMovieInspectorAction.js";
 /**
  * The playhead's slider and clock, the one component that reads the playhead and so the only one playback re-renders.
  *
- * Dragging the slider, which steps by one frame of the subject's grid, seeks the playhead and dispatches the second as a `time` edit, and so does playback stopping, by a pause or at the end, so the request names the picture left on screen.
+ * Dragging the slider, which steps by one frame of the subject's grid, seeks the playhead and dispatches the second as a `time` edit, and so does playback stopping, by a pause or at the end, so the request names the picture left on screen. The slider gives its second and frame as its value text, which a screen reader announces in place of the raw number.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what it shows, why it alone reads the playhead and when it edits the request.
+ * @evidence contracts/development/common.md#meaningful-documentation States what it shows, why it alone reads the playhead, when it edits the request and what it announces.
  * @evidence contracts/development/implementation.md#principled-implementation `useSyncExternalStore` is React's contract for reading an external store without tearing; the playhead's cached snapshot keeps it from rendering when nothing moved.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One read of the store, one input and one output.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Playback frames dispatch nothing; only a seek and the change from playing to stopped edit the request, and the first render, which stops nothing, edits nothing.
@@ -51,6 +51,11 @@ export function AutoMovieInspectorTimeReadout(props: {
       <input
         type="range"
         aria-label="Second"
+        aria-valuetext={
+          props.fps === null
+            ? `${snapshot.seconds.toFixed(2)} seconds`
+            : `${snapshot.seconds.toFixed(2)} seconds, frame ${Math.round(snapshot.seconds * props.fps)} of ${Math.round(snapshot.durationSeconds * props.fps)}`
+        }
         min={0}
         max={snapshot.durationSeconds}
         step={props.fps === null ? "any" : 1 / props.fps}

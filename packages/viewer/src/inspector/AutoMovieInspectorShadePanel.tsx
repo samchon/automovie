@@ -39,8 +39,8 @@ export function AutoMovieInspectorShadePanel(props: {
   dispatch: (action: IAutoMovieInspectorAction) => void;
 }): JSX.Element {
   return (
-    <fieldset>
-      <legend>Shade</legend>
+    <fieldset style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
+      <legend style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clipPath: "inset(50%)", whiteSpace: "nowrap" }}>Shade</legend>
       <select
         aria-label="Shade"
         value={props.request.passes[0]}
