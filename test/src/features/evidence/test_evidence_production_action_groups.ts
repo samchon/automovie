@@ -16,20 +16,19 @@ import path from "node:path";
 import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture";
 
 /**
- * Subordinate action groups retain their owning scene's native evidence and fingerprint.
+ * Subordinate action groups retain their owning H2's native evidence and fingerprint.
  *
  * Scenarios:
- * 1. Different H3 labels across scripts and screenplay keep one H2 scene respondent.
- * 2. Moving checklist answers below H3 leaves the actual H2 unanswered.
+ * 1. A script scene H2 with an H3 action group and a screenplay section H2 with an H3 beat each stay one H2 respondent.
+ * 2. Readdressing the script scene's detached answers to its H3 is refused, because the H3 is no claim unit.
  * 3. Changing an H3 action changes the owning H2 fingerprint and expires its review.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Evaluates a real long-form native graph, inspects actual selected units and parent IDs, moves an annotation and changes a scripted action.
- * @evidence contracts/development/testing.md#independent-expectations H2 scene selection remains one unit despite a subordinate H3. An action change must alter its ancestor fingerprint; existing current reviews must then fail.
- * @evidence contracts/development/testing.md#distinguishing-cases Unchanged scenes with different H3 labels distinguish grouping from inherited scene identity; moved answers and changed action distinguish annotation ownership from body freshness.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates a real long-form native graph, inspects actual selected units and parent IDs, readdresses detached answers and changes a scripted action.
+ * @evidence contracts/development/testing.md#independent-expectations H2 selection remains one unit despite a subordinate H3. An action change must alter its ancestor fingerprint; existing current reviews must then fail.
+ * @evidence contracts/development/testing.md#distinguishing-cases Unchanged H2s with H3 children in both layers distinguish grouping from inherited identity; readdressed answers and changed action distinguish annotation ownership from body freshness.
  * @evidence contracts/development/testing.md#execution-ownership This exported test evaluates native Evidence in process, owns its unique temporary files and removes them in finally. It starts no installation, subprocess, browser or GPU and replaces no foreign method.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Different H3 labels across scripts and screenplay keep one H2 scene respondent.).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A script scene H2 with an H3 action group and a screenplay section H2 with an H3 beat each stay one H2 respondent.).
  */
-
 export async function test_evidence_production_action_groups(): Promise<void> {
   const root: string = ProductionWorkflowFixture.create();
   try {
@@ -40,17 +39,16 @@ export async function test_evidence_production_action_groups(): Promise<void> {
     const file: string = "001-part/001-scene.md";
     fs.appendFileSync(
       path.join(root, "docs/body/scripts", file),
-      "\n### Decision\n\nThe guest folds the map.\n",
+      "\n### Decision {#decision}\n\nThe guest folds the map.\n",
     );
     fs.appendFileSync(
-      path.join(root, "docs/revision/screenplay", file),
-      "\n### Draft movement\n\nThe guest folds the map.\n",
+      path.join(
+        root,
+        "docs/body/screenplay",
+        ProductionWorkflowFixture.scene("long"),
+      ),
+      "\n### Deliberate movement {#arrival-b01}\n\nThe guest folds the map.\n",
     );
-    for (const edition of ["body", "naturalness"])
-      fs.appendFileSync(
-        path.join(root, "docs", edition, "screenplay", file),
-        "\n### Deliberate movement\n\nThe guest folds the map.\n",
-      );
     await ProductionWorkflowFixture.certify(root, props);
     const config: IEvidenceConfig = createProductionConfig(props);
     const ready: IEvidenceCheckAnalysis =
@@ -76,35 +74,40 @@ export async function test_evidence_production_action_groups(): Promise<void> {
     );
     assert.equal(groups.length, 1);
     assert.equal(groups[0].parentId, before.unitIds[0]);
+    const screenplayIndex: number = config.claims.findIndex(
+      (claim: IEvidenceConfig["claims"][number]): boolean =>
+        claim.name?.startsWith("screenplay H2 units") === true,
+    );
+    const section: IEvidenceGraphClaim | undefined =
+      ready.graphInput.claims.find(
+        (claim: IEvidenceGraphClaim): boolean =>
+          claim.index === screenplayIndex,
+      );
+    assert.ok(section);
+    assert.equal(section.unitIds.length, 1);
     const fingerprint: string = EvidenceFingerprint.inspect(
       before.inventory,
       before.unitIds[0],
     ).fingerprint;
 
-    const workingFile: string = path.join(
+    const answers: string = path.join(
       root,
-      "docs/naturalness/screenplay",
+      "docs/evidence/construction/units/scripts",
       file,
     );
-    const working: string = fs.readFileSync(workingFile, "utf8");
-    const attached: RegExpMatchArray | null =
-      /^## [^\n]+\n(<!--[\s\S]*?-->\n)/mu.exec(working);
-    assert.ok(attached);
-    fs.writeFileSync(
-      workingFile,
-      working.replace(attached[1], "") + "\n" + attached[1],
-    );
+    const answered: string = fs.readFileSync(answers, "utf8");
+    fs.writeFileSync(answers, answered.replace("#arrival\n", "#decision\n"));
     const misplaced: IEvidenceCheckAnalysis =
       await ProductionWorkflowFixture.evaluate(root, config.claims);
     assert.equal(misplaced.report.success, false);
     assert.ok(
       misplaced.report.diagnostics.some(
         (finding: { code: string }): boolean =>
-          finding.code === "graph-checklist-missing" ||
-          finding.code === "graph-missing-acknowledgement",
+          finding.code === "evidence-files-owner",
       ),
+      JSON.stringify(misplaced.report.diagnostics),
     );
-    fs.writeFileSync(workingFile, working);
+    fs.writeFileSync(answers, answered);
 
     const script: string = path.join(root, "docs/body/scripts", file);
     fs.writeFileSync(

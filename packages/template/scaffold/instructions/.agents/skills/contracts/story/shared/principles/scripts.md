@@ -1,6 +1,6 @@
 # Script principles
 
-Each script H2 answers for an executable scene or inseparable audiovisual progression within the script's chosen partition. Scripts already contain full action, actual dialogue, staging, and a viewing position.
+Each script H2 answers for an executable scene of one continuous place and time within the script's chosen partition. Scripts already contain full action, actual dialogue, staging, and a viewing position.
 
 Statements: [statements/principles/scripts.md](../statements/principles/scripts.md).
 

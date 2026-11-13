@@ -12,8 +12,8 @@ import { createSharedReference } from "./createSharedReference";
 /**
  * Creates the open-world discovery duties one layer's population covers.
  *
- * Canon, settings or a short's brief, searches its own directives, promise, and subject, and backcasts the
- * planned narrative to find what those layers would otherwise have to invent.
+ * Canon, settings or a short's brief, searches its own directives and subject,
+ * and backcasts the planned narrative to find what those layers would otherwise have to invent.
  * That backcast is how settings anticipates the cross-layer narrative contract,
  * so `discovery/narratives.md` is not selected here: it is the duty each
  * narrative layer answers when it rechecks that contract against what it

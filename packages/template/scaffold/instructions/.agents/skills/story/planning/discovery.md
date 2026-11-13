@@ -2,11 +2,11 @@
 
 Before bulk writing, break the adopted instructions, references, research and delegated choices into consequential elements and assign each to its existing owner or a missing one, under the discovery questions in the [story contracts](../../contracts/story/SKILL.md). A genre label or a general reading of the brief does not establish coverage. Discover the chosen form too: what each unit presents or withholds, how it guides its recipient, and the visible difference a named style makes.
 
-Facts and constraints belong in settings or a short's brief, events and release in their layer, and a production-specific judgment in the production's own work contracts, adopted with its population through [adoption](../../evidence/adoption.md). A requirement that lives only in status notes, selector names or repeated guidance needs a canonical owner.
+Facts and constraints belong in settings, or on a short where the [brief's boundary](../layers/brief.md#what-it-holds) puts them; events and release belong in their layer, and a production-specific judgment in the production's own work contracts, adopted with its population through [adoption](../../evidence/adoption.md). A requirement that lives only in status notes, selector names or repeated guidance needs a canonical owner.
 
 ## Checkpoints {#checkpoints}
 
-Discovery runs again at three points, because each one exposes kinds of requirement the one before could not see:
+Discovery runs again at the checkpoints its route sets, because each one exposes kinds of requirement the one before could not see:
 
 1. after settings or the brief, for what the canon needs that direction did not foresee;
 2. before composition, for an element kind no source folder owns, a behavior, camera or staging choice no research supports, and a failure no contract asks about;

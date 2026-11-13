@@ -4,8 +4,8 @@ import { SETTINGS_DOMAINS } from "./internal/SETTINGS_DOMAINS";
  * Selects a short's brief canon: the scaffold's domain folders under `docs/body/brief`.
  *
  * The brief keeps the settings domain layout, `brief/<domain>/<subject>.md`,
- * with the work's fixed conditions in `brief/world/work.md`, so the same reader,
- * which refuses mixed layouts, and the same citations serve both canon layers.
+ * so the same reader, which refuses mixed layouts, and the same citations
+ * serve both canon layers.
  *
  * @evidence contracts/development/implementation.md#principled-implementation One glob per scaffold domain admits the brief's canon, sharing SETTINGS_DOMAINS with the settings selector and reader so the layouts cannot drift; no top-level glob is admitted because the reader refuses a mixed layout.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The selector only describes the brief population; the shared reader owns concrete ordering and layout checks.

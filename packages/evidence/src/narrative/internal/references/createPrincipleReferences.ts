@@ -22,14 +22,15 @@ import { layerFiles } from "./layerFiles";
  * words can be asked whether this speaker could have said them. No item may be
  * excluded, because each binds wherever its condition applies.
  *
- * The same layer axis runs under `naturalness/`, where the naturalness gate owns
- * the questions a layer can be content-complete while still failing.
- * Both gates ask a unit about its own body; they differ in when.
+ * The same layer axis runs under `naturalness/`, the expression questions a
+ * script can fail while being content-complete. Scripts construction
+ * selects them beside its principles, so both families ask a unit about its
+ * own body in the same pass.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Common, inherited narrative, realized-text and layer-specific files become non-excludable per-unit H2 checklists in the selected construction/naturalness family; only declared optional family files are filtered by installation, probed in the shared skills tree that createContractDirectory resolves, where createSharedReference also roots the references.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One layer axis is reused for both gates, while family admission remains distinct from language modules and population obligations; the owning tree is decided by createContractDirectory, not rebuilt here.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Required construction files stay selected when missing so native compilation diagnoses the broken tree; sparse naturalness files and older realized contracts are the explicit compatibility cases.
- * @evidence contracts/development/common.md#meaningful-documentation The prose explains who can answer each scope, why literal-text questions apply only to realized layers, and the two gate timings.
+ * @evidence contracts/development/implementation.md#principled-implementation Common, inherited narrative, realized-text and layer-specific files become non-excludable per-unit H2 checklists in the selected principles or expression family; only declared optional family files are filtered by installation, probed in the shared skills tree that createContractDirectory resolves, where createSharedReference also roots the references.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One layer axis is reused for both families, while family admission remains distinct from language modules and population obligations; the owning tree is decided by createContractDirectory, not rebuilt here.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Required construction files stay selected when missing so native compilation diagnoses the broken tree; sparse expression files and older realized contracts are the explicit compatibility cases.
+ * @evidence contracts/development/common.md#meaningful-documentation The prose explains who can answer each scope, why literal-text questions apply only to realized layers, and which construction selects the expression family.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most four layer-file candidates require a bounded number of optional-file probes and fixed-size reference constructions; no manuscript traversal occurs.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work layerFiles and createSharedReference centralize scope and address semantics; optional-file existence refreshes per configuration build rather than persisting an old contract population.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Intermediate file lists and returned references have a fixed family bound; config owns the result and synchronous existence checks retain no handle or running task.
@@ -37,16 +38,14 @@ import { layerFiles } from "./layerFiles";
 export function createPrincipleReferences(props: {
   contracts: IContractLocation;
   layer: AuthoredLayer;
-  gate: "layer" | "naturalness";
+  family: "principles" | "naturalness";
 }): IEvidenceReference[] {
-  const family: string =
-    props.gate === "naturalness" ? "naturalness" : "principles";
   const installed: (file: string) => boolean = (file: string): boolean =>
     fs.existsSync(
       path.join(
         createContractDirectory(props.contracts, "shared"),
         "shared",
-        ...family.split("/"),
+        props.family,
         file,
       ),
     );
@@ -54,16 +53,16 @@ export function createPrincipleReferences(props: {
   // one is a broken tree rather than an absent option and must still be
   // selected for the compiler to say so. Only the genuinely optional documents
   // are filtered: `realized.md`, which older trees predate, and the whole
-  // naturalness subtree, which is sparse by design.
+  // expression subtree, which is sparse by design.
   const optional: (file: string) => boolean = (file: string): boolean =>
-    props.gate === "naturalness" || file === "realized.md";
+    props.family === "naturalness" || file === "realized.md";
   return layerFiles(props.layer)
     .filter((file: string): boolean => !optional(file) || installed(file))
     .map(
       (file: string): IEvidenceMarkdownReference =>
         createSharedReference({
           contracts: props.contracts,
-          file: `${family}/${file}`,
+          file: `${props.family}/${file}`,
           checklist: true,
           exclusion: false,
         }),

@@ -1,6 +1,6 @@
 # Script expression principles
 
-Each script construction H2 answers for the clarity and rhythm of its executable scene in the same pass as its content. Compare inherited storyline with its actual treatments rather than inventing a frozen scripts revision.
+Each script construction H2 answers for the clarity and rhythm of its executable scene in the same pass as its content. Compare inherited storyline with its actual treatments.
 
 Statements: [statements/naturalness/scripts.md](../statements/naturalness/scripts.md).
 

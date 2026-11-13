@@ -5,19 +5,20 @@ Contract: [obligations/narratives.md](../../obligations/narratives.md).
 ## Continuity and progression {#continuity-and-progression}
 
 1. Every unit is classified by its actual event, understanding, relationship, emotion, pressure, rhythm or formal contribution.
-2. Functionless duplication and independently addressable progressions hidden together are identified, while inseparable montage, continuous action, parallel and other owned forms are preserved.
+2. Functionless duplication and independently addressable progressions hidden together are identified, while inseparable montage, continuous action, parallel and other owned forms are preserved, including those spanning consecutive scenes of one place and time each.
 3. Exits and entries connect through their causal or declared formal relation.
 4. The order of movable units is tested for what it contributes, without imposing linearity on episodic, nonlinear or nonhuman work.
 5. Inherited time, place, knowledge, injury, appearance, clothing, possession, resources, status, relationships and promises are compared across units.
 6. Recurring agents' drives, beliefs, interpretations, experiences and actions are followed across units.
-7. Unsupported reversals and thresholds crossed without pressure or cost are reported with the earliest contradictory owner and any contradiction derived across facts.
-8. An unchanged or unreached threshold has its owned scope or purpose.
-9. Where a protagonist's pursuit holds the work together, the answer identifies:
+7. Each opposing force, a person, a group or a condition, keeps its agency and its threat until the resolution. Exception: a defeat or withdrawal the story causes and shows.
+8. Unsupported reversals and thresholds crossed without pressure or cost are reported with the earliest contradictory owner and any contradiction derived across facts.
+9. An unchanged or unreached threshold has its owned scope or purpose.
+10. Where a protagonist's pursuit holds the work together, the answer identifies:
     - that desire and its first audience recognition;
     - the actions it drives;
     - how major-unit goals continue or transform it.
-10. Where an ensemble sustains competing pursuits, or another form has another center, the answer identifies those in the same way and invents no single protagonist.
-11. Local tasks alone do not establish the whole, and no shared goal is invented.
+11. Where an ensemble sustains competing pursuits, or another form has another center, the answer identifies those in the same way and invents no single protagonist.
+12. Local tasks alone do not establish the whole, and no shared goal is invented.
 
 ## Promises and distribution {#promises-and-distribution}
 

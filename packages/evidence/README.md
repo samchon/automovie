@@ -46,20 +46,21 @@ export default createEvidenceConfig({
   narrative: {
     mode: "short",
     construction: { brief: "evidence", screenplay: "evidence" },
-    naturalness: { screenplay: "evidence" },
   },
 });
 ```
 
-`construction` checks how each layer is built from the one before it, and `naturalness` is the separate check of the screenplay's expression. Setting a layer to `"evidence"` turns its check on.
+`construction` checks how each layer is built from the one before it. Setting a layer to `"evidence"` turns its check on, and setting a finished layer back to `"disabled"` leaves the layers still running unaffected.
 
 `short` is a brief under `docs/body/brief` followed by the screenplay, and `long`, the mode of a series, has four layers: settings, treatments, scripts and screenplay. A layer you leave out stays a disabled draft. The checks cover the complete work unless `scope` names the first part that a pilot covers.
 
-`none` checks no narrative layer, for a screenplay no narrative pass writes, and takes no `construction`, `naturalness` or `scope`.
+The screenplay is one folder per film with one file per scene: `docs/body/screenplay/<film>/NNN-<scene>.md` for a short, and `docs/body/screenplay/NNN-part/NNN-episode/NNN-<scene>.md` for a series, where each scene file realizes one scene of its episode's script. Both depths are selected on either route.
+
+`none` checks no narrative layer, for a screenplay no narrative pass writes, and takes no `construction` or `scope`.
 
 ### Research and development contracts
 
-Add `research` when the production keeps research studies, and `development` when it builds the film's entities, behaviors and scenes in code:
+Add `research` to hold each study in `docs/research/` to the research contract, and `development` when it builds the film's entities, behaviors and scenes in code:
 
 ```ts
 export default createEvidenceConfig({
@@ -78,9 +79,9 @@ export default createEvidenceConfig({
 | `research` | Each study in `docs/research/` | `contracts/story/shared/principles/research.md` |
 | `development.entities` | Exports under `src/entities/` | `contracts/development/entities.md` |
 | `development.behaviors` | Exports under `src/laws/`, `src/interactions/` and `src/consequences/` | `contracts/development/behaviors.md`, each citing the study it follows |
-| `development.composition` | Exports under `src/composition/` | `contracts/development/composition.md`, citing the screenplay scenes, beats and files they realize |
+| `development.composition` | Exports under `src/composition/` | `contracts/development/composition.md`, citing the screenplay scene files, sections and beats they realize |
 
-Every study must be cited by some behavior, and every screenplay scene, beat and file must be realized by some composition. Under `narrative: { mode: "none" }` with `development.composition`, every section of `docs/instructions/` must be realized by some composition or entity too, with no exclusion, because no narrative layer cites them. An option you leave out stays disabled.
+Every study must be cited by some behavior. Every screenplay section and beat must be realized by some scene, and every scene file by the film that orders it. Under `narrative: { mode: "none" }` with `development.composition`, every section of `docs/instructions/` must be realized by some composition or entity too, with no exclusion, because no narrative layer cites them. An option you leave out stays disabled.
 
 ### Your own claims
 

@@ -1,6 +1,6 @@
 # Speech expression population obligation
 
-The completed script construction or revised final screenplay population answers once from all its actual exchanges.
+The completed script construction population answers once from all its actual exchanges.
 
 Statements: [statements/naturalness/obligations/realized.md](../../statements/naturalness/obligations/realized.md).
 

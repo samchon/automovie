@@ -77,10 +77,6 @@ export function createEvidenceConfig(
       screenplay: "disabled",
       ...structuredClone(props.narrative.construction ?? {}),
     },
-    naturalness: {
-      screenplay: "disabled",
-      ...structuredClone(props.narrative.naturalness ?? {}),
-    },
     supportClaims: claims,
     claims: structuredClone(props.narrative.claims ?? []),
   });

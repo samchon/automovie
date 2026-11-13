@@ -2,9 +2,9 @@
 
 Each exported function and method under `src/composition/` answers these items in its doc comment, beside [common](common.md) and [implementation](implementation.md).
 
-A scene in `src/composition/scenes/<film>/<scene>/` cites each screenplay scene or beat it realizes as `@evidence docs/body/screenplay/<film>.md#<anchor> <what it realizes>`, and a film in `src/composition/films/` cites its screenplay file. When [no narrative pass runs](../../story/workflow.md#who-writes-the-screenplay), scenes and films also cite the instruction sections they realize. A fixed screenplay without scene or beat headings goes back to the user to add them, because scenes cite them.
+A scene in `src/composition/scenes/<film>/<scene>/` realizes one screenplay scene file and cites it, or each of its sections and beats, as `@evidence docs/body/screenplay/<film folder>/<scene file>#<anchor> <what it realizes>`, the anchor omitted for the whole file. A film in `src/composition/films/<film>.ts` cites each scene file of its folder in the order it plays them. When [no narrative pass runs](../../story/workflow/SKILL.md#who-writes-the-screenplay), scenes and films also cite the instruction sections they realize. A fixed screenplay without scene files and section or beat headings goes back to the user to add them, because scenes cite them.
 
-Every scene, beat and screenplay file is realized, and an `OMITTED` scene or beat is covered by an `@evidenceExclude` on the scene that would have realized it, or on a neighboring scene when the whole scene is omitted.
+Every section, beat and scene file is realized, and an `OMITTED` one is covered by an `@evidenceExclude` on the scene composition that would have realized it, or on the film when a whole scene file is omitted.
 
 A catalog case in `src/composition/scenes/catalog/<module>/` and the catalog film cite the research section or settings or brief fact each case exhibits in place of a screenplay, and answer the other items.
 

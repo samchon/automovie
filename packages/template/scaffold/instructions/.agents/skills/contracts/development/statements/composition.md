@@ -4,9 +4,9 @@ Contract: [composition.md](../composition.md).
 
 ## Screenplay realization {#screenplay-realization}
 
-1. The scene composes each cited beat's cast, intent, outcome, consequence, spatial change, camera, requested sound layers and continuity, omitting, altering and adding none.
+1. The scene composes its scene file's standing state and each cited beat's participants, intents, outcome, reactions and consequences, and every change of position, camera and sound, omitting, altering and adding none.
 2. Each state continues across cuts until a beat changes it.
-3. A film plays every scene in screenplay order with the screenplay's transitions, titles and subtitles, and fills its running time.
+3. A film plays every scene file of its folder in the order of their numbers, with the screenplay's transitions, titles and subtitles, and fills its running time.
 4. A film takes its raster, frame rate and running time from the delivery profile in [project context](../../../production/project-context.md), and its grade and control channels from the screenplay and that record.
 5. The scene's comment opens with its screenplay citation and a summary of what happens.
 6. A `Concretization:` paragraph names each decision the code had to make where the screenplay was vague. It never holds an exchange, an outcome or a reaction, which only the screenplay decides.

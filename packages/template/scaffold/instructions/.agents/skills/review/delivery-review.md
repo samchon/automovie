@@ -4,9 +4,9 @@ Identify the promised output from [project context](../production/project-contex
 
 ## Narrative
 
-Check the required [passes and handoff](../story/workflow.md#completion), and lock your first response as a recipient before reading plans or evidence.
+Check the required [passes and handoff](../story/workflow/SKILL.md#completion), and lock your first response as a recipient before reading plans or evidence.
 
-Then read every current body, frozen edition, contract and answer, and compare the beginning with its consequences and ending, part boundaries, promises and duration. A pilot establishes only its slice, and closed work keeps its [closed-pass boundary](../story/correction/repair.md#closed-passes).
+Then read every current body and contract, and the answers of every enabled stage, and compare the beginning with its consequences and ending, part boundaries, promises and duration. A pilot establishes only its slice, and closed work keeps its [closed-pass boundary](../story/correction/repair.md#closed-passes).
 
 ## Video
 

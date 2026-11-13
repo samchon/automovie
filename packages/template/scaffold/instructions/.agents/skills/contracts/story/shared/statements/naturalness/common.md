@@ -34,7 +34,7 @@ Idiomatic language:
 Concrete realization:
 
 18. Viewpoint and movement, object use, and bodily conditions such as cold, hunger, weight or injury are concrete enough to understand and feel the current action.
-19. Scripts serve executable placement and conditions, and the final screenplay selects their audience experience and emphasis.
+19. Scripts serve executable placement and conditions, and leave audience emphasis to the final screenplay.
 20. None of these remains:
     - an unlocated inventory;
     - an unmarked change of gaze;
@@ -72,23 +72,23 @@ Deciding and retaining:
 
 ## Expression fidelity {#expression-fidelity}
 
-1. The revision keeps:
+1. The script keeps:
     - the world facts, events and causal connections;
     - people and relationships, motives, choices and consequences;
     - knowledge boundaries, chronology and reveal order;
     - values such as names, quantities, dimensions and colors;
     - the degree of certainty.
-2. For scripts construction, the original compared is the parent treatments.
+2. The original compared is the parent treatments.
 3. Realized setup and payoff, motivation-setting speech, the promised narrator voice and humor survive as functions the audience experiences.
 4. Where the current expression of such a function is a named failure, the function is recomposed without the failure and not deleted.
-5. Every value the revision states is accurate.
+5. Every value the script states is accurate.
 6. Nothing omitted changes inherited meaning, required execution, knowledge or reveal order, or removes information needed to understand a choice and its result.
 7. An upstream measurement or condition the audience does not need is not displayed, and execution constraints go to their actual consumer.
 8. Information the adopted work requires the audience to receive stays.
 9. A claimed loss is shown in the passage, and no upstream parameter inventory is restored to answer it.
-10. The rewrite stays inside the established storyline and adopted form.
-11. The rewrite may clarify an implied existing actor and develop bodily performance, image, sound and subtext.
-12. The rewrite adds no dependency, changes no result, resolves no open relationship and replaces no concrete value with an impression.
-13. The rewrite preserves meaning, not the draft's artificial register, negation patterns, source disclaimers or annotation vocabulary.
+10. The script stays inside the established storyline and adopted form.
+11. The script may clarify an implied existing actor and develop bodily performance, image, sound and subtext.
+12. The script adds no dependency, changes no result, resolves no open relationship and replaces no concrete value with an impression.
+13. The script preserves meaning, not an artificial register, negation patterns, source disclaimers or annotation vocabulary.
 14. A needed semantic change was reported and not made, and a construction repair returned to its earliest owner under [upstream repair](../../../../../story/correction/repair.md#upstream-defects).
 15. Surplus removed below a duration target was not refilled with new facts, events or replacement padding.

@@ -17,7 +17,7 @@ The project includes instructions, contracts and a working empty inspector page 
 
 ## Inspector and export
 
-Run `pnpm run dev`, then open [the inspector](http://127.0.0.1:5173/). It shows the films of `src/subjects.ts`, the same subjects `pnpm run capture` draws, through one request: every panel (time, selection, marks, shade, view and the request text) edits it, the address carries it with the capture's keys, and the page shows the `automovie capture` command whose options, given to `pnpm run capture`, repeat the picture. Play, pause and seek use the same deterministic performance as export. Each delivered video is one film in `src/composition/films/`, registered in `src/composition/films/index.ts` under its screenplay file's name, with its running time, frame rate and optional `width` × `height` delivery raster (1280 × 720 by default; 720 × 1280 for a vertical short); `?subject=<name>` selects one, and may be omitted while only one exists, and `at` the second shown, for example [the starter at 2 seconds through the front view](http://127.0.0.1:5173/?subject=starter&at=2&views=front). The starter film `src/composition/films/starter.ts` holds an empty scene; each film composes its scenes and sets its own running time.
+Run `pnpm run dev`, then open [the inspector](http://127.0.0.1:5173/). It shows the films of `src/subjects.ts`, the same subjects `pnpm run capture` draws, through one request: every panel (time, selection, marks, shade, view and the request text) edits it, the address carries it with the capture's keys, and the page shows the `automovie capture` command whose options, given to `pnpm run capture`, repeat the picture. Play, pause and seek use the same deterministic performance as export. Each delivered video is one film in `src/composition/films/`, registered in `src/composition/films/index.ts` under its [film name]({{skills}}/development/source-layout.md#source), derived from its film folder's path, with its running time, frame rate and optional `width` × `height` delivery raster (1280 × 720 by default; 720 × 1280 for a vertical short); `?subject=<name>` selects one, and may be omitted while only one exists, and `at` the second shown, for example [the starter at 2 seconds through the front view](http://127.0.0.1:5173/?subject=starter&at=2&views=front). The starter film `src/composition/films/starter.ts` holds an empty scene; each film composes its scenes and sets its own running time.
 
 `pnpm run render --subject <film>` runs `automovie render --module src/subjects.ts`, omitting `--subject` while only one film exists. It builds a draw-only page over `src/subjects.ts` with this production's Vite and draws every frame at `i / fps` through the same draw function `pnpm run capture` uses, with SwiftShader, the software WebGL backend, in the Chromium build Playwright pins (`pnpm run review:setup` installs it; `CHROME_PATH` selects another executable), then encodes them once with FFmpeg from `ffmpeg-static`, or `FFMPEG_PATH`. No server needs to be running.
 
@@ -55,7 +55,7 @@ In the inspector, the capture's keys are the address's parameters of the same na
 
 2. When the agent writes the story, first [ask the user]({{skills}}/story/planning/requirements.md#asking-the-user) about it.
 
-   Write the screenplay as the user's [choice of writer]({{skills}}/story/workflow.md#who-writes-the-screenplay) sets. When it runs the narrative passes, write the [settings]({{skills}}/story/layers/settings.md), or a short's [brief]({{skills}}/story/layers/brief.md), then the complete [screenplay]({{skills}}/story/SKILL.md) along its [writing route]({{skills}}/story/workflow.md#route-and-parents), with evidence and independent review.
+   Write the screenplay as the user's [choice of writer]({{skills}}/story/workflow/SKILL.md#who-writes-the-screenplay) sets. When it runs the narrative passes, write the [settings]({{skills}}/story/layers/settings.md), or a short's [brief]({{skills}}/story/layers/brief.md), then the complete [screenplay]({{skills}}/story/SKILL.md) along its [writing route]({{skills}}/story/workflow/SKILL.md), which also sets when evidence and independent review run; a short drafts its entities, scenes and film before them, as its route's film draft step sets.
 
 3. Build the coarse entities under [entity work]({{skills}}/development/entities.md) and accept every module in its [catalog cases]({{skills}}/motion/catalog-cases.md).
 
@@ -103,7 +103,7 @@ The project uses ES modules with `verbatimModuleSyntax` and `isolatedModules`: m
 | `.agents/skills`, at this project's root or its workspace root | The task entry points `AGENTS.md` lists, their resources and the contracts |
 | `PROJECT.md` | The project overview, commissioned scope, current choices, constraints and setup authority |
 | `docs/instructions` | Creative writing requirements |
-| Other `docs` locations | Research studies, bodies, working editions, evidence, reviews and acceptance records when needed |
+| Other `docs` locations | Research studies, bodies, evidence, reviews and acceptance records when needed |
 | `references/` | The retained research originals |
 | `src` | Entities, laws, interactions, consequences, scene and film composition, host entries and commands |
 | `src/integrations` | Optional provider or local-tool code |
@@ -117,7 +117,7 @@ The project uses ES modules with `verbatimModuleSyntax` and `isolatedModules`: m
 | `tsconfig.test.json` | The scope of pure TypeScript unit tests |
 | `package.json` | Dependencies and commands |
 
-`AGENTS.md` groups creation, implementation/evidence, writing and assessment; `story` routes to its planning, layers, naturalness, correction and evidence parts.
+`AGENTS.md` groups creation, implementation/evidence, writing and assessment; `story` routes to its workflow, planning, layers, correction and evidence parts.
 
 [Document layout]({{skills}}/story/document-layout.md), [source layout]({{skills}}/development/source-layout.md) and [media records]({{skills}}/production/media-records.md) explain the owners of the `docs`, `src` and `media` locations. The dependency direction between source folders is the source layout's rule.
 

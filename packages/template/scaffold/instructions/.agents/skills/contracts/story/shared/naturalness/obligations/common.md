@@ -1,6 +1,6 @@
 # Common expression population obligation
 
-The scripts construction population and the revised screenplay population each answer once at file level in the edition that settles their expression. Read the whole selected population, recording convergence candidates with actual passages, repairs and reasons for preserving a form. Identify the inspected scope when none are found; representative examples and fixed counts cannot prove completeness.
+The scripts construction population answers once at file level. Read the whole selected population, recording convergence candidates with actual passages, repairs and reasons for preserving a form. Identify the inspected scope when none are found; representative examples and fixed counts cannot prove completeness.
 
 Statements: [statements/naturalness/obligations/common.md](../../statements/naturalness/obligations/common.md).
 

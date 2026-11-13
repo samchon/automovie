@@ -34,6 +34,6 @@ Keep `outline/index.md` as a finding guide: domain H2s and file H3s in reading o
 
 Before splitting or moving records, map old addresses to their new owners and update links and consumers together under [reorganization](../../production/reorganization.md), keeping address migration separate from content changes; moved records keep the [closed-pass boundary](../correction/repair.md#closed-passes).
 
-Keep settings current as a continuity record: when a treatment, script or screenplay establishes a lasting state that later units or code must keep, such as a wound, a learned habit or a revealed relationship, add it as a new anchored fact in its subject's state facet, citing the establishing unit, in the same repair. A new fact receives its own answers and review under [closed passes](../correction/repair.md#closed-passes) and leaves existing judgments in place.
+Keep settings current as a continuity record: when a treatment, script or screenplay establishes a lasting state that later units or code must keep, such as a wound, a learned habit or a revealed relationship, add it as a new anchored fact in its subject's state facet, citing the establishing unit, in the same repair. A new fact follows [closed passes](../correction/repair.md#closed-passes) and leaves existing judgments in place.
 
-Complete the facts, their explanation and their organization in [construction](../workflow.md#construction).
+Complete the facts, their explanation and their organization in [construction](../workflow/long.md#each-layers-pass).

@@ -10,7 +10,7 @@ Requirements:
 2. Each finding changes what may honestly be created or omitted. Exception: aspirations, genre labels and already owned conditions need no duplicate authority.
 3. Each finding has an observable application and failure, and names the smallest respondent population that can establish it.
 4. An adopted form states its observable choices, scope, audience effect, representative failure, semantic owner and repair boundary.
-5. Language baselines belong to their language owner, creative form to the work and world facts to settings. A possibly universal candidate stays research until adopted into shared contracts.
+5. Language baselines belong to their language owner, creative form to the work and world facts to settings, or on a short to the brief or screenplay as the [brief's boundary](../../../../../story/layers/brief.md#what-it-holds) divides them. A possibly universal candidate stays research until adopted into shared contracts.
 6. A requirement found only in guide prose, selectors, status notes or repeated explanations moved to its owner with its consumers updated, under the [closed-pass boundary](../../../../../story/correction/repair.md#closed-passes).
 
 Language:
