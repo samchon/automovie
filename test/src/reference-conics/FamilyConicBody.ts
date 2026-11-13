@@ -371,6 +371,9 @@ namespace FamilyConicBody {
    */
   const SIDE_NET: number[] | undefined = process.argv.find((a: string): boolean => a.startsWith("--side-net="))?.slice(11).split(",").map(Number);
 
+  /** `--feature-knot=<mm>`: a family with feature lines starts from knots this far apart; absent, from the domain's ends and middle. */
+  const FEATURE_KNOT_MM: number | undefined = ((value: string | undefined): number | undefined => (value === undefined ? undefined : Number(value)))(process.argv.find((a: string): boolean => a.startsWith("--feature-knot="))?.slice(15));
+
   /** Where the nose's band lands on it at a phase, mm from its first station (`AutoMovieHumanF1.NOSE_RAILS_MM`). */
   const NOSE_RAIL: (phi: number) => number = AutoMovieNaturalSpline.periodic(AutoMovieHumanF1.NOSE_RAILS_MM);
 
@@ -1269,7 +1272,10 @@ namespace FamilyConicBody {
       for (const { layout: plain, depth } of reuse !== undefined ? [] : deepen !== undefined ? [{ layout: C.limb(deeper), depth: deeper }] : part.layouts) {
         const layout: C.ILayout = least === undefined ? plain : { ...plain, least };
         // A deeper layout starts from the shallower one's final knots and values, cut exactly at every arc's median.
-        const knots0: number[] = best === null ? [domain[0], (domain[0] + domain[1]) / 2, domain[1]] : [...best.knots];
+        // A layout with feature lines starts from knots every `FEATURE_KNOT_MM`, so its lines can follow where each feature appears and fades.
+        const lined: boolean = FEATURE_KNOT_MM !== undefined && layout.anchors.some((anchor: C.IAnchor): boolean => anchor.kind === "f");
+        const spaced: number = Math.max(2, Math.round((domain[1] - domain[0]) / (FEATURE_KNOT_MM ?? 1)) + 1);
+        const knots0: number[] = best === null ? (lined ? Array.from({ length: spaced }, (_: unknown, k: number): number => domain[0] + ((domain[1] - domain[0]) * k) / (spaced - 1)) : [domain[0], (domain[0] + domain[1]) / 2, domain[1]]) : [...best.knots];
         let result: F.IResult = attempt(knots0, layout, best === null ? undefined : F.refine(best.values, depth - 1), "depth " + depth);
 
         // Growth always starts from the family of least mean so far. A round that lowers that mean by 3 % is kept; one that does not is dropped
