@@ -338,6 +338,7 @@ export namespace FamilyConicSection {
     point: P;
     tangent: P;
     inflection: boolean;
+    strength?: number;
     arc: { controls: readonly [readonly [number, number], readonly [number, number], readonly [number, number]]; weight: number } | null;
   }
 
@@ -356,7 +357,7 @@ export namespace FamilyConicSection {
    * A section's conic conversion: its radius faired as the least-squares periodic uniform cubic B-spline in phase at `FAIR_MM` of girth a
    * control, converted by Ahn's conic approximation (`approximateAutoMovieRecoveryConicsAhn`), and the ends of its arcs with their tangents.
    */
-  function converted(points: readonly P[]): IEnd[] {
+  function converted(points: readonly P[]): { ends: IEnd[]; at: (phi: number) => { point: P; tangent: P } } {
     const M: number = 720;
     const radii: number[] = Array.from({ length: M }, (_: unknown, k: number): number => radius(points, (2 * Math.PI * k) / M));
     let girth: number = 0;
@@ -422,12 +423,39 @@ export namespace FamilyConicSection {
       const [p0, p1, p2] = arc.controls;
       return Math.sign((p1[0] - p0[0]) * (p2[1] - p1[1]) - (p1[1] - p0[1]) * (p2[0] - p1[0]));
     };
-    return arcs.map((arc, i: number): IEnd => {
+    // An arc's turn: the angle between its two end tangents (its control legs).
+    const turnOf = (arc: (typeof arcs)[number]): number => {
+      const [p0, p1, p2] = arc.controls;
+      const d: number = Math.atan2(p2[1] - p1[1], p2[0] - p1[0]) - Math.atan2(p1[1] - p0[1], p1[0] - p0[0]);
+      return Math.abs(Math.atan2(Math.sin(d), Math.cos(d)));
+    };
+    const ends: IEnd[] = arcs.map((arc, i: number): IEnd => {
       const before = arcs[(i - 1 + arcs.length) % arcs.length]!;
       const [p0, p1] = arc.controls;
       const l: number = Math.hypot(p1[0] - p0[0], p1[1] - p0[1]) || 1;
-      return { point: [p0[0], p0[1]], tangent: [(p1[0] - p0[0]) / l, (p1[1] - p0[1]) / l], inflection: bend(before) * bend(arc) < 0, arc: { controls: arc.controls, weight: arc.weight } };
+      // An inflection's strength: the lesser of the two bends it joins, each the whole turn of the arcs on its side that bend the same way
+      // (an adaptive conversion cuts one bend into several short arcs, each of which turns little).
+      const side = (from: number, step: 1 | -1): number => {
+        const sign: number = bend(arcs[(from + arcs.length) % arcs.length]!);
+        let sum: number = 0;
+        for (let m: number = 0, j: number = from; m < arcs.length; ++m, j += step) {
+          const piece = arcs[((j % arcs.length) + arcs.length) % arcs.length]!;
+          if (bend(piece) !== sign) break;
+          sum += turnOf(piece);
+        }
+        return sum;
+      };
+      return { point: [p0[0], p0[1]], tangent: [(p1[0] - p0[0]) / l, (p1[1] - p0[1]) / l], inflection: bend(before) * bend(arc) < 0, arc: { controls: arc.controls, weight: arc.weight }, strength: Math.min(side(i - 1, -1), side(i, 1)) };
     });
+    return {
+      ends,
+      // The section as converted: the conic chain itself, not the faired curve, so a concavity the conversion leaves under its tolerance
+      // is not drawn between an extreme and a feature that the chain shows no inflection between.
+      at: (phi: number): { point: P; tangent: P } => {
+        const got: IEnd = split(ends, phi);
+        return { point: got.point, tangent: got.tangent };
+      },
+    };
   }
 
   /** The point of a section's conversion at a phase, on the arc that spans it, and its tangent: an exact split of that conic. */
@@ -462,7 +490,131 @@ export namespace FamilyConicSection {
     return { point: got.point, tangent: got.tangent, inflection: false, arc: null };
   }
 
-  export function seed(points: readonly P[], layout: ILayout): number[] {
+  /**
+   * Seeds of a family's sections in station order, their feature lines tracked along the stations. A line is an identity along the
+   * stations, not a slot of one section (lofting.md: an inflection line is "drawn like the outlines"): each run's inflection-kind features
+   * are lines that start at their windows' middles; on each section, faired and converted (`converted`), the conversion's inflections in the
+   * run are matched to the lines in order, each to the line whose share of the run's arclength on the section before lies nearest, and a
+   * matched line moves toward its inflection by the C2 ramp of the inflection's strength (the lesser turn of its two arcs; 0 below half
+   * `FEATURE_LEAST`, 1 above it), so a line is born and dies at its tracked place as its pair's turn crosses zero, never by a jump: a hard
+   * switch in a target becomes a crease however finely it is sampled (construction.md). A convex or concave feature stands at a fixed share
+   * between the inflection lines (or the run's extremes) either side of it. Every feature is the faired section's own point and tangent at
+   * its share. Seeded each on its own, the features were reassigned whenever the conversion's inflection count changed, and jumped up to
+   * 60 mm between sections 2 mm apart where a groove faded (`groove-check`).
+   *
+   * @param sections The sections' observed polygons, in station order.
+   * @param layout The family's layout.
+   */
+  export function seedAll(sections: readonly (readonly P[])[], layout: ILayout): number[][] {
+    const K: number = layout.anchors.length;
+    if (!layout.anchors.some((a: IAnchor): boolean => a.kind === "f")) return sections.map((points: readonly P[]): number[] => seed(points, layout));
+    const lines: Map<number, number[]> = new Map();
+    const ramp = (s: number): number => {
+      const x: number = Math.min(1, Math.max(0, (s - FEATURE_LEAST / 2) / (FEATURE_LEAST / 2)));
+      return x * x * x * (10 - 15 * x + 6 * x * x);
+    };
+    return sections.map((points: readonly P[]): number[] => {
+      // The section is read faired throughout, its extremes and medians too, so the anchors and the features stand on one curve: read off
+      // the raw section, a median on a 1.7 mm groove's floor stood inside the faired curve its features stand on, and the arc between them
+      // needed an S.
+      const conversion = converted(points);
+      const faired: P[] = Array.from({ length: 1440 }, (_: unknown, i: number): P => conversion.at((2 * Math.PI * i) / 1440).point);
+      return seed(faired, layout, (found: readonly (P | null)[]): Map<number, { point: P; tangent: P }> => {
+        const out: Map<number, { point: P; tangent: P }> = new Map();
+        layout.anchors.forEach((anchor: IAnchor, k: number): void => {
+          if (anchor.kind !== "f" || (k > 0 && layout.anchors[k - 1]!.kind === "f")) return;
+          const run: number[] = [];
+          for (let j: number = k; layout.anchors[j % K]!.kind === "f"; ++j) run.push(j % K);
+          const [fb, fa]: [number, number] = S.frame(k, layout);
+          const a: number = Math.atan2(found[fb]![1], found[fb]![0]);
+          const span: number = (((Math.atan2(found[fa]![1], found[fa]![0]) - a) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+          // The run's arclength on the faired section, sampled at 400 phases: a share and its phase both ways.
+          const phis: number[] = Array.from({ length: 401 }, (_: unknown, i: number): number => a + (span * i) / 400);
+          const lengths: number[] = [0];
+          for (let i: number = 1; i <= 400; ++i) {
+            const p: P = conversion.at(phis[i - 1]!).point, q: P = conversion.at(phis[i]!).point;
+            lengths.push(lengths[i - 1]! + Math.hypot(q[0] - p[0], q[1] - p[1]));
+          }
+          const total: number = lengths[400]! || 1;
+          const shareOf = (phi: number): number => {
+            const o: number = (((phi - a) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+            const x: number = (o / span) * 400;
+            const i: number = Math.min(399, Math.max(0, Math.floor(x)));
+            return (lengths[i]! + (x - i) * (lengths[i + 1]! - lengths[i]!)) / total;
+          };
+          const phiOf = (share: number): number => {
+            const target: number = share * total;
+            let i: number = 0;
+            while (i < 399 && lengths[i + 1]! < target) ++i;
+            const piece: number = lengths[i + 1]! - lengths[i]! || 1;
+            return phis[i]! + ((target - lengths[i]!) / piece) * (span / 400);
+          };
+          // The run's inflection lines, their tracked shares.
+          const kinds: number[] = run.filter((j: number): boolean => layout.anchors[j]!.feature === "inflection");
+          const tracked: number[] = lines.get(k) ?? kinds.map((j: number): number => {
+            const w: [number, number] = layout.anchors[j]!.window ?? [0.1, 0.9];
+            return (w[0] + w[1]) / 2;
+          });
+          // The conversion's inflections inside the run, by share, and their strengths.
+          const seen: { share: number; strength: number }[] = conversion.ends
+            .filter((end: IEnd): boolean => end.inflection)
+            .map((end: IEnd): { share: number; strength: number } => ({ share: shareOf(Math.atan2(end.point[1], end.point[0])), strength: end.strength ?? 0 }))
+            .filter((x: { share: number; strength: number }): boolean => x.share > 0.001 && x.share < 0.999)
+            .sort((x, y): number => x.share - y.share);
+          // An order-keeping match of the inflections to the lines, least total distance from each line's last share (dynamic programming).
+          const L: number = tracked.length, Fn: number = seen.length;
+          const cost: number[][] = Array.from({ length: Fn + 1 }, (): number[] => new Array<number>(L + 1).fill(Infinity));
+          const choice: number[][] = Array.from({ length: Fn + 1 }, (): number[] => new Array<number>(L + 1).fill(0));
+          for (let j: number = 0; j <= L; ++j) cost[0]![j] = 0;
+          for (let i: number = 1; i <= Fn; ++i)
+            for (let j: number = 1; j <= L; ++j) {
+              const skipLine: number = cost[i]![j - 1]!;
+              const skipSeen: number = cost[i - 1]![j]! + 1;
+              const take: number = cost[i - 1]![j - 1]! + Math.abs(seen[i - 1]!.share - tracked[j - 1]!);
+              const best: number = Math.min(skipLine, skipSeen, take);
+              cost[i]![j] = best;
+              choice[i]![j] = best === take ? 2 : best === skipLine ? 1 : 0;
+            }
+          const next: number[] = [...tracked];
+          for (let i: number = Fn, j: number = L; i > 0 && j > 0; ) {
+            if (choice[i]![j] === 2) {
+              // A line follows its inflection wherever it moves on by little (a twentieth of the run between sections), so it goes where
+              // its groove goes as the groove fades and dies on the groove's floor; a far move, a birth away from the line, is taken by
+              // the ramp of the inflection's strength.
+              const move: number = seen[i - 1]!.share - tracked[j - 1]!;
+              next[j - 1] = tracked[j - 1]! + (Math.abs(move) < 0.05 ? 1 : ramp(seen[i - 1]!.strength)) * move;
+              --i;
+              --j;
+            } else if (choice[i]![j] === 1) --j;
+            else --i;
+          }
+          // Lines keep their order with a least gap.
+          for (let j: number = 1; j < next.length; ++j) next[j] = Math.max(next[j]!, next[j - 1]! + 0.01);
+          lines.set(k, next);
+          // Every feature of the run at its share: an inflection line's own, a convex or concave feature at equal steps between the lines
+          // (or the run's ends) either side of it.
+          const shares: number[] = run.map((): number => NaN);
+          kinds.forEach((j: number, i: number): void => void (shares[run.indexOf(j)] = Math.min(0.97, Math.max(0.03, next[i]!))));
+          for (let i: number = 0; i < run.length; ++i) {
+            if (!Number.isNaN(shares[i]!)) continue;
+            let lo: number = i - 1;
+            while (lo >= 0 && Number.isNaN(shares[lo]!)) --lo;
+            let hi: number = i + 1;
+            while (hi < run.length && Number.isNaN(shares[hi]!)) ++hi;
+            const from: number = lo < 0 ? 0 : shares[lo]!, to: number = hi >= run.length ? 1 : shares[hi]!;
+            for (let m: number = lo + 1; m < hi; ++m) shares[m] = from + ((to - from) * (m - lo)) / (hi - lo);
+          }
+          run.forEach((j: number, i: number): void => void out.set(j, conversion.at(phiOf(shares[i]!))));
+        });
+        return out;
+      });
+    });
+  }
+
+  /** Feature anchors placed from outside (`seedAll`): each listed anchor's point and unit tangent. */
+  export type Placement = (found: readonly (P | null)[], tangent: readonly (P | null)[]) => Map<number, { point: P; tangent: P }>;
+
+  export function seed(points: readonly P[], layout: ILayout, place?: Placement): number[] {
     const K: number = layout.anchors.length;
     const values: number[] = [];
     const found: (P | null)[] = new Array<P | null>(K).fill(null);
@@ -502,15 +654,24 @@ export namespace FamilyConicSection {
     // features, the longest piece is split exactly on its own conic until it has enough. Each feature's tangent is the conversion's there.
     // Read this way a feature moves with the section's own arcs, so a groove that fades moves its features continuously: read by a window
     // and the largest turn in it, a feature jumped up to 39.5 mm between sections 2 mm apart where a groove faded (`groove-check`).
-    const ends: IEnd[] = converted(points);
+    const placed: Map<number, { point: P; tangent: P }> | null = place === undefined ? null : place(found, tangent);
+    const ends: IEnd[] = placed !== null ? [] : converted(points).ends;
     const phaseOf = (q: P): number => Math.atan2(q[1], q[0]);
     const within = (phi: number, a: number, b: number): boolean => {
       const span: number = (((b - a) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
       const off: number = (((phi - a) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
       return off > 1e-9 && off < span - 1e-9;
     };
+    if (placed !== null)
+      placed.forEach((end: { point: P; tangent: P }, j: number): void => {
+        found[j] = end.point;
+        tangent[j] = end.tangent;
+        values[at[j]!] = end.point[0];
+        values[at[j]! + 1] = end.point[1];
+        values[at[j]! + 2] = Math.atan2(end.tangent[1], end.tangent[0]);
+      });
     layout.anchors.forEach((anchor: IAnchor, k: number): void => {
-      if (anchor.kind !== "f") return;
+      if (anchor.kind !== "f" || placed !== null) return;
       if (k > 0 && layout.anchors[k - 1]!.kind === "f") return;
       // The run: this feature and those after it up to the next extreme.
       const run: number[] = [];
