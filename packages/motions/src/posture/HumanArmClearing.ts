@@ -168,12 +168,15 @@ export namespace HumanArmClearing {
    */
   export function course(props: {
     plain: (share: number) => HumanArmClearance.IArm;
+    planned?: (share: number) => HumanArmClearance.IArm;
     share: number;
     clear: (arm: HumanArmClearance.IArm, share: number) => HumanArmClearance.IArm;
   }): HumanArmClearance.IArm {
     const turn = (key: number): readonly [number, number] => {
       if (key <= 0 || key >= KEYS) return [0, 0];
-      const arm: HumanArmClearance.IArm = props.plain(key / KEYS);
+      const arm: HumanArmClearance.IArm = (props.planned ?? props.plain)(
+        key / KEYS,
+      );
       const clear: HumanArmClearance.IArm = props.clear(arm, key / KEYS);
       return [clear.upper[1] - arm.upper[1], clear.lower[0] - arm.lower[0]];
     };

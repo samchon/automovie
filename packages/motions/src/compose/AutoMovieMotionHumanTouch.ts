@@ -249,6 +249,10 @@ export namespace AutoMovieMotionHumanTouch {
         rest: props.rest,
         weight: (seconds: number): number => share(clock, seconds),
         goal: goal(props),
+        // The arm's clearing course is planned against the goal it arrives
+        // at by `ready`, and on the way back the one it leaves at `relax`.
+        arrival: (seconds: number): number =>
+          seconds < clock.at("relax") ? clock.at("ready") : clock.at("relax"),
       },
     );
     return [

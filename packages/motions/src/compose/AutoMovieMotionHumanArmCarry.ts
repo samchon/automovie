@@ -95,6 +95,7 @@ export namespace AutoMovieMotionHumanArmCarry {
    * @param posture The posture, with the goals of the arms to carry.
    * @param from The held angles of each arm to carry; an arm absent is left as it is.
    * @param share How far each arm is from its held angles to its goal, clamped to [0, 1].
+   * @param planned The posture with the goals the clearing course is planned against, the arrival's; the posture's own when absent. A course planned against a fixed arrival is a constant of the carry, so the arm moves continuously with the share; one planned against the goal of each second is solved again as the goal moves, and its least clear turn steps where it crosses a ridge of the room. The trade is that the keys are exactly clear for the arrival's goal and clear for the goal of a second only as far as that goal has moved from it.
    * @returns The posture.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States both ends, what is blended, why and what the result holds.
@@ -110,6 +111,7 @@ export namespace AutoMovieMotionHumanArmCarry {
     posture: IHumanPosture,
     from: Partial<Record<HumanHand.Side, IAngles>>,
     share: number,
+    planned?: IHumanPosture,
   ): IHumanPosture {
     const s: number = Math.min(1, Math.max(0, share));
     const sides: HumanHand.Side[] = (["left", "right"] as const).filter(
@@ -118,6 +120,13 @@ export namespace AutoMovieMotionHumanArmCarry {
     if (s >= 1 || sides.length === 0) return posture;
     const solved: IAutoMoviePose | null =
       s <= 0 ? null : resolveHumanPosture(body, posture);
+    // The pose the clearing course is planned in: the arrival's, when the
+    // caller names it, so the course is a plan constant and not re-solved
+    // against the goal of each second.
+    const planning: IAutoMoviePose | null =
+      solved === null || planned === undefined
+        ? solved
+        : resolveHumanPosture(body, planned);
     const joints: IHumanPosture["joints"] = { ...posture.joints };
     const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
     // Each carried arm at a share of the carry: the plain blend of its two
@@ -150,7 +159,26 @@ export namespace AutoMovieMotionHumanArmCarry {
         hand: blendHumanJoint(body, `${side}Hand`, held.hand, goal.hand, share),
       });
       plains[side] = plain;
-      if (solved === null) {
+      const aimed: IAngles =
+        planning === null ? held : angles(planning, side);
+      const plan: Arm = (share: number): HumanArmClearance.IArm => ({
+        upper: blendHumanJoint(
+          body,
+          `${side}UpperArm`,
+          held.upper,
+          aimed.upper,
+          share,
+        ),
+        lower: blendHumanJoint(
+          body,
+          `${side}LowerArm`,
+          held.lower,
+          aimed.lower,
+          share,
+        ),
+        hand: blendHumanJoint(body, `${side}Hand`, held.hand, aimed.hand, share),
+      });
+      if (solved === null || planning === null) {
         courses[side] = plain;
         continue;
       }
@@ -160,7 +188,7 @@ export namespace AutoMovieMotionHumanArmCarry {
       const pose = (share: number): IAutoMoviePose => {
         let at: IAutoMoviePose | undefined = posed.get(share);
         if (at === undefined) {
-          at = solved;
+          at = planning;
           // Read after every arm's blend and course exist; an earlier arm
           // is on its course, a later one on its plain blend, so no two
           // courses wait on each other.
@@ -203,6 +231,7 @@ export namespace AutoMovieMotionHumanArmCarry {
         if (arm === undefined) {
           arm = HumanArmClearing.course({
             plain,
+            planned: plan,
             share,
             clear: (
               of: HumanArmClearance.IArm,
@@ -211,11 +240,11 @@ export namespace AutoMovieMotionHumanArmCarry {
               ends ??= {
                 forearm: [
                   reading(held, 0, "forearm"),
-                  reading(goal, 1, "forearm"),
+                  reading(aimed, 1, "forearm"),
                 ],
                 segments: [
                   reading(held, 0, "segments"),
-                  reading(goal, 1, "segments"),
+                  reading(aimed, 1, "segments"),
                 ],
               };
               return HumanArmClearance.cleared(
@@ -304,6 +333,24 @@ export namespace AutoMovieMotionHumanArmCarry {
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
      */
     weight(seconds: number): number;
+
+    /**
+     * The second whose goal the clearing course is planned against: the
+     * arrival (weight 1) of the stretch a second lies in. The goal of the
+     * second itself when absent.
+     *
+     * @param seconds Seconds since the action's start.
+     * @returns Seconds since the action's start.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the argument, the result and the default.
+     * @evidence contracts/development/implementation.md#principled-implementation A course planned against a fixed arrival is a constant of the carry (as a `reference` is a constant of a fit), so the carried arm is a pure function of time that moves continuously.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second by `carried`.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goal is read at the returned second on the posture of the current one, so nothing is remembered between seconds.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
+     */
+    arrival?(seconds: number): number;
   }
 
   /**
@@ -337,6 +384,15 @@ export namespace AutoMovieMotionHumanArmCarry {
           },
           { [props.side]: props.rest },
           props.weight(seconds),
+          props.arrival === undefined
+            ? undefined
+            : {
+                ...posture,
+                limbs: {
+                  ...posture.limbs,
+                  [limb]: props.goal(posture, props.arrival(seconds)),
+                },
+              },
         ),
     };
   }
