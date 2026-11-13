@@ -126,6 +126,26 @@ export namespace AutoMovieHumanConicSection {
     return { mirror: true, anchors };
   }
 
+  /**
+   * The limb layout of the given median depth with a groove after each listed anchor: two inflections and the groove's own median between
+   * them, `[i, m, i]`, the inflections a level deeper than every median and the groove's median a level deeper again, so each inflection
+   * stands on the chord of the anchors round it and the groove's floor on the triangle of its two inflections. Across a family the
+   * inflections' shares and turns are fields like every other, so each groove's two inflection lines run along the stations as smooth
+   * curves, the way conic lofting draws a concavity with one more control line. On `limb(1)` a groove seeds an admissible chain only after
+   * a `u` extreme (anchors 0 and 4).
+   *
+   * @param depth The limb's median depth.
+   * @param after Indices into `limb(depth).anchors` after which a groove stands, each at most once.
+   */
+  export function inflected(depth: number, after: readonly number[]): ILayout {
+    return {
+      mirror: false,
+      anchors: limb(depth).anchors.flatMap((anchor: IAnchor, k: number): IAnchor[] =>
+        after.includes(k) ? [anchor, { kind: "i", level: depth + 1 }, { kind: "m", level: depth + 2 }, { kind: "i", level: depth + 1 }] : [anchor],
+      ),
+    };
+  }
+
   /** Unit of every field of a layout, in field order: each anchor's numbers, then one shoulder per arc. */
   export function units(layout: ILayout): Unit[] {
     const out: Unit[] = [];

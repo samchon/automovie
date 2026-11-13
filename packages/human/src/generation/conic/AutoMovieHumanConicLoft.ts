@@ -347,21 +347,35 @@ export namespace AutoMovieHumanConicLoft {
    * The course and the chart seed are reflected. A course's chart is `v = u x t`, so the reflected course charts the
    * reflected section with `v` negated, which also reverses its travel: the twin's anchors are the original's in reverse
    * order from the first, each extreme with its `v` negated, and the arc after the twin's anchor `j` is the original's arc
-   * before its anchor `K - j`. A relief keeps its stations and heights and takes the negated phase window, the reflected
-   * axis and its columns in reverse.
+   * before its anchor `K - j`. An inflection's neighbours swap, so its share is `1 - t` and its turn `-d`, and the twin's
+   * dependent anchors keep the original's order of resolution. A relief keeps its stations and heights and takes the
+   * negated phase window, the reflected axis and its columns in reverse.
    *
-   * @param family A family whose layout is not itself a mirror layout and has no inflection anchor.
+   * @param family A family whose layout is not itself a mirror layout.
    * @param name The twin's chain name.
    */
   export function mirror(family: IFamily, name: string): IFamily {
     const anchors: AutoMovieHumanConicSection.IAnchor[] = family.layout.anchors;
     const K: number = anchors.length;
-    if (family.layout.mirror || anchors.some((anchor: AutoMovieHumanConicSection.IAnchor): boolean => anchor.kind === "i")) throw new Error("mirror: the layout of " + family.name + " cannot be reflected");
+    if (family.layout.mirror) throw new Error("mirror: the layout of " + family.name + " cannot be reflected");
     const { at, shoulders }: { at: number[]; shoulders: number } = AutoMovieHumanConicSection.offsets(family.layout);
+
+    // Dependent anchors of one level are resolved in index order, each on the nearest anchors already resolved, so a groove's second
+    // inflection stands on its first one's chord. Reversed, the twin would resolve them the other way round; it keeps the original's order
+    // by a tie-break under one level.
+    const order: number[] = AutoMovieHumanConicSection.dependents(family.layout);
+    const resolved = (anchor: AutoMovieHumanConicSection.IAnchor, k: number): AutoMovieHumanConicSection.IAnchor =>
+      anchor.kind === "m" || anchor.kind === "i" ? { ...anchor, level: (anchor.level ?? 1) + order.indexOf(k) / (2 * order.length) } : anchor;
     const values: number[][] = [];
     for (let j: number = 0; j < K; ++j) {
       const k: number = (K - j) % K;
       const anchor: AutoMovieHumanConicSection.IAnchor = anchors[k]!;
+      // An inflection stands on its neighbours' chord, and the reversed order swaps its neighbours: its share is read from the other end
+      // (`1 - t`), and its turn from the chord, reflected and travelled the other way, changes sign.
+      if (anchor.kind === "i") {
+        values.push(family.values[at[k]!]!.map((t: number): number => 1 - t), family.values[at[k]! + 1]!.map((d: number): number => -d));
+        continue;
+      }
       values.push([...family.values[at[k]!]!]);
       if (anchor.kind !== "m" && anchor.mid !== true) values.push(family.values[at[k]! + 1]!.map((v: number): number => -v));
     }
@@ -372,7 +386,7 @@ export namespace AutoMovieHumanConicLoft {
       centres: family.centres.map(flip),
       halves: [...family.halves],
       up: flip(family.up),
-      layout: { mirror: false, anchors: anchors.map((_: AutoMovieHumanConicSection.IAnchor, j: number): AutoMovieHumanConicSection.IAnchor => anchors[(K - j) % K]!), ...(family.layout.least === undefined ? {} : { least: family.layout.least }) },
+      layout: { mirror: false, anchors: anchors.map((_: AutoMovieHumanConicSection.IAnchor, j: number): AutoMovieHumanConicSection.IAnchor => resolved(anchors[(K - j) % K]!, (K - j) % K)), ...(family.layout.least === undefined ? {} : { least: family.layout.least }) },
       knots: [...family.knots],
       values,
       ...(family.tips === undefined ? {} : { tips: [family.tips[0], family.tips[1]] as [ITip | null, ITip | null] }),

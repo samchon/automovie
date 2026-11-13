@@ -5,6 +5,7 @@ import { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Arm } from "./AutoMovieHumanF1Arm";
 import { AutoMovieHumanF1Auricle } from "./AutoMovieHumanF1Auricle";
+import { AutoMovieHumanF1Axilla } from "./AutoMovieHumanF1Axilla";
 import { AutoMovieHumanF1Breast } from "./AutoMovieHumanF1Breast";
 import { AutoMovieHumanF1Concha } from "./AutoMovieHumanF1Concha";
 import { AutoMovieHumanF1Ear } from "./AutoMovieHumanF1Ear";
@@ -499,26 +500,11 @@ export namespace AutoMovieHumanF1 {
   }
 
   /**
-   * Where the trunk's wall folds under the armscye's loop in front of the armpit, on the +Z side, mm: centres along the loop, each faired
-   * over a disc of `ARMPIT_FILL_MM`. Picked by pixel on `shoulder.high-oblique` (px 475..495 x 520..545), the speck there is the trunk's own
-   * skin at [7..12, 1278..1282, 136], 0.5 to 1 mm inside the reference's wall, and the row of trunk triangles along the loop faces down
-   * where the wall faces +z (folds of 50 to 58 degrees at [4, 1276, 138], [12, 1282, 136] and [17, 1286, 137], `creases.ts`): the wall turns
-   * toward the slit's top before the band leaves it. No operator owns that corner, so it is excised and bridged by a thin-plate fill G1 to
-   * the skin round it. The other side is its mirror image.
+   * Spacing of the armpit slit cutter's layers, mm (`AutoMovieHumanF1Axilla`). Its sections narrow from the dome under the crease's front
+   * to the cusp behind it within about 20 mm of station, and its cut runs along the arm's band, so its rings stand a millimetre apart as a
+   * digit's root's do (`WEB_LAYER_MM`).
    */
-  const ARMPIT_FILLS_MM: [number, number, number][] = [
-    [-3, 1269, 142],
-    [4, 1276, 138],
-    [10, 1281, 136.5],
-    [16, 1285, 137],
-    [21, 1290, 138],
-  ];
-
-  /**
-   * Radius of each armpit fill along the skin, mm: the fold row and the band's first rows beside it. At 5 mm the folds fell only to 45
-   * degrees and the speck stayed; at 8 mm they are under 40.
-   */
-  const ARMPIT_FILL_MM: number = 8;
+  const AXILLA_LAYER_MM: number = 1;
 
   /**
    * Where the breast's band fans against the trunk below the breast's side on the +Z side, mm, and the radius it is faired over: a dark
@@ -1020,6 +1006,15 @@ export namespace AutoMovieHumanF1 {
     for (const side of [1, -1] as const) {
       const arm: { node: AutoMovieConstructionNode; face: string } = limb("arm", side);
       root = { type: "port", name: "armscye." + arm.face, host: root, hostFace: trunk, loop: armscye(side), band: "band." + arm.face, part: arm.node, partFace: arm.face, partEnd: "bottom", rail: Math.min(...ARM_RAILS_MM) / 1000, rails: armRails(side).map((mm: number): number => mm / 1000), ribbons: "column", count: SHOULDER_COLUMNS, rows: ARMSCYE_ROWS };
+      // The armpit's slit, cut after the arm's port: no wall is star-shaped about the slit (the conic audit), and the arm's band closes it
+      // 12 to 17 mm under its apex. The cutter's sections are the slit's air from 3 mm under that band up to its apex, drawn in from the
+      // walls, its arm-side flank concave under the apex (`AutoMovieHumanF1Axilla`). It is seeded on its bottom, phase pi, whose station line
+      // stands in the flesh above the band where the cutter closes at its front end and runs on under the band; its top's stays above the
+      // band all along. Walked by its own length; at a phase parameter the twin's trace was lost. Blended 0.25 mm wide on either side: at
+      // 0.5 mm the twin's cutter face did not triangulate ("subconstraints cross without a supplied shared vertex"), with 256 columns or
+      // the search reversed as well.
+      const axilla: AutoMovieHumanConicLoft.IFamily = side > 0 ? AutoMovieHumanF1Axilla : twin(AutoMovieHumanF1Axilla);
+      root = { type: "join", kind: "diff", name: "cut." + axilla.name, host: root, part: leaf(axilla, Infinity, AXILLA_LAYER_MM), seed: { type: "search", partFace: axilla.name, hostFace: "band." + arm.face, phase: Math.PI, from: 0, to: 0.5 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.00025 }, hostWidth: { type: "chord", value: 0.00025 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04 };
       const ear: AutoMovieHumanConicLoft.IFamily = side > 0 ? BODY.ear : twin(BODY.ear);
       // The ear's outer face is its leaf's, with the trough of the cymba and the fossa cut from it (below). Its bowl, the concha, low and forward
       // behind the tragus, is a loft read from the skin's depth and cut after the ear is attached: its cutter runs square into the head to
@@ -1073,10 +1068,7 @@ export namespace AutoMovieHumanF1 {
       const hollow: AutoMovieHumanConicLoft.IFamily = side > 0 ? drawn : twin(drawn);
       root = { type: "join", kind: "diff", name: "cut." + hollow.name, host: root, part: leaf(hollow, Infinity, NOSTRIL_LAYER_MM), seed: { type: "search", partFace: hollow.name, hostFace: BODY.nose.name, phase: 0, from: 0, to: 0.9 }, parameter: { type: "phase" }, partWidth: { type: "chord", value: NOSTRIL_RIM_MM / 1000 }, hostWidth: { type: "chord", value: NOSTRIL_RIM_MM / 1000 }, continuity: "G2", count: 48, rows: 4, tolerance: 1e-12, grazing: 0.05 };
     }
-    const fills: IAutoMovieConstructionFill[] = [1, -1].flatMap((side: number): IAutoMovieConstructionFill[] => [
-      ...ARMPIT_FILLS_MM.map((p: [number, number, number]): IAutoMovieConstructionFill => ({ point: [p[0] / 1000, p[1] / 1000, (side * p[2]) / 1000], radius: ARMPIT_FILL_MM / 1000 })),
-      { point: [BREAST_FAN_MM[0] / 1000, BREAST_FAN_MM[1] / 1000, (side * BREAST_FAN_MM[2]) / 1000], radius: BREAST_FAN_FILL_MM / 1000 },
-    ]);
+    const fills: IAutoMovieConstructionFill[] = [1, -1].map((side: number): IAutoMovieConstructionFill => ({ point: [BREAST_FAN_MM[0] / 1000, BREAST_FAN_MM[1] / 1000, (side * BREAST_FAN_MM[2]) / 1000], radius: BREAST_FAN_FILL_MM / 1000 }));
     return { root, sources, fills };
   }
 

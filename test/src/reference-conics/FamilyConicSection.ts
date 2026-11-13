@@ -31,25 +31,8 @@ export namespace FamilyConicSection {
   /** The bilateral layout of the given median depth. */
   export const bilateral: (depth: number) => ILayout = S.bilateral;
 
-  /**
-   * The limb layout of the given median depth with a groove after each listed anchor: two inflections and the groove's own median between
-   * them, `[i, m, i]`, the inflections a level deeper than every median and the groove's median a level deeper again, so each inflection
-   * stands on the chord of the anchors round it and the groove's floor on the triangle of its two inflections. Across a family the
-   * inflections' shares and turns are fields like every other (natural cubics on the family's knots), so each groove's two inflection lines
-   * run along the stations as smooth curves, the way an aircraft's lofting draws a concavity with one more control line.
-   *
-   * @param depth The limb's median depth.
-   * @param after Indices into `limb(depth).anchors` after which a groove stands, each at most once.
-   */
-  export function inflected(depth: number, after: readonly number[]): ILayout {
-    const base: ILayout = limb(depth);
-    return {
-      mirror: false,
-      anchors: base.anchors.flatMap((anchor: IAnchor, k: number): IAnchor[] =>
-        after.includes(k) ? [anchor, { kind: "i", level: depth + 1 }, { kind: "m", level: depth + 2 }, { kind: "i", level: depth + 1 }] : [anchor],
-      ),
-    };
-  }
+  /** The limb layout with a groove `[i, m, i]` after each listed anchor (`AutoMovieHumanConicSection.inflected`), which a generated module names as well. */
+  export const inflected: (depth: number, after: readonly number[]) => ILayout = S.inflected;
 
   /** Unit of every field of a layout. */
   export const units: (layout: ILayout) => Unit[] = S.units;
