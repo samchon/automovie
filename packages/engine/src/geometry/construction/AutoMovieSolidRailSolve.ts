@@ -82,6 +82,8 @@ export namespace AutoMovieSolidRailSolve {
       AutoMovieSolidTraceTrial(host, face, start[0], start[1], left > 0);
     if (current === null) return fail("the start chart lies on no face", { face, startU: start[0], startV: start[1] });
     if (current.crossed) left--;
+    // The face the last crossing left: a step is not taken straight back across that seam.
+    let came: number | null = current.crossed ? face : null;
     const scale: number = width + norm(from);
     for (let step: number = 0; step < steps; step++) {
       const j: IJet = current.jet;
@@ -123,6 +125,7 @@ export namespace AutoMovieSolidRailSolve {
           false,
         );
         if (current === null) return fail("the neighbour's foot lies on no face", { ...here, nextFace: next.face, nextU: next.u, nextV: next.v });
+        came = here.face!;
         left--;
         continue;
       }
@@ -135,24 +138,60 @@ export namespace AutoMovieSolidRailSolve {
       );
       if (dx === null) return fail("the plane-and-chord Jacobian is singular", here);
       const merit: number = Math.hypot(f1, f2 / (2 * width));
+      const lower = (trial: { jet: IJet }): boolean => {
+        const q: Vec3 = sub(trial.jet.p, from);
+        return Math.hypot(dot(q, m), (dot(q, q) - width * width) / (2 * width)) < merit;
+      };
+      // Inside the current face's owned and kept chart: the face a step stays on.
+      const face0: number = current.face;
+      const inside = (u: number, v: number): boolean => AutoMovieSolidDomain.contains(host.faces[face0]!, u, v) && host.kept(face0, u, v);
       let accepted: boolean = false;
       let k: number = 1;
       for (let trial: number = 0; trial < 20; trial++, k /= 2) {
-        const next: ReturnType<typeof AutoMovieSolidTraceTrial> =
-          AutoMovieSolidTraceTrial(
-            host,
-            current.face,
-            current.u + k * dx[0],
-            current.v + k * dx[1],
-            left > 0,
-          );
+        const [u1, v1]: [number, number] = [current.u + k * dx[0], current.v + k * dx[1]];
+        if (!inside(u1, v1)) {
+          // A projected Newton step: the step is first clipped at the face's kept boundary (bisected on the step's share), so an iterate near a
+          // seam stays on its face; it crosses only when the clipped point does not lower the residual, a switch is left, and the face
+          // across is not the one it just left. At a tangent seam each face's linearization overshoots onto the other, and crossing on
+          // every overshoot alternated between the two faces until the switches ran out.
+          let [lo, hi]: [number, number] = [0, k];
+          for (let b: number = 0; b < 52 && inside(current.u + hi * dx[0], current.v + hi * dx[1]) === false && hi - lo > 1e-15 * k; b++) {
+            const mid: number = (lo + hi) / 2;
+            if (inside(current.u + mid * dx[0], current.v + mid * dx[1])) lo = mid;
+            else hi = mid;
+          }
+          if (lo > 0) {
+            const clipped: ReturnType<typeof AutoMovieSolidTraceTrial> = AutoMovieSolidTraceTrial(host, face0, current.u + lo * dx[0], current.v + lo * dx[1], false);
+            if (clipped !== null && lower(clipped)) {
+              current = clipped;
+              accepted = true;
+              break;
+            }
+          }
+          if (left === 0) continue;
+          // Past the domain the trial crosses at its foot; inside the domain but past the kept region (a trimmed part of the chart) the
+          // neighbour across that trim is read explicitly, since the chart itself still evaluates there.
+          const beyond: ReturnType<IAutoMovieSolidAtlas["across"]> = AutoMovieSolidDomain.contains(host.faces[face0]!, u1, v1) ? host.across(face0, u1, v1) : null;
+          const reached: ReturnType<typeof AutoMovieSolidTraceTrial> = beyond === null ? null : AutoMovieSolidTraceTrial(host, beyond.face, beyond.u, beyond.v, false);
+          const crossed: ReturnType<typeof AutoMovieSolidTraceTrial> = reached !== null ? { ...reached, crossed: true } : AutoMovieSolidTraceTrial(host, face0, u1, v1, true);
+          if (crossed !== null && !crossed.crossed) continue;
+          if (crossed === null || crossed.face === came) continue;
+          // From the boundary the crossing's foot is the same point on the neighbour, so it is taken at an equal residual too.
+          const q: Vec3 = sub(crossed.jet.p, from);
+          if (Math.hypot(dot(q, m), (dot(q, q) - width * width) / (2 * width)) <= merit + rounding * scale) {
+            if (crossed.crossed) {
+              left--;
+              came = face0;
+            }
+            current = crossed;
+            accepted = true;
+            break;
+          }
+          continue;
+        }
+        const next: ReturnType<typeof AutoMovieSolidTraceTrial> = AutoMovieSolidTraceTrial(host, face0, u1, v1, false);
         if (next === null) continue;
-        const q: Vec3 = sub(next.jet.p, from);
-        if (
-          Math.hypot(dot(q, m), (dot(q, q) - width * width) / (2 * width)) <
-          merit
-        ) {
-          if (next.crossed) left--;
+        if (lower(next)) {
           current = next;
           accepted = true;
           break;
