@@ -1,4 +1,4 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
+import { type IAutoMovieResolvedBone, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionTarget,
@@ -6,6 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -29,7 +30,8 @@ export namespace touchRegion {
    * A leg's region of the performer moves with the hips once the trunk
    * leans, so with `legs` it is read on the legs the posture so far places;
    * every other region is read on the given bones. The first hand's region
-   * is moved to its site.
+   * is moved to its site; a site along a prop's contact is read on the
+   * prop's frame at the second, so it follows a prop that moves.
    *
    * @param context The action's context.
    * @param bones The body's bones at the entry, or with the other arm presented.
@@ -37,7 +39,7 @@ export namespace touchRegion {
    * @param target The first hand's target, the one a site applies to.
    * @param site The first hand's site; the region's own point when absent.
    * @returns For a target and whether a leg's region follows the legs, the region's frame at a posture and a second since the action's start.
-   * @throws {HumanRefusal} When the site's radius is negative.
+   * @throws {HumanRefusal} When the site's radius is negative, or a site along a contact is given without a prop target, with a share outside [-0.5, 0.5], or on a contact without a length.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input, which bones each region is read on, what the site moves and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation A limb is solved after the trunk, so a leg's region under a lean is read on the legs alone re-solved on the posture so far; the site is fixed once, at plan time, against the first arm's shoulder at the entry.
@@ -48,7 +50,10 @@ export namespace touchRegion {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader closes over the bones, the shoulder and the fixed site.
    */
   export function reader(
-    context: Pick<IHumanActionContext, "aim" | "body" | "series" | "start">,
+    context: Pick<
+      IHumanActionContext,
+      "aim" | "body" | "prop" | "series" | "start"
+    >,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     side: HumanHand.Side,
     target: AutoMovieMotionTarget,
@@ -62,6 +67,21 @@ export namespace touchRegion {
       site === undefined ? undefined : touchSite.of(context, site);
     const shoulder: IAutoMovieVector3 = bones.get(`${side}UpperArm`)!
       .worldPosition;
+
+    // A site along a prop's contact moves with the prop.
+    let along: ((seconds: number) => IAutoMovieVector3) | undefined;
+    if (site !== undefined && "along" in site) {
+      if (target.kind !== "prop")
+        throw new HumanRefusal({
+          kind: "affordance",
+          axis: "site",
+          value: target.kind,
+          feasible: { kind: "alternatives", values: ["prop"] },
+          reason: "a site along a contact is stated on a prop's contact",
+          fix: "aim the touch at a prop's contact, or state the site as an offset",
+        });
+      along = touchSite.span(context, target.subject, target.point, site.along);
+    }
     return (
         aimed: AutoMovieMotionTarget,
         legs: boolean,
@@ -89,9 +109,13 @@ export namespace touchRegion {
               )
             : bones,
         );
-        return sited === undefined || aimed !== target
-          ? frame
-          : sited(frame, shoulder);
+        if (sited === undefined || aimed !== target) return frame;
+        return along === undefined
+          ? sited(frame, shoulder)
+          : {
+              point: Vector3.add(frame.point, along(context.start + seconds)),
+              normal: frame.normal,
+            };
       };
   }
 }
