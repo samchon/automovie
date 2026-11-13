@@ -1,5 +1,9 @@
-import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { Vector3, getConstraint } from "@automovie/engine";
+import type {
+  IAutoMovieAngleRange,
+  IAutoMovieBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanHand } from "../posture/HumanHand";
@@ -102,7 +106,8 @@ export namespace AutoMovieMotionHumanTouchLaid {
   /**
    * The arm of a touch laid on its region, solved once on the entry posture
    * with the elbow's hint: the reference every second's fit of the touch is
-   * held to (`ITouch.reference`).
+   * held to (`ITouch.reference`), its forearm twist kept `MARGIN` degrees
+   * inside the forearm's range.
    *
    * @param body The body.
    * @param posture The entry posture.
@@ -119,7 +124,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
    * @evidence contracts/development/common.md#meaningful-documentation States when and on what the arm is solved and who reads it.
    * @evidence contracts/development/implementation.md#principled-implementation A limb fit has more than one arm for one hand place; a fit referred to one arm solved once returns the arm nearest it, so the seconds of a touch share a solution branch.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One goal (`rest`), one posture solve and one read.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Solved by the posture resolver itself, so the reference is an arm the fit can return.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Solved by the posture resolver itself, so the reference is an arm the fit can return; its forearm twist is then kept `MARGIN` inside the forearm's range, since a reference at a range's end asks the fit to hold the joint at its limit.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the effector's goal, the posture resolver and its reference reading.
    * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per touch.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
@@ -138,7 +143,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
     from?: IAutoMovieVector3,
   ): NonNullable<IHumanPosture.IGoal["reference"]> {
     const limb: "leftArm" | "rightArm" = `${side}Arm`;
-    return resolveHumanPosture.reference(
+    const solved: IHumanPosture.IReference = resolveHumanPosture.reference(
       resolveHumanPosture(body, {
         ...posture,
         limbs: {
@@ -160,7 +165,28 @@ export namespace AutoMovieMotionHumanTouchLaid {
       }),
       limb,
     );
+
+    // A law does not ask a joint at the end of its range: the forearm's
+    // twist is kept `MARGIN` degrees inside the forearm's own range.
+    const range: IAutoMovieAngleRange | null = getConstraint(
+      `${side}LowerArm`,
+      body.skeleton.bones.find(
+        (b: IAutoMovieBone): boolean => b.bone === `${side}LowerArm`,
+      )?.constraint ?? null,
+    )?.twist ?? null;
+    if (range === null || range.max - range.min <= 2 * MARGIN) return solved;
+    return {
+      ...solved,
+      lower: [
+        solved.lower[0],
+        solved.lower[1],
+        Math.min(range.max - MARGIN, Math.max(range.min + MARGIN, solved.lower[2])),
+      ],
+    };
   }
+
+  /** How far inside the forearm's twist range a laid arm's reference keeps it, degrees (provisional). */
+  export const MARGIN: number = 5;
 
   /**
    * The arm goal that lays an effector on a region at rest, before any lift

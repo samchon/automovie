@@ -299,7 +299,10 @@ export namespace armWrestle {
           `${side}UpperArm`,
         )!.worldPosition;
         const joint = pose.joints.find((j): boolean => j.bone === `${side}UpperArm`);
-        return `at ${degrees} degrees the shoulder lies ${(Vector3.length(Vector3.subtract(shoulder, elbow)) * 1000).toFixed(0)} mm from the elbow's place (the upper arm is ${(upperArm * 1000).toFixed(0)} mm) and the upper arm stands at flexion ${(joint?.flexion ?? NaN).toFixed(0)}, abduction ${(joint?.abduction ?? NaN).toFixed(0)}, twist ${(joint?.twist ?? NaN).toFixed(0)} degrees`;
+        const at: IAutoMovieVector3 = wrist(degrees);
+        const v = (q: IAutoMovieVector3): string =>
+          `(${q.x.toFixed(4)}, ${q.y.toFixed(4)}, ${q.z.toFixed(4)})`;
+        return `at ${degrees} degrees the wrist is asked at ${v(at)}, turned about the elbows' line through ${v(elbow)} along ${v(own)}, the elbow hinted at ${v(elbow)}, and the shoulder lies ${(Vector3.length(Vector3.subtract(shoulder, elbow)) * 1000).toFixed(0)} mm from the elbow's place (the upper arm is ${(upperArm * 1000).toFixed(0)} mm) and the upper arm stands at flexion ${(joint?.flexion ?? NaN).toFixed(0)}, abduction ${(joint?.abduction ?? NaN).toFixed(0)}, twist ${(joint?.twist ?? NaN).toFixed(0)} degrees`;
       };
       let most: number = 0;
       for (let degrees: number = 5; degrees < asked; degrees += 5)

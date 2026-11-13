@@ -1243,6 +1243,13 @@
     },
     {
       "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTouchLaid.MARGIN",
+      "tests": [
+        "test_human_motion_hand_verdicts_shave"
+      ]
+    },
+    {
+      "layer": "compose",
       "symbol": "AutoMovieMotionHumanTouchLaid.rest",
       "tests": [
         "test_human_motion_compose_touch_laid"
