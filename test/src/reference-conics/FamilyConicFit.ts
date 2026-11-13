@@ -84,6 +84,9 @@ export namespace FamilyConicFit {
   /** Barrier residual per unit of excess share, mm. */
   const BARRIER_MM: number = 50;
 
+  /** Spacing of the stations at which every candidate must be an admissible chain, mm (`fit`). */
+  const DENSE_MM: number = 0.25;
+
   /** Phases per section used by the chord report. */
   const REPORT: number = 180;
 
@@ -179,7 +182,14 @@ export namespace FamilyConicFit {
     for (const sample of samples) for (let k: number = 0; k < free.length; ++k) sample.weights.push(1);
     const weights: number[][] = samples.map((sample: ISample): number[] => [...sample.weights]);
     const rest = (f: number): number => (units[f] === "share" ? 0.5 : 0);
+    // Every station the family spans must be an admissible chain, not only the fitted ones: the construction realizes the family at its own
+    // layers and the engine reads between them, and a candidate admissible only at the observed stations was refused there (an arc whose
+    // tangent lines meet behind its end, a phase that does not advance). Checked every `DENSE_MM` from the first knot to the last.
+    const dense: number[][] = [];
+    for (let s: number = knots[0]!; s <= knots[M - 1]! + 1e-9; s += DENSE_MM) dense.push(basis(Math.min(s, knots[M - 1]!)));
+    const admissible = (values: number[][]): boolean => dense.every((b: number[]): boolean => C.chain(theta(values, b), layout).fault === null);
     const cost = (values: number[][]): { total: number; residuals: number[][] } | null => {
+      if (!admissible(values)) return null;
       let total: number = 0;
       const residuals: number[][] = [];
       for (let i: number = 0; i < train.length; ++i) {
