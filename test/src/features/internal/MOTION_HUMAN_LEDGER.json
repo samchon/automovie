@@ -181,7 +181,7 @@
         "test_human_motion_compose_gaze",
         "test_human_motion_compose_lean_into",
         "test_human_motion_compose_touch_laid",
-        "test_human_motion_compose_trunk",
+        "test_human_motion_compose_trunk_turn_m_average",
         "test_motion_compose_arm_transport",
         "test_motion_compose_clock_spans",
         "test_motion_compose_leg_place",
@@ -1360,6 +1360,18 @@
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.STEP", "tests": ["test_human_motion_compose_touch_laid"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.tilt", "tests": ["test_human_motion_prop_held_use"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.solve", "tests": ["test_human_motion_compose_touch_laid", "test_human_motion_prop_held_use"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.tip", "tests": ["test_human_motion_prop_held_attitude"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.facings", "tests": ["test_human_motion_compose_touch_laid"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouch.TIP", "tests": ["test_human_motion_prop_held_attitude"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchDrink.LEAN_STEP", "tests": ["test_human_motion_prop_held_attitude", "test_human_motion_signature_hand_to_face_drink_m_average"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchDrink.drinking", "tests": ["test_human_motion_signature_hand_to_face_drink_m_average"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchDrink.admitted", "tests": ["test_human_motion_signature_hand_to_face_drink_m_average"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchDrink.held", "tests": ["test_human_motion_signature_hand_to_face_drink_m_average"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanDrinkingArm.ELEVATION", "tests": ["test_human_motion_signature_hand_to_face_drink_m_average"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanDrinkingArm.DROP", "tests": ["test_human_motion_signature_hand_to_face_drink_m_average"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanDrinkingArm.read", "tests": ["test_human_motion_signature_hand_to_face_drink_m_average"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanDrinkingArm.drinks", "tests": ["test_human_motion_signature_hand_to_face_drink_m_average"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanDrinkingArm.carried", "tests": ["test_human_motion_prop_held_attitude"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchLaid.lie", "tests": ["test_human_motion_compose_touch_laid"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchStance.RAISE", "tests": ["test_human_motion_hand_reach_up"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchStance.GIRDLE", "tests": ["test_human_motion_hand_reach_up"] },
@@ -1369,14 +1381,14 @@
       "layer": "compose",
       "symbol": "AutoMovieMotionHumanTrunk.CHEST",
       "tests": [
-        "test_human_motion_compose_trunk"
+        "test_human_motion_compose_trunk_turn_m_average"
       ]
     },
     {
       "layer": "compose",
       "symbol": "AutoMovieMotionHumanTrunk.turn",
       "tests": [
-        "test_human_motion_compose_trunk",
+        "test_human_motion_compose_trunk_turn_m_average",
         "test_motion_compose_phrase"
       ]
     },
@@ -1384,14 +1396,14 @@
       "layer": "compose",
       "symbol": "AutoMovieMotionHumanTrunk.sunk",
       "tests": [
-        "test_human_motion_compose_trunk"
+        "test_human_motion_compose_trunk_turn_m_average"
       ]
     },
     {
       "layer": "compose",
       "symbol": "AutoMovieMotionHumanTrunk.crouch",
       "tests": [
-        "test_human_motion_compose_trunk",
+        "test_human_motion_compose_trunk_turn_m_average",
         "test_motion_compose_phrase"
       ]
     },
@@ -1399,7 +1411,7 @@
       "layer": "compose",
       "symbol": "AutoMovieMotionHumanTrunk.counterbalance",
       "tests": [
-        "test_human_motion_compose_trunk"
+        "test_human_motion_compose_trunk_turn_m_average"
       ]
     },
     {
@@ -1969,7 +1981,7 @@
         "test_human_motion_compose_reach_fit",
         "test_human_motion_compose_rise",
         "test_human_motion_compose_touch_laid",
-        "test_human_motion_compose_trunk",
+        "test_human_motion_compose_trunk_turn_m_average",
         "test_human_motion_posture_arm_clearance",
         "test_motion_compose_placed",
         "test_motion_posture_frames",
@@ -1988,7 +2000,7 @@
         "test_human_motion_compose_reach_fit",
         "test_human_motion_compose_rise",
         "test_human_motion_compose_touch_laid",
-        "test_human_motion_compose_trunk",
+        "test_human_motion_compose_trunk_turn_m_average",
         "test_human_motion_posture_arm_clearance",
         "test_motion_compose_placed",
         "test_motion_posture_frames",
@@ -2628,6 +2640,14 @@
         },
         {
           "row": "kind=slump",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture"
+          ],
+          "sweep": "reduced"
+        },
+        {
+          "row": "kind=thumbsDown",
           "tests": [],
           "audit": [
             "test_human_motion_law_sweep_posture"
