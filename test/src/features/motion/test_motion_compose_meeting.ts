@@ -2,6 +2,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
   AutoMovieMotionClock,
   AutoMovieMotionMeeting,
+  HumanRefusal,
   type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -25,13 +26,16 @@ import { TestValidator } from "@nestia/e2e";
  *    place, the instants its own, and the meeting is not solid.
  * 4. A kind that places its contacts itself is asked only when every role is
  *    present.
- * 5. No role, a role too many and a role the kind does not name throw.
+ * 5. No role and a role too many are `participant` refusals on `roles` with
+ *    the kind's range of one to two; a role the kind does not name is one on
+ *    `role` listing `shaker`; a contact the meeting lacks is a `parameter`
+ *    refusal on `contact` listing `palm`.
  * 6. The shared instants on an action's own time, and a clock aligned on one:
  *    the spans before the instant stretch and the spans after keep their length.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public `of`, `place` and `local` and the clock's alignment, and reads the record; a frame that depends on the order of the roles, a contact not shared by both, an instant taken from the faster role, or a lone role marked solid fails.
  * @evidence contracts/development/testing.md#independent-expectations The frame, the contact and the places are worked out by hand from the stated stances and the stub's measures; the instants are the stated timings' maxima plus the start; the aligned clock's instants are the phrase's spans scaled by 0.75 over 0.625 before the stroke and unchanged after it.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers both orders of two roles, each role's place, a lone role, a kind with and without its own placement, three refusals of the role list, an unknown contact, and an alignment on a time and on none.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers both orders of two roles, each role's place, a lone role, a kind with and without its own placement, three refusals of the role list and an unknown contact, each with its axis and what it accepts, and an alignment on a time and on none.
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit; the body is a stub of the four measures a default place reads and the kind is the test's own, since no law defines a kind until the mutual laws are rebuilt. How the performance pairs two actions into one meeting is not covered here. It runs in CI.
  * @evidence contracts/development/common.md#meaningful-documentation States the stub, both stances and timings, and lists the 6 scenarios with their numbers.
  */
@@ -108,9 +112,6 @@ export function test_motion_compose_meeting(): void {
       at(theirs.normal, 0, 0, 1) &&
       mine.solid === true,
   );
-  TestValidator.error("a contact the meeting lacks", (): unknown =>
-    AutoMovieMotionMeeting.place(meeting, "elbow", a.posture),
-  );
 
   // 3. One role.
   const alone = AutoMovieMotionMeeting.of(kind, [b], context);
@@ -158,15 +159,49 @@ export function test_motion_compose_meeting(): void {
       ),
   );
 
-  // 5. Refusals.
-  TestValidator.error("no role", (): unknown =>
-    AutoMovieMotionMeeting.of(kind, [], context),
+  // 5. Refusals, each located with what the axis accepts.
+  const refusal = (build: () => unknown): string => {
+    try {
+      build();
+    } catch (error) {
+      return error instanceof HumanRefusal
+        ? `${error.kind} ${error.axis} ${JSON.stringify(error.feasible)}`
+        : `not a refusal: ${String(error)}`;
+    }
+    return "accepted";
+  };
+  const count: string = JSON.stringify({
+    kind: "range",
+    minimum: 1,
+    maximum: 2,
+    unit: "",
+    whole: true,
+  });
+  TestValidator.equals(
+    "no role",
+    refusal((): unknown => AutoMovieMotionMeeting.of(kind, [], context)),
+    `participant roles ${count}`,
   );
-  TestValidator.error("a role too many", (): unknown =>
-    AutoMovieMotionMeeting.of(kind, [a, b, role("c", 2, 0)], context),
+  TestValidator.equals(
+    "a role too many",
+    refusal((): unknown =>
+      AutoMovieMotionMeeting.of(kind, [a, b, role("c", 2, 0)], context),
+    ),
+    `participant roles ${count}`,
   );
-  TestValidator.error("a role the kind does not name", (): unknown =>
-    AutoMovieMotionMeeting.of(kind, [a, role("b", 1, 180, "giver")], context),
+  TestValidator.equals(
+    "a role the kind does not name",
+    refusal((): unknown =>
+      AutoMovieMotionMeeting.of(kind, [a, role("b", 1, 180, "giver")], context),
+    ),
+    `participant role ${JSON.stringify({ kind: "alternatives", values: ["shaker"] })}`,
+  );
+  TestValidator.equals(
+    "a contact the meeting lacks, refused with its contacts",
+    refusal((): unknown =>
+      AutoMovieMotionMeeting.place(meeting, "elbow", a.posture),
+    ),
+    `parameter contact ${JSON.stringify({ kind: "alternatives", values: ["palm"] })}`,
   );
 
   // 6. The action's own time.

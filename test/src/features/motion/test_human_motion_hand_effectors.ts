@@ -1,5 +1,6 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanBend,
   AutoMovieMotionHumanTouchEffector,
   HumanChain,
   HumanPerformance,
@@ -34,12 +35,15 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 4. With `site: { along: 0.4 }` the palm lies 0.24 m further along the rail
  *    than at its middle, within 15 mm.
  * 5. `site: { along: 0.6 }`, past the rail's end, is refused.
+ * 6. A hand direction whose weights are all zero is a `parameter` refusal
+ *    on `direction` listing the hand's axes; an elbow held level for a
+ *    wrist 5 m ahead is a `reach` refusal on `elbow` offering `natural`.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Builds each performance through the public chain and reads the displayed effector point against the region or the rail; a named part that is ignored, a site that stays in the middle or a share past the end that plans fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds each performance through the public chain and reads the displayed effector point against the region or the rail; a named part that is ignored, a site that stays in the middle or a share past the end that plans, or a refusal without its axis and what it accepts, fails.
  * @evidence contracts/development/testing.md#independent-expectations The 15 mm is the campaign's contact bound (#3354); 0.24 m is 0.4 of the rail's own 0.6 m; neither is read from the law.
- * @evidence contracts/development/testing.md#distinguishing-cases Two hand parts against the palm, and a rail's middle, a place along it and a place past its end.
+ * @evidence contracts/development/testing.md#distinguishing-cases Two hand parts against the palm, a rail's middle, a place along it and a place past its end, and the two compose refusals.
  * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and builds five short performances, each read at one instant; it runs locally and wherever CI runs the human motion tests.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule, the stage and the 5 scenarios with their bounds.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule, the stage and the 6 scenarios with their bounds.
  */
 export function test_human_motion_hand_effectors(): void {
   const body: IHumanBody = motionHumanBody("m-average");
@@ -200,6 +204,47 @@ export function test_human_motion_hand_effectors(): void {
   if (refused !== "refused")
     complaints.push(
       `0.6 along the rail, past its end: ${refused}, a HumanRefusal expected`,
+    );
+
+  // 6. A direction that points nowhere, and a level elbow for a wrist out
+  // of reach: each located, with what its axis accepts.
+  const located = (build: () => unknown): string => {
+    try {
+      build();
+    } catch (error) {
+      return error instanceof HumanRefusal
+        ? `${error.kind} ${error.axis} ${JSON.stringify(error.feasible)}`
+        : `not a refusal: ${String(error)}`;
+    }
+    return "accepted";
+  };
+  const nowhere: string = located((): unknown =>
+    AutoMovieMotionHumanTouchEffector.direction("right", {
+      fingers: 0,
+      palm: 0,
+    }),
+  );
+  if (
+    nowhere !==
+    `parameter direction ${JSON.stringify({ kind: "alternatives", values: AutoMovieMotionHumanTouchEffector.AXES })}`
+  )
+    complaints.push(
+      `a hand direction of zero weights: ${nowhere}, a parameter refusal on direction listing the hand's axes expected`,
+    );
+  const level: string = located((): unknown =>
+    AutoMovieMotionHumanBend.level({
+      body,
+      posture: { root: { x: 0, y: 1, z: 0 }, yaw: 0 },
+      side: "right",
+      point: { x: 0, y: 1.4, z: 5 },
+    }),
+  );
+  if (
+    level !==
+    `reach elbow ${JSON.stringify({ kind: "alternatives", values: ["natural"] })}`
+  )
+    complaints.push(
+      `a level elbow for a wrist 5 m ahead: ${level}, a reach refusal on elbow offering natural expected`,
     );
   TestValidator.equals("a touch's hand part and its place", complaints, []);
 }

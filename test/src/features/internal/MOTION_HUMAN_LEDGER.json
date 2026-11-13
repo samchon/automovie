@@ -382,7 +382,8 @@
       "layer": "compose",
       "symbol": "AutoMovieMotionHumanBend.level",
       "tests": [
-        "test_human_motion_signature_salute"
+        "test_human_motion_signature_salute",
+        "test_human_motion_hand_effectors"
       ]
     },    {
       "layer": "compose",
@@ -1370,7 +1371,7 @@
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchStance.RAISE", "tests": ["test_human_motion_hand_reach_up"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchStance.GIRDLE", "tests": ["test_human_motion_hand_reach_up"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchStance.solve", "tests": ["test_human_motion_hand_reach_up"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchEffector.direction", "tests": ["test_human_motion_emblem_signatures", "test_human_motion_prop_held_use"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchEffector.direction", "tests": ["test_human_motion_emblem_signatures", "test_human_motion_prop_held_use", "test_human_motion_hand_effectors"] },
     {
       "layer": "compose",
       "symbol": "AutoMovieMotionHumanTrunk.CHEST",

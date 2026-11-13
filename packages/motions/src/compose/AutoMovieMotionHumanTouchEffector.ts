@@ -10,6 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -137,12 +138,12 @@ export namespace AutoMovieMotionHumanTouchEffector {
    * @param side The hand.
    * @param direction An axis, or weights on the three anatomical axes.
    * @returns The unit vector.
-   * @throws {Error} When every weight is zero.
+   * @throws {HumanRefusal} A `parameter` refusal on `direction` that lists the hand's axes, when every weight is zero.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the two inputs, the result and the failure.
    * @evidence contracts/development/implementation.md#principled-implementation The weighted sum of the three orthonormal anatomical axes, normalised.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch on the form and one sum.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A blend with no length throws instead of returning an arbitrary axis.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A blend with no length is refused instead of returning an arbitrary axis.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `axis`.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
@@ -159,7 +160,18 @@ export namespace AutoMovieMotionHumanTouchEffector {
         Vector3.scale(axis(side, name), direction[name] ?? 0),
       );
     if (!(Vector3.length(sum) > 1e-9))
-      throw new Error("A direction of the hand needs a weight that is not 0");
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "direction",
+        value: direction,
+        feasible: {
+          kind: "alternatives",
+          values: AXES,
+        },
+        reason:
+          "a direction of the hand weighs its three axes, and every weight given is 0, so it points nowhere",
+        fix: "name one of the hand's axes, or give at least one axis a weight that is not 0",
+      });
     return Vector3.normalize(sum);
   }
 

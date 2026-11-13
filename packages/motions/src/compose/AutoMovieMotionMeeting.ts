@@ -193,13 +193,12 @@ export namespace AutoMovieMotionMeeting {
    * @param context The film second the meeting starts at.
    * @param window The film seconds it holds over; its natural instants when absent.
    * @returns The meeting.
-   * @throws {Error} With no role, more roles than the kind has, or a role the kind does not name.
-   * @throws {HumanRefusal} When the window ends before the contact can be made.
+   * @throws {HumanRefusal} A `participant` refusal on `roles` with the kind's range of roles, with no role or more roles than the kind has; on `role` listing the kind's roles, for a role it does not name; and a `parameter` refusal on `window` when the window ends before the contact can be made.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, that the roles' order is free, the three plain errors (no role, too many roles, a role the kind does not name) and the `window` refusal that names the earliest second the contact can be made.
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, that the roles' order is free, the two `participant` refusals (the count of roles with its range, a role the kind does not name with its roles) and the `window` refusal that names the earliest second the contact can be made.
    * @evidence contracts/development/implementation.md#principled-implementation The roles are sorted by name and then subject before anything is read, so the result does not depend on who asks. The frame sits at the mean floor point heading from the first role to the second; each contact is the kind's own placement or the mean of the roles' default places; each shared instant is the latest of the roles' natural ones, since the pair can meet only when the slower role arrives; a window moves the instants later to its start and holds the contact to its end.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Validate, order, frame, contacts, instants, record, in that order with one local each.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An empty, oversized or misnamed role list throws with the kind's roles named. Roles on one floor point take the first role's heading instead of an undefined direction. A role count is checked against the kind's, not each name's multiplicity.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An empty, oversized or misnamed role list is refused with the kind's roles named. Roles on one floor point take the first role's heading instead of an undefined direction. A role count is checked against the kind's, not each name's multiplicity.
    * @evidence contracts/development/implementation.md#efficient-algorithms Two roles and a few contacts; one sort and one pass each.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Default places resolve through `AutoMovieMotionHumanTarget.fallback` and the frame change through `HumanFrame.local`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function; the record keeps no body, posture or bone.
@@ -211,14 +210,30 @@ export namespace AutoMovieMotionMeeting {
     window?: IWindow,
   ): IMeeting {
     if (roles.length === 0 || roles.length > kind.roles.length)
-      throw new Error(
-        `A ${kind.name} meets ${kind.roles.length} roles at most and one at least`,
-      );
+      throw new HumanRefusal({
+        kind: "participant",
+        axis: "roles",
+        value: roles.length,
+        feasible: {
+          kind: "range",
+          minimum: 1,
+          maximum: kind.roles.length,
+          unit: "",
+          whole: true,
+        },
+        reason: `a ${kind.name} meets ${kind.roles.length} roles at most and one at least, and ${roles.length} were given`,
+        fix: `give between one and ${kind.roles.length} of its roles: ${kind.roles.join(", ")}`,
+      });
     for (const role of roles)
       if (!kind.roles.includes(role.name))
-        throw new Error(
-          `A ${kind.name} has no role "${role.name}"; its roles are ${kind.roles.join(", ")}`,
-        );
+        throw new HumanRefusal({
+          kind: "participant",
+          axis: "role",
+          value: role.name,
+          feasible: { kind: "alternatives", values: [...new Set(kind.roles)] },
+          reason: `a ${kind.name} has no role "${role.name}"; its roles are ${kind.roles.join(", ")}`,
+          fix: "name one of the kind's roles",
+        });
     const ordered: IRole[] = [...roles].sort((a: IRole, b: IRole): number =>
       a.name !== b.name
         ? a.name < b.name
@@ -333,7 +348,7 @@ export namespace AutoMovieMotionMeeting {
    * @param contact The contact's name.
    * @param posture Where the performer stands.
    * @returns The place, solid when the meeting is.
-   * @throws {Error} On a contact the meeting lacks.
+   * @throws {HumanRefusal} A `parameter` refusal on `contact` that lists the meeting's contacts, on a contact the meeting lacks.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the place's point and facing, when it is solid and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation A contact between two people is approached from each one's own side, so the place faces back at the asking performer along the floor and the two roles get opposite normals on one point.
@@ -350,9 +365,17 @@ export namespace AutoMovieMotionMeeting {
   ): AutoMovieMotionHumanTarget.IPlace {
     const local: IAutoMovieVector3 | undefined = meeting.contacts[contact];
     if (local === undefined)
-      throw new Error(
-        `The ${meeting.kind} has no contact "${contact}"; its contacts are ${Object.keys(meeting.contacts).join(", ")}`,
-      );
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "contact",
+        value: contact,
+        feasible: {
+          kind: "alternatives",
+          values: Object.keys(meeting.contacts),
+        },
+        reason: `the ${meeting.kind} has no contact "${contact}"; its contacts are ${Object.keys(meeting.contacts).join(", ")}`,
+        fix: "name one of the meeting's contacts",
+      });
     const point: IAutoMovieVector3 = HumanFrame.point(meeting.frame, local);
     const back: IAutoMovieVector3 = {
       x: posture.root.x - point.x,

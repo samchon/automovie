@@ -324,7 +324,7 @@ export namespace AutoMovieMotionHumanBend {
    *
    * @param props The request.
    * @returns The elbow's place, world metres, usable as a bend hint.
-   * @throws When the wrist is out of reach or no place on the circle is allowed, and no `fallback` is given.
+   * @throws {HumanRefusal} A `reach` refusal on `elbow` that offers the `natural` elbow, when the wrist is out of reach or no place on the circle is allowed, and no `fallback` is given.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which place is chosen, the tie rule, the result's frame and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation The same swivel circle and legality as `solve`, ranked by the elbow's height from the shoulder's instead of by strain: a level upper arm is an elbow at the shoulder's height.
@@ -355,6 +355,7 @@ export namespace AutoMovieMotionHumanBend {
       kind: "reach",
       axis: "elbow",
       value: "level",
+      feasible: { kind: "alternatives", values: ["natural"] },
       reason: `no elbow place holds the ${props.side} upper arm for this hand goal: ${
         typeof found === "string"
           ? found
