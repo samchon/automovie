@@ -62,6 +62,30 @@ export function test_human_motion_hand_verdicts_shave(): void {
             (f: HumanVerdicts.IFinding): string =>
               `posture at ${f.seconds.toFixed(2)} s: ${dump(performance.posture("a", f.seconds))}`,
           ),
+          // The row's phase instants and, around each finding, the
+          // offending joint's world path and its own and its parent's angles.
+          `shave instants: ${performance
+            .segments("a")[1]!
+            .plan.events.map(
+              (e): string =>
+                `${e.name} ${(performance.segments("a")[1]!.start + e.share * performance.segments("a")[1]!.plan.duration).toFixed(3)}`,
+            )
+            .join(", ")}`,
+          ...report.findings.flatMap((f: HumanVerdicts.IFinding): string[] =>
+            Array.from({ length: 13 }, (_: unknown, i: number): string => {
+              const seconds: number = f.seconds + (i - 6) / 48;
+              const bones = performance.bones("a", seconds);
+              const bone = bones.get(f.where as "rightLowerArm");
+              const pose = performance.pose("a", seconds);
+              const angles = (name: string): string =>
+                JSON.stringify(
+                  pose.joints.find((j): boolean => j.bone === name) ?? null,
+                  (_k: string, v: unknown): unknown =>
+                    typeof v === "number" ? Math.round(v * 100) / 100 : v,
+                );
+              return `${seconds.toFixed(3)} s ${f.where} at ${bone === undefined ? "?" : `(${bone.worldPosition.x.toFixed(4)}, ${bone.worldPosition.y.toFixed(4)}, ${bone.worldPosition.z.toFixed(4)})`} ${angles("rightUpperArm")} ${angles("rightLowerArm")} ${angles("rightHand")}`;
+            }),
+          ),
         ].join("\n"),
     "clean",
   );
