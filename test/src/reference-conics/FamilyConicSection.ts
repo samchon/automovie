@@ -40,11 +40,12 @@ export namespace FamilyConicSection {
    *
    * @param depth The limb's median depth.
    * @param after Indices into `limb(depth).anchors` after which a groove stands, each at most once.
+   * @param base The layout the grooves go into, of that median depth; absent, the limb's. A half-fitted part (`bilateral`) takes each
+   *   groove once and its mirror gives the other side its own, as a nose's two supra-alar creases.
    */
-  export function inflected(depth: number, after: readonly number[]): ILayout {
-    const base: ILayout = limb(depth);
+  export function inflected(depth: number, after: readonly number[], base: ILayout = limb(depth)): ILayout {
     return {
-      mirror: false,
+      mirror: base.mirror,
       anchors: base.anchors.flatMap((anchor: IAnchor, k: number): IAnchor[] =>
         after.includes(k) ? [anchor, { kind: "i", level: depth + 1 }, { kind: "m", level: depth + 2 }, { kind: "i", level: depth + 1 }] : [anchor],
       ),

@@ -193,7 +193,14 @@ export namespace FamilyConicFit {
       return { total, residuals };
     };
     let current: { total: number; residuals: number[][] } | null = cost(Y);
-    if (current === null) return failed("the projected seed is not an admissible conic chain on every fitting section");
+    if (current === null) {
+      // `--seeds`: which sections' own seeds and projected seeds are admissible chains, by station, so a refused seed is placed.
+      if (process.argv.includes("--seeds"))
+        process.stderr.write(
+          "seeds: " + train.map((row: IRow, i: number): string => row.s.toFixed(1) + (C.chain(seeds[i]!, layout).fault === null ? "+" : "-") + (C.chain(theta(Y, B[i]!), layout).fault === null ? "+" : "-")).join(" ") + "\n",
+        );
+      return failed("the projected seed is not an admissible conic chain on every fitting section");
+    }
 
     // Levenberg-Marquardt with a finite-difference section Jacobian chained through the linear station basis.
     const steps: number[] = Array.from({ length: F }, (_: unknown, f: number): number => (units[f] === "mm" ? 1e-4 : 1e-6));

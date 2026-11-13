@@ -366,6 +366,13 @@ namespace FamilyConicBody {
    */
   const SIDE_NET: number[] = (process.argv.find((a: string): boolean => a.startsWith("--side-net="))?.slice(11) ?? "19,41,3,20,2,3,4,0.25,1576").split(",").map(Number);
 
+  /**
+   * `--nose-grooves=<anchors>`: the nose fitted to its skin (`IPart.skin`, outermost crossing) with a groove of two inflection lines after
+   * each listed anchor of the depth-1 limb layout (`inflected`), its nostrils' pits left out so the cutters keep them, and no cast nets.
+   */
+  const NOSE_DEPTH: number = Number(process.argv.find((a: string): boolean => a.startsWith("--nose-depth="))?.slice(13) ?? 1);
+  const NOSE_GROOVES: number[] | undefined = process.argv.find((a: string): boolean => a.startsWith("--nose-grooves="))?.slice(15).split(",").filter((x: string): boolean => x.length > 0).map(Number);
+
   /** Where the nose's band lands on it at a phase, mm from its first station (`AutoMovieHumanF1.NOSE_RAILS_MM`). */
   const NOSE_RAIL: (phi: number) => number = AutoMovieNaturalSpline.periodic(AutoMovieHumanF1.NOSE_RAILS_MM);
 
@@ -828,7 +835,7 @@ namespace FamilyConicBody {
 
         // The nose's free end as a short loft straight forward out of the face, closed at its tip.
         // Its course starts 5 mm behind the box's frontal plane, so its first section, half a millimetre into the box, lies on the wings.
-        { name: "nose", centres: [[108, 1556, 0], [140, 1556, 0]], course: "[J.noseRoot, J.noseTip]", halves: [], up: [0, 1, 0], domain: [5.5, 24], head: true, loose: true, step: 1, gap: 3, tip: 28, mirrored: false, layouts: LIMB, clip: (p: R.V): number => -nose(p), reliefs: [], casts: [
+        { name: "nose", centres: [[108, 1556, 0], [140, 1556, 0]], course: "[J.noseRoot, J.noseTip]", halves: [], up: [0, 1, 0], domain: [5.5, 24], head: true, loose: true, step: 1, gap: 3, tip: 28, mirrored: false, layouts: NOSE_GROOVES === undefined ? LIMB : [{ layout: C.inflected(NOSE_DEPTH, NOSE_GROOVES, process.argv.includes("--nose-half") ? C.bilateral(NOSE_DEPTH) : C.limb(NOSE_DEPTH)), depth: NOSE_DEPTH }], ...(NOSE_GROOVES === undefined ? {} : { skin: "outer" as const }), clip: (p: R.V): number => (NOSE_GROOVES === undefined ? -nose(p) : Math.max(-nose(p), nostrilPit(p))), reliefs: [], casts: NOSE_GROOVES !== undefined ? [] : [
           // The floor behind the lobule. The sections close it along the box's floor, so between each wing's outer rim and the columella
           // the hull is one flat chord at 1,543 mm, 1 to 3 mm below the reference's wing round each nostril (rays going up from below, the
           // first downward-facing skin each meets). Cast straight up from the band's rail behind the nostrils (station 8.5) to the lobule,
