@@ -1361,6 +1361,8 @@
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.STEP", "tests": ["test_human_motion_compose_touch_laid"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.tilt", "tests": ["test_human_motion_prop_held_use"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.solve", "tests": ["test_human_motion_compose_touch_laid", "test_human_motion_prop_held_use"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanArmKeyed.KEYS", "tests": ["test_human_motion_compose_arm_carry_keyed"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanArmKeyed.at", "tests": ["test_human_motion_compose_arm_carry_keyed"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.tip", "tests": ["test_human_motion_prop_held_attitude"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.facings", "tests": ["test_human_motion_compose_touch_laid"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouch.TIP", "tests": ["test_human_motion_prop_held_attitude"] },

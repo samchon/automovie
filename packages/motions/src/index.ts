@@ -34,6 +34,7 @@ export * from "./handling/handOver";
 export * from "./handling/receive";
 export * from "./compose/AutoMovieMotionClock";
 export * from "./compose/AutoMovieMotionHumanArm";
+export * from "./compose/AutoMovieMotionHumanArmKeyed";
 export * from "./compose/AutoMovieMotionHumanBase";
 export * from "./compose/AutoMovieMotionHumanBend";
 export * from "./compose/AutoMovieMotionHumanChannel";
