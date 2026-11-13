@@ -118,23 +118,52 @@ export namespace swingTwistRange {
    * @evidence contracts/development/implementation.md#principled-implementation The skeleton's own axes win over the family table, the precedence every engine entry with a skeleton reads.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One table read and one record.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bone is special-cased.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One scan of the bones when a skeleton is given.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `skeletonJointAxes`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The frames of a skeleton are resolved once, by one scan of its bones, and read by every later call: a limb fit clamps its candidates through here twice per swivel candidate, where a scan per call cost about 8 percent of a sweep cell.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `skeletonJointAxes`, once per skeleton and bones list.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The frames are kept in a weak map keyed by the skeleton, released with it, and resolved again when its bones list is replaced; a bone's axes changed in place on a list already read are not seen.
    */
   export function of(
     bone: AutoMovieHumanoidBone,
     skeleton?: IAutoMovieSkeleton,
   ): IJoint | undefined {
-    const axes: IAutoMovieJointAxes | undefined = (
-      skeleton === undefined
-        ? HUMANOID_JOINT_AXES
-        : skeletonJointAxes(skeleton, HUMANOID_JOINT_AXES)
-    )[bone];
-    return axes === undefined
-      ? undefined
-      : { axes, frame: HUMANOID_REST_FRAME[bone] };
+    const key: object = skeleton ?? NO_SKELETON;
+    let kept: IKept | undefined = FRAMES.get(key);
+    if (
+      kept === undefined ||
+      (skeleton !== undefined && kept.bones !== skeleton.bones)
+    ) {
+      kept = {
+        bones: skeleton?.bones,
+        table:
+          skeleton === undefined
+            ? HUMANOID_JOINT_AXES
+            : skeletonJointAxes(skeleton, HUMANOID_JOINT_AXES),
+        frames: new Map(),
+      };
+      FRAMES.set(key, kept);
+    }
+    if (kept.frames.has(bone)) return kept.frames.get(bone);
+    const axes: IAutoMovieJointAxes | undefined = kept.table[bone];
+    const frame: IJoint | undefined =
+      axes === undefined
+        ? undefined
+        : { axes, frame: HUMANOID_REST_FRAME[bone] };
+    kept.frames.set(bone, frame);
+    return frame;
   }
+
+  /** A skeleton's axes table and the bone frames already read from it, with the bones list the table was resolved from. */
+  interface IKept {
+    bones: unknown;
+    table: ReturnType<typeof skeletonJointAxes>;
+    frames: Map<AutoMovieHumanoidBone, IJoint | undefined>;
+  }
+
+  /** The kept tables, per skeleton (or the humanoid tables, keyed by `NO_SKELETON`). */
+  const FRAMES: WeakMap<object, IKept> = new WeakMap();
+
+  /** The key of the humanoid tables read with no skeleton. */
+  const NO_SKELETON: object = Object.freeze({});
 
   /**
    * A rotation read by swing and twist.
