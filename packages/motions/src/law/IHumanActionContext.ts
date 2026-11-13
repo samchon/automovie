@@ -1,6 +1,7 @@
 import type {
   IAutoMovieRandom,
   IAutoMovieResolvedBone,
+  resolveAutoMovieSchedule,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -124,6 +125,19 @@ export interface IHumanActionContext<P = object> {
     role: string,
     partner?: IHumanActionContext.IPartner | readonly IHumanActionContext.IPartner[],
   ): AutoMovieMotionMeeting.IMeeting;
+
+  /**
+   * One of the film's cue tracks (`HumanPerformance.IInput.cues`): its named
+   * instants in film seconds, in the track's order, so a law can place its
+   * own beats on a score's or its stresses on a line's (a dance's steps on
+   * the beats, a nod on an accent). It may be read at plan time. A law that
+   * only needs to start at a cue is synced by its composition instead.
+   *
+   * @param track The track's name.
+   * @returns The track's instants, each with its event name and film second.
+   * @throws {HumanRefusal} A `participant` refusal when the performance has no such track.
+   */
+  cue(track: string): readonly resolveAutoMovieSchedule.ICue[];
 
   /**
    * This instance's draw stream for one channel.

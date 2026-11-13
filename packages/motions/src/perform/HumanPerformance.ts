@@ -741,6 +741,11 @@ export class HumanPerformance {
             reason: `prop ${target.subject} has no point named ${target.point}`,
             fix: `aim at a point the prop declares, or declare ${target.point} in the prop's points`,
           });
+        // A part that moves within the prop is where the prop says it is.
+        const moving:
+          | { point: IAutoMovieVector3; normal: IAutoMovieVector3 }
+          | undefined = prop.point?.(target.point, seconds);
+        if (moving !== undefined) return moving;
         const at: IHumanProp.IFrame = this.prop(target.subject, seconds);
         return {
           point: Vector3.add(
@@ -1116,6 +1121,23 @@ export class HumanPerformance {
         ),
         index: instance,
       }),
+      cue: (track: string): readonly resolveAutoMovieSchedule.ICue[] => {
+        const cues: readonly resolveAutoMovieSchedule.ICue[] | undefined =
+          this.cues[track];
+        if (cues === undefined)
+          throw new HumanRefusal({
+            kind: "participant",
+            axis: named(track, "cue"),
+            value: track,
+            feasible: {
+              kind: "alternatives",
+              values: Object.keys(this.cues),
+            },
+            reason: `the performance has no cue track named ${track}`,
+            fix: "name one of the performance's cue tracks, or give the performance that track in its cues",
+          });
+        return cues;
+      },
       performer: (subject: string): IHumanActionContext.IPerformer => {
         if (!this.people.has(subject))
           throw this.missing(

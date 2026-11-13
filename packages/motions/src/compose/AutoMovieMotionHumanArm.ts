@@ -383,14 +383,19 @@ export namespace AutoMovieMotionHumanArm {
       s <= 0 ? null : resolveHumanPosture(body, posture);
     const joints: IHumanPosture["joints"] = { ...posture.joints };
     const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
-    // The pose each arm is cleared in: the solved one with every arm cleared
-    // before it written in, so a second arm keeps clear of the first as it is
-    // shown and not as its goal would put it.
-    let current: IAutoMoviePose | null = solved;
+    // Each carried arm at a share of the carry: the plain blend of its two
+    // ends, and its course, the blend kept clear. An arm's course at a share
+    // is solved in the pose every other carried arm has at that same share
+    // (an earlier arm on its course, a later one on its plain blend), so two
+    // arms that travel together keep clear of each other as they are shown,
+    // and a course does not depend on the instant it is read at.
+    type Arm = (share: number) => HumanArmClearance.IArm;
+    const plains: Partial<Record<HumanHand.Side, Arm>> = {};
+    const courses: Partial<Record<HumanHand.Side, Arm>> = {};
     for (const side of sides) {
       const held: IAngles = from[side]!;
       const goal: IAngles = solved === null ? held : angles(solved, side);
-      const plain = (share: number): HumanArmClearance.IArm => ({
+      const plain: Arm = (share: number): HumanArmClearance.IArm => ({
         upper: blendHumanJoint(
           body,
           `${side}UpperArm`,
@@ -407,50 +412,97 @@ export namespace AutoMovieMotionHumanArm {
         ),
         hand: blendHumanJoint(body, `${side}Hand`, held.hand, goal.hand, share),
       });
-      let arm: HumanArmClearance.IArm = plain(s);
+      plains[side] = plain;
+      if (solved === null) {
+        courses[side] = plain;
+        continue;
+      }
+      const others: readonly HumanColliders.IPlaced[] =
+        posture.limbs[`${side}Arm`]?.clear ?? [];
+      const posed: Map<number, IAutoMoviePose> = new Map();
+      const pose = (share: number): IAutoMoviePose => {
+        let at: IAutoMoviePose | undefined = posed.get(share);
+        if (at === undefined) {
+          at = solved;
+          // Read after every arm's blend and course exist; an earlier arm
+          // is on its course, a later one on its plain blend, so no two
+          // courses wait on each other.
+          for (const other of sides)
+            if (other !== side)
+              at = HumanArmClearance.posed(
+                at,
+                other,
+                (sides.indexOf(other) < sides.indexOf(side)
+                  ? courses[other]!
+                  : plains[other]!)(share),
+              );
+          posed.set(share, at);
+        }
+        return at;
+      };
+      // Each of the room's two readings keeps the share's blend of its own
+      // two ends: the depth an end's upper arm lies in the chest is not
+      // room for the forearm on the way.
+      const reading = (
+        of: HumanArmClearance.IArm,
+        share: number,
+        which: keyof HumanArmClearance.IBaseline,
+      ): number =>
+        HumanArmClearance.room(body, pose(share), side, of, others, {
+          forearm: which === "forearm" ? 0 : Infinity,
+          segments: which === "segments" ? 0 : Infinity,
+        });
+      let ends:
+        | Record<keyof HumanArmClearance.IBaseline, readonly [number, number]>
+        | undefined;
+      const known: Map<number, HumanArmClearance.IArm> = new Map();
       // Between two arms that clear the body the blended one may not, so its
       // elbow is let out by as much as the forearm lacks; each end keeps the
       // room it holds, so the carry leaves and joins them without a step.
       // The turn is one course over the carry (`HumanArmClearing.course`),
       // so two neighbouring instants read neighbouring arms.
-      if (current !== null) {
-        const pose: IAutoMoviePose = current;
-        const others: readonly HumanColliders.IPlaced[] =
-          posture.limbs[`${side}Arm`]?.clear ?? [];
-        // Each of the room's two readings keeps the share's blend of its own
-        // two ends: the depth an end's upper arm lies in the chest is not
-        // room for the forearm on the way.
-        const reading = (
-          of: HumanArmClearance.IArm,
-          which: keyof HumanArmClearance.IBaseline,
-        ): number =>
-          HumanArmClearance.room(body, pose, side, of, others, {
-            forearm: which === "forearm" ? 0 : Infinity,
-            segments: which === "segments" ? 0 : Infinity,
+      courses[side] = (share: number): HumanArmClearance.IArm => {
+        let arm: HumanArmClearance.IArm | undefined = known.get(share);
+        if (arm === undefined) {
+          arm = HumanArmClearing.course({
+            plain,
+            share,
+            clear: (
+              of: HumanArmClearance.IArm,
+              key: number,
+            ): HumanArmClearance.IArm => {
+              ends ??= {
+                forearm: [
+                  reading(held, 0, "forearm"),
+                  reading(goal, 1, "forearm"),
+                ],
+                segments: [
+                  reading(held, 0, "segments"),
+                  reading(goal, 1, "segments"),
+                ],
+              };
+              return HumanArmClearance.cleared(
+                body,
+                pose(key),
+                side,
+                of,
+                0,
+                others,
+                {
+                  forearm: ends.forearm[0] * (1 - key) + ends.forearm[1] * key,
+                  segments:
+                    ends.segments[0] * (1 - key) + ends.segments[1] * key,
+                },
+              );
+            },
           });
-        const ends: Record<
-          keyof HumanArmClearance.IBaseline,
-          readonly [number, number]
-        > = {
-          forearm: [reading(held, "forearm"), reading(goal, "forearm")],
-          segments: [reading(held, "segments"), reading(goal, "segments")],
-        };
-        arm = HumanArmClearing.course({
-          plain,
-          share: s,
-          clear: (
-            of: HumanArmClearance.IArm,
-            share: number,
-          ): HumanArmClearance.IArm =>
-            HumanArmClearance.cleared(body, pose, side, of, 0, others, {
-              forearm:
-                ends.forearm[0] * (1 - share) + ends.forearm[1] * share,
-              segments:
-                ends.segments[0] * (1 - share) + ends.segments[1] * share,
-            }),
-        });
-        current = HumanArmClearance.posed(pose, side, arm);
-      }
+          known.set(share, arm);
+        }
+        return arm;
+      };
+    }
+    for (const side of sides) {
+      const arm: HumanArmClearance.IArm = courses[side]!(s);
       joints[`${side}UpperArm`] = arm.upper;
       joints[`${side}LowerArm`] = arm.lower;
       joints[`${side}Hand`] = arm.hand;

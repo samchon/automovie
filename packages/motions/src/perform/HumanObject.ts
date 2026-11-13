@@ -83,6 +83,7 @@ export namespace HumanObject {
    * @param model The object.
    * @param placement Where it rests before any hand takes it.
    * @param motion Where it is at a film second, for an object that moves by itself, such as a vehicle on its course; it stays at its placement when absent.
+   * @param contact The world frame of one of its contacts at a film second, for an object whose parts move within it, such as a pedal on its crank (an archetype ride's `frame`); each contact moves rigidly with the object when absent.
    * @returns The prop.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the prop offers the actions and how a contact becomes a target.
@@ -98,9 +99,13 @@ export namespace HumanObject {
     model: IModel,
     placement: Placement,
     motion?: (seconds: number) => Placement,
+    contact?: (id: string, seconds: number) => IAutoMovieTransform,
   ): IHumanProp {
     const affordances: readonly IAutoMovieAffordance[] =
       model.affordances ?? [];
+    const ids: ReadonlySet<string> = new Set(
+      affordances.map((affordance: IAutoMovieAffordance): string => affordance.id),
+    );
     const shapes: IAutoMoviePhysicalProfile.IShape[] | undefined =
       model.shapes?.();
     return {
@@ -126,6 +131,27 @@ export namespace HumanObject {
         : {
             motion: (seconds: number): IHumanProp.IFrame =>
               frame(motion(seconds)),
+          }),
+      ...(contact === undefined
+        ? {}
+        : {
+            point: (
+              id: string,
+              seconds: number,
+            ):
+              | { point: IAutoMovieVector3; normal: IAutoMovieVector3 }
+              | undefined => {
+              if (!ids.has(id)) return undefined;
+              const at: IAutoMovieTransform = contact(id, seconds);
+              return {
+                point: at.translation,
+                normal: Quaternion.rotateVector(at.rotation, {
+                  x: 0,
+                  y: 1,
+                  z: 0,
+                }),
+              };
+            },
           }),
     };
   }

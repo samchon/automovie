@@ -38,6 +38,23 @@ export interface IHumanProp {
    */
   motion?(seconds: number): IHumanProp.IFrame;
 
+  /**
+   * A named point in the world at a film second, for a prop whose parts
+   * move within it: a pedal on its crank, a stirrup on a trotting horse, a
+   * handle on a door that swings. `points` holds a point where it is in the
+   * prop at rest, and the prop's frame alone carries it rigidly; a point
+   * this knows is read here instead, so a foot or a hand aimed at it follows
+   * the part and not the place the part had at rest.
+   *
+   * @param id The point's name, one of `points`.
+   * @param seconds Film seconds.
+   * @returns The point and its outward unit normal, world metres; undefined for a point that only moves with the prop's frame.
+   */
+  point?(
+    id: string,
+    seconds: number,
+  ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } | undefined;
+
   /** Contact frames in the prop's frame (a handle's `+Y` approach and `+X` wrapped axis), which a grasp plans from by id. */
   affordances?: readonly IAutoMovieAffordance[];
 

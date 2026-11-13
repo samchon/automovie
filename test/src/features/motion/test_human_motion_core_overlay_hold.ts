@@ -163,10 +163,26 @@ export function test_human_motion_core_overlay_hold(): void {
         },
         "a",
       ).jump;
-      if (jump.value > 0.005)
+      if (jump.value > 0.005) {
+        // The right arm's joint angles at the readings 1/120 s apart around
+        // the jump, so the row says which joint changed and by how much.
+        const arm = (seconds: number): string =>
+          (["rightUpperArm", "rightLowerArm", "rightHand"] as const)
+            .map((bone): string => {
+              const joint = film
+                .pose("a", Math.max(0, seconds))
+                .joints.find((j): boolean => j.bone === bone);
+              return `${(joint?.flexion ?? 0).toFixed(1)}/${(joint?.abduction ?? 0).toFixed(1)}/${(joint?.twist ?? 0).toFixed(1)}`;
+            })
+            .join(" ");
         complaints.push(
-          `${name}: a jump of ${mm(jump.value)} mm at ${jump.seconds.toFixed(2)} s (${jump.where}), within 5 mm expected`,
+          `${name}: a jump of ${mm(jump.value)} mm at ${jump.seconds.toFixed(3)} s (${jump.where}), within 5 mm expected; the pick-up ends at ${taken.toFixed(3)} s; the right upper arm, forearm and hand 1/120 s apart around it: ${[
+            -2, -1, 0, 1, 2,
+          ]
+            .map((k: number): string => `[${arm(jump.seconds + k / 120)}]`)
+            .join(" ")}`,
         );
+      }
 
       // Where the drink gives the hand back to the carry, the wrist is read
       // every 1/120 s: a hand in a drink moves under 3 m/s, 25 mm a reading.
