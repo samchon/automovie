@@ -388,13 +388,10 @@ export function AutoMovieConstructionSplitRealize(
  * Each band gives a quarter of its columns to each seam it takes and the rest to its arcs, so the two bands beside a seam read it at the
  * same shares. A broken premise restores the checkpoint and records one diagnostic under the split's name, as a two-way split does.
  *
- * @evidence contracts/development/implementation.md#principled-implementation The two-way split's sharing generalized: every fork is one ring vertex, every seam point one vertex read by both its bands, every cycle names the face across each edge.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, seams, children, bands, then one mutation block of vertices and cycles.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No vertex is welded by distance and no child is kept without its siblings.
- * @evidence contracts/development/common.md#meaningful-documentation States the loops, the sharing and the failure effect.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in children times columns after the bands.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Each shared vertex is created once and referenced by every cycle that bounds it.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The body retains the ring, seam and rail vertices, one face per band and its cycles; the checkpoint is released when the node settles.
+ * Every fork is one ring vertex, every seam point one vertex read by both its bands, and every cycle names the face across each edge, so
+ * no vertex is welded by distance and no child is kept without its siblings. Admission, seams, children and bands come first, then one
+ * mutation block of vertices and cycles, linear in children times columns. The body retains the ring, seam and rail vertices, one face
+ * per band and its cycles; the checkpoint is released when the node settles.
  */
 function fan(
   node: IAutoMovieConstructionSplit,
