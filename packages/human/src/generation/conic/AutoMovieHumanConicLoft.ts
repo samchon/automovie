@@ -60,6 +60,13 @@ export namespace AutoMovieHumanConicLoft {
     pitch?: number;
 
     /**
+     * Largest step between neighbouring phases, radians, beside the finest relief net's columns: the mesh's density round the part held
+     * apart from its nets'. f1's trunk took its phases from its finest net, the eyes' at 105 columns (0.016 rad); with that net coarsened to
+     * 73 columns for its own sake the whole face's mesh went from about 400 phases round to 270 and read in level bands and blocks.
+     */
+    phase?: number;
+
+    /**
      * Largest turn of a ring's tangent between two neighbouring phases, radians; absent, the phases are uniform. With it the phases are
      * spaced by how fast the rings turn as well as by `pitch`: at every phase the density is the most any ring asks there, its length over
      * `pitch` or its turn over this, so a sharp edge that only some sections have (a sole's) takes its phases close together where it
@@ -367,7 +374,7 @@ export namespace AutoMovieHumanConicLoft {
     );
 
     // And no farther apart than the finest relief net's columns, as the layers are cut to its rows: a net shows only what the rings sample.
-    const finest: number = Math.min(Infinity, ...(family.reliefs ?? []).map((relief: IAutoMovieLoftRelief): number => (relief.phases[1] - relief.phases[0]) / (relief.columns - 3)));
+    const finest: number = Math.min(family.phase ?? Infinity, ...(family.reliefs ?? []).map((relief: IAutoMovieLoftRelief): number => (relief.phases[1] - relief.phases[0]) / (relief.columns - 3)));
     const made: IAutoMovieViewPart = {
       name: family.name,
       axis: axis(family),
