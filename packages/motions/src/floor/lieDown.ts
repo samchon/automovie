@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
@@ -83,7 +84,7 @@ export namespace lieDown {
     position?: Position;
 
     /** Seconds held lying; 2 when absent. */
-    hold?: number;
+    hold?: number & tags.Minimum<0> & tags.Default<2>;
 
     /** How it is performed. */
     manner?: AutoMovieMotionManner.IManner;

@@ -4,6 +4,7 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
@@ -49,8 +50,8 @@ export namespace HumanTravelLeaf {
     /** The handle taken: one of the prop's points, such as a door's `pull` or `push`. */
     handle: string;
 
-    /** Seconds the hand holds the handle, from the start of the reach. */
-    seconds: number;
+    /** Seconds the hand holds the handle, from the start of the reach; more than the reach's `TAKE`. */
+    seconds: number & tags.ExclusiveMinimum<0.6>;
 
     /** The hand; the right when absent. */
     side?: "left" | "right";

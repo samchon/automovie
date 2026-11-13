@@ -4,6 +4,7 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -55,8 +56,8 @@ export namespace HumanRide {
     /** The moving prop ridden: its subject id in the performance. */
     on: string;
 
-    /** Seconds ridden. */
-    seconds: number;
+    /** Seconds ridden, more than none. */
+    seconds: number & tags.ExclusiveMinimum<0>;
 
     /**
      * A rising trot: the mount's stride time, seconds, or the cue track of
@@ -67,7 +68,7 @@ export namespace HumanRide {
      * On a cue track the seat is down at each of its instants and seated
      * before the first and after the last. Seated throughout when absent.
      */
-    rising?: number | { cue: string };
+    rising?: (number & tags.ExclusiveMinimum<0>) | { cue: string };
 
     /**
      * The support's point each foot stays on, by its id, for a part that
