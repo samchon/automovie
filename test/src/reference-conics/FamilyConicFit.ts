@@ -382,11 +382,16 @@ export namespace FamilyConicFit {
       return sample.phases.map((phi: number, k: number): number => (section.fault === null ? Q.radius(section, phi) : skinRadii[i]![k]!));
     });
     const homotopy: number[] = process.argv.includes("--homotopy") ? Array.from({ length: HOMOTOPY_STEPS }, (_: unknown, k: number): number => (k + 1) / HOMOTOPY_STEPS) : [1];
-    for (const along of homotopy) {
+    // `--release`: once the sections are fitted with the feature lines held, one more stage at the skin fits every number together, the
+    // lines too, as block coordinate descent ends in a joint step; the lines start where they were drawn and are free to move only as far
+    // as the admissible region (and with `--barrier`, its barrier) lets them.
+    const stages: { along: number; release: boolean }[] = [...homotopy.map((along: number) => ({ along, release: false })), ...(held.size > 0 && process.argv.includes("--release") ? [{ along: 1, release: true }] : [])];
+    for (const { along, release } of stages) {
+    if (release) held.clear();
     samples.forEach((sample: ISample, i: number): void => {
       sample.radii = skinRadii[i]!.map((r: number, k: number): number => startRadii[i]![k]! + along * (r - startRadii[i]![k]!));
     });
-    if (homotopy.length > 1) {
+    if (stages.length > 1) {
       const again: { total: number; residuals: number[][] } | null = cost(Y);
       if (again === null) break;
       current = again;
