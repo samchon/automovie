@@ -171,6 +171,14 @@ export namespace AutoMovieHumanF1 {
 
     /** Columns round each band, a quarter on each seam it takes. */
     columns: number;
+
+    /**
+     * Grid stations across each band (`IAutoMovieConstructionSplit.rows`). At the bands' default 8, rows up to 2 mm apart drew the fork
+     * fills as facets and folded the bands where a column turns, beside the hand's palm forks (173 degrees on the middle finger's band) and
+     * in front of the toes' plantar forks (179); at 24 the hand's split keeps one edge folding by 90 degrees or more (8 before) and the
+     * leg's 22 (51), and the toes' tops are smooth (`limbview`, a scratch render of one limb's split). At 16 the leg kept 33.
+     */
+    rows: number;
   }
 
   /**
@@ -204,6 +212,7 @@ export namespace AutoMovieHumanF1 {
       fair: 0.5,
       rail: 3,
       columns: 192,
+      rows: 24,
     },
     // The foot's end at 975 mm on the leg's course, turned at the ball of the foot toward the five toes. Every seam's plane passes through
     // the gap between its toes' facing skins (`fanSeams`); held midway between the index and the big toe's axes it ran through the big
@@ -230,6 +239,7 @@ export namespace AutoMovieHumanF1 {
       fair: 0.5,
       rail: 3,
       columns: 192,
+      rows: 24,
     },
   };
 
@@ -247,6 +257,15 @@ export namespace AutoMovieHumanF1 {
 
   /** Chord of the thumb's blend on either side of the curve where it meets the hand, mm: at 1 mm it folds in the acute web beside the index finger. */
   const THUMB_CHORD_MM: number = 0.5;
+
+  /**
+   * The width of the skin faired about the thumb's blend, mm (`IAutoMovieConstructionJoin.fair`). The blend, 0.5 mm wide, met the hand in a
+   * crisp ledge round the thumb's dorsal root (`limbview` close to [212, 972, 425], a scratch render of the arm's split alone). Faired over
+   * 1.5 mm the fill folded the blend itself (edges folding by 90 degrees or more on the arm's split, 8 to 38); over 3 to 6 mm the ledge
+   * softened and a fin stood in the web beside the index finger; over 8 mm, about the thumb's half width at its root, the root runs into
+   * the hand with no ledge and the web is clean, with 6 edges folding by 115 to 138 degrees on the hand beside the root.
+   */
+  const THUMB_FAIR_MM: number = 8;
 
   /** How far behind its first joint the thumb's root closes in a point, inside the hand, mm. */
   const ROOT_MM: number = 10;
@@ -863,6 +882,7 @@ export namespace AutoMovieHumanF1 {
           rows: 4,
           tolerance: 1e-12,
           grazing: 0.05,
+          fair: THUMB_FAIR_MM / 1000,
         };
       }
 
@@ -900,7 +920,7 @@ export namespace AutoMovieHumanF1 {
         ...(first.profile === undefined ? {} : { profile: first.profile }),
         outer: fan.seams.slice(1).map((_: [number, number], j: number): IAutoMovieConstructionSplit.ISeam => seam(j + 1)),
         count: fanned.columns,
-        rows: BAND.rows,
+        rows: fanned.rows,
         children: children as IAutoMovieConstructionSplit["children"],
       };
       return { node, face: family.name };
