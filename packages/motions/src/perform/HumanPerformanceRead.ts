@@ -110,7 +110,9 @@ export namespace HumanPerformanceRead {
    * prop is a child of the hand while held: the rigid coupling of the
    * engine's `IAutoMovieAttachment`, a bone plus an offset, with the offset
    * captured at the grip's start instead of authored. When grips overlap (a
-   * handover), the one that closed last carries the prop. A hold an action
+   * handover), the one that closed last carries the prop, unless it is the
+   * other hand of the performer already carrying it, which only steadies
+   * it (a camera held in both hands). A hold an action
    * leaves (`IHumanActionPlan.holds`) is a grip lasting until a later action
    * takes that hand over. Released props stay where the last grip to end
    * released them; falling is the physics layer's.
@@ -139,8 +141,18 @@ export namespace HumanPerformanceRead {
     let released: HumanPerformanceState.IGrip | undefined;
     for (const g of grips) {
       if (g.from > seconds) continue;
-      if (seconds <= g.to) active = g;
-      else if (released === undefined || g.to >= released.to) released = g;
+      if (seconds <= g.to) {
+        // A performer's other hand on a prop that performer already holds
+        // steadies it and does not take it over: a camera's far end held
+        // with the right hand on the grip.
+        const steadies: boolean =
+          active !== undefined &&
+          active.bone === undefined &&
+          g.bone === undefined &&
+          active.subject === g.subject &&
+          active.side !== g.side;
+        if (!steadies) active = g;
+      } else if (released === undefined || g.to >= released.to) released = g;
     }
     const window: HumanPerformanceState.IGrip | undefined = active ?? released;
     if (window === undefined) return prop.frame;

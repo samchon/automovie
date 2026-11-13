@@ -1,10 +1,8 @@
-import { createDevice } from "@automovie/archetypes";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanAuditContinuity,
   HumanChain,
   HumanHabit,
-  HumanObject,
   HumanPerformance,
   HumanRefusal,
   type HumanSegment,
@@ -17,6 +15,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { photographScene } from "../internal/photographScene";
 
 /**
  * The lexicon's `photograph` row, a camera held in both hands before the
@@ -47,43 +46,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Picks the camera up and performs the row through the public chain and reads displayed joint centres; hands on one spot or an arm that changes its solution between two instants fails, with the posture around the step printed.
  * @evidence contracts/development/testing.md#independent-expectations The 5 mm step is the verdict report's bound for any human motion; the half hand is a compact camera's width, provisional and stated as such.
- * @evidence contracts/development/testing.md#distinguishing-cases The two bounds this row broke and the row without its camera; the other rows' full reports are its siblings'.
+ * @evidence contracts/development/testing.md#distinguishing-cases The two bounds this row broke and the row without its camera; the camera's own path is 	est_human_motion_hand_verdicts_photograph_camera's, the other rows' full reports are its siblings'.
  * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and one archetype and reads one short film; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States what the row was, the held camera, why the reading is cut to two bounds, one body and a short hold, and the 3 scenarios.
  */
 export function test_human_motion_hand_verdicts_photograph(): void {
   const body: IHumanBody = motionHumanBody("m-average");
-  const camera = createDevice({ kind: "camera" });
-  const performance: HumanPerformance = new HumanPerformance({
-    seed: "verdict",
-    laws: [HumanHabit.photograph],
-    props: [
-      HumanObject.prop("camera", camera, {
-        at: {
-          x: -body.measure.shoulderHalfWidth,
-          y: body.measure.waistHeight,
-          z: 0.6 * (body.measure.upperArm + body.measure.forearm),
-        },
-        yaw: 0,
-      }),
-    ],
-    performers: [
-      {
-        subject: "a",
-        body,
-        at: { x: 0, y: 0, z: 0 },
-        yaw: 0,
-        proficiency: { level: "trained" },
-      },
-    ],
-    composition: HumanChain.subject("a")
-      .pickUp({
-        prop: "camera",
-        handle: "grip",
-        use: { tip: "screen", line: "across", at: { region: "noseBridge" } },
-      })
-      .registered("photograph", { seconds: 0.3, prop: "camera" }).node,
-  });
+  const performance: HumanPerformance = photographScene(body);
   const complaints: string[] = [];
 
   // 1. The hands at the camera's two sides.
