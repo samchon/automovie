@@ -140,7 +140,7 @@ export function blendHumanJoint(
   // takes the same path.
   const within = (of: readonly [number, number, number]): boolean =>
     constraint !== null &&
-    jointRomOvershoot({ bone, ...triple(of) }, constraint) === 0;
+    jointRomOvershoot({ bone, ...triple(of) }, constraint) <= EDGE;
   if (constraint === null || !within(from) || !within(to)) {
     const read: IAutoMovieResolvedJointAngles = arc(s);
     return [read.flexion, read.abduction, read.twist];
@@ -241,6 +241,9 @@ export function blendHumanJoint(
     ? line(from, route.gate[0], s / meet)
     : line(route.gate[1], to, meet >= 1 ? 1 : (s - meet) / (1 - meet));
 }
+
+/** How far outside its range an end may read and still count as on its edge, degrees: a millionth, far above a rounding error and far below any turn that shows; without it an end a solver left on the edge would change the route with its rounding. */
+const EDGE: number = 1e-6;
 
 /** The shares between which the turn along a line of angles is summed. */
 const ARC: readonly number[] = [0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875];

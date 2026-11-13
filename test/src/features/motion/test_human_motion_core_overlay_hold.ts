@@ -19,9 +19,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * performed over the walk, takes the holding hand over, the glass stays in
  * that hand through the whole film, and the other hand stays free.
  *
- * Scenarios, on the average man and the small woman; a glass stands at
- * waist height ahead, is picked up with the right hand, then the person walks 2 m
- * with a drink from that glass put over the walk:
+ * Scenarios, on the average man; a glass stands at waist height ahead, is
+ * picked up with the right hand, then the person walks 2 m with a drink
+ * from that glass put over the walk. One body is enough: the rule is the
+ * grammar's (who carries the hand at each second), not a body's measure,
+ * and each film of a drink over a walk costs a minute to place and read:
  * 1. The composition plans.
  * 2. Grip: from the end of the pick-up to the end of the film, read every
  *    sixth of a second, the glass's origin in the right hand's own frame
@@ -31,7 +33,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 3. The glass is drunk from: at the end of the pick-up it is below the
  *    neck joint, and at some instant of the walk it is above it, where a
  *    mouth is.
- * 4. Continuity, on the average man: from the film's start through the
+ * 4. Continuity: from the film's start through the
  *    reach, the takeover and the 0.6 s after it, no joint centre jumps by
  *    more than the audit's 5 mm; and for 0.3 s either side of the drink's
  *    end, where it gives the hand back, the right wrist moves under 25 mm
@@ -50,7 +52,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_core_overlay_hold(): void {
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(2);
-  for (const name of ["m-average", "f-small"] as const) {
+  for (const name of ["m-average"] as const) {
     const body: IHumanBody = motionHumanBody(name);
     // At waist height, a sixth of the stature ahead: well inside the arm's
     // reach. At hip height and 0.23 of the stature, a straight arm's length

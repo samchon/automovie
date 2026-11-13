@@ -527,6 +527,16 @@ function fitLimb(
   let point: IAutoMovieVector3 = goal.point;
   let last: { image: IAutoMovieVector3; miss: IAutoMovieVector3 } | undefined;
   let toes: number = 0;
+  // The fit whose contact lay nearest its place: the iteration need not
+  // close (a contact far from its joint, a blade's point a metre from the
+  // wrist, turns a small change of the hand into a large one of the joint's
+  // place, and a mixed step may then land far off), and its last pass is
+  // then no better than any other, so the nearest one is the one kept.
+  let nearest: { fitted: IAutoMoviePose; miss: number; toes: number } = {
+    fitted,
+    miss: Infinity,
+    toes: 0,
+  };
   for (let i: number = 0; i < REAIM_PASSES; i++) {
     const reached: IAutoMovieQuaternion = resolvePose(
       fitted,
@@ -540,6 +550,8 @@ function fitLimb(
     // The toes belong to the fit they were read from, which is the one kept.
     toes = off.toes;
     const miss: IAutoMovieVector3 = Vector3.subtract(off.ankle, point);
+    if (Vector3.length(miss) < nearest.miss)
+      nearest = { fitted, miss: Vector3.length(miss), toes };
     if (Vector3.length(miss) < REAIM_TOLERANCE || i === REAIM_PASSES - 1) break;
     let next: IAutoMovieVector3 = off.ankle;
     if (last !== undefined) {
@@ -560,6 +572,8 @@ function fitLimb(
     point = next;
     fitted = fitOnce(body, pose, limb, { ...goal, point }, clear);
   }
+  fitted = nearest.fitted;
+  toes = nearest.toes;
   if (!leg || toes === 0) return fitted;
   const bone: AutoMovieHumanoidBone = `${side}Toes`;
   return {
