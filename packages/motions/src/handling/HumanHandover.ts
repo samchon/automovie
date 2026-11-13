@@ -309,11 +309,13 @@ export namespace HumanHandover {
 
   /**
    * Where a hand carries what it took: the wrist a forearm ahead of the
-   * elbow that hangs under the shoulder, the forearm level.
+   * elbow that hangs under the shoulder, the forearm level or raised by a
+   * pitch.
    *
    * @param body The body.
    * @param posture The posture the shoulder is read on.
    * @param side The hand.
+   * @param pitch How far the forearm is raised above level, degrees; 0 when absent.
    * @returns The wrist's place, world metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the place, what it is read on and the frame of the result.
@@ -328,7 +330,9 @@ export namespace HumanHandover {
     body: IHumanBody,
     posture: IHumanPosture,
     side: HumanHand.Side,
+    pitch: number = 0,
   ): IAutoMovieVector3 {
+    const raised: number = (pitch * Math.PI) / 180;
     const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(body, posture).get(
       `${side}UpperArm`,
     )!.worldPosition;
@@ -341,7 +345,11 @@ export namespace HumanHandover {
         },
         yaw: posture.yaw,
       },
-      { x: 0, y: 0, z: body.measure.forearm },
+      {
+        x: 0,
+        y: body.measure.forearm * Math.sin(raised),
+        z: body.measure.forearm * Math.cos(raised),
+      },
     );
   }
 
@@ -387,28 +395,8 @@ export namespace HumanHandover {
     ends: readonly [number, number | undefined],
   ): (seconds: number) => number {
     const count: number = Math.max(1, Math.ceil((to - from) / STEP - 1e-9));
-    const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-    const tip = (seconds: number, yaw: number): number => {
-      const posture: IHumanPosture = at(seconds, yaw);
-      const asked: IAutoMovieQuaternion | undefined =
-        posture.limbs[side === "left" ? "leftArm" : "rightArm"]?.rotation;
-      const reached: IAutoMovieQuaternion | undefined = poseBones(
-        body,
-        resolveHumanPosture(body, posture),
-      ).get(`${side}Hand`)?.worldRotation;
-      if (asked === undefined || reached === undefined) return Infinity;
-      const off: IAutoMovieQuaternion = Quaternion.multiply(
-        Quaternion.normalize(reached),
-        Quaternion.inverse(Quaternion.normalize(asked)),
-      );
-      return (
-        (Math.acos(
-          Math.max(-1, Math.min(1, Quaternion.rotateVector(off, up).y)),
-        ) *
-          180) /
-        Math.PI
-      );
-    };
+    const tip = (seconds: number, yaw: number): number =>
+      tipped(body, side, at(seconds, yaw));
     const times: number[] = [from];
     const turns: number[] = [ends[0]];
     for (let k: number = 1; k <= count; k++) {
@@ -442,5 +430,50 @@ export namespace HumanHandover {
           );
       return turns.at(-1)!;
     };
+  }
+
+  /**
+   * How far a posture tips what its hand holds upright: the angle the hand's
+   * asked rotation, as the arm reaches it, turns the world's up through.
+   *
+   * @param body The body.
+   * @param side The hand.
+   * @param posture The posture, whose arm goal asks the hand's rotation.
+   * @returns Degrees; infinite when the goal asks no rotation.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is measured and the unit.
+   * @evidence contracts/development/implementation.md#principled-implementation The asked rotation holds the prop upright, so the reached rotation's error from it, applied to the world's up, is the tip and nothing else.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolve, one quotient, one angle.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A goal with no rotation is not upright by anything, so it reads as infinitely tipped.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by `upright` along a path and by the receiver's choice of its carrying place.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One posture resolve.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function tipped(
+    body: IHumanBody,
+    side: HumanHand.Side,
+    posture: IHumanPosture,
+  ): number {
+    const asked: IAutoMovieQuaternion | undefined =
+      posture.limbs[side === "left" ? "leftArm" : "rightArm"]?.rotation;
+    const reached: IAutoMovieQuaternion | undefined = poseBones(
+      body,
+      resolveHumanPosture(body, posture),
+    ).get(`${side}Hand`)?.worldRotation;
+    if (asked === undefined || reached === undefined) return Infinity;
+    const off: IAutoMovieQuaternion = Quaternion.multiply(
+      Quaternion.normalize(reached),
+      Quaternion.inverse(Quaternion.normalize(asked)),
+    );
+    return (
+      (Math.acos(
+        Math.max(
+          -1,
+          Math.min(1, Quaternion.rotateVector(off, { x: 0, y: 1, z: 0 }).y),
+        ),
+      ) *
+        180) /
+      Math.PI
+    );
   }
 }

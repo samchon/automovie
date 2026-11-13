@@ -53,6 +53,9 @@ export namespace receive {
     walk: [{ window: ["taken", 1], kind: "inertialize", entry: 0, blend: 0.3 }],
   };
 
+  /** How far the carrying forearm may be raised above level, degrees, level first (provisional: up to the half right angle, a cup held toward the chest). */
+  export const PITCHES: readonly number[] = [0, 15, 30, 45];
+
   /** Parameters. */
   export interface IParams {
     /** The offered prop's subject id. */
@@ -131,18 +134,55 @@ export namespace receive {
     );
 
     // After the transfer: the carrying place in front of the body, or home.
-    const carry: IAutoMovieVector3 = HumanHandover.carried(body, held, side);
+    // The forearm is raised as far of `PITCHES` as the arm needs to hold the
+    // prop upright there in the hand that took it, at its best turn about
+    // the vertical: the grip a giver's height put the hand in may not stay
+    // upright with the forearm level.
+    const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
+      body,
+      held,
+      side,
+    );
+    let carry: IAutoMovieVector3 = HumanHandover.carried(body, held, side);
+    if (takes) {
+      let least: number = Infinity;
+      for (const pitch of PITCHES) {
+        const place: IAutoMovieVector3 = HumanHandover.carried(
+          body,
+          held,
+          side,
+          pitch,
+        );
+        for (const yaw of HumanHandover.YAWS) {
+          const tip: number =
+            HumanHandover.tipped(body, side, {
+              ...held,
+              limbs: {
+                ...held.limbs,
+                [side === "left" ? "leftArm" : "rightArm"]: {
+                  point: place,
+                  rotation: Quaternion.multiply(
+                    Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
+                    shared.receiverShown.rotation,
+                  ),
+                  bend,
+                },
+              },
+            }) +
+            0.1 * pitch;
+          if (tip < least - 1e-9) {
+            least = tip;
+            carry = place;
+          }
+        }
+      }
+    }
     const end: IAutoMovieVector3 = takes ? carry : shared.receiverFrom.point;
     // A hand that took the prop carries it; an empty one returns as it reached.
     const travel: number = Vector3.length(Vector3.subtract(end, arrive));
     const back: number = takes
       ? HumanPrehension.carry(travel)
       : HumanPrehension.nominal(travel, 0);
-    const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
-      body,
-      held,
-      side,
-    );
 
     const home: HumanPrehension.ITransport = HumanPrehension.transport(
       arrive,
