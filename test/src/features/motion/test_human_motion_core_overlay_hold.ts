@@ -8,6 +8,7 @@ import {
   HumanPerformance,
   HumanSignature,
   type IHumanBody,
+  type IHumanPosture,
   type IHumanProp,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -198,6 +199,19 @@ export function test_human_motion_core_overlay_hold(): void {
             .map(
               (k: number): string => `[${arm(read.seconds + k / 120, other)}]`,
             )
+            .join(" ")}, and as its action writes it before display ${[
+            -1, 0, 1, 2,
+          ]
+            .map((k: number): string => {
+              const written: IHumanPosture = other.posture(
+                "a",
+                read.seconds + k / 120,
+              );
+              const upper = written.joints.rightUpperArm;
+              return written.limbs.rightArm !== undefined
+                ? "[a goal]"
+                : `[joints ${upper === undefined ? "none" : upper.map((v: number): string => v.toFixed(1)).join("/")}]`;
+            })
             .join(" ")}`;
         };
         const parts = (): string => {
