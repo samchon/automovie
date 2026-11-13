@@ -1,5 +1,6 @@
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
+import { HumanRefusal } from "../law/HumanRefusal";
 import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutFloor } from "./WorkoutFloor";
 import { WorkoutKind } from "./WorkoutKind";
@@ -33,6 +34,9 @@ import { WorkoutKind } from "./WorkoutKind";
 export namespace WorkoutEquipment {
   /** The imagined support's height when the author names none, a share of the stature (provisional). */
   export const DEFAULT: number = 0.25;
+
+  /** The highest a step-up's thigh is raised, degrees of hip flexion (provisional): a box that needs more is refused. */
+  export const STEP: number = 120;
 
   /** The support's height above the floor. */
   const high = (body: IHumanBody, support: number | undefined): number =>
@@ -70,17 +74,23 @@ export namespace WorkoutEquipment {
       enter: 1,
       reps: 5,
       route: (body: IHumanBody, support?: number): WorkoutKind.IStep[] => {
-        // The knee that lifts the foot by the box's height over an upright
-        // shank, the other leg straight to the floor.
+        // The hip and knee that lift the foot by the box's height over an
+        // upright shank, the other leg straight to the floor: past a level
+        // thigh the knee rises above the hip, up to `STEP` degrees.
+        const height: number = high(body, support);
+        const reach: number =
+          body.measure.thigh * (1 - Math.cos((STEP * Math.PI) / 180));
+        if (height > reach)
+          throw new HumanRefusal({
+            kind: "reach",
+            axis: "on",
+            value: height,
+            feasible: { kind: "range", minimum: 0, maximum: reach, unit: "m" },
+            reason: `the box's top is ${height.toFixed(3)} m high, above the ${reach.toFixed(3)} m this body's foot is lifted to with the thigh ${STEP} degrees up`,
+            fix: "step onto a lower box, or a lower face of this one",
+          });
         const bent: number =
-          (Math.acos(
-            Math.max(
-              0,
-              Math.min(1, 1 - high(body, support) / body.measure.thigh),
-            ),
-          ) *
-            180) /
-          Math.PI;
+          (Math.acos(1 - height / body.measure.thigh) * 180) / Math.PI;
         return [
           WorkoutKind.step(
             ExerciseKey.of({}, { elbow: 20 }, {}, { hip: bent, knee: bent }),
