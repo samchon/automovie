@@ -52,13 +52,7 @@ export function motionPunchSignature(
       impact - launch >= 0.15 && impact - launch <= 0.6,
     );
     if (row === "accuracy=hit") {
-      const face: IAutoMovieVector3 = M.region(
-        s,
-        "b",
-        partner,
-        "face",
-        impact,
-      );
+      const face: IAutoMovieVector3 = M.region(s, "b", partner, "face", impact);
       const hand: IAutoMovieVector3 = M.joint(s, impact, `${side}Hand`);
       const gap: number = Math.hypot(
         face.x - hand.x,

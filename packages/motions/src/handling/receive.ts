@@ -290,7 +290,10 @@ export namespace receive {
                     // end it rounds a hair past 1, and its complement below 0.
                     weight:
                       1 -
-                      Math.min(1, Math.max(0, minimumJerk((t - leave) / back).s)),
+                      Math.min(
+                        1,
+                        Math.max(0, minimumJerk((t - leave) / back).s),
+                      ),
                   },
                 }
               : takes && t >= shared.gripClosed
@@ -301,8 +304,7 @@ export namespace receive {
                         ...shared.receiverReference,
                         weight: Math.max(
                           0,
-                          minimumJerk((t - shared.reachStart) / shared.reach)
-                            .s,
+                          minimumJerk((t - shared.reachStart) / shared.reach).s,
                         ),
                       },
                     }

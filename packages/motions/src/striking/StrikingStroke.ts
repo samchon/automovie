@@ -146,8 +146,7 @@ export namespace StrikingStroke {
     // over that speed; it starts that share of itself before the contact.
     if (d.peak !== undefined) {
       const fast: number =
-        (u * 1.875 * Vector3.length(Vector3.subtract(through, from))) /
-        d.peak;
+        (u * 1.875 * Vector3.length(Vector3.subtract(through, from))) / d.peak;
       if (fast < span) {
         begin = d.contact - fast;
         span = fast;

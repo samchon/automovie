@@ -111,7 +111,9 @@ const below = (path: string, key: string | number): string =>
 const typed = (value: unknown, type: string): boolean => {
   switch (type) {
     case "object":
-      return typeof value === "object" && value !== null && !Array.isArray(value);
+      return (
+        typeof value === "object" && value !== null && !Array.isArray(value)
+      );
     case "array":
       return Array.isArray(value);
     case "string":

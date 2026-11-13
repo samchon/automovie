@@ -70,7 +70,8 @@ export namespace LexiconAbsentNet {
     if (caught === null) return null;
     if (!(caught instanceof HumanRefusal))
       return `${caught instanceof Error ? caught.name : typeof caught}: ${caught instanceof Error ? caught.message : String(caught)}`;
-    if (caught.axis.length === 0) return `a refusal on no axis: ${caught.message}`;
+    if (caught.axis.length === 0)
+      return `a refusal on no axis: ${caught.message}`;
     if (/\bundefined\b/.test(`${caught.reason} ${caught.fix}`))
       return `a refusal that names undefined: ${caught.message}`;
     return null;

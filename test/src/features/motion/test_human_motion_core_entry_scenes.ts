@@ -99,7 +99,11 @@ export function test_human_motion_core_entry_scenes(): void {
   const stand = (subject: string): HumanChain =>
     HumanChain.subject(subject).stand({ seconds: 0.3 });
   const complaints: string[] = [];
-  const expect = (label: string, got: string, wanted: (got: string) => boolean): void => {
+  const expect = (
+    label: string,
+    got: string,
+    wanted: (got: string) => boolean,
+  ): void => {
     if (!wanted(got)) complaints.push(`${label}: ${got}`);
   };
 
@@ -154,9 +158,7 @@ export function test_human_motion_core_entry_scenes(): void {
     expect(
       `${row} given a partner`,
       outcome(
-        stand("a")
-          .registered(row, { partner: "b" })
-          .with(stand("b")),
+        stand("a").registered(row, { partner: "b" }).with(stand("b")),
         true,
       ),
       (got: string): boolean => got === "refused on partner",
@@ -166,7 +168,8 @@ export function test_human_motion_core_entry_scenes(): void {
   expect(
     "six treads step over step",
     outcome(stand("a").climbStairs({ pattern: "stepOverStep", count: 6 })),
-    (got: string): boolean => got === "planned" || got.startsWith("refused on "),
+    (got: string): boolean =>
+      got === "planned" || got.startsWith("refused on "),
   );
 
   // 5. Typing at a keyboard with no heading.
@@ -256,6 +259,8 @@ export function test_human_motion_core_entry_scenes(): void {
         }),
       ],
     ),
-    (got: string): boolean => got === "planned" || got.startsWith("refused on "),
-  );  TestValidator.equals("each scene plans or refuses", complaints, []);
+    (got: string): boolean =>
+      got === "planned" || got.startsWith("refused on "),
+  );
+  TestValidator.equals("each scene plans or refuses", complaints, []);
 }

@@ -88,8 +88,7 @@ export function test_motion_contact_events_live_span(): void {
           events.length === expected.length &&
           events.every(
             (e: resolveAutoMovieContactEvents.IEvent, i: number): boolean =>
-              e.against === "wall" &&
-              Math.abs(e.seconds - expected[i]!) < 1e-6,
+              e.against === "wall" && Math.abs(e.seconds - expected[i]!) < 1e-6,
           ),
       ) &&
         live.events.every(
