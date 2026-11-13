@@ -61,9 +61,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    `float1` (from between the legs to the chest's height, an estimate).
  * 6. In the deadlift, at `bottom1` and at the lift's end, the bar's middle stands within
  *    30 mm, along the performer's heading, of the middle between the ankle
- *    joints and the toes' joints (the bar of a deadlift travels over the
- *    middle of the foot: Rippetoe and Kilgore, Starting Strength, 3rd ed.,
- *    2011; the joints' middle is an estimate of the mid-foot, with room).
+ *    joints and the toes' joints. Provisional: that the bar travels over
+ *    the mid-foot is the law's stated rule, not a measured one. The 30 mm
+ *    and the joints' middle as the mid-foot are estimates; for scale,
+ *    Hancock, Wyatt and Kilgore (Int J Exerc Sci 5(3):183-195, 2012,
+ *    https://digitalcommons.wku.edu/ijes/vol5/iss3/1, abstract) measured a
+ *    mid-foot start's bar moving 37.5 +/- 13.7 mm horizontally backward
+ *    over the lift.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds a performance through the public chain, the pick-up and the row's `load`, and reads the displayed bar and the displayed wrists; a refused load, a hand off its handle, a tilted bar or a bar left behind fails with the measure.
  * @evidence contracts/development/testing.md#independent-expectations The handles are the archetype's own contacts placed by the displayed prop frame; the bounds are the campaign's contact bound and a stated estimate of the hand; nothing is read from the law.

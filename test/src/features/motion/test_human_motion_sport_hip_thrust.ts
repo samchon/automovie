@@ -26,16 +26,21 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * they are, the back stays at the edge, and the lockout is a body in one
  * line from the shoulders to the knees over upright shanks.
  *
- * The expectations are the exercise's common description, for which no
- * source was read (the upper back against the bench, the feet flat, the
- * hips raised until the trunk and the thighs are level in one line with the
- * shins upright), the bench's own `edge` affordance carried by its
+ * The expectations are the exercise as Contreras, Vigotsky, Schoenfeld,
+ * Beardsley and Cronin performed it ("A Comparison of Gluteus Maximus,
+ * Biceps Femoris, and Vastus Lateralis Electromyography Amplitude for the
+ * Barbell, Band, and American Hip Thrust Variations", Journal of Applied
+ * Biomechanics 32:254-260, 2016, Methods and Figure 1): the back on a bench
+ * about 16 inches high, the feet flat, each repetition ending in full hip
+ * extension; the shanks upright at the top are read from its Figure 1, not
+ * its text. Also the bench's own `edge` affordance carried by its
  * placement, and the campaign's bounds: 10 mm on a held contact's height,
- * 5 mm on a planted foot between the two ends of the repetition. The room
- * given to the line (160 degrees at the hip), to the shanks (10 degrees
- * from upright), to the back's joint about the edge (0.15 m on the floor
- * plan, up to a fifth of the stature above it) and to the hips' travel (more
- * than 0.08 of the stature) are estimates. Two bodies of opposite build
+ * 5 mm on a planted foot between the two ends of the repetition. These are
+ * estimates with no source: 160 degrees at the hip for full extension, 10
+ * degrees from upright for the shanks, the back's joint within 0.15 m of
+ * the edge on the floor plan and up to a fifth of the stature above it,
+ * and the hips rising more than 0.08 of the stature (the paper's bottom,
+ * the bar on the floor, is not modelled). Two bodies of opposite build
  * suffice because the angles are solved from each body's own lengths
  * against one edge; one film each keeps the test far under a minute.
  *

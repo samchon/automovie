@@ -37,10 +37,19 @@ import { StrikingHeld } from "../striking/StrikingHeld";
  * support hand is.
  *
  * A lift whose kind says so (`WorkoutKind.midfoot`) carries the bar's middle
- * over the middle of the feet: the bar and the lifter balance over the
- * mid-foot, so the bar of a deadlift or a press travels in a vertical line
- * over it (Rippetoe and Kilgore, Starting Strength: Basic Barbell Training,
- * 3rd ed., 2011). The holding hand is swung about its shoulder, forward or
+ * over the middle of the feet, so the bar of a deadlift or a press travels
+ * in a vertical line over it. The rule is provisional: it is the coaching
+ * rule of the Starting Strength method, whose own pages refused this
+ * session's reading, and the one measurement read is narrower. Hancock,
+ * Wyatt and Kilgore, "Variation in Barbell Position Relative to Shoulder
+ * and Foot Anatomical Landmarks Alters Movement Efficiency", International
+ * Journal of Exercise Science 5(3):183-195, 2012
+ * (https://digitalcommons.wku.edu/ijes/vol5/iss3/1), abstract: six
+ * weightlifters' deadlifts started with the bar over the navicular (the
+ * mid-foot) moved it 37.5 +/- 13.7 mm horizontally backward, against
+ * 66.7 +/- 12.9 mm when started over the metatarsophalangeal joint; a
+ * vertical path is the limit that start approaches, and no source was read
+ * for the press. The holding hand is swung about its shoulder, forward or
  * back at the arm's own reach, by what the key's arms leave the bar's
  * middle off that line; the mid-foot is
  * the middle between the heel and the toe of each foot the entry stands on.

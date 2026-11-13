@@ -25,7 +25,11 @@ import { WorkoutKind } from "./WorkoutKind";
  * joint over the bench's edge: at the lockout the trunk and the
  * thighs are one line over upright shanks, pitched as the edge's height
  * asks, and at the bottom the legs are solved in the sagittal plane onto
- * the same place of the feet. The part that bears on the prop is pinned
+ * the same place of the feet. The hip thrust is the one Contreras et al.
+ * describe (Journal of Applied Biomechanics 32:254-260, 2016, Methods and
+ * Figure 1): the back on a bench about 16 inches high, the feet flat, full
+ * hip extension at the top; `RISEN`, `SUNK` and `DROP` are not from it.
+ * The part that bears on the prop is pinned
  * on the prop's place; the other is kept by the angles.
  *
  * With no support named, the kind is done on an imagined one a quarter of
