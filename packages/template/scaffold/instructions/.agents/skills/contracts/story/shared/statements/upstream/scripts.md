@@ -2,7 +2,7 @@
 
 Contract: [upstream/scripts.md](../../upstream/scripts.md).
 
-## Script upstream repair {#script-upstream-repair}
+## Script upstream repair
 
 1. Each defective treatment decision is identified, including a design that forces a defined downstream failure or blocks an adopted goal or promise.
 2. Inherited constraints and continuity records are distinguished from prescriptions that consume the scene's realization.

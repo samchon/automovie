@@ -14,7 +14,7 @@ Scaffold prompting designs what productions receive. It builds on [prompting](..
 | Find a primary source for a new instruction | [Research routes](research-routes.md) |
 | Check the change before reporting it | [Verification](verification.md) |
 
-## Product principles {#product-principles}
+## Product principles
 
 Every shipped skill serves these six principles, and a shipped sentence that works against one is a defect. The [project contract](../project/SKILL.md) fixes the product's purpose and scope; each principle here says what that means for a shipped instruction.
 
@@ -42,7 +42,7 @@ A task skill gives direction, and contracts ask the detailed questions. Contract
 
 The agent sees pictures only as still images and cannot hear. No shipped instruction asks it to watch playback, listen or read aloud; it judges motion on dense consecutive frames and asks the user for the rest.
 
-## Root and scaffold {#root-and-scaffold}
+## Root and scaffold
 
 A rule that holds in every project lives in a root skill and ships through a `$` placeholder, at file or folder level, under the [shared skill](../prompting/SKILL.md#shared-skills) rule. The scaffold keeps text of its own only where a production's stance differs from this repository's, for example because a production installs a package this repository develops.
 

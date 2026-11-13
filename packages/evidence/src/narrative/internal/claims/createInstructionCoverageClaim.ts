@@ -5,18 +5,20 @@ import path from "node:path";
 import type { IProductionConfigProps } from "../../IProductionConfigProps";
 import type { ProductionStage } from "../../ProductionStage";
 import { constructionStage } from "../constructionStage";
+import { BODY_ROOT } from "../utilities/BODY_ROOT";
 import { PACKAGE_DOCS_ROOT } from "../utilities/PACKAGE_DOCS_ROOT";
 import { createUnitFiles } from "../utilities/createUnitFiles";
-import { passRoot } from "../utilities/passRoot";
 
 /**
- * Tracks instruction adoption in canon, settings or a short's brief, and realization in treatments or a short's screenplay.
+ * Tracks instruction adoption in long work's settings, and realization in treatments or a short's screenplay.
  * Each layer covers the targets independently through its own construction
  * hosts and stage. Settings accounts for every adopted requirement; treatments
- * can exclude requirements outside its selected narrative population.
+ * can exclude requirements outside its selected narrative population. A
+ * short's brief holds only what the commission leaves open, so it owes no
+ * instruction citation and its screenplay realizes every requirement.
  * Instructions remain targets only. No instructions folder means no claim.
  *
- * @evidence contracts/development/implementation.md#principled-implementation When docs/instructions exists, selected draft H2 hosts independently cover every instruction H2; treatments may exclude out-of-population requirements while canon or short screenplay may not.
+ * @evidence contracts/development/implementation.md#principled-implementation When docs/instructions exists, selected body H2 hosts independently cover every instruction H2; treatments may exclude out-of-population requirements while settings or short screenplay may not.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The optional instruction input stays a reference population rather than becoming another authored host tree.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The treatments exclusion difference follows narrative-population scope; an absent instruction directory returns undefined rather than manufacturing an input requirement.
  * @evidence contracts/development/common.md#meaningful-documentation The prose states adoption versus realization, independent stage ownership, target-only instructions and the absent-directory result.
@@ -26,7 +28,7 @@ import { passRoot } from "../utilities/passRoot";
  */
 export function createInstructionCoverageClaim(
   props: IProductionConfigProps,
-  layer: "settings" | "brief" | "treatments" | "screenplay",
+  layer: "settings" | "treatments" | "screenplay",
 ): IEvidenceClaim | undefined {
   const stage: ProductionStage = constructionStage(props, layer);
   const directory: string = path.join(
@@ -38,7 +40,7 @@ export function createInstructionCoverageClaim(
   return {
     name: `the ${layer} canon realizes every user instruction`,
     type: "markdown",
-    root: passRoot("draft"),
+    root: BODY_ROOT,
     files: createUnitFiles(layer, props.narrativeScope),
     symbol: "h2",
     disabled: stage === "disabled",

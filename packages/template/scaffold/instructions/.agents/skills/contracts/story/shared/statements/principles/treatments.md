@@ -2,7 +2,7 @@
 
 Contract: [principles/treatments.md](../../principles/treatments.md).
 
-## Decided event {#decided-event}
+## Decided event
 
 1. The body settles what happens, who or what participates, why, the alternatives and the consequential choice or process, its costs and result, and the state the next event inherits.
 2. It establishes the time, place, exchange or clue when that changes causality.
@@ -19,7 +19,7 @@ Contract: [principles/treatments.md](../../principles/treatments.md).
 13. Exact speech, detailed blocking and audiovisual execution are left to scripts. Exception: a specific decision that determines the cause or result.
 14. Concise prose, lists and tables may fully decide an event without performing it.
 
-## Information design {#information-design}
+## Information design
 
 1. The people, relationships, time, space and pressure needed for the current choice are placed.
 2. A later reveal grows from earlier facts without invalidating them.

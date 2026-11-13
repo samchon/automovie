@@ -15,7 +15,7 @@ The models below are representative examples, not a complete or required list; a
 | LTX-2.5, open weights | The RGB hint through the Layout-To-Render adapter, or one depth, edge or pose pass through Union Control | Frame count 8n+1, 24 fps, sides divisible by 32 | A first frame carries the look | One or two sentences for Layout-To-Render | Generated | [Layout-To-Render](https://docs.ltx.io/open-source-model/vfx-post-production/layout-to-render.md), [IC-LoRA](https://docs.ltx.io/open-source-model/usage-guides/ic-lo-ra.md), [prompting](https://docs.ltx.io/api-documentation/implementation-guides/prompting-guide.md) |
 | Wan VACE and Wan Fun Control, open weights | Depth, pose, edge, scribble, layout or mask passes, combinable | 81 frames at 16 fps, frame count 4n+1, sides divisible by 16 | Reference images | Up to 512 text-encoder tokens | None | [VACE](https://github.com/ali-vilab/VACE), [Wan2.2](https://github.com/Wan-Video/Wan2.2) |
 
-## Match how the model takes the hint
+## Hint input
 
 How closely a model keeps the hint follows from how it takes it:
 

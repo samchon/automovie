@@ -14,7 +14,7 @@ Read the complete result after detailed repairs to check whether the goal and pr
 
 ## Follow the production handoff
 
-Trace a proposed instruction through the actual brief or parents, author's decision, contract respondent, repair owner and next consumer. Use the production's [writing workflow](../../../packages/template/scaffold/instructions/.agents/skills/story/workflow.md), [source layout](../../../packages/template/scaffold/instructions/.agents/skills/development/source-layout.md) and [delivery review](../../../packages/template/scaffold/instructions/.agents/skills/review/delivery-review.md) for those boundaries.
+Trace a proposed instruction through the actual brief or parents, author's decision, contract respondent, repair owner and next consumer. Use the production's [writing workflow](../../../packages/template/scaffold/instructions/.agents/skills/story/workflow/SKILL.md), [source layout](../../../packages/template/scaffold/instructions/.agents/skills/development/source-layout.md) and [delivery review](../../../packages/template/scaffold/instructions/.agents/skills/review/delivery-review.md) for those boundaries.
 
 A whole hint must still reach coded performance, usable camera staging, the complete edit and observed output. Preserve identities, contacts, timing and requested controls on the coarse forms the [product contract](../project/SKILL.md#coarse-models-detailed-motion) sets.
 

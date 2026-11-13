@@ -6,7 +6,7 @@ Staging turns screenplay beats into scene compositions, and returns whenever blo
 
 Read each scene and its beat records in context: the required action or change, who starts it, the intended reaction and the resulting state, with consequential props, supports, entrances and exits. Silence, stillness or an off-screen event can be the decision.
 
-One beat may need several camera setups and one setup may span several beats; each scene cites the beats it realizes under the [composition contract](../contracts/development/composition.md).
+One beat may need several camera setups and one setup may span several beats; each scene cites what it realizes under the [composition contract](../contracts/development/composition.md).
 
 ## Block one coherent space
 

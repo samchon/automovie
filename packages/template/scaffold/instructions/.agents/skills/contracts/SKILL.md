@@ -14,7 +14,7 @@ A respondent is whoever answers an item: a declaration, a document or a record.
 | [Development](development/SKILL.md) | Source declarations and tests | Their doc comments |
 | [Story](story/SKILL.md) | Research studies, settings or brief, treatments, scripts and screenplay units and populations, discovery results and review records | Where [answer placement](../story/evidence/answer-placement.md) puts them |
 
-## Items and statements {#items-and-statements}
+## Items and statements
 
 Each H2 is one item, and a separate answer establishes it. An item is one broad question with its reason: what to achieve, and what its recipient loses when it is missed. Items stay few. A new concern on a theme an item already covers joins that item, because every item costs every respondent an answer.
 
@@ -34,7 +34,7 @@ An enumeration in an item or a statement defines what to compare, not ingredient
 
 An item and its statements cite no research or reference source; a statement may link the skill document or sibling statement that owns a rule it applies.
 
-## What the graph does not hold
+## Outside the graph
 
 An item asks only what its authored respondent can establish from its own content and the references it cites. What a rendered or generated picture shows, and what a sound is, can only be observed, so generation requests, prompts, control channels and delivered media have no contract family.
 

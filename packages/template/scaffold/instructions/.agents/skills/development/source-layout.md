@@ -2,7 +2,7 @@
 
 This document says where source, tests and runtime setup belong, and where a new subject, practice, scene, host or integration goes.
 
-## Source {#source}
+## Source
 
 One folder owns each responsibility, and the folders follow the chain from settings or brief and research through the screenplay to the delivered film, so a module and the document it realizes pair by path. Each source folder answers the shared [development contracts](../contracts/development/SKILL.md) and its own.
 
@@ -12,10 +12,10 @@ One folder owns each responsibility, and the folders follow the chain from setti
 | `src/laws/<discipline>/` | Pure laws of a practice the installed packages do not carry: the rows and laws [extend](../motion/extend.md) registers with the motion vocabulary, the laws of what is not a person, and legality, outcome tables and variation ranges | `docs/research/<discipline>/`, [behaviors](../contracts/development/behaviors.md) |
 | `src/interactions/<discipline>/` | Relations between entities by role: alignment, timing and rule-first outcomes, including how cameras and lights follow the action | Research and world rules, behaviors |
 | `src/consequences/effects/`, `src/consequences/sound/` | What computed outcomes leave: sweat, scuffs, dust and other marks, and the effect cues a preview or commissioned soundtrack uses | Research, behaviors |
-| `src/composition/scenes/<film>/<scene>/` | One screenplay scene's composition | That scene and its beats, [composition](../contracts/development/composition.md) |
+| `src/composition/scenes/<film>/<scene>/` | One screenplay scene file's composition | That scene file, its sections and beats, [composition](../contracts/development/composition.md) |
 | `src/composition/scenes/catalog/<module>/` | One module's [catalog case](../motion/catalog-cases.md) composition, which takes the case parameters: the action with its target, partner response and outcome, the movement, the behavior, the fall or the entity state | The research section or settings or brief fact it exhibits, composition |
 | `src/composition/films/catalog.ts`, registered in `src/composition/films/index.ts` | The review catalog: every case the screenplay uses, in its own labeled interval with named review views; never delivered | Its cases' research and settings or brief, composition |
-| `src/composition/films/<film>.ts`, registered in `src/composition/films/index.ts` | One delivered video: scene order, transitions, titles and subtitles, grade, the [delivery profile](../production/project-context.md) and control channels | The screenplay file, composition |
+| `src/composition/films/<film>.ts`, registered in `src/composition/films/index.ts` | One delivered video: scene order, transitions, titles and subtitles, grade, the [delivery profile](../production/project-context.md) and control channels | The screenplay film folder, composition |
 | `src/*.ts` | The inspector and draw pages' entries, the subjects module, the film interfaces and the film selector | Nothing |
 | `src/executable/` | The Node commands the README documents and the Node tooling they run, shipped with the scaffold | Nothing |
 | `src/integrations/<provider>/` | Code for a provider or local tool the production adopts, such as a video-generation service | The generation requests in `docs/prompts/` for providers |
@@ -26,9 +26,9 @@ One folder owns each responsibility, and the folders follow the chain from setti
 
 Settings or brief domains map onto code: cast, crowds, props and sets become entities of the same kind, cinematography becomes camera and light entities, world rules become laws and interactions, and sound palettes become each shot's sound description in the video-diffusion prompt under [audio](../audio/SKILL.md). Weather and atmosphere are a set's state by story day, and ambience reads the same state.
 
-`<film>` is the screenplay file's path under `docs/body/screenplay/` without `.md`, with `/` replaced by `--`, such as `duet` or `001-part--001-episode`. The same name reaches `media/automovie/<film>/`, so screenplay, scene, film and video pair by path and two parts' episodes cannot collide. Rendered frames, videos and control channels go to [media records](../production/media-records.md), never into `src`.
+`<film>` is the screenplay film folder's path under `docs/body/screenplay/`, with `/` replaced by `--`, such as `duet` or `001-part--001-episode`, and `<scene>` is a scene file's name without `.md`, such as `010-ring`, so two scenes at the same place keep separate folders. The same film name reaches `media/automovie/<film>/`, so screenplay, scene, film and video pair by path and two parts' episodes cannot collide. Rendered frames, videos and control channels go to [media records](../production/media-records.md), never into `src`.
 
-## How the parts work together {#how-the-parts-work-together}
+## How the parts work together
 
 An entity is constructed from its settings or brief facts and composes small fragments. Its methods are capabilities that return intent records: what the subject means to do and to whom, never a pose, a coordinate or a time.
 
@@ -54,9 +54,9 @@ Node-only tooling (processes, files, browser launch, FFmpeg) is not published: t
 
 Each file exports one declaration named as the file and stays under 500 lines; a larger one is a responsibility to split into fragments.
 
-A new subject starts from its settings or brief record, then its entity folder and tests. A new action starts from the installed motion vocabulary. Only when [extend](../motion/extend.md) finds the vocabulary lacks it does it start from its research, then its registered row or law and the interaction that uses it. A new scene starts from its screenplay H2 and beats, then its composition folder and its place in the film.
+A new subject starts from its settings or brief record, then its entity folder and tests. A new action starts from the installed motion vocabulary. Only when [extend](../motion/extend.md) finds the vocabulary lacks it does it start from its research, then its registered row or law and the interaction that uses it. A new scene starts from its screenplay scene file, then its composition folder and its place in the film.
 
-## Shared modules {#shared-modules}
+## Shared modules
 
 A module a second production of the workspace needs moves to a workspace package under `packages/<name>` and is imported by both, because a copied entity or law is a [copied variant](reuse.md#one-module) at workspace scale.
 

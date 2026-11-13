@@ -1,6 +1,5 @@
 import type { EvidenceMarkdownSymbol } from "@wrtnlabs/evidence";
 
-import type { AuthoredPass } from "./AuthoredPass";
 import type { ProductionStage } from "./ProductionStage";
 
 /**
@@ -11,10 +10,10 @@ import type { ProductionStage } from "./ProductionStage";
  * its selected hosts answer item by item, and the wiring is the same every
  * time — only the document, the hosts, and when the claim is off differ.
  *
- * @evidence contracts/development/design.md#principled-representation The object groups work-contract paths, addressed inside the production's `docs/contracts`, host selectors, explicit symbol granularity and activation flags for createPackageChecklistClaim; default pass and checklist meanings are documented on their members.
+ * @evidence contracts/development/design.md#principled-representation The object groups work-contract paths, addressed inside the production's `docs/contracts`, host selectors, explicit symbol granularity and activation flags for createPackageChecklistClaim; the checklist default is documented on its member.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One object owns document selection, host granularity and activation so createPackageChecklistClaim validates the relationship together.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Exact work paths and symbol validity are enforced by createPackageChecklistClaim rather than hidden type-level assumptions.
- * @evidence contracts/development/common.md#meaningful-documentation Members explain document-relative addressing, required host granularity, pass/checklist defaults and optional deferral.
+ * @evidence contracts/development/common.md#meaningful-documentation Members explain document-relative addressing, body-relative hosts, required host granularity, the checklist default and optional deferral.
  */
 export interface IPackageChecklistClaimProps {
   /** Names the claim in diagnostics. State what the hosts must reach. */
@@ -30,17 +29,12 @@ export interface IPackageChecklistClaimProps {
    */
   document: string | string[];
 
-  /** Selects the host files this checklist binds, relative to the selected pass root. */
-  files: string[];
-
   /**
-   * Selects which logical pass answers: `draft` for construction,
-   * `final` for naturalness. Construction hosts body with detached evidence; naturalness
-   * hosts its working text with inline evidence.
+   * Selects the host files this checklist binds, relative to `docs/body`.
    *
-   * @default "draft"
+   * The hosts answer in detached construction evidence.
    */
-  pass?: AuthoredPass;
+  files: string[];
 
   /** Sets the stage of the layer that owns the hosts. */
   stage: ProductionStage;

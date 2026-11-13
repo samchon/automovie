@@ -2,7 +2,7 @@
 
 Contract: [principles/narratives.md](../../principles/narratives.md).
 
-## Unit progression {#unit-progression}
+## Unit progression
 
 1. Entry, operation and result are connected through cause and consequence, action and response, question and answer, reversal, or the work's owned formal relation.
 2. The unit establishes how time, place, knowledge, injury, appearance, clothing, possession, resources, status, relationships and promises change. Exception: a functional recurrence or rest.
@@ -16,7 +16,7 @@ Contract: [principles/narratives.md](../../principles/narratives.md).
 7. New names, rules and relationships arrive with the context needed when they affect the audience's understanding.
 8. The exit leaves an earned state, question, pressure or formal effect. Exception: a complete unit or intentional pause need not force a cliffhanger.
 
-## Parent differentiation {#parent-differentiation}
+## Parent differentiation
 
 1. Every downstream paragraph has its actual parent passages identified, with yes or no tests recorded for:
     - copied wording or imagery;

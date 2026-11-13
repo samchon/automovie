@@ -2,7 +2,7 @@
 
 Contract: [obligations/index.md](../../obligations/index.md).
 
-## Canonical navigation {#canonical-navigation}
+## Canonical navigation
 
 Navigation:
 

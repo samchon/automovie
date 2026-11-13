@@ -2,8 +2,6 @@ node_modules/
 lib/
 dist/
 /docs/review/
-/docs/revision/
-/docs/naturalness/
 /docs/prompts/**/payloads/
 /references/private/
 /media/automovie/

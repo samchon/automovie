@@ -10,6 +10,7 @@ import { createOutlineClaims } from "./claims/createOutlineClaims";
 import { createPopulationObligationClaims } from "./claims/createPopulationObligationClaims";
 import { createReviewClaims } from "./claims/createReviewClaims";
 import { productionLayers } from "./productionLayers";
+import { BODY_ROOT } from "./utilities/BODY_ROOT";
 import { assertProductionEvidenceSources } from "./utilities/assertProductionEvidenceSources";
 import { createEvidenceFiles } from "./utilities/createEvidenceFiles";
 
@@ -28,16 +29,17 @@ export function collectProductionClaims(
   props: IProductionConfigProps,
 ): IEvidenceClaim[] {
   assertProductionEvidenceSources(props);
+
+  // A short's brief holds only what the commission does not fix, so its
+  // screenplay alone realizes the instructions.
   const instructions: IEvidenceClaim[] = (
     props.mode === "long"
       ? (["settings", "treatments"] as const)
       : props.mode === "short"
-        ? (["brief", "screenplay"] as const)
+        ? (["screenplay"] as const)
         : []
   ).flatMap(
-    (
-      layer: "settings" | "brief" | "treatments" | "screenplay",
-    ): IEvidenceClaim[] => {
+    (layer: "settings" | "treatments" | "screenplay"): IEvidenceClaim[] => {
       const claim: IEvidenceClaim | undefined = createInstructionCoverageClaim(
         props,
         layer,
@@ -69,7 +71,7 @@ export function collectProductionClaims(
   for (const claim of claims) {
     if (
       claim.type === "markdown" &&
-      claim.root === "docs/body" &&
+      claim.root === BODY_ROOT &&
       claim.evidenceFiles === undefined &&
       (claim.symbol === "file" || claim.symbol === "h2")
     )

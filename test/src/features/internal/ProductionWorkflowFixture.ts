@@ -1,7 +1,6 @@
 import {
-  createProductionConfig,
   type IProductionConfigProps,
-  stripNaturalnessComments,
+  createProductionConfig,
 } from "@automovie/evidence/internal";
 import {
   EvidenceChecker,
@@ -50,24 +49,37 @@ export class ProductionWorkflowFixture {
         scripts: "disabled",
         screenplay: "disabled",
       },
-      naturalness: { screenplay: "disabled" },
       claims: [],
     };
   }
 
+  /**
+   * Names the one screenplay scene file, relative to `docs/body/screenplay`.
+   *
+   * A short keeps it in its film folder; long work keeps it in the episode
+   * folder that takes the place of the script episode `001-part/001-scene.md`.
+   */
+  public static scene(mode: "long" | "short"): string {
+    return mode === "long"
+      ? "001-part/001-scene/001-arrival.md"
+      : "arrival/001-door.md";
+  }
+
   /** Supplies real canon and narrative units plus one question per contract. */
-  public static populate(root: string): void {
+  public static populate(root: string, mode: "long" | "short" = "long"): void {
     for (const layer of ["settings", "treatments", "scripts", "screenplay"]) {
       const file: string =
         layer === "settings" || layer === "treatments"
           ? `${layer}/001-event.md`
-          : `${layer}/001-part/001-scene.md`;
+          : layer === "scripts"
+            ? `${layer}/001-part/001-scene.md`
+            : `${layer}/${ProductionWorkflowFixture.scene(mode)}`;
       ProductionWorkflowFixture.write(
         root,
         `docs/body/${file}`,
         "# Arrival record\n\n## Arrival {#arrival}\n\nThe guest opens the door.\n",
       );
-      if (layer === "scripts" || layer === "screenplay")
+      if (layer === "scripts")
         ProductionWorkflowFixture.write(
           root,
           `docs/body/${layer}/001-part/index.md`,
@@ -130,7 +142,7 @@ export class ProductionWorkflowFixture {
     root: string,
     mode: "long" | "short",
   ): IProductionConfigProps {
-    ProductionWorkflowFixture.populate(root);
+    ProductionWorkflowFixture.populate(root, mode);
     const props: IProductionConfigProps = ProductionWorkflowFixture.props(
       root,
       mode,
@@ -198,7 +210,9 @@ export class ProductionWorkflowFixture {
           ? "world/arrival.md"
           : layer === "settings" || layer === "treatments"
             ? "001-event.md"
-            : "001-part/001-scene.md";
+            : layer === "scripts"
+              ? "001-part/001-scene.md"
+              : ProductionWorkflowFixture.scene(mode);
       const groups: string[] =
         layer === "settings" || layer === "brief"
           ? ["common", layer]
@@ -209,11 +223,13 @@ export class ProductionWorkflowFixture {
       const files: string[] = groups.map(
         (group: string): string => `shared/obligations/${group}.md#scope`,
       );
+
+      // Settings adopts each instruction, and treatments or a short's
+      // screenplay realizes it; a short's brief owes no citation.
       if (
         layer === "settings" ||
-        layer === "brief" ||
         layer === "treatments" ||
-        mode !== "long"
+        (mode === "short" && layer === "screenplay")
       )
         units.push("instructions/001-brief.md#door");
       if (layer === "settings" && mode === "long")
@@ -229,10 +245,10 @@ export class ProductionWorkflowFixture {
         units.push("treatments/001-event.md#arrival");
         files.push("docs/body/treatments/001-event.md");
       }
-      if (mode === "long" && layer === "screenplay") {
-        units.push("scripts/001-part/001-scene.md#arrival");
-        files.push("docs/body/scripts/001-part/001-scene.md");
-      }
+
+      // A long screenplay scene file realizes exactly one script scene.
+      if (mode === "long" && layer === "screenplay")
+        files.push("scripts/001-part/001-scene.md#arrival");
       if (layer === "scripts") {
         units.push("shared/naturalness/common.md#scope");
         files.push("shared/naturalness/obligations/common.md#scope");
@@ -247,39 +263,16 @@ export class ProductionWorkflowFixture {
         `docs/evidence/construction/files/${layer}/${file}`,
         `# docs/body/${layer}/${file}\n\n${files.map((target: string): string => `## @evidence ${target}\n\nThis file owns the fixture duty.\n`).join("\n")}`,
       );
-      if (layer === "screenplay") {
-        props.naturalness.screenplay = "evidence";
-        const working: string = `<!--\n@evidence docs/revision/${layer}/${file} Preserves the frozen file.\n@evidence shared/naturalness/obligations/common.md#scope Compared expression across the selected scene population.\n-->\n# Arrival record\n\n## Arrival {#arrival}\n<!--\n@evidence ${layer}/${file}#arrival Preserves the frozen scene.\n@evidence shared/naturalness/common.md#scope Keeps the same scene decision.\n-->\nThe guest opens the door.\n`;
-        ProductionWorkflowFixture.write(
-          root,
-          `docs/revision/${layer}/${file}`,
-          "# Arrival record\n\n## Arrival {#arrival}\n\nThe guest opens the door.\n",
-        );
-        ProductionWorkflowFixture.write(
-          root,
-          `docs/naturalness/${layer}/${file}`,
-          working,
-        );
-        ProductionWorkflowFixture.write(
-          root,
-          `docs/body/${layer}/${file}`,
-          stripNaturalnessComments(Buffer.from(working)).toString("utf8"),
-        );
-      }
-      for (const pass of layer === "screenplay"
-        ? ["draft", "final"]
-        : ["draft"]) {
-        ProductionWorkflowFixture.write(
-          root,
-          `docs/review/${pass}/${layer}/round-1/${file}`,
-          `# Arrival record\n\n## Arrival {#arrival}\n<!--\n@evidence ${file}#arrival Read the fixture scene.\n@evidence shared/principles/review.md#scope Compared the complete fixture.\n-->\nThe fixture review is structural only.\n`,
-        );
-        ProductionWorkflowFixture.write(
-          root,
-          `docs/review/${pass}/${layer}/round-1/verdict/index.md`,
-          "<!--\n@evidence shared/obligations/review.md#scope Read every selected fixture unit.\n-->\n# Verdict\n\nNo structural finding remains.\n",
-        );
-      }
+      ProductionWorkflowFixture.write(
+        root,
+        `docs/review/draft/${layer}/round-1/${file}`,
+        `# Arrival record\n\n## Arrival {#arrival}\n<!--\n@evidence ${file}#arrival Read the fixture scene.\n@evidence shared/principles/review.md#scope Compared the complete fixture.\n-->\nThe fixture review is structural only.\n`,
+      );
+      ProductionWorkflowFixture.write(
+        root,
+        `docs/review/draft/${layer}/round-1/verdict/index.md`,
+        "<!--\n@evidence shared/obligations/review.md#scope Read every selected fixture unit.\n-->\n# Verdict\n\nNo structural finding remains.\n",
+      );
     }
     ProductionWorkflowFixture.write(
       root,

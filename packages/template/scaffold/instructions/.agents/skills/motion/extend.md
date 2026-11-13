@@ -2,15 +2,15 @@
 
 What to do when a beat needs an action or a moving body the installed packages do not seem to have. Take the first route below that stages the beat, because each later one costs more to write and leaves more of the checking to the production.
 
-## 1. Compose again
+## Compose again
 
 Read the nearest action's parameters and the [operators](compose.md#join-the-actions) again in the vocabulary's types. Most missing actions are an existing one with another target, effector, object or manner, two joined as an overlay or a mutual join, or the same one at another seed.
 
-## 2. Register a row {#register-a-row}
+## Register a row
 
 A row is one named entry of an action's table, such as a kind of gesture, touch or task. When what is missing is a new entry of a table the vocabulary has, such as a salute among its gestures, register the row with the vocabulary as its README shows. The action that owns the table then performs the row, with every axis and operator open to it.
 
-## 3. Register a law {#register-a-law}
+## Register a law
 
 A law is the code that plans an action: given a body and its inputs, it produces the same motion every time. Write one only when the missing action owns what no shipped action plans:
 
@@ -20,7 +20,7 @@ A law is the code that plans an action: given a body and its inputs, it produces
 
 Register the law with the vocabulary as its README shows, and the vocabulary composes, cuts, refuses and checks it like its own actions.
 
-## 4. What is not a person {#what-is-not-a-person}
+## What is not a person
 
 Write a production law for a moving body no installed package provides, such as an animal or a machine no archetype offers, or a crowd moving as a mass. The archetypes move their own vehicles, mounts and articulated parts, so those need none.
 

@@ -2,7 +2,7 @@
 
 Contract: [obligations/settings.md](../../obligations/settings.md).
 
-## World and scope {#world-and-scope}
+## World and scope
 
 Promise and scope:
 

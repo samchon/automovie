@@ -1,13 +1,12 @@
 import type { IEvidenceClaim } from "@wrtnlabs/evidence";
 
 import type { IProductionConstruction } from "./IProductionConstruction";
-import type { IProductionLayerStages } from "./IProductionLayerStages";
 import type { NarrativeScope } from "./NarrativeScope";
 
 /**
  * Selects narrative claim families, their stages and additional native claims.
  *
- * @evidence contracts/development/design.md#principled-representation The route, absolute location, optional absolute shared skills tree, authored scope and stage maps select native narrative respondents; extra claims and engineering support remain ordinary native claims.
+ * @evidence contracts/development/design.md#principled-representation The route, absolute location, optional absolute shared skills tree, authored scope and construction stages select native narrative respondents; extra claims and engineering support remain ordinary native claims.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One configuration object groups the options needed by the shared claim collector.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Stages select structural evidence and never certify creative completion; native Evidence evaluates the resulting graph.
  * @evidence contracts/development/common.md#meaningful-documentation Members explain route, location, the shared skills tree and its default, scope, stages and additive claims; the production owns independent creative review.
@@ -49,15 +48,6 @@ export interface IProductionConfigProps {
    * and the population duties the layer's own material settles.
    */
   construction: IProductionConstruction;
-
-  /**
-   * Sets the screenplay naturalness stage.
-   *
-   * Revision opens after screenplay construction approval. Scripts answer their
-   * expression questions inside construction; settings and treatments also
-   * finish within construction.
-   */
-  naturalness: IProductionLayerStages;
 
   /**
    * Adds claims used only by this production.

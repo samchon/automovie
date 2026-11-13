@@ -4,6 +4,6 @@ Each treatment H2 answers about its actual settings parents and inherited instru
 
 Statements: [statements/upstream/treatments.md](../statements/upstream/treatments.md).
 
-## What did event design prove missing or unusable upstream? {#settings-repair}
+## Settings repair
 
 Which settings facts, constraints or adopted promises did designing this event prove false, missing, contradictory, overdetermined or unusable, and where were they repaired? Covering the defect in treatments leaves other events to inherit it.

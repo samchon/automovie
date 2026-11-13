@@ -8,23 +8,20 @@ import path from "node:path";
 
 import type { IContractLocation } from "../../../internal/IContractLocation";
 import type { AuthoredLayer } from "../../AuthoredLayer";
-import type { AuthoredPass } from "../../AuthoredPass";
 import type { IProductionConfigProps } from "../../IProductionConfigProps";
-import type { ProductionStage } from "../../ProductionStage";
 import { constructionStage } from "../constructionStage";
-import { hasNaturalness } from "../hasNaturalness";
 import { createLineageReference } from "../references/createLineageReference";
 import { createSharedReference } from "../references/createSharedReference";
+import { BODY_ROOT } from "../utilities/BODY_ROOT";
 import { PACKAGE_DOCS_ROOT } from "../utilities/PACKAGE_DOCS_ROOT";
 import { createContractDirectory } from "../utilities/createContractDirectory";
 import { createUnitFiles } from "../utilities/createUnitFiles";
-import { passRoot } from "../utilities/passRoot";
 
 /**
  * Creates the claims that record the evidence-stage reviews in the graph.
  *
  * A reviewer writes one review file per authored file and one review H2 per
- * authored H2, directly under `docs/review/<pass>/<layer>` in a tree that
+ * authored H2, directly under `docs/review/draft/<layer>` in a tree that
  * mirrors the authored layer. A selected review file or `verdict/index.md`
  * starts this current population; missing counterparts never come from a
  * legacy round. Without current files, the highest numbered legacy round
@@ -37,110 +34,91 @@ import { passRoot } from "../utilities/passRoot";
  * No claim binds the review files to the authored files one to one, because
  * the H2 bijection already leaves no authored H2 without a review.
  *
- * Review claims are active only while the reviewed pass is in `evidence`.
- * A package whose installed contract predates the review family, or whose
- * reviewer has not yet written current files or a legacy round under
- * `docs/review/<pass>/<layer>`, has no review claims for that pass.
+ * Review claims are active only while the layer's construction stage is
+ * `evidence`. A package whose installed contract predates the review family,
+ * or whose reviewer has not yet written current files or a legacy round under
+ * `docs/review/draft/<layer>`, has no review claims for that layer.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Actual in-scope direct review files or a verdict select the canonical population exclusively; otherwise the highest numeric legacy round supplies exact current-review lineage and a separate file-level verdict obligation, with stages preserved.
+ * @evidence contracts/development/implementation.md#principled-implementation Actual in-scope direct review files or a verdict select the canonical population exclusively; otherwise the highest numeric legacy round supplies exact current-review lineage and a separate file-level verdict obligation, both following the construction stage.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One root selector keeps current-versus-legacy admission separate from the unchanged unit bijection, freshness and whole-population verdict claims.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Older contract families, probed in the shared skills tree that also roots their references, and not-yet-created review roots yield no claims; native inactive populations do not establish that independent review occurred.
  * @evidence contracts/development/common.md#meaningful-documentation The prose states canonical admission, exclusive legacy fallback, current-review invalidation, H2 bijection, verdict ownership and optional roots/contracts.
- * @evidence contracts/development/implementation.md#efficient-algorithms Up to two editions scan entries only as deep as their actual selectors; directory entries and native glob matching dominate, with a linear root scan for legacy selection when no canonical file exists.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Each edition reuses its resolved files, selected root and lineage for both claims; filesystem observation repeats per config build so new current files replace legacy selection.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One review root scans entries only as deep as its actual selectors; directory entries and native glob matching dominate, with a linear root scan for legacy selection when no canonical file exists.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The resolved files, selected root and lineage serve both claims; filesystem observation repeats per config build so new current files replace legacy selection.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Directory arrays are transient and bounded by visited entries; returned claims belong to the config, and synchronous scans retain no history, handle or task.
  */
 export function createReviewClaims(
   props: IProductionConfigProps,
   layer: AuthoredLayer,
 ): IEvidenceClaim[] {
-  const passes: [AuthoredPass, ProductionStage][] = [
-    ["draft", constructionStage(props, layer)],
-    ...(hasNaturalness(layer)
-      ? [
-          ["final", props.naturalness.screenplay] as [
-            AuthoredPass,
-            ProductionStage,
-          ],
-        ]
-      : []),
-  ];
   const principles: boolean = installed(props, "principles/review.md");
   const obligations: boolean = installed(props, "obligations/review.md");
   if (!principles && !obligations) return [];
   const files: string[] = createUnitFiles(layer, props.narrativeScope);
-
-  return passes.flatMap(
-    ([pass, stage]: [AuthoredPass, ProductionStage]): IEvidenceClaim[] => {
-      // Naturalness approval stays with the working text, even after promotion.
-      const inside: string[] = files.map((file: string): string =>
-        file.slice(layer.length + 1),
-      );
-      const base: string = `${PACKAGE_DOCS_ROOT}/review/${pass}/${layer}`;
-      const selected: { root: string; files: string[] } | null =
-        selectReviewRoot(path.join(props.location, base), inside);
-      if (selected === null) return [];
-      const disabled: boolean = stage === "disabled";
-      const root: string =
-        selected.root === "" ? base : `${base}/${selected.root}`;
-      const lineage: IEvidenceMarkdownReference = {
-        ...(createLineageReference(
-          files,
-          "h2",
-          pass,
-          true,
-        ) as IEvidenceMarkdownReference),
-        root: `${passRoot(pass)}/${layer}`,
-        files: inside,
-      };
-      const where: "construction" | "naturalness" =
-        pass === "draft" ? "construction" : "naturalness";
-      return [
-        {
-          name: `${layer} ${where} review H2 units keep a current review of their ${pass} H2`,
-          type: "markdown",
-          root,
-          files: selected.files,
-          symbol: "h2",
-          disabled,
-          reference: [
-            lineage,
-            ...(principles
-              ? [
-                  createSharedReference({
-                    contracts: props,
-                    file: "principles/review.md",
-                    checklist: true,
-                    exclusion: false,
-                  }),
-                ]
-              : []),
-          ],
-        },
-        ...(obligations
+  const inside: string[] = files.map((file: string): string =>
+    file.slice(layer.length + 1),
+  );
+  const base: string = `${PACKAGE_DOCS_ROOT}/review/draft/${layer}`;
+  const selected: { root: string; files: string[] } | null = selectReviewRoot(
+    path.join(props.location, base),
+    inside,
+  );
+  if (selected === null) return [];
+  const disabled: boolean = constructionStage(props, layer) === "disabled";
+  const root: string = selected.root === "" ? base : `${base}/${selected.root}`;
+  const lineage: IEvidenceMarkdownReference = {
+    ...(createLineageReference(
+      files,
+      "h2",
+      true,
+    ) as IEvidenceMarkdownReference),
+    root: `${BODY_ROOT}/${layer}`,
+    files: inside,
+  };
+  return [
+    {
+      name: `${layer} construction review H2 units keep a current review of their body H2`,
+      type: "markdown",
+      root,
+      files: selected.files,
+      symbol: "h2",
+      disabled,
+      reference: [
+        lineage,
+        ...(principles
           ? [
-              {
-                name: `${layer} ${where} verdict answers each review obligation once`,
-                type: "markdown",
-                root,
-                files: ["verdict/index.md"],
-                symbol: "file",
-                disabled,
-                reference: {
-                  ...createSharedReference({
-                    contracts: props,
-                    file: "obligations/review.md",
-                    checklist: false,
-                    exclusion: false,
-                  }),
-                  uniqueEvidence: true,
-                },
-              } satisfies IEvidenceClaim,
+              createSharedReference({
+                contracts: props,
+                file: "principles/review.md",
+                checklist: true,
+                exclusion: false,
+              }),
             ]
           : []),
-      ];
+      ],
     },
-  );
+    ...(obligations
+      ? [
+          {
+            name: `${layer} construction verdict answers each review obligation once`,
+            type: "markdown",
+            root,
+            files: ["verdict/index.md"],
+            symbol: "file",
+            disabled,
+            reference: {
+              ...createSharedReference({
+                contracts: props,
+                file: "obligations/review.md",
+                checklist: false,
+                exclusion: false,
+              }),
+              uniqueEvidence: true,
+            },
+          } satisfies IEvidenceClaim,
+        ]
+      : []),
+  ];
 }
 
 /**

@@ -10,4 +10,4 @@ Answer the [story contracts](../../contracts/story/SKILL.md) from the corrected 
 | Task | Read |
 | --- | --- |
 | Write accountable answers from the current body | [Answer writing](answer-writing.md) |
-| Place answers, working comments and exclusions | [Answer placement](answer-placement.md) |
+| Place answers and exclusions | [Answer placement](answer-placement.md) |

@@ -4,9 +4,9 @@ Identify the promised output from [project context](../production/project-contex
 
 ## Narrative
 
-Check the required [passes and handoff](../story/workflow.md#completion), and lock your first response as a recipient before reading plans or evidence.
+Check the required [passes and handoff](../story/workflow/SKILL.md#completion), and lock your first response as a recipient before reading plans or evidence.
 
-Then read every current body, frozen edition, contract and answer, and compare the beginning with its consequences and ending, part boundaries, promises and duration. A pilot establishes only its slice, and closed work keeps its [closed-pass boundary](../story/correction/repair.md#closed-passes).
+Then read every current body and contract, and the answers of every enabled stage, and compare the beginning with its consequences and ending, part boundaries, promises and duration. A pilot establishes only its slice, and closed work keeps its [closed-pass boundary](../story/correction/repair.md#closed-passes).
 
 ## Video
 
@@ -29,7 +29,7 @@ Measure the delivered file against the [delivery profile](../production/project-
 
 Take runtime from performed and measured timing, never page or word count. What only playback shows, such as smoothness, synchronization and sound, the user watches and hears: ask for it, and record what the user reported.
 
-## Measure and compare {#measure-and-compare}
+## Measure and compare
 
 Review the picture densely before any delivery claim, so a flaw anywhere in the film reaches you before its audience. Cut the film into review segments, each one capture of a stretch of the film with the README's capture command, and inspect every segment on its contact sheets at the capture's default spacing. With motion already accepted in its [catalog cases](../motion/catalog-cases.md), this pass judges staging, camera and timing.
 
@@ -43,7 +43,7 @@ A capture replaces its previous run unless the run names a round, so keep an acc
 
 Every delivery claim after the first sets each segment's sheets and measures beside the previous delivery's at matched times under [comparison](../visual-debugging/comparison.md), as review tools compare versions ([Flow Production Tracking](https://help.autodesk.com/cloudhelp/ENU/SG-Tutorials/files/SG_Tutorials_tu_collaborative_review_html.html)). A regression holds delivery until it is repaired or the owner accepts it.
 
-## Acceptance record {#acceptance-record}
+## Acceptance record
 
 Record acceptance in `docs/acceptance/<film>.md`, one tracked file per film, so a later revision is accepted against the same list:
 
@@ -54,7 +54,7 @@ Record acceptance in `docs/acceptance/<film>.md`, one tracked file per film, so 
 
 The catalog film has its record too, `docs/acceptance/catalog.md`: one row per case with the revision and views at which it was accepted. A film composes only cases that record lists, and a module changed after its row was written is accepted again before a film relies on it.
 
-The record holds review's observations. It answers no contract item, because [the graph](../contracts/SKILL.md#what-the-graph-does-not-hold) cannot establish what a picture shows.
+The record holds review's observations. It answers no contract item, because [the graph](../contracts/SKILL.md#outside-the-graph) cannot establish what a picture shows.
 
 ## Assets
 

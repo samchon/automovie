@@ -1,7 +1,6 @@
 import type { IEvidenceClaim } from "@wrtnlabs/evidence";
 
 import type { IProductionConstruction } from "./narrative/IProductionConstruction";
-import type { IProductionLayerStages } from "./narrative/IProductionLayerStages";
 import type { NarrativeScope } from "./narrative/NarrativeScope";
 
 /**
@@ -18,9 +17,6 @@ export interface IAutoMovieNarrativeProps {
 
   /** Unspecified layers are disabled drafts; an omitted outline follows settings. */
   construction?: Partial<IProductionConstruction>;
-
-  /** An unspecified screenplay expression stage is disabled for drafting. */
-  naturalness?: Partial<IProductionLayerStages>;
 
   /** Defaults to the complete work; a pilot must identify its exact first part. */
   scope?: NarrativeScope;

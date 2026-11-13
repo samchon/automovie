@@ -1,7 +1,6 @@
 import type { EvidenceMarkdownSymbol } from "@wrtnlabs/evidence";
 
 import type { AuthoredLayer } from "./AuthoredLayer";
-import type { AuthoredPass } from "./AuthoredPass";
 import type { NarrativeScope } from "./NarrativeScope";
 import type { ProductionStage } from "./ProductionStage";
 
@@ -29,14 +28,6 @@ export interface IPackageContractProps {
    * whether or not it is active yet.
    */
   layers: Partial<Record<AuthoredLayer, ProductionStage>>;
-
-  /**
-   * Selects which logical pass answers the rule. `draft` is construction,
-   * `final` is naturalness and hosts the working text; construction hosts body.
-   *
-   * @default "draft"
-   */
-  pass?: AuthoredPass;
 
   /** Selects the complete work or one pilot slice, for the narrative globs. */
   narrativeScope: NarrativeScope;

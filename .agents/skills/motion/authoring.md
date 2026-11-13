@@ -30,7 +30,7 @@ Move an effector to its target on a smooth, bell-shaped speed profile, that of m
 
 Lay an effector's path on the body that carries it. When the root travels during the stroke, as in a lunge or a step into a blow, give the path relative to the moving shoulder or hip, or carry it by what that joint is ahead of the advance the path assumed. A path fixed in the world and keyed to the stroke's own progress lets a body that advances on its own clock overtake its hand: the limb folds to its limit, the fit changes side there, and the tool's tip jumps within one frame.
 
-## Decide what happens out of reach
+## Out of reach
 
 Compute the reach before posing: the root-to-target distance against the limb's reachable band. Declare the rule for a target outside it, whether too far or closer than the limb can fold to. The action either refuses with the feasible range, or takes a declared alternative that still reaches the goal, such as a step, a lean or a support hand. An alternative that changes the outcome, such as a stumble, applies only when the caller selects it, because the outcome belongs to whoever decided the scene.
 

@@ -2,18 +2,18 @@
 
 Contract: [composition.md](../composition.md).
 
-## Screenplay realization {#screenplay-realization}
+## Screenplay realization
 
-1. The scene composes each cited beat's cast, intent, outcome, consequence, spatial change, camera, requested sound layers and continuity, omitting, altering and adding none.
+1. The scene composes its scene file's standing state and each cited beat's participants, intents, outcome, reactions and consequences, and every change of position, camera and sound, omitting, altering and adding none.
 2. Each state continues across cuts until a beat changes it.
-3. A film plays every scene in screenplay order with the screenplay's transitions, titles and subtitles, and fills its running time.
+3. A film plays every scene file of its folder in the order of their numbers, with the screenplay's transitions, titles and subtitles, and fills its running time.
 4. A film takes its raster, frame rate and running time from the delivery profile in [project context](../../../production/project-context.md), and its grade and control channels from the screenplay and that record.
 5. The scene's comment opens with its screenplay citation and a summary of what happens.
 6. A `Concretization:` paragraph names each decision the code had to make where the screenplay was vague. It never holds an exchange, an outcome or a reaction, which only the screenplay decides.
 7. The same change records each concretization in the screenplay, under [concretization](../../../story/correction/repair.md#concretization). Exception: a user's fixed screenplay, whose concretizations go to the instructions.
 8. A catalog case composition takes its case parameters and cites the research section or fact each case exhibits, and the catalog film lists every case the screenplay uses.
 
-## Composition only {#composition-only}
+## Composition only
 
 1. The declaration only combines entity capabilities, interaction entry points and consequences, through the operators of the installed motion vocabulary and engine.
 2. It places absolute time only at the screenplay's anchors.
@@ -24,7 +24,7 @@ Contract: [composition.md](../composition.md).
 7. The film resolves once, from one seed.
 8. A defect a film shows is repaired in its module and accepted again in its catalog case, never in the scene.
 
-## Living scene {#living-scene}
+## Living scene
 
 1. Every entity on screen, officials, crowds, cameras and lights included, performs its role behavior for its whole presence and reacts to the scene's state.
 2. Each beat's spatial change moves its participants between the set's zones and landmarks.

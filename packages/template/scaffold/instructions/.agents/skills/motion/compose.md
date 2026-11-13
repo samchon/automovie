@@ -2,7 +2,7 @@
 
 How a screenplay beat becomes each person's composition in the installed motion vocabulary: its actions, with their parameters, joined by its operators. The vocabulary's README and public types own every call and value this page names by role, so read them under [reading a package](../development/reuse.md#reading-a-package) before writing one.
 
-## Decide each action {#decide-each-action}
+## Decide each action
 
 For each thing a person does in the beat, settle these axes from the beat record and its [performance study](../story/planning/research.md#performance-study), top to bottom, because each narrows the next:
 
@@ -23,7 +23,7 @@ Write those decisions as the composition and nothing else. A value the beat does
 
 A decision the beat left vague is made in the screenplay, under [concretization](../story/correction/repair.md#concretization).
 
-## Join the actions {#join-the-actions}
+## Join the actions
 
 The vocabulary joins actions with a few operators:
 

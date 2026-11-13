@@ -2,7 +2,7 @@
 
 Contract: [discovery/settings.md](../../discovery/settings.md).
 
-## Instructions and planned use {#instructions-and-backcast}
+## Instructions and backcast
 
 1. Every instruction and adopted promise is broken into its consequential elements:
     - premises;

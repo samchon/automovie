@@ -56,13 +56,13 @@ flowchart LR
   code -.-> film
 ```
 
-A short runs brief → screenplay and a series settings → treatments → scripts → screenplay; in a workspace the production's folder, `movies/shorts/<name>` or `movies/series/<name>`, fixes the route. The agent follows one chain, and each link cites the decisions of the link above it, so no scene exists without a written basis and no decision goes unrealized. Each layer is inspected, repaired by cause and reviewed independently before the next starts, and a gap found downstream is repaired in the layer that owns it.
+A short runs brief → screenplay and a series settings → treatments → scripts → screenplay; in a workspace the production's folder, `movies/shorts/<name>` or `movies/series/<name>`, fixes the route. The agent follows one chain, and each link cites the decisions of the link above it, so no scene exists without a written basis and no decision goes unrealized. A series inspects, repairs and independently reviews each layer before the next starts; a short drafts its brief, screenplay and film together, then answers its checklists and takes one independent review. A gap found downstream is repaired in the layer that owns it.
 
-Before writing, the agent studies every practice and style the film shows, a sport, a craft, a crowd's conduct, a camera style, and keeps the sources under `references/`, because a law written without a study invents the practice.
+The agent studies every practice and style the film shows, a sport, a craft, a crowd's conduct, a camera style, when a decision first needs it, starting from the density and distribution of the practice as it is really performed, and keeps the sources under `references/`, because a law written without a study invents the practice.
 
 ### A short: brief, then screenplay
 
-A short is a film of a few minutes whose events fit one screenplay. Its brief is its canon: the fixed conditions such as running time and frame, and the decisions about world, cast, crowds, props, sets, cinematography and sound that its films share, one file per subject with an anchor per decision that every screenplay cites. Several shorts can share one brief and one world.
+A short is a film of a few minutes whose events fit one screenplay. Its brief is a minimal canon: only the decisions about its people, places and recurring props that several scenes must keep true, one file per subject with an anchor per decision that the screenplay cites. Several shorts can share one brief and one world.
 
 ### A series: settings, treatments, scripts, then screenplay
 
@@ -70,7 +70,7 @@ A series, a feature or an episode spans causes, setups and payoffs over many sce
 
 ### The screenplay
 
-On both routes the screenplay composes what the audience sees and hears, beat by beat, with each action named as one the installed motion vocabulary performs or as a law the research describes. It is the last place a decision is made; code only realizes it. A separate expression pass then rewrites how it is seen and heard with its meaning frozen.
+On both routes the screenplay composes what the audience sees and hears, beat by beat in one file per scene, with each action named as one the installed motion vocabulary performs or as a law the research describes. It is the last place a decision is made; code only realizes it.
 
 ### Staging, motion and camera as code
 
