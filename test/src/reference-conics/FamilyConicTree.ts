@@ -17,7 +17,7 @@ import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 namespace FamilyConicTree {
   /** Realize the body and report it. */
   export async function main(): Promise<void> {
-    for (const family of [AutoMovieHumanF1.BODY.arm, AutoMovieHumanF1.BODY.leg]) {
+    for (const family of [AutoMovieHumanF1.BODY.arm, AutoMovieHumanF1.BODY.hand, AutoMovieHumanF1.BODY.leg]) {
       const count: number = Math.ceil((family.knots.at(-1)! - family.knots[0]!) / 10) + 1;
       const stations: number[] = Array.from({ length: count }, (_: unknown, i: number): number => family.knots[0]! + ((family.knots.at(-1)! - family.knots[0]!) * i) / (count - 1));
       const one: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(family, stations);
