@@ -8,6 +8,7 @@
     "build": "ttsc --noEmit",
     "start": "ttsx src/index.ts",
     "esbuild": "node esbuild.config.mts",
+    "sweep:parts": "esbuild src/sweep/generateLawSweepParts.ts --bundle --platform=node --format=cjs --log-level=warning --outfile=bin/sweep-parts.cjs && node bin/sweep-parts.cjs",
     "evidence": "evidence",
     "conic:build": "esbuild \"src/reference-conics/FamilyConic*.ts\" --bundle --platform=node --format=cjs --external:@napi-rs/canvas --outdir=.shots/esbuild --out-extension:.js=.cjs --log-level=warning",
     "conic:armscye": "pnpm conic:build && node .shots/esbuild/FamilyConicArmscye.cjs",

@@ -124,6 +124,33 @@ export namespace motionHumanLawCovering {
   }
 
   /**
+   * How many cells of a table's covering array each body performs, without
+   * performing any: what a part count is sized by.
+   *
+   * @param table Each law's stage.
+   * @param bodies The bodies.
+   * @param seeds The seeds.
+   * @returns The cells by body.
+   */
+  export function cells(
+    table: Readonly<Record<string, motionHumanLawSweep.Stage>>,
+    bodies: readonly motionHumanBody.Name[] = motionHumanBody.EXTREMES,
+    seeds: readonly string[] = motionHumanLawSweep.SEEDS,
+  ): Record<string, number> {
+    const out: Record<string, number> = {};
+    for (const body of bodies) out[body] = 0;
+    for (const law of Object.keys(table)) {
+      const own: Record<string, string[]> = factors(law);
+      for (const row of motionCoveringArray(
+        { ...own, body: [...bodies], seed: [...seeds] },
+        Object.keys(own).length >= 3 ? 3 : 2,
+      ))
+        out[row.body!] = (out[row.body!] ?? 0) + 1;
+    }
+    return out;
+  }
+
+  /**
    * The mirror relation over every law of a table: each ledger row that
    * sets the performer's own side to `left` (`motionHumanLawSweep.MIRRORED`)
    * is performed and compared with the mirror image of its `right` row
