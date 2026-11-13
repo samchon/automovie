@@ -8,6 +8,7 @@ import {
   HumanSignature,
   HumanSocial,
   type IHumanBody,
+  type IHumanPosture,
   armWrestle,
   seated,
 } from "@automovie/motions";
@@ -117,10 +118,30 @@ export function test_human_motion_social_arm_wrestle(): void {
       )
         throw error;
       angle = error.feasible.maximum;
-      if (!(angle >= 30))
+      if (!(angle >= 30)) {
         complaints.push(
           `a pin of 85 degrees is refused with ${angle} degrees as the most, at least 30 expected (${error.message})`,
         );
+        // The loser's whole posture at the pin, held and one step past it,
+        // for the fit to be read off.
+        for (const pin of [angle, angle + 5])
+          try {
+            const pinned: HumanPerformance = build(pin);
+            const placed: HumanSegment.ISegment = pinned.segments("b")[1]!;
+            const seconds: number =
+              placed.start +
+              (placed.plan.events.find((e): boolean => e.name === "pin")
+                ?.share ?? NaN) *
+                placed.plan.duration;
+            complaints.push(
+              `the loser's posture at a pin of ${pin} degrees (${seconds.toFixed(2)} s): ${dump(pinned.posture("b", seconds))}`,
+            );
+          } catch (failure) {
+            complaints.push(
+              `a pin of ${pin} degrees: ${failure instanceof Error ? failure.message : String(failure)}`,
+            );
+          }
+      }
       performance = build(angle);
     }
   } catch (error) {
@@ -233,4 +254,27 @@ export function test_human_motion_social_arm_wrestle(): void {
       );
   }
   TestValidator.equals("an arm wrestle across a table", complaints, []);
+}
+
+/** A posture as text for a complaint: root, yaw, pitch, roll, every set joint and every limb goal, numbers to four places, a goal's colliders left out. */
+function dump(posture: IHumanPosture): string {
+  return JSON.stringify(
+    {
+      root: posture.root,
+      yaw: posture.yaw,
+      pitch: posture.pitch,
+      roll: posture.roll,
+      joints: posture.joints,
+      limbs: Object.fromEntries(
+        Object.entries(posture.limbs).map(
+          ([limb, goal]: [string, IHumanPosture.IGoal | undefined]): [
+            string,
+            object | undefined,
+          ] => [limb, goal === undefined ? goal : { ...goal, clear: undefined }],
+        ),
+      ),
+    },
+    (_: string, value: unknown): unknown =>
+      typeof value === "number" ? Math.round(value * 1e4) / 1e4 : value,
+  );
 }
