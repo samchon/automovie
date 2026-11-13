@@ -232,7 +232,6 @@ export namespace AutoMovieMotionHumanArmCarry {
                   ? courses[other]!
                   : plains[other]!)(share),
               );
-          at = HumanArmClearance.fingered(at, side, posture.joints);
           posed.set(share, at);
         }
         return at;
