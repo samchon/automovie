@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { HumanBound } from "../law/HumanBound";
@@ -62,7 +63,7 @@ export namespace HumanSwordParry {
     line?: Opening;
 
     /** Seconds the blades stay together after they meet: a beat leaves at once, a bind stays; 0.15 when absent. */
-    hold?: number;
+    hold?: number & tags.Minimum<0>;
   }
 
   /** Where a parry's blade goes: the point its strong meets, the way it points, the way its edge faces, and the seconds from the start to the attack's decisive instant (null for a drill). */

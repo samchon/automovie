@@ -3,6 +3,7 @@ import type {
   IAutoMovieMotionEvent,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { HumanBound } from "../law/HumanBound";
@@ -63,7 +64,7 @@ export namespace step {
     direction: "forward" | "back" | "left" | "right";
 
     /** How many steps; 1 when absent. */
-    steps?: number;
+    steps?: number & tags.Type<"uint32"> & tags.Minimum<1>;
 
     /** Each step's length, metres; half a stance length when absent. */
     length?: number;

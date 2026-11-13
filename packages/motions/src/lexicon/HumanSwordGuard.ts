@@ -1,4 +1,5 @@
 import { Vector3 } from "@automovie/engine";
+import type { tags } from "typia";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { HumanBound } from "../law/HumanBound";
@@ -97,7 +98,7 @@ export namespace HumanSwordGuard {
     guard?: Guard;
 
     /** Seconds, at least the 0.5 s (provisional) the guard takes to set; 1 when absent. */
-    seconds?: number;
+    seconds?: number & tags.Minimum<0>;
   }
 
   /**

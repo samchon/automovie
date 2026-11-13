@@ -4,6 +4,7 @@ import type {
   IAutoMovieAffordance,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { HumanTrunk } from "../everyday/HumanTrunk";
@@ -84,7 +85,7 @@ export namespace HumanWeaponFirearm {
     carriage?: Carriage;
 
     /** Seconds the carriage is held once reached; 1 when absent. */
-    seconds?: number;
+    seconds?: number & tags.Minimum<0>;
   }
 
   /** The widest angle between the heading and the target the arms present to without a turn of the feet, degrees (provisional). */

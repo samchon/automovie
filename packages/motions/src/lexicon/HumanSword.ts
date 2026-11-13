@@ -4,6 +4,7 @@ import type {
   IAutoMovieAffordance,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -151,7 +152,7 @@ export namespace HumanSword {
     outcome?: "lands" | "parried";
 
     /** A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried. */
-    feint?: number;
+    feint?: number & tags.ExclusiveMinimum<0> & tags.ExclusiveMaximum<1>;
   }
 
   /** Parameters of a cut. */

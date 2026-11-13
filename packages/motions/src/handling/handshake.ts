@@ -9,6 +9,7 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
@@ -119,7 +120,7 @@ export namespace handshake {
     hand?: HumanHand.Side;
 
     /** Pump cycles; 2 when absent. */
-    pumps?: number;
+    pumps?: number & tags.Type<"uint32"> & tags.Minimum<1>;
   }
 
   /** Pump frequency, hertz (Tagne et al. 2016, greeting). */

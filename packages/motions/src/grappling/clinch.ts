@@ -3,6 +3,7 @@ import type {
   AutoMovieHumanoidRegion,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
@@ -82,7 +83,7 @@ export namespace clinch {
     hand?: HumanHand.Side;
 
     /** Seconds the grip is held; 2 when absent. */
-    hold?: number;
+    hold?: number & tags.Minimum<0>;
 
     /** How it is performed. */
     manner?: AutoMovieMotionManner.IManner;
