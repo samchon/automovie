@@ -20,6 +20,7 @@ import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanHand } from "../posture/HumanHand";
+import { HumanHandAttitude } from "../posture/HumanHandAttitude";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -397,11 +398,6 @@ export namespace pickUp {
                           ? lift * minimumJerk((at - reach - LOAD) / rise).s
                           : 0),
                     },
-              // Lifted, the hand keeps the rotation it showed as the fingers
-              // closed, so what it holds keeps the attitude it was taken in
-              // (a glass stays upright): asking the grip's rotation instead
-              // let a hand that could not reach it at the table turn toward
-              // it on the way up, tipping the object by what it missed.
               rotation: at < reach ? transport.turn(at) : chosen.shown.rotation,
               bend,
 
@@ -423,6 +419,16 @@ export namespace pickUp {
         // apart 1/120 s apart). From there the transport's goal alone leads
         // to the grip. The blend eases in and arrives moving.
         const leave: number = LEAVE * reach;
+        // Gripped, the hand keeps the rotation it showed as the fingers
+        // closed, solved at the wrist (`HumanHandAttitude`), so what it holds
+        // keeps the attitude it was taken in: a glass is lifted upright.
+        if (t >= reach)
+          return HumanHandAttitude.held(
+            body,
+            goaled(t, t),
+            side,
+            chosen.shown.rotation,
+          );
         return t >= leave
           ? goaled(t, t)
           : AutoMovieMotionHumanArm.carry(

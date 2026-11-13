@@ -183,12 +183,40 @@ export function test_human_motion_prop_held_attitude(): void {
         }
       }
       // Through the pick-up, from the fingers' closing to the lift's end.
+      // Each frame: the glass's tilt, and how far the hand bone and the
+      // glass have each turned since the fingers closed.
       const picked: string[] = [];
+      const reader: HumanSignature.IReader = HumanSignature.of(
+        drunk,
+        "a",
+        body,
+        0,
+      );
+      const turn = (a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): number =>
+        (2 *
+          Math.acos(
+            Math.min(
+              1,
+              Math.abs(a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w),
+            ),
+          ) *
+          180) /
+        Math.PI;
+      const closing: number = instant(lift, "gripClosed") + 0.01;
+      const gripped: IAutoMovieQuaternion = HumanSignature.bones(
+        reader,
+        closing,
+      ).get("rightHand")!.worldRotation;
+      const seated: IAutoMovieQuaternion = drunk.prop(
+        "glass",
+        closing,
+      ).rotation;
       for (let i: number = 0; i <= 6; i++) {
         const seconds: number =
-          instant(lift, "gripClosed") +
-          ((instant(lift, "lifted") - instant(lift, "gripClosed")) * i) / 6;
-        picked.push(`${seconds.toFixed(2)}: ${from(axis(seconds)).toFixed(1)}`);
+          closing + ((instant(lift, "lifted") - closing) * i) / 6;
+        picked.push(
+          `${seconds.toFixed(2)}: ${from(axis(seconds)).toFixed(1)} (hand ${turn(HumanSignature.bones(reader, seconds).get("rightHand")!.worldRotation, gripped).toFixed(1)}, glass ${turn(drunk.prop("glass", seconds).rotation, seated).toFixed(1)})`,
+        );
       }
       if (!(carried <= 10))
         complaints.push(

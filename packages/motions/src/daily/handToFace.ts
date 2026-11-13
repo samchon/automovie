@@ -270,15 +270,15 @@ export namespace handToFace {
     // The head's place at the face, for the elbow's hint and the arm's
     // search: the entry with the head turned as it is on the hand's arrival,
     // the turn added to the entry's own head and neck as the pulse adds it.
-    const atFace: IHumanPosture =
-      row.upright === true
-        ? entry
-        : AutoMovieMotionHumanJoints.add({
-            channels: AutoMovieMotionHumanJoints.channels(turn),
-            from: 0,
-            to: 0,
-            delta: (): AutoMovieMotionHumanJoints.Angles => turn,
-          }).write(entry, 0);
+    // A drinker's head turns after the vessel arrives, so the vessel must
+    // also be held there (`turned`).
+    const turned: IHumanPosture = AutoMovieMotionHumanJoints.add({
+      channels: AutoMovieMotionHumanJoints.channels(turn),
+      from: 0,
+      to: 0,
+      delta: (): AutoMovieMotionHumanJoints.Angles => turn,
+    }).write(entry, 0);
+    const atFace: IHumanPosture = row.upright === true ? entry : turned;
 
     // The held prop's effector, on the side of a vessel's rim the arm holds
     // upright best at the face.
@@ -378,6 +378,7 @@ export namespace handToFace {
               effector(side),
               region(side, name)(atFace, 0),
               hang,
+              { posture: turned, place: region(side, name)(turned, 0) },
             )
           : undefined;
       const tipped: AutoMovieMotionHumanTouchDrink.IHeld | undefined =
@@ -392,6 +393,7 @@ export namespace handToFace {
                 region(side, name)(atFace, 0),
                 own.bend,
                 own.wrist.rotation,
+                { posture: turned, place: region(side, name)(turned, 0) },
               )
             : { lean: 0, goal: { ...own.wrist, bend: own.bend } };
       const lean: number | undefined = vessel?.lean ?? tipped?.lean;
