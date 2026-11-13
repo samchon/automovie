@@ -479,8 +479,19 @@ export namespace AutoMovieHumanF1 {
     [21, 1290, 138],
   ];
 
-  /** Radius of each armpit fill along the skin, mm: the fold row and the band's first rows beside it, about two of the band's columns. */
+  /**
+   * Radius of each armpit fill along the skin, mm: the fold row and the band's first rows beside it. At 5 mm the folds fell only to 45
+   * degrees and the speck stayed; at 8 mm they are under 40.
+   */
   const ARMPIT_FILL_MM: number = 8;
+
+  /**
+   * Where the breast's band fans against the trunk below the breast's side on the +Z side, mm, and the radius it is faired over: a dark
+   * dash on `fold.left` (px 600..640 x 335..345), folds of 14 degrees in the band's own triangles at [98..101, 1243..1247, 109..111]
+   * (`creases.ts`), where the loop's distance falls from 56 to 47 mm within an eighth of a turn. The other side is its mirror image.
+   */
+  const BREAST_FAN_MM: [number, number, number] = [99, 1245, 110];
+  const BREAST_FAN_FILL_MM: number = 4;
 
   /**
    * The armscye's port on the trunk's chart.
@@ -1019,9 +1030,10 @@ export namespace AutoMovieHumanF1 {
       const hollow: AutoMovieHumanConicLoft.IFamily = side > 0 ? drawn : twin(drawn);
       root = { type: "join", kind: "diff", name: "cut." + hollow.name, host: root, part: leaf(hollow, Infinity, NOSTRIL_LAYER_MM), seed: { type: "search", partFace: hollow.name, hostFace: BODY.nose.name, phase: 0, from: 0, to: 0.9 }, parameter: { type: "phase" }, partWidth: { type: "chord", value: NOSTRIL_RIM_MM / 1000 }, hostWidth: { type: "chord", value: NOSTRIL_RIM_MM / 1000 }, continuity: "G2", count: 48, rows: 4, tolerance: 1e-12, grazing: 0.05 };
     }
-    const fills: IAutoMovieConstructionFill[] = [1, -1].flatMap((side: number): IAutoMovieConstructionFill[] =>
-      ARMPIT_FILLS_MM.map((p: [number, number, number]): IAutoMovieConstructionFill => ({ point: [p[0] / 1000, p[1] / 1000, (side * p[2]) / 1000], radius: ARMPIT_FILL_MM / 1000 })),
-    );
+    const fills: IAutoMovieConstructionFill[] = [1, -1].flatMap((side: number): IAutoMovieConstructionFill[] => [
+      ...ARMPIT_FILLS_MM.map((p: [number, number, number]): IAutoMovieConstructionFill => ({ point: [p[0] / 1000, p[1] / 1000, (side * p[2]) / 1000], radius: ARMPIT_FILL_MM / 1000 })),
+      { point: [BREAST_FAN_MM[0] / 1000, BREAST_FAN_MM[1] / 1000, (side * BREAST_FAN_MM[2]) / 1000], radius: BREAST_FAN_FILL_MM / 1000 },
+    ]);
     return { root, sources, fills };
   }
 
