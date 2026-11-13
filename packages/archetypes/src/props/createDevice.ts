@@ -133,13 +133,16 @@ export function createDevice(
       aperture: depth,
       length: height,
     });
-    // The other hand's hold: the body's far (+X) end, wrapped as the grip.
+    // The other hand's hold: the body's far (+X) end, taken from the front
+    // with the fingers there and the thumb round onto the back, so the hand
+    // closes across the body's depth, not its width, and stays off the face
+    // the back is held to.
     builder.affordance({
       id: "support",
       kind: "handle",
       frame: ArchetypeFrame.facing(
         Vector3.create(width / 2 - grip, height / 2, 0),
-        Vector3.create(1, 0, 0),
+        Vector3.create(0, 0, 1),
         Vector3.create(0, 1, 0),
       ),
       extent: null,
@@ -264,7 +267,7 @@ export namespace createDevice {
    * The affordance ids:
    *
    * - `grip`: the hold, a power grip: across the back of a phone or a remote, on a camera's grip bar at its `-X` end.
-   * - `support`: a camera's other hold, the far `+X` end of its body, where the second hand steadies it.
+   * - `support`: a camera's other hold, the far `+X` end of its body taken from the front, where the second hand steadies it.
    * - `pinch`: a lateral pinch at the bottom edge of a phone or a remote.
    * - `screen`: the face that is looked at: a phone's front, a camera's back.
    * - `lens`: the face that looks: a phone's rear lens, a camera's lens front.
