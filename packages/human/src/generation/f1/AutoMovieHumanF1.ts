@@ -325,9 +325,12 @@ export namespace AutoMovieHumanF1 {
    * crisp ledge round the thumb's dorsal root (`limbview` close to [212, 972, 425], a scratch render of the arm's split alone). Faired over
    * 1.5 mm the fill folded the blend itself (edges folding by 90 degrees or more on the arm's split, 8 to 38); over 3 to 6 mm the ledge
    * softened and a fin stood in the web beside the index finger; over 8 mm, about the thumb's half width at its root, the root runs into
-   * the hand with no ledge and the web is clean, with 6 edges folding by 115 to 138 degrees on the hand beside the root.
+   * the hand with no ledge and the web is clean, with 6 edges folding by 115 to 138 degrees on the hand beside the root. Those folds, the
+   * dark crevice in the web and the thin crease along the index metacarpal (`hand.left` px 640..650 x 370..405) are the fill's own rim
+   * crossing the root's tight turn: over 11 mm the folds are 106 to 119 degrees, over 14 mm, the thumb's whole root, they are under 91 and
+   * the crease is gone.
    */
-  const THUMB_FAIR_MM: number = 8;
+  const THUMB_FAIR_MM: number = 14;
 
   /** How far behind its first joint the thumb's root closes in a point, inside the hand, mm. */
   const ROOT_MM: number = 10;
@@ -468,6 +471,20 @@ export namespace AutoMovieHumanF1 {
    * millimetres across with a blend 1 mm wide; on layers 4 mm apart the digit's root was a few flat facets.
    */
   const WEB_LAYER_MM: number = 1;
+
+  /**
+   * Station spacing of the fingers' and the thumb's layers past their roots, mm. At the body's 4 mm the digits' rings showed as fine level
+   * stripes along the thumb and the fingers under flat shading (`hand.high-oblique` px 610..660 x 520..580, a fold of 30 degrees at the
+   * thumb's [238.8, 942, 427.7]), where a finger's section turns faster along it than the trunk's does; at 2 mm they are gone.
+   */
+  const FINGER_LAYER_MM: number = 2;
+
+  /**
+   * The largest turn of a finger's or the thumb's ring between two neighbouring phases, radians (`AutoMovieHumanConicLoft.IFamily.turn`),
+   * as the arm's (`PHASE_TURN`). On phases set by its girth the thumb's flat side turned into its edges between few columns and drew a
+   * sawtooth of long thin facets along the thumb (`limbview` close to [236, 945, 427]), the stripes `hand.high-oblique` showed.
+   */
+  const FINGER_TURN: number = 0.1;
   const WEB_REACH_MM: number = 12;
 
   /**
@@ -885,10 +902,10 @@ export namespace AutoMovieHumanF1 {
    */
   export function construction(layer: number = LAYER_MM): IConstruction {
     const sources: Map<string, IAutoMovieViewPart> = new Map();
-    const leaf = (family: AutoMovieHumanConicLoft.IFamily, fine: number = -Infinity, close: number = WEB_LAYER_MM): AutoMovieConstructionNode => {
+    const leaf = (family: AutoMovieHumanConicLoft.IFamily, fine: number = -Infinity, close: number = WEB_LAYER_MM, pitch: number = layer): AutoMovieConstructionNode => {
       const from: number = family.knots[0]!;
       const to: number = family.knots.at(-1)!;
-      const count: number = Math.ceil((to - from) / layer) + 1;
+      const count: number = Math.ceil((to - from) / pitch) + 1;
       const even: number[] = Array.from({ length: count }, (_: unknown, i: number): number => from + ((to - from) * i) / (count - 1));
 
       // Inside a relief whose net is finer along the station than the layers, each layer interval is cut until it is as fine: rings 4 mm
@@ -896,8 +913,8 @@ export namespace AutoMovieHumanF1 {
       const stations: number[] = even.flatMap((s: number, i: number): number[] => {
         if (i === 0) return [s];
         const before: number = even[i - 1]!;
-        const pitch: number = Math.min(layer, before < fine ? close : layer, ...(family.reliefs ?? []).filter((relief): boolean => relief.stations[0] < s && relief.stations[1] > before).map((relief): number => (relief.stations[1] - relief.stations[0]) / (relief.rows - 3)));
-        const cuts: number = Math.ceil((s - before) / pitch - 1e-9);
+        const step: number = Math.min(pitch, before < fine ? close : pitch, ...(family.reliefs ?? []).filter((relief): boolean => relief.stations[0] < s && relief.stations[1] > before).map((relief): number => (relief.stations[1] - relief.stations[0]) / (relief.rows - 3)));
+        const cuts: number = Math.ceil((s - before) / step - 1e-9);
         return Array.from({ length: cuts }, (_: unknown, k: number): number => before + ((s - before) * (k + 1)) / cuts);
       });
       sources.set(family.name, AutoMovieHumanConicLoft.part(family, folded(family, swept(family, stations))));
@@ -984,14 +1001,14 @@ export namespace AutoMovieHumanF1 {
       const family: AutoMovieHumanConicLoft.IFamily = side > 0 ? leaned : twin(leaned);
       let node: AutoMovieConstructionNode = leaf(family);
       for (const digit of DIGITS.filter((d: IDigit): boolean => d.limb === which && !d.knuckle)) {
-        const capsule: AutoMovieHumanConicLoft.IFamily = { ...digit.family, tips: [{ from: digit.family.knots[0]!, tip: -ROOT_MM, covered: true }, digit.family.tips?.[1] ?? null] };
+        const capsule: AutoMovieHumanConicLoft.IFamily = { ...digit.family, tips: [{ from: digit.family.knots[0]!, tip: -ROOT_MM, covered: true }, digit.family.tips?.[1] ?? null], ...(which === "arm" ? { turn: FINGER_TURN } : {}) };
         const part: AutoMovieHumanConicLoft.IFamily = side > 0 ? capsule : twin(capsule);
         node = {
           type: "join",
           kind: "merge",
           name: "web." + part.name,
           host: node,
-          part: leaf(part, digit.family.knots[0]! + WEB_REACH_MM),
+          part: leaf(part, digit.family.knots[0]! + WEB_REACH_MM, WEB_LAYER_MM, which === "arm" ? FINGER_LAYER_MM : layer),
           seed: { type: "search", partFace: part.name, hostFace: family.name, phase: 0, from: 0, to: 0.7 },
           parameter: { type: "phase" },
           partWidth: { type: "chord", value: THUMB_CHORD_MM / 1000 },
@@ -1025,8 +1042,9 @@ export namespace AutoMovieHumanF1 {
       };
       const children: IAutoMovieConstructionSplit.IChild[] = fanned.digits.map((name: string): IAutoMovieConstructionSplit.IChild => {
         const digit: IDigit = DIGITS.find((d: IDigit): boolean => d.family.name === name)!;
-        const part: AutoMovieHumanConicLoft.IFamily = side > 0 ? digit.family : twin(digit.family);
-        return { band: "band." + part.name, part: leaf(part), partFace: part.name, partEnd: "bottom", rail: fanned.rail / 1000, correspondence: "length" };
+        const own: AutoMovieHumanConicLoft.IFamily = which === "arm" ? { ...digit.family, turn: FINGER_TURN } : digit.family;
+        const part: AutoMovieHumanConicLoft.IFamily = side > 0 ? own : twin(own);
+        return { band: "band." + part.name, part: leaf(part, -Infinity, WEB_LAYER_MM, which === "arm" ? FINGER_LAYER_MM : layer), partFace: part.name, partEnd: "bottom", rail: fanned.rail / 1000, correspondence: "length" };
       });
       const first: IAutoMovieConstructionSplit.ISeam = seam(0);
       node = {
