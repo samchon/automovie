@@ -82,6 +82,7 @@ export * from "./floor/crawl";
 export * from "./floor/lieDown";
 export * from "./climbing/climbLadder";
 export * from "./grappling/clinch";
+export * from "./grappling/kuzushi";
 export * from "./ballStrike/kickBall";
 export * from "./tasks/useTool";
 export * from "./tasks/wipe";

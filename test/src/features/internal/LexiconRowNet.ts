@@ -63,6 +63,7 @@ export namespace LexiconRowNet {
     // Mimed without a cigarette: the hand itself on the performer's belly.
     ashTap: { target: { kind: "self", region: "abdomen" } },
     stubOut: { target: { kind: "self", region: "abdomen" } },
+    danceLead: ahead,
     readingWalk: ahead,
     stroll: ahead,
     hurry: ahead,
@@ -143,6 +144,10 @@ export namespace LexiconRowNet {
     // stated after the net's 0.3 s stand and the pass's reach.
     relayIncoming: [0.6, { partner: "b", at: 1 }],
     relayOutgoing: [0.6, { partner: "b", at: 1 }],
+    danceFollow: [3, on("sternum")],
+    danceHold: [0.6, on("shoulderRight")],
+    judoGrip: [0.6, { partner: "b" }],
+    judoBroken: [0.6, { partner: "b" }],
     follow: [3, on("sternum")],
     escort: [3, on("sternum")],
     chase: [3, on("sternum")],
@@ -189,6 +194,7 @@ export namespace LexiconRowNet {
     "escort",
     "chase",
     "intercept",
+    "danceFollow",
   ];
 
   /** Rows that need a support, a prop or a thrower, which their own tests stage. */
