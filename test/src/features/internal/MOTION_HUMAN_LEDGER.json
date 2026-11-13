@@ -6084,6 +6084,14 @@
           "sweep": "reduced"
         },
         {
+          "row": "kind=boxStep",
+          "tests": [],
+          "audit": [
+            "test_human_motion_law_sweep_sport"
+          ],
+          "sweep": "reduced"
+        },
+        {
           "row": "side=left",
           "tests": [],
           "audit": [

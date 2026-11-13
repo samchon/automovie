@@ -24,7 +24,8 @@ import { everydayVerdicts } from "./everydayVerdicts";
  * - `dance-sway`: the hips' sideways extremes within one frame of beats;
  * - `dance-stepTouch`: each footfall (the first instant the ankle is within
  *   2 mm of where it comes to rest) within one frame of its beat, and a
- *   footfall on every beat.
+ *   footfall on every beat;
+ * - `dance-boxStep`: the same two readings of its footfalls.
  *
  * @param bodies The bodies; `m-average` when absent.
  * @returns The cases.
@@ -49,7 +50,7 @@ export function danceCases(
       man.body.profile,
     );
     const suffix: string = bodies.length === 1 ? "" : `-${id}`;
-    for (const kind of ["bounce", "sway", "stepTouch"] as dance.Kind[]) {
+    for (const kind of ["bounce", "sway", "stepTouch", "boxStep"] as dance.Kind[]) {
       const name: string = `dance-${kind}${suffix}`;
       let performance: HumanPerformance;
       try {
@@ -143,7 +144,8 @@ export function danceCases(
           );
           break;
         }
-        case "stepTouch": {
+        case "stepTouch":
+        case "boxStep": {
           const falls: number[] = [];
           for (const foot of ["leftFoot", "rightFoot"]) {
             const pos: IAutoMovieVector3[] = grid.map((t: number) =>

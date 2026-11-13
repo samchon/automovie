@@ -140,7 +140,7 @@ export const MOTION_HUMAN_LAW_SOLO_ROWS: Readonly<
       ["neckSide", "crossBody", "overheadSide", "quadriceps", "tree"],
       { seconds: 4 },
     ),
-    ...kinds("dance", ["bounce", "sway", "stepTouch"]),
+    ...kinds("dance", ["bounce", "sway", "stepTouch", "boxStep"]),
   ],
   sport: [
     row("athletics", "default", {}),
