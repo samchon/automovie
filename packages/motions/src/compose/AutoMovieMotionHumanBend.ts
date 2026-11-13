@@ -51,7 +51,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a hint decides, the frame and unit of an elbow's and a knee's hint, when a law passes its own point and what a goal without a preset takes.
  * @evidence contracts/development/design.md#principled-representation A hint is the pole vector of two-bone inverse kinematics; an elbow's is stated in upper-arm lengths from the shoulder so one preset fits every body, a knee's follows the foot's heading as the knee does in gait.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One table of presets, three preset functions and the solver with its strain reading; the only owner of default bends, read by every law that builds a limb goal.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One table of presets, three preset functions, the solver with its level variant and its strain reading, and the turn of a hint about an axis; the only owner of default bends, read by every law that builds a limb goal.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Presets are a closed union keyed into one table; shares are plain numbers of a stated unit, and no law name appears.
  */
 export namespace AutoMovieMotionHumanBend {
