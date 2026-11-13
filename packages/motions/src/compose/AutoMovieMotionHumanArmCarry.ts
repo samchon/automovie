@@ -376,22 +376,25 @@ export namespace AutoMovieMotionHumanArmCarry {
     weight(seconds: number): number;
 
     /**
-     * The second whose goal the clearing course is planned against: the
-     * arrival (weight 1) of the stretch a second lies in. The goal of the
-     * second itself when absent.
+     * The stretch of the carry a second lies in: the second its weight is 0
+     * (the held end) and the second it is 1 (the arrival). Between them the
+     * goal's end is fitted at the ends of `KEYS` equal parts of the
+     * stretch's time and carried between two neighbouring fits, and the
+     * clearing course is planned against the arrival's goal. The goal of the
+     * second itself, fitted afresh, when absent.
      *
      * @param seconds Seconds since the action's start.
-     * @returns Seconds since the action's start.
+     * @returns The held end's and the arrival's seconds since the action's start.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument, the result and the default.
-     * @evidence contracts/development/implementation.md#principled-implementation A course planned against a fixed arrival is a constant of the carry (as a `reference` is a constant of a fit), so the carried arm is a pure function of time that moves continuously.
+     * @evidence contracts/development/common.md#meaningful-documentation States the argument, the result, what reads it and the default.
+     * @evidence contracts/development/implementation.md#principled-implementation Fits at fixed instants and a course planned against a fixed arrival are constants of the carry (as a `reference` is a constant of a fit), so the carried arm is a pure function of time that moves continuously, however a fit chooses between two near-equal arms.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second by `carried`.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goal is read at the returned second on the posture of the current one, so nothing is remembered between seconds.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goal is read at the keyed seconds on the posture of the current one, so nothing is remembered between seconds.
      * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm.
      * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
      */
-    arrival?(seconds: number): number;
+    stretch?(seconds: number): readonly [number, number];
 
     /**
      * The hand's world rotation on the way, for a hand that holds an object
@@ -437,11 +440,11 @@ export namespace AutoMovieMotionHumanArmCarry {
    * @returns The primitive, on the arm's channel.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is carried, by what, and the channel claimed.
-   * @evidence contracts/development/implementation.md#principled-implementation The goal is written on the posture so far and `carry` blends its solved angles with the held ones; with an attitude, the hand between the ends is solved to it on the carried arm.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One goal evaluation (a second at the arrival when given) and one call of `carry`, then one hand solve with an attitude.
+   * @evidence contracts/development/implementation.md#principled-implementation The goal is written on the posture so far and `carry` blends its solved angles with the held ones, the goal's end between the ends read off its fits at the stretch's keys (`keyed`) when a stretch is given; with an attitude, the hand between the ends is solved to it on the carried arm.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The goal's end (the second's goal, or `keyed` inside a stretch), the arrival's goal with a stretch, one call of `carry`, then one hand solve with an attitude.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The hand's fingers are not claimed, so a row that shapes them composes with this one.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Per written second `carry`'s posture solves (one, two with an arrival), none at weight 0 or 1; between the ends an attitude adds the hand's forward kinematics on the blend, on the held end (the arm written as joints, no limb fit) and on the goal's end (the goal's fit, which `carry`'s solve has just asked the resolver for), the attitude's own reading and `HumanHandAttitude.held` (one posture solve and at most three resolves of the arm written as joints).
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `carry` and `HumanHandAttitude.held`.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Per written second `carry`'s posture solves (one, two with a stretch), none at weight 0 or 1, and inside a stretch `keyed`'s two fits in place of the second's own; between the ends an attitude adds the hand's forward kinematics on the blend, on the held end (the arm written as joints, no limb fit) and on the goal's end (the arm written as joints, or the goal's fit, which `carry`'s solve has just asked the resolver for), the attitude's own reading and `HumanHandAttitude.held` (one posture solve and at most three resolves of the arm written as joints).
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `keyed`, `carry` and `HumanHandAttitude.held`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props only and holds no per-second state.
    */
   export function carried(props: ICarry): IAutoMovieMotionHumanPrimitive {
@@ -452,24 +455,22 @@ export namespace AutoMovieMotionHumanArmCarry {
       to: props.to,
       write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
         const weight: number = props.weight(seconds);
-        const aimed: IHumanPosture = {
+        const goal = (at: number): IHumanPosture => ({
           ...posture,
-          limbs: { ...posture.limbs, [limb]: props.goal(posture, seconds) },
-        };
+          limbs: { ...posture.limbs, [limb]: props.goal(posture, at) },
+        });
+        const stretch: readonly [number, number] | undefined =
+          props.stretch?.(seconds);
+        const aimed: IHumanPosture =
+          stretch === undefined || !(weight > 0 && weight < 1)
+            ? goal(seconds)
+            : keyed(props.body, posture, props.side, goal, stretch, seconds);
         const out: IHumanPosture = carry(
           props.body,
           aimed,
           { [props.side]: props.rest },
           weight,
-          props.arrival === undefined
-            ? undefined
-            : {
-                ...posture,
-                limbs: {
-                  ...posture.limbs,
-                  [limb]: props.goal(posture, props.arrival(seconds)),
-                },
-              },
+          stretch === undefined ? undefined : goal(stretch[1]),
         );
         if (props.attitude === undefined || !(weight > 0 && weight < 1))
           return out;
@@ -495,6 +496,91 @@ export namespace AutoMovieMotionHumanArmCarry {
           ),
         );
       },
+    };
+  }
+
+  /** The equal parts of a carry's stretch at whose ends its goal is fitted (`ICarry.stretch`; provisional: twentieths, each about a frame of film of a 0.7 s carry). */
+  const KEYS: number = 20;
+
+  /**
+   * The goal's end of a carry at a second inside its stretch, as joints: the
+   * goal fitted at the ends of the `KEYS` equal parts of the stretch's time
+   * around the second, and carried between the two fits in proportion
+   * (`blendHumanJoint`). A goal fitted afresh at each second may choose
+   * between two near-equal arms differently from one second to the next, and
+   * the arm shown steps between them: a wiping hand's arm turned its upper
+   * arm 3.7 degrees and moved its wrist 17.6 mm within a 480th of a second
+   * of its way back. Fits at fixed seconds are constants of the carry, so
+   * the goal's end is a continuous function of time; at a key it is that
+   * key's fit, so the arrival is the goal's own fit.
+   *
+   * @param body The body.
+   * @param posture The posture so far at the second.
+   * @param side The arm.
+   * @param goal The posture so far with the arm's goal at a second written in.
+   * @param stretch The held end's and the arrival's seconds.
+   * @param seconds The second, inside the stretch.
+   * @returns The posture with the arm written as joints and its goal removed.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the keys, the proportion, the measured defect it answers and what holds at a key.
+   * @evidence contracts/development/implementation.md#principled-implementation Fits read at fixed seconds do not depend on the second they are read for, so two neighbouring seconds read two neighbouring points of one piecewise blend of fits; a ball joint is blended as a rotation and the others angle by angle (`blendHumanJoint`), as the carry blends its ends.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The two keys around the second, their two fits and one proportion per joint.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Each key is the goal's own fit by the resolver, never an edited arm; nothing is remembered between seconds.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two posture solves (one at a key), in place of the one fit of the second itself.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `resolveHumanPosture`, `angles` and `blendHumanJoint`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  function keyed(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    side: HumanHand.Side,
+    goal: (seconds: number) => IHumanPosture,
+    stretch: readonly [number, number],
+    seconds: number,
+  ): IHumanPosture {
+    const [held, arrived] = stretch;
+    const part: number = Math.min(
+      KEYS,
+      Math.max(0, ((seconds - held) / (arrived - held)) * KEYS),
+    );
+    const before: number = Math.min(KEYS - 1, Math.floor(part));
+    const share: number = part - before;
+    const fitted = (key: number): IAngles =>
+      angles(
+        resolveHumanPosture(body, goal(held + ((arrived - held) * key) / KEYS)),
+        side,
+      );
+    const a: IAngles = fitted(before);
+    const b: IAngles = share === 0 ? a : fitted(before + 1);
+    const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+    delete limbs[`${side}Arm`];
+    return {
+      ...posture,
+      joints: {
+        ...posture.joints,
+        [`${side}UpperArm`]: blendHumanJoint(
+          body,
+          `${side}UpperArm`,
+          a.upper,
+          b.upper,
+          share,
+        ),
+        [`${side}LowerArm`]: blendHumanJoint(
+          body,
+          `${side}LowerArm`,
+          a.lower,
+          b.lower,
+          share,
+        ),
+        [`${side}Hand`]: blendHumanJoint(
+          body,
+          `${side}Hand`,
+          a.hand,
+          b.hand,
+          share,
+        ),
+      },
+      limbs,
     };
   }
 }

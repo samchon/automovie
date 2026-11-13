@@ -275,7 +275,8 @@
       "layer": "compose",
       "symbol": "AutoMovieMotionHumanArm.carried",
       "tests": [
-        "test_motion_compose_placed"
+        "test_motion_compose_placed",
+        "test_human_motion_compose_arm_carry_keyed"
       ]
     },
     {
