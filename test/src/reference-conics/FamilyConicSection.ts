@@ -245,7 +245,7 @@ export namespace FamilyConicSection {
    * middles at 0.14, 0.33, 0.60, 0.82, 0.95 and 0.99 of the run, the last three within its last twentieth, and an arc between them
    * swung round the course point at every station (`--seeds`, the lined trunk on its stored wall). A run of one feature reads as before.
    */
-  function feature(points: readonly P[], anchor: IAnchor, from: number, to: number, after: number = from): { index: number; point: P; heading: number } {
+  function feature(points: readonly P[], anchor: IAnchor, from: number, to: number, after: number = from): { index: number; point: P; heading: number; weight: number } {
     const n: number = points.length;
     const run: number[] = [];
     for (let i: number = from; ; i = (i + 1) % n) {
@@ -323,7 +323,9 @@ export namespace FamilyConicSection {
     const pa: P = points[fallback]!, pb: P = points[reading]!;
     const ha: number = heading(fallback), hb: number = heading(reading);
     const turned: number = Math.atan2(Math.sin(hb - ha), Math.cos(hb - ha));
-    return { index: w >= 0.5 ? reading : fallback, point: [pa[0] + w * (pb[0] - pa[0]), pa[1] + w * (pb[1] - pa[1])], heading: ha + w * turned };
+    void pa;
+    void turned;
+    return { index: reading, point: pb, heading: hb, weight: inside.length === 0 ? 0 : w };
   }  /**
    * A starting field vector read from one observed polygon: each extreme in
    * its window, each median and inflection where the polygon crosses its
@@ -376,13 +378,50 @@ export namespace FamilyConicSection {
       let after: number = (k + 1) % K;
       while (found[after] === null || layout.anchors[after]!.kind === "f") after = (after + 1) % K;
       const from: number = (closest(found[start]!) + 1) % points.length;
-      const reading: { index: number; point: P; heading: number } = feature(points, anchor, from, closest(found[after]!), (closest(found[before]!) + 1) % points.length);
-      const p: P = reading.point;
+      const reading: { index: number; point: P; heading: number; weight: number } = feature(points, anchor, from, closest(found[after]!), (closest(found[before]!) + 1) % points.length);
+      // The fade target: the point and tangent of the one conic the section draws between its run's two extremes without the run (the
+      // extremes' tangents meeting at the box's corner, its shoulder where the section crosses its median line), at the feature's
+      // window's middle share of the frame chord. A piece of an admissible arc is admissible, and there the feature stands at no turn. The
+      // feature moves from it toward its reading in the model's own parametrization (its share along the frame chord, its offset from it
+      // and its heading against it, `AutoMovieHumanConicSection.unplace`, `place`) by the reading's weight, so a fading feature is always
+      // an admissible state of the same chain: blended toward the chord's own direction instead, a feature read outward of the median
+      // came paired with a heading sloping inward, a pair only an S joins (the lined trunk's first arc, refused along the whole trunk).
+      const [fb, fa]: [number, number] = S.frame(k, layout);
+      const q0: P = found[fb]!, q2: P = found[fa]!;
+      const corner: P = meet(q0, tangent[fb]!, q2, tangent[fa]!);
+      const mid: P = [(q0[0] + q2[0]) / 2, (q0[1] + q2[1]) / 2];
+      const rho: number = Math.min(0.97, Math.max(0.03, crossing(points, mid, corner)));
+      const wt: number = rho / (1 - rho);
+      const conicAt = (t: number): { point: P; heading: number } => {
+        const b0: number = (1 - t) ** 2, b1: number = 2 * t * (1 - t) * wt, b2: number = t * t;
+        const D: number = b0 + b1 + b2;
+        const N: P = [b0 * q0[0] + b1 * corner[0] + b2 * q2[0], b0 * q0[1] + b1 * corner[1] + b2 * q2[1]];
+        const dD: number = -2 * (1 - t) + 2 * (1 - 2 * t) * wt + 2 * t;
+        const dN: P = [-2 * (1 - t) * q0[0] + 2 * (1 - 2 * t) * wt * corner[0] + 2 * t * q2[0], -2 * (1 - t) * q0[1] + 2 * (1 - 2 * t) * wt * corner[1] + 2 * t * q2[1]];
+        return { point: [N[0] / D, N[1] / D], heading: Math.atan2(dN[1] * D - N[1] * dD, dN[0] * D - N[0] * dD) };
+      };
+      const chord: P = [q2[0] - q0[0], q2[1] - q0[1]];
+      const square: number = chord[0] * chord[0] + chord[1] * chord[1] || 1;
+      const target: number = ((anchor.window ?? [0.1, 0.9])[0] + (anchor.window ?? [0.1, 0.9])[1]) / 2;
+      let lo: number = 0, hi: number = 1;
+      for (let i: number = 0; i < 50; ++i) {
+        const m: number = (lo + hi) / 2;
+        const p: P = conicAt(m).point;
+        if (((p[0] - q0[0]) * chord[0] + (p[1] - q0[1]) * chord[1]) / square < target) lo = m;
+        else hi = m;
+      }
+      const fade: { point: P; heading: number } = conicAt((lo + hi) / 2);
+      const d0 = S.unplace(q0, q2, fade.point, fade.heading, 0);
+      const d1 = S.unplace(q0, q2, reading.point, reading.heading, 0);
+      const w: number = reading.weight;
+      const turn: number = Math.atan2(Math.sin(d1.values[2] - d0.values[2]), Math.cos(d1.values[2] - d0.values[2]));
+      const blended = S.place(q0, q2, d0.t + w * (d1.t - d0.t), d0.values[1] + w * (d1.values[1] - d0.values[1]), d0.values[2] + w * turn);
+      const p: P = blended.point;
       found[k] = p;
-      tangent[k] = [Math.cos(reading.heading), Math.sin(reading.heading)];
+      tangent[k] = blended.tangent;
       values[at[k]!] = p[0];
       values[at[k]! + 1] = p[1];
-      values[at[k]! + 2] = reading.heading;
+      values[at[k]! + 2] = Math.atan2(blended.tangent[1], blended.tangent[0]);
     });    // A conic arc's tangent lines meet ahead of its start and behind its end, on one side of its chord. Where a feature fades, its reading
     // is a straight stretch whose tangent need not make both its arcs conics; each feature's tangent is then the heading nearest its
     // reading, in steps of `FEATURE_STEP`, with which the arcs to the anchors before and after it are both conics, in order round the
