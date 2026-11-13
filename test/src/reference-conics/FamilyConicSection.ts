@@ -1,5 +1,6 @@
 import type { AutoMovieViewChain as Q } from "@automovie/engine";
 import { AutoMovieHumanConicSection as S } from "@automovie/human";
+import { FamilyConicExcursion as X } from "./FamilyConicExcursion";
 
 /**
  * The offline side of `AutoMovieHumanConicSection`: reading a starting field
@@ -29,6 +30,26 @@ export namespace FamilyConicSection {
 
   /** The bilateral layout of the given median depth. */
   export const bilateral: (depth: number) => ILayout = S.bilateral;
+
+  /**
+   * The limb layout of the given median depth with a groove after each listed anchor: two inflections and the groove's own median between
+   * them, `[i, m, i]`, the inflections a level deeper than every median and the groove's median a level deeper again, so each inflection
+   * stands on the chord of the anchors round it and the groove's floor on the triangle of its two inflections. Across a family the
+   * inflections' shares and turns are fields like every other (natural cubics on the family's knots), so each groove's two inflection lines
+   * run along the stations as smooth curves, the way an aircraft's lofting draws a concavity with one more control line.
+   *
+   * @param depth The limb's median depth.
+   * @param after Indices into `limb(depth).anchors` after which a groove stands, each at most once.
+   */
+  export function inflected(depth: number, after: readonly number[]): ILayout {
+    const base: ILayout = limb(depth);
+    return {
+      mirror: false,
+      anchors: base.anchors.flatMap((anchor: IAnchor, k: number): IAnchor[] =>
+        after.includes(k) ? [anchor, { kind: "i", level: depth + 1 }, { kind: "m", level: depth + 2 }, { kind: "i", level: depth + 1 }] : [anchor],
+      ),
+    };
+  }
 
   /** Unit of every field of a layout. */
   export const units: (layout: ILayout) => Unit[] = S.units;
@@ -152,12 +173,23 @@ export namespace FamilyConicSection {
         tangent[k] = [p2[0] - p0[0], p2[1] - p0[1]];
         continue;
       }
+      const chordAngle: number = Math.atan2(p2[1] - p0[1], p2[0] - p0[0]);
+
+      // Where the section's own turning changes sign between the two neighbours (the skin's inflection, read by `inflections`), the one
+      // nearest the chord's crossing, seeds the anchor: its share is its projection on the chord, its turn its tangent's angle to the chord.
+      const reading: { t: number; d: number } | null = inflection(points, p0, p2, crossing(points, p0, p2));
+      if (reading !== null) {
+        found[k] = [p0[0] + reading.t * (p2[0] - p0[0]), p0[1] + reading.t * (p2[1] - p0[1])];
+        values[at[k]!] = reading.t;
+        values[at[k]! + 1] = reading.d;
+        tangent[k] = [Math.cos(chordAngle + reading.d), Math.sin(chordAngle + reading.d)];
+        continue;
+      }
       const t: number = crossing(points, p0, p2);
       found[k] = [p0[0] + t * (p2[0] - p0[0]), p0[1] + t * (p2[1] - p0[1])];
 
       // An S-shaped stretch turns from its end tangent through its chord's direction and past it before turning back (a symmetric cubic S crosses its chord at one and a half times the chord's slope), so the seed turns the chord by half the angle from the end tangent to the chord.
       const end: number = Math.atan2(tangent[before]![1], tangent[before]![0]);
-      const chordAngle: number = Math.atan2(p2[1] - p0[1], p2[0] - p0[0]);
       const turn: number = Math.atan2(Math.sin(chordAngle - end), Math.cos(chordAngle - end));
       values[at[k]!] = t;
       values[at[k]! + 1] = turn / 2;
@@ -171,6 +203,33 @@ export namespace FamilyConicSection {
       values.push(crossing(points, [(p0[0] + p2[0]) / 2, (p0[1] + p2[1]) / 2], corner));
     }
     return values;
+  }
+
+  /**
+   * The skin's inflection between two anchors as an `i` anchor's share and turn: of the points where the polygon's turning changes sign
+   * (`FamilyConicExcursion.inflections`) that project onto the chord from `p0` to `p2` strictly inside it, the one nearest the share `near`;
+   * its turn is its tangent's angle to the chord, read over its neighbours. Null when no sign change projects inside the chord.
+   */
+  function inflection(points: readonly P[], p0: P, p2: P, near: number): { t: number; d: number } | null {
+    const chord: P = [p2[0] - p0[0], p2[1] - p0[1]];
+    const length2: number = chord[0] * chord[0] + chord[1] * chord[1];
+    if (!(length2 > 0)) return null;
+    let best: { t: number; d: number } | null = null;
+    const n: number = points.length;
+    for (const i of X.inflections(points)) {
+      const p: P = points[i]!;
+      const t: number = ((p[0] - p0[0]) * chord[0] + (p[1] - p0[1]) * chord[1]) / length2;
+      if (!(t > 0.08 && t < 0.92)) continue;
+      // Only a point near the chord: an inflection elsewhere round the section belongs to another groove.
+      const off: number = Math.abs((p[0] - p0[0]) * chord[1] - (p[1] - p0[1]) * chord[0]) / Math.sqrt(length2);
+      if (off > 0.5 * Math.sqrt(length2)) continue;
+      const a: P = points[(i + n - 2) % n]!;
+      const b: P = points[(i + 2) % n]!;
+      let d: number = Math.atan2(b[1] - a[1], b[0] - a[0]) - Math.atan2(chord[1], chord[0]);
+      d = Math.atan2(Math.sin(d), Math.cos(d));
+      if (best === null || Math.abs(t - near) < Math.abs(best.t - near)) best = { t, d };
+    }
+    return best;
   }
 
   /** Share of the segment from `from` to `to` where the polygon first crosses it; one half when it does not. */
