@@ -192,6 +192,7 @@ export * from "./compose/AutoMovieMotionHumanTouchPath";
 export * from "./compose/AutoMovieMotionHumanTouchStance";
 export * from "./compose/AutoMovieMotionHumanTouchUpright";
 export * from "./posture/HumanArmClearance";
+export * from "./posture/HumanArmOvershoot";
 export * from "./posture/blendHumanJoint";
 export * from "./posture/hipJoints";
 export * from "./posture/humanRig";
