@@ -228,8 +228,6 @@ export namespace FamilyConicSection {
   /** Step of the headings a feature's seed tangent is searched in where its reading does not make both its arcs conics, radians. */
   const FEATURE_STEP: number = 0.01;
 
-  /** The share of its chord a seeded feature's arcs keep between their tangent lines' meeting and their ends: over the fit's 0.02 margin. */
-  const SEED_MARGIN: number = 0.05;
 
   /** One end of an arc of a section's conic conversion: its point, its unit tangent, whether its two arcs bend opposite ways, and the arc it starts. */
   export interface IEnd {
@@ -468,24 +466,26 @@ export namespace FamilyConicSection {
    *
    * @param sections The sections' observed polygons, in station order.
    * @param layout The family's layout.
-   * @param changes Filled, when given, with each section's largest change by `bridged`, mm.
+   * @param options `margin`: the fit's meeting margin, which every seeded arc keeps (`seed`); `openings`: each section's phase spans that
+   *   close across its part's opening, where no extreme is read; `changes`: filled with each section's largest change by `bridged`, mm.
    */
-  export function seedAll(sections: readonly (readonly P[])[], layout: ILayout, changes?: number[]): number[][] {
+  export function seedAll(sections: readonly (readonly P[])[], layout: ILayout, options: { margin?: number; openings?: readonly (readonly [number, number][])[]; changes?: number[] } = {}): number[][] {
     const K: number = layout.anchors.length;
-    if (!layout.anchors.some((a: IAnchor): boolean => a.kind === "f")) return sections.map((points: readonly P[]): number[] => seed(points, layout));
+    if (!layout.anchors.some((a: IAnchor): boolean => a.kind === "f")) return sections.map((points: readonly P[], idx: number): number[] => seed(points, layout, undefined, options.margin, options.openings?.[idx]));
     const lines: Map<number, number[]> = new Map();
-    // Whether a line has ever had its inflection: a line that never had one keeps its window's place, and only a line whose inflection fades goes to its meeting point.
+    // Whether a line has ever had its inflection: a line that never had one rests at its share of the run's frame.
     const lived: Map<number, boolean[]> = new Map();
     const ramp = (s: number): number => {
       const x: number = Math.min(1, Math.max(0, (s - FEATURE_LEAST / 2) / (FEATURE_LEAST / 2)));
       return x * x * x * (10 - 15 * x + 6 * x * x);
     };
-    return sections.map((points: readonly P[]): number[] => {
+    return sections.map((points: readonly P[], idx: number): number[] => {
       // The section is read faired throughout, its extremes and medians too, so the anchors and the features stand on one curve: read off
       // the raw section, a median on a 1.7 mm groove's floor stood inside the faired curve its features stand on, and the arc between them
       // needed an S.
-      const conversion = bridged(converted(points), changes);
-      const faired: P[] = Array.from({ length: 1440 }, (_: unknown, i: number): P => conversion.at((2 * Math.PI * i) / 1440).point);      return seed(faired, layout, (found: readonly (P | null)[]): Map<number, { point: P; tangent: P }> => {
+      const conversion = bridged(converted(points), options.changes);
+      const faired: P[] = Array.from({ length: 1440 }, (_: unknown, i: number): P => conversion.at((2 * Math.PI * i) / 1440).point);
+      return seed(faired, layout, (found: readonly (P | null)[]): Map<number, { point: P; tangent: P }> => {
         const out: Map<number, { point: P; tangent: P }> = new Map();
         layout.anchors.forEach((anchor: IAnchor, k: number): void => {
           if (anchor.kind !== "f" || (k > 0 && layout.anchors[k - 1]!.kind === "f")) return;
@@ -570,17 +570,15 @@ export namespace FamilyConicSection {
           // Every feature of the run at its share: an inflection line's own, a convex or concave feature at equal steps between the lines
           // (or the run's ends) either side of it.
           const shares: number[] = run.map((): number => NaN);
-          // A fading line goes to where its inflection pair annihilates: a concavity vanishes when its two bounding inflections meet, where
-          // the curvature and its derivative are both zero. The pair of a run's first line next to a median extreme is its own mirror twin,
-          // so they meet on the median; any other line's pair is its nearer neighbouring line, and they meet midway. The line stands at that
-          // meeting point moved toward its inflection by the C2 ramp of the inflection's strength, so as the groove fades the line reaches
-          // the meeting point with its turn gone, and the chain there is the base conic. Left where its inflection vanished, a line on a
-          // fading median groove stood 8 mm off the median on a stretch the groove no longer bent, and the arc from the median needed an S.
-          const median: boolean = layout.anchors[fb]!.mid === true;
+          // A line rests at its own share of its run's frame, its place among the run's features divided evenly between the run's two
+          // extremes, the same at every station, and moves from that rest toward its inflection by the C2 ramp of the inflection's strength.
+          // A feature with no reading has no place of its own, so it divides its run evenly, and binding moves it only by the ramp. Rested
+          // instead on the lines bound at each station (their meeting point, or equal steps between bound neighbours), a weak line that bound
+          // at one station and not the next moved its neighbours' rests by a whole slot: f1's back features 12 and 13 traded places between
+          // 180 and 182 mm, and the blend of the two seeds was refused.
           kinds.forEach((j: number, i: number): void => {
-            const neighbour: number = i === 0 ? (median ? NaN : next[1] ?? NaN) : i === next.length - 1 ? next[i - 1]! : Math.abs(next[i - 1]! - next[i]!) < Math.abs(next[i + 1]! - next[i]!) ? next[i - 1]! : next[i + 1]!;
-            const meeting: number = i === 0 && median ? 0 : Number.isNaN(neighbour) ? next[i]! : (next[i]! + neighbour) / 2;
-            const shown: number = alive[i] ? meeting + ramp(strengths[i]!) * (next[i]! - meeting) : next[i]!;
+            const rest: number = (run.indexOf(j) + 1) / (run.length + 1);
+            const shown: number = rest + (alive[i] ? ramp(strengths[i]!) : 0) * (next[i]! - rest);
             // Kept inside the model's share bound with a margin: the model reads a feature's share along its frame's chord and clamps
             // it to [EDGE, 1 - EDGE] (`AutoMovieHumanConicSection.along`), and a line at 3% of its run's arclength stood at 2.9% of the
             // chord on the made section, so the model moved it along the chord and the arc from the median needed an S.
@@ -651,7 +649,7 @@ export namespace FamilyConicSection {
           run.forEach((j: number, i: number): void => void out.set(j, conversion.at(phiOf(shares[i]!))));
         });
         return out;
-      });
+      }, options.margin, options.openings?.[idx]);
     });
   }
 
@@ -659,13 +657,25 @@ export namespace FamilyConicSection {
    * An extreme anchor's point on a section: a median extreme where the median ray meets it, any other the point of its window farthest
    * along its axis (`pick`: the largest, the least, or the largest in size).
    */
-  function extreme(points: readonly P[], anchor: IAnchor): P {
+  function extreme(points: readonly P[], anchor: IAnchor, openings: readonly [number, number][] = []): P {
     const axis: 0 | 1 = anchor.kind === "u" ? 0 : 1;
     if (anchor.mid === true) {
       const front: boolean = anchor.window === undefined || Math.cos((anchor.window[0] + anchor.window[1]) / 2) > 0;
       return [(front ? 1 : -1) * radius(points, front ? 0 : Math.PI), 0];
     }
+    // The extreme is the skin's: a closure across an opening (`openings`) is the part's field extended over a hole another part fills, and
+    // it may bulge past the skin's own extreme. f1's trunk at 1,306 mm read its side extreme on the arm's closure, 207.6 mm out where the
+    // skin's widest stands at 188.7, and 2 mm on, back on the skin, 46 mm away.
+    const opened = (q: P): boolean => {
+      const phi: number = Math.atan2(q[1], q[0]);
+      return openings.some(([a, b]: readonly [number, number]): boolean => {
+        const span: number = (((b - a) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+        const off: number = (((phi - a) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+        return off > 1e-9 && off < span - 1e-9;
+      });
+    };
     const inside: P[] = points.filter((q: P): boolean => {
+      if (opened(q)) return false;
       if (anchor.window === undefined) return true;
       let phi: number = Math.atan2(q[1], q[0]);
       while (phi < anchor.window[0]) phi += 2 * Math.PI;
@@ -791,7 +801,7 @@ export namespace FamilyConicSection {
    * segment, and each shoulder where the polygon crosses its arc's median.
    * The joint fit owns the final values; this only has to be admissible.
    */
-  export function seed(points: readonly P[], layout: ILayout, place?: Placement): number[] {
+  export function seed(points: readonly P[], layout: ILayout, place?: Placement, margin: number = 0.1, openings: readonly [number, number][] = []): number[] {
     const K: number = layout.anchors.length;
     const values: number[] = [];
     const found: (P | null)[] = new Array<P | null>(K).fill(null);
@@ -804,7 +814,7 @@ export namespace FamilyConicSection {
       else if (anchor.kind === "f") values.push(0, 0, 0);
       else {
         const axis: 0 | 1 = anchor.kind === "u" ? 0 : 1;
-        const p: P = extreme(points, anchor);
+        const p: P = extreme(points, anchor, openings);
         found[k] = p;
 
         tangent[k] = axis === 0 ? [0, p[0] > 0 ? 1 : -1] : [p[1] > 0 ? -1 : 1, 0];
@@ -873,9 +883,10 @@ export namespace FamilyConicSection {
     // resolved anchors, so the seed is a chain of conics.
     const resolved: number[] = layout.anchors.map((_: IAnchor, k: number): number => k).filter((k: number): boolean => found[k] !== null);
     // A fading feature stands on the skin, its own sagitta its offset, and its tangent is the nearest to the skin's with which both its
-    // arcs keep `SEED_MARGIN` of their chords: seeded at the region's wall (`arc` at zero), 37 of the nose's 40 sections alone were refused
-    // under the fit's margin before a step.
-    const conic = (a: number, tA: P, b: number, tB: P): boolean => arc(found[a]!, tA, found[b]!, tB, SEED_MARGIN);
+    // arcs keep the fit's own meeting margin (`margin`, `FamilyConicFit.ADMISSIBLE_MARGIN` or the part's), its heading as stored (to 1e-4
+    // rad): a seed built against a looser test sits on the fit's wall and is refused there. Against 0.05, 259 of f1's 443 trunk sections
+    // seeded arcs the fit refused (least meetings of 0.001 to 0.099); at the region's wall (`arc` at zero), 37 of the nose's 40.
+    const conic = (a: number, tA: P, b: number, tB: P): boolean => arc(found[a]!, tA, found[b]!, tB, margin);
     resolved.forEach((k: number, r: number): void => {
       if (layout.anchors[k]!.kind !== "f") return;
       const before: number = resolved[(r + resolved.length - 1) % resolved.length]!;
@@ -886,7 +897,7 @@ export namespace FamilyConicSection {
       // trunk at 150 mm). Where none serves, the reading stays and the chain is refused.
       for (let step: number = 0; step * FEATURE_STEP < Math.PI / 2; ++step) {
         const tried: number[] = step === 0 ? [reading] : [reading + step * FEATURE_STEP, reading - step * FEATURE_STEP];
-        const fit: number | undefined = tried.find((h: number): boolean => {
+        const fit: number | undefined = tried.map((h: number): number => Math.round(h * 1e4) / 1e4).find((h: number): boolean => {
           const d: P = [Math.cos(h), Math.sin(h)];
           return conic(before, tangent[before]!, k, d) && conic(k, d, after, tangent[after]!);
         });

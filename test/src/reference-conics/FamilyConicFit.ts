@@ -22,6 +22,9 @@ export namespace FamilyConicFit {
     s: number;
 
     /** Observed polygon in the section chart, mm. */
+    /** Phase spans, counterclockwise from-to, where the section closes across its part's opening rather than following skin; no extreme anchor is read there. */
+    opening?: [number, number][];
+
     points: C.P[];
 
     /** Withheld from the fit and read only as validation. */
@@ -282,7 +285,7 @@ export namespace FamilyConicFit {
     // The sections' own seeds, in station order, their feature lines tracked along the stations (`FamilyConicSection.seedAll`). A feature's
     // heading is an angle read on each section alone; carried along the stations it is unwrapped onto one branch, so the projection onto
     // the knots does not average two readings a turn apart.
-    const seeds: number[][] = C.seedAll(train.map((row: IRow): readonly C.P[] => row.points), layout);
+    const seeds: number[][] = C.seedAll(train.map((row: IRow): readonly C.P[] => row.points), layout, { margin, openings: train.map((row: IRow): [number, number][] => row.opening ?? []) });
     for (let f: number = 0; f < F; ++f) {
       if (units[f] !== "angle") continue;
       for (let i: number = 1; i < seeds.length; ++i) {
@@ -307,7 +310,7 @@ export namespace FamilyConicFit {
     // `--sections=<file>`: the fitting sections' stations and polygons, written as JSON, so a section the conversion refuses can be studied
     // apart from the tool. They are the reference's: the file stays in a private scratch folder and is deleted once read.
     const sectionsFile: string | undefined = process.argv.find((a: string): boolean => a.startsWith("--sections="))?.slice("--sections=".length);
-    if (sectionsFile !== undefined) writeFileSync(sectionsFile, JSON.stringify({ layout, rows: train.map((row: IRow): { s: number; points: C.P[] } => ({ s: row.s, points: row.points })) }));
+    if (sectionsFile !== undefined) writeFileSync(sectionsFile, JSON.stringify({ layout, rows: train.map((row: IRow): { s: number; points: C.P[]; opening?: [number, number][] } => ({ s: row.s, points: row.points, ...(row.opening === undefined ? {} : { opening: row.opening }) })) }));
     if (process.argv.includes("--seeds")) {
       const stretches: Map<number, { n: number; out: string[]; front: number[]; back: number[]; faint: number }> = new Map();
       for (const row of train) {
