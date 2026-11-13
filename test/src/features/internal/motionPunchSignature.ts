@@ -37,9 +37,10 @@ export function motionPunchSignature(
     const elbow: number = M.elbow(s, impact, side);
     const bent: boolean =
       row === "technique=hook" || row === "technique=uppercut";
+    const T: number = motionPunchSignature.TOLERANCE;
     complaints.check(
-      `${cell}: elbow flexion ${elbow.toFixed(1)} deg at impact (${side}), ${bent ? "[60, 120]" : "at most 30"} expected (provisional)`,
-      bent ? elbow >= 60 && elbow <= 120 : elbow <= 30,
+      `${cell}: elbow flexion ${elbow.toFixed(2)} deg at impact (${side}), ${bent ? "[60, 120]" : "at most 30"} expected within ${T} deg (provisional)`,
+      bent ? elbow >= 60 - T && elbow <= 120 + T : elbow <= 30 + T,
     );
     const peak: number = M.speed(s, `${side}Hand`, launch, impact);
     complaints.check(
@@ -100,8 +101,17 @@ export function motionPunchSignature(
   for (const c of M.calibrate(name)) complaints.check(c, false);
 }
 
-/** Companion lists of {@link motionPunchSignature}. */
+/** Companion lists and tolerance of {@link motionPunchSignature}. */
 export namespace motionPunchSignature {
+  /**
+   * The read-back resolution of an elbow angle at a band's edge, degrees: an
+   * arm planned exactly at a band's end (a punch whose step is capped plans
+   * its arm at the band's longest reach) reads a hundredth of a degree off
+   * it from the posed joints, though the plan's limb lengths are the rig's
+   * own, so each end of an elbow band is compared within it.
+   */
+  export const TOLERANCE: number = 0.1;
+
   /** The straight punches: the default, the straight technique, each hand and the hit. */
   export const STRAIGHT: readonly string[] = [
     "default",
