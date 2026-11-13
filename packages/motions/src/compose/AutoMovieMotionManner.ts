@@ -261,10 +261,13 @@ export namespace AutoMovieMotionManner {
    * manner reaches them: bound Flow draws the elbows in and shortens the
    * excursions, free Flow releases them outward.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the table holds, where the Effort actions come from and what each mood and Shape pole sets.
-   * @evidence contracts/development/design.md#principled-representation Each preset is a plain `IManner`, so a law that reads a manner reads a preset with no further case; the Effort actions are Laban's own eight (Laban and Lawrence 1947, Effort), read from `HumanEffort.ACTIONS`.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One frozen table keyed by name; no resolver of its own, since `resolve` and `of` take its records.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The moods' factors, paces and intensities and the two Shape poles' Flow are provisional: no measured population values were located (sad walks are slower with shorter strides and proud ones larger in direction, Montepare, Goldstein and Clausen 1987, J Nonverbal Behav 11:33; the magnitudes here are not from it).
+   * Each preset is a plain `IManner`, so a law that reads a manner reads a
+   * preset with no further case; the table has no resolver of its own, since
+   * `resolve` and `of` take its records. The moods' factors, paces and
+   * intensities and the two Shape poles' Flow are provisional: no measured
+   * population values were located (sad walks are slower with shorter strides
+   * and proud ones larger in direction, Montepare, Goldstein and Clausen 1987,
+   * J Nonverbal Behav 11:33; the magnitudes here are not from it).
    */
   export const PRESETS: Readonly<Record<Preset, IManner>> = {
     punch: { effort: HumanEffort.ACTIONS.punch },
@@ -291,7 +294,14 @@ export namespace AutoMovieMotionManner {
     spreading: { effort: { flow: -1 } },
   };
 
-  /** The names of {@link PRESETS}. */
+  /**
+   * The names of {@link PRESETS}.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States that the names are the table's keys: the eight Effort actions of `HumanEffort.ACTIONS` and the four moods and two Shape poles the table adds.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the Effort actions' own names (Laban and Lawrence 1947, Effort) and six added names, so a name the table lacks fails the type check.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Fourteen names, each a key of `PRESETS`; `PRESET_NAMES` lists them as data and a test checks none is missing.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The Effort names come from `keyof typeof HumanEffort.ACTIONS`, not a copy; the six added names are literals.
+   */
   export type Preset =
     | keyof typeof HumanEffort.ACTIONS
     | "weary"

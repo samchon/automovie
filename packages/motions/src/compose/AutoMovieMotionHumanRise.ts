@@ -24,7 +24,14 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No height is stated: it follows from the foot's own lever.
  */
 export namespace AutoMovieMotionHumanRise {
-  /** Both feet as they stand flat. */
+  /**
+   * Both feet as they stand flat.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States that it holds one placement per foot, standing flat, in the placement frame of `HumanFoot`.
+   * @evidence contracts/development/design.md#principled-representation A record keyed by the two sides, each a foot placement, the form `foot` and `lift` read.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here for the rise and read by the stance solver and the kiss; it reuses `HumanFoot.IPlacement` instead of a second foot type.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A closed pair of keys, so neither a third foot nor a missing one can be written.
+   */
   export type Stance = Record<"left" | "right", HumanFoot.IPlacement>;
 
   /**
