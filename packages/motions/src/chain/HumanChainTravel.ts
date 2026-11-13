@@ -111,7 +111,9 @@ export class HumanChainTravel extends HumanChainCore {
   }
 
   /**
-   * Get down onto hands and knees and crawl in the diagonal pattern.
+   * Get down onto hands and knees and crawl in the diagonal pattern, crawl on
+   * the hands and feet with the knees off the floor (`bear`), or walk the
+   * hands out to a plank and the feet in to them (`inchworm`).
    *
    * @param params How many cycles.
    * @param anchor An optional anchor id.
