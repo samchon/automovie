@@ -39,6 +39,9 @@ export namespace FamilyConicSection {
   /** Build the engine's native conic chain from a field vector. */
   export const chain: (values: readonly number[], layout: ILayout) => Q.ISection = S.chain;
 
+  /** The field vector with the two arcs at an anchor given the shoulders that make the curvature continuous there. */
+  export const continuous: (values: readonly number[], layout: ILayout, k: number) => number[] = S.continuous;
+
   const offsets: typeof S.offsets = S.offsets;
   const dependents: typeof S.dependents = S.dependents;
   const neighbours: typeof S.neighbours = S.neighbours;

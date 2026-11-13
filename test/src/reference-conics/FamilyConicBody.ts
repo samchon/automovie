@@ -1199,6 +1199,22 @@ namespace FamilyConicBody {
         const first: number = C.units(unbounded).length - (unbounded.mirror ? unbounded.anchors.length - 1 : unbounded.anchors.length);
         best = { ...best, layout: unbounded, values: best.values.map((field: number[], f: number): number[] => (f >= first ? field.map((x: number): number => Math.max(bound, x)) : field)) };
       }
+
+      // `--g2=<anchor>@<from>-<to>`: at every knot from `from` to `to` mm the two arcs meeting at that anchor take the shoulders that make
+      // the section's curvature continuous there (`AutoMovieHumanConicSection.continuous`), before the reliefs are fitted over the wall.
+      // The trunk's first median over the hips met with curvatures of 1.2 and 308 per metre, an upright line down each hip.
+      const g2: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--g2="))?.slice(5);
+      if (g2 !== undefined) {
+        const [anchor, range]: string[] = g2.split("@");
+        const [from, to]: number[] = range!.split("-").map(Number);
+        const fields: number[][] = best.values.map((field: number[]): number[] => [...field]);
+        best.knots.forEach((s: number, j: number): void => {
+          if (s < from! || s > to!) return;
+          const smooth: number[] = C.continuous(fields.map((field: number[]): number => field[j]!), best!.layout, Number(anchor));
+          smooth.forEach((x: number, f: number): void => void (fields[f]![j] = x));
+        });
+        best = { ...best, values: fields };
+      }
       const led: { knots: number[]; values: number[][] } = part.lead === undefined ? { knots: best.knots, values: best.values } :{ knots: [...[3, 2, 1].map((k: number): number => best!.knots[0]! - (part.lead! * k) / 3), ...best.knots], values: best.values.map((field: number[]): number[] => [field[0]!, field[0]!, field[0]!, ...field]) };
       const stored: string = JSON.stringify({ name: part.name, centres: part.centres.map((c: R.V): number[] => c.map(round)), halves: part.halves, up: part.up, layout: best.layout, knots: led.knots.map(round), values: led.values.map((field: number[], f: number): number[] => field.map(C.units(best!.layout)[f] === "mm" ? round : round4)) });
       await fs.writeFile(path.join(out, part.name + ".family.json"), stored);
