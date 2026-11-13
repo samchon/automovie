@@ -101,8 +101,67 @@ export namespace AutoMovieHumanF1 {
   }
 
   /**
+   * The least shoulder of a toe's arcs (`AutoMovieHumanConicSection.ILayout.least`). The big toe's arc from its top to its medial side held
+   * shoulders of 0.24 and 0.27 at its last two knots, 43 and 53 mm: an arc that hugs its chord turns at its ends, and the toe's medial side
+   * stood a corner that its short cap carried into a fan of facets (`toes.front` px 640..790 x 440..540, folds of 33 degrees). The bound is
+   * the knee's (`FamilyConicBody.ts --least=0.3`); every other toe's arcs and every toe's first section already hold 0.34 or more, so the
+   * seams read on the toes' first rings (`fanSeams`) do not move.
+   */
+  const TOE_LEAST: number = 0.3;
+
+  /**
+   * The length of a toe's dome as a share of its section's mean reach where the dome starts (`rounded`). The big toe's reference section
+   * reaches 7.95 mm on average 3.13 mm before its tip and 10.97 mm at 13.13 mm (its fitted fields at 53 and 43 mm, within 0.6 mm of the
+   * skin): a half ellipse through the first whose foot stands on the wall is 8 mm long on a reach of 10 mm. A dome as long as its reach
+   * (share 1) drew the big toe's end as a tapered ellipsoid on `toes.left`, where the reference's is blunt.
+   */
+  const TOE_DOME: number = 0.8;
+
+  /**
+   * The largest turn of a toe's ring between two neighbouring phases, radians (`AutoMovieHumanConicLoft.IFamily.turn`), the arm's. On the
+   * uniform 48 phases a toe takes by its girth, the big toe's medial side, where its section turns fastest, stood as flat strips along the toe
+   * that read as a fan of facets from the front (`toes.front` px 640..790 x 440..540), as the forefoot's edge did on the leg's uniform phases.
+   * Only a toe whose fit held an arc under `TOE_LEAST` has such a corner, the big toe alone: spaced by turn at 0.1 or 0.2 rad, the little
+   * toe's band folded at its plantar fork (edges of 130 to 170 degrees over 32 to 53 edges at [132, 1, 198], against none past 112 on its
+   * uniform phases), since its ring's phases moved under the fork's fill.
+   */
+  const TOE_TURN: number = 0.1;
+
+  /**
+   * A toe whose closed end is a round dome: its cap starts as far before its tip as `TOE_DOME` of the mean reach of its section there
+   * (the mean of its four extents), so the end is a half ellipsoid on that section.
+   *
+   * Each toe's fields were fitted up to the last station whose plane still cuts a loop of the reference, 3.1 to 3.6 mm before its tip, and the
+   * cap closed from there (`ITip.from` at the last knot). There the reference's section is already the dome's (the big toe's 15 by 17 mm
+   * at 53 mm against 19 by 25 at 43), but a natural cubic has no bend at its last knot, so the wall ran on straight to 53 mm and the cap,
+   * 3.1 mm long, closed it as a flat disc ringed where the cap starts (`toes.left` px 700..840 x 330..600); on the small toes, whose walls
+   * still shrink fast there, the cap continued their taper to a point. Started where the dome's length is its share of the reach (found by
+   * fixed-point iteration from the last knot), the cap's law draws the dome itself. A toe also holds its arcs at `TOE_LEAST`, and one
+   * whose fit held an arc under it spaces its phases by `TOE_TURN`.
+   *
+   * @param family A toe as fitted, closing at its last knot.
+   */
+  function rounded(family: AutoMovieHumanConicLoft.IFamily): AutoMovieHumanConicLoft.IFamily {
+    const layout: AutoMovieHumanConicSection.ILayout = { ...family.layout, least: TOE_LEAST };
+    const end: AutoMovieHumanConicLoft.ITip = family.tips![1]!;
+    const read: (s: number) => number[] = AutoMovieHumanConicLoft.reader(family);
+    const reach = (s: number): number => {
+      const chain: AutoMovieHumanConicSection.IChain = AutoMovieHumanConicSection.resolve(read(s), layout);
+      return chain.guides.reduce((sum: number, g: number, q: number): number => sum + Math.abs(chain.input.points[g]![q % 2]!), 0) / 4;
+    };
+    let from: number = end.from;
+    for (let k: number = 0; k < 16; ++k) from = Math.max(family.knots[1]!, end.tip - TOE_DOME * reach(from));
+
+    // Only a toe whose fit held an arc under the bound has a corner to space its phases about.
+    const { shoulders }: { shoulders: number } = AutoMovieHumanConicSection.offsets(family.layout);
+    const cornered: boolean = family.values.slice(shoulders).some((field: number[]): boolean => field.some((x: number): boolean => x < TOE_LEAST));
+    return { ...family, layout, ...(cornered ? { turn: TOE_TURN } : {}), tips: [family.tips![0], { ...end, from: Math.round(from * 100) / 100 }] };
+  }
+
+  /**
    * The digits sewn to the body. A knuckled digit is a child of its limb's split (`FANS`). The thumb is merged onto the hand's side as a
    * capsule: besides its tip it closes in a point inside the hand (`ROOT_MM`), so it meets the hand in a closed curve wherever it comes out.
+   * A toe's end is a round dome (`rounded`).
    */
   export const DIGITS: readonly IDigit[] = [
     { family: AutoMovieHumanF1FingerMiddle, limb: "arm", knuckle: true },
@@ -110,11 +169,11 @@ export namespace AutoMovieHumanF1 {
     { family: AutoMovieHumanF1FingerIndex, limb: "arm", knuckle: true },
     { family: AutoMovieHumanF1FingerPinky, limb: "arm", knuckle: true },
     { family: AutoMovieHumanF1FingerThumb, limb: "arm", knuckle: false },
-    { family: AutoMovieHumanF1ToeBig, limb: "leg", knuckle: true },
-    { family: AutoMovieHumanF1ToeIndex, limb: "leg", knuckle: true },
-    { family: AutoMovieHumanF1ToeMiddle, limb: "leg", knuckle: true },
-    { family: AutoMovieHumanF1ToeRing, limb: "leg", knuckle: true },
-    { family: AutoMovieHumanF1ToeLittle, limb: "leg", knuckle: true },
+    { family: rounded(AutoMovieHumanF1ToeBig), limb: "leg", knuckle: true },
+    { family: rounded(AutoMovieHumanF1ToeIndex), limb: "leg", knuckle: true },
+    { family: rounded(AutoMovieHumanF1ToeMiddle), limb: "leg", knuckle: true },
+    { family: rounded(AutoMovieHumanF1ToeRing), limb: "leg", knuckle: true },
+    { family: rounded(AutoMovieHumanF1ToeLittle), limb: "leg", knuckle: true },
   ];
 
   /** The families not sewn: none now. A loose family is emitted as a closed tube of its own, carried by its reach under its neighbour's skin. */
@@ -144,7 +203,7 @@ export namespace AutoMovieHumanF1 {
    * forward to 10 mm back. The midline rises above the ring toward the front fork (809.4 mm at 40 mm forward), where the seam must leave
    * the fork down along the trunk, so the knot at 40 mm holds the ring's level. The bands turn round each fork over 0.6 rad of their clock.
    */
-  const CROTCH: { knots: [number, number][]; corner: number } = { knots: [[0.0131, 0], [0.0231, 0.0011], [0.0331, 0.0028], [0.0431, 0.0031], [0.0531, 0.0029], [0.0631, 0.0018]], corner: 0.6 };
+  const CROTCH: { knots: [number, number][]; corner: number; fair: [number, number] } = { knots: [[0.0131, 0], [0.0231, 0.0011], [0.0331, 0.0028], [0.0431, 0.0031], [0.0531, 0.0029], [0.0631, 0.0018]], corner: 0.6, fair: [0.35, 0.35] };
 
   /** A limb whose open end is split into its knuckled digits. */
   interface IFan {

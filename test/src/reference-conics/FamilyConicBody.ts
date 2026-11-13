@@ -11,6 +11,7 @@ import { FamilyConicLoft as K } from "./FamilyConicLoft";
 import { FamilyConicRelief as H } from "./FamilyConicRelief";
 import { FamilyConicSection as C } from "./FamilyConicSection";
 import { FamilyConicSource as R } from "./FamilyConicSource";
+import { FamilyConicExcursion as X } from "./FamilyConicExcursion";
 
 /**
  * Whole-part conic families on the f1 reference: each part is cut along its
@@ -24,6 +25,9 @@ namespace FamilyConicBody {
 
   /** Least distance between two station knots, mm. */
   const GAP_MM: number = 12;
+
+  /** Rays a skin-fitted section is read along (`IPart.skin`): 0.5 degree apart, a sample every 0.2 mm on a section 25 mm across. */
+  const SKIN_RAYS: number = 720;
 
   /** Spacing of the fitting sections, mm; the withheld sections stand midway. */
   const STEP_MM: number = 4;
@@ -536,6 +540,17 @@ namespace FamilyConicBody {
     /** Chart `u` seed. */
     up: R.V;
 
+    /**
+     * Fit the sections to the skin itself instead of its hull (the tape): each section is read along rays from the course point, keeping
+     * the innermost or outermost crossing, so it is star-shaped about the course as the fit's one radius a phase needs, and its concavities
+     * are the wall's own inward arcs between inflection anchors (`inflected`). Sections whose rays crossed the skin more than once are
+     * reported by station (`family-body-star`). Absent, the hull.
+     */
+    skin?: "inner" | "outer";
+
+    /** The name of an excursion (`FamilyConicExcursion.PARTS`) the sections are cut as, out of the reference head's level planes. */
+    excursion?: string;
+
     /** Fitted station interval, mm of course arclength; `auto` takes the longest run of single loops round the course whose area stays near the part's own. */
     domain: [number, number] | "auto";
 
@@ -981,7 +996,18 @@ namespace FamilyConicBody {
       };
 
       // A plane's loop for the part: the one round the course, or for a `loose` part the largest closed loop the clip leaves whose hull holds the course.
+      // The clipped skin piece behind the last section a surrounding part read: the largest of the pieces whose hull it is.
+      let piece: C.P[] | null = null;
+      // A part cut out of its host as an excursion of the reference head's sections (`IPart.excursion`), in the course's own planes and chart.
+      let excursion: ((y: number) => X.ISection | null) | null = null;
       const cut = (frame: AutoMovieLoftFrame.IFrame, s: number): C.P[] | null => {
+        piece = null;
+        if (part.excursion !== undefined) {
+          const entry: X.IPart | undefined = X.PARTS.find((p: X.IPart): boolean => p.name === part.excursion);
+          if (entry === undefined) throw new Error("No excursion " + part.excursion);
+          excursion ??= X.along(source, entry, (t: number) => axis.at(t), domain[0] - 6, domain[1] + 6, 1.5);
+          return excursion(s)?.points ?? null;
+        }
         if (part.name === "concha" && CONCHA_DEPTH !== undefined) return depthLoop(s);
         if (part.loose !== true || (part.surround !== undefined && s < part.surround.from)) {
           const whole: C.P[] | null = R.cut(skin, frame).loop;
@@ -994,7 +1020,9 @@ namespace FamilyConicBody {
 
         // A part that surrounds its branches reads the curve round every loop within its reach of the course: the hull of them all.
         if (part.surround !== undefined) {
-          const near: C.P[] = clipped.filter((loop: C.P[]): boolean => loop.every((p: C.P): boolean => Math.hypot(p[0], p[1]) < part.surround!.reach)).flat();
+          const pieces: C.P[][] = clipped.filter((loop: C.P[]): boolean => loop.every((p: C.P): boolean => Math.hypot(p[0], p[1]) < part.surround!.reach));
+          piece = pieces.length === 0 ? null : pieces.reduce((a: C.P[], b: C.P[]): C.P[] => (Math.abs(R.area(b)) > Math.abs(R.area(a)) ? b : a));
+          const near: C.P[] = pieces.flat();
           const around: C.P[] = near.length < 3 ? [] : R.hull(near);
           return around.length >= 3 && inside(around) ? around : null;
         }
@@ -1064,11 +1092,31 @@ namespace FamilyConicBody {
         log("family-body-tip", { part: part.name, tip, pastDomainMm: tip - domain[1] });
         if (process.argv.includes("--tips")) continue;
       }
+      // A family fitted to its skin (`IPart.skin`): every section must be star-shaped about the course point, since the fit reads one radius
+      // a phase. The skin is read along rays from the course, the innermost or outermost crossing kept, and each section whose rays crossed
+      // its skin more than once, or missed it, is reported by station.
+      const star: { s: number; folds: number }[] = [];
       for (let s: number = domain[0], i: number = 0; s <= domain[1] + 1e-9; s += step / 2, ++i) {
         const frame: AutoMovieLoftFrame.IFrame = axis.at(s);
-        const loop: C.P[] | null = cut(frame, s);
+        const cutLoop: C.P[] | null = cut(frame, s);
+        const starred: { points: C.P[]; folds: number } | null = part.skin === undefined || cutLoop === null ? null : X.star(cutLoop, SKIN_RAYS, part.skin);
+        if (part.skin !== undefined && cutLoop !== null) star.push({ s, folds: starred === null ? -1 : starred.folds });
+        // `--kernels`: each section's kernel point (the centre of its largest inscribed circle) in the world, and how many of 720 rays from
+        // it and from the course point cross the section more than once, to lay a course through the kernels before fitting the skin.
+        if (process.argv.includes("--kernels") && cutLoop !== null) {
+          const core: { point: C.P; clearance: number } = X.kernel(cutLoop);
+          const world: number[] = [0, 1, 2].map((k: number): number => frame.origin[k]! + core.point[0] * frame.u[k]! + core.point[1] * frame.v[k]!);
+          const shifted: C.P[] = cutLoop.map((p: C.P): C.P => [p[0] - core.point[0], p[1] - core.point[1]]);
+          log("family-body-kernel", { part: part.name, s, kernel: world.map(round), clearanceMm: round(core.clearance), foldsFromKernel: X.star(shifted, SKIN_RAYS, "inner")?.folds ?? -1, foldsFromCourse: X.star(cutLoop, SKIN_RAYS, "inner")?.folds ?? -1 });
+        }
+        const loop: C.P[] | null = part.skin === undefined ? cutLoop : (starred?.points ?? null);
         if (loop === null) skipped.push(s);
-        else {
+        else if (part.skin !== undefined) {
+          // Fitted to the skin itself: its concavities are the wall's own inward arcs, between inflection anchors (`inflected`).
+          rows.push({ s, points: loop, heldout: i % 2 === 1 });
+          skins.push(loop);
+          loops.push(loop);
+        } else {
           // The family is the tape wall: it reads the section's convex hull. How far the skin lies inside that hull is measured apart, as relief.
           // A loose part is measured against that hull as well: its loop need not be star-shaped about the course.
           // A loose part's section is closed by its clip's straight chords, and a hull edge carries no vertex between its ends, so a wall
@@ -1080,13 +1128,18 @@ namespace FamilyConicBody {
             return Array.from({ length: pieces }, (_: unknown, t: number): C.P => [p[0] + ((q[0] - p[0]) * t) / pieces, p[1] + ((q[1] - p[1]) * t) / pieces]);
           }) : R.hull(loop);
           rows.push({ s, points: wall, heldout: i % 2 === 1 });
-          skins.push(part.loose === true && (part.surround === undefined || s >= part.surround.from) ? wall : loop);
+          // A loose part's wall is its section's hull, and so was its skin, which left the hollow search nothing to find. Where hollow
+          // windows are asked for (`reliefs: "auto"`), the skin is the clipped loop itself, or for a part that surrounds its pieces the
+          // largest piece, and a hollow's depth is read in the section's plane along the tape's inward normal, the distance to the hull:
+          // a C-shaped section's hollows open along the C, not toward its course.
+          const own: C.P[] = part.loose === true && part.reliefs === "auto" ? (piece ?? loop) : loop;
+          skins.push(part.loose === true && (part.surround === undefined || s >= part.surround.from) && part.reliefs !== "auto" ? wall : own);
           loops.push(loop);
           let deepest: number = 0;
           let where: number = 0;
-          for (const p of loop) {
+          for (const p of own) {
             const phi: number = Math.atan2(p[1], p[0]);
-            const depth: number = C.radius(wall, phi) - Math.hypot(p[0], p[1]);
+            const depth: number = part.loose === true && part.reliefs === "auto" ? inward(wall, p) : C.radius(wall, phi) - Math.hypot(p[0], p[1]);
             if (depth > deepest) {
               deepest = depth;
               where = phi;
@@ -1095,6 +1148,7 @@ namespace FamilyConicBody {
           hollows.push(s.toFixed(0) + ":" + deepest.toFixed(1) + "@" + ((where * 180) / Math.PI).toFixed(0));
         }
       }
+      if (part.skin !== undefined) log("family-body-star", { part: part.name, sections: star.length, refused: star.filter((r): boolean => r.folds !== 0).map((r): string => r.s.toFixed(1) + (r.folds < 0 ? ":outside" : ":" + r.folds)) });
       log("family-body-hollows", { part: part.name, deepestMmAtDegrees: hollows.filter((_: string, i: number): boolean => i % 6 === 0).join(" ") });
       log("family-body-observed", { part: part.name, sections: rows.length, skipped });
 
@@ -1218,6 +1272,13 @@ namespace FamilyConicBody {
       // A cutter is carried straight back from its first section by `lead`: three knots more with that section's values, so it comes out
       // of the skin it is cut from with the girth of its mouth. One knot alone let the fields' cubics swing between it and the first
       // section, and the engine lost an arc of the chain there.
+
+      // `--raise=<shoulder>`: every shoulder of the wall raised to that least as it is stored, the reliefs then fitted over it, for a wall
+      // whose fit under the bound stalls. The leg's ankle, refitted under 0.3 from 640 or 740 to 900 or 880 mm, stopped at 7 and 10 knots
+      // and 1.4 and 0.26 mm, since the heel sweeps faster than knots 12 mm apart follow; its arcs of 0.11 to 0.24 drew a crescent round the
+      // lateral malleolus.
+      const raise: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--raise="))?.slice(8);
+      if (raise !== undefined) best = { ...best, layout: { ...best.layout, least: Math.max(best.layout.least ?? 0, Number(raise)) } };
       if (best.layout.least !== undefined) {
         const bound: number = best.layout.least;
         const unbounded: C.ILayout = { anchors: best.layout.anchors, mirror: best.layout.mirror };
@@ -1257,7 +1318,7 @@ namespace FamilyConicBody {
         const below: number = Number(process.argv.find((argument: string): boolean => argument.startsWith("--coarse-below="))?.slice(15) ?? Infinity);
         const scaled = (window: IWindow): IWindow => (coarse === 1 || window.stations[1] > below ? window : { ...window, rows: Math.max(7, Math.round(window.rows * coarse)), columns: Math.max(7, Math.round(window.columns * coarse)) });
         // `--bare`: the wall alone, no relief of any kind, for a wall that is spliced and given its reliefs in a later run (`--wall`).
-        const windows: IWindow[] = BARE ? [] : part.reliefs === "auto" ?hollowWindows(part.name, rows, skins, course).map((window: H.IWindow): IWindow => ({ ...window, stations: [window.stations[0], Math.min(window.stations[1], part.reliefEnd ?? tip ?? Infinity)], fade: [50, 50], fadePhase: [0.6, 0.6] })) : part.reliefs.map(scaled);
+        const windows: IWindow[] = BARE ? [] : part.reliefs === "auto" ?hollowWindows(part.name, rows, skins, course, part.loose === true).map((window: H.IWindow): IWindow => ({ ...window, stations: [part.name === "auricle" ? Math.max(window.stations[0], domain[0]) : window.stations[0], Math.min(window.stations[1], part.reliefEnd ?? tip ?? Infinity)], fade: [50, 50], fadePhase: [0.6, 0.6] })) : part.reliefs.map(scaled);
 
         // Phases from 0 to a whole turn have their middle at pi, where the inward radial direction is +u, and a quarter turn on it is +v. A
         // net over a window of phases with middle `c` casts toward the course as well: `cos(t - c) A + sin(t - c) T` is the inward radial
@@ -1301,7 +1362,9 @@ namespace FamilyConicBody {
           }));
           // A window placed by the hollow search is kept only when its net takes away at least half of its deepest hollow on the withheld
           // sections. Round a turn a section's hollow lies across the cast's axis, and a net that cannot reach it leaves scratches instead.
-          const kept: boolean = !judged || fitted.heldMaxMm <= 0.5 * fitted.deepestMm;
+          // Nor is one kept whose deepest hollow is shallower than half the fit's target: the leg's window over the foot's end (924 to
+          // 960 mm) stored 473 heights for a hollow 0.11 mm deep, which is the wall's own misfit (the conic audit's leg rows).
+          const kept: boolean = !judged || (fitted.heldMaxMm <= 0.5 * fitted.deepestMm && fitted.deepestMm >= 0.5 * TARGET_MM);
           definition.reliefs ??= [];
           if (kept) definition.reliefs.push(fitted.relief);
 
@@ -1314,7 +1377,8 @@ namespace FamilyConicBody {
           log("family-body-relief", { part: part.name, relief: window.name, kept, scalars: fitted.scalars, deepestMm: round(fitted.deepestMm), trainMaxMm: round(fitted.trainMaxMm), heldMaxMm: round(fitted.heldMaxMm) });
          }
         };
-        fitAll(windows, part.reliefs === "auto");
+        // `--keep-windows`: every window the hollow search places is kept whatever the keep rule says, to read what it does.
+        fitAll(windows, part.reliefs === "auto" && !process.argv.includes("--keep-windows"));
 
         // A spliced wall takes the reliefs as it takes the knots: each wall's own stored ones on its side of the station, since those were
         // fitted on the very values the splice keeps there. Fitted again over the whole spliced wall, the hollow search placed other windows
@@ -1530,10 +1594,28 @@ namespace FamilyConicBody {
    * stand on skin that needs no height, with the axis the inward radial
    * direction at the run's middle.
    */
-  function hollowWindows(name: string, rows: readonly F.IRow[], skins: readonly C.P[][], course: AutoMovieViewAxis.IAxis): H.IWindow[] {
+  /** How far a point of a section lies inside its convex hull, mm: its distance to the nearest hull edge, or 0 outside. */
+  function inward(hull: readonly C.P[], p: C.P): number {
+    let least: number = Infinity;
+    let inside: boolean = true;
+    for (let i: number = 0; i < hull.length; ++i) {
+      const a: C.P = hull[i]!;
+      const b: C.P = hull[(i + 1) % hull.length]!;
+      const e: C.P = [b[0] - a[0], b[1] - a[1]];
+      const length2: number = e[0] * e[0] + e[1] * e[1];
+      if (length2 === 0) continue;
+      if (e[0] * (p[1] - a[1]) - e[1] * (p[0] - a[0]) < 0) inside = false;
+      const t: number = Math.max(0, Math.min(1, ((p[0] - a[0]) * e[0] + (p[1] - a[1]) * e[1]) / length2));
+      least = Math.min(least, Math.hypot(p[0] - a[0] - t * e[0], p[1] - a[1] - t * e[1]));
+    }
+    return inside ? least : 0;
+  }
+
+  function hollowWindows(name: string, rows: readonly F.IRow[], skins: readonly C.P[][], course: AutoMovieViewAxis.IAxis, normal: boolean = false): H.IWindow[] {
     const deep: { s: number; phases: number[] }[] = rows.map((row: F.IRow, i: number): { s: number; phases: number[] } => {
-      // Depth below the tape hull, not below the fitted wall: the wall's own misfit is not a hollow.
-      return { s: row.s, phases: skins[i]!.map((p: C.P): number => Math.atan2(p[1], p[0])).filter((phi: number, k: number): boolean => C.radius(row.points, phi) - Math.hypot(skins[i]![k]![0], skins[i]![k]![1]) > 0.6 * TARGET_MM) };
+      // Depth below the tape hull, not below the fitted wall: the wall's own misfit is not a hollow. Toward the course, or for a loose
+      // part (`normal`) in the section's plane along the hull's inward normal.
+      return { s: row.s, phases: skins[i]!.map((p: C.P): number => Math.atan2(p[1], p[0])).filter((phi: number, k: number): boolean => (normal ? inward(row.points, skins[i]![k]!) : C.radius(row.points, phi) - Math.hypot(skins[i]![k]![0], skins[i]![k]![1])) > 0.6 * TARGET_MM) };
     });
     // Deep vertices are first split round the section: phases farther apart than a radian belong to different hollows (a spine groove and a cleavage share stations but not a window).
     const every: number[] = deep.flatMap((row: { s: number; phases: number[] }): number[] => row.phases).sort((a: number, b: number): number => a - b);
