@@ -157,56 +157,53 @@ export namespace AutoMovieHumanF1Joints {
   /** The corner the arm's course turns at, round the shoulder, from straight to the side to the line down to the elbow. */
   export const armTurn: V3 = [-12, 1300, 203];
 
-  /** Where the ear's course starts, in the side of the head under the middle of the auricle's root. */
-  export const earRoot: V3 = [5, 1582, 74];
-
-  /**
-   * Where the ear's course turns from straight out of the head to leaning back with the auricle's shell: the root's sections up to 78 mm out
-   * stand in sagittal planes, so the root's ring holds the auricle's whole footprint, the front and the lobule included.
-   */
-  export const earTurn: V3 = [5, 1582, 82];
-
-  /**
-   * Where the ear's course ends, leaning back and up with the auricle's shell past the helix's back: the pole of its closed end stands on
-   * the helix's back, the auricle's outermost skin.
-   */
-  export const earTip: V3 = [-4, 1586, 98];
-
   /**
    * The helix's course, along the rim's crest from the front limb over the top and down the back to the lobule. Each inner centre is the
    * crest read by `FamilyConicScan.ts helix` at 70, 90, 110, 130, 160, 200, 240 and 270 degrees round the ear's middle, sunk 1.8 mm toward
-   * the head; the two ends lie inside the ear's leaf, in front under the front limb and in the lobule.
+   * the head; the two ends lie inside the ear's plate, in front under the front limb and in the lobule.
    *
    * Over the top, the crests at 70, 90 and 110 degrees are carried out from the ear's middle ([9, 1576] in the side view) by 1.3, 1.0 and
    * 1.2 mm and 0.4 to 0.5 mm farther toward the head. Read along rays from that middle (a scratch probe of the leaf with the tube merged, the
    * farthest vertex of each face within 0.6 mm of the ray), the leaf's rim reached 0.6 to 1.4 mm past the tube there, and from above its
    * rim stood behind the tube as a lip of thin facets, the slivers on `ear.high-oblique`; carried out, the tube reaches past the leaf
    * within 0.3 mm all over the top and the lip is gone.
+   *
+   * On the plate (`plate`) the front limb and the top stood 1.3 to 5.7 mm outside the plate's face (a scratch probe, the signed distance from
+   * the course to the plate every millimetre), so the tube hung free over the top with a gap under it and its front end was a capped tube
+   * in the air. The two top centres are moved 1.2 mm toward the plate's nearest point, so the tube crosses the plate along the top; the
+   * front limb is sunk 2 mm and carried on down the helix's crus into the head, its first centre [16, 1578, 72] under the crus's skin,
+   * so its front end is buried in the head. Its lower limb from 1,570 to 1,555 mm stands 1 mm farther out, clear of the antihelix (below).
    */
-  export const helix: V3[] = [[17, 1586, 79], [16.22, 1597.45, 82.6], [6.91, 1599.3, 88.6], [-1.09, 1593.75, 93.0], [-3.8, 1584.8, 94.6], [-3.8, 1575.9, 92.6], [-0.8, 1569.2, 90.9], [2.3, 1563.8, 89.2], [7, 1555.5, 85.3], [13, 1551, 81]];
+  export const helix: V3[] = [[16, 1578, 72], [17, 1586, 77], [15.61, 1596.61, 82.01], [6.56, 1598.26, 88.17], [-1.09, 1593.75, 93.0], [-3.8, 1584.8, 94.6], [-3.8, 1575.9, 92.6], [-0.8, 1569.2, 91.9], [2.3, 1563.8, 90.2], [7, 1555.5, 86.3], [13, 1551, 81]];
 
   /**
-   * The scapha's course, the groove inside the helix: the helix's inner foot on the leaf's outer face, read at 110, 130, 160 and 215
-   * degrees round the ear's middle ([9, 1576] in the side view; the probe as for `helix`), moved 2.3 mm toward that middle and 1.2 to 1.4 mm
-   * under the face. The reference's scapha floor lies under the rim's overhang, 3 to 6 mm inside the crest (`FamilyConicEar.ts --map`).
-   * It ends above the concha's cut, whose back rim runs from x 4 at 1,563 mm to x 6.4 at 1,569 mm: carried on to 1,567 mm, where the
-   * helix's foot and that rim stand within a millimetre of each other, it crossed the bowl's cut and the bowl's rail was refused.
+   * The ear's plate's course, along the auricle's long axis from below the lobule to above the helix's top, through the middle of the plate's
+   * lens at each station: the lens is the auricle's cranial skin and the floor of its hollows, read off the reference's sections square
+   * to the course (`FamilyConicBody.ts plate --kernels`, which also gives each lens's centroid in its chart). Laid through those centroids
+   * where it can be, with the turn at 1,566 mm 2 mm farther back than they stand, since there the lens is 4 mm thin and the course fell
+   * on its floor, and its last leg aimed 5 mm behind the top lenses' centroids: on the leg through them (to [13, 1600, 80.5]) the planes
+   * leaned 30 degrees forward and three of them cut the helix's front limb with the plate, a lens three times as long. The last centre
+   * stands under the helix's top (its course 88.6 mm out at 1,599.3 mm), so the plate's top cap closes into the tube: ended at
+   * [8, 1602, 80.5] the cap closed 8 mm inside the tube's line and its square end showed under the helix's arch (`ear.left`). Every
+   * section holds the course.
    */
-  export const scapha: V3[] = [[3.63, 1590.13, 90.9], [1.52, 1584.48, 91.9], [1.57, 1578.54, 91.3], [3.43, 1572.75, 90.2]];
+  export const plate: V3[] = [[22.5, 1538, 69.8], [16, 1550, 72], [-1, 1566, 77.5], [1.5, 1580, 79.5], [7.5, 1605, 87]];
 
   /**
-   * The auricle's course along its long axis, from above the helix's top through the shell's middle down to below the lobule. Each centre is
-   * the middle of the shell's piece at its height, read off the reference's sections square to the course (a scratch scan): the piece at
-   * 1,590 mm spans x -4 to 22 and 77 to 96 mm out, at 1,572 mm (the concha's height, where the bowl is left to the head) x -5 to 7, at
-   * 1,558 mm x 2 to 7 and below it the lobule, x 11 to 21 at 1,544 mm. Every section's hull holds the course.
+   * The antihelix's course, along its crest from its lower end at the antitragus up its body and on along its superior crus to the
+   * helix's top. Each centre is a crest read by `FamilyConicScan.ts helix 79 7 ridges` (side distance over the auricle's least-squares plane
+   * `z = 26.36 - 0.651 x + 0.041 y`, from the concha's middle [13, 1568] and the fossa's [9, 1587]), sunk 2.2 mm, the tube's radius, along
+   * that plane's normal `(0.545, -0.034, 0.838)` toward the head, so the tube's top stands on the crest. The upper end stops 3 mm short
+   * of the crest's last reading, sunk 1.5 mm more, inside the plate and more than 2.5 mm clear of the helix's tube and blend: carried into
+   * the helix's tube, the antihelix's merge curve crossed the helix's blend and no rail stood beside it, so the two tubes' blends must not
+   * meet. The lower two are sunk 2 and 1.5 mm more: measured against the plate (a scratch probe, the signed distance from the course to
+   * the plate's surface every millimetre), the course runs 0 to 1.2 mm outside the plate's face along the body and 0.1 mm inside it at its
+   * lower end, where the merge's walk was lost; sunk, the end stands 2 mm inside. Measured along both whole courses (a scratch probe), the
+   * antihelix's body overlapped the helix's lower limb by up to 0.7 mm at 1,563 to 1,570 mm and stood within 2.5 mm of it from 1,561 to
+   * 1,577 mm, so their blends met: the lower four centres stand 2 mm farther in along the plate and the helix's lower limb 1 mm farther
+   * out, the antihelix 1.5 mm and the helix's limb 2 mm round there, and the two tubes stay at least 2.95 mm apart everywhere.
    */
-  export const auricle: V3[] = [[9, 1606, 86], [7, 1590, 86], [2, 1572, 85], [5, 1558, 83], [15.5, 1542, 78.5], [18, 1534, 77]];
-
-  /** Centre of the auricle's root on the sagittal plane it leaves the skull at. */
-  export const earBase: V3 = [9.5, 1572, 77];
-
-  /** Half extents of the auricle's root in height and fore and aft. */
-  export const earHalf: [number, number] = [29, 10.5];
+  export const antihelix: V3[] = [[6.2, 1559.8, 76.9], [6.3, 1562.6, 80.2], [4.6, 1568.1, 85.8], [3.4, 1574.6, 86.8], [3.2, 1582.1, 87.7], [4.8, 1588.1, 85.0], [4.6, 1590.0, 83.4]];
 
   /** Where the nose's course starts, inside the face 5 mm behind the frontal plane through the alar grooves. */
   export const noseRoot: V3 = [108, 1556, 0];
@@ -214,26 +211,15 @@ export namespace AutoMovieHumanF1Joints {
   /** Where the nose's course ends, straight forward past its tip. */
   export const noseTip: V3 = [140, 1556, 0];
 
-  /** Where the course of the concha's bowl starts, out past the auricle over the bowl's deepest point. */
-  export const conchaRoot: V3 = [16.5, 1563, 90];
+  /**
+   * Where the course of the concha's bowl starts, over the bowl's deepest point, 6 mm deeper than read off the leaf: the cutter stood
+   * 6 mm shallower than the reference's floor and closed in a rounded cap at 71 mm (EA2), and its walls met the head only inside that cap,
+   * where no seed is sought (a scratch probe along its four quarter lines).
+   */
+  export const conchaRoot: V3 = [16.5, 1563, 84];
 
   /** Where it ends, square into the head under the bowl. */
-  export const conchaTip: V3 = [16.5, 1563, 60];
-
-  /** Where the course of the trough above the concha starts, the cymba's floor behind the helix's crus. */
-  export const fossaRoot: V3 = [13.5, 1574, 84];
-
-  /** Where it ends, straight up the triangular fossa under the helix's front limb. */
-  export const fossaTip: V3 = [13.5, 1594, 84];
-
-  /**
-   * Where the course of the gap under the lobule starts, below the lobule's free edge and in front of the gap's middle, in the air beside the
-   * skull: the gap, read in frontal planes (`FamilyConicScan.ts lobule`), is widest at x 14 to 18 low down and narrows back and up to its apex.
-   */
-  export const lobuleRoot: V3 = [14, 1530, 68];
-
-  /** Where it ends, at the apex of the gap under the lobule's attachment crease (x 6 to 8, 1,555 mm, between the skull at 65 mm and the lobule). */
-  export const lobuleTip: V3 = [7.5, 1555.5, 65.5];
+  export const conchaTip: V3 = [16.5, 1563, 54];
 
   /**
    * Where the breast's course starts, inside the chest 30 mm behind the dome's top along the skin's normal there: the top is the skin's

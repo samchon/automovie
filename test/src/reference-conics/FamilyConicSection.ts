@@ -31,8 +31,29 @@ export namespace FamilyConicSection {
   /** The bilateral layout of the given median depth. */
   export const bilateral: (depth: number) => ILayout = S.bilateral;
 
-  /** The limb layout with a groove `[i, m, i]` after each listed anchor (`AutoMovieHumanConicSection.inflected`), which a generated module names as well. */
-  export const inflected: (depth: number, after: readonly number[]) => ILayout = S.inflected;
+  /** The lens layout (`AutoMovieHumanConicSection.lens`). */
+  export const lens: (depth: number) => ILayout = S.lens;
+
+  /**
+   * The limb layout of the given median depth with a groove after each listed anchor: two inflections and the groove's own median between
+   * them, `[i, m, i]`, the inflections a level deeper than every median and the groove's median a level deeper again, so each inflection
+   * stands on the chord of the anchors round it and the groove's floor on the triangle of its two inflections. Across a family the
+   * inflections' shares and turns are fields like every other (natural cubics on the family's knots), so each groove's two inflection lines
+   * run along the stations as smooth curves, the way an aircraft's lofting draws a concavity with one more control line.
+   *
+   * @param depth The limb's median depth.
+   * @param after Indices into `limb(depth).anchors` after which a groove stands, each at most once.
+   * @param base The layout the grooves go into, of that median depth; absent, the limb's. A half-fitted part (`bilateral`) takes each
+   *   groove once and its mirror gives the other side its own, as a nose's two supra-alar creases.
+   */
+  export function inflected(depth: number, after: readonly number[], base: ILayout = limb(depth)): ILayout {
+    return {
+      mirror: base.mirror,
+      anchors: base.anchors.flatMap((anchor: IAnchor, k: number): IAnchor[] =>
+        after.includes(k) ? [anchor, { kind: "i", level: depth + 1 }, { kind: "m", level: depth + 2 }, { kind: "i", level: depth + 1 }] : [anchor],
+      ),
+    };
+  }
 
   /**
    * A layout whose anchors stand on the part's named feature lines: after each listed anchor of `base`, the given feature anchors (`f`), each
@@ -50,6 +71,22 @@ export namespace FamilyConicSection {
       anchors: base.anchors.flatMap((anchor: IAnchor, k: number): IAnchor[] => [anchor, ...features.filter((f): boolean => f.after === k).flatMap((f): IAnchor[] => f.anchors)]),
     };
   }
+
+  /**
+   * Whether one conic arc joins `p0` leaving along `t0` to `p1` arriving along `t1`: the two tangents stand on opposite sides of the chord
+   * and their lines meet ahead of the start and behind the end, as the engine's native chain asks of every arc; with `margin`, at least
+   * that share of the chord ahead and behind, for unit tangents (`FamilyConicFit.ADMISSIBLE_MARGIN`).
+   */
+  export function arc(p0: readonly number[], t0: readonly number[], p1: readonly number[], t1: readonly number[], margin: number = 0): boolean {
+    const c: P = [p1[0]! - p0[0]!, p1[1]! - p0[1]!];
+    const side = (d: readonly number[]): number => c[0] * d[1]! - c[1] * d[0]!;
+    const det: number = t0[0]! * t1[1]! - t0[1]! * t1[0]!;
+    if (det === 0 || side(t0) * side(t1) >= 0) return false;
+    const s: number = (c[0] * t1[1]! - c[1] * t1[0]!) / det;
+    const q: number = (t0[0]! * c[1] - t0[1]! * c[0]) / det;
+    const chord: number = Math.hypot(c[0], c[1]) * margin;
+    return s > chord && q > chord;
+  }
   /** Unit of every field of a layout. */
   export const units: (layout: ILayout) => Unit[] = S.units;
 
@@ -59,10 +96,23 @@ export namespace FamilyConicSection {
   /** Build the engine's native conic chain from a field vector. */
   export const chain: (values: readonly number[], layout: ILayout) => Q.ISection = S.chain;
 
+  /** A stored shoulder as the model reads it, inside its bounds. */
+  export const shoulder: (value: number, layout: ILayout) => number = S.shoulder;
+
   /** The field vector with the two arcs at an anchor given the shoulders that make the curvature continuous there. */
   export const continuous: (values: readonly number[], layout: ILayout, k: number) => number[] = S.continuous;
 
-  const offsets: typeof S.offsets = S.offsets;
+  /** The two anchors a feature anchor stands between (`AutoMovieHumanConicSection.frame`). */
+  export const frame: typeof S.frame = S.frame;
+
+  /** A feature point's numbers on the chord of its frame (`AutoMovieHumanConicSection.unplace`). */
+  export const unplace: typeof S.unplace = S.unplace;
+
+  /** Where along its run's chord a feature stands past the one before it (`AutoMovieHumanConicSection.along`). */
+  export const along: typeof S.along = S.along;
+
+  /** Offsets of every anchor's first field, and of the first shoulder. */
+  export const offsets: typeof S.offsets = S.offsets;
   const dependents: typeof S.dependents = S.dependents;
   const neighbours: typeof S.neighbours = S.neighbours;
   const clamp: typeof S.clamp = S.clamp;
@@ -177,6 +227,9 @@ export namespace FamilyConicSection {
 
   /** Step of the headings a feature's seed tangent is searched in where its reading does not make both its arcs conics, radians. */
   const FEATURE_STEP: number = 0.01;
+
+  /** The share of its chord a seeded feature's arcs keep between their tangent lines' meeting and their ends: over the fit's 0.02 margin. */
+  const SEED_MARGIN: number = 0.05;
 
   /**
    * Where a feature anchor (`f`) stands on an observed counter-clockwise polygon, between the polygon's points `from` and `to` (its
@@ -298,15 +351,10 @@ export namespace FamilyConicSection {
     // reading, in steps of `FEATURE_STEP`, with which the arcs to the anchors before and after it are both conics, in order round the
     // resolved anchors, so the seed is a chain of conics.
     const resolved: number[] = layout.anchors.map((_: IAnchor, k: number): number => k).filter((k: number): boolean => found[k] !== null);
-    const conic = (a: number, tA: P, b: number, tB: P): boolean => {
-      const c: P = [found[b]![0] - found[a]![0], found[b]![1] - found[a]![1]];
-      const side = (d: P): number => c[0] * d[1] - c[1] * d[0];
-      const det: number = tA[0] * tB[1] - tA[1] * tB[0];
-      if (det === 0 || side(tA) * side(tB) >= 0) return false;
-      const s: number = (c[0] * tB[1] - c[1] * tB[0]) / det;
-      const q: number = (tA[0] * c[1] - tA[1] * c[0]) / det;
-      return s > 0 && q > 0;
-    };
+    // A fading feature stands on the skin, its own sagitta its offset, and its tangent is the nearest to the skin's with which both its
+    // arcs keep `SEED_MARGIN` of their chords: seeded at the region's wall (`arc` at zero), 37 of the nose's 40 sections alone were refused
+    // under the fit's margin before a step.
+    const conic = (a: number, tA: P, b: number, tB: P): boolean => arc(found[a]!, tA, found[b]!, tB, SEED_MARGIN);
     resolved.forEach((k: number, r: number): void => {
       if (layout.anchors[k]!.kind !== "f") return;
       const before: number = resolved[(r + resolved.length - 1) % resolved.length]!;
@@ -323,7 +371,23 @@ export namespace FamilyConicSection {
         values[at[k]! + 2] = fit;
         return;
       }
-    });    for (const k of dependents(layout)) {
+    });
+    // Each feature's numbers as the model reads them: its share of what is left of its run's chord past the feature before it, its
+    // offset square to that chord and its tangent's turn from the chord (`AutoMovieHumanConicSection.along`, `place`); each then stands
+    // where the model puts it, so the medians are seeded on the chain the model draws.
+    let previous: number = 0;
+    layout.anchors.forEach((anchor: IAnchor, k: number): void => {
+      if (anchor.kind !== "f") return;
+      if (k === 0 || layout.anchors[k - 1]!.kind !== "f") previous = 0;
+      const [before, after]: [number, number] = S.frame(k, layout);
+      const read: { values: [number, number, number]; t: number } = S.unplace(found[before]!, found[after]!, found[k]!, values[at[k]! + 2]!, previous);
+      [values[at[k]!], values[at[k]! + 1], values[at[k]! + 2]] = read.values;
+      previous = S.along(previous, read.values[0]);
+      const placed: { point: P; tangent: P } = S.place(found[before]!, found[after]!, previous, read.values[1], read.values[2]);
+      found[k] = placed.point;
+      tangent[k] = placed.tangent;
+    });
+    for (const k of dependents(layout)) {
       const [before, after]: [number, number] = neighbours(k, found);
       const p0: P = found[before]!;
       const p2: P = found[after]!;
