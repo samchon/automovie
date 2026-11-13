@@ -93,6 +93,12 @@ export namespace FamilyConicSection {
   /** The field vector with the two arcs at an anchor given the shoulders that make the curvature continuous there. */
   export const continuous: (values: readonly number[], layout: ILayout, k: number) => number[] = S.continuous;
 
+  /** The two anchors a feature anchor stands between (`AutoMovieHumanConicSection.frame`). */
+  export const frame: typeof S.frame = S.frame;
+
+  /** A feature point's numbers on the chord of its frame (`AutoMovieHumanConicSection.unplace`). */
+  export const unplace: typeof S.unplace = S.unplace;
+
   /** Offsets of every anchor's first field, and of the first shoulder. */
   export const offsets: typeof S.offsets = S.offsets;
   const dependents: typeof S.dependents = S.dependents;
@@ -297,7 +303,18 @@ export namespace FamilyConicSection {
         values[at[k]! + 2] = fit;
         return;
       }
-    });    for (const k of dependents(layout)) {
+    });
+    // Each feature's numbers as the model reads them: its share along its frame's chord, its offset square to it and its tangent's turn
+    // from the chord (`AutoMovieHumanConicSection.place`).
+    layout.anchors.forEach((anchor: IAnchor, k: number): void => {
+      if (anchor.kind !== "f") return;
+      const [before, after]: [number, number] = S.frame(k, layout);
+      const [t, o, h]: [number, number, number] = S.unplace(found[before]!, found[after]!, found[k]!, values[at[k]! + 2]!);
+      values[at[k]!] = t;
+      values[at[k]! + 1] = o;
+      values[at[k]! + 2] = h;
+    });
+    for (const k of dependents(layout)) {
       const [before, after]: [number, number] = neighbours(k, found);
       const p0: P = found[before]!;
       const p2: P = found[after]!;
