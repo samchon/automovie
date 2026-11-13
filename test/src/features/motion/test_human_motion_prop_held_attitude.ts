@@ -20,6 +20,9 @@ import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 
+/** How far a glass may lean away from the face and still count as upright: the sine of 1 degree. */
+const AWAY: number = Math.sin(Math.PI / 180);
+
 /**
  * A held object keeps the attitude its use needs: a glass is carried
  * upright and tipped toward the lips only as much as the drinking arm asked,
@@ -36,7 +39,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    until the last `AutoMovieMotionHumanTouch.TIP` of the carry's progress
  *    over which it tips, its axis stands within 10 degrees of upright. From
  *    `atMouth` to `relax` its top leans only toward the face (the performer
- *    faces +Z, so the axis's Z part is not positive) and no more than the
+ *    faces +Z, so the axis's Z part is not positive; a glass within 1 degree
+ *    of upright leans nowhere, so its Z part may be the sine of 1 degree) and
+ *    no more than the
  *    lean the law asked plus one `AutoMovieMotionHumanTouchDrink.LEAN_STEP`.
  *    The asked lean is the glass's axis carried by the hand rotation the arm
  *    was asked for at `atMouth`. This replaces "within 10 degrees of upright
@@ -240,9 +245,9 @@ export function test_human_motion_prop_held_attitude(): void {
           atMouth + ((instant(drink, "relax") - atMouth) * i) / 4;
         const shownAxis: IAutoMovieVector3 = axis(seconds);
         const lean: number = from(shownAxis);
-        if (!(shownAxis.z <= 0 && lean <= asked + step))
+        if (!(shownAxis.z <= AWAY && lean <= asked + step))
           complaints.push(
-            `${name}: at ${seconds.toFixed(2)} s at the mouth the held glass leans ${lean.toFixed(1)} degrees with its top ${shownAxis.z <= 0 ? "toward" : "away from"} the face, toward it and at most the asked ${asked.toFixed(1)} plus ${step} expected (${shown(drunk, seconds, shownAxis)})`,
+            `${name}: at ${seconds.toFixed(2)} s at the mouth the held glass leans ${lean.toFixed(1)} degrees with its top ${shownAxis.z <= 0 ? "toward" : "away from"} the face (${((Math.asin(Math.min(1, Math.abs(shownAxis.z))) * 180) / Math.PI).toFixed(1)} degrees of it), toward it or upright within 1 degree and at most the asked ${asked.toFixed(1)} plus ${step} expected (${shown(drunk, seconds, shownAxis)})`,
           );
       }
     } catch (error) {

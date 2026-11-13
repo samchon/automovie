@@ -35,7 +35,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Places four real archetypes, joins the cast through the public mutual join and reads displayed prop frames; a glass left at a pair's own midpoint or tipped fails.
  * @evidence contracts/development/testing.md#independent-expectations Both bounds are acceptance lines of #3350 and #3361; the rim is the archetype's own lip affordance and the point the test's own.
- * @evidence contracts/development/testing.md#distinguishing-cases Held glasses at one point; the mimed toast of four is `test_human_motion_social_toast_four`'s and the pair's `test_human_motion_social_toast`'s.
+ * @evidence contracts/development/testing.md#distinguishing-cases Held glasses at one point; the mimed toast of four is `test_human_motion_social_toast_four`'s and the pair's `test_human_motion_social_toast_*`'s.
  * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and one archetype and builds one four-person performance with four pick-ups; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the stage, the 3 scenarios with their bounds and what is not read.
  */

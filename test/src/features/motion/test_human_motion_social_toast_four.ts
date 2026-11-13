@@ -20,7 +20,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * Four average men stand on a circle of 0.45 m about the point, each facing
  * it, and mime the toast with their fists, so the test needs no glass; the
  * point is at their chest height. Held glasses at a pair's own point are
- * `test_human_motion_social_toast`'s.
+ * `test_human_motion_social_toast_*`'s.
  *
  * Scenarios:
  * 1. The toast of four plans.

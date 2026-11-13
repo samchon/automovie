@@ -44,7 +44,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Places a real archetype, joins the cast through the public mutual join and reads the displayed prop frame and hands; a mug tipped over, sliding in a hand or offered away from between the two fails.
  * @evidence contracts/development/testing.md#independent-expectations Every bound is an acceptance line of #3361 or #3364.
- * @evidence contracts/development/testing.md#distinguishing-cases The taller person as giver and as receiver; the toast is `test_human_motion_social_toast`'s.
+ * @evidence contracts/development/testing.md#distinguishing-cases The taller person as giver and as receiver; the toast is `test_human_motion_social_toast_*`'s.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and one archetype and builds two two-person performances; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the cast, the placement and the 3 scenarios with their bounds, sources and sampling.
  */ export function test_human_motion_social_handover(): void {
