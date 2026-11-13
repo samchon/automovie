@@ -50,7 +50,7 @@ import { GymnasticsTakeoff } from "./GymnasticsTakeoff";
  *    velocity across the pendulum's radius is kept, as the angular momentum
  *    about the planted end is, and the part along the radius is lost to the
  *    plant; the turn then follows the energy of a point mass on a rigid
- *    massless pole, ?짼 = ?0짼 + (2g/R)(cos 棺0 - cos 棺), integrated once into a
+ *    massless pole, ω² = ω₀² + (2g/R)(cos θ₀ − cos θ), integrated once into a
  *    table of time by angle. The hand lets go when the pole stands upright.
  *    A run too slow to bring it upright is refused with the speed needed.
  * 3. Flight: the centre on the parabola of its velocity at the release, the
@@ -358,7 +358,7 @@ export namespace poleVault {
         fix: "run faster into the vault",
       });
 
-    // The table of seconds by angle, by the trapezoid rule on 1 / ?.
+    // The table of seconds by angle, by the trapezoid rule on 1 / ω.
     const seconds: number[] = [0];
     for (let i: number = 1; i <= STEPS; i++) {
       const a: number = (upright * (i - 1)) / STEPS;
