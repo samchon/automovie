@@ -1,7 +1,10 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import {
+  type IAutoMovieResolvedBone,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
