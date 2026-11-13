@@ -23,6 +23,7 @@ import { HumanSwordParry } from "./HumanSwordParry";
 import { HumanSwordThrust } from "./HumanSwordThrust";
 import { HumanTravelCar } from "./HumanTravelCar";
 import { HumanTravelDoor } from "./HumanTravelDoor";
+import { HumanTravelLeaf } from "./HumanTravelLeaf";
 import { HumanWeaponFirearm } from "./HumanWeaponFirearm";
 import { HumanWeaponMelee } from "./HumanWeaponMelee";
 
@@ -55,6 +56,7 @@ export const HUMAN_LEXICON: Readonly<
     ...rows(HumanGait),
     ...rows(HumanTravelDoor),
     ...rows(HumanTravelCar),
+    ...rows(HumanTravelLeaf),
   ],
   pursuit: rows(HumanPursuit),
   social: rows(HumanSocial),
