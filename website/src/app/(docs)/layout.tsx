@@ -5,6 +5,16 @@ import type { ReactElement, ReactNode } from "react";
 
 const footer: ReactElement = (
   <Footer>
+    <nav aria-label="Footer" className="automovie-site-footer-links">
+      <a href="/automovie/docs/">Docs</a>
+      <a href="https://github.com/samchon/automovie" target="_blank" rel="noreferrer">
+        GitHub
+      </a>
+      <a href="https://www.npmjs.com/package/automovie" target="_blank" rel="noreferrer">
+        npm
+      </a>
+    </nav>
+    <br />
     Released under the MIT License.
     <br />
     <br />

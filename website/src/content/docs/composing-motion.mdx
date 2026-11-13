@@ -1,0 +1,42 @@
+---
+title: Composing motion
+---
+
+import { GrammarTable } from "../../docs/package/GrammarTable";
+
+# Composing motion
+
+A person's performance in AutoMovie is a chain of actions from `@automovie/motions`, and a scene is several chains performed at once. An action is a law that brings the body onto its targets, scaled to the body that performs it, so one chain fits people of different stature and proportion. The scenes on this site are made only of such chains: [Scenes](/scenes) plays them, and each scene's page shows the chain behind it.
+
+## One person
+
+`HumanChain.subject(id)` starts a chain. Each action is a method that takes the action's own parameters, or `act(name, params)` when the action is named as data.
+
+```ts
+import { HumanChain } from "@automovie/motions";
+
+const a = HumanChain.subject("a")
+  .walk({ to: { x: 0, y: 0, z: 4 } })
+  .act("gesture", { kind: "wave" })
+  .stand({ seconds: 2 });
+```
+
+Positions are world metres on the floor, and a heading is degrees about the vertical, 0 facing +Z. `until({ share })` cuts the last action inside the window it declares.
+
+## Several people
+
+`a.with(b)` runs two chains at once, and `HumanChain.pair(a, b)` joins two people in an action they do together, such as a handshake. An action can carry an anchor id as its last argument, so another person's action answers it: a guard's parry answers the punch it names.
+
+## What varies a performance
+
+The same composition gives a different take under another seed: when each step falls and how far each arm swings, never what is done. A performer's `proficiency` (novice, amateur, trained or elite) changes timing, path and balance, and a different body performs the same chain at its own scale. The [scene pages](/scenes) show the same scene side by side under each of these.
+
+## What the composition can say
+
+<GrammarTable />
+
+## When a composition is refused
+
+Building a `HumanPerformance` throws a `HumanRefusal` when the vocabulary cannot perform the composition. It names the performer, the action, the axis at fault, the value given, what the axis accepts and one sentence saying what to change. The [playground](/playground) shows a refusal on the action it names, with its fix.
+
+The [`@automovie/motions` README](https://github.com/samchon/automovie/tree/master/packages/motions#readme) lists the entry points, and the types in the package say what every action takes.
