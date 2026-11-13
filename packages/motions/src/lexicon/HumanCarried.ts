@@ -8,6 +8,7 @@ import type {
   AutoMovieHumanoidRegion,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
@@ -271,8 +272,8 @@ export namespace HumanCarried {
     /** The carry; `piggyback` when absent. */
     carry?: Carry;
 
-    /** Seconds carried; 2 when absent. */
-    seconds?: number;
+    /** Seconds carried, more than none; 2 when absent. */
+    seconds?: number & tags.ExclusiveMinimum<0>;
   }
 
   /** Parameters of the carrier's hold in a named carry. */
@@ -280,8 +281,8 @@ export namespace HumanCarried {
     /** The carry; `piggyback` when absent. */
     carry?: Carry;
 
-    /** Seconds held; 2 when absent. */
-    seconds?: number;
+    /** Seconds held, more than none; 2 when absent. */
+    seconds?: number & tags.ExclusiveMinimum<0>;
   }
 
   /** A region's point on resolved bones. */

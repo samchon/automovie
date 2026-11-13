@@ -1,4 +1,5 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { walk } from "../actions/walk";
@@ -109,7 +110,7 @@ export namespace carry {
     side?: HumanHand.Side;
 
     /** The load's mass as a share of the body's, in [0, 0.25]; 0.1 when absent. */
-    load?: number;
+    load?: number & tags.Minimum<0> & tags.Maximum<0.25>;
 
     /** The walk's pace; `normal` when absent. */
     pace?: "slow" | "normal" | "fast";

@@ -1,4 +1,5 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type { tags } from "typia";
 
 import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -35,10 +36,10 @@ export namespace HumanCarriedLift {
   /** The two phases' lengths. */
   export interface IParams {
     /** Seconds the lift into the carry takes, at the start; none when absent. */
-    lift?: number;
+    lift?: number & tags.Minimum<0>;
 
     /** Seconds the set-down takes, at the end; none when absent. */
-    setDown?: number;
+    setDown?: number & tags.Minimum<0>;
   }
 
   /**

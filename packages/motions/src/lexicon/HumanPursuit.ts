@@ -1,4 +1,5 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import { run } from "../actions/run";
 import { HumanGaze } from "../everyday/HumanGaze";
@@ -147,7 +148,7 @@ export namespace HumanPursuit {
     from: string;
 
     /** How far to run, metres; `FLIGHT` hip heights when absent. */
-    metres?: number;
+    metres?: number & tags.ExclusiveMinimum<0>;
 
     /** The pace; `run` when absent. */
     pace?: run.IParams["pace"];
