@@ -21,8 +21,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * that hand through the whole film, and the other hand stays free.
  *
  * Scenarios, on the average man; a glass stands at waist height ahead, is
- * picked up with the right hand, then the person walks 2 m with a drink
- * from that glass put over the walk. One body is enough: the rule is the
+ * picked up with the right hand for its use (`pickUp` with `use`: the lip
+ * at the mouth, the glass upright), as a person takes a glass to drink from
+ * it and as `test_human_motion_prop_held_attitude` takes it, then the person
+ * walks 2 m with a drink from that glass put over the walk. A glass taken by
+ * a grip chosen for reach alone may leave no drinking arm at the lips; that
+ * refusal is `test_human_motion_core_overlay_hold_refusal`'s. One body is enough: the rule is the
  * grammar's (who carries the hand at each second), not a body's measure,
  * and each film of a drink over a walk costs a minute to place and read:
  * 1. The composition plans.
@@ -48,7 +52,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#independent-expectations The 1 mm drift and the 5 mm step are the campaign's bounds; that a drink brings a glass above the neck is what drinking is; none is read from the overlay or the hold.
  * @evidence contracts/development/testing.md#distinguishing-cases Two bodies; the hold before, under and after the overlay; the holding hand used for its prop and the free hand used beside it; the holding hand used for something else is `test_human_motion_core_overlay_hold_refusal`'s. An overlay with empty hands is `test_human_motion_overlay_channels`'s.
  * @evidence contracts/development/testing.md#execution-ownership Prepares polygon men and one archetype and builds short performances in memory; it runs locally and wherever CI runs the human motion tests.
- * @evidence contracts/development/common.md#meaningful-documentation States the act and the 5 scenarios with their bounds.
+ * @evidence contracts/development/common.md#meaningful-documentation States the act, how the glass is taken and why, and the 5 scenarios with their bounds.
  */
 export function test_human_motion_core_overlay_hold(): void {
   const complaints: string[] = [];
@@ -87,7 +91,12 @@ export function test_human_motion_core_overlay_hold(): void {
       });
     const taking = (): HumanChain =>
       HumanChain.subject("a")
-        .pickUp({ prop: "glass", handle: "body", hand: "right" })
+        .pickUp({
+          prop: "glass",
+          handle: "body",
+          hand: "right",
+          use: { tip: "lip", line: "square", at: "mouth" },
+        })
         .walk({ to: { x: 0, y: 0, z: 2 } });
 
     // 1. The drink over the walk plans.

@@ -479,7 +479,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
       axis: "facing",
       value: side,
       reason: `no lean of the held vessel toward the face up to ${LEAN} degrees ${turn} lets the ${side} arm bring it to the region as a person drinks, the upper arm raised at most ${AutoMovieMotionHumanDrinkingArm.ELEVATION} degrees, the elbow ${AutoMovieMotionHumanDrinkingArm.DROP * 1000} mm or more below the shoulder and the forearm's twist ${AutoMovieMotionHumanTouchLaid.MARGIN} degrees inside its range (${nearest})`,
-      fix: "bring the vessel to a region nearer the chin, or hold it by its side",
+      fix: "bring the vessel to a region nearer the chin, or take it by a grip the arm can drink from: picked up for its use (`pickUp` with `use`), by its side, or with the other hand",
     });
   }
 }
