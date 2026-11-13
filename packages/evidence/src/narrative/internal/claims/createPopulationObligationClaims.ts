@@ -14,9 +14,9 @@ import { constructionStage } from "../constructionStage";
 import { createLocalContractReference } from "../references/createLocalContractReference";
 import { createSharedReference } from "../references/createSharedReference";
 import { layerFiles } from "../references/layerFiles";
+import { BODY_ROOT } from "../utilities/BODY_ROOT";
 import { createContractDirectory } from "../utilities/createContractDirectory";
 import { createUnitFiles } from "../utilities/createUnitFiles";
-import { passRoot } from "../utilities/passRoot";
 
 /**
  * Creates the population obligation claims for a complete layer.
@@ -28,13 +28,13 @@ import { passRoot } from "../utilities/passRoot";
  * repeating a population question on every unit turns one comparison into a
  * restatement per unit.
  *
- * Unit duties use checklists. Naturalness population comparisons have separate
- * expression obligation claims rather than repeating their question per unit.
+ * Unit duties use checklists. Script expression population comparisons have
+ * separate expression obligation claims rather than repeating their question per unit.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Construction stage controls whole-layer file-level obligation coverage, with one answering document per shared/language population item and no per-H2 repetition of the same comparison; createContractDirectory probes shared documents in the shared skills tree and language documents in the production's own `docs/contracts`.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The exported factory delegates one family build while keeping population scope distinct from principle checklists and expression obligations.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Required shared common/narrative files stay selected even when missing so the compiler reports a broken tree; only realized and layer-specific optional documents are conditionally selected.
- * @evidence contracts/development/common.md#meaningful-documentation The prose explains whole-layer respondents, unique evidence and the boundary with per-unit and naturalness families; the helper comment identifies optional-file compatibility.
+ * @evidence contracts/development/common.md#meaningful-documentation The prose explains whole-layer respondents, unique evidence and the boundary with per-unit and script expression families; the helper comment identifies optional-file compatibility.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most four candidates per scope are filtered and mapped, with a bounded number of synchronous existence probes and selector constructions; this factory never scans the manuscript population.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared/language selection reuses layerFiles and reference builders; optional installed files are observed per config build, so changes in the contract tree invalidate naturally without a retained cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Intermediate and returned arrays have a fixed family bound; returned claim/reference objects belong to the config owner and existence probes retain no exposed handles.
@@ -110,7 +110,7 @@ function claim(props: {
   return {
     name: `${props.layer} documents answer each ${props.reference.files[0]} item once`,
     type: "markdown",
-    root: passRoot("draft"),
+    root: BODY_ROOT,
     files: createUnitFiles(props.layer, props.scope),
     symbol: "file",
     disabled: props.disabled,

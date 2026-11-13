@@ -15,7 +15,7 @@ Every respondent here answers in its own doc comment, citing an item as `contrac
 | [Testing](testing.md) | Each exported test function | |
 | [Entities](entities.md) | Each exported declaration under `src/entities/`, which also names the settings or brief facts it realizes and the research its measurements follow | [Entity statements](statements/entities.md) |
 | [Behaviors](behaviors.md) | Each exported function and method under `src/laws/`, `src/interactions/` and `src/consequences/`, which also cites the research it follows | [Behavior statements](statements/behaviors.md) |
-| [Composition](composition.md) | Each exported function and method under `src/composition/`, which also cites the screenplay scenes, beats or file it realizes | [Composition statements](statements/composition.md) |
+| [Composition](composition.md) | Each exported function and method under `src/composition/`, which also cites the screenplay scene files, sections or beats it realizes | [Composition statements](statements/composition.md) |
 
 Common, design, implementation and testing are AutoMovie's shared engineering checklists, and each of their items ends by saying what its answer states. Entities, behaviors and composition belong to productions and follow the chain [source layout](../../development/source-layout.md) draws from settings or brief and research through the screenplay to code. Each of their items is one broad question, and its [statements](../SKILL.md#items-and-statements) carry the detail.
 

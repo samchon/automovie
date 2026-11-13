@@ -7,7 +7,7 @@ import type { AuthoredLayer } from "../AuthoredLayer";
  * below, so a question about the words themselves can only be asked here.
  *
  * Principled implementation: The set names scripts and screenplay as the only layers holding literal expression rather than documentary plans.
- * Clear and simple design: Naturalness question discovery shares this two-layer eligibility vocabulary.
+ * Clear and simple design: layerFiles reads this two-layer eligibility vocabulary for every contract family that asks about literal text.
  * Prohibited implementation shortcuts: The literal layers express supported domain responsibility and do not depend on caller or fixture identities.
  * Meaningful documentation: The prose states the ordering or expression-versus-plan distinction needed by consumers.
  * Efficient algorithms: Initialization stores a fixed four-element array or two-element set; iteration is bounded by that vocabulary and set membership is expected constant time.

@@ -4,31 +4,28 @@ Unless the commission adopts another form, use conventional screenplay blocks: a
 
 Read the blocks as a continuous sequence, each entry following the preceding exit; final duration comes from the performed action, speech, pauses and edit.
 
-## Identities
+## Identities {#identities}
 
-The H1 names the film, each H2 is a scene and each H3 a beat, every heading with an explicit anchor such as `{#s03}` and `{#s03-b04}`. Headings are addresses for code, evidence and reviews; they prescribe neither shot boundaries nor duration.
+A script file is one episode: its H1 names the episode and each H2 is a [scene](screenplay.md#scenes) of one continuous place and time, because it becomes one screenplay scene file. A screenplay file is one [scene](screenplay.md#scenes): its H1 names the scene, each H2 is a section of it, such as a phase or a movement, and each H3 a beat. Every heading below the H1 has an explicit anchor such as `{#s03}` and `{#s03-b04}`. Headings are addresses for code, evidence and reviews; they prescribe neither shot boundaries nor duration.
 
-Never reuse or renumber an anchor: a removed scene or beat keeps its heading over the single line `OMITTED`, and an inserted one takes a new anchor such as `{#s03-b04a}`, so an existing citation never silently points at different content.
+Never reuse or renumber an anchor or a scene file's number: a removed script scene, section or beat keeps its heading over the single line `OMITTED`, a removed screenplay scene file keeps only its H1 over `OMITTED` and retires its section and beat anchors with it, an inserted script scene, section or beat takes a new anchor such as `{#s03-b04a}`, and an inserted screenplay scene file an unused number between its neighbors, so number scene files with room between them, such as `010-` and `020-`. An existing citation then never silently points at different content.
 
 ## Records {#records}
 
-Directly under the scene heading, a breakdown list names by settings or brief link everything the scene's beats use, in these categories: cast, crowds, props, sets, wardrobe and makeup state, effects, sound, camera and lighting. Each beat's action and dialogue blocks end with its beat record:
+A screenplay scene file's first section opens with its standing state as a list, each entry linked to its settings or brief decision where one owns it, as [the brief's boundary](brief.md#what-it-holds) decides, so that the section's answers and review cover it; each beat's action and dialogue blocks end with its beat record. Both hold what the [beat-decisions question](../../contracts/story/shared/principles/screenplay.md#beat-decisions) asks:
 
 ```markdown
 ### Mara cues the lift {#s03-b04}
 
 <action and dialogue blocks>
 
-- Cast: [Mara](../settings/cast/mara.md#lead-hand), [Jun](../settings/cast/jun.md#hesitates-before-jumps)
+- Cast: [Mara](../../brief/cast/mara.md#lead-hand), [Jun](../../brief/cast/jun.md#partnering-level)
 - Intent: Mara cues a lift with a press of her hand; Jun reads it a beat late.
-- Outcome: the lift lands short, as [the partnering table](../../research/dance/lifts.md#outcomes) allows for a late read.
-- Consequence: Mara braces under Jun's weight; Jun lands off balance; Jun's sleeve tears at the seam.
-- Space: the pair drifts from center stage toward the downstage wing; the conductor turns to follow them.
-- Camera: medium two-shot, eye level, slow push in.
-- Sound: dialogue none; foley shoe scuffs and fabric; ambience hall air; effects none; music VI the on-stage quartet continues.
-- Continuity: Jun's left shoe, loosened in s02-b07, is still untied.
+- Outcome: the lift lands short, as [the partnering table](../../../research/dance/lifts.md#outcomes) allows for a late read.
+- Reaction: Mara braces under Jun's weight; Jun lands off balance; Jun's sleeve tears at the seam.
+- Start: about 12 s into the section, provisional.
+- Space: the pair drifts from center stage toward the downstage wing.
+- Camera: slow push in from the standing two-shot.
 ```
 
-Music names its usage: `BI` background instrumental, `BV` background vocal, `VI` visual instrumental and `VV` visual vocal, a source the picture shows. A layer with nothing in it says `none`, because silence is a decision.
-
-Breakdown and beat records are notation, like scene headings: expression review does not judge them as prose, and the expression pass rewrites the blocks around them and keeps their decisions.
+Music names its usage where it is stated: `BI` background instrumental, `BV` background vocal, `VI` visual instrumental and `VV` visual vocal, a source the picture shows.

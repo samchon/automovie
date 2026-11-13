@@ -5,7 +5,6 @@ export * from "./claims";
 export * from "./collectProductionClaims";
 export * from "./constructionStage";
 export * from "./createGraphConfig";
-export * from "./hasNaturalness";
 export * from "./isCanonLayer";
 export * from "./metadataRewrite";
 export * from "./productionLayers";

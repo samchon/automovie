@@ -21,7 +21,7 @@ Execution:
 
 Staging:
 
-13. At the opening and each change of place, the scene establishes:
+13. At its opening, the scene establishes:
     - the used area, and interior or exterior;
     - story day and time;
     - light sources and color;

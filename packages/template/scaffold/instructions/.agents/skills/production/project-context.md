@@ -8,7 +8,7 @@ Record only what this project needs; an instance-only request needs no story, an
 
 | Topic | Record when relevant |
 | --- | --- |
-| Overview | What is made, in a sentence or two, linking the canon record that owns the audience and the intended experience |
+| Overview | What is made, in a sentence or two, with its audience and intended experience, or on long work a link to the settings record that owns them |
 | Commissioned scope | The [commissioned output](SKILL.md#commissioned-outputs) and its boundary, with any authorized slice, deferred work and exclusions |
 | Representation | That people are polygon men and other subjects coarse forms, and which delivery, if any, selects which [detail option](../development/entities.md#detail) |
 | Delivery profile | For each delivered video: dimensions, frame rate, running time, container and codec, color and caption tracks, and, only for a [commissioned soundtrack](../audio/SKILL.md#commissioned-soundtrack), audio tracks, the loudness target and any stems or music-and-effects mix it requires |
@@ -20,7 +20,7 @@ Record only what this project needs; an instance-only request needs no story, an
 
 The recorded scope selects the skills and the acceptance boundary. An adopted user decision is fixed within its scope; routine delegated decisions are made and recorded without another permission round, and a proposal or inference is not an adopted choice. When the user changes direction, update this file and the affected owners together, keeping closed narrative work under [upstream repair](../story/correction/repair.md).
 
-The delivery profile has this one owner. A brief or settings scope record states running time and frame as the story conditions they are and must agree with it, and each film module realizes it. When the three disagree, correct the profile from the user's commission first and the other two from the profile, because each check otherwise passes against its own copy.
+The delivery profile has this one owner. Each film module realizes it, and on long work the settings scope record states running time and frame as the story conditions they are and must agree with it. When they disagree, correct the profile from the user's commission first and the others from the profile, because each check otherwise passes against its own copy.
 
 Keep every other fact with its owner and link to it: creative instructions in `docs/instructions`, canon and text in their layers, findings and reviews in their records, and setup and secrets under [source layout](../development/source-layout.md). A recorded preference proves no execution or approval.
 

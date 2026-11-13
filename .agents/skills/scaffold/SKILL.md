@@ -27,7 +27,7 @@ The [product contract](../project/SKILL.md#commissions) defines the commissions 
 
 Keep the separately commissioned outputs distinct: a screenplay, a whole motion hint, a finished direct 3D film and a finished post-diffusion film. Direct 3D needs no diffusion, and a motion hint needs no finished diffusion film.
 
-Long-form work keeps its four story layers, settings → treatments → scripts → screenplay, with construction, expression revision, evidence, current independent review and whole-work completion, and asset-only work has no narrative. Compact items within those responsibilities rather than removing the architecture.
+Long-form work keeps its four story layers, settings → treatments → scripts → screenplay, with construction, evidence, current independent review and whole-work completion, and asset-only work has no narrative. Compact items within those responsibilities rather than removing the architecture.
 
 Default lint and evidence configurations serve ordinary TypeScript development; narrative work opts into its additional workflow while retaining engineering checks.
 
@@ -61,6 +61,6 @@ Runtime README and `.env.example` own nonsecret operational setup and variable n
 
 ## Updating productions
 
-Package upgrades and scaffold edits reach only new installations. An authorized update to an existing production is a deliberate project change: compare the scaffold with the actual local files, preserve project choices and custom contracts, align changed addresses, selected respondents and consumers together, and follow that production's repair rules for affected answers and reviews. Do not infer renewed approval from new wording or overwrite a repaired body with an old working edition.
+Package upgrades and scaffold edits reach only new installations. An authorized update to an existing production is a deliberate project change: compare the scaffold with the actual local files, preserve project choices and custom contracts, align changed addresses, selected respondents and consumers together, and follow that production's repair rules for affected answers and reviews. Do not infer renewed approval from new wording or overwrite a repaired body with an old edition.
 
 For changed installation behavior, observe a generated project's installed entry point and its `lint`, `evidence`, and `test` commands.

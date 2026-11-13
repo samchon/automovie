@@ -10,7 +10,7 @@ Each answer states what the code actually does and claims no behavior, measureme
 | --- | --- |
 | Entity | The settings or brief fact it realizes, and the study its measurements follow |
 | Behavior | The study it follows |
-| Scene | The screenplay beat it realizes |
+| Scene | The screenplay scene file it realizes, or the sections and beats of it |
 
 Check each answer against its item's [statements](../contracts/SKILL.md#items-and-statements). A passing graph shows only that answers exist.
 

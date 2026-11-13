@@ -4,9 +4,9 @@ import path from "node:path";
 
 import type { IProductionConfigProps } from "../../IProductionConfigProps";
 import { createSharedReference } from "../references/createSharedReference";
+import { BODY_ROOT } from "../utilities/BODY_ROOT";
 import { createContractDirectory } from "../utilities/createContractDirectory";
 import { createUnitFiles } from "../utilities/createUnitFiles";
-import { passRoot } from "../utilities/passRoot";
 import { validateSettingsOutline } from "../validateSettingsOutline";
 
 /**
@@ -56,18 +56,18 @@ export function createOutlineClaims(
     throw new Error("Settings outline contracts must be installed as a pair.");
 
   if (principle === false) {
-    if (!fs.existsSync(path.join(props.location, passRoot("draft"), outline)))
+    if (!fs.existsSync(path.join(props.location, BODY_ROOT, outline)))
       return [];
     return [
       {
         name: "each settings file belongs to exactly one part of the outline",
         type: "markdown",
-        root: passRoot("draft"),
+        root: BODY_ROOT,
         files: createUnitFiles("settings", props.narrativeScope),
         symbol: "file",
         reference: {
           type: "markdown",
-          root: passRoot("draft"),
+          root: BODY_ROOT,
           files: [outline],
           symbol: "h2",
           singleEvidencePerSymbol: true,
@@ -89,7 +89,7 @@ export function createOutlineClaims(
     {
       name: "settings outline parts answer their own principle checklist",
       type: "markdown",
-      root: passRoot("draft"),
+      root: BODY_ROOT,
       files: [outline],
       symbol: "h2",
       disabled: outlineDisabled,
@@ -103,7 +103,7 @@ export function createOutlineClaims(
     {
       name: "settings outline answers each arrangement obligation once",
       type: "markdown",
-      root: passRoot("draft"),
+      root: BODY_ROOT,
       files: [outline],
       symbol: "file",
       disabled: outlineDisabled,
@@ -120,13 +120,13 @@ export function createOutlineClaims(
     {
       name: "each settings file corresponds to exactly one outline entry",
       type: "markdown",
-      root: passRoot("draft"),
+      root: BODY_ROOT,
       files: createUnitFiles("settings", props.narrativeScope),
       symbol: "file",
       disabled,
       reference: {
         type: "markdown",
-        root: passRoot("draft"),
+        root: BODY_ROOT,
         files: [outline],
         symbol: "h3",
         singleEvidencePerSymbol: true,

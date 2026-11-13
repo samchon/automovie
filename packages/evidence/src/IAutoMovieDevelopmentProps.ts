@@ -6,8 +6,9 @@
  * their doc comments: entities in `src/entities/` answer `entities.md`, laws,
  * interactions and consequences in `src/laws/`, `src/interactions/` and
  * `src/consequences/` answer `behaviors.md` and cite the research they follow,
- * and scenes and films in `src/composition/` answer `composition.md` and cite
- * the screenplay scenes, beats and files they realize. An omitted stage stays
+ * and scenes and films in `src/composition/` answer `composition.md`, scenes
+ * citing the screenplay scene file or the sections and beats of it they
+ * realize and films citing the scene files they order. An omitted stage stays
  * `"disabled"`, so ordinary coding and narrative-only work owe none of them.
  *
  * @evidence contracts/development/design.md#principled-representation One stage per contract mirrors the scaffold's development contracts, so a commission enables exactly the duties its code can establish.
@@ -31,10 +32,10 @@ export interface IAutoMovieDevelopmentProps {
 
   /**
    * Functions and methods under `src/composition/scenes/` answer
-   * `contracts/development/composition.md` and cite screenplay scenes and
-   * beats, every one of which must be cited; those under
-   * `src/composition/films/` answer it and cite the screenplay file they
-   * deliver, every one of which must be cited.
+   * `contracts/development/composition.md` and cite a screenplay scene file
+   * or its sections and beats, every section and beat of which must be cited;
+   * those under `src/composition/films/` answer it and cite the scene files
+   * they order, every one of which must belong to a film.
    */
   composition?: "disabled" | "evidence";
 }

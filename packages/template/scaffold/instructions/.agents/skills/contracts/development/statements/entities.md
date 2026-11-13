@@ -11,11 +11,11 @@ Contract: [entities.md](../entities.md).
 5. Each parameter of a research law, an installed action or an installed archetype, such as stature, proficiency, style or a seat's height, derives from a cited fact and stays within the range its owner gives.
 6. Each measurement names its study and section. Exception: a measurement an installed package supplies with its own source.
 7. Placements, weights, texture coordinates and measurements derive from the subject's generating definition, so changing the detail option moves none of them.
-8. A decision the settings or brief do not establish is written there first, and a measurement no research supports is [studied](../../../story/planning/research.md#when-to-study) first. Exception: when [no narrative pass runs](../../../story/workflow.md#who-writes-the-screenplay), such a decision is recorded in the screenplay, or for a fixed screenplay in the instructions.
+8. A decision the settings or brief do not establish is written there first, and a measurement no research supports is [studied](../../../story/planning/research.md#when-to-study) first. Exceptions: on a short, a decision the [brief leaves to the screenplay](../../../story/layers/brief.md#what-it-holds) is cited from the screenplay; when [no narrative pass runs](../../../story/workflow/SKILL.md#who-writes-the-screenplay), such a decision is recorded in the screenplay, or for a fixed screenplay in the instructions.
 
 ## Object shape {#object-shape}
 
-1. The entity is a class with `readonly` fields, constructed only from its settings or brief facts and immutable configuration.
+1. The entity is a class with `readonly` fields, constructed only from its cited facts and immutable configuration.
 2. It is composed of small fragments rather than inherited.
 3. It imports no other entity.
 4. Each capability returns an immutable intent record and never a pose, coordinate, offset or time.

@@ -9,19 +9,19 @@ Contract: [principles/review.md](../../principles/review.md).
 3. Every finding identifies its passage, violated obligation and failure condition, recipient loss, and earliest repair owner.
 4. Each finding the author declined is recorded with the author's reason and the reviewer's rebuttal or withdrawal.
 5. Upstream knowledge fills no gap the recipient experienced, and author confidence, repair cost, previous verdicts and taste dismiss no loss.
-6. Named failures were classified under the [selected decision rule](../../naturalness/common.md#reads-as-written) before author defenses, and the independent classifier resolved ambiguity in context.
+6. On long work, where the selected contracts name failures, as the scripts' [decision rule](../../naturalness/common.md#reads-as-written) does, they were classified before author defenses, and the independent classifier resolved ambiguity in context.
 7. A named failure is protected only under a proven contractual exception. Other candidates use the [retention test](../../../../../story/evidence/answer-writing.md#grounds-for-retaining-a-candidate).
 8. Fragile achievements are recorded with quotations and functions, or the record states that none were identified. Their function is protected, not a defective sentence.
 9. The review gives repair directions, not prose for adoption. Counterfactual sentences belong only to the retention comparison.
 10. The applicable question's defined scope is judged: examples may permit another proven loss, and a named-failure boundary is not expanded by taste.
-11. Revised passages and unchanged classifications were handled under [inspection](../../../../../story/correction/inspection.md#verify-changed-work).
+11. On long work, revised passages and unchanged classifications were handled under [inspection](../../../../../story/correction/inspection.md#verify-changed-work).
 
 ## Class audit {#literal-and-class-audit}
 
 1. Each finding class records its inspected scope, a reproducible search or comparison, every discovered member and affected relation, and the earliest owner.
 2. It references other review units where they inspected a member, and a genuinely isolated finding states its reason.
 3. Quotations and locators match the inspected revision.
-4. The [inspection record](../../../../../story/correction/inspection.md) covered every required sentence and parent comparison at the actual snapshot, before author evidence.
-5. The inspection record rechecked all changed dependencies without silently reversing unchanged tests.
+4. On long work, the [inspection record](../../../../../story/correction/inspection.md) covered every required sentence and parent comparison at the actual snapshot, before author evidence.
+5. On long work, the inspection record rechecked all changed dependencies without silently reversing unchanged tests.
 6. The body was compared with its parents and requirements, following [independent reading](../../../../../review/independent-reading.md), every decision against its inherited parent.
 7. Similar wording prompts inspection, not automatic failure.

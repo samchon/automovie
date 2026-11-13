@@ -4,7 +4,7 @@ Each exported declaration under `src/entities/` answers these items in its doc c
 
 An entity is one cast member, crowd, prop, set, camera or light.
 
-Its [settings realization](#settings-realization) answer names each settings or brief fact it realizes as `docs/body/settings/<domain>/<subject>.md#<fact>` or `docs/body/brief/<domain>/<subject>.md#<fact>` with how it is realized, and each measurement's study as `docs/research/<discipline>/<topic>.md` with the section it uses. When [no narrative pass runs](../../story/workflow.md#who-writes-the-screenplay), it names the screenplay or instruction section instead of a settings or brief fact, and cites each instruction section it realizes as `@evidence docs/instructions/<topic>.md#<anchor> <how>`.
+Its [settings realization](#settings-realization) answer names each settings or brief fact it realizes as `docs/body/settings/<domain>/<subject>.md#<fact>` or `docs/body/brief/<domain>/<subject>.md#<fact>` with how it is realized, and each measurement's study as `docs/research/<discipline>/<topic>.md` with the section it uses. When [no narrative pass runs](../../story/workflow/SKILL.md#who-writes-the-screenplay), it names the screenplay or instruction section instead of a settings or brief fact, and cites each instruction section it realizes as `@evidence docs/instructions/<topic>.md#<anchor> <how>`.
 
 Statements: [statements/entities.md](statements/entities.md).
 

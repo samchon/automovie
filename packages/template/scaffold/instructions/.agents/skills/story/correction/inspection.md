@@ -1,6 +1,10 @@
 # Inspection
 
-Author inspection, evidence correction and independent review share this method. The selected contracts own the failure conditions and exceptions; the table only records their application.
+On long work, author inspection, evidence correction and independent review share this method. The selected contracts own the failure conditions and exceptions; the table only records their application.
+
+## Short route {#short-route}
+
+On the short route the author's own inspection is one complete reading of the brief and the screenplay against every contract its evidence step will select for them, recording each failure it finds with its passage, with no independent classification table. The independent review that closes the pass reads afresh, so a second classifier before it would add a round, not a judgment.
 
 ## Isolated context
 
@@ -8,9 +12,9 @@ Launch the author's model through an available subagent or separate-session tool
 
 ## Independent classification
 
-Give the classifier the current body and needed neighbors, the selected contracts and the actual parents or frozen original, and nothing of the author's explanations, evidence or earlier verdicts.
+Give the classifier the current body and needed neighbors, the selected contracts and the actual parents, and nothing of the author's explanations, evidence or earlier verdicts.
 
-For scripts and screenplay, classify every sentence against every applicable named failure. For narrative construction, also pair each paragraph with its parent passages, or the brief for a short, to test [parent differentiation](../../contracts/story/shared/principles/narratives.md#parent-differentiation), and compare inherited names, address, quantities, dates, places, states and certainty with the parents. A parent's agreement with its own sources was [checked when it was written](../planning/research.md#sources) and is not reopened here.
+For scripts, and for the screenplay where a contract of the production's own `docs/contracts/language` or `docs/contracts/work` names failures, classify every sentence against every named failure those contracts list. For narrative construction, also pair each paragraph with its parent passages to test [parent differentiation](../../contracts/story/shared/principles/narratives.md#parent-differentiation), and compare inherited names, address, quantities, dates, places, states and certainty with the parents. A parent's agreement with its own sources was [checked when it was written](../planning/research.md#sources) and is not reopened here.
 
 Record the revision and covered ranges, list the tested failures once, and give one row per sentence with its locator and the names of the failures found, or `-`, noting any other loss the recipient would suffer there.
 
@@ -26,4 +30,4 @@ Classify each changed sentence, its neighbors and every statement whose meaning 
 
 The cycle is complete when coverage is complete and no unprotected yes remains after the affected rows are rechecked.
 
-Read the changed passages together for a new common pattern or fidelity loss under [cause rounds](repair.md#cause-rounds). A clean table is neither independent approval nor whole-work completion; independent review closes the pass under [narrative rounds](../../review/narrative-rounds.md).
+Read the changed passages together for a new common pattern or fidelity loss under [cause rounds](repair.md#cause-rounds). A clean table is neither independent approval nor whole-work completion; independent review closes the pass under its [route](../workflow/long.md#each-layers-pass).

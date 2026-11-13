@@ -6,7 +6,7 @@ Statements: [statements/obligations/narratives.md](../statements/obligations/nar
 
 ## Are progression, state, and long pursuits continuous? {#continuity-and-progression}
 
-Followed across every unit and boundary, do events, states and pursuits continue or change for a reason? Local passes cannot show an unsupported reversal or a pursuit that silently stops.
+Followed across every unit and boundary, do events, states and pursuits continue or change for a reason? Local passes cannot show an unsupported reversal, a pursuit that silently stops or an opposition that stops threatening, which collapses the tension.
 
 ## Are promises, rhythm, and variation realized across the whole? {#promises-and-distribution}
 

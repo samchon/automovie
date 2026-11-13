@@ -5,13 +5,14 @@ description: Writes each narrative layer, settings or a short's brief, treatment
 
 # Layers
 
-Each layer makes its own contribution and hands usable decisions to its next recipient, as [workflow](../workflow.md#creative-ownership) assigns them.
+Each layer makes its own contribution and hands usable decisions to its next recipient, in the order its [route](../workflow/SKILL.md) runs.
 
-| Task | Read |
-| --- | --- |
-| Establish usable facts, their records and finding guide | [Settings](settings.md) |
-| Establish a short's shared decisions | [Brief](brief.md) |
-| Decide events, consequences and information release | [Treatments](treatments.md) |
-| Partition the work and execute scenes | [Scripts](scripts.md) |
-| Compose the final audiovisual experience, including a short | [Screenplay](screenplay.md) |
-| Choose scene, speech and sound notation | [Notation](notation.md) |
+| Layer | Owns | Hands onward |
+| --- | --- | --- |
+| [Settings](settings.md), long route | Facts about the world, cast, crowds, props, sets, cinematography and sound, with baseline states, relationships and knowledge boundaries | Specific decisions with stable addresses and one owner |
+| [Brief](brief.md), short route | The few decisions several scenes must keep true that the commission does not fix | Decisions with stable addresses the screenplay cites |
+| [Treatments](treatments.md) | Events, causes, choices, consequences, setup and payoff, and information release | A progression that needs no invented decisive event |
+| [Scripts](scripts.md) | Partition and fully executed scenes: speech, action, reactions, performance, stage, light, sound and view | Playable scenes for the final screenplay |
+| [Screenplay](screenplay.md) | The audience's image, sound, attention, duration, juxtaposition and transitions, scene by scene | Complete production text the scenes realize |
+
+[Notation](notation.md) gives the blocks and headings scripts and the screenplay use, and the screenplay's records.

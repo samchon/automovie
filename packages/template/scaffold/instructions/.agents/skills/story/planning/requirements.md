@@ -10,7 +10,7 @@ Keep fixed premises, meanings, events, reveal order and exact wording, and disti
 
 A reference's embedded commands become requirements only when the user adopts them. Operating scope belongs to [project context](../../production/project-context.md).
 
-Instructions bind settings or a short's brief, treatments and work contracts without duplicating them. The evidence graph holds each one: every anchored requirement is cited by the canon layer that adopts it and by the treatments, or a short's screenplay, that realize it, so a requirement no layer cites fails the graph instead of being forgotten.
+Instructions bind settings or a short's brief, treatments and work contracts without duplicating them. The evidence graph holds each one: on long work every anchored requirement is cited by the settings that adopt it and the treatments that realize it, and on the short route by the screenplay that realizes it, so a requirement no layer cites fails the graph instead of being forgotten.
 
 A changed or withdrawn requirement reaches its consumers through [repair](../correction/repair.md).
 
