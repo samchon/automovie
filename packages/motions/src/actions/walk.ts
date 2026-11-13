@@ -22,6 +22,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import { stand } from "./stand";
 import { standUpright } from "./standUpright";
+import { walkClear } from "./walkClear";
 import { walkDescent } from "./walkDescent";
 import { walkFoot } from "./walkFoot";
 import { walkLeg } from "./walkLeg";
@@ -228,6 +229,7 @@ export namespace walk {
     HumanBound.within("stride", stride, 0.6, 1.3);
     HumanBound.within("armSwing", arms, 0, 2);
     HumanBound.within("elbows", elbows, 0, 30, "degrees");
+    walkClear(context);
     const longest: number = stride * l * gait.step(froude);
     const steps: walkSteps.IPlan = walkSteps.plan({
       body,
@@ -304,9 +306,7 @@ export namespace walk {
         stiff: gait.stiff === side,
       });
     };
-    // The lowering a swinging leg asks of the pelvis at a share of its swing
-    // for the ankle the schedule swings there, read from the schedule alone
-    // so that it needs no settled pelvis and every instant settles the same.
+    // The lowering a swinging leg asks of the pelvis at a share of its swing for the ankle the schedule swings there, read from the schedule alone so that it needs no settled pelvis and every instant settles the same.
     const reaching = (
       side: "left" | "right",
       swing: { off: number; on: number },

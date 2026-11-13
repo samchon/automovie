@@ -12,12 +12,12 @@ import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanProp } from "../perform/IHumanProp";
-import { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanMountRider } from "./HumanMountRider";
 
 /**
  * Riding: a seated person carried by a support that moves by itself, such
@@ -40,7 +40,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * First pass: the rider
  * leans exactly as the support does and absorbs no bump, a pedalling foot
  * keeps its pitch to the frame except where the leg would run short and it
- * points down about its ball (`KNEE`, `ANKLING`), and mounting and dismounting are the
+ * points down about its ball (`HumanMountRider`), and mounting and dismounting are the
  * sitting actions. The ride passes on the seat it was entered on as its
  * base, so `rise` after it gets off a saddle to the left unasked.
  *
@@ -105,12 +105,6 @@ export namespace HumanRide {
 
   /** How far a rising trot lifts the seat off the saddle, thigh lengths (provisional: no rider kinematics were read). */
   export const POST: number = 0.25;
-
-  /** The knee flexion a pedalling leg keeps at the bottom of the stroke, degrees: the low end of the 25 to 35 a saddle is set for (Bini, Hume and Croft 2011, Sports Med 41:463, as the bicycle archetype cites it; not re-read here, so provisional). */
-  export const KNEE: number = 25;
-
-  /** The furthest a pedalling foot points down from the pitch it mounted with, degrees (provisional, inside the ankle's 50 of plantar flexion). */
-  export const ANKLING: number = 35;
 
   /** Ride a moving support, seated on it. */
   export const ride: IHumanActionLaw<IParams> = {
@@ -246,60 +240,7 @@ export namespace HumanRide {
         )?.point;
         if (began !== undefined) pedals.push({ side, id, began });
       }
-
-      // A foot goal turned toes-down about its contact until its ankle is within the leg's reach of a hip, no further than `ANKLING`.
-      const reach: number =
-        (context.body.measure.thigh + context.body.measure.shank) *
-        Math.cos((KNEE * Math.PI) / 360);
-      const ankled = (
-        side: "left" | "right",
-        goal: IHumanPosture.IGoal,
-        hip: IAutoMovieVector3,
-      ): IHumanPosture.IGoal => {
-        const rotation: IAutoMovieQuaternion | undefined = goal.rotation;
-        if (rotation === undefined) return goal;
-
-        // A foot on a pedal bears on its ball, whether or not its goal says what it turns about.
-        const contact: IAutoMovieVector3 =
-          goal.contact ?? HumanFoot.offset(context.body, side, "ball");
-        const ball: IAutoMovieVector3 = Vector3.add(
-          goal.point,
-          Quaternion.rotateVector(rotation, contact),
-        );
-        const across: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
-          x: 1,
-          y: 0,
-          z: 0,
-        });
-        const turnedBy = (degrees: number): IHumanPosture.IGoal => {
-          const pitched: IAutoMovieQuaternion = Quaternion.multiply(
-            Quaternion.fromAxisAngle(across, degrees),
-            rotation,
-          );
-          return {
-            ...goal,
-            contact,
-            rotation: pitched,
-            point: Vector3.subtract(
-              ball,
-              Quaternion.rotateVector(pitched, contact),
-            ),
-          };
-        };
-        const far = (degrees: number): number =>
-          Vector3.length(Vector3.subtract(turnedBy(degrees).point, hip));
-        if (far(0) <= reach) return goal;
-        const sign: number = far(1) < far(-1) ? 1 : -1;
-        if (far(sign * ANKLING) > reach) return turnedBy(sign * ANKLING);
-        let low: number = 0;
-        let high: number = ANKLING;
-        for (let i: number = 0; i < 24; ++i) {
-          const middle: number = (low + high) / 2;
-          if (far(sign * middle) > reach) low = middle;
-          else high = middle;
-        }
-        return turnedBy(sign * high);
-      };
+      const grips: Partial<Record<"left" | "right", IAutoMovieVector3>> = {};
       for (const side of ["left", "right"] as const) {
         const id: string | undefined = context.params.hands?.[side];
         if (id !== undefined && support.prop.points[id] === undefined)
@@ -314,7 +255,18 @@ export namespace HumanRide {
             reason: `${on} has no point ${id} for the ${side} hand`,
             fix: "name one of the support's points",
           });
+        if (id !== undefined)
+          grips[side] = Vector3.add(
+            origin.position,
+            Quaternion.rotateVector(
+              origin.rotation,
+              support.prop.points[id]!.point,
+            ),
+          );
       }
+
+      // A rider whose arms do not reach what the hands hold leans the trunk forward until they do, as a cyclist does to the bar.
+      const lean: number = HumanMountRider.lean(context.body, seated, grips);
       const saddle: string | undefined = context.params.seat;
       if (saddle !== undefined && support.prop.points[saddle] === undefined)
         throw new HumanRefusal({
@@ -418,7 +370,10 @@ export namespace HumanRide {
               ? { x: 0, y: 0, z: 0 }
               : strayed(saddle, sat, film, now);
           const out: IHumanPosture = {
-            ...carried,
+            ...HumanMountRider.leant(
+              carried,
+              lean * minimumJerk(Math.min(1, at / TAKE)).s,
+            ),
             limbs,
             root: {
               x: carried.root.x + seat.x + up.x * lift,
@@ -488,10 +443,12 @@ export namespace HumanRide {
             const goal: IHumanPosture.IGoal | undefined =
               limbs[`${pedal.side}Leg`];
             if (goal !== undefined)
-              limbs[`${pedal.side}Leg`] = ankled(
+              limbs[`${pedal.side}Leg`] = HumanMountRider.ankled(
+                context.body,
                 pedal.side,
                 goal,
                 hips[pedal.side],
+                resolveHumanPosture.heading(out),
               );
           }
           return out;
