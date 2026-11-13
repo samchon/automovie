@@ -204,7 +204,14 @@ export namespace FamilyConicFit {
     // tangent lines meet behind its end, a phase that does not advance). Checked every `DENSE_MM` from the first knot to the last.
     const dense: number[][] = [];
     for (let s: number = knots[0]!; s <= knots[M - 1]! + 1e-9; s += DENSE_MM) dense.push(basis(Math.min(s, knots[M - 1]!)));
-    const admissible = (values: number[][]): boolean => dense.every((b: number[]): boolean => C.chain(theta(values, b), layout).fault === null);
+    // The family is stored as rounded text (`FamilyConicBody`: millimetres to 0.01, shares and angles to 1e-4) and realized from it, so a
+    // candidate must be admissible as stored as well: on the hand's end a feature's heading within 5e-5 of its neighbour extreme's axis
+    // rounded to exactly parallel, the median between them fell on its chord and the engine refused the stored wall (`a` of 0 at 448 mm).
+    const stored = (values: number[][]): number[][] => values.map((field: number[], f: number): number[] => field.map((y: number): number => (units[f] === "mm" ? Math.round(y * 100) / 100 : Math.round(y * 1e4) / 1e4)));
+    const admissible = (values: number[][]): boolean => {
+      const rounded: number[][] = stored(values);
+      return dense.every((b: number[]): boolean => C.chain(theta(values, b), layout).fault === null && C.chain(theta(rounded, b), layout).fault === null);
+    };
     // `--barrier`: an interior-point term over the same stations (Nocedal and Wright, ch. 19). The margins of a chain are what its
     // admissibility asks to be positive: every arc's two tangent-meeting distances (`AutoMovieViewChain`'s `a` and `b`, mm) and every
     // step of its points' phase round the course, radians, with the turn's remainder. `-mu sum log(margin)` is added at every station, so
