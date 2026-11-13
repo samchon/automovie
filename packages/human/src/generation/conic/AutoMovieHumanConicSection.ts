@@ -23,6 +23,13 @@ import { AutoMovieViewChain } from "@automovie/engine";
  *   An S-shaped stretch crosses its own chord once, at the inflection, so
  *   the point is `P0 + t (P2 - P0)` and its tangent is the chord's direction
  *   turned by `d`. Its numbers are `t` and `d`.
+ * - `f`: a point on one of the part's feature lines (a tip's ridge, a wing's
+ *   top, a groove's floor or the inflection beside it), its tangent free. Each
+ *   number is a field along the stations like every other, so the feature line
+ *   is a smooth longitudinal control curve, the way an aircraft's lines are
+ *   drawn, and a feature that fades away leaves its anchor on a smooth stretch.
+ *   Its numbers are its `u`, its `v` and its tangent's heading in the chart,
+ *   radians from `+u` toward `+v`.
  *
  * After the anchors come the shoulders, one per arc between consecutive
  * anchors: the conic shoulder `rho = |M S| / |M A|` of the engine's native
@@ -41,7 +48,7 @@ export namespace AutoMovieHumanConicSection {
   /** One anchor of a layout. */
   export interface IAnchor {
     /** The tangent rule, as the namespace describes. */
-    kind: "u" | "v" | "m" | "i";
+    kind: "u" | "v" | "m" | "i" | "f";
 
     /** A `u` anchor on the median line `v = 0`. */
     mid?: boolean;
@@ -52,7 +59,10 @@ export namespace AutoMovieHumanConicSection {
     /** Nesting level of an `m` or `i` anchor, 1 when absent: its neighbours are the nearest anchors of a lower level. */
     level?: number;
 
-    /** Phase window in radians where an observation of this `u` or `v` anchor is sought; generation does not read it. */
+    /** The feature line an `f` anchor stands on, for its seed and its record; generation does not read it. */
+    feature?: "convex" | "concave" | "inflection";
+
+    /** Phase window in radians where an observation of this `u`, `v` or `f` anchor is sought; generation does not read it. */
     window?: [number, number];
 
     /** Whether an observation takes the window's largest or smallest coordinate; generation does not read it. */
@@ -152,6 +162,7 @@ export namespace AutoMovieHumanConicSection {
     for (const anchor of layout.anchors) {
       if (anchor.kind === "m") out.push("share");
       else if (anchor.kind === "i") out.push("share", "angle");
+      else if (anchor.kind === "f") out.push("mm", "mm", "angle");
       else if (anchor.mid === true) out.push("mm");
       else out.push("mm", "mm");
     }
@@ -166,7 +177,7 @@ export namespace AutoMovieHumanConicSection {
     let cursor: number = 0;
     for (const anchor of layout.anchors) {
       at.push(cursor);
-      cursor += anchor.kind === "m" || anchor.mid === true ? 1 : 2;
+      cursor += anchor.kind === "m" || anchor.mid === true ? 1 : anchor.kind === "f" ? 3 : 2;
     }
     return { at, shoulders: cursor };
   }
@@ -209,8 +220,13 @@ export namespace AutoMovieHumanConicSection {
     const tangents: (P | null)[] = new Array<P | null>(K).fill(null);
     const { at, shoulders }: { at: number[]; shoulders: number } = offsets(layout);
 
-    // Extremes first: their tangents follow the counter-clockwise travel of the chain.
+    // Extremes and feature points first: an extreme's tangent follows the counter-clockwise travel of the chain, a feature's is its own.
     layout.anchors.forEach((anchor: IAnchor, k: number): void => {
+      if (anchor.kind === "f") {
+        points[k] = [values[at[k]!]!, values[at[k]! + 1]!];
+        tangents[k] = [Math.cos(values[at[k]! + 2]!), Math.sin(values[at[k]! + 2]!)];
+        return;
+      }
       if (anchor.kind !== "u" && anchor.kind !== "v") return;
       const p: P = anchor.mid === true ? [values[at[k]!]!, 0] : [values[at[k]!]!, values[at[k]! + 1]!];
       points[k] = p;
