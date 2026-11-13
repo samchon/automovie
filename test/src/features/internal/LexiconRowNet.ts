@@ -98,6 +98,8 @@ export namespace LexiconRowNet {
     kickRight: ball,
     kickLeft: ball,
     leap: { to: { x: 0, y: 0, z: 0.6 } },
+    // Onto an imagined box 0.4 m high, with an apex above the climb.
+    boxJump: { to: { x: 0, y: 0.4, z: 0.6 }, apex: 0.55 },
     dash: { to: { x: 0, y: 0, z: 4 } },
     strides: ahead,
     frontSalto: { to: { x: 0, y: 0, z: 0.8 } },

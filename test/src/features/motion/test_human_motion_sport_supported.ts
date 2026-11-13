@@ -16,6 +16,7 @@ import {
   type HumanSegment,
   HumanSignature,
   HumanSportGym,
+  HumanSportThrow,
   HumanSportWorkout,
   type IHumanBody,
 } from "@automovie/motions";
@@ -58,12 +59,16 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 6. Decline push-up `on` the same: at `top1` the toes' joints are 0 to
  *    0.06 m above the bench's top and the wrists 0 to 0.08 m above the
  *    floor.
+ * 7. Box jump onto the box from a walk's end 0.75 m before it, with an
+ *    apex of 0.7 m: at `settled` each ankle is 0 to 0.15 m above the box's
+ *    top and within 0.3 m of its middle on the floor plan (the top is
+ *    0.51 to 0.76 m square).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds a performance through the public chain with real archetypes as props and reads displayed joints against the props' own affordances; a body that ignores the prop and bears where the body's own measure would put it fails with the distance.
  * @evidence contracts/development/testing.md#independent-expectations The places are the archetypes' affordances carried by the props' placements; the bound is the campaign's and one stated estimate; nothing is read from the law.
  * @evidence contracts/development/testing.md#distinguishing-cases A lying support, a hanging one and a pressed one, each off the performer's own place so a height computed from the body cannot pass, on two bodies of opposite build.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men, four archetypes and one film each; it runs locally and wherever CI runs the human motion tests.
- * @evidence contracts/development/common.md#meaningful-documentation States what is pinned, the bounds and which is an estimate, and the 6 scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation States what is pinned, the bounds and which is an estimate, and the 7 scenarios.
  */
 export function test_human_motion_sport_supported(): void {
   const bench: ReturnType<typeof createBench> = createBench({});
@@ -102,6 +107,7 @@ export function test_human_motion_sport_supported(): void {
           HumanSportGym.stepUp,
           HumanSportGym.inclinePushUp,
           HumanSportGym.declinePushUp,
+          HumanSportThrow.boxJump,
         ],
         performers: [
           {
@@ -160,6 +166,13 @@ export function test_human_motion_sport_supported(): void {
           .registered("declinePushUp", {
             reps: 1,
             on: { prop: "bench", affordance: "surface" },
+          })
+          .stand({ seconds: 0.3 })
+          .walk({ to: { x: 0, y: 0, z: -0.45 } })
+          .registered("boxJump", {
+            to: { x: 0, y: 0.508, z: -1.2 },
+            on: "box",
+            apex: 0.7,
           }).node,
       });
     } catch (error) {
@@ -289,6 +302,28 @@ export function test_human_motion_sport_supported(): void {
         complaints.push(
           `${name}: ${label} is ${measured.toFixed(3)} m, ${least} to ${most} m expected`,
         );
+
+    // 7. The box jump lands on the box.
+    const landed: number = when("boxJump", "settled");
+    for (const bone of ["leftFoot", "rightFoot"] as const) {
+      const ankle: IAutoMovieVector3 = HumanSignature.joint(
+        reader,
+        landed,
+        bone,
+      );
+      if (!(ankle.y - boxTop >= 0 && ankle.y - boxTop <= 0.15))
+        complaints.push(
+          `${name}: after the box jump the ${bone} is ${(ankle.y - boxTop).toFixed(3)} m above the box's top, 0 to 0.15 m expected`,
+        );
+      const out: number = Math.max(
+        Math.abs(ankle.x - places.box.x),
+        Math.abs(ankle.z - places.box.z),
+      );
+      if (!(out <= 0.3))
+        complaints.push(
+          `${name}: after the box jump the ${bone} is ${out.toFixed(3)} m from the top's middle on the floor plan, 0.3 m at most expected`,
+        );
+    }
 
     for (const [row, event, place] of [
       ["pullUp", "hang1", hung],

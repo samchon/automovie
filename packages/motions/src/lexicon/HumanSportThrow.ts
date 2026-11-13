@@ -64,6 +64,9 @@ export namespace HumanSportThrow {
   /** A rebound, a block, a long jump or a hurdle clearance: a jump to the place the composition gives. The run-up is a run before it; a hurdle's trail leg and a high jump's arch are not planned. */
   export const leap = HumanActionRow.of("leap", jump, {});
 
+  /** A box jump: a jump onto a box, landing on its top. The composition gives `to` as the top's place with its height as `y`, `on` as the box's prop, and an `apex` above the climb. */
+  export const boxJump = HumanActionRow.of("boxJump", jump, {});
+
   /** A forward salto to the place the composition gives: one turn in the flight, the body not tucked. */
   export const frontSalto = HumanActionRow.of("frontSalto", salto, {
     way: "forward",
