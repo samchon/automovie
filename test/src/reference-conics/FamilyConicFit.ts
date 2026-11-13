@@ -512,6 +512,30 @@ export namespace FamilyConicFit {
       return failed("the projected seed is not an admissible conic chain on every fitting section");
     }
 
+    // `--seeds`: the start's smallest admissibility margins over each 100 mm of course, named by the margin and arc they belong to.
+    if (process.argv.includes("--seeds")) {
+      const named: Map<number, { value: number; what: string }> = new Map();
+      dense.forEach((b: number[], d: number): void => {
+        const s: number = knots[0]! + d * DENSE_MM;
+        const t: number[] = theta(Y, b);
+        const m: number[] | null = margins(t);
+        const K: number = C.resolve(t, layout).input.points.length;
+        const key: number = Math.floor(s / 100) * 100;
+        const entry = named.get(key) ?? { value: Infinity, what: "" };
+        if (m === null) {
+          entry.value = -Infinity;
+          entry.what = `${s.toFixed(1)}: margins not finite`;
+        } else
+          m.forEach((v: number, j: number): void => {
+            if (v >= entry.value) return;
+            entry.value = v;
+            const name: string = j < K ? `phase step after point ${j} (rad)` : `arc ${Math.floor((j - K) / 2)} tangent meeting ${(j - K) % 2 === 0 ? "a (mm ahead of its start)" : "b (mm behind its end)"}`;
+            entry.what = `${s.toFixed(1)}: ${name} = ${v.toExponential(3)}; meeting ${meeting(t).toFixed(3)} against the margin ${margin}`;
+          });
+        named.set(key, entry);
+      });
+      process.stderr.write("start's smallest margins by stretch: " + [...named.entries()].map(([k, e]): string => `${k}-${k + 100}: ${e.what}`).join(" | ") + "\n");
+    }
     // Levenberg-Marquardt with a finite-difference section Jacobian chained through the linear station basis.
     const steps: number[] = Array.from({ length: F }, (_: unknown, f: number): number => (units[f] === "mm" ? 1e-4 : 1e-6));
     let lambda: number = 1e-3;
@@ -553,7 +577,8 @@ export namespace FamilyConicFit {
       barrierLevels.splice(0, 1, ...Array.from({ length: BARRIER_LEVELS }, (_: unknown, k: number): number => start / 10 ** k), 0);
     }
     const passes: number = power > 2 ? 3 : 1;
-    for (const level of barrierLevels)
+    for (const level of barrierLevels) {
+    const before: number = iterations;
     for (let pass: number = 0; pass < passes; ++pass) {
       if (mu !== level) {
         mu = level;
@@ -670,6 +695,8 @@ export namespace FamilyConicFit {
         }
         if (!accepted || converged) break;
       }
+    }
+    if (process.argv.includes("--seeds")) process.stderr.write(`barrier level ${level.toExponential(3)}: ${iterations - before} steps accepted, cost ${current.total.toExponential(4)}\n`);
     }
 
     }
