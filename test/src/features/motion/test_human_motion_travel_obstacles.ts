@@ -4,6 +4,7 @@ import {
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
+  HumanTravelDoor,
   type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -35,6 +36,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    whose stop at a personal distance lies on his own side of it, is
  *    refused on `path` for the wall between them: nobody walks up to a
  *    person and stops across a wall from them.
+ * 7. `passThrough` of the wall's door from 1.5 m off its line plans: read
+ *    eight times a second, where his pelvis is nearest the wall's line it
+ *    is within 0.25 m of the door's middle (the door is 0.9 m wide and his
+ *    chest about half of it, so further off he would be in the jamb; the
+ *    0.25 m is provisional) and it ends beyond the wall. The same law at
+ *    the bare wall is refused as an `affordance` refusal on `aperture`.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Gives the performance real obstacles through its public input and walks at them through the public chain; a walk through the wall, a door that refuses a walker it fits, or a slot or a hatch that lets him through fails.
  * @evidence contracts/development/testing.md#independent-expectations That a solid stops a walker, and that a door must be as wide as the shoulders and as high as the body, is what a wall and a door are; the walker's breadth and stature are the body's own measures, read from the body and not from the walk.
@@ -211,6 +218,78 @@ export function test_human_motion_travel_obstacles(): void {
   )
     complaints.push(
       `an approach to a person just beyond a wall: expected a reach refusal on path for the wall between them, got ${across instanceof Error ? across.message : String(across)}`,
+    );
+
+  // 7. Through the doorway from off its line, and no doorway to go through.
+  const passing = (obstacle: HumanObstacle.IObstacle): HumanPerformance =>
+    new HumanPerformance({
+      seed: "obstacles",
+      laws: [HumanTravelDoor.passThrough],
+      obstacles: [obstacle],
+      performers: [
+        {
+          subject: "a",
+          body,
+          at: { x: 1.5, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+      ],
+      composition: HumanChain.subject("a").registered("passThrough", {
+        through: "wall",
+      }).node,
+    });
+  try {
+    const through: HumanPerformance = passing(wall({ width: 0.9, height: 2 }));
+    const reader: HumanSignature.IReader = HumanSignature.of(
+      through,
+      "a",
+      body,
+      0,
+    );
+    const end: number = through.segments("a")[0]!.end;
+    const pelvis = (t: number): { x: number; z: number } => {
+      const l: { x: number; z: number } = HumanSignature.joint(
+        reader,
+        t,
+        "leftUpperLeg",
+      );
+      const r: { x: number; z: number } = HumanSignature.joint(
+        reader,
+        t,
+        "rightUpperLeg",
+      );
+      return { x: (l.x + r.x) / 2, z: (l.z + r.z) / 2 };
+    };
+    let crossing: { x: number; z: number } = pelvis(0);
+    for (const t of HumanSignature.times(0, end, 8)) {
+      const at: { x: number; z: number } = pelvis(t);
+      if (Math.abs(at.z - 2) < Math.abs(crossing.z - 2)) crossing = at;
+    }
+    if (Math.abs(crossing.x) > 0.25 || pelvis(end).z < 2.3)
+      complaints.push(
+        `passing through the door from 1.5 m off its line: the pelvis is ${crossing.x.toFixed(3)} m off the door's middle nearest the wall (z ${crossing.z.toFixed(2)} m) and ends at z ${pelvis(end).z.toFixed(3)} m; within 0.25 m and beyond 2.3 m expected`,
+      );
+  } catch (error) {
+    complaints.push(
+      `passing through the door: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+  let doorless: unknown = null;
+  try {
+    passing(wall());
+  } catch (error) {
+    doorless = error;
+  }
+  if (
+    !(
+      doorless instanceof HumanRefusal &&
+      doorless.kind === "affordance" &&
+      doorless.axis === "aperture"
+    )
+  )
+    complaints.push(
+      `passing through a wall with no opening: expected an affordance refusal on aperture, got ${doorless instanceof Error ? doorless.message : String(doorless)}`,
     );
   TestValidator.equals("nobody walks through a wall", complaints, []);
 }
