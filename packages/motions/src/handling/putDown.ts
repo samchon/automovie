@@ -230,6 +230,13 @@ export namespace putDown {
               bend,
               (turn: number): HumanHand.IWrist =>
                 holding(heading(prop.rotation) + turn),
+              undefined,
+              undefined,
+              undefined,
+              undefined,
+              // A turn that puts the wrist beyond the arm, which the reach
+              // below refuses, is tried only when every turn does.
+              pickUp.reaches(context, side),
             ).wrist
           : holding(context.params.yaw);
 

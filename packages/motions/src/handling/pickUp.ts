@@ -201,10 +201,7 @@ export namespace pickUp {
     // only while all its tilts were within reach fell back to every turn when
     // none kept all seven, and a glass across the body was refused a grip
     // 9 mm beyond the arm while others lay within it.
-    const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(
-      body,
-      context.entry.posture,
-    ).get(`${side}UpperArm`)!.worldPosition;
+
     const chosen: HumanGrasp.IReach = HumanGrasp.reachable(
       body,
       held,
@@ -258,9 +255,7 @@ export namespace pickUp {
             measure: (keys: readonly number[]): number =>
               keys[keys.length - 1] ?? 0,
           },
-      (wrist: HumanHand.IWrist): boolean =>
-        Vector3.length(Vector3.subtract(wrist.point, shoulder)) <=
-        body.measure.upperArm + body.measure.forearm + 1e-6,
+      reaches(context, side),
     );
 
     // The use is judged at its own pose. What the grasp pose leaves unmet of
@@ -437,6 +432,39 @@ export namespace pickUp {
             );
       },
     };
+  }
+
+  /**
+   * Whether a wrist goal lies within the straight arm's reach from its
+   * shoulder in the posture the action is entered from: the reach
+   * `reachable` refuses beyond, for a grasp search to admit by
+   * (`HumanGrasp.reachable`'s `admits`), so the search never chooses a wrist
+   * the law then refuses.
+   *
+   * @param context The action's context.
+   * @param side The arm.
+   * @returns Whether a wrist goal is within reach.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the reach, the posture it is read in and who reads it.
+   * @evidence contracts/development/implementation.md#principled-implementation The upper arm and the forearm together, from the shoulder the entry posture places.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One shoulder read and one distance per goal.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tolerance is a micrometre, the one `reachable` refuses by.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The shoulder is resolved once per call, not per goal.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by `reachable` and by the pick-up's and the put-down's grasp searches.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The predicate closes over the shoulder and the reach.
+   */
+  export function reaches(
+    context: IHumanActionContext<object>,
+    side: HumanHand.Side,
+  ): (wrist: HumanHand.IWrist) => boolean {
+    const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(
+      context.body,
+      context.entry.posture,
+    ).get(`${side}UpperArm`)!.worldPosition;
+    const limit: number =
+      context.body.measure.upperArm + context.body.measure.forearm;
+    return (wrist: HumanHand.IWrist): boolean =>
+      Vector3.length(Vector3.subtract(wrist.point, shoulder)) <= limit + 1e-6;
   }
 
   /**
