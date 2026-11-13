@@ -1,5 +1,6 @@
 export * from "./AutoMovieChain";
 export * from "./AutoMovieComposition";
+export * from "./AutoMovieScheduleError";
 export * from "./IAutoMovieFramingGoal";
 export * from "./IAutoMovieIntent";
 export * from "./IAutoMovieRelationalGoal";

@@ -12,6 +12,8 @@ export * from "./IAutoMovieTwoBoneArticulation";
 export * from "./ITwoBoneIK";
 export * from "./aimRotation";
 export * from "./aimYawPitch";
+export * from "./alternateJointAngles";
+export * from "./alternateRigJointAngles";
 export * from "./armChainFault";
 export * from "./clinicalDeviation";
 export * from "./constants";

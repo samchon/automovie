@@ -1,4 +1,5 @@
 import { handToFace } from "../daily/handToFace";
+import { gesture } from "../everyday/gesture";
 import { HumanActionRow } from "../law/HumanActionRow";
 import { touch } from "../touch/touch";
 
@@ -12,27 +13,28 @@ import { touch } from "../touch/touch";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; values not yet read at a source are marked provisional on the row.
  */
 export namespace HumanHabit {
-  /** A draw on a cigarette: pinched at the lips for a second (provisional), the head level. */
+  /** A draw on a cigarette: held at the lips for a second (provisional), the head level, between fingers that point up and back at the mouth with the palm toward the chin; its end stands 0.15 of a hand off the fingertips' pads (provisional). With `prop`, the held cigarette's `mouth` end meets the lips. */
   export const smoke = HumanActionRow.of("smoke", handToFace, {
     task: {
       region: "mouth",
       effector: {
-        surface: "grip",
-        shape: "fist",
-        tool: { thumb: 0.25 },
-        facing: "thumb",
-        along: "palm",
+        surface: "indexTip",
+        shape: "relaxed",
+        tool: { palm: 0.15 },
+        facing: { fingers: 1, palm: 1 },
+        along: { fingers: 1, palm: -1 },
       },
       kind: "hold",
       count: 1,
       hold: 1,
       tangent: "up",
+      point: "mouth",
       head: 0,
       at: "atLips",
     },
   });
 
-  /** A photograph through a camera's viewfinder: both hands bring it to the eye. */
+  /** A photograph through a camera's viewfinder: both hands bring it to the eye, one at each side of it with the palms toward each other, the fingers ahead and the thumbs up; the viewfinder lies 0.4 of a hand inside each palm and 0.2 behind the grip (provisional, half a compact camera's width and depth). */
   export const photograph = HumanActionRow.of("photograph", handToFace, {
     task: {
       region: "noseBridge",
@@ -40,9 +42,9 @@ export namespace HumanHabit {
       effector: {
         surface: "grip",
         shape: "fist",
-        tool: { palm: 0.3 },
-        facing: "palm",
-        along: "grasp",
+        tool: { palm: 0.4, fingers: -0.2 },
+        facing: "-fingers",
+        along: "thumb",
       },
       kind: "hold",
       count: 1,
@@ -58,12 +60,24 @@ export namespace HumanHabit {
     task: "read",
   });
 
-  /** A look at a wristwatch: the right fingertips at the left wrist, held. */
-  export const checkWatch = HumanActionRow.of("checkWatch", touch, {
-    target: { kind: "self", region: "wristLeft" },
-    with: "fingertips",
-    kind: "hold",
-    side: "right",
+  /** A look at a wristwatch: the left wrist raised before the eyes at the reading distance (`handToFace.READING`), its back turned to them and the forearm across the body, the head bowed 20 degrees to it (provisional), held a second and a half (provisional). */
+  export const checkWatch = HumanActionRow.of("checkWatch", handToFace, {
+    task: {
+      region: null,
+      effector: {
+        surface: "wrist",
+        shape: "relaxed",
+        facing: "palm",
+        along: "fingers",
+      },
+      kind: "hold",
+      count: 1,
+      hold: 1.5,
+      tangent: "across",
+      head: 20,
+      at: "atWatch",
+    },
+    side: "left",
   });
 
   /** Lipstick or balm drawn across the lips. */
@@ -125,5 +139,99 @@ export namespace HumanHabit {
     target: { kind: "self", region: "nape" },
     with: "fingertips",
     kind: "scratch",
+  });
+
+  /** Blowing the nose: the hand, as with a tissue, held over the nose with the head bowed a little (first pass; hold and bow provisional). */
+  export const blowNose = HumanActionRow.of("blowNose", handToFace, {
+    task: {
+      region: "nose",
+      effector: { surface: "palm", shape: "relaxed" },
+      kind: "hold",
+      count: 1,
+      hold: 1,
+      tangent: "up",
+      head: 10,
+      at: "atNose",
+    },
+  });
+
+  /** Cream rubbed on the face with both palms, twice up the cheeks. */
+  export const applyCream = HumanActionRow.of("applyCream", handToFace, {
+    task: "washFace",
+    count: 2,
+  });
+
+  /** Fanning oneself with a hand: six beats beside the face (first pass on the wave's stroke, provisional). */
+  export const fanSelf = HumanActionRow.of("fanSelf", gesture, {
+    kind: "wave",
+    count: 6,
+  });
+
+  /** Smelling a held thing: brought under the nose and held, the head bowed to it (first pass; values provisional). */
+  export const sniff = HumanActionRow.of("sniff", handToFace, {
+    task: {
+      region: "nose",
+      effector: {
+        surface: "grip",
+        shape: "fist",
+        tool: { thumb: 0.3 },
+        facing: "thumb",
+        along: "palm",
+      },
+      kind: "hold",
+      count: 1,
+      hold: 0.6,
+      tangent: "up",
+      head: 5,
+      at: "atNose",
+    },
+  });
+
+  /** Flicking the hair back: the back of the hand stroked up the temple. */
+  export const flickHair = HumanActionRow.of("flickHair", touch, {
+    target: { kind: "self", region: "templeRight" },
+    with: "handBack",
+    kind: "stroke",
+    side: "right",
+  });
+
+  /** A selfie: a phone held out before the eyes at the reading distance, the elbow-bent convention of about 30 cm (#3346), the head level, held a second and a half (provisional). */
+  export const selfie = HumanActionRow.of("selfie", handToFace, {
+    task: {
+      region: null,
+      effector: {
+        surface: "grip",
+        shape: "fist",
+        tool: { thumb: 0.3 },
+        facing: "-palm",
+        along: "thumb",
+      },
+      kind: "hold",
+      count: 1,
+      hold: 1.5,
+      tangent: "up",
+      head: 0,
+      at: "shutter",
+    },
+  });
+
+  /** Lighting a cigarette: a flame brought to the cigarette's end before the lips, the head bowed to it (first pass with one hand; the second, cupping hand is not placed). */
+  export const lightCigarette = HumanActionRow.of("lightCigarette", handToFace, {
+    task: {
+      region: "mouth",
+      effector: {
+        surface: "grip",
+        shape: "fist",
+        tool: { thumb: 0.5 },
+        facing: "thumb",
+        along: "palm",
+      },
+      kind: "hold",
+      count: 1,
+      hold: 0.8,
+      tangent: "up",
+      head: 10,
+      at: "atLips",
+    },
   });
 }

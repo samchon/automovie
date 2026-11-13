@@ -1,3 +1,4 @@
+import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { handToFace } from "../daily/handToFace";
 import { HumanActionRow } from "../law/HumanActionRow";
 import type { IHumanMutual } from "../law/IHumanMutual";
@@ -71,13 +72,100 @@ export namespace HumanSocial {
     }),
   };
 
-  /** A toast: the glasses meet as fists do at chest height, each role performing `fistBump` (provisional until a held glass is the effector). */
-  export const toast: IHumanMutual<object, "host" | "guest"> = {
+  /**
+   * A toast: each role brings the glass its right hand holds to one shared
+   * point at the mean of the two chest heights (provisional: no source for a
+   * clink's height was read), the glass upright, so the rims meet. Each
+   * performs `fistBump` with its glass as the prop. `glasses` names each
+   * role's held glass; without it the toast is mimed and the fists meet.
+   */
+  export const toast: IHumanMutual<
+    { glasses?: Record<"host" | "guest", string> },
+    "host" | "guest"
+  > = {
     name: "toast",
     roles: ["host", "guest"],
-    act: (role, _params, cast) => ({
+    act: (role, params, cast) => ({
       name: "fistBump",
-      params: { partner: cast[role === "host" ? "guest" : "host"] },
+      params: {
+        partner: cast[role === "host" ? "guest" : "host"],
+        ...(params?.glasses === undefined
+          ? {}
+          : { prop: params.glasses[role] }),
+      },
+    }),
+  };
+
+  /** A pinky promise, one role of it: the hands meet at chest height as fists do (first pass; the hooked little fingers are not shaped). */
+  export const pinkyPromise = HumanActionRow.of("pinkyPromise", highFive, {
+    kind: "fist",
+  });
+
+  /** Rock, paper, scissors: both players pump a fist three times on one start (first pass: each performs `shakeFist` three times; the shared count is the common start, and the throw's hand shape is not set). */
+  export const rockPaperScissors: IHumanMutual<object, "one" | "other"> = {
+    name: "rockPaperScissors",
+    roles: ["one", "other"],
+    act: () => ({ name: "shakeFist", params: { count: 3 } }),
+  };
+
+  /** A firm, slow pat or press of the palm on the partner (Laban's press: strong, sustained, direct); the composition gives the region. */
+  export const firmPress = HumanActionRow.of("firmPress", touch, {
+    with: "palm",
+    kind: "press",
+    manner: AutoMovieMotionManner.PRESETS.press,
+  });
+
+  /** A light, quick flick of the fingertips on the partner, as brushing lint off a shoulder (Laban's flick: light, sudden, indirect); the composition gives the region. */
+  export const flickOff = HumanActionRow.of("flickOff", touch, {
+    with: "fingertips",
+    kind: "stroke",
+    manner: AutoMovieMotionManner.PRESETS.flick,
+  });
+
+  /** Arm wrestling, first pass: both clasp right hands and hold the clasp through three slow pumps (the elbows on a table, the struggle and the pin are not staged yet). */
+  export const armWrestle: IHumanMutual<object, "one" | "other"> = {
+    name: "armWrestle",
+    roles: ["one", "other"],
+    act: (role, _params, cast) => ({
+      name: "handshake",
+      params: { partner: cast[role === "one" ? "other" : "one"], pumps: 3 },
+    }),
+  };
+
+  /** Thumb wrestling, first pass: the clasp of a handshake held through five small pumps (the thumbs' own play is not staged yet). */
+  export const thumbWrestle: IHumanMutual<object, "one" | "other"> = {
+    name: "thumbWrestle",
+    roles: ["one", "other"],
+    act: (role, _params, cast) => ({
+      name: "handshake",
+      params: { partner: cast[role === "one" ? "other" : "one"], pumps: 5 },
+    }),
+  };
+
+  /** A toast of four, first pass: two pairs clink at once, host with guest and third with fourth, each as `toast` does (one shared point for all four is not staged yet). `glasses` names each role's held glass; mimed with fists without it. */
+  export const toastOfFour: IHumanMutual<
+    { glasses?: Record<"host" | "guest" | "third" | "fourth", string> },
+    "host" | "guest" | "third" | "fourth"
+  > = {
+    name: "toastOfFour",
+    roles: ["host", "guest", "third", "fourth"],
+    act: (role, params, cast) => ({
+      name: "fistBump",
+      params: {
+        partner:
+          cast[
+            role === "host"
+              ? "guest"
+              : role === "guest"
+                ? "host"
+                : role === "third"
+                  ? "fourth"
+                  : "third"
+          ],
+        ...(params?.glasses === undefined
+          ? {}
+          : { prop: params.glasses[role] }),
+      },
     }),
   };
 }

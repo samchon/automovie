@@ -1,6 +1,10 @@
 import { createCar, createDrinkware, createSeat } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
-import type { IAutoMovieTransform } from "@automovie/interface";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanObject,
@@ -9,6 +13,7 @@ import {
   HumanSignature,
   type IHumanBody,
   type seated,
+  type IHumanProp,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -38,6 +43,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 4. Refused, each listing what the object has: sitting on a mug, which
  *    declares no seat; a car with no seat named, which has three; a seat
  *    id the car lacks.
+ * 5. Where the feet rest is read off the object too. A seat declared
+ *    astride with three stirrups, turned 90 degrees, reads astride with the
+ *    nearest stirrup of each side, placed in the world to a nanometre. A
+ *    stool with a rung below its seat and a rail above it reads two rests
+ *    on the rung, a quarter of its length to each side of its middle, and
+ *    is not astride. A dining chair reads no rest.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Places real archetypes, builds performances through the public chain and reads the seat given to the actions, the displayed body and the prop's place; a seat read off its contact, a body beside the chair or a glass left on the table fails.
  * @evidence contracts/development/testing.md#independent-expectations Where the seat lies is the archetype's own placement of its contact, computed by that package; the seat height is the chair's drawn dimension; the lift is the action's documented default.
@@ -74,8 +85,8 @@ export function test_human_motion_object_affordances(): void {
   };
 
   // 1. The seat is where the chair says it is.
-  const chair = createSeat({ kind: "dining" });
-  const where = { at: { x: 0.3, y: 0, z: -0.45 }, yaw: 30 };
+  const chair: ReturnType<typeof createSeat> = createSeat({ kind: "dining" });
+  const where: { at: IAutoMovieVector3; yaw: number } = { at: { x: 0.3, y: 0, z: -0.45 }, yaw: 30 };
   const seat: seated.ISeat = HumanObject.seat(chair, where);
   const placed: IAutoMovieTransform = chair.placed("seat", {
     translation: where.at,
@@ -127,8 +138,8 @@ export function test_human_motion_object_affordances(): void {
     );
 
   // 3. A glass taken by the grip it declares.
-  const glass = createDrinkware({ kind: "glass" });
-  const prop = HumanObject.prop("glass", glass, {
+  const glass: ReturnType<typeof createDrinkware> = createDrinkware({ kind: "glass" });
+  const prop: IHumanProp = HumanObject.prop("glass", glass, {
     at: { x: 0.15, y: 0.9, z: 0.4 },
     yaw: 0,
   });
@@ -152,8 +163,8 @@ export function test_human_motion_object_affordances(): void {
     );
 
   // 4. What an object does not offer.
-  const car = createCar({ kind: "sedan" });
-  const floor = { at: { x: 0, y: 0, z: 0 }, yaw: 0 };
+  const car: ReturnType<typeof createCar> = createCar({ kind: "sedan" });
+  const floor: { at: IAutoMovieVector3; yaw: number } = { at: { x: 0, y: 0, z: 0 }, yaw: 0 };
   for (const [label, build, lists] of [
     [
       "sitting on a mug",
@@ -184,6 +195,75 @@ export function test_human_motion_object_affordances(): void {
         `${label}: expected an affordance refusal listing ${lists.join(", ") || "no seat"}, got ${thrown instanceof Error ? thrown.message : String(thrown)}`,
       );
   }
+
+  // 5. Where the feet rest, and a seat sat astride.
+  const contact = (
+    id: string,
+    kind: IAutoMovieAffordance["kind"],
+    at: IAutoMovieVector3,
+    more: Partial<IAutoMovieAffordance> = {},
+  ): IAutoMovieAffordance => ({
+    id,
+    kind,
+    frame: {
+      translation: at,
+      rotation: { x: 0, y: 0, z: 0, w: 1 },
+      scale: { x: 1, y: 1, z: 1 },
+    },
+    extent: null,
+    ...more,
+  });
+  const near = (
+    got: IAutoMovieVector3 | undefined,
+    expected: IAutoMovieVector3,
+  ): boolean =>
+    got !== undefined &&
+    Math.hypot(got.x - expected.x, got.y - expected.y, got.z - expected.z) <=
+      1e-9;
+  const saddle: seated.ISeat = HumanObject.seat(
+    {
+      affordances: [
+        contact("saddle", "seat", { x: 0, y: 0.9, z: 0 }, { astride: true }),
+        contact("near", "stirrup", { x: 0.3, y: 0.4, z: 0.1 }),
+        contact("far", "stirrup", { x: 0.6, y: 0.2, z: 0 }),
+        contact("off", "stirrup", { x: -0.3, y: 0.4, z: 0.1 }),
+      ],
+    },
+    { at: { x: 1, y: 0, z: 2 }, yaw: 90 },
+  );
+
+  // Turned 90 degrees about the world's up, the object's +X runs along the
+  // world's -Z and its +Z along the world's +X.
+  if (
+    saddle.astride !== true ||
+    !near(saddle.footrests?.left, { x: 1.1, y: 0.4, z: 1.7 }) ||
+    !near(saddle.footrests?.right, { x: 1.1, y: 0.4, z: 2.3 })
+  )
+    complaints.push(
+      `a saddle with three stirrups turned 90 degrees reads astride ${saddle.astride} and rests ${JSON.stringify(saddle.footrests)}; astride with the nearest stirrup of each side at (1.1, 0.4, 1.7) on the left and (1.1, 0.4, 2.3) on the right expected`,
+    );
+  const stool: seated.ISeat = HumanObject.seat(
+    {
+      affordances: [
+        contact("top", "seat", { x: 0, y: 0.75, z: 0 }),
+        contact("rail", "bar", { x: 0, y: 1.0, z: -0.2 }, { length: 0.4 }),
+        contact("rung", "bar", { x: 0, y: 0.3, z: 0.15 }, { length: 0.4 }),
+      ],
+    },
+    { at: { x: 0, y: 0, z: 0 }, yaw: 0 },
+  );
+  if (
+    stool.astride !== undefined ||
+    !near(stool.footrests?.left, { x: 0.1, y: 0.3, z: 0.15 }) ||
+    !near(stool.footrests?.right, { x: -0.1, y: 0.3, z: 0.15 })
+  )
+    complaints.push(
+      `a stool with a rung below its seat and a rail above it reads astride ${stool.astride} and rests ${JSON.stringify(stool.footrests)}; not astride with the rests a quarter of the rung's 0.4 m to each side of its middle expected`,
+    );
+  if (HumanObject.seat(chair, floor).footrests !== undefined)
+    complaints.push(
+      "a dining chair, which has nothing for the feet, reads foot rests; none expected",
+    );
 
   TestValidator.equals("actions attach to objects", complaints, []);
 }

@@ -39,12 +39,14 @@ import { handGoals } from "./handGoals";
  * than the buttock-to-popliteal length); a shallower seat moves the socket
  * forward to 2 cm inside its depth.
  *
- * A seat suits a body when its height lies within 0.8 to 1.2 of the
- * popliteal height, the ratio the campaign sets: a lower seat
- * needs more trunk flexion and a longer rise (Janssen, Bussmann and Stam 2002,
- * Phys Ther 82:866), and beyond these ratios a body is better served by
- * another posture. The popliteal height is the knee joint's height less the
- * thigh's radius, where the thigh's underside meets a level seat.
+ * A seat is sat on with both feet on the floor when its height lies within
+ * 0.8 to 1.2 of the popliteal height, the ratio the campaign sets: a lower
+ * seat needs more trunk flexion and a longer rise (Janssen, Bussmann and
+ * Stam 2002, Phys Ther 82:866) and is refused. A higher one is a high seat:
+ * a bar stool, a saddle, a wall. The feet leave the floor for its rests or
+ * hang, and the body gets onto it by a step up or a swing of a leg. The
+ * popliteal height is the knee joint's height less the thigh's radius, where
+ * the thigh's underside meets a level seat.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the seat frame, the socket placement rule and the suitability band with sources.
  * @evidence contracts/development/implementation.md#principled-implementation The seat socket is an effector placed by solving the root for a pitch; the legs and arms are inverse-kinematics goals.
@@ -63,10 +65,50 @@ export namespace seated {
 
     /** Backrest height above the surface, metres; backless when absent. */
     back?: number;
+
+    /** Whether the seat is sat astride, a leg on either side, as a saddle is; both legs ahead when absent. */
+    astride?: boolean;
+
+    /** The side a seat sat astride is got onto and off from, as a horse is mounted from its left; either side when absent or `either`. */
+    mount?: "left" | "right" | "either";
+
+    /**
+     * Where a foot rests while seated, world metres: the tread a foot's ball
+     * bears on (a stool's bar, a pedal, a peg, a stirrup). Read only on a
+     * seat higher than the band, where the feet leave the floor; a foot with
+     * no rest, or whose rest the leg cannot reach, hangs.
+     */
+    footrests?: Partial<Record<"left" | "right", IAutoMovieVector3>>;
   }
 
-  /** Accepted seat heights as shares of the popliteal height. */
+  /**
+   * Seat heights as shares of the popliteal height that are sat on with both
+   * feet on the floor. Below the band a seat is refused; above it the seat
+   * is a high one ({@link high}).
+   */
   export const RATIO: readonly [number, number] = [0.8, 1.2];
+
+  /**
+   * Whether a seat is a high one for a body: above the band, so the feet
+   * cannot stay on the floor and the body gets onto it by a step up or a
+   * swing of a leg, then sits with the feet on its rests or hanging, as on a
+   * bar stool, a saddle or a wall.
+   *
+   * @param body The body.
+   * @param seat The seat.
+   * @returns Whether the seat is above the band.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what a high seat is and what follows from it for the feet.
+   * @evidence contracts/development/implementation.md#principled-implementation The same ratio to the popliteal height `check` reads, against the band's upper end, so a seat is refused, sat on from the floor or got onto by one measure.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One comparison.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing beyond the band's own constant.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function high(body: IHumanBody, seat: ISeat): boolean {
+    return ratio(body, seat) > RATIO[1];
+  }
 
   /**
    * The seat height's share of the popliteal height.
@@ -80,15 +122,16 @@ export namespace seated {
   }
 
   /**
-   * Refuse a seat outside the accepted heights, naming the feasible range.
+   * Refuse a seat too low to sit on from standing, naming the least height.
+   * A seat above the band is not refused: it is a high seat ({@link high}).
    *
    * @param body The body.
    * @param seat The seat.
-   * @throws {HumanRefusal} When the seat height lies outside the band.
+   * @throws {HumanRefusal} When the seat height lies below the band.
    */
   export function check(body: IHumanBody, seat: ISeat): void {
     const r: number = ratio(body, seat);
-    if (r < RATIO[0] || r > RATIO[1])
+    if (r < RATIO[0])
       throw new HumanRefusal({
         kind: "reach",
         axis: "seat",
@@ -96,10 +139,10 @@ export namespace seated {
         feasible: {
           kind: "range",
           minimum: RATIO[0] * popliteal(body),
-          maximum: RATIO[1] * popliteal(body),
+          maximum: null,
           unit: "m",
         },
-        reason: `A seat ${seat.at.y.toFixed(3)} m high is ${r.toFixed(2)} of this body's popliteal height; seats from ${(RATIO[0] * popliteal(body)).toFixed(3)} to ${(RATIO[1] * popliteal(body)).toFixed(3)} m suit it`,
+        reason: `A seat ${seat.at.y.toFixed(3)} m high is ${r.toFixed(2)} of this body's popliteal height; seats from ${(RATIO[0] * popliteal(body)).toFixed(3)} m up suit it`,
         fix: "use a seat whose height suits this body",
       });
   }
@@ -203,7 +246,7 @@ export namespace seated {
     );
     const requests: AutoMovieMotionHumanArm.ISided[] = [];
     for (const side of ["left", "right"] as const) {
-      const frame =
+      const frame: IHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
         body.surfaces.regions[
           `thighFront${side === "left" ? "Left" : "Right"}` as AutoMovieHumanoidRegion
         ];

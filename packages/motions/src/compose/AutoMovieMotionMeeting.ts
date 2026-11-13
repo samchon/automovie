@@ -10,9 +10,9 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
 
 /**
- * The meeting of an action two performers do together: one frame with the
- * place of each shared contact, and the film seconds both arrive at, hold
- * and leave.
+ * The meeting of an action two or more performers do together: one frame
+ * with the place of each shared contact, and the film seconds all arrive
+ * at, hold and leave.
  *
  * A meeting is computed once, by a pure function of where the roles stand
  * when it starts, and every role's law reads the same record, so no law
@@ -145,8 +145,9 @@ export namespace AutoMovieMotionMeeting {
 
     /**
      * The shared frame: its origin on the floor at the mean of the roles'
-     * floor points, heading from the first role to the second; one role's
-     * own floor point and heading when it is alone.
+     * floor points, heading from the first role to the second, or to the
+     * mean floor point of the others when more than two meet; one role's own
+     * floor point and heading when it is alone.
      */
     frame: HumanFrame.IFrame;
 
@@ -214,10 +215,14 @@ export namespace AutoMovieMotionMeeting {
       }),
     );
     const origin: IAutoMovieVector3 = mean(floors);
+
+    // From the first role toward the others: the second role of two, and
+    // the middle of the rest when more meet, so no later role's place alone
+    // turns the frame.
     const across: IAutoMovieVector3 =
       ordered.length < 2
         ? { x: 0, y: 0, z: 0 }
-        : Vector3.subtract(floors[1]!, floors[0]!);
+        : Vector3.subtract(mean(floors.slice(1)), floors[0]!);
     const frame: HumanFrame.IFrame = {
       origin,
       yaw:

@@ -12,6 +12,7 @@ import {
   AutoMovieMotionClock,
   AutoMovieMotionHumanArm,
   AutoMovieMotionHumanTouch,
+  AutoMovieMotionHumanTouchLaid,
   AutoMovieMotionHumanTouchEffector,
   HumanHand,
   type IAutoMovieMotionHumanPrimitive,
@@ -140,7 +141,7 @@ export function test_human_motion_compose_touch_laid(): void {
       );
 
     // 2. Bend and laid.
-    const hint: IAutoMovieVector3 = AutoMovieMotionHumanTouch.bend(
+    const hint: IAutoMovieVector3 = AutoMovieMotionHumanTouchLaid.bend(
       body,
       quiet,
       side,
@@ -148,7 +149,7 @@ export function test_human_motion_compose_touch_laid(): void {
       place,
       "up",
     );
-    const reference = AutoMovieMotionHumanTouch.laid(
+    const reference = AutoMovieMotionHumanTouchLaid.laid(
       body,
       quiet,
       side,
@@ -192,7 +193,7 @@ export function test_human_motion_compose_touch_laid(): void {
 
     // The rest goal stands the effector a pad off the region along its
     // normal; an upright vessel faces a level direction.
-    const goal: IHumanPosture.IGoal = AutoMovieMotionHumanTouch.rest(
+    const goal: IHumanPosture.IGoal = AutoMovieMotionHumanTouchLaid.rest(
       body,
       quiet,
       side,
@@ -220,7 +221,7 @@ export function test_human_motion_compose_touch_laid(): void {
         z: place.point.z - pad,
       }) <= 1e-6,
     );
-    const level: IAutoMovieVector3 = AutoMovieMotionHumanTouch.upright(
+    const level: IAutoMovieVector3 = AutoMovieMotionHumanTouchLaid.upright(
       body,
       quiet,
       side,
@@ -228,7 +229,7 @@ export function test_human_motion_compose_touch_laid(): void {
       { point: place.point, normal: { x: 0.2, y: 0.5, z: -1 } },
       hint,
     );
-    const flat: IAutoMovieVector3 = AutoMovieMotionHumanTouch.upright(
+    const flat: IAutoMovieVector3 = AutoMovieMotionHumanTouchLaid.upright(
       body,
       quiet,
       side,

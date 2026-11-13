@@ -1,18 +1,22 @@
 import { gesture } from "../everyday/gesture";
-import { rest } from "../everyday/rest";
 import { HumanActionRow } from "../law/HumanActionRow";
-import { flinch } from "../reaction/flinch";
 import { touch } from "../touch/touch";
+import { HumanWeaponFirearm } from "./HumanWeaponFirearm";
 
 /**
- * Handling a firearm as rows of shipped actions, a first pass: where the
- * hands go, without the weapon as the effector, the sight line or recoil.
- * The composition gives the target. Register the ones a film uses.
+ * Firearm handling under film names. The rows of `HumanWeaponFirearm` take
+ * the held firearm (`gun`, a handgun or long gun prop the hand picked up)
+ * and aim its bore; with no gun named they are the same movements of the
+ * empty hand. Register the ones a film uses.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what each row is, the action it is a row of and what its parameters fix.
- * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped action (HumanActionRow), so it is data over a law that already fits the body, refuses and is checked.
+ * A shot from the holster is `HumanWeaponFirearm.draw`, then `takeAim`, then
+ * `recoil`; `lowReady` lowers the weapon and `HumanWeaponFirearm.holster`
+ * returns it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what each row is a row of, what the composition gives and how a shot is composed.
+ * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped or registered law (`HumanActionRow`), so it is data over a law that fits the body, refuses and is checked.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The family's rows and nothing else; a production registers the ones it uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; values not yet read at a source are marked provisional on the row.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; values not yet read at a source are marked provisional on the law.
  */
 export namespace HumanFirearm {
   /** Reach for a holster at the right hip. */
@@ -24,21 +28,33 @@ export namespace HumanFirearm {
     hold: 0.3,
   });
 
-  /** Level the weapon at a target and hold the aim two seconds (provisional). */
-  export const takeAim = HumanActionRow.of("takeAim", gesture, {
-    kind: "point",
-    side: "right",
-    hold: 2,
-  });
+  /** Level the weapon at the target and hold the aim. */
+  export const takeAim = HumanActionRow.of(
+    "takeAim",
+    HumanWeaponFirearm.present,
+    { carriage: "aim" },
+  );
 
-  /** Low ready: both hands together in front. */
-  export const lowReady = HumanActionRow.of("lowReady", rest, {
-    left: "claspedFront",
-    right: "claspedFront",
-  });
+  /** Low ready: the weapon before the body, the muzzle down ahead. */
+  export const lowReady = HumanActionRow.of(
+    "lowReady",
+    HumanWeaponFirearm.present,
+    { carriage: "lowReady" },
+  );
 
-  /** The jolt of a shot through the shooter: a slight flinch (intensity 0.3, provisional). */
-  export const recoil = HumanActionRow.of("recoil", flinch, { intensity: 0.3 });
+  /** High ready: the weapon before the chest, the muzzle up. */
+  export const highReady = HumanActionRow.of(
+    "highReady",
+    HumanWeaponFirearm.present,
+    { carriage: "highReady" },
+  );
+
+  /** One shot: the trigger's press, the muzzle's rise and its return. */
+  export const recoil = HumanActionRow.of(
+    "recoil",
+    HumanWeaponFirearm.fire,
+    {},
+  );
 
   /** Hands up at gunpoint. */
   export const surrender = HumanActionRow.of("surrender", gesture, {

@@ -79,6 +79,7 @@ export const MOTION_HUMAN_LAW_SOLO_ROWS: Readonly<
     "rubHands",
     "touchFace",
     "pushGlasses",
+    "palmsTogether",
     "scratchHead",
     "shrug",
     "nod",

@@ -91,11 +91,15 @@ new HumanPerformance({
 });
 ```
 
-A prop's affordance ids are also its named points, so `{ kind: "prop", subject: "glass", point: "lip" }` is a target. A seat the body cannot use, or an affordance the object lacks, is refused with what would fit.
+A prop's affordance ids are also its named points, so `{ kind: "prop", subject: "glass", point: "lip" }` is a target. An affordance the object lacks is refused with the ones it has.
+
+A hand keeps what it picked up until an action puts it down or hands it over. An action that works with the held object names it, and the object's own point then meets the target instead of the bare hand: `chain.pickUp({ prop: "glass", handle: "body" }).handToFace({ task: "drink", prop: "glass" })`. Any other use of a holding hand is refused, naming the free hand.
+
+A seat too low to sit down on from standing is refused with the least height that fits. A seat higher than the feet reach the floor from is not refused: the body gets onto it, and the feet take its rests or hang.
 
 ## Mutual actions
 
-A mutual action is one thing several people do together. It is stated once: its roles, and the action each role performs. `HumanChain.mutual` plays every chain of the cast, then has every role perform its part at once from one meeting, so no role chases another. `HumanMutual` holds the vocabulary's (`handshake`, `highFive`, `handOver`); a production states its own as an `IHumanMutual` over its registered actions:
+A mutual action is one thing two or more people do together. It is stated once: its roles, and the action each role performs. `HumanChain.mutual` plays every chain of the cast, then has every role perform its part at once from one meeting, so no role chases another. An action that follows or meets a person who moves plans from where that person's actions take them, so compose that person's chain first. `HumanMutual` holds the vocabulary's (`handshake`, `highFive`, `handOver`); a production states its own as an `IHumanMutual` over its registered actions:
 
 ```ts
 const toast: IHumanMutual<object, "host" | "guest"> = {
@@ -126,7 +130,7 @@ new HumanPerformance({
 });
 ```
 
-An instant is a film second, or an event of an anchored action or of a cue track, as `sync` names it. A windowed layer comes in and goes out over its `fade`. A layer that declares `channels` is refused in a window where one of the person's actions holds such a channel by a contact, and a layer's `apply` can read the action under it (`context.action()`).
+An instant is a film second, or an event of an anchored action or of a cue track, as `sync` names it. A windowed layer comes in and goes out over its `fade`. Given an `anchor`, it has instants of its own (`onset`, `full`, `offset`, `end`) that a later layer's window names, and that an action is synced to or cut on when the layer's own window waits for no action. A layer that declares `channels` is refused in a window where one of the person's actions holds such a channel by a contact, and a layer's `apply` can read the action under it (`context.action()`).
 
 ## Extend
 
@@ -167,21 +171,7 @@ The chain method takes the parameters the row leaves open.
 A registered name never replaces a vocabulary name, and registering changes no other action's motion.
 ## Lexicon
 
-Named rows over the shipped actions, ready to register. Each namespace is one family; a row leaves open only what the scene decides (a target, a partner, a destination).
-
-| Namespace | Rows |
-| --- | --- |
-| `HumanEmblem` | `salute`, `hush`, `palmsTogether`, `handOnHeart`, `blownKiss`, `facepalm`, `handsUp`, `halt`, `comeHere`, `dontKnow` |
-| `HumanHabit` | `smoke`, `photograph`, `checkPhone`, `checkWatch`, `applyLipstick`, `shave`, `rubEyes`, `scratchNape` |
-| `HumanStance` | `armsCrossed`, `handsOnHips`, `handsInPockets`, `paradeRest`, `handsClasped`, `handsBehindHead`, `thinking`, `victory`, `fistPump`, `bigStretch`, `neckRoll` |
-| `HumanGait` | `stroll`, `hurry`, `march`, `sneak`, `trudge`, `swagger`, `jog`, `sprint` |
-| `HumanPursuit` | `follow`, `escort`, `chase`, `confront` |
-| `HumanSocial` | `whisper`, `cheekKiss`, `foreheadKiss`, `shoulderPat`, `comfort`, `fistBump`, `lowFive`, `toastSip`, and the mutual records `bump` and `toast` |
-| `HumanStageFight` | `slap`, `backhand`, `shove`, `grab`, `poke`, `restrain` |
-| `HumanDrill` | `jab`, `cross`, `hook`, `uppercut`, `frontKick`, `roundKick`, `southpaw`, `aim`, `squats`, `jumpingJacks`, `sway` |
-| `HumanBlade` | `enGarde`, `cut`, `slash`, `thrust`, `draw` (the arm's stroke only, for now) |
-| `HumanLabour` | `carryBox`, `carryBag`, `carryOnHip`, `pushCart`, `haul`, `hammer`, `saw`, `stir`, `screw`, `scrub`, `toss`, `hurl` |
-| `HumanRide` | `ride`: a seated person carried by a prop that moves by itself (`HumanObject.prop` with a motion) |
+Named rows over the shipped actions, ready to register: emblems, habits, stances, gaits, pursuit, social acts, stage fighting, drills, blades, firearms, labour, riding and being carried. Each family is a namespace (`HumanEmblem`, `HumanGait` and so on), and `HUMAN_LEXICON` lists every family's rows as data. A row leaves open only what the scene decides: a target, a partner, a destination.
 
 ```ts
 const { salute } = HumanEmblem;
@@ -194,7 +184,6 @@ new HumanPerformance({
   composition: Chain.subject("a").salute().slap({ target: { kind: "person", subject: "b", region: "jawLeft" } }).node,
 });
 ```
-
 ## Refusals
 
 A composition the vocabulary cannot perform throws a `HumanRefusal` when the performance is built. It names the performer, the action and its occurrence, the axis at fault, the value given, what the axis accepts and one sentence saying what to change, as fields and in its message:

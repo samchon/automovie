@@ -16,13 +16,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAuditTangle";
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanArmClearing } from "./HumanArmClearing";
+import { HumanArmSwing } from "./HumanArmSwing";
 import { HumanColliders } from "./HumanColliders";
 import type { IHumanPosture } from "./IHumanPosture";
 import { poseBones } from "./poseBones";
-import { resolveHumanPosture } from "./resolveHumanPosture";
 
 /**
  * The room a forearm needs beside its own trunk and beside the other arm.
@@ -366,15 +366,11 @@ export namespace HumanArmClearance {
    * toward someone who stands close would pass through them, and a person
    * folds the elbow and brings the hand up near their own chest. Both are
    * one rule over the two freedoms that move a forearm without a goal, the
-   * upper arm's abduction and the elbow's flexion: the turns of a `GRID`
-   * degree lattice within `SPAN` of the given arm and inside both joints'
-   * ranges are tried nearest first, the first whose room is within the
-   * allowance is taken, and the least share of that turn that still keeps
-   * it is found by bisection. The room is not smooth (a forearm leaves one
-   * shape as it meets another), so no slope is followed; and the nearest
-   * clear arm moves little between two close instants, so a carry stays
-   * continuous where a local search could jump between basins. When no turn
-   * in the window clears the arm, the turn with the least room is taken.
+   * upper arm's abduction and the elbow's flexion: `HumanArmClearing` takes
+   * the least turn, along the first of its fixed order of directions that
+   * clears the arm, inside both joints' ranges. The room is not smooth (a
+   * forearm leaves one shape as it meets another), so no slope is followed.
+   * When no direction clears the arm, the turn with the least room is taken.
    *
    * @param body The body.
    * @param pose The pose the arm is read in.
@@ -387,10 +383,10 @@ export namespace HumanArmClearance {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the two movements, the one rule behind them, the order of the search, the bisection, the fallback and each argument's unit.
    * @evidence contracts/development/implementation.md#principled-implementation The least correction that clears the arm, over the two freedoms that carry a forearm off what it passes; the direction comes from the shapes in the way, so no obstacle is named.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One ordered lattice scan and one bisection.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call of HumanArmClearing.of over the room and range readings built here.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No margin is added and no joint leaves its range; a turn that leaves a range is skipped, not clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One room reading when the arm is clear; otherwise the scan stops at the first clear turn, nearest first, and the bisection takes `HALVINGS` readings.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `room` and the engine's range reading; the lattice's order is built once.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One room reading when the arm is clear; otherwise what HumanArmClearing.of reads.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `room`, the engine's range reading and `HumanArmClearing`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing per call.
    */
   export function cleared(
@@ -404,49 +400,20 @@ export namespace HumanArmClearance {
   ): IArm {
     const over = (of: IArm): number =>
       room(body, pose, side, of, others, baseline) - allowed;
-    if (over(arm) <= TOLERANCE) return arm;
-    const range = (of: IArm): number =>
-      outside(body, `${side}UpperArm`, of.upper) +
-      outside(body, `${side}LowerArm`, of.lower);
-    const turned = (abduction: number, flexion: number): IArm => ({
-      upper: [arm.upper[0], arm.upper[1] + abduction, arm.upper[2]],
-      lower: [arm.lower[0] + flexion, arm.lower[1], arm.lower[2]],
-      hand: arm.hand,
+    return HumanArmClearing.of({
+      arm,
+      over,
+      range: (of: IArm): number =>
+        outside(body, `${side}UpperArm`, of.upper) +
+        outside(body, `${side}LowerArm`, of.lower),
     });
-    const limit: number = range(arm) + 1e-9;
-    let best: IArm = arm;
-    let least: number = over(arm);
-    for (const [a, f] of LATTICE) {
-      const candidate: IArm = turned(a, f);
-      if (range(candidate) > limit) continue;
-      const value: number = over(candidate);
-      if (value <= TOLERANCE) {
-        // The least share of this turn that still clears the arm.
-        let lo: number = 0;
-        let hi: number = 1;
-        for (let i: number = 0; i < HALVINGS; i++) {
-          const mid: number = (lo + hi) / 2;
-          const at: IArm = turned(a * mid, f * mid);
-          if (range(at) <= limit && over(at) <= TOLERANCE) hi = mid;
-          else lo = mid;
-        }
-        return turned(a * hi, f * hi);
-      }
-      if (value < least) {
-        least = value;
-        best = candidate;
-      }
-    }
-    return best;
   }
-}
 
-export namespace HumanArmClearance {
   /**
    * A posture whose arms, written by joint angles with no hand goal (a
    * gait's swing), are kept clear of the body: a swinging arm passing the
    * thigh is let out at the shoulder, so each named arm takes the least added
-   * abduction, up to `SPAN`, at which each reading of its room is within that
+   * abduction, up to `HumanArmSwing.SPAN`, at which each reading of its room is within that
    * reading in the quiet stance (`IBaseline`), found by bisection; an arm
    * that swings no deeper than it hangs is left as written.
    *
@@ -468,87 +435,8 @@ export namespace HumanArmClearance {
     posture: IHumanPosture,
     sides: readonly ("left" | "right")[],
   ): IHumanPosture {
-    let pose: IAutoMoviePose = resolveHumanPosture(body, posture);
-    const joints: IHumanPosture["joints"] = { ...posture.joints };
-    for (const side of sides) {
-      if (posture.limbs[`${side}Arm`] !== undefined) continue;
-      const read = (
-        bone: AutoMovieHumanoidBone,
-      ): readonly [number, number, number] => {
-        const j = pose.joints.find(
-          (q: IAutoMovieJointPose): boolean => q.bone === bone,
-        );
-        return [j?.flexion ?? 0, j?.abduction ?? 0, j?.twist ?? 0];
-      };
-      const arm: IArm = {
-        upper: read(`${side}UpperArm`),
-        lower: read(`${side}LowerArm`),
-        hand: read(`${side}Hand`),
-      };
-      // The least added abduction that keeps the arm's room within its
-      // stance baseline, by bisection: the least moves continuously as the
-      // swing does, where a local search could jump between frames.
-      const baseline: IBaseline = stance(body, side);
-      const out = (a: number): IArm => ({
-        ...arm,
-        upper: [arm.upper[0], arm.upper[1] + a, arm.upper[2]],
-      });
-      const lacking = (a: number): number =>
-        room(body, pose, side, out(a), [], baseline);
-      let added: number = 0;
-      if (lacking(0) > TOLERANCE) {
-        let lo: number = 0;
-        let hi: number = SPAN;
-        if (lacking(hi) > TOLERANCE) lo = hi;
-        else
-          while (hi - lo > SWING_TOLERANCE) {
-            const mid: number = (lo + hi) / 2;
-            if (lacking(mid) > TOLERANCE) lo = mid;
-            else hi = mid;
-          }
-        added = hi;
-      }
-      const clear: IArm = out(added);
-      joints[`${side}UpperArm`] = clear.upper;
-      pose = posed(pose, side, clear);
-    }
-    return { ...posture, joints };
+    return HumanArmSwing.of(body, posture, sides);
   }
-
-  /** Each reading of an arm's room in the body's quiet stance, degrees, solved once per body and arm. */
-  function stance(body: IHumanBody, side: "left" | "right"): IBaseline {
-    const known: Partial<Record<"left" | "right", IBaseline>> =
-      STANCE.get(body) ?? {};
-    const have: IBaseline | undefined = known[side];
-    if (have !== undefined) return have;
-    const pose: IAutoMoviePose = resolveHumanPosture(
-      body,
-      stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
-    );
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
-      body,
-      pose,
-    );
-    const value: IBaseline = {
-      forearm: overshoot(
-        body,
-        obstacles(body, bones, [side === "left" ? "right" : "left"]),
-        bones.get(`${side}LowerArm`)!.worldPosition,
-        bones.get(`${side}Hand`)!.worldPosition,
-        side,
-        [],
-        false,
-      ),
-      segments: AutoMovieMotionHumanAuditTangle.arm(body, bones, side),
-    };
-    STANCE.set(body, { ...known, [side]: value });
-    return value;
-  }
-
-  const STANCE: WeakMap<
-    IHumanBody,
-    Partial<Record<"left" | "right", IBaseline>>
-  > = new WeakMap();
 }
 
 /** A joint's range of motion overshoot at a triple, degrees. */
@@ -595,35 +483,6 @@ const TISSUE: number = 0.01;
 
 /** The intervals a forearm's axis is sampled in, from the elbow to short of the wrist. */
 const SAMPLES: number = 8;
-
-/** The overshoot over its allowance a clearing leaves, degrees (provisional: a twentieth of a degree, a quarter of a millimetre at the elbow). */
-const TOLERANCE: number = 0.05;
-
-/** The bisections that find the least share of a clearing turn: eight halve it to 1/256 of the turn, under a fifth of a degree at the lattice's farthest turn (provisional). */
-const HALVINGS: number = 8;
-
-/** The most a clearing turns either freedom from the given arm, degrees (provisional: beyond it the arm is no longer the carry's). */
-const SPAN: number = 40;
-
-/** The spacing of a clearing's lattice of turns, degrees (provisional: a few centimetres at the hand). */
-const GRID: number = 5;
-
-/** A clearing's turns of abduction and elbow flexion within `SPAN`, nearest first, then by more abduction and more flexion, so the order is fixed. */
-const LATTICE: readonly (readonly [number, number])[] = (() => {
-  const out: [number, number][] = [];
-  for (let a: number = -SPAN; a <= SPAN; a += GRID)
-    for (let f: number = -SPAN; f <= SPAN; f += GRID)
-      if (a !== 0 || f !== 0) out.push([a, f]);
-  return out.sort(
-    (x: [number, number], y: [number, number]): number =>
-      Math.hypot(x[0], x[1]) - Math.hypot(y[0], y[1]) ||
-      y[0] - x[0] ||
-      y[1] - x[1],
-  );
-})();
-
-/** The precision of a swing's added abduction, degrees: below the continuity audits' half degree, so frames cannot differ by it. */
-const SWING_TOLERANCE: number = 0.01;
 
 /** No baseline: every reading of an arm's room counts from zero. */
 const NONE: HumanArmClearance.IBaseline = { forearm: 0, segments: 0 };

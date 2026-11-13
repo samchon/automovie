@@ -35,11 +35,6 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    performed over a walk: rows of an action that rides a carrier ride
  *    one too.
  *
- * Owed elsewhere: the small woman's slap and backhand on the average man's
- * jaw are refused as out of reach (127 and 155 mm beyond the arm), which a
- * person of her height does reach; that pair is specified in the pending
- * `test_human_motion_reach_up_slap` and left out here.
- *
  * @evidence contracts/development/testing.md#behavioral-verification Registers every lexicon row through the public input and builds a performance of it on real bodies; a row that is refused, or placed under another name, fails with the row, the body and the refusal's own message.
  * @evidence contracts/development/testing.md#independent-expectations That each row is humanly performable at these distances is what the row claims; nothing is compared with a value read from a law.
  * @evidence contracts/development/testing.md#distinguishing-cases Every row of the lexicon table, alone and on a partner at four distances, with the performer and the partner of opposite builds.
@@ -58,11 +53,8 @@ export function test_human_motion_lexicon_rows(): void {
   const at = (region: string): object => ({
     at: { kind: "person", subject: "b", region },
   });
-  const onto = (region: string): object => ({
-    on: { kind: "person", subject: "b", region },
-  });
-  const ahead = { to: { x: 0.6, y: 0, z: -3 } };
-  const bench = {
+  const ahead: object = { to: { x: 0.6, y: 0, z: -3 } };
+  const bench: object = {
     on: {
       kind: "point",
       at: { x: 0, y: 0.9, z: 0.4 },
@@ -76,9 +68,17 @@ export function test_human_motion_lexicon_rows(): void {
     stroll: ahead,
     hurry: ahead,
     march: ahead,
+    doubleTime: ahead,
     sneak: ahead,
     trudge: ahead,
     swagger: ahead,
+    prowl: ahead,
+    sad: ahead,
+    proud: ahead,
+    limp: ahead,
+    stiffLimp: ahead,
+    tiptoe: ahead,
+    drunk: ahead,
     jog: ahead,
     sprint: ahead,
     carryBox: ahead,
@@ -101,31 +101,54 @@ export function test_human_motion_lexicon_rows(): void {
     grab: [0.6, on("upperArmLeft")],
     poke: [0.6, on("sternum")],
     restrain: [0.55, { partner: "b" }],
+    headlock: [0.55, { partner: "b" }],
+    choke: [
+      0.5,
+      {
+        ...on("neckRight"),
+        other: { kind: "person", subject: "b", region: "neckLeft" },
+      },
+    ],
+    hairPull: [0.5, on("crown")],
+    struggle: [
+      0.5,
+      {
+        ...on("forearmLeft"),
+        other: { kind: "person", subject: "b", region: "forearmRight" },
+      },
+    ],
     whisper: [0.45, { partner: "b" }],
     cheekKiss: [0.45, { partner: "b" }],
     foreheadKiss: [0.45, { partner: "b" }],
     shoulderPat: [0.6, on("shoulderLeft")],
     comfort: [0.6, on("shoulderLeft")],
+    firmPress: [0.6, on("shoulderLeft")],
+    flickOff: [0.6, on("shoulderLeft")],
     fistBump: [0.7, { partner: "b" }],
     lowFive: [0.7, { partner: "b" }],
+    pinkyPromise: [0.7, { partner: "b" }],
     follow: [3, on("sternum")],
     escort: [3, on("sternum")],
     chase: [3, on("sternum")],
+    flee: [3, { from: "b" }],
+    intercept: [3, { target: "b" }],
     confront: [3, on("sternum")],
     aim: [3, on("sternum")],
     takeAim: [3, on("sternum")],
     toss: [3, at("sternum")],
     hurl: [6, at("sternum")],
-    cut: [0.7, onto("shoulderLeft")],
-    draw: [0.7, onto("forearmLeft")],
-    slash: [0.7, onto("abdomen")],
+    cut: [0.7, { ...on("shoulderLeft"), advance: "step" }],
+    draw: [0.7, { ...on("forearmLeft"), advance: "step" }],
+    slash: [0.7, { ...on("abdomen"), advance: "step" }],
+    swordCut: [0.7, { ...on("shoulderLeft"), advance: "step" }],
+    swordThrust: [0.75, { ...on("sternum"), advance: "step" }],
     jab: [0.75, at("jawLeft")],
     cross: [0.75, at("jawLeft")],
     hook: [0.65, at("jawLeft")],
     uppercut: [0.55, at("chin")],
     frontKick: [1, at("abdomen")],
     roundKick: [1, at("ribsLeft")],
-    thrust: [0.75, at("sternum")],
+    thrust: [0.75, on("sternum")],
   };
   const strikes: readonly string[] = [
     "jab",
@@ -137,8 +160,14 @@ export function test_human_motion_lexicon_rows(): void {
     "thrust",
   ];
 
-  // Specified in the pending reach test for the small performer.
-  const owed: readonly string[] = ["slap", "backhand"];
+  // Rows that follow a person's placed path (`performer(...).root`).
+  const tracking: readonly string[] = [
+    "follow",
+    "escort",
+    "chase",
+    "intercept",
+  ];
+
   const complaints: string[] = [];
   const check = (
     label: string,
@@ -184,10 +213,10 @@ export function test_human_motion_lexicon_rows(): void {
       );
     }
   };
-  const pairings = [
+  const pairings: readonly (readonly [string, string])[] = [
     ["m-average", "f-small"],
     ["f-small", "m-average"],
-  ] as const;
+  ];
   pairings.forEach((names, turn: number): void => {
     const starting = (subject: string): HumanChain =>
       HumanChain.subject(subject).stand({ seconds: 0.3 });
@@ -195,8 +224,13 @@ export function test_human_motion_lexicon_rows(): void {
     // 1 and 2. Every row, alone or on its partner.
     laws.forEach((law: IHumanActionLaw<never>, index: number): void => {
       // A ride and a carry need their support; each has its own scenario.
-      if (law.name === "ride" || law.name === "carried") return;
-      const scene = paired[law.name];
+      // A firearm drawn or holstered needs the prop it takes, which the
+      // firearm tests stage.
+      if (
+        ["ride", "carried", "drawFirearm", "holsterFirearm"].includes(law.name)
+      )
+        return;
+      const scene: readonly [number, object] | undefined = paired[law.name];
       if (scene === undefined)
         check(
           law.name,
@@ -205,14 +239,19 @@ export function test_human_motion_lexicon_rows(): void {
           () => starting("a").registered(law.name, alone[law.name] ?? {}),
           law.name,
         );
-      else if (owed.includes(law.name) && names[0] === "f-small") return;
       else if (!strikes.includes(law.name) || index % 2 === turn)
         check(
           law.name,
           names,
           scene[0],
           () =>
-            starting("a").registered(law.name, scene[1]).with(starting("b")),
+            // A row that tracks its partner plans from where the partner's
+            // placed actions take them, so the partner is composed first.
+            tracking.includes(law.name)
+              ? starting("b").with(
+                  starting("a").registered(law.name, scene[1]),
+                )
+              : starting("a").registered(law.name, scene[1]).with(starting("b")),
           law.name,
         );
     });

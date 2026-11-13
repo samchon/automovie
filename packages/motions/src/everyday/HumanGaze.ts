@@ -241,11 +241,40 @@ export namespace HumanGaze {
     add("chest", 0.6 * parts.trunk * weights.trunk);
     add("spine", 0.4 * parts.trunk * weights.trunk);
 
-    // Head and neck: the engine's range-aware split of one aim.
+    // Head and neck: the engine's range-aware split of one aim. The split
+    // turns the head from where the neck and the head hold it at zero
+    // angles, and a body's head at zero need not face where its pelvis
+    // does (a carried head is pitched at rest and its standing posture
+    // levels it). So the aim is given less what the head faces at zero, and
+    // the head ends on its share of the target whatever the body's rest.
+    const zeroed: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      HumanTrunk.resolve(body, posture, {
+        ...joints,
+        neck: [0, 0, 0],
+        head: [0, 0, 0],
+      });
+    const radians = (degrees: number): number => (degrees * Math.PI) / 180;
+
+    // The head's share as a direction in the pelvis' frame, then read in
+    // the frame the head has at zero angles, where the split turns it from.
+    const facing: IAutoMovieVector3 = Quaternion.rotateVector(
+      Quaternion.inverse(
+        Quaternion.multiply(
+          Quaternion.inverse(zeroed.get("hips")!.worldRotation),
+          zeroed.get("head")!.worldRotation,
+        ),
+      ),
+      {
+        x: Math.cos(radians(parts.head.pitch)) * Math.sin(radians(parts.head.yaw)),
+        y: -Math.sin(radians(parts.head.pitch)),
+        z: Math.cos(radians(parts.head.pitch)) * Math.cos(radians(parts.head.yaw)),
+      },
+    );
     const chain: IAutoMovieJointPose[] = gazeChainJoints({
       rig: body.skeleton,
-      flexionDeg: parts.head.pitch,
-      twistDeg: parts.head.yaw,
+      flexionDeg:
+        (Math.atan2(-facing.y, Math.hypot(facing.x, facing.z)) * 180) / Math.PI,
+      twistDeg: (Math.atan2(facing.x, facing.z) * 180) / Math.PI,
     });
     const neck: IAutoMovieJointPose | undefined = chain.find(
       (j: IAutoMovieJointPose): boolean => j.bone === "neck",
@@ -253,8 +282,13 @@ export namespace HumanGaze {
     const head: IAutoMovieJointPose = chain.find(
       (j: IAutoMovieJointPose): boolean => j.bone === "head",
     )!;
-    blend("neck", [neck?.flexion ?? 0, 0, neck?.twist ?? 0], weights.head);
-    blend("head", [head.flexion ?? 0, 0, head.twist ?? 0], weights.head);
+
+    // Eyes that look alone leave the neck and the head as the posture has
+    // them: nothing of the head is the gaze's to write then.
+    if (recruit !== "eyes") {
+      blend("neck", [neck?.flexion ?? 0, 0, neck?.twist ?? 0], weights.head);
+      blend("head", [head.flexion ?? 0, 0, head.twist ?? 0], weights.head);
+    }
 
     // Eyes: each solved exactly in its head's frame, clamped to its range.
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
@@ -314,6 +348,15 @@ export namespace HumanGaze {
   ): IHumanLayer {
     return {
       name,
+
+      // The eyes, the neck and the head, and the chest and lumbar spine
+      // unless every gaze keeps the trunk out of the turn.
+      channels: requests.every(
+        (request: ILayer): boolean =>
+          request.with === "eyes" || request.with === "head",
+      )
+        ? ["head"]
+        : ["head", "trunk"],
       apply: (
         posture: IHumanPosture,
         seconds: number,

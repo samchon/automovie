@@ -11,7 +11,9 @@ import type {
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanTrunk } from "../everyday/HumanTrunk";
 import type { IHumanProp } from "../perform/IHumanProp";
+import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanGrasp } from "./HumanGrasp";
@@ -224,7 +226,9 @@ export namespace HumanHandover {
       rotation: giverFrom.rotation,
     };
     // The receiver takes the grip from the azimuth about its axis its arm can
-    // reach from standing, as a pick up does.
+    // reach from standing, as a pick up does, and can still hold as it took
+    // it at the place it then carries the prop to, so the prop is not tipped
+    // on the way there.
     const authored: HumanGrasp.ITarget = HumanGrasp.at(
       input.prop,
       input.handle,
@@ -245,6 +249,21 @@ export namespace HumanHandover {
           input.receiver.side,
           HumanGrasp.around(authored, turn),
         ),
+      [0],
+      (wrist: HumanHand.IWrist): HumanGrasp.IKey[] => [
+        {
+          posture: standing,
+          wrist: {
+            point: carried(input.receiver.body, standing, input.receiver.side),
+            rotation: wrist.rotation,
+          },
+          bend: AutoMovieMotionHumanBend.hang(
+            input.receiver.body,
+            standing,
+            input.receiver.side,
+          ),
+        },
+      ],
     );
     const target: HumanGrasp.ITarget = HumanGrasp.around(authored, chosen.turn);
     const receiverAt: HumanHand.IWrist = chosen.wrist;
@@ -282,5 +301,43 @@ export namespace HumanHandover {
       transfer,
       release: gripClosed + transfer,
     };
+  }
+
+  /**
+   * Where a hand carries what it took: the wrist a forearm ahead of the
+   * elbow that hangs under the shoulder, the forearm level.
+   *
+   * @param body The body.
+   * @param posture The posture the shoulder is read on.
+   * @param side The hand.
+   * @returns The wrist's place, world metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the place, what it is read on and the frame of the result.
+   * @evidence contracts/development/implementation.md#principled-implementation The elbow at the side with the forearm level is the carrying posture of a light object; both lengths are the body's own.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One shoulder read and one point in the posture's heading.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No metre constant: the upper arm and the forearm are the body's measures.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by the receiver's plan for its carry and by the grip choice as a key pose, so both mean one place.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One forward-kinematics pass.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function carried(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    side: HumanHand.Side,
+  ): IAutoMovieVector3 {
+    const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(body, posture).get(
+      `${side}UpperArm`,
+    )!.worldPosition;
+    return HumanFrame.point(
+      {
+        origin: {
+          x: shoulder.x,
+          y: shoulder.y - body.measure.upperArm,
+          z: shoulder.z,
+        },
+        yaw: posture.yaw,
+      },
+      { x: 0, y: 0, z: body.measure.forearm },
+    );
   }
 }

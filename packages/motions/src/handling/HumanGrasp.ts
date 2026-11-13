@@ -263,8 +263,9 @@ export namespace HumanGrasp {
    * @param bend The elbow hint.
    * @param goal The wrist goal of a turn and a tilt, degrees.
    * @param tilts The tilts tried at each turn; only the authored one when absent.
-   * @param stroke The further key poses the same grip must reach, from its grasp goal; none when absent.
+   * @param stroke The further key poses the same grip must reach, from its grasp goal and from the hand the arm shows for that goal: what is held is rigid in the shown hand, so a key that places the held thing is built from the shown one. None when absent.
    * @param turns The turns tried, degrees; -90 to 90 in steps of 15 when absent.
+   * @param required What a grip must hold before its cost counts: a measure of its per-key errors (the grasp's, then each stroke key's) and the most it may be. A grip within the bound is chosen before any beyond it; with none within, the one nearest the bound is returned for the caller to refuse. Absent, the least cost alone decides.
    * @returns The best turn and tilt, their goal, the hand the arm achieves for it, and the arm's solution there.
    */
   export function reachable(
@@ -274,8 +275,15 @@ export namespace HumanGrasp {
     bend: IAutoMovieVector3,
     goal: (turn: number, tilt: number) => HumanHand.IWrist,
     tilts: readonly number[] = [0],
-    stroke?: (wrist: HumanHand.IWrist) => readonly IKey[],
+    stroke?: (
+      wrist: HumanHand.IWrist,
+      shown: HumanHand.IWrist,
+    ) => readonly IKey[],
     turns: readonly number[] = TURNS,
+    required?: {
+      bound: number;
+      measure: (keys: readonly number[]) => number;
+    },
   ): IReach {
     const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
     // One key pose fitted: the pose and the error the arm leaves there, the
@@ -363,6 +371,12 @@ export namespace HumanGrasp {
     };
     let best: IReach | undefined;
     let least: number = Infinity;
+
+    // With a required measure, a candidate that holds it comes before any
+    // that does not, whatever their costs; among those that do not, the one
+    // that misses it least is kept, for the caller's refusal.
+    let held: boolean = required === undefined;
+    let nearest: number = Infinity;
     for (const turn of turns)
       for (const tilt of tilts) {
         const wrist: HumanHand.IWrist = goal(turn, tilt);
@@ -371,14 +385,39 @@ export namespace HumanGrasp {
           resolveHumanPosture.reference(grasp.pose, limb);
         let miss: number = grasp.miss;
         let departure: number = grasp.departure;
-        for (const key of stroke?.(wrist) ?? []) {
-          const held = fit(key, reference);
-          miss = Math.max(miss, held.miss);
-          departure = Math.max(departure, held.departure);
+
+        // A candidate's error is the worst over its keys, so it only grows
+        // as keys are fitted: once a candidate that holds what is required
+        // is found, one already no cheaper is dropped before its remaining
+        // keys cost their fits. The choice is the same as with every key
+        // fitted.
+        const preference: number = 0.01 * (Math.abs(turn) + Math.abs(tilt));
+        if (held && miss + departure + preference >= least) continue;
+        let beaten: boolean = false;
+        const keys: number[] = [grasp.miss];
+        for (const key of stroke?.(wrist, grasp.shown) ?? []) {
+          const fitted = fit(key, reference);
+          keys.push(fitted.miss);
+          miss = Math.max(miss, fitted.miss);
+          departure = Math.max(departure, fitted.departure);
+          if (held && miss + departure + preference >= least) {
+            beaten = true;
+            break;
+          }
         }
-        const cost: number =
-          miss + departure + 0.01 * (Math.abs(turn) + Math.abs(tilt));
-        if (best === undefined || cost < least) {
+        if (beaten) continue;
+        const cost: number = miss + departure + preference;
+        const measured: number =
+          required === undefined ? 0 : required.measure(keys);
+        const holds: boolean =
+          required === undefined || measured <= required.bound;
+        if (
+          best === undefined ||
+          (holds && !held) ||
+          (holds === held && (holds ? cost < least : measured < nearest))
+        ) {
+          held = holds;
+          nearest = measured;
           least = cost;
           best = {
             turn,
@@ -388,6 +427,7 @@ export namespace HumanGrasp {
             reference,
             miss,
             departure,
+            keys,
             pose: grasp.pose,
           };
         }
@@ -435,6 +475,9 @@ export namespace HumanGrasp {
 
     /** How far the fitted elbow turns from its hint about the shoulder-to-wrist line, worst over the grasp and its stroke, degrees. */
     departure: number;
+
+    /** The error the arm leaves at the grasp and then at each key of its stroke, in the stroke's order, counted as `miss` is: what a law reads to say which pose of a use the grasp cannot hold. */
+    keys: readonly number[];
 
     /** The posed body at the grasp. */
     pose: IAutoMoviePose;

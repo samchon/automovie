@@ -1,6 +1,7 @@
 import type { IAutoMovieMotionEvent } from "@automovie/interface";
 
 import type { AutoMovieComposition } from "./AutoMovieComposition";
+import { AutoMovieScheduleError } from "./AutoMovieScheduleError";
 import type { IAutoMovieIntent } from "./IAutoMovieIntent";
 import type { IAutoMovieSchedule } from "./IAutoMovieSchedule";
 
@@ -68,23 +69,48 @@ export function resolveAutoMovieSchedule(
       ...(named("end") ? [] : [{ name: "end", seconds: entry.end }]),
     ];
   };
+  const placed = (): string[] => [...anchored.keys(), ...tracks.keys()];
   const instant = (
     of: string,
     events: readonly resolveAutoMovieSchedule.ICue[],
     name: string,
     index: number,
+    by: IAutoMovieIntent | undefined,
   ): number => {
     const same: resolveAutoMovieSchedule.ICue[] = events.filter(
       (e: resolveAutoMovieSchedule.ICue): boolean => e.name === name,
     );
+    const names: string[] = [
+      ...new Set(
+        events.map((e: resolveAutoMovieSchedule.ICue): string => e.name),
+      ),
+    ];
     if (same.length === 0)
-      throw new Error(
-        `${of} has no event ${name}; its events are ${[...new Set(events.map((e: resolveAutoMovieSchedule.ICue): string => e.name))].join(", ") || "none"}`,
+      throw new AutoMovieScheduleError(
+        `${of} has no event ${name}; its events are ${names.join(", ") || "none"}`,
+        {
+          code: "event",
+          subject: by?.subject,
+          capability: by?.capability,
+          of,
+          value: name,
+          alternatives: names,
+        },
       );
     const found: resolveAutoMovieSchedule.ICue | undefined = same[index];
     if (found === undefined)
-      throw new Error(
+      throw new AutoMovieScheduleError(
         `${of} has ${same.length} ${name} events, so index ${index} names none (the first is 0)`,
+        {
+          code: "index",
+          subject: by?.subject,
+          capability: by?.capability,
+          of,
+          value: index,
+          alternatives: same.map(
+            (_: resolveAutoMovieSchedule.ICue, i: number): string => String(i),
+          ),
+        },
       );
     return found.seconds;
   };
@@ -101,16 +127,25 @@ export function resolveAutoMovieSchedule(
         node.intent,
         context,
       );
+      const who: Pick<
+        AutoMovieScheduleError.IProps,
+        "subject" | "capability"
+      > = {
+        subject: node.intent.subject,
+        capability: node.intent.capability,
+      };
       if (!(timing.duration >= 0) || !Number.isFinite(timing.duration))
-        throw new Error(
+        throw new AutoMovieScheduleError(
           `Invalid duration of ${node.intent.subject}.${node.intent.capability}`,
+          { ...who, code: "timing", value: timing.duration },
         );
       if (
         timing.contact !== undefined &&
         !(timing.contact >= 0 && timing.contact <= timing.duration)
       )
-        throw new Error(
+        throw new AutoMovieScheduleError(
           `Contact outside ${node.intent.subject}.${node.intent.capability}`,
+          { ...who, code: "timing", value: timing.contact },
         );
       // A cut ends the entry early at a share or a named event; a contact
       // after the cut never happens.
@@ -119,8 +154,9 @@ export function resolveAutoMovieSchedule(
       if (until !== undefined) {
         if ("proximity" in until) {
           if (laws.until === undefined)
-            throw new Error(
+            throw new AutoMovieScheduleError(
               `${node.intent.subject}.${node.intent.capability} cuts on proximity, which these laws cannot resolve`,
+              { ...who, code: "law", value: "until" },
             );
           // A proximity the motion never reaches leaves the intent uncut: it
           // runs to its own end, as an `until` that never fires does.
@@ -134,14 +170,22 @@ export function resolveAutoMovieSchedule(
           const events: readonly resolveAutoMovieSchedule.ICue[] | undefined =
             instants(until.of);
           if (events === undefined)
-            throw new Error(
+            throw new AutoMovieScheduleError(
               `Cut of ${node.intent.subject}.${node.intent.capability} waits for ${until.of}, which is not placed earlier`,
+              {
+                ...who,
+                code: "anchor",
+                of: until.of,
+                value: until.of,
+                alternatives: placed(),
+              },
             );
           const seconds: number = instant(
             until.of,
             events,
             until.event,
             until.index ?? 0,
+            node.intent,
           );
           cut = {
             share:
@@ -153,14 +197,28 @@ export function resolveAutoMovieSchedule(
             (e: IAutoMovieMotionEvent): boolean => e.name === until.event,
           );
           if (event === undefined)
-            throw new Error(
+            throw new AutoMovieScheduleError(
               `${node.intent.subject}.${node.intent.capability} has no event ${until.event}; its events are ${(timing.events ?? []).map((e: IAutoMovieMotionEvent): string => e.name).join(", ") || "none"}`,
+              {
+                ...who,
+                code: "event",
+                value: until.event,
+                alternatives: (timing.events ?? []).map(
+                  (e: IAutoMovieMotionEvent): string => e.name,
+                ),
+              },
             );
           cut = { share: event.share, event: event.name };
         } else cut = { share: until.share };
         if (cut !== undefined && !(cut.share >= 0 && cut.share <= 1))
-          throw new Error(
+          throw new AutoMovieScheduleError(
             `Cut share of ${node.intent.subject}.${node.intent.capability} lies outside [0, 1]`,
+            {
+              ...who,
+              code: "share",
+              value: cut.share,
+              ...("of" in until ? { of: until.of } : {}),
+            },
           );
       }
       const length: number =
@@ -197,7 +255,16 @@ export function resolveAutoMovieSchedule(
       });
       if (node.intent.anchor !== undefined) {
         if (anchors.has(node.intent.anchor) || tracks.has(node.intent.anchor))
-          throw new Error(`Duplicate composition anchor ${node.intent.anchor}`);
+          throw new AutoMovieScheduleError(
+            `Duplicate composition anchor ${node.intent.anchor}`,
+            {
+              ...who,
+              code: "duplicate",
+              of: node.intent.anchor,
+              value: node.intent.anchor,
+              alternatives: placed(),
+            },
+          );
         anchors.set(node.intent.anchor, draft.contact ?? start);
         anchored.set(node.intent.anchor, draft);
       }
@@ -231,17 +298,41 @@ export function resolveAutoMovieSchedule(
       );
     const events: readonly resolveAutoMovieSchedule.ICue[] | undefined =
       instants(node.anchor);
+    const first: IAutoMovieIntent | undefined = leading(node.part);
     const anchor: number | undefined =
       node.event === undefined
         ? anchors.get(node.anchor)
         : events === undefined
           ? undefined
-          : instant(node.anchor, events, node.event, node.index ?? 0);
+          : instant(node.anchor, events, node.event, node.index ?? 0, first);
     if (anchor === undefined)
-      throw new Error(
+      throw new AutoMovieScheduleError(
         events === undefined
           ? `Composition anchor ${node.anchor} is not placed earlier`
           : `Composition anchor ${node.anchor} is a cue track, so the part aligned to it must name one of its events`,
+        events === undefined
+          ? {
+              code: "anchor",
+              subject: first?.subject,
+              capability: first?.capability,
+              of: node.anchor,
+              value: node.anchor,
+              alternatives: placed(),
+            }
+          : {
+              code: "event",
+              subject: first?.subject,
+              capability: first?.capability,
+              of: node.anchor,
+              value: "",
+              alternatives: [
+                ...new Set(
+                  events.map(
+                    (e: resolveAutoMovieSchedule.ICue): string => e.name,
+                  ),
+                ),
+              ],
+            },
       );
     const target: number = anchor + node.offset;
     if (node.align === undefined)
@@ -249,20 +340,37 @@ export function resolveAutoMovieSchedule(
 
     // The part's own instant falls on the target: the laws say when it must
     // start for that, since only they know how long it takes to get there.
-    const first: IAutoMovieIntent | undefined = leading(node.part);
     if (first === undefined)
-      throw new Error(
+      throw new AutoMovieScheduleError(
         `The part aligned to ${node.anchor} by its ${node.align} begins with no intent`,
+        { code: "law", of: node.anchor, value: node.align },
       );
     if (laws.align === undefined)
-      throw new Error(
+      throw new AutoMovieScheduleError(
         `${first.subject}.${first.capability} aligns its ${node.align}, which these laws cannot resolve`,
+        {
+          code: "law",
+          subject: first.subject,
+          capability: first.capability,
+          of: node.anchor,
+          value: "align",
+        },
       );
     return Math.max(
       start,
       place(
         node.part,
-        laws.align(first, node.align, target, { start: target, entries }),
+        laws.align(first, node.align, target, {
+          start: target,
+          entries,
+          anchor: {
+            of: node.anchor,
+            offset: node.offset,
+            ...(node.event === undefined ? {} : { event: node.event }),
+            ...(node.index === undefined ? {} : { index: node.index }),
+            instants: events ?? [],
+          },
+        }),
       ),
     );
   };
@@ -305,6 +413,32 @@ export namespace resolveAutoMovieSchedule {
     entries: readonly IAutoMovieSchedule.IEntry[];
   }
 
+  /**
+   * What the laws see while an aligned part's start is found: the placing
+   * context, and the instant the part is aligned to with every instant the
+   * same anchor or track offers, so laws that cannot meet the one asked can
+   * say which later one they can.
+   */
+  export interface IAlignment extends IContext {
+    /** The instant aligned to. */
+    anchor: {
+      /** The anchor or cue track. */
+      of: string;
+
+      /** The event named; the anchor's contact or start when absent. */
+      event?: string;
+
+      /** The occurrence of the event, from 0; the first when absent. */
+      index?: number;
+
+      /** Seconds added to the instant. */
+      offset: number;
+
+      /** Every named instant of the anchor or track, in film seconds. */
+      instants: readonly ICue[];
+    };
+  }
+
   /** An intent's timing. */
   export interface ITiming {
     /** Seconds the intent takes; nonnegative. */
@@ -344,7 +478,7 @@ export namespace resolveAutoMovieSchedule {
       intent: IAutoMovieIntent,
       instant: string,
       target: number,
-      context: IContext,
+      context: IAlignment,
     ): number;
 
     /** Duration and contact of an intent. */

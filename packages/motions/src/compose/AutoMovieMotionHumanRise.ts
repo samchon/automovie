@@ -14,8 +14,9 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  * forehead, a reach for a shelf) raises its root by `lift` and adds `legs`.
  *
  * The heel's angle is the foot's pitch about the joint, degrees; the ankle
- * rises by the joint-to-ankle lever's turn, about 5 cm at 35 degrees on an
- * average foot.
+ * rises by the joint-to-ankle lever's turn, about 7 cm at 35 degrees on an
+ * average foot (74 mm measured on the average polygon man, whose ankle
+ * stands 129 mm behind the toes' joint).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the movement, what stays on the floor, who uses it and the angle's meaning with a magnitude.
  * @evidence contracts/development/design.md#principled-representation A foot placement pivoted about a sole point, the representation the lunge's trailing foot uses.

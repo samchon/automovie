@@ -5,13 +5,16 @@ import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
+import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTouchLaid";
 import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanHeld } from "../handling/HumanHeld";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -32,6 +35,11 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * arrives, both stay 0.1 s (provisional, the rebound) and go back in the
  * reach's time. The palms (or the fists) face each other, each surface's
  * skin on the point.
+ *
+ * With `prop`, each role brings the prop its hand holds instead of the hand:
+ * the prop's point (a glass's `lip`) comes to the shared point with the
+ * vessel upright, so two glasses meet rim to rim as in a toast, and the
+ * hand keeps its prop afterwards (`HumanHeld`).
  *
  * Events: the phrase instants, with `meet` at `ready` and `rebound` at
  * `relax`; both partners share `meet`.
@@ -81,7 +89,25 @@ export namespace highFive {
 
     /** The hand; `right` when absent. */
     side?: HumanHand.Side;
+
+    /** The subject id of the prop the hand holds, whose point meets the partner's in place of the hand: two glasses clinked in a toast. No prop when absent. */
+    prop?: string;
+
+    /** The prop's point that meets, one of its affordance ids; `lip` when absent. */
+    point?: string;
   }
+
+  /** How a held prop is brought to the meeting: stood upright in the closed hand, the side of its rim the palm faces toward the partner. */
+  export const HELD: HumanHeld.IUse = {
+    effector: {
+      surface: "grip",
+      shape: "fist",
+      facing: "palm",
+      along: "grasp",
+    },
+    upright: true,
+    point: "lip",
+  };
 
   /**
    * The meeting kind of a variant for a hand.
@@ -143,11 +169,11 @@ export namespace highFive {
    * @returns The plan.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and the plan; the law's doc gives the geometry and timing.
-   * @evidence contracts/development/implementation.md#principled-implementation Both roles read one meeting and pin their phrase clocks to its shared instants; the hand is a press of the touch stroke on the meeting point.
+   * @evidence contracts/development/implementation.md#principled-implementation Both roles read one meeting and pin their phrase clocks to its shared instants; the hand, or the point of the prop it holds stood upright on its steadiest side (`HumanHeld`), is a press of the touch stroke on the meeting point.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Meeting, clock, one stroke, composition.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A meeting instant before the action's start is lifted to 0.05 s of reach rather than a negative phase.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One meeting and one elbow solve per plan.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `AutoMovieMotionMeeting` and the touch stroke.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One meeting and one elbow solve per plan; with a held prop, the eight sides of its rim are each solved once.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `AutoMovieMotionMeeting`, the touch stroke, the laid arm and `HumanHeld`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the meeting's place and the clock.
    */
   export function plan(
@@ -185,9 +211,37 @@ export namespace highFive {
       ],
     );
     const effector: AutoMovieMotionHumanTouchEffector.IEffector =
-      kind === "fist"
-        ? { surface: "fist", shape: "fist" }
-        : { surface: "palm", shape: "flat" };
+      p.prop !== undefined
+        ? HumanHeld.steadiest(
+            context,
+            HELD,
+            side,
+            p.prop,
+            p.point,
+            entry,
+            place,
+          )
+        : kind === "fist"
+          ? { surface: "fist", shape: "fist" }
+          : { surface: "palm", shape: "flat" };
+
+    // A held vessel stands upright at the meeting and the fingers keep it.
+    const lay: "upright" | "tangent" =
+      p.prop === undefined ? "tangent" : "upright";
+
+    // A held vessel faces the way its arm turns it best at the meeting.
+    const facing: IAutoMovieVector3 | undefined =
+      p.prop === undefined
+        ? undefined
+        : AutoMovieMotionHumanTouchLaid.upright(
+            body,
+            entry,
+            side,
+            effector,
+            place,
+            AutoMovieMotionHumanBend.hang(body, entry, side),
+          );
+
     // The palm faces the partner with the fingers up: the region's normal
     // faces back at this performer, so laying the palm against it turns it
     // toward the partner.
@@ -195,15 +249,17 @@ export namespace highFive {
       AutoMovieMotionHumanTarget.IPlace,
       "point" | "normal"
     > => place;
-    const bend: IAutoMovieVector3 = AutoMovieMotionHumanTouch.bend(
+    const bend: IAutoMovieVector3 = AutoMovieMotionHumanTouchLaid.bend(
       body,
       entry,
       side,
       effector,
       place,
       "up",
+      lay,
+      facing,
     );
-    return composeAutoMovieMotionHumanAction({
+    const plan: IHumanActionPlan = composeAutoMovieMotionHumanAction({
       base: AutoMovieMotionHumanBase.under(context, clock.duration),
       clock,
       primitives: AutoMovieMotionHumanTouch.touch({
@@ -217,7 +273,7 @@ export namespace highFive {
         count: 1,
         tangent: "up",
         bend,
-        reference: AutoMovieMotionHumanTouch.laid(
+        reference: AutoMovieMotionHumanTouchLaid.laid(
           body,
           entry,
           side,
@@ -225,10 +281,18 @@ export namespace highFive {
           place,
           "up",
           bend,
+          lay,
+          facing,
         ),
+        lay,
+        ...(facing === undefined ? {} : { facing }),
+        ...(p.prop === undefined ? {} : { fingers: "keep" as const }),
         entry,
       }),
       contact: "meet",
     });
+    return p.prop === undefined
+      ? plan
+      : HumanHeld.kept(context, plan, side, p.prop);
   }
 }

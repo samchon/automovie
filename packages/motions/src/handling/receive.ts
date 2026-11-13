@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -7,14 +7,14 @@ import type {
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
-import { HumanTrunk } from "../everyday/HumanTrunk";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanGrip } from "./HumanGrip";
 import { HumanHandover } from "./HumanHandover";
 import { HumanPrehension } from "./HumanPrehension";
@@ -52,6 +52,9 @@ export namespace receive {
     ],
     walk: [{ window: ["taken", 1], kind: "inertialize", entry: 0, blend: 0.3 }],
   };
+
+  /** The turns about the world's up a carried prop's hand may take at the carrying place, degrees, the grip's own turn first (provisional: a sixth of a turn either way in steps of 15). */
+  export const YAWS: readonly number[] = [0, 15, -15, 30, -30, 45, -45, 60, -60];
 
   /** Parameters. */
   export interface IParams {
@@ -131,20 +134,7 @@ export namespace receive {
     );
 
     // After the transfer: the carrying place in front of the body, or home.
-    const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(body, held).get(
-      `${side}UpperArm`,
-    )!.worldPosition;
-    const carry: IAutoMovieVector3 = HumanFrame.point(
-      {
-        origin: {
-          x: shoulder.x,
-          y: shoulder.y - body.measure.upperArm,
-          z: shoulder.z,
-        },
-        yaw: held.yaw,
-      },
-      { x: 0, y: 0, z: body.measure.forearm },
-    );
+    const carry: IAutoMovieVector3 = HumanHandover.carried(body, held, side);
     const end: IAutoMovieVector3 = takes ? carry : shared.receiverFrom.point;
     // A hand that took the prop carries it; an empty one returns as it reached.
     const travel: number = Vector3.length(Vector3.subtract(end, arrive));
@@ -156,14 +146,55 @@ export namespace receive {
       held,
       side,
     );
+
+    // A hand that took the prop keeps the rotation it showed at the grip,
+    // not the one it was asked there: the prop sits in the hand as the hand
+    // was shown, so only the shown rotation keeps it as it was given. An
+    // upright carry leaves one freedom, the turn about the world's up, so
+    // the carrying place takes the turn of `YAWS` its arm meets best and
+    // the way there turns by it, the prop's axis kept upright throughout.
+    let turned: IAutoMovieQuaternion = shared.receiverShown.rotation;
+    if (takes) {
+      let least: number = Infinity;
+      for (const yaw of YAWS) {
+        const asked: IAutoMovieQuaternion = Quaternion.multiply(
+          Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
+          shared.receiverShown.rotation,
+        );
+        const reached: IAutoMovieQuaternion | undefined = poseBones(
+          body,
+          resolveHumanPosture(body, {
+            ...held,
+            limbs: {
+              ...held.limbs,
+              [side === "left" ? "leftArm" : "rightArm"]: {
+                point: carry,
+                rotation: asked,
+                bend,
+              },
+            },
+          }),
+        ).get(`${side}Hand`)?.worldRotation;
+        if (reached === undefined) continue;
+        const off: IAutoMovieQuaternion = Quaternion.multiply(
+          Quaternion.normalize(reached),
+          Quaternion.inverse(Quaternion.normalize(asked)),
+        );
+        const error: number = 2 * Math.acos(Math.min(1, Math.abs(off.w)));
+        if (error < least - 1e-9) {
+          least = error;
+          turned = asked;
+        }
+      }
+    }
     const home: HumanPrehension.ITransport = HumanPrehension.transport(
       arrive,
       end,
       { x: 0, y: 0, z: 0 },
       0,
       {
-        from: shared.receiverAt.rotation,
-        to: takes ? shared.receiverAt.rotation : shared.receiverFrom.rotation,
+        from: takes ? shared.receiverShown.rotation : shared.receiverAt.rotation,
+        to: takes ? turned : shared.receiverFrom.rotation,
       },
       back,
     );
@@ -289,10 +320,20 @@ export namespace receive {
               point: wrist,
               rotation,
               bend,
-              // The grasp's own arm solution anchors the hold and the
-              // take-away, and the reach more and more as it arrives.
-              ...(takes && t >= shared.gripClosed
-                ? { reference: shared.receiverReference }
+              // The grasp's own arm solution anchors the hold, the reach
+              // more and more as it arrives, and the take-away less and
+              // less as it leaves: at the carrying place the arm is another
+              // arm, and a full reference there is paid for by the hand's
+              // rotation, which tips what it carries.
+              ...(takes && t > leave
+                ? {
+                    reference: {
+                      ...shared.receiverReference,
+                      weight: 1 - minimumJerk((t - leave) / back).s,
+                    },
+                  }
+                : takes && t >= shared.gripClosed
+                  ? { reference: shared.receiverReference }
                 : takes && t > shared.reachStart
                   ? {
                       reference: {

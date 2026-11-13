@@ -248,4 +248,56 @@ export namespace AutoMovieMotionManner {
           : modifiers.tempo,
     );
   }
+
+  /**
+   * Named manners: the eight basic Effort actions of Laban, four moods and
+   * the two Shape qualities of the trunk and limbs, as manner records a
+   * composition names instead of spelling out factors.
+   *
+   * The Effort actions are `HumanEffort.ACTIONS`. A mood adds Flow, pace and
+   * intensity to an Effort: `weary` is slow, small and heavy, `brisk` quick
+   * and direct, `sad` slow, small and bound, `proud` large, free and
+   * unhurried. `enclosing` and `spreading` are Shape's two poles as far as a
+   * manner reaches them: bound Flow draws the elbows in and shortens the
+   * excursions, free Flow releases them outward.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the table holds, where the Effort actions come from and what each mood and Shape pole sets.
+   * @evidence contracts/development/design.md#principled-representation Each preset is a plain `IManner`, so a law that reads a manner reads a preset with no further case; the Effort actions are Laban's own eight (Laban and Lawrence 1947, Effort), read from `HumanEffort.ACTIONS`.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One frozen table keyed by name; no resolver of its own, since `resolve` and `of` take its records.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The moods' factors, paces and intensities and the two Shape poles' Flow are provisional: no measured population values were located (sad walks are slower with shorter strides and proud ones larger in direction, Montepare, Goldstein and Clausen 1987, J Nonverbal Behav 11:33; the magnitudes here are not from it).
+   */
+  export const PRESETS: Readonly<Record<Preset, IManner>> = {
+    punch: { effort: HumanEffort.ACTIONS.punch },
+    dab: { effort: HumanEffort.ACTIONS.dab },
+    press: { effort: HumanEffort.ACTIONS.press },
+    glide: { effort: HumanEffort.ACTIONS.glide },
+    slash: { effort: HumanEffort.ACTIONS.slash },
+    flick: { effort: HumanEffort.ACTIONS.flick },
+    wring: { effort: HumanEffort.ACTIONS.wring },
+    float: { effort: HumanEffort.ACTIONS.float },
+    weary: {
+      effort: { weight: 0.5, time: -0.7, flow: 0.3 },
+      pace: 0.8,
+      intensity: 0.7,
+    },
+    brisk: { effort: { time: 0.6, space: 0.6 }, pace: 1.2 },
+    sad: {
+      effort: { weight: -0.3, time: -0.6, flow: 0.7 },
+      pace: 0.85,
+      intensity: 0.7,
+    },
+    proud: { effort: { weight: 0.5, space: 0.5, flow: -0.6 }, pace: 0.95 },
+    enclosing: { effort: { flow: 1 }, intensity: 0.8 },
+    spreading: { effort: { flow: -1 } },
+  };
+
+  /** The names of {@link PRESETS}. */
+  export type Preset =
+    | keyof typeof HumanEffort.ACTIONS
+    | "weary"
+    | "brisk"
+    | "sad"
+    | "proud"
+    | "enclosing"
+    | "spreading";
 }

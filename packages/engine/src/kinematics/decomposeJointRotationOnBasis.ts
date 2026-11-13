@@ -12,6 +12,7 @@ import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { IAutoMovieJointRotationDomain } from "./IAutoMovieJointRotationDomain";
 import { IAutoMovieResolvedJointAngles } from "./IAutoMovieResolvedJointAngles";
+import { alternateRigJointAngles } from "./alternateRigJointAngles";
 import { jointRomOvershoot } from "./jointRomOvershoot";
 
 const RAD2DEG: number = 180 / Math.PI;
@@ -137,7 +138,7 @@ export const decomposeJointRotationOnBasis: (
   // Right-handedness of the basis: +1 when flex × abd = +twist. A left-handed
   // triple is made right-handed by extracting against −twist, then negating the
   // recovered twist (a rotation about −t by θ is one about t by −θ).
-  const handed: number =
+  const handed: 1 | -1 =
     Vector3.dot(basis.twist, Vector3.cross(basis.flexion, basis.abduction)) >= 0
       ? 1
       : -1;
@@ -159,17 +160,9 @@ export const decomposeJointRotationOnBasis: (
       abduction: periodicAngle(candidate.abduction, constraint.abduction),
       twist: periodicAngle(candidate.twist, constraint.twist),
     });
-    const alternate: IAutoMovieResolvedJointAngles = clinical({
-      flexion:
-        basis.twistPlacement === "distal"
-          ? 180 - rig.flexion
-          : rig.flexion + 180,
-      abduction:
-        basis.twistPlacement === "distal"
-          ? rig.abduction + 180
-          : 180 - rig.abduction,
-      twist: rig.twist + 180 * handed,
-    });
+    const alternate: IAutoMovieResolvedJointAngles = clinical(
+      alternateRigJointAngles(rig, basis.twistPlacement, handed),
+    );
     let selected: IAutoMovieResolvedJointAngles = principal;
     let overshoot: number = jointRomOvershoot(
       { bone: domain.bone, ...selected },

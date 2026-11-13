@@ -1,13 +1,11 @@
 import {
   type IAutoMovieResolvedBone,
-  Quaternion,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionTarget,
-  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -19,16 +17,13 @@ import type { HumanColliders } from "../posture/HumanColliders";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "./AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHand } from "./AutoMovieMotionHumanHand";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchForm } from "./AutoMovieMotionHumanTouchForm";
-import { AutoMovieMotionHumanTouchPath } from "./AutoMovieMotionHumanTouchPath";
+import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
 import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
 /**
@@ -142,6 +137,9 @@ export namespace AutoMovieMotionHumanTouch {
     /** What the hand bears on while it is on the region; no window when absent. */
     contact?: IHumanContactWindow.Support;
 
+    /** `keep` leaves the fingers as the base holds them, as a hand that grips a prop must; they take the effector's shape when absent. */
+    fingers?: "keep";
+
     /**
      * Another body's placed colliders the arm keeps clear of at a second (`IHumanPosture.IGoal.clear`); none when absent.
      *
@@ -222,7 +220,7 @@ export namespace AutoMovieMotionHumanTouch {
    * wave of `n` cycles.
    *
    * @param props The touch.
-   * @returns The arm's and the hand's primitives; the arm carries the contact window from `ready` to `relax` when a support is given.
+   * @returns The arm's and the hand's primitives, the arm's alone when the fingers are kept; the arm carries the contact window from `ready` to `relax` when a support is given.
    * @throws {Error} When the count is not a positive whole number.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the phases, the lift and travel formulas and the contact window.
@@ -307,7 +305,7 @@ export namespace AutoMovieMotionHumanTouch {
               side,
               props.effector,
               at,
-              ...lie(
+              ...AutoMovieMotionHumanTouchLaid.lie(
                 body,
                 posture,
                 side,
@@ -348,462 +346,24 @@ export namespace AutoMovieMotionHumanTouch {
               ],
             }),
       },
-      AutoMovieMotionHumanHand.form(
-        clock,
-        side,
-        ["start", "ready"],
-        ["relax", "end"],
-        props.effector.shape,
-        form.curl,
-      ),
+      ...(props.fingers === "keep"
+        ? []
+        : [
+            AutoMovieMotionHumanHand.form(
+              clock,
+              side,
+              ["start", "ready"],
+              ["relax", "end"],
+              props.effector.shape,
+              form.curl,
+            ),
+          ]),
     ];
-  }
-
-  /**
-   * The elbow hint of a touch, solved once on the entry posture for the
-   * effector laid on the region there.
-   *
-   * @param body The body.
-   * @param posture The entry posture.
-   * @param side The hand.
-   * @param effector The effector.
-   * @param place The region at the entry.
-   * @param tangent Which tangent.
-   * @param along What the effector's along axis lies on; the tangent when absent.
-   * @param facing What the effector faces, when the lay needs it.
-   * @param elbow Where the elbow lies: the place of least strain, or `level` with the shoulder; least strain when absent.
-   * @returns The hint, world.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States when and on what the hint is solved.
-   * @evidence contracts/development/implementation.md#principled-implementation The least-strain elbow place of `AutoMovieMotionHumanBend.solve` for the goal at the entry, the hanging arm's where it refuses.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One goal and one solve.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Solved once, so the swivel cannot flip between seconds.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the effector's goal and the bend solver.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One bounded swivel sweep per touch.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
-   */
-  export function bend(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
-    effector: AutoMovieMotionHumanTouchEffector.IEffector,
-    place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
-    tangent: AutoMovieMotionHumanTouchForm.Tangent,
-    along: ITouch["lay"] = "tangent",
-    facing?: IAutoMovieVector3,
-    elbow: "natural" | "level" = "natural",
-  ): IAutoMovieVector3 {
-    const normal: IAutoMovieVector3 = Vector3.normalize(place.normal);
-    const travel: IAutoMovieVector3 = AutoMovieMotionHumanTouchForm.tangent(
-      normal,
-      posture.yaw,
-      tangent,
-    );
-    const g: IHumanPosture.IGoal = AutoMovieMotionHumanTouchEffector.goal(
-      body,
-      side,
-      effector,
-      place.point,
-      ...lie(
-        body,
-        posture,
-        side,
-        along,
-        place.point,
-        normal,
-        travel,
-        facing,
-        elbow,
-      ),
-      AutoMovieMotionHumanBend.hang(body, posture, side),
-    );
-    return (
-      elbow === "level"
-        ? AutoMovieMotionHumanBend.level
-        : AutoMovieMotionHumanBend.solve
-    )({
-      body,
-      posture,
-      side,
-      point: g.point,
-      rotation: g.rotation!,
-      fallback: "hang",
-    });
-  }
-
-  /**
-   * The arm of a touch laid on its region, solved once on the entry posture
-   * with the elbow's hint: the reference every second's fit of the touch is
-   * held to (`ITouch.reference`).
-   *
-   * @param body The body.
-   * @param posture The entry posture.
-   * @param side The hand.
-   * @param effector The effector.
-   * @param place The region at the entry.
-   * @param tangent Which tangent.
-   * @param hint The elbow's hint (`bend`), world.
-   * @param along What the effector's along axis lies on; the tangent when absent.
-   * @param facing What the effector faces, when the lay needs it.
-   * @param elbow Where the elbow lies, which `arm` lays the effector from; natural when absent.
-   * @returns The reference.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States when and on what the arm is solved and who reads it.
-   * @evidence contracts/development/implementation.md#principled-implementation A limb fit has more than one arm for one hand place; a fit referred to one arm solved once returns the arm nearest it, so the seconds of a touch share a solution branch.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One goal (`rest`), one posture solve and one read.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Solved by the posture resolver itself, so the reference is an arm the fit can return.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the effector's goal, the posture resolver and its reference reading.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per touch.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
-   */
-  export function laid(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
-    effector: AutoMovieMotionHumanTouchEffector.IEffector,
-    place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
-    tangent: AutoMovieMotionHumanTouchForm.Tangent,
-    hint: IAutoMovieVector3,
-    along: ITouch["lay"] = "tangent",
-    facing?: IAutoMovieVector3,
-    elbow?: ITouch["elbow"],
-    from?: IAutoMovieVector3,
-  ): NonNullable<IHumanPosture.IGoal["reference"]> {
-    const limb: "leftArm" | "rightArm" = `${side}Arm`;
-    return resolveHumanPosture.reference(
-      resolveHumanPosture(body, {
-        ...posture,
-        limbs: {
-          ...posture.limbs,
-          [limb]: rest(
-            body,
-            posture,
-            side,
-            effector,
-            place,
-            tangent,
-            hint,
-            along,
-            facing,
-            elbow,
-            from,
-          ),
-        },
-      }),
-      limb,
-    );
-  }
-
-  /**
-   * The arm goal that lays an effector on a region at rest, before any lift
-   * or travel: the goal `laid` solves and the wrist a lean is measured to.
-   *
-   * @param body The body.
-   * @param posture The posture the region and the heading are read on.
-   * @param side The hand.
-   * @param effector The effector.
-   * @param place The region.
-   * @param tangent Which tangent.
-   * @param hint The elbow's hint, world.
-   * @param along What the effector's along axis lies on; the tangent when absent.
-   * @param facing What the effector faces, when the lay needs it.
-   * @param elbow Where the elbow lies, which `arm` lays the effector from; natural when absent.
-   * @returns The goal.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is laid, where, and who reads it.
-   * @evidence contracts/development/implementation.md#principled-implementation The effector's pad stands off the region along its normal and the effector lies as the touch lays it (`lie`), so the goal is the arm a stroke's every second is held to.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One tangent, one stand-off and one effector goal.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No lift or travel is added: they are a stroke's, not the region's.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the effector's goal and pad and the form's tangent.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
-   */
-  export function rest(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
-    effector: AutoMovieMotionHumanTouchEffector.IEffector,
-    place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
-    tangent: AutoMovieMotionHumanTouchForm.Tangent,
-    hint: IAutoMovieVector3,
-    along: ITouch["lay"] = "tangent",
-    facing?: IAutoMovieVector3,
-    elbow?: ITouch["elbow"],
-    from?: IAutoMovieVector3,
-  ): IHumanPosture.IGoal {
-    const normal: IAutoMovieVector3 = Vector3.normalize(place.normal);
-    const travel: IAutoMovieVector3 = AutoMovieMotionHumanTouchForm.tangent(
-      normal,
-      posture.yaw,
-      tangent,
-    );
-    return AutoMovieMotionHumanTouchEffector.goal(
-      body,
-      side,
-      effector,
-      Vector3.add(
-        place.point,
-        Vector3.scale(
-          normal,
-          AutoMovieMotionHumanTouchEffector.pad(body, side, effector),
-        ),
-      ),
-      ...lie(
-        body,
-        posture,
-        side,
-        along,
-        place.point,
-        normal,
-        travel,
-        facing,
-        elbow,
-        from,
-      ),
-      hint,
-    );
-  }
-
-  /**
-   * The elbow's place of an effector that meets its place end on (`reach`),
-   * settled with the hand it carries: the hand runs from the elbow to the
-   * place, and the elbow is where the arm bends for that hand, so each is
-   * solved from the other until they agree.
-   *
-   * @param body The body.
-   * @param posture The entry posture.
-   * @param side The hand.
-   * @param effector The effector.
-   * @param place The region at the entry.
-   * @param tangent Which tangent.
-   * @param elbow Where the elbow lies: the place of least strain, or `level` with the shoulder; least strain when absent.
-   * @returns The elbow's place, world: the lay's origin and the bend hint.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two unknowns, why they depend on each other and what is returned.
-   * @evidence contracts/development/implementation.md#principled-implementation A fixed-point iteration from the elbow the body's measures give: three rounds of the goal a hand from that elbow asks and the elbow that goal's wrist bends at.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop of `rest` and one elbow solve.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The round count is fixed, so the result is a function of its inputs alone.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Three bounded swivel sweeps per touch.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `rest` and the bend solver.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
-   */
-  export function settled(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
-    effector: AutoMovieMotionHumanTouchEffector.IEffector,
-    place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
-    tangent: AutoMovieMotionHumanTouchForm.Tangent,
-    elbow: NonNullable<ITouch["elbow"]> = "natural",
-  ): IAutoMovieVector3 {
-    let from: IAutoMovieVector3 | undefined;
-    let hint: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
-      body,
-      posture,
-      side,
-    );
-    for (let round: number = 0; round < 3; ++round) {
-      const goal: IHumanPosture.IGoal = rest(
-        body,
-        posture,
-        side,
-        effector,
-        place,
-        tangent,
-        hint,
-        "reach",
-        undefined,
-        elbow,
-        from,
-      );
-      hint = (
-        elbow === "level"
-          ? AutoMovieMotionHumanBend.level
-          : AutoMovieMotionHumanBend.solve
-      )({
-        body,
-        posture,
-        side,
-        point: goal.point,
-        rotation: goal.rotation!,
-        fallback: "hang",
-      });
-      from = hint;
-    }
-    return hint;
-  }
-
-  /**
-   * The level direction a held vessel's effector faces against at a region:
-   * the turn about the vessel's upright axis the arm reaches best.
-   *
-   * Standing a vessel upright fixes one axis of the hand; its turn about that
-   * axis is free, and most of those turns ask the forearm and the wrist for
-   * more than their range, so the resolver gives way on the rotation and the
-   * vessel tilts. Each candidate turns the region's level normal by a
-   * multiple of `UPRIGHT_STEP` degrees within `UPRIGHT_SPAN` either way; each
-   * is solved on the posture and the one whose reached hand keeps the
-   * vessel's axis nearest the world's up is kept, the nearest to head on on
-   * a tie; the turn about that axis is not counted, since it is free.
-   *
-   * @param body The body.
-   * @param posture The posture the arm is solved on.
-   * @param side The hand.
-   * @param effector The effector.
-   * @param place The region.
-   * @param hint The elbow's hint, world.
-   * @returns The level direction, world; the region's normal when it has no level part.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the free turn, why it matters, the candidates, the choice and the tie.
-   * @evidence contracts/development/implementation.md#principled-implementation The vessel's constraint is its axis alone, so the free turn is the one the arm makes: the solved rotation is read off the resolver, which owns the ranges.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop of goal, solve and compare.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No turn is assumed for any region or hand; every candidate is solved.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per candidate, once per plan.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `rest`, the resolver and `poseBones`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
-   */
-  export function upright(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    side: HumanHand.Side,
-    effector: AutoMovieMotionHumanTouchEffector.IEffector,
-    place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
-    hint: IAutoMovieVector3,
-  ): IAutoMovieVector3 {
-    const level: number = Math.hypot(place.normal.x, place.normal.z);
-    if (!(level > 1e-6)) return place.normal;
-    const limb: "leftArm" | "rightArm" = `${side}Arm`;
-    let best: IAutoMovieVector3 = place.normal;
-    let least: number = Infinity;
-    for (let k: number = 0; k <= 2 * (UPRIGHT_SPAN / UPRIGHT_STEP); k++) {
-      // Head on first, then alternately either way, so a tie keeps the one
-      // nearest head on.
-      const degrees: number =
-        (k % 2 === 0 ? 1 : -1) * Math.ceil(k / 2) * UPRIGHT_STEP;
-      const turn: number = (degrees * Math.PI) / 180;
-      const facing: IAutoMovieVector3 = {
-        x:
-          (place.normal.x * Math.cos(turn) + place.normal.z * Math.sin(turn)) /
-          level,
-        y: 0,
-        z:
-          (place.normal.z * Math.cos(turn) - place.normal.x * Math.sin(turn)) /
-          level,
-      };
-      const goal: IHumanPosture.IGoal = rest(
-        body,
-        posture,
-        side,
-        effector,
-        place,
-        "up",
-        hint,
-        "upright",
-        facing,
-      );
-      const reached: IAutoMovieQuaternion = poseBones(
-        body,
-        resolveHumanPosture(body, {
-          ...posture,
-          limbs: { ...posture.limbs, [limb]: goal },
-        }),
-      ).get(`${side}Hand`)!.worldRotation;
-      // The asked rotation lays the effector's along axis on the world's up,
-      // so that axis at rest is the up turned back by it; the vessel's tilt
-      // is how far the reached rotation carries it off the up.
-      const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-      const axis: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.normalize(reached),
-        Quaternion.rotateVector(
-          Quaternion.inverse(Quaternion.normalize(goal.rotation!)),
-          up,
-        ),
-      );
-      const error: number = Math.acos(
-        Math.min(1, Math.max(-1, Vector3.dot(Vector3.normalize(axis), up))),
-      );
-      if (error < least - 1e-9) {
-        least = error;
-        best = facing;
-      }
-    }
-    return best;
   }
 }
 
 /** How far off a region along its normal a touch's goal stands at the start of the arrival and the end of the leave, hand lengths (provisional: a hand draws back about its own length before it turns away). */
 const APPROACH: number = 1;
-
-/** The turn either way of head on a held vessel's facing is sought within, degrees (provisional: past it the palm faces away from the region). */
-const UPRIGHT_SPAN: number = 90;
-
-/** The step between a held vessel's facing candidates, degrees (provisional). */
-const UPRIGHT_STEP: number = 15;
-
-/**
- * What an effector's facing and along axes lie on at a region: the region's
- * normal and the travel's tangent, the arm's own direction across the normal
- * (`arm`), or the world's up with the effector facing against a level
- * direction (`upright`), the region's level normal unless one is given
- * (`AutoMovieMotionHumanTouch.upright`); a region facing straight up or down
- * with no direction given falls back to the first.
- */
-function lie(
-  body: IHumanBody,
-  posture: Pick<IHumanPosture, "root" | "yaw">,
-  side: HumanHand.Side,
-  lay: AutoMovieMotionHumanTouch.ITouch["lay"],
-  point: IAutoMovieVector3,
-  normal: IAutoMovieVector3,
-  travel: IAutoMovieVector3,
-  facing?: IAutoMovieVector3,
-  elbow?: AutoMovieMotionHumanTouch.ITouch["elbow"],
-  from?: IAutoMovieVector3,
-): [IAutoMovieVector3, IAutoMovieVector3] {
-  if (lay === "arm")
-    return [
-      normal,
-      AutoMovieMotionHumanTouchPath.lay(
-        body,
-        posture,
-        side,
-        point,
-        normal,
-        travel,
-        elbow,
-      ),
-    ];
-  if (lay === "reach") {
-    // The effector's facing axis runs along that line into the place, and
-    // its along axis lies on the world's up as nearly as that allows.
-    const way: IAutoMovieVector3 = AutoMovieMotionHumanTouchPath.reach(
-      body,
-      posture,
-      side,
-      point,
-      elbow,
-      from,
-    );
-    const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-    const across: IAutoMovieVector3 = Vector3.subtract(
-      up,
-      Vector3.scale(way, Vector3.dot(up, way)),
-    );
-    return [
-      Vector3.scale(way, -1),
-      Vector3.length(across) > 1e-6 ? Vector3.normalize(across) : travel,
-    ];
-  }
-  if (lay !== "upright") return [normal, travel];
-  const toward: IAutoMovieVector3 = facing ?? normal;
-  const level: number = Math.hypot(toward.x, toward.z);
-  return level > 1e-6
-    ? [
-        { x: toward.x / level, y: 0, z: toward.z / level },
-        { x: 0, y: 1, z: 0 },
-      ]
-    : [normal, travel];
-}
 
 /** The bones a posture places without solving a limb. */
 const TRUNK: ReadonlySet<AutoMovieHumanoidBone> =

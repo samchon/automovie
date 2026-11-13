@@ -14,7 +14,8 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
-import { HumanFrame } from "./HumanFrame";
+import { HumanHandDirection } from "./HumanHandDirection";
+import { HumanHandShape } from "./HumanHandShape";
 import { poseBones } from "./poseBones";
 
 /**
@@ -69,12 +70,16 @@ import { poseBones } from "./poseBones";
  *   thumb's proximal 40 and distal 50 degrees across the curled fingers,
  *   inside the finger range of `DEFAULT_HUMANOID_ROM` (-20 to 100).
  *
- * The arm solver (`fitChainToTarget`) turns the hand by wrist flexion and
- * deviation only and leaves the forearm untwisted, so a rotation that needs
- * pronation or supination is clamped and its surface lands off the point by
- * the clamped share; {@link HumanHand.frame} reads where the surface really
- * is, so audits report that residual. The forearm-twist split is requested
- * from the engine.
+ * The arm solver (`fitChainToTarget`) gives the forearm the share of an
+ * asked hand rotation that turns about the forearm's length, within its
+ * range of pronation and supination, and the wrist the rest by flexion and
+ * deviation. A rotation beyond either range is clamped and its surface
+ * lands off the point by the clamped share; {@link HumanHand.frame} reads
+ * where the surface really is, so audits report that residual. Asked about
+ * 140 degrees or more of forearm turn away from the hand's own rotation at
+ * its place, the nearer limit changes sides and the hand with it, so a law
+ * keeps an asked rotation on one side of that across its instants
+ * (`test_human_motion_core_hand_rotation`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frames, each surface's forward, the rotation convention, each shape's angles and the forearm limitation.
  * @evidence contracts/development/design.md#principled-representation Surfaces are the body's own resolved frames; a rotation is a world quaternion from rest aligned from two directions.
@@ -144,32 +149,7 @@ export namespace HumanHand {
     side: Side,
     form: Shape,
   ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
-    const out: Partial<
-      Record<AutoMovieHumanoidBone, readonly [number, number, number]>
-    > = {};
-    const set = (bone: string, flexion: number): void => {
-      out[`${side}${bone}` as AutoMovieHumanoidBone] = [flexion, 0, 0];
-    };
-    for (const digit of ["Index", "Middle", "Ring", "Little"]) {
-      const curled: boolean =
-        form === "fist" || (form === "point" && digit !== "Index");
-      for (const segment of ["Proximal", "Intermediate", "Distal"]) {
-        if (curled) set(`${digit}${segment}`, segment === "Proximal" ? 85 : 95);
-        else if (form !== "relaxed") set(`${digit}${segment}`, 0);
-        // The position of rest on a finger whose zero is straight: the
-        // body's rest pose no longer carries a curl of its own.
-        else
-          set(
-            `${digit}${segment}`,
-            segment === "Proximal" ? 35 : segment === "Intermediate" ? 30 : 20,
-          );
-      }
-    }
-    const folded: boolean = form === "fist" || form === "point";
-    set("ThumbMetacarpal", 0);
-    set("ThumbProximal", folded ? 40 : form === "relaxed" ? 25 : 0);
-    set("ThumbDistal", folded ? 50 : form === "relaxed" ? 25 : 0);
-    return out;
+    return HumanHandShape.of(side, form);
   }
 
   /**
@@ -335,51 +315,7 @@ export namespace HumanHand {
     yaw: number,
     direction: Direction,
   ): IAutoMovieVector3 {
-    const sign: number = side === "left" ? 1 : -1;
-    const axis = (name: Axis): IAutoMovieVector3 => {
-      switch (name) {
-        case "out":
-          return { x: sign, y: 0, z: 0 };
-        case "in":
-          return { x: -sign, y: 0, z: 0 };
-        case "up":
-          return { x: 0, y: 1, z: 0 };
-        case "down":
-          return { x: 0, y: -1, z: 0 };
-        case "forward":
-          return { x: 0, y: 0, z: 1 };
-        case "back":
-          return { x: 0, y: 0, z: -1 };
-      }
-    };
-    let local: IAutoMovieVector3;
-    if (typeof direction === "string") local = axis(direction);
-    else if ("between" in direction) {
-      if (!(direction.share >= 0 && direction.share <= 1))
-        throw new Error("A between share lies in [0, 1]");
-      const a: IAutoMovieVector3 = axis(direction.between[0]);
-      const b: IAutoMovieVector3 = axis(direction.between[1]);
-      if (Vector3.dot(a, b) < -0.5)
-        throw new Error("A direction between opposite axes is undefined");
-      local = Vector3.add(
-        Vector3.scale(a, 1 - direction.share),
-        Vector3.scale(b, direction.share),
-      );
-    } else {
-      if (direction.source.trim() === "")
-        throw new Error("An explicit direction states its source");
-      local = {
-        x: sign * direction.explicit.out,
-        y: direction.explicit.up,
-        z: direction.explicit.forward,
-      };
-      if (!(Vector3.length(local) > 1e-9))
-        throw new Error("An explicit direction has a length");
-    }
-    return HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw },
-      Vector3.normalize(local),
-    );
+    return HumanHandDirection.of(side, yaw, direction);
   }
 
   /**

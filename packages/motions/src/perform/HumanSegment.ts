@@ -18,6 +18,7 @@ import type {
 
 import type { HumanActionKey } from "../HumanActionKey";
 import { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
+import { HumanBase } from "../law/HumanBase";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
@@ -137,6 +138,14 @@ export namespace HumanSegment {
 
     /** Film second a later action takes the hand over; infinite while none has. */
     until: number;
+
+    /**
+     * Whether the action that took the hand over rides a carrier. The
+     * carrier is still running then, so the hold ends for it at `until`
+     * too, where a hold taken over by the next action still rides every
+     * action entered before the takeover.
+     */
+    riding?: boolean;
 
     /** The holding arm relative to the chest, captured when the carry starts. */
     carry?: ICarry;
@@ -488,6 +497,22 @@ export namespace HumanSegment {
       posture,
       feet: { left: foot("left"), right: foot("right") },
       supports: supports(previous, seconds),
+      base:
+        previous === undefined
+          ? { kind: "standing" }
+          : HumanBase.after({
+              declared: previous.plan.base,
+              entered: previous.context.entry.base,
+              supports: supports(previous, seconds),
+              share: (seconds - previous.start) / previous.plan.duration,
+            }),
+      holds: Object.fromEntries(
+        person.holds
+          .filter(
+            (h: IHeld): boolean => h.from <= seconds && seconds < h.until,
+          )
+          .map((h: IHeld): ["left" | "right", string] => [h.side, h.prop]),
+      ),
       ...(previous === undefined
         ? {}
         : {
@@ -582,24 +607,43 @@ export namespace HumanSegment {
    * out is blended joint by joint against the body without it over `FADE`,
    * so neither end steps.
    *
+   * A hand that carries a held prop rides the chest wherever no overlay of
+   * the pose being built drives it, so the body without an overlay, which an
+   * overlay fades from and back to, still carries what the hand holds.
+   *
    * @param person The person.
    * @param posture The carrier's posture at the second, layers applied.
    * @param seconds Film seconds.
+   * @param carried The holds the carrier carries at the second.
    * @returns The pose.
    */
   export function overlaid(
     person: IPerson,
     posture: IHumanPosture,
     seconds: number,
+    carried: readonly IHeld[] = [],
   ): IAutoMoviePose {
     const body = person.performer.body;
-    const active: IOverlay[] = person.overlays.filter(
-      (o: IOverlay): boolean =>
-        seconds >= o.entryTime - 1e-12 && seconds <= o.end + 1e-12,
-    );
-    const build = (k: number, under: IHumanPosture): IAutoMoviePose => {
+    const active: IOverlay[] = running(person, seconds);
+    const build = (
+      k: number,
+      under: IHumanPosture,
+      used: readonly IOverlay[],
+    ): IAutoMoviePose => {
       const overlay: IOverlay | undefined = active[k];
-      if (overlay === undefined) return resolveHumanPosture(body, under);
+      if (overlay === undefined) {
+        let leaf: IAutoMoviePose = resolveHumanPosture(body, under);
+        for (const [limb, goal] of carries(
+          person,
+          leaf,
+          carried.filter(
+            (h: IHeld): boolean =>
+              !used.some((o: IOverlay): boolean => drives(o.plan, h.side)),
+          ),
+        ))
+          leaf = resolveHumanPosture.limb(body, leaf, limb, goal);
+        return leaf;
+      }
       const written: IHumanPosture = AutoMovieMotionHumanChannel.merge(
         under,
         overlay.plan.posture(
@@ -613,9 +657,9 @@ export namespace HumanSegment {
         ).s,
         minimumJerk(Math.min(1, Math.max(0, (overlay.end - seconds) / FADE))).s,
       );
-      const over: IAutoMoviePose = build(k + 1, written);
+      const over: IAutoMoviePose = build(k + 1, written, [...used, overlay]);
       if (weight >= 1) return over;
-      const without: IAutoMoviePose = build(k + 1, under);
+      const without: IAutoMoviePose = build(k + 1, under, used);
       const angles = (
         pose: IAutoMoviePose,
         bone: AutoMovieHumanoidBone,
@@ -649,7 +693,63 @@ export namespace HumanSegment {
         ],
       };
     };
-    return build(0, posture);
+    return build(0, posture, []);
+  }
+
+  /**
+   * The overlays that run at a second.
+   *
+   * @param person The person.
+   * @param seconds Film seconds.
+   * @returns The overlays, in placement order.
+   */
+  export function running(person: IPerson, seconds: number): IOverlay[] {
+    return person.overlays.filter(
+      (o: IOverlay): boolean =>
+        seconds >= o.entryTime - 1e-12 && seconds <= o.end + 1e-12,
+    );
+  }
+
+  /**
+   * The arm goals that carry held props on a pose: each holding hand rides
+   * the chest with the offset it had when its action ended, the
+   * trunk-relative goal of a carried object.
+   *
+   * @param person The person.
+   * @param pose The pose whose chest carries the hands.
+   * @param holds The holds to carry.
+   * @returns Each holding arm with its goal.
+   */
+  export function carries(
+    person: IPerson,
+    pose: IAutoMoviePose,
+    holds: readonly IHeld[],
+  ): ["leftArm" | "rightArm", IHumanPosture.IGoal][] {
+    if (holds.length === 0) return [];
+    const chest: IAutoMovieResolvedBone = bones(person, pose).get("chest")!;
+    return holds.map(
+      (h: IHeld): ["leftArm" | "rightArm", IHumanPosture.IGoal] => {
+        h.carry ??= capture(person, h);
+        return [
+          h.side === "left" ? "leftArm" : "rightArm",
+          {
+            point: Vector3.add(
+              chest.worldPosition,
+              Quaternion.rotateVector(chest.worldRotation, h.carry.position),
+            ),
+            rotation: Quaternion.normalize(
+              Quaternion.multiply(chest.worldRotation, h.carry.rotation),
+            ),
+            bend: Vector3.add(
+              chest.worldPosition,
+              Quaternion.rotateVector(chest.worldRotation, h.carry.elbow),
+            ),
+            reference: h.carry.reference,
+            planted: true,
+          },
+        ];
+      },
+    );
   }
 
   /**
@@ -668,57 +768,78 @@ export namespace HumanSegment {
     seconds: number,
   ): IAutoMoviePose {
     const body = person.performer.body;
-    const local: number = Math.min(
-      segment.plan.duration,
-      Math.max(0, seconds - segment.start),
-    );
-    let posture: IHumanPosture = layered(
-      person,
-      segment.plan.posture(local),
-      seconds,
-    );
-    // A hold rides every action entered before its takeover, at any second:
-    // an interrupted action evaluated past its cut (a transition's source, an
-    // entry state) still carries what it carried when it was cut.
-    const carried: IHeld[] = person.holds.filter(
+    // The action as it is shown at a second before any transition offset:
+    // its posture under the layers, the holds it carries, and the pose with
+    // the overlays written over it.
+    const shown = (
+      t: number,
+    ): { posture: IHumanPosture; carried: IHeld[]; pose: IAutoMoviePose } => {
+      let written: IHumanPosture = layered(
+        person,
+        segment.plan.posture(
+          Math.min(segment.plan.duration, Math.max(0, t - segment.start)),
+        ),
+        t,
+      );
+
+      // A hold rides every action entered before its takeover, at any
+      // second: an interrupted action evaluated past its cut (a transition's
+      // source, an entry state) still carries what it carried when it was
+      // cut.
+      const held: IHeld[] = person.holds.filter(
+        (h: IHeld): boolean =>
+          h.source !== segment &&
+          h.from <= t &&
+          (t < h.until ||
+            (h.riding === true
+              ? t < h.until + FADE
+              : segment.entryTime < h.until)) &&
+          !drives(segment.plan, h.side),
+      );
+
+      // An overlay that takes a hold over fades in from the body without
+      // it, which must still carry the hand as the hold it took over did. So
+      // that hold keeps carrying through the fade, ahead of the hold the
+      // overlay leaves, which carries from there on and under the overlay's
+      // way out.
+      const borne: IHeld[] = held.filter(
+        (h: IHeld, index: number): boolean =>
+          !held
+            .slice(0, index)
+            .some(
+              (earlier: IHeld): boolean =>
+                earlier.riding === true && earlier.side === h.side,
+            ),
+      );
+      for (const h of borne)
+        written = { ...written, joints: { ...written.joints, ...h.fingers } };
+      return {
+        posture: written,
+        carried: borne,
+        pose: overlaid(person, written, t, borne),
+      };
+    };
+    const now: ReturnType<typeof shown> = shown(seconds);
+    let posture: IHumanPosture = now.posture;
+    const carried: IHeld[] = now.carried;
+    let pose: IAutoMoviePose = now.pose;
+
+    // A carried hand no overlay drives keeps its goal as a planted one, so
+    // the transition's offset below never moves what it holds. A hand an
+    // overlay drives is that overlay's, faded in and out by `overlaid`.
+    const active: IOverlay[] = running(person, seconds);
+    const kept: IHeld[] = carried.filter(
       (h: IHeld): boolean =>
-        h.source !== segment &&
-        h.from <= seconds &&
-        (seconds < h.until || segment.entryTime < h.until) &&
-        !drives(segment.plan, h.side),
+        !active.some((o: IOverlay): boolean => drives(o.plan, h.side)),
     );
-    for (const h of carried)
-      posture = { ...posture, joints: { ...posture.joints, ...h.fingers } };
-    let pose: IAutoMoviePose = overlaid(person, posture, seconds);
-    if (carried.length !== 0) {
-      // The carry: each held hand rides the chest with the offset it had when
-      // its action ended, the trunk-relative goal of a carried object.
-      const chest: IAutoMovieResolvedBone = bones(person, pose).get("chest")!;
-      const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
-      for (const h of carried) {
-        h.carry ??= capture(person, h);
-        const goal: IHumanPosture.IGoal = {
-          point: Vector3.add(
-            chest.worldPosition,
-            Quaternion.rotateVector(chest.worldRotation, h.carry.position),
-          ),
-          rotation: Quaternion.normalize(
-            Quaternion.multiply(chest.worldRotation, h.carry.rotation),
-          ),
-          bend: Vector3.add(
-            chest.worldPosition,
-            Quaternion.rotateVector(chest.worldRotation, h.carry.elbow),
-          ),
-          reference: h.carry.reference,
-          planted: true,
-        };
-        const limb: "leftArm" | "rightArm" =
-          h.side === "left" ? "leftArm" : "rightArm";
-        limbs[limb] = goal;
-        pose = resolveHumanPosture.limb(body, pose, limb, goal);
-      }
-      posture = { ...posture, limbs };
-    }
+    if (kept.length !== 0)
+      posture = {
+        ...posture,
+        limbs: {
+          ...posture.limbs,
+          ...Object.fromEntries(carries(person, pose, kept)),
+        },
+      };
     // A stopped weapon's limb holds its contact when its law does not take its
     // stops itself; a law that does shows its own dwell and recoil.
     if (segment.plan.stop === undefined)
@@ -759,21 +880,12 @@ export namespace HumanSegment {
           "before",
           humanRig(body),
         ),
+        // The target is read as it is shown, its carried hands and its
+        // overlays included: an offset taken against the bare posture would
+        // hold the difference of an arm the carry or an overlay already
+        // places, and add it on top of that placement.
         samplePoseVelocity(
-          (t: number): IAutoMoviePose =>
-            resolveHumanPosture(
-              body,
-              layered(
-                person,
-                segment.plan.posture(
-                  Math.min(
-                    segment.plan.duration,
-                    Math.max(0, t - segment.start),
-                  ),
-                ),
-                t,
-              ),
-            ),
+          (t: number): IAutoMoviePose => shown(t).pose,
           transition.cut,
           1e-3,
           "after",
@@ -818,6 +930,7 @@ export namespace HumanSegment {
       segment.plan.settle?.();
       if (segment.transition !== undefined) delete segment.transition.offset;
     }
+    for (const overlay of person.overlays) overlay.plan.settle?.();
     for (const held of person.holds) delete held.carry;
     person.cache.clear();
   }

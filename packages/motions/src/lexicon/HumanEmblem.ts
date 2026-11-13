@@ -23,14 +23,15 @@ export namespace HumanEmblem {
     elbow: "level",
   });
 
-  /** Hush: the forefinger upright across the lips (the hold is provisional). */
+  /** Hush: the forefinger upright across the lips, its middle on them and the palm turned to the other side, so the thumb's side of the finger meets the mouth and the wrist stays near straight (provisional: the hold, the fifth of a hand the tip stands above the lips, and the twentieth of a hand, the finger's half thickness, its axis stands off them). */
   export const hush = HumanActionRow.of("hush", handToFace, {
     task: {
       region: "mouth",
       effector: {
         surface: "indexTip",
         shape: "point",
-        facing: "palm",
+        tool: { fingers: -0.2, thumb: 0.05 },
+        facing: "thumb",
         along: "fingers",
       },
       kind: "hold",
@@ -42,12 +43,9 @@ export namespace HumanEmblem {
     },
   });
 
-  /** Palms together at the chest, as a prayer or a greeting (wai, gassho). */
-  export const palmsTogether = HumanActionRow.of("palmsTogether", touch, {
-    target: { kind: "self", region: "sternum" },
-    other: { kind: "self", region: "sternum" },
-    with: "palm",
-    kind: "hold",
+  /** Palms together ahead of the chest, as a prayer or a greeting (wai, gassho): the gesture's held meeting of the two palms. */
+  export const palmsTogether = HumanActionRow.of("palmsTogether", gesture, {
+    kind: "palmsTogether",
   });
 
   /** A hand on the heart: the right palm on the left chest. */
@@ -58,11 +56,16 @@ export namespace HumanEmblem {
     side: "right",
   });
 
-  /** A blown kiss: the fingertips to the lips, then away (provisional: the outward throw is the retraction). */
+  /** A blown kiss: the fingertips to the lips, then away (provisional: the outward throw is the retraction). The hand leans half way between upright and level, the fingers pointing up and back at the mouth with the palm toward the chin, so the forearm comes from below. */
   export const blownKiss = HumanActionRow.of("blownKiss", handToFace, {
     task: {
       region: "mouth",
-      effector: { surface: "indexTip", shape: "flat" },
+      effector: {
+        surface: "indexTip",
+        shape: "flat",
+        facing: { fingers: 1, palm: 1 },
+        along: { fingers: 1, palm: -1 },
+      },
       kind: "tap",
       count: 1,
       hold: 0.2,
@@ -102,5 +105,94 @@ export namespace HumanEmblem {
   /** "I do not know": the shrug with the palms turned up. */
   export const dontKnow = HumanActionRow.of("dontKnow", gesture, {
     kind: "shrug",
+  });
+
+  /** A thumbs up: the fist held out before the shoulder with the thumb straight (first pass: the hand's attitude is the stop palm's, provisional). */
+  export const thumbsUp = HumanActionRow.of("thumbsUp", gesture, {
+    kind: "stopPalm",
+    shape: "thumbUp",
+  });
+
+  /** The OK sign: the forefinger and thumb in a ring, held out (first pass, provisional attitude). */
+  export const okSign = HumanActionRow.of("okSign", gesture, {
+    kind: "stopPalm",
+    shape: "ok",
+  });
+
+  /** The V sign: forefinger and middle finger spread, held out (first pass, provisional attitude). */
+  export const victorySign = HumanActionRow.of("victorySign", gesture, {
+    kind: "stopPalm",
+    shape: "victory",
+  });
+
+  /** Crossed fingers, held out (first pass, provisional attitude). */
+  export const crossedFingers = HumanActionRow.of("crossedFingers", gesture, {
+    kind: "stopPalm",
+    shape: "crossed",
+  });
+
+  /** Counting one on the fingers, from the forefinger on (one convention; cultures differ). */
+  export const countOne = HumanActionRow.of("countOne", gesture, {
+    kind: "stopPalm",
+    shape: "count1",
+  });
+
+  /** Counting two on the fingers. */
+  export const countTwo = HumanActionRow.of("countTwo", gesture, {
+    kind: "stopPalm",
+    shape: "count2",
+  });
+
+  /** Counting three on the fingers. */
+  export const countThree = HumanActionRow.of("countThree", gesture, {
+    kind: "stopPalm",
+    shape: "count3",
+  });
+
+  /** Counting four on the fingers. */
+  export const countFour = HumanActionRow.of("countFour", gesture, {
+    kind: "stopPalm",
+    shape: "count4",
+  });
+
+  /** Counting five on the fingers: the open hand. */
+  export const countFive = HumanActionRow.of("countFive", gesture, {
+    kind: "stopPalm",
+    shape: "count5",
+  });
+
+  /** A shaken fist: the raised fist swung from side to side (first pass on the wave's stroke, provisional). */
+  export const shakeFist = HumanActionRow.of("shakeFist", gesture, {
+    kind: "wave",
+    shape: "thumbUp",
+  });
+
+  /** The hand set for a finger snap: the middle fingertip on the thumb's, held out (first pass: the snap's release is not moved). */
+  export const fingerSnap = HumanActionRow.of("fingerSnap", gesture, {
+    kind: "stopPalm",
+    shape: "snap",
+  });
+
+  /** Air quotes: both hands raised with two fingers hooked (first pass on the raised hands of a cheer; the fingers do not flex twice yet). */
+  export const airQuotes = HumanActionRow.of("airQuotes", gesture, {
+    kind: "cheer",
+    shape: "quotes",
+  });
+
+  /** A hand over the mouth, as at a gasp or a yawn. */
+  export const coverMouth = HumanActionRow.of("coverMouth", touch, {
+    target: { kind: "self", region: "mouth" },
+    with: "palm",
+    kind: "hold",
+    side: "right",
+  });
+
+  /** Both hands over the ears. */
+  export const coverEars = HumanActionRow.of("coverEars", touch, {
+    target: { kind: "self", region: "earRight" },
+    other: { kind: "self", region: "earLeft" },
+    with: "palm",
+    kind: "hold",
+    side: "right",
   });
 }

@@ -15,10 +15,10 @@ import type { AutoMovieHumanoidRegion } from "@automovie/interface";
  */
 export interface IHumanContactWindow {
   /** The body part in contact. */
-  part: "leftFoot" | "rightFoot" | "leftHand" | "rightHand" | "seat" | "back";
+  part: (typeof IHumanContactWindow.PARTS)[number];
 
   /** How it bears: fixed, turning about the contact, holding, sitting, lying or striking. */
-  kind: "plant" | "pivot" | "grip" | "seat" | "lie" | "strike";
+  kind: (typeof IHumanContactWindow.KINDS)[number];
 
   /** Start share. */
   from: number;
@@ -31,6 +31,26 @@ export interface IHumanContactWindow {
 }
 /** Companion types of {@link IHumanContactWindow}. */
 export namespace IHumanContactWindow {
+  /** The body parts a contact window can name, as data. */
+  export const PARTS = [
+    "leftFoot",
+    "rightFoot",
+    "leftHand",
+    "rightHand",
+    "seat",
+    "back",
+  ] as const;
+
+  /** The ways a part bears, as data. */
+  export const KINDS = [
+    "plant",
+    "pivot",
+    "grip",
+    "seat",
+    "lie",
+    "strike",
+  ] as const;
+
   /** The frame a contact bears on: the ground, a prop subject or a person's region. */
   export type Support =
     | { kind: "ground" }

@@ -7,6 +7,7 @@ import type {
 
 import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import type { HumanBase } from "./HumanBase";
 import type { IHumanContactWindow } from "./IHumanContactWindow";
 
 /**
@@ -35,6 +36,24 @@ export interface IHumanActionPlan {
    * for a plan that writes the whole body.
    */
   channels?: readonly AutoMovieMotionHumanChannel[];
+
+  /**
+   * The base the action leaves the body on at its end, declared by an
+   * action that changes what carries the body: sitting down declares the
+   * seat, kneeling the kneel, rising the stand. Absent for an action that
+   * keeps the base it is entered on, which the performance then passes on
+   * to the next action unchanged (`IHumanEntryState.base`).
+   */
+  base?: HumanBase;
+
+  /**
+   * The tool the action works with in a hand: the held prop and which of
+   * its affordances are its working point and its edge. Another performer's
+   * law that answers this action (a parry of a cut, a flinch from a muzzle)
+   * reads the tool here through `IHumanActionContext.action`. Absent for an
+   * action performed with the bare body.
+   */
+  wields?: IHumanActionPlan.ITool;
 
   /** Seconds from the start to the decisive instant (an impact, a landing, a grip), when the action has one. */
   contact?: number;
@@ -165,6 +184,21 @@ export namespace IHumanActionPlan {
 
     /** Film second of contact. */
     seconds: number;
+  }
+
+  /** A held prop an action works with. */
+  export interface ITool {
+    /** The prop's subject id. */
+    prop: string;
+
+    /** The holding hand. */
+    side: "left" | "right";
+
+    /** The affordance id of its working point: a blade's point, a muzzle, a hammer's face. */
+    tip: string;
+
+    /** The affordance id of its edge or sighting direction, where it has one. */
+    edge?: string;
   }
 
   /** A prop left held in one hand. */

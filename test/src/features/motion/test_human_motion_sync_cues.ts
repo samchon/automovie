@@ -1,3 +1,4 @@
+import type { resolveAutoMovieSchedule } from "@automovie/engine";
 import {
   HumanChain,
   HumanCue,
@@ -52,7 +53,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_sync_cues(): void {
   const FRAME: number = 1 / 24;
-  const cues = {
+  const cues: { dialogue: resolveAutoMovieSchedule.ICue[]; music: resolveAutoMovieSchedule.ICue[] } = {
     dialogue: HumanCue.dialogue([{ from: 1, to: 4, accents: [2.0, 3.2] }]),
     music: HumanCue.beats({ bpm: 96, count: 16 }),
   };
@@ -97,7 +98,12 @@ export function test_human_motion_sync_cues(): void {
     const body: IHumanBody = motionHumanBody(name);
 
     // 1. The stroke meets the accent, and the stand gives way where needed.
-    const [stood, wave] = perform({ a: body }, waving(0)).segments("a");
+    const waved: readonly HumanSegment.ISegment[] = perform(
+      { a: body },
+      waving(0),
+    ).segments("a");
+    const stood: HumanSegment.ISegment | undefined = waved[0];
+    const wave: HumanSegment.ISegment | undefined = waved[1];
     const met: number = instant(wave!, "strokeStart");
     if (!(Math.abs(met - 2.0) <= FRAME))
       complaints.push(
@@ -113,7 +119,7 @@ export function test_human_motion_sync_cues(): void {
       );
 
     // 2. Moving the cue moves the action and nothing else.
-    const later = perform({ a: body }, waving(1)).segments("a")[1]!;
+    const later: HumanSegment.ISegment = perform({ a: body }, waving(1)).segments("a")[1]!;
     for (const event of wave!.plan.events) {
       const moved: number =
         instant(later, event.name) - instant(wave!, event.name);
@@ -127,7 +133,7 @@ export function test_human_motion_sync_cues(): void {
   const body: IHumanBody = motionHumanBody("m-average");
 
   // 3. A cut on a beat.
-  const cut = perform(
+  const cut: HumanSegment.ISegment = perform(
     { a: body },
     HumanChain.subject("a")
       .stand({ seconds: 5 })
@@ -164,17 +170,24 @@ export function test_human_motion_sync_cues(): void {
     complaints.push(
       `the listener's nod starts its stroke at ${answered.toFixed(3)} s, within a frame of ${asked.toFixed(3)} s expected`,
     );
-  const placed = (performance: HumanPerformance): string =>
-    JSON.stringify(
-      ["a", "b"].map((subject: string) =>
-        performance
-          .segments(subject)
-          .map((s: HumanSegment.ISegment) => [s.name, s.entryTime, s.end]),
-      ),
-    );
-  if (placed(first) !== placed(pair()))
+  // Whether two films place every action at the same seconds, to a
+  // nanosecond.
+  const alike = (one: HumanPerformance, other: HumanPerformance): boolean =>
+    ["a", "b"].every((subject: string): boolean => {
+      const here: readonly HumanSegment.ISegment[] = one.segments(subject);
+      const there: readonly HumanSegment.ISegment[] = other.segments(subject);
+      return (
+        here.length === there.length &&
+        here.every(
+          (segment: HumanSegment.ISegment, index: number): boolean =>
+            segment.name === there[index]!.name &&
+            Math.abs(segment.entryTime - there[index]!.entryTime) <= 1e-9 &&
+            Math.abs(segment.end - there[index]!.end) <= 1e-9,
+        )
+      );
+    });
+  if (!alike(first, pair()))
     complaints.push("the same composition and seed place the actions apart");
-
   // 6. What cannot be met.
   const early: unknown = refused(() =>
     perform(
@@ -236,8 +249,8 @@ export function test_human_motion_sync_cues(): void {
     );
 
   // 7. The tracks.
-  const beats = cues.music.filter((c): boolean => c.name === "beat");
-  const downs = cues.music.filter((c): boolean => c.name === "downbeat");
+  const beats: resolveAutoMovieSchedule.ICue[] = cues.music.filter((c): boolean => c.name === "beat");
+  const downs: resolveAutoMovieSchedule.ICue[] = cues.music.filter((c): boolean => c.name === "downbeat");
   if (
     beats.length !== 16 ||
     downs.length !== 4 ||
@@ -247,7 +260,7 @@ export function test_human_motion_sync_cues(): void {
     complaints.push(
       `16 beats at 96 a minute in common time: got ${beats.length} beats and ${downs.length} downbeats, or one off its second`,
     );
-  const spoken = HumanCue.dialogue([
+  const spoken: string[] = HumanCue.dialogue([
     { from: 5, to: 6, accents: [5.5] },
     { from: 1, to: 4, accents: [2, 3.2], phrases: [2.6] },
   ]).map((c): string => c.name);

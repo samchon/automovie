@@ -105,22 +105,24 @@ export interface IHumanActionContext<P = object> {
   prop(subject: string): IHumanActionContext.IProp;
 
   /**
-   * The meeting of an action this performer does with another: the one
-   * record both roles read, computed from where both stand at this action's
-   * start by whichever role is planned first. With no partner it is this
-   * role's own meeting on its default places, which is not solid. It may be
-   * read at plan time, so the partner's earlier actions must be placed first.
+   * The meeting of an action this performer does with others: the one
+   * record every role reads, computed from where all stand at this action's
+   * start by whichever role is planned first, and the same whichever that
+   * is. With no partner it is this role's own meeting on its default
+   * places, which is not solid. It may be read at plan time, so the
+   * partners' earlier actions must be placed first, as `HumanChain.mutual`
+   * places them.
    *
    * @param kind The kind of mutual action.
    * @param role This performer's role in it.
-   * @param partner The other performer and their role; absent when alone.
+   * @param partner The other performer and their role, or every other one of a meeting of three or more; absent when alone.
    * @returns The meeting.
    * @throws {Error} When no such performer exists, or the kind lacks a role.
    */
   meeting(
     kind: AutoMovieMotionMeeting.IKind,
     role: string,
-    partner?: { role: string; subject: string },
+    partner?: IHumanActionContext.IPartner | readonly IHumanActionContext.IPartner[],
   ): AutoMovieMotionMeeting.IMeeting;
 
   /**
@@ -164,6 +166,48 @@ export namespace IHumanActionContext {
      * @returns Resolved bones by rig bone.
      */
     bones(seconds: number): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+
+    /**
+     * Where their placed actions put their root at a film second, readable
+     * while a law plans: a follower, an escort or an interception plans its
+     * own path from where the other will be, not from where they stood when
+     * it began.
+     *
+     * It is the root their active action writes (the point a law places a
+     * body by, as its own `entry.posture.root` is: carried within the
+     * pelvis, a few centimetres from the pelvis joint on the floor plan),
+     * before layers and before the decaying offset of a cut, so it costs
+     * one posture of theirs and reads no pose. Before their first action it is their starting place,
+     * and after their last it is where that action left them.
+     *
+     * The other's path is known only as far as the composition has placed
+     * it, in the order the composition is written (a sequence part by part,
+     * a parallel group part by part), so the person read is composed before
+     * the one who reads.
+     *
+     * @param seconds Film seconds.
+     * @returns Their root.
+     * @throws {HumanRefusal} A `participant` refusal when the second lies after their last placed action while later actions of theirs are still to be placed.
+     */
+    root(seconds: number): IRoot;
+  }
+
+  /** Another performer of a meeting and the role they take in it. */
+  export interface IPartner {
+    /** Their role's name within the kind. */
+    role: string;
+
+    /** Their subject id. */
+    subject: string;
+  }
+
+  /** A person's root on the floor plan: where it is and which way it faces. */
+  export interface IRoot {
+    /** The root, world metres. */
+    position: IAutoMovieVector3;
+
+    /** The heading, degrees about +Y with 0 facing +Z. */
+    yaw: number;
   }
 
   /** The action an overlay is performed over. */

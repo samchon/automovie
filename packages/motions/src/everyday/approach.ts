@@ -7,6 +7,8 @@ import type {
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import { walk } from "../actions/walk";
+import { walkDelayed } from "../actions/walkDelayed";
+import { walkFollowed } from "../actions/walkFollowed";
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -43,7 +45,9 @@ import { HumanTrunk } from "./HumanTrunk";
  * A `side` stops on a named side of a person target instead, in that
  * person's own frame (their sternum's outward normal is their front), at the
  * same gap, and the walk's final heading turns the body to face them on the
- * last steps. People named in `avoid` are walked round: where the straight
+ * last steps. The person approached on a side is walked round like one
+ * named in `avoid`, so a stop behind them is not reached through them.
+ * People named in `avoid` are walked round: where the straight
  * leg would pass one nearer than the walker's lateral clearance (0.5 m,
  * provisional; walkers keep an elliptical personal space wider ahead than to
  * the side while circumventing a person, Gerin-Lajoie, Richards and McFadyen
@@ -54,8 +58,18 @@ import { HumanTrunk } from "./HumanTrunk";
  * arm swing and elbow width ({@link HumanEffort}); bound flow's elbows held
  * in cannot be shown, since the walk only widens them.
  *
+ * With `track`, a person who moves is followed: their placed root is read
+ * ahead over `HORIZON` seconds for where and when they come to rest, the
+ * stop is taken against the target carried and turned with their root to
+ * that place, and the walk waits in its first posture so that it arrives
+ * `LAG` after they stop, which keeps the follower behind a leader on the
+ * leader's own line. First pass: the walk is one straight approach to the
+ * resting place, with no speed matched and no gap kept through the
+ * leader's turns (Rio, Rhea and Warren 2014 give the speed-control law to
+ * read for that).
+ *
  * Events are the walk's (each foot's toe-offs and heel strikes,
- * `lastFootfall`, `arrive`).
+ * `lastFootfall`, `arrive`), and `depart` where the walk waited.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the goal, the method, the timing, the events and the refusals, with sources and provisional values marked.
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table and a pure plan of postures in world metres and seconds.
@@ -105,6 +119,18 @@ export namespace approach {
 
     /** People to walk round on the way, by subject id. */
     avoid?: string[];
+
+    /**
+     * Whether a person target is followed where they go: the stop is taken
+     * at the place they come to rest, read from their placed actions, and
+     * the walk begins late enough to arrive just after them. The person is
+     * then composed before this performer, or the read is refused. With
+     * `pace` the walk also keeps the person's pace on the way
+     * (`walkFollowed`): as far along its way as they were along theirs
+     * `LAG` earlier, so the gap holds while they walk. Absent, the target is
+     * read once, where it is when the approach begins.
+     */
+    track?: boolean | "pace";
   }
 
   /** Lateral clearance a walker keeps from a person it passes, metres (provisional; Gerin-Lajoie, Richards and McFadyen 2005). */
@@ -117,7 +143,7 @@ export namespace approach {
    *
    * @param context The action's context.
    * @returns The walk's plan to the stop point.
-   * @throws {HumanRefusal} When the target is already nearer than the gap, or a side is asked of a target that is not a person.
+   * @throws {HumanRefusal} When the target is already nearer than the gap, a side or tracking is asked of a target that is not a person, or a tracked person is composed after this performer.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is planned, the arrival correction, the returned plan and both refusals.
    * @evidence contracts/development/implementation.md#principled-implementation The stop is the proxemic gap (Hall) measured from the sternum region along the line to the target, the partner's own measure for the handing gap; the walk law places whole footprints to it, and one correction moves the stop by the arriving sternum's measured gap error, since the walk's arrival lean shifts the chest off the standing estimate.
@@ -130,10 +156,129 @@ export namespace approach {
   export function plan(
     context: IHumanActionContext<IParams>,
   ): IHumanActionPlan {
+    const target: AutoMovieMotionTarget = context.params.target;
+    const aimed: IAim = context.aim(target, context.start);
+    if (context.params.track === undefined || context.params.track === false)
+      return to(context, aimed);
+    if (target.kind !== "person")
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "track",
+        value: true,
+        reason: `only a person is followed where they go; this target is a ${target.kind}`,
+        fix: "leave track out for a target that is not a person",
+      });
+
+    // Where and when the person comes to rest: their placed root is read ahead in half seconds over the horizon, and the last instant it moved is kept.
+    const leader: IHumanActionContext.IPerformer = context.performer(
+      target.subject,
+    );
+    const began: IHumanActionContext.IRoot = leader.root(context.start);
+    let rests: number = context.start;
+    let last: IHumanActionContext.IRoot = began;
+    for (let ahead: number = 0.5; ahead <= HORIZON; ahead += 0.5) {
+      const next: IHumanActionContext.IRoot = leader.root(
+        context.start + ahead,
+      );
+      if (
+        Math.hypot(
+          next.position.x - last.position.x,
+          next.position.z - last.position.z,
+        ) > 1e-3 ||
+        Math.abs(next.yaw - last.yaw) > 0.1
+      )
+        rests = context.start + ahead;
+      last = next;
+    }
+
+    // The target as it will be then: carried and turned with the person's root.
+    const there: IAim = {
+      point: {
+        x: aimed.point.x + last.position.x - began.position.x,
+        y: aimed.point.y,
+        z: aimed.point.z + last.position.z - began.position.z,
+      },
+      normal: HumanFrame.point(
+        { origin: { x: 0, y: 0, z: 0 }, yaw: last.yaw - began.yaw },
+        aimed.normal,
+      ),
+    };
+
+    // Where the person's way bends, the walk goes by the places they passed, so it takes their turns instead of cutting across them: four of their places evenly spaced in time, kept when the way leaves the straight line by more than `BEND` and the place is not within `BEND` of either end.
+    const passed: IAutoMovieVector3[] = [1, 2, 3, 4].map(
+      (k: number): IAutoMovieVector3 =>
+        leader.root(context.start + (k / 5) * (rests - context.start)).position,
+    );
+    const line: number = Math.hypot(
+      last.position.x - began.position.x,
+      last.position.z - began.position.z,
+    );
+    const off = (p: IAutoMovieVector3): number =>
+      line < 1e-6
+        ? Math.hypot(p.x - began.position.x, p.z - began.position.z)
+        : Math.abs(
+            (p.x - began.position.x) * (last.position.z - began.position.z) -
+              (p.z - began.position.z) * (last.position.x - began.position.x),
+          ) / line;
+    const here: IAutoMovieVector3 = context.entry.posture.root;
+    const bent: boolean = passed.some(
+      (p: IAutoMovieVector3): boolean => off(p) > BEND,
+    );
+    const path: IAutoMovieVector3[] = !bent
+      ? []
+      : passed
+          .filter(
+            (p: IAutoMovieVector3): boolean =>
+              Math.hypot(p.x - here.x, p.z - here.z) > BEND &&
+              Math.hypot(p.x - last.position.x, p.z - last.position.z) >
+                BEND + HumanProxemics.GAPS.social,
+          )
+          .map((p: IAutoMovieVector3): IAutoMovieVector3 => ({ ...p, y: 0 }));
+
+    // The walk there, begun late enough to arrive `LAG` after the person has stopped, so it never gets ahead of them on their own line.
+    const walked: IHumanActionPlan = to(context, there, path);
+    if (context.params.track === "pace")
+      return walkFollowed(
+        walked,
+        (seconds: number): IAutoMovieVector3 => leader.root(seconds).position,
+        context.start,
+        rests,
+        LAG,
+      );
+    const wait: number = Math.max(
+      0,
+      rests + LAG - context.start - walked.duration,
+    );
+    return wait < 1e-6 ? walked : walkDelayed(walked, wait);
+  }
+
+  /** How far ahead a tracked person's placed root is read for where they come to rest, seconds (provisional: longer than a shot). */
+  export const HORIZON: number = 60;
+
+  /** How far a tracked person's way must leave the straight line for the follower to take it by their places, and how near either end such a place is dropped, metres (provisional: about a body's clearance, as `CLEARANCE`). */
+  export const BEND: number = 0.5;
+
+  /** How long after a tracked person has stopped the follower arrives, seconds (provisional: about one step). */
+  export const LAG: number = 0.5;
+
+  /** A target's world point and outward unit normal. */
+  export interface IAim {
+    /** The point, world metres. */
+    point: IAutoMovieVector3;
+
+    /** The outward unit normal; a person's sternum's is their front. */
+    normal: IAutoMovieVector3;
+  }
+
+  /** Plan the walk to the stop place of a target given where it is: the stop, the waypoints, the walk and its one arrival correction. */
+  function to(
+    context: IHumanActionContext<IParams>,
+    aimed: IAim,
+    path: readonly IAutoMovieVector3[] = [],
+  ): IHumanActionPlan {
     const body: IHumanBody = context.body;
     const p: IParams = context.params;
     const target: AutoMovieMotionTarget = p.target;
-    const aimed = context.aim(target, context.start);
     const point: IAutoMovieVector3 = aimed.point;
     const other: IAutoMovieBodyMeasure =
       target.kind === "person"
@@ -201,8 +346,17 @@ export namespace approach {
     // Walk round people in the way: a waypoint abeam each one the straight
     // leg would pass nearer than the clearance plus their half breadth, on
     // the side that deviates least.
-    const via: IAutoMovieVector3[] = [];
-    for (const subject of p.avoid ?? []) {
+    // The person approached is walked round too when the stop lies on a side
+    // of them the straight leg would reach through them.
+    const round: string[] = [...(p.avoid ?? [])];
+    if (
+      p.side !== undefined &&
+      target.kind === "person" &&
+      !round.includes(target.subject)
+    )
+      round.push(target.subject);
+    const via: IAutoMovieVector3[] = [...path];
+    for (const subject of round) {
       const at: IAutoMovieVector3 = context.aim(
         { kind: "person", subject, region: "sternum" },
         context.start,

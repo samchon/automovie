@@ -8,6 +8,7 @@ import {
   type IHumanBody,
   type IHumanLayer,
   type IHumanPosture,
+  type HumanSegment,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -86,7 +87,7 @@ export function test_human_motion_layer_windows(): void {
     other: HumanPerformance,
     seconds: number,
   ): number => {
-    const there = other.bones("a", seconds);
+    const there: ReturnType<HumanPerformance["bones"]> = other.bones("a", seconds);
     let far: number = 0;
     for (const [bone, resolved] of one.bones("a", seconds)) {
       const p: IAutoMovieVector3 = resolved.worldPosition;
@@ -150,7 +151,7 @@ export function test_human_motion_layer_windows(): void {
     },
   ]);
   const cue: number = sighing.instant({ of: "bye", event: "strokeEnd" });
-  const wave = sighing.segments("b")[1]!;
+  const wave: HumanSegment.ISegment = sighing.segments("b")[1]!;
   const stroke: number =
     wave.start +
     wave.plan.events.find((e): boolean => e.name === "strokeEnd")!.share *

@@ -52,10 +52,27 @@ export namespace AutoMovieMotionHumanTouchEffector {
     | "-grasp";
 
   /**
+   * A direction of the hand: one of its axes, or a blend of the three
+   * anatomical ones by weight, normalised, for a direction between them:
+   * fingertips brought to the lips point half toward the face and half up
+   * it (`{ fingers: 1, palm: 1 }` turned into the region), and a held prop's
+   * own axis lies wherever the grip put it. Weights name anatomical axes, so
+   * a left and a right hand state the same direction.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two forms, what a blend is for and why it is side-free.
+   * @evidence contracts/development/design.md#principled-representation Any direction in the hand's frame is a combination of its three orthogonal axes; the record states the combination and `direction` normalises it.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One alias, read by the effector's two laid directions.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No raw bone-space vector, which would mean opposite things on the two hands; all weights zero is refused by `direction`.
+   */
+  export type Direction =
+    | Axis
+    | Partial<Record<"fingers" | "palm" | "thumb", number>>;
+
+  /**
    * An effector.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit and default.
-   * @evidence contracts/development/design.md#principled-representation A surface, a shape, an optional tool offset and the two axes laid against the region.
+   * @evidence contracts/development/design.md#principled-representation A surface, a shape, an optional tool offset and the two directions laid against the region.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Five members read by `local`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Without the axes a surface uses its own normal and forward, so a bare skin row states nothing extra.
    */
@@ -69,11 +86,11 @@ export namespace AutoMovieMotionHumanTouchEffector {
     /** A held tool's tip from the surface, shares of the hand's length along each axis; none when absent. */
     tool?: Partial<Record<"fingers" | "palm" | "thumb", number>>;
 
-    /** The hand axis turned into the region; the surface's own normal when absent. */
-    facing?: Axis;
+    /** The direction of the hand turned into the region; the surface's own normal when absent. */
+    facing?: Direction;
 
-    /** The hand axis laid along the region's tangent; the surface's own forward when absent. */
-    along?: Axis;
+    /** The direction of the hand laid along the region's tangent; the surface's own forward when absent. */
+    along?: Direction;
   }
 
   /**
@@ -108,6 +125,38 @@ export namespace AutoMovieMotionHumanTouchEffector {
             ? { x: 0, y: 0, z: 1 }
             : { x: fingers * Math.sin(lean), y: 0, z: Math.cos(lean) };
     return Vector3.scale(v, sign);
+  }
+
+  /**
+   * A direction of the hand in its rest frame.
+   *
+   * @param side The hand.
+   * @param direction An axis, or weights on the three anatomical axes.
+   * @returns The unit vector.
+   * @throws {Error} When every weight is zero.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two inputs, the result and the failure.
+   * @evidence contracts/development/implementation.md#principled-implementation The weighted sum of the three orthonormal anatomical axes, normalised.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch on the form and one sum.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A blend with no length throws instead of returning an arbitrary axis.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `axis`.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function direction(
+    side: HumanHand.Side,
+    direction: Direction,
+  ): IAutoMovieVector3 {
+    if (typeof direction === "string") return axis(side, direction);
+    let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+    for (const name of ["fingers", "palm", "thumb"] as const)
+      sum = Vector3.add(
+        sum,
+        Vector3.scale(axis(side, name), direction[name] ?? 0),
+      );
+    if (!(Vector3.length(sum) > 1e-9))
+      throw new Error("A direction of the hand needs a weight that is not 0");
+    return Vector3.normalize(sum);
   }
 
   /**
@@ -154,11 +203,11 @@ export namespace AutoMovieMotionHumanTouchEffector {
       normal:
         effector.facing === undefined
           ? surface.normal
-          : axis(side, effector.facing),
+          : direction(side, effector.facing),
       forward:
         effector.along === undefined
           ? surface.forward
-          : axis(side, effector.along),
+          : direction(side, effector.along),
     };
   }
 

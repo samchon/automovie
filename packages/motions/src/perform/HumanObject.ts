@@ -2,6 +2,7 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMoviePhysicalProfile,
+  IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -188,6 +189,8 @@ export namespace HumanObject {
       Quaternion.multiply(world.rotation, found.frame.rotation),
       { x: 0, y: 0, z: 1 },
     );
+    const rests: Partial<Record<"left" | "right", IAutoMovieVector3>> =
+      footrests(model.affordances ?? [], found, world);
     return {
       at: Vector3.add(
         world.position,
@@ -196,6 +199,74 @@ export namespace HumanObject {
       yaw: (Math.atan2(forward.x, forward.z) * 180) / Math.PI,
       ...(found.depth === undefined ? {} : { depth: found.depth }),
       ...(found.back === undefined ? {} : { back: found.back }),
+      ...(found.astride === undefined ? {} : { astride: found.astride }),
+      ...(found.mount === undefined ? {} : { mount: found.mount }),
+      ...(Object.keys(rests).length === 0 ? {} : { footrests: rests }),
     };
+  }
+
+  /**
+   * Where the feet rest on an object while its seat is sat on: the tread
+   * nearest the seat on each side among the object's pedals and stirrups, or,
+   * when it has none below the seat, two points of the nearest bar below it,
+   * a quarter of the bar's length to each side of its middle.
+   *
+   * A point counts as below the seat when it lies under the sitting surface
+   * in the seat's own frame, whose `+X` is the sitter's left. Whether a leg
+   * reaches a rest is the sitting law's to judge on the body that sits.
+   */
+  function footrests(
+    affordances: readonly IAutoMovieAffordance[],
+    seat: IAutoMovieAffordance,
+    world: IHumanProp.IFrame,
+  ): Partial<Record<"left" | "right", IAutoMovieVector3>> {
+    const inverse: IAutoMovieTransform["rotation"] = Quaternion.inverse(
+      seat.frame.rotation,
+    );
+    const seated = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+      Quaternion.rotateVector(
+        inverse,
+        Vector3.subtract(point, seat.frame.translation),
+      );
+    const placed = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+      Vector3.add(
+        world.position,
+        Quaternion.rotateVector(world.rotation, point),
+      );
+    const below = (kinds: readonly string[]): IAutoMovieAffordance[] =>
+      affordances
+        .filter(
+          (affordance: IAutoMovieAffordance): boolean =>
+            kinds.includes(affordance.kind) &&
+            seated(affordance.frame.translation).y < 0,
+        )
+        .sort(
+          (a: IAutoMovieAffordance, b: IAutoMovieAffordance): number =>
+            Vector3.length(seated(a.frame.translation)) -
+            Vector3.length(seated(b.frame.translation)),
+        );
+    const out: Partial<Record<"left" | "right", IAutoMovieVector3>> = {};
+
+    // The nearest tread on each side comes first in the sorted list.
+    for (const tread of below(["pedal", "stirrup"])) {
+      const side: "left" | "right" =
+        seated(tread.frame.translation).x > 0 ? "left" : "right";
+      out[side] ??= placed(tread.frame.translation);
+    }
+    if (Object.keys(out).length !== 0) return out;
+    const bar: IAutoMovieAffordance | undefined = below(["bar"])[0];
+    if (bar === undefined || bar.length === undefined) return out;
+    const reach: IAutoMovieVector3 = Quaternion.rotateVector(
+      bar.frame.rotation,
+      { x: bar.length / 4, y: 0, z: 0 },
+    );
+    const ends: IAutoMovieVector3[] = [
+      Vector3.add(bar.frame.translation, reach),
+      Vector3.subtract(bar.frame.translation, reach),
+    ].sort(
+      (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
+        seated(b).x - seated(a).x,
+    );
+    return { left: placed(ends[0]!), right: placed(ends[1]!) };
   }
 }

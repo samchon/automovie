@@ -35,11 +35,13 @@ export interface IHumanLayer {
   name: string;
 
   /**
-   * The channels the layer writes beyond what every action leaves free, such
-   * as an arm a mood lets hang. A layer scheduled in a window during which
-   * one of the person's actions holds such a channel by a contact (a grip on
-   * that hand, a planted foot of that leg) is refused when the performance
-   * is built. Absent for a layer that only adds to joints no contact holds.
+   * The channels whose joints the layer writes: the head and the trunk for
+   * gaze, breath and an affect display, an arm for a mood that lets it hang.
+   * A layer scheduled in a window during which one of the person's actions
+   * holds a limb channel it names by a contact (a grip on that hand, a
+   * planted foot of that leg) is refused when the performance is built; the
+   * head and the trunk bear no contact window, so naming them refuses
+   * nothing. Absent for a layer that does not say what it writes.
    */
   channels?: readonly AutoMovieMotionHumanChannel[];
 
@@ -105,6 +107,19 @@ export namespace IHumanLayer {
 
     /** Seconds over which it comes in after `from` and goes out before `to`; 0.3 when absent. */
     fade?: number;
+
+    /**
+     * A name under which the layer's own instants are addressed like an
+     * action's events: `onset` (it starts coming in), `full` (it is fully
+     * in), `offset` (it starts going out) and `end` (it is gone). A later
+     * layer's window names them (`{ of: anchor, event: "full" }`), and
+     * `HumanPerformance.instant` reads them. An action is synced to them or
+     * cut on them only when the window does not itself wait for an action:
+     * its `from` and `to` are then film seconds or instants of cue tracks,
+     * known before any action is placed. The name is unique among anchors,
+     * cue tracks and other layers.
+     */
+    anchor?: string;
   }
 
   /** The action a person performs at the second a layer is applied. */

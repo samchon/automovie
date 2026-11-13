@@ -215,6 +215,10 @@ export namespace HumanAffect {
   export function layer(displays: readonly IDisplay[]): IHumanLayer {
     return {
       name: "affect",
+
+      // The jaw and the head, and the spine, the chest and the shoulder
+      // girdles: every display's pulse is on those joints.
+      channels: ["head", "trunk"],
       apply: (posture: IHumanPosture, seconds: number): IHumanPosture => {
         const joints: IHumanPosture["joints"] = { ...posture.joints };
         for (const d of displays) {

@@ -10,6 +10,7 @@ import {
   HumanSignature,
   type IHumanBody,
   seated,
+  type HumanSegment,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -46,7 +47,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    and goes out.
  * 5. Refused, each as a `channel` refusal on `over` naming what clashes: a
  *    second task for the same hand while the first runs; an action that
- *    moves the whole body (`gesture`) put over a walk, listing the actions
+ *    moves the whole body (`sit`) put over a walk, listing the actions
  *    that can ride; a task put over an action that yields nothing (`sit`).
  * 6. The other hand at the same time is not a clash: a phone in the right
  *    hand and a drink in the left over one walk plan.
@@ -127,7 +128,7 @@ export function test_human_motion_overlay_channels(): void {
       );
 
     // 2 and 3. The phone hand is up, ahead of the chest, and held with it.
-    const task = reading.overlays("a")[0];
+    const task: HumanSegment.IOverlay | undefined = reading.overlays("a")[0];
     if (task === undefined) {
       complaints.push(`${name}: the performance holds no overlay`);
       continue;
@@ -182,7 +183,9 @@ export function test_human_motion_overlay_channels(): void {
     // 4. No step in any joint's path; read on one body, since the reading
     // resolves every departing interval and a second body repeats it.
     if (name === "m-average") {
-      const jump = AutoMovieMotionHumanAuditContinuity.measure(
+      const jump: ReturnType<
+        typeof AutoMovieMotionHumanAuditContinuity.measure
+      >["jump"] = AutoMovieMotionHumanAuditContinuity.measure(
         reading,
         "a",
       ).jump;
@@ -212,8 +215,8 @@ export function test_human_motion_overlay_channels(): void {
       ],
       [
         "a whole-body action over a walk",
-        walk().over((u) => u.gesture({ kind: "wave" })),
-        ["gesture", "handToFace"],
+        walk().over((u) => u.sit({ seat: chair })),
+        ["sit", "handToFace"],
       ],
       [
         "a task over an action that yields nothing",

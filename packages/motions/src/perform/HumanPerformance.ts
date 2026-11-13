@@ -1,5 +1,6 @@
 import {
   type AutoMovieComposition,
+  AutoMovieScheduleError,
   type IAutoMovieIntent,
   type IAutoMovieResolvedBone,
   type IAutoMovieSchedule,
@@ -35,6 +36,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
+import { HumanScheduleRefusal } from "./HumanScheduleRefusal";
 import { HumanSegment } from "./HumanSegment";
 import type { IHumanPerformer } from "./IHumanPerformer";
 import type { IHumanProp } from "./IHumanProp";
@@ -114,6 +116,15 @@ export class HumanPerformance {
 
   /** Where an action aligned into its performer's previous one ended that one, by the previous one's schedule entry. */
   private readonly clipped: Map<number, number> = new Map();
+
+  /** The instants of every anchored layer, by its anchor: those known before the schedule from the start, the others once it is placed. */
+  private readonly layered: Map<
+    string,
+    readonly resolveAutoMovieSchedule.ICue[]
+  > = new Map();
+
+  /** How many actions that carry the body the composition gives each person, overlays aside. */
+  private readonly intended: Map<string, number> = new Map();
 
   private resolving: boolean = true;
 
@@ -217,34 +228,56 @@ export class HumanPerformance {
         },
       });
     }
-    this.schedule = resolveAutoMovieSchedule(input.composition, {
-      timing: (intent: IAutoMovieIntent, context) => {
-        const where: HumanRefusal.IWhere = this.where(intent);
-        try {
-          return this.place(intent, context.start, context.entries, where);
-        } catch (error) {
-          throw error instanceof HumanRefusal ? error.locate(where) : error;
-        }
-      },
-      until: (
-        intent: IAutoMovieIntent,
-        placed: { start: number; duration: number },
-      ): number | undefined => this.proximity(intent, placed),
-      ...(input.cues === undefined ? {} : { cues: input.cues }),
-      align: (
-        intent: IAutoMovieIntent,
-        instant: string,
-        target: number,
-        context,
-      ): number => {
-        const where: HumanRefusal.IWhere = this.where(intent);
-        try {
-          return this.align(intent, instant, target, context.entries, where);
-        } catch (error) {
-          throw error instanceof HumanRefusal ? error.locate(where) : error;
-        }
-      },
-    });
+    // Counted before anything is placed, so a law that reads another
+    // person's path can tell a finished chain from one still to be placed.
+    const count = (node: AutoMovieComposition): void => {
+      if (node.kind === "at") count(node.part);
+      else if (node.kind !== "intent") node.parts.forEach(count);
+      else if (node.intent.parameters?.over !== true)
+        this.intended.set(
+          node.intent.subject,
+          (this.intended.get(node.intent.subject) ?? 0) + 1,
+        );
+    };
+    count(input.composition);
+
+    // An anchored layer whose window waits for no action has its instants
+    // before anything is placed, so actions can be synced to them: they are
+    // given to the resolver as one more cue track.
+    for (const [subject, layers] of Object.entries(input.layers ?? {}))
+      for (const scheduled of layers) {
+        if ("apply" in scheduled || scheduled.anchor === undefined) continue;
+        if (
+          this.layered.has(scheduled.anchor) ||
+          scheduled.anchor in this.cues
+        )
+          throw new HumanRefusal({
+            kind: "parameter",
+            performer: subject,
+            axis: "layers",
+            value: scheduled.anchor,
+            reason: `the layer anchor ${scheduled.anchor} is already the name of another layer or of a cue track (in use: ${[...this.layered.keys(), ...Object.keys(this.cues)].join(", ")})`,
+            fix: "give every anchored layer a name of its own, different from every cue track's",
+          });
+        const early = (
+          at: IHumanLayer.Instant | undefined,
+          absent: number | undefined,
+        ): number | undefined =>
+          at === undefined
+            ? absent
+            : typeof at === "number" || at.of in this.cues
+              ? this.instant(at)
+              : undefined;
+        const from: number | undefined = early(scheduled.from, 0);
+        const to: number | undefined = early(scheduled.to, undefined);
+        this.layered.set(
+          scheduled.anchor,
+          from === undefined || to === undefined
+            ? []
+            : HumanPerformance.instants(from, to, scheduled.fade),
+        );
+      }
+    this.schedule = this.resolve(input);
     // A production's rules (a sport's fouls, a scene's constraints) judge the
     // placed schedule before any contact is resolved: an illegal performance is
     // refused outright, the way an undeclared cut is, instead of being shown.
@@ -430,8 +463,14 @@ export class HumanPerformance {
   public instant(at: IHumanLayer.Instant): number {
     if (typeof at === "number") return at;
     const placed = this.anchors.get(at.of);
+    // A layer's instants are known once its window is placed; a layer later
+    // in a person's list, or one that waits for an action, is not placed
+    // yet when an earlier window asks for it.
+    const waiting: readonly resolveAutoMovieSchedule.ICue[] | undefined =
+      this.layered.get(at.of);
     const track: readonly resolveAutoMovieSchedule.ICue[] | undefined =
-      this.cues[at.of];
+      this.cues[at.of] ??
+      (waiting === undefined || waiting.length === 0 ? undefined : waiting);
     if (placed === undefined && track === undefined)
       throw new HumanRefusal({
         kind: "participant",
@@ -439,10 +478,32 @@ export class HumanPerformance {
         value: at.of,
         feasible: {
           kind: "alternatives",
-          values: [...this.anchors.keys(), ...Object.keys(this.cues)],
+          values: [
+            ...this.anchors.keys(),
+            ...Object.keys(this.cues),
+            ...[...this.layered]
+              .filter(
+                ([, cues]: [
+                  string,
+                  readonly resolveAutoMovieSchedule.ICue[],
+                ]): boolean => cues.length !== 0,
+              )
+              .map(
+                ([name]: [
+                  string,
+                  readonly resolveAutoMovieSchedule.ICue[],
+                ]): string => name,
+              ),
+          ],
         },
-        reason: `nothing is anchored ${at.of} and no cue track has that name`,
-        fix: "name an action's anchor or a cue track",
+        reason:
+          waiting === undefined
+            ? `nothing is anchored ${at.of}, and no cue track or layer has that name`
+            : `the layer anchored ${at.of} is not placed yet: its window waits for an action, or it comes later in its person's layers`,
+        fix:
+          waiting === undefined
+            ? "name an action's anchor, a cue track or an anchored layer"
+            : "name a layer given earlier in the list, or give that layer a window of film seconds and cue instants",
       });
     const entry: IAutoMovieSchedule.IEntry | undefined =
       placed === undefined
@@ -490,6 +551,26 @@ export class HumanPerformance {
         fix: "name one of its events, or a lower index of a repeated one",
       });
     return found.seconds + (at.offset ?? 0);
+  }
+
+  /**
+   * A layer window's own named instants: it starts coming in at `onset`, is
+   * fully in at `full`, starts going out at `offset` and is gone at `end`.
+   * The fade is the one the window is displayed with: the one asked, 0.3 s
+   * when none is, and never more than half the window.
+   */
+  private static instants(
+    from: number,
+    to: number,
+    fade: number | undefined,
+  ): resolveAutoMovieSchedule.ICue[] {
+    const ramp: number = Math.max(0, Math.min(fade ?? 0.3, (to - from) / 2));
+    return [
+      { name: "onset", seconds: from },
+      { name: "full", seconds: from + ramp },
+      { name: "offset", seconds: to - ramp },
+      { name: "end", seconds: to },
+    ];
   }
 
   /** A scheduled layer's window in film seconds, refused where one of the person's actions holds a channel it writes. */
@@ -554,6 +635,20 @@ export class HumanPerformance {
             fix: "end the layer before that contact or start it after, or use a layer that leaves that limb alone",
           });
       }
+    }
+    if (scheduled.anchor !== undefined) {
+      if (this.anchors.has(scheduled.anchor))
+        throw located({
+          kind: "parameter",
+          axis: "layers",
+          value: scheduled.anchor,
+          reason: `the layer anchor ${scheduled.anchor} is also the anchor of an action, so an instant of that name would be ambiguous`,
+          fix: "give the layer a name no action is anchored under",
+        });
+      this.layered.set(
+        scheduled.anchor,
+        HumanPerformance.instants(from, to, scheduled.fade),
+      );
     }
     return { layer, from, to, fade };
   }
@@ -696,6 +791,66 @@ export class HumanPerformance {
   }
 
   /**
+   * Place the composition with the engine's resolver, every action planned
+   * by its law. What the resolver cannot place (an anchor or an event the
+   * composition names and does not have, an anchor used twice) reaches the
+   * author as a located refusal with the names that exist.
+   */
+  private resolve(input: HumanPerformance.IInput): IAutoMovieSchedule {
+    try {
+      return resolveAutoMovieSchedule(input.composition, {
+        timing: (
+          intent: IAutoMovieIntent,
+          context: resolveAutoMovieSchedule.IContext,
+        ): resolveAutoMovieSchedule.ITiming => {
+          const where: HumanRefusal.IWhere = this.where(intent);
+          try {
+            return this.place(intent, context.start, context.entries, where);
+          } catch (error) {
+            throw error instanceof HumanRefusal ? error.locate(where) : error;
+          }
+        },
+        until: (
+          intent: IAutoMovieIntent,
+          placed: { start: number; duration: number },
+        ): number | undefined => this.proximity(intent, placed),
+        cues: {
+          ...this.cues,
+          ...Object.fromEntries(
+            [...this.layered].filter(
+              ([, cues]: [
+                string,
+                readonly resolveAutoMovieSchedule.ICue[],
+              ]): boolean => cues.length !== 0,
+            ),
+          ),
+        },
+        align: (
+          intent: IAutoMovieIntent,
+          instant: string,
+          target: number,
+          context: resolveAutoMovieSchedule.IAlignment,
+        ): number => {
+          const where: HumanRefusal.IWhere = this.where(intent);
+          try {
+            return this.align(intent, instant, target, context, where);
+          } catch (error) {
+            throw error instanceof HumanRefusal ? error.locate(where) : error;
+          }
+        },
+      });
+    } catch (error) {
+      throw error instanceof AutoMovieScheduleError
+        ? HumanScheduleRefusal.of(
+            error,
+            (subject: string, capability: string): number =>
+              this.where({ subject, capability }).instance,
+          )
+        : error;
+    }
+  }
+
+  /**
    * The second an action must start at for one of its instants to fall on a
    * target second. The time to that instant depends on the state the action
    * is entered from, which depends on when it starts, so it is planned at
@@ -705,9 +860,10 @@ export class HumanPerformance {
     intent: IAutoMovieIntent,
     instant: string,
     target: number,
-    entries: readonly IAutoMovieSchedule.IEntry[],
+    context: resolveAutoMovieSchedule.IAlignment,
     where: HumanRefusal.IWhere,
   ): number {
+    const entries: readonly IAutoMovieSchedule.IEntry[] = context.entries;
     const person: HumanSegment.IPerson = this.person(intent.subject);
     const previous: HumanSegment.ISegment | undefined =
       intent.parameters?.over === true ? undefined : person.segments.at(-1);
@@ -744,7 +900,22 @@ export class HumanPerformance {
       lead = share * timing.duration;
       start = target - lead;
     }
-    if (start < floor - 1e-9)
+    if (start < floor - 1e-9) {
+      // The instants of the same name the anchor or track still offers: the
+      // first one late enough is what the author can sync to instead.
+      const anchor: resolveAutoMovieSchedule.IAlignment["anchor"] =
+        context.anchor;
+      const same: readonly resolveAutoMovieSchedule.ICue[] =
+        anchor.event === undefined
+          ? []
+          : anchor.instants.filter(
+              (cue: resolveAutoMovieSchedule.ICue): boolean =>
+                cue.name === anchor.event,
+            );
+      const earliest: number = same.findIndex(
+        (cue: resolveAutoMovieSchedule.ICue): boolean =>
+          cue.seconds + anchor.offset >= floor + lead - 1e-9,
+      );
       throw new HumanRefusal({
         kind: "cut",
         axis: "sync",
@@ -760,8 +931,14 @@ export class HumanPerformance {
             ? "the film begins"
             : `${previous.name} begins at ${floor.toFixed(2)} s`
         }`,
-        fix: "sync it to an instant no earlier than the feasible minimum, or shorten what its performer does before it",
+        fix:
+          same.length === 0
+            ? "sync it to an instant no earlier than the feasible minimum, or shorten what its performer does before it"
+            : earliest < 0
+              ? `none of the ${same.length} ${anchor.event} instants of ${anchor.of} is late enough: sync it to another anchor or track, or shorten what its performer does before it`
+              : `sync it to ${anchor.event} index ${earliest} of ${anchor.of} (${same[earliest]!.seconds.toFixed(3)} s), the earliest it can meet, or shorten what its performer does before it`,
       });
+    }
     return start;
   }
 
@@ -950,6 +1127,8 @@ export class HumanPerformance {
         return {
           body: this.person(subject).performer.body,
           bones: (seconds: number) => this.bones(subject, seconds),
+          root: (seconds: number): IHumanActionContext.IRoot =>
+            this.root(subject, seconds, named(subject, "performer")),
         };
       },
       prop: (subject: string): IHumanActionContext.IProp => {
@@ -970,7 +1149,9 @@ export class HumanPerformance {
       meeting: (
         kind: AutoMovieMotionMeeting.IKind,
         role: string,
-        partner?: { role: string; subject: string },
+        partner?:
+          | IHumanActionContext.IPartner
+          | readonly IHumanActionContext.IPartner[],
       ): AutoMovieMotionMeeting.IMeeting => {
         const own: AutoMovieMotionMeeting.IRole = {
           name: role,
@@ -979,11 +1160,26 @@ export class HumanPerformance {
           posture: entry.posture,
           bones: poseBones(body, entry.pose),
         };
-        if (partner === undefined)
+        const others: readonly IHumanActionContext.IPartner[] =
+          partner === undefined
+            ? []
+            : "subject" in partner
+              ? [partner]
+              : partner;
+        if (others.length === 0)
           return AutoMovieMotionMeeting.of(kind, [own], context);
-        // The role planned first computes the meeting; the other reads that
-        // record while it still lies ahead of its own start.
-        const key: string = `${kind.name}|${(intent.subject < partner.subject ? [intent.subject, partner.subject] : [partner.subject, intent.subject]).join("|")}`;
+
+        // The role planned first computes the meeting; every other reads
+        // that record while it still lies ahead of its own start. The key
+        // names the whole cast in one order, so each role finds it.
+        const key: string = `${kind.name}|${[
+          intent.subject,
+          ...others.map(
+            (other: IHumanActionContext.IPartner): string => other.subject,
+          ),
+        ]
+          .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))
+          .join("|")}`;
         const kept = this.meetings.get(key);
         if (
           kept !== undefined &&
@@ -996,13 +1192,17 @@ export class HumanPerformance {
             kind,
             [
               own,
-              {
-                name: partner.role,
-                subject: partner.subject,
-                body: this.person(partner.subject).performer.body,
-                posture: this.posture(partner.subject, context.start),
-                bones: this.bones(partner.subject, context.start),
-              },
+              ...others.map(
+                (
+                  other: IHumanActionContext.IPartner,
+                ): AutoMovieMotionMeeting.IRole => ({
+                  name: other.role,
+                  subject: other.subject,
+                  body: this.person(other.subject).performer.body,
+                  posture: this.posture(other.subject, context.start),
+                  bones: this.bones(other.subject, context.start),
+                }),
+              ),
             ],
             context,
           );
@@ -1116,6 +1316,7 @@ export class HumanPerformance {
         end,
         channels,
       };
+      this.hold(person, overlay, true);
       this.riding.add(entries.length);
       person.overlays.push(overlay);
       if (intent.anchor !== undefined)
@@ -1152,49 +1353,8 @@ export class HumanPerformance {
               cut: start,
             },
     };
-    // A held hand: a grip window on its prop takes it over; any other use of it is refused.
-    for (const held of person.holds) {
-      if (held.until !== Infinity) continue;
-      const take = plan.contacts.find(
-        (c) =>
-          c.part === `${held.side}Hand` &&
-          c.kind === "grip" &&
-          c.support.kind === "prop" &&
-          c.support.subject === held.prop,
-      );
-      if (take !== undefined)
-        held.until = Math.max(
-          held.from,
-          context.start + take.from * plan.duration,
-        );
-      else if (HumanSegment.drives(plan, held.side))
-        throw new HumanRefusal({
-          kind: "affordance",
-          axis: "hand",
-          value: held.side,
-          feasible: {
-            kind: "alternatives",
-            values: person.holds.some(
-              (h: HumanSegment.IHeld): boolean =>
-                h.until === Infinity && h.side !== held.side,
-            )
-              ? []
-              : [held.side === "left" ? "right" : "left"],
-          },
-          reason: `${name} needs the ${held.side} hand, which holds ${held.prop} since ${held.source.name} (${held.source.id})`,
-          fix: `put ${held.prop} down or hand it over first, or perform ${name} with the free hand`,
-        });
-    }
+    this.hold(person, segment, false);
     person.segments.push(segment);
-    for (const hold of plan.holds ?? [])
-      person.holds.push({
-        side: hold.side,
-        prop: hold.prop,
-        fingers: hold.fingers ?? {},
-        source: segment,
-        from: context.start + hold.from * plan.duration,
-        until: Infinity,
-      });
     if (intent.anchor !== undefined)
       this.anchors.set(
         intent.anchor,
@@ -1212,6 +1372,64 @@ export class HumanPerformance {
           share: active === 0 ? 0 : (e.share - share) / (1 - share),
         })),
     };
+  }
+
+  /**
+   * Settle what a newly planned action does to the props its performer
+   * holds, whether it carries the body or rides a carrier: a grip window on
+   * a held prop takes that hand over from the hold, any other use of a
+   * holding hand is refused, and the props the action leaves held become
+   * holds of its own.
+   */
+  private hold(
+    person: HumanSegment.IPerson,
+    segment: HumanSegment.ISegment,
+    riding: boolean,
+  ): void {
+    const plan: IHumanActionPlan = segment.plan;
+    for (const held of person.holds) {
+      if (held.until !== Infinity) continue;
+      const take: IHumanActionPlan["contacts"][number] | undefined =
+        plan.contacts.find(
+          (c: IHumanActionPlan["contacts"][number]): boolean =>
+            c.part === `${held.side}Hand` &&
+            c.kind === "grip" &&
+            c.support.kind === "prop" &&
+            c.support.subject === held.prop,
+        );
+      if (take !== undefined) {
+        held.until = Math.max(
+          held.from,
+          segment.start + take.from * plan.duration,
+        );
+        if (riding) held.riding = true;
+      } else if (HumanSegment.drives(plan, held.side))
+        throw new HumanRefusal({
+          kind: "affordance",
+          axis: "hand",
+          value: held.side,
+          feasible: {
+            kind: "alternatives",
+            values: person.holds.some(
+              (h: HumanSegment.IHeld): boolean =>
+                h.until === Infinity && h.side !== held.side,
+            )
+              ? []
+              : [held.side === "left" ? "right" : "left"],
+          },
+          reason: `${segment.name} needs the ${held.side} hand, which holds ${held.prop} since ${held.source.name} (${held.source.id})`,
+          fix: `put ${held.prop} down or hand it over first, or perform ${segment.name} with the free hand`,
+        });
+    }
+    for (const hold of plan.holds ?? [])
+      person.holds.push({
+        side: hold.side,
+        prop: hold.prop,
+        fingers: hold.fingers ?? {},
+        source: segment,
+        from: segment.start + hold.from * plan.duration,
+        until: Infinity,
+      });
   }
 
   /** The share of the latest segment's active span at which a proximity cut happens. */
@@ -1527,7 +1745,7 @@ export class HumanPerformance {
             from: held.from,
             to: held.until,
           });
-      for (const segment of person.segments)
+      for (const segment of [...person.segments, ...person.overlays])
         for (const c of segment.plan.contacts)
           if (
             c.kind === "grip" &&
@@ -1575,6 +1793,51 @@ export class HumanPerformance {
       position: resolveAutoMovieHumanoidSurfaces.place(frame, bone).point,
       rotation: bone.worldRotation,
     };
+  }
+
+  /**
+   * Where a person's placed actions put their root at a film second, for a
+   * law that plans from another person's path.
+   *
+   * While the schedule is being placed the path is known only up to the
+   * person's last placed action. A second beyond it is refused when the
+   * composition still holds actions of theirs to place, because the answer
+   * would change once they are placed; with none left, the person stays
+   * where the last action put them.
+   */
+  private root(
+    subject: string,
+    seconds: number,
+    axis: string,
+  ): IHumanActionContext.IRoot {
+    const person: HumanSegment.IPerson = this.person(subject);
+    const last: HumanSegment.ISegment | undefined = person.segments.at(-1);
+    const left: number =
+      (this.intended.get(subject) ?? 0) - person.segments.length;
+    if (
+      this.resolving &&
+      left > 0 &&
+      seconds > (last?.end ?? 0) + 1e-9
+    )
+      throw new HumanRefusal({
+        kind: "participant",
+        axis,
+        value: subject,
+        feasible: {
+          kind: "range",
+          minimum: 0,
+          maximum: Math.floor((last?.end ?? 0) * 1000) / 1000,
+          unit: "s",
+        },
+        reason: `where ${subject} is at ${seconds.toFixed(2)} s is not known yet: ${
+          last === undefined
+            ? "none of their actions is placed"
+            : `their placed actions end at ${last.end.toFixed(2)} s with ${last.name}`
+        }, and ${left} more of theirs come later in the composition`,
+        fix: `compose ${subject}'s actions before this one: put their chain first in the parallel group, or join both chains with a mutual action`,
+      });
+    const posture: IHumanPosture = this.posture(subject, seconds);
+    return { position: posture.root, yaw: posture.yaw };
   }
 
   /** A person by subject, or an error naming the performers. */

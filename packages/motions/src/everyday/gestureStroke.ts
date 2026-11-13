@@ -54,6 +54,9 @@ import { gestureTouch } from "./gestureTouch";
  *   applause is faster than the near-2 Hz synchronised rhythm, Neda et al.
  *   2000, Nature 403:849).
  * - `rubHands`: the palms together, sliding opposite ways along the fingers.
+ * - `palmsTogether`: the palms pressed together ahead of the chest, the
+ *   fingers up and forward, held: the clap's hand pose without its parting
+ *   (a prayer, a wai or gassho greeting).
  * - `touchFace`: the index fingertip, hand flat, on a face region with the
  *   palm toward the face and the fingers up, held; `pushGlasses` slides it
  *   12 mm up the nose bridge; `scratchHead` rubs it 15 mm on the head's side
@@ -91,6 +94,7 @@ export namespace gestureStroke {
     | "beckon"
     | "clap"
     | "rubHands"
+    | "palmsTogether"
     | "touchFace"
     | "pushGlasses"
     | "scratchHead"
@@ -214,6 +218,7 @@ export namespace gestureStroke {
       period: { seconds: 1 / 3, source: "provisional: everyday-gesture-clap" },
     },
     rubHands: { cycles: 3, period: { pause: "beat", scale: 0.875 } },
+    palmsTogether: { cycles: 1, period: "long" },
     touchFace: { cycles: 1, period: "long" },
     pushGlasses: { cycles: 1, period: { pause: "beat", scale: 0.75 } },
     scratchHead: { cycles: 4, period: { pause: "beat", scale: 0.625 } },
@@ -237,6 +242,7 @@ export namespace gestureStroke {
     beckon: "one",
     clap: "both",
     rubHands: "both",
+    palmsTogether: "both",
     touchFace: "one",
     pushGlasses: "one",
     scratchHead: "one",
@@ -415,10 +421,11 @@ export namespace gestureStroke {
             (0.5 - 0.5 * Math.cos(2 * Math.PI * cycles * u)),
         };
       case "clap":
-      case "rubHands": {
+      case "rubHands":
+      case "palmsTogether": {
         // The palms meet ahead of the chest, the fingers up and forward; a
-        // clap parts them and a rub slides them opposite ways along the
-        // fingers.
+        // clap parts them, a rub slides them opposite ways along the
+        // fingers, and palms together stay as they meet.
         const apart: number =
           kind === "clap"
             ? 0.09 * e * (0.5 + 0.5 * Math.cos(2 * Math.PI * cycles * u))

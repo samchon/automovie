@@ -1,14 +1,20 @@
 import {
   type IAutoMovieResolvedBone,
+  Quaternion,
   Vector3,
   minimumJerk,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanTrunk } from "../everyday/HumanTrunk";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -16,7 +22,9 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanGrasp } from "./HumanGrasp";
+import { HumanGraspUse } from "./HumanGraspUse";
 import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
 import { HumanPreshape } from "./HumanPreshape";
@@ -103,7 +111,21 @@ export namespace pickUp {
 
     /** How far the wrist rises after the grasp, metres; 0.1 when absent. */
     lift?: number;
+
+    /**
+     * What the prop is taken up for, when it is a tool: the grasp is then
+     * chosen for the use and not only for the reach. A handle can be wrapped
+     * from any side, and the side the hanging arm reaches most easily leaves
+     * a blade or a barrel where the wrist cannot later aim it. With a use,
+     * the grasp must also hold with the tool presented ahead of the shoulder
+     * on the line the use names, and a handle no grasp serves so is refused.
+     * Absent, the grasp is chosen for the reach and the lift alone.
+     */
+    use?: HumanGraspUse.IUse;
   }
+
+  /** The share of the reach over which the arm leaves its entry pose by a blend of its joints, before the transport's goal alone leads it to the grip (provisional: 0.6, ahead of the last stretch the hand makes along the approach). */
+  export const LEAVE: number = 0.6;
 
   /** The load phase between contact and lift-off, seconds; provisional. */
   export const LOAD: number = 0.15;
@@ -140,6 +162,27 @@ export namespace pickUp {
       held,
       side,
     );
+
+    // The hand's own rotation at a place: what the arm gives it there when
+    // no rotation is asked. Fitted once per place.
+    const limbOf: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
+    const owned: Map<string, IAutoMovieQuaternion> = new Map();
+    const natural = (point: IAutoMovieVector3): IAutoMovieQuaternion => {
+      const key: string = `${point.x},${point.y},${point.z}`;
+      let found: IAutoMovieQuaternion | undefined = owned.get(key);
+      if (found === undefined) {
+        found =
+          poseBones(
+            body,
+            resolveHumanPosture(body, {
+              ...held,
+              limbs: { ...held.limbs, [limbOf]: { point, bend } },
+            }),
+          ).get(`${side}Hand`)?.worldRotation ?? Quaternion.identity();
+        owned.set(key, found);
+      }
+      return found;
+    };
     const chosen: HumanGrasp.IReach = HumanGrasp.reachable(
       body,
       held,
@@ -147,9 +190,14 @@ export namespace pickUp {
       bend,
       (turn: number, tilt: number): HumanHand.IWrist =>
         HumanGrasp.hand(body, side, HumanGrasp.around(authored, turn), tilt),
-      [-45, -30, -15, 0, 15, 30, 45],
-      (wrist: HumanHand.IWrist): HumanGrasp.IKey[] =>
-        lift > 0
+      context.params.use === undefined
+        ? [-45, -30, -15, 0, 15, 30, 45]
+        : HumanGraspUse.OBLIQUE,
+      (
+        wrist: HumanHand.IWrist,
+        shown: HumanHand.IWrist,
+      ): HumanGrasp.IKey[] => [
+        ...(lift > 0
           ? [
               {
                 posture: held,
@@ -160,8 +208,60 @@ export namespace pickUp {
                 bend,
               },
             ]
-          : [],
+          : []),
+        ...(context.params.use === undefined
+          ? []
+          : [
+              HumanGraspUse.presented({
+                context,
+                prop: context.params.prop,
+                handle: context.params.handle,
+                side,
+
+                // The tool is rigid in the hand the arm shows at the grasp,
+                // which may differ from the hand asked: the fingers close
+                // on it where it is shown.
+                wrist: shown,
+                use: context.params.use,
+                natural,
+              }),
+            ]),
+      ],
+
+      // A grasp for a use may have to come from the far side of the handle.
+      context.params.use === undefined
+        ? HumanGrasp.TURNS
+        : HumanGraspUse.AROUND,
+
+      // A grasp that holds the use's pose comes before any that does not,
+      // whatever else each costs; the use's pose is the stroke's last key.
+      context.params.use === undefined
+        ? undefined
+        : {
+            bound: HumanGraspUse.UNMET,
+            measure: (keys: readonly number[]): number =>
+              keys[keys.length - 1] ?? 0,
+          },
     );
+
+    // The use is judged at its own pose. What the grasp pose leaves unmet of
+    // an asked tilt is no failure of the use: the fingers close where the
+    // arm shows the hand, and the use's pose is built from that hand.
+    const unmet: number = chosen.keys[chosen.keys.length - 1] ?? chosen.miss;
+    if (context.params.use !== undefined && unmet > HumanGraspUse.UNMET)
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "use",
+        value: unmet,
+        feasible: {
+          kind: "range",
+          minimum: 0,
+          maximum: HumanGraspUse.UNMET,
+          unit: "",
+        },
+        reason: `no grasp of ${context.params.prop} by ${context.params.handle} lets the ${side} hand present its ${context.params.use.tip} on the ${context.params.use.line} line: the best (turned ${chosen.turn}, tilted ${chosen.tilt} degrees, the elbow ${chosen.departure.toFixed(0)} degrees off its hint) leaves ${unmet.toFixed(1)} degrees and millimetres unmet at the use's pose (by pose in the order grasp, lift, use: ${chosen.keys.map((miss: number): string => miss.toFixed(1)).join(", ")})`,
+        fix: "turn the prop where it lies so the handle can be taken from the side its use needs, take it with the other hand, or name another line for the use",
+      });
     const target: HumanGrasp.ITarget = HumanGrasp.around(authored, chosen.turn);
     const grasp: HumanHand.IWrist = chosen.wrist;
     pickUp.reachable(context, side, grasp.point);
@@ -209,6 +309,10 @@ export namespace pickUp {
       closed,
     };
     const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
+    const rest: AutoMovieMotionHumanArm.IAngles = AutoMovieMotionHumanArm.angles(
+      context.entry.pose,
+      side,
+    );
     const hand: IHumanContactWindow["part"] =
       side === "left" ? "leftHand" : "rightHand";
     return {
@@ -252,38 +356,58 @@ export namespace pickUp {
       contact: reach,
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const up: number =
-          rise > 0 ? lift * minimumJerk((t - reach - LOAD) / rise).s : 0;
-        const wrist: IAutoMovieVector3 =
-          t < reach
-            ? transport.wrist(t)
-            : { ...grasp.point, y: grasp.point.y + up };
-        return {
+
+        // The posture whose arm goal is the transport's at a second of the
+        // action, with the fingers shaped as they are at `shaped`.
+        const goaled = (at: number, shaped: number): IHumanPosture => ({
           ...held,
           joints: {
             ...held.joints,
-            ...HumanPrehension.shape(shapes, peak, t / reach),
+            ...HumanPrehension.shape(shapes, peak, shaped / reach),
           },
           limbs: {
             ...held.limbs,
             [limb]: {
-              point: wrist,
-              rotation: t < reach ? transport.turn(t) : grasp.rotation,
-              bend,
-              // The grip's own arm solution anchors the hold and the lift,
-              // and the reach more and more as it arrives, so the two meet
-              // exactly.
-              ...(t >= reach
-                ? { planted: true, reference: chosen.reference }
-                : {
-                    reference: {
-                      ...chosen.reference,
-                      weight: minimumJerk(t / reach).s,
+              point:
+                at < reach
+                  ? transport.wrist(at)
+                  : {
+                      ...grasp.point,
+                      y:
+                        grasp.point.y +
+                        (rise > 0
+                          ? lift * minimumJerk((at - reach - LOAD) / rise).s
+                          : 0),
                     },
-                  }),
+              rotation: at < reach ? transport.turn(at) : grasp.rotation,
+              bend,
+
+              // The grip's own arm solution anchors the whole action, at one
+              // constant weight: a weight that grew through the reach let the
+              // fit change from one of its solutions to another at a single
+              // instant, which showed as a step of the elbow.
+              reference: chosen.reference,
+              ...(at >= reach ? { planted: true } : {}),
             },
           },
-        };
+        });
+
+        // The arm leaves the pose it was entered in by a blend of its joints
+        // toward one fixed pose, the transport's at the end of this first
+        // part, so the elbow keeps one course from the hanging arm: a goal
+        // solved afresh at each second near the hip, far from the grip's
+        // solution, changed solution between seconds (the wrist read 0.4 m
+        // apart 1/120 s apart). From there the transport's goal alone leads
+        // to the grip. The blend eases in and arrives moving.
+        const leave: number = LEAVE * reach;
+        return t >= leave
+          ? goaled(t, t)
+          : AutoMovieMotionHumanArm.carry(
+              body,
+              goaled(leave, t),
+              { [side]: rest },
+              (t / leave) ** 2,
+            );
       },
     };
   }

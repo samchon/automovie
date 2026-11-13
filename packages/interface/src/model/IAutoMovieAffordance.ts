@@ -48,6 +48,16 @@ export interface IAutoMovieAffordance {
   /** A `seat`'s backrest height above the sitting surface, metres, positive; absent for a backless seat. Other kinds ignore it. */
   back?: number;
 
+  /**
+   * Whether a `seat` is sat astride, a leg on either side of it, as a saddle or a motorcycle's seat is. Absent or false, both legs go ahead of the seat. The seat's shape does not say it (a narrow bench is not straddled, and pedals lie either side of a driver's seat too), so a sitting law reads it here to choose how the body gets on and off and where the legs hang. Other kinds ignore it.
+   */
+  astride?: boolean;
+
+  /**
+   * The side a `seat` is got onto and off from, the seat's own left or right: a horse is mounted from its left by convention. Absent or `either`, both sides serve, as on a bicycle. A mounting law reads it to refuse the other side. Other kinds ignore it.
+   */
+  mount?: "left" | "right" | "either";
+
   /** The length along `+X`, centred on the frame, of a `handle`'s grip, a `bar`, a `ledge` or a `rein`'s held run, or the length of the strap a `stirrup` hangs from along `+Y`; metres, positive. Other kinds ignore it. */
   length?: number;
 

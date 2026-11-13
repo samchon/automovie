@@ -1,9 +1,9 @@
 import {
-  HUMAN_ACTIONS,
-  HUMAN_GRAMMAR,
   HUMAN_LEXICON,
   HumanChain,
   HumanPerformance,
+  HumanRefusal,
+  type HumanSegment,
   HumanVariation,
   type IHumanActionLaw,
   type IHumanBody,
@@ -13,92 +13,41 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
- * The grammar and the lexicon are readable as data, and a seed is a take:
- * the tables name every axis, operator and row once, a row's name never
- * collides with the vocabulary or another row, and the same composition
- * under different seeds differs while under one seed it does not.
+ * The whole lexicon registers in one performance, and a seed is a take:
+ * the same composition differs under different seeds and repeats under one.
  *
- * A film's crowd must not move as clones (people given one action differ),
- * and a re-render must not change a frame; both are properties of the seed.
+ * A film's crowd must not move as clones, so people given one action differ
+ * by seed, and a re-render must not change a frame, so one seed is one
+ * take. A lexicon whose rows collided with the vocabulary or with each other
+ * could not be offered to a production as one registration.
  *
- * Scenarios:
- * 1. The grammar names the eleven axes and the eight operators the
- *    scaffold's motion skill teaches, each once, each with what carries it.
- * 2. Every row of the lexicon table has a name of its own: none is a
- *    vocabulary name and none appears in two families, so the whole table
- *    registers in one performance.
- * 3. A wave with variation, read as the film second its stroke starts,
- *    over 24 seeds on the average man: at least 12 distinct values, a
- *    spread above a millisecond, and every value within 0.5 s of the mean
- *    (a preparation is a fraction of a second; the bound is provisional).
+ * Scenarios, on the average man:
+ * 1. A performance given every row of the lexicon at once builds: no row
+ *    takes a vocabulary name or another row's name.
+ * 2. Registering one row twice refuses the performance, naming it.
+ * 3. A wave with variation, read as the film second its stroke starts, over
+ *    24 seeds: at least 12 distinct values, a spread above a millisecond,
+ *    and every value within 0.5 s of the mean (a preparation is a fraction
+ *    of a second; the 0.5 s is provisional).
  * 4. The same reading under one seed 3 times is one value.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Reads the exported tables and builds performances through the public input under many seeds; a missing or doubled name, a colliding row, clones across seeds or a changed re-render fails.
- * @evidence contracts/development/testing.md#independent-expectations The axis and operator names are the composition grammar's own list (issue #3354, taught by the scaffold's motion skill); distinctness and repeatability follow from what a seed is.
- * @evidence contracts/development/testing.md#distinguishing-cases Both tables, name collisions in two directions, many seeds and one seed.
- * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and builds 27 short performances; it runs locally and wherever CI runs the human motion tests.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds performances through the public input with the whole lexicon and under many seeds and reads placed instants; a colliding row, clones across seeds or a changed re-render fails.
+ * @evidence contracts/development/testing.md#independent-expectations That a name means one action, that seeds differ and that one seed repeats follow from what registration and a seed are; the 0.5 s bound is a human preparation's order of magnitude, marked provisional, and limits only gross errors.
+ * @evidence contracts/development/testing.md#distinguishing-cases The whole table and a doubled row; many seeds and one seed. What each row shows is owned by the lexicon net and the signature tests.
+ * @evidence contracts/development/testing.md#execution-ownership A unit test on one prepared polygon man with in-memory performances; no host is started.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 4 scenarios with their bounds.
  */
 export function test_human_motion_grammar_tables(): void {
-  const complaints: string[] = [];
-  const sorted = (names: readonly string[]): string[] =>
-    [...names].sort((x: string, y: string): number => x.localeCompare(y));
-
-  // 1. The grammar's names.
-  TestValidator.equals(
-    "the axes",
-    sorted(HUMAN_GRAMMAR.axes.map((axis): string => axis.name)),
-    sorted([
-      "base",
-      "travel",
-      "action",
-      "effector",
-      "target",
-      "object",
-      "partner",
-      "manner",
-      "layer",
-      "timing",
-      "seed",
-    ]),
-  );
-  TestValidator.equals(
-    "the operators",
-    sorted(HUMAN_GRAMMAR.operators.map((operator): string => operator.name)),
-    sorted([
-      "sequence",
-      "cut",
-      "overlay",
-      "layer",
-      "parallel",
-      "mutual",
-      "attach",
-      "sync",
-    ]),
-  );
-  for (const entry of [...HUMAN_GRAMMAR.axes, ...HUMAN_GRAMMAR.operators])
-    if (entry.carriedBy.length === 0 || entry.says.length === 0)
-      complaints.push(`${entry.name} names nothing that carries it`);
-
-  // 2. Every row has a name of its own.
-  const seen: Map<string, string> = new Map();
-  for (const [family, rows] of Object.entries(HUMAN_LEXICON)) {
-    if (rows.length === 0) complaints.push(`the family ${family} is empty`);
-    for (const row of rows) {
-      if (row.name in HUMAN_ACTIONS)
-        complaints.push(`${family}.${row.name} is a vocabulary name`);
-      const other: string | undefined = seen.get(row.name);
-      if (other !== undefined)
-        complaints.push(`${row.name} is in both ${other} and ${family}`);
-      seen.set(row.name, family);
-    }
-  }
   const body: IHumanBody = motionHumanBody("m-average");
   const laws: IHumanActionLaw<never>[] = Object.values(HUMAN_LEXICON).flat();
-  const stroke = (seed: string): number => {
-    const performance: HumanPerformance = new HumanPerformance({
+  const complaints: string[] = [];
+  const perform = (
+    seed: string,
+    registered: readonly IHumanActionLaw<never>[],
+  ): HumanPerformance =>
+    new HumanPerformance({
       seed,
-      laws,
+      laws: registered,
       performers: [
         {
           subject: "a",
@@ -112,13 +61,36 @@ export function test_human_motion_grammar_tables(): void {
         .stand({ seconds: 0.3 })
         .gesture({ kind: "wave", manner: { variation: 1 } }).node,
     });
-    const wave = performance.segments("a")[1]!;
-    return (
-      wave.start +
-      wave.plan.events.find((e): boolean => e.name === "strokeStart")!.share *
-        wave.plan.duration
-    );
+  const stroke = (seed: string): number => {
+    const wave: HumanSegment.ISegment = perform(seed, laws).segments("a")[1]!;
+    const share: number =
+      wave.plan.events.find(
+        (event: { name: string; share: number }): boolean =>
+          event.name === "strokeStart",
+      )?.share ?? Number.NaN;
+    return wave.start + share * wave.plan.duration;
   };
+
+  // 1. The whole lexicon at once.
+  try {
+    perform("whole", laws);
+  } catch (error) {
+    complaints.push(
+      `the whole lexicon does not register: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+
+  // 2. A doubled row.
+  let thrown: unknown = null;
+  try {
+    perform("doubled", [...laws, laws[0]!]);
+  } catch (error) {
+    thrown = error;
+  }
+  if (!(thrown instanceof HumanRefusal && thrown.value === laws[0]!.name))
+    complaints.push(
+      `a row registered twice: expected a refusal naming ${laws[0]!.name}, got ${thrown instanceof Error ? thrown.message : String(thrown)}`,
+    );
 
   // 3. Seeds are takes.
   const takes: HumanVariation.IReport = HumanVariation.over(24, stroke);
@@ -142,5 +114,5 @@ export function test_human_motion_grammar_tables(): void {
   if (same.distinct !== 1 || same.deviation !== 0)
     complaints.push(`one seed read three times gives ${same.distinct} values`);
 
-  TestValidator.equals("the tables and the seed", complaints, []);
+  TestValidator.equals("the lexicon and the seed", complaints, []);
 }

@@ -5,11 +5,13 @@ import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import { HumanMountOff } from "../lexicon/HumanMountOff";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -68,6 +70,11 @@ import { seated } from "./seated";
  * a sit, a shift or any posture with the socket on a seat. Events `seatOff`
  * and `standing`; the seat window ends at seat-off.
  *
+ * A seat above 1.2 of the popliteal height with a foot off the floor, as a
+ * bar stool or a saddle is sat on, is got off instead
+ * ({@link HumanMountOff}), ahead of the seat or to the side `to` names, with
+ * the same events.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation States the goal, the method, the timing, the events and the refusals, with sources and provisional values marked.
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table and a pure plan of postures in world metres and seconds.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters and the plan the performance dispatches through, plus the helpers its tests read.
@@ -103,8 +110,21 @@ export namespace rise {
   /** Shank angles forward of vertical the feet are drawn back to, tried in order, degrees (12 provisional, Shepherd and Koh 1996; 20 the ankle's dorsiflexion range). */
   export const SHANK: readonly number[] = [12, 14, 16, 18, 20];
 
-  /** Parameters: none; the rise starts from the seated entry. */
-  export type IParams = Record<string, never>;
+  /** Parameters; the rise starts from the seated entry. */
+  export interface IParams {
+    /**
+     * Where the body gets off a high seat: ahead of it, or to one side of a
+     * seat sat astride. When absent, the left of a seat the entry's base
+     * names as sat astride (the side horses and cycles are mounted from, a
+     * provisional convention) and ahead of any other. Read only where the
+     * feet are off the floor; a seat inside the band is risen from over the
+     * planted feet.
+     */
+    to?: "front" | "left" | "right";
+
+    /** How it is performed: the manner's tempo stretches or shortens the rise, or the getting off; neutral when absent. */
+    manner?: AutoMovieMotionManner.IManner;
+  }
 
   /**
    * Plan a rise.
@@ -119,7 +139,22 @@ export namespace rise {
     const body: IHumanBody = context.body;
     const start: IAutoMovieVector3 = seated.socket(body, context.entry.posture);
     const r: number = start.y / seated.popliteal(body);
-    const rising: number = 2 * (1 + 0.6 * (1 - r));
+
+    // A seat above the band with a foot off the floor is got off, not risen from over the feet.
+    if (
+      r > seated.RATIO[1] &&
+      (["left", "right"] as const).some(
+        (side: "left" | "right"): boolean =>
+          !context.entry.feet[side].planted ||
+          context.entry.feet[side].ankle.y >
+            body.measure.ankleHeight + 0.5 * body.measure.thighRadius,
+      )
+    )
+      return HumanMountOff.plan(context, start, r);
+    const rising: number =
+      2 *
+      (1 + 0.6 * (1 - r)) *
+      AutoMovieMotionManner.of(context, context.params.manner).tempo;
     const yaw: number = context.entry.posture.yaw;
     const pitch0: number = context.entry.posture.pitch;
     const feet: Record<"left" | "right", IAutoMovieVector3> = stand.feet(
@@ -386,6 +421,7 @@ export namespace rise {
         { name: "standing", share: share(prepared + 0.85 * rising) },
       ],
       contacts,
+      base: { kind: "standing" },
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const joints: IHumanPosture["joints"] = {

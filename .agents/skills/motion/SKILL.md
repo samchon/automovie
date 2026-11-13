@@ -62,7 +62,7 @@ Work in this order, because each step fixes what the next one builds on.
 
 6. Run the tests and repair every finding of the round together by cause.
 
-   A specification that fails on a defect outside the change stays as a pending specification with its measured numbers.
+   A specification that fails on a defect outside the change stays in the feature tests, failing, with its measured numbers in its document and on the owning issue. The owner of the defective code fixes it in the same pull request. No specification is parked in a folder apart.
 
 7. Record every remaining failure with its numbers in the family's sub-issue.
 8. Cite each source in the law's documentation and add it to the sub-issue.

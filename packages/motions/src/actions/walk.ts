@@ -6,6 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
+import type { IWalkGait } from "./IWalkGait";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { HumanTrunk } from "../everyday/HumanTrunk";
@@ -26,6 +27,7 @@ import { walkFoot } from "./walkFoot";
 import { walkLeg } from "./walkLeg";
 import { walkReach } from "./walkReach";
 import { walkSteps } from "./walkSteps";
+import { walkTempo } from "./walkTempo";
 
 /** Seconds before a toe-off over which the ankle's velocity there is read. */
 const TICK: number = 1e-3;
@@ -168,29 +170,8 @@ export namespace walk {
   export const FROUDE: Readonly<Record<NonNullable<IParams["pace"]>, number>> =
     { slow: 0.12, normal: 0.2, fast: 0.32 };
 
-  /** A gait the stepping plan runs: its speed, its step and swing, its pelvis and its arms. */
-  export interface IGait {
-    /** Froude number, `v² / (g l)`. */
-    froude: number;
-
-    /** The longest step in hip heights for the Froude number. */
-    step(froude: number): number;
-
-    /** Swing duration in step periods. */
-    swing: number;
-
-    /** Vertical oscillation lowest at mid-stance, hip heights; a walk's own when absent. */
-    bob?: { mean: number; amplitude: number };
-
-    /** Mid-swing ankle lift, hip heights. */
-    lift: number;
-
-    /** Shoulder swing amplitude, elbow flexion and its swing, degrees. */
-    arms: { shoulder: number; elbow: number; swing: number };
-
-    /** The trunk's forward inclination from the upright alignment, degrees, shared between the pelvis and the spine by the lumbopelvic rhythm (`HumanTrunk.incline`) and tipped about the hips. */
-    lean: number;
-  }
+  /** A gait the stepping plan runs (`IWalkGait`). */
+  export type IGait = IWalkGait;
 
   /**
    * The walking gait of a Froude number: a step of `1.2 l Fr^0.25`, at most
@@ -257,9 +238,11 @@ export namespace walk {
       speed,
       longest,
       period: (seconds: number): number =>
-        HumanSkill.jitter(context.skill, context.random("period"), seconds),
+        gait.called === true
+          ? seconds
+          : HumanSkill.jitter(context.skill, walkSteps.tempo(context), seconds),
       swing: gait.swing,
-      ...(gait.bob === undefined ? {} : { bob: gait.bob }),
+      gait,
     });
     const duration: number = steps.duration;
     const events: IAutoMovieMotionEvent[] = steps.events.map((e) => ({
@@ -317,7 +300,7 @@ export namespace walk {
         to: at(side, swing.on),
         u,
         seconds: swing.on - swing.off,
-        lift: gait.lift,
+        lift: (gait.stiff === side ? walkFoot.STIFF : 1) * gait.lift,
       });
     };
     // The lowering a swinging leg asks of the pelvis at a share of its swing
@@ -419,7 +402,7 @@ export namespace walk {
       }
       return { feet, hips: pelvis(t), settled, reached };
     };
-    return {
+    const planned: IHumanActionPlan = {
       duration,
       events,
       contacts,
@@ -501,5 +484,16 @@ export namespace walk {
         );
       },
     };
+
+    // The steps are taken a little unevenly in time: a stride time varies by 3 % in a novice down to 1 % in an expert (the 1 to 3 % of healthy adults, Hausdorff; the mapping onto skill is provisional), which each step's own draw carries as the square root of two times that, two independent steps making a stride.
+    return walkTempo(
+      planned,
+      (index: number): number =>
+        Math.SQRT2 *
+        HumanSkill.quantity(context.skill, "timing", 0.03, 0.01) *
+        (gait.unevenness ?? 1) *
+        HumanSkill.normal(context.random("stride"), 2 * index),
+      gait.limp,
+    );
   }
 }

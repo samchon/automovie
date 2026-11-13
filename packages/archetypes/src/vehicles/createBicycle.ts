@@ -113,6 +113,7 @@ export function createBicycle(
     extent: null,
     depth: createBicycle.SADDLE,
     width: d.saddleWidth,
+    astride: true,
   });
 
   // The handlebar and a grip at each end, taken from above.

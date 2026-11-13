@@ -11,8 +11,17 @@ import { HumanPose } from "./HumanPose";
 import { HumanPursuit } from "./HumanPursuit";
 import { HumanRide } from "./HumanRide";
 import { HumanSocial } from "./HumanSocial";
+import { HumanSport } from "./HumanSport";
+import { HumanSportSwing } from "./HumanSportSwing";
+import { HumanSportThrow } from "./HumanSportThrow";
 import { HumanStageFight } from "./HumanStageFight";
 import { HumanStance } from "./HumanStance";
+import { HumanSword } from "./HumanSword";
+import { HumanSwordGuard } from "./HumanSwordGuard";
+import { HumanSwordParry } from "./HumanSwordParry";
+import { HumanSwordThrust } from "./HumanSwordThrust";
+import { HumanWeaponFirearm } from "./HumanWeaponFirearm";
+import { HumanWeaponMelee } from "./HumanWeaponMelee";
 
 /** The registered laws a namespace holds: its members that plan. */
 const rows = (space: object): readonly IHumanActionLaw<never>[] =>
@@ -49,4 +58,15 @@ export const HUMAN_LEXICON: Readonly<
   labour: rows(HumanLabour),
   ride: rows(HumanRide),
   carried: rows(HumanCarried),
+  sport: rows(HumanSport),
+  sportSwing: rows(HumanSportSwing),
+  sportThrow: rows(HumanSportThrow),
+  sword: [
+    ...rows(HumanSword),
+    ...rows(HumanSwordGuard),
+    ...rows(HumanSwordParry),
+    ...rows(HumanSwordThrust),
+  ],
+  weaponFirearm: rows(HumanWeaponFirearm),
+  weaponMelee: rows(HumanWeaponMelee),
 };

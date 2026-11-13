@@ -28,6 +28,20 @@ export namespace HumanPose {
     rise: true,
   });
 
+  /** Sit back on the heels from both knees and stay, the floor seat of a kneel-sit, three seconds (provisional). */
+  export const kneelSit = HumanActionRow.of("kneelSit", kneel, {
+    kind: "sitBack",
+    hold: 3,
+    rise: false,
+  });
+
+  /** Squat fully, heels up, and hold three seconds (provisional), as people sit low without a seat. */
+  export const squatSit = HumanActionRow.of("squatSit", crouch, {
+    depth: "full",
+    heels: "up",
+    hold: 3,
+  });
+
   /** Duck down and hold, as behind cover. */
   export const takeCover = HumanActionRow.of("takeCover", crouch, { hold: 2 });
 

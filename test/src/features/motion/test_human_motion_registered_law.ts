@@ -1,4 +1,4 @@
-import type { IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
   HumanActionRow,
   HumanChain,
@@ -6,6 +6,7 @@ import {
   HumanRefusal,
   HumanSignature,
   type IHumanActionLaw,
+  type HumanSegment,
   type IHumanBody,
   handToFace,
   seated,
@@ -60,14 +61,16 @@ type Same<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
  *    at 0.1 into standing follow the hand-to-face table.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Registers a law through the public input and chain, performs it on a real body and reads placed actions, poses and refusals; a law that cannot be performed, changes another action, shadows a name or cuts where it declares no window fails.
- * @evidence contracts/development/testing.md#independent-expectations Where the fingertip goes is the drill manual's; sameness is compared between runs, never against stored poses; the refusals follow from what a name and a cut window mean.
+ * @evidence contracts/development/testing.md#independent-expectations Where the fingertip goes is the drill manual's; sameness is the distance between two runs' joint centres under a nanometre, never a stored pose; the refusals follow from what a name and a cut window mean.
  * @evidence contracts/development/testing.md#distinguishing-cases A used and an unused registration, a shadow and a duplicate, an unknown name, cuts in both directions inside and outside a window, and both ways `extend` can be misused.
  * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and samples short films; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the example with its source and the 8 scenarios.
  */
 export function test_human_motion_registered_law(): void {
   const body: IHumanBody = motionHumanBody("m-average");
-  const salute = HumanActionRow.of("salute", touch, {
+  const salute: IHumanActionLaw<
+    Omit<touch.IParams, "target" | "with" | "kind" | "side" | "elbow">
+  > = HumanActionRow.of("salute", touch, {
     target: { kind: "self", region: "templeRight" },
     with: "forefinger",
     kind: "hold",
@@ -83,8 +86,10 @@ export function test_human_motion_registered_law(): void {
     yaw: 0,
     depth: 0.45,
   };
-  const takeSeat = HumanActionRow.of("takeSeat", sit, { seat: chair });
-  const shave = HumanActionRow.of("shave", handToFace, {
+  const takeSeat: IHumanActionLaw<Omit<sit.IParams, "seat">> =
+    HumanActionRow.of("takeSeat", sit, { seat: chair });
+  const shave: IHumanActionLaw<Omit<handToFace.IParams, "task">> =
+    HumanActionRow.of("shave", handToFace, {
     task: {
       region: "jawRight",
       effector: {
@@ -102,7 +107,11 @@ export function test_human_motion_registered_law(): void {
       at: "atJaw",
     },
   });
-  const Chain = HumanChain.extend({ salute, takeSeat, shave });
+  const Chain: HumanChain.IExtension<{
+    salute: typeof salute;
+    takeSeat: typeof takeSeat;
+    shave: typeof shave;
+  }> = HumanChain.extend({ salute, takeSeat, shave });
   const perform = (
     composition: HumanChain,
     laws: readonly IHumanActionLaw<never>[] = [salute, takeSeat, shave],
@@ -135,11 +144,24 @@ export function test_human_motion_registered_law(): void {
   };
   const said = (thrown: unknown): string =>
     thrown instanceof Error ? thrown.message : String(thrown);
-  const poses = (performance: HumanPerformance): IAutoMoviePose[] => {
-    const out: IAutoMoviePose[] = [];
-    for (let t: number = 0; t <= performance.duration; t += 0.25)
-      out.push(performance.pose("a", t));
-    return out;
+
+  // Whether two films show the same body: every joint centre within a
+  // nanometre at every quarter second.
+  const same = (one: HumanPerformance, other: HumanPerformance): boolean => {
+    if (Math.abs(one.duration - other.duration) > 1e-9) return false;
+    for (let t: number = 0; t <= one.duration; t += 0.25) {
+      const there: ReturnType<HumanPerformance["bones"]> = other.bones("a", t);
+      for (const [bone, resolved] of one.bones("a", t)) {
+        const p: IAutoMovieVector3 = resolved.worldPosition;
+        const q: IAutoMovieVector3 | undefined = there.get(bone)?.worldPosition;
+        if (
+          q === undefined ||
+          Math.hypot(p.x - q.x, p.y - q.y, p.z - q.z) > 1e-9
+        )
+          return false;
+      }
+    }
+    return true;
   };
   const scene = (): HumanChain =>
     Chain.subject("a")
@@ -149,7 +171,7 @@ export function test_human_motion_registered_law(): void {
 
   // 1. Performed under its own name, the fingertip at the brow.
   const first: HumanPerformance = perform(scene());
-  const placed = first.segments("a")[1];
+  const placed: HumanSegment.ISegment | undefined = first.segments("a")[1];
   expect(
     `the second action is named ${placed?.name}, salute expected`,
     placed?.name === "salute",
@@ -190,7 +212,7 @@ export function test_human_motion_registered_law(): void {
   // 2. The same film twice.
   expect(
     "the same composition and seed give the same poses",
-    JSON.stringify(poses(first)) === JSON.stringify(poses(perform(scene()))),
+    same(first, perform(scene())),
   );
 
   // 3. Registering changes no other action.
@@ -200,8 +222,7 @@ export function test_human_motion_registered_law(): void {
       .touch({ target: { kind: "self", region: "sternum" }, kind: "pat" });
   expect(
     "an unused registration changes no pose",
-    JSON.stringify(poses(perform(plain(), []))) ===
-      JSON.stringify(poses(perform(plain()))),
+    same(perform(plain(), []), perform(plain())),
   );
 
   // 4. A name means one thing.
@@ -285,14 +306,10 @@ export function test_human_motion_registered_law(): void {
   // 9. A row counts as its family.
   expect(
     "a rise after a row of sit differs from a rise after sit on the same chair",
-    JSON.stringify(
-      poses(perform(Chain.subject("a").takeSeat({ seconds: 0.3 }).rise())),
-    ) ===
-      JSON.stringify(
-        poses(
-          perform(Chain.subject("a").sit({ seat: chair, seconds: 0.3 }).rise()),
-        ),
-      ),
+    same(
+      perform(Chain.subject("a").takeSeat({ seconds: 0.3 }).rise()),
+      perform(Chain.subject("a").sit({ seat: chair, seconds: 0.3 }).rise()),
+    ),
   );
 
   // 10. A row of data, cut and carried like its table's tasks.

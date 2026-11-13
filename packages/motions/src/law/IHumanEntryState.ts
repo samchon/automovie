@@ -7,6 +7,7 @@ import type {
 
 import type { HumanActionKey } from "../HumanActionKey";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import type { HumanBase } from "./HumanBase";
 import type { IHumanActionPlan } from "./IHumanActionPlan";
 import type { IHumanContactWindow } from "./IHumanContactWindow";
 
@@ -52,6 +53,23 @@ export interface IHumanEntryState {
    * a drink taken seated declares the seat it sits on.
    */
   supports: IHumanEntryState.ISupport[];
+
+  /**
+   * What carries the body at the entry: standing before the first action,
+   * then the base the last action that changed it declared, passed on
+   * through every action that keeps it. A seated base carries the seat sat
+   * on, so the action that leaves it knows its height, its heading and
+   * whether it is sat astride without the composition restating it.
+   */
+  base: HumanBase;
+
+  /**
+   * The prop each hand holds at the entry, by its subject id: what an
+   * earlier action left held and none has taken over or put down since. An
+   * act performed with what the hand holds reads it here instead of judging
+   * from how near the prop lies.
+   */
+  holds: Partial<Record<"left" | "right", string>>;
 
   /** The interrupted action, when the entry is a cut. */
   from?: IHumanEntryState.IFrom;

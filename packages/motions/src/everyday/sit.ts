@@ -8,12 +8,14 @@ import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import { HumanMountOn } from "../lexicon/HumanMountOn";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanTrunk } from "./HumanTrunk";
@@ -47,8 +49,13 @@ import { seated } from "./seated";
  *
  * The performer must stand facing within 20 degrees of the seat's heading
  * with feet the legs can reach from the seat; otherwise the sit is refused
- * with the range of foot distances that work. Events `seatContact` and
+ * with the range of foot distances that work. Events `commit` (the last
+ * instant the sitting can be abandoned for standing), `seatContact` and
  * `seated`; the seat window starts at contact.
+ *
+ * A seat above 1.2 of the popliteal height, or one sat astride, is got onto
+ * instead ({@link HumanMountOn}): the feet leave the floor for the seat's
+ * rests or hang, under the same parameters, events and cancel table.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the goal, the method, the timing, the events and the refusals, with sources and provisional values marked.
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table and a pure plan of postures in world metres and seconds.
@@ -65,10 +72,15 @@ export namespace sit {
   /** The action's name. */
   export const name: HumanActionName = "sit";
 
-  /** Cancel table. */
+  /**
+   * Cancel table. Sitting is abandoned for standing only until `commit`,
+   * while both feet still stand on the floor: the seat's contact on a seat
+   * inside the band, and the first foot leaving the floor on a high seat.
+   * Past it the body is got down by `rise`.
+   */
   export const interrupts: IHumanActionLaw["interrupts"] = {
     stand: [
-      { window: [0, "seatContact"], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: [0, "commit"], kind: "inertialize", entry: 0, blend: 0.3 },
     ],
     rise: [
       { window: ["seatContact", 1], kind: "inertialize", entry: 0, blend: 0.3 },
@@ -86,7 +98,22 @@ export namespace sit {
 
     /** Seconds to stay seated after `seated`; 1 when absent. */
     seconds?: number;
+
+    /**
+     * How the legs rest once seated on a seat inside the band: `parallel`,
+     * both feet where they stood, or `crossed`, the left ankle lifted and
+     * set down across the right one over `CROSS` seconds after `seated`,
+     * which the time seated must cover. `parallel` when absent; ignored on a
+     * high seat.
+     */
+    legs?: "parallel" | "crossed";
+
+    /** How it is performed: the manner's tempo stretches or shortens the descent, or the climb onto a high seat; neutral when absent. No span of sitting down is fixed by gravity, since the legs lower the body under control. */
+    manner?: AutoMovieMotionManner.IManner;
   }
+
+  /** Seconds the left foot takes to cross over the right ankle once seated (provisional). */
+  export const CROSS: number = 0.6;
 
   /** Seated pitch and trunk angles of each back, degrees. */
   export const BACKS: Readonly<
@@ -110,7 +137,7 @@ export namespace sit {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the seat does not suit the body, the performer does not face away from it, the feet are out of reach, or `lean` has no backrest.
+   * @throws {HumanRefusal} When the seat is too low for the body, the performer does not face away from it, the feet are out of reach of a seat inside the band, the body stands more than a leg's length from a high seat, or `lean` has no backrest.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -138,6 +165,8 @@ export namespace sit {
         reason: `stands ${turn.toFixed(1)} degrees off the seat's heading; turn to within 20 degrees of facing away from the seat first`,
         fix: "turn to within 20 degrees of facing away from the seat first, or turn the seat",
       });
+    if (seated.high(body, seat) || seat.astride === true)
+      return HumanMountOn.plan(context, seat, BACKS[back], turn);
     const feet: Record<"left" | "right", IAutoMovieVector3> = stand.feet(
       body,
       context.entry,
@@ -147,7 +176,10 @@ export namespace sit {
     reach(body, seat, goal, feet, BACKS[back].pitch);
 
     const r: number = seated.ratio(body, seat);
-    const descent: number = 2 * (1 + 0.6 * (1 - r));
+    const descent: number =
+      2 *
+      (1 + 0.6 * (1 - r)) *
+      AutoMovieMotionManner.of(context, context.params.manner).tempo;
     const peak: number = 35 + 50 * (1 - r);
     const contact: number = 0.75 * descent;
     const hold: number = context.params.seconds ?? 1;
@@ -158,14 +190,60 @@ export namespace sit {
     const final = BACKS[back];
     const upright = standUpright.of(body).joints;
 
+    // Crossed at the ankles: once seated the left foot lifts and is set down ahead of the right ankle and across it, by shares of the feet's own spacing at rest (provisional).
+    const crossed: boolean = context.params.legs === "crossed";
+    if (crossed) HumanBound.least("seconds", hold, CROSS, "s");
+    const apart: number = Math.abs(
+      body.rest.get("leftFoot")!.x - body.rest.get("rightFoot")!.x,
+    );
+    const crossing: IAutoMovieVector3 = {
+      x:
+        feet.right.x +
+        0.6 * apart * Math.sin((seat.yaw * Math.PI) / 180) -
+        0.4 * apart * Math.cos((seat.yaw * Math.PI) / 180),
+      y: feet.left.y,
+      z:
+        feet.right.z +
+        0.6 * apart * Math.cos((seat.yaw * Math.PI) / 180) +
+        0.4 * apart * Math.sin((seat.yaw * Math.PI) / 180),
+    };
+    const legsAt = (
+      root: IAutoMovieVector3,
+      yaw: number,
+      t: number,
+    ): IHumanPosture["limbs"] => {
+      const share: number = crossed ? minimumJerk((t - descent) / CROSS).s : 0;
+      const limbs: IHumanPosture["limbs"] = stand.legs(body, root, yaw, {
+        left: {
+          x: feet.left.x + (crossing.x - feet.left.x) * share,
+          y: feet.left.y + 0.3 * apart * Math.sin(Math.PI * share),
+          z: feet.left.z + (crossing.z - feet.left.z) * share,
+        },
+        right: feet.right,
+      });
+      return share > 0 && share < 1
+        ? { ...limbs, leftLeg: { ...limbs.leftLeg!, planted: false } }
+        : limbs;
+    };
     const contacts: IHumanContactWindow[] = [
       {
         part: "leftFoot",
         kind: "plant",
         from: 0,
-        to: 1,
+        to: crossed ? descent / duration : 1,
         support: { kind: "ground" },
       },
+      ...(crossed
+        ? [
+            {
+              part: "leftFoot" as const,
+              kind: "plant" as const,
+              from: (descent + CROSS) / duration,
+              to: 1,
+              support: { kind: "ground" as const },
+            },
+          ]
+        : []),
       {
         part: "rightFoot",
         kind: "plant",
@@ -184,11 +262,13 @@ export namespace sit {
     return {
       duration,
       events: [
+        { name: "commit", share: contact / duration },
         { name: "seatContact", share: contact / duration },
         { name: "seated", share: descent / duration },
       ],
       contacts,
       contact,
+      base: { kind: "seated", seat },
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const across: number = minimumJerk(t / (0.7 * descent)).s;
@@ -246,7 +326,7 @@ export namespace sit {
           pitch: tilt.pitch,
           roll: 0,
           joints: tilt.joints,
-          limbs: stand.legs(body, root, yaw, feet),
+          limbs: legsAt(root, yaw, t),
         });
         return seated.arms(
           body,

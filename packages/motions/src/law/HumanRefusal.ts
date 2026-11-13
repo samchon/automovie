@@ -172,15 +172,19 @@ export namespace HumanRefusal {
    *   feet, the seat, the heading); change what precedes it.
    * - `rule`: the placed performance breaks a production rule it was given.
    */
-  export type Kind =
-    | "parameter"
-    | "reach"
-    | "affordance"
-    | "channel"
-    | "cut"
-    | "participant"
-    | "base"
-    | "rule";
+  export type Kind = (typeof KINDS)[number];
+
+  /** The classes of refusal as data, from which {@link Kind} is derived: what a page and a test generator list. */
+  export const KINDS = [
+    "parameter",
+    "reach",
+    "affordance",
+    "channel",
+    "cut",
+    "participant",
+    "base",
+    "rule",
+  ] as const;
 
   /** What an axis accepts: a numeric range or a list of alternatives. */
   export type Feasible = IRange | IAlternatives;

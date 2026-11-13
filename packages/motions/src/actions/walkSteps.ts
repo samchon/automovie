@@ -1,10 +1,17 @@
-import { minimumJerk, wrapDegrees } from "@automovie/engine";
+import {
+  type IAutoMovieRandom,
+  minimumJerk,
+  wrapDegrees,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanEntryState } from "../law/IHumanEntryState";
+import { HumanSkill } from "../skill/HumanSkill";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
+import type { IWalkGait } from "./IWalkGait";
 import { WalkPace } from "./WalkPace";
 import { WalkPath } from "./WalkPath";
 import { WalkTurn } from "./WalkTurn";
@@ -82,8 +89,8 @@ export namespace walkSteps {
     /** Swing duration in step periods; 0.8 (a walk's 40 % of the stride) when absent, above 1 for a run's flight. */
     swing?: number;
 
-    /** A run's vertical oscillation, hip heights: the mean drop and the amplitude, lowest at mid-stance; a walk's when absent. */
-    bob?: { mean: number; amplitude: number };
+    /** What the plan reads of the gait beyond its timing: its vertical oscillation in hip heights (the mean drop and the amplitude, lowest at mid-stance; a walk's when absent) and how far it holds the heels off the floor, degrees (flat when absent). */
+    gait?: Pick<IWalkGait, "bob" | "heels" | "stiff">;
   }
 
   /** The plan. */
@@ -122,6 +129,36 @@ export namespace walkSteps {
     heading: number;
     /** The toe-off pitch of the foot leaving for this footfall, degrees, negative. */
     push: number;
+  }
+
+  /**
+   * The stream a take's tempo is drawn from: one per performer and per
+   * occurrence of the action in their chain, keyed as a walk whatever the
+   * gait is called. A style is the walk with a manner, so a stroll, a sad or
+   * a proud walk and the neutral walk in the same place of the same chain
+   * under one seed draw the same tempo, and differ only by their style.
+   *
+   * @param context The action's skill, subject and occurrence.
+   * @returns The stream.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is drawn, what keys it and why a style shares the walk's draw.
+   * @evidence contracts/development/implementation.md#principled-implementation A draw keyed by stable identities (seed, performer, occurrence), so adding or renaming a style leaves every other take's tempo unchanged.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One call.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The occurrence is the action's own ordinal among its name's uses in the chain, so the first stroll pairs with the first walk of a chain written with a walk in its place.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to cache.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function tempo(
+    context: Pick<IHumanActionContext, "skill" | "subject" | "series">,
+  ): IAutoMovieRandom {
+    return HumanSkill.stream(
+      context.skill,
+      context.subject,
+      "walk",
+      context.series("period").index,
+      "period",
+    );
   }
 
   /**
@@ -350,9 +387,16 @@ export namespace walkSteps {
         );
         step.push =
           -PUSH + (PUSH - 15) * Math.min(1, Math.abs(turned) / walkReach.TWIST);
+
+        // A leg kept straight leaves the floor nearly flat: a steep push-off needs the knee it does not bend.
+        if (input.gait?.stiff === side)
+          step.push = Math.max(step.push, -walkFoot.STIFF_PUSH);
         leaving = step.heading;
       }
     }
+    const gaitBob: { mean: number; amplitude: number } | undefined =
+      input.gait?.bob;
+    const raised: number = input.gait?.heels ?? 0;
     const own: Record<"left" | "right", IStep[]> = {
       left: steps.filter((s: IStep): boolean => s.side === "left"),
       right: steps.filter((s: IStep): boolean => s.side === "right"),
@@ -372,6 +416,7 @@ export namespace walkSteps {
             step.toeOff,
             at,
             step.push,
+            raised,
           );
         if (t < step.toeOff) return leave(t);
         if (t < step.heelStrike) {
@@ -389,6 +434,7 @@ export namespace walkSteps {
                   next?.toeOff ?? Infinity,
                   step.heelStrike,
                   next?.push ?? -PUSH,
+                  raised,
                 )),
             swing: { u, off: step.toeOff, on: step.heelStrike },
           };
@@ -406,6 +452,7 @@ export namespace walkSteps {
         Infinity,
         t,
         -PUSH,
+        raised,
       );
     };
     const planned = (t: number): IAutoMovieVector3 => {
@@ -417,12 +464,12 @@ export namespace walkSteps {
       const sway: number =
         0.02 * (l / 0.93) * a * Math.cos((2 * Math.PI * (t - over)) / (2 * T));
       const bob: number =
-        input.bob === undefined
+        gaitBob === undefined
           ? a * (-0.015 + 0.025 * Math.cos((2 * Math.PI * (t - over)) / T))
           : a *
             l *
-            (input.bob.mean -
-              input.bob.amplitude * Math.cos((2 * Math.PI * (t - over)) / T));
+            (gaitBob.mean -
+              gaitBob.amplitude * Math.cos((2 * Math.PI * (t - over)) / T));
       const s: number = progress(t);
       const p: IAutoMovieVector3 = HumanFrame.point(
         { origin: path.at(s), yaw: along$(s) },

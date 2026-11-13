@@ -61,6 +61,9 @@ export namespace handToFaceRows {
     /** `true` when the held tool stands on the world's up at the face, as a vessel does, instead of lying on the region. */
     upright?: boolean;
 
+    /** The point of a held prop that meets the region when the task is performed with one (`handToFace.IParams.prop`): a vessel's `lip`, a phone's `screen`; the parameters name it when absent. */
+    point?: string;
+
     /** The head's flexion at the face, degrees; negative extends it. */
     head: number;
 
@@ -84,6 +87,7 @@ export namespace handToFaceRows {
       hold: 1.2,
       tangent: "up",
       upright: true,
+      point: "lip",
       head: -10,
       at: "atMouth",
     },
@@ -101,6 +105,7 @@ export namespace handToFaceRows {
       hold: 0.5,
       tangent: "up",
       upright: true,
+      point: "lip",
       head: -5,
       at: "atMouth",
     },
@@ -149,6 +154,7 @@ export namespace handToFaceRows {
       count: 1,
       hold: 3,
       tangent: "up",
+      point: "screen",
       head: 0,
       at: "atEar",
     },

@@ -104,6 +104,7 @@ export namespace walkFoot {
    * @param toeOff The stance's toe-off, seconds; `Infinity` for the closing stance.
    * @param t The instant, seconds.
    * @param push The pitch at toe-off, degrees, negative.
+   * @param raised How far the heel is held off the floor through the stance, degrees about the toes' joint; 0 for a flat foot that lands heel first. A raised foot lands on its ball with no heel rocker; the starting stance rises to it and the closing stance settles from it over `RISE` seconds.
    * @returns The planted foot.
    */
   export function stance(
@@ -115,9 +116,28 @@ export namespace walkFoot {
     toeOff: number,
     t: number,
     push: number,
+    raised: number = 0,
   ): IFoot {
     const length: number =
       Number.isFinite(strike) && Number.isFinite(toeOff) ? toeOff - strike : 1;
+    if (raised > 0) {
+      // On the ball throughout: the heel's height, eased up from a flat start and down to a flat stop, and the forefoot rocker's pitch where it is steeper.
+      const held: number =
+        raised *
+        (Number.isFinite(strike) ? 1 : minimumJerk(t / RISE).s) *
+        (Number.isFinite(toeOff) ? 1 : 1 - minimumJerk((t - strike) / RISE).s);
+      const rise: number = Number.isFinite(toeOff)
+        ? toeOff - 0.4 * (Number.isFinite(strike) ? length : 0.6)
+        : Infinity;
+      const degrees: number = Math.min(
+        -held,
+        t > rise ? push * minimumJerk((t - rise) / (toeOff - rise)).s : 0,
+      );
+      return {
+        placement: rocked(body, side, flat, heading, degrees, "mtp"),
+        toes: -degrees,
+      };
+    }
     if (Number.isFinite(strike) && t < strike + HEEL_SHARE * length) {
       const degrees: number =
         STRIKE * (1 - minimumJerk((t - strike) / (HEEL_SHARE * length)).s);
@@ -218,6 +238,15 @@ export namespace walkFoot {
 
   /** The pitch a foot strikes the floor with, degrees toes-up (provisional, inside Perry and Burnfield's heel rocker). */
   export const STRIKE: number = 15;
+
+  /** The share of a gait's swing lift a leg kept straight is given: with no knee to fold, its foot clears the floor by little (provisional; the hip hike and the outward arc that real stiff-knee walkers add are not modelled). */
+  export const STIFF: number = 0.3;
+
+  /** The steepest toe-off pitch of a leg kept straight, degrees toes-down (provisional): the foot leaves nearly flat, where a folding knee lets it leave at about 55. */
+  export const STIFF_PUSH: number = 15;
+
+  /** Seconds a walk on the balls of the feet takes to raise the heels from a flat start and to set them down at a flat stop (provisional). */
+  export const RISE: number = 0.3;
 
   /** The rate the forefoot rocker ends with, in push pitches per rocker duration (provisional): the foot is still plantarflexing when the toes leave the floor (Perry and Burnfield), and at 2 the minimum-jerk rise with the engine's `carriedRate` term reversed is exactly `2u³ − u⁴`, monotonic and ending with no acceleration. */
   const LEAVE: number = 2;

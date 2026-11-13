@@ -6,6 +6,7 @@ import type {
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
+import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -59,6 +60,9 @@ export namespace look {
     look: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
   };
 
+  /** A look may be performed over a carrier: it claims the head, and the trunk when the shift recruits it. */
+  export const overlay: boolean = true;
+
   /**
    * Parameters of a look: the target, which segments may join, the cue that
    * drew the look and how long the action lasts.
@@ -97,9 +101,9 @@ export namespace look {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the steps and both refusals; the law's doc gives the field, the reaction-time sources and the events.
    * @evidence contracts/development/implementation.md#principled-implementation The gaze goal is the eyes' lines on the target, recruited eyes, head and trunk in that order by HumanGaze.split; the eyes take the saccade's main-sequence duration (capped at twice the eyes' range) and head and trunk their turn durations, each on a minimum-jerk weight from the reaction delay; the target is re-aimed every instant, so a moving target is tracked.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The plan times the shift and the stand law places the body; direction, split, durations and the aiming solve are owned by HumanGaze, and the reaction draw is `reaction`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The plan times the shift; the stand law places the body, or the carrier does when the look is an overlay, which then takes the head and, when recruited, the trunk; direction, split, durations and the aiming solve are owned by HumanGaze, and the reaction draw is `reaction`.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts FIELD is a named constant and the 0.6 s hold after settling is the documented default duration; nothing is special-cased per target or body.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Planning is constant work plus one stand plan; each posture costs one aim of the target, one stand posture and one gaze solve.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Planning is constant work plus one base plan; each posture costs one aim of the target, one base posture (the stand's or the carrier's) and one gaze solve.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The split, durations and delay are computed once per instance; the target is re-read per instant because it may move.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The posture closure holds this instance's context, timing and stand base, released with the performance; nothing grows per call.
    */
@@ -146,10 +150,13 @@ export namespace look {
     const settled: number = delay + Math.max(eyes, head, trunk);
     const duration: number = context.params.seconds ?? settled + 0.6;
     HumanBound.above("seconds", duration, 0, "s");
-    const base: IHumanActionPlan = stand.plan({
-      ...context,
-      params: { seconds: duration },
-    });
+
+    // The body under the look: the carrier's when the look is an overlay,
+    // otherwise the stand law's.
+    const base: IHumanActionPlan =
+      context.carrier === undefined
+        ? stand.plan({ ...context, params: { seconds: duration } })
+        : AutoMovieMotionHumanBase.under(context, duration);
     const weight = (seconds: number, span: number): number =>
       minimumJerk((seconds - delay) / span).s;
     return {
@@ -159,6 +166,17 @@ export namespace look {
         { name: "settled", share: Math.min(1, settled / duration) },
       ],
       contacts: base.contacts,
+
+      // Over a carrier the look takes the head, and the trunk when the
+      // shift recruits it.
+      ...(context.carrier === undefined
+        ? {}
+        : {
+            channels:
+              parts.trunk === 0
+                ? (["head"] as const)
+                : (["trunk", "head"] as const),
+          }),
       posture: (seconds: number): IHumanPosture =>
         HumanGaze.aim(
           context.body,

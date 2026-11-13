@@ -85,14 +85,18 @@ export namespace AutoMovieMotionHumanLeanInto {
    * @returns The lean.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and the result; the namespace states the movement.
-   * @evidence contracts/development/implementation.md#principled-implementation The hips' shift per sine of pitch is the balance shift at the limit; the pitch is the bisected root of the wrist's distance beyond the kept share, which grows shorter monotonically as the shoulder comes forward.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One balance solve, one bisection, one primitive.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A wrist beyond reach at the limit throws; the leaned root is lowered until the planted legs reach their feet.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Twelve halvings per read to a hundredth of a degree.
+   * @evidence contracts/development/implementation.md#principled-implementation The hips' shift per sine of pitch is the balance shift at the limit; the pitch is the least root of the wrist's distance beyond the kept share. That distance falls with the lean for a wrist below the shoulder and rises again for one above it, so the lean is scanned upward in 5 degree steps for the first pitch that reaches and bisected between it and the step before.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One balance solve, one scan with its bisection, one primitive.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A wrist no scanned lean reaches throws with the smallest shortfall and the pitch that gives it; the leaned root is lowered until the planted legs reach their feet. A reach that opens and closes inside one 5 degree step is missed, the remaining gap.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most nine scanned leans and nine halvings per read, to a hundredth of a degree.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanLean.tip`, `HumanBalance.shift`, `AutoMovieMotionHumanReach.check` and `resolveHumanPosture.lower`; the balance shift is solved once.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Closes over the props and one number.
    */
   export function solve(props: IProps): ILean {
+    // The step of the scan for the first pitch that reaches, degrees
+    // (provisional: the measured distances change by a few millimetres per
+    // five degrees near their least, so a reach is not stepped over).
+    const SCAN: number = 5;
     const sine = (degrees: number): number =>
       Math.sin((degrees * Math.PI) / 180);
     const limit: number = AutoMovieMotionHumanReach.LEAN_LIMIT;
@@ -127,15 +131,36 @@ export namespace AutoMovieMotionHumanLeanInto {
         return check.distance - props.share * check.length;
       };
       if (beyond(0) <= 0) return 0;
+
+      // The distance does not always fall with the lean: a wrist above the
+      // shoulder comes nearer for the first degrees and moves away after,
+      // as the shoulder drops. So the lean is scanned upward for the first
+      // pitch that reaches, and the least pitch lies between it and the
+      // sample before; a reach that opens and closes inside one step of the
+      // scan is not found.
       let low: number = 0;
-      let high: number = limit;
-      if (beyond(high) > 0)
+      let high: number | undefined;
+      let nearest: { pitch: number; beyond: number } = {
+        pitch: 0,
+        beyond: beyond(0),
+      };
+      for (let k: number = 1; k * SCAN < limit + SCAN; ++k) {
+        const degrees: number = Math.min(limit, k * SCAN);
+        const short: number = beyond(degrees);
+        if (short <= 0) {
+          high = degrees;
+          break;
+        }
+        if (short < nearest.beyond) nearest = { pitch: degrees, beyond: short };
+        low = degrees;
+      }
+      if (high === undefined)
         throw new HumanRefusal({
           kind: "reach",
           axis: "target",
-          value: beyond(high),
+          value: nearest.beyond,
           feasible: { kind: "range", minimum: null, maximum: 0, unit: "m" },
-          reason: props.refuse(beyond(high), high),
+          reason: props.refuse(nearest.beyond, nearest.pitch),
           fix: "come nearer first (approach the target), or aim at a region within the arm's reach",
         });
       while (high - low > 0.01) {

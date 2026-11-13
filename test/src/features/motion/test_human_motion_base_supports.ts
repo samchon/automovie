@@ -8,6 +8,7 @@ import {
   type IHumanBody,
   type IHumanContactWindow,
   seated,
+  type HumanSegment,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -83,7 +84,7 @@ export function test_human_motion_base_supports(): void {
       HumanChain.subject("a").sit({ seat: chair, seconds: 0.5 });
 
     // 1. Standing: the feet, no seat.
-    const stood = perform(
+    const stood: readonly IHumanContactWindow[] = perform(
       HumanChain.subject("a").handToFace({ task: "drink", seconds: 0.3 }),
     ).segments("a")[0]!.plan.contacts;
     if (
@@ -110,7 +111,7 @@ export function test_human_motion_base_supports(): void {
       ["drink", drinking],
       ["pat", patting],
     ] as const) {
-      const contacts = performance.segments("a")[1]!.plan.contacts;
+      const contacts: readonly IHumanContactWindow[] = performance.segments("a")[1]!.plan.contacts;
       if (
         !whole(contacts, "leftFoot") ||
         !whole(contacts, "rightFoot") ||
@@ -122,7 +123,7 @@ export function test_human_motion_base_supports(): void {
     }
 
     // 3. The base holds through the drink.
-    const drink = drinking.segments("a")[1]!;
+    const drink: HumanSegment.ISegment = drinking.segments("a")[1]!;
     const reader: HumanSignature.IReader = HumanSignature.of(
       drinking,
       "a",
@@ -148,7 +149,7 @@ export function test_human_motion_base_supports(): void {
       }
       return worst;
     };
-    const seat = moved(
+    const seat: { metres: number; seconds: number } = moved(
       (t: number): IAutoMovieVector3 =>
         HumanSignature.region(reader, "seat", t),
     );
@@ -157,7 +158,7 @@ export function test_human_motion_base_supports(): void {
         `${name}: the seat region moves ${(seat.metres * 1000).toFixed(1)} mm during the seated drink (at ${seat.seconds.toFixed(2)} s), within 10 mm expected`,
       );
     for (const side of ["left", "right"] as const) {
-      const ankle = moved(
+      const ankle: { metres: number; seconds: number } = moved(
         (t: number): IAutoMovieVector3 =>
           HumanSignature.joint(reader, t, `${side}Foot`),
       );
@@ -169,7 +170,7 @@ export function test_human_motion_base_supports(): void {
 
     // 4. A seated body is not judged as standing: at no instant of the drink
     // do the feet alone bear it.
-    const windows = IAutoMovieMotionHumanAuditMotion.windows(drinking, "a");
+    const windows: ReturnType<typeof IAutoMovieMotionHumanAuditMotion.windows> = IAutoMovieMotionHumanAuditMotion.windows(drinking, "a");
     for (let t: number = drink.entryTime; t <= drink.end; t += 0.1)
       if (AutoMovieMotionHumanAuditBalance.standing(windows, t)) {
         complaints.push(

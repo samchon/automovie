@@ -275,7 +275,14 @@ export namespace handOver {
               point: wrist,
               rotation,
               bend,
-              reference: between(share),
+              // Each named instant's solution counts in full at its instant.
+              // Between them the blend is no arm's solution of the goal
+              // there, so it only keeps the arm on its side and gives way to
+              // the hand's rotation, which holds the prop upright.
+              reference: {
+                ...between(share),
+                weight: (2 * share - 1) ** 2,
+              },
               ...(t >= shared.offer && t <= pullback ? { planted: true } : {}),
             },
           },
