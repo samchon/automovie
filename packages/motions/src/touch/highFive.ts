@@ -95,6 +95,9 @@ export namespace highFive {
 
     /** The prop's point that meets, one of its affordance ids; `lip` when absent. */
     point?: string;
+
+    /** A world point the hand is brought to in place of the pair's own meeting point, metres: the one point several pairs meet at, as glasses in a toast of four. The pair's shared instants are kept. The pair's own point when absent. */
+    at?: IAutoMovieVector3;
   }
 
   /** How a held prop is brought to the meeting: stood upright in the closed hand, the side of its rim the palm faces toward the partner. */
@@ -193,8 +196,26 @@ export namespace highFive {
       met,
       context.start,
     );
-    const place: AutoMovieMotionHumanTarget.IPlace =
+    const paired: AutoMovieMotionHumanTarget.IPlace =
       AutoMovieMotionMeeting.place(met, "meet", entry);
+
+    // A stated point is faced as the pair's own is: its normal looks back at
+    // this performer, level.
+    const back: IAutoMovieVector3 | undefined =
+      p.at === undefined
+        ? undefined
+        : { x: entry.root.x - p.at.x, y: 0, z: entry.root.z - p.at.z };
+    const place: AutoMovieMotionHumanTarget.IPlace =
+      p.at === undefined || back === undefined
+        ? paired
+        : {
+            ...paired,
+            point: p.at,
+            normal:
+              Vector3.length(back) > 1e-6
+                ? Vector3.normalize(back)
+                : paired.normal,
+          };
     const reach: number = Math.max(0.05, local.ready);
     const timed: AutoMovieMotionClock.IClock = AutoMovieMotionClock.phrase({
       prepare: reach,

@@ -142,9 +142,12 @@ export namespace HumanSocial {
     }),
   };
 
-  /** A toast of four, first pass: two pairs clink at once, host with guest and third with fourth, each as `toast` does (one shared point for all four is not staged yet). `glasses` names each role's held glass; mimed with fists without it. */
+  /** A toast of four: two pairs clink at once, host with guest and third with fourth, each as `toast` does. With `at`, a world point in metres, all four bring their glasses to that one point (first pass: the four rims are asked to the same point, so they overlap there; each pair keeps its own instants). `glasses` names each role's held glass; mimed with fists without it. */
   export const toastOfFour: IHumanMutual<
-    { glasses?: Record<"host" | "guest" | "third" | "fourth", string> },
+    {
+      glasses?: Record<"host" | "guest" | "third" | "fourth", string>;
+      at?: { x: number; y: number; z: number };
+    },
     "host" | "guest" | "third" | "fourth"
   > = {
     name: "toastOfFour",
@@ -162,6 +165,7 @@ export namespace HumanSocial {
                   ? "fourth"
                   : "third"
           ],
+        ...(params?.at === undefined ? {} : { at: params.at }),
         ...(params?.glasses === undefined
           ? {}
           : { prop: params.glasses[role] }),
