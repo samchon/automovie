@@ -2,7 +2,7 @@
 
 Contract: [principles/realized.md](../../principles/realized.md).
 
-## Speaker plausibility {#speaker-plausibility}
+## Speaker plausibility
 
 Speakers:
 

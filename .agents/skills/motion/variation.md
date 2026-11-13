@@ -16,7 +16,7 @@ Skill changes how well the same action is done. It never widens a range of motio
 
 Scale each draw's spread by two regularities that hold across tasks. The variance of a timed interval is a constant motor part plus a part that grows with the interval (Wing and Kristofferson 1973). Endpoint scatter grows with the distance moved and shrinks with the movement time (Schmidt et al. 1979), because motor noise grows with the size of the command (Harris and Wolpert 1998).
 
-## Draws that do not disturb each other
+## Independent draws
 
 Take each random draw from a stream keyed by the seed and by stable identities: the performer, the action, its instance and the quantity drawn. Adding, removing or reordering one action then leaves every other draw unchanged. A single stream consumed in order changes the whole film when one action is inserted.
 

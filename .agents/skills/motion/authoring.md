@@ -28,7 +28,7 @@ The action's study supplies the key poses, the timing and the windows. Take join
 
 Move an effector to its target on a smooth, bell-shaped speed profile, that of minimum jerk (Flash and Hogan 1985), because a constant-speed path reads as mechanical. A movement that delivers speed at its end, such as a throw or a strike, sequences from proximal to distal segments (Putnam 1993) and reaches its target before the speed falls to zero.
 
-## Decide what happens out of reach
+## Out of reach
 
 Compute the reach before posing: the root-to-target distance against the limb's reachable band. Declare the rule for a target outside it, whether too far or closer than the limb can fold to. The action either refuses with the feasible range, or takes a declared alternative that still reaches the goal, such as a step, a lean or a support hand. An alternative that changes the outcome, such as a stumble, applies only when the caller selects it, because the outcome belongs to whoever decided the scene.
 

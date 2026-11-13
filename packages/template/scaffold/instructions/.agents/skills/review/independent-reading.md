@@ -2,7 +2,7 @@
 
 Use a fresh context of the author's model, without the author's working memory. If none is available, report the review as unperformed.
 
-## Read as the recipient {#read-as-the-recipient}
+## Read as the recipient
 
 Give the reviewer the task, recipient and annotation-free body before parents, contracts or earlier verdicts. The reviewer never reads the evidence answers. Read the whole declared scope, splitting a large one into non-overlapping chunks rather than sampling, and lock the first response and concrete losses under the [independent-reading questions](../contracts/story/shared/principles/review.md#independent-reading).
 

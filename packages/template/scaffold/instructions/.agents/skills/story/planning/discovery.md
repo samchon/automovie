@@ -4,7 +4,7 @@ Before bulk writing, break the adopted instructions, references, research and de
 
 Facts and constraints belong in settings, or on a short where the [brief's boundary](../layers/brief.md#what-it-holds) puts them; events and release belong in their layer, and a production-specific judgment in the production's own work contracts, adopted with its population through [adoption](../../evidence/adoption.md). A requirement that lives only in status notes, selector names or repeated guidance needs a canonical owner.
 
-## Checkpoints {#checkpoints}
+## Checkpoints
 
 Discovery runs again at the checkpoints its route sets, because each one exposes kinds of requirement the one before could not see:
 

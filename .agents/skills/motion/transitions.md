@@ -2,7 +2,7 @@
 
 An action rarely plays from start to end: it is cut into another, joins one, or has its target moved while it plays.
 
-## Pose as a function of time
+## Pose by time
 
 An action evaluates each pose from its plan and a time alone, which has two consequences for solvers and caches. A solver's reference pose comes from a fixed instant, such as the previous contact event of the plan (the events and windows an action resolves into), never from the frame before. A cached result is keyed only by exact event times, never by sampled frames. Either way, playback, seeking and capture at different rates still agree.
 

@@ -11,7 +11,7 @@ A production's film is a hint for video diffusion, which supplies the look, so e
 
 A subject the hint does not need takes no form and stays a description in the generation prompt. A person is the polygon man that [entity work](../development/entities.md#people) prepares. An object a person holds, uses, sits on or rides is an [installed archetype](../development/entities.md#objects) where one offers it. Anything else a scene shows or touches is a [coarse form](coarse-forms.md), a few primitives that are just enough to tell what it is.
 
-## Requested detail {#requested-detail}
+## Requested detail
 
 Go further only when the user asks for it, as a [detail option](../development/entities.md#detail), or when primitives cannot make a form identifiable. The user chooses its source: a diffusion model's output, code that shapes it in detail, or an existing mesh.
 

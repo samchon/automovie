@@ -6,7 +6,7 @@ On the long route, the author's inspection, the author's repair of evidence gaps
 
 Launch the author's model through an available subagent or separate-session tool, within its authorization, with no inherited conversation or working memory, passing only the job and input file paths. Calling the current context fresh does not isolate it; if no tool or authorization is available, report the task as unperformed.
 
-## Independent classification {#independent-classification}
+## Independent classification
 
 Give the classifier the current body and needed neighbors, the selected contracts and the actual parents, and nothing of the author's explanations, evidence or earlier verdicts.
 
@@ -18,7 +18,7 @@ An ambiguous candidate is decided in context by the recipient loss; ambiguity al
 
 Lock the whole initial table before author defenses. The author repairs or raises a factual objection, and the classifier resolves it without substituting intent for the recipient's judgment. Record every member of each recurring cause, and send uncovered recurring losses to discovery.
 
-## Verify changed work {#verify-changed-work}
+## Verify changed work
 
 Keep the same author through the correction cycle.
 

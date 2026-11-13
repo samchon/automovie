@@ -2,7 +2,7 @@
 
 This document says where source, tests and runtime setup belong, and where a new subject, practice, scene, host or integration goes.
 
-## Source {#source}
+## Source
 
 One folder owns each responsibility, and the folders follow the chain from settings or brief and research through the screenplay to the delivered film, so a module and the document it realizes pair by path. Each source folder answers the shared [development contracts](../contracts/development/SKILL.md) and its own.
 
@@ -28,7 +28,7 @@ Settings or brief domains map onto code: cast, crowds, props and sets become ent
 
 `<film>` is the screenplay film folder's path under `docs/body/screenplay/`, with `/` replaced by `--`, such as `duet` or `001-part--001-episode`, and `<scene>` is a scene file's name without `.md`, such as `010-ring`, so two scenes at the same place keep separate folders. The same film name reaches `media/automovie/<film>/`, so screenplay, scene, film and video pair by path and two parts' episodes cannot collide. Rendered frames, videos and control channels go to [media records](../production/media-records.md), never into `src`.
 
-## How the parts work together {#how-the-parts-work-together}
+## How the parts work together
 
 An entity is constructed from its settings or brief facts and composes small fragments. Its methods are capabilities that return intent records: what the subject means to do and to whom, never a pose, a coordinate or a time.
 
@@ -56,7 +56,7 @@ Each file exports one declaration named as the file and stays under 500 lines; a
 
 A new subject starts from its settings or brief record, then its entity folder and tests. A new action starts from the installed motion vocabulary. Only when [extend](../motion/extend.md) finds the vocabulary lacks it does it start from its research, then its registered row or law and the interaction that uses it. A new scene starts from its screenplay scene file, then its composition folder and its place in the film.
 
-## Shared modules {#shared-modules}
+## Shared modules
 
 A module a second production of the workspace needs moves to a workspace package under `packages/<name>` and is imported by both, because a copied entity or law is a [copied variant](reuse.md#one-module) at workspace scale.
 

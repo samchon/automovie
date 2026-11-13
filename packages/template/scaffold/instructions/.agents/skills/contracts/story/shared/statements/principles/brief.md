@@ -2,7 +2,7 @@
 
 Contract: [principles/brief.md](../../principles/brief.md).
 
-## Needed decisions {#needed-decisions}
+## Needed decisions
 
 1. The record names its subject and settles a value, its scope and the conditions, limits or exceptions that affect use.
 2. It holds only decisions several scenes must keep true: for a cast member, identity, including the level of any practice the film shows, body and look, and wardrobe, with a style or tell only when the story turns on it; for a place, its shape, landmarks, light and crowd; and props that recur.

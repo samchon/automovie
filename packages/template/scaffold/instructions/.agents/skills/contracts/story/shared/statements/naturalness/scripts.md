@@ -2,7 +2,7 @@
 
 Contract: [naturalness/scripts.md](../../naturalness/scripts.md).
 
-## Execution rhythm {#execution-rhythm}
+## Execution rhythm
 
 1. The scene holds none of these:
     - a uniform beat pattern;

@@ -2,7 +2,7 @@
 
 Contract: [principles/scripts.md](../../principles/scripts.md).
 
-## Executable scene {#executable-scene}
+## Executable scene
 
 Execution:
 

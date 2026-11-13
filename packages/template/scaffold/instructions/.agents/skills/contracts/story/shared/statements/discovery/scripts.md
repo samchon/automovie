@@ -2,7 +2,7 @@
 
 Contract: [discovery/scripts.md](../../discovery/scripts.md).
 
-## Script requirements {#script-requirements}
+## Script requirements
 
 1. Uncovered rules were looked for in partition, action, audience access, speech and silence, inserted forms, transitions and exits.
 2. Each rule found changes actual scene execution and can be refuted in its selected hosts.

@@ -2,7 +2,7 @@
 
 Contract: [obligations/screenplay.md](../../obligations/screenplay.md).
 
-## Complete realization {#complete-realization}
+## Complete realization
 
 1. Every long-route script execution is mapped to final units and each final unit to actual parents.
 2. A short maps its brief decisions and its screenplay-owned event and execution decisions without invented skipped stages.
@@ -17,7 +17,7 @@ Contract: [obligations/screenplay.md](../../obligations/screenplay.md).
 11. At delivery, the answer reports justified ceilings and the effect of removing only repetitions actually judged redundant. Functional refrains count.
 12. A shortfall alone is no defect, while compressed required experience, missing event assignment or poor partition may be. The earliest cause is repaired without padding, new events or stretched sound.
 
-## Published version {#published-version}
+## Published version
 
 1. For an existing public release, the version, changed scope, reason, semantic effect and required notices are identified across the release population.
 2. Spelling or metadata, display or rendering, factual, semantic and delivery-required corrections are distinguished.

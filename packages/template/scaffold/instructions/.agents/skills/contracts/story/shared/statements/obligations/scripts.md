@@ -2,7 +2,7 @@
 
 Contract: [obligations/scripts.md](../../obligations/scripts.md).
 
-## Partition and titles {#partition-and-titles}
+## Partition and titles
 
 1. Act, part, sequence, episode or season boundaries sit where the actual form delivers change and an earned reason to continue or stop. Units need not share the same crisis.
 2. After a release interval, action, goals, address, objects or other retrieval cues restore needed state without a mandatory recap.
@@ -12,7 +12,7 @@ Contract: [obligations/scripts.md](../../obligations/scripts.md).
 6. No plot summary or spoiler is demanded, numbers, ambiguous or poetic titles, part-numbered repetition and refrains may work, and user-fixed wording is preserved.
 7. Semantic mismatches are repaired at scripts, which own the titles and identities descendants inherit.
 
-## Complete execution {#complete-execution}
+## Complete execution
 
 1. Treatments are mapped to implementing scripts and scripts to actual parents, many-to-many where needed, exposing missing, orphaned and duplicated progression.
 2. Assigned execution material is compared with the declared scale, so later authors need not invent essential progression, repeat or pad.

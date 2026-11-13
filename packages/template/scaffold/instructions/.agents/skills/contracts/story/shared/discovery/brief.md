@@ -4,6 +4,6 @@ The discovery result covers all instructions, references, assets and planned fil
 
 Statements: [statements/discovery/brief.md](../statements/discovery/brief.md).
 
-## Were instructions and planned films translated into needed owners and a usable form? {#instructions-and-backcast}
+## Instructions and backcast
 
 Before bulk brief writing, was each instruction taken apart into what it actually requires, with an owner for every part, and were the planned films read for the decisions about people, places and recurring props that several scenes would otherwise make up? A requirement left whole is easy to believe kept and hard to check.

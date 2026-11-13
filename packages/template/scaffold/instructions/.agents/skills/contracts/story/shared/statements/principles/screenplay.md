@@ -2,7 +2,7 @@
 
 Contract: [principles/screenplay.md](../../principles/screenplay.md).
 
-## Audiovisual realization {#audiovisual-realization}
+## Audiovisual realization
 
 Realization:
 
@@ -54,7 +54,7 @@ Language:
 29. Dialogue, narration and screen text read as idiomatic in the work's adopted language, variety, period and register, with no translated construction nobody would use there.
 30. Action lines are judged for precision, who does what, where and with what result, and never for literary style.
 
-## Beat decisions {#beat-decisions}
+## Beat decisions
 
 The scene file:
 

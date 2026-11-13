@@ -4,6 +4,6 @@ The scripts construction population answers once at file level. Read the whole s
 
 Statements: [statements/naturalness/obligations/common.md](../../statements/naturalness/obligations/common.md).
 
-## Does recurrent expression follow material rather than a default pattern? {#recurrent-frames}
+## Recurrent frames
 
 Across every scene and delivery unit, does each recurring form serve the circumstances it appears in? A functionless convergence may fail even when each occurrence reads naturally alone.

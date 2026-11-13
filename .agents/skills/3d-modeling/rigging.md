@@ -6,7 +6,7 @@ Rigging owns the rest state: where the joints sit, which vertices follow them, t
 
 A generated surface is not a rig, and a generated rig is a candidate until its actual consumer deforms it correctly.
 
-## Choose the rig by how the asset moves
+## Rig choice
 
 | The asset | Rig |
 | --- | --- |
@@ -49,7 +49,7 @@ A crafted form evaluates its weights on its [generating definition](crafting.md#
 
 Prove one representative export, import and deformation path before rigging many assets the same way.
 
-## Prove deformation through the real consumer
+## Deformation proof
 
 ### Poses to inspect
 

@@ -2,7 +2,7 @@
 
 Contract: [principles/research.md](../../principles/research.md).
 
-## Depicted practice {#depicted-practice}
+## Depicted practice
 
 Name each statement the studied subject does not have, such as an outcome table for a camera style, and each that no written consumer uses yet, under [when to study](../../../../../story/planning/research.md#when-to-study).
 
@@ -28,7 +28,7 @@ Name each statement the studied subject does not have, such as an outcome table 
 15. The study covers what the production must write or decide itself. Exception: a single movement the installed motion vocabulary performs, or a rule or table an installed package exports, is not restudied.
 16. The level, patterns and targets of a practice built from such movements are studied here.
 
-## Traceable sources {#traceable-sources}
+## Traceable sources
 
 1. Each observation is marked as a reported measurement, a direct observation, an inference or the production's own choice.
 2. Uncertain values keep their range.

@@ -2,7 +2,7 @@
 
 Contract: [obligations/narratives.md](../../obligations/narratives.md).
 
-## Continuity and progression {#continuity-and-progression}
+## Continuity and progression
 
 1. Every unit is classified by its actual event, understanding, relationship, emotion, pressure, rhythm or formal contribution.
 2. Functionless duplication and independently addressable progressions hidden together are identified, while inseparable montage, continuous action, parallel and other owned forms are preserved, including those spanning consecutive scenes of one place and time each.
@@ -20,7 +20,7 @@ Contract: [obligations/narratives.md](../../obligations/narratives.md).
 11. Where an ensemble sustains competing pursuits, or another form has another center, the answer identifies those in the same way and invents no single protagonist.
 12. Local tasks alone do not establish the whole, and no shared goal is invented.
 
-## Promises and distribution {#promises-and-distribution}
+## Promises and distribution
 
 Promises:
 

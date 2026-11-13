@@ -2,7 +2,7 @@
 
 Contract: [discovery/common.md](../../discovery/common.md).
 
-## Requirement ownership {#requirement-ownership}
+## Requirement ownership
 
 Requirements:
 

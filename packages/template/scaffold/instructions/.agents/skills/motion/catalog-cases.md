@@ -10,7 +10,7 @@ Capture each case's interval with the README's capture command, from the [views]
 
 Review every still against the [performance study](../story/planning/research.md#performance-study) and the cast, prop and set records. Repair each failing case at its module by cause and recapture it.
 
-## A person's case {#a-persons-case}
+## A person's case
 
 Accept a person's case on three things together:
 

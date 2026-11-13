@@ -2,7 +2,7 @@
 
 Contract: [naturalness/common.md](../../naturalness/common.md).
 
-## Reads as written {#reads-as-written}
+## Reads as written
 
 The statements of this item are its named failures and their exceptions; a finding needs one of them.
 
@@ -70,7 +70,7 @@ Deciding and retaining:
 33. Retained narration realizes its adopted contribution through wording, placement or image-sound relations.
 34. No author's intention, function label, nearby achievement, previous protection or weaker alternative stands as another exception.
 
-## Expression fidelity {#expression-fidelity}
+## Expression fidelity
 
 1. The script keeps:
     - the world facts, events and causal connections;

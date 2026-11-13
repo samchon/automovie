@@ -14,7 +14,7 @@ Instructions bind settings or a short's brief, treatments and work contracts wit
 
 A changed or withdrawn requirement reaches its consumers through [repair](../correction/repair.md).
 
-## Asking the user {#asking-the-user}
+## Asking the user
 
 When the agent writes the story, its events, people, ending, tone, form, running time and frame stay the user's unless delegated. A story built on a guessed element is rewritten once the user reads it, with every layer written on it. Each layer's own decisions within what the user decided, such as a researched fact, are delegated and not asked; decide delegated choices through [direction](direction.md).
 
@@ -22,7 +22,7 @@ Before direction, ask about each such element the user neither fixed nor delegat
 
 Afterwards, ask only when a [discovery](discovery.md) checkpoint finds a new such element or two fixed conditions conflict. A question the user leaves unanswered is recorded as unresolved under [project context](../../production/project-context.md#what-to-record).
 
-## Factual basis {#factual-basis}
+## Factual basis
 
 A work that presents real people, events or a source text as true, such as an adaptation, biography, history or true story, records that factual basis and the periods, people and sources it covers as a requirement. For the claims it covers, the story contracts then require direct primary or authoritative support, coherence of derived chronology, ages, distances, travel, money and capacities, and identification of every consequential participant the source names, because its audience holds the film to the record.
 

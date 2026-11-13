@@ -2,7 +2,7 @@
 
 Contract: [naturalness/obligations/realized.md](../../../naturalness/obligations/realized.md).
 
-## Voice distribution {#voice-distribution}
+## Voice distribution
 
 1. Each recurring speaker's speech is compared against their changing relationships and situations:
     - vocabulary, address and register;

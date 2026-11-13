@@ -2,7 +2,7 @@
 
 Contract: [obligations/review.md](../../obligations/review.md).
 
-## Complete current round {#complete-current-round}
+## Complete current round
 
 Extent:
 
@@ -22,7 +22,7 @@ Classes:
 11. Similar length, repeated syntax or annotation ratios prompt rereading and establish no defect.
 12. A class table introduces no finding unsupported by an inspected unit.
 
-## Round accountability {#round-accountability}
+## Round accountability
 
 1. The verdict records:
     - the source revision and the review kind;

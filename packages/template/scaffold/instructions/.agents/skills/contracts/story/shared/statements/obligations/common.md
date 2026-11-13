@@ -2,7 +2,7 @@
 
 Contract: [obligations/common.md](../../obligations/common.md).
 
-## Scope and ownership {#scope-and-ownership}
+## Scope and ownership
 
 Ownership:
 

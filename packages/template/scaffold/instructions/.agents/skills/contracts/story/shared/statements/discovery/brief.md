@@ -2,7 +2,7 @@
 
 Contract: [discovery/brief.md](../../discovery/brief.md).
 
-## Instructions and planned use {#instructions-and-backcast}
+## Instructions and backcast
 
 1. Every instruction is broken into its consequential elements:
     - premises;

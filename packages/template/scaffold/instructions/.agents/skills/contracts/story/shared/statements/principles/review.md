@@ -2,7 +2,7 @@
 
 Contract: [principles/review.md](../../principles/review.md).
 
-## Independent reading {#independent-reading}
+## Independent reading
 
 1. The locked observation has at least one exact body quotation and locator, and it is kept for units with no finding too.
 2. Headings, annotations, another unit, remembered wording and quotations selected after a verdict do not establish the reading.
@@ -16,7 +16,7 @@ Contract: [principles/review.md](../../principles/review.md).
 10. The applicable question's defined scope is judged: examples may permit another proven loss, and a named-failure boundary is not expanded by taste.
 11. Where the pass ran independent classification, revised passages and unchanged classifications were handled under [inspection](../../../../../story/correction/inspection.md#verify-changed-work).
 
-## Class audit {#literal-and-class-audit}
+## Literal and class audit
 
 1. Each finding class records its inspected scope, a reproducible search or comparison, every discovered member and affected relation, and the earliest owner.
 2. It references other review units where they inspected a member, and a genuinely isolated finding states its reason.

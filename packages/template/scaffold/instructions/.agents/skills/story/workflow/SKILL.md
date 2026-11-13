@@ -12,7 +12,7 @@ Choose the route and who writes the screenplay, then follow the route's page.
 | A short: a minimal brief, the screenplay and a film draft, then evidence once and one review | [Short route](short.md) |
 | Long work: settings, treatments, scripts and screenplay, each a closed pass | [Long route](long.md) |
 
-## Choosing the route {#choosing-the-route}
+## Choosing the route
 
 Choose the long route when the work's causes, setups and payoffs span many scenes or releases, such as a feature, an episode or a series, because they need treatments to design events and scripts to partition them before the screenplay. Choose the short route when each film is a few minutes at most and its events fit one screenplay, alone or as several shorts sharing a world.
 
@@ -20,7 +20,7 @@ Record the choice in [project context](../../production/project-context.md); in 
 
 Asset-only work has no narrative. Choose form and scale through [direction](../planning/direction.md); complete work is the default.
 
-## Who writes the screenplay {#who-writes-the-screenplay}
+## Who writes the screenplay
 
 The user chooses, whatever route the folder fixes, and the choice is recorded with the route; ask when they supply a screenplay without saying which.
 
@@ -33,7 +33,7 @@ The user chooses, whatever route the folder fixes, and the choice is recorded wi
 
 A fixed screenplay is never edited, reviewed or rewritten, because it is the user's. An exchange, outcome or reaction it lacks, or a beat that cannot be performed, goes back to the user to write into it, because only the screenplay decides them.
 
-## One chain {#one-chain}
+## One chain
 
 Commissioned video follows one traceable chain: settings or a short's brief, screenplay, entities and the laws the installed motion vocabulary lacks, with their tests and accepted [catalog cases](../../motion/catalog-cases.md), scene composition, then the film. When [no narrative pass runs](#who-writes-the-screenplay), the instructions stand in for settings or the brief.
 
@@ -43,7 +43,7 @@ Each link cites the addresses it realizes from the links above it, so no code ex
 
 Keep the author, the [evidence answerer](../evidence/answer-writing.md) and the independent reviewer in separate contexts, because an author answering for its own body states what it meant rather than what the body holds, and a reviewer reading answers judges paperwork instead of the work.
 
-## Completion {#completion}
+## Completion
 
 Run the README's evidence command and read its whole report; a passing graph shows the recorded relationships, and review judges the creative result.
 
