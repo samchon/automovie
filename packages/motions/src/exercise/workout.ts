@@ -41,6 +41,7 @@ import { WorkoutLoad } from "./WorkoutLoad";
 import { WorkoutLying } from "./WorkoutLying";
 import { WorkoutPoses } from "./WorkoutPoses";
 import { WorkoutStanding } from "./WorkoutStanding";
+import { WorkoutSupport } from "./WorkoutSupport";
 
 /**
  * An exercise, a stretch or a pose done on a support that is not only the
@@ -106,6 +107,12 @@ export namespace workout {
     ...WorkoutHanging.KINDS,
   };
 
+  /** The hip joints, by which a body on a raised support is placed. */
+  const HIPS: readonly AutoMovieHumanoidBone[] = [
+    "leftUpperLeg",
+    "rightUpperLeg",
+  ];
+
   /** How far above the standing body's overhead grip a bar is when the author places none, a share of the stature (provisional): the feet clear the floor. */
   export const BAR: number = 0.08;
 
@@ -129,6 +136,9 @@ export namespace workout {
 
     /** The middle of the bar between the hands, world metres, for a hanging kind; `BAR` above the standing reach when absent. */
     bar?: IAutoMovieVector3;
+
+    /** The prop the body bears on, by one of its affordances: a bench's `surface` under a kind that lies or sits raised, a bar's `bar` between the hands of a hanging kind. Its place when the action starts replaces the height the kind computes from the body, and the body goes to it. None when absent. */
+    on?: { prop: string; affordance: string; other?: string };
 
     /** Whether the body stays on its support at the end instead of standing up; `false` when absent. */
     stay?: boolean;
@@ -233,10 +243,16 @@ export namespace workout {
         resolveHumanPosture.heading(posture),
         body.rest.get("hips")!,
       );
-    const hips: IAutoMovieVector3 = Vector3.add(
+
+    // The support a prop gives: its affordance's place as the action starts.
+    const borne: IAutoMovieVector3 | null =
+      p.on === undefined ? null : WorkoutSupport.at(context, p.on);
+    const stood: IAutoMovieVector3 = Vector3.add(
       standing.root,
       pelvis(standing),
     );
+    const hips: IAutoMovieVector3 =
+      borne === null ? stood : { x: borne.x, y: stood.y, z: borne.z };
     // Where the entry shows the bearing bones: a stance is kept there, not
     // where the keys' own joints would stand it.
     const entered: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
@@ -258,7 +274,7 @@ export namespace workout {
     // body stands on them, and hands as high as a laid palm's wrist; only a
     // body that bears on its trunk is rested by its shapes.
     const grounded: number | null =
-      kind.anchor !== "hips" || kind.raise !== undefined
+      kind.anchor !== "hips" || kind.raise !== undefined || borne !== null
         ? null
         : kind.pin.every((bone: AutoMovieHumanoidBone): boolean =>
               /(Foot|Toes)$/.test(bone),
@@ -273,6 +289,19 @@ export namespace workout {
                 forward: { x: 0, y: 0, z: 1 },
               }).y
             : null;
+
+    // A body on a raised support (a bench, a seat, a saddle) has its hip
+    // joints as high above it as they are above the floor when it lies
+    // flat: resting the key's own shapes on the floor first would count
+    // the legs that hang beside a bench and float the body by their length
+    // (0.51 m on the first run of the supported test).
+    const raised: number | null = borne?.y ?? kind.raise?.(body) ?? null;
+    const flat: IHumanPosture = ExerciseKey.posed(
+      ExerciseKey.of({ pitch: -90 }, {}),
+      yaw,
+    );
+    const lain: number =
+      knockdown.rest(body, flat) + ExerciseKey.mean(body, flat, HIPS).y;
     const rested: IAutoMovieVector3 =
       kind.anchor === "stance"
         ? shown
@@ -283,13 +312,17 @@ export namespace workout {
                 ...based,
                 root: {
                   x: hips.x - pelvis(based).x,
-                  y: knockdown.rest(body, based) + (kind.raise?.(body) ?? 0),
+                  y:
+                    raised === null
+                      ? knockdown.rest(body, based)
+                      : raised + lain - ExerciseKey.mean(body, based, HIPS).y,
                   z: hips.z - pelvis(based).z,
                 },
               },
               kind.pin,
             )
           : (p.bar ??
+            borne ??
             Vector3.add(
               ExerciseKey.mean(
                 body,

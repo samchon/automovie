@@ -261,3 +261,4 @@ export * from "./exercise/WorkoutGym";
 export * from "./lexicon/HumanSportGym";
 export * from "./exercise/WorkoutFeet";
 export * from "./exercise/WorkoutLoad";
+export * from "./exercise/WorkoutSupport";
