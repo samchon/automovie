@@ -473,6 +473,21 @@ export namespace FamilyConicFit {
     if (process.argv.includes("--seeds")) {
       const refused: string[] = dense.map((b: number[], d: number): string => { const fault: string | null = C.chain(theta(Y, b), layout).fault; return fault === null ? "" : (knots[0]! + d * DENSE_MM).toFixed(2) + ": " + fault.slice(0, 120); }).filter((x: string): boolean => x.length > 0);
       process.stderr.write("lines held: " + refused.length + " of " + dense.length + " stations refused" + (refused.length === 0 ? "" : "; first " + refused[0] + "; last " + refused.at(-1)) + "\n");
+      // And by stretch of the course, 100 mm at a time, with each stretch's first fault, so a refusal is placed by region.
+      const stretches: Map<number, { count: number; total: number; first: string }> = new Map();
+      dense.forEach((b: number[], d: number): void => {
+        const s: number = knots[0]! + d * DENSE_MM;
+        const key: number = Math.floor(s / 100) * 100;
+        const entry = stretches.get(key) ?? { count: 0, total: 0, first: "" };
+        entry.total++;
+        const fault: string | null = C.chain(theta(Y, b), layout).fault;
+        if (fault !== null) {
+          entry.count++;
+          if (entry.first === "") entry.first = s.toFixed(1) + ": " + fault.slice(0, 90);
+        }
+        stretches.set(key, entry);
+      });
+      process.stderr.write("lines held by stretch: " + [...stretches.entries()].map(([key, e]): string => `${key}-${key + 100}: ${e.count}/${e.total}${e.first === "" ? "" : " (" + e.first + ")"}`).join(" | ") + "\n");
     }
     let current: { total: number; residuals: number[][] } | null = cost(Y);
     // A projection of sections' own seeds onto few knots can leave stations whose chain is no conic chain, where features appear and
