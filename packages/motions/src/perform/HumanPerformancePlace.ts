@@ -199,6 +199,7 @@ export namespace HumanPerformancePlace {
           range,
           body,
           bones: () => poseBones(body, entry.pose),
+          subject: intent.subject,
         }),
       random: (channel: string) =>
         HumanSkill.stream(
@@ -245,8 +246,13 @@ export namespace HumanPerformancePlace {
           );
         return {
           body: HumanPerformanceRead.person(self, subject).performer.body,
+          // The performer's own body is read as it entered the action, as
+          // a `self` target is: its displayed bones at an instant of this
+          // action are the posture still being solved.
           bones: (seconds: number) =>
-            HumanPerformanceRead.bones(self, subject, seconds),
+            subject === intent.subject
+              ? poseBones(body, entry.pose)
+              : HumanPerformanceRead.bones(self, subject, seconds),
           root: (seconds: number): IHumanActionContext.IRoot =>
             HumanPerformanceRead.root(
               self,

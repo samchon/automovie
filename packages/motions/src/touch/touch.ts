@@ -22,6 +22,7 @@ import type { HumanGrasp } from "../handling/HumanGrasp";
 import { HumanHeld } from "../handling/HumanHeld";
 import { HumanHeldUse } from "../handling/HumanHeldUse";
 import { HumanBound } from "../law/HumanBound";
+import { HumanPerception } from "../law/HumanPerception";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -465,11 +466,15 @@ export namespace touch {
             : { contact: support }),
           ...(target.kind === "person"
             ? {
+                // The partner is kept clear of where the performer saw
+                // them a reaction time earlier, as a tracked person is.
                 others: (_: IHumanPosture, seconds: number) => {
                   const partner = context.performer(target.subject);
                   return HumanColliders.placed(
                     partner.body,
-                    partner.bones(context.start + seconds),
+                    partner.bones(
+                      context.start + seconds - HumanPerception.REACTION,
+                    ),
                   );
                 },
               }

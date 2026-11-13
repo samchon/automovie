@@ -202,6 +202,7 @@ export class HumanPerformanceState {
               range: 0.9 * (body.measure.thigh + body.measure.shank),
               body,
               bones: () => poseBones(body, resolveHumanPosture(body, posture)),
+              subject: performer.subject,
             });
           },
           random: (channel: string) =>

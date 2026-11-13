@@ -11,6 +11,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanPerception } from "../law/HumanPerception";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import type { HumanPerformanceState } from "./HumanPerformanceState";
@@ -33,7 +34,7 @@ export namespace HumanPerformanceAim {
    *
    * @param target The target.
    * @param seconds Film seconds.
-   * @param frame The aiming person's own frame, for `point` targets in the performer frame and `none`, and their own body and bones, for `self`.
+   * @param frame The aiming person's own frame, for `point` targets in the performer frame and `none`, their own body and bones, for `self`, and their subject, for a `person` that names them (read as `self`).
    * @returns The aim.
    */
   export function aim(
@@ -47,6 +48,7 @@ export namespace HumanPerformanceAim {
       range: number;
       body: IHumanBody;
       bones: () => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+      subject?: string;
     },
   ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
     const yaw: number = (frame.yaw * Math.PI) / 180;
@@ -62,15 +64,43 @@ export namespace HumanPerformanceAim {
     };
     switch (target.kind) {
       case "person": {
+        // The aiming performer's own body is its own, as a `self` target's.
+        if (frame.subject !== undefined && target.subject === frame.subject)
+          return HumanPerformanceAim.aim(
+            self,
+            { kind: "self", region: target.region },
+            seconds,
+            frame,
+          );
         const other: HumanSegment.IPerson = HumanPerformanceRead.person(
           self,
           target.subject,
         );
+        const region = other.performer.body.surfaces.regions[target.region];
+        if (region === undefined)
+          throw new HumanRefusal({
+            kind: "parameter",
+            axis: "target.region",
+            value: target.region,
+            feasible: {
+              kind: "alternatives",
+              values: Object.keys(other.performer.body.surfaces.regions),
+            },
+            reason: `${target.subject}'s body has no region named ${target.region}`,
+            fix: "aim at one of the regions the body declares",
+          });
+
+        // A person is followed as a person follows one: where the performer
+        // perceived them a reaction time earlier. Read at the same instant,
+        // two performers aiming at each other would each read the posture
+        // still being solved.
         const placed = resolveAutoMovieHumanoidSurfaces.place(
-          other.performer.body.surfaces.regions[target.region],
-          HumanPerformanceRead.bones(self, target.subject, seconds).get(
-            other.performer.body.surfaces.regions[target.region].bone,
-          )!,
+          region,
+          HumanPerformanceRead.bones(
+            self,
+            target.subject,
+            seconds - HumanPerception.REACTION,
+          ).get(region.bone)!,
         );
         return { point: placed.point, normal: placed.normal };
       }
