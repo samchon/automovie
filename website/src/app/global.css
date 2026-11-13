@@ -719,7 +719,6 @@
   background: var(--am-accent);
 }
 
-
 @media (prefers-reduced-motion: reduce) {
   .am-app * {
     transition: none !important;
