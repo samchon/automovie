@@ -372,9 +372,41 @@ namespace FamilyConicBody {
    */
   /** `--feature-knot=<mm>`: a family with feature lines starts from knots this far apart; absent, from the domain's ends and middle. */
   const FEATURE_KNOT_MM: number | undefined = ((value: string | undefined): number | undefined => (value === undefined ? undefined : Number(value)))(process.argv.find((a: string): boolean => a.startsWith("--feature-knot="))?.slice(15));
+  /** A feature's depth, mm, past which it counts as present (`--feature-knots`). */
+  const FEATURE_DEPTH_MM: number = 0.3;
+  /** Sections in the running median a feature's depth is read through (`--feature-knots`): 5, two either side, at 1 mm steps. */
+  const FEATURE_MEDIAN: number = 5;
   const NOSE_FEATURES: boolean = process.argv.includes("--nose-features");
   const NOSE_VERTICAL: boolean = process.argv.includes("--nose-vertical");
   const NOSE_DEPTH: number = Number(process.argv.find((a: string): boolean => a.startsWith("--nose-depth="))?.slice(13) ?? 1);
+  /**
+   * `--nose-wing`: the vertical nose's half section on all its feature lines, read from the turning along the excursion's level sections
+   * (scratch probe over `FamilyConicExcursion.ts nose`, turning over 1.5 mm either side, as `FamilyConicSection.feature` reads it). From the
+   * front's extreme round to the root, where the skin meets the excursion's closing cubic in a convex corner of 0.9 to 1.7 rad at every
+   * level (the side extreme, `v` max, 17 to 20 mm out): the tip's convexity; from 1544 to 1550 mm the alar crease, concave by 0.3 to 0.97
+   * rad, 6 to 7 mm forward of the course and 8 to 11 out; the wing's crest, convex by 0.5 to 1.2 rad, 9 to 14 mm forward and 11 to 14 out;
+   * then at every level a shallow concave turn of 0.06 to 0.25 rad 3 to 4 mm forward of the root, the alar-facial turn on the wing's levels
+   * and the nasofacial one above them. So the half is the front, an inflection, the crease's floor, an inflection, the crest, an inflection
+   * and the alar-facial turn, then the root's corner. Each window is a share of the stretch from the anchor placed before it to the root's
+   * corner (`FamilyConicSection.feature`), read off those turnings: on the wing's levels the crease stands at about 0.55 of the front-to-root
+   * arclength, the crest at 0.8 and the turn at 0.95. The trial before it (`--nose-root-groove`) put the turn after the side extreme, on the
+   * closing cubic inside the face, and fitted at 2.24 mm. The alar rim, nearly level, crosses the level sections rather than running along
+   * them, so it is not a feature line of this course but the stations where the crease and the crest fade (`--feature-knots`).
+   */
+  const NOSE_WING_LINES: boolean = process.argv.includes("--nose-wing");
+  const NOSE_WING: C.ILayout = C.featured(C.bilateral(NOSE_DEPTH), [
+    {
+      after: 0,
+      anchors: [
+        { kind: "f", feature: "inflection", window: [0.15, 0.6] },
+        { kind: "f", feature: "concave", window: [0.05, 0.5] },
+        { kind: "f", feature: "inflection", window: [0.05, 0.6] },
+        { kind: "f", feature: "convex", window: [0.1, 0.8] },
+        { kind: "f", feature: "inflection", window: [0.2, 0.8] },
+        { kind: "f", feature: "concave", window: [0.3, 0.95] },
+      ],
+    },
+  ]);
   const NOSE_GROOVES: number[] | undefined = process.argv.find((a: string): boolean => a.startsWith("--nose-grooves="))?.slice(15).split(",").filter((x: string): boolean => x.length > 0).map(Number);
 
   /** Where the nose's band lands on it at a phase, mm from its first station (`AutoMovieHumanF1.NOSE_RAILS_MM`). */
@@ -842,7 +874,7 @@ namespace FamilyConicBody {
         // `--nose-vertical`: the nose cut out of the face's level sections as an excursion (`FamilyConicExcursion.ts nose`), on a course down
         // the median plane 11 mm in front of x 100, which every level section but the nostrils' is star-shaped about (scratch kernel probe),
         // fitted to its skin as a half with the supra-alar crease as a groove after the tip's extreme, and closed under the columella.
-        ...(NOSE_VERTICAL ? [{ name: "nose", centres: [[111, 1590, 0], [111, 1536, 0]] as R.V[], course: "[J.noseTop, J.noseBottom]", halves: [], up: [1, 0, 0] as R.V, domain: [8.5, 47.5] as [number, number], head: true, step: 1, gap: 3, tip: 50, covered: true, mirrored: false, excursion: "nose", skin: "outer" as const, layouts: [{ layout: NOSE_FEATURES ? C.featured(C.bilateral(NOSE_DEPTH), [{ after: 0, anchors: [{ kind: "f", feature: "inflection", window: [0.15, 0.55] }, { kind: "f", feature: "concave", window: [0.3, 0.75] }, { kind: "f", feature: "inflection", window: [0.5, 0.9] }] }, ...(process.argv.includes("--nose-root-groove") ? [{ after: 2, anchors: [{ kind: "f" as const, feature: "inflection" as const, window: [0.1, 0.45] as [number, number] }, { kind: "f" as const, feature: "concave" as const, window: [0.25, 0.65] as [number, number] }, { kind: "f" as const, feature: "inflection" as const, window: [0.45, 0.85] as [number, number] }] }] : [])]) : C.inflected(NOSE_DEPTH, NOSE_GROOVES ?? [0], C.bilateral(NOSE_DEPTH)), depth: NOSE_DEPTH }], reliefs: [] as IWindow[] }] : []),
+        ...(NOSE_VERTICAL ? [{ name: "nose", centres: [[111, 1590, 0], [111, 1536, 0]] as R.V[], course: "[J.noseTop, J.noseBottom]", halves: [], up: [1, 0, 0] as R.V, domain: [8.5, 47.5] as [number, number], head: true, step: 1, gap: 3, tip: 50, covered: true, mirrored: false, excursion: "nose", skin: "outer" as const, layouts: [{ layout: NOSE_WING_LINES ? NOSE_WING : NOSE_FEATURES ? C.featured(C.bilateral(NOSE_DEPTH), [{ after: 0, anchors: [{ kind: "f", feature: "inflection", window: [0.15, 0.55] }, { kind: "f", feature: "concave", window: [0.3, 0.75] }, { kind: "f", feature: "inflection", window: [0.5, 0.9] }] }, ...(process.argv.includes("--nose-root-groove") ? [{ after: 2, anchors: [{ kind: "f" as const, feature: "inflection" as const, window: [0.1, 0.45] as [number, number] }, { kind: "f" as const, feature: "concave" as const, window: [0.25, 0.65] as [number, number] }, { kind: "f" as const, feature: "inflection" as const, window: [0.45, 0.85] as [number, number] }] }] : [])]) : C.inflected(NOSE_DEPTH, NOSE_GROOVES ?? [0], C.bilateral(NOSE_DEPTH)), depth: NOSE_DEPTH }], reliefs: [] as IWindow[] }] : []),
         { name: "nose", centres: [[108, 1556, 0], [140, 1556, 0]], course: "[J.noseRoot, J.noseTip]", halves: [], up: [0, 1, 0], domain: [5.5, 24], head: true, loose: true, step: 1, gap: 3, tip: 28, mirrored: false, layouts: NOSE_GROOVES === undefined ? LIMB : [{ layout: C.inflected(NOSE_DEPTH, NOSE_GROOVES, process.argv.includes("--nose-half") ? C.bilateral(NOSE_DEPTH) : C.limb(NOSE_DEPTH)), depth: NOSE_DEPTH }], ...(NOSE_GROOVES === undefined ? {} : { skin: "outer" as const }), clip: (p: R.V): number => (NOSE_GROOVES === undefined ? -nose(p) : Math.max(-nose(p), nostrilPit(p))), reliefs: [], casts: NOSE_GROOVES !== undefined ? [] : [
           // The floor behind the lobule. The sections close it along the box's floor, so between each wing's outer rim and the columella
           // the hull is one flat chord at 1,543 mm, 1 to 3 mm below the reference's wing round each nostril (rays going up from below, the
@@ -1294,8 +1326,54 @@ namespace FamilyConicBody {
         // A layout with feature lines starts from knots every `FEATURE_KNOT_MM`, so its lines can follow where each feature appears and fades.
         const lined: boolean = FEATURE_KNOT_MM !== undefined && layout.anchors.some((anchor: C.IAnchor): boolean => anchor.kind === "f");
         const spaced: number = Math.max(2, Math.round((domain[1] - domain[0]) / (FEATURE_KNOT_MM ?? 1)) + 1);
-        const knots0: number[] = best === null ? (lined ? Array.from({ length: spaced }, (_: unknown, k: number): number => domain[0] + ((domain[1] - domain[0]) * k) / (spaced - 1)) : [domain[0], (domain[0] + domain[1]) / 2, domain[1]]) : [...best.knots];
+        // `--feature-knots`: knots also where a feature appears or fades, the stations where a convex or concave feature's depth (its
+        // distance from the chord of the feature anchors either side of it, read on each section's own seed) crosses `FEATURE_DEPTH_MM`, so a fading feature
+        // ends on a knot as a shallow S and not between knots. Each section's seed reads its depth with a few tenths of a millimetre of
+        // noise: read raw, the nose's groove crossed 0.3 mm at ten stations in five adjacent pairs (9 and 10, 18 and 19, ...). The depths are
+        // read through a running median of `FEATURE_MEDIAN` sections and with a hysteresis (Canny's): a feature appears where its depth rises
+        // past the threshold and fades only where it falls below half of it. The knots go in after the first fit, as knot insertion
+        // (`F.resample` keeps the fitted fields), not as the first fit's knots: started from all of them, the nose's fit stalled at 6.0 mm.
+        const fading: number[] = [];
+        if (best === null && process.argv.includes("--feature-knots")) {
+          // Every convex or concave feature between two feature anchors, read against the chord of those two.
+          const runs: number[][] = layout.anchors
+            .map((_: C.IAnchor, k: number): number => k)
+            .filter((k: number): boolean => layout.anchors[k]!.kind === "f" && layout.anchors[k]!.feature !== "inflection" && layout.anchors[k - 1]?.kind === "f" && layout.anchors[k + 1]?.kind === "f")
+            .map((k: number): number[] => [k - 1, k, k + 1]);
+          const fitted: F.IRow[] = rows.filter((row: F.IRow): boolean => !row.heldout);
+          const seeds: number[][][] = fitted.map((row: F.IRow): number[][] => C.resolve(C.seed(row.points, layout), layout).input.points as number[][]);
+          for (const run of runs) {
+            const depthAt = (_: F.IRow, i: number): number => {
+              const [a, m, b] = [run[0]!, run[1]!, run[2]!].map((k: number): number[] => seeds[i]![k]!);
+              const c: number[] = [b![0]! - a![0]!, b![1]! - a![1]!];
+              return Math.abs(c[0]! * (m![1]! - a![1]!) - c[1]! * (m![0]! - a![0]!)) / (Math.hypot(c[0]!, c[1]!) || 1);
+            };
+            const raw: number[] = fitted.map(depthAt);
+            const half: number = Math.floor(FEATURE_MEDIAN / 2);
+            const depths: number[] = raw.map((_: number, i: number): number => {
+              const window: number[] = raw.slice(Math.max(0, i - half), i + half + 1).sort((a: number, b: number): number => a - b);
+              return window[Math.floor(window.length / 2)]!;
+            });
+            let present: boolean = depths[0]! > FEATURE_DEPTH_MM;
+            for (let i: number = 1; i < fitted.length; ++i) {
+              const now: boolean = present ? depths[i]! > FEATURE_DEPTH_MM / 2 : depths[i]! > FEATURE_DEPTH_MM;
+              if (now !== present) fading.push(round((fitted[i - 1]!.s + fitted[i]!.s) / 2));
+              present = now;
+            }
+          }
+          fading.sort((a: number, b: number): number => a - b);
+          log("family-body-fading", { part: part.name, stations: fading });
+        }
+        const base: number[] = lined ? Array.from({ length: spaced }, (_: unknown, k: number): number => domain[0] + ((domain[1] - domain[0]) * k) / (spaced - 1)) : [domain[0], (domain[0] + domain[1]) / 2, domain[1]];
+        const knots0: number[] = best === null ? base : [...best.knots];
         let result: F.IResult = attempt(knots0, layout, best === null ? undefined : F.refine(best.values, depth - 1), "depth " + depth);
+        // The feature knots inserted into the first fit, one trial, kept as any growth round is.
+        const inserted: number[] = fading.filter((s: number, i: number): boolean => s > domain[0] && s < domain[1] && result.knots.every((k: number): boolean => Math.abs(k - s) >= gap(s)) && fading.slice(0, i).every((t: number): boolean => Math.abs(t - s) >= gap(s)));
+        if (result.fault === null && inserted.length > 0) {
+          const next: number[] = [...result.knots, ...inserted].sort((a: number, b: number): number => a - b);
+          const trial: F.IResult = attempt(next, layout, F.resample(result.values, result.knots, next), "feature knots");
+          if (trial.fault === null && trial.training.meanMm < result.training.meanMm) result = trial;
+        }
 
         // Growth always starts from the family of least mean so far. A round that lowers that mean by 3 % is kept; one that does not is dropped
         // and its stations are not offered again, so the next round tries the next worst rows. Three dropped rounds in a row end the growth.
