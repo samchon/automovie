@@ -37,7 +37,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    wrist than its knuckle is (the hand is closed).
  * 3. The balls of both feet move at most 5 mm over the hold (the
  *    campaign's slip bound).
- * 4. The same door swung 85 degrees, which carries the handle past the
+ * 4. The same door swung its hinge's whole travel (the archetype's own
+ *    range, 90 degrees mid-band), which carries the handle past the
  *    person's shoulder, is refused as a `reach` refusal on `handle`.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Places a real door archetype whose leaf the scene swings, performs the opening through the public chain and reads the displayed wrist, fingers and feet; a hand left where the handle was, an open hand, a body dragged by the door or an impossible swing accepted fails.
@@ -59,6 +60,7 @@ export function test_human_motion_travel_door_leaf(): void {
   };
   const where: HumanObject.Placement = { at: { x: 0, y: 0, z: 0 }, yaw: 0 };
   const bar: IAutoMovieVector3 = door.placed("pull", placement).translation;
+  const full: number = door.affordance("hinge").travel!;
   const OPEN: number = 0.5;
   const SWING: number = 2;
   const swung =
@@ -148,7 +150,7 @@ export function test_human_motion_travel_door_leaf(): void {
         span(bones.get("rightMiddleDistal")!.worldPosition, wrist) >=
         span(bones.get("rightMiddleProximal")!.worldPosition, wrist)
       )
-        open = `${(span(bones.get("rightMiddleDistal")!.worldPosition, wrist) * 1000).toFixed(1)} mm from the wrist to the middle finger's last joint and ${(span(bones.get("rightMiddleProximal")!.worldPosition, wrist) * 1000).toFixed(1)} mm to its knuckle at ${t.toFixed(2)} s`;
+        open = `${(span(bones.get("rightMiddleDistal")!.worldPosition, wrist) * 1000).toFixed(1)} mm from the wrist to the middle finger's last joint and ${(span(bones.get("rightMiddleProximal")!.worldPosition, wrist) * 1000).toFixed(1)} mm to its knuckle at ${t.toFixed(2)} s, the plan's middle knuckle flexed ${JSON.stringify(hold.plan.posture(t - hold.start).joints.rightMiddleProximal ?? null)}`;
       for (const side of ["left", "right"] as const)
         slip = Math.max(slip, span(ball(side, t), first[side]));
     }
@@ -166,7 +168,7 @@ export function test_human_motion_travel_door_leaf(): void {
     // 4. A swing beyond the arm.
     let thrown: unknown = null;
     try {
-      perform(body, 85);
+      perform(body, full);
     } catch (error) {
       thrown = error;
     }
@@ -178,7 +180,7 @@ export function test_human_motion_travel_door_leaf(): void {
       )
     )
       complaints.push(
-        `${name}: a door swung 85 degrees, expected a reach refusal on handle, got ${thrown instanceof Error ? thrown.message : String(thrown)}`,
+        `${name}: a door swung its full ${full} degrees, expected a reach refusal on handle, got ${thrown instanceof Error ? thrown.message : String(thrown)}`,
       );
   }
   TestValidator.equals("a door is opened and held", complaints, []);

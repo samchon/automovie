@@ -2,10 +2,13 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { HUMAN_LEXICON_FAMILIES } from "./HUMAN_LEXICON_FAMILIES";
 
 /**
- * The parameters every row of the lexicon leaves open, by row name: what an
- * author writes in `registered(row, params)`, read from the row's own law
- * type, so a page or a generator reads the same parameters the checker
- * does. A row's fixed parameters are not among them.
+ * The parameters every row of the lexicon leaves open, by family and by the
+ * row's export name in its namespace: what an author writes in
+ * `registered(row, params)`, read from the row's own law type, so a page or
+ * a generator reads the same parameters the checker does. A row's fixed
+ * parameters are not among them. A row is registered under its law's
+ * `name`, which a type cannot read, so a reader that wants rows by name
+ * (`HUMAN_LEXICON_SCHEMAS`) pairs each export with its law at run time.
  *
  * It is derived from `HUMAN_LEXICON_FAMILIES`: each family namespace's
  * members that plan, keyed by their export name, each with the parameters
@@ -16,11 +19,11 @@ import type { HUMAN_LEXICON_FAMILIES } from "./HUMAN_LEXICON_FAMILIES";
  * @evidence contracts/development/design.md#minimal-and-owned-surface One type, read by the schema generator and by authors who want a row's parameters by name.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No row or parameter is restated: everything comes from the laws' types.
  */
-export type IHumanLexiconParams = IHumanLexiconParams.Merged<
-  IHumanLexiconParams.Rows<
-    (typeof HUMAN_LEXICON_FAMILIES)[keyof typeof HUMAN_LEXICON_FAMILIES][number]
-  >
->;
+export type IHumanLexiconParams = {
+  [F in keyof typeof HUMAN_LEXICON_FAMILIES]: IHumanLexiconParams.Merged<
+    IHumanLexiconParams.Rows<(typeof HUMAN_LEXICON_FAMILIES)[F][number]>
+  >;
+};
 
 /**
  * Companion types of {@link IHumanLexiconParams}.
