@@ -1,11 +1,21 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import {
+  type IAutoMovieResolvedBone,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
+  IAutoMoviePhysicalProfile,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { HumanGrip } from "../handling/HumanGrip";
+import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanFoot } from "../posture/HumanFoot";
+import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -103,6 +113,171 @@ export namespace HumanMountRider {
       else high = middle;
     }
     return turnedBy(sign * high);
+  }
+
+  /** How far off a held point the wrist stays along the point's outward normal, hand lengths: about the palm's thickness (provisional, as the armrests' rest). */
+  export const PALM: number = 0.2;
+
+  /** How far ahead of the wrist the middle of the palm lies, hand lengths (provisional: the palm is about half the hand and its middle a little short of that). */
+  export const CENTRE: number = 0.35;
+
+  /**
+   * A hand holding a grip, a rein or a rim: where its wrist goes, how the
+   * hand turns and how its fingers close, a share of the way from where
+   * the posture's own joints hold the hand.
+   *
+   * The wrist stays `PALM` of the hand's length off the point along the
+   * point's outward normal and `CENTRE` behind it along the fingers, so
+   * the grip lies across the middle of the palm, the palm faces the point, and the fingers lie
+   * across the grip's own axis on the side the body faces, so they wrap
+   * a bar that runs across the hand; with no axis they point the way the
+   * body faces. The fingers close from the relaxed hand to the closure
+   * given, which `closed` curls on the support's own colliders.
+   *
+   * @param body The body.
+   * @param side The hand.
+   * @param posture The rider's posture at the instant.
+   * @param grip The held point and its outward unit normal, world, and the unit axis the grip runs along when it has one.
+   * @param share 0 where the joints hold the hand to 1 holding.
+   * @param closed The finger joints of the hand closed on the grip; none leaves the fingers as they are.
+   * @returns The arm's goal and the hand's finger joints.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States where the wrist goes, how the hand turns, how the fingers close and what the first pass leaves out.
+   * @evidence contracts/development/implementation.md#principled-implementation The hand's frame is built from the grip's own normal and axis, so it turns with the part at every instant; the way there is a straight line and the shortest turn from the hand the posture's joints give.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The target, the turn, the blend from the joints' hand, the fingers.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A grip out of the arm's reach is not checked here: the limb fit leaves the hand short of it, which the contact audit reports. The closure is the caller's, curled on the real colliders.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One forward-kinematics pass while the hand is on its way and none once it holds.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to cache.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function hold(
+    body: IHumanBody,
+    side: "left" | "right",
+    posture: IHumanPosture,
+    grip: {
+      point: IAutoMovieVector3;
+      normal: IAutoMovieVector3;
+      axis?: IAutoMovieVector3;
+    },
+    share: number,
+    closed: IHumanPosture["joints"],
+  ): { arm: IHumanPosture.IGoal; fingers: IHumanPosture["joints"] } {
+    const s: number = Math.min(1, Math.max(0, share));
+    const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+      resolveHumanPosture.heading(posture),
+      { x: 0, y: 0, z: 1 },
+    );
+    const across: IAutoMovieVector3 =
+      grip.axis === undefined
+        ? { x: 0, y: 0, z: 0 }
+        : Vector3.cross(grip.axis, grip.normal);
+    const fingers: IAutoMovieVector3 =
+      Vector3.length(across) < 1e-6
+        ? forward
+        : Vector3.scale(
+            Vector3.normalize(across),
+            Vector3.dot(across, forward) < 0 ? -1 : 1,
+          );
+    // The grip lies across the middle of the palm, `CENTRE` of the hand's length ahead of the wrist.
+    const target: IAutoMovieVector3 = Vector3.add(
+      grip.point,
+      Vector3.add(
+        Vector3.scale(grip.normal, PALM * body.measure.hand),
+        Vector3.scale(fingers, -CENTRE * body.measure.hand),
+      ),
+    );
+    const turned: IAutoMovieQuaternion = HumanHand.rotation(side, {
+      fingers,
+      palm: Vector3.scale(grip.normal, -1),
+    });
+    let point: IAutoMovieVector3 = target;
+    let rotation: IAutoMovieQuaternion = turned;
+    if (s < 1) {
+      const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+      delete limbs.leftArm;
+      delete limbs.rightArm;
+      const hand: IAutoMovieResolvedBone = poseBones(
+        body,
+        resolveHumanPosture(body, { ...posture, limbs }),
+      ).get(`${side}Hand`)!;
+      point = Vector3.lerp(hand.worldPosition, target, s);
+      rotation = Quaternion.slerp(hand.worldRotation, turned, s);
+    }
+    const relaxed: IHumanPosture["joints"] = HumanHand.shape(side, "relaxed");
+    const closing: IHumanPosture["joints"] = {};
+    for (const bone of Object.keys(closed) as AutoMovieHumanoidBone[]) {
+      const from: readonly [number, number, number] = relaxed[bone] ?? [
+        0, 0, 0,
+      ];
+      const to: readonly [number, number, number] = closed[bone]!;
+      closing[bone] = [
+        from[0] + (to[0] - from[0]) * s,
+        from[1] + (to[1] - from[1]) * s,
+        from[2] + (to[2] - from[2]) * s,
+      ];
+    }
+    return {
+      arm: {
+        point,
+        rotation,
+        bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2),
+        planted: s >= 1,
+      },
+      fingers: closing,
+    };
+  }
+
+  /**
+   * The finger joints of a hand closed on a grip of the support: each
+   * digit curled from the relaxed hand until its phalanges meet the
+   * support's colliders (`HumanGrip.close`, a power grip), with the hand
+   * where `hold` puts it.
+   *
+   * The closure is solved once, where the support stands with the rider
+   * seated so, and kept: the hand and the grip move together afterwards.
+   * First pass: the colliders are the support's at rest under its frame,
+   * so a bar that steers within the frame is closed on where it rests.
+   *
+   * @param body The body.
+   * @param side The hand.
+   * @param posture The rider's posture holding.
+   * @param grip The held point, its normal and its axis, world.
+   * @param shapes The support's colliders in its own frame.
+   * @param frame The support's world frame.
+   * @returns The closed finger joints, clinical degrees.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is closed on what, when it is solved and what the first pass leaves out.
+   * @evidence contracts/development/implementation.md#principled-implementation The grasp laws' own closure on the prop's own colliders, placed by the prop's frame as `HumanGrasp` places them, with the hand's frame taken from `hold`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The hand's frame, the placed colliders, one call.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No named hand shape stands in for the closure.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One closure per hand per plan.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Solved once and blended to at every instant, since the hand and the grip do not move against each other.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function closed(
+    body: IHumanBody,
+    side: "left" | "right",
+    posture: IHumanPosture,
+    grip: Parameters<typeof hold>[3],
+    shapes: readonly IAutoMoviePhysicalProfile.IShape[],
+    frame: IHumanProp.IFrame,
+  ): IHumanPosture["joints"] {
+    const arm: IHumanPosture.IGoal = hold(body, side, posture, grip, 1, {}).arm;
+    return HumanGrip.close(
+      body,
+      side,
+      "power",
+      { point: arm.point, rotation: arm.rotation! },
+      shapes.map(
+        (
+          shape: IAutoMoviePhysicalProfile.IShape,
+        ): { shape: IAutoMoviePhysicalProfile.IShape; frame: IHumanProp.IFrame } => ({
+          shape,
+          frame,
+        }),
+      ),
+      HumanHand.shape(side, "relaxed"),
+    ).joints;
   }
 
   /**

@@ -4,7 +4,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -16,7 +15,6 @@ import { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
-import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
 
@@ -92,8 +90,8 @@ export namespace HumanRide {
      * rein, a wheel's rim. The hand goes to it over `TAKE` seconds from the
      * ride's start and stays on it, following a part that moves within the
      * support. The arms are still yielded, so an arm action over the ride
-     * takes a hand off for as long as it lasts. First pass: the wrist is
-     * placed and the hand's turn and the fingers' closure are not.
+     * takes a hand off for as long as it lasts. The hand turns to the
+     * point and closes on it (`HumanMountRider.hold`).
      */
     hands?: Partial<Record<"left" | "right", string>>;
   }
@@ -101,8 +99,6 @@ export namespace HumanRide {
   /** Seconds a hand takes to reach the point it is to hold (provisional). */
   export const TAKE: number = 0.6;
 
-  /** How far off a held point the wrist stays along the point's outward normal, hand lengths: about the palm's thickness (provisional, as the armrests' rest). */
-  export const PALM: number = 0.2;
 
   /** How far a rising trot lifts the seat off the saddle, thigh lengths (provisional: no rider kinematics were read). */
   export const POST: number = 0.25;
@@ -268,6 +264,67 @@ export namespace HumanRide {
 
       // A rider whose arms do not reach what the hands hold leans the trunk forward until they do, as a cyclist does to the bar.
       const lean: number = HumanMountRider.lean(context.body, seated, grips);
+
+      // What a hand holds, where the support has it at a film second: the point and its normal, and the axis a handle is wrapped about, its frame's +X, carried with the support.
+      const gripAt = (
+        id: string,
+        film: number,
+        frame: IHumanProp.IFrame,
+      ): Parameters<typeof HumanMountRider.hold>[3] => {
+        const rest: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
+          support.prop.points[id]!;
+        const part:
+          | { point: IAutoMovieVector3; normal: IAutoMovieVector3 }
+          | undefined = support.prop.point?.(id, film);
+        const handle: IAutoMovieQuaternion | undefined =
+          support.prop.affordances?.find(
+            (a: { id: string }): boolean => a.id === id,
+          )?.frame.rotation;
+        return {
+          point:
+            part?.point ??
+            Vector3.add(
+              frame.position,
+              Quaternion.rotateVector(frame.rotation, rest.point),
+            ),
+          normal:
+            part?.normal ??
+            Quaternion.rotateVector(frame.rotation, rest.normal),
+          ...(handle === undefined
+            ? {}
+            : {
+                axis: Quaternion.rotateVector(
+                  Quaternion.multiply(frame.rotation, handle),
+                  { x: 1, y: 0, z: 0 },
+                ),
+              }),
+        };
+      };
+
+      // Each holding hand's fingers, closed once on the support's own colliders where it stands when the ride begins.
+      const closures: Partial<Record<"left" | "right", IHumanPosture["joints"]>> =
+        {};
+      for (const side of ["left", "right"] as const) {
+        const id: string | undefined = context.params.hands?.[side];
+        if (id === undefined) continue;
+        if ((support.prop.shapes ?? []).length === 0)
+          throw new HumanRefusal({
+            kind: "affordance",
+            axis: "hands",
+            value: id,
+            feasible: null,
+            reason: `${on} declares no colliders; a hand that holds closes its fingers on them`,
+            fix: "give the support the shapes the fingers close on, or leave the hands free",
+          });
+        closures[side] = HumanMountRider.closed(
+          context.body,
+          side,
+          HumanMountRider.leant(seated, lean),
+          gripAt(id, context.start, origin),
+          support.prop.shapes!,
+          origin,
+        );
+      }
       const saddle: string | undefined = context.params.seat;
       if (saddle !== undefined && support.prop.points[saddle] === undefined)
         throw new HumanRefusal({
@@ -387,50 +444,25 @@ export namespace HumanRide {
             roll: tipped.roll,
           };
 
-          // A hand told to hold a point of the support goes to it over `TAKE` seconds and stays, a palm's thickness off it along its outward normal.
+          // A hand told to hold a point of the support goes to it over `TAKE` seconds and stays, turned to it and closed on it (`HumanMountRider.hold`).
+          const grasp: IHumanPosture["joints"] = {};
           for (const side of ["left", "right"] as const) {
             const id: string | undefined = context.params.hands?.[side];
             if (id === undefined) continue;
-            const rest: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
-              support.prop.points[id]!;
-            const part:
-              | { point: IAutoMovieVector3; normal: IAutoMovieVector3 }
-              | undefined = support.prop.point?.(id, film);
-            const target: IAutoMovieVector3 = Vector3.add(
-              part?.point ??
-                Vector3.add(
-                  now.position,
-                  Quaternion.rotateVector(now.rotation, rest.point),
-                ),
-              Vector3.scale(
-                part?.normal ??
-                  Quaternion.rotateVector(now.rotation, rest.normal),
-                PALM * context.body.measure.hand,
-              ),
-            );
-            const share: number = minimumJerk(Math.min(1, at / TAKE)).s;
-            const legs: IHumanPosture["limbs"] = { ...limbs };
-            delete legs.leftArm;
-            delete legs.rightArm;
-            limbs[`${side}Arm`] = {
-              point:
-                share >= 1
-                  ? target
-                  : Vector3.lerp(
-                      poseBones(
-                        context.body,
-                        resolveHumanPosture(context.body, {
-                          ...out,
-                          limbs: legs,
-                        }),
-                      ).get(`${side}Hand`)!.worldPosition,
-                      target,
-                      share,
-                    ),
-              bend: AutoMovieMotionHumanBend.hang(context.body, out, side, 0.2),
-              planted: share >= 1,
-            };
+            const held: ReturnType<typeof HumanMountRider.hold> =
+              HumanMountRider.hold(
+                context.body,
+                side,
+                out,
+                gripAt(id, film, now),
+                minimumJerk(Math.min(1, at / TAKE)).s,
+                closures[side] ?? {},
+              );
+            limbs[`${side}Arm`] = held.arm;
+            Object.assign(grasp, held.fingers);
           }
+          if (Object.keys(grasp).length > 0)
+            out.joints = { ...out.joints, ...grasp };
           if (pedals.length === 0) return out;
 
           // Where a pedal is further than the leg reaches with its knee still bent, the foot points down about its ball, as a cyclist's ankle does through the bottom of the stroke.

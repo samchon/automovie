@@ -46,8 +46,14 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * grip or rein where that is then (the palm's middle lies about half a
  * hand from the wrist; the share is provisional), and against that point,
  * in the mount's own axes, it has moved at most 10 mm from where it was at
- * the first instant (the campaign's bound for a held contact). A
- * motorcycle's grips are the bicycle's case with another model.
+ * the first instant (the campaign's bound for a held contact). At the
+ * middle instant the hand is closed and laid on what it holds: the middle
+ * finger's last joint is nearer the wrist than its knuckle is (in an open
+ * hand it is further, in a closed one it has come back toward the palm),
+ * and the knuckle is within half the hand's length of the held point (a
+ * hand turned away from the grip, or laid on it by its back, holds its
+ * knuckles further off; the half is provisional). A motorcycle's grips are
+ * the bicycle's case with another model.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Rides real archetypes and reads the displayed wrists against the mounts' own moving contacts; hands left where the grips stood at rest, or hands that drift off them, fails.
  * @evidence contracts/development/testing.md#independent-expectations Where a grip or a rein is comes from the archetype's own ride and the 10 mm is the campaign's bound; neither is read from the ride law. Limitation: the fingers' closure on the grip is the hand tests' to judge.
@@ -210,6 +216,29 @@ export function test_human_motion_ride_grips(): void {
       if (far > 0.7 * body.measure.hand || drift > 0.01)
         complaints.push(
           `${mount.label}: the ${side} wrist is up to ${(far * 1000).toFixed(1)} mm from what it holds and moves ${(drift * 1000).toFixed(1)} mm against it; within ${(700 * body.measure.hand).toFixed(1)} mm and 10 mm expected`,
+        );
+
+      // The hand is turned to what it holds and closed on it, read at the middle instant.
+      const t: number = WAIT + 0.6 * mount.duration;
+      const bones: ReturnType<typeof HumanSignature.bones> =
+        HumanSignature.bones(reader, t);
+      const wrist: IAutoMovieVector3 = bones.get(`${side}Hand`)!.worldPosition;
+      const knuckle: IAutoMovieVector3 = bones.get(
+        `${side}MiddleProximal`,
+      )!.worldPosition;
+      const tip: IAutoMovieVector3 = bones.get(
+        `${side}MiddleDistal`,
+      )!.worldPosition;
+      const at: IAutoMovieVector3 = part(mount.holds[side], t).translation;
+      const span = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
+        Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
+      if (span(tip, wrist) >= span(knuckle, wrist))
+        complaints.push(
+          `${mount.label}: the ${side} middle finger's last joint is ${(span(tip, wrist) * 1000).toFixed(1)} mm from the wrist and its knuckle ${(span(knuckle, wrist) * 1000).toFixed(1)} mm; a closed hand's last joint is nearer the wrist than its knuckle`,
+        );
+      if (span(knuckle, at) > 0.5 * body.measure.hand)
+        complaints.push(
+          `${mount.label}: the ${side} middle knuckle is ${(span(knuckle, at) * 1000).toFixed(1)} mm from what the hand holds, within ${(500 * body.measure.hand).toFixed(1)} mm expected for a palm laid on it`,
         );
     }
   }

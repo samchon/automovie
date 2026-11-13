@@ -1949,6 +1949,13 @@
     },
     {
       "layer": "posture",
+      "symbol": "resolveHumanPosture.memory",
+      "tests": [
+        "test_human_motion_core_fit_memory"
+      ]
+    },
+    {
+      "layer": "posture",
       "symbol": "resolveHumanPosture.heading",
       "tests": [
         "test_motion_compose_placed",
