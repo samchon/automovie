@@ -6,6 +6,7 @@ import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
+import type { HumanBase } from "../law/HumanBase";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
@@ -39,9 +40,9 @@ import { seated } from "./seated";
  * momentum of the flexing trunk then carries the body over the feet. When no
  * frame does, the peak is raised in 5 degree steps up to 70 degrees, then
  * the feet are drawn further back (below), and a rise whose feet stand too
- * far ahead even then is refused. From seat-off
- * the socket travels forward and up to standing at 85 %, the trunk returns
- * upright by the end, and the hands leave the thighs over the next 30 %. The
+ * far ahead even then is refused. From seat-off the socket travels forward
+ * and up to standing at 85 %, the trunk returns upright by the end, and the
+ * hands leave the thighs, or the armrests they pushed on, over the next 30 %. The
  * time is `2 (1 + 0.6 (1 - r))` seconds for a seat at `r` of the popliteal
  * height, the seat height being where the socket rests (provisional, as the
  * sit's).
@@ -156,6 +157,10 @@ export namespace rise {
       (1 + 0.6 * (1 - r)) *
       AutoMovieMotionManner.of(context, context.params.manner).tempo;
     const yaw: number = context.entry.posture.yaw;
+    const rests: HumanBase.ISeat["armrests"] =
+      context.entry.base.kind === "seated"
+        ? context.entry.base.seat?.armrests
+        : undefined;
     const pitch0: number = context.entry.posture.pitch;
     const feet: Record<"left" | "right", IAutoMovieVector3> = stand.feet(
       body,
@@ -380,38 +385,24 @@ export namespace rise {
         kind: "seat",
         from: 0,
         to: share(seatOff),
-        support: { kind: "ground" },
+        support: GROUND,
       },
     ];
     for (const side of ["left", "right"] as const) {
-      const part: "leftFoot" | "rightFoot" =
-        side === "left" ? "leftFoot" : "rightFoot";
       const swing: [number, number] | undefined = swings[side];
-      if (swing === undefined)
-        contacts.push({
-          part,
-          kind: "plant",
-          from: 0,
-          to: 1,
-          support: { kind: "ground" },
-        });
-      else
-        contacts.push(
-          {
-            part,
-            kind: "plant",
-            from: 0,
-            to: share(swing[0]),
-            support: { kind: "ground" },
-          },
-          {
-            part,
-            kind: "plant",
-            from: share(swing[1]),
-            to: 1,
-            support: { kind: "ground" },
-          },
-        );
+      const windows: [IHumanContactWindow["part"], number, number][] =
+        swing === undefined
+          ? [[`${side}Foot`, 0, 1]]
+          : [
+              [`${side}Foot`, 0, share(swing[0])],
+              [`${side}Foot`, share(swing[1]), 1],
+            ];
+
+      // A hand on an armrest pushes on it until the seat leaves the seat.
+      if (rests?.[side] !== undefined)
+        windows.push([`${side}Hand`, 0, share(seatOff)]);
+      for (const [part, from, to] of windows)
+        contacts.push({ part, kind: "plant", from, to, support: GROUND });
     }
 
     return {
@@ -438,7 +429,7 @@ export namespace rise {
             pitch: pitch0,
             roll: 0,
           });
-          return seated.arms(
+          return seated.rested(
             body,
             resolveHumanPosture.lower(body, {
               root,
@@ -448,6 +439,8 @@ export namespace rise {
               joints,
               limbs: legsAt(root, t),
             }),
+            rests,
+            yaw,
             1,
           );
         }
@@ -490,12 +483,17 @@ export namespace rise {
           joints: tilt.joints,
           limbs: stand.legs(body, root, yaw, drawn),
         });
-        return seated.arms(
+        return seated.rested(
           body,
           posture,
+          rests,
+          yaw,
           1 - minimumJerk((u - away) / (0.3 * rising)).s,
         );
       },
     };
   }
 }
+
+/** What a foot on the floor, or a hand on an armrest of a seat that stands on it, bears on. */
+const GROUND: IHumanContactWindow["support"] = { kind: "ground" };

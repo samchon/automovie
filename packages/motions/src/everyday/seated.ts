@@ -327,6 +327,39 @@ export namespace seated {
   }
 
   /**
+   * A seated posture's hands a share of the way from hanging to where they
+   * rest: on the armrests of a seat that has them, on the thighs otherwise.
+   * A body getting up pushes on its armrests until its seat leaves the
+   * seat, as it rests on them sitting down.
+   *
+   * @param body The body.
+   * @param posture The posture with its legs placed and no arm goals.
+   * @param rests The seat's armrests, world metres; none when absent.
+   * @param yaw The seat's heading, degrees.
+   * @param share 0 hanging to 1 resting.
+   * @returns The posture with arm goals, or unchanged at 0; a hand on an armrest bears once it is down.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States where the hands rest and when.
+   * @evidence contracts/development/implementation.md#principled-implementation The thighs' rest (`arms`) and the armrests' (`onArmrests`), each the one owner of its placement.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One choice between two calls.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms What the chosen call costs.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to cache.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function rested(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    rests: Partial<Record<"left" | "right", IAutoMovieVector3>> | undefined,
+    yaw: number,
+    share: number,
+  ): IHumanPosture {
+    return rests === undefined
+      ? arms(body, posture, share)
+      : onArmrests(body, arms(body, posture, share), rests, yaw, share);
+  }
+
+  /**
    * A posture whose hands have moved a share of the way from where its own
    * joints hold them to the armrests: each wrist on the straight line to a
    * point a hand's thickness above its armrest, the palm turning down with

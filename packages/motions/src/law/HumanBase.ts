@@ -89,6 +89,9 @@ export namespace HumanBase {
 
     /** Where each foot rests while seated, world metres; a foot with none is on the floor or hangs. */
     footrests?: Partial<Record<"left" | "right", IAutoMovieVector3>>;
+
+    /** Where each hand rests on an armrest while seated, world metres, so getting up can push on it; none when absent. */
+    armrests?: Partial<Record<"left" | "right", IAutoMovieVector3>>;
   }
 
   /**
