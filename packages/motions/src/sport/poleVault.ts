@@ -96,6 +96,9 @@ export namespace poleVault {
   /** The least run-up speed a vault is planned from, m/s (provisional). */
   export const RUN: number = 1;
 
+  /** The most times the plant's wrist goal is corrected by the solved end's height. */
+  const PLANT: number = 4;
+
   /** The number of steps the swing's table is integrated in. */
   const STEPS: number = 200;
 
@@ -128,7 +131,7 @@ export namespace poleVault {
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation The plant from the arm's reach and the pole's length; the swing from the kept angular momentum and the pendulum's energy; the flight ballistic; the touchdown bisected on the lowest shape.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The pole, the take-off, the plant, the pendulum table, the flight, the landing, then the posture by phase.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every bound refuses with its numbers; the pivot is the end where the solved hand actually puts it.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every bound refuses with its numbers; the wrist goal is corrected by the solved end's height so the end is on the floor, and the pivot is the end where the solved hand actually puts it.
    * @evidence contracts/development/implementation.md#efficient-algorithms Four jump plans, one table of `STEPS` closed-form rates, about fifteen flight postures for the touchdown, and one or two forward kinematics per evaluated second.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the held prop reading, the take-off, flight and mat kernels and the workout's support reading.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the take-off plan, the table and the mass model.
@@ -247,7 +250,7 @@ export namespace poleVault {
         hand0.worldRotation,
       ),
     );
-    const wrist: IAutoMovieVector3 = Vector3.subtract(
+    let wrist: IAutoMovieVector3 = Vector3.subtract(
       grip,
       Quaternion.rotateVector(rotation, socket),
     );
@@ -256,14 +259,21 @@ export namespace poleVault {
       side === "left" ? 1 : -1,
     );
 
-    // The push-off, its holding arm carrying the pole to the plant.
+    // The push-off, its holding arm carrying the pole to the plant. The
+    // wrist's path is laid on the root, which runs on under it: from its
+    // place off the entry's root to its place off the take-off's.
+    const root0: IAutoMovieVector3 = context.entry.posture.root;
+    const rootT: IAutoMovieVector3 = takeoff.plan.posture(off).root;
     const pushing = (t: number): IHumanPosture => {
       const base: IHumanPosture = takeoff.plan.posture(t);
       const u: number = minimumJerk(t / off).s;
-      const point: IAutoMovieVector3 = Vector3.lerp(
-        hand0.worldPosition,
-        wrist,
-        u,
+      const point: IAutoMovieVector3 = Vector3.add(
+        base.root,
+        Vector3.lerp(
+          Vector3.subtract(hand0.worldPosition, root0),
+          Vector3.subtract(wrist, rootT),
+          u,
+        ),
       );
       return {
         ...base,
@@ -278,15 +288,37 @@ export namespace poleVault {
       };
     };
 
-    // The swing: the take-off posture turned about the planted end. The
-    // pivot is where the solved hand actually puts the pole's end.
-    const from: IHumanPosture = GymnasticsFlight.frozen(body, pushing(off));
-    const shown: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(body, resolveHumanPosture(body, from));
-    const tipAt: IAutoMovieVector3 = Vector3.add(
-      HumanHand.frame(body, shown, side, "grip").point,
-      Quaternion.rotateVector(shown.get(`${side}Hand`)!.worldRotation, end),
+    // The plant as solved: the arm may not turn the hand quite as asked, so
+    // the pole's end lands where the solved hand puts it. The wrist goal is
+    // raised or lowered by that end's height and solved again until the end
+    // is on the floor, the hand's turn being nearly the same a few
+    // centimetres away.
+    let from: IHumanPosture = GymnasticsFlight.frozen(body, pushing(off));
+    let shown: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      resolveHumanPosture(body, from),
     );
+    const endOf = (
+      bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    ): IAutoMovieVector3 =>
+      Vector3.add(
+        HumanHand.frame(body, bones, side, "grip").point,
+        Quaternion.rotateVector(bones.get(`${side}Hand`)!.worldRotation, end),
+      );
+    for (let pass: number = 0; pass < PLANT; pass++) {
+      const miss: number = endOf(shown).y;
+      if (Math.abs(miss) <= 1e-3) break;
+      wrist = { ...wrist, y: wrist.y - miss };
+      from = GymnasticsFlight.frozen(body, pushing(off));
+      shown = poseBones(body, resolveHumanPosture(body, from));
+    }
+    const tipAt: IAutoMovieVector3 = endOf(shown);
+    const gripAt: IAutoMovieVector3 = HumanHand.frame(
+      body,
+      shown,
+      side,
+      "grip",
+    ).point;
     const c0: IAutoMovieVector3 = GymnasticsFlight.centre(body, model, from);
     const radius: IAutoMovieVector3 = Vector3.subtract(c0, tipAt);
     const rf: number = Vector3.dot(radius, ahead);
@@ -296,8 +328,8 @@ export namespace poleVault {
     const omega0: number = (vf * ry - takeoff.velocity.y * rf) / (r * r);
     const beta0: number = Math.atan2(rf, ry);
     const pole0: number = Math.atan2(
-      Vector3.dot(Vector3.subtract(grip, planted), ahead),
-      high,
+      Vector3.dot(Vector3.subtract(gripAt, tipAt), ahead),
+      gripAt.y - tipAt.y,
     );
     const upright: number = -pole0;
     const rate2 = (alpha: number): number =>
