@@ -516,6 +516,7 @@ export namespace FamilyConicFit {
     const steps: number[] = Array.from({ length: F }, (_: unknown, f: number): number => (units[f] === "mm" ? 1e-4 : 1e-6));
     let lambda: number = 1e-3;
     let iterations: number = 0;
+    const refusedSteps: { inadmissible: number; barrier: number; residual: number; worse: number; singular: number; where: Map<number, number> } = { inadmissible: 0, barrier: 0, residual: 0, worse: 0, singular: 0, where: new Map() };
     // `--homotopy`: the fit travels from the shape it starts from to the skin along a path of targets (Allgower and Georg), each section's
     // radii blended from the start's own (t = 0) to the observed ones (t = 1) in `HOMOTOPY_STEPS` steps, each step starting from the last
     // solution, so a start the admissible region holds far from the skin is carried to it without a jump across the region's wall.
@@ -641,9 +642,20 @@ export namespace FamilyConicFit {
             return copy;
           });
           const delta: number[] | null = solve(A, JTr.map((v: number): number => -v));
+          if (delta === null) ++refusedSteps.singular;
           if (delta !== null) {
             const next: number[][] = Y.map((field: number[], f: number): number[] => field.map((y: number, m: number): number => y + delta[f * M + m]!));
             const trial: { total: number; residuals: number[][] } | null = cost(next);
+            // `--seeds`: why each trial step is refused, counted by the code path that refuses it (`admissible` at the dense stations, the
+            // barrier, a fitting section's residual) or because it does not lower the cost.
+            if (trial === null) {
+              if (!admissible(next)) {
+                ++refusedSteps.inadmissible;
+                const at: number = dense.findIndex((b: number[]): boolean => C.chain(theta(next, b), layout).fault !== null);
+                if (at >= 0) refusedSteps.where.set(Math.floor((knots[0]! + at * DENSE_MM) / 100) * 100, (refusedSteps.where.get(Math.floor((knots[0]! + at * DENSE_MM) / 100) * 100) ?? 0) + 1);
+              } else if (mu > 0 && barrier(next) === null) ++refusedSteps.barrier;
+              else ++refusedSteps.residual;
+            } else if (!(trial.total < current.total)) ++refusedSteps.worse;
             if (trial !== null && trial.total < current.total) {
               converged = (current.total - trial.total) / current.total < 1e-6;
               Y = next;
@@ -662,6 +674,8 @@ export namespace FamilyConicFit {
 
     }
 
+    if (process.argv.includes("--seeds"))
+      process.stderr.write(`steps refused: ${refusedSteps.inadmissible} inadmissible at a dense station (first faulty station by stretch: ${[...refusedSteps.where.entries()].map(([s, c]): string => s + ":" + c).join(" ")}), ${refusedSteps.barrier} by the barrier, ${refusedSteps.residual} by a fitting section's residual, ${refusedSteps.worse} not lowering the cost, ${refusedSteps.singular} singular; ${iterations} accepted; ${held.size} of ${F} fields held\n`);
     // Report at the cut vertices of fitting and withheld sections, and against the chords on an independent phase grid.
     const report: number[] = Array.from({ length: REPORT }, (_: unknown, k: number): number => (2 * Math.PI * (k + 0.5)) / REPORT);
     const evidence: IResult["rows"] = [];
