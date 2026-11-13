@@ -3,7 +3,7 @@ import humanManifest from "@automovie/human/package.json";
 import * as motions from "@automovie/motions";
 import {
   HUMAN_ACTIONS,
-  HumanPerformance,
+  type HumanPerformance,
   HumanRefusal,
   type HumanSegment,
   HumanVerdicts,
@@ -19,8 +19,12 @@ import type { IPlaygroundRefusal } from "../structures/IPlaygroundRefusal";
 import type { IPlaygroundTimeline } from "../structures/IPlaygroundTimeline";
 import type { IPlaygroundVerdicts } from "../structures/IPlaygroundVerdicts";
 import type { IPlaygroundVocabulary } from "../structures/IPlaygroundVocabulary";
-import { PlaygroundBodies } from "./PlaygroundBodies";
+import { SCENES } from "../../scenes/SCENES";
+import { SceneStatus } from "../../scenes/package/SceneStatus";
+import type { IScene } from "../../scenes/structures/IScene";
 import { PlaygroundChain } from "./PlaygroundChain";
+import { PlaygroundPerformance } from "./PlaygroundPerformance";
+import { PlaygroundSchema } from "./PlaygroundSchema";
 import { PlaygroundStage } from "./PlaygroundStage";
 
 /**
@@ -39,6 +43,8 @@ export const PlaygroundPackageAdapter: IPlaygroundAdapter = {
     const laws: Readonly<Record<string, { overlay?: boolean }>> =
       HUMAN_ACTIONS as Readonly<Record<string, { overlay?: boolean }>>;
     const grammar: unknown = exported["HUMAN_GRAMMAR"];
+    const schemas: Record<string, IPlaygroundVocabulary.IParameter[]> =
+      PlaygroundSchema.rows();
     return {
       actions: Object.keys(laws).map(
         (name: string): IPlaygroundVocabulary.IAction => ({
@@ -55,6 +61,16 @@ export const PlaygroundPackageAdapter: IPlaygroundAdapter = {
         ([name, rows]): IPlaygroundVocabulary.IFamily => ({
           name,
           rows: rows.map((row: { name: string }): string => row.name),
+          parameters: Object.fromEntries(
+            rows
+              .filter((row: { name: string }): boolean => row.name in schemas)
+              .map(
+                (row: { name: string }): [string, IPlaygroundVocabulary.IParameter[]] => [
+                  row.name,
+                  schemas[row.name]!,
+                ],
+              ),
+          ),
         }),
       ),
       mutuals: Object.values(PlaygroundChain.mutuals()).map(
@@ -73,6 +89,10 @@ export const PlaygroundPackageAdapter: IPlaygroundAdapter = {
           label: entry.label,
         }),
       ),
+      scenes: SCENES.filter(
+        (scene: IScene): boolean =>
+          scene.hidden !== true && SceneStatus.of(scene).kind === "plays",
+      ).map((scene: IScene): string => scene.id),
       operators: {
         until: true,
         over: PlaygroundChain.has("over"),
@@ -98,38 +118,8 @@ export const PlaygroundPackageAdapter: IPlaygroundAdapter = {
     // Let the page paint its "building" state before the synchronous work.
     await pause();
     try {
-      const built: PlaygroundChain.IBuilt = PlaygroundChain.build(composition);
-      const figures: PlaygroundStage.IFigure[] = [];
-      const input: HumanPerformance.IInput = {
-        seed: composition.seed,
-        performers: composition.performers.map(
-          (performer: IPlaygroundComposition.IPerformer) => {
-            const prepared: PlaygroundBodies.IPrepared = PlaygroundBodies.get(
-              performer.body,
-            );
-            figures.push({
-              subject: performer.subject,
-              canonical: prepared.canonical,
-            });
-            return {
-              subject: performer.subject,
-              body: prepared.body,
-              at: { x: performer.x, y: 0, z: performer.z },
-              yaw: performer.yaw,
-              proficiency: { level: performer.proficiency },
-            };
-          },
-        ),
-        composition: built.composition,
-      };
-
-      // Lexicon rows are registered only where the installed package takes
-      // registered laws.
-      const performance: HumanPerformance = new HumanPerformance(
-        built.laws.length === 0
-          ? input
-          : ({ ...input, laws: built.laws } as HumanPerformance.IInput),
-      );
+      const { performance, figures }: PlaygroundPerformance.IBuilt =
+        PlaygroundPerformance.build(composition);
       return {
         kind: "performance",
         performance: {

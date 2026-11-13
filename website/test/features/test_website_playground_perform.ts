@@ -2,18 +2,19 @@ import { HumanPerformance, HumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { applyPlaygroundFix } from "../../src/playground/applyPlaygroundFix";
-import { PLAYGROUND_PRESETS } from "../../src/playground/data/PLAYGROUND_PRESETS";
+import { SCENES } from "../../src/scenes/SCENES";
 import { findPlaygroundRefusedAction } from "../../src/playground/findPlaygroundRefusedAction";
 import { PlaygroundBodies } from "../../src/playground/package/PlaygroundBodies";
 import { PlaygroundChain } from "../../src/playground/package/PlaygroundChain";
 import type { IPlaygroundComposition } from "../../src/playground/structures/IPlaygroundComposition";
 import type { IPlaygroundRefusal } from "../../src/playground/structures/IPlaygroundRefusal";
+import type { IScene } from "../../src/scenes/structures/IScene";
 
 /**
  * The playground's composition data becomes a performance of `@automovie/motions`, and a refusal is placed on the action it names and repaired from its own alternatives.
  *
  * Scenarios:
- * 1. Every preset plans on the installed package: each performer's placed actions are the preset's actions in order, and the film is longer than zero seconds.
+ * 1. The dance circle, a scene of three people that plans in under a second, plans on the installed package: each performer's placed actions are the scene's actions in order, and the film is longer than zero seconds. Every other scene is planned by the site's bake, which fails on a refusal.
  * 2. A composition without any action is not handed to the package; building it throws with a message that says to add an action.
  * 3. An action name the vocabulary lacks is refused by the package itself, as a `HumanRefusal` on the axis `act` whose alternatives include `stand`.
  * 4. That refusal is found on the action that caused it and on no other, and applying the alternative `stand` gives a composition that plans.
@@ -36,16 +37,19 @@ export function test_website_playground_perform(): void {
     });
   };
 
-  // 1. Every preset plans.
-  for (const preset of PLAYGROUND_PRESETS) {
-    const performance: HumanPerformance = perform(preset.composition);
+  // 1. A scene plans.
+  const base: IPlaygroundComposition = SCENES.find(
+    (scene: IScene): boolean => scene.id === "dance-circle",
+  )!.composition!;
+  {
+    const performance: HumanPerformance = perform(base);
     TestValidator.predicate(
-      `${preset.label}: the film has a duration`,
+      "the dance circle has a duration",
       performance.duration > 0,
     );
-    for (const performer of preset.composition.performers)
+    for (const performer of base.performers)
       TestValidator.equals(
-        `${preset.label}: ${performer.subject} performs its actions in order`,
+        `the dance circle: ${performer.subject} performs its actions in order`,
         performance
           .segments(performer.subject)
           .map((segment: { name: string }): string => segment.name),
@@ -56,7 +60,6 @@ export function test_website_playground_perform(): void {
   }
 
   // 2. No action.
-  const base: IPlaygroundComposition = PLAYGROUND_PRESETS[0]!.composition;
   let message: string = "";
   try {
     PlaygroundChain.build({
@@ -137,7 +140,7 @@ export function test_website_playground_perform(): void {
   TestValidator.equals(
     "the fixed composition performs stand twice",
     perform(fixed)
-      .segments("a")
+      .segments(unknown.performers[0]!.subject)
       .map((segment: { name: string }): string => segment.name),
     ["stand", "stand"],
   );

@@ -1,0 +1,30 @@
+import { SCENES_COMBAT } from "./data/SCENES_COMBAT";
+import { SCENES_DAILY } from "./data/SCENES_DAILY";
+import { SCENES_EVERYDAY } from "./data/SCENES_EVERYDAY";
+import { SCENES_FIGHT } from "./data/SCENES_FIGHT";
+import { SCENES_GAMES } from "./data/SCENES_GAMES";
+import { SCENES_GYM } from "./data/SCENES_GYM";
+import { SCENES_PARTNER } from "./data/SCENES_PARTNER";
+import { SCENES_PLANNED } from "./data/SCENES_PLANNED";
+import { SCENES_SPORT } from "./data/SCENES_SPORT";
+import { SCENES_STREET } from "./data/SCENES_STREET";
+import type { IScene } from "./structures/IScene";
+
+/**
+ * Every scene the site knows: the scenes that play on the installed
+ * packages, the ones written for a release that has not landed, and the
+ * ones a campaign plans. Each page orders them by setting and status. Add a
+ * scene to a file under `data/`; no page changes.
+ */
+export const SCENES: readonly IScene[] = [
+  ...SCENES_EVERYDAY,
+  ...SCENES_SPORT,
+  ...SCENES_COMBAT,
+  ...SCENES_DAILY,
+  ...SCENES_STREET,
+  ...SCENES_GYM,
+  ...SCENES_GAMES,
+  ...SCENES_FIGHT,
+  ...SCENES_PARTNER,
+  ...SCENES_PLANNED,
+];

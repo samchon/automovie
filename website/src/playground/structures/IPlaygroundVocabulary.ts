@@ -20,6 +20,9 @@ export interface IPlaygroundVocabulary {
   /** The bodies a performer can take. */
   bodies: IPlaygroundVocabulary.IBody[];
 
+  /** The ids of the site's scenes the installed packages can play, which the editor loads. */
+  scenes: string[];
+
   /** Which operators the adapter can build; the editor disables the others. */
   operators: IPlaygroundVocabulary.IOperators;
 
@@ -47,8 +50,26 @@ export namespace IPlaygroundVocabulary {
     /** Whether the action needs it. */
     required: boolean;
 
-    /** The accepted values of a closed set, or null for a free value. */
-    values: string[] | null;
+    /**
+     * How the editor takes it: one of a closed set, a number, a text, a
+     * switch, or JSON for a structured value.
+     */
+    kind: "choice" | "number" | "text" | "switch" | "json";
+
+    /** The accepted values of a choice; empty otherwise. */
+    values: string[];
+
+    /** A number's least value, when it has one. */
+    minimum?: number;
+
+    /** A number's greatest value, when it has one. */
+    maximum?: number;
+
+    /** Whether a number is whole. */
+    integer?: boolean;
+
+    /** What it means, from the law's documentation; empty when undocumented. */
+    description: string;
   }
 
   /** One family of the lexicon. */
@@ -58,6 +79,9 @@ export namespace IPlaygroundVocabulary {
 
     /** The rows it holds, each appended by its name like an action. */
     rows: string[];
+
+    /** Each row's parameters from its schema, by row name; a row without a schema is absent and edited as JSON. */
+    parameters: Record<string, IParameter[]>;
   }
 
   /** One mutual action. */

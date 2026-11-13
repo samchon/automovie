@@ -8,8 +8,11 @@
  * skeleton.
  */
 export interface IPlaygroundComposition {
-  /** The format's version; `PlaygroundAddress` refuses any other. */
-  version: 1;
+  /**
+   * The format's version: 1 has people only, 2 adds `objects`.
+   * `PlaygroundAddress` reads both and refuses any other.
+   */
+  version: 1 | 2;
 
   /** The seed every draw of the performance starts from. */
   seed: string;
@@ -19,8 +22,35 @@ export interface IPlaygroundComposition {
 
   /** Actions several people do together, each after every chain above. */
   mutuals: IPlaygroundComposition.IMutual[];
+
+  /** The archetypes placed in the scene, which actions name as props; none when absent. */
+  objects?: IPlaygroundComposition.IObject[];
 }
 export namespace IPlaygroundComposition {
+  /** One archetype placed on the floor. */
+  export interface IObject {
+    /** The prop's subject id, unique in the composition, by which actions name it. */
+    subject: string;
+
+    /** The producer's export name in `@automovie/archetypes`, such as `createSeat`. */
+    producer: string;
+
+    /** The producer's kind or frame, when it has variants. */
+    kind?: string;
+
+    /** The seed its free dimensions are drawn with; the middle of every band when absent. */
+    seed?: string;
+
+    /** Floor point, world metres: x to the left of a person facing +Z. */
+    x: number;
+
+    /** Floor point, world metres: z forward. */
+    z: number;
+
+    /** Heading about +Y, degrees. */
+    yaw: number;
+  }
+
   /** One person and what they do, in order. */
   export interface IPerformer {
     /** The subject id, unique in the composition. */

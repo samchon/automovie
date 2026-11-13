@@ -3,6 +3,7 @@ import * as motions from "@automovie/motions";
 import { HUMAN_ACTIONS, HumanChain } from "@automovie/motions";
 
 import type { IPlaygroundComposition } from "../structures/IPlaygroundComposition";
+import { PlaygroundObjects } from "./PlaygroundObjects";
 
 /**
  * Turns the playground's composition data into the composition
@@ -91,23 +92,30 @@ export namespace PlaygroundChain {
   }
 
   /**
-   * The mutual actions, from the package's `HumanMutual`.
+   * The mutual actions: every record the package exports, in any namespace
+   * (`HumanMutual`, and the lexicon's social and partner families), that
+   * names itself and casts roles.
    *
-   * @returns Each record by name; empty when the package has none or its chain cannot join them.
+   * @returns Each record by its name; empty when the package has none or its chain cannot join them.
    */
   export function mutuals(): Record<string, IMutual> {
-    const space: unknown = EXPORTS["HumanMutual"];
     const join: unknown = (HumanChain as unknown as Record<string, unknown>)[
       "mutual"
     ];
-    if (typeof space !== "object" || space === null) return {};
     if (typeof join !== "function") return {};
-    return Object.fromEntries(
-      Object.entries(space as Record<string, unknown>).filter(
-        ([, value]: [string, unknown]): boolean =>
-          typeof value === "object" && value !== null && "roles" in value,
-      ),
-    ) as Record<string, IMutual>;
+    const found: Record<string, IMutual> = {};
+    for (const space of Object.values(EXPORTS)) {
+      if (typeof space !== "object" || space === null) continue;
+      for (const value of Object.values(space as Record<string, unknown>))
+        if (
+          typeof value === "object" &&
+          value !== null &&
+          typeof (value as IMutual).name === "string" &&
+          Array.isArray((value as IMutual).roles)
+        )
+          found[(value as IMutual).name] = value as IMutual;
+    }
+    return found;
   }
 
   /**
@@ -124,11 +132,21 @@ export namespace PlaygroundChain {
         .map((law: ILaw): [string, ILaw] => [law.name, law]),
     );
     const laws: Map<string, ILaw> = new Map();
+    const objects: readonly IPlaygroundComposition.IObject[] =
+      data.objects ?? [];
 
     const append = (
       chain: ILoose,
-      action: IPlaygroundComposition.IAction,
+      written: IPlaygroundComposition.IAction,
     ): ILoose => {
+      // A seat named by its object becomes that object's seat.
+      const action: IPlaygroundComposition.IAction =
+        objects.length === 0
+          ? written
+          : {
+              ...written,
+              params: PlaygroundObjects.resolve(written.params, objects),
+            };
       // A lexicon row is registered with the performance and appended by its
       // name. Any other name goes to `act`, so a name the vocabulary lacks is
       // refused by the package in its own words.

@@ -18,7 +18,8 @@ import { PlaygroundVerdicts } from "../components/playground/PlaygroundVerdicts"
 import type { IPlaygroundAdapter } from "../playground/IPlaygroundAdapter";
 import { PlaygroundAddress } from "../playground/PlaygroundAddress";
 import { applyPlaygroundFix } from "../playground/applyPlaygroundFix";
-import { PLAYGROUND_PRESETS } from "../playground/data/PLAYGROUND_PRESETS";
+import { SCENES } from "../scenes/SCENES";
+import type { IScene } from "../scenes/structures/IScene";
 import { findPlaygroundRefusedAction } from "../playground/findPlaygroundRefusedAction";
 import { formatPlaygroundReport } from "../playground/formatPlaygroundReport";
 import { loadPlaygroundAdapter } from "../playground/loadPlaygroundAdapter";
@@ -42,6 +43,14 @@ type Outcome =
   | { kind: "building" }
   | IPlaygroundAdapter.Result;
 
+/**
+ * What the page opens with when its address carries no composition: a scene
+ * that plans in under a second, so the page answers at once.
+ */
+const FIRST: IPlaygroundComposition = SCENES.find(
+  (s: IScene): boolean => s.id === "dance-circle",
+)!.composition!;
+
 /** Which pane a narrow screen shows. */
 type Pane = "compose" | "result";
 
@@ -56,7 +65,7 @@ type Pane = "compose" | "result";
  *
  * The composition is kept in the address's fragment, so the address
  * reproduces what the page shows. The page opens with the composition of
- * its address, or the first preset, and performs it at once. On a narrow
+ * its address, or the dance circle, and performs it at once. On a narrow
  * screen the panes are two tabs, and performing shows the result.
  *
  * @returns The page.
@@ -65,7 +74,7 @@ export default function PlaygroundMovie(): ReactElement {
   const [loaded, setLoaded] = useState<Loaded>({ kind: "loading" });
   const [composition, setComposition] = useState<IPlaygroundComposition>(
     (): IPlaygroundComposition =>
-      structuredClone(PLAYGROUND_PRESETS[0]!.composition),
+      structuredClone(FIRST),
   );
 
   // The composition the outcome belongs to: a refusal is shown on the action
@@ -107,9 +116,7 @@ export default function PlaygroundMovie(): ReactElement {
   useEffect((): (() => void) => {
     let alive: boolean = true;
     (async (): Promise<void> => {
-      let first: IPlaygroundComposition = structuredClone(
-        PLAYGROUND_PRESETS[0]!.composition,
-      );
+      let first: IPlaygroundComposition = structuredClone(FIRST);
       try {
         const linked: IPlaygroundComposition | null = PlaygroundAddress.decode(
           window.location.hash,
