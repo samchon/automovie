@@ -172,19 +172,15 @@ export namespace kick {
     // The whole leg as three capsules read from the performer's shown bones,
     // which are the free path until the performance commits the stop: the
     // thigh from the hip to the knee, the shank from the knee to the ankle
-    // and the foot from the ankle to the ball, so whatever part of the leg
-    // first meets a body stops it, and the resolution meets exactly the leg
-    // the figure shows.
+    // and the foot from the ankle to the ball, each tapered between the
+    // girths at its joints, so whatever part of the leg first meets a body
+    // stops it, and the resolution meets the leg the figure shows.
     const limb: "leftLeg" | "rightLeg" =
       timing.side === "left" ? "leftLeg" : "rightLeg";
     const chain: StrikingWeapon.IChain = {
       ids: ["thigh", "shin", "foot"],
       limb,
-      radii: [
-        context.body.measure.thighRadius,
-        context.body.measure.shankRadius,
-        KickForm.FOOT_RADIUS_SHARE * context.body.measure.ankleHeight,
-      ],
+      radii: StrikingWeapon.legRadii(context.body),
       from: Math.max(context.start, t0 + timing.prep),
       to: t0 + timing.impact + KickForm.WEAPON_TAIL,
       ends: (seconds: number): IAutoMovieVector3[] =>

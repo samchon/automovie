@@ -9,7 +9,9 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * takes until it meets something), or a capsule, a segment swept by that
  * radius, when it also gives the axis's other end: a shin, a forearm, any
  * limb segment that strikes along its length, so another body crossing the
- * segment between its ends is met, not passed between sparse points. Every
+ * segment between its ends is met, not passed between sparse points; a
+ * tapered capsule's radius runs linearly from one end to the other, as a
+ * limb narrows from one joint to the next. Every
  * body is a signed distance at a second, from a point and, for capsule
  * weapons, from a segment (the least signed distance over the segment's
  * points). Both may depend on which weapons have already stopped, because a
@@ -52,7 +54,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  *
  * @param input The weapons, the bodies and the span.
  * @returns The stops, in time order.
- * @throws {Error} When the span or the step is not positive, a weapon id repeats, a weapon's live span is not finite or ends before it begins, a capsule weapon meets a body that measures no segment, or a body names a carried weapon that is not its own.
+ * @throws {Error} When the span or the step is not positive, a weapon id repeats, a weapon's live span is not finite or ends before it begins, a tail radius is given without a tail or is not a finite non-negative length, a capsule weapon meets a body that measures no segment, or a body names a carried weapon that is not its own.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the method, its determinism, its tie rule and what it does not model.
  * @evidence contracts/development/implementation.md#principled-implementation The time-ordered event loop of impulse-based simulation over continuous first-impact times.
@@ -79,6 +81,15 @@ export function resolveAutoMovieContactEvents(
     )
       throw new Error(
         `Contact weapon ${w.id} has a live span that is not finite or ends before it begins`,
+      );
+    if (
+      w.tailRadius !== undefined &&
+      (w.tail === undefined ||
+        !Number.isFinite(w.tailRadius) ||
+        w.tailRadius < 0)
+    )
+      throw new Error(
+        `Contact weapon ${w.id} has a tail radius without a tail, or one that is not a finite non-negative length`,
       );
   }
   const stopped: Map<string, number> = new Map();
@@ -159,7 +170,7 @@ export function resolveAutoMovieContactEvents(
  * Companion types of {@link resolveAutoMovieContactEvents}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Documents each member's frame and unit.
- * @evidence contracts/development/design.md#principled-representation Weapons are moving spheres or capsules (an optional axis end), bodies signed distances from a point and optionally from a segment, both functions of seconds and of the stops so far.
+ * @evidence contracts/development/design.md#principled-representation Weapons are moving spheres or capsules (an optional axis end, and an optional radius there for a tapered one), bodies signed distances from a point and optionally from a segment, both functions of seconds and of the stops so far.
  * @evidence contracts/development/design.md#minimal-and-owned-surface What callers provide and read.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector.
  */
@@ -175,8 +186,16 @@ export namespace resolveAutoMovieContactEvents {
     /** The body carrying it, whose own distance it ignores. */
     owner: string;
 
-    /** The sphere's radius, metres. */
+    /** The sphere's radius, metres; a capsule's radius at `position`. */
     radius: number;
+
+    /**
+     * A tapered capsule's radius at `tail`, metres: the capsule then narrows
+     * (or widens) linearly from `radius` at `position` to this, the round
+     * cone of a limb whose girth changes from one joint to the next. Absent
+     * for a sphere and for a capsule of one radius.
+     */
+    tailRadius?: number;
 
     /** When the weapon starts to be live, seconds, finite; it meets nothing before, whatever its path says. The span's start when absent. */
     from?: number;
@@ -225,11 +244,16 @@ export namespace resolveAutoMovieContactEvents {
      * The signed distance from a segment to the body's surface at a second,
      * metres: the least signed distance over the segment's points, positive
      * when the whole segment is outside. Required to meet capsule weapons.
+     * Given a taper, the segment is widened by a radius running linearly
+     * from its first end's to its other end's, and the distance is that
+     * tapered capsule's: the least over its points of the distance less the
+     * radius there.
      *
      * @param a The segment's first end, world metres.
      * @param b Its other end, world metres.
      * @param seconds Seconds.
      * @param stops The stops so far.
+     * @param taper The radii at `a` and at `b`, metres, for a tapered capsule weapon.
      * @returns Metres.
      */
     axis?(
@@ -237,6 +261,7 @@ export namespace resolveAutoMovieContactEvents {
       b: IAutoMovieVector3,
       seconds: number,
       stops: IStops,
+      taper?: readonly [number, number],
     ): number;
 
     /**
@@ -323,9 +348,11 @@ function firstImpact(
           `Body ${body.id} measures no segment for capsule weapon ${weapon.id}`,
         );
       const d: number =
-        (q === undefined
-          ? body.distance(p, t, stops)
-          : body.axis!(p, q, t, stops)) - weapon.radius;
+        q === undefined
+          ? body.distance(p, t, stops) - weapon.radius
+          : weapon.tailRadius === undefined
+            ? body.axis!(p, q, t, stops) - weapon.radius
+            : body.axis!(p, q, t, stops, [weapon.radius, weapon.tailRadius]);
       if (d < best.distance) best = { distance: d, against: body.id };
     }
     return best;

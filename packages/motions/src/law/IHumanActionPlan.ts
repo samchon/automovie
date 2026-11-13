@@ -155,8 +155,16 @@ export namespace IHumanActionPlan {
     /** The limb that carries it; frozen at its stop while contacts resolve. */
     limb: IHumanPosture.Limb;
 
-    /** Radius of the striking sphere, metres. */
+    /** Radius of the striking sphere, metres; a capsule's radius at `path`. */
     radius: number;
+
+    /**
+     * A tapered capsule's radius at `tail`, metres: the capsule narrows (or
+     * widens) linearly from `radius` at `path` to this, as a limb's girth
+     * changes from one joint to the next. Absent for a sphere and for a
+     * capsule of one radius.
+     */
+    tailRadius?: number;
 
     /** Film second it becomes live. */
     from: number;

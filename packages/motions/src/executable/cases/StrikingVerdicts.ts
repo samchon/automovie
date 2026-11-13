@@ -1,7 +1,6 @@
 import {
   Vector3,
   clampPose,
-  pointSegmentDistance,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
@@ -169,10 +168,7 @@ export namespace StrikingVerdicts {
     const g: HumanSegment.ISegment = strike.segment;
     const name: string = `${strike.id} ${g.id} contact`;
     const params: { feint?: number | boolean; accuracy?: unknown } = g.params;
-    if (
-      g.plan.contact !== undefined &&
-      g.end < g.start + g.plan.contact - 1e-9
-    )
+    if (g.plan.contact !== undefined && g.end < g.start + g.plan.contact - 1e-9)
       return {
         name,
         passed: strike.stop === undefined,
@@ -270,9 +266,8 @@ export namespace StrikingVerdicts {
         strike.body,
         strike.performance.bones(strike.id, second),
         strike.limb,
-      ).map(
-        (c: StrikingLimb.ICapsule): number =>
-          pointSegmentDistance(record.planned, c.a, c.b) - c.radius,
+      ).map((c: StrikingLimb.ICapsule): number =>
+        StrikingLimb.surface(record.planned, c),
       ),
     );
     const length: number = StrikingLimb.length(
@@ -424,9 +419,8 @@ export namespace StrikingVerdicts {
     let when: number = from;
     let samples: number = 0;
     for (let t: number = from; t <= to + 1e-9; t += 1 / 48) {
-      const asked: IHumanPosture.IGoal | undefined = g.plan.posture(
-        t - g.start,
-      ).limbs[`${side}Leg`];
+      const asked: IHumanPosture.IGoal | undefined = g.plan.posture(t - g.start)
+        .limbs[`${side}Leg`];
       if (asked === undefined) continue;
       samples++;
       const d: number = Vector3.length(
@@ -506,7 +500,8 @@ export namespace StrikingVerdicts {
     }
     return {
       name: "redirect after the chamber key refused",
-      passed: message !== undefined && message.includes("cannot be cut into kick"),
+      passed:
+        message !== undefined && message.includes("cannot be cut into kick"),
       detail: `${message ?? "accepted"}; bound the "cannot be cut into kick" refusal`,
     };
   }

@@ -136,7 +136,12 @@ export namespace HumanPerformanceContacts {
             position: (t: number) => (t < a || t > b ? far : w.path(t)),
             ...(tail === undefined
               ? {}
-              : { tail: (t: number) => (t < a || t > b ? far : tail(t)) }),
+              : {
+                  tail: (t: number) => (t < a || t > b ? far : tail(t)),
+                  ...(w.tailRadius === undefined
+                    ? {}
+                    : { tailRadius: w.tailRadius }),
+                }),
           });
           from = Math.min(from, a);
           to = Math.max(to, b);
@@ -254,6 +259,7 @@ export namespace HumanPerformanceContacts {
               b: IAutoMovieVector3,
               seconds: number,
               stops: resolveAutoMovieContactEvents.IStops,
+              taper?: readonly [number, number],
             ): number => {
               apply(stops);
               return HumanColliders.distanceToSegment(
@@ -265,6 +271,7 @@ export namespace HumanPerformanceContacts {
                 ),
                 a,
                 b,
+                taper,
               ).distance;
             },
 
