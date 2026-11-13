@@ -181,7 +181,9 @@ export namespace handToFaceRows {
         shape: "fist",
         tool: { thumb: 0.8 },
         facing: "thumb",
-        along: "-palm",
+        // The palm toward the face's midline: turned outward, the fist
+        // asked the elbow 20 cm above the shoulder.
+        along: "palm",
       },
       kind: "rub",
       count: 8,
