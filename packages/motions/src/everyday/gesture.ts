@@ -415,12 +415,21 @@ export namespace gesture {
                       (side === "left" ? -1 : 1) * p.turn,
                     ),
                   ),
-            bend: AutoMovieMotionHumanBend.hang(
-              body,
-              posture,
-              side,
-              goal.out + mods.elbow,
-            ),
+            bend:
+              goal.elbow === undefined
+                ? AutoMovieMotionHumanBend.hang(
+                    body,
+                    posture,
+                    side,
+                    goal.out + mods.elbow,
+                  )
+                : AutoMovieMotionHumanBend.arm(
+                    body,
+                    posture,
+                    side,
+                    goal.elbow,
+                    goal.out + mods.elbow,
+                  ),
           });
           const shape =
             p.shape === undefined

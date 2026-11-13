@@ -80,6 +80,7 @@ export const MOTION_HUMAN_LAW_SOLO_ROWS: Readonly<
     "touchFace",
     "pushGlasses",
     "palmsTogether",
+    "thumbsDown",
     "scratchHead",
     "shrug",
     "nod",

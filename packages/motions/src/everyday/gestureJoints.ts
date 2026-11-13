@@ -171,6 +171,7 @@ export namespace gestureJoints {
       case "clap":
       case "rubHands":
       case "palmsTogether":
+      case "thumbsDown":
       case "touchFace":
       case "pushGlasses":
       case "scratchHead":

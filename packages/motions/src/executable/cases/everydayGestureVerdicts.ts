@@ -370,6 +370,7 @@ export function everydayGestureVerdicts(
     case "touchFace":
     case "pushGlasses":
     case "palmsTogether":
+    case "thumbsDown":
     case "bow":
       return [];
   }

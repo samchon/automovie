@@ -38,6 +38,16 @@ export function test_human_motion_emblem_thumbs(): void {
     HumanEmblem.thumbsDown,
   ];
   const complaints: string[] = [];
+  const way = (from: IAutoMovieVector3, to: IAutoMovieVector3): string => {
+    const length: number = Math.hypot(
+      to.x - from.x,
+      to.y - from.y,
+      to.z - from.z,
+    );
+    return [from.x - to.x, to.y - from.y, to.z - from.z]
+      .map((v: number): string => (v / length).toFixed(2))
+      .join(" ");
+  };
   for (const name of ["f-small", "m-average"] as const) {
     const body: IHumanBody = motionHumanBody(name);
     for (const [row, sense] of [
@@ -74,8 +84,14 @@ export function test_human_motion_emblem_thumbs(): void {
           body,
           0,
         );
-        const at = (bone: "rightThumbProximal" | "rightThumbDistal" | "rightIndexDistal" | "rightHand"): IAutoMovieVector3 =>
-          HumanSignature.joint(reader, held, bone);
+        const at = (
+          bone:
+            | "rightThumbProximal"
+            | "rightThumbDistal"
+            | "rightIndexProximal"
+            | "rightIndexDistal"
+            | "rightHand",
+        ): IAutoMovieVector3 => HumanSignature.joint(reader, held, bone);
         const base: IAutoMovieVector3 = at("rightThumbProximal");
         const tip: IAutoMovieVector3 = at("rightThumbDistal");
         const off: number =
@@ -93,7 +109,7 @@ export function test_human_motion_emblem_thumbs(): void {
           Math.PI;
         if (!(off <= 30))
           complaints.push(
-            `${name}: ${row}: the thumb points ${off.toFixed(0)} degrees from straight ${sense > 0 ? "up" : "down"}, within 30 expected`,
+            `${name}: ${row}: the thumb points ${off.toFixed(0)} degrees from straight ${sense > 0 ? "up" : "down"}, within 30 expected (thumb ${way(base, tip)}, wrist to knuckle ${way(at("rightHand"), at("rightIndexProximal"))}, as right, up, ahead)`,
           );
         const wrist: IAutoMovieVector3 = at("rightHand");
         const finger: IAutoMovieVector3 = at("rightIndexDistal");

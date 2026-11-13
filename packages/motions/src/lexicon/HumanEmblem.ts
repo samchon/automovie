@@ -114,11 +114,10 @@ export namespace HumanEmblem {
     turn: 90,
   });
 
-  /** A thumbs down: the same fist turned the other way, the straight thumb pointing down. */
+  /** A thumbs down: the fist ahead of the shoulder with the forearm turned over and the elbow raised outward, the straight thumb pointing down. */
   export const thumbsDown = HumanActionRow.of("thumbsDown", gesture, {
-    kind: "stopPalm",
+    kind: "thumbsDown",
     shape: "thumbUp",
-    turn: -90,
   });
 
   /** The OK sign: the forefinger and thumb in a ring, held out (first pass, provisional attitude). */

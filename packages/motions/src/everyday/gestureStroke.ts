@@ -4,6 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import type { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import type { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -53,6 +54,11 @@ import { gestureTouch } from "./gestureTouch";
  *   the midpoint on each beat, three beats a second (provisional; free
  *   applause is faster than the near-2 Hz synchronised rhythm, Neda et al.
  *   2000, Nature 403:849).
+ * - `thumbsDown`: the fist ahead of the chest, the palm outward and the
+ *   knuckles ahead and 45 degrees down, so a straight thumb, which leans
+ *   toward the knuckles, points down; the elbow is asked out at the
+ *   shoulder's height, which leaves the forearm a quarter turn instead of a
+ *   half (provisional place, tip and elbow).
  * - `rubHands`: the palms together, sliding opposite ways along the fingers.
  * - `palmsTogether`: the palms pressed together ahead of the chest, the
  *   fingers up and forward, held: the clap's hand pose without its parting
@@ -95,6 +101,7 @@ export namespace gestureStroke {
     | "clap"
     | "rubHands"
     | "palmsTogether"
+    | "thumbsDown"
     | "touchFace"
     | "pushGlasses"
     | "scratchHead"
@@ -193,6 +200,9 @@ export namespace gestureStroke {
     /** Extra outward elbow share. */
     out: number;
 
+    /** Where the elbow is asked to lie, as shares of the upper arm from the shoulder; where an unloaded arm hangs when absent. */
+    elbow?: AutoMovieMotionHumanBend.IShares;
+
     /** Extra finger flexion added to the shape, degrees (the beckon's curl). */
     curl?: number;
   }
@@ -219,6 +229,7 @@ export namespace gestureStroke {
     },
     rubHands: { cycles: 3, period: { pause: "beat", scale: 0.875 } },
     palmsTogether: { cycles: 1, period: "long" },
+    thumbsDown: { cycles: 1, period: "long" },
     touchFace: { cycles: 1, period: "long" },
     pushGlasses: { cycles: 1, period: { pause: "beat", scale: 0.75 } },
     scratchHead: { cycles: 4, period: { pause: "beat", scale: 0.625 } },
@@ -243,6 +254,7 @@ export namespace gestureStroke {
     clap: "both",
     rubHands: "both",
     palmsTogether: "both",
+    thumbsDown: "one",
     touchFace: "one",
     pushGlasses: "one",
     scratchHead: "one",
@@ -386,6 +398,29 @@ export namespace gestureStroke {
           ),
           rotation: facing("up", "forward"),
           out: 0,
+        };
+      case "thumbsDown":
+        // The fist ahead of the chest, the palm outward, so the thumb's side
+        // is down. Under a hanging elbow that is half a turn of the forearm;
+        // with the elbow out at the shoulder's height the arm itself gives a
+        // quarter of it and the forearm turns the other quarter. A straight
+        // thumb leans toward the knuckles (55 degrees from the thumb side's
+        // own direction on the polygon man), so the knuckles are tipped 45
+        // degrees down for the thumb to point down, the forearm sloping
+        // down from the raised elbow with them.
+        return {
+          surface: "fist",
+          shape: "fist",
+          point: put(
+            { height: "chest", lateral: "shoulder", distance: "mid" },
+            Math.min(1, e),
+          ),
+          rotation: HumanHand.rotation(side, {
+            fingers: dir(0, -Math.SQRT1_2, Math.SQRT1_2),
+            palm: dir(sign, 0, 0),
+          }),
+          out: 0,
+          elbow: { out: 0.9, up: 0, forward: 0.3 },
         };
       case "point":
         return gestureTouch.point(input, side);
