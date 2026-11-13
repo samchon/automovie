@@ -4,6 +4,7 @@ import type { AutoMovieConstructionNode, IAutoMovieConstructionPort, IAutoMovieC
 import { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Arm } from "./AutoMovieHumanF1Arm";
+import { AutoMovieHumanF1Auricle } from "./AutoMovieHumanF1Auricle";
 import { AutoMovieHumanF1Breast } from "./AutoMovieHumanF1Breast";
 import { AutoMovieHumanF1Concha } from "./AutoMovieHumanF1Concha";
 import { AutoMovieHumanF1Ear } from "./AutoMovieHumanF1Ear";
@@ -318,6 +319,18 @@ export namespace AutoMovieHumanF1 {
    * floor, and at 4 mm its front edge, by the tragus, came out past the loop onto the head's own skin, where the cut left the skin open along it.
    */
   const NOSE_MARGIN_MM: number = 2.5;
+
+  /**
+   * Whether each ear is the auricle lofted along its long axis and merged onto the head (`AutoMovieHumanF1Auricle`), in place of the leaf
+   * lofted out of the head with its helix merged, its trough and scapha cut and a port's band to the head.
+   */
+  const AURICLE_LOFT: boolean = false;
+
+  /**
+   * Whether the concha's bowl is cut after the ear is attached. On the lofted auricle both the bowl's and the lobule's cuts were refused
+   * ("no rail"), and the merged auricle alone is one piece with no diagnostic (docs/work/f1-conic-families.md, Open).
+   */
+  const AURICLE_CONCHA: boolean = !AURICLE_LOFT;
 
   /**
    * How much farther out the nose's loop stands under the columella, mm, at the loop's lowest clock, falling off as `(-cos c)^6` (half of
@@ -873,15 +886,19 @@ export namespace AutoMovieHumanF1 {
       // and 0.5 mm on the cutter; a host blend of 2 mm on the trough beside it left the scapha's runs across the leaf with neither side kept.
       const scapha: AutoMovieHumanConicLoft.IFamily = side > 0 ? AutoMovieHumanF1Scapha : twin(AutoMovieHumanF1Scapha);
       const hollowed: AutoMovieConstructionNode = { type: "join", kind: "diff", name: "cut." + scapha.name, host: troughed, part: leaf(scapha, Infinity), seed: { type: "search", partFace: scapha.name, hostFace: ear.name, phase: 0, from: 0, to: 0.9 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.0005 }, hostWidth: { type: "chord", value: 0.001 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04 };
-      root = { type: "port", name: "auricle." + ear.name, host: root, hostFace: trunk, loop: auricle(side), band: "band." + ear.name, part: hollowed, partFace: ear.name, partEnd: "bottom", rail: RAIL_MM.ear / 1000, count: BAND.count, rows: BAND.rows };
+      const shell: AutoMovieHumanConicLoft.IFamily = side > 0 ? AutoMovieHumanF1Auricle : twin(AutoMovieHumanF1Auricle);
+      root = AURICLE_LOFT
+        ? { type: "join", kind: "merge", name: "root." + shell.name, host: root, part: leaf(shell, Infinity), seed: { type: "search", partFace: shell.name, hostFace: trunk, phase: Math.PI, from: 0, to: 1 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.00025 }, hostWidth: { type: "chord", value: 0.00025 }, continuity: "G2", count: 256, rows: 4, tolerance: 1e-12, grazing: 0.04 }
+        : { type: "port", name: "auricle." + ear.name, host: root, hostFace: trunk, loop: auricle(side), band: "band." + ear.name, part: hollowed, partFace: ear.name, partEnd: "bottom", rail: RAIL_MM.ear / 1000, count: BAND.count, rows: BAND.rows };
+      const outer: string = AURICLE_LOFT ? shell.name : ear.name;
       // The web under the lobule, the band and the trunk's own skin that a port spans from the head's loop to the leaf's root ring, is cut
       // away once the ear is attached, so the lobule hangs free over the skull. Seeded on its front line, which comes up out of the air under
       // the cheek through the trunk's skin; layered every millimetre; blended 1.5 mm wide on the head and 1 mm on the cutter, which rounds the
       // lobule's edge and the floor's rim (0.5 mm drew them sharp). It is cut before the bowl: cut after it, the band's face did not
       // triangulate ("visibility left-side probe has no admitted represented corridor").
       const lobule: AutoMovieHumanConicLoft.IFamily = side > 0 ? AutoMovieHumanF1Lobule : twin(AutoMovieHumanF1Lobule);
-      root = { type: "join", kind: "diff", name: "cut." + lobule.name, host: root, part: leaf(lobule, Infinity), seed: { type: "search", partFace: lobule.name, hostFace: trunk, phase: 0, from: 0, to: 0.5 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.001 }, hostWidth: { type: "chord", value: 0.0015 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04 };
-      root = { type: "join", kind: "diff", name: "cut." + concha.name, host: root, part: leaf(concha), seed: { type: "search", partFace: concha.name, hostFace: ear.name, phase: side > 0 ? Math.PI / 2 : (3 * Math.PI) / 2, from: 0, to: 0.9 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.00025 }, hostWidth: { type: "chord", value: 0.00025 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04 };
+      if (!AURICLE_LOFT) root = { type: "join", kind: "diff", name: "cut." + lobule.name, host: root, part: leaf(lobule, Infinity), seed: { type: "search", partFace: lobule.name, hostFace: trunk, phase: 0, from: 0, to: 0.5 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.001 }, hostWidth: { type: "chord", value: 0.0015 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04 };
+      if (AURICLE_CONCHA) root = { type: "join", kind: "diff", name: "cut." + concha.name, host: root, part: leaf(concha), seed: { type: "search", partFace: concha.name, hostFace: outer, phase: side > 0 ? Math.PI / 2 : (3 * Math.PI) / 2, from: 0, to: 0.9 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.00025 }, hostWidth: { type: "chord", value: 0.00025 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04 };
 
       // The breast, which the trunk's sections leave out: its band spans the fold under it from the chest to the breast's own wall. Its
       // layers stand a millimetre apart all along it (`WEB_LAYER_MM`): over the dome a ring moves 1.5 to 4 mm across the skin for each

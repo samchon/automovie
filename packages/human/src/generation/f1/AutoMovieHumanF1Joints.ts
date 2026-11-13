@@ -194,6 +194,14 @@ export namespace AutoMovieHumanF1Joints {
    */
   export const scapha: V3[] = [[3.63, 1590.13, 90.9], [1.52, 1584.48, 91.9], [1.57, 1578.54, 91.3], [3.43, 1572.75, 90.2]];
 
+  /**
+   * The auricle's course along its long axis, from above the helix's top through the shell's middle down to below the lobule. Each centre is
+   * the middle of the shell's piece at its height, read off the reference's sections square to the course (a scratch scan): the piece at
+   * 1,590 mm spans x -4 to 22 and 77 to 96 mm out, at 1,572 mm (the concha's height, where the bowl is left to the head) x -5 to 7, at
+   * 1,558 mm x 2 to 7 and below it the lobule, x 11 to 21 at 1,544 mm. Every section's hull holds the course.
+   */
+  export const auricle: V3[] = [[9, 1606, 86], [7, 1590, 86], [2, 1572, 85], [5, 1558, 83], [15.5, 1542, 78.5], [18, 1534, 77]];
+
   /** Centre of the auricle's root on the sagittal plane it leaves the skull at. */
   export const earBase: V3 = [9.5, 1572, 77];
 

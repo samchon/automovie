@@ -264,6 +264,25 @@ namespace FamilyConicBody {
   }
 
   /**
+   * The auricle's course along its long axis, mm, and its turns' half lengths: from above the helix's top, through the shell's middle at
+   * each height, down to below the lobule. Read by scanning the reference's sections along trial courses: each centre stands in the middle of that height's piece of
+   * the shell, so every section's hull holds it. `--auricle=<json>` and `--auricle-halves=<json>` try another.
+   */
+  const AURICLE: R.V[] = JSON.parse(process.argv.find((a: string): boolean => a.startsWith("--auricle="))?.slice("--auricle=".length) ?? "[[9,1606,86],[7,1590,86],[2,1572,85],[5,1558,83],[15.5,1542,78.5],[18,1534,77]]");
+  const AURICLE_HALVES: number[] = JSON.parse(process.argv.find((a: string): boolean => a.startsWith("--auricle-halves="))?.slice("--auricle-halves=".length) ?? "[4,5,5,3]");
+  const AURICLE_DOMAIN: number[] = (process.argv.find((a: string): boolean => a.startsWith("--auricle-domain="))?.slice("--auricle-domain=".length) ?? "6,68").split(",").map(Number);
+  const AURICLE_GAP: number = Number(process.argv.find((a: string): boolean => a.startsWith("--auricle-gap="))?.slice("--auricle-gap=".length) ?? 6);
+
+  /**
+   * What the auricle leaves to the head, mm, positive outside the auricle: skin under a side distance of 76.5 mm, the level the head's own
+   * wall bridges the ear's root at (74 to 77 mm, the trunk realized alone), rising by 0.45 mm a millimetre above 1,596 mm, where the head
+   * stands 77 to 78 mm out round the helix's top; and everything outside the ear's box.
+   */
+  function auricle(p: R.V): number {
+    return -Math.min(p[2] - 76.5 - Math.max(0, (p[1] - 1596) * 0.45), p[0] + 10, 28 - p[0], p[1] - 1534, 1603 - p[1]);
+  }
+
+  /**
    * The nose's box, mm. Positive inside the box.
    *
    * Its frontal plane stands just in front of the alar groove, the crease round each wing, so the wings are the nose's own sections and
@@ -700,6 +719,13 @@ namespace FamilyConicBody {
         // the last plane still cuts the skin, in a dome whose pole stands on the helix's back. What lies inside that hull on the outer face, the scapha, the fossa and the
         // antihelix, a relief carves (`face`, `EAR_FACE`); the concha's bowl is a cut of its own.
         { name: "ear", centres: EAR_TRIAL ?? [EAR_ROOT, EAR_TURN, EAR_TIP], course: EAR_TRIAL === undefined ? "[J.earRoot, J.earTurn, J.earTip]" : JSON.stringify(EAR_TRIAL).replaceAll(",", ", "), halves: EAR_TRIAL === undefined ? [EAR_HALF_MM] : EAR_TRIAL.slice(1, -1).map((): number => EAR_TRIAL_HALF), up: EAR_UP, domain: [4, EAR_TRIAL_TO], head: true, loose: true, step: 1, gap: 3, tip: process.argv.some((a: string): boolean => a.startsWith("--ear-tip=")) ? Number(process.argv.find((a: string): boolean => a.startsWith("--ear-tip="))!.slice(10)) : true, mirrored: true, layouts: process.argv.includes("--ear-deep") ? LIMB : [LIMB[0]!], clip: (p: R.V): number => -ear(p), reliefs: [], casts: !process.argv.some((a: string): boolean => a.startsWith("--ear-face=")) ? [] : [{ name: "face", stations: [EAR_FACE[0]!, EAR_FACE[1]!], phases: [EAR_FACE[2]!, EAR_FACE[3]!], axis: EAR_FACE_AXIS, rows: EAR_FACE[4]!, columns: EAR_FACE[5]!, reach: EAR_FACE[6]!, ...(EAR_FACE[7] === undefined ? {} : { facing: EAR_FACE[7] }), fade: [EAR_FADE[0]!, EAR_FADE[1]!], fadePhase: [EAR_FADE[2]!, EAR_FADE[3]!] }], pitch: EAR_PITCH },
+
+        // The auricle as a loft along its own long axis, from above the helix's top down through the shell's middle to below the lobule
+        // (read by scanning the reference's sections along it): each plane square to that course cuts the shell in one C-shaped piece, the head's skin left out under
+        // a side distance of 76.5 mm (rising toward the helix's top, where the head stands 77 to 78 mm out), so the helix's curl, the scapha,
+        // the antihelix and the lobule are each section's own skin and the fossa and the concha are its hollows. Its medial side, closed along
+        // that level, is sunk into the head when it is merged.
+        { name: "auricle", centres: AURICLE, course: "J.auricle", halves: AURICLE_HALVES, up: JSON.parse(process.argv.find((a: string): boolean => a.startsWith("--auricle-up="))?.slice("--auricle-up=".length) ?? "[0, 0, 1]"), domain: [AURICLE_DOMAIN[0]!, AURICLE_DOMAIN[1]!], head: true, loose: true, step: 1, gap: AURICLE_GAP, tip: true, mirrored: true, layouts: process.argv.includes("--ear-deep") ? LIMB : [LIMB[0]!], clip: auricle, reliefs: process.argv.includes("--auricle-auto") ? "auto" : [], pitch: EAR_PITCH },
 
         // The nose's free end as a short loft straight forward out of the face, closed at its tip.
         // Its course starts 5 mm behind the box's frontal plane, so its first section, half a millimetre into the box, lies on the wings.
@@ -1449,6 +1475,7 @@ namespace FamilyConicBody {
     // Deep vertices are first split round the section: phases farther apart than a radian belong to different hollows (a spine groove and a cleavage share stations but not a window).
     const every: number[] = deep.flatMap((row: { s: number; phases: number[] }): number[] => row.phases).sort((a: number, b: number): number => a - b);
     const windows: H.IWindow[] = [];
+    log0?.("family-body-hollow-search", { part: name, deep: every.length, rows: rows.length });
     if (every.length === 0) return windows;
     let widest: number = every[0]! + 2 * Math.PI - every.at(-1)!;
     let start: number = 0;
