@@ -177,7 +177,7 @@ export namespace motionHumanLaw {
    * @returns One complaint per finding; empty when clean.
    */
   export function audit(
-    film: IFilm,
+    film: IAutoMovieMotionHumanAuditMotion,
     label: string,
     subject: string,
     body: IHumanBody,

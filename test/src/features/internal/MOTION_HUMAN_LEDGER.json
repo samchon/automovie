@@ -4436,6 +4436,15 @@
           "tests": [],
           "audit": [
             "test_human_motion_law_hand_to_face_drink",
+            "test_human_motion_law_hand_to_face_drink_mirror",
+            "test_human_motion_law_hand_to_face_drink_motion_1",
+            "test_human_motion_law_hand_to_face_drink_motion_2",
+            "test_human_motion_law_hand_to_face_drink_motion_3",
+            "test_human_motion_law_hand_to_face_drink_motion_4",
+            "test_human_motion_law_hand_to_face_drink_motion_5",
+            "test_human_motion_law_hand_to_face_drink_motion_6",
+            "test_human_motion_law_hand_to_face_drink_population",
+            "test_human_motion_law_hand_to_face_drink_tangle",
             "test_human_motion_law_sweep_touch"
           ],
           "sweep": "reduced"
@@ -4445,6 +4454,15 @@
           "tests": [],
           "audit": [
             "test_human_motion_law_hand_to_face_drink",
+            "test_human_motion_law_hand_to_face_drink_mirror",
+            "test_human_motion_law_hand_to_face_drink_motion_1",
+            "test_human_motion_law_hand_to_face_drink_motion_2",
+            "test_human_motion_law_hand_to_face_drink_motion_3",
+            "test_human_motion_law_hand_to_face_drink_motion_4",
+            "test_human_motion_law_hand_to_face_drink_motion_5",
+            "test_human_motion_law_hand_to_face_drink_motion_6",
+            "test_human_motion_law_hand_to_face_drink_population",
+            "test_human_motion_law_hand_to_face_drink_tangle",
             "test_human_motion_law_sweep_touch"
           ],
           "sweep": "reduced"
@@ -4454,6 +4472,15 @@
           "tests": [],
           "audit": [
             "test_human_motion_law_hand_to_face_sip",
+            "test_human_motion_law_hand_to_face_sip_mirror",
+            "test_human_motion_law_hand_to_face_sip_motion_1",
+            "test_human_motion_law_hand_to_face_sip_motion_2",
+            "test_human_motion_law_hand_to_face_sip_motion_3",
+            "test_human_motion_law_hand_to_face_sip_motion_4",
+            "test_human_motion_law_hand_to_face_sip_motion_5",
+            "test_human_motion_law_hand_to_face_sip_motion_6",
+            "test_human_motion_law_hand_to_face_sip_population",
+            "test_human_motion_law_hand_to_face_sip_tangle",
             "test_human_motion_law_sweep_touch"
           ],
           "sweep": "reduced"
@@ -4463,6 +4490,14 @@
           "tests": [],
           "audit": [
             "test_human_motion_law_hand_to_face_eat",
+            "test_human_motion_law_hand_to_face_eat_mirror",
+            "test_human_motion_law_hand_to_face_eat_motion_1",
+            "test_human_motion_law_hand_to_face_eat_motion_2",
+            "test_human_motion_law_hand_to_face_eat_motion_3",
+            "test_human_motion_law_hand_to_face_eat_motion_4",
+            "test_human_motion_law_hand_to_face_eat_motion_5",
+            "test_human_motion_law_hand_to_face_eat_motion_6",
+            "test_human_motion_law_hand_to_face_eat_tangle",
             "test_human_motion_law_sweep_touch"
           ],
           "sweep": "reduced"
@@ -4472,6 +4507,14 @@
           "tests": [],
           "audit": [
             "test_human_motion_law_hand_to_face_bite",
+            "test_human_motion_law_hand_to_face_bite_mirror",
+            "test_human_motion_law_hand_to_face_bite_motion_1",
+            "test_human_motion_law_hand_to_face_bite_motion_2",
+            "test_human_motion_law_hand_to_face_bite_motion_3",
+            "test_human_motion_law_hand_to_face_bite_motion_4",
+            "test_human_motion_law_hand_to_face_bite_motion_5",
+            "test_human_motion_law_hand_to_face_bite_motion_6",
+            "test_human_motion_law_hand_to_face_bite_tangle",
             "test_human_motion_law_sweep_touch"
           ],
           "sweep": "reduced"
@@ -4481,6 +4524,14 @@
           "tests": [],
           "audit": [
             "test_human_motion_law_hand_to_face_phone",
+            "test_human_motion_law_hand_to_face_phone_mirror",
+            "test_human_motion_law_hand_to_face_phone_motion_1",
+            "test_human_motion_law_hand_to_face_phone_motion_2",
+            "test_human_motion_law_hand_to_face_phone_motion_3",
+            "test_human_motion_law_hand_to_face_phone_motion_4",
+            "test_human_motion_law_hand_to_face_phone_motion_5",
+            "test_human_motion_law_hand_to_face_phone_motion_6",
+            "test_human_motion_law_hand_to_face_phone_tangle",
             "test_human_motion_law_sweep_touch"
           ],
           "sweep": "reduced"
@@ -4490,6 +4541,14 @@
           "tests": [],
           "audit": [
             "test_human_motion_law_hand_to_face_read",
+            "test_human_motion_law_hand_to_face_read_mirror",
+            "test_human_motion_law_hand_to_face_read_motion_1",
+            "test_human_motion_law_hand_to_face_read_motion_2",
+            "test_human_motion_law_hand_to_face_read_motion_3",
+            "test_human_motion_law_hand_to_face_read_motion_4",
+            "test_human_motion_law_hand_to_face_read_motion_5",
+            "test_human_motion_law_hand_to_face_read_motion_6",
+            "test_human_motion_law_hand_to_face_read_tangle",
             "test_human_motion_law_sweep_touch"
           ],
           "sweep": "reduced"
@@ -4499,6 +4558,14 @@
           "tests": [],
           "audit": [
             "test_human_motion_law_hand_to_face_brush_teeth",
+            "test_human_motion_law_hand_to_face_brush_teeth_mirror",
+            "test_human_motion_law_hand_to_face_brush_teeth_motion_1",
+            "test_human_motion_law_hand_to_face_brush_teeth_motion_2",
+            "test_human_motion_law_hand_to_face_brush_teeth_motion_3",
+            "test_human_motion_law_hand_to_face_brush_teeth_motion_4",
+            "test_human_motion_law_hand_to_face_brush_teeth_motion_5",
+            "test_human_motion_law_hand_to_face_brush_teeth_motion_6",
+            "test_human_motion_law_hand_to_face_brush_teeth_tangle",
             "test_human_motion_law_sweep_touch"
           ],
           "sweep": "reduced"
@@ -4508,6 +4575,14 @@
           "tests": [],
           "audit": [
             "test_human_motion_law_hand_to_face_comb",
+            "test_human_motion_law_hand_to_face_comb_mirror",
+            "test_human_motion_law_hand_to_face_comb_motion_1",
+            "test_human_motion_law_hand_to_face_comb_motion_2",
+            "test_human_motion_law_hand_to_face_comb_motion_3",
+            "test_human_motion_law_hand_to_face_comb_motion_4",
+            "test_human_motion_law_hand_to_face_comb_motion_5",
+            "test_human_motion_law_hand_to_face_comb_motion_6",
+            "test_human_motion_law_hand_to_face_comb_tangle",
             "test_human_motion_law_sweep_touch"
           ],
           "sweep": "reduced"
@@ -4517,6 +4592,13 @@
           "tests": [],
           "audit": [
             "test_human_motion_law_hand_to_face_wash_face",
+            "test_human_motion_law_hand_to_face_wash_face_motion_1",
+            "test_human_motion_law_hand_to_face_wash_face_motion_2",
+            "test_human_motion_law_hand_to_face_wash_face_motion_3",
+            "test_human_motion_law_hand_to_face_wash_face_motion_4",
+            "test_human_motion_law_hand_to_face_wash_face_motion_5",
+            "test_human_motion_law_hand_to_face_wash_face_motion_6",
+            "test_human_motion_law_hand_to_face_wash_face_tangle",
             "test_human_motion_law_sweep_touch"
           ],
           "sweep": "reduced"
@@ -4526,6 +4608,14 @@
           "tests": [],
           "audit": [
             "test_human_motion_law_hand_to_face_wipe_mouth",
+            "test_human_motion_law_hand_to_face_wipe_mouth_mirror",
+            "test_human_motion_law_hand_to_face_wipe_mouth_motion_1",
+            "test_human_motion_law_hand_to_face_wipe_mouth_motion_2",
+            "test_human_motion_law_hand_to_face_wipe_mouth_motion_3",
+            "test_human_motion_law_hand_to_face_wipe_mouth_motion_4",
+            "test_human_motion_law_hand_to_face_wipe_mouth_motion_5",
+            "test_human_motion_law_hand_to_face_wipe_mouth_motion_6",
+            "test_human_motion_law_hand_to_face_wipe_mouth_tangle",
             "test_human_motion_law_sweep_touch"
           ],
           "sweep": "reduced"
