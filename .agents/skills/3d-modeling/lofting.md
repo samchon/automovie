@@ -26,6 +26,8 @@ When several authored regions share a physical section, compose their defining 2
 
 Build a relief's height, and every target it blends between, from C2 functions: a C2 ramp and a C2 max over the roll. A hard clamp, max, min or polyline corner in the target becomes a crease in the surface, however finely it is sampled. A relief's window must contain the whole region where its height is nonzero, because a window edge that cuts through a nonzero height leaves a crease as well.
 
+A relief's cast must see the skin it carries. Leave unobserved an observation whose cast meets the skin at a grazing angle: a height along a ray that runs along the skin measures where an edge-on face begins, not how deep the skin lies, so the net builds a cliff there and draws a notch or spikes. A form that no cast sees belongs to the wall as an inflection line, or to a family of its own.
+
 A relief, a cutter and a band are each fitted to the wall they sit on. When a correct change moves that wall, refit them on the new wall. Reverting the wall to keep them restores the defect the change removed.
 
 Choose sections, sweeps, local curve networks and retained volume operations by their geometric and editing contracts. An anatomical or logical name may identify a subdomain of one generating stream rather than another loft. Compare exact conversion and explicitly bounded approximation under their actual premises, keeping valid input meanings and independent expectations. Fewer streams or patches alone establish neither a faster nor a correct result.
