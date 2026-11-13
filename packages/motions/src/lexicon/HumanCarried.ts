@@ -98,10 +98,12 @@ export namespace HumanCarried {
           reason: "a person is carried by someone else",
           fix: "name the carrier",
         });
-      const carrier = context.performer(by);
+      const carrier: IHumanActionContext.IPerformer = context.performer(by);
       const held: IHumanPosture = context.entry.posture;
       const frame = (at: number): carryHumanPosture.IFrame => {
-        const resolved = carrier.bones(context.start + at).get(bone);
+        const resolved: IAutoMovieResolvedBone | undefined = carrier
+          .bones(context.start + at)
+          .get(bone);
         if (resolved === undefined)
           throw new HumanRefusal({
             kind: "parameter",

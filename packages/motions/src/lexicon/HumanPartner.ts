@@ -70,7 +70,11 @@ export namespace HumanPartner {
   export const judoThrow: IHumanMutual<object, "tori" | "uke"> = {
     name: "judoThrow",
     roles: ["tori", "uke"],
-    act: (role, _params, cast) =>
+    act: (
+      role: "tori" | "uke",
+      _params: object,
+      cast: Readonly<Record<"tori" | "uke", string>>,
+    ): IHumanMutual.IAct =>
       role === "tori"
         ? { name: "judoGrip", params: { partner: cast.uke } }
         : { name: "judoBroken", params: { partner: cast.tori } },

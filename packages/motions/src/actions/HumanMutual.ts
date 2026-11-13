@@ -19,7 +19,11 @@ export namespace HumanMutual {
   > = {
     name: "handshake",
     roles: ["one", "other"],
-    act: (role, params, cast) => ({
+    act: (
+      role: "one" | "other",
+      params: Omit<handshake.IParams, "partner">,
+      cast: Readonly<Record<"one" | "other", string>>,
+    ): IHumanMutual.IAct => ({
       name: "handshake",
       params: { ...params, partner: cast[role === "one" ? "other" : "one"] },
     }),
@@ -32,7 +36,11 @@ export namespace HumanMutual {
   > = {
     name: "highFive",
     roles: ["one", "other"],
-    act: (role, params, cast) => ({
+    act: (
+      role: "one" | "other",
+      params: Omit<highFive.IParams, "partner">,
+      cast: Readonly<Record<"one" | "other", string>>,
+    ): IHumanMutual.IAct => ({
       name: "highFive",
       params: { ...params, partner: cast[role === "one" ? "other" : "one"] },
     }),
@@ -45,7 +53,11 @@ export namespace HumanMutual {
   > = {
     name: "handOver",
     roles: ["giver", "receiver"],
-    act: (role, params, cast) =>
+    act: (
+      role: "giver" | "receiver",
+      params: Omit<handOver.IParams, "to">,
+      cast: Readonly<Record<"giver" | "receiver", string>>,
+    ): IHumanMutual.IAct =>
       role === "giver"
         ? { name: "handOver", params: { ...params, to: cast.receiver } }
         : {

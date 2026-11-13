@@ -70,7 +70,11 @@ export namespace HumanSocial {
   > = {
     name: "fistBump",
     roles: ["one", "other"],
-    act: (role, params, cast) => ({
+    act: (
+      role: "one" | "other",
+      params: { window?: AutoMovieMotionMeeting.IWindow },
+      cast: Readonly<Record<"one" | "other", string>>,
+    ): IHumanMutual.IAct => ({
       name: "fistBump",
       params: {
         partner: cast[role === "one" ? "other" : "one"],
@@ -87,16 +91,14 @@ export namespace HumanSocial {
    * role's held glass; without it the toast is mimed and the fists meet.
    * `window`, film seconds, holds the clink over it as `bump`'s does.
    */
-  export const toast: IHumanMutual<
-    {
-      glasses?: Record<"host" | "guest", string>;
-      window?: AutoMovieMotionMeeting.IWindow;
-    },
-    "host" | "guest"
-  > = {
+  export const toast: IHumanMutual<IToast, "host" | "guest"> = {
     name: "toast",
     roles: ["host", "guest"],
-    act: (role, params, cast) => ({
+    act: (
+      role: "host" | "guest",
+      params: IToast,
+      cast: Readonly<Record<"host" | "guest", string>>,
+    ): IHumanMutual.IAct => ({
       name: "fistBump",
       params: {
         partner: cast[role === "host" ? "guest" : "host"],
@@ -117,7 +119,10 @@ export namespace HumanSocial {
   export const rockPaperScissors: IHumanMutual<object, "one" | "other"> = {
     name: "rockPaperScissors",
     roles: ["one", "other"],
-    act: () => ({ name: "shakeFist", params: { count: 3 } }),
+    act: (): IHumanMutual.IAct => ({
+      name: "shakeFist",
+      params: { count: 3 },
+    }),
   };
 
   /** A firm, slow pat or press of the palm on the partner (Laban's press: strong, sustained, direct); the composition gives the region. */
@@ -135,18 +140,14 @@ export namespace HumanSocial {
   });
 
   /** Arm wrestling across a table: both perform `armWrestle` on one point of the table's top, `table` in world metres, and `winner` pins the other after `seconds` of struggle (3 when absent), the forearms ending `pin` degrees from upright (the law's own when absent; an angle past either arm's range is refused with the angle it holds). Register the `armWrestle` law with it. */
-  export const armWrestle: IHumanMutual<
-    {
-      table: { x: number; y: number; z: number };
-      winner: "one" | "other";
-      seconds?: number;
-      pin?: number;
-    },
-    "one" | "other"
-  > = {
+  export const armWrestle: IHumanMutual<IArmWrestle, "one" | "other"> = {
     name: "armWrestle",
     roles: ["one", "other"],
-    act: (role, params, cast) => {
+    act: (
+      role: "one" | "other",
+      params: IArmWrestle,
+      cast: Readonly<Record<"one" | "other", string>>,
+    ): IHumanMutual.IAct => {
       if (params === undefined)
         throw new Error("An arm wrestle states its table point and its winner");
       return {
@@ -166,7 +167,11 @@ export namespace HumanSocial {
   export const thumbWrestle: IHumanMutual<object, "one" | "other"> = {
     name: "thumbWrestle",
     roles: ["one", "other"],
-    act: (role, _params, cast) => ({
+    act: (
+      role: "one" | "other",
+      _params: object,
+      cast: Readonly<Record<"one" | "other", string>>,
+    ): IHumanMutual.IAct => ({
       name: "handshake",
       params: { partner: cast[role === "one" ? "other" : "one"], pumps: 5 },
     }),
@@ -174,15 +179,16 @@ export namespace HumanSocial {
 
   /** A toast of four: two pairs clink at once, host with guest and third with fourth, each as `toast` does. With `at`, a world point in metres, all four bring their glasses to that one point (first pass: the four rims are asked to the same point, so they overlap there; each pair keeps its own instants). `glasses` names each role's held glass; mimed with fists without it. */
   export const toastOfFour: IHumanMutual<
-    {
-      glasses?: Record<"host" | "guest" | "third" | "fourth", string>;
-      at?: { x: number; y: number; z: number };
-    },
+    IToastOfFour,
     "host" | "guest" | "third" | "fourth"
   > = {
     name: "toastOfFour",
     roles: ["host", "guest", "third", "fourth"],
-    act: (role, params, cast) => ({
+    act: (
+      role: "host" | "guest" | "third" | "fourth",
+      params: IToastOfFour,
+      cast: Readonly<Record<"host" | "guest" | "third" | "fourth", string>>,
+    ): IHumanMutual.IAct => ({
       name: "fistBump",
       params: {
         partner:
@@ -202,4 +208,58 @@ export namespace HumanSocial {
       },
     }),
   };
+
+  /**
+   * The shared parameters of `toast`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states what it names and its default.
+   * @evidence contracts/development/design.md#principled-representation The glasses by role and the clink's window.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two optional members, both read by the record's act.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A glass is a prop id the performance already holds.
+   */
+  export interface IToast {
+    /** Each role's held glass, by its prop id; mimed with fists when absent. */
+    glasses?: Record<"host" | "guest", string>;
+
+    /** Film seconds the clink is held over. */
+    window?: AutoMovieMotionMeeting.IWindow;
+  }
+
+  /**
+   * The shared parameters of `armWrestle`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit and default.
+   * @evidence contracts/development/design.md#principled-representation The table's point, the winner and the struggle's time and end.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members, all read by the record's act.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The pin's angle is checked against the arms' range by the law, not here.
+   */
+  export interface IArmWrestle {
+    /** The table's point the hands meet over, world metres. */
+    table: { x: number; y: number; z: number };
+
+    /** The role that pins the other. */
+    winner: "one" | "other";
+
+    /** Seconds of struggle; 3 when absent. */
+    seconds?: number;
+
+    /** The forearms' angle from upright at the pin, degrees; the law's own when absent. */
+    pin?: number;
+  }
+
+  /**
+   * The shared parameters of `toastOfFour`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states what it names and its default.
+   * @evidence contracts/development/design.md#principled-representation The glasses by role and the one meeting point.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two optional members, both read by the record's act.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A glass is a prop id the performance already holds.
+   */
+  export interface IToastOfFour {
+    /** Each role's held glass, by its prop id; mimed with fists when absent. */
+    glasses?: Record<"host" | "guest" | "third" | "fourth", string>;
+
+    /** The one world point all four glasses come to, metres. */
+    at?: { x: number; y: number; z: number };
+  }
 }
