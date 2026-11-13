@@ -68,13 +68,21 @@ jobs:
           node-version: 22.x
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
       - run: pnpm install
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      - id: cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: website/public/baked
           key: bake-${{ matrix.shard }}-${{ hashFiles('packages/archetypes/src/**', 'packages/engine/src/**', 'packages/human/src/**', 'packages/interface/src/**', 'packages/motions/src/**', 'packages/render/src/**', 'website/src/scenes/**', 'website/src/playground/**', 'website/build/bake.ts', 'pnpm-lock.yaml') }}
           restore-keys: bake-${{ matrix.shard }}-
       - name: Bake this share of the scenes
         run: pnpm --filter @automovie/website run bake --runner ${{ matrix.shard }} --runners 6
+      # A take is written as soon as it is baked, so the takes of a share that
+      # refused one are kept for the next run, which bakes only the rest.
+      - if: always() && steps.cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: website/public/baked
+          key: ${{ steps.cache.outputs.cache-primary-key }}
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: baked-${{ matrix.shard }}
