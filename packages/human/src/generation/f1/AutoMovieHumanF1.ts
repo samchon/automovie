@@ -128,6 +128,14 @@ export namespace AutoMovieHumanF1 {
   const TOE_TURN: number = 0.1;
 
   /**
+   * Rings a toe's dome is meshed in (`AutoMovieHumanConicLoft.ITip.rings`). The dome turns its normal a quarter turn from the wall to the
+   * tip, and the cap's twelve rings, at equal steps of the root of the distance to the tip, turned it 6 to 9 degrees each: under flat
+   * shading every toe's tip stood as a bullseye of bands (`toes.front` px 200..260 x 520..570 and 540..600 x 440..500). Thirty turn it
+   * 3 degrees or less each.
+   */
+  const TOE_CAP_RINGS: number = 30;
+
+  /**
    * A toe whose closed end is a round dome: its cap starts as far before its tip as `TOE_DOME` of the mean reach of its section there
    * (the mean of its four extents), so the end is a half ellipsoid on that section.
    *
@@ -155,7 +163,7 @@ export namespace AutoMovieHumanF1 {
     // Only a toe whose fit held an arc under the bound has a corner to space its phases about.
     const { shoulders }: { shoulders: number } = AutoMovieHumanConicSection.offsets(family.layout);
     const cornered: boolean = family.values.slice(shoulders).some((field: number[]): boolean => field.some((x: number): boolean => x < TOE_LEAST));
-    return { ...family, layout, ...(cornered ? { turn: TOE_TURN } : {}), tips: [family.tips![0], { ...end, from: Math.round(from * 100) / 100 }] };
+    return { ...family, layout, ...(cornered ? { turn: TOE_TURN } : {}), tips: [family.tips![0], { ...end, from: Math.round(from * 100) / 100, rings: TOE_CAP_RINGS }] };
   }
 
   /**
