@@ -260,15 +260,12 @@ export namespace AutoMovieMotionHumanTouch {
         // at by `ready`, and on the way back the one it leaves at `relax`.
         arrival: (seconds: number): number =>
           seconds < clock.at("relax") ? clock.at("ready") : clock.at("relax"),
-        ...(props.held === undefined || props.lay !== "upright"
+        ...(props.lay !== "upright"
           ? {}
           : {
               attitude: AutoMovieMotionHumanDrinkingArm.carried(
-                body,
-                side,
-                props.rest,
+                props,
                 goal(props),
-                (seconds: number): number => share(clock, seconds),
               ),
             }),
       },
@@ -437,8 +434,7 @@ export namespace AutoMovieMotionHumanTouch {
         HumanFrame.point(frame, hint),
       );
 
-      // A held rotation turns with the heading and leans with the vessel; the
-      // wrist follows from it so the effector still meets its place.
+      // A held rotation turns with the heading and leans with the vessel.
       const rotation: IAutoMovieQuaternion | undefined =
         props.held === undefined
           ? undefined

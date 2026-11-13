@@ -13,8 +13,8 @@ import { motionHumanSignature as M } from "../internal/motionHumanSignature";
  * extreme bodies (`motionHumanSignature.cells`): every row once and every
  * body at least once, so the cost grows with the rows and not with their
  * product with the bodies. The drinking posture at the lips, the one bound
- * read per body, is `test_human_motion_signature_hand_to_face_drink`'s,
- * staged on every body there.
+ * read per body, is the `test_human_motion_signature_hand_to_face_drink_*`
+ * specs', one per extreme body.
  *
  * Bounds and sources (van Andel, Wolterbeek, Doorenbosch, Veeger and Harlaar
  * 2008, Gait Posture 27:120, the upper-extremity kinematics of functional

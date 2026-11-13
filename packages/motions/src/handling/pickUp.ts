@@ -397,7 +397,12 @@ export namespace pickUp {
                           ? lift * minimumJerk((at - reach - LOAD) / rise).s
                           : 0),
                     },
-              rotation: at < reach ? transport.turn(at) : grasp.rotation,
+              // Lifted, the hand keeps the rotation it showed as the fingers
+              // closed, so what it holds keeps the attitude it was taken in
+              // (a glass stays upright): asking the grip's rotation instead
+              // let a hand that could not reach it at the table turn toward
+              // it on the way up, tipping the object by what it missed.
+              rotation: at < reach ? transport.turn(at) : chosen.shown.rotation,
               bend,
 
               // The grip's own arm solution anchors the whole action, at one

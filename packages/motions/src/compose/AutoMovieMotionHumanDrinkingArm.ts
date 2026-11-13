@@ -19,7 +19,8 @@ import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { AutoMovieMotionHumanArm } from "./AutoMovieMotionHumanArm";
+import type { AutoMovieMotionHumanTouch } from "./AutoMovieMotionHumanTouch";
+import { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
 
 /**
@@ -73,6 +74,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
    * @param side The hand.
    * @param goal The arm's goal, whose rotation lays the vessel's axis.
    * @param referred Whether the fit is held to the goal's own reference (`AutoMovieMotionHumanTouchLaid.reference`), as a touch stroke holds it, or fitted on the posture alone.
+   * @param axis The vessel's axis in the hand's frame, whose reached direction the tilt measures against the asked one; without it the tilt is how far the reached hand carries the direction the goal stands on the world's up.
    * @returns The readings.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the fit, both ways of solving it and the result.
@@ -89,6 +91,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
     side: HumanHand.Side,
     goal: IHumanPosture.IGoal,
     referred: boolean,
+    axis?: IAutoMovieVector3,
   ): IArm {
     const limb: "leftArm" | "rightArm" = `${side}Arm`;
     const pose: IAutoMoviePose = resolveHumanPosture(body, {
@@ -131,7 +134,22 @@ export namespace AutoMovieMotionHumanDrinkingArm {
         )?.constraint ?? null,
       )?.twist ?? null;
     return {
-      tilt: angle(bones.get(`${side}Hand`)!.worldRotation, goal),
+      tilt:
+        axis === undefined
+          ? angle(bones.get(`${side}Hand`)!.worldRotation, goal)
+          : degrees(
+              Vector3.dot(
+                Vector3.normalize(
+                  Quaternion.rotateVector(
+                    bones.get(`${side}Hand`)!.worldRotation,
+                    axis,
+                  ),
+                ),
+                Vector3.normalize(
+                  Quaternion.rotateVector(goal.rotation!, axis),
+                ),
+              ),
+            ),
       elevation: degrees(-arm.y / Math.max(Vector3.length(arm), 1e-9)),
       drop: shoulder.y - elbow.y,
       room:
@@ -143,55 +161,61 @@ export namespace AutoMovieMotionHumanDrinkingArm {
 
   /**
    * The hand's world rotation on the way to a vessel's place and back
-   * (`AutoMovieMotionHumanArm.ICarry.attitude`): turned from the hand's
-   * rotation at its rest angles to the goal's by the carry's share. A blend
-   * of the wrist's angles does not hold a world attitude, since the forearm
-   * turns under the hand on the way; this rotation, solved on the arm as
-   * carried, keeps a glass held upright at both ends upright between them,
-   * and tips it only as its goal tips (`AutoMovieMotionHumanTouch.TIP`).
+   * (`AutoMovieMotionHumanArm.ICarry.attitude`): the hand the carry's blend
+   * gives, turned by the shortest arc that brings the vessel's axis onto the
+   * axis the goal asks at that second, upright until the vessel tips at the
+   * lips (`AutoMovieMotionHumanTouch.TIP`). The swing is removed and the
+   * blend's twist about the axis kept (a swing-twist split), so the arm is
+   * asked no more than the axis needs. A blend of the wrist's angles does not
+   * hold a world attitude, since the forearm turns under the hand on the way.
    *
-   * @param body The body.
-   * @param side The hand.
-   * @param rest The arm's angles before and after the touch.
+   * @param touch The touch: its body, hand, effector and held rotation. The vessel's axis in the hand is the one its held rotation stands upright, or without one the effector's along axis, which an upright lay stands on the world's up.
    * @param goal The touch's goal at a posture and a second.
-   * @param share How far the arm is from its rest to its goal at a second.
-   * @returns The rotation at a posture and a second, world.
+   * @returns The rotation at a posture, a second and the blend's hand rotation, world.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two ends, the share, why the blend does not do and what it keeps.
-   * @evidence contracts/development/implementation.md#principled-implementation Two rotations that both stand the vessel upright differ by a turn about the world's up, so the shorter arc between them keeps it upright throughout.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One forward kinematics at the rest angles and one interpolation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The rest's rotation is read on the posture of the second, so a body that moves under the arm carries it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics per written second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the resolver, `poseBones` and `Quaternion.slerp`.
+   * @evidence contracts/development/common.md#meaningful-documentation States the asked axis, the swing removed, the twist kept and why the blend does not do.
+   * @evidence contracts/development/implementation.md#principled-implementation The vessel's attitude is its axis alone, so only the swing of the blend's hand off the asked axis is removed (the shortest arc), its twist about the axis left free.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One shortest arc per second.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The asked axis is the goal's at the same second, so the vessel tips exactly as the goal does.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per written second.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the touch's goal.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The function closes over its inputs only.
    */
   export function carried(
-    body: IHumanBody,
-    side: HumanHand.Side,
-    rest: AutoMovieMotionHumanArm.IAngles,
+    touch: Pick<
+      AutoMovieMotionHumanTouch.ITouch,
+      "body" | "side" | "rest" | "effector" | "held"
+    >,
     goal: (posture: IHumanPosture, seconds: number) => IHumanPosture.IGoal,
-    share: (seconds: number) => number,
-  ): (posture: IHumanPosture, seconds: number) => IAutoMovieQuaternion {
-    return (posture: IHumanPosture, seconds: number): IAutoMovieQuaternion => {
-      const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
-      delete limbs[`${side}Arm`];
-      const held: IAutoMovieQuaternion = poseBones(
-        body,
-        resolveHumanPosture(body, {
-          ...posture,
-          joints: {
-            ...posture.joints,
-            [`${side}UpperArm`]: rest.upper,
-            [`${side}LowerArm`]: rest.lower,
-            [`${side}Hand`]: rest.hand,
-          },
-          limbs,
-        }),
-      ).get(`${side}Hand`)!.worldRotation;
-      return Quaternion.slerp(
-        held,
+  ): (
+    posture: IHumanPosture,
+    seconds: number,
+    hand: IAutoMovieQuaternion,
+  ) => IAutoMovieQuaternion {
+    const { body, side } = touch;
+    const axis: IAutoMovieVector3 =
+      touch.held === undefined
+        ? AutoMovieMotionHumanTouchEffector.local(body, side, touch.effector)
+            .forward
+        : Quaternion.rotateVector(Quaternion.inverse(touch.held), {
+            x: 0,
+            y: 1,
+            z: 0,
+          });
+    return (
+      posture: IHumanPosture,
+      seconds: number,
+      hand: IAutoMovieQuaternion,
+    ): IAutoMovieQuaternion => {
+      const wanted: IAutoMovieVector3 = Quaternion.rotateVector(
         goal(posture, seconds).rotation!,
-        share(seconds),
+        axis,
+      );
+      return Quaternion.normalize(
+        Quaternion.multiply(
+          arc(Quaternion.rotateVector(hand, axis), wanted, 1),
+          hand,
+        ),
       );
     };
   }
@@ -220,6 +244,22 @@ export namespace AutoMovieMotionHumanDrinkingArm {
       arm.room >= AutoMovieMotionHumanTouchLaid.MARGIN
     );
   }
+}
+
+/** The share of the shorter turn that carries one unit direction onto another; none when they are parallel or opposite. */
+function arc(
+  from: IAutoMovieVector3,
+  to: IAutoMovieVector3,
+  share: number,
+): IAutoMovieQuaternion {
+  const a: IAutoMovieVector3 = Vector3.normalize(from);
+  const b: IAutoMovieVector3 = Vector3.normalize(to);
+  const across: IAutoMovieVector3 = Vector3.cross(a, b);
+  if (!(Vector3.length(across) > 1e-9)) return Quaternion.identity();
+  return Quaternion.fromAxisAngle(
+    Vector3.normalize(across),
+    degrees(Vector3.dot(a, b)) * share,
+  );
 }
 
 /** How far a reached hand carries the vessel's asked axis, degrees: the asked rotation's axis is the up turned back by it, read again through the reached rotation. */

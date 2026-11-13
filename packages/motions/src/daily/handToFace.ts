@@ -16,10 +16,11 @@ import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanIn
 import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
+import { AutoMovieMotionHumanTouchDrink } from "../compose/AutoMovieMotionHumanTouchDrink";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchForm } from "../compose/AutoMovieMotionHumanTouchForm";
 import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTouchLaid";
-import { AutoMovieMotionHumanTouchUpright } from "../compose/AutoMovieMotionHumanTouchUpright";
+import type { AutoMovieMotionHumanTouchUpright } from "../compose/AutoMovieMotionHumanTouchUpright";
 import { AutoMovieMotionHumanVariationDraw } from "../compose/AutoMovieMotionHumanVariationDraw";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
@@ -53,7 +54,9 @@ import { handToFaceSheet } from "./handToFaceSheet";
  * the hand's length, or a bare palm, so the task is performed with no prop
  * and the hand stands where the tool would put it. A grooming task repeats
  * its stroke at the face (rub kinds); eating brings the head forward to meet
- * the spoon (van der Kamp and Steenbergen 1999), reading flexes the head by
+ * the spoon (van der Kamp and Steenbergen 1999), drinking tips the head back
+ * only once the vessel is at the lips, in the drinking phase that follows
+ * the transport (Alt Murphy et al. 2011), reading flexes the head by
  * 35 degrees, inside the 33 to 45 degrees of Lee et al. 2015, and holds the
  * sheet 36.2 cm from the eyes (Bababekova et al. 2011, the mean for text),
  * on the line pitched down by the head's flexion and 15 degrees of the eyes
@@ -256,17 +259,26 @@ export namespace handToFace {
                 : poseBones(body, resolveHumanPosture(body, posture)),
             );
 
-    // The head's place at the face, for the elbow's hint and the arm's
-    // search: the entry with the head turned as it will be, the turn added
-    // to the entry's own head and neck as the head's pulse adds it.
+    // The head turns as the hand arrives, or, drinking from a vessel, once
+    // the vessel is at the lips: the head tips back with the vessel in the
+    // drinking phase, after the transport (Alt Murphy et al. 2006, 2011).
     const turn: AutoMovieMotionHumanJoints.Angles =
       AutoMovieMotionHumanHead.share(0, row.head * modifiers.extent);
-    const atFace: IHumanPosture = AutoMovieMotionHumanJoints.add({
-      channels: AutoMovieMotionHumanJoints.channels(turn),
-      from: 0,
-      to: 0,
-      delta: (): AutoMovieMotionHumanJoints.Angles => turn,
-    }).write(entry, 0);
+    const rises: readonly [string, string] =
+      row.upright === true ? ["ready", "strokeEnd"] : ["start", "ready"];
+
+    // The head's place at the face, for the elbow's hint and the arm's
+    // search: the entry with the head turned as it is on the hand's arrival,
+    // the turn added to the entry's own head and neck as the pulse adds it.
+    const atFace: IHumanPosture =
+      row.upright === true
+        ? entry
+        : AutoMovieMotionHumanJoints.add({
+            channels: AutoMovieMotionHumanJoints.channels(turn),
+            from: 0,
+            to: 0,
+            delta: (): AutoMovieMotionHumanJoints.Angles => turn,
+          }).write(entry, 0);
 
     // The held prop's effector, on the side of a vessel's rim the arm holds
     // upright best at the face.
@@ -326,12 +338,7 @@ export namespace handToFace {
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
     if (row.head !== 0)
       primitives.push(
-        AutoMovieMotionHumanJoints.pulse(
-          clock,
-          ["start", "ready"],
-          ["relax", "end"],
-          turn,
-        ),
+        AutoMovieMotionHumanJoints.pulse(clock, rises, ["relax", "end"], turn),
       );
     // A held tool used as the grasp it was taken up by presents it: the
     // first hand keeps that grasp's rotation at the row's region.
@@ -364,7 +371,7 @@ export namespace handToFace {
       );
       const vessel: AutoMovieMotionHumanTouchUpright.IFacing | undefined =
         row.upright === true && own === null
-          ? AutoMovieMotionHumanTouchUpright.drinking(
+          ? AutoMovieMotionHumanTouchDrink.drinking(
               body,
               atFace,
               side,
@@ -373,11 +380,11 @@ export namespace handToFace {
               hang,
             )
           : undefined;
-      const tipped: AutoMovieMotionHumanTouchUpright.IHeld | undefined =
+      const tipped: AutoMovieMotionHumanTouchDrink.IHeld | undefined =
         own === null
           ? undefined
           : row.upright === true
-            ? AutoMovieMotionHumanTouchUpright.held(
+            ? AutoMovieMotionHumanTouchDrink.held(
                 body,
                 atFace,
                 side,

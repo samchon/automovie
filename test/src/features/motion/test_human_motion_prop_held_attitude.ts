@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanTouch,
-  AutoMovieMotionHumanTouchUpright,
+  AutoMovieMotionHumanTouchDrink,
   HumanChain,
   HumanHabit,
   HumanObject,
@@ -37,13 +37,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    over which it tips, its axis stands within 10 degrees of upright. From
  *    `atMouth` to `relax` its top leans only toward the face (the performer
  *    faces +Z, so the axis's Z part is not positive) and no more than the
- *    lean the law asked plus one `AutoMovieMotionHumanTouchUpright.LEAN_STEP`.
+ *    lean the law asked plus one `AutoMovieMotionHumanTouchDrink.LEAN_STEP`.
  *    The asked lean is the glass's axis carried by the hand rotation the arm
  *    was asked for at `atMouth`. This replaces "within 10 degrees of upright
  *    through the hold": held upright at the lips, the glass asked the elbow
  *    up to the shoulder's height, and a drinker tips the glass at the lips
  *    with the elbow low (Murphy et al. 2011), the arm the hand-to-face law
- *    now admits by the least lean (`AutoMovieMotionHumanTouchUpright.held`).
+ *    now admits by the least lean (`AutoMovieMotionHumanTouchDrink.held`).
  * 2. At `atLips` of `smoke` with a held cigarette, its mouth end lies
  *    within 15 mm of the mouth region.
  *
@@ -156,6 +156,7 @@ export function test_human_motion_prop_held_attitude(): void {
           })
           .handToFace({ task: "drink", prop: "glass" }),
       );
+      const lift: HumanSegment.ISegment = drunk.segments("a")[0]!;
       const drink: HumanSegment.ISegment = drunk.segments("a")[1]!;
       const atMouth: number = instant(drink, "atMouth");
       const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
@@ -163,25 +164,35 @@ export function test_human_motion_prop_held_attitude(): void {
         Quaternion.rotateVector(drunk.prop("glass", seconds).rotation, up);
       const from = (direction: IAutoMovieVector3): number =>
         (Math.acos(Math.min(1, Math.max(-1, direction.y))) * 180) / Math.PI;
-      const step: number = AutoMovieMotionHumanTouchUpright.LEAN_STEP;
+      const step: number = AutoMovieMotionHumanTouchDrink.LEAN_STEP;
 
       // 1a. The carry, until the glass starts to tip.
       let carried: number = 0;
       let worst: string = "";
+      const profile: string[] = [];
       for (let i: number = 0; i <= 16; i++) {
         if (minimumJerk(i / 16).s > 1 - AutoMovieMotionHumanTouch.TIP + 1e-9)
           break;
         const seconds: number =
           drink.start + ((atMouth - drink.start) * i) / 16;
         const now: number = from(axis(seconds));
+        profile.push(`${seconds.toFixed(2)}: ${now.toFixed(1)}`);
         if (now > carried) {
           carried = now;
-          worst = shown(drunk, seconds, axis(seconds));
+          worst = `at ${seconds.toFixed(2)} s of ${drink.start.toFixed(2)} to ${atMouth.toFixed(2)}, ${shown(drunk, seconds, axis(seconds))}`;
         }
+      }
+      // Through the pick-up, from the fingers' closing to the lift's end.
+      const picked: string[] = [];
+      for (let i: number = 0; i <= 6; i++) {
+        const seconds: number =
+          instant(lift, "gripClosed") +
+          ((instant(lift, "lifted") - instant(lift, "gripClosed")) * i) / 6;
+        picked.push(`${seconds.toFixed(2)}: ${from(axis(seconds)).toFixed(1)}`);
       }
       if (!(carried <= 10))
         complaints.push(
-          `${name}: the held glass tilts ${carried.toFixed(1)} degrees while it is carried to the mouth, within 10 expected (${worst})`,
+          `${name}: the held glass tilts ${carried.toFixed(1)} degrees while it is carried to the mouth, within 10 expected (${worst}; ${from(axis(drink.start)).toFixed(1)} degrees as the drink starts, ${from(axis(instant(lift, "gripClosed") + 0.01)).toFixed(1)} as the fingers close, ${from(axis(instant(lift, "lifted") - 0.01)).toFixed(1)} as the glass is lifted (${shown(drunk, instant(lift, "lifted") - 0.01, axis(instant(lift, "lifted") - 0.01))}); through the pick-up ${picked.join(", ")}; through the carry ${profile.join(", ")})`,
         );
 
       // 1b. At the mouth: the lean the law asked, read as the glass's axis
