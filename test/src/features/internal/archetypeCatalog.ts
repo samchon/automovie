@@ -7,6 +7,7 @@ import {
   createBox,
   createCar,
   createBarbell,
+  createBench,
   createCareItem,
   createCart,
   createClub,
@@ -21,6 +22,10 @@ import {
   createLoad,
   createKettlebell,
   createLongGun,
+  createParallelBars,
+  createPlyoBox,
+  createPullUpBar,
+  createRack,
   createLongTool,
   createMotorcycle,
   createPell,
@@ -211,6 +216,28 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     `kettlebell`,
     (seed?: number | string): Archetype => createKettlebell({}, seed),
   );
+  add(
+    `bench`,
+    (seed?: number | string): Archetype => createBench({}, seed),
+  );
+  add(
+    `plyo-box`,
+    (seed?: number | string): Archetype => createPlyoBox({}, seed),
+  );
+  add(
+    `rack`,
+    (seed?: number | string): Archetype => createRack({}, seed),
+  );
+  for (const kind of createPullUpBar.KINDS)
+    add(
+      `pull-up-bar-${kind}`,
+      (seed?: number | string): Archetype => createPullUpBar({ kind }, seed),
+    );
+  for (const kind of createParallelBars.KINDS)
+    add(
+      `parallel-bars-${kind}`,
+      (seed?: number | string): Archetype => createParallelBars({ kind }, seed),
+    );
   for (const kind of createBarbell.KINDS)
     add(
       `barbell-${kind}`,
