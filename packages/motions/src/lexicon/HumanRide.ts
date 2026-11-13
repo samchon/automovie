@@ -1,6 +1,5 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
-  IAutoMovieAffordance,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -19,6 +18,7 @@ import { carryHumanPosture } from "../posture/carryHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
+import { HumanRideHands } from "./HumanRideHands";
 
 /**
  * Riding: a seated person carried by a support that moves by itself, such
@@ -240,102 +240,10 @@ export namespace HumanRide {
         )?.point;
         if (began !== undefined) pedals.push({ side, id, began });
       }
-      const grips: Partial<Record<"left" | "right", IAutoMovieVector3>> = {};
-      for (const side of ["left", "right"] as const) {
-        const id: string | undefined = context.params.hands?.[side];
-        if (id !== undefined && support.prop.points[id] === undefined)
-          throw new HumanRefusal({
-            kind: "affordance",
-            axis: "hands",
-            value: id,
-            feasible: {
-              kind: "alternatives",
-              values: Object.keys(support.prop.points),
-            },
-            reason: `${on} has no point ${id} for the ${side} hand`,
-            fix: "name one of the support's points",
-          });
-        if (id !== undefined)
-          grips[side] = Vector3.add(
-            origin.position,
-            Quaternion.rotateVector(
-              origin.rotation,
-              support.prop.points[id]!.point,
-            ),
-          );
-      }
 
-      // A rider whose arms do not reach what the hands hold leans the trunk forward until they do, as a cyclist does to the bar.
-      const lean: number = HumanMountRider.lean(context.body, seated, grips);
-
-      // What a hand holds, where the support has it at a film second: the point and its normal, and the axis a handle is wrapped about, its frame's +X, carried with the support.
-      const gripAt = (
-        id: string,
-        film: number,
-        frame: IHumanProp.IFrame,
-      ): Parameters<typeof HumanMountRider.hold>[3] => {
-        const rest: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
-          support.prop.points[id]!;
-        const part:
-          | { point: IAutoMovieVector3; normal: IAutoMovieVector3 }
-          | undefined = support.prop.point?.(id, film);
-        const affordance: IAutoMovieAffordance | undefined =
-          support.prop.affordances?.find(
-            (a: IAutoMovieAffordance): boolean => a.id === id,
-          );
-        const handle: IAutoMovieQuaternion | undefined =
-          affordance?.frame.rotation;
-        return {
-          point:
-            part?.point ??
-            Vector3.add(
-              frame.position,
-              Quaternion.rotateVector(frame.rotation, rest.point),
-            ),
-          normal:
-            part?.normal ??
-            Quaternion.rotateVector(frame.rotation, rest.normal),
-
-          // The grip's own radius, half the width across it the object states.
-          ...(affordance?.aperture === undefined
-            ? {}
-            : { radius: affordance.aperture / 2 }),
-          ...(handle === undefined
-            ? {}
-            : {
-                axis: Quaternion.rotateVector(
-                  Quaternion.multiply(frame.rotation, handle),
-                  { x: 1, y: 0, z: 0 },
-                ),
-              }),
-        };
-      };
-
-      // Each holding hand's fingers, closed once on the support's own colliders where it stands when the ride begins.
-      const closures: Partial<
-        Record<"left" | "right", IHumanPosture["joints"]>
-      > = {};
-      for (const side of ["left", "right"] as const) {
-        const id: string | undefined = context.params.hands?.[side];
-        if (id === undefined) continue;
-        if ((support.prop.shapes ?? []).length === 0)
-          throw new HumanRefusal({
-            kind: "affordance",
-            axis: "hands",
-            value: id,
-            feasible: null,
-            reason: `${on} declares no colliders; a hand that holds closes its fingers on them`,
-            fix: "give the support the shapes the fingers close on, or leave the hands free",
-          });
-        closures[side] = HumanMountRider.closed(
-          context.body,
-          side,
-          HumanMountRider.leant(seated, lean),
-          gripAt(id, context.start, origin),
-          support.prop.shapes!,
-          origin,
-        );
-      }
+      // The hands: the points they hold, the lean that brings them in reach and the fingers closed on the support (`HumanRideHands`).
+      const { lean, gripAt, closures }: HumanRideHands.IHands =
+        HumanRideHands.of(context, on, support, seated, origin);
       const saddle: string | undefined = context.params.seat;
       if (saddle !== undefined && support.prop.points[saddle] === undefined)
         throw new HumanRefusal({
