@@ -1,7 +1,6 @@
 import { type IAutoMovieIntent, type IAutoMovieSchedule, resolveAutoMovieSchedule } from "@automovie/engine";
 import type { AutoMovieMotionTarget } from "@automovie/interface";
 import type { HumanActionKey } from "../HumanActionKey";
-import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -15,6 +14,7 @@ import type { IHumanProp } from "./IHumanProp";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
+import { HumanPerformanceOverlays } from "./HumanPerformanceOverlays";
 import type { HumanObstacle } from "./HumanObstacle";
 import type { HumanPerformanceState } from "./HumanPerformanceState";
 
@@ -372,70 +372,15 @@ export namespace HumanPerformancePlace {
         throw error instanceof HumanRefusal ? error.locate(where) : error;
       }
     };
-    if (over && previous !== undefined) {
-      // The overlay takes what its plan claims, which the carrier must yield
-      // and no other overlay of the same span may hold.
-      const channels: readonly AutoMovieMotionHumanChannel[] =
-        plan.channels ?? [];
-      const yielded: readonly AutoMovieMotionHumanChannel[] =
-        previous.law.yields ?? [];
-      const kept: AutoMovieMotionHumanChannel[] = channels.filter(
-        (c: AutoMovieMotionHumanChannel): boolean => !yielded.includes(c),
-      );
-      if (kept.length !== 0)
-        throw new HumanRefusal({
-          kind: "channel",
-          axis: "over",
-          value: kept,
-          feasible: { kind: "alternatives", values: [...yielded] },
-          reason: `${name} claims ${channels.join(", ")}, and ${previous.name} keeps ${kept.join(", ")} for itself (it yields ${yielded.join(", ") || "nothing"})`,
-          fix: `perform ${name} over an action that yields those channels, or as an action of its own`,
-        });
-      const end: number = start + plan.duration;
-      for (const other of person.overlays) {
-        if (!(other.end > start + 1e-9 && other.entryTime < end - 1e-9))
-          continue;
-        const shared: AutoMovieMotionHumanChannel[] = channels.filter(
-          (c: AutoMovieMotionHumanChannel): boolean =>
-            other.channels.includes(c),
-        );
-        if (shared.length !== 0)
-          throw new HumanRefusal({
-            kind: "channel",
-            axis: "over",
-            value: shared,
-            reason: `${name} claims ${channels.join(", ")} while ${other.name} (${other.id}) claims ${other.channels.join(", ")}: both take ${shared.join(", ")} from ${start.toFixed(2)} s`,
-            fix: `give one of them the other hand, or let ${other.name} end first (put ${name} after it in the same overlay)`,
-          });
-      }
-      const overlay: HumanSegment.IOverlay = {
-        index: person.overlays.length,
-        entry: entries.length,
-        id: intent.anchor ?? name,
+    if (over && previous !== undefined)
+      return HumanPerformanceOverlays.place(self, person, previous, intent, entries, {
         name,
         params,
         law,
         context,
         plan,
         start,
-        entryTime: start,
-        end,
-        channels,
-      };
-      HumanPerformanceContacts.hold(person, overlay, true);
-      self.riding.add(entries.length);
-      person.overlays.push(overlay);
-      if (intent.anchor !== undefined)
-        self.anchors.set(
-          intent.anchor,
-          Object.assign(overlay, { subject: intent.subject }),
-        );
-      return {
-        duration: plan.duration,
-        ...(plan.contact === undefined ? {} : { contact: plan.contact }),
-        events: plan.events.map((e) => ({ name: e.name, share: e.share })),
-      };
-    }
+      });
     const active: number = (1 - share) * plan.duration;
     const segment: HumanSegment.ISegment = {
       index: person.segments.length,
