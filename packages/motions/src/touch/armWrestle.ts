@@ -34,9 +34,11 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * The forearms turn about the line through the two elbows: upright from
  * `set`, swaying `SWAY` degrees through the struggle from `go`, then down to
  * the pin's angle (`PIN` degrees when none is asked) toward the winner's
- * left by `pin`, the trunk bending and turning to that side with the arm
- * (`BEND`, `TWIST`) and the lean re-solved as it rolls, an angle past what
- * trunk and arm hold being refused with the angle they hold, and back up to leave from `relax`. The
+ * left by `pin`, and back up to leave from `relax`. An angle past what the
+ * arm holds with its elbow in place (the fitted elbow within `HELD` of its
+ * place, as far as upright) is refused with the angle it holds. The trunk
+ * holds its lean and does not follow the arm: how far a pinned loser's trunk
+ * is pulled is a force exchange between the two, which #3439 owns. The
  * author declares the winner (#3350's outcome-first rule).
  *
  * First pass: the elbow's bearing on the table is not declared as a contact
@@ -45,7 +47,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the geometry both roles share, how the elbow is placed, the phases with their events and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation A law record whose two roles read the same table point and the same two bodies, the pivot of the contest being the elbows' line.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the parameters, three constants and the plan.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the parameters, four constants and the plan.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The elbow is placed by the arm's two lengths, not by a correction pass; no body or table is special-cased.
  */
 export namespace armWrestle {
@@ -66,13 +68,7 @@ export namespace armWrestle {
   /** How far from upright the forearms end at the pin when none is asked, degrees (provisional: the back of the loser's hand a hand's breadth off the table). */
   export const PIN: number = 70;
 
-  /** How far the trunk bends to the pin's side with the forearm a quarter turn from upright, degrees (provisional, inside the trunk's side bend). */
-  export const BEND: number = 20;
-
-  /** How far the chest turns toward the pin's side with the forearm a quarter turn from upright, degrees (provisional, inside the trunk's rotation). */
-  export const TWIST: number = 30;
-
-  /** How much further above or below the table's top than with the forearm upright the displayed elbow may lie for a pin's angle to count as held, metres (the campaign's contact bound). */
+  /** How much further from its place on the table's top than with the forearm upright the displayed elbow may lie for a pin's angle to count as held, metres (the campaign's contact bound). */
   export const HELD: number = 0.015;
 
   /**
@@ -96,7 +92,7 @@ export namespace armWrestle {
     /** Seconds of struggle from `go` to the start of the pin; 3 when absent. */
     seconds?: number;
 
-    /** How far from upright the forearms end at the pin, degrees; both roles give the same one. `PIN` when absent. An angle this role's arm cannot hold with its elbow on the table is refused with the largest it can. */
+    /** How far from upright the forearms end at the pin, degrees; both roles give the same one. `PIN` when absent. An angle this role's arm cannot hold with its elbow on its place on the table is refused with the largest it can. */
     pin?: number;
   }
 
@@ -108,10 +104,10 @@ export namespace armWrestle {
    * @throws {HumanRefusal} When the struggle's length is negative, no lean from the hips puts the shoulder an upper arm from the elbow's place on the table, or the pin's angle lies outside 0 to 90 degrees or past what this arm holds with its elbow in place.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives the geometry and the phases.
-   * @evidence contracts/development/implementation.md#principled-implementation The clasp height and the two elbows follow from the two forearms; the lean is the root of the shoulder-to-elbow distance less the upper arm, bisected over the trunk's pitch with the trunk rolled as each whole degree of the turn rolls it; the forearm's turn is a rotation about the elbows' line, which keeps both forearms' lengths; the pin's range is read from the arm the posture resolver fits.
+   * @evidence contracts/development/implementation.md#principled-implementation The clasp height and the two elbows follow from the two forearms; the lean is the root of the shoulder-to-elbow distance less the upper arm, bisected over the trunk's pitch; the forearm's turn is a rotation about the elbows' line, which keeps both forearms' lengths; the pin's range is read from the arm the posture resolver fits, by the elbow's whole place.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared geometry, the lean, the clock, the posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A lean that cannot close the distance throws; the sway is a fixed sine, not a draw, so the two roles stay together.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One bisection of twenty-four trunk resolves per whole degree of the turn, kept once solved, and one posture resolve per five degrees up to the asked pin at plan time; constant work per frame before the posture resolve.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One bisection of twenty-four trunk resolves and one posture resolve per five degrees up to the asked pin at plan time; constant work per frame before the posture resolve.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to the bow's trunk pitch, the trunk resolver, the posture resolver and the arm carry.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the base plan, the geometry and the entry's arm angles.
    */
@@ -192,101 +188,64 @@ export namespace armWrestle {
       },
     });
 
-    // The trunk rolls with the arm: it bends to the pin's side and turns its
-    // chest toward it by the forearm's share of a quarter turn, half in the
-    // spine and half in the chest. The spine's side bend is about its +Z,
-    // negative to the performer's left, and its twist about +Y turns the
-    // chest to the left (`HUMANOID_JOINT_AXES`); `toLeft` is 1 when the pin
-    // goes to this performer's left and -1 when to the right.
-    const toLeft: number = Vector3.dot(
-      left,
-      Vector3.cross(up, Vector3.scale(own, -1)),
-    );
-    const rolled = (posture: IHumanPosture, degrees: number): IHumanPosture => {
-      const share: number = (toLeft * degrees) / 90;
-      const joints: IHumanPosture["joints"] = { ...posture.joints };
-      for (const bone of ["spine", "chest"] as const) {
-        const was: readonly [number, number, number] = joints[bone] ?? [
-          0, 0, 0,
-        ];
-        joints[bone] = [
-          was[0],
-          was[1] - (BEND / 2) * share,
-          was[2] + (TWIST / 2) * share,
-        ];
-      }
-      return { ...posture, joints };
-    };
-
-    // The lean at a turn: the shoulder an upper arm from the elbow with the
-    // trunk rolled as that turn rolls it, kept per whole degree.
-    const short = (pitch: number, degrees: number): number =>
+    // The lean: the shoulder an upper arm from the elbow. The trunk does not
+    // follow the arm: how far a pinned loser's trunk is pulled is a matter
+    // of the forces between the two (#3439), which this law does not
+    // exchange; a trunk rolled toward the pin by a set share grew the lean
+    // and carried the head over the losing forearm, which cut the pin short.
+    const short = (pitch: number): number =>
       Vector3.length(
         Vector3.subtract(
-          HumanTrunk.resolve(body, leaned(pitch, rolled(entry, degrees))).get(
+          HumanTrunk.resolve(body, leaned(pitch, entry)).get(
             `${side}UpperArm`,
           )!.worldPosition,
           elbow,
         ),
       ) - upperArm;
-    const leans: Map<number, number> = new Map();
-    const lean = (whole: number): number => {
-      const kept: number | undefined = leans.get(whole);
-      if (kept !== undefined) return kept;
-      let low: number = -20;
-      let high: number = 70;
-      if (!(short(low, whole) * short(high, whole) <= 0))
-        throw new HumanRefusal({
-          kind: "reach",
-          axis: "table",
-          value: `${(short(high, whole) * 1000).toFixed(0)} mm`,
-          feasible: {
-            kind: "alternatives",
-            values: [
-              "a table nearer the shoulder's height",
-              "a seat at the table",
-            ],
-          },
-          reason: `With the forearm ${whole} degrees from upright no lean from the hips puts the shoulder an upper arm from the elbow's place on the table: it stays ${(short(low, whole) * 1000).toFixed(0)} mm off leaning 20 degrees back and ${(short(high, whole) * 1000).toFixed(0)} mm off leaning 70 degrees forward`,
-          fix: "sit the performer at the table, or give a table point nearer the shoulder",
-        });
-      for (let i: number = 0; i < 24; i++) {
-        const mid: number = (low + high) / 2;
-        if (short(low, whole) * short(mid, whole) <= 0) high = mid;
-        else low = mid;
-      }
-      leans.set(whole, (low + high) / 2);
-      return (low + high) / 2;
-    };
-    const pitched = (degrees: number): number => {
-      const floor: number = Math.floor(degrees);
-      return (
-        lean(floor) + (lean(floor + 1) - lean(floor)) * (degrees - floor)
-      );
-    };
+    let low: number = -20;
+    let high: number = 70;
+    if (!(short(low) * short(high) <= 0))
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "table",
+        value: `${(short(high) * 1000).toFixed(0)} mm`,
+        feasible: {
+          kind: "alternatives",
+          values: [
+            "a table nearer the shoulder's height",
+            "a seat at the table",
+          ],
+        },
+        reason: `No lean from the hips puts the shoulder an upper arm from the elbow's place on the table: it stays ${(short(low) * 1000).toFixed(0)} mm off leaning 20 degrees back and ${(short(high) * 1000).toFixed(0)} mm off leaning 70 degrees forward`,
+        fix: "sit the performer at the table, or give a table point nearer the shoulder",
+      });
+    for (let i: number = 0; i < 24; i++) {
+      const mid: number = (low + high) / 2;
+      if (short(low) * short(mid) <= 0) high = mid;
+      else low = mid;
+    }
+    const lean: number = (low + high) / 2;
 
-    // The body at a turn: rolled, leant, the arm on its goal.
+    // The body at a turn: leant, the arm on its goal.
     const set = (
       posture: IHumanPosture,
       degrees: number,
-      share: number,
-    ): IHumanPosture =>
-      armed(
-        leaned(pitched(degrees) * share, rolled(posture, degrees * share)),
-        degrees,
-      );
-    pitched(0);
+      envelope: number,
+    ): IHumanPosture => armed(leaned(lean * envelope, posture), degrees);
     // The pin stops at this arm's own range: past it the arm leaves the
-    // elbow's place for its other solution, which only a force would do.
+    // elbow's place for its other solution, which only a force would do. The
+    // place is read whole, its height and its position on the top: an arm
+    // that slides its elbow along the top has left it too.
     const asked: number = p.pin ?? PIN;
     HumanBound.within("pin", asked, 0, 90);
-    // The elbow is read by its height: it may bear anywhere on the top.
     const off = (degrees: number): number =>
-      Math.abs(
-        poseBones(
-          body,
-          resolveHumanPosture(body, set(entry, degrees, 1)),
-        ).get(`${side}LowerArm`)!.worldPosition.y - elbow.y,
+      Vector3.length(
+        Vector3.subtract(
+          poseBones(body, resolveHumanPosture(body, set(entry, degrees, 1))).get(
+            `${side}LowerArm`,
+          )!.worldPosition,
+          elbow,
+        ),
       );
     const upright: number = off(0);
     if (!(off(asked) <= upright + HELD)) {
@@ -313,7 +272,7 @@ export namespace armWrestle {
         axis: "pin",
         value: asked,
         feasible: { kind: "range", minimum: 0, maximum: most, unit: "degrees" },
-        reason: `With the forearm ${asked} degrees from upright the elbow leaves the table's top by ${(off(asked) * 1000).toFixed(0)} mm, against ${(upright * 1000).toFixed(0)} mm upright: the arm holds the place up to ${most} degrees (${read(0)}; ${read(asked)})`,
+        reason: `With the forearm ${asked} degrees from upright the elbow leaves its place on the table's top by ${(off(asked) * 1000).toFixed(0)} mm, against ${(upright * 1000).toFixed(0)} mm upright: the arm holds the place up to ${most} degrees (${read(0)}; ${read(asked)})`,
         fix: "ask a pin within that angle for both roles; an arm forced past its range is not this law's",
       });
     }

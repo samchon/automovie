@@ -1,4 +1,3 @@
-import { Quaternion } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
   HumanChain,
@@ -46,15 +45,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 5. Each pelvis stays within 10 mm of where sitting left it, at `pin` (the
  *    campaign's bound for a supported body, #3358).
  *
- * 6. At `pin` the loser's chest faces further toward the pin's side than at
- *    `go`, by at least a sixth of the pin's angle (provisional size; the
- *    claim is the direction): the trunk rolls with the arm.
- *
  * @evidence contracts/development/testing.md#behavioral-verification Seats two performers, joins them through the public mutual join and reads displayed joints; elbows off the table, hands apart, a pin to the wrong side or a body that leaves its seat fails.
  * @evidence contracts/development/testing.md#independent-expectations The winner and the side of the pin are what arm wrestling is; the 10 mm and the frame are the campaign's; the other bounds are provisional and stated as such.
  * @evidence contracts/development/testing.md#distinguishing-cases Two statures, the two decisive instants, the winner's and the loser's side.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds one two-person performance read at two instants; it runs locally and wherever CI runs the human motion tests.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule, the stage and the 6 scenarios with their bounds.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule, the stage and the 5 scenarios with their bounds.
  */
 export function test_human_motion_social_arm_wrestle(): void {
   const bodies: Record<"a" | "b", IHumanBody> = {
@@ -216,18 +211,6 @@ export function test_human_motion_social_arm_wrestle(): void {
   if (!(fallen.x - table.x >= 0.5 * stood * Math.sin(radians)))
     complaints.push(
       `pin: the loser's wrist lies ${mm(fallen.x - table.x)} mm to the winner's left of the table's point, at least ${mm(0.5 * stood * Math.sin(radians))} mm expected`,
-    );
-
-  // 6. The loser's chest turns toward the pin's side, +X.
-  const faces = (seconds: number): number =>
-    Quaternion.rotateVector(
-      performance.bones("b", seconds).get("chest")!.worldRotation,
-      { x: 0, y: 0, z: 1 },
-    ).x;
-  const least: number = Math.sin(((angle / 6) * Math.PI) / 180);
-  if (!(faces(pin) - faces(go) >= least))
-    complaints.push(
-      `pin: the loser's chest faces ${(faces(pin) - faces(go)).toFixed(3)} further toward the pin's side than at go, as the sine of its turn, at least ${least.toFixed(3)} (a sixth of the ${angle} degree pin) expected`,
     );
 
   // 5. Still seated.

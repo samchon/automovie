@@ -129,6 +129,7 @@ export * from "./posture/HumanColliders";
 export * from "./posture/HumanFoot";
 export * from "./posture/HumanFrame";
 export * from "./posture/HumanHand";
+export * from "./posture/HumanTrunkTurn";
 export * from "./posture/IHumanPosture";
 export * from "./posture/resolveHumanPosture";
 export * from "./skill/HumanSkill";

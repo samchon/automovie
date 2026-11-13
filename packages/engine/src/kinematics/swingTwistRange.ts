@@ -151,6 +151,40 @@ export namespace swingTwistRange {
   }
 
   /**
+   * How far a rotation lies inside a swing-twist range, degrees: the least
+   * of the swing's room to the region's radius on its great circle and the
+   * twist's room to either end of its interval; negative outside, where it
+   * is the larger of the two parts `overshoot` adds, negated.
+   *
+   * @param q The joint's rest-relative rotation.
+   * @param constraint The constraint, with `swingTwist`.
+   * @param joint The joint's axes and rest frame.
+   * @returns Degrees; positive inside, 0 on the edge, negative outside.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the parts, their unit and the sign.
+   * @evidence contracts/development/implementation.md#principled-implementation The same two limits `overshoot` measures past, measured from inside, so a caller can keep a joint a margin inside its range.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading, one radius and one interval.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The twist is aliased to the interval as `overshoot` aliases it.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work once the radius table is built.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads `read` and the cached `radius`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function room(
+    q: IAutoMovieQuaternion,
+    constraint: IAutoMovieJointConstraint,
+    joint: IJoint,
+  ): number {
+    const reading: IReading = read(q, joint);
+    const twist: IAutoMovieAngleRange = constraint.swingTwist!.twist;
+    const turned: number = alias(reading.twist, twist);
+    return Math.min(
+      radius(constraint, joint, reading.azimuth) - reading.swing,
+      turned - twist.min,
+      twist.max - turned,
+    );
+  }
+
+  /**
    * A rotation brought into a swing-twist range: its direction brought back
    * along its great circle from the rest direction to the region's radius
    * there, and its twist clamped to its interval. A rotation inside is

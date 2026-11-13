@@ -61,12 +61,16 @@ import { makeRng, randomUnitQuaternion } from "../internal/random";
  *    turns of 128.4, -103.8 and -80.2 from rest) lie inside it, and each with
  *    the forearm wound a further 60 degrees about the arm, away from rest's
  *    turn, lies outside.
+ * 6. The room: along the paths of 4, a rotation's room is negative exactly
+ *    where its overshoot is positive (to a billionth of a degree), and a
+ *    rotation projected from outside has a room of 0 within a millionth of
+ *    a degree (the projection lands on the edge).
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the public reading, measure and projection on the humanoid's own axes and frames; a reversed twist sign, a region with a hole along a ray, a range the region misses, a projection that moves a rotation inside or steps between two near rotations fails with the joint and the numbers.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public reading, measure, room and projection on the humanoid's own axes and frames; a reversed twist sign, a region with a hole along a ray, a range the region misses, a projection that moves a rotation inside or steps between two near rotations fails with the joint and the numbers.
  * @evidence contracts/development/testing.md#independent-expectations The sign comes from what external rotation does to a forearm; the region's content from the clinical intervals through the forward conversion; continuity from the steps' sizes; nothing is read back from the radius table.
  * @evidence contracts/development/testing.md#distinguishing-cases Both shoulders and both hips, both readings of a direction by the seeded triples, rotations inside and outside, and paths across the region's edge.
  * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic on engine tables; it runs in the CI test job.
- * @evidence contracts/development/common.md#meaningful-documentation States the joints, their intervals and the 5 scenarios with their bounds.
+ * @evidence contracts/development/common.md#meaningful-documentation States the joints, their intervals and the 6 scenarios with their bounds.
  */
 export function test_kinematics_swing_twist_range(): void {
   const complaints: string[] = [];
@@ -167,6 +171,9 @@ export function test_kinematics_swing_twist_range(): void {
     let worst: { value: number; at: string } = { value: 0, at: "" };
     let outside: { value: number; at: string } = { value: 0, at: "" };
     let moved: number = 0;
+    let disagree: number = 0;
+    let disagreed: string = "";
+    let edge: number = 0;
     for (let path: number = 0; path < 40; ++path) {
       const a: IAutoMovieQuaternion = randomUnitQuaternion(rng);
       const b: IAutoMovieQuaternion = randomUnitQuaternion(rng);
@@ -178,6 +185,14 @@ export function test_kinematics_swing_twist_range(): void {
           here,
           joint,
         );
+        // 6. The room and the overshoot agree on inside and outside.
+        const room: number = swingTwistRange.room(here, constraint, joint);
+        const past: number = swingTwistRange.overshoot(here, constraint, joint);
+        if (
+          ((past > 1e-9 && room > -1e-9) || (past === 0 && room < -1e-9)) &&
+          disagree++ === 0
+        )
+          disagreed = `path ${path} step ${k}: room ${room.toFixed(6)}, overshoot ${past.toFixed(6)}`;
         const twist: IAutoMovieAngleRange = constraint.swingTwist!.twist;
         const beyondTwist: number = Math.min(
           ...[-360, 0, 360].map((k: number): number =>
@@ -206,6 +221,11 @@ export function test_kinematics_swing_twist_range(): void {
         );
         if (over > outside.value)
           outside = { value: over, at: `path ${path} step ${k}` };
+        if (past > 0)
+          edge = Math.max(
+            edge,
+            Math.abs(swingTwistRange.room(projected, constraint, joint)),
+          );
         if (
           swingTwistRange.overshoot(here, constraint, joint) === 0 &&
           turn(projected, here) > 1e-3
@@ -237,6 +257,14 @@ export function test_kinematics_swing_twist_range(): void {
         previous = projected;
       }
     }
+    if (disagree > 0)
+      complaints.push(
+        `${bone}: ${disagree} rotations where the room and the overshoot disagree on inside, first ${disagreed}`,
+      );
+    if (edge > 1e-6)
+      complaints.push(
+        `${bone}: a rotation projected from outside has a room of ${edge.toFixed(6)} degrees, on the edge (0) expected`,
+      );
     if (moved > 0)
       complaints.push(
         `${bone}: ${moved} rotations inside the range are moved by the projection`,
