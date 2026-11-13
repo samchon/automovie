@@ -1,5 +1,6 @@
 import { walk } from "../actions/walk";
 import { carryHang } from "../handling/carryHang";
+import { pushSled } from "../handling/pushSled";
 import { HumanActionRow } from "../law/HumanActionRow";
 
 /**
@@ -21,4 +22,9 @@ export namespace HumanSportCarry {
 
   /** The loads of a farmer's walk held at the sides with the arms hanging, performed over `farmersWalk`: the composition names the prop in each hand and how long. */
   export const farmersHold = HumanActionRow.of("farmersHold", carryHang, {});
+
+  /** A sled push: the handles of a pushed load held in both hands through a slow walk, the trunk leaning 45 degrees into it (provisional). The composition gives the sled and where to. */
+  export const sledPush = HumanActionRow.of("sledPush", pushSled, {
+    lean: 45,
+  });
 }
