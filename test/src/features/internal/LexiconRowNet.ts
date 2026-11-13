@@ -208,6 +208,8 @@ export namespace LexiconRowNet {
     // Loads held at the sides need the props in the hands, which `test_human_motion_sport_carry` stages; a sled push needs the sled, which `test_human_motion_sport_sled` stages.
     "farmersHold",
     "sledPush",
+    // A photograph needs the camera in hand, which `test_human_motion_hand_verdicts_photograph` stages.
+    "photograph",
     // A doorway, a car and a door's leaf need an obstacle, an opening or a door, which `test_human_motion_travel_obstacles`, `test_human_motion_travel_car` and `test_human_motion_travel_door_leaf` stage.
     "passThrough",
     "getIn",

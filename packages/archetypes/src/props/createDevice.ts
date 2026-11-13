@@ -51,7 +51,7 @@ const NAMES: Readonly<Record<createDevice.Kind, string>> = {
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is modelled and how the device is oriented.
- * @evidence contracts/development/implementation.md#principled-implementation A dimensioned box per device; a hold's `aperture` is the slab's thickness along the hand's approach, which is what the collider measures there, and a camera's grip is its own upright bar of the body's depth.
+ * @evidence contracts/development/implementation.md#principled-implementation A dimensioned box per device; a hold's `aperture` is the slab's thickness along the hand's approach, which is what the collider measures there, and a camera's grip is its own upright bar of the body's depth, its far end the other hand's hold of the same depth, as a camera is held in both hands.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build the slab, then each kind's contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bezel, button or lens detail beyond the one barrel that makes a camera a camera.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most three parts.
@@ -126,6 +126,20 @@ export function createDevice(
       frame: ArchetypeFrame.facing(
         Vector3.create(-width / 2 + grip, height / 2, 0),
         Vector3.create(-1, 0, 0),
+        Vector3.create(0, 1, 0),
+      ),
+      extent: null,
+      grip: "power",
+      aperture: depth,
+      length: height,
+    });
+    // The other hand's hold: the body's far (+X) end, wrapped as the grip.
+    builder.affordance({
+      id: "support",
+      kind: "handle",
+      frame: ArchetypeFrame.facing(
+        Vector3.create(width / 2 - grip, height / 2, 0),
+        Vector3.create(1, 0, 0),
         Vector3.create(0, 1, 0),
       ),
       extent: null,
@@ -250,12 +264,19 @@ export namespace createDevice {
    * The affordance ids:
    *
    * - `grip`: the hold, a power grip: across the back of a phone or a remote, on a camera's grip bar at its `-X` end.
+   * - `support`: a camera's other hold, the far `+X` end of its body, where the second hand steadies it.
    * - `pinch`: a lateral pinch at the bottom edge of a phone or a remote.
    * - `screen`: the face that is looked at: a phone's front, a camera's back.
    * - `lens`: the face that looks: a phone's rear lens, a camera's lens front.
    * - `button`: a camera's shutter release on its top, a remote's keys on its face.
    */
-  export type Affordance = "grip" | "pinch" | "screen" | "lens" | "button";
+  export type Affordance =
+    | "grip"
+    | "pinch"
+    | "support"
+    | "screen"
+    | "lens"
+    | "button";
 
   /**
    * The free dimensions, metres unless stated:

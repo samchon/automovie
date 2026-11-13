@@ -112,7 +112,7 @@ export namespace HumanHeldUse {
         feasible: null,
         reason:
           "a grasp kept through an act brings a held prop's point to a region of the performer's own body, and this act names no held prop, no point or no such region",
-        fix: "name the held prop and its point at a region of the performer's own body, or leave out the grasp",
+        fix: `pick up a prop by a ${kept.grasp.handle} handle for this use${kept.point === undefined ? "" : ` with its ${kept.point}`} and name it as the prop, at a region of the performer's own body, or leave out the grasp`,
       });
     return key(context, side, kept.prop, kept.point, kept.grasp, region);
   }

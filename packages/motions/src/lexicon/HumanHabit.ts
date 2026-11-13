@@ -41,8 +41,21 @@ export namespace HumanHabit {
     pace: "slow",
   });
 
-  /** A photograph through a camera's viewfinder: both hands bring it to the eye, one at each side of it with the palms toward each other, the fingers ahead and the thumbs up; the viewfinder lies 0.4 of a hand inside each palm and 0.2 behind the grip (provisional, half a compact camera's width and depth). */
+  /**
+   * A photograph through a camera's viewfinder, with the camera in hand: the
+   * right hand took it up by its `grip` for this use (`pickUp` with `use: {
+   * tip: "screen", line: "across", at: { region: "noseBridge" } }`), brings
+   * its back to the bridge of the nose as that grasp presents it, and the
+   * left hand takes its `support` end, the device archetype's compact camera
+   * (`createDevice({ kind: "camera" })`) declaring all three. Without the
+   * camera in hand the row is refused: no hand holds the attitude an implied
+   * camera would ask at the eye. The camera's own points replace the
+   * task's implied effector.
+   */
   export const photograph = HumanActionRow.of("photograph", handToFace, {
+    point: "screen",
+    grasp: { handle: "grip", line: "across" },
+    other: "support",
     task: {
       region: "noseBridge",
       other: "noseBridge",

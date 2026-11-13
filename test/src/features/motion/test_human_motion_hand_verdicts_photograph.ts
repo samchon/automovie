@@ -1,15 +1,12 @@
 import { createDevice } from "@automovie/archetypes";
-import { Quaternion } from "@automovie/engine";
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanAuditContinuity,
   HumanChain,
   HumanHabit,
   HumanObject,
   HumanPerformance,
+  HumanRefusal,
   type HumanSegment,
   HumanSignature,
   type IAutoMovieMotionHumanAuditMeasure,
@@ -32,11 +29,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * implied tool's facing, the right hand stood at the forearm's twist and
  * the wrist's deviation limits and its arm changed solution between two
  * frames (a 20.7 mm step); the grasp chosen for the use asks only what the
- * grip was taken for. The device archetype's compact camera declares one
- * handle, so the stand-in adds its far end as a second handle (a film-props
- * follow-up for the archetype). The whole verdict report took a quarter of
- * an hour on this row, so the test reads the two bounds the row has broken,
- * on one body and a short hold of 0.3 s.
+ * grip was taken for. The camera is the device archetype's compact camera,
+ * which declares the grip, the far end the left hand takes and the back.
+ * The whole verdict report took a quarter of an hour on this row, so the
+ * test reads the two bounds the row has broken, on one body and a short
+ * hold of 0.3 s.
  *
  * Scenarios, on the average man:
  * 1. At the middle of the hold the two wrists are at least half a hand's
@@ -45,50 +42,25 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 2. No joint centre steps more than 5 mm anywhere in the film, read at 6
  *    samples a second with every departing interval quartered (the verdict
  *    report's own continuity bound).
+ * 3. Without a camera in hand the row is refused, a `parameter` refusal on
+ *    `grasp` that names the `grip` handle and the `screen`.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Picks the camera up and performs the row through the public chain and reads displayed joint centres; hands on one spot or an arm that changes its solution between two instants fails, with the posture around the step printed.
  * @evidence contracts/development/testing.md#independent-expectations The 5 mm step is the verdict report's bound for any human motion; the half hand is a compact camera's width, provisional and stated as such.
- * @evidence contracts/development/testing.md#distinguishing-cases The two bounds this row broke; the other rows' full reports are its siblings'.
+ * @evidence contracts/development/testing.md#distinguishing-cases The two bounds this row broke and the row without its camera; the other rows' full reports are its siblings'.
  * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and one archetype and reads one short film; it runs locally and wherever CI runs the human motion tests.
- * @evidence contracts/development/common.md#meaningful-documentation States what the row was, the held camera and its stand-in, why the reading is cut to two bounds, one body and a short hold, and the 2 scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation States what the row was, the held camera, why the reading is cut to two bounds, one body and a short hold, and the 3 scenarios.
  */
 export function test_human_motion_hand_verdicts_photograph(): void {
   const body: IHumanBody = motionHumanBody("m-average");
-
-  // The compact camera with its far end declared as a second handle: the
-  // grip's frame turned half round the vertical to the body's other end.
   const camera = createDevice({ kind: "camera" });
-  const grip: IAutoMovieAffordance = camera.affordance("grip");
-  const width: number = camera.dimensions.width!;
-  const depth: number = camera.dimensions.thickness!;
-  const support: IAutoMovieAffordance = {
-    ...grip,
-    id: "support",
-    frame: {
-      ...grip.frame,
-      translation: {
-        x: width / 2 - depth / 2,
-        y: grip.frame.translation.y,
-        z: grip.frame.translation.z,
-      },
-      rotation: Quaternion.normalize(
-        Quaternion.multiply(
-          Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 180),
-          grip.frame.rotation,
-        ),
-      ),
-    },
-  };
   const performance: HumanPerformance = new HumanPerformance({
     seed: "verdict",
     laws: [HumanHabit.photograph],
     props: [
       HumanObject.prop(
         "camera",
-        {
-          affordances: [...camera.affordances, support],
-          shapes: () => camera.shapes(),
-        },
+        camera,
         {
           at: {
             x: -body.measure.shoulderHalfWidth,
@@ -114,14 +86,9 @@ export function test_human_motion_hand_verdicts_photograph(): void {
         handle: "grip",
         use: { tip: "screen", line: "across", at: { region: "noseBridge" } },
       })
-      .registered("photograph", {
-        seconds: 0.3,
-        prop: "camera",
-        point: "screen",
-        grasp: { handle: "grip", line: "across" },
-        other: "support",
-      }).node,
-  });  const complaints: string[] = [];
+      .registered("photograph", { seconds: 0.3, prop: "camera" }).node,
+  });
+  const complaints: string[] = [];
 
   // 1. The hands at the camera's two sides.
   const placed: HumanSegment.ISegment = performance.segments("a")[1]!;
@@ -226,5 +193,40 @@ export function test_human_motion_hand_verdicts_photograph(): void {
         .join(" | ")}`,
     );
   }
+  // 3. Without the camera in hand.
+  let refused: string = "planned";
+  try {
+    new HumanPerformance({
+      seed: "verdict",
+      laws: [HumanHabit.photograph],
+      performers: [
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+      ],
+      composition: HumanChain.subject("a")
+        .stand({ seconds: 0.3 })
+        .registered("photograph", { seconds: 0.3 }).node,
+    });
+  } catch (error) {
+    refused =
+      error instanceof HumanRefusal
+        ? `${error.kind} ${error.axis} ${error.fix}`
+        : String(error);
+  }
+  if (
+    !(
+      refused.startsWith("parameter grasp ") &&
+      refused.includes("grip") &&
+      refused.includes("screen")
+    )
+  )
+    complaints.push(
+      `the row without a camera: ${refused}, a parameter refusal on grasp naming the grip and the screen expected`,
+    );
   TestValidator.equals("a photograph's two hands", complaints, []);
 }
