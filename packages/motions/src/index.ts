@@ -234,6 +234,7 @@ export * from "./HUMAN_GRAMMAR";
 export * from "./lexicon/HUMAN_LEXICON";
 export * from "./lexicon/HUMAN_LEXICON_FAMILIES";
 export * from "./lexicon/HUMAN_LEXICON_SCHEMAS";
+export * from "./lexicon/HUMAN_LEXICON_SCHEMA_DATA";
 export * from "./lexicon/IHumanLexiconParams";
 export * from "./lexicon/HumanMount";
 export * from "./lexicon/HumanMountOn";

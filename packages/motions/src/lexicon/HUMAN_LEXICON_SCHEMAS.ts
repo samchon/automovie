@@ -1,4 +1,4 @@
-import schemas from "./HUMAN_LEXICON_SCHEMAS.json";
+import { HUMAN_LEXICON_SCHEMA_DATA } from "./HUMAN_LEXICON_SCHEMA_DATA";
 
 /**
  * The JSON schema of every lexicon row's open parameters, by row name: the
@@ -14,7 +14,8 @@ import schemas from "./HUMAN_LEXICON_SCHEMAS.json";
  * @evidence contracts/development/design.md#minimal-and-owned-surface The one record the website reads.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is written by hand; a stale file fails CI.
  */
-export const HUMAN_LEXICON_SCHEMAS: HUMAN_LEXICON_SCHEMAS.ICollection = schemas;
+export const HUMAN_LEXICON_SCHEMAS: HUMAN_LEXICON_SCHEMAS.ICollection =
+  HUMAN_LEXICON_SCHEMA_DATA;
 
 /**
  * Companion types of {@link HUMAN_LEXICON_SCHEMAS}.

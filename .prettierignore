@@ -3,3 +3,5 @@
 **/dist/**
 .wiki/**
 **/*.json
+# Written by the lexicon schema generator beside its JSON.
+packages/motions/src/lexicon/HUMAN_LEXICON_SCHEMA_DATA.ts
