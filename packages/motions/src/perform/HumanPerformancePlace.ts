@@ -258,6 +258,7 @@ export namespace HumanPerformancePlace {
         partner?:
           | IHumanActionContext.IPartner
           | readonly IHumanActionContext.IPartner[],
+        window?: AutoMovieMotionMeeting.IWindow,
       ): AutoMovieMotionMeeting.IMeeting => {
         const own: AutoMovieMotionMeeting.IRole = {
           name: role,
@@ -273,7 +274,7 @@ export namespace HumanPerformancePlace {
               ? [partner]
               : partner;
         if (others.length === 0)
-          return AutoMovieMotionMeeting.of(kind, [own], context);
+          return AutoMovieMotionMeeting.of(kind, [own], context, window);
 
         // The role planned first computes the meeting; every other reads
         // that record while it still lies ahead of its own start. The key
@@ -285,7 +286,7 @@ export namespace HumanPerformancePlace {
           ),
         ]
           .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))
-          .join("|")}`;
+          .join("|")}|${window?.from ?? ""}|${window?.to ?? ""}`;
         const kept = self.meetings.get(key);
         if (
           kept !== undefined &&
@@ -311,6 +312,7 @@ export namespace HumanPerformancePlace {
               ),
             ],
             context,
+            window,
           );
         self.meetings.set(key, { subject: intent.subject, meeting });
         return meeting;

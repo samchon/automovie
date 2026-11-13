@@ -1,4 +1,5 @@
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
+import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { handToFace } from "../daily/handToFace";
 import { HumanActionRow } from "../law/HumanActionRow";
 import type { IHumanMutual } from "../law/IHumanMutual";
@@ -62,13 +63,19 @@ export namespace HumanSocial {
     task: "sip",
   });
 
-  /** A fist bump between two people: both perform `fistBump`. */
-  export const bump: IHumanMutual<object, "one" | "other"> = {
+  /** A fist bump between two people: both perform `fistBump`. With `window`, film seconds, the fists meet no earlier than its `from` and part at its `to` (`AutoMovieMotionMeeting.IWindow`). */
+  export const bump: IHumanMutual<
+    { window?: AutoMovieMotionMeeting.IWindow },
+    "one" | "other"
+  > = {
     name: "fistBump",
     roles: ["one", "other"],
-    act: (role, _params, cast) => ({
+    act: (role, params, cast) => ({
       name: "fistBump",
-      params: { partner: cast[role === "one" ? "other" : "one"] },
+      params: {
+        partner: cast[role === "one" ? "other" : "one"],
+        ...(params?.window === undefined ? {} : { window: params.window }),
+      },
     }),
   };
 
@@ -78,9 +85,13 @@ export namespace HumanSocial {
    * clink's height was read), the glass upright, so the rims meet. Each
    * performs `fistBump` with its glass as the prop. `glasses` names each
    * role's held glass; without it the toast is mimed and the fists meet.
+   * `window`, film seconds, holds the clink over it as `bump`'s does.
    */
   export const toast: IHumanMutual<
-    { glasses?: Record<"host" | "guest", string> },
+    {
+      glasses?: Record<"host" | "guest", string>;
+      window?: AutoMovieMotionMeeting.IWindow;
+    },
     "host" | "guest"
   > = {
     name: "toast",
@@ -89,6 +100,7 @@ export namespace HumanSocial {
       name: "fistBump",
       params: {
         partner: cast[role === "host" ? "guest" : "host"],
+        ...(params?.window === undefined ? {} : { window: params.window }),
         ...(params?.glasses === undefined
           ? {}
           : { prop: params.glasses[role] }),

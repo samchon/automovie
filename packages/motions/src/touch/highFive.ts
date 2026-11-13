@@ -18,8 +18,10 @@ import { HumanHeld } from "../handling/HumanHeld";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
+import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { poseBones } from "../posture/poseBones";
 
 /**
  * A high five, a low five or a fist bump between two standing partners: both
@@ -95,6 +97,9 @@ export namespace highFive {
 
     /** The prop's point that meets, one of its affordance ids; `lip` when absent. */
     point?: string;
+
+    /** The film seconds the hands meet over (`AutoMovieMotionMeeting.IWindow`), which both roles give alike: they meet no earlier than `from`, each hand leaving its rest only its own reach's time before, and part at `to`; the natural meeting when absent. */
+    window?: AutoMovieMotionMeeting.IWindow;
 
     /** A world point the hand is brought to in place of the pair's own meeting point, metres: the one point several pairs meet at, as glasses in a toast of four. The pair's shared instants are kept. The pair's own point when absent. */
     at?: IAutoMovieVector3;
@@ -191,6 +196,7 @@ export namespace highFive {
       meeting(kind, side),
       "slapper",
       { role: "slapper", subject: p.partner },
+      p.window,
     );
     const local: AutoMovieMotionMeeting.ITiming = AutoMovieMotionMeeting.local(
       met,
@@ -216,12 +222,30 @@ export namespace highFive {
                 ? Vector3.normalize(back)
                 : paired.normal,
           };
-    const reach: number = Math.max(0.05, local.ready);
+    // A meeting a window holds later than this hand needs is waited for at
+    // rest: the hand leaves only its own reach's time before it.
+    const own: number = AutoMovieMotionHumanTiming.transport(
+      Vector3.length(
+        Vector3.subtract(
+          AutoMovieMotionMeeting.place(met, "meet", entry).point,
+          HumanHand.frame(
+            body,
+            poseBones(body, context.entry.pose),
+            side,
+            kind === "fist" ? "fist" : "palm",
+            "relaxed",
+          ).point,
+        ),
+      ),
+    );
+    const lead: number =
+      p.window === undefined ? 0 : Math.max(0, local.ready - Math.max(0.05, own));
+    const reach: number = Math.max(0.05, local.ready - lead);
     const timed: AutoMovieMotionClock.IClock = AutoMovieMotionClock.phrase({
       prepare: reach,
       attack: 0,
       hold: Math.max(0, local.relax - local.ready),
-      retract: reach,
+      retract: p.window === undefined ? reach : Math.max(0.05, own),
     });
     const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
       timed.duration,
@@ -312,8 +336,47 @@ export namespace highFive {
       }),
       contact: "meet",
     });
+    const waited: IHumanActionPlan = lead > 0 ? delayed(plan, lead) : plan;
     return p.prop === undefined
-      ? plan
-      : HumanHeld.kept(context, plan, side, p.prop);
+      ? waited
+      : HumanHeld.kept(context, waited, side, p.prop);
+  }
+
+  /**
+   * A plan begun later: the body holds the plan's first posture for `lead`
+   * seconds, then performs it.
+   *
+   * @param plan The plan.
+   * @param lead Seconds of waiting before it, positive.
+   * @returns The longer plan, its events and contact windows at the same film seconds after the wait.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is held, for how long, and where the instants move.
+   * @evidence contracts/development/implementation.md#principled-implementation Waiting at rest is the plan's first posture held; every share is rescaled to the longer duration so each instant keeps its seconds after the wait.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record of the same plan with its time moved.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The posture is the plan's own, read at a clamped second; nothing is written for the wait.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the plan's events and windows.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The record closes over the plan.
+   */
+  export function delayed(
+    plan: IHumanActionPlan,
+    lead: number,
+  ): IHumanActionPlan {
+    const duration: number = plan.duration + lead;
+    const share = (s: number): number =>
+      (lead + s * plan.duration) / duration;
+    return {
+      ...plan,
+      duration,
+      events: plan.events.map((e) => ({ ...e, share: share(e.share) })),
+      contacts: plan.contacts.map((c: IHumanContactWindow) =>
+        c.from <= 0 && c.to >= 1
+          ? c
+          : { ...c, from: c.from <= 0 ? 0 : share(c.from), to: share(c.to) },
+      ),
+      ...(plan.contact === undefined ? {} : { contact: plan.contact + lead }),
+      posture: (seconds: number): IHumanPosture =>
+        plan.posture(Math.max(0, seconds - lead)),
+    };
   }
 }

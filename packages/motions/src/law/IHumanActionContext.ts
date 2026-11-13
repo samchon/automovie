@@ -118,13 +118,16 @@ export interface IHumanActionContext<P = object> {
    * @param kind The kind of mutual action.
    * @param role This performer's role in it.
    * @param partner The other performer and their role, or every other one of a meeting of three or more; absent when alone.
+   * @param window The film seconds the meeting holds over, which every role states alike (`AutoMovieMotionMeeting.IWindow`); its natural instants when absent.
    * @returns The meeting.
    * @throws {Error} When no such performer exists, or the kind lacks a role.
+   * @throws {HumanRefusal} When the window closes before the contact can be made.
    */
   meeting(
     kind: AutoMovieMotionMeeting.IKind,
     role: string,
     partner?: IHumanActionContext.IPartner | readonly IHumanActionContext.IPartner[],
+    window?: AutoMovieMotionMeeting.IWindow,
   ): AutoMovieMotionMeeting.IMeeting;
 
   /**
