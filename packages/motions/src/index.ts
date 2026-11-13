@@ -257,3 +257,5 @@ export * from "./lexicon/HumanWeaponTrack";
 export * from "./sport/cartwheel";
 export * from "./exercise/WorkoutGym";
 export * from "./lexicon/HumanSportGym";
+export * from "./exercise/WorkoutFeet";
+export * from "./exercise/WorkoutLoad";

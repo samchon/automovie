@@ -41,6 +41,11 @@ export namespace HumanSportGym {
     kind: "frontRaise",
   });
 
+  /** Shrugs, without the weights. */
+  export const shrug = HumanActionRow.of("shrug", workout, {
+    kind: "shrug",
+  });
+
   /** Calf raises. */
   export const calfRaise = HumanActionRow.of("calfRaise", workout, {
     kind: "calfRaise",

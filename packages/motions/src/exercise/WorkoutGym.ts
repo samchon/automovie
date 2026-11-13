@@ -8,7 +8,7 @@ import { WorkoutStance } from "./WorkoutStance";
  * bodyweight exercises a programme names beside the ones the other tables
  * hold, shown here without their load. Standing: the bent-over row, the
  * curl, the overhead triceps extension, the lateral and the front raise,
- * the calf raise, the front and the goblet squat, the split squat, the wall
+ * the shrug, the calf raise, the front and the goblet squat, the split squat, the wall
  * sit, the Romanian deadlift, the good morning, and the power clean and the
  * snatch as their phases. On the floor: the pike push-up, the superman, the
  * bird dog, the lying leg raise, the bicycle crunch, the Russian twist and
@@ -22,10 +22,9 @@ import { WorkoutStance } from "./WorkoutStance";
  * First pass: no bar, dumbbell or bell is held, so a hand's place is what
  * the arm's angles give; the wall of a wall sit and the bars of a dip are
  * places, not props; the clean and the snatch show their positions in
- * order at a keyed tempo, not the bar's flight; a shrug, a step-up, a box
+ * order at a keyed tempo, not the bar's flight; a step-up, a box
  * jump, an incline or decline push-up and a hip thrust are not here (they
- * need the shoulder girdle's lift or a box or bench under a hand, a foot or
- * the back).
+ * need a box or bench under a hand, a foot or the back).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the kinds, the sources and that the angles are provisional, and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation One `WorkoutKind` per exercise: data over the one planner.
@@ -96,6 +95,7 @@ export namespace WorkoutGym {
     | "tricepsExtension"
     | "lateralRaise"
     | "frontRaise"
+    | "shrug"
     | "calfRaise"
     | "frontSquat"
     | "gobletSquat"
@@ -176,6 +176,12 @@ export namespace WorkoutGym {
       ],
     ),
 
+    /** A shrug: the shoulder girdles lifted 20 degrees toward the ears and lowered, the arms hanging (provisional). */
+    shrug: pair(
+      8,
+      [ExerciseKey.of({}, { elbow: 5 }), 0.8, "lower", "down"],
+      [ExerciseKey.of({}, { elbow: 5, shrug: 20 }), 0.6, "shrug", "top"],
+    ),
     /** A calf raise: both heels lifted over the toes' joints, which stay. */
     calfRaise: WorkoutStance.of(
       ["leftToes", "rightToes"],

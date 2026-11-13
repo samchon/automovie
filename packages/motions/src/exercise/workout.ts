@@ -16,7 +16,6 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
@@ -26,17 +25,18 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
 import { ExerciseKey } from "./ExerciseKey";
+import { WorkoutFeet } from "./WorkoutFeet";
 import { WorkoutFloor } from "./WorkoutFloor";
 import { WorkoutGym } from "./WorkoutGym";
 import { WorkoutHanging } from "./WorkoutHanging";
 import type { WorkoutKind } from "./WorkoutKind";
+import { WorkoutLoad } from "./WorkoutLoad";
 import { WorkoutLying } from "./WorkoutLying";
 import { WorkoutPoses } from "./WorkoutPoses";
 import { WorkoutStanding } from "./WorkoutStanding";
@@ -131,6 +131,9 @@ export namespace workout {
 
     /** Whether the body stays on its support at the end instead of standing up; `false` when absent. */
     stay?: boolean;
+
+    /** The prop the exercise is done with, already held (`WorkoutLoad`); none when absent. */
+    load?: WorkoutLoad.IParams;
 
     /** How it is performed. */
     manner?: AutoMovieMotionManner.IManner;
@@ -245,64 +248,11 @@ export namespace workout {
       ),
       1 / kind.pin.length,
     );
-    // The feet a standing kind never moves are held by the legs' solve on
-    // the places they stand on at the entry.
-    const planted: readonly ("left" | "right")[] =
-      kind.anchor !== "stance" || kind.strides === true
-        ? []
-        : (["left", "right"] as const).filter(
-            (side: "left" | "right"): boolean =>
-              kind.supports.some(
-                (support: WorkoutKind.ISupport): boolean =>
-                  support.part === `${side}Foot` && support.kind === "plant",
-              ),
-          );
-    const pivots: readonly ("left" | "right")[] =
-      kind.anchor !== "stance"
-        ? []
-        : (["left", "right"] as const).filter(
-            (side: "left" | "right"): boolean =>
-              kind.supports.some(
-                (support: WorkoutKind.ISupport): boolean =>
-                  support.part === `${side}Foot` && support.kind === "pivot",
-              ),
-          );
-    const footed = (placed: IHumanPosture): IHumanPosture => {
-      const limbs: IHumanPosture["limbs"] = { ...placed.limbs };
-      for (const side of planted)
-        limbs[`${side}Leg`] = AutoMovieMotionHumanLeg.goal(
-          body,
-          placed,
-          side,
-          {
-            ankle: context.entry.feet[side].ankle,
-            rotation: context.entry.feet[side].rotation,
-          },
-          true,
-        );
-      // A foot the body turns on stays on its ball, turned by the key.
-      for (const side of pivots) {
-        const stance: HumanFoot.IPlacement = {
-          ankle: context.entry.feet[side].ankle,
-          rotation: context.entry.feet[side].rotation,
-        };
-        limbs[`${side}Leg`] = AutoMovieMotionHumanLeg.goal(
-          body,
-          placed,
-          side,
-          HumanFoot.pivot(
-            body,
-            side,
-            "mtp",
-            HumanFoot.point(body, side, "mtp", stance),
-            HumanFoot.heading(stance.rotation) + (placed.yaw - yaw),
-            0,
-          ),
-          true,
-        );
-      }
-      return { ...placed, limbs };
-    };
+    const footed: (placed: IHumanPosture) => IHumanPosture = WorkoutFeet.keep(
+      context,
+      kind,
+      yaw,
+    );
     // Feet or toes that bear on the floor are as high above it as when the
     // body stands on them, and hands as high as a laid palm's wrist; only a
     // body that bears on its trunk is rested by its shapes.
@@ -416,13 +366,15 @@ export namespace workout {
       "rightLeg",
       ...(kind.hands === true ? [] : (["leftArm", "rightArm"] as const)),
     ];
+    const load: WorkoutLoad.ILoad | null =
+      p.load === undefined ? null : WorkoutLoad.of(context, p.load);
     const primitives: IAutoMovieMotionHumanPrimitive[] = [
       {
         channels,
         from: 0,
         to: duration,
         write: (_: IHumanPosture, seconds: number): IHumanPosture =>
-          posture(seconds),
+          load === null ? posture(seconds) : load.apply(posture(seconds)),
       },
     ];
     if (kind.hands === true) {
@@ -485,11 +437,20 @@ export namespace workout {
         support: { kind: "ground" },
       }),
     );
-    const composed: IHumanActionPlan = composeAutoMovieMotionHumanAction({
+    const posed: IHumanActionPlan = composeAutoMovieMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(duration, standing, contacts),
       clock,
       primitives,
     });
+    const composed: IHumanActionPlan =
+      load === null
+        ? posed
+        : {
+            ...posed,
+            contacts: [...posed.contacts, ...load.contacts],
+            holds: load.holds,
+            hands: load.hands,
+          };
     return stay
       ? {
           ...composed,

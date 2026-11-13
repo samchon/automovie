@@ -102,6 +102,9 @@ export namespace ExerciseKey {
 
     /** Wrist flexion, degrees; negative bends the hand back, as a palm laid on the floor under a straight arm is. */
     wrist?: number;
+
+    /** The shoulder girdle's lift, degrees: a shrug. */
+    shrug?: number;
   }
 
   /** The key of relaxed standing. */
@@ -146,6 +149,7 @@ export namespace ExerciseKey {
       joints[`${side}UpperArm`] = [a.shoulder ?? 0, a.raise ?? 5, a.twist ?? 0];
       joints[`${side}LowerArm`] = [a.elbow ?? 12, 0, 0];
       joints[`${side}Hand`] = [a.wrist ?? 0, 0, 0];
+      joints[`${side}Shoulder`] = [0, a.shrug ?? 0, 0];
     }
     joints.spine = trunk.spine ?? [0, 0, 0];
     joints.chest = trunk.chest ?? [0, 0, 0];
