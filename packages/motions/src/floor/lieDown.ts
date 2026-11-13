@@ -65,9 +65,7 @@ export namespace lieDown {
     | "prone"
     | "lateralLeft"
     | "lateralRight"
-    | "sitLong"
-    | "sitCrossed"
-    | "sitSide";
+    | "sitLong";
 
   /**
    * Parameters.
@@ -154,16 +152,8 @@ export namespace lieDown {
       "right",
     ),
 
-    // Seated on the floor (provisional angles; Hemmerich et al. 2006 measure the hip and knee of cross-legged sitting near 90 to 100 and 130 to 150 degrees of flexion with the hips abducted and turned out): the legs ahead, crossed, or folded to the right.
+    // Seated on the floor with the legs ahead (provisional angles). Sitting cross-legged or with the legs folded to one side is not a posture of these angles: a thigh both flexed level and spread needs its shank laid on the floor by the leg solve, which this route of joint angles does not run.
     sitLong: pose(-8, 0, { hip: 82, knee: 5, shoulder: -25, elbow: 15 }),
-    sitCrossed: folded(pose(0, 0, { hip: 95, knee: 135, shoulder: 10, elbow: 40 }), {
-      left: [95, 45, 35],
-      right: [95, 45, 35],
-    }),
-    sitSide: folded(pose(0, 8, { hip: 95, knee: 120, shoulder: 0, elbow: 20 }), {
-      left: [95, -15, -20],
-      right: [95, 40, 30],
-    }),
   };
 
   /** The route of postures to each position, after standing, with each arrival's event. */
@@ -191,14 +181,6 @@ export namespace lieDown {
       sitLong: [
         ["sit", "seatContact"],
         ["sitLong", "seated"],
-      ],
-      sitCrossed: [
-        ["sit", "seatContact"],
-        ["sitCrossed", "seated"],
-      ],
-      sitSide: [
-        ["sit", "seatContact"],
-        ["sitSide", "seated"],
       ],
     };
 
@@ -342,21 +324,6 @@ export namespace lieDown {
       primitives: [lying],
     });
     return sitting ? { ...planned, base: { kind: "seated" } } : planned;
-  }
-
-  /** A floor posture with each thigh's flexion, abduction and twist set apart, for the legs of sitting crossed or to one side. */
-  function folded(
-    posture: IPose,
-    thighs: Record<"left" | "right", readonly [number, number, number]>,
-  ): IPose {
-    return {
-      ...posture,
-      joints: {
-        ...posture.joints,
-        leftUpperLeg: thighs.left,
-        rightUpperLeg: thighs.right,
-      },
-    };
   }
 
   /**

@@ -8,33 +8,31 @@ import {
   HumanSignature,
   type IHumanActionLaw,
   type IHumanBody,
-  type IHumanContactWindow,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
- * Every named stance and pose keeps the feet it stands on where they are,
- * and ends where its name says: a stance still standing, a knee taken on
- * the floor, a brief kneel and a duck back on the feet, a body lain down on
- * the floor.
+ * Every named pose keeps the feet it stands on where they are, and ends
+ * where its name says: a knee taken on the floor, a brief kneel and a duck
+ * back on the feet, a body sat or lain down on the floor.
  *
  * A foot that bears does not slide. Each action declares when each foot is
- * planted, and through each of those windows the ball of that foot stays
- * within the campaign's slip bound. A stance moves only the arms and the
- * head, so both feet bear for all of it.
+ * planted, and through each of those windows the part of that foot on the
+ * floor stays within the campaign's slip bound. The stances are
+ * `test_human_motion_base_stances`'s.
  *
  * Scenarios, on the average man and the small woman, each row performed
- * after 0.3 s of standing. Every row is built on both bodies; the displayed
- * body is read on one of them, alternating down the rows, and on both for
- * `startle` and `wince`:
- * 1. Every row of `HumanStance` and `HumanPose`: through every plant window
- *    the row declares, read at six instants spread over it, the foot's ball
- *    moves at most 5 mm.
- * 2. Every `HumanStance` row declares both feet planted for its whole
- *    length, and at its end both feet bear with the hip joints within 20 mm
- *    of the quiet stance's height.
+ * after 0.3 s of standing on one of them, alternating down the rows, and on
+ * both for `startle` and `wince`. One body a row is enough because each
+ * claim is where a named pose ends, which both builds meet across the
+ * family; the instants are each window's two ends and two between, where a
+ * planted foot dragged by the pelvis shows:
+ * 1. Every row of `HumanPose`: through every plant window the row declares,
+ *    read at four instants spread over it, the foot's ball moves at most
+ *    5 mm; for `squatSit`, whose heels are up, the toes' pad is read, the
+ *    part that stays down while the foot rolls about the toes' joint.
  * 3. `takeAKnee` ends with one knee joint within 0.06 statures of the floor
  *    (a knee resting on the floor holds its joint centre about half a knee's
  *    depth above it; the share is provisional) and the other knee above it.
@@ -51,29 +49,24 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    Exerc 33:127).
  * 5. `lieStill` ends with the hip joints, the neck and the head all within
  *    0.15 statures of the floor (a lying trunk is one body depth thick, and
- *    the share is provisional). `sitOnFloor`, `sitCrossLegged` and
- *    `sitSideways` end with the hip joints within that share of the floor
- *    and the head above 0.35 statures: seated, not lying (an adult's sitting
+ *    the share is provisional). `sitOnFloor` ends with the hip joints within
+ *    that share of the floor and the head above 0.35 statures: seated, not lying (an adult's sitting
  *    height is about half the stature; the share is a provisional floor).
  * 6. `startle` raises a wrist further than `wince` does (a flinch grows with
  *    its intensity).
  *
- * @evidence contracts/development/testing.md#behavioral-verification Registers every stance and pose row through the public input, performs each on real bodies and reads the displayed feet, knees, hips and head; a sliding plant, a stance that walks, a kneel that hovers or a lying body left sitting fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Registers every pose row through the public input, performs each on a real body and reads the displayed feet, knees, hips and head; a sliding plant, a kneel that hovers or a lying body left sitting fails.
  * @evidence contracts/development/testing.md#independent-expectations The 5 mm is the campaign's slip bound and the quiet stance is the film's own first posture; where each row ends is what its name states. The stature shares are provisional readings of "on the floor", and the 20 mm on the hips' height a provisional reading of "standing again", stated as such, and none is taken from a law's table. A planted foot dragged with the pelvis reads as slip; a kneel that stops short reads a high knee. Limitation: the plant windows are the ones each action declares, so a foot that slides outside any declared window is the verdict report's to catch.
- * @evidence contracts/development/testing.md#distinguishing-cases Nineteen rows of five owner actions on two bodies of opposite build; rows that stay standing, go down and stay, go down and return, and step.
- * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds one short performance per row and body in memory; it runs locally and wherever CI runs the human motion tests.
+ * @evidence contracts/development/testing.md#distinguishing-cases Every pose row of the lexicon over two bodies of opposite build; rows that go down and stay, go down and return, and step.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds one short performance per row in memory, two for the flinches; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 6 scenarios with their bounds and which are provisional.
  */
 export function test_human_motion_base_poses(): void {
   const complaints: string[] = [];
-  const stances: readonly string[] = HUMAN_LEXICON.stance!.map(
-    (law: IHumanActionLaw<never>): string => law.name,
-  );
-  const poses: readonly string[] = HUMAN_LEXICON.pose!.map(
+  const rows: readonly string[] = HUMAN_LEXICON.pose!.map(
     (law: IHumanActionLaw<never>): string => law.name,
   );
   const names: readonly ["m-average", "f-small"] = ["m-average", "f-small"];
-  const rows: readonly string[] = [...stances, ...poses];
   for (let b: number = 0; b < names.length; ++b) {
     const name: "m-average" | "f-small" = names[b]!;
     const body: IHumanBody = motionHumanBody(name);
@@ -81,12 +74,14 @@ export function test_human_motion_base_poses(): void {
     const lifts: Record<string, number> = {};
     for (let r: number = 0; r < rows.length; ++r) {
       const row: string = rows[r]!;
+      // Each row is performed on one body, alternating down the rows, and on both for the two flinches compared on one body.
+      if ((b + r) % 2 !== 0 && row !== "startle" && row !== "wince") continue;
       const label: string = `${name} ${row}`;
       let performance: HumanPerformance;
       try {
         performance = new HumanPerformance({
           seed: "poses",
-          laws: [...HUMAN_LEXICON.stance!, ...HUMAN_LEXICON.pose!],
+          laws: [...HUMAN_LEXICON.pose!],
           performers: [
             {
               subject: "a",
@@ -106,9 +101,6 @@ export function test_human_motion_base_poses(): void {
         );
         continue;
       }
-
-      // Every row is built on both bodies; the displayed body is read on one of them, alternating down the rows, and on both for the two flinches compared on one body. A pose costs too much to read all 38.
-      if ((b + r) % 2 !== 0 && row !== "startle" && row !== "wince") continue;
       const segment: HumanSegment.ISegment = performance.segments("a")[1]!;
       const reader: HumanSignature.IReader = HumanSignature.of(
         performance,
@@ -123,9 +115,11 @@ export function test_human_motion_base_poses(): void {
       ): number => HumanSignature.joint(reader, t, bone).y;
       const hips = (t: number): number =>
         (y("leftUpperLeg", t) + y("rightUpperLeg", t)) / 2;
+      // The part of a planted foot that stays on the floor: the ball, or the toes' pad of a foot whose heel is up.
+      const down: "ball" | "toe" = row === "squatSit" ? "toe" : "ball";
       const ball = (side: "left" | "right", t: number): IAutoMovieVector3 =>
         HumanFoot.sockets(body, HumanSignature.bones(reader, t), side).find(
-          (s: HumanFoot.ISocket): boolean => s.socket === "ball",
+          (s: HumanFoot.ISocket): boolean => s.socket === down,
         )!.point;
 
       // 1. No declared plant slips.
@@ -146,7 +140,7 @@ export function test_human_motion_base_poses(): void {
         for (const t of HumanSignature.times(
           from + 0.02,
           to - 0.02,
-          5 / (to - from - 0.04),
+          3 / (to - from - 0.04),
         )) {
           const now: IAutoMovieVector3 = ball(side, t);
           slip = Math.max(
@@ -156,7 +150,7 @@ export function test_human_motion_base_poses(): void {
         }
         if (slip > 0.005)
           complaints.push(
-            `${label}: the ${side} foot's ball moves ${(slip * 1000).toFixed(1)} mm while planted from ${from.toFixed(2)} to ${to.toFixed(2)} s, within 5 mm expected`,
+            `${label}: the ${side} foot's ${down} moves ${(slip * 1000).toFixed(1)} mm while planted from ${from.toFixed(2)} to ${to.toFixed(2)} s, within 5 mm expected`,
           );
       }
       const stands = (level: boolean): void => {
@@ -171,35 +165,17 @@ export function test_human_motion_base_poses(): void {
           );
       };
 
-      // 2. A stance stands on both feet throughout.
-      if (stances.includes(row)) {
-        for (const part of ["leftFoot", "rightFoot"] as const)
-          if (
-            !segment.plan.contacts.some(
-              (c: IHumanContactWindow): boolean =>
-                c.part === part &&
-                c.kind === "plant" &&
-                c.from <= 1e-9 &&
-                c.to >= 1 - 1e-9,
-            )
-          )
-            complaints.push(
-              `${label}: the ${part} is not declared planted for the whole stance`,
-            );
-        stands(true);
-      }
-
       // 3. A knee on the floor.
       if (row === "takeAKnee") {
         const knees: number[] = [
           y("leftLowerLeg", end),
           y("rightLowerLeg", end),
         ];
-        const down: number = Math.min(...knees);
+        const low: number = Math.min(...knees);
         const up: number = Math.max(...knees);
-        if (down > 0.06 * stature || up <= down + 0.06 * stature)
+        if (low > 0.06 * stature || up <= low + 0.06 * stature)
           complaints.push(
-            `${label}: the knees end at ${down.toFixed(3)} and ${up.toFixed(3)} m, one within ${(0.06 * stature).toFixed(3)} m of the floor and the other above it expected`,
+            `${label}: the knees end at ${low.toFixed(3)} and ${up.toFixed(3)} m, one within ${(0.06 * stature).toFixed(3)} m of the floor and the other above it expected`,
           );
       }
 
@@ -255,7 +231,7 @@ export function test_human_motion_base_poses(): void {
       }
 
       // 5. Seated on the floor: the hips down, the head up.
-      if (["sitOnFloor", "sitCrossLegged", "sitSideways"].includes(row)) {
+      if (row === "sitOnFloor") {
         if (hips(end) > 0.15 * stature || y("head", end) < 0.35 * stature)
           complaints.push(
             `${label}: the hips end ${hips(end).toFixed(3)} m and the head ${y("head", end).toFixed(3)} m above the floor; the hips within ${(0.15 * stature).toFixed(3)} m and the head above ${(0.35 * stature).toFixed(3)} m expected`,

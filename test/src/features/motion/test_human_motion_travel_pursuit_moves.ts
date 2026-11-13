@@ -28,10 +28,15 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    at some instant read four times a second. The straight line to its
  *    stop passes the corner 1.2 m off, so only a path through the leader's
  *    turn comes that near (the 0.8 m is a provisional reading of "takes the
- *    turn"). At every one of those instants the two pelvises are 1.2 to
- *    2.6 m apart: no nearer than the edge of Hall's social distance, and no
- *    further than the 2 m they started at plus 0.6 m (a provisional slack
- *    of about one step), because the follower keeps the leader's pace.
+ *    turn"). At every one of those instants the two pelvises are no nearer
+ *    than 1.2 m, the edge of Hall's social distance, and no further than
+ *    the 2 m they started at plus `dv / c`: a follower matches the leader's
+ *    speed with an acceleration of `c` = 1.87 per second times the speed
+ *    difference (Rio, Rhea and Warren 2014, J Vis 14(2):4, Table 1), so a
+ *    leader who gains `dv` opens the gap by `dv / c` before the follower
+ *    has it too. `dv` is the leader's greatest speed, read from her own
+ *    displayed pelvis between those instants; the corner only shortens the
+ *    straight distance between them.
  * 2. A chase cut by proximity (`until` with the chaser's sternum within
  *    1.2 m of the quarry's, the far edge of Hall's personal distance) into
  *    a stand ends earlier than the same chase uncut, and at the cut the two
@@ -43,7 +48,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    the 30 degrees is a provisional floor).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs each pursuit through the public chain and layers and reads the displayed bodies; a follower that cuts the corner, a chase that runs on past reach, or a flight whose head never turns fails.
- * @evidence contracts/development/testing.md#independent-expectations The corner distance is the scene's own geometry, the 1.2 m is Hall's zone edge and the cut distance is the one the composition asks; none is read from the approach law. Limitation: speed matching on the way and the gap through the turn are not read, since the first pass does not model them.
+ * @evidence contracts/development/testing.md#independent-expectations The corner distance is the scene's own geometry, the 1.2 m is Hall's zone edge and the cut distance is the one the composition asks; the gap's bound is the cited speed-matching model applied to the leader's own displayed speed; none is read from the approach law.
  * @evidence contracts/development/testing.md#distinguishing-cases Three behaviours of a pursuit that a standing target never shows: a bent path, a cut on distance and a scheduled layer over a run.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds four short performances in memory, reading a few dozen instants; one pair of bodies, since each claim is geometric and the bands of both orders are `test_human_motion_travel_pursuit`'s.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 3 scenarios with their bounds and which are provisional.
@@ -123,16 +128,26 @@ export function test_human_motion_travel_pursuit_moves(): void {
     let nearest: number = Infinity;
     let least: number = Infinity;
     let most: number = 0;
+    let fastest: number = 0;
+    let before: { t: number; at: IAutoMovieVector3 } | null = null;
     for (const t of HumanSignature.times(follow.entryTime, follow.end, 4)) {
       const at: IAutoMovieVector3 = pelvis(reader, t);
       const ahead: IAutoMovieVector3 = pelvis(led, t);
       nearest = Math.min(nearest, Math.hypot(at.x, at.z - 5));
       least = Math.min(least, Math.hypot(at.x - ahead.x, at.z - ahead.z));
       most = Math.max(most, Math.hypot(at.x - ahead.x, at.z - ahead.z));
+      if (before !== null)
+        fastest = Math.max(
+          fastest,
+          Math.hypot(ahead.x - before.at.x, ahead.z - before.at.z) /
+            (t - before.t),
+        );
+      before = { t, at: ahead };
     }
-    if (least < 1.2 || most > 2.6)
+    const widest: number = 2 + fastest / 1.87;
+    if (least < 1.2 || most > widest)
       complaints.push(
-        `following through a turn: the two pelvises are ${least.toFixed(3)} to ${most.toFixed(3)} m apart on the way, 1.2 to 2.6 m expected`,
+        `following through a turn: the two pelvises are ${least.toFixed(3)} to ${most.toFixed(3)} m apart on the way, 1.2 to ${widest.toFixed(3)} m expected for a leader at ${fastest.toFixed(2)} m/s`,
       );
     if (nearest > 0.8)
       complaints.push(

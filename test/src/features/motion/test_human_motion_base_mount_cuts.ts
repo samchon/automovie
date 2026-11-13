@@ -1,4 +1,4 @@
-import { createHorse, createSeat } from "@automovie/archetypes";
+import { createSeat } from "@automovie/archetypes";
 import {
   HumanChain,
   HumanFrame,
@@ -24,8 +24,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * and walks away, or settles back before leaving the seat. Each is a cut
  * inside a window `sit` or `rise` declares; a cut outside them is refused.
  *
- * Scenarios, on the average man and the small woman, on a bar stool read
- * with its bar and astride a horse's saddle:
+ * Scenarios, the average man on a bar stool read with its bar; the saddle
+ * sat astride is `test_human_motion_base_saddle_cuts`'s, on the small woman:
  * 1. `sit` cut by `stand` at 2 % of its length and at its `commit` event,
  *    while both feet are still on the floor: one second later both feet
  *    bear on the floor and the hip joints stand within 20 mm of the quiet
@@ -43,8 +43,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds each cut through the public chain on real bodies and reads the displayed feet, hips and seat region after it; a cut that leaves the body in the air, crouched or beside the seat, or a forbidden cut that is accepted, fails.
  * @evidence contracts/development/testing.md#independent-expectations Where the body ends after each cut is what the action that took over means; the quiet stance is the film's own first posture, the 20 mm on its hip height a provisional reading margin, and the 10 mm the campaign's bound for a held contact. A plan that ignored its entry and replayed from rest would end beside the seat or off the stance height. Limitation: the instants between the cut and the end are the continuity audit's to judge.
- * @evidence contracts/development/testing.md#distinguishing-cases Every cut window `sit` and `rise` declare, each at an event and at a share, on a seat sat on with the legs ahead and one sat astride, and one cut outside the windows.
- * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds two dozen short performances in memory; it runs locally and wherever CI runs the human motion tests.
+ * @evidence contracts/development/testing.md#distinguishing-cases Every cut window `sit` and `rise` declare, each at an event and at a share, and one cut outside the windows.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and builds eight short performances in memory, reading the first instant and the last of each. One body is enough here because the other build is read on the higher seat by the saddle's test, and the instants are enough because each claim is about where the body ends.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 5 scenarios with their bounds.
  */
 export function test_human_motion_base_mount_cuts(): void {
@@ -52,9 +52,8 @@ export function test_human_motion_base_mount_cuts(): void {
   const where: HumanObject.Placement = { at: { x: 0, y: 0, z: -0.6 }, yaw: 0 };
   const seats: readonly (readonly [string, seated.ISeat])[] = [
     ["the bar stool", HumanObject.seat(createSeat({ kind: "barStool" }), where)],
-    ["the horse", HumanObject.seat(createHorse({}), where)],
   ];
-  for (const name of ["m-average", "f-small"] as const) {
+  for (const name of ["m-average"] as const) {
     const body: IHumanBody = motionHumanBody(name);
     for (const [kind, seat] of seats) {
       const astride: boolean = seat.astride === true;

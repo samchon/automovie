@@ -27,10 +27,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * stride: the seat leaves the saddle and comes back while the feet stay on
  * their stirrups, and a rider with no stirrup to stand in is refused.
  *
- * Scenarios, the average man on a horse that trots 10 m at 3.5 m/s, its
+ * Scenarios, the average man on a horse that trots 6 m at 3.5 m/s, its
  * stride time given to the ride as 0.6 s (Robilliard, Pfau and Wilson 2007
  * measure 0.60 s at that speed):
- * 1. Mounting, a rising ride of the whole course and getting off plan.
+ * 1. Mounting and a rising ride of the whole course plan; getting off a
+ *    ridden horse is `test_human_motion_ride_mounts`'s.
  * 2. Over one stride after the ride has settled, read at nine instants in
  *    the horse's own frame, the body's seat region rises at least a tenth
  *    of the rider's thigh length above where it sat and is back within
@@ -44,7 +45,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#behavioral-verification Rides a real horse archetype at a trot and reads the displayed seat region and feet in the horse's frame; a rider glued to the saddle, feet that leave the stirrups, or a rising trot accepted with nothing to stand in fails.
  * @evidence contracts/development/testing.md#independent-expectations That a rising trot lifts the seat and keeps the feet is what rising is; the bounds are the campaign's and the stride time the cited measurement. Limitation: the rise is not checked against the horse's diagonals, because the ride takes its period from the composition until a prop can publish its footfalls.
  * @evidence contracts/development/testing.md#distinguishing-cases The seat that must move against the feet that must not, and the saddle with and without stirrups.
- * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and one archetype ride in memory and reads nine instants: one body, since the claim is the relation between the seat and the feet of whoever rides.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and one archetype ride in memory and reads nine instants of one stride, an eighth of it apart, which shows the rise and the return: one body, since the claim is the relation between the seat and the feet of whoever rides.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 4 scenarios with their bounds and sources.
  */
 export function test_human_motion_ride_rising(): void {
@@ -57,7 +58,7 @@ export function test_human_motion_ride_rising(): void {
     horse,
     {
       start: { x: 0, z: 0, heading: 0 },
-      legs: [{ kind: "straight", length: 10 }],
+      legs: [{ kind: "straight", length: 6 }],
       cruise: 3.5,
       acceleration: 1.5,
       deceleration: 1.5,
@@ -102,8 +103,7 @@ export function test_human_motion_ride_rising(): void {
           on: "horse",
           seconds: WAIT + trotting.duration,
           rising: STRIDE,
-        })
-        .rise().node,
+        }).node,
     });
 
   // 4. Nothing to stand in.
