@@ -98,6 +98,12 @@ export interface IAutoMovieViewPart {
   samples: number;
 
   /**
+   * The chain's own ring phases when they are not uniform (`IAutoMovieLoftChain.phases`): radians, strictly increasing within one turn
+   * from the first, `samples` of them. Absent, uniform.
+   */
+  phases?: number[];
+
+  /**
    * Features written as heights over windows of the lofted chain's chart,
    * millimetres of station and radians of phase (`IAutoMovieLoftRelief`),
    * composed onto the chain the loft returns (its `reliefs`), so every reader

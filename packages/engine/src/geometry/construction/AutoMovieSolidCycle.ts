@@ -129,7 +129,7 @@ export namespace AutoMovieSolidCycle {
   ): (u: number, v: number) => boolean {
     const prepared: IPrepared =
       cycle.kind === "hole" || cycle.kind === "island"
-        ? { centreV: centre(cycle)[1] }
+        ? { span: span(cycle) }
         : {
             ends: cycle.chart.map(
               (a: [number, number], k: number): [number, number, number] => {
@@ -145,7 +145,7 @@ export namespace AutoMovieSolidCycle {
 
   /** Cycle-invariant values; coordinates and kind are owned unchanged by the caller. */
   interface IPrepared {
-    /** Mean v for hole/island parity, including NaN on an empty chart. */ centreV?: number;
+    /** Lowest and highest unwrapped v of a hole or an island (`span`). */ span?: [number, number];
     /** Original winding endpoint and its integer turn relative to the segment start. */ ends?: [
       number,
       number,
@@ -164,6 +164,45 @@ export namespace AutoMovieSolidCycle {
     return [u, v, Math.round((a[1] - v) / period)];
   }
 
+  /**
+   * The lowest and highest phase of a hole or an island along its own unwrapped chart; `[Infinity, -Infinity]` on an empty chart.
+   *
+   * A hole or an island does not wind round the period, so on the face it bounds one disc, and that disc's images in the unwrapped chart, one
+   * per whole period, do not overlap: a point of the face lies inside the cycle when one of its own images lies inside the cycle's polygon.
+   * Only an image within the span can. A cycle narrower than half a period on either side of its middle has one such image, the one nearest
+   * the middle; a band cut through from rim to rim leaves an island almost a whole period wide, and a cut whose two runs across the band stand
+   * apart in phase leaves one wider than a period, where a point near either end has two images within the span and only one of them lies
+   * inside (f1's ear: an island 6.6 rad wide about 5.6, a triangle at 8.9 read at its image 2.6 and found outside).
+   */
+  function span(cycle: Pick<ICycle, "chart">): [number, number] {
+    let low: number = Infinity;
+    let high: number = -Infinity;
+    // Each point's coordinates are read once, `u` then `v`, as `centre` reads them.
+    for (const p of cycle.chart) {
+      void p[0];
+      const v: number = p[1];
+      low = Math.min(low, v);
+      high = Math.max(high, v);
+    }
+    return [low, high];
+  }
+
+  /** Crossing parity of the ray from `(u, w)` toward lower `u` against a hole's or an island's polygon, `w` already on the polygon's branch. */
+  function crossed(cycle: Pick<ICycle, "chart">, u: number, w: number): boolean {
+    const n: number = cycle.chart.length;
+    let inside: boolean = false;
+    for (let k: number = 0; k < n; k++) {
+      const a: [number, number] = cycle.chart[k]!;
+      const b: [number, number] = cycle.chart[(k + 1) % n]!;
+      if (
+        a[1] > w !== b[1] > w &&
+        u < a[0] + ((w - a[1]) * (b[0] - a[0])) / (b[1] - a[1])
+      )
+        inside = !inside;
+    }
+    return inside;
+  }
+
   /** The original parity and tie arithmetic, with optional invariant values. */
   function read(
     cycle: Pick<ICycle, "kind" | "chart">,
@@ -174,21 +213,20 @@ export namespace AutoMovieSolidCycle {
   ): boolean {
     const n: number = cycle.chart.length;
     if (cycle.kind === "hole" || cycle.kind === "island") {
-      const w: number = shift(
-        v,
-        prepared === undefined ? centre(cycle)[1] : prepared.centreV!,
-        period,
-      );
-      let inside: boolean = false;
-      for (let k: number = 0; k < n; k++) {
-        const a: [number, number] = cycle.chart[k]!;
-        const b: [number, number] = cycle.chart[(k + 1) % n]!;
-        if (
-          a[1] > w !== b[1] > w &&
-          u < a[0] + ((w - a[1]) * (b[0] - a[0])) / (b[1] - a[1])
+      // The image nearest the span's middle first, then any other image of the point within the span (`span`).
+      const [low, high]: [number, number] =
+        prepared === undefined ? span(cycle) : prepared.span!;
+      const w: number = shift(v, (low + high) / 2, period);
+      let inside: boolean = crossed(cycle, u, w);
+      if (period !== undefined && period > 0)
+        for (
+          let k: number = 1;
+          !inside && (w - k * period >= low || w + k * period <= high);
+          k++
         )
-          inside = !inside;
-      }
+          inside =
+            (w - k * period >= low && crossed(cycle, u, w - k * period)) ||
+            (w + k * period <= high && crossed(cycle, u, w + k * period));
       return cycle.kind === "island" ? inside : !inside;
     }
 

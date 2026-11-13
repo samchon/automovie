@@ -13,61 +13,61 @@ import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
  * them: the section is a chain of conics through its four extremes and one median point per quarter, fitted to the convex hull of the reference skin
  * (the path of a taut tape).
  *
- * Source: the f1 reference body cut by this course's own planes over stations 24 to 82 mm, 59 sections 1 mm apart, every
+ * Source: the f1 reference body cut by this course's own planes over stations 24 to 83 mm, 60 sections 1 mm apart, every
  * second one withheld from the fit. Fitted offline by `test/src/reference-conics/FamilyConicBody.ts` (joint least squares over
  * all sections). Regenerated through the engine's view loft from these numbers alone, the reference skin's cut vertices lie
- * 0.07 mm from it on average and at most 0.47 mm. 147 independent numbers.
+ * 0.15 mm from it on average and at most 0.72 mm. 147 independent numbers.
  */
 export const AutoMovieHumanF1FingerRing: AutoMovieHumanConicLoft.IFamily = {
   name: "finger.ring",
-  centres: [AutoMovieHumanF1Joints.ring1, AutoMovieHumanF1Joints.ring2, AutoMovieHumanF1Joints.ring3, AutoMovieHumanF1Joints.beyond(AutoMovieHumanF1Joints.ring2, AutoMovieHumanF1Joints.ring3, 26)],
+  centres: [AutoMovieHumanF1Joints.ring1, AutoMovieHumanF1Joints.ring2, AutoMovieHumanF1Joints.ring3, AutoMovieHumanF1Joints.beyond(AutoMovieHumanF1Joints.ring3, AutoMovieHumanF1Joints.ringPad, 4)],
   halves: [5,5],
   up: [1, 0, 0],
   layout: AutoMovieHumanConicSection.limb(1),
-  knots: [24, 38, 44, 53, 64, 74, 82],
+  knots: [24, 38, 44, 53.5, 64, 74, 83],
   values: [
     // front (+u) extreme: u, mm
-    [9.03, 7.98, 7.62, 6.97, 6.44, 6.54, 5.65],
+    [8.5, 7.93, 7.51, 6.74, 6.4, 5.91, 4.88],
     // front (+u) extreme: v, mm
-    [3.24, -0.77, -0.75, 0.28, -0.39, 1.26, 0.35],
+    [1.26, 0.56, -0.04, 0.53, 0.21, 0.81, 1.06],
     // median fullness f of the arc pair around anchor 1, share
-    [0.3966, 0.4717, 0.4396, 0.4336, 0.4397, 0.3669, 0.4144],
+    [0.4841, 0.4939, 0.4937, 0.4921, 0.4966, 0.4923, 0.5005],
     // side (+v) extreme: u, mm
-    [-1.86, 0.12, -0.47, -1.28, -0.75, -0.49, 0.72],
+    [-0.55, -0.79, -1.32, -1.35, -0.63, -0.74, 0.13],
     // side (+v) extreme: v, mm
-    [8.87, 9, 7.16, 7.05, 5.97, 6.45, 4.94],
+    [8.92, 8.92, 7.13, 6.86, 5.74, 6.12, 4.63],
     // median fullness f of the arc pair around anchor 3, share
-    [0.3287, 0.4714, 0.4282, 0.4227, 0.4524, 0.3698, 0.4065],
+    [0.4923, 0.4962, 0.4966, 0.4954, 0.4969, 0.4938, 0.4966],
     // back (-u) extreme: u, mm
-    [-7.81, -8.72, -8.64, -8.01, -7.63, -6.91, -5.56],
+    [-7.48, -8.44, -8.22, -7.83, -7.52, -6.85, -5.77],
     // back (-u) extreme: v, mm
-    [2.94, 0.35, 0.87, 0.09, -0.57, 1.29, 1.55],
+    [1.19, 0.31, 0.65, 0.71, -0.05, 1.3, 0.7],
     // median fullness f of the arc pair around anchor 5, share
-    [0.4652, 0.4568, 0.454, 0.3296, 0.4627, 0.4192, 0.39],
+    [0.4939, 0.4961, 0.4915, 0.4938, 0.4944, 0.49, 0.4932],
     // side (-v) extreme: u, mm
-    [0.09, 1.32, 0.63, -2.56, 1.02, 0.97, 1.98],
+    [0.23, 0.75, 0.13, -0.78, -0.1, 0.17, 0.4],
     // side (-v) extreme: v, mm
-    [-8.08, -7.56, -7.4, -6.98, -6.09, -4.65, -3.79],
+    [-7.91, -7.5, -7.32, -6.74, -6.03, -4.38, -3.46],
     // median fullness f of the arc pair around anchor 7, share
-    [0.4516, 0.4124, 0.4183, 0.492, 0.3832, 0.3715, 0.2107],
+    [0.4887, 0.4964, 0.491, 0.4931, 0.4932, 0.494, 0.4962],
     // shoulder rho of the arc after anchor 0, share
-    [0.2498, 0.6599, 0.5281, 0.459, 0.6026, 0.3228, 0.7367],
+    [0.5011, 0.5003, 0.4996, 0.4999, 0.4994, 0.5002, 0.4997],
     // shoulder rho of the arc after anchor 1, share
-    [0.7165, 0.4109, 0.5031, 0.4734, 0.5217, 0.4452, 0.4975],
+    [0.498, 0.4999, 0.4997, 0.5006, 0.4999, 0.5004, 0.4999],
     // shoulder rho of the arc after anchor 2, share
-    [0.3842, 0.5999, 0.8006, 0.3368, 0.506, 0.314, 0.94],
+    [0.4987, 0.4994, 0.5, 0.4997, 0.5, 0.4996, 0.5012],
     // shoulder rho of the arc after anchor 3, share
-    [0.1308, 0.4493, 0.3466, 0.5217, 0.545, 0.3877, 0.3007],
+    [0.5008, 0.4998, 0.4999, 0.4996, 0.5, 0.4997, 0.4998],
     // shoulder rho of the arc after anchor 4, share
-    [0.5639, 0.4528, 0.5661, 0.4848, 0.3189, 0.6606, 0.564],
+    [0.5002, 0.5, 0.5008, 0.4998, 0.5002, 0.5011, 0.4993],
     // shoulder rho of the arc after anchor 5, share
-    [0.4177, 0.6244, 0.5632, 0.1396, 0.7095, 0.3604, 0.6995],
+    [0.4989, 0.5001, 0.4997, 0.4998, 0.4993, 0.5005, 0.4986],
     // shoulder rho of the arc after anchor 6, share
-    [0.5143, 0.4575, 0.4772, 0.7108, 0.3446, 0.0814, 0.0632],
+    [0.5002, 0.5002, 0.5005, 0.5001, 0.5003, 0.4996, 0.4994],
     // shoulder rho of the arc after anchor 7, share
-    [0.5049, 0.3486, 0.4014, 0.3975, 0.4845, 0.6192, 0.94],
+    [0.4996, 0.4993, 0.5011, 0.4995, 0.5006, 0.4998, 0.5003],
   ],
 
   // The part closes in a point at `tip`, the station where the reference's own loop vanishes; its cap starts at `from`.
-  tips: [null, {from: 82, tip: 85.88}],
+  tips: [null, {from: 83, tip: 86.13}],
 };

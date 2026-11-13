@@ -1,4 +1,4 @@
-import type { AutoMovieViewAxis, AutoMovieViewLoft as L } from "@automovie/engine";
+import { type AutoMovieViewAxis, type AutoMovieViewLoft as L, realizeAutoMovieConstruction } from "@automovie/engine";
 import { AutoMovieHumanConicLoft as H } from "@automovie/human";
 
 /**
@@ -14,11 +14,31 @@ export namespace FamilyConicLoft {
   export type IStored = H.IFamily;
 
   /** The part's course as the engine reads it. */
-  export const axis: (stored: Pick<IStored, "centres" | "halves" | "up">) => AutoMovieViewAxis.IAxis = H.axis;
+  export const axis: (stored: Pick<IStored, "centres" | "halves" | "up" | "roll">) => AutoMovieViewAxis.IAxis = H.axis;
 
   /** The family's field vector at one station. */
   export const reader: (stored: IStored) => (s: number) => number[] = H.reader;
 
   /** Loft a stored family through the engine at the given stations. */
   export const create: (stored: IStored, stations: number[]) => L.IResult = H.create;
+
+  /**
+   * The refusals of a stored family realized alone as a construction source, the path the figure is built by, over layers `layer` mm apart.
+   *
+   * That path reads every derived number between two stations by the engine's own spline through all of them and admits each section's
+   * native chain there, so a family the view loft admits can still be refused: a cutter whose fields run far outside its sections, and an
+   * ear on a course that turns, both were.
+   */
+  export function refusals(stored: IStored, layer: number = 4): string[] {
+    const first: number = stored.knots[0]!;
+    const last: number = stored.knots.at(-1)!;
+    const count: number = Math.max(2, Math.ceil((last - first) / layer) + 1);
+    const stations: number[] = Array.from({ length: count }, (_: unknown, i: number): number => first + ((last - first) * i) / (count - 1));
+    try {
+      const real = realizeAutoMovieConstruction({ name: "probe." + stored.name, root: { type: "source", name: stored.name, source: stored.name } }, { chord: 0.001, sources: new Map([[stored.name, H.part(stored, stations)]]) });
+      return real.diagnostics.map((diagnostic): string => JSON.stringify(diagnostic));
+    } catch (error) {
+      return [String(error)];
+    }
+  }
 }

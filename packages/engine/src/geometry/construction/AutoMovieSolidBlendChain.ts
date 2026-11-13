@@ -259,9 +259,14 @@ export namespace AutoMovieSolidBlendChain {
    * outward normal at column 0. A join's blend ({@link of}) and a split's
    * bands (`AutoMovieConstructionSplitRealize`) publish through it.
    *
+   * A profiled strip (a port's `IAutoMovieConstructionPort.IProfile`) adds interior layers: at a share `t` of the span, each column's point,
+   * cross derivative and second cross derivative per unit share, so the strip is the piecewise quintic Hermite through its rails and those
+   * cross sections, C2 across each, and its rails keep their own 2-jets.
+   *
    * @param name The chain's name.
    * @param columns The ribbon pairs at uniform phases `2 pi k / n`, `n` a multiple of 4 of at least 8.
    * @param outward The start surface's outward normal at column 0.
+   * @param inner Interior cross sections in increasing share `t` in `(0, 1)`, each with one jet per column; absent, none.
    * @returns The chain and its station span `L`, mm, or null for a nonpositive or nonfinite span or an unusable orientation anchor.
    *
    * @evidence contracts/development/implementation.md#principled-implementation A chain interval whose two layers carry values, slopes and second derivatives is the quintic Hermite in station (`AutoMovieStationHermite`), so copying each ribbon's point, first over `L` and second over `L^2` reproduces the blend columns exactly at the column phases; between them every field is the periodic cubic B-spline interpolant.
@@ -279,6 +284,7 @@ export namespace AutoMovieSolidBlendChain {
       end: { point: Vec3; first: Vec3; second: Vec3 };
     }[],
     outward: Vec3,
+    inner: readonly { t: number; jets: readonly [Vec3, Vec3, Vec3][] }[] = [],
   ): { chain: IAutoMovieLoftChain; length: number } | null {
     const count: number = columns.length;
 
@@ -293,23 +299,21 @@ export namespace AutoMovieSolidBlendChain {
     const L: number = chord / count;
     if (!(Number.isFinite(L) && L > 0)) return null;
 
-    /** One ribbon end's point and its two cross derivatives at a column. */
-    type Pick = (c: (typeof columns)[number]) => [Vec3, Vec3, Vec3];
-
-    /** Two ribbon ends use the same physical chord clock, with station derivatives scaled by L. */
-    const layer: (y: number, pick: Pick) => IAutoMovieLoftChain.ILayer = (
+    /** Every layer uses the same physical chord clock, with station derivatives scaled by L; `rows` holds each column's point and its two cross derivatives. */
+    const layer: (
       y: number,
-      pick: Pick,
+      rows: readonly (readonly [Vec3, Vec3, Vec3])[],
+    ) => IAutoMovieLoftChain.ILayer = (
+      y: number,
+      rows: readonly (readonly [Vec3, Vec3, Vec3])[],
     ): IAutoMovieLoftChain.ILayer => {
-      const rows: [Vec3, Vec3, Vec3][] = columns.map(pick);
-
       /** World X/Z ribbon components in the level storage plane. */
       const plane: (k: 0 | 1 | 2, by: number) => number[] = (
         k: 0 | 1 | 2,
         by: number,
       ): number[] =>
         AutoMovieSplineCurve.interpolate(
-          rows.map((r: [Vec3, Vec3, Vec3]): [number, number] => [
+          rows.map((r: readonly [Vec3, Vec3, Vec3]): [number, number] => [
             r[k][0] * by,
             r[k][2] * by,
           ]),
@@ -321,7 +325,7 @@ export namespace AutoMovieSolidBlendChain {
         by: number,
       ): number[] =>
         AutoMovieSplineCurve.interpolate(
-          rows.map((r: [Vec3, Vec3, Vec3]): [number, number] => [
+          rows.map((r: readonly [Vec3, Vec3, Vec3]): [number, number] => [
             r[k][1] * by,
             0,
           ]),
@@ -346,16 +350,26 @@ export namespace AutoMovieSolidBlendChain {
       rule: "polar",
       samples: count,
       layers: [
-        layer(0, (c: (typeof columns)[number]): [Vec3, Vec3, Vec3] => [
-          c.start.point,
-          c.start.first,
-          c.start.second,
-        ]),
-        layer(L, (c: (typeof columns)[number]): [Vec3, Vec3, Vec3] => [
-          c.end.point,
-          c.end.first,
-          c.end.second,
-        ]),
+        layer(
+          0,
+          columns.map((c: (typeof columns)[number]): [Vec3, Vec3, Vec3] => [
+            c.start.point,
+            c.start.first,
+            c.start.second,
+          ]),
+        ),
+        ...inner.map(
+          (section: { t: number; jets: readonly [Vec3, Vec3, Vec3][] }): IAutoMovieLoftChain.ILayer =>
+            layer(section.t * L, section.jets),
+        ),
+        layer(
+          L,
+          columns.map((c: (typeof columns)[number]): [Vec3, Vec3, Vec3] => [
+            c.end.point,
+            c.end.first,
+            c.end.second,
+          ]),
+        ),
       ],
     };
 

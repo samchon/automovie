@@ -26,14 +26,15 @@ type V3 = [number, number, number];
  * 4. Seam columns (`17 <= k <= 31`): the point lies in `y = 0` within 1e-9 mm and on the seam (within 1e-6 mm of `seam.at` at its arclength share); outside the window (`19 <= k <= 29`) the cross direction is `(0, 1, 0)` for band a and `(0, -1, 0)` for band b within 1e-9 and the second derivative vanishes.
  * 5. Fork corners (columns 0 and 16): the cross direction is the inward diagonal, `(d + y_a) / sqrt 2` with `d` the host's realized station direction out of the end and `y_a` the ruling toward band a's arc, within 1e-9; and the band's normal agrees with the host's within 1 degree. Basis: the strip is refined so each one-sided chord at a fork deviates from its side's tangent by at most half a degree (`AutoMovieConstructionSplitBand`; unrefined, this fixture read 7.0 degrees at 11.25 degrees of ring turn per column).
  * 6. Shared ids: band a's chord column `k` is band b's `48 - k`; the skin is watertight away from the free ends.
- * 7. Refusals: a corner of `pi / 2` and knots that do not advance are refused by admission; a last knot at 0.05 m, beyond the 0.0463 m chord, leaves one diagnostic on the split naming the seam and no band (tessellated at 1 mm, as is the red tree, since only diagnostics and surfaces are read there).
+ * 7. Refusals: a corner of `pi / 2` and a knot on the knot before it are refused by admission; a last knot at 0.05 m, beyond the 0.0463 m chord, leaves one diagnostic on the split naming the seam and no band (tessellated at 1 mm, as is the red tree, since only diagnostics and surfaces are read there).
  * 8. Red: the same fork reading on the straight chord (no profile) exceeds 20 degrees.
+ * 9. A seam that runs out before it turns (knots `[0, 0.004]`, `[0.006, 0.007]`, then the fixture's last two): its first knot stands straight out of fork `A`, which the chord's parameter could not hold (refused by admission before the profile was parameterized by its own length). Matched to its children by length (`IChild.correspondence`; the loop that runs out is not star-shaped about a rail's centroid), it realizes with no diagnostic and both bands, passes within 0.01 mm of `(R, 0, -34)` mm on 4001 shares (their spacing is 0.015 mm), and over its first 3 mm of length runs less than 1 mm along the chord while it stands more than 2.5 mm out.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Realizes split trees with `realizeAutoMovieConstruction` and reads the realized bands, host and skin, and the seam module on the realized host; it catches a seam that leaves a fork off the host's tangent plane, misses its knots or leaves its plane, chord columns off the seam or ruled wrongly, corner ribbons along either boundary, a fork crease, an unshared seam, an open skin and refusals that leave partial geometry.
  * @evidence contracts/development/testing.md#independent-expectations Fork tangents from the fixture's closed-form radius derivative, the seam plane from the fixture's symmetry, knots from the declaration, arc jets from the host's realized surface (the split does not produce it), the ruling and the diagonal from the node contract, watertightness from the manifold rule; the 1 degree fork bound is the stated prediction, and the red reading shows the same observer sees the straight chord's crease. Oracle limit: between columns the band is the strip's B-spline and is not asserted.
  * @evidence contracts/development/testing.md#distinguishing-cases Arc columns inside and outside the window, seam columns inside and outside it, both forks, three refusals and the straight-chord red reading.
  * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include construction_split_seam`; it realizes made trees in process and starts no host, browser or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The seam alone (`AutoMovieConstructionSplitSeam.create` on the realized host): its ends are `A` and `B`; its tangent at `A` is the host's...).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 9 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The seam alone (`AutoMovieConstructionSplitSeam.create` on the realized host): its ends are `A` and `B`; its tangent at `A` is the host's...).
  */
 export function test_construction_split_seam(): void {
   const failures: string[] = [];
@@ -410,7 +411,7 @@ export function test_construction_split_seam(): void {
     [
       {
         knots: [
-          [0.02, 0.005],
+          [0.01, 0.005],
           [0.01, 0.005],
         ] as [number, number][],
         corner,
@@ -456,6 +457,34 @@ export function test_construction_split_seam(): void {
     failures.push(
       `proof: the straight chord's fork reads ${crease} deg, not a crease`,
     );
+  // 9. A seam that runs out along the host before it turns across the end.
+  const outKnots: [number, number][] = [[0, 0.004], [0.006, 0.007], knots[1]!, knots[2]!];
+  try {
+    const lengthwise: IAutoMovieConstructionSplit = split({ knots: outKnots, corner });
+    const out: AutoMovieConstructionRealization.IRealization = realize({ ...lengthwise, children: lengthwise.children.map((c: IAutoMovieConstructionSplit.IChild): IAutoMovieConstructionSplit.IChild => ({ ...c, correspondence: "length" })) as IAutoMovieConstructionSplit["children"] }, true);
+    if (out.diagnostics.length !== 0) failures.push(`run-out seam: ${ConstructionRead.diagnostics(out)}`);
+    if (out.body.faces.filter((f: { chain: string }): boolean => f.chain.startsWith("band.")).length !== 2) failures.push("run-out seam: not two bands");
+    const ran: AutoMovieConstructionSplitSeam.ISeam | string = AutoMovieConstructionSplitSeam.create({
+      host: ConstructionRead.surface(out, "trunk"),
+      station: 30,
+      into: 1,
+      seam: [0, Math.PI],
+      normal: [0, 0, -1],
+      knots: outKnots.map(([a, d]: [number, number]): [number, number] => [a * 1000, d * 1000]),
+    });
+    if (typeof ran === "string") failures.push(`run-out seam refused: ${ran}`);
+    else {
+      // The plane is y = 0: `along` is R - x, the depth -(z + 30).
+      let nearest: number = Infinity;
+      for (let i: number = 0; i <= 4000; ++i) nearest = Math.min(nearest, len(sub(ran.at(i / 4000).point, [R, 0, -34])));
+      const early: readonly number[] = ran.at(3 / ran.length).point;
+      if (!(nearest <= 0.01)) failures.push(`run-out seam: misses its first knot by ${nearest} mm`);
+      if (!(R - early[0]! < 1 && -(early[2]! + 30) > 2.5)) failures.push(`run-out seam: 3 mm along its length it stands ${R - early[0]!} mm along the chord and ${-(early[2]! + 30)} mm out`);
+    }
+  } catch (error: unknown) {
+    failures.push(`run-out seam refused: ${String(error)}`);
+  }
+
   if (failures.length !== 0)
     throw new Error(
       `${failures.length} split seam failures (fork ${readings.join(", ")}; straight chord ${crease.toFixed(4)} deg):\n${failures.join("\n")}`,

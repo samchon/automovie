@@ -211,53 +211,70 @@ export namespace AutoMovieSolidIntersectionWalk {
     // The first walk: the loop's length.
 
     /** Original phase-sized initial chord, reduced only by existing failed halvings. */
-    let h: number = (norm(a0.v) * 2 * Math.PI) / count;
+    const stride: number = (norm(a0.v) * 2 * Math.PI) / count;
 
-    /** Current accepted point of the first length walk. */
-    let p: IPoint = start;
+    /**
+     * The first walk round the loop from the seed, along `T0` times `sense`: the loop's length, or why it failed. A closed loop is the same
+     * curve walked either way, and a point where the two surfaces nearly touch can be passed from one side when it loses the walk from the
+     * other: an ear's mirrored hollow lost its walk at the point its twin passes, the twin walking it the other way round.
+     */
+    const around: (sense: 1 | -1) => number | string = (sense: 1 | -1): number | string => {
+      let h: number = stride;
 
-    /** Current consistently directed tangent. */
-    let T: Vec3 = T0;
+      /** Current accepted point of the first length walk. */
+      let p: IPoint = start;
 
-    /** Previous first-walk iterate used by the existing predictor. */
-    let previous: IPoint | null = null;
+      /** Current consistently directed tangent. */
+      let T: Vec3 = scale(T0, sense);
 
-    /** Accumulated world chords of the first walk, mm. */
-    let length: number = 0;
+      /** Previous first-walk iterate used by the existing predictor. */
+      let previous: IPoint | null = null;
 
-    /** Whether the original ahead-within-one-step test closed the walk. */
-    let closed: boolean = false;
-    for (let k: number = 0; k < walkSteps * count; k++) {
-      /** Displacement from the current point back toward its start. */
-      const ahead: Vec3 = sub(start.point, p.point);
-      if (k > 2 && norm(ahead) <= h && dot(ahead, T) > 0) {
-        length += norm(ahead);
-        closed = true;
-        break;
+      /** Accumulated world chords of the first walk, mm. */
+      let length: number = 0;
+      for (let k: number = 0; k < walkSteps * count; k++) {
+        /** Displacement from the current point back toward its start. */
+        const ahead: Vec3 = sub(start.point, p.point);
+        if (k > 2 && norm(ahead) <= h && dot(ahead, T) > 0) return length + norm(ahead);
+
+        /** Candidate retained through the original failed-halving loop. */
+        let next: IPoint | null = null;
+        for (
+          let halving: number = 0;
+          halving < AutoMovieSolidTraceSolve.HALVINGS && next === null;
+          halving++
+        ) {
+          next = step(p, T, h, previous);
+          if (next === null) h /= 2;
+        }
+        if (next === null)
+          return `lost after ${length} mm of the walk, at [${p.point.map((x: number): string => x.toFixed(1)).join(", ")}] mm on host face ${p.face}`;
+        length += norm(sub(next.point, p.point));
+        previous = p;
+        p = next;
+
+        // A step that was halved to pass a tight turn grows back once it is
+        // past: kept halved, the walk ran out of steps before it came round.
+        h = Math.min(stride, 2 * h);
+
+        /** Continue the first walk with the same tangent orientation. */
+        const t: Vec3 | null = tangent(p, T);
+        if (t === null) return `the surfaces touch ${length} mm along the walk`;
+        T = t;
       }
-
-      /** Candidate retained through the original failed-halving loop. */
-      let next: IPoint | null = null;
-      for (
-        let halving: number = 0;
-        halving < AutoMovieSolidTraceSolve.HALVINGS && next === null;
-        halving++
-      ) {
-        next = step(p, T, h, previous);
-        if (next === null) h /= 2;
-      }
-      if (next === null) return `lost after ${length} mm of the walk`;
-      length += norm(sub(next.point, p.point));
-      previous = p;
-      p = next;
-
-      /** Continue the first walk with the same tangent orientation. */
-      const t: Vec3 | null = tangent(p, T);
-      if (t === null) return `the surfaces touch ${length} mm along the walk`;
-      T = t;
-    }
-    if (!closed)
       return `the walk does not return to its start in ${walkSteps * count} steps`;
+    };
+
+    /** The way round the loop the walks go: along `T0`, or against it where the walk along it was lost and the other way round closes. */
+    let sense: 1 | -1 = 1;
+    const forth: number | string = around(1);
+    let length: number;
+    if (typeof forth === "string") {
+      const back: number | string = around(-1);
+      if (typeof back === "string") return forth;
+      sense = -1;
+      length = back;
+    } else length = forth;
 
     // The second walk: equal chords whose last, closing the loop, matches the
     // others. The first walk's length sums uneven steps, so `length / n`
@@ -277,16 +294,47 @@ export namespace AutoMovieSolidIntersectionWalk {
       /** Current point of the equal-chord walk. */
       let q: IPoint = start;
 
-      /** Original consistently oriented equal-walk tangent. */
-      let along: Vec3 = T0;
+      /** Original consistently oriented equal-walk tangent, the way round the first walk went. */
+      let along: Vec3 = scale(T0, sense);
 
       /** Previous equal-walk iterate used by the same predictor. */
       let before: IPoint | null = null;
       for (let k: number = 1; k < n; k++) {
         /** Next accepted point of this fixed-chord reference walk. */
-        const next: IPoint | null = step(q, along, chord, before);
+        let next: IPoint | null = step(q, along, chord, before);
+
+        // Where the curve turns within less than a chord, the tangent
+        // prediction a whole chord ahead is refused. The chord is then walked
+        // in halved steps along the curve, as the first walk goes, and the
+        // point its length ahead stands in for the one a straight chord ahead.
+        if (next === null) {
+          let from: IPoint = q;
+          let heading: Vec3 = along;
+          let last: IPoint | null = before;
+          let left: number = chord;
+          let h: number = chord / 2;
+          for (
+            let halving: number = 0;
+            left > 1e-9 * chord && halving < AutoMovieSolidTraceSolve.HALVINGS;
+
+          ) {
+            const part: IPoint | null = step(from, heading, Math.min(h, left), last);
+            if (part === null) {
+              h /= 2;
+              halving++;
+              continue;
+            }
+            left -= norm(sub(part.point, from.point));
+            last = from;
+            from = part;
+            const turned: Vec3 | null = tangent(from, heading);
+            if (turned === null) break;
+            heading = turned;
+          }
+          if (left <= 1e-9 * chord) next = from;
+        }
         if (next === null)
-          return `the equal-chord walk is lost at step ${k} of ${n}`;
+          return `the equal-chord walk is lost at step ${k} of ${n}, at [${q.point.map((x: number): string => x.toFixed(1)).join(", ")}] mm on host face ${q.face}`;
         points.push(next.point);
         before = q;
         q = next;
@@ -330,8 +378,10 @@ export namespace AutoMovieSolidIntersectionWalk {
       const c2: number = g1 === g0 ? c1 : c1 - (g1 * (c1 - c0)) / (g1 - g0);
       [c0, p0, g0, c1] = [c1, p1, g1, c2];
     }
+    // Walked against `T0`, the points are read back in its order from the seed, so the parameter still increases along `n_part x n_host`.
+    const ordered: Vec3[] = sense === 1 ? p0 : [p0[0]!, ...p0.slice(1).reverse()];
     return {
-      law: AutoMovieSolidTraceLaw.arc(p0),
+      law: AutoMovieSolidTraceLaw.arc(ordered),
       x: [start.s, start.phi, start.y, start.theta],
       face: start.face,
     };

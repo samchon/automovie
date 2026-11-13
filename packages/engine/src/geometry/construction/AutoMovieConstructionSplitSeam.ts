@@ -8,7 +8,7 @@ const { add, cross, dot, norm, scale, sub, unit } = AutoMovieSolidVector;
 /**
  * A split's curved seam (`IAutoMovieConstructionSplit.IProfile`): the curve both bands start from in place of the straight chord, in the seam plane that holds the chord and the host end's outward normal.
  *
- * The curve is the clamped cubic spline, on chord-length parameters (mm), through the seam's first end (the host's end ring at phase `a`), the authored knots and its second end (phase `b`). At each end its unit tangent is the line where the host's tangent plane meets the seam plane: out of the host at the first end, into it at the second. The seam therefore leaves both forks along the host's own surface. Columns read it at equal arclength shares.
+ * The curve is the clamped cubic spline, on chord-length parameters (mm) between its knots, so it is parameterized by its own course and may run out along the host before it turns across the end, through the seam's first end (the host's end ring at phase `a`), the authored knots and its second end (phase `b`). At each end its unit tangent is the line where the host's tangent plane meets the seam plane: out of the host at the first end, into it at the second. The seam therefore leaves both forks along the host's own surface. Columns read it at equal arclength shares.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the plane, the curve, its end tangents, its parameter and its refusals.
  * @evidence contracts/development/design.md#principled-representation Represents A split's curved seam (`IAutoMovieConstructionSplit.IProfile`): the curve both bands start from in place of the straight chord, in the seam plane that holds the chord and the host end's outward normal: companion namespace of 4 members (`IPoint`, `ISeam`, `create`, `GAUSS`); units and frames named in its text: second, radians, world. It has no optional member, so no absent-value state combines with another.
@@ -75,11 +75,12 @@ export namespace AutoMovieConstructionSplitSeam {
    * @param input.seam The seam's host phases `[a, b]`, radians.
    * @param input.normal The host end section's unit normal out of the host.
    * @param input.knots The interior knots `[along, depth]`, mm.
+   * @param input.heading A direction the plane holds in place of the end normal (`IAutoMovieConstructionSplit.IProfile.heading`), or absent.
    * @returns The seam, or the refusal.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Plane from the chord and the end normal, end tangents from the host's tangent planes, then the clamped spline and its arclength.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass: plane, knots, tangents, solve, lengths.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses a collapsed chord, an end normal along the chord, knots that do not advance inside the chord, and an end whose tangent plane holds no direction of the seam plane.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses a collapsed chord, an end normal along the chord, a knot outside the chord's span or on its neighbour, and an end whose tangent plane holds no direction of the seam plane.
    * @evidence contracts/development/common.md#meaningful-documentation States its refusals in its result.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in knots.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The two end jets serve both the ends and their tangents.
@@ -92,6 +93,7 @@ export namespace AutoMovieConstructionSplitSeam {
     seam: [number, number];
     normal: Vec3;
     knots: readonly (readonly [number, number])[];
+    heading?: Vec3;
   }): ISeam | string {
     const first: IAutoMovieSolidSurface.IJet = input.host.jet(
       input.station,
@@ -106,28 +108,27 @@ export namespace AutoMovieConstructionSplitSeam {
     const chord: number = norm(sub(B, A));
     const e1: Vec3 | null = unit(sub(B, A));
     if (e1 === null) return "the seam's ends coincide";
-    const e2: Vec3 | null = unit(
-      sub(input.normal, scale(e1, dot(input.normal, e1))),
-    );
-    if (e2 === null)
-      return "the host end's normal runs along the chord, so no seam plane stands";
+    // The plane's second axis: the declared heading, or the end normal, square to the chord and out of the host.
+    const toward: Vec3 = input.heading ?? input.normal;
+    const square: Vec3 | null = unit(sub(toward, scale(e1, dot(toward, e1))));
+    if (square === null)
+      return input.heading === undefined ? "the host end's normal runs along the chord, so no seam plane stands" : "the seam's heading runs along the chord, so no seam plane stands";
+    const e2: Vec3 = dot(square, input.normal) < 0 ? scale(square, -1) : square;
     const normal: Vec3 = cross(e1, e2);
 
-    // Knots in the plane's coordinates: (along e1 from A, along e2), mm.
+    // Knots in the plane's coordinates: (along e1 from A, along e2), mm. The
+    // spline below is parameterized by chord length between knots, so a knot
+    // need not advance along the chord: a seam may first run out along the
+    // host before it turns across the end. Each knot stays within the
+    // chord's span; coincident neighbours are refused with the spans below.
     const points: [number, number][] = [[0, 0]];
     for (const [along, depth] of input.knots) {
-      if (
-        !(
-          Number.isFinite(along) &&
-          Number.isFinite(depth) &&
-          along > points[points.length - 1]![0]
-        )
-      )
-        return `the seam's knot (${along}, ${depth}) mm does not advance along the chord`;
+      if (!(Number.isFinite(along) && Number.isFinite(depth)))
+        return `the seam's knot (${along}, ${depth}) mm is not finite`;
+      if (!(along >= 0 && along <= chord))
+        return `the seam's knot (${along}, ${depth}) mm stands beyond the chord's span [0, ${chord}] mm`;
       points.push([along, depth]);
     }
-    if (!(points[points.length - 1]![0] < chord))
-      return `the seam's last knot stands at or beyond the chord's length ${chord} mm`;
     points.push([chord, 0]);
 
     // End tangents: the host's tangent plane meets the seam plane along
@@ -293,6 +294,37 @@ export namespace AutoMovieConstructionSplitSeam {
         return { point: world(at.p), tangent: d ?? e1 };
       },
     };
+  }
+
+  /**
+   * The straight chord between the seam's forks read as a seam, in the same plane a curved one stands in, for a split into more than two
+   * whose seam declares no profile.
+   *
+   * @param input.host The host face's surface.
+   * @param input.station The host's end station, mm.
+   * @param input.seam The seam's host phases `[a, b]`, radians.
+   * @param input.normal The host end section's unit normal out of the host.
+   * @returns The chord as a seam, or the refusal.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation The chord and its plane are the ones `create` builds its curve in, so a straight and a curved seam are ruled alike.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Ends, plane, then a linear reader.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses coincident forks and an end normal along the chord, as `create` does.
+   * @evidence contracts/development/common.md#meaningful-documentation States its plane and its refusals.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time per reading.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The two end jets serve both ends and the plane.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains two ends and one normal.
+   */
+  export function straight(input: { host: IAutoMovieSolidSurface; station: number; seam: [number, number]; normal: Vec3 }): ISeam | string {
+    const pa: readonly number[] = input.host.jet(input.station, input.seam[0]).p;
+    const pb: readonly number[] = input.host.jet(input.station, input.seam[1]).p;
+    const A: Vec3 = [pa[0]!, pa[1]!, pa[2]!];
+    const B: Vec3 = [pb[0]!, pb[1]!, pb[2]!];
+    const e1: Vec3 | null = unit(sub(B, A));
+    if (e1 === null) return "the seam's ends coincide";
+    const e2: Vec3 | null = unit(sub(input.normal, scale(e1, dot(input.normal, e1))));
+    if (e2 === null) return "the host end's normal runs along the chord, so no seam plane stands";
+    const length: number = norm(sub(B, A));
+    return { ends: [A, B], normal: cross(e1, e2), length, at: (t: number): IPoint => ({ point: add(A, scale(e1, Math.min(1, Math.max(0, t)) * length)), tangent: e1 }) };
   }
 
   /** 8-point Gauss-Legendre nodes and weights on [-1, 1]. */
