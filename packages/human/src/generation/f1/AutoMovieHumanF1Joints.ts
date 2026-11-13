@@ -176,8 +176,23 @@ export namespace AutoMovieHumanF1Joints {
    * The helix's course, along the rim's crest from the front limb over the top and down the back to the lobule. Each inner centre is the
    * crest read by `FamilyConicScan.ts helix` at 70, 90, 110, 130, 160, 200, 240 and 270 degrees round the ear's middle, sunk 1.8 mm toward
    * the head; the two ends lie inside the ear's leaf, in front under the front limb and in the lobule.
+   *
+   * Over the top, the crests at 70, 90 and 110 degrees are carried out from the ear's middle ([9, 1576] in the side view) by 1.3, 1.0 and
+   * 1.2 mm and 0.4 to 0.5 mm farther toward the head. Read along rays from that middle (a scratch probe of the leaf with the tube merged, the
+   * farthest vertex of each face within 0.6 mm of the ray), the leaf's rim reached 0.6 to 1.4 mm past the tube there, and from above its
+   * rim stood behind the tube as a lip of thin facets, the slivers on `ear.high-oblique`; carried out, the tube reaches past the leaf
+   * within 0.3 mm all over the top and the lip is gone.
    */
-  export const helix: V3[] = [[17, 1586, 79], [15.8, 1596.2, 83.1], [7, 1598.3, 89.1], [-0.5, 1592.7, 93.4], [-3.8, 1584.8, 94.6], [-3.8, 1575.9, 92.6], [-0.8, 1569.2, 90.9], [2.3, 1563.8, 89.2], [7, 1555.5, 85.3], [13, 1551, 81]];
+  export const helix: V3[] = [[17, 1586, 79], [16.22, 1597.45, 82.6], [6.91, 1599.3, 88.6], [-1.09, 1593.75, 93.0], [-3.8, 1584.8, 94.6], [-3.8, 1575.9, 92.6], [-0.8, 1569.2, 90.9], [2.3, 1563.8, 89.2], [7, 1555.5, 85.3], [13, 1551, 81]];
+
+  /**
+   * The scapha's course, the groove inside the helix: the helix's inner foot on the leaf's outer face, read at 110, 130, 160 and 215
+   * degrees round the ear's middle ([9, 1576] in the side view; the probe as for `helix`), moved 2.3 mm toward that middle and 1.2 to 1.4 mm
+   * under the face. The reference's scapha floor lies under the rim's overhang, 3 to 6 mm inside the crest (`FamilyConicEar.ts --map`).
+   * It ends above the concha's cut, whose back rim runs from x 4 at 1,563 mm to x 6.4 at 1,569 mm: carried on to 1,567 mm, where the
+   * helix's foot and that rim stand within a millimetre of each other, it crossed the bowl's cut and the bowl's rail was refused.
+   */
+  export const scapha: V3[] = [[3.63, 1590.13, 90.9], [1.52, 1584.48, 91.9], [1.57, 1578.54, 91.3], [3.43, 1572.75, 90.2]];
 
   /** Centre of the auricle's root on the sagittal plane it leaves the skull at. */
   export const earBase: V3 = [9.5, 1572, 77];

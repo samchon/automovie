@@ -17,7 +17,7 @@ import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
  * 3 mm; it falls to 1.8 mm toward each buried end, and to 2.6 mm at the front limb, which is narrower. The tube stands about 1 mm proud of
  * the reference's crest.
  *
- * Frame and model: as `AutoMovieHumanF1Ear`. The course is 81.96 mm long; each end closes in a point at its end of the course from 3 mm in.
+ * Frame and model: as `AutoMovieHumanF1Ear`. The course is 84.43 mm long; each end closes in a point at its end of the course from 3 mm in.
  */
 export const AutoMovieHumanF1Helix: AutoMovieHumanConicLoft.IFamily = {
   name: "helix",
@@ -25,7 +25,9 @@ export const AutoMovieHumanF1Helix: AutoMovieHumanConicLoft.IFamily = {
   halves: [3, 3, 3, 3, 3, 3, 3, 3],
   up: [0, 0, 1],
   layout: AutoMovieHumanConicSection.limb(0),
-  knots: [3, 12, 40, 68, 78.96],
+  // Each knot past the front limb stands where it stood on the course before its top was carried out (`AutoMovieHumanF1Joints.helix`),
+  // which made the course 2.47 mm longer: 0.9 mm later at the front limb, 1.6 mm over the back and 2.47 mm from the lower limb on.
+  knots: [3, 12.9, 41.6, 70.46, 81.43],
   values: [
     // front (+u) extreme: u, mm
     [1.8, 2.6, 3, 2.9, 1.8],
@@ -54,5 +56,5 @@ export const AutoMovieHumanF1Helix: AutoMovieHumanConicLoft.IFamily = {
   ],
 
   // Both ends are buried in the leaf.
-  tips: [{ from: 3, tip: 0 }, { from: 78.96, tip: 81.96 }],
+  tips: [{ from: 3, tip: 0 }, { from: 81.43, tip: 84.43 }],
 };
