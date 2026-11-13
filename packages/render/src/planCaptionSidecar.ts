@@ -10,14 +10,14 @@ import {
   IAutoMovieShot,
 } from "@automovie/interface";
 
-import { IAutoMovieBeatCaption } from "./caption/IAutoMovieBeatCaption";
-import { beatCaptions } from "./caption/beatCaptions";
+import { IAutoMovieBeatCaption } from "./caption/IAutoMovieBeatCaption.js";
+import { beatCaptions } from "./caption/beatCaptions.js";
 import {
   IAutoMovieCaptionEntry,
   IAutoMovieCaptionSidecar,
-} from "./captionSidecar";
-import { frameTimes } from "./frameTimes";
-import { shotBeat } from "./shotBeat";
+} from "./captionSidecar.js";
+import { frameTimes } from "./frameTimes.js";
+import { shotBeat } from "./shotBeat.js";
 
 /**
  * Plan the caption sidecar of one sequence render: which beat's shot is live at every output frame, grouped into spans, each joined to its beat's caption and enclosing scene slug.

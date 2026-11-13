@@ -3,6 +3,8 @@
   "name": "@automovie/config",
   "version": "0.1.0",
   "devDependencies": {
+    "@ttsc/unplugin": "catalog:samchon",
+    "tinyglobby": "catalog:utils",
     "@ttsc/evidence": "catalog:samchon",
     "ttsc": "catalog:samchon",
     "@ttsc/lint": "catalog:samchon",

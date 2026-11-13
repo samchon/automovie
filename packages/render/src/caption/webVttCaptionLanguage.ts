@@ -1,4 +1,4 @@
-import { parseAutoMovieCaptionLanguage } from "./parseAutoMovieCaptionLanguage";
+import { parseAutoMovieCaptionLanguage } from "./parseAutoMovieCaptionLanguage.js";
 
 /**
  * Return one caption language tag, in its authored spelling, for a WebVTT

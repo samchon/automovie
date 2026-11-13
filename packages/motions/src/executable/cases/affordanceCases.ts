@@ -24,9 +24,12 @@ import { everydayVerdicts } from "./everydayVerdicts";
  *
  * - `affordance-button`: a lift button at 1.1 m pressed 5 mm;
  * - `affordance-knob`: a door knob at 0.95 m turned 90 degrees;
- * - `affordance-drawer`: a drawer handle at 0.8 m pulled 0.3 m;
- * - `affordance-door`: a door handle at 1.0 m, 0.75 m from its hinge,
- *   pulled open 40 degrees.
+ * - `affordance-drawer`: a drawer handle at 0.85 m, 0.5 m ahead, pulled
+ *   0.25 m, which a planted performer leans into and straightens from;
+ * - `affordance-door`: a door handle at 1.0 m, 0.75 m from its hinge and
+ *   0.7 m ahead, pulled open 35 degrees: as far as the leaf swings before
+ *   its handle comes within 0.27 m of a performer who does not step back
+ *   (the law's stated gap), reached with a lean at the start.
  *
  * Every case reports foot slip at most 5 mm and no range-of-motion
  * overshoot. Beyond that, from `ready` to `relax` the hand's surface (the
@@ -65,18 +68,18 @@ export function affordanceCases(
     const mechanisms: [string, operate.Mechanism][] = [
       ["button", { kind: "button", at: at(-0.15, 1.1, 0.5) }],
       ["knob", { kind: "knob", at: at(-0.2, 0.95, 0.5), turn: 90 }],
-      ["drawer", { kind: "slider", at: at(-0.15, 0.8, 0.55), travel: 0.3 }],
+      ["drawer", { kind: "slider", at: at(-0.15, 0.85, 0.5), travel: 0.25 }],
       [
         "door",
         {
           kind: "hinge",
-          at: at(-0.2, 1.0, 0.6),
+          at: at(-0.2, 1.0, 0.7),
           hinge: {
             kind: "point",
-            at: { x: 0.55, y: 1.0, z: 0.6 },
+            at: { x: 0.55, y: 1.0, z: 0.7 },
             frame: "world",
           },
-          swing: 40,
+          swing: 35,
         },
       ],
     ];

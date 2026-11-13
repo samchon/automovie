@@ -1,8 +1,8 @@
 import {
   type AutoMovieHumanPolygon,
   createAutoMovieHumanPolygonFigure,
-  planAutoMovieAudioPlayback,
-} from "@automovie/viewer";
+} from "@automovie/render";
+import { planAutoMovieAudioPlayback } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import type * as THREE from "three";
 

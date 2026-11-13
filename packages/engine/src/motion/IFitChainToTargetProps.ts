@@ -83,4 +83,16 @@ export interface IFitChainToTargetProps {
    * rotations; omitted, the effector keeps the pose's own angles.
    */
   effectorRotation?: IAutoMovieQuaternion;
+
+  /**
+   * What a hinged chain must keep clear of beyond the rig's own ranges, such
+   * as the body the limb belongs to: given a candidate's mid joint and end
+   * joint in the pose's resolved model-metre frame, the degrees that candidate
+   * counts as out of range, 0 when it is allowed and never negative. It adds
+   * to the range of motion overshoot the swivel choice ranks first, so an
+   * obstructed swivel loses to a clear one whatever the bend hint, the
+   * reference or the effector's rotation prefer. Omitted, only the rig's
+   * ranges decide.
+   */
+  obstruction?: (mid: IAutoMovieVector3, end: IAutoMovieVector3) => number;
 }

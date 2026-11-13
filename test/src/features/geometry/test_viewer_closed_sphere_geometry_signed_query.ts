@@ -1,6 +1,6 @@
 import { createAutoMovieSignedMeshQuery } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
-import { createAutoMovieClosedSphereGeometry } from "@automovie/viewer";
+import { createAutoMovieClosedSphereGeometry } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

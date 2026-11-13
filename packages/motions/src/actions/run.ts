@@ -24,7 +24,9 @@ import { walk } from "./walk";
  * mid-stance where the stance leg is most flexed, the spring-mass behaviour
  * of running (Blickhan 1989). The swing foot rises 0.15 to 0.35 hip heights
  * as the knee folds in recovery, the elbows hold near 90° and swing with the
- * shoulders, and the trunk inclines a few degrees forward.
+ * shoulders, and the trunk inclines forward of a walk's and more as the
+ * pace rises (Thorstensson et al. 1984): 5, 8 and 12 degrees for a jog, a
+ * run and a sprint (provisional).
  */
 export namespace run {
   /** The action's name. */
@@ -106,7 +108,7 @@ export namespace run {
       bob: { mean: -0.03, amplitude },
       lift,
       arms: { shoulder, elbow: 85, swing: 15 },
-      lean: lean / 2,
+      lean,
     };
   }
 }

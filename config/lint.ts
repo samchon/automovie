@@ -3,6 +3,7 @@ import type { ITtscLintBoundariesElement, ITtscLintConfig } from "@ttsc/lint";
 
 /** The published workspaces, each imported only by name through its `src/index.ts`. */
 const PACKAGES: readonly string[] = [
+  "archetypes",
   "cli",
   "engine",
   "evidence",

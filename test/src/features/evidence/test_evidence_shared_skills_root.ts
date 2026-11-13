@@ -1,14 +1,16 @@
 import {
   type IAutoMovieEvidenceConfigProps,
+  createEvidenceConfig,
+} from "@automovie/evidence";
+import {
   type IProductionConfigProps,
   createDevelopmentContractClaims,
   createEngineeringClaims,
-  createEvidenceConfig,
   createPackageChecklistClaim,
   createPackagePopulationContract,
   createProductionConfig,
   createResearchClaims,
-} from "@automovie/evidence";
+} from "@automovie/evidence/internal";
 import { TestValidator } from "@nestia/e2e";
 import type {
   IEvidenceClaim,
@@ -41,7 +43,7 @@ import path from "node:path";
  *    roots shared contracts at `.agents/skills/contracts/story` and every
  *    checklist at `.agents/skills`, keeps language at `docs/contracts`, and
  *    then selects the shared document installed in the production's tree.
- * 4. A relative `skills` is refused by both configuration factories.
+ * 4. A relative `skills` resolves against `location` in both configuration factories.
  * 5. The public claim helpers default to `.agents/skills` and accept a
  *    workspace root, and work-local package claims root at `docs/contracts`.
  * 6. A legacy `.agents/skills/contracts/story/work` directory is refused by
@@ -170,7 +172,7 @@ export function test_evidence_shared_skills_root(): void {
       collectFiles(standalone).includes("shared/naturalness/screenplay.md"),
     );
 
-    // 4. A relative shared tree is refused.
+    // 4. A relative shared tree resolves against the production.
     const production: IProductionConfigProps = {
       location,
       mode: "short",
@@ -183,15 +185,15 @@ export function test_evidence_shared_skills_root(): void {
       },
       naturalness: { screenplay: "disabled" },
     };
-    TestValidator.error(
-      "createEvidenceConfig refuses a relative skills",
-      (): IEvidenceConfig =>
-        createEvidenceConfig({ ...base, skills: "../../../.agents/skills" }),
+    TestValidator.equals(
+      "createEvidenceConfig resolves a relative skills against location",
+      createEvidenceConfig({ ...base, skills: "../../../.agents/skills" }),
+      config,
     );
-    TestValidator.error(
-      "createProductionConfig refuses a relative skills",
-      (): IEvidenceConfig =>
-        createProductionConfig({ ...production, skills: ".agents/skills" }),
+    TestValidator.equals(
+      "createProductionConfig resolves a relative skills against location",
+      createProductionConfig({ ...production, skills: ".agents/skills" }),
+      createProductionConfig({ ...production, skills: local }),
     );
 
     // 5. Public helpers.
@@ -220,10 +222,10 @@ export function test_evidence_shared_skills_root(): void {
           claims: createEngineeringClaims({ skills: "../x" }),
         }),
         ...collectChecklistRoots({
-          claims: createDevelopmentContractClaims(
-            { entities: "evidence" },
-            { skills: "../x" },
-          ),
+          claims: createDevelopmentContractClaims({
+            entities: "evidence",
+            skills: "../x",
+          }),
         }),
         ...collectChecklistRoots({
           claims: createResearchClaims({ skills: "../x" }),

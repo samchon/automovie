@@ -12,6 +12,7 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanTrunk } from "../everyday/HumanTrunk";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -29,14 +30,25 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  *   (provisional), the hands sculling out and in at waist depth and the legs
  *   kicking alternately (a flutter standing in for the eggbeater, whose foot
  *   speed sets the height, Sanders 1999), one cycle a second (provisional).
- * - Front crawl: prone with the hips a chest's half depth under the plane,
- *   gliding ahead at 1 m/s (provisional). Each arm pulls from overhead to the
+ * - Front crawl: prone with the hips a chest's half depth under the plane, or
+ *   as much higher as the breath needs, gliding ahead at 1 m/s (provisional).
+ *   The body rolls 45 degrees (provisional) about its long axis toward each
+ *   arm as it recovers. The shoulder turns one way round: its abduction
+ *   runs from 180 degrees overhead to 0 at the hip and back, in front of the
+ *   trunk for the pull (45 degrees of flexion at its middle, the elbow bent
+ *   40) and behind it for the recovery (20 degrees of extension, the elbow
+ *   bent 90 and the forearm turned 45 degrees toward the head, so the hand
+ *   hangs under the elbow clear of the plane; all provisional). Each arm
+ *   pulls from overhead to the
  *   hip over 60 % of the cycle and recovers over the water, elbow high, in
  *   the rest (provisional shares). The arms are half a cycle apart, Chollet
  *   et al. 2000's opposition (index of coordination 0); a novice's
  *   catch-up is not drafted. Six kicks per cycle (provisional) and a breath
- *   to the right once a cycle, the head turned 60 degrees (provisional) as
- *   the right arm recovers. One cycle lasts 1.4 s (provisional).
+ *   to the right once a cycle, the head turned 70 degrees (provisional) on
+ *   the rolled trunk as the right arm recovers, which brings the mouth 2 cm
+ *   (provisional) over the plane: there is no bow wave whose trough a real
+ *   swimmer breathes in, so the body floats as high as its own mouth needs.
+ *   One cycle lasts 1.4 s (provisional).
  *
  * Events: `entryRight{i}`, `entryLeft{i}` and `breath{i}` per cycle for the
  * crawl, `cycle{i}` for treading.
@@ -68,6 +80,15 @@ export namespace swim {
   /** The pull's share of the crawl cycle (provisional). */
   export const PULL: number = 0.6;
 
+  /** The crawl's body roll toward a recovering arm, degrees (provisional). */
+  export const ROLL: number = 45;
+
+  /** The head's turn for a breath, degrees (provisional). */
+  export const TURN: number = 70;
+
+  /** The mouth's height over the plane at a breath, metres (provisional). */
+  export const CLEAR: number = 0.02;
+
   /**
    * Parameters.
    *
@@ -95,7 +116,7 @@ export namespace swim {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the cycle count is not a positive whole number.
+   * @throws {HumanRefusal} When the cycle count is not a positive whole number.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The root floats at the plane by the body's own mouth or chest depth; each limb's angles are periodic functions of the cycle's phase.
@@ -112,8 +133,7 @@ export namespace swim {
     const body = context.body;
     const m = body.measure;
     const cycles: number = p.cycles ?? 3;
-    if (!(Number.isInteger(cycles) && cycles > 0))
-      throw new Error("A swim lasts a positive whole number of cycles");
+    HumanBound.whole("cycles", cycles);
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     const entry: IHumanPosture = context.entry.posture;
@@ -152,6 +172,38 @@ export namespace swim {
 
     // The root floats: upright with the mouth above the plane, or prone with the hips under it.
     const prone: boolean = p.kind === "frontCrawl";
+    // The body's roll about its long axis, a twist of the pelvis: toward the right at the right arm's mid recovery.
+    const roll = (s: number): number =>
+      -ROLL *
+      Math.sin(2 * Math.PI * (phase(s) - (PULL + (1 - PULL) / 2) + 0.25));
+    const turned = (
+      joints: IHumanPosture["joints"],
+      w: number,
+    ): IHumanPosture["joints"] => {
+      const out: IHumanPosture["joints"] = { ...joints };
+      const delta = AutoMovieMotionHumanHead.share(2, -TURN * w);
+      for (const bone of ["neck", "head"] as const) {
+        const at = joints[bone] ?? [0, 0, 0];
+        const by = delta[bone]!;
+        out[bone] = [at[0] + by[0], at[1] + by[1], at[2] + by[2]];
+      }
+      return out;
+    };
+    // The hips' depth: a chest's half depth, or as shallow as the breathing mouth needs.
+    const depth: number = ((): number => {
+      const breath: IHumanPosture = {
+        ...entry,
+        pitch: entry.pitch + 90,
+        joints: { ...turned(entry.joints, 1), hips: [0, 0, -ROLL] },
+      };
+      const hips: IAutoMovieVector3 = Vector3.add(
+        breath.root,
+        Quaternion.rotateVector(resolveHumanPosture.heading(breath), hipsRest),
+      );
+      const rise: number =
+        HumanTrunk.region(body, breath, "mouth").point.y - hips.y;
+      return Math.min(m.chestDepth / 2, rise - CLEAR);
+    })();
     primitives.push({
       channels: ["root", "trunk"],
       from: 0,
@@ -165,9 +217,10 @@ export namespace swim {
         const pitched: IHumanPosture = {
           ...posture,
           pitch: posture.pitch + 90,
+          joints: { ...posture.joints, hips: [0, 0, roll(s)] },
         };
         const hips: IAutoMovieVector3 = Vector3.add(
-          { x: entry.root.x, y: water - m.chestDepth / 2, z: entry.root.z },
+          { x: entry.root.x, y: water - depth, z: entry.root.z },
           Vector3.scale(forward, (1.0 * s) / modifiers.tempo),
         );
         return {
@@ -234,16 +287,20 @@ export namespace swim {
               if (u < PULL) {
                 const w: number = u / PULL;
                 return {
-                  upper: [180 * (0.5 + 0.5 * Math.cos(Math.PI * w)), 0, 0],
+                  upper: [
+                    45 * Math.sin(Math.PI * w),
+                    180 * (0.5 + 0.5 * Math.cos(Math.PI * w)),
+                    0,
+                  ],
                   elbow: 40 * Math.sin(Math.PI * w),
                 };
               }
               const w: number = (u - PULL) / (1 - PULL);
               return {
                 upper: [
+                  -20 * Math.sin(Math.PI * w),
                   180 * (0.5 - 0.5 * Math.cos(Math.PI * w)),
-                  80 * Math.sin(Math.PI * w),
-                  0,
+                  45 * Math.sin(Math.PI * w),
                 ],
                 elbow: 90 * Math.sin(Math.PI * w),
               };
@@ -259,7 +316,7 @@ export namespace swim {
             const u: number = phase(s);
             const w: number =
               u < PULL ? 0 : Math.sin((Math.PI * (u - PULL)) / (1 - PULL));
-            return AutoMovieMotionHumanHead.share(2, -60 * w);
+            return AutoMovieMotionHumanHead.share(2, -TURN * w);
           },
         }),
       );

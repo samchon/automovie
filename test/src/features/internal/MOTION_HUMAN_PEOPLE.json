@@ -1,0 +1,2151 @@
+{
+  "f-small": {
+    "mass": 37.69078758176998,
+    "params": {
+      "body": {
+        "anatomy": {
+          "sex": "female",
+          "bodyFatPercentage": 21.234951199999998,
+          "stature": 1481.427096,
+          "chestCircumference": 777.6038536479608,
+          "bustPointWidth": 166.50380313784302,
+          "underbustCircumference": 660.2944690422605,
+          "sideNeckToBustPoint": 232.5525758994283,
+          "waistCircumference": 599.7169332595683,
+          "hipCircumference": 825.1259593622111,
+          "neckBaseCircumference": 312.09022950608977,
+          "neckCircumference": 283.9053262901891,
+          "upperArmLength": 284.5191204678296,
+          "forearmLength": 222.15101959290598,
+          "elbowCircumference": 201,
+          "wristCircumference": 135.42727436540156,
+          "thighCircumference": 473.90530499528387,
+          "kneeCircumference": 310.5708724732466,
+          "calfCircumference": 302.8665205220529,
+          "handCircumference": 170.05870878464572,
+          "backNeckToWaist": 342.243528934759,
+          "acrossBackShoulderWidth": 360.6780081657438,
+          "highHipCircumference": 739.1554135744997,
+          "upperArmCircumference": 210.99475419205808,
+          "forearmCircumference": 204.6433789767227,
+          "inseam": 640
+        }
+      },
+      "head": {
+        "length": 179.92496613697384,
+        "cephalicIndex": 78.42379179127222,
+        "circumference": 527.2231895549053,
+        "height": 214.58624194456758,
+        "faceHeight": 111.77117769771799,
+        "faceWidth": 125.3414693202867,
+        "mandibularWidth": 92.59803902564973,
+        "minimumFrontalWidth": 100.71230017738192,
+        "mouthOpening": 48,
+        "mandibularLaterotrusion": 9,
+        "bitragionMentonArc": 312.50194475653177,
+        "bitragionSubnasaleArc": 296.78318468968035,
+        "submentalInclination": 8.970976298492682,
+        "subnasaleAheadOfGlabella": -5.335249310694479,
+        "glabellaAheadOfNasion": 4.816016521929299,
+        "glabellaAboveNasion": 25.601345592422163,
+        "pogonionAheadOfGlabella": -19.45949263859346,
+        "pogonionAboveMenton": 20.10835550877054,
+        "tragionNasionDepth": 124.70180080931877,
+        "tragionSubnasaleDepth": 131.36635454994232,
+        "tragionGnathionDepth": 143.8177512567862,
+        "upperLipProtrusion": 3.6512574378629834,
+        "lowerLipProtrusion": 4.47169057842411,
+        "bitragionBreadth": 144.4564155925047,
+        "nasalBridgeLength": 42.70782516279823,
+        "tragionTopOfHead": 128.61494112622827,
+        "upperFacialHeight": 75.52771526340307,
+        "upperLipHeight": 17.15872676086289,
+        "bitragionCoronalArc": 358.7181942079085,
+        "cervicalArrowApexBehindTragion": 60.6,
+        "cervicalArrowApexBelowTragion": 61.19,
+        "face": {
+          "eyePair": {
+            "left": {
+              "palpebralFissureLength": 26.538407060959408,
+              "palpebralFissureHeight": 8.733901068731392
+            },
+            "right": {
+              "palpebralFissureLength": 26.538407060959408,
+              "palpebralFissureHeight": 8.733901068731392
+            }
+          },
+          "intercanthalWidth": 29.879573417555015,
+          "nose": {
+            "width": 31.120578064290527,
+            "height": 51.550450422134695,
+            "protrusion": 19.03691222170239
+          },
+          "mouth": {
+            "width": 45.917171929213936,
+            "upperVermilionHeight": 6.9739183386434505,
+            "lowerVermilionHeight": 8.010581875468828
+          }
+        },
+        "earPair": {
+          "left": {
+            "length": 56.60205518725606,
+            "breadth": 24.707835345011162,
+            "protrusion": 21.200462052958855
+          },
+          "right": {
+            "length": 56.60205518725606,
+            "breadth": 24.707835345011162,
+            "protrusion": 21.200462052958855
+          }
+        }
+      },
+      "extremities": {
+        "hands": {
+          "left": {
+            "handLength": 165.4848210842938,
+            "palmLength": 99.32744368781191,
+            "handBreadth": 72.80310561553738,
+            "thumbLength": 48.62357967481062
+          },
+          "right": {
+            "handLength": 165.4848210842938,
+            "palmLength": 99.32744368781191,
+            "handBreadth": 72.80310561553738,
+            "thumbLength": 48.62357967481062
+          }
+        },
+        "feet": {
+          "left": {
+            "footLength": 223.93441110466225,
+            "footBreadth": 81.94893231048421,
+            "ankleHeight": 55.98661135504137
+          },
+          "right": {
+            "footLength": 223.93441110466225,
+            "footBreadth": 81.94893231048421,
+            "ankleHeight": 55.98661135504137
+          }
+        }
+      },
+      "appearance": {
+        "skin": {
+          "oiliness": 0.25,
+          "wrinkles": 0,
+          "seed": 51001
+        },
+        "hair": {
+          "style": "bob",
+          "color": "darkBrown",
+          "length": 300,
+          "curl": "II",
+          "hairline": "bellShaped"
+        },
+        "browPair": {
+          "left": {
+            "color": "darkBrown"
+          },
+          "right": {
+            "color": "darkBrown"
+          }
+        },
+        "lashPair": {
+          "left": {
+            "color": "darkBrown",
+            "length": 10
+          },
+          "right": {
+            "color": "darkBrown",
+            "length": 10
+          }
+        },
+        "underwear": {
+          "bottom": "briefs",
+          "top": "bra",
+          "color": "#6D5260"
+        }
+      }
+    }
+  },
+  "f-minus-one": {
+    "mass": 50.715992963731324,
+    "params": {
+      "body": {
+        "anatomy": {
+          "sex": "female",
+          "bodyFatPercentage": 25.450039999999994,
+          "stature": 1565.7659999999998,
+          "chestCircumference": 845.8040221296076,
+          "bustPointWidth": 175.86836658665572,
+          "underbustCircumference": 718.8483167126559,
+          "sideNeckToBustPoint": 251.91642770585034,
+          "waistCircumference": 664.8644735588368,
+          "hipCircumference": 901.8930452190505,
+          "neckBaseCircumference": 329.97738179825814,
+          "neckCircumference": 300.35560476055866,
+          "upperArmLength": 298.709198852326,
+          "forearmLength": 232.39599645680832,
+          "elbowCircumference": 219.53199855738816,
+          "wristCircumference": 143.45995775419783,
+          "thighCircumference": 530.4074071510282,
+          "kneeCircumference": 338.8472375195305,
+          "calfCircumference": 329.0955196793465,
+          "handCircumference": 178.2210707226412,
+          "backNeckToWaist": 358.00109610719477,
+          "acrossBackShoulderWidth": 376.91177012089565,
+          "highHipCircumference": 828.1191760953869,
+          "upperArmCircumference": 251.13973998175948,
+          "forearmCircumference": 223.6719128498129,
+          "inseam": 671.5386862317247
+        }
+      },
+      "head": {
+        "length": 183.91185641672098,
+        "cephalicIndex": 77.69146265822062,
+        "circumference": 537.4549139490507,
+        "height": 220.54222657971636,
+        "faceHeight": 115.44892163587933,
+        "faceWidth": 128.38774790142747,
+        "mandibularWidth": 94.84852662938663,
+        "minimumFrontalWidth": 103.15999545773494,
+        "mouthOpening": 48,
+        "mandibularLaterotrusion": 9,
+        "bitragionMentonArc": 312.50194475653177,
+        "bitragionSubnasaleArc": 296.78318468968035,
+        "submentalInclination": 8.970976298492682,
+        "subnasaleAheadOfGlabella": -5.335249310694479,
+        "glabellaAheadOfNasion": 4.816016521929299,
+        "glabellaAboveNasion": 25.601345592422163,
+        "pogonionAheadOfGlabella": -19.45949263859346,
+        "pogonionAboveMenton": 20.10835550877054,
+        "tragionNasionDepth": 124.70180080931877,
+        "tragionSubnasaleDepth": 131.36635454994232,
+        "tragionGnathionDepth": 143.8177512567862,
+        "upperLipProtrusion": 3.6512574378629834,
+        "lowerLipProtrusion": 4.47169057842411,
+        "bitragionBreadth": 144.4564155925047,
+        "nasalBridgeLength": 42.70782516279823,
+        "tragionTopOfHead": 128.61494112622827,
+        "upperFacialHeight": 75.52771526340307,
+        "upperLipHeight": 17.15872676086289,
+        "bitragionCoronalArc": 358.7181942079085,
+        "cervicalArrowApexBehindTragion": 60.6,
+        "cervicalArrowApexBelowTragion": 61.19,
+        "face": {
+          "eyePair": {
+            "left": {
+              "palpebralFissureLength": 27.183392168009778,
+              "palpebralFissureHeight": 8.946168372599455
+            },
+            "right": {
+              "palpebralFissureLength": 27.183392168009778,
+              "palpebralFissureHeight": 8.946168372599455
+            }
+          },
+          "intercanthalWidth": 30.605761685564964,
+          "nose": {
+            "width": 31.876927506371178,
+            "height": 53.24667802261889,
+            "protrusion": 19.663307057713006
+          },
+          "mouth": {
+            "width": 47.033135369829864,
+            "upperVermilionHeight": 7.203389714211696,
+            "lowerVermilionHeight": 8.27416386091884
+          }
+        },
+        "earPair": {
+          "left": {
+            "length": 58.42208864237479,
+            "breadth": 25.407489918289148,
+            "protrusion": 21.563668181782734
+          },
+          "right": {
+            "length": 58.42208864237479,
+            "breadth": 25.407489918289148,
+            "protrusion": 21.563668181782734
+          }
+        }
+      },
+      "extremities": {
+        "hands": {
+          "left": {
+            "handLength": 172.8799450225113,
+            "palmLength": 103.76615142985632,
+            "handBreadth": 76.17980585791456,
+            "thumbLength": 50.79645206068255
+          },
+          "right": {
+            "handLength": 172.8799450225113,
+            "palmLength": 103.76615142985632,
+            "handBreadth": 76.17980585791456,
+            "thumbLength": 50.79645206068255
+          }
+        },
+        "feet": {
+          "left": {
+            "footLength": 234.3028489609286,
+            "footBreadth": 85.9541715344222,
+            "ankleHeight": 58.63552020645575
+          },
+          "right": {
+            "footLength": 234.3028489609286,
+            "footBreadth": 85.9541715344222,
+            "ankleHeight": 58.63552020645575
+          }
+        }
+      },
+      "appearance": {
+        "skin": {
+          "oiliness": 0.25,
+          "wrinkles": 0,
+          "seed": 51001
+        },
+        "hair": {
+          "style": "bob",
+          "color": "darkBrown",
+          "length": 300,
+          "curl": "II",
+          "hairline": "bellShaped"
+        },
+        "browPair": {
+          "left": {
+            "color": "darkBrown"
+          },
+          "right": {
+            "color": "darkBrown"
+          }
+        },
+        "lashPair": {
+          "left": {
+            "color": "darkBrown",
+            "length": 10
+          },
+          "right": {
+            "color": "darkBrown",
+            "length": 10
+          }
+        },
+        "underwear": {
+          "bottom": "briefs",
+          "top": "bra",
+          "color": "#6D5260"
+        }
+      }
+    }
+  },
+  "f-average": {
+    "mass": 61.95270373127933,
+    "params": {
+      "body": {
+        "anatomy": {
+          "sex": "female",
+          "bodyFatPercentage": 28.628840000000004,
+          "stature": 1629.37,
+          "chestCircumference": 906.6636898851007,
+          "bustPointWidth": 184.75794407615308,
+          "underbustCircumference": 769.3545349635383,
+          "sideNeckToBustPoint": 267.8755956048649,
+          "waistCircumference": 725.0895034398546,
+          "hipCircumference": 966.4850109331435,
+          "neckBaseCircumference": 346.09534300417045,
+          "neckCircumference": 315.6210547517354,
+          "upperArmLength": 311.872900930093,
+          "forearmLength": 243.4383988192885,
+          "elbowCircumference": 238.19908927274494,
+          "wristCircumference": 151.20260095005727,
+          "thighCircumference": 579.950432260829,
+          "kneeCircumference": 365.0315830590838,
+          "calfCircumference": 352.24750896825657,
+          "handCircumference": 186.1265237456922,
+          "backNeckToWaist": 366.9625738479911,
+          "acrossBackShoulderWidth": 390.1574898981086,
+          "highHipCircumference": 908.151271626748,
+          "upperArmCircumference": 285.282651505327,
+          "forearmCircumference": 242.71624673135472,
+          "inseam": 702.8691354517648
+        }
+      },
+      "head": {
+        "length": 187.21132457356282,
+        "cephalicIndex": 77.1479512952107,
+        "circumference": 546.1960182396222,
+        "height": 225.57082638080982,
+        "faceHeight": 118.59209643004034,
+        "faceWidth": 131.28463825606795,
+        "mandibularWidth": 96.98865126305095,
+        "minimumFrontalWidth": 105.48765678610181,
+        "mouthOpening": 48,
+        "mandibularLaterotrusion": 9,
+        "bitragionMentonArc": 312.50194475653177,
+        "bitragionSubnasaleArc": 296.78318468968035,
+        "submentalInclination": 8.970976298492682,
+        "subnasaleAheadOfGlabella": -5.335249310694479,
+        "glabellaAheadOfNasion": 4.816016521929299,
+        "glabellaAboveNasion": 25.601345592422163,
+        "pogonionAheadOfGlabella": -19.45949263859346,
+        "pogonionAboveMenton": 20.10835550877054,
+        "tragionNasionDepth": 124.70180080931877,
+        "tragionSubnasaleDepth": 131.36635454994232,
+        "tragionGnathionDepth": 143.8177512567862,
+        "upperLipProtrusion": 3.6512574378629834,
+        "lowerLipProtrusion": 4.47169057842411,
+        "bitragionBreadth": 144.4564155925047,
+        "nasalBridgeLength": 42.70782516279823,
+        "tragionTopOfHead": 128.61494112622827,
+        "upperFacialHeight": 75.52771526340307,
+        "upperLipHeight": 17.15872676086289,
+        "bitragionCoronalArc": 358.7181942079085,
+        "cervicalArrowApexBehindTragion": 60.6,
+        "cervicalArrowApexBelowTragion": 61.19,
+        "face": {
+          "eyePair": {
+            "left": {
+              "palpebralFissureLength": 27.79674747538986,
+              "palpebralFissureHeight": 9.148026176737204
+            },
+            "right": {
+              "palpebralFissureLength": 27.79674747538986,
+              "palpebralFissureHeight": 9.148026176737204
+            }
+          },
+          "intercanthalWidth": 31.29633798488139,
+          "nose": {
+            "width": 32.596185888406815,
+            "height": 54.696354761578476,
+            "protrusion": 20.198653860765724
+          },
+          "mouth": {
+            "width": 48.09437243044073,
+            "upperVermilionHeight": 7.3995068598844735,
+            "lowerVermilionHeight": 8.499433555272706
+          }
+        },
+        "earPair": {
+          "left": {
+            "length": 59.764192302349294,
+            "breadth": 26.05192673864053,
+            "protrusion": 21.817838386145926
+          },
+          "right": {
+            "length": 59.764192302349294,
+            "breadth": 26.05192673864053,
+            "protrusion": 21.817838386145926
+          }
+        }
+      },
+      "extremities": {
+        "hands": {
+          "left": {
+            "handLength": 180.4513440288527,
+            "palmLength": 108.31066314708056,
+            "handBreadth": 79.40120239122662,
+            "thumbLength": 53.02111847070391
+          },
+          "right": {
+            "handLength": 180.4513440288527,
+            "palmLength": 108.31066314708056,
+            "handBreadth": 79.40120239122662,
+            "thumbLength": 53.02111847070391
+          }
+        },
+        "feet": {
+          "left": {
+            "footLength": 244.36402380659706,
+            "footBreadth": 89.6559829675184,
+            "ankleHeight": 60.619169916034075
+          },
+          "right": {
+            "footLength": 244.36402380659706,
+            "footBreadth": 89.6559829675184,
+            "ankleHeight": 60.619169916034075
+          }
+        }
+      },
+      "appearance": {
+        "skin": {
+          "oiliness": 0.25,
+          "wrinkles": 0,
+          "seed": 51001
+        },
+        "hair": {
+          "style": "bob",
+          "color": "darkBrown",
+          "length": 300,
+          "curl": "II",
+          "hairline": "bellShaped"
+        },
+        "browPair": {
+          "left": {
+            "color": "darkBrown"
+          },
+          "right": {
+            "color": "darkBrown"
+          }
+        },
+        "lashPair": {
+          "left": {
+            "color": "darkBrown",
+            "length": 10
+          },
+          "right": {
+            "color": "darkBrown",
+            "length": 10
+          }
+        },
+        "underwear": {
+          "bottom": "briefs",
+          "top": "bra",
+          "color": "#6D5260"
+        }
+      }
+    }
+  },
+  "f-tall": {
+    "mass": 72.27969402619999,
+    "params": {
+      "body": {
+        "anatomy": {
+          "sex": "female",
+          "bodyFatPercentage": 28.0840545437908,
+          "stature": 1777.312904,
+          "chestCircumference": 939.9227224866,
+          "bustPointWidth": 192.55342891520002,
+          "underbustCircumference": 801.2620520575999,
+          "sideNeckToBustPoint": 282.60627824200003,
+          "waistCircumference": 753.1253690024,
+          "hipCircumference": 1017.3968254064,
+          "neckBaseCircumference": 360.949410978,
+          "neckCircumference": 326.90136472,
+          "upperArmLength": 341.9789689324,
+          "forearmLength": 267.3872278648,
+          "elbowCircumference": 250.7788582268,
+          "wristCircumference": 159.408660266,
+          "thighCircumference": 607.580340558,
+          "kneeCircumference": 386.7113539552,
+          "calfCircumference": 367.891926528,
+          "handCircumference": 195.2671200886,
+          "backNeckToWaist": 394.73539744018126,
+          "acrossBackShoulderWidth": 412.208984426352,
+          "highHipCircumference": 946.1641968635266,
+          "upperArmCircumference": 293.73944209361434,
+          "forearmCircumference": 252.75409419561473,
+          "inseam": 781.4568442951327
+        }
+      },
+      "head": {
+        "length": 192.5042970488,
+        "cephalicIndex": 75.77104250998808,
+        "circumference": 558.086794304,
+        "height": 233.28703832123327,
+        "faceHeight": 123.283729198477,
+        "faceWidth": 133.73156551000002,
+        "mandibularWidth": 98.79635837372432,
+        "minimumFrontalWidth": 107.45377122090635,
+        "mouthOpening": 48,
+        "mandibularLaterotrusion": 9,
+        "bitragionMentonArc": 312.50194475653177,
+        "bitragionSubnasaleArc": 296.78318468968035,
+        "submentalInclination": 8.970976298492682,
+        "subnasaleAheadOfGlabella": -5.335249310694479,
+        "glabellaAheadOfNasion": 4.816016521929299,
+        "glabellaAboveNasion": 25.601345592422163,
+        "pogonionAheadOfGlabella": -19.45949263859346,
+        "pogonionAboveMenton": 20.10835550877054,
+        "tragionNasionDepth": 124.70180080931877,
+        "tragionSubnasaleDepth": 131.36635454994232,
+        "tragionGnathionDepth": 143.8177512567862,
+        "upperLipProtrusion": 3.6512574378629834,
+        "lowerLipProtrusion": 4.47169057842411,
+        "bitragionBreadth": 144.4564155925047,
+        "nasalBridgeLength": 42.70782516279823,
+        "tragionTopOfHead": 128.61494112622827,
+        "upperFacialHeight": 75.52771526340307,
+        "upperLipHeight": 17.15872676086289,
+        "bitragionCoronalArc": 358.7181942079085,
+        "cervicalArrowApexBehindTragion": 60.6,
+        "cervicalArrowApexBelowTragion": 61.19,
+        "face": {
+          "eyePair": {
+            "left": {
+              "palpebralFissureLength": 28.31483260607769,
+              "palpebralFissureHeight": 9.318530166152033
+            },
+            "right": {
+              "palpebralFissureLength": 28.31483260607769,
+              "palpebralFissureHeight": 9.318530166152033
+            }
+          },
+          "intercanthalWidth": 31.879649660799704,
+          "nose": {
+            "width": 33.203724566839306,
+            "height": 56.86020225258594,
+            "protrusion": 20.997734652691697
+          },
+          "mouth": {
+            "width": 48.990771523465355,
+            "upperVermilionHeight": 7.692239427223692,
+            "lowerVermilionHeight": 8.835680423162348
+          }
+        },
+        "earPair": {
+          "left": {
+            "length": 61.901908558200006,
+            "breadth": 26.91811148332591,
+            "protrusion": 22.148096256
+          },
+          "right": {
+            "length": 61.901908558200006,
+            "breadth": 26.91811148332591,
+            "protrusion": 22.148096256
+          }
+        }
+      },
+      "extremities": {
+        "hands": {
+          "left": {
+            "handLength": 194.767236467,
+            "palmLength": 116.90336059615076,
+            "handBreadth": 83.45806433439999,
+            "thumbLength": 57.22748574971679
+          },
+          "right": {
+            "handLength": 194.767236467,
+            "palmLength": 116.90336059615076,
+            "handBreadth": 83.45806433439999,
+            "thumbLength": 57.22748574971679
+          }
+        },
+        "feet": {
+          "left": {
+            "footLength": 263.5068952448,
+            "footBreadth": 94.2885595632,
+            "ankleHeight": 65.5385007522
+          },
+          "right": {
+            "footLength": 263.5068952448,
+            "footBreadth": 94.2885595632,
+            "ankleHeight": 65.5385007522
+          }
+        }
+      },
+      "appearance": {
+        "skin": {
+          "oiliness": 0.25,
+          "wrinkles": 0,
+          "seed": 51001
+        },
+        "hair": {
+          "style": "bob",
+          "color": "darkBrown",
+          "length": 300,
+          "curl": "II",
+          "hairline": "bellShaped"
+        },
+        "browPair": {
+          "left": {
+            "color": "darkBrown"
+          },
+          "right": {
+            "color": "darkBrown"
+          }
+        },
+        "lashPair": {
+          "left": {
+            "color": "darkBrown",
+            "length": 10
+          },
+          "right": {
+            "color": "darkBrown",
+            "length": 10
+          }
+        },
+        "underwear": {
+          "bottom": "briefs",
+          "top": "bra",
+          "color": "#6D5260"
+        }
+      }
+    }
+  },
+  "f-long-legged": {
+    "mass": 61.95270373127933,
+    "params": {
+      "body": {
+        "anatomy": {
+          "sex": "female",
+          "bodyFatPercentage": 28.628840000000004,
+          "stature": 1629.37,
+          "chestCircumference": 900.4114423956751,
+          "bustPointWidth": 186.68947748223022,
+          "underbustCircumference": 758.0155351269998,
+          "sideNeckToBustPoint": 262.9535127269894,
+          "waistCircumference": 727.0639328884113,
+          "hipCircumference": 954.5715754301607,
+          "neckBaseCircumference": 346.0664415174987,
+          "neckCircumference": 315.2854966869503,
+          "upperArmLength": 323.76433038570076,
+          "forearmLength": 261.00052453628734,
+          "elbowCircumference": 237.80627020068056,
+          "wristCircumference": 151.010912295833,
+          "thighCircumference": 582.9642196440027,
+          "kneeCircumference": 367.21283392079977,
+          "calfCircumference": 348.7404321444836,
+          "handCircumference": 187.64544316992811,
+          "backNeckToWaist": 347.5996825416861,
+          "acrossBackShoulderWidth": 391.06372179476335,
+          "highHipCircumference": 903.0956227089617,
+          "upperArmCircumference": 286.45337583233425,
+          "forearmCircumference": 244.54966833526288,
+          "inseam": 752.9271710989174
+        }
+      },
+      "head": {
+        "length": 187.7290368375142,
+        "cephalicIndex": 76.49524656884431,
+        "circumference": 547.4644582336485,
+        "height": 226.1368428481614,
+        "faceHeight": 118.86227502217996,
+        "faceWidth": 131.99762611507256,
+        "mandibularWidth": 97.51538258310767,
+        "minimumFrontalWidth": 106.06054497441092,
+        "mouthOpening": 48,
+        "mandibularLaterotrusion": 9,
+        "bitragionMentonArc": 312.50194475653177,
+        "bitragionSubnasaleArc": 296.78318468968035,
+        "submentalInclination": 8.970976298492682,
+        "subnasaleAheadOfGlabella": -5.335249310694479,
+        "glabellaAheadOfNasion": 4.816016521929299,
+        "glabellaAboveNasion": 25.601345592422163,
+        "pogonionAheadOfGlabella": -19.45949263859346,
+        "pogonionAboveMenton": 20.10835550877054,
+        "tragionNasionDepth": 124.70180080931877,
+        "tragionSubnasaleDepth": 131.36635454994232,
+        "tragionGnathionDepth": 143.8177512567862,
+        "upperLipProtrusion": 3.6512574378629834,
+        "lowerLipProtrusion": 4.47169057842411,
+        "bitragionBreadth": 144.4564155925047,
+        "nasalBridgeLength": 42.70782516279823,
+        "tragionTopOfHead": 128.61494112622827,
+        "upperFacialHeight": 75.52771526340307,
+        "upperLipHeight": 17.15872676086289,
+        "bitragionCoronalArc": 358.7181942079085,
+        "cervicalArrowApexBehindTragion": 60.6,
+        "cervicalArrowApexBelowTragion": 61.19,
+        "face": {
+          "eyePair": {
+            "left": {
+              "palpebralFissureLength": 27.94770758567416,
+              "palpebralFissureHeight": 9.197707782174911
+            },
+            "right": {
+              "palpebralFissureLength": 27.94770758567416,
+              "palpebralFissureHeight": 9.197707782174911
+            }
+          },
+          "intercanthalWidth": 31.466303864446083,
+          "nose": {
+            "width": 32.77321105370423,
+            "height": 54.82096495542365,
+            "protrusion": 20.244670787926097
+          },
+          "mouth": {
+            "width": 48.35556600255133,
+            "upperVermilionHeight": 7.416364546071938,
+            "lowerVermilionHeight": 8.51879711373128
+          }
+        },
+        "earPair": {
+          "left": {
+            "length": 58.23856072670647,
+            "breadth": 26.353648711519252,
+            "protrusion": 20.778910149449796
+          },
+          "right": {
+            "length": 58.23856072670647,
+            "breadth": 26.353648711519252,
+            "protrusion": 20.778910149449796
+          }
+        }
+      },
+      "extremities": {
+        "hands": {
+          "left": {
+            "handLength": 188.09433920576302,
+            "palmLength": 112.89814838026749,
+            "handBreadth": 80.02356357889317,
+            "thumbLength": 55.266821626459766
+          },
+          "right": {
+            "handLength": 188.09433920576302,
+            "palmLength": 112.89814838026749,
+            "handBreadth": 80.02356357889317,
+            "thumbLength": 55.266821626459766
+          }
+        },
+        "feet": {
+          "left": {
+            "footLength": 252.4487852401113,
+            "footBreadth": 90.40803367379908,
+            "ankleHeight": 58.816580967556334
+          },
+          "right": {
+            "footLength": 252.4487852401113,
+            "footBreadth": 90.40803367379908,
+            "ankleHeight": 58.816580967556334
+          }
+        }
+      },
+      "appearance": {
+        "skin": {
+          "oiliness": 0.25,
+          "wrinkles": 0,
+          "seed": 51001
+        },
+        "hair": {
+          "style": "bob",
+          "color": "darkBrown",
+          "length": 300,
+          "curl": "II",
+          "hairline": "bellShaped"
+        },
+        "browPair": {
+          "left": {
+            "color": "darkBrown"
+          },
+          "right": {
+            "color": "darkBrown"
+          }
+        },
+        "lashPair": {
+          "left": {
+            "color": "darkBrown",
+            "length": 10
+          },
+          "right": {
+            "color": "darkBrown",
+            "length": 10
+          }
+        },
+        "underwear": {
+          "bottom": "briefs",
+          "top": "bra",
+          "color": "#6D5260"
+        }
+      }
+    }
+  },
+  "m-short": {
+    "mass": 64.38542442399999,
+    "params": {
+      "body": {
+        "anatomy": {
+          "sex": "male",
+          "bodyFatPercentage": 20.220945264777683,
+          "stature": 1600.416918,
+          "chestCircumference": 941.2048656218,
+          "bustPointWidth": 203.4528202544,
+          "underbustCircumference": 881.5555521686,
+          "sideNeckToBustPoint": 255.4642743326,
+          "waistCircumference": 796.0706480112,
+          "hipCircumference": 925.6152450479999,
+          "neckBaseCircumference": 391.54497576159997,
+          "neckCircumference": 365.2698966772,
+          "upperArmLength": 308.84647504279997,
+          "forearmLength": 244.5191305664,
+          "elbowCircumference": 261.0847978934,
+          "wristCircumference": 164.28378941760002,
+          "thighCircumference": 563.6341355024,
+          "kneeCircumference": 362.719380338,
+          "calfCircumference": 358.6009156696,
+          "handCircumference": 203.1762275392,
+          "backNeckToWaist": 371.4378569863827,
+          "acrossBackShoulderWidth": 398.44440402431104,
+          "highHipCircumference": 826.6759748683666,
+          "upperArmCircumference": 326.9093292112337,
+          "forearmCircumference": 266.85882620666774,
+          "inseam": 658.0607875308522
+        }
+      },
+      "head": {
+        "length": 191.4297181984,
+        "cephalicIndex": 78.48904287257935,
+        "circumference": 555.4388564039999,
+        "height": 219.54169600803715,
+        "faceHeight": 122.42100911711,
+        "faceWidth": 137.7378794696,
+        "mandibularWidth": 102.46749059993734,
+        "minimumFrontalWidth": 109.23328662998105,
+        "mouthOpening": 54,
+        "mandibularLaterotrusion": 11,
+        "face": {
+          "eyePair": {
+            "left": {
+              "palpebralFissureLength": 28.239844299312875,
+              "palpebralFissureHeight": 8.158161591709012
+            },
+            "right": {
+              "palpebralFissureLength": 28.239844299312875,
+              "palpebralFissureHeight": 8.158161591709012
+            }
+          },
+          "intercanthalWidth": 32.063989881511496,
+          "nose": {
+            "width": 35.397860389069265,
+            "height": 54.473499339846114,
+            "protrusion": 20.21101565612665
+          },
+          "mouth": {
+            "width": 49.910002598438375,
+            "upperVermilionHeight": 7.21821987718809,
+            "lowerVermilionHeight": 8.373135057538184
+          }
+        },
+        "earPair": {
+          "left": {
+            "length": 62.17155036,
+            "breadth": 29.70053563231749,
+            "protrusion": 24.276901049
+          },
+          "right": {
+            "length": 62.17155036,
+            "breadth": 29.70053563231749,
+            "protrusion": 24.276901049
+          }
+        }
+      },
+      "extremities": {
+        "hands": {
+          "left": {
+            "handLength": 178.98757039999998,
+            "palmLength": 107.87404010139679,
+            "handBreadth": 85.9219021768,
+            "thumbLength": 54.18769763623454
+          },
+          "right": {
+            "handLength": 178.98757039999998,
+            "palmLength": 107.87404010139679,
+            "handBreadth": 85.9219021768,
+            "thumbLength": 54.18769763623454
+          }
+        },
+        "feet": {
+          "left": {
+            "footLength": 248.3463255134,
+            "footBreadth": 94.79013686,
+            "ankleHeight": 61.25951569639999
+          },
+          "right": {
+            "footLength": 248.3463255134,
+            "footBreadth": 94.79013686,
+            "ankleHeight": 61.25951569639999
+          }
+        }
+      },
+      "appearance": {
+        "skin": {
+          "oiliness": 0.3,
+          "wrinkles": 0,
+          "seed": 51003
+        },
+        "hair": {
+          "style": "short",
+          "color": "black",
+          "length": 100,
+          "curl": "II",
+          "hairline": "rectangular"
+        },
+        "browPair": {
+          "left": {
+            "color": "black"
+          },
+          "right": {
+            "color": "black"
+          }
+        },
+        "lashPair": {
+          "left": {
+            "color": "black",
+            "length": 8
+          },
+          "right": {
+            "color": "black",
+            "length": 8
+          }
+        },
+        "underwear": {
+          "bottom": "boxerBriefs",
+          "top": "none",
+          "color": "#3D454B"
+        }
+      }
+    }
+  },
+  "m-average": {
+    "mass": 78.36467405880832,
+    "params": {
+      "body": {
+        "anatomy": {
+          "sex": "male",
+          "bodyFatPercentage": 20.559279999999994,
+          "stature": 1755.81,
+          "chestCircumference": 990.5901465779621,
+          "bustPointWidth": 215.73235304264873,
+          "underbustCircumference": 925.38860836088,
+          "sideNeckToBustPoint": 272.2770176221457,
+          "waistCircumference": 839.0565331114228,
+          "hipCircumference": 982.954080907526,
+          "neckBaseCircumference": 408.1982029178129,
+          "neckCircumference": 379.38614941847834,
+          "upperArmLength": 340.7917082825057,
+          "forearmLength": 269.8405854786128,
+          "elbowCircumference": 276.9298855439492,
+          "wristCircumference": 174.1503164011807,
+          "thighCircumference": 595.9252545024955,
+          "kneeCircumference": 386.1388911309809,
+          "calfCircumference": 377.8020688495041,
+          "handCircumference": 213.73593907399092,
+          "backNeckToWaist": 402.7928348250569,
+          "acrossBackShoulderWidth": 419.89493151659997,
+          "highHipCircumference": 882.4187585115811,
+          "upperArmCircumference": 340.26038771900136,
+          "forearmCircumference": 279.278306566314,
+          "inseam": 739.001905967114
+        }
+      },
+      "head": {
+        "length": 197.08940681563743,
+        "cephalicIndex": 76.94863937412545,
+        "circumference": 567.5807214442372,
+        "height": 227.17947006126812,
+        "faceHeight": 127.18737505634495,
+        "faceWidth": 140.43651381001175,
+        "mandibularWidth": 104.4750885822327,
+        "minimumFrontalWidth": 111.37344371349975,
+        "mouthOpening": 54,
+        "mandibularLaterotrusion": 11,
+        "face": {
+          "eyePair": {
+            "left": {
+              "palpebralFissureLength": 28.79313446094069,
+              "palpebralFissureHeight": 8.318000665105474
+            },
+            "right": {
+              "palpebralFissureLength": 28.79313446094069,
+              "palpebralFissureHeight": 8.318000665105474
+            }
+          },
+          "intercanthalWidth": 32.69220475252641,
+          "nose": {
+            "width": 36.09139423749857,
+            "height": 56.59438229708431,
+            "protrusion": 20.997915693264495
+          },
+          "mouth": {
+            "width": 50.887866113259754,
+            "upperVermilionHeight": 7.4992556047373204,
+            "lowerVermilionHeight": 8.69913650149529
+          }
+        },
+        "earPair": {
+          "left": {
+            "length": 64.65808772022231,
+            "breadth": 30.82149771513013,
+            "protrusion": 24.197863655415002
+          },
+          "right": {
+            "length": 64.65808772022231,
+            "breadth": 30.82149771513013,
+            "protrusion": 24.197863655415002
+          }
+        }
+      },
+      "extremities": {
+        "hands": {
+          "left": {
+            "handLength": 193.76460012842617,
+            "palmLength": 116.7800099066821,
+            "handBreadth": 90.41047000606729,
+            "thumbLength": 58.66137822252405
+          },
+          "right": {
+            "handLength": 193.76460012842617,
+            "palmLength": 116.7800099066821,
+            "handBreadth": 90.41047000606729,
+            "thumbLength": 58.66137822252405
+          }
+        },
+        "feet": {
+          "left": {
+            "footLength": 269.65263975686554,
+            "footBreadth": 100.59439032671055,
+            "ankleHeight": 67.06258529792082
+          },
+          "right": {
+            "footLength": 269.65263975686554,
+            "footBreadth": 100.59439032671055,
+            "ankleHeight": 67.06258529792082
+          }
+        }
+      },
+      "appearance": {
+        "skin": {
+          "oiliness": 0.3,
+          "wrinkles": 0,
+          "seed": 51003
+        },
+        "hair": {
+          "style": "short",
+          "color": "black",
+          "length": 100,
+          "curl": "II",
+          "hairline": "rectangular"
+        },
+        "browPair": {
+          "left": {
+            "color": "black"
+          },
+          "right": {
+            "color": "black"
+          }
+        },
+        "lashPair": {
+          "left": {
+            "color": "black",
+            "length": 8
+          },
+          "right": {
+            "color": "black",
+            "length": 8
+          }
+        },
+        "underwear": {
+          "bottom": "boxerBriefs",
+          "top": "none",
+          "color": "#3D454B"
+        }
+      }
+    }
+  },
+  "m-tall": {
+    "mass": 92.594575576,
+    "params": {
+      "body": {
+        "anatomy": {
+          "sex": "male",
+          "bodyFatPercentage": 20.47557325757755,
+          "stature": 1911.203082,
+          "chestCircumference": 1041.5351343782,
+          "bustPointWidth": 228.3071797456,
+          "underbustCircumference": 970.6844478314,
+          "sideNeckToBustPoint": 289.37572566740005,
+          "waistCircumference": 883.7493519888,
+          "hipCircumference": 1041.724754952,
+          "neckBaseCircumference": 425.19502423840004,
+          "neckCircumference": 393.8701033228,
+          "upperArmLength": 372.77352495720004,
+          "forearmLength": 295.18086943360004,
+          "elbowCircumference": 293.0752021066,
+          "wristCircumference": 184.1362105824,
+          "thighCircumference": 629.3858644976,
+          "kneeCircumference": 410.000619662,
+          "calfCircumference": 397.5190843304,
+          "handCircumference": 224.40377246079998,
+          "backNeckToWaist": 434.14626896280674,
+          "acrossBackShoulderWidth": 441.48614889891917,
+          "highHipCircumference": 940.1503538800987,
+          "upperArmCircumference": 354.1853996427292,
+          "forearmCircumference": 292.02347130191174,
+          "inseam": 819.7930933068959
+        }
+      },
+      "head": {
+        "length": 202.79028180160003,
+        "cephalicIndex": 75.50097817911902,
+        "circumference": 579.881143596,
+        "height": 234.86338965196626,
+        "faceHeight": 131.97899088289,
+        "faceWidth": 143.2021205304,
+        "mandibularWidth": 106.53250940006266,
+        "minimumFrontalWidth": 113.56671337001896,
+        "mouthOpening": 54,
+        "mandibularLaterotrusion": 11,
+        "face": {
+          "eyePair": {
+            "left": {
+              "palpebralFissureLength": 29.360155700687127,
+              "palpebralFissureHeight": 8.481806486793207
+            },
+            "right": {
+              "palpebralFissureLength": 29.360155700687127,
+              "palpebralFissureHeight": 8.481806486793207
+            }
+          },
+          "intercanthalWidth": 33.33601011848851,
+          "nose": {
+            "width": 36.80213961093074,
+            "height": 58.72650066015389,
+            "protrusion": 21.78898434387335
+          },
+          "mouth": {
+            "width": 51.88999740156162,
+            "upperVermilionHeight": 7.78178012281191,
+            "lowerVermilionHeight": 9.026864942461815
+          }
+        },
+        "earPair": {
+          "left": {
+            "length": 67.16844964,
+            "breadth": 31.950762065111746,
+            "protrusion": 24.123098951
+          },
+          "right": {
+            "length": 67.16844964,
+            "breadth": 31.950762065111746,
+            "protrusion": 24.123098951
+          }
+        }
+      },
+      "extremities": {
+        "hands": {
+          "left": {
+            "handLength": 208.57242960000002,
+            "palmLength": 125.70454241282981,
+            "handBreadth": 94.93809782320001,
+            "thumbLength": 63.1443832952303
+          },
+          "right": {
+            "handLength": 208.57242960000002,
+            "palmLength": 125.70454241282981,
+            "handBreadth": 94.93809782320001,
+            "thumbLength": 63.1443832952303
+          }
+        },
+        "feet": {
+          "left": {
+            "footLength": 291.0136744866,
+            "footBreadth": 106.44986314,
+            "ankleHeight": 72.8804843036
+          },
+          "right": {
+            "footLength": 291.0136744866,
+            "footBreadth": 106.44986314,
+            "ankleHeight": 72.8804843036
+          }
+        }
+      },
+      "appearance": {
+        "skin": {
+          "oiliness": 0.3,
+          "wrinkles": 0,
+          "seed": 51003
+        },
+        "hair": {
+          "style": "short",
+          "color": "black",
+          "length": 100,
+          "curl": "II",
+          "hairline": "rectangular"
+        },
+        "browPair": {
+          "left": {
+            "color": "black"
+          },
+          "right": {
+            "color": "black"
+          }
+        },
+        "lashPair": {
+          "left": {
+            "color": "black",
+            "length": 8
+          },
+          "right": {
+            "color": "black",
+            "length": 8
+          }
+        },
+        "underwear": {
+          "bottom": "boxerBriefs",
+          "top": "none",
+          "color": "#3D454B"
+        }
+      }
+    }
+  },
+  "m-large": {
+    "mass": 118.34129140566047,
+    "params": {
+      "body": {
+        "anatomy": {
+          "sex": "male",
+          "bodyFatPercentage": 28.933996479999998,
+          "stature": 1911.203082,
+          "chestCircumference": 1205.7013897261647,
+          "bustPointWidth": 258.62453042117795,
+          "underbustCircumference": 1111.1524089395416,
+          "sideNeckToBustPoint": 317.2464782830433,
+          "waistCircumference": 1029.7694119811185,
+          "hipCircumference": 1177.0382730109927,
+          "neckBaseCircumference": 465.88110289807764,
+          "neckCircumference": 437.5068788545477,
+          "upperArmLength": 375.3424192157138,
+          "forearmLength": 300.2317944869119,
+          "elbowCircumference": 334.0047544655746,
+          "wristCircumference": 198.96602005618547,
+          "thighCircumference": 749.8590274277358,
+          "kneeCircumference": 453.9088510487625,
+          "calfCircumference": 452.3110280954363,
+          "handCircumference": 239.7189280370917,
+          "backNeckToWaist": 428.10559320552903,
+          "acrossBackShoulderWidth": 457.4998697124599,
+          "highHipCircumference": 1096.4302168771467,
+          "upperArmCircumference": 450.6665140477259,
+          "forearmCircumference": 341.6837571656412,
+          "inseam": 814.8192334418127
+        }
+      },
+      "head": {
+        "length": 206.91517833622112,
+        "cephalicIndex": 76.2674799361338,
+        "circumference": 595.9118522364407,
+        "height": 240.38764609606537,
+        "faceHeight": 135.41050651032447,
+        "faceWidth": 150.32137217379605,
+        "mandibularWidth": 111.82874202435883,
+        "minimumFrontalWidth": 119.2126493924744,
+        "mouthOpening": 54,
+        "mandibularLaterotrusion": 11,
+        "face": {
+          "eyePair": {
+            "left": {
+              "palpebralFissureLength": 30.81978727561277,
+              "palpebralFissureHeight": 8.903477021743496
+            },
+            "right": {
+              "palpebralFissureLength": 30.81978727561277,
+              "palpebralFissureHeight": 8.903477021743496
+            }
+          },
+          "intercanthalWidth": 34.993300135852,
+          "nose": {
+            "width": 38.63174724477851,
+            "height": 60.253417205065766,
+            "protrusion": 22.355508150289417
+          },
+          "mouth": {
+            "width": 54.46969348363507,
+            "upperVermilionHeight": 7.984110053674792,
+            "lowerVermilionHeight": 9.261567662262758
+          }
+        },
+        "earPair": {
+          "left": {
+            "length": 67.43787138374701,
+            "breadth": 32.657919161346406,
+            "protrusion": 23.411369201599936
+          },
+          "right": {
+            "length": 67.43787138374701,
+            "breadth": 32.657919161346406,
+            "protrusion": 23.411369201599936
+          }
+        }
+      },
+      "extremities": {
+        "hands": {
+          "left": {
+            "handLength": 214.6774177603804,
+            "palmLength": 129.38395845361777,
+            "handBreadth": 100.5632398919422,
+            "thumbLength": 64.99264153890711
+          },
+          "right": {
+            "handLength": 214.6774177603804,
+            "palmLength": 129.38395845361777,
+            "handBreadth": 100.5632398919422,
+            "thumbLength": 64.99264153890711
+          }
+        },
+        "feet": {
+          "left": {
+            "footLength": 299.02405761168,
+            "footBreadth": 112.64288188033971,
+            "ankleHeight": 73.53612764821608
+          },
+          "right": {
+            "footLength": 299.02405761168,
+            "footBreadth": 112.64288188033971,
+            "ankleHeight": 73.53612764821608
+          }
+        }
+      },
+      "appearance": {
+        "skin": {
+          "oiliness": 0.3,
+          "wrinkles": 0,
+          "seed": 51003
+        },
+        "hair": {
+          "style": "short",
+          "color": "black",
+          "length": 100,
+          "curl": "II",
+          "hairline": "rectangular"
+        },
+        "browPair": {
+          "left": {
+            "color": "black"
+          },
+          "right": {
+            "color": "black"
+          }
+        },
+        "lashPair": {
+          "left": {
+            "color": "black",
+            "length": 8
+          },
+          "right": {
+            "color": "black",
+            "length": 8
+          }
+        },
+        "underwear": {
+          "bottom": "boxerBriefs",
+          "top": "none",
+          "color": "#3D454B"
+        }
+      }
+    }
+  },
+  "m-short-legged": {
+    "mass": 78.36467405880832,
+    "params": {
+      "body": {
+        "anatomy": {
+          "sex": "male",
+          "bodyFatPercentage": 20.559279999999994,
+          "stature": 1755.81,
+          "chestCircumference": 995.916032757309,
+          "bustPointWidth": 216.46482402936385,
+          "underbustCircumference": 937.3607816849527,
+          "sideNeckToBustPoint": 278.6396978242677,
+          "waistCircumference": 850.8788702749401,
+          "hipCircumference": 989.0781884859759,
+          "neckBaseCircumference": 410.9373384644492,
+          "neckCircumference": 381.49923278827583,
+          "upperArmLength": 330.50123049809355,
+          "forearmLength": 255.43603064662125,
+          "elbowCircumference": 275.36898286478885,
+          "wristCircumference": 175.25506596285038,
+          "thighCircumference": 591.3626522396555,
+          "kneeCircumference": 386.7548909344004,
+          "calfCircumference": 378.4191557038481,
+          "handCircumference": 213.1933560385663,
+          "backNeckToWaist": 423.38074413622854,
+          "acrossBackShoulderWidth": 420.49944630671416,
+          "highHipCircumference": 907.0337315984946,
+          "upperArmCircumference": 332.11589390555446,
+          "forearmCircumference": 275.1450318624494,
+          "inseam": 690.960627032316
+        }
+      },
+      "head": {
+        "length": 197.25581719949156,
+        "cephalicIndex": 77.15181976549464,
+        "circumference": 568.6715364552964,
+        "height": 226.0970261724181,
+        "faceHeight": 126.02050388557758,
+        "faceWidth": 140.33616044160226,
+        "mandibularWidth": 104.40043259163834,
+        "minimumFrontalWidth": 111.29385828429197,
+        "mouthOpening": 54,
+        "mandibularLaterotrusion": 11,
+        "face": {
+          "eyePair": {
+            "left": {
+              "palpebralFissureLength": 28.77255941281516,
+              "palpebralFissureHeight": 8.312056773716195
+            },
+            "right": {
+              "palpebralFissureLength": 28.77255941281516,
+              "palpebralFissureHeight": 8.312056773716195
+            }
+          },
+          "intercanthalWidth": 32.66884349996721,
+          "nose": {
+            "width": 36.06560398620233,
+            "height": 56.075161320154805,
+            "protrusion": 20.80527186790196
+          },
+          "mouth": {
+            "width": 50.85150257334345,
+            "upperVermilionHeight": 7.430454238536414,
+            "lowerVermilionHeight": 8.61932691670224
+          }
+        },
+        "earPair": {
+          "left": {
+            "length": 67.26759033033562,
+            "breadth": 31.0346783847471,
+            "protrusion": 25.44145442724148
+          },
+          "right": {
+            "length": 67.26759033033562,
+            "breadth": 31.0346783847471,
+            "protrusion": 25.44145442724148
+          }
+        }
+      },
+      "extremities": {
+        "hands": {
+          "left": {
+            "handLength": 187.56100603101297,
+            "palmLength": 113.04116504197108,
+            "handBreadth": 90.0840404123494,
+            "thumbLength": 56.78326746624465
+          },
+          "right": {
+            "handLength": 187.56100603101297,
+            "palmLength": 113.04116504197108,
+            "handBreadth": 90.0840404123494,
+            "thumbLength": 56.78326746624465
+          }
+        },
+        "feet": {
+          "left": {
+            "footLength": 262.90939521959774,
+            "footBreadth": 99.71062057432346,
+            "ankleHeight": 68.17843550528997
+          },
+          "right": {
+            "footLength": 262.90939521959774,
+            "footBreadth": 99.71062057432346,
+            "ankleHeight": 68.17843550528997
+          }
+        }
+      },
+      "appearance": {
+        "skin": {
+          "oiliness": 0.3,
+          "wrinkles": 0,
+          "seed": 51003
+        },
+        "hair": {
+          "style": "short",
+          "color": "black",
+          "length": 100,
+          "curl": "II",
+          "hairline": "rectangular"
+        },
+        "browPair": {
+          "left": {
+            "color": "black"
+          },
+          "right": {
+            "color": "black"
+          }
+        },
+        "lashPair": {
+          "left": {
+            "color": "black",
+            "length": 8
+          },
+          "right": {
+            "color": "black",
+            "length": 8
+          }
+        },
+        "underwear": {
+          "bottom": "boxerBriefs",
+          "top": "none",
+          "color": "#3D454B"
+        }
+      }
+    }
+  },
+  "m-broad": {
+    "mass": 78.36467405880832,
+    "params": {
+      "body": {
+        "anatomy": {
+          "sex": "male",
+          "bodyFatPercentage": 20.559279999999994,
+          "stature": 1755.81,
+          "chestCircumference": 997.7246412976748,
+          "bustPointWidth": 217.1368258662694,
+          "underbustCircumference": 926.7832886370294,
+          "sideNeckToBustPoint": 273.19568256359537,
+          "waistCircumference": 834.7356420563989,
+          "hipCircumference": 979.575178457152,
+          "neckBaseCircumference": 414.0797984827861,
+          "neckCircumference": 383.3064121793597,
+          "upperArmLength": 340.8056339417977,
+          "forearmLength": 272.03858112556014,
+          "elbowCircumference": 277.42774551723335,
+          "wristCircumference": 175.21244808258024,
+          "thighCircumference": 592.1859266523688,
+          "kneeCircumference": 385.08071231909776,
+          "calfCircumference": 378.49077242175264,
+          "handCircumference": 215.42759274502822,
+          "backNeckToWaist": 406.4148920467112,
+          "acrossBackShoulderWidth": 456.5406314583311,
+          "highHipCircumference": 869.4974852074135,
+          "upperArmCircumference": 341.8600728384297,
+          "forearmCircumference": 280.9909295468791,
+          "inseam": 738.2094074284514
+        }
+      },
+      "head": {
+        "length": 197.21873653698105,
+        "cephalicIndex": 77.20782146408428,
+        "circumference": 568.825760655866,
+        "height": 228.32751245998384,
+        "faceHeight": 128.26980281857414,
+        "faceWidth": 141.42874253929935,
+        "mandibularWidth": 105.21323838084135,
+        "minimumFrontalWidth": 112.16033258971987,
+        "mouthOpening": 54,
+        "mandibularLaterotrusion": 11,
+        "face": {
+          "eyePair": {
+            "left": {
+              "palpebralFissureLength": 28.996567132710343,
+              "palpebralFissureHeight": 8.376769990875811
+            },
+            "right": {
+              "palpebralFissureLength": 28.996567132710343,
+              "palpebralFissureHeight": 8.376769990875811
+            }
+          },
+          "intercanthalWidth": 32.9231855985982,
+          "nose": {
+            "width": 36.34639144065429,
+            "height": 57.07602861266743,
+            "protrusion": 21.176618389858938
+          },
+          "mouth": {
+            "width": 51.24740510607487,
+            "upperVermilionHeight": 7.563077996378192,
+            "lowerVermilionHeight": 8.773170475798702
+          }
+        },
+        "earPair": {
+          "left": {
+            "length": 64.60436216108013,
+            "breadth": 30.957242089248286,
+            "protrusion": 24.285295168966673
+          },
+          "right": {
+            "length": 64.60436216108013,
+            "breadth": 30.957242089248286,
+            "protrusion": 24.285295168966673
+          }
+        }
+      },
+      "extremities": {
+        "hands": {
+          "left": {
+            "handLength": 196.09497419784282,
+            "palmLength": 118.18450333186078,
+            "handBreadth": 91.11940551072134,
+            "thumbLength": 59.3668886955176
+          },
+          "right": {
+            "handLength": 196.09497419784282,
+            "palmLength": 118.18450333186078,
+            "handBreadth": 91.11940551072134,
+            "thumbLength": 59.3668886955176
+          }
+        },
+        "feet": {
+          "left": {
+            "footLength": 271.9122978440532,
+            "footBreadth": 101.12782889217178,
+            "ankleHeight": 65.85967292621501
+          },
+          "right": {
+            "footLength": 271.9122978440532,
+            "footBreadth": 101.12782889217178,
+            "ankleHeight": 65.85967292621501
+          }
+        }
+      },
+      "appearance": {
+        "skin": {
+          "oiliness": 0.3,
+          "wrinkles": 0,
+          "seed": 51003
+        },
+        "hair": {
+          "style": "short",
+          "color": "black",
+          "length": 100,
+          "curl": "II",
+          "hairline": "rectangular"
+        },
+        "browPair": {
+          "left": {
+            "color": "black"
+          },
+          "right": {
+            "color": "black"
+          }
+        },
+        "lashPair": {
+          "left": {
+            "color": "black",
+            "length": 8
+          },
+          "right": {
+            "color": "black",
+            "length": 8
+          }
+        },
+        "underwear": {
+          "bottom": "boxerBriefs",
+          "top": "none",
+          "color": "#3D454B"
+        }
+      }
+    }
+  },
+  "m-narrow": {
+    "mass": 78.36467405880832,
+    "params": {
+      "body": {
+        "anatomy": {
+          "sex": "male",
+          "bodyFatPercentage": 20.559279999999994,
+          "stature": 1755.81,
+          "chestCircumference": 983.4556518582493,
+          "bustPointWidth": 214.3278802190281,
+          "underbustCircumference": 923.9939280847307,
+          "sideNeckToBustPoint": 271.3583526806961,
+          "waistCircumference": 843.3774241664468,
+          "hipCircumference": 986.3329833579,
+          "neckBaseCircumference": 402.3166073528398,
+          "neckCircumference": 375.46588665759697,
+          "upperArmLength": 340.7777826232137,
+          "forearmLength": 267.64258983166553,
+          "elbowCircumference": 276.432025570665,
+          "wristCircumference": 173.08818471978114,
+          "thighCircumference": 599.6645823526222,
+          "kneeCircumference": 387.19706994286406,
+          "calfCircumference": 377.1133652772555,
+          "handCircumference": 212.0442854029536,
+          "backNeckToWaist": 399.1707776034026,
+          "acrossBackShoulderWidth": 383.2492315748688,
+          "highHipCircumference": 895.3400318157488,
+          "upperArmCircumference": 338.660702599573,
+          "forearmCircumference": 277.5656835857488,
+          "inseam": 739.7944045057766
+        }
+      },
+      "head": {
+        "length": 196.9600770942938,
+        "cephalicIndex": 76.6891169111533,
+        "circumference": 566.3356822326083,
+        "height": 226.0314276625524,
+        "faceHeight": 126.10494729411576,
+        "faceWidth": 139.44428508072417,
+        "mandibularWidth": 103.73693878362408,
+        "minimumFrontalWidth": 110.58655483727965,
+        "mouthOpening": 54,
+        "mandibularLaterotrusion": 11,
+        "face": {
+          "eyePair": {
+            "left": {
+              "palpebralFissureLength": 28.58970178917104,
+              "palpebralFissureHeight": 8.259231339335138
+            },
+            "right": {
+              "palpebralFissureLength": 28.58970178917104,
+              "palpebralFissureHeight": 8.259231339335138
+            }
+          },
+          "intercanthalWidth": 32.46122390645462,
+          "nose": {
+            "width": 35.836397034342866,
+            "height": 56.112735981501196,
+            "protrusion": 20.819212996670053
+          },
+          "mouth": {
+            "width": 50.52832712044465,
+            "upperVermilionHeight": 7.435433213096448,
+            "lowerVermilionHeight": 8.62510252719188
+          }
+        },
+        "earPair": {
+          "left": {
+            "length": 64.71181327936449,
+            "breadth": 30.685753341011964,
+            "protrusion": 24.110432141863335
+          },
+          "right": {
+            "length": 64.71181327936449,
+            "breadth": 30.685753341011964,
+            "protrusion": 24.110432141863335
+          }
+        }
+      },
+      "extremities": {
+        "hands": {
+          "left": {
+            "handLength": 191.4342260590095,
+            "palmLength": 115.3755164815034,
+            "handBreadth": 89.70153450141322,
+            "thumbLength": 57.95586774953048
+          },
+          "right": {
+            "handLength": 191.4342260590095,
+            "palmLength": 115.3755164815034,
+            "handBreadth": 89.70153450141322,
+            "thumbLength": 57.95586774953048
+          }
+        },
+        "feet": {
+          "left": {
+            "footLength": 267.3929816696779,
+            "footBreadth": 100.06095176124933,
+            "ankleHeight": 68.26549766962663
+          },
+          "right": {
+            "footLength": 267.3929816696779,
+            "footBreadth": 100.06095176124933,
+            "ankleHeight": 68.26549766962663
+          }
+        }
+      },
+      "appearance": {
+        "skin": {
+          "oiliness": 0.3,
+          "wrinkles": 0,
+          "seed": 51003
+        },
+        "hair": {
+          "style": "short",
+          "color": "black",
+          "length": 100,
+          "curl": "II",
+          "hairline": "rectangular"
+        },
+        "browPair": {
+          "left": {
+            "color": "black"
+          },
+          "right": {
+            "color": "black"
+          }
+        },
+        "lashPair": {
+          "left": {
+            "color": "black",
+            "length": 8
+          },
+          "right": {
+            "color": "black",
+            "length": 8
+          }
+        },
+        "underwear": {
+          "bottom": "boxerBriefs",
+          "top": "none",
+          "color": "#3D454B"
+        }
+      }
+    }
+  },
+  "m-long-armed": {
+    "mass": 78.36467405880832,
+    "params": {
+      "body": {
+        "anatomy": {
+          "sex": "male",
+          "bodyFatPercentage": 20.559279999999994,
+          "stature": 1755.81,
+          "chestCircumference": 992.6261205832446,
+          "bustPointWidth": 219.99305727383566,
+          "underbustCircumference": 924.0854249966386,
+          "sideNeckToBustPoint": 271.6284668280919,
+          "waistCircumference": 841.7387885324756,
+          "hipCircumference": 980.2404803894357,
+          "neckBaseCircumference": 406.9372434890797,
+          "neckCircumference": 378.16735351432317,
+          "upperArmLength": 364.4797701992828,
+          "forearmLength": 281.3664303400074,
+          "elbowCircumference": 275.5668497043322,
+          "wristCircumference": 173.78725335811305,
+          "thighCircumference": 594.5116819421751,
+          "kneeCircumference": 384.23084379612334,
+          "calfCircumference": 374.06392830494974,
+          "handCircumference": 213.8996093800771,
+          "backNeckToWaist": 394.92199248448424,
+          "acrossBackShoulderWidth": 419.9164746691676,
+          "highHipCircumference": 881.8473647983828,
+          "upperArmCircumference": 338.3769726771528,
+          "forearmCircumference": 278.77417515494415,
+          "inseam": 759.8718156857789
+        }
+      },
+      "head": {
+        "length": 196.3831659054404,
+        "cephalicIndex": 77.22741634427143,
+        "circumference": 566.5253044291834,
+        "height": 227.47316158505296,
+        "faceHeight": 127.83937355019867,
+        "faceWidth": 141.07092056731807,
+        "mandibularWidth": 104.94704349174013,
+        "minimumFrontalWidth": 111.87656119597945,
+        "mouthOpening": 54,
+        "mandibularLaterotrusion": 11,
+        "face": {
+          "eyePair": {
+            "left": {
+              "palpebralFissureLength": 28.923204330737953,
+              "palpebralFissureHeight": 8.35557633318536
+            },
+            "right": {
+              "palpebralFissureLength": 28.923204330737953,
+              "palpebralFissureHeight": 8.35557633318536
+            }
+          },
+          "intercanthalWidth": 32.839888250525384,
+          "nose": {
+            "width": 36.2544332062375,
+            "height": 56.884501123751924,
+            "protrusion": 21.105556954042235
+          },
+          "mouth": {
+            "width": 51.117746542866726,
+            "upperVermilionHeight": 7.537698912157941,
+            "lowerVermilionHeight": 8.74373073810321
+          }
+        },
+        "earPair": {
+          "left": {
+            "length": 64.09116589259278,
+            "breadth": 30.83041060902222,
+            "protrusion": 24.170240428964867
+          },
+          "right": {
+            "length": 64.09116589259278,
+            "breadth": 30.83041060902222,
+            "protrusion": 24.170240428964867
+          }
+        }
+      },
+      "extremities": {
+        "hands": {
+          "left": {
+            "handLength": 197.54380853170426,
+            "palmLength": 119.05770146892678,
+            "handBreadth": 90.46323360542917,
+            "thumbLength": 59.8055169010004
+          },
+          "right": {
+            "handLength": 197.54380853170426,
+            "palmLength": 119.05770146892678,
+            "handBreadth": 90.46323360542917,
+            "thumbLength": 59.8055169010004
+          }
+        },
+        "feet": {
+          "left": {
+            "footLength": 272.4834334052863,
+            "footBreadth": 100.42870276133087,
+            "ankleHeight": 65.98727408858826
+          },
+          "right": {
+            "footLength": 272.4834334052863,
+            "footBreadth": 100.42870276133087,
+            "ankleHeight": 65.98727408858826
+          }
+        }
+      },
+      "appearance": {
+        "skin": {
+          "oiliness": 0.3,
+          "wrinkles": 0,
+          "seed": 51003
+        },
+        "hair": {
+          "style": "short",
+          "color": "black",
+          "length": 100,
+          "curl": "II",
+          "hairline": "rectangular"
+        },
+        "browPair": {
+          "left": {
+            "color": "black"
+          },
+          "right": {
+            "color": "black"
+          }
+        },
+        "lashPair": {
+          "left": {
+            "color": "black",
+            "length": 8
+          },
+          "right": {
+            "color": "black",
+            "length": 8
+          }
+        },
+        "underwear": {
+          "bottom": "boxerBriefs",
+          "top": "none",
+          "color": "#3D454B"
+        }
+      }
+    }
+  },
+  "m-short-armed": {
+    "mass": 78.36467405880832,
+    "params": {
+      "body": {
+        "anatomy": {
+          "sex": "male",
+          "bodyFatPercentage": 20.559279999999994,
+          "stature": 1755.81,
+          "chestCircumference": 988.5541725726794,
+          "bustPointWidth": 211.4716488114618,
+          "underbustCircumference": 926.6917917251214,
+          "sideNeckToBustPoint": 272.92556841619955,
+          "waistCircumference": 836.3742776903699,
+          "hipCircumference": 985.6676814256163,
+          "neckBaseCircumference": 409.4591623465462,
+          "neckCircumference": 380.60494532263345,
+          "upperArmLength": 317.10364636572854,
+          "forearmLength": 258.31474061721826,
+          "elbowCircumference": 278.2929213835662,
+          "wristCircumference": 174.51337944424833,
+          "thighCircumference": 597.338827062816,
+          "kneeCircumference": 388.0469384658385,
+          "calfCircumference": 381.5402093940584,
+          "handCircumference": 213.57226876790475,
+          "backNeckToWaist": 410.66367716562957,
+          "acrossBackShoulderWidth": 419.8733883640323,
+          "highHipCircumference": 882.9901522247794,
+          "upperArmCircumference": 342.14380276084984,
+          "forearmCircumference": 279.78243797768374,
+          "inseam": 718.131996248449
+        }
+      },
+      "head": {
+        "length": 197.79564772583447,
+        "cephalicIndex": 76.67185318288084,
+        "circumference": 568.6361384592909,
+        "height": 226.8857785374833,
+        "faceHeight": 126.53537656249124,
+        "faceWidth": 139.80210705270545,
+        "mandibularWidth": 104.00313367272528,
+        "minimumFrontalWidth": 110.87032623102007,
+        "mouthOpening": 54,
+        "mandibularLaterotrusion": 11,
+        "face": {
+          "eyePair": {
+            "left": {
+              "palpebralFissureLength": 28.663064591143428,
+              "palpebralFissureHeight": 8.28042499702559
+            },
+            "right": {
+              "palpebralFissureLength": 28.663064591143428,
+              "palpebralFissureHeight": 8.28042499702559
+            }
+          },
+          "intercanthalWidth": 32.54452125452744,
+          "nose": {
+            "width": 35.928355268759645,
+            "height": 56.3042634704167,
+            "protrusion": 20.890274432486763
+          },
+          "mouth": {
+            "width": 50.65798568365279,
+            "upperVermilionHeight": 7.460812297316701,
+            "lowerVermilionHeight": 8.654542264887372
+          }
+        },
+        "earPair": {
+          "left": {
+            "length": 65.22500954785184,
+            "breadth": 30.81258482123803,
+            "protrusion": 24.225486881865137
+          },
+          "right": {
+            "length": 65.22500954785184,
+            "breadth": 30.81258482123803,
+            "protrusion": 24.225486881865137
+          }
+        }
+      },
+      "extremities": {
+        "hands": {
+          "left": {
+            "handLength": 189.98539172514805,
+            "palmLength": 114.5023183444374,
+            "handBreadth": 90.3577064067054,
+            "thumbLength": 57.51723954404768
+          },
+          "right": {
+            "handLength": 189.98539172514805,
+            "palmLength": 114.5023183444374,
+            "handBreadth": 90.3577064067054,
+            "thumbLength": 57.51723954404768
+          }
+        },
+        "feet": {
+          "left": {
+            "footLength": 266.8218461084448,
+            "footBreadth": 100.76007789209024,
+            "ankleHeight": 68.13789650725337
+          },
+          "right": {
+            "footLength": 266.8218461084448,
+            "footBreadth": 100.76007789209024,
+            "ankleHeight": 68.13789650725337
+          }
+        }
+      },
+      "appearance": {
+        "skin": {
+          "oiliness": 0.3,
+          "wrinkles": 0,
+          "seed": 51003
+        },
+        "hair": {
+          "style": "short",
+          "color": "black",
+          "length": 100,
+          "curl": "II",
+          "hairline": "rectangular"
+        },
+        "browPair": {
+          "left": {
+            "color": "black"
+          },
+          "right": {
+            "color": "black"
+          }
+        },
+        "lashPair": {
+          "left": {
+            "color": "black",
+            "length": 8
+          },
+          "right": {
+            "color": "black",
+            "length": 8
+          }
+        },
+        "underwear": {
+          "bottom": "boxerBriefs",
+          "top": "none",
+          "color": "#3D454B"
+        }
+      }
+    }
+  }
+}

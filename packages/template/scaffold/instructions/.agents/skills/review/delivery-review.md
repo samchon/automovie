@@ -14,7 +14,7 @@ You judge a film on stills, in two passes that answer different questions:
 
 | Pass | Stills come from | Shows |
 | --- | --- | --- |
-| Source | The film's source, drawn with the README's frame capture | Pose, contact, staging, camera and timing at any second and from any view; it never opens the encoded file |
+| Source | The film's source, drawn with the README's capture command | Pose, contact, staging, camera and timing at any second and from any view; it never opens the encoded file |
 | Artifact | The delivered or generated file itself, extracted at matched seconds as the README's section on stills from an encoded file gives | What the audience receives: every scene present, the raster, the transitions, the encode, and for a generated film the picture itself |
 
 Make both passes for every delivery claim, because an accepted source pass does not show that the file holds it.
@@ -31,13 +31,13 @@ Take runtime from performed and measured timing, never page or word count. What 
 
 ## Measure and compare {#measure-and-compare}
 
-Review the picture densely before any delivery claim, so a flaw anywhere in the film reaches you before its audience. Cut the film into review segments, each one default window of the README's frame capture, and inspect every segment on its contact sheet at the capture's default spacing. With motion already accepted in its [catalog cases](../motion/catalog-cases.md), this pass judges staging, camera and timing.
+Review the picture densely before any delivery claim, so a flaw anywhere in the film reaches you before its audience. Cut the film into review segments, each one capture of a stretch of the film with the README's capture command, and inspect every segment on its contact sheets at the capture's default spacing. With motion already accepted in its [catalog cases](../motion/catalog-cases.md), this pass judges staging, camera and timing.
 
 The default spacing skips frames, so around every contact, cut and join add the film's own consecutive frames, as [capture](../visual-debugging/capture.md#times) requires. The README owns the window, the default spacing and the options that select exact frames.
 
 Repeat the pass on every segment a fix touches.
 
-Measure the research's targets for what a viewer sees where the viewer sees them, on the displayed bodies and camera in those stills; the resolved schedule only plans them. Targets for what a viewer hears are measured on the decoded audio and confirmed by the user's listening.
+Study what [when to study](../story/planning/research.md#when-to-study) assigns to delivery review, and measure the research's targets for what a viewer sees where the viewer sees them, on the displayed bodies and camera in those stills; the resolved schedule only plans them. Targets for what a viewer hears are measured on the decoded audio and confirmed by the user's listening.
 
 A capture replaces its previous run unless the run names a round, so keep an accepted delivery's contact sheets and measures under the film's [media records](../production/media-records.md) folder by its delivered revision.
 

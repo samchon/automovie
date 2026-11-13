@@ -2,7 +2,7 @@ import {
   type IAutoMovieRasterComparison,
   type IAutoMovieRasterImage,
   compareAutoMovieRasters,
-} from "@automovie/viewer";
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**

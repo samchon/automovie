@@ -8,15 +8,17 @@ import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
+import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { HumanFoot } from "../posture/HumanFoot";
+import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 
@@ -38,9 +40,11 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  *   from the thigh and shank lengths with the shank leaning forward up to 35
  *   degrees (provisional, the ankle's working dorsiflexion), and the trunk
  *   pitches 15, 25 or 40 degrees (provisional).
- * - Lunge: the lead foot steps ahead 0.4 statures (provisional), the hips
- *   travel half the step forward and drop by three quarters of the thigh
- *   (provisional), and the foot steps back.
+ * - Lunge: the hips come down until the lead thigh is level over an upright
+ *   shank and travel forward until the trailing thigh hangs under its hip,
+ *   that leg's shank level behind it on a foot stood on its toes with the
+ *   ankle at its dorsiflexion range; the lead foot steps out to stand a thigh
+ *   ahead of the hips there, and steps back.
  * - High knees: one knee rises per repetition, alternating, the ankle under
  *   a thigh raised to the horizontal ahead of the hip, the hips carried over
  *   the standing foot.
@@ -158,7 +162,7 @@ export namespace exercise {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the count is not a positive whole number or a tempo span is negative.
+   * @throws {HumanRefusal} When the count is not a positive whole number or a tempo span is negative.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation One repetition clock; per repetition a crouch, a step, a lift or a jump over its four spans.
@@ -175,11 +179,9 @@ export namespace exercise {
     const body = context.body;
     const m = body.measure;
     const reps: number = p.reps ?? 3;
-    if (!(Number.isInteger(reps) && reps > 0))
-      throw new Error("An exercise repeats a positive whole number of times");
+    HumanBound.whole("reps", reps);
     const tempo: readonly [number, number, number] = p.tempo ?? [2, 0, 1];
-    if (tempo.some((s: number): boolean => !(s >= 0)))
-      throw new Error("An exercise's tempo spans are not negative");
+    for (const span of tempo) HumanBound.least("tempo", span, 0, "s");
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     const top: number = 0.3;
@@ -281,13 +283,43 @@ export namespace exercise {
         break;
       }
       case "lunge": {
-        const stride: number = 0.4 * m.stature * modifiers.extent;
-        const sink: number = 0.75 * m.thigh * modifiers.extent;
+        // The bottom: the lead thigh level over an upright shank, the
+        // trailing thigh hanging under its hip, its shank level behind on a
+        // foot stood on its toes with the ankle at its dorsiflexion range.
+        const hip: IAutoMovieVector3 = HumanFrame.point(
+          { origin: entry.root, yaw: entry.yaw },
+          body.rest.get(`${lead}UpperLeg`)!,
+        );
+        const low: number = stance[lead].ankle.y + m.shank;
+        const sink: number = Math.max(0, hip.y - low) * modifiers.extent;
+        const heel: number =
+          90 -
+          (AutoMovieMotionHumanRange.limit(`${trail}Foot`, "flexion") ?? 0);
+        const tiptoe = (share: number): HumanFoot.IPlacement =>
+          HumanFoot.pivot(
+            body,
+            trail,
+            "mtp",
+            HumanFoot.point(body, trail, "mtp", stance[trail]),
+            HumanFoot.heading(stance[trail].rotation),
+            -heel * share,
+          );
+        const toes: IAutoMovieVector3 = tiptoe(1).ankle;
+        const travel: number =
+          (Vector3.dot(Vector3.subtract(toes, hip), forward) +
+            Math.sqrt(
+              Math.max(0, m.shank ** 2 - (toes.y - (low - m.thigh)) ** 2),
+            )) *
+          modifiers.extent;
+        const stride: number =
+          travel +
+          m.thigh -
+          Vector3.dot(Vector3.subtract(stance[lead].ankle, hip), forward);
         // The step out over the first half of the lowering, back over the second half of the rise.
         primitives.push(
           root(
             (s: number): IAutoMovieVector3 =>
-              Vector3.add(Vector3.scale(forward, (stride / 2) * any(s)), {
+              Vector3.add(Vector3.scale(forward, travel * any(s)), {
                 x: 0,
                 y: -sink * any(s) ** 2,
                 z: 0,
@@ -307,13 +339,32 @@ export namespace exercise {
               ),
             planted: (s: number): boolean => any(s) <= 0 || any(s) >= 0.5,
           }),
-          AutoMovieMotionHumanLeg.plant(
-            body,
-            clock,
-            trail,
-            ["start", "end"],
-            stance[trail],
-          ),
+          // The trailing foot turns about its toes' joint, the toes flat.
+          {
+            channels: [`${trail}Leg`],
+            from: 0,
+            to: clock.duration,
+            write: (posture: IHumanPosture, s: number): IHumanPosture => {
+              const share: number = any(s) * modifiers.extent;
+              return {
+                ...posture,
+                joints: {
+                  ...posture.joints,
+                  [`${trail}Toes`]: [heel * share, 0, 0],
+                },
+                limbs: {
+                  ...posture.limbs,
+                  [`${trail}Leg`]: AutoMovieMotionHumanLeg.goal(
+                    body,
+                    posture,
+                    trail,
+                    tiptoe(share),
+                    true,
+                  ),
+                },
+              };
+            },
+          },
         );
         contacts.push({
           part: `${trail}Foot`,

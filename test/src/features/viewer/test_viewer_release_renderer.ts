@@ -1,10 +1,10 @@
 import {
   readAutoMovieFilmDisplayTextureResidency,
-  releaseMountedViewer,
   releaseViewerRenderer,
   renderCrossDissolveFrames,
   renderFadeToBlackFrame,
-} from "@automovie/viewer";
+} from "@automovie/render";
+import { releaseMountedViewer } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

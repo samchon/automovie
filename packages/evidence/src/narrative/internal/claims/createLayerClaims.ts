@@ -58,14 +58,14 @@ export function createLayerClaims(
       ? files
       : createTopologyFiles(layer, props.narrativeScope);
 
-  const treatments: string[] = createNarrativeUnitFiles(
-    "treatments",
-    props.narrativeScope,
-  );
-  const scripts: string[] = createNarrativeUnitFiles(
-    "scripts",
-    props.narrativeScope,
-  );
+  const treatments: string[] = createNarrativeUnitFiles({
+    layer: "treatments",
+    scope: props.narrativeScope,
+  });
+  const scripts: string[] = createNarrativeUnitFiles({
+    layer: "scripts",
+    scope: props.narrativeScope,
+  });
 
   const parents: (symbol: "file" | "h2") => IEvidenceReference[] = (
     symbol: "file" | "h2",

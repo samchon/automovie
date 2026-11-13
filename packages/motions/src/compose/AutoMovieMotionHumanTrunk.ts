@@ -1,9 +1,14 @@
+import { Quaternion, Vector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanBalance } from "../everyday/HumanBalance";
+import { HumanTrunk } from "../everyday/HumanTrunk";
+import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanJoints } from "./AutoMovieMotionHumanJoints";
-import { AutoMovieMotionHumanLean } from "./AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanRoot } from "./AutoMovieMotionHumanRoot";
 import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
@@ -17,7 +22,7 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the three phrases and how the hip shifts are found.
  * @evidence contracts/development/design.md#principled-representation A trunk movement is a twist shared along the spine, or a root and pitch change that keeps the centre of mass over the feet; the balance is solved on the body, so the same phrase holds for every body shape.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Three phrases, one record and the chest's share. No law reads them yet: the reactions state their trunk angles as their own curves, and the strikes and the everyday laws rebuilt for #3286 are the consumers.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Three phrases, one record, the sunk posture the crouch is built on (also read by a law that solves its own inclination) and the chest's share. No law reads them yet: the reactions state their trunk angles as their own curves, and the strikes and the everyday laws rebuilt for #3286 are the consumers.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The crouch takes one record because it has seven inputs; the turn and the counterbalance take positional arguments because each has few and no optional one.
  */
 export namespace AutoMovieMotionHumanTrunk {
@@ -81,15 +86,79 @@ export namespace AutoMovieMotionHumanTrunk {
     /** How far the hips sink at the lowest, metres; not negative. */
     depth: number;
 
-    /** The trunk's forward pitch at the lowest, degrees; not negative. */
+    /** The trunk's forward inclination at the lowest, degrees, shared between the pelvis and the spine by `sunk`; not negative. */
     pitch: number;
   }
 
   /**
-   * A crouch: the hips sink and the trunk pitches forward over them, the
-   * hips moved back so the centre of mass stays over the feet, and the body
-   * stands again (a duck, the dip before a jump, a load taken into the legs).
-   * The planted legs keep their goals, so the knees bend.
+   * A posture sunk into its knees: the hips lowered and moved back along the
+   * heading, and the trunk inclined forward over them by the lumbopelvic
+   * rhythm (`HumanTrunk.incline`), the pelvis taking no more than the planted
+   * legs' hip flexion leaves it (`HumanTrunk.pelvisLimit`) and the spine the
+   * rest. The legs keep their goals.
+   *
+   * @param body The body.
+   * @param posture The posture, its pelvis level.
+   * @param depth How far the hips sink, metres.
+   * @param inclination The trunk's forward inclination, degrees.
+   * @param back How far the hips move back along the heading, metres.
+   * @returns The sunk posture.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is lowered, moved and inclined, who shares the inclination and each parameter's unit.
+   * @evidence contracts/development/implementation.md#principled-implementation Folded thighs use up the hip's flexion range, so a deep crouch inclines the trunk through the spine rather than the pelvis (Esola et al. 1996 for the rhythm); a pelvis pitched past the range would pull the planted feet off the floor. The limit is read over the leg goals' ankles with the hips at their sunk place.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One hips goal, one incline and one root placed under the pitched hips.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A posture without both leg goals has no thighs to read, so its pelvis takes the rhythm's full share; the hips' place is read in the yaw frame, so a posture already pitched is not a valid input, as the parameter states.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates the split and the limit to `HumanTrunk`, the owner the bend, the sit and the rise read.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function sunk(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    depth: number,
+    inclination: number,
+    back: number,
+  ): IHumanPosture {
+    const hips: IAutoMovieVector3 = body.rest.get("hips")!;
+    const goal: IAutoMovieVector3 = HumanFrame.point(
+      { origin: posture.root, yaw: posture.yaw },
+      { x: hips.x, y: hips.y - depth, z: hips.z - back },
+    );
+    const level: IAutoMovieVector3 = Vector3.subtract(
+      goal,
+      HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw }, hips),
+    );
+    const left: IHumanPosture.IGoal | undefined = posture.limbs.leftLeg;
+    const right: IHumanPosture.IGoal | undefined = posture.limbs.rightLeg;
+    const tilt = HumanTrunk.incline(
+      posture.joints,
+      inclination,
+      left === undefined || right === undefined
+        ? Infinity
+        : HumanTrunk.pelvisLimit(body, level, posture.yaw, {
+            left: left.point,
+            right: right.point,
+          }),
+    );
+    const tipped: IHumanPosture = {
+      ...posture,
+      pitch: posture.pitch + tilt.pitch,
+      joints: tilt.joints,
+    };
+    return {
+      ...tipped,
+      root: Vector3.subtract(
+        goal,
+        Quaternion.rotateVector(resolveHumanPosture.heading(tipped), hips),
+      ),
+    };
+  }
+
+  /**
+   * A crouch: the hips sink and the trunk inclines forward over them
+   * (`sunk`), the hips moved back so the centre of mass stays over the feet,
+   * and the body stands again (a duck, the dip before a jump, a load taken
+   * into the legs). The planted legs keep their goals, so the knees bend.
    *
    * @param props The body, the standing posture, the windows, the depth and the pitch.
    * @returns The primitive, on the root and the trunk.
@@ -100,7 +169,7 @@ export namespace AutoMovieMotionHumanTrunk {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One helper builds the lowered pose for a share; it serves both the solve and the write.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A negative or non-numeric depth or pitch throws; no shift is stated.
    * @evidence contracts/development/implementation.md#efficient-algorithms The balance is solved once when the phrase is built, not per evaluated second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates the pitch about the hips to `AutoMovieMotionHumanLean.tip` and the solve to `HumanBalance.shift`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates the lowered pose to `sunk` and the solve to `HumanBalance.shift`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive keeps its arguments and one solved number.
    */
   export function crouch(props: ICrouch): IAutoMovieMotionHumanPrimitive {
@@ -111,12 +180,10 @@ export namespace AutoMovieMotionHumanTrunk {
       share: number,
       back: number,
     ): IHumanPosture =>
-      AutoMovieMotionHumanLean.tip(
+      sunk(
         props.body,
-        {
-          ...posture,
-          root: { ...posture.root, y: posture.root.y - props.depth * share },
-        },
+        posture,
+        props.depth * share,
         props.pitch * share,
         back,
       );

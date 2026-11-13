@@ -1,7 +1,7 @@
 import {
   applySceneEnvironment,
   readAutoMovieTextureSource,
-} from "@automovie/viewer";
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

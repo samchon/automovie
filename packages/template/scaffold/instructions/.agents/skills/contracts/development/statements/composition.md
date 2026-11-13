@@ -10,18 +10,19 @@ Contract: [composition.md](../composition.md).
 4. A film takes its raster, frame rate and running time from the delivery profile in [project context](../../../production/project-context.md), and its grade and control channels from the screenplay and that record.
 5. The scene's comment opens with its screenplay citation and a summary of what happens.
 6. A `Concretization:` paragraph names each decision the code had to make where the screenplay was vague. It never holds an exchange, an outcome or a reaction, which only the screenplay decides.
-7. The same change records each concretization in the screenplay, under [concretization](../../../story/correction/repair.md#concretization).
+7. The same change records each concretization in the screenplay, under [concretization](../../../story/correction/repair.md#concretization). Exception: a user's fixed screenplay, whose concretizations go to the instructions.
 8. A catalog case composition takes its case parameters and cites the research section or fact each case exhibits, and the catalog film lists every case the screenplay uses.
 
 ## Composition only {#composition-only}
 
-1. The declaration only combines entity capabilities, interaction entry points and consequences, through the installed engine's combinators.
+1. The declaration only combines entity capabilities, interaction entry points and consequences, through the operators of the installed motion vocabulary and engine.
 2. It places absolute time only at the screenplay's anchors.
 3. It holds no calculation, constant, coordinate, direct law import, URL parameter, archive load or runtime selection. Each of these is a capability missing from its owner and is added there.
-4. A person's action reaches the scene through the cast entity's capability, an action of the installed motion vocabulary included.
-5. The catalog and the film call the same capabilities with the same kind of parameters, and no scene keeps its own variant of a module.
-6. The film resolves once, from one seed.
-7. A defect a film shows is repaired in its module and accepted again in its catalog case, never in the scene.
+4. A person's action reaches the scene through the cast entity's capability, as a composition of the installed motion vocabulary.
+5. A refusal from an installed package is repaired at the axis it names, under [refusals](../../../motion/refusals.md). No declaration catches one and carries on, or widens a value to silence it.
+6. The catalog and the film call the same capabilities with the same kind of parameters, and no scene keeps its own variant of a module.
+7. The film resolves once, from one seed.
+8. A defect a film shows is repaired in its module and accepted again in its catalog case, never in the scene.
 
 ## Living scene {#living-scene}
 

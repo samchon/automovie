@@ -1,1 +1,1 @@
-export * from "./renderScreenplay";
+export * from "./renderScreenplay.js";

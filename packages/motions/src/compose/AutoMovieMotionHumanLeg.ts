@@ -407,6 +407,32 @@ export namespace AutoMovieMotionHumanLeg {
     };
   }
 
+  /**
+   * A placement raised until no point of its sole lies under the floor its
+   * stance stands on: a foot that pitches while it is still low would
+   * otherwise carry its toes or its heel through the floor on the way to and
+   * from a chamber.
+   */
+  const cleared = (
+    props: Pick<IPhrase, "body" | "side" | "stance">,
+    placement: HumanFoot.IPlacement,
+  ): HumanFoot.IPlacement => {
+    const lowest = (foot: HumanFoot.IPlacement): number =>
+      Math.min(
+        ...(["heel", "ball", "toe"] as const).map(
+          (point): number =>
+            HumanFoot.point(props.body, props.side, point, foot).y,
+        ),
+      );
+    const under: number = lowest(props.stance) - lowest(placement);
+    return under <= 0
+      ? placement
+      : {
+          ankle: { ...placement.ankle, y: placement.ankle.y + under },
+          rotation: placement.rotation,
+        };
+  };
+
   /** Whether a phrase's foot stands on its stance: only at the clock's two ends. */
   const grounded =
     (clock: AutoMovieMotionClock.IClock) =>
@@ -438,10 +464,17 @@ export namespace AutoMovieMotionHumanLeg {
       from: 0,
       to: props.clock.duration,
       placement: (posture: IHumanPosture, seconds: number) =>
-        between(
-          props.stance,
-          extended(props, props.stance, props.raised(posture, seconds)),
-          props.clock.envelope(["start", "stroke"], ["relax", "end"], seconds),
+        cleared(
+          props,
+          between(
+            props.stance,
+            extended(props, props.stance, props.raised(posture, seconds)),
+            props.clock.envelope(
+              ["start", "stroke"],
+              ["relax", "end"],
+              seconds,
+            ),
+          ),
         ),
       planted: grounded(props.clock),
     });
@@ -542,16 +575,19 @@ export namespace AutoMovieMotionHumanLeg {
             ["strokeStart", "stroke", "strokeEnd"],
             seconds,
           );
-          return between(
-            props.stance,
-            p <= 0
-              ? chamber
-              : between(
-                  chamber,
-                  extended(props, chamber, props.target(posture, seconds)),
-                  p,
-                ),
-            clock.envelope(["start", "ready"], ["relax", "end"], seconds),
+          return cleared(
+            props,
+            between(
+              props.stance,
+              p <= 0
+                ? chamber
+                : between(
+                    chamber,
+                    extended(props, chamber, props.target(posture, seconds)),
+                    p,
+                  ),
+              clock.envelope(["start", "ready"], ["relax", "end"], seconds),
+            ),
           );
         },
         planted: grounded(clock),

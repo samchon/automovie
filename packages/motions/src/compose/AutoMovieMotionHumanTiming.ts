@@ -1,3 +1,4 @@
+import { HumanBound } from "../law/HumanBound";
 import type { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 
 /**
@@ -228,16 +229,12 @@ export namespace AutoMovieMotionHumanTiming {
         ? transport(span.distance)
         : aimed(span.distance, span.width);
     if ("pause" in span) {
-      if (!(span.scale >= 0.5 && span.scale <= 1.5))
-        throw new Error(
-          `A pause scale of ${span.scale} lies outside [0.5, 1.5]; use another pause name`,
-        );
+      HumanBound.within("pause.scale", span.scale, 0.5, 1.5);
       return PAUSES[span.pause] * span.scale;
     }
     if (span.source.trim() === "")
       throw new Error("Explicit seconds state their source");
-    if (!(span.seconds >= 0 && Number.isFinite(span.seconds)))
-      throw new Error("Explicit seconds are finite and not negative");
+    HumanBound.least("seconds", span.seconds, 0, "s");
     return span.seconds;
   }
 

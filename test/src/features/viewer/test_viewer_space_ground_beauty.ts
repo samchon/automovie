@@ -8,7 +8,7 @@ import {
   buildModel,
   buildScene,
   buildSpaceObject,
-} from "@automovie/viewer";
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -56,7 +56,7 @@ const built: () => { scene: THREE.Scene; patch: THREE.Mesh } = (): {
 } => {
   const scene: THREE.Scene<THREE.Object3DEventMap> = buildScene(
     DESIGN,
-    (): import("@automovie/viewer").IAutoMovieModelObject =>
+    (): import("@automovie/render").IAutoMovieModelObject =>
       buildModel({ ...createModel(), id: "model-a" }),
   ).scene;
   return {
@@ -143,7 +143,7 @@ export function test_viewer_space_ground_beauty(): void {
   );
 
   for (const mode of ["depth", "normal", "outline", "mask"] as const) {
-    const handle: import("@automovie/viewer").IAutoMovieRenderModeHandle =
+    const handle: import("@automovie/render").IAutoMovieRenderModeHandle =
       applyRenderMode(direct.scene, mode);
     TestValidator.predicate(
       `${mode} gives the support patch a structural material`,
@@ -168,7 +168,7 @@ export function test_viewer_space_ground_beauty(): void {
     }),
     { unresolved: [], unaddressed: 0 },
   );
-  const semantic: import("@automovie/viewer").IAutoMovieSemanticMaskHandle =
+  const semantic: import("@automovie/render").IAutoMovieSemanticMaskHandle =
     applyAutoMovieSemanticMask({
       scene: direct.scene,
       design: DESIGN,
@@ -191,7 +191,7 @@ export function test_viewer_space_ground_beauty(): void {
     direct.patch.material === beautyMaterial,
   );
 
-  const beauty: import("@automovie/viewer").IAutoMovieRenderModeHandle =
+  const beauty: import("@automovie/render").IAutoMovieRenderModeHandle =
     applyRenderMode(direct.scene, "beauty");
   TestValidator.predicate(
     "beauty leaves the non-writing material in place",

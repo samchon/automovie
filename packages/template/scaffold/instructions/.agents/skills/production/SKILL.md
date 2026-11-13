@@ -1,6 +1,6 @@
 ---
 name: production
-description: Keeps what belongs to the production as a whole and to no single task, namely its commissioned output, project context, sustained runs, stage caches, media records, instruction sync and final assembly and handoff. Use when starting, resuming, restructuring or handing off a production; story, development, motion, image, video, audio and review own their own work.
+description: Keeps what belongs to the production as a whole and to no single task, namely its commissioned output, project context, sustained runs, stage caches, media records, reorganization and final assembly and handoff. Use when starting, resuming, restructuring or handing off a production; story, development, motion, image, video, audio and review own their own work.
 ---
 
 # Production
@@ -25,7 +25,7 @@ Each task has one owner, in the [writing order](../story/workflow.md#route-and-p
 
 | Work | Owner |
 | --- | --- |
-| Research, canon and the screenplay | [Story](../story/SKILL.md) |
+| Canon, the screenplay and their research | [Story](../story/SKILL.md) |
 | Entities, source, integrations and tests | [Development](../development/SKILL.md) |
 | Performance, staging, camera and the motion hint's control channels | [Motion](../motion/SKILL.md) |
 | Generated images | [Image](../image/SKILL.md) |
@@ -41,5 +41,5 @@ This skill keeps what spans them:
 | Run, observe or resume sustained work | [Sustained runs](sustained-runs.md) |
 | Cache and resume expensive stages | [Stage caches](stage-caches.md) |
 | Save generated, acquired and pipeline media with their records | [Media records](media-records.md) |
-| Sync instructions or reorganize the production | [Sync and reorganization](sync-and-reorganization.md) |
+| Reorganize the production | [Reorganization](reorganization.md) |
 | Assemble the film, render it once and hand it off | [Assembly and handoff](assembly.md) |

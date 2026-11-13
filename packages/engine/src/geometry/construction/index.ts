@@ -130,6 +130,7 @@ export * from "./gridAutoMovieSolidMesh";
 export * from "./incircleAutoMovieSolidChart";
 export * from "./insertAutoMovieSolidMeshPoints";
 export * from "./legalizeAutoMovieSolidMesh";
+export * from "./markAutoMovieConstructionCurves";
 export * from "./openAutoMovieSolidMesh";
 export * from "./orientAutoMovieSolidChart";
 export * from "./probeAutoMovieSolidMesh";

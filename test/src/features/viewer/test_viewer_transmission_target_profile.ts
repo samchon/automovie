@@ -1,4 +1,4 @@
-import { readAutoMovieTransmissionTextureTarget } from "@automovie/viewer";
+import { readAutoMovieTransmissionTextureTarget } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**

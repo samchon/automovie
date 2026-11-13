@@ -10,7 +10,7 @@ const NPM_NAME_LIMIT: number = 214;
  *
  * The basename is lowercased, each run of characters other than `a-z`, `0-9`, `.`, `_` and `-` becomes one `-`, the result is cut to npm's 214-character limit, and leading `-`, `.` or `_` and trailing `-` or `.` are removed. A basename with nothing left, such as a filesystem root, yields `AUTOMOVIE_DEFAULT_PROJECT_NAME`. `selectAutoMovieProjectName` passes a `create` request's absolute target, `run` passes an `add` request's directory segment, and `run` hands the result to the template renderer as the project name.
  *
- * This transformation does not validate npm's reserved names; `node_modules` and `favicon.ico` remain unchanged. Windows device names such as `con` also remain unchanged and are refused by `renderScaffold` before publication.
+ * This transformation does not validate npm's reserved names; `node_modules` and `favicon.ico` remain unchanged. Windows device names such as `con` also remain unchanged and are refused by `createAutoMovieScaffold` before any file is written.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Lowercasing and character replacement produce an unscoped-name candidate from the basename in the host's path syntax, then the 214-character cut precedes trimming so the result stays within that limit. This is normalization rather than complete npm admission: reserved names remain unchanged, while the downstream scaffold renderer separately refuses Windows device names.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One pure function owns the directory-to-name rule, so `run` keeps only dispatch and the rule is checked without publishing a scaffold.

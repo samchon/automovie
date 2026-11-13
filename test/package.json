@@ -22,6 +22,7 @@
   "author": "Samchon",
   "license": "MIT",
   "dependencies": {
+    "@automovie/archetypes": "workspace:^",
     "@automovie/engine": "workspace:^",
     "@automovie/evidence": "workspace:^",
     "@automovie/human": "workspace:^",
@@ -66,6 +67,7 @@
     "ttsc": "catalog:samchon",
     "typescript": "catalog:typescript",
     "typescript-compiler": "npm:typescript@5.9.3",
-    "vite": "catalog:vite"
+    "vite": "catalog:vite",
+    "yaml": "^2.9.0"
   }
 }

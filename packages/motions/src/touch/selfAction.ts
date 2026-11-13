@@ -1,3 +1,4 @@
+import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
@@ -13,6 +14,7 @@ import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTimin
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -31,8 +33,9 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * in the rise's time. The arms are carried in joint space from the entry's
  * angles to a named place of the air (`AutoMovieMotionHumanTarget.place`):
  * overhead above the shoulders for the stretch, overhead and outside them
- * for victory, at the shoulder's side for the fist pump, whose fist drops a
- * fifth of the arm and rises again `count` times. A neck roll circles the
+ * for victory, at eye height a forearm ahead of the shoulder for the fist
+ * pump, the forearm rising to it from an elbow near the body; its fist drops
+ * a fifth of the arm and rises again `count` times. A neck roll circles the
  * head through a light share of the neck's flexion and lateral range, a
  * shoulder roll circles both shoulder girdles through a light share of
  * theirs. The stretch lasts 6 s in all, the yawn's duration of Provine 1986
@@ -98,7 +101,18 @@ export namespace selfAction {
   > = {
     stretch: { height: "overhead", lateral: "shoulder", distance: "close" },
     victory: { height: "overhead", lateral: "outside", distance: "close" },
-    fistPump: { height: "eye", lateral: "outside", distance: "close" },
+    fistPump: { height: "eye", lateral: "outside", distance: "mid" },
+  };
+
+  /**
+   * Where the pumping arm's elbow hangs, which the fist's forearm rises
+   * from: the knuckles face away from it. With the fist a forearm ahead of
+   * the shoulder, the whole drop stays within the elbow's flexion range.
+   */
+  const ELBOW: AutoMovieMotionHumanTarget.IGrid = {
+    height: "shoulder",
+    lateral: "outside",
+    distance: "near",
   };
 
   /**
@@ -106,7 +120,7 @@ export namespace selfAction {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the count is not a positive whole number.
+   * @throws {HumanRefusal} When the count is not a positive whole number.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal; the law's doc gives the places and timing.
    * @evidence contracts/development/implementation.md#principled-implementation Arms carried in joint space (Soechting and Lacquaniti 1981) to named places solved by the arm's inverse kinematics; head and shoulder circles as joint angles on the clock.
@@ -124,8 +138,7 @@ export namespace selfAction {
     const kind: Kind = p.kind;
     const count: number =
       p.count ?? (kind === "fistPump" ? 3 : kind.endsWith("Roll") ? 2 : 1);
-    if (!(Number.isInteger(count) && count > 0))
-      throw new Error("A self action repeats a positive whole number of times");
+    HumanBound.whole("count", count);
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     const entry: IHumanPosture = context.entry.posture;
@@ -201,7 +214,19 @@ export namespace selfAction {
                 body,
                 posture,
                 side,
-                { point, normal: { x: 0, y: -1, z: 0 } },
+                {
+                  point,
+                  normal: pump
+                    ? Vector3.subtract(
+                        AutoMovieMotionHumanTarget.fallback(
+                          body,
+                          posture,
+                          AutoMovieMotionHumanTarget.place(body, side, ELBOW),
+                        ).point,
+                        place.point,
+                      )
+                    : { x: 0, y: -1, z: 0 },
+                },
                 { surface, shape, bend: "raised" },
               ),
             );

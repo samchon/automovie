@@ -3,7 +3,7 @@ import type {
   IAutoMovieProductionWaveSourceFormat,
 } from "@automovie/ingest";
 
-import type { IAutoMovieProductionAudioAssetIdentityBase } from "./IAutoMovieProductionAudioAssetIdentityBase";
+import type { IAutoMovieProductionAudioAssetIdentityBase } from "./IAutoMovieProductionAudioAssetIdentityBase.js";
 
 /**
  * Source-format or placeholder provenance of one audio asset a render plan

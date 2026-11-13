@@ -1,8 +1,8 @@
 import {
-  type IProductionConfigProps,
   createProductionConfig,
+  type IProductionConfigProps,
   stripNaturalnessComments,
-} from "@automovie/evidence";
+} from "@automovie/evidence/internal";
 import {
   EvidenceChecker,
   type IEvidenceCheckAnalysis,

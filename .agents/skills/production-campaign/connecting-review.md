@@ -14,9 +14,11 @@ Start the review as a new CLI process with a new session, launched as [launching
 
 ## Relay and re-review
 
-Relay the reviewer's verdict verbatim to the writer, and link each finding to the writer's decision, repair and re-review.
+Relay the reviewer's verdict verbatim to the writer, ask for its decision on each finding rather than telling it to repair them all, and link each finding to that decision, repair and re-review. Repairing every finding wholesale kept a short's screenplay open for seven rounds.
 
-For a finding the writer objects to, resume the reviewer's actual session to resolve it and pass the result back to the writer's session, until the production's review ends the exchange. A closing round after body repair starts a fresh reviewer process, as the production's rounds require.
+For a finding the writer declines, resume that round's reviewer session for its rebuttal or withdrawal and pass that back to the writer's session for a final decision. A narrative pass then follows the production's [narrative rounds](../../../packages/template/scaffold/instructions/.agents/skills/review/narrative-rounds.md#grading-and-closure): it ends at the first round whose final decisions accept no finding, and otherwise a second round goes to a fresh reviewer process and is the last.
+
+Before a narrative pass goes to review, start its evidence answerer as its own process. It writes the answers and hands the writer the gaps it cannot answer truthfully; after the last repair it brings the answers up to date. Never ask a reviewer to audit answers.
 
 Check the submission, scope, frames read and required records. A partial review or another edition's verdict is not current acceptance, and a repeated handled finding or a missing reply is not a new verdict.
 

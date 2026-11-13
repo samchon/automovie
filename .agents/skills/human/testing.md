@@ -20,7 +20,7 @@ Anatomical order relations are the main universal detectors, because they hold f
 
 Universal defect detectors are kept and completed. These find an error in any sculpted surface whatever its parameters: open or non-manifold edges, flipped triangles, self-intersection, folds, crease radius, non-simple sections, seam and port continuity, slivers, and curvature ripples. Each detector has a unit test that is red on a made defect and green on a correct shape. The figure's build report runs every detector on each render.
 
-Whole-figure inspection belongs to the viewer and the capture tools, not to tests. The levels and audits below apply only in that form: as unit tests of the law or operator that guarantees each property.
+Whole-figure inspection belongs to the [shared instrument](screenshot.md), not to tests. The levels and audits below apply only in that form: as unit tests of the law or operator that guarantees each property.
 
 ## Levels
 
@@ -65,8 +65,8 @@ Derive every limit from the person's inputs, a published source or geometry, nev
 - Audit everything before failing, listing every finding by person, part, region and direction.
 - Build every person, derived view and fixture inside the test that needs it, so no test reads state another test left or changed. Put each test in the folder of its level.
 - Record a measure that cannot be an independent check, with the reason, instead of inventing a site for it.
-- When the viewer shows a defect no test listed, add the reading that lists it to the audit or table that owns its class.
-- When a test and the viewer disagree, suspect both: check the observer's site and limit against the definition before trusting either, because a wrong test steers every change that passes it.
+- When a still shows a defect no test listed, add the reading that lists it to the audit or table that owns its class.
+- When a test and a still disagree, suspect both: check the observer's site and limit against the definition before trusting either, because a wrong test steers every change that passes it.
 - For a shared connection, distinguish equal centres/four supports with unequal interiors, wrong units or directions, unavailable versus zero jets, stale source bindings, unequal densities and the relevant end/footprint domains. Exercise both actual production consumers and the promised unchanged source intervals; an isolated operator pass does not wire Human. State the limits of finite phase observations.
 - For composed sources and known ports, check the original pieces and their maps before lofting, the actual logical subdomains and material charts afterward, and topology/continuity on the domains that promise them. A name alias or coincident sampled boundary is not shared binding ownership. Let genuinely coupled constraints propagate and test the declared unaffected domains separately.
 
@@ -80,7 +80,7 @@ Count independent authored control families, generated streams, logical names, a
 
 ## Running
 
-Run tests on the CPU, once the test type-check watch reads clean, with every test a question needs in one run as development's [Tests](../development/validation.md#tests) describes. They confirm each batch of fixes in the Human skill's [order](SKILL.md#order); the viewer serves inspection.
+Run tests on the CPU, once the test type-check watch reads clean, with every test a question needs in one run as development's [Tests](../development/validation.md#tests) describes. They confirm each batch of fixes in the Human skill's [order](SKILL.md#order); the instrument serves inspection.
 
 The following is a review candidate for the new explicit person selector. Its actual runner/fixture behavior is still awaiting the combined validation round; do not report this command supported from source inspection alone:
 

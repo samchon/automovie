@@ -43,4 +43,4 @@ Without a granted mode a worker fails quietly: a Claude print run denies every c
 
 ## Roles and write scope
 
-Assign film and module writers as the production's campaign guide divides them, one writer at a time per changing body. Reviewers write only review records and their own run-record lines, and never edit bodies. The coordinator writes when no writer is assigned. Repairs to shared packages, skills and programs go to their repository owner.
+Assign film and module writers as the production's campaign guide divides them, one writer at a time per changing body. Reviewers write only review records and their own run-record lines, and never edit bodies. An evidence answerer writes only evidence answers, its gap list and its run-record lines. The coordinator writes when no writer is assigned. Repairs to shared packages, skills and programs go to their repository owner.

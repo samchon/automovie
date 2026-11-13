@@ -8,6 +8,7 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -191,7 +192,7 @@ export namespace carry {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the load's share lies outside [0, 0.25], or the walk refuses its destination.
+   * @throws {HumanRefusal} When the load's share lies outside [0, 0.25], or the walk refuses its destination.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -201,10 +202,7 @@ export namespace carry {
     const how: How = p.how;
     const loaded: HumanHand.Side = p.side ?? "right";
     const load: number = p.load ?? 0.1;
-    if (!(load >= 0 && load <= 0.25))
-      throw new Error(
-        `${context.subject}: a carried load of ${load} of the body's mass lies outside 0 to 0.25`,
-      );
+    HumanBound.within("load", load, 0, 0.25, "of the body's mass");
     const base: IHumanActionPlan = walk.plan({
       ...context,
       params: { to: p.to, ...(p.pace === undefined ? {} : { pace: p.pace }) },
@@ -220,7 +218,8 @@ export namespace carry {
     // The trunk's lean: lateral away from a one-hand or hip load, back over a
     // front box, forward over a pushed handle; chest and spine share it.
     const degrees: number = LEAN[how] * load;
-    const away: number = loaded === "left" ? -1 : 1;
+    // A positive lateral bend of the trunk leans it to the body's right.
+    const away: number = loaded === "left" ? 1 : -1;
     const lean = (share: number): readonly [number, number, number] =>
       how === "oneHand" || how === "hip"
         ? [0, away * degrees * share * 0.5, 0]

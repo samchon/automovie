@@ -21,7 +21,8 @@ import { everydayVerdicts } from "./everydayVerdicts";
  * handoff's carry verdict; Grieve and Gear 1966). Beyond that:
  *
  * - the trunk leans the way the load asks: the chest's offset from the
- *   hips at the walk's middle, against its offset at the start, moves away
+ *   hips, averaged over the walk's second stride so the gait's own sway
+ *   cancels, against its offset at the start, moves away
  *   from a one-hand or hip load, back behind a front box and forward over a
  *   pushed handle;
  * - for the two-handed holds, the distance between the two hands' surfaces
@@ -106,10 +107,25 @@ export function carryCases(
           bones.get("hips")!.worldPosition,
         );
       };
-      const shift: IAutoMovieVector3 = Vector3.subtract(
-        chest(performance.duration / 2),
-        chest(0),
-      );
+      // The walk sways the chest over the hips once a stride, so the lean is
+      // the offset's mean over the walk's second stride.
+      const stride: [number, number] = ["rightToeOff2", "rightToeOff3"].map(
+        (name: string): number =>
+          segment.start +
+          segment.plan.events.find((e) => e.name === name)!.share *
+            segment.plan.duration,
+      ) as [number, number];
+      const SAMPLES: number = 48;
+      let mean: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+      for (let i: number = 0; i < SAMPLES; i++)
+        mean = Vector3.add(
+          mean,
+          Vector3.scale(
+            chest(stride[0] + ((i + 0.5) / SAMPLES) * (stride[1] - stride[0])),
+            1 / SAMPLES,
+          ),
+        );
+      const shift: IAutoMovieVector3 = Vector3.subtract(mean, chest(0));
       const lean: number =
         how === "oneHand" || how === "hip"
           ? (loaded === "left" ? -1 : 1) * shift.x
@@ -119,7 +135,7 @@ export function carryCases(
       verdicts.push({
         name: "trunk leans the way the load asks",
         passed: lean > 0,
-        detail: `${(lean * 1000).toFixed(1)} mm the asked way at the walk's middle`,
+        detail: `${(lean * 1000).toFixed(1)} mm the asked way over the walk's second stride`,
       });
 
       // A rigid two-handed load.

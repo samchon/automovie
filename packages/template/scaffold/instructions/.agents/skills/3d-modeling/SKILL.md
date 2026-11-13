@@ -1,6 +1,6 @@
 ---
 name: 3d-modeling
-description: Defines the form each subject of a production takes, namely the polygon man for a person, a coarse form of a few primitives for anything else, and on the user's request a generated, crafted or recovered form with its rig. Use before building or changing a subject's form; judging any picture belongs to the visual-debugging skill and body motion to the motion skill.
+description: Defines the form each subject of a production takes, namely the polygon man for a person, an installed archetype for an object people use, a coarse form of a few primitives for anything else, and on the user's request a generated, crafted or recovered form with its rig. Use before building or changing a subject's form; judging any picture belongs to the visual-debugging skill and body motion to the motion skill.
 ---
 
 # 3D modeling
@@ -9,7 +9,7 @@ A production's film is a hint for video diffusion, which supplies the look, so e
 
 ## Default form
 
-A subject the hint does not need takes no form and stays a description in the generation prompt. A person is the polygon man that [entity work](../development/entities.md#people) prepares. Anything else a scene shows or touches is a [coarse form](coarse-forms.md), a few primitives that are just enough to tell what it is.
+A subject the hint does not need takes no form and stays a description in the generation prompt. A person is the polygon man that [entity work](../development/entities.md#people) prepares. An object a person holds, uses, sits on or rides is an [installed archetype](../development/entities.md#objects) where one offers it. Anything else a scene shows or touches is a [coarse form](coarse-forms.md), a few primitives that are just enough to tell what it is.
 
 ## Requested detail {#requested-detail}
 

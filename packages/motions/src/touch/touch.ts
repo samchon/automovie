@@ -1,3 +1,4 @@
+import { Quaternion } from "@automovie/engine";
 import type {
   AutoMovieMotionTarget,
   IAutoMovieVector3,
@@ -7,7 +8,9 @@ import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
+import { AutoMovieMotionHumanLeanInto } from "../compose/AutoMovieMotionHumanLeanInto";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
@@ -15,13 +18,17 @@ import { AutoMovieMotionHumanTouchForm } from "../compose/AutoMovieMotionHumanTo
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import { HumanColliders } from "../posture/HumanColliders";
+import { HumanFrame } from "../posture/HumanFrame";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
  * A touch while standing: one hand, or both, laid on a region of a partner
@@ -39,7 +46,14 @@ import { poseBones } from "../posture/poseBones";
  * hold and goes back in the reach's time; the manner's tempo scales every
  * span and its extent the lift and the travel. The feet stay planted and the
  * body keeps the entry posture. A region of the performer's limbs is read on
- * the entry pose, so it must ride a limb the touch does not move.
+ * the entry pose, so it must ride a limb the touch does not move, except a
+ * region on the other arm: a person scratching or patting their own forearm
+ * first brings it up, so that arm is carried on the same envelope to its
+ * forearm held across the front of the waist, palm down, and the region is
+ * read on the arm held there (`present`). A region beyond the standing arm
+ * (a thigh slapped while standing) is leaned into as far as the hand needs
+ * (`AutoMovieMotionHumanLeanInto`), a leg's region then read on the legs as
+ * the lean leaves them; one still out of reach at the lean's limit is refused.
  *
  * Events: the phrase instants (`ready` on the region, `strokeStart` to
  * `strokeEnd` the repetitions, `relax` leaving). A touch may be cut before
@@ -116,12 +130,15 @@ export namespace touch {
     manner?: AutoMovieMotionManner.IManner;
   }
 
+  /** The share of the arm's length (upper arm and forearm) the wrist is kept within before the trunk leans in, so the elbow never locks straight on a region (provisional, as `operate.REACH`). */
+  export const REACH: number = 0.97;
+
   /**
    * Plan a touch.
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the count is not a positive whole number or the hold is negative.
+   * @throws {HumanRefusal} When the count is not a positive whole number or the hold is negative.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives the timing and the sources.
    * @evidence contracts/development/implementation.md#principled-implementation A phrase clock from the free-space transport of the farther hand, the kind's repetitions and the hold, with one touch stroke per hand over a held standing base.
@@ -141,15 +158,17 @@ export namespace touch {
       kind === "press" || kind === "squeeze" || kind === "hold";
     const count: number = p.count ?? (kind === "stroke" || still ? 1 : 3);
     const hold: number = p.hold ?? (still ? 1.2 : 0.4);
-    if (!(hold >= 0)) throw new Error("A touch's hold is not negative");
+    HumanBound.least("hold", hold, 0, "s");
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     const effector: AutoMovieMotionHumanTouchEffector.IEffector =
       EFFECTORS[p.with ?? "palm"];
     const tangent: AutoMovieMotionHumanTouchForm.Tangent = p.tangent ?? "up";
     const entry: IHumanPosture = context.entry.posture;
-    const bones = poseBones(body, context.entry.pose);
     const first: HumanHand.Side = p.side ?? "right";
+    const shown: IPresented | null =
+      p.other === undefined ? present(context, first, p.target) : null;
+    const bones = shown?.bones ?? poseBones(body, context.entry.pose);
     const hands: [HumanHand.Side, AutoMovieMotionTarget][] = [
       [first, p.target],
       ...(p.other === undefined
@@ -161,17 +180,64 @@ export namespace touch {
             ],
           ]),
     ];
-    const region =
-      (target: AutoMovieMotionTarget) =>
+    // A leg's region moves with the hips once the trunk leans, so with `legs`
+    // it is read on the legs the posture so far places; otherwise on the
+    // entry's bones.
+    const placed =
+      (target: AutoMovieMotionTarget, legs: boolean) =>
       (posture: IHumanPosture, seconds: number) =>
         AutoMovieMotionHumanTouch.region(
           context,
           target,
           context.start + seconds,
           posture,
-          bones,
+          legs && onLeg(body, target)
+            ? poseBones(
+                body,
+                resolveHumanPosture(body, {
+                  ...posture,
+                  limbs: {
+                    ...(posture.limbs.leftLeg === undefined
+                      ? {}
+                      : { leftLeg: posture.limbs.leftLeg }),
+                    ...(posture.limbs.rightLeg === undefined
+                      ? {}
+                      : { rightLeg: posture.limbs.rightLeg }),
+                  },
+                }),
+              )
+            : bones,
         );
 
+    // The lean into a region beyond the standing arm, measured to the first
+    // hand's wrist laid on its region.
+    const lean: AutoMovieMotionHumanLeanInto.ILean =
+      AutoMovieMotionHumanLeanInto.solve({
+        body,
+        standing: entry,
+        side: first,
+        share: REACH,
+        wrist: (posture: IHumanPosture): IAutoMovieVector3 =>
+          AutoMovieMotionHumanTouch.rest(
+            body,
+            posture,
+            first,
+            effector,
+            placed(p.target, true)(posture, 0),
+            tangent,
+            AutoMovieMotionHumanBend.hang(body, posture, first),
+            "arm",
+          ).point,
+        refuse: (beyond: number, limit: number): string =>
+          `The touched region is ${(beyond * 1000).toFixed(0)} mm beyond the ${first} arm at a lean of ${limit} degrees`,
+      });
+    // Leaning when the region at either end of the strokes or between them is
+    // beyond the kept share at the entry.
+    const leaning: boolean =
+      lean.pitch(entry, 0) > 0 ||
+      lean.pitch(entry, 0.5) > 0 ||
+      lean.pitch(entry, 1) > 0;
+    const region = (target: AutoMovieMotionTarget) => placed(target, leaning);
     // The reach's length: the farther hand's distance to its region at the entry.
     let far: number = 0;
     for (const [side, target] of hands) {
@@ -206,6 +272,20 @@ export namespace touch {
     );
 
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
+    if (leaning) primitives.push(lean.primitive(clock));
+    if (shown !== null)
+      primitives.push(
+        AutoMovieMotionHumanArm.carried({
+          body,
+          side: shown.side,
+          from: 0,
+          to: clock.duration,
+          rest: AutoMovieMotionHumanArm.angles(context.entry.pose, shown.side),
+          goal: (): IHumanPosture.IGoal => shown.goal,
+          weight: (seconds: number): number =>
+            clock.envelope(["start", "ready"], ["relax", "end"], seconds),
+        }),
+      );
     for (const [side, target] of hands) {
       const support: IHumanContactWindow.Support | undefined =
         target.kind === "person"
@@ -217,6 +297,15 @@ export namespace touch {
                 region: target.region,
               }
             : undefined;
+      const bend: IAutoMovieVector3 = AutoMovieMotionHumanTouch.bend(
+        body,
+        entry,
+        side,
+        effector,
+        region(target)(entry, 0),
+        tangent,
+        "arm",
+      );
       primitives.push(
         ...AutoMovieMotionHumanTouch.touch({
           body,
@@ -229,16 +318,31 @@ export namespace touch {
           count,
           tangent,
           extent: modifiers.extent,
-          bend: AutoMovieMotionHumanTouch.bend(
+          bend,
+          reference: AutoMovieMotionHumanTouch.laid(
             body,
             entry,
             side,
             effector,
             region(target)(entry, 0),
             tangent,
+            bend,
+            "arm",
           ),
+          lay: "arm",
           entry,
           ...(support === undefined ? {} : { contact: support }),
+          ...(target.kind === "person"
+            ? {
+                others: (_: IHumanPosture, seconds: number) => {
+                  const partner = context.performer(target.subject);
+                  return HumanColliders.placed(
+                    partner.body,
+                    partner.bones(context.start + seconds),
+                  );
+                },
+              }
+            : {}),
         }),
       );
     }
@@ -253,4 +357,86 @@ export namespace touch {
       contact: "ready",
     });
   }
+}
+
+/** An arm brought up to be touched. */
+interface IPresented {
+  /** The arm. */
+  side: HumanHand.Side;
+
+  /** Its goal, world, on the entry posture. */
+  goal: IHumanPosture.IGoal;
+
+  /** The body's bones with that arm at its goal. */
+  bones: ReturnType<typeof poseBones>;
+}
+
+/**
+ * The other arm brought up for a hand to touch a region on it: its forearm
+ * held across the front of the waist, the wrist on the body's midline half
+ * way from the hips to the shoulders and a forearm's length ahead of the
+ * hips, the palm down and the fingers toward the touching hand, the elbow on
+ * the hanging arm's side. Null when the region does not ride the other arm.
+ */
+function present(
+  context: IHumanActionContext<touch.IParams>,
+  side: HumanHand.Side,
+  target: AutoMovieMotionTarget,
+): IPresented | null {
+  if (target.kind !== "self") return null;
+  const body = context.body;
+  const other: HumanHand.Side = side === "right" ? "left" : "right";
+  const bone = body.surfaces.regions[target.region].bone;
+  if (
+    bone !== `${other}UpperArm` &&
+    bone !== `${other}LowerArm` &&
+    bone !== `${other}Hand`
+  )
+    return null;
+  const entry: IHumanPosture = context.entry.posture;
+  const frame: HumanFrame.IFrame = { origin: entry.root, yaw: entry.yaw };
+  const hips: IAutoMovieVector3 = body.rest.get("hips")!;
+  const shoulder: IAutoMovieVector3 = body.rest.get(`${other}UpperArm`)!;
+  const at: IAutoMovieVector3 = HumanFrame.point(frame, {
+    x: 0,
+    y: (hips.y + shoulder.y) / 2,
+    z: hips.z + body.measure.forearm,
+  });
+  // The fingers point toward the touching hand's side: world +X is the
+  // body's left at yaw 0.
+  const across: IAutoMovieVector3 = Quaternion.rotateVector(
+    HumanFrame.turn(entry.yaw),
+    { x: side === "left" ? 1 : -1, y: 0, z: 0 },
+  );
+  const goal: IHumanPosture.IGoal = AutoMovieMotionHumanTouchEffector.goal(
+    body,
+    other,
+    touch.EFFECTORS.palm,
+    at,
+    { x: 0, y: 1, z: 0 },
+    across,
+    AutoMovieMotionHumanBend.arm(body, entry, other, "hang"),
+  );
+  return {
+    side: other,
+    goal,
+    bones: poseBones(
+      body,
+      resolveHumanPosture(body, {
+        ...entry,
+        limbs: { ...entry.limbs, [`${other}Arm`]: goal },
+      }),
+    ),
+  };
+}
+
+/** Whether a self region rides a leg, which a lean moves with the hips. */
+function onLeg(
+  body: IHumanActionContext["body"],
+  target: AutoMovieMotionTarget,
+): boolean {
+  if (target.kind !== "self") return false;
+  return /(UpperLeg|LowerLeg|Foot|Toes)$/.test(
+    body.surfaces.regions[target.region].bone,
+  );
 }

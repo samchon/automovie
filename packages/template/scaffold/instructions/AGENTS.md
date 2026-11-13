@@ -39,7 +39,7 @@ In a workspace the production's folder fixes its [story route](.agents/skills/st
 
 You see pictures only as still images and cannot hear. Judge motion from stills dense enough to show it, on consecutive frames at every contact and cut, as [visual debugging](.agents/skills/visual-debugging/capture.md#times) samples them. Ask the user to watch playback where continuous motion is the claim, and to listen to any sound.
 
-Keep the Viewer and the frame capture working, and restore a broken one before other work, because every judgment of the film passes through them.
+Keep the inspector page and the capture command working, and restore a broken one before other work, because every judgment of the film passes through them.
 
 ### Before reporting
 
@@ -65,10 +65,10 @@ Read the production's `PROJECT.md` for the adopted scope, then enter the request
 
 | Skill | Use for |
 | --- | --- |
-| [production](.agents/skills/production/SKILL.md) | Starting, resuming, restructuring or handing off a production: project context, sustained runs, stage caches, media records, instruction sync and final assembly |
+| [production](.agents/skills/production/SKILL.md) | Starting, resuming, restructuring or handing off a production: project context, sustained runs, stage caches, media records, reorganization and final assembly |
 | [story](.agents/skills/story/SKILL.md) | Research, and planning, writing, continuing or revising a brief, settings, treatments, scripts, final screenplay, expression pass, narrative evidence or cause-based repair |
 | [3d-modeling](.agents/skills/3d-modeling/SKILL.md) | A subject's form: the coarse form of a few primitives by default, and a detailed representation, geometry, rig or authored control when [entity work](.agents/skills/development/entities.md#detail) says a commission needs one |
-| [motion](.agents/skills/motion/SKILL.md) | Programmed performance by end-effector goals, catalog cases, staging, camera, physical responses, frame evaluation, the motion hint's control channels and motion verification |
+| [motion](.agents/skills/motion/SKILL.md) | Composing what each person does from the installed motion vocabulary, repairing a refusal, extending the vocabulary, catalog cases, staging, camera, physical modes, frame evaluation, retargeting and the motion hint's control channels |
 | [image](.agents/skills/image/SKILL.md) | Canon reference images, shot frames, style frames or turnaround views |
 | [video](.agents/skills/video/SKILL.md) | Choosing the video model, planning requests, writing video prompts, and generating and adopting takes |
 | [audio](.agents/skills/audio/SKILL.md) | A shot's sound for the video model's prompt, a voice preview, or a commissioned soundtrack the user accepts by ear |
@@ -92,5 +92,5 @@ Read the production's `PROJECT.md` for the adopted scope, then enter the request
 
 | Skill | Use for |
 | --- | --- |
-| [visual-debugging](.agents/skills/visual-debugging/SKILL.md) | Judging any picture on stills: planning a capture, choosing passes, comparing captures, running correction rounds, and restoring the Viewer or frame capture |
+| [visual-debugging](.agents/skills/visual-debugging/SKILL.md) | Judging any picture on stills: planning a capture, choosing passes, comparing captures, running correction rounds, and restoring the inspector page or the capture command |
 | [review](.agents/skills/review/SKILL.md) | Source and narrative review, delivery acceptance, or a requested read-only experience estimation |

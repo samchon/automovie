@@ -1,17 +1,15 @@
 {
   "name": "@automovie/template",
   "version": "0.1.0",
-  "description": "The self-contained scaffold every AutoMovie production is created from and the library that materializes it.",
+  "description": "The scaffold every AutoMovie production is created from and the function that creates its files.",
   "main": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
     "./package.json": "./package.json"
   },
   "scripts": {
-    "prepare": "pnpm run build:versions && pnpm run build:instructions",
-    "build:versions": "ttsx --no-plugins build/resolveTemplateVersions.ts",
-    "build:instructions": "ttsx --no-plugins build/syncScaffoldInstructions.ts",
-    "build": "pnpm run build:versions && rimraf lib && pnpm run build:instructions && ttsc",
+    "prepare": "ttsx --no-plugins build/prepare.ts",
+    "build": "rimraf lib && pnpm run prepare && ttsc",
     "evidence": "evidence"
   },
   "keywords": [
@@ -26,7 +24,7 @@
     "url": "https://github.com/samchon/automovie"
   },
   "files": [
-    "build",
+    "generated",
     "lib",
     "README.md",
     "scaffold",
@@ -52,7 +50,6 @@
     }
   },
   "dependencies": {
-    "koffi": "^3.2.1",
     "yaml": "^2.9.0"
   },
   "devDependencies": {

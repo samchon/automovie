@@ -4,7 +4,7 @@ import {
   IAutoMovieShot,
 } from "@automovie/interface";
 
-import type { IAutoMovieSequenceRenderAdapters } from "./IAutoMovieSequenceRenderAdapters";
+import type { IAutoMovieSequenceRenderAdapters } from "./IAutoMovieSequenceRenderAdapters.js";
 
 /**
  * Host-supplied request for building a sequence manifest and rendering it.

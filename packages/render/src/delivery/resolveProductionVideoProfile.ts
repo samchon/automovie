@@ -1,8 +1,8 @@
 import type { IAutoMovieProductionFrameRate } from "@automovie/interface";
 
-import { AUTOMOVIE_MP4_SRGB_COLOUR } from "./AUTOMOVIE_MP4_SRGB_COLOUR";
-import { AUTOMOVIE_MP4_UNITY_MATRIX } from "./AUTOMOVIE_MP4_UNITY_MATRIX";
-import type { IAutoMovieProductionVideoProfile } from "./IAutoMovieProductionVideoProfile";
+import { AUTOMOVIE_MP4_SRGB_COLOUR } from "./AUTOMOVIE_MP4_SRGB_COLOUR.js";
+import { AUTOMOVIE_MP4_UNITY_MATRIX } from "./AUTOMOVIE_MP4_UNITY_MATRIX.js";
+import type { IAutoMovieProductionVideoProfile } from "./IAutoMovieProductionVideoProfile.js";
 
 /**
  * Resolve an authored raster and exact frame rate to the one H.264-in-MP4

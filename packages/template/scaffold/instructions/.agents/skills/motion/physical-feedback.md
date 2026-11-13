@@ -1,16 +1,16 @@
 # Physical feedback
 
-Physical feedback serves what is not a person and the actions the installed motion vocabulary lacks; the vocabulary already resolves a person's goals, plants and contacts.
+How a production uses the installed engine's physical computations: to solve the goals of a law for [what is not a person](extend.md#what-is-not-a-person), and to choose and review each scene's physical mode.
+
+The installed motion vocabulary and archetypes resolve a person's goals, supports and contacts, on a seat, a vehicle or a mount as on the ground, so a production solves none of them here.
 
 Read the installed engine's public contracts for the physical interaction at issue, and use its kinematics, range-of-motion checks, rigid impacts or other relevant computations to derive consequential action or expose an unworkable performance. Authored timing and dramatic intent still choose what the audience sees, so simulate only where the promise needs it.
 
-## Solve the goals
+## Solve a production law's goals
 
-Realize [end-effector goals](authoring.md) with the installed engine's solvers, as its README and public types give them. Order the fits as [end-effector goals](authoring.md#order-the-fits) sets, and solve several goals together where a solver accepts several targets.
+Realize the law's [end-effector goals](authoring.md) with the installed engine's solvers, as its README and public types give them. Order the fits as [end-effector goals](authoring.md#order-the-fits) sets, and solve several goals together where a solver accepts several targets.
 
-Under the single transform owner [staging](staging.md) requires, a carried prop rides one hand and receives the other hand as a goal, and a mount carries the rider's seated support and receives the hands and feet as goals on its regions.
-
-A residual, refusal or range-limited pose marks an unreachable goal, repaired at its owner as staging directs; a solver the engine lacks is handled under [installed packages](../development/reuse.md#installed-packages).
+A residual, refusal or range-limited pose marks an unreachable goal, repaired at its owner as [staging](staging.md) directs. A solver the engine lacks follows [a defect or a gap](../development/reuse.md#a-defect-or-a-gap).
 
 ## Choose the physical mode
 

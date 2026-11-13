@@ -108,6 +108,70 @@ export namespace HumanColliders {
     return best;
   }
 
+  /** Where a ray meets a posed body. */
+  export interface IHit {
+    /** The point on the collider surface, world metres. */
+    point: IAutoMovieVector3;
+
+    /** The surface's outward unit normal there. */
+    normal: IAutoMovieVector3;
+
+    /** The bone of the segment that was hit. */
+    bone: AutoMovieHumanoidBone;
+  }
+
+  /**
+   * The first point of a posed body's colliders along a ray, by sphere
+   * tracing: the signed distance at a point is how far the ray may advance
+   * without passing a surface, so each step moves by it until the distance
+   * falls within `CAST_TOLERANCE`. The normal is the distance's gradient
+   * there, by central differences over `CAST_PROBE`. A ray that starts inside
+   * the body hits at its start. A hand surface laid on the trunk takes its
+   * place and facing from this, on the colliders themselves.
+   *
+   * @param body The body.
+   * @param bones The posed bones to test, world frame; a segment whose bone is absent is not tested.
+   * @param from The ray's start, world metres.
+   * @param direction Where it runs; any non-zero vector.
+   * @param reach How far it runs, metres.
+   * @returns The hit, or `undefined` when the ray passes the body within `reach` or only grazes it for `CAST_STEPS` steps.
+   * @throws {Error} When no tested segment has a shape.
+   */
+  export function cast(
+    body: IHumanBody,
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    from: IAutoMovieVector3,
+    direction: IAutoMovieVector3,
+    reach: number,
+  ): IHit | undefined {
+    const along: IAutoMovieVector3 = Vector3.normalize(direction);
+    let travelled: number = 0;
+    for (let i: number = 0; i < CAST_STEPS; i++) {
+      const point: IAutoMovieVector3 = Vector3.add(
+        from,
+        Vector3.scale(along, travelled),
+      );
+      const near: IDistance = distance(body, bones, point);
+      if (near.distance <= CAST_TOLERANCE) {
+        const slope = (axis: IAutoMovieVector3): number =>
+          distance(body, bones, Vector3.add(point, axis)).distance -
+          distance(body, bones, Vector3.subtract(point, axis)).distance;
+        return {
+          point,
+          normal: Vector3.normalize({
+            x: slope({ x: CAST_PROBE, y: 0, z: 0 }),
+            y: slope({ x: 0, y: CAST_PROBE, z: 0 }),
+            z: slope({ x: 0, y: 0, z: CAST_PROBE }),
+          }),
+          bone: near.bone,
+        };
+      }
+      travelled += near.distance;
+      if (travelled > reach) return undefined;
+    }
+    return undefined;
+  }
+
   /**
    * The lowest world height any of a posed body's colliders reaches, metres:
    * the least over the placed shapes of their exact world axis bounds
@@ -192,6 +256,15 @@ export namespace HumanColliders {
     return out;
   }
 }
+
+/** How near a traced ray must come to a surface to have hit it, metres. */
+const CAST_TOLERANCE: number = 1e-5;
+
+/** The half step of the central differences a hit's normal is read by, metres. */
+const CAST_PROBE: number = 1e-4;
+
+/** The most steps a ray is traced for; a ray that needs more only grazes the body. */
+const CAST_STEPS: number = 64;
 
 /** A sphere containing a shape, in the shape's own frame. */
 interface IBall {

@@ -22,4 +22,12 @@ export interface IAutoMovieSolvedChainPlant {
 
   /** Original hinge direction in the resolved model frame. */
   hinge: IAutoMovieVector3;
+
+  /**
+   * Metres the candidate rests short of (or past) the target along the line
+   * from the chain root, because the distance lies outside the chain's span
+   * or its mid joint stopped at a limit of its flexion range; absent or `0`
+   * when a legal hinge angle reaches the distance.
+   */
+  shortfall?: number;
 }

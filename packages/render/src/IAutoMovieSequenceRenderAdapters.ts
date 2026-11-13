@@ -1,5 +1,5 @@
-import { IAutoMovieSequenceRenderFrame } from "./IAutoMovieSequenceRenderFrame";
-import { IAutoMovieSequenceRenderPlan } from "./IAutoMovieSequenceRenderPlan";
+import { IAutoMovieSequenceRenderFrame } from "./IAutoMovieSequenceRenderFrame.js";
+import { IAutoMovieSequenceRenderPlan } from "./IAutoMovieSequenceRenderPlan.js";
 
 /**
  * Host I/O for sequence rendering. The capture adapter receives the resolved sequence frame sample, including the live shot local time and optional outgoing blend tail; drawing pixels remains the host's job.

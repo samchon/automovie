@@ -1,6 +1,6 @@
-import type { IAutoMovieRenderAndSeeRequest } from "./IAutoMovieRenderAndSeeRequest";
-import type { IAutoMovieRenderAndSeeResult } from "./IAutoMovieRenderAndSeeResult";
-import { renderVideo } from "./renderVideo";
+import type { IAutoMovieRenderAndSeeRequest } from "./IAutoMovieRenderAndSeeRequest.js";
+import type { IAutoMovieRenderAndSeeResult } from "./IAutoMovieRenderAndSeeResult.js";
+import { renderVideo } from "./renderVideo.js";
 
 /**
  * Render a clip and return the encoded output plus explicit frame artifacts. The function still performs only deterministic orchestration over injected host I/O; its value is the metadata contract that lets an agent inspect what was captured without guessing paths or sample times.

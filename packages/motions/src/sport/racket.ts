@@ -12,6 +12,7 @@ import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk"
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -35,8 +36,8 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  *   place it before the serve's backswing; here before any stroke).
  * - Golf address: the trunk hinges 35 degrees at the hips over slightly
  *   flexed knees (provisional), the two hands together on the grip hanging
- *   below the shoulders, and the waggle moves them a twentieth of the arm
- *   forward and back twice.
+ *   `HANG` of the arm below the shoulders, and the waggle moves them a
+ *   twentieth of the arm forward and back twice.
  *
  * Each is a phrase: into the position in 0.6 s, the stroke (the hop or the
  * waggle), held, and back in 0.6 s.
@@ -61,6 +62,9 @@ export namespace racket {
       stand: ["fromRelax", "smooth"],
       racket: ["fromStrokeEnd", "quick"],
     });
+
+  /** How far below the shoulders the golfer's upper hand grips, arm lengths (provisional): the elbows a little soft. */
+  export const HANG: number = 0.8;
 
   /** The positions. */
   export type Kind = "readyPosition" | "splitStep" | "golfAddress";
@@ -92,7 +96,7 @@ export namespace racket {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the hold is negative.
+   * @throws {HumanRefusal} When the hold is negative.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation One phrase; each position's crouch, feet and hands on its envelope, the hop or the waggle on the stroke.
@@ -109,8 +113,7 @@ export namespace racket {
     const body = context.body;
     const m = body.measure;
     const hold: number = p.seconds ?? 0.6;
-    if (!(hold >= 0))
-      throw new Error("A racket position's hold is not negative");
+    HumanBound.least("seconds", hold, 0, "s");
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     const side: "left" | "right" = p.side ?? "right";
@@ -287,27 +290,13 @@ export namespace racket {
           ...grip(
             hand,
             (posture: IHumanPosture, s: number) => {
-              // Hanging below the shoulders: the midpoint of the shoulders dropped an arm.
-              const bones = context.body.rest;
-              const shoulder: IAutoMovieVector3 = HumanFrame.point(
-                { origin: posture.root, yaw: posture.yaw },
-                {
-                  x: 0,
-                  y:
-                    (bones.get("leftUpperArm")!.y +
-                      bones.get("rightUpperArm")!.y) /
-                    2,
-                  z: 0,
-                },
-              );
-              const ahead: number =
-                Math.sin((35 * Math.PI) / 180) *
-                (m.shoulderHeight - m.hipHeight) *
-                into(s);
+              // Hanging below the shoulders: their midpoint dropped by `HANG` of the arm, which leaves the lower hand's wrist inside the arm's reach through the waggle.
+              const shoulder: IAutoMovieVector3 =
+                AutoMovieMotionHumanPlaced.shoulders(body, posture);
               return Vector3.add(
-                { x: shoulder.x, y: shoulder.y - arm * 0.9, z: shoulder.z },
+                { x: shoulder.x, y: shoulder.y - arm * HANG, z: shoulder.z },
                 Vector3.add(
-                  local(posture, { x: 0, y: 0, z: ahead + waggle(s) }),
+                  local(posture, { x: 0, y: 0, z: waggle(s) }),
                   local(posture, {
                     x: (hand === "left" ? 0.5 : -0.5) * m.hand * 0.3,
                     y: hand === side ? -m.hand * 0.4 : 0,

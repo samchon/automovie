@@ -10,6 +10,7 @@ import type { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHuman
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -95,6 +96,9 @@ export namespace lieDown {
   /** Seconds of each phase (provisional). */
   export const PHASE: number = 1.2;
 
+  /** The upper leg's adduction onto the lower one when lying on a side, degrees (provisional). */
+  export const STACKED: number = 9;
+
   /** The floor postures (provisional angles). */
   export const POSES: Readonly<
     Record<"sit" | "kneel" | "quadruped" | Position, IPose>
@@ -130,20 +134,18 @@ export namespace lieDown {
       ankle: -45,
       neck: -10,
     }),
-    lateralLeft: pose(0, -88, {
-      hip: 40,
-      knee: 60,
-      shoulder: 70,
-      elbow: 60,
-      ankle: -15,
-    }),
-    lateralRight: pose(0, 88, {
-      hip: 40,
-      knee: 60,
-      shoulder: 70,
-      elbow: 60,
-      ankle: -15,
-    }),
+    lateralLeft: pose(
+      0,
+      -88,
+      { hip: 40, knee: 60, shoulder: 70, elbow: 60, ankle: -15 },
+      "left",
+    ),
+    lateralRight: pose(
+      0,
+      88,
+      { hip: 40, knee: 60, shoulder: 70, elbow: 60, ankle: -15 },
+      "right",
+    ),
   };
 
   /** The route of postures to each position, after standing, with each arrival's event. */
@@ -175,7 +177,7 @@ export namespace lieDown {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the hold is negative.
+   * @throws {HumanRefusal} When the hold is negative.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -183,7 +185,7 @@ export namespace lieDown {
     const body: IHumanBody = context.body;
     const position: Position = context.params.position ?? "supine";
     const hold: number = context.params.hold ?? 2;
-    if (!(hold >= 0)) throw new Error("A lie down's hold is not negative");
+    HumanBound.least("hold", hold, 0, "s");
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
     const standing: IHumanPosture = stand
@@ -301,7 +303,12 @@ export namespace lieDown {
     });
   }
 
-  /** A floor posture from its whole-body tilt and symmetric limb angles. */
+  /**
+   * A floor posture from its whole-body tilt and symmetric limb angles. Lying
+   * on a side, no limb spreads away from the trunk into the floor: the arms
+   * and the leg underneath keep to the trunk's side, and the leg on top comes
+   * down onto the one underneath by `STACKED`.
+   */
   function pose(
     pitch: number,
     roll: number,
@@ -313,13 +320,18 @@ export namespace lieDown {
       neck?: number;
       ankle?: number;
     },
+    down?: "left" | "right",
   ): IPose {
     const joints: AutoMovieMotionHumanJoints.Angles = { ...stand.RELAXED };
     for (const side of ["left", "right"] as const) {
-      joints[`${side}UpperLeg`] = [a.hip, 5, 0];
+      joints[`${side}UpperLeg`] = [
+        a.hip,
+        down === undefined ? 5 : side === down ? 0 : -STACKED,
+        0,
+      ];
       joints[`${side}LowerLeg`] = [a.knee, 0, 0];
       joints[`${side}Foot`] = [a.ankle ?? 0, 0, 0];
-      joints[`${side}UpperArm`] = [a.shoulder, 10, 0];
+      joints[`${side}UpperArm`] = [a.shoulder, down === undefined ? 10 : 0, 0];
       joints[`${side}LowerArm`] = [a.elbow, 0, 0];
     }
     joints.neck = [a.neck ?? 0, 0, 0];

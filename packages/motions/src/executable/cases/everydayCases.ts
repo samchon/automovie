@@ -56,10 +56,12 @@ import { everydayVerdicts } from "./everydayVerdicts";
  *   extrapolated centre of mass inside the feet's base at seat-off.
  * - `everyday-bend`: a stoop to a point above mid-shank (the `auto` rule's
  *   stoop range; a straight-legged reach to the floor needs more hamstring
- *   length than most adults have) and a semi-squat and a squat to a floor
- *   point; the
- *   palm within 15 mm of it and the extrapolated centre of mass over the
- *   feet at the deepest.
+ *   length than most adults have), a semi-squat to a point a fifth of the
+ *   shank above the ankle (a low object; with the hips kept at 0.75 of
+ *   their height the smallest body's balanced reach ends above the floor,
+ *   where `auto` squats instead) and a squat to a floor point; the palm
+ *   within 15 mm of it and the extrapolated centre of mass over the feet at
+ *   the deepest.
  * - `everyday-brace`: bracing for a push from ahead; the centre of mass's
  *   margin to the base's edge along the push higher at `set` than at the
  *   start, and laterally not lower (Massion 1992; Hof et al. 2005).
@@ -569,7 +571,11 @@ export function everydayCases(
           y: body.measure.ankleHeight + 0.6 * body.measure.shank,
           z: 0.45,
         },
-        semiSquat: { x: -0.15, y: 0, z: 0.3 },
+        semiSquat: {
+          x: -0.15,
+          y: body.measure.ankleHeight + 0.2 * body.measure.shank,
+          z: 0.3,
+        },
         squat: { x: -0.15, y: 0, z: 0.3 },
       };
       let chain: HumanChain = HumanChain.subject("a");

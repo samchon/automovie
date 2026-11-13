@@ -16,7 +16,7 @@ import {
   IAutoMovieRenderTargetSettings,
 } from "@automovie/interface";
 
-import { IAutoMovieRenderBudgetAssessment } from "./IAutoMovieRenderBudgetAssessment";
+import { IAutoMovieRenderBudgetAssessment } from "./IAutoMovieRenderBudgetAssessment.js";
 
 /**
  * Measure one caller-supplied compiled shot against an explicitly supplied budget, renderer identity, settings, assets and decoded texture/residency facts. The subject feeds both mask ownership and inventory measurement; the sealed target names those supplied inputs rather than proving that a renderer drew a frame.

@@ -1,6 +1,6 @@
 import { type IEvidenceConfig } from "@wrtnlabs/evidence";
 
-const files: string[] = ["src/**/*.ts"];
+const files: string[] = ["src/**/*.ts", "src/**/*.tsx"];
 
 /** Every exported declaration answers the shared documentation checklist, types the design checklist and functions the implementation checklist. */
 export default {

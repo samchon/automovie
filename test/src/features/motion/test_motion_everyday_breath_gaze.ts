@@ -1,5 +1,10 @@
 import { createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
-import { HumanBreath, HumanGaze, gestureStroke } from "@automovie/motions";
+import {
+  HumanBreath,
+  HumanGaze,
+  gestureSignal,
+  gestureStroke,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -162,16 +167,16 @@ export function test_motion_everyday_breath_gaze(): void {
 
   TestValidator.predicate(
     "stroke ends at rest",
-    gestureStroke.oscillation(0, 3) === 0 &&
-      gestureStroke.oscillation(1, 3) === 0,
+    gestureSignal.oscillation(0, 3) === 0 &&
+      gestureSignal.oscillation(1, 3) === 0,
   );
   let jump: number = 0;
   for (let i: number = 1; i <= 1000; i++)
     jump = Math.max(
       jump,
       Math.abs(
-        gestureStroke.oscillation(i / 1000, 3) -
-          gestureStroke.oscillation((i - 1) / 1000, 3),
+        gestureSignal.oscillation(i / 1000, 3) -
+          gestureSignal.oscillation((i - 1) / 1000, 3),
       ),
     );
   TestValidator.predicate(

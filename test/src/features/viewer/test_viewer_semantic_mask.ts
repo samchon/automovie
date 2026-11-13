@@ -8,7 +8,7 @@ import {
   buildFluidSurfaceObject,
   buildPlantingObject,
   buildSoftBodyObject,
-} from "@automovie/viewer";
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -86,7 +86,7 @@ export function test_viewer_semantic_mask(): void {
     orphan: THREE.Mesh;
     palette: Float32Array;
   } = build(design, mask);
-  const handle: import("@automovie/viewer").IAutoMovieSemanticMaskHandle =
+  const handle: import("@automovie/render").IAutoMovieSemanticMaskHandle =
     applyAutoMovieSemanticMask({
       scene: built.scene,
       design,
@@ -281,7 +281,7 @@ export function test_viewer_semantic_mask(): void {
     orphan: THREE.Mesh;
     palette: Float32Array;
   } = build(reversedDesign, mask);
-  const reversedHandle: import("@automovie/viewer").IAutoMovieSemanticMaskHandle =
+  const reversedHandle: import("@automovie/render").IAutoMovieSemanticMaskHandle =
     applyAutoMovieSemanticMask({
       scene: reversedBuilt.scene,
       design: reversedDesign,
@@ -303,7 +303,7 @@ export function test_viewer_semantic_mask(): void {
   TestValidator.equals(
     "a scene with too few children is refused rather than mis-resolved",
     throwsError(
-      (): import("@automovie/viewer").IAutoMovieSemanticMaskHandle =>
+      (): import("@automovie/render").IAutoMovieSemanticMaskHandle =>
         applyAutoMovieSemanticMask({
           scene: new THREE.Scene(),
           design,
@@ -315,7 +315,7 @@ export function test_viewer_semantic_mask(): void {
   );
 
   // Existing simulated projections join by their actual builder names. The later palette/material assertion verifies that join through its behavior.
-  const panel: import("@automovie/viewer").IAutoMovieSoftBodyObject =
+  const panel: import("@automovie/render").IAutoMovieSoftBodyObject =
     buildSoftBodyObject({
       surface: {
         domain: "panel",
@@ -331,7 +331,7 @@ export function test_viewer_semantic_mask(): void {
       },
       status: "derived",
     });
-  const bed: import("@automovie/viewer").IAutoMoviePlantingObject =
+  const bed: import("@automovie/render").IAutoMoviePlantingObject =
     buildPlantingObject({
       plant: {
         domain: "fern",
@@ -348,7 +348,7 @@ export function test_viewer_semantic_mask(): void {
         bounds: null,
       },
     });
-  const pond: import("@automovie/viewer").IAutoMovieFluidSurfaceObject =
+  const pond: import("@automovie/render").IAutoMovieFluidSurfaceObject =
     buildFluidSurfaceObject({
       surface: {
         domain: "basin",
@@ -417,7 +417,7 @@ export function test_viewer_semantic_mask(): void {
     new THREE.MeshStandardMaterial(),
   );
   simulatedScene.add(stray);
-  const simulatedHandle: import("@automovie/viewer").IAutoMovieSemanticMaskHandle =
+  const simulatedHandle: import("@automovie/render").IAutoMovieSemanticMaskHandle =
     applyAutoMovieSemanticMask({
       scene: simulatedScene,
       design: simulatedDesign,

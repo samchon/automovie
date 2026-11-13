@@ -180,7 +180,10 @@ export namespace knee {
           yaw: entry.yaw + turn * whole,
           pitch: entry.pitch - KneeForm.LEAN * whole,
           roll: entry.roll,
-          joints: { ...entry.joints, ...StrikingStance.joints() },
+          joints: StrikingStance.facing(
+            { ...entry.joints, ...StrikingStance.joints() },
+            turn * whole,
+          ),
           limbs: StrikingStance.legs(
             body,
             side === "left"
@@ -450,13 +453,15 @@ export namespace knee {
 
         // Held for the dwell, then the free course played back from the stop
         // to the start on a minimum-jerk clock: the way in was clear of the
-        // body up to its first contact, so the way out is too.
+        // body up to its first contact, so the way out is too. The clinch
+        // lets go at the contact: the hands withdraw from where the nape was
+        // at the stop, since the struck body reels out of the arms' reach.
         const s: number = at - t0;
         const w: number = minimumJerk(
           (t - s - StrikingStroke.DWELL) /
             Math.max(1e-3, duration - s - StrikingStroke.DWELL),
         ).s;
-        return carried(free(s * (1 - w), t0 + t), t);
+        return carried(free(s * (1 - w), at), t);
       },
     };
     StrikingRecord.register(out, (): StrikingRecord.IRecord => {
@@ -470,6 +475,7 @@ export namespace knee {
         side === "left" ? "kneeLeft" : "kneeRight",
       ).point;
       return {
+        limb: side === "left" ? "leftFoot" : "rightFoot",
         offset: { x: 0, y: 0, z: 0 },
         planned: g.target,
         reached,

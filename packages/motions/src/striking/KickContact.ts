@@ -27,6 +27,9 @@ import { StrikingStance } from "./StrikingStance";
  * the thigh, where the knee would pass the target. A leg jammed by a point
  * closer than its flexion band's shortest reach steps the support foot back
  * by the difference instead, so the weapon it declared lands, not the knee.
+ * A fitted weapon that the hip's range of motion leaves beyond the point (a
+ * high point too near for the thigh to rise to) steps the support foot back
+ * by the excess in the same rounds.
  */
 export namespace KickContact {
   /** A carriage with the leg fitted under it. */
@@ -149,8 +152,9 @@ export namespace KickContact {
         // What the fitted weapon still lacks toward the point, taken up by
         // the support foot along the line: a step of `d` shortens the hip's
         // distance to the point by `d` times the line's share of that
-        // direction.
-        if (step !== undefined || carriage.step >= forward) break;
+        // direction. The lack is signed: a weapon the hip's range leaves
+        // beyond the point steps the support foot back by the excess.
+        if (step !== undefined) break;
         const toward: IAutoMovieVector3 = Vector3.normalize(
           Vector3.subtract(
             chain.planned,
@@ -162,18 +166,23 @@ export namespace KickContact {
           Vector3.subtract(chain.planned, fit.reached),
           toward,
         );
-        if (!(lack > 0 && ahead > 1e-3)) break;
-        carriage = {
-          ...carriage,
-          step: Math.min(forward, carriage.step + lack / ahead),
-        };
+        if (!(ahead > 1e-3)) break;
+        const next: number = Math.max(
+          -limit,
+          Math.min(forward, carriage.step + lack / ahead),
+        );
+        if (Math.abs(next - carriage.step) < 1e-6) break;
+        carriage = { ...carriage, step: next };
       }
     }
     return best!;
   }
 
   /** Solve the leg from the hip a posture leaves it and fit it. */
-  function fitted(chain: KickChain.IProps, base: IHumanPosture): KickChain.IFit {
+  function fitted(
+    chain: KickChain.IProps,
+    base: IHumanPosture,
+  ): KickChain.IFit {
     return KickChain.fit(chain, base, KickChain.solve(chain, base));
   }
 }

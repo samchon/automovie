@@ -26,6 +26,7 @@ import { finiteMinimum } from "./finiteMinimum";
 import { finiteNumber } from "./finiteNumber";
 import { materialTextureSlots } from "./materialTextureSlots";
 import { validateAffordance } from "./validateAffordance";
+import { validateAffordanceArticulation } from "./validateAffordanceArticulation";
 import { validateBody } from "./validateBody";
 import { validateColor } from "./validateColor";
 import { validateExtents } from "./validateExtents";
@@ -282,6 +283,12 @@ export const validateModel: (props: {
     );
     affordances.forEach((affordance: IAutoMovieAffordance, i: number): void =>
       validateAffordance(affordance, `${path}.affordances[${i}]`, collector),
+    );
+    validateAffordanceArticulation(
+      affordances,
+      new Set(model.parts.map((p: IAutoMovieModelPart): string => p.id)),
+      `${path}.affordances`,
+      collector,
     );
   }
 

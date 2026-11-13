@@ -16,6 +16,8 @@ import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTimin
 import { AutoMovieMotionHumanVariation } from "../compose/AutoMovieMotionHumanVariation";
 import { AutoMovieMotionHumanVariationPlace } from "../compose/AutoMovieMotionHumanVariationPlace";
 import type { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
+import { HumanBound } from "../law/HumanBound";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -26,6 +28,7 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
 import { HumanEffort } from "./HumanEffort";
+import { gestureJoints } from "./gestureJoints";
 import { gestureStroke } from "./gestureStroke";
 import { handGoals } from "./handGoals";
 
@@ -136,7 +139,7 @@ export namespace gesture {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} On a missing pointing target, a count that is not a positive whole number, a negative hold, or a bow outside (0, 60] degrees.
+   * @throws {HumanRefusal} On a missing pointing target, a count that is not a positive whole number, a negative hold, or a bow outside (0, 60] degrees.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is planned and every refusal; the law's doc gives the phases, timing laws and provisional values.
    * @evidence contracts/development/implementation.md#principled-implementation Kendon's phases (Kendon 1980; McNeill 1992): hand goals from gestureStroke solved by the arm's inverse kinematics, the arm carried to and from them in joint angles on a minimum-jerk course; joint gestures added under an envelope; a bow's hip shift from the engine's centre of mass (HumanBalance.shift) at the peak pitch, scaled by the pitch's sine between. The entry's and the rest's arm angles are joint angles, so they follow the standing body.
@@ -154,15 +157,20 @@ export namespace gesture {
     const mods: HumanEffort.IModifiers = HumanEffort.modifiers(p.effort);
     const rhythm = gestureStroke.RHYTHM[p.kind];
     const cycles: number = p.count ?? rhythm.cycles;
-    if (!(Number.isInteger(cycles) && cycles > 0))
-      throw new Error("A gesture's count is a positive whole number");
+    HumanBound.whole("count", cycles);
     const hold: number = p.hold ?? 0;
-    if (!(hold >= 0)) throw new Error("A gesture's hold is not negative");
+    HumanBound.least("hold", hold, 0, "s");
     const depth: number = p.depth ?? 30;
-    if (p.kind === "bow" && !(depth > 0 && depth <= 60))
-      throw new Error("A bow's depth lies in (0, 60] degrees");
+    if (p.kind === "bow")
+      HumanBound.within("depth", depth, 0, 60, "degrees", "minimum");
     if (p.kind === "point" && p.target === undefined)
-      throw new Error("Pointing needs a target");
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "target",
+        value: undefined,
+        reason: "Pointing needs a target",
+        fix: "give the point gesture a target",
+      });
 
     const sides: HumanHand.Side[] = ((): HumanHand.Side[] => {
       const which = gestureStroke.HANDS[p.kind];
@@ -325,7 +333,7 @@ export namespace gesture {
         // Head, shoulder and trunk angles, added to what the stand holds.
         const joints: IHumanPosture["joints"] = { ...posture.joints };
         for (const [bone, add] of Object.entries(
-          gestureStroke.joints(p.kind, u, cycles, envelope, mods.extent),
+          gestureJoints.at(p.kind, u, cycles, envelope, mods.extent),
         ) as [AutoMovieHumanoidBone, readonly [number, number, number]][]) {
           const was: readonly [number, number, number] = joints[bone] ?? [
             0, 0, 0,

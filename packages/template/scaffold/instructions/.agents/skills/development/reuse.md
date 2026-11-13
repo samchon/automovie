@@ -12,22 +12,23 @@ The skills name installed packages by role. This table is the one place that say
 | --- | --- | --- |
 | Interface package | `@automovie/interface` | Type the authored data every other package reads |
 | Human package | `@automovie/human` | Prepare a person's canonical body |
-| Motion vocabulary | `@automovie/motions` | Chain a person's actions and read the pose at any second |
+| Archetypes | `@automovie/archetypes` | Build the objects people hold, use, sit on, ride and fight with, each with the affordances a person's action attaches to |
+| Motion vocabulary | `@automovie/motions` | Compose what each person does, register an action it lacks, and read and check the performance at any second |
 | Engine | `@automovie/engine` | Validate the data, schedule a scene's actions and compute each film second |
-| Viewer | `@automovie/viewer` | Draw the polygon man and every other form, and capture the picture |
-| Renderer | `@automovie/render` | Plan the frames, cuts and encoding that the production's commands run |
+| Viewer | `@automovie/viewer` | Mount the picture on a page, play it back and review it |
+| Renderer | `@automovie/render` | Draw the polygon man and every other form, inspect and capture the picture, and plan the frames, cuts and encoding that the production's commands run |
 | Ingest package | `@automovie/ingest` | Decode external models, motion, audio and images |
 | Recovery package | `@automovie/recovery` | Recover curves from a fixed mesh so parameters can drive it |
 | Evidence package | `@automovie/evidence` | Configure the check that code and writing answer their contracts |
-| Command-line tool | `automovie` | Create, add and sync productions |
+| Command-line tool | `automovie` | Create and add productions |
 
-The first six rows follow a film from authored data to encoded video, and [how the parts work together](source-layout.md#how-the-parts-work-together) says how the production's modules carry them.
+The first seven rows follow a film from authored data to encoded video, and [how the parts work together](source-layout.md#how-the-parts-work-together) says how the production's modules carry them.
 
 ### Reading a package {#reading-a-package}
 
 A package's README, public types and JSDoc are its API. Read them in the package's folder under `node_modules` instead of recalling a call, because the packages change between releases. Read the README first for what the package owns, then the declaration and JSDoc of each export you use for its units, limits and refusals.
 
-### A defect or a gap
+### A defect or a gap {#a-defect-or-a-gap}
 
 A production cannot repair an installed package. An edit under `node_modules` or a vendored copy disappears at the next install and hides the defect from every other production.
 
@@ -39,6 +40,8 @@ When a package misbehaves or lacks something the work needs:
 4. Remove the substitute when the package ships the fix.
 
 A workspace's own `packages/<name>` is the exception: the workspace owns that code and repairs it in place.
+
+A row or a law registered with the motion vocabulary under [extend](../motion/extend.md) is not such a substitute. Registration is the vocabulary's own way to take an action it lacks, so it needs no mark and stays.
 
 ## One module, many uses {#one-module}
 

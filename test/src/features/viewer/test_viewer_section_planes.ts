@@ -2,7 +2,7 @@ import {
   IAutoMovieSectionPlane,
   autoMovieSectionPlanesKeepPoint,
 } from "@automovie/engine";
-import { applyAutoMovieSectionPlanes } from "@automovie/viewer";
+import { applyAutoMovieSectionPlanes } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

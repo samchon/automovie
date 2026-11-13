@@ -14,10 +14,13 @@ import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarge
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { kneelKeys } from "../everyday/kneelKeys";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -32,14 +35,19 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * quadruped's trot (Patrick, Noah and Yang 2009, J Neurophysiol 101:603).
  *
  * The goals are floor points. The knees rest a shank's radius over the
- * floor under the hip joints with the thighs upright and the shins lying
- * back along the floor; the palms rest flat under the shoulders with the
- * arms straight down, so the trunk's pitch follows from the hips' and the
- * shoulders' heights and the trunk's length. The pelvis travels at a
- * constant speed of one stride a cycle; each limb is planted on a floor
+ * floor under the hip joints with the thighs upright, the shins lying back
+ * to feet tucked on their toes (`kneelKeys.tucked`); the palms rest flat
+ * with each wrist under its shoulder and the arm at `ARM` of its length, so
+ * the trunk's pitch is the one that puts the posed shoulders at that height.
+ * The pelvis travels at a constant speed of one stride a cycle, as high as
+ * each thigh reaches its knee from it; each limb is planted on a floor
  * point for `DUTY` of the cycle, centred on its own share, and swings to the
- * next one a stride ahead on an arc `LIFT` high, the left hand and the right
- * knee half a cycle apart from the right hand and the left knee. Getting
+ * next one a stride ahead on an arc, a hand `LIFT` high and a knee
+ * `KNEE_LIFT`, the left hand and the right knee half a cycle apart from the
+ * right hand and the left knee. Each hip joint rides a thigh over its own
+ * knee, so a swinging knee is lifted by the pelvis turning about the spine's
+ * axis (the hip hike of a quadruped's swing), which the spine and the chest
+ * turn back so the shoulders stay level over the hands. Getting
  * down blends from standing to the first footprints over `DOWN` seconds.
  * The cycle, the stride, the duty and the lift are provisional, scaled by
  * the square root of the hip height and the manner's tempo. Events: `down`
@@ -99,8 +107,17 @@ export namespace crawl {
   /** The share of a cycle a limb is planted (provisional). */
   export const DUTY: number = 0.6;
 
-  /** A swinging limb's rise, metres (provisional). */
+  /** A swinging hand's rise, metres (provisional). */
   export const LIFT: number = 0.04;
+
+  /** A swinging knee's rise, metres (provisional): the pelvis hikes it, so it clears the floor by less than a hand. */
+  export const KNEE_LIFT: number = 0.02;
+
+  /** The chest's share of the turn that levels the shoulders over a hiked pelvis; the lumbar spine takes the rest (as `AutoMovieMotionHumanTrunk.CHEST`). */
+  export const CHEST: number = 0.6;
+
+  /** The shoulder's height over the wrist as a share of the upper arm and the forearm: an elbow just short of straight (provisional). */
+  export const ARM: number = 0.98;
 
   /** Seconds to get down onto hands and knees (provisional). */
   export const DOWN: number = 1.5;
@@ -110,7 +127,7 @@ export namespace crawl {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the cycle count is not a positive integer.
+   * @throws {HumanRefusal} When the cycle count is not a positive integer.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -118,8 +135,7 @@ export namespace crawl {
     const body: IHumanBody = context.body;
     const m = body.measure;
     const cycles: number = context.params.cycles ?? 3;
-    if (!(Number.isInteger(cycles) && cycles > 0))
-      throw new Error("A crawl lasts a positive whole number of cycles");
+    HumanBound.whole("cycles", cycles);
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
     const standing: IHumanPosture = stand
@@ -135,74 +151,139 @@ export namespace crawl {
       { x: 0, y: 0, z: 1 },
     );
 
-    // The trunk's pitch from the hips' and shoulders' heights.
-    const knee: number = m.shankRadius;
-    const hipY: number = knee + m.thigh;
-    const shoulderY: number = m.upperArm + m.forearm + 0.5 * m.hand;
-    const restHips = hipJoints(
-      body,
-      { x: 0, y: 0, z: 0 },
-      Quaternion.identity(),
-    );
-    const restShoulders: IAutoMovieVector3 = Vector3.lerp(
-      body.rest.get("leftUpperArm")!,
-      body.rest.get("rightUpperArm")!,
-      0.5,
-    );
-    const trunk: number = Vector3.length(
-      Vector3.subtract(
-        restShoulders,
-        Vector3.lerp(restHips.left, restHips.right, 0.5),
-      ),
-    );
-    const pitch: number =
-      90 -
-      (Math.asin(Math.max(-1, Math.min(1, (shoulderY - hipY) / trunk))) * 180) /
-        Math.PI;
+    // Each wrist over its flat palm on the floor, floor frame from the palm.
+    const sides = ["left", "right"] as const;
+    const wrist = (side: "left" | "right"): IAutoMovieVector3 =>
+      HumanFrame.local(
+        { origin: { x: 0, y: 0, z: 0 }, yaw },
+        AutoMovieMotionHumanArm.goal(
+          body,
+          side,
+          AutoMovieMotionHumanTarget.hand(
+            body,
+            standing,
+            side,
+            { point: { x: 0, y: 0, z: 0 }, normal: { x: 0, y: 1, z: 0 } },
+            { surface: "palm", shape: "flat", forward },
+          ),
+        ).point,
+      );
+    const wrists = { left: wrist("left"), right: wrist("right") };
 
-    // The root that puts the hip joints' middle at a floor-frame place.
-    const posed = (share: number): IHumanPosture => ({
+    // The body tilted by a pitch at a share of the way down, and the root
+    // that puts its hip joints' middle at a place.
+    const posed = (
+      share: number,
+      degrees: number,
+      hike: number = 0,
+    ): IHumanPosture => ({
       root: { x: 0, y: 0, z: 0 },
       yaw,
-      pitch: pitch * share,
+      pitch: degrees * share,
       roll: 0,
       joints: {
         ...stand.RELAXED,
         neck: [-40 * share, 0, 0],
-        leftFoot: [-45 * share, 0, 0],
-        rightFoot: [-45 * share, 0, 0],
+        hips: [0, 0, hike],
+        spine: [0, 0, -(1 - CHEST) * hike],
+        chest: [0, 0, -CHEST * hike],
       },
       limbs: {},
     });
     const rootFor = (
-      share: number,
+      tilted: IHumanPosture,
       hips: IAutoMovieVector3,
     ): IAutoMovieVector3 => {
       const joints = hipJoints(
         body,
         { x: 0, y: 0, z: 0 },
-        resolveHumanPosture.heading(posed(share)),
+        resolveHumanPosture.heading(tilted),
+        tilted.joints.hips,
       );
       return Vector3.subtract(
         hips,
         Vector3.lerp(joints.left, joints.right, 0.5),
       );
     };
-    const crawling: IHumanPosture = {
-      ...posed(1),
-      root: rootFor(1, HumanFrame.point(frame, { x: 0, y: hipY, z: 0 })),
+
+    // The trunk's pitch: the one that puts the posed shoulders an arm at
+    // `ARM` of its length over the wrists, the hip joints a thigh over the
+    // knees.
+    const knee: number = m.shankRadius;
+    const hipY: number = knee + m.thigh;
+    const shoulderY: number =
+      (wrists.left.y + wrists.right.y) / 2 + ARM * (m.upperArm + m.forearm);
+    const crawlingAt = (degrees: number) => {
+      const tilted: IHumanPosture = posed(1, degrees);
+      return poseBones(
+        body,
+        resolveHumanPosture(body, {
+          ...tilted,
+          root: rootFor(
+            tilted,
+            HumanFrame.point(frame, { x: 0, y: hipY, z: 0 }),
+          ),
+        }),
+      );
     };
-    const bones = poseBones(body, resolveHumanPosture(body, crawling));
+    let lo: number = 0;
+    let hi: number = 120;
+    for (let i: number = 0; i < 24; i++) {
+      const mid: number = (lo + hi) / 2;
+      const bones = crawlingAt(mid);
+      if (
+        (bones.get("leftUpperArm")!.worldPosition.y +
+          bones.get("rightUpperArm")!.worldPosition.y) /
+          2 >
+        shoulderY
+      )
+        lo = mid;
+      else hi = mid;
+    }
+    const pitch: number = (lo + hi) / 2;
+    const bones = crawlingAt(pitch);
     const local = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
       HumanFrame.local(frame, bones.get(bone)!.worldPosition);
 
-    // Nominal limb places relative to the hips' travel, floor frame.
+    // Nominal limb places relative to the hips' travel, floor frame: each
+    // palm where its wrist stands under the shoulder, each knee under its
+    // hip joint.
+    const under = (side: "left" | "right"): IAutoMovieVector3 => {
+      const shoulder: IAutoMovieVector3 = local(`${side}UpperArm`);
+      return {
+        x: shoulder.x - wrists[side].x,
+        y: 0,
+        z: shoulder.z - wrists[side].z,
+      };
+    };
     const nominal: Record<Limb, IAutoMovieVector3> = {
-      leftHand: { ...local("leftUpperArm"), y: 0 },
-      rightHand: { ...local("rightUpperArm"), y: 0 },
+      leftHand: under("left"),
+      rightHand: under("right"),
       leftKnee: { ...local("leftUpperLeg"), y: knee },
       rightKnee: { ...local("rightUpperLeg"), y: knee },
     };
+
+    // Each foot tucked on its toes behind its knee, solved once at the
+    // nominal knee and carried with the knee.
+    const tuck = (side: "left" | "right") => {
+      const from: IHumanPosture.IGoal = standing.limbs[`${side}Leg`]!;
+      const at: IAutoMovieVector3 = HumanFrame.point(
+        frame,
+        nominal[`${side}Knee`],
+      );
+      const foot: kneelKeys.IFoot = kneelKeys.tucked(
+        body,
+        side,
+        at,
+        yaw,
+        HumanFoot.point(body, side, "mtp", {
+          ankle: from.point,
+          rotation: from.rotation ?? HumanFrame.turn(yaw),
+        }).y,
+      );
+      return { foot, offset: Vector3.subtract(foot.at, at) };
+    };
+    const tucks = { left: tuck("left"), right: tuck("right") };
 
     // The clock: getting down, the cycles, a settle.
     const period: number =
@@ -254,19 +335,57 @@ export namespace crawl {
             s,
           );
           return {
-            point: { ...at, y: at.y + 4 * LIFT * s * (1 - s) },
+            point: {
+              ...at,
+              y:
+                at.y +
+                4 * (limb.endsWith("Hand") ? LIFT : KNEE_LIFT) * s * (1 - s),
+            },
             planted: false,
           };
         }
       }
       return { point: print(limb, cycles), planted: true };
     };
-    const hipsAt = (seconds: number): IAutoMovieVector3 =>
-      HumanFrame.point(frame, {
+    // The hips travel at a constant speed, each hip joint a thigh from its
+    // knee: their middle is the pelvis's height and their difference its
+    // turn about the spine's axis, positive lifting the left hip.
+    const separation: number = Vector3.length(
+      Vector3.subtract(local("leftUpperLeg"), local("rightUpperLeg")),
+    );
+    const hipsAt = (
+      seconds: number,
+    ): { point: IAutoMovieVector3; hike: number } => {
+      const level: IAutoMovieVector3 = HumanFrame.point(frame, {
         x: 0,
-        y: hipY,
+        y: 0,
         z: speed * Math.min(cycles * period, Math.max(0, seconds - DOWN)),
       });
+      const [left, right] = sides.map((side): number => {
+        const kneeAt: IAutoMovieVector3 = place(`${side}Knee`, seconds).point;
+        const along: number = Vector3.dot(
+          Vector3.subtract(kneeAt, level),
+          forward,
+        );
+        return (
+          kneeAt.y +
+          Math.sqrt(
+            Math.max(
+              0,
+              m.thigh * m.thigh -
+                (along - nominal[`${side}Knee`].z) *
+                  (along - nominal[`${side}Knee`].z),
+            ),
+          )
+        );
+      }) as [number, number];
+      const sine: number =
+        (left - right) / (separation * Math.sin((pitch * Math.PI) / 180));
+      return {
+        point: { ...level, y: (left + right) / 2 },
+        hike: (Math.asin(Math.max(-1, Math.min(1, sine))) * 180) / Math.PI,
+      };
+    };
 
     const whole: IAutoMovieMotionHumanPrimitive = {
       channels: [
@@ -284,10 +403,11 @@ export namespace crawl {
       to: duration,
       write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
         const w: number = clock.progress("start", "down", seconds);
-        const target: IHumanPosture = posed(w);
+        const hips = hipsAt(seconds);
+        const target: IHumanPosture = posed(w, pitch, hips.hike);
         const root: IAutoMovieVector3 = Vector3.lerp(
           standing.root,
-          rootFor(w, hipsAt(seconds)),
+          rootFor(target, hips.point),
           w,
         );
         const out: IHumanPosture = {
@@ -296,19 +416,30 @@ export namespace crawl {
           limbs: {},
           joints: { ...posture.joints, ...target.joints },
         };
-        for (const side of ["left", "right"] as const) {
+        for (const side of sides) {
           const kneeAt = place(`${side}Knee`, seconds).point;
-          const ankle: IAutoMovieVector3 = Vector3.subtract(
-            kneeAt,
-            Vector3.scale(forward, m.shank),
+          const foot: kneelKeys.IFoot = tucks[side].foot;
+          const placement: HumanFoot.IPlacement = HumanFoot.pivot(
+            body,
+            side,
+            "mtp",
+            Vector3.add(kneeAt, tucks[side].offset),
+            foot.heading,
+            foot.pitch,
           );
           const from: IHumanPosture.IGoal = standing.limbs[`${side}Leg`]!;
           out.limbs[`${side}Leg`] = {
-            point: Vector3.lerp(from.point, ankle, w),
+            point: Vector3.lerp(from.point, placement.ankle, w),
+            rotation: Quaternion.slerp(
+              from.rotation ?? HumanFrame.turn(yaw),
+              placement.rotation,
+              w,
+            ),
             bend: Vector3.lerp(from.bend, kneeAt, w),
           };
+          out.joints[`${side}Toes`] = [foot.toes * w, 0, 0];
         }
-        for (const side of ["left", "right"] as const) {
+        for (const side of sides) {
           const palm = place(`${side}Hand`, seconds).point;
           const hand: AutoMovieMotionHumanArm.ITarget =
             AutoMovieMotionHumanTarget.hand(

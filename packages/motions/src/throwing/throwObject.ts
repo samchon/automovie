@@ -20,6 +20,7 @@ import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk"
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -28,6 +29,7 @@ import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { throwObjectLaunch } from "./throwObjectLaunch";
 
 /**
  * Throwing a held object to a target: overarm, underarm, or a gentle toss.
@@ -43,9 +45,11 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * finish are places around the throwing shoulder in arm lengths (`PLACES`,
  * provisional). The hand is drawn back to the chamber on minimum-jerk
  * progress (the windup), then driven on a cubic Hermite curve from rest at
- * the chamber to the release point at the launch velocity, taking twice the
- * path's length over the launch speed (the time of constant acceleration
- * from rest), and on to rest at the finish over the same time; it holds,
+ * the chamber to the launch velocity, taking twice the path's length over
+ * the launch speed (the time of constant acceleration from rest), carries
+ * that velocity unchanged for `CARRY` seconds on each side of the release
+ * point, so the launch does not depend on the instant the hand opens within
+ * it, and goes on to rest at the finish over the same time; it holds,
  * then returns to where it hung. The trunk turns toward the throwing side in
  * the windup and through to the other side by the finish, so the trunk
  * leads the arm (the proximal-to-distal sequence, Putnam 1993, J Biomech 26
@@ -119,6 +123,9 @@ export namespace throwObject {
     toss: 50,
   };
 
+  /** Seconds before and after the release through which the hand holds the launch velocity (provisional). */
+  export const CARRY: number = 0.01;
+
   /** Windup seconds by style (provisional). */
   export const WINDUP: Readonly<Record<Style, number>> = {
     overarm: 0.5,
@@ -158,48 +165,14 @@ export namespace throwObject {
     },
   };
 
-  /**
-   * A launch: where and when the object leaves the hand and at what velocity.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame and unit.
-   * @evidence contracts/development/design.md#principled-representation The initial state of a drag-free ballistic path.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members read by a catcher and the capture.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Plain vectors and seconds.
-   */
-  export interface ILaunch {
-    /** The release point, world metres. */
-    point: IAutoMovieVector3;
-
-    /** The launch velocity, world metres per second. */
-    velocity: IAutoMovieVector3;
-
-    /** Seconds since the action's start of the release. */
-    seconds: number;
-
-    /** The target point the path passes through, world metres. */
-    target: IAutoMovieVector3;
-  }
+  /** A launch (`throwObjectLaunch.ILaunch`). */
+  export type ILaunch = throwObjectLaunch.ILaunch;
 
   /** Gravity, metres per second squared along -Y. */
-  export const GRAVITY: number = 9.81;
+  export const GRAVITY: number = throwObjectLaunch.GRAVITY;
 
-  /**
-   * A point of a launch's drag-free path.
-   *
-   * @param launch The launch.
-   * @param seconds Seconds after the release.
-   * @returns World metres.
-   */
-  export function path(launch: ILaunch, seconds: number): IAutoMovieVector3 {
-    return {
-      x: launch.point.x + launch.velocity.x * seconds,
-      y:
-        launch.point.y +
-        launch.velocity.y * seconds -
-        0.5 * GRAVITY * seconds * seconds,
-      z: launch.point.z + launch.velocity.z * seconds,
-    };
-  }
+  /** A point of a launch's drag-free path (`throwObjectLaunch.path`). */
+  export const path = throwObjectLaunch.path;
 
   /**
    * The launch a throw's plan carries.
@@ -222,7 +195,7 @@ export namespace throwObject {
    *
    * @param context The action's context.
    * @returns The plan with its launch.
-   * @throws {Error} When the release angle cannot reach the target.
+   * @throws {HumanRefusal} When the release angle cannot reach the target.
    */
   export function plan(context: IHumanActionContext<IParams>): IPlan {
     const body: IHumanBody = context.body;
@@ -263,9 +236,13 @@ export namespace throwObject {
     const angle: number = (ANGLE[style] * Math.PI) / 180;
     const lift: number = d * Math.tan(angle) - delta.y;
     if (!(d > 1e-6 && lift > 0))
-      throw new Error(
-        `${context.subject}: a ${style} throw at ${ANGLE[style]} degrees cannot reach a target ${delta.y.toFixed(2)} m above and ${d.toFixed(2)} m from its release`,
-      );
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "at",
+        value: d,
+        reason: `a ${style} throw at ${ANGLE[style]} degrees cannot reach a target ${delta.y.toFixed(2)} m above and ${d.toFixed(2)} m from its release`,
+        fix: "aim at a nearer or lower target, or choose a style with a steeper release",
+      });
     const speed: number = Math.sqrt(
       (GRAVITY * d * d) / (2 * Math.cos(angle) ** 2 * lift),
     );
@@ -277,8 +254,16 @@ export namespace throwObject {
 
     // The clock: windup, acceleration from rest to the launch, follow-through
     // to rest, a short hold and the return.
+    const before: IAutoMovieVector3 = Vector3.subtract(
+      release,
+      Vector3.scale(velocity, CARRY),
+    );
+    const after: IAutoMovieVector3 = Vector3.add(
+      release,
+      Vector3.scale(velocity, CARRY),
+    );
     const accelerate: number =
-      (2 * Vector3.length(Vector3.subtract(release, chamber))) / speed;
+      CARRY + (2 * Vector3.length(Vector3.subtract(before, chamber))) / speed;
     const clock: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.sequence([
         { name: "windup", seconds: WINDUP[style] },
@@ -358,30 +343,51 @@ export namespace throwObject {
           rotation: Quaternion.slerp(restTurn, held, u),
         };
       }
-      if (seconds <= at("release"))
+      // The carry: the launch velocity held through the release.
+      const carried: number = seconds - at("release");
+      if (Math.abs(carried) <= CARRY)
+        return {
+          point: Vector3.add(release, Vector3.scale(velocity, carried)),
+          rotation:
+            carried <= 0
+              ? held
+              : Quaternion.slerp(
+                  held,
+                  finished,
+                  minimumJerk(clock.linear("release", "followThrough", seconds))
+                    .s,
+                ),
+        };
+      if (seconds <= at("release")) {
+        const span: number = at("release") - CARRY - at("cocked");
         return {
           point: hermite(
             chamber,
             still,
-            release,
+            before,
             velocity,
-            at("release") - at("cocked"),
-            clock.linear("cocked", "release", seconds),
+            span,
+            (seconds - at("cocked")) / span,
           ),
           rotation: held,
         };
+      }
       if (seconds <= at("followThrough")) {
-        const u: number = clock.linear("release", "followThrough", seconds);
+        const span: number = at("followThrough") - at("release") - CARRY;
         return {
           point: hermite(
-            release,
+            after,
             velocity,
             finish,
             still,
-            at("followThrough") - at("release"),
-            u,
+            span,
+            (carried - CARRY) / span,
           ),
-          rotation: Quaternion.slerp(held, finished, minimumJerk(u).s),
+          rotation: Quaternion.slerp(
+            held,
+            finished,
+            minimumJerk(clock.linear("release", "followThrough", seconds)).s,
+          ),
         };
       }
       const u: number = clock.progress("recover", "end", seconds);

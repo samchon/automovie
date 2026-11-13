@@ -1,6 +1,7 @@
 import { type IAutoMovieRandom, minimumJerk } from "@automovie/engine";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanLayer } from "../law/IHumanLayer";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 
@@ -143,15 +144,14 @@ export namespace HumanBreath {
     phase0: number,
     sigh: IAutoMovieRandom,
   ): { rate: number; phase: number; volume: number } {
-    if (!(rate > 0)) throw new Error("A breathing rate is positive");
+    HumanBound.above("rate", rate, 0, "breaths per minute");
     let perMinute: number = rate;
     let cycles: number = phase0 + (rate * seconds) / 60;
     let amplitude: number = 1;
     for (const bout of exertion) {
-      if (!(bout.level >= 0 && bout.level <= 1))
-        throw new Error("An exertion level lies in [0, 1]");
+      HumanBound.within("exertion.level", bout.level, 0, 1);
       const recovery: number = bout.recovery ?? 60;
-      if (!(recovery > 0)) throw new Error("A recovery time is positive");
+      HumanBound.above("exertion.recovery", recovery, 0, "s");
       const extra: number = bout.level * (EXERTION_RATE - rate);
 
       // The extra rate decays as (1 - u)^3 over the recovery and is held at

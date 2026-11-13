@@ -1,21 +1,24 @@
-// Publish ./dist to the gh-pages branch by hand.
+// Publish ./out to the gh-pages branch by hand.
 //
 // `.github/workflows/website.yml` does the same on every push to master; this
 // script is the manual route for publishing a build from the current checkout.
-// Run `pnpm run deploy` so the build precedes the publish.
 import ghpages from "gh-pages";
+import cp from "node:child_process";
 import path from "node:path";
 
-const root: string = path.resolve(import.meta.dirname, "..");
+const root: string = path.resolve(__dirname, "..");
 
-console.log("[deploy] publishing ./dist to gh-pages...");
+cp.execSync("pnpm run build", { stdio: "inherit", cwd: root });
+
+console.log("[deploy] publishing ./out to gh-pages...");
 const publication: ReturnType<typeof ghpages.publish> = ghpages.publish(
-  path.join(root, "dist"),
+  path.join(root, "out"),
   {
     branch: "gh-pages",
     dotfiles: true,
-    // One commit on gh-pages, as the workflow keeps it; a snapshot history of
-    // a 20 MB texture set would only bloat the repository.
+
+    // One commit on gh-pages, as the workflow keeps it: every deploy
+    // overwrites the branch instead of adding to a history.
     history: false,
     message: "Update automovie website",
   },

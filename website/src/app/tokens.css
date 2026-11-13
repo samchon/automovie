@@ -1,0 +1,105 @@
+/* Design tokens. Every colour, space, radius and type size the site's own
+   pages use is named here once, for the light theme and again for the dark
+   one. `build/contrast.ts` reads this file and checks the pairs DESIGN.md
+   lists, so keep one `--am-*: #rrggbb;` per line for colours.
+
+   Nextra puts the class `dark` on <html> for the dark theme. */
+:root {
+  /* Surfaces, from the page outwards. */
+  --am-bg: #ffffff;
+  --am-bg-panel: #f6f7f9;
+  --am-bg-inset: #ffffff;
+  --am-bg-hover: #e9ecf1;
+
+  /* Lines. A control's border must be seen against every surface. */
+  --am-border: #d5d9e0;
+  --am-border-control: #7c8594;
+
+  /* Text. */
+  --am-fg: #1b1f26;
+  --am-fg-muted: #57606d;
+
+  /* The accent marks what is selected and the one primary action. */
+  --am-accent: #8a5a00;
+  --am-accent-bg: #8a5a00;
+  --am-accent-fg: #ffffff;
+  --am-accent-soft: #fbf1dc;
+
+  /* A refusal, an error and a broken bound. */
+  --am-danger: #a4261b;
+  --am-danger-soft: #fdecea;
+  --am-danger-border: #d98d86;
+
+  /* A clean report. */
+  --am-success: #1b6e3c;
+  --am-success-soft: #e6f4ea;
+
+  /* The keyboard focus ring. */
+  --am-focus: #1d5fd1;
+
+  /* The 3D viewports: a neutral ground that neither theme's models vanish on. */
+  --am-viewport: #e9ebef;
+  --am-viewport-grid: #bfc5ce;
+  --am-viewport-tag-bg: #1b1f26;
+  --am-viewport-tag-fg: #ffffff;
+
+  /* Space, on a 4px step. */
+  --am-space-1: 0.25rem;
+  --am-space-2: 0.5rem;
+  --am-space-3: 0.75rem;
+  --am-space-4: 1rem;
+  --am-space-5: 1.5rem;
+  --am-space-6: 2rem;
+
+  /* Shape. */
+  --am-radius: 0.375rem;
+  --am-control-height: 2rem;
+
+  /* Type. The text face is Nextra's; values and ids are monospaced. */
+  --am-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --am-text-xs: 0.75rem;
+  --am-text-sm: 0.8125rem;
+  --am-text-md: 0.875rem;
+  --am-text-lg: 1rem;
+  --am-text-xl: 1.25rem;
+
+  /* Layout. */
+  --am-navbar: var(--nextra-navbar-height, 4rem);
+  --am-side: 22rem;
+  --am-catalogue: 14rem;
+
+  /* The height kept for a page's heading row and the padding around it. */
+  --am-head: 7rem;
+}
+
+:root.dark {
+  --am-bg: #111317;
+  --am-bg-panel: #191c22;
+  --am-bg-inset: #0d0f12;
+  --am-bg-hover: #262a33;
+
+  --am-border: #2e333d;
+  --am-border-control: #7a8493;
+
+  --am-fg: #e8eaee;
+  --am-fg-muted: #a3acb9;
+
+  --am-accent: #f0b94a;
+  --am-accent-bg: #f0b94a;
+  --am-accent-fg: #1b1300;
+  --am-accent-soft: #33280f;
+
+  --am-danger: #ff9a8f;
+  --am-danger-soft: #3a1714;
+  --am-danger-border: #8f3d35;
+
+  --am-success: #7fd49b;
+  --am-success-soft: #12301d;
+
+  --am-focus: #8ab4ff;
+
+  --am-viewport: #23262d;
+  --am-viewport-grid: #474d59;
+  --am-viewport-tag-bg: #e8eaee;
+  --am-viewport-tag-fg: #111317;
+}

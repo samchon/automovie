@@ -31,16 +31,16 @@ const body = AutoMovieHumanCanonicalBody.prepare(parameters, { mass: 72, id: "a"
 
 ## Polygon man
 
-The polygon man is drawn by `@automovie/viewer` from the canonical body, and posed with canonical poses such as the ones `@automovie/motions` samples.
+The polygon man is drawn by `@automovie/render` from the canonical body, and posed with canonical poses such as the ones `@automovie/motions` samples.
 
 ```bash
-npm install @automovie/viewer @automovie/interface three
+npm install @automovie/render @automovie/interface three
 ```
 
 ```ts
 import { AutoMovieHumanCanonicalBody, type IAutoMovieHumanParameters } from "@automovie/human";
 import type { IAutoMoviePose } from "@automovie/interface";
-import { buildHumanPolygon } from "@automovie/viewer";
+import { buildHumanPolygon } from "@automovie/render";
 import * as THREE from "three";
 
 declare const parameters: IAutoMovieHumanParameters;
@@ -59,6 +59,21 @@ drawing.setPose({ posed: AutoMovieHumanCanonicalBody.display(body, pose).posed }
 ```
 
 The polygon man is plain because it only has to show motion cheaply. Nothing about it stands for skin or clothing.
+
+## Inspection
+
+The figure is inspected with AutoMovie's shared instrument. `src/executable/subjects.ts` is a draw-only subject module that offers every person the package defines, by name (`f1`), in its canonical pose; `<person>@<pose>` names another pose once the package defines one. From this folder, `pnpm capture` runs `automovie capture` on it for stills and contact sheets, and `pnpm inspect` opens the inspector page over it; both take the request keys the [`render` README](../render/README.md#inspection) lists.
+
+| Path | What it names |
+| --- | --- |
+| `f1` | The whole person |
+| `f1/body` | The sewn skin: the trunk with the limbs, digits, ears and nose joined to it |
+| `f1/<family>`, `f1/<family>.mirror` | One family's construction curves, such as `f1/arm` and its reflected twin's `f1/arm.mirror`; a loose family, when one is defined, is also a piece of its own here |
+| `f1/<family>/section/<k>` | The section ring at the family's `k`-th authored knot |
+| `f1/<family>/guide/<q>` | The guide rail at quarter phase `q`, 0 to 3 |
+| `f1/<family>/axis` | The line through the rings' centres |
+
+The construction curves are marks of the kinds `curve/section`, `curve/guide` and `curve/axis`, so `--marks curve/*` draws them over the surface and `--marks curve/* --surface 0` draws them alone, through the same views. The skin is one piece, so a family's surface cannot be drawn apart from the body; select its curves and frame them with `@focus`.
 
 ## Background
 

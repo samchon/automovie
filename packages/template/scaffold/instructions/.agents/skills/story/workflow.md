@@ -14,7 +14,7 @@ Choose the commissioned route from the request, project context, adopted instruc
 
 ## Route and parents
 
-Commissioned video follows one traceable chain: research, settings or a short's brief, screenplay, entities and the laws the installed motion vocabulary lacks, with their tests and accepted [catalog cases](../motion/catalog-cases.md), scene composition, then the film.
+Commissioned video follows one traceable chain: settings or a short's brief, screenplay, entities and the laws the installed motion vocabulary lacks, with their tests and accepted [catalog cases](../motion/catalog-cases.md), scene composition, then the film. When [no narrative pass runs](#who-writes-the-screenplay), the instructions stand in for settings or the brief.
 
 Each link cites the addresses it realizes from the links above it, so no code exists without a cited basis and no requirement stays unrealized; a later link can only realize what an earlier one decided, and motion written before the screenplay settles its action is fitted to guesses.
 
@@ -30,6 +30,19 @@ Record the choice in [project context](../production/project-context.md); in an 
 
 Asset-only work has no narrative passes. Choose form and scale through [direction](planning/direction.md); complete work is the default.
 
+### Who writes the screenplay {#who-writes-the-screenplay}
+
+The user chooses, whatever route the folder fixes, and the choice is recorded with the route; ask when they supply a screenplay without saying which.
+
+| Choice | Narrative passes | Screenplay |
+| --- | --- | --- |
+| This workflow, the default | The route's | The agent writes it through them |
+| Without this workflow | None | The agent writes it directly from the instructions |
+| The user's, refined | The route's | Enters through [intake](document-layout.md#intake-of-existing-work) as material |
+| The user's, fixed | None | Used exactly as given |
+
+A fixed screenplay is never edited, reviewed or rewritten, because it is the user's. An exchange, outcome or reaction it lacks, or a beat that cannot be performed, goes back to the user to write into it, because only the screenplay decides them.
+
 ## Construction
 
 | Submitted layer | Required parent |
@@ -43,12 +56,12 @@ Asset-only work has no narrative passes. Choose form and scale through [directio
 
 Inherit through actual parents, repairing a missing handoff rather than bypassing it, and run [discovery](planning/discovery.md) before bulk settings or brief and again at each of its [checkpoints](planning/discovery.md#checkpoints).
 
-1. Finish the whole body while its pass is disabled.
-2. Complete [inspection and cause repair](correction/repair.md#cause-rounds), enable the stage through [evidence configuration](../evidence/configuration.md), and write [answers](evidence/answer-writing.md).
-3. Submit the body, boundaries and population to independent [review](../review/SKILL.md).
-4. Repair findings at their owners until the pass closes.
+1. The author finishes the whole body while its pass is disabled, and completes [inspection and cause repair](correction/repair.md#cause-rounds).
+2. The [evidence answerer](evidence/answer-writing.md) enables the stage through [evidence configuration](../evidence/configuration.md), writes the answers and hands the author the gaps it cannot answer truthfully; the author fills them.
+3. The body, boundaries and population go to independent [review](../review/SKILL.md), which judges only the body.
+4. The author [decides](../review/narrative-rounds.md#findings-and-decisions) each finding and repairs the accepted ones at their owners.
 
-Review runs through creative closure and the evidence audit, and [narrative rounds](../review/narrative-rounds.md) says when a pass closes.
+Each role is its own context, because an author answering for its own body states what it meant rather than what the body holds, and a reviewer reading answers judges paperwork instead of the work. [Narrative rounds](../review/narrative-rounds.md) says when a pass closes.
 
 ## Completion
 

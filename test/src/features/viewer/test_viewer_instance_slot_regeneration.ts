@@ -7,7 +7,7 @@ import type {
   IAutoMovieInstanceSetDesign,
   IAutoMovieInstanceSlot,
 } from "@automovie/interface";
-import { regenerateInstanceSlot } from "@automovie/viewer";
+import { regenerateInstanceSlot } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import {

@@ -11,6 +11,7 @@ import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlace
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -27,13 +28,13 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * The set position follows Harland and Steele 1997: the front knee at about
  * 90 degrees, the rear knee at about 130 degrees, the hips moderately high.
  * Every place is derived from the body: the hands lie on the line a
- * shoulder width apart with the arms vertical, so the shoulders stand an
- * arm and half a hand above the floor; the hips stand level with the
- * shoulders (provisional, "moderately high") a trunk's length behind them;
- * each foot stands behind the hips at the distance the law of cosines gives
- * for its knee angle with the thigh and the shank, on the floor. Where a
- * knee angle cannot be met with the foot on the floor, the foot goes under
- * the hip and the verdict reports the angle.
+ * shoulder width apart with the arms vertical, so the shoulders stand the
+ * arms' reach above the wrists of the laid hands; the hips stand level with
+ * the shoulders (provisional, "moderately high") a trunk's length behind
+ * them; each foot rests on its block's face, the ball on the floor and the
+ * heel raised, behind the hips at the distance the law of cosines gives for
+ * its knee angle with the thigh and the shank. Where a knee angle cannot be
+ * met, the foot goes under the hip and the verdict reports the angle.
  *
  * The crouch takes 1.5 s (provisional): the front foot steps back to its
  * block over the first half, the rear foot over the second, while the hips
@@ -66,6 +67,15 @@ export namespace athletics {
   /** The rear knee's included angle in the set, degrees (Harland and Steele 1997). */
   export const REAR: number = 130;
 
+  /** The front block's face from the floor, degrees (provisional, within a competition block's adjustment). */
+  export const FRONT_BLOCK: number = 50;
+
+  /** The rear block's face from the floor, degrees (provisional, within a competition block's adjustment). */
+  export const REAR_BLOCK: number = 65;
+
+  /** The share of the straight arm's length the shoulders stand above the wrists (provisional): the elbows a little soft. */
+  export const REACH: number = 0.98;
+
   /** The crouch's seconds (provisional). */
   export const CROUCH: number = 1.5;
 
@@ -94,14 +104,14 @@ export namespace athletics {
    * @param context The body.
    * @param entry The standing posture; the line is a hand's length ahead of its feet.
    * @param front The front foot.
-   * @returns The hips' world point, the trunk's pitch, each ankle and the hand height.
+   * @returns The hips' world point, the trunk's pitch, each palm's place on the floor and each foot's placement.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the geometry and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Shoulders over the hands at the arm's height, hips level a trunk behind, each foot at the knee angle's hip-to-ankle distance on the floor.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Lengths, then three points.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable knee angle puts the foot under the hip rather than off the floor.
+   * @evidence contracts/development/implementation.md#principled-implementation The shoulders over the wrists of the laid hands at the arms' reach, the trunk pitched until the hips stand level with them, each foot on its block's face at the knee angle's hip-to-ankle distance.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The palms, the shoulders, the hips, then one foot per knee angle.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable knee angle puts the foot under the hip rather than off the floor; the wrist's height is the hand owner's, never half a hand.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the placed arm's wrist, pitch and root, and the foot's pivot.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function set(
@@ -111,56 +121,102 @@ export namespace athletics {
   ): {
     hips: IAutoMovieVector3;
     pitch: number;
-    line: IAutoMovieVector3;
-    ankles: Record<"left" | "right", IAutoMovieVector3>;
+    palms: Record<
+      "left" | "right",
+      {
+        point: IAutoMovieVector3;
+        facing: IAutoMovieVector3;
+        forward: IAutoMovieVector3;
+      }
+    >;
+    feet: Record<"left" | "right", HumanFoot.IPlacement>;
   } {
-    const m = context.body.measure;
+    const body = context.body;
+    const m = body.measure;
     const frame: HumanFrame.IFrame = {
       origin: { x: entry.root.x, y: 0, z: entry.root.z },
       yaw: entry.yaw,
     };
-    const line: IAutoMovieVector3 = HumanFrame.point(frame, {
-      x: 0,
-      y: 0,
-      z: m.footLength,
+    const forward: IAutoMovieVector3 = HumanFrame.point(
+      { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
+      { x: 0, y: 0, z: 1 },
+    );
+    const palm = (side: "left" | "right") => ({
+      point: HumanFrame.point(frame, {
+        x: (side === "left" ? 1 : -1) * m.shoulderHalfWidth,
+        y: 0,
+        z: m.footLength - m.hand / 2,
+      }),
+      facing: { x: 0, y: -1, z: 0 },
+      forward,
     });
-    const shoulder: number = m.upperArm + m.forearm + m.hand / 2;
-    const trunk: number = m.shoulderHeight - m.hipHeight;
-    const hipsLocal: IAutoMovieVector3 = {
-      x: 0,
-      y: shoulder,
-      z: m.footLength - trunk,
+    const palms = { left: palm("left"), right: palm("right") };
+    // The shoulders stand over the wrists of the laid hands, the arms' reach above them.
+    const wrists: IAutoMovieVector3 = Vector3.lerp(
+      AutoMovieMotionHumanPlaced.wrist(body, "left", palms.left),
+      AutoMovieMotionHumanPlaced.wrist(body, "right", palms.right),
+      0.5,
+    );
+    const shoulders: IAutoMovieVector3 = {
+      ...wrists,
+      y: wrists.y + REACH * (m.upperArm + m.forearm),
     };
-    const hips: IAutoMovieVector3 = HumanFrame.point(frame, hipsLocal);
-    const reach = (angle: number): number =>
-      Math.sqrt(
+    const turn = {
+      yaw: entry.yaw,
+      pitch: AutoMovieMotionHumanPlaced.pitch(body, 0),
+      roll: 0,
+    };
+    const hips: IAutoMovieVector3 = Vector3.add(
+      AutoMovieMotionHumanPlaced.root(
+        turn,
+        AutoMovieMotionHumanPlaced.girdle(body),
+        shoulders,
+      ),
+      Quaternion.rotateVector(
+        resolveHumanPosture.heading(turn),
+        body.rest.get("hips")!,
+      ),
+    );
+    const behind: number = HumanFrame.local(frame, hips).z;
+    const foot = (
+      side: "left" | "right",
+      knee: number,
+      block: number,
+    ): HumanFoot.IPlacement => {
+      const rotation = HumanFoot.rotation(entry.yaw, -block);
+      // The ankle's height with the ball on the floor and the sole on the block's face.
+      const raised: number = HumanFoot.pivot(
+        body,
+        side,
+        "ball",
+        { x: 0, y: 0, z: 0 },
+        entry.yaw,
+        -block,
+      ).ankle.y;
+      const drop: number = hips.y - raised;
+      const d: number = Math.sqrt(
         m.thigh * m.thigh +
           m.shank * m.shank -
-          2 * m.thigh * m.shank * Math.cos((angle * Math.PI) / 180),
+          2 * m.thigh * m.shank * Math.cos((knee * Math.PI) / 180),
       );
-    const ankle = (
-      side: "left" | "right",
-      angle: number,
-    ): IAutoMovieVector3 => {
-      const drop: number = shoulder - m.ankleHeight;
-      const d: number = reach(angle);
-      const back: number = d > drop ? Math.sqrt(d * d - drop * drop) : 0;
-      const hip: IAutoMovieVector3 = context.body.rest.get(`${side}UpperLeg`)!;
-      return HumanFrame.point(frame, {
-        x: hip.x,
-        y: m.ankleHeight,
-        z: hipsLocal.z - back,
-      });
+      return {
+        ankle: HumanFrame.point(frame, {
+          x: body.rest.get(`${side}UpperLeg`)!.x,
+          y: raised,
+          z: behind - (d > drop ? Math.sqrt(d * d - drop * drop) : 0),
+        }),
+        rotation,
+      };
     };
     const rear: "left" | "right" = front === "left" ? "right" : "left";
     return {
       hips,
-      pitch: 90,
-      line,
-      ankles: {
-        [front]: ankle(front, FRONT),
-        [rear]: ankle(rear, REAR),
-      } as Record<"left" | "right", IAutoMovieVector3>,
+      pitch: turn.pitch,
+      palms,
+      feet: {
+        [front]: foot(front, FRONT, FRONT_BLOCK),
+        [rear]: foot(rear, REAR, REAR_BLOCK),
+      } as Record<"left" | "right", HumanFoot.IPlacement>,
     };
   }
 
@@ -169,7 +225,7 @@ export namespace athletics {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the hold is negative.
+   * @throws {HumanRefusal} When the hold is negative.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The set position solved once; the root, the feet and the hands carried into it on one phrase.
@@ -185,7 +241,7 @@ export namespace athletics {
     const p: IParams = context.params;
     const body = context.body;
     const hold: number = p.seconds ?? 1.5;
-    if (!(hold >= 0)) throw new Error("A sprint start's hold is not negative");
+    HumanBound.least("seconds", hold, 0, "s");
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     const front: "left" | "right" = p.front ?? "left";
@@ -254,10 +310,7 @@ export namespace athletics {
         ankle: context.entry.feet[side].ankle,
         rotation: context.entry.feet[side].rotation,
       };
-      const block: HumanFoot.IPlacement = {
-        ankle: target.ankles[side],
-        rotation: stance.rotation,
-      };
+      const block: HumanFoot.IPlacement = target.feet[side];
       const share = (seconds: number): number => {
         const half: number = clock.at("ready") / 2;
         const a: number = from === "start" ? 0 : half;
@@ -294,21 +347,7 @@ export namespace athletics {
           to: clock.duration,
           rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
           weight: into,
-          place: (posture: IHumanPosture) => ({
-            point: HumanFrame.point(
-              { origin: target.line, yaw: posture.yaw },
-              {
-                x: (side === "left" ? 1 : -1) * body.measure.shoulderHalfWidth,
-                y: 0,
-                z: -body.measure.hand / 2,
-              },
-            ),
-            facing: { x: 0, y: -1, z: 0 },
-            forward: HumanFrame.point(
-              { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
-              { x: 0, y: 0, z: 1 },
-            ),
-          }),
+          place: () => target.palms[side],
           bend: "front",
         }),
       );

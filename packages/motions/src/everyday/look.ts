@@ -6,6 +6,8 @@ import type {
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
+import { HumanBound } from "../law/HumanBound";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -91,7 +93,7 @@ export namespace look {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When an uncued target lies outside the attended field, or the duration is not positive.
+   * @throws {HumanRefusal} When an uncued target lies outside the attended field, or the duration is not positive.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the steps and both refusals; the law's doc gives the field, the reaction-time sources and the events.
    * @evidence contracts/development/implementation.md#principled-implementation The gaze goal is the eyes' lines on the target, recruited eyes, head and trunk in that order by HumanGaze.split; the eyes take the saccade's main-sequence duration (capped at twice the eyes' range) and head and trunk their turn durations, each on a minimum-jerk weight from the reaction delay; the target is re-aimed every instant, so a moving target is tracked.
@@ -113,9 +115,14 @@ export namespace look {
       at(0),
     );
     if (context.params.cue === undefined && Math.abs(first.yaw) > FIELD)
-      throw new Error(
-        `${context.subject}: the target lies ${first.yaw.toFixed(1)} degrees off the heading, outside the attended ${FIELD} degrees; declare the cue that draws the look`,
-      );
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "cue",
+        value: context.params.cue ?? "seen",
+        feasible: { kind: "alternatives", values: ["signal"] },
+        reason: `the target lies ${first.yaw.toFixed(1)} degrees off the heading, outside the attended ${FIELD} degrees; declare the cue that draws the look`,
+        fix: 'declare the cue that draws the look (cue: "signal"), or turn toward the target first',
+      });
     const delay: number =
       context.params.cue === undefined
         ? 0
@@ -138,7 +145,7 @@ export namespace look {
     const trunk: number = HumanGaze.turn(parts.trunk);
     const settled: number = delay + Math.max(eyes, head, trunk);
     const duration: number = context.params.seconds ?? settled + 0.6;
-    if (!(duration > 0)) throw new Error("A look lasts a positive time");
+    HumanBound.above("seconds", duration, 0, "s");
     const base: IHumanActionPlan = stand.plan({
       ...context,
       params: { seconds: duration },

@@ -20,17 +20,17 @@ import type {
   IAutoMovieProductionFrameRate,
 } from "@automovie/interface";
 
-import { canonicalProductionWebVtt } from "../caption/canonicalProductionWebVtt";
-import type { IAutoMovieProductionAudioAssetIdentity } from "./IAutoMovieProductionAudioAssetIdentity";
-import type { IAutoMovieProductionRenderChunk } from "./IAutoMovieProductionRenderChunk";
-import type { IAutoMovieProductionRenderJobPlan } from "./IAutoMovieProductionRenderJobPlan";
-import type { IAutoMovieProductionRenderRuntimeIdentity } from "./IAutoMovieProductionRenderRuntimeIdentity";
-import type { IAutoMovieProductionRenderTier } from "./IAutoMovieProductionRenderTier";
-import { assertSingleGuidePass } from "./assertSingleGuidePass";
-import { normalizeAudioAssets } from "./normalizeAudioAssets";
-import { normalizeRenderTier } from "./normalizeRenderTier";
-import { resolveProductionRenderTierFrameFormat } from "./resolveProductionRenderTierFrameFormat";
-import { validDigest } from "./validDigest";
+import { canonicalProductionWebVtt } from "../caption/canonicalProductionWebVtt.js";
+import type { IAutoMovieProductionAudioAssetIdentity } from "./IAutoMovieProductionAudioAssetIdentity.js";
+import type { IAutoMovieProductionRenderChunk } from "./IAutoMovieProductionRenderChunk.js";
+import type { IAutoMovieProductionRenderJobPlan } from "./IAutoMovieProductionRenderJobPlan.js";
+import type { IAutoMovieProductionRenderRuntimeIdentity } from "./IAutoMovieProductionRenderRuntimeIdentity.js";
+import type { IAutoMovieProductionRenderTier } from "./IAutoMovieProductionRenderTier.js";
+import { assertSingleGuidePass } from "./assertSingleGuidePass.js";
+import { normalizeAudioAssets } from "./normalizeAudioAssets.js";
+import { normalizeRenderTier } from "./normalizeRenderTier.js";
+import { resolveProductionRenderTierFrameFormat } from "./resolveProductionRenderTierFrameFormat.js";
+import { validDigest } from "./validDigest.js";
 
 /** A deliverable that renders moving images, the only kind with chunks. */
 type IMovingDeliverable = IAutoMovieProductionDeliverable & {

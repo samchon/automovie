@@ -1,5 +1,5 @@
 import { measureAutoMovieRenderTextureClosure } from "@automovie/engine";
-import { readAutoMovieTextureSource } from "@automovie/viewer";
+import { readAutoMovieTextureSource } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import type {
   CompressedTexture,

@@ -3,7 +3,7 @@ import type {
   IAutoMovieProductionOpusDescription,
 } from "@automovie/interface";
 
-import { AUTOMOVIE_PRODUCTION_OPUS_PROFILE } from "./AUTOMOVIE_PRODUCTION_OPUS_PROFILE";
+import { AUTOMOVIE_PRODUCTION_OPUS_PROFILE } from "./AUTOMOVIE_PRODUCTION_OPUS_PROFILE.js";
 
 /**
  * Refuse every difference between a probed Opus-in-MP4 audio track and the one

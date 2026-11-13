@@ -27,9 +27,10 @@ import { poseBones } from "../posture/poseBones";
  *
  * The goals are places on the performer's own head, read on the posture so
  * the hands follow the head: a hat's brim is held by both palms at the sides
- * of the crown (`HAT`, in head radii, provisional) and lowered onto it; a
- * pair of glasses is held by both index fingertips at the temples' arms just
- * before the ears and slid back onto them. Both hands rise to a place a
+ * of the head's girth (`HAT`, provisional), on the head's own surface, and
+ * set onto it; a pair of glasses is held by both index fingertips at the
+ * temples' arms just before the ears and slid back onto them, the fingers
+ * pointing back along the temples. Both hands rise to a place a
  * quarter of the forearm before the item's final place in front of the
  * face (the item held up), then move it onto the head in a stroke, hold it a
  * moment and return. The reach takes the aimed movement time (McIntosh et
@@ -79,10 +80,18 @@ export namespace dress {
     manner?: AutoMovieMotionManner.IManner;
   }
 
-  /** The hat's brim held at the crown's sides: out and down in head radii (provisional). */
-  export const HAT: Readonly<{ out: number; down: number }> = {
-    out: 0.95,
-    down: 0.35,
+  /**
+   * The hat's brim held at the head's front quarters: the direction out and
+   * ahead from the crown's axis, and how far down from the crown in head
+   * radii (provisional). A brim rests on the head's widest girth, just above
+   * the ears and a radius below the crown; the palms lie on the head's own
+   * surface there, half way between the brow and the ears, which keeps the
+   * elbows ahead of the chest and below the hands.
+   */
+  export const HAT: Readonly<{ out: number; ahead: number; down: number }> = {
+    out: Math.SQRT1_2,
+    ahead: Math.SQRT1_2,
+    down: 1,
   };
 
   /**
@@ -92,7 +101,10 @@ export namespace dress {
    * @param posture The posture.
    * @param item The item.
    * @param side The hand.
-   * @returns The point, the outward normal and the hand's surface.
+   * @returns The point, the normal the hand's surface is laid against, the
+   *   surface and where its forward points: a palm flat on the head with the
+   *   fingers ahead, or an index finger pointing back along the temple with
+   *   the palm toward the head.
    */
   export function place(
     body: IHumanBody,
@@ -103,31 +115,51 @@ export namespace dress {
     point: IAutoMovieVector3;
     normal: IAutoMovieVector3;
     surface: HumanHand.Surface;
+    forward: IAutoMovieVector3;
   } {
     const outward: IAutoMovieVector3 = HumanFrame.point(
       { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
       { x: side === "left" ? 1 : -1, y: 0, z: 0 },
     );
+    const forward: IAutoMovieVector3 = HumanFrame.point(
+      { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
+      { x: 0, y: 0, z: 1 },
+    );
     const r: number = body.measure.headRadius;
     if (item === "hat") {
       const crown = HumanTrunk.region(body, posture, "crown");
+      const radial: IAutoMovieVector3 = Vector3.add(
+        Vector3.scale(outward, HAT.out),
+        Vector3.scale(forward, HAT.ahead),
+      );
+      // The head's own surface along that direction at the brim's level.
+      const level: IAutoMovieVector3 = {
+        ...crown.point,
+        y: crown.point.y - HAT.down * r,
+      };
+      const direction: IAutoMovieVector3 = Vector3.normalize(radial);
       return {
-        point: Vector3.add(
-          crown.point,
-          Vector3.add(Vector3.scale(outward, HAT.out * r), {
-            x: 0,
-            y: -HAT.down * r,
-            z: 0,
-          }),
+        ...HumanTrunk.surface(
+          body,
+          posture,
+          Vector3.add(level, Vector3.scale(direction, 4 * r)),
+          Vector3.scale(direction, -1),
         ),
-        normal: outward,
         surface: "palm",
+        forward,
       };
     }
+    // The fingertip slides back along the temple onto the ear, the palm
+    // toward the head, so the elbow stays ahead of the shoulder and low.
     const ear: AutoMovieHumanoidRegion =
       side === "left" ? "earLeft" : "earRight";
     const at = HumanTrunk.region(body, posture, ear);
-    return { point: at.point, normal: at.normal, surface: "indexTip" };
+    return {
+      point: at.point,
+      normal: forward,
+      surface: "indexTip",
+      forward: Vector3.scale(at.normal, -1),
+    };
   }
 
   /**
@@ -192,7 +224,7 @@ export namespace dress {
             {
               surface: at.surface,
               shape: item === "hat" ? "relaxed" : "point",
-              forward,
+              forward: at.forward,
             },
           );
         },

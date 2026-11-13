@@ -1,5 +1,5 @@
 import { IAutoMovieClip, IAutoMovieScene } from "@automovie/interface";
-import { applyLightMotion, buildScene } from "@automovie/viewer";
+import { applyLightMotion, buildScene } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

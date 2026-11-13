@@ -1,7 +1,7 @@
-import type { IAutoMovieSequenceRenderAdapters } from "./IAutoMovieSequenceRenderAdapters";
-import { IAutoMovieSequenceRenderFrame } from "./IAutoMovieSequenceRenderFrame";
-import { IAutoMovieSequenceRenderPlan } from "./IAutoMovieSequenceRenderPlan";
-import type { IAutoMovieSequenceRenderResult } from "./IAutoMovieSequenceRenderResult";
+import type { IAutoMovieSequenceRenderAdapters } from "./IAutoMovieSequenceRenderAdapters.js";
+import { IAutoMovieSequenceRenderFrame } from "./IAutoMovieSequenceRenderFrame.js";
+import { IAutoMovieSequenceRenderPlan } from "./IAutoMovieSequenceRenderPlan.js";
+import type { IAutoMovieSequenceRenderResult } from "./IAutoMovieSequenceRenderResult.js";
 
 /**
  * Render a prepared sequence manifest: capture each resolved frame sample in order, then encode the planned frame sequence with the planned ffmpeg args. This is the sequence-level analogue of `renderVideo`, but the capture host gets sequence semantics rather than only a clip-local second.

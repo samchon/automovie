@@ -6,12 +6,14 @@ import type {
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
+import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import { standUpright } from "./standUpright";
@@ -28,8 +30,8 @@ import { standUpright } from "./standUpright";
  * a minimum-jerk profile and sits 5 mm below full extension so the knees are
  * not locked. Each foot turns out 7° from the heading, the mean adult foot
  * progression angle (Perry and Burnfield, Gait Analysis, 2nd ed.). Arms hang
- * with 5° of shoulder abduction, 12° of elbow flexion and fingers curled 15°,
- * a relaxed hand's resting cascade. Postural sway moves the root on two
+ * with 5° of shoulder abduction, 12° of elbow flexion and the hand in its
+ * position of rest (`HumanHand.shape`, relaxed). Postural sway moves the root on two
  * seeded smooth signals below 1 Hz with an RMS of 3 mm for an elite and 4.8
  * mm for a novice: quiet-stance centre-of-pressure sway of healthy adults is a
  * few millimetres RMS (Prieto et al. 1996), and experts sway less (Perrin et
@@ -56,7 +58,7 @@ export namespace stand {
     context: IHumanActionContext<IParams>,
   ): IHumanActionPlan {
     const duration: number = context.params.seconds ?? 1.5;
-    if (!(duration > 0)) throw new Error("A stand lasts a positive time");
+    HumanBound.above("seconds", duration, 0, "s");
     const yaw: number = context.entry.posture.yaw;
     const footing: Record<"left" | "right", IAutoMovieVector3> = feet(
       context.body,
@@ -124,12 +126,10 @@ export namespace stand {
     const out: Partial<
       Record<AutoMovieHumanoidBone, readonly [number, number, number]>
     > = {};
-    for (const side of ["left", "right"]) {
-      out[`${side}UpperArm` as AutoMovieHumanoidBone] = [0, 5, 0];
-      out[`${side}LowerArm` as AutoMovieHumanoidBone] = [12, 0, 0];
-      for (const digit of ["Index", "Middle", "Ring", "Little"])
-        for (const k of ["Proximal", "Intermediate", "Distal"])
-          out[`${side}${digit}${k}` as AutoMovieHumanoidBone] = [15, 0, 0];
+    for (const side of ["left", "right"] as const) {
+      Object.assign(out, HumanHand.shape(side, "relaxed"));
+      out[`${side}UpperArm`] = [0, 5, 0];
+      out[`${side}LowerArm`] = [12, 0, 0];
     }
     return out;
   })();

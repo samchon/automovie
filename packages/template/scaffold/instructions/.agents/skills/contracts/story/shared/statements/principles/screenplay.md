@@ -29,24 +29,24 @@ Orientation and access:
 15. Deliberate ambiguity or fragmentation still lets the audience tell its rule from an accidental omission.
 16. Concise connection and summary may serve the selected experience, while sustained tension, humor or loss receives the time needed to be felt.
 
-## Attention and duration {#attention-and-duration}
+Attention and duration:
 
-1. Important exchanges and sustained moments occur in full, and an action that recurs is written each time it happens, varied as its practice varies.
-2. Duration estimates are marked provisional until the performed action and the measured file establish them.
-3. Concrete details come from the inherited scene and change action, relationship, atmosphere, understanding or thematic force.
-4. Emotion is realized through the context of those details before its effect is demanded.
-5. None of these replaces the audience's experience:
+17. Important exchanges and sustained moments occur in full, and an action that recurs is written each time it happens, varied as its practice varies.
+18. Duration estimates are marked provisional until the performed action and the measured file establish them.
+19. Concrete details come from the inherited scene and change action, relationship, atmosphere, understanding or thematic force.
+20. Emotion is realized through the context of those details before its effect is demanded.
+21. None of these replaces the audience's experience:
     - a static appearance inventory;
     - a sensory checklist;
     - a generic mood label;
     - an unnecessary factual explanation;
     - an after-the-fact interpretation.
-6. Restrained detail, nonemotional atmosphere and deliberate gaps work when their cues let the audience experience their function.
-7. Inward meaning reaches the audience through performance, image, sound, or an adopted narration or caption form.
-8. Performance and sensory emphasis, images, motifs and image-sound relations are created as the scene needs them: choices, not categories to fill.
-9. Each action is written as its preparation, execution and result in the observable progression, not as an inventory of procedures.
-10. Places, objects, appearance, capacities and other world values arrive through actual parents. Realization changes no fact, closes no open relationship and alters no cause or outcome.
-11. Where a parent leaves no room for this layer, its owner is repaired and no length is manufactured.
+22. Restrained detail, nonemotional atmosphere and deliberate gaps work when their cues let the audience experience their function.
+23. Inward meaning reaches the audience through performance, image, sound, or an adopted narration or caption form.
+24. Performance and sensory emphasis, images, motifs and image-sound relations are created as the scene needs them: choices, not categories to fill.
+25. Each action is written as its preparation, execution and result in the observable progression, not as an inventory of procedures.
+26. Places, objects, appearance, capacities and other world values arrive through actual parents. Realization changes no fact, closes no open relationship and alters no cause or outcome.
+27. Where a parent leaves no room for this layer, its owner is repaired and no length is manufactured.
 
 ## Beat decisions {#beat-decisions}
 
@@ -63,7 +63,7 @@ What each beat decides:
 
 What the modules can perform:
 
-9. Each action is one the installed motion vocabulary performs, or the one its cited research law describes.
+9. Each action is one the installed motion vocabulary performs, alone or joined with others, or the one its cited research law describes.
 10. Each outcome is one the cited outcome table permits for the written intents and the performers' settings. An outcome the table forbids, or one no table covers, is undecided, not dramatic license.
 11. The beat asks nothing the adopted representation cannot show, such as a facial expression on a polygon man.
 

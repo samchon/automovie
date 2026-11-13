@@ -11,6 +11,7 @@ import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTimin
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanTrunk } from "../everyday/HumanTrunk";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -115,7 +116,7 @@ export namespace catchObject {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the anchor is not a throw, the path never comes within reach, or the catch would start before the action.
+   * @throws {HumanRefusal} When the anchor is not a throw, the path never comes within reach, or the catch would start before the action.
    */
   export function plan(context: IHumanActionContext<IParams>): IPlan {
     const body: IHumanBody = context.body;
@@ -125,9 +126,17 @@ export namespace catchObject {
     const placed = context.action(context.params.from);
     const launch: throwObject.ILaunch | undefined = throwObject.of(placed.plan);
     if (launch === undefined)
-      throw new Error(
-        `${context.subject}: ${context.params.from} is a ${placed.name}, not a throw`,
-      );
+      throw new HumanRefusal({
+        kind: "participant",
+        axis: "from",
+        value: context.params.from,
+        feasible: {
+          kind: "alternatives",
+          values: ["the anchor of a throwObject action"],
+        },
+        reason: `${context.params.from} is a ${placed.name}, not a throw`,
+        fix: "give the throw an anchor and name that anchor in from",
+      });
     const released: number = placed.start + launch.seconds - context.start;
     const standing: IHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
@@ -141,12 +150,24 @@ export namespace catchObject {
     const ahead = (u: number): number =>
       HumanFrame.local(frame, throwObject.path(launch, u)).z - REACH * arm;
     if (ahead(0) <= 0)
-      throw new Error(`${context.subject}: the throw starts within the reach`);
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "from",
+        value: context.params.from,
+        reason: `the throw starts within the reach`,
+        fix: "stand farther from the thrower, beyond the arms' reach of the release",
+      });
     let lo: number = 0;
     let hi: number = 0.05;
     while (ahead(hi) > 0 && hi < 10) hi *= 1.5;
     if (ahead(hi) > 0)
-      throw new Error(`${context.subject}: the throw never comes within reach`);
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "from",
+        value: context.params.from,
+        reason: `the throw never comes within reach`,
+        fix: "stand on the throw's path, or aim the throw at the catcher",
+      });
     for (let i: number = 0; i < 50; i++) {
       const mid: number = (lo + hi) / 2;
       if (ahead(mid) > 0) lo = mid;
@@ -171,9 +192,13 @@ export namespace catchObject {
       Vector3.length(Vector3.subtract(meet, shoulders)) >
       arm + m.hand + m.shoulderHalfWidth
     )
-      throw new Error(
-        `${context.subject}: the object passes ${Vector3.length(Vector3.subtract(meet, shoulders)).toFixed(2)} m from the shoulders, beyond the arms`,
-      );
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "from",
+        value: context.params.from,
+        reason: `the object passes ${Vector3.length(Vector3.subtract(meet, shoulders)).toFixed(2)} m from the shoulders, beyond the arms`,
+        fix: "stand on the throw's path, or aim the throw at the catcher",
+      });
 
     // The clock on the catcher's own time, contact at the path's instant.
     const travel: number = AutoMovieMotionHumanTiming.aimed(
@@ -182,9 +207,13 @@ export namespace catchObject {
     );
     const reach: number = Math.max(0, contact - travel);
     if (contact - 0.1 < 0)
-      throw new Error(
-        `${context.subject}: the catch starts ${(-contact + 0.1).toFixed(2)} s too late to prepare`,
-      );
+      throw new HumanRefusal({
+        kind: "base",
+        axis: "from",
+        value: context.params.from,
+        reason: `the catch starts ${(-contact + 0.1).toFixed(2)} s too late to prepare`,
+        fix: "start the catch when the throw starts, with nothing between that delays the catcher",
+      });
     const secured: number = contact + GIVE_TIME;
     const held: number = secured + 0.4;
     const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(

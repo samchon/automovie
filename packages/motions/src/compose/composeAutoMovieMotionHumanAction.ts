@@ -1,3 +1,4 @@
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -77,9 +78,13 @@ export function composeAutoMovieMotionHumanAction(
         shared !== undefined &&
         Math.min(a.to, b.to) - Math.max(a.from, b.from) > 1e-9
       )
-        throw new Error(
-          `Two primitives claim the ${shared} channel at the same time`,
-        );
+        throw new HumanRefusal({
+          kind: "channel",
+          axis: "channel",
+          value: shared,
+          reason: `Two primitives claim the ${shared} channel at the same time`,
+          fix: "give one of the two movements another body part or another time",
+        });
     }
   const contacts: IHumanContactWindow[] = [
     ...props.base.contacts,

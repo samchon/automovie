@@ -108,7 +108,10 @@ export namespace AutoMovieHumanCanonicalBody {
    * The joints then move onto the canonical rig: reflected from Human's
    * registered frame, each arm straightened along ±X by shortest arcs about
    * the shoulder, the elbow and the wrist and pronated until the palm faces
-   * -Y, each thigh and shank straightened along -Y with the foot keeping its
+   * -Y, each finger straightened in the palm's plane along its own knuckle
+   * line and the thumb's two hinges along its metacarpal (the bind holds a
+   * relaxed hand, and a finger angle of zero is the extended finger, as in
+   * the VRM T-pose and the Neutral-0 position), each thigh and shank straightened along -Y with the foot keeping its
    * bind orientation, and the whole body raised or lowered so its lowest foot
    * joint sphere touches the floor. Every humanoid-named joint becomes a rig
    * bone with an identity rest rotation, the toes bone at the hallux's
@@ -230,7 +233,7 @@ export namespace AutoMovieHumanCanonicalBody {
    * `(x, y, z) -> (z, y, x)`. The drawing's parent must carry that same
    * reflection (`REFLECTION`, a column-major 4x4) so the figure shows in the
    * canonical world; a reflected world matrix keeps faces outward because
-   * three.js and the CPU rasterizer reverse winding for it.
+   * three.js reverses winding for it.
    *
    * @param body The canonical body.
    * @param pose A canonical pose; omitted, the T-pose rest.
@@ -350,6 +353,22 @@ function canonical(
       pivot,
     );
   };
+  const straighten = (
+    chain: readonly string[],
+    direction: IAutoMovieVector3,
+  ): void => {
+    chain.forEach((bone: string, i: number): void => {
+      const pivot: IAutoMovieVector3 = position.get(bone)!;
+      const end: IAutoMovieVector3 | null =
+        i + 1 < chain.length ? position.get(chain[i + 1]!)! : tip.get(bone)!;
+      if (end === null) return;
+      turn(
+        descendants(bone),
+        rotationBetween(Vector3.subtract(end, pivot), direction),
+        pivot,
+      );
+    });
+  };
   const down: IAutoMovieVector3 = Vector3.create(0, -1, 0);
   for (const [side, sign] of [
     ["left", 1],
@@ -384,6 +403,34 @@ function canonical(
       descendants(`${side}LowerArm`),
       Quaternion.fromAxisAngle(lateral, angle),
       position.get(`${side}LowerArm`)!,
+    );
+
+    // Straight digits: the bind holds a relaxed hand, and a clinical zero is
+    // the extended one (Neutral-0), so each finger lies in the palm's plane
+    // along its own knuckle line and the thumb's two hinges continue its
+    // metacarpal.
+    for (const finger of ["Index", "Middle", "Ring", "Little"] as const) {
+      const line: IAutoMovieVector3 = Vector3.subtract(
+        position.get(`${side}${finger}Intermediate`)!,
+        position.get(`${side}${finger}Proximal`)!,
+      );
+      straighten(
+        [
+          `${side}${finger}Proximal`,
+          `${side}${finger}Intermediate`,
+          `${side}${finger}Distal`,
+        ],
+        Vector3.normalize(Vector3.create(line.x, 0, line.z)),
+      );
+    }
+    straighten(
+      [`${side}ThumbProximal`, `${side}ThumbDistal`],
+      Vector3.normalize(
+        Vector3.subtract(
+          position.get(`${side}ThumbProximal`)!,
+          position.get(`${side}ThumbMetacarpal`)!,
+        ),
+      ),
     );
 
     // Straight legs; each foot turns back to its bind orientation.

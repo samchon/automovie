@@ -28,5 +28,5 @@ export function createUnitFiles(
 ): string[] {
   if (layer === "settings") return createSettingsFiles();
   if (layer === "brief") return createBriefFiles();
-  return createNarrativeUnitFiles(layer, scope);
+  return createNarrativeUnitFiles({ layer, scope });
 }

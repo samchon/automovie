@@ -2,7 +2,7 @@ import type {
   AutoMovieTextureBinding,
   IAutoMovieMaterial,
 } from "@automovie/interface";
-import { buildMaterial, materialTextureBindings } from "@automovie/viewer";
+import { buildMaterial, materialTextureBindings } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

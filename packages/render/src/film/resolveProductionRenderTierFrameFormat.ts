@@ -7,8 +7,8 @@ import type {
   IAutoMovieProductionFrameRate,
 } from "@automovie/interface";
 
-import type { IAutoMovieProductionRenderTier } from "./IAutoMovieProductionRenderTier";
-import { normalizeRenderTier } from "./normalizeRenderTier";
+import type { IAutoMovieProductionRenderTier } from "./IAutoMovieProductionRenderTier.js";
+import { normalizeRenderTier } from "./normalizeRenderTier.js";
 
 /**
  * Project a production's frame format through a render tier.

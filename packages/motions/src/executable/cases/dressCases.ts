@@ -1,5 +1,6 @@
 import {
   type IAutoMovieResolvedBone,
+  Quaternion,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
@@ -19,16 +20,19 @@ import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
  * Capture cases of the dressing family (#3257), from quiet standing:
- * `dress-hat` (both palms at the crown's sides) and `dress-glasses` (both
- * index fingertips at the ears).
+ * `dress-hat` (both palms on the head's surface at the brim's front quarters)
+ * and `dress-glasses` (both index fingertips at the ears).
  *
  * Every case reports foot slip at most 5 mm and no range-of-motion
  * overshoot. Beyond that: at `stroke` each hand's surface within 15 mm of
  * its place on the displayed head; no hand surface inside the head or neck
  * colliders by more than 10 mm through the action (decision 11's
- * penetration bound); and each shoulder's displayed flexion at most 121 and
- * abduction at most 128 degrees, the functional ranges of daily tasks
- * (Namdari et al. 2012, the issue's ADL ranges).
+ * penetration bound); and each upper arm's displayed elevation, its angle
+ * from the chest's downward axis, at most 121 degrees, the smaller of the
+ * functional ranges of daily tasks (flexion 121, abduction 128, Namdari et
+ * al. 2012, the issue's ADL ranges). The elevation is read on the displayed
+ * bones, since a joint's clinical flexion and abduction channels alias each
+ * other once the arm is raised past the horizontal and turned.
  *
  * @param bodies The sweep bodies; `m-average` when absent.
  * @returns The cases.
@@ -79,13 +83,23 @@ export function dressCases(
           frame,
           bones.get(frame.bone)!,
         ).point;
-        return item === "hat"
-          ? Vector3.add(at, {
-              x: (side === "left" ? 1 : -1) * dress.HAT.out * r,
-              y: -dress.HAT.down * r,
-              z: 0,
-            })
-          : at;
+        if (item !== "hat") return at;
+        // The head's displayed surface along the brim's direction.
+        const direction: IAutoMovieVector3 = Vector3.normalize({
+          x: (side === "left" ? 1 : -1) * dress.HAT.out,
+          y: 0,
+          z: dress.HAT.ahead,
+        });
+        return HumanColliders.cast(
+          who.body,
+          new Map([...bones].filter(([b]) => b === "head" || b === "neck")),
+          Vector3.add(
+            { ...at, y: at.y - dress.HAT.down * r },
+            Vector3.scale(direction, 4 * r),
+          ),
+          Vector3.scale(direction, -1),
+          8 * r,
+        )!.point;
       };
       const bones = performance.bones("a", stroke);
       const placed: number = Math.max(
@@ -96,8 +110,7 @@ export function dressCases(
         ),
       );
       let inside: number = Infinity;
-      let flexion: number = 0;
-      let abduction: number = 0;
+      let elevation: number = 0;
       for (let t: number = 0; t <= performance.duration + 1e-9; t += 1 / 24) {
         const all = performance.bones("a", t);
         const head: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
@@ -108,13 +121,21 @@ export function dressCases(
             HumanColliders.distance(who.body, head, surface(all, side))
               .distance,
           );
-          flexion = Math.max(
-            flexion,
-            FamilyCaseKit.angle(performance, "a", t, `${side}UpperArm`, 0),
+          const along: IAutoMovieVector3 = Vector3.normalize(
+            Vector3.subtract(
+              all.get(`${side}LowerArm`)!.worldPosition,
+              all.get(`${side}UpperArm`)!.worldPosition,
+            ),
           );
-          abduction = Math.max(
-            abduction,
-            FamilyCaseKit.angle(performance, "a", t, `${side}UpperArm`, 1),
+          const down: IAutoMovieVector3 = Quaternion.rotateVector(
+            all.get("chest")!.worldRotation,
+            { x: 0, y: -1, z: 0 },
+          );
+          elevation = Math.max(
+            elevation,
+            (Math.acos(Math.min(1, Math.max(-1, Vector3.dot(along, down)))) *
+              180) /
+              Math.PI,
           );
         }
       }
@@ -137,15 +158,9 @@ export function dressCases(
             "mm",
           ),
           everydayVerdicts.within(
-            "shoulder flexion within daily range",
-            flexion,
+            "shoulder elevation within daily range",
+            elevation,
             121,
-            "deg",
-          ),
-          everydayVerdicts.within(
-            "shoulder abduction within daily range",
-            abduction,
-            128,
             "deg",
           ),
         ],

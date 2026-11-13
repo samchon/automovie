@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -79,7 +80,7 @@ export namespace step {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the step count is not a whole number of at least one, or the length leaves (0, one stance length].
+   * @throws {HumanRefusal} When the step count is not a whole number of at least one, or the length leaves (0, one stance length].
    *
    * @evidence contracts/development/common.md#meaningful-documentation States its input, its plan and its refusals; the namespace states the method.
    * @evidence contracts/development/implementation.md#principled-implementation The coached foot order in the stance's line frame, each foot on a lifted minimum-jerk path in its half step, the root on its own minimum-jerk profile, the legs and guard solved by the shared fit.
@@ -94,14 +95,17 @@ export namespace step {
   ): IHumanActionPlan {
     const p: IParams = context.params;
     const count: number = p.steps ?? 1;
-    if (!(Number.isInteger(count) && count >= 1))
-      throw new Error("Footwork takes a whole number of steps");
+    HumanBound.whole("steps", count);
     const body = context.body;
     const length: number = p.length ?? STEP_SHARE * StrikingStance.length(body);
-    if (!(length > 0 && length <= StrikingStance.length(body)))
-      throw new Error(
-        `A step's length lies in (0, ${StrikingStance.length(body).toFixed(3)}] m`,
-      );
+    HumanBound.within(
+      "length",
+      length,
+      0,
+      StrikingStance.length(body),
+      "m",
+      "minimum",
+    );
     const duration: number = count * PERIOD;
     const entry: IHumanPosture = context.entry.posture;
     const lead: "left" | "right" = StrikingTarget.lead(context.entry);

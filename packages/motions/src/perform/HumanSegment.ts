@@ -16,6 +16,7 @@ import type {
 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -255,9 +256,24 @@ export namespace HumanSegment {
                 `[${r.window.join(", ")}] (${r.kind})`,
             )
             .join(", ");
-    throw new Error(
-      `${subject}: ${previous.name} cannot be cut into ${name} at share ${share.toFixed(3)}; legal windows: ${legal}`,
-    );
+    const next: string[] = Object.keys(previous.law.interrupts);
+    throw new HumanRefusal({
+      kind: "cut",
+      performer: subject,
+      axis: "cut",
+      value: share,
+      feasible: {
+        kind: "alternatives",
+        values: rows.map(
+          (r: IHumanInterruptRow): string => `[${r.window.join(", ")}]`,
+        ),
+      },
+      reason: `${previous.name} cannot be cut into ${name} at share ${share.toFixed(3)} of itself; its legal windows into ${name}: ${legal}`,
+      fix:
+        rows.length === 0
+          ? `let ${previous.name} end before ${name}, or cut it into an action it declares a window for (${next.join(", ") || "none"})`
+          : `cut ${previous.name} inside one of those windows (a share or an event name of it), or let it end`,
+    });
   }
 
   /**
@@ -271,9 +287,17 @@ export namespace HumanSegment {
     if (typeof at === "number") return at;
     const event = plan.events.find((e) => e.name === at);
     if (event === undefined)
-      throw new Error(
-        `No event ${at}; events are ${plan.events.map((e) => e.name).join(", ") || "none"}`,
-      );
+      throw new HumanRefusal({
+        kind: "cut",
+        axis: "event",
+        value: at,
+        feasible: {
+          kind: "alternatives",
+          values: plan.events.map((e): string => e.name),
+        },
+        reason: `the action publishes no event named ${at}`,
+        fix: "name one of the action's events, or give the instant as a share from 0 to 1",
+      });
     return event.share;
   }
 
@@ -358,6 +382,8 @@ export namespace HumanSegment {
       const b: IAutoMovieResolvedBone = far.get(`${side}Foot`)!;
       const rate = (x: number, y: number, z: number): number =>
         (3 * x - 4 * y + z) / (2 * step);
+      const bend = (x: number, y: number, z: number): number =>
+        (x - 2 * y + z) / (step * step);
       const inverse: IAutoMovieQuaternion = Quaternion.inverse(
         here.worldRotation,
       );
@@ -376,6 +402,11 @@ export namespace HumanSegment {
           y: rate(here.worldPosition.y, a.worldPosition.y, b.worldPosition.y),
           z: rate(here.worldPosition.z, a.worldPosition.z, b.worldPosition.z),
         },
+        acceleration: {
+          x: bend(here.worldPosition.x, a.worldPosition.x, b.worldPosition.x),
+          y: bend(here.worldPosition.y, a.worldPosition.y, b.worldPosition.y),
+          z: bend(here.worldPosition.z, a.worldPosition.z, b.worldPosition.z),
+        },
         spin: {
           x: rate(0, ar.x, br.x),
           y: rate(0, ar.y, br.y),
@@ -383,10 +414,31 @@ export namespace HumanSegment {
         },
       };
     };
+    // The root's acceleration by the one-sided second difference of the same
+    // three samples; a body with no previous action stands at rest.
+    const place = (t: number): IAutoMovieVector3 =>
+      shown(t).root?.translation ?? { x: 0, y: 0, z: 0 };
+    const p0: IAutoMovieVector3 = state.pose.root?.translation ?? {
+      x: 0,
+      y: 0,
+      z: 0,
+    };
+    const p1: IAutoMovieVector3 = place(seconds - step);
+    const p2: IAutoMovieVector3 = place(seconds - 2 * step);
+    const second = (x: number, y: number, z: number): number =>
+      (x - 2 * y + z) / (step * step);
     return {
       seconds,
       pose: state.pose,
       velocity: state.velocity,
+      acceleration:
+        previous === undefined
+          ? { x: 0, y: 0, z: 0 }
+          : {
+              x: second(p0.x, p1.x, p2.x),
+              y: second(p0.y, p1.y, p2.y),
+              z: second(p0.z, p1.z, p2.z),
+            },
       posture,
       feet: { left: foot("left"), right: foot("right") },
       ...(previous === undefined

@@ -231,7 +231,11 @@ export namespace StrikingStance {
    * the lead fist one forearm length ahead of the lead cheek at chin height,
    * both vertical fists (knuckles up and forward, palms in), elbows bending
    * down toward the ribs. Placed on the posture's own head, so the guard
-   * follows every root, turn and lean.
+   * follows every root, turn and lean. When the trunk turns under the head
+   * and draws the lead shoulder back (the rear hand's cross), the lead fist
+   * comes back to the face by as much as its shoulder went, no nearer than
+   * the rear fist stands: the coached "lead hand back to the chin" of a rear
+   * hand punch, which also keeps the fist in front of its own shoulder.
    *
    * @param body The body.
    * @param posture The posture whose trunk carries the head.
@@ -273,28 +277,49 @@ export namespace StrikingStance {
         side === "left" ? "jawLeft" : "jawRight",
       );
       const outward: IAutoMovieVector3 = horizontal(jaw.normal);
+      const shoulder: IAutoMovieVector3 = bones.get(
+        `${side}UpperArm` as AutoMovieHumanoidBone,
+      )!.worldPosition;
+      // How far this shoulder is drawn back behind the middle of the two
+      // along the face's forward: the head stays on the opponent while the
+      // trunk turns into a strike, so the shoulder of the other arm goes
+      // back under a still head.
+      const withdrawn: number = Math.max(
+        0,
+        0.5 *
+          Vector3.dot(
+            Vector3.subtract(
+              bones.get(
+                `${side === "left" ? "right" : "left"}UpperArm` as AutoMovieHumanoidBone,
+              )!.worldPosition,
+              shoulder,
+            ),
+            forward,
+          ),
+      );
       // The rear fist a quarter forearm in front of the jaw and the lead fist
       // most of a forearm ahead of the cheek: closer, the elbow would have to
-      // fold past its range to keep down by the ribs.
+      // fold past its range to keep down by the ribs. The lead fist comes
+      // back to the face with its shoulder, as far as the rear fist's
+      // distance: left where it was, it would lie across the chest from a
+      // shoulder drawn back, at the edge of that shoulder's range.
+      const near: number = 2 * m.forearmRadius + 0.25 * m.forearm;
       const fistAt: IAutoMovieVector3 = lead
         ? Vector3.add(
             Vector3.add(
               { ...jaw.point, y: chin.y },
-              Vector3.scale(forward, m.forearm),
+              Vector3.scale(forward, Math.max(near, m.forearm - withdrawn)),
             ),
             Vector3.scale(outward, -0.5 * m.forearmRadius),
           )
         : Vector3.add(
             Vector3.add(jaw.point, Vector3.scale(outward, m.forearmRadius)),
-            Vector3.scale(forward, 2 * m.forearmRadius + 0.25 * m.forearm),
+            Vector3.scale(forward, near),
           );
       const sag: IAutoMovieVector3 = {
         ...fistAt,
         y: fistAt.y - (drop[side] ?? 0),
       };
-      const shoulder: IAutoMovieVector3 = bones.get(
-        `${side}UpperArm` as AutoMovieHumanoidBone,
-      )!.worldPosition;
       const bend: IAutoMovieVector3 = Vector3.add(
         shoulder,
         Vector3.add(
@@ -400,11 +425,12 @@ export namespace StrikingStance {
         point: foot.ankle,
         bend,
         rotation: foot.rotation,
-        // A planted foot stands on the ball of its foot: when the ankle's
-        // range cannot give the asked rotation, the foot turns about the
-        // ball, which stays on the floor, instead of about the ankle.
+        // A planted foot stands on its forefoot: when the ankle's range
+        // cannot give the asked rotation, the foot turns about the toes'
+        // joint and the toes stay flat on the floor (the forefoot rocker,
+        // Perry and Burnfield), instead of turning about the ankle.
         ...(planted[side]
-          ? { planted: true, contact: HumanFoot.offset(body, side, "ball") }
+          ? { planted: true, contact: HumanFoot.offset(body, side, "mtp") }
           : {}),
       };
     }
@@ -433,6 +459,42 @@ export namespace StrikingStance {
       neck: [12, 0, 0],
       ...StrikingBody.curl("left"),
       ...StrikingBody.curl("right"),
+    };
+  }
+
+  /** The most the neck and the head each turn back under a turning trunk, degrees (inside their 70 degree twist range). */
+  export const FACING: number = 60;
+
+  /**
+   * Joint angles with the face kept where it looked while the trunk turns:
+   * the neck and the head each turn back by half of the trunk's turn, so a
+   * strike that turns the pelvis and the spine keeps its eyes on the opponent
+   * (coaching: the chin stays tucked and the eyes stay on the target through
+   * the punch or the kick) instead of swinging the head with the shoulders.
+   *
+   * @param joints The posture's clinical angles by bone.
+   * @param turned How far the trunk has turned about the vertical since the entry, degrees, in the sign of the posture's yaw.
+   * @returns The angles with the neck's and the head's twist turned back.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the relation, its coaching basis, the unit and the sign.
+   * @evidence contracts/development/implementation.md#principled-implementation Twists about the same axis add along the neck and the head, so two equal shares cancel the trunk's turn inside each joint's range.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One share applied to two joints.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Each share is held inside the named bound; flexion and abduction are kept.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function facing(
+    joints: IHumanPosture["joints"],
+    turned: number,
+  ): IHumanPosture["joints"] {
+    const share: number = Math.max(-FACING, Math.min(FACING, 0.5 * turned));
+    const neck: readonly [number, number, number] = joints.neck ?? [0, 0, 0];
+    const head: readonly [number, number, number] = joints.head ?? [0, 0, 0];
+    return {
+      ...joints,
+      neck: [neck[0], neck[1], neck[2] - share],
+      head: [head[0], head[1], head[2] - share],
     };
   }
 }

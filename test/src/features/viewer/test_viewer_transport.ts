@@ -1,22 +1,21 @@
 import {
   AutoMovieViewerTransport,
-  parseAutoMovieInspectionView,
   readAutoMovieReviewInterval,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
-/** The review transport commits only drawn seconds, plays on one wall anchor snapped to the frame grid, and reads its URL and view inputs strictly.
+/** The review transport commits only drawn seconds, plays on one wall anchor snapped to the frame grid, and reads its URL inputs strictly.
  *
  * Scenarios:
  * 1. A seek commits only after the producer draws; a failing producer keeps the previous second and records the error.
  * 2. Playback at half speed places the frame due by the injected clock, snapped down to the 30 fps grid, and draws the interval's exact end before pausing.
  * 3. A sound start superseded by a pause never anchors the clock; a refused sound pauses and keeps its cause.
  * 4. An unsupported speed and an interval outside the range are refused; a freeze resumes only a formerly playing clock, once.
- * 5. URL intervals default to the range and refuse empty, nonfinite or out-of-range values; inspection views parse only x,y,z:tx,ty,tz.
+ * 5. URL intervals default to the range and refuse empty, nonfinite or out-of-range values.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs `viewer` on in-memory inputs and asserts the returned observations through 5x TestValidator.predicate, 1x TestValidator.equals; 5 numbered scenarios (first: A seek commits only after the producer draws; a failing producer keeps the previous second and records the...; last: URL intervals default to the range and refuse empty, nonfinite or out-of-range values; inspection views...). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs `viewer` on in-memory inputs and asserts the returned observations through 5x TestValidator.predicate, 1x TestValidator.equals; 5 numbered scenarios (first: A seek commits only after the producer draws; a failing producer keeps the previous second and records the...; last: URL intervals default to the range and refuse empty, nonfinite or out-of-range values.). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
  * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself (3 assertion sites compare against numeric literals) and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
- * @evidence contracts/development/testing.md#distinguishing-cases Contributes 5 numbered scenarios (first: A seek commits only after the producer draws; a failing producer keeps the previous second and records the...; last: URL intervals default to the range and refuse empty, nonfinite or out-of-range values; inspection views...), including the negative, boundary or refusal cases those sentences name; cases the sentences do not name are not claimed here and are owned by other tests or are uncovered.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contributes 5 numbered scenarios (first: A seek commits only after the producer draws; a failing producer keeps the previous second and records the...; last: URL intervals default to the range and refuse empty, nonfinite or out-of-range values.), including the negative, boundary or refusal cases those sentences name; cases the sentences do not name are not claimed here and are owned by other tests or are uncovered.
  * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through the discoverable function `test_viewer_transport`, which owns every case it runs; it registers no dynamic cases and starts no process, browser, viewer, render or GPU host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A seek commits only after the producer draws; a failing producer keeps the previous second and records the error.).
  */
@@ -128,7 +127,7 @@ export async function test_viewer_transport(): Promise<void> {
   TestValidator.predicate("freeze and resume", !frozen && transport.playing);
   transport.pause();
 
-  // URL intervals and inspection views.
+  // URL intervals.
   const read = (query: string): { start: number; end: number; speed: number } =>
     readAutoMovieReviewInterval(new URLSearchParams(query), [0, 180]);
   const urlRefusals: string[] = [];
@@ -143,22 +142,12 @@ export async function test_viewer_transport(): Promise<void> {
       read(query);
       urlRefusals.push(query);
     } catch {}
-  const view = parseAutoMovieInspectionView("1,2,3:0,1,0");
-  let badView: boolean = false;
-  try {
-    parseAutoMovieInspectionView("1,2:0,1,0");
-  } catch {
-    badView = true;
-  }
   TestValidator.predicate(
-    "URL and view inputs",
+    "URL inputs",
     JSON.stringify(read("")) ===
       JSON.stringify({ start: 0, end: 180, speed: 1 }) &&
       JSON.stringify(read("start=5&end=6&speed=0.5")) ===
         JSON.stringify({ start: 5, end: 6, speed: 0.5 }) &&
-      urlRefusals.length === 0 &&
-      view.position[2] === 3 &&
-      view.target[1] === 1 &&
-      badView,
+      urlRefusals.length === 0,
   );
 }

@@ -24,7 +24,7 @@ Measurements such as dimensions, light positions and timings go to [research](..
 | `cinematography` | The look: framing grammar, camera movement style, lighting style and grade |
 | `sound` | Ambience and music palettes; voices belong to the cast |
 
-User-fixed interpretations are canon. Research open facts through [research](../planning/research.md), attaching support and uncertainty to the facts they qualify, and report a conflict between an instruction and its source instead of changing canon.
+User-fixed interpretations are canon. Study what [when to study](../planning/research.md#when-to-study) assigns to settings, attaching support and uncertainty to the facts they qualify, and report a conflict between an instruction and its source instead of changing canon.
 
 Embed a subject's canon images, generated under [image](../../image/SKILL.md), from `media/diffusion/images/<domain>/`, such as `![Mara, front](../../../../media/diffusion/images/cast/mara-front.png)` in `docs/body/settings/cast/mara.md`; when an image and the text disagree, repair whichever is wrong.
 
@@ -32,7 +32,7 @@ Embed a subject's canon images, generated under [image](../../image/SKILL.md), f
 
 Keep `outline/index.md` as a finding guide: domain H2s and file H3s in reading order, each file entry anchored by its settings-relative path without `.md` and with `/` replaced by `--`, and each record citing its entry.
 
-Before splitting or moving records, map old addresses to their new owners and update links and consumers together under [sync and reorganization](../../production/sync-and-reorganization.md), keeping address migration separate from content changes; moved records keep the [closed-pass boundary](../correction/repair.md#closed-passes).
+Before splitting or moving records, map old addresses to their new owners and update links and consumers together under [reorganization](../../production/reorganization.md), keeping address migration separate from content changes; moved records keep the [closed-pass boundary](../correction/repair.md#closed-passes).
 
 Keep settings current as a continuity record: when a treatment, script or screenplay establishes a lasting state that later units or code must keep, such as a wound, a learned habit or a revealed relationship, add it as a new anchored fact in its subject's state facet, citing the establishing unit, in the same repair. A new fact receives its own answers and review under [closed passes](../correction/repair.md#closed-passes) and leaves existing judgments in place.
 

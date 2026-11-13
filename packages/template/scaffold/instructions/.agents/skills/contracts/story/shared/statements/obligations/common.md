@@ -4,6 +4,8 @@ Contract: [obligations/common.md](../../obligations/common.md).
 
 ## Scope and ownership {#scope-and-ownership}
 
+Ownership:
+
 1. Every required beginning, ending, interval, person, event, fact, constraint, relationship and result is mapped to its smallest current owner.
 2. The answer reports:
     - omissions;
@@ -17,15 +19,15 @@ Contract: [obligations/common.md](../../obligations/common.md).
     - scripts and screenplay: sufficient execution and experience.
 6. Counts, lengths, parent-child ratios and diffs locate passages to read; they are not verdicts.
 
-## Layer boundaries {#layer-boundaries}
+Layer boundaries:
 
-1. Settings establishes world facts, appearance and baseline constraints, and treatments decide events, event time and place and reveal order.
-2. Scripts decide partition, scene execution, staged audiovisual state and meaningful view, and the final screenplay decides finished emphasis, image-sound relations, transitions and temporal experience.
-3. A short gives world decisions to its brief and event and execution decisions to its screenplay, never to invented skipped stages.
-4. Language, audience, variants, registers, code-switching, access rules and expressive form have one identifiable instruction or work-contract owner, while character voice remains a world property.
-5. Declared nonstandard forms and their audience context are preserved.
-6. Downstream inventions, duplicated authority and planning language that replaces a layer's output are reported, and the earliest owner and its consumers repaired.
-7. Layout and adapter mechanics do not decide these boundaries.
-8. Color, material, dimension and unit expressions across the population agree with established values.
-9. Where wording would make artists invent incompatible values, the needed reference or conversion is defined at that value's owner.
-10. Established values are preserved downstream. Exception: no appearance inventory is required everywhere, and idiomatic perception that changes no fact stays.
+7. Settings establishes world facts, appearance and baseline constraints, and treatments decide events, event time and place and reveal order.
+8. Scripts decide partition, scene execution, staged audiovisual state and meaningful view, and the final screenplay decides finished emphasis, image-sound relations, transitions and temporal experience.
+9. A short gives world decisions to its brief and event and execution decisions to its screenplay, never to invented skipped stages.
+10. Language, audience, variants, registers, code-switching, access rules and expressive form have one identifiable instruction or work-contract owner, while character voice remains a world property.
+11. Declared nonstandard forms and their audience context are preserved.
+12. Downstream inventions, duplicated authority and planning language that replaces a layer's output are reported, and the earliest owner and its consumers repaired.
+13. Layout and adapter mechanics do not decide these boundaries.
+14. Color, material, dimension and unit expressions across the population agree with established values.
+15. Where wording would make artists invent incompatible values, the needed reference or conversion is defined at that value's owner.
+16. Established values are preserved downstream. Exception: no appearance inventory is required everywhere, and idiomatic perception that changes no fact stays.

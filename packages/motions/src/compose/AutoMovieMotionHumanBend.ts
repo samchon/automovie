@@ -23,11 +23,12 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanArmClearance } from "../posture/HumanArmClearance";
+import type { HumanColliders } from "../posture/HumanColliders";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { StrikingBody } from "../striking/StrikingBody";
-import { StrikingContact } from "../striking/StrikingContact";
 
 /**
  * Bend hints: the world point an elbow or a knee bends toward, from a named
@@ -274,14 +275,19 @@ export namespace AutoMovieMotionHumanBend {
    * A wrist's place leaves the elbow free on a circle about the line from
    * the shoulder to the wrist. Every place on it is tried at one degree
    * steps and refined between steps. A place is allowed when the shoulder and
-   * the elbow stay inside their ranges of motion and the elbow is outside the
-   * trunk's shapes (hips, spine, chest, upper chest). Among the allowed places
+   * the elbow stay inside their ranges of motion and the forearm clears the
+   * trunk, the neck and the head along its length
+   * (`HumanArmClearance.overshoot`). Among the allowed places
    * the one of least strain is returned. Strain is the sum, over the
    * shoulder's flexion, abduction and twist, of the squared distance from the
    * angle an unloaded hanging arm has, each divided by half that axis's
    * range. A hand rotation adds the forearm's twist and the wrist's bend the
    * rotation needs, each squared and divided by half its range. The weights
-   * are 1 and provisional.
+   * are 1 and provisional. A place whose forearm twist, wrist flexion or
+   * wrist deviation would come within `RESERVE` of the end of its range,
+   * each read signed about its own axis, is one where the hand cannot make
+   * the rotation with room to spare; it ranks behind every place that makes
+   * it, by the degrees left unmade.
    *
    * @param props The request.
    * @returns The elbow's place, world metres, usable as a bend hint.
@@ -292,7 +298,7 @@ export namespace AutoMovieMotionHumanBend {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One search and one refusal check; the search and the strain live in private helpers shared with `strain`.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable wrist and a circle with no allowed place are refused with the reason; the fallback is taken only when the caller names it, and no candidate is clamped into range.
    * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics of the rig and at most 720 candidates plus their refinements, each two decompositions and four shape distances.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the engine's chain preparation, swivel sweep, clinical decomposition and range overshoot, and the striking package's shape list and signed distance.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the engine's chain preparation, swivel sweep, clinical decomposition and range overshoot, and `HumanArmClearance`, the owner of a forearm's clearance.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the hanging arm's three angles per body and side, in a weak map keyed by the body.
    */
   export function solve(props: ISolve): IAutoMovieVector3 {
@@ -307,13 +313,17 @@ export namespace AutoMovieMotionHumanBend {
     if (typeof found !== "string" && found.overshoot === 0) return found.elbow;
     if (props.fallback !== undefined)
       return arm(props.body, props.posture, props.side, props.fallback);
-    throw new Error(
-      `AutoMovieMotionHumanBend.solve found no elbow place for the ${props.side} hand: ${
+    throw new HumanRefusal({
+      kind: "reach",
+      axis: "target",
+      value: props.side,
+      reason: `AutoMovieMotionHumanBend.solve found no elbow place for the ${props.side} hand: ${
         typeof found === "string"
           ? found
-          : "every place leaves a joint out of range or the elbow inside the trunk"
+          : "every place leaves a joint out of range or the forearm inside the body"
       }`,
-    );
+      fix: "move the target to where the arm can bend to it: nearer the shoulder's side and off the body",
+    });
   }
 
   /**
@@ -391,13 +401,15 @@ export namespace AutoMovieMotionHumanBend {
   }
 }
 
-/** The trunk bones whose shapes an elbow may not enter. */
-const TRUNK: ReadonlySet<string> = new Set([
-  "hips",
-  "spine",
-  "chest",
-  "upperChest",
-]);
+/** The strain from which a place counts as leaving the hand's turn unmade; every made place strains less. */
+const UNMADE: number = 1e6;
+
+/**
+ * The share of a range kept free at each end when a hand's turn is judged
+ * (provisional): the place is solved once while the region then moves with
+ * the head, so a turn that ends on a limit is lost a moment later.
+ */
+const RESERVE: number = 0.1;
 
 /** The hanging arm's shoulder angles by body and side, clinical degrees. */
 const NEUTRAL: WeakMap<
@@ -425,7 +437,7 @@ interface ICandidate {
   /** The shoulder's clinical angles, degrees. */
   angles: IAngles;
 
-  /** Degrees out of range plus the elbow's depth inside the trunk as degrees of upper arm turn; 0 when allowed. */
+  /** Degrees out of range plus the forearm's depth inside its clearance of the body as degrees of upper arm turn; 0 when allowed. */
   overshoot: number;
 
   /** The strain, unitless. */
@@ -446,8 +458,8 @@ interface IChain {
   /** The rig's clinical axes by bone. */
   axes: ReturnType<typeof skeletonJointAxes>;
 
-  /** The trunk's shapes, world metres. */
-  shapes: StrikingContact.ICollider[];
+  /** The trunk's placed colliders, world metres. */
+  shapes: HumanColliders.IPlaced[];
 }
 
 /**
@@ -500,7 +512,7 @@ function chainOf(
       Vector3.length(prepared.lowerOffset) +
       Vector3.length(prepared.effectorOffset),
     axes,
-    shapes: StrikingBody.colliders(
+    shapes: HumanArmClearance.trunk(
       body,
       resolveBoneMap(
         body.skeleton,
@@ -509,8 +521,6 @@ function chainOf(
         axes,
         HUMANOID_REST_FRAME,
       ),
-    ).filter((shape: StrikingContact.ICollider): boolean =>
-      TRUNK.has(shape.name),
     ),
   };
 }
@@ -633,15 +643,14 @@ function best(
   const forearm: number | null = half(
     prepared.lowerDomain.constraint?.twist ?? null,
   );
-  const wrist: number | null = half(
-    getConstraint(
-      `${side}Hand`,
-      body.skeleton.bones.find(
-        (b: IAutoMovieBone): boolean => b.bone === `${side}Hand`,
-      )?.constraint ?? null,
-    )?.flexion ?? null,
+  const hand: IAutoMovieJointConstraint | null = getConstraint(
+    `${side}Hand`,
+    body.skeleton.bones.find(
+      (b: IAutoMovieBone): boolean => b.bone === `${side}Hand`,
+    )?.constraint ?? null,
   );
-  const length: number = Vector3.length(prepared.lowerOffset);
+  const wrist: number | null = half(hand?.flexion ?? null);
+  const handAxes: IAutoMovieJointAxes | undefined = chain.axes[`${side}Hand`];
   const share = (value: number, of: number | null): number =>
     of === null ? 0 : (value / of) ** 2;
   const read = (
@@ -668,9 +677,6 @@ function best(
       chain.shoulder,
       Quaternion.rotateVector(turned, prepared.lowerOffset),
     );
-    let depth: number = 0;
-    for (const shape of chain.shapes)
-      depth = Math.max(depth, -StrikingContact.distance(elbow, shape));
     let strain: number =
       neutral === null
         ? 0
@@ -699,6 +705,41 @@ function best(
       strain +=
         share(degrees(split.twist), forearm) +
         share(degrees(split.swing), wrist);
+      // A turn the forearm and the wrist cannot make leaves the hand off its
+      // rotation, so such a place ranks behind every place that makes it.
+      // Each turn is read signed about its own axis, since a wrist's range
+      // is not symmetric about its rest.
+      const about = (
+        q: IAutoMovieQuaternion,
+        axis: IAutoMovieVector3 | undefined,
+      ): number => {
+        const n: IAutoMovieQuaternion = Quaternion.normalize(q);
+        const sign: number = n.w < 0 ? -1 : 1;
+        const sine: number = Math.hypot(n.x, n.y, n.z);
+        return axis === undefined || sine < 1e-9
+          ? 0
+          : ((Vector3.dot({ x: n.x, y: n.y, z: n.z }, axis) * sign) / sine) *
+              ((2 * Math.atan2(sine, Math.abs(n.w)) * 180) / Math.PI);
+      };
+      const past = (
+        value: number,
+        range: { min: number; max: number } | null | undefined,
+      ): number =>
+        range === null || range === undefined
+          ? 0
+          : Math.max(
+              0,
+              range.min + RESERVE * (range.max - range.min) - value,
+              value - range.max + RESERVE * (range.max - range.min),
+            );
+      const unmade: number =
+        past(
+          about(split.twist, lowerAxes.twist),
+          prepared.lowerDomain.constraint?.twist,
+        ) +
+        past(about(split.swing, handAxes?.flexion), hand?.flexion) +
+        past(about(split.swing, handAxes?.abduction), hand?.abduction);
+      if (unmade > 0) strain = UNMADE + unmade;
     }
     return {
       elbow,
@@ -709,7 +750,7 @@ function best(
           { bone: lowerBone, ...l },
           prepared.lowerDomain.constraint,
         ) +
-        ((depth / length) * 180) / Math.PI,
+        HumanArmClearance.overshoot(body, chain.shapes, elbow, point, side),
       strain,
     };
   };

@@ -46,7 +46,12 @@ const SPAN_EPSILON: number = 1e-9;
  * with `R = hypot(α, β)` and `φ = atan2(β, α)`: an arccos whose two roots are
  * the chain's two bend branches. A target outside the reachable span takes the
  * fully extended or fully folded root, so the effector stops on the reachable
- * shell along the line to the target.
+ * shell along the line to the target. A root outside the mid joint's own
+ * `range` stops at the nearer limit in the same way, the effector resting on
+ * the legal shell along that line and the result reporting the `shortfall`;
+ * of two branches the one stopping nearer the target is swept, because a
+ * candidate past the hinge's limit would be clamped by the caller afterwards
+ * and land somewhere no candidate was scored at.
  *
  * The root joint first aims `m(θ)` at the target, then any extra rotation
  * about `m(θ)` leaves the effector where it is. The function sweeps that swivel
@@ -84,6 +89,7 @@ export const hingedArmArticulation: (props: {
   endOffset: IAutoMovieVector3;
   hinge: IAutoMovieVector3;
   target: IAutoMovieVector3;
+  range?: { min: number; max: number };
   score: (
     upper: IAutoMovieQuaternion,
     lower: IAutoMovieQuaternion,
@@ -106,6 +112,14 @@ export const hingedArmArticulation: (props: {
 
   /** World target the effector should land on. */
   target: IAutoMovieVector3;
+
+  /**
+   * The mid joint's legal rotation about `hinge`, radians, `min <= max` and
+   * no wider than a full turn; omitted, every hinge angle is legal. A branch
+   * outside it stops at the nearer limit, read around the circle from the
+   * range's centre.
+   */
+  range?: { min: number; max: number };
 
   /**
    * Score one candidate's bone-local root and mid rotations: `overshoot` is
@@ -169,6 +183,40 @@ export const hingedArmArticulation: (props: {
         ? [phase + Math.PI]
         : [phase + Math.acos(ratio), phase - Math.acos(ratio)];
 
+  // A hinge angle outside the joint's own range stops at the nearer limit, so
+  // the effector rests on the legal shell along the line to the target, as it
+  // does on the geometric shell above. Of two branches the one stopping
+  // nearer the target is kept; branches inside the range stop nowhere and tie.
+  const range: { min: number; max: number } | undefined = props.range;
+  const outside: boolean = ratio >= 1 || ratio <= -1;
+  const short = (theta: number): number =>
+    Math.abs(
+      Math.sqrt(
+        Math.max(0, k + alpha * Math.cos(theta) + beta * Math.sin(theta)),
+      ) - distance,
+    );
+  const stops: IStop[] = branches
+    .map((theta: number): IStop => {
+      if (range === undefined)
+        return { theta, shortfall: outside ? short(theta) : 0 };
+      const centre: number = (range.min + range.max) / 2;
+      const wrapped: number =
+        theta - 2 * Math.PI * Math.round((theta - centre) / (2 * Math.PI));
+      const legal: number = Math.min(range.max, Math.max(range.min, wrapped));
+      return {
+        theta: legal,
+        shortfall: legal === wrapped && !outside ? 0 : short(legal),
+      };
+    })
+    .filter(
+      (stop: IStop, index: number, all: IStop[]): boolean =>
+        all.findIndex((other: IStop): boolean => other.theta === stop.theta) ===
+        index,
+    );
+  const shortfall: number = Math.min(
+    ...stops.map((stop: IStop): number => stop.shortfall),
+  );
+
   const goal: IAutoMovieVector3 = Quaternion.rotateVector(
     Quaternion.inverse(props.upper.worldRotation),
     reach,
@@ -186,7 +234,9 @@ export const hingedArmArticulation: (props: {
     (a.overshoot === b.overshoot && a.deviation < b.deviation);
 
   let chosen: IScored | null = null;
-  for (const theta of branches) {
+  for (const { theta } of stops.filter(
+    (stop: IStop): boolean => stop.shortfall === shortfall,
+  )) {
     const lower: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
       hinge,
       theta * RAD2DEG,
@@ -202,7 +252,7 @@ export const hingedArmArticulation: (props: {
         aim,
         Quaternion.fromAxisAngle(swivelAxis, angle),
       );
-      return { upper, lower, ...props.score(upper, lower) };
+      return { upper, lower, shortfall, ...props.score(upper, lower) };
     };
     const swept: IScored[] = [];
     for (let step: number = 0; step * SWIVEL_STEP < 360; ++step)
@@ -230,8 +280,18 @@ export const hingedArmArticulation: (props: {
     upper: chosen!.upper,
     lower: chosen!.lower,
     overshoot: chosen!.overshoot,
+    shortfall,
   };
 };
+
+/** One bend branch after the hinge's range: its hinge angle and how far short of the target distance it stops. */
+interface IStop {
+  /** The hinge angle, radians, inside the range when one is given. */
+  theta: number;
+
+  /** Metres between the chain's span at `theta` and the target distance; `0` for a branch that reaches the distance inside the range. */
+  shortfall: number;
+}
 
 /** One scored candidate: its rotations, its ROM overshoot and its effort tie-break. */
 interface IScored extends IAutoMovieHingedArticulation {

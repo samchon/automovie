@@ -20,15 +20,3 @@ Contract: [principles/settings.md](../../principles/settings.md).
 9. An external fact the record asserts, such as a sport's rule, cites its source. Exception: invented choices need no outside authority.
 10. Under a declared [factual basis](../../../../../story/planning/requirements.md#factual-basis), each covered claim has direct primary or authoritative evidence at its edition, passage, date or page.
 11. The claim records meaningful disagreement, and reduces its precision where the evidence is weaker.
-
-## Record and boundary {#record-and-boundary}
-
-1. The definition, settled content, conditions and open matters come in a consistent order for this kind of record.
-2. Each independently used subject has one file, with its inseparable attributes together.
-3. Each concept has one term and each fact one owner, and a shared fact links to its owner.
-4. The record states facts in prose for readers and never describes code. Rendering and generation controls belong to the production's source.
-5. The record establishes world facts, baseline states and change conditions.
-6. Chosen events, causal progression, choices, results, setups, payoffs and reveal order are left to treatments.
-7. Where a fixed historical result or time-specific status constrains treatments, the record does not prewrite how the film reaches or reveals it.
-8. A lasting state a later layer established, such as a wound or a revealed relationship, is recorded here and cites the unit that established it.
-9. The cinematography domain owns the film's look. Editing and audience access belong to production instructions or work contracts, and a character's voice remains a world property.

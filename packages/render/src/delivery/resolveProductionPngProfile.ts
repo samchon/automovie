@@ -1,7 +1,7 @@
 import { AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS } from "@automovie/engine";
 
-import type { AutoMovieProductionPngRole } from "./AutoMovieProductionPngRole";
-import type { IAutoMovieProductionPngProfile } from "./IAutoMovieProductionPngProfile";
+import type { AutoMovieProductionPngRole } from "./AutoMovieProductionPngRole.js";
+import type { IAutoMovieProductionPngProfile } from "./IAutoMovieProductionPngProfile.js";
 
 /**
  * Resolve one output role to the exact PNG profile its writer must emit.

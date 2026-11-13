@@ -1,4 +1,4 @@
-import { IAutoMovieRenderBudgetAssessment } from "./IAutoMovieRenderBudgetAssessment";
+import { IAutoMovieRenderBudgetAssessment } from "./IAutoMovieRenderBudgetAssessment.js";
 
 /**
  * One caller-supplied tier's budget evidence over its supplied shot assessments. The record itself proves neither complete shot coverage nor actual rendering or publication.

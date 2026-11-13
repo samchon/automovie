@@ -1,9 +1,8 @@
-import type { AutoMoviePhysicsCache } from "@automovie/engine";
+import type { AutoMoviePhysicsCache, IAutoMovieMark } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMoviePhysicalProfile,
 } from "@automovie/interface";
-import type { IAutoMovieInspectionConstruction } from "@automovie/viewer";
 import type * as THREE from "three";
 
 /**
@@ -11,7 +10,7 @@ import type * as THREE from "three";
  *
  * @evidence contracts/development/common.md#meaningful-documentation The comment names what one mount holds; each member states what it owns and when it runs.
  * @evidence contracts/development/design.md#principled-representation Playback, seeking and capture all place the scene through one seek per second, so a second reached by any path draws the same state.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The members the Viewer entry reads to draw, seek and release a film, plus the three optional review sources it reads only when a review overlay, a named view or construction curves are requested.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The members the Viewer and draw-only pages read to draw, seek and release a film, plus the three optional review sources: the physical performance whose skeleton and contacts `markFilmProduction` marks, the named views, and the film's own marks.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No playback-only or capture-only member exists; named views move only a separate inspection camera, so the film camera and delivered captures are unchanged.
  */
 export interface IFilmProduction {
@@ -21,7 +20,7 @@ export interface IFilmProduction {
   /** Camera the Viewer renders through; camera entities move it in `seek`. */
   camera: THREE.PerspectiveCamera;
 
-  /** Optional shared physical review source, used only when a review overlay is requested. */
+  /** Optional physical review source: `markFilmProduction` draws its bodies' skeleton and its contact forces as `joint`, `bone` and `contact` marks. */
   performance?: {
     /** Scene ids and profiles for the displayed bodies. */
     bodies: { id: string; profile: IAutoMoviePhysicalProfile }[];
@@ -29,8 +28,6 @@ export interface IFilmProduction {
     frame: () => AutoMoviePhysicsCache.IFrame;
     /** Actual geometric or solved contact episodes. */
     contacts: () => readonly IAutoMovieContactReceipt[];
-    /** Explicit simultaneous contact-overlay budget. */
-    maximumContacts: number;
     /** Inspection vector length per newton of step-mean force. */
     metresPerNewton: number;
   };
@@ -54,9 +51,17 @@ export interface IFilmProduction {
   >;
 
   /**
-   * Optional construction curves of the film's built forms, such as the sections, guides and axis of a loft, each with the scene object its form was built into. They are drawn only when an inspection asks for curves, in the Viewer through the `curves` parameter and in a capture through `--curves`.
+   * Optional inspection marks of the film at an exact second: what its owners locate, such as the construction curves of its built forms from `markAutoMovieConstructionCurves`. They are drawn only when an inspection's `marks` parameter names their kinds, in the Viewer and in a capture alike, and the drawn second's marks are asked for after `seek`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the marks locate, when they are drawn and when they are asked for.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation A signature has no body; the film that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A signature has no body; the film that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A signature has no body; the film that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A signature has no body; the film that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature has no body; the film that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature has no body; the film that implements it answers.
    */
-  constructions?: readonly IAutoMovieInspectionConstruction[];
+  marks?: (seconds: number) => readonly IAutoMovieMark[];
 
   /**
    * Places every displayed object and the camera for an exact film second.

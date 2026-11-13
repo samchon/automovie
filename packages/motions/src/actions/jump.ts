@@ -2,6 +2,7 @@ import {
   AutoMovieStationHermite,
   type IAutoMovieResolvedBone,
   Quaternion,
+  carriedAcceleration,
   carriedRate,
   minimumJerk,
   resolveAutoMovieCenterOfMass,
@@ -16,6 +17,8 @@ import type {
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanBound } from "../law/HumanBound";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -27,8 +30,8 @@ import { hipJoints } from "../posture/hipJoints";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { stand } from "./stand";
-import { walkLeg } from "./walkLeg";
 import { standUpright } from "./standUpright";
+import { walkLeg } from "./walkLeg";
 
 /**
  * A jump to a floor point: a push-off from a planted foot, a ballistic flight
@@ -62,7 +65,14 @@ import { standUpright } from "./standUpright";
  * the rate: the reaching foot's velocity and spin, a rigid motion of the
  * foot, for no longer than brings its heel or ball to the floor, and a
  * take-off foot whose heel was coming down about its ball for no longer than
- * lays it flat.
+ * lays it flat. The root's own push-off path starts at the entry's position,
+ * velocity and acceleration, so a walk's stance, whose root is accelerating
+ * downward at several metres per second squared, is not cut to a path at
+ * rest acceleration: the planted knee is solved from the root and would show
+ * that step as a change of its flexion rate within one frame. The reaching
+ * ankle carries its entry acceleration the same way (the engine's
+ * `carriedAcceleration`, over the carry of its velocity), so the reaching
+ * knee is not left to absorb the root's.
  *
  * Flight is ballistic in the centre of mass, the one point gravity alone
  * moves while airborne: from the apex height `apex` above take-off (0.06 hip
@@ -122,7 +132,7 @@ export namespace jump {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When no foot is planted to push off from, or the apex is not positive.
+   * @throws {HumanRefusal} When no foot is planted to push off from, or the apex is not positive.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -150,9 +160,13 @@ export namespace jump {
       (s) => entry.feet[s].planted,
     );
     if (planted.length === 0)
-      throw new Error(
-        `${context.subject}: a jump takes off from a planted foot, and neither is planted`,
-      );
+      throw new HumanRefusal({
+        kind: "base",
+        axis: "base",
+        value: null,
+        reason: `a jump takes off from a planted foot, and neither is planted`,
+        fix: "enter the jump from an action that leaves a foot planted, such as stand or walk",
+      });
     // In double support the front foot bears the body forward; the rear one is the reaching leg.
     const ahead = (s: "left" | "right"): number =>
       HumanFrame.local(frame(root0), entry.feet[s].ankle).z;
@@ -299,7 +313,7 @@ export namespace jump {
     };
     const length: number = Math.hypot(comL.x - comT.x, comL.z - comT.z);
     const apex: number = context.params.apex ?? 0.06 * l + 0.1 * length;
-    if (!(apex > 0)) throw new Error(`jump.apex must be positive, got ${apex}`);
+    HumanBound.above("apex", apex, 0, "m");
     const vy: number = Math.sqrt(2 * G * apex);
     const T: number =
       (vy + Math.sqrt(Math.max(0, vy * vy - 2 * G * (comL.y - comT.y)))) / G;
@@ -370,6 +384,11 @@ export namespace jump {
     }
     const reach = (t: number): number =>
       reachingCarry > 1e-6 ? carriedRate(reachingCarry, t) : 0;
+    // The reaching ankle's entry acceleration fades over the same carry, so
+    // the leg continues what the root's carried acceleration asks of it.
+    const surge: IAutoMovieVector3 = entry.feet[reaching].acceleration;
+    const reachBend = (t: number): number =>
+      reachingCarry > 1e-6 ? carriedAcceleration(reachingCarry, t) : 0;
     // The take-off foot's pitch rate about its lateral axis, degrees per
     // second, positive lifting the toes.
     const lateral: IAutoMovieVector3 = Quaternion.rotateVector(
@@ -420,7 +439,8 @@ export namespace jump {
       turning * carry(t);
 
     const rootAt = (t: number): IAutoMovieVector3 => {
-      if (t <= P) return hermite(root0, v0, rootT, launch, P, t);
+      if (t <= P)
+        return hermite(root0, v0, rootT, launch, P, t, entry.acceleration);
       if (t <= touchdown) {
         const u: number = t - P;
         const c: IAutoMovieVector3 = {
@@ -490,9 +510,7 @@ export namespace jump {
       (supportPitch > 0 ? 0 : rolling) -
       (-3 * met + 4 * ruled(lowered + 1e-3) - ruled(lowered + 2e-3)) / 2e-3;
     const carried: number =
-      excess > 0
-        ? Math.min(span, -start / (carriedRate.PEAK * excess))
-        : span;
+      excess > 0 ? Math.min(span, -start / (carriedRate.PEAK * excess)) : span;
     const pitchAt = (t: number): number =>
       t < lowered
         ? supportPitch * (1 - minimumJerk(t / lowered).s) +
@@ -593,6 +611,7 @@ export namespace jump {
           // the velocity and the spin it was entered with.
           const s: number = minimumJerk(t / P).s;
           const k: number = reach(t);
+          const b: number = reachBend(t);
           const from: IAutoMovieVector3 = entry.feet[reaching].ankle;
           const into: IAutoMovieVector3 = HumanFrame.point(
             { origin: root, yaw: heading },
@@ -606,9 +625,9 @@ export namespace jump {
           );
           limbs[`${reaching}Leg`] = {
             point: {
-              x: path.x + stride.x * k,
-              y: path.y + stride.y * k,
-              z: path.z + stride.z * k,
+              x: path.x + stride.x * k + surge.x * b,
+              y: path.y + stride.y * k + surge.y * b,
+              z: path.z + stride.z * k + surge.z * b,
             },
             rotation:
               spinRate < 1e-9
@@ -635,11 +654,7 @@ export namespace jump {
             limbs[`${side}Leg`] = {
               point: landing[side].ankle,
               rotation: landing[side].rotation,
-              bend: knee(
-                root,
-                side,
-                HumanFoot.heading(landing[side].rotation),
-              ),
+              bend: knee(root, side, HumanFoot.heading(landing[side].rotation)),
               planted: true,
               contact: HumanFoot.offset(body, side, "mtp"),
             };
@@ -661,7 +676,13 @@ export namespace jump {
     return near + wrapDegrees(angle - near);
   }
 
-  /** A quintic Hermite path from a point and velocity to a point and velocity over a duration, at rest acceleration at both ends. */
+  /**
+   * A quintic Hermite path from a point and velocity to a point and velocity
+   * over a duration, ending at rest acceleration and starting at `a0`, rest
+   * when absent: the push-off continues the interrupted motion's own root
+   * acceleration, which a planted leg's knee would otherwise show as a step
+   * in its flexion rate's slope at the cut.
+   */
   function hermite(
     p0: IAutoMovieVector3,
     v0: IAutoMovieVector3,
@@ -669,14 +690,18 @@ export namespace jump {
     v1: IAutoMovieVector3,
     duration: number,
     t: number,
+    a0: IAutoMovieVector3 = { x: 0, y: 0, z: 0 },
   ): IAutoMovieVector3 {
-    // The engine's quintic Hermite rule over seconds: values and velocities at
-    // both ends, zero acceleration at both (curvature [0, 0, 0]), so the root
-    // leaves the entry and reaches take-off at rest acceleration.
+    // The engine's quintic Hermite rule over seconds: values, velocities and
+    // accelerations (curvatures) at both ends.
     const u: number = Math.min(1, Math.max(0, t / duration));
     const rest: readonly number[] = [0, 0, 0];
     const [x, y, z] = AutoMovieStationHermite.combine(
-      { value: [p0.x, p0.y, p0.z], slope: [v0.x, v0.y, v0.z], curvature: rest },
+      {
+        value: [p0.x, p0.y, p0.z],
+        slope: [v0.x, v0.y, v0.z],
+        curvature: [a0.x, a0.y, a0.z],
+      },
       { value: [p1.x, p1.y, p1.z], slope: [v1.x, v1.y, v1.z], curvature: rest },
       AutoMovieStationHermite.weights(u, duration, 0, true),
     );

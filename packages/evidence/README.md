@@ -23,15 +23,14 @@ export default createEvidenceConfig({ location: import.meta.dirname });
 
 A declaration answers a checklist in its doc comment, with one `@evidence <checklist>#<item>` tag per item followed by the answer.
 
-The bundled contracts are read from `<location>/.agents/skills`. A production inside a pnpm workspace, where the root holds the one shared skills tree, passes that tree's absolute path:
+The bundled contracts are read from `<location>/.agents/skills`. A production inside a pnpm workspace, where the root holds the one shared skills tree, names that tree, absolute or relative to `location`:
 
 ```ts
 import { createEvidenceConfig } from "@automovie/evidence";
-import { resolve } from "node:path";
 
 export default createEvidenceConfig({
   location: import.meta.dirname,
-  skills: resolve(import.meta.dirname, "../../../.agents/skills"),
+  skills: "../../../.agents/skills",
 });
 ```
 
@@ -56,6 +55,8 @@ export default createEvidenceConfig({
 
 `short` is a brief under `docs/body/brief` followed by the screenplay, and `long`, the mode of a series, has four layers: settings, treatments, scripts and screenplay. A layer you leave out stays a disabled draft. The checks cover the complete work unless `scope` names the first part that a pilot covers.
 
+`none` checks no narrative layer, for a screenplay no narrative pass writes, and takes no `construction`, `naturalness` or `scope`.
+
 ### Research and development contracts
 
 Add `research` when the production keeps research studies, and `development` when it builds the film's entities, behaviors and scenes in code:
@@ -79,11 +80,13 @@ export default createEvidenceConfig({
 | `development.behaviors` | Exports under `src/laws/`, `src/interactions/` and `src/consequences/` | `contracts/development/behaviors.md`, each citing the study it follows |
 | `development.composition` | Exports under `src/composition/` | `contracts/development/composition.md`, citing the screenplay scenes, beats and files they realize |
 
-Every study must be cited by some behavior, and every screenplay scene, beat and file must be realized by some composition. An option you leave out stays disabled.
+Every study must be cited by some behavior, and every screenplay scene, beat and file must be realized by some composition. Under `narrative: { mode: "none" }` with `development.composition`, every section of `docs/instructions/` must be realized by some composition or entity too, with no exclusion, because no narrative layer cites them. An option you leave out stays disabled.
 
 ### Your own claims
 
-A claim binds a set of declarations to the checklist they answer. Top-level `claims` replaces the engineering defaults, so start from `createEngineeringClaims()` to extend them. `narrative.claims` adds claims to the ones `narrative` configures. Both take `IEvidenceClaim[]` from `@wrtnlabs/evidence`.
+A claim binds a set of declarations to the checklist they answer. Top-level `claims` adds claims to the engineering defaults, and `narrative.claims` adds claims to the ones `narrative` configures. Both take `IEvidenceClaim[]` from `@wrtnlabs/evidence`.
+
+`createEvidenceConfig` is the package's only entry. The `@automovie/evidence/internal` subpath serves this repository's own tests and tools and promises no stability.
 
 ## Run
 
