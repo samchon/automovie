@@ -1,8 +1,4 @@
-import {
-  createBicycle,
-  createHorse,
-  createMotorcycle,
-} from "@automovie/archetypes";
+import { createHorse, createMotorcycle } from "@automovie/archetypes";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
   HumanChain,
@@ -31,14 +27,14 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * declared planted, on the floor or on a rest, it does not slip. The seats
  * sat with the legs ahead are `test_human_motion_base_seat_heights`'s.
  *
- * Scenarios, with mid-band archetypes (motorcycle 0.795 m, bicycle saddle
- * 0.954 m, horse saddle 1.645 m), each body standing 0.6 m to the left of
- * the saddle, sitting astride and getting off to the left: the small woman
- * on the motorcycle and on the bicycle's saddle without its pedals, the
- * average man on the horse, the large man on the bicycle and on the
- * horse's saddle without its stirrups. Five pairs are enough because every
- * saddle is read once with its rests, the two highest once without, and
- * all three statures appear.
+ * Scenarios, with mid-band archetypes (motorcycle 0.795 m, horse saddle
+ * 1.645 m), each body standing 0.6 m to the left of the saddle, sitting
+ * astride and getting off to the left: the small woman on the motorcycle,
+ * the average man on the horse and the large man on the horse's saddle
+ * without its stirrups. Three pairs are what the claim needs: the lowest
+ * and the highest saddle with their rests, the highest once without, and
+ * all three statures; a bicycle's saddle lies between them and is mounted
+ * with its pedals by `test_human_motion_ride_pedals`.
  * 1. Each pair plans.
  * 2. Seated, the body's seat region rests within 10 mm of the saddle's
  *    height (the campaign's contact bound through a hold).
@@ -55,8 +51,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Places real archetypes, builds mounting and getting off through the public chain and reads the displayed seat region, soles, knees and hips; a refused saddle, a body hovering over or sunk into it, a foot through the floor, a sliding plant or a body left crouched fails.
  * @evidence contracts/development/testing.md#independent-expectations That adults ride these is what they are made for; the heights are the archetypes' cited bands, the 5, 10 and 15 mm are the campaign's slip and contact bounds, and a quiet stance is the film's own first posture. The 15 degree knee, the 20 mm clearance and the 20 mm on the hips' height are provisional reading margins. Limitation: it reads where the body ends and whether its plants hold, not how a person really climbs onto a saddle, which no cited measurement here describes.
- * @evidence contracts/development/testing.md#distinguishing-cases Three saddle heights up to four times the popliteal height, with and without rests, by three statures.
- * @evidence contracts/development/testing.md#execution-ownership Prepares three polygon men and builds 5 short performances in memory.
+ * @evidence contracts/development/testing.md#distinguishing-cases Two saddle heights up to four times the popliteal height, with and without rests, by three statures.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares three polygon men and builds 3 short performances in memory.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 5 scenarios with their bounds and sources.
  */
 export function test_human_motion_base_saddle_heights(): void {
@@ -65,7 +61,6 @@ export function test_human_motion_base_saddle_heights(): void {
     at: { x: 0, y: 0, z: -0.6 },
     yaw: 0,
   };
-  const bicycle: HumanObject.IModel = createBicycle({});
   const horse: HumanObject.IModel = createHorse({});
 
   // A saddle with its rests removed is one whose feet must hang.
@@ -86,9 +81,7 @@ export function test_human_motion_base_saddle_heights(): void {
       "a motorcycle",
       HumanObject.seat(createMotorcycle({ kind: "motorcycle" }), where),
     ],
-    ["f-small", "a bicycle's saddle without its pedals", bare(bicycle)],
     ["m-average", "a horse", HumanObject.seat(horse, where)],
-    ["m-large", "a bicycle", HumanObject.seat(bicycle, where)],
     ["m-large", "a horse's saddle without its stirrups", bare(horse)],
   ];
   for (const [name, kind, seat] of pairs) {

@@ -80,8 +80,8 @@ export namespace floorSeat {
     },
   };
 
-  /** How far out from the left shoulder the supporting hand of side sitting is set on the floor, thigh lengths (provisional). */
-  export const HAND: number = 0.25;
+  /** The share of the arm's length, shoulder to wrist, at which the supporting hand of side sitting is set down: nearly straight, as an arm leant on is (provisional). */
+  export const REACH: number = 0.95;
 
   /** The height of a folded leg's ankle joint over the floor, in standing ankle heights: the foot lies on its side, so the joint is about half the ankle's breadth up (provisional). */
   export const ANKLE: number = 0.5;
@@ -157,18 +157,25 @@ export namespace floorSeat {
       };
     if (kind === "side") {
       const hand: IAutoMovieResolvedBone = bones.get("leftHand")!;
-      const shoulder: IAutoMovieVector3 = HumanFrame.local(
-        frame,
-        at("leftUpperArm"),
+      // The hand goes down beside the body where the arm, `REACH` of its length out, meets the floor from the shoulder; straight under the shoulder when even that is short.
+      const shoulder: IAutoMovieVector3 = at("leftUpperArm");
+      const arm: number =
+        Vector3.length(Vector3.subtract(at("leftLowerArm"), shoulder)) +
+        Vector3.length(
+          Vector3.subtract(hand.worldPosition, at("leftLowerArm")),
+        );
+      const wrist: number = 0.2 * body.measure.hand;
+      const out: number = Math.sqrt(
+        Math.max(0, (REACH * arm) ** 2 - (shoulder.y - wrist) ** 2),
+      );
+      const aside: IAutoMovieVector3 = HumanFrame.point(
+        { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
+        { x: out, y: 0, z: 0 },
       );
       limbs.leftArm = {
         point: Vector3.lerp(
           hand.worldPosition,
-          HumanFrame.point(frame, {
-            x: shoulder.x + HAND * thigh,
-            y: 0.2 * body.measure.hand,
-            z: shoulder.z,
-          }),
+          { x: shoulder.x + aside.x, y: wrist, z: shoulder.z + aside.z },
           s,
         ),
         rotation: Quaternion.slerp(

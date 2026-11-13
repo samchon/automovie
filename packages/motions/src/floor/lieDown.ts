@@ -160,7 +160,7 @@ export namespace lieDown {
 
     // Seated cross-legged, and with the legs folded to the right and the trunk leant to the left hand (provisional angles). The legs here are only what the pelvis is rested on the floor with: a thigh both flexed level and spread is not a set of these angles, so `floorSeat` folds the legs by goals on the floor.
     sitCrossed: pose(0, 0, { hip: 90, knee: 5, shoulder: 10, elbow: 40 }),
-    sitSide: pose(0, -8, { hip: 90, knee: 5, shoulder: 0, elbow: 20 }),
+    sitSide: pose(0, -15, { hip: 90, knee: 5, shoulder: 0, elbow: 20 }),
   };
 
   /** The sittings whose legs `floorSeat` folds. */
@@ -253,6 +253,7 @@ export namespace lieDown {
         body.rest.get("hips")!,
       ),
     );
+    let held: IHumanPosture | undefined;
     const at = (seconds: number): IHumanPosture => {
       let index: number = 0;
       for (let i: number = 0; i < route.length; i++)
@@ -262,6 +263,10 @@ export namespace lieDown {
         phases[index + 1]!.name,
         seconds,
       );
+
+      // Arrived, the posture no longer changes: it is rested on the floor once and held.
+      const arrived: boolean = index === route.length - 1 && u >= 1;
+      if (arrived && held !== undefined) return held;
       const a: IPose = keys[index]!;
       const b: IPose = keys[index + 1]!;
       const joints: AutoMovieMotionHumanJoints.Angles = {};
@@ -303,9 +308,12 @@ export namespace lieDown {
       };
 
       // A folded sitting folds its legs over the last phase of its route.
-      return folds === undefined || index < route.length - 1
-        ? rested
-        : floorSeat.place(body, rested, folds, u);
+      const out: IHumanPosture =
+        folds === undefined || index < route.length - 1
+          ? rested
+          : floorSeat.place(body, rested, folds, u);
+      if (arrived) held = out;
+      return out;
     };
 
     const lying: IAutoMovieMotionHumanPrimitive = {
