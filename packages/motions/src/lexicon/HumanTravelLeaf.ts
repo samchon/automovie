@@ -205,9 +205,10 @@ export namespace HumanTravelLeaf {
             );
       const contacts: IHumanContactWindow[] = [
         ...standing.contacts,
+        // The hand bears on the door, which the scene moves; a `grip` would make the door ride the hand instead.
         {
           part: `${side}Hand`,
-          kind: "grip",
+          kind: "plant",
           from: TAKE / seconds,
           to: 1,
           support: { kind: "prop", subject: context.params.door },

@@ -87,9 +87,9 @@ export function test_human_motion_travel_car(): void {
           subject: "a",
           body,
           at: {
-            x: middle.x + out.x * (depth / 2 + 0.35),
+            x: middle.x + out.x * (depth / 2 + 0.25),
             y: 0,
-            z: middle.z + out.z * (depth / 2 + 0.35),
+            z: middle.z + out.z * (depth / 2 + 0.25),
           },
           yaw: outward,
           proficiency: { level: "trained" },
