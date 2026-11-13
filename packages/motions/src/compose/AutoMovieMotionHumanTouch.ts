@@ -139,7 +139,7 @@ export namespace AutoMovieMotionHumanTouch {
     /** The entry posture the hint was solved on. */
     entry: Pick<IHumanPosture, "root" | "yaw">;
 
-    /** What the hand bears on while it is on the region; no window when absent. */
+    /** What the hand bears on while it is on the region; no window when absent, nor when a held tool's point touches a person (the tool touches them, not the hand, so the hand's fingers are read against the body like any other part). */
     contact?: IHumanContactWindow.Support;
 
     /** `keep` leaves the fingers as the base holds them, as a hand that grips a prop must; they take the effector's shape when absent. */
@@ -225,7 +225,7 @@ export namespace AutoMovieMotionHumanTouch {
    * wave of `n` cycles.
    *
    * @param props The touch.
-   * @returns The arm's and the hand's primitives, the arm's alone when the fingers are kept; the arm carries the contact window from `ready` to `relax` when a support is given.
+   * @returns The arm's and the hand's primitives, the arm's alone when the fingers are kept; the arm carries the contact window from `ready` to `relax` when a support is given and the hand, not a held tool, is what touches it.
    * @throws {Error} When the count is not a positive whole number.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the phases, the lift and travel formulas and the contact window.
@@ -255,10 +255,16 @@ export namespace AutoMovieMotionHumanTouch {
           seconds < clock.at("relax") ? clock.at("ready") : clock.at("relax"),
       },
     );
+    // A held tool's point touches the body, not the hand: the hand gripping
+    // the tool is not laid on the region, so it declares no contact with
+    // the body there, and nothing excuses its fingers' depth in it.
+    const tool: boolean =
+      props.held !== undefined || props.effector.tool !== undefined;
     return [
       {
         ...arm,
-        ...(props.contact === undefined
+        ...(props.contact === undefined ||
+        (tool && props.contact.kind === "person")
           ? {}
           : {
               contacts: [
