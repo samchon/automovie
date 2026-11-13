@@ -34,6 +34,7 @@ export * from "./IAutoMovieConstructionParallelAxis";
 export * from "./IAutoMovieConstructionParallelOrigin";
 export * from "./IAutoMovieConstructionPhaseParameter";
 export * from "./IAutoMovieConstructionPointSeed";
+export * from "./IAutoMovieConstructionFill";
 export * from "./IAutoMovieConstructionPort";
 export * from "./IAutoMovieConstructionProfile";
 export * from "./IAutoMovieConstructionKnownPort";

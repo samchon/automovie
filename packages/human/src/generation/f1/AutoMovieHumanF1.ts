@@ -1,5 +1,5 @@
 import { AutoMovieLoftChain, type AutoMovieConstructionRealization, type AutoMovieLoftFrame, AutoMovieNaturalSpline, type AutoMovieViewAxis, type AutoMovieViewLoft, type IAutoMovieViewPart, realizeAutoMovieConstruction } from "@automovie/engine";
-import type { AutoMovieConstructionNode, IAutoMovieConstructionPort, IAutoMovieConstructionSplit } from "@automovie/interface";
+import type { AutoMovieConstructionNode, IAutoMovieConstructionFill, IAutoMovieConstructionPort, IAutoMovieConstructionSplit } from "@automovie/interface";
 
 import { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
@@ -313,10 +313,14 @@ export namespace AutoMovieHumanF1 {
    * the fold's lower edge, where the chest begins (`FamilyConicBody.ts BREAST_CHEST_MM`, read off the skin's profile in half-planes about
    * the course: straight down the chest stands level 24 to 26 mm behind the top from 52 mm out), so the band spans the fold and the fold is
    * its short side; elsewhere the skin runs on from the breast with no crease, and the loop stands 5 to 6 mm outside the ring: 2 to 3.5 mm
-   * out, the band joined the breast's flank to the trunk's in a visible line on `fold.left`. The trunk's sections leave out the breast's
+   * out, the band joined the breast's flank to the trunk's in a visible line on `fold.left`. Over the upper flank, a quarter and an eighth
+   * of a turn from the top, the loop stands 4 mm farther out (58 and 52 mm were read off the profile): there the band, 5 to 6 mm long, turned
+   * from the trunk's side to the breast's within it and drew a ragged dark line along the breast's outer edge on `shoulder.high-oblique`
+   * (px 600..700 x 540..610), its facets 1.9 mm columns by 0.55 mm rows; at 9 to 10 mm the turn is softer. Carried on 2 mm at three
+   * eighths of a turn (47 to 49 mm), the fan of the band's columns at [99, 1246, 111] darkened (`fold.left`). The trunk's sections leave out the breast's
    * underside to 1.5 mm inside this curve, and elsewhere the skin to 1 mm inside the ring (`FamilyConicBody.ts BREAST_CLIP_MM`).
    */
-  const BREAST_CHEST_MM: number[] = [62, 58, 52, 47, 52, 50, 54, 60];
+  const BREAST_CHEST_MM: number[] = [62, 62, 56, 47, 52, 50, 54, 60];
 
   /**
    * Where the nose's band lands on it, mm from its first station, at its phases `2 pi j / 32` (0 up, a quarter turn toward -Z, a half turn
@@ -390,7 +394,6 @@ export namespace AutoMovieHumanF1 {
    */
   const THIGH_COLUMNS: number = 288;
   const SHOULDER_COLUMNS: number = 192;
-
   /**
    * Columns round the nose's band. Its rail is a curve on the nose, which the band's end meets exactly only at its columns; between them the
    * band's own interpolation stood 0.03 mm off the nose's rail at 96 columns, and a nostril's cut, which crosses there, could not place its
@@ -433,7 +436,29 @@ export namespace AutoMovieHumanF1 {
 
     /** The view part of every source leaf, by its name. */
     sources: Map<string, IAutoMovieViewPart>;
+
+    /** The skin's discs faired once it is drawn (`IAutoMovieConstruction.fills`), metres. */
+    fills: IAutoMovieConstructionFill[];
   }
+
+  /**
+   * Where the trunk's wall folds under the armscye's loop in front of the armpit, on the +Z side, mm: centres along the loop, each faired
+   * over a disc of `ARMPIT_FILL_MM`. Picked by pixel on `shoulder.high-oblique` (px 475..495 x 520..545), the speck there is the trunk's own
+   * skin at [7..12, 1278..1282, 136], 0.5 to 1 mm inside the reference's wall, and the row of trunk triangles along the loop faces down
+   * where the wall faces +z (folds of 50 to 58 degrees at [4, 1276, 138], [12, 1282, 136] and [17, 1286, 137], `creases.ts`): the wall turns
+   * toward the slit's top before the band leaves it. No operator owns that corner, so it is excised and bridged by a thin-plate fill G1 to
+   * the skin round it. The other side is its mirror image.
+   */
+  const ARMPIT_FILLS_MM: [number, number, number][] = [
+    [-3, 1269, 142],
+    [4, 1276, 138],
+    [10, 1281, 136.5],
+    [16, 1285, 137],
+    [21, 1290, 138],
+  ];
+
+  /** Radius of each armpit fill along the skin, mm: the fold row and the band's first rows beside it, about two of the band's columns. */
+  const ARMPIT_FILL_MM: number = 8;
 
   /**
    * The armscye's port on the trunk's chart.
@@ -971,7 +996,10 @@ export namespace AutoMovieHumanF1 {
       const hollow: AutoMovieHumanConicLoft.IFamily = side > 0 ? drawn : twin(drawn);
       root = { type: "join", kind: "diff", name: "cut." + hollow.name, host: root, part: leaf(hollow, Infinity, NOSTRIL_LAYER_MM), seed: { type: "search", partFace: hollow.name, hostFace: BODY.nose.name, phase: 0, from: 0, to: 0.9 }, parameter: { type: "phase" }, partWidth: { type: "chord", value: NOSTRIL_RIM_MM / 1000 }, hostWidth: { type: "chord", value: NOSTRIL_RIM_MM / 1000 }, continuity: "G2", count: 48, rows: 4, tolerance: 1e-12, grazing: 0.05 };
     }
-    return { root, sources };
+    const fills: IAutoMovieConstructionFill[] = [1, -1].flatMap((side: number): IAutoMovieConstructionFill[] =>
+      ARMPIT_FILLS_MM.map((p: [number, number, number]): IAutoMovieConstructionFill => ({ point: [p[0] / 1000, p[1] / 1000, (side * p[2]) / 1000], radius: ARMPIT_FILL_MM / 1000 })),
+    );
+    return { root, sources, fills };
   }
 
   /**
@@ -983,7 +1011,7 @@ export namespace AutoMovieHumanF1 {
    */
   export function create(step: number = 4, phases: number = 128, chord: number = 0.001): IPiece[] {
     const declared: IConstruction = construction();
-    const real: AutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction({ name: "f1.body", root: declared.root }, { chord, sources: declared.sources });
+    const real: AutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction({ name: "f1.body", root: declared.root, fills: declared.fills }, { chord, sources: declared.sources });
     const pieces: IPiece[] = [{ name: "body", positions: Array.from(real.mesh.positions), indices: Array.from(real.mesh.indices), diagnostics: real.diagnostics.map((d: { node: string; contract: string; detail: string }): string => d.node + " (" + d.contract + "): " + d.detail) }];
     for (const { family, mirrored, reach } of LOOSE) {
       // Layers from the first knot to the last, widened by the member's reach, evenly spaced at most `step` apart.
