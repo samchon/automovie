@@ -35,9 +35,12 @@ export namespace PlaygroundSchema {
    * @returns The fields; empty when the installed package ships no schemas.
    */
   export function rows(): Record<string, IPlaygroundVocabulary.IParameter[]> {
-    const collection: unknown = (motions as Readonly<Record<string, unknown>>)[
-      "HUMAN_LEXICON_SCHEMAS"
-    ];
+    // Read through a record, so the bundler does not take the member for a
+    // named import a release may lack.
+    const exported: Readonly<Record<string, unknown>> = motions as Readonly<
+      Record<string, unknown>
+    >;
+    const collection: unknown = exported["HUMAN_LEXICON_SCHEMAS"];
     if (typeof collection !== "object" || collection === null) return {};
     const schemas: ICollection = collection as ICollection;
     return Object.fromEntries(

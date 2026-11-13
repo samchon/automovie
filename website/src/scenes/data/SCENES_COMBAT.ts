@@ -68,10 +68,10 @@ const DOJO: IPlaygroundComposition = {
       yaw: 180,
       proficiency: "elite",
       actions: [
-        { name: "martialArt", params: { kind: "horseStance", seconds: 2 } },
-        { name: "martialArt", params: { kind: "chokuZuki", count: 4 } },
+        { name: "martialArt", params: { kind: "horseStance", seconds: 1 } },
+        { name: "martialArt", params: { kind: "chokuZuki", count: 2 } },
         { name: "gesture", params: { kind: "bow" } },
-        { name: "martialArt", params: { kind: "taiChiPush", count: 2 } },
+        { name: "martialArt", params: { kind: "taiChiPush", count: 1 } },
       ],
     },
     {
@@ -83,9 +83,9 @@ const DOJO: IPlaygroundComposition = {
       proficiency: "amateur",
       actions: [
         { name: "gesture", params: { kind: "bow" } },
-        { name: "martialArt", params: { kind: "horseStance", seconds: 1.5 } },
-        { name: "martialArt", params: { kind: "chokuZuki", count: 4 } },
-        { name: "martialArt", params: { kind: "taiChiPush", count: 2 } },
+        { name: "martialArt", params: { kind: "horseStance", seconds: 1 } },
+        { name: "martialArt", params: { kind: "chokuZuki", count: 2 } },
+        { name: "martialArt", params: { kind: "taiChiPush", count: 1 } },
       ],
     },
     {
@@ -97,9 +97,9 @@ const DOJO: IPlaygroundComposition = {
       proficiency: "novice",
       actions: [
         { name: "gesture", params: { kind: "bow" } },
-        { name: "martialArt", params: { kind: "horseStance", seconds: 1.5 } },
-        { name: "martialArt", params: { kind: "chokuZuki", count: 4 } },
-        { name: "martialArt", params: { kind: "taiChiPush", count: 2 } },
+        { name: "martialArt", params: { kind: "horseStance", seconds: 1 } },
+        { name: "martialArt", params: { kind: "chokuZuki", count: 2 } },
+        { name: "martialArt", params: { kind: "taiChiPush", count: 1 } },
       ],
     },
   ],

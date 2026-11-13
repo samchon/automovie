@@ -21,9 +21,12 @@ interface IEntry {
  * @returns The tables, or the sentence.
  */
 export function GrammarTable(): ReactElement {
-  const grammar: unknown = (motions as Readonly<Record<string, unknown>>)[
-    "HUMAN_GRAMMAR"
-  ];
+  // Read through a record, so the bundler does not take the member for a
+  // named import a release may lack.
+  const exported: Readonly<Record<string, unknown>> = motions as Readonly<
+    Record<string, unknown>
+  >;
+  const grammar: unknown = exported["HUMAN_GRAMMAR"];
   if (typeof grammar !== "object" || grammar === null)
     return (
       <p>

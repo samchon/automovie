@@ -41,18 +41,18 @@ const WARM_UP: IPlaygroundComposition = scene("warm-up", [
     { name: "stand", params: { seconds: 1 } },
   ]),
   person("kim", "f1", -0.8, 1.5, 180, [
-    { name: "exercise", params: { kind: "squat", reps: 3, depth: "parallel" } },
-    { name: "exercise", params: { kind: "lunge", reps: 1 } },
+    { name: "exercise", params: { kind: "squat", reps: 3, depth: "parallel", tempo: [1, 0, 0.8] } },
+    { name: "exercise", params: { kind: "lunge", reps: 1, tempo: [1, 0, 0.8] } },
   ]),
   person("lou", "m2", 0.8, 1.5, 180, [
-    { name: "exercise", params: { kind: "jumpingJack", reps: 5 } },
+    { name: "exercise", params: { kind: "jumpingJack", reps: 4, tempo: [0.5, 0, 0.5] } },
     { name: "stand", params: { seconds: 0.4 } },
     { name: "jump", params: { to: to(0.8, 1.9) } },
   ]),
   person("mo", "f2", 2.4, 1.5, 180, [
     { name: "stretch", params: { kind: "quadriceps", side: "left", seconds: 2 } },
     { name: "stretch", params: { kind: "overheadSide", side: "right", seconds: 2 } },
-    { name: "exercise", params: { kind: "highKnees", reps: 4 } },
+    { name: "exercise", params: { kind: "highKnees", reps: 4, tempo: [0.6, 0, 0.6] } },
   ]),
 ]);
 
@@ -101,10 +101,8 @@ const GYMNASTICS: IPlaygroundComposition = scene("gymnastics-floor", [
     { name: "rise", params: {} },
   ]),
   person("vic", "m1", 1, 0, 0, [
-    { name: "lieDown", params: { position: "supine", hold: 1 } },
-    { name: "rise", params: {} },
     { name: "crawl", params: { cycles: 2 } },
-    { name: "rise", params: {} },
+    { name: "lieDown", params: { position: "supine", hold: 1 } },
   ]),
 ]);
 
@@ -175,7 +173,7 @@ export const SCENES_SPORT: readonly IScene[] = [
     id: "gymnastics-floor",
     title: "Gymnastics floor",
     summary:
-      "One gymnast tumbles and kneels; another lies down, crawls and gets up.",
+      "One gymnast tumbles, kneels and stands; another crawls and lies down.",
     setting: "sport",
     cast: [
       { subject: "uma", role: "gymnast" },

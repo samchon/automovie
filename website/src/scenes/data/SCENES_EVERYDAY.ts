@@ -84,8 +84,6 @@ const FALL: IPlaygroundComposition = {
         { name: "stagger", params: { speed: 1.2 } },
         { name: "knockdown", params: { seconds: 1 } },
         { name: "crawl", params: { cycles: 2 } },
-        { name: "rise", params: {} },
-        { name: "stand", params: { seconds: 1 } },
       ],
     },
     {
@@ -148,9 +146,9 @@ export const SCENES_EVERYDAY: readonly IScene[] = [
   },
   {
     id: "fall-and-rise",
-    title: "Fall and get up",
+    title: "A fall",
     summary:
-      "One person staggers, goes down, crawls and gets up; another braces, crouches and kneels to help.",
+      "One person staggers, goes down and crawls; another braces, crouches and kneels to help, then touches the fallen one's shoulder.",
     setting: "everyday",
     cast: [
       { subject: "dee", role: "the one who falls" },

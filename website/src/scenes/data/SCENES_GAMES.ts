@@ -182,7 +182,7 @@ export const SCENES_GAMES: readonly IScene[] = [
     },
     "ball-yard",
     [
-      person("th", "m1", 0, 0, 0, [act("throwObject", { at: at("ca", "sternum") }), act("run", { to: to(0, 3), pace: "jog" })]),
+      person("th", "m1", 0, 0, 0, [act("throwObject", { at: at("ca", "sternum") }, { anchor: "th" }), act("run", { to: to(0, 3), pace: "jog" })]),
       person("ca", "f1", 0, 5, 180, [act("catchObject", { from: "th", hands: "two" }), act("jump", { to: to(0, 5.4) })]),
       person("ki", "m2", 2, 2, 270, [act("kickBall", { ball: at("ki", "footTopRight") })]),
     ],
