@@ -95,7 +95,7 @@ A prop's affordance ids are also its named points, so `{ kind: "prop", subject: 
 
 A hand keeps what it picked up until an action puts it down or hands it over. An action that works with the held object names it, and the object's own point then meets the target instead of the bare hand: `chain.pickUp({ prop: "glass", handle: "body" }).handToFace({ task: "drink", prop: "glass" })`. Any other use of a holding hand is refused, naming the free hand.
 
-A seat too low to sit down on from standing is refused with the least height that fits. A seat higher than the feet reach the floor from is not refused: the body gets onto it, and the feet take its rests or hang.
+A seat too low to sit down on from standing is refused with the least height that fits. A seat higher than the feet reach the floor from is not refused: the body gets onto it, and the feet take its rests or hang. `HumanObject.seat` reads those rests from the object, a stool's bar, a bicycle's pedals, a horse's stirrups, together with whether the seat is sat astride and the side it is mounted from, so a saddle is sat as a saddle without any of it written by hand.
 
 ## Mutual actions
 
