@@ -1,5 +1,6 @@
 import type { AutoMovieViewChain as Q } from "@automovie/engine";
 import { AutoMovieHumanConicSection as S } from "@automovie/human";
+import { approximateAutoMovieRecoveryConicsAhn } from "@automovie/recovery";
 import { FamilyConicExcursion as X } from "./FamilyConicExcursion";
 
 /**
@@ -332,6 +333,135 @@ export namespace FamilyConicSection {
    * segment, and each shoulder where the polygon crosses its arc's median.
    * The joint fit owns the final values; this only has to be admissible.
    */
+  /** One end of an arc of a section's conic conversion: its point, its unit tangent, whether its two arcs bend opposite ways, and the arc it starts. */
+  interface IEnd {
+    point: P;
+    tangent: P;
+    inflection: boolean;
+    arc: { controls: readonly [readonly [number, number], readonly [number, number], readonly [number, number]]; weight: number } | null;
+  }
+
+  /**
+   * Fairing scale of a section before its conversion, mm: the spacing of the periodic cubic B-spline through its radius. The trunk's
+   * narrowest grooves that its form keeps, the linea alba's and the sternal groove's, are 12 to 20 mm wide on f1, so a control every 6 mm
+   * keeps them and removes the facets' ripple (lofting.md: "fair each section to the scale of the form, which means removing the ripples
+   * smaller than the features the form keeps").
+   */
+  const FAIR_MM: number = 6;
+
+  /** The recovery converter's sampled tolerance on a faired section, mm, and its work limits. */
+  const CONVERT: { toleranceMm: number; maximumArcs: number; maximumDepth: number } = { toleranceMm: 0.25, maximumArcs: 256, maximumDepth: 16 };
+
+  /**
+   * A section's conic conversion: its radius faired as the least-squares periodic uniform cubic B-spline in phase at `FAIR_MM` of girth a
+   * control, converted by Ahn's conic approximation (`approximateAutoMovieRecoveryConicsAhn`), and the ends of its arcs with their tangents.
+   */
+  function converted(points: readonly P[]): IEnd[] {
+    const M: number = 720;
+    const radii: number[] = Array.from({ length: M }, (_: unknown, k: number): number => radius(points, (2 * Math.PI * k) / M));
+    let girth: number = 0;
+    for (let i: number = 0; i < points.length; ++i) girth += Math.hypot(points[(i + 1) % points.length]![0] - points[i]![0], points[(i + 1) % points.length]![1] - points[i]![1]);
+    const NB: number = Math.max(16, Math.round(girth / FAIR_MM));
+    const basis = (u: number, order: number): number[] => {
+      const t: number = u - Math.floor(u);
+      if (order === 0) return [(1 - t) ** 3 / 6, (3 * t ** 3 - 6 * t ** 2 + 4) / 6, (-3 * t ** 3 + 3 * t ** 2 + 3 * t + 1) / 6, t ** 3 / 6];
+      if (order === 1) return [-((1 - t) ** 2) / 2, (3 * t ** 2 - 4 * t) / 2, (-3 * t ** 2 + 2 * t + 1) / 2, t ** 2 / 2];
+      if (order === 2) return [1 - t, 3 * t - 2, -3 * t + 1, t];
+      if (order === 3) return [-1, 3, -3, 1];
+      return [0, 0, 0, 0];
+    };
+    const G: number[][] = Array.from({ length: NB }, (): number[] => new Array<number>(NB + 1).fill(0));
+    radii.forEach((r: number, k: number): void => {
+      const u: number = (k / M) * NB;
+      const i: number = Math.floor(u);
+      const b: number[] = basis(u, 0);
+      for (let x: number = 0; x < 4; ++x) {
+        for (let y: number = 0; y < 4; ++y) G[(i - 1 + x + NB) % NB]![(i - 1 + y + NB) % NB]! += b[x]! * b[y]!;
+        G[(i - 1 + x + NB) % NB]![NB]! += b[x]! * r;
+      }
+    });
+    for (let c: number = 0; c < NB; ++c) {
+      let piv: number = c;
+      for (let r: number = c + 1; r < NB; ++r) if (Math.abs(G[r]![c]!) > Math.abs(G[piv]![c]!)) piv = r;
+      [G[c], G[piv]] = [G[piv]!, G[c]!];
+      for (let r: number = 0; r < NB; ++r) {
+        if (r === c) continue;
+        const m: number = G[r]![c]! / G[c]![c]!;
+        for (let x: number = c; x <= NB; ++x) G[r]![x]! -= m * G[c]![x]!;
+      }
+    }
+    const ctrl: number[] = G.map((row: number[], i: number): number => row[NB]! / row[i]!);
+    const scale: number = NB / (2 * Math.PI);
+    const rAt = (phi: number, order: number): number => {
+      const u: number = (((phi / (2 * Math.PI)) % 1) + 1) % 1 * NB;
+      const i: number = Math.floor(u);
+      const b: number[] = basis(u, order);
+      return b.reduce((sum: number, w: number, x: number): number => sum + w * ctrl[(i - 1 + x + NB) % NB]!, 0) * scale ** order;
+    };
+    // The curve p(phi) = r(phi) e(phi), e = (cos, sin): its derivatives by Leibniz's rule, e's k-th derivative being e turned by k quarter turns.
+    const binomial = (n: number, k: number): number => (k === 0 || k === n ? 1 : binomial(n - 1, k - 1) + binomial(n - 1, k));
+    const curve = {
+      domain: [0, 2 * Math.PI] as const,
+      breaks: [] as number[],
+      closed: true,
+      evaluate: (phi: number): readonly [number, number] => [rAt(phi, 0) * Math.cos(phi), rAt(phi, 0) * Math.sin(phi)],
+      derivative: (phi: number, order: 1 | 2 | 3 | 4 | 5): readonly [number, number] => {
+        let x: number = 0, y: number = 0;
+        for (let j: number = 0; j <= order; ++j) {
+          const c: number = binomial(order, j) * rAt(phi, j);
+          const q: number = order - j;
+          x += c * Math.cos(phi + (q * Math.PI) / 2);
+          y += c * Math.sin(phi + (q * Math.PI) / 2);
+        }
+        return [x, y];
+      },
+    };
+    const result = approximateAutoMovieRecoveryConicsAhn(curve, CONVERT);
+    const arcs = [...result.arcs].sort((p, q): number => p.domain[0] - q.domain[0]);
+    const bend = (arc: (typeof arcs)[number]): number => {
+      const [p0, p1, p2] = arc.controls;
+      return Math.sign((p1[0] - p0[0]) * (p2[1] - p1[1]) - (p1[1] - p0[1]) * (p2[0] - p1[0]));
+    };
+    return arcs.map((arc, i: number): IEnd => {
+      const before = arcs[(i - 1 + arcs.length) % arcs.length]!;
+      const [p0, p1] = arc.controls;
+      const l: number = Math.hypot(p1[0] - p0[0], p1[1] - p0[1]) || 1;
+      return { point: [p0[0], p0[1]], tangent: [(p1[0] - p0[0]) / l, (p1[1] - p0[1]) / l], inflection: bend(before) * bend(arc) < 0, arc: { controls: arc.controls, weight: arc.weight } };
+    });
+  }
+
+  /** The point of a section's conversion at a phase, on the arc that spans it, and its tangent: an exact split of that conic. */
+  function split(ends: readonly IEnd[], phi: number): IEnd {
+    const phase = (q: readonly number[]): number => Math.atan2(q[1]!, q[0]!);
+    const off = (x: number): number => (((x - phi) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+    // The arc whose start lies last before the phase.
+    const arc: IEnd = ends.reduce((best: IEnd, end: IEnd): IEnd => (off(phase(end.point)) > off(phase(best.point)) ? end : best));
+    const [p0, p1, p2] = arc.arc!.controls;
+    const w: number = arc.arc!.weight;
+    const at = (t: number): { point: P; tangent: P } => {
+      const b0: number = (1 - t) ** 2, b1: number = 2 * t * (1 - t) * w, b2: number = t * t;
+      const D: number = b0 + b1 + b2;
+      const N: P = [b0 * p0[0] + b1 * p1[0] + b2 * p2[0], b0 * p0[1] + b1 * p1[1] + b2 * p2[1]];
+      const dD: number = -2 * (1 - t) + 2 * (1 - 2 * t) * w + 2 * t;
+      const dN: P = [-2 * (1 - t) * p0[0] + 2 * (1 - 2 * t) * w * p1[0] + 2 * t * p2[0], -2 * (1 - t) * p0[1] + 2 * (1 - 2 * t) * w * p1[1] + 2 * t * p2[1]];
+      const d: P = [dN[0] * D - N[0] * dD, dN[1] * D - N[1] * dD];
+      const l: number = Math.hypot(d[0], d[1]) || 1;
+      return { point: [N[0] / D, N[1] / D], tangent: [d[0] / l, d[1] / l] };
+    };
+    let lo: number = 0, hi: number = 1;
+    const start: number = phase(p0);
+    const span: number = (((phase(p2) - start) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+    const target: number = (((phi - start) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+    for (let i: number = 0; i < 50; ++i) {
+      const m: number = (lo + hi) / 2;
+      const o: number = (((phase(at(m).point) - start) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+      if (o < Math.min(target, span)) lo = m;
+      else hi = m;
+    }
+    const got = at((lo + hi) / 2);
+    return { point: got.point, tangent: got.tangent, inflection: false, arc: null };
+  }
+
   export function seed(points: readonly P[], layout: ILayout): number[] {
     const K: number = layout.anchors.length;
     const values: number[] = [];
@@ -365,64 +495,53 @@ export namespace FamilyConicSection {
         else values.push(p[0], p[1]);
       }
     });
-    // Feature anchors in order, each between its resolved neighbours on the polygon: the anchor before it (an extreme or the feature just
-    // placed) and the next extreme, so a run of features stands in order along the stretch between two extremes.
-    const closest = (q: P): number => points.reduce((best: number, p: P, i: number): number => (Math.hypot(p[0] - q[0], p[1] - q[1]) < Math.hypot(points[best]![0] - q[0], points[best]![1] - q[1]) ? i : best), 0);
+    // Feature anchors from the section's own conic conversion (lofting.md, Fitting: "Before converting a source's sections to conic arcs,
+    // fair each section to the scale of the form ... The arcs that remain after fairing set the family's layout: its outline and inflection
+    // lines"): the section faired at `FAIR_MM` and converted by the recovery converter (`converted`), each run of features takes the
+    // conversion's arc ends between its two extremes, its inflections first, in order along the run; where the run has fewer ends than
+    // features, the longest piece is split exactly on its own conic until it has enough. Each feature's tangent is the conversion's there.
+    // Read this way a feature moves with the section's own arcs, so a groove that fades moves its features continuously: read by a window
+    // and the largest turn in it, a feature jumped up to 39.5 mm between sections 2 mm apart where a groove faded (`groove-check`).
+    const ends: IEnd[] = converted(points);
+    const phaseOf = (q: P): number => Math.atan2(q[1], q[0]);
+    const within = (phi: number, a: number, b: number): boolean => {
+      const span: number = (((b - a) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+      const off: number = (((phi - a) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+      return off > 1e-9 && off < span - 1e-9;
+    };
     layout.anchors.forEach((anchor: IAnchor, k: number): void => {
       if (anchor.kind !== "f") return;
-      let before: number = (k + K - 1) % K;
-      while (found[before] === null) before = (before + K - 1) % K;
-      // The run's start: the extreme before it, past any feature already placed in the run.
-      let start: number = before;
-      while (layout.anchors[start]!.kind === "f") start = (start + K - 1) % K;
-      let after: number = (k + 1) % K;
-      while (found[after] === null || layout.anchors[after]!.kind === "f") after = (after + 1) % K;
-      const from: number = (closest(found[start]!) + 1) % points.length;
-      const reading: { index: number; point: P; heading: number; weight: number } = feature(points, anchor, from, closest(found[after]!), (closest(found[before]!) + 1) % points.length);
-      // The fade target: the point and tangent of the one conic the section draws between its run's two extremes without the run (the
-      // extremes' tangents meeting at the box's corner, its shoulder where the section crosses its median line), at the feature's
-      // window's middle share of the frame chord. A piece of an admissible arc is admissible, and there the feature stands at no turn. The
-      // feature moves from it toward its reading in the model's own parametrization (its share along the frame chord, its offset from it
-      // and its heading against it, `AutoMovieHumanConicSection.unplace`, `place`) by the reading's weight, so a fading feature is always
-      // an admissible state of the same chain: blended toward the chord's own direction instead, a feature read outward of the median
-      // came paired with a heading sloping inward, a pair only an S joins (the lined trunk's first arc, refused along the whole trunk).
+      if (k > 0 && layout.anchors[k - 1]!.kind === "f") return;
+      // The run: this feature and those after it up to the next extreme.
+      const run: number[] = [];
+      for (let j: number = k; layout.anchors[j % K]!.kind === "f"; ++j) run.push(j % K);
       const [fb, fa]: [number, number] = S.frame(k, layout);
-      const q0: P = found[fb]!, q2: P = found[fa]!;
-      const corner: P = meet(q0, tangent[fb]!, q2, tangent[fa]!);
-      const mid: P = [(q0[0] + q2[0]) / 2, (q0[1] + q2[1]) / 2];
-      const rho: number = Math.min(0.97, Math.max(0.03, crossing(points, mid, corner)));
-      const wt: number = rho / (1 - rho);
-      const conicAt = (t: number): { point: P; heading: number } => {
-        const b0: number = (1 - t) ** 2, b1: number = 2 * t * (1 - t) * wt, b2: number = t * t;
-        const D: number = b0 + b1 + b2;
-        const N: P = [b0 * q0[0] + b1 * corner[0] + b2 * q2[0], b0 * q0[1] + b1 * corner[1] + b2 * q2[1]];
-        const dD: number = -2 * (1 - t) + 2 * (1 - 2 * t) * wt + 2 * t;
-        const dN: P = [-2 * (1 - t) * q0[0] + 2 * (1 - 2 * t) * wt * corner[0] + 2 * t * q2[0], -2 * (1 - t) * q0[1] + 2 * (1 - 2 * t) * wt * corner[1] + 2 * t * q2[1]];
-        return { point: [N[0] / D, N[1] / D], heading: Math.atan2(dN[1] * D - N[1] * dD, dN[0] * D - N[0] * dD) };
-      };
-      const chord: P = [q2[0] - q0[0], q2[1] - q0[1]];
-      const square: number = chord[0] * chord[0] + chord[1] * chord[1] || 1;
-      const target: number = ((anchor.window ?? [0.1, 0.9])[0] + (anchor.window ?? [0.1, 0.9])[1]) / 2;
-      let lo: number = 0, hi: number = 1;
-      for (let i: number = 0; i < 50; ++i) {
-        const m: number = (lo + hi) / 2;
-        const p: P = conicAt(m).point;
-        if (((p[0] - q0[0]) * chord[0] + (p[1] - q0[1]) * chord[1]) / square < target) lo = m;
-        else hi = m;
+      const a: number = phaseOf(found[fb]!), b: number = phaseOf(found[fa]!);
+      const offset = (phi: number): number => (((phi - a) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+      const inside: IEnd[] = ends.filter((end: IEnd): boolean => within(phaseOf(end.point), a, b)).sort((x: IEnd, y: IEnd): number => offset(phaseOf(x.point)) - offset(phaseOf(y.point)));
+      // The conversion's inflections, in order; its other arc ends are where its adaptive subdivision happened to cut, which moves from
+      // one section to the next, so the remaining features stand on exact splits of the converted curve instead (below).
+      const chosen: IEnd[] = inside.filter((end: IEnd): boolean => end.inflection).slice(0, run.length);
+      chosen.sort((x: IEnd, y: IEnd): number => offset(phaseOf(x.point)) - offset(phaseOf(y.point)));
+      // Too few: split the longest piece between neighbouring chosen ends (or the extremes) on the conic that spans its middle.
+      while (chosen.length < run.length) {
+        const marks: number[] = [0, ...chosen.map((end: IEnd): number => offset(phaseOf(end.point))), offset(b)];
+        let widest: number = 0;
+        for (let i: number = 1; i < marks.length - 1; ++i) if (marks[i + 1]! - marks[i]! > marks[widest + 1]! - marks[widest]!) widest = i;
+        const middle: number = a + (marks[widest]! + marks[widest + 1]!) / 2;
+        chosen.splice(widest, 0, split(ends, middle));
+        chosen.sort((x: IEnd, y: IEnd): number => offset(phaseOf(x.point)) - offset(phaseOf(y.point)));
       }
-      const fade: { point: P; heading: number } = conicAt((lo + hi) / 2);
-      const d0 = S.unplace(q0, q2, fade.point, fade.heading, 0);
-      const d1 = S.unplace(q0, q2, reading.point, reading.heading, 0);
-      const w: number = reading.weight;
-      const turn: number = Math.atan2(Math.sin(d1.values[2] - d0.values[2]), Math.cos(d1.values[2] - d0.values[2]));
-      const blended = S.place(q0, q2, d0.t + w * (d1.t - d0.t), d0.values[1] + w * (d1.values[1] - d0.values[1]), d0.values[2] + w * turn);
-      const p: P = blended.point;
-      found[k] = p;
-      tangent[k] = blended.tangent;
-      values[at[k]!] = p[0];
-      values[at[k]! + 1] = p[1];
-      values[at[k]! + 2] = Math.atan2(blended.tangent[1], blended.tangent[0]);
-    });    // A conic arc's tangent lines meet ahead of its start and behind its end, on one side of its chord. Where a feature fades, its reading
+      run.forEach((j: number, i: number): void => {
+        const end: IEnd = chosen[i]!;
+        found[j] = end.point;
+        tangent[j] = end.tangent;
+        values[at[j]!] = end.point[0];
+        values[at[j]! + 1] = end.point[1];
+        values[at[j]! + 2] = Math.atan2(end.tangent[1], end.tangent[0]);
+      });
+    });
+    // A conic arc's tangent lines meet ahead of its start and behind its end, on one side of its chord. Where a feature fades, its reading
     // is a straight stretch whose tangent need not make both its arcs conics; each feature's tangent is then the heading nearest its
     // reading, in steps of `FEATURE_STEP`, with which the arcs to the anchors before and after it are both conics, in order round the
     // resolved anchors, so the seed is a chain of conics.
