@@ -226,7 +226,9 @@ export namespace AutoMovieHumanConicSection {
   /**
    * The field vector of `featured(base, runs, freed)` that draws the same closed chain as `values` on `base`: every base anchor where it
    * was (a freed median as a feature at its own point and tangent), each run's features on the base arc that follows the anchor they
-   * stand after, splitting it at equal steps of the arc's rational parameter, and every shoulder that of its piece of the base arc.
+   * stand after, at equal steps of their projection on their frame's chord between the arc's two ends (so a feature's share along the
+   * chord, the number a featured layout stores, is a smooth function of the base's fields), and every shoulder that of its piece of the
+   * base arc.
    * A piece `[a, b]` of the rational quadratic with homogeneous controls `(P0, 1), (w P1, w), (P2, 1)` has the blossom controls
    * `B(a, a)`, `B(a, b)`, `B(b, b)`, so its middle weight normalised by its end weights is `W1 / sqrt(W0 W2)` and its shoulder
    * `w / (1 + w)` (the shoulder `rho = |M S| / |M A|` of a conic of middle weight `w`).
@@ -242,13 +244,6 @@ export namespace AutoMovieHumanConicSection {
     const chain: AutoMovieViewChain.IInput = resolve(values, base).input;
     const K: number = base.anchors.length;
     const arcs: number = base.mirror ? K - 1 : K;
-    // Each target anchor as a base arc and a rational parameter on it (an end of an arc for a base anchor).
-    const placed: { arc: number; t: number }[] = [];
-    base.anchors.forEach((_: IAnchor, k: number): void => {
-      placed.push({ arc: Math.min(k, arcs - 1), t: k < arcs ? 0 : 1 });
-      const n: number = runs.filter((r: IFeatureRun): boolean => r.after === k).reduce((sum: number, r: IFeatureRun): number => sum + r.anchors.length, 0);
-      for (let j: number = 1; j <= n; ++j) placed.push({ arc: k, t: j / (n + 1) });
-    });
     // The base arc `k` as homogeneous controls: its ends, and the meeting of their tangents weighted by the arc's middle weight.
     const controls = (k: number): { p: [P, P, P]; w: number } => {
       const p0: P = chain.points[k] as P;
@@ -275,6 +270,39 @@ export namespace AutoMovieHumanConicSection {
       const d: P = [dN[0] * D - N[0] * dD, dN[1] * D - N[1] * dD];
       return { point, heading: Math.atan2(d[1], d[0]) };
     };
+    // Each target anchor as a base arc and a rational parameter on it (an end of an arc for a base anchor).
+    const placed: { arc: number; t: number }[] = [];
+    // The frame chord of a run inserted on base arc `k`: the extremes either side of it in the base (`frame` on the base layout).
+    const chordOf = (k: number): [P, P] => {
+      const extreme = (j: number): boolean => ["u", "v"].includes(base.anchors[(j + K) % K]!.kind);
+      let before: number = k;
+      while (!extreme(before)) before = (before + K - 1) % K;
+      let after: number = (k + 1) % K;
+      while (!extreme(after)) after = (after + 1) % K;
+      return [chain.points[before] as P, chain.points[after] as P];
+    };
+    base.anchors.forEach((_: IAnchor, k: number): void => {
+      placed.push({ arc: Math.min(k, arcs - 1), t: k < arcs ? 0 : 1 });
+      const n: number = runs.filter((r: IFeatureRun): boolean => r.after === k).reduce((sum: number, r: IFeatureRun): number => sum + r.anchors.length, 0);
+      if (n === 0) return;
+      const [c0, c1]: [P, P] = chordOf(k);
+      const d: P = [c1[0] - c0[0], c1[1] - c0[1]];
+      const project = (t: number): number => {
+        const q: P = blossom(k, t, t).x;
+        return ((q[0] - c0[0]) * d[0] + (q[1] - c0[1]) * d[1]) / (d[0] * d[0] + d[1] * d[1] || 1);
+      };
+      const [s0, s1]: [number, number] = [project(0), project(1)];
+      for (let j: number = 1; j <= n; ++j) {
+        const target: number = s0 + ((s1 - s0) * j) / (n + 1);
+        let lo: number = 0, hi: number = 1;
+        for (let i: number = 0; i < 60; ++i) {
+          const mid: number = (lo + hi) / 2;
+          if ((project(mid) - target) * Math.sign(s1 - s0) < 0) lo = mid;
+          else hi = mid;
+        }
+        placed.push({ arc: k, t: (lo + hi) / 2 });
+      }
+    });
     const { at: offset, shoulders }: { at: number[]; shoulders: number } = offsets(target);
     const out: number[] = new Array<number>(units(target).length).fill(0);
     // Points of the target anchors, and each anchor's values.

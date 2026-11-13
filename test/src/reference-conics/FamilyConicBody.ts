@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { createHash } from "node:crypto";
 import { AutoMovieLoftChain, type AutoMovieLoftFrame, AutoMovieLoftRelief, AutoMovieNaturalSpline, AutoMovieViewAxis, type AutoMovieViewLoft as L, AutoMovieViewChain as Q, type IAutoMovieLoftRelief } from "@automovie/engine";
-import { AutoMovieHumanF1 } from "@automovie/human";
+import { AutoMovieHumanConicSection as S, AutoMovieHumanF1 } from "@automovie/human";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
@@ -47,10 +47,17 @@ namespace FamilyConicBody {
    * extreme a crest and an inflection (the natal cleft, the spinal furrow). Where a groove fades its anchors lie on a smooth stretch.
    */
   const TRUNK_LINES: boolean = process.argv.includes("--trunk-lines");
-  const TRUNK_LINED: { layout: C.ILayout; depth: number }[] = [{ layout: C.featured(C.bilateral(1), [
+  //
+  // Both medians of `bilateral(1)` stand as feature anchors (`AutoMovieHumanConicSection.featured`, `freed`): a median beside inserted
+  // features re-resolves on them and moves (the stored bilateral wall converted with its medians kept stood 4.9 mm off itself there,
+  // `test_human_conic_featured`), so the trunk's stored wall converts onto this layout and its features are fitted on it. A feature's
+  // `window` is a share of its run's arclength where its observation is sought when a section seeds it (`FamilyConicSection`), not a
+  // stored field; the freed medians' windows stay inside the model's share bounds (0.03, 0.97) all the same.
+  const TRUNK_RUNS: S.IFeatureRun[] = [
     { after: 0, anchors: [{ kind: "f", feature: "inflection", window: [0.02, 0.25] }, { kind: "f", feature: "convex", window: [0.05, 0.4] }, { kind: "f", feature: "inflection", window: [0.2, 0.6] }, { kind: "f", feature: "concave", window: [0.3, 0.8] }, { kind: "f", feature: "inflection", window: [0.45, 0.95] }] },
     { after: 3, anchors: [{ kind: "f", feature: "convex", window: [0.3, 0.9] }, { kind: "f", feature: "inflection", window: [0.6, 0.97] }] },
-  ]), depth: 1 }];
+  ];
+  const TRUNK_LINED: { layout: C.ILayout; depth: number }[] = [{ layout: ((layout: C.ILayout): C.ILayout => ({ ...layout, anchors: layout.anchors.map((anchor: C.IAnchor, k: number): C.IAnchor => (anchor.kind === "f" && anchor.window === undefined ? { ...anchor, window: k < 7 ? [0.6, 0.95] : [0.05, 0.5] } : anchor)) }))(S.featured(C.bilateral(1), TRUNK_RUNS, [1, 3])), depth: 1 }];
 
   /** `--concha-course=<x,y,z>/<x,y,z>`, `--concha-domain=<from>,<to>`, `--concha-tip=<station>`: a trial course, domain and tip for the ear's hollow. */
   const CONCHA_TRIAL: R.V[] | undefined = process.argv
