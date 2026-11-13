@@ -184,13 +184,12 @@ export namespace StrikingLimb {
    * A limb's capsules on shown bones, measured from the body.
    *
    * A leg is the thigh from the hip to the knee, the shank from the knee to
-   * the ankle and the foot from the ankle to the ball, each tapered between
-   * the girths the strikes' own weapons carry (`StrikingWeapon.legRadii`).
-   * An arm is the
-   * upper arm from the shoulder to the elbow with its radius, the forearm
-   * from the elbow to the wrist, and the fist from the wrist to one forearm
-   * radius behind the knuckles, both of the forearm's radius, so the fist's
-   * front is the knuckles.
+   * the ankle and the foot from the ankle to the ball; an arm is the upper
+   * arm from the shoulder to the elbow, the forearm from the elbow to the
+   * wrist, and the fist from the wrist to one forearm radius behind the
+   * knuckles, so the fist's front is the knuckles. Each is tapered between
+   * the girths the strikes' own weapons carry (`StrikingWeapon.legRadii`,
+   * `StrikingWeapon.armRadii`).
    *
    * @param body The limb's body.
    * @param bones Its posed bones.
@@ -206,7 +205,11 @@ export namespace StrikingLimb {
     if (leg(limb)) {
       const foot: IAutoMovieResolvedBone = bones.get(`${s}Foot`)!;
       const knee: IAutoMovieVector3 = bones.get(`${s}LowerLeg`)!.worldPosition;
-      const [thigh, shank, sole] = StrikingWeapon.legRadii(body);
+      const [thigh, shank, sole]: [
+        readonly [number, number],
+        readonly [number, number],
+        number,
+      ] = StrikingWeapon.legRadii(body);
       return [
         {
           name: "thigh",
@@ -244,14 +247,15 @@ export namespace StrikingLimb {
       hand.worldPosition,
     );
     const span: number = Vector3.length(reach);
-    const r: number = body.measure.forearmRadius;
+    const [upper, r]: [readonly [number, number], number, number] =
+      StrikingWeapon.armRadii(body);
     return [
       {
         name: "upper arm",
         a: bones.get(`${s}UpperArm`)!.worldPosition,
         b: elbow,
-        radius: body.measure.upperArmRadius,
-        tail: body.measure.upperArmRadius,
+        radius: upper[0],
+        tail: upper[1],
       },
       { name: "forearm", a: elbow, b: hand.worldPosition, radius: r, tail: r },
       {

@@ -299,22 +299,20 @@ export namespace StrikingRoom {
     body: IHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): { point: IAutoMovieVector3; radius: number }[] {
-    const m: IHumanBody["measure"] = body.measure;
-    const radii: readonly number[] = [
-      m.upperArmRadius,
-      m.forearmRadius,
-      m.forearmRadius,
-    ];
+    const radii: readonly (number | readonly [number, number])[] =
+      StrikingWeapon.armRadii(body);
     const out: { point: IAutoMovieVector3; radius: number }[] = [];
     for (const side of ["left", "right"] as const) {
       const ends: IAutoMovieVector3[] = StrikingWeapon.posed(body, bones, side);
-      radii.forEach((radius: number, i: number): void => {
-        for (const share of [0, 0.5, 1])
-          out.push({
-            point: Vector3.lerp(ends[i]!, ends[i + 1]!, share),
-            radius,
-          });
-      });
+      radii.forEach(
+        (radius: number | readonly [number, number], i: number): void => {
+          for (const share of [0, 0.5, 1])
+            out.push({
+              point: Vector3.lerp(ends[i]!, ends[i + 1]!, share),
+              radius: StrikingWeapon.girth(radius, share),
+            });
+        },
+      );
     }
     return out;
   }

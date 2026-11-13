@@ -190,6 +190,27 @@ export namespace StrikingWeapon {
   }
 
   /**
+   * A shown arm's girths at its joints, metres, as its capsules' radii: the
+   * upper arm narrows from its own radius at the shoulder to the forearm's
+   * at the elbow, where the shown upper arm meets the forearm; the forearm
+   * and the fist keep the forearm's radius, which places the fist's axis end
+   * one radius behind the knuckles ({@link posed}).
+   *
+   * @param body The arm's body.
+   * @returns The upper arm's, the forearm's and the fist's radii.
+   */
+  export function armRadii(
+    body: IHumanBody,
+  ): [readonly [number, number], number, number] {
+    const m: IHumanBody["measure"] = body.measure;
+    return [
+      [m.upperArmRadius, m.forearmRadius],
+      m.forearmRadius,
+      m.forearmRadius,
+    ];
+  }
+
+  /**
    * A chain capsule's radius at a share of its axis from its first end.
    *
    * @param radii The capsule's radius or its two end radii.
