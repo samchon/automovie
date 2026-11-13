@@ -13,11 +13,13 @@ import {
   createDevice,
   createDoor,
   createDrinkware,
+  createDumbbell,
   createHandgun,
   createHolster,
   createHorse,
   createLadder,
   createLoad,
+  createKettlebell,
   createLongGun,
   createLongTool,
   createMotorcycle,
@@ -201,6 +203,14 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
       `longGun-${kind}`,
       (seed?: number | string): Archetype => createLongGun({ kind }, seed),
     );
+  add(
+    `dumbbell`,
+    (seed?: number | string): Archetype => createDumbbell({}, seed),
+  );
+  add(
+    `kettlebell`,
+    (seed?: number | string): Archetype => createKettlebell({}, seed),
+  );
   for (const kind of createBarbell.KINDS)
     add(
       `barbell-${kind}`,
