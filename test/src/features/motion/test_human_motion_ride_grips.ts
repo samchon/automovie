@@ -29,10 +29,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * them: a cyclist's on the handlebar grips through a turn, a horseman's on
  * the reins at a trot.
  *
- * The ride yields the arms, so holding on is an arm action over the ride,
- * a `touch` of kind `hold` aimed at the mount's own points. Those points
- * move within the mount, the bar with the steering and the reins with the
- * horse's neck, and a hand that holds one goes with it.
+ * The ride is told which of the mount's own points each hand holds. Those
+ * points move within the mount, the bar with the steering and the reins
+ * with the horse's neck, and a hand that holds one goes with it. A `touch`
+ * over the ride cannot do it: it claims the root and the trunk, which the
+ * ride keeps.
  *
  * Scenarios, each after 6 s in which the mount stands while the rider gets
  * on and takes hold, read at seven instants spread from 30 to 90 % of the
@@ -48,8 +49,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * the first instant (the campaign's bound for a held contact). A
  * motorcycle's grips are the bicycle's case with another model.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Rides real archetypes and reads the displayed wrists against the mounts' own moving contacts; hands left where the grips stood at rest, hands that drift off them, or a hold that cannot be taken over a ride fails.
- * @evidence contracts/development/testing.md#independent-expectations Where a grip or a rein is comes from the archetype's own ride and the 10 mm is the campaign's bound; neither is read from the ride or the touch law. Limitation: the fingers' closure on the grip is the hand tests' to judge.
+ * @evidence contracts/development/testing.md#behavioral-verification Rides real archetypes and reads the displayed wrists against the mounts' own moving contacts; hands left where the grips stood at rest, or hands that drift off them, fails.
+ * @evidence contracts/development/testing.md#independent-expectations Where a grip or a rein is comes from the archetype's own ride and the 10 mm is the campaign's bound; neither is read from the ride law. Limitation: the fingers' closure on the grip is the hand tests' to judge.
  * @evidence contracts/development/testing.md#distinguishing-cases A grip that turns with a steered bar and a rein that rides a trotting horse, on two bodies of opposite build.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds two rides in memory, reading seven instants of each: one body a mount, since the claim is the relation between a hand and the part it holds, and seven instants cover the straight, the turn and the stride.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 2 scenarios with their bounds.
@@ -158,26 +159,12 @@ export function test_human_motion_ride_grips(): void {
         ],
         composition: HumanChain.subject("a")
           .sit({ seat, seconds: 0.5 })
-          .registered("ride", { on: "mount", seconds, ...mount.ride })
-          .over(
-            (o: HumanChain): HumanChain =>
-              o.touch({
-                kind: "hold",
-                side: "left",
-                target: {
-                  kind: "prop",
-                  subject: "mount",
-                  point: mount.holds.left,
-                },
-                other: {
-                  kind: "prop",
-                  subject: "mount",
-                  point: mount.holds.right,
-                },
-                count: 1,
-                hold: seconds - 3,
-              }),
-          ).node,
+          .registered("ride", {
+            on: "mount",
+            seconds,
+            hands: mount.holds,
+            ...mount.ride,
+          }).node,
       });
     } catch (error) {
       complaints.push(

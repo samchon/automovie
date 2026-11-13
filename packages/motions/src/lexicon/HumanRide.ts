@@ -1,9 +1,10 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -11,9 +12,11 @@ import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanProp } from "../perform/IHumanProp";
+import { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
+import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -32,9 +35,9 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  *
  * With `rising` the rider posts to a trot, by a stride time or on the
  * strides of a cue track; with `feet` each foot stays on a part that moves
- * within the support, a pedal on its crank or a stirrup. A hand on a grip,
- * a wheel or a rein is an arm action over the ride aimed at that point of
- * the prop, which follows the part the same way. First pass: the rider
+ * within the support, a pedal on its crank or a stirrup; with `hands` each
+ * hand holds a grip, a rein or a wheel's rim and follows it the same way.
+ * First pass: the rider
  * leans exactly as the support does and absorbs no bump, a pedalling foot
  * keeps its pitch to the frame except where the leg would run short and it
  * points down about its ball (`KNEE`, `ANKLING`), and mounting and dismounting are the
@@ -82,7 +85,23 @@ export namespace HumanRide {
      * The body is carried with the support alone when absent.
      */
     seat?: string;
+
+    /**
+     * The support's point each hand holds, by its id: a handlebar grip, a
+     * rein, a wheel's rim. The hand goes to it over `TAKE` seconds from the
+     * ride's start and stays on it, following a part that moves within the
+     * support. The arms are still yielded, so an arm action over the ride
+     * takes a hand off for as long as it lasts. First pass: the wrist is
+     * placed and the hand's turn and the fingers' closure are not.
+     */
+    hands?: Partial<Record<"left" | "right", string>>;
   }
+
+  /** Seconds a hand takes to reach the point it is to hold (provisional). */
+  export const TAKE: number = 0.6;
+
+  /** How far off a held point the wrist stays along the point's outward normal, hand lengths: about the palm's thickness (provisional, as the armrests' rest). */
+  export const PALM: number = 0.2;
 
   /** How far a rising trot lifts the seat off the saddle, thigh lengths (provisional: no rider kinematics were read). */
   export const POST: number = 0.25;
@@ -233,12 +252,16 @@ export namespace HumanRide {
         (context.body.measure.thigh + context.body.measure.shank) *
         Math.cos((KNEE * Math.PI) / 360);
       const ankled = (
+        side: "left" | "right",
         goal: IHumanPosture.IGoal,
         hip: IAutoMovieVector3,
       ): IHumanPosture.IGoal => {
         const rotation: IAutoMovieQuaternion | undefined = goal.rotation;
-        const contact: IAutoMovieVector3 | undefined = goal.contact;
-        if (rotation === undefined || contact === undefined) return goal;
+        if (rotation === undefined) return goal;
+
+        // A foot on a pedal bears on its ball, whether or not its goal says what it turns about.
+        const contact: IAutoMovieVector3 =
+          goal.contact ?? HumanFoot.offset(context.body, side, "ball");
         const ball: IAutoMovieVector3 = Vector3.add(
           goal.point,
           Quaternion.rotateVector(rotation, contact),
@@ -255,6 +278,7 @@ export namespace HumanRide {
           );
           return {
             ...goal,
+            contact,
             rotation: pitched,
             point: Vector3.subtract(
               ball,
@@ -276,6 +300,21 @@ export namespace HumanRide {
         }
         return turnedBy(sign * high);
       };
+      for (const side of ["left", "right"] as const) {
+        const id: string | undefined = context.params.hands?.[side];
+        if (id !== undefined && support.prop.points[id] === undefined)
+          throw new HumanRefusal({
+            kind: "affordance",
+            axis: "hands",
+            value: id,
+            feasible: {
+              kind: "alternatives",
+              values: Object.keys(support.prop.points),
+            },
+            reason: `${on} has no point ${id} for the ${side} hand`,
+            fix: "name one of the support's points",
+          });
+      }
       const saddle: string | undefined = context.params.seat;
       if (saddle !== undefined && support.prop.points[saddle] === undefined)
         throw new HumanRefusal({
@@ -391,6 +430,51 @@ export namespace HumanRide {
             pitch: tipped.pitch,
             roll: tipped.roll,
           };
+
+          // A hand told to hold a point of the support goes to it over `TAKE` seconds and stays, a palm's thickness off it along its outward normal.
+          for (const side of ["left", "right"] as const) {
+            const id: string | undefined = context.params.hands?.[side];
+            if (id === undefined) continue;
+            const rest: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
+              support.prop.points[id]!;
+            const part:
+              | { point: IAutoMovieVector3; normal: IAutoMovieVector3 }
+              | undefined = support.prop.point?.(id, film);
+            const target: IAutoMovieVector3 = Vector3.add(
+              part?.point ??
+                Vector3.add(
+                  now.position,
+                  Quaternion.rotateVector(now.rotation, rest.point),
+                ),
+              Vector3.scale(
+                part?.normal ??
+                  Quaternion.rotateVector(now.rotation, rest.normal),
+                PALM * context.body.measure.hand,
+              ),
+            );
+            const share: number = minimumJerk(Math.min(1, at / TAKE)).s;
+            const legs: IHumanPosture["limbs"] = { ...limbs };
+            delete legs.leftArm;
+            delete legs.rightArm;
+            limbs[`${side}Arm`] = {
+              point:
+                share >= 1
+                  ? target
+                  : Vector3.lerp(
+                      poseBones(
+                        context.body,
+                        resolveHumanPosture(context.body, {
+                          ...out,
+                          limbs: legs,
+                        }),
+                      ).get(`${side}Hand`)!.worldPosition,
+                      target,
+                      share,
+                    ),
+              bend: AutoMovieMotionHumanBend.hang(context.body, out, side, 0.2),
+              planted: share >= 1,
+            };
+          }
           if (pedals.length === 0) return out;
 
           // Where a pedal is further than the leg reaches with its knee still bent, the foot points down about its ball, as a cyclist's ankle does through the bottom of the stroke.
@@ -404,7 +488,11 @@ export namespace HumanRide {
             const goal: IHumanPosture.IGoal | undefined =
               limbs[`${pedal.side}Leg`];
             if (goal !== undefined)
-              limbs[`${pedal.side}Leg`] = ankled(goal, hips[pedal.side]);
+              limbs[`${pedal.side}Leg`] = ankled(
+                pedal.side,
+                goal,
+                hips[pedal.side],
+              );
           }
           return out;
         },
