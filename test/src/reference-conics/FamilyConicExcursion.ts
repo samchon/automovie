@@ -92,18 +92,112 @@ export namespace FamilyConicExcursion {
     const [from, to, step] = part.heights;
     const heights: number[] = [];
     for (let y: number = from; y <= to + 1e-9; y += step) heights.push(round(y));
-    const loopsAt = (y: number): C.P[][] => R.loops(source.head, { origin: [part.origin[0], y, part.origin[1]], u: part.u, v: part.v });
-    const first: { y: number; section: ISection | null }[] = heights.map((y: number) => ({ y, section: cut(loopsAt(y), part, null) }));
-    const rooted: { y: number; roots: [number, number] }[] = first.flatMap((r) => (r.section === null || r.section.roots === null ? [] : [{ y: r.y, roots: r.section.roots }]));
+    const read: (y: number) => ISection | null = reader(source, part);
+    return heights.map((y: number) => ({ y, section: read(y) }));
+  }
+
+  /**
+   * A reader of the part's section at any height: the first pass reads the roots at the part's own planes once, and each later plane is cut
+   * between the median roots of those planes within `ROOT_WINDOW` steps of it, so a fit may read its sections at its own stations.
+   */
+  export function reader(source: R.ISource, part: IPart): (y: number) => ISection | null {
+    const [from, to, step] = part.heights;
+    return along(source, part, (y: number) => ({ origin: [part.origin[0], y, part.origin[1]], u: part.u, v: part.v }), from, to, step);
+  }
+
+  /**
+   * The same reader on any course: the section at station `s` is cut in the plane `frameAt(s)`, in that frame's chart, the roots read at the
+   * stations from `from` to `to`, `step` apart. A course that leans or turns, so its planes are no longer level, still cuts the same
+   * excursion; its course point must lie inside every section a family fitted to the skin reads.
+   */
+  export function along(source: R.ISource, part: IPart, frameAt: (s: number) => { origin: R.V; u: R.V; v: R.V }, from: number, to: number, step: number): (s: number) => ISection | null {
+    const loopsAt = (y: number): C.P[][] => R.loops(source.head, frameAt(y));
+    const rooted: { y: number; roots: [number, number] }[] = [];
+    for (let y: number = from; y <= to + 1e-9; y += step) {
+      const section: ISection | null = cut(loopsAt(y), part, null);
+      if (section !== null && section.roots !== null) rooted.push({ y, roots: section.roots });
+    }
     const median = (values: number[]): number => [...values].sort((a: number, b: number): number => a - b)[Math.floor(values.length / 2)]!;
     const limits = (y: number): [number, number] | null => {
       const near: { y: number; roots: [number, number] }[] = rooted.filter((r): boolean => Math.abs(r.y - y) <= ROOT_WINDOW * step + 1e-9);
       return near.length === 0 ? null : [median(near.map((r): number => r.roots[0])), median(near.map((r): number => r.roots[1]))];
     };
-    return first.map(({ y, section }) => {
-      const at: [number, number] | null = section?.kind === "excursion" ? limits(y) : null;
-      return { y, section: at === null ? section : cut(loopsAt(y), part, at) };
-    });
+    return (y: number): ISection | null => {
+      const loops: C.P[][] = loopsAt(y);
+      const own: ISection | null = cut(loops, part, null);
+      const at: [number, number] | null = own?.kind === "excursion" ? limits(y) : null;
+      return at === null ? own : cut(loops, part, at);
+    };
+  }
+
+  /**
+   * The point inside a closed section farthest from its boundary (on a 0.25 mm grid, then refined), and that distance: where a course
+   * through the section sees most of it, the centre of its largest inscribed circle.
+   */
+  export function kernel(loop: readonly C.P[]): { point: C.P; clearance: number } {
+    const us: number[] = loop.map((p: C.P): number => p[0]);
+    const vs: number[] = loop.map((p: C.P): number => p[1]);
+    const inside = (q: C.P): boolean => {
+      let c: boolean = false;
+      for (let i: number = 0, j: number = loop.length - 1; i < loop.length; j = i++) {
+        const a: C.P = loop[i]!;
+        const b: C.P = loop[j]!;
+        if (a[1] > q[1] !== b[1] > q[1] && q[0] < ((b[0] - a[0]) * (q[1] - a[1])) / (b[1] - a[1]) + a[0]) c = !c;
+      }
+      return c;
+    };
+    const clearance = (q: C.P): number => {
+      let d: number = Infinity;
+      for (let i: number = 0; i < loop.length; ++i) {
+        const a: C.P = loop[i]!;
+        const b: C.P = loop[(i + 1) % loop.length]!;
+        const e: C.P = [b[0] - a[0], b[1] - a[1]];
+        const l: number = e[0] * e[0] + e[1] * e[1];
+        const t: number = l === 0 ? 0 : Math.max(0, Math.min(1, ((q[0] - a[0]) * e[0] + (q[1] - a[1]) * e[1]) / l));
+        d = Math.min(d, Math.hypot(q[0] - a[0] - t * e[0], q[1] - a[1] - t * e[1]));
+      }
+      return d;
+    };
+    let best: { point: C.P; clearance: number } = { point: [(Math.min(...us) + Math.max(...us)) / 2, (Math.min(...vs) + Math.max(...vs)) / 2], clearance: -1 };
+    for (let u: number = Math.min(...us); u <= Math.max(...us); u += 0.5)
+      for (let v: number = Math.min(...vs); v <= Math.max(...vs); v += 0.5) {
+        const q: C.P = [u, v];
+        if (!inside(q)) continue;
+        const d: number = clearance(q);
+        if (d > best.clearance) best = { point: q, clearance: d };
+      }
+    return best;
+  }
+
+  /**
+   * A section made star-shaped about the chart's origin: at `count` phases, the innermost or the outermost crossing of the ray from the origin
+   * with the section, and how many of those rays crossed it more than once (zero for a section already star-shaped about the origin).
+   * Innermost keeps what the origin sees first, so an overhang folding back over a groove (an auricle's helix over its scapha) is left out;
+   * outermost keeps the overhang and bridges the groove under it. Null when a ray misses the section, the origin lying outside it.
+   */
+  export function star(loop: readonly C.P[], count: number, keep: "inner" | "outer"): { points: C.P[]; folds: number } | null {
+    const points: C.P[] = [];
+    let folds: number = 0;
+    for (let k: number = 0; k < count; ++k) {
+      const phi: number = (2 * Math.PI * k) / count;
+      const d: C.P = [Math.cos(phi), Math.sin(phi)];
+      const hits: number[] = [];
+      for (let i: number = 0; i < loop.length; ++i) {
+        const a: C.P = loop[i]!;
+        const b: C.P = loop[(i + 1) % loop.length]!;
+        const sa: number = a[0] * d[1] - a[1] * d[0];
+        const sb: number = b[0] * d[1] - b[1] * d[0];
+        if (sa > 0 === sb > 0) continue;
+        const t: number = sa / (sa - sb);
+        const r: number = (1 - t) * (a[0] * d[0] + a[1] * d[1]) + t * (b[0] * d[0] + b[1] * d[1]);
+        if (r > 0) hits.push(r);
+      }
+      if (hits.length === 0) return null;
+      if (hits.length > 1) ++folds;
+      const r: number = keep === "inner" ? Math.min(...hits) : Math.max(...hits);
+      points.push([r * d[0], r * d[1]]);
+    }
+    return { points, folds };
   }
 
   /**
@@ -261,7 +355,11 @@ export namespace FamilyConicExcursion {
       if (section === null) return { y, kind: null };
       const marks: [number, number, number] = landmarks(section.points);
       const bends: number[] = inflections(section.points);
-      process.stdout.write(JSON.stringify({ event: "excursion-section", part: part.name, y, kind: section.kind, points: section.points.length, roots: section.roots, inflections: bends.length }) + "\n");
+      // The section's kernel point in the world, and how many rays from it cross the section more than once.
+      const core: { point: C.P; clearance: number } = kernel(section.points);
+      const shifted: C.P[] = section.points.map((p: C.P): C.P => [p[0] - core.point[0], p[1] - core.point[1]]);
+      const world: number[] = [0, 1, 2].map((k: number): number => (k === 1 ? y : 0) + (k === 0 ? part.origin[0] : k === 2 ? part.origin[1] : 0) + core.point[0] * part.u[k]! + core.point[1] * part.v[k]!);
+      process.stdout.write(JSON.stringify({ event: "excursion-section", part: part.name, y, kind: section.kind, points: section.points.length, roots: section.roots, inflections: bends.length, kernel: world.map(round), clearance: round(core.clearance), folds: star(shifted, 720, "inner")?.folds ?? -1 }) + "\n");
       return { y, kind: section.kind, roots: section.roots, landmarks: marks, inflections: bends, points: section.points };
     });
     const out: string = path.join(root, "test/.shots/family-conic-excursion", new Date().toISOString().replaceAll(":", "-"));
@@ -271,7 +369,9 @@ export namespace FamilyConicExcursion {
   }
 }
 
-FamilyConicExcursion.main().catch((error: unknown): void => {
+// Run only as its own tool: the fit tool imports the reader.
+if (/FamilyConicExcursion\.c?[jt]s$/.test(process.argv[1] ?? ""))
+  FamilyConicExcursion.main().catch((error: unknown): void => {
   process.stderr.write((error instanceof Error ? error.stack ?? error.message : String(error)) + "\n");
   process.exitCode = 1;
 });

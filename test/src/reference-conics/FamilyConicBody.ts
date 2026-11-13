@@ -11,6 +11,7 @@ import { FamilyConicLoft as K } from "./FamilyConicLoft";
 import { FamilyConicRelief as H } from "./FamilyConicRelief";
 import { FamilyConicSection as C } from "./FamilyConicSection";
 import { FamilyConicSource as R } from "./FamilyConicSource";
+import { FamilyConicExcursion as X } from "./FamilyConicExcursion";
 
 /**
  * Whole-part conic families on the f1 reference: each part is cut along its
@@ -24,6 +25,9 @@ namespace FamilyConicBody {
 
   /** Least distance between two station knots, mm. */
   const GAP_MM: number = 12;
+
+  /** Rays a skin-fitted section is read along (`IPart.skin`): 0.5 degree apart, a sample every 0.2 mm on a section 25 mm across. */
+  const SKIN_RAYS: number = 720;
 
   /** Spacing of the fitting sections, mm; the withheld sections stand midway. */
   const STEP_MM: number = 4;
@@ -283,6 +287,15 @@ namespace FamilyConicBody {
   const AURICLE: R.V[] = JSON.parse(process.argv.find((a: string): boolean => a.startsWith("--auricle="))?.slice("--auricle=".length) ?? "[[9,1606,86],[7,1590,86],[2,1572,85],[5,1558,83],[15.5,1542,78.5],[18,1534,77]]");
   const AURICLE_HALVES: number[] = JSON.parse(process.argv.find((a: string): boolean => a.startsWith("--auricle-halves="))?.slice("--auricle-halves=".length) ?? "[4,5,5,3]");
   const AURICLE_DOMAIN: number[] = (process.argv.find((a: string): boolean => a.startsWith("--auricle-domain="))?.slice("--auricle-domain=".length) ?? "6,68").split(",").map(Number);
+  /** The pinna's course (`--pinna=<json>`), through the root of each section, so its course point lies inside every section and its rays see the skin. */
+  const PINNA: R.V[] = JSON.parse(process.argv.find((a: string): boolean => a.startsWith("--pinna="))?.slice("--pinna=".length) ?? "[[16,1540,70],[5,1560,69],[4,1575,70],[10,1590,73],[11,1604,75]]");
+  const PINNA_HALVES: number[] = JSON.parse(process.argv.find((a: string): boolean => a.startsWith("--pinna-halves="))?.slice("--pinna-halves=".length) ?? "[4,4,4]");
+  /** The pinna's fitted stations (`--pinna-domain`), mm above 1,538 mm, its least knot gap, its limb depth and its grooves. */
+  const PINNA_DOMAIN: number[] = (process.argv.find((a: string): boolean => a.startsWith("--pinna-domain="))?.slice("--pinna-domain=".length) ?? "6,58").split(",").map(Number);
+  const PINNA_GAP: number = Number(process.argv.find((a: string): boolean => a.startsWith("--pinna-gap="))?.slice("--pinna-gap=".length) ?? 4);
+  const PINNA_DEPTH: number = Number(process.argv.find((a: string): boolean => a.startsWith("--pinna-depth="))?.slice("--pinna-depth=".length) ?? 1);
+  const PINNA_GROOVES: number[] = (process.argv.find((a: string): boolean => a.startsWith("--pinna-grooves="))?.slice("--pinna-grooves=".length) ?? "").split(",").filter((x: string): boolean => x.length > 0).map(Number);
+
   /**
    * The auricle's clip, `--auricle-root=<x>,<y>,<semi y>,<semi x>,<level>` and `--auricle-level=<level>`: inside the ellipse about the
    * root in the side view the head's skin is left out under its own level, elsewhere under the other. Both at 76.5 the sections are the
@@ -566,6 +579,17 @@ namespace FamilyConicBody {
     /** Chart `u` seed. */
     up: R.V;
 
+    /**
+     * Fit the sections to the skin itself instead of its hull (the tape): each section is read along rays from the course point, keeping
+     * the innermost or outermost crossing, so it is star-shaped about the course as the fit's one radius a phase needs, and its concavities
+     * are the wall's own inward arcs between inflection anchors (`inflected`). Sections whose rays crossed the skin more than once are
+     * reported by station (`family-body-star`). Absent, the hull.
+     */
+    skin?: "inner" | "outer";
+
+    /** The name of an excursion (`FamilyConicExcursion.PARTS`) the sections are cut as, out of the reference head's level planes. */
+    excursion?: string;
+
     /** Fitted station interval, mm of course arclength; `auto` takes the longest run of single loops round the course whose area stays near the part's own. */
     domain: [number, number] | "auto";
 
@@ -787,6 +811,11 @@ namespace FamilyConicBody {
         // the antihelix and the lobule are each section's own skin and the fossa and the concha are its hollows. Its medial side, closed along
         // that level, is sunk into the head when it is merged.
         { name: "auricle", centres: AURICLE, course: "J.auricle", halves: AURICLE_HALVES, up: JSON.parse(process.argv.find((a: string): boolean => a.startsWith("--auricle-up="))?.slice("--auricle-up=".length) ?? "[0, 0, 1]"), domain: [AURICLE_DOMAIN[0]!, AURICLE_DOMAIN[1]!], head: true, loose: true, step: 1, gap: AURICLE_GAP, tip: true, mirrored: true, layouts: process.argv.includes("--ear-deep") ? LIMB : [LIMB[0]!], clip: auricle, ...(AURICLE_SURROUND === undefined ? {} : { surround: { from: AURICLE_DOMAIN[0]!, reach: AURICLE_SURROUND } }), reliefs: process.argv.includes("--auricle-auto") ? "auto" : [], pitch: EAR_PITCH },
+
+        // The auricle as a conic family of its own skin: level sections straight up through the shell, each the excursion of the head's level
+        // cut out of the head's line, closed across the root 4 mm inside the head (`FamilyConicExcursion.ts auricle`), read along rays from
+        // the course and fitted to that skin, its grooves (`--pinna-grooves`, anchor indices of the limb layout) carried by inflection lines.
+        { name: "pinna", centres: PINNA, course: "J.pinna", halves: PINNA_HALVES, up: [0, 0, 1], domain: [PINNA_DOMAIN[0]!, PINNA_DOMAIN[1]!], head: true, step: 1, gap: PINNA_GAP, tip: true, mirrored: true, excursion: "auricle", skin: process.argv.includes("--pinna-outer") ? "outer" : "inner", layouts: [{ layout: PINNA_GROOVES.length === 0 ? C.limb(PINNA_DEPTH) : C.inflected(PINNA_DEPTH, PINNA_GROOVES), depth: PINNA_DEPTH }], reliefs: [], pitch: EAR_PITCH },
 
         // The nose's free end as a short loft straight forward out of the face, closed at its tip.
         // Its course starts 5 mm behind the box's frontal plane, so its first section, half a millimetre into the box, lies on the wings.
@@ -1015,8 +1044,16 @@ namespace FamilyConicBody {
       // A plane's loop for the part: the one round the course, or for a `loose` part the largest closed loop the clip leaves whose hull holds the course.
       // The clipped skin piece behind the last section a surrounding part read: the largest of the pieces whose hull it is.
       let piece: C.P[] | null = null;
+      // A part cut out of its host as an excursion of the reference head's sections (`IPart.excursion`), in the course's own planes and chart.
+      let excursion: ((y: number) => X.ISection | null) | null = null;
       const cut = (frame: AutoMovieLoftFrame.IFrame, s: number): C.P[] | null => {
         piece = null;
+        if (part.excursion !== undefined) {
+          const entry: X.IPart | undefined = X.PARTS.find((p: X.IPart): boolean => p.name === part.excursion);
+          if (entry === undefined) throw new Error("No excursion " + part.excursion);
+          excursion ??= X.along(source, entry, (t: number) => axis.at(t), domain[0] - 6, domain[1] + 6, 1.5);
+          return excursion(s)?.points ?? null;
+        }
         if (part.name === "concha" && CONCHA_DEPTH !== undefined) return depthLoop(s);
         if (part.loose !== true || (part.surround !== undefined && s < part.surround.from)) {
           const whole: C.P[] | null = R.cut(skin, frame).loop;
@@ -1101,11 +1138,23 @@ namespace FamilyConicBody {
         log("family-body-tip", { part: part.name, tip, pastDomainMm: tip - domain[1] });
         if (process.argv.includes("--tips")) continue;
       }
+      // A family fitted to its skin (`IPart.skin`): every section must be star-shaped about the course point, since the fit reads one radius
+      // a phase. The skin is read along rays from the course, the innermost or outermost crossing kept, and each section whose rays crossed
+      // its skin more than once, or missed it, is reported by station.
+      const star: { s: number; folds: number }[] = [];
       for (let s: number = domain[0], i: number = 0; s <= domain[1] + 1e-9; s += step / 2, ++i) {
         const frame: AutoMovieLoftFrame.IFrame = axis.at(s);
-        const loop: C.P[] | null = cut(frame, s);
+        const cutLoop: C.P[] | null = cut(frame, s);
+        const starred: { points: C.P[]; folds: number } | null = part.skin === undefined || cutLoop === null ? null : X.star(cutLoop, SKIN_RAYS, part.skin);
+        if (part.skin !== undefined && cutLoop !== null) star.push({ s, folds: starred === null ? -1 : starred.folds });
+        const loop: C.P[] | null = part.skin === undefined ? cutLoop : (starred?.points ?? null);
         if (loop === null) skipped.push(s);
-        else {
+        else if (part.skin !== undefined) {
+          // Fitted to the skin itself: its concavities are the wall's own inward arcs, between inflection anchors (`inflected`).
+          rows.push({ s, points: loop, heldout: i % 2 === 1 });
+          skins.push(loop);
+          loops.push(loop);
+        } else {
           // The family is the tape wall: it reads the section's convex hull. How far the skin lies inside that hull is measured apart, as relief.
           // A loose part is measured against that hull as well: its loop need not be star-shaped about the course.
           // A loose part's section is closed by its clip's straight chords, and a hull edge carries no vertex between its ends, so a wall
@@ -1137,6 +1186,7 @@ namespace FamilyConicBody {
           hollows.push(s.toFixed(0) + ":" + deepest.toFixed(1) + "@" + ((where * 180) / Math.PI).toFixed(0));
         }
       }
+      if (part.skin !== undefined) log("family-body-star", { part: part.name, sections: star.length, refused: star.filter((r): boolean => r.folds !== 0).map((r): string => r.s.toFixed(1) + (r.folds < 0 ? ":outside" : ":" + r.folds)) });
       log("family-body-hollows", { part: part.name, deepestMmAtDegrees: hollows.filter((_: string, i: number): boolean => i % 6 === 0).join(" ") });
       log("family-body-observed", { part: part.name, sections: rows.length, skipped });
 
