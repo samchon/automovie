@@ -1,6 +1,15 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieMotionTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
+  AutoMovieMotionClock,
   AutoMovieMotionHumanAuditContinuity,
+  AutoMovieMotionHumanTouch,
+  AutoMovieMotionHumanTouchEffector,
+  AutoMovieMotionHumanTouchForm,
+  AutoMovieMotionHumanTouchLaid,
   HumanChain,
   HumanHabit,
   HumanPerformance,
@@ -8,8 +17,12 @@ import {
   HumanSignature,
   type IAutoMovieMotionHumanAuditMeasure,
   type IAutoMovieMotionHumanAuditMotion,
+  type IHumanActionContext,
   type IHumanBody,
   type IHumanPosture,
+  type handToFace,
+  poseBones,
+  resolveHumanPosture,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -107,6 +120,106 @@ export function test_human_motion_hand_verdicts_photograph(): void {
   };
   const jump: IAutoMovieMotionHumanAuditMeasure =
     AutoMovieMotionHumanAuditContinuity.measure(motion, "a", 6).jump;
+  // The touch's arm goal as its stroke builds it each second, rebuilt from
+  // the placed action's own context and parameters, with the end the carry
+  // goes toward and the carry's weight: what the reach blends the arm to.
+  const touchGoals = (instants: readonly number[]): string[] => {
+    const placed = performance.segments("a")[1]!;
+    const context = placed.context as IHumanActionContext<never>;
+    const body = context.body;
+    const row = (placed.params as { task: handToFace.IRow }).task;
+    const effector = row.effector;
+    const entry: IHumanPosture = context.entry.posture;
+    const entryBones = poseBones(body, context.entry.pose);
+    const target: AutoMovieMotionTarget = { kind: "self", region: row.region ?? "noseBridge" };
+    const place = (posture: IHumanPosture, seconds: number) =>
+      AutoMovieMotionHumanTouch.region(
+        context,
+        target,
+        context.start + seconds,
+        posture,
+        entryBones,
+      );
+    const bend = AutoMovieMotionHumanTouchLaid.bend(
+      body,
+      entry,
+      "right",
+      effector,
+      place(entry, 0),
+      row.tangent,
+      "tangent",
+    );
+    const reference = AutoMovieMotionHumanTouchLaid.laid(
+      body,
+      entry,
+      "right",
+      effector,
+      place(entry, 0),
+      row.tangent,
+      bend,
+      "tangent",
+    );
+    const clock = AutoMovieMotionClock.of(
+      placed.plan.duration,
+      placed.plan.events.map((e) => ({
+        name: e.name,
+        seconds: e.share * placed.plan.duration,
+      })),
+    );
+    const standoff: number = AutoMovieMotionHumanTouchEffector.pad(
+      body,
+      "right",
+      effector,
+    );
+    const round = (_k: string, v: unknown): unknown =>
+      typeof v === "number" ? Math.round(v * 1e4) / 1e4 : v;
+    return instants.map((film: number): string => {
+      const seconds: number = film - placed.start;
+      const posture: IHumanPosture = performance.posture("a", film);
+      const at = place(posture, seconds);
+      const normal = Vector3.normalize(at.normal);
+      const along = AutoMovieMotionHumanTouchForm.tangent(
+        normal,
+        posture.yaw,
+        row.tangent,
+      );
+      const weight: number = clock.envelope(
+        ["start", "ready"],
+        ["relax", "end"],
+        seconds,
+      );
+      const point = Vector3.add(
+        at.point,
+        Vector3.scale(normal, standoff + body.measure.hand * (1 - weight)),
+      );
+      const goal: IHumanPosture.IGoal = {
+        ...AutoMovieMotionHumanTouchEffector.goal(
+          body,
+          "right",
+          effector,
+          point,
+          ...AutoMovieMotionHumanTouchLaid.lie(
+            body,
+            posture,
+            "right",
+            "tangent",
+            at.point,
+            normal,
+            along,
+          ),
+          bend,
+        ),
+        reference,
+      };
+      const solved = resolveHumanPosture(body, {
+        ...posture,
+        limbs: { ...posture.limbs, rightArm: goal },
+      });
+      const angles = (bone: string): unknown =>
+        solved.joints.find((j): boolean => j.bone === bone) ?? null;
+      return `touch at ${film.toFixed(3)} s: weight ${weight.toFixed(4)} goal ${JSON.stringify(goal, round)} end ${JSON.stringify([angles("rightUpperArm"), angles("rightLowerArm"), angles("rightHand")], round)}`;
+    });
+  };
   if (!(jump.value <= 0.005)) {
     const side: "left" | "right" = jump.where.startsWith("left")
       ? "left"
@@ -137,7 +250,18 @@ export function test_human_motion_hand_verdicts_photograph(): void {
               typeof v === "number" ? Math.round(v * 1e4) / 1e4 : v,
           )}`;
         })
-        .join(" | ")}`,
+        .join(" | ")}; the cut into it at ${placed.transition?.cut.toFixed(3) ?? "none"} s blending ${placed.transition?.blend.toFixed(3) ?? "-"} s; the joint's path ${Array.from(
+        { length: 9 },
+        (_: unknown, k: number): string => {
+          const at: number = jump.seconds - 1 / 48 + k / 192;
+          const q = performance.bones("a", at).get(jump.where as "rightHand")!
+            .worldPosition;
+          return `${at.toFixed(4)}:(${q.x.toFixed(4)},${q.y.toFixed(4)},${q.z.toFixed(4)})`;
+        },
+      ).join(" ")}; ${touchGoals(
+        [-2, -1, 0, 1].map((k: number): number => jump.seconds + k / 192),
+      ).join(" | ")}`,
     );
-  }  TestValidator.equals("a photograph's two hands", complaints, []);
+  }
+  TestValidator.equals("a photograph's two hands", complaints, []);
 }

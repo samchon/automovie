@@ -1,9 +1,20 @@
+import { Vector3 } from "@automovie/engine";
+import type { AutoMovieMotionTarget } from "@automovie/interface";
 import {
   HUMAN_LEXICON,
   HumanChain,
   HumanPerformance,
   HumanVerdicts,
+  AutoMovieMotionClock,
+  AutoMovieMotionHumanTouch,
+  AutoMovieMotionHumanTouchEffector,
+  AutoMovieMotionHumanTouchForm,
+  AutoMovieMotionHumanTouchLaid,
+  type IHumanActionContext,
   type IHumanActionLaw,
+  type handToFace,
+  poseBones,
+  resolveHumanPosture,
   type IHumanPosture,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -49,12 +60,114 @@ export function test_human_motion_hand_verdicts_smoke(): void {
         .registered("smoke", {}).node,
   });
   const report: HumanVerdicts.IReport = HumanVerdicts.of(performance, 6);
+
+  // The touch's arm goal as its stroke builds it each second, rebuilt from
+  // the placed action's own context and parameters, with the end the carry
+  // goes toward and the carry's weight: what the reach blends the arm to.
+  const touchGoals = (instants: readonly number[]): string[] => {
+    const placed = performance.segments("a")[1]!;
+    const context = placed.context as IHumanActionContext<never>;
+    const body = context.body;
+    const row = (placed.params as { task: handToFace.IRow }).task;
+    const effector = row.effector;
+    const entry: IHumanPosture = context.entry.posture;
+    const entryBones = poseBones(body, context.entry.pose);
+    const target: AutoMovieMotionTarget = { kind: "self", region: "mouth" };
+    const place = (posture: IHumanPosture, seconds: number) =>
+      AutoMovieMotionHumanTouch.region(
+        context,
+        target,
+        context.start + seconds,
+        posture,
+        entryBones,
+      );
+    const bend = AutoMovieMotionHumanTouchLaid.bend(
+      body,
+      entry,
+      "right",
+      effector,
+      place(entry, 0),
+      row.tangent,
+      "tangent",
+    );
+    const reference = AutoMovieMotionHumanTouchLaid.laid(
+      body,
+      entry,
+      "right",
+      effector,
+      place(entry, 0),
+      row.tangent,
+      bend,
+      "tangent",
+    );
+    const clock = AutoMovieMotionClock.of(
+      placed.plan.duration,
+      placed.plan.events.map((e) => ({
+        name: e.name,
+        seconds: e.share * placed.plan.duration,
+      })),
+    );
+    const standoff: number = AutoMovieMotionHumanTouchEffector.pad(
+      body,
+      "right",
+      effector,
+    );
+    const round = (_k: string, v: unknown): unknown =>
+      typeof v === "number" ? Math.round(v * 1e4) / 1e4 : v;
+    return instants.map((film: number): string => {
+      const seconds: number = film - placed.start;
+      const posture: IHumanPosture = performance.posture("a", film);
+      const at = place(posture, seconds);
+      const normal = Vector3.normalize(at.normal);
+      const along = AutoMovieMotionHumanTouchForm.tangent(
+        normal,
+        posture.yaw,
+        row.tangent,
+      );
+      const weight: number = clock.envelope(
+        ["start", "ready"],
+        ["relax", "end"],
+        seconds,
+      );
+      const point = Vector3.add(
+        at.point,
+        Vector3.scale(normal, standoff + body.measure.hand * (1 - weight)),
+      );
+      const goal: IHumanPosture.IGoal = {
+        ...AutoMovieMotionHumanTouchEffector.goal(
+          body,
+          "right",
+          effector,
+          point,
+          ...AutoMovieMotionHumanTouchLaid.lie(
+            body,
+            posture,
+            "right",
+            "tangent",
+            at.point,
+            normal,
+            along,
+          ),
+          bend,
+        ),
+        reference,
+      };
+      const solved = resolveHumanPosture(body, {
+        ...posture,
+        limbs: { ...posture.limbs, rightArm: goal },
+      });
+      const angles = (bone: string): unknown =>
+        solved.joints.find((j): boolean => j.bone === bone) ?? null;
+      return `touch at ${film.toFixed(3)} s: weight ${weight.toFixed(4)} goal ${JSON.stringify(goal, round)} end ${JSON.stringify([angles("rightUpperArm"), angles("rightLowerArm"), angles("rightHand")], round)}`;
+    });
+  };
   TestValidator.equals(
     "a draw on a cigarette holds the physical bounds",
     report.clean
       ? "clean"
       : [
           HumanVerdicts.describe(report),
+          ...touchGoals([0.84, 0.861, 0.882, 0.903]),
           ...report.findings.flatMap((f: HumanVerdicts.IFinding): string[] =>
             [f.seconds - 1 / 48, f.seconds].map(
               (seconds: number): string =>
