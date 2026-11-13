@@ -26,8 +26,6 @@ import { AutoMovieHumanF1ToeLittle } from "./AutoMovieHumanF1ToeLittle";
 import { AutoMovieHumanF1ToeMiddle } from "./AutoMovieHumanF1ToeMiddle";
 import { AutoMovieHumanF1ToeRing } from "./AutoMovieHumanF1ToeRing";
 import { AutoMovieHumanF1Trunk } from "./AutoMovieHumanF1Trunk";
-import { AutoMovieHumanF1Vault } from "./AutoMovieHumanF1Vault";
-
 /**
  * The f1 figure in its reference pose, generated from its authored conic
  * families alone: no reference mesh, recovered curve or observation file is
@@ -651,15 +649,6 @@ export namespace AutoMovieHumanF1 {
    * trunk's face at [-51.7, 1276.4, 147.2].
    */
   const AXILLA_SEED: { phase: number; from: number; to: number } = { phase: 4.6173, from: 0.613, to: 0.669 };
-
-  /**
-   * Where the vault's cut is seeded, as the slit's: the middle of the longest branch of its cutter's measured crossing with the skin (`isect`),
-   * the arm side's 43 mm from 75 to 120 degrees, at station 7.5, phase 1.7628, [10.9, 1283.6, 160.3]; the twin's phase mirrored. The search
-   * spans 2 mm either side, shares 0.31 to 0.50 of the cutter's stations from its tip at -1 to its tip at 20. Its crossing is one loop on the
-   * band, at least 0.6 mm from every seam.
-   */
-  const VAULT_SEED: { phase: number; from: number; to: number } = { phase: 1.7628, from: 0.31, to: 0.5 };
-
   /**
    * Where the breast's band fans against the trunk below the breast's side on the +Z side, mm, and the radius it is faired over: a dark
    * dash on `fold.left` (px 600..640 x 335..345), folds of 14 degrees in the band's own triangles at [98..101, 1243..1247, 109..111]
@@ -1189,13 +1178,7 @@ export namespace AutoMovieHumanF1 {
       // 0.5 mm the twin's cutter face did not triangulate ("subconstraints cross without a supplied shared vertex"), with 256 columns or
       // the search reversed as well.
       const axilla: AutoMovieHumanConicLoft.IFamily = side > 0 ? AutoMovieHumanF1Axilla : twin(AutoMovieHumanF1Axilla);
-      root = { type: "join", kind: "diff", name: "cut." + axilla.name, host: root, part: leaf(axilla, Infinity, AXILLA_LAYER_MM), seed: { type: "search", partFace: axilla.name, hostFace: "band." + arm.face, phase: side > 0 ? AXILLA_SEED.phase : 2 * Math.PI - AXILLA_SEED.phase, from: AXILLA_SEED.from, to: AXILLA_SEED.to }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.00025 }, hostWidth: { type: "chord", value: 0.00025 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04 };
-      // The vault in front of the armpit, cut after the slit: the arm's band crosses it flat, 12 to 16 mm under the reference's vault. Its
-      // cutter is constructed by rule (`AutoMovieHumanF1Vault`, the plain 8-conic layout, every section of the vault being convex) and seeded
-      // where its surface measurably crosses the skin (`VAULT_SEED`); walked, blended and layered as the slit's.
-      const vault: AutoMovieHumanConicLoft.IFamily = side > 0 ? AutoMovieHumanF1Vault : twin(AutoMovieHumanF1Vault);
-      root = { type: "join", kind: "diff", name: "cut." + vault.name, host: root, part: leaf(vault, Infinity, AXILLA_LAYER_MM), seed: { type: "search", partFace: vault.name, hostFace: "band." + arm.face, phase: side > 0 ? VAULT_SEED.phase : 2 * Math.PI - VAULT_SEED.phase, from: VAULT_SEED.from, to: VAULT_SEED.to }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.00025 }, hostWidth: { type: "chord", value: 0.00025 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04 };
-      // The ear as its parts. The plate is the auricle's back sheet from its root, 6 mm inside the head, out to under the rim, the whole
+      root = { type: "join", kind: "diff", name: "cut." + axilla.name, host: root, part: leaf(axilla, Infinity, AXILLA_LAYER_MM), seed: { type: "search", partFace: axilla.name, hostFace: "band." + arm.face, phase: side > 0 ? AXILLA_SEED.phase : 2 * Math.PI - AXILLA_SEED.phase, from: AXILLA_SEED.from, to: AXILLA_SEED.to }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.00025 }, hostWidth: { type: "chord", value: 0.00025 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04 };      // The ear as its parts. The plate is the auricle's back sheet from its root, 6 mm inside the head, out to under the rim, the whole
       // lobule included; at mid heights it runs from the head out to the rim, so its front face is the concha's back wall. The helix and
       // the antihelix are round tubes along their crests, walked by their own length and seeded on their top lines, phase 0, which come up
       // out of the plate past their buried ends; the scapha and the fossa are the plate's floor between them. The plate is merged onto the
