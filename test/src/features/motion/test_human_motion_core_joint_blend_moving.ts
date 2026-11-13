@@ -16,33 +16,31 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
  * A joint blended between two ends that move keeps one course: as an end
- * turns a little, the blended rotation turns a little, wherever the blend
- * changes the way it goes between the ends.
+ * turns a little, the blended rotation turns a little, whichever reading the
+ * end is written in.
  *
  * An overlay that fades in over a walk blends the body without it and the
  * body with it, and both move. The right upper arm is blended at fixed
  * shares between a hanging arm (0, 5, 0) and a far end that travels, in
  * 2000 equal steps of its angles, from an arm raised forward and a little
  * out (60, 20, -30) to the solved shoulder of a reach across the body
- * (130.5, 141.4, 90). At the first the straight line of the angles is the
- * way; at the last the way through the other reading's gate is several
- * times shorter; between them the blend passes from one to the other.
+ * (130.5, 141.4, 90), which a three-angle box admits only in the other
+ * reading from the hanging arm's: the travel crosses the place where a blend
+ * of angles had to change the way it went.
  *
  * Scenarios, on the average man, at the shares 0.25, 0.5 and 0.75:
  * 1. The far end's own rotation turns less than a fifth of a degree from
  *    one step to the next (the premise: the end moves little).
  * 2. From one step to the next the blended rotation turns no more than
  *    1 degree, about the continuity audit's 5 mm at the elbow of an upper
- *    arm 0.3 m long. A blend that chooses one way or the other steps by the
- *    distance between the two ways, 5 degrees and more.
- * 3. The travel exercises both ways: at its first step the blend is the
- *    straight line of the angles, and at its last it is not.
+ *    arm 0.3 m long. A blend that chose between two ways stepped by the
+ *    distance between them, 5 degrees and more.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the one owner of a joint blend over a travelling end and reads the rotations its angles give; a blend that switches route at one step fails with the step, the share and the turn.
  * @evidence contracts/development/testing.md#independent-expectations The bound is the audit's distance at an upper arm's length, stated; the premise is measured on the end itself; nothing is read from the blend's choice.
- * @evidence contracts/development/testing.md#distinguishing-cases Three shares of the way and 2000 places of the far end across the change of route, with both routes shown to be exercised. Ends that hold still are `test_human_motion_core_joint_blend`'s.
+ * @evidence contracts/development/testing.md#distinguishing-cases Three shares of the way and 2000 places of the far end, from an end beside the near one to one written in the other reading. Ends that hold still are `test_human_motion_core_joint_blend`'s.
  * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic on one prepared body's joint axes; no performance is built.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule, where it comes from, the travel of the far end and the 3 scenarios with their bounds.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule, where it comes from, the travel of the far end and the 2 scenarios with their bounds.
  */
 export function test_human_motion_core_joint_blend_moving(): void {
   const complaints: string[] = [];
@@ -109,21 +107,6 @@ export function test_human_motion_core_joint_blend_moving(): void {
           .join("/")} and ${blend(step.at)
           .map((v: number): string => v.toFixed(1))
           .join("/")}; within 1 degree expected`,
-      );
-
-    // 3. Both ways are exercised.
-    const straight = (k: number): number =>
-      turn(
-        rotation(blend(k)),
-        rotation([
-          HANGING[0] + (far(k)[0] - HANGING[0]) * share,
-          HANGING[1] + (far(k)[1] - HANGING[1]) * share,
-          HANGING[2] + (far(k)[2] - HANGING[2]) * share,
-        ]),
-      );
-    if (!(straight(0) < 1e-6 && straight(STEPS) > 5))
-      complaints.push(
-        `at share ${share}: the blend lies ${straight(0).toFixed(3)} degrees from the straight line of the angles at the first step and ${straight(STEPS).toFixed(2)} at the last; on it at the first and more than 5 degrees off it at the last expected`,
       );
   }
   TestValidator.equals(

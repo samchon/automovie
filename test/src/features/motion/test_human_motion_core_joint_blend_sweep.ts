@@ -5,8 +5,10 @@ import {
   Quaternion,
   jointToQuaternion,
   skeletonJointAxes,
+  swingTwistRange,
 } from "@automovie/engine";
 import type {
+  IAutoMovieAngleRange,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieQuaternion,
@@ -16,6 +18,9 @@ import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { makeRng } from "../internal/random";
+
+/** The farthest the two ends of a judged step lie apart, degrees: short of the half turn where the shorter way between them changes sides. */
+const APART: number = 150;
 
 /**
  * Wherever in its range a joint's far end travels, the blend follows it
@@ -29,11 +34,23 @@ import { makeRng } from "../internal/random";
  * in (0.1, 0.9). Each travel is cut into steps of at most a tenth of a
  * degree of each angle.
  *
+ * No blend can follow every pair of ends: a choice of a path between every
+ * two rotations that moved continuously with both would contract the space
+ * of rotations to a point, which it is not, and two rotations half a turn
+ * apart have no shorter way between them to follow. So a step is judged
+ * where both its far ends lie under `APART` degrees from the near end, and
+ * where the turn about the arm of the arc's rotation at the share, before it
+ * is brought into the range, lies less than 60 degrees past the shoulder's
+ * swing-twist interval (the clamp of a turn onto an interval breaks at the
+ * turn farthest from it, `swingTwistRange`), and where that rotation points
+ * less than 150 degrees from the arm's rest direction (at its antipode the
+ * turn about the arm has no value at all).
+ *
  * Scenarios, on the average man:
  * 1. Along every travel, where the far end's own rotation turns less than
- *    0.3 degrees in a step, the blended rotation turns no more than
- *    1.5 degrees in it (five times the end's step and above the continuity
- *    audit's 5 mm at an upper arm's length).
+ *    0.3 degrees in a step and the step is judged as above, the blended
+ *    rotation turns no more than 1.5 degrees in it (five times the end's
+ *    step and above the continuity audit's 5 mm at an upper arm's length).
  *
  * A failing row names the travel's draw, the step, the near end, the two
  * far ends of the step and the two blended triples, so the case can be
@@ -77,6 +94,26 @@ export function test_human_motion_core_joint_blend_sweep(): void {
   ];
   const text = (of: readonly [number, number, number]): string =>
     of.map((v: number): string => v.toFixed(2)).join("/");
+  // How far a far end's turn about the arm lies past the shoulder's
+  // swing-twist interval, degrees, on the nearer side.
+  const shoulder: IAutoMovieJointConstraint =
+    DEFAULT_HUMANOID_ROM.rightUpperArm!;
+  const twistPast = (q: IAutoMovieQuaternion): number => {
+    const reading: swingTwistRange.IReading = swingTwistRange.read(q, {
+      axes: axes!,
+      frame: HUMANOID_REST_FRAME.rightUpperArm,
+    });
+    // Near the rest direction's antipode the turn about the arm is not
+    // defined, so such an arc is never judged.
+    if (reading.swing >= 150) return Infinity;
+    const turned: number = reading.twist;
+    const interval: IAutoMovieAngleRange = shoulder.swingTwist!.twist;
+    return Math.min(
+      ...[-360, 0, 360].map((k: number): number =>
+        Math.max(0, interval.min - (turned + k), turned + k - interval.max),
+      ),
+    );
+  };
   const complaints: string[] = [];
   for (let draw: number = 0; draw < 120; ++draw) {
     const near: [number, number, number] = drawn();
@@ -111,7 +148,16 @@ export function test_human_motion_core_joint_blend_sweep(): void {
         far(k),
         share,
       );
-      if (turn(rotation(far(k - 1)), rotation(far(k))) < 0.3) {
+      if (
+        turn(rotation(far(k - 1)), rotation(far(k))) < 0.3 &&
+        [far(k - 1), far(k)].every(
+          (end: readonly [number, number, number]): boolean =>
+            turn(rotation(near), rotation(end)) < APART &&
+            twistPast(
+              Quaternion.slerp(rotation(near), rotation(end), share),
+            ) < 60,
+        )
+      ) {
         const value: number = turn(rotation(previous), rotation(here));
         if (value > worst.value) worst = { value, at: k };
       }

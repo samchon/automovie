@@ -20,7 +20,14 @@ const ballConstraint = (
   abduction: IAutoMovieAngleRange | null,
   twist: IAutoMovieAngleRange | null,
   swingDeg: number,
-): IAutoMovieJointConstraint => ({ flexion, abduction, twist, swingDeg });
+  turn?: IAutoMovieAngleRange,
+): IAutoMovieJointConstraint => ({
+  flexion,
+  abduction,
+  twist,
+  swingDeg,
+  ...(turn === undefined ? {} : { swingTwist: { twist: turn } }),
+});
 
 /**
  * Generic finger phalanx: flexes forward, slight hyperextension, no
@@ -60,6 +67,29 @@ const FINGER = constraint(range(-20, 100), null, null);
  * pure-plane 180° (arm straight overhead) must stay legal, so no cap below 180
  * is possible without rejecting canonical overhead poses. The value documents
  * the sourced anatomical bound rather than gating anything.
+ *
+ * The shoulders are gated by swing and twist
+ * (`IAutoMovieJointConstraint.swingTwist`): the limb may point wherever its
+ * flexion and abduction intervals (and the cone) reach, and may turn about
+ * its own axis within an interval measured from the rig's rest pose. Their
+ * clinical `twist` interval is then a reading only. Read as three angles,
+ * the shoulder's twist range is fixed in a frame that turns once about the
+ * arm pointing straight ahead, so two arms a fraction of a degree apart there
+ * could lie one inside and one far outside it, and an arm on a table with its
+ * forearm up (flexion 135, abduction 71) read only 22 degrees of external
+ * rotation left. The shoulder's rest is the T-pose, 90 degrees of
+ * abduction, where its rotation is measured clinically (external 90,
+ * internal 70, as relayed for the AAOS norms and not checked against a
+ * primary source here). Measured from that rest, the turn a raised or a
+ * lowered arm needs is larger: a hand behind the head reads 128 degrees and
+ * a hand clasped behind the back -104 (the reaches of
+ * 	est_motion_fit_chain_reach, which the three-angle box admitted). So the
+ * interval is [-110, 135], provisional: one interval for every swing, where
+ * the anatomical limit depends on the swing. The hips keep the three-angle
+ * gate: their twist is proximal, about the rest axis, and measured from rest
+ * by swing and twist the turns their box admits run from -106 to 91 degrees
+ * (deep flexion with abduction), which no one interval of the clinical 45
+ * each way holds: a deadlift's planted feet slid 33.6 mm under it.
  */
 export const DEFAULT_HUMANOID_ROM: Partial<
   Record<AutoMovieHumanoidBone, IAutoMovieJointConstraint>
@@ -86,12 +116,14 @@ export const DEFAULT_HUMANOID_ROM: Partial<
     range(-30, 180),
     range(-90, 90),
     180,
+    range(-110, 135),
   ),
   rightUpperArm: ballConstraint(
     range(-60, 180),
     range(-30, 180),
     range(-90, 90),
     180,
+    range(-110, 135),
   ),
   leftLowerArm: constraint(range(0, 150), null, range(-90, 90)),
   rightLowerArm: constraint(range(0, 150), null, range(-90, 90)),

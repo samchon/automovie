@@ -207,7 +207,7 @@ export namespace swingTwistRange {
    * @returns The radius, degrees.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the reading and its interpolation.
-   * @evidence contracts/development/implementation.md#principled-implementation The radius is read on RAYS great circles once, from the farthest reached swing on each, found by a scan from the far end and a bisection, raised to turn no faster than `SLOPE` with the azimuth, and interpolated linearly between them, which is continuous in the azimuth.
+   * @evidence contracts/development/implementation.md#principled-implementation The radius is read on `RAYS` great circles once, from the farthest reached swing on each, found by a scan from the far end and a bisection, raised to turn no faster than `SLOPE` with the azimuth, and interpolated linearly between them, which is continuous in the azimuth.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One table lookup and one interpolation.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scan runs from the far end, so a ray the ranges leave and re-enter keeps its farthest reach: the radius is the star's, not the first exit's.
    * @evidence contracts/development/implementation.md#efficient-algorithms The table is built once per constraint and basis and kept.
@@ -351,10 +351,39 @@ function build(
     }
     table[ray] = lo;
   }
+  // A proximal twist turns about the rest axis outside the flexion and the
+  // abduction, so it carries every reached direction around the rest
+  // direction by its own angle: on a hip flexed forward it swings the thigh
+  // sideways. The directions its interval reaches are then those of no
+  // twist turned by any twist in it, which shifts each ray's reach along the
+  // azimuth.
+  const twist: IAutoMovieAngleRange | null = constraint.twist;
+  if (joint.axes.twistPlacement !== "distal" && twist !== null) {
+    const ends: readonly number[] = [
+      toRigAngle(twist.min, joint.frame?.twist)!,
+      toRigAngle(twist.max, joint.frame?.twist)!,
+    ];
+    const low: number = Math.min(...ends);
+    const high: number = Math.max(...ends);
+    const width: number = 360 / swingTwistRange.RAYS;
+    const turned: Float64Array = new Float64Array(swingTwistRange.RAYS);
+    for (let ray: number = 0; ray < swingTwistRange.RAYS; ++ray) {
+      let most: number = table[ray]!;
+      for (let shift: number = low; shift <= high + 1e-9; shift += width) {
+        const from: number =
+          (((Math.round(ray - shift / width) % swingTwistRange.RAYS) +
+            swingTwistRange.RAYS) %
+            swingTwistRange.RAYS);
+        most = Math.max(most, table[from]!);
+      }
+      turned[ray] = most;
+    }
+    table.set(turned);
+  }
   // Where the region's edge runs along a ray the farthest reach jumps
   // between two rays, and a projection along the rays would jump with it.
   // So the radius is raised to the least function at or above it that turns
-  // no faster than SLOPE degrees of radius per degree of azimuth: the
+  // no faster than `SLOPE` degrees of radius per degree of azimuth: the
   // region gains a sliver beside such an edge and loses nothing.
   const raised: Float64Array = new Float64Array(swingTwistRange.RAYS);
   const width: number = 360 / swingTwistRange.RAYS;

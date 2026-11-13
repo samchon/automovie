@@ -54,12 +54,19 @@ import { makeRng, randomUnitQuaternion } from "../internal/random";
  *    azimuth, and the azimuth moves up to twice the step there), and the
  *    projected rotation is inside the range (its overshoot under a millionth
  *    of a degree).
+ * 5. The default shoulder's interval, provisional (one interval of the turn
+ *    measured from the T-pose for every swing, where the anatomical limit
+ *    depends on the swing): a hand behind the head, clasped behind the back
+ *    and on the hip (the three-angle readings the engine's own reaches gave,
+ *    turns of 128.4, -103.8 and -80.2 from rest) lie inside it, and each with
+ *    the forearm wound a further 60 degrees about the arm, away from rest's
+ *    turn, lies outside.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public reading, measure and projection on the humanoid's own axes and frames; a reversed twist sign, a region with a hole along a ray, a range the region misses, a projection that moves a rotation inside or steps between two near rotations fails with the joint and the numbers.
  * @evidence contracts/development/testing.md#independent-expectations The sign comes from what external rotation does to a forearm; the region's content from the clinical intervals through the forward conversion; continuity from the steps' sizes; nothing is read back from the radius table.
  * @evidence contracts/development/testing.md#distinguishing-cases Both shoulders and both hips, both readings of a direction by the seeded triples, rotations inside and outside, and paths across the region's edge.
  * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic on engine tables; it runs in the CI test job.
- * @evidence contracts/development/common.md#meaningful-documentation States the joints, their intervals and the 4 scenarios with their bounds.
+ * @evidence contracts/development/common.md#meaningful-documentation States the joints, their intervals and the 5 scenarios with their bounds.
  */
 export function test_kinematics_swing_twist_range(): void {
   const complaints: string[] = [];
@@ -241,6 +248,58 @@ export function test_kinematics_swing_twist_range(): void {
     if (worst.value > 0.05)
       complaints.push(
         `${bone}: the projected rotation turns ${worst.value.toFixed(2)} degrees more than six times the step at ${worst.at}, within 0.05 expected`,
+      );
+  }
+
+  // 5. The default shoulder's provisional interval: daily poses in, the
+  // forearm wound a further 60 degrees past each out.
+  const shoulder: IAutoMovieJointConstraint = DEFAULT_HUMANOID_ROM.leftUpperArm!;
+  const arm: swingTwistRange.IJoint = {
+    axes: HUMANOID_JOINT_AXES.leftUpperArm!,
+    frame: HUMANOID_REST_FRAME.leftUpperArm,
+  };
+  const axis: IAutoMovieVector3 = Vector3.normalize(arm.axes.twist);
+  for (const [pose, triple] of [
+    ["a hand behind the head", [180, -10.2, -51.6]],
+    ["a hand clasped behind the back", [-27.2, 11.3, -81.3]],
+    ["a hand on the hip", [-10.4, 27.6, -73.9]],
+  ] as const) {
+    const q: IAutoMovieQuaternion = jointToQuaternion(
+      { flexion: triple[0], abduction: triple[1], twist: triple[2] },
+      arm.axes,
+      arm.frame,
+    );
+    const inside: number = swingTwistRange.overshoot(q, shoulder, arm);
+    if (inside > 0)
+      complaints.push(
+        `the default shoulder refuses ${pose} by ${inside.toFixed(2)} degrees, inside expected`,
+      );
+    const turned: number = swingTwistRange.read(q, arm).twist;
+    const wound: number[] = [60, -60].map(
+      (rig: number): number =>
+        swingTwistRange.read(
+          Quaternion.multiply(q, Quaternion.fromAxisAngle(axis, rig)),
+          arm,
+        ).twist,
+    );
+    // The way past the end the pose is nearer, 60 degrees on: the wound
+    // turn whose difference from the pose's, read around the circle, has the
+    // pose's sign.
+    const change = (w: number): number =>
+      ((((w - turned + 180) % 360) + 360) % 360) - 180;
+    const which: number = change(wound[0]!) * turned >= 0 ? 0 : 1;
+    const away: number = wound[which]!;
+    const outside: number = swingTwistRange.overshoot(
+      Quaternion.multiply(
+        q,
+        Quaternion.fromAxisAngle(axis, which === 0 ? 60 : -60),
+      ),
+      shoulder,
+      arm,
+    );
+    if (!(outside > 0))
+      complaints.push(
+        `the default shoulder admits ${pose} with the forearm wound 60 degrees further (turn ${turned.toFixed(1)} to ${away.toFixed(1)}), refused expected`,
       );
   }
   TestValidator.equals(

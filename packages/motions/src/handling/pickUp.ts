@@ -183,16 +183,41 @@ export namespace pickUp {
       }
       return found;
     };
+    const goal = (turn: number, tilt: number): HumanHand.IWrist =>
+      HumanGrasp.hand(body, side, HumanGrasp.around(authored, turn), tilt);
+    const tilts: readonly number[] =
+      context.params.use === undefined
+        ? [-45, -30, -15, 0, 15, 30, 45]
+        : HumanGraspUse.OBLIQUE;
+    // A turn whose wrist lies beyond the straight arm at some tilt is tried
+    // only when no turn keeps every tilt within reach: the choice and the
+    // refusal below read the same reach, so a grip a millimetre beyond it is
+    // never chosen over one within it for a cheaper elbow.
+    const turnsAsked: readonly number[] =
+      context.params.use === undefined
+        ? HumanGrasp.TURNS
+        : HumanGraspUse.AROUND;
+    const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(
+      body,
+      context.entry.posture,
+    ).get(`${side}UpperArm`)!.worldPosition;
+    const within: readonly number[] = turnsAsked.filter(
+      (turn: number): boolean =>
+        tilts.every(
+          (tilt: number): boolean =>
+            Vector3.length(
+              Vector3.subtract(goal(turn, tilt).point, shoulder),
+            ) <=
+            body.measure.upperArm + body.measure.forearm + 1e-6,
+        ),
+    );
     const chosen: HumanGrasp.IReach = HumanGrasp.reachable(
       body,
       held,
       side,
       bend,
-      (turn: number, tilt: number): HumanHand.IWrist =>
-        HumanGrasp.hand(body, side, HumanGrasp.around(authored, turn), tilt),
-      context.params.use === undefined
-        ? [-45, -30, -15, 0, 15, 30, 45]
-        : HumanGraspUse.OBLIQUE,
+      goal,
+      tilts,
       (
         wrist: HumanHand.IWrist,
         shown: HumanHand.IWrist,
@@ -229,9 +254,7 @@ export namespace pickUp {
       ],
 
       // A grasp for a use may have to come from the far side of the handle.
-      context.params.use === undefined
-        ? HumanGrasp.TURNS
-        : HumanGraspUse.AROUND,
+      within.length === 0 ? turnsAsked : within,
 
       // A grasp that holds the use's pose comes before any that does not,
       // whatever else each costs; the use's pose is the stroke's last key.

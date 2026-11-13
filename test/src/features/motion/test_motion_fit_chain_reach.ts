@@ -7,6 +7,7 @@ import {
   Vector3,
   fitChainToTarget,
   indexSkeletonTopology,
+  jointRomOvershoot,
   resolvePose,
   rotationBetween,
 } from "@automovie/engine";
@@ -471,21 +472,14 @@ function joint(
   );
 }
 
-/** Whether a joint lies inside its default range, 1e-6 degrees allowed for rounding. */
+/**
+ * Whether a joint lies inside its default range, 1e-6 degrees allowed for
+ * rounding, by the engine's own measure: the shoulder's range is a swing and
+ * a twist (IAutoMovieJointConstraint.swingTwist), which its three clinical
+ * angles only read, and the elbow's is its three angles.
+ */
 function inRange(j: IAutoMovieJointPose): boolean {
-  const c = DEFAULT_HUMANOID_ROM[j.bone]!;
-  const within = (
-    v: number | null,
-    r: { min: number; max: number } | null,
-  ): boolean =>
-    r === null
-      ? Math.abs(v ?? 0) < 1e-6
-      : (v ?? 0) >= r.min - 1e-6 && (v ?? 0) <= r.max + 1e-6;
-  return (
-    within(j.flexion, c.flexion) &&
-    within(j.abduction, c.abduction) &&
-    within(j.twist, c.twist)
-  );
+  return jointRomOvershoot(j, DEFAULT_HUMANOID_ROM[j.bone]!) <= 1e-6;
 }
 
 /** A hand's world rotation from rest for where its fingers point and its palm faces (rest: left fingers +X, right fingers -X, palms -Y). */

@@ -51,7 +51,7 @@ export const clampJointRom: (
   constraint: IAutoMovieJointConstraint,
 ): IAutoMovieJointPose => {
   // A ball joint gated by swing and twist is brought into its range as a
-  // rotation (swingTwistRange.project) and read back in the reading the
+  // rotation (`swingTwistRange.project`) and read back in the reading the
   // three-angle box prefers.
   if (
     constraint.swingTwist !== undefined &&
@@ -62,31 +62,26 @@ export const clampJointRom: (
       axes: HUMANOID_JOINT_AXES[joint.bone]!,
       frame: HUMANOID_REST_FRAME[joint.bone],
     };
+    // A non-finite angle first becomes its rest, as on every other joint.
     const finite = (value: number | null): number | null =>
       value === null || Number.isFinite(value) ? value : 0;
+    const sanitized: IAutoMovieJointPose = {
+      bone: joint.bone,
+      flexion: finite(joint.flexion),
+      abduction: finite(joint.abduction),
+      twist: finite(joint.twist),
+    };
     const q: IAutoMovieQuaternion = jointToQuaternion(
-      {
-        flexion: finite(joint.flexion),
-        abduction: finite(joint.abduction),
-        twist: finite(joint.twist),
-      },
+      sanitized,
       range.axes,
       range.frame,
     );
-    const projected: IAutoMovieQuaternion = swingTwistRange.project(
-      q,
-      constraint,
-      range,
-    );
-    if (
-      projected === q &&
-      [joint.flexion, joint.abduction, joint.twist].every(
-        (v: number | null): boolean => v === null || Number.isFinite(v),
-      )
-    )
-      return { ...joint };
+    // A joint on the range's edge within a rounding error is inside, so a
+    // clamped joint clamps to itself.
+    if (swingTwistRange.overshoot(q, constraint, range) <= EDGE)
+      return sanitized;
     const read: IAutoMovieResolvedJointAngles = decomposeJointRotation(
-      projected,
+      swingTwistRange.project(q, constraint, range),
       range.axes,
       range.frame,
       { bone: joint.bone, constraint: { ...constraint, swingTwist: null } },
@@ -147,6 +142,9 @@ export const clampJointRom: (
  * brackets it, else the nearer bound. This is the swing cone's pull target: the
  * joint's most-retracted reachable articulation on that axis.
  */
+/** How far past a swing-twist range a joint may lie and count as on its edge, degrees: a millionth, above the rounding of a rotation read back into angles. */
+const EDGE: number = 1e-6;
+
 const nearestNeutral: (allowed: IAutoMovieAngleRange | null) => number = (
   allowed: IAutoMovieAngleRange | null,
 ): number =>
