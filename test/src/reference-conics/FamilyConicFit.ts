@@ -152,6 +152,16 @@ export namespace FamilyConicFit {
 
     // Start from each section's own geometric reading, projected onto the shared knots by linear least squares.
     const seeds: number[][] = train.map((row: IRow): number[] => C.seed(row.points, layout));
+    // A feature's heading is an angle read on each section alone; carried along the stations it is unwrapped onto one branch, so the
+    // projection onto the knots does not average two readings a turn apart.
+    for (let f: number = 0; f < F; ++f) {
+      if (units[f] !== "angle") continue;
+      for (let i: number = 1; i < seeds.length; ++i) {
+        const previous: number = seeds[i - 1]![f]!;
+        while (seeds[i]![f]! - previous > Math.PI) seeds[i]![f]! -= 2 * Math.PI;
+        while (seeds[i]![f]! - previous < -Math.PI) seeds[i]![f]! += 2 * Math.PI;
+      }
+    }
     const gram: number[][] = zeros(M, M);
     for (const b of B) for (let m: number = 0; m < M; ++m) for (let n: number = 0; n < M; ++n) gram[m]![n]! += b[m]! * b[n]!;
     let Y: number[][] = [];
@@ -203,7 +213,27 @@ export namespace FamilyConicFit {
       return { total, residuals };
     };
     let current: { total: number; residuals: number[][] } | null = cost(Y);
-    if (current === null) return failed("the projected seed is not an admissible conic chain on every fitting section");
+    // A projection of sections' own seeds onto few knots can leave stations whose chain is no conic chain, where features appear and
+    // fade along the part. One section's seed held at every knot is the same admissible chain at every station; the joint fit starts from
+    // it, sections nearest the middle first, and the admissibility of every station is kept on the way.
+    if (current === null && initial === undefined)
+      for (const i of train.map((_: IRow, i: number): number => i).sort((a: number, b: number): number => Math.abs(a - train.length / 2) - Math.abs(b - train.length / 2))) {
+        const flat: number[][] = seeds[i]!.map((value: number): number[] => new Array<number>(M).fill(value));
+        const tried: { total: number; residuals: number[][] } | null = cost(flat);
+        if (tried === null) continue;
+        Y = flat;
+        current = tried;
+        break;
+      }
+    if (current === null) {
+      // `--seeds`: which sections' own seeds and projected seeds are admissible chains, by station, so a refused seed is placed.
+      if (process.argv.includes("--seeds"))
+        process.stderr.write(
+          "first refused seed: " + (train.map((row: IRow, i: number): string => (C.chain(seeds[i]!, layout).fault === null ? "" : row.s.toFixed(1) + " " + C.chain(seeds[i]!, layout).fault + " values " + seeds[i]!.map((x: number): string => x.toFixed(2)).join(","))).find((x: string): boolean => x.length > 0) ?? "none") + "\n" +
+          "seeds: " + train.map((row: IRow, i: number): string => row.s.toFixed(1) + (C.chain(seeds[i]!, layout).fault === null ? "+" : "-") + (C.chain(theta(Y, B[i]!), layout).fault === null ? "+" : "-")).join(" ") + "\n",
+        );
+      return failed("the projected seed is not an admissible conic chain on every fitting section");
+    }
 
     // Levenberg-Marquardt with a finite-difference section Jacobian chained through the linear station basis.
     const steps: number[] = Array.from({ length: F }, (_: unknown, f: number): number => (units[f] === "mm" ? 1e-4 : 1e-6));

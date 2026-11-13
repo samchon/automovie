@@ -13,6 +13,7 @@ import { AutoMovieHumanConicSection } from "@automovie/human";
  * 6. A guide on its box corner is held back: with the forward extreme's touch offset equal to the side support, the chain is still admitted and the guide stands below the corner on its own support line.
  * 7. The bilateral helper reads the ellipse: `bilateral(0)` on the ellipse's half with the ellipse shoulder, and `bilateral(1)` with every median at that shoulder and every half shoulder from rational subdivision, are the ellipse at every phase; `bilateral(1)` has 10 fields where `limb(1)` has 20.
  * 8. `continuous` makes the curvature continuous at a median: on f1's trunk section over the hips the polar curve's one-sided curvatures at its first median differ more than twentyfold as stored and agree within 3 % after, with every anchor in place.
+ * 9. A feature anchor (`f`) stands where its numbers put it with its own tangent: on the ellipse, at its point of parameter 45 degrees with the ellipse's tangent there, its fields are mm, mm and an angle, the chain is admitted and the resolved anchor is that point and direction.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanConicSection.chain`, `resolve`, `limb`, `bilateral` and `units` and reads the resulting engine chain with `AutoMovieViewChain.radius`.
  * @evidence contracts/development/testing.md#independent-expectations The ellipse's polar radius `1 / sqrt((cos / a)^2 + (sin / b)^2)` is a closed form; the subdivision weights are Farin's rational de Casteljau step at `t = 1/2` with end weights renormalised, a property of conics independent of this code; mirror symmetry is a geometric identity.
@@ -133,5 +134,20 @@ export function test_human_conic_section(): void {
   const moved: AutoMovieHumanConicSection.P = S.resolve(smooth, S.bilateral(1)).input.points[1]!;
   if (!(moved[0] === median[0] && moved[1] === median[1]) || smooth.slice(0, 6).some((x: number, k: number): boolean => x !== hip[k])) failures.push("hip median made continuous: an anchor moved");
 
+  // 9. A feature anchor stands where its numbers put it, with its own tangent: on the ellipse of scenario 1, a feature between the forward
+  // and the side extreme at the ellipse's point of parameter 45 degrees, its tangent the ellipse's there; its fields are mm, mm and an angle,
+  // the chain is admitted, and the resolved anchor is that point and that direction.
+  const featured: AutoMovieHumanConicSection.ILayout = { mirror: false, anchors: [S.limb(0).anchors[0]!, { kind: "f", feature: "convex" }, ...S.limb(0).anchors.slice(1)] };
+  const at45: [number, number] = [40 * Math.SQRT1_2, 25 * Math.SQRT1_2];
+  const heading: number = Math.atan2(25 * Math.SQRT1_2, -40 * Math.SQRT1_2);
+  const withFeature: number[] = [40, 0, at45[0], at45[1], heading, 0, 25, -40, 0, 0, -25, ...new Array<number>(5).fill(0.4)];
+  const featureUnits: string = S.units(featured).slice(2, 5).join(",");
+  if (featureUnits !== "mm,mm,angle") failures.push(`feature anchor fields: ${featureUnits}, expected mm,mm,angle`);
+  const resolvedFeature: AutoMovieHumanConicSection.IChain = S.resolve(withFeature, featured);
+  const point: number[] = resolvedFeature.input.points[1]! as number[];
+  const tangent: number[] = resolvedFeature.input.tangents[1]! as number[];
+  if (!(Math.hypot(point[0]! - at45[0], point[1]! - at45[1]) <= 1e-12)) failures.push(`feature anchor at ${point.join(",")}, expected ${at45.join(",")}`);
+  if (!(Math.abs(Math.atan2(tangent[1]!, tangent[0]!) - heading) <= 1e-12)) failures.push(`feature anchor heading ${Math.atan2(tangent[1]!, tangent[0]!)}, expected ${heading}`);
+  if (S.chain(withFeature, featured).fault !== null) failures.push(`feature chain refused: ${S.chain(withFeature, featured).fault}`);
   if (failures.length > 0) throw new Error("human conic section:\n" + failures.join("\n"));
 }
