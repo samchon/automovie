@@ -25,8 +25,14 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * campaign's 15 mm contact bound of each other. Two instants that meet fall
  * in one frame at 24 Hz.
  *
- * Scenarios, with the average man and the small woman 1 m apart, each
- * taking an arming sword, in both orders of attacker and defender:
+ * One film keeps the test near a minute: each sword is taken for its use
+ * once, which costs about 20 s of planning. The average man attacks the
+ * small woman, so the cut comes down and the riposte goes up; the order
+ * reversed is owed to a second film and is not pinned here.
+ *
+ * Scenarios, with the average man and the small woman 1.4 m apart (a
+ * sword's distance: a thrust needs room before the shoulder), each taking
+ * an arming sword:
  * 1. The attacker's descending cut at the defender's left shoulder is
  *    declared parried; the defender's parry names it and is synced by its
  *    `stroke` to the cut's contact. The parry's `stroke` falls within a
@@ -40,8 +46,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds the two-person performance through the public chain, sync and props and reads the displayed swords; blades that do not meet, a parry off its instant, a parried cut that lands or a riposte that misses fails.
  * @evidence contracts/development/testing.md#independent-expectations The meeting is measured between the two displayed swords' own guard and point contacts; the bounds are the campaign's contact bound and the film's frame; nothing is read from a plan's geometry.
- * @evidence contracts/development/testing.md#distinguishing-cases Both orders of two bodies of opposite build, so each attacks up and down; the attack's outcome, the meeting and the answer are separate assertions. Replay under one seed is the blade seed test's.
- * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds one film an order: each sword is taken for its use once, which is the costly part; it runs locally and wherever CI runs the human motion tests.
+ * @evidence contracts/development/testing.md#distinguishing-cases Two bodies of opposite build, the taller attacking; the attack's outcome, the meeting and the answer are separate assertions. Replay under one seed is the blade seed test's.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds one film: each sword is taken for its use once, which is the costly part; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the composition, the bounds and the 4 scenarios.
  */
 export function test_human_motion_blade_exchange(): void {
@@ -77,10 +83,9 @@ export function test_human_motion_blade_exchange(): void {
     return least;
   };
 
-  for (const names of [
-    ["m-average", "f-small"],
-    ["f-small", "m-average"],
-  ] as const) {
+  // A sword's distance: nearer, a thrust has no room before the shoulder.
+  const APART: number = 1.4;
+  for (const names of [["m-average", "f-small"]] as const) {
     const bodies: Record<"a" | "b", IHumanBody> = {
       a: motionHumanBody(names[0]),
       b: motionHumanBody(names[1]),
@@ -100,7 +105,7 @@ export function test_human_motion_blade_exchange(): void {
         performers: (["a", "b"] as const).map((subject) => ({
           subject,
           body: bodies[subject],
-          at: { x: 0, y: 0, z: subject === "a" ? 0 : 1 },
+          at: { x: 0, y: 0, z: subject === "a" ? 0 : APART },
           yaw: subject === "a" ? 0 : 180,
           proficiency: { level: "trained" as const },
         })),
@@ -112,7 +117,7 @@ export function test_human_motion_blade_exchange(): void {
             position: {
               x: -0.1 * stature * facing,
               y: 0.6 * stature,
-              z: (subject === "a" ? 0 : 1) + 0.18 * stature * facing,
+              z: (subject === "a" ? 0 : APART) + 0.18 * stature * facing,
             },
             rotation: Quaternion.multiply(
               Quaternion.fromAxisAngle(

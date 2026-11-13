@@ -153,6 +153,8 @@ export function test_human_motion_sport_workout(): void {
     };
     const mm = (value: number): string => `${value.toFixed(1)} mm`;
     const m = (value: number): string => `${value.toFixed(3)} m`;
+    const at = (point: IAutoMovieVector3): string =>
+      `(${point.x.toFixed(3)}, ${point.y.toFixed(3)}, ${point.z.toFixed(3)})`;
 
     // 1. Push-up.
     const top: number = when("pushUp", "top1");
@@ -167,7 +169,7 @@ export function test_human_motion_sport_workout(): void {
       expect(
         `the push-up keeps the ${bone} within 10 mm`,
         moved(top, bottom, bone) <= 10,
-        mm(moved(top, bottom, bone)),
+        `${mm(moved(top, bottom, bone))}: the wrist at ${at(joint(top, bone))} on top and ${at(joint(bottom, bone))} at the bottom, the shoulders at ${at(joint(top, "leftUpperArm", "rightUpperArm"))} and ${at(joint(bottom, "leftUpperArm", "rightUpperArm"))}, the toes at ${at(joint(top, "leftToes", "rightToes"))}`,
       );
     const lowered: number =
       joint(top, "leftUpperArm", "rightUpperArm").y -
@@ -295,7 +297,7 @@ export function test_human_motion_sport_workout(): void {
       expect(
         "the turn keeps the left toes' joint within 5 mm",
         moved(before, instant, "leftToes") <= 5,
-        mm(moved(before, instant, "leftToes")),
+        `${mm(moved(before, instant, "leftToes"))}: at ${at(joint(before, "leftToes"))} before, ${at(joint(before + 0.05, "leftToes"))} 0.05 s in, ${at(joint(instant, "leftToes"))} then`,
       );
 
     // 8. Forward salto.
