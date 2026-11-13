@@ -69,6 +69,7 @@ export namespace HumanGraspReach {
    * @param stroke The further key poses the same grip must reach, from its grasp goal and from the hand the arm shows for that goal: what is held is rigid in the shown hand, so a key that places the held thing is built from the shown one. None when absent.
    * @param turns The turns tried, degrees; -90 to 90 in steps of 15 when absent.
    * @param required What a grip must hold before its cost counts: a measure of its per-key errors (the grasp's, then each stroke key's) and the most it may be. A grip within the bound is chosen before any beyond it; with none within, the one nearest the bound is returned for the caller to refuse. Absent, the least cost alone decides.
+   * @param admits Whether the caller can take a candidate's grasp goal at all (a pick-up's wrist within the straight arm's reach, which it refuses beyond): a candidate it refuses is tried only when it refuses every one, so a cheaper fit never wins a grip the caller must then refuse. Every candidate when absent.
    * @returns The best turn and tilt, their goal, the hand the arm achieves for it, and the arm's solution there.
    */
   export function reachable(
@@ -87,6 +88,7 @@ export namespace HumanGraspReach {
       bound: number;
       measure: (keys: readonly number[]) => number;
     },
+    admits?: (wrist: HumanHand.IWrist) => boolean,
   ): HumanGrasp.IReach {
     const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
     // One key pose fitted: the pose and the error the arm leaves there, the
@@ -194,20 +196,30 @@ export namespace HumanGraspReach {
       preference: number;
       floor: number;
     }[] = [];
-    for (const turn of turns)
-      for (const tilt of tilts) {
-        const wrist: HumanHand.IWrist = goal(turn, tilt);
-        const grasp = fit({ posture, wrist, bend }, undefined);
-        const preference: number = 0.01 * (Math.abs(turn) + Math.abs(tilt));
-        candidates.push({
-          turn,
-          tilt,
-          wrist,
-          grasp,
-          preference,
-          floor: grasp.miss + grasp.departure + preference,
-        });
-      }
+    // The candidates the caller can take, or every one when it can take none.
+    const pairs: [number, number][] = turns.flatMap(
+      (turn: number): [number, number][] =>
+        tilts.map((tilt: number): [number, number] => [turn, tilt]),
+    );
+    const taken: [number, number][] =
+      admits === undefined
+        ? pairs
+        : pairs.filter(([turn, tilt]: [number, number]): boolean =>
+            admits(goal(turn, tilt)),
+          );
+    for (const [turn, tilt] of taken.length === 0 ? pairs : taken) {
+      const wrist: HumanHand.IWrist = goal(turn, tilt);
+      const grasp = fit({ posture, wrist, bend }, undefined);
+      const preference: number = 0.01 * (Math.abs(turn) + Math.abs(tilt));
+      candidates.push({
+        turn,
+        tilt,
+        wrist,
+        grasp,
+        preference,
+        floor: grasp.miss + grasp.departure + preference,
+      });
+    }
     candidates.sort(
       (a: { floor: number }, b: { floor: number }): number => a.floor - b.floor,
     );

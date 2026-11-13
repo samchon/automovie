@@ -190,28 +190,21 @@ export namespace pickUp {
       context.params.use === undefined
         ? [-45, -30, -15, 0, 15, 30, 45]
         : HumanGraspUse.OBLIQUE;
-    // A turn whose wrist lies beyond the straight arm at some tilt is tried
-    // only when no turn keeps every tilt within reach: the choice and the
-    // refusal below read the same reach, so a grip a millimetre beyond it is
-    // never chosen over one within it for a cheaper elbow.
     const turnsAsked: readonly number[] =
       context.params.use === undefined
         ? HumanGrasp.TURNS
         : HumanGraspUse.AROUND;
+    // A grasp whose wrist lies beyond the straight arm is tried only when
+    // every one does: the choice and the refusal below read the same reach,
+    // so a grip a millimetre beyond it is never chosen over one within it for
+    // a cheaper fit. Each turn and tilt is judged on its own; a turn kept
+    // only while all its tilts were within reach fell back to every turn when
+    // none kept all seven, and a glass across the body was refused a grip
+    // 9 mm beyond the arm while others lay within it.
     const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(
       body,
       context.entry.posture,
     ).get(`${side}UpperArm`)!.worldPosition;
-    const within: readonly number[] = turnsAsked.filter(
-      (turn: number): boolean =>
-        tilts.every(
-          (tilt: number): boolean =>
-            Vector3.length(
-              Vector3.subtract(goal(turn, tilt).point, shoulder),
-            ) <=
-            body.measure.upperArm + body.measure.forearm + 1e-6,
-        ),
-    );
     const chosen: HumanGrasp.IReach = HumanGrasp.reachable(
       body,
       held,
@@ -254,7 +247,7 @@ export namespace pickUp {
       ],
 
       // A grasp for a use may have to come from the far side of the handle.
-      within.length === 0 ? turnsAsked : within,
+      turnsAsked,
 
       // A grasp that holds the use's pose comes before any that does not,
       // whatever else each costs; the use's pose is the stroke's last key.
@@ -265,6 +258,9 @@ export namespace pickUp {
             measure: (keys: readonly number[]): number =>
               keys[keys.length - 1] ?? 0,
           },
+      (wrist: HumanHand.IWrist): boolean =>
+        Vector3.length(Vector3.subtract(wrist.point, shoulder)) <=
+        body.measure.upperArm + body.measure.forearm + 1e-6,
     );
 
     // The use is judged at its own pose. What the grasp pose leaves unmet of

@@ -263,6 +263,7 @@ export namespace HumanGrasp {
    * @param stroke The further key poses the same grip must reach, from its grasp goal and from the hand the arm shows for that goal: what is held is rigid in the shown hand, so a key that places the held thing is built from the shown one. None when absent.
    * @param turns The turns tried, degrees; -90 to 90 in steps of 15 when absent.
    * @param required What a grip must hold before its cost counts: a measure of its per-key errors (the grasp's, then each stroke key's) and the most it may be. A grip within the bound is chosen before any beyond it; with none within, the one nearest the bound is returned for the caller to refuse. Absent, the least cost alone decides.
+   * @param admits Whether the caller can take a candidate's grasp goal at all: a candidate it refuses is tried only when it refuses every one. Every candidate when absent.
    * @returns The best turn and tilt, their goal, the hand the arm achieves for it, and the arm's solution there.
    */
   export function reachable(
@@ -281,6 +282,7 @@ export namespace HumanGrasp {
       bound: number;
       measure: (keys: readonly number[]) => number;
     },
+    admits?: (wrist: HumanHand.IWrist) => boolean,
   ): IReach {
     return HumanGraspReach.reachable(
       body,
@@ -292,6 +294,7 @@ export namespace HumanGrasp {
       stroke,
       turns,
       required,
+      admits,
     );
   }
 
