@@ -1,4 +1,5 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IHumanPosture } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -99,8 +100,18 @@ export function test_human_motion_signature_hand_to_face(): void {
         };
         const elevation: number =
           (Math.acos(-arm.y / Math.hypot(arm.x, arm.y, arm.z)) * 180) / Math.PI;
+        // The arm's goal there, for the fit it came from: the elbow's hint
+        // and the reference arm, and where the fitted elbow and the wrist lie.
+        const goal: IHumanPosture.IGoal | undefined = s.film.performance.posture(
+          "a",
+          at,
+        ).limbs[`${side}Arm`];
+        const v = (p: IAutoMovieVector3 | undefined): string =>
+          p === undefined
+            ? "none"
+            : `(${p.x.toFixed(3)}, ${p.y.toFixed(3)}, ${p.z.toFixed(3)})`;
         complaints.check(
-          `${cell}: at the mouth (${at.toFixed(2)} s) the upper arm is raised ${elevation.toFixed(1)} deg from hanging and the elbow stands ${((shoulder.y - knuckle.y) * 1000).toFixed(0)} mm below the shoulder, at most 70 deg and at least 50 mm below expected (Murphy et al. 2011; provisional)`,
+          `${cell}: at the mouth (${at.toFixed(2)} s) the upper arm is raised ${elevation.toFixed(1)} deg from hanging and the elbow stands ${((shoulder.y - knuckle.y) * 1000).toFixed(0)} mm below the shoulder, at most 70 deg and at least 50 mm below expected (Murphy et al. 2011; provisional); shoulder ${v(shoulder)}, elbow ${v(knuckle)}, wrist ${v(hand)}, the goal's point ${v(goal?.point)}, hint ${v(goal?.bend)}, reference ${JSON.stringify(goal?.reference ?? null)}`,
           elevation <= 70 && shoulder.y - knuckle.y >= 0.05,
         );
         const mouth: IAutoMovieVector3 = M.region(s, "a", s.body, "mouth", at);
