@@ -30,6 +30,15 @@ export namespace HumanStageFight {
     tangent: "across",
   });
 
+  /** A stage slap, the non-contact one a stage fight uses: the open palm swung across the cheek the composition names, half a hand's length clear of it (provisional), with no contact declared. The receiver's `slapped` sells it. */
+  export const stageSlap = HumanActionRow.of("stageSlap", touch, {
+    with: "palm",
+    kind: "tap",
+    count: 1,
+    tangent: "across",
+    clear: 0.5,
+  });
+
   /** A backhand slap: one tap of the hand's back. */
   export const backhand = HumanActionRow.of("backhand", touch, {
     with: "handBack",

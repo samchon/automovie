@@ -1,4 +1,8 @@
-import { type IAutoMovieResolvedBone, Quaternion } from "@automovie/engine";
+import {
+  type IAutoMovieResolvedBone,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieQuaternion,
@@ -26,14 +30,16 @@ import { StrikingHeld } from "../striking/StrikingHeld";
  * leaves the hold as it found it, so the prop rides that hand. A prop held
  * in one hand asks no more. A prop with a second handle (a bar) is laid
  * level: the holding hand stays where the key's arm puts it and is turned
- * so the line to the other handle runs to the performer's other side, and
+ * so the line to the other handle runs to the performer's other side with
+ * the knuckles continuing the forearm, and
  * the other hand is laid on that handle by the arm's solve, as a long gun's
  * support hand is.
  *
  * First pass: the load weighs nothing in the motion (no lean, no slower
  * tempo, no bar path over the knees); a bar is kept level across the body
  * whatever the key, so a one-sided or turned carry is not written; the
- * holding hand's turn about the bar is the key's own.
+ * holding hand's turn about the bar is the straight wrist's, whatever the
+ * lift (no hook or mixed grip).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a load is, how each hand is driven and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation The held owner's grip and hold with the stroke planner's held-tool frame, so a bar in two hands is the same construction as a blade or a long gun in two.
@@ -152,20 +158,37 @@ export namespace WorkoutLoad {
       apply: (posture: IHumanPosture): IHumanPosture => {
         const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
           StrikingBody.trunk(body, posture);
-        const turn: IAutoMovieQuaternion = bones.get(`${side}Hand`)!
-          .worldRotation;
-
-        // The bar runs level to the performer's other side from the hand.
-        const frame: StrikingHeld.IHandFrame = StrikingHeld.hand(
-          tool,
-          tool.length,
-          HumanHand.frame(body, bones, side, "grip").point,
-          HumanFrame.point(
-            { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
-            { x: side === "right" ? 1 : -1, y: 0, z: 0 },
-          ),
-          Quaternion.rotateVector(turn, tool.edge),
+        // The bar runs level to the performer's other side from the hand,
+        // and the hand is turned about it so the knuckles continue the
+        // forearm: a straight wrist, the turn an arm holds. A turn taken
+        // from the key's own hand left the bar 0.3 m out of level, the
+        // wrist giving way.
+        const across: IAutoMovieVector3 = HumanFrame.point(
+          { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
+          { x: side === "right" ? 1 : -1, y: 0, z: 0 },
         );
+        const forearm: IAutoMovieVector3 = Vector3.subtract(
+          bones.get(`${side}Hand`)!.worldPosition,
+          bones.get(`${side}LowerArm`)!.worldPosition,
+        );
+        const square: IAutoMovieVector3 = Vector3.subtract(
+          forearm,
+          Vector3.scale(across, Vector3.dot(forearm, across)),
+        );
+        const turn: IAutoMovieQuaternion = HumanHand.align(
+          { normal: tool.axis, forward: own.axis },
+          {
+            normal: across,
+            forward:
+              Vector3.length(square) > 1e-6
+                ? Vector3.normalize(square)
+                : { x: 0, y: -1, z: 0 },
+          },
+        );
+        const frame: StrikingHeld.IHandFrame = {
+          point: HumanHand.frame(body, bones, side, "grip").point,
+          rotation: turn,
+        };
         const first: IHumanPosture.IGoal = StrikingHeld.goal(
           context,
           tool,
