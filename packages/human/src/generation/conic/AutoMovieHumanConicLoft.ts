@@ -1,4 +1,4 @@
-import { AutoMovieNaturalSpline, AutoMovieViewAxis, AutoMovieViewLoft, type IAutoMovieLoftRelief, type IAutoMovieViewPart } from "@automovie/engine";
+import { AutoMovieLoftChain, AutoMovieNaturalSpline, AutoMovieViewAxis, AutoMovieViewLoft, type IAutoMovieLoftRelief, type IAutoMovieViewPart } from "@automovie/engine";
 
 import { AutoMovieHumanConicSection } from "./AutoMovieHumanConicSection";
 
@@ -49,6 +49,15 @@ export namespace AutoMovieHumanConicLoft {
      * within a few millimetres takes a finer pitch: at 4 mm the ear's thin rim was sampled by three phases and its edge drew a row of teeth.
      */
     pitch?: number;
+
+    /**
+     * Largest turn of a ring's tangent between two neighbouring phases, radians; absent, the phases are uniform. With it the phases are
+     * spaced by how fast the rings turn as well as by `pitch`: at every phase the density is the most any ring asks there, its length over
+     * `pitch` or its turn over this, so a sharp edge that only some sections have (a sole's) takes its phases close together where it
+     * stands, and the rest of the part keeps its spacing. f1's leg on uniform phases set by its thigh's girth turned by up to 0.83 rad
+     * between two of them round the forefoot's outer edge, which showed as level stripes.
+     */
+    turn?: number;
   }
 
   /**
@@ -254,7 +263,7 @@ export namespace AutoMovieHumanConicLoft {
 
     // And no farther apart than the finest relief net's columns, as the layers are cut to its rows: a net shows only what the rings sample.
     const finest: number = Math.min(Infinity, ...(family.reliefs ?? []).map((relief: IAutoMovieLoftRelief): number => (relief.phases[1] - relief.phases[0]) / (relief.columns - 3)));
-    return {
+    const made: IAutoMovieViewPart = {
       name: family.name,
       axis: axis(family),
       stations: [...(bottom === null ? [] : [bottom.tip, ...rings(bottom)]), ...stations, ...(top === null ? [] : [...rings(top).reverse(), top.tip])],
@@ -266,6 +275,70 @@ export namespace AutoMovieHumanConicLoft {
       samples: Math.max(48, 8 * Math.ceil(Math.max(girth / (family.pitch ?? PHASE_MM), (2 * Math.PI) / finest) / 8)),
       ...(family.reliefs === undefined || family.reliefs.length === 0 ? {} : { reliefs: family.reliefs }),
     };
+    if (family.turn === undefined) return made;
+
+    // Phases spaced by turn: read on the part's own lofted chain, whose phase is its sections' B-spline parameter, not their conics' polar
+    // angle. Read on the conics, the phases of a flat section 40 by 5 mm clustered where its conics turn and its rings still turned by
+    // 0.46 rad between two of them, against 0.1 asked.
+    const loft: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(made);
+    if (loft.chain === null) return made;
+    const phases: number[] = spaced(loft.chain, stations, family.pitch ?? PHASE_MM, family.turn, finest);
+    return { ...made, samples: phases.length, phases };
+  }
+
+  /** Phases round a ring that `spaced` reads its length and turn on. */
+  const SPACING_SAMPLES: number = 1024;
+
+  /**
+   * A part's ring phases spaced by its rings' length and turn (`IFamily.turn`).
+   *
+   * Every station's ring of the lofted chain is read at `SPACING_SAMPLES` phases. Over each step between two of them the density is the
+   * largest any ring asks for: its chord over `pitch`, its turn there over `turn`, or the step over `finest`, the finest relief net's
+   * column. The phases stand at equal shares of that density's integral from phase 0, a multiple of 8 of them and at least 48, as the
+   * uniform rule's count is.
+   *
+   * @param chain The part lofted on uniform phases.
+   * @param stations The stations its fields own, mm.
+   * @param pitch Largest distance between neighbouring phases, mm.
+   * @param turn Largest turn between neighbouring phases, radians.
+   * @param finest Finest relief net's column, radians.
+   */
+  function spaced(chain: NonNullable<AutoMovieViewLoft.IResult["chain"]>, stations: readonly number[], pitch: number, turn: number, finest: number): number[] {
+    const M: number = SPACING_SAMPLES;
+    const step: number = (2 * Math.PI) / M;
+    const density: number[] = new Array<number>(M).fill(step / finest);
+    const unit = (a: readonly number[], b: readonly number[]): number[] => {
+      const d: number[] = [b[0]! - a[0]!, b[1]! - a[1]!, b[2]! - a[2]!];
+      const l: number = Math.hypot(d[0]!, d[1]!, d[2]!);
+      return d.map((x: number): number => x / l);
+    };
+    for (const s of stations) {
+      const ring: number[][] = Array.from({ length: M }, (_: unknown, j: number): number[] => AutoMovieLoftChain.point(chain, s, j * step));
+      if (ring.some((p: number[]): boolean => !p.every(Number.isFinite))) continue;
+      // Over the step from sample j to j + 1: its chord, and the larger of the turns at its two ends.
+      const turns: number[] = ring.map((b: number[], j: number): number => {
+        const [u, w]: number[][] = [unit(ring[(j + M - 1) % M]!, b), unit(b, ring[(j + 1) % M]!)];
+        return Math.acos(Math.max(-1, Math.min(1, u[0]! * w[0]! + u[1]! * w[1]! + u[2]! * w[2]!)));
+      });
+      for (let j: number = 0; j < M; ++j) {
+        const [b, c]: number[][] = [ring[j]!, ring[(j + 1) % M]!];
+        const chord: number = Math.hypot(c[0]! - b[0]!, c[1]! - b[1]!, c[2]! - b[2]!);
+        density[j] = Math.max(density[j]!, chord / pitch, Math.max(turns[j]!, turns[(j + 1) % M]!) / turn);
+      }
+    }
+    const total: number = density.reduce((sum: number, x: number): number => sum + x, 0);
+    const count: number = Math.max(48, 8 * Math.ceil(total / 8));
+    const phases: number[] = [];
+    let below: number = 0;
+    for (let j: number = 0, k: number = 0; j < M && k < count; ++j) {
+      // The phases whose share of the integral falls in this step, read linearly within it.
+      while (k < count && (total * k) / count <= below + density[j]! + 1e-12) {
+        phases.push((j + ((total * k) / count - below) / density[j]!) * step);
+        ++k;
+      }
+      below += density[j]!;
+    }
+    return phases;
   }
 
   /**
@@ -304,6 +377,7 @@ export namespace AutoMovieHumanConicLoft {
       values,
       ...(family.tips === undefined ? {} : { tips: [family.tips[0], family.tips[1]] as [ITip | null, ITip | null] }),
       ...(family.pitch === undefined ? {} : { pitch: family.pitch }),
+      ...(family.turn === undefined ? {} : { turn: family.turn }),
       ...(family.reliefs === undefined
         ? {}
         : {

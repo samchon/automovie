@@ -92,6 +92,28 @@ export namespace IAutoMovieConstructionSplit {
     reach?: number;
 
     /**
+     * In a split into more than two (`outer`), whether each band leaves the host's arc square to the end ring: along the chart line
+     * `(into, -into (S_u . S_v) / (S_v . S_v))`, whose image is square to the ring in the host's tangent plane, with the host's own 2-jet
+     * along that line, so the band stays G2 to the host. Absent or false, along the host's station line, whose image leans along the ring
+     * wherever the host's points slide round it with the station (a section changing shape under a polar phase): on f1's foot the
+     * station lines at the end ring swung by 40 degrees within 0.07 rad of phase round the top of the big toe's root, and the big toe's
+     * band pleated there. The first seam with a profile gives the split's, as it gives `corner`.
+     */
+    square?: boolean;
+
+    /**
+     * The radius of the disc about each of this seam's two forks over which the drawn skin is faired, as a share of the seam's chord (the
+     * distance between its two forks): the vertices whose path along the mesh from the fork is shorter than the radius are moved so that
+     * the bi-Laplacian of their positions vanishes, with the two rings outside the disc held, so the fill meets the skin round it G1 (the
+     * fork patch of the branching-surface literature, Gabrielides, Ginnis and Kaklis 2007, in the discrete form of Botsch and Kobbelt
+     * 2004). At a fork the host's end and two bands meet in a corner no one surface owns, and each band turns sharply beside it over about
+     * its corner window, which grows with the seam. The fill belongs to no surface: its vertices keep the chart coordinates they were drawn
+     * at. In `(0, 1]`, one share for both forks or one for each, `[a, b]` in the seam's order; absent, the forks are left as drawn. The
+     * two sides of an end may want their own: between toes the web stands deep on the sole and shallow on top.
+     */
+    fair?: number | [number, number];
+
+    /**
      * A world direction the seam plane holds in place of the host end's outward normal, unit or not, not along the chord; `depth` is then
      * measured along its part square to the chord, oriented out of the host. A seam between two digits that leave a limb's end aslant to
      * its course lies in the plane between the digits, which holds their direction and not the course's. Absent, the end normal.

@@ -124,6 +124,7 @@ export * from "./IAutoMovieViewPart";
 export * from "./distanceAutoMovieViewOutline";
 export * from "./domainAutoMovieSolidMesh";
 export * from "./faceAutoMovieSolidMesh";
+export * from "./fairAutoMovieSolidMesh";
 export * from "./gridAutoMovieSolidMesh";
 export * from "./incircleAutoMovieSolidChart";
 export * from "./insertAutoMovieSolidMeshPoints";

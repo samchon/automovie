@@ -388,13 +388,10 @@ export function AutoMovieConstructionSplitRealize(
  * Each band gives a quarter of its columns to each seam it takes and the rest to its arcs, so the two bands beside a seam read it at the
  * same shares. A broken premise restores the checkpoint and records one diagnostic under the split's name, as a two-way split does.
  *
- * @evidence contracts/development/implementation.md#principled-implementation The two-way split's sharing generalized: every fork is one ring vertex, every seam point one vertex read by both its bands, every cycle names the face across each edge.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, seams, children, bands, then one mutation block of vertices and cycles.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No vertex is welded by distance and no child is kept without its siblings.
- * @evidence contracts/development/common.md#meaningful-documentation States the loops, the sharing and the failure effect.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in children times columns after the bands.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Each shared vertex is created once and referenced by every cycle that bounds it.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The body retains the ring, seam and rail vertices, one face per band and its cycles; the checkpoint is released when the node settles.
+ * Every fork is one ring vertex, every seam point one vertex read by both its bands, and every cycle names the face across each edge, so
+ * no vertex is welded by distance and no child is kept without its siblings. Admission, seams, children and bands come first, then one
+ * mutation block of vertices and cycles, linear in children times columns. The body retains the ring, seam and rail vertices, one face
+ * per band and its cycles; the checkpoint is released when the node settles.
  */
 function fan(
   node: IAutoMovieConstructionSplit,
@@ -443,6 +440,7 @@ function fan(
     }
     const corner: number = seams.find((s: IAutoMovieConstructionSplit.ISeam): boolean => s.profile !== undefined)?.profile?.corner ?? 0;
     const reach: number | undefined = seams.find((s: IAutoMovieConstructionSplit.ISeam): boolean => s.profile !== undefined)?.profile?.reach;
+    const square: boolean = seams.find((s: IAutoMovieConstructionSplit.ISeam): boolean => s.profile !== undefined)?.profile?.square === true;
     const a = (j: number): number => seams[j]!.seam[0];
     const b = (j: number): number => seams[j]!.seam[1];
 
@@ -485,6 +483,7 @@ function fan(
           stretches: plan[c]!.map((s: Arc | Seam): AutoMovieConstructionSplitBand.IStretch => (s.kind === "arc" ? { kind: "arc", from: s.from, to: s.to, columns: s.columns } : { kind: "seam", curve: curves[s.index]!, forward: s.forward, columns: s.columns })),
           corner,
           ...(reach === undefined ? {} : { reach }),
+          ...(square ? { square } : {}),
           ...(child.crease === undefined ? {} : { crease: child.crease }),
           ...(child.correspondence === undefined ? {} : { correspondence: child.correspondence }),
         },
@@ -618,6 +617,16 @@ function fan(
       state.chains.set(node.children[c]!.band, child.band.chain);
       state.chainList.push(child.band.chain);
       state.chainSurfaces.push(child.band.surface);
+    });
+
+    // Each seam's forks, the ring vertices its two arcs start at, are faired once the skin is drawn over a disc the declared share of the
+    // seam's chord across (`IAutoMovieConstructionSplit.IProfile.fair`).
+    seams.forEach((s: IAutoMovieConstructionSplit.ISeam, j: number): void => {
+      const fair: number | [number, number] | undefined = s.profile?.fair;
+      if (fair === undefined) return;
+      const chord: number = AutoMovieSolidVector.norm(AutoMovieSolidVector.sub(curves[j]!.ends[1], curves[j]!.ends[0]));
+      const shares: [number, number] = typeof fair === "number" ? [fair, fair] : fair;
+      (state.fairs ??= []).push({ vertices: [ring.get("a" + j + ":0")!], radius: shares[0] * chord }, { vertices: [ring.get("b" + j + ":0")!], radius: shares[1] * chord });
     });
   } catch (error: unknown) {
     AutoMovieConstructionState.restore(body, state, snapshot);

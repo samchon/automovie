@@ -46,7 +46,17 @@ export namespace AutoMovieConstructionSplitBand {
     /** The station's sign leaving the rail: out of the host into the band, or from the child's rail into the child's kept side. */
     into: 1 | -1;
 
-    /** The rail's station at a phase when the rail is a curve round the face (a port's `rails`), mm; absent, `station` at every phase. */
+    /**
+     * The rail's station at a phase when the rail is a curve round the face (a port's `rails`), mm; absent, `station` at every phase.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the argument, the unit and the absent case.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; the caller's curve is the implementation.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body; its cost is the caller's curve.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
+     */
     along?: (psi: number) => number;
   }
 
@@ -445,6 +455,9 @@ export namespace AutoMovieConstructionSplitBand {
 
     /** The share of its length a ribbon keeps at a fork (`IAutoMovieConstructionSplit.IProfile.reach`), in `(0, 1]`; absent, 1. */
     reach?: number;
+
+    /** Whether the bands leave the host's arc square to its end ring (`IAutoMovieConstructionSplit.IProfile.square`); absent, along its station line. */
+    square?: boolean;
   }
 
   /**
@@ -454,7 +467,8 @@ export namespace AutoMovieConstructionSplitBand {
    * seam at equal arclength shares from the fork it is read from, and a seam's first column is the fork that ends the arc before it. The
    * ribbons are a two-way band's (`create`): on an arc the host's own 2-jet, on a seam the seam plane's normal toward the band's own loop,
    * and within `corner` of clock of each fork both turn by the quintic smoothstep to the inward diagonal there, the arc's toward the
-   * adjacent seam's ruling inside the host's tangent plane and the seam's toward its direction away from the fork. Two bands that read one
+   * adjacent seam's ruling inside the host's tangent plane and the seam's toward its direction away from the fork. With `square` an arc's
+   * ribbon is the host's 2-jet along the chart line square to the end ring instead of along the station line. Two bands that read one
    * seam from its two ends therefore meet G1 across it.
    *
    * @param input The band's sides, stretches, corner and crease.
@@ -539,9 +553,12 @@ export namespace AutoMovieConstructionSplitBand {
         return { point: loop[k]!, first: scale(add(scale(ruling[i]!, Math.cos(angle)), scale(away, Math.sin(angle))), L), second: [0, 0, 0] };
       }
       if (jet === null) return `column ${k}: neither on an arc nor on a seam`;
-      const hostSpeed: number = norm(jet.u);
+      // The chart direction the band leaves along: the station line, or with `square` the line whose image is square to the end ring,
+      // `(into, -into (S_u . S_v) / (S_v . S_v))`, so the host's 2-jet along it keeps the band G2 to the host.
+      const across: number = input.square === true && dot(jet.v, jet.v) > 0 ? (-input.host.into * dot(jet.u, jet.v)) / dot(jet.v, jet.v) : 0;
+      const hostSpeed: number = norm(add(scale(jet.u, input.host.into), scale(jet.v, across)));
       if (!(hostSpeed > 0)) return `column ${k}: the host's station speed vanishes at its end`;
-      const own: AutoMovieSolidRibbon.IRibbon = AutoMovieSolidRibbon.of(input.host.surface, input.host.station, phases[k]!, input.host.into, 0, L / hostSpeed);
+      const own: AutoMovieSolidRibbon.IRibbon = AutoMovieSolidRibbon.of(input.host.surface, input.host.station, phases[k]!, input.host.into, across, L / hostSpeed);
       // On an arc the nearer fork is its first column or the next seam's; a seam's first column is that seam's own fork.
       const onArc: boolean = s.kind === "arc";
       const d: number = onArc ? Math.min(fromStart, toEnd) : 0;

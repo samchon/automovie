@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { createHash } from "node:crypto";
 import { AutoMovieLoftChain, type AutoMovieLoftFrame, AutoMovieLoftRelief, AutoMovieNaturalSpline, AutoMovieViewAxis, type AutoMovieViewLoft as L, AutoMovieViewChain as Q, type IAutoMovieLoftRelief } from "@automovie/engine";
+import { AutoMovieHumanF1 } from "@automovie/human";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
@@ -160,6 +161,17 @@ namespace FamilyConicBody {
    * window carried on to the end each drew a jagged band across the knuckles, which the wall alone draws smooth.
    */
   const KNUCKLE: { half: number; reach: number; end: number; relief: number } = { half: 16, reach: 40, end: 595, relief: 575 };
+
+  /**
+   * The net over the palm on to the hand's end, mm and radians of the arm's chart. Past `KNUCKLE.relief` the arm's wall alone is the taut
+   * tape across the palm's hollow and the bases of the middle and ring fingers: read every 2.5 mm from 550 to 595 mm at 32 phases (the
+   * wall's signed distance to the reference's nearest triangle), the bare wall stands 8 to 15 mm proud at phases 0.8 to 2.4 rad, the palm
+   * side, and with the hand's net, which falls to nothing before 575 mm, it was still 7 to 13 mm proud from 570 mm to the end ring, whose
+   * bands carried 4 to 6 mm of it on to the fingers, the worst cells on the whole skin's map. Only the palm is netted to the end, so
+   * the knuckles keep the wall the jagged band was taken from. The window runs on to the fitted cap's tip, 15 mm past the end, since a
+   * net's last three rows are zero and a relief must vanish at a pole, and fades in over 20 mm across the hand's net and over 0.4 rad at each side; 16 by 16 heights are about 5 mm along and 7 mm round.
+   */
+  const PALM: { stations: [number, number]; phases: [number, number]; fade: [number, number]; fadePhase: [number, number]; rows: number; columns: number } = { stations: [545, 610], phases: [0.3, 2.8], fade: [20, 0], fadePhase: [0.4, 0.4], rows: 16, columns: 16 };
 
   /**
    * The leg's course past the ball of the foot, mm, as the arm's past the knuckles (`KNUCKLE`): on toward the five toes' mean first-segment
@@ -321,6 +333,17 @@ namespace FamilyConicBody {
     return Math.min(nose(p), p[0] - (113 + 9 * t * t * (3 - 2 * t)));
   }
 
+  /**
+   * `--side-net=rows,columns,from,to,phase,reach,fade,fadePhase,top[,fadeIn[,held]]`: a trial net over the nose's sidewalls, mirrored across
+   * the dorsum to `phase` rad either side and cast inward round the course, the skin above `top` mm left unobserved, faded in over `fadeIn`
+   * mm and held at zero up to `held` mm past the rail curve. Not kept (`docs/work/f1-conic-families.md`, Open): its edge drew a line along
+   * the rail however it was placed, since the supra-alar hollow's deepest part lies on the band.
+   */
+  const SIDE_NET: number[] | undefined = process.argv.find((a: string): boolean => a.startsWith("--side-net="))?.slice(11).split(",").map(Number);
+
+  /** Where the nose's band lands on it at a phase, mm from its first station (`AutoMovieHumanF1.NOSE_RAILS_MM`). */
+  const NOSE_RAIL: (phi: number) => number = AutoMovieNaturalSpline.periodic(AutoMovieHumanF1.NOSE_RAILS_MM);
+
   /** `--floor-net=<rows>,<columns>`: the nose's floor net's control points; absent, 15 by 17 (about 1.3 mm along by 1.8 mm round). */
   const FLOOR_NET: [number, number] = (process.argv.find((a: string): boolean => a.startsWith("--floor-net="))?.slice(12).split(",").map(Number) as [number, number] | undefined) ?? [15, 17];
 
@@ -471,6 +494,16 @@ namespace FamilyConicBody {
     /** How far in from its first and last station, mm, and its first and last phase, radians, the window takes less than the whole height (`H.IWindow`). */
     fade?: [number, number];
     fadePhase?: [number, number];
+
+    /**
+     * The first station a ray is cast from, mm; absent, the window's first. A window may start before the part's first section, where no
+     * point of the part stands, so that its zero edge lies under the band that replaces the part's first stations and the net is whole where
+     * the band lands.
+     */
+    observe?: number;
+
+    /** Where the net is held at zero instead of cast: by station, mm, and phase, radians. */
+    held?: (s: number, phi: number) => boolean;
   }
 
   /** A relief window of a part. */
@@ -607,9 +640,10 @@ namespace FamilyConicBody {
     /**
      * Relief nets that go once round the part over a run of its stations, fitted after its windows: each takes what the wall and the windows
      * leave, outside the wall as well as inside it, cast toward the course all the way round. Its two directions are the chart's at the middle
-     * of the run, so the run should be one the course does not turn much along.
+     * of the run, so the run should be one the course does not turn much along. With `window` it covers only those phases, still cast toward
+     * the course at every phase, and fades over its edges (`FamilyConicRelief.IWindow.fade`, `fadePhase`).
      */
-    rounds?: { name: string; stations: [number, number]; rows: number; columns: number; reach: number; hold?: (p: R.V) => number }[];
+    rounds?: { name: string; stations: [number, number]; rows: number; columns: number; reach: number; hold?: (p: R.V) => number; window?: { phases: [number, number]; fade: [number, number]; fadePhase: [number, number] } }[];
   }
 
   /** Run every part and write the receipt and the renders. */
@@ -660,6 +694,15 @@ namespace FamilyConicBody {
       return [from[0] + (sum[0]! * length) / l, from[1] + (sum[1]! * length) / l, from[2] + (sum[2]! * length) / l];
     };
     const toes: [R.V, R.V][] = ["bigtoe", "indextoe", "middletoe", "ringtoe", "littletoe"].map((f: string): [R.V, R.V] => [joint(f + "_01_r"), joint(f + "_02_r")]);
+    // Within 15 mm of the thumb's course from 30 mm past its first joint: the web beside the thumb and the face the thumb comes out of, where
+    // the hand's nets hold the wall so the thumb's merge finds its meeting.
+    const thumbHold = (p: R.V): number => {
+      const a: R.V = joint("thumb_01_r");
+      const b: R.V = joint("thumb_03_r");
+      const length: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+      const along: number = ((p[0] - a[0]) * (b[0] - a[0]) + (p[1] - a[1]) * (b[1] - a[1]) + (p[2] - a[2]) * (b[2] - a[2])) / length;
+      return Math.min(along - 30, 15 - Math.hypot(p[0] - a[0] - (along * (b[0] - a[0])) / length, p[1] - a[1] - (along * (b[1] - a[1])) / length, p[2] - a[2] - (along * (b[2] - a[2])) / length));
+    };
     const armCentres: R.V[] = [ARM_ROOT, ARM_TURN, joint("lowerarm_r"), joint("hand_r"), joint("middle_01_r"), toward(joint("middle_01_r"), fingers, KNUCKLE.reach)];
     const armHalves: number[] = [SHOULDER_HALF_MM, 30, 10, KNUCKLE.half];
     const arm: { shift: number; up: R.V; plane: number; turned: number } = ((): { shift: number; up: R.V; plane: number; turned: number } => {
@@ -696,14 +739,9 @@ namespace FamilyConicBody {
           // between the thumb and the hand up to 11 mm full and stripes of 1 to 4 mm along the forearm (`FamilyConicDeviation.ts`), which
           // are not hollows under the tape but the wall's own misfit, on both sides of it. A net round each run takes them.
           { name: "fore", stations: [300, 440], rows: 19, columns: 26, reach: 10 },
-          { name: "hand", stations: [425, KNUCKLE.relief], rows: 34, columns: 38, reach: 14, hold: (p: R.V): number => {
-            // Within 24 mm of the thumb's course from 20 mm past its first joint: the web beside the thumb and the face the thumb comes out of.
-            const a: R.V = joint("thumb_01_r");
-            const b: R.V = joint("thumb_03_r");
-            const length: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
-            const along: number = ((p[0] - a[0]) * (b[0] - a[0]) + (p[1] - a[1]) * (b[1] - a[1]) + (p[2] - a[2]) * (b[2] - a[2])) / length;
-            return Math.min(along - 30, 15 - Math.hypot(p[0] - a[0] - (along * (b[0] - a[0])) / length, p[1] - a[1] - (along * (b[1] - a[1])) / length, p[2] - a[2] - (along * (b[2] - a[2])) / length));
-          } },
+          { name: "hand", stations: [425, KNUCKLE.relief], rows: 34, columns: 38, reach: 14, hold: thumbHold },
+          // The palm on to the hand's end (`PALM`): past `KNUCKLE.relief` the wall alone is the tape across the palm's hollow.
+          { name: "palm", stations: PALM.stations, rows: PALM.rows, columns: PALM.columns, reach: 14, hold: thumbHold, window: { phases: PALM.phases, fade: PALM.fade, fadePhase: PALM.fadePhase } },
         ], clip: (p: R.V): number => {
           // The thumb past where it stands free of the palm is not the hand's: inside 16 mm of its course from 40 mm past its first joint.
           // Left in, the hand's wall and the thumb's lay within half a millimetre of each other for 10 mm, and a merge traces no such meeting.
@@ -752,6 +790,7 @@ namespace FamilyConicBody {
           // The lobule's underside. Its net asked for the whole height up to its edges stood 2.4 to 4.4 mm deep one column from its zero
           // edge columns, and the cliff showed as upright slivers on either side of the tip in profile; it hands its edges over (`fade`).
           { name: "under", stations: [22.5, 27], phases: [Math.PI - 1.1, Math.PI + 1.1], axis: [0, 1, 0], rows: 31, columns: 39, reach: 2.5, mirror: true, fade: [1, 1.5], fadePhase: [0.35, 0.35] },
+          ...(SIDE_NET === undefined ? [] : [{ name: "side", stations: [SIDE_NET[2]!, SIDE_NET[3]!] as [number, number], phases: [-SIDE_NET[4]!, SIDE_NET[4]!] as [number, number], axis: [0, -1, 0] as R.V, turn: [0, 0, 1] as R.V, skin: (p: R.V): number => Math.max(-nose(p), p[1] - SIDE_NET[8]!), rows: SIDE_NET[0]!, columns: SIDE_NET[1]!, reach: SIDE_NET[5]!, mirror: true, fade: [SIDE_NET[9] ?? 0, SIDE_NET[6]!] as [number, number], fadePhase: [SIDE_NET[7]!, SIDE_NET[7]!] as [number, number], observe: Math.max(5.5, SIDE_NET[2]!), ...(SIDE_NET[10] === undefined ? {} : { held: (s: number, phi: number): boolean => s < 5.5 + NOSE_RAIL(phi) + SIDE_NET[10]! }) }]),
         ] },
         // The breast as a loft of its own through its dome's top (`BREAST_ROOT`), attached at a port on the chest that the trunk's sections
         // leave out (`breasts`), so the fold under it is the band's short side. Its sections read the skin inside a cylinder about the course
@@ -794,6 +833,14 @@ namespace FamilyConicBody {
           // Below the chest one net goes once round the trunk. As a window to the front and one to the back, 1.5 rad to either side, the two
           // met in a seam down each hip, a line from the waist to the thigh.
           { name: "trunk.low", stations: [-40, 520], phases: [0, 2 * Math.PI], axis: [1, 0, 0], turn: [0, 0, 1], rows: 59, columns: 83, mirror: false, periodic: true, reach: 70, fade: [0, 60] },
+          // The trunk's end, where the crotch's band leaves it for the thighs: the wall there is the tape across the thighs' fronts, up to
+          // 6 mm outside the skin, and the net round the trunk, 10 mm a row, brought it home but curled its last 3 mm (the normal's rise
+          // from 0.05 to 0.12 at [87..132, 806..810], a level line across each thigh's front on `hip.high-oblique`). A net 3 mm a row and
+          // 0.04 rad a column over each thigh's side, from below the end so no zero row lies on it, fitted after the round net, takes the
+          // rest. It stops 0.3 rad short of the median line and hands its edges over there: carried round the whole end it carved the notch
+          // between the thighs' fronts 20 mm deep, moved the front fork and shortened the crotch's chord from 71 to 51 mm.
+          { name: "trunk.crotch", stations: [-12, 88], phases: [0.3, 2.0], axis: [-0.4085, 0, -0.9128], turn: [0.9128, 0, -0.4085], rows: 36, columns: 46, mirror: false, reach: 30, fade: [0, 30], fadePhase: [0.3, 0.3] },
+          { name: "trunk.crotch.twin", stations: [-12, 88], phases: [-2.0, -0.3], axis: [-0.4085, 0, 0.9128], turn: [-0.9128, 0, -0.4085], rows: 36, columns: 46, mirror: false, reach: 30, fade: [0, 30], fadePhase: [0.3, 0.3] },
           // Over the chest and the shoulders the windows stop at 1.0 rad, short of the fold beside the armpit. While the trunk kept a stump of
           // arm the tape bridged from the breast to it, with the skin deep inside that bridge from about 0.6 to 1.3 rad: a window ending there
           // creased the whole chest and back along its edge, and one reaching 1.45 rad left a thin flap in the fold beside the armpit.
@@ -1197,6 +1244,22 @@ namespace FamilyConicBody {
         const first: number = C.units(unbounded).length - (unbounded.mirror ? unbounded.anchors.length - 1 : unbounded.anchors.length);
         best = { ...best, layout: unbounded, values: best.values.map((field: number[], f: number): number[] => (f >= first ? field.map((x: number): number => Math.max(bound, x)) : field)) };
       }
+
+      // `--g2=<anchor>@<from>-<to>`: at every knot from `from` to `to` mm the two arcs meeting at that anchor take the shoulders that make
+      // the section's curvature continuous there (`AutoMovieHumanConicSection.continuous`), before the reliefs are fitted over the wall.
+      // The trunk's first median over the hips met with curvatures of 1.2 and 308 per metre, an upright line down each hip.
+      const g2: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--g2="))?.slice(5);
+      if (g2 !== undefined) {
+        const [anchor, range]: string[] = g2.split("@");
+        const [from, to]: number[] = range!.split("-").map(Number);
+        const fields: number[][] = best.values.map((field: number[]): number[] => [...field]);
+        best.knots.forEach((s: number, j: number): void => {
+          if (s < from! || s > to!) return;
+          const smooth: number[] = C.continuous(fields.map((field: number[]): number => field[j]!), best!.layout, Number(anchor));
+          smooth.forEach((x: number, f: number): void => void (fields[f]![j] = x));
+        });
+        best = { ...best, values: fields };
+      }
       const led: { knots: number[]; values: number[][] } = part.lead === undefined ? { knots: best.knots, values: best.values } :{ knots: [...[3, 2, 1].map((k: number): number => best!.knots[0]! - (part.lead! * k) / 3), ...best.knots], values: best.values.map((field: number[]): number[] => [field[0]!, field[0]!, field[0]!, ...field]) };
       const stored: string = JSON.stringify({ name: part.name, centres: part.centres.map((c: R.V): number[] => c.map(round)), halves: part.halves, up: part.up, layout: best.layout, knots: led.knots.map(round), values: led.values.map((field: number[], f: number): number[] => field.map(C.units(best!.layout)[f] === "mm" ? round : round4)) });
       await fs.writeFile(path.join(out, part.name + ".family.json"), stored);
@@ -1216,10 +1279,17 @@ namespace FamilyConicBody {
         // `--bare`: the wall alone, no relief of any kind, for a wall that is spliced and given its reliefs in a later run (`--wall`).
         const windows: IWindow[] = BARE ? [] : part.reliefs === "auto" ?hollowWindows(part.name, rows, skins, course).map((window: H.IWindow): IWindow => ({ ...window, stations: [window.stations[0], Math.min(window.stations[1], part.reliefEnd ?? tip ?? Infinity)], fade: [50, 50], fadePhase: [0.6, 0.6] })) : part.reliefs.map(scaled);
 
-        // Phases from 0 to a whole turn have their middle at pi, where the inward radial direction is +u, and a quarter turn on it is +v.
+        // Phases from 0 to a whole turn have their middle at pi, where the inward radial direction is +u, and a quarter turn on it is +v. A
+        // net over a window of phases with middle `c` casts toward the course as well: `cos(t - c) A + sin(t - c) T` is the inward radial
+        // direction `-(cos t u + sin t v)` at every phase `t` for `A = -(cos c u + sin c v)` and `T = sin c u - cos c v` (at `c = pi`, `u`
+        // and `v`).
         const rounds: IWindow[] = (BARE ? [] : part.rounds ?? []).map((net): IWindow => {
           const frame: AutoMovieLoftFrame.IFrame = course.at((net.stations[0] + net.stations[1]) / 2);
-          return { name: part.name + "." + net.name, stations: net.stations, phases: [0, 2 * Math.PI], axis: [frame.u[0], frame.u[1], frame.u[2]], turn: [frame.v[0], frame.v[1], frame.v[2]], rows: net.rows, columns: net.columns, mirror: false, periodic: true, chord: true, reach: net.reach, ...(net.hold === undefined ? {} : { hold: net.hold }) };
+          const phases: [number, number] = net.window?.phases ?? [0, 2 * Math.PI];
+          const c: number = (phases[0] + phases[1]) / 2;
+          const axis: R.V = net.window === undefined ? [frame.u[0], frame.u[1], frame.u[2]] : ([0, 1, 2].map((k: number): number => -(Math.cos(c) * frame.u[k]! + Math.sin(c) * frame.v[k]!)) as R.V);
+          const turn: R.V = net.window === undefined ? [frame.v[0], frame.v[1], frame.v[2]] : ([0, 1, 2].map((k: number): number => Math.sin(c) * frame.u[k]! - Math.cos(c) * frame.v[k]!) as R.V);
+          return { name: part.name + "." + net.name, stations: net.stations, phases, axis, turn, rows: net.rows, columns: net.columns, mirror: false, ...(net.window === undefined ? { periodic: true } : { fade: net.window.fade, fadePhase: net.window.fadePhase }), chord: true, reach: net.reach, ...(net.hold === undefined ? {} : { hold: net.hold }) };
         });
         definition.reliefs = [];
         const fitAll = (list: readonly IWindow[], judged: boolean): void => {
@@ -1367,6 +1437,7 @@ namespace FamilyConicBody {
           for (let j: number = face.phases === undefined ? 0 : 1; j < about; ++j) {
             const s: number = window.stations[0] + ((window.stations[1] - window.stations[0]) * i) / along;
             const phi: number = window.phases[0] + ((window.phases[1] - window.phases[0]) * j) / about;
+            if (face.observe !== undefined && s < face.observe) continue;
             bases.push({ s, phi, p: AutoMovieLoftChain.point(capped.chain, s, phi) as R.V, heldout: i % 2 === 1 });
           }
 
@@ -1421,7 +1492,7 @@ namespace FamilyConicBody {
         };
         const observed: H.IObserved[] = [];
         for (const base of bases) {
-          const target: number | null = cast(base.p, toward(base.phi));
+          const target: number | null = face.held?.(base.s, base.phi) === true ? 0 : cast(base.p, toward(base.phi));
           if (target !== null) observed.push({ s: base.s, phi: base.phi, target, heldout: base.heldout });
         }
         // `--casts`: the cast heights as a table, one row per station step and eleven phases across, each with its point's forward and
@@ -1430,6 +1501,7 @@ namespace FamilyConicBody {
           const cell = (i: number, j: number): string => {
             const s: number = window.stations[0] + ((window.stations[1] - window.stations[0]) * i) / along;
             const phi: number = window.phases[0] + ((window.phases[1] - window.phases[0]) * j) / about;
+            if (face.observe !== undefined && s < face.observe) return "".padStart(15);
             const hit: H.IObserved | undefined = observed.find((o: H.IObserved): boolean => Math.abs(o.s - s) < 1e-9 && Math.abs(o.phi - phi) < 1e-9);
             const p: R.V = AutoMovieLoftChain.point(capped.chain!, s, phi) as R.V;
             return (hit === undefined ? "." : hit.target.toFixed(1)).padStart(6) + ("@" + p[0].toFixed(0) + "," + p[1].toFixed(0)).padStart(9);
