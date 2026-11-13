@@ -58,8 +58,8 @@ export namespace StrikingSkill {
 
   /**
    * Peak foot speed of a roundhouse kick, m/s, novice and elite (Vagner et
-   * al. 2023: 6.5 and 14.3 m/s). An audit reference: the law sets durations
-   * and paths, and the speed it shows is checked against this band.
+   * al. 2023: 6.5 and 14.3 m/s). A reference only: the kick sets its
+   * durations and paths, and nothing reads this band.
    */
   export const KICK_PEAK_SPEED: readonly [number, number] = [6.5, 14.3];
 
@@ -69,7 +69,7 @@ export namespace StrikingSkill {
    * Front Physiol 13:1015154); untrained novices were not measured, so the
    * novice end, 0.45 of elite as for the kick, is provisional until an
    * untrained group's straight-punch speed is located. The punch's fist
-   * reaches it ({@link punchPeak}); an audit checks it against this band.
+   * reaches it ({@link punchPeak}).
    */
   export const PUNCH_PEAK_SPEED: readonly [number, number] = [
     0.45 * 7.16,
@@ -96,13 +96,14 @@ export namespace StrikingSkill {
   export const CORRECTION_LATENCY: number = 0.11;
 
   /**
-   * The peak fist speed a punch reaches.
+   * The peak fist speed a punch reaches: the lead straight's measured band
+   * for every technique, provisional for the hook and the uppercut.
    *
    * @param skill The skill.
    * @returns m/s, between the ends of `PUNCH_PEAK_SPEED` on the `speed` axis.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the unit, the band and the axis.
-   * @evidence contracts/development/implementation.md#principled-implementation The skill's reading between the measured elite speed and the provisional novice end, the lead straight's (Liu et al. 2022), taken for both hands for want of a measured rear straight in the same study.
+   * @evidence contracts/development/implementation.md#principled-implementation The skill's reading between the measured elite speed and the provisional novice end, the lead straight's (Liu et al. 2022), taken for both hands for want of a measured rear straight in the same study, and for the hook and the uppercut provisionally: Liu measured the lead straight only, and a lead hook's peak was measured faster (Stanley et al. 2018, 11.95 m/s), so a bent punch's fist is the straight's speed until each technique's own is read.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One quantity read.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The novice end is named provisional on the band.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
