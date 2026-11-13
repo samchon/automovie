@@ -108,11 +108,11 @@ export namespace armWrestle {
    * @throws {HumanRefusal} When the struggle's length is negative, no lean from the hips puts the shoulder an upper arm from the elbow's place on the table, or the pin's angle lies outside 0 to 90 degrees or past what this arm holds with its elbow in place.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives the geometry and the phases.
-   * @evidence contracts/development/implementation.md#principled-implementation The clasp height and the two elbows follow from the two forearms; the lean is the root of the shoulder-to-elbow distance less the upper arm, bisected over the trunk's pitch; the forearm's turn is a rotation about the elbows' line, which keeps both forearms' lengths.
+   * @evidence contracts/development/implementation.md#principled-implementation The clasp height and the two elbows follow from the two forearms; the lean is the root of the shoulder-to-elbow distance less the upper arm, bisected over the trunk's pitch with the trunk rolled as each whole degree of the turn rolls it; the forearm's turn is a rotation about the elbows' line, which keeps both forearms' lengths; the pin's range is read from the arm the posture resolver fits.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared geometry, the lean, the clock, the posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A lean that cannot close the distance throws; the sway is a fixed sine, not a draw, so the two roles stay together.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One bisection of forty trunk resolves at plan time; constant work per frame before the posture resolve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to the bow's trunk pitch, the trunk resolver, the hand goals and the arm carry.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One bisection of twenty-four trunk resolves per whole degree of the turn, kept once solved, and one posture resolve per five degrees up to the asked pin at plan time; constant work per frame before the posture resolve.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to the bow's trunk pitch, the trunk resolver, the posture resolver and the arm carry.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the base plan, the geometry and the entry's arm angles.
    */
   export function plan(

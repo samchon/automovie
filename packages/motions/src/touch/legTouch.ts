@@ -32,8 +32,10 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * and turned as the foot stood at the entry, lies on the place; for the knee
  * the thigh's length fixes where the hip must be, so the root is shifted
  * further along the level line to the place until the knee, the leg's bend
- * hint, is exactly a thigh from the hip, and the shank hangs from it. A
- * place the leg does not reach so is refused.
+ * hint, is exactly a thigh from the displayed hip, and the shank hangs
+ * from it with the foot left free, since a foot held as it stood would
+ * state another plane for the knee. A place the leg does not reach so is
+ * refused.
  *
  * Events: `ready` on the place, `strokeEnd` and `relax` at the hold's end,
  * as a touch's. The leg may be cut from `relax` on.
@@ -99,10 +101,10 @@ export namespace legTouch {
    * @throws {HumanRefusal} When the hold is negative, or the knee cannot be put on the place by shifting the root within `SHIFT`.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives the balance and the placement.
-   * @evidence contracts/development/implementation.md#principled-implementation The root's shift over the standing ankle is the fixed point of the centre of mass under that shift; the knee's shift is the nearer root of the thigh's length along the level line to the place; the leg leaves and returns on one minimum-jerk envelope with a small lift.
+   * @evidence contracts/development/implementation.md#principled-implementation The root's shift over the standing ankle is the fixed point of the centre of mass under that shift; the knee's shift is the nearer root of the thigh's length along the level line to the place, taken again from the hip each shift displays, and the knee's goal asks no foot rotation, which would state the knee's plane against its bend point; the leg leaves and returns on one minimum-jerk envelope with a small lift.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The place, the balance, the leg's goal, the clock, the posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A knee out of the thigh's reach throws with the distance; nothing is clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Four posture resolves for the balance at plan time; constant work per frame before the posture resolve.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Four posture resolves for the balance and, for the knee, up to four for the shift at plan time; constant work per frame before the posture resolve.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to the target resolver, `HumanBalance.support`, the timing owner and the posture resolver's leg goal.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the base plan and the solved goal.
    */
