@@ -79,6 +79,7 @@ export namespace AutoMovieConstructionAdmission {
           const part: Names = check(node.part);
           need(part.views, node.seed.partFace, "part face");
           need(host.faces, node.seed.hostFace, "host face");
+          if (node.fair !== undefined && !(Number.isFinite(node.fair) && node.fair > 0)) throw new Error(`realizeAutoMovieConstruction: ${name}'s fair ${node.fair} m is not positive and finite`);
           return {
             views: union(host.views, part.views),
             faces: union(union(host.faces, part.faces), new Set([name])),
@@ -199,8 +200,7 @@ export namespace AutoMovieConstructionAdmission {
             if (!(Number.isFinite(child.rail) && child.rail > 0))
               refuse(
                 `rail ${child.rail} m of ${child.partFace} is not positive`,
-              );
-            const crease: typeof child.crease = child.crease;
+              );            const crease: typeof child.crease = child.crease;
             if (
               crease !== undefined &&
               !(

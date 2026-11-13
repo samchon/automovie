@@ -48,8 +48,11 @@ export namespace AutoMovieConstructionState {
     /** Actual collapsed profile ends awaiting drawn-boundary admission. */
     profileEnds?: AutoMovieConstructionProfileBody.IEnd[];
 
-    /** The discs the drawn skin is faired over (`fairAutoMovieSolidMesh`): each centre a mesh vertex, each radius mm; absent, none. */
-    fairs?: { vertex: number; radius: number }[];
+    /**
+     * The regions the drawn skin is faired over (`fairAutoMovieSolidMesh`), each about its sources, mesh vertices, or about every vertex a
+     * surface owns once the skin is drawn (a merge's blend), each radius mm; absent, none.
+     */
+    fairs?: { vertices?: number[]; surface?: IAutoMovieSolidSurface; radius: number }[];
 
     /** The kept joins. */
     joins: AutoMovieConstructionRealization.IJoin[];
