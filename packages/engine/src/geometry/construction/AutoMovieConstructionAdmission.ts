@@ -90,9 +90,12 @@ export namespace AutoMovieConstructionAdmission {
           const part: Names = check(node.part);
           need(host.views, node.hostFace, "host face");
           need(part.views, node.partFace, "part face");
+          const band: typeof node.band = node.band;
+          if (band !== undefined && !(Number.isFinite(band.rail) && band.rail > 0 && Number.isInteger(band.count) && band.count >= 8 && band.count % 4 === 0 && Number.isInteger(band.rows) && band.rows >= 1))
+            throw new Error(`realizeAutoMovieConstruction: ${name}'s band (rail ${band.rail} m, ${band.count} columns, ${band.rows} rows) is out of range`);
           return {
             views: union(host.views, part.views),
-            faces: union(host.faces, part.faces),
+            faces: band === undefined ? union(host.faces, part.faces) : union(union(host.faces, part.faces), new Set([name])),
           };
         }
         case "split": {

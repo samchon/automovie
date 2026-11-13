@@ -38,4 +38,40 @@ export interface IAutoMovieConstructionContinuation {
 
   /** Which end of the part face takes the host's section. */
   partEnd: "bottom" | "top";
+
+  /**
+   * A band between the two ends in place of the shared ring, for faces whose sections cannot share one: a part whose sections carry
+   * another layout than the host's (more conics, an inflection the host has not) has another order, and an equal-order continuation
+   * refuses it. With a band the part keeps its own sections; its end is left open at `rail` inside it, and a band spans from the host's
+   * end ring to that rail, matched column by column, G2 to the host along its end and G2 to the part along the rail, as a split's
+   * bands are (`IAutoMovieConstructionSplit`). Absent, the ends share one ring.
+   */
+  band?: IAutoMovieConstructionContinuation.IBand;
+}
+
+export namespace IAutoMovieConstructionContinuation {
+  /**
+   * The band that joins two unequal ends.
+   *
+   * Engine admission: `rail` positive and finite and inside the part's domain; `count` a multiple of 4 of at least 8; `rows` a positive
+   * integer.
+   *
+   * @evidence contracts/development/design.md#principled-representation The band is the split's join strip between each side's own 2-jet across its ring (Hartmann 2001, parametric G^n blending), here with one stretch round the whole ring and no seam, so two faces of any orders meet G2 without either being re-expressed in the other's sections.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A rail depth, the columns, the rows and how the rail is matched: the strip's existing inputs.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The rail is an authored depth, not searched; a rail outside the part's domain is a diagnostic, never clamped.
+   * @evidence contracts/development/common.md#meaningful-documentation States each field, its unit and its admission.
+   */
+  export interface IBand {
+    /** The rail's distance from the part's end into the part along its station, metres, positive: the part keeps the stations beyond it. */
+    rail: number;
+
+    /** Columns of the band round the ring, a multiple of 4 of at least 8. */
+    count: number;
+
+    /** Grid stations of the band across its span, at least 1. */
+    rows: number;
+
+    /** How the part's rail is matched to the host's ring (`IAutoMovieConstructionSplit.IChild.correspondence`); absent, by length. */
+    correspondence?: "angle" | "length";
+  }
 }
