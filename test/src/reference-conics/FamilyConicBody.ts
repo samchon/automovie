@@ -38,6 +38,7 @@ namespace FamilyConicBody {
   /** A part symmetric about the median plane: front and back on the median line, the half reflected; fitted at depth 1 from each section's own reading. */
   const BILATERAL: { layout: C.ILayout; depth: number }[] = [{ layout: C.bilateral(1), depth: 1 }];
 
+
   /**
    * `--trunk-lines`: the trunk fitted to its skin with the median lines as feature lines (`FamilyConicSection.featured`): after the front
    * extreme an inflection and a crest, so the front median may stand in a groove (the crotch's notch, the linea alba, the navel, the
@@ -710,6 +711,9 @@ namespace FamilyConicBody {
      */
     observe?: number;
 
+    /** The cast stands to one side of a part that is its own mirror image, and its net is written a second time reflected (`<name>.twin`). */
+    twin?: boolean;
+
     /** Where the net is held at zero instead of cast: by station, mm, and phase, radians. */
     held?: (s: number, phi: number) => boolean;
   }
@@ -1110,6 +1114,10 @@ namespace FamilyConicBody {
         // kept is the earlier one below station 640 and this one above it, with every relief fitted again over the splice
         // (`--wall=<earlier> --splice=<this>@640 --refit`): 693 numbers at 0.66 mm. The ears are left out of its sections. It owns the shoulders down to the armscye plane through the armpit's
         // crease; past that plane, lateral of the crease and inside the arm's own tube, the skin is the arm's and is left out of the trunk's sections.
+        // The front arcs' shoulders at knot 792 are laid from their neighbours (`--relay=792,814,834:6 --relay-stored=792:6,7`): the face's refit
+        // without the nose stored -0.20, 0.03 and 1.17 there, out of the model's bounds, and the curvature match then held both arcs either side
+        // of the front median at 0.09 to 0.14, near-chords that turned within 0.26 mm and drew an upright slash down each cheek (`head.front`
+        // px 288..300 x 440..525). Laid as the natural cubic through 740, 814 to 912, they stand at 0.48 to 0.49 and the turn's radius at 9 mm.
         { name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], course: "[J.axisFloor, J.axisCrown]", halves: [], up: [1, 0, 0], domain: [28, 912], whole: true, step: 2, gap: (s: number): number => (s >= 692 && s <= 732 ? Number(process.argv.find((argument: string): boolean => argument.startsWith("--jaw="))?.slice(6) ?? 3) : s > 740 ? FACE_GAP_MM : 12), tip: true, cap: 906, centre: [16, 0], own: true, mirrored: false, layouts: TRUNK_LINES ? TRUNK_LINED : BILATERAL, ...(TRUNK_LINES ? { skin: "outer" as const, folded: "hull" as const } : {}), round: chin, kept: breasts, clip: (p: R.V): number => Math.max(ear(p), noseCut(p), chin(p), breasts(p), ...[1, -1].map((side: number): number => {
           const a: R.V = joint("upperarm_r");
           const b: R.V = joint("lowerarm_r");
@@ -1131,8 +1139,7 @@ namespace FamilyConicBody {
           // 0.04 rad a column over each thigh's side, from below the end so no zero row lies on it, fitted after the round net, takes the
           // rest. It stops 0.3 rad short of the median line and hands its edges over there: carried round the whole end it carved the notch
           // between the thighs' fronts 20 mm deep, moved the front fork and shortened the crotch's chord from 71 to 51 mm.
-          { name: "trunk.crotch", stations: [-12, 88], phases: [0.3, 2.0], axis: [-0.4085, 0, -0.9128], turn: [0.9128, 0, -0.4085], rows: 36, columns: 46, mirror: false, reach: 30, fade: [0, 30], fadePhase: [0.3, 0.3] },
-          { name: "trunk.crotch.twin", stations: [-12, 88], phases: [-2.0, -0.3], axis: [-0.4085, 0, 0.9128], turn: [-0.9128, 0, -0.4085], rows: 36, columns: 46, mirror: false, reach: 30, fade: [0, 30], fadePhase: [0.3, 0.3] },
+          { name: "trunk.crotch", stations: [-12, 88], phases: [0.3, 2.0], axis: [-0.4085, 0, -0.9128], turn: [0.9128, 0, -0.4085], rows: 36, columns: 46, mirror: false, twin: true, reach: 30, fade: [0, 30], fadePhase: [0.3, 0.3] },
           // Over the chest and the shoulders the windows stop at 1.0 rad, short of the fold beside the armpit. While the trunk kept a stump of
           // arm the tape bridged from the breast to it, with the skin deep inside that bridge from about 0.6 to 1.3 rad: a window ending there
           // creased the whole chest and back along its edge, and one reaching 1.45 rad left a thin flap in the fold beside the armpit.
@@ -1147,8 +1154,7 @@ namespace FamilyConicBody {
           // Over the shoulder's top, from 610 mm up, the skin faces up and a height square to the side slides along it: there the window
           // dug a notch beside the neck at [8..28, 1391..1413, 85..101] on `shoulder.high-oblique`, gone with this window taken off and only
           // softened with the shoulder's casts taken off. It hands that skin over to the casts straight down (`shoulder`) over its last 90 mm; over its last 70 the notch was softened but still there.
-          { name: "trunk.chest.side", stations: [400, 680], phases: [Math.PI / 2 - 0.82, Math.PI / 2 + 0.82], axis: [0, 0, -1], turn: [1, 0, 0], rows: 59, columns: 53, mirror: false, uncut: true, reach: 25, fade: [30, 90] },
-          { name: "trunk.chest.side.twin", stations: [400, 680], phases: [-Math.PI / 2 - 0.82, -Math.PI / 2 + 0.82], axis: [0, 0, 1], turn: [-1, 0, 0], rows: 59, columns: 53, mirror: false, uncut: true, reach: 25, fade: [30, 90] },
+          { name: "trunk.chest.side", stations: [400, 680], phases: [Math.PI / 2 - 0.82, Math.PI / 2 + 0.82], axis: [0, 0, -1], turn: [1, 0, 0], rows: 59, columns: 53, mirror: false, twin: true, uncut: true, reach: 25, fade: [30, 90] },
           // The fold under each breast, from the sternum round to the side, where the reference's skin turns from the breast's underside
           // to the chest within a few millimetres. The chest's nets are 5 mm a row, and a cubic net that coarse rounded the fold over 10 to
           // 15 mm, a soft shelf drawn in level bands 4 mm tall. A net 3 mm a row over the fold's stations lets the crease turn within two
@@ -1156,8 +1162,7 @@ namespace FamilyConicBody {
           // sections are 2 mm apart and every other one is withheld, so a net 2 mm a row, and one 0.016 or 0.024 rad a column, had rows the
           // fit saw once and drew the reference's facets as a mottle; 3 mm and 0.035 rad, 5 mm at the breast, see each row twice. Cast
           // square to the wall about its middle phase, 0.75 rad, as the chest's windows are, and fitted after them.
-          { name: "trunk.fold", stations: [400, 490], phases: [0.05, 1.45], axis: [-0.7317, 0, -0.6816], turn: [0.6816, 0, -0.7317], rows: 33, columns: 43, mirror: false, reach: 25, fade: [15, 15], fadePhase: [0.15, 0.15] },
-          { name: "trunk.fold.twin", stations: [400, 490], phases: [-1.45, -0.05], axis: [-0.7317, 0, 0.6816], turn: [-0.6816, 0, -0.7317], rows: 33, columns: 43, mirror: false, reach: 25, fade: [15, 15], fadePhase: [0.15, 0.15] },
+          { name: "trunk.fold", stations: [400, 490], phases: [0.05, 1.45], axis: [-0.7317, 0, -0.6816], turn: [0.6816, 0, -0.7317], rows: 33, columns: 43, mirror: false, twin: true, reach: 25, fade: [15, 15], fadePhase: [0.15, 0.15] },
           // The neck and head: windows whose cast turns with the phase (`turn`), square to the wall all the way round. One net goes round the
           // whole head with its seam down the back, and ends at the crown's tip, 918.88 mm, where a relief must vanish for the pole. With
           // fixed axes the head took four windows, front, back and two sides, whose edges met in a seam down the cheek and over the skull
@@ -1212,8 +1217,7 @@ namespace FamilyConicBody {
           // folds of 44 degrees; landing on skin that faces up, 33.
           // Its edges hand over (`fade`, 12 mm and 0.2 rad): the side window now leaves it the shoulder's top, and a net asked for the
           // whole height right up to its zero edge falls off within two rows.
-          { name: "shoulder", stations: [596, 664], phases: [0.95, 1.95], axis: [0, -1, 0], rows: 17, columns: 27, reach: 8, facing: 0.8, nearest: true, fade: [12, 12], fadePhase: [0.2, 0.2] },
-          { name: "shoulder.twin", stations: [596, 664], phases: [-1.95, -0.95], axis: [0, -1, 0], rows: 17, columns: 27, reach: 8, facing: 0.8, nearest: true, fade: [12, 12], fadePhase: [0.2, 0.2] },
+          { name: "shoulder", stations: [596, 664], phases: [0.95, 1.95], axis: [0, -1, 0], rows: 17, columns: 27, reach: 8, facing: 0.8, twin: true, nearest: true, fade: [12, 12], fadePhase: [0.2, 0.2] },
           // No net over the crown. The conic cap stood 3 to 4 mm under the skull and a coarse net cast along the course lifted it; the cap
           // that bends as the wall does is full enough, and meshed in rings the net drew rings round the pole.
         ] },
@@ -1780,6 +1784,18 @@ namespace FamilyConicBody {
             }),
           );
         }
+        // `--relay=<knot>,<knot>...:<field>,<field>...[;...]`: the listed fields at the listed knots are laid again from their sound neighbours,
+        // the natural cubic through the field's other knots evaluated there, where a stored value is broken and its neighbours are not.
+        const relay: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--relay="))?.slice(8);
+        for (const group of relay === undefined ? [] : relay.split(";")) {
+          const [knotText, fieldText]: string[] = group.split(":");
+          const broken: number[] = knotText!.split(",").map(Number);
+          for (const f of fieldText!.split(",").map(Number)) {
+            const keep: number[] = wall.knots.map((_: number, k: number): number => k).filter((k: number): boolean => !broken.includes(wall.knots[k]!));
+            const laid: number[] = F.resample([keep.map((k: number): number => wall.values[f]![k]!)], keep.map((k: number): number => wall.knots[k]!), wall.knots)[0]!;
+            wall.values[f] = wall.values[f]!.map((x: number, k: number): number => (broken.includes(wall.knots[k]!) ? laid[k]! : x));
+          }
+        }
         best = { layout: wall.layout, knots: wall.knots, values: wall.values, rows: [], training: { maximumMm: NaN, meanMm: NaN }, heldout: { maximumMm: NaN, meanMm: NaN }, fault: null, milliseconds: 0 } as unknown as F.IResult;
       }
       // `--deepen=<directory>`: the stored wall of an earlier run is cut once more, every arc at its median, and fitted again on the same knots,
@@ -1854,7 +1870,7 @@ namespace FamilyConicBody {
         }
         const base: number[] = lined ? Array.from({ length: spaced }, (_: unknown, k: number): number => domain[0] + ((domain[1] - domain[0]) * k) / (spaced - 1)) : [domain[0], (domain[0] + domain[1]) / 2, domain[1]];
         const knots0: number[] = best === null ? (seeded?.knots ?? base) : [...best.knots];
-        let result: F.IResult = attempt(knots0, layout, best === null ? (seeded !== null && seeded.values.length > 0 ? seeded.values : undefined) : F.refine(best.values, depth - 1), "depth " + depth);
+        let result: F.IResult = attempt(knots0, layout, best === null ? (seeded !== null && seeded.values.length > 0 ? seeded.values.map((field: number[], f: number): number[] => (least !== undefined && f >= C.units(layout).length - (layout.mirror ? layout.anchors.length - 1 : layout.anchors.length) ? field.map((x: number): number => Math.max(least, x)) : field)) : undefined) : F.refine(best.values, depth - 1), "depth " + depth);
         // The feature knots inserted into the first fit, one trial, kept as any growth round is.
         const inserted: number[] = fading.filter((s: number, i: number): boolean => s > domain[0] && s < domain[1] && result.knots.every((k: number): boolean => Math.abs(k - s) >= gap(s)) && fading.slice(0, i).every((t: number): boolean => Math.abs(t - s) >= gap(s)));
         if (result.fault === null && inserted.length > 0) {
@@ -1964,6 +1980,23 @@ namespace FamilyConicBody {
             }
         });
         best = { ...best, values: fields };
+      }
+      // `--relay-stored=<knot>,...:<field>,...[;...]`: as `--relay`, on the wall as stored, after the curvature match: where the match itself
+      // drew a field's knot out of its neighbours' flow (the trunk's front arcs at 792 mm, both held to a shoulder of 0.14 by matching the
+      // curvature of a section whose front stood on the nose's clip), the knot is laid from the field's other knots.
+      const relayStored: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--relay-stored="))?.slice(15);
+      if (relayStored !== undefined) {
+        const values: number[][] = best.values.map((field: number[]): number[] => [...field]);
+        for (const group of relayStored.split(";")) {
+          const [knotText, fieldText]: string[] = group.split(":");
+          const broken: number[] = knotText!.split(",").map(Number);
+          const keep: number[] = best.knots.map((_: number, k: number): number => k).filter((k: number): boolean => !broken.includes(best!.knots[k]!));
+          for (const f of fieldText!.split(",").map(Number)) {
+            const laid: number[] = F.resample([keep.map((k: number): number => values[f]![k]!)], keep.map((k: number): number => best!.knots[k]!), best.knots)[0]!;
+            values[f] = values[f]!.map((x: number, k: number): number => (broken.includes(best!.knots[k]!) ? laid[k]! : x));
+          }
+        }
+        best = { ...best, values };
       }
       const led: { knots: number[]; values: number[][] } = part.lead === undefined ? { knots: best.knots, values: best.values } :{ knots: [...[3, 2, 1].map((k: number): number => best!.knots[0]! - (part.lead! * k) / 3), ...best.knots], values: best.values.map((field: number[]): number[] => [field[0]!, field[0]!, field[0]!, ...field]) };
       const stored: string = JSON.stringify({ name: part.name, centres: part.centres.map((c: R.V): number[] => c.map(round)), halves: part.halves, up: part.up, ...(part.roll === undefined ? {} : { roll: part.roll }), layout: best.layout, knots: led.knots.map(round), values: led.values.map((field: number[], f: number): number[] => field.map(C.units(best!.layout)[f] === "mm" ? round : round4)) });
@@ -2218,6 +2251,12 @@ namespace FamilyConicBody {
         }
         const faced: H.IResult = H.fit(window, [], observed);
         definition.reliefs = [...(definition.reliefs ?? []), faced.relief];
+        // A cast's twin, as a window's (`IWindow.twin`): the same heights with their columns reversed, over the reflected phases and directions.
+        if (face.twin === true) {
+          const relief: IAutoMovieLoftRelief = faced.relief;
+          const flip = (v: readonly number[]): [number, number, number] => [v[0]!, v[1]!, -v[2]!];
+          definition.reliefs.push({ ...relief, name: relief.name + ".twin", phases: [-relief.phases[1], -relief.phases[0]], axis: flip(relief.axis), ...(relief.turn === undefined ? {} : { turn: flip(relief.turn).map((x: number): number => -x || 0) as [number, number, number] }), heights: relief.heights.map((_: number, i: number): number => relief.heights[i - (i % relief.columns) + (relief.columns - 1 - (i % relief.columns))]!) });
+        }
         log("family-body-face", { part: part.name, relief: window.name, triangles: triangles.length, observed: observed.length, scalars: faced.scalars, deepestMm: round(faced.deepestMm), trainMaxMm: round(faced.trainMaxMm), heldMaxMm: round(faced.heldMaxMm) });
         await fs.writeFile(path.join(out, part.name + ".family.json"), JSON.stringify(definition));
       }
