@@ -65,17 +65,18 @@ export namespace StrikingBlade {
      * The tool's pose along the stroke.
      *
      * @param progress 0 at the ready pose, 1 at the decisive pose, more than 1 through the follow-through.
+     * @param seconds Seconds since the action's start, for a path that follows something moving (an aim kept on a walking target); a path of a stroke ignores it.
      * @returns The hand's grip frame, world.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation States the progress's three marks and the result's frame.
-     * @evidence contracts/development/implementation.md#principled-implementation A path is a pure function of its progress, so the planner alone decides the time course.
+     * @evidence contracts/development/common.md#meaningful-documentation States the progress's three marks, what the seconds are for and the result's frame.
+     * @evidence contracts/development/implementation.md#principled-implementation A stroke's path is a pure function of its progress, so the planner alone decides the time course; the seconds are given beside it because a held pose's progress stays at 1 while what it is held on may move.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The planner passes the progress unclamped above 1, so a follow-through is the path's own.
      * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body.
      * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
      */
-    path(progress: number): StrikingHeld.IHandFrame;
+    path(progress: number, seconds: number): StrikingHeld.IHandFrame;
 
     /** The point of the tool that must stay on its path where the wrist cannot turn as asked, metres behind the working point. */
     back: number;
@@ -238,6 +239,7 @@ export namespace StrikingBlade {
         );
       const at: StrikingHeld.IHandFrame = stroke.path(
         stroke.stop < 1 ? Math.min(stroke.stop, progress) : progress,
+        seconds,
       );
       const weight: number = present(seconds);
       if (weight >= 1) return at;
@@ -294,7 +296,7 @@ export namespace StrikingBlade {
       const goal: IHumanPosture.IGoal = StrikingHeld.goal(
         context,
         tool,
-        stroke.path(stroke.stop),
+        stroke.path(stroke.stop, clock.at("stroke")),
         stroke.back,
         { x: 0, y: 0, z: 0 },
       );

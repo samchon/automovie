@@ -24,6 +24,7 @@ import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { StrikingTarget } from "../striking/StrikingTarget";
+import { HumanWeaponTrack } from "./HumanWeaponTrack";
 
 /**
  * Handling a firearm with the weapon as the effector: presenting it to an
@@ -75,7 +76,7 @@ export namespace HumanWeaponFirearm {
   export type Carriage = "aim" | "lowReady" | "highReady";
 
   /** Parameters of presenting the weapon. */
-  export interface IPresent extends IWield {
+  export interface IPresent extends IWield, HumanWeaponTrack.IParams {
     /** What it is aimed at; a place straight ahead at eye height when absent. A ready position faces it without aiming. */
     target?: AutoMovieMotionTarget;
 
@@ -397,7 +398,12 @@ export namespace HumanWeaponFirearm {
           hold: seconds,
           retract: 0,
         }),
-        path: (): StrikingHeld.IHandFrame => pose,
+        path: HumanWeaponTrack.path(
+          context,
+          pose,
+          eye,
+          carriage === "aim" ? target : null,
+        ),
         back: carriage === "aim" ? 0 : s.tool.length,
         support: supported(context, s, pose, bladed),
         turn,
