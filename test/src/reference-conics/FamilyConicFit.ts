@@ -25,6 +25,9 @@ export namespace FamilyConicFit {
 
     /** Withheld from the fit and read only as validation. */
     heldout: boolean;
+
+    /** Whether an observed point is invented and not skin (a guided excursion's closure, `FamilyConicExcursion.IPart.guided`). */
+    free?: (p: C.P) => boolean;
   }
 
   /** The fitted family and its sampled errors. */
@@ -135,7 +138,8 @@ export namespace FamilyConicFit {
       const a: C.P = row.points[(k + n - 1) % n]!;
       const b: C.P = row.points[(k + 1) % n]!;
       const weight: number = (Math.hypot(p[0] - a[0], p[1] - a[1]) + Math.hypot(b[0] - p[0], b[1] - p[1])) / 2;
-      if (!(weight > 0)) continue;
+      // An invented point (`IRow.free`, a guided excursion's closure) is no observation: it carried 57 % of the nose's summed misfit.
+      if (!(weight > 0) || row.free?.(p) === true) continue;
       sample.phases.push(Math.atan2(p[1], p[0]));
       sample.radii.push(Math.hypot(p[0], p[1]));
       sample.weights.push(weight);
@@ -144,6 +148,80 @@ export namespace FamilyConicFit {
     const mean: number = total / sample.weights.length;
     sample.weights = sample.weights.map((w: number): number => w / mean);
     return sample;
+  }
+
+  /** One section's misfit to a given family, split between skin and invented points (`misfit`). */
+  export interface IMisfit {
+    /** The row's station, mm. */
+    s: number;
+
+    /** Whether the row was withheld from the fit. */
+    heldout: boolean;
+
+    /** Radial misses at the skin's points: their sum, count and largest, mm, and the largest's phase, radians. */
+    skin: { sum: number; n: number; max: number; phase: number };
+
+    /** Radial misses at the invented points (`IRow.free`): their sum, count and largest, mm. */
+    free: { sum: number; n: number; max: number };
+
+    /** Why the family's chain is refused at this station, or null. */
+    fault: string | null;
+  }
+
+  /** Station basis of a knot vector: each knot's cardinal natural cubic, read at a station. */
+  export function basisOf(knots: readonly number[]): (s: number) => number[] {
+    const cardinals: S.ISpline[] = knots.map((_: number, m: number): S.ISpline => S.create([...knots], knots.map((__: number, k: number): number => (k === m ? 1 : 0))));
+    return (s: number): number[] => cardinals.map((spline: S.ISpline): number => S.evaluate(spline, s));
+  }
+
+  /** A family's section numbers at a station: its knot values read through the knots' basis. */
+  export function at(knots: readonly number[], values: readonly (readonly number[])[], s: number): number[] {
+    const b: number[] = basisOf(knots)(s);
+    return values.map((field: readonly number[]): number => field.reduce((sum: number, y: number, m: number): number => sum + y * b[m]!, 0));
+  }
+
+  /**
+   * The radial misfit of a given family at every row's observed points, with no fitting: the skin's and the invented points' apart
+   * (`IRow.free`), and the worst skin point's phase.
+   */
+  export function misfit(rows: readonly IRow[], knots: readonly number[], layout: C.ILayout, values: readonly (readonly number[])[]): IMisfit[] {
+    const basis = basisOf(knots);
+    return rows.map((row: IRow): IMisfit => {
+      const b: number[] = basis(row.s);
+      const t: number[] = values.map((field: readonly number[]): number => field.reduce((sum: number, y: number, m: number): number => sum + y * b[m]!, 0));
+      const section: Q.ISection = C.chain(t, layout);
+      const out: IMisfit = { s: row.s, heldout: row.heldout, skin: { sum: 0, n: 0, max: 0, phase: NaN }, free: { sum: 0, n: 0, max: 0 }, fault: section.fault };
+      if (section.fault !== null) return out;
+      for (const p of row.points) {
+        const phi: number = Math.atan2(p[1], p[0]);
+        const e: number = Math.abs(Q.radius(section, phi) - Math.hypot(p[0], p[1]));
+        if (!Number.isFinite(e)) continue;
+        const into = row.free?.(p) === true ? out.free : out.skin;
+        into.sum += e;
+        ++into.n;
+        if (e > into.max) {
+          into.max = e;
+          if (into === out.skin) out.skin.phase = phi;
+        }
+      }
+      return out;
+    });
+  }
+
+  /** Every arc's two tangent-meeting distances over unit tangents, as shares of its chord, in chain order (`ADMISSIBLE_MARGIN`). */
+  export function meetings(t: readonly number[], layout: C.ILayout): { a: number; b: number }[] {
+    const input = C.resolve([...t], layout).input;
+    const points: number[][] = input.points as number[][];
+    const tangents: number[][] = input.tangents as number[][];
+    return points.map((_: number[], j: number): { a: number; b: number } => {
+      const [p0, p2, t0, t2] = [points[j]!, points[(j + 1) % points.length]!, tangents[j]!, tangents[(j + 1) % points.length]!];
+      const [n0, n2]: number[] = [Math.hypot(t0[0]!, t0[1]!), Math.hypot(t2[0]!, t2[1]!)];
+      const [u, w]: number[][] = [[t0[0]! / n0, t0[1]! / n0], [t2[0]! / n2, t2[1]! / n2]];
+      const den: number = u[0]! * w[1]! - u[1]! * w[0]!;
+      const d: number[] = [p2[0]! - p0[0]!, p2[1]! - p0[1]!];
+      const chord: number = Math.hypot(d[0]!, d[1]!) || 1;
+      return { a: (d[0]! * w[1]! - d[1]! * w[0]!) / den / chord, b: (u[0]! * d[1]! - u[1]! * d[0]!) / den / chord };
+    });
   }
 
   /**
@@ -324,7 +402,9 @@ export namespace FamilyConicFit {
           const points: number[][] = input.points as number[][];
           const tangents: number[][] = input.tangents as number[][];
           const n: number = points.length;
+          let previous: number = 0;
           featured.forEach((k: number, j: number): void => {
+            if (k === 0 || layout.anchors[k - 1]!.kind !== "f") previous = 0;
             const [before, after]: [number, number] = [(k + n - 1) % n, (k + 1) % n];
             // The feature's frame (`AutoMovieHumanConicSection.frame`): its numbers are read on that chord.
             const [from, to]: [number, number] = C.frame(k, layout);
@@ -335,7 +415,7 @@ export namespace FamilyConicFit {
               const tried: number[] = step === 0 ? [reading] : [reading + step * HEADING_STEP, reading - step * HEADING_STEP];
               const found: number | undefined = tried.find((h: number): boolean => {
                 const d: number[] = [Math.cos(h), Math.sin(h)];
-                return C.arc(points[before]!, tangents[before]!, points[k]!, d) && C.arc(points[k]!, d, points[after]!, tangents[after]!);
+                return C.arc(points[before]!, tangents[before]!, points[k]!, d, margin) && C.arc(points[k]!, d, points[after]!, tangents[after]!, margin);
               });
               if (found === undefined) continue;
               chosen = found;
@@ -351,10 +431,11 @@ export namespace FamilyConicFit {
               points[k] = place;
             }
             tangents[k] = [Math.cos(chosen), Math.sin(chosen)];
-            const [t, o, h]: [number, number, number] = C.unplace(points[from] as C.P, points[to] as C.P, place as C.P, chosen);
-            targets[j]!.push(h);
-            places[j]![0]!.push(t);
-            places[j]![1]!.push(o);
+            const read: { values: [number, number, number]; t: number } = C.unplace(points[from] as C.P, points[to] as C.P, place as C.P, chosen, previous);
+            previous = C.along(previous, read.values[0]);
+            targets[j]!.push(read.values[2]);
+            places[j]![0]!.push(read.values[0]);
+            places[j]![1]!.push(read.values[1]);
           });
         }
         const project = (field: number, target: number[]): void => {

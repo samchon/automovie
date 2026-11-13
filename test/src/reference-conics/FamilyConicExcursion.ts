@@ -81,6 +81,9 @@ export namespace FamilyConicExcursion {
 
     /** For an excursion, where it leaves the host's line behind and in front, chart `v`. */
     roots: [number, number] | null;
+
+    /** For a guided closure (`IPart.guided`), the skin's two ends: the closure is every point behind both, chart mm. */
+    ends?: [C.P, C.P];
   }
 
   /** How many stations either side the median of the roots is read over. */
@@ -233,6 +236,7 @@ export namespace FamilyConicExcursion {
     const host: C.P[] | undefined = [...loops].sort((a: C.P[], b: C.P[]): number => area(b) - area(a))[0];
     let excursion: C.P[] | null = null;
     let roots: [number, number] | null = null;
+    let ends: [C.P, C.P] | null = null;
     if (host !== undefined && !host.every(inside)) {
       const beside: C.P[] = host.filter((p: C.P): boolean => p[0] > -25 && part.beside.some(([a, b]: [number, number]): boolean => p[1] >= a && p[1] <= b));
       const line: ((v: number) => number) | null = quadratic(beside);
@@ -316,13 +320,14 @@ export namespace FamilyConicExcursion {
                 ...bezier(ga, [ga[0] + k, ga[1]], [a[0] + k * ta[0], a[1] + k * ta[1]], a, 6).slice(0, -1),
               ];
               excursion = [...piece, ...closure];
+              ends = [a, b];
             } else excursion = [...piece, ...sunk];
           }
         }
       }
     }
     const ownLargest: C.P[] | null = own.length === 0 ? null : own.reduce((x: C.P[], y: C.P[]): C.P[] => (area(y) > area(x) ? y : x));
-    if (excursion !== null && (ownLargest === null || area(excursion) >= area(ownLargest))) return { points: ccw(excursion), kind: "excursion", roots };
+    if (excursion !== null && (ownLargest === null || area(excursion) >= area(ownLargest))) return { points: ccw(excursion), kind: "excursion", roots, ...(ends === null ? {} : { ends }) };
     return ownLargest === null ? null : { points: ccw(ownLargest), kind: "loop", roots: null };
   }
 

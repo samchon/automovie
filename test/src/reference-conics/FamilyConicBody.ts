@@ -1142,13 +1142,18 @@ namespace FamilyConicBody {
       let piece: C.P[] | null = null;
       // A part cut out of its host as an excursion of the reference head's sections (`IPart.excursion`), in the course's own planes and chart.
       let excursion: ((y: number) => X.ISection | null) | null = null;
+      // The skin's two ends of the last guided excursion cut (`X.ISection.ends`): its invented closure lies behind both.
+      let ends: [C.P, C.P] | null = null;
       const cut = (frame: AutoMovieLoftFrame.IFrame, s: number): C.P[] | null => {
         piece = null;
+        ends = null;
         if (part.excursion !== undefined) {
           const entry: X.IPart | undefined = X.PARTS.find((p: X.IPart): boolean => p.name === part.excursion);
           if (entry === undefined) throw new Error("No excursion " + part.excursion);
           excursion ??= X.along(source, entry, (t: number) => axis.at(t), domain[0] - 6, domain[1] + 6, 1.5);
-          const cutOut: C.P[] | null = excursion(s)?.points ?? null;
+          const sectioned: X.ISection | null = excursion(s);
+          const cutOut: C.P[] | null = sectioned?.points ?? null;
+          ends = sectioned?.ends ?? null;
           // The nostrils open into the levels from 1,546 to 1,551.5 mm: there the vertical nose bridges them by its hull, as the floor's
           // net bridged the pits, so the cutters keep them.
           if (cutOut !== null && NOSE_VERTICAL && part.name === "nose" && frame.origin[1] > 1545.9 && frame.origin[1] < 1551.6) return R.hull(cutOut).flatMap((p: C.P, k: number, hull: C.P[]): C.P[] => {
@@ -1262,8 +1267,11 @@ namespace FamilyConicBody {
         const loop: C.P[] | null = part.skin === undefined ? cutLoop : (starred?.points ?? null);
         if (loop === null) skipped.push(s);
         else if (part.skin !== undefined) {
-          // Fitted to the skin itself: its concavities are the wall's own inward arcs, between inflection anchors (`inflected`).
-          rows.push({ s, points: loop, heldout: i % 2 === 1 });
+          // Fitted to the skin itself: its concavities are the wall's own inward arcs, between inflection anchors (`inflected`). A guided
+          // excursion's invented closure, every point behind both of the skin's ends, is not skin (`F.IRow.free`).
+          const cutEnds: [C.P, C.P] | null = ends as [C.P, C.P] | null;
+          const behind: number | null = cutEnds === null ? null : Math.min(cutEnds[0][0], cutEnds[1][0]);
+          rows.push({ s, points: loop, heldout: i % 2 === 1, ...(behind === null ? {} : { free: (p: C.P): boolean => p[0] < behind - 0.01 }) });
           skins.push(loop);
           loops.push(loop);
         } else {
@@ -1305,6 +1313,174 @@ namespace FamilyConicBody {
       // `--observe`: the sections alone, every fourth one's extents in its chart and how near its hull comes to the course, and no fit.
       if (process.argv.includes("--observe")) {
         log("family-body-sections", { part: part.name, rows: rows.filter((_: F.IRow, i: number): boolean => i % 4 === 0).map((row: F.IRow): string => row.s.toFixed(0) + " u " + Math.min(...row.points.map((p: C.P): number => p[0])).toFixed(0) + ".." + Math.max(...row.points.map((p: C.P): number => p[0])).toFixed(0) + " v " + Math.min(...row.points.map((p: C.P): number => p[1])).toFixed(0) + ".." + Math.max(...row.points.map((p: C.P): number => p[1])).toFixed(0) + " near " + Math.min(...Array.from({ length: 72 }, (_: unknown, j: number): number => C.radius(row.points, (Math.PI * j) / 36))).toFixed(0)) });
+        continue;
+      }
+
+      // `--decompose=<directory>`: the misfit of the family stored there taken apart by source, and no fit. (1) Each fitting section fitted
+      // alone (`F.fit` on two copies of it a millimetre apart) with the part's first layout and margin: what the layout itself cannot reach.
+      // (2) Those sections' numbers projected onto the stored knots and on twice and four times as many: what the knots cost, and how many
+      // stations of each projection the admissibility refuses. (3) At the stored family, every arc whose tangent lines meet within twice the
+      // margin of its chord, by station, and each guide's tangent against the skin's beside it. (4) The stored family's misfit on the skin
+      // and on invented points (`F.IRow.free`).
+      const decompose: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--decompose="))?.slice(12);
+      if (decompose !== undefined) {
+        const stored: K.IStored = JSON.parse(await fs.readFile(path.join(decompose, part.name + ".family.json"), "utf8")) as K.IStored;
+        const layout: C.ILayout = part.layouts[0]!.layout;
+        const margin: number = part.margin ?? F.ADMISSIBLE_MARGIN;
+        const units: C.Unit[] = C.units(layout);
+        const summary = (list: F.IMisfit[]): { skinMean: number; skinMax: number; freeMean: number; freeMax: number; freeShare: number; faults: number } => {
+          const skin: number = list.reduce((x: number, m: F.IMisfit): number => x + m.skin.sum, 0);
+          const free: number = list.reduce((x: number, m: F.IMisfit): number => x + m.free.sum, 0);
+          const n: number = list.reduce((x: number, m: F.IMisfit): number => x + m.skin.n, 0);
+          const nf: number = list.reduce((x: number, m: F.IMisfit): number => x + m.free.n, 0);
+          return { skinMean: round4(skin / Math.max(1, n)), skinMax: round(Math.max(...list.map((m: F.IMisfit): number => m.skin.max))), freeMean: round4(free / Math.max(1, nf)), freeMax: round(Math.max(0, ...list.map((m: F.IMisfit): number => m.free.max))), freeShare: round4(free / Math.max(1e-9, skin + free)), faults: list.filter((m: F.IMisfit): boolean => m.fault !== null).length };
+        };
+        const byRow = (list: F.IMisfit[]): string => list.map((m: F.IMisfit): string => m.s.toFixed(1) + ":" + (m.fault !== null ? "fault" : (m.skin.sum / Math.max(1, m.skin.n)).toFixed(2) + "/" + m.skin.max.toFixed(2) + "@" + ((m.skin.phase * 180) / Math.PI).toFixed(0))).join(" ");
+        const train: F.IRow[] = rows.filter((row: F.IRow): boolean => !row.heldout);
+
+        // (1) Layout capacity.
+        const own: { s: number; values: number[] }[] = [];
+        const wallCounts: Map<string, number> = new Map();
+        const sectionSteps: string[] = [];
+        // Every table is also written as text beside the run's receipt (`<part>.decompose.txt`), so it can be read after the run.
+        const lines: string[] = ["# " + part.name + " decomposition of " + decompose, "layout anchors: " + layout.anchors.map((anchor: C.IAnchor, k: number): string => k + " " + anchor.kind + (anchor.feature === undefined ? "" : " " + anchor.feature)).join(", "), "field offsets: " + C.offsets(layout).at.join(", "), "margin: " + margin, ""];
+        const table = (title: string, list: F.IMisfit[]): void => {
+          const sum = summary(list);
+          lines.push("## " + title, "skin mean " + sum.skinMean + " mm, skin max " + sum.skinMax + " mm, closure mean " + sum.freeMean + " mm, closure max " + sum.freeMax + " mm, closure share of the summed misfit " + sum.freeShare + ", refused sections " + sum.faults);
+          lines.push("station  skin-mean  skin-max  at-degrees  closure-mean  closure-max");
+          for (const m of list) lines.push(m.fault !== null ? m.s.toFixed(1).padStart(7) + "  refused: " + m.fault : [m.s.toFixed(1).padStart(7), (m.skin.sum / Math.max(1, m.skin.n)).toFixed(2).padStart(9), m.skin.max.toFixed(2).padStart(8), ((m.skin.phase * 180) / Math.PI).toFixed(0).padStart(10), (m.free.sum / Math.max(1, m.free.n)).toFixed(2).padStart(12), m.free.max.toFixed(2).padStart(11)].join("  "));
+          lines.push("");
+        };
+        const ownMisfit: F.IMisfit[] = [];
+        for (const row of train) {
+          const pair: number[] = [row.s - 0.5, row.s + 0.5];
+          // Started from the stored family's section at that station, which is admissible: started from the section's own seed, 37 of 40
+          // sections were refused before a step (a fading feature's seed inside the margin).
+          const start: number[] = F.at(stored.knots, stored.values, row.s);
+          const result: F.IResult = F.fit(pair.map((s: number): F.IRow => ({ ...row, s, heldout: false })), pair, layout, 4, start.map((v: number): number[] => [v, v]), margin);
+          if (result.fault !== null) {
+            ownMisfit.push({ s: row.s, heldout: false, skin: { sum: 0, n: 0, max: 0, phase: NaN }, free: { sum: 0, n: 0, max: 0 }, fault: result.fault });
+            continue;
+          }
+          const values: number[] = F.at(pair, result.values, row.s);
+          // Why a section alone moves so little from its start: the steps taken, and how many single-number steps of a tenth of a
+          // millimetre or a hundredth of a share or radian either way the admissibility refuses from where it stopped.
+          let walls: number = 0;
+          let tried: number = 0;
+          units.forEach((unit: C.Unit, f: number): void => {
+            for (const sign of [1, -1]) {
+              const moved: number[] = values.map((v: number, g: number): number => (g === f ? v + sign * (unit === "mm" ? 0.1 : 0.01) : v));
+              ++tried;
+              const fault: string | null = C.chain(moved, layout).fault;
+              const tight: number = F.meetings(moved, layout).findIndex((m): boolean => !(Math.min(m.a, m.b) >= margin));
+              if (fault === null && tight < 0) continue;
+              ++walls;
+              const key: string = "field " + f + (sign > 0 ? "+" : "-") + " " + (fault !== null ? fault.replace(/\(.*$/, "").replace(/station [\d.]+ mm: /, "").slice(0, 60) : "margin arc " + tight);
+              wallCounts.set(key, (wallCounts.get(key) ?? 0) + 1);
+            }
+          });
+          log("family-body-decompose-section", { part: part.name, s: row.s, iterations: result.iterations, refusedSteps: walls + " of " + tried });
+          sectionSteps.push(row.s.toFixed(1).padStart(7) + "  " + String(result.iterations).padStart(5) + "  " + walls + " of " + tried);
+          own.push({ s: row.s, values });
+          ownMisfit.push(...F.misfit([row], pair, layout, result.values));
+        }
+        log("family-body-decompose-layout", { part: part.name, ...summary(ownMisfit), rows: byRow(ownMisfit) });
+        log("family-body-decompose-walls", { part: part.name, offsets: C.offsets(layout).at, walls: [...wallCounts.entries()].sort((x, y): number => y[1] - x[1]).map(([k, n]): string => n + " x " + k) });
+        table("(1) layout capacity: each fitting section alone, from the stored family's section", ownMisfit);
+        lines.push("## (1) steps taken alone, and single-number steps (0.1 mm, 0.01 share or radian) refused where each stopped", "station  steps  refused", ...sectionSteps, "");
+        lines.push("## (1) refused single-number steps over all sections, by field, direction and reason", ...[...wallCounts.entries()].sort((x, y): number => y[1] - x[1]).map(([k, n]): string => String(n).padStart(4) + "  " + k), "");
+
+        // (2) Longitudinal capacity: the sections' own numbers, headings unwrapped along the stations, projected onto each knot vector.
+        for (let f: number = 0; f < units.length; ++f) {
+          if (units[f] !== "angle") continue;
+          for (let i: number = 1; i < own.length; ++i) {
+            const previous: number = own[i - 1]!.values[f]!;
+            while (own[i]!.values[f]! - previous > Math.PI) own[i]!.values[f]! -= 2 * Math.PI;
+            while (own[i]!.values[f]! - previous < -Math.PI) own[i]!.values[f]! += 2 * Math.PI;
+          }
+        }
+        const finer = (knots: number[]): number[] => knots.flatMap((k: number, i: number): number[] => (i === 0 ? [k] : [(knots[i - 1]! + k) / 2, k]));
+        for (const [name, knots] of [["stored", stored.knots], ["twice", finer(stored.knots)], ["four times", finer(finer(stored.knots))]] as const) {
+          const basis = F.basisOf(knots);
+          const B: number[][] = own.map((o): number[] => basis(o.s));
+          const M: number = knots.length;
+          const gram: number[][] = Array.from({ length: M }, (): number[] => new Array<number>(M).fill(0));
+          for (const b of B) for (let m: number = 0; m < M; ++m) for (let n: number = 0; n < M; ++n) gram[m]![n]! += b[m]! * b[n]!;
+          const values: number[][] = units.map((_: C.Unit, f: number): number[] => {
+            const right: number[] = new Array<number>(M).fill(0);
+            own.forEach((o, i: number): void => {
+              for (let m: number = 0; m < M; ++m) right[m]! += B[i]![m]! * o.values[f]!;
+            });
+            return F.solve(gram.map((r: number[]): number[] => [...r]), right) ?? new Array<number>(M).fill(NaN);
+          });
+          let refused: number = 0;
+          let dense: number = 0;
+          for (let s: number = knots[0]!; s <= knots[M - 1]! + 1e-9; s += 0.25, ++dense) {
+            const t: number[] = F.at(knots, values, s);
+            if (C.chain(t, layout).fault !== null || F.meetings(t, layout).some((m): boolean => !(Math.min(m.a, m.b) >= margin))) ++refused;
+          }
+          const list: F.IMisfit[] = F.misfit(rows, knots, layout, values);
+          log("family-body-decompose-knots", { part: part.name, knots: name, count: M, refusedStations: refused + " of " + dense, ...summary(list), rows: byRow(list) });
+          table("(2) longitudinal capacity: the sections' own numbers on " + (name === "stored" ? "" : name + " ") + "the stored knots (" + M + " knots, " + refused + " of " + dense + " dense stations refused)", list);
+        }
+
+        // (3) Binding constraints at the stored family, and (4) its misfit on skin and invented points.
+        const near: string[] = [];
+        const perArc: Map<number, number> = new Map();
+        for (let s: number = stored.knots[0]!; s <= stored.knots.at(-1)! + 1e-9; s += 0.25) {
+          const t: number[] = F.at(stored.knots, stored.values, s);
+          F.meetings(t, layout).forEach((m, j: number): void => {
+            const least: number = Math.min(m.a, m.b);
+            if (least < 2 * margin) {
+              perArc.set(j, (perArc.get(j) ?? 0) + 1);
+              if (near.length < 60) near.push(s.toFixed(2) + " arc " + j + " " + (m.a < m.b ? "a" : "b") + " " + least.toFixed(3));
+            }
+          });
+        }
+        const guides: string[] = train.map((row: F.IRow): string => {
+          const chain: C.IChain = C.resolve(F.at(stored.knots, stored.values, row.s), layout);
+          return row.s.toFixed(1) + ":" + chain.guides.map((g: number): string => {
+            const p: C.P = chain.input.points[g]!;
+            const k: number = row.points.reduce((best: number, q: C.P, i: number): number => (Math.hypot(q[0] - p[0], q[1] - p[1]) < Math.hypot(row.points[best]![0] - p[0], row.points[best]![1] - p[1]) ? i : best), 0);
+            const [a, b]: C.P[] = [row.points[(k + row.points.length - 2) % row.points.length]!, row.points[(k + 2) % row.points.length]!];
+            const skinAngle: number = Math.atan2(b[1] - a[1], b[0] - a[0]);
+            const guideAngle: number = Math.atan2(chain.input.tangents[g]![1], chain.input.tangents[g]![0]);
+            const d: number = Math.atan2(Math.sin(skinAngle - guideAngle), Math.cos(skinAngle - guideAngle));
+            return ((d * 180) / Math.PI).toFixed(0) + (row.free?.(row.points[k]!) === true ? "c" : "s");
+          }).join("/");
+        });
+        const at: F.IMisfit[] = F.misfit(rows, stored.knots, layout, stored.values);
+        log("family-body-decompose-binding", { part: part.name, margin, arcsNearWall: [...perArc.entries()].map(([j, n]): string => "arc " + j + ": " + n + " stations"), first: near, guideTurnDegrees: guides.join(" ") });
+        log("family-body-decompose-weighting", { part: part.name, ...summary(at), rows: byRow(at) });
+        lines.push("## (3) binding at the stored family: arcs whose tangent lines meet within twice the margin of the chord", ...[...perArc.entries()].map(([j, n]): string => "arc " + j + ": " + n + " dense stations"), ...near, "");
+        lines.push("## (3) guide tangents against the skin's beside them, degrees, front / +v / back / -v (s skin, c closure)", ...guides, "");
+        table("(4) data weighting: the stored family's misfit on the skin and on the invented closure", at);
+        // Clusters: runs of neighbouring stations whose skin maximum passes 1 mm at phases within 20 degrees of each other.
+        lines.push("## clusters of the stored family's skin misfit over 1 mm (stations, phases, largest mm)");
+        let cluster: { from: number; to: number; phases: number[]; max: number } | null = null;
+        const close = (): void => {
+          if (cluster !== null) lines.push(cluster.from.toFixed(1) + " to " + cluster.to.toFixed(1) + " mm, " + Math.min(...cluster.phases).toFixed(0) + " to " + Math.max(...cluster.phases).toFixed(0) + " deg, " + cluster.max.toFixed(2) + " mm");
+          cluster = null;
+        };
+        for (const m of at) {
+          const phase: number = (m.skin.phase * 180) / Math.PI;
+          if (m.fault !== null || m.skin.max <= 1) {
+            close();
+            continue;
+          }
+          const open: { from: number; to: number; phases: number[]; max: number } | null = cluster;
+          if (open !== null && Math.abs(phase - open.phases.at(-1)!) <= 20) {
+            open.to = m.s;
+            open.phases.push(phase);
+            open.max = Math.max(open.max, m.skin.max);
+          } else {
+            close();
+            cluster = { from: m.s, to: m.s, phases: [phase], max: m.skin.max };
+          }
+        }
+        close();
+        await fs.writeFile(path.join(out, part.name + ".decompose.txt"), lines.join("\n") + "\n");
+        log("family-body-decompose-file", { part: part.name, file: path.join(out, part.name + ".decompose.txt") });
         continue;
       }
 
