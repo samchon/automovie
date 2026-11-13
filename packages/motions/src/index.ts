@@ -219,6 +219,7 @@ export * from "./lexicon/HumanMount";
 export * from "./lexicon/HumanMountOn";
 export * from "./lexicon/HumanMountOff";
 export * from "./lexicon/HumanTravelDoor";
+export * from "./lexicon/HumanTravelCar";
 export * from "./striking/StrikingHeld";
 export * from "./striking/StrikingBlade";
 export * from "./lexicon/HumanSword";

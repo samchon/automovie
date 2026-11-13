@@ -21,6 +21,8 @@ import { HumanSword } from "./HumanSword";
 import { HumanSwordGuard } from "./HumanSwordGuard";
 import { HumanSwordParry } from "./HumanSwordParry";
 import { HumanSwordThrust } from "./HumanSwordThrust";
+import { HumanTravelCar } from "./HumanTravelCar";
+import { HumanTravelDoor } from "./HumanTravelDoor";
 import { HumanWeaponFirearm } from "./HumanWeaponFirearm";
 import { HumanWeaponMelee } from "./HumanWeaponMelee";
 
@@ -49,7 +51,11 @@ export const HUMAN_LEXICON: Readonly<
   habit: rows(HumanHabit),
   stance: rows(HumanStance),
   pose: rows(HumanPose),
-  gait: rows(HumanGait),
+  gait: [
+    ...rows(HumanGait),
+    ...rows(HumanTravelDoor),
+    ...rows(HumanTravelCar),
+  ],
   pursuit: rows(HumanPursuit),
   social: rows(HumanSocial),
   stageFight: rows(HumanStageFight),

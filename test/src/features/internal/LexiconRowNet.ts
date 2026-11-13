@@ -188,6 +188,9 @@ export namespace LexiconRowNet {
 
   /** Rows that need a support, a prop or a thrower, which their own tests stage. */
   const STAGED: readonly string[] = [
+    // A doorway and a car need an obstacle and an opening, which `test_human_motion_travel_obstacles` and `test_human_motion_travel_car` stage.
+    "passThrough",
+    "getIn",
     "ride",
     "carried",
     "drawFirearm",
