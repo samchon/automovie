@@ -73,6 +73,11 @@ export namespace HumanSport {
     kind: "stepTouch",
   });
 
+  /** A box step to the beat: forward, side, close, back, side, close. */
+  export const boxStep = HumanActionRow.of("boxStep", dance, {
+    kind: "boxStep",
+  });
+
   /** The set position of a sprint start. */
   export const sprintStart = HumanActionRow.of("sprintStart", athletics, {});
 
