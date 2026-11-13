@@ -26,6 +26,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
 import { HumanCarriedDrag } from "./HumanCarriedDrag";
+import { HumanCarriedLift } from "./HumanCarriedLift";
 
 /**
  * Being carried by another person: on the back, in the arms or over a
@@ -263,7 +264,7 @@ export namespace HumanCarried {
   };
 
   /** Parameters of being carried in a named carry. */
-  export interface IBorne {
+  export interface IBorne extends HumanCarriedLift.IParams {
     /** The carrier's subject id; absent, the body takes the carry's posture where it stands, resting on nothing. */
     by?: string;
 
@@ -309,7 +310,7 @@ export namespace HumanCarried {
     HumanBound.above("seconds", seconds, 0, "s");
 
   /**
-   * Be carried in a named carry: the body takes the carry's posture and its resting region stays on the carrier's region, whatever the carrier does. The carrier performs `bearing` over their own action. The lift into the carry and the set-down are not planned. A person named as their own carrier is refused on `by`.
+   * Be carried in a named carry: the body takes the carry's posture and its resting region stays on the carrier's region, whatever the carrier does. The carrier performs `bearing` over their own action. The lift into the carry and the set-down are the `lift` and `setDown` seconds (`HumanCarriedLift`). A person named as their own carrier is refused on `by`.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is kept, who does what, what is not planned and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation At each second the carrier's displayed region and heading are read; the carried posture is built with the carry's heading, tip and leg angles, and its root is the one that puts its own resting region on the carrier's, found by one forward kinematics of the trunk.
@@ -348,7 +349,7 @@ export namespace HumanCarried {
         leftLowerLeg: [knee, 0, 0],
         rightLowerLeg: [knee, 0, 0],
       };
-      return {
+      return HumanCarriedLift.over(context, {
         duration: seconds,
         events: [],
         contacts:
@@ -406,7 +407,7 @@ export namespace HumanCarried {
           );
           return { ...posture, limbs };
         },
-      };
+      });
     },
   };
 

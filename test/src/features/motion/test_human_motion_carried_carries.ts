@@ -47,6 +47,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 3. In the piggyback the carrier's wrists, 1 s into the carry, are more
  *    than 50 mm from where they are in the same walk without the hold.
  * 4. A person named as their own carrier is refused on `by`.
+ * 6. A piggyback with a lift and a set-down of 0.5 s each: 1 s into the
+ *    carry the carried ankles are more than a tenth of the stature above
+ *    where they stood, and at the carry's end they are back at their
+ *    standing height within 15 mm (the campaign's contact bound) under a
+ *    head more than 0.3 of the stature above the hips: the body is set
+ *    down standing.
  * 5. With the lean layer scheduled over the piggyback (`HumanCarriedLean`,
  *    20 degrees forward, the family's stated provisional size), the
  *    carrier's chest tips 20 degrees farther forward than without it,
@@ -58,7 +64,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#independent-expectations The bound is the campaign's hold bound and the regions are the carries' descriptions; both bodies are read as displayed, never from a plan.
  * @evidence contracts/development/testing.md#distinguishing-cases Eight carries, both orders of two bodies of opposite build for the two carries a small carrier performs, the carrier's hands with and without the hold, one refusal.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds ten short performances; it runs locally and wherever CI runs the human motion tests.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule, the bound with its source and the 5 scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule, the bound with its source and the 6 scenarios.
  */
 export function test_human_motion_carried_carries(): void {
   const RESTS: Readonly<
@@ -82,6 +88,7 @@ export function test_human_motion_carried_carries(): void {
     carry: HumanCarried.Carry | null,
     by: string = "a",
     lean: boolean = false,
+    phases: { lift?: number; setDown?: number } = {},
   ): { film: HumanPerformance; bodies: Record<"a" | "b", IHumanBody> } => {
     const bodies: Record<"a" | "b", IHumanBody> = {
       a: motionHumanBody(names[0]),
@@ -112,6 +119,7 @@ export function test_human_motion_carried_carries(): void {
               by,
               carry: carry ?? "piggyback",
               seconds: 2,
+              ...phases,
             }),
         ).node,
         // The lean against the load, scheduled over the carry.
@@ -240,6 +248,40 @@ export function test_human_motion_carried_carries(): void {
         `piggyback: at ${seconds} s the lean changes the chest's turn in the walk by ${kept.toFixed(1)} degrees, 1 at most expected`,
       );
   }
+
+  // 6. The lift into the carry and the set-down out of it.
+  const lifted: ReturnType<typeof stage> = stage(pair, "piggyback", "a", false, {
+    lift: 0.5,
+    setDown: 0.5,
+  });
+  const borne: HumanSignature.IReader = HumanSignature.of(
+    lifted.film,
+    "b",
+    lifted.bodies.b,
+    0,
+  );
+  const ankles = (seconds: number): number =>
+    (HumanSignature.joint(borne, seconds, "leftFoot").y +
+      HumanSignature.joint(borne, seconds, "rightFoot").y) /
+    2;
+  const stood: number = ankles(0.3);
+  const raised: number = ankles(1.3) - stood;
+  if (!(raised > 0.1 * lifted.bodies.b.measure.stature))
+    complaints.push(
+      `piggyback with a lift: 1 s into the carry the carried ankles are ${(raised * 1000).toFixed(0)} mm above where they stood, more than a tenth of the stature expected`,
+    );
+  const down: number = Math.abs(ankles(2.3) - stood);
+  if (!(down <= 0.015))
+    complaints.push(
+      `piggyback with a set-down: at the carry's end the carried ankles are ${(down * 1000).toFixed(1)} mm from their standing height, 15 mm at most expected`,
+    );
+  const upright: number =
+    HumanSignature.joint(borne, 2.3, "head").y -
+    HumanSignature.joint(borne, 2.3, "hips").y;
+  if (!(upright > 0.3 * lifted.bodies.b.measure.stature))
+    complaints.push(
+      `piggyback with a set-down: at the carry's end the carried head is ${upright.toFixed(3)} m above the hips, more than 0.3 of the stature expected`,
+    );
 
   // 4. Nobody carries themselves.
   let refused: unknown = null;
