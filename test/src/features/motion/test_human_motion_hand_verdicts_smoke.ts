@@ -4,6 +4,7 @@ import {
   HumanPerformance,
   HumanVerdicts,
   type IHumanActionLaw,
+  type IHumanPosture,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -31,8 +32,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_hand_verdicts_smoke(): void {
   const laws: IHumanActionLaw<never>[] = Object.values(HUMAN_LEXICON).flat();
-  const report: HumanVerdicts.IReport = HumanVerdicts.of(
-    new HumanPerformance({
+  const performance: HumanPerformance = new HumanPerformance({
       seed: "verdict",
       laws,
       performers: [
@@ -47,12 +47,69 @@ export function test_human_motion_hand_verdicts_smoke(): void {
       composition: HumanChain.subject("a")
         .stand({ seconds: 0.3 })
         .registered("smoke", {}).node,
-    }),
-    6,
-  );
+  });
+  const report: HumanVerdicts.IReport = HumanVerdicts.of(performance, 6);
   TestValidator.equals(
     "a draw on a cigarette holds the physical bounds",
-    HumanVerdicts.describe(report),
+    report.clean
+      ? "clean"
+      : [
+          HumanVerdicts.describe(report),
+          ...report.findings.flatMap((f: HumanVerdicts.IFinding): string[] =>
+            [f.seconds - 1 / 48, f.seconds].map(
+              (seconds: number): string =>
+                `posture at ${seconds.toFixed(3)} s: ${dump(performance.posture("a", seconds))}`,
+            ),
+          ),
+          // The row's phase instants and, around each finding, the
+          // offending joint's world path and its own and its parent's angles.
+          `smoke instants: ${performance
+            .segments("a")[1]!
+            .plan.events.map(
+              (e): string =>
+                `${e.name} ${(performance.segments("a")[1]!.start + e.share * performance.segments("a")[1]!.plan.duration).toFixed(3)}`,
+            )
+            .join(", ")}`,
+          ...report.findings.flatMap((f: HumanVerdicts.IFinding): string[] =>
+            Array.from({ length: 13 }, (_: unknown, i: number): string => {
+              const seconds: number = f.seconds + (i - 6) / 48;
+              const bones = performance.bones("a", seconds);
+              const bone = bones.get(f.where as "rightLowerArm");
+              const pose = performance.pose("a", seconds);
+              const angles = (name: string): string =>
+                JSON.stringify(
+                  pose.joints.find((j): boolean => j.bone === name) ?? null,
+                  (_k: string, v: unknown): unknown =>
+                    typeof v === "number" ? Math.round(v * 100) / 100 : v,
+                );
+              return `${seconds.toFixed(3)} s ${f.where} at ${bone === undefined ? "?" : `(${bone.worldPosition.x.toFixed(4)}, ${bone.worldPosition.y.toFixed(4)}, ${bone.worldPosition.z.toFixed(4)})`} ${angles("rightUpperArm")} ${angles("rightLowerArm")} ${angles("rightHand")}`;
+            }),
+          ),
+        ].join("\n"),
     "clean",
   );
 }
+
+/** A posture as text for a complaint: root, yaw, pitch, roll, every set joint and every limb goal, numbers to four places, a goal's colliders left out. */
+function dump(posture: IHumanPosture): string {
+  return JSON.stringify(
+    {
+      root: posture.root,
+      yaw: posture.yaw,
+      pitch: posture.pitch,
+      roll: posture.roll,
+      joints: posture.joints,
+      limbs: Object.fromEntries(
+        Object.entries(posture.limbs).map(
+          ([limb, goal]: [string, IHumanPosture.IGoal | undefined]): [
+            string,
+            object | undefined,
+          ] => [limb, goal === undefined ? goal : { ...goal, clear: undefined }],
+        ),
+      ),
+    },
+    (_: string, value: unknown): unknown =>
+      typeof value === "number" ? Math.round(value * 1e4) / 1e4 : value,
+  );
+}
+

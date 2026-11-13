@@ -81,9 +81,11 @@ export function test_human_motion_hand_verdicts_shave(): void {
       ? "clean"
       : [
           HumanVerdicts.describe(report),
-          ...report.findings.map(
-            (f: HumanVerdicts.IFinding): string =>
-              `posture at ${f.seconds.toFixed(2)} s: ${dump(performance.posture("a", f.seconds))}`,
+          ...report.findings.flatMap((f: HumanVerdicts.IFinding): string[] =>
+            [f.seconds - 1 / 48, f.seconds].map(
+              (seconds: number): string =>
+                `posture at ${seconds.toFixed(3)} s: ${dump(performance.posture("a", seconds))}`,
+            ),
           ),
           // The row's phase instants and, around each finding, the
           // offending joint's world path and its own and its parent's angles.

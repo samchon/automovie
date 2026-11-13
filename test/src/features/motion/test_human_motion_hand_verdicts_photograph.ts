@@ -1,11 +1,15 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanAuditContinuity,
   HumanChain,
   HumanHabit,
   HumanPerformance,
   type HumanSegment,
   HumanSignature,
+  type IAutoMovieMotionHumanAuditMeasure,
+  type IAutoMovieMotionHumanAuditMotion,
   type IHumanBody,
+  type IHumanPosture,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -25,15 +29,15 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 1. At the middle of the hold the two wrists are at least half a hand's
  *    length apart (provisional: a compact camera is wider than that, so
  *    hands nearer than this are in each other or in the camera).
- * 2. Read at 24 frames a second while the hands come to the eye and while
- *    they leave it (from the row's start to 0.1 s past `ready`, and from
- *    0.1 s before `relax` to its end), neither elbow nor wrist leaves the straight line between its neighbouring frames by more
- *    than 50 mm (provisional: a hand that covers 0.6 m in half a second by
- *    the minimum-jerk profile bends its path by 24 mm a frame at most; the
- *    arm that changed its solution between two frames broke it by 243 mm).
+ * 2. No joint centre steps more than 5 mm anywhere in the film, read at 6
+ *    samples a second with every departing interval quartered (the verdict
+ *    report's own continuity bound): the arm that changed its solution
+ *    between two frames stepped 243 mm. A bound on a joint's acceleration
+ *    read here before called the fast smooth return to rest a break (60.8 mm
+ *    second difference at 2.08 s with the joint angles changing steadily).
  *
- * @evidence contracts/development/testing.md#behavioral-verification Registers the row, performs it through the public chain and reads displayed joint centres; hands on one spot or an arm that changes its solution between two frames fails.
- * @evidence contracts/development/testing.md#independent-expectations The 50 mm is twice what the smooth reach bends its path by in a frame, and the half hand a compact camera's width; both are provisional and stated as such.
+ * @evidence contracts/development/testing.md#behavioral-verification Registers the row, performs it through the public chain and reads displayed joint centres; hands on one spot or an arm that changes its solution between two instants fails, with the posture around the step printed.
+ * @evidence contracts/development/testing.md#independent-expectations The 5 mm step is the verdict report's bound for any human motion; the half hand is a compact camera's width, provisional and stated as such.
  * @evidence contracts/development/testing.md#distinguishing-cases The two bounds this row broke; the other rows' full reports are its siblings'.
  * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and reads one short film; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States what the row was, why the reading is cut to two bounds, one body and a short hold, and the 2 scenarios.
@@ -85,57 +89,55 @@ export function test_human_motion_hand_verdicts_photograph(): void {
       `the wrists are ${apart.toFixed(2)} of a hand's length apart at the hold, at least 0.5 expected`,
     );
 
-  // 2. No break in an arm's path, coming and going.
-  const RATE: number = 24;
-  const BONES = [
-    "leftLowerArm",
-    "rightLowerArm",
-    "leftHand",
-    "rightHand",
-  ] as const;
-  let worst: { value: number; seconds: number; bone: string } = {
-    value: 0,
-    seconds: 0,
-    bone: "none",
+  // 2. No step in any joint's path: the verdict report's own continuity
+  // bound, read at 6 samples a second with every departing interval
+  // quartered. A fast smooth return is no step; an arm that changes its
+  // solution between two instants is.
+  const motion: IAutoMovieMotionHumanAuditMotion = {
+    duration: performance.duration,
+    segments: (
+      subject: string,
+    ): ReturnType<IAutoMovieMotionHumanAuditMotion["segments"]> =>
+      performance.segments(subject),
+    bones: (
+      subject: string,
+      seconds: number,
+    ): ReturnType<IAutoMovieMotionHumanAuditMotion["bones"]> =>
+      performance.bones(subject, seconds),
   };
-  for (const [from, to] of [
-    [placed.start, instant("ready") + 0.1],
-    [instant("relax") - 0.1, placed.end],
-  ] as const) {
-    const first: number = Math.floor(from * RATE);
-    const last: number = Math.min(
-      Math.ceil(to * RATE),
-      Math.floor(performance.duration * RATE),
-    );
-    const paths: IAutoMovieVector3[][] = [];
-    for (let i: number = first; i <= last; i++) {
-      const shown: ReturnType<HumanPerformance["bones"]> = performance.bones(
-        "a",
-        i / RATE,
-      );
-      paths.push(
-        BONES.map(
-          (bone: (typeof BONES)[number]): IAutoMovieVector3 =>
-            shown.get(bone)!.worldPosition,
-        ),
-      );
-    }
-    for (let i: number = 1; i + 1 < paths.length; i++)
-      BONES.forEach((bone: (typeof BONES)[number], k: number): void => {
-        const before: IAutoMovieVector3 = paths[i - 1]![k]!;
-        const here: IAutoMovieVector3 = paths[i]![k]!;
-        const after: IAutoMovieVector3 = paths[i + 1]![k]!;
-        const value: number = Math.hypot(
-          after.x - 2 * here.x + before.x,
-          after.y - 2 * here.y + before.y,
-          after.z - 2 * here.z + before.z,
-        );
-        if (!(value <= worst.value))
-          worst = { value, seconds: (first + i) / RATE, bone };
-      });
-  }
-  if (!(worst.value <= 0.05))
+  const jump: IAutoMovieMotionHumanAuditMeasure =
+    AutoMovieMotionHumanAuditContinuity.measure(motion, "a", 6).jump;
+  if (!(jump.value <= 0.005)) {
+    const side: "left" | "right" = jump.where.startsWith("left")
+      ? "left"
+      : "right";
     complaints.push(
-      `the ${worst.bone} joint's path breaks by ${(worst.value * 1000).toFixed(1)} mm at ${worst.seconds.toFixed(2)} s, within 50 mm expected`,
-    );  TestValidator.equals("a photograph's two hands", complaints, []);
+      `a joint steps ${(jump.value * 1000).toFixed(1)} mm at ${jump.seconds.toFixed(3)} s (${jump.where}), within 5 mm expected; instants ${placed.plan.events
+        .map(
+          (e): string =>
+            `${e.name} ${(placed.start + e.share * placed.plan.duration).toFixed(3)}`,
+        )
+        .join(", ")}; around it ${[-1, 0, 1]
+        .map((k: number): string => {
+          const at: number = jump.seconds + k / 48;
+          const posture: IHumanPosture = performance.posture("a", at);
+          const shown = performance
+            .pose("a", at)
+            .joints.find((j): boolean => j.bone === jump.where);
+          return `${at.toFixed(3)} s: joints ${JSON.stringify([
+            posture.joints[`${side}UpperArm`],
+            posture.joints[`${side}LowerArm`],
+            posture.joints[`${side}Hand`],
+            posture.joints[jump.where as "rightHand"],
+          ])} shown ${jump.where} ${JSON.stringify(shown ?? null)} goal ${JSON.stringify(
+            posture.limbs[`${side}Arm`] === undefined
+              ? null
+              : { ...posture.limbs[`${side}Arm`], clear: undefined },
+            (_k: string, v: unknown): unknown =>
+              typeof v === "number" ? Math.round(v * 1e4) / 1e4 : v,
+          )}`;
+        })
+        .join(" | ")}`,
+    );
+  }  TestValidator.equals("a photograph's two hands", complaints, []);
 }
