@@ -113,7 +113,9 @@ export namespace exercise {
     kind: Kind;
 
     /** Repetitions; 3 when absent. */
-    reps?: number;
+    reps?: number &
+      import("typia").tags.Type<"uint32"> &
+      import("typia").tags.Minimum<1>;
 
     /** A squat's depth; `parallel` when absent. */
     depth?: Depth;
@@ -283,9 +285,7 @@ export namespace exercise {
         break;
       }
       case "lunge": {
-        // The bottom: the lead thigh level over an upright shank, the
-        // trailing thigh hanging under its hip, its shank level behind on a
-        // foot stood on its toes with the ankle at its dorsiflexion range.
+        // The bottom: the lead thigh level over an upright shank, the trailing thigh hanging under its hip, its shank level behind on a foot stood on its toes with the ankle at its dorsiflexion range.
         const hip: IAutoMovieVector3 = HumanFrame.point(
           { origin: entry.root, yaw: entry.yaw },
           body.rest.get(`${lead}UpperLeg`)!,

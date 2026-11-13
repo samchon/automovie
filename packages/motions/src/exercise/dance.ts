@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
@@ -84,10 +85,10 @@ export namespace dance {
     kind: Kind;
 
     /** Beats per minute; `BPM` when absent. */
-    bpm?: number;
+    bpm?: number & tags.ExclusiveMinimum<0>;
 
     /** How many beats; 8 when absent. */
-    beats?: number;
+    beats?: number & tags.Type<"uint32"> & tags.Minimum<1>;
 
     /** The foot that steps first; `right` when absent. */
     side?: "left" | "right";

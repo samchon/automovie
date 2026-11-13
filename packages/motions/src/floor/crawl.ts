@@ -3,6 +3,7 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
@@ -81,7 +82,7 @@ export namespace crawl {
    */
   export interface IParams {
     /** How many crawl cycles; 3 when absent. */
-    cycles?: number;
+    cycles?: number & tags.Type<"uint32"> & tags.Minimum<1>;
 
     /** How it is performed. */
     manner?: AutoMovieMotionManner.IManner;

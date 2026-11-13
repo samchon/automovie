@@ -7,6 +7,7 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionKey } from "../HumanActionKey";
 import { stand } from "../actions/stand";
@@ -121,10 +122,10 @@ export namespace workout {
     kind: Kind;
 
     /** Repetitions; the kind's own count when absent. */
-    reps?: number;
+    reps?: number & tags.Type<"uint32"> & tags.Minimum<1>;
 
     /** Seconds a held pose is stayed in; the kind's own when absent. */
-    hold?: number;
+    hold?: number & tags.Minimum<0>;
 
     /** The middle of the bar between the hands, world metres, for a hanging kind; `BAR` above the standing reach when absent. */
     bar?: IAutoMovieVector3;

@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
@@ -112,7 +113,7 @@ export namespace stretch {
     side?: "left" | "right";
 
     /** Seconds held; `HOLD` when absent. */
-    seconds?: number;
+    seconds?: number & tags.Minimum<0>;
 
     /** How far into the range; `moderate` when absent. */
     intensity?: "mild" | "moderate";
