@@ -104,7 +104,7 @@ export function createPackagePopulationContract(
           : {
               evidenceFiles: createEvidenceFiles("file", files),
             }),
-        disabled: stage === "disabled" || props.inapplicable === true,
+        disabled: stage !== "evidence" || props.inapplicable === true,
         reference: obligation,
       };
     },

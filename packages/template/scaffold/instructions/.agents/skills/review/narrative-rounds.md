@@ -32,6 +32,6 @@ A round in which the author's final decisions accept no finding closes the pass.
 
 Otherwise a second round, by a fresh reviewer, reads the repaired body. Its accepted findings are repaired, and the pass closes without a third round. The second reviewer reads the first round's verdict only after locking its own reading, and raises again a finding the author declined only on new body, parent or source evidence.
 
-Once the pass closes, the evidence answerer brings the answers up to date with the final body.
+Once the pass closes, the evidence answerer brings the answers up to date with the final body, then sets the pass's stage to completed, because later changes, such as the expression transfer, leave stale answers and reviews that no role may refresh.
 
-Close with the actual result, not a stage flag.
+The stage records the closure without proving it; close with the actual result.

@@ -51,7 +51,7 @@ export default createEvidenceConfig({
 });
 ```
 
-`construction` checks how each layer is built from the one before it, and `naturalness` is the separate check of the screenplay's expression. Setting a layer to `"evidence"` turns its check on.
+`construction` checks how each layer is built from the one before it, and `naturalness` is the separate check of the screenplay's expression. Each takes a stage per layer: `"disabled"` before the pass runs, `"evidence"` to check it, and `"completed"` once it has closed. A completed pass is no longer checked, like a disabled one, so a change made after closure, such as copying the reviewed screenplay into its body, leaves no stale answer or review to refresh. Its layer's discovery findings in the production's own contracts stay checked, because the other layers record theirs in the same files.
 
 `short` is a brief under `docs/body/brief` followed by the screenplay, and `long`, the mode of a series, has four layers: settings, treatments, scripts and screenplay. A layer you leave out stays a disabled draft. The checks cover the complete work unless `scope` names the first part that a pilot covers.
 

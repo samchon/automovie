@@ -1,4 +1,7 @@
-import { createEvidenceConfig } from "@automovie/evidence";
+import {
+  type ProductionStage,
+  createEvidenceConfig,
+} from "@automovie/evidence";
 import { createEngineeringClaims } from "@automovie/evidence/internal";
 import {
   EvidenceChecker,
@@ -18,16 +21,17 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  * Scenarios:
  * 1. Actual default source/test claims reject missing answers and accept complete answers beside unfinished narrative; a type answering implementation items instead of design fails.
  * 2. A reviewed short evaluates its native graph through the public configuration.
- * 3. An additional ordinary native claim exposes its missing answer.
- * 4. Default claim objects remain independent across calls.
- * 5. An omitted outline stage follows activated settings and rejects an unanswered outline principle.
- * 6. Enabled research and behavior stages require each study's detached answers and each law's answers, and a law must cite its study.
- * 7. An enabled composition stage requires every screenplay beat realized: a scene citing one of two beats fails, and citing their scene covers both.
- * 8. Narrative mode none adds no instruction relation without instructions or without composition, and otherwise requires every instruction section realized: one realized section of two fails, excluding the other fails, and a film realizing it passes.
+ * 3. A transfer-like rewrite of that short's body fails its construction review at `evidence` and passes at `completed`, which turns that review claim off while the naturalness review and the screenplay discovery claim stay active.
+ * 4. An additional ordinary native claim exposes its missing answer.
+ * 5. Default claim objects remain independent across calls.
+ * 6. An omitted outline stage follows activated settings and rejects an unanswered outline principle.
+ * 7. Enabled research and behavior stages require each study's detached answers and each law's answers, and a law must cite its study.
+ * 8. An enabled composition stage requires every screenplay beat realized: a scene citing one of two beats fails, and citing their scene covers both.
+ * 9. Narrative mode none adds no instruction relation without instructions or without composition, and otherwise requires every instruction section realized: one realized section of two fails, excluding the other fails, and a film realizing it passes.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Evaluates the public configuration's real source/test and narrative claims through native Evidence, preserving engineering selection, additional claim coverage and outline stage inheritance.
- * @evidence contracts/development/testing.md#independent-expectations Explicitly authored answers satisfy the shipped common, design, implementation and testing checklists for one interface, one function and one test; an unrelated unfinished story creates no engineering obligation. Established one-scene fixtures supply reviewed content; removing the outline principle answer must fail when its omitted stage inherits active settings, just as an added unanswered work question must block a ready short pass.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts missing and complete engineering answers, a type answering the design checklist against one answering the implementation checklist, coding and explicit narrative, additional native requirements, inherited outline stages, relative location rejection, independent default objects, a law's answers with and without its study citation, a scene citing one beat against one citing the whole scene, and mode none without instructions or composition against with both, then one instruction section realized, the other excluded, and both realized.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates the public configuration's real source/test and narrative claims through native Evidence, preserving engineering selection, additional claim coverage, outline stage inheritance and a completed pass's unchecked claims.
+ * @evidence contracts/development/testing.md#independent-expectations Explicitly authored answers satisfy the shipped common, design, implementation and testing checklists for one interface, one function and one test; an unrelated unfinished story creates no engineering obligation. Established one-scene fixtures supply reviewed content; removing the outline principle answer must fail when its omitted stage inherits active settings, just as an added unanswered work question must block a ready short pass. The stage contract supplies the completed expectation: a closed pass stops checking the claims bound to its body and reviews, so its body rewritten after review fails its current review only while that pass is at evidence, the other pass keeps its own claims, and the discovery record shared with the brief stays checked.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts missing and complete engineering answers, a type answering the design checklist against one answering the implementation checklist, coding and explicit narrative, a rewritten body under an evidence and a completed construction pass beside a still-checked naturalness pass and discovery claim, additional native requirements, inherited outline stages, relative location rejection, independent default objects, a law's answers with and without its study citation, a scene citing one beat against one citing the whole scene, and mode none without instructions or composition against with both, then one instruction section realized, the other excluded, and both realized.
  * @evidence contracts/development/testing.md#execution-ownership Runs in-process through workspace source exports with temporary files beneath the existing monorepo cache so normal ancestor dependency resolution finds already linked compiler packages. It installs no consumer, starts no process/browser/GPU, and removes its owned fixtures in finally.
  * @evidence contracts/development/common.md#meaningful-documentation The comment states the behavior under test and lists each scenario with the property it pins.
  */
@@ -193,6 +197,70 @@ export async function test_evidence_package(): Promise<void> {
       true,
       JSON.stringify(ready.report.diagnostics),
     );
+
+    // The expression transfer rewrites the body the closed construction pass
+    // was answered and reviewed against; completed stops checking that pass
+    // while the naturalness pass and the shared discovery record stay checked.
+    const scene: string = "docs/body/screenplay/001-part/001-scene.md";
+    const reviewed: string = fs.readFileSync(
+      path.join(narrative, scene),
+      "utf8",
+    );
+    ProductionWorkflowFixture.write(
+      narrative,
+      scene,
+      reviewed.replace("opens the door", "pushes the door open"),
+    );
+    const transferred = (screenplay: ProductionStage): IEvidenceConfig =>
+      createEvidenceConfig({
+        location: narrative,
+        narrative: {
+          mode: "short",
+          construction: { brief: "evidence", screenplay },
+          naturalness: { screenplay: "evidence" },
+        },
+      });
+    const active = (config: IEvidenceConfig, name: string): boolean =>
+      config.claims.some(
+        (claim: IEvidenceConfig["claims"][number]): boolean =>
+          claim.name === name && claim.disabled !== true,
+      );
+    const review: string =
+      "screenplay construction review H2 units keep a current review of their draft H2";
+    const opened: IEvidenceConfig = transferred("evidence");
+    const open: IEvidenceCheckAnalysis =
+      await ProductionWorkflowFixture.evaluate(narrative, opened.claims);
+    assert.equal(open.report.success, false);
+    assert.ok(
+      open.report.diagnostics.some(
+        (
+          diagnostic: IEvidenceCheckAnalysis["report"]["diagnostics"][number],
+        ): boolean => opened.claims[diagnostic.claim ?? -1]?.name === review,
+      ),
+      JSON.stringify(open.report.diagnostics),
+    );
+    const completed: IEvidenceConfig = transferred("completed");
+    const closed: IEvidenceCheckAnalysis =
+      await ProductionWorkflowFixture.evaluate(narrative, completed.claims);
+    assert.equal(
+      closed.report.success,
+      true,
+      JSON.stringify(closed.report.diagnostics),
+    );
+    assert.equal(active(completed, review), false);
+    assert.ok(
+      active(
+        completed,
+        "screenplay naturalness review H2 units keep a current review of their final H2",
+      ),
+    );
+    assert.ok(
+      active(
+        completed,
+        "the screenplay work-specific contract accounts for its open-world discovery duties",
+      ),
+    );
+    ProductionWorkflowFixture.write(narrative, scene, reviewed);
     ProductionWorkflowFixture.write(
       narrative,
       "docs/contracts/work/extra/cues.md",
@@ -457,7 +525,10 @@ export async function test_evidence_package(): Promise<void> {
     );
     assert.equal(
       relates(
-        createEvidenceConfig({ location: production, narrative: { mode: "none" } }),
+        createEvidenceConfig({
+          location: production,
+          narrative: { mode: "none" },
+        }),
       ),
       false,
     );

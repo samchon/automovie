@@ -89,7 +89,7 @@ export function createPackageChecklistClaim(
       : {
           evidenceFiles: createEvidenceFiles(symbols[0], props.files),
         }),
-    disabled: props.stage === "disabled" || props.inapplicable === true,
+    disabled: props.stage !== "evidence" || props.inapplicable === true,
     reference: canonicalDocuments.map(
       (
         document: string,

@@ -53,7 +53,7 @@ function family(
   stage: ProductionStage,
 ): IEvidenceClaim[] {
   const directory: string = "obligations";
-  const disabled: boolean = stage === "disabled";
+  const disabled: boolean = stage !== "evidence";
   // The shared tree ships `common.md`, and every non-canon layer its
   // `narratives.md`, so a missing one is a broken tree that must still be
   // selected for the compiler to say so. Only the optional documents are

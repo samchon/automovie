@@ -49,14 +49,13 @@ export function createLayerClaims(
   layer: AuthoredLayer,
 ): IEvidenceClaim[] {
   const stage: ProductionStage = constructionStage(props, layer);
-  const disabled: boolean = stage === "disabled";
+  const disabled: boolean = stage !== "evidence";
   const files: string[] = createUnitFiles(layer, props.narrativeScope);
 
   // Indexes and invalid paths must enter the same snapshot as the authored H2s.
-  const topology: string[] =
-    isCanonLayer(layer)
-      ? files
-      : createTopologyFiles(layer, props.narrativeScope);
+  const topology: string[] = isCanonLayer(layer)
+    ? files
+    : createTopologyFiles(layer, props.narrativeScope);
 
   const treatments: string[] = createNarrativeUnitFiles({
     layer: "treatments",
@@ -98,8 +97,9 @@ export function createLayerClaims(
   const expression: IEvidenceReference[] =
     layer === "scripts" ? naturalness : [];
 
-  const inherits: string =
-    isCanonLayer(layer) ? "" : ", and account for the layers they inherit";
+  const inherits: string = isCanonLayer(layer)
+    ? ""
+    : ", and account for the layers they inherit";
   const unit: IEvidenceClaim = {
     name: `${layer} H2 units answer their principle checklists${inherits}`,
     type: "markdown",
@@ -136,7 +136,7 @@ export function createLayerClaims(
           root: passRoot("final"),
           files,
           symbol: "file",
-          disabled: second === "disabled",
+          disabled: second !== "evidence",
           reference: [createLineageReference(files, "file", "revision")],
         },
         {
@@ -145,7 +145,7 @@ export function createLayerClaims(
           root: passRoot("final"),
           files: topology,
           symbol: "h2",
-          disabled: second === "disabled",
+          disabled: second !== "evidence",
           reference: [
             createLineageReference(topology, "h2", "revision"),
             ...naturalness,

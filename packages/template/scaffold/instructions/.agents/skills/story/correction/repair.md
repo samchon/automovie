@@ -24,7 +24,7 @@ Replacing a unit from scratch removes its obsolete answers, editions, reviews an
 
 When scene composition must make a decision the screenplay left vague, the decision belongs to the screenplay, not to the code. Add it to the beat's record in the screenplay body in the same change, and when another scene or film must keep it, add it to settings or the brief as a new anchored fact citing the beat; with neither, the beat's record alone holds it.
 
-A closed screenplay stays closed: the edited beat keeps its answers and reviews, its stale fingerprint is reported as a remaining diagnostic under [closed passes](#closed-passes), and the next review of that screenplay reads the beat afresh.
+A closed screenplay stays closed under [closed passes](#closed-passes): the edited beat keeps its answers and reviews, and the next review of that screenplay reads the beat afresh.
 
 An exchange, an outcome or a reaction is never a concretization. A screenplay that lacks one is defective and returns to its author under [upstream defects](#upstream-defects).
 

@@ -10,7 +10,7 @@ import { productionLayers } from "../productionLayers";
 /**
  * Checks supported narrative routes and stage option shapes before graph creation.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Routes admit only their authored layers, long work alone admits an outline, each supported stage is disabled or evidence, resolveSkillsDirectory refuses a relative shared skills tree, and assertProductionContractLayout refuses production-owned contracts left in the retired skills location, both before any contract is probed.
+ * @evidence contracts/development/implementation.md#principled-implementation Routes admit only their authored layers, long work alone admits an outline, each supported stage is disabled, evidence or completed, a layer or outline the route never runs must stay disabled because it can be neither checked nor closed, resolveSkillsDirectory refuses a relative shared skills tree, and assertProductionContractLayout refuses production-owned contracts left in the retired skills location, both before any contract is probed.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure A single shape check precedes graph expansion; native Evidence owns claim and reference evaluation.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The same route and stage vocabulary applies to every production; it does not inspect graph results or confer approval.
  * @evidence contracts/development/common.md#meaningful-documentation Errors identify unsupported routes, layers, outline choices, stage values, a relative skills tree and each legacy contract directory with its new home.
@@ -40,7 +40,11 @@ export function assertProductionEvidenceSources(
         "Layers outside the production route must stay disabled.",
       );
   }
-  if (props.mode !== "long" && props.construction.index === "evidence")
+  if (
+    props.mode !== "long" &&
+    (props.construction.index === "evidence" ||
+      props.construction.index === "completed")
+  )
     throw new Error("Only long productions author a settings outline.");
   if (props.mode === "asset" && (props.claims?.length ?? 0) > 0)
     throw new Error(
@@ -49,7 +53,8 @@ export function assertProductionEvidenceSources(
   if (
     props.construction.index !== undefined &&
     props.construction.index !== "disabled" &&
-    props.construction.index !== "evidence"
+    props.construction.index !== "evidence" &&
+    props.construction.index !== "completed"
   )
     throw new Error("Unknown outline stage.");
   for (const layer of AUTHORED_LAYERS)
@@ -59,8 +64,10 @@ export function assertProductionEvidenceSources(
         pass === "construction"
           ? constructionStage(props, layer)
           : props.naturalness.screenplay;
-      if (stage !== "disabled" && stage !== "evidence")
-        throw new Error("Unknown stage: a layer is disabled or evidence.");
+      if (stage !== "disabled" && stage !== "evidence" && stage !== "completed")
+        throw new Error(
+          "Unknown stage: a layer is disabled, evidence or completed.",
+        );
     }
   if ("scripts" in props.naturalness)
     throw new Error(

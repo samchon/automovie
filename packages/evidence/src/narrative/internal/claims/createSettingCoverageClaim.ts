@@ -42,7 +42,7 @@ export function createSettingCoverageClaim(
     root: passRoot("draft"),
     files: createNarrativeUnitFiles({ layer, scope: props.narrativeScope }),
     symbol: "h2",
-    disabled: stage === "disabled",
+    disabled: stage !== "evidence",
     reference,
   };
 }

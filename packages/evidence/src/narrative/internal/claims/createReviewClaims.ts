@@ -80,7 +80,7 @@ export function createReviewClaims(
       const selected: { root: string; files: string[] } | null =
         selectReviewRoot(path.join(props.location, base), inside);
       if (selected === null) return [];
-      const disabled: boolean = stage === "disabled";
+      const disabled: boolean = stage !== "evidence";
       const root: string =
         selected.root === "" ? base : `${base}/${selected.root}`;
       const lineage: IEvidenceMarkdownReference = {

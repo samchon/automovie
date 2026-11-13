@@ -49,7 +49,7 @@ export function createExpressionObligationClaims(
   const stage: ProductionStage = revised
     ? props.naturalness.screenplay
     : constructionStage(props, layer);
-  const disabled: boolean = stage === "disabled";
+  const disabled: boolean = stage !== "evidence";
   const directory: string = "naturalness/obligations";
 
   const shared: IEvidenceClaim[] = layerFiles(layer)

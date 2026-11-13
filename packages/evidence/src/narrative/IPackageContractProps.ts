@@ -25,8 +25,8 @@ export interface IPackageContractProps {
    *
    * A contract is answered by whichever layers own it, so the layers are given
    * once here rather than by repeating the claim per layer. A layer at
-   * `disabled` contributes a disabled claim, so the population is declared
-   * whether or not it is active yet.
+   * `disabled` or `completed` contributes a disabled claim, so the population
+   * is declared whether or not it is checked.
    */
   layers: Partial<Record<AuthoredLayer, ProductionStage>>;
 

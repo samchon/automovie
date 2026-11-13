@@ -16,7 +16,7 @@ import { validateSettingsOutline } from "../validateSettingsOutline";
  * legacy installation keeps its optional, stage-free part coverage until an
  * explicit contract migration. The part principles and the arrangement obligations
  * follow `construction.index` (the settings stage when omitted) and the
- * file-to-entry claim follows the settings stage. Activating either stage
+ * file-to-entry claim follows the settings stage. Either stage at `evidence`
  * validates the layout.
  *
  * Three claims answer three different questions, so none reads another's
@@ -27,12 +27,12 @@ import { validateSettingsOutline } from "../validateSettingsOutline";
  * and the outline never answers a canon principle.
  *
  * @param completeSubmission explicitly requests layout validation even while
- *   both stages are `disabled`.
+ *   neither stage is `evidence`.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Paired outline contracts installed in the shared skills tree select independent part principles, population arrangement and canon-entry bijection claims; activating either outline or settings, or requesting complete submission, validates the actual outline layout.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Three respondent populations remain separate, so the outline cannot answer canon principles and a settings file cannot substitute for an outline part.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The explicit older-installation branch preserves optional stage-free H2 coverage when neither new outline contract exists; a mismatched pair throws instead of silently falling back.
- * @evidence contracts/development/common.md#meaningful-documentation The prose gives migration behavior, stage fallback, respondent/cardinality semantics and completeSubmission forcing layout validation even when disabled.
+ * @evidence contracts/development/common.md#meaningful-documentation The prose gives migration behavior, stage fallback, respondent/cardinality semantics and completeSubmission forcing layout validation even when neither stage is evidence.
  * @evidence contracts/development/implementation.md#efficient-algorithms Two shared-tree contract existence probes and optional outline/canon validation dominate; validation enumerates and sorts settings paths and reads the outline plus each selected canon file, so work/storage scale with directory entries and file bytes rather than the three returned claims.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The settings/outline stage booleans and selector builders are reused within one call; live layout validation is deliberately refreshed per configuration build, with no cross-build filesystem cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Synchronous reads return in-memory text whose lifetime ends in the validator; the factory retains only up to three caller-owned claims and opens no lasting descriptors or tasks.
@@ -77,12 +77,12 @@ export function createOutlineClaims(
     ];
   }
 
-  const disabled: boolean = props.construction.settings === "disabled";
+  const disabled: boolean = props.construction.settings !== "evidence";
   // The outline's own claims follow `construction.index`, falling back to settings.
   const outlineDisabled: boolean =
     props.construction.index === undefined
       ? disabled
-      : props.construction.index === "disabled";
+      : props.construction.index !== "evidence";
   if (disabled === false || outlineDisabled === false || completeSubmission)
     validateSettingsOutline(props.location);
   return [

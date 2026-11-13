@@ -41,7 +41,7 @@ export function createInstructionCoverageClaim(
     root: passRoot("draft"),
     files: createUnitFiles(layer, props.narrativeScope),
     symbol: "h2",
-    disabled: stage === "disabled",
+    disabled: stage !== "evidence",
     reference: {
       type: "markdown",
       root: PACKAGE_DOCS_ROOT,

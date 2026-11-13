@@ -27,7 +27,11 @@ import { createContractRoot } from "../utilities/createContractRoot";
  * one a work declared has to be possible in a single file; scattered through
  * the contracts it means reading the contracts to find out what was skipped.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Open-world duties target shared/language discovery H2s while their hosts are the production's own work-contract files, rooted by createContractRoot at its own `docs/contracts` even when a workspace keeps the shared targets elsewhere, with negative findings centralized on one discovery carrier and stage activation derived from construction.
+ * The claim stays active once its layer is `completed`, because those hosts
+ * hold every layer's findings and no body change after closure touches them;
+ * only a `disabled` layer, which has no findings yet, turns it off.
+ *
+ * @evidence contracts/development/implementation.md#principled-implementation Open-world duties target shared/language discovery H2s while their hosts are the production's own work-contract files, rooted by createContractRoot at its own `docs/contracts` even when a workspace keeps the shared targets elsewhere, with negative findings centralized on one discovery carrier and stage activation derived from construction: evidence and completed layers keep the claim, because a closed layer's findings remain on hosts the other layers' claims share.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The claim factory owns this contract-to-contract relation rather than asking manuscript units to testify about whether their contract was discovered.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The one negative-results carrier is the declared discovery workflow, and canon layers omit narrative-layer questions through the shared reference factory rather than a consumer exception.
  * @evidence contracts/development/common.md#meaningful-documentation The prose identifies adopted-rule hosts, truthful negative findings, the single negative carrier and why manuscript hosts cannot answer this relation.
