@@ -18,15 +18,21 @@ import { AutoMovieRecoveryConicApproximation as C } from "./AutoMovieRecoveryCon
  * bound. A complete result only covers the supplied chart within this sampled
  * criterion. Inflections and inadmissible triangles cause bisection; exhausted
  * budgets omit unresolved intervals and return partial. Finite straight charts
- * admit an explicit collinear quadratic. Source callbacks are borrowed and must
+ * admit an explicit collinear quadratic, the conic's degenerate case: exactly
+ * collinear to roundoff, or, where the control triangle refuses a chart whose
+ * curvature keeps its sign, when its samples advance along its chord within
+ * toleranceMm of it (a bend below its coordinates' roundoff, between close
+ * inflections, refused at every depth otherwise). Such a primitive's end
+ * tangents are its chord's, so G1 holds there only to that tolerance's bend.
+ * Source callbacks are borrowed and must
  * be deterministic; callback failures or nonfinite data refuse the whole call.
  * Incident endpoint jets request exact right/left limits so supplied breaks
  * preserve genuine source corners without finite-difference displacements.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Documents the paper and inaccessible theorem, alternative error objective, parameterization, sampled validation, straight degeneracy and refusal/budget effects.
- * @evidence contracts/development/implementation.md#principled-implementation Endpoint tangent intersection fixes the rational quadratic control triangle. Ahn's published triangle subdivision supplies the construction; this declared adaptation uses monotone radial displacement rather than claiming the unavailable characterization or certified bound.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents the paper and inaccessible theorem, alternative error objective, parameterization, sampled validation, straight degeneracy within roundoff or the caller's tolerance with its G1 limit, and refusal/budget effects.
+ * @evidence contracts/development/implementation.md#principled-implementation Endpoint tangent intersection fixes the rational quadratic control triangle. Ahn's published triangle subdivision supplies the construction; this declared adaptation uses monotone radial displacement rather than claiming the unavailable characterization or certified bound. A line is the conic's degenerate case (weight one, collinear controls), admitted only where the triangle construction refuses a chart of one curvature sign whose samples lie within the approximation's own tolerance of the chord, so the result stays inside the sampled contract; its end tangents follow the chord, a stated G1 limitation.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One pure operation owns admission, coefficient fitting and bounded interval subdivision, using the shared recovery contract and no source format or renderer.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No source file, specimen coordinates, fallback mesh, least-squares replacement or unlabelled theorem claim enters the computation. Binary64 roundoff thresholds depend on local scale; tolerance and work budgets come from the caller.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No source file, specimen coordinates, fallback mesh, least-squares replacement or unlabelled theorem claim enters the computation. Binary64 roundoff thresholds depend on local scale; tolerance and work budgets come from the caller, and the line admission uses that same tolerance, no constant of its own.
  * @evidence contracts/development/implementation.md#efficient-algorithms With L visited leaves, constant 33-point observation, 48-step scalar bisection and fixed-size validation cost O(L) time; the arc and interval population is bounded by maximumArcs and depth by maximumDepth.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each interval's points and derivatives are observed once and reused during all weight iterations; no cross-call cache assumes callback equivalence.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Source callbacks and temporary arrays remain call-local; the returned coefficients contain no source samples, and no file, task or process is acquired.
@@ -139,8 +145,41 @@ export function approximateAutoMovieRecoveryConicsAhn(
     const determinant: number = C.cross(first, last);
     const relativeRoundoff: number = 64 * Number.EPSILON;
 
+    // A conic's degenerate case, the line, within the caller's tolerance:
+    // the chart is admitted as the collinear primitive when both endpoint
+    // tangents point forward along its chord, its samples advance along the
+    // chord, and each lies within toleranceMm of it. It is tried only where
+    // the conic construction refuses, so no conic admitted otherwise changes.
+    // A chart that bends by less than its coordinates' roundoff, such as a
+    // near-flat stretch between two close inflections far from the origin,
+    // has samples either side of its chord by roundoff, outside every control
+    // triangle at every depth, while its end tangents still differ by more
+    // than roundoff; without this it was refused and bisected until the arc
+    // budget ran out. The primitive's end tangents are the chord's: they
+    // differ from the source's by its bend, which the tolerance bounds through
+    // the samples' distance from the chord, not by an angle.
+    const straight: () => C.IArc | undefined = (): C.IArc | undefined => {
+      if (first[0] * chord[0] + first[1] * chord[1] <= 0 || last[0] * chord[0] + last[1] * chord[1] <= 0) return undefined;
+      let previous: number = -Infinity;
+      let maximum: number = 0;
+      for (const p of points) {
+        const offset: C.Point = minus(p, p0);
+        const along: number = (offset[0] * chord[0] + offset[1] * chord[1]) / chordSquared;
+        maximum = Math.max(maximum, Math.abs(C.cross(offset, chord)) / length);
+        if (along < previous || along < 0 || along > 1 || maximum > options.toleranceMm) return undefined;
+        previous = along;
+      }
+      return {
+        domain: [interval.a, interval.b],
+        controls: [p0, [(p0[0] + p2[0]) / 2, (p0[1] + p2[1]) / 2], p2],
+        weight: 1,
+        maximumSampleErrorMm: maximum,
+      };
+    };
+
     // Parallel tangents admit a line only when the entire sampled chart and
-    // both forward endpoint tangents are collinear to binary64 roundoff.
+    // both forward endpoint tangents are collinear to binary64 roundoff, or
+    // within the tolerance of its chord (`straight`).
     if (Math.abs(determinant) <= relativeRoundoff * firstNorm * lastNorm) {
       const scale: number = Math.max(length, ...points.map((p: C.Point): number => C.distance(p, p0)));
       const allowance: number = relativeRoundoff * scale;
@@ -149,14 +188,14 @@ export function approximateAutoMovieRecoveryConicsAhn(
         last[0] * chord[0] + last[1] * chord[1] <= 0 ||
         Math.abs(C.cross(first, chord)) > relativeRoundoff * firstNorm * length ||
         Math.abs(C.cross(last, chord)) > relativeRoundoff * lastNorm * length
-      ) return undefined;
+      ) return straight();
       let previous: number = -Infinity;
       let maximum: number = 0;
       for (const p of points) {
         const offset: C.Point = minus(p, p0);
         const along: number = (offset[0] * chord[0] + offset[1] * chord[1]) / chordSquared;
         maximum = Math.max(maximum, Math.abs(C.cross(offset, chord)) / length);
-        if (along < previous || along < 0 || along > 1 || maximum > allowance) return undefined;
+        if (along < previous || along < 0 || along > 1 || maximum > allowance) return straight();
         previous = along;
       }
       return {
@@ -171,12 +210,12 @@ export function approximateAutoMovieRecoveryConicsAhn(
     // the end, otherwise positive-weight coefficients cannot follow the arc.
     const startScale: number = C.cross(chord, last) / determinant;
     const endScale: number = C.cross(chord, first) / determinant;
-    if (startScale <= 0 || endScale >= 0) return undefined;
+    if (startScale <= 0 || endScale >= 0) return straight();
     const p1: C.Point = [p0[0] + startScale * first[0], p0[1] + startScale * first[1]];
-    if (!p1.every(Number.isFinite)) return undefined;
+    if (!p1.every(Number.isFinite)) return straight();
     const side: C.Point = minus(p1, p0);
     const area: number = C.cross(side, chord);
-    if (area === 0 || !Number.isFinite(area)) return undefined;
+    if (area === 0 || !Number.isFinite(area)) return straight();
     const samples: Radial[] = [];
     let previousU: number = 0;
     for (let i: number = 1; i < 32; ++i) {
@@ -184,18 +223,18 @@ export function approximateAutoMovieRecoveryConicsAhn(
       const b1: number = C.cross(offset, chord) / area;
       const b2: number = C.cross(side, offset) / area;
       const b0: number = 1 - b1 - b2;
-      if (b0 <= 0 || b1 <= 0 || b2 <= 0) return undefined;
+      if (b0 <= 0 || b1 <= 0 || b2 <= 0) return straight();
       const root0: number = Math.sqrt(b0);
       const root2: number = Math.sqrt(b2);
       const u: number = root2 / (root0 + root2);
-      if (u <= previousU) return undefined;
+      if (u <= previousU) return straight();
       previousU = u;
       const base: C.Point = [
         (b0 * p0[0] + b2 * p2[0]) / (b0 + b2),
         (b0 * p0[1] + b2 * p2[1]) / (b0 + b2),
       ];
       const idealWeight: number = b1 / (2 * root0 * root2);
-      if (!(idealWeight > 0) || !Number.isFinite(idealWeight)) return undefined;
+      if (!(idealWeight > 0) || !Number.isFinite(idealWeight)) return straight();
       samples.push({ u, apex: b1, scale: C.distance(p1, base), idealWeight });
     }
 
@@ -229,7 +268,7 @@ export function approximateAutoMovieRecoveryConicsAhn(
       (error: number, sample: Radial): number => Math.max(error, Math.abs(residual(sample, weight))),
       0,
     );
-    if (!Number.isFinite(maximum) || !Number.isFinite(weight) || weight <= 0) return undefined;
+    if (!Number.isFinite(maximum) || !Number.isFinite(weight) || weight <= 0) return straight();
     return {
       domain: [interval.a, interval.b],
       controls: [p0, p1, p2],
