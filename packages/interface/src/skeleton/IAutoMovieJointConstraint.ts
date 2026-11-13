@@ -52,22 +52,16 @@ export interface IAutoMovieJointConstraint {
    */
   swingTwist?: IAutoMovieJointConstraint.ISwingTwist | null;
 }
-/**
- * Companion types of {@link IAutoMovieJointConstraint}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the one companion record and what it limits.
- * @evidence contracts/development/design.md#principled-representation The swing-twist decomposition from the rest pose, the parametrization whose only singularity lies outside a shoulder's or a hip's reach.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One record with one interval; the swing is read from the constraint's own flexion and abduction intervals, not restated.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Additive and optional: a constraint without it keeps the three-angle gate unchanged.
- */
+
+/** Companion types of {@link IAutoMovieJointConstraint}. */
 export namespace IAutoMovieJointConstraint {
   /**
    * The swing-and-twist limit of a ball joint.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the measure, its origin, its unit and its sign.
-   * @evidence contracts/development/design.md#principled-representation An interval of the twist about the limb's own axis left after the shortest swing from rest.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One member.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   * @evidence contracts/development/design.md#principled-representation An interval of the twist about the limb's own axis left after the shortest swing from rest, by the swing-twist decomposition whose only singularity lies at the rest direction's antipode, outside a shoulder's or a hip's reach.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One member; the swing is read from the constraint's own flexion and abduction intervals, not restated, and the record is additive and optional on the constraint.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a constraint without it keeps the three-angle gate unchanged.
    */
   export interface ISwingTwist {
     /** The limb's turn about its own long axis measured from the rig's rest pose by the swing-twist decomposition, degrees; positive external, negative internal. */

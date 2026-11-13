@@ -31,7 +31,7 @@ export namespace AutoMovieHumanBodies {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is approximated: a body is reused only for the same parameters.
    * @evidence contracts/development/implementation.md#efficient-algorithms A preparation takes seconds and the key a few kilobytes of text, so every ask after the first costs one serialization.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The point of the table: one preparation per parameter set and process.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The table holds its bodies until `forget`; a process that prepares many people releases them there.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The table holds its bodies until `forget`; a process that prepares many people releases them there. The table has no other bound: it grows by one body for each distinct id, mass and parameter set asked.
    */
   export function prepare(
     params: IAutoMovieHumanParameters,
