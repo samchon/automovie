@@ -89,10 +89,16 @@ export namespace BakeSetup {
   /** The entry name of a prop's frame in a track. */
   export const PROP: string = "frame";
 
+  /** The site's root. */
   export const root: string = path.resolve(__dirname, "..");
+
+  /** Where the bake writes the tracks, the bodies and the manifest. */
   export const out: string = path.join(root, "public", "baked");
+
+  /** Where each share writes what it baked, before the shares are joined. */
   export const parts: string = path.join(out, "parts");
 
+  /** The command line, parsed. */
   export const options: IOptions = {
     fps: 12,
     only: [],
@@ -104,6 +110,8 @@ export namespace BakeSetup {
     check: false,
     rows: [],
   };
+
+  /** The arguments this process was started with, which a share's process is started with too. */
   export const argv: string[] = process.argv.slice(2);
   for (let i: number = 0; i < argv.length; i++) {
     const arg: string = argv[i]!;

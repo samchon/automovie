@@ -78,12 +78,15 @@ jobs:
           restore-keys: |
             bake-${{ matrix.shard }}-${{ hashFiles('packages/archetypes/src/**', 'packages/engine/src/**', 'packages/human/src/**', 'packages/interface/src/**', 'packages/motions/src/**', 'packages/render/src/**', 'website/src/scenes/**', 'website/src/playground/**', 'website/build/bake.ts', 'website/build/Bake*.ts', 'pnpm-lock.yaml') }}-
             bake-${{ matrix.shard }}-
+      - id: restored
+        run: echo "hash=${{ hashFiles('website/public/baked/**') }}" >> "$GITHUB_OUTPUT"
       - name: Bake this share of the scenes
         run: pnpm --filter @automovie/website run bake --runner ${{ matrix.shard }} --runners 6
       # A take is written as soon as it is baked, so the takes of a share that
       # refused one, or was stopped, are kept for the next run, which bakes
-      # only the rest. A refusal still fails the job.
-      - if: always()
+      # only the rest. A refusal still fails the job. A run that baked nothing
+      # saves nothing.
+      - if: always() && hashFiles('website/public/baked/**') != steps.restored.outputs.hash
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: website/public/baked

@@ -38,7 +38,10 @@ import type { ISceneManifest } from "../src/scenes/structures/ISceneManifest";
 import { BakeCheck } from "./BakeCheck";
 import { BakeSetup } from "./BakeSetup";
 
+/** One take to bake. */
 type IJob = BakeSetup.IJob;
+
+/** What one share writes. */
 type IPart = BakeSetup.IPart;
 const { PROP, argv, mine, options, out, parts, plan, previous, spans } =
   BakeSetup;

@@ -40,6 +40,12 @@ export class SceneClock {
    * @returns The film second.
    */
   public advance(now: number): number {
+    // Nothing is loaded yet: no wall time is counted, so a film starts at
+    // its first frame however long it took to load.
+    if (this.duration === 0) {
+      this.last = null;
+      return this.time;
+    }
     if (this.playing && this.last !== null && this.duration > 0) {
       let next: number = this.time + ((now - this.last) / 1000) * this.speed;
       if (next >= this.duration) {

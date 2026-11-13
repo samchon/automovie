@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { type ReactElement, useEffect, useState } from "react";
 
 import { ObjectCard } from "../components/objects/ObjectCard";
+import { ObjectsHead } from "../components/objects/ObjectsHead";
 import type { IGalleryAdapter } from "../gallery/IGalleryAdapter";
 import { loadGalleryAdapter } from "../gallery/loadGalleryAdapter";
 import type { IGalleryCatalogue } from "../gallery/structures/IGalleryCatalogue";
@@ -88,14 +89,7 @@ export default function ObjectsMovie(): ReactElement {
 
   return (
     <div className="am-app">
-      <header className="am-app-head">
-        <h1>Objects</h1>
-        <p className="am-lede">
-          The things people hold, use, sit on, ride and fight with: every
-          archetype of <code>@automovie/archetypes</code>, built in your
-          browser. Each declares the contacts an action attaches to.
-        </p>
-      </header>
+      <ObjectsHead />
       {mode.kind === "loading" ? (
         <p className="am-status" role="status">
           Loading the archetypes.
