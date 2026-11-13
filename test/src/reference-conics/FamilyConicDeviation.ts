@@ -148,7 +148,8 @@ namespace FamilyConicDeviation {
       const near: N.Point[] = bounds.filter(inside);
       for (const view of ["front", "back", "left", "high-oblique", "low-oblique"]) await fs.writeFile(path.join(out, zone + "." + view + ".png"), NodeCanvasRaster.render(NodeCanvasCamera.fit(view, near, 900, 900), meshes, [], "depth", "f1 | deviation | " + zone + " " + view).png);
     }
-    const summary = { schema: "f1-family-conic-deviation-v1", meanMm: round(total / area), shareBeyond1Mm: round(outside / area), binsUnderMm: BINS.map((b: { under: number }): number | null => (Number.isFinite(b.under) ? b.under : null)), worst: worst.slice(0, 80) };
+    // The whole skin's figures to four places: a change of a round's mean is often a few thousandths of a millimetre.
+    const summary = { schema: "f1-family-conic-deviation-v1", meanMm: Math.round((1e4 * total) / area) / 1e4, shareBeyond1Mm: Math.round((1e4 * outside) / area) / 1e4, binsUnderMm: BINS.map((b: { under: number }): number | null => (Number.isFinite(b.under) ? b.under : null)), worst: worst.slice(0, 80) };
     await fs.writeFile(path.join(out, "deviation.json"), JSON.stringify(summary, null, 2));
     process.stdout.write(JSON.stringify({ out, meanMm: summary.meanMm, shareBeyond1Mm: summary.shareBeyond1Mm, pieces: pieces.length, diagnostics: pieces.flatMap((piece: AutoMovieHumanF1.IPiece): string[] => piece.diagnostics) }) + "\n");
     for (const row of worst.slice(0, 50)) process.stdout.write(row.centreMm.map((x: number): string => String(x).padStart(6)).join("") + "  area " + String(row.areaMm2).padStart(5) + "  mean " + row.meanMm.toFixed(2).padStart(6) + "  abs " + row.absoluteMm.toFixed(2).padStart(5) + "  far " + row.farthestMm.toFixed(2).padStart(6) + "\n");
