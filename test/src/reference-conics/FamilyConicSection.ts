@@ -52,6 +52,22 @@ export namespace FamilyConicSection {
     };
   }
 
+  /**
+   * A layout whose anchors stand on the part's named feature lines: after each listed anchor of `base`, the given feature anchors (`f`), each
+   * a point with its own tangent whose numbers are fields along the stations, so every feature line (a tip's ridge, a wing's top, a groove's
+   * floor and the inflections beside it) is a smooth longitudinal control curve, as an aircraft's lofting draws them. A groove is three of
+   * them, an inflection, the concave floor and an inflection, each seeded on its own section in its phase window (`feature`); where the
+   * groove fades the three lie on a smooth stretch, which no `i` anchor allows, since an `i` forces an S on every section.
+   *
+   * @param base The layout the features go into.
+   * @param features After which anchor of `base` each run of feature anchors stands.
+   */
+  export function featured(base: ILayout, features: readonly { after: number; anchors: IAnchor[] }[]): ILayout {
+    return {
+      mirror: base.mirror,
+      anchors: base.anchors.flatMap((anchor: IAnchor, k: number): IAnchor[] => [anchor, ...features.filter((f): boolean => f.after === k).flatMap((f): IAnchor[] => f.anchors)]),
+    };
+  }
   /** Unit of every field of a layout. */
   export const units: (layout: ILayout) => Unit[] = S.units;
 
@@ -123,6 +139,72 @@ export namespace FamilyConicSection {
     return best;
   }
 
+  /** Arclength either side over which a feature anchor's turning is read, mm, and the least turning, radians, that counts as a feature. */
+  const FEATURE_SPAN: number = 1.5;
+  const FEATURE_LEAST: number = 0.05;
+
+  /** Step of the headings a feature's seed tangent is searched in where its reading does not make both its arcs conics, radians. */
+  const FEATURE_STEP: number = 0.01;
+
+  /**
+   * Where a feature anchor (`f`) stands on an observed counter-clockwise polygon, between the polygon's points `from` and `to` (its
+   * resolved neighbours, in order): within the share `window` of the arclength between them, the point of largest convex turning
+   * (`convex`), of largest concave turning (`concave`), or the sign change of turning nearest the window's middle (`inflection`,
+   * `FamilyConicExcursion.inflections`), turning read over `FEATURE_SPAN` mm either side; without a reading, the window's middle, so a
+   * feature that fades away seeds on its smooth stretch. Its tangent is the direction across the same span.
+   */
+  function feature(points: readonly P[], anchor: IAnchor, from: number, to: number): { index: number; heading: number } {
+    const n: number = points.length;
+    const run: number[] = [];
+    for (let i: number = from; ; i = (i + 1) % n) {
+      run.push(i);
+      if (i === to || run.length > n) break;
+    }
+    const along: number[] = [0];
+    for (let k: number = 1; k < run.length; ++k) along.push(along[k - 1]! + Math.hypot(points[run[k]!]![0] - points[run[k - 1]!]![0], points[run[k]!]![1] - points[run[k - 1]!]![1]));
+    const total: number = along.at(-1)! || 1;
+    const window: [number, number] = anchor.window ?? [0.1, 0.9];
+    const inside: number[] = run.filter((_: number, k: number): boolean => along[k]! / total >= window[0] && along[k]! / total <= window[1]);
+    const middle: number = ((window[0] + window[1]) / 2) * total;
+    const nearest = (candidates: number[]): number => candidates.reduce((a: number, b: number): number => (Math.abs(along[run.indexOf(b)]! - middle) < Math.abs(along[run.indexOf(a)]! - middle) ? b : a));
+    const step = (i: number, direction: 1 | -1): number => {
+      let k: number = i;
+      let length: number = 0;
+      while (length < FEATURE_SPAN) {
+        const next: number = (k + direction + n) % n;
+        length += Math.hypot(points[next]![0] - points[k]![0], points[next]![1] - points[k]![1]);
+        k = next;
+        if (k === i) break;
+      }
+      return k;
+    };
+    const turn = (i: number): number => {
+      const a: P = points[step(i, -1)]!;
+      const p: P = points[i]!;
+      const b: P = points[step(i, 1)]!;
+      const d: number = Math.atan2(b[1] - p[1], b[0] - p[0]) - Math.atan2(p[1] - a[1], p[0] - a[0]);
+      return Math.atan2(Math.sin(d), Math.cos(d));
+    };
+    const heading = (i: number): number => {
+      const a: P = points[step(i, -1)]!;
+      const b: P = points[step(i, 1)]!;
+      return Math.atan2(b[1] - a[1], b[0] - a[0]);
+    };
+    if (inside.length === 0) {
+      const index: number = nearest(run);
+      return { index, heading: heading(index) };
+    }
+    let index: number;
+    if (anchor.feature === "inflection") {
+      const bends: number[] = X.inflections(points).filter((i: number): boolean => inside.includes(i));
+      index = nearest(bends.length === 0 ? inside : bends);
+    } else {
+      const sign: number = anchor.feature === "concave" ? -1 : 1;
+      const best: number = inside.reduce((a: number, b: number): number => (sign * turn(b) > sign * turn(a) ? b : a));
+      index = sign * turn(best) > FEATURE_LEAST ? best : nearest(inside);
+    }
+    return { index, heading: heading(index) };
+  }
   /**
    * A starting field vector read from one observed polygon: each extreme in
    * its window, each median and inflection where the polygon crosses its
@@ -139,6 +221,7 @@ export namespace FamilyConicSection {
       at.push(values.length);
       if (anchor.kind === "m") values.push(0.5);
       else if (anchor.kind === "i") values.push(0.5, 0);
+      else if (anchor.kind === "f") values.push(0, 0, 0);
       else {
         const axis: 0 | 1 = anchor.kind === "u" ? 0 : 1;
         let p: P;
@@ -161,7 +244,54 @@ export namespace FamilyConicSection {
         else values.push(p[0], p[1]);
       }
     });
-    for (const k of dependents(layout)) {
+    // Feature anchors in order, each between its resolved neighbours on the polygon: the anchor before it (an extreme or the feature just
+    // placed) and the next extreme, so a run of features stands in order along the stretch between two extremes.
+    const closest = (q: P): number => points.reduce((best: number, p: P, i: number): number => (Math.hypot(p[0] - q[0], p[1] - q[1]) < Math.hypot(points[best]![0] - q[0], points[best]![1] - q[1]) ? i : best), 0);
+    layout.anchors.forEach((anchor: IAnchor, k: number): void => {
+      if (anchor.kind !== "f") return;
+      let before: number = (k + K - 1) % K;
+      while (found[before] === null) before = (before + K - 1) % K;
+      let after: number = (k + 1) % K;
+      while (found[after] === null || layout.anchors[after]!.kind === "f") after = (after + 1) % K;
+      const from: number = (closest(found[before]!) + 1) % points.length;
+      const reading: { index: number; heading: number } = feature(points, anchor, from, closest(found[after]!));
+      const p: P = points[reading.index]!;
+      found[k] = p;
+      tangent[k] = [Math.cos(reading.heading), Math.sin(reading.heading)];
+      values[at[k]!] = p[0];
+      values[at[k]! + 1] = p[1];
+      values[at[k]! + 2] = reading.heading;
+    });    // A conic arc's tangent lines meet ahead of its start and behind its end, on one side of its chord. Where a feature fades, its reading
+    // is a straight stretch whose tangent need not make both its arcs conics; each feature's tangent is then the heading nearest its
+    // reading, in steps of `FEATURE_STEP`, with which the arcs to the anchors before and after it are both conics, in order round the
+    // resolved anchors, so the seed is a chain of conics.
+    const resolved: number[] = layout.anchors.map((_: IAnchor, k: number): number => k).filter((k: number): boolean => found[k] !== null);
+    const conic = (a: number, tA: P, b: number, tB: P): boolean => {
+      const c: P = [found[b]![0] - found[a]![0], found[b]![1] - found[a]![1]];
+      const side = (d: P): number => c[0] * d[1] - c[1] * d[0];
+      const det: number = tA[0] * tB[1] - tA[1] * tB[0];
+      if (det === 0 || side(tA) * side(tB) >= 0) return false;
+      const s: number = (c[0] * tB[1] - c[1] * tB[0]) / det;
+      const q: number = (tA[0] * c[1] - tA[1] * c[0]) / det;
+      return s > 0 && q > 0;
+    };
+    resolved.forEach((k: number, r: number): void => {
+      if (layout.anchors[k]!.kind !== "f") return;
+      const before: number = resolved[(r + resolved.length - 1) % resolved.length]!;
+      const after: number = resolved[(r + 1) % resolved.length]!;
+      const reading: number = values[at[k]! + 2]!;
+      for (let step: number = 0; step <= Math.PI / FEATURE_STEP; ++step) {
+        const tried: number[] = step === 0 ? [reading] : [reading + step * FEATURE_STEP, reading - step * FEATURE_STEP];
+        const fit: number | undefined = tried.find((h: number): boolean => {
+          const d: P = [Math.cos(h), Math.sin(h)];
+          return conic(before, tangent[before]!, k, d) && conic(k, d, after, tangent[after]!);
+        });
+        if (fit === undefined) continue;
+        tangent[k] = [Math.cos(fit), Math.sin(fit)];
+        values[at[k]! + 2] = fit;
+        return;
+      }
+    });    for (const k of dependents(layout)) {
       const [before, after]: [number, number] = neighbours(k, found);
       const p0: P = found[before]!;
       const p2: P = found[after]!;
