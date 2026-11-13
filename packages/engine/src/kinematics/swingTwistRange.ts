@@ -9,12 +9,12 @@ import {
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import { swingConeAngle } from "../rom/swingConeAngle";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { toRigAngle } from "../rom/toRigAngle";
-import { normalizeJointAxes } from "./normalizeJointAxes";
+import { swingTwistBasis } from "./swingTwistBasis";
+import { swingTwistRegion } from "./swingTwistRegion";
 
-const DEG: number = 180 / Math.PI;
+const DEG: number = swingTwistBasis.DEG;
 
 /**
  * The range of a ball joint read by swing and twist: where the limb's long
@@ -57,7 +57,7 @@ const DEG: number = 180 / Math.PI;
  */
 export namespace swingTwistRange {
   /** The great circles from the rest direction the swing region's radius is read on. */
-  export const RAYS: number = 360;
+  export const RAYS: number = swingTwistBasis.RAYS;
 
   /**
    * A rotation read by swing and twist.
@@ -113,7 +113,7 @@ export namespace swingTwistRange {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function read(q: IAutoMovieQuaternion, joint: IJoint): IReading {
-    const basis: IBasis = basisOf(joint);
+    const basis: swingTwistBasis.IBasis = swingTwistBasis.of(joint.axes);
     const unit: IAutoMovieQuaternion = Quaternion.normalize(q);
     const direction: IAutoMovieVector3 = Vector3.normalize(
       Quaternion.rotateVector(unit, basis.u),
@@ -123,9 +123,9 @@ export namespace swingTwistRange {
     const rig: number = 2 * Math.atan2(along, unit.w) * DEG;
     return {
       direction,
-      swing: Math.acos(clamp(Vector3.dot(direction, basis.u), -1, 1)) * DEG,
-      azimuth: azimuthOf(basis, direction),
-      twist: wrap(toClinicalAngle(wrap(rig), joint.frame?.twist)!),
+      swing: Math.acos(swingTwistBasis.clamp(Vector3.dot(direction, basis.u), -1, 1)) * DEG,
+      azimuth: swingTwistBasis.azimuth(basis, direction),
+      twist: swingTwistBasis.wrap(toClinicalAngle(swingTwistBasis.wrap(rig), joint.frame?.twist)!),
     };
   }
 
@@ -154,7 +154,7 @@ export namespace swingTwistRange {
   ): number {
     const reading: IReading = read(q, joint);
     const twist: IAutoMovieAngleRange = constraint.swingTwist!.twist;
-    const turned: number = alias(reading.twist, twist);
+    const turned: number = swingTwistBasis.alias(reading.twist, twist);
     return (
       Math.max(
         0,
@@ -189,7 +189,7 @@ export namespace swingTwistRange {
   ): number {
     const reading: IReading = read(q, joint);
     const twist: IAutoMovieAngleRange = constraint.swingTwist!.twist;
-    const turned: number = alias(reading.twist, twist);
+    const turned: number = swingTwistBasis.alias(reading.twist, twist);
     return Math.min(
       radius(constraint, joint, reading.azimuth) - reading.swing,
       turned - twist.min,
@@ -221,18 +221,18 @@ export namespace swingTwistRange {
     constraint: IAutoMovieJointConstraint,
     joint: IJoint,
   ): IAutoMovieQuaternion {
-    const basis: IBasis = basisOf(joint);
+    const basis: swingTwistBasis.IBasis = swingTwistBasis.of(joint.axes);
     const reading: IReading = read(q, joint);
     const interval: IAutoMovieAngleRange = constraint.swingTwist!.twist;
-    const turned: number = alias(reading.twist, interval);
-    const twist: number = clamp(turned, interval.min, interval.max);
+    const turned: number = swingTwistBasis.alias(reading.twist, interval);
+    const twist: number = swingTwistBasis.clamp(turned, interval.min, interval.max);
     const limit: number = radius(constraint, joint, reading.azimuth);
     if (reading.swing <= limit && twist === turned) return q;
     const swing: number = Math.min(reading.swing, limit);
     const direction: IAutoMovieVector3 =
       swing === reading.swing
         ? reading.direction
-        : directionAt(basis, swing, reading.azimuth);
+        : swingTwistBasis.direction(basis, swing, reading.azimuth);
     return Quaternion.normalize(
       Quaternion.multiply(
         arc(basis.u, direction),
@@ -266,7 +266,7 @@ export namespace swingTwistRange {
     joint: IJoint,
     azimuth: number,
   ): number {
-    const table: Float64Array = tableOf(constraint, joint);
+    const table: Float64Array = swingTwistRegion.table(constraint, joint);
     const at: number = (((azimuth % 360) + 360) % 360) / (360 / RAYS);
     const before: number = Math.floor(at) % RAYS;
     const after: number = (before + 1) % RAYS;
@@ -276,56 +276,6 @@ export namespace swingTwistRange {
 }
 
 /** A joint's unit axes: `u` its limb's rest direction (the twist axis), `f` and `a` its flexion and abduction axes, `w` the flexion's turn of `u`. */
-interface IBasis {
-  u: IAutoMovieVector3;
-  f: IAutoMovieVector3;
-  a: IAutoMovieVector3;
-  e1: IAutoMovieVector3;
-  e2: IAutoMovieVector3;
-}
-
-function basisOf(joint: swingTwistRange.IJoint): IBasis {
-  const axes: IAutoMovieJointAxes = normalizeJointAxes(
-    joint.axes,
-    "swingTwistRange axes",
-  );
-  const u: IAutoMovieVector3 = axes.twist;
-  const e1: IAutoMovieVector3 = axes.flexion;
-  return {
-    u,
-    f: axes.flexion,
-    a: axes.abduction,
-    e1,
-    e2: Vector3.cross(u, e1),
-  };
-}
-
-/** The great circle a direction lies on, degrees about the rest direction from `e1`. */
-function azimuthOf(basis: IBasis, direction: IAutoMovieVector3): number {
-  return (
-    Math.atan2(
-      Vector3.dot(direction, basis.e2),
-      Vector3.dot(direction, basis.e1),
-    ) * DEG
-  );
-}
-
-/** The direction a swing of some degrees along a great circle reaches. */
-function directionAt(
-  basis: IBasis,
-  swing: number,
-  azimuth: number,
-): IAutoMovieVector3 {
-  const s: number = swing / DEG;
-  const t: number = azimuth / DEG;
-  return Vector3.add(
-    Vector3.scale(basis.u, Math.cos(s)),
-    Vector3.add(
-      Vector3.scale(basis.e1, Math.sin(s) * Math.cos(t)),
-      Vector3.scale(basis.e2, Math.sin(s) * Math.sin(t)),
-    ),
-  );
-}
 
 /** The shortest turn from one unit direction to another. */
 function arc(
@@ -340,213 +290,4 @@ function arc(
     Vector3.scale(axis, 1 / sine),
     Math.atan2(sine, cosine) * DEG,
   );
-}
-
-/** The radius tables, per constraint and per basis. */
-const TABLES: WeakMap<
-  IAutoMovieJointConstraint,
-  Map<string, Float64Array>
-> = new WeakMap();
-
-function tableOf(
-  constraint: IAutoMovieJointConstraint,
-  joint: swingTwistRange.IJoint,
-): Float64Array {
-  let byJoint: Map<string, Float64Array> | undefined = TABLES.get(constraint);
-  if (byJoint === undefined) {
-    byJoint = new Map();
-    TABLES.set(constraint, byJoint);
-  }
-  const key: string = JSON.stringify([joint.axes, joint.frame ?? null]);
-  let table: Float64Array | undefined = byJoint.get(key);
-  if (table === undefined) {
-    table = build(constraint, joint);
-    byJoint.set(key, table);
-  }
-  return table;
-}
-
-/**
- * The region's radius on each ray: the farthest swing along it at which the
- * flexion and abduction intervals reach the direction, found by a scan from
- * the far end in `SCAN` degree steps toward the rest direction and refined
- * by `HALVINGS` bisections.
- */
-function build(
-  constraint: IAutoMovieJointConstraint,
-  joint: swingTwistRange.IJoint,
-): Float64Array {
-  const basis: IBasis = basisOf(joint);
-  const table: Float64Array = new Float64Array(swingTwistRange.RAYS);
-  for (let ray: number = 0; ray < swingTwistRange.RAYS; ++ray) {
-    const azimuth: number = (360 * ray) / swingTwistRange.RAYS;
-    const inside = (swing: number): boolean =>
-      reached(constraint, joint, basis, directionAt(basis, swing, azimuth));
-    let hi: number = 180;
-    let lo: number = 0;
-    for (let swing: number = 180 - SCAN; swing > 0; swing -= SCAN) {
-      if (inside(swing)) {
-        lo = swing;
-        break;
-      }
-      hi = swing;
-    }
-    for (let i: number = 0; i < HALVINGS && lo > 0; ++i) {
-      const mid: number = (lo + hi) / 2;
-      if (inside(mid)) lo = mid;
-      else hi = mid;
-    }
-    table[ray] = lo;
-  }
-  // A proximal twist turns about the rest axis outside the flexion and the
-  // abduction, so it carries every reached direction around the rest
-  // direction by its own angle: on a hip flexed forward it swings the thigh
-  // sideways. The directions its interval reaches are then those of no
-  // twist turned by any twist in it, which shifts each ray's reach along the
-  // azimuth.
-  const twist: IAutoMovieAngleRange | null = constraint.twist;
-  if (joint.axes.twistPlacement !== "distal" && twist !== null) {
-    const ends: readonly number[] = [
-      toRigAngle(twist.min, joint.frame?.twist)!,
-      toRigAngle(twist.max, joint.frame?.twist)!,
-    ];
-    const low: number = Math.min(...ends);
-    const high: number = Math.max(...ends);
-    const width: number = 360 / swingTwistRange.RAYS;
-    const turned: Float64Array = new Float64Array(swingTwistRange.RAYS);
-    for (let ray: number = 0; ray < swingTwistRange.RAYS; ++ray) {
-      let most: number = table[ray]!;
-      for (let shift: number = low; shift <= high + 1e-9; shift += width) {
-        const from: number =
-          (((Math.round(ray - shift / width) % swingTwistRange.RAYS) +
-            swingTwistRange.RAYS) %
-            swingTwistRange.RAYS);
-        most = Math.max(most, table[from]!);
-      }
-      turned[ray] = most;
-    }
-    table.set(turned);
-  }
-  // Where the region's edge runs along a ray the farthest reach jumps
-  // between two rays, and a projection along the rays would jump with it.
-  // So the radius is raised to the least function at or above it that turns
-  // no faster than `SLOPE` degrees of radius per degree of azimuth: the
-  // region gains a sliver beside such an edge and loses nothing.
-  const raised: Float64Array = new Float64Array(swingTwistRange.RAYS);
-  const width: number = 360 / swingTwistRange.RAYS;
-  for (let ray: number = 0; ray < swingTwistRange.RAYS; ++ray) {
-    let most: number = 0;
-    for (let other: number = 0; other < swingTwistRange.RAYS; ++other) {
-      const apart: number = Math.min(
-        Math.abs(ray - other),
-        swingTwistRange.RAYS - Math.abs(ray - other),
-      );
-      most = Math.max(most, table[other]! - SLOPE * apart * width);
-    }
-    raised[ray] = Math.min(180, most);
-  }
-  return raised;
-}
-
-/** The fastest the region's radius may change with the azimuth, degrees per degree (provisional: three, so a projection's step is at most about three times the azimuth's step). */
-const SLOPE: number = 3;
-
-/** The step of the scan for the farthest reached swing on a ray, degrees. */
-const SCAN: number = 0.5;
-
-/** The bisections that refine it: twenty halve half a degree to under a millionth. */
-const HALVINGS: number = 20;
-
-/**
- * Whether the flexion and abduction intervals, with no twist and within the
- * swing cone, reach a direction in either reading. With no twist the
- * rotation is the abduction's after the flexion's, in either order of the
- * twist: the flexion turns `u` within the plane normal to the flexion axis,
- * and the abduction then turns it about its own axis, which keeps the part
- * along that axis, so that part gives the flexion twice and the abduction
- * follows for each.
- */
-function reached(
-  constraint: IAutoMovieJointConstraint,
-  joint: swingTwistRange.IJoint,
-  basis: IBasis,
-  direction: IAutoMovieVector3,
-): boolean {
-  const flexion: IAutoMovieAngleRange = constraint.flexion!;
-  const abduction: IAutoMovieAngleRange = constraint.abduction!;
-  const admits = (rigFlexion: number, rigAbduction: number): boolean => {
-    const f: number = alias(
-      toClinicalAngle(rigFlexion, joint.frame?.flexion)!,
-      flexion,
-    );
-    const a: number = alias(
-      toClinicalAngle(rigAbduction, joint.frame?.abduction)!,
-      abduction,
-    );
-    return (
-      f >= flexion.min &&
-      f <= flexion.max &&
-      a >= abduction.min &&
-      a <= abduction.max &&
-      (typeof constraint.swingDeg !== "number" ||
-        swingConeAngle(f, a) <= constraint.swingDeg)
-    );
-  };
-  const across: number = Vector3.dot(
-    Vector3.cross(basis.f, basis.u),
-    basis.a,
-  );
-  const first: number =
-    Math.asin(clamp(Vector3.dot(direction, basis.a) / across, -1, 1)) * DEG;
-  for (const f of [first, 180 - first]) {
-    const swung: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.fromAxisAngle(basis.f, f),
-      basis.u,
-    );
-    const from: IAutoMovieVector3 = flat(swung, basis.a);
-    const to: IAutoMovieVector3 = flat(direction, basis.a);
-    if (Vector3.length(from) < 1e-9 || Vector3.length(to) < 1e-9) {
-      // On the abduction axis any abduction keeps the direction.
-      for (const a of [
-        abduction.min,
-        abduction.max,
-        (abduction.min + abduction.max) / 2,
-      ])
-        if (admits(f, toRigAngle(a, joint.frame?.abduction)!)) return true;
-      continue;
-    }
-    const a: number =
-      Math.atan2(
-        Vector3.dot(basis.a, Vector3.cross(from, to)),
-        Vector3.dot(from, to),
-      ) * DEG;
-    if (admits(f, a)) return true;
-  }
-  return false;
-}
-
-/** A vector with its part along a unit axis taken off. */
-function flat(
-  v: IAutoMovieVector3,
-  axis: IAutoMovieVector3,
-): IAutoMovieVector3 {
-  return Vector3.subtract(v, Vector3.scale(axis, Vector3.dot(v, axis)));
-}
-/** An angle's full-turn alias nearest an interval, the one inside it when any is. */
-function alias(angle: number, range: IAutoMovieAngleRange): number {
-  const middle: number = (range.min + range.max) / 2;
-  const near: number = angle - 360 * Math.round((angle - middle) / 360);
-  if (near >= range.min && near <= range.max) return near;
-  for (const other of [near - 360, near + 360])
-    if (other >= range.min && other <= range.max) return other;
-  return near;
-}
-
-function wrap(degrees: number): number {
-  const turned: number = degrees - 360 * Math.round(degrees / 360);
-  return turned === -180 ? 180 : turned;
-}
-
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, value));
 }
