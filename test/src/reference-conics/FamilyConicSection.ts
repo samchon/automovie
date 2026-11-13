@@ -509,6 +509,8 @@ export namespace FamilyConicSection {
     const K: number = layout.anchors.length;
     if (!layout.anchors.some((a: IAnchor): boolean => a.kind === "f")) return sections.map((points: readonly P[]): number[] => seed(points, layout));
     const lines: Map<number, number[]> = new Map();
+    // Whether a line has ever had its inflection: a line that never had one keeps its window's place, and only a line whose inflection fades goes to its meeting point.
+    const lived: Map<number, boolean[]> = new Map();
     const ramp = (s: number): number => {
       const x: number = Math.min(1, Math.max(0, (s - FEATURE_LEAST / 2) / (FEATURE_LEAST / 2)));
       return x * x * x * (10 - 15 * x + 6 * x * x);
@@ -576,6 +578,9 @@ export namespace FamilyConicSection {
               choice[i]![j] = best === take ? 2 : best === skipLine ? 1 : 0;
             }
           const next: number[] = [...tracked];
+          const strengths: number[] = tracked.map((): number => 0);
+          const alive: boolean[] = lived.get(k) ?? tracked.map((): boolean => false);
+          lived.set(k, alive);
           for (let i: number = Fn, j: number = L; i > 0 && j > 0; ) {
             if (choice[i]![j] === 2) {
               // A line follows its inflection wherever it moves on by little (a twentieth of the run between sections), so it goes where
@@ -583,6 +588,8 @@ export namespace FamilyConicSection {
               // the ramp of the inflection's strength.
               const move: number = seen[i - 1]!.share - tracked[j - 1]!;
               next[j - 1] = tracked[j - 1]! + (Math.abs(move) < 0.05 ? 1 : ramp(seen[i - 1]!.strength)) * move;
+              strengths[j - 1] = seen[i - 1]!.strength;
+              alive[j - 1] = true;
               --i;
               --j;
             } else if (choice[i]![j] === 1) --j;
@@ -594,7 +601,19 @@ export namespace FamilyConicSection {
           // Every feature of the run at its share: an inflection line's own, a convex or concave feature at equal steps between the lines
           // (or the run's ends) either side of it.
           const shares: number[] = run.map((): number => NaN);
-          kinds.forEach((j: number, i: number): void => void (shares[run.indexOf(j)] = Math.min(0.97, Math.max(0.03, next[i]!))));
+          // A fading line goes to where its inflection pair annihilates: a concavity vanishes when its two bounding inflections meet, where
+          // the curvature and its derivative are both zero. The pair of a run's first line next to a median extreme is its own mirror twin,
+          // so they meet on the median; any other line's pair is its nearer neighbouring line, and they meet midway. The line stands at that
+          // meeting point moved toward its inflection by the C2 ramp of the inflection's strength, so as the groove fades the line reaches
+          // the meeting point with its turn gone, and the chain there is the base conic. Left where its inflection vanished, a line on a
+          // fading median groove stood 8 mm off the median on a stretch the groove no longer bent, and the arc from the median needed an S.
+          const median: boolean = layout.anchors[fb]!.mid === true;
+          kinds.forEach((j: number, i: number): void => {
+            const neighbour: number = i === 0 ? (median ? NaN : next[1] ?? NaN) : i === next.length - 1 ? next[i - 1]! : Math.abs(next[i - 1]! - next[i]!) < Math.abs(next[i + 1]! - next[i]!) ? next[i - 1]! : next[i + 1]!;
+            const meeting: number = i === 0 && median ? 0 : Number.isNaN(neighbour) ? next[i]! : (next[i]! + neighbour) / 2;
+            const shown: number = alive[i] ? meeting + ramp(strengths[i]!) * (next[i]! - meeting) : next[i]!;
+            shares[run.indexOf(j)] = Math.min(0.97, Math.max(0.03, shown));
+          });
           for (let i: number = 0; i < run.length; ++i) {
             if (!Number.isNaN(shares[i]!)) continue;
             let lo: number = i - 1;
