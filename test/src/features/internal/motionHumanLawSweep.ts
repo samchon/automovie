@@ -16,17 +16,16 @@ import {
 
 import LEDGER from "./MOTION_HUMAN_LEDGER.json";
 import { MotionHumanSweepChain } from "./MotionHumanSweepChain";
-import { motionCoveringArray } from "./motionCoveringArray";
 import { motionHumanBody } from "./motionHumanBody";
 import { motionHumanLaw } from "./motionHumanLaw";
 
 /**
  * The universal sweep of the action laws: every law is staged over a
  * covering array of its parameters, the bodies and the seeds
- * ({@link covering}), performed and read by every generic detector of the
+ * (`motionHumanLawCovering`), performed and read by every generic detector of the
  * motion audit, and whatever a detector finds is one line that names its
  * cell. The mirror image of a side is a metamorphic relation of its own
- * ({@link mirrors}).
+ * (`motionHumanLawCovering.mirrors`).
  *
  * A row is `default` (the law's required parameters only) or settings
  * `param=value` joined by commas. A stage builds the scene of a row: it asks
@@ -46,11 +45,11 @@ import { motionHumanLaw } from "./motionHumanLaw";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the row grammar, the covering design and the specification every cell is held to.
  * @evidence contracts/development/implementation.md#principled-implementation Every reading is a detector of the motions package's audit on displayed bones; the limits are the audit's own or the 10 mm skin tolerance.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Scene helpers, one cell reader and one loop over laws, rows, bodies and seeds.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Scene helpers, one scene reader, one film reader and one cell reader; the loop over laws, rows, bodies and seeds is `motionHumanLawCovering`'s.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A refusal, an unstaged parameter and an unknown law are complaints, never skipped cells.
  * @evidence contracts/development/implementation.md#efficient-algorithms One film per cell shared by every detector; the repeat for determinism is read at 4 Hz.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Films and the generic audit come from `motionHumanLaw`.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A left row's film is kept only until its right row has been compared.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A cell keeps nothing once read; a kept film is the caller's.
  */
 export namespace motionHumanLawSweep {
   /** One person of a scene. */
@@ -215,8 +214,16 @@ export namespace motionHumanLawSweep {
     };
   }
 
-  /** The scene of a row; `unstaged` hears a parameter the stage never asked for. */
-  function staged(
+  /**
+   * The scene of a row.
+   *
+   * @param row The row.
+   * @param stage The law's stage.
+   * @param bodies The bodies of `a` and of the partner.
+   * @param unstaged Hears a parameter the stage never asked for.
+   * @returns The scene.
+   */
+  export function staged(
     row: string,
     stage: Stage,
     bodies: [motionHumanBody.Name, motionHumanBody.Name],
@@ -245,8 +252,14 @@ export namespace motionHumanLawSweep {
     return scene;
   }
 
-  /** The film of a scene on a seed. */
-  function perform(seed: string, scene: IScene): motionHumanLaw.IFilm {
+  /**
+   * The film of a scene on a seed.
+   *
+   * @param seed The seed.
+   * @param scene The scene.
+   * @returns The film.
+   */
+  export function perform(seed: string, scene: IScene): motionHumanLaw.IFilm {
     return motionHumanLaw.perform(
       seed,
       scene.people,
@@ -414,187 +427,6 @@ export namespace motionHumanLawSweep {
             `${law} | ${row}: ${(error as Error).message.split("\n")[0]}`,
           );
         }
-    }
-    return out;
-  }
-
-  /**
-   * The mirror relation over every law of a table: each ledger row that
-   * sets the performer's own side to `left` (`MIRRORED`) is performed and
-   * compared with the mirror image of its `right` row (`mirror`), on one
-   * body and one seed, since the relation holds whatever the body.
-   *
-   * @param table Each law's stage.
-   * @param body The body of `a`; the partner is the next of the extremes.
-   * @param seed The seed.
-   * @returns Every complaint, a refusal of either row included.
-   */
-  export function mirrors(
-    table: Readonly<Record<string, Stage>>,
-    body: motionHumanBody.Name = "m-average",
-    seed: string = SEEDS[0]!,
-  ): string[] {
-    const out: string[] = [];
-    const pair: [motionHumanBody.Name, motionHumanBody.Name] = [
-      body,
-      "f-small",
-    ];
-    for (const [law, stage] of Object.entries(table)) {
-      const own: Record<string, string[]> = factors(law);
-      for (const param of Object.keys(own)) {
-        if (!MIRRORED.includes(param) || !own[param]!.includes("left"))
-          continue;
-        const row: string = `${param}=left`;
-        try {
-          const left: motionHumanLaw.IFilm = perform(
-            seed,
-            staged(row, stage, pair, (): void => {}),
-          );
-          out.push(...mirror(law, row, stage, pair, seed, left));
-        } catch (error) {
-          out.push(
-            `${law} | ${row} | ${pair[0]}+${pair[1]} | ${seed} | a | refused: ${(error as Error).message.split("\n")[0]}`,
-          );
-        }
-      }
-    }
-    return out;
-  }
-
-  /**
-   * The factors of a law's combinatorial sweep: each parameter the coverage
-   * ledger lists, with its values and `-` for the parameter left out. A
-   * gesture's face region applies only to the face-touching gesture, so its
-   * regions join the kind's values as `touchFace/<region>`.
-   *
-   * @param law The law.
-   * @returns Each factor's values.
-   */
-  export function factors(law: string): Record<string, string[]> {
-    const listed: { rows: { row: string }[] } | undefined = (
-      LEDGER.laws as { law: string; rows: { row: string }[] }[]
-    ).find((l) => l.law === law);
-    const out: Record<string, string[]> = {};
-    for (const { row } of listed?.rows ?? []) {
-      if (row === "default") continue;
-      const at: number = row.indexOf("=");
-      const param: string = row.slice(0, at);
-      (out[param] ??= ["-"]).push(row.slice(at + 1));
-    }
-    if (
-      law === "gesture" &&
-      out.region !== undefined &&
-      out.kind !== undefined
-    ) {
-      out.kind.push(
-        ...out.region.filter((r) => r !== "-").map((r) => `touchFace/${r}`),
-      );
-      delete out.region;
-    }
-    return out;
-  }
-
-  /** A covering row's settings as a row string: `default` or `p=v,q=w`. */
-  function settings(row: Record<string, string>, params: string[]): string {
-    const parts: string[] = [];
-    for (const param of params) {
-      const value: string = row[param]!;
-      if (value === "-") continue;
-      if (value.startsWith("touchFace/"))
-        parts.push("kind=touchFace", `region=${value.slice(10)}`);
-      else parts.push(`${param}=${value}`);
-    }
-    return parts.length === 0 ? "default" : parts.join(",");
-  }
-
-  /**
-   * Sweep every law of a table over a covering array of its parameters, the
-   * bodies and the seeds (`motionCoveringArray`): every pair of values of any
-   * two factors meets in some cell, and every triple for a law with three or
-   * more parameters, at a small share of the Cartesian product's cells. The
-   * seed's determinism is checked on each law's first cell; the mirror image
-   * of a side is a metamorphic test of its own.
-   *
-   * @param table Each law's stage.
-   * @param bodies The bodies; each is `a`, partnered by the next.
-   * @param seeds The seeds.
-   * @param report Receives each cell as it finishes.
-   * @param only Limits the sweep to laws whose name is in it, when given.
-   * @returns Every complaint of every cell.
-   */
-  export function covering(
-    table: Readonly<Record<string, Stage>>,
-    bodies: readonly motionHumanBody.Name[] = motionHumanBody.EXTREMES,
-    seeds: readonly string[] = SEEDS,
-    report: (cell: ICell) => void = (): void => {},
-    only?: readonly string[],
-  ): string[] {
-    const out: string[] = [];
-    for (const [law, stage] of Object.entries(table)) {
-      if (only !== undefined && !only.includes(law)) continue;
-      const own: Record<string, string[]> = factors(law);
-      const params: string[] = Object.keys(own);
-      const rows: Record<string, string>[] = motionCoveringArray(
-        { ...own, body: [...bodies], seed: [...seeds] },
-        params.length >= 3 ? 3 : 2,
-      );
-      rows.forEach((row: Record<string, string>, index: number): void => {
-        const body: motionHumanBody.Name = row.body as motionHumanBody.Name;
-        const pair: [motionHumanBody.Name, motionHumanBody.Name] = [
-          body,
-          bodies[(bodies.indexOf(body) + 1) % bodies.length]!,
-        ];
-        const read: ICell = cell(
-          law,
-          settings(row, params),
-          stage,
-          pair,
-          row.seed!,
-          undefined,
-          index === 0,
-        );
-        report(read);
-        out.push(...read.complaints);
-      });
-    }
-    return out;
-  }
-
-  /**
-   * Compare a left row's film with the mirror image of its right row's.
-   *
-   * No law states how close the two must be; the 10 mm skin tolerance is
-   * this sweep's reading, and a finding here is first a question of whether
-   * the seeded variation is meant to mirror.
-   */
-  function mirror(
-    law: string,
-    row: string,
-    stage: Stage,
-    bodies: [motionHumanBody.Name, motionHumanBody.Name],
-    seed: string,
-    left: motionHumanLaw.IFilm,
-  ): string[] {
-    const twin: string = `${row.slice(0, row.indexOf("="))}=right`;
-    let scene: IScene;
-    let right: motionHumanLaw.IFilm;
-    try {
-      scene = staged(twin, stage, bodies, (): void => {});
-      right = perform(seed, scene);
-    } catch {
-      return [];
-    }
-    const out: string[] = [];
-    for (const { subject } of scene.people) {
-      const m: IAutoMovieMotionHumanAuditMeasure =
-        AutoMovieMotionHumanAuditDifference.measure(left, right, subject, {
-          mirror: 0,
-          rate: 4,
-        }).distance;
-      if (m.value > SKIN)
-        out.push(
-          `${law} | ${row} | ${bodies[0]}+${bodies[1]} | ${seed} | ${subject} | mirror ${m.value.toFixed(4)} over ${SKIN} at ${m.seconds.toFixed(2)} s (${m.where})`,
-        );
     }
     return out;
   }

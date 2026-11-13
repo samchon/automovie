@@ -1,7 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 
 import { MOTION_HUMAN_LAW_STAGES_HANDLING } from "../internal/MOTION_HUMAN_LAW_STAGES_HANDLING";
-import { motionHumanLawSweep } from "../internal/motionHumanLawSweep";
+import { motionHumanLawCovering } from "../internal/motionHumanLawCovering";
 
 /**
  * Every combination of every handling law moves a real body as a body can move:
@@ -15,7 +15,7 @@ import { motionHumanLawSweep } from "../internal/motionHumanLawSweep";
  * triple for a law with three or more parameters, which covers the
  * interactions that trigger nearly all faults (Kuhn, Kacker and Lei 2010,
  * NIST SP 800-142) at a small share of the Cartesian product
- * (`motionHumanLawSweep.covering`). Each cell is performed and read off the
+ * (`motionHumanLawCovering.covering`). Each cell is performed and read off the
  * displayed bones; the complaints of every cell are gathered before the one
  * assertion, so a failing cell does not hide the others, and each names its
  * law, settings, bodies, seed, person, check, measured value, limit and
@@ -42,7 +42,7 @@ import { motionHumanLawSweep } from "../internal/motionHumanLawSweep";
 export function test_human_motion_law_sweep_handling(): void {
   TestValidator.equals(
     "every handling cell is clean",
-    motionHumanLawSweep.covering(MOTION_HUMAN_LAW_STAGES_HANDLING),
+    motionHumanLawCovering.covering(MOTION_HUMAN_LAW_STAGES_HANDLING),
     [],
   );
 }

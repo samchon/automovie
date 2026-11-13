@@ -5,6 +5,7 @@ import { MOTION_HUMAN_LAW_STAGES } from "../internal/MOTION_HUMAN_LAW_STAGES";
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { motionHumanLaw } from "../internal/motionHumanLaw";
+import { motionHumanLawCovering } from "../internal/motionHumanLawCovering";
 import { motionHumanLawSweep } from "../internal/motionHumanLawSweep";
 import { motionHumanSignature as M } from "../internal/motionHumanSignature";
 
@@ -16,7 +17,7 @@ import { motionHumanSignature as M } from "../internal/motionHumanSignature";
  * Relations:
  * 1. Mirror: a row that acts on the left is the mirror image of its right
  *    row within the 10 mm skin tolerance, for every law and side parameter
- *    (`motionHumanLawSweep.mirrors`; a human body is bilaterally symmetric).
+ *    (`motionHumanLawCovering.mirrors`; a human body is bilaterally symmetric).
  * 2. Placement: a scene turned 90 degrees about +Y and moved 3 m across and
  *    2 m back is the same performance, its bones the turned and moved bones
  *    within 1 mm at every quarter second (the laws of motion hold the same
@@ -48,7 +49,7 @@ export function test_human_motion_metamorphic(): void {
   );
 
   // 1. Mirror.
-  for (const line of motionHumanLawSweep.mirrors(all))
+  for (const line of motionHumanLawCovering.mirrors(all))
     complaints.check(line, false);
 
   // 2. Placement.
