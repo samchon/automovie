@@ -431,14 +431,17 @@ export namespace AutoMovieHumanConicLoft {
           const p = input.points[(K - j) % K]!;
           return [p[0], -p[1]];
         });
+        let previous: number = 0;
         for (let j: number = 0; j < K; ++j) {
           if (anchors[(K - j) % K]!.kind !== "f") continue;
+          if (j === 0 || anchors[(K - j + 1) % K]!.kind !== "f") previous = 0;
           const t = input.tangents[(K - j) % K]!;
           const [before, after]: [number, number] = AutoMovieHumanConicSection.frame(j, twinLayout);
-          const [share, offset, turn]: [number, number, number] = AutoMovieHumanConicSection.unplace(points[before]!, points[after]!, points[j]!, Math.atan2(t[1], -t[0]));
-          values[twinAt[j]!]![m] = share;
-          values[twinAt[j]! + 1]![m] = offset;
-          values[twinAt[j]! + 2]![m] = turn;
+          const read: { values: [number, number, number]; t: number } = AutoMovieHumanConicSection.unplace(points[before]!, points[after]!, points[j]!, Math.atan2(t[1], -t[0]), previous);
+          previous = read.t;
+          values[twinAt[j]!]![m] = read.values[0];
+          values[twinAt[j]! + 1]![m] = read.values[1];
+          values[twinAt[j]! + 2]![m] = read.values[2];
         }
       });
     const flip = (v: V3): V3 => [v[0], v[1], -v[2]];

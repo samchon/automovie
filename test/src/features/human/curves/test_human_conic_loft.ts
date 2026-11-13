@@ -148,7 +148,7 @@ export function test_human_conic_loft(): void {
     // The feature's numbers are its share along the chord from the +u extreme to the +v one, its offset square to it and its turn from it
     // (`AutoMovieHumanConicSection.place`), read at each knot from that point and heading.
     values: ((): number[][] => {
-      const plane: number[][] = [0, 1, 2].map((m: number): number[] => AutoMovieHumanConicSection.unplace([[22, 21, 19][m]!, [3, 4, 2][m]!], [[-2, -1, 0][m]!, [17, 18, 16][m]!], [[14, 14, 13][m]!, [13, 13.5, 12][m]!], 2.5));
+      const plane: number[][] = [0, 1, 2].map((m: number): number[] => AutoMovieHumanConicSection.unplace([[22, 21, 19][m]!, [3, 4, 2][m]!], [[-2, -1, 0][m]!, [17, 18, 16][m]!], [[14, 14, 13][m]!, [13, 13.5, 12][m]!], 2.5, 0).values);
       return [[22, 21, 19], [3, 4, 2], plane.map((n: number[]): number => n[0]!), plane.map((n: number[]): number => n[1]!), plane.map((n: number[]): number => n[2]!), [-2, -1, 0], [17, 18, 16], [-25, -24, -23], [-3, -2, -1], [4, 3, 2], [-14, -15, -16], ...[0, 1, 2, 3, 4].map((): number[] => [ellipse, ellipse, ellipse])];
     })(),
   };
