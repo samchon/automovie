@@ -188,7 +188,7 @@ export namespace LexiconRowNet {
   ];
 
   /** Rows that need a support, a prop or a thrower, which their own tests stage. */
-  const STAGED: readonly string[] = [
+  export const STAGED: readonly string[] = [
     // A doorway, a car and a door's leaf need an obstacle, an opening or a door, which `test_human_motion_travel_obstacles`, `test_human_motion_travel_car` and `test_human_motion_travel_door_leaf` stage.
     "passThrough",
     "getIn",
@@ -333,6 +333,68 @@ export namespace LexiconRowNet {
   }
 
   /**
+   * Build one row in the scene the net stages it in, on the average man
+   * with the small woman as the partner, with some of its parameters
+   * replaced, and return what the build threw.
+   *
+   * @param row The row's name.
+   * @param replaced Parameters laid over what the net's tables give the row.
+   * @returns The error the build threw; null when it planned.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the scene, the replacement and the result.
+   * @evidence contracts/development/implementation.md#principled-implementation The same tables and the same partner placement as `rows`, so a refusal read here is the row's own and not the staging's.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup of the scene, one build.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A row the net stages elsewhere is built alone, as the caller asked.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One performance.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the polygon men prepared for `rows`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The performance is dropped.
+   */
+  export function attempt(row: string, replaced: object): unknown {
+    const scene: readonly [number, object] | undefined = PAIRED[row];
+    const params: object = { ...(scene?.[1] ?? ALONE[row] ?? {}), ...replaced };
+    let caught: unknown = null;
+    prepared ??= {
+      "m-average": motionHumanBody("m-average"),
+      "f-small": motionHumanBody("f-small"),
+    };
+    try {
+      new HumanPerformance({
+        seed: "lexicon",
+        laws: laws(),
+        performers: [
+          {
+            subject: "a",
+            body: prepared["m-average"]!,
+            at: { x: 0, y: 0, z: 0 },
+            yaw: 0,
+            proficiency: { level: "trained" },
+          },
+          ...(scene === undefined
+            ? []
+            : [
+                {
+                  subject: "b",
+                  body: prepared["f-small"]!,
+                  at: { x: 0, y: 0, z: scene[0] },
+                  yaw: 180,
+                  proficiency: { level: "trained" as const },
+                },
+              ]),
+        ],
+        composition: (scene === undefined
+          ? starting("a").registered(row, params)
+          : TRACKING.includes(row)
+            ? starting("b").with(starting("a").registered(row, params))
+            : starting("a").registered(row, params).with(starting("b"))
+        ).node,
+      });
+    } catch (error) {
+      caught = error;
+    }
+    return caught;
+  }
+
+  /**
    * Cast the net over the scenes a row alone cannot show: a person carried
    * by another who walks 2 m, a salute performed over a walk, and each
    * mutual record joining the two.
@@ -360,13 +422,20 @@ export namespace LexiconRowNet {
           .walk({ to: { x: 0, y: 0, z: 3 } })
           .over((o) => o.registered("salute")),
       );
-      for (const mutual of [HumanSocial.bump, HumanSocial.toast])
-        check(complaints, `the mutual ${mutual.name}`, names, 0.7, () =>
-          HumanChain.mutual(mutual, {
-            [mutual.roles[0]!]: starting("a"),
-            [mutual.roles[1]!]: starting("b"),
-          } as Record<(typeof mutual.roles)[number], HumanChain>),
-        );
+      // Each record is joined on its own: their roles and parameters
+      // differ, so one loop over both does not type.
+      check(complaints, `the mutual ${HumanSocial.bump.name}`, names, 0.7, () =>
+        HumanChain.mutual(HumanSocial.bump, {
+          one: starting("a"),
+          other: starting("b"),
+        }),
+      );
+      check(complaints, `the mutual ${HumanSocial.toast.name}`, names, 0.7, () =>
+        HumanChain.mutual(HumanSocial.toast, {
+          guest: starting("a"),
+          host: starting("b"),
+        }),
+      );
     }
     return complaints;
   }

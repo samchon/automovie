@@ -1,15 +1,11 @@
 import {
   HUMAN_LEXICON,
   HUMAN_LEXICON_SCHEMAS,
-  HumanChain,
-  HumanPerformance,
   HumanRefusal,
-  type IHumanActionLaw,
-  type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { LexiconRowNet } from "../internal/LexiconRowNet";
 
 /**
  * The lexicon's parameter schemas cover every row, reject a parameter a row
@@ -28,16 +24,18 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    that accepts no member beyond its properties, so a call with a misspelt
  *    parameter (`toe` for `to`, or any name the row lacks) is rejected by
  *    it.
- * 3. For every row of the `gait` family, performed alone toward a place
- *    3 m ahead, each numeric parameter whose schema states a least or a
- *    greatest value is refused, as a `HumanRefusal` on that parameter, a
- *    tenth past that value, and the refusal's feasible range names the
- *    same value.
+ * 3. Every row, built in the scene the lexicon's row net stages it in (the
+ *    average man, the small woman as the partner where it has one), is
+ *    refused past each bound its schema states for a numeric member: a
+ *    tenth below a least value, at an exclusive least value, a tenth above
+ *    a greatest value, and half a unit off a whole number. The refusal is a
+ *    `HumanRefusal` on that member whose feasible range names the same
+ *    value. A row the net stages in a test of its own is not built here.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Reads the exported schemas and performs the gait rows through the public chain past each stated bound; a row without a schema, an open object, a bound the law does not refuse or a refusal naming another range fails.
- * @evidence contracts/development/testing.md#independent-expectations The rows are the lexicon's own and the refusals the laws' own; the test only checks that the two generated and hand-written readings agree, neither being taken as the other's oracle.
- * @evidence contracts/development/testing.md#distinguishing-cases Every row for coverage and closure; the gait rows past each least and greatest bound.
- * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and builds refused plans only, never a displayed pose, so the whole lexicon is read in seconds.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the exported schemas and builds every row through the public chain past each stated bound; a row without a schema, an open object, a bound the law does not refuse or a refusal naming another range fails.
+ * @evidence contracts/development/testing.md#independent-expectations The rows are the lexicon's own and the refusals the laws' own; the test only checks that the generated and the hand-written readings agree, neither being taken as the other's oracle.
+ * @evidence contracts/development/testing.md#distinguishing-cases Every row for coverage and closure; every tagged member past each least, exclusive least, greatest and whole-number bound.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men once and builds refused plans only, never a displayed pose.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, why it matters and the 3 scenarios.
  */
 export function test_human_motion_lexicon_schemas(): void {
@@ -49,10 +47,9 @@ export function test_human_motion_lexicon_schemas(): void {
       : HUMAN_LEXICON_SCHEMAS.components.schemas?.[
           schema.$ref.split("/").at(-1)!
         ];
-
-  // 1 and 2. Coverage and closure.
   for (const [family, laws] of Object.entries(HUMAN_LEXICON))
     for (const law of laws) {
+      // 1. Coverage.
       const schema: ISchema | undefined = resolved(
         HUMAN_LEXICON_SCHEMAS.rows[law.name],
       );
@@ -60,7 +57,8 @@ export function test_human_motion_lexicon_schemas(): void {
         complaints.push(`${family} ${law.name}: no schema`);
         continue;
       }
-      // A row whose parameters take one of several forms is closed in each.
+
+      // 2. A row whose parameters take one of several forms is closed in each.
       const forms: (ISchema | undefined)[] = Array.isArray(schema.oneOf)
         ? (schema.oneOf as ISchema[]).map(resolved)
         : [schema];
@@ -73,62 +71,64 @@ export function test_human_motion_lexicon_schemas(): void {
           complaints.push(
             `${family} ${law.name}: the schema has a member named toe, which no row should`,
           );
-    }
+      if (LexiconRowNet.STAGED.includes(law.name) || forms.length !== 1)
+        continue;
 
-  // 3. The gait rows refuse past each bound their schema states.
-  const body: IHumanBody = motionHumanBody("m-average");
-  for (const law of HUMAN_LEXICON.gait! as readonly IHumanActionLaw<never>[]) {
-    const schema: ISchema | undefined = resolved(
-      HUMAN_LEXICON_SCHEMAS.rows[law.name],
-    );
-    if (!("to" in (schema?.properties ?? {}))) continue;
-    for (const [key, member] of Object.entries(schema!.properties!)) {
-      const bounds: { minimum?: number; maximum?: number } = member as {
-        minimum?: number;
-        maximum?: number;
-      };
-      for (const [end, value] of [
-        ["minimum", bounds.minimum],
-        ["maximum", bounds.maximum],
-      ] as const) {
-        if (value === undefined) continue;
-        const asked: number = end === "minimum" ? value - 0.1 : value + 0.1;
-        let thrown: unknown = null;
-        try {
-          new HumanPerformance({
-            seed: "schemas",
-            laws: [law],
-            performers: [
-              {
-                subject: "a",
-                body,
-                at: { x: 0, y: 0, z: 0 },
-                yaw: 0,
-                proficiency: { level: "trained" },
-              },
-            ],
-            composition: HumanChain.subject("a").registered(law.name, {
-              to: { x: 0, y: 0, z: 3 },
-              [key]: asked,
-            }).node,
+      // 3. Past each bound the schema states, the law refuses on that member, naming the same bound.
+      for (const [key, value] of Object.entries(schema.properties ?? {})) {
+        const member: {
+          type?: unknown;
+          minimum?: number;
+          exclusiveMinimum?: number;
+          maximum?: number;
+        } = (resolved(value as ISchema) ?? {}) as {
+          type?: unknown;
+          minimum?: number;
+          exclusiveMinimum?: number;
+          maximum?: number;
+        };
+        const least: number | undefined =
+          member.minimum ?? member.exclusiveMinimum;
+        const asks: (readonly [string, number, "minimum" | "maximum"])[] = [
+          ...(member.minimum !== undefined
+            ? [["below its least", member.minimum - 0.1, "minimum"] as const]
+            : []),
+          ...(member.exclusiveMinimum !== undefined
+            ? [
+                [
+                  "at its exclusive least",
+                  member.exclusiveMinimum,
+                  "minimum",
+                ] as const,
+              ]
+            : []),
+          ...(member.maximum !== undefined
+            ? [["above its greatest", member.maximum + 0.1, "maximum"] as const]
+            : []),
+          ...(member.type === "integer"
+            ? [["half off a whole", (least ?? 1) + 0.5, "minimum"] as const]
+            : []),
+        ];
+        for (const [what, asked, end] of asks) {
+          const thrown: unknown = LexiconRowNet.attempt(law.name, {
+            [key]: asked,
           });
-        } catch (error) {
-          thrown = error;
+          const range: { minimum?: number | null; maximum?: number | null } =
+            thrown instanceof HumanRefusal && thrown.feasible?.kind === "range"
+              ? thrown.feasible
+              : {};
+          const named: number | undefined =
+            end === "minimum" ? least : member.maximum;
+          if (
+            !(thrown instanceof HumanRefusal) ||
+            thrown.axis !== key ||
+            range[end] !== named
+          )
+            complaints.push(
+              `${family} ${law.name}: ${key} ${asked} (${what} ${named}) expected a refusal on ${key} naming ${named}, got ${thrown instanceof Error ? thrown.message : String(thrown)}`,
+            );
         }
-        const range: { minimum?: number | null; maximum?: number | null } =
-          thrown instanceof HumanRefusal && thrown.feasible?.kind === "range"
-            ? thrown.feasible
-            : {};
-        if (
-          !(thrown instanceof HumanRefusal) ||
-          thrown.axis !== key ||
-          range[end] !== value
-        )
-          complaints.push(
-            `gait ${law.name}: ${key} ${asked} past the schema's ${end} ${value}, expected a refusal on ${key} naming ${value}, got ${thrown instanceof Error ? thrown.message : String(thrown)}`,
-          );
       }
     }
-  }
   TestValidator.equals("the schemas match the lexicon", complaints, []);
 }
