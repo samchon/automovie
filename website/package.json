@@ -5,9 +5,11 @@
   "description": "automovie website: the composition playground and the gallery published at https://samchon.github.io/automovie/",
   "scripts": {
     "build": "pnpm run build:prepare && next build && pnpm run build:finalize",
-    "build:prepare": "rimraf .next out && pnpm run check",
-    "build:finalize": "pnpm run build:pagefind",
+    "bake": "ttsx --no-plugins -P build/tsconfig.json build/bake.ts",
+    "build:prepare": "rimraf .next out && pnpm run check && pnpm run bake",
+    "build:finalize": "pnpm run bundles && pnpm run build:pagefind",
     "build:pagefind": "pagefind --site .next/server/app --output-path out/_pagefind",
+    "bundles": "ttsx --no-plugins -P build/tsconfig.json build/bundles.ts",
     "check": "ttsx --no-plugins -P build/tsconfig.json build/imports.ts && ttsx --no-plugins -P build/tsconfig.json build/contrast.ts",
     "deploy": "ttsx --no-plugins -P build/tsconfig.json build/deploy.ts",
     "dev": "next dev",

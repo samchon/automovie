@@ -47,7 +47,42 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # The scenes' takes are computed with the packages before the site is
+  # built: a sixth of the takes per runner, each runner baking its part in a
+  # process per core, because one machine would take longer than the job's
+  # limit. Each runner keeps its takes in a cache keyed by everything a take
+  # is computed from, so a change elsewhere bakes nothing again.
+  bake:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22.x
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+      - run: pnpm install
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: website/public/baked
+          key: bake-${{ matrix.shard }}-${{ hashFiles('packages/archetypes/src/**', 'packages/engine/src/**', 'packages/human/src/**', 'packages/interface/src/**', 'packages/motions/src/**', 'packages/render/src/**', 'website/src/scenes/**', 'website/src/playground/**', 'website/build/bake.ts', 'pnpm-lock.yaml') }}
+          restore-keys: bake-${{ matrix.shard }}-
+      - name: Bake this share of the scenes
+        run: pnpm --filter @automovie/website run bake --runner ${{ matrix.shard }} --runners 6
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: baked-${{ matrix.shard }}
+          path: website/public/baked
+          retention-days: 1
+
   deploy:
+    needs: bake
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -69,6 +104,16 @@ jobs:
         with:
           path: node_modules/.cache/ttsc
           key: ttsc-website-${{ hashFiles('pnpm-lock.yaml') }}
+
+      # The shares' takes are joined into one manifest; the build's own bake
+      # then finds every take unchanged.
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: baked-*
+          path: website/public/baked
+          merge-multiple: true
+      - name: Join the baked shares
+        run: pnpm --filter @automovie/website run bake --merge
 
       - name: Type check
         run: pnpm --filter @automovie/website typecheck
