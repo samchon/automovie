@@ -1,4 +1,9 @@
-import { createBarbell, createDumbbell } from "@automovie/archetypes";
+import {
+  type Archetype,
+  createBarbell,
+  createDumbbell,
+  createKettlebell,
+} from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
@@ -47,12 +52,16 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    `down1` and at `top1` the right wrist is within 0.12 m of the grip, and
  *    the dumbbell is more than 0.15 of the stature higher at `top1` (a
  *    forearm's swing from hanging to folded, an estimate).
+ * 5. A kettlebell of 16 kg taken in the right hand, then one swing with it:
+ *    at `back1` and at `float1` the right wrist is within 0.12 m of the
+ *    grip, and the bell is more than a quarter of the stature higher at
+ *    `float1` (from between the legs to the chest's height, an estimate).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds a performance through the public chain, the pick-up and the row's `load`, and reads the displayed bar and the displayed wrists; a refused load, a hand off its handle, a tilted bar or a bar left behind fails with the measure.
  * @evidence contracts/development/testing.md#independent-expectations The handles are the archetype's own contacts placed by the displayed prop frame; the bounds are the campaign's contact bound and a stated estimate of the hand; nothing is read from the law.
  * @evidence contracts/development/testing.md#distinguishing-cases Both hands, two instants at the ends of the lift's range, the bar's level and its travel, on two bodies of opposite build.
- * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men, one barbell, one dumbbell and two films each; it runs locally and wherever CI runs the human motion tests.
- * @evidence contracts/development/common.md#meaningful-documentation States what is pinned, the bounds and which is an estimate, the scene and the 4 scenarios.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men, one barbell, one dumbbell, one kettlebell and three films each; it runs locally and wherever CI runs the human motion tests.
+ * @evidence contracts/development/common.md#meaningful-documentation States what is pinned, the bounds and which is an estimate, the scene and the 5 scenarios.
  */
 export function test_human_motion_sport_loaded(): void {
   const bar: ReturnType<typeof createBarbell> = createBarbell({
@@ -213,87 +222,108 @@ export function test_human_motion_sport_loaded(): void {
       );
   }
 
-  // 4. A dumbbell in one hand through a curl.
-  const bell: ReturnType<typeof createDumbbell> = createDumbbell({ mass: 8 });
-  for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-    const stature: number = body.measure.stature;
-    let film: HumanPerformance;
-    try {
-      film = new HumanPerformance({
-        seed: "loaded",
-        laws: [HumanSportGym.curl],
-        performers: [
-          {
-            subject: "a",
-            body,
-            at: { x: 0, y: 0, z: 0 },
-            yaw: 0,
-            proficiency: { level: "trained" },
-          },
-        ],
-        props: [
-          // The dumbbell before the right hip, at its height.
-          HumanObject.prop("bell", bell, {
-            position: {
-              x: -0.12 * stature,
-              y: 0.56 * stature,
-              z: 0.12 * stature,
+  // 4 and 5. A dumbbell through a curl and a kettlebell through a swing,
+  // each in one hand.
+  const cases: readonly (readonly [
+    string,
+    Archetype,
+    "curl" | "kettlebellSwing",
+    string,
+    string,
+    number,
+  ])[] = [
+    ["dumbbell", createDumbbell({ mass: 8 }), "curl", "down1", "top1", 0.15],
+    [
+      "kettlebell",
+      createKettlebell({ mass: 16 }),
+      "kettlebellSwing",
+      "back1",
+      "float1",
+      0.25,
+    ],
+  ];
+  for (const [label, model, row, low, high, rise] of cases)
+    for (const name of ["m-average", "f-small"] as const) {
+      const body: IHumanBody = motionHumanBody(name);
+      const stature: number = body.measure.stature;
+      let film: HumanPerformance;
+      try {
+        film = new HumanPerformance({
+          seed: "loaded",
+          laws: [HumanSportGym.curl, HumanSportWorkout.kettlebellSwing],
+          performers: [
+            {
+              subject: "a",
+              body,
+              at: { x: 0, y: 0, z: 0 },
+              yaw: 0,
+              proficiency: { level: "trained" },
             },
-            rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 0),
-          }),
-        ],
-        composition: HumanChain.subject("a")
-          .stand({ seconds: 0.3 })
-          .pickUp({ prop: "bell", handle: "grip" })
-          .registered("curl", { reps: 1, load: { prop: "bell" } }).node,
-      });
-    } catch (error) {
-      complaints.push(
-        `${name}, dumbbell: ${error instanceof Error ? error.message : String(error)}`,
+          ],
+          props: [
+            // Before the right hip, its grip at the hip's height.
+            HumanObject.prop("bell", model, {
+              position: {
+                x: -0.12 * stature,
+                y:
+                  0.56 * stature -
+                  model.affordance("grip").frame.translation.y,
+                z: 0.12 * stature,
+              },
+              rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 0),
+            }),
+          ],
+          composition: HumanChain.subject("a")
+            .stand({ seconds: 0.3 })
+            .pickUp({ prop: "bell", handle: "grip" })
+            .registered(row, { reps: 1, load: { prop: "bell" } }).node,
+        });
+      } catch (error) {
+        complaints.push(
+          `${name}, ${label}: ${error instanceof Error ? error.message : String(error)}`,
+        );
+        continue;
+      }
+      const act: HumanSegment.ISegment = film
+        .segments("a")
+        .find((s: HumanSegment.ISegment): boolean => s.name === row)!;
+      const at = (event: string): number =>
+        act.start +
+        (act.plan.events.find((e): boolean => e.name === event)?.share ??
+          Number.NaN) *
+          act.plan.duration;
+      const reader: HumanSignature.IReader = HumanSignature.of(
+        film,
+        "a",
+        body,
+        0,
       );
-      continue;
-    }
-    const curl: HumanSegment.ISegment = film
-      .segments("a")
-      .find((s: HumanSegment.ISegment): boolean => s.name === "curl")!;
-    const at = (event: string): number =>
-      curl.start +
-      (curl.plan.events.find((e): boolean => e.name === event)?.share ??
-        Number.NaN) *
-        curl.plan.duration;
-    const reader: HumanSignature.IReader = HumanSignature.of(
-      film,
-      "a",
-      body,
-      0,
-    );
-    for (const event of ["down1", "top1"]) {
-      const frame: IHumanProp.IFrame = film.prop("bell", at(event));
-      const away: number = Vector3.length(
-        Vector3.subtract(
-          HumanSignature.joint(reader, at(event), "rightHand"),
-          Vector3.add(
-            frame.position,
-            Quaternion.rotateVector(
-              frame.rotation,
-              bell.affordance("grip").frame.translation,
+      for (const event of [low, high]) {
+        const frame: IHumanProp.IFrame = film.prop("bell", at(event));
+        const away: number = Vector3.length(
+          Vector3.subtract(
+            HumanSignature.joint(reader, at(event), "rightHand"),
+            Vector3.add(
+              frame.position,
+              Quaternion.rotateVector(
+                frame.rotation,
+                model.affordance("grip").frame.translation,
+              ),
             ),
           ),
-        ),
-      );
-      if (!(away <= 0.12))
+        );
+        if (!(away <= 0.12))
+          complaints.push(
+            `${name}, ${label}: at ${event} the right wrist is ${(away * 1000).toFixed(0)} mm from the grip, 120 mm at most expected`,
+          );
+      }
+      const lifted: number =
+        film.prop("bell", at(high)).position.y -
+        film.prop("bell", at(low)).position.y;
+      if (!(lifted > rise * stature))
         complaints.push(
-          `${name}, dumbbell: at ${event} the right wrist is ${(away * 1000).toFixed(0)} mm from the grip, 120 mm at most expected`,
+          `${name}, ${label}: the ${row} lifts it ${lifted.toFixed(3)} m, more than ${(rise * stature).toFixed(3)} m expected`,
         );
     }
-    const lifted: number =
-      film.prop("bell", at("top1")).position.y -
-      film.prop("bell", at("down1")).position.y;
-    if (!(lifted > 0.15 * stature))
-      complaints.push(
-        `${name}, dumbbell: the curl lifts the dumbbell ${lifted.toFixed(3)} m, more than ${(0.15 * stature).toFixed(3)} m expected`,
-      );
-  }
   TestValidator.equals("a loaded workout carries its load", complaints, []);
 }
