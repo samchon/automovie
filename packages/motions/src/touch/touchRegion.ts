@@ -5,6 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -62,7 +63,7 @@ export namespace touchRegion {
     target: AutoMovieMotionTarget,
     legs: boolean,
   ) => (posture: IHumanPosture, seconds: number) => touchSite.IFrame {
-    const body = context.body;
+    const body: IHumanBody = context.body;
     const sited: ReturnType<typeof touchSite.of> | undefined =
       site === undefined ? undefined : touchSite.of(context, site);
     const shoulder: IAutoMovieVector3 = bones.get(

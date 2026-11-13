@@ -1,5 +1,10 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import {
+  type IAutoMovieResolvedBone,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   AutoMovieMotionTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -111,7 +116,7 @@ export namespace give {
    * @evidence contracts/development/implementation.md#principled-implementation The part rises to its peak and falls back on the clock's minimum-jerk envelope (Flash and Hogan 1985). The side is the contact's side in the performer's floor frame. The sign of the neck's twist that turns the head to that side is found by forward kinematics of the entry posture, so it does not rest on a rig convention.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One clock, the inherited base and one primitive chosen by the part.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A contact dead ahead or behind turns the head to the left, a stated tie rule; sizes are named provisional constants.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two trunk resolutions per plan and constant work per posture.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Three trunk resolutions per plan, the entry's once and one per neck axis tried, and constant work per posture.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The direction is read once per plan.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants only.
    */
@@ -137,9 +142,11 @@ export namespace give {
 
     // Away from the contact in the performer's floor frame: `x` left, `z`
     // forward; reversed for a pull.
-    const head: IAutoMovieVector3 = HumanTrunk.resolve(body, entry).get(
-      "head",
-    )!.worldPosition;
+    // The entry's trunk, resolved once: the head's place here, its rest
+    // rotation for the sign of the neck's turn.
+    const trunk: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      HumanTrunk.resolve(body, entry);
+    const head: IAutoMovieVector3 = trunk.get("head")!.worldPosition;
     const away: IAutoMovieVector3 = Vector3.scale(
       HumanFrame.local(
         { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
@@ -163,7 +170,7 @@ export namespace give {
             clock,
             rise,
             fall,
-            turned(context, away.x >= 0 ? 1 : -1, intensity),
+            turned(context, trunk, away.x >= 0 ? 1 : -1, intensity),
           )
         : AutoMovieMotionHumanLean.sway({
             body,
@@ -197,6 +204,7 @@ export namespace give {
   /** The neck and head angles that turn and tilt the head to a side: 1 for the performer's left, -1 for the right. */
   const turned = (
     context: IHumanActionContext<IParams>,
+    trunk: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     side: 1 | -1,
     intensity: number,
   ): AutoMovieMotionHumanJoints.Angles => {
@@ -221,7 +229,7 @@ export namespace give {
         probe,
       );
       const rest: IAutoMovieVector3 = Quaternion.rotateVector(
-        HumanTrunk.resolve(context.body, entry).get("head")!.worldRotation,
+        trunk.get("head")!.worldRotation,
         probe,
       );
       return Vector3.dot(Vector3.subtract(moved, rest), left) >= 0 ? 1 : -1;

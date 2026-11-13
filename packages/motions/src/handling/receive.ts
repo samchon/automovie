@@ -286,14 +286,9 @@ export namespace receive {
               ? {
                   reference: {
                     ...shared.receiverReference,
-                    // The share is clamped to [0, 1] first: at the take-away's
-                    // end it rounds a hair past 1, and its complement below 0.
-                    weight:
-                      1 -
-                      Math.min(
-                        1,
-                        Math.max(0, minimumJerk((t - leave) / back).s),
-                      ),
+                    // The share is held at 1 first: at the take-away's end it
+                    // rounds a hair past 1, and its complement below 0.
+                    weight: 1 - Math.min(1, minimumJerk((t - leave) / back).s),
                   },
                 }
               : takes && t >= shared.gripClosed
@@ -302,10 +297,9 @@ export namespace receive {
                   ? {
                       reference: {
                         ...shared.receiverReference,
-                        weight: Math.max(
-                          0,
-                          minimumJerk((t - shared.reachStart) / shared.reach).s,
-                        ),
+                        weight: minimumJerk(
+                          (t - shared.reachStart) / shared.reach,
+                        ).s,
                       },
                     }
                   : {}),

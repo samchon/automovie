@@ -210,7 +210,9 @@ export namespace relayPass {
         };
       }
       // The incoming hand pushes the baton forward into the palm ahead.
-      const partner = context.performer(p.partner);
+      const partner: IHumanActionContext.IPerformer = context.performer(
+        p.partner,
+      );
       const palm: IAutoMovieVector3 = HumanHand.frame(
         partner.body,
         partner.bones(context.start + t),
