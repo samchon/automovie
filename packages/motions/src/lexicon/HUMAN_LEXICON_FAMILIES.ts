@@ -5,6 +5,7 @@ import { HumanEmblem } from "./HumanEmblem";
 import { HumanFirearm } from "./HumanFirearm";
 import { HumanFloorRoll } from "./HumanFloorRoll";
 import { HumanGait } from "./HumanGait";
+import { HumanGymnastics } from "./HumanGymnastics";
 import { HumanHabit } from "./HumanHabit";
 import { HumanLabour } from "./HumanLabour";
 import { HumanPartner } from "./HumanPartner";
@@ -63,6 +64,7 @@ export const HUMAN_LEXICON_FAMILIES = {
   sportSwing: [HumanSportSwing],
   sportThrow: [HumanSportThrow],
   sportWorkout: [HumanSportWorkout],
+  gymnastics: [HumanGymnastics],
   sword: [HumanSword, HumanSwordGuard, HumanSwordParry, HumanSwordThrust],
   weaponFirearm: [HumanWeaponFirearm],
   weaponMelee: [HumanWeaponMelee],

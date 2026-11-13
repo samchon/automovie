@@ -104,6 +104,9 @@ export namespace LexiconRowNet {
     strides: ahead,
     frontSalto: { to: { x: 0, y: 0, z: 0.8 } },
     backSalto: { to: { x: 0, y: 0, z: 0.2 } },
+    // A flop over a 1.4 m bar onto the floor 2.5 m ahead: a bar above
+    // either build's take-off centre of mass.
+    fosburyFlop: { to: { x: 0, y: 0, z: 2.5 }, bar: 1.4 },
   };
 
   /** The partner's distance and what a row done on a partner leaves open. */
@@ -214,6 +217,11 @@ export namespace LexiconRowNet {
     "holsterFirearm",
     "gloveCatch",
     "twoHandCatch",
+    // A vault needs its prop and a pole vault a held pole and a run-up,
+    // which `test_human_motion_gymnastics_airborne` and
+    // `test_human_motion_gymnastics_jumps` stage.
+    "handspringVault",
+    "vaultOnPole",
   ];
 
   /** The two builds, each performing with the other as its partner. */
