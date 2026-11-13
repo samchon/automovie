@@ -62,9 +62,9 @@ type Same<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
  *
  * @evidence contracts/development/testing.md#behavioral-verification Registers a law through the public input and chain, performs it on a real body and reads placed actions, poses and refusals; a law that cannot be performed, changes another action, shadows a name or cuts where it declares no window fails.
  * @evidence contracts/development/testing.md#independent-expectations Where the fingertip goes is the drill manual's; sameness is the distance between two runs' joint centres under a nanometre, never a stored pose; the refusals follow from what a name and a cut window mean.
- * @evidence contracts/development/testing.md#distinguishing-cases A used and an unused registration, a shadow and a duplicate, an unknown name, cuts in both directions inside and outside a window, and both ways `extend` can be misused.
+ * @evidence contracts/development/testing.md#distinguishing-cases A used and an unused registration, a shadow and a duplicate, an unknown name, cuts in both directions inside and outside a window, both ways `extend` can be misused, a row counted as its family (`sit` then `rise`), and a data row (a shave) alone, over a walk, cut into and cut out of.
  * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and samples short films; it runs locally and wherever CI runs the human motion tests.
- * @evidence contracts/development/common.md#meaningful-documentation States the example with its source and the 8 scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation States the example with its source and the 10 scenarios.
  */
 export function test_human_motion_registered_law(): void {
   const body: IHumanBody = motionHumanBody("m-average");

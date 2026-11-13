@@ -95,7 +95,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#behavioral-verification Places forearms against the displayed colliders of real bodies and calls each public function; a wrong unit, a lost median plane, a wrist excused against another body, a clearing that turns another joint, leaves its range or stops short, or a misplaced collider fails with its cell.
  * @evidence contracts/development/testing.md#independent-expectations Every expected value follows from the documented rule and the cell's geometry worked out in the comment; the reachability of a clearing is decided by a grid search the function does not do.
  * @evidence contracts/development/testing.md#distinguishing-cases Four bodies, both arms; a forearm clear, across the median plane, inside the chest, laid on it against its own and another body; arms within and beyond their allowance, against the trunk and a partner.
- * @evidence contracts/development/testing.md#execution-ownership In memory; named `test_human_` because the clearing's grid search runs many forward kinematic passes, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory on in-process bodies; the clearing's grid search runs many forward kinematic passes, so it is the slow one of the family. The test program discovers every `test_` function under `features`, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the unit, both rules, the geometry of each placed forearm, the clearing's promise and the 8 scenarios with their bounds.
  */
 export function test_human_motion_posture_arm_clearance(): void {
