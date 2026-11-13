@@ -269,7 +269,8 @@ namespace FamilyConicScan {
       // seams' profile knots (`IAutoMovieConstructionSplit.IProfile`) for a split of the limb's end (`AutoMovieHumanF1.fanSeams`).
       for (const which of ["arm", "leg"] as const) {
         const { station, seams, headings, normal } = AutoMovieHumanF1.fanSeams(which);
-        const family = { ...AutoMovieHumanF1.BODY[which], tips: undefined };
+        // The arm's fan splits the hand's own family (`AutoMovieHumanF1Hand`), which the arm continues across the wrist.
+        const family = { ...(which === "arm" ? AutoMovieHumanF1.BODY.hand : AutoMovieHumanF1.BODY.leg), tips: undefined };
         const loft = AutoMovieHumanConicLoft.create(family, family.knots);
         const ring = (t: number): R.V => AutoMovieLoftChain.point(loft.chain!, station, t) as R.V;
         const mesh = source.body;

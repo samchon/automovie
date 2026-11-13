@@ -4,6 +4,7 @@ import type { AutoMovieConstructionNode, IAutoMovieConstructionFill, IAutoMovieC
 import { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Arm } from "./AutoMovieHumanF1Arm";
+import { AutoMovieHumanF1Hand } from "./AutoMovieHumanF1Hand";
 import { AutoMovieHumanF1Auricle } from "./AutoMovieHumanF1Auricle";
 import { AutoMovieHumanF1Axilla } from "./AutoMovieHumanF1Axilla";
 import { AutoMovieHumanF1Breast } from "./AutoMovieHumanF1Breast";
@@ -86,7 +87,7 @@ export namespace AutoMovieHumanF1 {
   }
 
   /** The families the sewn body is built from. */
-  export const BODY: { trunk: AutoMovieHumanConicLoft.IFamily; arm: AutoMovieHumanConicLoft.IFamily; leg: AutoMovieHumanConicLoft.IFamily; ear: AutoMovieHumanConicLoft.IFamily; nose: AutoMovieHumanConicLoft.IFamily; breast: AutoMovieHumanConicLoft.IFamily } = { trunk: AutoMovieHumanF1Trunk, arm: AutoMovieHumanF1Arm, leg: AutoMovieHumanF1Leg, ear: AutoMovieHumanF1Ear, nose: AutoMovieHumanF1Nose, breast: AutoMovieHumanF1Breast };
+  export const BODY: { trunk: AutoMovieHumanConicLoft.IFamily; arm: AutoMovieHumanConicLoft.IFamily; hand: AutoMovieHumanConicLoft.IFamily; leg: AutoMovieHumanConicLoft.IFamily; ear: AutoMovieHumanConicLoft.IFamily; nose: AutoMovieHumanConicLoft.IFamily; breast: AutoMovieHumanConicLoft.IFamily } = { trunk: AutoMovieHumanF1Trunk, arm: AutoMovieHumanF1Arm, hand: AutoMovieHumanF1Hand, leg: AutoMovieHumanF1Leg, ear: AutoMovieHumanF1Ear, nose: AutoMovieHumanF1Nose, breast: AutoMovieHumanF1Breast };
 
   /** One digit sewn to its limb. */
   export interface IDigit {
@@ -186,6 +187,7 @@ export namespace AutoMovieHumanF1 {
   export const FAMILIES: readonly IMember[] = [
     { family: BODY.trunk, mirrored: false },
     { family: BODY.arm, mirrored: true },
+    { family: BODY.hand, mirrored: true },
     { family: BODY.leg, mirrored: true },
     { family: BODY.ear, mirrored: true },
     { family: AutoMovieHumanF1Helix, mirrored: true },
@@ -249,7 +251,10 @@ export namespace AutoMovieHumanF1 {
    * finger's first joint toward the four fingers' mean direction, faces the fingers, so each band runs on to its finger. The web lines are
    * `FamilyConicScan.ts webs` every 2 mm along each seam's chord, depths of 0 left out so the seam leaves its fork along the host, with the
    * run-out knots it reads beside a palm fork; they were read again once the palm's net (`arm.palm`) brought the end ring's palm side onto
-   * the skin, where every web now starts at its palm fork instead of 6 to 10 mm along the chord. Each band
+   * the skin, where every web now starts at its palm fork instead of 6 to 10 mm along the chord, and again on the hand's own family
+   * (`AutoMovieHumanF1Hand`) for the ring and middle fingers' seams. The little finger's seam keeps the web read on the arm's end ring
+   * (3.0 mm deep): read on the hand's (2.2 mm, from 0.5 mm at 2 mm along) the ring finger's band folded by 175 degrees over 7 edges beside
+   * its palm fork ([176, 919, 465], band station 6.5 mm), and with that one seam's old web alone the fold is gone (`limbview`). Each band
    * takes 192 columns: on 96, 0.5 to 1 mm apart along a seam, its quads stood as a comb of steps along every seam. The hand's ribbons keep
    * half their length at each fork (`reach`): the skin's edges folding by more than 90 degrees over the hand fall from 168 to 119. Both
    * limbs' bands leave the end square to its ring (`square`): along the station lines, which lean along the ring where the sections change
@@ -268,8 +273,8 @@ export namespace AutoMovieHumanF1 {
       digits: ["finger.pinky", "finger.ring", "finger.middle", "finger.index"],
       webs: [
         [[0.002, 0.0015], [0.004, 0.0029], [0.006, 0.003], [0.008, 0.0015]],
-        [[0.0005, 0.001], [0.001, 0.002], [0.002, 0.0037], [0.004, 0.0065], [0.006, 0.0087], [0.008, 0.0101], [0.01, 0.0102], [0.012, 0.0091], [0.014, 0.0065], [0.016, 0.0026]],
-        [[0.0011, 0.001], [0.002, 0.0026], [0.004, 0.0057], [0.006, 0.0071], [0.008, 0.007], [0.01, 0.0059], [0.012, 0.0045], [0.014, 0.0028], [0.016, 0.0007]],
+        [[0.0011, 0.001], [0.002, 0.0028], [0.004, 0.0058], [0.006, 0.0081], [0.008, 0.0094], [0.01, 0.0097], [0.012, 0.0084], [0.014, 0.0059], [0.016, 0.0024]],
+        [[0.0012, 0.001], [0.002, 0.0027], [0.004, 0.0058], [0.006, 0.0069], [0.008, 0.0066], [0.01, 0.0055], [0.012, 0.0041], [0.014, 0.0025], [0.016, 0.0004]],
       ],
       corner: 0.6,
       reach: 0.5,
@@ -319,6 +324,22 @@ export namespace AutoMovieHumanF1 {
    * rad (312 phases) faint ones stayed, and at 0.1 (568) they are gone.
    */
   const PHASE_TURN: { arm?: number; leg?: number } = { arm: 0.1, leg: 0.2 };
+
+  /**
+   * Where the arm's face ends, mm along its course, and the hand's family (`AutoMovieHumanF1Hand`, from 448) takes over across `WRIST`.
+   * The arm family's one knuckle turn (half 10) drew the hand's back as two flat-bottomed valleys and creased the palm; the hand's own turn
+   * (half 22) is fitted from 448, past the forearm's last level that a single section turn still follows, and the arm stops 3 mm before it
+   * so that the band starts on the arm's own surface, not on a ring the hand's fit also claims.
+   */
+  const ARM_TO_MM: number = 445;
+
+  /**
+   * The band joining the arm's end to the hand (`IAutoMovieConstructionContinuation.band`): its rail into the hand, mm, its columns and its
+   * rows. The rail, 10 mm, puts the hand's ring at 458, past the fit's first knot interval (448 to 468 at its 10 mm midpoint), so the band
+   * meets the hand where its sections are fitted, not at their free start. 256 columns space the wrist's 165 mm girth 0.65 mm apart, finer
+   * than either face's phases there (`PHASE_TURN.arm`), and 12 rows space the 13 mm span about 1.1 mm apart, as the fingers' bands.
+   */
+  const WRIST: { rail: number; count: number; rows: number } = { rail: 10, count: 256, rows: 12 };
 
   /** Chord of the thumb's blend on either side of the curve where it meets the hand, mm: at 1 mm it folds in the acute web beside the index finger. */
   const THUMB_CHORD_MM: number = 0.5;
@@ -871,7 +892,7 @@ export namespace AutoMovieHumanF1 {
    */
   export function fanSeams(which: "arm" | "leg"): { station: number; seams: [number, number][]; headings: [number, number, number][]; normal: number[]; up: number[] } {
     const J = AutoMovieHumanF1Joints;
-    const family: AutoMovieHumanConicLoft.IFamily = { ...BODY[which], tips: undefined };
+    const family: AutoMovieHumanConicLoft.IFamily = { ...(which === "arm" ? BODY.hand : BODY.leg), tips: undefined };
     const station: number = family.knots.at(-1)!;
     const sub = (a: number[], b: number[]): number[] => [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
     const [a, b]: number[][] = [sub(J.index1, J.hand), sub(J.pinky1, J.hand)];
@@ -929,9 +950,9 @@ export namespace AutoMovieHumanF1 {
    */
   export function construction(layer: number = LAYER_MM): IConstruction {
     const sources: Map<string, IAutoMovieViewPart> = new Map();
-    const leaf = (family: AutoMovieHumanConicLoft.IFamily, fine: number = -Infinity, close: number = WEB_LAYER_MM, pitch: number = layer, dome: number = Infinity): AutoMovieConstructionNode => {
+    const leaf = (family: AutoMovieHumanConicLoft.IFamily, fine: number = -Infinity, close: number = WEB_LAYER_MM, pitch: number = layer, until: number = Infinity, dome: number = Infinity): AutoMovieConstructionNode => {
       const from: number = family.knots[0]!;
-      const to: number = family.knots.at(-1)!;
+      const to: number = Math.min(family.knots.at(-1)!, until);
       const count: number = Math.ceil((to - from) / pitch) + 1;
       const even: number[] = Array.from({ length: count }, (_: unknown, i: number): number => from + ((to - from) * i) / (count - 1));
 
@@ -1049,7 +1070,8 @@ export namespace AutoMovieHumanF1 {
       // The limb's end stays open and is split into its knuckled digits (`FANS`); the thumb is merged onto the hand's side first, as a
       // capsule closed `ROOT_MM` behind its first joint, inside the hand.
       const fanned: IFan = FANS[which];
-      const leaned: AutoMovieHumanConicLoft.IFamily = { ...BODY[which], tips: [BODY[which].tips![0], null], ...(PHASE_TURN[which] === undefined ? {} : { turn: PHASE_TURN[which] }) };
+      const own: AutoMovieHumanConicLoft.IFamily = which === "arm" ? BODY.hand : BODY.leg;
+      const leaned: AutoMovieHumanConicLoft.IFamily = { ...own, tips: [which === "arm" ? null : own.tips![0], null], ...(PHASE_TURN[which] === undefined ? {} : { turn: PHASE_TURN[which] }) };
       const family: AutoMovieHumanConicLoft.IFamily = side > 0 ? leaned : twin(leaned);
       let node: AutoMovieConstructionNode = leaf(family);
       for (const digit of DIGITS.filter((d: IDigit): boolean => d.limb === which && !d.knuckle)) {
@@ -1112,7 +1134,16 @@ export namespace AutoMovieHumanF1 {
         rows: fanned.rows,
         children: children as IAutoMovieConstructionSplit["children"],
       };
-      return { node, face: family.name };
+      if (which === "leg") return { node, face: family.name };
+
+      // The arm ends open before the wrist (`ARM_TO_MM`) and the hand, a family of its own on a wider knuckle turn, continues it across a
+      // band (`WRIST`), since the two families' sections need not share one ring.
+      const arm: AutoMovieHumanConicLoft.IFamily = { ...BODY.arm, tips: [BODY.arm.tips![0], null], ...(PHASE_TURN.arm === undefined ? {} : { turn: PHASE_TURN.arm }) };
+      const armFamily: AutoMovieHumanConicLoft.IFamily = side > 0 ? arm : twin(arm);
+      return {
+        node: { type: "continue", name: "wrist." + armFamily.name, host: leaf(armFamily, -Infinity, WEB_LAYER_MM, layer, ARM_TO_MM), hostFace: armFamily.name, hostEnd: "top", part: node, partFace: family.name, partEnd: "bottom", band: { rail: WRIST.rail / 1000, count: WRIST.count, rows: WRIST.rows, correspondence: "length" } },
+        face: armFamily.name,
+      };
     };
 
     // The trunk's section chart has +u forward and +v to +Z, so the seam from phase 0 to pi gives the first child the +Z half of the end.
@@ -1120,7 +1151,7 @@ export namespace AutoMovieHumanF1 {
     let root: AutoMovieConstructionNode = {
       type: "split",
       name: "crotch",
-      host: leaf(BODY.trunk, -Infinity, WEB_LAYER_MM, layer, CROWN_MM),
+      host: leaf(BODY.trunk, -Infinity, WEB_LAYER_MM, layer, Infinity, CROWN_MM),
       hostFace: trunk,
       hostEnd: "bottom",
       seam: [0, Math.PI],
