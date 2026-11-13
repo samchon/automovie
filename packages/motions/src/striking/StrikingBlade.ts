@@ -268,7 +268,23 @@ export namespace StrikingBlade {
     // every goal of the stroke, so the fit stays on one side of its choices
     // from the entry hold to the return. Built on first use, since the body
     // an advance leaves is read from the plan's own base.
+    // The elbow's hint is anchored there too: solved once at the decisive
+    // pose and carried on the chest from the shoulder, since a hint solved
+    // anew at each instant jumped by 0.24 m inside one 1/48 s step and
+    // swapped the arm's configuration by itself.
     let anchored: IHumanPosture.IReference | undefined;
+    let hint: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+    const carried = (posture: IHumanPosture): IAutoMovieVector3 => {
+      reference();
+      const bones: ReturnType<typeof HumanTrunk.resolve> = HumanTrunk.resolve(
+        body,
+        posture,
+      );
+      return Vector3.add(
+        bones.get(`${tool.side}UpperArm`)!.worldPosition,
+        Quaternion.rotateVector(bones.get("chest")!.worldRotation, hint),
+      );
+    };
     const reference = (): IHumanPosture.IReference => {
       if (anchored !== undefined) return anchored;
       const stood: IHumanPosture = turned(
@@ -282,15 +298,24 @@ export namespace StrikingBlade {
         stroke.back,
         { x: 0, y: 0, z: 0 },
       );
+      const elbow: IAutoMovieVector3 = bend(stood, tool.side, goal);
+      const bones: ReturnType<typeof HumanTrunk.resolve> = HumanTrunk.resolve(
+        body,
+        stood,
+      );
+      hint = Quaternion.rotateVector(
+        Quaternion.inverse(bones.get("chest")!.worldRotation),
+        Vector3.subtract(
+          elbow,
+          bones.get(`${tool.side}UpperArm`)!.worldPosition,
+        ),
+      );
       anchored = resolveHumanPosture.reference(
         resolveHumanPosture(body, {
           ...stood,
           limbs: {
             ...stood.limbs,
-            [`${tool.side}Arm`]: {
-              ...goal,
-              bend: bend(stood, tool.side, goal),
-            },
+            [`${tool.side}Arm`]: { ...goal, bend: elbow },
           },
         }),
         `${tool.side}Arm`,
@@ -323,7 +348,7 @@ export namespace StrikingBlade {
           ...posture.limbs,
           [`${tool.side}Arm`]: {
             ...first,
-            bend: bend(posture, tool.side, first),
+            bend: carried(posture),
             reference: { ...reference(), weight: present(t) },
           },
         };
