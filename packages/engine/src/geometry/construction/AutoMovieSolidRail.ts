@@ -161,6 +161,7 @@ export namespace AutoMovieSolidRail {
    * @param mode How the part's rail leaves the curve.
    * @returns The explanation; `rail` is what `at` returns.
    *
+   * @evidence contracts/development/common.md#meaningful-documentation States that it returns what `at` returns together with the quantities read and the premise a refusal failed, with each parameter's unit and meaning.
    * @evidence contracts/development/implementation.md#principled-implementation The single rail solve, its every early return naming the checked premise it failed.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure `at` reads this one evaluator, so a reported refusal is the solve's own and not a reconstruction.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Records the quantities without changing any of them, and adds no tolerance.

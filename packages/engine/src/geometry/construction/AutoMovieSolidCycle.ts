@@ -47,6 +47,14 @@ export namespace AutoMovieSolidCycle {
      * For a winding cycle sampled from an exact curve `u = along(v)` of this chart: the curve's station at a phase. A segment whose two
      * stored vertices both lie on it (`along(v) === u` at each, as the builder evaluated them) is read along the curve between them, not
      * as the chord through them; a vertex inserted later off the curve leaves its segments read as chords. Absent, every segment is a chord.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States which chart the curve is in, which segments read it, and what an inserted off-curve vertex or an absent curve leaves as chords.
+     * @evidence contracts/development/implementation.md#principled-implementation The kept edge is the exact curve the neighbouring band ends on (a port's curved rail), so the two faces share one edge instead of a chord standing off it by its sagitta.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One optional reader on the cycle; kept tests read it only on segments whose both stored vertices lie on it, and every other reader keeps the chords.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Adds no tolerance or widened boundary: a segment off the curve is read exactly as before.
+     * @evidence contracts/development/implementation.md#efficient-algorithms One evaluation per kept test on a qualifying segment, in place of the chord's interpolation.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The builder passes the same rail function that placed the cycle's vertices and the band's column ends.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The cycle holds the builder's function for its own lifetime; copies share it and retain nothing else.
      */
     along?: (v: number) => number;
   }
