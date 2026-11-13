@@ -56,6 +56,11 @@ catalogs:
     chalk: 4.1.2
     rimraf: ^6.0.1
     tinyglobby: ^0.2.17
+# Nextra 4.6 validates its layout's props after taking `children` out of them,
+# which zod 4.1 accepts and later zod 4 releases refuse as a missing key.
+overrides:
+  "nextra>zod": 4.1.12
+  "nextra-theme-docs>zod": 4.1.12
 allowBuilds:
   esbuild: true
   ffmpeg-static: true

@@ -1,0 +1,14 @@
+{
+  // The program `pnpm typecheck` checks with ttsc: the site's own sources
+  // under `tsconfig.json`'s options, without Next's editor plugin, which ttsc
+  // does not load, and without `next-env.d.ts`, which points into the `.next`
+  // folder a build writes.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "plugins": [],
+    "incremental": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  },
+  "include": ["src", "next.config.ts", "mdx-components.tsx"]
+}
