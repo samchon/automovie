@@ -169,9 +169,39 @@ The chain method takes the parameters the row leaves open.
 **A law** is for an action that owns what no shipped action plans: a change of base, an outcome between performers, a planner of its own. It is a record satisfying `IHumanActionLaw<Params>`: a `name`, the cuts it allows (`interrupts`, and `accepts` for what may be cut into it) and a `plan`, composed from the kernel the vocabulary uses (a clock, a base and part primitives passed to `composeAutoMovieMotionHumanAction`). It is registered the same way.
 
 A registered name never replaces a vocabulary name, and registering changes no other action's motion.
+
 ## Lexicon
 
-Named rows over the shipped actions, ready to register: emblems, habits, stances, gaits, pursuit, social acts, stage fighting, drills, blades, firearms, labour, riding and being carried. Each family is a namespace (`HumanEmblem`, `HumanGait` and so on), and `HUMAN_LEXICON` lists every family's rows as data. A row leaves open only what the scene decides: a target, a partner, a destination.
+Named rows over the shipped actions, ready to register. Each family reads one or more namespaces, `HUMAN_LEXICON` lists every family's rows as data, and `HUMAN_LEXICON_SCHEMAS` gives each row's parameters as a JSON schema. A row leaves open only what the scene decides: a target, a partner, a destination.
+
+| Family | Namespaces |
+| --- | --- |
+| `emblem` | `HumanEmblem` |
+| `habit` | `HumanHabit` |
+| `stance` | `HumanStance` |
+| `pose` | `HumanPose` |
+| `gait` | `HumanGait`, `HumanTravelDoor`, `HumanTravelCar`, `HumanTravelLeaf` |
+| `pursuit` | `HumanPursuit` |
+| `social` | `HumanSocial`, `HumanPartner` |
+| `stageFight` | `HumanStageFight` |
+| `drill` | `HumanDrill` |
+| `blade` | `HumanBlade` |
+| `firearm` | `HumanFirearm` |
+| `labour` | `HumanLabour` |
+| `ride` | `HumanRide` |
+| `carried` | `HumanCarried` |
+| `sport` | `HumanSport` |
+| `sportGym` | `HumanSportGym` |
+| `sportCarry` | `HumanSportCarry` |
+| `sportSwing` | `HumanSportSwing` |
+| `sportThrow` | `HumanSportThrow` |
+| `sportWorkout` | `HumanSportWorkout` |
+| `gymnastics` | `HumanGymnastics` |
+| `floorRoll` | `HumanFloorRoll` |
+| `floorFall` | `HumanFloorFall` |
+| `sword` | `HumanSword`, `HumanSwordGuard`, `HumanSwordParry`, `HumanSwordThrust` |
+| `weaponFirearm` | `HumanWeaponFirearm` |
+| `weaponMelee` | `HumanWeaponMelee` |
 
 ```ts
 const { salute } = HumanEmblem;
@@ -184,6 +214,7 @@ new HumanPerformance({
   composition: Chain.subject("a").salute().slap({ target: { kind: "person", subject: "b", region: "jawLeft" } }).node,
 });
 ```
+
 ## Refusals
 
 A composition the vocabulary cannot perform throws a `HumanRefusal` when the performance is built. It names the performer, the action and its occurrence, the axis at fault, the value given, what the axis accepts and one sentence saying what to change, as fields and in its message:
@@ -223,7 +254,7 @@ const lean = HumanSignature.trunk(reader, 1.5) - HumanSignature.trunk(reader, 0)
 
 | Export | Purpose |
 | --- | --- |
-| `HumanChain` | One typed method per action, `act` for an action by name, `until` to interrupt, `over` for two things at once, `sync` to time, `with` and `pair` for several people, `extend` for registered actions. |
+| `HumanChain` | One typed method per action, `act` for an action by name, `until` to interrupt, `over` for two things at once, `sync` to time, `with`, `pair` and `mutual` for several people, `extend` for registered actions. |
 | `HumanActionRow`, `HumanCue` | A registered row of a shipped action; the cue tracks of speech and music. |
 | `HumanMutual`, `HumanObject` | The vocabulary's mutual actions; an object's affordances as a seat or a prop. |
 | `HumanPerformance` | Places a composition and samples it: `pose`, `posture`, `bones`, `prop`, `segments` and `aim`. It refuses a composition that breaks a law or a rule you pass in. |
@@ -231,6 +262,8 @@ const lean = HumanSignature.trunk(reader, 1.5) - HumanSignature.trunk(reader, 0)
 | `HumanVerdicts`, `HumanSignature` | The physical bounds of a performance, and the kinematic readings a unit test asserts. |
 | `createHumanBody` | Derives a person's body from a canonical skeleton and contact profile. |
 | `HUMAN_ACTIONS` | The table of action laws by name. |
+| `HUMAN_LEXICON`, `HUMAN_LEXICON_SCHEMAS` | The lexicon's rows by family, and each row's parameters as a JSON schema. |
+| `HUMAN_GRAMMAR` | The composition grammar as data: the axes an action is decided on and the operators that join actions. |
 | `HUMANOID_GAITS`, `HUMANOID_PROFILE` | The humanoid gait tables for the engine's gait motion. |
 
 Props, additive layers such as breathing and gaze, and the kickboxing rules are exported from the package root. Each action's JSDoc names its source in the motor-control, gait or sports literature and marks the values that are provisional.
