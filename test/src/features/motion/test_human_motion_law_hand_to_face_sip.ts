@@ -22,13 +22,14 @@ import { motionHumanLawHandToFace } from "../internal/motionHumanLawHandToFace";
  * 4. Both hands end within 10 mm of where they began.
  * 5. A one-hand task leaves the idle hand within 80 mm of its place; the
  *    two-hand wash keeps each elbow on its own side of the median plane.
- * 6. Drinking and sipping hold the cup's axis within 10 degrees of
- *    vertical at the mouth on four bodies of the population.
+ * 6. Drinking and sipping tip the cup at the mouth toward the face and no
+ *    more than the lean the law asked plus one search step, on four bodies
+ *    of the population.
  * 7. Reading flexes the neck and head 33 to 45 degrees at the sheet.
  * 8. The left-hand task mirrors the right-hand task within 5 mm.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Performs the real law through the chain and reads displayed bones; an arm through the chest, an elbow that flips, a tilted cup or a hand that does not return fails with its measured number.
- * @evidence contracts/development/testing.md#independent-expectations Each bound is a physical requirement, a cited range or the mirror symmetry of the body, stated in the checker's document; none is read from the law.
+ * @evidence contracts/development/testing.md#behavioral-verification Performs the real law through the chain and reads displayed bones; an arm through the chest, an elbow that flips, a cup tipped away from the face or past its asked lean, or a hand that does not return fails with its measured number.
+ * @evidence contracts/development/testing.md#independent-expectations Each bound is a physical requirement, a cited range or the mirror symmetry of the body, stated in the checker's document; none is read from the law but the cup's asked lean, the drinking arm's answer that the cup's shown lean is held to.
  * @evidence contracts/development/testing.md#distinguishing-cases One row of the law's table; its siblings `test_human_motion_law_hand_to_face_*` hold the others.
  * @evidence contracts/development/testing.md#execution-ownership In memory; slow because fitting an arm on the body costs a second a frame, so the table is split one task per spec; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the task, why it stands alone and the 8 scenarios with their bounds.

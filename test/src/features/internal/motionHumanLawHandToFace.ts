@@ -2,10 +2,12 @@ import { Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanAuditDifference,
+  AutoMovieMotionHumanTouchDrink,
   AutoMovieMotionHumanTouchEffector,
   HumanChain,
   HumanSegment,
@@ -42,9 +44,19 @@ import { motionHumanLaw } from "./motionHumanLaw";
  * 6. A two-hand task keeps each elbow on its own side of the body's
  *    median plane, read through the chest's joint, from the arrival to the
  *    leave.
- * 7. Drinking and sipping hold the cup level at the mouth: the thumb's
- *    axis within 10 degrees of world up (Mayer and Krechetnikov 2012), on
- *    every body of the population sample.
+ * 7. Drinking and sipping tip the cup toward the lips only as much as the
+ *    arm needs, on every body of the population sample: at the mouth the
+ *    cup's axis (the row's effector's along axis in the hand, the axis of
+ *    the cylinder the fist holds) leans with its top toward the face (the
+ *    performer faces +Z, so its Z part is at most the sine of 1 degree) and
+ *    no more than the lean the law asked plus one
+ *    `AutoMovieMotionHumanTouchDrink.LEAN_STEP`, the asked lean read as that
+ *    axis carried by the hand rotation the arm was asked for. A cup held
+ *    level at the lips asks the elbow up to the shoulder's height, and a
+ *    drinker tips the cup at the lips with the elbow low (Murphy, Willén and
+ *    Sunnerhagen 2011), so the lean is the drinking arm's answer and not a
+ *    fixed angle; `test_human_motion_prop_held_attitude` bounds a held glass
+ *    the same way.
  * 8. Reading flexes the neck and head 33 to 45 degrees from the upright
  *    entry at the sheet (Lee et al. 2015).
  * 9. The left-hand task is the right-hand task mirrored in the median
@@ -55,7 +67,7 @@ import { motionHumanLaw } from "./motionHumanLaw";
  * @returns One complaint per expectation that does not hold, with its measured numbers (an elbow's travel and the mirror also with the task's events in film seconds); empty when the task is right.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists every expectation with its bound and where the bound comes from.
- * @evidence contracts/development/implementation.md#principled-implementation Each expectation is a physical requirement, a cited range or a symmetry, read off displayed bones; none is the law's own goal.
+ * @evidence contracts/development/implementation.md#principled-implementation Each expectation is a physical requirement, a cited range or a symmetry, read off displayed bones; none is the law's own goal but the cup's lean at the mouth, bounded by the lean the law asked plus one search step, since that lean is the drinking arm's answer (Murphy et al. 2011) and not a fixed angle.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One film, then one block per expectation.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every expectation is evaluated and reported; none stops the others.
  * @evidence contracts/development/implementation.md#efficient-algorithms Every expectation on the grid reads the film's remembered frames; the population check resolves one instant per body.
@@ -197,23 +209,34 @@ export function motionHumanLawHandToFace(
       "f-small",
       "m-large",
     ] as const) {
+      const subject: IHumanBody = who === name ? body : motionHumanBody(who);
       const shown: motionHumanLaw.IFilm =
-        who === name ? film : perform(motionHumanBody(who), "right");
-      const thumb: IAutoMovieVector3 = Quaternion.rotateVector(
-        shown.bones("a", motionHumanLaw.event(shown, row.at)).get("rightHand")!
-          .worldRotation,
-        AutoMovieMotionHumanTouchEffector.axis("right", "thumb"),
+        who === name ? film : perform(subject, "right");
+      const seconds: number = motionHumanLaw.event(shown, row.at);
+      const cup: IAutoMovieVector3 = AutoMovieMotionHumanTouchEffector.local(
+        subject,
+        "right",
+        row.effector,
+      ).forward;
+      const off = (rotation: IAutoMovieQuaternion): IAutoMovieVector3 =>
+        Quaternion.rotateVector(rotation, cup);
+      const from = (direction: IAutoMovieVector3): number =>
+        (Math.acos(Math.min(1, Math.max(-1, direction.y))) * 180) / Math.PI;
+      const hand: IAutoMovieQuaternion = shown
+        .bones("a", seconds)
+        .get("rightHand")!.worldRotation;
+      const axis: IAutoMovieVector3 = off(hand);
+      const asked: number = from(
+        off(
+          shown.performance.posture("a", seconds).limbs.rightArm?.rotation ??
+            hand,
+        ),
       );
-      const tilt: number =
-        (Math.acos(
-          Math.min(1, thumb.y / Math.hypot(thumb.x, thumb.y, thumb.z)),
-        ) *
-          180) /
-        Math.PI;
+      const step: number = AutoMovieMotionHumanTouchDrink.LEAN_STEP;
       out.push(
         ...motionHumanLaw.expect(
-          `${task} ${who}: the cup's axis is ${tilt.toFixed(1)} deg off vertical at ${row.at} (limit 10.0)`,
-          tilt <= 10,
+          `${task} ${who}: the cup's axis leans ${from(axis).toFixed(1)} deg at ${row.at} with its top ${axis.z <= 0 ? "toward" : "away from"} the face, toward it (Z at most the sine of 1 deg) and at most the asked ${asked.toFixed(1)} plus ${step} expected`,
+          axis.z <= Math.sin(Math.PI / 180) && from(axis) <= asked + step,
         ),
       );
     }
