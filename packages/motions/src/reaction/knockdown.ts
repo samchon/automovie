@@ -23,6 +23,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingBody } from "../striking/StrikingBody";
 import type { StrikingContact } from "../striking/StrikingContact";
 import { StrikingTarget } from "../striking/StrikingTarget";
+import { ReactionSource } from "./ReactionSource";
 
 /**
  * A knockdown: the legs give way and the body goes down away from the blow,
@@ -168,7 +169,7 @@ export namespace knockdown {
     const heading = (): number => {
       if (cached !== undefined) return cached;
       const away: IAutoMovieVector3 = AutoMovieMotionHumanTarget.away(
-        AutoMovieMotionHumanTarget.resolve(
+        ReactionSource.at(
           context,
           context.params.from,
           context.start - StrikingTarget.LOOK,

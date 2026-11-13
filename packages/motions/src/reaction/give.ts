@@ -25,6 +25,7 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingTarget } from "../striking/StrikingTarget";
+import { ReactionSource } from "./ReactionSource";
 
 /**
  * Giving way to a contact: the head turned aside by a slap, or the trunk
@@ -143,7 +144,7 @@ export namespace give {
       HumanFrame.local(
         { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
         AutoMovieMotionHumanTarget.away(
-          AutoMovieMotionHumanTarget.resolve(
+          ReactionSource.at(
             context,
             p.from,
             context.start - StrikingTarget.LOOK,
