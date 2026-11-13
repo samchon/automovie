@@ -338,21 +338,19 @@ export namespace HumanWeaponFirearm {
       const carriage: Carriage = p.carriage ?? "aim";
       const pose: StrikingHeld.IHandFrame = ((): StrikingHeld.IHandFrame => {
         if (carriage === "aim") {
-          // The muzzle on the line from the eye to the target, the arms out
-          // (a handgun) or the butt drawn in to the shoulder (a long gun).
+          // The bore on the line from the eye to the target, the arms out
+          // (a handgun) or the butt drawn in to the shoulder (a long gun);
+          // the pose is chosen and judged by both ends of the bore.
           const sight: IAutoMovieVector3 = Vector3.normalize(
             Vector3.subtract(target, eye),
           );
           return StrikingRoll.hand(
             context,
             s.tool,
-            0,
+            s.tool.length,
             Vector3.add(
               eye,
-              Vector3.scale(
-                sight,
-                (s.long ? 0.3 : 0.7) * s.arm + s.tool.length,
-              ),
+              Vector3.scale(sight, (s.long ? 0.3 : 0.7) * s.arm),
             ),
             sight,
             0,
@@ -381,7 +379,7 @@ export namespace HumanWeaponFirearm {
         context,
         s.tool,
         pose,
-        carriage === "aim" ? 0 : s.tool.length,
+        s.tool.length,
         bladed,
         "face the target, or present the weapon at a ready position",
       );
