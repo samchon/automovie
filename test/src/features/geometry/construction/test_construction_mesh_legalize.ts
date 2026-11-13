@@ -74,6 +74,10 @@ interface Case {
  * 7. Curled plane: `(u, v + 0.02 (u - 2)^2, 0)` on unit cells, untrimmed,
  *    whose shear changes sign at `u = 2` and stays under 0.08: all sixteen
  *    nearly square cells are cut alike.
+ * 8. Mirror: the plane `(u, v + 0.02 (u - 1)^2, 0)` and its mirror image
+ *    charted with its phases reversed, as a mirrored family is, every cell
+ *    nearly square: the two faces emit mirror-image triangles (32 of 32 had
+ *    none while undecided cells kept their chart's first corner).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls AutoMovieSolidMesh.face on five analytic charts and reads only emitted indices, positions and owner coordinates: world normals against the analytic outward normal, chart in-circle signs over shared edges and full cells' diagonals, which diagonal each cell of the curled plane takes, rail-edge use, chart area and repeated output.
  * @evidence contracts/development/testing.md#independent-expectations The sheared plane's world-inverted rail triangles follow from the smile's two curvatures, `v''` against `v'' + 2c`; each quadrilateral's metric is fitted here from the emitted chart and skin points of its four vertices, not read from the engine (the analytic forms behind them: plane `E = 1 + 4 c^2 u^2`, `F = 2 c u`, `G = 1`; cylinder `G` 2500; flared tube `G = (20 + u)^2`, `E` 2; twisted cylinder `E` 2, `F` 50, `G` 2500); areas are the domain minus the hole's shoelace area and the trapezoids under the wavy rail; the in-circle determinant is evaluated here in floating point, not by the engine predicate.
@@ -85,6 +89,7 @@ export function test_construction_mesh_legalize(): void {
   const failures: string[] = [];
   for (const input of [plane(), cylinder(), flare(), twisted()]) inspect(input, failures);
   curled(failures);
+  mirrored(failures);
   exactness(failures);
   if (failures.length > 0)
     throw new Error(
@@ -325,6 +330,51 @@ function curled(failures: string[]): void {
   for (const u of [0, 1, 2, 3])
     for (const v of [0, 1, 2, 3]) cuts.push(edges.has(`${u},${v}/${u + 1},${v + 1}`) ? "first" : edges.has(`${u + 1},${v}/${u},${v + 1}`) ? "other" : "neither");
   if (new Set(cuts).size !== 1 || cuts[0] === "neither") failures.push(`curled plane: its sixteen nearly square cells are cut ${JSON.stringify(cuts)}, not alike`);
+}
+
+/**
+ * Scenario 8: the plane `(u, v + 0.02 (u - 1)^2, 0)` over `[0, 4]^2` on unit cells, and its mirror image charted as a mirrored family is:
+ * `(u, -(4 - v) - 0.02 (u - 1)^2, 0)`, the reflection `y -> -y` of the first at phase `4 - v`, so its phases run the other way. Every cell
+ * is nearly square, so neither split is clearly flatter; the two faces must emit mirror-image triangles. Cut at their first corners, the
+ * mirror's first corner is the original's other one, and every cell was cut the other way.
+ */
+function mirrored(failures: string[]): void {
+  const c: number = 0.02;
+  const plain: IAutoMovieSolidSurface = {
+    name: "sheared plane",
+    orientation: 1,
+    jet: (u: number, v: number): IAutoMovieSolidSurface.IJet => ({ p: [u, v + c * (u - 1) * (u - 1), 0], u: [1, 2 * c * (u - 1), 0], v: [0, 1, 0], uu: [0, 2 * c, 0], uv: [0, 0, 0], vv: [0, 0, 0] }),
+  };
+  const mirror: IAutoMovieSolidSurface = {
+    name: "sheared plane's mirror",
+    orientation: 1,
+    jet: (u: number, v: number): IAutoMovieSolidSurface.IJet => ({ p: [u, -(4 - v) - c * (u - 1) * (u - 1), 0], u: [1, -2 * c * (u - 1), 0], v: [0, 1, 0], uu: [0, -2 * c, 0], uv: [0, 0, 0], vv: [0, 0, 0] }),
+  };
+  const grid: number[] = [0, 1, 2, 3, 4];
+  const triangles = (surface: IAutoMovieSolidSurface, flip: boolean): Set<string> | string => {
+    const made: AutoMovieSolidMesh.IMesh | string = build({ name: surface.name, surface, stations: grid, phases: grid, loops: [], area: 16, side: (): boolean => true });
+    if (typeof made === "string") return made;
+    const out: Set<string> = new Set();
+    for (let t: number = 0; t < made.indices.length; t += 3)
+      out.add(
+        [0, 1, 2]
+          .map((k: number): string => {
+            const id: number = made.indices[t + k]!;
+            return `${made.positions[3 * id]!.toFixed(9)},${((flip ? -1 : 1) * made.positions[3 * id + 1]!).toFixed(9)}`;
+          })
+          .sort((x: string, y: string): number => (x < y ? -1 : x > y ? 1 : 0))
+          .join("/"),
+      );
+    return out;
+  };
+  const one: Set<string> | string = triangles(plain, false);
+  const two: Set<string> | string = triangles(mirror, true);
+  if (typeof one === "string" || typeof two === "string") {
+    failures.push(`mirror: ${typeof one === "string" ? one : two}`);
+    return;
+  }
+  const missing: number = [...one].filter((key: string): boolean => !two.has(key)).length;
+  if (missing !== 0 || one.size !== two.size) failures.push(`mirror: ${missing} of ${one.size} triangles have no mirror image in the mirrored chart's face`);
 }
 
 /** Build one face and record every finding. */
