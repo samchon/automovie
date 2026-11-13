@@ -376,8 +376,12 @@ namespace FamilyConicBody {
     return Math.min(nose(p), p[0] - (113 + 9 * t * t * (3 - 2 * t) + NOSE_FLOOR_MM[0] * (1 - f * f * (3 - 2 * f))));
   }
 
-  /** How far forward the nose's frontal plane stands at its box's floor, mm, and over how much height it comes back, mm (`noseCut`). */
-  const NOSE_FLOOR_MM: [number, number] = [12, 6];
+  /**
+   * How far forward the nose's frontal plane stands at its box's floor, mm, and over how much height it comes back, mm (`noseCut`). At 12 mm
+   * the plane stood at 125 mm at the floor and still cut the columella and the wings (to 131.9 mm), and a level line stayed across the upper
+   * lip at 1,543 mm; at 20 mm nothing of the nose is cut at the floor.
+   */
+  const NOSE_FLOOR_MM: [number, number] = [20, 8];
 
   /**
    * Where the head's nets are held on the wall under the ear, mm, positive inside: the ear's cut (`ear`) less the concha's bowl. Held over
@@ -1160,16 +1164,17 @@ namespace FamilyConicBody {
           // and whose casts grazed the jaw's side; cast round, the cheek, the jaw's side, the temple and the ear's root are one smooth net
           // of fewer heights. A cast that lands farther than `reach` is not observed: between the lips one slipped through to what lies
           // behind, 78 mm on, and dug a pit in the mouth.
-          // Both head nets end where the crown's cap starts and hand over to it over their last 12 mm: carried on over the cap, which is
+          // Both head nets end where the crown's cap starts and hand over to it over their last 30 mm (over 12 they still bent the wall just
+          // below the cap, which continues the plain wall's slope: a flat crown with a corner at the back of it, [-25, 1687, 31]): carried on over the cap, which is
           // meshed in rings round its pole, they drew concentric rings and a mottled ridge round the crown (folds of 13 degrees, none without
           // them). Over the ear's footprint (`ear`) both are held on the wall: casts there land in the ear's cut and are not observed, and the
           // nets carried the heights round it (up to 17 mm) under the ear, fitted for the old ear's band. With the hold the concha's cut on the
           // new ear loses its kept side (`cut.concha` trim), to be fixed on the held skin with the ear's owner.
-          { name: "trunk.head", stations: [620, 906], phases: [-Math.PI + 0.15, Math.PI - 0.15], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 59, columns: 109, mirror: true, reach: 35, fade: [30, 12], hold: earHeld },
+          { name: "trunk.head", stations: [620, 906], phases: [-Math.PI + 0.15, Math.PI - 0.15], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 59, columns: 109, mirror: true, reach: 35, fade: [30, 30], hold: earHeld },
           // The head's net is zero along its seam down the back, where the skin still lies inside the tape and a ridge stood; this window
           // over the back takes what the first leaves there. Its edges round the head hand over (`fadePhase`): with hard edges at 2.14 rad
           // they drew upright lines down the back of the head and behind each ear (`figure.back` px 400..500 x 160..230, `head.left` px 270..290).
-          { name: "trunk.head.back", stations: [620, 906], phases: [Math.PI - 1.0, Math.PI + 1.0], axis: [1, 0, 0], turn: [0, 0, 1], rows: 60, columns: 39, mirror: true, reach: 20, fade: [30, 12], fadePhase: [0.3, 0.3], hold: earHeld },
+          { name: "trunk.head.back", stations: [620, 906], phases: [Math.PI - 1.0, Math.PI + 1.0], axis: [1, 0, 0], turn: [0, 0, 1], rows: 60, columns: 39, mirror: true, reach: 20, fade: [30, 30], fadePhase: [0.3, 0.3], hold: earHeld },
           // Under the jaw the wall's knots stand 3 mm apart for the chin's step, and every field rippled with them: a ring 1.5 mm high
           // stood round the whole neck at that level, the nape included. A band 1.4 mm apart along the station, round the neck and again
           // over its back for the seam, takes the ring and follows the jaw's line where it rises to the sides. What stays is in front,
@@ -1193,7 +1198,7 @@ namespace FamilyConicBody {
           // The chin, which the sections leave out (`CHIN`): cast from the cone's wall forward and down at 45 degrees on the median line,
           // so the chin's front and the level skin under it are both seen at 45 degrees and the chin is one height over the wall. 1.4 mm a
           // row: at 0.95 (47 by 57) it drew the reference's facets over the chin as a checker.
-          { name: "chin", stations: [690, 734], phases: [-0.8, 0.8], axis: [-Math.SQRT1_2, Math.SQRT1_2, 0], turn: [0, 0, -1], skin: (p: R.V): number => Math.max(ear(p), noseCut(p)), rows: 33, columns: 41, reach: 30, mirror: true },
+          { name: "chin", stations: [690, 734], phases: [-0.8, 0.8], axis: [-Math.SQRT1_2, Math.SQRT1_2, 0], turn: [0, 0, -1], skin: (p: R.V): number => Math.max(ear(p), noseCut(p)), rows: 33, columns: 41, reach: 30, mirror: true, fade: [6, 6], fadePhase: [0.15, 0.15] },
           // The top of each shoulder, between the neck's muscle and the shoulder's point: the skin there faces up, a cast round the axis
           // grazes it, and it stood 2 to 4 mm full on both sides (`FamilyConicDeviation.ts`). A coarse net cast straight down takes it.
           // It lands only on skin that faces up within 37 degrees, as the sole's does: toward the window's sides the skin turns to face
