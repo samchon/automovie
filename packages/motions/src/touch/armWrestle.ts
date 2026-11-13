@@ -147,6 +147,37 @@ export namespace armWrestle {
     // The lean that puts the shoulder an upper arm from the elbow.
     const leaned = (pitch: number, posture: IHumanPosture): IHumanPosture =>
       gesture.bow(body, posture, pitch, 0);
+
+    // The palm faces this performer's own left, where the partner's palm is.
+    const across: IAutoMovieVector3 = Vector3.cross(
+      up,
+      Vector3.scale(own, -1),
+    );
+
+    // A posture with the arm asked onto the wrist's place at a turn, the
+    // elbow hinted onto the table.
+    const armed = (posture: IHumanPosture, degrees: number): IHumanPosture => {
+      const at: IAutoMovieVector3 = wrist(degrees);
+      return handGoals(body, posture, [
+        {
+          side,
+          surface: "wrist",
+          shape: "fist",
+          point: at,
+          rotation: HumanHand.rotation(side, {
+            fingers: Vector3.normalize(Vector3.subtract(at, elbow)),
+            palm: Vector3.normalize(
+              Vector3.cross(
+                Vector3.cross(Vector3.subtract(at, elbow), across),
+                Vector3.subtract(at, elbow),
+              ),
+            ),
+          }),
+          bend: elbow,
+        },
+      ]);
+    };
+
     const short = (pitch: number): number =>
       Vector3.length(
         Vector3.subtract(
@@ -216,11 +247,6 @@ export namespace armWrestle {
       context.entry.pose,
       side,
     );
-    // The palm faces this performer's own left, where the partner's palm is.
-    const across: IAutoMovieVector3 = Vector3.cross(
-      up,
-      Vector3.scale(own, -1),
-    );
     return {
       duration,
       events: [
@@ -249,31 +275,9 @@ export namespace armWrestle {
                   (PIN - SWAY * Math.sin((2 * Math.PI * struggle) / 1.5)) *
                     minimumJerk((t - turn) / (pin - turn)).s
                 : PIN;
-        const at: IAutoMovieVector3 = wrist(degrees);
-        const posture: IHumanPosture = leaned(
-          pitch * envelope,
-          base.posture(t),
-        );
         return AutoMovieMotionHumanArm.carry(
           body,
-          handGoals(body, posture, [
-            {
-              side,
-              surface: "wrist",
-              shape: "fist",
-              point: at,
-              rotation: HumanHand.rotation(side, {
-                fingers: Vector3.normalize(Vector3.subtract(at, elbow)),
-                palm: Vector3.normalize(
-                  Vector3.cross(
-                    Vector3.cross(Vector3.subtract(at, elbow), across),
-                    Vector3.subtract(at, elbow),
-                  ),
-                ),
-              }),
-              bend: elbow,
-            },
-          ]),
+          armed(leaned(pitch * envelope, base.posture(t)), degrees),
           { right: begin },
           envelope,
         );
