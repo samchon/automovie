@@ -400,6 +400,14 @@ namespace FamilyConicBody {
    * them, so it is not a feature line of this course but the stations where the crease and the crest fade (`--feature-knots`).
    */
   const NOSE_WING_LINES: boolean = process.argv.includes("--nose-wing");
+  /**
+   * The vertical nose's admissibility margin (`IPart.margin`, `FamilyConicFit.ADMISSIBLE_MARGIN`): at the default 0.1 of each arc's chord
+   * its fit came to 2.41 mm against 0.86 without one, since a fading feature's arcs lie nearly on their chords. What a margin must cover is
+   * the drift of `a` and `b` between the fitted and the stored, realized family: the stored rounding (0.01 mm over the shortest feature
+   * arcs, about 1 mm, is 0.01 of the chord; 1e-4 rad of heading is less) and the engine's spline between the 0.25 mm stations the fit
+   * checks. 0.02 is twice the rounding's worst.
+   */
+  const NOSE_MARGIN: number = Number(process.argv.find((a: string): boolean => a.startsWith("--nose-margin="))?.slice(14) ?? 0.02);
   const NOSE_WING: C.ILayout = C.featured(C.bilateral(NOSE_DEPTH), [
     {
       after: 0,
@@ -410,6 +418,9 @@ namespace FamilyConicBody {
         { kind: "f", feature: "convex", window: [0.1, 0.8] },
         { kind: "f", feature: "inflection", window: [0.2, 0.8] },
         { kind: "f", feature: "concave", window: [0.3, 0.95] },
+        // The skin's corner into the guided closure (`FamilyConicExcursion.IPart.guided`): the closure leaves the skin along its direction
+        // and bends outward to its side extreme, so the corner is an inflection with its own tangent, between the turn and the guide.
+        { kind: "f", feature: "inflection", window: [0.2, 1] },
       ],
     },
   ]);
@@ -894,7 +905,7 @@ namespace FamilyConicBody {
         // `--nose-vertical`: the nose cut out of the face's level sections as an excursion (`FamilyConicExcursion.ts nose`), on a course down
         // the median plane 11 mm in front of x 100, which every level section but the nostrils' is star-shaped about (scratch kernel probe),
         // fitted to its skin as a half with the supra-alar crease as a groove after the tip's extreme, and closed under the columella.
-        ...(NOSE_VERTICAL ? [{ name: "nose", centres: [[111, 1590, 0], [111, 1536, 0]] as R.V[], course: "[J.noseTop, J.noseBottom]", halves: [], up: [1, 0, 0] as R.V, domain: [8.5, 47.5] as [number, number], head: true, step: 1, gap: 3, tip: 50, covered: true, mirrored: false, excursion: "nose", skin: "outer" as const, layouts: [{ layout: NOSE_WING_LINES ? NOSE_WING : NOSE_FEATURES ? C.featured(C.bilateral(NOSE_DEPTH), [{ after: 0, anchors: [{ kind: "f", feature: "inflection", window: [0.15, 0.55] }, { kind: "f", feature: "concave", window: [0.3, 0.75] }, { kind: "f", feature: "inflection", window: [0.5, 0.9] }] }, ...(process.argv.includes("--nose-root-groove") ? [{ after: 2, anchors: [{ kind: "f" as const, feature: "inflection" as const, window: [0.1, 0.45] as [number, number] }, { kind: "f" as const, feature: "concave" as const, window: [0.25, 0.65] as [number, number] }, { kind: "f" as const, feature: "inflection" as const, window: [0.45, 0.85] as [number, number] }] }] : [])]) : C.inflected(NOSE_DEPTH, NOSE_GROOVES ?? [0], C.bilateral(NOSE_DEPTH)), depth: NOSE_DEPTH }], reliefs: [] as IWindow[] }] : []),
+        ...(NOSE_VERTICAL ? [{ name: "nose", centres: [[111, 1590, 0], [111, 1536, 0]] as R.V[], course: "[J.noseTop, J.noseBottom]", halves: [], up: [1, 0, 0] as R.V, domain: [8.5, 47.5] as [number, number], head: true, step: 1, gap: 3, tip: 50, covered: true, mirrored: false, excursion: "nose", skin: "outer" as const, margin: NOSE_MARGIN, layouts: [{ layout: NOSE_WING_LINES ? NOSE_WING : NOSE_FEATURES ? C.featured(C.bilateral(NOSE_DEPTH), [{ after: 0, anchors: [{ kind: "f", feature: "inflection", window: [0.15, 0.55] }, { kind: "f", feature: "concave", window: [0.3, 0.75] }, { kind: "f", feature: "inflection", window: [0.5, 0.9] }] }, ...(process.argv.includes("--nose-root-groove") ? [{ after: 2, anchors: [{ kind: "f" as const, feature: "inflection" as const, window: [0.1, 0.45] as [number, number] }, { kind: "f" as const, feature: "concave" as const, window: [0.25, 0.65] as [number, number] }, { kind: "f" as const, feature: "inflection" as const, window: [0.45, 0.85] as [number, number] }] }] : [])]) : C.inflected(NOSE_DEPTH, NOSE_GROOVES ?? [0], C.bilateral(NOSE_DEPTH)), depth: NOSE_DEPTH }], reliefs: [] as IWindow[] }] : []),
         { name: "nose", centres: [[108, 1556, 0], [140, 1556, 0]], course: "[J.noseRoot, J.noseTip]", halves: [], up: [0, 1, 0], domain: [5.5, 24], head: true, loose: true, step: 1, gap: 3, tip: 28, mirrored: false, layouts: NOSE_GROOVES === undefined ? LIMB : [{ layout: C.inflected(NOSE_DEPTH, NOSE_GROOVES, process.argv.includes("--nose-half") ? C.bilateral(NOSE_DEPTH) : C.limb(NOSE_DEPTH)), depth: NOSE_DEPTH }], ...(NOSE_GROOVES === undefined ? {} : { skin: "outer" as const }), clip: (p: R.V): number => (NOSE_GROOVES === undefined ? -nose(p) : Math.max(-nose(p), nostrilPit(p))), reliefs: [], casts: NOSE_GROOVES !== undefined ? [] : [
           // The floor behind the lobule. The sections close it along the box's floor, so between each wing's outer rim and the columella
           // the hull is one flat chord at 1,543 mm, 1 to 3 mm below the reference's wing round each nostril (rays going up from below, the

@@ -54,7 +54,22 @@ export namespace FamilyConicExcursion {
 
     /** Close the root by a smooth cubic along the skin's own end directions instead of the host's sunk line. */
     smooth?: boolean;
+
+    /**
+     * Close the root by an invented convex closure whose side extremes stand clear of the skin: from each end of the skin along its own
+     * direction to a side extreme `GUIDE_BEHIND` mm behind that end and out past it, its tangent square to the chart there, then round to
+     * the back on the median line. A conic layout's side guides, whose tangents the model holds square to the chart, then stand on the
+     * closure and not on the corner where the skin meets it.
+     */
+    guided?: boolean;
   }
+
+  /**
+   * How far behind the skin's end a guided closure's side extreme stands, mm (`IPart.guided`). Fitted with its side guide on the skin's
+   * corner itself, f1's nose missed by 1.3 to 2.9 mm round that corner all the way up; 4 mm is about a quarter of the corner's distance
+   * from the course (17 to 20 mm), enough for the conic from the skin's last feature to the guide to stand clear of the skin.
+   */
+  const GUIDE_BEHIND: number = 4;
 
   /** A plane's closed section of the part. */
   export interface ISection {
@@ -87,7 +102,7 @@ export namespace FamilyConicExcursion {
     // 1 mm apart; chart u straight forward (+x) and v toward +Z, so v x u is up. Its box spans the wings, which stand within 18.5 to 20 mm of
     // the median plane (`FamilyConicScan.ts alar`: the alar groove at 18.2 to 20 mm to the side), and the face's line is fitted to the
     // cheeks 22 to 34 mm to either side. A threshold of 1.5 mm keeps the alar groove (1.4 mm under the hull, Open) inside the excursion.
-    { name: "nose", heights: [1542.5, 1582, 1], origin: [100, 0], u: [1, 0, 0], v: [0, 0, 1], box: [-22, 22], beside: [[-34, -22], [22, 34]], threshold: 1.5, sink: 4, smooth: true },
+    { name: "nose", heights: [1542.5, 1582, 1], origin: [100, 0], u: [1, 0, 0], v: [0, 0, 1], box: [-22, 22], beside: [[-34, -22], [22, 34]], threshold: 1.5, sink: 4, guided: true },
   ];
 
   /** Cut every plane of a part out of the reference head. */
@@ -264,6 +279,43 @@ export namespace FamilyConicExcursion {
                 return [w[0]! * b[0] + w[1]! * p1[0] + w[2]! * p2[0] + w[3]! * a[0], w[0]! * b[1] + w[1]! * p1[1] + w[2]! * p2[1] + w[3]! * a[1]];
               });
               excursion = [...piece, ...curve];
+            } else if (part.guided === true) {
+              // From each end along the skin's direction (`tb` leaves `b`, `ta` leaves `a`) to a side extreme behind it and out past it, the
+              // tangent square to the chart there; then round the back through the median line. Each stretch is a cubic Bezier.
+              const outward = (p: C.P, t: C.P): C.P => {
+                const slope: number = t[0] < 0 ? Math.abs(t[1] / t[0]) : 0;
+                return [p[0] - GUIDE_BEHIND, p[1] + Math.sign(p[1]) * Math.max(0.5, (GUIDE_BEHIND * slope) / 2)];
+              };
+              const tb: C.P = (() => {
+                const q: C.P = piece[Math.max(0, piece.length - 3)]!;
+                const l: number = Math.hypot(b[0] - q[0], b[1] - q[1]) || 1;
+                return [(b[0] - q[0]) / l, (b[1] - q[1]) / l];
+              })();
+              const ta: C.P = (() => {
+                const q: C.P = piece[Math.min(piece.length - 1, 2)]!;
+                const l: number = Math.hypot(a[0] - q[0], a[1] - q[1]) || 1;
+                return [(a[0] - q[0]) / l, (a[1] - q[1]) / l];
+              })();
+              const gb: C.P = outward(b, tb);
+              const ga: C.P = outward(a, ta);
+              const depth: number = 0.8 * Math.max(Math.abs(gb[1]), Math.abs(ga[1]));
+              const back: C.P = [Math.min(gb[0], ga[0]) - depth, 0];
+              const k: number = GUIDE_BEHIND / 2;
+              const bulge: number = 0.55 * depth;
+              const bezier = (p0: C.P, p1: C.P, p2: C.P, p3: C.P, count: number): C.P[] =>
+                Array.from({ length: count }, (_: unknown, j: number): C.P => {
+                  const s: number = (j + 1) / count;
+                  const w: number[] = [(1 - s) ** 3, 3 * s * (1 - s) ** 2, 3 * s * s * (1 - s), s ** 3];
+                  return [w[0]! * p0[0] + w[1]! * p1[0] + w[2]! * p2[0] + w[3]! * p3[0], w[0]! * p0[1] + w[1]! * p1[1] + w[2]! * p2[1] + w[3]! * p3[1]];
+                });
+              const sb: number = Math.sign(gb[1]);
+              const closure: C.P[] = [
+                ...bezier(b, [b[0] + k * tb[0], b[1] + k * tb[1]], [gb[0] + k, gb[1]], gb, 6),
+                ...bezier(gb, [gb[0] - bulge, gb[1]], [back[0], back[1] + sb * bulge], back, 10),
+                ...bezier(back, [back[0], back[1] - sb * bulge], [ga[0] - bulge, ga[1]], ga, 10),
+                ...bezier(ga, [ga[0] + k, ga[1]], [a[0] + k * ta[0], a[1] + k * ta[1]], a, 6).slice(0, -1),
+              ];
+              excursion = [...piece, ...closure];
             } else excursion = [...piece, ...sunk];
           }
         }
