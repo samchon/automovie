@@ -51,6 +51,7 @@ export * from "./compose/AutoMovieMotionHumanReach";
 export * from "./compose/AutoMovieMotionHumanResolve";
 export * from "./compose/AutoMovieMotionHumanRoot";
 export * from "./compose/AutoMovieMotionHumanTarget";
+export * from "./compose/AutoMovieMotionHumanTargetGrid";
 export * from "./compose/AutoMovieMotionHumanTiming";
 export * from "./compose/AutoMovieMotionHumanTrunk";
 export * from "./compose/AutoMovieMotionHumanVariation";

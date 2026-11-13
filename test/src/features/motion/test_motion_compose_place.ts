@@ -1,5 +1,6 @@
 import {
   AutoMovieMotionHumanTarget,
+  AutoMovieMotionHumanTargetGrid,
   type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -45,14 +46,14 @@ export function test_motion_compose_place(): void {
   } as unknown as IHumanBody;
   const near = (got: number | undefined, expected: number): boolean =>
     got !== undefined && Math.abs(got - expected) <= 1e-9;
-  const grid: AutoMovieMotionHumanTarget.IGrid = {
+  const grid: AutoMovieMotionHumanTargetGrid.IGrid = {
     height: "shoulder",
     lateral: "shoulder",
     distance: "far",
   };
 
-  const left = AutoMovieMotionHumanTarget.place(body, "left", grid);
-  const right = AutoMovieMotionHumanTarget.place(body, "right", grid);
+  const left = AutoMovieMotionHumanTargetGrid.place(body, "left", grid);
+  const right = AutoMovieMotionHumanTargetGrid.place(body, "right", grid);
   TestValidator.predicate(
     "three names on both sides",
     near(left.height, 1.4 / 1.7) &&
@@ -64,7 +65,7 @@ export function test_motion_compose_place(): void {
   TestValidator.predicate(
     "the knee height",
     near(
-      AutoMovieMotionHumanTarget.place(body, "left", {
+      AutoMovieMotionHumanTargetGrid.place(body, "left", {
         ...grid,
         height: "knee",
       }).height,
@@ -72,7 +73,7 @@ export function test_motion_compose_place(): void {
     ),
   );
 
-  const nudged = AutoMovieMotionHumanTarget.place(body, "left", {
+  const nudged = AutoMovieMotionHumanTargetGrid.place(body, "left", {
     at: grid,
     nudge: { out: 0.1, up: 0.1, forward: 0.1 },
   });
@@ -85,7 +86,7 @@ export function test_motion_compose_place(): void {
   TestValidator.predicate(
     "half way between two places",
     near(
-      AutoMovieMotionHumanTarget.place(body, "left", {
+      AutoMovieMotionHumanTargetGrid.place(body, "left", {
         between: [{ ...grid, distance: "close" }, grid],
         share: 0.5,
       }).range,
@@ -101,7 +102,7 @@ export function test_motion_compose_place(): void {
   };
   TestValidator.equals(
     "an explicit record",
-    AutoMovieMotionHumanTarget.place(body, "left", {
+    AutoMovieMotionHumanTargetGrid.place(body, "left", {
       explicit,
       source: "provisional: test",
     }),
@@ -109,18 +110,21 @@ export function test_motion_compose_place(): void {
   );
 
   TestValidator.error("a nudge past its bound", (): unknown =>
-    AutoMovieMotionHumanTarget.place(body, "left", {
+    AutoMovieMotionHumanTargetGrid.place(body, "left", {
       at: grid,
       nudge: { forward: 0.3 },
     }),
   );
   TestValidator.error("a between share past 1", (): unknown =>
-    AutoMovieMotionHumanTarget.place(body, "left", {
+    AutoMovieMotionHumanTargetGrid.place(body, "left", {
       between: [{ ...grid, distance: "close" }, grid],
       share: 1.5,
     }),
   );
   TestValidator.error("an explicit record without a source", (): unknown =>
-    AutoMovieMotionHumanTarget.place(body, "left", { explicit, source: " " }),
+    AutoMovieMotionHumanTargetGrid.place(body, "left", {
+      explicit,
+      source: " ",
+    }),
   );
 }

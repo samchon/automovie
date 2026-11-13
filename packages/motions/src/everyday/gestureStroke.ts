@@ -6,6 +6,7 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
+import { AutoMovieMotionHumanTargetGrid } from "../compose/AutoMovieMotionHumanTargetGrid";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -26,7 +27,7 @@ import { gestureTouch } from "./gestureTouch";
  * own frame (`x` left, `y` up, `z` forward from the root) from the body's
  * measure, or on a target or on the body's own face, so every gesture fits
  * any stature and proportion. A place of the air is written in the names of
- * {@link AutoMovieMotionHumanTarget.Place} (a height, a lateral and a
+ * {@link AutoMovieMotionHumanTargetGrid.Place} (a height, a lateral and a
  * distance, with a nudge in arm lengths where the stroke moves about it), a
  * hand's turn in the axes of {@link HumanHand.Direction}, and a joint angle
  * as a level of {@link AutoMovieMotionHumanRange}:
@@ -262,16 +263,16 @@ export namespace gestureStroke {
     // given and the repeat varies, the named place's offset is added, so the
     // offset is one value through the stroke whatever the nudge does.
     const put = (
-      place: AutoMovieMotionHumanTarget.Place,
+      place: AutoMovieMotionHumanTargetGrid.Place,
       reach: number = 1,
-      named?: AutoMovieMotionHumanTarget.Place,
+      named?: AutoMovieMotionHumanTargetGrid.Place,
     ): IAutoMovieVector3 => {
       const shares: AutoMovieMotionHumanTarget.IDefault =
-        AutoMovieMotionHumanTarget.place(body, side, place);
+        AutoMovieMotionHumanTargetGrid.place(body, side, place);
       const base: AutoMovieMotionHumanTarget.IDefault | undefined =
         named === undefined || input.vary === undefined
           ? undefined
-          : AutoMovieMotionHumanTarget.place(body, side, named);
+          : AutoMovieMotionHumanTargetGrid.place(body, side, named);
       const varied: AutoMovieMotionHumanTarget.IDefault | undefined =
         base === undefined ? undefined : input.vary!(base);
       const offset = (key: "lateral" | "height" | "range"): number =>

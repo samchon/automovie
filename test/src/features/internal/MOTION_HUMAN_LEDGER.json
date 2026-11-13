@@ -123,8 +123,8 @@
     { "layer": "compose", "symbol": "AutoMovieMotionHumanRange.MOTIONS", "tests": ["test_human_motion_core_closed_unions"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanReach.LIMBS", "tests": ["test_human_motion_core_closed_unions"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanReach.POLICIES", "tests": ["test_human_motion_core_closed_unions"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanTarget.DISTANCE_NAMES", "tests": ["test_human_motion_core_closed_unions"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanTarget.LATERAL_NAMES", "tests": ["test_human_motion_core_closed_unions"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTargetGrid.DISTANCE_NAMES", "tests": ["test_human_motion_core_closed_unions"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTargetGrid.LATERAL_NAMES", "tests": ["test_human_motion_core_closed_unions"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTiming.PAUSE_NAMES", "tests": ["test_human_motion_core_closed_unions"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchEffector.AXES", "tests": ["test_human_motion_core_closed_unions"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchForm.KINDS", "tests": ["test_human_motion_core_closed_unions"] },
@@ -1031,7 +1031,7 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTarget.HEIGHTS",
+      "symbol": "AutoMovieMotionHumanTargetGrid.HEIGHTS",
       "tests": [
         "test_motion_compose_nearest",
         "test_motion_compose_tables",
@@ -1040,42 +1040,42 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTarget.OVERHEAD",
+      "symbol": "AutoMovieMotionHumanTargetGrid.OVERHEAD",
       "tests": [
         "test_motion_compose_tables"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTarget.LATERALS",
+      "symbol": "AutoMovieMotionHumanTargetGrid.LATERALS",
       "tests": [
         "test_motion_compose_variation_named"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTarget.DISTANCES",
+      "symbol": "AutoMovieMotionHumanTargetGrid.DISTANCES",
       "tests": [
         "test_motion_compose_variation_named"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTarget.NUDGE",
+      "symbol": "AutoMovieMotionHumanTargetGrid.NUDGE",
       "tests": [
         "test_motion_compose_tables"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTarget.height",
+      "symbol": "AutoMovieMotionHumanTargetGrid.height",
       "tests": [
         "test_motion_compose_tables"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTarget.place",
+      "symbol": "AutoMovieMotionHumanTargetGrid.place",
       "tests": [
         "test_motion_compose_nearest",
         "test_motion_compose_place",
@@ -1085,7 +1085,7 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTarget.nearest",
+      "symbol": "AutoMovieMotionHumanTargetGrid.nearest",
       "tests": [
         "test_motion_compose_nearest",
         "test_motion_compose_variation_named"

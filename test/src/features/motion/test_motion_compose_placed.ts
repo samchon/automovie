@@ -8,6 +8,7 @@ import {
   AutoMovieMotionHumanArm,
   AutoMovieMotionHumanPlaced,
   AutoMovieMotionHumanTarget,
+  AutoMovieMotionHumanTargetGrid,
   HumanFoot,
   HumanHand,
   type IAutoMovieMotionHumanPrimitive,
@@ -201,7 +202,7 @@ export function test_motion_compose_placed(): void {
     pitch: 40,
     root: P.root({ yaw: 0, pitch: 40, roll: 0 }, restHips, shownHips),
   };
-  const grid: AutoMovieMotionHumanTarget.IGrid = {
+  const grid: AutoMovieMotionHumanTargetGrid.IGrid = {
     height: "chest",
     lateral: "centre",
     distance: "near",

@@ -8,6 +8,7 @@ import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
+import { AutoMovieMotionHumanTargetGrid } from "../compose/AutoMovieMotionHumanTargetGrid";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
@@ -69,7 +70,7 @@ export namespace highFive {
 
   /** Each variant's meeting height. */
   export const HEIGHTS: Readonly<
-    Record<Kind, AutoMovieMotionHumanTarget.Height>
+    Record<Kind, AutoMovieMotionHumanTargetGrid.Height>
   > = { high: "crown", low: "waist", fist: "chest" };
 
   /** How long the hands stay together, seconds (provisional). */
@@ -137,7 +138,7 @@ export namespace highFive {
     kind: Kind,
     side: HumanHand.Side,
   ): AutoMovieMotionMeeting.IKind {
-    const height: AutoMovieMotionHumanTarget.Height = HEIGHTS[kind];
+    const height: AutoMovieMotionHumanTargetGrid.Height = HEIGHTS[kind];
     const surface: HumanHand.Surface = kind === "fist" ? "fist" : "palm";
     return {
       name: `highFive-${kind}`,
@@ -149,7 +150,7 @@ export namespace highFive {
           sum = Vector3.add(sum, {
             x: r.posture.root.x,
             y:
-              AutoMovieMotionHumanTarget.height(r.body, height) *
+              AutoMovieMotionHumanTargetGrid.height(r.body, height) *
               r.body.measure.stature,
             z: r.posture.root.z,
           });

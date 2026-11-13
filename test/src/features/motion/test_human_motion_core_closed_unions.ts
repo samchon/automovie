@@ -5,7 +5,7 @@ import {
   AutoMovieMotionHumanInterrupt,
   AutoMovieMotionHumanRange,
   AutoMovieMotionHumanReach,
-  AutoMovieMotionHumanTarget,
+  AutoMovieMotionHumanTargetGrid,
   AutoMovieMotionHumanTiming,
   AutoMovieMotionHumanTouchEffector,
   AutoMovieMotionHumanTouchForm,
@@ -73,11 +73,12 @@ export function test_human_motion_core_closed_unions(): void {
     "AutoMovieMotionHumanRange.MOTIONS": AutoMovieMotionHumanRange.MOTIONS,
     "AutoMovieMotionHumanReach.POLICIES": AutoMovieMotionHumanReach.POLICIES,
     "AutoMovieMotionHumanReach.LIMBS": AutoMovieMotionHumanReach.LIMBS,
-    "AutoMovieMotionHumanTarget.HEIGHTS": AutoMovieMotionHumanTarget.HEIGHTS,
-    "AutoMovieMotionHumanTarget.LATERAL_NAMES":
-      AutoMovieMotionHumanTarget.LATERAL_NAMES,
-    "AutoMovieMotionHumanTarget.DISTANCE_NAMES":
-      AutoMovieMotionHumanTarget.DISTANCE_NAMES,
+    "AutoMovieMotionHumanTargetGrid.HEIGHTS":
+      AutoMovieMotionHumanTargetGrid.HEIGHTS,
+    "AutoMovieMotionHumanTargetGrid.LATERAL_NAMES":
+      AutoMovieMotionHumanTargetGrid.LATERAL_NAMES,
+    "AutoMovieMotionHumanTargetGrid.DISTANCE_NAMES":
+      AutoMovieMotionHumanTargetGrid.DISTANCE_NAMES,
     "AutoMovieMotionHumanTouchEffector.AXES":
       AutoMovieMotionHumanTouchEffector.AXES,
     "AutoMovieMotionHumanTouchForm.KINDS": AutoMovieMotionHumanTouchForm.KINDS,

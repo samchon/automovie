@@ -8,6 +8,7 @@ import {
   AutoMovieMotionHumanInterrupt,
   AutoMovieMotionHumanRange,
   AutoMovieMotionHumanTarget,
+  AutoMovieMotionHumanTargetGrid,
   AutoMovieMotionHumanTiming,
   AutoMovieMotionHumanVariation,
   AutoMovieMotionHumanVariationDraw,
@@ -139,7 +140,7 @@ export function test_motion_compose_tables(): void {
   );
 
   // 4. Target.
-  const G = AutoMovieMotionHumanTarget;
+  const G = AutoMovieMotionHumanTargetGrid;
   for (const name of ["f-small", "m-large"] as const) {
     const body: IHumanBody = motionHumanBody(name);
     const m = body.measure;
@@ -161,7 +162,7 @@ export function test_motion_compose_tables(): void {
           G.OVERHEAD,
         ),
     );
-    const base: AutoMovieMotionHumanTarget.IGrid = {
+    const base: AutoMovieMotionHumanTargetGrid.IGrid = {
       height: "chest",
       lateral: "inside",
       distance: "mid",
@@ -185,12 +186,12 @@ export function test_motion_compose_tables(): void {
       }),
     );
   }
-  const away = G.away(
+  const away = AutoMovieMotionHumanTarget.away(
     { point: { x: 0, y: 1, z: 1 } },
     { x: 0.5, y: 1.4, z: 1 },
     0,
   );
-  const below = G.away(
+  const below = AutoMovieMotionHumanTarget.away(
     { point: { x: 0.2, y: 2.5, z: 0.1 } },
     { x: 0.2, y: 1.4, z: 0.1 },
     90,

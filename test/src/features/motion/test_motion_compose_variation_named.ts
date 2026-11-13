@@ -1,5 +1,6 @@
 import {
   AutoMovieMotionHumanTarget,
+  AutoMovieMotionHumanTargetGrid,
   AutoMovieMotionHumanVariationPlace,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -37,15 +38,15 @@ export function test_motion_compose_variation_named(): void {
     seconds: 0.3,
   };
   const strays = (
-    grid: AutoMovieMotionHumanTarget.IGrid,
+    grid: AutoMovieMotionHumanTargetGrid.IGrid,
     count: number,
   ): string[] => {
     const out: string[] = [];
     for (const [b, body] of MOTION_VARIATION_BODIES.entries())
       for (const side of ["left", "right"] as const) {
-        const record = AutoMovieMotionHumanTarget.place(body, side, grid);
+        const record = AutoMovieMotionHumanTargetGrid.place(body, side, grid);
         for (let index: number = 0; index < count; ++index) {
-          const read = AutoMovieMotionHumanTarget.nearest(
+          const read = AutoMovieMotionHumanTargetGrid.nearest(
             body,
             posture,
             side,
@@ -77,13 +78,13 @@ export function test_motion_compose_variation_named(): void {
 
   // 1. The whole grid.
   const grid: string[] = [];
-  for (const height of AutoMovieMotionHumanTarget.HEIGHTS)
+  for (const height of AutoMovieMotionHumanTargetGrid.HEIGHTS)
     for (const lateral of Object.keys(
-      AutoMovieMotionHumanTarget.LATERALS,
-    ) as AutoMovieMotionHumanTarget.Lateral[])
+      AutoMovieMotionHumanTargetGrid.LATERALS,
+    ) as AutoMovieMotionHumanTargetGrid.Lateral[])
       for (const distance of Object.keys(
-        AutoMovieMotionHumanTarget.DISTANCES,
-      ) as AutoMovieMotionHumanTarget.Distance[])
+        AutoMovieMotionHumanTargetGrid.DISTANCES,
+      ) as AutoMovieMotionHumanTargetGrid.Distance[])
         grid.push(...strays({ height, lateral, distance }, 128));
   TestValidator.equals("every place of the grid keeps its names", grid, []);
 
