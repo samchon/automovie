@@ -16,7 +16,12 @@ import { selectScenarioNames } from "./src/selectScenarioNames.ts";
  * Builds the test program and runs it: `src/index.ts` and the test files the
  * arguments select as entry points of one esbuild bundle, then the built
  * program in this process, so `node esbuild.config.mts <arguments>` runs the
- * same program with the same arguments as `ttsx src/index.ts <arguments>`.
+ * same tests as `ttsx src/index.ts <arguments>`, with two differences of the
+ * bundle: `__dirname` is the built file's directory under `bin/<process id>`,
+ * not its source's, and a dynamic `require` is esbuild's shim, which refuses
+ * what it cannot resolve at build time. A test that finds the repository
+ * from its own `__dirname`, or a source that requires a computed path, runs
+ * only under `pnpm test`, which CI runs.
  *
  * Only the selected test files are built, by the program's own selection
  * rules, because building every test file costs more than running a few.

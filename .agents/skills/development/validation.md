@@ -25,7 +25,7 @@ Follow any task-specific test-code prohibition and use its required verification
 
 Put every test one run needs into one `pnpm test --include <names...>`, because each run compiles the whole project before its first test.
 
-While developing, run selected tests with `pnpm test:esbuild --include <names...>` from the root instead. It bundles the test program and the packages' sources with esbuild and starts in seconds. It checks no types and runs no lint, so read the type-check watch first, and keep every test valid under `pnpm test`, which CI runs. Each run builds into its own `test/bin/<process id>` and removes it at the end, so runs may overlap in one checkout.
+While developing, run selected tests with `pnpm test:esbuild --include <names...>` from the root instead. It bundles the test program and the packages' sources with esbuild and starts in seconds. It checks no types and runs no lint, so read the type-check watch first, and keep every test valid under `pnpm test`, which CI runs. Each run builds into its own `test/bin/<process id>` and removes it at the end, so runs may overlap in one checkout. In the bundle `__dirname` is the built file's directory and a computed `require` cannot resolve, so a test that finds the repository from its own `__dirname`, or reaches a source that requires a computed path, runs only under `pnpm test`.
 
 ## Visual changes
 
