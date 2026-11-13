@@ -31,4 +31,4 @@ jobs:
       - name: Lexicon schemas are current (regenerate the schemas with `pnpm --filter @automovie/motions schemas` and commit them)
         run: |
           pnpm --filter @automovie/motions schemas
-          git diff --exit-code -- packages/motions/src/lexicon/HUMAN_LEXICON_SCHEMAS.json packages/motions/src/lexicon/HUMAN_LEXICON_SCHEMA_DATA.ts
+          git diff --exit-code -- packages/motions/src/lexicon/HUMAN_LEXICON_SCHEMA_DATA.ts

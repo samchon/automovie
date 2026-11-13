@@ -2,14 +2,14 @@
 import type { HUMAN_LEXICON_SCHEMAS } from "./HUMAN_LEXICON_SCHEMAS";
 
 /**
- * The generated schemas as data, the object `HUMAN_LEXICON_SCHEMAS.json`
- * holds, written as a module so every runner that loads the package reads
- * it alike.
+ * The generated schemas as data: OpenAPI 3.1 JSON schemas of every lexicon
+ * row's and every action's parameters, as one typed constant the package
+ * and the website read through `HUMAN_LEXICON_SCHEMAS`.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what the data is and why it is a module.
- * @evidence contracts/development/design.md#principled-representation The JSON schemas as one typed object, written by the generator beside the JSON from the same object.
+ * @evidence contracts/development/common.md#meaningful-documentation States what the data is and who reads it.
+ * @evidence contracts/development/design.md#principled-representation The JSON schemas as one typed object, written by the generator.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One constant, read by `HUMAN_LEXICON_SCHEMAS`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is written by hand; a stale file fails CI with the JSON.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is written by hand; a stale file fails CI.
  */
 export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
   "$comment": "Written by `pnpm --filter @automovie/motions schemas` from the lexicon laws' parameter types (src/executable/lexiconSchemas.ts); do not edit by hand.",

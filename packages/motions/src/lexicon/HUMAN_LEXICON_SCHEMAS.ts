@@ -2,7 +2,7 @@ import { HUMAN_LEXICON_SCHEMA_DATA } from "./HUMAN_LEXICON_SCHEMA_DATA";
 
 /**
  * The JSON schema of every lexicon row's open parameters, by row name: the
- * file `pnpm --filter @automovie/motions schemas` generates with typia from
+ * data `pnpm --filter @automovie/motions schemas` generates with typia from
  * the laws' own parameter types (`IHumanLexiconParams`), so a page lists a
  * row's parameters with their types, bounds, defaults and meanings as the
  * checker reads them, and every action's (`actions`), which a performance

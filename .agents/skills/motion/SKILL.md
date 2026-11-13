@@ -83,7 +83,7 @@ An action's study is the primary sources its law cites in its documentation. Eac
 
 ### Lexicon schemas
 
-Whoever adds a lexicon row or changes a law's parameters runs `pnpm --filter @automovie/motions schemas` and commits the regenerated `HUMAN_LEXICON_SCHEMAS.json` in the same commit, because the website reads it and CI fails on a stale one.
+Whoever adds a lexicon row or changes a law's parameters runs `pnpm --filter @automovie/motions schemas` and commits the regenerated `HUMAN_LEXICON_SCHEMA_DATA.ts` in the same commit, because every action's parameters are checked against it at its entry, the website reads it, and CI fails on a stale one.
 
 ### Checks and capture
 
