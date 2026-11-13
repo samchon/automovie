@@ -128,8 +128,8 @@ export namespace gesture {
     /** Post-stroke hold, seconds; 0 when absent. */
     hold?: number & tags.Minimum<0>;
 
-    /** A bow's depth, degrees in (0, 60]; 30 when absent. */
-    depth?: number & tags.ExclusiveMinimum<0> & tags.Maximum<60>;
+    /** A bow's depth, degrees in (0, 60], refused outside that range only for a bow, so it carries no schema bound; 30 when absent. */
+    depth?: number;
 
     /** Movement quality. */
     effort?: HumanEffort.IEffort;
