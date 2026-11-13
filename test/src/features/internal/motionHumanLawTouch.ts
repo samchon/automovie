@@ -231,7 +231,7 @@ export function motionHumanLawTouch(
         .join(" ");
     out.push(
       ...motionHumanLaw.expect(
-        `${label}: ${bone} travels ${mm(elbow.value)} mm in the frame from ${elbow.seconds.toFixed(3)} s (limit 80.0; the arm ${arm(elbow.seconds)} then ${arm(elbow.seconds + 1 / 24)}; ready ${ready.toFixed(2)}, relax ${relax.toFixed(2)})`,
+        `${label}: ${bone} travels ${mm(elbow.value)} mm in the frame from ${elbow.seconds.toFixed(3)} s (limit 80.0; the arm ${arm(elbow.seconds)} then ${arm(elbow.seconds + 1 / 24)}; at ready ${ready.toFixed(2)} s ${arm(ready)}, at relax ${relax.toFixed(2)} s ${arm(relax)}, at the end ${arm(film.duration)})`,
         elbow.value <= 0.08,
       ),
     );
