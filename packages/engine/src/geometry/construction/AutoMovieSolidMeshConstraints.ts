@@ -121,7 +121,7 @@ export namespace AutoMovieSolidMeshConstraints {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One result union exposes a complete partition or the first explicit failure, without mutating caller data.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Distinct coincident IDs and proper crossings without an original vertex are refused rather than silently merged or reconstructed. The one-period primitive premise limits cover-image work.
    * @evidence contracts/development/common.md#meaningful-documentation States lift range, source indices, immutability, failure and absence of world geometry construction.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(EV log V plus S squared) work for E segments, V points and S unique pieces, with at most three periodic point/edge images per local comparison.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One sort of V points, then each of E segments reads only the points inside its own range of the first coordinate, and of the S squared pairs of unique pieces only those whose ranges of it overlap are compared, with at most three periodic point/edge images per comparison.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses each source vertex value and one indexed piece record for all of its inducing segments; no callback effects are shared.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local maps and cut arrays expire with the call; output source incidence storage can grow to O(EV), with no retained global state.
    */
@@ -143,6 +143,22 @@ export namespace AutoMovieSolidMeshConstraints {
       )
         return `constraint vertex ${id} needs an original nonnegative ID and finite chart coordinates`;
     }
+    // The vertices by first coordinate: a vertex lies on a segment only inside
+    // the segment's own range of it, which no lift changes, so each segment
+    // reads that slice instead of every vertex.
+    const sorted: [number, Point][] = [...vertices].sort(
+      (x: [number, Point], y: [number, Point]): number => x[1][0] - y[1][0],
+    );
+    const from: (value: number) => number = (value: number): number => {
+      let low: number = 0;
+      let high: number = sorted.length;
+      while (low < high) {
+        const middle: number = (low + high) >> 1;
+        if (sorted[middle]![1][0] < value) low = middle + 1;
+        else high = middle;
+      }
+      return low;
+    };
     const pieces: Map<string, IEdge> = new Map();
     for (let source: number = 0; source < segments.length; source++) {
       const segment: ISegment = segments[source]!;
@@ -176,8 +192,13 @@ export namespace AutoMovieSolidMeshConstraints {
         { id: segment.a, turn: 0, point: a },
         { id: segment.b, turn: segment.turn, point: b },
       ];
-      for (const entry of vertices) {
-        const [id, point]: [number, Point] = entry;
+      const highest: number = Math.max(a[0], b[0]);
+      for (
+        let k: number = from(Math.min(a[0], b[0]));
+        k < sorted.length && sorted[k]![1][0] <= highest;
+        k++
+      ) {
+        const [id, point]: [number, Point] = sorted[k]!;
         const shifts: number[] | null = images(point[1], a[1], b[1], period);
         if (shifts === null)
           return `constraint ${source} has an unrepresentable cover image`;
@@ -229,8 +250,19 @@ export namespace AutoMovieSolidMeshConstraints {
       }
     }
     const edges: IEdge[] = [...pieces.values()];
+
+    // Two pieces whose ranges of the first coordinate are apart cannot cross.
+    const range: [number, number][] = edges.map(
+      (edge: IEdge): [number, number] => {
+        const p: number = vertices.get(edge.a)![0];
+        const q: number = vertices.get(edge.b)![0];
+        return [Math.min(p, q), Math.max(p, q)];
+      },
+    );
     for (let i: number = 0; i < edges.length; i++)
       for (let j: number = i + 1; j < edges.length; j++) {
+        if (range[i]![1] < range[j]![0] || range[j]![1] < range[i]![0])
+          continue;
         const edge: IEdge = edges[i]!;
         const other: IEdge = edges[j]!;
         const a: Point = vertices.get(edge.a)!;

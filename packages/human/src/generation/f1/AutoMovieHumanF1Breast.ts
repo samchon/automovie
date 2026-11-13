@@ -3,7 +3,7 @@ import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection"
 import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 
 /**
- * f1's ear tape wall on the +Z side; the other side is its mirror image in the median plane z = 0, which f1's reference satisfies exactly.
+ * f1's breast tape wall on the +Z side; the other side is its mirror image in the median plane z = 0, which f1's reference satisfies exactly.
  *
  * Frame: the figure's absolute reference pose, millimetres, forward +X, up +Y, +Z the reference's left. The course runs
  * through `centres` with a turn of half length `halves` at each joint; stations are arclength from the first centre and each
@@ -13,61 +13,61 @@ import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
  * them: the section is a chain of conics through its four extremes and one median point per quarter, fitted to the convex hull of the reference skin
  * (the path of a taut tape).
  *
- * Source: the f1 reference head cut by this course's own planes over stations 4 to 18 mm, 28 sections 0.5 mm apart, every
+ * Source: the f1 reference body cut by this course's own planes over stations 11 to 28 mm, 35 sections 0.5 mm apart, every
  * second one withheld from the fit. Fitted offline by `test/src/reference-conics/FamilyConicBody.ts` (joint least squares over
  * all sections). Regenerated through the engine's view loft from these numbers alone, the vertices of each section's hull lie
- * 0.08 mm from it on average and at most 0.36 mm; the concha's hollow inside that hull is not modelled. 105 independent numbers.
+ * 0.12 mm from it on average and at most 1.45 mm; what lies inside that hull is not modelled. 105 independent numbers.
  */
-export const AutoMovieHumanF1Ear: AutoMovieHumanConicLoft.IFamily = {
-  name: "ear",
-  centres: [AutoMovieHumanF1Joints.earRoot, AutoMovieHumanF1Joints.earTip],
+export const AutoMovieHumanF1Breast: AutoMovieHumanConicLoft.IFamily = {
+  name: "breast",
+  centres: [AutoMovieHumanF1Joints.breastRoot, AutoMovieHumanF1Joints.breastTip],
   halves: [],
   up: [0, 1, 0],
   layout: AutoMovieHumanConicSection.limb(1),
-  knots: [4, 7, 11, 14, 18],
+  knots: [11, 15, 19.5, 23, 28],
   values: [
     // front (+u) extreme: u, mm
-    [17.7, 20.13, 22.24, 22.35, 19.98],
+    [57.94, 49.55, 39.36, 30.76, 15.57],
     // front (+u) extreme: v, mm
-    [12.96, 9.38, 6.39, 4.11, -0.02],
+    [1.29, 1.49, 1.28, -0.17, -1.1],
     // median fullness f of the arc pair around anchor 1, share
-    [0.4712, 0.4408, 0.5238, 0.5548, 0.5908],
+    [0.4293, 0.4115, 0.3849, 0.4143, 0.4752],
     // side (+v) extreme: u, mm
-    [11.9, 15.6, 16.23, 16.89, 23.61],
+    [7.03, 4.84, 4.26, 0, -1.65],
     // side (+v) extreme: v, mm
-    [18.13, 16.34, 13.05, 9.1, 1.99],
+    [49.71, 45.11, 38.69, 32.42, 16.59],
     // median fullness f of the arc pair around anchor 3, share
-    [0.4627, 0.3964, 0.1786, 0.0584, 0.44],
+    [0.4496, 0.3952, 0.4384, 0.3862, 0.444],
     // back (-u) extreme: u, mm
-    [-36.41, -33.93, -28.79, -23.45, -13.34],
+    [-44.05, -39.71, -33.66, -28.23, -15.12],
     // back (-u) extreme: v, mm
-    [15.06, 9.75, 5.48, 2.21, -2.15],
+    [3.45, 6.54, 2.72, 4.65, 3.95],
     // median fullness f of the arc pair around anchor 5, share
-    [0.2478, 0.2832, 0.4215, 0.3812, 0.3483],
+    [0.3889, 0.4137, 0.3843, 0.3802, 0.4123],
     // side (-v) extreme: u, mm
-    [-5.4, -3.46, -0.99, 4.18, 4.17],
+    [10.04, 7.75, 3.38, 0.49, 0.04],
     // side (-v) extreme: v, mm
-    [-5.13, -4.26, -4.82, -6.55, -9.65],
+    [-47.57, -42.96, -36.11, -30.3, -16.71],
     // median fullness f of the arc pair around anchor 7, share
-    [0.3422, 0.2529, 0.3881, 0.4178, 0.2564],
+    [0.441, 0.4245, 0.4446, 0.4452, 0.4373],
     // shoulder rho of the arc after anchor 0, share
-    [0.4183, 0.8196, 0.5462, 0.4898, 1.1137],
+    [0.5443, 0.5114, 0.5101, 0.47, 0.6574],
     // shoulder rho of the arc after anchor 1, share
-    [0.3624, 0.3414, 0.06, 0.2688, 1.0042],
+    [0.4704, 0.4542, 0.4564, 0.4475, 1.0792],
     // shoulder rho of the arc after anchor 2, share
-    [0.0677, 0.1132, 0.5248, 0.5744, 0.4218],
+    [0.4341, 0.4472, 0.5013, 0.3858, 0.9015],
     // shoulder rho of the arc after anchor 3, share
-    [0.5692, 0.8566, 0.9011, 0.8724, -0.3203],
+    [0.5524, 0.4805, 0.5858, 0.4291, 0.749],
     // shoulder rho of the arc after anchor 4, share
-    [0.7928, 0.5566, 0.5446, 0.6316, 0.3492],
+    [0.3906, 0.4641, 0.4595, 0.4748, 1.0626],
     // shoulder rho of the arc after anchor 5, share
-    [0.6519, 0.4506, 0.0597, 0.5253, 0.405],
+    [0.4938, 0.4586, 0.5017, 0.36, 0.652],
     // shoulder rho of the arc after anchor 6, share
-    [0.5232, 0.5143, 0.3565, 0.4296, 0.2772],
+    [0.5033, 0.4578, 0.5507, 0.4971, 0.9402],
     // shoulder rho of the arc after anchor 7, share
-    [0.5291, 0.517, 0.5095, 0.3292, 0.5412],
+    [0.4659, 0.4798, 0.4359, 0.353, 0.7637],
   ],
 
-  // The part closes in a point at `tip`, the side distance of the auricle's rim; its cap starts at `from`.
-  tips: [null, {from: 18, tip: 23}],
+  // The part closes in a point at `tip`, the station where the reference's own loop vanishes; its cap starts at `from`.
+  tips: [null, {from: 26, tip: 29.88}],
 };

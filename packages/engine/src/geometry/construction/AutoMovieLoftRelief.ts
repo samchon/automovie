@@ -154,6 +154,45 @@ export namespace AutoMovieLoftRelief {
   }
 
   /**
+   * The world direction the relief's height moves a base point along at a
+   * phase, with its first and second derivatives in phase.
+   *
+   * A fixed axis is its own direction with zero derivatives. With `turn`,
+   * the direction is `e(t) = cos(t - c) axis + sin(t - c) turn` about the
+   * window's middle phase `c`, so `e' = -sin(t - c) axis + cos(t - c) turn`
+   * and `e'' = -e`. It does not depend on the station.
+   *
+   * @param relief Relief whose direction is read.
+   * @param t Base phase, radians, any real value.
+   * @returns `[e, e_t, e_tt]`, each a world vector.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation The turning direction is a rotation in the plane of two fixed world vectors, so its phase derivatives are the rotation's own and its station derivatives vanish; a displaced point `p + h e` then differentiates by the product rule its callers apply.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One reader serves the point, phase-tangent and second-order jet callers, with the fixed axis as the case of no turn.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No difference of sampled directions; a fixed axis returns exact zeros.
+   * @evidence contracts/development/common.md#meaningful-documentation States the law, its centre and all three returned orders.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One sine and one cosine per call, or none for a fixed axis.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure direction reading coordinates no shared work.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh vectors and retains nothing.
+   */
+  export function direction(
+    relief: IAutoMovieLoftRelief,
+    t: number,
+  ): [V3, V3, V3] {
+    const a: V3 = relief.axis;
+    if (relief.turn === undefined) return [a, [0, 0, 0], [0, 0, 0]];
+    const b: V3 = relief.turn;
+    const x: number = t - (relief.phases[0] + width(relief) / 2);
+    const c: number = Math.cos(x);
+    const s: number = Math.sin(x);
+    const e: V3 = [c * a[0] + s * b[0], c * a[1] + s * b[1], c * a[2] + s * b[2]];
+    return [
+      e,
+      [c * b[0] - s * a[0], c * b[1] - s * a[1], c * b[2] - s * a[2]],
+      [-e[0], -e[1], -e[2]],
+    ];
+  }
+
+  /**
    * Phase width of a finite window, radians, in `(0, 2 pi]`; equal endpoints mean one turn.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Reduces the endpoint difference modulo a turn and interprets zero remainder as the full periodic window.
@@ -169,6 +208,9 @@ export namespace AutoMovieLoftRelief {
     return w === 0 ? 2 * Math.PI : w;
   }
 }
+
+/** A world vector. */
+type V3 = [number, number, number];
 
 /** Phase reduced to `[0, 2 pi)`. */
 function wrap(t: number): number {

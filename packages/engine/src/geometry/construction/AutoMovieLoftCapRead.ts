@@ -85,9 +85,10 @@ export namespace AutoMovieLoftCapRead {
           throw new AutoMovieLoftAdmissionError(
             "A deformed pole has no retained collapsed cap value.",
           );
+        const [e, e1] = AutoMovieLoftRelief.direction(relief, phi);
         for (let k: number = 0; k < 3; k++) {
-          p[k]! += h[0] * relief.axis[k]!;
-          t[k]! += h[2] * relief.axis[k]!;
+          p[k]! += h[0] * e[k]!;
+          t[k]! += h[2] * e[k]! + h[0] * e1[k]!;
         }
       }
       if (![...p, ...t].every(Number.isFinite))

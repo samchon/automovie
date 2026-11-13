@@ -38,6 +38,17 @@ export interface IAutoMovieLoftRelief {
   /** Unit world direction the height moves the base point along. */
   axis: [number, number, number];
 
+  /**
+   * A second unit world direction, square to `axis`, that makes the height's
+   * direction turn with the phase instead of staying fixed: at phase `t` it
+   * is `cos(t - c) axis + sin(t - c) turn`, `c` the window's middle phase.
+   * With `axis` the radial direction of the base's chart at `c` and `turn`
+   * the chart's direction of increasing phase there, the height is cast
+   * square to a round base all the way round, so one window can go round a
+   * part whose sides a fixed axis would only graze. Absent, the axis is fixed.
+   */
+  turn?: [number, number, number];
+
   /** Number of control points across the station range, at least 7. */
   rows: number;
 

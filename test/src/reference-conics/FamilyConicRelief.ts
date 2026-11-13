@@ -30,6 +30,9 @@ export namespace FamilyConicRelief {
     /** Unit world direction of the height; it must lie in the section planes. */
     axis: [number, number, number];
 
+    /** With it, the height's direction turns with the phase about the window's middle: `cos(t - c) axis + sin(t - c) turn` (`IAutoMovieLoftRelief.turn`). */
+    turn?: [number, number, number];
+
     /** Control points across the station range, at least 7. */
     rows: number;
 
@@ -39,11 +42,26 @@ export namespace FamilyConicRelief {
     /** The window is centred on the median line and its net is tied symmetric across it. */
     mirror: boolean;
 
+    /** The window goes once round (`phases` one turn apart) and its net closes on itself, with no edge in phase. */
+    periodic?: boolean;
+
     /**
      * Farthest a cast may land from the wall and still be observed, mm; absent, any distance. A cast that slips through an opening of the skin,
      * between the lips or past an eyelid, lands on what lies behind it, and its height is not the skin's.
      */
     reach?: number;
+
+    /**
+     * How far from its first and from its last station the window takes less than the whole height, mm: the share rises smoothly from none
+     * at the edge to all of it that far in. A window's outer rows are zero, so a net asked for the whole height right up to its edge falls
+     * off within two rows, and the window fitted after it over the same skin cannot follow so short a fall: the edge showed as a level line
+     * across the chest. Faded, the earlier net leaves a smooth remainder for the later one, which must start inside the earlier one's whole
+     * part.
+     */
+    fade?: [number, number];
+
+    /** The same toward the window's first and last phase, radians: a window's edge down the skin creases as its edge across it does. */
+    fadePhase?: [number, number];
   }
 
   /** One observed section with the wall beneath it. */
@@ -60,11 +78,17 @@ export namespace FamilyConicRelief {
     /** The relief axis projected into the section chart; its length is the share of a height that stays in the section plane. */
     axis: C.P;
 
+    /** The window's `turn` projected likewise, when it has one. */
+    turn?: C.P;
+
     /** Withheld from the fit. */
     heldout: boolean;
 
     /** Whether a chart point of the skin polygon is not skin: a point of the chord that closes the cut a neighbouring part leaves. A cast that lands there is not observed. */
     open?: (p: C.P) => boolean;
+
+    /** Whether the net is held where a cast lands: the height observed there is zero, whatever the cast measured, so the wall stays as it was. */
+    hold?: (p: C.P) => boolean;
   }
 
   /** A fitted relief and its sampled errors along the axis. */
@@ -94,41 +118,80 @@ export namespace FamilyConicRelief {
   /** Weight of the squared second differences of the net against the summed squared misses, per control point. */
   const FAIR: number = 1e-3;
 
-  /** Fit one window. */
-  export function fit(window: IWindow, rows: readonly IRow[]): IResult {
+  /** A height observed directly at a chart point, for a window whose cast is not taken in the section planes. */
+  export interface IObserved {
+    /** Station, mm. */
+    s: number;
+
+    /** Phase, radians. */
+    phi: number;
+
+    /** The height that carries the base point there onto the skin, mm along the window's axis. */
+    target: number;
+
+    /** Withheld from the fit. */
+    heldout: boolean;
+  }
+
+  /**
+   * Fit one window.
+   *
+   * @param window The window.
+   * @param rows Observed sections; each is cast in its own plane along the window's axis.
+   * @param observed Heights observed directly at chart points, beside or instead of the sections.
+   */
+  export function fit(window: IWindow, rows: readonly IRow[], observed: readonly IObserved[] = []): IResult {
     const span: number = window.phases[1] - window.phases[0];
     const R: number = window.rows;
     const Cn: number = window.columns;
 
-    // Unknowns: the inner control points, tied across the median when mirrored.
+    // Unknowns: the inner control points, tied across the median when mirrored. A window that goes once round has no phase edge: its last
+    // three columns are its first three again, which makes the uniform cubic net periodic, and no column is held at zero.
     const slot: number[] = new Array<number>(R * Cn).fill(-1);
     let unknowns: number = 0;
     for (let r: number = 3; r < R - 3; ++r)
-      for (let c: number = 3; c < Cn - 3; ++c) {
-        const twin: number = r * Cn + (Cn - 1 - c);
-        slot[r * Cn + c] = window.mirror && slot[twin]! >= 0 ? slot[twin]! : unknowns++;
-      }
+      if (window.periodic === true)
+        for (let c: number = 0; c < Cn; ++c) slot[r * Cn + c] = c >= Cn - 3 ? slot[r * Cn + c - (Cn - 3)]! : unknowns++;
+      else
+        for (let c: number = 3; c < Cn - 3; ++c) {
+          const twin: number = r * Cn + (Cn - 1 - c);
+          slot[r * Cn + c] = window.mirror && slot[twin]! >= 0 ? slot[twin]! : unknowns++;
+        }
 
     // Observations: for each section inside the window, the along-axis height at phases across the window.
     const samples: { weights: [number, number][]; target: number; heldout: boolean }[] = [];
     let deepest: number = 0;
     const phases: number = (Cn - 3) * PER_SPAN;
+
+    // The share of a height the window takes at a station and a phase: a smooth step over each faded edge.
+    const share = (s: number, phi: number): number => {
+      const step = (x: number): number => (x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x));
+      const [low, high]: [number, number] = window.fade ?? [0, 0];
+      const [first, last]: [number, number] = window.fadePhase ?? [0, 0];
+      return (low > 0 ? step((s - window.stations[0]) / low) : 1) * (high > 0 ? step((window.stations[1] - s) / high) : 1) * (first > 0 ? step((phi - window.phases[0]) / first) : 1) * (last > 0 ? step((window.phases[1] - phi) / last) : 1);
+    };
     for (const row of rows) {
       if (row.s <= window.stations[0] || row.s >= window.stations[1]) continue;
       const [iu, wu] = basis(((row.s - window.stations[0]) / (window.stations[1] - window.stations[0])) * (R - 3), R);
       for (let k: number = 1; k < phases; ++k) {
         const offset: number = (span * k) / phases;
-        const inPlane: number = Math.hypot(row.axis[0], row.axis[1]);
+        const phi: number = window.phases[0] + offset;
+
+        // The cast's direction at this phase: the fixed axis, or the axis turned about the window's middle phase.
+        const turned: number = phi - (window.phases[0] + span / 2);
+        const axis: C.P = row.turn === undefined ? row.axis : [Math.cos(turned) * row.axis[0] + Math.sin(turned) * row.turn[0], Math.cos(turned) * row.axis[1] + Math.sin(turned) * row.turn[1]];
+        const inPlane: number = Math.hypot(axis[0], axis[1]);
 
         // Where the axis runs along the wall instead of through it, a cast measures the wall's slope, not a depth: such phases are left to the net's fairness.
-        const phi: number = window.phases[0] + offset;
-        if (Math.abs(row.axis[0] * Math.cos(phi) + row.axis[1] * Math.sin(phi)) / inPlane < FACING) continue;
+        if (Math.abs(axis[0] * Math.cos(phi) + axis[1] * Math.sin(phi)) / inPlane < FACING) continue;
         const from: C.P = row.wall(window.phases[0] + offset);
-        const along: number | null = cast(row.skin, from, [row.axis[0] / inPlane, row.axis[1] / inPlane]);
+        const along: number | null = cast(row.skin, from, [axis[0] / inPlane, axis[1] / inPlane]);
         if (along === null) continue;
-        if (window.reach !== undefined && Math.abs(along) / inPlane > window.reach) continue;
-        if (row.open?.([from[0] + (along * row.axis[0]) / inPlane, from[1] + (along * row.axis[1]) / inPlane]) === true) continue;
-        const target: number = along / inPlane;
+        const landing: C.P = [from[0] + (along * axis[0]) / inPlane, from[1] + (along * axis[1]) / inPlane];
+        const held: boolean = row.hold?.(landing) === true || row.hold?.(from) === true;
+        if (!held && window.reach !== undefined && Math.abs(along) / inPlane > window.reach) continue;
+        if (!held && row.open?.(landing) === true) continue;
+        const target: number = held ? 0 : (share(row.s, phi) * along) / inPlane;
         const [iv, wv] = basis((offset / span) * (Cn - 3), Cn);
         const weights: [number, number][] = [];
         for (let a: number = 0; a < 4; ++a)
@@ -139,6 +202,23 @@ export namespace FamilyConicRelief {
         deepest = Math.max(deepest, Math.abs(target));
         samples.push({ weights, target, heldout: row.heldout });
       }
+    }
+    for (const seen of observed) {
+      const offset: number = seen.phi - window.phases[0] - 2 * Math.PI * Math.floor((seen.phi - window.phases[0]) / (2 * Math.PI));
+      if (seen.s <= window.stations[0] || seen.s >= window.stations[1] || offset >= span) continue;
+      if (window.reach !== undefined && Math.abs(seen.target) > window.reach) continue;
+      const [iu, wu] = basis(((seen.s - window.stations[0]) / (window.stations[1] - window.stations[0])) * (R - 3), R);
+      const [iv, wv] = basis((offset / span) * (Cn - 3), Cn);
+      const weights: [number, number][] = [];
+      for (let a: number = 0; a < 4; ++a)
+        for (let b: number = 0; b < 4; ++b) {
+          const at: number = slot[(iu + a) * Cn + iv + b]!;
+          if (at >= 0) weights.push([at, wu[a]! * wv[b]!]);
+        }
+      // A height cast in space fades over the window's edges as a section's does, at its phase within the window.
+      const target: number = share(seen.s, window.phases[0] + offset) * seen.target;
+      deepest = Math.max(deepest, Math.abs(target));
+      samples.push({ weights, target, heldout: seen.heldout });
     }
 
     // Normal equations with the fairness penalty on second differences along both directions.
@@ -175,7 +255,7 @@ export namespace FamilyConicRelief {
       if (sample.heldout) heldMaxMm = Math.max(heldMaxMm, miss);
       else trainMaxMm = Math.max(trainMaxMm, miss);
     }
-    return { relief: { name: window.name, stations: window.stations, phases: window.phases, axis: window.axis, rows: R, columns: Cn, heights }, scalars: unknowns, deepestMm: deepest, trainMaxMm, heldMaxMm };
+    return { relief: { name: window.name, stations: window.stations, phases: window.phases, axis: window.axis, ...(window.turn === undefined ? {} : { turn: window.turn }), rows: R, columns: Cn, heights }, scalars: unknowns, deepestMm: deepest, trainMaxMm, heldMaxMm };
   }
 
   /** Signed distance from a chart point along a unit direction to the nearest crossing of a polygon; null when the line misses it. */
