@@ -44,6 +44,9 @@ export namespace HumanBase {
   /** One base kind. */
   export type Kind = (typeof KINDS)[number];
 
+  /** The sides a seat sat astride is got onto and off from, as data: `either` takes both. */
+  export const MOUNTS = ["left", "right", "either"] as const;
+
   /** A body seated on something. */
   export interface ISeated {
     /** The discriminator. */
@@ -85,7 +88,7 @@ export namespace HumanBase {
     astride?: boolean;
 
     /** The side a seat sat astride is got onto and off from, as a horse is mounted from its left; either side when absent or `either`. */
-    mount?: "left" | "right" | "either";
+    mount?: (typeof MOUNTS)[number];
 
     /** Where each foot rests while seated, world metres; a foot with none is on the floor or hangs. */
     footrests?: Partial<Record<"left" | "right", IAutoMovieVector3>>;

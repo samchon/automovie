@@ -55,7 +55,10 @@ export interface IHumanPosture {
  */
 export namespace IHumanPosture {
   /** A limb solved by inverse kinematics. */
-  export type Limb = "leftArm" | "rightArm" | "leftLeg" | "rightLeg";
+  export type Limb = (typeof LIMBS)[number];
+
+  /** The limbs of {@link Limb}, as data. */
+  export const LIMBS = ["leftArm", "rightArm", "leftLeg", "rightLeg"] as const;
 
   /** One limb's goal. */
   export interface IGoal {

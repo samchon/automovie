@@ -21,14 +21,30 @@ export interface IHumanInterruptRow {
   window: readonly [number | string, number | string];
 
   /** How the transition runs. */
-  kind: "inertialize" | "redirect" | "phase";
+  kind: (typeof IHumanInterruptRow.KINDS)[number];
 
   /** Where the target is entered, a share or a target event name. */
   entry: number | string;
 
   /** What the transition carries unchanged. */
-  keep?: readonly ("stanceFoot" | "guard" | "grip")[];
+  keep?: readonly (typeof IHumanInterruptRow.KEEPS)[number][];
 
   /** Offset decay time of an inertialized transition, seconds. */
   blend?: number;
+}
+
+/**
+ * Companion data of {@link IHumanInterruptRow}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what each list holds.
+ * @evidence contracts/development/design.md#principled-representation Closed lists as data, from which the row's member types are read.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The two lists a page and a test generator read.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+ */
+export namespace IHumanInterruptRow {
+  /** The transitions a cut runs, as data. */
+  export const KINDS = ["inertialize", "redirect", "phase"] as const;
+
+  /** What a transition may carry unchanged, as data. */
+  export const KEEPS = ["stanceFoot", "guard", "grip"] as const;
 }

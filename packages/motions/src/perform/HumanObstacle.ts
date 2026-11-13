@@ -75,6 +75,9 @@ export namespace HumanObstacle {
     height: number;
   }
 
+  /** Why a path is blocked, as data: a solid with no opening on the path, an opening narrower than the body, or one lower than it. */
+  export const CAUSES = ["solid", "narrow", "headroom"] as const;
+
   /** Where and why a path is blocked. */
   export interface IBlock {
     /** The obstacle. */
@@ -87,7 +90,7 @@ export namespace HumanObstacle {
     distance: number;
 
     /** Why: a solid with no opening on the path, an opening narrower than the body, or one lower than it. */
-    cause: "solid" | "narrow" | "headroom";
+    cause: (typeof CAUSES)[number];
 
     /** The opening the path goes through, for `narrow` and `headroom`. */
     aperture?: string;

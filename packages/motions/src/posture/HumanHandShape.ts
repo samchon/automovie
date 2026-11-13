@@ -84,18 +84,22 @@ export namespace HumanHandShape {
    * @evidence contracts/development/design.md#minimal-and-owned-surface The shapes the emblem rows read; the working shapes stay `HumanHand.Shape`'s.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A separate union, so no caller of the working shapes changes.
    */
-  export type Emblem =
-    | "thumbUp"
-    | "ok"
-    | "victory"
-    | "crossed"
-    | "count1"
-    | "count2"
-    | "count3"
-    | "count4"
-    | "count5"
-    | "snap"
-    | "quotes";
+  export type Emblem = (typeof EMBLEMS)[number];
+
+  /** The emblem shapes of {@link Emblem}, as data. */
+  export const EMBLEMS = [
+    "thumbUp",
+    "ok",
+    "victory",
+    "crossed",
+    "count1",
+    "count2",
+    "count3",
+    "count4",
+    "count5",
+    "snap",
+    "quotes",
+  ] as const;
 
   /**
    * The finger joints of an emblem shape, clinical degrees (every angle

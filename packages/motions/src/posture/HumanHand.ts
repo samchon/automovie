@@ -93,20 +93,30 @@ import { poseBones } from "./poseBones";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The memo is a WeakMap on the body, at most eight entries a body, released with the body.
  */
 export namespace HumanHand {
-  /** A hand. */
-  export type Side = "left" | "right";
+  /** A hand, or the side of any paired part. */
+  export type Side = (typeof SIDES)[number];
+
+  /** The sides of {@link Side}, as data. */
+  export const SIDES = ["left", "right"] as const;
 
   /** A surface of the hand brought to a target. */
-  export type Surface =
-    | "palm"
-    | "grip"
-    | "fist"
-    | "handBack"
-    | "indexTip"
-    | "wrist";
+  export type Surface = (typeof SURFACES)[number];
+
+  /** The surfaces of {@link Surface}, as data. */
+  export const SURFACES = [
+    "palm",
+    "grip",
+    "fist",
+    "handBack",
+    "indexTip",
+    "wrist",
+  ] as const;
 
   /** A hand shape. */
-  export type Shape = "relaxed" | "flat" | "point" | "fist";
+  export type Shape = (typeof SHAPES)[number];
+
+  /** The hand shapes of {@link Shape}, as data. */
+  export const SHAPES = ["relaxed", "flat", "point", "fist"] as const;
 
   /** A frame: a point with an outward unit normal and a unit forward across it. */
   export interface IFrame {
@@ -267,7 +277,10 @@ export namespace HumanHand {
    * midline on the acting hand's side and `in` toward it, so one name serves
    * both hands.
    */
-  export type Axis = "out" | "in" | "up" | "down" | "forward" | "back";
+  export type Axis = (typeof AXES)[number];
+
+  /** The axes of {@link Axis}, as data. */
+  export const AXES = ["out", "in", "up", "down", "forward", "back"] as const;
 
   /**
    * A direction on one of three rungs: an axis, a share of the way between

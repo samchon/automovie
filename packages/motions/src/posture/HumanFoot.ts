@@ -47,7 +47,10 @@ export namespace HumanFoot {
   }
 
   /** A sole socket that bears on the floor. */
-  export type Socket = "heel" | "ball" | "toe";
+  export type Socket = (typeof SOCKETS)[number];
+
+  /** The sole sockets of {@link Socket}, as data. */
+  export const SOCKETS = ["heel", "ball", "toe"] as const;
 
   /** A sole socket's place on a displayed foot. */
   export interface ISocket {

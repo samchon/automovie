@@ -6,6 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
+import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { HumanBase } from "./HumanBase";
 import type { IHumanContactWindow } from "./IHumanContactWindow";
@@ -152,7 +153,7 @@ export namespace IHumanActionPlan {
     id: string;
 
     /** The limb that carries it; frozen at its stop while contacts resolve. */
-    limb: "leftArm" | "rightArm" | "leftLeg" | "rightLeg";
+    limb: IHumanPosture.Limb;
 
     /** Radius of the striking sphere, metres. */
     radius: number;
@@ -200,7 +201,7 @@ export namespace IHumanActionPlan {
     prop: string;
 
     /** The holding hand. */
-    side: "left" | "right";
+    side: HumanHand.Side;
 
     /** The affordance id of its working point: a blade's point, a muzzle, a hammer's face. */
     tip: string;
@@ -224,7 +225,7 @@ export namespace IHumanActionPlan {
   /** A prop left held in one hand. */
   export interface IHold {
     /** The holding hand. */
-    side: "left" | "right";
+    side: HumanHand.Side;
 
     /** The prop's subject. */
     prop: string;
