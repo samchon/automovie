@@ -300,7 +300,10 @@ export namespace FamilyConicFit {
           const n: number = points.length;
           featured.forEach((k: number, j: number): void => {
             const [before, after]: [number, number] = [(k + n - 1) % n, (k + 1) % n];
-            const reading: number = values[at[k]! + 2]!;
+            // The feature's frame (`AutoMovieHumanConicSection.frame`): its numbers are read on that chord.
+            const [from, to]: [number, number] = C.frame(k, layout);
+            const chord: number = Math.atan2(points[to]![1]! - points[from]![1]!, points[to]![0]! - points[from]![0]!);
+            const reading: number = chord + values[at[k]! + 2]!;
             let chosen: number | null = null;
             for (let step: number = 0; step <= Math.PI / HEADING_STEP; ++step) {
               const tried: number[] = step === 0 ? [reading] : [reading + step * HEADING_STEP, reading - step * HEADING_STEP];
@@ -322,9 +325,10 @@ export namespace FamilyConicFit {
               points[k] = place;
             }
             tangents[k] = [Math.cos(chosen), Math.sin(chosen)];
-            targets[j]!.push(chosen);
-            places[j]![0]!.push(place[0]!);
-            places[j]![1]!.push(place[1]!);
+            const [t, o, h]: [number, number, number] = C.unplace(points[from] as C.P, points[to] as C.P, place as C.P, chosen);
+            targets[j]!.push(h);
+            places[j]![0]!.push(t);
+            places[j]![1]!.push(o);
           });
         }
         const project = (field: number, target: number[]): void => {
