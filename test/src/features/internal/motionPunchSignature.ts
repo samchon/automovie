@@ -1,4 +1,5 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IHumanBody } from "@automovie/motions";
 
 import type { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
@@ -14,13 +15,21 @@ import { motionHumanSignature as M } from "./motionHumanSignature";
  * @param complaints The gatherer the checks are written to.
  * @param name The body.
  * @param rows The punch rows staged on it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what is read, on what and where the bounds and their sources are stated.
+ * @evidence contracts/development/implementation.md#principled-implementation Each row is staged through the shared signature harness and read off the displayed joints of both performers at the punch's own events, every bound checked into the gatherer so a failing cell does not hide the others.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the rows, one block per bound in the order the tests state them, then the body's calibration.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The elbow bands are compared within the stated read-back resolution, nothing else is loosened; the punching hand is the one that travels farther, read from the film, not the row.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One staged film per row and sixty samples for the early-contact read.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by the sixteen punch signature specs, so the reading is written once.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; each film is dropped after its row.
  */
 export function motionPunchSignature(
   complaints: motionComplaints.IGatherer,
   name: motionHumanBody.Name,
   rows: readonly string[],
 ): void {
-  const partner = motionHumanBody("m-average");
+  const partner: IHumanBody = motionHumanBody("m-average");
   for (const row of rows) {
     const cell: string = `punch ${row} ${name}`;
     const s: M.IStaged = M.stage("punch", row, name);
@@ -95,26 +104,36 @@ export function motionPunchSignature(
   for (const c of M.calibrate(name)) complaints.check(c, false);
 }
 
-/** Companion lists and tolerance of {@link motionPunchSignature}. */
+/**
+ * Companion lists and tolerance of {@link motionPunchSignature}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Each member states what it holds and, for the tolerance, its measured basis.
+ * @evidence contracts/development/design.md#principled-representation The rows of each split as data and one named tolerance, read by every spec.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Four row lists and one tolerance.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The tolerance is one constant with its basis, not a margin in each bound.
+ */
 export namespace motionPunchSignature {
   /**
-   * The read-back resolution of an elbow angle at a band's edge, degrees: an
-   * arm planned exactly at a band's end (a punch whose step is capped plans
-   * its arm at the band's longest reach) reads a hundredth of a degree off
-   * it from the posed joints, though the plan's limb lengths are the rig's
-   * own, so each end of an elbow band is compared within it.
+   * The read-back resolution of an elbow angle at a band's edge, degrees.
+   * An arm planned exactly at a band's end (a punch whose step is capped
+   * plans its arm at the band's longest reach) read 59.99 degrees from the
+   * posed joints against its planned 60 on the average man's uppercut,
+   * though the plan's limb lengths equal the rig's rest joints' distances on
+   * all four extreme bodies (measured): the hundredth is the angle's
+   * read-back. 0.1 is ten times that, so a read-back never fails a planned
+   * edge, and a hundredth of the narrowest band's width (the straight's 30),
+   * so no plan outside its band passes.
    */
   export const TOLERANCE: number = 0.1;
 
-  /** The straight punches: the default, the straight technique, each hand and the hit. */
-  export const STRAIGHT: readonly string[] = [
-    "default",
-    "technique=straight",
-    "hand=lead",
-    "hand=rear",
-    "accuracy=hit",
-  ];
+  /** The straight punch as the row leaves it and as the technique names it. */
+  export const STRAIGHT: readonly string[] = ["default", "technique=straight"];
 
+  /** The straight punch of each hand named. */
+  export const HANDS: readonly string[] = ["hand=lead", "hand=rear"];
+
+  /** The straight punch thrown to hit. */
+  export const HIT: readonly string[] = ["accuracy=hit"];
   /** The bent-arm punches. */
   export const BENT: readonly string[] = [
     "technique=hook",
