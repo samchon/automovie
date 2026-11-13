@@ -4,6 +4,7 @@ import type {
   IAutoMovieMotionEvent,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionKey } from "../HumanActionKey";
 import { stand } from "../actions/stand";
@@ -89,7 +90,7 @@ export namespace cartwheel {
     to?: "left" | "right";
 
     /** Seconds the cartwheel takes; `SECONDS` when absent. */
-    seconds?: number;
+    seconds?: number & tags.ExclusiveMinimum<0>;
   }
 
   /** One row of the wheel's table. */

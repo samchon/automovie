@@ -4,6 +4,7 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
@@ -106,7 +107,7 @@ export namespace useTool {
     hand?: HumanHand.Side;
 
     /** How many cycles; 4 when absent. */
-    cycles?: number;
+    cycles?: number & tags.Type<"uint32"> & tags.Minimum<1>;
 
     /** How it is performed. */
     manner?: AutoMovieMotionManner.IManner;

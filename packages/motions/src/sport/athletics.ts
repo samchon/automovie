@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
@@ -92,7 +93,7 @@ export namespace athletics {
     front?: "left" | "right";
 
     /** Seconds held in the set; 1.5 when absent. */
-    seconds?: number;
+    seconds?: number & tags.Minimum<0>;
 
     /** How it is performed. */
     manner?: AutoMovieMotionManner.IManner;

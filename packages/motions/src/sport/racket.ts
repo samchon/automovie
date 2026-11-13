@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
@@ -85,7 +86,7 @@ export namespace racket {
     side?: "left" | "right";
 
     /** Seconds held; 0.6 when absent. */
-    seconds?: number;
+    seconds?: number & tags.Minimum<0>;
 
     /** How it is performed. */
     manner?: AutoMovieMotionManner.IManner;

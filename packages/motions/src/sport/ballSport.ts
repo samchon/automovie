@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
@@ -115,7 +116,7 @@ export namespace ballSport {
     side?: "left" | "right";
 
     /** Dribble bounces; 4 when absent. */
-    count?: number;
+    count?: number & tags.Type<"uint32"> & tags.Minimum<1>;
 
     /** How it is performed. */
     manner?: AutoMovieMotionManner.IManner;

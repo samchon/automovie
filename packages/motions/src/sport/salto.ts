@@ -10,6 +10,7 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionKey } from "../HumanActionKey";
 import { jump } from "../actions/jump";
@@ -87,7 +88,7 @@ export namespace salto {
     way?: "forward" | "backward";
 
     /** Whole turns; 1 when absent. */
-    turns?: number;
+    turns?: number & tags.Type<"uint32"> & tags.Minimum<1>;
   }
 
   /**

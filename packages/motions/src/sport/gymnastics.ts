@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
@@ -79,7 +80,7 @@ export namespace gymnastics {
    */
   export interface IParams {
     /** Seconds held inverted; 2 when absent. */
-    seconds?: number;
+    seconds?: number & tags.Minimum<0>;
 
     /** How it is performed. */
     manner?: AutoMovieMotionManner.IManner;
