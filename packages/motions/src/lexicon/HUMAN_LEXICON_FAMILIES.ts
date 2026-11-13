@@ -3,6 +3,7 @@ import { HumanCarried } from "./HumanCarried";
 import { HumanDrill } from "./HumanDrill";
 import { HumanEmblem } from "./HumanEmblem";
 import { HumanFirearm } from "./HumanFirearm";
+import { HumanFloorRoll } from "./HumanFloorRoll";
 import { HumanGait } from "./HumanGait";
 import { HumanHabit } from "./HumanHabit";
 import { HumanLabour } from "./HumanLabour";
@@ -58,6 +59,7 @@ export const HUMAN_LEXICON_FAMILIES = {
   sport: [HumanSport],
   sportGym: [HumanSportGym],
   sportCarry: [HumanSportCarry],
+  floorRoll: [HumanFloorRoll],
   sportSwing: [HumanSportSwing],
   sportThrow: [HumanSportThrow],
   sportWorkout: [HumanSportWorkout],
