@@ -457,8 +457,7 @@ export namespace FamilyConicSection {
    * matched line moves toward its inflection by the C2 ramp of the inflection's strength (the lesser turn of its two arcs; 0 below half
    * `FEATURE_LEAST`, 1 above it), so a line is born and dies at its tracked place as its pair's turn crosses zero, never by a jump: a hard
    * switch in a target becomes a crease however finely it is sampled (construction.md). A convex or concave feature stands at a fixed share
-   * between the inflection lines (or the run's extremes) either side of it. Every feature is the faired section's own point and tangent at
-   * its share. Seeded each on its own, the features were reassigned whenever the conversion's inflection count changed, and jumped up to
+   * between the inflection lines (or the run's extremes) either side of it. Every feature is the converted chain's exact split at its share. Seeded each on its own, the features were reassigned whenever the conversion's inflection count changed, and jumped up to
    * 60 mm between sections 2 mm apart where a groove faded (`groove-check`).
    *
    * @param sections The sections' observed polygons, in station order.
@@ -480,7 +479,7 @@ export namespace FamilyConicSection {
       // needed an S.
       const conversion = converted(points);
       const faired: P[] = Array.from({ length: 1440 }, (_: unknown, i: number): P => conversion.at((2 * Math.PI * i) / 1440).point);
-      return seed(faired, layout, (found: readonly (P | null)[], tangentOf: readonly (P | null)[]): Map<number, { point: P; tangent: P }> => {
+      return seed(faired, layout, (found: readonly (P | null)[]): Map<number, { point: P; tangent: P }> => {
         const out: Map<number, { point: P; tangent: P }> = new Map();
         layout.anchors.forEach((anchor: IAnchor, k: number): void => {
           if (anchor.kind !== "f" || (k > 0 && layout.anchors[k - 1]!.kind === "f")) return;
@@ -585,47 +584,23 @@ export namespace FamilyConicSection {
             const from: number = lo < 0 ? 0 : shares[lo]!, to: number = hi >= run.length ? 1 : shares[hi]!;
             for (let m: number = lo + 1; m < hi; ++m) shares[m] = from + ((to - from) * (m - lo)) / (hi - lo);
           }
-          // A fading line's point and tangent go by the same ramp to the base conic's at its share: the one conic from the run's first
-          // extreme to its other, the extremes' tangents meeting at the box's corner, its shoulder where the section crosses its median line.
-          // The share bound (`EDGE`) stops a line at 3% of its run short of a median meeting point, and there the converted chain still
-          // carried the fading groove's concavity (its tangent turned outward by 0.21 to 0.08 of a unit at 2.4 to 0.96 mm deep, f1's made
-          // falling groove), so the arc from the median needed an S; on the base conic the stop is a piece of one admissible arc.
-          const q0: P = found[fb]!, q2: P = found[fa]!;
-          const corner: P = meet(q0, tangentOf[fb]!, q2, tangentOf[fa]!);
-          const rho: number = Math.min(0.97, Math.max(0.03, crossing(faired, [(q0[0] + q2[0]) / 2, (q0[1] + q2[1]) / 2], corner)));
-          const wb: number = rho / (1 - rho);
-          const baseAt = (t: number): { point: P; tangent: P } => {
-            const b0: number = (1 - t) ** 2, b1: number = 2 * t * (1 - t) * wb, b2: number = t * t;
-            const D: number = b0 + b1 + b2;
-            const N: P = [b0 * q0[0] + b1 * corner[0] + b2 * q2[0], b0 * q0[1] + b1 * corner[1] + b2 * q2[1]];
-            const dD: number = -2 * (1 - t) + 2 * (1 - 2 * t) * wb + 2 * t;
-            const d: P = [-2 * (1 - t) * q0[0] + 2 * (1 - 2 * t) * wb * corner[0] + 2 * t * q2[0] - (N[0] * dD) / D, -2 * (1 - t) * q0[1] + 2 * (1 - 2 * t) * wb * corner[1] + 2 * t * q2[1] - (N[1] * dD) / D];
-            const l: number = Math.hypot(d[0], d[1]) || 1;
-            return { point: [N[0] / D, N[1] / D], tangent: [d[0] / l, d[1] / l] };
-          };
-          const baseLengths: number[] = [0];
-          for (let i: number = 1; i <= 400; ++i) {
-            const p: P = baseAt((i - 1) / 400).point, q: P = baseAt(i / 400).point;
-            baseLengths.push(baseLengths[i - 1]! + Math.hypot(q[0] - p[0], q[1] - p[1]));
+          // Each feature keeps the model's least share, with the line margin, of what is left of its run past the feature before it: the model
+          // reads a feature's share of that remainder and clamps it to `EDGE` (`AutoMovieHumanConicSection.along`), so features nearer than
+          // that are not representable. A faded groove's two lines met at their pair's meeting point with its concave feature between them,
+          // all three at one share (f1's trunk at 200 mm); the arcs between them had no length, no heading made them conics, and the seed's
+          // heading search ran half a turn and settled on reversed tangents, refusing 271 of the trunk's 443 own seeds.
+          for (let i: number = 0; i < run.length; ++i) {
+            const before: number = i === 0 ? 0 : shares[i - 1]!;
+            shares[i] = Math.max(shares[i]!, before + LINE_EDGE * (1 - before));
           }
-          const baseShare = (share: number): { point: P; tangent: P } => {
-            const target: number = share * baseLengths[400]!;
-            let i: number = 0;
-            while (i < 399 && baseLengths[i + 1]! < target) ++i;
-            const piece: number = baseLengths[i + 1]! - baseLengths[i]! || 1;
-            return baseAt((i + (target - baseLengths[i]!) / piece) / 400);
-          };
-          run.forEach((j: number, i: number): void => {
-            const onChain = conversion.at(phiOf(shares[i]!));
-            const line: number = kinds.indexOf(j);
-            if (line < 0 || !alive[line]) return void out.set(j, onChain);
-            const r: number = ramp(strengths[line]!);
-            const onBase = baseShare(shares[i]!);
-            const turned: number = Math.atan2(onChain.tangent[1], onChain.tangent[0]) - Math.atan2(onBase.tangent[1], onBase.tangent[0]);
-            const heading: number = Math.atan2(onBase.tangent[1], onBase.tangent[0]) + r * Math.atan2(Math.sin(turned), Math.cos(turned));
-            out.set(j, { point: [onBase.point[0] + r * (onChain.point[0] - onBase.point[0]), onBase.point[1] + r * (onChain.point[1] - onBase.point[1])], tangent: [Math.cos(heading), Math.sin(heading)] });
-          });
-        });
+          // Every feature is the converted chain's exact split at its share, its point and the chain's tangent there (`converted`, `split`):
+          // splits of an admissible conic chain are conic pieces, so each layout arc spans one curvature sign wherever every inflection of the
+          // chain that bends past the ramp's floor carries a line. A fading line reaches its pair's meeting point on the chain itself. Faded
+          // instead toward the base conic, one conic between the run's extremes, a feature stood off the section wherever the run is not one
+          // convex span: at the crotch's front the base conic from a median on the notch floor is a vertical line inside the thigh's crest,
+          // and of the 60 own seeds refused that way, 50 are admitted on the chain; the other 10 have more inflections past the floor in a run
+          // than the layout has lines (f1's neck and face, 620 to 790 mm).
+          run.forEach((j: number, i: number): void => void out.set(j, conversion.at(phiOf(shares[i]!))));        });
         return out;
       });
     });
@@ -742,7 +717,10 @@ export namespace FamilyConicSection {
       const before: number = resolved[(r + resolved.length - 1) % resolved.length]!;
       const after: number = resolved[(r + 1) % resolved.length]!;
       const reading: number = values[at[k]! + 2]!;
-      for (let step: number = 0; step <= Math.PI / FEATURE_STEP; ++step) {
+      // Only headings within a quarter turn of the reading: past that the tangent runs against the chain's direction of travel, which no
+      // star-shaped chain has, and accepted there a crowded feature's search settled half a turn round (283 degrees for a reading of 105, f1's
+      // trunk at 150 mm). Where none serves, the reading stays and the chain is refused.
+      for (let step: number = 0; step * FEATURE_STEP < Math.PI / 2; ++step) {
         const tried: number[] = step === 0 ? [reading] : [reading + step * FEATURE_STEP, reading - step * FEATURE_STEP];
         const fit: number | undefined = tried.find((h: number): boolean => {
           const d: P = [Math.cos(h), Math.sin(h)];

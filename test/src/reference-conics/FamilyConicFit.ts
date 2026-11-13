@@ -465,7 +465,9 @@ export namespace FamilyConicFit {
             const chord: number = Math.atan2(points[to]![1]! - points[from]![1]!, points[to]![0]! - points[from]![0]!);
             const reading: number = chord + values[at[k]! + 2]!;
             let chosen: number | null = null;
-            for (let step: number = 0; step <= Math.PI / HEADING_STEP; ++step) {
+            // Only headings within a quarter turn of the reading, as the seed's search (`FamilyConicSection.seed`): past that the tangent runs
+            // against the chain's direction of travel.
+            for (let step: number = 0; step * HEADING_STEP < Math.PI / 2; ++step) {
               const tried: number[] = step === 0 ? [reading] : [reading + step * HEADING_STEP, reading - step * HEADING_STEP];
               const found: number | undefined = tried.find((h: number): boolean => {
                 const d: number[] = [Math.cos(h), Math.sin(h)];
