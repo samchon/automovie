@@ -976,7 +976,10 @@ namespace FamilyConicBody {
       };
 
       // A plane's loop for the part: the one round the course, or for a `loose` part the largest closed loop the clip leaves whose hull holds the course.
+      // The clipped skin piece behind the last section a surrounding part read: the largest of the pieces whose hull it is.
+      let piece: C.P[] | null = null;
       const cut = (frame: AutoMovieLoftFrame.IFrame, s: number): C.P[] | null => {
+        piece = null;
         if (part.name === "concha" && CONCHA_DEPTH !== undefined) return depthLoop(s);
         if (part.loose !== true || (part.surround !== undefined && s < part.surround.from)) {
           const whole: C.P[] | null = R.cut(skin, frame).loop;
@@ -989,7 +992,9 @@ namespace FamilyConicBody {
 
         // A part that surrounds its branches reads the curve round every loop within its reach of the course: the hull of them all.
         if (part.surround !== undefined) {
-          const near: C.P[] = clipped.filter((loop: C.P[]): boolean => loop.every((p: C.P): boolean => Math.hypot(p[0], p[1]) < part.surround!.reach)).flat();
+          const pieces: C.P[][] = clipped.filter((loop: C.P[]): boolean => loop.every((p: C.P): boolean => Math.hypot(p[0], p[1]) < part.surround!.reach));
+          piece = pieces.length === 0 ? null : pieces.reduce((a: C.P[], b: C.P[]): C.P[] => (Math.abs(R.area(b)) > Math.abs(R.area(a)) ? b : a));
+          const near: C.P[] = pieces.flat();
           const around: C.P[] = near.length < 3 ? [] : R.hull(near);
           return around.length >= 3 && inside(around) ? around : null;
         }
@@ -1075,13 +1080,18 @@ namespace FamilyConicBody {
             return Array.from({ length: pieces }, (_: unknown, t: number): C.P => [p[0] + ((q[0] - p[0]) * t) / pieces, p[1] + ((q[1] - p[1]) * t) / pieces]);
           }) : R.hull(loop);
           rows.push({ s, points: wall, heldout: i % 2 === 1 });
-          skins.push(part.loose === true && (part.surround === undefined || s >= part.surround.from) ? wall : loop);
+          // A loose part's wall is its section's hull, and so was its skin, which left the hollow search nothing to find. Where hollow
+          // windows are asked for (`reliefs: "auto"`), the skin is the clipped loop itself, or for a part that surrounds its pieces the
+          // largest piece, and a hollow's depth is read in the section's plane along the tape's inward normal, the distance to the hull:
+          // a C-shaped section's hollows open along the C, not toward its course.
+          const own: C.P[] = part.loose === true && part.reliefs === "auto" ? (piece ?? loop) : loop;
+          skins.push(part.loose === true && (part.surround === undefined || s >= part.surround.from) && part.reliefs !== "auto" ? wall : own);
           loops.push(loop);
           let deepest: number = 0;
           let where: number = 0;
-          for (const p of loop) {
+          for (const p of own) {
             const phi: number = Math.atan2(p[1], p[0]);
-            const depth: number = C.radius(wall, phi) - Math.hypot(p[0], p[1]);
+            const depth: number = part.loose === true && part.reliefs === "auto" ? inward(wall, p) : C.radius(wall, phi) - Math.hypot(p[0], p[1]);
             if (depth > deepest) {
               deepest = depth;
               where = phi;
@@ -1252,7 +1262,7 @@ namespace FamilyConicBody {
         const below: number = Number(process.argv.find((argument: string): boolean => argument.startsWith("--coarse-below="))?.slice(15) ?? Infinity);
         const scaled = (window: IWindow): IWindow => (coarse === 1 || window.stations[1] > below ? window : { ...window, rows: Math.max(7, Math.round(window.rows * coarse)), columns: Math.max(7, Math.round(window.columns * coarse)) });
         // `--bare`: the wall alone, no relief of any kind, for a wall that is spliced and given its reliefs in a later run (`--wall`).
-        const windows: IWindow[] = BARE ? [] : part.reliefs === "auto" ?hollowWindows(part.name, rows, skins, course).map((window: H.IWindow): IWindow => ({ ...window, stations: [window.stations[0], Math.min(window.stations[1], part.reliefEnd ?? tip ?? Infinity)], fade: [50, 50], fadePhase: [0.6, 0.6] })) : part.reliefs.map(scaled);
+        const windows: IWindow[] = BARE ? [] : part.reliefs === "auto" ?hollowWindows(part.name, rows, skins, course, part.loose === true).map((window: H.IWindow): IWindow => ({ ...window, stations: [part.name === "auricle" ? Math.max(window.stations[0], domain[0]) : window.stations[0], Math.min(window.stations[1], part.reliefEnd ?? tip ?? Infinity)], fade: [50, 50], fadePhase: [0.6, 0.6] })) : part.reliefs.map(scaled);
 
         // Phases from 0 to a whole turn have their middle at pi, where the inward radial direction is +u, and a quarter turn on it is +v. A
         // net over a window of phases with middle `c` casts toward the course as well: `cos(t - c) A + sin(t - c) T` is the inward radial
@@ -1309,7 +1319,8 @@ namespace FamilyConicBody {
           log("family-body-relief", { part: part.name, relief: window.name, kept, scalars: fitted.scalars, deepestMm: round(fitted.deepestMm), trainMaxMm: round(fitted.trainMaxMm), heldMaxMm: round(fitted.heldMaxMm) });
          }
         };
-        fitAll(windows, part.reliefs === "auto");
+        // `--keep-windows`: every window the hollow search places is kept whatever the keep rule says, to read what it does.
+        fitAll(windows, part.reliefs === "auto" && !process.argv.includes("--keep-windows"));
 
         // A spliced wall takes the reliefs as it takes the knots: each wall's own stored ones on its side of the station, since those were
         // fitted on the very values the splice keeps there. Fitted again over the whole spliced wall, the hollow search placed other windows
@@ -1525,10 +1536,28 @@ namespace FamilyConicBody {
    * stand on skin that needs no height, with the axis the inward radial
    * direction at the run's middle.
    */
-  function hollowWindows(name: string, rows: readonly F.IRow[], skins: readonly C.P[][], course: AutoMovieViewAxis.IAxis): H.IWindow[] {
+  /** How far a point of a section lies inside its convex hull, mm: its distance to the nearest hull edge, or 0 outside. */
+  function inward(hull: readonly C.P[], p: C.P): number {
+    let least: number = Infinity;
+    let inside: boolean = true;
+    for (let i: number = 0; i < hull.length; ++i) {
+      const a: C.P = hull[i]!;
+      const b: C.P = hull[(i + 1) % hull.length]!;
+      const e: C.P = [b[0] - a[0], b[1] - a[1]];
+      const length2: number = e[0] * e[0] + e[1] * e[1];
+      if (length2 === 0) continue;
+      if (e[0] * (p[1] - a[1]) - e[1] * (p[0] - a[0]) < 0) inside = false;
+      const t: number = Math.max(0, Math.min(1, ((p[0] - a[0]) * e[0] + (p[1] - a[1]) * e[1]) / length2));
+      least = Math.min(least, Math.hypot(p[0] - a[0] - t * e[0], p[1] - a[1] - t * e[1]));
+    }
+    return inside ? least : 0;
+  }
+
+  function hollowWindows(name: string, rows: readonly F.IRow[], skins: readonly C.P[][], course: AutoMovieViewAxis.IAxis, normal: boolean = false): H.IWindow[] {
     const deep: { s: number; phases: number[] }[] = rows.map((row: F.IRow, i: number): { s: number; phases: number[] } => {
-      // Depth below the tape hull, not below the fitted wall: the wall's own misfit is not a hollow.
-      return { s: row.s, phases: skins[i]!.map((p: C.P): number => Math.atan2(p[1], p[0])).filter((phi: number, k: number): boolean => C.radius(row.points, phi) - Math.hypot(skins[i]![k]![0], skins[i]![k]![1]) > 0.6 * TARGET_MM) };
+      // Depth below the tape hull, not below the fitted wall: the wall's own misfit is not a hollow. Toward the course, or for a loose
+      // part (`normal`) in the section's plane along the hull's inward normal.
+      return { s: row.s, phases: skins[i]!.map((p: C.P): number => Math.atan2(p[1], p[0])).filter((phi: number, k: number): boolean => (normal ? inward(row.points, skins[i]![k]!) : C.radius(row.points, phi) - Math.hypot(skins[i]![k]![0], skins[i]![k]![1])) > 0.6 * TARGET_MM) };
     });
     // Deep vertices are first split round the section: phases farther apart than a radian belong to different hollows (a spine groove and a cleavage share stations but not a window).
     const every: number[] = deep.flatMap((row: { s: number; phases: number[] }): number[] => row.phases).sort((a: number, b: number): number => a - b);
