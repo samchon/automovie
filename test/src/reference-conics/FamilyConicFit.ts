@@ -832,7 +832,8 @@ export namespace FamilyConicFit {
    * accuracy: knots are inserted where the curve leaves its data until every point holds). From the domain's two ends, each round projects
    * every field onto the knots by weighted linear least squares (a refused own seed weighs nothing), and checks every `DENSE_MM` station
    * for an admissible chain, raw and as stored, and every admitted own seed for a projection within `SEED_NEAR_MM` of it. In each knot
-   * interval that fails, a knot goes in at its worst station: a refused station first (the least tangent meeting), else the farthest seed.
+   * interval that fails, a knot goes in at its worst station: the refused station farthest from the interval's knots first, else the seed
+   * farthest from its projection.
    * An interval whose worst station stands within `KNOT_LEAST_MM` of a knot is reported and left, since the seeds there disagree.
    *
    * @param train The fitting sections.
@@ -864,7 +865,22 @@ export namespace FamilyConicFit {
       if (x.fault !== null || y.fault !== null) return Infinity;
       return Math.max(...rays.map((phi: number): number => Math.abs(Q.radius(x, phi) - Q.radius(y, phi))));
     };
-    let knots: number[] = [...ends];
+    // The own seeds against the same test: how many the fit itself would admit, and their least tangent meetings by stretch.
+    {
+      const stretches: Map<number, { n: number; pass: number; chained: number; least: number[] }> = new Map();
+      train.forEach((row: IRow, i: number): void => {
+        const key: number = Math.floor(row.s / 100) * 100;
+        const cell = stretches.get(key) ?? { n: 0, pass: 0, chained: 0, least: [] };
+        ++cell.n;
+        if (C.chain([...seeds[i]!], layout).fault === null) ++cell.chained;
+        const v: number = score([...seeds[i]!]);
+        if (v >= 0) ++cell.pass;
+        if (Number.isFinite(v)) cell.least.push(v + margin);
+        stretches.set(key, cell);
+      });
+      const median = (x: number[]): string => (x.length === 0 ? "-" : [...x].sort((a, b) => a - b)[Math.floor(x.length / 2)]!.toFixed(3));
+      process.stderr.write(`own seeds against the fit's test (chain admitted / meeting margin and stored rounding passed / of; least meeting min and median): ${[...stretches.entries()].sort((a, b) => a[0] - b[0]).map(([k, c]) => `${k}-${k + 100}: ${c.chained}/${c.pass}/${c.n}, ${c.least.length ? Math.min(...c.least).toFixed(3) : "-"} ${median(c.least)}`).join(" | ")}\n`);
+    }    let knots: number[] = [...ends];
     const blocked: Set<number> = new Set();
     for (let round: number = 0; round < 200; ++round) {
       const M: number = knots.length;
@@ -903,7 +919,9 @@ export namespace FamilyConicFit {
       for (let s: number = ends[0]; s <= ends[1] + 1e-9; s += DENSE_MM) {
         const v: number = score(theta(basis(Math.min(s, ends[1]))));
         if (v < 0) {
-          offer(s, true, -v);
+          // A refused station's rank is its distance from the nearest knot: a fault has no degree, and inserting at the refused station
+          // farthest from the interval's knots divides the refused stretch as bisection would.
+          offer(s, true, Math.min(...knots.map((k: number): number => Math.abs(k - s))));
           const key: number = Math.floor(s / 100) * 100;
           refusals.set(key, (refusals.get(key) ?? 0) + 1);
         }
