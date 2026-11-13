@@ -24,6 +24,7 @@ export * from "./hingedArmArticulation";
 export * from "./indexSkeletonTopology";
 export * from "./jointRomOvershoot";
 export * from "./jointToQuaternion";
+export * from "./jointToQuaternionOnBasis";
 export * from "./measureAutoMovieHumanoidBody";
 export * from "./normalizeJointAxes";
 export * from "./poseJointCodec";

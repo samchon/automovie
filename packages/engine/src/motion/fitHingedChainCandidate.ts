@@ -14,6 +14,7 @@ import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotat
 import { hingedArmArticulation } from "../kinematics/hingedArmArticulation";
 import { jointRomOvershoot } from "../kinematics/jointRomOvershoot";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
+import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -329,10 +330,11 @@ function rotationError(
     props.jointAxes?.[effector];
   const lowerBasis: IAutoMovieJointAxes = basisOf(axes);
   const effectorBasis: IAutoMovieJointAxes = basisOf(effectorAxes);
+  // Each joint's basis was admitted and normalized above, once for the whole
+  // sweep, so the clamped angles are composed on it directly.
   const clamped = (
     bone: AutoMovieHumanoidBone,
     q: IAutoMovieQuaternion,
-    boneAxes: IAutoMovieJointAxes | undefined,
     basis: IAutoMovieJointAxes,
     domain?: IAutoMovieJointRotationDomain,
   ): IAutoMovieQuaternion => {
@@ -342,12 +344,12 @@ function rotationError(
       props.restFrames?.[bone],
       domain,
     );
-    return jointToQuaternion(
+    return jointToQuaternionOnBasis(
       clampJointToSkeleton(
         { bone, flexion: a.flexion, abduction: a.abduction, twist: a.twist },
         props.skeleton,
       ),
-      boneAxes,
+      basis,
       props.restFrames?.[bone],
     );
   };
@@ -370,7 +372,6 @@ function rotationError(
       clamped(
         props.chain.lower,
         Quaternion.multiply(lower, twist),
-        axes,
         lowerBasis,
         prepared.lowerDomain,
       ),
@@ -383,7 +384,7 @@ function rotationError(
     );
     const shown: IAutoMovieQuaternion = Quaternion.multiply(
       Quaternion.multiply(mid, rest),
-      clamped(effector, local, effectorAxes, effectorBasis),
+      clamped(effector, local, effectorBasis),
     );
     return (
       (Quaternion.angle(Quaternion.normalize(shown), wanted) * 180) / Math.PI

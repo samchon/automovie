@@ -4,32 +4,12 @@ import {
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
-import { IAutoMovieAxisFrame } from "../rom/IAutoMovieAxisFrame";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import { toRigAngle } from "../rom/toRigAngle";
 import { DEFAULT_JOINT_AXES } from "./constants/DEFAULT_JOINT_AXES";
+import { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 
 type AutoMovieClinicalAxis = "flexion" | "abduction" | "twist";
-
-const readAngle: (
-  joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>,
-  axis: AutoMovieClinicalAxis,
-  frame: IAutoMovieAxisFrame | undefined,
-) => number = (
-  joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>,
-  axis: AutoMovieClinicalAxis,
-  frame: IAutoMovieRestFrame[AutoMovieClinicalAxis] | undefined,
-): number => {
-  const value: number | null = joint[axis];
-  if (value !== null && !Number.isFinite(value))
-    throw new Error(
-      `jointToQuaternion ${axis} must be finite or null, but was ${value}`,
-    );
-  return toRigAngle(value, frame) ?? 0;
-};
-
 /**
  * Convert a joint's clinical flexion, abduction and twist, in degrees, into
  * one bone-local rotation quaternion.
@@ -65,10 +45,10 @@ const readAngle: (
  *   omitted, the angles are already rest-relative.
  *
  * @evidence contracts/development/implementation.md#principled-implementation An intrinsic Euler composition of three axis-angle quaternions in a declared order, which is a rotation for any orthonormal basis; `normalizeJointAxes` enforces that basis and the frame map is the exact affine inverse of `toClinicalAngle`, so `decomposeJointRotation` round-trips it.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The forward half of the joint convention, used by `resolvePose` for every articulated bone; basis checking lives in `normalizeJointAxes` and frame arithmetic in `toRigAngle`, so the forward and inverse maps share those rules.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The forward half of the joint convention, used by `resolvePose` for every articulated bone: `jointToQuaternionOnBasis` behind one `normalizeJointAxes`, so basis checking and composition each live in one place and the forward and inverse maps share those rules.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads every bone through its declared axes and frame; a `null` angle is the documented rest rotation, and a non-finite angle throws instead of becoming zero.
  * @evidence contracts/development/common.md#meaningful-documentation States each axis and its default, both composition orders and when each applies, what `null` means, the frame map and its purpose, the inverse function, the thrown inputs, and each parameter's default.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant time: one basis validation and normalization, three axis-angle quaternions and two products.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant time: one basis admission (a remembered record costs ten comparisons), three axis-angle quaternions and two products.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of one joint that coordinates no work across calls.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned quaternion.
  */
@@ -80,24 +60,9 @@ export const jointToQuaternion: (
   joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>,
   axes: IAutoMovieJointAxes = DEFAULT_JOINT_AXES,
   frame?: IAutoMovieRestFrame,
-): IAutoMovieQuaternion => {
-  const basis: IAutoMovieJointAxes = normalizeJointAxes(
-    axes,
-    "jointToQuaternion axes",
+): IAutoMovieQuaternion =>
+  jointToQuaternionOnBasis(
+    joint,
+    normalizeJointAxes(axes, "jointToQuaternion axes"),
+    frame,
   );
-  const qFlexion: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-    basis.flexion,
-    readAngle(joint, "flexion", frame?.flexion),
-  );
-  const qAbduction: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-    basis.abduction,
-    readAngle(joint, "abduction", frame?.abduction),
-  );
-  const qTwist: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-    basis.twist,
-    readAngle(joint, "twist", frame?.twist),
-  );
-  return basis.twistPlacement === "distal"
-    ? Quaternion.multiply(qAbduction, Quaternion.multiply(qFlexion, qTwist))
-    : Quaternion.multiply(qTwist, Quaternion.multiply(qAbduction, qFlexion));
-};
