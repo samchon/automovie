@@ -337,14 +337,18 @@ export namespace FamilyConicFit {
       const rounded: number[][] = stored(values);
       return dense.every((b: number[]): boolean => C.chain(theta(values, b), layout).fault === null && C.chain(theta(rounded, b), layout).fault === null && meeting(theta(values, b)) >= margin && meeting(theta(rounded, b)) >= margin && inside(theta(values, b)) && inside(theta(rounded, b)));
     };
-    // `--barrier`: an interior-point term over the same stations (Nocedal and Wright, ch. 19). The margins of a chain are what its
-    // admissibility asks to be positive: every arc's two tangent-meeting distances (`AutoMovieViewChain`'s `a` and `b`, mm) and every
-    // step of its points' phase round the course, radians, with the turn's remainder. `-mu sum log(margin)` is added at every station, so
-    // a candidate moves freely inside the admissible region and never crosses its wall; `mu` falls over rounds toward the plain fit.
+    // `--barrier`: an interior-point term over the same stations (Nocedal and Wright, ch. 19). A barrier must guard the very region the
+    // acceptance test defines, so a chain's margins are exactly what `admissible` asks to be positive: every step of its points' phase
+    // round the course, radians, with the turn's remainder; every least tangent meeting of its arcs less the fit's `margin` (the quantity
+    // `leastMeetings` measures, so the barrier and the check read one definition); and every share and one less every share.
+    // `-mu sum log(margin)` is added at every station, so a candidate moves freely inside the admissible region and never crosses its wall;
+    // `mu` falls over rounds toward the plain fit. The stored rounding stays the acceptance test alone: a barrier cannot be smooth across a
+    // rounding, and a step that keeps every margin positive with the barrier's slack passes it in practice. Guarding the raw meeting
+    // distances instead, the barrier held the lined trunk off a wall that never refused it while every step crossed the meeting share of
+    // 0.1 at its crotch end (0.115 at the start) and was refused there.
     const margins = (t: number[]): number[] | null => {
       const input = C.resolve(t, layout).input;
       const points: number[][] = input.points as number[][];
-      const tangents: number[][] = input.tangents as number[][];
       const K: number = points.length;
       const out: number[] = [];
       const phases: number[] = [];
@@ -355,12 +359,8 @@ export namespace FamilyConicFit {
         if (j > 0) out.push(phi - phases[j - 1]!);
       }
       out.push(phases[0]! + 2 * Math.PI - phases[K - 1]!);
-      for (let j: number = 0; j < K; ++j) {
-        const [p0, p2, t0, t2] = [points[j]!, points[(j + 1) % K]!, tangents[j]!, tangents[(j + 1) % K]!];
-        const den: number = t0[0]! * t2[1]! - t0[1]! * t2[0]!;
-        const d: number[] = [p2[0]! - p0[0]!, p2[1]! - p0[1]!];
-        out.push((d[0]! * t2[1]! - d[1]! * t2[0]!) / den, (t0[0]! * d[1]! - t0[1]! * d[0]!) / den);
-      }
+      for (const least of leastMeetings(t, layout)) out.push(least - margin);
+      for (const f of shares) out.push(t[f]!, 1 - t[f]!);
       return out.every(Number.isFinite) ? out : null;
     };
     let mu: number = 0;
@@ -529,7 +529,8 @@ export namespace FamilyConicFit {
           m.forEach((v: number, j: number): void => {
             if (v >= entry.value) return;
             entry.value = v;
-            const name: string = j < K ? `phase step after point ${j} (rad)` : `arc ${Math.floor((j - K) / 2)} tangent meeting ${(j - K) % 2 === 0 ? "a (mm ahead of its start)" : "b (mm behind its end)"}`;
+            const L: number = leastMeetings(t, layout).length;
+            const name: string = j < K ? `phase step after point ${j} (rad)` : j < K + L ? `least meeting ${j - K} less the margin` : `share field ${shares[Math.floor((j - K - L) / 2)]} ${(j - K - L) % 2 === 0 ? "above 0" : "below 1"}`;
             entry.what = `${s.toFixed(1)}: ${name} = ${v.toExponential(3)}; meeting ${meeting(t).toFixed(3)} against the margin ${margin}`;
           });
         named.set(key, entry);
@@ -540,7 +541,7 @@ export namespace FamilyConicFit {
     const steps: number[] = Array.from({ length: F }, (_: unknown, f: number): number => (units[f] === "mm" ? 1e-4 : 1e-6));
     let lambda: number = 1e-3;
     let iterations: number = 0;
-    const refusedSteps: { inadmissible: number; barrier: number; residual: number; worse: number; singular: number; where: Map<number, number> } = { inadmissible: 0, barrier: 0, residual: 0, worse: 0, singular: 0, where: new Map() };
+    const refusedSteps: { inadmissible: number; rounding: number; barrier: number; residual: number; worse: number; singular: number; where: Map<number, number> } = { inadmissible: 0, rounding: 0, barrier: 0, residual: 0, worse: 0, singular: 0, where: new Map() };
     // `--homotopy`: the fit travels from the shape it starts from to the skin along a path of targets (Allgower and Georg), each section's
     // radii blended from the start's own (t = 0) to the observed ones (t = 1) in `HOMOTOPY_STEPS` steps, each step starting from the last
     // solution, so a start the admissible region holds far from the skin is carried to it without a jump across the region's wall.
@@ -676,6 +677,8 @@ export namespace FamilyConicFit {
             if (trial === null) {
               if (!admissible(next)) {
                 ++refusedSteps.inadmissible;
+                // Refused only as stored: every raw station admissible, a rounded one not.
+                if (dense.every((b: number[]): boolean => C.chain(theta(next, b), layout).fault === null && meeting(theta(next, b)) >= margin && inside(theta(next, b)))) ++refusedSteps.rounding;
                 const at: number = dense.findIndex((b: number[]): boolean => C.chain(theta(next, b), layout).fault !== null);
                 if (at >= 0) refusedSteps.where.set(Math.floor((knots[0]! + at * DENSE_MM) / 100) * 100, (refusedSteps.where.get(Math.floor((knots[0]! + at * DENSE_MM) / 100) * 100) ?? 0) + 1);
               } else if (mu > 0 && barrier(next) === null) ++refusedSteps.barrier;
@@ -702,7 +705,7 @@ export namespace FamilyConicFit {
     }
 
     if (process.argv.includes("--seeds"))
-      process.stderr.write(`steps refused: ${refusedSteps.inadmissible} inadmissible at a dense station (first faulty station by stretch: ${[...refusedSteps.where.entries()].map(([s, c]): string => s + ":" + c).join(" ")}), ${refusedSteps.barrier} by the barrier, ${refusedSteps.residual} by a fitting section's residual, ${refusedSteps.worse} not lowering the cost, ${refusedSteps.singular} singular; ${iterations} accepted; ${held.size} of ${F} fields held\n`);
+      process.stderr.write(`steps refused: ${refusedSteps.inadmissible} inadmissible at a dense station (${refusedSteps.rounding} of them only as stored; first faulty station by stretch: ${[...refusedSteps.where.entries()].map(([s, c]): string => s + ":" + c).join(" ")}), ${refusedSteps.barrier} by the barrier, ${refusedSteps.residual} by a fitting section's residual, ${refusedSteps.worse} not lowering the cost, ${refusedSteps.singular} singular; ${iterations} accepted; ${held.size} of ${F} fields held\n`);
     // Report at the cut vertices of fitting and withheld sections, and against the chords on an independent phase grid.
     const report: number[] = Array.from({ length: REPORT }, (_: unknown, k: number): number => (2 * Math.PI * (k + 0.5)) / REPORT);
     const evidence: IResult["rows"] = [];
