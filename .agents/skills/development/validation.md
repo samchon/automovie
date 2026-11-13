@@ -25,6 +25,8 @@ Follow any task-specific test-code prohibition and use its required verification
 
 Put every test one run needs into one `pnpm test --include <names...>`, because each run compiles the whole project before its first test.
 
+While developing, run selected tests with `pnpm test:esbuild --include <names...>` from the root instead. It bundles the test program and the packages' sources with esbuild and starts in seconds. It checks no types and runs no lint, so read the type-check watch first, and keep every test valid under `pnpm test`, which CI runs. Start one such run at a time in a checkout, because each run rebuilds the shared `test/bin`.
+
 ## Visual changes
 
 Verify a render, viewer or capture change under [visual debugging](../visual-debugging/SKILL.md).
