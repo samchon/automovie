@@ -53,6 +53,7 @@ __pycache__/
 test/src/executable/
 test/.shots/
 test/bin/
+test/.cache/
 
 # Local registered inputs and retained acquisition/render evidence.
 /test/reference-inputs/

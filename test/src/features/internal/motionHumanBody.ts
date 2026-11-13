@@ -5,6 +5,7 @@ import {
 import { type IHumanBody, createHumanBody } from "@automovie/motions";
 
 import PEOPLE from "./MOTION_HUMAN_PEOPLE.json";
+import { motionHumanBodyCache } from "./motionHumanBodyCache";
 
 /**
  * A real body for the motion tests: one of the fourteen people of the ANSUR
@@ -17,9 +18,9 @@ import PEOPLE from "./MOTION_HUMAN_PEOPLE.json";
  * harness for the ends of its sweep (the harness is not a package entry
  * point, so a test cannot import it).
  *
- * A body takes about two seconds to prepare, so each is prepared once a
- * process (`AutoMovieHumanCanonicalBody.prepare`), wrapped and shared by every
- * test of the process; tests must not mutate it.
+ * A body takes seconds to prepare, so each is prepared once for the code as
+ * it stands and kept on disk (`motionHumanBodyCache`), read once a process,
+ * wrapped and shared by every test of the process; tests must not mutate it.
  *
  * @param name The person.
  * @returns The body.
@@ -28,14 +29,17 @@ export function motionHumanBody(name: motionHumanBody.Name): IHumanBody {
   const known: IHumanBody | undefined = BODIES.get(name);
   if (known !== undefined) return known;
   const person: { mass: number; params: unknown } = PEOPLE[name];
-  const prepared: AutoMovieHumanCanonicalBody.IBody =
-    AutoMovieHumanCanonicalBody.prepare(
-      person.params as IAutoMovieHumanParameters,
-      {
+  const params: IAutoMovieHumanParameters =
+    person.params as IAutoMovieHumanParameters;
+  const prepared: motionHumanBodyCache.IPrepared = motionHumanBodyCache.read(
+    name,
+    { mass: person.mass, params },
+    (): motionHumanBodyCache.IPrepared =>
+      AutoMovieHumanCanonicalBody.prepare(params, {
         mass: person.mass,
         id: name,
-      },
-    );
+      }),
+  );
   const body: IHumanBody = createHumanBody(prepared.skeleton, prepared.profile);
   BODIES.set(name, body);
   return body;
