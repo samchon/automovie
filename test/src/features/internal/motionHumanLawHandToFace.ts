@@ -6,7 +6,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanAudit,
   AutoMovieMotionHumanAuditDifference,
   AutoMovieMotionHumanTouchDrink,
   AutoMovieMotionHumanTouchEffector,
@@ -20,16 +19,12 @@ import {
 import { motionHumanBody } from "./motionHumanBody";
 import { motionHumanLaw } from "./motionHumanLaw";
 
-/** The parts of the film the audit's other checks are read over, one spec each: the arm's carries cost most of a film's audit, so a sixth holds at most about half a carry. */
-const PARTS: number = 6;
-
 /**
  * Everything one hand-to-face task owes on screen, read off the displayed
- * bones of a body standing at the origin heading +Z, as complaints, in three
- * parts so each spec runs within the time a test may take: `tangle` reads 1's
- * tangle, `motion-1` to `motion-6` 1's other checks over each sixth of the
- * film, and `film` 2 to 6 and 8, all on the
- * right-hand film of the body named; `population` reads 7 on the four bodies
+ * bones of a body standing at the origin heading +Z, as complaints, in parts
+ * so each spec runs within the time a test may take: the audit's parts
+ * (`motionHumanLaw.auditPart`: `tangle` and `motion-1` to `motion-6`) read 1,
+ * and `film` 2 to 6 and 8, all on the right-hand film of the body named; `population` reads 7 on the four bodies
  * of the population sample, and `mirror` reads 9 against the left-hand film.
  *
  * On the body named, over the whole film at 24 Hz:
@@ -72,7 +67,7 @@ const PARTS: number = 6;
  *    plane within 5 mm, read 4 times a second.
  *
  * @param task The task.
- * @param part Which expectations are read: `tangle` (1's tangle), `motion-1` to `motion-6` (1's other checks, over each sixth of the film), `film` (2 to 6 and 8), `population` (7, on a vessel's task) or `mirror` (9, on a one-hand task).
+ * @param part Which expectations are read: an audit part (1, `motionHumanLaw.auditPart`), `film` (2 to 6 and 8), `population` (7, on a vessel's task) or `mirror` (9, on a one-hand task).
  * @param name The body audited over the whole film.
  * @returns One complaint per expectation of the part that does not hold, with its measured numbers (an elbow's travel and the mirror also with the task's events in film seconds); empty when the task is right.
  *
@@ -80,18 +75,13 @@ const PARTS: number = 6;
  * @evidence contracts/development/implementation.md#principled-implementation Each expectation is a physical requirement, a cited range or a symmetry, read off displayed bones; none is the law's own goal but the cup's lean at the mouth, bounded by the lean the law asked plus one search step, since that lean is the drinking arm's answer (Murphy et al. 2011) and not a fixed angle.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One film, then one block per expectation.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every expectation is evaluated and reported; none stops the others.
- * @evidence contracts/development/implementation.md#efficient-algorithms Every expectation on the grid reads the film's remembered frames; the population check resolves one instant per body; a part reads only its own expectations, so the audit's finer frames are resolved by the `motion-*` parts alone, each over a sixth of the film.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Every expectation on the grid reads the film's remembered frames; the population check resolves one instant per body; a part reads only its own expectations, so the audit's finer frames are resolved by its parts alone.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `motionHumanLaw` for the film, the event, the travel and the audit.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The films are local and released on return.
  */
 export function motionHumanLawHandToFace(
   task: handToFace.Task,
-  part:
-    | "tangle"
-    | `motion-${1 | 2 | 3 | 4 | 5 | 6}`
-    | "film"
-    | "population"
-    | "mirror",
+  part: motionHumanLaw.AuditPart | "film" | "population" | "mirror",
   name: "m-average" | "f-minus-one" | "f-small" | "m-large" = "m-average",
 ): string[] {
   const row: handToFace.IRow = handToFace.ROWS[task];
@@ -143,64 +133,8 @@ export function motionHumanLawHandToFace(
     );
   }
 
-  if (part === "tangle") {
-    const none: AutoMovieMotionHumanAudit.ILimits = {
-      tangle: null,
-      floor: null,
-      slip: null,
-      lift: null,
-      jump: null,
-      reversal: null,
-      speed: null,
-      balance: null,
-    };
-    return motionHumanLaw.audit(film, `${task} ${name}`, "a", body, {
-      limits: { ...none, tangle: AutoMovieMotionHumanAudit.LIMITS.tangle },
-    });
-  }
-  if (part.startsWith("motion-")) {
-    // The audit's other checks (the ground, the continuity and the
-    // balance), over one sixth of the film each: the sixths meet at frames
-    // of the grid and overlap by two frames, so an interval, its two
-    // neighbours and an out-and-back across a meeting are read whole in one
-    // of them.
-    const rate: number = 24;
-    const sixth: number = Number(part.slice("motion-".length)) - 1;
-    const meet = (k: number): number =>
-      k <= 0
-        ? 0
-        : k >= PARTS
-          ? film.duration
-          : Math.round(((film.duration * k) / PARTS) * rate) / rate;
-    const from: number = Math.max(0, meet(sixth) - (sixth > 0 ? 2 / rate : 0));
-    const to: number = Math.min(
-      film.duration,
-      meet(sixth + 1) + (sixth < PARTS - 1 ? 2 / rate : 0),
-    );
-    const view: IAutoMovieMotionHumanAuditMotion = {
-      duration: to - from,
-      bones: (subject: string, seconds: number): motionHumanLaw.Bones =>
-        film.bones(subject, from + seconds),
-      segments: (subject: string): IAutoMovieMotionHumanAuditMotion.ISpan[] =>
-        film.segments(subject).map(
-          (
-            span: IAutoMovieMotionHumanAuditMotion.ISpan,
-          ): IAutoMovieMotionHumanAuditMotion.ISpan => ({
-            ...span,
-            start: span.start - from,
-            entryTime: span.entryTime - from,
-            end: span.end - from,
-          }),
-        ),
-    };
-    return motionHumanLaw.audit(
-      view,
-      `${task} ${name} ${from.toFixed(3)} s on`,
-      "a",
-      body,
-      { limits: { tangle: null } },
-    );
-  }
+  if (part !== "film")
+    return motionHumanLaw.auditPart(film, `${task} ${name}`, "a", body, part);
   for (const bone of ["rightLowerArm", "leftLowerArm"] as const) {
     const elbow = motionHumanLaw.travel(film, "a", bone);
     out.push(

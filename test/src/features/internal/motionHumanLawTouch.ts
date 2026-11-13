@@ -25,7 +25,8 @@ import { motionHumanLaw } from "./motionHumanLaw";
 /**
  * Everything one touch owes on screen, read off the displayed bones, as
  * complaints: the row of a touch on the performer's own body, or on a
- * partner standing ahead.
+ * partner standing ahead. It is read in parts so each spec runs within the
+ * time a test may take.
  *
  * The performer `a` stands at the origin heading +Z; a partner `b` stands
  * `gap` metres ahead, facing `a` or turned away. The right hand takes the
@@ -59,6 +60,7 @@ import { motionHumanLaw } from "./motionHumanLaw";
  *
  * @param label The row's name, the complaints' prefix.
  * @param params The row.
+ * @param part Which expectations are read: an audit part (1, of both people, `motionHumanLaw.auditPart`), `film` (2 to 7) or `mirror` (8, on a one-hand row).
  * @param partner The partner's place, when the target is a person.
  * @param name The body both people have.
  * @returns One complaint per expectation that does not hold, with its measured numbers; empty when the row is right.
@@ -74,6 +76,7 @@ import { motionHumanLaw } from "./motionHumanLaw";
 export function motionHumanLawTouch(
   label: string,
   params: touch.IParams,
+  part: motionHumanLaw.AuditPart | "film" | "mirror",
   partner?: { facing: boolean; gap: number },
   name: motionHumanBody.Name = "m-average",
 ): string[] {
@@ -178,9 +181,34 @@ export function motionHumanLawTouch(
   ];
   const out: string[] = [];
 
-  out.push(...motionHumanLaw.audit(film, `${label} a`, "a", body));
-  if (partner !== undefined)
-    out.push(...motionHumanLaw.audit(film, `${label} b`, "b", body));
+  if (part !== "film" && part !== "mirror")
+    return [
+      ...motionHumanLaw.auditPart(film, `${label} a`, "a", body, part),
+      ...(partner === undefined
+        ? []
+        : motionHumanLaw.auditPart(film, `${label} b`, "b", body, part)),
+    ];
+  if (part === "mirror") {
+    if (params.other !== undefined) return out;
+    const flip = (target: AutoMovieMotionTarget): AutoMovieMotionTarget =>
+      ({
+        ...target,
+        region: (target as { region: string }).region.replace(
+          /Left|Right/,
+          (found: string): string => (found === "Left" ? "Right" : "Left"),
+        ),
+      }) as AutoMovieMotionTarget;
+    const mirrored = AutoMovieMotionHumanAuditDifference.measure(
+      film,
+      perform({ ...params, target: flip(params.target), side: "left" }),
+      "a",
+      { mirror: 0, rate: 4 },
+    );
+    return motionHumanLaw.expect(
+      `${label}: the left-hand touch is ${mm(mirrored.distance.value)} mm off the right-hand touch's mirror at ${mirrored.distance.seconds.toFixed(2)} s on ${mirrored.distance.where} (limit 5.0)`,
+      mirrored.distance.value <= 0.005 && mirrored.duration <= 1e-9,
+    );
+  }
   for (const bone of ["rightLowerArm", "leftLowerArm"] as const) {
     const elbow = motionHumanLaw.travel(film, "a", bone);
     out.push(
@@ -278,26 +306,6 @@ export function motionHumanLawTouch(
       ...motionHumanLaw.expect(
         `${label}: the idle hand strays ${mm(strayed)} mm (limit 80.0)`,
         strayed <= 0.08,
-      ),
-    );
-    const flip = (target: AutoMovieMotionTarget): AutoMovieMotionTarget =>
-      ({
-        ...target,
-        region: (target as { region: string }).region.replace(
-          /Left|Right/,
-          (found: string): string => (found === "Left" ? "Right" : "Left"),
-        ),
-      }) as AutoMovieMotionTarget;
-    const mirrored = AutoMovieMotionHumanAuditDifference.measure(
-      film,
-      perform({ ...params, target: flip(params.target), side: "left" }),
-      "a",
-      { mirror: 0, rate: 4 },
-    );
-    out.push(
-      ...motionHumanLaw.expect(
-        `${label}: the left-hand touch is ${mm(mirrored.distance.value)} mm off the right-hand touch's mirror at ${mirrored.distance.seconds.toFixed(2)} s on ${mirrored.distance.where} (limit 5.0)`,
-        mirrored.distance.value <= 0.005 && mirrored.duration <= 1e-9,
       ),
     );
   }
