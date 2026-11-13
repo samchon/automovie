@@ -1,3 +1,5 @@
+import { minimumJerk } from "@automovie/engine";
+
 import type { HumanArmClearance } from "./HumanArmClearance";
 
 /**
@@ -139,8 +141,25 @@ export namespace HumanArmClearing {
   /** The equal parts of a carry at whose ends its clearing is solved before any refinement (provisional: tenths, each a few centimetres of a hand's way). */
   const KEYS: number = 10;
 
-  /** How many times a part of the way is halved where its proportion leaves the arm uncleared (provisional: four halvings reach a hundred-and-sixtieth of the way). */
-  const DEPTH: number = 4;
+  /**
+   * The share of a carry's time a minimum-jerk carry takes to reach a share
+   * of its way: the inverse of the profile every carry's weight follows
+   * (`AutoMovieMotionClock.envelope`), by bisection to well under a
+   * millionth.
+   */
+  function elapsed(share: number): number {
+    let lo: number = 0;
+    let hi: number = 1;
+    for (let i: number = 0; i < 40; i++) {
+      const middle: number = (lo + hi) / 2;
+      if (minimumJerk(middle).s < share) lo = middle;
+      else hi = middle;
+    }
+    return (lo + hi) / 2;
+  }
+
+  /** The least share of a carry's time a halving may leave a part: what the middle tenth of the way takes, the shortest a tenth takes, about a frame of a 0.7 s carry at 24 frames a second. */
+  const SPACING: number = elapsed(0.55) - elapsed(0.45);
 
   /**
    * An arm on its way between two poses, kept clear along the way by one
@@ -149,7 +168,8 @@ export namespace HumanArmClearing {
    * ends, which hold the room they hold, take none. Where the proportion of
    * two neighbouring keys leaves the arm uncleared at their midpoint, the
    * midpoint becomes a key of its own and each half is read the same way,
-   * up to `DEPTH` halvings.
+   * while each half still takes as much of the carry's time as the middle
+   * tenth of the way does (`SPACING`).
    *
    * The room an arm lacks does not fall steadily as it is let out: a
    * forearm that leaves the flank meets the ridge between two shapes of the
@@ -164,16 +184,25 @@ export namespace HumanArmClearing {
    * leaves a thigh its fingertips rest against, and its wrist's first flexion
    * pressed them 11.3 mm into the thigh inside the first tenth of the way,
    * whose two ends were clear. A key is added only where the proportion
-   * fails, so the tenths keep the course they had wherever it already holds.
+   * fails, so the tenths keep the course they had wherever it already holds,
+   * and only when its own least turn lies between its two keys' turns. Beside
+   * the arrival, a hand held at the mouth read uncleared turns of 22 to 31
+   * degrees between a tenth's 13 and the arrival's none, and keys taken there
+   * swung a bite's elbow 104.5 mm in a frame; such a turn belongs to another
+   * course, not to a finer reading of this one. Nor is a part halved below
+   * the time the middle tenth takes: the course's turn then changes no
+   * faster on film than the tenths let it where the carry is fastest, and a
+   * drink's elbow, halved there, travelled 86.6 mm in a frame. The slow ends
+   * of the way, where a hand leaves or meets the body, are halved most.
    *
    * @param props The arm at a share of the way before any clearing (`plain`); the arm the keys' turns are solved on (`planned`: the carry toward a fixed arrival, so the course is a constant of the carry; `plain` when absent); the share asked for; and the clearing of an arm at a share (`clear`, which returns it turned in its upper arm's abduction and its elbow's flexion only, and as given when it is already clear).
    * @returns The arm's joint angles at the share.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the course, its refinement and why, the measured defects of a clearing solved per instant and of the tenths alone, and what is continuous under which condition.
-   * @evidence contracts/development/implementation.md#principled-implementation A course fixed at shares of the way does not depend on the instant it is read at, so two neighbouring instants read two neighbouring points of one piecewise-linear turn; the halving depends only on the planned arm, so every share reads the same tree of keys and the turn stays continuous at an added key.
+   * @evidence contracts/development/implementation.md#principled-implementation A course fixed at shares of the way does not depend on the instant it is read at, so two neighbouring instants read two neighbouring points of one piecewise-linear turn; the halving depends only on the planned arm, so every share reads the same tree of keys and the turn stays continuous at an added key; a halving is measured in the carry's time under the minimum-jerk profile (Flash and Hogan 1985), the clock the film is seen on.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The two tenths around the share, then one loop that halves the part holding the share while its midpoint's proportion is uncleared, and one proportion.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is remembered between calls, so the course is the same in whatever order its instants are read; a body that moves under the arm changes the keys' turns from instant to instant, the remaining place a carried arm can step; past `DEPTH` halvings the proportion is taken as it is.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two clearings a call, none at an end, and per halving one reading of the midpoint's proportion and one clearing when it fails.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is remembered between calls, so the course is the same in whatever order its instants are read; a body that moves under the arm changes the keys' turns from instant to instant, the remaining place a carried arm can step; where a half would take less time than `SPACING`, or a midpoint's own turn leaves its keys' range, the proportion is taken as it is.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two clearings a call, none at an end, and per halving one reading of the midpoint's proportion and one clearing when it fails; `SPACING` bounds the halvings to the few the slow ends of the way allow, each a 40-step bisection of the profile.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Stateless by design: a memory of the keys would have to be keyed by the whole pose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
@@ -209,9 +238,17 @@ export namespace HumanArmClearing {
     let a: readonly [number, number] = turn(from);
     let b: readonly [number, number] = share === from ? a : turn(to);
     // The part of the way holding the share is halved while the proportion
-    // of its two keys leaves the planned arm uncleared at its midpoint.
-    for (let depth: number = 0; depth < DEPTH && share !== from; depth++) {
+    // of its two keys leaves the planned arm uncleared at its midpoint and
+    // each half still takes `SPACING` of the carry's time.
+    while (share !== from) {
       const middle: number = (from + to) / 2;
+      if (
+        Math.min(
+          elapsed(middle) - elapsed(from),
+          elapsed(to) - elapsed(middle),
+        ) < SPACING
+      )
+        break;
       const blended: HumanArmClearance.IArm = turned(planned(middle), [
         (a[0] + b[0]) / 2,
         (a[1] + b[1]) / 2,
@@ -222,7 +259,19 @@ export namespace HumanArmClearing {
         cleared.lower[0] === blended.lower[0]
       )
         break;
+      // A midpoint whose own least turn lies outside the turns of the two
+      // keys it splits is not a finer reading of their course but another
+      // one (a ridge of the room, or an arm beside the arrival, which keeps
+      // the room it holds), so the proportion is kept there.
       const own: readonly [number, number] = turn(middle);
+      if (
+        [0, 1].some(
+          (i: number): boolean =>
+            own[i]! < Math.min(a[i]!, b[i]!) - 1e-9 ||
+            own[i]! > Math.max(a[i]!, b[i]!) + 1e-9,
+        )
+      )
+        break;
       if (share < middle) {
         to = middle;
         b = own;
