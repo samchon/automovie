@@ -1,0 +1,5 @@
+.next/
+_pagefind/
+node_modules/
+out/
+tsconfig.tsbuildinfo

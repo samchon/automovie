@@ -2,13 +2,20 @@
   "private": true,
   "name": "@automovie/website",
   "version": "0.1.0",
-  "description": "automovie website: the public showcase published at https://samchon.github.io/automovie/",
-  "type": "module",
+  "description": "automovie website: the composition playground and the gallery published at https://samchon.github.io/automovie/",
   "scripts": {
-    "dev": "vite",
-    "build": "ttsc --noEmit && vite build",
-    "preview": "vite preview",
-    "deploy": "pnpm run build && ttsx -P tsconfig.json build/deploy.ts"
+    "build": "pnpm run build:prepare && next build && pnpm run build:finalize",
+    "build:prepare": "rimraf .next out && pnpm run check",
+    "build:finalize": "pnpm run build:pagefind",
+    "build:pagefind": "pagefind --site .next/server/app --output-path out/_pagefind",
+    "check": "ttsx --no-plugins -P build/tsconfig.json build/imports.ts && ttsx --no-plugins -P build/tsconfig.json build/contrast.ts",
+    "deploy": "ttsx --no-plugins -P build/tsconfig.json build/deploy.ts",
+    "dev": "next dev",
+    "serve": "ttsx --no-plugins -P build/tsconfig.json build/serve.ts",
+    "shots": "ttsx --no-plugins -P build/tsconfig.json build/shots.ts",
+    "smoke": "ttsx --no-plugins -P build/tsconfig.json build/smoke.ts",
+    "test": "ttsx --no-plugins -P test/tsconfig.json test/index.ts",
+    "typecheck": "ttsc --noEmit -P tsconfig.check.json && ttsc --noEmit -P build/tsconfig.json && ttsc --noEmit -P test/tsconfig.json"
   },
   "author": "Samchon",
   "license": "MIT",
@@ -17,13 +24,36 @@
     "url": "https://github.com/samchon/automovie"
   },
   "homepage": "https://samchon.github.io/automovie/",
+  "dependencies": {
+    "@automovie/archetypes": "workspace:^",
+    "@automovie/engine": "workspace:^",
+    "@automovie/human": "workspace:^",
+    "@automovie/interface": "workspace:^",
+    "@automovie/motions": "workspace:^",
+    "@automovie/render": "workspace:^",
+    "@automovie/viewer": "workspace:^",
+    "lz-string": "^1.5.0",
+    "next": "^15.3.4",
+    "nextra": "^4.6.0",
+    "nextra-theme-docs": "^4.6.0",
+    "react": "catalog:react",
+    "react-dom": "catalog:react",
+    "three": "catalog:three"
+  },
   "devDependencies": {
-    "@ttsc/lint": "catalog:samchon",
+    "@nestia/e2e": "catalog:samchon",
     "@types/gh-pages": "^6.1.0",
     "@types/node": "catalog:utils",
+    "@types/react": "catalog:react",
+    "@types/react-dom": "catalog:react",
+    "@types/three": "catalog:three",
     "gh-pages": "^6.3.0",
+    "pagefind": "^1.3.0",
+    "playwright-core": "catalog:media",
+    "rimraf": "catalog:utils",
+    "ts-loader": "^9.5.1",
     "ttsc": "catalog:samchon",
-    "typescript": "catalog:typescript",
-    "vite": "catalog:vite"
+    "typescript": "~5.9.3",
+    "typescript-native": "npm:typescript@^7.0.2"
   }
 }
