@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  IAutoMovieAffordance,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -276,10 +277,12 @@ export namespace HumanRide {
         const part:
           | { point: IAutoMovieVector3; normal: IAutoMovieVector3 }
           | undefined = support.prop.point?.(id, film);
-        const handle: IAutoMovieQuaternion | undefined =
+        const affordance: IAutoMovieAffordance | undefined =
           support.prop.affordances?.find(
-            (a: { id: string }): boolean => a.id === id,
-          )?.frame.rotation;
+            (a: IAutoMovieAffordance): boolean => a.id === id,
+          );
+        const handle: IAutoMovieQuaternion | undefined =
+          affordance?.frame.rotation;
         return {
           point:
             part?.point ??
@@ -290,6 +293,11 @@ export namespace HumanRide {
           normal:
             part?.normal ??
             Quaternion.rotateVector(frame.rotation, rest.normal),
+
+          // The grip's own radius, half the width across it the object states.
+          ...(affordance?.aperture === undefined
+            ? {}
+            : { radius: affordance.aperture / 2 }),
           ...(handle === undefined
             ? {}
             : {

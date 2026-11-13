@@ -115,8 +115,8 @@ export namespace HumanMountRider {
     return turnedBy(sign * high);
   }
 
-  /** How far off a held point the wrist stays along the point's outward normal, hand lengths (provisional): half the hand's thickness, about 0.075 of its length, plus the radius of a grip of a bar's size, about 11 mm of a 190 mm hand, so the palm's skin lies on the grip and the fingers wrap it. A grip's own radius is not read yet. */
-  export const PALM: number = 0.13;
+  /** How far the wrist's centre lies off the palm's skin, hand lengths: half the hand's thickness (provisional, about 14 mm of a 190 mm hand). The wrist stays this plus the grip's own radius off a held point along its outward normal, so the palm's skin lies on the grip and the fingers wrap it. */
+  export const PALM: number = 0.075;
 
   /** How far ahead of the wrist the middle of the palm lies, hand lengths (provisional: the palm is about half the hand and its middle a little short of that). */
   export const CENTRE: number = 0.35;
@@ -126,8 +126,9 @@ export namespace HumanMountRider {
    * hand turns and how its fingers close, a share of the way from where
    * the posture's own joints hold the hand.
    *
-   * The wrist stays `PALM` of the hand's length off the point along the
-   * point's outward normal and `CENTRE` behind it along the fingers, so
+   * The wrist stays `PALM` of the hand's length plus the grip's radius
+   * (half the width the object states across it; none when it states none)
+   * off the point along the point's outward normal and `CENTRE` behind it along the fingers, so
    * the grip lies across the middle of the palm, the palm faces the point, and the fingers lie
    * across the grip's own axis on the side the body faces, so they wrap
    * a bar that runs across the hand; with no axis they point the way the
@@ -137,7 +138,7 @@ export namespace HumanMountRider {
    * @param body The body.
    * @param side The hand.
    * @param posture The rider's posture at the instant.
-   * @param grip The held point and its outward unit normal, world, and the unit axis the grip runs along when it has one.
+   * @param grip The held point and its outward unit normal, world, the unit axis the grip runs along when it has one, and its radius, metres, when the object states one.
    * @param share 0 where the joints hold the hand to 1 holding.
    * @param closed The finger joints of the hand closed on the grip; none leaves the fingers as they are.
    * @returns The arm's goal and the hand's finger joints.
@@ -158,6 +159,7 @@ export namespace HumanMountRider {
       point: IAutoMovieVector3;
       normal: IAutoMovieVector3;
       axis?: IAutoMovieVector3;
+      radius?: number;
     },
     share: number,
     closed: IHumanPosture["joints"],
@@ -182,7 +184,10 @@ export namespace HumanMountRider {
     const target: IAutoMovieVector3 = Vector3.add(
       grip.point,
       Vector3.add(
-        Vector3.scale(grip.normal, PALM * body.measure.hand),
+        Vector3.scale(
+          grip.normal,
+          PALM * body.measure.hand + (grip.radius ?? 0),
+        ),
         Vector3.scale(fingers, -CENTRE * body.measure.hand),
       ),
     );
