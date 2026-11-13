@@ -116,16 +116,22 @@ export namespace salto {
     const flight: number = at("touchdown") - off;
     if (turns / flight > RATE) {
       const needed: number = turns / RATE;
+      // A flight too short for one whole turn accepts no count of turns.
+      const most: number = Math.floor(RATE * flight);
       throw new HumanRefusal({
         kind: "parameter",
         axis: "turns",
         value: turns,
-        feasible: {
-          kind: "range",
-          minimum: 1,
-          maximum: Math.max(1, Math.floor(RATE * flight)),
-          unit: "",
-        },
+        feasible:
+          most < 1
+            ? null
+            : {
+                kind: "range",
+                minimum: 1,
+                maximum: most,
+                unit: "",
+                whole: true,
+              },
         reason: `${turns} turn(s) in a flight of ${flight.toFixed(2)} s is ${(turns / flight).toFixed(2)} turns a second, beyond ${RATE}`,
         fix: `give an apex of at least ${((9.81 * needed * needed) / 8).toFixed(2)} m, or fewer turns`,
       });

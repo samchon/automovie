@@ -321,16 +321,33 @@ export namespace handspring {
       );
       return t === null ? -turn : rate * t - turn;
     };
+    // No rate the body can turn at (the salto's bound) lands it: the turn it
+    // makes at the bound falls short. A higher top to push from gives the
+    // flight more time; the floor has no other surface, so a floor
+    // handspring is refused on the base it is thrown from.
     const bound: number = salto.RATE * 360;
-    if (miss(bound) < 0)
+    if (miss(bound) < 0) {
+      const reached: number = miss(bound) + turn;
+      const prop: boolean = surface.support.kind === "prop";
       throw new HumanRefusal({
-        kind: "parameter",
-        axis: "rate",
-        value: bound,
-        feasible: { kind: "range", minimum: 0, maximum: bound, unit: "deg/s" },
-        reason: `no rate of turn up to ${bound} degrees a second carries the body from ${RELEASE} to ${LAND} degrees before its centre comes down`,
-        fix: "hand the body a higher surface to push from",
+        kind: prop ? "reach" : "base",
+        axis: prop ? "on" : "base",
+        value: prop ? surface.height : reached,
+        feasible: prop
+          ? {
+              kind: "range",
+              minimum: surface.height,
+              maximum: null,
+              unit: "m",
+              open: "minimum",
+            }
+          : { kind: "range", minimum: turn, maximum: null, unit: "degrees" },
+        reason: `turning at its fastest, ${bound} degrees a second, the body turns ${reached.toFixed(0)} of the ${turn} degrees from ${RELEASE} to ${LAND} before its centre comes down${prop ? `, pushing from a top ${surface.height.toFixed(2)} m high` : " from the floor"}`,
+        fix: prop
+          ? "vault from a higher top, whose push gives the flight the time to turn"
+          : "throw it over a vault's top (`vault`), whose push gives the flight the time to turn, or answer with a round-off or a salto",
       });
+    }
     let low: number = 1;
     let high: number = bound;
     for (let i: number = 0; i < 40; i++) {

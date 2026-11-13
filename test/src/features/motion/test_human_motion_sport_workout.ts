@@ -7,6 +7,7 @@ import {
   HUMAN_LEXICON,
   HumanChain,
   HumanPerformance,
+  HumanRefusal,
   type HumanSegment,
   HumanSignature,
   type IHumanBody,
@@ -58,12 +59,16 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 8. Forward salto: a quarter into the flight the head is ahead of the
  *    hips, at its middle below them, three quarters in behind them, and at
  *    `settled` above them.
+ * 9. A salto that cannot turn: with an apex of 0.15 m the flight is shorter
+ *    than one turn at the salto's bound, so one turn is refused on `turns`
+ *    with no feasible range; with the default apex, three turns are refused
+ *    on `turns` with a whole range from 1.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds a performance through the public input on real bodies and reads displayed bones at named events; each failure names the row, the body and the measured millimetres.
  * @evidence contracts/development/testing.md#independent-expectations Expected values are the cited descriptions and the campaign's bounds; none is read from the law.
  * @evidence contracts/development/testing.md#distinguishing-cases One row per support family (hands and toes, back and feet, side, straddle, flat feet under a hinge, a bar, a pivot) and the salto, on two bodies of opposite build.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and one film each, without props; it runs locally and wherever CI runs the human motion tests.
- * @evidence contracts/development/common.md#meaningful-documentation States what is pinned, the sources, why two bodies and single repetitions suffice, and the 8 scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation States what is pinned, the sources, why two bodies and single repetitions suffice, and the 9 scenarios.
  */
 export function test_human_motion_sport_workout(): void {
   const rows: readonly (readonly [string, object])[] = [
@@ -330,6 +335,60 @@ export function test_human_motion_sport_workout(): void {
       joint(settled, "head").y -
       joint(settled, "leftUpperLeg", "rightUpperLeg").y;
     expect("the salto lands upright", standing > 0, m(standing));
+
+    // 9. A salto that cannot turn.
+    const refusal: (params: object) => HumanRefusal | string = (
+      params: object,
+    ): HumanRefusal | string => {
+      try {
+        new HumanPerformance({
+          seed: "salto",
+          laws: Object.values(HUMAN_LEXICON).flat(),
+          performers: [
+            {
+              subject: "a",
+              body,
+              at: { x: 0, y: 0, z: 0 },
+              yaw: 0,
+              proficiency: { level: "trained" },
+            },
+          ],
+          composition: HumanChain.subject("a")
+            .stand({ seconds: 0.3 })
+            .registered("frontSalto", { to: { x: 0, y: 0, z: 0.8 }, ...params })
+            .node,
+        });
+        return "planned";
+      } catch (error) {
+        return error instanceof HumanRefusal
+          ? error
+          : error instanceof Error
+            ? error.message
+            : String(error);
+      }
+    };
+    const short: HumanRefusal | string = refusal({ apex: 0.15 });
+    expect(
+      "a flight shorter than one turn is refused on turns with no feasible range",
+      short instanceof HumanRefusal &&
+        short.axis === "turns" &&
+        short.feasible === null,
+      short instanceof HumanRefusal
+        ? `${short.axis}, ${JSON.stringify(short.feasible)}`
+        : short,
+    );
+    const many: HumanRefusal | string = refusal({ turns: 3 });
+    expect(
+      "three turns are refused on turns with a whole range from 1",
+      many instanceof HumanRefusal &&
+        many.axis === "turns" &&
+        many.feasible?.kind === "range" &&
+        many.feasible.minimum === 1 &&
+        many.feasible.whole === true,
+      many instanceof HumanRefusal
+        ? `${many.axis}, ${JSON.stringify(many.feasible)}`
+        : many,
+    );
   }
   TestValidator.equals("every workout is on its support", complaints, []);
 }
