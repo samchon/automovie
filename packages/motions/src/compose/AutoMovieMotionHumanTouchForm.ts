@@ -3,6 +3,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFrame } from "../posture/HumanFrame";
+import type { HumanHand } from "../posture/HumanHand";
 import type { AutoMovieMotionHumanTiming } from "./AutoMovieMotionHumanTiming";
 
 /**
@@ -146,16 +147,19 @@ export namespace AutoMovieMotionHumanTouchForm {
 
   /**
    * The unit tangent of a region: its upward direction across the normal,
-   * or, for `across` or a region facing up or down, the performer's left or
-   * heading turned across it.
+   * or, for `across` or a region facing up or down, the direction from the
+   * acting hand's side toward the body's other side (the performer's left
+   * for the right hand, their right for the left hand) or the heading,
+   * turned across it. A left-hand stroke is so the right-hand one's mirror.
    *
    * @param normal The region's normal.
    * @param yaw The performer's heading, degrees.
    * @param tangent Which tangent.
+   * @param side The acting hand.
    * @returns The unit vector.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States which direction is taken and the fallbacks.
-   * @evidence contracts/development/implementation.md#principled-implementation The first candidate whose part across the normal is long enough, normalised.
+   * @evidence contracts/development/common.md#meaningful-documentation States which direction is taken, for which hand, and the fallbacks.
+   * @evidence contracts/development/implementation.md#principled-implementation The first candidate whose part across the normal is long enough, normalised; `across` points toward the body's midline from the acting hand, so the body's mirror symmetry carries a stroke from one hand to the other.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two perpendicular candidates and one choice.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A candidate shorter than 0.3 across the normal is skipped so a near-parallel direction is never normalised.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanFrame.point`.
@@ -166,6 +170,7 @@ export namespace AutoMovieMotionHumanTouchForm {
     normal: IAutoMovieVector3,
     yaw: number,
     tangent: Tangent,
+    side: HumanHand.Side,
   ): IAutoMovieVector3 {
     const n: IAutoMovieVector3 = Vector3.normalize(normal);
     const across = (v: IAutoMovieVector3): IAutoMovieVector3 =>
@@ -175,7 +180,11 @@ export namespace AutoMovieMotionHumanTouchForm {
       tangent === "up"
         ? [{ x: 0, y: 1, z: 0 }, HumanFrame.point(frame, { x: 0, y: 0, z: 1 })]
         : [
-            HumanFrame.point(frame, { x: 1, y: 0, z: 0 }),
+            HumanFrame.point(frame, {
+              x: side === "right" ? 1 : -1,
+              y: 0,
+              z: 0,
+            }),
             HumanFrame.point(frame, { x: 0, y: 0, z: 1 }),
           ];
     // The two candidates are perpendicular, so when the first lies within

@@ -73,6 +73,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
       normal,
       posture.yaw,
       tangent,
+      side,
     );
     const g: IHumanPosture.IGoal = AutoMovieMotionHumanTouchEffector.goal(
       body,
@@ -277,6 +278,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
       normal,
       posture.yaw,
       tangent,
+      side,
     );
     return AutoMovieMotionHumanTouchEffector.goal(
       body,

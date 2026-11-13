@@ -380,6 +380,7 @@ export namespace AutoMovieMotionHumanTouch {
         normal,
         posture.yaw,
         props.tangent ?? "up",
+        side,
       );
       const u: number = clock.linear("strokeStart", "strokeEnd", seconds);
       const lift: number =

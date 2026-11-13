@@ -123,6 +123,7 @@ export function test_human_motion_hand_verdicts_smoke(): void {
         normal,
         posture.yaw,
         row.tangent,
+        "right",
       );
       const weight: number = clock.envelope(
         ["start", "ready"],
