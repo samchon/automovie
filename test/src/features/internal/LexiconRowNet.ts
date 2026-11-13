@@ -106,6 +106,7 @@ export namespace LexiconRowNet {
   const PAIRED: Readonly<Record<string, readonly [number, object]>> = {
     slap: [0.35, on("jawLeft")],
     backhand: [0.35, on("jawRight")],
+    stageSlap: [0.6, on("jawLeft")],
     shove: [0.6, on("sternum")],
     grab: [0.6, on("upperArmLeft")],
     poke: [0.6, on("sternum")],

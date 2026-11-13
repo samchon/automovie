@@ -34,6 +34,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
 import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutFloor } from "./WorkoutFloor";
+import { WorkoutGym } from "./WorkoutGym";
 import { WorkoutHanging } from "./WorkoutHanging";
 import type { WorkoutKind } from "./WorkoutKind";
 import { WorkoutLying } from "./WorkoutLying";
@@ -88,6 +89,7 @@ export namespace workout {
   export type Kind =
 
     | WorkoutFloor.Name
+    | WorkoutGym.Name
     | WorkoutLying.Name
     | WorkoutStanding.Name
     | WorkoutPoses.Name
@@ -96,6 +98,7 @@ export namespace workout {
   /** The exercises. */
   export const KINDS: Readonly<Record<Kind, WorkoutKind>> = {
     ...WorkoutFloor.KINDS,
+    ...WorkoutGym.KINDS,
     ...WorkoutLying.KINDS,
     ...WorkoutStanding.KINDS,
     ...WorkoutPoses.KINDS,

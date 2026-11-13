@@ -6,6 +6,7 @@ import { give } from "../reaction/give";
 import { stagger } from "../reaction/stagger";
 import { step } from "../striking/step";
 import { touch } from "../touch/touch";
+import { HumanSword } from "./HumanSword";
 
 /**
  * Stage fighting short of a strike: slaps, grabs and holds, each a row of a
@@ -28,6 +29,12 @@ export namespace HumanStageFight {
     kind: "tap",
     count: 1,
     tangent: "across",
+  });
+
+  /** A stage slap, the non-contact one a stage fight uses: the open hand swung level across the cheek the composition names, a fifth of the arm short of it (provisional; no stage combat manual was read for the distance), at the speed of a blow. The receiver's `slapped` sells it, synced to this row's `stroke`. */
+  export const stageSlap = HumanActionRow.of("stageSlap", HumanSword.cut, {
+    from: "forehand",
+    short: 0.2,
   });
 
   /** A backhand slap: one tap of the hand's back. */

@@ -152,6 +152,9 @@ export namespace HumanSword {
 
     /** A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried. */
     feint?: number;
+
+    /** A stage blow: how far short of the target, toward the performer and in arm lengths, the stroke passes at full speed, so it sells a contact it does not make; 0 when absent. */
+    short?: number;
   }
 
   /** Parameters of a cut. */
@@ -278,10 +281,20 @@ export namespace HumanSword {
   ): IAim => {
     const p: IAttack = context.params;
     const root: IAutoMovieVector3 = context.entry.posture.root;
-    const given: IAutoMovieVector3 | undefined =
+    const struck: IAutoMovieVector3 | undefined =
       p.target === undefined
         ? undefined
         : context.aim(p.target, context.start).point;
+    const given: IAutoMovieVector3 | undefined =
+      struck === undefined || !((p.short ?? 0) > 0)
+        ? struck
+        : Vector3.add(
+            struck,
+            Vector3.scale(
+              Vector3.normalize({ x: root.x - struck.x, y: 0, z: root.z - struck.z }),
+              (p.short ?? 0) * s.arm,
+            ),
+          );
     const line: IAutoMovieVector3 = StrikingTarget.line(
       root,
       given ?? Vector3.add(root, s.world({ out: 0, up: 0, forward: 1 })),
