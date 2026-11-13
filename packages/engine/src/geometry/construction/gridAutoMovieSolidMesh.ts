@@ -14,7 +14,7 @@ type Point = readonly [number, number];
 /** World-space millimetre vector. */
 type Vec3 = AutoMovieSolidVector.Vec3;
 /** Existing vector lengths and analytic chart-cross arithmetic. */
-const { cross, norm }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
+const { cross, norm, sub }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
 
 /** One locally evaluated, not yet published sampling point. */
 interface Sample {
@@ -308,6 +308,7 @@ export function gridAutoMovieSolidMesh(
     (): boolean[] => new Array<boolean>(columns).fill(false),
   );
   const full: AutoMovieSolidMeshPlan.ITriangle[] = [];
+  const cuts: { a: number; b: number; c: number; d: number; wrap: number; choice: "first" | "other" | "tie"; first: number; other: number }[] = [];
   const boundary: Map<string, AutoMovieSolidMeshConstraints.ISegment> =
     new Map();
 
@@ -372,17 +373,11 @@ export function gridAutoMovieSolidMesh(
       // of the Delaunay test in the cell's own form, nearly square cells took
       // either diagonal by rounding, and where the choice changed a zigzag
       // line ran across the face (f1's upper lip).
+      // A cell neither of whose splits is clearly flatter takes the diagonal its face's other such cells take, decided once for the face
+      // below (`DIAGONAL`), so the rule reads the geometry alone and a chart and its mirror image cut mirror-image cells.
       const [pa, pb, pc, pd]: Vec3[] = [jets[i]![j]!.p, jets[i + 1]![j]!.p, jets[i + 1]![next]!.p, jets[i]![next]!.p];
-      if (bend(pb, pc, pd, pa) < BEND * bend(pa, pb, pc, pd))
-        full.push(
-          { vertices: [a, b, d], lifts: [0, 0, wrap] },
-          { vertices: [b, c, d], lifts: [0, wrap, wrap] },
-        );
-      else
-        full.push(
-          { vertices: [a, b, c], lifts: [0, 0, wrap] },
-          { vertices: [a, c, d], lifts: [0, wrap, wrap] },
-        );
+      const [first, other]: number[] = [bend(pa, pb, pc, pd), bend(pb, pc, pd, pa)];
+      cuts.push({ a, b, c, d, wrap, choice: other < BEND * first ? "other" : first < BEND * other ? "first" : "tie", first: norm(sub(pc, pa)), other: norm(sub(pd, pb)) });
       for (const edge of [
         { a, b, turn: 0 },
         { a: b, b: c, turn: wrap },
@@ -397,6 +392,21 @@ export function gridAutoMovieSolidMesh(
         else boundary.set(key, edge);
       }
     }
+
+  // The face's undecided cells all take the diagonal family that is the shorter in sum over them (`DIAGONAL`).
+  const ties: { first: number; other: number }[] = cuts.filter((cut: (typeof cuts)[number]): boolean => cut.choice === "tie");
+  const tie: "first" | "other" = ties.reduce((sum: number, cut: { first: number; other: number }): number => sum + cut.other, 0) < ties.reduce((sum: number, cut: { first: number; other: number }): number => sum + cut.first, 0) ? "other" : "first";
+  for (const cut of cuts)
+    if ((cut.choice === "tie" ? tie : cut.choice) === "other")
+      full.push(
+        { vertices: [cut.a, cut.b, cut.d], lifts: [0, 0, cut.wrap] },
+        { vertices: [cut.b, cut.c, cut.d], lifts: [0, cut.wrap, cut.wrap] },
+      );
+    else
+      full.push(
+        { vertices: [cut.a, cut.b, cut.c], lifts: [0, 0, cut.wrap] },
+        { vertices: [cut.a, cut.c, cut.d], lifts: [0, cut.wrap, cut.wrap] },
+      );
   const readers: ((u: number, v: number) => boolean)[] = loops.map(
     (loop: AutoMovieSolidMesh.ILoop): ((u: number, v: number) => boolean) =>
       AutoMovieSolidCycle.prepare(loop, period),
@@ -484,6 +494,17 @@ export function gridAutoMovieSolidMesh(
  * `shoulder.high-oblique` and `head.front`: at 0.5 the deltoid's cap kept its
  * check; at 0.9 the check is gone but for a few cells at its top edge and the
  * lip is cut as it was before any cell was turned.
+ *
+ * A cell neither of whose splits bends under this share of the other's is
+ * undecided, and all of a face's undecided cells take one diagonal family:
+ * the one whose diagonals are the shorter in sum over them. Undecided cells
+ * had kept their first corner, which is the chart's, not the skin's: a
+ * mirrored chart runs its phases the other way, so its first corner is the
+ * original's other one, and f1's -Z hand was cut unlike the +Z hand's mirror
+ * image (its vertices 0.5 mm off, 2 mm once the fork fills slid along those
+ * edges). Read on lengths summed over the face, a face cut alike stays cut
+ * alike and its mirror is cut as its mirror image; only a face whose two
+ * families sum to exactly the same length falls back to the first corner.
  */
 const BEND: number = 0.9;
 
