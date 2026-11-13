@@ -58,6 +58,7 @@
     "playwright-core": "catalog:media",
     "react": "catalog:react",
     "react-dom": "catalog:react",
+    "typia": "catalog:samchon",
     "vite": "catalog:vite",
     "@ttsc/lint": "catalog:samchon",
     "@types/node": "catalog:utils",
