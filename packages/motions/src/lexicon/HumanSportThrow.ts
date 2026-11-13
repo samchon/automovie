@@ -2,6 +2,7 @@ import { jump } from "../actions/jump";
 import { run } from "../actions/run";
 import { kickBall } from "../ballStrike/kickBall";
 import { HumanActionRow } from "../law/HumanActionRow";
+import { salto } from "../sport/salto";
 import { catchObject } from "../throwing/catchObject";
 import { throwObject } from "../throwing/throwObject";
 
@@ -61,6 +62,16 @@ export namespace HumanSportThrow {
 
   /** A rebound, a block, a long jump or a hurdle clearance: a jump to the place the composition gives. The run-up is a run before it; a hurdle's trail leg and a high jump's arch are not planned. */
   export const leap = HumanActionRow.of("leap", jump, {});
+
+  /** A forward salto to the place the composition gives: one turn in the flight, the body not tucked. */
+  export const frontSalto = HumanActionRow.of("frontSalto", salto, {
+    way: "forward",
+  });
+
+  /** A backward salto to the place the composition gives. */
+  export const backSalto = HumanActionRow.of("backSalto", salto, {
+    way: "backward",
+  });
 
   /** A sprint: the acceleration out of the start, a base run or a run-up, at sprint pace. */
   export const dash = HumanActionRow.of("dash", run, { pace: "sprint" });

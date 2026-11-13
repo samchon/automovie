@@ -14,6 +14,7 @@ import { HumanSocial } from "./HumanSocial";
 import { HumanSport } from "./HumanSport";
 import { HumanSportSwing } from "./HumanSportSwing";
 import { HumanSportThrow } from "./HumanSportThrow";
+import { HumanSportWorkout } from "./HumanSportWorkout";
 import { HumanStageFight } from "./HumanStageFight";
 import { HumanStance } from "./HumanStance";
 import { HumanSword } from "./HumanSword";
@@ -61,6 +62,7 @@ export const HUMAN_LEXICON: Readonly<
   sport: rows(HumanSport),
   sportSwing: rows(HumanSportSwing),
   sportThrow: rows(HumanSportThrow),
+  sportWorkout: rows(HumanSportWorkout),
   sword: [
     ...rows(HumanSword),
     ...rows(HumanSwordGuard),

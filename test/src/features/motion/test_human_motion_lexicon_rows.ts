@@ -103,6 +103,9 @@ export function test_human_motion_lexicon_rows(): void {
     kickLeft: ball,
     leap: { to: { x: 0, y: 0, z: 0.6 } },
     dash: { to: { x: 0, y: 0, z: 4 } },
+    strides: ahead,
+    frontSalto: { to: { x: 0, y: 0, z: 0.8 } },
+    backSalto: { to: { x: 0, y: 0, z: 0.2 } },
   };
 
   // The partner's distance and what a row done on a partner leaves open.
