@@ -52,24 +52,24 @@ export namespace HumanPerformanceParams {
       fix: fault.fix,
     });
   }
+}
 
-  /** The first member a schema does not accept. */
-  interface IFault {
-    /** The member's path, `target.region`. */
-    path: string;
+/** The first member a schema does not accept. */
+interface IFault {
+  /** The member's path, `target.region`. */
+  path: string;
 
-    /** The value given; undefined when it is missing. */
-    value: unknown;
+  /** The value given; undefined when it is missing. */
+  value: unknown;
 
-    /** What the member accepts. */
-    feasible: HumanRefusal.Feasible | null;
+  /** What the member accepts. */
+  feasible: HumanRefusal.Feasible | null;
 
-    /** Why, after the row's name. */
-    reason: string;
+  /** Why, after the row's name. */
+  reason: string;
 
-    /** What to change. */
-    fix: string;
-  }
+  /** What to change. */
+  fix: string;
 }
 
 /** A schema's own record: the referenced component's, followed. */
@@ -93,7 +93,7 @@ const constants = (alternatives: readonly unknown[]): string[] | null => {
     const own: Record<string, unknown> = follow(
       alternative as HUMAN_LEXICON_SCHEMAS.ISchema,
     );
-    if (!("const" in own)) return null;
+    if (!Object.hasOwn(own, "const")) return null;
     out.push(String(own.const));
   }
   return out;
@@ -131,19 +131,46 @@ const typed = (value: unknown, type: string): boolean => {
   }
 };
 
+/** A number's bounds as the range a refusal offers; null when it has none. */
+const bounds = (own: Record<string, unknown>): HumanRefusal.IRange | null => {
+  const low: number | undefined =
+    typeof own.minimum === "number"
+      ? own.minimum
+      : typeof own.exclusiveMinimum === "number"
+        ? own.exclusiveMinimum
+        : undefined;
+  const high: number | undefined =
+    typeof own.maximum === "number"
+      ? own.maximum
+      : typeof own.exclusiveMaximum === "number"
+        ? own.exclusiveMaximum
+        : undefined;
+  if (low === undefined && high === undefined && own.type !== "integer")
+    return null;
+  return {
+    kind: "range",
+    minimum: low ?? null,
+    maximum: high ?? null,
+    unit: "",
+    ...(own.type === "integer" ? { whole: true } : {}),
+    ...(typeof own.exclusiveMinimum === "number" &&
+    typeof own.exclusiveMaximum === "number"
+      ? { open: "both" as const }
+      : typeof own.exclusiveMinimum === "number"
+        ? { open: "minimum" as const }
+        : typeof own.exclusiveMaximum === "number"
+          ? { open: "maximum" as const }
+          : {}),
+  };
+};
+
 /** The first fault of a value against a schema; null when it is accepted. */
 const read = (
   schema: HUMAN_LEXICON_SCHEMAS.ISchema,
   value: unknown,
   path: string,
   meaning: string | undefined,
-): {
-  path: string;
-  value: unknown;
-  feasible: HumanRefusal.Feasible | null;
-  reason: string;
-  fix: string;
-} | null => {
+): IFault | null => {
   const own: Record<string, unknown> = follow(schema);
   const what: string =
     meaning ?? (typeof own.description === "string" ? own.description : "");
@@ -152,10 +179,12 @@ const read = (
   // A union: accepted by any alternative.
   if (Array.isArray(own.oneOf)) {
     const alternatives: readonly unknown[] = own.oneOf;
-    const faults = alternatives.map((alternative: unknown) =>
-      read(alternative as HUMAN_LEXICON_SCHEMAS.ISchema, value, path, what),
+    const faults: (IFault | null)[] = alternatives.map(
+      (alternative: unknown): IFault | null =>
+        read(alternative as HUMAN_LEXICON_SCHEMAS.ISchema, value, path, what),
     );
-    if (faults.some((fault): boolean => fault === null)) return null;
+    if (faults.some((fault: IFault | null): boolean => fault === null))
+      return null;
     const values: string[] | null = constants(alternatives);
     if (values !== null)
       return {
@@ -179,7 +208,7 @@ const read = (
         typeof kind === "object" && kind !== null
           ? follow(kind as HUMAN_LEXICON_SCHEMAS.ISchema)
           : {};
-      return "const" in fixed ? String(fixed.const) : "";
+      return Object.hasOwn(fixed, "const") ? String(fixed.const) : "";
     });
     if (kinds.every((kind: string): boolean => kind !== "")) {
       const named: number =
@@ -201,7 +230,7 @@ const read = (
     return faults[0]!;
   }
 
-  if ("const" in own && value !== own.const)
+  if (Object.hasOwn(own, "const") && value !== own.const)
     return {
       path,
       value,
@@ -209,59 +238,47 @@ const read = (
       reason: `takes ${path} as ${JSON.stringify(own.const)}, not ${JSON.stringify(value)}`,
       fix: `set ${path} to ${JSON.stringify(own.const)}`,
     };
+
+  // A value of another type; a number of the wrong kind (a fraction for
+  // a whole number) is offered the number's range.
   if (typeof own.type === "string" && !typed(value, own.type))
     return {
       path,
       value,
-      feasible: null,
-      reason: `takes ${path}${said} as ${own.type === "object" ? "an object" : `a ${own.type}`}, not ${JSON.stringify(value)}`,
-      fix: `give ${path} as ${own.type === "object" ? "an object" : `a ${own.type}`}`,
+      feasible:
+        own.type === "integer" || own.type === "number" ? bounds(own) : null,
+      reason: `takes ${path}${said} as ${own.type === "object" ? "an object" : own.type === "integer" ? "a whole number" : `a ${own.type}`}, not ${JSON.stringify(value)}`,
+      fix: `give ${path} as ${own.type === "object" ? "an object" : own.type === "integer" ? "a whole number" : `a ${own.type}`}`,
     };
 
   // Numeric bounds.
   if (typeof value === "number") {
-    const low: number | undefined =
-      typeof own.minimum === "number"
-        ? own.minimum
-        : typeof own.exclusiveMinimum === "number"
-          ? own.exclusiveMinimum
-          : undefined;
-    const high: number | undefined =
-      typeof own.maximum === "number"
-        ? own.maximum
-        : typeof own.exclusiveMaximum === "number"
-          ? own.exclusiveMaximum
-          : undefined;
+    const range: HumanRefusal.IRange | null = bounds(own);
     const under: boolean =
-      low !== undefined &&
-      (typeof own.exclusiveMinimum === "number" ? value <= low : value < low);
+      range !== null &&
+      range.minimum !== null &&
+      (typeof own.exclusiveMinimum === "number"
+        ? value <= range.minimum
+        : value < range.minimum);
     const over: boolean =
-      high !== undefined &&
-      (typeof own.exclusiveMaximum === "number" ? value >= high : value > high);
-    if (under || over)
+      range !== null &&
+      range.maximum !== null &&
+      (typeof own.exclusiveMaximum === "number"
+        ? value >= range.maximum
+        : value > range.maximum);
+    if (range !== null && (under || over))
       return {
         path,
         value,
-        feasible: {
-          kind: "range",
-          minimum: low ?? null,
-          maximum: high ?? null,
-          unit: "",
-          ...(typeof own.exclusiveMinimum === "number" &&
-          typeof own.exclusiveMaximum === "number"
-            ? { open: "both" as const }
-            : typeof own.exclusiveMinimum === "number"
-              ? { open: "minimum" as const }
-              : typeof own.exclusiveMaximum === "number"
-                ? { open: "maximum" as const }
-                : {}),
-        },
-        reason: `takes ${path}${said} ${low === undefined ? "" : `from ${low}`}${low !== undefined && high !== undefined ? " " : ""}${high === undefined ? "" : `up to ${high}`}, not ${value}`,
+        feasible: range,
+        reason: `takes ${path}${said} ${range.minimum === null ? "" : `from ${range.minimum}`}${range.minimum !== null && range.maximum !== null ? " " : ""}${range.maximum === null ? "" : `up to ${range.maximum}`}, not ${value}`,
         fix: `set ${path} inside its range`,
       };
   }
 
-  // An object's members: the required ones present, each given one read.
+  // An object's members: none it does not take, the required ones present,
+  // each given one read against its own schema, or against the schema of
+  // the members it takes beyond those it names.
   if (typeof value === "object" && value !== null && !Array.isArray(value)) {
     const properties: Record<string, unknown> =
       typeof own.properties === "object" && own.properties !== null
@@ -270,10 +287,11 @@ const read = (
     const required: readonly unknown[] = Array.isArray(own.required)
       ? own.required
       : [];
+    const extra: unknown = own.additionalProperties;
     const given: Record<string, unknown> = value as Record<string, unknown>;
-    if (own.additionalProperties === false)
+    if (extra === false)
       for (const key of Object.keys(given))
-        if (!(key in properties) && given[key] !== undefined)
+        if (!Object.hasOwn(properties, key) && given[key] !== undefined)
           return {
             path: below(path, key),
             value: given[key],
@@ -299,10 +317,12 @@ const read = (
       };
     }
     for (const [key, item] of Object.entries(given)) {
-      const member: unknown = properties[key];
+      const member: unknown = Object.hasOwn(properties, key)
+        ? properties[key]
+        : extra;
       if (item === undefined || typeof member !== "object" || member === null)
         continue;
-      const fault = read(
+      const fault: IFault | null = read(
         member as HUMAN_LEXICON_SCHEMAS.ISchema,
         item,
         below(path, key),
@@ -312,11 +332,43 @@ const read = (
     }
   }
 
-  // An array's items.
+  // An array's items: a tuple's every position given and none beyond it
+  // when the schema closes it, each item read against its own schema.
   if (Array.isArray(value)) {
     const prefix: readonly unknown[] = Array.isArray(own.prefixItems)
       ? own.prefixItems
       : [];
+    if (value.length < prefix.length)
+      return {
+        path: below(path, value.length),
+        value: undefined,
+        feasible: {
+          kind: "range",
+          minimum: prefix.length,
+          maximum: null,
+          unit: "",
+          whole: true,
+        },
+        reason: `needs ${prefix.length} items in ${path}${said}, and ${value.length} were given`,
+        fix: `give ${path} its ${prefix.length} items`,
+      };
+    const closed: boolean =
+      prefix.length > 0 &&
+      (own.items === false || own.additionalItems === false);
+    if (closed && value.length > prefix.length)
+      return {
+        path: below(path, prefix.length),
+        value: value[prefix.length],
+        feasible: {
+          kind: "range",
+          minimum: prefix.length,
+          maximum: prefix.length,
+          unit: "",
+          whole: true,
+        },
+        reason: `takes ${prefix.length} items in ${path}${said}, and ${value.length} were given`,
+        fix: `give ${path} exactly its ${prefix.length} items`,
+      };
     for (let i: number = 0; i < value.length; i++) {
       const item: unknown =
         i < prefix.length
@@ -325,7 +377,7 @@ const read = (
             ? own.items
             : undefined;
       if (item === undefined) continue;
-      const fault = read(
+      const fault: IFault | null = read(
         item as HUMAN_LEXICON_SCHEMAS.ISchema,
         value[i],
         below(path, i),
