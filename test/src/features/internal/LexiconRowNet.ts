@@ -63,6 +63,7 @@ export namespace LexiconRowNet {
     // Mimed without a cigarette: the hand itself on the performer's belly.
     ashTap: { target: { kind: "self", region: "abdomen" } },
     stubOut: { target: { kind: "self", region: "abdomen" } },
+    readingWalk: ahead,
     stroll: ahead,
     hurry: ahead,
     march: ahead,

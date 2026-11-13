@@ -1,6 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
   HumanChain,
+  HumanHabit,
   HumanPerformance,
   type HumanSegment,
   HumanSignature,
@@ -16,8 +17,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * is held with the trunk and the walk is slower (Schabrun et al. 2014;
  * Lamberg and Muratori 2012).
  *
- * One body, the average man, walks 3 m, once freely and once with
- * `handToFace({ task: "read" })` over the walk; the claim is the overlay's
+ * One body, the average man, walks 3 m, once freely and once as the
+ * lexicon composes it: `HumanHabit.readingWalk`, the slower walk, with
+ * `handToFace({ task: "read" })` over it. The claim is the composition's
  * effect on one walk, not a stature.
  *
  * Scenarios:
@@ -41,11 +43,15 @@ export function test_human_motion_hand_texting_walk(): void {
   const body: IHumanBody = motionHumanBody("m-average");
   const complaints: string[] = [];
   const perform = (read: boolean): HumanPerformance => {
-    const walk: HumanChain = HumanChain.subject("a").walk({
-      to: { x: 0, y: 0, z: 3 },
-    });
+    // The free walk, or the reading walk the lexicon gives a read to ride.
+    const walk: HumanChain = read
+      ? HumanChain.subject("a").registered("readingWalk", {
+          to: { x: 0, y: 0, z: 3 },
+        })
+      : HumanChain.subject("a").walk({ to: { x: 0, y: 0, z: 3 } });
     return new HumanPerformance({
       seed: "texting",
+      laws: [HumanHabit.readingWalk],
       performers: [
         {
           subject: "a",

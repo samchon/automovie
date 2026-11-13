@@ -17,6 +17,7 @@ import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarge
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
+import { AutoMovieMotionHumanVariationDraw } from "../compose/AutoMovieMotionHumanVariationDraw";
 import { AutoMovieMotionHumanTouchForm } from "../compose/AutoMovieMotionHumanTouchForm";
 import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTouchLaid";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
@@ -122,8 +123,8 @@ export namespace handToFace {
     /** Repetitions at the face; the row's when absent. */
     count?: number;
 
-    /** Seconds at the face after the repetitions; the row's when absent. */
-    seconds?: number;
+    /** Seconds at the face after the repetitions, or two bounds the seed draws them between, evenly (a puff on a cigarette lasts 1.6 to 2.1 s); the row's when absent. */
+    seconds?: number | { between: readonly [number, number] };
 
     /** The subject id of the prop the acting hand holds, performed with instead of the implied tool; no prop when absent. */
     prop?: string;
@@ -234,7 +235,15 @@ export namespace handToFace {
     const row: IRow = typeof p.task === "string" ? ROWS[p.task] : p.task;
     const body = context.body;
     const count: number = p.count ?? row.count;
-    const hold: number = p.seconds ?? row.hold;
+    const hold: number =
+      typeof p.seconds === "object"
+        ? p.seconds.between[0] +
+          (p.seconds.between[1] - p.seconds.between[0]) *
+            AutoMovieMotionHumanVariationDraw.uniforms(
+              context.series("seconds"),
+              1,
+            )[0]!
+        : (p.seconds ?? row.hold);
     HumanBound.least("seconds", hold, 0, "s");
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);

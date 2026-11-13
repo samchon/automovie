@@ -31,12 +31,17 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 4. In each, the pelvis stays within 10 mm of where the base left it, at
  *    the middle of the hold (the campaign's bound for a supported body,
  *    #3358).
+ * 5. The seated drink runs through the drinking task's phases in order
+ *    (Alt Murphy et al. 2006, with the glass already in the hand): the
+ *    forward transport to `atMouth`, the drinking to `relax` and the back
+ *    transport to the end, each between 0.2 and 3 s (provisional band: the
+ *    paper's phase durations are not read yet; the order is its own).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds the performances through the public chain and reads displayed joints and regions; a row that stands the body up, misses its region seated or loses its event fails.
  * @evidence contracts/development/testing.md#independent-expectations The bounds are acceptance lines of #3345 and #3358 or marked provisional; the seat is the body's own popliteal height.
  * @evidence contracts/development/testing.md#distinguishing-cases Two laws and three rows on the seated base, two statures; the kneeling base is `test_human_motion_hand_kneeling_rows`'s; the same rows standing are `test_human_motion_emblem_signatures`'s.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds six short performances; it runs locally and wherever CI runs the human motion tests.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 4 scenarios with their bounds.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 5 scenarios with their bounds.
  */
 export function test_human_motion_hand_seated_rows(): void {
   const laws: IHumanActionLaw<never>[] = [
@@ -135,6 +140,19 @@ export function test_human_motion_hand_seated_rows(): void {
             );
         } else if (!Number.isFinite(instant("atMouth")))
           complaints.push(`${name}: drink seated: the plan has no atMouth`);
+        else {
+          // 5. The drinking task's phases, in order and of a hand's length.
+          const phases: readonly (readonly [string, number])[] = [
+            ["forward transport", instant("atMouth") - placed.start],
+            ["drinking", instant("relax") - instant("atMouth")],
+            ["back transport", placed.end - instant("relax")],
+          ];
+          for (const [phase, seconds] of phases)
+            if (!(seconds >= 0.2 && seconds <= 3))
+              complaints.push(
+                `${name}: drink seated: the ${phase} lasts ${seconds.toFixed(2)} s, between 0.2 and 3 s expected`,
+              );
+        }
       } catch (error) {
         complaints.push(
           `${name}: ${label} seated: expected to plan, got ${(error as Error).message}`,
