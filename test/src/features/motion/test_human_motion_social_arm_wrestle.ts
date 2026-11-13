@@ -45,9 +45,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 5. Each pelvis stays within 10 mm of where sitting left it, at `pin` (the
  *    campaign's bound for a supported body, #3358).
  *
- * 6. At `pin` the loser's chest faces at least 5 degrees further toward the
- *    pin's side than at `go` (provisional size): the trunk rolls with the
- *    arm.
+ * 6. At `pin` the loser's chest faces further toward the pin's side than at
+ *    `go`, by at least a sixth of the pin's angle (provisional size; the
+ *    claim is the direction): the trunk rolls with the arm.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Seats two performers, joins them through the public mutual join and reads displayed joints; elbows off the table, hands apart, a pin to the wrong side or a body that leaves its seat fails.
  * @evidence contracts/development/testing.md#independent-expectations The winner and the side of the pin are what arm wrestling is; the 10 mm and the frame are the campaign's; the other bounds are provisional and stated as such.
@@ -203,9 +203,10 @@ export function test_human_motion_social_arm_wrestle(): void {
       performance.bones("b", seconds).get("chest")!.worldRotation,
       { x: 0, y: 0, z: 1 },
     ).x;
-  if (!(faces(pin) - faces(go) >= Math.sin((5 * Math.PI) / 180)))
+  const least: number = Math.sin(((angle / 6) * Math.PI) / 180);
+  if (!(faces(pin) - faces(go) >= least))
     complaints.push(
-      `pin: the loser's chest faces ${(faces(pin) - faces(go)).toFixed(3)} further toward the pin's side than at go, as the sine of its turn, at least ${Math.sin((5 * Math.PI) / 180).toFixed(3)} (5 degrees) expected`,
+      `pin: the loser's chest faces ${(faces(pin) - faces(go)).toFixed(3)} further toward the pin's side than at go, as the sine of its turn, at least ${least.toFixed(3)} (a sixth of the ${angle} degree pin) expected`,
     );
 
   // 5. Still seated.

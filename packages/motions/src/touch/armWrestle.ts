@@ -7,7 +7,6 @@ import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { gesture } from "../everyday/gesture";
-import { handGoals } from "../everyday/handGoals";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -179,34 +178,19 @@ export namespace armWrestle {
     const leaned = (pitch: number, posture: IHumanPosture): IHumanPosture =>
       gesture.bow(body, posture, pitch, 0);
 
-    // The palm faces back at this performer, the forearm neither turned in
-    // nor out, as the clasp holds it: a palm asked across the table would
-    // state the arm's plane against the elbow's place.
-    const across: IAutoMovieVector3 = own;
-
     // A posture with the arm asked onto the wrist's place at a turn, the
-    // elbow hinted onto the table.
-    const armed = (posture: IHumanPosture, degrees: number): IHumanPosture => {
-      const at: IAutoMovieVector3 = wrist(degrees);
-      return handGoals(body, posture, [
-        {
-          side,
-          surface: "wrist",
-          shape: "fist",
-          point: at,
-          rotation: HumanHand.rotation(side, {
-            fingers: Vector3.normalize(Vector3.subtract(at, elbow)),
-            palm: Vector3.normalize(
-              Vector3.cross(
-                Vector3.cross(Vector3.subtract(at, elbow), across),
-                Vector3.subtract(at, elbow),
-              ),
-            ),
-          }),
-          bend: elbow,
-        },
-      ]);
-    };
+    // elbow hinted onto the table. No hand rotation is asked: the fit gives
+    // up the hinted plane before the hand's turn when the forearm's range
+    // cannot give both (`resolveHumanPosture`: it searches bend planes when
+    // the hinted one misses), and the elbow on the table is the contact the
+    // contest is about, so the hand turns as the arm leaves it.
+    const armed = (posture: IHumanPosture, degrees: number): IHumanPosture => ({
+      ...posture,
+      limbs: {
+        ...posture.limbs,
+        [`${side}Arm`]: { point: wrist(degrees), bend: elbow },
+      },
+    });
 
     // The trunk rolls with the arm: it bends to the pin's side and turns its
     // chest toward it by the forearm's share of a quarter turn, half in the
@@ -306,6 +290,17 @@ export namespace armWrestle {
       );
     const upright: number = off(0);
     if (!(off(asked) <= upright + HELD)) {
+      // What the fit made of the arm, for the refusal: the displayed
+      // shoulder's distance to the elbow's place and the upper arm's
+      // clinical angles, upright and at the asked angle.
+      const read = (degrees: number): string => {
+        const pose = resolveHumanPosture(body, set(entry, degrees, 1));
+        const shoulder: IAutoMovieVector3 = poseBones(body, pose).get(
+          `${side}UpperArm`,
+        )!.worldPosition;
+        const joint = pose.joints.find((j): boolean => j.bone === `${side}UpperArm`);
+        return `at ${degrees} degrees the shoulder lies ${(Vector3.length(Vector3.subtract(shoulder, elbow)) * 1000).toFixed(0)} mm from the elbow's place (the upper arm is ${(upperArm * 1000).toFixed(0)} mm) and the upper arm stands at flexion ${(joint?.flexion ?? NaN).toFixed(0)}, abduction ${(joint?.abduction ?? NaN).toFixed(0)}, twist ${(joint?.twist ?? NaN).toFixed(0)} degrees`;
+      };
       let most: number = 0;
       for (let degrees: number = 5; degrees < asked; degrees += 5)
         if (off(degrees) <= upright + HELD) most = degrees;
@@ -315,7 +310,7 @@ export namespace armWrestle {
         axis: "pin",
         value: asked,
         feasible: { kind: "range", minimum: 0, maximum: most, unit: "degrees" },
-        reason: `With the forearm ${asked} degrees from upright the elbow leaves the table's top by ${(off(asked) * 1000).toFixed(0)} mm, against ${(upright * 1000).toFixed(0)} mm upright: the arm holds the place up to ${most} degrees`,
+        reason: `With the forearm ${asked} degrees from upright the elbow leaves the table's top by ${(off(asked) * 1000).toFixed(0)} mm, against ${(upright * 1000).toFixed(0)} mm upright: the arm holds the place up to ${most} degrees (${read(0)}; ${read(asked)})`,
         fix: "ask a pin within that angle for both roles; an arm forced past its range is not this law's",
       });
     }
