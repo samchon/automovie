@@ -107,24 +107,13 @@ export namespace HumanHabit {
     },
   });
 
-  /** A shave: a razor's head rubbed up the jaw. */
-  export const shave = HumanActionRow.of("shave", handToFace, {
-    task: {
-      region: "jawRight",
-      effector: {
-        surface: "grip",
-        shape: "fist",
-        tool: { thumb: 0.5 },
-        facing: "thumb",
-        along: "palm",
-      },
-      kind: "rub",
-      count: 3,
-      hold: 0.2,
-      tangent: "up",
-      head: 0,
-      at: "atJaw",
-    },
+  /** A shave: the head of a held razor rubbed up the right jaw three times (`touch` with the held prop's working point). The composition names the razor (`prop`) taken up for its use, and its working point (`point`), the head; without a razor the palm's rub is mimed. */
+  export const shave = HumanActionRow.of("shave", touch, {
+    target: { kind: "self", region: "jawRight" },
+    kind: "rub",
+    count: 3,
+    hold: 0.2,
+    tangent: "up",
   });
 
   /** A rub of tired eyes with the fingertips. */
