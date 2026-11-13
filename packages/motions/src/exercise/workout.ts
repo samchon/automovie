@@ -300,7 +300,26 @@ export namespace workout {
       }
       return { ...placed, limbs };
     };
-    const at: IAutoMovieVector3 =
+    // Feet or toes that bear on the floor are as high above it as when the
+    // body stands on them, and hands as high as a laid palm's wrist; only a
+    // body that bears on its trunk is rested by its shapes.
+    const grounded: number | null =
+      kind.anchor !== "hips" || kind.raise !== undefined
+        ? null
+        : kind.pin.every((bone: AutoMovieHumanoidBone): boolean =>
+              /(Foot|Toes)$/.test(bone),
+            )
+          ? shown.y
+          : kind.pin.every((bone: AutoMovieHumanoidBone): boolean =>
+                bone.endsWith("Hand"),
+              )
+            ? AutoMovieMotionHumanPlaced.wrist(body, "left", {
+                point: { x: 0, y: 0, z: 0 },
+                facing: { x: 0, y: -1, z: 0 },
+                forward: { x: 0, y: 0, z: 1 },
+              }).y
+            : null;
+    const rested: IAutoMovieVector3 =
       kind.anchor === "stance"
         ? shown
         : kind.anchor === "hips"
@@ -325,6 +344,8 @@ export namespace workout {
               ),
               { x: 0, y: BAR * body.measure.stature, z: 0 },
             ));
+    const at: IAutoMovieVector3 =
+      grounded === null ? rested : { ...rested, y: grounded };
 
     const posture = (seconds: number): IHumanPosture => {
       let index: number = 0;
@@ -371,7 +392,9 @@ export namespace workout {
           y:
             kind.base === "hanging"
               ? root.y
-              : Math.max(root.y, knockdown.rest(body, placed)),
+              : root.y +
+                (1 - down) *
+                  Math.max(0, knockdown.rest(body, placed) - root.y),
           z: root.z,
         },
       };

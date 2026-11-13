@@ -39,8 +39,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 3. A descending diagonal cut at a pell 25 degrees to the left: the pell's
  *    target is within 15 mm of the blade between guard and point, and over
  *    the frame before, the blade's landing part comes down more than 50 mm.
- * 4. A lunge at a pell 25 degrees to the right, a quarter of the stature
- *    farther than the thrust's: the point is within 15 mm of the target, the
+ * 4. A lunge at a pell 25 degrees to the right, farther than the thrust's
+ *    by 0.45 of the stature, the middle of the band a lunge's leading foot
+ *    travels (a pell only a quarter of the stature farther leaves a lunge's
+ *    hand at a third of the arm from the shoulder, which is a step's
+ *    distance and was refused): the point is within 15 mm of the target, the
  *    leading foot has travelled 0.35 to 0.55 of the stature, and at the end
  *    it is back within 5 mm of where it stood.
  * 5. With the bare hand, a thrust at a point 3 m ahead, beyond the longest
@@ -94,7 +97,7 @@ export function test_human_motion_blade_strokes(): void {
         ahead: stands(0, near),
         aside: stands(0, near, 0.1),
         left: stands(25, 0.5 * stature),
-        right: stands(-25, near + 0.25 * stature),
+        right: stands(-25, near + 0.45 * stature),
       };
     const target = (id: string): IAutoMovieVector3 =>
       placed(

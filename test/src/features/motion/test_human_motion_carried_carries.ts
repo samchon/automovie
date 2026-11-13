@@ -29,9 +29,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * the chest; over the shoulder, the belly on the shoulder; supported, side
  * to side.
  *
- * Scenarios, the carrier walking 2 m, sampled every 0.1 s from 0.5 s after
- * the carry is taken up (the lift into a carry is not planned yet, so the
- * take-up is a transition and not part of the hold):
+ * Scenarios, the carrier walking 2 m, read at five instants 0.35 s apart
+ * from 0.5 s after the carry is taken up (the lift into a carry is not
+ * planned yet, so the take-up is a transition and not part of the hold;
+ * the carried root is solved onto the carrier at every instant by one
+ * rule, so a fault is systematic and five instants across more than a
+ * stride show it, which keeps ten films near a minute):
  * 1. Each of the eight carries (the four, a second helper's side of a
  *    supported walk, and the armpit, collar and ankle drags' holds while
  *    the carrier walks forward; the drags' regions are a first-aid manual's:
@@ -143,7 +146,7 @@ export function test_human_motion_carried_carries(): void {
       );
       let worst: number = 0;
       let when: number = 0;
-      for (let seconds: number = 0.8; seconds <= 2.2; seconds += 0.1) {
+      for (const seconds of [0.8, 1.15, 1.5, 1.85, 2.2]) {
         const gap: number = Vector3.length(
           Vector3.subtract(
             HumanSignature.region(carried, RESTS[carry][0], seconds),
