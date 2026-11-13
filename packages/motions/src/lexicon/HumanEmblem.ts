@@ -107,10 +107,18 @@ export namespace HumanEmblem {
     kind: "shrug",
   });
 
-  /** A thumbs up: the fist held out before the shoulder with the thumb straight (first pass: the hand's attitude is the stop palm's, provisional). */
+  /** A thumbs up: the fist held out before the shoulder, turned a quarter in its palm's plane so the straight thumb stands up. */
   export const thumbsUp = HumanActionRow.of("thumbsUp", gesture, {
     kind: "stopPalm",
     shape: "thumbUp",
+    turn: 90,
+  });
+
+  /** A thumbs down: the same fist turned the other way, the straight thumb pointing down. */
+  export const thumbsDown = HumanActionRow.of("thumbsDown", gesture, {
+    kind: "stopPalm",
+    shape: "thumbUp",
+    turn: -90,
   });
 
   /** The OK sign: the forefinger and thumb in a ring, held out (first pass, provisional attitude). */

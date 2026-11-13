@@ -133,6 +133,9 @@ export namespace gesture {
     /** Movement quality. */
     effort?: HumanEffort.IEffort;
 
+    /** Degrees the moving hands are turned in the plane of their own palms from the gesture's attitude, the thumb's side rising for a positive turn (provisional sign, held by `test_human_motion_emblem_thumbs`): a quarter turn stands a held-out fist's thumb up, the opposite one points it down. No turn when absent. */
+    turn?: number;
+
     /** A hand shape with a meaning of its own, taken by the moving hands in place of the gesture's working shape: a thumbs up, an OK ring, a V, a count; the gesture's own shape when absent. */
     shape?: HumanHandShape.Emblem;
 
@@ -400,7 +403,18 @@ export namespace gesture {
             surface: goal.surface,
             shape: goal.shape,
             point: goal.point,
-            rotation: goal.rotation,
+            // A turn of the hand in its own palm's plane, mirrored for the
+            // left hand, over the stroke's attitude.
+            rotation:
+              p.turn === undefined
+                ? goal.rotation
+                : Quaternion.multiply(
+                    goal.rotation,
+                    Quaternion.fromAxisAngle(
+                      { x: 0, y: -1, z: 0 },
+                      (side === "left" ? -1 : 1) * p.turn,
+                    ),
+                  ),
             bend: AutoMovieMotionHumanBend.hang(
               body,
               posture,
