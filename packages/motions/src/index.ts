@@ -106,6 +106,7 @@ export * from "./law/IHumanMutual";
 export * from "./law/HumanActionRow";
 export * from "./perform/HumanCue";
 export * from "./perform/HumanObject";
+export * from "./perform/HumanObstacle";
 export * from "./law/HumanRefusal";
 export * from "./law/IHumanActionContext";
 export * from "./law/IHumanActionLaw";

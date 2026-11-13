@@ -12,6 +12,7 @@ import type {
 import type { HumanActionKey } from "../HumanActionKey";
 import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
+import type { HumanObstacle } from "../perform/HumanObstacle";
 import type { IHumanProp } from "../perform/IHumanProp";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { HumanSkill } from "../skill/HumanSkill";
@@ -138,6 +139,16 @@ export interface IHumanActionContext<P = object> {
    * @throws {HumanRefusal} A `participant` refusal when the performance has no such track.
    */
   cue(track: string): readonly resolveAutoMovieSchedule.ICue[];
+
+  /**
+   * What stands in the way in this performance
+   * (`HumanPerformance.IInput.obstacles`): the scene's solids with their
+   * openings, which a law that moves the body across the floor asks
+   * `HumanObstacle.blocking` about before it plans a stretch of its path.
+   *
+   * @returns The obstacles; none when the performance was given none.
+   */
+  obstacles(): readonly HumanObstacle.IObstacle[];
 
   /**
    * This instance's draw stream for one channel.
