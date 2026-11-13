@@ -29,6 +29,7 @@ import type { IHumanLayer } from "../law/IHumanLayer";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { humanRig } from "../posture/humanRig";
+import { mixHumanPosture } from "../posture/mixHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
@@ -76,8 +77,8 @@ export namespace HumanSegment {
     /** Whether the schedule is still being resolved: nothing is cached meanwhile, because another person's actions may not be placed yet. */
     resolving: boolean;
 
-    /** Additive layers over every action, in order. */
-    layers: readonly IHumanLayer[];
+    /** Additive layers over the person's actions, in order, each inside its window. */
+    layers: ILayered[];
 
     /** What a layer can read. */
     layer: IHumanLayer.IContext;
@@ -87,6 +88,21 @@ export namespace HumanSegment {
 
     /** Resolved stops of this person's weapons, film seconds, keyed by `weapon(segment, id)`. */
     stops: Map<string, number>;
+  }
+
+  /** A layer and the film seconds it runs in. */
+  export interface ILayered {
+    /** The layer. */
+    layer: IHumanLayer;
+
+    /** The second it starts; minus infinity for the whole film. */
+    from: number;
+
+    /** The second it ends; infinity for the whole film. */
+    to: number;
+
+    /** Seconds over which it comes in and goes out. */
+    fade: number;
   }
 
   /**
@@ -245,15 +261,18 @@ export namespace HumanSegment {
     accepts: IHumanActionLaw["accepts"] = {},
     family: HumanActionKey = name,
   ): IHumanInterruptRow | undefined {
+    if (previous === undefined || before === undefined) return undefined;
+
+    // An action aligned to an instant may start while the previous one still
+    // runs; that ends the previous one there, which is a cut like any other.
+    const into: boolean = start < previous.end - 1e-9;
     if (
-      previous === undefined ||
-      before === undefined ||
-      before.cut === undefined ||
-      Math.abs(before.end - start) > 1e-9
+      !into &&
+      (before.cut === undefined || Math.abs(before.end - start) > 1e-9)
     )
       return undefined;
     const D: number = previous.plan.duration;
-    const share: number = (previous.end - previous.start) / D;
+    const share: number = ((into ? start : previous.end) - previous.start) / D;
     // The source's row for this action, then what the entered action accepts
     // from this source, then either side's rule for every action. A row of
     // an action is read under its own name first and its family's after.
@@ -865,19 +884,51 @@ export namespace HumanSegment {
   ): IHumanPosture {
     // Each layer draws from streams keyed by its own name, as IHumanLayer
     // documents, so two layers that name a channel alike stay independent.
+    const action = (): IHumanLayer.IAction | undefined => {
+      let active: ISegment | undefined;
+      for (const s of person.segments)
+        if (s.entryTime <= seconds + 1e-12) active = s;
+      return active === undefined
+        ? undefined
+        : {
+            name: active.name,
+            family: active.law.family ?? active.name,
+            from: active.entryTime,
+            to: active.end,
+            events: active.plan.events.map((e) => ({
+              name: e.name,
+              seconds: active.start + e.share * active.plan.duration,
+            })),
+            contacts: active.plan.contacts,
+          };
+    };
     return person.layers.reduce(
-      (p: IHumanPosture, layer: IHumanLayer): IHumanPosture =>
-        layer.apply(p, seconds, {
-          ...person.layer,
-          random: (channel: string): IAutoMovieRandom =>
-            HumanSkill.stream(
-              person.skill,
-              person.performer.subject,
-              `layer:${layer.name}`,
-              0,
-              channel,
-            ),
-        }),
+      (
+        p: IHumanPosture,
+        { layer, from, to, fade }: ILayered,
+      ): IHumanPosture => {
+        // A windowed layer comes in and goes out on a minimum-jerk ramp, as
+        // the weight of what it adds.
+        const edge: number = Math.min(seconds - from, to - seconds);
+        if (!(edge > 0)) return p;
+        const weight: number = edge >= fade ? 1 : minimumJerk(edge / fade).s;
+        return mixHumanPosture(
+          p,
+          layer.apply(p, seconds, {
+            ...person.layer,
+            action,
+            random: (channel: string): IAutoMovieRandom =>
+              HumanSkill.stream(
+                person.skill,
+                person.performer.subject,
+                `layer:${layer.name}`,
+                0,
+                channel,
+              ),
+          }),
+          weight,
+        );
+      },
       posture,
     );
   }

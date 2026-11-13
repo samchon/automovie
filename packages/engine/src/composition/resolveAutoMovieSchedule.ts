@@ -12,7 +12,10 @@ import type { IAutoMovieSchedule } from "./IAutoMovieSchedule";
  * start and ends at the latest end; `at` starts its part at the named
  * anchor's contact instant (its start when the timing gives no contact) plus
  * the offset, and the walk continues after the later of the cursor and that
- * part's end. An intent with `until` ends at its cut (a share of its
+ * part's end. An `at` that names an `event` reads that instant of the anchor,
+ * which may then be a cue track of the laws, and one that names `align` asks
+ * the laws' `align` when its part must start for that instant of the part's
+ * first intent to fall there. An intent with `until` ends at its cut (a share of its
  * duration, the share of one of the events its timing names, or the share at
  * which the `until` law finds a proximity) and drops a contact after the cut;
  * a proximity the law reports as never met leaves the intent uncut, so it
@@ -43,6 +46,54 @@ export function resolveAutoMovieSchedule(
   const anchors: Map<string, number> = new Map();
   const interrupted: Map<number, number> = new Map();
   const anchored: Map<string, IAutoMovieSchedule.IEntry> = new Map();
+  const tracks: Map<string, readonly resolveAutoMovieSchedule.ICue[]> = new Map(
+    Object.entries(laws.cues ?? {}),
+  );
+
+  // The named instants of an anchored entry (its events, and its own start
+  // and end where it names none so) or of a cue track.
+  const instants = (
+    of: string,
+  ): readonly resolveAutoMovieSchedule.ICue[] | undefined => {
+    const entry: IAutoMovieSchedule.IEntry | undefined = anchored.get(of);
+    if (entry === undefined) return tracks.get(of);
+    const events: readonly resolveAutoMovieSchedule.ICue[] = entry.events ?? [];
+    const named = (name: string): boolean =>
+      events.some(
+        (e: resolveAutoMovieSchedule.ICue): boolean => e.name === name,
+      );
+    return [
+      ...(named("start") ? [] : [{ name: "start", seconds: entry.start }]),
+      ...events,
+      ...(named("end") ? [] : [{ name: "end", seconds: entry.end }]),
+    ];
+  };
+  const instant = (
+    of: string,
+    events: readonly resolveAutoMovieSchedule.ICue[],
+    name: string,
+    index: number,
+  ): number => {
+    const same: resolveAutoMovieSchedule.ICue[] = events.filter(
+      (e: resolveAutoMovieSchedule.ICue): boolean => e.name === name,
+    );
+    if (same.length === 0)
+      throw new Error(
+        `${of} has no event ${name}; its events are ${[...new Set(events.map((e: resolveAutoMovieSchedule.ICue): string => e.name))].join(", ") || "none"}`,
+      );
+    const found: resolveAutoMovieSchedule.ICue | undefined = same[index];
+    if (found === undefined)
+      throw new Error(
+        `${of} has ${same.length} ${name} events, so index ${index} names none (the first is 0)`,
+      );
+    return found.seconds;
+  };
+  const leading = (node: AutoMovieComposition): IAutoMovieIntent | undefined =>
+    node.kind === "intent"
+      ? node.intent
+      : node.kind === "at" || node.parts[0] === undefined
+        ? undefined
+        : leading(node.parts[0]);
   const place = (node: AutoMovieComposition, start: number): number => {
     if (node.kind === "intent") {
       const context: resolveAutoMovieSchedule.IContext = { start, entries };
@@ -80,27 +131,21 @@ export function resolveAutoMovieSchedule(
           );
           if (share !== undefined) cut = { share };
         } else if ("of" in until) {
-          const other: IAutoMovieSchedule.IEntry | undefined = anchored.get(
-            until.of,
-          );
-          if (other === undefined)
+          const events: readonly resolveAutoMovieSchedule.ICue[] | undefined =
+            instants(until.of);
+          if (events === undefined)
             throw new Error(
               `Cut of ${node.intent.subject}.${node.intent.capability} waits for ${until.of}, which is not placed earlier`,
             );
-          const event: { name: string; seconds: number } | undefined =
-            other.events?.find(
-              (e: { name: string; seconds: number }): boolean =>
-                e.name === until.event,
-            );
-          if (event === undefined)
-            throw new Error(
-              `${until.of} has no event ${until.event}; its events are ${(other.events ?? []).map((e: { name: string }): string => e.name).join(", ") || "none"}`,
-            );
+          const seconds: number = instant(
+            until.of,
+            events,
+            until.event,
+            until.index ?? 0,
+          );
           cut = {
             share:
-              timing.duration === 0
-                ? 0
-                : (event.seconds - start) / timing.duration,
+              timing.duration === 0 ? 0 : (seconds - start) / timing.duration,
             event: `${until.of}.${until.event}`,
           };
         } else if ("event" in until) {
@@ -151,7 +196,7 @@ export function resolveAutoMovieSchedule(
         ...(state === undefined ? {} : { state }),
       });
       if (node.intent.anchor !== undefined) {
-        if (anchors.has(node.intent.anchor))
+        if (anchors.has(node.intent.anchor) || tracks.has(node.intent.anchor))
           throw new Error(`Duplicate composition anchor ${node.intent.anchor}`);
         anchors.set(node.intent.anchor, draft.contact ?? start);
         anchored.set(node.intent.anchor, draft);
@@ -184,12 +229,42 @@ export function resolveAutoMovieSchedule(
           Math.max(end, place(part, start)),
         start,
       );
-    const anchor: number | undefined = anchors.get(node.anchor);
+    const events: readonly resolveAutoMovieSchedule.ICue[] | undefined =
+      instants(node.anchor);
+    const anchor: number | undefined =
+      node.event === undefined
+        ? anchors.get(node.anchor)
+        : events === undefined
+          ? undefined
+          : instant(node.anchor, events, node.event, node.index ?? 0);
     if (anchor === undefined)
       throw new Error(
-        `Composition anchor ${node.anchor} is not placed earlier`,
+        events === undefined
+          ? `Composition anchor ${node.anchor} is not placed earlier`
+          : `Composition anchor ${node.anchor} is a cue track, so the part aligned to it must name one of its events`,
       );
-    return Math.max(start, place(node.part, anchor + node.offset));
+    const target: number = anchor + node.offset;
+    if (node.align === undefined)
+      return Math.max(start, place(node.part, target));
+
+    // The part's own instant falls on the target: the laws say when it must
+    // start for that, since only they know how long it takes to get there.
+    const first: IAutoMovieIntent | undefined = leading(node.part);
+    if (first === undefined)
+      throw new Error(
+        `The part aligned to ${node.anchor} by its ${node.align} begins with no intent`,
+      );
+    if (laws.align === undefined)
+      throw new Error(
+        `${first.subject}.${first.capability} aligns its ${node.align}, which these laws cannot resolve`,
+      );
+    return Math.max(
+      start,
+      place(
+        node.part,
+        laws.align(first, node.align, target, { start: target, entries }),
+      ),
+    );
   };
   const end: number = place(composition, 0);
   const sorted: IAutoMovieSchedule.IEntry[] = [...entries].sort(
@@ -242,8 +317,36 @@ export namespace resolveAutoMovieSchedule {
     events?: readonly IAutoMovieMotionEvent[];
   }
 
+  /** A named instant of a cue track or of a placed entry. */
+  export interface ICue {
+    /** The instant's name; a track may repeat one, as a score repeats `beat`. */
+    name: string;
+
+    /** Film seconds. */
+    seconds: number;
+  }
+
   /** The production's pure laws. */
   export interface ILaws {
+    /**
+     * Tracks of named instants that belong to no intent, by track name: a
+     * dialogue's line starts and accents, a score's beats. A part aligns to
+     * one and an intent is cut on one as on an anchored intent's events.
+     */
+    cues?: Readonly<Record<string, readonly ICue[]>>;
+
+    /**
+     * The second an intent must start at for its named instant to fall on a
+     * target second. It places nothing: the intent is timed again when it
+     * is placed at the second returned.
+     */
+    align?(
+      intent: IAutoMovieIntent,
+      instant: string,
+      target: number,
+      context: IContext,
+    ): number;
+
     /** Duration and contact of an intent. */
     timing(intent: IAutoMovieIntent, context: IContext): ITiming;
 

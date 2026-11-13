@@ -103,6 +103,48 @@ export class HumanChainCore extends AutoMovieChain {
   }
 
   /**
+   * Time the last appended action to an instant of another action or of a
+   * cue track, as BML's synchronisation constraints do: one of its own
+   * instants (`align`, its start when absent) falls on the instant named
+   * (`of` and `event`), `offset` seconds later.
+   *
+   * The action starts as early as that needs. Where its performer's previous
+   * action still runs then, that action is cut there, which its cancel table
+   * must allow; an action that would have to start before its performer's
+   * previous one, or before the film, is refused with the earliest instant
+   * it can meet. What follows in the chain starts when the synced action
+   * ends. Cut the action (`until`) and put overlays on it (`over`) before
+   * syncing it.
+   *
+   * ```ts
+   * a.stand().gesture({ kind: "beat" }).sync({ of: "dialogue", event: "accent", index: 2, align: "strokeEnd" });
+   * b.stand().flinch().sync({ of: "strike", event: "contact" });
+   * ```
+   *
+   * @param sync The instant to meet and which instant of the action meets it.
+   * @returns The chain.
+   * @throws {Error} When the chain ends in no action.
+   */
+  public sync(sync: HumanChainCore.ISync): this {
+    const parts: readonly AutoMovieComposition[] =
+      this.node.kind === "sequence" ? this.node.parts : [this.node];
+    const last: AutoMovieComposition | undefined = parts.at(-1);
+    if (last === undefined || last.kind === "at" || last.kind === "sequence")
+      throw new Error("sync times an action; append one first");
+    return this.derive({
+      kind: "sequence",
+      parts: [
+        ...parts.slice(0, -1),
+        AutoMovieComposition.at(sync.of, last, sync.offset ?? 0, {
+          ...(sync.event === undefined ? {} : { event: sync.event }),
+          ...(sync.index === undefined ? {} : { index: sync.index }),
+          ...(sync.align === undefined ? {} : { align: sync.align }),
+        }),
+      ],
+    });
+  }
+
+  /**
    * Perform other actions over the last appended one, at the same time and
    * on other parts of the body: a wave or a phone during a walk.
    *
@@ -192,6 +234,28 @@ export class HumanChainCore extends AutoMovieChain {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Derived from the parameter table, not restated per action.
  */
 export namespace HumanChainCore {
+  /** An instant to meet, and which instant of the synced action meets it. */
+  export interface ISync {
+    /** The anchor of an action placed earlier in the composition, or the name of a cue track. */
+    of: string;
+
+    /**
+     * Which instant of it: one of its events, or `start` or `end`. Absent,
+     * an action's decisive instant (its contact) or else its start; a cue
+     * track always needs one.
+     */
+    event?: string;
+
+    /** Which occurrence of that event, from 0, where it repeats, as a track's beats do; 0 when absent. */
+    index?: number;
+
+    /** The synced action's own instant that falls there: one of its events; its start when absent. */
+    align?: string;
+
+    /** Seconds after the instant named; negative is before. 0 when absent. */
+    offset?: number;
+  }
+
   /**
    * What follows the name in `act`: the action's parameters and an optional
    * anchor. The parameters may be left out only when every one of them is

@@ -1,11 +1,14 @@
 import { AutoMovieChain, AutoMovieComposition } from "@automovie/engine";
 
+import { HumanMutual } from "./actions/HumanMutual";
+import type { HumanChainCore } from "./chain/HumanChainCore";
 import { HumanChainSport } from "./chain/HumanChainSport";
 import type { handOver } from "./handling/handOver";
 import type { handshake } from "./handling/handshake";
 import type { IHumanActionContext } from "./law/IHumanActionContext";
 import type { IHumanActionLaw } from "./law/IHumanActionLaw";
 import type { IHumanActionPlan } from "./law/IHumanActionPlan";
+import type { IHumanMutual } from "./law/IHumanMutual";
 
 /**
  * The fluent authoring surface of one person's actions: one typed method per
@@ -93,12 +96,77 @@ export class HumanChain extends HumanChainSport {
   }
 
   /**
-   * Two people's chains joined for a mutual action: both chains play
-   * together, then both people perform the mutual action at once, so each
-   * person's earlier actions are placed before either plans the meeting.
+   * Join people's chains in a mutual action: one thing they do together,
+   * such as a handshake, a handover or a lift.
    *
-   * @param a One person's chain.
-   * @param b The other's.
+   * Every chain of the cast plays first, side by side, and then every role
+   * performs its part of the mutual action at once, so each person's earlier
+   * actions are placed before any role plans the meeting. `HumanMutual`
+   * holds the vocabulary's mutual actions; a production states its own as an
+   * `IHumanMutual` over its registered laws.
+   *
+   * ```ts
+   * HumanChain.mutual(HumanMutual.handOver, { giver: a, receiver: b }, { prop: "cup", handle: "body" });
+   * ```
+   *
+   * @param mutual The mutual action.
+   * @param cast Each role's chain.
+   * @param args The shared parameters, then an optional anchor: each role's action is anchored `anchor.role`.
+   * @returns The joined composition.
+   * @throws {Error} When one person is cast in two roles.
+   */
+  public static mutual<Params extends object, Role extends string>(
+    mutual: IHumanMutual<Params, Role>,
+    cast: Readonly<Record<Role, HumanChainCore>>,
+    ...args: {} extends Params
+      ? [params?: Params, anchor?: string]
+      : [params: Params, anchor?: string]
+  ): AutoMovieChain {
+    const [params, anchor]: readonly [Params?, string?] = args;
+    const subjects = Object.fromEntries(
+      mutual.roles.map((role: Role): [Role, string] => [
+        role,
+        cast[role].subject,
+      ]),
+    ) as Record<Role, string>;
+    if (new Set(Object.values(subjects)).size !== mutual.roles.length)
+      throw new Error(
+        `${mutual.name} casts one person in two roles: ${mutual.roles.map((role: Role): string => `${role} is ${subjects[role]}`).join(", ")}`,
+      );
+    return new AutoMovieChain({
+      kind: "sequence",
+      parts: [
+        {
+          kind: "parallel",
+          parts: mutual.roles.map(
+            (role: Role): AutoMovieComposition => cast[role].node,
+          ),
+        },
+        {
+          kind: "parallel",
+          parts: mutual.roles.map((role: Role): AutoMovieComposition => {
+            const act: IHumanMutual.IAct = mutual.act(
+              role,
+              params ?? ({} as Params),
+              subjects,
+            );
+            return HumanChain.subject(subjects[role]).registered(
+              act.name,
+              act.params,
+              anchor === undefined ? undefined : `${anchor}.${role}`,
+            ).node;
+          }),
+        },
+      ],
+    });
+  }
+
+  /**
+   * Two people's chains joined for a mutual action: `mutual` for the two
+   * that every film has, a handshake and a handover.
+   *
+   * @param a One person's chain; the giver of a handover.
+   * @param b The other's; the receiver.
    * @returns The mutual actions, each returning the joined composition.
    */
   public static pair(
@@ -108,53 +176,20 @@ export class HumanChain extends HumanChainSport {
     handshake(params?: Omit<handshake.IParams, "partner">): AutoMovieChain;
     handOver(params: Omit<handOver.IParams, "to">): AutoMovieChain;
   } {
-    const together = (
-      first: AutoMovieComposition,
-      second: AutoMovieComposition,
-    ): AutoMovieChain =>
-      new AutoMovieChain({
-        kind: "sequence",
-        parts: [
-          { kind: "parallel", parts: [a.node, b.node] },
-          { kind: "parallel", parts: [first, second] },
-        ],
-      });
     return {
       handOver: (params: Omit<handOver.IParams, "to">): AutoMovieChain =>
-        together(
-          HumanChain.subject(a.subject).handOver({ ...params, to: b.subject })
-            .node,
-          HumanChain.subject(b.subject).receive({
-            prop: params.prop,
-            handle: params.handle,
-            from: a.subject,
-            ...(params.mass === undefined ? {} : { mass: params.mass }),
-            ...(params.outcome === undefined
-              ? {}
-              : { outcome: params.outcome }),
-            ...(params.receiverHand === undefined
-              ? {}
-              : { hand: params.receiverHand }),
-            ...(params.hand === undefined ? {} : { giverHand: params.hand }),
-          }).node,
+        HumanChain.mutual(
+          HumanMutual.handOver,
+          { giver: a, receiver: b },
+          params,
         ),
       handshake: (
         params: Omit<handshake.IParams, "partner"> = {},
       ): AutoMovieChain =>
-        together(
-          HumanChain.subject(a.subject).handshake({
-            ...params,
-            partner: b.subject,
-          }).node,
-          HumanChain.subject(b.subject).handshake({
-            ...params,
-            partner: a.subject,
-          }).node,
-        ),
+        HumanChain.mutual(HumanMutual.handshake, { one: a, other: b }, params),
     };
   }
 }
-
 /**
  * Companion types of {@link HumanChain}.
  *

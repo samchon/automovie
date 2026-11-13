@@ -50,10 +50,49 @@ To see that pose, draw `prepared` as a polygon man; the [Human README](../human/
 | Run two people at once | `a.with(b)` |
 | Join two people in a mutual action | `HumanChain.pair(a, b).handshake()` |
 | Let another chain align to an action | Pass an anchor id as the last argument, `chain.punch(params, "jab")` |
+| Time an action to an instant of another action | `b.stand().flinch().sync({ of: "jab", event: "contact" })` |
+| Time an action to speech or music | `a.stand().gesture({ kind: "wave" }).sync({ of: "dialogue", event: "accent", index: 2, align: "strokeStart" })` |
+| Cut an action on a cue | `chain.stand().until({ of: "music", event: "beat", index: 4 })` |
+
+`sync` puts one instant of the action (`align`, its start when absent) on the instant named, and starts the action as early as its body needs for that. Where the performer's previous action still runs then, it is cut there, which its cancel table must allow. Speech and music are cue tracks given to the performance; the screenplay and the score decide their seconds:
+
+```ts
+new HumanPerformance({
+  seed,
+  performers,
+  cues: {
+    dialogue: HumanCue.dialogue([{ from: 1, to: 4, accents: [2.0, 3.2] }]), // lineStart, accent, phraseEnd, lineEnd
+    music: HumanCue.beats({ bpm: 96, count: 16 }), // beat, downbeat
+  },
+  composition,
+});
+```
 
 With `over`, the last action carries the body and the actions put over it take only the parts they move: a walk keeps the pelvis and the legs and yields its arms, hands and head. An action's `overlay` and `yields` in `HUMAN_ACTIONS` say which actions can ride a carrier and what a carrier gives up. Two overlays that need one hand at one time are refused, naming both.
 
 What an action is directed at is an `AutoMovieMotionTarget`: a region of another person, a region of the performer's own body, a named point of a prop, a point in the world, or none.
+
+## Layers
+
+A layer adds to whatever a person does and takes no part of the body from an action: breathing, gaze, a sigh, a mood. Give the performance each person's layers, for the whole film or in a window between two instants:
+
+```ts
+new HumanPerformance({
+  seed,
+  performers,
+  composition,
+  layers: {
+    a: [
+      HumanBreath.layer(), // the whole film
+      { layer: HumanGaze.layer([...]), from: 2, to: { of: "dialogue", event: "lineEnd" } },
+      // Built from the window's seconds: she sighs when his wave ends.
+      { from: { of: "bye", event: "end" }, layer: (w) => HumanAffect.layer([{ kind: "sigh", at: w.from }]) },
+    ],
+  },
+});
+```
+
+An instant is a film second, or an event of an anchored action or of a cue track, as `sync` names it. A windowed layer comes in and goes out over its `fade`. A layer that declares `channels` is refused in a window where one of the person's actions holds such a channel by a contact, and a layer's `apply` can read the action under it (`context.action()`).
 
 ## Extend
 
@@ -130,7 +169,8 @@ const lean = HumanSignature.trunk(reader, 1.5) - HumanSignature.trunk(reader, 0)
 
 | Export | Purpose |
 | --- | --- |
-| `HumanChain` | One typed method per action, `act` for an action by name, `until` to interrupt, `with` and `pair` for several people. |
+| `HumanChain` | One typed method per action, `act` for an action by name, `until` to interrupt, `over` for two things at once, `sync` to time, `with` and `pair` for several people, `extend` for registered actions. |
+| `HumanActionRow`, `HumanCue` | A registered row of a shipped action; the cue tracks of speech and music. |
 | `HumanPerformance` | Places a composition and samples it: `pose`, `posture`, `bones`, `prop`, `segments` and `aim`. It refuses a composition that breaks a law or a rule you pass in. |
 | `HumanRefusal` | The error a refused composition throws, with the axis and the fix. |
 | `HumanVerdicts`, `HumanSignature` | The physical bounds of a performance, and the kinematic readings a unit test asserts. |

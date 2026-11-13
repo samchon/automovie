@@ -42,7 +42,8 @@ export interface IAutoMovieIntent {
    * - `{ event }`: at one of its own named events
    *   (`resolveAutoMovieSchedule.ITiming.events`);
    * - `{ of, event }`: when an event of the intent anchored `of`, usually
-   *   another subject's action, happens;
+   *   another subject's action, or of a cue track named `of`, happens;
+   *   `index` picks which occurrence where the name repeats;
    * - `{ proximity }`: when the subject's `effector` region first comes within
    *   `distance` metres of `target` (zero is contact), which the production's
    *   `until` law finds from its motion; a proximity the motion never
@@ -55,7 +56,7 @@ export interface IAutoMovieIntent {
   until?:
     | { share: number }
     | { event: string }
-    | { of: string; event: string }
+    | { of: string; event: string; index?: number }
     | {
         proximity: {
           /** The subject's own region that approaches. */
