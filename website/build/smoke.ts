@@ -12,7 +12,12 @@ import { compressToEncodedURIComponent } from "lz-string";
 import fs from "node:fs";
 import type http from "node:http";
 import path from "node:path";
-import { type Browser, type BrowserContext, type Page, chromium } from "playwright-core";
+import {
+  type Browser,
+  type BrowserContext,
+  type Page,
+  chromium,
+} from "playwright-core";
 
 import type { ISceneManifest } from "../src/scenes/structures/ISceneManifest";
 import { serveExport } from "./serveExport";
@@ -37,7 +42,7 @@ interface ICase {
   /** The path, under the site's root, the page must end on. */
   arrives?: string;
 
-  /** Whether the browser asks for reduced motion; the landing page's stage must then stay on its first scene. */
+  /** Whether the browser asks for reduced motion; a landing page's stage must then stay on its first scene. */
   reduced?: boolean;
 }
 
@@ -84,7 +89,11 @@ const CASES: readonly ICase[] = [
   {
     name: "landing plays its hero",
     path: "",
-    shows: [".am-hero h1", `.am-hero-stage ${DRAWN}`, 'a[href="/automovie/scenes/"]'],
+    shows: [
+      ".am-hero h1",
+      `.am-hero-stage ${DRAWN}`,
+      'a[href="/automovie/scenes/"]',
+    ],
     lacks: [".am-scene-view-note.am-danger-text"],
     contexts: 1,
   },
@@ -106,15 +115,29 @@ const CASES: readonly ICase[] = [
     (id: string): ICase => ({
       name: `scene ${id} plays with its takes and chain`,
       path: `scenes/${id}/`,
-      shows: [`.am-player ${DRAWN}`, ".am-take-grid .am-take canvas", ".am-transport"],
+      shows: [
+        `.am-player ${DRAWN}`,
+        ".am-take-grid .am-take canvas",
+        ".am-transport",
+      ],
       lacks: [".am-scene-view-note.am-danger-text"],
       contexts: 1,
     }),
   ),
   {
+    name: "a scene page under reduced motion renders as the server did",
+    path: "scenes/meeting/",
+    shows: [`.am-player ${DRAWN}`, ".am-transport"],
+    lacks: [".am-scene-view-note.am-danger-text"],
+    reduced: true,
+  },
+  {
     name: "a scene that waits shows what it waits on",
     path: "scenes/line-volley/",
-    shows: [".am-badge", 'a[href="https://github.com/samchon/automovie/issues/3392"]'],
+    shows: [
+      ".am-badge",
+      'a[href="https://github.com/samchon/automovie/issues/3392"]',
+    ],
     lacks: [".am-player"],
   },
   {
@@ -131,7 +154,7 @@ const CASES: readonly ICase[] = [
     shows: [
       '.am-viewport[aria-busy="false"] canvas',
       ".am-viewport-tag",
-      'aside[aria-label="Details"] [role="tablist"]',
+      'aside[aria-label="Details"] [role="group"][aria-label="Details view"]',
     ],
     lacks: [".am-viewport-error"],
   },
@@ -145,7 +168,11 @@ const CASES: readonly ICase[] = [
   {
     name: "the motion reference lists the actions",
     path: "motions/actions/",
-    shows: [".am-motion-nav", "section#walk", 'a[href^="/automovie/playground/#c="]'],
+    shows: [
+      ".am-motion-nav",
+      "section#walk",
+      'a[href^="/automovie/playground/#c="]',
+    ],
     lacks: [],
   },
   {
@@ -157,7 +184,12 @@ const CASES: readonly ICase[] = [
   {
     name: "playground performs the dance circle",
     path: "playground/",
-    shows: ["#am-pane-compose", "#am-pane-result .am-instrument canvas", "#am-timeline", "#am-verdicts"],
+    shows: [
+      "#am-pane-compose",
+      "#am-pane-result .am-instrument canvas",
+      "#am-timeline",
+      "#am-verdicts",
+    ],
     lacks: [".am-alert"],
   },
   {
@@ -238,12 +270,18 @@ const main = async (): Promise<void> => {
           );
       if (each.contexts !== undefined) {
         const made: number = await page.evaluate(
-          (): number => (window as unknown as { __amContexts: number }).__amContexts,
+          (): number =>
+            (window as unknown as { __amContexts: number }).__amContexts,
         );
         if (made > each.contexts)
-          problems.push(`created ${made} WebGL contexts, more than ${each.contexts}`);
+          problems.push(
+            `created ${made} WebGL contexts, more than ${each.contexts}`,
+          );
       }
-      if (each.reduced === true) {
+      if (
+        each.reduced === true &&
+        (await page.locator(".am-hero-caption").count()) !== 0
+      ) {
         // A held stage draws its first picture and stays on its scene.
         const time: string = await page
           .locator(".am-hero-caption")

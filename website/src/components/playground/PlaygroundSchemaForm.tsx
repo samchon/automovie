@@ -33,7 +33,9 @@ export function PlaygroundSchemaForm(props: {
     simple.map((f: IPlaygroundVocabulary.IParameter): string => f.name),
   );
   const rest: Record<string, unknown> = Object.fromEntries(
-    Object.entries(value).filter(([key]: [string, unknown]): boolean => !named.has(key)),
+    Object.entries(value).filter(
+      ([key]: [string, unknown]): boolean => !named.has(key),
+    ),
   );
   const set = (name: string, member: unknown): void => {
     const next: Record<string, unknown> = { ...value };
@@ -60,10 +62,17 @@ export function PlaygroundSchemaForm(props: {
                 <select
                   value={typeof current === "string" ? current : ""}
                   onChange={(event): void =>
-                    set(field.name, event.target.value === "" ? undefined : event.target.value)
+                    set(
+                      field.name,
+                      event.target.value === ""
+                        ? undefined
+                        : event.target.value,
+                    )
                   }
                 >
-                  <option value="">{field.required ? "choose" : "default"}</option>
+                  <option value="">
+                    {field.required ? "choose" : "default"}
+                  </option>
                   {field.values.map(
                     (v: string): ReactElement => (
                       <option key={v} value={v}>
@@ -74,15 +83,27 @@ export function PlaygroundSchemaForm(props: {
                 </select>
               </label>
             );
+          // A switch has three states: the default, on and off, so a member
+          // whose default is on can still be turned off.
           if (field.kind === "switch")
             return (
-              <label key={field.name} className="am-check">
-                <input
-                  type="checkbox"
-                  checked={current === true}
-                  onChange={(event): void => set(field.name, event.target.checked ? true : undefined)}
-                />
+              <label key={field.name} className="am-field am-narrow">
                 {label}
+                <select
+                  value={typeof current === "boolean" ? String(current) : ""}
+                  onChange={(event): void =>
+                    set(
+                      field.name,
+                      event.target.value === ""
+                        ? undefined
+                        : event.target.value === "true",
+                    )
+                  }
+                >
+                  <option value="">default</option>
+                  <option value="true">on</option>
+                  <option value="false">off</option>
+                </select>
               </label>
             );
           return (
@@ -90,12 +111,18 @@ export function PlaygroundSchemaForm(props: {
               {label}
               <input
                 type={field.kind === "number" ? "number" : "text"}
-                value={typeof current === "number" || typeof current === "string" ? String(current) : ""}
+                value={
+                  typeof current === "number" || typeof current === "string"
+                    ? String(current)
+                    : ""
+                }
                 min={field.minimum}
                 max={field.maximum}
                 step={field.integer === true ? 1 : "any"}
                 placeholder={
-                  field.kind === "number" && field.minimum !== undefined && field.maximum !== undefined
+                  field.kind === "number" &&
+                  field.minimum !== undefined &&
+                  field.maximum !== undefined
                     ? `${field.minimum} to ${field.maximum}`
                     : undefined
                 }
@@ -114,14 +141,17 @@ export function PlaygroundSchemaForm(props: {
           );
         })}
       </div>
-      {simple.length === fields.length && Object.keys(rest).length === 0 ? null : (
+      {simple.length === fields.length &&
+      Object.keys(rest).length === 0 ? null : (
         <PlaygroundJsonField
           label="Other parameters (JSON)"
           value={rest}
           optional={false}
           onChange={(next: Record<string, unknown> | undefined): void => {
             const kept: Record<string, unknown> = Object.fromEntries(
-              Object.entries(value).filter(([key]: [string, unknown]): boolean => named.has(key)),
+              Object.entries(value).filter(
+                ([key]: [string, unknown]): boolean => named.has(key),
+              ),
             );
             props.onChange({ ...kept, ...(next ?? {}) });
           }}

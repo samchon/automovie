@@ -123,12 +123,16 @@ export namespace SharedStage {
     frame = requestAnimationFrame(step);
   }
 
-  /** Stop the frame loop and free the renderer when no view is left. */
+  /**
+   * Stop the frame loop and free the renderer when no view is left, its
+   * WebGL context with it, so a page that mounts views again never holds two.
+   */
   function stop(): void {
     if (frame !== null) cancelAnimationFrame(frame);
     frame = null;
     observer?.disconnect();
     observer = null;
+    renderer?.forceContextLoss();
     renderer?.dispose();
     renderer = null;
   }

@@ -12,8 +12,19 @@
   font-size: 1.1rem;
 }
 
+/* The footer's lines, stacked and centred at every width. */
+.automovie-site-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+}
+
 .automovie-site-footer-links {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 1.25rem;
   font-weight: 600;
 }
@@ -644,21 +655,11 @@
   color: var(--am-danger);
 }
 
-/* Gallery: the catalogue, the view, the facts */
+/* An archetype's page: the view and the facts; scenes.css places them */
 .am-gallery {
   display: grid;
-  grid-template-columns: var(--am-catalogue) minmax(0, 1fr) var(--am-side);
-  grid-template-areas: "catalogue view facts";
   align-items: start;
   gap: var(--am-space-4);
-}
-
-.am-catalogue {
-  grid-area: catalogue;
-  position: sticky;
-  top: calc(var(--am-navbar) + var(--am-space-4));
-  max-height: calc(100dvh - var(--am-navbar) - var(--am-head));
-  overflow-y: auto;
 }
 
 .am-viewport-region {
@@ -671,35 +672,6 @@
   min-width: 0;
 }
 
-.am-catalogue-select {
-  display: none;
-}
-
-.am-catalogue ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.am-app button.am-catalogue-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--am-space-2);
-  width: 100%;
-  border-color: transparent;
-  background: transparent;
-  padding: 0 var(--am-space-2);
-  text-align: left;
-}
-
-.am-app button.am-catalogue-item[aria-current="true"] {
-  border-color: var(--am-accent);
-  background: var(--am-accent-soft);
-  color: var(--am-accent);
-  font-weight: 700;
-}
-
 .am-count {
   border-radius: 999px;
   background: var(--am-bg-hover);
@@ -709,38 +681,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-@media (max-width: 1279px) {
-  .am-gallery {
-    grid-template-columns: var(--am-catalogue) minmax(0, 1fr);
-    grid-template-areas:
-      "catalogue view"
-      "catalogue facts";
-  }
-}
-
 @media (max-width: 767px) {
-  .am-gallery {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas:
-      "catalogue"
-      "view"
-      "facts";
-  }
-
-  .am-catalogue {
-    position: static;
-    max-height: none;
-    overflow-y: visible;
-  }
-
-  .am-catalogue-select {
-    display: flex;
-  }
-
-  .am-catalogue-list {
-    display: none;
-  }
-
   .am-viewport {
     aspect-ratio: 1 / 1;
   }

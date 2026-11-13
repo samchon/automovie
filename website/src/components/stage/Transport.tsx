@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  type KeyboardEvent,
-  type ReactElement,
-  type ReactNode,
-  useEffect,
-  useState,
-} from "react";
+import { type ReactElement, useEffect, useState } from "react";
 
 import type { SceneClock } from "../../scenes/SceneClock";
 
@@ -15,9 +9,8 @@ const SPEEDS: readonly number[] = [0.25, 0.5, 1, 1.5, 2];
 
 /**
  * The transport under a player: play or pause, the scrubber, the time,
- * speed and loop. Its keys work while the player region has focus, as a
- * video player's do: Space and K play or pause, J and L seek a second,
- * comma and full stop step a frame, Home and End go to the ends.
+ * speed and loop. `TransportKeys` gives the region around it a video
+ * player's keys.
  *
  * @param props The clock it drives.
  * @returns The bar.
@@ -48,8 +41,6 @@ export function Transport(props: { clock: SceneClock }): ReactElement {
       <button
         type="button"
         className="am-transport-play"
-        aria-label={clock.playing ? "Pause" : "Play"}
-        aria-pressed={clock.playing}
         onClick={(): void => clock.toggle()}
       >
         {clock.playing ? "Pause" : "Play"}
@@ -94,47 +85,5 @@ export function Transport(props: { clock: SceneClock }): ReactElement {
         Loop
       </label>
     </div>
-  );
-}
-
-/**
- * A region whose keys drive a clock, wrapping a player and its transport.
- *
- * @param props The clock, a label and the content.
- * @returns The region.
- */
-export function TransportKeys(props: {
-  clock: SceneClock;
-  label: string;
-  children: ReactNode;
-}): ReactElement {
-  const { clock } = props;
-  const keys = (event: KeyboardEvent<HTMLElement>): void => {
-    // A control that takes the key itself keeps it.
-    const target: HTMLElement = event.target as HTMLElement;
-    if (["INPUT", "SELECT", "TEXTAREA"].includes(target.tagName)) return;
-    const actions: Record<string, () => void> = {
-      " ": (): void => clock.toggle(),
-      k: (): void => clock.toggle(),
-      j: (): void => clock.seek(clock.time - 1),
-      l: (): void => clock.seek(clock.time + 1),
-      ",": (): void => clock.step(-1),
-      ".": (): void => clock.step(1),
-      Home: (): void => clock.seek(0),
-      End: (): void => clock.seek(clock.duration),
-    };
-    const action: (() => void) | undefined = actions[event.key];
-    if (action === undefined) return;
-    event.preventDefault();
-    action();
-  };
-  return (
-    <section
-      className="am-player"
-      aria-label={props.label}
-      onKeyDown={keys}
-    >
-      {props.children}
-    </section>
   );
 }

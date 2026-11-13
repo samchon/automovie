@@ -25,7 +25,7 @@ export default function MotionsPage(): ReactElement {
     0,
   );
   return (
-    <div className="am-app">
+    <div className="am-app" data-pagefind-body>
       <header className="am-app-head">
         <h1>Motions</h1>
         <p className="am-lede">
@@ -45,7 +45,9 @@ export default function MotionsPage(): ReactElement {
         />
         <div className="am-stack">
           <p>
-            <Link href="/motions/actions/">{reference.actions.length} actions</Link>{" "}
+            <Link href="/motions/actions/">
+              {reference.actions.length} actions
+            </Link>{" "}
             make up the vocabulary
             {reference.families.length === 0
               ? ". The lexicon of named rows arrives with the composition campaign (#3392)."

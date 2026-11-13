@@ -2,7 +2,8 @@
 
 import { type ReactElement, type RefObject, useEffect, useRef } from "react";
 
-import { type IGalleryCard, loadGalleryCard } from "../../gallery/loadGalleryCard";
+import { loadGalleryCard } from "../../gallery/loadGalleryCard";
+import type { IGalleryCard } from "../../gallery/structures/IGalleryCard";
 import type { IGalleryCatalogue } from "../../gallery/structures/IGalleryCatalogue";
 import { SharedStage } from "../../stage/SharedStage";
 
@@ -14,7 +15,9 @@ import { SharedStage } from "../../stage/SharedStage";
  * @param props The subject.
  * @returns The card.
  */
-export function ObjectCard(props: { subject: IGalleryCatalogue.ISubject }): ReactElement {
+export function ObjectCard(props: {
+  subject: IGalleryCatalogue.ISubject;
+}): ReactElement {
   const { subject } = props;
   const canvas: RefObject<HTMLCanvasElement | null> = useRef(null);
   const hovered: RefObject<boolean> = useRef(false);

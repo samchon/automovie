@@ -26,17 +26,18 @@ pnpm --filter @automovie/website dev      # Next at http://localhost:3000/automo
 pnpm --filter @automovie/website build    # checks, the bake, then the static export into out/
 pnpm --filter @automovie/website test     # the site's tests
 pnpm --filter @automovie/website typecheck
+pnpm --filter @automovie/website run deploy   # build, then publish out/ to gh-pages by hand
 ```
 
 Next loads the compiler API from the `typescript` package, which the native TypeScript 7 package does not export, so `typescript` is 5.9 in this package alone and `ttsc` finds the native compiler under the alias `typescript-native`. `typecheck` and `test` run on the native compiler like the rest of the workspace.
 
-`build` first runs `check`: `build/imports.ts` refuses an import that reaches inside a package past its public entry, and `build/contrast.ts` refuses a colour token below its contrast bound.
+`build` first runs `check`: `build/imports.ts` refuses an import that reaches inside a package past its public entry, and `build/contrast.ts` refuses a colour token below its contrast bound. After the export, `build/bundles.ts` refuses a scene, object or landing page whose chunks carry `@automovie/motions` or `@automovie/human`.
 
 ## Scenes and the bake
 
 A scene is a record in `src/scenes/data/`: its cast, the archetypes it places, the composition each person performs, its takes and the issues it waits on. Add a scene by adding a record; no page changes. Whether it plays is read from the installed packages (`src/scenes/package/SceneStatus.ts`), so a scene written for pieces a release has not shipped plays on the release that ships them.
 
-A pose costs tens of milliseconds and a take's plan seconds, so the pages do not compute motion. `build/bake.ts` computes every take of every scene that plays with the packages, as the playground does, and writes each figure's bone placements and each prop's frame at 12 frames a second into the ignored `public/baked/`. The pages pose the polygon man from those numbers on one shared WebGL renderer (`src/stage/SharedStage.ts`).
+A pose costs tens of milliseconds and a take's plan seconds, so the pages do not compute motion. `build/bake.ts`, with its command line, takes and digests in `build/BakeSetup.ts` and its `--check` and `--row` reports in `build/BakeCheck.ts`, computes every take of every scene that plays with the packages, as the playground does, and writes each figure's bone placements and each prop's frame at 12 frames a second into the ignored `public/baked/`. The pages pose the polygon man from those numbers on one shared WebGL renderer (`src/stage/SharedStage.ts`).
 
 ```bash
 pnpm --filter @automovie/website bake --check            # plan each scene once and list every refusal
@@ -63,11 +64,11 @@ pnpm --filter @automovie/website run shots name=url ... # screenshots into the i
 | `src/movies/` | One component per page. |
 | `src/components/` | The pages' parts. They import no `@automovie/*` package. |
 | `src/scenes/` | The scene records, their status, the baked format and its player. |
-| `src/motions/`, `src/human/`, `src/landing/` | The motion reference, the Human page's inspector and the landing page's data. |
+| `src/motions/`, `src/human/`, `src/landing/`, `src/docs/` | The motion reference, the Human page's inspector, the landing page's data and the docs' grammar table. |
 | `src/playground/`, `src/gallery/` | The playground's and the object pages' data types, addresses and adapters. |
 | `src/stage/` | The shared renderer. |
 | `test/features/` | The tests. |
-| `build/` | The bake, the checks, the smoke test and the screenshot tools. |
+| `build/` | The bake (`bake.ts`, `BakeSetup.ts`, `BakeCheck.ts`), the checks, the bundle check, the smoke test, the screenshot tools and the manual deploy (`deploy.ts`). |
 
 Only the `package/` folders and the body parameters in `src/playground/data/` import the packages, and pages load them only where they compute, so the scene, object and landing pages carry no motion code.
 
@@ -75,6 +76,6 @@ Only the `package/` folders and the body parameters in `src/playground/data/` im
 
 ## Deploy
 
-`.github/workflows/website.yml` bakes the scenes in six shares on six runners, each share kept in a cache keyed by everything a take is computed from, then joins them, builds the site on pull requests that touch it or a package it bundles, and deploys `out/` from `master`. The `gh-pages` branch holds one commit that every deploy overwrites (`single-commit: true`).
+`.github/workflows/website.yml` bakes the scenes in six shares on six runners, each share kept in a cache keyed by everything a take is computed from, then joins them, builds the site on pull requests that touch it or a package it bundles, and deploys `out/` from `master`. The `gh-pages` branch holds one commit that every deploy overwrites: `single-commit: true` in the workflow and `history: false` in `build/deploy.ts`, the manual route that `pnpm run deploy` takes from the current checkout.
 
 GitHub Pages serves the site under `/automovie/`, which `basePath` in `next.config.ts` sets.

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import type { ReactElement } from "react";
+import { type ReactElement, Suspense } from "react";
 
 import ObjectsMovie from "../../../movies/ObjectsMovie";
 
@@ -10,10 +10,15 @@ export const metadata: Metadata = {
 };
 
 /**
- * The object gallery's route.
+ * The object gallery's route. The gallery reads its address, so it renders
+ * in the browser, inside a boundary.
  *
  * @returns The page.
  */
 export default function ObjectsPage(): ReactElement {
-  return <ObjectsMovie />;
+  return (
+    <Suspense fallback={null}>
+      <ObjectsMovie />
+    </Suspense>
+  );
 }

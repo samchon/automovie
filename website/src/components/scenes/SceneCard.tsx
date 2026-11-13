@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { type ReactElement, useState } from "react";
+import type { ReactElement } from "react";
 
-import { SceneClock } from "../../scenes/SceneClock";
+import type { SceneClock } from "../../scenes/SceneClock";
 import { SceneFacts } from "../../scenes/SceneFacts";
 import type { IScene } from "../../scenes/structures/IScene";
 import { SceneView } from "./SceneView";
+import { useSceneClock } from "./useSceneClock";
 
 /**
  * One scene in the gallery: its first take playing, its title, who and what
@@ -18,10 +19,8 @@ import { SceneView } from "./SceneView";
  */
 export function SceneCard(props: { scene: IScene }): ReactElement {
   const { scene } = props;
-  const [clock] = useState<SceneClock>(
-    (): SceneClock => new SceneClock(!SceneCard.reduced()),
-  );
-  const hold = (playing: boolean): void => {
+  const clock: SceneClock = useSceneClock();
+  const hold: (playing: boolean) => void = (playing: boolean): void => {
     if (!SceneCard.reduced() || clock.playing === playing) return;
     clock.toggle();
   };

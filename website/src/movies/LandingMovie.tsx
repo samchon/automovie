@@ -5,8 +5,9 @@ import { type ReactElement, useEffect, useState } from "react";
 
 import { SceneCard } from "../components/scenes/SceneCard";
 import { SceneView } from "../components/scenes/SceneView";
+import { useSceneClock } from "../components/scenes/useSceneClock";
 import { SCENES } from "../scenes/SCENES";
-import { SceneClock } from "../scenes/SceneClock";
+import type { SceneClock } from "../scenes/SceneClock";
 import { SceneFacts } from "../scenes/SceneFacts";
 import type { IScene } from "../scenes/structures/IScene";
 import type { IScenePlayer } from "../scenes/structures/IScenePlayer";
@@ -41,12 +42,8 @@ export default function LandingMovie(props: {
   );
   const [index, setIndex] = useState<number>(0);
   const [held, setHeld] = useState<boolean>(false);
-  const [stage] = useState<SceneClock>(
-    (): SceneClock => new SceneClock(!SceneCard.reduced()),
-  );
-  const [takes] = useState<SceneClock>(
-    (): SceneClock => new SceneClock(!SceneCard.reduced()),
-  );
+  const stage: SceneClock = useSceneClock();
+  const takes: SceneClock = useSceneClock();
   const scene: IScene | undefined = featured[index];
 
   // The stage moves to the next scene after it has played once, unless the
@@ -70,7 +67,9 @@ export default function LandingMovie(props: {
   const step = (by: number): void => {
     stage.duration = 0;
     stage.seek(0);
-    setIndex((i: number): number => (i + by + featured.length) % featured.length);
+    setIndex(
+      (i: number): number => (i + by + featured.length) % featured.length,
+    );
   };
 
   return (
@@ -123,12 +122,22 @@ export default function LandingMovie(props: {
                 Now playing {index + 1} / {featured.length}
               </span>
               <strong>{scene.title}</strong>
-              <span className="am-muted am-small">{SceneFacts.counts(scene)}</span>
+              <span className="am-muted am-small">
+                {SceneFacts.counts(scene)}
+              </span>
               <span className="am-hero-controls">
-                <button type="button" aria-label="Previous scene" onClick={(): void => step(-1)}>
+                <button
+                  type="button"
+                  aria-label="Previous scene"
+                  onClick={(): void => step(-1)}
+                >
                   ‹
                 </button>
-                <button type="button" aria-label="Next scene" onClick={(): void => step(1)}>
+                <button
+                  type="button"
+                  aria-label="Next scene"
+                  onClick={(): void => step(1)}
+                >
                   ›
                 </button>
                 <button type="button" onClick={(): void => stage.toggle()}>
@@ -158,7 +167,10 @@ export default function LandingMovie(props: {
                     take={i}
                     clock={takes}
                     onLoad={(player: IScenePlayer): void => {
-                      takes.duration = Math.max(takes.duration, player.duration);
+                      takes.duration = Math.max(
+                        takes.duration,
+                        player.duration,
+                      );
                       takes.fps = player.fps;
                     }}
                   />

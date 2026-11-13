@@ -65,12 +65,14 @@ export class SceneClock {
   }
 
   /**
-   * Go to a second.
+   * Go to a second. The wall time is read afresh from the next advance, so a
+   * jump never also counts the wall time spent before it.
    *
    * @param seconds The film second, clamped to the film.
    */
   public seek(seconds: number): void {
     this.time = Math.min(this.duration, Math.max(0, seconds));
+    this.last = null;
     this.emit();
   }
 

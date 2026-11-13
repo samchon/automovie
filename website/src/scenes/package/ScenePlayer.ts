@@ -37,7 +37,8 @@ export namespace ScenePlayer {
   const bodies: Map<string, Promise<AutoMovieHumanPolygon.IBone[]>> = new Map();
 
   /**
-   * The bake's manifest, fetched once.
+   * The bake's manifest, fetched once; a failed fetch is forgotten, so a
+   * later view asks again.
    *
    * @returns The manifest.
    * @throws {Error} When it cannot be fetched or is of another version.
@@ -55,6 +56,9 @@ export namespace ScenePlayer {
         return read;
       },
     );
+    manifest.catch((): void => {
+      manifest = null;
+    });
     return manifest;
   }
 
@@ -86,8 +90,9 @@ export namespace ScenePlayer {
       ),
       Promise.all(
         baked.figures.map(
-          (figure: ISceneManifest.IFigure): Promise<AutoMovieHumanPolygon.IBone[]> =>
-            rest(read, figure.body),
+          (
+            figure: ISceneManifest.IFigure,
+          ): Promise<AutoMovieHumanPolygon.IBone[]> => rest(read, figure.body),
         ),
       ),
     ]);
@@ -106,7 +111,7 @@ export namespace ScenePlayer {
     return build(scene, baked, track, rests, read.reflection);
   }
 
-  /** A body's rest bones, fetched once. */
+  /** A body's rest bones, fetched once; a failed fetch is forgotten. */
   function rest(
     read: ISceneManifest,
     body: string,
@@ -117,11 +122,20 @@ export namespace ScenePlayer {
       const entry: ISceneManifest.IBody | undefined = read.bodies[body];
       if (entry === undefined)
         return Promise.reject(new Error(`No baked body is named ${body}`));
-      known = fetch(`${BAKED}/${entry.file}`)
-        .then((response: Response) => response.json())
-        .then(
-          (json: { bones: AutoMovieHumanPolygon.IBone[] }) => json.bones,
-        );
+      known = fetch(`${BAKED}/${entry.file}`).then(
+        async (response: Response): Promise<AutoMovieHumanPolygon.IBone[]> => {
+          if (!response.ok)
+            throw new Error(
+              `The body ${body} did not load (${response.status})`,
+            );
+          const json: { bones: AutoMovieHumanPolygon.IBone[] } =
+            await response.json();
+          return json.bones;
+        },
+      );
+      known.catch((): void => {
+        bodies.delete(body);
+      });
       bodies.set(body, known);
     }
     return known;
@@ -143,7 +157,10 @@ export namespace ScenePlayer {
       style.getPropertyValue("--am-viewport").trim() || "#e9e6df",
     );
     scene.add(new THREE.HemisphereLight(0xffffff, 0x8d8a83, 1.2));
-    const sun: THREE.DirectionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+    const sun: THREE.DirectionalLight = new THREE.DirectionalLight(
+      0xffffff,
+      1.5,
+    );
     sun.position.set(2, 4, 3);
     scene.add(sun);
     const disposers: (() => void)[] = [];
@@ -212,9 +229,17 @@ export namespace ScenePlayer {
     const centre: THREE.Vector3 = box.getCenter(new THREE.Vector3());
     const floor: THREE.Box3 = box.clone().expandByScalar(1);
     const lines: number[] = [];
-    for (let x: number = Math.ceil(floor.min.x / CELL) * CELL; x <= floor.max.x; x += CELL)
+    for (
+      let x: number = Math.ceil(floor.min.x / CELL) * CELL;
+      x <= floor.max.x;
+      x += CELL
+    )
       lines.push(x, 0, floor.min.z, x, 0, floor.max.z);
-    for (let z: number = Math.ceil(floor.min.z / CELL) * CELL; z <= floor.max.z; z += CELL)
+    for (
+      let z: number = Math.ceil(floor.min.z / CELL) * CELL;
+      z <= floor.max.z;
+      z += CELL
+    )
       lines.push(floor.min.x, 0, z, floor.max.x, 0, z);
     const grid: THREE.LineSegments = new THREE.LineSegments(
       new THREE.BufferGeometry().setAttribute(

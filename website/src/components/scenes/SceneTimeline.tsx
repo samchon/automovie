@@ -14,7 +14,7 @@ export function SceneTimeline(props: {
   roles: Record<string, string>;
 }): ReactElement {
   const { take } = props;
-  const share = (seconds: number): string =>
+  const share: (seconds: number) => string = (seconds: number): string =>
     `${((100 * seconds) / Math.max(1e-9, take.duration)).toFixed(3)}%`;
   return (
     <figure className="am-scene-timeline">
@@ -48,7 +48,8 @@ export function SceneTimeline(props: {
         )}
       </div>
       <figcaption className="am-muted">
-        Each person&apos;s actions on the film clock, {take.duration.toFixed(2)} s.
+        Each person&apos;s actions on the film clock, {take.duration.toFixed(2)}{" "}
+        s.
       </figcaption>
       <table className="am-table">
         <thead>

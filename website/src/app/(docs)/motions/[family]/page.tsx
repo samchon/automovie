@@ -52,19 +52,25 @@ export async function generateMetadata(props: IPageProps): Promise<Metadata> {
  * @param props The route's parameters.
  * @returns The page.
  */
-export default async function MotionFamilyPage(props: IPageProps): Promise<ReactElement> {
+export default async function MotionFamilyPage(
+  props: IPageProps,
+): Promise<ReactElement> {
   const { family } = await props.params;
   const reference: IMotionReference = MotionReference.read();
   const rows: IMotionReference.IRow[] =
     family === ACTIONS
-      ? reference.actions.map((name: string): IMotionReference.IRow => ({
-          name,
-          parameters: null,
-        }))
-      : reference.families.find((f: IMotionReference.IFamily): boolean => f.name === family)!.rows;
+      ? reference.actions.map(
+          (name: string): IMotionReference.IRow => ({
+            name,
+            parameters: null,
+          }),
+        )
+      : reference.families.find(
+          (f: IMotionReference.IFamily): boolean => f.name === family,
+        )!.rows;
 
   return (
-    <div className="am-app">
+    <div className="am-app" data-pagefind-body>
       <header className="am-app-head">
         <h1>{family === ACTIONS ? "Actions" : family}</h1>
         <p className="am-lede">
@@ -86,7 +92,11 @@ export default async function MotionFamilyPage(props: IPageProps): Promise<React
           <nav aria-label="On this page" className="am-chips">
             {rows.map(
               (row: IMotionReference.IRow): ReactElement => (
-                <a key={row.name} className="am-mono am-small" href={`#${row.name}`}>
+                <a
+                  key={row.name}
+                  className="am-mono am-small"
+                  href={`#${row.name}`}
+                >
                   {row.name}
                 </a>
               ),
@@ -95,9 +105,14 @@ export default async function MotionFamilyPage(props: IPageProps): Promise<React
           {rows.map((row: IMotionReference.IRow): ReactElement => {
             const use: MotionUsage.IUse = MotionUsage.of(row.name);
             return (
-              <section key={row.name} id={row.name} className="am-panel am-stack">
+              <section
+                key={row.name}
+                id={row.name}
+                className="am-panel am-stack"
+              >
                 <h2 className="am-mono">{row.name}</h2>
-                {row.parameters === null ? null : row.parameters.length === 0 ? (
+                {row.parameters === null ? null : row.parameters.length ===
+                  0 ? (
                   <p className="am-muted">It takes no parameter.</p>
                 ) : (
                   <div className="am-table-wrap">
@@ -133,17 +148,24 @@ export default async function MotionFamilyPage(props: IPageProps): Promise<React
                     <>
                       Used in{" "}
                       {use.scenes.map(
-                        (scene: { id: string; title: string }, i: number): ReactElement => (
+                        (
+                          scene: { id: string; title: string },
+                          i: number,
+                        ): ReactElement => (
                           <span key={scene.id}>
                             {i === 0 ? "" : ", "}
-                            <Link href={`/scenes/${scene.id}/`}>{scene.title}</Link>
+                            <Link href={`/scenes/${scene.id}/`}>
+                              {scene.title}
+                            </Link>
                           </span>
                         ),
                       )}
                       .
                     </>
                   )}{" "}
-                  <Link href={`/playground/${PlaygroundAddress.encode(MotionUsage.trial(row.name))}`}>
+                  <Link
+                    href={`/playground/${PlaygroundAddress.encode(MotionUsage.trial(row.name))}`}
+                  >
                     Try it alone
                   </Link>
                 </p>

@@ -62,11 +62,15 @@ export default function ScenesMovie(props: { baked: string[] }): ReactElement {
       (filter.setting === null || scene.setting === filter.setting) &&
       SceneFacts.matches(scene, filter.query),
   );
-  const playing: IScene[] = shown.filter((s: IScene): boolean => baked.has(s.id));
-  const coming: IScene[] = shown.filter((s: IScene): boolean => !baked.has(s.id));
+  const playing: IScene[] = shown.filter((s: IScene): boolean =>
+    baked.has(s.id),
+  );
+  const coming: IScene[] = shown.filter(
+    (s: IScene): boolean => !baked.has(s.id),
+  );
 
   return (
-    <div className="am-app">
+    <div className="am-app" data-pagefind-body>
       <header className="am-app-head">
         <h1>Scenes</h1>
         <p className="am-lede">
@@ -142,11 +146,14 @@ export default function ScenesMovie(props: { baked: string[] }): ReactElement {
                   <strong>{scene.title}</strong>
                 </Link>
                 <span className="am-badge">
-                  {scene.composition === null ? "Planned" : "Waits on a release"}
+                  {scene.composition === null
+                    ? "Planned"
+                    : "Waits on a release"}
                 </span>
                 <p>{scene.summary}</p>
                 <p className="am-muted">
-                  {scene.planned?.pieces ?? SceneFacts.actions(scene).join(", ")}
+                  {scene.planned?.pieces ??
+                    SceneFacts.actions(scene).join(", ")}
                 </p>
                 <p className="am-issues">
                   Waits on{" "}

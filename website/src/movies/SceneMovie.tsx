@@ -5,15 +5,16 @@ import { type ReactElement, useEffect, useState } from "react";
 
 import { SceneTimeline } from "../components/scenes/SceneTimeline";
 import { SceneView } from "../components/scenes/SceneView";
-import { Transport, TransportKeys } from "../components/stage/Transport";
+import { useSceneClock } from "../components/scenes/useSceneClock";
+import { Transport } from "../components/stage/Transport";
+import { TransportKeys } from "../components/stage/TransportKeys";
 import { PlaygroundAddress } from "../playground/PlaygroundAddress";
-import { SceneClock } from "../scenes/SceneClock";
+import type { SceneClock } from "../scenes/SceneClock";
 import { SceneFacts } from "../scenes/SceneFacts";
 import { formatSceneChain } from "../scenes/formatSceneChain";
 import type { IScene } from "../scenes/structures/IScene";
 import type { ISceneManifest } from "../scenes/structures/ISceneManifest";
 import type { IScenePlayer } from "../scenes/structures/IScenePlayer";
-import { SceneCard } from "../components/scenes/SceneCard";
 
 /** The panels under the player. */
 type Panel = "variations" | "made";
@@ -43,9 +44,7 @@ export default function SceneMovie(props: {
   pages: Record<string, string>;
 }): ReactElement {
   const { scene, baked } = props;
-  const [clock] = useState<SceneClock>(
-    (): SceneClock => new SceneClock(!SceneCard.reduced()),
-  );
+  const clock: SceneClock = useSceneClock();
   const [panel, setPanel] = useState<Panel>("variations");
   const [player, setPlayer] = useState<IScenePlayer | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -71,7 +70,7 @@ export default function SceneMovie(props: {
 
   if (baked === null || scene.composition === null)
     return (
-      <div className="am-app">
+      <div className="am-app" data-pagefind-body>
         {head}
         <section className="am-panel am-stack" aria-label="Status">
           <p>
@@ -137,7 +136,7 @@ export default function SceneMovie(props: {
   };
 
   return (
-    <div className="am-app">
+    <div className="am-app" data-pagefind-body>
       {head}
       <div className="am-scene-layout">
         <TransportKeys clock={clock} label="Scene player">
@@ -173,7 +172,8 @@ export default function SceneMovie(props: {
             {composition.performers.map(
               (p): ReactElement => (
                 <li key={p.subject}>
-                  <span className="am-mono">{p.subject}</span>, {roles[p.subject]}
+                  <span className="am-mono">{p.subject}</span>,{" "}
+                  {roles[p.subject]}
                   <span className="am-muted">
                     {" "}
                     ({p.body}, {p.proficiency})
@@ -209,7 +209,9 @@ export default function SceneMovie(props: {
                   {props.pages[name] === undefined ? (
                     name
                   ) : (
-                    <Link href={`/motions/${props.pages[name]}/#${name}`}>{name}</Link>
+                    <Link href={`/motions/${props.pages[name]}/#${name}`}>
+                      {name}
+                    </Link>
                   )}
                 </span>
               ),
@@ -219,19 +221,17 @@ export default function SceneMovie(props: {
       </div>
 
       <div className="am-actions" role="group" aria-label="This scene">
-        <div className="am-tabs-inline" role="tablist" aria-label="Panel">
+        <div className="am-tabs-inline" role="group" aria-label="Panel">
           <button
             type="button"
-            role="tab"
-            aria-selected={panel === "variations"}
+            aria-pressed={panel === "variations"}
             onClick={(): void => setPanel("variations")}
           >
             Variations
           </button>
           <button
             type="button"
-            role="tab"
-            aria-selected={panel === "made"}
+            aria-pressed={panel === "made"}
             onClick={(): void => setPanel("made")}
           >
             How is this made?
@@ -241,7 +241,7 @@ export default function SceneMovie(props: {
           className="am-button"
           href={`/playground/${PlaygroundAddress.encode({
             ...composition,
-            version: 2,
+            version: PlaygroundAddress.VERSION,
           })}`}
         >
           Customise
@@ -278,8 +278,9 @@ export default function SceneMovie(props: {
           <p>
             Each person is a chain of actions from{" "}
             <code>@automovie/motions</code>. This is the code an agent writes
-            for this scene; the <Link href="/docs/composing-motion/">guide</Link>{" "}
-            explains the parts.
+            for this scene; the{" "}
+            <Link href="/docs/composing-motion/">guide</Link> explains the
+            parts.
           </p>
           <pre className="am-code">
             <code>{formatSceneChain(composition)}</code>

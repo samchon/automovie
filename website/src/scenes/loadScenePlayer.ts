@@ -1,5 +1,4 @@
 import type { IScene } from "./structures/IScene";
-import type { ISceneManifest } from "./structures/ISceneManifest";
 import type { IScenePlayer } from "./structures/IScenePlayer";
 
 /**
@@ -16,14 +15,4 @@ export async function loadScenePlayer(
 ): Promise<IScenePlayer> {
   const { ScenePlayer } = await import("./package/ScenePlayer");
   return ScenePlayer.load(scene, take);
-}
-
-/**
- * The bake's manifest, which says which scenes and takes were baked.
- *
- * @returns The manifest.
- */
-export async function loadSceneManifest(): Promise<ISceneManifest> {
-  const { ScenePlayer } = await import("./package/ScenePlayer");
-  return ScenePlayer.index();
 }

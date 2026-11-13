@@ -27,8 +27,8 @@ import type { IAutoMovieInspectorScene } from "./IAutoMovieInspectorScene.js";
 import type { IAutoMovieInspectorState } from "./IAutoMovieInspectorState.js";
 import { createAutoMovieInspectorCanvasHost } from "./createAutoMovieInspectorCanvasHost.js";
 import { createAutoMovieInspectorState } from "./createAutoMovieInspectorState.js";
-import { handleAutoMovieInspectorKey } from "./handleAutoMovieInspectorKey.js";
 import { formatAutoMovieInspectorAddress } from "./formatAutoMovieInspectorAddress.js";
+import { handleAutoMovieInspectorKey } from "./handleAutoMovieInspectorKey.js";
 import { mountAutoMovieInspectorScene } from "./mountAutoMovieInspectorScene.js";
 import { reduceAutoMovieInspectorState } from "./reduceAutoMovieInspectorState.js";
 
@@ -42,9 +42,9 @@ const UNLABELLED: IAutoMovieInspectorScene.ILabels = {
 /**
  * The inspection page as a React component: one canvas showing a subject through one request, and the panels that edit that request.
  *
- * The request is the component's only state that changes the picture. Every panel dispatches an edit to `reduceAutoMovieInspectorState`, the canvas is a plain three.js scene from `@automovie/render` mounted by `mountAutoMovieInspectorScene` in an effect, and every change of the request reaches `onRequestChange` as address text, so the page keeps its address equal to the request. The playhead is an `AutoMovieInspectorPlayhead` outside React that the render loop advances, so playback re-renders only the time readout.
+ * The request is the component's only state that changes the picture. Every panel dispatches an edit to `reduceAutoMovieInspectorState`, the canvas is a plain three.js scene from `@automovie/render` mounted by `mountAutoMovieInspectorScene` in an effect, and every change of the request reaches `onRequestChange` as address text, so the page keeps its address equal to the request. The playhead is an `AutoMovieInspectorPlayhead` outside React that the render loop advances, so a playing frame re-renders only the time readout, and starting or stopping also the play button.
  *
- * The canvas has the transport directly under it. Beside it, or under the transport when the inspector is narrower than 900 pixels, a column holds one collapsible section per panel, each heading saying what is active: View and Shade start open, Marks, Selection and Request start closed, so a first look shows the picture and how it is drawn. While focus is inside the inspector, the playback keys of `handleAutoMovieInspectorKey` drive the playhead.
+ * The canvas has the transport directly under it. Beside it, or under the transport when the inspector is narrower than 900 pixels, a column holds one collapsible section per panel, each heading saying what is active: View and Shade start open, Marks, Selection and Request start closed, so a first look shows the picture and how it is drawn. While focus is inside the inspector, the playback keys of `handleAutoMovieInspectorKey` drive the playhead, except a key held with Ctrl, Meta or Alt and a key that goes to a control answering it itself.
  *
  * The mount effect depends on the chosen subject object only, which selectAutoMovieDrawSubject picks by the request's subject key, so each subject must keep its identity across renders; the request reaches a mounted scene through its `apply`, and a request the scene refuses is set back to the one it still draws, with the reason shown. Under StrictMode the mount effect runs, cleans up and runs again on the same canvas, which the mount supports with one renderer alive at the end.
  *
@@ -62,7 +62,7 @@ const UNLABELLED: IAutoMovieInspectorScene.ILabels = {
  * @evidence contracts/development/implementation.md#principled-implementation React owns layout and dispatch only: `useReducer` holds the request, `useEffect` owns the scene's lifetime per subject and forwards each request, and the canvas is drawn by three.js outside React's render, as the campaign decides against a React scene graph.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One component composes six panels, each a function of the request and a dispatch, five of them in collapsible sections of the platform's `details` element; every state change is the reducer's and every scene change the mount's.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No panel writes the scene, and a scene refusal is answered by restoring the request, never by drawing a picture the address does not name.
- * @evidence contracts/development/implementation.md#efficient-algorithms A dispatched edit renders the panels once and re-applies the inspection only when its text changed; playback renders the readout alone.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A dispatched edit renders the panels once and re-applies the inspection only when its text changed; a playing frame renders the readout alone, and a start or stop the play button too.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The mount, its renderer and its instance live while the subject stays; a request change reuses them.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The component owns one playhead and at most one mount at a time, disposed by the effect cleanup when the subject changes or the component unmounts.
  */
@@ -156,13 +156,23 @@ export function AutoMovieInspector(
     return (): void => observer.disconnect();
   }, []);
 
-  // The playback keys, while focus is in the inspector but not in a field
-  // that takes the key itself.
-  const keys = (event: KeyboardEvent<HTMLDivElement>): void => {
-    const target: HTMLElement = event.target as HTMLElement;
-    if (["INPUT", "SELECT", "TEXTAREA"].includes(target.tagName)) return;
+  // The playback keys, while focus is in the inspector; the handler leaves a
+  // shortcut and a key a control answers itself to the page.
+  const keys: (event: KeyboardEvent<HTMLDivElement>) => void = (
+    event: KeyboardEvent<HTMLDivElement>,
+  ): void => {
     const result: { handled: boolean; seconds: number | null } =
-      handleAutoMovieInspectorKey(event.key, playhead, facts?.fps ?? null);
+      handleAutoMovieInspectorKey(
+        {
+          key: event.key,
+          ctrlKey: event.ctrlKey,
+          metaKey: event.metaKey,
+          altKey: event.altKey,
+          target: event.target instanceof Element ? event.target : null,
+        },
+        playhead,
+        facts?.fps ?? null,
+      );
     if (!result.handled) return;
     event.preventDefault();
     if (result.seconds !== null)

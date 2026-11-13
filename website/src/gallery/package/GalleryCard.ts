@@ -1,7 +1,7 @@
 import { type IAutoMovieModelObject, buildModel } from "@automovie/render";
 import * as THREE from "three";
 
-import type { IGalleryCard } from "../loadGalleryCard";
+import type { IGalleryCard } from "../structures/IGalleryCard";
 import { GalleryArchetype } from "./GalleryArchetype";
 
 /**
@@ -27,12 +27,17 @@ export namespace GalleryCard {
     });
     const model: IAutoMovieModelObject = buildModel(built.archetype);
     const scene: THREE.Scene = new THREE.Scene();
-    const style: CSSStyleDeclaration = getComputedStyle(document.documentElement);
+    const style: CSSStyleDeclaration = getComputedStyle(
+      document.documentElement,
+    );
     scene.background = new THREE.Color(
       style.getPropertyValue("--am-viewport").trim() || "#e9ebef",
     );
     scene.add(new THREE.HemisphereLight(0xffffff, 0x8d8a83, 1.3));
-    const sun: THREE.DirectionalLight = new THREE.DirectionalLight(0xffffff, 1.4);
+    const sun: THREE.DirectionalLight = new THREE.DirectionalLight(
+      0xffffff,
+      1.4,
+    );
     sun.position.set(2, 4, 3);
     scene.add(sun);
 
@@ -44,7 +49,10 @@ export namespace GalleryCard {
     pivot.add(model.object);
     scene.add(pivot);
 
-    const size: number = Math.max(0.05, box.getSize(new THREE.Vector3()).length());
+    const size: number = Math.max(
+      0.05,
+      box.getSize(new THREE.Vector3()).length(),
+    );
     const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
       30,
       4 / 3,
@@ -54,7 +62,11 @@ export namespace GalleryCard {
     const target: THREE.Vector3 = new THREE.Vector3(0, centre.y, 0);
     camera.position
       .copy(target)
-      .add(new THREE.Vector3(0.62, 0.45, 0.66).normalize().multiplyScalar(size * 1.9));
+      .add(
+        new THREE.Vector3(0.62, 0.45, 0.66)
+          .normalize()
+          .multiplyScalar(size * 1.9),
+      );
     camera.lookAt(target);
 
     return {

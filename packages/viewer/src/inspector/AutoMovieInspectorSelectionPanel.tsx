@@ -11,15 +11,18 @@ import { buildAutoMovieInspectorPathTree } from "./buildAutoMovieInspectorPathTr
 /** The width of each of the three checkbox columns and the colour column, pixels. */
 const COLUMN: number = 22;
 
+/** The width of the disclosure button before a name, pixels. */
+const DISCLOSURE: number = 16;
+
 /**
  * Selection: the subject's identity paths as a tree, with select, hide, label and colour per path.
  *
  * A header names the four columns. Each node edits the request by its pattern, the one that selects the node and its subtree: a checkbox puts the pattern in or takes it out of `parts`, `hide` or `label`, and the colour input gives it a `color` pair, which the clear button takes back. A node is checked when its own pattern is in the list, so a pattern typed in the address that matches several nodes checks none of them, and stays in the request. The empty path has no pattern and only a name.
  *
- * A node with children is folded until opened, with the number of paths under it, so a figure's dozens of bones do not fill the panel. The filter keeps the nodes whose path contains the typed text, with their ancestors, and opens them.
+ * A node with children is folded until opened, with the number of paths under it, so a figure's dozens of bones do not fill the panel. Its disclosure button, between the controls and the name, opens and folds it and states whether it is open; it sits beside the controls, never around them, so no control is nested in another. The filter keeps the nodes whose path contains the typed text, with their ancestors, and opens them; while it does, their disclosure buttons are disabled.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the header, what each control edits, when a node is checked, what happens to typed patterns and the empty path, and how folding and the filter work.
- * @evidence contracts/development/implementation.md#principled-implementation The tree and each node's pattern come from `buildAutoMovieInspectorPathTree`, and every edit is a reducer action through the grammar, so the panel restates no path rule; folding uses the platform's `details` element.
+ * @evidence contracts/development/implementation.md#principled-implementation The tree and each node's pattern come from `buildAutoMovieInspectorPathTree`, and every edit is a reducer action through the grammar, so the panel restates no path rule; folding is the disclosure pattern, a button with `aria-expanded` that owns no other control.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One memoized tree, one filter, and one recursive row per node.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A checked state is read from the request, never kept in the panel; the filter hides rows and changes no request.
  * @evidence contracts/development/implementation.md#efficient-algorithms The tree is rebuilt only when the path list changes; a render is linear in the nodes times the lists' lengths, and a folded subtree is not rendered.
@@ -86,17 +89,16 @@ export function AutoMovieInspectorSelectionPanel(props: {
         <span style={{ alignSelf: "flex-end", paddingLeft: 6 }}>Path</span>
       </div>
       <ul style={{ listStyle: "none", paddingLeft: 0, margin: 0 }}>
-        {tree.map(
-          (node: IAutoMovieInspectorPathNode): JSX.Element | null =>
-            shown(node, needle) ? (
-              <Row
-                key={node.path}
-                node={node}
-                needle={needle}
-                inspection={props.request.inspection}
-                dispatch={props.dispatch}
-              />
-            ) : null,
+        {tree.map((node: IAutoMovieInspectorPathNode): JSX.Element | null =>
+          shown(node, needle) ? (
+            <Row
+              key={node.path}
+              node={node}
+              needle={needle}
+              inspection={props.request.inspection}
+              dispatch={props.dispatch}
+            />
+          ) : null,
         )}
       </ul>
     </div>
@@ -141,7 +143,13 @@ function Row(props: {
             entry.pattern === pattern,
         );
   const label: string = node.name === "" ? "(unnamed)" : node.name;
-  const toggle = (
+
+  // A filter opens every node it keeps, so the matches are seen.
+  const expanded: boolean = open || needle !== "";
+  const toggle: (
+    type: IAutoMovieInspectorAction.IToggle["type"],
+    list: readonly string[],
+  ) => JSX.Element = (
     type: IAutoMovieInspectorAction.IToggle["type"],
     list: readonly string[],
   ): JSX.Element => (
@@ -157,8 +165,39 @@ function Row(props: {
       }}
     />
   );
+  // A node with children has a disclosure button between its controls and
+  // its name, beside them rather than around them, so no control sits inside
+  // another; a leaf keeps the button's width, so the names stay aligned.
+  const leaf: boolean = node.children.length === 0;
+  const disclosure: JSX.Element = leaf ? (
+    <span style={{ display: "inline-block", width: DISCLOSURE }} />
+  ) : (
+    <button
+      type="button"
+      aria-expanded={expanded}
+      aria-label={`${label}, ${count(node)} paths`}
+      title={needle === "" ? undefined : "Opened by the filter"}
+      disabled={needle !== ""}
+      style={{
+        width: DISCLOSURE,
+        padding: 0,
+        border: 0,
+        background: "none",
+        cursor: "pointer",
+      }}
+      onClick={(): void => setOpen(!open)}
+    >
+      {expanded ? "▾" : "▸"}
+    </button>
+  );
   const controls: JSX.Element = (
-    <span style={{ whiteSpace: "nowrap", display: "inline-flex", alignItems: "center" }}>
+    <span
+      style={{
+        whiteSpace: "nowrap",
+        display: "inline-flex",
+        alignItems: "center",
+      }}
+    >
       {toggle("select", inspection.parts)}
       {toggle("hide", inspection.hide)}
       {toggle("label", inspection.label)}
@@ -181,47 +220,45 @@ function Row(props: {
         <button
           type="button"
           aria-label={`clear the colour of ${label}`}
-          onClick={(): void => dispatch({ type: "color", pattern, color: null })}
+          onClick={(): void =>
+            dispatch({ type: "color", pattern, color: null })
+          }
         >
           x
         </button>
-      )}{" "}
-      <span style={{ fontWeight: node.drawn ? "normal" : "bold" }}>{label}</span>
+      )}
+      {disclosure}
+      <span style={{ fontWeight: node.drawn ? "normal" : "bold" }}>
+        {label}
+      </span>
+      {leaf ? null : (
+        <span aria-hidden="true" style={{ color: "#666", fontSize: 11 }}>
+          {" "}
+          {count(node)}
+        </span>
+      )}
     </span>
   );
-  if (node.children.length === 0) return <li>{controls}</li>;
-
-  // A filter opens every node it keeps, so the matches are seen.
-  const expanded: boolean = open || needle !== "";
+  if (leaf) return <li>{controls}</li>;
   return (
     <li>
-      <details
-        open={expanded}
-        onToggle={(event): void =>
-          setOpen((event.currentTarget as HTMLDetailsElement).open)
-        }
-      >
-        <summary style={{ cursor: "pointer" }}>
-          {controls}
-          <span style={{ color: "#666", fontSize: 11 }}> {count(node)}</span>
-        </summary>
-        {expanded ? (
-          <ul style={{ listStyle: "none", paddingLeft: 14, margin: 0 }}>
-            {node.children.map(
-              (child: IAutoMovieInspectorPathNode): JSX.Element | null =>
-                shown(child, needle) ? (
-                  <Row
-                    key={child.path}
-                    node={child}
-                    needle={needle}
-                    inspection={inspection}
-                    dispatch={dispatch}
-                  />
-                ) : null,
-            )}
-          </ul>
-        ) : null}
-      </details>
+      {controls}
+      {expanded ? (
+        <ul style={{ listStyle: "none", paddingLeft: 14, margin: 0 }}>
+          {node.children.map(
+            (child: IAutoMovieInspectorPathNode): JSX.Element | null =>
+              shown(child, needle) ? (
+                <Row
+                  key={child.path}
+                  node={child}
+                  needle={needle}
+                  inspection={inspection}
+                  dispatch={dispatch}
+                />
+              ) : null,
+          )}
+        </ul>
+      ) : null}
     </li>
   );
 }

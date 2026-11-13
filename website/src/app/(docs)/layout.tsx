@@ -5,29 +5,38 @@ import type { ReactElement, ReactNode } from "react";
 
 const footer: ReactElement = (
   <Footer>
-    <nav aria-label="Footer" className="automovie-site-footer-links">
-      <a href="/automovie/docs/">Docs</a>
-      <a href="https://github.com/samchon/automovie" target="_blank" rel="noreferrer">
-        GitHub
-      </a>
-      <a href="https://www.npmjs.com/package/automovie" target="_blank" rel="noreferrer">
-        npm
-      </a>
-    </nav>
-    <br />
-    Released under the MIT License.
-    <br />
-    <br />
-    Copyright {new Date().getFullYear()}{" "}
-    <a
-      href="https://github.com/samchon"
-      target="_blank"
-      rel="noreferrer"
-      style={{ color: "initial" }}
-    >
-      <u>Samchon</u>
-    </a>{" "}
-    & Contributors
+    <div className="automovie-site-footer">
+      <nav aria-label="Footer" className="automovie-site-footer-links">
+        <a href="/automovie/docs/">Docs</a>
+        <a
+          href="https://github.com/samchon/automovie"
+          target="_blank"
+          rel="noreferrer"
+        >
+          GitHub
+        </a>
+        <a
+          href="https://www.npmjs.com/package/automovie"
+          target="_blank"
+          rel="noreferrer"
+        >
+          npm
+        </a>
+      </nav>
+      <p>Released under the MIT License.</p>
+      <p>
+        Copyright {new Date().getFullYear()}{" "}
+        <a
+          href="https://github.com/samchon"
+          target="_blank"
+          rel="noreferrer"
+          style={{ color: "initial" }}
+        >
+          <u>Samchon</u>
+        </a>{" "}
+        & Contributors
+      </p>
+    </div>
   </Footer>
 );
 

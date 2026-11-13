@@ -13,8 +13,8 @@ import type { IPlaygroundComposition } from "./structures/IPlaygroundComposition
  * request there and refuses a key it does not know.
  */
 export namespace PlaygroundAddress {
-  /** The composition format this page writes; it also reads version 1, which has no objects. */
-  export const VERSION: number = 2;
+  /** The newest composition format, which a composition this site writes carries; version 1, which has no objects, is still read. */
+  export const VERSION: IPlaygroundComposition["version"] = 2;
 
   /** Every version this page reads. */
   const READS: readonly number[] = [1, 2];

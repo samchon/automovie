@@ -7,7 +7,9 @@ import { PLAYGROUND_BODY_M2 } from "./PLAYGROUND_BODY_M2";
 
 /**
  * The bodies the site draws and performs with, by id. Add a person here and
- * the playground's body picker and the gallery's presets list it.
+ * the playground's body picker lists it and a scene's performer can take it;
+ * the Human page lists the bodies the bake drew, so a new body appears there
+ * once a scene performs with it, such as the lineup in `SCENES_EVERYDAY`.
  *
  * Each mass is a body mass index of 22 at the person's stature. It sets the
  * contact profile's mass only; the drawing does not depend on it.

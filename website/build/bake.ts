@@ -24,258 +24,24 @@
 // take the packages refuse stops the bake with the scene, the take and the
 // refusal: a scene record is specification.
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
-import type {
-  HumanPerformance,
-  HumanSegment,
-  IHumanProp,
-} from "@automovie/motions";
+import type { IHumanProp } from "@automovie/motions";
 import { spawn } from "node:child_process";
-import crypto from "node:crypto";
 import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
 
 import { PLAYGROUND_BODIES } from "../src/playground/data/PLAYGROUND_BODIES";
 import { PlaygroundBodies } from "../src/playground/package/PlaygroundBodies";
 import { PlaygroundPerformance } from "../src/playground/package/PlaygroundPerformance";
 import type { IPlaygroundComposition } from "../src/playground/structures/IPlaygroundComposition";
-import { SCENES } from "../src/scenes/SCENES";
-import { SceneTake } from "../src/scenes/SceneTake";
 import { SceneTrack } from "../src/scenes/SceneTrack";
-import { SceneStatus } from "../src/scenes/package/SceneStatus";
-import type { IScene } from "../src/scenes/structures/IScene";
 import type { ISceneManifest } from "../src/scenes/structures/ISceneManifest";
+import { BakeCheck } from "./BakeCheck";
+import { BakeSetup } from "./BakeSetup";
 
-/** What the command line asks for. */
-interface IOptions {
-  /** Frames a second of every track. */
-  fps: number;
-
-  /** The scenes to bake; every scene that plays when empty. */
-  only: string[];
-
-  /** This process's share, when it bakes one. */
-  shard: number | null;
-
-  /** The number of shares, each baked by one process. */
-  shards: number;
-
-  /** This machine's part of the takes, when several machines bake; null when one machine bakes them all. */
-  runner: number | null;
-
-  /** The number of machines that bake. */
-  runners: number;
-
-  /** Whether this process only joins the shares' results. */
-  merge: boolean;
-
-  /** Whether this process only plans each scene's first take and reports refusals. */
-  check: boolean;
-
-  /** Actions the check plans alone on one person instead of the scenes. */
-  rows: string[];
-}
-
-/** One take to bake. */
-interface IJob {
-  /** The scene. */
-  scene: IScene;
-
-  /** The take's index in the scene. */
-  index: number;
-
-  /** The composition the take performs. */
-  composition: IPlaygroundComposition;
-
-  /** The digest of its inputs. */
-  digest: string;
-}
-
-/** What one share writes: the bodies it drew and the takes it baked. */
-interface IPart {
-  /** The bodies, by id. */
-  bodies: Record<string, ISceneManifest.IBody>;
-
-  /** The takes, by scene id and take index. */
-  takes: Record<string, Record<number, ISceneManifest.ITake>>;
-}
-
-/** The workspace packages a track is computed from; a change in any re-bakes every take. */
-const SOURCES: readonly string[] = [
-  "archetypes",
-  "engine",
-  "human",
-  "interface",
-  "motions",
-  "render",
-];
-
-/**
- * The version of what a take's file and manifest entry hold. Raise it when
- * either changes shape, so every take is baked again; an edit elsewhere in
- * this script keeps the takes it would compute the same.
- */
-const FORMAT: string = "2";
-
-/** The entry name of a prop's frame in a track. */
-const PROP: string = "frame";
-
-const root: string = path.resolve(__dirname, "..");
-const out: string = path.join(root, "public", "baked");
-const parts: string = path.join(out, "parts");
-
-const options: IOptions = {
-  fps: 12,
-  only: [],
-  shard: null,
-  shards: Math.max(1, Math.min(8, os.availableParallelism() - 1)),
-  runner: null,
-  runners: 1,
-  merge: false,
-  check: false,
-  rows: [],
-};
-const argv: string[] = process.argv.slice(2);
-for (let i: number = 0; i < argv.length; i++) {
-  const arg: string = argv[i]!;
-  if (arg === "--fps") options.fps = Number(argv[++i]);
-  else if (arg === "--only") options.only.push(argv[++i]!);
-  else if (arg === "--shard") options.shard = Number(argv[++i]);
-  else if (arg === "--shards" || arg === "--jobs")
-    options.shards = Math.max(1, Number(argv[++i]));
-  else if (arg === "--runner") options.runner = Number(argv[++i]);
-  else if (arg === "--runners")
-    options.runners = Math.max(1, Number(argv[++i]));
-  else if (arg === "--merge") options.merge = true;
-  else if (arg === "--check") options.check = true;
-  else if (arg === "--row") options.rows.push(argv[++i]!);
-}
-
-/** A digest of every source file of the packages a track is computed from, of the site code that computes it, and of the format. */
-const sources = (): string => {
-  const hash: crypto.Hash = crypto.createHash("sha256");
-  const walk = (dir: string): void => {
-    for (const entry of fs
-      .readdirSync(dir, { withFileTypes: true })
-      .sort((a: fs.Dirent, b: fs.Dirent): number =>
-        a.name.localeCompare(b.name),
-      )) {
-      const full: string = path.join(dir, entry.name);
-      if (entry.isDirectory()) walk(full);
-      else if (/\.(ts|tsx|json)$/.test(entry.name)) {
-        hash.update(path.relative(root, full).replaceAll("\\", "/"));
-        hash.update(fs.readFileSync(full));
-      }
-    }
-  };
-  for (const name of SOURCES)
-    walk(path.resolve(root, "..", "packages", name, "src"));
-  walk(path.join(root, "src", "playground"));
-  hash.update(FORMAT);
-  hash.update(
-    fs.readFileSync(path.join(root, "src", "scenes", "SceneTrack.ts")),
-  );
-  return hash.digest("hex");
-};
-
-/** Every take of every scene that plays, in the order shares are dealt. */
-const plan = (): IJob[] => {
-  const base: string = sources();
-  return SCENES.filter(
-    (scene: IScene): boolean =>
-      (options.only.length === 0 || options.only.includes(scene.id)) &&
-      SceneStatus.of(scene).kind === "plays",
-  ).flatMap((scene: IScene): IJob[] =>
-    scene.takes.map((take: IScene.ITake, index: number): IJob => {
-      const composition: IPlaygroundComposition = SceneTake.apply(
-        scene.composition!,
-        take,
-      );
-      return {
-        scene,
-        index,
-        composition,
-        digest: crypto
-          .createHash("sha256")
-          .update(base)
-          .update(JSON.stringify(composition))
-          .update(String(options.fps))
-          .digest("hex"),
-      };
-    }),
-  );
-};
-
-/**
- * The takes an earlier bake left, by scene and take: those of the merged
- * manifest, then those of any share's part, as a CI runner restores its own
- * share from its cache.
- */
-const previous = (): Record<string, Record<number, ISceneManifest.ITake>> => {
-  const known: Record<string, Record<number, ISceneManifest.ITake>> = {};
-  const read = (file: string): unknown => {
-    try {
-      return JSON.parse(fs.readFileSync(file, "utf8"));
-    } catch {
-      return null;
-    }
-  };
-  const manifest: ISceneManifest | null = read(
-    path.join(out, "manifest.json"),
-  ) as ISceneManifest | null;
-  if (manifest?.version === 1)
-    for (const [id, scene] of Object.entries(manifest.scenes))
-      Object.assign((known[id] ??= {}), { ...scene.takes });
-  for (const name of fs.existsSync(parts) ? fs.readdirSync(parts) : []) {
-    const part: IPart | null = read(path.join(parts, name)) as IPart | null;
-    for (const [id, takes] of Object.entries(part?.takes ?? {}))
-      Object.assign((known[id] ??= {}), takes);
-  }
-  return known;
-};
-
-/** A take's stable number: from its scene and index, so adding a scene or a take moves no other take to another machine or process. */
-const hash = (job: IJob): number => {
-  let value: number = 0;
-  for (const char of `${job.scene.id}#${job.index}`)
-    value = (value * 31 + char.charCodeAt(0)) >>> 0;
-  return value;
-};
-
-/** The takes this machine bakes: all of them, or its runner's part. */
-const mine = (): IJob[] =>
-  plan().filter(
-    (job: IJob): boolean =>
-      options.runner === null || hash(job) % options.runners === options.runner,
-  );
-
-/** A figure's placed actions, with those performed over others where the installed release has overlays. */
-const spans = (
-  performance: HumanPerformance,
-  subject: string,
-): ISceneManifest.ISpan[] => {
-  const span =
-    (overlay: boolean) =>
-    (segment: HumanSegment.ISegment): ISceneManifest.ISpan => ({
-      name: segment.name,
-      from: segment.entryTime,
-      to: segment.end,
-      overlay,
-    });
-  const overlays:
-    | ((subject: string) => readonly HumanSegment.ISegment[])
-    | undefined = (
-    performance as unknown as {
-      overlays?: (subject: string) => readonly HumanSegment.ISegment[];
-    }
-  ).overlays;
-  return [
-    ...performance.segments(subject).map(span(false)),
-    ...(overlays === undefined
-      ? []
-      : overlays.call(performance, subject).map(span(true))),
-  ];
-};
+type IJob = BakeSetup.IJob;
+type IPart = BakeSetup.IPart;
+const { PROP, argv, mine, options, out, parts, plan, previous, spans } =
+  BakeSetup;
 
 /** Bake one share of the jobs and write what it made. */
 const bake = (shard: number): void => {
@@ -376,7 +142,7 @@ const bake = (shard: number): void => {
       count = Math.floor(duration * options.fps) + 1;
       costs.push(...built.figures.map((): number => 0));
       for (let k: number = 0; k < count; k++) {
-        const seconds: number = Math.min(duration, k / options.fps);
+        const seconds: number = k / options.fps;
         frames.push([
           ...built.figures.map(
             (
@@ -554,89 +320,8 @@ const local = async (): Promise<void> => {
   );
 };
 
-/** Plan each named action alone on one standing person with no parameters, and say whether the package plans it, refuses it in its own words, or fails in its code. */
-const rows = (): void => {
-  for (const name of options.rows) {
-    const composition: IPlaygroundComposition = {
-      version: 1,
-      seed: "row",
-      performers: [
-        {
-          subject: "a",
-          body: "m1",
-          x: 0,
-          z: 0,
-          yaw: 0,
-          proficiency: "trained",
-          actions: [
-            { name: "stand", params: { seconds: 0.3 } },
-            { name, params: {} },
-          ],
-        },
-      ],
-      mutuals: [],
-    };
-    try {
-      PlaygroundPerformance.build(composition);
-      console.log(`${name}: plans`);
-    } catch (error) {
-      const refusal: boolean =
-        typeof error === "object" && error !== null && "axis" in error;
-      console.log(
-        `${name}: ${refusal ? "refuses" : "fails in the package"}: ${error instanceof Error ? error.message : String(error)}`,
-      );
-    }
-  }
-};
-
-/** Plan the first take of every scene that plays, without posing it, and list every refusal and every scene that waits. */
-const check = (): void => {
-  if (options.rows.length !== 0) return rows();
-  const refused: string[] = [];
-  for (const scene of SCENES) {
-    if (options.only.length !== 0 && !options.only.includes(scene.id)) continue;
-    const status: SceneStatus.Status = SceneStatus.of(scene);
-    if (status.kind !== "plays") {
-      console.log(
-        `${scene.id}: ${status.kind}${status.kind === "waits" ? ` for ${status.missing.join(", ")}` : ""}`,
-      );
-      continue;
-    }
-    const t0: number = Date.now();
-    try {
-      const built: PlaygroundPerformance.IBuilt = PlaygroundPerformance.build(
-        SceneTake.apply(scene.composition!, scene.takes[0]!),
-      );
-      const planned: number = (Date.now() - t0) / 1000;
-
-      // A few poses of each figure, spread over the film, show what posing
-      // will cost and which figure costs most.
-      const costs: string[] = built.figures.map(
-        (figure: PlaygroundPerformance.IFigure): string => {
-          const started: number = performance.now();
-          for (let k: number = 1; k <= 4; k++)
-            built.performance.pose(
-              figure.subject,
-              (built.performance.duration * k) / 5,
-            );
-          return `${figure.subject} ${((performance.now() - started) / 4).toFixed(0)} ms`;
-        },
-      );
-      console.log(
-        `${scene.id}: plans, ${built.performance.duration.toFixed(1)} s of film, planned in ${planned.toFixed(1)} s; a pose: ${costs.join(", ")}`,
-      );
-    } catch (error) {
-      // Printed at once as well, so a check stopped halfway keeps its findings.
-      const line: string = `${scene.id}: refused: ${error instanceof Error ? error.message : String(error)}`;
-      console.log(line);
-      refused.push(line);
-    }
-  }
-  if (refused.length !== 0) throw new Error(refused.join("\n"));
-};
-
 const main = async (): Promise<void> => {
-  if (options.check) check();
+  if (options.check) BakeCheck.check();
   else if (options.merge) merge();
   else if (options.shard !== null) bake(options.shard);
   else await local();

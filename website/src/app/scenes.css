@@ -228,7 +228,7 @@
   margin-right: auto;
 }
 
-.am-app .am-tabs-inline button[aria-selected="true"] {
+.am-app .am-tabs-inline button[aria-pressed="true"] {
   border-color: var(--am-accent-bg);
   background: var(--am-accent-soft);
   font-weight: 700;

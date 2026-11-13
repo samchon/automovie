@@ -59,7 +59,7 @@ export namespace ISceneManifest {
     /** Frames a second. */
     fps: number;
 
-    /** Frames in the track, the first at 0 s and the last at `duration`. */
+    /** Frames in the track, one every `1 / fps` seconds from 0 s; the last is the last such instant within `duration`, so a player holds it to the end. */
     frames: number;
 
     /** The film's length, seconds. */

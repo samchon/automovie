@@ -8,10 +8,12 @@ import type { IGalleryView } from "../../gallery/structures/IGalleryView";
 
 /**
  * The facts of the subject shown and the controls that change it. Its name
- * and kind stay on top; under them two tabs: Specs, the dimensions the seed
- * drew against their bands and the affordances an action attaches to, and
- * Customise, the seed, the affordance marks and a slider for each
- * articulation, for a visitor who wants to change them.
+ * and kind stay on top; under them two toggle buttons, the pressed one
+ * choosing what the panel shows: Specs, the dimensions the seed drew against
+ * their bands and the affordances an action attaches to, or Customise, the
+ * seed, the affordance marks and a slider for each articulation, for a
+ * visitor who wants to change them. They are pressed buttons rather than
+ * tabs, since the panel has no tab panels to move between with arrow keys.
  *
  * @param props The subject, the request, what was built and the listener.
  * @returns The panel.
@@ -61,19 +63,19 @@ export function GalleryDetails(props: {
           </label>
         )}
 
-        <div className="am-tabs-inline" role="tablist" aria-label="Details">
+        <div className="am-chips" role="group" aria-label="Details view">
           <button
             type="button"
-            role="tab"
-            aria-selected={tab === "specs"}
+            className="am-chip"
+            aria-pressed={tab === "specs"}
             onClick={(): void => setTab("specs")}
           >
             Specs
           </button>
           <button
             type="button"
-            role="tab"
-            aria-selected={tab === "customise"}
+            className="am-chip"
+            aria-pressed={tab === "customise"}
             onClick={(): void => setTab("customise")}
           >
             Customise
@@ -83,52 +85,54 @@ export function GalleryDetails(props: {
 
       {tab !== "customise" ? null : (
         <section className="am-panel am-stack">
-            <div className="am-row">
-              <label className="am-field">
-                <span className="am-label">Seed</span>
-                <input
-                  type="text"
-                  value={request.seed}
-                  placeholder="none: the middle of every band"
-                  onChange={(event): void =>
-                    props.onChange({
-                      ...request,
-                      seed: event.target.value,
-                      state: {},
-                    })
-                  }
-                />
-              </label>
-              <button
-                type="button"
-                onClick={(): void =>
-                  props.onChange({
-                    ...request,
-                    seed: String(Math.floor(Math.random() * 1_000_000)),
-                    state: {},
-                  })
-                }
-              >
-                New seed
-              </button>
-            </div>
-            <label className="am-check">
+          <div className="am-row">
+            <label className="am-field">
+              <span className="am-label">Seed</span>
               <input
-                type="checkbox"
-                checked={request.affordances}
+                type="text"
+                value={request.seed}
+                placeholder="none: the middle of every band"
                 onChange={(event): void =>
                   props.onChange({
                     ...request,
-                    affordances: event.target.checked,
+                    seed: event.target.value,
+                    state: {},
                   })
                 }
               />
-              <span>Show the affordances on the model</span>
             </label>
+            <button
+              type="button"
+              onClick={(): void =>
+                props.onChange({
+                  ...request,
+                  seed: String(Math.floor(Math.random() * 1_000_000)),
+                  state: {},
+                })
+              }
+            >
+              New seed
+            </button>
+          </div>
+          <label className="am-check">
+            <input
+              type="checkbox"
+              checked={request.affordances}
+              onChange={(event): void =>
+                props.onChange({
+                  ...request,
+                  affordances: event.target.checked,
+                })
+              }
+            />
+            <span>Show the affordances on the model</span>
+          </label>
         </section>
       )}
 
-      {tab !== "specs" || view === null || view.dimensions.length === 0 ? null : (
+      {tab !== "specs" ||
+      view === null ||
+      view.dimensions.length === 0 ? null : (
         <section className="am-panel">
           <h2>Dimensions</h2>
           <div className="am-table-wrap">
@@ -200,41 +204,14 @@ export function GalleryDetails(props: {
         </section>
       )}
 
-      {tab !== "specs" || view === null || view.measures.length === 0 ? null : (
-        <section className="am-panel">
-          <h2>Measures</h2>
-          <div className="am-table-wrap">
-            <table className="am-table">
-              <thead>
-                <tr>
-                  <th>Measure</th>
-                  <th className="am-number">Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                {view.measures.map(
-                  (measure: IGalleryView.IMeasure): ReactElement => (
-                    <tr key={measure.name}>
-                      <td className="am-mono">{measure.name}</td>
-                      <td className="am-number">
-                        {format(measure.value)}
-                        {unit(measure.unit)}
-                      </td>
-                    </tr>
-                  ),
-                )}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      )}
-
-      {tab !== "specs" || view === null || view.affordances.length === 0 ? null : (
+      {tab !== "specs" ||
+      view === null ||
+      view.affordances.length === 0 ? null : (
         <section className="am-panel am-stack">
           <h2>Affordances</h2>
           <p className="am-muted">
-            Where a person meets it. An action attaches to an affordance by
-            its id.
+            Where a person meets it. An action attaches to an affordance by its
+            id.
           </p>
           <div className="am-table-wrap">
             <table className="am-table">
@@ -263,9 +240,9 @@ export function GalleryDetails(props: {
               </tbody>
             </table>
           </div>
-
         </section>
       )}
+
       {tab !== "customise" ||
       view === null ||
       !view.affordances.some(
@@ -274,9 +251,7 @@ export function GalleryDetails(props: {
         <section className="am-panel am-stack">
           <h2>Articulations</h2>
           {view.affordances
-            .filter(
-              (a: IGalleryView.IAffordance): boolean => a.travel !== null,
-            )
+            .filter((a: IGalleryView.IAffordance): boolean => a.travel !== null)
             .map((affordance: IGalleryView.IAffordance): ReactElement => {
               const travel: IGalleryView.ITravel = affordance.travel!;
               const value: number = request.state[affordance.id] ?? 0;

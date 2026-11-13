@@ -13,7 +13,17 @@ export function MotionNav(props: {
   actions: number;
   current: string | null;
 }): ReactElement {
-  const item = (href: string, label: string, count: number | null, key: string | null): ReactElement => (
+  const item: (
+    href: string,
+    label: string,
+    count: number | null,
+    key: string | null,
+  ) => ReactElement = (
+    href: string,
+    label: string,
+    count: number | null,
+    key: string | null,
+  ): ReactElement => (
     <li key={href}>
       <Link
         href={href}
@@ -32,7 +42,12 @@ export function MotionNav(props: {
         {item("/motions/actions/", "Actions", props.actions, "actions")}
         {props.families.map(
           (family: { name: string; rows: number }): ReactElement =>
-            item(`/motions/${family.name}/`, family.name, family.rows, family.name),
+            item(
+              `/motions/${family.name}/`,
+              family.name,
+              family.rows,
+              family.name,
+            ),
         )}
       </ul>
     </nav>

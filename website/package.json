@@ -2,7 +2,7 @@
   "private": true,
   "name": "@automovie/website",
   "version": "0.1.0",
-  "description": "automovie website: the composition playground and the gallery published at https://samchon.github.io/automovie/",
+  "description": "automovie website: scenes, the motion reference, the objects, the polygon man, the playground and the docs, published at https://samchon.github.io/automovie/",
   "scripts": {
     "build": "pnpm run build:prepare && next build && pnpm run build:finalize",
     "bake": "ttsx --no-plugins -P build/tsconfig.json build/bake.ts",

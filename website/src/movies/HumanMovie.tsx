@@ -1,6 +1,12 @@
 "use client";
 
-import { type ReactElement, type RefObject, useEffect, useRef, useState } from "react";
+import {
+  type ReactElement,
+  type RefObject,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import { SceneView } from "../components/scenes/SceneView";
 import type { IHumanEntry } from "../human/structures/IHumanEntry";
@@ -19,7 +25,9 @@ const LINEUP: IScene = SCENES.find((s: IScene): boolean => s.id === "lineup")!;
  * @param props The bodies with their measures, as the bake recorded them.
  * @returns The page.
  */
-export default function HumanMovie(props: { bodies: IHumanEntry[] }): ReactElement {
+export default function HumanMovie(props: {
+  bodies: IHumanEntry[];
+}): ReactElement {
   const [clock] = useState<SceneClock>((): SceneClock => new SceneClock(false));
   const [chosen, setChosen] = useState<string>(props.bodies[0]?.id ?? "");
   const [inspecting, setInspecting] = useState<string | null>(null);
@@ -28,13 +36,13 @@ export default function HumanMovie(props: { bodies: IHumanEntry[] }): ReactEleme
   );
 
   return (
-    <div className="am-app">
+    <div className="am-app" data-pagefind-body>
       <header className="am-app-head">
         <h1>Human</h1>
         <p className="am-lede">
           The polygon man: a few plain primitives over the skeleton{" "}
-          <code>@automovie/human</code> generates from a person&apos;s
-          measures. Every scene on this site is performed by these bodies.
+          <code>@automovie/human</code> generates from a person&apos;s measures.
+          Every scene on this site is performed by these bodies.
         </p>
       </header>
 
@@ -42,7 +50,8 @@ export default function HumanMovie(props: { bodies: IHumanEntry[] }): ReactEleme
         <section aria-label="The bodies" className="am-player">
           <SceneView scene={LINEUP} take={0} clock={clock} orbit />
           <p className="am-muted am-small">
-            Left to right: {props.bodies.map((b: IHumanEntry): string => b.label).join("; ")}.
+            Left to right:{" "}
+            {props.bodies.map((b: IHumanEntry): string => b.label).join("; ")}.
             Drag to turn, double-click to frame again.
           </p>
         </section>
@@ -120,7 +129,8 @@ function Inspector(props: { body: string }): ReactElement {
         setState("");
       })
       .catch((error: unknown): void => {
-        if (alive) setState(error instanceof Error ? error.message : String(error));
+        if (alive)
+          setState(error instanceof Error ? error.message : String(error));
       });
     return (): void => {
       alive = false;
