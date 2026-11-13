@@ -25,12 +25,18 @@ import { TestValidator } from "@nestia/e2e";
  *    often as 8 (linear, with room for the events' re-scans).
  * 3. Without them, 16 strikes measure it more than 3 times as often as 8: the
  *    quadratic cost the spans remove, so scenario 2 tells the two apart.
+ * 4. A strike flying through a plate 10 mm thick at x = 0, touching it from
+ *    1.47 to 1.53 s, with a span declared as [1, 1.469], meets nothing,
+ *    though the scan's first step past the span (1.475 s) lies inside the
+ *    plate: outside its span a weapon meets nothing, whatever its path says.
+ * 5. A span with a non-finite end, or one that ends before it begins,
+ *    throws.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public resolver with and without declared spans and reads its events and the bodies' measurements; a span that changes a result, or a scan that still covers the whole performance, fails.
  * @evidence contracts/development/testing.md#independent-expectations Contact seconds are solved by hand from straight paths; the growth bounds are those of a linear and a quadratic count, read from the counts, never from the resolver's code.
- * @evidence contracts/development/testing.md#distinguishing-cases Weapons that hit and weapons that miss, two sizes, with and without spans.
+ * @evidence contracts/development/testing.md#distinguishing-cases Weapons that hit and weapons that miss, two sizes, with and without spans, a crossing outside the declared span and malformed spans.
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit; it runs in CI.
- * @evidence contracts/development/common.md#meaningful-documentation States the geometry, the expected seconds, the bounds and the 3 scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation States the geometry, the expected seconds, the bounds and the 5 scenarios.
  */
 export function test_motion_contact_events_live_span(): void {
   const far: IAutoMovieVector3 = { x: -1e6, y: 0, z: 0 };
@@ -110,4 +116,58 @@ export function test_motion_contact_events_live_span(): void {
     `without spans, 16 strikes measure ${whole.toFixed(2)} times as often as 8 (${counts.whole.join(" and ")} calls), more than 3`,
     whole > 3,
   );
+
+  // 4. A crossing outside the declared span is no contact.
+  const plate: resolveAutoMovieContactEvents.IBody = {
+    id: "plate",
+    distance: (p: IAutoMovieVector3): number => Math.abs(p.x) - 0.01,
+  };
+  const outside: resolveAutoMovieContactEvents.IEvent[] =
+    resolveAutoMovieContactEvents({
+      weapons: [
+        {
+          id: "w",
+          owner: "S",
+          radius: 0.05,
+          from: 1,
+          to: 1.469,
+          position: (t: number): IAutoMovieVector3 => ({
+            x: -1 + 2 * (t - 1),
+            y: 0,
+            z: 0,
+          }),
+        },
+      ],
+      bodies: [plate],
+      from: 0,
+      to: 3,
+      step: 1 / 120,
+    });
+  TestValidator.predicate(
+    `a crossing from 1.47 to 1.53 s just past the span [1, 1.469] meets nothing (${outside.length} events)`,
+    outside.length === 0,
+  );
+  // 5. Malformed spans throw.
+  for (const [label, span] of [
+    ["an infinite start", { from: -Infinity, to: 1 }],
+    ["a NaN end", { from: 0, to: Number.NaN }],
+    ["a span ending before it begins", { from: 2, to: 1 }],
+  ] as const)
+    TestValidator.error(label, (): unknown =>
+      resolveAutoMovieContactEvents({
+        weapons: [
+          {
+            id: "w",
+            owner: "S",
+            radius: 0.05,
+            ...span,
+            position: (): IAutoMovieVector3 => far,
+          },
+        ],
+        bodies: [plate],
+        from: 0,
+        to: 3,
+        step: 1 / 120,
+      }),
+    );
 }

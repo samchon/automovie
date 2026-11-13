@@ -52,7 +52,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  *
  * @param input The weapons, the bodies and the span.
  * @returns The stops, in time order.
- * @throws {Error} When the span or the step is not positive, a weapon id repeats, a capsule weapon meets a body that measures no segment, or a body names a carried weapon that is not its own.
+ * @throws {Error} When the span or the step is not positive, a weapon id repeats, a weapon's live span is not finite or ends before it begins, a capsule weapon meets a body that measures no segment, or a body names a carried weapon that is not its own.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the method, its determinism, its tie rule and what it does not model.
  * @evidence contracts/development/implementation.md#principled-implementation The time-ordered event loop of impulse-based simulation over continuous first-impact times.
@@ -72,13 +72,26 @@ export function resolveAutoMovieContactEvents(
   for (const w of input.weapons) {
     if (ids.has(w.id)) throw new Error(`Repeated contact weapon ${w.id}`);
     ids.add(w.id);
+    if (
+      (w.from !== undefined && !Number.isFinite(w.from)) ||
+      (w.to !== undefined && !Number.isFinite(w.to)) ||
+      (w.from !== undefined && w.to !== undefined && w.to < w.from)
+    )
+      throw new Error(
+        `Contact weapon ${w.id} has a live span that is not finite or ends before it begins`,
+      );
   }
   const stopped: Map<string, number> = new Map();
   const events: resolveAutoMovieContactEvents.IEvent[] = [];
   // In the order the weapons become live, so the earliest impact is found
   // early and bounds the scans after it; ties in time go to the lesser id.
-  const weapons = [...input.weapons].sort(
-    (a, b) =>
+  const weapons: resolveAutoMovieContactEvents.IWeapon[] = [
+    ...input.weapons,
+  ].sort(
+    (
+      a: resolveAutoMovieContactEvents.IWeapon,
+      b: resolveAutoMovieContactEvents.IWeapon,
+    ): number =>
       (a.from ?? -Infinity) - (b.from ?? -Infinity) ||
       (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
   );
@@ -89,7 +102,7 @@ export function resolveAutoMovieContactEvents(
       if (stopped.has(weapon.id)) continue;
       if (best !== undefined && (weapon.from ?? -Infinity) > best.seconds)
         break;
-      const hit = firstImpact(
+      const hit: { against: string; seconds: number } | undefined = firstImpact(
         weapon,
         input,
         stopped,
@@ -165,10 +178,10 @@ export namespace resolveAutoMovieContactEvents {
     /** The sphere's radius, metres. */
     radius: number;
 
-    /** When the weapon starts to be live, seconds; it meets nothing before. The span's start when absent. */
+    /** When the weapon starts to be live, seconds, finite; it meets nothing before, whatever its path says. The span's start when absent. */
     from?: number;
 
-    /** When it stops being live, seconds; it meets nothing after. The span's end when absent. */
+    /** When it stops being live, seconds, finite and not before `from`; it meets nothing after, whatever its path says. The span's end when absent. */
     to?: number;
 
     /**
@@ -287,7 +300,12 @@ function firstImpact(
   from: number,
   horizon: number,
 ): { against: string; seconds: number } | undefined {
+  const live: number = weapon.from ?? -Infinity;
+  const until: number = Math.min(input.to, weapon.to ?? Infinity);
   const gap = (t: number): { distance: number; against: string } => {
+    // Outside its live span the weapon meets nothing, whatever its path.
+    if (t < live || t > (weapon.to ?? Infinity))
+      return { distance: Infinity, against: "" };
     const p: IAutoMovieVector3 = weapon.position(t, stops);
     const q: IAutoMovieVector3 | undefined = weapon.tail?.(t, stops);
     let best: { distance: number; against: string } = {
@@ -315,13 +333,11 @@ function firstImpact(
   // Outside its live span the weapon meets nothing, so the scan starts at
   // the last of its steps before that span and ends at the first step past
   // it: the same steps, and so the same result, as scanning from `from`.
-  const live: number = weapon.from ?? -Infinity;
-  const until: number = Math.min(input.to, weapon.to ?? Infinity);
   if (until < from) return undefined;
   const first: number =
     live > from ? Math.max(1, Math.floor((live - from) / input.step)) : 1;
   if (first === 1) {
-    const start = gap(from);
+    const start: { distance: number; against: string } = gap(from);
     if (start.distance <= 0) return { against: start.against, seconds: from };
   }
   let previous: number = first === 1 ? from : from + (first - 1) * input.step;
