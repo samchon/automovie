@@ -56,6 +56,19 @@ export namespace HumanEmblem {
     side: "right",
   });
 
+  /** The blown kiss's send, performed after `blownKiss`: the open hand, palm up, swept forward from the lips to a point ahead of the chin and held a moment (first pass: the point is 1.3 m above the floor and 0.45 m ahead of the performer in metres, not yet scaled to the body, provisional). */
+  export const blownKissSend = HumanActionRow.of("blownKissSend", touch, {
+    target: {
+      kind: "point",
+      at: { x: 0, y: 1.3, z: 0.45 },
+      frame: "performer",
+      normal: { x: 0, y: -1, z: 0 },
+    },
+    with: "palm",
+    kind: "hold",
+    hold: 0.3,
+  });
+
   /** A blown kiss: the fingertips to the lips, then away (provisional: the outward throw is the retraction). The hand leans half way between upright and level, the fingers pointing up and back at the mouth with the palm toward the chin, so the forearm comes from below. */
   export const blownKiss = HumanActionRow.of("blownKiss", handToFace, {
     task: {
