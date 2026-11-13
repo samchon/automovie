@@ -309,6 +309,8 @@ namespace FamilyConicBody {
    * the stored arm uses neither.
    */
   const ARM_GROOVES: number[] = (process.argv.find((a: string): boolean => a.startsWith("--arm-grooves="))?.slice("--arm-grooves=".length) ?? "").split(",").filter((x: string): boolean => x.length > 0).map(Number);
+  /** `--arm-features=<anchor indices>`: the arm fitted with a groove of three feature anchors (`FamilyConicSection.featured`) after each listed anchor of `limb(1)`; a trial. */
+  const ARM_FEATURES: number[] = (process.argv.find((a: string): boolean => a.startsWith("--arm-features="))?.slice("--arm-features=".length) ?? "").split(",").filter((x: string): boolean => x.length > 0).map(Number);
   const PINNA_GROOVES: number[] = (process.argv.find((a: string): boolean => a.startsWith("--pinna-grooves="))?.slice("--pinna-grooves=".length) ?? "").split(",").filter((x: string): boolean => x.length > 0).map(Number);
 
   /**
@@ -368,15 +370,6 @@ namespace FamilyConicBody {
    * the rail however it was placed, since the supra-alar hollow's deepest part lies on the band.
    */
   const SIDE_NET: number[] | undefined = process.argv.find((a: string): boolean => a.startsWith("--side-net="))?.slice(11).split(",").map(Number);
-
-  /**
-   * `--nose-grooves=<anchors>`: the nose fitted to its skin (`IPart.skin`, outermost crossing) with a groove of two inflection lines after
-   * each listed anchor of the depth-1 limb layout (`inflected`), its nostrils' pits left out so the cutters keep them, and no cast nets.
-   */
-  const NOSE_FEATURES: boolean = process.argv.includes("--nose-features");
-  const NOSE_VERTICAL: boolean = process.argv.includes("--nose-vertical");
-  const NOSE_DEPTH: number = Number(process.argv.find((a: string): boolean => a.startsWith("--nose-depth="))?.slice(13) ?? 1);
-  const NOSE_GROOVES: number[] | undefined = process.argv.find((a: string): boolean => a.startsWith("--nose-grooves="))?.slice(15).split(",").filter((x: string): boolean => x.length > 0).map(Number);
 
   /** Where the nose's band lands on it at a phase, mm from its first station (`AutoMovieHumanF1.NOSE_RAILS_MM`). */
   const NOSE_RAIL: (phi: number) => number = AutoMovieNaturalSpline.periodic(AutoMovieHumanF1.NOSE_RAILS_MM);
@@ -783,7 +776,7 @@ namespace FamilyConicBody {
         // section's chain lost an arc. Until that is understood the hand keeps this course and closes at the webs.
         // It starts 2 mm past the armscye's plane and fans round the shoulder (`ARM_ROOT`); round that turn the cap's top sweeps about 2.5
         // times faster than the station, so its knots may stand 6 mm apart, as round the ankle.
-        { name: "arm", centres: armCentres, course: "[J.armRoot, J.armTurn, J.lowerarm, J.hand, J.middle1, J.toward(J.middle1, [[J.index1, J.index2], [J.middle1, J.middle2], [J.ring1, J.ring2], [J.pinky1, J.pinky2]], " + KNUCKLE.reach + ")]", halves: armHalves, up: arm.up, domain: [arm.plane + 2, KNUCKLE.end], gap: (s: number): number => (s < arm.turned ? 6 : GAP_MM), tip: KNUCKLE.end + 15, cap: 570.45, covered: true, mirrored: true, layouts: ARM_GROOVES.length === 0 ? LIMB : [{ layout: C.inflected(1, ARM_GROOVES), depth: 1 }], ...(process.argv.includes("--arm-skin") ? { skin: "outer" as const } : {}), reliefs: "auto", rounds: [
+        { name: "arm", centres: armCentres, course: "[J.armRoot, J.armTurn, J.lowerarm, J.hand, J.middle1, J.toward(J.middle1, [[J.index1, J.index2], [J.middle1, J.middle2], [J.ring1, J.ring2], [J.pinky1, J.pinky2]], " + KNUCKLE.reach + ")]", halves: armHalves, up: arm.up, domain: [arm.plane + 2, KNUCKLE.end], gap: (s: number): number => (s < arm.turned ? 6 : GAP_MM), tip: KNUCKLE.end + 15, cap: 570.45, covered: true, mirrored: true, layouts: ARM_FEATURES.length > 0 ? [{ layout: C.featured(C.limb(1), ARM_FEATURES.map((after: number) => ({ after, anchors: [{ kind: "f" as const, feature: "inflection" as const, window: [0.15, 0.45] as [number, number] }, { kind: "f" as const, feature: "concave" as const, window: [0.3, 0.7] as [number, number] }, { kind: "f" as const, feature: "inflection" as const, window: [0.55, 0.85] as [number, number] }] }))), depth: 1 }] : ARM_GROOVES.length === 0 ? LIMB : [{ layout: C.inflected(1, ARM_GROOVES), depth: 1 }], ...(process.argv.includes("--arm-skin") ? { skin: "outer" as const } : {}), reliefs: "auto", rounds: [
           // The forearm and the hand: the wall of two conics a quarter left the ulna's head 2 to 4 mm inside the skin at the wrist, the web
           // between the thumb and the hand up to 11 mm full and stripes of 1 to 4 mm along the forearm (`FamilyConicDeviation.ts`), which
           // are not hollows under the tape but the wall's own misfit, on both sides of it. A net round each run takes them. Meeting in three
@@ -836,11 +829,7 @@ namespace FamilyConicBody {
 
         // The nose's free end as a short loft straight forward out of the face, closed at its tip.
         // Its course starts 5 mm behind the box's frontal plane, so its first section, half a millimetre into the box, lies on the wings.
-        // `--nose-vertical`: the nose cut out of the face's level sections as an excursion (`FamilyConicExcursion.ts nose`), on a course down
-        // the median plane 11 mm in front of x 100, which every level section but the nostrils' is star-shaped about (scratch kernel probe),
-        // fitted to its skin as a half with the supra-alar crease as a groove after the tip's extreme, and closed under the columella.
-        ...(NOSE_VERTICAL ? [{ name: "nose", centres: [[111, 1590, 0], [111, 1536, 0]] as R.V[], course: "[J.noseTop, J.noseBottom]", halves: [], up: [1, 0, 0] as R.V, domain: [8.5, 47.5] as [number, number], head: true, step: 1, gap: 3, tip: 50, covered: true, mirrored: false, excursion: "nose", skin: "outer" as const, layouts: [{ layout: NOSE_FEATURES ? C.featured(C.bilateral(NOSE_DEPTH), [{ after: 0, anchors: [{ kind: "f", feature: "inflection", window: [0.15, 0.55] }, { kind: "f", feature: "concave", window: [0.3, 0.75] }, { kind: "f", feature: "inflection", window: [0.5, 0.9] }] }]) : C.inflected(NOSE_DEPTH, NOSE_GROOVES ?? [0], C.bilateral(NOSE_DEPTH)), depth: NOSE_DEPTH }], reliefs: [] as IWindow[] }] : []),
-        { name: "nose", centres: [[108, 1556, 0], [140, 1556, 0]], course: "[J.noseRoot, J.noseTip]", halves: [], up: [0, 1, 0], domain: [5.5, 24], head: true, loose: true, step: 1, gap: 3, tip: 28, mirrored: false, layouts: NOSE_GROOVES === undefined ? LIMB : [{ layout: C.inflected(NOSE_DEPTH, NOSE_GROOVES, process.argv.includes("--nose-half") ? C.bilateral(NOSE_DEPTH) : C.limb(NOSE_DEPTH)), depth: NOSE_DEPTH }], ...(NOSE_GROOVES === undefined ? {} : { skin: "outer" as const }), clip: (p: R.V): number => (NOSE_GROOVES === undefined ? -nose(p) : Math.max(-nose(p), nostrilPit(p))), reliefs: [], casts: NOSE_GROOVES !== undefined ? [] : [
+        { name: "nose", centres: [[108, 1556, 0], [140, 1556, 0]], course: "[J.noseRoot, J.noseTip]", halves: [], up: [0, 1, 0], domain: [5.5, 24], head: true, loose: true, step: 1, gap: 3, tip: 28, mirrored: false, layouts: LIMB, clip: (p: R.V): number => -nose(p), reliefs: [], casts: [
           // The floor behind the lobule. The sections close it along the box's floor, so between each wing's outer rim and the columella
           // the hull is one flat chord at 1,543 mm, 1 to 3 mm below the reference's wing round each nostril (rays going up from below, the
           // first downward-facing skin each meets). Cast straight up from the band's rail behind the nostrils (station 8.5) to the lobule,
