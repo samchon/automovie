@@ -1,5 +1,6 @@
 import {
-  AutoMovieHumanCanonicalBody,
+  AutoMovieHumanBodies,
+  type AutoMovieHumanCanonicalBody,
   type IAutoMovieHumanParameters,
 } from "@automovie/human";
 import { type IHumanBody, createHumanBody } from "@automovie/motions";
@@ -17,8 +18,9 @@ import PEOPLE from "./MOTION_HUMAN_PEOPLE.json";
  * harness for the ends of its sweep (the harness is not a package entry
  * point, so a test cannot import it).
  *
- * A body takes about two seconds to prepare, so each is built on first use
- * and shared by every test of the process; tests must not mutate it.
+ * A body takes about two seconds to prepare, so each is prepared once by
+ * Human's producer (`AutoMovieHumanBodies`), wrapped on first use and shared
+ * by every test of the process; tests must not mutate it.
  *
  * @param name The person.
  * @returns The body.
@@ -28,10 +30,10 @@ export function motionHumanBody(name: motionHumanBody.Name): IHumanBody {
   if (known !== undefined) return known;
   const person: { mass: number; params: unknown } = PEOPLE[name];
   const prepared: AutoMovieHumanCanonicalBody.IBody =
-    AutoMovieHumanCanonicalBody.prepare(
-      person.params as IAutoMovieHumanParameters,
-      { mass: person.mass, id: name },
-    );
+    AutoMovieHumanBodies.prepare(person.params as IAutoMovieHumanParameters, {
+      mass: person.mass,
+      id: name,
+    });
   const body: IHumanBody = createHumanBody(prepared.skeleton, prepared.profile);
   BODIES.set(name, body);
   return body;
