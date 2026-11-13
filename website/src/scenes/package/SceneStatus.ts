@@ -35,7 +35,9 @@ export namespace SceneStatus {
   export function of(scene: IScene): Status {
     if (scene.composition === null) return { kind: "planned" };
     const missing: string[] = lacks(scene.composition);
-    return missing.length === 0 ? { kind: "plays" } : { kind: "waits", missing };
+    return missing.length === 0
+      ? { kind: "plays" }
+      : { kind: "waits", missing };
   }
 
   /**
@@ -58,7 +60,9 @@ export namespace SceneStatus {
     >;
     const missing: Set<string> = new Set();
 
-    const visit = (action: IPlaygroundComposition.IAction): void => {
+    const visit: (action: IPlaygroundComposition.IAction) => void = (
+      action: IPlaygroundComposition.IAction,
+    ): void => {
       if (!(action.name in HUMAN_ACTIONS) && !rows.has(action.name))
         missing.add(`the action ${action.name}`);
       if (action.over !== undefined && action.over.length !== 0) {

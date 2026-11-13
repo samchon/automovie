@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
 
 import { SceneClock } from "../../scenes/SceneClock";
 import { SceneCard } from "./SceneCard";
@@ -15,7 +15,8 @@ import { SceneCard } from "./SceneCard";
  * @returns The clock, the same one for the component's life.
  */
 export function useSceneClock(): SceneClock {
-  const [clock] = useState<SceneClock>((): SceneClock => new SceneClock(false));
+  const [clock]: [SceneClock, Dispatch<SetStateAction<SceneClock>>] =
+    useState<SceneClock>((): SceneClock => new SceneClock(false));
   useEffect((): void => {
     if (!clock.playing && !SceneCard.reduced()) clock.toggle();
   }, [clock]);

@@ -1,7 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { type ReactElement, useEffect, useState } from "react";
+import {
+  type Dispatch,
+  type ReactElement,
+  type SetStateAction,
+  useEffect,
+  useState,
+} from "react";
 
 import { SceneCard } from "../components/scenes/SceneCard";
 import { SceneView } from "../components/scenes/SceneView";
@@ -40,8 +46,10 @@ export default function LandingMovie(props: {
   const coming: IScene[] = SCENES.filter(
     (s: IScene): boolean => s.hidden !== true && !baked.has(s.id),
   );
-  const [index, setIndex] = useState<number>(0);
-  const [held, setHeld] = useState<boolean>(false);
+  const [index, setIndex]: [number, Dispatch<SetStateAction<number>>] =
+    useState<number>(0);
+  const [held, setHeld]: [boolean, Dispatch<SetStateAction<boolean>>] =
+    useState<boolean>(false);
   const stage: SceneClock = useSceneClock();
   const takes: SceneClock = useSceneClock();
   const scene: IScene | undefined = featured[index];
@@ -64,7 +72,7 @@ export default function LandingMovie(props: {
     return (): void => window.clearInterval(timer);
   }, [held, stage, featured.length]);
 
-  const step = (by: number): void => {
+  const step: (by: number) => void = (by: number): void => {
     stage.duration = 0;
     stage.seek(0);
     setIndex(

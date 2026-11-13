@@ -3,14 +3,14 @@ import type { IScene } from "../structures/IScene";
 import { SceneTakes } from "./SceneTakes";
 
 /** A region of another person, as a motion target. */
-const at = (subject: string, region: string): Record<string, unknown> => ({
-  kind: "person",
-  subject,
-  region,
-});
+function at(subject: string, region: string): Record<string, unknown> {
+  return { kind: "person", subject, region };
+}
 
 /** A floor point, as a destination. */
-const to = (x: number, z: number): Record<string, number> => ({ x, y: 0, z });
+function to(x: number, z: number): Record<string, number> {
+  return { x, y: 0, z };
+}
 
 const MEETING: IPlaygroundComposition = {
   version: 1,

@@ -65,7 +65,7 @@ export namespace SceneTrack {
       0,
     );
     const values: Int16Array = new Int16Array(frames.length * width * STRIDE);
-    const position = (metres: number): number => {
+    const position: (metres: number) => number = (metres: number): number => {
       const stored: number = Math.round(metres * POSITION_SCALE);
       if (stored < -32767 || stored > 32767)
         throw new Error(
@@ -76,31 +76,35 @@ export namespace SceneTrack {
     let k: number = 0;
     frames.forEach(
       (groups: readonly (readonly IPlacement[])[], frame: number): void =>
-        groups.forEach((placements: readonly IPlacement[], group: number): void => {
-          const order: readonly string[] = orders[group]!;
-          if (
-            placements.length !== order.length ||
-            placements.some((p: IPlacement, i: number): boolean => p.bone !== order[i])
-          )
-            throw new Error(
-              `Frame ${frame} gives group ${group} other entries than its order`,
-            );
-          for (const p of placements) {
-            values[k] = position(p.position[0]);
-            values[k + 1] = position(p.position[1]);
-            values[k + 2] = position(p.position[2]);
-
-            // q and -q are one rotation; storing the one with w ≥ 0 keeps
-            // neighbouring frames on one side, so interpolation turns the
-            // short way.
-            const sign: number = p.rotation[3] < 0 ? -1 : 1;
-            for (let c: number = 0; c < 4; c++)
-              values[k + 3 + c] = Math.round(
-                sign * p.rotation[c]! * ROTATION_SCALE,
+        groups.forEach(
+          (placements: readonly IPlacement[], group: number): void => {
+            const order: readonly string[] = orders[group]!;
+            if (
+              placements.length !== order.length ||
+              placements.some(
+                (p: IPlacement, i: number): boolean => p.bone !== order[i],
+              )
+            )
+              throw new Error(
+                `Frame ${frame} gives group ${group} other entries than its order`,
               );
-            k += STRIDE;
-          }
-        }),
+            for (const p of placements) {
+              values[k] = position(p.position[0]);
+              values[k + 1] = position(p.position[1]);
+              values[k + 2] = position(p.position[2]);
+
+              // q and -q are one rotation; storing the one with w ≥ 0 keeps
+              // neighbouring frames on one side, so interpolation turns the
+              // short way.
+              const sign: number = p.rotation[3] < 0 ? -1 : 1;
+              for (let c: number = 0; c < 4; c++)
+                values[k + 3 + c] = Math.round(
+                  sign * p.rotation[c]! * ROTATION_SCALE,
+                );
+              k += STRIDE;
+            }
+          },
+        ),
     );
     return values;
   }
@@ -127,7 +131,7 @@ export namespace SceneTrack {
     const v: Int16Array = track.values;
     let a: number = lower * width * STRIDE;
     let b: number = upper * width * STRIDE;
-    const lerp = (i: number): number =>
+    const lerp: (i: number) => number = (i: number): number =>
       (v[a + i]! + (v[b + i]! - v[a + i]!) * t) / POSITION_SCALE;
     return track.orders.map((order: string[]): IPlacement[] =>
       order.map((bone: string): IPlacement => {

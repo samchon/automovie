@@ -3,11 +3,9 @@ import type { IScene } from "../structures/IScene";
 import { SceneTakes } from "./SceneTakes";
 
 /** A region of another person, as a motion target. */
-const at = (subject: string, region: string): Record<string, unknown> => ({
-  kind: "person",
-  subject,
-  region,
-});
+function at(subject: string, region: string): Record<string, unknown> {
+  return { kind: "person", subject, region };
+}
 
 const SPARRING: IPlaygroundComposition = {
   version: 1,
@@ -23,11 +21,41 @@ const SPARRING: IPlaygroundComposition = {
       actions: [
         { name: "guard", params: { seconds: 0.8, facing: at("blue", "face") } },
         { name: "step", params: { direction: "forward", steps: 1 } },
-        { name: "punch", params: { technique: "straight", hand: "lead", at: at("blue", "face") }, anchor: "jab" },
-        { name: "punch", params: { technique: "straight", hand: "rear", at: at("blue", "chin") }, anchor: "cross" },
-        { name: "kick", params: { technique: "round", leg: "rear", at: at("blue", "ribsLeft") } },
+        {
+          name: "punch",
+          params: {
+            technique: "straight",
+            hand: "lead",
+            at: at("blue", "face"),
+          },
+          anchor: "jab",
+        },
+        {
+          name: "punch",
+          params: {
+            technique: "straight",
+            hand: "rear",
+            at: at("blue", "chin"),
+          },
+          anchor: "cross",
+        },
+        {
+          name: "kick",
+          params: {
+            technique: "round",
+            leg: "rear",
+            at: at("blue", "ribsLeft"),
+          },
+        },
         { name: "guard", params: { seconds: 0.6, facing: at("blue", "face") } },
-        { name: "punch", params: { technique: "hook", hand: "lead", at: at("blue", "jawRight") } },
+        {
+          name: "punch",
+          params: {
+            technique: "hook",
+            hand: "lead",
+            at: at("blue", "jawRight"),
+          },
+        },
         { name: "clinch", params: { partner: "blue" } },
         { name: "knee", params: { at: at("blue", "abdomen") } },
         { name: "step", params: { direction: "back", steps: 1 } },
@@ -45,9 +73,19 @@ const SPARRING: IPlaygroundComposition = {
         { name: "guard", params: { seconds: 1.2, facing: at("red", "face") } },
         { name: "defend", params: { kind: "parry", against: "jab" } },
         { name: "defend", params: { kind: "slip", against: "cross" } },
-        { name: "flinch", params: { from: at("red", "sternum"), intensity: 0.6 } },
+        {
+          name: "flinch",
+          params: { from: at("red", "sternum"), intensity: 0.6 },
+        },
         { name: "guard", params: { seconds: 0.4, facing: at("red", "face") } },
-        { name: "punch", params: { technique: "straight", hand: "rear", at: at("red", "face") } },
+        {
+          name: "punch",
+          params: {
+            technique: "straight",
+            hand: "rear",
+            at: at("red", "face"),
+          },
+        },
         { name: "step", params: { direction: "left", steps: 1 } },
         { name: "guard", params: { seconds: 1, facing: at("red", "face") } },
       ],

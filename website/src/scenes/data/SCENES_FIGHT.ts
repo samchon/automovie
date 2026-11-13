@@ -1,7 +1,7 @@
 import type { IScene } from "../structures/IScene";
 import { SceneBuild } from "./SceneBuild";
 
-const { act, at, object, person, scene } = SceneBuild;
+const { act, at, object, person, scene }: typeof SceneBuild = SceneBuild;
 
 /** The combat scenes composed from the lexicon's blade, stage-fight and firearm families of #3392. */
 export const SCENES_FIGHT: readonly IScene[] = [
@@ -105,21 +105,23 @@ export const SCENES_FIGHT: readonly IScene[] = [
     {
       id: "firing-range",
       title: "Firing range",
-      summary: "Three shooters at a range: low and high ready, aim, recoil, and a reload.",
+      summary:
+        "Three shooters at a range: low and high ready, aim, recoil, and a reload.",
       setting: "combat",
       roles: { f1: "shooter", f2: "shooter", f3: "shooter" },
       needs: [3392, 3488],
       skill: "novice",
     },
     "range",
-    [-1.2, 0, 1.2].map((x: number, i: number): SceneBuild.Performer =>
-      person(`f${i + 1}`, ["m1", "f1", "m2"][i]!, x, 0, 0, [
-        act("lowReady"),
-        act("aim"),
-        act("recoil"),
-        act("reload"),
-        act("highReady", { seconds: 1 }),
-      ]),
+    [-1.2, 0, 1.2].map(
+      (x: number, i: number): SceneBuild.Performer =>
+        person(`f${i + 1}`, ["m1", "f1", "m2"][i]!, x, 0, 0, [
+          act("lowReady"),
+          act("aim"),
+          act("recoil"),
+          act("reload"),
+          act("highReady", { seconds: 1 }),
+        ]),
     ),
   ),
 ];

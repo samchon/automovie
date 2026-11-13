@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactElement } from "react";
+import type { ChangeEvent, ReactElement } from "react";
 
 import type { IPlaygroundVocabulary } from "../../playground/structures/IPlaygroundVocabulary";
 import { PlaygroundJsonField } from "./PlaygroundJsonField";
@@ -25,7 +25,7 @@ export function PlaygroundSchemaForm(props: {
   /** Hear the changed parameters. */
   onChange: (value: Record<string, unknown>) => void;
 }): ReactElement {
-  const { fields, value } = props;
+  const { fields, value }: typeof props = props;
   const simple: IPlaygroundVocabulary.IParameter[] = fields.filter(
     (f: IPlaygroundVocabulary.IParameter): boolean => f.kind !== "json",
   );
@@ -37,7 +37,10 @@ export function PlaygroundSchemaForm(props: {
       ([key]: [string, unknown]): boolean => !named.has(key),
     ),
   );
-  const set = (name: string, member: unknown): void => {
+  const set: (name: string, member: unknown) => void = (
+    name: string,
+    member: unknown,
+  ): void => {
     const next: Record<string, unknown> = { ...value };
     if (member === undefined) delete next[name];
     else next[name] = member;
@@ -61,7 +64,7 @@ export function PlaygroundSchemaForm(props: {
                 {label}
                 <select
                   value={typeof current === "string" ? current : ""}
-                  onChange={(event): void =>
+                  onChange={(event: ChangeEvent<HTMLSelectElement>): void =>
                     set(
                       field.name,
                       event.target.value === ""
@@ -91,7 +94,7 @@ export function PlaygroundSchemaForm(props: {
                 {label}
                 <select
                   value={typeof current === "boolean" ? String(current) : ""}
-                  onChange={(event): void =>
+                  onChange={(event: ChangeEvent<HTMLSelectElement>): void =>
                     set(
                       field.name,
                       event.target.value === ""
@@ -126,7 +129,7 @@ export function PlaygroundSchemaForm(props: {
                     ? `${field.minimum} to ${field.maximum}`
                     : undefined
                 }
-                onChange={(event): void =>
+                onChange={(event: ChangeEvent<HTMLInputElement>): void =>
                   set(
                     field.name,
                     event.target.value === ""

@@ -2,7 +2,9 @@ import type { IAutoMovieCapturePlanRequest } from "@automovie/render";
 import {
   type CSSProperties,
   type ChangeEvent,
+  type Dispatch,
   type JSX,
+  type SetStateAction,
   useState,
 } from "react";
 
@@ -31,7 +33,10 @@ export function AutoMovieInspectorRequestPanel(props: {
   dispatch: (action: IAutoMovieInspectorAction) => void;
 }): JSX.Element {
   const [typed, setTyped] = useState<string | null>(null);
-  const [copied, setCopied] = useState<string | null>(null);
+  const [copied, setCopied]: [
+    string | null,
+    Dispatch<SetStateAction<string | null>>,
+  ] = useState<string | null>(null);
   const commit: () => void = (): void => {
     if (typed === null) return;
     setTyped(null);

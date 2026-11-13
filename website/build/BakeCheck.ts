@@ -8,10 +8,11 @@ import { BakeSetup } from "./BakeSetup";
 
 /** Planning the scenes, or single actions, without posing them. */
 export namespace BakeCheck {
-  const { options } = BakeSetup;
+  /** The parsed command line. */
+  const options: BakeSetup.IOptions = BakeSetup.options;
 
   /** Plan each named action alone on one standing person with no parameters, and say whether the package plans it, refuses it in its own words, or fails in its code. */
-  const rows = (): void => {
+  const rows: () => void = (): void => {
     for (const name of options.rows) {
       const composition: IPlaygroundComposition = {
         version: 1,
@@ -46,7 +47,7 @@ export namespace BakeCheck {
   };
 
   /** Plan the first take of every scene that plays, without posing it, and list every refusal and every scene that waits. */
-  export const check = (): void => {
+  export const check: () => void = (): void => {
     if (options.rows.length !== 0) return rows();
     const refused: string[] = [];
     for (const scene of SCENES) {

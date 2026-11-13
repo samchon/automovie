@@ -1,6 +1,12 @@
 "use client";
 
-import { type ReactElement, useState } from "react";
+import {
+  type ChangeEvent,
+  type Dispatch,
+  type ReactElement,
+  type SetStateAction,
+  useState,
+} from "react";
 
 import type { IGalleryCatalogue } from "../../gallery/structures/IGalleryCatalogue";
 import type { IGalleryRequest } from "../../gallery/structures/IGalleryRequest";
@@ -32,7 +38,10 @@ export function GalleryDetails(props: {
   onChange: (request: IGalleryRequest) => void;
 }): ReactElement {
   const { subject, request, view } = props;
-  const [tab, setTab] = useState<"specs" | "customise">("specs");
+  const [tab, setTab]: [
+    "specs" | "customise",
+    Dispatch<SetStateAction<"specs" | "customise">>,
+  ] = useState<"specs" | "customise">("specs");
   return (
     <aside className="am-gallery-facts" aria-label="Details">
       <section className="am-panel am-stack">
@@ -118,7 +127,7 @@ export function GalleryDetails(props: {
             <input
               type="checkbox"
               checked={request.affordances}
-              onChange={(event): void =>
+              onChange={(event: ChangeEvent<HTMLInputElement>): void =>
                 props.onChange({
                   ...request,
                   affordances: event.target.checked,

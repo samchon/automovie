@@ -66,15 +66,18 @@ export function PlaygroundActionEditor(props: {
 
   // A lexicon row with a schema is edited through fields generated from it;
   // anything else through JSON.
-  const fields: IPlaygroundVocabulary.IParameter[] | undefined = vocabulary.lexicon
-    .map(
-      (f: IPlaygroundVocabulary.IFamily): IPlaygroundVocabulary.IParameter[] | undefined =>
-        f.parameters[action.name],
-    )
-    .find(
-      (found: IPlaygroundVocabulary.IParameter[] | undefined): boolean =>
-        found !== undefined,
-    );
+  const fields: IPlaygroundVocabulary.IParameter[] | undefined =
+    vocabulary.lexicon
+      .map(
+        (
+          f: IPlaygroundVocabulary.IFamily,
+        ): IPlaygroundVocabulary.IParameter[] | undefined =>
+          f.parameters[action.name],
+      )
+      .find(
+        (found: IPlaygroundVocabulary.IParameter[] | undefined): boolean =>
+          found !== undefined,
+      );
 
   const set = (patch: Partial<IPlaygroundComposition.IAction>): void => {
     const next: IPlaygroundComposition.IAction = { ...action, ...patch };
@@ -155,7 +158,9 @@ export function PlaygroundActionEditor(props: {
           label="Parameters (JSON)"
           value={action.params}
           optional={false}
-          onChange={(value): void => set({ params: value ?? {} })}
+          onChange={(value: Record<string, unknown> | undefined): void =>
+            set({ params: value ?? {} })
+          }
         />
       ) : (
         <PlaygroundSchemaForm

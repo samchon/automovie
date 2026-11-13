@@ -36,11 +36,12 @@ export function GrammarTable(): ReactElement {
         by several people arrive with the composition campaign.
       </p>
     );
-  const { axes, operators } = grammar as {
-    axes: IEntry[];
-    operators: IEntry[];
-  };
-  const table = (caption: string, rows: IEntry[]): ReactElement => (
+  const { axes, operators }: { axes: IEntry[]; operators: IEntry[] } =
+    grammar as { axes: IEntry[]; operators: IEntry[] };
+  const table: (caption: string, rows: IEntry[]) => ReactElement = (
+    caption: string,
+    rows: IEntry[],
+  ): ReactElement => (
     <table>
       <caption>{caption}</caption>
       <thead>

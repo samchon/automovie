@@ -23,7 +23,7 @@ export function TransportKeys(props: {
   label: string;
   children: ReactNode;
 }): ReactElement {
-  const { clock } = props;
+  const { clock }: typeof props = props;
   const keys: (event: KeyboardEvent<HTMLElement>) => void = (
     event: KeyboardEvent<HTMLElement>,
   ): void => {

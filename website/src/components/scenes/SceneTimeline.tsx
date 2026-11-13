@@ -13,7 +13,7 @@ export function SceneTimeline(props: {
   take: ISceneManifest.ITake;
   roles: Record<string, string>;
 }): ReactElement {
-  const { take } = props;
+  const { take }: typeof props = props;
   const share: (seconds: number) => string = (seconds: number): string =>
     `${((100 * seconds) / Math.max(1e-9, take.duration)).toFixed(3)}%`;
   return (

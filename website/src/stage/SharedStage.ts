@@ -111,7 +111,7 @@ export namespace SharedStage {
   /** Draw every visible view that changed, then ask for the next frame. */
   function loop(): void {
     if (frame !== null) return;
-    const step = (now: number): void => {
+    const step: (now: number) => void = (now: number): void => {
       frame = requestAnimationFrame(step);
       for (const entry of entries.values()) {
         const changed: boolean = entry.view.tick(now);

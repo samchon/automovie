@@ -73,7 +73,7 @@ const REFUSED: string = compressToEncodedURIComponent(
 const DRAWN: string = '.am-scene-view[aria-busy="false"] canvas';
 
 /** The scenes the build baked, read from its manifest. */
-const baked = (): string[] => {
+const baked: () => string[] = (): string[] => {
   const manifest: ISceneManifest = JSON.parse(
     fs.readFileSync(
       path.resolve(__dirname, "..", "public", "baked", "manifest.json"),

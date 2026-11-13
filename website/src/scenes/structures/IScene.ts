@@ -54,8 +54,20 @@ export interface IScene {
   hidden?: boolean;
 }
 export namespace IScene {
-  /** The settings the gallery groups scenes under, in its order. */
-  export const SETTINGS = [
+  /** A setting the gallery groups scenes under. */
+  export type Setting =
+    | "everyday"
+    | "street"
+    | "sport"
+    | "gym"
+    | "combat"
+    | "partner"
+    | "ride"
+    | "work"
+    | "troops";
+
+  /** The settings the gallery groups scenes under, in its order; each label of `SETTING_LABELS` names one. */
+  export const SETTINGS: readonly Setting[] = [
     "everyday",
     "street",
     "sport",
@@ -65,10 +77,7 @@ export namespace IScene {
     "ride",
     "work",
     "troops",
-  ] as const;
-
-  /** A setting. */
-  export type Setting = (typeof SETTINGS)[number];
+  ];
 
   /** What the gallery's chips call each setting. */
   export const SETTING_LABELS: Readonly<Record<Setting, string>> = {

@@ -12,6 +12,7 @@ export async function loadGalleryCard(
   subject: string,
   variant: string,
 ): Promise<IGalleryCard> {
-  const { GalleryCard } = await import("./package/GalleryCard");
+  const { GalleryCard }: typeof import("./package/GalleryCard") =
+    await import("./package/GalleryCard");
   return GalleryCard.build(subject, variant);
 }

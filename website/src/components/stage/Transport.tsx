@@ -1,6 +1,13 @@
 "use client";
 
-import { type ReactElement, useEffect, useState } from "react";
+import {
+  type ChangeEvent,
+  type Dispatch,
+  type ReactElement,
+  type SetStateAction,
+  useEffect,
+  useState,
+} from "react";
 
 import type { SceneClock } from "../../scenes/SceneClock";
 
@@ -16,8 +23,9 @@ const SPEEDS: readonly number[] = [0.25, 0.5, 1, 1.5, 2];
  * @returns The bar.
  */
 export function Transport(props: { clock: SceneClock }): ReactElement {
-  const { clock } = props;
-  const [, rerender] = useState<number>(0);
+  const { clock }: typeof props = props;
+  const [, rerender]: [number, Dispatch<SetStateAction<number>>] =
+    useState<number>(0);
 
   // The bar follows the clock: its own changes at once, the playing time a
   // few times a second.
@@ -54,7 +62,9 @@ export function Transport(props: { clock: SceneClock }): ReactElement {
         value={clock.time}
         aria-label="Time"
         aria-valuetext={`${clock.time.toFixed(2)} seconds, frame ${frame} of ${frames}`}
-        onChange={(event): void => clock.seek(Number(event.target.value))}
+        onChange={(event: ChangeEvent<HTMLInputElement>): void =>
+          clock.seek(Number(event.target.value))
+        }
       />
       <span className="am-transport-time am-mono">
         {clock.time.toFixed(2)} / {clock.duration.toFixed(2)} s
@@ -63,7 +73,7 @@ export function Transport(props: { clock: SceneClock }): ReactElement {
         <span className="am-visually-hidden">Speed</span>
         <select
           value={clock.speed}
-          onChange={(event): void =>
+          onChange={(event: ChangeEvent<HTMLSelectElement>): void =>
             clock.set({ speed: Number(event.target.value) })
           }
         >
@@ -80,7 +90,9 @@ export function Transport(props: { clock: SceneClock }): ReactElement {
         <input
           type="checkbox"
           checked={clock.loop}
-          onChange={(event): void => clock.set({ loop: event.target.checked })}
+          onChange={(event: ChangeEvent<HTMLInputElement>): void =>
+            clock.set({ loop: event.target.checked })
+          }
         />
         Loop
       </label>

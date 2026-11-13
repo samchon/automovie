@@ -13,6 +13,7 @@ export async function loadScenePlayer(
   scene: IScene,
   take: number,
 ): Promise<IScenePlayer> {
-  const { ScenePlayer } = await import("./package/ScenePlayer");
+  const { ScenePlayer }: typeof import("./package/ScenePlayer") =
+    await import("./package/ScenePlayer");
   return ScenePlayer.load(scene, take);
 }

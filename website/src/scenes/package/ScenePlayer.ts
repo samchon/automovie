@@ -169,7 +169,10 @@ export namespace ScenePlayer {
     const first: SceneTrack.IPlacement[][] = SceneTrack.sample(track, 0);
     const reflect: THREE.Matrix4 = new THREE.Matrix4().fromArray(reflection);
     const figures: AutoMovieHumanPolygon.IDrawing[] = rests.map(
-      (bones: AutoMovieHumanPolygon.IBone[], i: number) => {
+      (
+        bones: AutoMovieHumanPolygon.IBone[],
+        i: number,
+      ): AutoMovieHumanPolygon.IDrawing => {
         const drawing: AutoMovieHumanPolygon.IDrawing = buildHumanPolygon({
           bones,
           posed: first[i]!,
@@ -187,28 +190,30 @@ export namespace ScenePlayer {
     // Each prop as its archetype, moved by its frame.
     const objects: readonly IPlaygroundComposition.IObject[] =
       record.composition?.objects ?? [];
-    const props: THREE.Object3D[] = baked.props.map((subject: string) => {
-      const placed: IPlaygroundComposition.IObject | undefined = objects.find(
-        (o: IPlaygroundComposition.IObject): boolean => o.subject === subject,
-      );
-      const group: THREE.Group = new THREE.Group();
-      if (placed !== undefined) {
-        const model: IAutoMovieModelObject = buildModel(
-          SceneArchetype.model(placed) as Parameters<typeof buildModel>[0],
+    const props: THREE.Object3D[] = baked.props.map(
+      (subject: string): THREE.Object3D => {
+        const placed: IPlaygroundComposition.IObject | undefined = objects.find(
+          (o: IPlaygroundComposition.IObject): boolean => o.subject === subject,
         );
-        group.add(model.object);
-        disposers.push((): void =>
-          model.object.traverse((node: THREE.Object3D): void => {
-            if (!(node instanceof THREE.Mesh)) return;
-            node.geometry.dispose();
-            for (const material of [node.material].flat())
-              (material as THREE.Material).dispose();
-          }),
-        );
-      }
-      scene.add(group);
-      return group;
-    });
+        const group: THREE.Group = new THREE.Group();
+        if (placed !== undefined) {
+          const model: IAutoMovieModelObject = buildModel(
+            SceneArchetype.model(placed) as Parameters<typeof buildModel>[0],
+          );
+          group.add(model.object);
+          disposers.push((): void =>
+            model.object.traverse((node: THREE.Object3D): void => {
+              if (!(node instanceof THREE.Mesh)) return;
+              node.geometry.dispose();
+              for (const material of [node.material].flat())
+                (material as THREE.Material).dispose();
+            }),
+          );
+        }
+        scene.add(group);
+        return group;
+      },
+    );
 
     // The floor under everything the take moves through, read from the
     // first entry of every figure and prop at every second.
@@ -267,7 +272,9 @@ export namespace ScenePlayer {
       0.05,
       size * 20 + 10,
     );
-    const frame = (view: IScene.ICamera["view"]): void => {
+    const frame: (view: IScene.ICamera["view"]) => void = (
+      view: IScene.ICamera["view"],
+    ): void => {
       const distance: number =
         record.camera.distance ?? Math.max(3, size * 1.15);
       camera.position.copy(centre).addScaledVector(VIEWS[view], distance);
@@ -275,13 +282,14 @@ export namespace ScenePlayer {
     };
     frame(record.camera.view);
 
-    const seek = (seconds: number): void => {
+    const seek: (seconds: number) => void = (seconds: number): void => {
       const sampled: SceneTrack.IPlacement[][] = SceneTrack.sample(
         track,
         seconds,
       );
-      figures.forEach((drawing: AutoMovieHumanPolygon.IDrawing, i: number) =>
-        drawing.setPose({ posed: sampled[i]! }),
+      figures.forEach(
+        (drawing: AutoMovieHumanPolygon.IDrawing, i: number): void =>
+          drawing.setPose({ posed: sampled[i]! }),
       );
       props.forEach((object: THREE.Object3D, i: number): void => {
         const entry: SceneTrack.IPlacement = sampled[figures.length + i]![0]!;

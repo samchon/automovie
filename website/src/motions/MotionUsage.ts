@@ -26,8 +26,14 @@ export namespace MotionUsage {
   export function of(name: string): IUse {
     const scenes: { id: string; title: string }[] = [];
     let params: Record<string, unknown> | null = null;
-    const visit =
-      (scene: IScene, found: { hit: boolean }) =>
+    const visit: (
+      scene: IScene,
+      found: { hit: boolean },
+    ) => (action: IPlaygroundComposition.IAction) => void =
+      (
+        scene: IScene,
+        found: { hit: boolean },
+      ): ((action: IPlaygroundComposition.IAction) => void) =>
       (action: IPlaygroundComposition.IAction): void => {
         if (action.name === name) {
           found.hit = true;

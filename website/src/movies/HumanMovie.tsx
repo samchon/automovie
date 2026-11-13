@@ -1,8 +1,11 @@
 "use client";
 
 import {
+  type ChangeEvent,
+  type Dispatch,
   type ReactElement,
   type RefObject,
+  type SetStateAction,
   useEffect,
   useRef,
   useState,
@@ -28,9 +31,14 @@ const LINEUP: IScene = SCENES.find((s: IScene): boolean => s.id === "lineup")!;
 export default function HumanMovie(props: {
   bodies: IHumanEntry[];
 }): ReactElement {
-  const [clock] = useState<SceneClock>((): SceneClock => new SceneClock(false));
-  const [chosen, setChosen] = useState<string>(props.bodies[0]?.id ?? "");
-  const [inspecting, setInspecting] = useState<string | null>(null);
+  const [clock]: [SceneClock, Dispatch<SetStateAction<SceneClock>>] =
+    useState<SceneClock>((): SceneClock => new SceneClock(false));
+  const [chosen, setChosen]: [string, Dispatch<SetStateAction<string>>] =
+    useState<string>(props.bodies[0]?.id ?? "");
+  const [inspecting, setInspecting]: [
+    string | null,
+    Dispatch<SetStateAction<string | null>>,
+  ] = useState<string | null>(null);
   const body: IHumanEntry | undefined = props.bodies.find(
     (b: IHumanEntry): boolean => b.id === chosen,
   );
@@ -61,7 +69,9 @@ export default function HumanMovie(props: {
             <span className="am-label">Body</span>
             <select
               value={chosen}
-              onChange={(event): void => setChosen(event.target.value)}
+              onChange={(event: ChangeEvent<HTMLSelectElement>): void =>
+                setChosen(event.target.value)
+              }
             >
               {props.bodies.map(
                 (b: IHumanEntry): ReactElement => (
@@ -118,16 +128,21 @@ export default function HumanMovie(props: {
 /** The inspector on one body, loaded with the packages it needs on first use. */
 function Inspector(props: { body: string }): ReactElement {
   const root: RefObject<HTMLDivElement | null> = useRef(null);
-  const [state, setState] = useState<string>("Preparing the body.");
+  const [state, setState]: [string, Dispatch<SetStateAction<string>>] =
+    useState<string>("Preparing the body.");
   useEffect((): (() => void) => {
     let alive: boolean = true;
     let mounted: { unmount(): void } | null = null;
     import("../human/package/HumanInspector")
-      .then(({ HumanInspector }): void => {
-        if (!alive || root.current === null) return;
-        mounted = HumanInspector.mount(root.current, props.body);
-        setState("");
-      })
+      .then(
+        ({
+          HumanInspector,
+        }: typeof import("../human/package/HumanInspector")): void => {
+          if (!alive || root.current === null) return;
+          mounted = HumanInspector.mount(root.current, props.body);
+          setState("");
+        },
+      )
       .catch((error: unknown): void => {
         if (alive)
           setState(error instanceof Error ? error.message : String(error));

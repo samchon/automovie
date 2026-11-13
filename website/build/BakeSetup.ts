@@ -129,9 +129,9 @@ export namespace BakeSetup {
   }
 
   /** A digest of every source file of the packages a track is computed from, of the site code that computes it, and of the format. */
-  export const sources = (): string => {
+  export const sources: () => string = (): string => {
     const hash: crypto.Hash = crypto.createHash("sha256");
-    const walk = (dir: string): void => {
+    const walk: (dir: string) => void = (dir: string): void => {
       for (const entry of fs
         .readdirSync(dir, { withFileTypes: true })
         .sort((a: fs.Dirent, b: fs.Dirent): number =>
@@ -158,7 +158,7 @@ export namespace BakeSetup {
   };
 
   /** Every take of every scene that plays, in the order shares are dealt. */
-  export const plan = (): IJob[] => {
+  export const plan: () => IJob[] = (): IJob[] => {
     const base: string = sources();
     return SCENES.filter(
       (scene: IScene): boolean =>
@@ -190,12 +190,12 @@ export namespace BakeSetup {
    * manifest, then those of any share's part, as a CI runner restores its own
    * share from its cache.
    */
-  export const previous = (): Record<
+  export const previous: () => Record<
     string,
     Record<number, ISceneManifest.ITake>
-  > => {
+  > = (): Record<string, Record<number, ISceneManifest.ITake>> => {
     const known: Record<string, Record<number, ISceneManifest.ITake>> = {};
-    const read = (file: string): unknown => {
+    const read: (file: string) => unknown = (file: string): unknown => {
       try {
         return JSON.parse(fs.readFileSync(file, "utf8"));
       } catch {
@@ -217,7 +217,7 @@ export namespace BakeSetup {
   };
 
   /** A take's stable number: from its scene and index, so adding a scene or a take moves no other take to another machine or process. */
-  export const hash = (job: IJob): number => {
+  export const hash: (job: IJob) => number = (job: IJob): number => {
     let value: number = 0;
     for (const char of `${job.scene.id}#${job.index}`)
       value = (value * 31 + char.charCodeAt(0)) >>> 0;
@@ -225,7 +225,7 @@ export namespace BakeSetup {
   };
 
   /** The takes this machine bakes: all of them, or its runner's part. */
-  export const mine = (): IJob[] =>
+  export const mine: () => IJob[] = (): IJob[] =>
     plan().filter(
       (job: IJob): boolean =>
         options.runner === null ||
@@ -233,12 +233,19 @@ export namespace BakeSetup {
     );
 
   /** A figure's placed actions, with those performed over others where the installed release has overlays. */
-  export const spans = (
+  export const spans: (
+    performance: HumanPerformance,
+    subject: string,
+  ) => ISceneManifest.ISpan[] = (
     performance: HumanPerformance,
     subject: string,
   ): ISceneManifest.ISpan[] => {
-    const span =
-      (overlay: boolean) =>
+    const span: (
+      overlay: boolean,
+    ) => (segment: HumanSegment.ISegment) => ISceneManifest.ISpan =
+      (
+        overlay: boolean,
+      ): ((segment: HumanSegment.ISegment) => ISceneManifest.ISpan) =>
       (segment: HumanSegment.ISegment): ISceneManifest.ISpan => ({
         name: segment.name,
         from: segment.entryTime,

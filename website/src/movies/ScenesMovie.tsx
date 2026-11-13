@@ -1,7 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { type ReactElement, useEffect, useState } from "react";
+import {
+  type ChangeEvent,
+  type Dispatch,
+  type ReactElement,
+  type SetStateAction,
+  useEffect,
+  useState,
+} from "react";
 
 import { SceneCard } from "../components/scenes/SceneCard";
 import { SCENES } from "../scenes/SCENES";
@@ -29,7 +36,8 @@ interface IFilter {
  * @returns The page.
  */
 export default function ScenesMovie(props: { baked: string[] }): ReactElement {
-  const [filter, setFilter] = useState<IFilter>({ setting: null, query: "" });
+  const [filter, setFilter]: [IFilter, Dispatch<SetStateAction<IFilter>>] =
+    useState<IFilter>({ setting: null, query: "" });
 
   // The query is read once the page runs, then kept equal to the filter.
   useEffect((): void => {
@@ -42,7 +50,7 @@ export default function ScenesMovie(props: { baked: string[] }): ReactElement {
       query: params.get("q") ?? "",
     });
   }, []);
-  const change = (next: IFilter): void => {
+  const change: (next: IFilter) => void = (next: IFilter): void => {
     setFilter(next);
     const params: URLSearchParams = new URLSearchParams();
     if (next.setting !== null) params.set("setting", next.setting);
@@ -101,7 +109,7 @@ export default function ScenesMovie(props: { baked: string[] }): ReactElement {
             type="search"
             placeholder="Search: sword, sit, wave"
             value={filter.query}
-            onChange={(event): void =>
+            onChange={(event: ChangeEvent<HTMLInputElement>): void =>
               change({ ...filter, query: event.target.value })
             }
           />

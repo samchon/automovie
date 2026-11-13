@@ -2,7 +2,14 @@ import type {
   IAutoMovieCapturePlanRequest,
   IAutoMovieInspectionRequest,
 } from "@automovie/render";
-import { type ChangeEvent, type JSX, useMemo, useState } from "react";
+import {
+  type ChangeEvent,
+  type Dispatch,
+  type JSX,
+  type SetStateAction,
+  useMemo,
+  useState,
+} from "react";
 
 import type { IAutoMovieInspectorAction } from "./IAutoMovieInspectorAction.js";
 import type { IAutoMovieInspectorPathNode } from "./IAutoMovieInspectorPathNode.js";
@@ -44,7 +51,8 @@ export function AutoMovieInspectorSelectionPanel(props: {
       buildAutoMovieInspectorPathTree(props.paths),
     [props.paths],
   );
-  const [filter, setFilter] = useState<string>("");
+  const [filter, setFilter]: [string, Dispatch<SetStateAction<string>>] =
+    useState<string>("");
   const needle: string = filter.trim().toLowerCase();
   return (
     <div>
@@ -132,8 +140,9 @@ function Row(props: {
   inspection: IAutoMovieInspectionRequest;
   dispatch: (action: IAutoMovieInspectorAction) => void;
 }): JSX.Element {
-  const { node, needle, inspection, dispatch } = props;
-  const [open, setOpen] = useState<boolean>(false);
+  const { node, needle, inspection, dispatch }: typeof props = props;
+  const [open, setOpen]: [boolean, Dispatch<SetStateAction<boolean>>] =
+    useState<boolean>(false);
   const pattern: string | null = node.pattern;
   const color: IAutoMovieInspectionRequest.IColor | undefined =
     pattern === null

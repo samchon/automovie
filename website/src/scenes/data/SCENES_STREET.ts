@@ -1,7 +1,7 @@
 import type { IScene } from "../structures/IScene";
 import { SceneBuild } from "./SceneBuild";
 
-const { act, at, person, scene, to } = SceneBuild;
+const { act, at, person, scene, to }: typeof SceneBuild = SceneBuild;
 
 /** The street scenes composed from the lexicon's gaits and pursuits of #3392. */
 export const SCENES_STREET: readonly IScene[] = [
@@ -48,18 +48,33 @@ export const SCENES_STREET: readonly IScene[] = [
       summary:
         "One person flees, another chases, a third cuts across to intercept; a fourth follows at a distance and a fifth escorts a sixth away.",
       setting: "street",
-      roles: { run: "fleeing", cop: "chasing", cut: "intercepting", tag: "following", vip: "escorted", esc: "escort" },
+      roles: {
+        run: "fleeing",
+        cop: "chasing",
+        cut: "intercepting",
+        tag: "following",
+        vip: "escorted",
+        esc: "escort",
+      },
       needs: [3392, 3460],
       view: "top",
     },
     "pursuit",
     [
-      person("run", "m1", 0, 0, 0, [act("flee", { from: "cop", metres: 6, pace: "run" })]),
-      person("cop", "m2", 0, -2, 0, [act("chase", { target: at("run", "upperBack") })]),
+      person("run", "m1", 0, 0, 0, [
+        act("flee", { from: "cop", metres: 6, pace: "run" }),
+      ]),
+      person("cop", "m2", 0, -2, 0, [
+        act("chase", { target: at("run", "upperBack") }),
+      ]),
       person("cut", "f1", 3, 2, 270, [act("intercept", { target: "run" })]),
-      person("tag", "f2", -2, -3, 0, [act("follow", { target: at("cop", "upperBack"), pace: "normal" })]),
+      person("tag", "f2", -2, -3, 0, [
+        act("follow", { target: at("cop", "upperBack"), pace: "normal" }),
+      ]),
       person("vip", "f1", -3, 1.6, 90, [act("stroll", { to: to(1, 1.6) })]),
-      person("esc", "m1", -3, 1, 90, [act("escort", { target: at("vip", "upperArmLeft") })]),
+      person("esc", "m1", -3, 1, 90, [
+        act("escort", { target: at("vip", "upperArmLeft") }),
+      ]),
     ],
   ),
   scene(
@@ -93,18 +108,35 @@ export const SCENES_STREET: readonly IScene[] = [
       summary:
         "Six soldiers march, double time, halt at parade rest and salute; each keeps their own step until formations and cadence land.",
       setting: "troops",
-      roles: { s1: "soldier", s2: "soldier", s3: "soldier", s4: "soldier", s5: "soldier", s6: "soldier" },
+      roles: {
+        s1: "soldier",
+        s2: "soldier",
+        s3: "soldier",
+        s4: "soldier",
+        s5: "soldier",
+        s6: "soldier",
+      },
       needs: [3392, 3458, 3461],
       view: "side",
     },
     "parade",
-    [0, 1, 2, 3, 4, 5].map((i: number): SceneBuild.Performer =>
-      person(`s${i + 1}`, ["m1", "m2", "f1", "f2"][i % 4]!, (i % 3) - 1, Math.floor(i / 3) * -0.9, 0, [
-        act("march", { to: to((i % 3) - 1, 3 + Math.floor(i / 3) * -0.9) }),
-        act("doubleTime", { to: to((i % 3) - 1, 5 + Math.floor(i / 3) * -0.9) }),
-        act("paradeRest", { seconds: 1 }),
-        act("salute"),
-      ]),
+    [0, 1, 2, 3, 4, 5].map(
+      (i: number): SceneBuild.Performer =>
+        person(
+          `s${i + 1}`,
+          ["m1", "m2", "f1", "f2"][i % 4]!,
+          (i % 3) - 1,
+          Math.floor(i / 3) * -0.9,
+          0,
+          [
+            act("march", { to: to((i % 3) - 1, 3 + Math.floor(i / 3) * -0.9) }),
+            act("doubleTime", {
+              to: to((i % 3) - 1, 5 + Math.floor(i / 3) * -0.9),
+            }),
+            act("paradeRest", { seconds: 1 }),
+            act("salute"),
+          ],
+        ),
     ),
   ),
 ];

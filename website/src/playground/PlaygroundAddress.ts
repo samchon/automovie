@@ -93,7 +93,7 @@ export namespace PlaygroundAddress {
       (Array.isArray(value.over) && value.over.every(action)));
 
   /** Whether a value has the members the adapter reads of a placed object. */
-  const object = (value: unknown): boolean =>
+  const object: (value: unknown) => boolean = (value: unknown): boolean =>
     record(value) &&
     typeof value.subject === "string" &&
     typeof value.producer === "string" &&

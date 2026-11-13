@@ -19,17 +19,32 @@ import type { IScene } from "../../src/scenes/structures/IScene";
  */
 export function test_website_scene_status(): void {
   const names: string[] = Object.keys(HUMAN_ACTIONS);
-  const composition = (
+  const composition: (
+    actions: IPlaygroundComposition.IAction[],
+    objects?: IPlaygroundComposition.IObject[],
+  ) => IPlaygroundComposition = (
     actions: IPlaygroundComposition.IAction[],
     objects: IPlaygroundComposition.IObject[] = [],
   ): IPlaygroundComposition => ({
     version: 2,
     seed: "status",
-    performers: [{ subject: "a", body: "m1", x: 0, z: 0, yaw: 0, proficiency: "trained", actions }],
+    performers: [
+      {
+        subject: "a",
+        body: "m1",
+        x: 0,
+        z: 0,
+        yaw: 0,
+        proficiency: "trained",
+        actions,
+      },
+    ],
     mutuals: [],
     objects,
   });
-  const scene = (made: IPlaygroundComposition | null): IScene => ({
+  const scene: (made: IPlaygroundComposition | null) => IScene = (
+    made: IPlaygroundComposition | null,
+  ): IScene => ({
     id: "status",
     title: "Status",
     summary: "",
@@ -44,7 +59,14 @@ export function test_website_scene_status(): void {
   // 1. Plays.
   TestValidator.equals(
     "two actions of the vocabulary play",
-    SceneStatus.of(scene(composition([{ name: names[0]!, params: {} }, { name: names[1]!, params: {} }]))),
+    SceneStatus.of(
+      scene(
+        composition([
+          { name: names[0]!, params: {} },
+          { name: names[1]!, params: {} },
+        ]),
+      ),
+    ),
     { kind: "plays" },
   );
 
@@ -57,16 +79,27 @@ export function test_website_scene_status(): void {
 
   // 3. Objects.
   const ghost: SceneStatus.Status = SceneStatus.of(
-    scene(composition([{ name: names[0]!, params: {} }], [{ subject: "x", producer: "createGhost", x: 0, z: 0, yaw: 0 }])),
+    scene(
+      composition(
+        [{ name: names[0]!, params: {} }],
+        [{ subject: "x", producer: "createGhost", x: 0, z: 0, yaw: 0 }],
+      ),
+    ),
   );
   TestValidator.predicate(
     "an archetype the package lacks is named",
-    ghost.kind === "waits" && ghost.missing.includes("the archetype createGhost"),
+    ghost.kind === "waits" &&
+      ghost.missing.includes("the archetype createGhost"),
   );
   TestValidator.equals(
     "a real archetype plays exactly when HumanObject is installed",
     SceneStatus.of(
-      scene(composition([{ name: names[0]!, params: {} }], [{ subject: "x", producer: "createSeat", x: 0, z: 0, yaw: 0 }])),
+      scene(
+        composition(
+          [{ name: names[0]!, params: {} }],
+          [{ subject: "x", producer: "createSeat", x: 0, z: 0, yaw: 0 }],
+        ),
+      ),
     ).kind === "plays",
     PlaygroundObjects.available(),
   );
@@ -75,11 +108,23 @@ export function test_website_scene_status(): void {
   TestValidator.equals(
     "an overlay plays exactly when the chain has over",
     SceneStatus.of(
-      scene(composition([{ name: names[0]!, params: {}, over: [{ name: names[1]!, params: {} }] }])),
+      scene(
+        composition([
+          {
+            name: names[0]!,
+            params: {},
+            over: [{ name: names[1]!, params: {} }],
+          },
+        ]),
+      ),
     ).kind === "plays",
     PlaygroundChain.has("over"),
   );
 
   // 5. Planned.
-  TestValidator.equals("no composition is planned", SceneStatus.of(scene(null)), { kind: "planned" });
+  TestValidator.equals(
+    "no composition is planned",
+    SceneStatus.of(scene(null)),
+    { kind: "planned" },
+  );
 }

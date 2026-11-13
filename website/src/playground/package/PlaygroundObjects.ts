@@ -77,7 +77,7 @@ export namespace PlaygroundObjects {
     params: Record<string, unknown>,
     objects: readonly IPlaygroundComposition.IObject[],
   ): Record<string, unknown> {
-    const walk = (value: unknown): unknown => {
+    const walk: (value: unknown) => unknown = (value: unknown): unknown => {
       if (Array.isArray(value)) return value.map(walk);
       if (typeof value !== "object" || value === null) return value;
       const record: Record<string, unknown> = value as Record<string, unknown>;
@@ -97,18 +97,21 @@ export namespace PlaygroundObjects {
         );
       }
       return Object.fromEntries(
-        Object.entries(record).map(([key, inner]: [string, unknown]) => [
-          key,
-          walk(inner),
-        ]),
+        Object.entries(record).map(
+          ([key, inner]: [string, unknown]): [string, unknown] => [
+            key,
+            walk(inner),
+          ],
+        ),
       );
     };
     return walk(params) as Record<string, unknown>;
   }
 
   /** The archetype of a placed object. */
-  const model = (object: IPlaygroundComposition.IObject): object =>
-    SceneArchetype.model(object);
+  const model: (object: IPlaygroundComposition.IObject) => object = (
+    object: IPlaygroundComposition.IObject,
+  ): object => SceneArchetype.model(object);
 
   /** `HumanObject`, or the reason it cannot be used. */
   function attach(): IHumanObject {
@@ -124,6 +127,9 @@ export namespace PlaygroundObjects {
     at: { x: number; y: number; z: number };
     yaw: number;
   } {
-    return { at: { x: object.x, y: object.y ?? 0, z: object.z }, yaw: object.yaw };
+    return {
+      at: { x: object.x, y: object.y ?? 0, z: object.z },
+      yaw: object.yaw,
+    };
   }
 }

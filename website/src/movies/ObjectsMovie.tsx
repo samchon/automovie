@@ -1,7 +1,14 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { type ReactElement, useEffect, useState } from "react";
+import {
+  type ChangeEvent,
+  type Dispatch,
+  type ReactElement,
+  type SetStateAction,
+  useEffect,
+  useState,
+} from "react";
 
 import { ObjectCard } from "../components/objects/ObjectCard";
 import { ObjectsHead } from "../components/objects/ObjectsHead";
@@ -25,9 +32,14 @@ type Mode =
  * @returns The page.
  */
 export default function ObjectsMovie(): ReactElement {
-  const [mode, setMode] = useState<Mode>({ kind: "loading" });
-  const [family, setFamily] = useState<string | null>(null);
-  const [query, setQuery] = useState<string>("");
+  const [mode, setMode]: [Mode, Dispatch<SetStateAction<Mode>>] =
+    useState<Mode>({ kind: "loading" });
+  const [family, setFamily]: [
+    string | null,
+    Dispatch<SetStateAction<string | null>>,
+  ] = useState<string | null>(null);
+  const [query, setQuery]: [string, Dispatch<SetStateAction<string>>] =
+    useState<string>("");
   const opened: boolean = useSearchParams().has("subject");
 
   useEffect((): (() => void) => {
@@ -130,7 +142,9 @@ export default function ObjectsMovie(): ReactElement {
                 type="search"
                 placeholder="Search: chair, hinge, sword"
                 value={query}
-                onChange={(event): void => change(family, event.target.value)}
+                onChange={(event: ChangeEvent<HTMLInputElement>): void =>
+                  change(family, event.target.value)
+                }
               />
             </label>
           </div>

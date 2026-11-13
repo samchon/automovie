@@ -18,7 +18,7 @@ import { SharedStage } from "../../stage/SharedStage";
 export function ObjectCard(props: {
   subject: IGalleryCatalogue.ISubject;
 }): ReactElement {
-  const { subject } = props;
+  const { subject }: typeof props = props;
   const canvas: RefObject<HTMLCanvasElement | null> = useRef(null);
   const hovered: RefObject<boolean> = useRef(false);
 

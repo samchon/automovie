@@ -20,11 +20,9 @@ export namespace SceneBuild {
    * @param z Forward.
    * @returns The point.
    */
-  export const to = (x: number, z: number): Record<string, number> => ({
-    x,
-    y: 0,
-    z,
-  });
+  export function to(x: number, z: number): Record<string, number> {
+    return { x, y: 0, z };
+  }
 
   /**
    * A region of a person, as a motion target.
@@ -33,11 +31,9 @@ export namespace SceneBuild {
    * @param region The region.
    * @returns The target.
    */
-  export const at = (subject: string, region: string): Record<string, unknown> => ({
-    kind: "person",
-    subject,
-    region,
-  });
+  export function at(subject: string, region: string): Record<string, unknown> {
+    return { kind: "person", subject, region };
+  }
 
   /**
    * An action.
@@ -47,11 +43,13 @@ export namespace SceneBuild {
    * @param more Its anchor, cut, timing or overlays.
    * @returns The action.
    */
-  export const act = (
+  export function act(
     name: string,
     params: Record<string, unknown> = {},
     more: Partial<Omit<Action, "name" | "params">> = {},
-  ): Action => ({ name, params, ...more });
+  ): Action {
+    return { name, params, ...more };
+  }
 
   /**
    * A performer.
@@ -65,7 +63,7 @@ export namespace SceneBuild {
    * @param proficiency Its skill.
    * @returns The performer.
    */
-  export const person = (
+  export function person(
     subject: string,
     body: string,
     x: number,
@@ -73,15 +71,9 @@ export namespace SceneBuild {
     yaw: number,
     actions: Action[],
     proficiency: IPlaygroundComposition.Proficiency = "trained",
-  ): IPlaygroundComposition.IPerformer => ({
-    subject,
-    body,
-    x,
-    z,
-    yaw,
-    proficiency,
-    actions,
-  });
+  ): IPlaygroundComposition.IPerformer {
+    return { subject, body, x, z, yaw, proficiency, actions };
+  }
 
   /**
    * A placed archetype.
@@ -95,7 +87,7 @@ export namespace SceneBuild {
    * @param y Height above the floor, metres, for an object resting on another.
    * @returns The object.
    */
-  export const object = (
+  export function object(
     subject: string,
     producer: string,
     kind: string | undefined,
@@ -103,15 +95,17 @@ export namespace SceneBuild {
     z: number,
     yaw: number = 0,
     y: number = 0,
-  ): IPlaygroundComposition.IObject => ({
-    subject,
-    producer,
-    ...(kind === undefined ? {} : { kind }),
-    x,
-    z,
-    ...(y === 0 ? {} : { y }),
-    yaw,
-  });
+  ): IPlaygroundComposition.IObject {
+    return {
+      subject,
+      producer,
+      ...(kind === undefined ? {} : { kind }),
+      x,
+      z,
+      ...(y === 0 ? {} : { y }),
+      yaw,
+    };
+  }
 
   /**
    * A seat, named by the object that carries it, which the adapter resolves.
@@ -119,9 +113,9 @@ export namespace SceneBuild {
    * @param subject The object's id.
    * @returns The seat reference.
    */
-  export const seat = (subject: string): Record<string, string> => ({
-    $seat: subject,
-  });
+  export function seat(subject: string): Record<string, string> {
+    return { $seat: subject };
+  }
 
   /** What a scene record needs beside its composition. */
   export interface IAbout {

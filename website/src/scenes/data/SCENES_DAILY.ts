@@ -1,7 +1,8 @@
 import type { IScene } from "../structures/IScene";
 import { SceneBuild } from "./SceneBuild";
 
-const { act, at, object, person, planned, scene, seat, to } = SceneBuild;
+const { act, at, object, person, planned, scene, seat, to }: typeof SceneBuild =
+  SceneBuild;
 
 /** The everyday scenes composed from the lexicon and placed objects of #3392. */
 export const SCENES_DAILY: readonly IScene[] = [
@@ -58,7 +59,10 @@ export const SCENES_DAILY: readonly IScene[] = [
     "office",
     [
       person("dee", "f2", -1, 0, 0, [
-        act("typeText", { keyboard: { at: { x: -1, y: 1.0, z: 0.4 } }, text: "the scene opens" }),
+        act("typeText", {
+          keyboard: { at: { x: -1, y: 1.0, z: 0.4 } },
+          text: "the scene opens",
+        }),
         act("rubEyes"),
         act("thinking", { seconds: 1.5 }),
       ]),
@@ -68,7 +72,12 @@ export const SCENES_DAILY: readonly IScene[] = [
         act("shift"),
         act("handToFace", { task: "phone" }),
         act("rise"),
-        act("operate", { mechanism: { kind: "button", at: { kind: "prop", subject: "switch", point: "toggle" } } }),
+        act("operate", {
+          mechanism: {
+            kind: "button",
+            at: { kind: "prop", subject: "switch", point: "toggle" },
+          },
+        }),
       ]),
     ],
     [
@@ -181,12 +190,21 @@ export const SCENES_DAILY: readonly IScene[] = [
       summary:
         "Something goes off: one startles, one winces, one braces for impact, one dives for cover and one stumbles.",
       setting: "everyday",
-      roles: { pat: "passer-by", quy: "passer-by", ray: "passer-by", sue: "passer-by" },
+      roles: {
+        pat: "passer-by",
+        quy: "passer-by",
+        ray: "passer-by",
+        sue: "passer-by",
+      },
       needs: [3392, 3430],
     },
     "fright",
     [
-      person("pat", "m1", -1.5, 0, 0, [act("stroll", { to: to(-1.5, 1) }), act("startle"), act("takeCover")]),
+      person("pat", "m1", -1.5, 0, 0, [
+        act("stroll", { to: to(-1.5, 1) }),
+        act("startle"),
+        act("takeCover"),
+      ]),
       person("quy", "f1", -0.5, 0.5, 0, [act("wince"), act("braceForImpact")]),
       person("ray", "m2", 0.5, 0, 0, [act("diveForCover")]),
       person("sue", "f2", 1.5, 0.5, 0, [act("stumble"), act("kneelBriefly")]),
@@ -280,7 +298,8 @@ export const SCENES_DAILY: readonly IScene[] = [
       pieces:
         "openDoor and passThrough of the gait family, comeHere; a door pulled through its whole swing carries the handle beyond the arm, so the host must step with it (#3520)",
     },
-  ),  scene(
+  ),
+  scene(
     {
       id: "dressing-room",
       title: "Dressing room",
@@ -313,7 +332,9 @@ export const SCENES_DAILY: readonly IScene[] = [
     },
     "climb",
     [
-      person("dot", "f1", -1.5, 0, 0, [act("climbStairs", { pattern: "stepOverStep", count: 6 })]),
+      person("dot", "f1", -1.5, 0, 0, [
+        act("climbStairs", { pattern: "stepOverStep", count: 6 }),
+      ]),
       person("eve", "m1", 0.5, 0, 0, [act("climbLadder", { rungs: 6 })]),
       person("fin", "m2", 2, -1, 0, [
         act("walk", { to: to(2, 0) }),

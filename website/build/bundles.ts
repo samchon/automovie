@@ -33,7 +33,7 @@ const next: string = path.resolve(__dirname, "..", ".next");
 const manifest: { pages: Record<string, string[]> } = JSON.parse(
   fs.readFileSync(path.join(next, "app-build-manifest.json"), "utf8"),
 );
-const read = (file: string): string =>
+const read: (file: string) => string = (file: string): string =>
   fs.readFileSync(path.join(next, file), "utf8");
 
 // The chunks to check: each route's own, and the player's.
@@ -61,7 +61,8 @@ const violations: string[] = [];
 for (const [file, owner] of chunks) {
   const text: string = read(file);
   for (const [name, marker] of Object.entries(MARKERS))
-    if (text.includes(marker)) violations.push(`${owner}: ${file} carries ${name}`);
+    if (text.includes(marker))
+      violations.push(`${owner}: ${file} carries ${name}`);
 }
 if (violations.length !== 0) {
   console.error(

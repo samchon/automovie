@@ -6,6 +6,7 @@ import type { ReactElement } from "react";
 import type { SceneClock } from "../../scenes/SceneClock";
 import { SceneFacts } from "../../scenes/SceneFacts";
 import type { IScene } from "../../scenes/structures/IScene";
+import type { IScenePlayer } from "../../scenes/structures/IScenePlayer";
 import { SceneView } from "./SceneView";
 import { useSceneClock } from "./useSceneClock";
 
@@ -18,7 +19,7 @@ import { useSceneClock } from "./useSceneClock";
  * @returns The card.
  */
 export function SceneCard(props: { scene: IScene }): ReactElement {
-  const { scene } = props;
+  const { scene }: typeof props = props;
   const clock: SceneClock = useSceneClock();
   const hold: (playing: boolean) => void = (playing: boolean): void => {
     if (!SceneCard.reduced() || clock.playing === playing) return;
@@ -37,7 +38,7 @@ export function SceneCard(props: { scene: IScene }): ReactElement {
           scene={scene}
           take={0}
           clock={clock}
-          onLoad={(player): void => {
+          onLoad={(player: IScenePlayer): void => {
             clock.duration = player.duration;
             clock.fps = player.fps;
           }}

@@ -3,10 +3,12 @@ import type { IScene } from "../structures/IScene";
 import { SceneTakes } from "./SceneTakes";
 
 /** A floor point, as a destination. */
-const to = (x: number, z: number): Record<string, number> => ({ x, y: 0, z });
+function to(x: number, z: number): Record<string, number> {
+  return { x, y: 0, z };
+}
 
 /** A performer with its actions, at a place and heading. */
-const person = (
+function person(
   subject: string,
   body: string,
   x: number,
@@ -14,26 +16,17 @@ const person = (
   yaw: number,
   actions: IPlaygroundComposition.IAction[],
   proficiency: IPlaygroundComposition.Proficiency = "trained",
-): IPlaygroundComposition.IPerformer => ({
-  subject,
-  body,
-  x,
-  z,
-  yaw,
-  proficiency,
-  actions,
-});
+): IPlaygroundComposition.IPerformer {
+  return { subject, body, x, z, yaw, proficiency, actions };
+}
 
 /** A composition of people only. */
-const scene = (
+function scene(
   seed: string,
   performers: IPlaygroundComposition.IPerformer[],
-): IPlaygroundComposition => ({
-  version: 1,
-  seed,
-  performers,
-  mutuals: [],
-});
+): IPlaygroundComposition {
+  return { version: 1, seed, performers, mutuals: [] };
+}
 
 const WARM_UP: IPlaygroundComposition = scene("warm-up", [
   person("jo", "m1", -2.4, 0, 0, [
@@ -41,18 +34,36 @@ const WARM_UP: IPlaygroundComposition = scene("warm-up", [
     { name: "stand", params: { seconds: 1 } },
   ]),
   person("kim", "f1", -0.8, 1.5, 180, [
-    { name: "exercise", params: { kind: "squat", reps: 3, depth: "parallel", tempo: [1, 0, 0.8] } },
-    { name: "exercise", params: { kind: "lunge", reps: 1, tempo: [1, 0, 0.8] } },
+    {
+      name: "exercise",
+      params: { kind: "squat", reps: 3, depth: "parallel", tempo: [1, 0, 0.8] },
+    },
+    {
+      name: "exercise",
+      params: { kind: "lunge", reps: 1, tempo: [1, 0, 0.8] },
+    },
   ]),
   person("lou", "m2", 0.8, 1.5, 180, [
-    { name: "exercise", params: { kind: "jumpingJack", reps: 4, tempo: [0.5, 0, 0.5] } },
+    {
+      name: "exercise",
+      params: { kind: "jumpingJack", reps: 4, tempo: [0.5, 0, 0.5] },
+    },
     { name: "stand", params: { seconds: 0.4 } },
     { name: "jump", params: { to: to(0.8, 1.9) } },
   ]),
   person("mo", "f2", 2.4, 1.5, 180, [
-    { name: "stretch", params: { kind: "quadriceps", side: "left", seconds: 2 } },
-    { name: "stretch", params: { kind: "overheadSide", side: "right", seconds: 2 } },
-    { name: "exercise", params: { kind: "highKnees", reps: 4, tempo: [0.6, 0, 0.6] } },
+    {
+      name: "stretch",
+      params: { kind: "quadriceps", side: "left", seconds: 2 },
+    },
+    {
+      name: "stretch",
+      params: { kind: "overheadSide", side: "right", seconds: 2 },
+    },
+    {
+      name: "exercise",
+      params: { kind: "highKnees", reps: 4, tempo: [0.6, 0, 0.6] },
+    },
   ]),
 ]);
 
@@ -187,7 +198,8 @@ export const SCENES_SPORT: readonly IScene[] = [
   {
     id: "pool",
     title: "Pool lanes",
-    summary: "Two swimmers in neighbouring lanes: a front crawl and treading water.",
+    summary:
+      "Two swimmers in neighbouring lanes: a front crawl and treading water.",
     setting: "sport",
     cast: [
       { subject: "wil", role: "swimmer" },

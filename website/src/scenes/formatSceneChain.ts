@@ -27,11 +27,20 @@ export function formatSceneChain(composition: IPlaygroundComposition): string {
           ]),
           "",
         ];
-  const indent = (text: string, by: string): string =>
-    text.split("\n").join(`\n${by}`);
-  const value = (v: unknown): string => indent(literal(v), "  ");
+  const indent: (text: string, by: string) => string = (
+    text: string,
+    by: string,
+  ): string => text.split("\n").join(`\n${by}`);
+  const value: (v: unknown) => string = (v: unknown): string =>
+    indent(literal(v), "  ");
 
-  const calls = (actions: IPlaygroundComposition.IAction[], by: string): string[] =>
+  const calls: (
+    actions: IPlaygroundComposition.IAction[],
+    by: string,
+  ) => string[] = (
+    actions: IPlaygroundComposition.IAction[],
+    by: string,
+  ): string[] =>
     actions.flatMap((action: IPlaygroundComposition.IAction): string[] => {
       const out: string[] = [
         `${by}.act(${JSON.stringify(action.name)}, ${indent(value(action.params), by)}${action.anchor === undefined ? "" : `, ${JSON.stringify(action.anchor)}`})`,
@@ -62,12 +71,17 @@ export function formatSceneChain(composition: IPlaygroundComposition): string {
   for (const mutual of composition.mutuals)
     lines.push(
       `// ${mutual.name}, after every chain above: ${Object.entries(mutual.cast)
-        .map(([role, subject]: [string, string]): string => `${subject} as ${role}`)
+        .map(
+          ([role, subject]: [string, string]): string =>
+            `${subject} as ${role}`,
+        )
         .join(", ")}`,
     );
   lines.push(
     `const scene = ${composition.performers
-      .map((p: IPlaygroundComposition.IPerformer): string => identifier(p.subject))
+      .map((p: IPlaygroundComposition.IPerformer): string =>
+        identifier(p.subject),
+      )
       .reduce((a: string, b: string): string => `${a}.with(${b})`)};`,
   );
   return lines.join("\n");

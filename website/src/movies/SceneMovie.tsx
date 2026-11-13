@@ -1,7 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { type ReactElement, useEffect, useState } from "react";
+import {
+  type Dispatch,
+  type ReactElement,
+  type SetStateAction,
+  useEffect,
+  useState,
+} from "react";
 
 import { SceneTimeline } from "../components/scenes/SceneTimeline";
 import { SceneView } from "../components/scenes/SceneView";
@@ -9,6 +15,7 @@ import { useSceneClock } from "../components/scenes/useSceneClock";
 import { Transport } from "../components/stage/Transport";
 import { TransportKeys } from "../components/stage/TransportKeys";
 import { PlaygroundAddress } from "../playground/PlaygroundAddress";
+import type { IPlaygroundComposition } from "../playground/structures/IPlaygroundComposition";
 import type { SceneClock } from "../scenes/SceneClock";
 import { SceneFacts } from "../scenes/SceneFacts";
 import { formatSceneChain } from "../scenes/formatSceneChain";
@@ -43,11 +50,18 @@ export default function SceneMovie(props: {
   baked: ISceneManifest.IScene | null;
   pages: Record<string, string>;
 }): ReactElement {
-  const { scene, baked } = props;
+  const { scene, baked }: typeof props = props;
   const clock: SceneClock = useSceneClock();
-  const [panel, setPanel] = useState<Panel>("variations");
-  const [player, setPlayer] = useState<IScenePlayer | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
+  const [panel, setPanel]: [Panel, Dispatch<SetStateAction<Panel>>] =
+    useState<Panel>("variations");
+  const [player, setPlayer]: [
+    IScenePlayer | null,
+    Dispatch<SetStateAction<IScenePlayer | null>>,
+  ] = useState<IScenePlayer | null>(null);
+  const [notice, setNotice]: [
+    string | null,
+    Dispatch<SetStateAction<string | null>>,
+  ] = useState<string | null>(null);
 
   // The clock runs as long as the longest take.
   useEffect((): void => {
@@ -122,11 +136,11 @@ export default function SceneMovie(props: {
       </div>
     );
 
-  const composition = scene.composition;
+  const composition: IPlaygroundComposition = scene.composition;
   const roles: Record<string, string> = Object.fromEntries(
     scene.cast.map((c: IScene.ICast): [string, string] => [c.subject, c.role]),
   );
-  const copy = async (): Promise<void> => {
+  const copy: () => Promise<void> = async (): Promise<void> => {
     try {
       await navigator.clipboard.writeText(window.location.href);
       setNotice("The page's address was copied.");
@@ -170,7 +184,7 @@ export default function SceneMovie(props: {
           <h2>Cast</h2>
           <ul className="am-plain">
             {composition.performers.map(
-              (p): ReactElement => (
+              (p: IPlaygroundComposition.IPerformer): ReactElement => (
                 <li key={p.subject}>
                   <span className="am-mono">{p.subject}</span>,{" "}
                   {roles[p.subject]}
@@ -187,7 +201,7 @@ export default function SceneMovie(props: {
               <h2>Objects</h2>
               <ul className="am-plain">
                 {(composition.objects ?? []).map(
-                  (o): ReactElement => (
+                  (o: IPlaygroundComposition.IObject): ReactElement => (
                     <li key={o.subject}>
                       <span className="am-mono">{o.subject}</span>,{" "}
                       <Link href={`/objects/?subject=${o.producer}`}>

@@ -43,11 +43,20 @@ type IJob = BakeSetup.IJob;
 
 /** What one share writes. */
 type IPart = BakeSetup.IPart;
-const { PROP, argv, mine, options, out, parts, plan, previous, spans } =
-  BakeSetup;
+const {
+  PROP,
+  argv,
+  mine,
+  options,
+  out,
+  parts,
+  plan,
+  previous,
+  spans,
+}: typeof BakeSetup = BakeSetup;
 
 /** Bake one share of the jobs and write what it made. */
-const bake = (shard: number): void => {
+const bake: (shard: number) => void = (shard: number): void => {
   const before: Record<
     string,
     Record<number, ISceneManifest.ITake>
@@ -56,7 +65,9 @@ const bake = (shard: number): void => {
   fs.mkdirSync(path.join(out, "bodies"), { recursive: true });
 
   // Each body is prepared once, and its rest bones written once.
-  const body = (id: string): ISceneManifest.IBody => {
+  const body: (id: string) => ISceneManifest.IBody = (
+    id: string,
+  ): ISceneManifest.IBody => {
     const known: ISceneManifest.IBody | undefined = part.bodies[id];
     if (known !== undefined) return known;
     const prepared: PlaygroundBodies.IPrepared = PlaygroundBodies.get(id);
@@ -90,7 +101,7 @@ const bake = (shard: number): void => {
   // every scene to correct.
   const refused: string[] = [];
   for (const job of jobs) {
-    const { scene, index, composition, digest } = job;
+    const { scene, index, composition, digest }: IJob = job;
     const label: string = scene.takes[index]!.label;
     const file: string = `${scene.id}/${index}.bin`;
     const figures: ISceneManifest.IFigure[] = composition.performers.map(
@@ -105,7 +116,9 @@ const bake = (shard: number): void => {
     );
     // Each take is saved as soon as it is made, so a bake stopped halfway
     // keeps what it finished.
-    const record = (take: ISceneManifest.ITake): void => {
+    const record: (take: ISceneManifest.ITake) => void = (
+      take: ISceneManifest.ITake,
+    ): void => {
       (part.takes[scene.id] ??= {})[index] = take;
       fs.mkdirSync(parts, { recursive: true });
       fs.writeFileSync(
@@ -238,7 +251,7 @@ const bake = (shard: number): void => {
 };
 
 /** Join every share's result into the manifest, checking that every take was baked. */
-const merge = (): void => {
+const merge: () => void = (): void => {
   const manifest: ISceneManifest = {
     version: 1,
     reflection: [...AutoMovieHumanCanonicalBody.REFLECTION],
@@ -284,9 +297,11 @@ const merge = (): void => {
 };
 
 /** Bake every share in its own process on this machine, then join them. */
-const local = async (): Promise<void> => {
+const local: () => Promise<void> = async (): Promise<void> => {
   const started: number = Date.now();
-  const run = (shard: number): Promise<void> =>
+  const run: (shard: number) => Promise<void> = (
+    shard: number,
+  ): Promise<void> =>
     new Promise((resolve: () => void, reject: (error: Error) => void): void => {
       spawn(
         process.execPath,
@@ -307,7 +322,10 @@ const local = async (): Promise<void> => {
       );
     });
   const settled: PromiseSettledResult<void>[] = await Promise.allSettled(
-    Array.from({ length: options.shards }, (_: unknown, k: number) => run(k)),
+    Array.from(
+      { length: options.shards },
+      (_: unknown, k: number): Promise<void> => run(k),
+    ),
   );
   const failed: number = settled.filter(
     (s: PromiseSettledResult<void>): boolean => s.status === "rejected",
@@ -323,7 +341,8 @@ const local = async (): Promise<void> => {
   );
 };
 
-const main = async (): Promise<void> => {
+/** Run the mode the command line asks for. */
+const main: () => Promise<void> = async (): Promise<void> => {
   if (options.check) BakeCheck.check();
   else if (options.merge) merge();
   else if (options.shard !== null) bake(options.shard);

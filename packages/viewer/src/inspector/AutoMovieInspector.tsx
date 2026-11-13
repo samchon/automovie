@@ -5,10 +5,12 @@ import {
 } from "@automovie/render";
 import {
   type ChangeEvent,
+  type Dispatch,
   type JSX,
   type KeyboardEvent,
   type ReactNode,
   type RefObject,
+  type SetStateAction,
   useEffect,
   useReducer,
   useRef,
@@ -144,7 +146,8 @@ export function AutoMovieInspector(
   // too narrow for both, measured on the inspector itself, since the page's
   // width is not the component's.
   const root: RefObject<HTMLDivElement | null> = useRef<HTMLDivElement>(null);
-  const [narrow, setNarrow] = useState<boolean>(false);
+  const [narrow, setNarrow]: [boolean, Dispatch<SetStateAction<boolean>>] =
+    useState<boolean>(false);
   useEffect((): (() => void) | undefined => {
     if (root.current === null || typeof ResizeObserver === "undefined")
       return undefined;

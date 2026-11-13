@@ -15,7 +15,9 @@ export namespace SceneFacts {
    */
   export function actions(scene: IScene): string[] {
     const names: Set<string> = new Set();
-    const visit = (action: IPlaygroundComposition.IAction): void => {
+    const visit: (action: IPlaygroundComposition.IAction) => void = (
+      action: IPlaygroundComposition.IAction,
+    ): void => {
       names.add(action.name);
       action.over?.forEach(visit);
     };
@@ -33,12 +35,13 @@ export namespace SceneFacts {
    * @returns Such as "3 people, 2 objects, 9 actions".
    */
   export function counts(scene: IScene): string {
-    const plural = (n: number, one: string, many: string): string =>
-      `${n} ${n === 1 ? one : many}`;
+    const plural: (n: number, one: string, many: string) => string = (
+      n: number,
+      one: string,
+      many: string,
+    ): string => `${n} ${n === 1 ? one : many}`;
     if (scene.composition === null) return scene.planned?.cast ?? "";
-    const parts: string[] = [
-      plural(scene.cast.length, "person", "people"),
-    ];
+    const parts: string[] = [plural(scene.cast.length, "person", "people")];
     const objects: number = scene.composition.objects?.length ?? 0;
     if (objects !== 0) parts.push(plural(objects, "object", "objects"));
     parts.push(plural(actions(scene).length, "action", "actions"));

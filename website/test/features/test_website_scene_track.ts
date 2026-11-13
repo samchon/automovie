@@ -12,7 +12,9 @@ import { SceneTrack } from "../../src/scenes/SceneTrack";
  * 4. A frame that gives a group other entries than its order, and a position beyond what a track holds, are refused.
  */
 export function test_website_scene_track(): void {
-  const turn = (degrees: number): [number, number, number, number] => {
+  const turn: (degrees: number) => [number, number, number, number] = (
+    degrees: number,
+  ): [number, number, number, number] => {
     const half: number = (degrees * Math.PI) / 360;
     return [0, Math.sin(half), 0, Math.cos(half)];
   };
@@ -39,10 +41,24 @@ export function test_website_scene_track(): void {
     orders,
     values: SceneTrack.encode(frames, orders),
   };
-  const close = (a: number[], b: number[], tolerance: number): boolean =>
-    a.every((v: number, i: number): boolean => Math.abs(v - b[i]!) <= tolerance);
-  const same = (a: number[], b: number[]): boolean =>
-    close(a, b, 1e-4) || close(a, b.map((v: number): number => -v), 1e-4);
+  const close: (a: number[], b: number[], tolerance: number) => boolean = (
+    a: number[],
+    b: number[],
+    tolerance: number,
+  ): boolean =>
+    a.every(
+      (v: number, i: number): boolean => Math.abs(v - b[i]!) <= tolerance,
+    );
+  const same: (a: number[], b: number[]) => boolean = (
+    a: number[],
+    b: number[],
+  ): boolean =>
+    close(a, b, 1e-4) ||
+    close(
+      a,
+      b.map((v: number): number => -v),
+      1e-4,
+    );
 
   // 1. Each frame reads back.
   for (const [k, frame] of frames.entries()) {
@@ -50,23 +66,43 @@ export function test_website_scene_track(): void {
     frame.forEach((group: SceneTrack.IPlacement[], g: number): void =>
       group.forEach((p: SceneTrack.IPlacement, i: number): void => {
         const back: SceneTrack.IPlacement = read[g]![i]!;
-        TestValidator.predicate(`frame ${k} ${p.bone} position`, close(back.position, p.position, 5e-4));
-        TestValidator.predicate(`frame ${k} ${p.bone} rotation`, same(back.rotation, p.rotation));
+        TestValidator.predicate(
+          `frame ${k} ${p.bone} position`,
+          close(back.position, p.position, 5e-4),
+        );
+        TestValidator.predicate(
+          `frame ${k} ${p.bone} rotation`,
+          same(back.rotation, p.rotation),
+        );
       }),
     );
   }
 
   // 2. Halfway.
   const half: SceneTrack.IPlacement[][] = SceneTrack.sample(track, 0.5 / 12);
-  TestValidator.predicate("the hips halfway", close(half[0]![0]!.position, [0.5, 1, 0], 5e-4));
-  TestValidator.predicate("the hips turn 45 degrees", same(half[0]![0]!.rotation, turn(45)));
+  TestValidator.predicate(
+    "the hips halfway",
+    close(half[0]![0]!.position, [0.5, 1, 0], 5e-4),
+  );
+  TestValidator.predicate(
+    "the hips turn 45 degrees",
+    same(half[0]![0]!.rotation, turn(45)),
+  );
 
   // 3. Held at the ends.
-  TestValidator.predicate("before the film", close(SceneTrack.sample(track, -3)[0]![0]!.position, [0, 1, 0], 5e-4));
-  TestValidator.predicate("after the film", close(SceneTrack.sample(track, 9)[0]![0]!.position, [1, 1, 0], 5e-4));
+  TestValidator.predicate(
+    "before the film",
+    close(SceneTrack.sample(track, -3)[0]![0]!.position, [0, 1, 0], 5e-4),
+  );
+  TestValidator.predicate(
+    "after the film",
+    close(SceneTrack.sample(track, 9)[0]![0]!.position, [1, 1, 0], 5e-4),
+  );
 
   // 4. Refusals.
-  const refused = (call: () => void): boolean => {
+  const refused: (call: () => void) => boolean = (
+    call: () => void,
+  ): boolean => {
     try {
       call();
       return false;
@@ -83,7 +119,10 @@ export function test_website_scene_track(): void {
   TestValidator.predicate(
     "a position beyond the track",
     refused((): void => {
-      SceneTrack.encode([[[{ bone: "frame", position: [40, 0, 0], rotation: turn(0) }]]], [["frame"]]);
+      SceneTrack.encode(
+        [[[{ bone: "frame", position: [40, 0, 0], rotation: turn(0) }]]],
+        [["frame"]],
+      );
     }),
   );
 }

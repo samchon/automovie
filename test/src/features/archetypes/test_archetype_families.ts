@@ -17,7 +17,10 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the two scenarios and what each pins.
  */
 export function test_archetype_families(): void {
-  const byName = (a: string, b: string): number => a.localeCompare(b);
+  const byName: (a: string, b: string) => number = (
+    a: string,
+    b: string,
+  ): number => a.localeCompare(b);
 
   // 1. The families are the subpaths.
   TestValidator.equals(
@@ -33,7 +36,9 @@ export function test_archetype_families(): void {
   const root: Readonly<Record<string, unknown>> = archetypes as Readonly<
     Record<string, unknown>
   >;
-  const producers = (space: Readonly<Record<string, unknown>>): string[] =>
+  const producers: (space: Readonly<Record<string, unknown>>) => string[] = (
+    space: Readonly<Record<string, unknown>>,
+  ): string[] =>
     Object.keys(space).filter(
       (name: string): boolean =>
         /^create[A-Z]/.test(name) && typeof space[name] === "function",
