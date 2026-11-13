@@ -21,28 +21,24 @@ export const SCENES_FIGHT: readonly IScene[] = [
     "duel",
     [
       person("red", "m1", 0, 0, 0, [
-        act("enGarde", { blade: "swordR" }),
-        act("vomTag", { blade: "swordR" }),
+        act("enGarde"),
+        act("vomTag"),
         act("advance", { length: 0.4 }),
-        act("lunge", { blade: "swordR", target: at("blu", "chestLeft") }, { anchor: "lunge" }),
-        act("bind", { blade: "swordR", against: "swordB" }),
-        act("wind", { blade: "swordR" }),
+        act("lunge", { target: at("blu", "chestLeft") }, { anchor: "lunge" }),
+        act("bind"),
+        act("wind"),
         act("retreat", { length: 0.4 }),
-        act("ochs", { blade: "swordR", seconds: 1 }),
+        act("ochs", { seconds: 1 }),
       ]),
-      person("blu", "m2", 0, 2.4, 180, [
-        act("enGarde", { blade: "swordB" }),
-        act("pflug", { blade: "swordB" }),
-        act("parry", { blade: "swordB", against: "lunge" }),
+      person("blu", "m2", 0, 1.4, 180, [
+        act("enGarde"),
+        act("pflug"),
+        act("parry"),
         act("voidStep", { length: 0.3 }),
-        act("feint", { blade: "swordB", target: at("red", "shoulderLeft") }),
-        act("riposte", { blade: "swordB", target: at("red", "chestRight") }),
-        act("alber", { blade: "swordB" }),
+        act("feint", { target: at("red", "shoulderLeft") }),
+        act("riposte", { target: at("red", "chestRight") }),
+        act("alber"),
       ]),
-    ],
-    [
-      object("swordR", "createSword", "longsword", 0.3, 0.3),
-      object("swordB", "createSword", "longsword", -0.3, 2.1),
     ],
   ),
   scene(
@@ -58,17 +54,16 @@ export const SCENES_FIGHT: readonly IScene[] = [
     "bar-fight",
     [
       person("joe", "m2", 0, 0, 0, [
-        act("shove", { target: at("mac", "sternum") }),
-        act("slap", { target: at("mac", "jawLeft") }),
         act("grab", { target: at("mac", "upperArmRight") }),
         act("headlock", { partner: "mac" }),
-        act("clubSwing", { blade: "club", target: at("mac", "shoulderLeft") }),
+        act("shove", { target: at("mac", "sternum") }),
+        act("slap", { target: at("mac", "jawLeft") }),
+        act("clubSwing", { target: at("mac", "shoulderLeft") }),
       ]),
-      person("mac", "m1", 0, 0.9, 180, [
-        act("shoved", { from: at("joe", "palmRight") }),
-        act("slapped", { from: at("joe", "palmRight") }),
-        act("grabbed", { from: at("joe", "palmLeft") }),
-        act("struggle", { target: at("joe", "forearmRight") }),
+      person("mac", "m1", 0, 0.65, 180, [
+        act("grabbed"),
+        act("shoved"),
+        act("slapped"),
         act("duck"),
         act("dodge", { length: 0.4 }),
       ]),
@@ -95,20 +90,15 @@ export const SCENES_FIGHT: readonly IScene[] = [
     [
       person("gun", "m1", 0, 0, 0, [
         act("reachHolster"),
-        act("drawFirearm", { prop: "pistolG" }),
-        act("presentFirearm", { gun: "pistolG", target: at("ace", "sternum") }),
-        act("takeAim", { gun: "pistolG", target: at("ace", "sternum") }),
-        act("fireFirearm", { gun: "pistolG" }),
-        act("recoil", { gun: "pistolG" }),
+        act("presentFirearm", { target: at("ace", "sternum") }),
+        act("takeAim", { target: at("ace", "sternum") }),
+        act("fireFirearm"),
+        act("recoil"),
       ]),
       person("ace", "m2", 0, 6, 180, [
         act("highReady", { seconds: 1.5 }),
         act("surrender"),
       ]),
-    ],
-    [
-      object("pistolG", "createHandgun", "fullSize", 0.25, 0),
-      object("holsterG", "createHolster", undefined, 0.25, 0),
     ],
   ),
   scene(

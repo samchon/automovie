@@ -92,6 +92,7 @@ export namespace SceneBuild {
    * @param x Floor point, metres.
    * @param z Floor point, metres.
    * @param yaw Heading, degrees.
+   * @param y Height above the floor, metres, for an object resting on another.
    * @returns The object.
    */
   export const object = (
@@ -101,12 +102,14 @@ export namespace SceneBuild {
     x: number,
     z: number,
     yaw: number = 0,
+    y: number = 0,
   ): IPlaygroundComposition.IObject => ({
     subject,
     producer,
     ...(kind === undefined ? {} : { kind }),
     x,
     z,
+    ...(y === 0 ? {} : { y }),
     yaw,
   });
 

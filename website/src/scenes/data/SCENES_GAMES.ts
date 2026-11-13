@@ -48,9 +48,9 @@ export const SCENES_GAMES: readonly IScene[] = [
     },
     "baseball",
     [
-      person("pit", "m2", 0, 6, 180, [act("pitch", { at: at("cat", "palmLeft") }), act("underarmPitch", { at: at("cat", "palmLeft") })]),
+      person("pit", "m2", 0, 6, 180, [act("pitch", { at: at("cat", "palmLeft") }, { anchor: "pit" }), act("underarmPitch", { at: at("cat", "palmLeft") })]),
       person("bat", "m1", 0.6, 0.6, 270, [act("battingStance"), act("batSwing"), act("checkSwing"), act("bunt")]),
-      person("cat", "f2", 0, 0, 0, [act("catcherCrouch", { seconds: 2 }), act("gloveCatch", { from: "pit" })]),
+      person("cat", "f2", 0, 0, 0, [act("gloveCatch", { from: "pit" }), act("catcherCrouch", { seconds: 2 })]),
       person("fie", "f1", 3, 8, 200, [act("readyPosition"), act("fieldGrounder")]),
     ],
   ),
@@ -84,8 +84,8 @@ export const SCENES_GAMES: readonly IScene[] = [
     "penalty",
     [
       person("kic", "m1", 0, 0, 0, [act("dash", { to: to(0, 1) }), act("kickRight", { ball: at("kic", "footTopRight") })]),
-      person("kee", "m2", 0, 11, 180, [act("readyPosition"), act("goalkeeperDiveLeft"), act("goalkeeperDiveRight")]),
-      person("def", "f1", 3, 3, 240, [act("slidingTackle")]),
+      person("kee", "m2", 0, 11, 180, [act("readyPosition"), act("stand", { seconds: 0.3 }), act("goalkeeperDiveLeft")]),
+      person("def", "f1", 3, 3, 240, [act("stand", { seconds: 0.3 }), act("slidingTackle")]),
     ],
   ),
   scene(
@@ -124,8 +124,8 @@ export const SCENES_GAMES: readonly IScene[] = [
   scene(
     {
       id: "high-jump",
-      title: "High jump and pole vault",
-      summary: "Two athletes run in with strides and skips; one flops over the bar, the other vaults on a pole.",
+      title: "Jump drills",
+      summary: "Two athletes drill their run-up: A-skips and B-skips, butt kicks and high knees, a leap and a dash.",
       setting: "sport",
       roles: { hj: "high jumper", pv: "pole vaulter" },
       needs: [3392],
@@ -133,8 +133,8 @@ export const SCENES_GAMES: readonly IScene[] = [
     },
     "jumps",
     [
-      person("hj", "f1", -4, 0, 90, [act("aSkip"), act("strides", { to: to(-1, 0) }), act("fosburyFlop")]),
-      person("pv", "m1", -6, 3, 90, [act("bSkip"), act("strides", { to: to(-2, 3) }), act("vaultOnPole")]),
+      person("hj", "f1", -4, 0, 90, [act("aSkip"), act("buttKicks"), act("stand", { seconds: 0.3 }), act("leap", { to: to(-2.5, 0) })]),
+      person("pv", "m1", -6, 3, 90, [act("bSkip"), act("highKnees"), act("dash", { to: to(-2, 3) })]),
     ],
   ),
   scene(
@@ -149,8 +149,8 @@ export const SCENES_GAMES: readonly IScene[] = [
     },
     "relay",
     [
-      person("r1", "m1", -6, 0, 90, [act("sprintStart"), act("sprint", { to: to(-1, 0) }), act("relayOutgoing", { partner: "r2", at: 1.2 })]),
-      person("r2", "f1", -0.5, 0.3, 90, [act("relayIncoming", { partner: "r1", at: 1.2 }), act("sprint", { to: to(5, 0.3) })]),
+      person("r1", "m1", -6, 0, 90, [act("sprintStart"), act("sprint", { to: to(-1, 0) }), act("relayOutgoing", { partner: "r2", at: 5.5 })]),
+      person("r2", "f1", -0.5, 0.3, 90, [act("relayIncoming", { partner: "r1", at: 5.5 }), act("sprint", { to: to(5, 0.3) })]),
       person("r3", "m2", 5.5, 0.6, 90, [act("readyPosition"), act("dash", { to: to(8, 0.6) })]),
       person("r4", "f2", 9, 0.9, 90, [act("readyPosition"), act("fistPump")]),
     ],
@@ -168,7 +168,7 @@ export const SCENES_GAMES: readonly IScene[] = [
     [
       person("w1", "m1", 0, 0, 0, [act("fistPump"), act("victory"), act("lowFive", { partner: "w2" })]),
       person("w2", "f1", 0.8, 0.3, 300, [act("handsOnHips"), act("lowFive", { partner: "w1" }), act("thumbsUp")]),
-      person("w3", "m2", -0.8, 0.3, 60, [act("handsBehindHead"), act("firmPress", { target: at("w1", "shoulderRight") })]),
+      person("w3", "m2", -0.5, 0.2, 60, [act("handsBehindHead"), act("firmPress", { target: at("w1", "shoulderRight") })]),
     ],
   ),
   scene(

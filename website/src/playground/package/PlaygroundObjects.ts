@@ -124,6 +124,6 @@ export namespace PlaygroundObjects {
     at: { x: number; y: number; z: number };
     yaw: number;
   } {
-    return { at: { x: object.x, y: 0, z: object.z }, yaw: object.yaw };
+    return { at: { x: object.x, y: object.y ?? 0, z: object.z }, yaw: object.yaw };
   }
 }

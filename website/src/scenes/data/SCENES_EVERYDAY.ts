@@ -99,7 +99,7 @@ const FALL: IPlaygroundComposition = {
         { name: "crouch", params: { hold: 1 } },
         { name: "kneel", params: { kind: "one", hold: 1.2 } },
         { name: "rise", params: {} },
-        { name: "touch", params: { target: at("dee", "shoulderLeft") } },
+        { name: "touch", params: { target: at("eve", "kneeLeft") } },
         { name: "wipe", params: { on: at("eve", "thighFrontLeft"), cycles: 2 } },
       ],
     },
@@ -148,7 +148,7 @@ export const SCENES_EVERYDAY: readonly IScene[] = [
     id: "fall-and-rise",
     title: "A fall",
     summary:
-      "One person staggers, goes down and crawls; another braces, crouches and kneels to help, then touches the fallen one's shoulder.",
+      "One person staggers, goes down and crawls away; another braces, crouches and kneels, rubs her knee and wipes her hands.",
     setting: "everyday",
     cast: [
       { subject: "dee", role: "the one who falls" },

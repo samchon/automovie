@@ -48,7 +48,7 @@ export const SCENES_STREET: readonly IScene[] = [
       summary:
         "One person flees, another chases, a third cuts across to intercept; a fourth follows at a distance and a fifth escorts a sixth away.",
       setting: "street",
-      roles: { run: "fleeing", cop: "chasing", cut: "intercepting", tag: "following", esc: "escort", vip: "escorted" },
+      roles: { run: "fleeing", cop: "chasing", cut: "intercepting", tag: "following", vip: "escorted", esc: "escort" },
       needs: [3392, 3460],
       view: "top",
     },
@@ -56,10 +56,10 @@ export const SCENES_STREET: readonly IScene[] = [
     [
       person("run", "m1", 0, 0, 0, [act("flee", { from: "cop", metres: 6, pace: "run" })]),
       person("cop", "m2", 0, -2, 0, [act("chase", { target: at("run", "upperBack") })]),
-      person("cut", "f1", 3, 2, 270, [act("intercept", { target: at("run", "sternum") })]),
+      person("cut", "f1", 3, 2, 270, [act("intercept", { target: "run" })]),
       person("tag", "f2", -2, -3, 0, [act("follow", { target: at("cop", "upperBack"), pace: "normal" })]),
-      person("esc", "m1", -3, 1, 90, [act("escort", { target: at("vip", "upperArmLeft") })]),
       person("vip", "f1", -3, 1.6, 90, [act("stroll", { to: to(1, 1.6) })]),
+      person("esc", "m1", -3, 1, 90, [act("escort", { target: at("vip", "upperArmLeft") })]),
     ],
   ),
   scene(

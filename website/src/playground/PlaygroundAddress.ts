@@ -101,6 +101,7 @@ export namespace PlaygroundAddress {
     (value.seed === undefined || typeof value.seed === "string") &&
     typeof value.x === "number" &&
     typeof value.z === "number" &&
+    (value.y === undefined || typeof value.y === "number") &&
     typeof value.yaw === "number";
 
   /** Whether a value has the members the editor reads of a performer. */

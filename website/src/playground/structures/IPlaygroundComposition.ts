@@ -47,6 +47,9 @@ export namespace IPlaygroundComposition {
     /** Floor point, world metres: z forward. */
     z: number;
 
+    /** Height of its origin above the floor, metres, for an object resting on another, such as a mug on a table; on the floor when absent. */
+    y?: number;
+
     /** Heading about +Y, degrees. */
     yaw: number;
   }

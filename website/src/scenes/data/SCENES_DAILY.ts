@@ -1,7 +1,7 @@
 import type { IScene } from "../structures/IScene";
 import { SceneBuild } from "./SceneBuild";
 
-const { act, at, object, person, scene, seat, to } = SceneBuild;
+const { act, at, object, person, planned, scene, seat, to } = SceneBuild;
 
 /** The everyday scenes composed from the lexicon and placed objects of #3392. */
 export const SCENES_DAILY: readonly IScene[] = [
@@ -10,7 +10,7 @@ export const SCENES_DAILY: readonly IScene[] = [
       id: "cafe",
       title: "Café",
       summary:
-        "Two friends sit at a table, sip and whisper; a third arrives and sits; one of them gets up and leaves slowly.",
+        "Two friends sit at a table, sip and whisper; a third arrives, stands by the table and waves them over.",
       setting: "everyday",
       roles: { ana: "friend", ben: "friend", cal: "latecomer" },
       needs: [3392],
@@ -21,11 +21,10 @@ export const SCENES_DAILY: readonly IScene[] = [
       person("ana", "f1", -1.2, 1.5, 90, [
         act("sit", { seat: seat("chairA"), seconds: 1 }),
         act("pickUp", { prop: "mug", handle: "handle" }),
-        act("handToFace", { task: "sip" }),
-        act("putDown", { prop: "mug" }),
+        act("toastSip", { prop: "mug" }),
+        act("putDown", { prop: "mug", at: { x: -0.5, y: 0.75, z: 1.5 } }),
         act("whisper", { partner: "ben" }),
-        act("rise"),
-        act("sad", { to: to(-3, -1) }),
+        act("handOnHeart"),
       ]),
       person("ben", "m1", 1.2, 1.5, 270, [
         act("sit", { seat: seat("chairB"), seconds: 1 }),
@@ -34,17 +33,16 @@ export const SCENES_DAILY: readonly IScene[] = [
         act("handOnHeart"),
       ]),
       person("cal", "m2", 3, -1, 0, [
-        act("stroll", { to: to(0, 2.7) }),
-        act("sit", { seat: seat("chairC"), seconds: 1 }),
+        act("stroll", { to: to(0.6, 2.6) }),
         act("handsClasped"),
+        act("comeHere"),
       ]),
     ],
     [
       object("table", "createTable", "dining", 0, 1.5),
       object("chairA", "createSeat", "dining", -0.7, 1.5, 90),
       object("chairB", "createSeat", "dining", 0.7, 1.5, 270),
-      object("chairC", "createSeat", "dining", 0, 2.2, 180),
-      object("mug", "createDrinkware", "mug", -0.3, 1.5),
+      object("mug", "createDrinkware", "mug", -0.56, 1.5, 0, 0.75),
     ],
   ),
   scene(
@@ -52,7 +50,7 @@ export const SCENES_DAILY: readonly IScene[] = [
       id: "office",
       title: "Office",
       summary:
-        "Two people at their desks: one types, rubs their eyes and thinks; the other checks a watch, shifts in the chair and switches the light.",
+        "Two people at work: one types standing at a counter, rubs their eyes and thinks; the other sits at a desk, checks a watch, takes a call and thinks.",
       setting: "everyday",
       roles: { dee: "writer", eli: "colleague" },
       needs: [3392, 3446],
@@ -60,25 +58,21 @@ export const SCENES_DAILY: readonly IScene[] = [
     "office",
     [
       person("dee", "f2", -1, 0, 0, [
-        act("sit", { seat: seat("chairD"), seconds: 0.5 }),
-        act("typeText", { keyboard: { at: { x: -1, y: 0.74, z: 0.55 } }, text: "the scene opens" }),
+        act("typeText", { keyboard: { at: { x: -1, y: 1.0, z: 0.4 } }, text: "the scene opens" }),
         act("rubEyes"),
         act("thinking", { seconds: 1.5 }),
       ]),
       person("eli", "m1", 1, 0, 0, [
         act("sit", { seat: seat("chairE"), seconds: 0.5 }),
         act("checkWatch"),
-        act("shift"),
-        act("rise"),
-        act("operate", { mechanism: { kind: "button", at: { kind: "prop", subject: "switch", point: "toggle" } } }),
+        act("handToFace", { task: "phone" }),
+        act("thinking", { seconds: 1 }),
       ]),
     ],
     [
-      object("deskD", "createTable", "desk", -1, 0.6),
+      object("deskD", "createTable", "counter", -1, 0.6),
       object("deskE", "createTable", "desk", 1, 0.6),
-      object("chairD", "createSeat", "office", -1, 0),
       object("chairE", "createSeat", "office", 1, 0),
-      object("switch", "createSwitch", "rocker", 1.6, 0.4, 270),
     ],
   ),
   scene(
@@ -119,7 +113,6 @@ export const SCENES_DAILY: readonly IScene[] = [
       person("gus", "m2", -0.5, 0, 45, [
         act("lightCigarette"),
         act("smoke"),
-        act("ashTap", { target: at("gus", "abdomen") }),
         act("smoke"),
         act("scratchNape"),
       ]),
@@ -145,7 +138,7 @@ export const SCENES_DAILY: readonly IScene[] = [
     [
       person("ivy", "f2", -1, 0, 0, [
         act("stroll", { to: to(-1, 2) }),
-        act("photograph"),
+        act("fanSelf"),
         act("comeHere"),
       ]),
       person("jay", "m1", 0, -0.5, 0, [
@@ -208,27 +201,33 @@ export const SCENES_DAILY: readonly IScene[] = [
     },
     "farewell",
     [
-      person("tia", "f1", 0, 0, 0, [
+      person("tia", "f1", 0.3, 0.15, 0, [
+        act("stand", { seconds: 3 }),
         act("receive", { prop: "bag", from: "uli", handle: "handle" }),
+        act("putDown", { prop: "bag", at: { x: 0.25, y: 0, z: -0.15 } }),
         act("cheekKiss", { partner: "uli" }),
         act("fistBump", { partner: "val" }),
         act("blownKissSend"),
         act("trudge", { to: to(0, -3) }),
       ]),
-      person("uli", "m1", 0, 0.75, 180, [
+      person("uli", "m1", 0, 0.55, 180, [
+        act("pickUp", { prop: "bag", handle: "handle" }),
         act("handOver", { prop: "bag", to: "tia", handle: "handle" }),
         act("cheekKiss", { partner: "tia" }),
         act("kiss", { partner: "tia", region: "forehead" }),
         act("shoulderPat", { target: at("val", "shoulderLeft") }),
         act("comfort", { target: at("val", "upperBack") }),
       ]),
-      person("val", "f2", 0.75, 0.4, 240, [
+      person("val", "f2", 0.5, 0.45, 240, [
         act("fistBump", { partner: "tia" }),
         act("pinkyPromise", { partner: "tia" }),
         act("handOnHeart"),
       ]),
     ],
-    [object("bag", "createBag", "suitcase", 0.3, 0.4)],
+    [
+      object("bench", "createSeat", "bench", 0.45, 0.9, 270),
+      object("bag", "createBag", "tote", 0.4, 0.9, 270, 0.45),
+    ],
   ),
   scene(
     {
@@ -264,35 +263,21 @@ export const SCENES_DAILY: readonly IScene[] = [
       ]),
     ],
   ),
-  scene(
+  planned(
     {
       id: "doorway",
       title: "Through a door",
       summary:
-        "One person opens a hinged door and holds it; two others come through, one waved on.",
+        "One person pulls a hinged door open and holds it; two others come through, one waved on.",
       setting: "everyday",
-      roles: { zed: "host", amy: "guest", bob: "guest" },
-      needs: [3392],
+      needs: [3392, 3520],
     },
-    "doorway",
-    [
-      person("zed", "m1", 0, -0.6, 0, [
-        act("openDoor", { door: "door", handle: "pull", seconds: 1.5 }),
-        act("passThrough", { through: "door" }),
-        act("comeHere"),
-      ]),
-      person("amy", "f1", -0.5, -2, 0, [
-        act("stroll", { to: to(-0.3, -0.8) }),
-        act("passThrough", { through: "door" }),
-      ]),
-      person("bob", "m2", 0.6, -2.6, 0, [
-        act("hurry", { to: to(0.3, -1) }),
-        act("passThrough", { through: "door", pace: "fast" }),
-      ]),
-    ],
-    [object("door", "createDoor", "hinged", 0, 0)],
-  ),
-  scene(
+    {
+      cast: "three people; a hinged door",
+      pieces:
+        "openDoor and passThrough of the gait family, comeHere; a door pulled through its whole swing carries the handle beyond the arm, so the host must step with it (#3520)",
+    },
+  ),  scene(
     {
       id: "dressing-room",
       title: "Dressing room",
@@ -325,7 +310,7 @@ export const SCENES_DAILY: readonly IScene[] = [
     },
     "climb",
     [
-      person("dot", "f1", -1.5, 0, 0, [act("climbStairs", { pattern: "stepOverStep" })]),
+      person("dot", "f1", -1.5, 0, 0, [act("climbStairs", { pattern: "stepOverStep", count: 6 })]),
       person("eve", "m1", 0.5, 0, 0, [act("climbLadder", { rungs: 6 })]),
       person("fin", "m2", 2, -1, 0, [
         act("walk", { to: to(2, 0) }),
@@ -334,7 +319,6 @@ export const SCENES_DAILY: readonly IScene[] = [
       ]),
     ],
     [
-      object("stairs", "createStairs", undefined, -1.5, 0.6),
       object("ladder", "createLadder", "leaning", 0.5, 0.5),
       object("bar", "createBar", "rail", 2, 0.4),
     ],

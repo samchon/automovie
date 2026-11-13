@@ -1,7 +1,7 @@
 import type { IScene } from "../structures/IScene";
 import { SceneBuild } from "./SceneBuild";
 
-const { act, at, object, person, scene, seat, to } = SceneBuild;
+const { act, at, object, person, planned, scene, seat, to } = SceneBuild;
 
 /** The partner, riding and work scenes composed from the lexicon of #3392. */
 export const SCENES_PARTNER: readonly IScene[] = [
@@ -10,7 +10,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
       id: "partner-dance",
       title: "Partner dance",
       summary:
-        "A pair in closed hold: the lead leads, the follower follows, an underarm turn and a spin.",
+        "A pair in closed hold, an underarm turn and a spin; leading and following each other arrive with the two-body campaign.",
       setting: "partner",
       roles: { lea: "lead", fol: "follower" },
       needs: [3392, 3437],
@@ -18,8 +18,8 @@ export const SCENES_PARTNER: readonly IScene[] = [
     },
     "dance",
     [
-      person("lea", "m1", 0, 0, 0, [act("danceHold", { partner: "fol" }), act("danceLead", { partner: "fol" }), act("closedHold"), act("underarmTurn")]),
-      person("fol", "f1", 0, 0.45, 180, [act("danceHold", { partner: "lea" }), act("danceFollow", { partner: "lea" }), act("closedHold"), act("spin")]),
+      person("lea", "m1", 0, 0, 0, [act("closedHold"), act("underarmTurn"), act("spin")]),
+      person("fol", "f1", 0, 0.45, 180, [act("closedHold"), act("spin"), act("underarmTurn")]),
     ],
   ),
   scene(
@@ -64,31 +64,28 @@ export const SCENES_PARTNER: readonly IScene[] = [
       view: "side",
     },
     "ride",
-    [person("rid", "f1", -0.8, 0, 90, [act("ride", { on: "horse", seconds: 6 })])],
+    [person("rid", "f1", 0, -0.6, 90, [act("sit", { seat: seat("horse") }), act("ride", { on: "horse", seconds: 6 })])],
     [object("horse", "createHorse", undefined, 0, 0, 90)],
   ),
-  scene(
+  planned(
     {
       id: "into-a-car",
       title: "Into a car",
-      summary: "Two people open the car's doors and get in, ducking under the frame.",
+      summary: "Two people open the car's front doors and get in, ducking under the frame.",
       setting: "ride",
-      roles: { dri: "driver", pas: "passenger" },
-      needs: [3392, 3498],
+      needs: [3392, 3498, 3520],
     },
-    "car",
-    [
-      person("dri", "m1", -1.4, 0, 90, [act("openDoor", { door: "car", handle: "driverHandle", seconds: 1 }), act("getIn", { seat: seat("car"), through: { door: "car" } })]),
-      person("pas", "f1", 1.4, 0.3, 270, [act("openDoor", { door: "car", handle: "passengerHandle", seconds: 1 }), act("getIn", { seat: { $seat: "car", id: "passengerSeat" }, through: { door: "car" } })]),
-    ],
-    [object("car", "createCar", "sedan", 0, 0)],
-  ),
-  scene(
+    {
+      cast: "a driver and a passenger; a sedan",
+      pieces:
+        "openDoor and getIn of the gait family through the car's door handles and seats; a door pulled through its whole swing carries the handle beyond the arm, so each must step with it (#3520)",
+    },
+  ),  scene(
     {
       id: "workshop",
       title: "Workshop",
       summary:
-        "Four workers: a hammer, a saw and a screwdriver at the bench, a box carried across, a cart pushed, a pot stirred and a broom swept.",
+        "Four workers: a hammer, a saw and a screwdriver, a box carried across, a cart pushed, a load carried on the hip and tossed over.",
       setting: "work",
       roles: { w1: "carpenter", w2: "carpenter", w3: "carrier", w4: "cleaner" },
       needs: [3392, 3433],
@@ -98,8 +95,8 @@ export const SCENES_PARTNER: readonly IScene[] = [
       person("w1", "m1", -1, 0, 0, [act("hammer", { on: at("w1", "palmLeft") }), act("saw", { on: at("w1", "palmLeft"), cycles: 3 })]),
       person("w2", "f1", 0, 0, 0, [act("screw", { on: at("w2", "palmLeft") }), act("useTool", { tool: "screwdriver", on: at("w2", "palmLeft") })]),
       person("w3", "m2", 1.5, -1, 0, [act("carryBox", { to: to(1.5, 2) }), act("pushCart", { to: to(1.5, -1) })]),
-      person("w4", "f2", -2.5, 1, 0, [act("scrub", { on: at("w4", "palmLeft") }),
-        act("carry", { to: to(-2.5, 1.8), how: "twoHands" }), act("stir", { on: at("w4", "palmLeft") }), act("haul", { to: to(-2.5, 2.5) })]),
+      person("w4", "f2", -2.5, 1, 0, [
+        act("carry", { to: to(-2.5, 1.8), how: "twoHands" }), act("carryOnHip", { to: to(-2.5, 2.5) }), act("toss", { at: at("w3", "sternum") })]),
     ],
     [
       object("bench", "createTable", "counter", -0.5, 0.6),

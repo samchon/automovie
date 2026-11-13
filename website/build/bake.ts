@@ -6,6 +6,8 @@
 //   pnpm run bake --merge                    join the machines' results
 //   pnpm run bake --check                    plan each playing scene's first
 //                                            take only, and list every refusal
+//   pnpm run bake --check --row <name>...    plan each named action alone on
+//                                            one person, with no parameters
 //
 // A scene is computed with the workspace packages exactly as the playground
 // computes it (`PlaygroundPerformance.build`); each figure's bone placements
@@ -69,6 +71,9 @@ interface IOptions {
 
   /** Whether this process only plans each scene's first take and reports refusals. */
   check: boolean;
+
+  /** Actions the check plans alone on one person instead of the scenes. */
+  rows: string[];
 }
 
 /** One take to bake. */
@@ -128,6 +133,7 @@ const options: IOptions = {
   runners: 1,
   merge: false,
   check: false,
+  rows: [],
 };
 const argv: string[] = process.argv.slice(2);
 for (let i: number = 0; i < argv.length; i++) {
@@ -141,6 +147,7 @@ for (let i: number = 0; i < argv.length; i++) {
   else if (arg === "--runners") options.runners = Math.max(1, Number(argv[++i]));
   else if (arg === "--merge") options.merge = true;
   else if (arg === "--check") options.check = true;
+  else if (arg === "--row") options.rows.push(argv[++i]!);
 }
 
 /** A digest of every source file of the packages a track is computed from, of the site code that computes it, and of the format. */
@@ -524,8 +531,44 @@ const local = async (): Promise<void> => {
   );
 };
 
+/** Plan each named action alone on one standing person with no parameters, and say whether the package plans it, refuses it in its own words, or fails in its code. */
+const rows = (): void => {
+  for (const name of options.rows) {
+    const composition: IPlaygroundComposition = {
+      version: 1,
+      seed: "row",
+      performers: [
+        {
+          subject: "a",
+          body: "m1",
+          x: 0,
+          z: 0,
+          yaw: 0,
+          proficiency: "trained",
+          actions: [
+            { name: "stand", params: { seconds: 0.3 } },
+            { name, params: {} },
+          ],
+        },
+      ],
+      mutuals: [],
+    };
+    try {
+      PlaygroundPerformance.build(composition);
+      console.log(`${name}: plans`);
+    } catch (error) {
+      const refusal: boolean =
+        typeof error === "object" && error !== null && "axis" in error;
+      console.log(
+        `${name}: ${refusal ? "refuses" : "fails in the package"}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
+};
+
 /** Plan the first take of every scene that plays, without posing it, and list every refusal and every scene that waits. */
 const check = (): void => {
+  if (options.rows.length !== 0) return rows();
   const refused: string[] = [];
   for (const scene of SCENES) {
     if (options.only.length !== 0 && !options.only.includes(scene.id)) continue;
@@ -557,9 +600,10 @@ const check = (): void => {
         `${scene.id}: plans, ${built.performance.duration.toFixed(1)} s of film, planned in ${planned.toFixed(1)} s; a pose: ${costs.join(", ")}`,
       );
     } catch (error) {
-      refused.push(
-        `${scene.id}: ${error instanceof Error ? error.message : String(error)}`,
-      );
+      // Printed at once as well, so a check stopped halfway keeps its findings.
+      const line: string = `${scene.id}: refused: ${error instanceof Error ? error.message : String(error)}`;
+      console.log(line);
+      refused.push(line);
     }
   }
   if (refused.length !== 0) throw new Error(refused.join("\n"));

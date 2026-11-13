@@ -23,7 +23,7 @@ export function formatSceneChain(composition: IPlaygroundComposition): string {
           "",
           ...objects.flatMap((o: IPlaygroundComposition.IObject): string[] => [
             `const ${identifier(o.subject)} = archetypes.${o.producer}(${o.kind === undefined ? "{}" : `{ kind: ${JSON.stringify(o.kind)} }`}${o.seed === undefined ? "" : `, ${JSON.stringify(o.seed)}`});`,
-            `const ${identifier(o.subject)}At = { at: { x: ${o.x}, y: 0, z: ${o.z} }, yaw: ${o.yaw} };`,
+            `const ${identifier(o.subject)}At = { at: { x: ${o.x}, y: ${o.y ?? 0}, z: ${o.z} }, yaw: ${o.yaw} };`,
           ]),
           "",
         ];
