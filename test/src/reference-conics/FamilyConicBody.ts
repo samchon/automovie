@@ -2902,13 +2902,27 @@ namespace FamilyConicBody {
       const a: number = (w[0] * e[1] - w[1] * e[0]) / den;
       return { a, b: (w[0] * d[1] - w[1] * d[0]) / den, X: [p[0] + a * d[0], p[1] + a * d[1]] };
     };
-    // A conic arc of shoulder one half (a parabola) from p0 to p2 under its corner, one point a millimetre of its chord, ends excluded.
-    const arc = (p0: C.P, corner: C.P, p2: C.P): C.P[] => {
+    // A conic arc of shoulder `rho` from p0 to p2 under its corner (its middle weight rho / (1 - rho)), one point a millimetre of its chord,
+    // ends excluded.
+    const arc = (p0: C.P, corner: C.P, p2: C.P, rho: number): C.P[] => {
+      const w: number = rho / (1 - rho);
       const n: number = Math.max(2, Math.ceil(Math.hypot(p2[0] - p0[0], p2[1] - p0[1])));
       return Array.from({ length: n - 1 }, (_: unknown, i: number): C.P => {
         const t: number = (i + 1) / n;
-        return [(1 - t) ** 2 * p0[0] + 2 * t * (1 - t) * corner[0] + t * t * p2[0], (1 - t) ** 2 * p0[1] + 2 * t * (1 - t) * corner[1] + t * t * p2[1]];
+        const [b0, b1, b2] = [(1 - t) ** 2, 2 * t * (1 - t) * w, t * t];
+        const d: number = b0 + b1 + b2;
+        return [(b0 * p0[0] + b1 * corner[0] + b2 * p2[0]) / d, (b0 * p0[1] + b1 * corner[1] + b2 * p2[1]) / d];
       });
+    };
+    // The fullest closure the opening allows: its shoulder the largest, from one half (a parabola) down in hundredths, with which every
+    // point stays inside the reference's cut-away region; a parabola through f1's shoulder at 1,356 mm stood a few millimetres outside the
+    // skin there.
+    const fullest = (build: (rho: number) => C.P[]): C.P[] | null => {
+      for (let rho: number = 0.5; rho > 0.005; rho -= 0.01) {
+        const points: C.P[] = build(rho);
+        if (contained(points)) return points;
+      }
+      return null;
     };
     // A closure stays within the form's scale and within the part of the section the port removes. An opening narrower than the sections'
     // fairing scale (`FAIR_MM`, 20 mm) closes by its chord, since the fairing removes any shape a closure could have there. A closure that
@@ -2936,9 +2950,9 @@ namespace FamilyConicBody {
       const t1: C.P = unit(step(k, -1), e1), t2: C.P = unit(e2, step((k + 1) % out.length, 1));
       const plain = meet(e1, t1, e2, [-t2[0], -t2[1]]);
       if (plain.a > 0 && plain.b > 0) {
-        const single: C.P[] = arc(e1, plain.X, e2);
-        if (!contained(single)) {
-          report?.("outside", `conic: ${leaves(single)}`);
+        const single: C.P[] | null = fullest((rho: number): C.P[] => arc(e1, plain.X, e2, rho));
+        if (single === null) {
+          report?.("outside", `conic: ${leaves(arc(e1, plain.X, e2, 0.01))}`);
           return null;
         }
         report?.("conic");
@@ -2959,9 +2973,10 @@ namespace FamilyConicBody {
         report?.("chord");
         return null;
       }
-      const twin: C.P[] = [...arc(e1, best.A1, best.I), best.I, ...arc(best.I, best.A2, e2)];
-      if (!contained(twin)) {
-        report?.("outside", `s: ${leaves(twin)}`);
+      const pick = best;
+      const twin: C.P[] | null = fullest((rho: number): C.P[] => [...arc(e1, pick.A1, pick.I, rho), pick.I, ...arc(pick.I, pick.A2, e2, rho)]);
+      if (twin === null) {
+        report?.("outside", `s: ${leaves([...arc(e1, pick.A1, pick.I, 0.01), pick.I, ...arc(pick.I, pick.A2, e2, 0.01)])}`);
         return null;
       }
       report?.("s");

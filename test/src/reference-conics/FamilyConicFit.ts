@@ -99,6 +99,17 @@ export namespace FamilyConicFit {
   /** Spacing of the stations at which every candidate must be an admissible chain, mm (`fit`). */
   const DENSE_MM: number = 0.25;
 
+  /** `--adaptive-knots`: the start's knots placed from the data (`adaptiveKnots`), and refused own seeds left out of the projection. */
+  const ADAPTIVE: boolean = process.argv.includes("--adaptive-knots");
+
+  /**
+   * How near a section's own admitted seed the start must stand, mm, read as the largest radial difference between the two chains along
+   * 72 rays: twice the 0.5 mm the trunk's stored wall reached (`FamilyConicBody`), so the start stands near its data but need not fit it.
+   */
+  const SEED_NEAR_MM: number = 1;
+
+  /** The least spacing of the start's knots, mm: the fitting sections' own (2 mm), below which a knot has no section of its own. */
+  const KNOT_LEAST_MM: number = 2;
   /** Rounds of fitting the feature lines' headings before the sections (`fit`), and the step their headings are searched in, radians. */
   const LINE_ROUNDS: number = 48;
 
@@ -261,15 +272,30 @@ export namespace FamilyConicFit {
    * @param margin The least share of its chord at which every arc's tangent lines must meet (`ADMISSIBLE_MARGIN`).
    * @param polish Whether to minimise at all; false only reports `initial` as it stands (`construct`).
    */
-  export function fit(rows: readonly IRow[], knots: readonly number[], layout: C.ILayout, power: number = 2, initial?: readonly (readonly number[])[], margin: number = ADMISSIBLE_MARGIN, polish: boolean = true): IResult {
+  export function fit(rows: readonly IRow[], given: readonly number[], layout: C.ILayout, power: number = 2, initial?: readonly (readonly number[])[], margin: number = ADMISSIBLE_MARGIN, polish: boolean = true): IResult {
     const started: number = performance.now();
     const units: C.Unit[] = C.units(layout);
     const F: number = units.length;
     const free: number[] = units.map((_: C.Unit, f: number): number => f).filter((f: number): boolean => units[f] !== "mm");
-    const M: number = knots.length;
     const folds: { count: number } = { count: 0 };
     const train: IRow[] = rows.filter((row: IRow): boolean => !row.heldout);
-    const samples: ISample[] = train.map(vertices);
+    // The sections' own seeds, in station order, their feature lines tracked along the stations (`FamilyConicSection.seedAll`). A feature's
+    // heading is an angle read on each section alone; carried along the stations it is unwrapped onto one branch, so the projection onto
+    // the knots does not average two readings a turn apart.
+    const seeds: number[][] = C.seedAll(train.map((row: IRow): readonly C.P[] => row.points), layout);
+    for (let f: number = 0; f < F; ++f) {
+      if (units[f] !== "angle") continue;
+      for (let i: number = 1; i < seeds.length; ++i) {
+        const previous: number = seeds[i - 1]![f]!;
+        while (seeds[i]![f]! - previous > Math.PI) seeds[i]![f]! -= 2 * Math.PI;
+        while (seeds[i]![f]! - previous < -Math.PI) seeds[i]![f]! += 2 * Math.PI;
+      }
+    }
+    // `--adaptive-knots`: the start's knots placed from the data (`adaptiveKnots`), and a section whose own seed is refused left out of the
+    // projection as an outlier.
+    const seedWeights: number[] = seeds.map((t: number[]): number => (!ADAPTIVE || C.chain(t, layout).fault === null ? 1 : 0));
+    const knots: number[] = ADAPTIVE && initial === undefined ? adaptiveKnots(train, seeds, seedWeights, [given[0]!, given[given.length - 1]!], layout, margin) : [...given];
+    const M: number = knots.length;    const samples: ISample[] = train.map(vertices);
     const cardinals: S.ISpline[] = knots.map((_: number, m: number): S.ISpline => S.create(knots, knots.map((__: number, k: number): number => (k === m ? 1 : 0))));
     const basis = (s: number): number[] => cardinals.map((spline: S.ISpline): number => S.evaluate(spline, s));
     const B: number[][] = train.map((row: IRow): number[] => basis(row.s));
@@ -311,24 +337,14 @@ export namespace FamilyConicFit {
     }
 
     // Start from each section's own geometric reading, projected onto the shared knots by linear least squares.
-    // The sections' own seeds, in station order, their feature lines tracked along the stations (`FamilyConicSection.seedAll`).
-    const seeds: number[][] = C.seedAll(train.map((row: IRow): readonly C.P[] => row.points), layout);
-    // A feature's heading is an angle read on each section alone; carried along the stations it is unwrapped onto one branch, so the
-    // projection onto the knots does not average two readings a turn apart.
-    for (let f: number = 0; f < F; ++f) {
-      if (units[f] !== "angle") continue;
-      for (let i: number = 1; i < seeds.length; ++i) {
-        const previous: number = seeds[i - 1]![f]!;
-        while (seeds[i]![f]! - previous > Math.PI) seeds[i]![f]! -= 2 * Math.PI;
-        while (seeds[i]![f]! - previous < -Math.PI) seeds[i]![f]! += 2 * Math.PI;
-      }
-    }
     const gram: number[][] = zeros(M, M);
-    for (const b of B) for (let m: number = 0; m < M; ++m) for (let n: number = 0; n < M; ++n) gram[m]![n]! += b[m]! * b[n]!;
+    B.forEach((b: number[], i: number): void => {
+      for (let m: number = 0; m < M; ++m) for (let n: number = 0; n < M; ++n) gram[m]![n]! += seedWeights[i]! * b[m]! * b[n]!;
+    });
     let Y: number[][] = [];
     for (let f: number = 0; f < F; ++f) {
       const right: number[] = new Array<number>(M).fill(0);
-      for (let i: number = 0; i < train.length; ++i) for (let m: number = 0; m < M; ++m) right[m]! += B[i]![m]! * seeds[i]![f]!;
+      for (let i: number = 0; i < train.length; ++i) for (let m: number = 0; m < M; ++m) right[m]! += seedWeights[i]! * B[i]![m]! * seeds[i]![f]!;
       const solved: number[] | null = solve(gram.map((r: number[]): number[] => [...r]), right);
       if (solved === null) return failed("the knot vector is not supported by the observed stations");
       Y.push(solved);
@@ -811,6 +827,116 @@ export namespace FamilyConicFit {
     return columns[0]!.map((_: number, f: number): number[] => columns.map((column: number[]): number => column[f]!));
   }
 
+  /**
+   * The start's knots placed from the data (Piegl and Tiller, The NURBS Book, 1997, section 9.4.1, approximation to within a specified
+   * accuracy: knots are inserted where the curve leaves its data until every point holds). From the domain's two ends, each round projects
+   * every field onto the knots by weighted linear least squares (a refused own seed weighs nothing), and checks every `DENSE_MM` station
+   * for an admissible chain, raw and as stored, and every admitted own seed for a projection within `SEED_NEAR_MM` of it. In each knot
+   * interval that fails, a knot goes in at its worst station: a refused station first (the least tangent meeting), else the farthest seed.
+   * An interval whose worst station stands within `KNOT_LEAST_MM` of a knot is reported and left, since the seeds there disagree.
+   *
+   * @param train The fitting sections.
+   * @param seeds Their own seeds, headings unwrapped.
+   * @param weights Each seed's weight in the projection.
+   * @param ends The domain's first and last station.
+   * @param layout The layout.
+   * @param margin The fit's meeting margin.
+   */
+  export function adaptiveKnots(train: readonly IRow[], seeds: readonly (readonly number[])[], weights: readonly number[], ends: [number, number], layout: C.ILayout, margin: number): number[] {
+    const units: C.Unit[] = C.units(layout);
+    const F: number = units.length;
+    const shares: number[] = units.map((unit: C.Unit, f: number): number => (unit === "share" ? f : -1)).filter((f: number): boolean => f >= 0);
+    const rounded = (t: number[]): number[] => t.map((y: number, f: number): number => (units[f] === "mm" ? Math.round(y * 100) / 100 : Math.round(y * 1e4) / 1e4));
+    const least = (t: number[]): number => {
+      const m: number = Math.min(...leastMeetings(t, layout));
+      return Number.isFinite(m) ? m : -Infinity;
+    };
+    // A station's admission and its least meeting less the margin (negative when refused), raw and as stored.
+    const score = (t: number[]): number => {
+      const r: number[] = rounded(t);
+      if (C.chain(t, layout).fault !== null || C.chain(r, layout).fault !== null) return -Infinity;
+      if (!shares.every((f: number): boolean => t[f]! > 0 && t[f]! < 1 && r[f]! > 0 && r[f]! < 1)) return -Infinity;
+      return Math.min(least(t), least(r)) - margin;
+    };
+    const rays: number[] = Array.from({ length: 72 }, (_: unknown, k: number): number => (2 * Math.PI * k) / 72);
+    const apart = (a: number[], b: number[]): number => {
+      const [x, y] = [C.chain(a, layout), C.chain(b, layout)];
+      if (x.fault !== null || y.fault !== null) return Infinity;
+      return Math.max(...rays.map((phi: number): number => Math.abs(Q.radius(x, phi) - Q.radius(y, phi))));
+    };
+    let knots: number[] = [...ends];
+    const blocked: Set<number> = new Set();
+    for (let round: number = 0; round < 200; ++round) {
+      const M: number = knots.length;
+      const cardinals: S.ISpline[] = knots.map((_: number, m: number): S.ISpline => S.create(knots, knots.map((__: number, k: number): number => (k === m ? 1 : 0))));
+      const basis = (s: number): number[] => cardinals.map((spline: S.ISpline): number => S.evaluate(spline, s));
+      const B: number[][] = train.map((row: IRow): number[] => basis(row.s));
+      const gram: number[][] = zeros(M, M);
+      B.forEach((b: number[], i: number): void => {
+        for (let m: number = 0; m < M; ++m) for (let n: number = 0; n < M; ++n) gram[m]![n]! += weights[i]! * b[m]! * b[n]!;
+      });
+      const Y: number[][] = [];
+      for (let f: number = 0; f < F; ++f) {
+        const right: number[] = new Array<number>(M).fill(0);
+        for (let i: number = 0; i < train.length; ++i) for (let m: number = 0; m < M; ++m) right[m]! += weights[i]! * B[i]![m]! * seeds[i]![f]!;
+        const solved: number[] | null = solve(gram.map((r: number[]): number[] => [...r]), right);
+        if (solved === null) {
+          process.stderr.write(`adaptive knots: the projection is singular at ${M} knots; kept the last that solved\n`);
+          return knots.slice(0, -1);
+        }
+        Y.push(solved);
+      }
+      const theta = (b: number[]): number[] => Y.map((field: number[]): number => field.reduce((sum: number, y: number, m: number): number => sum + y * b[m]!, 0));
+      // The worst station of each knot interval: refused first, by its least meeting; else the farthest admitted seed past `SEED_NEAR_MM`.
+      const worst: Map<number, { s: number; refused: boolean; value: number }> = new Map();
+      const interval = (s: number): number => {
+        let m: number = 0;
+        while (m + 1 < M - 1 && knots[m + 1]! <= s) ++m;
+        return m;
+      };
+      const offer = (s: number, refused: boolean, value: number): void => {
+        const m: number = interval(s);
+        const held = worst.get(m);
+        if (held === undefined || (refused && !held.refused) || (refused === held.refused && value > held.value)) worst.set(m, { s, refused, value });
+      };
+      const refusals: Map<number, number> = new Map();
+      for (let s: number = ends[0]; s <= ends[1] + 1e-9; s += DENSE_MM) {
+        const v: number = score(theta(basis(Math.min(s, ends[1]))));
+        if (v < 0) {
+          offer(s, true, -v);
+          const key: number = Math.floor(s / 100) * 100;
+          refusals.set(key, (refusals.get(key) ?? 0) + 1);
+        }
+      }
+      let farthest: number = 0;
+      train.forEach((row: IRow, i: number): void => {
+        if (weights[i] === 0) return;
+        const d: number = apart(theta(B[i]!), [...seeds[i]!]);
+        farthest = Math.max(farthest, Number.isFinite(d) ? d : 0);
+        if (d > SEED_NEAR_MM) offer(row.s, false, d);
+      });
+      // Each interval's worst station, moved onto the nearest fitting section; a knot within `KNOT_LEAST_MM` of another is not inserted.
+      const added: number[] = [];
+      for (const { s } of worst.values()) {
+        const at: number = train.reduce((b: IRow, row: IRow): IRow => (Math.abs(row.s - s) < Math.abs(b.s - s) ? row : b)).s;
+        if ([...knots, ...added].some((k: number): boolean => Math.abs(k - at) < KNOT_LEAST_MM)) blocked.add(Math.round(s * 4) / 4);
+        else added.push(at);
+      }
+      const byStretch = (values: number[]): string => {
+        const counts: Map<number, number> = new Map();
+        for (const v of values) counts.set(Math.floor(v / 100) * 100, (counts.get(Math.floor(v / 100) * 100) ?? 0) + 1);
+        return [...counts.entries()].sort((a, b): number => a[0] - b[0]).map(([k, n]): string => `${k}-${k + 100}: ${n}`).join(", ");
+      };
+      process.stderr.write(`adaptive knots round ${round}: ${M} knots (${byStretch(knots)}); refused dense stations ${[...refusals.values()].reduce((a, b) => a + b, 0)} (${[...refusals.entries()].sort((a, b) => a[0] - b[0]).map(([k, n]) => `${k}-${k + 100}: ${n}`).join(", ")}); farthest admitted seed ${farthest.toFixed(2)} mm; inserting ${added.length}; blocked ${blocked.size}${blocked.size ? ` (${[...blocked].sort((a, b) => a - b).slice(0, 30).join(", ")})` : ""}\n`);
+      if (added.length === 0) {
+        process.stderr.write(`adaptive knots: ${knots.join(", ")}\n`);
+        process.stderr.write(`adaptive knots, refused own seeds: ${train.map((row: IRow, i: number): string => (weights[i] === 0 ? `${row.s} projected ${score(theta(B[i]!)) >= 0 ? "admitted" : "refused"}` : "")).filter((x: string): boolean => x.length > 0).join(", ")}\n`);
+        return knots;
+      }
+      knots = [...knots, ...added].sort((a: number, b: number): number => a - b);
+    }
+    return knots;
+  }
   /** Each arc's lesser tangent-meeting distance over unit tangents, as a share of its chord, by arc: what `ADMISSIBLE_MARGIN` holds. */
   export function leastMeetings(t: readonly number[], layout: C.ILayout): number[] {
     const input = C.resolve([...t], layout).input;
