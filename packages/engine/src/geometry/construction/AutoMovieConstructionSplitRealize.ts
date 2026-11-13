@@ -621,6 +621,15 @@ function fan(
       state.chainList.push(child.band.chain);
       state.chainSurfaces.push(child.band.surface);
     });
+
+    // Each seam's forks, the ring vertices its two arcs start at, are faired once the skin is drawn over a disc the declared share of the
+    // seam's chord across (`IAutoMovieConstructionSplit.IProfile.fair`).
+    seams.forEach((s: IAutoMovieConstructionSplit.ISeam, j: number): void => {
+      const share: number | undefined = s.profile?.fair;
+      if (share === undefined) return;
+      const radius: number = share * AutoMovieSolidVector.norm(AutoMovieSolidVector.sub(curves[j]!.ends[1], curves[j]!.ends[0]));
+      for (const fork of ["a" + j, "b" + j]) (state.fairs ??= []).push({ vertex: ring.get(fork + ":0")!, radius });
+    });
   } catch (error: unknown) {
     AutoMovieConstructionState.restore(body, state, snapshot);
     if (!(error instanceof AutoMovieLoftAdmissionError)) throw error;

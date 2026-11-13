@@ -34,6 +34,7 @@ import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 import type { IAutoMovieSolidAtlas } from "./IAutoMovieSolidAtlas";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
+import { fairAutoMovieSolidMesh } from "./fairAutoMovieSolidMesh";
 
 /** Realize operator and boundary records with no final skin when explicitly requested. */
 export function realizeAutoMovieConstruction(
@@ -427,6 +428,9 @@ export function realizeAutoMovieConstruction(
       open,
       report,
     );
+
+    // The forks a split declares a fill for, once every face is drawn and closed, so each disc reads the whole skin round it.
+    fairAutoMovieSolidMesh(body.mesh, state.fairs ?? []);
   }
   const published: AutoMovieSolidBody.IPublished =
     AutoMovieSolidBody.publish(body);
