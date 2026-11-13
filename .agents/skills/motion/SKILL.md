@@ -81,6 +81,10 @@ Verify human motion only on polygon men generated at Human parameters, across th
 
 An action's study is the primary sources its law cites in its documentation. Each action family's sub-issue collects them with the family's scope, acceptance and current state: the families of the motions campaign under #3201, and the grammar, its axes and the composed families under #3354. Read the sub-issue before authoring and add the sources you use there, so the next author starts from them.
 
+### Lexicon schemas
+
+Whoever adds a lexicon row or changes a law's parameters runs `pnpm --filter @automovie/motions schemas` and commits the regenerated `HUMAN_LEXICON_SCHEMAS.json` in the same commit, because the website reads it and CI fails on a stale one.
+
 ### Checks and capture
 
 The specification tests and the vocabulary's own report of its physical bounds decide whether an action is right here. Run the tests that concern the change by name.
