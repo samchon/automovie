@@ -99,6 +99,9 @@ export namespace ExerciseKey {
 
     /** Elbow flexion, degrees. */
     elbow?: number;
+
+    /** Wrist flexion, degrees; negative bends the hand back, as a palm laid on the floor under a straight arm is. */
+    wrist?: number;
   }
 
   /** The key of relaxed standing. */
@@ -142,6 +145,7 @@ export namespace ExerciseKey {
       joints[`${side}Toes`] = [a.toes ?? 0, 0, 0];
       joints[`${side}UpperArm`] = [a.shoulder ?? 0, a.raise ?? 5, a.twist ?? 0];
       joints[`${side}LowerArm`] = [a.elbow ?? 12, 0, 0];
+      joints[`${side}Hand`] = [a.wrist ?? 0, 0, 0];
     }
     joints.spine = trunk.spine ?? [0, 0, 0];
     joints.chest = trunk.chest ?? [0, 0, 0];

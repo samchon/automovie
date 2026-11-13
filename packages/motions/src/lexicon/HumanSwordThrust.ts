@@ -28,11 +28,11 @@ import { HumanSword } from "./HumanSword";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No blade kind is named.
  */
 export namespace HumanSwordThrust {
-  /** The least share of the arm's length the hand stands before the shoulder as the point lands (provisional): nearer, the arm is folded too far to drive the point, and the thrust is refused. */
+  /** The least share of the arm's length the hand stands before the shoulder as the point lands for a pose the arm cannot hold to be blamed on the hold (provisional): nearer, the refusal names its cause, a target inside the tool's own length. */
   export const NEAR: number = 0.3;
 
   /**
-   * Thrust: the point driven straight onto the target at the decisive instant (`stroke`), with a step or a lunge when asked, then recovered. A target beyond the arm with the chosen advance, or nearer than `NEAR` of the arm once the tool's length is taken off, is refused on `target`.
+   * Thrust: the point driven straight onto the target at the decisive instant (`stroke`), with a step or a lunge when asked, then recovered. A target beyond the arm with the chosen advance, or so near that the hand would land within `NEAR` of the arm from the shoulder in a pose the arm cannot hold, is refused on `target`.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the decisive instant, the advance and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The landed pose puts the point on the target with the blade along the line from the shoulder, as it stands after the advance; the hilt starts drawn back beside the lower ribs with the point already on the line, and point and turn run to the landed pose on one progress. The attack lasts as a minimum-jerk unit arrested at its peak speed, the sword's cited peak velocity in a lunge.
@@ -54,25 +54,6 @@ export namespace HumanSwordThrust {
         s.tool.length,
       );
 
-      // A point cannot be driven into what stands inside the blade's own
-      // length: the hand would have to start behind the shoulder.
-      const room: number =
-        Vector3.length(Vector3.subtract(a.target, a.reach)) - s.tool.length;
-      if (context.params.target !== undefined && room < NEAR * s.arm)
-        throw new HumanRefusal({
-          kind: "reach",
-          axis: "target",
-          value: room,
-          feasible: {
-            kind: "range",
-            minimum: NEAR * s.arm,
-            maximum: HumanSword.REACH * s.arm,
-            unit: "m",
-          },
-          reason: `the target leaves the ${s.tool.side} hand ${room.toFixed(3)} m before the shoulder once the tool's ${s.tool.length.toFixed(2)} m is taken off, nearer than a thrust is driven from`,
-          fix: "step back first (a retreat or a void), thrust from farther away, or answer with a cut",
-        });
-
       // A thrust states no edge, so the blade is turned about its own line
       // the way the arm holds it with the least strain, and keeps that turn
       // from the chamber on.
@@ -90,7 +71,38 @@ export namespace HumanSwordThrust {
         s.tool.edge,
       );
       if (context.params.target !== undefined)
-        StrikingRoll.reachable(context, s.tool, landed, 0, a.posture, HumanSword.FIX);
+        try {
+          StrikingRoll.reachable(
+            context,
+            s.tool,
+            landed,
+            0,
+            a.posture,
+            HumanSword.FIX,
+          );
+        } catch (error) {
+          // A pose the arm cannot hold with the hand folded in against the
+          // shoulder fails for one cause: the target stands inside the
+          // tool's own length, and no turn of the wrist makes room.
+          const room: number = Vector3.length(
+            Vector3.subtract(landed.point, a.reach),
+          );
+          if (!(error instanceof HumanRefusal) || room >= NEAR * s.arm)
+            throw error;
+          throw new HumanRefusal({
+            kind: "reach",
+            axis: "target",
+            value: room,
+            feasible: {
+              kind: "range",
+              minimum: NEAR * s.arm,
+              maximum: HumanSword.REACH * s.arm,
+              unit: "m",
+            },
+            reason: `the target is so near that the ${s.tool.side} hand would land ${room.toFixed(3)} m from its shoulder behind the tool's ${s.tool.length.toFixed(2)} m, and the arm cannot hold the tool there`,
+            fix: "step back first (a retreat or a void), thrust from farther away, or answer with a cut",
+          });
+        }
 
       // The chamber: the hilt drawn back beside the lower ribs, the point
       // already on the line to the target.

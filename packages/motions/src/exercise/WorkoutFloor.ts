@@ -95,7 +95,7 @@ export namespace WorkoutFloor {
       (pitch: number): ExerciseKey.IKey =>
         ExerciseKey.of(
           { pitch, neck: -20 },
-          { toes: 70, shoulder: pitch, raise, elbow: 5 },
+          { toes: 70, shoulder: pitch, raise, elbow: 5, wrist: -90 },
         ),
     );
 
@@ -107,7 +107,7 @@ export namespace WorkoutFloor {
       (pitch: number): ExerciseKey.IKey =>
         ExerciseKey.of(
           { pitch, neck: -25 },
-          { toes: 70, shoulder: pitch - 60, raise, elbow: 100 },
+          { toes: 70, shoulder: pitch - 60, raise, elbow: 100, wrist: -90 },
         ),
     );
 
@@ -195,7 +195,7 @@ export namespace WorkoutFloor {
           WorkoutKind.step(
             ExerciseKey.of(
               { pitch: up.pitch, neck: -20 },
-              { toes: 70, shoulder: up.pitch, elbow: 5 },
+              { toes: 70, shoulder: up.pitch, elbow: 5, wrist: -90 },
               {},
               { hip: 100, knee: 110, toes: 0 },
             ),
@@ -223,7 +223,7 @@ export namespace WorkoutFloor {
         WorkoutKind.step(
           ExerciseKey.of(
             { pitch: 60, neck: -30 },
-            { hip: 150, knee: 140, ankle: 25, toes: 30, shoulder: 60, elbow: 5 },
+            { hip: 150, knee: 140, ankle: 25, toes: 30, shoulder: 60, elbow: 5, wrist: -70 },
           ),
           0.4,
           "feetIn",
@@ -246,7 +246,7 @@ export namespace WorkoutFloor {
         WorkoutKind.pose(
           ExerciseKey.of(
             { pitch: 140, neck: 10 },
-            { hip: 105, ankle: 35, shoulder: 175, elbow: 3 },
+            { hip: 105, ankle: 35, shoulder: 175, elbow: 3, wrist: -50 },
           ),
           0,
           15,
@@ -270,7 +270,7 @@ export namespace WorkoutFloor {
         WorkoutKind.step(
           ExerciseKey.of(
             { pitch: 88, neck: -10 },
-            { ankle: -45, shoulder: -10, raise: 20, elbow: 140 },
+            { ankle: -45, shoulder: -10, raise: 20, elbow: 140, wrist: -80 },
           ),
           1.5,
           "lower",
@@ -279,7 +279,7 @@ export namespace WorkoutFloor {
         WorkoutKind.pose(
           ExerciseKey.of(
             { pitch: 78, spine: [-20, 0, 0], chest: [-20, 0, 0], neck: -25 },
-            { hip: -10, ankle: -45, shoulder: -10, raise: 20, elbow: 140 },
+            { hip: -10, ankle: -45, shoulder: -10, raise: 20, elbow: 140, wrist: -80 },
           ),
           1.5,
           10,

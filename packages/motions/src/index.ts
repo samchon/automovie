@@ -242,3 +242,4 @@ export * from "./exercise/WorkoutStance";
 export * from "./exercise/WorkoutLying";
 export * from "./exercise/WorkoutPoses";
 export * from "./lexicon/HumanCarriedDrag";
+export * from "./lexicon/HumanCarriedLean";
