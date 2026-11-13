@@ -479,6 +479,9 @@ namespace FamilyConicBody {
     grooves: [{ layout: C.inflected(1, [0, 4]), depth: 1 }],
     limb1: [{ layout: C.limb(1), depth: 1 }],
     limb2: [{ layout: C.limb(1), depth: 1 }, { layout: C.limb(2), depth: 2 }],
+    // The groove after the apex as three feature anchors (`FamilyConicSection.featured`), which fade onto a smooth stretch over the vault in
+    // front of the crease, where no section bends inward and an `i` would force an S.
+    featured: [{ layout: C.featured(C.limb(1), [{ after: 0, anchors: [{ kind: "f", feature: "inflection", window: [0.15, 0.55] }, { kind: "f", feature: "concave", window: [0.3, 0.75] }, { kind: "f", feature: "inflection", window: [0.5, 0.9] }] }]), depth: 1 }],
   };
 
   /**
@@ -2024,7 +2027,7 @@ namespace FamilyConicBody {
     const names: string[] = labels(family.layout);
     const lines: string[] = [
       "import type { AutoMovieHumanConicLoft } from \"../conic/AutoMovieHumanConicLoft\";",
-      "import { AutoMovieHumanConicSection } from \"../conic/AutoMovieHumanConicSection\";",
+      ...(family.layout.anchors.some((anchor: C.IAnchor): boolean => anchor.kind === "f") ? [] : ["import { AutoMovieHumanConicSection } from \"../conic/AutoMovieHumanConicSection\";"]),
       // The joints are imported only when the course names them; a course written as numbers leaves the import unused.
       ...(part.course.includes("J.") ? ["import { AutoMovieHumanF1Joints } from \"./AutoMovieHumanF1Joints\";"] : []),
       "",
@@ -2049,7 +2052,10 @@ namespace FamilyConicBody {
       "  centres: " + part.course.replaceAll("J.", "AutoMovieHumanF1Joints.") + ",",
       "  halves: " + JSON.stringify(family.halves) + ",",
       "  up: " + JSON.stringify(family.up).replaceAll(",", ", ") + ",",
-      "  layout: AutoMovieHumanConicSection." + (family.layout.mirror ? "bilateral(" + depth + ")" : grooves(family.layout).length > 0 ? "inflected(" + depth + ", " + JSON.stringify(grooves(family.layout)).replaceAll(",", ", ") + ")" : "limb(" + depth + ")") + ",",
+      // A layout with feature anchors has no constructor of its own in the model, so it is written out.
+      family.layout.anchors.some((anchor: C.IAnchor): boolean => anchor.kind === "f")
+        ? "  layout: " + JSON.stringify({ mirror: family.layout.mirror, anchors: family.layout.anchors.map((anchor: C.IAnchor): C.IAnchor => ({ kind: anchor.kind, ...(anchor.guide === true ? { guide: true } : {}), ...(anchor.level === undefined ? {} : { level: anchor.level }), ...(anchor.feature === undefined ? {} : { feature: anchor.feature }) })) }).replaceAll(",", ", ").replaceAll(":", ": ") + ","
+        : "  layout: AutoMovieHumanConicSection." + (family.layout.mirror ? "bilateral(" + depth + ")" : grooves(family.layout).length > 0 ? "inflected(" + depth + ", " + JSON.stringify(grooves(family.layout)).replaceAll(",", ", ") + ")" : "limb(" + depth + ")") + ",",
       "  knots: " + JSON.stringify(family.knots).replaceAll(",", ", ") + ",",
       "  values: [",
     ];

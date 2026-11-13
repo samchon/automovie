@@ -11,6 +11,7 @@ import { AutoMovieHumanConicLoft, AutoMovieHumanConicSection } from "@automovie/
  * 4. A cap starts where its tip says and is meshed in rings: stations past `from` are not lofted from the fields, so the part's stations end at `from`, twelve rings at `92 - 12 (k / 13)^2` and the tip.
  * 5. Phases spaced by turn (`IFamily.turn`): a flat section with sharp ends turns by more than 0.3 rad between uniform phases; with a turn of 0.1 rad the part declares ordered phases and its lofted rings turn by at most 0.12 rad between neighbours.
  * 6. A grooved family's twin is its reflection: the slanted family with a groove after its +u extreme (`inflected(0, [0])`) mirrors without refusal, and its point at phase `-phi` is the original's at `phi` reflected in `z = 0`.
+ * 7. A featured family's twin is its reflection: the slanted family with a feature point between its +u and +v extremes mirrors to the same reflected points at every station and phase.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanConicLoft.create`, `mirror` and `part` and reads the engine's chain with `AutoMovieLoftChain.point`.
  * @evidence contracts/development/testing.md#independent-expectations A circle's radius, a reflection in a plane and the cubic fixed by four end conditions are closed forms that owe nothing to this code.
@@ -136,6 +137,25 @@ export function test_human_conic_loft(): void {
         const q: number[] = AutoMovieLoftChain.point(four, s, -phi);
         const apart: number = Math.hypot(p[0]! - q[0]!, p[1]! - q[1]!, p[2]! + q[2]!);
         if (!(apart <= 1e-9)) failures.push(`grooved twin at station ${s}, phase ${phi.toFixed(3)}: ${apart} mm from the reflected original`);
+      }
+
+  // 7. The twin of a featured family: the slanted family with a feature point between its +u and +v extremes, at (14, 13) heading 2.5 rad
+  // from +u toward +v, about the direction of travel from the one extreme to the other (atan2(14, -24) = 2.61).
+  const featured: AutoMovieHumanConicLoft.IFamily = {
+    ...slanted,
+    name: "featured",
+    layout: { mirror: false, anchors: [...AutoMovieHumanConicSection.limb(0).anchors.slice(0, 1), { kind: "f" }, ...AutoMovieHumanConicSection.limb(0).anchors.slice(1)] },
+    values: [[22, 21, 19], [3, 4, 2], [14, 14, 13], [13, 13.5, 12], [2.5, 2.5, 2.5], [-2, -1, 0], [17, 18, 16], [-25, -24, -23], [-3, -2, -1], [4, 3, 2], [-14, -15, -16], ...[0, 1, 2, 3, 4].map((): number[] => [ellipse, ellipse, ellipse])],
+  };
+  const five: NonNullable<AutoMovieViewLoft.IResult["chain"]> | null = lofted(featured, "featured");
+  const six: NonNullable<AutoMovieViewLoft.IResult["chain"]> | null = lofted(AutoMovieHumanConicLoft.mirror(featured, "featured.mirror"), "featured twin");
+  if (five !== null && six !== null)
+    for (const s of [0, 44, 100])
+      for (const phi of phases) {
+        const p: number[] = AutoMovieLoftChain.point(five, s, phi);
+        const q: number[] = AutoMovieLoftChain.point(six, s, -phi);
+        const apart: number = Math.hypot(p[0]! - q[0]!, p[1]! - q[1]!, p[2]! + q[2]!);
+        if (!(apart <= 1e-9)) failures.push(`featured twin at station ${s}, phase ${phi.toFixed(3)}: ${apart} mm from the reflected original`);
       }
 
   if (failures.length > 0) throw new Error("human conic loft:\n" + failures.join("\n"));

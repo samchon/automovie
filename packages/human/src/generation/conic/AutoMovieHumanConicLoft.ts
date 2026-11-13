@@ -347,7 +347,7 @@ export namespace AutoMovieHumanConicLoft {
    * The course and the chart seed are reflected. A course's chart is `v = u x t`, so the reflected course charts the
    * reflected section with `v` negated, which also reverses its travel: the twin's anchors are the original's in reverse
    * order from the first, each extreme with its `v` negated, and the arc after the twin's anchor `j` is the original's arc
-   * before its anchor `K - j`. An inflection's neighbours swap, so its share is `1 - t` and its turn `-d`, and the twin's
+   * before its anchor `K - j`. A feature point takes `-v` and the heading `pi - h`. An inflection's neighbours swap, so its share is `1 - t` and its turn `-d`, and the twin's
    * dependent anchors keep the original's order of resolution. A relief keeps its stations and heights and takes the
    * negated phase window, the reflected axis and its columns in reverse.
    *
@@ -374,6 +374,11 @@ export namespace AutoMovieHumanConicLoft {
       // (`1 - t`), and its turn from the chord, reflected and travelled the other way, changes sign.
       if (anchor.kind === "i") {
         values.push(family.values[at[k]!]!.map((t: number): number => 1 - t), family.values[at[k]! + 1]!.map((d: number): number => -d));
+        continue;
+      }
+      // A feature point keeps its `u`, takes `-v`, and its tangent, reflected and travelled the other way, turns from heading `h` to `pi - h`.
+      if (anchor.kind === "f") {
+        values.push([...family.values[at[k]!]!], family.values[at[k]! + 1]!.map((v: number): number => -v), family.values[at[k]! + 2]!.map((h: number): number => Math.PI - h));
         continue;
       }
       values.push([...family.values[at[k]!]!]);
