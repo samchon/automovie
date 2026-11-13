@@ -111,8 +111,12 @@ export function test_human_motion_grammar_tables(): void {
     ["take", "take", "take"],
     stroke,
   );
-  if (same.distinct !== 1 || same.deviation !== 0)
-    complaints.push(`one seed read three times gives ${same.distinct} values`);
+  // The same take read again is the same number exactly; its deviation is
+  // computed through a mean and may round off zero, so the ends are compared.
+  if (same.distinct !== 1 || same.minimum.value !== same.maximum.value)
+    complaints.push(
+      `one seed read three times gives ${same.distinct} values, from ${same.minimum.value} to ${same.maximum.value}`,
+    );
 
   TestValidator.equals("the lexicon and the seed", complaints, []);
 }
