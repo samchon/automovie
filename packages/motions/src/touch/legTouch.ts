@@ -158,8 +158,18 @@ export namespace legTouch {
       );
 
     // The moving leg's goal on the place.
-    const rest = (bone: "Foot" | "Toes"): IAutoMovieVector3 =>
-      body.rest.get(`${side}${bone}`)!;
+    const rest = (
+      bone: "UpperLeg" | "LowerLeg" | "Foot" | "Toes",
+    ): IAutoMovieVector3 => body.rest.get(`${side}${bone}`)!;
+
+    // The leg's two lengths are this body's own, between its rest joints: the
+    // knee falls on its place only on the circle those lengths allow.
+    const thigh: number = Vector3.length(
+      Vector3.subtract(rest("LowerLeg"), rest("UpperLeg")),
+    );
+    const shank: number = Vector3.length(
+      Vector3.subtract(rest("Foot"), rest("LowerLeg")),
+    );
     const turned = (local: IAutoMovieVector3): IAutoMovieVector3 =>
       Quaternion.rotateVector(foot.rotation, local);
     // The hip rides the root, so the entry's hip moved by a shift gives it.
@@ -182,7 +192,7 @@ export namespace legTouch {
           : { x: 0, y: 0, z: 1 };
       const along: number = Vector3.dot(from, line);
       const inside: number =
-        along ** 2 - (Vector3.dot(from, from) - body.measure.thigh ** 2);
+        along ** 2 - (Vector3.dot(from, from) - thigh ** 2);
       const far: number =
         inside < 0
           ? NaN
@@ -195,7 +205,7 @@ export namespace legTouch {
           axis: "target",
           value: `${(Vector3.length(from) * 1000).toFixed(0)} mm`,
           feasible: { kind: "alternatives", values: ["a nearer place"] },
-          reason: `The knee is a thigh of ${(body.measure.thigh * 1000).toFixed(0)} mm from the hip, and the place lies ${(Vector3.length(from) * 1000).toFixed(0)} mm from it, which a shift of the body within ${(SHIFT * 1000).toFixed(0)} mm does not close`,
+          reason: `The knee is a thigh of ${(thigh * 1000).toFixed(0)} mm from the hip, and the place lies ${(Vector3.length(from) * 1000).toFixed(0)} mm from it, which a shift of the body within ${(SHIFT * 1000).toFixed(0)} mm does not close`,
           fix: "stand nearer the place, or aim the knee at a place at the hip's height or below",
         });
       shift = Vector3.add(over, Vector3.scale(line, far));
@@ -203,7 +213,7 @@ export namespace legTouch {
         Vector3.subtract({ x: 0, y: -1, z: 0 }, Vector3.scale(line, 0.5)),
       );
       goal = {
-        point: Vector3.add(knee, Vector3.scale(down, body.measure.shank)),
+        point: Vector3.add(knee, Vector3.scale(down, shank)),
         rotation: foot.rotation,
         bend: knee,
       };
@@ -218,7 +228,7 @@ export namespace legTouch {
         // The knee ahead of the hip, as the foot stood at the entry.
         bend: Vector3.add(
           hip(shift),
-          turned({ x: 0, y: 0, z: body.measure.thigh }),
+          turned({ x: 0, y: 0, z: thigh }),
         ),
       };
     }

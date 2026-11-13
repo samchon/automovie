@@ -137,7 +137,7 @@ export function test_human_motion_leg_touch(): void {
           const off: number = gap(joint("rightLowerLeg", held), at);
           if (!(off >= 0.035 && off <= 0.065))
             complaints.push(
-              `${label}: the knee's joint lies ${mm(off)} mm from the place, between 35 and 65 mm expected`,
+              `${label}: the knee's joint lies ${mm(off)} mm from the place, between 35 and 65 mm expected (displayed: hip to knee ${mm(gap(joint("rightUpperLeg", held), joint("rightLowerLeg", held)))} mm, knee to ankle ${mm(gap(joint("rightLowerLeg", held), joint("rightFoot", held)))} mm, the knee ${mm(joint("rightLowerLeg", held).x - at.x)} mm left, ${mm(joint("rightLowerLeg", held).y - at.y)} mm above and ${mm(joint("rightLowerLeg", held).z - at.z)} mm ahead of the place)`,
             );
         }
 

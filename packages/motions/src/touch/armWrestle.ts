@@ -106,12 +106,27 @@ export namespace armWrestle {
   ): IHumanActionPlan {
     const p: IParams = context.params;
     const body = context.body;
-    const m = body.measure;
     const struggle: number = p.seconds ?? 3;
     HumanBound.least("seconds", struggle, 0, "s");
     const side: HumanHand.Side = "right";
     const entry: IHumanPosture = context.entry.posture;
     const partner = context.performer(p.partner).body;
+
+    // The arm's two lengths are this body's own, between its rest joints: the
+    // elbow falls on its place only on the circle those lengths allow.
+    const span = (
+      of: typeof body,
+      from: "UpperArm" | "LowerArm",
+      to: "LowerArm" | "Hand",
+    ): number =>
+      Vector3.length(
+        Vector3.subtract(
+          of.rest.get(`${side}${to}`)!,
+          of.rest.get(`${side}${from}`)!,
+        ),
+      );
+    const upperArm: number = span(body, "UpperArm", "LowerArm");
+    const forearm: number = span(body, "LowerArm", "Hand");
 
     // The shared geometry: `own` is the level unit from the table's point
     // toward this performer, `left` the winner's left, where the hands go.
@@ -125,8 +140,9 @@ export namespace armWrestle {
       Vector3.cross(up, own),
       p.wins ? -1 : 1,
     );
-    const height: number = 0.85 * Math.min(m.forearm, partner.measure.forearm);
-    const reach: number = Math.sqrt(m.forearm ** 2 - height ** 2);
+    const height: number =
+      0.85 * Math.min(forearm, span(partner, "LowerArm", "Hand"));
+    const reach: number = Math.sqrt(forearm ** 2 - height ** 2);
     const elbow: IAutoMovieVector3 = Vector3.add(
       p.table,
       Vector3.scale(own, GAP / 2 + reach),
@@ -186,7 +202,7 @@ export namespace armWrestle {
           )!.worldPosition,
           elbow,
         ),
-      ) - m.upperArm;
+      ) - upperArm;
     let low: number = -20;
     let high: number = 70;
     if (!(short(low) * short(high) <= 0))

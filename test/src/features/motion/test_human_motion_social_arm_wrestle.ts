@@ -19,12 +19,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * other.
  *
  * The average man (a) and the small woman (b) sit face to face, each on a
- * seat at their own popliteal height, their roots 0.55 m apart, so their
- * hips are about 0.75 m apart (first pass: the legs under the table are not
+ * seat at their own popliteal height, their roots 0.45 m apart, so their
+ * hips are about 0.65 m apart (first pass: the legs under the table are not
  * arranged, and nothing here reads them); the table's
  * top is 0.27 m above the average man's seat (provisional: a table's top
- * above a chair's seat) and the clasp stands over the point midway between
- * them. a is declared the winner; the struggle is cut to 1 s.
+ * above a chair's seat) and the clasp stands over a point 0.275 m from the average
+ * man's root and 0.175 m from the small woman's, each as far from the table
+ * as their arm is long. a is declared the winner; the struggle is cut to 1 s.
  *
  * Scenarios:
  * 1. The contest plans, and both roles' `go` and `pin` fall on the same
@@ -50,9 +51,9 @@ export function test_human_motion_social_arm_wrestle(): void {
     a: motionHumanBody("m-average"),
     b: motionHumanBody("f-small"),
   };
-  const apart: number = 0.55;
+  const apart: number = 0.45;
   const top: number = seated.popliteal(bodies.a) + 0.27;
-  const table: IAutoMovieVector3 = { x: 0, y: top, z: apart / 2 };
+  const table: IAutoMovieVector3 = { x: 0, y: top, z: 0.275 };
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(0);
   const sits = (who: "a" | "b"): HumanChain => {
@@ -130,7 +131,7 @@ export function test_human_motion_social_arm_wrestle(): void {
         HumanSignature.joint(readers[who], seconds, "rightLowerArm").y - top;
       if (!(Math.abs(off) <= 0.03))
         complaints.push(
-          `${who} at ${label}: the elbow joint stands ${mm(off)} mm above the table's top, within 30 mm either way expected`,
+          `${who} at ${label}: the elbow joint stands ${mm(off)} mm above the table's top, within 30 mm either way expected (displayed: shoulder to elbow ${mm(Math.hypot(...(["x", "y", "z"] as const).map((k: "x" | "y" | "z"): number => HumanSignature.joint(readers[who], seconds, "rightUpperArm")[k] - HumanSignature.joint(readers[who], seconds, "rightLowerArm")[k])))} mm, the shoulder ${mm(HumanSignature.joint(readers[who], seconds, "rightUpperArm").y - top)} mm and the wrist ${mm(wrist(who, seconds).y - top)} mm above the top)`,
         );
     }
 
