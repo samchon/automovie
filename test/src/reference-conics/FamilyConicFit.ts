@@ -87,6 +87,13 @@ export namespace FamilyConicFit {
   /** Spacing of the stations at which every candidate must be an admissible chain, mm (`fit`). */
   const DENSE_MM: number = 0.25;
 
+  /** `--barrier`: the first barrier weight as a share of the starting misfit per margin, and how many tenfold falls follow it. */
+  const BARRIER_SHARE: number = 0.01;
+  const BARRIER_LEVELS: number = 4;
+
+  /** `--homotopy`: steps of the path from the start's shape to the skin. */
+  const HOMOTOPY_STEPS: number = 4;
+
   /** Phases per section used by the chord report. */
   const REPORT: number = 180;
 
@@ -198,9 +205,50 @@ export namespace FamilyConicFit {
     const dense: number[][] = [];
     for (let s: number = knots[0]!; s <= knots[M - 1]! + 1e-9; s += DENSE_MM) dense.push(basis(Math.min(s, knots[M - 1]!)));
     const admissible = (values: number[][]): boolean => dense.every((b: number[]): boolean => C.chain(theta(values, b), layout).fault === null);
+    // `--barrier`: an interior-point term over the same stations (Nocedal and Wright, ch. 19). The margins of a chain are what its
+    // admissibility asks to be positive: every arc's two tangent-meeting distances (`AutoMovieViewChain`'s `a` and `b`, mm) and every
+    // step of its points' phase round the course, radians, with the turn's remainder. `-mu sum log(margin)` is added at every station, so
+    // a candidate moves freely inside the admissible region and never crosses its wall; `mu` falls over rounds toward the plain fit.
+    const margins = (t: number[]): number[] | null => {
+      const input = C.resolve(t, layout).input;
+      const points: number[][] = input.points as number[][];
+      const tangents: number[][] = input.tangents as number[][];
+      const K: number = points.length;
+      const out: number[] = [];
+      const phases: number[] = [];
+      for (let j: number = 0; j < K; ++j) {
+        let phi: number = Math.atan2(points[j]![1]!, points[j]![0]!);
+        while (j > 0 && phi <= phases[j - 1]!) phi += 2 * Math.PI;
+        phases.push(phi);
+        if (j > 0) out.push(phi - phases[j - 1]!);
+      }
+      out.push(phases[0]! + 2 * Math.PI - phases[K - 1]!);
+      for (let j: number = 0; j < K; ++j) {
+        const [p0, p2, t0, t2] = [points[j]!, points[(j + 1) % K]!, tangents[j]!, tangents[(j + 1) % K]!];
+        const den: number = t0[0]! * t2[1]! - t0[1]! * t2[0]!;
+        const d: number[] = [p2[0]! - p0[0]!, p2[1]! - p0[1]!];
+        out.push((d[0]! * t2[1]! - d[1]! * t2[0]!) / den, (t0[0]! * d[1]! - t0[1]! * d[0]!) / den);
+      }
+      return out.every(Number.isFinite) ? out : null;
+    };
+    let mu: number = 0;
+    const barrier = (values: number[][]): number | null => {
+      let sum: number = 0;
+      for (const b of dense) {
+        const m: number[] | null = margins(theta(values, b));
+        if (m === null || m.some((x: number): boolean => !(x > 0))) return null;
+        for (const x of m) sum -= mu * Math.log(x);
+      }
+      return sum;
+    };
     const cost = (values: number[][]): { total: number; residuals: number[][] } | null => {
       if (!admissible(values)) return null;
       let total: number = 0;
+      if (mu > 0) {
+        const kept: number | null = barrier(values);
+        if (kept === null) return null;
+        total += kept;
+      }
       const residuals: number[][] = [];
       for (let i: number = 0; i < train.length; ++i) {
         const t: number[] = theta(values, B[i]!);
@@ -239,8 +287,41 @@ export namespace FamilyConicFit {
     const steps: number[] = Array.from({ length: F }, (_: unknown, f: number): number => (units[f] === "mm" ? 1e-4 : 1e-6));
     let lambda: number = 1e-3;
     let iterations: number = 0;
+    // `--homotopy`: the fit travels from the shape it starts from to the skin along a path of targets (Allgower and Georg), each section's
+    // radii blended from the start's own (t = 0) to the observed ones (t = 1) in `HOMOTOPY_STEPS` steps, each step starting from the last
+    // solution, so a start the admissible region holds far from the skin is carried to it without a jump across the region's wall.
+    const skinRadii: number[][] = samples.map((sample: ISample): number[] => [...sample.radii]);
+    const startRadii: number[][] = samples.map((sample: ISample, i: number): number[] => {
+      const section: Q.ISection = C.chain(theta(Y, B[i]!), layout);
+      return sample.phases.map((phi: number, k: number): number => (section.fault === null ? Q.radius(section, phi) : skinRadii[i]![k]!));
+    });
+    const homotopy: number[] = process.argv.includes("--homotopy") ? Array.from({ length: HOMOTOPY_STEPS }, (_: unknown, k: number): number => (k + 1) / HOMOTOPY_STEPS) : [1];
+    for (const along of homotopy) {
+    samples.forEach((sample: ISample, i: number): void => {
+      sample.radii = skinRadii[i]!.map((r: number, k: number): number => startRadii[i]![k]! + along * (r - startRadii[i]![k]!));
+    });
+    if (homotopy.length > 1) {
+      const again: { total: number; residuals: number[][] } | null = cost(Y);
+      if (again === null) break;
+      current = again;
+    }    // With `--barrier`, every pass runs at falling barrier weights: the first is a share of the starting misfit spread over the margins,
+    // and each next a tenth of the last, so the solution travels inside the admissible region toward the plain least-squares fit.
+    const barrierLevels: number[] = [0];
+    if (process.argv.includes("--barrier") && current !== null) {
+      const count: number = dense.length * (margins(theta(Y, dense[0]!))?.length ?? 1);
+      const start: number = (BARRIER_SHARE * current.total) / count;
+      barrierLevels.splice(0, 1, ...Array.from({ length: BARRIER_LEVELS }, (_: unknown, k: number): number => start / 10 ** k), 0);
+    }
     const passes: number = power > 2 ? 3 : 1;
+    for (const level of barrierLevels)
     for (let pass: number = 0; pass < passes; ++pass) {
+      if (mu !== level) {
+        mu = level;
+        const again: { total: number; residuals: number[][] } | null = cost(Y);
+        if (again === null) break;
+        current = again;
+        lambda = 1e-3;
+      }
       if (pass > 0) {
         // Reweight toward the p-norm (Lawson-style): larger residuals gain weight, pulling the maximum down.
         let peak: number = 0;
@@ -283,7 +364,35 @@ export namespace FamilyConicFit {
             }
           }
         }
-        for (let a: number = 0; a < N; ++a) for (let c: number = 0; c < a; ++c) JTJ[a]![c] = JTJ[c]![a]!;
+        // The barrier's gradient and its Gauss-Newton Hessian, (mu / m^2) dm dm^T, at every station.
+        if (mu > 0)
+          for (const b of dense) {
+            const t: number[] = theta(Y, b);
+            const m: number[] | null = margins(t);
+            if (m === null) continue;
+            const D: number[][] = [];
+            for (let f: number = 0; f < F; ++f) {
+              const moved: number[] = [...t];
+              moved[f]! += steps[f]!;
+              const shifted: number[] | null = margins(moved);
+              D.push(shifted === null ? new Array<number>(m.length).fill(0) : shifted.map((v: number, j: number): number => (v - m[j]!) / steps[f]!));
+            }
+            for (let f: number = 0; f < F; ++f) {
+              let gr: number = 0;
+              for (let j: number = 0; j < m.length; ++j) gr -= (mu / m[j]!) * D[f]![j]!;
+              for (let q: number = 0; q < M; ++q) JTr[f * M + q]! += gr * b[q]!;
+              for (let g: number = f; g < F; ++g) {
+                let dd: number = 0;
+                for (let j: number = 0; j < m.length; ++j) dd += (mu / (m[j]! * m[j]!)) * D[f]![j]! * D[g]![j]!;
+                if (dd === 0) continue;
+                for (let q: number = 0; q < M; ++q) {
+                  if (b[q] === 0) continue;
+                  const row: number[] = JTJ[f * M + q]!;
+                  for (let n: number = 0; n < M; ++n) row[g * M + n]! += dd * b[q]! * b[n]!;
+                }
+              }
+            }
+          }        for (let a: number = 0; a < N; ++a) for (let c: number = 0; c < a; ++c) JTJ[a]![c] = JTJ[c]![a]!;
         let accepted: boolean = false;
         let converged: boolean = false;
         for (let attempt: number = 0; attempt < 12 && !accepted; ++attempt) {
@@ -310,6 +419,8 @@ export namespace FamilyConicFit {
         }
         if (!accepted || converged) break;
       }
+    }
+
     }
 
     // Report at the cut vertices of fitting and withheld sections, and against the chords on an independent phase grid.
