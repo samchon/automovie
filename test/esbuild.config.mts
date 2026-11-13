@@ -131,4 +131,12 @@ await build({
   },
   logLevel: "warning",
 });
+
+// The built program selects again among the files built; given the
+// original terms, an exclude term whose files were never built would match
+// nothing there and be refused, so it is handed the selection by name.
+process.argv = [
+  ...process.argv.slice(0, 2),
+  ...[...selected].flatMap((name: string): string[] => ["--include", name]),
+];
 await import(pathToFileURL(path.join(output, "index.mjs")).href);
