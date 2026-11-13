@@ -1250,6 +1250,13 @@
     },
     {
       "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTouchLaid.reference",
+      "tests": [
+        "test_human_motion_hand_verdicts_shave"
+      ]
+    },
+    {
+      "layer": "compose",
       "symbol": "AutoMovieMotionHumanTouchLaid.rest",
       "tests": [
         "test_human_motion_compose_touch_laid"

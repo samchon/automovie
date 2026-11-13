@@ -1,11 +1,13 @@
 import {
   type IAutoMovieResolvedBone,
+  Quaternion,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionTarget,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -121,6 +123,9 @@ export namespace AutoMovieMotionHumanTouch {
 
     /** What the effector's along axis lies on: the travel's tangent, or `arm`, the direction away from the elbow across the region (`AutoMovieMotionHumanTouchPath.lay`), or `reach`, for an effector that meets its place end on: its facing axis runs from the elbow straight to the place (`AutoMovieMotionHumanTouchPath.reach`) and its along axis lies on the world's up, or `upright`, the world's up as a held vessel stands, the effector facing against `facing`; the tangent when absent. */
     lay?: "tangent" | "arm" | "reach" | "upright";
+
+    /** The hand's rotation the stroke keeps, world, on the entry posture, turned with the posture's heading: a held tool laid as the grasp chosen for its use presents it (`HumanGraspUse.presented`), so only its point moves. The effector is laid by `lay` when absent. */
+    held?: IAutoMovieQuaternion;
 
     /** With `upright`, the level world direction the effector faces against (`AutoMovieMotionHumanTouch.upright`); the region's level normal when absent. */
     facing?: IAutoMovieVector3;
@@ -299,8 +304,8 @@ export namespace AutoMovieMotionHumanTouch {
             origin: posture.root,
             yaw: posture.yaw,
           };
-          return {
-            ...AutoMovieMotionHumanTouchEffector.goal(
+          const laid: IHumanPosture.IGoal =
+            AutoMovieMotionHumanTouchEffector.goal(
               body,
               side,
               props.effector,
@@ -318,7 +323,36 @@ export namespace AutoMovieMotionHumanTouch {
                 from === undefined ? undefined : HumanFrame.point(frame, from),
               ),
               HumanFrame.point(frame, hint),
-            ),
+            );
+
+          // A held rotation turns with the heading, and the wrist follows
+          // from it so that the effector still meets its place.
+          const rotation: IAutoMovieQuaternion | undefined =
+            props.held === undefined
+              ? undefined
+              : Quaternion.normalize(
+                  Quaternion.multiply(
+                    Quaternion.fromAxisAngle(
+                      { x: 0, y: 1, z: 0 },
+                      posture.yaw - props.entry.yaw,
+                    ),
+                    props.held,
+                  ),
+                );
+          return {
+            ...laid,
+            ...(rotation === undefined
+              ? {}
+              : {
+                  rotation,
+                  point: Vector3.subtract(
+                    at,
+                    Quaternion.rotateVector(
+                      rotation,
+                      laid.contact ?? { x: 0, y: 0, z: 0 },
+                    ),
+                  ),
+                }),
             ...(props.reference === undefined
               ? {}
               : { reference: props.reference }),

@@ -16,8 +16,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * The lexicon's `shave` row, the head of a held razor rubbed up the jaw,
  * holds every physical bound of human motion when simply performed: the
  * razor (a toothbrush stands in, a handle with a working head at its far
- * end, as no razor archetype exists yet) picked up for its use at the face,
- * then the row.
+ * end, as no razor archetype exists yet) picked up for its use on the right
+ * jaw, then the row with that grasp kept, so the stroke holds the razor as
+ * the grasp presents it there and moves only its head.
  *
  * `HumanVerdicts` reads the bounds that hold whatever a motion means: no part
  * of the body more than 10 mm inside another, every joint centre on a
@@ -25,7 +26,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * within its range. The row stands alone because one report costs minutes.
  * Performed with an implied tool on a fist, the hand stood at three range
  * ends through the stroke whatever its turn about the razor's line, so the
- * row takes the razor as a held tool, as the drink and the cigarette do.
+ * row takes the razor as a held tool, as the drink and the cigarette do;
+ * laid by its head's facing alone, the held razor asked a turn beyond the
+ * wrist, so its angle is the grasp's, chosen for the jaw.
  * Each finding carries the posture at its instant, so the fit it came from
  * can be read off the complaint.
  *
@@ -70,11 +73,16 @@ export function test_human_motion_hand_verdicts_shave(): void {
       .pickUp({
         prop: "razor",
         handle: "grip",
-        use: { tip: "face", line: "oblique", at: "mouth" },
+        use: { tip: "face", line: "oblique", at: { region: "jawRight" } },
       })
-      .registered("shave", { prop: "razor", point: "face" }).node,
+      .registered("shave", {
+        prop: "razor",
+        point: "face",
+        grasp: { handle: "grip", line: "oblique" },
+      }).node,
   });
   const report: HumanVerdicts.IReport = HumanVerdicts.of(performance, 6);
+
   TestValidator.equals(
     "a shave holds the physical bounds",
     report.clean

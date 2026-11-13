@@ -123,9 +123,9 @@ export namespace AutoMovieMotionHumanTouchLaid {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States when and on what the arm is solved and who reads it.
    * @evidence contracts/development/implementation.md#principled-implementation A limb fit has more than one arm for one hand place; a fit referred to one arm solved once returns the arm nearest it, so the seconds of a touch share a solution branch.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One goal (`rest`), one posture solve and one read.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Solved by the posture resolver itself, so the reference is an arm the fit can return; its forearm twist is then kept `MARGIN` inside the forearm's range, since a reference at a range's end asks the fit to hold the joint at its limit.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the effector's goal, the posture resolver and its reference reading.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One goal (`rest`) and its reference.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The arm is the posture resolver's own, through `reference`, which keeps the forearm's twist inside its range.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the laid goal (`rest`) and `reference`.
    * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per touch.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
@@ -142,26 +142,57 @@ export namespace AutoMovieMotionHumanTouchLaid {
     elbow?: AutoMovieMotionHumanTouch.ITouch["elbow"],
     from?: IAutoMovieVector3,
   ): NonNullable<IHumanPosture.IGoal["reference"]> {
+    return reference(
+      body,
+      posture,
+      side,
+      rest(
+        body,
+        posture,
+        side,
+        effector,
+        place,
+        tangent,
+        hint,
+        along,
+        facing,
+        elbow,
+        from,
+      ),
+    );
+  }
+
+  /**
+   * The reference of an arm goal: the arm the posture resolver solves for
+   * it on a posture, its forearm twist kept `MARGIN` degrees inside the
+   * forearm's range. `laid` reads it for the arm laid on a region, and a
+   * touch that keeps a held tool's rotation reads it for that arm.
+   *
+   * @param body The body.
+   * @param posture The posture the goal is solved on.
+   * @param side The arm.
+   * @param goal The arm's goal.
+   * @returns The reference.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is solved, the margin and who reads it.
+   * @evidence contracts/development/implementation.md#principled-implementation Solved by the posture resolver itself, so the reference is an arm the fit can return; its forearm twist is then kept `MARGIN` inside the forearm's range, since a reference at a range's end asks the fit to hold the joint at its limit.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture solve, one read and one clamp.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A forearm whose range is narrower than twice the margin keeps the solved twist.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the posture resolver and its reference reading.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per call.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function reference(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    side: HumanHand.Side,
+    goal: IHumanPosture.IGoal,
+  ): NonNullable<IHumanPosture.IGoal["reference"]> {
     const limb: "leftArm" | "rightArm" = `${side}Arm`;
     const solved: IHumanPosture.IReference = resolveHumanPosture.reference(
       resolveHumanPosture(body, {
         ...posture,
-        limbs: {
-          ...posture.limbs,
-          [limb]: rest(
-            body,
-            posture,
-            side,
-            effector,
-            place,
-            tangent,
-            hint,
-            along,
-            facing,
-            elbow,
-            from,
-          ),
-        },
+        limbs: { ...posture.limbs, [limb]: goal },
       }),
       limb,
     );
@@ -368,12 +399,35 @@ export namespace AutoMovieMotionHumanTouchLaid {
   }
 
   /**
-   * What an effector's facing and along axes lie on at a region: the region's
-   * normal and the travel's tangent, the arm's own direction across the normal
-   * (`arm`), or the world's up with the effector facing against a level
-   * direction (`upright`), the region's level normal unless one is given
-   * (`upright`); a region facing straight up or down
-   * with no direction given falls back to the first.
+   * What an effector's facing and along axes lie on at a region: the
+   * region's normal and the travel's tangent (`tangent`); the normal and the
+   * arm's own direction across it (`arm`); the line from the elbow straight
+   * into the place, with the along axis on the world's up as nearly as that
+   * line allows (`reach`); or the world's up with the effector facing
+   * against a level direction, the region's level normal unless one is
+   * given (`upright`). An `upright` region facing straight up or down with
+   * no direction given, and a `reach` line that runs straight up or down,
+   * fall back to the travel's tangent for the along axis.
+   *
+   * @param body The body.
+   * @param posture The posture the heading and the elbow are read on.
+   * @param side The hand.
+   * @param lay What the along axis lies on; the tangent when absent.
+   * @param point The region's point, world.
+   * @param normal The region's outward unit normal, world.
+   * @param travel The travel's unit tangent on the region, world.
+   * @param facing With `upright`, the level direction the effector faces against; the region's level normal when absent.
+   * @param elbow Where the elbow lies, which `arm` and `reach` lay the effector from; the place of least strain when absent.
+   * @param from With `reach`, the elbow's place, world; read from the body's measures when absent.
+   * @returns The direction the effector faces against and the direction its along axis lies on, world, as `AutoMovieMotionHumanTouchEffector.goal` takes them.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each lay's two directions, every input and the two fall-backs.
+   * @evidence contracts/development/implementation.md#principled-implementation An effector's attitude is two directions, the one it presses against and the one its along axis follows; each lay names where the second comes from (the travel, the arm by `AutoMovieMotionHumanTouchPath.lay`, the elbow's line by `AutoMovieMotionHumanTouchPath.reach`, or the world's up for a vessel that must stand).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per lay, each returning the pair.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A direction that has no part across the line it must cross falls back to the travel instead of normalizing a zero vector.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates the arm's and the elbow's directions to `AutoMovieMotionHumanTouchPath`.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function lie(
     body: IHumanBody,
