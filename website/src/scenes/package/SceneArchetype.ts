@@ -8,7 +8,10 @@ import type { IPlaygroundComposition } from "../../playground/structures/IPlaygr
  */
 export namespace SceneArchetype {
   /** A producer as the site calls it. */
-  type Producer = ((params: Record<string, unknown>, seed?: string) => object) & {
+  type Producer = ((
+    params: Record<string, unknown>,
+    seed?: string,
+  ) => object) & {
     FRAMES?: readonly string[];
   };
 

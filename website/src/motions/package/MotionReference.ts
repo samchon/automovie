@@ -59,7 +59,10 @@ export namespace MotionReference {
     return {
       actions: Object.keys(HUMAN_ACTIONS),
       families: Object.entries(families).map(
-        ([name, rows]: [string, { name: string }[]]): IMotionReference.IFamily => ({
+        ([name, rows]: [
+          string,
+          { name: string }[],
+        ]): IMotionReference.IFamily => ({
           name,
           rows: rows.map(
             (row: { name: string }): IMotionReference.IRow => ({
@@ -112,13 +115,20 @@ export namespace MotionReference {
   }
 
   /** A short description of a schema's type: a set of values, a number's bounds, an object's members. */
-  function describe(schema: ISchema, collection: ICollection, depth: number): string {
+  function describe(
+    schema: ISchema,
+    collection: ICollection,
+    depth: number,
+  ): string {
     const s: ISchema = resolve(schema, collection);
     if (s.const !== undefined) return JSON.stringify(s.const);
-    if (s.enum !== undefined) return s.enum.map((v: unknown): string => JSON.stringify(v)).join(" | ");
+    if (s.enum !== undefined)
+      return s.enum.map((v: unknown): string => JSON.stringify(v)).join(" | ");
     if (s.oneOf !== undefined)
       return s.oneOf
-        .map((option: ISchema): string => describe(option, collection, depth + 1))
+        .map((option: ISchema): string =>
+          describe(option, collection, depth + 1),
+        )
         .join(" | ");
     if (s.type === "number" || s.type === "integer") {
       const bounds: string =
@@ -136,7 +146,8 @@ export namespace MotionReference {
     if (s.type === "object" && s.properties !== undefined) {
       if (depth >= 1) return "object";
       const kind: ISchema | undefined = s.properties["kind"];
-      if (kind !== undefined) return `{ kind: ${describe(kind, collection, depth + 1)}, … }`;
+      if (kind !== undefined)
+        return `{ kind: ${describe(kind, collection, depth + 1)}, … }`;
       return `{ ${Object.keys(s.properties).join(", ")} }`;
     }
     return typeof s.type === "string" ? s.type : "value";

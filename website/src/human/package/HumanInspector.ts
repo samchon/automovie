@@ -43,7 +43,10 @@ export namespace HumanInspector {
     const scene: THREE.Scene = new THREE.Scene();
     scene.background = new THREE.Color(0xe9ebef);
     scene.add(new THREE.HemisphereLight(0xffffff, 0x8d8a83, 1.2));
-    const sun: THREE.DirectionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+    const sun: THREE.DirectionalLight = new THREE.DirectionalLight(
+      0xffffff,
+      1.5,
+    );
     sun.position.set(2, 4, 3);
     scene.add(sun);
 
@@ -57,7 +60,12 @@ export namespace HumanInspector {
     group.matrix.fromArray([...AutoMovieHumanCanonicalBody.REFLECTION]);
     group.add(drawing.object);
     scene.add(group);
-    const grid: THREE.GridHelper = new THREE.GridHelper(4, 16, 0xbfc5ce, 0xbfc5ce);
+    const grid: THREE.GridHelper = new THREE.GridHelper(
+      4,
+      16,
+      0xbfc5ce,
+      0xbfc5ce,
+    );
     grid.name = "ground";
     scene.add(grid);
 

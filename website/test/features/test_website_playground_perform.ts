@@ -2,12 +2,12 @@ import { HumanPerformance, HumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { applyPlaygroundFix } from "../../src/playground/applyPlaygroundFix";
-import { SCENES } from "../../src/scenes/SCENES";
 import { findPlaygroundRefusedAction } from "../../src/playground/findPlaygroundRefusedAction";
 import { PlaygroundBodies } from "../../src/playground/package/PlaygroundBodies";
 import { PlaygroundChain } from "../../src/playground/package/PlaygroundChain";
 import type { IPlaygroundComposition } from "../../src/playground/structures/IPlaygroundComposition";
 import type { IPlaygroundRefusal } from "../../src/playground/structures/IPlaygroundRefusal";
+import { SCENES } from "../../src/scenes/SCENES";
 import type { IScene } from "../../src/scenes/structures/IScene";
 
 /**

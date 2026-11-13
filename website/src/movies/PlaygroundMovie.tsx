@@ -18,14 +18,14 @@ import { PlaygroundVerdicts } from "../components/playground/PlaygroundVerdicts"
 import type { IPlaygroundAdapter } from "../playground/IPlaygroundAdapter";
 import { PlaygroundAddress } from "../playground/PlaygroundAddress";
 import { applyPlaygroundFix } from "../playground/applyPlaygroundFix";
-import { SCENES } from "../scenes/SCENES";
-import type { IScene } from "../scenes/structures/IScene";
 import { findPlaygroundRefusedAction } from "../playground/findPlaygroundRefusedAction";
 import { formatPlaygroundReport } from "../playground/formatPlaygroundReport";
 import { loadPlaygroundAdapter } from "../playground/loadPlaygroundAdapter";
 import type { IPlaygroundComposition } from "../playground/structures/IPlaygroundComposition";
 import type { IPlaygroundVerdicts } from "../playground/structures/IPlaygroundVerdicts";
 import type { IPlaygroundVocabulary } from "../playground/structures/IPlaygroundVocabulary";
+import { SCENES } from "../scenes/SCENES";
+import type { IScene } from "../scenes/structures/IScene";
 
 /** What the page has of the adapter. */
 type Loaded =
@@ -73,8 +73,7 @@ type Pane = "compose" | "result";
 export default function PlaygroundMovie(): ReactElement {
   const [loaded, setLoaded] = useState<Loaded>({ kind: "loading" });
   const [composition, setComposition] = useState<IPlaygroundComposition>(
-    (): IPlaygroundComposition =>
-      structuredClone(FIRST),
+    (): IPlaygroundComposition => structuredClone(FIRST),
   );
 
   // The composition the outcome belongs to: a refusal is shown on the action
@@ -156,9 +155,8 @@ export default function PlaygroundMovie(): ReactElement {
       <h1>Composition playground</h1>
       <p className="am-lede">
         Compose what each person does from the actions of{" "}
-        <code>@automovie/motions</code>, perform it on the polygon man, and
-        read what the package refuses and which physical bounds the result
-        breaks.
+        <code>@automovie/motions</code>, perform it on the polygon man, and read
+        what the package refuses and which physical bounds the result breaks.
       </p>
     </header>
   );

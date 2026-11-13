@@ -45,10 +45,10 @@ export namespace PlaygroundSchema {
     const schemas: ICollection = collection as ICollection;
     return Object.fromEntries(
       Object.entries(schemas.rows).map(
-        ([row, schema]: [string, ISchema]): [string, IPlaygroundVocabulary.IParameter[]] => [
-          row,
-          fields(resolve(schema, schemas), schemas),
-        ],
+        ([row, schema]: [string, ISchema]): [
+          string,
+          IPlaygroundVocabulary.IParameter[],
+        ] => [row, fields(resolve(schema, schemas), schemas)],
       ),
     );
   }
@@ -62,7 +62,10 @@ export namespace PlaygroundSchema {
     return Object.entries(object.properties ?? {}).map(
       ([name, member]: [string, ISchema]): IPlaygroundVocabulary.IParameter => {
         const s: ISchema = resolve(member, schemas);
-        const base: Pick<IPlaygroundVocabulary.IParameter, "name" | "required" | "description"> = {
+        const base: Pick<
+          IPlaygroundVocabulary.IParameter,
+          "name" | "required" | "description"
+        > = {
           name,
           required: required.has(name),
           description: member.description ?? s.description ?? "",
@@ -80,7 +83,8 @@ export namespace PlaygroundSchema {
             ...(s.maximum === undefined ? {} : { maximum: s.maximum }),
           };
         if (s.type === "string") return { ...base, kind: "text", values: [] };
-        if (s.type === "boolean") return { ...base, kind: "switch", values: [] };
+        if (s.type === "boolean")
+          return { ...base, kind: "switch", values: [] };
         return { ...base, kind: "json", values: [] };
       },
     );
@@ -88,7 +92,10 @@ export namespace PlaygroundSchema {
 
   /** The values of a closed set of strings, or null when the schema is not one. */
   function closed(s: ISchema, schemas: ICollection): string[] | null {
-    if (s.enum !== undefined && s.enum.every((v: unknown): boolean => typeof v === "string"))
+    if (
+      s.enum !== undefined &&
+      s.enum.every((v: unknown): boolean => typeof v === "string")
+    )
       return s.enum as string[];
     if (s.oneOf === undefined) return null;
     const values: unknown[] = s.oneOf.map(
@@ -104,7 +111,9 @@ export namespace PlaygroundSchema {
     let at: ISchema = schema;
     for (let hops: number = 0; at.$ref !== undefined && hops < 16; hops++) {
       const found: ISchema | undefined =
-        schemas.components.schemas?.[at.$ref.replace("#/components/schemas/", "")];
+        schemas.components.schemas?.[
+          at.$ref.replace("#/components/schemas/", "")
+        ];
       if (found === undefined) break;
       at = found;
     }

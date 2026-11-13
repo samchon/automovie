@@ -88,7 +88,9 @@ export function test_website_gallery_catalogue(): void {
   // 4. The groups are the package's families.
   TestValidator.equals(
     "the groups are the package's families",
-    catalogue.groups.map((group: IGalleryCatalogue.IGroup): string => group.name),
+    catalogue.groups.map(
+      (group: IGalleryCatalogue.IGroup): string => group.name,
+    ),
     Object.keys(archetypes.ARCHETYPE_FAMILIES),
   );
 }

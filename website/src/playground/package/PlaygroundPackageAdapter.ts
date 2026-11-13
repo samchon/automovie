@@ -12,6 +12,9 @@ import motionsManifest from "@automovie/motions/package.json";
 import renderManifest from "@automovie/render/package.json";
 import viewerManifest from "@automovie/viewer/package.json";
 
+import { SCENES } from "../../scenes/SCENES";
+import { SceneStatus } from "../../scenes/package/SceneStatus";
+import type { IScene } from "../../scenes/structures/IScene";
 import type { IPlaygroundAdapter } from "../IPlaygroundAdapter";
 import { PLAYGROUND_BODIES } from "../data/PLAYGROUND_BODIES";
 import type { IPlaygroundComposition } from "../structures/IPlaygroundComposition";
@@ -19,9 +22,6 @@ import type { IPlaygroundRefusal } from "../structures/IPlaygroundRefusal";
 import type { IPlaygroundTimeline } from "../structures/IPlaygroundTimeline";
 import type { IPlaygroundVerdicts } from "../structures/IPlaygroundVerdicts";
 import type { IPlaygroundVocabulary } from "../structures/IPlaygroundVocabulary";
-import { SCENES } from "../../scenes/SCENES";
-import { SceneStatus } from "../../scenes/package/SceneStatus";
-import type { IScene } from "../../scenes/structures/IScene";
 import { PlaygroundChain } from "./PlaygroundChain";
 import { PlaygroundPerformance } from "./PlaygroundPerformance";
 import { PlaygroundSchema } from "./PlaygroundSchema";
@@ -65,7 +65,9 @@ export const PlaygroundPackageAdapter: IPlaygroundAdapter = {
             rows
               .filter((row: { name: string }): boolean => row.name in schemas)
               .map(
-                (row: { name: string }): [string, IPlaygroundVocabulary.IParameter[]] => [
+                (row: {
+                  name: string;
+                }): [string, IPlaygroundVocabulary.IParameter[]] => [
                   row.name,
                   schemas[row.name]!,
                 ],

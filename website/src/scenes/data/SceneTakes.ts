@@ -25,7 +25,9 @@ export namespace SceneTakes {
         label: "Other bodies",
         bodies: Object.fromEntries(
           composition.performers.map(
-            (performer: IPlaygroundComposition.IPerformer): [string, string] => [
+            (
+              performer: IPlaygroundComposition.IPerformer,
+            ): [string, string] => [
               performer.subject,
               EXCHANGE[performer.body] ?? performer.body,
             ],

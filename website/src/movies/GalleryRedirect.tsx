@@ -22,8 +22,9 @@ export default function GalleryRedirect(): ReactElement {
   return (
     <div className="am-app">
       <p className="am-status" role="status">
-        The gallery moved: the objects are on <a href="/automovie/objects/">Objects</a>{" "}
-        and the polygon man on <a href="/automovie/human/">Human</a>.
+        The gallery moved: the objects are on{" "}
+        <a href="/automovie/objects/">Objects</a> and the polygon man on{" "}
+        <a href="/automovie/human/">Human</a>.
       </p>
     </div>
   );

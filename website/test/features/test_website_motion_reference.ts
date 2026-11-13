@@ -21,10 +21,16 @@ export function test_website_motion_reference(): void {
   const reference: IMotionReference = MotionReference.read();
 
   // 1. Actions.
-  TestValidator.equals("the actions", reference.actions, Object.keys(HUMAN_ACTIONS));
+  TestValidator.equals(
+    "the actions",
+    reference.actions,
+    Object.keys(HUMAN_ACTIONS),
+  );
 
   // 2. Rows.
-  const lexicon: unknown = (motions as Readonly<Record<string, unknown>>)["HUMAN_LEXICON"];
+  const lexicon: unknown = (motions as Readonly<Record<string, unknown>>)[
+    "HUMAN_LEXICON"
+  ];
   const installed: string[] =
     typeof lexicon === "object" && lexicon !== null
       ? Object.values(lexicon as Record<string, { name: string }[]>)
@@ -35,7 +41,11 @@ export function test_website_motion_reference(): void {
     (f: IMotionReference.IFamily): string[] =>
       f.rows.map((r: IMotionReference.IRow): string => r.name),
   );
-  TestValidator.equals("every row on one page", [...listed].sort(), [...installed].sort());
+  TestValidator.equals(
+    "every row on one page",
+    [...listed].sort(),
+    [...installed].sort(),
+  );
 
   // 3. Uses.
   const names: string[] = [...reference.actions, ...listed];
@@ -45,7 +55,9 @@ export function test_website_motion_reference(): void {
       (scene: IScene): boolean =>
         scene.hidden !== true &&
         scene.composition !== null &&
-        (JSON.stringify(scene.composition.performers).includes(`"name":${JSON.stringify(name)}`) ||
+        (JSON.stringify(scene.composition.performers).includes(
+          `"name":${JSON.stringify(name)}`,
+        ) ||
           scene.composition.mutuals.some(
             (m: IPlaygroundComposition.IMutual): boolean => m.name === name,
           )),
@@ -54,7 +66,9 @@ export function test_website_motion_reference(): void {
       (s: { id: string }): string => s.id,
     );
     if (JSON.stringify(found) !== JSON.stringify(expected))
-      findings.push(`${name}: lists ${found.join(", ")} for ${expected.join(", ")}`);
+      findings.push(
+        `${name}: lists ${found.join(", ")} for ${expected.join(", ")}`,
+      );
     const trial: IPlaygroundComposition = MotionUsage.trial(name);
     if (trial.performers[0]!.actions.at(-1)!.name !== name)
       findings.push(`${name}: the trial performs something else`);

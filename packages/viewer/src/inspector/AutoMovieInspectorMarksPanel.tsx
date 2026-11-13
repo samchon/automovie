@@ -54,7 +54,18 @@ export function AutoMovieInspectorMarksPanel(props: {
   ];
   return (
     <fieldset style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
-      <legend style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clipPath: "inset(50%)", whiteSpace: "nowrap" }}>Marks</legend>
+      <legend
+        style={{
+          position: "absolute",
+          width: 1,
+          height: 1,
+          overflow: "hidden",
+          clipPath: "inset(50%)",
+          whiteSpace: "nowrap",
+        }}
+      >
+        Marks
+      </legend>
       {listed.map(
         (kind: string): JSX.Element => (
           <label key={kind} style={{ display: "block" }}>

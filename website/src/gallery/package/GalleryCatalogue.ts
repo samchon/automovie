@@ -36,7 +36,6 @@ export namespace GalleryCatalogue {
     BANDS?: Readonly<Record<string, unknown>>;
   }
 
-
   /** The archetype families, by subpath, in the package's order. */
   export const FAMILIES: Readonly<
     Record<string, Readonly<Record<string, unknown>>>

@@ -19,7 +19,8 @@ import type { IScene } from "../../src/scenes/structures/IScene";
 export function test_website_scene_chain(): void {
   const findings: string[] = [];
   for (const scene of SCENES) {
-    if (scene.composition === null || SceneStatus.of(scene).kind !== "plays") continue;
+    if (scene.composition === null || SceneStatus.of(scene).kind !== "plays")
+      continue;
     if ((scene.composition.objects ?? []).length !== 0) continue;
     const composition: IPlaygroundComposition = scene.composition;
     const code: string = formatSceneChain(composition);
@@ -35,27 +36,39 @@ export function test_website_scene_chain(): void {
       "HumanChain",
       `${body}\nreturn [${identifiers.join(", ")}];`,
     )(HumanChain) as { node: AutoMovieComposition }[];
-    const built: AutoMovieComposition = PlaygroundChain.build(composition).composition;
+    const built: AutoMovieComposition =
+      PlaygroundChain.build(composition).composition;
 
     // The playground's composition is a sequence whose first part runs every
     // person's chain in parallel.
-    const parallel: unknown = (built as unknown as { parts: unknown[] }).parts[0];
+    const parallel: unknown = (built as unknown as { parts: unknown[] })
+      .parts[0];
     const parts: AutoMovieComposition[] = (
       parallel as { parts: AutoMovieComposition[] }
     ).parts;
     chains.forEach((chain: { node: AutoMovieComposition }, i: number): void => {
       if (JSON.stringify(chain.node) !== JSON.stringify(parts[i]))
-        findings.push(`${scene.id}: ${identifiers[i]}'s chain differs from the playground's`);
+        findings.push(
+          `${scene.id}: ${identifiers[i]}'s chain differs from the playground's`,
+        );
     });
 
     // 2. Every subject, and the join.
     for (const performer of composition.performers)
-      if (!code.includes(`HumanChain.subject(${JSON.stringify(performer.subject)})`))
+      if (
+        !code.includes(
+          `HumanChain.subject(${JSON.stringify(performer.subject)})`,
+        )
+      )
         findings.push(`${scene.id}: ${performer.subject} is not named`);
     if (composition.performers.length > 1 && !code.includes(".with("))
       findings.push(`${scene.id}: the chains are not joined`);
   }
-  TestValidator.equals("the shown code is the played composition", findings, []);
+  TestValidator.equals(
+    "the shown code is the played composition",
+    findings,
+    [],
+  );
   TestValidator.predicate(
     "at least one scene was checked",
     SCENES.some(

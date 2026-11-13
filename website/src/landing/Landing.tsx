@@ -1,8 +1,8 @@
 import type { ReactElement } from "react";
 
-import LandingMovie from "../movies/LandingMovie";
 import { MotionReference } from "../motions/package/MotionReference";
 import type { IMotionReference } from "../motions/structures/IMotionReference";
+import LandingMovie from "../movies/LandingMovie";
 import { readBakedManifest } from "../scenes/readBakedManifest";
 import type { ISceneManifest } from "../scenes/structures/ISceneManifest";
 
@@ -23,7 +23,8 @@ export function Landing(): ReactElement {
         actions: reference.actions.length,
         families: reference.families.length,
         rows: reference.families.reduce(
-          (sum: number, f: IMotionReference.IFamily): number => sum + f.rows.length,
+          (sum: number, f: IMotionReference.IFamily): number =>
+            sum + f.rows.length,
           0,
         ),
       }}

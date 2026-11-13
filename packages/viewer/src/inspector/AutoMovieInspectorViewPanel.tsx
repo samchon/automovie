@@ -58,7 +58,18 @@ export function AutoMovieInspectorViewPanel(props: {
   };
   return (
     <fieldset style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
-      <legend style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clipPath: "inset(50%)", whiteSpace: "nowrap" }}>View</legend>
+      <legend
+        style={{
+          position: "absolute",
+          width: 1,
+          height: 1,
+          overflow: "hidden",
+          clipPath: "inset(50%)",
+          whiteSpace: "nowrap",
+        }}
+      >
+        View
+      </legend>
       <select
         aria-label="View"
         value={form}

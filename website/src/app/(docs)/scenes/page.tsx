@@ -19,9 +19,5 @@ export const metadata: Metadata = {
  */
 export default function ScenesPage(): ReactElement {
   const manifest: ISceneManifest | null = readBakedManifest();
-  return (
-    <ScenesMovie
-      baked={Object.keys(manifest?.scenes ?? {})}
-    />
-  );
+  return <ScenesMovie baked={Object.keys(manifest?.scenes ?? {})} />;
 }

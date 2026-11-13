@@ -2,8 +2,8 @@ import { TestValidator } from "@nestia/e2e";
 import { compressToEncodedURIComponent } from "lz-string";
 
 import { PlaygroundAddress } from "../../src/playground/PlaygroundAddress";
-import { SCENES } from "../../src/scenes/SCENES";
 import type { IPlaygroundComposition } from "../../src/playground/structures/IPlaygroundComposition";
+import { SCENES } from "../../src/scenes/SCENES";
 import type { IScene } from "../../src/scenes/structures/IScene";
 
 /**

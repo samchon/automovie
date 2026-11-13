@@ -45,7 +45,9 @@ export function test_website_scene_records(): void {
       findings.push(`${scene.id}: the cast is not its performers`);
     for (const performer of scene.composition.performers)
       if (!(performer.body in PLAYGROUND_BODIES))
-        findings.push(`${scene.id}: ${performer.subject} has no body ${performer.body}`);
+        findings.push(
+          `${scene.id}: ${performer.subject} has no body ${performer.body}`,
+        );
     if (scene.takes.length === 0 || Object.keys(scene.takes[0]!).length !== 1)
       findings.push(`${scene.id}: the first take is not the scene itself`);
     for (const take of scene.takes) {
@@ -82,10 +84,14 @@ export function test_website_scene_records(): void {
   const used: Set<string> = new Set(SCENES.flatMap(SceneFacts.actions));
   TestValidator.equals(
     "every action is composed by a scene",
-    Object.keys(HUMAN_ACTIONS).filter((name: string): boolean => !used.has(name)),
+    Object.keys(HUMAN_ACTIONS).filter(
+      (name: string): boolean => !used.has(name),
+    ),
     [],
   );
-  const lexicon: unknown = (motions as Readonly<Record<string, unknown>>)["HUMAN_LEXICON"];
+  const lexicon: unknown = (motions as Readonly<Record<string, unknown>>)[
+    "HUMAN_LEXICON"
+  ];
   const families: Record<string, { name: string }[]> =
     typeof lexicon === "object" && lexicon !== null
       ? (lexicon as Record<string, { name: string }[]>)
