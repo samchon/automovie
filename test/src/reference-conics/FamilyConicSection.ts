@@ -249,10 +249,15 @@ export namespace FamilyConicSection {
    * 2.4 inflections on a side's back quarter where the least-squares cubic B-spline with a control every 6 mm left 11.8: that ripple, cut
    * by the converter into arcs at every inflection, spent its arc budget and the rest of the turn was dropped (a partial conversion).
    */
-  const FAIR_MM: number = 20;
+  export const FAIR_MM: number = 20;
 
 
-  /** The least share of its run's arclength a feature line keeps from the run's ends: the model's `EDGE` of 0.03 on the chord, with a margin. */
+  /**
+   * The least turn, radians, over the model's least spacing between features at which a fully faded feature may stand (`seedAll`): an arc
+   * of turn theta whose end headings are off by delta has its tangent lines meet at about (theta / 2 - delta) / theta of its chord, which
+   * reaches the fit's 0.1 meeting margin at theta = 2.5 delta; delta is a stored heading's rounding, half of 1e-4 rad.
+   */
+  const STRAIGHT_TURN: number = 2.5 * 5e-5;  /** The least share of its run's arclength a feature line keeps from the run's ends: the model's `EDGE` of 0.03 on the chord, with a margin. */
   const LINE_EDGE: number = 0.05;
 
   /** The recovery converter's sampled tolerance on a faired section, mm, and its work limits. */
@@ -599,7 +604,44 @@ export namespace FamilyConicSection {
             const before: number = i === 0 ? 0 : shares[i - 1]!;
             shares[i] = Math.max(shares[i]!, before + LINE_EDGE * (1 - before));
           }
-          // Every feature is the converted chain's exact split at its share, its point and the chain's tangent there (`converted`, `split`):
+          // A fully faded feature (a line at ramp 0, or a convex or concave feature whose bounding lines all are) stands at the nearest share
+          // of its run where the chain's curvature is above `STRAIGHT_TURN` over the model's least spacing (`LINE_EDGE` of the run): on a
+          // straight stretch neighbouring features are collinear, their tangent lines meet behind the ends by the headings' rounding, and the
+          // arcs between them fall under the fit's meeting margin (f1's head read as its hull, anchors on one hull edge at 57 to 71 degrees,
+          // and the trunk at 176 mm, three anchors on a stretch whose inflections bend 1.2 degrees). Several may share a curved stretch, the
+          // least spacing kept between them.
+          const lineRamp = (m: number): number => (alive[m] ? ramp(strengths[m]!) : 0);
+          const fadedAt = (i: number): boolean => {
+            const line: number = kinds.indexOf(run[i]!);
+            if (line >= 0) return lineRamp(line) === 0;
+            const bounds: number[] = [];
+            for (let m: number = kinds.length - 1; m >= 0; --m) if (run.indexOf(kinds[m]!) < i) { bounds.push(m); break; }
+            for (let m: number = 0; m < kinds.length; ++m) if (run.indexOf(kinds[m]!) > i) { bounds.push(m); break; }
+            return bounds.length > 0 && bounds.every((m: number): boolean => lineRamp(m) === 0);
+          };
+          const floor: number = STRAIGHT_TURN / (LINE_EDGE * total);
+          const headingAt = (s: number): number => {
+            const t: P = conversion.at(phiOf(Math.min(1, Math.max(0, s)))).tangent;
+            return Math.atan2(t[1], t[0]);
+          };
+          const curvatureAt = (s: number): number => {
+            const d: number = headingAt(s + 1 / 800) - headingAt(s - 1 / 800);
+            return Math.abs(Math.atan2(Math.sin(d), Math.cos(d))) / ((2 * total) / 800);
+          };
+          for (let i: number = 0; i < run.length; ++i) {
+            if (!fadedAt(i) || curvatureAt(shares[i]!) > floor) continue;
+            for (let k: number = 1; k <= 400; ++k) {
+              const near: number | undefined = [shares[i]! - k / 400, shares[i]! + k / 400].find((s: number): boolean => s > LINE_EDGE && s < 1 - LINE_EDGE && curvatureAt(s) > floor);
+              if (near === undefined) continue;
+              shares[i] = near;
+              break;
+            }
+          }
+          shares.sort((x: number, y: number): number => x - y);
+          for (let i: number = 0; i < run.length; ++i) {
+            const before: number = i === 0 ? 0 : shares[i - 1]!;
+            shares[i] = Math.max(shares[i]!, before + LINE_EDGE * (1 - before));
+          }          // Every feature is the converted chain's exact split at its share, its point and the chain's tangent there (`converted`, `split`):
           // splits of an admissible conic chain are conic pieces, so each layout arc spans one curvature sign wherever every inflection of the
           // chain that bends past the ramp's floor carries a line. A fading line reaches its pair's meeting point on the chain itself. Faded
           // instead toward the base conic, one conic between the run's extremes, a feature stood off the section wherever the run is not one
