@@ -49,8 +49,8 @@ import { poseBones } from "./poseBones";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose assembly, one clamp, one fit per goal.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No angle is set past the rig's range; an unreachable goal leaves the limb extended toward it, reported by the audits.
  * @evidence contracts/development/implementation.md#efficient-algorithms Linear in bones plus up to four limb fits, each a bounded bend search.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input; the body's topology is shared.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A limb's fit is a pure function of the body, the pose before it, the limb and its goal, so it is remembered by those and read again by the displayed pose of the instant a plan already solved and by every instant of a held pose; the body's topology is shared.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each body keeps its last 512 limb fits, least recently read dropped first, in a weak map that lets them go with the body.
  */
 export function resolveHumanPosture(
   body: IHumanBody,
@@ -98,7 +98,7 @@ export function resolveHumanPosture(
   for (const limb of resolveHumanPosture.order(posture.limbs)) {
     const goal: IHumanPosture.IGoal | undefined = posture.limbs[limb];
     if (goal === undefined) continue;
-    pose = fitLimb(body, pose, limb, goal, placed);
+    pose = fitRemembered(body, pose, limb, goal, placed);
     if (limb === "leftArm") placed.push("left");
     if (limb === "rightArm") placed.push("right");
   }
@@ -112,6 +112,17 @@ export function resolveHumanPosture(
  * @evidence contracts/development/implementation.md#principled-implementation Heading is yaw about +Y, then pitch about the turned +X, then roll about the turned +Z, the intrinsic order of a body turning, then leaning.
  */
 export namespace resolveHumanPosture {
+  /**
+   * Turn the memory of limb fits off or on again. Off, every fit is solved
+   * afresh and nothing is kept, which is what a check of the memory against
+   * the solver compares with; it is on unless turned off.
+   *
+   * @param on Whether fits are remembered.
+   */
+  export function memory(on: boolean): void {
+    REMEMBERING.on = on;
+  }
+
   /**
    * A posture's root rotation: yaw about +Y, then pitch about the turned
    * left axis (+X, a forward tip), then roll about the turned forward axis
@@ -584,6 +595,64 @@ function fitLimb(
     ),
   };
 }
+
+/**
+ * The fit of one limb, remembered: the same body, the same pose before the
+ * fit, the same limb, goal and arms placed before it give the same fit, so
+ * it is solved once and read again. A plan's own posture and the displayed
+ * pose of the same instant ask the same fit, and so does every instant of a
+ * held pose; an arm's fit with its clearance search is most of what a
+ * displayed pose costs.
+ *
+ * The fit is a pure function of exactly what the key holds: the limb, the
+ * arms placed before it, the whole goal (point, bend, rotation, contact,
+ * planted, the bone it is attached to, the reference with its weight, and
+ * the other bodies' colliders it keeps clear of, each with its frame and
+ * shapes) and the pose before the fit (its root's translation, rotation
+ * and scale and every joint's angles, which is where the trunk, the other
+ * limbs already fitted and any layer have left the body). The body itself,
+ * with its skeleton, topology, ranges and shapes, is the memory's owner.
+ * Nothing else is read: the solver draws nothing and keeps no state.
+ *
+ * Each body keeps its last `FIT_MEMORY` fits, the least recently read
+ * dropped first, and a body no longer held drops them all.
+ */
+function fitRemembered(
+  body: IHumanBody,
+  pose: IAutoMoviePose,
+  limb: IHumanPosture.Limb,
+  goal: IHumanPosture.IGoal,
+  placed: readonly ("left" | "right")[],
+): IAutoMoviePose {
+  if (!REMEMBERING.on) return fitLimb(body, pose, limb, goal, placed);
+  const key: string = JSON.stringify([
+    limb,
+    placed,
+    goal,
+    pose.root,
+    pose.joints,
+  ]);
+  let fits: Map<string, IAutoMoviePose> | undefined = FITS.get(body);
+  if (fits === undefined) {
+    fits = new Map();
+    FITS.set(body, fits);
+  }
+  let out: IAutoMoviePose | undefined = fits.get(key);
+  if (out === undefined) out = fitLimb(body, pose, limb, goal, placed);
+  else fits.delete(key);
+  fits.set(key, out);
+  if (fits.size > FIT_MEMORY) fits.delete(fits.keys().next().value!);
+  return out;
+}
+
+/** The limb fits remembered, by body. */
+const FITS: WeakMap<IHumanBody, Map<string, IAutoMoviePose>> = new WeakMap();
+
+/** Whether limb fits are remembered (`resolveHumanPosture.memory`). */
+const REMEMBERING: { on: boolean } = { on: true };
+
+/** How many limb fits a body keeps (a few seconds of four limbs at a film's rate). */
+const FIT_MEMORY: number = 512;
 
 /** What a limb's fit must keep clear of: the degrees a mid joint and an end joint, world metres, count as out of range. */
 type IObstruction = (mid: IAutoMovieVector3, end: IAutoMovieVector3) => number;
