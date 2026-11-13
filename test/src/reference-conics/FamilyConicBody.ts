@@ -496,7 +496,7 @@ namespace FamilyConicBody {
   const AXILLA: R.V[] = [[16, 1287, 147.5], [-25, 1262, 150.5], [-45, 1269.5, 151], [-56, 1283, 151.5], [-66, 1303, 153]];
 
   /** The slit cutter's fitted stations, mm along its course (`--axilla-domain=<from>,<to>`): x 16 is station 0, the crease about 48, x -62 about 97. */
-  const AXILLA_DOMAIN: [number, number] = (process.argv.find((a: string): boolean => a.startsWith("--axilla-domain="))?.slice("--axilla-domain=".length) ?? "25,98").split(",").map(Number) as [number, number];
+  const AXILLA_DOMAIN: [number, number] = (process.argv.find((a: string): boolean => a.startsWith("--axilla-domain="))?.slice("--axilla-domain=".length) ?? "25,96").split(",").map(Number) as [number, number];
 
   /** `--construct`: how far from where invented points meet skin a corner is looked for, and the span its sides' directions are read over, mm. */
   const CONSTRUCT_SEARCH_MM: number = 3;
@@ -990,7 +990,7 @@ namespace FamilyConicBody {
         // (`AXILLA_FLOOR`) and drawn in from the walls (`AXILLA_INSET`); its arm-side reach is 12 mm, short of the band's ring end. Its
         // arm-side flank is concave under the apex: a groove after the apex (`inflected(1, [0])`; on the 8-conic layout a groove seeds only
         // after a `u` extreme). Its front end closes inside the band's span; its back end runs out through the posterior fold.
-        { name: "axilla", centres: AXILLA, course: JSON.stringify(AXILLA).replaceAll(",", ", "), halves: [8, 5, 5], up: [0, 1, 0], domain: AXILLA_DOMAIN, step: 1, gap: 4, first: AXILLA_DOMAIN[0] - 4, tip: AXILLA_DOMAIN[1] + 3, mirrored: true, skin: "inner", margin: AXILLA_MARGIN, construct: { knots: [25, 34, 43, 52, 61, 70, 79, 88, 98], corner: CONSTRUCT_CORNER_MM, apex: CONSTRUCT_APEX_MM }, air: { band: AXILLA_BAND, floor: AXILLA_FLOOR, reach: 12, inset: AXILLA_INSET }, layouts: AXILLA_LAYOUTS[process.argv.find((a: string): boolean => a.startsWith("--axilla-layout="))?.slice("--axilla-layout=".length) ?? "groove"]!, reliefs: [] },
+        { name: "axilla", centres: AXILLA, course: JSON.stringify(AXILLA).replaceAll(",", ", "), halves: [8, 5, 5], up: [0, 1, 0], domain: AXILLA_DOMAIN, step: 1, gap: 4, first: AXILLA_DOMAIN[0] - 4, tip: AXILLA_DOMAIN[1] + 3, mirrored: true, skin: "inner", margin: AXILLA_MARGIN, construct: { knots: [25, 34, 43, 52, 61, 70, 79, 88, 96], corner: CONSTRUCT_CORNER_MM, apex: CONSTRUCT_APEX_MM }, air: { band: AXILLA_BAND, floor: AXILLA_FLOOR, reach: 12, inset: AXILLA_INSET }, layouts: AXILLA_LAYOUTS[process.argv.find((a: string): boolean => a.startsWith("--axilla-layout="))?.slice("--axilla-layout=".length) ?? "groove"]!, reliefs: [] },
         // The vault in front of the armpit as a cutter of its own (G11): the arm's band crosses it flat, 12 to 16 mm under the reference's
         // vault, its columns running aslant to the vault's planes. Every section of the vault is convex, so the plain 8-conic limb carries it
         // (0.56 mm on the same sections, where the slit's groove stalled at 1.67 mm). Its sections are the vault's air, read as the slit's
@@ -1579,9 +1579,9 @@ namespace FamilyConicBody {
           return { ...row, points: X.star(apex.points, n, "inner")?.points ?? apex.points };
         });
         const layout: C.ILayout = part.layouts[0]!.layout;
-        const built: F.IConstruction = F.construct(rounded, spec.knots, layout, part.margin ?? F.ADMISSIBLE_MARGIN);
+        const built: F.IConstruction = F.construct(rounded, spec.knots, layout, part.margin ?? F.CONSTRUCT_MARGIN);
         const closedMost: { s: number; closed: number } = closings.reduce((a, b) => (b.closed > a.closed ? b : a), { s: NaN, closed: 0 });
-        log("family-body-construct", { part: part.name, knots: spec.knots, sectionsRefused: built.sections.map(round), stationsRefused: built.stations.length, firstRefused: built.stations[0] ?? null, fault: built.result.fault, trainMaxMm: round(built.result.training.maximumMm), trainMeanMm: round(built.result.training.meanMm), heldMaxMm: round(built.result.heldout.maximumMm), heldMeanMm: round(built.result.heldout.meanMm), apexClosedMostMm: round(closedMost.closed), apexClosedMostAt: closedMost.s });
+        log("family-body-construct", { part: part.name, knots: spec.knots, sectionsRefused: built.sections.map(round), stationsRefused: built.stations.length, firstRefused: built.stations[0] ?? null, fault: built.result.fault, trainMaxMm: round(built.result.training.maximumMm), trainMeanMm: round(built.result.training.meanMm), heldMaxMm: round(built.result.heldout.maximumMm), heldMeanMm: round(built.result.heldout.meanMm), apexClosedMostMm: round(closedMost.closed), apexClosedMostAt: closedMost.s, reasons: built.reasons });
         if (built.result.fault !== null) {
           receipt.push({ part: part.name, trail, fault: built.result.fault });
           continue;

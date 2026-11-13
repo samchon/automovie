@@ -96,6 +96,13 @@ export namespace FamilyConicFit {
    */
   export const ADMISSIBLE_MARGIN: number = 0.1;
 
+  /**
+   * The margin a constructed family is held to (`construct`), unless its part asks for another. Its values are read from the section, not
+   * pushed against the admissibility wall by a minimisation, so the margin only guards the engine's spline between stations: f1's armpit
+   * vault, constructed, met at 0.072 to 0.099 of its chords beside its top, refused at 0.1 and admitted on the native path.
+   */
+  export const CONSTRUCT_MARGIN: number = 0.02;
+
   /** `--barrier`: the first barrier weight as a share of the starting misfit per margin, and how many tenfold falls follow it. */
   const BARRIER_SHARE: number = 0.01;
   const BARRIER_LEVELS: number = 4;
@@ -514,6 +521,9 @@ export namespace FamilyConicFit {
     /** Stations whose own constructed section is no admissible chain under the margin. */
     sections: number[];
 
+    /** Why each refused section and the first refused dense stations are refused: the chain's fault, or the arc whose tangent meeting falls under the margin and its share. */
+    reasons: string[];
+
     /** Dense stations, every `DENSE_MM`, where the smoothed family is no admissible chain under the margin. */
     stations: number[];
   }
@@ -537,6 +547,14 @@ export namespace FamilyConicFit {
     const own: number[][] = train.map((row: IRow): number[] => C.seed(row.points, layout));
     const holds = (t: number[]): boolean => C.chain(t, layout).fault === null && Math.min(...meetings(t, layout)) >= margin;
     const sections: number[] = train.filter((_: IRow, i: number): boolean => !holds(own[i]!)).map((row: IRow): number => row.s);
+    const why = (t: number[]): string => {
+      const fault: string | null = C.chain(t, layout).fault;
+      if (fault !== null) return fault;
+      const m: number[] = meetings(t, layout);
+      const j: number = m.indexOf(Math.min(...m));
+      return "arc " + j + " meets at " + m[j]!.toFixed(3);
+    };
+    const reasons: string[] = train.map((row: IRow, i: number): string | null => (holds(own[i]!) ? null : "section " + row.s + ": " + why(own[i]!))).filter((x: string | null): x is string => x !== null);
     for (let f: number = 0; f < units.length; ++f) {
       if (units[f] !== "angle") continue;
       for (let i: number = 1; i < own.length; ++i) {
@@ -555,7 +573,7 @@ export namespace FamilyConicFit {
       const right: number[] = new Array<number>(M).fill(0);
       for (let i: number = 0; i < train.length; ++i) for (let m: number = 0; m < M; ++m) right[m]! += B[i]![m]! * own[i]![f]!;
       const solved: number[] | null = solve(gram.map((r: number[]): number[] => [...r]), right);
-      if (solved === null) return { result: { layout, knots: [...knots], values: [], training: NONE, heldout: NONE, rows: [], chordMaximumMm: Infinity, iterations: 0, folds: 0, fault: "the knot vector is not supported by the observed stations", milliseconds: performance.now() - started }, sections, stations: [] };
+      if (solved === null) return { result: { layout, knots: [...knots], values: [], training: NONE, heldout: NONE, rows: [], chordMaximumMm: Infinity, iterations: 0, folds: 0, fault: "the knot vector is not supported by the observed stations", milliseconds: performance.now() - started }, sections, reasons, stations: [] };
       values.push(solved);
     }
     const stored = (y: number, f: number): number => (units[f] === "mm" ? Math.round(y * 100) / 100 : Math.round(y * 1e4) / 1e4);
@@ -563,10 +581,13 @@ export namespace FamilyConicFit {
     for (let s: number = knots[0]!; s <= knots[M - 1]! + 1e-9; s += DENSE_MM) {
       const b: number[] = basis(Math.min(s, knots[M - 1]!));
       const t: number[] = values.map((field: number[]): number => field.reduce((sum: number, y: number, m: number): number => sum + y * b[m]!, 0));
-      if (!holds(t) || !holds(t.map(stored))) stations.push(s);
+      if (!holds(t) || !holds(t.map(stored))) {
+        if (stations.length < 6) reasons.push("station " + s + ": " + why(holds(t) ? t.map(stored) : t));
+        stations.push(s);
+      }
     }
-    if (stations.length > 0) return { result: { layout, knots: [...knots], values, training: NONE, heldout: NONE, rows: [], chordMaximumMm: Infinity, iterations: 0, folds: 0, fault: "the constructed family is no admissible chain at " + stations.length + " stations", milliseconds: performance.now() - started }, sections, stations };
-    return { result: fit(rows, knots, layout, 2, values, margin, false), sections, stations };
+    if (stations.length > 0) return { result: { layout, knots: [...knots], values, training: NONE, heldout: NONE, rows: [], chordMaximumMm: Infinity, iterations: 0, folds: 0, fault: "the constructed family is no admissible chain at " + stations.length + " stations", milliseconds: performance.now() - started }, sections, reasons, stations };
+    return { result: fit(rows, knots, layout, 2, values, margin, false), sections, reasons, stations };
   }
 
   /** Where a stored family's misfit comes from, section by section (`decompose`). */
