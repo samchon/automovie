@@ -50,7 +50,7 @@ export const SCENES_DAILY: readonly IScene[] = [
       id: "office",
       title: "Office",
       summary:
-        "Two people at work: one types standing at a counter, rubs their eyes and thinks; the other sits at a desk, checks a watch, takes a call and thinks.",
+        "Two people at work: one types standing at a counter, rubs their eyes and thinks; the other checks a watch at a desk, shifts, takes a call, gets up and switches the light.",
       setting: "everyday",
       roles: { dee: "writer", eli: "colleague" },
       needs: [3392, 3446],
@@ -65,14 +65,17 @@ export const SCENES_DAILY: readonly IScene[] = [
       person("eli", "m1", 1, 0, 0, [
         act("sit", { seat: seat("chairE"), seconds: 0.5 }),
         act("checkWatch"),
+        act("shift"),
         act("handToFace", { task: "phone" }),
-        act("thinking", { seconds: 1 }),
+        act("rise"),
+        act("operate", { mechanism: { kind: "button", at: { kind: "prop", subject: "switch", point: "toggle" } } }),
       ]),
     ],
     [
       object("deskD", "createTable", "counter", -1, 0.6),
       object("deskE", "createTable", "desk", 1, 0.6),
       object("chairE", "createSeat", "office", 1, 0),
+      object("switch", "createSwitch", "rocker", 1.6, 0.4, 270, 1.2),
     ],
   ),
   scene(
