@@ -52,12 +52,29 @@ import type { IHumanBody } from "../body/IHumanBody";
  * adduction), the joint may instead go by two lines through a gate: the far
  * end's other reading brought into the range (`[50, -30, -90]`), which the
  * range also admits in its own other reading (`[130, 150, 90]`), so the
- * triple changes reading there and the rotation does not. Of the direct line
- * and the gates of either end, the route of the least turn is taken, and
- * the two lines of a gate share the way by their turns. The route is chosen
- * from the two ends alone, never from the share, so one blend takes one
- * path. When no gate lies in the range in both readings, the direct line is
- * the only route, however long.
+ * triple changes reading there and the rotation does not; the two lines of
+ * a gate share the way by their turns.
+ *
+ * No route is chosen. Either end has a gate, and each gate's route counts
+ * by a share: in full when its turn is under half the direct line's, not at
+ * all over five sixths of it, eased between, and by less the farther one of
+ * the gate's readings lies outside the range. The joint then stands those
+ * shares of the way from the line's rotation to each route's. A blend is
+ * also read between two ends that move (an overlay fading in over a walk
+ * blends the body without it and the body with it), where every one of
+ * these measures changes from instant to instant, and a choice of one route
+ * stepped where it changed: 110 mm at the fingers for one instant. The
+ * shares depend on the two ends alone, never on the share of the blend, so
+ * one blend takes one path.
+ *
+ * A rotation between two inside the range may lie a little outside it. In
+ * the angles of one reading the range is two boxes, its own and the other
+ * reading's, meeting at a corner, and a rotation in the corner is nearest
+ * one box on one side of the corner's diagonal and the other on the other
+ * side, so its nearest point in the range steps across the diagonal. It is
+ * brought in along the diagonal instead: by the whole of the shorter way
+ * into a box and the same length of the longer, which lands on the nearer
+ * box's face and moves continuously with the rotation.
  *
  * When an end lies outside the range no route stays inside it, and the
  * joint follows the shorter arc, read back as the triple the range admits
@@ -81,9 +98,9 @@ import type { IHumanBody } from "../body/IHumanBody";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is blended, why the channels are not, the interpolation, the chart of the result, each argument with its unit, and what an end returns.
  * @evidence contracts/development/implementation.md#principled-implementation A joint cannot leave its range, and a box of angles is convex in the angles, so between two ends inside it the path is made of lines of angles; the gate is where the box admits one rotation in both readings, the only place a path inside the range can change reading. Outside the range, spherical linear interpolation of the two rotations is the constant-speed shortest turn and does not depend on either end's reading; the triple is recovered by the engine's exact inverse. A joint with fewer than three freedoms moves only about its own axes, so its angles are its coordinates and are interpolated as such.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch on the joint's freedoms and one on the ends' place in the range, then the arc, or the least of at most three routes of lines; the single owner of a blend of joint triples, read by the arm's carry and by every reference blended between two solutions.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch on the joint's freedoms and one on the ends' place in the range, then the arc, or the line mixed with at most two gates' routes and brought into the range; the single owner of a blend of joint triples, read by the arm's carry and by every reference blended between two solutions.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bone is named: the joint's own range of motion says whether it is a ball joint. The share is clamped so the joint cannot pass either end, and an end keeps its own triple instead of a re-read one.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant time per joint: one decomposition for the arc, or four other readings and about thirty conversions to rotations for the routes.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant time per joint: one decomposition for the arc, or six other readings, about thirty conversions to rotations and one decomposition for the routes.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the engine's `jointToQuaternion`, `Quaternion.slerp`, `decomposeJointRotation` and `alternateJointAngles` with the canonical axes and rest frames the limb fit reads.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
  */

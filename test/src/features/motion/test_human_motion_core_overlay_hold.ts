@@ -36,8 +36,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 4. Continuity: from the film's start through the
  *    reach, the takeover and the 0.6 s after it, no joint centre jumps by
  *    more than the audit's 5 mm; and for 0.3 s either side of the drink's
- *    end, where it gives the hand back, the right wrist moves under 50 mm
- *    per 1/60 s (3 m/s, above any speed of a drinking hand, so only a step
+ *    end, where it gives the hand back, the right wrist moves under 25 mm
+ *    per 1/120 s (3 m/s, above any speed of a drinking hand, so only a step
  *    exceeds it).
  * 5. A wave of the free left hand over the same walk plans. That a wave of
  *    the holding hand is refused is
@@ -168,26 +168,71 @@ export function test_human_motion_core_overlay_hold(): void {
       if (jump.value > 0.005) {
         // The right arm's joint angles at the readings 1/120 s apart around
         // the jump, so the row says which joint changed and by how much.
-        const arm = (seconds: number): string =>
+        const arm = (seconds: number, of: HumanPerformance = film): string =>
           (["rightUpperArm", "rightLowerArm", "rightHand"] as const)
             .map((bone): string => {
-              const joint = film
+              const joint = of
                 .pose("a", Math.max(0, seconds))
                 .joints.find((j): boolean => j.bone === bone);
               return `${(joint?.flexion ?? 0).toFixed(1)}/${(joint?.abduction ?? 0).toFixed(1)}/${(joint?.twist ?? 0).toFixed(1)}`;
             })
             .join(" ");
+        // The same reading on two films that each leave one thing out, so a
+        // failing row says which part the step belongs to: the walk with
+        // the held glass and no drink, and the drink over standing still.
+        const apart = (other: HumanPerformance): string => {
+          const read: ReturnType<
+            typeof AutoMovieMotionHumanAuditContinuity.measure
+          >["jump"] = AutoMovieMotionHumanAuditContinuity.measure(
+            {
+              duration: Math.min(other.duration, taken + 0.6),
+              bones: (subject: string, seconds: number) =>
+                other.bones(subject, seconds),
+              segments: (subject: string) => other.segments(subject),
+            },
+            "a",
+          ).jump;
+          return `${mm(read.value)} mm at ${read.seconds.toFixed(3)} s (${read.where}), the arm around it ${[
+            -1, 0, 1, 2,
+          ]
+            .map(
+              (k: number): string => `[${arm(read.seconds + k / 120, other)}]`,
+            )
+            .join(" ")}`;
+        };
+        const parts = (): string => {
+          try {
+            return `; without the drink the same reading is ${apart(perform(taking()))}; with the drink over standing still it is ${apart(
+              perform(
+                HumanChain.subject("a")
+                  .pickUp({ prop: "glass", handle: "body", hand: "right" })
+                  .stand({ seconds: 2 })
+                  .over((u) =>
+                    u.handToFace({ task: "drink", side: "right", prop: "glass" }),
+                  ),
+              ),
+            )}; with the drink as an action of its own after the pick-up it is ${apart(
+              perform(
+                HumanChain.subject("a")
+                  .pickUp({ prop: "glass", handle: "body", hand: "right" })
+                  .handToFace({ task: "drink", side: "right", prop: "glass" }),
+              ),
+            )}`;
+          } catch (error) {
+            return `; the two part films: ${error instanceof Error ? error.message : String(error)}`;
+          }
+        };
         complaints.push(
           `${name}: a jump of ${mm(jump.value)} mm at ${jump.seconds.toFixed(3)} s (${jump.where}), within 5 mm expected; the pick-up ends at ${taken.toFixed(3)} s; the right upper arm, forearm and hand 1/120 s apart around it: ${[
             -2, -1, 0, 1, 2,
           ]
             .map((k: number): string => `[${arm(jump.seconds + k / 120)}]`)
-            .join(" ")}`,
+            .join(" ")}${parts()}`,
         );
       }
 
       // Where the drink gives the hand back to the carry, the wrist is read
-      // every 1/60 s: a hand in a drink moves under 3 m/s, 50 mm a reading.
+      // every 1/120 s: a hand in a drink moves under 3 m/s, 25 mm a reading.
       const given: number | undefined = film.overlays("a")[0]?.end;
       if (given !== undefined) {
         let step: { value: number; seconds: number } = { value: 0, seconds: 0 };
@@ -195,7 +240,7 @@ export function test_human_motion_core_overlay_hold(): void {
         for (
           let t: number = Math.max(taken, given - 0.3);
           t <= Math.min(film.duration, given + 0.3) + 1e-9;
-          t += 1 / 60
+          t += 1 / 120
         ) {
           const now: IAutoMovieVector3 = film
             .bones("a", t)
@@ -210,16 +255,16 @@ export function test_human_motion_core_overlay_hold(): void {
           }
           before = now;
         }
-        if (step.value > 0.05)
+        if (step.value > 0.025)
           complaints.push(
-            `${name}: the right wrist moves ${mm(step.value)} mm in 1/60 s at ${step.seconds.toFixed(3)} s, as the drink gives the hand back at ${given.toFixed(3)} s; within 50 mm expected; the right upper arm, forearm and hand 1/60 s apart around it: ${[
+            `${name}: the right wrist moves ${mm(step.value)} mm in 1/120 s at ${step.seconds.toFixed(3)} s, as the drink gives the hand back at ${given.toFixed(3)} s; within 25 mm expected; the right upper arm, forearm and hand 1/120 s apart around it: ${[
               -2, -1, 0, 1, 2,
             ]
               .map((k: number): string =>
                 `[${(["rightUpperArm", "rightLowerArm", "rightHand"] as const)
                   .map((bone): string => {
                     const joint = film
-                      .pose("a", step.seconds + k / 60)
+                      .pose("a", step.seconds + k / 120)
                       .joints.find((j): boolean => j.bone === bone);
                     return `${(joint?.flexion ?? 0).toFixed(1)}/${(joint?.abduction ?? 0).toFixed(1)}/${(joint?.twist ?? 0).toFixed(1)}`;
                   })
