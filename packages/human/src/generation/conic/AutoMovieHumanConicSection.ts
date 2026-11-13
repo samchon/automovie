@@ -246,6 +246,47 @@ export namespace AutoMovieHumanConicSection {
     return { input, guides };
   }
 
+  /**
+   * The field vector with the shoulders of the two arcs that meet at anchor `k` set so the section's curvature is continuous there, each
+   * arc keeping its triangle (its two end points and the meeting of their tangents).
+   *
+   * Two conics that meet at an anchor share its tangent but not its curvature, and where one arc ends nearly flat and the next starts sharply
+   * bent the wall turns within a few millimetres along the anchor's whole station line: f1's trunk over the hips met at its first median with
+   * curvatures of 1.2 and 308 per metre and drew an upright line down each hip. For a rational quadratic with end weights 1 and middle
+   * weight `w = rho / (1 - rho)` the curvature at an end is `|(P1 - P0) x (P2 - P1)| / (w^2 |leg|^3)`, the leg the side of the triangle at
+   * that end (Farin, rational quadratic Bezier curves; Pottmann, curvature continuous conic splines). Both curvatures are brought to their
+   * geometric mean, so each arc's weight moves by the same factor; the shoulders stay within the model's bounds, where the joint is as near
+   * G2 as they allow. Merged into one conic instead (both halves of one arc split at its shoulder), the hip's shape moved further.
+   *
+   * @param values The section's field vector.
+   * @param layout Its layout, not a mirror's last anchor: `k` must have an arc on either side in the listed anchors.
+   * @param k The anchor.
+   */
+  export function continuous(values: readonly number[], layout: ILayout, k: number): number[] {
+    const chain: AutoMovieViewChain.IInput = resolve(values, layout).input;
+    const triangle = (a: number): [P, P, P] => {
+      const p0: P = chain.points[a] as P;
+      const p2: P = chain.points[a + 1] as P;
+      return [p0, meet(p0, chain.tangents[a] as P, p2, chain.tangents[a + 1] as P), p2];
+    };
+    const turn = ([p0, p1, p2]: [P, P, P], leg: number): number => Math.abs((p1[0] - p0[0]) * (p2[1] - p1[1]) - (p1[1] - p0[1]) * (p2[0] - p1[0])) / leg ** 3;
+    const [b0, b1, b2]: [P, P, P] = triangle(k - 1);
+    const [a0, a1, a2]: [P, P, P] = triangle(k);
+    const before: number = turn([b0, b1, b2], Math.hypot(b2[0] - b1[0], b2[1] - b1[1]));
+    const after: number = turn([a0, a1, a2], Math.hypot(a1[0] - a0[0], a1[1] - a0[1]));
+    const weight = (rho: number): number => rho / (1 - rho);
+    const target: number = Math.sqrt((before / weight(chain.shoulders[k - 1]!) ** 2) * (after / weight(chain.shoulders[k]!) ** 2));
+    const shoulder = (factor: number): number => {
+      const w: number = Math.sqrt(factor / target);
+      return Math.min(FAIR, Math.max(layout.least ?? EDGE, w / (1 + w)));
+    };
+    const out: number[] = [...values];
+    const { shoulders }: { shoulders: number } = offsets(layout);
+    out[shoulders + k - 1] = shoulder(before);
+    out[shoulders + k] = shoulder(after);
+    return out;
+  }
+
   /** Build the engine's native conic chain from a field vector. */
   export function chain(values: readonly number[], layout: ILayout): AutoMovieViewChain.ISection {
     return AutoMovieViewChain.of(resolve(values, layout).input);

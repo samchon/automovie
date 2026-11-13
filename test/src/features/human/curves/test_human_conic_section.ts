@@ -12,6 +12,7 @@ import { AutoMovieHumanConicSection } from "@automovie/human";
  * 5. A share outside (0, 1) is confined inside the model, and a shoulder past the fair bound is held at it: shoulders of 1.5 and 0.9 yield the chain with the shoulder at 0.85, and a shoulder of 0.8 is kept.
  * 6. A guide on its box corner is held back: with the forward extreme's touch offset equal to the side support, the chain is still admitted and the guide stands below the corner on its own support line.
  * 7. The bilateral helper reads the ellipse: `bilateral(0)` on the ellipse's half with the ellipse shoulder, and `bilateral(1)` with every median at that shoulder and every half shoulder from rational subdivision, are the ellipse at every phase; `bilateral(1)` has 10 fields where `limb(1)` has 20.
+ * 8. `continuous` makes the curvature continuous at a median: on f1's trunk section over the hips the polar curve's one-sided curvatures at its first median differ more than twentyfold as stored and agree within 3 % after, with every anchor in place.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanConicSection.chain`, `resolve`, `limb`, `bilateral` and `units` and reads the resulting engine chain with `AutoMovieViewChain.radius`.
  * @evidence contracts/development/testing.md#independent-expectations The ellipse's polar radius `1 / sqrt((cos / a)^2 + (sin / b)^2)` is a closed form; the subdivision weights are Farin's rational de Casteljau step at `t = 1/2` with end weights renormalised, a property of conics independent of this code; mirror symmetry is a geometric identity.
@@ -108,6 +109,29 @@ export function test_human_conic_section(): void {
       if (!(Math.abs(actual - expected) <= 1e-9)) failures.push(`bilateral(${depth}) ellipse at ${phi.toFixed(3)}: radius ${actual}, expected ${expected}`);
     }
   }
+
+  // 8. Curvature made continuous at a median: on f1's trunk section over the hips (bilateral(1), the front arc at 0.85 and the side arc at
+  // 0.26), the polar curve's one-sided curvatures at the first median differ a hundredfold; after `continuous` they agree, and the median
+  // point and both extremes stay where they were.
+  const hip: number[] = [132.86, 0.6497, 41.98, 192.38, 0.5433, -86.77, 0.85, 0.261, 0.3327, 0.8603];
+  const smooth: number[] = S.continuous(hip, S.bilateral(1), 1);
+  const sided = (values: number[], at: number, sign: 1 | -1): number => {
+    // The curvature of the polar curve r(phi) from points on one side only: r' and r'' by one-sided differences of second order.
+    const h: number = 1e-4;
+    const r = (k: number): number => radius(values, S.bilateral(1), at + sign * k * h);
+    const [r0, r1, r2, r3]: number[] = [r(0), r(1), r(2), r(3)];
+    const d1: number = (sign * (-3 * r0! + 4 * r1! - r2!)) / (2 * h);
+    const d2: number = (2 * r0! - 5 * r1! + 4 * r2! - r3!) / (h * h);
+    return (r0! * r0! + 2 * d1 * d1 - r0! * d2) / (r0! * r0! + d1 * d1) ** 1.5;
+  };
+  const median: AutoMovieHumanConicSection.P = S.resolve(hip, S.bilateral(1)).input.points[1]!;
+  const at: number = Math.atan2(median[1], median[0]);
+  const [before, after]: number[] = [sided(hip, at, -1), sided(hip, at, 1)];
+  const [smoothBefore, smoothAfter]: number[] = [sided(smooth, at, -1), sided(smooth, at, 1)];
+  if (!(Math.max(before!, after!) > 20 * Math.min(before!, after!))) failures.push(`hip median as stored: curvatures ${before} and ${after}, expected a jump`);
+  if (!(Math.abs(smoothBefore! - smoothAfter!) <= 0.03 * Math.max(smoothBefore!, smoothAfter!))) failures.push(`hip median made continuous: curvatures ${smoothBefore} and ${smoothAfter}, expected equal`);
+  const moved: AutoMovieHumanConicSection.P = S.resolve(smooth, S.bilateral(1)).input.points[1]!;
+  if (!(moved[0] === median[0] && moved[1] === median[1]) || smooth.slice(0, 6).some((x: number, k: number): boolean => x !== hip[k])) failures.push("hip median made continuous: an anchor moved");
 
   if (failures.length > 0) throw new Error("human conic section:\n" + failures.join("\n"));
 }
