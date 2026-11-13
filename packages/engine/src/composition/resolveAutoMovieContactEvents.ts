@@ -24,7 +24,15 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * bisections of the first crossing, so the result is deterministic; a
  * contact shorter than one step (a weapon and a body passing through each
  * other within it) is the scan's stated blind spot, so the step must stay
- * below the time either needs to cross the other's thickness. Ties in
+ * below the time either needs to cross the other's thickness. A weapon
+ * that states the span it is live in (`from`, `to`) is scanned only on the
+ * scan's own steps that reach into that span, since outside it the weapon
+ * meets nothing; the steps are the same as a scan of the whole span, so the
+ * result is too, and a performance of many strikes scans each strike over
+ * its own window instead of over the whole performance. Since only the
+ * earliest impact is stopped, each round scans the weapons in the order
+ * they become live and no weapon past the earliest impact found so far: one
+ * that becomes live after it cannot be earlier. Ties in
  * time are broken by the weapons' ids, and a weapon that touches the moment
  * another stops is stopped at that same second, so the result does not
  * depend on the order the weapons are listed in.
@@ -50,7 +58,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * @evidence contracts/development/implementation.md#principled-implementation The time-ordered event loop of impulse-based simulation over continuous first-impact times.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over events and one first-impact search.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid spans, steps and repeated ids throw, and a capsule weapon is never reduced to its end points when a body cannot measure a segment: that throws.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each event re-scans the remaining weapons: quadratic in weapons times the scan's samples, for the handful of weapons one exchange holds.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each event re-scans the remaining weapons, each over the scan's samples inside its own live span and no later than the earliest impact found in that round: a performance of many strikes in sequence costs in proportion to its strikes, where scanning every weapon over the whole span after every event cost the square of them.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input; callers memoise.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -67,23 +75,32 @@ export function resolveAutoMovieContactEvents(
   }
   const stopped: Map<string, number> = new Map();
   const events: resolveAutoMovieContactEvents.IEvent[] = [];
-  const weapons = [...input.weapons].sort((a, b) =>
-    a.id < b.id ? -1 : a.id > b.id ? 1 : 0,
+  // In the order the weapons become live, so the earliest impact is found
+  // early and bounds the scans after it; ties in time go to the lesser id.
+  const weapons = [...input.weapons].sort(
+    (a, b) =>
+      (a.from ?? -Infinity) - (b.from ?? -Infinity) ||
+      (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
   );
   for (;;) {
     let best: resolveAutoMovieContactEvents.IEvent | undefined;
     const after: number = events.at(-1)?.seconds ?? input.from;
     for (const weapon of weapons) {
       if (stopped.has(weapon.id)) continue;
+      if (best !== undefined && (weapon.from ?? -Infinity) > best.seconds)
+        break;
       const hit = firstImpact(
         weapon,
         input,
         stopped,
         Math.max(input.from, after),
+        best?.seconds ?? Infinity,
       );
       if (
         hit !== undefined &&
-        (best === undefined || hit.seconds < best.seconds)
+        (best === undefined ||
+          hit.seconds < best.seconds ||
+          (hit.seconds === best.seconds && weapon.id < best.weapon))
       )
         best = { weapon: weapon.id, ...hit };
     }
@@ -147,6 +164,12 @@ export namespace resolveAutoMovieContactEvents {
 
     /** The sphere's radius, metres. */
     radius: number;
+
+    /** When the weapon starts to be live, seconds; it meets nothing before. The span's start when absent. */
+    from?: number;
+
+    /** When it stops being live, seconds; it meets nothing after. The span's end when absent. */
+    to?: number;
 
     /**
      * The sphere's centre on its free path at a second, world metres.
@@ -256,12 +279,13 @@ export namespace resolveAutoMovieContactEvents {
   }
 }
 
-/** A weapon's first impact from a second on, against the bodies it does not belong to. */
+/** A weapon's first impact from a second on, against the bodies it does not belong to; undefined when it has none, or none before `horizon`. */
 function firstImpact(
   weapon: resolveAutoMovieContactEvents.IWeapon,
   input: resolveAutoMovieContactEvents.IInput,
   stops: resolveAutoMovieContactEvents.IStops,
   from: number,
+  horizon: number,
 ): { against: string; seconds: number } | undefined {
   const gap = (t: number): { distance: number; against: string } => {
     const p: IAutoMovieVector3 = weapon.position(t, stops);
@@ -288,10 +312,22 @@ function firstImpact(
     }
     return best;
   };
-  const start = gap(from);
-  if (start.distance <= 0) return { against: start.against, seconds: from };
-  let previous: number = from;
-  for (let k: number = 1; ; k++) {
+  // Outside its live span the weapon meets nothing, so the scan starts at
+  // the last of its steps before that span and ends at the first step past
+  // it: the same steps, and so the same result, as scanning from `from`.
+  const live: number = weapon.from ?? -Infinity;
+  const until: number = Math.min(input.to, weapon.to ?? Infinity);
+  if (until < from) return undefined;
+  const first: number =
+    live > from ? Math.max(1, Math.floor((live - from) / input.step)) : 1;
+  if (first === 1) {
+    const start = gap(from);
+    if (start.distance <= 0) return { against: start.against, seconds: from };
+  }
+  let previous: number = first === 1 ? from : from + (first - 1) * input.step;
+  for (let k: number = first; ; k++) {
+    // An impact found past this step would come after `horizon`.
+    if (previous >= horizon) return undefined;
     const t: number = Math.min(input.to, from + k * input.step);
     if (gap(t).distance <= 0) {
       let lo: number = previous;
@@ -303,7 +339,7 @@ function firstImpact(
       }
       return { against: gap(hi).against, seconds: hi };
     }
-    if (t >= input.to) return undefined;
+    if (t >= until) return undefined;
     previous = t;
   }
 }

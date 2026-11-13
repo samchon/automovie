@@ -89,7 +89,8 @@ export namespace HumanPerformanceContacts {
    * its stops is handed each one as it is committed and settled, so its own
    * dwell and recoil are what later weapons meet; a plan that does not is
    * shown with that limb frozen at the stop. Weapons are live only inside
-   * their window clipped to their action's span; bodies are the other
+   * their window clipped to their action's span, which they declare, so
+   * each is scanned over that window alone; bodies are the other
    * people's colliders, and the person a stop met is the nearest of them.
    * A contact is mutual: when the limb a weapon meets is striking too, its
    * capsule nearest the striker stops at the same second.
@@ -130,6 +131,8 @@ export namespace HumanPerformanceContacts {
             id: key,
             owner: person.performer.subject,
             radius: w.radius,
+            from: a,
+            to: b,
             position: (t: number) => (t < a || t > b ? far : w.path(t)),
             ...(tail === undefined
               ? {}
