@@ -182,6 +182,16 @@ export namespace HumanSportWorkout {
     kind: "warriorOne",
   });
 
+  /** Warrior II of yoga. */
+  export const warriorTwo = HumanActionRow.of("warriorTwo", workout, {
+    kind: "warriorTwo",
+  });
+
+  /** The standing half of a sun salutation; the plank, the cobra and the dog complete the flow as their own rows. */
+  export const sunSalutation = HumanActionRow.of("sunSalutation", workout, {
+    kind: "sunSalutation",
+  });
+
   /** The triangle of yoga. */
   export const triangle = HumanActionRow.of("triangle", workout, {
     kind: "triangle",
