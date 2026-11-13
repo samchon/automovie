@@ -92,7 +92,7 @@ export namespace AutoMovieScheduleWalk {
     const entry: IAutoMovieSchedule.IEntry | undefined = walk.anchored.get(of);
     if (entry === undefined) return walk.tracks.get(of);
     const events: readonly resolveAutoMovieSchedule.ICue[] = entry.events ?? [];
-    const named = (name: string): boolean =>
+    const named: (name: string) => boolean = (name: string): boolean =>
       events.some(
         (e: resolveAutoMovieSchedule.ICue): boolean => e.name === name,
       );

@@ -65,15 +65,20 @@ export function createBarbell(
     name: kind === "mens" ? "men's barbell" : "women's barbell",
     dimensions: d,
   });
-  const along = (x: number): ReturnType<typeof Vector3.create> =>
-    Vector3.create(x, 0, 0);
+  const along: (x: number) => ReturnType<typeof Vector3.create> = (
+    x: number,
+  ): ReturnType<typeof Vector3.create> => Vector3.create(x, 0, 0);
 
   // The shaft is laid in pieces, one centred on each hand's place, so the
   // collider nearest a grip is the shaft a hand closes on and never a disc.
   const hand: number = d.grip! / 2;
   const inner: number = Math.max(0, hand - createBarbell.HAND);
   const outer: number = Math.min(collar, hand + createBarbell.HAND);
-  const shaft = (id: string, from: number, to: number): void => {
+  const shaft: (id: string, from: number, to: number) => void = (
+    id: string,
+    from: number,
+    to: number,
+  ): void => {
     if (to - from > 1e-6)
       builder.rod(id, d.diameter! / 2, along(from), along(to), {
         color: "#b8bcc2",
