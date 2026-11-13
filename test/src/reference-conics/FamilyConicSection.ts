@@ -121,6 +121,56 @@ export namespace FamilyConicSection {
     return best;
   }
 
+  /**
+   * A closed polygon with its corner at point `index` drawn round by an arc of `radius` mm tangent to its two sides, the sides' directions read
+   * over `span` mm either side: the arc's tangent points stand `radius / tan(alpha / 2)` from the corner, `alpha` the corner's angle, and
+   * the points between them are replaced by `count` points on the arc. A corner too blunt to need it, or one whose tangent points would pass
+   * the span, is returned unchanged; so is a polygon whose corner turns the other way when `convex` (the default) asks for a convex one.
+   *
+   * @returns The new polygon and how far its corner moved in, mm (`radius / sin(alpha / 2) - radius`).
+   */
+  export function fillet(points: readonly P[], index: number, radius: number, span: number = 2, count: number = 12, convex: boolean = true): { points: P[]; closed: number } {
+    const n: number = points.length;
+    const walk = (direction: 1 | -1, mm: number): { k: number; length: number } => {
+      let k: number = index;
+      let length: number = 0;
+      while (length < mm) {
+        const next: number = (k + direction + n) % n;
+        length += Math.hypot(points[next]![0] - points[k]![0], points[next]![1] - points[k]![1]);
+        k = next;
+        if (k === index) break;
+      }
+      return { k, length };
+    };
+    const c: P = points[index]!;
+    const a: P = points[walk(-1, span).k]!;
+    const b: P = points[walk(1, span).k]!;
+    const unit = (p: P, q: P): P => { const l: number = Math.hypot(q[0] - p[0], q[1] - p[1]) || 1; return [(q[0] - p[0]) / l, (q[1] - p[1]) / l]; };
+    const d1: P = unit(a, c);
+    const d2: P = unit(c, b);
+    const cross: number = d1[0] * d2[1] - d1[1] * d2[0];
+    const turn: number = Math.atan2(cross, d1[0] * d2[0] + d1[1] * d2[1]);
+    if ((convex && turn <= 0) || (!convex && turn >= 0) || Math.abs(turn) < 1e-3) return { points: [...points], closed: 0 };
+    const alpha: number = Math.PI - Math.abs(turn);
+    const tangent: number = radius / Math.tan(alpha / 2);
+    if (!(tangent < span)) return { points: [...points], closed: 0 };
+    const t1: P = [c[0] - tangent * d1[0], c[1] - tangent * d1[1]];
+    const t2: P = [c[0] + tangent * d2[0], c[1] + tangent * d2[1]];
+    const inward: P = unit([0, 0], [d2[0] - d1[0], d2[1] - d1[1]]);
+    const centre: P = [c[0] + (radius / Math.sin(alpha / 2)) * inward[0], c[1] + (radius / Math.sin(alpha / 2)) * inward[1]];
+    const from: number = Math.atan2(t1[1] - centre[1], t1[0] - centre[0]);
+    let sweep: number = Math.atan2(t2[1] - centre[1], t2[0] - centre[0]) - from;
+    while (sweep > Math.PI) sweep -= 2 * Math.PI;
+    while (sweep < -Math.PI) sweep += 2 * Math.PI;
+    const arc: P[] = Array.from({ length: count + 1 }, (_: unknown, j: number): P => [centre[0] + radius * Math.cos(from + (sweep * j) / count), centre[1] + radius * Math.sin(from + (sweep * j) / count)]);
+    const before: number = walk(-1, tangent).k;
+    const after: number = walk(1, tangent).k;
+    const out: P[] = [];
+    for (let k: number = after; k !== before; k = (k + 1) % n) out.push(points[k]!);
+    out.push(points[before]!, ...arc);
+    return { points: out, closed: radius / Math.sin(alpha / 2) - radius };
+  }
+
   /** Arclength either side over which a feature anchor's turning is read, mm, and the least turning, radians, that counts as a feature. */
   const FEATURE_SPAN: number = 1.5;
   const FEATURE_LEAST: number = 0.05;

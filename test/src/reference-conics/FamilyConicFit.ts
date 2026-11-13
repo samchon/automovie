@@ -152,8 +152,9 @@ export namespace FamilyConicFit {
    * @param power Residual power of the final reweighted passes; 2 is plain least squares, larger values pull the maximum down.
    * @param initial Knot values to start from, by field then knot, for these knots and this depth; absent starts from each section's own reading.
    * @param margin The least share of its chord at which every arc's tangent lines must meet (`ADMISSIBLE_MARGIN`).
+   * @param polish Whether to minimise at all; false only reports `initial` as it stands (`construct`).
    */
-  export function fit(rows: readonly IRow[], knots: readonly number[], layout: C.ILayout, power: number = 2, initial?: readonly (readonly number[])[], margin: number = ADMISSIBLE_MARGIN): IResult {
+  export function fit(rows: readonly IRow[], knots: readonly number[], layout: C.ILayout, power: number = 2, initial?: readonly (readonly number[])[], margin: number = ADMISSIBLE_MARGIN, polish: boolean = true): IResult {
     const started: number = performance.now();
     const units: C.Unit[] = C.units(layout);
     const F: number = units.length;
@@ -316,7 +317,7 @@ export namespace FamilyConicFit {
       const section: Q.ISection = C.chain(theta(Y, B[i]!), layout);
       return sample.phases.map((phi: number, k: number): number => (section.fault === null ? Q.radius(section, phi) : skinRadii[i]![k]!));
     });
-    const homotopy: number[] = process.argv.includes("--homotopy") ? Array.from({ length: HOMOTOPY_STEPS }, (_: unknown, k: number): number => (k + 1) / HOMOTOPY_STEPS) : [1];
+    const homotopy: number[] = !polish ? [] : process.argv.includes("--homotopy") ? Array.from({ length: HOMOTOPY_STEPS }, (_: unknown, k: number): number => (k + 1) / HOMOTOPY_STEPS) : [1];
     for (const along of homotopy) {
     samples.forEach((sample: ISample, i: number): void => {
       sample.radii = skinRadii[i]!.map((r: number, k: number): number => startRadii[i]![k]! + along * (r - startRadii[i]![k]!));
@@ -503,6 +504,69 @@ export namespace FamilyConicFit {
       const least: number = Math.min((d[0]! * w[1]! - d[1]! * w[0]!) / den / chord, (u[0]! * d[1]! - u[1]! * d[0]!) / den / chord);
       return Number.isFinite(least) ? least : -Infinity;
     });
+  }
+
+  /** A family constructed by rule (`construct`), or where it is refused. */
+  export interface IConstruction {
+    /** The constructed family reported against every observed section, or a result whose fault names the refusal. */
+    result: IResult;
+
+    /** Stations whose own constructed section is no admissible chain under the margin. */
+    sections: number[];
+
+    /** Dense stations, every `DENSE_MM`, where the smoothed family is no admissible chain under the margin. */
+    stations: number[];
+  }
+
+  /**
+   * Construct a family by rule, with no minimisation (a draughtsman's construction): each fitting section's fields read from its own
+   * polygon in closed form (`FamilyConicSection.seed`: each anchor at its extreme or the skin's inflection, with its tangent, and each
+   * arc's shoulder from the skin point on the arc's median line, `rho = |MS| / |MA|`), then every field carried along the stations by a
+   * linear least-squares natural cubic on the given knots, headings unwrapped first. The smoothed family is then held to the same
+   * admissibility as a fit, every `DENSE_MM` and as stored; a refused station is reported, not repaired.
+   *
+   * @param rows Observed sections by increasing station.
+   * @param knots Station knots, increasing, covering the rows.
+   * @param layout The anchors of every section.
+   * @param margin The least share of its chord at which every arc's tangent lines must meet.
+   */
+  export function construct(rows: readonly IRow[], knots: readonly number[], layout: C.ILayout, margin: number = ADMISSIBLE_MARGIN): IConstruction {
+    const started: number = performance.now();
+    const units: C.Unit[] = C.units(layout);
+    const train: IRow[] = rows.filter((row: IRow): boolean => !row.heldout);
+    const own: number[][] = train.map((row: IRow): number[] => C.seed(row.points, layout));
+    const holds = (t: number[]): boolean => C.chain(t, layout).fault === null && Math.min(...meetings(t, layout)) >= margin;
+    const sections: number[] = train.filter((_: IRow, i: number): boolean => !holds(own[i]!)).map((row: IRow): number => row.s);
+    for (let f: number = 0; f < units.length; ++f) {
+      if (units[f] !== "angle") continue;
+      for (let i: number = 1; i < own.length; ++i) {
+        while (own[i]![f]! - own[i - 1]![f]! > Math.PI) own[i]![f]! -= 2 * Math.PI;
+        while (own[i]![f]! - own[i - 1]![f]! < -Math.PI) own[i]![f]! += 2 * Math.PI;
+      }
+    }
+    const M: number = knots.length;
+    const cardinals: S.ISpline[] = knots.map((_: number, m: number): S.ISpline => S.create([...knots], knots.map((__: number, k: number): number => (k === m ? 1 : 0))));
+    const basis = (s: number): number[] => cardinals.map((c: S.ISpline): number => S.evaluate(c, s));
+    const B: number[][] = train.map((row: IRow): number[] => basis(row.s));
+    const gram: number[][] = zeros(M, M);
+    for (const b of B) for (let m: number = 0; m < M; ++m) for (let n: number = 0; n < M; ++n) gram[m]![n]! += b[m]! * b[n]!;
+    const values: number[][] = [];
+    for (let f: number = 0; f < units.length; ++f) {
+      const right: number[] = new Array<number>(M).fill(0);
+      for (let i: number = 0; i < train.length; ++i) for (let m: number = 0; m < M; ++m) right[m]! += B[i]![m]! * own[i]![f]!;
+      const solved: number[] | null = solve(gram.map((r: number[]): number[] => [...r]), right);
+      if (solved === null) return { result: { layout, knots: [...knots], values: [], training: NONE, heldout: NONE, rows: [], chordMaximumMm: Infinity, iterations: 0, folds: 0, fault: "the knot vector is not supported by the observed stations", milliseconds: performance.now() - started }, sections, stations: [] };
+      values.push(solved);
+    }
+    const stored = (y: number, f: number): number => (units[f] === "mm" ? Math.round(y * 100) / 100 : Math.round(y * 1e4) / 1e4);
+    const stations: number[] = [];
+    for (let s: number = knots[0]!; s <= knots[M - 1]! + 1e-9; s += DENSE_MM) {
+      const b: number[] = basis(Math.min(s, knots[M - 1]!));
+      const t: number[] = values.map((field: number[]): number => field.reduce((sum: number, y: number, m: number): number => sum + y * b[m]!, 0));
+      if (!holds(t) || !holds(t.map(stored))) stations.push(s);
+    }
+    if (stations.length > 0) return { result: { layout, knots: [...knots], values, training: NONE, heldout: NONE, rows: [], chordMaximumMm: Infinity, iterations: 0, folds: 0, fault: "the constructed family is no admissible chain at " + stations.length + " stations", milliseconds: performance.now() - started }, sections, stations };
+    return { result: fit(rows, knots, layout, 2, values, margin, false), sections, stations };
   }
 
   /** Where a stored family's misfit comes from, section by section (`decompose`). */

@@ -498,6 +498,20 @@ namespace FamilyConicBody {
   /** The slit cutter's fitted stations, mm along its course (`--axilla-domain=<from>,<to>`): x 16 is station 0, the crease about 48, x -62 about 97. */
   const AXILLA_DOMAIN: [number, number] = (process.argv.find((a: string): boolean => a.startsWith("--axilla-domain="))?.slice("--axilla-domain=".length) ?? "25,98").split(",").map(Number) as [number, number];
 
+  /** `--construct`: how far from where invented points meet skin a corner is looked for, and the span its sides' directions are read over, mm. */
+  const CONSTRUCT_SEARCH_MM: number = 3;
+  const CONSTRUCT_SPAN_MM: number = 2.5;
+
+  /**
+   * The armpit cutters' constructed rounds, mm. Each floor-wall corner is invented by the air provider, and its fitted radii of 0.07 to
+   * 0.22 mm stood where the band crosses (`corner`, a scratch probe), under the cuts' 0.25 mm blends, which reversed there; drawn round
+   * by four times the blend, its tangent points stand at least 4.2 mm from the band on the vault and 1.2 mm on the slit (`construct`,
+   * a scratch probe of the dumped sections against the band). The slit's top is a cusp of 20 to 54 degrees, which a G1 chain closes
+   * only by a degenerate arc; drawn round by the blend's width it is closed by up to 1.22 mm (station 74), 0.3 to 0.9 mm mostly.
+   */
+  const CONSTRUCT_CORNER_MM: number = 1;
+  const CONSTRUCT_APEX_MM: number = 0.25;
+
   /** Length of the station bands `--decompose` tabulates, mm. */
   const DECOMPOSE_BAND_MM: number = 5;
 
@@ -740,6 +754,13 @@ namespace FamilyConicBody {
      */
     tip?: boolean | number;
 
+    /**
+     * How the part is constructed by rule with `--construct` (`FamilyConicFit.construct`), in its first layout: the knots its fields are
+     * carried on, the radius, mm, each corner between invented points and skin is drawn round by before the section is read (a corner the
+     * air provider makes, not the skin), and the radius its top is drawn round by. A part without it is not constructed.
+     */
+    construct?: { knots: number[]; corner: number; apex: number };
+
     /** The part closes in a point before its first fitted section too, at this station, its cap starting at that section; a cutter wholly inside its host closes at both ends. */
     first?: number;
 
@@ -969,13 +990,13 @@ namespace FamilyConicBody {
         // (`AXILLA_FLOOR`) and drawn in from the walls (`AXILLA_INSET`); its arm-side reach is 12 mm, short of the band's ring end. Its
         // arm-side flank is concave under the apex: a groove after the apex (`inflected(1, [0])`; on the 8-conic layout a groove seeds only
         // after a `u` extreme). Its front end closes inside the band's span; its back end runs out through the posterior fold.
-        { name: "axilla", centres: AXILLA, course: JSON.stringify(AXILLA).replaceAll(",", ", "), halves: [8, 5, 5], up: [0, 1, 0], domain: AXILLA_DOMAIN, step: 1, gap: 4, first: AXILLA_DOMAIN[0] - 4, tip: AXILLA_DOMAIN[1] + 3, mirrored: true, skin: "inner", margin: AXILLA_MARGIN, air: { band: AXILLA_BAND, floor: AXILLA_FLOOR, reach: 12, inset: AXILLA_INSET }, layouts: AXILLA_LAYOUTS[process.argv.find((a: string): boolean => a.startsWith("--axilla-layout="))?.slice("--axilla-layout=".length) ?? "groove"]!, reliefs: [] },
+        { name: "axilla", centres: AXILLA, course: JSON.stringify(AXILLA).replaceAll(",", ", "), halves: [8, 5, 5], up: [0, 1, 0], domain: AXILLA_DOMAIN, step: 1, gap: 4, first: AXILLA_DOMAIN[0] - 4, tip: AXILLA_DOMAIN[1] + 3, mirrored: true, skin: "inner", margin: AXILLA_MARGIN, construct: { knots: [25, 34, 43, 52, 61, 70, 79, 88, 98], corner: CONSTRUCT_CORNER_MM, apex: CONSTRUCT_APEX_MM }, air: { band: AXILLA_BAND, floor: AXILLA_FLOOR, reach: 12, inset: AXILLA_INSET }, layouts: AXILLA_LAYOUTS[process.argv.find((a: string): boolean => a.startsWith("--axilla-layout="))?.slice("--axilla-layout=".length) ?? "groove"]!, reliefs: [] },
         // The vault in front of the armpit as a cutter of its own (G11): the arm's band crosses it flat, 12 to 16 mm under the reference's
         // vault, its columns running aslant to the vault's planes. Every section of the vault is convex, so the plain 8-conic limb carries it
         // (0.56 mm on the same sections, where the slit's groove stalled at 1.67 mm). Its sections are the vault's air, read as the slit's
         // are, with a reach of 20 mm, since the vault is up to 28 mm wide. Both ends close: its back tip at x about 0, clear of the slit
         // cutter's front tip at x -1.9.
-        { name: "vault", centres: VAULT, course: JSON.stringify(VAULT).replaceAll(",", ", "), halves: [], up: [0, 1, 0], domain: [2, 18], step: 1, gap: 4, first: -1, tip: 20, mirrored: true, skin: "inner", air: { band: AXILLA_BAND, floor: [[0, VAULT_FLOOR_MM]], reach: 20, inset: AXILLA_INSET }, layouts: [{ layout: C.limb(1), depth: 1 }], reliefs: [] },
+        { name: "vault", centres: VAULT, course: JSON.stringify(VAULT).replaceAll(",", ", "), halves: [], up: [0, 1, 0], domain: [2, 18], step: 1, gap: 4, first: -1, tip: 20, mirrored: true, skin: "inner", construct: { knots: [2, 10, 18], corner: CONSTRUCT_CORNER_MM, apex: CONSTRUCT_APEX_MM }, air: { band: AXILLA_BAND, floor: [[0, VAULT_FLOOR_MM]], reach: 20, inset: AXILLA_INSET }, layouts: [{ layout: C.limb(1), depth: 1 }], reliefs: [] },
         // The nostrils open downward, and a frontal section shows only the nose's outline round them. A net over the nose's underside, cast
         // straight up, reads the first skin a ray from below meets, and found them: 3 to 5 mm deep and more, from 124 to 128 mm forward
         // (`--casts`). That is where a band 2 mm in landed: with the dimples in it the rail's ring was no longer star-shaped and the port
@@ -1429,6 +1450,14 @@ namespace FamilyConicBody {
       // `DECOMPOSE_BAND_MM` along the course, and no fit: its own miss; each section fitted alone (the layout's capacity); those fits carried
       // on 1, 2 and 4 times its knots (the knots' capacity), with how many stations are then inadmissible; the constraints active at it; and
       // its miss at invented points against skin points, with the invented points' share of the weight.
+      // `--dump=<file>`: the observed sections as JSON, each with its station, its frame (origin, `u`, `v`), its points in that chart and
+      // which of them are invented, and no fit: the input a section is constructed from by rule.
+      const dumpTo: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--dump="))?.slice(7);
+      if (dumpTo !== undefined) {
+        await fs.writeFile(dumpTo, JSON.stringify({ part: part.name, rows: rows.map((row: F.IRow, i: number) => { const frame: AutoMovieLoftFrame.IFrame = axis.at(row.s); return { s: row.s, origin: [...frame.origin], u: [...frame.u], v: [...frame.v], points: row.points, invented: invented[i] ?? null }; }) }));
+        log("family-body-dump", { part: part.name, sections: rows.length, file: dumpTo });
+        continue;
+      }
       const decomposeFrom: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--decompose="))?.slice(12);
       if (decomposeFrom !== undefined) {
         const wall: K.IStored = JSON.parse(await fs.readFile(path.join(decomposeFrom, part.name + ".family.json"), "utf8")) as K.IStored;
@@ -1510,7 +1539,57 @@ namespace FamilyConicBody {
       // values raised to it and the layout without it, so a wall spliced onto another fitted without the bound keeps one layout: the leg's
       // knee, fitted at 0.3 and spliced into the stored wall, loses the crease its arcs of 0.06 to 0.14 drew while the foot keeps its own.
       const least: number | undefined = ((value: string | undefined): number | undefined => (value === undefined ? undefined : Number(value)))(process.argv.find((argument: string): boolean => argument.startsWith("--least="))?.slice(8));
-      for (const { layout: plain, depth } of reuse !== undefined ? [] : deepen !== undefined ? [{ layout: C.limb(deeper), depth: deeper }] : part.layouts) {
+      // `--construct`: the part's sections read by rule and carried on its own knots, with no fit (`IPart.construct`). Each corner between
+      // invented points and skin, the sharpest convex turn within `CONSTRUCT_SEARCH_MM` of where the two meet, is drawn round by its
+      // `corner` radius, and the section's top, its skin point farthest along `u`, by its `apex` radius; the section is then read along its
+      // rays again. A refused section or station is reported and nothing is stored.
+      let constructed: boolean = false;
+      if (process.argv.includes("--construct") && part.construct !== undefined) {
+        const spec: NonNullable<IPart["construct"]> = part.construct;
+        const closings: { s: number; closed: number }[] = [];
+        const rounded: F.IRow[] = rows.map((row: F.IRow, i: number): F.IRow => {
+          const flags: boolean[] | null = invented[i] ?? null;
+          const n: number = row.points.length;
+          const turn = (points: readonly C.P[], k: number): number => {
+            const m: number = points.length;
+            const [a, p, b] = [points[(k - 3 + m) % m]!, points[k]!, points[(k + 3) % m]!];
+            const d: number = Math.atan2(b[1] - p[1], b[0] - p[0]) - Math.atan2(p[1] - a[1], p[0] - a[0]);
+            return Math.atan2(Math.sin(d), Math.cos(d));
+          };
+          const corners: C.P[] = [];
+          if (flags !== null)
+            for (let k: number = 0; k < n; ++k) {
+              if (flags[k] === flags[(k + 1) % n]) continue;
+              let best: number = k;
+              for (let j: number = 0; j < n; ++j) {
+                const q: number = (k + j) % n;
+                const back: number = (k - j + n) % n;
+                const near = (x: number): boolean => Math.hypot(row.points[x]![0] - row.points[k]![0], row.points[x]![1] - row.points[k]![1]) <= CONSTRUCT_SEARCH_MM;
+                if (!near(q) && !near(back)) break;
+                for (const x of [q, back]) if (near(x) && turn(row.points, x) > turn(row.points, best)) best = x;
+              }
+              corners.push(row.points[best]!);
+            }
+          let points: C.P[] = [...row.points];
+          const nearest = (q: C.P): number => points.reduce((b: number, p: C.P, k: number): number => (Math.hypot(p[0] - q[0], p[1] - q[1]) < Math.hypot(points[b]![0] - q[0], points[b]![1] - q[1]) ? k : b), 0);
+          for (const corner of corners) points = C.fillet(points, nearest(corner), spec.corner, CONSTRUCT_SPAN_MM).points;
+          const top: number = row.points.reduce((b: number, p: C.P, k: number): number => ((flags === null || !flags[k]) && p[0] > row.points[b]![0] ? k : b), flags === null ? 0 : Math.max(0, flags.indexOf(false)));
+          const apex = C.fillet(points, nearest(row.points[top]!), spec.apex, CONSTRUCT_SPAN_MM);
+          closings.push({ s: row.s, closed: apex.closed });
+          return { ...row, points: X.star(apex.points, n, "inner")?.points ?? apex.points };
+        });
+        const layout: C.ILayout = part.layouts[0]!.layout;
+        const built: F.IConstruction = F.construct(rounded, spec.knots, layout, part.margin ?? F.ADMISSIBLE_MARGIN);
+        const closedMost: { s: number; closed: number } = closings.reduce((a, b) => (b.closed > a.closed ? b : a), { s: NaN, closed: 0 });
+        log("family-body-construct", { part: part.name, knots: spec.knots, sectionsRefused: built.sections.map(round), stationsRefused: built.stations.length, firstRefused: built.stations[0] ?? null, fault: built.result.fault, trainMaxMm: round(built.result.training.maximumMm), trainMeanMm: round(built.result.training.meanMm), heldMaxMm: round(built.result.heldout.maximumMm), heldMeanMm: round(built.result.heldout.meanMm), apexClosedMostMm: round(closedMost.closed), apexClosedMostAt: closedMost.s });
+        if (built.result.fault !== null) {
+          receipt.push({ part: part.name, trail, fault: built.result.fault });
+          continue;
+        }
+        best = built.result;
+        constructed = true;
+      }
+      for (const { layout: plain, depth } of reuse !== undefined || constructed ? [] : deepen !== undefined ? [{ layout: C.limb(deeper), depth: deeper }] : part.layouts) {
         const layout: C.ILayout = least === undefined ? plain : { ...plain, least };
         // A deeper layout starts from the shallower one's final knots and values, cut exactly at every arc's median.
         const knots0: number[] = best === null ? [domain[0], (domain[0] + domain[1]) / 2, domain[1]] : [...best.knots];
@@ -1542,7 +1621,7 @@ namespace FamilyConicBody {
       }
 
       // Prune: drop every knot whose removal keeps the maximum and the mean within 3 % and 5 % of the grown family.
-      if (best !== null && reuse === undefined && deepen === undefined) {
+      if (best !== null && reuse === undefined && deepen === undefined && !constructed) {
         // The limits are read from the grown family under the same plain pass the trials run, so a trial is compared like for like. The grown
         // family itself stays: the thinned one replaces it only if, refitted with the reweighted passes, its mean is within 10 % of the grown one's.
         const base: F.IResult = attempt(best.knots, best.layout, best.values, "prune base", 2);
