@@ -1,4 +1,9 @@
-import { createSeat } from "@automovie/archetypes";
+import {
+  createBicycle,
+  createHorse,
+  createMotorcycle,
+  createSeat,
+} from "@automovie/archetypes";
 import {
   HumanChain,
   HumanObject,
@@ -22,22 +27,35 @@ import { motionHumanBody } from "../../features/internal/motionHumanBody";
  * woman. A high seat needs a base the law lacks: the feet on a footrest or
  * hanging, and a mount by a step or a hop instead of a descent.
  *
+ * The same blocks every saddle: for the average man a motorcycle's seat
+ * (0.795 m) is 1.88 of the popliteal height, a bicycle's saddle (0.954 m)
+ * 2.26 and a horse's (1.645 m) 3.89, so no one can mount what `HumanRide`
+ * would then carry.
+ *
  * Scenarios, on the small woman, the average man and the large man:
  * 1. Each sits on a mid-band dining chair.
  * 2. Each sits on a mid-band bar stool.
+ * 3. Each sits on a motorcycle's seat, a bicycle's saddle and a horse's
+ *    saddle.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Places real archetypes and builds the sitting through the public chain; a refused sitting fails.
  * @evidence contracts/development/testing.md#independent-expectations That adults sit on dining chairs and bar stools is what those seats are made for; their heights are the archetypes' cited bands.
- * @evidence contracts/development/testing.md#distinguishing-cases Two seat heights by three statures.
+ * @evidence contracts/development/testing.md#distinguishing-cases Five seat heights by three statures.
  * @evidence contracts/development/testing.md#execution-ownership Prepares polygon men; a pending specification until the base axis gives high seats their supports.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule, why the file is pending with its numbers, and the 2 scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule, why the file is pending with its numbers, and the 3 scenarios.
  */
 export function test_human_motion_seat_heights(): void {
   const complaints: string[] = [];
   for (const name of ["f-small", "m-average", "m-large"] as const) {
     const body: IHumanBody = motionHumanBody(name);
-    for (const kind of ["dining", "barStool"] as const) {
-      const seat = HumanObject.seat(createSeat({ kind }), {
+    for (const [kind, model] of [
+      ["dining chair", createSeat({ kind: "dining" })],
+      ["bar stool", createSeat({ kind: "barStool" })],
+      ["motorcycle", createMotorcycle({ kind: "motorcycle" })],
+      ["bicycle", createBicycle({})],
+      ["horse", createHorse({})],
+    ] as const) {
+      const seat = HumanObject.seat(model, {
         at: { x: 0, y: 0, z: -0.6 },
         yaw: 0,
       });

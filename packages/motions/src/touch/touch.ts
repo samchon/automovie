@@ -80,6 +80,9 @@ export namespace touch {
     }),
   };
 
+  /** A touch may be performed over a carrier: it claims the touching arms and hands, and the trunk when it must lean. */
+  export const overlay: boolean = true;
+
   /** Which part of the hand touches. */
   export type With = "palm" | "fingertips" | "forefinger" | "handBack" | "fist";
 

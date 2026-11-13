@@ -32,11 +32,11 @@ export namespace HumanLabour {
   /** Push a cart, a pram or a trolley ahead. */
   export const pushCart = HumanActionRow.of("pushCart", carry, { how: "push" });
 
-  /** Haul a heavy load slowly in both hands (the load is half the body's mass, provisional). */
+  /** Haul a heavy load slowly in both hands (the load is a quarter of the body's mass, the most a carry accepts). */
   export const haul = HumanActionRow.of("haul", carry, {
     how: "twoHands",
     pace: "slow",
-    load: 0.5,
+    load: 0.25,
   });
 
   /** Drive nails: a hammer swung four times. */

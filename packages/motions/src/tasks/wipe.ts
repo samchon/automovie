@@ -9,6 +9,7 @@ import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanLeanInto } from "../compose/AutoMovieMotionHumanLeanInto";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
@@ -65,6 +66,9 @@ export namespace wipe {
       { window: ["relax", 1], kind: "inertialize", entry: 0, blend: 0.3 },
     ],
   };
+
+  /** May be performed over a carrier, such as seated or while another action carries the body: it claims only the parts it moves. */
+  export const overlay: boolean = true;
 
   /**
    * Parameters.
@@ -211,7 +215,7 @@ export namespace wipe {
       modifiers,
     );
     return composeAutoMovieMotionHumanAction({
-      base: stand.plan({ ...context, params: { seconds: clock.duration } }),
+      base: AutoMovieMotionHumanBase.under(context, clock.duration),
       clock,
       contact: "stroke",
       primitives: [

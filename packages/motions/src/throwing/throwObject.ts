@@ -15,6 +15,7 @@ import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
@@ -90,6 +91,9 @@ export namespace throwObject {
       },
     ],
   };
+
+  /** May be performed over a carrier, such as seated or while another action carries the body: it claims only the parts it moves. */
+  export const overlay: boolean = true;
 
   /** How the object is thrown. */
   export type Style = "overarm" | "underarm" | "toss";
@@ -276,10 +280,10 @@ export namespace throwObject {
       { holds: ["followThrough"], fixed: ["cocked", "release"] },
     );
     const duration: number = clock.duration;
-    const base: IHumanActionPlan = stand.plan({
-      ...context,
-      params: { seconds: duration },
-    });
+    const base: IHumanActionPlan = AutoMovieMotionHumanBase.under(
+      context,
+      duration,
+    );
 
     // The hand's grip point at a second.
     const hermite = (

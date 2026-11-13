@@ -104,6 +104,9 @@ export namespace selfAction {
     fistPump: { height: "eye", lateral: "outside", distance: "mid" },
   };
 
+  /** May be performed over a carrier: it claims only the parts it moves. */
+  export const overlay: boolean = true;
+
   /**
    * Where the pumping arm's elbow hangs, which the fist's forearm rises
    * from: the knuckles face away from it. With the fist a forearm ahead of

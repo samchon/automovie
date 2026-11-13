@@ -6,10 +6,10 @@ import type {
 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
-import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
@@ -80,6 +80,9 @@ export namespace useTool {
       { window: ["recover", 1], kind: "inertialize", entry: 0, blend: 0.3 },
     ],
   };
+
+  /** May be performed over a carrier, such as seated or while another action carries the body: it claims only the parts it moves. */
+  export const overlay: boolean = true;
 
   /** A tool kind. */
   export type Kind = "hammer" | "saw" | "stir" | "screwdriver";
@@ -429,10 +432,10 @@ export namespace useTool {
       };
     };
 
-    const base: IHumanActionPlan = stand.plan({
-      ...context,
-      params: { seconds: duration },
-    });
+    const base: IHumanActionPlan = AutoMovieMotionHumanBase.under(
+      context,
+      duration,
+    );
     return {
       ...composeAutoMovieMotionHumanAction({
         base,
