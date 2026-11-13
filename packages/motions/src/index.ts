@@ -45,6 +45,7 @@ export * from "./compose/AutoMovieMotionHumanInterrupt";
 export * from "./compose/AutoMovieMotionHumanJoints";
 export * from "./compose/AutoMovieMotionHumanLean";
 export * from "./compose/AutoMovieMotionHumanLeg";
+export * from "./compose/AutoMovieMotionHumanLegPhrase";
 export * from "./compose/AutoMovieMotionHumanRange";
 export * from "./compose/AutoMovieMotionHumanReach";
 export * from "./compose/AutoMovieMotionHumanResolve";

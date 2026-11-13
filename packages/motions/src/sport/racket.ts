@@ -8,6 +8,7 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
+import { AutoMovieMotionHumanLegPhrase } from "../compose/AutoMovieMotionHumanLegPhrase";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
@@ -204,7 +205,7 @@ export namespace racket {
             to: clock.duration,
             placement: (_: IHumanPosture, s: number): HumanFoot.IPlacement => {
               const placed: HumanFoot.IPlacement =
-                AutoMovieMotionHumanLeg.between(
+                AutoMovieMotionHumanLegPhrase.between(
                   from,
                   out(half + wider * landed(s)),
                   into(s),

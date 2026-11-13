@@ -3,7 +3,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
   AutoMovieMotionClock,
   AutoMovieMotionHumanArm,
-  AutoMovieMotionHumanLeg,
+  AutoMovieMotionHumanLegPhrase,
   AutoMovieMotionManner,
   type IHumanBody,
   type IHumanPosture,
@@ -268,7 +268,7 @@ export function test_motion_compose_manner(): void {
       hand(bowed, false, 0.125).x < -0.2 - 1e-3 &&
       close(hand({ extent: 1, curvature: 0 }, false, 0.125).x, -0.2),
   );
-  const lift = AutoMovieMotionHumanLeg.lift({
+  const lift = AutoMovieMotionHumanLegPhrase.lift({
     body,
     side: "left",
     stance: { ankle: { x: 0.1, y: 0.08, z: 0 }, rotation: identity },

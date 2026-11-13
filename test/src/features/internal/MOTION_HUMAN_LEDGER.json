@@ -720,21 +720,21 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanLeg.bearing",
+      "symbol": "AutoMovieMotionHumanLegPhrase.bearing",
       "tests": [
         "test_motion_compose_leg_place"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanLeg.between",
+      "symbol": "AutoMovieMotionHumanLegPhrase.between",
       "tests": [
         "test_motion_compose_leg_place"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanLeg.lift",
+      "symbol": "AutoMovieMotionHumanLegPhrase.lift",
       "tests": [
         "test_motion_compose_manner",
         "test_motion_compose_phrase"
@@ -742,21 +742,21 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanLeg.tap",
+      "symbol": "AutoMovieMotionHumanLegPhrase.tap",
       "tests": [
         "test_motion_compose_phrase"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanLeg.swing",
+      "symbol": "AutoMovieMotionHumanLegPhrase.swing",
       "tests": [
         "test_motion_compose_phrase"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanLeg.pivot",
+      "symbol": "AutoMovieMotionHumanLegPhrase.pivot",
       "tests": [
         "test_motion_compose_phrase"
       ]

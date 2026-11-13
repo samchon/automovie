@@ -8,6 +8,7 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
+import { AutoMovieMotionHumanLegPhrase } from "../compose/AutoMovieMotionHumanLegPhrase";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
@@ -269,7 +270,11 @@ export namespace gymnastics {
               ),
               rotation: turn,
             };
-            return AutoMovieMotionHumanLeg.between(stance, carried, swing(s));
+            return AutoMovieMotionHumanLegPhrase.between(
+              stance,
+              carried,
+              swing(s),
+            );
           },
           planted: (s: number): boolean => swing(s) <= 0,
         }),

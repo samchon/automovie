@@ -10,6 +10,7 @@ import { AutoMovieMotionHumanHead } from "../compose/AutoMovieMotionHumanHead";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
+import { AutoMovieMotionHumanLegPhrase } from "../compose/AutoMovieMotionHumanLegPhrase";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
@@ -245,7 +246,7 @@ export namespace stretch {
         from: 0,
         to: clock.duration,
         placement: (_: IHumanPosture, seconds: number): HumanFoot.IPlacement =>
-          AutoMovieMotionHumanLeg.between(
+          AutoMovieMotionHumanLegPhrase.between(
             stance[side],
             placement,
             weight(seconds),

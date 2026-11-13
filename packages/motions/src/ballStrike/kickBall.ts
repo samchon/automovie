@@ -10,7 +10,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
-import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
+import { AutoMovieMotionHumanLegPhrase } from "../compose/AutoMovieMotionHumanLegPhrase";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -33,7 +33,7 @@ import { hipJoints } from "../posture/hipJoints";
  * 16:211; Nunome et al. 2002, Med Sci Sports Exerc 34:2028, compare the
  * instep and side-foot kicks). The backswing draws the foot back and up
  * behind the ball (`CHAMBER`, in shank lengths, provisional), the swing
- * (`AutoMovieMotionHumanLeg.swing`) passes the contact at speed and runs on
+ * (`AutoMovieMotionHumanLegPhrase.swing`) passes the contact at speed and runs on
  * along its line through the follow-through, and the foot returns to its
  * stance. The opposite arm swings out for balance. The support foot stays
  * planted where it stood, so the ball must lie within the kicking leg's
@@ -230,7 +230,7 @@ export namespace kickBall {
       clock,
       contact: "stroke",
       primitives: [
-        AutoMovieMotionHumanLeg.swing({
+        AutoMovieMotionHumanLegPhrase.swing({
           body,
           clock,
           side,

@@ -7,6 +7,7 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
+import { AutoMovieMotionHumanLegPhrase } from "../compose/AutoMovieMotionHumanLegPhrase";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
@@ -418,7 +419,7 @@ export namespace exercise {
               from: 0,
               to: clock.duration,
               placement: (_: IHumanPosture, s: number): HumanFoot.IPlacement =>
-                AutoMovieMotionHumanLeg.between(
+                AutoMovieMotionHumanLegPhrase.between(
                   stance[side],
                   raised(side),
                   lifted(side, s),
@@ -461,7 +462,11 @@ export namespace exercise {
               from: 0,
               to: clock.duration,
               placement: (_: IHumanPosture, s: number): HumanFoot.IPlacement =>
-                AutoMovieMotionHumanLeg.between(stance[side], out, any(s)),
+                AutoMovieMotionHumanLegPhrase.between(
+                  stance[side],
+                  out,
+                  any(s),
+                ),
               planted: (s: number): boolean => any(s) <= 0 || any(s) >= 1,
             }),
             ...AutoMovieMotionHumanPlaced.arm({
