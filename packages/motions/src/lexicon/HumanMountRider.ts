@@ -2,6 +2,7 @@ import {
   type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
+  physicalShapeSegmentDistance,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -235,8 +236,9 @@ export namespace HumanMountRider {
   /**
    * The finger joints of a hand closed on a grip of the support: each
    * digit curled from the relaxed hand until its phalanges meet the
-   * support's colliders (`HumanGrip.close`, a power grip), with the hand
-   * where `hold` puts it.
+   * handle (`HumanGrip.close`, a power grip), the support's collider
+   * nearest the held point, as `HumanGrasp` picks a prop's handle, with the
+   * hand where `hold` puts it.
    *
    * The closure is solved once, where the support stands with the rider
    * seated so, and kept: the hand and the grip move together afterwards.
@@ -268,19 +270,25 @@ export namespace HumanMountRider {
     frame: IHumanProp.IFrame,
   ): IHumanPosture["joints"] {
     const arm: IHumanPosture.IGoal = hold(body, side, posture, grip, 1, {}).arm;
+
+    // The handle is the collider nearest the held point, as a grasp takes a mug by its handle and not its body: the fingers close on it, not on the leaf or the frame behind it.
+    const near = (shape: IAutoMoviePhysicalProfile.IShape): number =>
+      physicalShapeSegmentDistance(frame, shape, grip.point, grip.point);
+    const handle: IAutoMoviePhysicalProfile.IShape | undefined = [
+      ...shapes,
+    ].sort(
+      (
+        a: IAutoMoviePhysicalProfile.IShape,
+        b: IAutoMoviePhysicalProfile.IShape,
+      ): number => near(a) - near(b),
+    )[0];
+    if (handle === undefined) return {};
     return HumanGrip.close(
       body,
       side,
       "power",
       { point: arm.point, rotation: arm.rotation! },
-      shapes.map(
-        (
-          shape: IAutoMoviePhysicalProfile.IShape,
-        ): { shape: IAutoMoviePhysicalProfile.IShape; frame: IHumanProp.IFrame } => ({
-          shape,
-          frame,
-        }),
-      ),
+      [{ shape: handle, frame }],
       HumanHand.shape(side, "relaxed"),
     ).joints;
   }
