@@ -27,6 +27,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanArmClearance } from "../posture/HumanArmClearance";
 import type { HumanColliders } from "../posture/HumanColliders";
 import { HumanFrame } from "../posture/HumanFrame";
+import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
@@ -62,7 +63,7 @@ export namespace AutoMovieMotionHumanBend {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, used by every function here.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A literal union, not a string.
    */
-  export type Side = "left" | "right";
+  export type Side = HumanHand.Side;
 
   /**
    * An elbow hint in upper-arm lengths from the shoulder's rest place.
@@ -91,15 +92,19 @@ export namespace AutoMovieMotionHumanBend {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Eight names, each with a first user among the shipped laws; a law that needs another passes shares.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A closed union that keys the table exhaustively; the names describe the elbow, not an action.
    */
-  export type Arm =
-    | "hang"
-    | "tucked"
-    | "behind"
-    | "front"
-    | "folded"
-    | "forward"
-    | "akimbo"
-    | "raised";
+  export type Arm = (typeof ARMS)[number];
+
+  /** The arm holds of {@link Arm}, as data. */
+  export const ARMS = [
+    "hang",
+    "tucked",
+    "behind",
+    "front",
+    "folded",
+    "forward",
+    "akimbo",
+    "raised",
+  ] as const;
 
   /**
    * The elbow presets (provisional shares, each the value its first user was

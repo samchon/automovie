@@ -300,4 +300,22 @@ export namespace AutoMovieMotionManner {
     | "proud"
     | "enclosing"
     | "spreading";
+
+  /** The names of {@link PRESETS}, as data; a name `Preset` lacks fails the type check, and a test checks none is missing. */
+  export const PRESET_NAMES = [
+    "punch",
+    "dab",
+    "press",
+    "glide",
+    "slash",
+    "flick",
+    "wring",
+    "float",
+    "weary",
+    "brisk",
+    "sad",
+    "proud",
+    "enclosing",
+    "spreading",
+  ] as const satisfies readonly Preset[];
 }

@@ -44,7 +44,10 @@ export namespace AutoMovieMotionHumanReach {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, read by `fit`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A closed literal union instead of flags that could combine into a contradiction.
    */
-  export type Policy = "refuse" | "lean" | "clamp";
+  export type Policy = (typeof POLICIES)[number];
+
+  /** The policies of {@link Policy}, as data. */
+  export const POLICIES = ["refuse", "lean", "clamp"] as const;
 
   /**
    * A limb that reaches.
@@ -54,7 +57,10 @@ export namespace AutoMovieMotionHumanReach {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Four members, used by every function here.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A literal union, not a string.
    */
-  export type Limb = "leftArm" | "rightArm" | "leftLeg" | "rightLeg";
+  export type Limb = (typeof LIMBS)[number];
+
+  /** The limbs of {@link Limb}, as data. */
+  export const LIMBS = ["leftArm", "rightArm", "leftLeg", "rightLeg"] as const;
 
   /**
    * A limb's reach toward one point.

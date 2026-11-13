@@ -5,6 +5,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFoot } from "../posture/HumanFoot";
+import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
@@ -37,7 +38,7 @@ export namespace AutoMovieMotionHumanLeg {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, used by every function here.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A literal union, not a string.
    */
-  export type Side = "left" | "right";
+  export type Side = HumanHand.Side;
 
   /**
    * A foot's placement as a frame of the action.

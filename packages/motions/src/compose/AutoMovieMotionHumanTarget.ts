@@ -111,20 +111,10 @@ export namespace AutoMovieMotionHumanTarget {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Ten names in rising order; `overhead` entered with its first users, the `raiseHand` and `cheer` gestures.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No name carries a number of its own apart from `OVERHEAD`; a height between two names is the between rung of `Place`.
    */
-  export type Height =
-    | "floor"
-    | "knee"
-    | "hip"
-    | "waist"
-    | "chest"
-    | "shoulder"
-    | "neck"
-    | "eye"
-    | "crown"
-    | "overhead";
+  export type Height = (typeof HEIGHTS)[number];
 
-  /** Every height, lowest first: the order `nearest` breaks a tie by and a nudge names a neighbour from. */
-  export const HEIGHTS: readonly Height[] = [
+  /** Every height, lowest first: the order `nearest` breaks a tie by and a nudge names a neighbour from, and the list {@link Height} is read from. */
+  export const HEIGHTS = [
     "floor",
     "knee",
     "hip",
@@ -135,7 +125,7 @@ export namespace AutoMovieMotionHumanTarget {
     "eye",
     "crown",
     "overhead",
-  ];
+  ] as const;
 
   /**
    * How far above the shoulder a hand raised overhead stands, as a share of
@@ -152,7 +142,15 @@ export namespace AutoMovieMotionHumanTarget {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Four names, each with a shipped law that uses its share.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A side of the body is never named: the same name serves both hands and `place` mirrors it.
    */
-  export type Lateral = "centre" | "inside" | "shoulder" | "outside";
+  export type Lateral = (typeof LATERAL_NAMES)[number];
+
+  /** The lateral places of {@link Lateral}, as data. */
+  export const LATERAL_NAMES = [
+    "centre",
+    "inside",
+    "shoulder",
+    "outside",
+  ] as const;
 
   /**
    * The share of the half shoulder width each lateral name is, toward the
@@ -176,7 +174,10 @@ export namespace AutoMovieMotionHumanTarget {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Four names, each with a shipped law that uses its share.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No name lies past the arm's length, so a named place is always within reach of a standing body.
    */
-  export type Distance = "close" | "near" | "mid" | "far";
+  export type Distance = (typeof DISTANCE_NAMES)[number];
+
+  /** The distances of {@link Distance}, as data. */
+  export const DISTANCE_NAMES = ["close", "near", "mid", "far"] as const;
 
   /**
    * The share of the arm (upper arm and forearm) each distance name is:

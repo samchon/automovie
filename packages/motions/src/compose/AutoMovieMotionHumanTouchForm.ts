@@ -30,15 +30,19 @@ export namespace AutoMovieMotionHumanTouchForm {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Eight literals, the key of `FORMS`; a law names a kind and never a lift or a travel.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A closed union, so `FORMS` is exhaustive and an unknown kind does not compile.
    */
-  export type Kind =
-    | "tap"
-    | "pat"
-    | "stroke"
-    | "rub"
-    | "press"
-    | "squeeze"
-    | "hold"
-    | "scratch";
+  export type Kind = (typeof KINDS)[number];
+
+  /** The touch kinds of {@link Kind}, as data. */
+  export const KINDS = [
+    "tap",
+    "pat",
+    "stroke",
+    "rub",
+    "press",
+    "squeeze",
+    "hold",
+    "scratch",
+  ] as const;
 
   /**
    * One kind's movement.
@@ -106,7 +110,10 @@ export namespace AutoMovieMotionHumanTouchForm {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Two literals, read by the region's tangent.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A named direction on the surface, not a free vector a law could point off it.
    */
-  export type Tangent = "up" | "across";
+  export type Tangent = (typeof TANGENTS)[number];
+
+  /** The tangents of {@link Tangent}, as data. */
+  export const TANGENTS = ["up", "across"] as const;
 
   /**
    * The seconds of one repetition of a kind on a body: the span's seconds,

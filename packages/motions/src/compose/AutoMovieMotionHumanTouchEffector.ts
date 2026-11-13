@@ -41,15 +41,19 @@ export namespace AutoMovieMotionHumanTouchEffector {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Eight literals, read by the effector's tool offset and its two laid axes.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Anatomical names, not bone-space x, y and z, so a left and a right hand state the same effector.
    */
-  export type Axis =
-    | "fingers"
-    | "palm"
-    | "thumb"
-    | "grasp"
-    | "-fingers"
-    | "-palm"
-    | "-thumb"
-    | "-grasp";
+  export type Axis = (typeof AXES)[number];
+
+  /** The axes of {@link Axis}, as data. */
+  export const AXES = [
+    "fingers",
+    "palm",
+    "thumb",
+    "grasp",
+    "-fingers",
+    "-palm",
+    "-thumb",
+    "-grasp",
+  ] as const;
 
   /**
    * A direction of the hand: one of its axes, or a blend of the three

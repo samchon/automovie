@@ -15,18 +15,10 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * @evidence contracts/development/common.md#meaningful-documentation States what a channel is and which fields of a posture each one owns.
  * @evidence contracts/development/design.md#principled-representation A partition of the posture by the kinematic tree: the root, the trunk it carries, the head and the limbs that hang from the trunk, and each hand at the end of its arm.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Nine channels, the coarsest split under which two parts of one action never need the same channel at once; the only owner of which field belongs to which part.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A closed union, so a primitive cannot claim a part the merge does not know.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A closed union read from the `ORDER` list, so a primitive cannot claim a part the merge does not know and a page lists the same channels.
  */
 export type AutoMovieMotionHumanChannel =
-  | "root"
-  | "trunk"
-  | "head"
-  | "leftLeg"
-  | "rightLeg"
-  | "leftHand"
-  | "rightHand"
-  | "leftArm"
-  | "rightArm";
+  (typeof AutoMovieMotionHumanChannel.ORDER)[number];
 export namespace AutoMovieMotionHumanChannel {
   /**
    * The order channels are written in: the body is placed first and the
@@ -35,9 +27,10 @@ export namespace AutoMovieMotionHumanChannel {
    * although they hang from them: an arm's goal lays a surface of the hand
    * (the palm, a fingertip, the fist) on its target, and the arm's fit reads
    * that surface with the fingers as their own primitive shapes them, while
-   * a finger's angles read nothing of the arm.
+   * a finger's angles read nothing of the arm. The channels as data: the
+   * union is read from this list.
    */
-  export const ORDER: readonly AutoMovieMotionHumanChannel[] = [
+  export const ORDER = [
     "root",
     "trunk",
     "head",
@@ -47,7 +40,7 @@ export namespace AutoMovieMotionHumanChannel {
     "rightHand",
     "leftArm",
     "rightArm",
-  ];
+  ] as const;
 
   /**
    * The channel that owns a bone's joint.

@@ -26,7 +26,15 @@ export namespace AutoMovieMotionHumanInterrupt {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Four names, each used by a shipped cancel table.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A window that opens at an action's own instant is written as a row, not added as a name here.
    */
-  export type Window = "anytime" | "fromStroke" | "fromStrokeEnd" | "fromRelax";
+  export type Window = (typeof WINDOWS)[number];
+
+  /** The windows of {@link Window}, as data. */
+  export const WINDOWS = [
+    "anytime",
+    "fromStroke",
+    "fromStrokeEnd",
+    "fromRelax",
+  ] as const;
 
   /**
    * How fast the next action blends in.
@@ -36,7 +44,10 @@ export namespace AutoMovieMotionHumanInterrupt {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Three names, each used by a shipped cancel table.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A closed union keyed into one table.
    */
-  export type Blend = "reflex" | "quick" | "smooth";
+  export type Blend = (typeof BLEND_NAMES)[number];
+
+  /** The blends of {@link Blend}, as data. */
+  export const BLEND_NAMES = ["reflex", "quick", "smooth"] as const;
 
   /**
    * The seconds of each blend (the values the reaction laws shipped with):
