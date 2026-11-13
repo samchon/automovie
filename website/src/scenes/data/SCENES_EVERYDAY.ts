@@ -29,7 +29,10 @@ const MEETING: IPlaygroundComposition = {
         { name: "handshake", params: { partner: "ben" } },
         { name: "gesture", params: { kind: "palmsUp" } },
         { name: "highFive", params: { partner: "ben" } },
-        { name: "look", params: { target: at("cal", "face"), cue: "signal", seconds: 1 } },
+        {
+          name: "look",
+          params: { target: at("cal", "face"), cue: "signal", seconds: 1 },
+        },
         { name: "gesture", params: { kind: "wave" } },
         { name: "stand", params: { seconds: 1 } },
       ],
@@ -47,7 +50,10 @@ const MEETING: IPlaygroundComposition = {
         { name: "gesture", params: { kind: "nod" } },
         { name: "highFive", params: { partner: "ana" } },
         { name: "gesture", params: { kind: "shrug" } },
-        { name: "look", params: { target: at("cal", "face"), cue: "signal", seconds: 1 } },
+        {
+          name: "look",
+          params: { target: at("cal", "face"), cue: "signal", seconds: 1 },
+        },
         { name: "stand", params: { seconds: 1 } },
       ],
     },
@@ -59,7 +65,10 @@ const MEETING: IPlaygroundComposition = {
       yaw: 0,
       proficiency: "trained",
       actions: [
-        { name: "approach", params: { target: at("ben", "face"), at: "social" } },
+        {
+          name: "approach",
+          params: { target: at("ben", "face"), at: "social" },
+        },
         { name: "gesture", params: { kind: "wave" } },
         { name: "rest", params: { left: "pocket", right: "hip", seconds: 2 } },
       ],
@@ -99,8 +108,21 @@ const FALL: IPlaygroundComposition = {
         { name: "crouch", params: { hold: 1 } },
         { name: "kneel", params: { kind: "one", hold: 1.2 } },
         { name: "rise", params: {} },
-        { name: "touch", params: { target: at("eve", "kneeLeft") } },
-        { name: "wipe", params: { on: at("eve", "thighFrontLeft"), cycles: 2 } },
+        {
+          name: "touch",
+          params: { target: { kind: "self", region: "hipRight" } },
+        },
+        {
+          name: "wipe",
+          params: {
+            on: {
+              kind: "point",
+              at: { x: 0, y: 0.8, z: 0.4 },
+              frame: "performer",
+            },
+            cycles: 2,
+          },
+        },
       ],
     },
   ],
@@ -148,7 +170,7 @@ export const SCENES_EVERYDAY: readonly IScene[] = [
     id: "fall-and-rise",
     title: "A fall",
     summary:
-      "One person staggers, goes down and crawls away; another braces, crouches and kneels, rubs her knee and wipes her hands.",
+      "One person staggers, goes down and crawls away; another braces, crouches and kneels, then rises, rests a hand on her hip and wipes down an imagined counter.",
     setting: "everyday",
     cast: [
       { subject: "dee", role: "the one who falls" },
