@@ -132,7 +132,6 @@ export function test_human_motion_hand_sites(): void {
   };
   const sternum = (site?: touchSite.ISite): object => ({
     target: { kind: "person", subject: "b", region: "sternum" },
-    hold: 0.6,
     ...(site === undefined ? {} : { site }),
   });
 
@@ -205,7 +204,6 @@ export function test_human_motion_hand_sites(): void {
   const both: IRead | null = perform("two contacts", "site", {
     target: { kind: "person", subject: "b", region: "shoulderLeft" },
     other: { kind: "person", subject: "b", region: "shoulderRight" },
-    hold: 0.6,
   });
   if (both !== null)
     for (const [side, region] of [
