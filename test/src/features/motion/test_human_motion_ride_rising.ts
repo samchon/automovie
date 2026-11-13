@@ -27,23 +27,27 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * stride: the seat leaves the saddle and comes back while the feet stay on
  * their stirrups, and a rider with no stirrup to stand in is refused.
  *
- * Scenarios, the average man on a horse that trots 6 m at 3.5 m/s, its
- * stride time given to the ride as 0.6 s (Robilliard, Pfau and Wilson 2007
- * measure 0.60 s at that speed):
+ * Scenarios, the average man on a horse that trots 6 m at 3.5 m/s. The
+ * ride is given the horse's own strides as a cue track, the landings of
+ * its left fore hoof, and its saddle and stirrups as the points the seat
+ * and the feet stay on, which ride the trunk as it rises and falls:
  * 1. Mounting and a rising ride of the whole course plan; getting off a
  *    ridden horse is `test_human_motion_ride_mounts`'s.
- * 2. Over one stride after the ride has settled, read at nine instants in
- *    the horse's own frame, the body's seat region rises at least a tenth
- *    of the rider's thigh length above where it sat and is back within
- *    15 mm of it at the stride's end (the campaign's bound for a contact at
- *    its event; the tenth is a provisional floor for "rises").
+ * 2. Over the middle stride of the ride, from one landing to the next, read
+ *    at nine instants against the saddle where it is then, the body's seat
+ *    region rises at least a tenth of the rider's thigh length above where
+ *    it sat at the landing and is back within 15 mm of it at the next (the
+ *    campaign's bound for a contact at its event; the tenth is a
+ *    provisional floor for "rises"). So the rise is locked to the horse's
+ *    footfalls, not to a period of the rider's own.
  * 3. At those instants the ball of each foot stays within 10 mm of where it
- *    rested in the horse's frame (the campaign's bound for a held contact).
+ *    rested against its stirrup where the stirrup is then (the campaign's
+ *    bound for a held contact).
  * 4. On the same saddle read without its stirrups, a rising ride is refused
  *    as an `affordance` refusal on `rising` that offers riding seated.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Rides a real horse archetype at a trot and reads the displayed seat region and feet in the horse's frame; a rider glued to the saddle, feet that leave the stirrups, or a rising trot accepted with nothing to stand in fails.
- * @evidence contracts/development/testing.md#independent-expectations That a rising trot lifts the seat and keeps the feet is what rising is; the bounds are the campaign's and the stride time the cited measurement. Limitation: the rise is not checked against the horse's diagonals, because the ride takes its period from the composition until a prop can publish its footfalls.
+ * @evidence contracts/development/testing.md#independent-expectations That a rising trot lifts the seat and keeps the feet is what rising is; the bounds are the campaign's and the strides are the horse's own published landings. Limitation: which diagonal a rider sits on, and where in its stance, is not read; the seat is down at the left fore's landing, a provisional phase.
  * @evidence contracts/development/testing.md#distinguishing-cases The seat that must move against the feet that must not, and the saddle with and without stirrups.
  * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and one archetype ride in memory and reads nine instants of one stride, an eighth of it apart, which shows the rise and the return: one body, since the claim is the relation between the seat and the feet of whoever rides.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 4 scenarios with their bounds and sources.
@@ -51,7 +55,6 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_ride_rising(): void {
   const complaints: string[] = [];
   const WAIT: number = 6;
-  const STRIDE: number = 0.6;
   const body: IHumanBody = motionHumanBody("m-average");
   const horse: ReturnType<typeof createHorse> = createHorse({});
   const trotting: ReturnType<typeof rideHorse> = rideHorse(
@@ -80,11 +83,31 @@ export function test_human_motion_ride_rising(): void {
     return frame;
   };
   const saddle: seated.ISeat = HumanObject.seat(horse, placed(0));
+
+  // Where one of the horse's contacts is in the world at a film second: the saddle and the stirrups ride its trunk.
+  const part = (id: string, seconds: number): IAutoMovieTransform =>
+    trotting.frame(
+      id as Parameters<typeof trotting.frame>[0],
+      Math.max(0, seconds - WAIT),
+    );
+
+  // The landings of the left fore hoof, one a stride, as the horse's own ride publishes them.
+  const strides: readonly number[] = trotting.instants
+    .filter((i: { label: string }): boolean => i.label === "leftForeOn")
+    .map((i: { seconds: number }): number => WAIT + i.seconds);
   const perform = (seat: seated.ISeat): HumanPerformance =>
     new HumanPerformance({
       seed: "rising",
       laws: [HumanRide.ride],
-      props: [HumanObject.prop("horse", horse, placed(0), placed)],
+      cues: {
+        strides: strides.map(
+          (seconds: number): { name: string; seconds: number } => ({
+            name: "leftForeOn",
+            seconds,
+          }),
+        ),
+      },
+      props: [HumanObject.prop("horse", horse, placed(0), placed, part)],
       performers: [
         {
           subject: "a",
@@ -102,7 +125,9 @@ export function test_human_motion_ride_rising(): void {
         .registered("ride", {
           on: "horse",
           seconds: WAIT + trotting.duration,
-          rising: STRIDE,
+          rising: { cue: "strides" },
+          seat: "seat",
+          feet: { left: "leftStirrup", right: "rightStirrup" },
         }).node,
     });
 
@@ -142,26 +167,40 @@ export function test_human_motion_ride_rising(): void {
       body,
       0,
     );
-    const local = (world: IAutoMovieVector3, seconds: number): IAutoMovieVector3 => {
-      const frame: IHumanProp.IFrame = placed(seconds);
-      return Quaternion.rotateVector(Quaternion.inverse(frame.rotation), {
-        x: world.x - frame.position.x,
-        y: world.y - frame.position.y,
-        z: world.z - frame.position.z,
-      });
+    // A world point from one of the horse's contacts, in the horse's own axes.
+    const local = (
+      world: IAutoMovieVector3,
+      id: string,
+      seconds: number,
+    ): IAutoMovieVector3 => {
+      const at: IAutoMovieVector3 = part(id, seconds).translation;
+      return Quaternion.rotateVector(
+        Quaternion.inverse(placed(seconds).rotation),
+        { x: world.x - at.x, y: world.y - at.y, z: world.z - at.z },
+      );
     };
     const ball = (side: "left" | "right", t: number): IAutoMovieVector3 =>
       local(
         HumanFoot.sockets(body, HumanSignature.bones(reader, t), side).find(
           (s: HumanFoot.ISocket): boolean => s.socket === "ball",
         )!.point,
+        `${side}Stirrup`,
         t,
       );
 
-    // A whole number of strides into the ride, past the blend from sitting: the seat is down at each stride's start.
-    const from: number = ride.entryTime + 2 * STRIDE;
+    // The middle stride of those wholly inside the ride, past the blend from sitting: the seat is down at the landing that begins it.
+    const inside: number[] = strides.filter(
+      (s: number, i: number): boolean =>
+        s >= ride.entryTime + 0.3 &&
+        i + 1 < strides.length &&
+        strides[i + 1]! <= ride.end - 0.3,
+    );
+    const from: number = inside[inside.length >> 1] ?? ride.entryTime;
+    const STRIDE: number =
+      (strides[strides.indexOf(from) + 1] ?? from + 0.6) - from;
     const sat: IAutoMovieVector3 = local(
       HumanSignature.region(reader, "seat", from),
+      "seat",
       from,
     );
     const stood: Record<"left" | "right", IAutoMovieVector3> = {
@@ -173,6 +212,7 @@ export function test_human_motion_ride_rising(): void {
       const t: number = from + (k / 8) * STRIDE;
       const seat: IAutoMovieVector3 = local(
         HumanSignature.region(reader, "seat", t),
+        "seat",
         t,
       );
       rose = Math.max(rose, seat.y - sat.y);
