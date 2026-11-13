@@ -183,7 +183,12 @@ export function AutoMovieConstructionPortRealize(
         station: rail,
         into,
         ...(profile === undefined ? {} : { along: profile }),
-      }, undefined, node.correspondence ?? "angle");
+      }, undefined, node.correspondence ?? "angle", (node.profiles ?? []).map(
+        (p: IAutoMovieConstructionPort.IProfile): IAutoMovieConstructionPort.IProfile => ({
+          ...p,
+          knots: p.knots.map(([t, depth]: [number, number]): [number, number] => [t, depth * S]),
+        }),
+      ));
     if (typeof band === "string") return fail(`band ${node.band}: ${band}`);
 
     // Shared vertices: the port curve on the host, the rail on the part.

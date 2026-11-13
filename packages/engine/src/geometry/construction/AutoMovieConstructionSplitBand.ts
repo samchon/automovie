@@ -1,4 +1,4 @@
-import type { IAutoMovieConstructionSplit } from "@automovie/interface";
+import type { IAutoMovieConstructionPort, IAutoMovieConstructionSplit } from "@automovie/interface";
 
 import type { AutoMovieConstructionSplitSeam } from "./AutoMovieConstructionSplitSeam";
 import { AutoMovieSolidBlendChain } from "./AutoMovieSolidBlendChain";
@@ -590,6 +590,7 @@ export namespace AutoMovieConstructionSplitBand {
    * @param child The child side: its surface, its rail station, `into` into its kept side.
    * @param crease The declared crease window on the child side, or absent.
    * @param correspondence How the child's rail is matched to the loop: by angle about the rail's centroid, or by arclength share.
+   * @param profiles A port band's cross profiles, their depths in mm (`IAutoMovieConstructionPort.IProfile`); absent, none.
    * @returns The strip, or the refusal.
    */
   export function strip(
@@ -600,6 +601,7 @@ export namespace AutoMovieConstructionSplitBand {
     child: ISide,
     crease?: IAutoMovieConstructionSplit.ICrease,
     correspondence: "angle" | "length" = "angle",
+    profiles: readonly IAutoMovieConstructionPort.IProfile[] = [],
   ): IStrip | string {
     const n: number = loop.length;
     const childPhases: number[] | string = correspondence === "length" ? lengths(child, loop) : phases(child, loop);
@@ -724,8 +726,13 @@ export namespace AutoMovieConstructionSplitBand {
       }),
     );
 
-    const published: { chain: IAutoMovieLoftChain; length: number } | null =
+    const plain: { chain: IAutoMovieLoftChain; length: number } | null =
       AutoMovieSolidBlendChain.strip(name, scaled, outward);
+    const flat: IAutoMovieSolidSurface | null = plain === null ? null : AutoMovieSolidChain.surface(plain.chain);
+    const published: { chain: IAutoMovieLoftChain; length: number } | null =
+      profiles.length === 0 || plain === null || flat === null
+        ? plain
+        : AutoMovieSolidBlendChain.strip(name, scaled, outward, sections(flat, plain.length, n, profiles));
     if (published === null)
       return "the strip has no positive span or no outward side";
     const surface: IAutoMovieSolidSurface | null = AutoMovieSolidChain.surface(
@@ -739,6 +746,96 @@ export namespace AutoMovieConstructionSplitBand {
       loop: [...loop],
       childPhases,
       scale: { applied: factor, columns: factors, backward },
+    };
+  }
+
+  /**
+   * A profiled band's interior cross sections (`IAutoMovieConstructionPort.IProfile`): at every share any profile names, each column's
+   * point and station derivatives on the plain band, per unit share, carried in along the plain band's inward unit normal by the sum of the
+   * profiles' depths there, each weighted by its window at the column's clock, with the depth's own slope and bend across the band. The
+   * normal's own turn across the band is left out of the derivatives; the strip stays a C2 piecewise quintic through its rails and these
+   * sections, and its rails keep their 2-jets.
+   *
+   * @param plain The plain band's surface: station mm from 0 at the loop to `L` at the rail, phase the loop clock.
+   * @param L The plain band's span, mm.
+   * @param n The columns, at clocks `2 pi k / n`.
+   * @param profiles The profiles, depths in mm.
+   * @returns The sections in increasing share.
+   */
+  function sections(
+    plain: IAutoMovieSolidSurface,
+    L: number,
+    n: number,
+    profiles: readonly IAutoMovieConstructionPort.IProfile[],
+  ): { t: number; jets: [Vec3, Vec3, Vec3][] }[] {
+    const shares: number[] = [...new Set(profiles.flatMap((p: IAutoMovieConstructionPort.IProfile): number[] => p.knots.map((k: [number, number]): number => k[0])))].sort(
+      (a: number, b: number): number => a - b,
+    );
+    const depths: ((t: number) => [number, number, number])[] = profiles.map(
+      (p: IAutoMovieConstructionPort.IProfile): ((t: number) => [number, number, number]) =>
+        clamped([0, ...p.knots.map((k: [number, number]): number => k[0]), 1], [0, ...p.knots.map((k: [number, number]): number => k[1]), 0]),
+    );
+    return shares.map((t: number): { t: number; jets: [Vec3, Vec3, Vec3][] } => ({
+      t,
+      jets: Array.from({ length: n }, (_: unknown, k: number): [Vec3, Vec3, Vec3] => {
+        const c: number = (2 * Math.PI * k) / n;
+        const jet: IAutoMovieSolidSurface.IJet = plain.jet(t * L, c);
+        const p: Vec3 = [jet.p[0], jet.p[1], jet.p[2]];
+        const d1: Vec3 = scale([jet.u[0], jet.u[1], jet.u[2]], L);
+        const d2: Vec3 = scale([jet.uu[0], jet.uu[1], jet.uu[2]], L * L);
+        const normal: Vec3 | null = unit(scale(cross(jet.u, jet.v), plain.orientation));
+        let depth: [number, number, number] = [0, 0, 0];
+        profiles.forEach((profile: IAutoMovieConstructionPort.IProfile, i: number): void => {
+          const w: number = weight(c, profile);
+          const [v, s, b]: [number, number, number] = depths[i]!(t);
+          depth = [depth[0] + w * v, depth[1] + w * s, depth[2] + w * b];
+        });
+        if (normal === null) return [p, d1, d2];
+        return [sub(p, scale(normal, depth[0])), sub(d1, scale(normal, depth[1])), sub(d2, scale(normal, depth[2]))];
+      }),
+    }));
+  }
+
+  /**
+   * The cubic spline through `(x_i, y_i)` with zero slope at both ends, read as its value and its first and second derivatives: the clamped
+   * spline's second derivatives solved by the tridiagonal (Thomas) sweep.
+   */
+  function clamped(x: readonly number[], y: readonly number[]): (t: number) => [number, number, number] {
+    const m: number = x.length;
+    const h: number[] = Array.from({ length: m - 1 }, (_: unknown, i: number): number => x[i + 1]! - x[i]!);
+    const a: number[] = new Array<number>(m).fill(0);
+    const b: number[] = new Array<number>(m).fill(0);
+    const c: number[] = new Array<number>(m).fill(0);
+    const r: number[] = new Array<number>(m).fill(0);
+    b[0] = h[0]! / 3;
+    c[0] = h[0]! / 6;
+    r[0] = (y[1]! - y[0]!) / h[0]!;
+    for (let i: number = 1; i < m - 1; ++i) {
+      a[i] = h[i - 1]! / 6;
+      b[i] = (h[i - 1]! + h[i]!) / 3;
+      c[i] = h[i]! / 6;
+      r[i] = (y[i + 1]! - y[i]!) / h[i]! - (y[i]! - y[i - 1]!) / h[i - 1]!;
+    }
+    a[m - 1] = h[m - 2]! / 6;
+    b[m - 1] = h[m - 2]! / 3;
+    r[m - 1] = -(y[m - 1]! - y[m - 2]!) / h[m - 2]!;
+    for (let i: number = 1; i < m; ++i) {
+      const f: number = a[i]! / b[i - 1]!;
+      b[i] = b[i]! - f * c[i - 1]!;
+      r[i] = r[i]! - f * r[i - 1]!;
+    }
+    const M: number[] = new Array<number>(m).fill(0);
+    M[m - 1] = r[m - 1]! / b[m - 1]!;
+    for (let i: number = m - 2; i >= 0; --i) M[i] = (r[i]! - c[i]! * M[i + 1]!) / b[i]!;
+    return (t: number): [number, number, number] => {
+      let i: number = 0;
+      while (i < m - 2 && t > x[i + 1]!) ++i;
+      const hi: number = h[i]!;
+      const A: number = (x[i + 1]! - t) / hi;
+      const B: number = (t - x[i]!) / hi;
+      const value: number = A * y[i]! + B * y[i + 1]! + (((A * A * A - A) * M[i]! + (B * B * B - B) * M[i + 1]!) * hi * hi) / 6;
+      const slope: number = (y[i + 1]! - y[i]!) / hi + ((-(3 * A * A - 1) * M[i]! + (3 * B * B - 1) * M[i + 1]!) * hi) / 6;
+      return [value, slope, A * M[i]! + B * M[i + 1]!];
     };
   }
 
