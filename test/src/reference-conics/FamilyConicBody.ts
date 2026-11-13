@@ -1913,10 +1913,10 @@ namespace FamilyConicBody {
 
       // Every shoulder is stored as the model reads it (`AutoMovieHumanConicSection.shoulder`), so the stored wall is the one generated. The
       // trunk's face refitted without the nose stored -0.20 at 792 mm and 1.17 at 834 mm; the model reads 0.03 and 0.85 at those knots, and
-      // between them the field's cubic crossed the bound, where its arc held still while its neighbours moved. Only with `--bounded-shoulders`:
-      // the trunk's stored wall relies on its out-of-bound shoulders, and stored bounded it moved by up to 10 mm under the armpit (1,250 to
-      // 1,300 mm high, 60 to 85 degrees) and the armpit's slit cutter lost its trace; applied, the reliefs and that cutter are refitted with it.
-      if (process.argv.includes("--bounded-shoulders")) {
+      // between them the field's cubic crossed the bound, where its arc held still while its neighbours moved. Stored bounded, with curvature
+      // matched over the whole trunk, the wall under the armpit moved by up to 10 mm (1,250 to 1,300 mm high, 60 to 85 degrees), so the
+      // reliefs are refitted on it and the armpit's slit cutter, fitted to the earlier wall, is refitted on it as well.
+      {
         const arcs: number = best.layout.mirror ? best.layout.anchors.length - 1 : best.layout.anchors.length;
         const first: number = C.units(best.layout).length - arcs;
         const layout: C.ILayout = best.layout;
