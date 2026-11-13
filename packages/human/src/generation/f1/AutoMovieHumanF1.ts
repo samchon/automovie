@@ -423,6 +423,12 @@ export namespace AutoMovieHumanF1 {
    * millimetres across with a blend 1 mm wide; on layers 4 mm apart the digit's root was a few flat facets.
    */
   const WEB_LAYER_MM: number = 1;
+
+  /**
+   * Trunk station from which its layers are spaced on the skin over the crown (`construction` `domed`), mm: 1,640 mm high, above the ears
+   * (their roots reach 1,610 mm) and below where the skull's top turns over toward the vertex.
+   */
+  const CROWN_MM: number = 860;
   const WEB_REACH_MM: number = 12;
 
   /**
@@ -840,7 +846,7 @@ export namespace AutoMovieHumanF1 {
    */
   export function construction(layer: number = LAYER_MM): IConstruction {
     const sources: Map<string, IAutoMovieViewPart> = new Map();
-    const leaf = (family: AutoMovieHumanConicLoft.IFamily, fine: number = -Infinity, close: number = WEB_LAYER_MM): AutoMovieConstructionNode => {
+    const leaf = (family: AutoMovieHumanConicLoft.IFamily, fine: number = -Infinity, close: number = WEB_LAYER_MM, dome: number = Infinity): AutoMovieConstructionNode => {
       const from: number = family.knots[0]!;
       const to: number = family.knots.at(-1)!;
       const count: number = Math.ceil((to - from) / layer) + 1;
@@ -855,8 +861,33 @@ export namespace AutoMovieHumanF1 {
         const cuts: number = Math.ceil((s - before) / pitch - 1e-9);
         return Array.from({ length: cuts }, (_: unknown, k: number): number => before + ((s - before) * (k + 1)) / cuts);
       });
-      sources.set(family.name, AutoMovieHumanConicLoft.part(family, folded(family, swept(family, stations))));
+      sources.set(family.name, AutoMovieHumanConicLoft.part(family, folded(family, domed(family, swept(family, stations), dome))));
       return { type: "source", name: family.name, source: family.name };
+    };
+
+    // The same stations with each interval from `from` on cut until no ring point of the wall moves farther than a layer between two
+    // rings. Over a dome the skin faces up, and a ring point moves across it several times as far as the station: on f1's crown the wall
+    // narrows 1.2 to 1.3 mm a millimetre of station, rings 4 mm apart stood 6 to 7 mm apart on the skin and drew concentric terraces on
+    // `head.high-oblique`. Measured on the wall alone, without the reliefs, and only over the crown, so the head's rings below, which the
+    // ear's band is triangulated against, stay where they were.
+    const domed = (family: AutoMovieHumanConicLoft.IFamily, stations: number[], from: number): number[] => {
+      if (!Number.isFinite(from)) return stations;
+      const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create({ ...family, reliefs: undefined }, stations);
+      if (loft.chain === null) return stations;
+      const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> = loft.chain;
+      const moved = (s: number, t: number): number =>
+        Math.max(
+          ...Array.from({ length: FOLD.phases }, (_: unknown, j: number): number => {
+            const [p, q]: number[][] = [s, t].map((x: number): number[] => AutoMovieLoftChain.point(chain, x, (2 * Math.PI * j) / FOLD.phases));
+            return Math.hypot(p![0]! - q![0]!, p![1]! - q![1]!, p![2]! - q![2]!);
+          }),
+        );
+      return stations.flatMap((s: number, i: number): number[] => {
+        if (i === 0) return [s];
+        const before: number = stations[i - 1]!;
+        const cuts: number = before < from ? 1 : Math.max(1, Math.ceil(moved(before, s) / layer - 1e-9));
+        return Array.from({ length: cuts }, (_: unknown, k: number): number => before + ((s - before) * (k + 1)) / cuts);
+      });
     };
 
     // The same stations with each interval cut until no ring point moves farther than a layer by the course frame's own sweep. Round a
@@ -1005,7 +1036,7 @@ export namespace AutoMovieHumanF1 {
     let root: AutoMovieConstructionNode = {
       type: "split",
       name: "crotch",
-      host: leaf(BODY.trunk),
+      host: leaf(BODY.trunk, -Infinity, WEB_LAYER_MM, CROWN_MM),
       hostFace: trunk,
       hostEnd: "bottom",
       seam: [0, Math.PI],
