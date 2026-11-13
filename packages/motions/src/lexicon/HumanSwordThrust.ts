@@ -131,6 +131,7 @@ export namespace HumanSwordThrust {
           ),
           s.skill(HumanSword.SPEED.thrust),
           0,
+          Vector3.length(Vector3.subtract(a.reach, s.shoulder)),
         ),
         path: (progress: number): StrikingHeld.IHandFrame => ({
           point: Vector3.lerp(drawn.point, landed.point, progress),

@@ -342,17 +342,25 @@ export namespace HumanSword {
     };
   };
 
-  /** The clock of an attack: its attack lasts as a minimum-jerk unit of the path's length at the peak speed. */
+  /** The clock of an attack: its attack lasts as a minimum-jerk unit of the path's length at the peak speed. `carried` is the part of that length an advancing body covers: the body arrives at rest (a whole unit) while an arrested point arrives at its peak (half a unit), so the two speeds peak apart and the attack is timed on the greatest of their sum. */
   export const timed = (
     context: IHumanActionContext<IAttack>,
     length: number,
     speed: number,
     follow: number,
+    carried: number = 0,
   ): AutoMovieMotionClock.IClock => {
+    const rate = (u: number): number => 30 * u * u * (1 - u) * (1 - u);
+    let peak: number = 1.875 * length;
+    for (let i: number = 1; carried > 0 && i <= 50; i++)
+      peak = Math.max(
+        peak,
+        (length - carried) * rate(i / 100) + carried * rate(i / 50),
+      );
     const attack: number = HumanSkill.jitter(
       context.skill,
       context.random("attack"),
-      Math.max(0.12, (1.875 * length) / speed),
+      Math.max(0.12, peak / speed),
     );
     const recovery: number = StrikingSkill.recovery(context.skill);
     return AutoMovieMotionClock.phrase({
