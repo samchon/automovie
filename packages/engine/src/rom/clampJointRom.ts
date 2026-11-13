@@ -37,9 +37,9 @@ const clampAxis: (
  *
  * @evidence contracts/development/implementation.md#principled-implementation Project finite-or-repaired axes into admitted intervals, force specified immobile axes to zero, preserve null rest and blend swing toward the box-nearest-neutral point.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Axis projection and combined swing are distinct constraints; swingConeBlend supplies fixed bisection and the result preserves bone identity.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Specified nonfinite angles reset to neutral before box projection; unrestricted multi-turn overrides can violate swing monotonicity, so universal box/cone projection is not certified.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Specified nonfinite angles reset to neutral before box projection; unrestricted multi-turn overrides can violate swing monotonicity, so universal box/cone projection is not certified. For a swing-twist joint the edge tolerance `EDGE` (a millionth of a degree) only absorbs the rounding of reading a rotation back into angles, so a joint on the edge clamps to itself; it hides no real overshoot.
  * @evidence contracts/development/common.md#meaningful-documentation Docs identify nonfinite repair, null/immobile distinction, degrees and finite ordered constraint premise with remaining cone limitation.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three clamps and at most forty fixed swing iterations cost constant work and one fixed-size result.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Three clamps and at most forty fixed swing iterations cost constant work and one fixed-size result. A swing-twist joint costs one overshoot test and, only outside the range, one projection and one decomposition, reading the radius table that `swingTwistRange` builds once per constraint and basis and caches.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Targeted/full-pose clamps reuse the same joint owner and borrow constraints; changed angles need new projection.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns a fresh joint record and no pose population, native handle or task is retained.
  */
@@ -137,14 +137,14 @@ export const clampJointRom: (
   return { bone: joint.bone, flexion, abduction, twist };
 };
 
+/** How far past a swing-twist range a joint may lie and count as on its edge, degrees: a millionth, above the rounding of a rotation read back into angles. */
+const EDGE: number = 1e-6;
+
 /**
  * The point of `allowed` closest to neutral: neutral itself when the range
  * brackets it, else the nearer bound. This is the swing cone's pull target: the
  * joint's most-retracted reachable articulation on that axis.
  */
-/** How far past a swing-twist range a joint may lie and count as on its edge, degrees: a millionth, above the rounding of a rotation read back into angles. */
-const EDGE: number = 1e-6;
-
 const nearestNeutral: (allowed: IAutoMovieAngleRange | null) => number = (
   allowed: IAutoMovieAngleRange | null,
 ): number =>

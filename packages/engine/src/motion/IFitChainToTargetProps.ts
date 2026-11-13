@@ -93,6 +93,14 @@ export interface IFitChainToTargetProps {
    * obstructed swivel loses to a clear one whatever the bend hint, the
    * reference or the effector's rotation prefer. Omitted, only the rig's
    * ranges decide.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two arguments and their frame, the degrees returned, that 0 means allowed and the result is never negative, how it ranks against the range of motion overshoot and what an absent callback means.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback type with no body: the caller's function owns the method.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A callback type with no body: the caller's function owns the structure.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A callback type with no body: nothing here computes a value.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A callback type with no body: the cost is the caller's, once per candidate swivel.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callback type with no body: it shares nothing.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback type with no body: it acquires and retains nothing.
    */
   obstruction?: (mid: IAutoMovieVector3, end: IAutoMovieVector3) => number;
 }

@@ -83,7 +83,7 @@ const FINGER = constraint(range(-20, 100), null, null);
  * primary source here). Measured from that rest, the turn a raised or a
  * lowered arm needs is larger: a hand behind the head reads 128 degrees and
  * a hand clasped behind the back -104 (the reaches of
- * 	est_motion_fit_chain_reach, which the three-angle box admitted). So the
+ * `test_motion_fit_chain_reach`, which the three-angle box admitted). So the
  * interval is [-110, 135], provisional: one interval for every swing, where
  * the anatomical limit depends on the swing. The hips keep the three-angle
  * gate: their twist is proximal, about the rest axis, and measured from rest

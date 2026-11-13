@@ -9,7 +9,7 @@
  * without parsing the message, which stays the sentence it was before this
  * type existed.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States who throws it, what its fields name and why a content package reads the fields.
+ * @evidence contracts/development/common.md#meaningful-documentation States who throws it, what its fields name and why a content package reads the fields; the companion `Code` and `IProps` document each code and member.
  * @evidence contracts/development/design.md#principled-representation A distinct `Error` subtype with a closed code for each kind of reference the resolver checks, the subject and capability of the intent being placed, the name that failed and the names that exist.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the schedule resolver, its only thrower; read by the motions performance, which reports a missing anchor, a missing event and a duplicate anchor as located refusals listing the alternatives.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No action vocabulary and no free-form detail bag: every fact has a named member, and the alternatives are the composition's own ids.
@@ -51,14 +51,7 @@ export class AutoMovieScheduleError extends Error {
   }
 }
 
-/**
- * Companion types of {@link AutoMovieScheduleError}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents each code and each member.
- * @evidence contracts/development/design.md#principled-representation A closed union of the resolver's checks and a record of the fields.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the resolver passes when it throws.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No member is optional that every throw site knows.
- */
+/** Companion types of {@link AutoMovieScheduleError}. */
 export namespace AutoMovieScheduleError {
   /**
    * The checks:
@@ -70,6 +63,11 @@ export namespace AutoMovieScheduleError {
    * - `share`: a cut falls outside the intent's span;
    * - `timing`: the laws gave an invalid duration or contact;
    * - `law`: the laws lack what the composition asks of them (a proximity cut, an alignment).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Lists each of the seven codes with the check that raises it.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the resolver's checks, so a content package switches over every kind of reference failure.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Seven codes, each thrown by `resolveAutoMovieSchedule`; none is declared for a presumed future check.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A literal union, not a free string; no code stands for two failures.
    */
   export type Code =
     | "anchor"
@@ -80,7 +78,14 @@ export namespace AutoMovieScheduleError {
     | "timing"
     | "law";
 
-  /** The facts of a schedule error. */
+  /**
+   * The facts of a schedule error.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states what it names; the optional ones state when they are absent.
+   * @evidence contracts/development/design.md#principled-representation The record of the error's fields: the check that failed, the intent's subject and capability, the anchor or track named, the value that failed and what would have been accepted.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface What `resolveAutoMovieSchedule` passes when it throws; every member becomes a field of the error that a content package reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts `subject`, `capability` and `of` are optional because a failure may not belong to an intent or an anchor; they combine without meaningless states, and `alternatives` is none when absent.
+   */
   export interface IProps {
     /** Which check failed. */
     code: Code;
