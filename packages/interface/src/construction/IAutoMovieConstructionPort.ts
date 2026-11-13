@@ -60,6 +60,15 @@ export interface IAutoMovieConstructionPort {
   correspondence?: "angle" | "length";
 
   /**
+   * How far each column's ribbons reach into the band. `common` (the default): every column's ribbons are scaled by one factor, the
+   * largest at which no column turns back along its chord, so the hardest column sets the reach of all. `column`: each column takes its
+   * own factor from a field smooth along the loop that stays under every column's own largest, so a column where the port's loop and the
+   * part's ring disagree shortens only its neighbourhood and the band elsewhere turns from the host to the part over its whole length.
+   * Either way the band stays G2 to both sides.
+   */
+  ribbons?: "common" | "column";
+
+  /**
    * Cross profiles of the band: over windows of its loop clock, the band is carried in along its own normal by a depth that is a function of
    * its cross share, so it can leave the host into a hollow and come up again onto the part, as a profile blend's interior cross sections
    * shape it between its rails. Absent, the band is the plain blend of the two sides' 2-jets.

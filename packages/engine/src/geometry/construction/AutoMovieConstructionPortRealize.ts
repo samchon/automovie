@@ -183,7 +183,7 @@ export function AutoMovieConstructionPortRealize(
         station: rail,
         into,
         ...(profile === undefined ? {} : { along: profile }),
-      }, undefined, node.correspondence ?? "angle", (node.profiles ?? []).map(
+      }, undefined, node.correspondence ?? "angle", node.ribbons ?? "common", (node.profiles ?? []).map(
         (p: IAutoMovieConstructionPort.IProfile): IAutoMovieConstructionPort.IProfile => ({
           ...p,
           knots: p.knots.map(([t, depth]: [number, number]): [number, number] => [t, depth * S]),

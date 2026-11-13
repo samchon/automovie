@@ -274,6 +274,8 @@ export namespace AutoMovieConstructionAdmission {
             );
           if (node.correspondence !== undefined && node.correspondence !== "angle" && node.correspondence !== "length")
             throw new Error(`realizeAutoMovieConstruction: ${name}'s correspondence ${String(node.correspondence)} is neither angle nor length`);
+          if (node.ribbons !== undefined && node.ribbons !== "common" && node.ribbons !== "column")
+            throw new Error(`realizeAutoMovieConstruction: ${name}'s ribbons ${String(node.ribbons)} is neither common nor column`);
           for (const profile of node.profiles ?? []) {
             const knots: boolean =
               profile.knots.length >= 1 &&

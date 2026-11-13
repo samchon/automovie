@@ -506,6 +506,88 @@ namespace FamilyConicBody {
   /** How far a cutter's pocket is drawn in from the loop it is read between, at its farthest point, mm. */
   const POCKET_INSET_MM: number = 1.5;
 
+  /**
+   * How far a slit cutter's floor (`IPart.air`) bows down under its course point, mm, in the section's chart, so the bottom guide stands
+   * there at every station. The floor lies in the air under the band it cuts, so the bow changes nothing the cut leaves; flat, the vault's
+   * bottom guide jumped between the floor's two ends and the engine refused the family.
+   */
+  const AIR_SAG_MM: number = 1.5;
+
+  /**
+   * The armpit slit cutter's course, mm: low in the slit, about 4 mm over its floor and midway between its walls there, where each
+   * section's kernel is (the reference's planes x = const and the course's own planes, `sect` and `airsect`, scratch plots), from the
+   * anterior fold, where the arm's band stands 1,284 mm high against the fold's 1,305, out through the posterior fold, where the slit's
+   * apex stands at 1,288 mm at x -50 and 1,299 at -62 and the slit opens to the back: ended inside, at x -53, the cutter's closed back cap
+   * was a lens-shaped end wall facing the back camera, a lit tooth at the slit's foot (`shoulder.back` px 360..375 x 570..640). Its last
+   * centre stands 3 to 4 mm over the floor through x -60 to -64 (`AXILLA_FLOOR`).
+   */
+  const AXILLA: R.V[] = [[16, 1287, 147.5], [-25, 1262, 150.5], [-45, 1269.5, 151], [-56, 1283, 151.5], [-66, 1303, 153]];
+
+  /** The slit cutter's fitted stations, mm along its course (`--axilla-domain=<from>,<to>`): x 16 is station 0, the crease about 48, x -62 about 97. */
+  const AXILLA_DOMAIN: [number, number] = (process.argv.find((a: string): boolean => a.startsWith("--axilla-domain="))?.slice("--axilla-domain=".length) ?? "25,98").split(",").map(Number) as [number, number];
+
+  /** Length of the station bands `--decompose` tabulates, mm. */
+  const DECOMPOSE_BAND_MM: number = 5;
+
+  /**
+   * How far under the arm band the slit cutter's floor stands, `[x, mm]`: 3 mm under the crease, deepening behind x -56, where the band
+   * rises over the back of the shoulder (1,294 mm at x -60 and 1,308 at -65, `AXILLA_BAND`) while the slit's apex stays at 1,299.
+   */
+  const AXILLA_FLOOR: [number, number][] = [[-56, 3], [-62, 8], [-68, 12]];
+
+  /**
+   * How far the slit cutter is drawn in from the slit's walls, mm, at its floor and at its apex. At the floor 0.8: drawn in 1.5 mm, the band's
+   * stubs between the cut and the walls stood 1.5 mm wide and read as a white sliver along the slit's foot, and behind the crease the band
+   * leaves each wall sharply (its columns there hold ribbon scales of 0.09 to 0.3), so 0.8 mm still crosses the band, not the wall. At the
+   * apex 0.3, which keeps the cusp's top; on the earlier cutter, whose back end closed inside the slit, the top 2 to 5 mm stayed closed at
+   * 0.8. At 0.3 the plain fit was refused between its fitted stations (the apex's arc did not advance in phase at station 55.8), and the
+   * barrier fit (`--barrier`) on the native path (the arc after a groove's inflection met behind its end, b -0.006 of its chord).
+   */
+  const AXILLA_INSET: [number, number] = [0.8, 0.3];
+
+  /**
+   * The least share of its chord at which each arc's tangent lines may meet in the slit cutter's fit (`IPart.margin`). An inflection's
+   * tangent points almost at its neighbour, so in the barrier fit the arcs beside the groove's inflections met at 0.000 to 0.05 of their
+   * chords all along the cutter, and the engine's spline between stations dipped to -0.006 (`meetcheck`, a scratch probe). Under the
+   * default 0.1, which forbids the groove itself, the fit stayed at its seed, 2.19 mm mean, standing up to 5.9 mm past the air (2.32 mm
+   * with the apex drawn in 0.8 mm), and its cut left the band onto the trunk.
+   */
+  const AXILLA_MARGIN: number = 0.02;
+
+  /**
+   * How far the vault cutter's floor stands under the arm band, mm. Its floor meets its walls in corners of 0.07 to 0.22 mm radius, 1 to 5
+   * mm above the section's lowest point (`corner`, a scratch probe); at 3 mm the band crossed the cutter through them, and the 0.25 mm blend
+   * reversed there ("the blend's normal reverses") and the cutter's face did not triangulate. Under the band is the air outside the
+   * armpit, so a deeper floor cuts nothing more.
+   */
+  const VAULT_FLOOR_MM: number = 8;
+
+  /**
+   * The vault cutter's course, mm: under the reference's vault in front of the crease (its apex at 1,300 mm at x 14, 1,297 at 10, 1,294 at 6
+   * and 1,290 at 2, z 145 to 151, `sect`, a scratch plot), 7 to 8 mm over the floor, ending at x -1, clear of the slit cutter's front tip.
+   */
+  const VAULT: R.V[] = [[16, 1290, 149.5], [-1, 1276, 148.5]];
+
+  /**
+   * The slit cutter's layouts by `--axilla-layout`: `groove` (the default), the 8-conic limb with a groove after its apex, the `u` extreme
+   * whose arm-side flank is concave; `limb1` and `limb2`, the plain 8- and 16-conic limbs; `grooves`, a groove after both `u` extremes.
+   */
+  const AXILLA_LAYOUTS: Record<string, { layout: C.ILayout; depth: number }[]> = {
+    groove: [{ layout: C.inflected(1, [0]), depth: 1 }],
+    grooves: [{ layout: C.inflected(1, [0, 4]), depth: 1 }],
+    limb1: [{ layout: C.limb(1), depth: 1 }],
+    limb2: [{ layout: C.limb(1), depth: 1 }, { layout: C.limb(2), depth: 2 }],
+    // The groove after the apex as three feature anchors (`FamilyConicSection.featured`), which fade onto a smooth stretch over the vault in
+    // front of the crease, where no section bends inward and an `i` would force an S.
+    featured: [{ layout: C.featured(C.limb(1), [{ after: 0, anchors: [{ kind: "f", feature: "inflection", window: [0.15, 0.55] }, { kind: "f", feature: "concave", window: [0.3, 0.75] }, { kind: "f", feature: "inflection", window: [0.5, 0.9] }] }]), depth: 1 }],
+  };
+
+  /**
+   * The generated arm band's lowest height in planes x = const, `[x, y]` mm, read off the figure's mesh with every band column at its own
+   * ribbon scale (`bandlevel`, a scratch probe of the dumped body): 1,261 mm under the crease, rising to 1,289 at x 20 and to 1,308 at -65.
+   */
+  const AXILLA_BAND: [number, number][] = [[20, 1288.5], [15, 1283.6], [10, 1279.6], [5, 1274.5], [0, 1270.8], [-5, 1267.7], [-10, 1265.1], [-15, 1262.8], [-20, 1261.6], [-25, 1261.4], [-30, 1261.7], [-35, 1263.2], [-40, 1265.7], [-45, 1269], [-50, 1274.4], [-55, 1281.5], [-60, 1294.3], [-65, 1307.8]];
+
   /** `--chinless`: the trunk's sections keep the chin and no relief is cast for it, as in the walls stored before the cone. */
   const CHINLESS: boolean = process.argv.includes("--chinless");
 
@@ -689,6 +771,9 @@ namespace FamilyConicBody {
      */
     tip?: boolean | number;
 
+    /** The part closes in a point before its first fitted section too, at this station, its cap starting at that section; a cutter wholly inside its host closes at both ends. */
+    first?: number;
+
     /** The closed end is covered by the digits merged onto it, not the figure's skin (`AutoMovieHumanConicLoft.ITip.covered`). */
     covered?: boolean;
 
@@ -721,6 +806,15 @@ namespace FamilyConicBody {
 
     /** The least share of its chord at which every arc's tangent lines must meet in the fit (`FamilyConicFit.ADMISSIBLE_MARGIN`); absent, that default. A tight groove may need less. */
     margin?: number;
+
+    /**
+     * For a cutter of a slit between two parts: each section is the air round the course point, read along rays to the nearest crossing of
+     * the plane's skin, capped below by a floor `floor` mm under a band of the figure (both `[x, value]` in planes x = const, joined
+     * linearly: the band's height, and the floor's depth under it, negative above it) and at `reach` mm from the course, and drawn in along
+     * its own normal from `inset[0]` mm at the floor to `inset[1]` mm at its top. The course must lie in each section's kernel; the section
+     * is then star-shaped about it, and `skin: "inner"` reads it.
+     */
+    air?: { band: [number, number][]; floor: [number, number][]; reach: number; inset: [number, number] };
 
     /** For a cutter, a hollow's own loft that is cut from its host: how far before its first section it is carried straight back, mm. */
     lead?: number;
@@ -906,6 +1000,19 @@ namespace FamilyConicBody {
         // (`FamilyConicScan.ts nostril`). Its loft runs straight up through that loop, closes where the loop vanishes and is carried 8 mm
         // down out of the nose, to be cut from the head (`diff`).
         { name: "nostril", centres: [[127.1, 1540.4, 7.7], [119.1, 1560.4, 7.7]], course: "[J.nostrilRoot, J.nostrilTip]", halves: [], up: [1, 0, 0], domain: [9, 13], head: true, loose: true, step: 0.5, gap: 1.5, tip: 16, lead: 9, mirrored: true, layouts: LIMB, clip: (p: R.V): number => -Math.min(p[0] - 114, 130 - p[0], p[2] - 1, 13 - p[2]), reliefs: [] },
+        // The armpit's slit as a cutter of its own (G11, G12). The slit between the trunk's side and the arm's inner side is not star-shaped
+        // about the trunk's course (the conic audit: y 1,280 mm, 92 to 105 degrees, a gap of 6.6 mm), and the arm's band closes it 12 to 17 mm
+        // under its apex. Each section is the air round a course laid low in the slit, in its kernel (`air`): capped under the generated band
+        // (`AXILLA_FLOOR`) and drawn in from the walls (`AXILLA_INSET`); its arm-side reach is 12 mm, short of the band's ring end. Its
+        // arm-side flank is concave under the apex: a groove after the apex (`inflected(1, [0])`; on the 8-conic layout a groove seeds only
+        // after a `u` extreme). Its front end closes inside the band's span; its back end runs out through the posterior fold.
+        { name: "axilla", centres: AXILLA, course: JSON.stringify(AXILLA).replaceAll(",", ", "), halves: [8, 5, 5], up: [0, 1, 0], domain: AXILLA_DOMAIN, step: 1, gap: 4, first: AXILLA_DOMAIN[0] - 4, tip: AXILLA_DOMAIN[1] + 3, mirrored: true, skin: "inner", margin: AXILLA_MARGIN, air: { band: AXILLA_BAND, floor: AXILLA_FLOOR, reach: 12, inset: AXILLA_INSET }, layouts: AXILLA_LAYOUTS[process.argv.find((a: string): boolean => a.startsWith("--axilla-layout="))?.slice("--axilla-layout=".length) ?? "groove"]!, reliefs: [] },
+        // The vault in front of the armpit as a cutter of its own (G11): the arm's band crosses it flat, 12 to 16 mm under the reference's
+        // vault, its columns running aslant to the vault's planes. Every section of the vault is convex, so the plain 8-conic limb carries it
+        // (0.56 mm on the same sections, where the slit's groove stalled at 1.67 mm). Its sections are the vault's air, read as the slit's
+        // are, with a reach of 20 mm, since the vault is up to 28 mm wide. Both ends close: its back tip at x about 0, clear of the slit
+        // cutter's front tip at x -1.9.
+        { name: "vault", centres: VAULT, course: JSON.stringify(VAULT).replaceAll(",", ", "), halves: [], up: [0, 1, 0], domain: [2, 18], step: 1, gap: 4, first: -1, tip: 20, mirrored: true, skin: "inner", air: { band: AXILLA_BAND, floor: [[0, VAULT_FLOOR_MM]], reach: 20, inset: AXILLA_INSET }, layouts: [{ layout: C.limb(1), depth: 1 }], reliefs: [] },
         // The nostrils open downward, and a frontal section shows only the nose's outline round them. A net over the nose's underside, cast
         // straight up, reads the first skin a ray from below meets, and found them: 3 to 5 mm deep and more, from 124 to 128 mm forward
         // (`--casts`). That is where a band 2 mm in landed: with the dimples in it the rail's ring was no longer star-shaped and the port
@@ -1110,6 +1217,94 @@ namespace FamilyConicBody {
         return loop;
       };
 
+      // By ray of the last air section read, whether the floor or the reach stopped it; and by observed row, which of its points are invented.
+      let airInvented: boolean[] | null = null;
+      const invented: (boolean[] | null)[] = [];
+      const inventedOf = (loop: C.P[]): boolean[] | null => {
+        const flags: boolean[] | null = airInvented;
+        if (flags === null) return null;
+        return loop.map((p: C.P): boolean => flags[Math.round(((Math.atan2(p[1], p[0]) + 2 * Math.PI) / (2 * Math.PI)) * flags.length) % flags.length]!);
+      };
+
+      // The air round the course point in the frame's plane (`IPart.air`): the skin's crossings with the plane near the course, read along
+      // 360 rays to the nearest, the floor and the reach, then drawn in along the polygon's normal. A plane's cut through the body mesh
+      // alone is open where it meets the head mesh, so the rays read the crossing segments, not closed loops.
+      const air = (frame: AutoMovieLoftFrame.IFrame, spec: NonNullable<IPart["air"]>): C.P[] | null => {
+        airInvented = null;
+        const o: number[] = [...frame.origin];
+        const n: number[] = [frame.u[1] * frame.v[2] - frame.u[2] * frame.v[1], frame.u[2] * frame.v[0] - frame.u[0] * frame.v[2], frame.u[0] * frame.v[1] - frame.u[1] * frame.v[0]];
+        const segments: [number, number, number, number][] = [];
+        const at = (k: number): number[] => [0, 1, 2].map((a: number): number => skin.positions[3 * k + a]! - o[a]!);
+        for (let t: number = 0; t + 2 < skin.indices.length; t += 3) {
+          const q: number[][] = [at(skin.indices[t]!), at(skin.indices[t + 1]!), at(skin.indices[t + 2]!)];
+          if (q.some((p: number[]): boolean => Math.hypot(p[0]!, p[1]!, p[2]!) > 2 * spec.reach)) continue;
+          const d: number[] = q.map((p: number[]): number => p[0]! * n[0]! + p[1]! * n[1]! + p[2]! * n[2]!);
+          const ends: C.P[] = [];
+          for (let e: number = 0; e < 3; ++e) {
+            const [a, b]: [number, number] = [e, (e + 1) % 3];
+            if (d[a]! > 0 === d[b]! > 0) continue;
+            const f: number = d[a]! / (d[a]! - d[b]!);
+            const p: number[] = [0, 1, 2].map((k: number): number => q[a]![k]! + f * (q[b]![k]! - q[a]![k]!));
+            ends.push([p[0]! * frame.u[0] + p[1]! * frame.u[1] + p[2]! * frame.u[2], p[0]! * frame.v[0] + p[1]! * frame.v[1] + p[2]! * frame.v[2]]);
+          }
+          if (ends.length === 2) segments.push([ends[0]![0], ends[0]![1], ends[1]![0], ends[1]![1]]);
+        }
+        const line = (knots: [number, number][], x: number): number => {
+          for (let i: number = 0; i + 1 < knots.length; ++i) {
+            const [a, b]: [number, number][] = [knots[i]!, knots[i + 1]!];
+            if ((x - a[0]) * (x - b[0]) <= 0) return a[1] + ((b[1] - a[1]) * (x - a[0])) / (b[0] - a[0]);
+          }
+          return Math.abs(x - knots[0]![0]) < Math.abs(x - knots.at(-1)![0]) ? knots[0]![1] : knots.at(-1)![1];
+        };
+        const floor: number = line(spec.band, o[0]!) - line(spec.floor, o[0]!);
+        const rays: number = 360;
+        const wall = (dir: C.P): number => {
+          let r: number = spec.reach;
+          for (const [ax, ay, bx, by] of segments) {
+            const [ex, ey]: [number, number] = [bx - ax, by - ay];
+            const den: number = dir[0] * ey - dir[1] * ex;
+            if (Math.abs(den) < 1e-12) continue;
+            const t: number = (ax * ey - ay * ex) / den;
+            const s: number = (ax * dir[1] - ay * dir[0]) / den;
+            if (t > 0 && s >= 0 && s <= 1) r = Math.min(r, t);
+          }
+          return r;
+        };
+        // The floor, a level line in the world, is a line of constant `u` in the chart, since `v` runs across the level: a flat bottom whose
+        // lowest point the fit may put at either end, and the vault's bottom guide jumped between them from station to station, which the
+        // engine's spline through its stations read as a chain running back past a turn. The floor is bowed in the chart instead, its
+        // lowest point under the course point: `u0 - AIR_SAG (1 - (v / W)^2)`, `W` the floor's half width read on the level line.
+        const u0: number = (floor - o[1]!) / frame.u[1];
+        const directions: C.P[] = Array.from({ length: rays }, (_: unknown, j: number): C.P => [Math.cos((2 * Math.PI * j) / rays), Math.sin((2 * Math.PI * j) / rays)]);
+        const level: number[] = directions.map((dir: C.P): number => (dir[0] < 0 ? Math.min(wall(dir), u0 / dir[0]) : wall(dir)));
+        const width: number = Math.max(1e-6, ...directions.map((dir: C.P, j: number): number => (dir[0] < 0 && Math.abs(level[j]! * dir[0] - u0) < 1e-6 ? Math.abs(level[j]! * dir[1]) : 0)));
+        const hits: { p: C.P; y: number; invented: boolean }[] = directions.map((dir: C.P): { p: C.P; y: number; invented: boolean } => {
+          const skinR: number = wall(dir);
+          let r: number = skinR;
+          if (dir[0] < 0) {
+            // The bowed floor along the ray, by a fixed point from the level line's crossing: the bow is shallow, so it converges at once.
+            let reach: number = u0 / dir[0];
+            for (let i: number = 0; i < 8; ++i) reach = (u0 - AIR_SAG_MM * (1 - Math.min(1, ((reach * dir[1]) / width) ** 2))) / dir[0];
+            r = Math.min(r, reach);
+          }
+          const lift: number = dir[0] * frame.u[1] + dir[1] * frame.v[1];
+          // Invented where the floor or the reach stops the ray, not the skin (`--decompose`'s data weighting).
+          return { p: [r * dir[0], r * dir[1]], y: o[1]! + r * lift, invented: r < skinR || skinR >= spec.reach };
+        });
+        airInvented = hits.map((h): boolean => h.invented);
+        if (!(Math.min(...hits.map((h): number => Math.hypot(h.p[0], h.p[1]))) > Math.max(spec.inset[0], spec.inset[1]))) return null;
+        const top: number = Math.max(...hits.map((h): number => h.y));
+        // Drawn in along the normal, the polygon crosses itself at its corners; read along the same rays again, the innermost crossing kept.
+        const drawn: C.P[] = hits.map((h, j: number): C.P => {
+          const [a, b]: C.P[] = [hits[(j + rays - 2) % rays]!.p, hits[(j + 2) % rays]!.p];
+          const l: number = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
+          const share: number = Math.max(0, Math.min(1, (h.y - floor) / Math.max(1e-6, top - floor)));
+          const d: number = spec.inset[0] + (spec.inset[1] - spec.inset[0]) * share;
+          return [h.p[0] - (d * (b[1] - a[1])) / l, h.p[1] + (d * (b[0] - a[0])) / l];
+        });
+        return X.star(drawn, rays, "inner")?.points ?? null;
+      };
+
       // A plane's loop for the part: the one round the course, or for a `loose` part the largest closed loop the clip leaves whose hull holds the course.
       // The clipped skin piece behind the last section a surrounding part read: the largest of the pieces whose hull it is.
       let piece: C.P[] | null = null;
@@ -1117,6 +1312,7 @@ namespace FamilyConicBody {
       let excursion: ((y: number) => X.ISection | null) | null = null;
       const cut = (frame: AutoMovieLoftFrame.IFrame, s: number): C.P[] | null => {
         piece = null;
+        if (part.air !== undefined) return air(frame, part.air);
         if (part.excursion !== undefined) {
           const entry: X.IPart | undefined = X.PARTS.find((p: X.IPart): boolean => p.name === part.excursion);
           if (entry === undefined) throw new Error("No excursion " + part.excursion);
@@ -1255,6 +1451,7 @@ namespace FamilyConicBody {
         else if (part.skin !== undefined) {
           // Fitted to the skin itself: its concavities are the wall's own inward arcs, between inflection anchors (`inflected`).
           rows.push({ s, points: loop, heldout: i % 2 === 1 });
+          invented.push(part.air === undefined ? null : inventedOf(loop));
           skins.push(loop);
           loops.push(loop);
         } else {
@@ -1269,6 +1466,7 @@ namespace FamilyConicBody {
             return Array.from({ length: pieces }, (_: unknown, t: number): C.P => [p[0] + ((q[0] - p[0]) * t) / pieces, p[1] + ((q[1] - p[1]) * t) / pieces]);
           }) : R.hull(loop);
           rows.push({ s, points: wall, heldout: i % 2 === 1 });
+          invented.push(null);
           // A loose part's wall is its section's hull, and so was its skin, which left the hollow search nothing to find. Where hollow
           // windows are asked for (`reliefs: "auto"`), the skin is the clipped loop itself, or for a part that surrounds its pieces the
           // largest piece, and a hollow's depth is read in the section's plane along the tape's inward normal, the distance to the hull:
@@ -1323,6 +1521,39 @@ namespace FamilyConicBody {
       // `--observe`: the sections alone, every fourth one's extents in its chart and how near its hull comes to the course, and no fit.
       if (process.argv.includes("--observe")) {
         log("family-body-sections", { part: part.name, rows: rows.filter((_: F.IRow, i: number): boolean => i % 4 === 0).map((row: F.IRow): string => row.s.toFixed(0) + " u " + Math.min(...row.points.map((p: C.P): number => p[0])).toFixed(0) + ".." + Math.max(...row.points.map((p: C.P): number => p[0])).toFixed(0) + " v " + Math.min(...row.points.map((p: C.P): number => p[1])).toFixed(0) + ".." + Math.max(...row.points.map((p: C.P): number => p[1])).toFixed(0) + " near " + Math.min(...Array.from({ length: 72 }, (_: unknown, j: number): number => C.radius(row.points, (Math.PI * j) / 36))).toFixed(0)) });
+        continue;
+      }
+
+      // `--decompose=<directory>`: where the stored wall of an earlier run misses, by source (`FamilyConicFit.decompose`), in bands of
+      // `DECOMPOSE_BAND_MM` along the course, and no fit: its own miss; each section fitted alone (the layout's capacity); those fits carried
+      // on 1, 2 and 4 times its knots (the knots' capacity), with how many stations are then inadmissible; the constraints active at it; and
+      // its miss at invented points against skin points, with the invented points' share of the weight.
+      const decomposeFrom: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--decompose="))?.slice(12);
+      if (decomposeFrom !== undefined) {
+        const wall: K.IStored = JSON.parse(await fs.readFile(path.join(decomposeFrom, part.name + ".family.json"), "utf8")) as K.IStored;
+        const margin: number = part.margin ?? F.ADMISSIBLE_MARGIN;
+        const d: F.IDecomposition = F.decompose(rows, wall, wall.layout, margin, invented);
+        const bands: Map<number, F.IDecomposition["rows"]> = new Map();
+        for (const row of d.rows) {
+          const key: number = Math.floor(row.s / DECOMPOSE_BAND_MM) * DECOMPOSE_BAND_MM;
+          bands.set(key, [...(bands.get(key) ?? []), row]);
+        }
+        const most = (values: number[]): number => round(Math.max(...values));
+        const mean = (values: number[]): number => round(values.reduce((a: number, b: number): number => a + b, 0) / Math.max(1, values.length));
+        for (const [from, band] of bands) {
+          const worst = band.reduce((a, b) => (b.joint.maximumMm > a.joint.maximumMm ? b : a));
+          const weighted = band.filter((r) => r.weighting !== null);
+          const binding = d.binding.filter((b) => b.s >= from && b.s < from + DECOMPOSE_BAND_MM);
+          log("family-body-decompose", {
+            part: part.name,
+            stations: [from, from + DECOMPOSE_BAND_MM],
+            joint: { maxMm: most(band.map((r) => r.joint.maximumMm)), meanMm: mean(band.map((r) => r.joint.meanMm)), worstAtDegrees: Math.round((worst.joint.phase * 180) / Math.PI) },
+            alone: { maxMm: most(band.map((r) => r.alone?.maximumMm ?? Infinity)), meanMm: mean(band.map((r) => r.alone?.meanMm ?? Infinity)), refused: band.filter((r) => r.alone === null).length, atMargin: band.filter((r) => r.alone !== null && r.alone.least < margin + 0.005).length },
+            knots: [1, 2, 4].map((times: number, v: number) => ({ times, maxMm: most(band.map((r) => r.longitudinal[v]!.maximumMm)), meanMm: mean(band.map((r) => r.longitudinal[v]!.meanMm)), inadmissible: band.filter((r) => !r.longitudinal[v]!.admissible).length })),
+            binding: { meeting: [...new Set(binding.filter((b) => b.kind === "meeting").map((b) => b.index))].map((j: number) => "arc " + j + " " + round(Math.min(...binding.filter((b) => b.kind === "meeting" && b.index === j).map((b) => b.value)))), share: [...new Set(binding.filter((b) => b.kind === "share").map((b) => b.index))].map((f: number) => "field " + f) },
+            weighting: weighted.length === 0 ? null : { inventedMm: mean(weighted.map((r) => r.weighting!.inventedMm)), skinMm: mean(weighted.map((r) => r.weighting!.skinMm)), inventedShare: mean(weighted.map((r) => r.weighting!.share)) },
+          });
+        }
         continue;
       }
 
@@ -1719,7 +1950,7 @@ namespace FamilyConicBody {
       await fs.writeFile(path.join(out, "receipt.json"), JSON.stringify({ schema: "f1-family-conic-body-v1", targetMm: TARGET_MM, parts: receipt, milliseconds: performance.now() - started }, null, 2));
 
       // The authored module: the same definition as TypeScript, written beside the receipt and, with --emit, into the Human package.
-      if (tip !== null) definition.tips = [null, { from: part.cap ?? domain[1], tip, ...(part.covered === true ? { covered: true } : {}), ...(part.centre === undefined ? {} : { centre: part.centre }), ...(part.own === true ? { own: true } : {}) }];
+      if (tip !== null) definition.tips = [part.first === undefined ? null : { from: domain[0], tip: part.first }, { from: part.cap ?? domain[1], tip, ...(part.covered === true ? { covered: true } : {}), ...(part.centre === undefined ? {} : { centre: part.centre }), ...(part.own === true ? { own: true } : {}) }];
 
       // Cast reliefs: skin that faces along the course, which no section sees. From points of the finished surface, by station and phase,
       // a ray runs along the relief's axis, and its distance to the reference triangle it meets is the height there. The ear's outer face
@@ -2142,8 +2373,9 @@ namespace FamilyConicBody {
     const names: string[] = labels(family.layout);
     const lines: string[] = [
       "import type { AutoMovieHumanConicLoft } from \"../conic/AutoMovieHumanConicLoft\";",
-      "import { AutoMovieHumanConicSection } from \"../conic/AutoMovieHumanConicSection\";",
-      "import { AutoMovieHumanF1Joints } from \"./AutoMovieHumanF1Joints\";",
+      ...(family.layout.anchors.some((anchor: C.IAnchor): boolean => anchor.kind === "f") ? [] : ["import { AutoMovieHumanConicSection } from \"../conic/AutoMovieHumanConicSection\";"]),
+      // The joints are imported only when the course names them; a course written as numbers leaves the import unused.
+      ...(part.course.includes("J.") ? ["import { AutoMovieHumanF1Joints } from \"./AutoMovieHumanF1Joints\";"] : []),
       "",
       "/**",
       " * f1's " + part.name + " tape wall" + (part.mirrored ? " on the +Z side; the other side is its mirror image in the median plane z = 0, which f1's reference satisfies exactly" : "") + ".",
@@ -2153,8 +2385,8 @@ namespace FamilyConicBody {
       " * section lies in the plane normal to the course, charted by `u` (carried from `up` by the course's rotations) and `v`.",
       " *",
       " * Every row of `values` is one section field of `AutoMovieHumanConicSection` at the shared `knots`, a natural cubic between",
-      " * them: the section is a chain of conics through its four extremes" + (depth > 0 ? " and one median point per quarter" : "") + ", fitted to the convex hull of the reference skin",
-      " * (the path of a taut tape)." + (family.layout.mirror ? " Its front and back extremes stand on the median line and its +v half is reflected in it." : ""),
+      " * them: the section is a chain of conics through its four extremes" + (depth > 0 ? " and one median point per quarter" : "") + (grooves(family.layout).length > 0 ? ", with a groove of two inflections and its floor after anchors " + grooves(family.layout).join(" and ") : "") + (part.skin === undefined ? ", fitted to the convex hull of the reference skin" : ", fitted to the section itself"),
+      (part.skin === undefined ? " * (the path of a taut tape)." : part.air !== undefined ? " * read along rays from the course: the air round the course point, capped under the band it cuts and drawn in from the walls." : " * read along rays from the course, so it is star-shaped about it.") + (family.layout.mirror ? " Its front and back extremes stand on the median line and its +v half is reflected in it." : ""),
       " *",
       " * Source: the f1 reference " + (part.head === true ? "head" : part.whole === true ? "body and head" : "body") + " cut by this course's own planes over stations " + part.domain[0] + " to " + part.domain[1] + " mm, " + sections + " sections " + (part.step ?? STEP_MM) / 2 + " mm apart, every",
       " * second one withheld from the fit. Fitted offline by `test/src/reference-conics/FamilyConicBody.ts` (joint least squares over",
@@ -2166,7 +2398,10 @@ namespace FamilyConicBody {
       "  centres: " + part.course.replaceAll("J.", "AutoMovieHumanF1Joints.") + ",",
       "  halves: " + JSON.stringify(family.halves) + ",",
       "  up: " + JSON.stringify(family.up).replaceAll(",", ", ") + ",",
-      "  layout: AutoMovieHumanConicSection." + (family.layout.mirror ? "bilateral" : "limb") + "(" + depth + "),",
+      // A layout with feature anchors has no constructor of its own in the model, so it is written out.
+      family.layout.anchors.some((anchor: C.IAnchor): boolean => anchor.kind === "f")
+        ? "  layout: " + JSON.stringify({ mirror: family.layout.mirror, anchors: family.layout.anchors.map((anchor: C.IAnchor): C.IAnchor => ({ kind: anchor.kind, ...(anchor.guide === true ? { guide: true } : {}), ...(anchor.level === undefined ? {} : { level: anchor.level }), ...(anchor.feature === undefined ? {} : { feature: anchor.feature }) })) }).replaceAll(",", ", ").replaceAll(":", ": ") + ","
+        : "  layout: AutoMovieHumanConicSection." + (family.layout.mirror ? "bilateral(" + depth + ")" : grooves(family.layout).length > 0 ? "inflected(" + depth + ", " + JSON.stringify(grooves(family.layout)).replaceAll(",", ", ") + ")" : "limb(" + depth + ")") + ",",
       "  knots: " + JSON.stringify(family.knots).replaceAll(",", ", ") + ",",
       "  values: [",
     ];
@@ -2183,6 +2418,20 @@ namespace FamilyConicBody {
     }
     lines.push("};", "");
     return lines.join("\n");
+  }
+
+  /**
+   * The anchors of the limb layout after which a grooved layout (`AutoMovieHumanConicSection.inflected`) stands a groove `[i, m, i]`: each
+   * `i` that starts such a triple follows the base anchor counted before it.
+   */
+  function grooves(layout: C.ILayout): number[] {
+    const out: number[] = [];
+    let base: number = -1;
+    layout.anchors.forEach((anchor: C.IAnchor, k: number): void => {
+      if (anchor.kind === "i" && layout.anchors[k + 1]?.kind === "m" && layout.anchors[k + 2]?.kind === "i") out.push(base);
+      else if (anchor.kind !== "i" && !(anchor.kind === "m" && layout.anchors[k - 1]?.kind === "i" && layout.anchors[k + 1]?.kind === "i")) ++base;
+    });
+    return out;
   }
 
   /**
