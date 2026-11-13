@@ -24,8 +24,10 @@ import { motionHumanSignature as M } from "./motionHumanSignature";
  * `test_human_motion_signature_hand_to_face_drink_*` specs read one body
  * each: the right arm at `atMouth` of a drink and of a sip with the implied
  * glass, and of a drink from a real glass the hand took up for that use
- * first (`pickUp` with `use`, then `handToFace` with the prop), so the same
- * drink is read however the glass came to the hand.
+ * first (`pickUp` with `use`, then `handToFace` with the prop), once with the
+ * vessel searched afresh and once held as the grasp it was taken up by
+ * presents it (`grasp`: only its lean is sought), so the same drink is read
+ * however the glass came to the hand.
  *
  * Bound and source: a glass is brought to the mouth with the shoulder raised
  * about 40 to 50 degrees, the elbow low and in front of the body and the
@@ -45,7 +47,7 @@ import { motionHumanSignature as M } from "./motionHumanSignature";
  * @evidence contracts/development/implementation.md#principled-implementation Performs the real law on a real body and reads displayed joints, and the search's own admission one step below its answer.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over three cells, each staged, read and checked, then the optional least-lean check.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A cell that does not plan is a complaint with the refusal's words, not a skipped cell.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three films per body; the least-lean check reads the drink's film again at its first second.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Four films per body; the least-lean check reads the drink's film again at its first second.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Stages through `motionHumanSignature` and `motionHumanLaw`, reads the region through `HumanTrunk.region` and admits through `AutoMovieMotionHumanTouchDrink.admitted`.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The films live as long as the call.
  */
@@ -89,6 +91,35 @@ export namespace motionHandToFaceDrink {
                 use: { tip: "lip", line: "square", at: "mouth" },
               })
               .handToFace({ task: "drink", prop: "glass" }),
+            [
+              HumanObject.prop(
+                "glass",
+                createDrinkware({ kind: "glass" }),
+                stood,
+              ),
+            ],
+          ),
+          body,
+          yaw: 0,
+        }),
+      ],
+      [
+        `held glass by its grasp ${name}`,
+        (): M.IStaged => ({
+          film: motionHumanLaw.perform(
+            "signature",
+            [{ subject: "a", body }],
+            HumanChain.subject("a")
+              .pickUp({
+                prop: "glass",
+                handle: "body",
+                use: { tip: "lip", line: "square", at: "mouth" },
+              })
+              .handToFace({
+                task: "drink",
+                prop: "glass",
+                grasp: { handle: "body", line: "square" },
+              }),
             [
               HumanObject.prop(
                 "glass",
