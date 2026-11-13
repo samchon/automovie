@@ -33,7 +33,8 @@
     "evidence": "evidence",
     "node:capture": "ttsx --no-plugins --noCheck src/executable/motionCapture.ts",
     "node:props": "ttsx --no-plugins --noCheck src/executable/motionProps.ts",
-    "node:resolve": "ttsx --no-plugins --noCheck src/executable/motionResolve.ts"
+    "node:resolve": "ttsx --no-plugins --noCheck src/executable/motionResolve.ts",
+    "schemas": "ttsx --noCheck -P tsconfig.schemas.json src/executable/lexiconSchemas.ts"
   },
   "keywords": [],
   "author": "Samchon",
