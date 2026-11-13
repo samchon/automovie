@@ -18,6 +18,7 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
+import { floorSeat } from "./floorSeat";
 
 /**
  * Lying down on the floor from standing into a position: supine, prone, or
@@ -65,7 +66,9 @@ export namespace lieDown {
     | "prone"
     | "lateralLeft"
     | "lateralRight"
-    | "sitLong";
+    | "sitLong"
+    | "sitCrossed"
+    | "sitSide";
 
   /**
    * Parameters.
@@ -152,8 +155,18 @@ export namespace lieDown {
       "right",
     ),
 
-    // Seated on the floor with the legs ahead (provisional angles). Sitting cross-legged or with the legs folded to one side is not a posture of these angles: a thigh both flexed level and spread needs its shank laid on the floor by the leg solve, which this route of joint angles does not run.
+    // Seated on the floor with the legs ahead (provisional angles).
     sitLong: pose(-8, 0, { hip: 82, knee: 5, shoulder: -25, elbow: 15 }),
+
+    // Seated cross-legged, and with the legs folded to the right and the trunk leant to the left hand (provisional angles). The legs here are only what the pelvis is rested on the floor with: a thigh both flexed level and spread is not a set of these angles, so `floorSeat` folds the legs by goals on the floor.
+    sitCrossed: pose(0, 0, { hip: 90, knee: 5, shoulder: 10, elbow: 40 }),
+    sitSide: pose(0, -8, { hip: 90, knee: 5, shoulder: 0, elbow: 20 }),
+  };
+
+  /** The sittings whose legs `floorSeat` folds. */
+  const FOLDED: Readonly<Partial<Record<Position, floorSeat.Kind>>> = {
+    sitCrossed: "crossed",
+    sitSide: "side",
   };
 
   /** The route of postures to each position, after standing, with each arrival's event. */
@@ -182,6 +195,14 @@ export namespace lieDown {
         ["sit", "seatContact"],
         ["sitLong", "seated"],
       ],
+      sitCrossed: [
+        ["sit", "seatContact"],
+        ["sitCrossed", "seated"],
+      ],
+      sitSide: [
+        ["sit", "seatContact"],
+        ["sitSide", "seated"],
+      ],
     };
 
   /**
@@ -204,6 +225,7 @@ export namespace lieDown {
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
     const route = ROUTES[position];
+    const folds: floorSeat.Kind | undefined = FOLDED[position];
     const keys: IPose[] = [
       { pitch: 0, roll: 0, joints: stand.RELAXED },
       ...route.map(([key]) => POSES[key as keyof typeof POSES]),
@@ -271,7 +293,7 @@ export namespace lieDown {
         resolveHumanPosture.heading(posed),
         body.rest.get("hips")!,
       );
-      return {
+      const rested: IHumanPosture = {
         ...posed,
         root: {
           x: hips.x - offset.x,
@@ -279,6 +301,11 @@ export namespace lieDown {
           z: hips.z - offset.z,
         },
       };
+
+      // A folded sitting folds its legs over the last phase of its route.
+      return folds === undefined || index < route.length - 1
+        ? rested
+        : floorSeat.place(body, rested, folds, u);
     };
 
     const lying: IAutoMovieMotionHumanPrimitive = {
@@ -317,6 +344,15 @@ export namespace lieDown {
             support: { kind: "ground" },
           },
     ];
+    // Side sitting leans on the left hand.
+    if (folds === "side")
+      contacts.push({
+        part: "leftHand",
+        kind: "plant",
+        from: settled,
+        to: 1,
+        support: { kind: "ground" },
+      });
     const planned: IHumanActionPlan = composeAutoMovieMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(duration, standing, contacts),
       clock,

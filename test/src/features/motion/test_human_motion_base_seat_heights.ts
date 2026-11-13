@@ -48,13 +48,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 7. The bicycle's, the horse's and the motorcycle's seats read as sat
  *    astride and the chair's, the stool's and the scooter's as sat with the
  *    legs ahead: the object says which, and no test restates it.
- * Nine pairs are performed, each seat once and each body on three seats:
- * the small woman on the dining chair, the bare bicycle saddle and the
- * motorcycle; the large man on the bare stool, the bare horse saddle and
- * the bicycle; the average man on the scooter, the stool with its bar and
- * the horse. They are enough because every seat's geometry is read once
- * and every stature meets a low, a middle and a high seat; the other
- * eighteen pairs would repeat a seat already read on another stature.
+ * The seats of scenario 1 and the stool of scenario 2 are performed here,
+ * each once: the small woman on the dining chair, the large man on the
+ * bare stool, the average man on the scooter and on the stool with its
+ * bar. The saddles sat astride are performed by
+ * `test_human_motion_base_saddle_heights`. Four pairs are enough because
+ * every seat's geometry is read once and all three statures appear; the
+ * other pairs would repeat a seat already read on another stature.
  * Scenarios 3 to 6 are read on each.
  * 3. Seated, the body's seat region rests within 10 mm of the seat's
  *    height (the campaign's contact bound through a hold).
@@ -73,7 +73,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#behavioral-verification Places real archetypes, builds sitting and getting off through the public chain and reads the displayed seat region, soles, knees and hips; a refused seat, a body hovering over or sunk into the seat, a foot through the floor, a sliding plant or a body left crouched fails.
  * @evidence contracts/development/testing.md#independent-expectations That adults sit on these seats is what the seats are made for; the heights are the archetypes' cited bands, the 5, 10 and 15 mm are the campaign's slip and contact bounds, and a quiet stance is the film's own first posture, not a reading of the laws under test. The 15 degree knee, the 20 mm clearance and the 20 mm on the hips' height are provisional reading margins. Limitation: it reads where the body ends and whether its plants hold, not how a person really climbs onto a saddle, which no cited measurement here describes.
  * @evidence contracts/development/testing.md#distinguishing-cases Five seat heights from inside the band to four times the popliteal height, with and without rests, legs ahead and astride, by three statures.
- * @evidence contracts/development/testing.md#execution-ownership Prepares three polygon men and builds 9 short performances in memory; it runs locally and wherever CI runs the human motion tests.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares three polygon men and builds 4 short performances in memory; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 7 scenarios with their bounds and sources.
  */
 export function test_human_motion_base_seat_heights(): void {
@@ -128,10 +128,10 @@ export function test_human_motion_base_seat_heights(): void {
     const body: IHumanBody = motionHumanBody(name);
     for (let s: number = 0; s < seats.length; ++s) {
       const [kind, seat]: readonly [string, seated.ISeat] = seats[s]!;
-      // Nine of the pairs are performed, each seat once and each body three times: a performance and its poses cost too much for all 27.
-      if ((b + s) % 3 !== 0) continue;
-      const label: string = `${name} on ${kind}`;
+      // Each seat sat with the legs ahead is performed once, on the body its place in the two lists gives it; the saddles are the saddle test's.
       const astride: boolean = seat.astride === true;
+      if ((b + s) % 3 !== 0 || astride) continue;
+      const label: string = `${name} on ${kind}`;
       let performance: HumanPerformance;
       try {
         performance = new HumanPerformance({

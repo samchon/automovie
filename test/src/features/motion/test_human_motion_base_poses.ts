@@ -49,8 +49,15 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    Exerc 33:127).
  * 5. `lieStill` ends with the hip joints, the neck and the head all within
  *    0.15 statures of the floor (a lying trunk is one body depth thick, and
- *    the share is provisional). `sitOnFloor` ends with the hip joints within
- *    that share of the floor and the head above 0.35 statures: seated, not lying (an adult's sitting
+ *    the share is provisional). `sitCrossLegged` and `sitSideways` also end
+ *    with both knees flexed 120 to 155 degrees (Hemmerich et al. 2006
+ *    measure 130 to 150 in cross-legged sitting; the 10 and 5 beyond are a
+ *    provisional reading margin) and both ankle joints within 0.06
+ *    statures of the floor; cross-legged, the left ankle lies to the right
+ *    of the right one, and side-sitting, the left wrist is within a quarter
+ *    of the hand's length plus 15 mm of the floor, the hand leant on.
+ *    `sitOnFloor`, `sitCrossLegged` and `sitSideways` end with the hip
+ *    joints within that share of the floor and the head above 0.35 statures: seated, not lying (an adult's sitting
  *    height is about half the stature; the share is a provisional floor).
  * 6. `startle` raises a wrist further than `wince` does (a flinch grows with
  *    its intensity).
@@ -231,10 +238,34 @@ export function test_human_motion_base_poses(): void {
       }
 
       // 5. Seated on the floor: the hips down, the head up.
-      if (row === "sitOnFloor") {
+      if (["sitOnFloor", "sitCrossLegged", "sitSideways"].includes(row)) {
         if (hips(end) > 0.15 * stature || y("head", end) < 0.35 * stature)
           complaints.push(
             `${label}: the hips end ${hips(end).toFixed(3)} m and the head ${y("head", end).toFixed(3)} m above the floor; the hips within ${(0.15 * stature).toFixed(3)} m and the head above ${(0.35 * stature).toFixed(3)} m expected`,
+          );
+      }
+
+      // 5. Folded legs lie on the floor.
+      if (row === "sitCrossLegged" || row === "sitSideways") {
+        for (const side of ["left", "right"] as const) {
+          const knee: number = HumanSignature.knee(reader, end, side);
+          const ankle: number = y(`${side}Foot`, end);
+          if (knee < 120 || knee > 155 || ankle > 0.06 * stature)
+            complaints.push(
+              `${label}: the ${side} knee ends flexed ${knee.toFixed(1)} degrees with its ankle ${ankle.toFixed(3)} m above the floor; 120 to 155 degrees and within ${(0.06 * stature).toFixed(3)} m expected`,
+            );
+        }
+        const across: number =
+          HumanSignature.joint(reader, end, "leftFoot").x -
+          HumanSignature.joint(reader, end, "rightFoot").x;
+        if (row === "sitCrossLegged" && across >= 0)
+          complaints.push(
+            `${label}: the left ankle ends ${across.toFixed(3)} m to the left of the right one, to its right expected: the legs are not crossed`,
+          );
+        const wrist: number = y("leftHand", end);
+        if (row === "sitSideways" && wrist > 0.25 * body.measure.hand + 0.015)
+          complaints.push(
+            `${label}: the left wrist ends ${wrist.toFixed(3)} m above the floor, within ${(0.25 * body.measure.hand + 0.015).toFixed(3)} m expected for a hand it leans on`,
           );
       }
 

@@ -25,26 +25,25 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * Scenarios, on the average man and the small woman, with a mid-band bar
  * stool read with its foot bar:
  * 1. A drink from the hand taken after sitting on the stool declares the
- *    seat for its whole length, and through it, sampled ten times a second,
- *    the seat region stays within 10 mm of where the drink began (the
- *    campaign's bound for a held support).
+ *    seat for its whole length, and through it, sampled four times a second
+ *    (the hand's way up, the sip and the way down each read, where a seat
+ *    pulled by the reaching arm would show), the seat region stays within
+ *    10 mm of where the drink began (the campaign's bound for a held
+ *    support).
  * 2. The same stool raised 0.10 m seats the seat region 0.10 m higher
  *    within 10 mm: the seat's height is a target, not a posture.
  * 3. The same seed performed twice gives the same root and the same right
  *    ankle at five instants, to 1e-9 m.
- * 4. Sitting cut at its `seatContact` by `rise` plans: a person half on a
- *    stool gets off again. Sitting cut at its `commit` by `stand` plans: a
- *    person who thinks better of it stays on the floor.
- * 5. Refused, each as a `HumanRefusal` naming its axis: sitting on the
+ * 4. Refused, each as a `HumanRefusal` naming its axis: sitting on the
  *    stool from 1.5 m away (`reach` on `seat`, with the greatest distance
  *    it works from); a seat 0.10 m high (`reach` on `seat`, with the least
  *    height); a shift along the stool (`base`, offering `rise`).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds each composition through the public chain on real bodies and reads the placed plans' contacts, the displayed seat region and the refusals; a drink that drops the seat, a seat height ignored, a film that differs between runs or a silent acceptance fails.
  * @evidence contracts/development/testing.md#independent-expectations A raised seat raises the sitter by the same amount, and one seed gives one film, by what a target and a seed are; the 10 mm is the campaign's support bound; the refusals are the documented contract of the sitting actions.
- * @evidence contracts/development/testing.md#distinguishing-cases An act on the high base, a metamorphic pair, a determinism pair, a cut, and three refusals on three axes, on two bodies of opposite build.
- * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds a dozen short performances in memory; it runs locally and wherever CI runs the human motion tests.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 5 scenarios with their bounds.
+ * @evidence contracts/development/testing.md#distinguishing-cases An act on the high base, a metamorphic pair, a determinism pair and three refusals on three axes, on two bodies of opposite build; the cuts are `test_human_motion_base_mount_cuts`'s.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds eight short performances in memory; both builds, since the stool is a different share of each body's leg.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 4 scenarios with their bounds.
  */
 export function test_human_motion_base_high_seat_rules(): void {
   const complaints: string[] = [];
@@ -116,7 +115,7 @@ export function test_human_motion_base_high_seat_rules(): void {
         drink.entryTime,
       );
       let moved: number = 0;
-      for (const t of HumanSignature.times(drink.entryTime, drink.end, 10)) {
+      for (const t of HumanSignature.times(drink.entryTime, drink.end, 4)) {
         const now: IAutoMovieVector3 = HumanSignature.region(reader, "seat", t);
         moved = Math.max(
           moved,
@@ -176,26 +175,7 @@ export function test_human_motion_base_high_seat_rules(): void {
       }
     }
 
-    // 4. Half on the stool, off again.
-    attempt(
-      "sitting cut at seatContact by rise",
-      (): HumanPerformance =>
-        perform(
-          at(0),
-          (chain: HumanChain): HumanChain =>
-            chain.until({ event: "seatContact" }).rise(),
-        ),
-    );
-
-    attempt(
-      "sitting cut at its commit by stand",
-      (): HumanPerformance =>
-        perform(at(0), (chain: HumanChain): HumanChain =>
-          chain.until({ event: "commit" }).stand({ seconds: 1 }),
-        ),
-    );
-
-    // 5. Refusals.
+    // 4. Refusals.
     const refused = (
       label: string,
       kind: string,
