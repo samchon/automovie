@@ -180,61 +180,83 @@ export namespace HumanGraspReach {
     // that misses it least is kept, for the caller's refusal.
     let held: boolean = required === undefined;
     let nearest: number = Infinity;
+    // Every candidate's grasp is fitted first. Its error there bounds its
+    // cost from below, since a stroke's keys only add to it, so the
+    // candidates are then taken least grasp error first: once one that
+    // holds what is required is found, the first candidate whose grasp
+    // alone is no cheaper ends the search, with every candidate after it.
+    // The choice is the one fitting every key of every candidate gives.
+    const candidates: {
+      turn: number;
+      tilt: number;
+      wrist: HumanHand.IWrist;
+      grasp: ReturnType<typeof fit>;
+      preference: number;
+      floor: number;
+    }[] = [];
     for (const turn of turns)
       for (const tilt of tilts) {
         const wrist: HumanHand.IWrist = goal(turn, tilt);
         const grasp = fit({ posture, wrist, bend }, undefined);
-        const reference: IHumanPosture.IReference =
-          resolveHumanPosture.reference(grasp.pose, limb);
-        let miss: number = grasp.miss;
-        let departure: number = grasp.departure;
-
-        // A candidate's error is the worst over its keys, so it only grows
-        // as keys are fitted: once a candidate that holds what is required
-        // is found, one already no cheaper is dropped before its remaining
-        // keys cost their fits. The choice is the same as with every key
-        // fitted.
         const preference: number = 0.01 * (Math.abs(turn) + Math.abs(tilt));
-        if (held && miss + departure + preference >= least) continue;
-        let beaten: boolean = false;
-        const keys: number[] = [grasp.miss];
-        for (const key of stroke?.(wrist, grasp.shown) ?? []) {
-          const fitted = fit(key, reference);
-          keys.push(fitted.miss);
-          miss = Math.max(miss, fitted.miss);
-          departure = Math.max(departure, fitted.departure);
-          if (held && miss + departure + preference >= least) {
-            beaten = true;
-            break;
-          }
-        }
-        if (beaten) continue;
-        const cost: number = miss + departure + preference;
-        const measured: number =
-          required === undefined ? 0 : required.measure(keys);
-        const holds: boolean =
-          required === undefined || measured <= required.bound;
-        if (
-          best === undefined ||
-          (holds && !held) ||
-          (holds === held && (holds ? cost < least : measured < nearest))
-        ) {
-          held = holds;
-          nearest = measured;
-          least = cost;
-          best = {
-            turn,
-            tilt,
-            wrist,
-            shown: grasp.shown,
-            reference,
-            miss,
-            departure,
-            keys,
-            pose: grasp.pose,
-          };
+        candidates.push({
+          turn,
+          tilt,
+          wrist,
+          grasp,
+          preference,
+          floor: grasp.miss + grasp.departure + preference,
+        });
+      }
+    candidates.sort(
+      (a: { floor: number }, b: { floor: number }): number =>
+        a.floor - b.floor,
+    );
+    for (const { turn, tilt, wrist, grasp, preference, floor } of candidates) {
+      if (held && floor >= least) break;
+      const reference: IHumanPosture.IReference =
+        resolveHumanPosture.reference(grasp.pose, limb);
+      let miss: number = grasp.miss;
+      let departure: number = grasp.departure;
+      let beaten: boolean = false;
+      const keys: number[] = [grasp.miss];
+      for (const key of stroke?.(wrist, grasp.shown) ?? []) {
+        const fitted = fit(key, reference);
+        keys.push(fitted.miss);
+        miss = Math.max(miss, fitted.miss);
+        departure = Math.max(departure, fitted.departure);
+        if (held && miss + departure + preference >= least) {
+          beaten = true;
+          break;
         }
       }
+      if (beaten) continue;
+      const cost: number = miss + departure + preference;
+      const measured: number =
+        required === undefined ? 0 : required.measure(keys);
+      const holds: boolean =
+        required === undefined || measured <= required.bound;
+      if (
+        best === undefined ||
+        (holds && !held) ||
+        (holds === held && (holds ? cost < least : measured < nearest))
+      ) {
+        held = holds;
+        nearest = measured;
+        least = cost;
+        best = {
+          turn,
+          tilt,
+          wrist,
+          shown: grasp.shown,
+          reference,
+          miss,
+          departure,
+          keys,
+          pose: grasp.pose,
+        };
+      }
+    }
     return best!;
   }
 
