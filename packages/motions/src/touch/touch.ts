@@ -22,16 +22,15 @@ import type { HumanGrasp } from "../handling/HumanGrasp";
 import { HumanHeld } from "../handling/HumanHeld";
 import { HumanHeldUse } from "../handling/HumanHeldUse";
 import { HumanBound } from "../law/HumanBound";
-import { HumanPerception } from "../law/HumanPerception";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanEntryState } from "../law/IHumanEntryState";
-import { HumanColliders } from "../posture/HumanColliders";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { touchHold } from "./touchHold";
 import { touchPresented } from "./touchPresented";
 import { touchRegion } from "./touchRegion";
 import type { touchSite } from "./touchSite";
@@ -326,6 +325,15 @@ export namespace touch {
     const leaning: boolean = stance.leaning;
     const region = (target: AutoMovieMotionTarget) => placed(target, leaning);
 
+    // While the hand lies on a person it rides them: read as they are.
+    const felt: ReturnType<typeof touchRegion.reader> = touchRegion.reader(
+      touchHold.felt(context),
+      bones,
+      first,
+      p.target,
+      p.site,
+    );
+
     // The posture the arms are solved on at plan time: the entry, risen.
     const risen: IHumanPosture = stance.risen;
 
@@ -426,7 +434,11 @@ export namespace touch {
           side,
           rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
           effector,
-          region: region(target),
+          region: touchHold.region(
+            clock,
+            region(target),
+            felt(target, leaning),
+          ),
           kind,
           count,
           tangent,
@@ -465,19 +477,7 @@ export namespace touch {
             ? {}
             : { contact: support }),
           ...(target.kind === "person"
-            ? {
-                // The partner is kept clear of where the performer saw
-                // them a reaction time earlier, as a tracked person is.
-                others: (_: IHumanPosture, seconds: number) => {
-                  const partner = context.performer(target.subject);
-                  return HumanColliders.placed(
-                    partner.body,
-                    partner.bones(
-                      context.start + seconds - HumanPerception.REACTION,
-                    ),
-                  );
-                },
-              }
+            ? { others: touchHold.others(context, target.subject, clock) }
             : {}),
         }),
       );
