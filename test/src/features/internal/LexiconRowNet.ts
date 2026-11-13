@@ -64,6 +64,7 @@ export namespace LexiconRowNet {
     ashTap: { target: { kind: "self", region: "abdomen" } },
     stubOut: { target: { kind: "self", region: "abdomen" } },
     danceLead: ahead,
+    farmersWalk: ahead,
     readingWalk: ahead,
     stroll: ahead,
     hurry: ahead,
@@ -199,6 +200,8 @@ export namespace LexiconRowNet {
 
   /** Rows that need a support, a prop or a thrower, which their own tests stage. */
   export const STAGED: readonly string[] = [
+    // Loads held at the sides need the props in the hands, which `test_human_motion_sport_carry` stages.
+    "farmersHold",
     // A doorway, a car and a door's leaf need an obstacle, an opening or a door, which `test_human_motion_travel_obstacles`, `test_human_motion_travel_car` and `test_human_motion_travel_door_leaf` stage.
     "passThrough",
     "getIn",

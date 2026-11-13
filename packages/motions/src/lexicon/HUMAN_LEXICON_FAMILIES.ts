@@ -12,6 +12,7 @@ import { HumanPursuit } from "./HumanPursuit";
 import { HumanRide } from "./HumanRide";
 import { HumanSocial } from "./HumanSocial";
 import { HumanSport } from "./HumanSport";
+import { HumanSportCarry } from "./HumanSportCarry";
 import { HumanSportGym } from "./HumanSportGym";
 import { HumanSportSwing } from "./HumanSportSwing";
 import { HumanSportThrow } from "./HumanSportThrow";
@@ -56,6 +57,7 @@ export const HUMAN_LEXICON_FAMILIES = {
   carried: [HumanCarried],
   sport: [HumanSport],
   sportGym: [HumanSportGym],
+  sportCarry: [HumanSportCarry],
   sportSwing: [HumanSportSwing],
   sportThrow: [HumanSportThrow],
   sportWorkout: [HumanSportWorkout],

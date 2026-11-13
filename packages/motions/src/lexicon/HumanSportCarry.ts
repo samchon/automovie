@@ -1,4 +1,5 @@
 import { walk } from "../actions/walk";
+import { carryHang } from "../handling/carryHang";
 import { HumanActionRow } from "../law/HumanActionRow";
 
 /**
@@ -17,4 +18,7 @@ export namespace HumanSportCarry {
     pace: "slow",
     armSwing: 0,
   });
+
+  /** The loads of a farmer's walk held at the sides with the arms hanging, performed over `farmersWalk`: the composition names the prop in each hand and how long. */
+  export const farmersHold = HumanActionRow.of("farmersHold", carryHang, {});
 }
