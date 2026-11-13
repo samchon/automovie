@@ -57,6 +57,20 @@ export const validateJointRom: (props: {
       actual: number,
       overshoot: number | undefined,
     ): void => {
+      const swingTwist: IAutoMovieJointConstraint.ISwingTwist | null =
+        constraint.swingTwist ?? null;
+      if (swingTwist !== null && overshoot !== undefined) {
+        collector.push(
+          "rom",
+          `${path}.${part}`,
+          part === "swing"
+            ? `${joint.bone} must point where its flexion and abduction ranges reach, but points ${actual.toFixed(1)}° from rest, ${overshoot.toFixed(1)}° past that reach on its great circle`  
+            : `${joint.bone} turn about its own axis must be within [${swingTwist.twist.min}, ${swingTwist.twist.max}]° from its rest (swing and twist), but was ${actual.toFixed(1)} (${overshoot.toFixed(1)}° past limit)`,
+          actual,
+          overshoot,
+        );
+        return;
+      }
       if (part === "swing") {
         collector.push(
           "rom",

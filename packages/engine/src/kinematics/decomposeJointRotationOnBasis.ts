@@ -150,7 +150,15 @@ export const decomposeJointRotationOnBasis: (
   ): IAutoMovieResolvedJointAngles => {
     const principal: IAutoMovieResolvedJointAngles = clinical(rig);
     if (domain === undefined || domain.constraint === null) return principal;
-    const constraint: IAutoMovieJointConstraint = domain.constraint;
+    // The two readings are ranked by the three-angle box even for a joint
+    // gated by swing and twist, under which both readings of one rotation are
+    // equally inside: the choice is of a reading, the one a pose reports in,
+    // and stays the one it always was.
+    const constraint: IAutoMovieJointConstraint =
+      domain.constraint.swingTwist === undefined ||
+      domain.constraint.swingTwist === null
+        ? domain.constraint
+        : { ...domain.constraint, swingTwist: null };
     const align: (
       candidate: IAutoMovieResolvedJointAngles,
     ) => IAutoMovieResolvedJointAngles = (
