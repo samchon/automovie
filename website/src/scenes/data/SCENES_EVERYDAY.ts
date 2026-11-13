@@ -117,7 +117,7 @@ const FALL: IPlaygroundComposition = {
           params: {
             on: {
               kind: "point",
-              at: { x: 0, y: 0.8, z: 0.4 },
+              at: { x: -0.15, y: 0.85, z: 0.3 },
               frame: "performer",
             },
             cycles: 2,
