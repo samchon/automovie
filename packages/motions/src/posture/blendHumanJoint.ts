@@ -222,6 +222,18 @@ export function blendHumanJoint(
   // end's other reading brought into the range, or the near end's.
   const far: readonly [number, number, number] = clamped(other(to));
   const near: readonly [number, number, number] = clamped(other(from));
+  // How far each end's other reading had to be moved to make its gate: a
+  // gate far from the reading it stands for is another rotation altogether,
+  // and counts for nothing.
+  const moved = (of: readonly [number, number, number]): number => {
+    const read: readonly [number, number, number] = other(of);
+    const inside: readonly [number, number, number] = clamped(read);
+    return Math.max(
+      Math.abs(inside[0] - read[0]),
+      Math.abs(inside[1] - read[1]),
+      Math.abs(inside[2] - read[2]),
+    );
+  };
   // The direct line's turn is read along it, since its ends' rotations may
   // be near while the line between their triples is long.
   let direct: number = 0;
@@ -244,9 +256,9 @@ export function blendHumanJoint(
   };
   let rotated: IAutoMovieQuaternion = rotation(line(from, to, s));
   let left: number = 1;
-  for (const gate of [
-    [far, other(far)],
-    [other(near), near],
+  for (const [gate, away] of [
+    [[far, other(far)], moved(to)],
+    [[other(near), near], moved(from)],
   ] as const) {
     const lacks: number =
       jointRomOvershoot({ bone, ...triple(gate[0]) }, constraint) +
@@ -256,11 +268,12 @@ export function blendHumanJoint(
       turn(gate[1], to),
     ];
     const length: number = legs[0] + legs[1];
-    if (lacks >= SLACK || length === 0) continue;
+    if (lacks >= SLACK || away >= REACH || length === 0) continue;
     const counts: number =
       left *
       eased((GATE[1] - length / direct) / (GATE[1] - GATE[0])) *
-      eased(1 - lacks / SLACK);
+      eased(1 - lacks / SLACK) *
+      eased(1 - away / REACH);
     if (counts <= 0) continue;
     const meet: number = legs[0] / length;
     rotated = Quaternion.normalize(
@@ -277,64 +290,89 @@ export function blendHumanJoint(
     left *= 1 - counts;
   }
   if (left >= 1) return line(from, to, s);
-  const mixed: IAutoMovieResolvedJointAngles = decomposeJointRotation(
-    rotated,
+  // Two rotations inside the range may have one a little outside it between
+  // them. The range is two boxes of angles, one for each reading, which meet
+  // at a corner; a rotation in the corner is nearest one box on one side of
+  // the corner's diagonal and the other on the other side, so its nearest
+  // point in the range steps across the diagonal. It is brought in along the
+  // diagonal instead: by the whole turn into the nearer box and the same
+  // share of the turn into the farther one. The two turns are added as
+  // rotation vectors about the rotation itself (the exponential map, Grassia
+  // 1998), so the result is the same whichever box is the nearer where the
+  // two are as near, and they are turns and not differences of angles, so
+  // the construction holds at the flexion where two of a reading's angles
+  // turn about one axis. One pass leaves what the two turns do not commute
+  // by, so it is repeated; what a few passes leave is cut off, far under
+  // what shows.
+  let settling: IAutoMovieQuaternion = rotated;
+  for (let pass: number = 0; pass < PASSES; ++pass) {
+    const read: IAutoMovieResolvedJointAngles = decomposeJointRotation(
+      settling,
+      axes,
+      HUMANOID_REST_FRAME[bone],
+      { bone, constraint },
+    );
+    const here: readonly [number, number, number] = [
+      read.flexion,
+      read.abduction,
+      read.twist,
+    ];
+    const there: readonly [number, number, number] = other(here);
+    const inward: readonly [number, number, number] = clamped(here);
+    const across: readonly [number, number, number] = clamped(there);
+    const short: number = turn(here, inward);
+    const long: number = turn(there, across);
+    if (short === 0) return inward;
+    if (long === 0) return across;
+    const about: IAutoMovieQuaternion = settling;
+    const vector = (to: readonly [number, number, number]): number[] => {
+      const q: IAutoMovieQuaternion = Quaternion.multiply(
+        Quaternion.inverse(about),
+        rotation(to),
+      );
+      const sign: number = q.w < 0 ? -1 : 1;
+      const sine: number = Math.hypot(q.x, q.y, q.z);
+      const scale: number =
+        sine < 1e-12
+          ? 2 * sign
+          : (2 * Math.atan2(sine, sign * q.w) * sign) / sine;
+      return [q.x * scale, q.y * scale, q.z * scale];
+    };
+    const one: number[] = vector(short <= long ? inward : across);
+    const two: number[] = vector(short <= long ? across : inward);
+    const part: number = short <= long ? short / long : long / short;
+    const sum: number[] = [
+      one[0]! + part * two[0]!,
+      one[1]! + part * two[1]!,
+      one[2]! + part * two[2]!,
+    ];
+    const angle: number = Math.hypot(sum[0]!, sum[1]!, sum[2]!);
+    const half: number = angle < 1e-12 ? 0.5 : Math.sin(angle / 2) / angle;
+    settling = Quaternion.normalize(
+      Quaternion.multiply(about, {
+        x: sum[0]! * half,
+        y: sum[1]! * half,
+        z: sum[2]! * half,
+        w: Math.cos(angle / 2),
+      }),
+    );
+  }
+  const settled: IAutoMovieResolvedJointAngles = decomposeJointRotation(
+    settling,
     axes,
     HUMANOID_REST_FRAME[bone],
     { bone, constraint },
-  );  // Two rotations inside the range may have one a little outside it between
-  // them. In the angles of one reading the range is two boxes, its own and
-  // the other reading's, which meet at a corner; a rotation in the corner is
-  // nearest one box's face on one side of the corner's diagonal and the
-  // other's on the other side, so the nearest point steps across the
-  // diagonal. It is brought into the range along the diagonal instead: by
-  // the whole of the shorter way into a box and the same length of the
-  // longer one, which lands on a face of the nearer box and moves
-  // continuously with the rotation.
-  const here: readonly [number, number, number] = [
-    mixed.flexion,
-    mixed.abduction,
-    mixed.twist,
-  ];
-  const there: readonly [number, number, number] = other(here);
-  const into = (
-    of: readonly [number, number, number],
-  ): readonly [number, number, number] => {
-    const inside: readonly [number, number, number] = clamped(of);
-    return [inside[0] - of[0], inside[1] - of[1], inside[2] - of[2]];
-  };
-  const inward: readonly [number, number, number] = into(here);
-  const across: readonly [number, number, number] = into(there);
-  const short: number = Math.hypot(inward[0], inward[1], inward[2]);
-  const long: number = Math.hypot(across[0], across[1], across[2]);
-  if (short === 0) return here;
-  if (long === 0) return there;
-  // How each angle of the other reading turns with the same angle of this
-  // one: with it or against it, read from the readings themselves.
-  const nudged: readonly [number, number, number] = other([
-    here[0] + 1,
-    here[1] + 1,
-    here[2] + 1,
-  ]);
-  const sense: readonly number[] = [0, 1, 2].map((i: number): number => {
-    const change: number = nudged[i]! - there[i]!;
-    return change - 360 * Math.round(change / 360) >= 0 ? 1 : -1;
-  });
-  return short <= long
-    ? clamped([
-        here[0] + inward[0] + (short / long) * sense[0]! * across[0],
-        here[1] + inward[1] + (short / long) * sense[1]! * across[1],
-        here[2] + inward[2] + (short / long) * sense[2]! * across[2],
-      ])
-    : clamped([
-        there[0] + across[0] + (long / short) * sense[0]! * inward[0],
-        there[1] + across[1] + (long / short) * sense[1]! * inward[1],
-        there[2] + across[2] + (long / short) * sense[2]! * inward[2],
-      ]);
+  );
+  return clamped([settled.flexion, settled.abduction, settled.twist]);
 }
 
+/** The passes a rotation is brought into the range by (provisional: four; each leaves the square of what the one before left, so a rotation ten degrees outside is within a thousandth of a degree after three). */
+const PASSES: number = 4;
 /** How far outside its range an end may read and still count as on its edge, degrees: a millionth, far above a rounding error and far below any turn that shows; without it an end a solver left on the edge would change the route with its rounding. */
 const EDGE: number = 1e-6;
+
+/** How far an end's other reading may lie outside the range, in its farthest angle, degrees, and still give a gate; the gate's route counts for less as it nears it (provisional: forty-five degrees, an eighth of a turn, well past the 9 and 18 degrees of the two measured pairs and well short of the half turn that separates the two readings' boxes elsewhere). */
+const REACH: number = 45;
 
 /** How far outside the range a gate's readings may lie in all, degrees, before the gate no longer serves; its route counts for less as they near it (provisional: five degrees, the turn the continuity audit's bound is at a hand's length many times over, and small beside the half turn between two readings). */
 const SLACK: number = 5;
