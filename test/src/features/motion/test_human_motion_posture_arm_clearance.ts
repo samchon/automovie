@@ -1,12 +1,6 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  getConstraint,
-  jointRomOvershoot,
-} from "@automovie/engine";
+import { type IAutoMovieResolvedBone, Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieBone,
   IAutoMovieJointPose,
   IAutoMoviePose,
   IAutoMovieVector3,
@@ -49,18 +43,6 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * lacks more than an eighth of `r`, because its last sample, 7/8 of the way
  * to the wrist, lies inside the shape and nothing excuses it.
  *
- * A clearing (`cleared`) turns only the upper arm's abduction and the
- * elbow's flexion, never further out of range, never to a larger overshoot,
- * and where some turn of those two joints within 40 degrees each and within
- * range clears the arm to its allowance, it clears the arm to within the
- * documented tolerance of 0.05 degrees.
- *
- * The colliders are the profile's: a segment's distance never exceeds the
- * least distance of points sampled along it, nor falls below that least
- * less half the sampling step (a signed distance moves no faster than the
- * point); the stance stands on the floor within the skin's 10 mm; lifting
- * the root lifts the lowest point and every placed segment by as much.
- *
  * Scenarios, per body of `motionHumanBody.EXTREMES` and arm:
  * 1. `trunk` is the placed hips, spine, chest, upper chest, neck and head;
  *    `obstacles` adds both thighs, and the upper arm, forearm and hand of
@@ -80,37 +62,18 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    displayed forearm against the trunk, the thighs and the other arm;
  *    `room` of an arm raised sideways is 0; `posed` writes an arm's three
  *    joints and keeps every other joint.
- * 7. `cleared` keeps an arm within its allowance as it is; for each arm
- *    that lacks more than a degree, it changes only the two documented
- *    angles, keeps the range and the hand, never worsens the overshoot, and
- *    clears it wherever a turn within reach does; against a partner close
- *    ahead the same holds for an arm raised into them.
- * 8. `HumanColliders`: `distance` is the zero-length `distanceToSegment`; a
- *    point 1 m above the crown is at least 0.9 m off and the hips' frame
- *    lies inside; a segment's distance is bracketed by its samples; the
- *    stance's `lowest` point is within 10 mm of the floor; lifting the root
- *    by 0.25 m lifts `lowest` and every `placed` position by 0.25 m and
- *    leaves every rotation.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Places forearms against the displayed colliders of real bodies and calls each public function; a wrong unit, a lost median plane, a wrist excused against another body, a clearing that turns another joint, leaves its range or stops short, or a misplaced collider fails with its cell.
- * @evidence contracts/development/testing.md#independent-expectations Every expected value follows from the documented rule and the cell's geometry worked out in the comment; the reachability of a clearing is decided by a grid search the function does not do.
- * @evidence contracts/development/testing.md#distinguishing-cases Four bodies, both arms; a forearm clear, across the median plane, inside the chest, laid on it against its own and another body; arms within and beyond their allowance, against the trunk and a partner.
- * @evidence contracts/development/testing.md#execution-ownership In memory on in-process bodies; the clearing's grid search runs many forward kinematic passes, so it is the slow one of the family. The test program discovers every `test_` function under `features`, so `pnpm test` and the CI test job run it.
- * @evidence contracts/development/common.md#meaningful-documentation States the unit, both rules, the geometry of each placed forearm, the clearing's promise and the 8 scenarios with their bounds.
+ * The clearing is `test_human_motion_posture_arm_clearing`'s and the
+ * colliders `test_human_motion_posture_colliders`'s.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Places forearms against the displayed colliders of real bodies and calls each public function; a wrong unit, a lost median plane, a wrist excused against another body, a wrong room or a misplaced forearm fails with its cell.
+ * @evidence contracts/development/testing.md#independent-expectations Every expected value follows from the documented rule and the cell's geometry worked out in the comment.
+ * @evidence contracts/development/testing.md#distinguishing-cases Four bodies, both arms; a forearm clear, across the median plane, inside the chest, laid on it against its own and another body.
+ * @evidence contracts/development/testing.md#execution-ownership In memory on in-process bodies. The test program discovers every `test_` function under `features`, so `pnpm test` and the CI test job run it.
+ * @evidence contracts/development/common.md#meaningful-documentation States the unit, both rules, the geometry of each placed forearm and the 6 scenarios with their bounds.
  */
 export function test_human_motion_posture_arm_clearance(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
-  const partner: IHumanBody = motionHumanBody("m-average");
-  const partnered: HumanColliders.IPlaced[] = HumanColliders.placed(
-    partner,
-    poseBones(
-      partner,
-      resolveHumanPosture(
-        partner,
-        stand.posture(partner, { x: 0, y: 0, z: 0.4 }, 180),
-      ),
-    ),
-  );
   for (const name of motionHumanBody.EXTREMES) {
     const body: IHumanBody = motionHumanBody(name);
     const posture: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
@@ -411,195 +374,7 @@ export function test_human_motion_posture_arm_clearance(): void {
         `${cell}: an arm raised sideways lacks ${raised.toFixed(4)} deg`,
         raised === 0,
       );
-
-      // 7. Clearing.
-      complaints.equals(
-        `${cell}: an arm within its allowance is kept`,
-        HumanArmClearance.cleared(body, pose, side, own, stance + 1),
-        own,
-      );
-      const arms: [string, HumanArmClearance.IArm, HumanColliders.IPlaced[]][] =
-        [];
-      for (const twist of [-60, 60])
-        for (const abduction of [-20, 0])
-          arms.push([
-            `hanging, turned ${twist}, adducted ${-abduction}, elbow 95`,
-            {
-              upper: [0, abduction, twist],
-              lower: [95, 0, 0],
-              hand: [0, 0, 0],
-            },
-            [],
-          ]);
-      arms.push([
-        "flexed 30, elbow 120",
-        { upper: [30, -15, 0], lower: [120, 0, 0], hand: [0, 0, 0] },
-        [],
-      ]);
-      arms.push([
-        "raised 80 into a partner",
-        { upper: [80, 0, 0], lower: [10, 0, 0], hand: [0, 0, 0] },
-        partnered,
-      ]);
-      for (const [label, arm, others] of arms) {
-        const before: number = HumanArmClearance.room(
-          body,
-          pose,
-          side,
-          arm,
-          others,
-        );
-        if (before <= 1) continue;
-        const what: string = `${cell} ${label}`;
-        const after: HumanArmClearance.IArm = HumanArmClearance.cleared(
-          body,
-          pose,
-          side,
-          arm,
-          0,
-          others,
-        );
-        complaints.check(
-          `${what}: only the abduction and the elbow's flexion turn`,
-          after.upper[0] === arm.upper[0] &&
-            after.upper[2] === arm.upper[2] &&
-            after.lower[1] === arm.lower[1] &&
-            after.lower[2] === arm.lower[2] &&
-            JSON.stringify(after.hand) === JSON.stringify(arm.hand),
-        );
-        const range = (of: HumanArmClearance.IArm): number =>
-          outside(body, `${side}UpperArm`, of.upper) +
-          outside(body, `${side}LowerArm`, of.lower);
-        complaints.check(
-          `${what}: range ${range(after).toFixed(3)} deg out, before ${range(arm).toFixed(3)}`,
-          range(after) <= range(arm) + 1e-9,
-        );
-        const left: number = HumanArmClearance.room(
-          body,
-          pose,
-          side,
-          after,
-          others,
-        );
-        complaints.check(
-          `${what}: overshoot ${left.toFixed(3)} after clearing, ${before.toFixed(3)} before`,
-          left <= before,
-        );
-        let reachable: number = Infinity;
-        for (let a: number = -40; a <= 40; a += 5)
-          for (let f: number = -40; f <= 40; f += 5) {
-            const turned: HumanArmClearance.IArm = {
-              upper: [arm.upper[0], arm.upper[1] + a, arm.upper[2]],
-              lower: [arm.lower[0] + f, arm.lower[1], arm.lower[2]],
-              hand: arm.hand,
-            };
-            if (range(turned) > range(arm) + 1e-9) continue;
-            reachable = Math.min(
-              reachable,
-              HumanArmClearance.room(body, pose, side, turned, others),
-            );
-          }
-        complaints.check(
-          `${what}: overshoot ${left.toFixed(3)} after clearing where a turn within 40 deg reaches ${reachable.toFixed(3)}`,
-          reachable > 0.05 || left <= 0.05,
-        );
-      }
     }
-
-    // 8. The colliders.
-    const crown: IAutoMovieVector3 = toward(
-      bones.get("head")!.worldPosition,
-      0,
-      1.3,
-      0,
-    );
-    complaints.check(
-      `${name}: distance is the zero-length segment's`,
-      HumanColliders.distance(body, bones, crown).distance ===
-        HumanColliders.distanceToSegment(body, bones, crown, crown).distance,
-    );
-    complaints.check(
-      `${name}: a point a metre above the crown is ${HumanColliders.distance(body, bones, crown).distance.toFixed(3)} m off`,
-      HumanColliders.distance(body, bones, crown).distance >= 0.9,
-    );
-    const hips: HumanColliders.IPlaced = placed.find((s) => s.bone === "hips")!;
-    complaints.check(
-      `${name}: the hips' frame lies inside`,
-      HumanColliders.distance(body, bones, hips.pose.position).distance < 0,
-    );
-    const a: IAutoMovieVector3 = toward(hips.pose.position, 0.5, 0.1, 0.3);
-    const b: IAutoMovieVector3 = toward(hips.pose.position, -0.5, 0.3, 0.1);
-    let least: number = Infinity;
-    const SAMPLES: number = 40;
-    for (let i: number = 0; i <= SAMPLES; i++) {
-      const s: number = i / SAMPLES;
-      least = Math.min(
-        least,
-        HumanColliders.distance(body, bones, {
-          x: a.x + (b.x - a.x) * s,
-          y: a.y + (b.y - a.y) * s,
-          z: a.z + (b.z - a.z) * s,
-        }).distance,
-      );
-    }
-    const step: number = Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z) / SAMPLES;
-    const segment: number = HumanColliders.distanceToSegment(
-      body,
-      bones,
-      a,
-      b,
-    ).distance;
-    complaints.check(
-      `${name}: a segment's distance ${segment.toFixed(4)} is bracketed by its samples' least ${least.toFixed(4)} and half a step ${(step / 2).toFixed(4)} under it`,
-      segment <= least + 1e-9 && segment >= least - step / 2 - 1e-9,
-    );
-    const lowest: number = HumanColliders.lowest(body, bones);
-    complaints.check(
-      `${name}: the stance's lowest point is ${(lowest * 1000).toFixed(2)} mm off the floor`,
-      Math.abs(lowest) <= 0.01,
-    );
-    const lifted: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(
-        body,
-        resolveHumanPosture(body, {
-          ...posture,
-          root: toward(posture.root, 0, 0.25, 0),
-          limbs: {},
-        }),
-      );
-    const flat: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
-      body,
-      resolveHumanPosture(body, { ...posture, limbs: {} }),
-    );
-    complaints.check(
-      `${name}: lifting the root lifts the lowest point by 0.25 m`,
-      Math.abs(
-        HumanColliders.lowest(body, lifted) -
-          HumanColliders.lowest(body, flat) -
-          0.25,
-      ) <= 1e-9,
-    );
-    const up: HumanColliders.IPlaced[] = HumanColliders.placed(body, lifted);
-    const down: HumanColliders.IPlaced[] = HumanColliders.placed(body, flat);
-    complaints.check(
-      `${name}: one placed segment per profile segment`,
-      down.length === body.profile.segments.length && up.length === down.length,
-    );
-    complaints.check(
-      `${name}: lifting the root lifts every placed segment and keeps its rotation`,
-      up.every((s: HumanColliders.IPlaced, i: number): boolean => {
-        const d: HumanColliders.IPlaced = down[i]!;
-        return (
-          Math.abs(s.pose.position.x - d.pose.position.x) <= 1e-9 &&
-          Math.abs(s.pose.position.y - d.pose.position.y - 0.25) <= 1e-9 &&
-          Math.abs(s.pose.position.z - d.pose.position.z) <= 1e-9 &&
-          Math.abs(s.pose.rotation.x - d.pose.rotation.x) <= 1e-9 &&
-          Math.abs(s.pose.rotation.y - d.pose.rotation.y) <= 1e-9 &&
-          Math.abs(s.pose.rotation.z - d.pose.rotation.z) <= 1e-9 &&
-          Math.abs(s.pose.rotation.w - d.pose.rotation.w) <= 1e-9
-        );
-      }),
-    );
   }
   complaints.assert("every forearm is read and cleared as documented");
 }
@@ -623,20 +398,4 @@ function triple(
     (j: IAutoMovieJointPose): boolean => j.bone === bone,
   );
   return [joint?.flexion ?? 0, joint?.abduction ?? 0, joint?.twist ?? 0];
-}
-
-/** A joint's range of motion overshoot at a triple, degrees. */
-function outside(
-  body: IHumanBody,
-  bone: AutoMovieHumanoidBone,
-  of: readonly [number, number, number],
-): number {
-  return jointRomOvershoot(
-    { bone, flexion: of[0], abduction: of[1], twist: of[2] },
-    getConstraint(
-      bone,
-      body.skeleton.bones.find((b: IAutoMovieBone): boolean => b.bone === bone)
-        ?.constraint ?? null,
-    ),
-  );
 }
