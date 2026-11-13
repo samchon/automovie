@@ -122,12 +122,13 @@ export namespace HumanSocial {
     manner: AutoMovieMotionManner.PRESETS.flick,
   });
 
-  /** Arm wrestling across a table: both perform `armWrestle` on one point of the table's top, `table` in world metres, and `winner` pins the other after `seconds` of struggle (3 when absent). Register the `armWrestle` law with it. */
+  /** Arm wrestling across a table: both perform `armWrestle` on one point of the table's top, `table` in world metres, and `winner` pins the other after `seconds` of struggle (3 when absent), the forearms ending `pin` degrees from upright (the law's own when absent; an angle past either arm's range is refused with the angle it holds). Register the `armWrestle` law with it. */
   export const armWrestle: IHumanMutual<
     {
       table: { x: number; y: number; z: number };
       winner: "one" | "other";
       seconds?: number;
+      pin?: number;
     },
     "one" | "other"
   > = {
@@ -145,6 +146,7 @@ export namespace HumanSocial {
           table: params.table,
           wins: params.winner === role,
           ...(params.seconds === undefined ? {} : { seconds: params.seconds }),
+          ...(params.pin === undefined ? {} : { pin: params.pin }),
         },
       };
     },

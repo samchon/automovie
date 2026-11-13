@@ -16,6 +16,7 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
  * Arm wrestling, one role of it (#3350): the elbow planted on a table's top,
@@ -33,8 +34,9 @@ import { poseBones } from "../posture/poseBones";
  *
  * The forearms turn about the line through the two elbows: upright from
  * `set`, swaying `SWAY` degrees through the struggle from `go`, then down to
- * `PIN` degrees toward the winner's left by `pin`, where the loser's hand is
- * a hand's breadth off the table, and back up to leave from `relax`. The
+ * the pin's angle (`PIN` degrees when none is asked) toward the winner's
+ * left by `pin`, an angle past either arm's own range being refused with the
+ * angle it holds, and back up to leave from `relax`. The
  * author declares the winner (#3350's outcome-first rule).
  *
  * First pass: the elbow's bearing on the table is not declared as a contact
@@ -61,8 +63,11 @@ export namespace armWrestle {
   /** How far the forearms sway through the struggle, degrees either way (provisional). */
   export const SWAY: number = 8;
 
-  /** How far from upright the forearms end at the pin, degrees (provisional: the back of the loser's hand a hand's breadth off the table). */
+  /** How far from upright the forearms end at the pin when none is asked, degrees (provisional: the back of the loser's hand a hand's breadth off the table). */
   export const PIN: number = 70;
+
+  /** How much further above or below the table's top than with the forearm upright the displayed elbow may lie for a pin's angle to count as held, metres (the campaign's contact bound). */
+  export const HELD: number = 0.015;
 
   /**
    * Parameters.
@@ -84,6 +89,9 @@ export namespace armWrestle {
 
     /** Seconds of struggle from `go` to the start of the pin; 3 when absent. */
     seconds?: number;
+
+    /** How far from upright the forearms end at the pin, degrees; both roles give the same one. `PIN` when absent. An angle this role's arm cannot hold with its elbow on the table is refused with the largest it can. */
+    pin?: number;
   }
 
   /**
@@ -91,7 +99,7 @@ export namespace armWrestle {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the struggle's length is negative, or no lean from the hips puts the shoulder an upper arm from the elbow's place on the table.
+   * @throws {HumanRefusal} When the struggle's length is negative, no lean from the hips puts the shoulder an upper arm from the elbow's place on the table, or the pin's angle lies outside 0 to 90 degrees or past what this arm holds with its elbow in place.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives the geometry and the phases.
    * @evidence contracts/development/implementation.md#principled-implementation The clasp height and the two elbows follow from the two forearms; the lean is the root of the shoulder-to-elbow distance less the upper arm, bisected over the trunk's pitch; the forearm's turn is a rotation about the elbows' line, which keeps both forearms' lengths.
@@ -224,6 +232,34 @@ export namespace armWrestle {
     }
     const pitch: number = (low + high) / 2;
 
+    // The pin stops at this arm's own range: past it the arm leaves the
+    // elbow's place for its other solution, which only a force would do.
+    const asked: number = p.pin ?? PIN;
+    HumanBound.within("pin", asked, 0, 90);
+    // The elbow is read by its height: it may bear anywhere on the top.
+    const off = (degrees: number): number =>
+      Math.abs(
+        poseBones(
+          body,
+          resolveHumanPosture(body, armed(leaned(pitch, entry), degrees)),
+        ).get(`${side}LowerArm`)!.worldPosition.y - elbow.y,
+      );
+    const upright: number = off(0);
+    if (!(off(asked) <= upright + HELD)) {
+      let most: number = 0;
+      for (let degrees: number = 5; degrees < asked; degrees += 5)
+        if (off(degrees) <= upright + HELD) most = degrees;
+        else break;
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "pin",
+        value: asked,
+        feasible: { kind: "range", minimum: 0, maximum: most, unit: "degrees" },
+        reason: `With the forearm ${asked} degrees from upright the elbow leaves the table's top by ${(off(asked) * 1000).toFixed(0)} mm, against ${(upright * 1000).toFixed(0)} mm upright: the arm holds the place up to ${most} degrees`,
+        fix: "ask a pin within that angle for both roles; an arm forced past its range is not this law's",
+      });
+    }
+
     // The clock: reach and set, go, the struggle, the pin, its hold, leave.
     const from: IAutoMovieVector3 = poseBones(body, context.entry.pose).get(
       `${side}Hand`,
@@ -288,9 +324,9 @@ export namespace armWrestle {
               ? SWAY * Math.sin((2 * Math.PI * (t - go)) / 1.5)
               : t <= pin
                 ? SWAY * Math.sin((2 * Math.PI * struggle) / 1.5) +
-                  (PIN - SWAY * Math.sin((2 * Math.PI * struggle) / 1.5)) *
+                  (asked - SWAY * Math.sin((2 * Math.PI * struggle) / 1.5)) *
                     minimumJerk((t - turn) / (pin - turn)).s
-                : PIN;
+                : asked;
         return AutoMovieMotionHumanArm.carry(
           body,
           armed(leaned(pitch * envelope, base.posture(t)), degrees),

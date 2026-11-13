@@ -2,6 +2,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
   HumanChain,
   HumanPerformance,
+  HumanRefusal,
   type HumanSegment,
   HumanSignature,
   HumanSocial,
@@ -28,15 +29,18 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * as their arm is long. a is declared the winner; the struggle is cut to 1 s.
  *
  * Scenarios:
- * 1. The contest plans, and both roles' `go` and `pin` fall on the same
- *    second within one 24 Hz frame.
+ * 1. A pin of 85 degrees from upright is refused on the pin with the largest
+ *    angle the arms hold with their elbows in place, at least 30 degrees
+ *    (provisional); the contest plans at that angle, and both roles' `go`
+ *    and `pin` fall on the same second within one 24 Hz frame.
  * 2. At `go` and at `pin` each right elbow joint stands within 30 mm above
  *    or below the table's top (provisional: the joint centre lies inside
  *    the arm, about its half thickness above the surface it rests on).
  * 3. At `go` the two wrists lie within 0.12 m of each other, a clasp's
  *    width (provisional), and at least 0.1 m above the table.
- * 4. At `pin` the loser's wrist is under half its height at `go` above the
- *    table and at least 0.1 m to the winner's left of the table's point.
+ * 4. At `pin` the loser's wrist stands above the table by its height at
+ *    `go` turned through the pin's angle, within 30 mm, and to the winner's
+ *    left of the table's point by at least half of what that turn gives.
  * 5. Each pelvis stays within 10 mm of where sitting left it, at `pin` (the
  *    campaign's bound for a supported body, #3358).
  *
@@ -71,10 +75,8 @@ export function test_human_motion_social_arm_wrestle(): void {
     });
   };
 
-  // 1. The contest plans.
-  let performance: HumanPerformance;
-  try {
-    performance = new HumanPerformance({
+  const build = (pin: number): HumanPerformance =>
+    new HumanPerformance({
       seed: "wrestle",
       laws: [armWrestle],
       performers: (["a", "b"] as const).map((subject: "a" | "b") => ({
@@ -87,9 +89,35 @@ export function test_human_motion_social_arm_wrestle(): void {
       composition: HumanChain.mutual(
         HumanSocial.armWrestle,
         { one: sits("a"), other: sits("b") },
-        { table, winner: "one", seconds: 1 },
+        { table, winner: "one", seconds: 1, pin },
       ).node,
     });
+
+  // 1. A pin past an arm's range is refused with the angle it holds, and
+  // the contest plans at that angle.
+  let angle: number = 85;
+  let performance: HumanPerformance;
+  try {
+    try {
+      performance = build(angle);
+      complaints.push(
+        "a pin of 85 degrees planned, a refusal on the pin expected",
+      );
+    } catch (error) {
+      if (
+        !(error instanceof HumanRefusal) ||
+        error.axis !== "pin" ||
+        error.feasible?.kind !== "range" ||
+        error.feasible.maximum === null
+      )
+        throw error;
+      angle = error.feasible.maximum;
+      if (!(angle >= 30))
+        complaints.push(
+          `a pin of 85 degrees is refused with ${angle} degrees as the most, at least 30 expected`,
+        );
+      performance = build(angle);
+    }
   } catch (error) {
     TestValidator.equals(
       "an arm wrestle across a table plans",
@@ -153,13 +181,15 @@ export function test_human_motion_social_arm_wrestle(): void {
 
   // 4. The loser pinned to the winner's left: a faces +Z, so his left is +X.
   const fallen: IAutoMovieVector3 = wrist("b", pin);
-  if (!(fallen.y - top <= 0.5 * (wrist("b", go).y - top)))
+  const stood: number = wrist("b", go).y - top;
+  const radians: number = (angle * Math.PI) / 180;
+  if (!(Math.abs(fallen.y - top - stood * Math.cos(radians)) <= 0.03))
     complaints.push(
-      `pin: the loser's wrist stands ${mm(fallen.y - top)} mm above the table, under half its ${mm(wrist("b", go).y - top)} mm at go expected`,
+      `pin: the loser's wrist stands ${mm(fallen.y - top)} mm above the table, its ${mm(stood)} mm at go turned ${angle} degrees, ${mm(stood * Math.cos(radians))} mm, within 30 mm expected`,
     );
-  if (!(fallen.x - table.x >= 0.1))
+  if (!(fallen.x - table.x >= 0.5 * stood * Math.sin(radians)))
     complaints.push(
-      `pin: the loser's wrist lies ${mm(fallen.x - table.x)} mm to the winner's left of the table's point, at least 100 mm expected`,
+      `pin: the loser's wrist lies ${mm(fallen.x - table.x)} mm to the winner's left of the table's point, at least ${mm(0.5 * stood * Math.sin(radians))} mm expected`,
     );
 
   // 5. Still seated.
