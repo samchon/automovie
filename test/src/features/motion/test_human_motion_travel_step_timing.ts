@@ -107,9 +107,8 @@ export function test_human_motion_travel_step_timing(): void {
     );
   else {
     const off: number = Math.max(
-      ...one.strikes.map(
-        (s: { seconds: number }, i: number): number =>
-          Math.abs(s.seconds - again.strikes[i]!.seconds),
+      ...one.strikes.map((s: { seconds: number }, i: number): number =>
+        Math.abs(s.seconds - again.strikes[i]!.seconds),
       ),
     );
     if (off > 1e-9)
@@ -125,9 +124,8 @@ export function test_human_motion_travel_step_timing(): void {
     );
   else {
     const apart: number = Math.max(
-      ...one.strikes.map(
-        (s: { seconds: number }, i: number): number =>
-          Math.abs(s.seconds - two.strikes[i]!.seconds),
+      ...one.strikes.map((s: { seconds: number }, i: number): number =>
+        Math.abs(s.seconds - two.strikes[i]!.seconds),
       ),
     );
     if (!(apart > 1e-3))

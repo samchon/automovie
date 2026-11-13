@@ -157,7 +157,10 @@ export namespace StrikingBlade {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function turned(posture: IHumanPosture, degrees: number): IHumanPosture {
+  export function turned(
+    posture: IHumanPosture,
+    degrees: number,
+  ): IHumanPosture {
     if (degrees === 0) return posture;
     const add = (
       bone: "chest" | "spine",
@@ -235,9 +238,7 @@ export namespace StrikingBlade {
     const borne = (): readonly [IAutoMovieVector3, IAutoMovieVector3] =>
       (ends ??= [
         shoulderOf(base.posture(0)),
-        shoulderOf(
-          turned(base.posture(clock.at("stroke")), stroke.turn ?? 0),
-        ),
+        shoulderOf(turned(base.posture(clock.at("stroke")), stroke.turn ?? 0)),
       ]);
     const frame = (
       posture: IHumanPosture,

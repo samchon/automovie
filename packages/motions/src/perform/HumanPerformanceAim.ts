@@ -1,11 +1,21 @@
-import { type IAutoMovieResolvedBone, Quaternion, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, AutoMovieMotionTarget, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieResolvedBone,
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieMotionTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanSegment } from "./HumanSegment";
-import type { IHumanProp } from "./IHumanProp";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import type { HumanPerformanceState } from "./HumanPerformanceState";
+import { HumanSegment } from "./HumanSegment";
+import type { IHumanProp } from "./IHumanProp";
 
 /**
  * A target's world point and outward normal at a film second: a person's
@@ -52,7 +62,10 @@ export namespace HumanPerformanceAim {
     };
     switch (target.kind) {
       case "person": {
-        const other: HumanSegment.IPerson = HumanPerformanceRead.person(self, target.subject);
+        const other: HumanSegment.IPerson = HumanPerformanceRead.person(
+          self,
+          target.subject,
+        );
         const placed = resolveAutoMovieHumanoidSurfaces.place(
           other.performer.body.surfaces.regions[target.region],
           HumanPerformanceRead.bones(self, target.subject, seconds).get(
@@ -73,7 +86,9 @@ export namespace HumanPerformanceAim {
         const prop: IHumanProp | undefined = self.props.get(target.subject);
         const local = prop?.points[target.point];
         if (prop === undefined)
-          throw HumanPerformanceRead.missing("prop", target.subject, [...self.props.keys()]);
+          throw HumanPerformanceRead.missing("prop", target.subject, [
+            ...self.props.keys(),
+          ]);
         if (local === undefined)
           throw new HumanRefusal({
             kind: "affordance",
@@ -91,7 +106,11 @@ export namespace HumanPerformanceAim {
           | { point: IAutoMovieVector3; normal: IAutoMovieVector3 }
           | undefined = prop.point?.(target.point, seconds);
         if (moving !== undefined) return moving;
-        const at: IHumanProp.IFrame = HumanPerformanceRead.prop(self, target.subject, seconds);
+        const at: IHumanProp.IFrame = HumanPerformanceRead.prop(
+          self,
+          target.subject,
+          seconds,
+        );
         return {
           point: Vector3.add(
             at.position,

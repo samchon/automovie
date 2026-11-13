@@ -76,21 +76,17 @@ export namespace HumanFoot {
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     side: "left" | "right",
   ): ISocket[] {
-    return (["heel", "ball", "toe"] as const).map(
-      (socket: Socket): ISocket => {
-        const frame =
-          body.surfaces.sockets[
-            `${socket}${side === "left" ? "Left" : "Right"}`
-          ];
-        return {
-          socket,
-          point: resolveAutoMovieHumanoidSurfaces.place(
-            frame,
-            bones.get(frame.bone)!,
-          ).point,
-        };
-      },
-    );
+    return (["heel", "ball", "toe"] as const).map((socket: Socket): ISocket => {
+      const frame =
+        body.surfaces.sockets[`${socket}${side === "left" ? "Left" : "Right"}`];
+      return {
+        socket,
+        point: resolveAutoMovieHumanoidSurfaces.place(
+          frame,
+          bones.get(frame.bone)!,
+        ).point,
+      };
+    });
   }
 
   /**

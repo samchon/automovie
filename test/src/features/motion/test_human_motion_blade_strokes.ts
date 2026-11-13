@@ -92,13 +92,14 @@ export function test_human_motion_blade_strokes(): void {
       };
     };
     const near: number = 0.66 * stature;
-    const pells: Readonly<Record<string, { at: IAutoMovieVector3; yaw: number }>> =
-      {
-        ahead: stands(0, near),
-        aside: stands(0, near, 0.1),
-        left: stands(25, 0.5 * stature),
-        right: stands(-25, near + 0.45 * stature),
-      };
+    const pells: Readonly<
+      Record<string, { at: IAutoMovieVector3; yaw: number }>
+    > = {
+      ahead: stands(0, near),
+      aside: stands(0, near, 0.1),
+      left: stands(25, 0.5 * stature),
+      right: stands(-25, near + 0.45 * stature),
+    };
     const target = (id: string): IAutoMovieVector3 =>
       placed(
         HumanObject.frame(pells[id]!),
@@ -155,7 +156,12 @@ export function test_human_motion_blade_strokes(): void {
         film.prop("sword", seconds),
         sword.affordance("point").frame.translation,
       );
-    const reader: HumanSignature.IReader = HumanSignature.of(film, "a", body, 0);
+    const reader: HumanSignature.IReader = HumanSignature.of(
+      film,
+      "a",
+      body,
+      0,
+    );
     const toes = (seconds: number, side: "left" | "right"): IAutoMovieVector3 =>
       HumanSignature.joint(reader, seconds, `${side}Toes`);
 

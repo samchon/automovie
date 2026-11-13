@@ -1,4 +1,8 @@
-import type { AutoMovieHumanoidBone, IAutoMoviePose } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMoviePose,
+} from "@automovie/interface";
+
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmClearance } from "../posture/HumanArmClearance";
 import { HumanArmClearing } from "../posture/HumanArmClearing";
@@ -159,8 +163,7 @@ export namespace AutoMovieMotionHumanArmCarry {
         hand: blendHumanJoint(body, `${side}Hand`, held.hand, goal.hand, share),
       });
       plains[side] = plain;
-      const aimed: IAngles =
-        planning === null ? held : angles(planning, side);
+      const aimed: IAngles = planning === null ? held : angles(planning, side);
       const plan: Arm = (share: number): HumanArmClearance.IArm => ({
         upper: blendHumanJoint(
           body,
@@ -176,7 +179,13 @@ export namespace AutoMovieMotionHumanArmCarry {
           aimed.lower,
           share,
         ),
-        hand: blendHumanJoint(body, `${side}Hand`, held.hand, aimed.hand, share),
+        hand: blendHumanJoint(
+          body,
+          `${side}Hand`,
+          held.hand,
+          aimed.hand,
+          share,
+        ),
       });
       if (solved === null || planning === null) {
         courses[side] = plain;

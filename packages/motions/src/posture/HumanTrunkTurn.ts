@@ -109,7 +109,11 @@ function toward(
 }
 
 /** An angle clamped to its range; the present angle where there is none. */
-function within(value: number, was: number, limits: Limits | undefined): number {
+function within(
+  value: number,
+  was: number,
+  limits: Limits | undefined,
+): number {
   return limits === null || limits === undefined
     ? was
     : Math.min(limits.max, Math.max(limits.min, value));

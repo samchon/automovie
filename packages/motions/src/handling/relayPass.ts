@@ -177,10 +177,9 @@ export namespace relayPass {
       };
       const dir = (x: number, y: number, z: number): IAutoMovieVector3 =>
         Vector3.normalize(HumanFrame.point(frame, { x, y, z }));
-      const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(
-        body,
-        posture,
-      ).get(`${side}UpperArm`)!.worldPosition;
+      const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(body, posture).get(
+        `${side}UpperArm`,
+      )!.worldPosition;
       const arm: number = body.measure.upperArm + body.measure.forearm;
       if (p.role === "outgoing") {
         const rotation: IAutoMovieQuaternion = HumanHand.rotation(side, {

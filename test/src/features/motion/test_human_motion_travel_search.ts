@@ -84,10 +84,7 @@ export function test_human_motion_travel_search(): void {
     complaints.push(
       `the search places ${segments.length} actions, a stand and then a walk and a stand per place expected (${1 + 2 * places.length})`,
     );
-  const heading = (
-    bone: "hips" | "head",
-    seconds: number,
-  ): number => {
+  const heading = (bone: "hips" | "head", seconds: number): number => {
     const found: IAutoMovieResolvedBone = HumanSignature.bones(
       reader,
       seconds,
@@ -131,7 +128,9 @@ export function test_human_motion_travel_search(): void {
     for (const side of ["left", "right"] as const)
       if (!HumanSignature.bears(reader, middle, side))
         complaints.push(`stop ${index}: the ${side} foot does not bear`);
-    const first: number = left(stop.entryTime + 0.25 * (stop.end - stop.entryTime));
+    const first: number = left(
+      stop.entryTime + 0.25 * (stop.end - stop.entryTime),
+    );
     const second: number = left(
       stop.entryTime + 0.75 * (stop.end - stop.entryTime),
     );

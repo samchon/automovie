@@ -210,29 +210,30 @@ export function test_human_motion_travel_gaits(): void {
 
       // Half way from the other foot's toe-off to each strike, or just before the strike where the other foot is still down by name.
       const lifts: IFootfall[] = named("ToeOff");
-      const flight: boolean = strikes.slice(1, 4).some((s: IFootfall): boolean => {
-        const off: IFootfall | undefined = lifts
-          .filter(
-            (l: IFootfall): boolean =>
-              l.side !== s.side && l.seconds < s.seconds,
-          )
-          .at(-1);
-        const t: number =
-          off === undefined || s.seconds - off.seconds > 0.5
-            ? s.seconds - 1 / 60
-            : (off.seconds + s.seconds) / 2;
-        return (
-          !HumanSignature.bears(reader, t, "left") &&
-          !HumanSignature.bears(reader, t, "right")
-        );
-      });
+      const flight: boolean = strikes
+        .slice(1, 4)
+        .some((s: IFootfall): boolean => {
+          const off: IFootfall | undefined = lifts
+            .filter(
+              (l: IFootfall): boolean =>
+                l.side !== s.side && l.seconds < s.seconds,
+            )
+            .at(-1);
+          const t: number =
+            off === undefined || s.seconds - off.seconds > 0.5
+              ? s.seconds - 1 / 60
+              : (off.seconds + s.seconds) / 2;
+          return (
+            !HumanSignature.bears(reader, t, "left") &&
+            !HumanSignature.bears(reader, t, "right")
+          );
+        });
       return {
         speed:
           (hips(last.seconds + after).z - hips(first.seconds + after).z) /
           (last.seconds - first.seconds),
         cadence: (60 * (strikes.length - 1)) / (last.seconds - first.seconds),
-        step:
-          (places[places.length - 1]! - places[0]!) / (places.length - 1),
+        step: (places[places.length - 1]! - places[0]!) / (places.length - 1),
         hips: HumanSignature.mean(ts, (t: number): number => hips(t).y),
         knee: HumanSignature.mean(ts, (t: number): number =>
           Math.min(

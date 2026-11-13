@@ -108,7 +108,9 @@ export namespace motionFitArms {
     bone: AutoMovieHumanoidBone,
   ): IAutoMovieJointPose {
     return (
-      pose.joints.find((j: IAutoMovieJointPose): boolean => j.bone === bone) ?? {
+      pose.joints.find(
+        (j: IAutoMovieJointPose): boolean => j.bone === bone,
+      ) ?? {
         bone,
         flexion: 0,
         abduction: 0,

@@ -225,24 +225,28 @@ export namespace HumanHabit {
   });
 
   /** Lighting a cigarette: a flame brought to the cigarette's end before the lips, the head bowed to it (first pass with one hand; the second, cupping hand is not placed). */
-  export const lightCigarette = HumanActionRow.of("lightCigarette", handToFace, {
-    task: {
-      region: "mouth",
-      effector: {
-        surface: "grip",
-        shape: "fist",
-        tool: { thumb: 0.5 },
-        facing: "thumb",
-        along: "palm",
+  export const lightCigarette = HumanActionRow.of(
+    "lightCigarette",
+    handToFace,
+    {
+      task: {
+        region: "mouth",
+        effector: {
+          surface: "grip",
+          shape: "fist",
+          tool: { thumb: 0.5 },
+          facing: "thumb",
+          along: "palm",
+        },
+        kind: "hold",
+        count: 1,
+        hold: 0.8,
+        tangent: "up",
+        head: 10,
+        at: "atLips",
       },
-      kind: "hold",
-      count: 1,
-      hold: 0.8,
-      tangent: "up",
-      head: 10,
-      at: "atLips",
     },
-  });
+  );
 
   /** Tapping the ash off a held cigarette: its lit end tapped twice on the place the composition gives, such as an ashtray's surface (`target`); the composition names the cigarette (`prop`). */
   export const ashTap = HumanActionRow.of("ashTap", touch, {

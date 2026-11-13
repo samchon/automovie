@@ -123,9 +123,14 @@ export namespace swingTwistRange {
     const rig: number = 2 * Math.atan2(along, unit.w) * DEG;
     return {
       direction,
-      swing: Math.acos(swingTwistBasis.clamp(Vector3.dot(direction, basis.u), -1, 1)) * DEG,
+      swing:
+        Math.acos(
+          swingTwistBasis.clamp(Vector3.dot(direction, basis.u), -1, 1),
+        ) * DEG,
       azimuth: swingTwistBasis.azimuth(basis, direction),
-      twist: swingTwistBasis.wrap(toClinicalAngle(swingTwistBasis.wrap(rig), joint.frame?.twist)!),
+      twist: swingTwistBasis.wrap(
+        toClinicalAngle(swingTwistBasis.wrap(rig), joint.frame?.twist)!,
+      ),
     };
   }
 
@@ -156,10 +161,8 @@ export namespace swingTwistRange {
     const twist: IAutoMovieAngleRange = constraint.swingTwist!.twist;
     const turned: number = swingTwistBasis.alias(reading.twist, twist);
     return (
-      Math.max(
-        0,
-        reading.swing - radius(constraint, joint, reading.azimuth),
-      ) + Math.max(0, twist.min - turned, turned - twist.max)
+      Math.max(0, reading.swing - radius(constraint, joint, reading.azimuth)) +
+      Math.max(0, twist.min - turned, turned - twist.max)
     );
   }
 
@@ -225,7 +228,11 @@ export namespace swingTwistRange {
     const reading: IReading = read(q, joint);
     const interval: IAutoMovieAngleRange = constraint.swingTwist!.twist;
     const turned: number = swingTwistBasis.alias(reading.twist, interval);
-    const twist: number = swingTwistBasis.clamp(turned, interval.min, interval.max);
+    const twist: number = swingTwistBasis.clamp(
+      turned,
+      interval.min,
+      interval.max,
+    );
     const limit: number = radius(constraint, joint, reading.azimuth);
     if (reading.swing <= limit && twist === turned) return q;
     const swing: number = Math.min(reading.swing, limit);

@@ -102,7 +102,9 @@ export function test_human_motion_core_closed_unions(): void {
   if (same.length !== 4) complaints.push("a compile-time check is missing");
   for (const [name, list] of Object.entries(lists))
     if (new Set(list).size !== list.length || list.length === 0)
-      complaints.push(`${name} repeats a member or is empty: ${list.join(", ")}`);
+      complaints.push(
+        `${name} repeats a member or is empty: ${list.join(", ")}`,
+      );
   const order = (a: string, b: string): number => a.localeCompare(b);
   const presets: string[] = Object.keys(AutoMovieMotionManner.PRESETS).sort(
     order,

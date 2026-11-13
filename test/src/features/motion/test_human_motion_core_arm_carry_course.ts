@@ -104,7 +104,7 @@ export function test_human_motion_core_arm_carry_course(): void {
     wrist: IAutoMovieVector3;
     joints: string;
   }
-  const read =(share: number): IReading => {
+  const read = (share: number): IReading => {
     const posture: IHumanPosture = AutoMovieMotionHumanArm.carry(
       body,
       goal,

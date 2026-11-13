@@ -6,8 +6,8 @@ import type {
 } from "@automovie/interface";
 
 import type { HumanActionKey } from "../HumanActionKey";
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { walk } from "../actions/walk";
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -79,7 +79,6 @@ export namespace pushSled {
 
     /** How far the trunk leans into the load, degrees in [0, 60]; 30 when absent (provisional). */
     lean?: number;
-
   }
 
   /**

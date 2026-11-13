@@ -192,8 +192,9 @@ export namespace GymnasticsWheel {
       const at: number = share(row.angle);
       const spoke: ISpoke = spokes[row.bears]!;
       for (const bone of spoke.bones) {
-        const running: { window: IHumanContactWindow; row: number } | undefined =
-          open.get(bone);
+        const running:
+          | { window: IHumanContactWindow; row: number }
+          | undefined = open.get(bone);
         if (running !== undefined && running.row === index - 1) {
           running.window.to = at;
           running.row = index;

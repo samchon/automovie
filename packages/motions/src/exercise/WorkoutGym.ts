@@ -99,7 +99,12 @@ export namespace WorkoutGym {
     /** A curl: the elbows bent from straight to full, the upper arms still. */
     curl: pair(
       5,
-      [ExerciseKey.of({}, { raise: 5, elbow: 5, twist: 0 }), 1.2, "lower", "down"],
+      [
+        ExerciseKey.of({}, { raise: 5, elbow: 5, twist: 0 }),
+        1.2,
+        "lower",
+        "down",
+      ],
       [ExerciseKey.of({}, { raise: 5, elbow: 140 }), 0.9, "curl", "top"],
     ),
 

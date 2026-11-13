@@ -234,7 +234,11 @@ export function test_human_motion_carried_carries(): void {
       return (Math.atan2(up.z, up.y) * 180) / Math.PI;
     };
     const turn = (film: HumanPerformance): number => {
-      const side: IAutoMovieVector3 = chest(film, seconds, { x: 1, y: 0, z: 0 });
+      const side: IAutoMovieVector3 = chest(film, seconds, {
+        x: 1,
+        y: 0,
+        z: 0,
+      });
       return (Math.atan2(-side.z, side.x) * 180) / Math.PI;
     };
     const forward: number = tip(leaned.film) - tip(held.film);
@@ -250,10 +254,16 @@ export function test_human_motion_carried_carries(): void {
   }
 
   // 6. The lift into the carry and the set-down out of it.
-  const lifted: ReturnType<typeof stage> = stage(pair, "piggyback", "a", false, {
-    lift: 0.5,
-    setDown: 0.5,
-  });
+  const lifted: ReturnType<typeof stage> = stage(
+    pair,
+    "piggyback",
+    "a",
+    false,
+    {
+      lift: 0.5,
+      setDown: 0.5,
+    },
+  );
   const borne: HumanSignature.IReader = HumanSignature.of(
     lifted.film,
     "b",

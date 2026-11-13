@@ -58,18 +58,14 @@ export function test_human_motion_hand_verdicts_photograph(): void {
     seed: "verdict",
     laws: [HumanHabit.photograph],
     props: [
-      HumanObject.prop(
-        "camera",
-        camera,
-        {
-          at: {
-            x: -body.measure.shoulderHalfWidth,
-            y: body.measure.waistHeight,
-            z: 0.6 * (body.measure.upperArm + body.measure.forearm),
-          },
-          yaw: 0,
+      HumanObject.prop("camera", camera, {
+        at: {
+          x: -body.measure.shoulderHalfWidth,
+          y: body.measure.waistHeight,
+          z: 0.6 * (body.measure.upperArm + body.measure.forearm),
         },
-      ),
+        yaw: 0,
+      }),
     ],
     performers: [
       {
@@ -103,7 +99,11 @@ export function test_human_motion_hand_verdicts_photograph(): void {
     body,
     0,
   );
-  const left: IAutoMovieVector3 = HumanSignature.joint(reader, held, "leftHand");
+  const left: IAutoMovieVector3 = HumanSignature.joint(
+    reader,
+    held,
+    "leftHand",
+  );
   const right: IAutoMovieVector3 = HumanSignature.joint(
     reader,
     held,
@@ -165,12 +165,15 @@ export function test_human_motion_hand_verdicts_photograph(): void {
               typeof v === "number" ? Math.round(v * 1e4) / 1e4 : v,
           )}`;
         })
-        .join(" | ")}; the cut into it at ${placed.transition?.cut.toFixed(3) ?? "none"} s blending ${placed.transition?.blend.toFixed(3) ?? "-"} s; the joint's path ${Array.from(
+        .join(
+          " | ",
+        )}; the cut into it at ${placed.transition?.cut.toFixed(3) ?? "none"} s blending ${placed.transition?.blend.toFixed(3) ?? "-"} s; the joint's path ${Array.from(
         { length: 9 },
         (_: unknown, k: number): string => {
           const at: number = jump.seconds - 1 / 48 + k / 192;
-          const q = performance.bones("a", at).get(jump.where as "rightHand")!
-            .worldPosition;
+          const q = performance
+            .bones("a", at)
+            .get(jump.where as "rightHand")!.worldPosition;
           return `${at.toFixed(4)}:(${q.x.toFixed(4)},${q.y.toFixed(4)},${q.z.toFixed(4)})`;
         },
       ).join(" ")}; displayed ${[4, 5]
@@ -184,7 +187,14 @@ export function test_human_motion_hand_verdicts_photograph(): void {
               ? "null"
               : `[${(j.flexion ?? 0).toFixed(3)},${(j.abduction ?? 0).toFixed(3)},${(j.twist ?? 0).toFixed(3)}]`;
           };
-          const where = (bone: "hips" | "chest" | "rightUpperArm" | "rightLowerArm" | "rightHand"): string => {
+          const where = (
+            bone:
+              | "hips"
+              | "chest"
+              | "rightUpperArm"
+              | "rightLowerArm"
+              | "rightHand",
+          ): string => {
             const q = bones.get(bone)!.worldPosition;
             return `${bone}(${q.x.toFixed(4)},${q.y.toFixed(4)},${q.z.toFixed(4)})`;
           };

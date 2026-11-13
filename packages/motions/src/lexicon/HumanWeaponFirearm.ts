@@ -302,8 +302,7 @@ export namespace HumanWeaponFirearm {
             y:
               head.y -
               CHEEK *
-                (head.y -
-                  bones.get(`${s.tool.side}UpperArm`)!.worldPosition.y),
+                (head.y - bones.get(`${s.tool.side}UpperArm`)!.worldPosition.y),
           };
       const chest: IAutoMovieVector3 = bones.get("chest")!.worldPosition;
       const ahead = (yaw: number): IAutoMovieVector3 =>

@@ -190,8 +190,12 @@ export namespace receive {
       { x: 0, y: 0, z: 0 },
       0,
       {
-        from: takes ? shared.receiverShown.rotation : shared.receiverAt.rotation,
-        to: takes ? shared.receiverShown.rotation : shared.receiverFrom.rotation,
+        from: takes
+          ? shared.receiverShown.rotation
+          : shared.receiverAt.rotation,
+        to: takes
+          ? shared.receiverShown.rotation
+          : shared.receiverFrom.rotation,
       },
       back,
     );
@@ -287,16 +291,16 @@ export namespace receive {
                 }
               : takes && t >= shared.gripClosed
                 ? { reference: shared.receiverReference }
-              : takes && t > shared.reachStart
-                ? {
-                    reference: {
-                      ...shared.receiverReference,
-                      weight: minimumJerk(
-                        (t - shared.reachStart) / shared.reach,
-                      ).s,
-                    },
-                  }
-                : {}),
+                : takes && t > shared.reachStart
+                  ? {
+                      reference: {
+                        ...shared.receiverReference,
+                        weight: minimumJerk(
+                          (t - shared.reachStart) / shared.reach,
+                        ).s,
+                      },
+                    }
+                  : {}),
             ...(takes && t >= shared.gripClosed && t <= leave
               ? { planted: true }
               : {}),
@@ -305,14 +309,7 @@ export namespace receive {
       };
     };
     const turn: (seconds: number) => number = takes
-      ? HumanHandover.upright(
-          body,
-          side,
-          pose,
-          leave,
-          duration,
-          [0, undefined],
-        )
+      ? HumanHandover.upright(body, side, pose, leave, duration, [0, undefined])
       : (): number => 0;
 
     const part: IHumanContactWindow["part"] =

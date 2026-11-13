@@ -64,11 +64,7 @@ export function test_human_motion_core_joint_blend(): void {
   ])[] = [
     ["a hanging arm to a raised one", [0, 0, 0], [120, 20, 0]],
     ["across 90 degrees of flexion", [80, -20, -60], [100, 20, -40]],
-    [
-      "the blown kiss's two readings",
-      [93.7, 124.1, 90],
-      [85.9, -30, -72.4],
-    ],
+    ["the blown kiss's two readings", [93.7, 124.1, 90], [85.9, -30, -72.4]],
     ["a hanging arm to a reach across the body", [0, 5, 0], [130.5, 141.4, 90]],
   ];
   for (const name of ["m-average", "f-small"] as const) {

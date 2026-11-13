@@ -158,10 +158,15 @@ export namespace WorkoutLying {
           "down",
         ),
         WorkoutKind.pose(
-          ExerciseKey.of({ pitch: -90 }, { ankle: -20, elbow: 5 }, {}, {
-            hip: 80,
-            ankle: 0,
-          }),
+          ExerciseKey.of(
+            { pitch: -90 },
+            { ankle: -20, elbow: 5 },
+            {},
+            {
+              hip: 80,
+              ankle: 0,
+            },
+          ),
           1.5,
           20,
         ),

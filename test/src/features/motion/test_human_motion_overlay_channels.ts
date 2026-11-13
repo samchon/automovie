@@ -7,10 +7,10 @@ import {
   HumanChain,
   HumanPerformance,
   HumanRefusal,
+  type HumanSegment,
   HumanSignature,
   type IHumanBody,
   seated,
-  type HumanSegment,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 

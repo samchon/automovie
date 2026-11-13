@@ -195,7 +195,9 @@ export namespace roll {
     const travels: number[] = [0];
     const step: number = (2 * Math.PI) / SAMPLES;
     for (let k: number = 1; k <= SAMPLES; k++)
-      travels.push(travels[k - 1]! + ((heights[k - 1]! + heights[k]!) / 2) * step);
+      travels.push(
+        travels[k - 1]! + ((heights[k - 1]! + heights[k]!) / 2) * step,
+      );
     const table = (values: number[], turn: number): number => {
       const at: number = (turn / 360) * SAMPLES;
       const k: number = Math.min(SAMPLES - 1, Math.floor(at));
@@ -267,14 +269,10 @@ export namespace roll {
       contacts,
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        if (t <= CROUCH)
-          return crouched(minimumJerk(t / CROUCH).s, ankles);
+        if (t <= CROUCH) return crouched(minimumJerk(t / CROUCH).s, ankles);
         if (t <= CROUCH + TURN)
           return rolled(360 * minimumJerk((t - CROUCH) / TURN).s);
-        return crouched(
-          1 - minimumJerk((t - CROUCH - TURN) / CROUCH).s,
-          end,
-        );
+        return crouched(1 - minimumJerk((t - CROUCH - TURN) / CROUCH).s, end);
       },
     };
   }

@@ -130,37 +130,37 @@ export function test_human_motion_prop_held_attitude(): void {
 
     // 1. The glass upright at the mouth.
     try {
-    const drunk: HumanPerformance = perform(
-      HumanObject.prop("glass", glass, stood),
-      HumanChain.subject("a")
-        .pickUp({
-          prop: "glass",
-          handle: "body",
-          use: { tip: "lip", line: "square", at: "mouth" },
-        })
-        .handToFace({ task: "drink", prop: "glass" }),
-    );
-    const drink: HumanSegment.ISegment = drunk.segments("a")[1]!;
-    let tilt: number = 0;
-    let worst: string = "";
-    for (let i: number = 0; i <= 4; i++) {
-      const seconds: number =
-        instant(drink, "atMouth") +
-        ((instant(drink, "relax") - instant(drink, "atMouth")) * i) / 4;
-      const axis: IAutoMovieVector3 = Quaternion.rotateVector(
-        drunk.prop("glass", seconds).rotation,
-        { x: 0, y: 1, z: 0 },
+      const drunk: HumanPerformance = perform(
+        HumanObject.prop("glass", glass, stood),
+        HumanChain.subject("a")
+          .pickUp({
+            prop: "glass",
+            handle: "body",
+            use: { tip: "lip", line: "square", at: "mouth" },
+          })
+          .handToFace({ task: "drink", prop: "glass" }),
       );
-      const now: number = (Math.acos(Math.min(1, axis.y)) * 180) / Math.PI;
-      if (now > tilt) {
-        tilt = now;
-        worst = shown(drunk, seconds, axis);
+      const drink: HumanSegment.ISegment = drunk.segments("a")[1]!;
+      let tilt: number = 0;
+      let worst: string = "";
+      for (let i: number = 0; i <= 4; i++) {
+        const seconds: number =
+          instant(drink, "atMouth") +
+          ((instant(drink, "relax") - instant(drink, "atMouth")) * i) / 4;
+        const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+          drunk.prop("glass", seconds).rotation,
+          { x: 0, y: 1, z: 0 },
+        );
+        const now: number = (Math.acos(Math.min(1, axis.y)) * 180) / Math.PI;
+        if (now > tilt) {
+          tilt = now;
+          worst = shown(drunk, seconds, axis);
+        }
       }
-    }
-    if (!(tilt <= 10))
-      complaints.push(
-        `${name}: the held glass tilts ${tilt.toFixed(1)} degrees at the mouth, within 10 expected (${worst})`,
-      );
+      if (!(tilt <= 10))
+        complaints.push(
+          `${name}: the held glass tilts ${tilt.toFixed(1)} degrees at the mouth, within 10 expected (${worst})`,
+        );
     } catch (error) {
       complaints.push(
         `${name}: the drink from a held glass: expected to plan, got ${(error as Error).message}`,
@@ -169,38 +169,38 @@ export function test_human_motion_prop_held_attitude(): void {
 
     // 2. The cigarette's end at the lips.
     try {
-    const smoked: HumanPerformance = perform(
-      HumanObject.prop("cigarette", cigarette, stood),
-      HumanChain.subject("a")
-        .pickUp({
-          prop: "cigarette",
-          handle: "grip",
-          use: { tip: "mouth", line: "forearm", at: "mouth" },
-        })
-        .registered("smoke", { prop: "cigarette" }),
-    );
-    const seconds: number = instant(smoked.segments("a")[1]!, "atLips");
-    const frame: IHumanProp.IFrame = smoked.prop("cigarette", seconds);
-    const off: number = Vector3.length(
-      Vector3.subtract(
-        Vector3.add(
-          frame.position,
-          Quaternion.rotateVector(
-            frame.rotation,
-            cigarette.affordance("mouth").frame.translation,
+      const smoked: HumanPerformance = perform(
+        HumanObject.prop("cigarette", cigarette, stood),
+        HumanChain.subject("a")
+          .pickUp({
+            prop: "cigarette",
+            handle: "grip",
+            use: { tip: "mouth", line: "forearm", at: "mouth" },
+          })
+          .registered("smoke", { prop: "cigarette" }),
+      );
+      const seconds: number = instant(smoked.segments("a")[1]!, "atLips");
+      const frame: IHumanProp.IFrame = smoked.prop("cigarette", seconds);
+      const off: number = Vector3.length(
+        Vector3.subtract(
+          Vector3.add(
+            frame.position,
+            Quaternion.rotateVector(
+              frame.rotation,
+              cigarette.affordance("mouth").frame.translation,
+            ),
+          ),
+          HumanSignature.region(
+            HumanSignature.of(smoked, "a", body, 0),
+            "mouth",
+            seconds,
           ),
         ),
-        HumanSignature.region(
-          HumanSignature.of(smoked, "a", body, 0),
-          "mouth",
-          seconds,
-        ),
-      ),
-    );
-    if (!(off <= 0.015))
-      complaints.push(
-        `${name}: the held cigarette's end is ${(off * 1000).toFixed(1)} mm from the mouth at atLips, within 15 mm expected (${shown(smoked, seconds, { x: 0, y: 1, z: 0 })})`,
       );
+      if (!(off <= 0.015))
+        complaints.push(
+          `${name}: the held cigarette's end is ${(off * 1000).toFixed(1)} mm from the mouth at atLips, within 15 mm expected (${shown(smoked, seconds, { x: 0, y: 1, z: 0 })})`,
+        );
     } catch (error) {
       complaints.push(
         `${name}: the draw on a held cigarette: expected to plan, got ${(error as Error).message}`,

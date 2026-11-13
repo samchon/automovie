@@ -105,8 +105,8 @@ export function test_human_motion_gymnastics_supported(): void {
 
       // 1. Inverted on the hands.
       const half: number = at(
-        wheel.plan.events.find((e): boolean => e.name === "inverted")
-          ?.share ?? Number.NaN,
+        wheel.plan.events.find((e): boolean => e.name === "inverted")?.share ??
+          Number.NaN,
       );
       const hung: number = joint(half, "head").y - hips(half).y;
       if (!(hung < 0))

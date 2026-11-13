@@ -148,9 +148,7 @@ export namespace HumanSocial {
     roles: ["one", "other"],
     act: (role, params, cast) => {
       if (params === undefined)
-        throw new Error(
-          "An arm wrestle states its table point and its winner",
-        );
+        throw new Error("An arm wrestle states its table point and its winner");
       return {
         name: "armWrestle",
         params: {

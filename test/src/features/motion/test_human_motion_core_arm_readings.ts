@@ -78,15 +78,14 @@ export function test_human_motion_core_arm_readings(): void {
     axes: skeletonJointAxes(body.skeleton, HUMANOID_JOINT_AXES)[bone]!,
     frame: HUMANOID_REST_FRAME[bone],
   };
-  const constraint: NonNullable<ReturnType<typeof getConstraint>> = getConstraint(
-    bone,
-    body.skeleton.bones.find((b: IAutoMovieBone): boolean => b.bone === bone)
-      ?.constraint ?? null,
-  )!;
+  const constraint: NonNullable<ReturnType<typeof getConstraint>> =
+    getConstraint(
+      bone,
+      body.skeleton.bones.find((b: IAutoMovieBone): boolean => b.bone === bone)
+        ?.constraint ?? null,
+    )!;
   const complaints: string[] = [];
-  const posture = (
-    frame: (typeof frames)[number],
-  ): IHumanPosture => {
+  const posture = (frame: (typeof frames)[number]): IHumanPosture => {
     const { rightArm: _, ...limbs } = base.limbs;
     void _;
     return {
@@ -125,7 +124,8 @@ export function test_human_motion_core_arm_readings(): void {
   );
   const apart = (p: IAutoMovieVector3, q: IAutoMovieVector3): number =>
     Math.hypot(p.x - q.x, p.y - q.y, p.z - q.z);
-  const turn: number = (Quaternion.angle(rotations[0]!, rotations[1]!) * 180) / Math.PI;
+  const turn: number =
+    (Quaternion.angle(rotations[0]!, rotations[1]!) * 180) / Math.PI;
   const rooms: number[] = rotations.map((q: IAutoMovieQuaternion): number =>
     swingTwistRange.room(q, constraint, joint),
   );
@@ -138,9 +138,7 @@ export function test_human_motion_core_arm_readings(): void {
       complaints.push(
         `frame ${k}: the little finger is shown ${(apart(shown[k]!, written[k]!) * 1000).toFixed(2)} mm from where its angles put it (the shoulder ${rooms[k]!.toFixed(2)} degrees inside its range), within 0.1 mm expected`,
       );
-  if (
-    !(apart(shown[0]!, shown[1]!) <= apart(written[0]!, written[1]!) + 1e-4)
-  )
+  if (!(apart(shown[0]!, shown[1]!) <= apart(written[0]!, written[1]!) + 1e-4))
     complaints.push(
       `between the frames the shown little finger moves ${(apart(shown[0]!, shown[1]!) * 1000).toFixed(2)} mm, its angles move it ${(apart(written[0]!, written[1]!) * 1000).toFixed(2)} mm`,
     );

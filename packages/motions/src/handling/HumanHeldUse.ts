@@ -116,11 +116,7 @@ export namespace HumanHeldUse {
         });
       return null;
     }
-    if (
-      kept.prop === undefined ||
-      kept.point === undefined ||
-      region === null
-    )
+    if (kept.prop === undefined || kept.point === undefined || region === null)
       throw new HumanRefusal({
         kind: "parameter",
         axis: "grasp",
@@ -260,7 +256,10 @@ export namespace HumanHeldUse {
           body,
           resolveHumanPosture(body, {
             ...context.entry.posture,
-            limbs: { ...context.entry.posture.limbs, [limb]: { point: at, bend } },
+            limbs: {
+              ...context.entry.posture.limbs,
+              [limb]: { point: at, bend },
+            },
           }),
         ).get(`${side}Hand`)?.worldRotation ?? Quaternion.identity(),
       clear,
@@ -362,7 +361,10 @@ export namespace HumanHeldUse {
         to: clock.duration,
         rest: AutoMovieMotionHumanArm.angles(context.entry.pose, other),
         weight: props.weight,
-        goal: (posture: IHumanPosture, seconds: number): IHumanPosture.IGoal => {
+        goal: (
+          posture: IHumanPosture,
+          seconds: number,
+        ): IHumanPosture.IGoal => {
           const first: IHumanPosture.IGoal = props.goal(posture, seconds);
           const wrist: HumanHand.IWrist = HumanGrasp.hand(
             body,

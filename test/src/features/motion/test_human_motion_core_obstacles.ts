@@ -104,11 +104,13 @@ export function test_human_motion_core_obstacles(): void {
         ];
   };
 
-  TestValidator.equals(
-    "a wall blocks a path",
-    read(at(-1, 0), at(-1, 4)),
-    ["north", "solid", 1.9, "", ""],
-  );
+  TestValidator.equals("a wall blocks a path", read(at(-1, 0), at(-1, 4)), [
+    "north",
+    "solid",
+    1.9,
+    "",
+    "",
+  ]);
   TestValidator.equals(
     "a doorway's middle lets a body through",
     [read(at(0.5, 0), at(0.5, 2.5)), read(at(0.5, 0), at(0.5, 4))],

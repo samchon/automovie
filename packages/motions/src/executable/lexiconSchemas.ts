@@ -42,7 +42,11 @@ export function lexiconSchemas(target?: string): void {
     const seen: Map<string, string> = new Map();
     for (const space of spaces as readonly object[])
       for (const [key, member] of Object.entries(space)) {
-        if (typeof member !== "object" || member === null || !("plan" in member))
+        if (
+          typeof member !== "object" ||
+          member === null ||
+          !("plan" in member)
+        )
           continue;
         const name: string = (member as { name: string }).name;
         if (seen.has(key) && seen.get(key) !== name)

@@ -42,9 +42,13 @@ export namespace HumanSportGym {
   });
 
   /** Overhead triceps extensions, without the weight. */
-  export const tricepsExtension = HumanActionRow.of("tricepsExtension", workout, {
-    kind: "tricepsExtension",
-  });
+  export const tricepsExtension = HumanActionRow.of(
+    "tricepsExtension",
+    workout,
+    {
+      kind: "tricepsExtension",
+    },
+  );
 
   /** Lateral raises, without the weights. */
   export const lateralRaise = HumanActionRow.of("lateralRaise", workout, {
@@ -87,9 +91,13 @@ export namespace HumanSportGym {
   });
 
   /** Romanian deadlifts, without the bar. */
-  export const romanianDeadlift = HumanActionRow.of("romanianDeadlift", workout, {
-    kind: "romanianDeadlift",
-  });
+  export const romanianDeadlift = HumanActionRow.of(
+    "romanianDeadlift",
+    workout,
+    {
+      kind: "romanianDeadlift",
+    },
+  );
 
   /** Good mornings, without the bar. */
   export const goodMorning = HumanActionRow.of("goodMorning", workout, {

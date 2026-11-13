@@ -109,12 +109,9 @@ export function test_human_motion_core_draw_independence(): void {
     ],
     [
       "that person also breathing under a layer",
-      read(
-        "take-1",
-        ["a", "b"],
-        waving("b", "other").with(waving("a", "w")),
-        { b: [HumanBreath.layer()] },
-      ),
+      read("take-1", ["a", "b"], waving("b", "other").with(waving("a", "w")), {
+        b: [HumanBreath.layer()],
+      }),
     ],
   ] as const) {
     const off: number = apart(alone, reading);

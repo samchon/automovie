@@ -291,15 +291,20 @@ export namespace AutoMovieMotionHumanBend {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the hanging arm's three angles per body and side, in a weak map keyed by the body.
    */
   export function solve(props: ISolve): IAutoMovieVector3 {
-    const found: AutoMovieMotionHumanBendSearch.ICandidate | string = AutoMovieMotionHumanBendSearch.search(
-      props,
-      (): ((candidate: AutoMovieMotionHumanBendSearch.ICandidate) => AutoMovieMotionHumanBendSearch.IScore) =>
-        (candidate: AutoMovieMotionHumanBendSearch.ICandidate): AutoMovieMotionHumanBendSearch.IScore => ({
-          overshoot: candidate.overshoot,
-          deviation: candidate.strain,
-        }),
-      hung,
-    );
+    const found: AutoMovieMotionHumanBendSearch.ICandidate | string =
+      AutoMovieMotionHumanBendSearch.search(
+        props,
+        (): ((
+          candidate: AutoMovieMotionHumanBendSearch.ICandidate,
+        ) => AutoMovieMotionHumanBendSearch.IScore) =>
+          (
+            candidate: AutoMovieMotionHumanBendSearch.ICandidate,
+          ): AutoMovieMotionHumanBendSearch.IScore => ({
+            overshoot: candidate.overshoot,
+            deviation: candidate.strain,
+          }),
+        hung,
+      );
     if (typeof found !== "string" && found.overshoot === 0) return found.elbow;
     if (props.fallback !== undefined)
       return arm(props.body, props.posture, props.side, props.fallback);
@@ -335,19 +340,26 @@ export namespace AutoMovieMotionHumanBend {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only what `solve` retains.
    */
   export function level(props: ISolve): IAutoMovieVector3 {
-    const found: AutoMovieMotionHumanBendSearch.ICandidate | string = AutoMovieMotionHumanBendSearch.search(
-      props,
-      (chain: AutoMovieMotionHumanBendChain.IChain): ((candidate: AutoMovieMotionHumanBendSearch.ICandidate) => AutoMovieMotionHumanBendSearch.IScore) =>
-        (candidate: AutoMovieMotionHumanBendSearch.ICandidate): AutoMovieMotionHumanBendSearch.IScore => ({
-          overshoot: candidate.overshoot,
+    const found: AutoMovieMotionHumanBendSearch.ICandidate | string =
+      AutoMovieMotionHumanBendSearch.search(
+        props,
+        (
+          chain: AutoMovieMotionHumanBendChain.IChain,
+        ): ((
+          candidate: AutoMovieMotionHumanBendSearch.ICandidate,
+        ) => AutoMovieMotionHumanBendSearch.IScore) =>
+          (
+            candidate: AutoMovieMotionHumanBendSearch.ICandidate,
+          ): AutoMovieMotionHumanBendSearch.IScore => ({
+            overshoot: candidate.overshoot,
 
-          // Metres from the shoulder's height; the strain only breaks a tie.
-          deviation:
-            Math.abs(candidate.elbow.y - chain.shoulder.y) +
-            1e-4 * Math.min(candidate.strain, 10),
-        }),
-      hung,
-    );
+            // Metres from the shoulder's height; the strain only breaks a tie.
+            deviation:
+              Math.abs(candidate.elbow.y - chain.shoulder.y) +
+              1e-4 * Math.min(candidate.strain, 10),
+          }),
+        hung,
+      );
     if (typeof found !== "string" && found.overshoot === 0) return found.elbow;
     if (props.fallback !== undefined)
       return arm(props.body, props.posture, props.side, props.fallback);
@@ -381,12 +393,21 @@ export namespace AutoMovieMotionHumanBend {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only what `solve` retains.
    */
   export function strain(props: ISolve, bend: IAutoMovieVector3): number {
-    const found: AutoMovieMotionHumanBendSearch.ICandidate | string = AutoMovieMotionHumanBendSearch.search(
-      props,
-      (chain: AutoMovieMotionHumanBendChain.IChain): ((candidate: AutoMovieMotionHumanBendSearch.ICandidate) => AutoMovieMotionHumanBendSearch.IScore) =>
-        AutoMovieMotionHumanBendSearch.toward(chain.shoulder, props.point, bend),
-      hung,
-    );
+    const found: AutoMovieMotionHumanBendSearch.ICandidate | string =
+      AutoMovieMotionHumanBendSearch.search(
+        props,
+        (
+          chain: AutoMovieMotionHumanBendChain.IChain,
+        ): ((
+          candidate: AutoMovieMotionHumanBendSearch.ICandidate,
+        ) => AutoMovieMotionHumanBendSearch.IScore) =>
+          AutoMovieMotionHumanBendSearch.toward(
+            chain.shoulder,
+            props.point,
+            bend,
+          ),
+        hung,
+      );
     return typeof found === "string" || found.overshoot !== 0
       ? Infinity
       : found.strain;

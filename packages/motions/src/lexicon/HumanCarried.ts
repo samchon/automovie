@@ -370,9 +370,7 @@ export namespace HumanCarried {
           if (carrier === undefined)
             return { ...entry, pitch: row.pitch, joints, limbs: {} };
           const theirs: ReturnType<IHumanActionContext.IPerformer["bones"]> =
-            carrier.bones(
-            context.start + Math.min(seconds, Math.max(0, at)),
-          );
+            carrier.bones(context.start + Math.min(seconds, Math.max(0, at)));
           const hips: IAutoMovieResolvedBone | undefined = theirs.get("hips");
           const turned: IHumanPosture = {
             root: { x: 0, y: 0, z: 0 },

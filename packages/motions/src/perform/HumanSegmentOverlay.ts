@@ -60,7 +60,9 @@ export namespace HumanSegmentOverlay {
           leaf,
           carried.filter(
             (h: HumanSegment.IHeld): boolean =>
-              !used.some((o: HumanSegment.IOverlay): boolean => HumanSegment.drives(o.plan, h.side)),
+              !used.some((o: HumanSegment.IOverlay): boolean =>
+                HumanSegment.drives(o.plan, h.side),
+              ),
           ),
         ))
           leaf = resolveHumanPosture.limb(body, leaf, limb, goal);
@@ -75,9 +77,14 @@ export namespace HumanSegmentOverlay {
       );
       const weight: number = Math.min(
         minimumJerk(
-          Math.min(1, Math.max(0, (seconds - overlay.entryTime) / HumanSegment.FADE)),
+          Math.min(
+            1,
+            Math.max(0, (seconds - overlay.entryTime) / HumanSegment.FADE),
+          ),
         ).s,
-        minimumJerk(Math.min(1, Math.max(0, (overlay.end - seconds) / HumanSegment.FADE))).s,
+        minimumJerk(
+          Math.min(1, Math.max(0, (overlay.end - seconds) / HumanSegment.FADE)),
+        ).s,
       );
       const over: IAutoMoviePose = build(k + 1, written, [...used, overlay]);
       if (weight >= 1) return over;
@@ -125,7 +132,10 @@ export namespace HumanSegmentOverlay {
    * @param seconds Film seconds.
    * @returns The overlays, in placement order.
    */
-  export function running(person: HumanSegment.IPerson, seconds: number): HumanSegment.IOverlay[] {
+  export function running(
+    person: HumanSegment.IPerson,
+    seconds: number,
+  ): HumanSegment.IOverlay[] {
     return person.overlays.filter(
       (o: HumanSegment.IOverlay): boolean =>
         seconds >= o.entryTime - 1e-12 && seconds <= o.end + 1e-12,

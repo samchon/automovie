@@ -51,7 +51,9 @@ export namespace HumanSegmentEntry {
       let pose: IAutoMoviePose | undefined = poses.get(t);
       if (pose === undefined) {
         pose =
-          previous === undefined ? HumanSegmentPose.initial(person) : HumanSegmentPose.of(person, previous, t);
+          previous === undefined
+            ? HumanSegmentPose.initial(person)
+            : HumanSegmentPose.of(person, previous, t);
         poses.set(t, pose);
       }
       return pose;
@@ -183,9 +185,13 @@ export namespace HumanSegmentEntry {
       holds: Object.fromEntries(
         person.holds
           .filter(
-            (h: HumanSegment.IHeld): boolean => h.from <= seconds && seconds < h.until,
+            (h: HumanSegment.IHeld): boolean =>
+              h.from <= seconds && seconds < h.until,
           )
-          .map((h: HumanSegment.IHeld): ["left" | "right", string] => [h.side, h.prop]),
+          .map((h: HumanSegment.IHeld): ["left" | "right", string] => [
+            h.side,
+            h.prop,
+          ]),
       ),
       ...(previous === undefined
         ? {}

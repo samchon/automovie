@@ -209,13 +209,14 @@ export namespace HumanGraspReach {
         });
       }
     candidates.sort(
-      (a: { floor: number }, b: { floor: number }): number =>
-        a.floor - b.floor,
+      (a: { floor: number }, b: { floor: number }): number => a.floor - b.floor,
     );
     for (const { turn, tilt, wrist, grasp, preference, floor } of candidates) {
       if (held && floor >= least) break;
-      const reference: IHumanPosture.IReference =
-        resolveHumanPosture.reference(grasp.pose, limb);
+      const reference: IHumanPosture.IReference = resolveHumanPosture.reference(
+        grasp.pose,
+        limb,
+      );
       let miss: number = grasp.miss;
       let departure: number = grasp.departure;
       let beaten: boolean = false;
@@ -302,7 +303,10 @@ export namespace HumanGraspReach {
    * @param turn Degrees about the wrapped axis.
    * @returns The turned target.
    */
-  export function around(target: HumanGrasp.ITarget, turn: number): HumanGrasp.ITarget {
+  export function around(
+    target: HumanGrasp.ITarget,
+    turn: number,
+  ): HumanGrasp.ITarget {
     return {
       ...target,
       approach: Quaternion.rotateVector(

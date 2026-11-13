@@ -1,12 +1,20 @@
-import { AutoMovieScheduleError, type IAutoMovieIntent, type IAutoMovieSchedule, Vector3, resolveAutoMovieHumanoidSurfaces, resolveAutoMovieSchedule } from "@automovie/engine";
+import {
+  AutoMovieScheduleError,
+  type IAutoMovieIntent,
+  type IAutoMovieSchedule,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+  resolveAutoMovieSchedule,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import { HumanRefusal } from "../law/HumanRefusal";
+import type { HumanPerformance } from "./HumanPerformance";
+import { HumanPerformancePlace } from "./HumanPerformancePlace";
+import { HumanPerformanceRead } from "./HumanPerformanceRead";
+import type { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanScheduleRefusal } from "./HumanScheduleRefusal";
 import { HumanSegment } from "./HumanSegment";
-import type { HumanPerformance } from "./HumanPerformance";
-import { HumanPerformanceRead } from "./HumanPerformanceRead";
-import { HumanPerformancePlace } from "./HumanPerformancePlace";
-import type { HumanPerformanceState } from "./HumanPerformanceState";
 
 /**
  * The composition resolved on the film clock: the engine's schedule
@@ -25,16 +33,28 @@ export namespace HumanPerformanceSchedule {
    * composition names and does not have, an anchor used twice) reaches the
    * author as a located refusal with the names that exist.
    */
-  export function resolve(self: HumanPerformanceState, input: HumanPerformance.IInput): IAutoMovieSchedule {
+  export function resolve(
+    self: HumanPerformanceState,
+    input: HumanPerformance.IInput,
+  ): IAutoMovieSchedule {
     try {
       return resolveAutoMovieSchedule(input.composition, {
         timing: (
           intent: IAutoMovieIntent,
           context: resolveAutoMovieSchedule.IContext,
         ): resolveAutoMovieSchedule.ITiming => {
-          const where: HumanRefusal.IWhere = HumanPerformanceRead.where(self, intent);
+          const where: HumanRefusal.IWhere = HumanPerformanceRead.where(
+            self,
+            intent,
+          );
           try {
-            return HumanPerformancePlace.place(self, intent, context.start, context.entries, where);
+            return HumanPerformancePlace.place(
+              self,
+              intent,
+              context.start,
+              context.entries,
+              where,
+            );
           } catch (error) {
             throw error instanceof HumanRefusal ? error.locate(where) : error;
           }
@@ -42,7 +62,8 @@ export namespace HumanPerformanceSchedule {
         until: (
           intent: IAutoMovieIntent,
           placed: { start: number; duration: number },
-        ): number | undefined => HumanPerformanceSchedule.proximity(self, intent, placed),
+        ): number | undefined =>
+          HumanPerformanceSchedule.proximity(self, intent, placed),
         cues: {
           ...self.cues,
           ...Object.fromEntries(
@@ -60,9 +81,19 @@ export namespace HumanPerformanceSchedule {
           target: number,
           context: resolveAutoMovieSchedule.IAlignment,
         ): number => {
-          const where: HumanRefusal.IWhere = HumanPerformanceRead.where(self, intent);
+          const where: HumanRefusal.IWhere = HumanPerformanceRead.where(
+            self,
+            intent,
+          );
           try {
-            return HumanPerformanceSchedule.align(self, intent, instant, target, context, where);
+            return HumanPerformanceSchedule.align(
+              self,
+              intent,
+              instant,
+              target,
+              context,
+              where,
+            );
           } catch (error) {
             throw error instanceof HumanRefusal ? error.locate(where) : error;
           }
@@ -73,7 +104,8 @@ export namespace HumanPerformanceSchedule {
         ? HumanScheduleRefusal.of(
             error,
             (subject: string, capability: string): number =>
-              HumanPerformanceRead.where(self, { subject, capability }).instance,
+              HumanPerformanceRead.where(self, { subject, capability })
+                .instance,
           )
         : error;
     }
@@ -94,7 +126,10 @@ export namespace HumanPerformanceSchedule {
     where: HumanRefusal.IWhere,
   ): number {
     const entries: readonly IAutoMovieSchedule.IEntry[] = context.entries;
-    const person: HumanSegment.IPerson = HumanPerformanceRead.person(self, intent.subject);
+    const person: HumanSegment.IPerson = HumanPerformanceRead.person(
+      self,
+      intent.subject,
+    );
     const previous: HumanSegment.ISegment | undefined =
       intent.parameters?.over === true ? undefined : person.segments.at(-1);
     const floor: number = Math.max(0, previous?.entryTime ?? 0);
@@ -181,7 +216,10 @@ export namespace HumanPerformanceSchedule {
   ): number | undefined {
     const until = intent.until;
     if (until === undefined || !("proximity" in until)) return undefined;
-    const person: HumanSegment.IPerson = HumanPerformanceRead.person(self, intent.subject);
+    const person: HumanSegment.IPerson = HumanPerformanceRead.person(
+      self,
+      intent.subject,
+    );
 
     // A proximity cut reads the carrier's reach; an overlay's is not found.
     if (intent.parameters?.over === true) return undefined;
@@ -192,7 +230,9 @@ export namespace HumanPerformanceSchedule {
       const effector: IAutoMovieVector3 =
         resolveAutoMovieHumanoidSurfaces.place(
           frame,
-          HumanPerformanceRead.bones(self, intent.subject, seconds).get(frame.bone)!,
+          HumanPerformanceRead.bones(self, intent.subject, seconds).get(
+            frame.bone,
+          )!,
         ).point;
       return (
         Vector3.length(

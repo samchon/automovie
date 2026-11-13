@@ -17,8 +17,8 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
-import { cartwheel } from "./cartwheel";
 import { GymnasticsWheel } from "./GymnasticsWheel";
+import { cartwheel } from "./cartwheel";
 
 /**
  * A round-off (#3377): a cartwheel that travels along the way the body
@@ -131,8 +131,7 @@ export namespace roundOff {
     // trailing side on the way to the hands, so the leading side faces the
     // heading, and a second quarter past the handstand.
     const turn = (angle: number): number =>
-      sign *
-      (90 * ease(angle / ENTRY) + 90 * ease((angle - 180) / SNAP));
+      sign * (90 * ease(angle / ENTRY) + 90 * ease((angle - 180) / SNAP));
 
     // The shape at an angle: the cartwheel's wheel in the first half, closing
     // to the landing shape past the handstand.

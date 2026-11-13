@@ -194,11 +194,7 @@ export function test_human_motion_sport_workout(): void {
         moved(down, bridge, bone) <= 5,
         mm(moved(down, bridge, bone)),
       );
-    const shoulders: number = joint(
-      bridge,
-      "leftUpperArm",
-      "rightUpperArm",
-    ).y;
+    const shoulders: number = joint(bridge, "leftUpperArm", "rightUpperArm").y;
     expect(
       "the bridge raises the hips above the shoulders",
       joint(bridge, "leftUpperLeg", "rightUpperLeg").y > shoulders,
@@ -263,7 +259,11 @@ export function test_human_motion_sport_workout(): void {
     const under: number =
       joint(hinge, "leftLowerLeg", "rightLowerLeg").y -
       joint(hinge, "leftHand", "rightHand").y;
-    expect("the deadlift lowers the hands below the knees", under > 0, m(under));
+    expect(
+      "the deadlift lowers the hands below the knees",
+      under > 0,
+      m(under),
+    );
 
     // 6. Pull-up.
     const hang: number = when("pullUp", "hang1");

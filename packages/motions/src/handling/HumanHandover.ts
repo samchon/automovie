@@ -11,8 +11,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -246,7 +246,11 @@ export namespace HumanHandover {
       input.receiver.body,
       standing,
       input.receiver.side,
-      AutoMovieMotionHumanBend.hang(input.receiver.body, standing, input.receiver.side),
+      AutoMovieMotionHumanBend.hang(
+        input.receiver.body,
+        standing,
+        input.receiver.side,
+      ),
       (turn: number): HumanHand.IWrist =>
         HumanGrasp.hand(
           input.receiver.body,
@@ -357,7 +361,9 @@ export namespace HumanHandover {
   export const STEP: number = 0.1;
 
   /** The turns about the world's up an upright carry is tried at, degrees, nearest first (provisional: a sixth of a turn either way in steps of 15; a wider set chose turns whose linear way between two instants tipped the prop more). */
-  export const YAWS: readonly number[] = [0, 15, -15, 30, -30, 45, -45, 60, -60];
+  export const YAWS: readonly number[] = [
+    0, 15, -15, 30, -30, 45, -45, 60, -60,
+  ];
 
   /**
    * The turn about the world's up an upright carry takes along a path: a
@@ -410,8 +416,7 @@ export namespace HumanHandover {
       let best: number = before;
       let least: number = Infinity;
       for (const yaw of YAWS) {
-        const cost: number =
-          tip(seconds, yaw) + 0.1 * Math.abs(yaw - before);
+        const cost: number = tip(seconds, yaw) + 0.1 * Math.abs(yaw - before);
         if (cost < least - 1e-9) {
           least = cost;
           best = yaw;

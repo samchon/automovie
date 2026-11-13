@@ -5,8 +5,8 @@ import {
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  HumanSignature,
   type HumanSegment,
+  HumanSignature,
   type IHumanBody,
   type seated,
 } from "@automovie/motions";
@@ -51,7 +51,10 @@ export function test_human_motion_base_mount_cuts(): void {
   const complaints: string[] = [];
   const where: HumanObject.Placement = { at: { x: 0, y: 0, z: -0.6 }, yaw: 0 };
   const seats: readonly (readonly [string, seated.ISeat])[] = [
-    ["the bar stool", HumanObject.seat(createSeat({ kind: "barStool" }), where)],
+    [
+      "the bar stool",
+      HumanObject.seat(createSeat({ kind: "barStool" }), where),
+    ],
   ];
   for (const name of ["m-average"] as const) {
     const body: IHumanBody = motionHumanBody(name);
@@ -75,9 +78,8 @@ export function test_human_motion_base_mount_cuts(): void {
               proficiency: { level: "trained" },
             },
           ],
-          composition: then(
-            HumanChain.subject("a").sit({ seat, seconds: 0.5 }),
-          ).node,
+          composition: then(HumanChain.subject("a").sit({ seat, seconds: 0.5 }))
+            .node,
         });
       const check = (
         what: string,

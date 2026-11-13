@@ -196,9 +196,8 @@ export namespace armWrestle {
     const short = (pitch: number): number =>
       Vector3.length(
         Vector3.subtract(
-          HumanTrunk.resolve(body, leaned(pitch, entry)).get(
-            `${side}UpperArm`,
-          )!.worldPosition,
+          HumanTrunk.resolve(body, leaned(pitch, entry)).get(`${side}UpperArm`)!
+            .worldPosition,
           elbow,
         ),
       ) - upperArm;
@@ -241,9 +240,10 @@ export namespace armWrestle {
     const off = (degrees: number): number =>
       Vector3.length(
         Vector3.subtract(
-          poseBones(body, resolveHumanPosture(body, set(entry, degrees, 1))).get(
-            `${side}LowerArm`,
-          )!.worldPosition,
+          poseBones(
+            body,
+            resolveHumanPosture(body, set(entry, degrees, 1)),
+          ).get(`${side}LowerArm`)!.worldPosition,
           elbow,
         ),
       );
@@ -257,7 +257,9 @@ export namespace armWrestle {
         const shoulder: IAutoMovieVector3 = poseBones(body, pose).get(
           `${side}UpperArm`,
         )!.worldPosition;
-        const joint = pose.joints.find((j): boolean => j.bone === `${side}UpperArm`);
+        const joint = pose.joints.find(
+          (j): boolean => j.bone === `${side}UpperArm`,
+        );
         const at: IAutoMovieVector3 = wrist(degrees);
         const v = (q: IAutoMovieVector3): string =>
           `(${q.x.toFixed(4)}, ${q.y.toFixed(4)}, ${q.z.toFixed(4)})`;
@@ -312,10 +314,8 @@ export namespace armWrestle {
       context,
       duration,
     );
-    const begin: AutoMovieMotionHumanArm.IAngles = AutoMovieMotionHumanArm.angles(
-      context.entry.pose,
-      side,
-    );
+    const begin: AutoMovieMotionHumanArm.IAngles =
+      AutoMovieMotionHumanArm.angles(context.entry.pose, side);
     return {
       duration,
       events: [

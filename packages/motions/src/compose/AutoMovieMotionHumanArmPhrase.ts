@@ -1,15 +1,16 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
-import type { AutoMovieMotionManner } from "./AutoMovieMotionManner";
-import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 import { AutoMovieMotionHumanArmMove } from "./AutoMovieMotionHumanArmMove";
 import { AutoMovieMotionHumanArmTarget } from "./AutoMovieMotionHumanArmTarget";
+import type { AutoMovieMotionManner } from "./AutoMovieMotionManner";
+import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
 /**
  * The arm's phrases on a clock's standard instants: a visit, a stroke, a
@@ -144,7 +145,10 @@ export namespace AutoMovieMotionHumanArmPhrase {
         from: 0,
         to: props.clock.duration,
         origin: props.origin,
-        target: (posture: IHumanPosture, seconds: number): AutoMovieMotionHumanArmTarget.ITarget =>
+        target: (
+          posture: IHumanPosture,
+          seconds: number,
+        ): AutoMovieMotionHumanArmTarget.ITarget =>
           extended(
             props,
             AutoMovieMotionHumanArmTarget.point(posture, props.origin),
@@ -190,13 +194,20 @@ export namespace AutoMovieMotionHumanArmPhrase {
         from: 0,
         to: props.clock.duration,
         origin: props.origin,
-        target: (posture: IHumanPosture, seconds: number): AutoMovieMotionHumanArmTarget.ITarget => {
+        target: (
+          posture: IHumanPosture,
+          seconds: number,
+        ): AutoMovieMotionHumanArmTarget.ITarget => {
           const progress: number = props.clock.progress(
             "strokeStart",
             "strokeEnd",
             seconds,
           );
-          const at: AutoMovieMotionHumanArmTarget.ITarget = props.path(posture, seconds, progress);
+          const at: AutoMovieMotionHumanArmTarget.ITarget = props.path(
+            posture,
+            seconds,
+            progress,
+          );
           return progress <= 0
             ? at
             : extended(props, props.path(posture, seconds, 0).point, at);
@@ -241,8 +252,14 @@ export namespace AutoMovieMotionHumanArmPhrase {
         from: 0,
         to: props.clock.duration,
         origin: props.origin,
-        target: (posture: IHumanPosture, seconds: number): AutoMovieMotionHumanArmTarget.ITarget => {
-          const chamber: AutoMovieMotionHumanArmTarget.ITarget = props.chamber(posture, seconds);
+        target: (
+          posture: IHumanPosture,
+          seconds: number,
+        ): AutoMovieMotionHumanArmTarget.ITarget => {
+          const chamber: AutoMovieMotionHumanArmTarget.ITarget = props.chamber(
+            posture,
+            seconds,
+          );
           const p: number = AutoMovieMotionClock.through(
             props.clock,
             ["strokeStart", "stroke", "strokeEnd"],
@@ -296,7 +313,11 @@ export namespace AutoMovieMotionHumanArmPhrase {
   export function oscillate(
     props: IPhrase & {
       cycles: number;
-      pose: (posture: IHumanPosture, seconds: number, swing: number) => AutoMovieMotionHumanArmTarget.ITarget;
+      pose: (
+        posture: IHumanPosture,
+        seconds: number,
+        swing: number,
+      ) => AutoMovieMotionHumanArmTarget.ITarget;
     },
   ): IAutoMovieMotionHumanPrimitive {
     return {
@@ -306,7 +327,10 @@ export namespace AutoMovieMotionHumanArmPhrase {
         from: 0,
         to: props.clock.duration,
         origin: props.origin,
-        target: (posture: IHumanPosture, seconds: number): AutoMovieMotionHumanArmTarget.ITarget =>
+        target: (
+          posture: IHumanPosture,
+          seconds: number,
+        ): AutoMovieMotionHumanArmTarget.ITarget =>
           props.pose(
             posture,
             seconds,

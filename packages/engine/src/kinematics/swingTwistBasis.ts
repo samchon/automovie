@@ -99,10 +99,7 @@ export namespace swingTwistBasis {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function azimuth(
-    basis: IBasis,
-    direction: IAutoMovieVector3,
-  ): number {
+  export function azimuth(basis: IBasis, direction: IAutoMovieVector3): number {
     return (
       Math.atan2(
         Vector3.dot(direction, basis.e2),

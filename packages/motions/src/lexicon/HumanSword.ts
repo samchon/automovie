@@ -7,10 +7,10 @@ import type {
 import type { tags } from "typia";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -235,9 +235,7 @@ export namespace HumanSword {
   };
 
   /** The cancel table of a blade action: anything may follow from the named instant on, the grip kept. */
-  export const follows = (
-    instant: string,
-  ): IHumanActionLaw["interrupts"] => ({
+  export const follows = (instant: string): IHumanActionLaw["interrupts"] => ({
     any: [
       {
         window: [instant, 1],
@@ -302,9 +300,7 @@ export namespace HumanSword {
         span <=
         REACH * s.arm;
     const advance: StrikingBlade.Advance =
-      p.advance ??
-      (["none", "step"] as const).find(within) ??
-      "lunge";
+      p.advance ?? (["none", "step"] as const).find(within) ?? "lunge";
     const reach: IAutoMovieVector3 = StrikingBlade.shoulder(
       context,
       s.tool.side,
@@ -428,10 +424,14 @@ export namespace HumanSword {
       // The edge must lead, so only the blade's lean back toward where it
       // came from is free: of the leans tried, the one the arm holds best.
       const landed: StrikingHeld.IHandFrame = LEANS.map(leaning)
-        .map((frame: StrikingHeld.IHandFrame): [StrikingHeld.IHandFrame, number] => [
-          frame,
-          StrikingRoll.miss(context, s.tool, frame, back, a.posture),
-        ])
+        .map(
+          (
+            frame: StrikingHeld.IHandFrame,
+          ): [StrikingHeld.IHandFrame, number] => [
+            frame,
+            StrikingRoll.miss(context, s.tool, frame, back, a.posture),
+          ],
+        )
         .reduce(
           (
             best: [StrikingHeld.IHandFrame, number],

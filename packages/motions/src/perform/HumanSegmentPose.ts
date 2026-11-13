@@ -38,7 +38,10 @@ export namespace HumanSegmentPose {
    * @param seconds Film seconds.
    * @returns The pose.
    */
-  export function displayed(person: HumanSegment.IPerson, seconds: number): IAutoMoviePose {
+  export function displayed(
+    person: HumanSegment.IPerson,
+    seconds: number,
+  ): IAutoMoviePose {
     const cached: IAutoMoviePose | undefined = person.resolving
       ? undefined
       : person.cache.get(seconds);
@@ -76,7 +79,11 @@ export namespace HumanSegmentPose {
     // the overlays written over it.
     const shown = (
       t: number,
-    ): { posture: IHumanPosture; carried: HumanSegment.IHeld[]; pose: IAutoMoviePose } => {
+    ): {
+      posture: IHumanPosture;
+      carried: HumanSegment.IHeld[];
+      pose: IAutoMoviePose;
+    } => {
       let written: IHumanPosture = layered(
         person,
         segment.plan.posture(
@@ -130,10 +137,15 @@ export namespace HumanSegmentPose {
     // A carried hand no overlay drives keeps its goal as a planted one, so
     // the transition's offset below never moves what it holds. A hand an
     // overlay drives is that overlay's, faded in and out by `overlaid`.
-    const active: HumanSegment.IOverlay[] = HumanSegmentOverlay.running(person, seconds);
+    const active: HumanSegment.IOverlay[] = HumanSegmentOverlay.running(
+      person,
+      seconds,
+    );
     const kept: HumanSegment.IHeld[] = carried.filter(
       (h: HumanSegment.IHeld): boolean =>
-        !active.some((o: HumanSegment.IOverlay): boolean => HumanSegment.drives(o.plan, h.side)),
+        !active.some((o: HumanSegment.IOverlay): boolean =>
+          HumanSegment.drives(o.plan, h.side),
+        ),
     );
     if (kept.length !== 0)
       posture = {
@@ -147,7 +159,9 @@ export namespace HumanSegmentPose {
     // stops itself; a law that does shows its own dwell and recoil.
     if (segment.plan.stop === undefined)
       for (const w of segment.plan.weapons ?? []) {
-        const s: number | undefined = person.stops.get(HumanSegment.weapon(segment, w.id));
+        const s: number | undefined = person.stops.get(
+          HumanSegment.weapon(segment, w.id),
+        );
         if (s === undefined || seconds <= s) continue;
         const side: "left" | "right" = w.limb.startsWith("left")
           ? "left"

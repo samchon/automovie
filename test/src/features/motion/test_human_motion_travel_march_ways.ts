@@ -150,7 +150,8 @@ export function test_human_motion_travel_march_ways(): void {
         const last: IStrike = strikes[strikes.length - 1]!;
         const place = (s: IStrike): number =>
           HumanSignature.joint(reader, s.seconds + after, `${s.side}Foot`).z;
-        const step: number = (place(last) - place(first)) / (strikes.length - 1);
+        const step: number =
+          (place(last) - place(first)) / (strikes.length - 1);
         const cadence: number =
           (60 * (strikes.length - 1)) / (last.seconds - first.seconds);
         if (Math.abs(cadence - called) > 0.02 * called)
@@ -188,8 +189,11 @@ export function test_human_motion_travel_march_ways(): void {
             }),
           )
           .filter(
-            (w: { side: "left" | "right"; from: number; to: number }): boolean =>
-              w.to - w.from >= 0.15,
+            (w: {
+              side: "left" | "right";
+              from: number;
+              to: number;
+            }): boolean => w.to - w.from >= 0.15,
           )
           .sort(
             (
@@ -201,7 +205,6 @@ export function test_human_motion_travel_march_ways(): void {
           )
           .slice(0, 3);
       for (const w of windows) {
-
         // The toe's sole point rides the toes, which stay flat on the floor from foot-flat until the foot leaves; the ball's rides the foot, which turns about the toes' joint above it once the heel rises.
         const ball = (t: number): IAutoMovieVector3 =>
           HumanFoot.sockets(body, HumanSignature.bones(reader, t), w.side).find(

@@ -222,7 +222,11 @@ export function test_human_motion_core_overlay_hold(): void {
                   .pickUp({ prop: "glass", handle: "body", hand: "right" })
                   .stand({ seconds: 2 })
                   .over((u) =>
-                    u.handToFace({ task: "drink", side: "right", prop: "glass" }),
+                    u.handToFace({
+                      task: "drink",
+                      side: "right",
+                      prop: "glass",
+                    }),
                   ),
               ),
             )}; with the drink as an action of its own after the pick-up it is ${apart(
@@ -274,15 +278,16 @@ export function test_human_motion_core_overlay_hold(): void {
             `${name}: the right wrist moves ${mm(step.value)} mm in 1/120 s at ${step.seconds.toFixed(3)} s, as the drink gives the hand back at ${given.toFixed(3)} s; within 25 mm expected; the right upper arm, forearm and hand 1/120 s apart around it: ${[
               -2, -1, 0, 1, 2,
             ]
-              .map((k: number): string =>
-                `[${(["rightUpperArm", "rightLowerArm", "rightHand"] as const)
-                  .map((bone): string => {
-                    const joint = film
-                      .pose("a", step.seconds + k / 120)
-                      .joints.find((j): boolean => j.bone === bone);
-                    return `${(joint?.flexion ?? 0).toFixed(1)}/${(joint?.abduction ?? 0).toFixed(1)}/${(joint?.twist ?? 0).toFixed(1)}`;
-                  })
-                  .join(" ")}]`,
+              .map(
+                (k: number): string =>
+                  `[${(["rightUpperArm", "rightLowerArm", "rightHand"] as const)
+                    .map((bone): string => {
+                      const joint = film
+                        .pose("a", step.seconds + k / 120)
+                        .joints.find((j): boolean => j.bone === bone);
+                      return `${(joint?.flexion ?? 0).toFixed(1)}/${(joint?.abduction ?? 0).toFixed(1)}/${(joint?.twist ?? 0).toFixed(1)}`;
+                    })
+                    .join(" ")}]`,
               )
               .join(" ")}`,
           );
@@ -298,9 +303,5 @@ export function test_human_motion_core_overlay_hold(): void {
       );
     }
   }
-  TestValidator.equals(
-    "a held prop is drunk from over a walk",
-    complaints,
-    [],
-  );
+  TestValidator.equals("a held prop is drunk from over a walk", complaints, []);
 }

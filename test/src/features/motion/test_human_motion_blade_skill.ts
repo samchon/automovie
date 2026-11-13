@@ -123,13 +123,13 @@ export function test_human_motion_blade_skill(): void {
     // arm's joint angles, how far the shown hand is turned from the asked
     // one, and how far the asked one is turned from the world's axes.
     const shown = (film: HumanPerformance, seconds: number): string => {
-      const turn = (
-        a: IAutoMovieQuaternion,
-        b: IAutoMovieQuaternion,
-      ): number =>
+      const turn = (a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): number =>
         (2 *
           Math.acos(
-            Math.min(1, Math.abs(a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w)),
+            Math.min(
+              1,
+              Math.abs(a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w),
+            ),
           ) *
           180) /
         Math.PI;

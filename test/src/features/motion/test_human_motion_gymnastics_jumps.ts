@@ -163,7 +163,10 @@ export function test_human_motion_gymnastics_jumps(): void {
     ): {
       reader: HumanSignature.IReader;
       at: (event: string) => number;
-      joint: (seconds: number, bone: AutoMovieHumanoidBone) => IAutoMovieVector3;
+      joint: (
+        seconds: number,
+        bone: AutoMovieHumanoidBone,
+      ) => IAutoMovieVector3;
       hips: (seconds: number) => IAutoMovieVector3;
       fall: (seconds: number) => number;
     } => {
@@ -184,8 +187,8 @@ export function test_human_motion_gymnastics_jumps(): void {
         reader,
         at: (event: string): number =>
           segment.start +
-          (segment.plan.events.find((e): boolean => e.name === event)
-            ?.share ?? Number.NaN) *
+          (segment.plan.events.find((e): boolean => e.name === event)?.share ??
+            Number.NaN) *
             segment.plan.duration,
         joint,
         hips: (seconds: number): IAutoMovieVector3 =>
@@ -238,7 +241,10 @@ export function test_human_motion_gymnastics_jumps(): void {
 
     // 1. The flop.
     try {
-      const read: ReturnType<typeof reading> = reading(flop(1.4), "fosburyFlop");
+      const read: ReturnType<typeof reading> = reading(
+        flop(1.4),
+        "fosburyFlop",
+      );
       const apex: number = read.at("apex");
       ballistic(`${name} flop rising`, read, (read.at("takeoff") + apex) / 2);
       const peak: number = HumanSignature.centre(read.reader, apex).y;
@@ -269,7 +275,12 @@ export function test_human_motion_gymnastics_jumps(): void {
     }
 
     // 2. A bar out of reach.
-    refused("flop over 3 m", (): HumanPerformance => flop(3), "parameter", "bar");
+    refused(
+      "flop over 3 m",
+      (): HumanPerformance => flop(3),
+      "parameter",
+      "bar",
+    );
 
     // 3. The pole vault.
     try {

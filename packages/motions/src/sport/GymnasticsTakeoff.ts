@@ -97,9 +97,8 @@ export namespace GymnasticsTakeoff {
       z: root.z + first.z * guess,
     };
     const at = (plan: IHumanActionPlan, event: string): number =>
-      (plan.events.find(
-        (e: IAutoMovieMotionEvent): boolean => e.name === event,
-      )?.share ?? 0) * plan.duration;
+      (plan.events.find((e: IAutoMovieMotionEvent): boolean => e.name === event)
+        ?.share ?? 0) * plan.duration;
 
     let taken: ITakeoff | undefined;
     for (let pass: number = 0; pass <= PASSES; pass++) {

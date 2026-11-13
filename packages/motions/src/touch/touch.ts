@@ -267,7 +267,9 @@ export namespace touch {
       p.target.kind === "self" ? p.target.region : null,
     );
     const shown: touchPresented.IPresented | null =
-      p.other === undefined ? touchPresented.of(context, first, p.target) : null;
+      p.other === undefined
+        ? touchPresented.of(context, first, p.target)
+        : null;
     const bones = shown?.bones ?? poseBones(body, context.entry.pose);
     const hands: [HumanHand.Side, AutoMovieMotionTarget][] = [
       [first, p.target],
@@ -296,8 +298,8 @@ export namespace touch {
       context.carrier === undefined &&
       context.entry.feet.left.planted &&
       context.entry.feet.right.planted &&
-      context.entry.supports.every(
-        (s: IHumanEntryState.ISupport): boolean => /Foot$/.test(s.part),
+      context.entry.supports.every((s: IHumanEntryState.ISupport): boolean =>
+        /Foot$/.test(s.part),
       );
     const stance: AutoMovieMotionHumanTouchStance.IStance =
       AutoMovieMotionHumanTouchStance.solve({
@@ -458,7 +460,9 @@ export namespace touch {
             ? { fingers: "keep" as const }
             : {}),
           ...(standoff > 0 ? { standoff } : {}),
-          ...(support === undefined || standoff > 0 ? {} : { contact: support }),
+          ...(support === undefined || standoff > 0
+            ? {}
+            : { contact: support }),
           ...(target.kind === "person"
             ? {
                 others: (_: IHumanPosture, seconds: number) => {

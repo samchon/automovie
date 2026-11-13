@@ -98,8 +98,7 @@ export function test_human_motion_prop_held_walk(): void {
   const sip: HumanSegment.IOverlay = performance.overlays("a")[0]!;
   const seconds: number =
     sip.start +
-    (sip.plan.events.find((e): boolean => e.name === "atMouth")?.share ??
-      NaN) *
+    (sip.plan.events.find((e): boolean => e.name === "atMouth")?.share ?? NaN) *
       sip.plan.duration;
   const lip: IAutoMovieVector3 = glass.affordance("lip").frame.translation;
   const frame: IHumanProp.IFrame = performance.prop("glass", seconds);
@@ -158,10 +157,7 @@ export function test_human_motion_prop_held_walk(): void {
   const first: IAutoMovieVector3 = seat(from);
   let drift: number = 0;
   for (let at: number = from; at <= performance.duration; at += 0.25)
-    drift = Math.max(
-      drift,
-      Vector3.length(Vector3.subtract(seat(at), first)),
-    );
+    drift = Math.max(drift, Vector3.length(Vector3.subtract(seat(at), first)));
   if (!(drift <= 0.001))
     complaints.push(
       `the glass moves ${(drift * 1000).toFixed(1)} mm in the hand's frame through the walk, within 1 mm expected`,

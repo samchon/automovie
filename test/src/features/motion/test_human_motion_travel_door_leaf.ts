@@ -69,10 +69,7 @@ export function test_human_motion_travel_door_leaf(): void {
       const u: number = Math.min(1, Math.max(0, (seconds - OPEN) / SWING));
       return degrees * (10 * u ** 3 - 15 * u ** 4 + 6 * u ** 5);
     };
-  const perform = (
-    body: IHumanBody,
-    degrees: number,
-  ): HumanPerformance =>
+  const perform = (body: IHumanBody, degrees: number): HumanPerformance =>
     new HumanPerformance({
       seed: "door",
       laws: [HumanTravelLeaf.openDoor],

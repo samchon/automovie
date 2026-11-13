@@ -126,7 +126,9 @@ export function test_human_motion_core_arm_clearance_screen(): void {
   }
   HumanArmClearance.broad(true);
   if (compared < 1000)
-    complaints.push(`only ${compared} readings compared, at least 1000 expected`);
+    complaints.push(
+      `only ${compared} readings compared, at least 1000 expected`,
+    );
   TestValidator.equals(
     "the clearance screen changes nothing",
     complaints.slice(0, 20),

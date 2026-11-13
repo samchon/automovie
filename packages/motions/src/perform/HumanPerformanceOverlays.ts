@@ -102,11 +102,9 @@ export namespace HumanPerformanceOverlays {
       });
     const end: number = start + plan.duration;
     for (const other of person.overlays) {
-      if (!(other.end > start + 1e-9 && other.entryTime < end - 1e-9))
-        continue;
+      if (!(other.end > start + 1e-9 && other.entryTime < end - 1e-9)) continue;
       const shared: AutoMovieMotionHumanChannel[] = channels.filter(
-        (c: AutoMovieMotionHumanChannel): boolean =>
-          other.channels.includes(c),
+        (c: AutoMovieMotionHumanChannel): boolean => other.channels.includes(c),
       );
       if (shared.length !== 0)
         throw new HumanRefusal({

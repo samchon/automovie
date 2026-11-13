@@ -254,7 +254,9 @@ export function test_human_motion_travel_styles(): void {
       aside: Math.max(...ts.map((t: number): number => Math.abs(hips(t).x))),
       stance: {
         left: mean(
-          stances.left.map((s: readonly [number, number]): number => s[1] - s[0]),
+          stances.left.map(
+            (s: readonly [number, number]): number => s[1] - s[0],
+          ),
         ),
         right: mean(
           stances.right.map(
@@ -292,9 +294,10 @@ export function test_human_motion_travel_styles(): void {
           ),
         ),
       },
-      uneven: Math.sqrt(
-        mean(steps.map((s: number): number => (s - even) * (s - even))),
-      ) / even,
+      uneven:
+        Math.sqrt(
+          mean(steps.map((s: number): number => (s - even) * (s - even))),
+        ) / even,
     };
   };
   const expect = (ok: boolean, message: string): void => {

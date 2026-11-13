@@ -253,7 +253,10 @@ function dump(posture: IHumanPosture): string {
           ([limb, goal]: [string, IHumanPosture.IGoal | undefined]): [
             string,
             object | undefined,
-          ] => [limb, goal === undefined ? goal : { ...goal, clear: undefined }],
+          ] => [
+            limb,
+            goal === undefined ? goal : { ...goal, clear: undefined },
+          ],
         ),
       ),
     },

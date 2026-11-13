@@ -190,7 +190,9 @@ export function test_human_motion_sport_loaded(): void {
     for (const seconds of [bottom, lift.end]) {
       const tilt: number =
         1000 *
-        Math.abs(handle("gripLeft", seconds).y - handle("gripRight", seconds).y);
+        Math.abs(
+          handle("gripLeft", seconds).y - handle("gripRight", seconds).y,
+        );
       if (!(tilt <= 15)) {
         // What the tilt is read against: the bar's line, and how far the
         // shown right hand is turned from the turn its goal asks.
@@ -201,8 +203,9 @@ export function test_human_motion_sport_loaded(): void {
           ),
         );
         const asked = film.posture("a", seconds).limbs.rightArm?.rotation;
-        const shown = HumanSignature.bones(reader, seconds).get("rightHand")!
-          .worldRotation;
+        const shown = HumanSignature.bones(reader, seconds).get(
+          "rightHand",
+        )!.worldRotation;
         const off: number =
           asked === undefined
             ? Number.NaN
@@ -294,8 +297,7 @@ export function test_human_motion_sport_loaded(): void {
               position: {
                 x: -0.12 * stature,
                 y:
-                  0.56 * stature -
-                  model.affordance("grip").frame.translation.y,
+                  0.56 * stature - model.affordance("grip").frame.translation.y,
                 z: 0.12 * stature,
               },
               rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 0),

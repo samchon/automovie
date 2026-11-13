@@ -78,16 +78,17 @@ export function test_human_motion_sport_supported(): void {
   const station: ReturnType<typeof createParallelBars> = createParallelBars({
     kind: "dipStation",
   });
-  const box: ReturnType<typeof createPlyoBox> = createPlyoBox({ height: 0.508 });
+  const box: ReturnType<typeof createPlyoBox> = createPlyoBox({
+    height: 0.508,
+  });
   const places: Readonly<
     Record<"bench" | "bar" | "station" | "box", IAutoMovieVector3>
-  > =
-    {
-      box: { x: 0, y: 0, z: -1.2 },
-      bench: { x: 0, y: 0, z: 1.2 },
-      bar: { x: 1.2, y: 0, z: 0 },
-      station: { x: -1.2, y: 0, z: 0 },
-    };
+  > = {
+    box: { x: 0, y: 0, z: -1.2 },
+    bench: { x: 0, y: 0, z: 1.2 },
+    bar: { x: 1.2, y: 0, z: 0 },
+    station: { x: -1.2, y: 0, z: 0 },
+  };
   const upright: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },
     0,

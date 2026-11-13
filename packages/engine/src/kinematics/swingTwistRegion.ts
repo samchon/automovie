@@ -168,7 +168,7 @@ function widen(
     let most: number = table[ray]!;
     for (let shift: number = low; shift <= high + 1e-9; shift += width) {
       const from: number =
-        (Math.round(ray - shift / width) % swingTwistBasis.RAYS +
+        ((Math.round(ray - shift / width) % swingTwistBasis.RAYS) +
           swingTwistBasis.RAYS) %
         swingTwistBasis.RAYS;
       most = Math.max(most, table[from]!);
@@ -237,10 +237,7 @@ function reached(
         swingConeAngle(f, a) <= constraint.swingDeg)
     );
   };
-  const across: number = Vector3.dot(
-    Vector3.cross(basis.f, basis.u),
-    basis.a,
-  );
+  const across: number = Vector3.dot(Vector3.cross(basis.f, basis.u), basis.a);
   const first: number =
     Math.asin(
       swingTwistBasis.clamp(Vector3.dot(direction, basis.a) / across, -1, 1),

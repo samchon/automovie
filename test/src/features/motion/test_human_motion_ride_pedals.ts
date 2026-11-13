@@ -170,7 +170,9 @@ export function test_human_motion_ride_pedals(): void {
         t,
       );
     const tops: number[] = cycling.instants
-      .filter((i: { label: string }): boolean => i.label === "leftTopDeadCentre")
+      .filter(
+        (i: { label: string }): boolean => i.label === "leftTopDeadCentre",
+      )
       .map((i: { seconds: number }): number => WAIT + i.seconds)
       .filter(
         (s: number): boolean =>

@@ -1,17 +1,29 @@
-import { type AutoMovieComposition, type IAutoMovieResolvedBone, type IAutoMovieSchedule, checkAutoMovieLegality, resolveAutoMovieSchedule } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, AutoMovieMotionTarget, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type AutoMovieComposition,
+  type IAutoMovieResolvedBone,
+  type IAutoMovieSchedule,
+  checkAutoMovieLegality,
+  resolveAutoMovieSchedule,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieMotionTarget,
+  IAutoMoviePose,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanLayer } from "../law/IHumanLayer";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { HumanSegment } from "./HumanSegment";
 import type { HumanObstacle } from "./HumanObstacle";
-import type { IHumanPerformer } from "./IHumanPerformer";
-import type { IHumanProp } from "./IHumanProp";
-import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
+import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceState } from "./HumanPerformanceState";
+import { HumanSegment } from "./HumanSegment";
+import type { IHumanPerformer } from "./IHumanPerformer";
+import type { IHumanProp } from "./IHumanProp";
 
 /**
  * A performance of people and props: their chained actions placed on the

@@ -1,8 +1,14 @@
-import { type AutoMovieComposition, type IAutoMovieSchedule, checkAutoMovieLegality, resolveAutoMovieSchedule } from "@automovie/engine";
+import {
+  type AutoMovieComposition,
+  type IAutoMovieSchedule,
+  checkAutoMovieLegality,
+  resolveAutoMovieSchedule,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionTarget,
 } from "@automovie/interface";
+
 import { HUMAN_ACTIONS } from "../actions/HUMAN_ACTIONS";
 import { stand } from "../actions/stand";
 import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
@@ -13,16 +19,16 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
+import type { HumanObstacle } from "./HumanObstacle";
+import type { HumanPerformance } from "./HumanPerformance";
+import { HumanPerformanceAim } from "./HumanPerformanceAim";
+import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
+import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
+import { HumanPerformanceRead } from "./HumanPerformanceRead";
+import { HumanPerformanceSchedule } from "./HumanPerformanceSchedule";
 import { HumanSegment } from "./HumanSegment";
 import type { IHumanPerformer } from "./IHumanPerformer";
 import type { IHumanProp } from "./IHumanProp";
-import type { HumanObstacle } from "./HumanObstacle";
-import type { HumanPerformance } from "./HumanPerformance";
-import { HumanPerformanceRead } from "./HumanPerformanceRead";
-import { HumanPerformanceAim } from "./HumanPerformanceAim";
-import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
-import { HumanPerformanceSchedule } from "./HumanPerformanceSchedule";
-import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
 
 /**
  * Everything a performance resolves and its readers share: the people with
@@ -222,10 +228,7 @@ export class HumanPerformanceState {
     for (const [subject, layers] of Object.entries(input.layers ?? {}))
       for (const scheduled of layers) {
         if ("apply" in scheduled || scheduled.anchor === undefined) continue;
-        if (
-          this.layered.has(scheduled.anchor) ||
-          scheduled.anchor in this.cues
-        )
+        if (this.layered.has(scheduled.anchor) || scheduled.anchor in this.cues)
           throw new HumanRefusal({
             kind: "parameter",
             performer: subject,
@@ -278,7 +281,10 @@ export class HumanPerformanceState {
     // The schedule gives every instant, so the windowed layers take their
     // places among the others, in the order given.
     for (const [subject, layers] of Object.entries(input.layers ?? {})) {
-      const person: HumanSegment.IPerson = HumanPerformanceRead.person(this, subject);
+      const person: HumanSegment.IPerson = HumanPerformanceRead.person(
+        this,
+        subject,
+      );
       person.layers = layers.map(
         (layer: IHumanLayer | IHumanLayer.IScheduled): HumanSegment.ILayered =>
           "apply" in layer
@@ -297,7 +303,10 @@ export class HumanPerformanceState {
     for (const person of this.people.values()) HumanSegment.settle(person);
     this.resolving = false;
     for (const entry of this.schedule.entries) {
-      const person: HumanSegment.IPerson = HumanPerformanceRead.person(this, entry.subject);
+      const person: HumanSegment.IPerson = HumanPerformanceRead.person(
+        this,
+        entry.subject,
+      );
       const segment: HumanSegment.ISegment | undefined = (
         this.riding.has(entry.index) ? person.overlays : person.segments
       ).find((s: HumanSegment.ISegment): boolean => s.entry === entry.index);

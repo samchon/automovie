@@ -27,5 +27,9 @@ import { LexiconRowNet } from "../internal/LexiconRowNet";
  * @evidence contracts/development/common.md#meaningful-documentation States what the net catches, what it leaves to the verdict net and to signature tests, and the 2 scenarios.
  */
 export function test_human_motion_lexicon_rows_pose_2(): void {
-  TestValidator.equals("every row is performable", LexiconRowNet.rows("pose", [1, 2]), []);
+  TestValidator.equals(
+    "every row is performable",
+    LexiconRowNet.rows("pose", [1, 2]),
+    [],
+  );
 }

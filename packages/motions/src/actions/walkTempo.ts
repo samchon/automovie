@@ -60,8 +60,12 @@ export function walkTempo(
   if (strikes.length < 2) return plan;
 
   // Each step's planned span, its stretched span on the film's clock and the rate's amplitude that covers one in the other.
-  const steps: { plan: number; film: number; planned: number; lasts: number }[] =
-    [];
+  const steps: {
+    plan: number;
+    film: number;
+    planned: number;
+    lasts: number;
+  }[] = [];
   let film: number = strikes[0]!;
   for (let i: number = 0; i + 1 < strikes.length; ++i) {
     const planned: number = strikes[i + 1]! - strikes[i]!;
@@ -89,10 +93,7 @@ export function walkTempo(
   };
 
   // The plan's seconds gone at a share of a step: the integral of the rate.
-  const gone = (
-    step: { planned: number; lasts: number },
-    u: number,
-  ): number =>
+  const gone = (step: { planned: number; lasts: number }, u: number): number =>
     step.lasts *
     (u +
       2 *

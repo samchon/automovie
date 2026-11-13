@@ -138,10 +138,7 @@ export function walkFollowed(
     ]!;
   let pace: number =
     own > 1e-6 ? Math.min(walkFollowed.FASTEST, speed / own) : 1;
-  while (
-    planned < plan.duration - 1e-9 &&
-    clock.length < walkFollowed.TICKS
-  ) {
+  while (planned < plan.duration - 1e-9 && clock.length < walkFollowed.TICKS) {
     planned += tick + ((pace - 1) * (1 - decay)) / walkFollowed.GAIN;
     pace = 1 + (pace - 1) * decay;
     clock.push(Math.min(plan.duration, planned));

@@ -56,7 +56,11 @@ export function test_human_motion_firearm_tracking(): void {
     b: motionHumanBody("f-small"),
   };
   const complaints: string[] = [];
-  const off = (track: boolean, seconds: number, walks: boolean = true): number => {
+  const off = (
+    track: boolean,
+    seconds: number,
+    walks: boolean = true,
+  ): number => {
     const film: HumanPerformance = new HumanPerformance({
       seed: "tracking",
       laws: [HumanWeaponFirearm.present],
@@ -85,15 +89,15 @@ export function test_human_motion_firearm_tracking(): void {
             .stand({ seconds: 1.5 })
         : HumanChain.subject("b").stand({ seconds: 4 })
       ).with(
-          HumanChain.subject("a")
-            .stand({ seconds: 0.3 })
-            .registered("presentFirearm", {
-              target: { kind: "person", subject: "b", region: "sternum" },
-              hands: 1,
-              seconds: 3,
-              track,
-            }),
-        ).node,
+        HumanChain.subject("a")
+          .stand({ seconds: 0.3 })
+          .registered("presentFirearm", {
+            target: { kind: "person", subject: "b", region: "sternum" },
+            hands: 1,
+            seconds: 3,
+            track,
+          }),
+      ).node,
     });
     const held: HumanSegment.ISegment | undefined = film
       .segments("a")

@@ -1,12 +1,23 @@
-import { type IAutoMovieIntent, type IAutoMovieResolvedBone, Quaternion, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMoviePose, IAutoMovieQuaternion } from "@automovie/interface";
+import {
+  type IAutoMovieIntent,
+  type IAutoMovieResolvedBone,
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+} from "@automovie/interface";
+
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import type { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanSegment } from "./HumanSegment";
 import type { IHumanProp } from "./IHumanProp";
-import type { HumanPerformanceState } from "./HumanPerformanceState";
 
 /**
  * What a performance is read by: a person's pose, posture and bones, a
@@ -26,8 +37,15 @@ export namespace HumanPerformanceRead {
    * @param seconds Film seconds.
    * @returns The pose.
    */
-  export function pose(self: HumanPerformanceState, subject: string, seconds: number): IAutoMoviePose {
-    return HumanSegment.displayed(HumanPerformanceRead.person(self, subject), seconds);
+  export function pose(
+    self: HumanPerformanceState,
+    subject: string,
+    seconds: number,
+  ): IAutoMoviePose {
+    return HumanSegment.displayed(
+      HumanPerformanceRead.person(self, subject),
+      seconds,
+    );
   }
 
   /**
@@ -38,8 +56,15 @@ export namespace HumanPerformanceRead {
    * @param seconds Film seconds.
    * @returns The posture.
    */
-  export function posture(self: HumanPerformanceState, subject: string, seconds: number): IHumanPosture {
-    const person: HumanSegment.IPerson = HumanPerformanceRead.person(self, subject);
+  export function posture(
+    self: HumanPerformanceState,
+    subject: string,
+    seconds: number,
+  ): IHumanPosture {
+    const person: HumanSegment.IPerson = HumanPerformanceRead.person(
+      self,
+      subject,
+    );
     let active: HumanSegment.ISegment | undefined;
     for (const s of person.segments)
       if (s.entryTime <= seconds + 1e-12) active = s;
@@ -62,8 +87,14 @@ export namespace HumanPerformanceRead {
     subject: string,
     seconds: number,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    const person: HumanSegment.IPerson = HumanPerformanceRead.person(self, subject);
-    return poseBones(person.performer.body, HumanPerformanceRead.pose(self, subject, seconds));
+    const person: HumanSegment.IPerson = HumanPerformanceRead.person(
+      self,
+      subject,
+    );
+    return poseBones(
+      person.performer.body,
+      HumanPerformanceRead.pose(self, subject, seconds),
+    );
   }
 
   /**
@@ -88,10 +119,16 @@ export namespace HumanPerformanceRead {
    * @param seconds Film seconds.
    * @returns Its frame.
    */
-  export function prop(self: HumanPerformanceState, subject: string, seconds: number): IHumanProp.IFrame {
+  export function prop(
+    self: HumanPerformanceState,
+    subject: string,
+    seconds: number,
+  ): IHumanProp.IFrame {
     const prop: IHumanProp | undefined = self.props.get(subject);
     if (prop === undefined)
-      throw HumanPerformanceRead.missing("prop", subject, [...self.props.keys()]);
+      throw HumanPerformanceRead.missing("prop", subject, [
+        ...self.props.keys(),
+      ]);
     if (prop.motion !== undefined) return prop.motion(seconds);
     const grips: HumanPerformanceState.IGrip[] = HumanPerformanceRead.grips(
       self,
@@ -112,7 +149,10 @@ export namespace HumanPerformanceRead {
     // after a pick up) keeps that grip's offset: the hand never re-seats what
     // it holds, so no action boundary moves the prop in the hand.
     // A worn span rides its bone; a held one, its hand's grip socket.
-    const carrier = (w: HumanPerformanceState.IGrip, at: number): IHumanProp.IFrame => {
+    const carrier = (
+      w: HumanPerformanceState.IGrip,
+      at: number,
+    ): IHumanProp.IFrame => {
       if (w.bone === undefined)
         return HumanPerformanceRead.hand(self, w.subject, w.side, at);
       const bone: IAutoMovieResolvedBone = HumanPerformanceRead.bones(
@@ -137,7 +177,11 @@ export namespace HumanPerformanceRead {
                 g.to >= w.from - 1e-6,
             );
       if (earlier !== undefined) return (w.offset = seat(earlier));
-      const before: IHumanProp.IFrame = HumanPerformanceRead.prop(self, subject, w.from - 1e-6);
+      const before: IHumanProp.IFrame = HumanPerformanceRead.prop(
+        self,
+        subject,
+        w.from - 1e-6,
+      );
       const hand: IHumanProp.IFrame = carrier(w, w.from);
       const inverse: IAutoMovieQuaternion = Quaternion.inverse(hand.rotation);
       return (w.offset = {
@@ -167,7 +211,10 @@ export namespace HumanPerformanceRead {
    * @param subject The person.
    * @returns The segments.
    */
-  export function segments(self: HumanPerformanceState, subject: string): readonly HumanSegment.ISegment[] {
+  export function segments(
+    self: HumanPerformanceState,
+    subject: string,
+  ): readonly HumanSegment.ISegment[] {
     return HumanPerformanceRead.person(self, subject).segments;
   }
 
@@ -178,7 +225,10 @@ export namespace HumanPerformanceRead {
    * @param subject The person.
    * @returns The overlays.
    */
-  export function overlays(self: HumanPerformanceState, subject: string): readonly HumanSegment.IOverlay[] {
+  export function overlays(
+    self: HumanPerformanceState,
+    subject: string,
+  ): readonly HumanSegment.IOverlay[] {
     return HumanPerformanceRead.person(self, subject).overlays;
   }
 
@@ -192,7 +242,8 @@ export namespace HumanPerformanceRead {
     if (known !== undefined) return known;
     const out: HumanPerformanceState.IGrip[] = [];
     const worn: HumanPerformanceState.IGrip[] = [];
-    const declared: IHumanProp.IWorn | undefined = self.props.get(subject)?.worn;
+    const declared: IHumanProp.IWorn | undefined =
+      self.props.get(subject)?.worn;
     if (declared !== undefined)
       worn.push({
         subject: declared.subject,
@@ -256,8 +307,10 @@ export namespace HumanPerformanceRead {
       out.push(w);
     }
     out.sort(
-      (a: HumanPerformanceState.IGrip, b: HumanPerformanceState.IGrip): number =>
-        a.from - b.from,
+      (
+        a: HumanPerformanceState.IGrip,
+        b: HumanPerformanceState.IGrip,
+      ): number => a.from - b.from,
     );
     if (!self.resolving) self.gripCache.set(subject, out);
     return out;
@@ -270,14 +323,19 @@ export namespace HumanPerformanceRead {
     side: "left" | "right",
     seconds: number,
   ): IHumanProp.IFrame {
-    const person: HumanSegment.IPerson = HumanPerformanceRead.person(self, subject);
+    const person: HumanSegment.IPerson = HumanPerformanceRead.person(
+      self,
+      subject,
+    );
     const frame =
       person.performer.body.surfaces.sockets[
         side === "left" ? "gripLeft" : "gripRight"
       ];
-    const bone: IAutoMovieResolvedBone = HumanPerformanceRead.bones(self, subject, seconds).get(
-      frame.bone,
-    )!;
+    const bone: IAutoMovieResolvedBone = HumanPerformanceRead.bones(
+      self,
+      subject,
+      seconds,
+    ).get(frame.bone)!;
     return {
       position: resolveAutoMovieHumanoidSurfaces.place(frame, bone).point,
       rotation: bone.worldRotation,
@@ -300,15 +358,14 @@ export namespace HumanPerformanceRead {
     seconds: number,
     axis: string,
   ): IHumanActionContext.IRoot {
-    const person: HumanSegment.IPerson = HumanPerformanceRead.person(self, subject);
+    const person: HumanSegment.IPerson = HumanPerformanceRead.person(
+      self,
+      subject,
+    );
     const last: HumanSegment.ISegment | undefined = person.segments.at(-1);
     const left: number =
       (self.intended.get(subject) ?? 0) - person.segments.length;
-    if (
-      self.resolving &&
-      left > 0 &&
-      seconds > (last?.end ?? 0) + 1e-9
-    )
+    if (self.resolving && left > 0 && seconds > (last?.end ?? 0) + 1e-9)
       throw new HumanRefusal({
         kind: "participant",
         axis,
@@ -326,20 +383,32 @@ export namespace HumanPerformanceRead {
         }, and ${left} more of theirs come later in the composition`,
         fix: `compose ${subject}'s actions before self one: put their chain first in the parallel group, or join both chains with a mutual action`,
       });
-    const posture: IHumanPosture = HumanPerformanceRead.posture(self, subject, seconds);
+    const posture: IHumanPosture = HumanPerformanceRead.posture(
+      self,
+      subject,
+      seconds,
+    );
     return { position: posture.root, yaw: posture.yaw };
   }
 
   /** A person by subject, or an error naming the performers. */
-  export function person(self: HumanPerformanceState, subject: string): HumanSegment.IPerson {
+  export function person(
+    self: HumanPerformanceState,
+    subject: string,
+  ): HumanSegment.IPerson {
     const person: HumanSegment.IPerson | undefined = self.people.get(subject);
     if (person === undefined)
-      throw HumanPerformanceRead.missing("performer", subject, [...self.people.keys()]);
+      throw HumanPerformanceRead.missing("performer", subject, [
+        ...self.people.keys(),
+      ]);
     return person;
   }
 
   /** The place of an intent in the film: its performer, its action and which occurrence of the action's id this is. */
-  export function where(self: HumanPerformanceState, intent: IAutoMovieIntent): HumanRefusal.IWhere {
+  export function where(
+    self: HumanPerformanceState,
+    intent: IAutoMovieIntent,
+  ): HumanRefusal.IWhere {
     const id: string = intent.anchor ?? intent.capability;
     return {
       performer: intent.subject,

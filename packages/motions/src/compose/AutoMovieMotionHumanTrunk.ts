@@ -127,7 +127,10 @@ export namespace AutoMovieMotionHumanTrunk {
     );
     const level: IAutoMovieVector3 = Vector3.subtract(
       goal,
-      HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw }, hips),
+      HumanFrame.point(
+        { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
+        hips,
+      ),
     );
     const left: IHumanPosture.IGoal | undefined = posture.limbs.leftLeg;
     const right: IHumanPosture.IGoal | undefined = posture.limbs.rightLeg;
@@ -181,13 +184,7 @@ export namespace AutoMovieMotionHumanTrunk {
       share: number,
       back: number,
     ): IHumanPosture =>
-      sunk(
-        props.body,
-        posture,
-        props.depth * share,
-        props.pitch * share,
-        back,
-      );
+      sunk(props.body, posture, props.depth * share, props.pitch * share, back);
     const back: number = HumanBalance.shift(
       props.body,
       (b: number): IHumanPosture => low(props.standing, 1, b),

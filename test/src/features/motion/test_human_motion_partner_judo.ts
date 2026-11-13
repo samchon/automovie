@@ -83,7 +83,10 @@ export function test_human_motion_partner_judo(): void {
   );
 
   // 2. Outside the feet.
-  const before: number = HumanBalance.margin(body, performance.posture("u", 0.1));
+  const before: number = HumanBalance.margin(
+    body,
+    performance.posture("u", 0.1),
+  );
   const during: number = HumanBalance.margin(
     body,
     performance.posture("u", held),
@@ -123,8 +126,16 @@ export function test_human_motion_partner_judo(): void {
       broken.start,
       bone,
     );
-    for (let seconds: number = broken.start; seconds <= broken.end; seconds += 0.1) {
-      const here: IAutoMovieVector3 = HumanSignature.joint(reader, seconds, bone);
+    for (
+      let seconds: number = broken.start;
+      seconds <= broken.end;
+      seconds += 0.1
+    ) {
+      const here: IAutoMovieVector3 = HumanSignature.joint(
+        reader,
+        seconds,
+        bone,
+      );
       worst = Math.max(
         worst,
         Math.hypot(here.x - from.x, here.y - from.y, here.z - from.z),

@@ -170,7 +170,10 @@ export namespace HumanArmClearing {
     plain: (share: number) => HumanArmClearance.IArm;
     planned?: (share: number) => HumanArmClearance.IArm;
     share: number;
-    clear: (arm: HumanArmClearance.IArm, share: number) => HumanArmClearance.IArm;
+    clear: (
+      arm: HumanArmClearance.IArm,
+      share: number,
+    ) => HumanArmClearance.IArm;
   }): HumanArmClearance.IArm {
     const turn = (key: number): readonly [number, number] => {
       if (key <= 0 || key >= KEYS) return [0, 0];
@@ -184,8 +187,7 @@ export namespace HumanArmClearing {
     const before: number = Math.min(KEYS - 1, Math.floor(at));
     const weight: number = at - before;
     const a: readonly [number, number] = turn(before);
-    const b: readonly [number, number] =
-      weight === 0 ? a : turn(before + 1);
+    const b: readonly [number, number] = weight === 0 ? a : turn(before + 1);
     const arm: HumanArmClearance.IArm = props.plain(props.share);
     return {
       upper: [

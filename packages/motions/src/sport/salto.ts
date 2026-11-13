@@ -111,8 +111,7 @@ export namespace salto {
     const at = (event: string): number =>
       inner.events.find(
         (e: IAutoMovieMotionEvent): boolean => e.name === event,
-      )!.share *
-      inner.duration;
+      )!.share * inner.duration;
     const off: number = at("takeoff");
     const flight: number = at("touchdown") - off;
     if (turns / flight > RATE) {

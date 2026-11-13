@@ -132,23 +132,35 @@ export function test_human_motion_core_prop_point(): void {
     );
 
   // 1. The pedal on its crank.
-  TestValidator.equals("a pedal is aimed at where the crank has it", rows(turning, "pedal"), [
-    [0.1, 0.3, 1.17, 0, 1, 0],
-    [0.1, 0.47, 1, 0, 1, 0],
-    [0.1, 0.3, 0.83, 0, 1, 0],
-  ]);
+  TestValidator.equals(
+    "a pedal is aimed at where the crank has it",
+    rows(turning, "pedal"),
+    [
+      [0.1, 0.3, 1.17, 0, 1, 0],
+      [0.1, 0.47, 1, 0, 1, 0],
+      [0.1, 0.3, 0.83, 0, 1, 0],
+    ],
+  );
 
   // 2. A part the reader leaves in place.
-  TestValidator.equals("a saddle stays on the placed object", rows(turning, "saddle"), [
-    [0, 0.9, 1, 0, 1, 0],
-    [0, 0.9, 1, 0, 1, 0],
-    [0, 0.9, 1, 0, 1, 0],
-  ]);
+  TestValidator.equals(
+    "a saddle stays on the placed object",
+    rows(turning, "saddle"),
+    [
+      [0, 0.9, 1, 0, 1, 0],
+      [0, 0.9, 1, 0, 1, 0],
+      [0, 0.9, 1, 0, 1, 0],
+    ],
+  );
 
   // 3. Without a reader every point moves with the object alone.
-  TestValidator.equals("without a reader a pedal keeps its place at rest", rows(fixed, "pedal"), [
-    [0.1, 0.3, 1.17, 0, 1, 0],
-    [0.1, 0.3, 1.17, 0, 1, 0],
-    [0.1, 0.3, 1.17, 0, 1, 0],
-  ]);
+  TestValidator.equals(
+    "without a reader a pedal keeps its place at rest",
+    rows(fixed, "pedal"),
+    [
+      [0.1, 0.3, 1.17, 0, 1, 0],
+      [0.1, 0.3, 1.17, 0, 1, 0],
+      [0.1, 0.3, 1.17, 0, 1, 0],
+    ],
+  );
 }

@@ -1,10 +1,10 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import { HumanRefusal } from "../law/HumanRefusal";
 import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
@@ -45,7 +45,9 @@ export namespace HumanSwordThrust {
   export const thrust: IHumanActionLaw<HumanSword.IAttack> = {
     name: "swordThrust",
     interrupts: HumanSword.follows("stroke"),
-    plan: (context: IHumanActionContext<HumanSword.IAttack>): IHumanActionPlan => {
+    plan: (
+      context: IHumanActionContext<HumanSword.IAttack>,
+    ): IHumanActionPlan => {
       const s: HumanSword.ISetup = HumanSword.setup(context);
       const a: HumanSword.IAim = HumanSword.aim(
         context,

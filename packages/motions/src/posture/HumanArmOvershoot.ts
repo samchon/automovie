@@ -188,11 +188,7 @@ export namespace HumanArmOvershoot {
     // which the least with 0 ignores, so it is not queried.
     let grazing: number = 0;
     for (const shape of near)
-      if (
-        goal &&
-        !shape.free &&
-        !(BROAD.on && outside(wrist, shape) > MARGIN)
-      )
+      if (goal && !shape.free && !(BROAD.on && outside(wrist, shape) > MARGIN))
         grazing = Math.min(
           grazing,
           physicalShapeSegmentDistance(shape.pose, shape.shape, wrist, wrist),

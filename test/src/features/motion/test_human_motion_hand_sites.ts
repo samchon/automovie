@@ -55,7 +55,9 @@ export function test_human_motion_hand_sites(): void {
     right: IAutoMovieVector3;
     left: IAutoMovieVector3;
     shoulder: IAutoMovieVector3;
-    region: (name: "sternum" | "shoulderLeft" | "shoulderRight") => IAutoMovieVector3;
+    region: (
+      name: "sternum" | "shoulderLeft" | "shoulderRight",
+    ) => IAutoMovieVector3;
   }
   const perform = (
     label: string,

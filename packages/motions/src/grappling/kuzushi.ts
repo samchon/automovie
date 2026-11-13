@@ -110,7 +110,10 @@ export namespace kuzushi {
       0.5,
     );
     const tipped = (posture: IHumanPosture, pitch: number): IHumanPosture => {
-      const turned: IHumanPosture = { ...posture, pitch: posture.pitch + pitch };
+      const turned: IHumanPosture = {
+        ...posture,
+        pitch: posture.pitch + pitch,
+      };
       return {
         ...turned,
         root: Vector3.subtract(

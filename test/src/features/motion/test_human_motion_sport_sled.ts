@@ -102,7 +102,11 @@ export function test_human_motion_sport_sled(): void {
     );
     let off: number = 0;
     let upright: number = Infinity;
-    for (let seconds: number = gripped + 0.05; seconds <= placed.end; seconds += 0.25) {
+    for (
+      let seconds: number = gripped + 0.05;
+      seconds <= placed.end;
+      seconds += 0.25
+    ) {
       const frame: IHumanProp.IFrame = performance.prop("sled", seconds);
       for (const side of ["left", "right"] as const) {
         const handle: IAutoMovieVector3 = Vector3.add(
@@ -122,8 +126,16 @@ export function test_human_motion_sport_sled(): void {
           ),
         );
       }
-      const hips: IAutoMovieVector3 = HumanSignature.joint(reader, seconds, "hips");
-      const neck: IAutoMovieVector3 = HumanSignature.joint(reader, seconds, "neck");
+      const hips: IAutoMovieVector3 = HumanSignature.joint(
+        reader,
+        seconds,
+        "hips",
+      );
+      const neck: IAutoMovieVector3 = HumanSignature.joint(
+        reader,
+        seconds,
+        "neck",
+      );
       upright = Math.min(
         upright,
         (Math.acos(
@@ -135,14 +147,22 @@ export function test_human_motion_sport_sled(): void {
       );
     }
     if (!(off <= 0.12))
-      complaints.push(`${name}: a wrist lies ${mm(off)} mm from its handle, within 120 mm expected`);
+      complaints.push(
+        `${name}: a wrist lies ${mm(off)} mm from its handle, within 120 mm expected`,
+      );
     if (!(upright >= 15))
-      complaints.push(`${name}: the trunk leans only ${upright.toFixed(1)} degrees from vertical, at least 15 expected`);
+      complaints.push(
+        `${name}: the trunk leans only ${upright.toFixed(1)} degrees from vertical, at least 15 expected`,
+      );
     const end: IHumanProp.IFrame = performance.prop("sled", placed.end);
     if (!(end.position.z - 0.55 >= 2))
-      complaints.push(`${name}: the sled moves ${mm(end.position.z - 0.55)} mm forward, at least 2000 mm expected`);
+      complaints.push(
+        `${name}: the sled moves ${mm(end.position.z - 0.55)} mm forward, at least 2000 mm expected`,
+      );
     if (!(Math.abs(end.position.y) <= 0.01))
-      complaints.push(`${name}: the sled ends ${mm(end.position.y)} mm off the height it stood at, within 10 mm expected`);
+      complaints.push(
+        `${name}: the sled ends ${mm(end.position.y)} mm off the height it stood at, within 10 mm expected`,
+      );
   }
   TestValidator.equals("a sled push", complaints, []);
 }

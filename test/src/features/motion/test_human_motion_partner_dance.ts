@@ -56,7 +56,11 @@ export function test_human_motion_partner_dance(): void {
   try {
     performance = new HumanPerformance({
       seed: "dance",
-      laws: [HumanPartner.danceLead, HumanPartner.danceFollow, HumanPartner.danceHold],
+      laws: [
+        HumanPartner.danceLead,
+        HumanPartner.danceFollow,
+        HumanPartner.danceHold,
+      ],
       performers: [
         {
           subject: "a",
@@ -122,7 +126,8 @@ export function test_human_motion_partner_dance(): void {
 
   // 4. The hold.
   const held: HumanSegment.ISegment | undefined = performance.segments("b")[1];
-  if (held === undefined) complaints.push("the hold is not placed after the follow");
+  if (held === undefined)
+    complaints.push("the hold is not placed after the follow");
   else {
     const at = (event: string): number =>
       held.start +

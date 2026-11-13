@@ -239,7 +239,9 @@ export namespace highFive {
       ),
     );
     const lead: number =
-      p.window === undefined ? 0 : Math.max(0, local.ready - Math.max(0.05, own));
+      p.window === undefined
+        ? 0
+        : Math.max(0, local.ready - Math.max(0.05, own));
     const reach: number = Math.max(0.05, local.ready - lead);
     const timed: AutoMovieMotionClock.IClock = AutoMovieMotionClock.phrase({
       prepare: reach,
@@ -363,8 +365,7 @@ export namespace highFive {
     lead: number,
   ): IHumanActionPlan {
     const duration: number = plan.duration + lead;
-    const share = (s: number): number =>
-      (lead + s * plan.duration) / duration;
+    const share = (s: number): number => (lead + s * plan.duration) / duration;
     return {
       ...plan,
       duration,

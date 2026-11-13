@@ -92,8 +92,12 @@ export namespace cartwheel {
   }
 
   /** The joints a wheel may bear on. */
-  const SPOKES: readonly ("leftFoot" | "rightFoot" | "leftHand" | "rightHand")[] =
-    ["leftFoot", "rightFoot", "leftHand", "rightHand"];
+  const SPOKES: readonly (
+    | "leftFoot"
+    | "rightFoot"
+    | "leftHand"
+    | "rightHand"
+  )[] = ["leftFoot", "rightFoot", "leftHand", "rightHand"];
 
   /**
    * Plan a cartwheel.

@@ -172,19 +172,24 @@ export namespace carryHang {
             rotation: turns[side]!,
             bend: HumanFrame.point(
               { origin: shoulder, yaw: posture.yaw },
-              { x: sign * 0.2 * body.measure.upperArm, y: -0.5 * arm, z: -0.1 * arm },
+              {
+                x: sign * 0.2 * body.measure.upperArm,
+                y: -0.5 * arm,
+                z: -0.1 * arm,
+              },
             ),
           };
           joints = { ...joints, ...fingers[side] };
         }
         const walked = resolveHumanPosture(body, posture);
-        const run: Partial<Record<HumanHand.Side, AutoMovieMotionHumanArm.IAngles>> =
-          Object.fromEntries(
-            sides.map((side: HumanHand.Side) => [
-              side,
-              AutoMovieMotionHumanArm.angles(walked, side),
-            ]),
-          );
+        const run: Partial<
+          Record<HumanHand.Side, AutoMovieMotionHumanArm.IAngles>
+        > = Object.fromEntries(
+          sides.map((side: HumanHand.Side) => [
+            side,
+            AutoMovieMotionHumanArm.angles(walked, side),
+          ]),
+        );
         return AutoMovieMotionHumanArm.carry(
           body,
           { ...posture, joints, limbs },

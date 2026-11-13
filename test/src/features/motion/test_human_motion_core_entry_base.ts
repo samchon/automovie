@@ -213,7 +213,10 @@ export function test_human_motion_core_entry_base(): void {
           `${name}: ${label} the entry's base is ${JSON.stringify(base)}, seated astride on the declared seat expected`,
         );
     }
-    if (ridden[2]?.base.kind !== "standing" || "seat" in (ridden[2]?.base ?? {}))
+    if (
+      ridden[2]?.base.kind !== "standing" ||
+      "seat" in (ridden[2]?.base ?? {})
+    )
       complaints.push(
         `${name}: after an action that declares a standing base the entry's base is ${JSON.stringify(ridden[2]?.base)}, standing with no seat expected`,
       );

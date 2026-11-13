@@ -150,9 +150,8 @@ export function test_human_motion_base_seat_heights(): void {
               proficiency: { level: "trained" },
             },
           ],
-          composition: HumanChain.subject("a")
-            .sit({ seat, seconds: 1 })
-            .rise().node,
+          composition: HumanChain.subject("a").sit({ seat, seconds: 1 }).rise()
+            .node,
         });
       } catch (error) {
         complaints.push(

@@ -3,11 +3,11 @@ import {
   HumanActionRow,
   HumanChain,
   HumanPerformance,
+  type HumanSegment,
   HumanSignature,
+  type IHumanActionLaw,
   type IHumanBody,
   touch,
-  type HumanSegment,
-  type IHumanActionLaw,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -41,7 +41,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the source, how the salute is composed and the 4 scenarios with their bounds.
  */
 export function test_human_motion_signature_salute(): void {
-  const salute: IHumanActionLaw<Omit<touch.IParams, "target" | "with" | "kind" | "side" | "elbow">> = HumanActionRow.of("salute", touch, {
+  const salute: IHumanActionLaw<
+    Omit<touch.IParams, "target" | "with" | "kind" | "side" | "elbow">
+  > = HumanActionRow.of("salute", touch, {
     target: { kind: "self", region: "templeRight" },
     with: "forefinger",
     kind: "hold",

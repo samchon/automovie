@@ -89,23 +89,33 @@ export function test_human_motion_floor_fall(): void {
         body,
         0,
       );
-      const joint = (bone: "hips" | "head" | "leftFoot" | "rightFoot", seconds: number): IAutoMovieVector3 =>
-        HumanSignature.joint(reader, seconds, bone);
+      const joint = (
+        bone: "hips" | "head" | "leftFoot" | "rightFoot",
+        seconds: number,
+      ): IAutoMovieVector3 => HumanSignature.joint(reader, seconds, bone);
       const end: number = placed.end;
       if (toward !== 0) {
         // 2. To its side, the head toward it (the left is +X).
-        const moved: number = toward * (joint("hips", end).x - joint("hips", placed.start).x);
+        const moved: number =
+          toward * (joint("hips", end).x - joint("hips", placed.start).x);
         if (!(moved >= 0.6))
-          complaints.push(`${label}: the hips travel ${mm(moved)} mm to the side, at least 600 mm expected`);
+          complaints.push(
+            `${label}: the hips travel ${mm(moved)} mm to the side, at least 600 mm expected`,
+          );
         if (!(toward * (joint("head", end).x - joint("hips", end).x) > 0))
-          complaints.push(`${label}: landed, the head is not toward the dive's side`);
+          complaints.push(
+            `${label}: landed, the head is not toward the dive's side`,
+          );
 
         // 3. Airborne.
         const middle: number = (at("takeOff") + at("landed")) / 2;
         for (const bone of ["leftFoot", "rightFoot"] as const) {
-          const rise: number = joint(bone, middle).y - joint(bone, placed.start).y;
+          const rise: number =
+            joint(bone, middle).y - joint(bone, placed.start).y;
           if (!(rise >= 0.05))
-            complaints.push(`${label}: at the flight's middle the ${bone} joint is ${mm(rise)} mm above where it stood, at least 50 mm expected`);
+            complaints.push(
+              `${label}: at the flight's middle the ${bone} joint is ${mm(rise)} mm above where it stood, at least 50 mm expected`,
+            );
         }
 
         // 4. One axis.
@@ -120,37 +130,64 @@ export function test_human_motion_floor_fall(): void {
         };
         const first: IAutoMovieVector3 = facing(at("takeOff"));
         let worst: number = 0;
-        for (let seconds: number = at("takeOff"); seconds <= at("landed"); seconds += 1 / 24) {
+        for (
+          let seconds: number = at("takeOff");
+          seconds <= at("landed");
+          seconds += 1 / 24
+        ) {
           const here: IAutoMovieVector3 = facing(seconds);
           worst = Math.max(
             worst,
-            (Math.acos(Math.max(-1, Math.min(1, here.x * first.x + here.y * first.y + here.z * first.z))) * 180) / Math.PI,
+            (Math.acos(
+              Math.max(
+                -1,
+                Math.min(
+                  1,
+                  here.x * first.x + here.y * first.y + here.z * first.z,
+                ),
+              ),
+            ) *
+              180) /
+              Math.PI,
           );
         }
         if (!(worst <= 20))
-          complaints.push(`${label}: the chest's forward axis turns ${worst.toFixed(1)} degrees in the flight, within 20 expected`);
+          complaints.push(
+            `${label}: the chest's forward axis turns ${worst.toFixed(1)} degrees in the flight, within 20 expected`,
+          );
       } else {
         // 5. Forward.
-        const moved: number = joint("hips", end).z - joint("hips", placed.start).z;
+        const moved: number =
+          joint("hips", end).z - joint("hips", placed.start).z;
         if (!(moved >= 0.6))
-          complaints.push(`${label}: the hips travel ${mm(moved)} mm forward, at least 600 mm expected`);
+          complaints.push(
+            `${label}: the hips travel ${mm(moved)} mm forward, at least 600 mm expected`,
+          );
       }
 
       // 6. On the floor.
       const lowest: number = Math.min(
-        ...[...performance.bones("a", end).values()].map((b): number => b.worldPosition.y),
+        ...[...performance.bones("a", end).values()].map(
+          (b): number => b.worldPosition.y,
+        ),
       );
       if (!(joint("hips", end).y <= 0.4))
-        complaints.push(`${label}: landed, the hips joint is ${mm(joint("hips", end).y)} mm above the floor, within 400 mm expected (the lowest joint ${[...performance.bones("a", end).entries()].reduce((a, b) => (b[1].worldPosition.y < a[1].worldPosition.y ? b : a))[0]}; hips to head ${mm(joint("head", end).x - joint("hips", end).x)} mm across, ${mm(joint("head", end).y - joint("hips", end).y)} mm up, ${mm(joint("head", end).z - joint("hips", end).z)} mm ahead)`);
+        complaints.push(
+          `${label}: landed, the hips joint is ${mm(joint("hips", end).y)} mm above the floor, within 400 mm expected (the lowest joint ${[...performance.bones("a", end).entries()].reduce((a, b) => (b[1].worldPosition.y < a[1].worldPosition.y ? b : a))[0]}; hips to head ${mm(joint("head", end).x - joint("hips", end).x)} mm across, ${mm(joint("head", end).y - joint("hips", end).y)} mm up, ${mm(joint("head", end).z - joint("hips", end).z)} mm ahead)`,
+        );
       if (!(lowest <= 0.15))
-        complaints.push(`${label}: landed, the lowest joint centre is ${mm(lowest)} mm above the floor, within 150 mm expected`);
+        complaints.push(
+          `${label}: landed, the lowest joint centre is ${mm(lowest)} mm above the floor, within 150 mm expected`,
+        );
       if (
         !placed.plan.contacts.some(
           (c: IHumanContactWindow): boolean =>
             c.part === "seat" && c.support.kind === "ground" && c.to >= 1,
         )
       )
-        complaints.push(`${label}: no seat contact with the ground is declared to the end`);
+        complaints.push(
+          `${label}: no seat contact with the ground is declared to the end`,
+        );
     }
   }
   TestValidator.equals("a dive and a slide onto the floor", complaints, []);

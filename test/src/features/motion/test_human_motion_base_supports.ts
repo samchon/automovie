@@ -3,12 +3,12 @@ import {
   AutoMovieMotionHumanAuditBalance,
   HumanChain,
   HumanPerformance,
+  type HumanSegment,
   HumanSignature,
   IAutoMovieMotionHumanAuditMotion,
   type IHumanBody,
   type IHumanContactWindow,
   seated,
-  type HumanSegment,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -111,7 +111,8 @@ export function test_human_motion_base_supports(): void {
       ["drink", drinking],
       ["pat", patting],
     ] as const) {
-      const contacts: readonly IHumanContactWindow[] = performance.segments("a")[1]!.plan.contacts;
+      const contacts: readonly IHumanContactWindow[] =
+        performance.segments("a")[1]!.plan.contacts;
       if (
         !whole(contacts, "leftFoot") ||
         !whole(contacts, "rightFoot") ||
@@ -170,7 +171,8 @@ export function test_human_motion_base_supports(): void {
 
     // 4. A seated body is not judged as standing: at no instant of the drink
     // do the feet alone bear it.
-    const windows: ReturnType<typeof IAutoMovieMotionHumanAuditMotion.windows> = IAutoMovieMotionHumanAuditMotion.windows(drinking, "a");
+    const windows: ReturnType<typeof IAutoMovieMotionHumanAuditMotion.windows> =
+      IAutoMovieMotionHumanAuditMotion.windows(drinking, "a");
     for (let t: number = drink.entryTime; t <= drink.end; t += 0.1)
       if (AutoMovieMotionHumanAuditBalance.standing(windows, t)) {
         complaints.push(

@@ -101,7 +101,6 @@ export namespace HumanRide {
   /** Seconds a hand takes to reach the point it is to hold (provisional). */
   export const TAKE: number = 0.6;
 
-
   /** How far a rising trot lifts the seat off the saddle, thigh lengths (provisional: no rider kinematics were read). */
   export const POST: number = 0.25;
 
@@ -154,7 +153,6 @@ export namespace HumanRide {
         support: { kind: "prop", subject: on },
       });
 
-
       // A rising trot stands in the stirrups, so it needs both.
       const rising: number | { cue: string } | undefined =
         context.params.rising;
@@ -177,7 +175,10 @@ export namespace HumanRide {
             reason: `the cue track ${rising.cue} holds ${strides.length} instants, and a stride lies between two`,
             fix: "give a cue track with the mount's strides, or the stride time in seconds",
           });
-        if (!context.entry.feet.left.planted || !context.entry.feet.right.planted)
+        if (
+          !context.entry.feet.left.planted ||
+          !context.entry.feet.right.planted
+        )
           throw new HumanRefusal({
             kind: "affordance",
             axis: "rising",
@@ -311,8 +312,9 @@ export namespace HumanRide {
       };
 
       // Each holding hand's fingers, closed once on the support's own colliders where it stands when the ride begins.
-      const closures: Partial<Record<"left" | "right", IHumanPosture["joints"]>> =
-        {};
+      const closures: Partial<
+        Record<"left" | "right", IHumanPosture["joints"]>
+      > = {};
       for (const side of ["left", "right"] as const) {
         const id: string | undefined = context.params.hands?.[side];
         if (id === undefined) continue;
@@ -397,19 +399,17 @@ export namespace HumanRide {
           // The pelvis keeps its place on the seat, so it tips with a support that leans or pitches; the heading stays the unwrapped one the carry gives.
           const tipped: Pick<IHumanPosture, "yaw" | "pitch" | "roll"> =
             resolveHumanPosture.angles(
-            Quaternion.multiply(
-              Quaternion.multiply(now.rotation, turned),
-              upright,
-            ),
-          );
+              Quaternion.multiply(
+                Quaternion.multiply(now.rotation, turned),
+                upright,
+              ),
+            );
 
           // Rising, the seat lifts off the saddle along the mount's own up and comes back once a stride; the feet stay on their rests.
           const through: number | undefined =
             rising === undefined ? undefined : stride(at);
           const lift: number =
-            through === undefined
-              ? 0
-              : post * Math.sin(Math.PI * through) ** 2;
+            through === undefined ? 0 : post * Math.sin(Math.PI * through) ** 2;
           const up: IAutoMovieVector3 = Quaternion.rotateVector(now.rotation, {
             x: 0,
             y: 1,

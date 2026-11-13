@@ -65,8 +65,9 @@ export namespace touchRegion {
     const body = context.body;
     const sited: ReturnType<typeof touchSite.of> | undefined =
       site === undefined ? undefined : touchSite.of(context, site);
-    const shoulder: IAutoMovieVector3 = bones.get(`${side}UpperArm`)!
-      .worldPosition;
+    const shoulder: IAutoMovieVector3 = bones.get(
+      `${side}UpperArm`,
+    )!.worldPosition;
 
     // A site along a prop's contact moves with the prop.
     let along: ((seconds: number) => IAutoMovieVector3) | undefined;

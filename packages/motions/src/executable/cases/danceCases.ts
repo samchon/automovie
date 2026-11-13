@@ -50,7 +50,12 @@ export function danceCases(
       man.body.profile,
     );
     const suffix: string = bodies.length === 1 ? "" : `-${id}`;
-    for (const kind of ["bounce", "sway", "stepTouch", "boxStep"] as dance.Kind[]) {
+    for (const kind of [
+      "bounce",
+      "sway",
+      "stepTouch",
+      "boxStep",
+    ] as dance.Kind[]) {
       const name: string = `dance-${kind}${suffix}`;
       let performance: HumanPerformance;
       try {

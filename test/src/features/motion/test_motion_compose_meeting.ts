@@ -91,11 +91,15 @@ export function test_motion_compose_meeting(): void {
       at(meeting.contacts.palm!, 0, 1, 0) &&
       meeting.solid === true,
   );
-  TestValidator.equals("each instant is the later of the two", meeting.instants, {
-    ready: 2.5,
-    stroke: 2.75,
-    relax: 3,
-  });
+  TestValidator.equals(
+    "each instant is the later of the two",
+    meeting.instants,
+    {
+      ready: 2.5,
+      stroke: 2.75,
+      relax: 3,
+    },
+  );
   TestValidator.equals("the roles in the meeting's order", meeting.roles, [
     { name: "shaker", subject: "a" },
     { name: "shaker", subject: "b" },

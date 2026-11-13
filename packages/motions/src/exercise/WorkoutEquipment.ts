@@ -176,8 +176,7 @@ export namespace WorkoutEquipment {
     // The bottom: the trunk turned further down, the hip joints kept as
     // high above the floor as when the body lies on it.
     let sunk: number = locked + DROP;
-    while (sunk > locked && top + hips(sunk).up < backed(body) + up)
-      sunk -= 1;
+    while (sunk > locked && top + hips(sunk).up < backed(body) + up) sunk -= 1;
     const from: { forth: number; up: number } = hips(sunk);
     const reach: number = Math.min(
       thigh + shank,
@@ -187,16 +186,14 @@ export namespace WorkoutEquipment {
       deg(Math.atan2(feet.up - from.up, feet.forth - from.forth)) +
       deg(
         Math.acos(
-          (thigh * thigh + reach * reach - shank * shank) /
-            (2 * thigh * reach),
+          (thigh * thigh + reach * reach - shank * shank) / (2 * thigh * reach),
         ),
       );
     const knee: number =
       180 -
       deg(
         Math.acos(
-          (thigh * thigh + shank * shank - reach * reach) /
-            (2 * thigh * shank),
+          (thigh * thigh + shank * shank - reach * reach) / (2 * thigh * shank),
         ),
       );
     return [
@@ -209,10 +206,7 @@ export namespace WorkoutEquipment {
           elbow: 30,
         },
       ),
-      ExerciseKey.of(
-        { pitch: -90 + locked },
-        { knee: 90 - locked, elbow: 30 },
-      ),
+      ExerciseKey.of({ pitch: -90 + locked }, { knee: 90 - locked, elbow: 30 }),
     ];
   };
 

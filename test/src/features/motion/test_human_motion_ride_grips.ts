@@ -150,7 +150,9 @@ export function test_human_motion_ride_grips(): void {
       performance = new HumanPerformance({
         seed: "grips",
         laws: [HumanRide.ride],
-        props: [HumanObject.prop("mount", mount.model, placed(0), placed, part)],
+        props: [
+          HumanObject.prop("mount", mount.model, placed(0), placed, part),
+        ],
         performers: [
           {
             subject: "a",
@@ -242,5 +244,9 @@ export function test_human_motion_ride_grips(): void {
         );
     }
   }
-  TestValidator.equals("a rider's hands stay on what they hold", complaints, []);
+  TestValidator.equals(
+    "a rider's hands stay on what they hold",
+    complaints,
+    [],
+  );
 }

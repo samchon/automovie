@@ -199,19 +199,23 @@ export namespace AutoMovieMotionHumanTouchLaid {
 
     // A law does not ask a joint at the end of its range: the forearm's
     // twist is kept `MARGIN` degrees inside the forearm's own range.
-    const range: IAutoMovieAngleRange | null = getConstraint(
-      `${side}LowerArm`,
-      body.skeleton.bones.find(
-        (b: IAutoMovieBone): boolean => b.bone === `${side}LowerArm`,
-      )?.constraint ?? null,
-    )?.twist ?? null;
+    const range: IAutoMovieAngleRange | null =
+      getConstraint(
+        `${side}LowerArm`,
+        body.skeleton.bones.find(
+          (b: IAutoMovieBone): boolean => b.bone === `${side}LowerArm`,
+        )?.constraint ?? null,
+      )?.twist ?? null;
     if (range === null || range.max - range.min <= 2 * MARGIN) return solved;
     return {
       ...solved,
       lower: [
         solved.lower[0],
         solved.lower[1],
-        Math.min(range.max - MARGIN, Math.max(range.min + MARGIN, solved.lower[2])),
+        Math.min(
+          range.max - MARGIN,
+          Math.max(range.min + MARGIN, solved.lower[2]),
+        ),
       ],
     };
   }

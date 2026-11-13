@@ -112,7 +112,11 @@ export namespace StrikingHeld {
         side,
         "grip",
       );
-      const axis: IAutoMovieVector3 = { x: side === "left" ? 1 : -1, y: 0, z: 0 };
+      const axis: IAutoMovieVector3 = {
+        x: side === "left" ? 1 : -1,
+        y: 0,
+        z: 0,
+      };
       return {
         side,
         tip: { x: 0, y: 0, z: 0 },

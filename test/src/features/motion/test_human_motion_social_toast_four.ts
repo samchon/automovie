@@ -94,11 +94,7 @@ export function test_human_motion_social_toast_four(): void {
       "right",
       touch.EFFECTORS.fist,
     );
-    const off: number = Math.hypot(
-      fist.x - at.x,
-      fist.y - at.y,
-      fist.z - at.z,
-    );
+    const off: number = Math.hypot(fist.x - at.x, fist.y - at.y, fist.z - at.z);
     if (!(off <= 0.015))
       complaints.push(
         `${role}: the fist lies ${(off * 1000).toFixed(0)} mm from the shared point at meet, within 15 mm expected`,

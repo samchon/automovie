@@ -215,8 +215,7 @@ export function test_human_motion_sport_hip_thrust(): void {
     }
 
     // 4. The hips travel.
-    const travel: number =
-      (hips.y - both(down, "UpperLeg").y) / stature;
+    const travel: number = (hips.y - both(down, "UpperLeg").y) / stature;
     if (!(travel > 0.08))
       complaints.push(
         `${name}: the hip joints rise ${travel.toFixed(3)} of the stature from down1 to lockout1, more than 0.08 expected`,

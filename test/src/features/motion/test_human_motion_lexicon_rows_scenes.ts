@@ -20,5 +20,9 @@ import { LexiconRowNet } from "../internal/LexiconRowNet";
  * @evidence contracts/development/common.md#meaningful-documentation States what is pinned and the 3 scenarios.
  */
 export function test_human_motion_lexicon_rows_scenes(): void {
-  TestValidator.equals("every scene is performable", LexiconRowNet.scenes(), []);
+  TestValidator.equals(
+    "every scene is performable",
+    LexiconRowNet.scenes(),
+    [],
+  );
 }

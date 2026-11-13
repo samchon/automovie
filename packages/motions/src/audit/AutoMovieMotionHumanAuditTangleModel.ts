@@ -181,7 +181,14 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
           radius,
           Vector3.length(Vector3.subtract(probe, centre)),
         );
-      return { bone: p.bone, shapes: p.shapes, probes, surface, centre, radius };
+      return {
+        bone: p.bone,
+        shapes: p.shapes,
+        probes,
+        surface,
+        centre,
+        radius,
+      };
     });
     // The nearest ancestor of a bone that carries a collider: the joint its
     // collider meets, skipping bones (a clavicle) that have none.
@@ -208,10 +215,7 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
       body,
       poseBones(
         body,
-        resolveHumanPosture(
-          body,
-          stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
-        ),
+        resolveHumanPosture(body, stand.posture(body, { x: 0, y: 0, z: 0 }, 0)),
       ),
     );
     const built: IModel = { parts, related, rest, stance, baseline: new Map() };

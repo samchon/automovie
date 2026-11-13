@@ -153,9 +153,8 @@ export function test_human_motion_core_joint_blend_sweep(): void {
         [far(k - 1), far(k)].every(
           (end: readonly [number, number, number]): boolean =>
             turn(rotation(near), rotation(end)) < APART &&
-            twistPast(
-              Quaternion.slerp(rotation(near), rotation(end), share),
-            ) < 60,
+            twistPast(Quaternion.slerp(rotation(near), rotation(end), share)) <
+              60,
         )
       ) {
         const value: number = turn(rotation(previous), rotation(here));

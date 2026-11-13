@@ -40,11 +40,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_core_leg_pole(): void {
   const body: IHumanBody = motionHumanBody("m-average");
-  const standing: IHumanPosture = stand.posture(
-    body,
-    { x: 0, y: 0, z: 0 },
-    0,
-  );
+  const standing: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
   const mm = (metres: number): string => (metres * 1000).toFixed(0);
   const at = (
     pose: IAutoMoviePose,

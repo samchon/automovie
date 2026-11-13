@@ -1,5 +1,10 @@
-import { type IAutoMovieIntent, type IAutoMovieSchedule, resolveAutoMovieSchedule } from "@automovie/engine";
+import {
+  type IAutoMovieIntent,
+  type IAutoMovieSchedule,
+  resolveAutoMovieSchedule,
+} from "@automovie/engine";
 import type { AutoMovieMotionTarget } from "@automovie/interface";
+
 import type { HumanActionKey } from "../HumanActionKey";
 import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -9,14 +14,14 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { HumanSkill } from "../skill/HumanSkill";
-import { HumanSegment } from "./HumanSegment";
-import type { IHumanProp } from "./IHumanProp";
-import { HumanPerformanceRead } from "./HumanPerformanceRead";
+import type { HumanObstacle } from "./HumanObstacle";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
 import { HumanPerformanceOverlays } from "./HumanPerformanceOverlays";
-import type { HumanObstacle } from "./HumanObstacle";
+import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import type { HumanPerformanceState } from "./HumanPerformanceState";
+import { HumanSegment } from "./HumanSegment";
+import type { IHumanProp } from "./IHumanProp";
 
 /**
  * One intent placed in the performance: its law found, its entry state
@@ -41,7 +46,10 @@ export namespace HumanPerformancePlace {
     where: HumanRefusal.IWhere,
     trial: boolean = false,
   ) {
-    const person: HumanSegment.IPerson = HumanPerformanceRead.person(self, intent.subject);
+    const person: HumanSegment.IPerson = HumanPerformanceRead.person(
+      self,
+      intent.subject,
+    );
     const name: HumanActionKey = intent.capability;
     const law: IHumanActionLaw<never> | undefined = self.laws.get(name);
     if (law === undefined)
@@ -232,9 +240,15 @@ export namespace HumanPerformancePlace {
           );
         return {
           body: HumanPerformanceRead.person(self, subject).performer.body,
-          bones: (seconds: number) => HumanPerformanceRead.bones(self, subject, seconds),
+          bones: (seconds: number) =>
+            HumanPerformanceRead.bones(self, subject, seconds),
           root: (seconds: number): IHumanActionContext.IRoot =>
-            HumanPerformanceRead.root(self, subject, seconds, named(subject, "performer")),
+            HumanPerformanceRead.root(
+              self,
+              subject,
+              seconds,
+              named(subject, "performer"),
+            ),
         };
       },
       prop: (subject: string): IHumanActionContext.IProp => {
@@ -305,9 +319,18 @@ export namespace HumanPerformancePlace {
                 ): AutoMovieMotionMeeting.IRole => ({
                   name: other.role,
                   subject: other.subject,
-                  body: HumanPerformanceRead.person(self, other.subject).performer.body,
-                  posture: HumanPerformanceRead.posture(self, other.subject, context.start),
-                  bones: HumanPerformanceRead.bones(self, other.subject, context.start),
+                  body: HumanPerformanceRead.person(self, other.subject)
+                    .performer.body,
+                  posture: HumanPerformanceRead.posture(
+                    self,
+                    other.subject,
+                    context.start,
+                  ),
+                  bones: HumanPerformanceRead.bones(
+                    self,
+                    other.subject,
+                    context.start,
+                  ),
                 }),
               ),
             ],
@@ -375,14 +398,21 @@ export namespace HumanPerformancePlace {
       }
     };
     if (over && previous !== undefined)
-      return HumanPerformanceOverlays.place(self, person, previous, intent, entries, {
-        name,
-        params,
-        law,
-        context,
-        plan,
-        start,
-      });
+      return HumanPerformanceOverlays.place(
+        self,
+        person,
+        previous,
+        intent,
+        entries,
+        {
+          name,
+          params,
+          law,
+          context,
+          plan,
+          start,
+        },
+      );
     const active: number = (1 - share) * plan.duration;
     const segment: HumanSegment.ISegment = {
       index: person.segments.length,

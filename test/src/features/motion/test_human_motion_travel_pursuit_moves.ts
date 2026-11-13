@@ -90,7 +90,11 @@ export function test_human_motion_travel_pursuit_moves(): void {
     reader: HumanSignature.IReader,
     t: number,
   ): IAutoMovieVector3 => {
-    const l: IAutoMovieVector3 = HumanSignature.joint(reader, t, "leftUpperLeg");
+    const l: IAutoMovieVector3 = HumanSignature.joint(
+      reader,
+      t,
+      "leftUpperLeg",
+    );
     const r: IAutoMovieVector3 = HumanSignature.joint(
       reader,
       t,

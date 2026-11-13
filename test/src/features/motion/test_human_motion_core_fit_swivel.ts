@@ -105,10 +105,14 @@ export function test_human_motion_core_fit_swivel(): void {
     // The elbow's circle: every place the elbow can take with the shoulder
     // and the wrist where the fit put them, and the place on it nearest the
     // elbow's asked place, which is where the hint asks the elbow to be.
-    const shoulder: IAutoMovieVector3 = bones.get("rightUpperArm")!.worldPosition;
+    const shoulder: IAutoMovieVector3 =
+      bones.get("rightUpperArm")!.worldPosition;
     const elbow: IAutoMovieVector3 = bones.get("rightLowerArm")!.worldPosition;
     const wrist: IAutoMovieVector3 = bones.get("rightHand")!.worldPosition;
-    const sub = (p: IAutoMovieVector3, q: IAutoMovieVector3): IAutoMovieVector3 => ({
+    const sub = (
+      p: IAutoMovieVector3,
+      q: IAutoMovieVector3,
+    ): IAutoMovieVector3 => ({
       x: p.x - q.x,
       y: p.y - q.y,
       z: p.z - q.z,
@@ -120,7 +124,11 @@ export function test_human_motion_core_fit_swivel(): void {
     const l2: number = len(sub(wrist, elbow));
     const span: IAutoMovieVector3 = sub(wrist, shoulder);
     const d: number = len(span);
-    const axis: IAutoMovieVector3 = { x: span.x / d, y: span.y / d, z: span.z / d };
+    const axis: IAutoMovieVector3 = {
+      x: span.x / d,
+      y: span.y / d,
+      z: span.z / d,
+    };
     const along: number = (l1 * l1 - l2 * l2 + d * d) / (2 * d);
     const r: number = Math.sqrt(Math.max(0, l1 * l1 - along * along));
     const centre: IAutoMovieVector3 = {

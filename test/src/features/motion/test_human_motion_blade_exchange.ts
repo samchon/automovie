@@ -100,55 +100,55 @@ export function test_human_motion_blade_exchange(): void {
           use: { tip: "point", line: "oblique" },
         });
     const film: HumanPerformance = new HumanPerformance({
-        seed: "exchange",
-        laws: Object.values(HumanBlade),
-        performers: (["a", "b"] as const).map((subject) => ({
-          subject,
-          body: bodies[subject],
-          at: { x: 0, y: 0, z: subject === "a" ? 0 : APART },
-          yaw: subject === "a" ? 0 : 180,
-          proficiency: { level: "trained" as const },
-        })),
-        props: (["a", "b"] as const).map((subject) => {
-          // Each sword lies level before its owner's right hand, point ahead.
-          const stature: number = bodies[subject].measure.stature;
-          const facing: number = subject === "a" ? 1 : -1;
-          return HumanObject.prop(`sword-${subject}`, sword, {
-            position: {
-              x: -0.1 * stature * facing,
-              y: 0.6 * stature,
-              z: (subject === "a" ? 0 : APART) + 0.18 * stature * facing,
-            },
-            rotation: Quaternion.multiply(
-              Quaternion.fromAxisAngle(
-                { x: 0, y: 1, z: 0 },
-                subject === "a" ? 0 : 180,
-              ),
-              Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
+      seed: "exchange",
+      laws: Object.values(HumanBlade),
+      performers: (["a", "b"] as const).map((subject) => ({
+        subject,
+        body: bodies[subject],
+        at: { x: 0, y: 0, z: subject === "a" ? 0 : APART },
+        yaw: subject === "a" ? 0 : 180,
+        proficiency: { level: "trained" as const },
+      })),
+      props: (["a", "b"] as const).map((subject) => {
+        // Each sword lies level before its owner's right hand, point ahead.
+        const stature: number = bodies[subject].measure.stature;
+        const facing: number = subject === "a" ? 1 : -1;
+        return HumanObject.prop(`sword-${subject}`, sword, {
+          position: {
+            x: -0.1 * stature * facing,
+            y: 0.6 * stature,
+            z: (subject === "a" ? 0 : APART) + 0.18 * stature * facing,
+          },
+          rotation: Quaternion.multiply(
+            Quaternion.fromAxisAngle(
+              { x: 0, y: 1, z: 0 },
+              subject === "a" ? 0 : 180,
             ),
-          });
-        }),
-        composition: stand("a", "sword-a")
-          .registered(
-            "cut",
-            {
-              blade: "sword-a",
-              target: { kind: "person", subject: "b", region: "shoulderLeft" },
-              outcome: "parried",
-            },
-            "attack",
-          )
-          .stand({ seconds: 2 })
-          .with(
-            stand("b", "sword-b")
-              .stand({ seconds: 3 })
-              .registered("parry", { blade: "sword-b", against: "attack" })
-              .sync({ of: "attack", align: "stroke" })
-              .registered("riposte", {
-                blade: "sword-b",
-                target: { kind: "person", subject: "a", region: "sternum" },
-              }),
-          ).node,
+            Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
+          ),
+        });
+      }),
+      composition: stand("a", "sword-a")
+        .registered(
+          "cut",
+          {
+            blade: "sword-a",
+            target: { kind: "person", subject: "b", region: "shoulderLeft" },
+            outcome: "parried",
+          },
+          "attack",
+        )
+        .stand({ seconds: 2 })
+        .with(
+          stand("b", "sword-b")
+            .stand({ seconds: 3 })
+            .registered("parry", { blade: "sword-b", against: "attack" })
+            .sync({ of: "attack", align: "stroke" })
+            .registered("riposte", {
+              blade: "sword-b",
+              target: { kind: "person", subject: "a", region: "sternum" },
+            }),
+        ).node,
     });
     const named = (subject: string, name: string): HumanSegment.ISegment =>
       film

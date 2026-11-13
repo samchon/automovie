@@ -1,11 +1,18 @@
-import { resolveAutoMovieContactEvents, segmentSegmentDistance } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  resolveAutoMovieContactEvents,
+  segmentSegmentDistance,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanColliders } from "../posture/HumanColliders";
-import { HumanSegment } from "./HumanSegment";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import type { HumanPerformanceState } from "./HumanPerformanceState";
+import { HumanSegment } from "./HumanSegment";
 
 /**
  * What the placed performance does to itself: the holds a grip starts and
@@ -231,7 +238,11 @@ export namespace HumanPerformanceContacts {
               apply(stops);
               return HumanColliders.distance(
                 person.performer.body,
-                HumanPerformanceRead.bones(self, person.performer.subject, seconds),
+                HumanPerformanceRead.bones(
+                  self,
+                  person.performer.subject,
+                  seconds,
+                ),
                 point,
               ).distance;
             },
@@ -244,7 +255,11 @@ export namespace HumanPerformanceContacts {
               apply(stops);
               return HumanColliders.distanceToSegment(
                 person.performer.body,
-                HumanPerformanceRead.bones(self, person.performer.subject, seconds),
+                HumanPerformanceRead.bones(
+                  self,
+                  person.performer.subject,
+                  seconds,
+                ),
                 a,
                 b,
               ).distance;
@@ -263,7 +278,11 @@ export namespace HumanPerformanceContacts {
               const bone: AutoMovieHumanoidBone =
                 HumanColliders.distanceToSegment(
                   person.performer.body,
-                  HumanPerformanceRead.bones(self, person.performer.subject, seconds),
+                  HumanPerformanceRead.bones(
+                    self,
+                    person.performer.subject,
+                    seconds,
+                  ),
                   a,
                   b,
                 ).bone;

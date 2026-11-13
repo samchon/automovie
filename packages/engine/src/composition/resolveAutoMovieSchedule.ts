@@ -82,7 +82,8 @@ export function resolveAutoMovieSchedule(
       a.start - b.start || a.index - b.index,
   );
   let duration: number = end;
-  for (const entry of walk.entries) if (entry.end > duration) duration = entry.end;
+  for (const entry of walk.entries)
+    if (entry.end > duration) duration = entry.end;
   return Object.freeze({
     entries: Object.freeze(
       sorted.map((e: IAutoMovieSchedule.IEntry) =>

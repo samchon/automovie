@@ -65,8 +65,7 @@ export function test_human_motion_social_toast_four_glasses(): void {
   // Before the right shoulder: the performer's right is his forward turned
   // a quarter to the right.
   const before = (yaw: number): HumanObject.Placement => {
-    const ahead: number =
-      0.3 * (body.measure.upperArm + body.measure.forearm);
+    const ahead: number = 0.3 * (body.measure.upperArm + body.measure.forearm);
     const right: IAutoMovieVector3 = turn(yaw - 90);
     const floor: IAutoMovieVector3 = Vector3.add(
       Vector3.add(stands(yaw), Vector3.scale(turn(yaw), ahead)),
@@ -135,10 +134,7 @@ export function test_human_motion_social_toast_four_glasses(): void {
       (placed.plan.events.find((e): boolean => e.name === "meet")?.share ??
         NaN) *
         placed.plan.duration;
-    const frame: IHumanProp.IFrame = performance.prop(
-      `glass-${subject}`,
-      meet,
-    );
+    const frame: IHumanProp.IFrame = performance.prop(`glass-${subject}`, meet);
     const axis: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
       x: 0,
       y: 1,

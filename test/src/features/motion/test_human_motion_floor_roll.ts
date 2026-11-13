@@ -86,7 +86,11 @@ export function test_human_motion_floor_roll(): void {
       // 2. On the floor throughout.
       let highest: number = -Infinity;
       let when: number = NaN;
-      for (let seconds: number = at("tucked"); seconds <= at("rolled"); seconds += 1 / 24) {
+      for (
+        let seconds: number = at("tucked");
+        seconds <= at("rolled");
+        seconds += 1 / 24
+      ) {
         const lowest: number = Math.min(
           ...[...performance.bones("a", seconds).values()].map(
             (b): number => b.worldPosition.y,
@@ -124,10 +128,22 @@ export function test_human_motion_floor_roll(): void {
 
       // 5. Planted while crouching.
       for (const bone of ["leftFoot", "rightFoot"] as const) {
-        const from: IAutoMovieVector3 = HumanSignature.joint(reader, placed.start, bone);
+        const from: IAutoMovieVector3 = HumanSignature.joint(
+          reader,
+          placed.start,
+          bone,
+        );
         let worst: number = 0;
-        for (let seconds: number = placed.start; seconds <= at("tucked"); seconds += 1 / 24) {
-          const here: IAutoMovieVector3 = HumanSignature.joint(reader, seconds, bone);
+        for (
+          let seconds: number = placed.start;
+          seconds <= at("tucked");
+          seconds += 1 / 24
+        ) {
+          const here: IAutoMovieVector3 = HumanSignature.joint(
+            reader,
+            seconds,
+            bone,
+          );
           worst = Math.max(
             worst,
             Math.hypot(here.x - from.x, here.y - from.y, here.z - from.z),

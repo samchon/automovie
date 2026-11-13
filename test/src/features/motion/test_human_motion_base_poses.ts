@@ -143,8 +143,9 @@ export function test_human_motion_base_poses(): void {
       // 2. Still on the feet.
       for (const side of ["left", "right"] as const)
         if (!HumanSignature.bears(reader, end, side))
-          complaints.push(`${label}: the ${side} foot does not bear at the end`);
-
+          complaints.push(
+            `${label}: the ${side} foot does not bear at the end`,
+          );
     }
   }
   TestValidator.equals("standing poses hold their ground", complaints, []);

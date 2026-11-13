@@ -142,7 +142,8 @@ export function test_human_motion_gymnastics_airborne(): void {
         const first: IAutoMovieVector3 = joint(share(window.from), bone);
         for (const s of [(window.from + window.to) / 2, window.to]) {
           const slid: number =
-            1000 * Vector3.length(Vector3.subtract(joint(share(s), bone), first));
+            1000 *
+            Vector3.length(Vector3.subtract(joint(share(s), bone), first));
           if (!(slid <= 5))
             complaints.push(
               `${label}: the bearing ${bone} moves ${slid.toFixed(1)} mm while it bears, 5 mm at most expected`,

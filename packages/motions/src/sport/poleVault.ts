@@ -349,8 +349,7 @@ export namespace poleVault {
         value: speed,
         feasible: {
           kind: "range",
-          minimum:
-            omega0 > 0 ? (speed * Math.sqrt(needed)) / omega0 : null,
+          minimum: omega0 > 0 ? (speed * Math.sqrt(needed)) / omega0 : null,
           maximum: null,
           unit: "m/s",
           open: "minimum",
@@ -373,8 +372,7 @@ export namespace poleVault {
     const angleAt = (t: number): number => {
       let i: number = 1;
       while (i < STEPS && seconds[i]! < t) i++;
-      const u: number =
-        (t - seconds[i - 1]!) / (seconds[i]! - seconds[i - 1]!);
+      const u: number = (t - seconds[i - 1]!) / (seconds[i]! - seconds[i - 1]!);
       return (upright * (i - 1 + Math.min(1, Math.max(0, u)))) / STEPS;
     };
     const degrees: number = 180 / Math.PI;

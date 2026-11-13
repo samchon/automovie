@@ -45,7 +45,9 @@ export namespace HumanSegmentCarry {
     if (holds.length === 0) return [];
     const chest: IAutoMovieResolvedBone = bones(person, pose).get("chest")!;
     return holds.map(
-      (h: HumanSegment.IHeld): ["leftArm" | "rightArm", IHumanPosture.IGoal] => {
+      (
+        h: HumanSegment.IHeld,
+      ): ["leftArm" | "rightArm", IHumanPosture.IGoal] => {
         h.carry ??= capture(person, h);
         return [
           h.side === "left" ? "leftArm" : "rightArm",
@@ -78,7 +80,10 @@ export namespace HumanSegmentCarry {
   }
 
   /** A holding arm relative to the chest at the end of the action that took hold. */
-  function capture(person: HumanSegment.IPerson, held: HumanSegment.IHeld): HumanSegment.ICarry {
+  function capture(
+    person: HumanSegment.IPerson,
+    held: HumanSegment.IHeld,
+  ): HumanSegment.ICarry {
     const at: number = Math.max(held.from, held.source.end);
     const pose: IAutoMoviePose = HumanSegmentPose.of(person, held.source, at);
     const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = bones(

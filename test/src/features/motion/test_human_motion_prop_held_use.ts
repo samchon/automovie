@@ -1,7 +1,4 @@
-import {
-  createDevice,
-  createDrinkware,
-} from "@automovie/archetypes";
+import { createDevice, createDrinkware } from "@automovie/archetypes";
 import {
   type IAutoMovieResolvedBone,
   Quaternion,
@@ -149,10 +146,10 @@ export function test_human_motion_prop_held_use(): void {
         (): HumanChain =>
           HumanChain.subject("a")
             .pickUp({
-          prop: "glass",
-          handle: "body",
-          use: { tip: "lip", line: "square", at: "mouth" },
-        })
+              prop: "glass",
+              handle: "body",
+              use: { tip: "lip", line: "square", at: "mouth" },
+            })
             .handToFace({ task: "drink", prop: "glass" })
             .stand({ seconds: 0.5 }),
         (performance: HumanPerformance): void => {
@@ -178,7 +175,7 @@ export function test_human_motion_prop_held_use(): void {
               seconds,
               { x: 0, y: lip.y, z: 0 },
             );
-const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+            const axis: IAutoMovieVector3 = Quaternion.rotateVector(
               performance.prop("glass", seconds).rotation,
               { x: 0, y: 1, z: 0 },
             );
@@ -191,13 +188,11 @@ const axis: IAutoMovieVector3 = Quaternion.rotateVector(
               Vector3.subtract(mouth, Vector3.scale(axis, along)),
             );
             rim = Math.max(rim, Math.hypot(across - radius, along));
-
           }
           if (!(rim <= 0.015))
             complaints.push(
               `${name}: the held glass's rim is ${mm(rim)} mm from the mouth at its farthest in the hold, within 15 mm expected`,
             );
-
         },
       ],
       [
@@ -271,10 +266,10 @@ const axis: IAutoMovieVector3 = Quaternion.rotateVector(
         "a point the glass lacks",
         HumanChain.subject("a")
           .pickUp({
-          prop: "glass",
-          handle: "body",
-          use: { tip: "lip", line: "square", at: "mouth" },
-        })
+            prop: "glass",
+            handle: "body",
+            use: { tip: "lip", line: "square", at: "mouth" },
+          })
           .handToFace({ task: "drink", prop: "glass", point: "spout" }),
         "point",
         "lip",

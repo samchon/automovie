@@ -52,9 +52,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_travel_obstacles(): void {
   const complaints: string[] = [];
   const body: IHumanBody = motionHumanBody("m-average");
-  const wall = (
-    door?: { width: number; height: number },
-  ): HumanObstacle.IObstacle =>
+  const wall = (door?: {
+    width: number;
+    height: number;
+  }): HumanObstacle.IObstacle =>
     HumanObstacle.wall(
       "wall",
       { x: -2, y: 0, z: 2 },

@@ -432,8 +432,7 @@ export namespace HumanMountOn {
                     ankle: floor[side],
                     bend: planted.bend,
                     yaw:
-                      yaw0 +
-                      (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT),
+                      yaw0 + (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT),
                   }
                 : starts[side],
               places[side].foot,

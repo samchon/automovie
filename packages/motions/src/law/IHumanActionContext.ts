@@ -126,7 +126,9 @@ export interface IHumanActionContext<P = object> {
   meeting(
     kind: AutoMovieMotionMeeting.IKind,
     role: string,
-    partner?: IHumanActionContext.IPartner | readonly IHumanActionContext.IPartner[],
+    partner?:
+      | IHumanActionContext.IPartner
+      | readonly IHumanActionContext.IPartner[],
     window?: AutoMovieMotionMeeting.IWindow,
   ): AutoMovieMotionMeeting.IMeeting;
 

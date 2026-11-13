@@ -244,79 +244,79 @@ export function test_human_motion_core_grasp_use(): void {
     // 4. A glass taken up to be drunk from, by the average man.
     if (name === "m-average")
       try {
-      new HumanPerformance({
-        seed: "grasp",
-        performers: [
-          {
-            subject: "a",
-            body,
-            at: { x: 0, y: 0, z: 0 },
-            yaw: 0,
-            proficiency: { level: "trained" },
-          },
-        ],
-        props: [
-          HumanObject.prop("glass", createDrinkware({ kind: "glass" }), {
-            at: { x: 0.15, y: 0.58 * stature, z: 0.17 * stature },
-            yaw: 0,
-          }),
-        ],
-        composition: HumanChain.subject("a")
-          .stand({ seconds: 0.3 })
-          .pickUp({
-            prop: "glass",
-            handle: "body",
-            use: { tip: "lip", line: "square", at: "mouth" },
-          }).node,
-      });
-    } catch (error) {
-      complaints.push(
-        `${name}: a glass taken up to bring its lip upright to the mouth: expected to plan, got ${error instanceof Error ? error.message : String(error)}`,
-      );
-    }
+        new HumanPerformance({
+          seed: "grasp",
+          performers: [
+            {
+              subject: "a",
+              body,
+              at: { x: 0, y: 0, z: 0 },
+              yaw: 0,
+              proficiency: { level: "trained" },
+            },
+          ],
+          props: [
+            HumanObject.prop("glass", createDrinkware({ kind: "glass" }), {
+              at: { x: 0.15, y: 0.58 * stature, z: 0.17 * stature },
+              yaw: 0,
+            }),
+          ],
+          composition: HumanChain.subject("a")
+            .stand({ seconds: 0.3 })
+            .pickUp({
+              prop: "glass",
+              handle: "body",
+              use: { tip: "lip", line: "square", at: "mouth" },
+            }).node,
+        });
+      } catch (error) {
+        complaints.push(
+          `${name}: a glass taken up to bring its lip upright to the mouth: expected to plan, got ${error instanceof Error ? error.message : String(error)}`,
+        );
+      }
 
     // 5. A cigarette taken up to bring its mouth end to the lips, by the
     // small woman, on whom it was first refused.
     if (name === "f-small")
       try {
-      new HumanPerformance({
-        seed: "grasp",
-        performers: [
-          {
-            subject: "a",
-            body,
-            at: { x: 0, y: 0, z: 0 },
-            yaw: 0,
-            proficiency: { level: "trained" },
-          },
-        ],
-        props: [
-          HumanObject.prop(
-            "cigarette",
-            createSmoking({ kind: "cigarette" }),
+        new HumanPerformance({
+          seed: "grasp",
+          performers: [
             {
-              at: {
-                x: -body.measure.shoulderHalfWidth,
-                y: body.measure.waistHeight,
-                z: 0.6 * (body.measure.upperArm + body.measure.forearm),
-              },
+              subject: "a",
+              body,
+              at: { x: 0, y: 0, z: 0 },
               yaw: 0,
+              proficiency: { level: "trained" },
             },
-          ),
-        ],
-        composition: HumanChain.subject("a")
-          .stand({ seconds: 0.3 })
-          .pickUp({
-            prop: "cigarette",
-            handle: "grip",
-            use: { tip: "mouth", line: "forearm", at: "mouth" },
-          }).node,
-      });
-    } catch (error) {
-      complaints.push(
-        `${name}: a cigarette taken up to bring its mouth end level to the lips: expected to plan, got ${error instanceof Error ? error.message : String(error)}`,
-      );
-    }
+          ],
+          props: [
+            HumanObject.prop(
+              "cigarette",
+              createSmoking({ kind: "cigarette" }),
+              {
+                at: {
+                  x: -body.measure.shoulderHalfWidth,
+                  y: body.measure.waistHeight,
+                  z: 0.6 * (body.measure.upperArm + body.measure.forearm),
+                },
+                yaw: 0,
+              },
+            ),
+          ],
+          composition: HumanChain.subject("a")
+            .stand({ seconds: 0.3 })
+            .pickUp({
+              prop: "cigarette",
+              handle: "grip",
+              use: { tip: "mouth", line: "forearm", at: "mouth" },
+            }).node,
+        });
+      } catch (error) {
+        complaints.push(
+          `${name}: a cigarette taken up to bring its mouth end level to the lips: expected to plan, got ${error instanceof Error ? error.message : String(error)}`,
+        );
+      }
 
     // 3. A working point the sword lacks.
     if (name !== "m-average") continue;

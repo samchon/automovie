@@ -68,7 +68,11 @@ export namespace HumanBlade {
   });
 
   /** A thrust, with the least advance that reaches its target. */
-  export const thrust = HumanActionRow.of("thrust", HumanSwordThrust.thrust, {});
+  export const thrust = HumanActionRow.of(
+    "thrust",
+    HumanSwordThrust.thrust,
+    {},
+  );
 
   /** A lunge: a thrust carried by the leading foot's long step, then recovered. */
   export const lunge = HumanActionRow.of("lunge", HumanSwordThrust.thrust, {
@@ -136,5 +140,9 @@ export namespace HumanBlade {
   });
 
   /** A riposte: the thrust that answers out of a parry. */
-  export const riposte = HumanActionRow.of("riposte", HumanSwordThrust.thrust, {});
+  export const riposte = HumanActionRow.of(
+    "riposte",
+    HumanSwordThrust.thrust,
+    {},
+  );
 }

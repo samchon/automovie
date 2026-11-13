@@ -5,10 +5,10 @@ import {
   HumanChain,
   HumanPerformance,
   HumanRefusal,
+  type HumanSegment,
   type IHumanBody,
   type IHumanLayer,
   type IHumanPosture,
-  type HumanSegment,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -87,7 +87,10 @@ export function test_human_motion_layer_windows(): void {
     other: HumanPerformance,
     seconds: number,
   ): number => {
-    const there: ReturnType<HumanPerformance["bones"]> = other.bones("a", seconds);
+    const there: ReturnType<HumanPerformance["bones"]> = other.bones(
+      "a",
+      seconds,
+    );
     let far: number = 0;
     for (const [bone, resolved] of one.bones("a", seconds)) {
       const p: IAutoMovieVector3 = resolved.worldPosition;

@@ -265,9 +265,13 @@ export namespace HumanGaze {
         ),
       ),
       {
-        x: Math.cos(radians(parts.head.pitch)) * Math.sin(radians(parts.head.yaw)),
+        x:
+          Math.cos(radians(parts.head.pitch)) *
+          Math.sin(radians(parts.head.yaw)),
         y: -Math.sin(radians(parts.head.pitch)),
-        z: Math.cos(radians(parts.head.pitch)) * Math.cos(radians(parts.head.yaw)),
+        z:
+          Math.cos(radians(parts.head.pitch)) *
+          Math.cos(radians(parts.head.yaw)),
       },
     );
     const chain: IAutoMovieJointPose[] = gazeChainJoints({

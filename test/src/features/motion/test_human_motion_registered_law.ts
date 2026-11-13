@@ -4,9 +4,9 @@ import {
   HumanChain,
   HumanPerformance,
   HumanRefusal,
+  type HumanSegment,
   HumanSignature,
   type IHumanActionLaw,
-  type HumanSegment,
   type IHumanBody,
   handToFace,
   seated,
@@ -90,23 +90,23 @@ export function test_human_motion_registered_law(): void {
     HumanActionRow.of("takeSeat", sit, { seat: chair });
   const shave: IHumanActionLaw<Omit<handToFace.IParams, "task">> =
     HumanActionRow.of("shave", handToFace, {
-    task: {
-      region: "jawRight",
-      effector: {
-        surface: "grip",
-        shape: "fist",
-        tool: { thumb: 0.5 },
-        facing: "thumb",
-        along: "palm",
+      task: {
+        region: "jawRight",
+        effector: {
+          surface: "grip",
+          shape: "fist",
+          tool: { thumb: 0.5 },
+          facing: "thumb",
+          along: "palm",
+        },
+        kind: "rub",
+        count: 3,
+        hold: 0.2,
+        tangent: "up",
+        head: 0,
+        at: "atJaw",
       },
-      kind: "rub",
-      count: 3,
-      hold: 0.2,
-      tangent: "up",
-      head: 0,
-      at: "atJaw",
-    },
-  });
+    });
   const Chain: HumanChain.IExtension<{
     salute: typeof salute;
     takeSeat: typeof takeSeat;

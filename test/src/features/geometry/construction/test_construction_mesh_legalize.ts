@@ -27,7 +27,6 @@ interface Case {
   /** Chart area of the kept region, from elementary polygon areas. */
   area: number;
 
-
   /** Whether a chart edge lies on a domain side, so it has one triangle. */
   side: (a: Chart, b: Chart) => boolean;
 }
@@ -87,7 +86,8 @@ interface Case {
  */
 export function test_construction_mesh_legalize(): void {
   const failures: string[] = [];
-  for (const input of [plane(), cylinder(), flare(), twisted()]) inspect(input, failures);
+  for (const input of [plane(), cylinder(), flare(), twisted()])
+    inspect(input, failures);
   curled(failures);
   mirrored(failures);
   exactness(failures);
@@ -269,9 +269,14 @@ function twisted(): Case {
  */
 function fitted(charts: Chart[], skins: number[][]): [number, number] {
   const n: number = charts.length;
-  const cu: number = charts.reduce((s: number, c: Chart): number => s + c[0], 0) / n;
-  const cv: number = charts.reduce((s: number, c: Chart): number => s + c[1], 0) / n;
-  const mean: number[] = [0, 1, 2].map((a: number): number => skins.reduce((s: number, x: number[]): number => s + x[a]!, 0) / n);
+  const cu: number =
+    charts.reduce((s: number, c: Chart): number => s + c[0], 0) / n;
+  const cv: number =
+    charts.reduce((s: number, c: Chart): number => s + c[1], 0) / n;
+  const mean: number[] = [0, 1, 2].map(
+    (a: number): number =>
+      skins.reduce((s: number, x: number[]): number => s + x[a]!, 0) / n,
+  );
   let [suu, suv, svv] = [0, 0, 0];
   const xu: number[] = [0, 0, 0];
   const xv: number[] = [0, 0, 0];
@@ -286,8 +291,12 @@ function fitted(charts: Chart[], skins: number[][]): [number, number] {
     }
   });
   const det: number = suu * svv - suv * suv;
-  const su: number[] = xu.map((x: number, a: number): number => (x * svv - xv[a]! * suv) / det);
-  const sv: number[] = xv.map((x: number, a: number): number => (x * suu - xu[a]! * suv) / det);
+  const su: number[] = xu.map(
+    (x: number, a: number): number => (x * svv - xv[a]! * suv) / det,
+  );
+  const sv: number[] = xv.map(
+    (x: number, a: number): number => (x * suu - xu[a]! * suv) / det,
+  );
   const e: number = dot(su, su);
   const shear: number = dot(su, sv) / e;
   return [shear, Math.sqrt(dot(sv, sv) / e - shear * shear)];
@@ -313,7 +322,15 @@ function curled(failures: string[]): void {
     }),
   };
   const grid: number[] = [0, 1, 2, 3, 4];
-  const made: AutoMovieSolidMesh.IMesh | string = build({ name: "curled plane", surface, stations: grid, phases: grid, loops: [], area: 16, side: (): boolean => true });
+  const made: AutoMovieSolidMesh.IMesh | string = build({
+    name: "curled plane",
+    surface,
+    stations: grid,
+    phases: grid,
+    loops: [],
+    area: 16,
+    side: (): boolean => true,
+  });
   if (typeof made === "string") {
     failures.push(`curled plane: ${made}`);
     return;
@@ -322,14 +339,25 @@ function curled(failures: string[]): void {
   for (let t: number = 0; t < made.indices.length; t += 3)
     for (let k: number = 0; k < 3; k++) {
       const [a, b] = [made.indices[t + k]!, made.indices[t + ((k + 1) % 3)]!];
-      const chart = (id: number): string => `${made.coordinates[3 * id + 1]},${made.coordinates[3 * id + 2]}`;
+      const chart = (id: number): string =>
+        `${made.coordinates[3 * id + 1]},${made.coordinates[3 * id + 2]}`;
       edges.add(`${chart(a)}/${chart(b)}`);
       edges.add(`${chart(b)}/${chart(a)}`);
     }
   const cuts: string[] = [];
   for (const u of [0, 1, 2, 3])
-    for (const v of [0, 1, 2, 3]) cuts.push(edges.has(`${u},${v}/${u + 1},${v + 1}`) ? "first" : edges.has(`${u + 1},${v}/${u},${v + 1}`) ? "other" : "neither");
-  if (new Set(cuts).size !== 1 || cuts[0] === "neither") failures.push(`curled plane: its sixteen nearly square cells are cut ${JSON.stringify(cuts)}, not alike`);
+    for (const v of [0, 1, 2, 3])
+      cuts.push(
+        edges.has(`${u},${v}/${u + 1},${v + 1}`)
+          ? "first"
+          : edges.has(`${u + 1},${v}/${u},${v + 1}`)
+            ? "other"
+            : "neither",
+      );
+  if (new Set(cuts).size !== 1 || cuts[0] === "neither")
+    failures.push(
+      `curled plane: its sixteen nearly square cells are cut ${JSON.stringify(cuts)}, not alike`,
+    );
 }
 
 /**
@@ -343,16 +371,41 @@ function mirrored(failures: string[]): void {
   const plain: IAutoMovieSolidSurface = {
     name: "sheared plane",
     orientation: 1,
-    jet: (u: number, v: number): IAutoMovieSolidSurface.IJet => ({ p: [u, v + c * (u - 1) * (u - 1), 0], u: [1, 2 * c * (u - 1), 0], v: [0, 1, 0], uu: [0, 2 * c, 0], uv: [0, 0, 0], vv: [0, 0, 0] }),
+    jet: (u: number, v: number): IAutoMovieSolidSurface.IJet => ({
+      p: [u, v + c * (u - 1) * (u - 1), 0],
+      u: [1, 2 * c * (u - 1), 0],
+      v: [0, 1, 0],
+      uu: [0, 2 * c, 0],
+      uv: [0, 0, 0],
+      vv: [0, 0, 0],
+    }),
   };
   const mirror: IAutoMovieSolidSurface = {
     name: "sheared plane's mirror",
     orientation: 1,
-    jet: (u: number, v: number): IAutoMovieSolidSurface.IJet => ({ p: [u, -(4 - v) - c * (u - 1) * (u - 1), 0], u: [1, -2 * c * (u - 1), 0], v: [0, 1, 0], uu: [0, -2 * c, 0], uv: [0, 0, 0], vv: [0, 0, 0] }),
+    jet: (u: number, v: number): IAutoMovieSolidSurface.IJet => ({
+      p: [u, -(4 - v) - c * (u - 1) * (u - 1), 0],
+      u: [1, -2 * c * (u - 1), 0],
+      v: [0, 1, 0],
+      uu: [0, -2 * c, 0],
+      uv: [0, 0, 0],
+      vv: [0, 0, 0],
+    }),
   };
   const grid: number[] = [0, 1, 2, 3, 4];
-  const triangles = (surface: IAutoMovieSolidSurface, flip: boolean): Set<string> | string => {
-    const made: AutoMovieSolidMesh.IMesh | string = build({ name: surface.name, surface, stations: grid, phases: grid, loops: [], area: 16, side: (): boolean => true });
+  const triangles = (
+    surface: IAutoMovieSolidSurface,
+    flip: boolean,
+  ): Set<string> | string => {
+    const made: AutoMovieSolidMesh.IMesh | string = build({
+      name: surface.name,
+      surface,
+      stations: grid,
+      phases: grid,
+      loops: [],
+      area: 16,
+      side: (): boolean => true,
+    });
     if (typeof made === "string") return made;
     const out: Set<string> = new Set();
     for (let t: number = 0; t < made.indices.length; t += 3)
@@ -373,8 +426,13 @@ function mirrored(failures: string[]): void {
     failures.push(`mirror: ${typeof one === "string" ? one : two}`);
     return;
   }
-  const missing: number = [...one].filter((key: string): boolean => !two.has(key)).length;
-  if (missing !== 0 || one.size !== two.size) failures.push(`mirror: ${missing} of ${one.size} triangles have no mirror image in the mirrored chart's face`);
+  const missing: number = [...one].filter(
+    (key: string): boolean => !two.has(key),
+  ).length;
+  if (missing !== 0 || one.size !== two.size)
+    failures.push(
+      `mirror: ${missing} of ${one.size} triangles have no mirror image in the mirrored chart's face`,
+    );
 }
 
 /** Build one face and record every finding. */
@@ -493,15 +551,24 @@ function inspect(input: Case, failures: string[]): void {
     // A grid line. A retained full cell's diagonal is read as any other edge, but within the engine's allowance: a cell nearly square keeps
     // its first-corner diagonal (`curled`), and only one whose first-corner diagonal clearly fails is cut the other way.
     if (grid(A) && grid(B) && (A[0] === B[0] || A[1] === B[1])) continue;
-    const diagonal: boolean = grid(A) && grid(B) && Math.abs(input.stations.indexOf(A[0]) - input.stations.indexOf(B[0])) === 1;
+    const diagonal: boolean =
+      grid(A) &&
+      grid(B) &&
+      Math.abs(input.stations.indexOf(A[0]) - input.stations.indexOf(B[0])) ===
+        1;
     const corners: Chart[] = [A, B, chart(d), chart(c)].map(
       (p: Chart): Chart => [p[0], near(p[1], A[1])],
     );
-    const cu: number = corners.reduce((s: number, p: Chart): number => s + p[0], 0) / 4;
-    const cv: number = corners.reduce((s: number, p: Chart): number => s + p[1], 0) / 4;
+    const cu: number =
+      corners.reduce((s: number, p: Chart): number => s + p[0], 0) / 4;
+    const cv: number =
+      corners.reduce((s: number, p: Chart): number => s + p[1], 0) / 4;
     const [shear, scale] = fitted(corners, [a, b, d, c].map(position));
     const points: Chart[] = corners.map(
-      (p: Chart): Chart => [p[0] - cu + shear * (p[1] - cv), (p[1] - cv) * scale],
+      (p: Chart): Chart => [
+        p[0] - cu + shear * (p[1] - cv),
+        (p[1] - cv) * scale,
+      ],
     );
     // (a, b, d) is positive in the face's chart order; c is the far vertex across a-b.
     const [P, Q, S, T] = (

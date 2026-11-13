@@ -116,8 +116,9 @@ export namespace HumanArmSwing {
     body: IHumanBody,
     side: "left" | "right",
   ): HumanArmClearance.IBaseline {
-    const known: Partial<Record<"left" | "right", HumanArmClearance.IBaseline>> =
-      STANCE.get(body) ?? {};
+    const known: Partial<
+      Record<"left" | "right", HumanArmClearance.IBaseline>
+    > = STANCE.get(body) ?? {};
     const have: HumanArmClearance.IBaseline | undefined = known[side];
     if (have !== undefined) return have;
     const pose: IAutoMoviePose = resolveHumanPosture(

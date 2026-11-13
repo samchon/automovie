@@ -94,8 +94,7 @@ export function test_human_motion_sport_rows(): void {
           ],
           composition: build().node,
         });
-        const act: HumanSegment.ISegment | undefined =
-          film.segments("a")[1];
+        const act: HumanSegment.ISegment | undefined = film.segments("a")[1];
         if (act === undefined || !(act.end - act.entryTime > 0))
           complaints.push(`${label} on ${name}: it plans no time`);
         else if (placed !== undefined && act.name !== placed)

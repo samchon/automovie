@@ -98,7 +98,10 @@ export namespace HumanMountRider {
         ...goal,
         contact,
         rotation: pitched,
-        point: Vector3.subtract(ball, Quaternion.rotateVector(pitched, contact)),
+        point: Vector3.subtract(
+          ball,
+          Quaternion.rotateVector(pitched, contact),
+        ),
       };
     };
     const far = (degrees: number): number =>
@@ -308,7 +311,10 @@ export namespace HumanMountRider {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function leant(posture: IHumanPosture, degrees: number): IHumanPosture {
+  export function leant(
+    posture: IHumanPosture,
+    degrees: number,
+  ): IHumanPosture {
     const spine: readonly [number, number, number] = posture.joints.spine ?? [
       0, 0, 0,
     ];

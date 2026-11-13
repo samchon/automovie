@@ -1,13 +1,14 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
+import { AutoMovieMotionHumanArmTarget } from "./AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanHand } from "./AutoMovieMotionHumanHand";
 import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
-import { AutoMovieMotionHumanArmTarget } from "./AutoMovieMotionHumanArmTarget";
 
 /**
  * An arm moved between an origin and a target by a weight, and the three
@@ -35,14 +36,19 @@ export namespace AutoMovieMotionHumanArmMove {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `point`, `goal` and `AutoMovieMotionHumanHand.fingers`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props only and holds no per-second state.
    */
-  export function move(props: AutoMovieMotionHumanArmTarget.IMove): IAutoMovieMotionHumanPrimitive {
+  export function move(
+    props: AutoMovieMotionHumanArmTarget.IMove,
+  ): IAutoMovieMotionHumanPrimitive {
     const limb: "leftArm" | "rightArm" = `${props.side}Arm`;
     return {
       channels: [limb, `${props.side}Hand`],
       from: props.from,
       to: props.to,
       write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
-        const target: AutoMovieMotionHumanArmTarget.ITarget = props.target(posture, seconds);
+        const target: AutoMovieMotionHumanArmTarget.ITarget = props.target(
+          posture,
+          seconds,
+        );
         const s: number = Math.min(1, Math.max(0, props.weight(seconds)));
         const placed: AutoMovieMotionHumanArmTarget.ITarget =
           s >= 1
@@ -79,7 +85,11 @@ export namespace AutoMovieMotionHumanArmMove {
           },
           limbs: {
             ...posture.limbs,
-            [limb]: AutoMovieMotionHumanArmTarget.goal(props.body, props.side, placed),
+            [limb]: AutoMovieMotionHumanArmTarget.goal(
+              props.body,
+              props.side,
+              placed,
+            ),
           },
         };
       },

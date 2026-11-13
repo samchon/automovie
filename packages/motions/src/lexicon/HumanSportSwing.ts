@@ -66,9 +66,13 @@ export namespace HumanSportSwing {
   });
 
   /** A serve, a smash or a badminton clear: the racket brought down from overhead. */
-  export const overheadSmash = HumanActionRow.of("overheadSmash", HumanSword.cut, {
-    from: "above",
-  });
+  export const overheadSmash = HumanActionRow.of(
+    "overheadSmash",
+    HumanSword.cut,
+    {
+      from: "above",
+    },
+  );
 
   /** A volley: a short punch of the racket from high on its own side. */
   export const volley = HumanActionRow.of("volley", HumanSword.cut, {

@@ -91,7 +91,10 @@ export namespace dive {
   };
 
   /** How far the hips joint travels, statures: to the side in a dive, ahead in a slide (provisional). */
-  export const REACH: Readonly<Record<Kind, number>> = { dive: 0.8, slide: 0.7 };
+  export const REACH: Readonly<Record<Kind, number>> = {
+    dive: 0.8,
+    slide: 0.7,
+  };
 
   /** How high the dive's flight rises above its chord, statures (provisional). */
   export const APEX: number = 0.12;
@@ -159,7 +162,10 @@ export namespace dive {
       y: (feet.left.ankle.y + feet.right.ankle.y) / 2,
       z: (feet.left.ankle.z + feet.right.ankle.z) / 2,
     };
-    const frame: HumanFrame.IFrame = { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw };
+    const frame: HumanFrame.IFrame = {
+      origin: { x: 0, y: 0, z: 0 },
+      yaw: entry.yaw,
+    };
     const away: IAutoMovieVector3 = HumanFrame.point(
       frame,
       kind === "dive" ? { x: toLeft, y: 0, z: 0 } : { x: 0, y: 0, z: 1 },
@@ -175,13 +181,13 @@ export namespace dive {
       ][]) {
         const mirrored: AutoMovieHumanoidBone =
           kind === "dive" && toLeft < 0
-            ? (bone.startsWith("left")
+            ? ((bone.startsWith("left")
                 ? bone.replace(/^left/, "right")
-                : bone.replace(/^right/, "left")) as AutoMovieHumanoidBone
+                : bone.replace(/^right/, "left")) as AutoMovieHumanoidBone)
             : bone;
-        const was: readonly [number, number, number] = entry.joints[mirrored] ?? [
-          0, 0, 0,
-        ];
+        const was: readonly [number, number, number] = entry.joints[
+          mirrored
+        ] ?? [0, 0, 0];
         joints[mirrored] = [
           was[0] + (angles[0] - was[0]) * share,
           was[1] + (angles[1] - was[1]) * share,
@@ -286,7 +292,10 @@ export namespace dive {
         if (t >= crouch + travel) return { ...landedShape, root: landed };
         const u: number = (t - crouch) / travel;
         const s: number = kind === "dive" ? u : minimumJerk(u).s;
-        const posture: IHumanPosture = shape(1 / 3 + (2 / 3) * s, TURN[kind] * s);
+        const posture: IHumanPosture = shape(
+          1 / 3 + (2 / 3) * s,
+          TURN[kind] * s,
+        );
         const rise: number =
           kind === "dive" ? 4 * APEX * stature * u * (1 - u) : 0;
         return {

@@ -46,7 +46,6 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No prop kind is named: a vessel is the act's `upright`, and the point is any the prop declares.
  */
 export namespace HumanHeld {
-
   /**
    * What an act states of how it uses a held prop.
    *
@@ -191,7 +190,9 @@ export namespace HumanHeld {
 
       // The side of the rim: the act's facing direction laid across the
       // axis, turned about the axis by `turn`.
-      const toward: IAutoMovieVector3 = across(own(row.effector.facing, "palm"));
+      const toward: IAutoMovieVector3 = across(
+        own(row.effector.facing, "palm"),
+      );
       const angle: number = (turn * Math.PI) / 180;
       facing = Vector3.add(
         Vector3.scale(toward, Math.cos(angle)),

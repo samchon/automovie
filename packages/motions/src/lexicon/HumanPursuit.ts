@@ -178,10 +178,7 @@ export namespace HumanPursuit {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanGaze.layer`; nothing to cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the layer returned.
    */
-  export function glances(
-    at: string,
-    seconds: readonly number[],
-  ): IHumanLayer {
+  export function glances(at: string, seconds: readonly number[]): IHumanLayer {
     return HumanGaze.layer(
       seconds.map(
         (from: number): HumanGaze.ILayer => ({

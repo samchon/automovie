@@ -12,8 +12,8 @@ import {
   HumanRefusal,
   HumanSignature,
   type IHumanBody,
-  type seated,
   type IHumanProp,
+  type seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -86,7 +86,10 @@ export function test_human_motion_object_affordances(): void {
 
   // 1. The seat is where the chair says it is.
   const chair: ReturnType<typeof createSeat> = createSeat({ kind: "dining" });
-  const where: { at: IAutoMovieVector3; yaw: number } = { at: { x: 0.3, y: 0, z: -0.45 }, yaw: 30 };
+  const where: { at: IAutoMovieVector3; yaw: number } = {
+    at: { x: 0.3, y: 0, z: -0.45 },
+    yaw: 30,
+  };
   const seat: seated.ISeat = HumanObject.seat(chair, where);
   const placed: IAutoMovieTransform = chair.placed("seat", {
     translation: where.at,
@@ -138,7 +141,9 @@ export function test_human_motion_object_affordances(): void {
     );
 
   // 3. A glass taken by the grip it declares.
-  const glass: ReturnType<typeof createDrinkware> = createDrinkware({ kind: "glass" });
+  const glass: ReturnType<typeof createDrinkware> = createDrinkware({
+    kind: "glass",
+  });
   const prop: IHumanProp = HumanObject.prop("glass", glass, {
     at: { x: 0.15, y: 0.9, z: 0.4 },
     yaw: 0,
@@ -164,7 +169,10 @@ export function test_human_motion_object_affordances(): void {
 
   // 4. What an object does not offer.
   const car: ReturnType<typeof createCar> = createCar({ kind: "sedan" });
-  const floor: { at: IAutoMovieVector3; yaw: number } = { at: { x: 0, y: 0, z: 0 }, yaw: 0 };
+  const floor: { at: IAutoMovieVector3; yaw: number } = {
+    at: { x: 0, y: 0, z: 0 },
+    yaw: 0,
+  };
   for (const [label, build, lists] of [
     [
       "sitting on a mug",

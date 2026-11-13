@@ -118,7 +118,10 @@ export function test_human_motion_sport_carry(): void {
         .get(`${side}Hand`)!;
       return Quaternion.rotateVector(
         Quaternion.inverse(hand.worldRotation),
-        Vector3.subtract(performance.prop(prop, seconds).position, hand.worldPosition),
+        Vector3.subtract(
+          performance.prop(prop, seconds).position,
+          hand.worldPosition,
+        ),
       );
     };
     const first = {
@@ -127,22 +130,36 @@ export function test_human_motion_sport_carry(): void {
     };
     const worst = { drift: 0, raised: -Infinity, lean: 0 };
     // The arms have settled half a second into the walk.
-    for (let seconds: number = walking.entryTime + 0.75; seconds <= walking.entryTime + 3; seconds += 0.25) {
+    for (
+      let seconds: number = walking.entryTime + 0.75;
+      seconds <= walking.entryTime + 3;
+      seconds += 0.25
+    ) {
       for (const [prop, side] of [
         ["bellR", "right"],
         ["bellL", "left"],
       ] as const) {
         worst.drift = Math.max(
           worst.drift,
-          Vector3.length(Vector3.subtract(seat(prop, side, seconds), first[side])),
+          Vector3.length(
+            Vector3.subtract(seat(prop, side, seconds), first[side]),
+          ),
         );
         worst.raised = Math.max(
           worst.raised,
           HumanSignature.elbow(reader, seconds, side),
         );
       }
-      const hips: IAutoMovieVector3 = HumanSignature.joint(reader, seconds, "hips");
-      const neck: IAutoMovieVector3 = HumanSignature.joint(reader, seconds, "neck");
+      const hips: IAutoMovieVector3 = HumanSignature.joint(
+        reader,
+        seconds,
+        "hips",
+      );
+      const neck: IAutoMovieVector3 = HumanSignature.joint(
+        reader,
+        seconds,
+        "neck",
+      );
       worst.lean = Math.max(
         worst.lean,
         (Math.acos(

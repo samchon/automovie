@@ -9,13 +9,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanHand } from "../posture/HumanHand";
@@ -119,9 +119,7 @@ export namespace putDown {
     const hand: IAutoMovieResolvedBone = poseBones(
       body,
       context.entry.pose,
-    ).get(
-      `${side}Hand`,
-    )!;
+    ).get(`${side}Hand`)!;
     const prop: IHumanProp.IFrame = context
       .prop(context.params.prop)
       .frame(context.start);
@@ -174,7 +172,11 @@ export namespace putDown {
 
     // An authored heading is kept; otherwise the prop may rest at whichever
     // heading the arm can lay it down at exactly.
-    const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(body, held, side);
+    const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
+      body,
+      held,
+      side,
+    );
     const on = context.params.on;
     const wearing: IHumanProp.IFrame | undefined =
       on === undefined
@@ -221,15 +223,15 @@ export namespace putDown {
             };
           })()
         : context.params.yaw === undefined
-        ? HumanGrasp.reachable(
-            body,
-            held,
-            side,
-            bend,
-            (turn: number): HumanHand.IWrist =>
-              holding(heading(prop.rotation) + turn),
-          ).wrist
-        : holding(context.params.yaw);
+          ? HumanGrasp.reachable(
+              body,
+              held,
+              side,
+              bend,
+              (turn: number): HumanHand.IWrist =>
+                holding(heading(prop.rotation) + turn),
+            ).wrist
+          : holding(context.params.yaw);
 
     // The arm keeps the configuration it carried the prop in.
     const reference: IHumanPosture.IReference = resolveHumanPosture.reference(

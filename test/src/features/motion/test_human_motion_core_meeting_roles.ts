@@ -188,7 +188,9 @@ export function test_human_motion_core_meeting_roles(): void {
       const meeting: AutoMovieMotionMeeting.IMeeting | undefined =
         seen.get(subject);
       if (meeting === undefined) {
-        complaints.push(`composed ${order.join(", ")}: ${subject} read nothing`);
+        complaints.push(
+          `composed ${order.join(", ")}: ${subject} read nothing`,
+        );
         continue;
       }
       reference ??= meeting;
@@ -239,9 +241,5 @@ export function test_human_motion_core_meeting_roles(): void {
         `two of three roles present: ${subject} read a solid meeting, not solid expected`,
       );
 
-  TestValidator.equals(
-    "three roles read one meeting",
-    complaints,
-    [],
-  );
+  TestValidator.equals("three roles read one meeting", complaints, []);
 }

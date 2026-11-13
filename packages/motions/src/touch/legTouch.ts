@@ -245,10 +245,7 @@ export namespace legTouch {
         point: Vector3.subtract(place.point, turned(local)),
         rotation: foot.rotation,
         // The knee ahead of the hip, as the foot stood at the entry.
-        bend: Vector3.add(
-          hip(shift),
-          turned({ x: 0, y: 0, z: thigh }),
-        ),
+        bend: Vector3.add(hip(shift), turned({ x: 0, y: 0, z: thigh })),
       };
     }
 

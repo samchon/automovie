@@ -104,7 +104,9 @@ export namespace HumanObject {
     const affordances: readonly IAutoMovieAffordance[] =
       model.affordances ?? [];
     const ids: ReadonlySet<string> = new Set(
-      affordances.map((affordance: IAutoMovieAffordance): string => affordance.id),
+      affordances.map(
+        (affordance: IAutoMovieAffordance): string => affordance.id,
+      ),
     );
     const shapes: IAutoMoviePhysicalProfile.IShape[] | undefined =
       model.shapes?.();

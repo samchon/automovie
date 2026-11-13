@@ -251,8 +251,7 @@ export namespace HumanGraspUse {
     const laid: IAutoMovieQuaternion = Quaternion.multiply(
       Quaternion.fromAxisAngle(
         axis,
-        (Math.acos(Math.max(-1, Math.min(1, Vector3.dot(from, asked)))) *
-          180) /
+        (Math.acos(Math.max(-1, Math.min(1, Vector3.dot(from, asked)))) * 180) /
           Math.PI,
       ),
       props.wrist.rotation,
@@ -311,7 +310,8 @@ export namespace HumanGraspUse {
               Quaternion.rotateVector(rolled, inHand),
             ),
             rotation: rolled,
-          });    let rotation: IAutoMovieQuaternion = Quaternion.normalize(laid);
+          });
+    let rotation: IAutoMovieQuaternion = Quaternion.normalize(laid);
     let best: { clear: boolean; score: number } = {
       clear: false,
       score: -Infinity,
@@ -337,7 +337,8 @@ export namespace HumanGraspUse {
         best = { clear, score };
         rotation = rolled;
       }
-    }    const point: IAutoMovieVector3 =
+    }
+    const point: IAutoMovieVector3 =
       site === undefined
         ? ahead
         : Vector3.subtract(site, Quaternion.rotateVector(rotation, inHand));

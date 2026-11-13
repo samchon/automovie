@@ -110,8 +110,7 @@ export namespace AutoMovieMotionHumanHeld {
           values: (["left", "right"] as const).filter(
             (other: "left" | "right"): boolean =>
               context.body.skeleton.bones.some(
-                (bone: IAutoMovieBone): boolean =>
-                  bone.bone === `${other}Hand`,
+                (bone: IAutoMovieBone): boolean => bone.bone === `${other}Hand`,
               ),
           ),
         },

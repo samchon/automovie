@@ -224,8 +224,7 @@ export namespace HumanGait {
   /** A sad walk: slow, the arms barely swinging, the trunk slumped. */
   export const sad: IHumanActionLaw<IParams> = styled(
     "sad",
-    (context: IHumanActionContext<IParams>): walk.IGait =>
-      mood("sad", context),
+    (context: IHumanActionContext<IParams>): walk.IGait => mood("sad", context),
   );
 
   /** A proud walk: upright, the arms swung freely. */

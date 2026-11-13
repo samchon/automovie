@@ -121,7 +121,9 @@ export function test_human_motion_base_saddle_heights(): void {
     const [sitting, rising]: readonly (HumanSegment.ISegment | undefined)[] =
       performance.segments("a");
     if (sitting === undefined || rising === undefined) {
-      complaints.push(`${label}: the sitting or the getting off was not placed`);
+      complaints.push(
+        `${label}: the sitting or the getting off was not placed`,
+      );
       continue;
     }
     const ball = (side: "left" | "right", t: number): IAutoMovieVector3 =>

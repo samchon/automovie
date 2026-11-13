@@ -136,8 +136,7 @@ export namespace createParallelBars {
    * - `diameter`: a bar's thickness.
    * - `mass`: kilograms.
    */
-  export type Dimension =
-    "height" | "length" | "spacing" | "diameter" | "mass";
+  export type Dimension = "height" | "length" | "spacing" | "diameter" | "mass";
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

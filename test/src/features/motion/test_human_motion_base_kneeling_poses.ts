@@ -122,7 +122,10 @@ export function test_human_motion_base_kneeling_poses(): void {
           `${label}: the ${side} foot's ball moves ${(slip * 1000).toFixed(1)} mm while planted from ${from.toFixed(2)} to ${to.toFixed(2)} s, within 5 mm expected`,
         );
     }
-    const low: number = Math.min(y("leftLowerLeg", end), y("rightLowerLeg", end));
+    const low: number = Math.min(
+      y("leftLowerLeg", end),
+      y("rightLowerLeg", end),
+    );
     const high: number = Math.max(
       y("leftLowerLeg", end),
       y("rightLowerLeg", end),
@@ -147,7 +150,9 @@ export function test_human_motion_base_kneeling_poses(): void {
     if (row === "kneelBriefly") {
       for (const side of ["left", "right"] as const)
         if (!HumanSignature.bears(reader, end, side))
-          complaints.push(`${label}: the ${side} foot does not bear at the end`);
+          complaints.push(
+            `${label}: the ${side} foot does not bear at the end`,
+          );
       if (Math.abs(hips(end) - hips(0)) > 0.02)
         complaints.push(
           `${label}: the hips end at ${hips(end).toFixed(3)} m, within 20 mm of the quiet stance's ${hips(0).toFixed(3)} m expected`,

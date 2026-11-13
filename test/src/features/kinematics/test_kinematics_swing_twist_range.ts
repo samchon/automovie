@@ -196,7 +196,11 @@ export function test_kinematics_swing_twist_range(): void {
         const twist: IAutoMovieAngleRange = constraint.swingTwist!.twist;
         const beyondTwist: number = Math.min(
           ...[-360, 0, 360].map((k: number): number =>
-            Math.max(0, twist.min - (reading.twist + k), reading.twist + k - twist.max),
+            Math.max(
+              0,
+              twist.min - (reading.twist + k),
+              reading.twist + k - twist.max,
+            ),
           ),
         );
         if (
@@ -243,7 +247,10 @@ export function test_kinematics_swing_twist_range(): void {
               value,
               at: `path ${path} step ${k}: ${[before, here]
                 .map((q: IAutoMovieQuaternion): string => {
-                  const r: swingTwistRange.IReading = swingTwistRange.read(q, joint);
+                  const r: swingTwistRange.IReading = swingTwistRange.read(
+                    q,
+                    joint,
+                  );
                   const p: swingTwistRange.IReading = swingTwistRange.read(
                     swingTwistRange.project(q, constraint, joint),
                     joint,
@@ -281,7 +288,8 @@ export function test_kinematics_swing_twist_range(): void {
 
   // 5. The default shoulder's provisional interval: daily poses in, the
   // forearm wound a further 60 degrees past each out.
-  const shoulder: IAutoMovieJointConstraint = DEFAULT_HUMANOID_ROM.leftUpperArm!;
+  const shoulder: IAutoMovieJointConstraint =
+    DEFAULT_HUMANOID_ROM.leftUpperArm!;
   const arm: swingTwistRange.IJoint = {
     axes: HUMANOID_JOINT_AXES.leftUpperArm!,
     frame: HUMANOID_REST_FRAME.leftUpperArm,

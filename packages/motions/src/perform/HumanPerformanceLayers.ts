@@ -1,9 +1,13 @@
-import { type IAutoMovieSchedule, resolveAutoMovieSchedule } from "@automovie/engine";
+import {
+  type IAutoMovieSchedule,
+  resolveAutoMovieSchedule,
+} from "@automovie/engine";
+
 import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanLayer } from "../law/IHumanLayer";
-import { HumanSegment } from "./HumanSegment";
 import type { HumanPerformanceState } from "./HumanPerformanceState";
+import { HumanSegment } from "./HumanSegment";
 
 /**
  * The instants of a performance and the windows of its layers: an instant
@@ -24,7 +28,10 @@ export namespace HumanPerformanceLayers {
    * @returns The film second.
    * @throws {HumanRefusal} When nothing is anchored or tracked under the name, or it has no such event.
    */
-  export function instant(self: HumanPerformanceState, at: IHumanLayer.Instant): number {
+  export function instant(
+    self: HumanPerformanceState,
+    at: IHumanLayer.Instant,
+  ): number {
     if (typeof at === "number") return at;
     const placed = self.anchors.get(at.of);
     // A layer's instants are known once its window is placed; a layer later
@@ -144,7 +151,9 @@ export namespace HumanPerformanceLayers {
     scheduled: IHumanLayer.IScheduled,
   ): HumanSegment.ILayered {
     const from: number =
-      scheduled.from === undefined ? 0 : HumanPerformanceLayers.instant(self, scheduled.from);
+      scheduled.from === undefined
+        ? 0
+        : HumanPerformanceLayers.instant(self, scheduled.from);
     const to: number =
       scheduled.to === undefined
         ? self.schedule.duration

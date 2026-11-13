@@ -216,7 +216,10 @@ export function test_human_motion_ride_rising(): void {
         t,
       );
       rose = Math.max(rose, seat.y - sat.y);
-      if (k === 8 && Math.hypot(seat.x - sat.x, seat.y - sat.y, seat.z - sat.z) > 0.015)
+      if (
+        k === 8 &&
+        Math.hypot(seat.x - sat.x, seat.y - sat.y, seat.z - sat.z) > 0.015
+      )
         complaints.push(
           `a rising ride: at the stride's end the seat is ${(Math.hypot(seat.x - sat.x, seat.y - sat.y, seat.z - sat.z) * 1000).toFixed(1)} mm from where it sat, within 15 mm expected`,
         );

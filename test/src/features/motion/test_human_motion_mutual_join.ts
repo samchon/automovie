@@ -5,10 +5,10 @@ import {
   HumanMutual,
   HumanPerformance,
   type HumanSegment,
+  type IHumanActionLaw,
   type IHumanBody,
   type IHumanMutual,
   highFive,
-  type IHumanActionLaw,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -58,7 +58,8 @@ export function test_human_motion_mutual_join(): void {
     c: motionHumanBody("m-average"),
   };
   const complaints: string[] = [];
-  const fistBump: IHumanActionLaw<Omit<highFive.IParams, "kind">> = HumanActionRow.of("fistBump", highFive, { kind: "fist" });
+  const fistBump: IHumanActionLaw<Omit<highFive.IParams, "kind">> =
+    HumanActionRow.of("fistBump", highFive, { kind: "fist" });
   const bump: IHumanMutual<object, "one" | "other"> = {
     name: "fistBump",
     roles: ["one", "other"],

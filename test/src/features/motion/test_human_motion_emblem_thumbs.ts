@@ -77,7 +77,8 @@ export function test_human_motion_emblem_thumbs(): void {
           (placed.plan.events.find((e): boolean => e.name === event)?.share ??
             NaN) *
             placed.plan.duration;
-        const held: number = (instant("strokeStart") + instant("strokeEnd")) / 2;
+        const held: number =
+          (instant("strokeStart") + instant("strokeEnd")) / 2;
         const reader: HumanSignature.IReader = HumanSignature.of(
           performance,
           "a",

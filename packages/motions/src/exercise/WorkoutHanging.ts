@@ -45,7 +45,12 @@ export namespace WorkoutHanging {
   });
 
   /** The exercises' names. */
-  export type Name = "deadHang" | "pullUp" | "chinUp" | "kneeRaise" | "barSwing";
+  export type Name =
+    | "deadHang"
+    | "pullUp"
+    | "chinUp"
+    | "kneeRaise"
+    | "barSwing";
 
   /** The exercises. */
   export const KINDS: Readonly<Record<Name, WorkoutKind>> = {

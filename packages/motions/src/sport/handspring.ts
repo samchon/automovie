@@ -231,8 +231,16 @@ export namespace handspring {
     const ground: IHumanContactWindow.Support = { kind: "ground" };
     const spokes: GymnasticsWheel.ISpoke[] = [
       { bones: ["leftFoot", "rightFoot"], height: ankle, support: ground },
-      { bones: [left ? "leftFoot" : "rightFoot"], height: ankle, support: ground },
-      { bones: [left ? "rightFoot" : "leftFoot"], height: ankle, support: ground },
+      {
+        bones: [left ? "leftFoot" : "rightFoot"],
+        height: ankle,
+        support: ground,
+      },
+      {
+        bones: [left ? "rightFoot" : "leftFoot"],
+        height: ankle,
+        support: ground,
+      },
       {
         bones: ["leftHand", "rightHand"],
         height: surface.height + GymnasticsWheel.laid(body),

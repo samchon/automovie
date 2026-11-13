@@ -77,7 +77,9 @@ export function test_human_motion_hand_stage_slap(): void {
           (c: IHumanContactWindow): boolean => c.part === "rightHand",
         )
       )
-        complaints.push(`${name}: the stage slap declares a contact on the right hand`);
+        complaints.push(
+          `${name}: the stage slap declares a contact on the right hand`,
+        );
 
       // 2, 3. Near but never on.
       const theirs: HumanSignature.IReader = HumanSignature.of(

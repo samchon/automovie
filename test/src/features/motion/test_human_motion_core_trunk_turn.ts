@@ -110,7 +110,12 @@ export function test_human_motion_core_trunk_turn(): void {
   }
 
   // 4. The neck and the head take it back.
-  const small: IHumanPosture = HumanTrunkTurn.turned(body, posture, 0.2, "left");
+  const small: IHumanPosture = HumanTrunkTurn.turned(
+    body,
+    posture,
+    0.2,
+    "left",
+  );
   for (const axis of [1, 2] as const) {
     const trunk: number =
       of(small, "spine")[axis] -
@@ -155,8 +160,16 @@ export function test_human_motion_core_trunk_turn(): void {
   const after: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     HumanTrunk.resolve(body, small);
   const tilt = (bone: AutoMovieHumanoidBone): number => {
-    const a: IAutoMovieVector3 = Quaternion.rotateVector(up(before, bone), { x: 0, y: 1, z: 0 });
-    const b: IAutoMovieVector3 = Quaternion.rotateVector(up(after, bone), { x: 0, y: 1, z: 0 });
+    const a: IAutoMovieVector3 = Quaternion.rotateVector(up(before, bone), {
+      x: 0,
+      y: 1,
+      z: 0,
+    });
+    const b: IAutoMovieVector3 = Quaternion.rotateVector(up(after, bone), {
+      x: 0,
+      y: 1,
+      z: 0,
+    });
     return (
       (Math.acos(Math.min(1, a.x * b.x + a.y * b.y + a.z * b.z)) * 180) /
       Math.PI

@@ -69,8 +69,9 @@ export function test_human_motion_core_fit_memory(): void {
     [
       "a brief kneel",
       (): HumanPerformance.IInput["composition"] =>
-        HumanChain.subject("a").stand({ seconds: 0.3 }).registered("kneelBriefly")
-          .node,
+        HumanChain.subject("a")
+          .stand({ seconds: 0.3 })
+          .registered("kneelBriefly").node,
     ],
     [
       "sitting into an armchair",

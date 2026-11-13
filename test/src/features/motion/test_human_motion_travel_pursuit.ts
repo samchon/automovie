@@ -278,7 +278,8 @@ export function test_human_motion_travel_pursuit(): void {
       complaints.push(
         `${label}: ends ${gained.toFixed(3)} m further from the person, 5 m within 0.1 expected`,
       );
-    const ran: number = (Math.atan2(to.x - from.x, to.z - from.z) * 180) / Math.PI;
+    const ran: number =
+      (Math.atan2(to.x - from.x, to.z - from.z) * 180) / Math.PI;
     const straight: number =
       (Math.atan2(from.x - 1, from.z + 2) * 180) / Math.PI;
     const off: number = Math.abs(((ran - straight + 540) % 360) - 180);

@@ -47,7 +47,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#distinguishing-cases The taller person as giver and as receiver; the toast is `test_human_motion_social_toast`'s.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and one archetype and builds two two-person performances; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the cast, the placement and the 3 scenarios with their bounds, sources and sampling.
- */export function test_human_motion_social_handover(): void {
+ */ export function test_human_motion_social_handover(): void {
   const complaints: string[] = [];
   const mug: ReturnType<typeof createDrinkware> = createDrinkware({
     kind: "mug",

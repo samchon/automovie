@@ -118,7 +118,9 @@ export function test_human_motion_base_flinch_poses(): void {
       // 2. Still on the feet.
       for (const side of ["left", "right"] as const)
         if (!HumanSignature.bears(reader, end, side))
-          complaints.push(`${label}: the ${side} foot does not bear at the end`);
+          complaints.push(
+            `${label}: the ${side} foot does not bear at the end`,
+          );
 
       // 3. How far a wrist rises, read at five instants spread over the flinch.
       const rest: number = Math.max(y("leftHand", 0), y("rightHand", 0));

@@ -12,10 +12,14 @@ import { HumanActionRow } from "../law/HumanActionRow";
  */
 export namespace HumanFloorFall {
   /** A goalkeeper's dive to the left: off the feet to the side, landing on the side with the hip and the lower hand on the floor. */
-  export const goalkeeperDiveLeft = HumanActionRow.of("goalkeeperDiveLeft", dive, {
-    kind: "dive",
-    side: "left",
-  });
+  export const goalkeeperDiveLeft = HumanActionRow.of(
+    "goalkeeperDiveLeft",
+    dive,
+    {
+      kind: "dive",
+      side: "left",
+    },
+  );
 
   /** A goalkeeper's dive to the right. */
   export const goalkeeperDiveRight = HumanActionRow.of(

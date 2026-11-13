@@ -7,7 +7,6 @@ import type {
 import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
-import type { IWalkGait } from "./IWalkGait";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { HumanTrunk } from "../everyday/HumanTrunk";
@@ -21,6 +20,7 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
+import type { IWalkGait } from "./IWalkGait";
 import { stand } from "./stand";
 import { standUpright } from "./standUpright";
 import { walkClear } from "./walkClear";

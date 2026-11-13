@@ -1,21 +1,21 @@
 import { Vector3 } from "@automovie/engine";
 import type { AutoMovieMotionTarget } from "@automovie/interface";
 import {
-  HUMAN_LEXICON,
-  HumanChain,
-  HumanPerformance,
-  HumanVerdicts,
   AutoMovieMotionClock,
   AutoMovieMotionHumanTouch,
   AutoMovieMotionHumanTouchEffector,
   AutoMovieMotionHumanTouchForm,
   AutoMovieMotionHumanTouchLaid,
+  HUMAN_LEXICON,
+  HumanChain,
+  HumanPerformance,
+  HumanVerdicts,
   type IHumanActionContext,
   type IHumanActionLaw,
+  type IHumanPosture,
   type handToFace,
   poseBones,
   resolveHumanPosture,
-  type IHumanPosture,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -44,20 +44,20 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_hand_verdicts_smoke(): void {
   const laws: IHumanActionLaw<never>[] = Object.values(HUMAN_LEXICON).flat();
   const performance: HumanPerformance = new HumanPerformance({
-      seed: "verdict",
-      laws,
-      performers: [
-        {
-          subject: "a",
-          body: motionHumanBody("m-average"),
-          at: { x: 0, y: 0, z: 0 },
-          yaw: 0,
-          proficiency: { level: "trained" },
-        },
-      ],
-      composition: HumanChain.subject("a")
-        .stand({ seconds: 0.3 })
-        .registered("smoke", {}).node,
+    seed: "verdict",
+    laws,
+    performers: [
+      {
+        subject: "a",
+        body: motionHumanBody("m-average"),
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+    ],
+    composition: HumanChain.subject("a")
+      .stand({ seconds: 0.3 })
+      .registered("smoke", {}).node,
   });
   const report: HumanVerdicts.IReport = HumanVerdicts.of(performance, 6);
 
@@ -217,7 +217,10 @@ function dump(posture: IHumanPosture): string {
           ([limb, goal]: [string, IHumanPosture.IGoal | undefined]): [
             string,
             object | undefined,
-          ] => [limb, goal === undefined ? goal : { ...goal, clear: undefined }],
+          ] => [
+            limb,
+            goal === undefined ? goal : { ...goal, clear: undefined },
+          ],
         ),
       ),
     },
@@ -225,4 +228,3 @@ function dump(posture: IHumanPosture): string {
       typeof value === "number" ? Math.round(value * 1e4) / 1e4 : value,
   );
 }
-

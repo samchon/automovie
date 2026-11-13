@@ -218,10 +218,7 @@ export namespace pickUp {
       bend,
       goal,
       tilts,
-      (
-        wrist: HumanHand.IWrist,
-        shown: HumanHand.IWrist,
-      ): HumanGrasp.IKey[] => [
+      (wrist: HumanHand.IWrist, shown: HumanHand.IWrist): HumanGrasp.IKey[] => [
         ...(lift > 0
           ? [
               {
@@ -332,10 +329,8 @@ export namespace pickUp {
       closed,
     };
     const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
-    const rest: AutoMovieMotionHumanArm.IAngles = AutoMovieMotionHumanArm.angles(
-      context.entry.pose,
-      side,
-    );
+    const rest: AutoMovieMotionHumanArm.IAngles =
+      AutoMovieMotionHumanArm.angles(context.entry.pose, side);
     const hand: IHumanContactWindow["part"] =
       side === "left" ? "leftHand" : "rightHand";
     return {

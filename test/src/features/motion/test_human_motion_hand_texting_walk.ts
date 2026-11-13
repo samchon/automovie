@@ -87,8 +87,7 @@ export function test_human_motion_hand_texting_walk(): void {
   const overlay: HumanSegment.IOverlay = reading.overlays("a")[0]!;
   const instant = (event: string): number =>
     overlay.start +
-    (overlay.plan.events.find((e): boolean => e.name === event)?.share ??
-      NaN) *
+    (overlay.plan.events.find((e): boolean => e.name === event)?.share ?? NaN) *
       overlay.plan.duration;
   const from: number = instant("atSheet");
   const to: number = instant("taskEnd");
@@ -119,7 +118,11 @@ export function test_human_motion_hand_texting_walk(): void {
         seconds,
         "chest",
       );
-      return { x: wrist.x - chest.x, y: wrist.y - chest.y, z: wrist.z - chest.z };
+      return {
+        x: wrist.x - chest.x,
+        y: wrist.y - chest.y,
+        z: wrist.z - chest.z,
+      };
     };
     const first: IAutoMovieVector3 = seat(from);
     let worst: number = 0;

@@ -69,7 +69,11 @@ export namespace GymnasticsMat {
     const lain: lieDown.IPose = back
       ? lieDown.POSES.supine
       : lieDown.POSES.prone;
-    const centre: IAutoMovieVector3 = GymnasticsFlight.centre(body, model, from);
+    const centre: IAutoMovieVector3 = GymnasticsFlight.centre(
+      body,
+      model,
+      from,
+    );
     return (seconds: number): IHumanPosture => {
       const t: number = Math.min(SETTLE, Math.max(0, seconds));
       const u: number = minimumJerk(t / SETTLE).s;

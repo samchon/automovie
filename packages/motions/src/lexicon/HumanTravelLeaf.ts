@@ -94,8 +94,9 @@ export namespace HumanTravelLeaf {
         });
       const door: IHumanActionContext.IProp = context.prop(context.params.door);
       const id: string = context.params.handle;
-      const rest: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } | undefined =
-        door.prop.points[id];
+      const rest:
+        | { point: IAutoMovieVector3; normal: IAutoMovieVector3 }
+        | undefined = door.prop.points[id];
       if (rest === undefined)
         throw new HumanRefusal({
           kind: "affordance",

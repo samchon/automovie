@@ -42,7 +42,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#distinguishing-cases The taller person in either role; the handover is `test_human_motion_social_handover`'s.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and one archetype and builds two two-person performances; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the cast, the placement and the 5 scenarios with their bounds and sources.
- */export function test_human_motion_social_toast(): void {
+ */ export function test_human_motion_social_toast(): void {
   const complaints: string[] = [];
   const glass: ReturnType<typeof createDrinkware> = createDrinkware({
     kind: "glass",

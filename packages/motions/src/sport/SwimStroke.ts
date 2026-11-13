@@ -6,8 +6,8 @@ import type {
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { ExerciseKey } from "../exercise/ExerciseKey";
-import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
+import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**

@@ -114,7 +114,11 @@ export namespace HumanTravelCar {
         seat.at,
         Vector3.scale(facing, depth / 2),
       );
-      let out: IAutoMovieVector3 = { x: through.across.z, y: 0, z: -through.across.x };
+      let out: IAutoMovieVector3 = {
+        x: through.across.z,
+        y: 0,
+        z: -through.across.x,
+      };
       if (
         (centre.x - through.at.x) * out.x + (centre.z - through.at.z) * out.z >
         0
@@ -125,7 +129,10 @@ export namespace HumanTravelCar {
       // Sit down sideways, facing out of the door.
       const aside: seated.ISeat = {
         ...seat,
-        at: { ...Vector3.add(centre, Vector3.scale(out, depth / 2)), y: seat.at.y },
+        at: {
+          ...Vector3.add(centre, Vector3.scale(out, depth / 2)),
+          y: seat.at.y,
+        },
         yaw: outward,
         depth,
       };
@@ -141,8 +148,7 @@ export namespace HumanTravelCar {
       const sat: number = down.duration;
       const duration: number = sat + SWING;
       const end: IHumanPosture = down.posture(sat);
-      const turn: number =
-        ((((seat.yaw - outward) % 360) + 540) % 360) - 180;
+      const turn: number = ((((seat.yaw - outward) % 360) + 540) % 360) - 180;
       const pivot: IAutoMovieVector3 = { ...centre, y: seat.at.y };
       const swung = (u: number): IHumanPosture =>
         carryHumanPosture(
@@ -158,9 +164,12 @@ export namespace HumanTravelCar {
 
       // The duck each sampled instant needs, by bisection on the spine's added flexion.
       const top: number = through.at.y + through.height - CLEAR;
-      const ducked = (posture: IHumanPosture, degrees: number): IHumanPosture => {
-        const spine: readonly [number, number, number] =
-          posture.joints.spine ?? [0, 0, 0];
+      const ducked = (
+        posture: IHumanPosture,
+        degrees: number,
+      ): IHumanPosture => {
+        const spine: readonly [number, number, number] = posture.joints
+          .spine ?? [0, 0, 0];
         return degrees === 0
           ? posture
           : {
@@ -193,8 +202,7 @@ export namespace HumanTravelCar {
             value: through.height,
             feasible: {
               kind: "range",
-              minimum:
-                through.height + over(ducked(posture, DUCK)),
+              minimum: through.height + over(ducked(posture, DUCK)),
               maximum: null,
               unit: "m",
             },

@@ -219,8 +219,7 @@ export namespace walkFoot {
     };
     const leaving: number = HumanFoot.heading(props.from.rotation);
     const heading: number =
-      leaving +
-      wrapDegrees(HumanFoot.heading(props.to.rotation) - leaving) * s;
+      leaving + wrapDegrees(HumanFoot.heading(props.to.rotation) - leaving) * s;
     const left: number = HumanFoot.pitch(props.from.rotation);
     const turning: number = carriedRate(
       (stiff ? LEVEL : 0.5) * props.seconds,

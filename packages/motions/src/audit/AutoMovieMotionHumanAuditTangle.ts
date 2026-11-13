@@ -162,7 +162,8 @@ export namespace AutoMovieMotionHumanAuditTangle {
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     skip: ReadonlySet<string> = new Set(),
   ): IPair[] {
-    const m: AutoMovieMotionHumanAuditTangleModel.IModel = AutoMovieMotionHumanAuditTangleModel.model(body);
+    const m: AutoMovieMotionHumanAuditTangleModel.IModel =
+      AutoMovieMotionHumanAuditTangleModel.model(body);
     const placed: HumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
     const out: IPair[] = [];
     const centres: IAutoMovieVector3[] = placed.map(
@@ -176,8 +177,18 @@ export namespace AutoMovieMotionHumanAuditTangle {
         if (Vector3.length(Vector3.subtract(centres[i]!, centres[j]!)) >= reach)
           continue;
         if (skip.has(unordered(placed[i]!.bone, placed[j]!.bone))) continue;
-        const forward: number = AutoMovieMotionHumanAuditTangleModel.excess(m, placed, i, j);
-        const backward: number = AutoMovieMotionHumanAuditTangleModel.excess(m, placed, j, i);
+        const forward: number = AutoMovieMotionHumanAuditTangleModel.excess(
+          m,
+          placed,
+          i,
+          j,
+        );
+        const backward: number = AutoMovieMotionHumanAuditTangleModel.excess(
+          m,
+          placed,
+          j,
+          i,
+        );
         const depth: number = Math.max(forward, backward);
         // A nanometre: below it a depth is the rounding of the two frames.
         if (depth > 1e-9)
@@ -208,8 +219,10 @@ export namespace AutoMovieMotionHumanAuditTangle {
     other: IHumanBody,
     otherBones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): IPair[] {
-    const m: AutoMovieMotionHumanAuditTangleModel.IModel = AutoMovieMotionHumanAuditTangleModel.model(body);
-    const o: AutoMovieMotionHumanAuditTangleModel.IModel = AutoMovieMotionHumanAuditTangleModel.model(other);
+    const m: AutoMovieMotionHumanAuditTangleModel.IModel =
+      AutoMovieMotionHumanAuditTangleModel.model(body);
+    const o: AutoMovieMotionHumanAuditTangleModel.IModel =
+      AutoMovieMotionHumanAuditTangleModel.model(other);
     const mine: HumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
     const theirs: HumanColliders.IPlaced[] = HumanColliders.placed(
       other,
@@ -225,7 +238,11 @@ export namespace AutoMovieMotionHumanAuditTangle {
         );
         if (Vector3.length(apart) >= reach) continue;
         let depth: number = 0;
-        for (const d of AutoMovieMotionHumanAuditTangleModel.depths(m.parts[i]!.probes, mine[i]!, theirs[j]!))
+        for (const d of AutoMovieMotionHumanAuditTangleModel.depths(
+          m.parts[i]!.probes,
+          mine[i]!,
+          theirs[j]!,
+        ))
           depth = Math.max(depth, d);
         if (depth > 1e-9)
           out.push({ a: mine[i]!.bone, b: theirs[j]!.bone, depth, seconds: 0 });
@@ -259,7 +276,8 @@ export namespace AutoMovieMotionHumanAuditTangle {
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     side: "left" | "right",
   ): number {
-    const m: AutoMovieMotionHumanAuditTangleModel.IModel = AutoMovieMotionHumanAuditTangleModel.model(body);
+    const m: AutoMovieMotionHumanAuditTangleModel.IModel =
+      AutoMovieMotionHumanAuditTangleModel.model(body);
     const placed: HumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
     const shoulder: IAutoMovieVector3 = bones.get(
       `${side}UpperArm`,
@@ -271,17 +289,31 @@ export namespace AutoMovieMotionHumanAuditTangle {
     let worst: number = 0;
     for (let i: number = 0; i < placed.length; i++) {
       if (!mine(placed[i]!.bone)) continue;
-      const a: IAutoMovieVector3 = AutoMovieMotionHumanAuditTangleModel.centre(placed[i]!, m.parts[i]!);
+      const a: IAutoMovieVector3 = AutoMovieMotionHumanAuditTangleModel.centre(
+        placed[i]!,
+        m.parts[i]!,
+      );
       for (let j: number = 0; j < placed.length; j++) {
         if (m.related[i]![j]! || mine(placed[j]!.bone)) continue;
         const reach: number = m.parts[i]!.radius + m.parts[j]!.radius;
         if (
           Vector3.length(
-            Vector3.subtract(a, AutoMovieMotionHumanAuditTangleModel.centre(placed[j]!, m.parts[j]!)),
+            Vector3.subtract(
+              a,
+              AutoMovieMotionHumanAuditTangleModel.centre(
+                placed[j]!,
+                m.parts[j]!,
+              ),
+            ),
           ) >= reach
         )
           continue;
-        const over: Float64Array = AutoMovieMotionHumanAuditTangleModel.beyond(m, placed, i, j);
+        const over: Float64Array = AutoMovieMotionHumanAuditTangleModel.beyond(
+          m,
+          placed,
+          i,
+          j,
+        );
         for (let k: number = 0; k < over.length; k++) {
           if (!(over[k]! > 0)) continue;
           const probe: IAutoMovieVector3 = Vector3.add(
@@ -302,7 +334,12 @@ export namespace AutoMovieMotionHumanAuditTangle {
         // belly lying in the forearm is the same tangle read from the other
         // side, and `pose` takes the deeper of the two, so an arm is clear
         // only when neither direction reads a depth.
-        const under: Float64Array = AutoMovieMotionHumanAuditTangleModel.beyond(m, placed, j, i);
+        const under: Float64Array = AutoMovieMotionHumanAuditTangleModel.beyond(
+          m,
+          placed,
+          j,
+          i,
+        );
         for (let k: number = 0; k < under.length; k++) {
           if (!(under[k]! > 0)) continue;
           const probe: IAutoMovieVector3 = Vector3.add(
@@ -337,7 +374,6 @@ export namespace AutoMovieMotionHumanAuditTangle {
     return a < b ? `${a}|${b}` : `${b}|${a}`;
   }
 }
-
 
 /** A declared self-contact: pair keys left unread in a span of film seconds. */
 interface IExemption {

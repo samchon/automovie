@@ -102,10 +102,8 @@ export function test_human_motion_signature_hand_to_face(): void {
           (Math.acos(-arm.y / Math.hypot(arm.x, arm.y, arm.z)) * 180) / Math.PI;
         // The arm's goal there, for the fit it came from: the elbow's hint
         // and the reference arm, and where the fitted elbow and the wrist lie.
-        const goal: IHumanPosture.IGoal | undefined = s.film.performance.posture(
-          "a",
-          at,
-        ).limbs[`${side}Arm`];
+        const goal: IHumanPosture.IGoal | undefined =
+          s.film.performance.posture("a", at).limbs[`${side}Arm`];
         const v = (p: IAutoMovieVector3 | undefined): string =>
           p === undefined
             ? "none"

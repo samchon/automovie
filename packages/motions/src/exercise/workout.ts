@@ -83,7 +83,6 @@ export namespace workout {
 
   /** An exercise's name. */
   export type Kind =
-
     | WorkoutFloor.Name
     | WorkoutEquipment.Name
     | WorkoutGym.Name
@@ -251,8 +250,9 @@ export namespace workout {
       const s: ISpan = spans[index]!;
       const opened: number = clock.at(s.from);
       const length: number =
-        (index + 1 < spans.length ? clock.at(spans[index + 1]!.from) : duration) -
-        opened;
+        (index + 1 < spans.length
+          ? clock.at(spans[index + 1]!.from)
+          : duration) - opened;
       const x: number =
         length > 1e-9
           ? Math.min(1, Math.max(0, (seconds - opened) / length))
@@ -290,8 +290,7 @@ export namespace workout {
             kind.base === "hanging"
               ? root.y
               : root.y +
-                (1 - down) *
-                  Math.max(0, knockdown.rest(body, placed) - root.y),
+                (1 - down) * Math.max(0, knockdown.rest(body, placed) - root.y),
           z: root.z,
         },
       };
@@ -362,7 +361,9 @@ export namespace workout {
             to: duration,
             rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
             weight: present,
-            place: (): ReturnType<AutoMovieMotionHumanPlaced.IArm["place"]> => ({
+            place: (): ReturnType<
+              AutoMovieMotionHumanPlaced.IArm["place"]
+            > => ({
               point,
               facing: { x: 0, y: -1, z: 0 },
               forward,
@@ -400,7 +401,8 @@ export namespace workout {
     return stay
       ? {
           ...composed,
-          base: kind.base === "seated" ? { kind: "seated" } : { kind: kind.base },
+          base:
+            kind.base === "seated" ? { kind: "seated" } : { kind: kind.base },
         }
       : composed;
   }

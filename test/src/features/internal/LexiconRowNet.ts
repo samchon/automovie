@@ -456,11 +456,16 @@ export namespace LexiconRowNet {
           other: starting("b"),
         }),
       );
-      check(complaints, `the mutual ${HumanSocial.toast.name}`, names, 0.7, () =>
-        HumanChain.mutual(HumanSocial.toast, {
-          guest: starting("a"),
-          host: starting("b"),
-        }),
+      check(
+        complaints,
+        `the mutual ${HumanSocial.toast.name}`,
+        names,
+        0.7,
+        () =>
+          HumanChain.mutual(HumanSocial.toast, {
+            guest: starting("a"),
+            host: starting("b"),
+          }),
       );
     }
     return complaints;

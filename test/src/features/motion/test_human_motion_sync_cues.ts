@@ -53,7 +53,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_sync_cues(): void {
   const FRAME: number = 1 / 24;
-  const cues: { dialogue: resolveAutoMovieSchedule.ICue[]; music: resolveAutoMovieSchedule.ICue[] } = {
+  const cues: {
+    dialogue: resolveAutoMovieSchedule.ICue[];
+    music: resolveAutoMovieSchedule.ICue[];
+  } = {
     dialogue: HumanCue.dialogue([{ from: 1, to: 4, accents: [2.0, 3.2] }]),
     music: HumanCue.beats({ bpm: 96, count: 16 }),
   };
@@ -119,7 +122,10 @@ export function test_human_motion_sync_cues(): void {
       );
 
     // 2. Moving the cue moves the action and nothing else.
-    const later: HumanSegment.ISegment = perform({ a: body }, waving(1)).segments("a")[1]!;
+    const later: HumanSegment.ISegment = perform(
+      { a: body },
+      waving(1),
+    ).segments("a")[1]!;
     for (const event of wave!.plan.events) {
       const moved: number =
         instant(later, event.name) - instant(wave!, event.name);
@@ -192,14 +198,12 @@ export function test_human_motion_sync_cues(): void {
   const early: unknown = refused(() =>
     perform(
       { a: body },
-      HumanChain.subject("a")
-        .gesture({ kind: "wave" })
-        .sync({
-          of: "dialogue",
-          event: "lineStart",
-          align: "strokeEnd",
-          offset: -0.9,
-        }),
+      HumanChain.subject("a").gesture({ kind: "wave" }).sync({
+        of: "dialogue",
+        event: "lineStart",
+        align: "strokeEnd",
+        offset: -0.9,
+      }),
     ),
   );
   if (
@@ -249,8 +253,12 @@ export function test_human_motion_sync_cues(): void {
     );
 
   // 7. The tracks.
-  const beats: resolveAutoMovieSchedule.ICue[] = cues.music.filter((c): boolean => c.name === "beat");
-  const downs: resolveAutoMovieSchedule.ICue[] = cues.music.filter((c): boolean => c.name === "downbeat");
+  const beats: resolveAutoMovieSchedule.ICue[] = cues.music.filter(
+    (c): boolean => c.name === "beat",
+  );
+  const downs: resolveAutoMovieSchedule.ICue[] = cues.music.filter(
+    (c): boolean => c.name === "downbeat",
+  );
   if (
     beats.length !== 16 ||
     downs.length !== 4 ||

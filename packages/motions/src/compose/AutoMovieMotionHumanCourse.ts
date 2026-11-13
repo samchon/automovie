@@ -133,8 +133,7 @@ export namespace AutoMovieMotionHumanCourse {
       knots.push(along);
       c = next;
     }
-    const knot = (i: number): number =>
-      knots[Math.min(count, Math.max(0, i))]!;
+    const knot = (i: number): number => knots[Math.min(count, Math.max(0, i))]!;
     return (seconds: number): number => {
       const x: number = Math.min(
         count,

@@ -64,7 +64,9 @@ export function test_human_motion_hand_overlay_wave(): void {
     // 1. The wave rides the walk and keeps its events.
     let waved: HumanPerformance;
     try {
-      waved = perform(walk().over((u: HumanChain): HumanChain => u.gesture({ kind: "wave" })));
+      waved = perform(
+        walk().over((u: HumanChain): HumanChain => u.gesture({ kind: "wave" })),
+      );
     } catch (error) {
       complaints.push(
         `${name}: a wave over a walk: expected to plan, got ${(error as Error).message}`,
@@ -167,15 +169,16 @@ export function test_human_motion_hand_overlay_wave(): void {
       ],
       [
         "a look ahead",
-        walk().over((u: HumanChain): HumanChain =>
-          u.look({
-            target: {
-              kind: "point",
-              at: { x: 0.3, y: 1.2, z: 6 },
-              frame: "world",
-            },
-            with: "head",
-          }),
+        walk().over(
+          (u: HumanChain): HumanChain =>
+            u.look({
+              target: {
+                kind: "point",
+                at: { x: 0.3, y: 1.2, z: 6 },
+                frame: "world",
+              },
+              with: "head",
+            }),
         ),
         "head",
       ],
@@ -195,7 +198,9 @@ export function test_human_motion_hand_overlay_wave(): void {
     // 5. A bow does not ride a walk.
     let thrown: unknown = null;
     try {
-      perform(walk().over((u: HumanChain): HumanChain => u.gesture({ kind: "bow" })));
+      perform(
+        walk().over((u: HumanChain): HumanChain => u.gesture({ kind: "bow" })),
+      );
     } catch (error) {
       thrown = error;
     }

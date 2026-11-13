@@ -69,10 +69,7 @@ export function test_human_motion_core_placed_path(): void {
     interrupts: {},
     plan: (context: IHumanActionContext<{ of: string }>): IHumanActionPlan => {
       for (const seconds of SECONDS)
-        seen.set(
-          seconds,
-          context.performer(context.params.of).root(seconds),
-        );
+        seen.set(seconds, context.performer(context.params.of).root(seconds));
       return {
         duration: 2,
         events: [],
