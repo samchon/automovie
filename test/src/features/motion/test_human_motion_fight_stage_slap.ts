@@ -27,7 +27,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * read. One film per pairing of two bodies of opposite build, so the slap
  * goes up and down.
  *
- * Scenarios, for each pairing, the slapper 0.6 m before the partner:
+ * Scenarios, for each pairing, the slapper 0.35 m before the partner, as
+ * close as a slap is given (at 0.6 m the small woman's hand does not reach
+ * the tall man's jaw and the row refuses):
  * 1. Over the whole slap, read every 1/48 s, none of the three joints
  *    comes within 40 mm of the partner's left jaw.
  * 2. The nearest any of them comes is within 0.3 m of it.
@@ -57,7 +59,7 @@ export function test_human_motion_fight_stage_slap(): void {
         performers: (["a", "b"] as const).map((subject) => ({
           subject,
           body: bodies[subject],
-          at: { x: 0, y: 0, z: subject === "a" ? 0 : 0.6 },
+          at: { x: 0, y: 0, z: subject === "a" ? 0 : 0.35 },
           yaw: subject === "a" ? 0 : 180,
           proficiency: { level: "trained" as const },
         })),

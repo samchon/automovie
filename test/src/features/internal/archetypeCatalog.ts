@@ -6,6 +6,7 @@ import {
   createBicycle,
   createBox,
   createCar,
+  createBarbell,
   createCareItem,
   createCart,
   createClub,
@@ -199,6 +200,11 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `longGun-${kind}`,
       (seed?: number | string): Archetype => createLongGun({ kind }, seed),
+    );
+  for (const kind of createBarbell.KINDS)
+    add(
+      `barbell-${kind}`,
+      (seed?: number | string): Archetype => createBarbell({ kind }, seed),
     );
   for (const kind of createClub.KINDS)
     add(
