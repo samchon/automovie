@@ -1,14 +1,19 @@
 import { workout } from "../exercise/workout";
+import { crawl } from "../floor/crawl";
 import { HumanActionRow } from "../law/HumanActionRow";
 
 /**
  * The gym's remaining movements under the names a programme uses, each a
- * row of the workout law with its kind fixed (`WorkoutGym`). A row leaves
- * open the count (`reps`), a held pose's `hold`, whether the body stays
- * on its support (`stay`), a bar's place and the manner.
+ * row of the workout law with its kind fixed (`WorkoutGym`,
+ * `WorkoutBodyweight`, `WorkoutEquipment`). A row leaves open the count
+ * (`reps`), a held pose's `hold`, whether the body stays on its support
+ * (`stay`), the support (`on`), the load (`load`), a bar's place and the
+ * manner. The bear crawl and the inchworm are rows of the crawl law, which
+ * leaves open the count of cycles.
  *
  * What a row shows and what its first pass leaves out is stated on its
- * kind: no load is held and no equipment is shown.
+ * kind or its law: without `load` nothing is held, and without `on` no
+ * equipment bears.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each row is a row of, what it leaves open and where its limits are stated.
  * @evidence contracts/development/design.md#principled-representation Each entry is a row of a registered law (`HumanActionRow`), so it is data over a law that plans and refuses.
@@ -16,6 +21,16 @@ import { HumanActionRow } from "../law/HumanActionRow";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; the kind is the only value fixed.
  */
 export namespace HumanSportGym {
+  /** A bear crawl: on the hands and the feet, the knees held off the floor. */
+  export const bearCrawl = HumanActionRow.of("bearCrawl", crawl, {
+    kind: "bear",
+  });
+
+  /** Inchworms: folded, the hands walked out to a plank, the feet walked in to the hands, and up. */
+  export const inchworm = HumanActionRow.of("inchworm", crawl, {
+    kind: "inchworm",
+  });
+
   /** Bent-over rows, without the bar. */
   export const bentOverRow = HumanActionRow.of("bentOverRow", workout, {
     kind: "bentOverRow",
