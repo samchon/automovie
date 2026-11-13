@@ -13,6 +13,7 @@ import type {
   IAutoMovieBone,
   IAutoMovieJointPose,
   IAutoMoviePose,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -132,7 +133,7 @@ export namespace HumanArmClearance {
    * @evidence contracts/development/implementation.md#principled-implementation Two arms sent to places on their own sides do not cross, so the elbow keeps the forearm's radius on its own side of the chest's median plane, or the wrist's own distance when the goal lies nearer or across; and the deepest of `SAMPLES` axis points below its needed clearance, the forearm's radius at the elbow falling linearly toward the wrist but never below the radius less `TISSUE`, the skin the contact verdicts let press in, plus the wrist's own signed clearance where a goal put it (0 for a wrist outside the body), divided by the upper arm's length: the angle the upper arm turns to carry the elbow that far. Against `others` the needed clearance falls to 0 at the wrist whatever the wrist's own depth, since no goal put the wrist there.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One bounding-sphere test per hull, then the samples of the shapes that pass it.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The wrist end asks no more than the goal itself gives, so a palm laid on the trunk is not refused; nothing is clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A hull whose bounding sphere the axis stays a radius from costs one point-to-segment distance; a shape that passes costs one point query per sample, where an exact segment query would cost the tens of point queries of its line search to decide what the samples decide anyway.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A hull whose bounding sphere the axis stays a radius from costs one point-to-segment distance; a shape that passes costs one point query per sample, where an exact segment query would cost the tens of point queries of its line search to decide what the samples decide anyway, and a sample or a wrist whose distance from the shape's bounding sphere already shows the query cannot raise the depth found (or lower the wrist's clearance) is not queried at all, which leaves the reading exactly as it is (`broad`).
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Every distance is the engine's `physicalShapeSegmentDistance`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
@@ -173,38 +174,90 @@ export namespace HumanArmClearance {
       ...others.map((s: HumanColliders.IPlaced) => [s, true] as const),
     ])
       for (const shape of segment.shapes) {
+        const bound: { centre: IAutoMovieVector3; radius: number } = bounding(
+          segment.pose,
+          shape,
+        );
+        // The cheap point-to-segment distance decides where it clears the bound by more than `MARGIN` either way; the exact query decides the rest, so the choice is the exact query's.
         if (shape.kind === "hull") {
-          const hull: physicalHullFaces.IHull = physicalHullFaces(shape.points);
-          const centre: IAutoMovieVector3 = Vector3.add(
-            segment.pose.position,
-            Quaternion.rotateVector(
-              segment.pose.rotation,
-              Vector3.add(
-                shape.transform.position,
-                Quaternion.rotateVector(shape.transform.rotation, hull.centre),
-              ),
-            ),
-          );
+          const gap: number = BROAD.on
+            ? along(elbow, wrist, bound.centre) - bound.radius - radius
+            : 0;
+          if (gap > MARGIN) continue;
           if (
-            closestPointsBetweenSegments(elbow, wrist, centre, centre)
-              .distance -
-              hull.radius >=
-            radius
+            !(gap < -MARGIN) &&
+            closestPointsBetweenSegments(
+              elbow,
+              wrist,
+              bound.centre,
+              bound.centre,
+            ).distance -
+              bound.radius >=
+              radius
           )
             continue;
         }
-        near.push({ pose: segment.pose, shape, free });
+        near.push({
+          pose: segment.pose,
+          shape,
+          free,
+          ...bound,
+          ...(shape.kind === "hull"
+            ? {
+                faces: physicalHullFaces(shape.points).faces,
+                origin: Vector3.add(
+                  segment.pose.position,
+                  Quaternion.rotateVector(
+                    segment.pose.rotation,
+                    shape.transform.position,
+                  ),
+                ),
+                inverse: Quaternion.inverse(
+                  Quaternion.multiply(
+                    segment.pose.rotation,
+                    shape.transform.rotation,
+                  ),
+                ),
+              }
+            : {}),
+        });
       }
     if (near.length === 0) return degrees(depth);
 
+    // How far a point surely lies outside a shape, never more than its signed distance: for a hull the greatest of its face planes' distances, which is the distance itself inside and no more than it outside; for any other shape its distance from the bounding sphere.
+    const outside = (p: IAutoMovieVector3, shape: IShape): number => {
+      if (shape.faces === undefined)
+        return Vector3.length(Vector3.subtract(p, shape.centre)) - shape.radius;
+      const local: IAutoMovieVector3 = Quaternion.rotateVector(
+        shape.inverse!,
+        Vector3.subtract(p, shape.origin!),
+      );
+      let most: number = -Infinity;
+      for (const face of shape.faces)
+        most = Math.max(
+          most,
+          face.normal.x * local.x +
+            face.normal.y * local.y +
+            face.normal.z * local.z -
+            face.offset,
+        );
+      return most;
+    };
+
     // The wrist's own signed clearance when the goal puts it inside a shape,
-    // which no elbow place changes; 0 for a wrist outside the body.
+    // which no elbow place changes; 0 for a wrist outside the body. A shape
+    // whose bounding sphere the wrist is outside of has a positive distance,
+    // which the least with 0 ignores, so it is not queried.
     let grazing: number = 0;
-    for (const { pose, shape, free } of near)
-      if (goal && !free)
+    for (const shape of near)
+      if (
+        goal &&
+        !shape.free &&
+        !(BROAD.on && outside(wrist, shape) > MARGIN)
+      )
         grazing = Math.min(
           grazing,
-          physicalShapeSegmentDistance(pose, shape, wrist, wrist),
+          physicalShapeSegmentDistance(shape.pose, shape.shape, wrist, wrist),
         );
     for (let i: number = 0; i < SAMPLES; i++) {
       const s: number = i / SAMPLES;
@@ -212,15 +265,33 @@ export namespace HumanArmClearance {
       // The skin may press `TISSUE` into a surface anywhere along the
       // forearm, as the contact verdicts allow, and no deeper.
       const needed: number = Math.max(radius * (1 - s), radius - TISSUE);
-      for (const { pose, shape, free } of near)
+      for (const shape of near) {
+        // A shape that cannot ask more than the depth already found leaves
+        // the greatest as it is: the needed clearance less the least the
+        // distance can be, `grazing` only lowering it.
+        if (BROAD.on && needed - outside(at, shape) < depth - MARGIN) continue;
         depth = Math.max(
           depth,
           needed +
-            (free ? 0 : grazing * s) -
-            physicalShapeSegmentDistance(pose, shape, at, at),
+            (shape.free ? 0 : grazing * s) -
+            physicalShapeSegmentDistance(shape.pose, shape.shape, at, at),
         );
+      }
     }
     return degrees(depth);
+  }
+
+  /**
+   * Turn the bounding-sphere screen of `overshoot` off or on again. Off,
+   * every near shape is queried at every sample and at the wrist, which is
+   * what a check of the screen against the full reading compares with; it
+   * is on unless turned off. The screen only spares queries whose result
+   * cannot change the reading, so both give the same degrees.
+   *
+   * @param on Whether queries are screened.
+   */
+  export function broad(on: boolean): void {
+    BROAD.on = on;
   }
 
   /**
@@ -465,7 +536,94 @@ interface IShape {
 
   /** Whether the wrist has no goal on the shape, so its own depth excuses nothing. */
   free: boolean;
+
+  /** The centre of a sphere the shape lies inside, world metres. */
+  centre: IAutoMovieVector3;
+
+  /** That sphere's radius, metres. */
+  radius: number;
+
+  /** A hull's face planes in its own frame; absent for any other shape. */
+  faces?: physicalHullFaces.IHull["faces"];
+
+  /** The world point a hull's own frame is centred on. */
+  origin?: IAutoMovieVector3;
+
+  /** The rotation from the world into a hull's own frame. */
+  inverse?: IAutoMovieQuaternion;
 }
+
+/**
+ * A sphere a placed shape lies inside: a hull's own about the mean of its
+ * vertices, a sphere itself, a capsule's about its middle reaching its
+ * caps, a box's about its centre reaching its corners. A point's signed
+ * distance to the shape is never less than its distance from this sphere,
+ * inside the shape too, where the ray from the centre through the point
+ * meets the surface within the sphere.
+ */
+function bounding(
+  pose: HumanColliders.IPlaced["pose"],
+  shape: HumanColliders.IPlaced["shapes"][number],
+): { centre: IAutoMovieVector3; radius: number } {
+  const local: { centre: IAutoMovieVector3; radius: number } =
+    shape.kind === "hull"
+      ? physicalHullFaces(shape.points)
+      : {
+          centre: { x: 0, y: 0, z: 0 },
+          radius:
+            shape.kind === "sphere"
+              ? shape.radius
+              : shape.kind === "capsule"
+                ? shape.halfLength + shape.radius
+                : Vector3.length(shape.halfExtents),
+        };
+  return {
+    centre: Vector3.add(
+      pose.position,
+      Quaternion.rotateVector(
+        pose.rotation,
+        Vector3.add(
+          shape.transform.position,
+          Quaternion.rotateVector(shape.transform.rotation, local.centre),
+        ),
+      ),
+    ),
+    radius: local.radius,
+  };
+}
+
+/** A point's distance from a segment, metres, by the clamped projection. */
+function along(
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+  p: IAutoMovieVector3,
+): number {
+  const ex: number = b.x - a.x;
+  const ey: number = b.y - a.y;
+  const ez: number = b.z - a.z;
+  const length: number = ex * ex + ey * ey + ez * ez;
+  const t: number =
+    length > 0
+      ? Math.min(
+          1,
+          Math.max(
+            0,
+            ((p.x - a.x) * ex + (p.y - a.y) * ey + (p.z - a.z) * ez) / length,
+          ),
+        )
+      : 0;
+  return Math.hypot(
+    p.x - (a.x + ex * t),
+    p.y - (a.y + ey * t),
+    p.z - (a.z + ez * t),
+  );
+}
+
+/** Whether the bounding spheres spare the exact distance queries they cannot change (`HumanArmClearance.broad`). */
+const BROAD: { on: boolean } = { on: true };
+
+/** How far, metres, a bound must clear what it is compared with before a query is spared: far above the rounding of a body-scale distance, far below anything a forearm's room reads. */
+const MARGIN: number = 1e-9;
 
 /** The bones whose colliders a forearm may not enter. */
 const TRUNK: ReadonlySet<AutoMovieHumanoidBone> =

@@ -1665,6 +1665,13 @@
     },
     {
       "layer": "posture",
+      "symbol": "HumanArmClearance.broad",
+      "tests": [
+        "test_human_motion_core_arm_clearance_screen"
+      ]
+    },
+    {
+      "layer": "posture",
       "symbol": "HumanArmClearance.overshoot",
       "tests": [
         "test_human_motion_compose_arm_carry",
