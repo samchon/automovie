@@ -6,6 +6,7 @@ import { HumanFirearm } from "./HumanFirearm";
 import { HumanGait } from "./HumanGait";
 import { HumanHabit } from "./HumanHabit";
 import { HumanLabour } from "./HumanLabour";
+import { HumanPartner } from "./HumanPartner";
 import { HumanPose } from "./HumanPose";
 import { HumanPursuit } from "./HumanPursuit";
 import { HumanRide } from "./HumanRide";
@@ -45,7 +46,7 @@ export const HUMAN_LEXICON_FAMILIES = {
   pose: [HumanPose],
   gait: [HumanGait, HumanTravelDoor, HumanTravelCar, HumanTravelLeaf],
   pursuit: [HumanPursuit],
-  social: [HumanSocial],
+  social: [HumanSocial, HumanPartner],
   stageFight: [HumanStageFight],
   drill: [HumanDrill],
   blade: [HumanBlade],

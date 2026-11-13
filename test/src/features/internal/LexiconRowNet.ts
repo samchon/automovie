@@ -139,6 +139,10 @@ export namespace LexiconRowNet {
     fistBump: [0.7, { partner: "b" }],
     lowFive: [0.7, { partner: "b" }],
     pinkyPromise: [0.7, { partner: "b" }],
+    // A relay pass performed standing, mimed with no baton: the instant is
+    // stated after the net's 0.3 s stand and the pass's reach.
+    relayIncoming: [0.6, { partner: "b", at: 1 }],
+    relayOutgoing: [0.6, { partner: "b", at: 1 }],
     follow: [3, on("sternum")],
     escort: [3, on("sternum")],
     chase: [3, on("sternum")],
