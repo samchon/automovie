@@ -12,6 +12,12 @@
   font-size: 1.1rem;
 }
 
+.automovie-site-footer-links {
+  display: flex;
+  gap: 1.25rem;
+  font-weight: 600;
+}
+
 /* The application frame */
 .am-app {
   box-sizing: border-box;
@@ -772,12 +778,6 @@
   background: var(--am-accent);
 }
 
-/* Landing: one readable column */
-.am-landing {
-  max-width: 48rem;
-  margin: 0 auto;
-  padding: var(--am-space-6) var(--am-space-4);
-}
 
 @media (prefers-reduced-motion: reduce) {
   .am-app * {
