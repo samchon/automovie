@@ -144,7 +144,8 @@ for (let i: number = 0; i < argv.length; i++) {
   else if (arg === "--shards" || arg === "--jobs")
     options.shards = Math.max(1, Number(argv[++i]));
   else if (arg === "--runner") options.runner = Number(argv[++i]);
-  else if (arg === "--runners") options.runners = Math.max(1, Number(argv[++i]));
+  else if (arg === "--runners")
+    options.runners = Math.max(1, Number(argv[++i]));
   else if (arg === "--merge") options.merge = true;
   else if (arg === "--check") options.check = true;
   else if (arg === "--row") options.rows.push(argv[++i]!);
@@ -171,7 +172,9 @@ const sources = (): string => {
     walk(path.resolve(root, "..", "packages", name, "src"));
   walk(path.join(root, "src", "playground"));
   hash.update(FORMAT);
-  hash.update(fs.readFileSync(path.join(root, "src", "scenes", "SceneTrack.ts")));
+  hash.update(
+    fs.readFileSync(path.join(root, "src", "scenes", "SceneTrack.ts")),
+  );
   return hash.digest("hex");
 };
 
@@ -276,8 +279,10 @@ const spans = (
 
 /** Bake one share of the jobs and write what it made. */
 const bake = (shard: number): void => {
-  const before: Record<string, Record<number, ISceneManifest.ITake>> =
-    previous();
+  const before: Record<
+    string,
+    Record<number, ISceneManifest.ITake>
+  > = previous();
   const part: IPart = { bodies: {}, takes: {} };
   fs.mkdirSync(path.join(out, "bodies"), { recursive: true });
 
@@ -334,7 +339,10 @@ const bake = (shard: number): void => {
     const record = (take: ISceneManifest.ITake): void => {
       (part.takes[scene.id] ??= {})[index] = take;
       fs.mkdirSync(parts, { recursive: true });
-      fs.writeFileSync(path.join(parts, `${options.runner ?? "local"}-${shard}.json`), JSON.stringify(part));
+      fs.writeFileSync(
+        path.join(parts, `${options.runner ?? "local"}-${shard}.json`),
+        JSON.stringify(part),
+      );
     };
 
     // An unchanged take keeps its file.
@@ -351,60 +359,72 @@ const bake = (shard: number): void => {
 
     const t0: number = Date.now();
     let built: PlaygroundPerformance.IBuilt;
-    try {
-      built = PlaygroundPerformance.build(composition);
-    } catch (error) {
-      refused.push(
-        `The scene ${scene.id}, take ${index} (${label}), was refused: ${error instanceof Error ? error.message : String(error)}`,
-      );
-      continue;
-    }
-    const planned: number = (Date.now() - t0) / 1000;
-    const duration: number = built.performance.duration;
-    const count: number = Math.floor(duration * options.fps) + 1;
+    let planned: number = 0;
+    let duration: number = 0;
+    let count: number = 0;
     const frames: SceneTrack.IPlacement[][][] = [];
 
     // Each figure's posing time, so the take's slowest action is named.
-    const costs: number[] = built.figures.map((): number => 0);
-    for (let k: number = 0; k < count; k++) {
-      const seconds: number = Math.min(duration, k / options.fps);
-      frames.push([
-        ...built.figures.map(
-          (
-            figure: PlaygroundPerformance.IFigure,
-            i: number,
-          ): SceneTrack.IPlacement[] => {
-            const started: number = performance.now();
-            const posed: SceneTrack.IPlacement[] =
-              AutoMovieHumanCanonicalBody.display(
-                figure.canonical,
-                built.performance.pose(figure.subject, seconds),
-              ).posed;
-            costs[i]! += performance.now() - started;
-            return posed;
-          },
-        ),
+    const costs: number[] = [];
 
-        // A prop is one entry: the frame it is carried, rests or moves in.
-        ...props.map((subject: string): SceneTrack.IPlacement[] => {
-          const frame: IHumanProp.IFrame = built.performance.prop(
-            subject,
-            seconds,
-          );
-          return [
-            {
-              bone: PROP,
-              position: [frame.position.x, frame.position.y, frame.position.z],
-              rotation: [
-                frame.rotation.x,
-                frame.rotation.y,
-                frame.rotation.z,
-                frame.rotation.w,
-              ],
+    // A law may refuse while a frame is posed as well as while the chain is
+    // planned; either refusal is this take's alone, so the share goes on.
+    try {
+      built = PlaygroundPerformance.build(composition);
+      planned = (Date.now() - t0) / 1000;
+      duration = built.performance.duration;
+      count = Math.floor(duration * options.fps) + 1;
+      costs.push(...built.figures.map((): number => 0));
+      for (let k: number = 0; k < count; k++) {
+        const seconds: number = Math.min(duration, k / options.fps);
+        frames.push([
+          ...built.figures.map(
+            (
+              figure: PlaygroundPerformance.IFigure,
+              i: number,
+            ): SceneTrack.IPlacement[] => {
+              const started: number = performance.now();
+              const posed: SceneTrack.IPlacement[] =
+                AutoMovieHumanCanonicalBody.display(
+                  figure.canonical,
+                  built.performance.pose(figure.subject, seconds),
+                ).posed;
+              costs[i]! += performance.now() - started;
+              return posed;
             },
-          ];
-        }),
-      ]);
+          ),
+
+          // A prop is one entry: the frame it is carried, rests or moves in.
+          ...props.map((subject: string): SceneTrack.IPlacement[] => {
+            const frame: IHumanProp.IFrame = built.performance.prop(
+              subject,
+              seconds,
+            );
+            return [
+              {
+                bone: PROP,
+                position: [
+                  frame.position.x,
+                  frame.position.y,
+                  frame.position.z,
+                ],
+                rotation: [
+                  frame.rotation.x,
+                  frame.rotation.y,
+                  frame.rotation.z,
+                  frame.rotation.w,
+                ],
+              },
+            ];
+          }),
+        ]);
+      }
+    } catch (error) {
+      // Printed at once as well, so a bake stopped halfway keeps its findings.
+      const line: string = `The scene ${scene.id}, take ${index} (${label}), was refused: ${error instanceof Error ? error.message : String(error)}`;
+      console.log(line);
+      refused.push(line);
+      continue;
     }
     const values: Int16Array = SceneTrack.encode(frames, [
       ...figures.map(
@@ -441,7 +461,10 @@ const bake = (shard: number): void => {
   // Only this share's own part is replaced, so another share's part restored
   // beside it keeps its takes.
   fs.mkdirSync(parts, { recursive: true });
-  fs.writeFileSync(path.join(parts, `${options.runner ?? "local"}-${shard}.json`), JSON.stringify(part));
+  fs.writeFileSync(
+    path.join(parts, `${options.runner ?? "local"}-${shard}.json`),
+    JSON.stringify(part),
+  );
   if (refused.length !== 0) throw new Error(refused.join("\n"));
 };
 
@@ -592,7 +615,10 @@ const check = (): void => {
         (figure: PlaygroundPerformance.IFigure): string => {
           const started: number = performance.now();
           for (let k: number = 1; k <= 4; k++)
-            built.performance.pose(figure.subject, (built.performance.duration * k) / 5);
+            built.performance.pose(
+              figure.subject,
+              (built.performance.duration * k) / 5,
+            );
           return `${figure.subject} ${((performance.now() - started) / 4).toFixed(0)} ms`;
         },
       );
