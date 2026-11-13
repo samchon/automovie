@@ -29,10 +29,10 @@ const IWF: string =
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the bar lies, where its origin is and what that asks of a scene, and the two contacts.
- * @evidence contracts/development/implementation.md#principled-implementation The shaft between the collars, a sleeve each side out to the bar's length, and one disc stack per side whose thickness grows with the load; every length the rule fixes is the rule's.
+ * @evidence contracts/development/implementation.md#principled-implementation The shaft between the collars, laid in pieces so each hand's place has its own, a sleeve each side out to the bar's length, and one disc stack per side whose thickness grows with the load; every length the rule fixes is the rule's.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, lay the shaft, the sleeves and the discs, two contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts One solid stack stands for a side's discs, its thickness an estimate per kilogram, and the mass is spread over the shapes by volume, so the loaded bar's inertia about its length is not a measured one; no knurling and no collars' clamps.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three rods, five when loaded.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Seven rods, nine when loaded.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -67,11 +67,31 @@ export function createBarbell(
   });
   const along = (x: number): ReturnType<typeof Vector3.create> =>
     Vector3.create(x, 0, 0);
-  builder.rod("shaft", d.diameter! / 2, along(-collar), along(collar), {
-    color: "#b8bcc2",
-  });
+
+  // The shaft is laid in pieces, one centred on each hand's place, so the
+  // collider nearest a grip is the shaft a hand closes on and never a disc.
+  const hand: number = d.grip! / 2;
+  const inner: number = Math.max(0, hand - createBarbell.HAND);
+  const outer: number = Math.min(collar, hand + createBarbell.HAND);
+  const shaft = (id: string, from: number, to: number): void => {
+    if (to - from > 1e-6)
+      builder.rod(id, d.diameter! / 2, along(from), along(to), {
+        color: "#b8bcc2",
+      });
+  };
+  shaft("shaft-middle", -inner, inner);
   for (const side of [1, -1] as const) {
     const name: string = side === 1 ? "left" : "right";
+    shaft(
+      `shaft-grip-${name}`,
+      Math.min(side * inner, side * outer),
+      Math.max(side * inner, side * outer),
+    );
+    shaft(
+      `shaft-end-${name}`,
+      Math.min(side * outer, side * collar),
+      Math.max(side * outer, side * collar),
+    );
     builder.rod(
       `sleeve-${name}`,
       createBarbell.SLEEVE / 2,
