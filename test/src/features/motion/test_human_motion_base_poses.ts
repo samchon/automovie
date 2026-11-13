@@ -14,35 +14,34 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
- * Every named reaction taken on the feet keeps them where they are and
- * ends standing: a brace, a flinch and a stumble.
+ * Every named reaction taken on the feet that the other pose tests do not
+ * name keeps them where they are and ends standing: a brace and a stumble.
  *
  * A foot that bears does not slide. Each action declares when each foot is
  * planted, and through each of those windows the ball of that foot stays
- * within the campaign's slip bound. The poses that crouch are
+ * within the campaign's slip bound. The flinches are
+ * `test_human_motion_base_flinch_poses`'s, the poses that crouch
  * `test_human_motion_base_crouching_poses`'s, those that go down to the
  * knees `test_human_motion_base_kneeling_poses`'s, those that go down to
  * the floor `test_human_motion_base_floor_poses`'s, and the stances
  * `test_human_motion_base_stances`'s.
  *
  * Scenarios, every row of `HumanPose` the other tests do not name
- * (`braceForImpact`, `startle`, `wince`, `stumble`), performed after 0.3 s
- * of standing on the average man or the small woman, alternating down the
- * rows, and on both for `startle` and `wince`. One body a row is enough
- * because each claim is where a named reaction ends, which both builds
- * meet across the family; the instants are each window's two ends and two
- * between, where a planted foot dragged by the pelvis shows:
+ * (`braceForImpact` and `stumble` today, and any row added later),
+ * performed after 0.3 s of standing on the average man or the small woman,
+ * alternating down the rows. One body a row is enough because each claim
+ * is where a named reaction ends, which both builds meet across the family;
+ * the instants are each window's two ends and two between, where a planted
+ * foot dragged by the pelvis shows, and the end:
  * 1. Through every plant window the row declares, read at four instants
  *    spread over it, the foot's ball moves at most 5 mm.
  * 2. Every row ends on the feet: both feet bear at the end.
- * 3. `startle` raises a wrist further than `wince` does, read at five
- *    instants spread over each (a flinch grows with its intensity).
  *
- * @evidence contracts/development/testing.md#behavioral-verification Registers the reaction rows through the public input, performs each on a real body and reads the displayed feet and wrists; a sliding plant, a reaction that leaves a foot in the air or a wince as large as a startle fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Registers the remaining pose rows through the public input, performs each on a real body and reads the displayed feet; a sliding plant or a reaction that leaves a foot in the air fails.
  * @evidence contracts/development/testing.md#independent-expectations The 5 mm is the campaign's slip bound; where each row ends is what its name states. Limitation: the plant windows are the ones each action declares, so a foot that slides outside any declared window is the verdict report's to catch.
- * @evidence contracts/development/testing.md#distinguishing-cases A brace, two flinches of different size and a stumble that steps, over two bodies of opposite build.
- * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds one short performance per row in memory, two for the flinches.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 3 scenarios with their bounds.
+ * @evidence contracts/development/testing.md#distinguishing-cases A brace held in place and a stumble that steps, over two bodies of opposite build.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds one short performance per row in memory.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 2 scenarios with their bounds.
  */
 export function test_human_motion_base_poses(): void {
   const complaints: string[] = [];
@@ -56,6 +55,8 @@ export function test_human_motion_base_poses(): void {
     "lieStill",
     "squatSit",
     "takeCover",
+    "startle",
+    "wince",
   ];
   const rows: readonly string[] = HUMAN_LEXICON.pose!.map(
     (law: IHumanActionLaw<never>): string => law.name,
@@ -64,12 +65,11 @@ export function test_human_motion_base_poses(): void {
   for (let b: number = 0; b < names.length; ++b) {
     const name: "m-average" | "f-small" = names[b]!;
     const body: IHumanBody = motionHumanBody(name);
-    const lifts: Record<string, number> = {};
     for (let r: number = 0; r < rows.length; ++r) {
       const row: string = rows[r]!;
 
-      // Each row is performed on one body, alternating down the rows, and on both for the two flinches compared on one body.
-      if ((b + r) % 2 !== 0 && row !== "startle" && row !== "wince") continue;
+      // Each row is performed on one body, alternating down the rows.
+      if ((b + r) % 2 !== 0) continue;
       const label: string = `${name} ${row}`;
       let performance: HumanPerformance;
       try {
@@ -103,10 +103,6 @@ export function test_human_motion_base_poses(): void {
         0,
       );
       const end: number = segment.end;
-      const y = (
-        bone: Parameters<typeof HumanSignature.joint>[2],
-        t: number,
-      ): number => HumanSignature.joint(reader, t, bone).y;
       const planted = (side: "left" | "right", t: number): IAutoMovieVector3 =>
         HumanFoot.sockets(body, HumanSignature.bones(reader, t), side).find(
           (s: HumanFoot.ISocket): boolean => s.socket === "ball",
@@ -149,27 +145,7 @@ export function test_human_motion_base_poses(): void {
         if (!HumanSignature.bears(reader, end, side))
           complaints.push(`${label}: the ${side} foot does not bear at the end`);
 
-      // 3. How far a wrist rises, read at five instants spread over the flinch.
-      if (row === "startle" || row === "wince") {
-        const rest: number = Math.max(y("leftHand", 0), y("rightHand", 0));
-        lifts[row] = Math.max(
-          ...HumanSignature.times(
-            segment.entryTime,
-            end,
-            4 / (end - segment.entryTime),
-          ).map(
-            (t: number): number =>
-              Math.max(y("leftHand", t), y("rightHand", t)) - rest,
-          ),
-        );
-      }
     }
-    const startle: number | undefined = lifts.startle;
-    const wince: number | undefined = lifts.wince;
-    if (startle !== undefined && wince !== undefined && !(startle > wince))
-      complaints.push(
-        `${name}: a startle raises a wrist ${startle.toFixed(3)} m and a wince ${wince.toFixed(3)} m, more for the startle expected`,
-      );
   }
   TestValidator.equals("standing poses hold their ground", complaints, []);
 }
