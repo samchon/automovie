@@ -1778,6 +1778,12 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "const": "calfRight"
           },
           {
+            "const": "cheekLeft"
+          },
+          {
+            "const": "cheekRight"
+          },
+          {
             "const": "chestLeft"
           },
           {
@@ -18734,6 +18740,12 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "calfRight"
               },
               {
+                "const": "cheekLeft"
+              },
+              {
+                "const": "cheekRight"
+              },
+              {
                 "const": "chestLeft"
               },
               {
@@ -18950,6 +18962,12 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               },
               {
                 "const": "calfRight"
+              },
+              {
+                "const": "cheekLeft"
+              },
+              {
+                "const": "cheekRight"
               },
               {
                 "const": "chestLeft"

@@ -440,6 +440,10 @@ const REGIONS: Readonly<Partial<Record<AutoMovieHumanoidRegion, IRegionDef>>> =
         table[`${name}${Side}` as AutoMovieHumanoidRegion] = def;
       };
       set("jaw", { station: head, direction: v(0.7 * x, -0.55, 0.45) });
+      // The cheek: the zygomatic prominence over the buccal area, at the
+      // nose's height (its ray's -0.15) and 40 degrees out from the face's
+      // forward ray, tan 40 = 0.84 (provisional).
+      set("cheek", { station: head, direction: v(0.84 * x, -0.15, 1) });
       set("temple", { station: head, direction: v(x, 0.25, 0.3) });
       set("ear", { station: head, direction: v(x, 0, 0) });
       set("neck", { station: neck, direction: v(x, 0, 0) });
