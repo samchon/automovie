@@ -89,6 +89,9 @@ export namespace FamilyConicSection {
   /** Build the engine's native conic chain from a field vector. */
   export const chain: (values: readonly number[], layout: ILayout) => Q.ISection = S.chain;
 
+  /** A stored shoulder as the model reads it, inside its bounds. */
+  export const shoulder: (value: number, layout: ILayout) => number = S.shoulder;
+
   /** The field vector with the two arcs at an anchor given the shoulders that make the curvature continuous there. */
   export const continuous: (values: readonly number[], layout: ILayout, k: number) => number[] = S.continuous;
 

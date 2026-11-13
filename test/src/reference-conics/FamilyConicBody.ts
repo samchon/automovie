@@ -39,6 +39,19 @@ namespace FamilyConicBody {
   const BILATERAL: { layout: C.ILayout; depth: number }[] = [{ layout: C.bilateral(1), depth: 1 }];
 
   /**
+   * `--trunk-lines`: the trunk fitted to its skin with the median lines as feature lines (`FamilyConicSection.featured`): after the front
+   * extreme an inflection and a crest, so the front median may stand in a groove (the crotch's notch, the linea alba, the navel, the
+   * sternal groove, the suprasternal notch), then the off-axis groove between the front and the side as an inflection, a floor and an
+   * inflection (the inguinal crease, the lateral chest pocket and the supraclavicular hollow, the hollows under the jaw), and before the back
+   * extreme a crest and an inflection (the natal cleft, the spinal furrow). Where a groove fades its anchors lie on a smooth stretch.
+   */
+  const TRUNK_LINES: boolean = process.argv.includes("--trunk-lines");
+  const TRUNK_LINED: { layout: C.ILayout; depth: number }[] = [{ layout: C.featured(C.bilateral(1), [
+    { after: 0, anchors: [{ kind: "f", feature: "inflection", window: [0.02, 0.25] }, { kind: "f", feature: "convex", window: [0.05, 0.4] }, { kind: "f", feature: "inflection", window: [0.2, 0.6] }, { kind: "f", feature: "concave", window: [0.3, 0.8] }, { kind: "f", feature: "inflection", window: [0.45, 0.95] }] },
+    { after: 3, anchors: [{ kind: "f", feature: "convex", window: [0.3, 0.9] }, { kind: "f", feature: "inflection", window: [0.6, 0.97] }] },
+  ]), depth: 1 }];
+
+  /**
    * Where the ear's course starts and ends, mm: `AutoMovieHumanF1Joints.earRoot` and `earTip`.
    *
    * The auricle is a shell that leans back from the head: sagittal planes cut it 21 mm fore and aft at 78 mm out (x -2..21, y 1543..1597)
@@ -358,8 +371,16 @@ namespace FamilyConicBody {
    */
   function noseCut(p: R.V): number {
     const t: number = Math.min(1, Math.max(0, (p[1] - 1562) / 10));
-    return Math.min(nose(p), p[0] - (113 + 9 * t * t * (3 - 2 * t)));
+    // The box's floor fades into the face: over the first `NOSE_FLOOR_MM[1]` mm above it the frontal plane stands up to `NOSE_FLOOR_MM[0]`
+    // mm farther forward, so the trunk's sections leave out less of the nose's base the nearer they are to the floor. Cut level at
+    // 1,543 mm, the nets over the face observed below it and not above, and the upper lip and the cheeks beside the wings turned by 6
+    // degrees in one level line there (`mouth.front` px 0..240 x 240).
+    const f: number = Math.min(1, Math.max(0, (p[1] - 1543) / NOSE_FLOOR_MM[1]));
+    return Math.min(nose(p), p[0] - (113 + 9 * t * t * (3 - 2 * t) + NOSE_FLOOR_MM[0] * (1 - f * f * (3 - 2 * f))));
   }
+
+  /** How far forward the nose's frontal plane stands at its box's floor, mm, and over how much height it comes back, mm (`noseCut`). */
+  const NOSE_FLOOR_MM: [number, number] = [12, 6];
 
   /**
    * The net over the nose's sidewalls (`nose.side`), as `rows,columns,from,to,phase,reach,fade,fadePhase,top[,fadeIn[,held]]`: mirrored
@@ -608,6 +629,9 @@ namespace FamilyConicBody {
      * reported by station (`family-body-star`). Absent, the hull.
      */
     skin?: "inner" | "outer";
+
+    /** With `skin`: a section whose rays fold is fitted as its hull instead of being skipped. */
+    folded?: "hull";
 
     /** The name of an excursion (`FamilyConicExcursion.PARTS`) the sections are cut as, out of the reference head's level planes. */
     excursion?: string;
@@ -892,7 +916,7 @@ namespace FamilyConicBody {
         // kept is the earlier one below station 640 and this one above it, with every relief fitted again over the splice
         // (`--wall=<earlier> --splice=<this>@640 --refit`): 693 numbers at 0.66 mm. The ears are left out of its sections. It owns the shoulders down to the armscye plane through the armpit's
         // crease; past that plane, lateral of the crease and inside the arm's own tube, the skin is the arm's and is left out of the trunk's sections.
-        { name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], course: "[J.axisFloor, J.axisCrown]", halves: [], up: [1, 0, 0], domain: [28, 912], whole: true, step: 2, gap: (s: number): number => (s >= 692 && s <= 732 ? Number(process.argv.find((argument: string): boolean => argument.startsWith("--jaw="))?.slice(6) ?? 3) : s > 740 ? FACE_GAP_MM : 12), tip: true, cap: 906, centre: [16, 0], own: true, mirrored: false, layouts: BILATERAL, round: chin, kept: breasts, clip: (p: R.V): number => Math.max(ear(p), noseCut(p), chin(p), breasts(p), ...[1, -1].map((side: number): number => {
+        { name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], course: "[J.axisFloor, J.axisCrown]", halves: [], up: [1, 0, 0], domain: [28, 912], whole: true, step: 2, gap: (s: number): number => (s >= 692 && s <= 732 ? Number(process.argv.find((argument: string): boolean => argument.startsWith("--jaw="))?.slice(6) ?? 3) : s > 740 ? FACE_GAP_MM : 12), tip: true, cap: 906, centre: [16, 0], own: true, mirrored: false, layouts: TRUNK_LINES ? TRUNK_LINED : BILATERAL, ...(TRUNK_LINES ? { skin: "outer" as const, folded: "hull" as const } : {}), round: chin, kept: breasts, clip: (p: R.V): number => Math.max(ear(p), noseCut(p), chin(p), breasts(p), ...[1, -1].map((side: number): number => {
           const a: R.V = joint("upperarm_r");
           const b: R.V = joint("lowerarm_r");
           const length: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
@@ -931,15 +955,8 @@ namespace FamilyConicBody {
           // softened with the shoulder's casts taken off. It hands that skin over to the casts straight down (`shoulder`) over its last 90 mm; over its last 70 the notch was softened but still there.
           { name: "trunk.chest.side", stations: [400, 680], phases: [Math.PI / 2 - 0.82, Math.PI / 2 + 0.82], axis: [0, 0, -1], turn: [1, 0, 0], rows: 59, columns: 53, mirror: false, uncut: true, reach: 25, fade: [30, 90] },
           { name: "trunk.chest.side.twin", stations: [400, 680], phases: [-Math.PI / 2 - 0.82, -Math.PI / 2 + 0.82], axis: [0, 0, 1], turn: [-1, 0, 0], rows: 59, columns: 53, mirror: false, uncut: true, reach: 25, fade: [30, 90] },
-          // The fold under each breast, from the sternum round to the side, where the reference's skin turns from the breast's underside
-          // to the chest within a few millimetres. The chest's nets are 5 mm a row, and a cubic net that coarse rounded the fold over 10 to
-          // 15 mm, a soft shelf drawn in level bands 4 mm tall. A net 3 mm a row over the fold's stations lets the crease turn within two
-          // rows (its heights reach only 0.3 mm: the sections already fit there), and the layers inside it are cut as fine (`leaf`). The
-          // sections are 2 mm apart and every other one is withheld, so a net 2 mm a row, and one 0.016 or 0.024 rad a column, had rows the
-          // fit saw once and drew the reference's facets as a mottle; 3 mm and 0.035 rad, 5 mm at the breast, see each row twice. Cast
-          // square to the wall about its middle phase, 0.75 rad, as the chest's windows are, and fitted after them.
-          { name: "trunk.fold", stations: [400, 490], phases: [0.05, 1.45], axis: [-0.7317, 0, -0.6816], turn: [0.6816, 0, -0.7317], rows: 33, columns: 43, mirror: false, reach: 25, fade: [15, 15], fadePhase: [0.15, 0.15] },
-          { name: "trunk.fold.twin", stations: [400, 490], phases: [-1.45, -0.05], axis: [-0.7317, 0, 0.6816], turn: [-0.6816, 0, -0.7317], rows: 33, columns: 43, mirror: false, reach: 25, fade: [15, 15], fadePhase: [0.15, 0.15] },
+          // No net over the fold under each breast: its heights stayed under 1.3 mm on a chest that is star-shaped about the course, the wall's own
+          // misfit, and the crease itself is the breast's band. The fine layers over the fold are keyed on its stations (`AutoMovieHumanF1` `FOLD`).
           // The neck and head: windows whose cast turns with the phase (`turn`), square to the wall all the way round. One net goes round the
           // whole head with its seam down the back, and ends at the crown's tip, 918.88 mm, where a relief must vanish for the pole. With
           // fixed axes the head took four windows, front, back and two sides, whose edges met in a seam down the cheek and over the skull
@@ -1197,7 +1214,10 @@ namespace FamilyConicBody {
           const shifted: C.P[] = cutLoop.map((p: C.P): C.P => [p[0] - core.point[0], p[1] - core.point[1]]);
           log("family-body-kernel", { part: part.name, s, kernel: world.map(round), clearanceMm: round(core.clearance), foldsFromKernel: X.star(shifted, SKIN_RAYS, "inner")?.folds ?? -1, foldsFromCourse: X.star(cutLoop, SKIN_RAYS, "inner")?.folds ?? -1 });
         }
-        const loop: C.P[] | null = part.skin === undefined ? cutLoop : (starred?.points ?? null);
+        // A section whose rays fold (`IPart.folded` `hull`) is fitted as its hull, the tape, and its folds are left to the reliefs: on the trunk the
+        // armpit, the shoulders' tops, under the chin, the lip's corners, the ear's root and the lids, 91 of 885 sections; skipped, the face had
+        // no section from 750 to 830 mm.
+        const loop: C.P[] | null = part.skin === undefined ? cutLoop : (starred?.points ?? (part.folded === "hull" && cutLoop !== null ? R.hull(cutLoop) : null));
         if (loop === null) skipped.push(s);
         else if (part.skin !== undefined) {
           // Fitted to the skin itself: its concavities are the wall's own inward arcs, between inflection anchors (`inflected`).
@@ -1452,6 +1472,15 @@ namespace FamilyConicBody {
         best = { ...best, layout: unbounded, values: best.values.map((field: number[], f: number): number[] => (f >= first ? field.map((x: number): number => Math.max(bound, x)) : field)) };
       }
 
+      // Every shoulder is stored as the model reads it (`AutoMovieHumanConicSection.shoulder`), so the stored wall is the one generated. The
+      // trunk's face refitted without the nose stored -0.20 at 792 mm and 1.17 at 834 mm; the model reads 0.03 and 0.85 at those knots, and
+      // between them the field's cubic crossed the bound, where its arc held still while its neighbours moved.
+      {
+        const arcs: number = best.layout.mirror ? best.layout.anchors.length - 1 : best.layout.anchors.length;
+        const first: number = C.units(best.layout).length - arcs;
+        const layout: C.ILayout = best.layout;
+        best = { ...best, values: best.values.map((field: number[], f: number): number[] => (f >= first ? field.map((x: number): number => C.shoulder(x, layout)) : field)) };
+      }
       // `--g2=<anchor>@<from>-<to>`: at every knot from `from` to `to` mm the two arcs meeting at that anchor take the shoulders that make
       // the section's curvature continuous there (`AutoMovieHumanConicSection.continuous`), before the reliefs are fitted over the wall.
       // The trunk's first median over the hips met with curvatures of 1.2 and 308 per metre, an upright line down each hip.

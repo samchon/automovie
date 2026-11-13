@@ -513,15 +513,15 @@ export namespace AutoMovieHumanF1 {
    * aslant, as the one under the breast does, is drawn in steps as tall as the layers are apart; where the skin turns that fast the layers
    * must stand closer than the 4 mm that carries the rest.
    *
-   * Over the stations of a crease's own window (`creases`, the nets over the fold under each breast) a layer is also added where the
+   * Over a crease's stations on its family (`creases`: the fold under each breast, 400 to 490 mm on the trunk) a layer is also added where the
    * skin turns along the station by more than `turn` degrees between the two halves of the interval, at `fine` phases. Flat shading shows
    * the turn, not the sagitta: the fold turned 14 to 20 degrees across one layer 2 to 4 mm tall, a sagitta of 0.1 mm, and stood in level
    * steps from the front. The rule holds only there: everywhere on the trunk it added 166 rings and moved the head's, whose rings the
-   * ear's band is triangulated against. The mouth's net (`trunk.mouth`) takes it too: the lips turn through their whole roll within a few
+   * ear's band is triangulated against. The mouth's band of the trunk (722 to 758 mm, `trunk.mouth`'s stations) takes it too: the lips turn through their whole roll within a few
    * millimetres of height, and on the layers the sagitta left there, 2 to 2.6 mm apart, each lip stood in level bands of light and dark
    * from the front and in steps in profile (mouth.front px 200..720 x 330..640, mouth.left).
    */
-  const FOLD: { sagitta: number; least: number; phases: number; turn: number; fine: number; creases: string[] } = { sagitta: 0.15, least: 0.5, phases: 96, turn: 4, fine: 192, creases: ["trunk.fold", "trunk.fold.twin", "trunk.mouth"] };
+  const FOLD: { sagitta: number; least: number; phases: number; turn: number; fine: number; creases: { family: string; stations: [number, number] }[] } = { sagitta: 0.15, least: 0.5, phases: 96, turn: 4, fine: 192, creases: [{ family: "trunk", stations: [400, 490] }, { family: "trunk", stations: [722, 758] }] };
 
   /** Columns round each band and rows across it. */
   const BAND: { count: number; rows: number } = { count: 96, rows: 8 };
@@ -1013,7 +1013,7 @@ export namespace AutoMovieHumanF1 {
       const cut: number[] = stations.flatMap((s: number, i: number): number[] => (i === 0 ? [s] : [...between(stations[i - 1]!, rings[i - 1]!, s, rings[i]!), s]));
 
       // Over a crease's window, where the skin turns along the station faster than `FOLD.turn` between an interval's halves.
-      const windows: [number, number][] = (family.reliefs ?? []).filter((relief): boolean => FOLD.creases.includes(relief.name)).map((relief): [number, number] => relief.stations);
+      const windows: [number, number][] = FOLD.creases.filter((crease): boolean => crease.family === family.name).map((crease): [number, number] => crease.stations);
       if (windows.length === 0) return cut;
       const fine = (s: number): number[][] => Array.from({ length: FOLD.fine }, (_: unknown, j: number): number[] => AutoMovieLoftChain.point(chain, s, (2 * Math.PI * j) / FOLD.fine));
       const turned = (low: number[], mid: number[], high: number[]): number => {

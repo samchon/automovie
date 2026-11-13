@@ -221,6 +221,18 @@ export namespace AutoMovieHumanConicSection {
     return [before, after];
   }
 
+  /**
+   * A stored shoulder as the model reads it: inside `[EDGE, FAIR]`, and at least the layout's `least`. A fit may store a shoulder past those
+   * bounds where it changes nothing at the fitted sections; between the knots the field's natural cubic then crosses a bound and the arc
+   * holds still there while its neighbours move, which draws a level line across the wall.
+   *
+   * @param value The stored shoulder.
+   * @param layout The layout it belongs to.
+   */
+  export function shoulder(value: number, layout: ILayout): number {
+    return Math.min(FAIR, Math.max(layout.least ?? 0, clamp(value)));
+  }
+
   /** Confine a share to the model's bounds. */
   export function clamp(share: number): number {
     return Math.min(1 - EDGE, Math.max(EDGE, share));
@@ -290,7 +302,7 @@ export namespace AutoMovieHumanConicSection {
     }
     const input: AutoMovieViewChain.IInput = { points: [], tangents: [], shoulders: [] };
     const guides: number[] = [];
-    const rho = (arc: number): number => Math.min(FAIR, Math.max(layout.least ?? 0, clamp(values[shoulders + arc]!)));
+    const rho = (arc: number): number => shoulder(values[shoulders + arc]!, layout);
     for (let k: number = 0; k < K; ++k) {
       if (layout.anchors[k]!.guide === true) guides.push(input.points.length);
       input.points.push(points[k]!);
