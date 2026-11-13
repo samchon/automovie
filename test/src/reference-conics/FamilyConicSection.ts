@@ -31,6 +31,9 @@ export namespace FamilyConicSection {
   /** The bilateral layout of the given median depth. */
   export const bilateral: (depth: number) => ILayout = S.bilateral;
 
+  /** The lens layout (`AutoMovieHumanConicSection.lens`). */
+  export const lens: (depth: number) => ILayout = S.lens;
+
   /**
    * The limb layout of the given median depth with a groove after each listed anchor: two inflections and the groove's own median between
    * them, `[i, m, i]`, the inflections a level deeper than every median and the groove's median a level deeper again, so each inflection
@@ -40,11 +43,12 @@ export namespace FamilyConicSection {
    *
    * @param depth The limb's median depth.
    * @param after Indices into `limb(depth).anchors` after which a groove stands, each at most once.
+   * @param base The layout the grooves go into, of that median depth; absent, the limb's. A half-fitted part (`bilateral`) takes each
+   *   groove once and its mirror gives the other side its own, as a nose's two supra-alar creases.
    */
-  export function inflected(depth: number, after: readonly number[]): ILayout {
-    const base: ILayout = limb(depth);
+  export function inflected(depth: number, after: readonly number[], base: ILayout = limb(depth)): ILayout {
     return {
-      mirror: false,
+      mirror: base.mirror,
       anchors: base.anchors.flatMap((anchor: IAnchor, k: number): IAnchor[] =>
         after.includes(k) ? [anchor, { kind: "i", level: depth + 1 }, { kind: "m", level: depth + 2 }, { kind: "i", level: depth + 1 }] : [anchor],
       ),
@@ -67,6 +71,19 @@ export namespace FamilyConicSection {
       anchors: base.anchors.flatMap((anchor: IAnchor, k: number): IAnchor[] => [anchor, ...features.filter((f): boolean => f.after === k).flatMap((f): IAnchor[] => f.anchors)]),
     };
   }
+  /**
+   * Whether one conic arc joins `p0` leaving along `t0` to `p1` arriving along `t1`: the two tangents stand on opposite sides of the chord
+   * and their lines meet ahead of the start and behind the end, as the engine's native chain asks of every arc.
+   */
+  export function arc(p0: readonly number[], t0: readonly number[], p1: readonly number[], t1: readonly number[]): boolean {
+    const c: P = [p1[0]! - p0[0]!, p1[1]! - p0[1]!];
+    const side = (d: readonly number[]): number => c[0] * d[1]! - c[1] * d[0]!;
+    const det: number = t0[0]! * t1[1]! - t0[1]! * t1[0]!;
+    if (det === 0 || side(t0) * side(t1) >= 0) return false;
+    const s: number = (c[0] * t1[1]! - c[1] * t1[0]!) / det;
+    const q: number = (t0[0]! * c[1] - t0[1]! * c[0]) / det;
+    return s > 0 && q > 0;
+  }
   /** Unit of every field of a layout. */
   export const units: (layout: ILayout) => Unit[] = S.units;
 
@@ -79,7 +96,14 @@ export namespace FamilyConicSection {
   /** The field vector with the two arcs at an anchor given the shoulders that make the curvature continuous there. */
   export const continuous: (values: readonly number[], layout: ILayout, k: number) => number[] = S.continuous;
 
-  const offsets: typeof S.offsets = S.offsets;
+  /** The two anchors a feature anchor stands between (`AutoMovieHumanConicSection.frame`). */
+  export const frame: typeof S.frame = S.frame;
+
+  /** A feature point's numbers on the chord of its frame (`AutoMovieHumanConicSection.unplace`). */
+  export const unplace: typeof S.unplace = S.unplace;
+
+  /** Offsets of every anchor's first field, and of the first shoulder. */
+  export const offsets: typeof S.offsets = S.offsets;
   const dependents: typeof S.dependents = S.dependents;
   const neighbours: typeof S.neighbours = S.neighbours;
   const clamp: typeof S.clamp = S.clamp;
@@ -265,15 +289,7 @@ export namespace FamilyConicSection {
     // reading, in steps of `FEATURE_STEP`, with which the arcs to the anchors before and after it are both conics, in order round the
     // resolved anchors, so the seed is a chain of conics.
     const resolved: number[] = layout.anchors.map((_: IAnchor, k: number): number => k).filter((k: number): boolean => found[k] !== null);
-    const conic = (a: number, tA: P, b: number, tB: P): boolean => {
-      const c: P = [found[b]![0] - found[a]![0], found[b]![1] - found[a]![1]];
-      const side = (d: P): number => c[0] * d[1] - c[1] * d[0];
-      const det: number = tA[0] * tB[1] - tA[1] * tB[0];
-      if (det === 0 || side(tA) * side(tB) >= 0) return false;
-      const s: number = (c[0] * tB[1] - c[1] * tB[0]) / det;
-      const q: number = (tA[0] * c[1] - tA[1] * c[0]) / det;
-      return s > 0 && q > 0;
-    };
+    const conic = (a: number, tA: P, b: number, tB: P): boolean => arc(found[a]!, tA, found[b]!, tB);
     resolved.forEach((k: number, r: number): void => {
       if (layout.anchors[k]!.kind !== "f") return;
       const before: number = resolved[(r + resolved.length - 1) % resolved.length]!;
@@ -290,7 +306,18 @@ export namespace FamilyConicSection {
         values[at[k]! + 2] = fit;
         return;
       }
-    });    for (const k of dependents(layout)) {
+    });
+    // Each feature's numbers as the model reads them: its share along its frame's chord, its offset square to it and its tangent's turn
+    // from the chord (`AutoMovieHumanConicSection.place`).
+    layout.anchors.forEach((anchor: IAnchor, k: number): void => {
+      if (anchor.kind !== "f") return;
+      const [before, after]: [number, number] = S.frame(k, layout);
+      const [t, o, h]: [number, number, number] = S.unplace(found[before]!, found[after]!, found[k]!, values[at[k]! + 2]!);
+      values[at[k]!] = t;
+      values[at[k]! + 1] = o;
+      values[at[k]! + 2] = h;
+    });
+    for (const k of dependents(layout)) {
       const [before, after]: [number, number] = neighbours(k, found);
       const p0: P = found[before]!;
       const p2: P = found[after]!;

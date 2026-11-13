@@ -1,6 +1,6 @@
 import path from "node:path";
 import { AutoMovieLoftChain, AutoMovieMeshExtract as M, AutoMovieViewAxis } from "@automovie/engine";
-import { AutoMovieHumanConicLoft, AutoMovieHumanF1, AutoMovieHumanF1Joints } from "@automovie/human";
+import { AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
 import { FamilyConicSection as C } from "./FamilyConicSection";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 
@@ -232,36 +232,6 @@ namespace FamilyConicScan {
       }
       return;
     }
-    if (process.argv[2] === "lobule-course") {
-      // The lobule cutter's own section planes (`AutoMovieHumanF1Lobule`, its course and chart): on each, along lines of constant u every
-      // 2 mm, every v where the reference head's surface crosses the line. The first crossing is the skull, the next two the lobule's medial
-      // and lateral faces where the line passes under the lobule; a line with one crossing is past the gap.
-      const axis: AutoMovieViewAxis.IAxis = AutoMovieViewAxis.jointed([AutoMovieHumanF1Joints.lobuleRoot, AutoMovieHumanF1Joints.lobuleTip], [], [1, 0, 0]) as AutoMovieViewAxis.IAxis;
-      const mesh: R.ISource["head"] = source.head;
-      for (const s of [4, 7, 10, 13, 16, 19, 21, 22, 24]) {
-        const f = axis.at(s);
-        const n: R.V = [f.v[1] * f.u[2] - f.v[2] * f.u[1], f.v[2] * f.u[0] - f.v[0] * f.u[2], f.v[0] * f.u[1] - f.v[1] * f.u[0]];
-        const dot = (i: number, w: readonly number[]): number => (mesh.positions[i * 3]! - f.origin[0]) * w[0]! + (mesh.positions[i * 3 + 1]! - f.origin[1]) * w[1]! + (mesh.positions[i * 3 + 2]! - f.origin[2]) * w[2]!;
-        process.stdout.write("station " + s + " origin " + f.origin.map((x: number): string => x.toFixed(1)).join(",") + "\n");
-        for (let u: number = -14; u <= 14; u += 2) {
-          const vs: number[] = [];
-          for (let t: number = 0; t < mesh.indices.length; t += 3) {
-            const ids: number[] = [mesh.indices[t]!, mesh.indices[t + 1]!, mesh.indices[t + 2]!];
-            const d: number[] = ids.map((i: number): number => dot(i, n));
-            if (Math.min(...d) > 0 || Math.max(...d) < 0) continue;
-            const us: number[] = ids.map((i: number): number => dot(i, f.u));
-            if (Math.min(...us) > u || Math.max(...us) < u) continue;
-            const ws: number[] = ids.map((i: number): number => dot(i, f.v));
-            if (Math.min(...ws) > 30 || Math.max(...ws) < -30) continue;
-            const ends: number[][] = [0, 1, 2].flatMap((k: number): number[][] => (d[k]! > 0 === d[(k + 1) % 3]! > 0 || d[k] === d[(k + 1) % 3] ? [] : [[us[k]! + (d[k]! / (d[k]! - d[(k + 1) % 3]!)) * (us[(k + 1) % 3]! - us[k]!), ws[k]! + (d[k]! / (d[k]! - d[(k + 1) % 3]!)) * (ws[(k + 1) % 3]! - ws[k]!)]]));
-            if (ends.length < 2 || ends[0]![0]! > u === ends[1]![0]! > u) continue;
-            vs.push(ends[0]![1]! + ((ends[1]![1]! - ends[0]![1]!) * (u - ends[0]![0]!)) / (ends[1]![0]! - ends[0]![0]!));
-          }
-          process.stdout.write("  u " + String(u).padStart(3) + ": " + vs.sort((p: number, q: number): number => p - q).filter((v: number, i: number, all: number[]): boolean => i === 0 || v - all[i - 1]! > 0.05).map((v: number): string => v.toFixed(1)).join(" ") + "\n");
-        }
-      }
-      return;
-    }
     if (process.argv[2] === "webs") {
       // The web line between each two neighbouring digits, in the plane each seam of the limb's split stands in: from the seam's first fork
       // along its chord every 2 mm, how far a ray along the plane's second axis (the seam's heading square to the chord) runs from
@@ -416,7 +386,8 @@ namespace FamilyConicScan {
       // (the lowest cell within a further `band` inside the crest), so the rim's course and its width are read before a tube is declared.
       const floor: number = Number(process.argv[3] ?? 79);
       const band: number = Number(process.argv[4] ?? 7);
-      const [cx, cy, x0, x1, y0, y1, h] = [7, 1572, -14, 32, 1534, 1612, 0.25];
+      // With `ridges`, the rays may leave from another middle (`ridges <x> <y>`): one in the concha sees the antihelix square across.
+      const [cx, cy, x0, x1, y0, y1, h] = [Number(process.argv[6] ?? 7), Number(process.argv[7] ?? 1572), -14, 32, 1534, 1612, 0.25];
       const nx: number = Math.round((x1 - x0) / h) + 1;
       const ny: number = Math.round((y1 - y0) / h) + 1;
       const z: Float64Array = new Float64Array(nx * ny).fill(-Infinity);
@@ -440,6 +411,58 @@ namespace FamilyConicScan {
         const [i, j]: number[] = [Math.round((x - x0) / h), Math.round((y - y0) / h)];
         return i! < 0 || j! < 0 || i! >= nx || j! >= ny ? -Infinity : z[i! * ny + j!]!;
       };
+      // `helix [floor] [band] ridges`: along rays every 5 degrees, inside the scapha's floor, every ridge of the side-distance profile (a cell
+      // higher than every cell within 1.5 mm either side and at least 0.8 mm above the lowest cell between it and the ridge outside it),
+      // so the antihelix and its two crura are read as crests inside the rim: their courses and their heights over the hollows beside them.
+      if (process.argv[5] === "ridges") {
+        // The auricle stands off the head at an angle, so its ridges are crests over its own mean plane, not over the median plane: the
+        // side distance less the least-squares plane through every cell past `floor`.
+        const normal: number[][] = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+        const right: number[] = [0, 0, 0];
+        for (let i: number = 0; i < nx; ++i)
+          for (let j: number = 0; j < ny; ++j) {
+            const value: number = z[i * ny + j]!;
+            if (!(value > floor)) continue;
+            const row: number[] = [1, x0 + i * h, y0 + j * h];
+            for (let a: number = 0; a < 3; ++a) {
+              right[a]! += row[a]! * value;
+              for (let b: number = 0; b < 3; ++b) normal[a]![b]! += row[a]! * row[b]!;
+            }
+          }
+        // Gaussian elimination of the 3 by 3 normal equations.
+        for (let a: number = 0; a < 3; ++a)
+          for (let b: number = a + 1; b < 3; ++b) {
+            const f: number = normal[b]![a]! / normal[a]![a]!;
+            for (let c: number = a; c < 3; ++c) normal[b]![c]! -= f * normal[a]![c]!;
+            right[b]! -= f * right[a]!;
+          }
+        const plane: number[] = [0, 0, 0];
+        for (let a: number = 2; a >= 0; --a) plane[a] = (right[a]! - [0, 1, 2].filter((c: number): boolean => c > a).reduce((s: number, c: number): number => s + normal[a]![c]! * plane[c]!, 0)) / normal[a]![a]!;
+        process.stdout.write("plane z = " + plane.map((v: number): string => v.toFixed(4)).join(" + ") + " (1, x, y)\n");
+        for (let deg: number = -180; deg < 180; deg += 5) {
+          const [dx, dy]: number[] = [Math.cos((deg * Math.PI) / 180), Math.sin((deg * Math.PI) / 180)];
+          const raised = (r: number): number => at(cx + r * dx!, cy + r * dy!);
+          const skin = (r: number): number => raised(r) - plane[0]! - plane[1]! * (cx + r * dx!) - plane[2]! * (cy + r * dy!);
+          let edge: number = -1;
+          for (let r: number = 0; r < 45; r += h) if (raised(r) > floor) edge = r;
+          if (edge < 0) continue;
+          const ridges: string[] = [];
+          let low: number = Infinity;
+          for (let r: number = edge; r > 0; r -= h) {
+            const here: number = skin(r);
+            if (!Number.isFinite(here)) continue;
+            low = Math.min(low, here);
+            let top: boolean = true;
+            for (let q: number = r - 1.5; q <= r + 1.5 && top; q += h) if (Math.abs(q - r) > 1e-9 && skin(q) > here) top = false;
+            if (top && here - low >= 0.8) {
+              ridges.push("(" + (cx + r * dx!).toFixed(1) + "," + (cy + r * dy!).toFixed(1) + "," + raised(r).toFixed(1) + " +" + (here - low).toFixed(1) + ")");
+              low = here;
+            }
+          }
+          process.stdout.write(String(deg).padStart(4) + " edge " + edge.toFixed(1) + "  " + ridges.join(" ") + "\n");
+        }
+        return;
+      }
       process.stdout.write("deg  edge (x,y,z)          crest (x,y,z)         in   scapha (x,y,z)        depth\n");
       for (let deg: number = -180; deg < 180; deg += 10) {
         const [dx, dy]: number[] = [Math.cos((deg * Math.PI) / 180), Math.sin((deg * Math.PI) / 180)];

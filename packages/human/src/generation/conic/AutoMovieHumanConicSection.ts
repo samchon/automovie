@@ -28,8 +28,14 @@ import { AutoMovieViewChain } from "@automovie/engine";
  *   number is a field along the stations like every other, so the feature line
  *   is a smooth longitudinal control curve, the way an aircraft's lines are
  *   drawn, and a feature that fades away leaves its anchor on a smooth stretch.
- *   Its numbers are its `u`, its `v` and its tangent's heading in the chart,
- *   radians from `+u` toward `+v`.
+ *   It stands on the chord of its frame (`frame`: the extreme or feature placed
+ *   before it and the next extreme), so the features of a run keep their order
+ *   round the section wherever they fade, as an `i` anchor keeps it. Its
+ *   numbers are its share `t` along that chord, its offset `o` square to it in
+ *   millimetres outward, and its tangent's turn `h` from the chord's direction,
+ *   radians (`place`). Read as free chart coordinates instead, f1's nose's
+ *   six feature lines left that order at 146 of 157 stations where its alar
+ *   crease and wing fade, interpolated between few knots.
  *
  * After the anchors come the shoulders, one per arc between consecutive
  * anchors: the conic shoulder `rho = |M S| / |M A|` of the engine's native
@@ -120,6 +126,27 @@ export namespace AutoMovieHumanConicSection {
   }
 
   /**
+   * The lens layout: a long thin section with its length along the chart's `v`, its two faces' extremes on the median line `v = 0` and
+   * its two ends' extremes free, each quarter halved `depth` times by nested medians. A flat face has no one extreme: a free face extreme
+   * of a lens 30 mm long and 5 thick wandered from one end of its face to the other between neighbouring stations (the ear's plate), and
+   * the engine's chain between such stations was refused. On the median line each face's extreme stands where the course crosses the
+   * lens, at one number each, and the lens's two ends, where it turns, carry the free extremes.
+   */
+  export function lens(depth: number): ILayout {
+    let layout: ILayout = {
+      mirror: false,
+      anchors: [
+        { kind: "u", mid: true, guide: true, window: [-Math.PI / 2, Math.PI / 2] },
+        { kind: "v", guide: true, pick: "max" },
+        { kind: "u", mid: true, guide: true, window: [Math.PI / 2, (3 * Math.PI) / 2] },
+        { kind: "v", guide: true, pick: "min" },
+      ],
+    };
+    for (let level: number = 1; level <= depth; ++level) layout = { mirror: false, anchors: layout.anchors.flatMap((anchor: IAnchor): IAnchor[] => [anchor, { kind: "m", level }]) };
+    return layout;
+  }
+
+  /**
    * The bilateral layout: the front and back extremes on the median line and one side extreme between them, each arc halved `depth` times
    * by nested medians, the half reflected in the median line (4, 8 or 16 conics). A section symmetric about the median plane has its
    * front and back extremes on that plane with their tangents square to it, so those extremes cost one number each and the half the rest;
@@ -142,7 +169,7 @@ export namespace AutoMovieHumanConicSection {
     for (const anchor of layout.anchors) {
       if (anchor.kind === "m") out.push("share");
       else if (anchor.kind === "i") out.push("share", "angle");
-      else if (anchor.kind === "f") out.push("mm", "mm", "angle");
+      else if (anchor.kind === "f") out.push("share", "mm", "angle");
       else if (anchor.mid === true) out.push("mm");
       else out.push("mm", "mm");
     }
@@ -168,6 +195,41 @@ export namespace AutoMovieHumanConicSection {
       .map((_: IAnchor, k: number): number => k)
       .filter((k: number): boolean => layout.anchors[k]!.kind === "m" || layout.anchors[k]!.kind === "i")
       .sort((a: number, b: number): number => (layout.anchors[a]!.level ?? 1) - (layout.anchors[b]!.level ?? 1));
+  }
+
+  /**
+   * The two anchors a feature anchor `k` stands between: the nearest extreme or feature before it and the nearest extreme after it, in
+   * the layout's order (round the end of the list for a closed layout).
+   */
+  export function frame(k: number, layout: ILayout): [number, number] {
+    const K: number = layout.anchors.length;
+    const placed = (j: number): boolean => ["u", "v", "f"].includes(layout.anchors[j]!.kind);
+    const extreme = (j: number): boolean => ["u", "v"].includes(layout.anchors[j]!.kind);
+    let before: number = (k + K - 1) % K;
+    while (!placed(before)) before = (before + K - 1) % K;
+    let after: number = (k + 1) % K;
+    while (!extreme(after)) after = (after + 1) % K;
+    return [before, after];
+  }
+
+  /**
+   * A feature point on the chord from `p0` to `p2`: the share `t` along it, the offset `o` square to it, millimetres outward (to the right
+   * of travel, which is outward on a counter-clockwise section), and its tangent the chord's direction turned by `h` radians.
+   */
+  export function place(p0: P, p2: P, t: number, o: number, h: number): { point: P; tangent: P } {
+    const d: P = [p2[0] - p0[0], p2[1] - p0[1]];
+    const length: number = Math.hypot(d[0], d[1]) || 1;
+    const angle: number = Math.atan2(d[1], d[0]) + h;
+    return { point: [p0[0] + t * d[0] + (o * d[1]) / length, p0[1] + t * d[1] - (o * d[0]) / length], tangent: [Math.cos(angle), Math.sin(angle)] };
+  }
+
+  /** The numbers `[t, o, h]` of a feature point `p` with the tangent heading `heading` on the chord from `p0` to `p2` (`place`). */
+  export function unplace(p0: P, p2: P, p: P, heading: number): [number, number, number] {
+    const d: P = [p2[0] - p0[0], p2[1] - p0[1]];
+    const square: number = d[0] * d[0] + d[1] * d[1] || 1;
+    const q: P = [p[0] - p0[0], p[1] - p0[1]];
+    const h: number = heading - Math.atan2(d[1], d[0]);
+    return [(q[0] * d[0] + q[1] * d[1]) / square, (q[0] * d[1] - q[1] * d[0]) / Math.sqrt(square), Math.atan2(Math.sin(h), Math.cos(h))];
   }
 
   /** The nearest resolved anchors before and after anchor `k`. */
@@ -200,13 +262,8 @@ export namespace AutoMovieHumanConicSection {
     const tangents: (P | null)[] = new Array<P | null>(K).fill(null);
     const { at, shoulders }: { at: number[]; shoulders: number } = offsets(layout);
 
-    // Extremes and feature points first: an extreme's tangent follows the counter-clockwise travel of the chain, a feature's is its own.
+    // Extremes first: an extreme's tangent follows the counter-clockwise travel of the chain.
     layout.anchors.forEach((anchor: IAnchor, k: number): void => {
-      if (anchor.kind === "f") {
-        points[k] = [values[at[k]!]!, values[at[k]! + 1]!];
-        tangents[k] = [Math.cos(values[at[k]! + 2]!), Math.sin(values[at[k]! + 2]!)];
-        return;
-      }
       if (anchor.kind !== "u" && anchor.kind !== "v") return;
       const p: P = anchor.mid === true ? [values[at[k]!]!, 0] : [values[at[k]!]!, values[at[k]! + 1]!];
       points[k] = p;
@@ -225,6 +282,15 @@ export namespace AutoMovieHumanConicSection {
         const p: P = points[k]!;
         p[across] = Math.min(CORNER * Math.max(a, b), Math.max(CORNER * Math.min(a, b), p[across]));
       });
+
+    // Then the feature points in order, each on the chord of its frame (`frame`): the anchor placed before it and the next extreme.
+    layout.anchors.forEach((anchor: IAnchor, k: number): void => {
+      if (anchor.kind !== "f") return;
+      const [before, after]: [number, number] = frame(k, layout);
+      const placed: { point: P; tangent: P } = place(points[before]!, points[after]!, clamp(values[at[k]!]!), values[at[k]! + 1]!, values[at[k]! + 2]!);
+      points[k] = placed.point;
+      tangents[k] = placed.tangent;
+    });
 
     // Then the anchors that stand on their neighbours' triangle or chord, lower levels first.
     for (const k of dependents(layout)) {

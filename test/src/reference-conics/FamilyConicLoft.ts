@@ -14,7 +14,7 @@ export namespace FamilyConicLoft {
   export type IStored = H.IFamily;
 
   /** The part's course as the engine reads it. */
-  export const axis: (stored: Pick<IStored, "centres" | "halves" | "up">) => AutoMovieViewAxis.IAxis = H.axis;
+  export const axis: (stored: Pick<IStored, "centres" | "halves" | "up" | "roll">) => AutoMovieViewAxis.IAxis = H.axis;
 
   /** The family's field vector at one station. */
   export const reader: (stored: IStored) => (s: number) => number[] = H.reader;

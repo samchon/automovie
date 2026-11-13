@@ -10,9 +10,11 @@ import { AutoMovieHumanConicLoft, AutoMovieHumanConicSection } from "@automovie/
  * 3. A cylinder's cap leaves it with neither slope nor bend: with a tip 12 mm past the cap's start the wall's taper and bend are zero, so the cap is `r = 20 sqrt(1 - u^3)` with `u = (s - 80) / 12`, the one cubic in `u` for `r^2` that is 400 at the start with zero first and second derivatives there and 0 at the tip, turned about the course, and the loft carries a pole at the tip on the course.
  * 4. A cap starts where its tip says and is meshed in rings: stations past `from` are not lofted from the fields, so the part's stations end at `from`, twelve rings at `92 - 12 (k / 13)^2` and the tip.
  * 5. Phases spaced by turn (`IFamily.turn`): a flat section with sharp ends turns by more than 0.3 rad between uniform phases; with a turn of 0.1 rad the part declares ordered phases and its lofted rings turn by at most 0.12 rad between neighbours.
+ * 6. A rolled chart (`IFamily.roll`): the flat section's long end on a straight course stands at the natural cubic's angle through the roll's knots, from `u` toward `v`.
+ * 7. The rolled chart's jet agrees with central differences of its frames, and the twin of a rolled family is still the reflection of the original.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanConicLoft.create`, `mirror` and `part` and reads the engine's chain with `AutoMovieLoftChain.point`.
- * @evidence contracts/development/testing.md#independent-expectations A circle's radius, a reflection in a plane and the cubic fixed by four end conditions are closed forms that owe nothing to this code.
+ * @evidence contracts/development/testing.md#independent-expectations A circle's radius, a reflection in a plane, the cubic fixed by four end conditions, a natural cubic's closed form and central differences owe nothing to this code.
  * @evidence contracts/development/testing.md#distinguishing-cases A centred circle, an off-centre section with unequal shoulders on a slanted course, a closed end and an open one.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU unit on made numbers, reached by `--include human_conic_loft`, with no reference body or figure.
  * @evidence contracts/development/common.md#meaningful-documentation Lists each scenario with the closed form it is checked against.
@@ -112,6 +114,56 @@ export function test_human_conic_loft(): void {
   if (even.phases !== undefined || !(even.turn > 0.3)) failures.push(`flat, uniform: phases ${even.phases === undefined ? "absent" : "declared"}, largest turn ${even.turn.toFixed(3)} rad, expected absent and above 0.3`);
   const ordered: boolean = spaced.phases !== undefined && spaced.phases.length === spaced.samples && spaced.phases[0] === 0 && spaced.phases.every((phi: number, k: number): boolean => k === 0 || phi > spaced.phases![k - 1]!) && spaced.phases.at(-1)! < 2 * Math.PI;
   if (!ordered || !(spaced.turn <= 0.12)) failures.push(`flat, spaced: ${spaced.samples} phases ${ordered ? "in order" : "not in order"}, largest turn ${spaced.turn.toFixed(3)} rad, expected at most 0.12`);
+
+  // 6. A rolled chart (`IFamily.roll`): on the straight course up y from `u = x`, a roll through 0, 0.6 and -0.3 rad at stations 0, 50
+  // and 100 turns the chart by the natural cubic through those three, so `u` at a station stands at that angle from x toward
+  // v = u x t = +z, and the flat section's long end (its +u extreme, phase 0) lies 40 mm along it. The angle is the natural cubic's
+  // closed form: with equal spacing h = 50 and natural ends, `M0 + 4 M1 + M2 = 6 (a0 - 2 a1 + a2) / h^2` gives the middle second
+  // derivative M1 = 1.5 (a0 - 2 a1 + a2) / h^2, and each piece is the cubic whose second derivative runs linearly between its ends'.
+  const rolled: AutoMovieHumanConicLoft.IFamily = { ...flat, name: "flat.rolled", roll: { knots: [0, 50, 100], values: [0, 0.6, -0.3] } };
+  const middle: number = (1.5 * (0 - 2 * 0.6 + -0.3)) / 2500;
+  const angle = (s: number): number => {
+    const [x0, a0, a1, m0, m1]: number[] = s <= 50 ? [0, 0, 0.6, 0, middle] : [50, 0.6, -0.3, middle, 0];
+    const t: number = s - x0!;
+    const h: number = 50;
+    return a0! + ((a1! - a0!) / h - (h * (2 * m0! + m1!)) / 6) * t + (m0! / 2) * t * t + ((m1! - m0!) / (6 * h)) * t * t * t;
+  };
+  const ends: NonNullable<AutoMovieViewLoft.IResult["chain"]> | null = lofted(rolled, "rolled");
+  if (ends !== null)
+    for (const s of [0, 20, 50, 77, 100]) {
+      const p: number[] = AutoMovieLoftChain.point(ends, s, 0);
+      const expected: number[] = [40 * Math.cos(angle(s)), s, 40 * Math.sin(angle(s))];
+      const apart: number = Math.hypot(p[0]! - expected[0]!, p[1]! - expected[1]!, p[2]! - expected[2]!);
+      if (!(apart <= 1e-6)) failures.push(`rolled at station ${s}: the long end at (${p.map((x: number): string => x.toFixed(4)).join(", ")}), expected (${expected.map((x: number): string => x.toFixed(4)).join(", ")})`);
+    }
+
+  // 7. The rolled chart's jet is its frame's derivative: central differences of `at` over 1e-3 mm agree with `jet` within 1e-6 in the
+  // first derivative and 1e-3 in the second, and the twin of a rolled family is still the reflection of the original (scenario 2 rolled).
+  const course = AutoMovieHumanConicLoft.axis(rolled);
+  for (const s of [10, 50, 83]) {
+    const jet = course.jet?.(s) ?? null;
+    const step: number = 1e-3;
+    const [before, here, after] = [course.at(s - step), course.at(s), course.at(s + step)];
+    if (jet === null) failures.push(`rolled jet at station ${s}: absent`);
+    else
+      for (const key of ["u", "v"] as const)
+        for (let k: number = 0; k < 3; ++k) {
+          const first: number = (after[key][k]! - before[key][k]!) / (2 * step);
+          const second: number = (after[key][k]! - 2 * here[key][k]! + before[key][k]!) / (step * step);
+          if (!(Math.abs(jet.first[key][k]! - first) <= 1e-6 && Math.abs(jet.second[key][k]! - second) <= 1e-3)) failures.push(`rolled jet at station ${s}, ${key}[${k}]: ${jet.first[key][k]} and ${jet.second[key][k]}, differences ${first} and ${second}`);
+        }
+  }
+  const leaning: AutoMovieHumanConicLoft.IFamily = { ...slanted, name: "slanted.rolled", roll: { knots: [0, 100], values: [0.2, -0.5] } };
+  const three: NonNullable<AutoMovieViewLoft.IResult["chain"]> | null = lofted(leaning, "slanted.rolled");
+  const four: NonNullable<AutoMovieViewLoft.IResult["chain"]> | null = lofted(AutoMovieHumanConicLoft.mirror(leaning, "slanted.rolled.mirror"), "rolled twin");
+  if (three !== null && four !== null)
+    for (const s of [0, 44, 100])
+      for (const phi of phases) {
+        const p: number[] = AutoMovieLoftChain.point(three, s, phi);
+        const q: number[] = AutoMovieLoftChain.point(four, s, -phi);
+        const apart: number = Math.hypot(p[0]! - q[0]!, p[1]! - q[1]!, p[2]! + q[2]!);
+        if (!(apart <= 1e-9)) failures.push(`rolled twin at station ${s}, phase ${phi.toFixed(3)}: ${apart} mm from the reflected original`);
+      }
 
   if (failures.length > 0) throw new Error("human conic loft:\n" + failures.join("\n"));
 }

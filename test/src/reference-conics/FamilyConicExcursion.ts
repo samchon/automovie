@@ -126,6 +126,119 @@ export namespace FamilyConicExcursion {
   }
 
   /**
+   * The base plate of an excursion section: the sheet a part like an auricle is folded from, without its rolled features. Of a
+   * counter-clockwise section closed across its root, its cranial skin runs from its outermost point back to its root (the last of its three
+   * landmarks round to the first, `landmarks`) and on along the closing chord `into` mm; the plate is that skin read as a gentle arc and a
+   * floor `thickness` to `deepest` mm inside it, joined at both ends and read as its convex hull: a thin lens, star-shaped about its middle.
+   * The rolled features (the helix's curl, the antihelix's ridge) and the hollows between them are left to their own pieces.
+   */
+  export function plate(loop: readonly C.P[], thickness: number, into: number, deepest: number = 2 * thickness, rim: number = 0): C.P[] {
+    const n: number = loop.length;
+    const [a, , m]: [number, number, number] = landmarks(loop);
+    // The cranial skin from the outermost point round to the root.
+    const path: C.P[] = [];
+    for (let k: number = 0; ; ++k) {
+      const i: number = (m + k) % n;
+      path.push(loop[i]!);
+      if (i === a || k > n) break;
+    }
+    // Read as a gentle arc over the chord from the root to the outermost point: its offset from that chord a least-squares quadratic in
+    // the chord's share, so the plate is a nearly straight lens and its waves are left to the features on it.
+    const A: C.P = loop[a]!;
+    const M: C.P = loop[m]!;
+    const chord: C.P = [M[0] - A[0], M[1] - A[1]];
+    const length: number = Math.hypot(chord[0], chord[1]) || 1;
+    const along: C.P = [chord[0] / length, chord[1] / length];
+    // The section's inside lies to the left of its counter-clockwise travel from the outermost point to the root, so to the right of the
+    // chord from the root outward.
+    const inward: C.P = [along[1], -along[0]];
+    const rows: number[][] = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+    const right: number[] = [0, 0, 0];
+    for (const p of path) {
+      const t: number = ((p[0] - A[0]) * along[0] + (p[1] - A[1]) * along[1]) / length;
+      const h: number = (p[0] - A[0]) * inward[0] + (p[1] - A[1]) * inward[1];
+      const row: number[] = [1, t, t * t];
+      for (let i: number = 0; i < 3; ++i) {
+        right[i]! += row[i]! * h;
+        for (let j: number = 0; j < 3; ++j) rows[i]![j]! += row[i]! * row[j]!;
+      }
+    }
+    const c: number[] = solve(rows, right) ?? [0, 0, 0];
+    const offset = (t: number): number => c[0]! + c[1]! * t + c[2]! * t * t;
+    const point = (t: number, h: number): C.P => [A[0] + t * chord[0] + h * inward[0], A[1] + t * chord[1] + h * inward[1]];
+
+    // The floor: the plate's thickness follows the valleys between the rolled features (the scapha's and the fossa's floors), the
+    // shallowest of the section's other points within a twentieth of the chord either side of each share, held between `thickness` and
+    // twice it so the concha's bowl and the root sunk into the head (both left to their own pieces) do not pull it, and read again as a
+    // least-squares quadratic so the lens stays smooth and star-shaped.
+    const onPath: Set<C.P> = new Set(path);
+    const lateral: C.P[] = loop
+      .filter((p: C.P): boolean => !onPath.has(p))
+      .map((p: C.P): C.P => [((p[0] - A[0]) * along[0] + (p[1] - A[1]) * along[1]) / length, (p[0] - A[0]) * inward[0] + (p[1] - A[1]) * inward[1]]);
+    const depth: number[][] = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+    const deep: number[] = [0, 0, 0];
+    for (let k: number = 0; k <= 40; ++k) {
+      const t: number = 0.05 + (0.9 * k) / 40;
+      const near: number[] = lateral.filter((q: C.P): boolean => Math.abs(q[0] - t) <= 0.05).map((q: C.P): number => q[1] - offset(t));
+      const d: number = Math.min(deepest, Math.max(thickness, near.length === 0 ? thickness : Math.min(...near)));
+      const row: number[] = [1, t, t * t];
+      for (let i: number = 0; i < 3; ++i) {
+        deep[i]! += row[i]! * d;
+        for (let j: number = 0; j < 3; ++j) depth[i]![j]! += row[i]! * row[j]!;
+      }
+    }
+    const e: number[] = solve(depth, deep) ?? [thickness, 0, 0];
+    const floor = (t: number): number => offset(t) + Math.max(thickness, e[0]! + e[1]! * t + e[2]! * t * t);
+    const from: number = -into / length;
+    // The outer end stops `rim` mm short of the outermost point, under the rim's curl, which a tube merged on the plate carries.
+    const to: number = 1 - rim / length;
+    const count: number = 40;
+    const ts: number[] = Array.from({ length: count + 1 }, (_: unknown, k: number): number => from + ((to - from) * k) / count);
+    // Each face bows out by a parabola over the lens's length, 1 mm at its middle, and the face the cranial skin's bend leaves hollow by
+    // that bend's sag besides: a flat face has no one extreme square to the chart, and a family's extreme anchors wandered from one end
+    // of such a face to the other between neighbouring stations, where the engine's chain between them was refused; at 0.5 mm they still did.
+    const sag: number = (Math.abs(c[2]!) * (to - from) ** 2) / 4;
+    const bow = (t: number): number => (4 * (t - from) * (to - t)) / (to - from) ** 2;
+    const [cranial, lateralBow]: [number, number] = [1 + (c[2]! < 0 ? sag : 0), 1 + (c[2]! > 0 ? sag : 0)];
+    // Each end is rounded, a half circle on the end's span: at a square end the extreme anchors stood on its corners, where the section
+    // turns a right angle within a vertex, and the engine's chain between stations was refused beside them.
+    const end = (t: number, sign: number): C.P[] => {
+      const [inner, outer]: [number, number] = [offset(t) - cranial * bow(t), floor(Math.max(0, t)) + lateralBow * bow(t)];
+      const [middle, radius]: [number, number] = [(inner + outer) / 2, (outer - inner) / 2];
+      return Array.from({ length: 11 }, (_: unknown, k: number): C.P => {
+        const angle: number = (Math.PI * (k + 1)) / 12;
+        return point(t + (sign * radius * Math.sin(angle)) / length, middle - radius * Math.cos(angle));
+      });
+    };
+    const lens: C.P[] = [...ts.map((t: number): C.P => point(t, offset(t) - cranial * bow(t))), ...end(to, 1), ...[...ts].reverse().map((t: number): C.P => point(t, floor(Math.max(0, t)) + lateralBow * bow(t))), ...end(from, -1).reverse()];
+    // Read as its convex hull, every edge carrying a point at least every millimetre: a conic chain's arcs each turn one way, and a lens that
+    // bows (one face concave) needs inflection anchors on whichever face is hollow, which changes side up the auricle. The hollow of the
+    // cranial face is the sulcus where the auricle leaves the head, and the plate's merge onto the head draws it; a hollow of the floor
+    // lies under the features merged on the plate.
+    const sorted: C.P[] = [...lens].sort((p: C.P, q: C.P): number => p[0] - q[0] || p[1] - q[1]);
+    const half = (points: readonly C.P[]): C.P[] => {
+      const chain: C.P[] = [];
+      for (const q of points) {
+        while (chain.length >= 2) {
+          const [o, b]: [C.P, C.P] = [chain.at(-2)!, chain.at(-1)!];
+          if ((b[0] - o[0]) * (q[1] - o[1]) - (b[1] - o[1]) * (q[0] - o[0]) <= 0) chain.pop();
+          else break;
+        }
+        chain.push(q);
+      }
+      return chain;
+    };
+    const lower: C.P[] = half(sorted);
+    const upper: C.P[] = half([...sorted].reverse());
+    const hull: C.P[] = [...lower.slice(0, -1), ...upper.slice(0, -1)];
+    return hull.flatMap((p: C.P, k: number): C.P[] => {
+      const q: C.P = hull[(k + 1) % hull.length]!;
+      const pieces: number = Math.max(1, Math.ceil(Math.hypot(q[0] - p[0], q[1] - p[1])));
+      return Array.from({ length: pieces }, (_: unknown, j: number): C.P => [p[0] + ((q[0] - p[0]) * j) / pieces, p[1] + ((q[1] - p[1]) * j) / pieces]);
+    });
+  }
+
+  /**
    * The point inside a closed section farthest from its boundary (on a 0.25 mm grid, then refined), and that distance: where a course
    * through the section sees most of it, the centre of its largest inscribed circle.
    */

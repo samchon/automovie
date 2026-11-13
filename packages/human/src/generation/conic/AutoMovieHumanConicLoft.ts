@@ -1,4 +1,5 @@
-import { AutoMovieLoftChain, AutoMovieNaturalSpline, AutoMovieViewAxis, AutoMovieViewLoft, type IAutoMovieLoftRelief, type IAutoMovieViewPart } from "@automovie/engine";
+import { AutoMovieLoftChain, type AutoMovieLoftFrame, AutoMovieNaturalSpline, AutoMovieViewAxis, AutoMovieViewAxisJet, AutoMovieViewLoft, type IAutoMovieLoftRelief, type IAutoMovieViewPart } from "@automovie/engine";
+import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface";
 
 import { AutoMovieHumanConicSection } from "./AutoMovieHumanConicSection";
 
@@ -29,6 +30,14 @@ export namespace AutoMovieHumanConicLoft {
     /** The chart's `u` direction at the first segment before it is squared to the course. */
     up: V3;
 
+    /**
+     * The chart's roll about the course; absent, none. A part whose sections turn in their planes along the course (a sheet that curls
+     * along its length, as the ear's plate does from the lobule up to the helix's top) keeps its long axis on `u` only if the chart turns
+     * with it: read in a chart carried by the course alone, its extremes trade places as it turns, and a field that follows one extreme
+     * jumps to the next.
+     */
+    roll?: IRoll;
+
     /** The anchors every section is read through. */
     layout: AutoMovieHumanConicSection.ILayout;
 
@@ -58,6 +67,18 @@ export namespace AutoMovieHumanConicLoft {
      * between two of them round the forefoot's outer edge, which showed as level stripes.
      */
     turn?: number;
+  }
+
+  /**
+   * A roll of a part's chart about its course: at each station the chart carried by the course is turned by the angle, from `u` toward
+   * `v`, a natural cubic through its values at its own knots (straight past the first and the last), so the frames stay C2.
+   */
+  export interface IRoll {
+    /** Stations of the angle's knots, mm, increasing; at least two. */
+    knots: number[];
+
+    /** The angle at each knot, radians. */
+    values: number[];
   }
 
   /**
@@ -116,11 +137,55 @@ export namespace AutoMovieHumanConicLoft {
    */
   const PHASE_MM: number = 4;
 
-  /** The part's course as the engine reads it. */
-  export function axis(family: Pick<IFamily, "centres" | "halves" | "up">): AutoMovieViewAxis.IAxis {
+  /** The part's course as the engine reads it, its chart turned by the part's roll. */
+  export function axis(family: Pick<IFamily, "centres" | "halves" | "up" | "roll">): AutoMovieViewAxis.IAxis {
     const made: AutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(family.centres, family.halves, family.up);
     if (typeof made === "string") throw new Error("course: " + made);
-    return made;
+    if (family.roll === undefined) return made;
+    const base: AutoMovieViewAxis.IAxis = made;
+    const spline: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(family.roll.knots, family.roll.values);
+    // With c = cos(a) and s = sin(a): u' = c u + s v and v' = c v - s u, so with the angle's derivatives a' and a'' along the station,
+    // u'_1 = c u_1 + s v_1 + a' v', v'_1 = c v_1 - s u_1 - a' u', and
+    // u'_2 = c u_2 + s v_2 + 2 a' (c v_1 - s u_1) + a'' v' - a'^2 u', v'_2 = c v_2 - s u_2 - 2 a' (c u_1 + s v_1) - a'' u' - a'^2 v'.
+    const turn = (u: readonly number[], v: readonly number[], c: number, s: number): [V3, V3] => [
+      [0, 1, 2].map((k: number): number => c * u[k]! + s * v[k]!) as V3,
+      [0, 1, 2].map((k: number): number => c * v[k]! - s * u[k]!) as V3,
+    ];
+    return {
+      at: (station: number): AutoMovieLoftFrame.IFrame => {
+        const frame: AutoMovieLoftFrame.IFrame = base.at(station);
+        const angle: number = AutoMovieNaturalSpline.evaluate(spline, station);
+        const [u, v]: [V3, V3] = turn(frame.u, frame.v, Math.cos(angle), Math.sin(angle));
+        return { origin: frame.origin, u, v };
+      },
+      ...(base.jet === undefined
+        ? {}
+        : {
+            jet: (station: number, parameter?: AutoMovieConstructionOutlineParameter): AutoMovieViewAxisJet.IJet | null => {
+              const jet: AutoMovieViewAxisJet.IJet | null = base.jet!(station);
+              if (jet === null) return null;
+              const [a, a1, a2]: [number, number, number] = AutoMovieNaturalSpline.read(spline, station);
+              const [c, s]: [number, number] = [Math.cos(a), Math.sin(a)];
+              const [u, v]: [V3, V3] = turn(jet.value.u, jet.value.v, c, s);
+              const [u1, v1]: [V3, V3] = turn(jet.first.u, jet.first.v, c, s);
+              const [u2, v2]: [V3, V3] = turn(jet.second.u, jet.second.v, c, s);
+              const rolled: AutoMovieViewAxisJet.IJet = {
+                value: { origin: jet.value.origin, u, v },
+                first: {
+                  origin: jet.first.origin,
+                  u: [0, 1, 2].map((k: number): number => u1[k]! + a1 * v[k]!) as V3,
+                  v: [0, 1, 2].map((k: number): number => v1[k]! - a1 * u[k]!) as V3,
+                },
+                second: {
+                  origin: jet.second.origin,
+                  u: [0, 1, 2].map((k: number): number => u2[k]! + 2 * a1 * v1[k]! + a2 * v[k]! - a1 * a1 * u[k]!) as V3,
+                  v: [0, 1, 2].map((k: number): number => v2[k]! - 2 * a1 * u1[k]! - a2 * u[k]! - a1 * a1 * v[k]!) as V3,
+                },
+              };
+              return AutoMovieViewAxisJet.parameter(rolled, parameter, station);
+            },
+          }),
+    };
   }
 
   /** The family's field vector at one station. */
@@ -344,7 +409,7 @@ export namespace AutoMovieHumanConicLoft {
   /**
    * The family's twin across the median plane `z = 0`, as a family of its own.
    *
-   * The course and the chart seed are reflected. A course's chart is `v = u x t`, so the reflected course charts the
+   * The course and the chart seed are reflected, and the roll negated. A course's chart is `v = u x t`, so the reflected course charts the
    * reflected section with `v` negated, which also reverses its travel: the twin's anchors are the original's in reverse
    * order from the first, each extreme with its `v` negated, and the arc after the twin's anchor `j` is the original's arc
    * before its anchor `K - j`. A relief keeps its stations and heights and takes the negated phase window, the reflected
@@ -372,6 +437,8 @@ export namespace AutoMovieHumanConicLoft {
       centres: family.centres.map(flip),
       halves: [...family.halves],
       up: flip(family.up),
+      // The reflected chart's `v` is the reflection's negated, so a turn from `u` toward `v` is the reflected turn negated.
+      ...(family.roll === undefined ? {} : { roll: { knots: [...family.roll.knots], values: family.roll.values.map((angle: number): number => -angle) } }),
       layout: { mirror: false, anchors: anchors.map((_: AutoMovieHumanConicSection.IAnchor, j: number): AutoMovieHumanConicSection.IAnchor => anchors[(K - j) % K]!), ...(family.layout.least === undefined ? {} : { least: family.layout.least }) },
       knots: [...family.knots],
       values,

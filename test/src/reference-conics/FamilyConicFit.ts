@@ -25,6 +25,14 @@ export namespace FamilyConicFit {
 
     /** Withheld from the fit and read only as validation. */
     heldout: boolean;
+
+    /**
+     * Read the radial miss at each vertex as the distance it stands for square to the observed wall: the miss times the cosine between the
+     * ray and the wall's normal there. A long thin section (a plate seen across its thickness) is met by the rays near its two ends at a
+     * grazing angle, where a tenth of a millimetre across the wall is millimetres along the ray; read radially, those few vertices outweigh
+     * the whole of both faces and the fit gives the faces up to them.
+     */
+    normal?: boolean;
   }
 
   /** The fitted family and its sampled errors. */
@@ -87,6 +95,26 @@ export namespace FamilyConicFit {
   /** Spacing of the stations at which every candidate must be an admissible chain, mm (`fit`). */
   const DENSE_MM: number = 0.25;
 
+  /**
+   * The least share of its chord at which every arc's two tangent lines must meet ahead of its start and behind its end (`AutoMovieViewChain`'s
+   * `a` and `b`), at every dense station, as fitted and as stored. Admissible at zero alone, a fit settles against that wall: f1's armpit slit
+   * cutter, fitted with the barrier, held `a` at 0 to 0.05 of the chord over its first sections and `b` at 0.02 over its groove, and the
+   * stored family, read by the engine's spline between its stations, was refused ("the tangent lines meet behind the end", `b` -0.006). A part
+   * may ask for less (`IPart.margin`) where a tight groove needs it.
+   */
+  export const ADMISSIBLE_MARGIN: number = 0.1;
+
+  /** Rounds of fitting the feature lines' headings before the sections (`fit`), and the step their headings are searched in, radians. */
+  const LINE_ROUNDS: number = 48;
+
+  /** `--barrier`: the first barrier weight as a share of the starting misfit per margin, and how many tenfold falls follow it. */
+  const BARRIER_SHARE: number = 0.01;
+  const BARRIER_LEVELS: number = 4;
+
+  /** `--homotopy`: steps of the path from the start's shape to the skin. */
+  const HOMOTOPY_STEPS: number = 4;
+  const HEADING_STEP: number = 0.01;
+
   /** Phases per section used by the chord report. */
   const REPORT: number = 180;
 
@@ -95,6 +123,9 @@ export namespace FamilyConicFit {
     phases: number[];
     radii: number[];
     weights: number[];
+
+    /** Per vertex, the factor that turns a radial miss into the miss square to the wall (`IRow.normal`); 1 when the row reads radially. */
+    across: number[];
   }
 
   /**
@@ -109,7 +140,7 @@ export namespace FamilyConicFit {
    */
   function vertices(row: IRow): ISample {
     const n: number = row.points.length;
-    const sample: ISample = { phases: [], radii: [], weights: [] };
+    const sample: ISample = { phases: [], radii: [], weights: [], across: [] };
     let total: number = 0;
     for (let k: number = 0; k < n; ++k) {
       const p: C.P = row.points[k]!;
@@ -117,9 +148,15 @@ export namespace FamilyConicFit {
       const b: C.P = row.points[(k + 1) % n]!;
       const weight: number = (Math.hypot(p[0] - a[0], p[1] - a[1]) + Math.hypot(b[0] - p[0], b[1] - p[1])) / 2;
       if (!(weight > 0)) continue;
+      const radius: number = Math.hypot(p[0], p[1]);
+      // The wall's tangent at the vertex is the chord of its two neighbours; the cosine between the ray and the wall's normal is the sine
+      // between the ray and that tangent. Held at a twentieth, so a vertex the ray only grazes still counts a little.
+      const tangent: number = Math.hypot(b[0] - a[0], b[1] - a[1]);
+      const sine: number = tangent > 0 && radius > 0 ? Math.abs(p[0] * (b[1] - a[1]) - p[1] * (b[0] - a[0])) / (radius * tangent) : 1;
       sample.phases.push(Math.atan2(p[1], p[0]));
-      sample.radii.push(Math.hypot(p[0], p[1]));
+      sample.radii.push(radius);
       sample.weights.push(weight);
+      sample.across.push(row.normal === true ? Math.max(0.05, sine) : 1);
       total += weight;
     }
     const mean: number = total / sample.weights.length;
@@ -135,8 +172,9 @@ export namespace FamilyConicFit {
    * @param layout The anchors of every section.
    * @param power Residual power of the final reweighted passes; 2 is plain least squares, larger values pull the maximum down.
    * @param initial Knot values to start from, by field then knot, for these knots and this depth; absent starts from each section's own reading.
+   * @param margin The least share of its chord at which every arc's tangent lines must meet (`ADMISSIBLE_MARGIN`).
    */
-  export function fit(rows: readonly IRow[], knots: readonly number[], layout: C.ILayout, power: number = 2, initial?: readonly (readonly number[])[]): IResult {
+  export function fit(rows: readonly IRow[], knots: readonly number[], layout: C.ILayout, power: number = 2, initial?: readonly (readonly number[])[], margin: number = ADMISSIBLE_MARGIN): IResult {
     const started: number = performance.now();
     const units: C.Unit[] = C.units(layout);
     const F: number = units.length;
@@ -182,7 +220,7 @@ export namespace FamilyConicFit {
       const sample: ISample = samples[i]!;
       const r: number[] = new Array<number>(sample.phases.length);
       for (let k: number = 0; k < sample.phases.length; ++k) {
-        const value: number = Q.radius(section, sample.phases[k]!) - sample.radii[k]!;
+        const value: number = (Q.radius(section, sample.phases[k]!) - sample.radii[k]!) * sample.across[k]!;
         if (!Number.isFinite(value)) return null;
         r[k] = value;
       }
@@ -197,10 +235,75 @@ export namespace FamilyConicFit {
     // tangent lines meet behind its end, a phase that does not advance). Checked every `DENSE_MM` from the first knot to the last.
     const dense: number[][] = [];
     for (let s: number = knots[0]!; s <= knots[M - 1]! + 1e-9; s += DENSE_MM) dense.push(basis(Math.min(s, knots[M - 1]!)));
-    const admissible = (values: number[][]): boolean => dense.every((b: number[]): boolean => C.chain(theta(values, b), layout).fault === null);
+    // The family is stored as rounded text (`FamilyConicBody`: millimetres to 0.01, shares and angles to 1e-4) and realized from it, so a
+    // candidate must be admissible as stored as well: on the hand's end a feature's heading within 5e-5 of its neighbour extreme's axis
+    // rounded to exactly parallel, the median between them fell on its chord and the engine refused the stored wall (`a` of 0 at 448 mm).
+    const stored = (values: number[][]): number[][] => values.map((field: number[], f: number): number[] => field.map((y: number): number => (units[f] === "mm" ? Math.round(y * 100) / 100 : Math.round(y * 1e4) / 1e4)));
+    // Every arc's two tangent-meeting distances over unit tangents, as shares of its chord: what `ADMISSIBLE_MARGIN` holds.
+    const meeting = (t: number[]): number => {
+      const input = C.resolve(t, layout).input;
+      const points: number[][] = input.points as number[][];
+      const tangents: number[][] = input.tangents as number[][];
+      let least: number = Infinity;
+      for (let j: number = 0; j < points.length; ++j) {
+        const [p0, p2, t0, t2] = [points[j]!, points[(j + 1) % points.length]!, tangents[j]!, tangents[(j + 1) % points.length]!];
+        const [n0, n2]: number[] = [Math.hypot(t0[0]!, t0[1]!), Math.hypot(t2[0]!, t2[1]!)];
+        const [u, w]: number[][] = [[t0[0]! / n0, t0[1]! / n0], [t2[0]! / n2, t2[1]! / n2]];
+        const den: number = u[0]! * w[1]! - u[1]! * w[0]!;
+        const d: number[] = [p2[0]! - p0[0]!, p2[1]! - p0[1]!];
+        const chord: number = Math.hypot(d[0]!, d[1]!);
+        least = Math.min(least, (d[0]! * w[1]! - d[1]! * w[0]!) / den / chord, (u[0]! * d[1]! - u[1]! * d[0]!) / den / chord);
+      }
+      return Number.isFinite(least) ? least : -Infinity;
+    };
+    const admissible = (values: number[][]): boolean => {
+      const rounded: number[][] = stored(values);
+      return dense.every((b: number[]): boolean => C.chain(theta(values, b), layout).fault === null && C.chain(theta(rounded, b), layout).fault === null && meeting(theta(values, b)) >= margin && meeting(theta(rounded, b)) >= margin);
+    };
+    // `--barrier`: an interior-point term over the same stations (Nocedal and Wright, ch. 19). The margins of a chain are what its
+    // admissibility asks to be positive: every arc's two tangent-meeting distances (`AutoMovieViewChain`'s `a` and `b`, mm) and every
+    // step of its points' phase round the course, radians, with the turn's remainder. `-mu sum log(margin)` is added at every station, so
+    // a candidate moves freely inside the admissible region and never crosses its wall; `mu` falls over rounds toward the plain fit.
+    const margins = (t: number[]): number[] | null => {
+      const input = C.resolve(t, layout).input;
+      const points: number[][] = input.points as number[][];
+      const tangents: number[][] = input.tangents as number[][];
+      const K: number = points.length;
+      const out: number[] = [];
+      const phases: number[] = [];
+      for (let j: number = 0; j < K; ++j) {
+        let phi: number = Math.atan2(points[j]![1]!, points[j]![0]!);
+        while (j > 0 && phi <= phases[j - 1]!) phi += 2 * Math.PI;
+        phases.push(phi);
+        if (j > 0) out.push(phi - phases[j - 1]!);
+      }
+      out.push(phases[0]! + 2 * Math.PI - phases[K - 1]!);
+      for (let j: number = 0; j < K; ++j) {
+        const [p0, p2, t0, t2] = [points[j]!, points[(j + 1) % K]!, tangents[j]!, tangents[(j + 1) % K]!];
+        const den: number = t0[0]! * t2[1]! - t0[1]! * t2[0]!;
+        const d: number[] = [p2[0]! - p0[0]!, p2[1]! - p0[1]!];
+        out.push((d[0]! * t2[1]! - d[1]! * t2[0]!) / den, (t0[0]! * d[1]! - t0[1]! * d[0]!) / den);
+      }
+      return out.every(Number.isFinite) ? out : null;
+    };
+    let mu: number = 0;
+    const barrier = (values: number[][]): number | null => {
+      let sum: number = 0;
+      for (const b of dense) {
+        const m: number[] | null = margins(theta(values, b));
+        if (m === null || m.some((x: number): boolean => !(x > 0))) return null;
+        for (const x of m) sum -= mu * Math.log(x);
+      }
+      return sum;
+    };
     const cost = (values: number[][]): { total: number; residuals: number[][] } | null => {
       if (!admissible(values)) return null;
       let total: number = 0;
+      if (mu > 0) {
+        const kept: number | null = barrier(values);
+        if (kept === null) return null;
+        total += kept;
+      }
       const residuals: number[][] = [];
       for (let i: number = 0; i < train.length; ++i) {
         const t: number[] = theta(values, B[i]!);
@@ -212,6 +315,85 @@ export namespace FamilyConicFit {
       }
       return { total, residuals };
     };
+    // Feature lines first (`AutoMovieHumanConicSection` kind `f`), as conic lofting draws its control lines before its sections: each
+    // feature's position along the stations is the projection of its sections' own readings, and its heading is fitted to the heading
+    // nearest its reading, at every `DENSE_MM` station, with which both its arcs are conics, so the held lines make a seed admissible at every
+    // station. The sections' other numbers are then fitted with the lines held (`held`).
+    const featured: number[] = layout.anchors.map((_: C.IAnchor, k: number): number => k).filter((k: number): boolean => layout.anchors[k]!.kind === "f");
+    const held: Set<number> = new Set<number>();
+    if (featured.length > 0 && initial === undefined) {
+      const { at }: { at: number[]; shoulders: number } = C.offsets(layout);
+      for (const k of featured) for (let j: number = 0; j < 3; ++j) held.add(at[k]! + j);
+      // A station still refused weighs more in the next round, so the heading lines bend toward where their arcs are conics.
+      const stationWeight: number[] = dense.map((): number => 1);
+      for (let round: number = 0; round < LINE_ROUNDS && !admissible(Y); ++round) {
+        dense.forEach((b: number[], d: number): void => {
+          if (C.chain(theta(Y, b), layout).fault !== null) stationWeight[d]! *= 4;
+        });
+        const denseGram: number[][] = zeros(M, M);
+        dense.forEach((b: number[], d: number): void => {
+          for (let m: number = 0; m < M; ++m) for (let n: number = 0; n < M; ++n) denseGram[m]![n]! += stationWeight[d]! * b[m]! * b[n]!;
+        });
+        const targets: number[][] = featured.map((): number[] => []);
+        const places: number[][][] = featured.map((): number[][] => [[], []]);
+        for (const b of dense) {
+          const values: number[] = theta(Y, b);
+          const input = C.resolve(values, layout).input;
+          const points: number[][] = input.points as number[][];
+          const tangents: number[][] = input.tangents as number[][];
+          const n: number = points.length;
+          featured.forEach((k: number, j: number): void => {
+            const [before, after]: [number, number] = [(k + n - 1) % n, (k + 1) % n];
+            // The feature's frame (`AutoMovieHumanConicSection.frame`): its numbers are read on that chord.
+            const [from, to]: [number, number] = C.frame(k, layout);
+            const chord: number = Math.atan2(points[to]![1]! - points[from]![1]!, points[to]![0]! - points[from]![0]!);
+            const reading: number = chord + values[at[k]! + 2]!;
+            let chosen: number | null = null;
+            for (let step: number = 0; step <= Math.PI / HEADING_STEP; ++step) {
+              const tried: number[] = step === 0 ? [reading] : [reading + step * HEADING_STEP, reading - step * HEADING_STEP];
+              const found: number | undefined = tried.find((h: number): boolean => {
+                const d: number[] = [Math.cos(h), Math.sin(h)];
+                return C.arc(points[before]!, tangents[before]!, points[k]!, d) && C.arc(points[k]!, d, points[after]!, tangents[after]!);
+              });
+              if (found === undefined) continue;
+              chosen = found;
+              break;
+            }
+            // Where no heading makes both arcs conics, the feature stands too near its neighbours' chord for its turn: it is drawn a third
+            // of the way toward that chord's middle, along the chord, and its line follows it there in the next round.
+            let place: number[] = points[k]!;
+            if (chosen === null) {
+              const middle: number[] = [(points[before]![0]! + points[after]![0]!) / 2, (points[before]![1]! + points[after]![1]!) / 2];
+              place = [place[0]! + (middle[0]! - place[0]!) / 3, place[1]! + (middle[1]! - place[1]!) / 3];
+              chosen = Math.atan2(points[after]![1]! - points[before]![1]!, points[after]![0]! - points[before]![0]!);
+              points[k] = place;
+            }
+            tangents[k] = [Math.cos(chosen), Math.sin(chosen)];
+            const [t, o, h]: [number, number, number] = C.unplace(points[from] as C.P, points[to] as C.P, place as C.P, chosen);
+            targets[j]!.push(h);
+            places[j]![0]!.push(t);
+            places[j]![1]!.push(o);
+          });
+        }
+        const project = (field: number, target: number[]): void => {
+          const right: number[] = new Array<number>(M).fill(0);
+          dense.forEach((b: number[], d: number): void => {
+            for (let m: number = 0; m < M; ++m) right[m]! += stationWeight[d]! * b[m]! * target[d]!;
+          });
+          const solved: number[] | null = solve(denseGram.map((r: number[]): number[] => [...r]), right);
+          if (solved !== null) Y[field] = solved;
+        };
+        featured.forEach((k: number, j: number): void => {
+          project(at[k]!, places[j]![0]!);
+          project(at[k]! + 1, places[j]![1]!);
+          project(at[k]! + 2, targets[j]!);
+        });
+      }
+    }
+    if (process.argv.includes("--seeds")) {
+      const refused: string[] = dense.map((b: number[], d: number): string => { const fault: string | null = C.chain(theta(Y, b), layout).fault; return fault === null ? "" : (knots[0]! + d * DENSE_MM).toFixed(2) + ": " + fault.slice(0, 120); }).filter((x: string): boolean => x.length > 0);
+      process.stderr.write("lines held: " + refused.length + " of " + dense.length + " stations refused" + (refused.length === 0 ? "" : "; first " + refused[0] + "; last " + refused.at(-1)) + "\n");
+    }
     let current: { total: number; residuals: number[][] } | null = cost(Y);
     // A projection of sections' own seeds onto few knots can leave stations whose chain is no conic chain, where features appear and
     // fade along the part. One section's seed held at every knot is the same admissible chain at every station; the joint fit starts from
@@ -239,8 +421,46 @@ export namespace FamilyConicFit {
     const steps: number[] = Array.from({ length: F }, (_: unknown, f: number): number => (units[f] === "mm" ? 1e-4 : 1e-6));
     let lambda: number = 1e-3;
     let iterations: number = 0;
+    // `--homotopy`: the fit travels from the shape it starts from to the skin along a path of targets (Allgower and Georg), each section's
+    // radii blended from the start's own (t = 0) to the observed ones (t = 1) in `HOMOTOPY_STEPS` steps, each step starting from the last
+    // solution, so a start the admissible region holds far from the skin is carried to it without a jump across the region's wall.
+    const skinRadii: number[][] = samples.map((sample: ISample): number[] => [...sample.radii]);
+    const startRadii: number[][] = samples.map((sample: ISample, i: number): number[] => {
+      const section: Q.ISection = C.chain(theta(Y, B[i]!), layout);
+      return sample.phases.map((phi: number, k: number): number => (section.fault === null ? Q.radius(section, phi) : skinRadii[i]![k]!));
+    });
+    const homotopy: number[] = process.argv.includes("--homotopy") ? Array.from({ length: HOMOTOPY_STEPS }, (_: unknown, k: number): number => (k + 1) / HOMOTOPY_STEPS) : [1];
+    // `--release`: once the sections are fitted with the feature lines held, one more stage at the skin fits every number together, the
+    // lines too, as block coordinate descent ends in a joint step; the lines start where they were drawn and are free to move only as far
+    // as the admissible region (and with `--barrier`, its barrier) lets them.
+    const stages: { along: number; release: boolean }[] = [...homotopy.map((along: number) => ({ along, release: false })), ...(held.size > 0 && process.argv.includes("--release") ? [{ along: 1, release: true }] : [])];
+    for (const { along, release } of stages) {
+    if (release) held.clear();
+    samples.forEach((sample: ISample, i: number): void => {
+      sample.radii = skinRadii[i]!.map((r: number, k: number): number => startRadii[i]![k]! + along * (r - startRadii[i]![k]!));
+    });
+    if (stages.length > 1) {
+      const again: { total: number; residuals: number[][] } | null = cost(Y);
+      if (again === null) break;
+      current = again;
+    }    // With `--barrier`, every pass runs at falling barrier weights: the first is a share of the starting misfit spread over the margins,
+    // and each next a tenth of the last, so the solution travels inside the admissible region toward the plain least-squares fit.
+    const barrierLevels: number[] = [0];
+    if (process.argv.includes("--barrier") && current !== null) {
+      const count: number = dense.length * (margins(theta(Y, dense[0]!))?.length ?? 1);
+      const start: number = (BARRIER_SHARE * current.total) / count;
+      barrierLevels.splice(0, 1, ...Array.from({ length: BARRIER_LEVELS }, (_: unknown, k: number): number => start / 10 ** k), 0);
+    }
     const passes: number = power > 2 ? 3 : 1;
+    for (const level of barrierLevels)
     for (let pass: number = 0; pass < passes; ++pass) {
+      if (mu !== level) {
+        mu = level;
+        const again: { total: number; residuals: number[][] } | null = cost(Y);
+        if (again === null) break;
+        current = again;
+        lambda = 1e-3;
+      }
       if (pass > 0) {
         // Reweight toward the p-norm (Lawson-style): larger residuals gain weight, pulling the maximum down.
         let peak: number = 0;
@@ -283,13 +503,41 @@ export namespace FamilyConicFit {
             }
           }
         }
-        for (let a: number = 0; a < N; ++a) for (let c: number = 0; c < a; ++c) JTJ[a]![c] = JTJ[c]![a]!;
+        // The barrier's gradient and its Gauss-Newton Hessian, (mu / m^2) dm dm^T, at every station.
+        if (mu > 0)
+          for (const b of dense) {
+            const t: number[] = theta(Y, b);
+            const m: number[] | null = margins(t);
+            if (m === null) continue;
+            const D: number[][] = [];
+            for (let f: number = 0; f < F; ++f) {
+              const moved: number[] = [...t];
+              moved[f]! += steps[f]!;
+              const shifted: number[] | null = margins(moved);
+              D.push(shifted === null ? new Array<number>(m.length).fill(0) : shifted.map((v: number, j: number): number => (v - m[j]!) / steps[f]!));
+            }
+            for (let f: number = 0; f < F; ++f) {
+              let gr: number = 0;
+              for (let j: number = 0; j < m.length; ++j) gr -= (mu / m[j]!) * D[f]![j]!;
+              for (let q: number = 0; q < M; ++q) JTr[f * M + q]! += gr * b[q]!;
+              for (let g: number = f; g < F; ++g) {
+                let dd: number = 0;
+                for (let j: number = 0; j < m.length; ++j) dd += (mu / (m[j]! * m[j]!)) * D[f]![j]! * D[g]![j]!;
+                if (dd === 0) continue;
+                for (let q: number = 0; q < M; ++q) {
+                  if (b[q] === 0) continue;
+                  const row: number[] = JTJ[f * M + q]!;
+                  for (let n: number = 0; n < M; ++n) row[g * M + n]! += dd * b[q]! * b[n]!;
+                }
+              }
+            }
+          }        for (let a: number = 0; a < N; ++a) for (let c: number = 0; c < a; ++c) JTJ[a]![c] = JTJ[c]![a]!;
         let accepted: boolean = false;
         let converged: boolean = false;
         for (let attempt: number = 0; attempt < 12 && !accepted; ++attempt) {
           const A: number[][] = JTJ.map((row: number[], a: number): number[] => {
             const copy: number[] = [...row];
-            copy[a] = row[a]! * (1 + lambda) + 1e-12;
+            copy[a] = row[a]! * (1 + lambda) + 1e-12 + (held.has(Math.floor(a / M)) ? 1e12 : 0);
             return copy;
           });
           const delta: number[] | null = solve(A, JTr.map((v: number): number => -v));
@@ -312,6 +560,8 @@ export namespace FamilyConicFit {
       }
     }
 
+    }
+
     // Report at the cut vertices of fitting and withheld sections, and against the chords on an independent phase grid.
     const report: number[] = Array.from({ length: REPORT }, (_: unknown, k: number): number => (2 * Math.PI * (k + 0.5)) / REPORT);
     const evidence: IResult["rows"] = [];
@@ -325,7 +575,7 @@ export namespace FamilyConicFit {
       if (section.fault === null) {
         const sample: ISample = vertices(row);
         for (let k: number = 0; k < sample.phases.length; ++k) {
-          const e: number = Math.abs(Q.radius(section, sample.phases[k]!) - sample.radii[k]!);
+          const e: number = Math.abs(Q.radius(section, sample.phases[k]!) - sample.radii[k]!) * sample.across[k]!;
           if (e > maximum) worst = sample.phases[k]!;
           maximum = Math.max(maximum, e);
           into.sum += e;
