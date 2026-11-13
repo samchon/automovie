@@ -4,8 +4,12 @@ import {
   Quaternion,
   Vector3,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
+  AutoMovieMotionHumanTouchDrink,
   HumanChain,
   HumanObject,
   HumanPerformance,
@@ -31,13 +35,18 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    the walk plans.
  * 2. At the sip's `atMouth` the glass's rim lies within 15 mm of the mouth
  *    region, read as the mouth's distance to the rim's circle (#3361), and
- *    the glass stands within 10 degrees of upright (#3361).
+ *    the glass leans only toward the face (the walker faces +Z; within 1
+ *    degree of upright counts as toward it) and no more than the lean the
+ *    law asked plus one `AutoMovieMotionHumanTouchDrink.LEAN_STEP`, read as the
+ *    glass's axis carried by the asked hand rotation. A glass held upright at
+ *    the lips raises the elbow to the shoulder; a drinker tips it there with
+ *    the elbow low (Murphy et al. 2011), the lean the law now seeks.
  * 3. From the grip's closing to the film's end the glass keeps its place in
  *    the hand's frame within 1 mm (#3358: held props stay within 1 mm of the
  *    grip socket through a walk), read every quarter of a second.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Places a real archetype, builds the performance through the public chain and reads the displayed prop frame, hand and mouth region; a sip refused over the walk, a glass away from the mouth, tipped, or sliding in the hand fails.
- * @evidence contracts/development/testing.md#independent-expectations The bounds are acceptance lines of #3358 and #3361; the rim is the archetype's own lip affordance.
+ * @evidence contracts/development/testing.md#independent-expectations The rim's and the grip's bounds are acceptance lines of #3361 and #3358 and the lean's is the law's own asked lean plus one search step; the rim is the archetype's own lip affordance.
  * @evidence contracts/development/testing.md#distinguishing-cases The held prop under an overlay; the same task standing is `test_human_motion_prop_held_use`'s and the overlay without a prop `test_human_motion_hand_overlay_wave`'s.
  * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and one archetype and builds one performance; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, why one body is enough and the 3 scenarios with their bounds, sources and sampling.
@@ -128,10 +137,22 @@ export function test_human_motion_prop_held_walk(): void {
     complaints.push(
       `the glass's rim is ${(rim * 1000).toFixed(1)} mm from the mouth at atMouth, within 15 mm expected`,
     );
+  // The lean the law asked: the glass's axis carried by the hand rotation
+  // the arm was asked for, against the shown one.
   const tilt: number = (Math.acos(Math.min(1, axis.y)) * 180) / Math.PI;
-  if (!(tilt <= 10))
+  const hand: IAutoMovieQuaternion = performance
+    .bones("a", seconds)
+    .get("rightHand")!.worldRotation;
+  const askedAxis: IAutoMovieVector3 = Quaternion.rotateVector(
+    performance.posture("a", seconds).limbs.rightArm?.rotation ?? hand,
+    Quaternion.rotateVector(Quaternion.inverse(hand), axis),
+  );
+  const asked: number =
+    (Math.acos(Math.min(1, Math.max(-1, askedAxis.y))) * 180) / Math.PI;
+  const step: number = AutoMovieMotionHumanTouchDrink.LEAN_STEP;
+  if (!(axis.z <= Math.sin(Math.PI / 180) && tilt <= asked + step))
     complaints.push(
-      `the glass tilts ${tilt.toFixed(1)} degrees at atMouth, within 10 expected`,
+      `the glass leans ${tilt.toFixed(1)} degrees at atMouth with its top ${axis.z <= 0 ? "toward" : "away from"} the face, toward it or upright within 1 degree and at most the asked ${asked.toFixed(1)} plus ${step} expected`,
     );
 
   // 3. The glass stays in the hand.
