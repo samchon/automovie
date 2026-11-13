@@ -57,6 +57,9 @@ export namespace WorkoutLoad {
 
     /** The prop's affordance the other hand takes (a bar's second handle); one hand holds when absent. */
     other?: string;
+
+    /** The prop's affordance the holding hand took, which with `other` gives the bar's own line; the line from the hand's grip to `other` when absent, which leaves a bar a few degrees out of level by the palm's depth. */
+    handle?: string;
   }
 
   /** What a load gives the workout's plan. */
@@ -137,6 +140,17 @@ export namespace WorkoutLoad {
       tip: load.other,
     });
     const own: StrikingHeld.ITool = StrikingHeld.of(context, side);
+
+    // The bar's line in the hand: from the handle the hand took to the
+    // other one, both read in the hand's frame.
+    const line: IAutoMovieVector3 = Vector3.normalize(
+      load.handle === undefined
+        ? tool.tip
+        : Vector3.subtract(
+            tool.tip,
+            StrikingHeld.of(context, side, load.prop, { tip: load.handle }).tip,
+          ),
+    );
     const bare: StrikingHeld.ITool = StrikingHeld.of(context, other);
     const bend = (
       posture: IHumanPosture,
@@ -176,7 +190,9 @@ export namespace WorkoutLoad {
           Vector3.scale(across, Vector3.dot(forearm, across)),
         );
         const turn: IAutoMovieQuaternion = HumanHand.align(
-          { normal: tool.axis, forward: own.axis },
+          // The tool's own axis is the other handle's approach, square to
+          // the bar, so the bar's line is read from its two handles.
+          { normal: line, forward: own.axis },
           {
             normal: across,
             forward:
@@ -193,7 +209,7 @@ export namespace WorkoutLoad {
           context,
           tool,
           frame,
-          tool.length,
+          0,
           { x: 0, y: 0, z: 0 },
         );
         const second: Omit<AutoMovieMotionHumanArm.ITarget, "bend"> = {
