@@ -79,6 +79,7 @@ export namespace AutoMovieConstructionAdmission {
           const part: Names = check(node.part);
           need(part.views, node.seed.partFace, "part face");
           need(host.faces, node.seed.hostFace, "host face");
+          if (node.fair !== undefined && !(Number.isFinite(node.fair) && node.fair > 0)) throw new Error(`realizeAutoMovieConstruction: ${name}'s fair ${node.fair} m is not positive and finite`);
           return {
             views: union(host.views, part.views),
             faces: union(union(host.faces, part.faces), new Set([name])),
@@ -161,7 +162,7 @@ export namespace AutoMovieConstructionAdmission {
             if (profile.reach !== undefined && !(Number.isFinite(profile.reach) && profile.reach > 0 && profile.reach <= 1))
               refuse(`profile reach ${profile.reach} is not in (0, 1]`);
             if (profile.square !== undefined && typeof profile.square !== "boolean") refuse(`profile square ${String(profile.square)} is not a boolean`);
-            if (profile.fair !== undefined && !(Number.isFinite(profile.fair) && profile.fair > 0 && profile.fair <= 1)) refuse(`profile fair ${profile.fair} is not in (0, 1]`);
+            if (profile.fair !== undefined && !(typeof profile.fair === "number" ? [profile.fair] : profile.fair).every((share: number): boolean => Number.isFinite(share) && share > 0 && share <= 1)) refuse(`profile fair ${JSON.stringify(profile.fair)} is not in (0, 1]`);
             const heading: [number, number, number] | undefined = profile.heading;
             if (heading !== undefined && !(heading.every(Number.isFinite) && Math.hypot(...heading) > 0))
               refuse(`profile heading [${heading.join(", ")}] is not a finite nonzero direction`);
@@ -199,8 +200,7 @@ export namespace AutoMovieConstructionAdmission {
             if (!(Number.isFinite(child.rail) && child.rail > 0))
               refuse(
                 `rail ${child.rail} m of ${child.partFace} is not positive`,
-              );
-            const crease: typeof child.crease = child.crease;
+              );            const crease: typeof child.crease = child.crease;
             if (
               crease !== undefined &&
               !(

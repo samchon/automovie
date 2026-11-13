@@ -622,10 +622,11 @@ function fan(
     // Each seam's forks, the ring vertices its two arcs start at, are faired once the skin is drawn over a disc the declared share of the
     // seam's chord across (`IAutoMovieConstructionSplit.IProfile.fair`).
     seams.forEach((s: IAutoMovieConstructionSplit.ISeam, j: number): void => {
-      const share: number | undefined = s.profile?.fair;
-      if (share === undefined) return;
-      const radius: number = share * AutoMovieSolidVector.norm(AutoMovieSolidVector.sub(curves[j]!.ends[1], curves[j]!.ends[0]));
-      for (const fork of ["a" + j, "b" + j]) (state.fairs ??= []).push({ vertex: ring.get(fork + ":0")!, radius });
+      const fair: number | [number, number] | undefined = s.profile?.fair;
+      if (fair === undefined) return;
+      const chord: number = AutoMovieSolidVector.norm(AutoMovieSolidVector.sub(curves[j]!.ends[1], curves[j]!.ends[0]));
+      const shares: [number, number] = typeof fair === "number" ? [fair, fair] : fair;
+      (state.fairs ??= []).push({ vertices: [ring.get("a" + j + ":0")!], radius: shares[0] * chord }, { vertices: [ring.get("b" + j + ":0")!], radius: shares[1] * chord });
     });
   } catch (error: unknown) {
     AutoMovieConstructionState.restore(body, state, snapshot);

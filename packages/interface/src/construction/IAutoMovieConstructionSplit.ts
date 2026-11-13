@@ -108,9 +108,10 @@ export namespace IAutoMovieConstructionSplit {
      * fork patch of the branching-surface literature, Gabrielides, Ginnis and Kaklis 2007, in the discrete form of Botsch and Kobbelt
      * 2004). At a fork the host's end and two bands meet in a corner no one surface owns, and each band turns sharply beside it over about
      * its corner window, which grows with the seam. The fill belongs to no surface: its vertices keep the chart coordinates they were drawn
-     * at. In `(0, 1]`; absent, the forks are left as drawn.
+     * at. In `(0, 1]`, one share for both forks or one for each, `[a, b]` in the seam's order; absent, the forks are left as drawn. The
+     * two sides of an end may want their own: between toes the web stands deep on the sole and shallow on top.
      */
-    fair?: number;
+    fair?: number | [number, number];
 
     /**
      * A world direction the seam plane holds in place of the host end's outward normal, unit or not, not along the chord; `depth` is then

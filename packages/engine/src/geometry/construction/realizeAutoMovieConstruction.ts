@@ -303,6 +303,9 @@ export function realizeAutoMovieConstruction(
     const blendFace: number = body.faces.length - 1;
     state.faces.set(node.name, blendFace);
     state.blendSurfaces.push(body.faces[blendFace]!.surface);
+
+    // The blend's band, faired once the skin is drawn (`IAutoMovieConstructionJoin.fair`).
+    if (node.fair !== undefined) (state.fairs ??= []).push({ surface: body.faces[blendFace]!.surface, radius: node.fair * S });
     state.joins.push({
       name: node.name,
       hostFace: node.seed.hostFace,
@@ -429,8 +432,39 @@ export function realizeAutoMovieConstruction(
       report,
     );
 
-    // The forks a split declares a fill for, once every face is drawn and closed, so each disc reads the whole skin round it.
-    fairAutoMovieSolidMesh(body.mesh, state.fairs ?? []);
+    // The fills a split or a merge declares, and the construction's own fills about its datum points (`IAutoMovieConstruction.fills`), once
+    // every face is drawn and closed, so each region reads the whole skin round it. A region about a surface (a merge's blend) starts from
+    // every vertex that surface owns; a datum's disc is centred on the skin vertex nearest it.
+    const regions: { vertices: number[]; radius: number }[] = (state.fairs ?? [])
+      .map((fair: NonNullable<AutoMovieConstructionState.IState["fairs"]>[number]): { vertices: number[]; radius: number } => {
+        if (fair.surface === undefined) return { vertices: fair.vertices ?? [], radius: fair.radius };
+        const owner: number = AutoMovieSolidMesh.owner(body.mesh, fair.surface);
+        const vertices: number[] = [];
+        for (let v: number = 0; 3 * v < body.mesh.positions.length; ++v) if (body.mesh.coordinates[3 * v] === owner) vertices.push(v);
+        return { vertices, radius: fair.radius };
+      })
+      .filter((fair: { vertices: number[] }): boolean => fair.vertices.length > 0);
+    for (const [k, fill] of (construction.fills ?? []).entries()) {
+      const scale: number = AutoMovieConstructionViews.SCALE;
+      const radius: number = fill.radius * scale;
+      if (!(fill.point.every(Number.isFinite) && radius > 0 && Number.isFinite(radius))) {
+        report(construction.name, "fill", `fill ${k}: its point is not finite or its radius not positive`);
+        continue;
+      }
+      const positions: number[] = body.mesh.positions;
+      let nearest: number = -1;
+      let distance: number = Infinity;
+      for (let v: number = 0; 3 * v < positions.length; v++) {
+        const d: number = Math.hypot(positions[3 * v]! - fill.point[0] * scale, positions[3 * v + 1]! - fill.point[1] * scale, positions[3 * v + 2]! - fill.point[2] * scale);
+        if (d < distance) [nearest, distance] = [v, d];
+      }
+      if (!(distance <= radius)) {
+        report(construction.name, "fill", `fill ${k}: no skin vertex lies within its radius of its point (nearest ${distance / scale} m)`);
+        continue;
+      }
+      regions.push({ vertices: [nearest], radius });
+    }
+    fairAutoMovieSolidMesh(body.mesh, regions);
   }
   const published: AutoMovieSolidBody.IPublished =
     AutoMovieSolidBody.publish(body);

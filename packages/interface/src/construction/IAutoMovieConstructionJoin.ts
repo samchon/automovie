@@ -59,4 +59,12 @@ export interface IAutoMovieConstructionJoin {
 
   /** Least angle between the two tangent planes along the curve, radians, positive; under it the contact is reported as tangential. */
   grazing: number;
+
+  /**
+   * The width, metres, of the band about the blend over which the drawn skin is faired: every vertex whose path along the mesh from the
+   * nearest of the blend's own vertices is shorter than it, the blend's included, moves to the thin-plate fill its two outer rings hold,
+   * G1 to the skin round it (Botsch and Kobbelt 2004). A blend only as wide as the narrow seam it spans leaves a notch wherever the trace
+   * turns tightly, as at a thumb's root beside the web. Positive and finite; absent, the blend stays as drawn.
+   */
+  fair?: number;
 }

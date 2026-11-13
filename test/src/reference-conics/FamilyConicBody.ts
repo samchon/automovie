@@ -808,6 +808,14 @@ namespace FamilyConicBody {
           // Below the chest one net goes once round the trunk. As a window to the front and one to the back, 1.5 rad to either side, the two
           // met in a seam down each hip, a line from the waist to the thigh.
           { name: "trunk.low", stations: [-40, 520], phases: [0, 2 * Math.PI], axis: [1, 0, 0], turn: [0, 0, 1], rows: 59, columns: 83, mirror: false, periodic: true, reach: 70, fade: [0, 60] },
+          // The trunk's end, where the crotch's band leaves it for the thighs: the wall there is the tape across the thighs' fronts, up to
+          // 6 mm outside the skin, and the net round the trunk, 10 mm a row, brought it home but curled its last 3 mm (the normal's rise
+          // from 0.05 to 0.12 at [87..132, 806..810], a level line across each thigh's front on `hip.high-oblique`). A net 3 mm a row and
+          // 0.04 rad a column over each thigh's side, from below the end so no zero row lies on it, fitted after the round net, takes the
+          // rest. It stops 0.3 rad short of the median line and hands its edges over there: carried round the whole end it carved the notch
+          // between the thighs' fronts 20 mm deep, moved the front fork and shortened the crotch's chord from 71 to 51 mm.
+          { name: "trunk.crotch", stations: [-12, 88], phases: [0.3, 2.0], axis: [-0.4085, 0, -0.9128], turn: [0.9128, 0, -0.4085], rows: 36, columns: 46, mirror: false, reach: 30, fade: [0, 30], fadePhase: [0.3, 0.3] },
+          { name: "trunk.crotch.twin", stations: [-12, 88], phases: [-2.0, -0.3], axis: [-0.4085, 0, 0.9128], turn: [-0.9128, 0, -0.4085], rows: 36, columns: 46, mirror: false, reach: 30, fade: [0, 30], fadePhase: [0.3, 0.3] },
           // Over the chest and the shoulders the windows stop at 1.0 rad, short of the fold beside the armpit. While the trunk kept a stump of
           // arm the tape bridged from the breast to it, with the skin deep inside that bridge from about 0.6 to 1.3 rad: a window ending there
           // creased the whole chest and back along its edge, and one reaching 1.45 rad left a thin flap in the fold beside the armpit.
