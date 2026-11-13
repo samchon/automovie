@@ -80,6 +80,11 @@ export namespace FamilyConicExcursion {
     // the cut 12 mm beyond it on either side. The threshold of 3 mm leaves the tragus (73 to 74 mm out over a head 72 to 73 mm out) to the
     // head: at 1.5 mm it was taken at some planes and not at their neighbours.
     { name: "auricle", heights: [1542, 1600.5, 1.5], origin: [9, 74], u: [0, 0, 1], v: [-1, 0, 0], box: [-21, 21], beside: [[-33, -21], [21, 33]], threshold: 3, sink: 4 },
+    // The nose: level planes from the subnasale (1,542.5 mm, `FamilyConicBody.ts nose`) to where the dorsum runs into the face at 1,582 mm,
+    // 1 mm apart; chart u straight forward (+x) and v toward +Z, so v x u is up. Its box spans the wings, which stand within 18.5 to 20 mm of
+    // the median plane (`FamilyConicScan.ts alar`: the alar groove at 18.2 to 20 mm to the side), and the face's line is fitted to the
+    // cheeks 22 to 34 mm to either side. A threshold of 1.5 mm keeps the alar groove (1.4 mm under the hull, Open) inside the excursion.
+    { name: "nose", heights: [1542.5, 1582, 1], origin: [100, 0], u: [1, 0, 0], v: [0, 0, 1], box: [-22, 22], beside: [[-34, -22], [22, 34]], threshold: 1.5, sink: 4 },
   ];
 
   /** Cut every plane of a part out of the reference head. */
