@@ -356,15 +356,27 @@ namespace FamilyConicBody {
   }
 
   /**
-   * `--side-net=rows,columns,from,to,phase,reach,fade,fadePhase,top[,fadeIn[,held]]`: a trial net over the nose's sidewalls, mirrored across
-   * the dorsum to `phase` rad either side and cast inward round the course, the skin above `top` mm left unobserved, faded in over `fadeIn`
-   * mm and held at zero up to `held` mm past the rail curve. Not kept (`docs/work/f1-conic-families.md`, Open): its edge drew a line along
-   * the rail however it was placed, since the supra-alar hollow's deepest part lies on the band.
+   * The net over the nose's sidewalls (`nose.side`), as `rows,columns,from,to,phase,reach,fade,fadePhase,top[,fadeIn[,held]]`: mirrored
+   * across the dorsum to `phase` rad either side and cast inward round the course, the skin above `top` mm (the box's chord under the
+   * dorsum) left unobserved, faded in over `fadeIn` mm and held at zero up to `held` mm past the rail curve; `--side-net=` overrides it.
+   * It carries the supra-alar hollow, 1.4 to 1.5 mm under the hull from 114 to 120 mm forward. It starts at 3 mm, before the nose's first
+   * section (rays are cast from 5.5 mm, `observe`), so it is whole where the band lands and the band takes the dented ring; zero at 5.5 mm,
+   * faded in, or held at zero past the rail, its edge drew a line along the rail. The band carries the hollow on behind the rail by its own
+   * cross profile (`AutoMovieHumanF1.ts`, `NOSE_PROFILES`); without that profile the dented ring left a valley along the rail.
    */
-  const SIDE_NET: number[] | undefined = process.argv.find((a: string): boolean => a.startsWith("--side-net="))?.slice(11).split(",").map(Number);
+  const SIDE_NET: number[] = (process.argv.find((a: string): boolean => a.startsWith("--side-net="))?.slice(11) ?? "19,41,3,20,2,3,4,0.25,1576").split(",").map(Number);
 
   /** Where the nose's band lands on it at a phase, mm from its first station (`AutoMovieHumanF1.NOSE_RAILS_MM`). */
   const NOSE_RAIL: (phi: number) => number = AutoMovieNaturalSpline.periodic(AutoMovieHumanF1.NOSE_RAILS_MM);
+
+  /**
+   * `--mouth-net=<rows>,<columns>`: the mouth's net's control points (`trunk.mouth`); absent, 21 by 37, about 1.8 mm a row and 2.8 mm a
+   * column. At 27 by 67, 1.5 mm each way, it fitted the sections seen by its fit to 0.53 mm and the withheld ones to 2.11: it followed the
+   * reference's facets, and sampled along a level line every 0.6 mm the lips turned by 0 to 5 degrees and back between samples, a ripple
+   * that flat shading drew as blocks of light and dark (mouth.front px 200..720 x 330..640). At 21 by 37 the turns run smoothly (1.1 mm
+   * fitted, 2.07 withheld, the slit between the lips); at 15 by 37 the slit stood wider in profile.
+   */
+  const MOUTH_NET: [number, number] = (process.argv.find((a: string): boolean => a.startsWith("--mouth-net="))?.slice(12).split(",").map(Number) as [number, number] | undefined) ?? [21, 37];
 
   /** `--floor-net=<rows>,<columns>`: the nose's floor net's control points; absent, 15 by 17 (about 1.3 mm along by 1.8 mm round). */
   const FLOOR_NET: [number, number] = (process.argv.find((a: string): boolean => a.startsWith("--floor-net="))?.slice(12).split(",").map(Number) as [number, number] | undefined) ?? [15, 17];
@@ -716,9 +728,10 @@ namespace FamilyConicBody {
      * Relief nets that go once round the part over a run of its stations, fitted after its windows: each takes what the wall and the windows
      * leave, outside the wall as well as inside it, cast toward the course all the way round. Its two directions are the chart's at the middle
      * of the run, so the run should be one the course does not turn much along. With `window` it covers only those phases, still cast toward
-     * the course at every phase, and fades over its edges (`FamilyConicRelief.IWindow.fade`, `fadePhase`).
+     * the course at every phase, and fades over its edges (`FamilyConicRelief.IWindow.fade`, `fadePhase`). Without `window`, `fade` alone
+     * hands its first and last stations over, mm.
      */
-    rounds?: { name: string; stations: [number, number]; rows: number; columns: number; reach: number; hold?: (p: R.V) => number; window?: { phases: [number, number]; fade: [number, number]; fadePhase: [number, number] } }[];
+    rounds?: { name: string; stations: [number, number]; rows: number; columns: number; reach: number; hold?: (p: R.V) => number; fade?: [number, number]; window?: { phases: [number, number]; fade: [number, number]; fadePhase: [number, number] } }[];
   }
 
   /** Run every part and write the receipt and the renders. */
@@ -812,7 +825,11 @@ namespace FamilyConicBody {
         { name: "arm", centres: armCentres, course: "[J.armRoot, J.armTurn, J.lowerarm, J.hand, J.middle1, J.toward(J.middle1, [[J.index1, J.index2], [J.middle1, J.middle2], [J.ring1, J.ring2], [J.pinky1, J.pinky2]], " + KNUCKLE.reach + ")]", halves: armHalves, up: arm.up, domain: [arm.plane + 2, KNUCKLE.end], gap: (s: number): number => (s < arm.turned ? 6 : GAP_MM), tip: KNUCKLE.end + 15, cap: 570.45, covered: true, mirrored: true, layouts: LIMB, reliefs: "auto", rounds: [
           // The forearm and the hand: the wall of two conics a quarter left the ulna's head 2 to 4 mm inside the skin at the wrist, the web
           // between the thumb and the hand up to 11 mm full and stripes of 1 to 4 mm along the forearm (`FamilyConicDeviation.ts`), which
-          // are not hollows under the tape but the wall's own misfit, on both sides of it. A net round each run takes them.
+          // are not hollows under the tape but the wall's own misfit, on both sides of it. A net round each run takes them. They meet in
+          // three zero rows each, 425 to 440 mm, and drew an oval ring with level bars round the forearm above the wrist (`hand.high-oblique`
+          // px 360..415 x 150..215), gone with both nets off. Handed over (`fade`), the forearm's over its last 40 mm and the hand's from
+          // 400 mm over 30, the oval is gone, but the -Z little finger's band then fails its face triangulation ("unavailable source
+          // physical2"); faded over 15 mm each the band is admitted and the oval stays. Not kept: the nets stand as they were emitted.
           { name: "fore", stations: [300, 440], rows: 19, columns: 26, reach: 10 },
           { name: "hand", stations: [425, KNUCKLE.relief], rows: 34, columns: 38, reach: 14, hold: thumbHold },
           // The palm on to the hand's end (`PALM`): past `KNUCKLE.relief` the wall alone is the tape across the palm's hollow.
@@ -870,7 +887,7 @@ namespace FamilyConicBody {
           // The lobule's underside. Its net asked for the whole height up to its edges stood 2.4 to 4.4 mm deep one column from its zero
           // edge columns, and the cliff showed as upright slivers on either side of the tip in profile; it hands its edges over (`fade`).
           { name: "under", stations: [22.5, 27], phases: [Math.PI - 1.1, Math.PI + 1.1], axis: [0, 1, 0], rows: 31, columns: 39, reach: 2.5, mirror: true, fade: [1, 1.5], fadePhase: [0.35, 0.35] },
-          ...(SIDE_NET === undefined ? [] : [{ name: "side", stations: [SIDE_NET[2]!, SIDE_NET[3]!] as [number, number], phases: [-SIDE_NET[4]!, SIDE_NET[4]!] as [number, number], axis: [0, -1, 0] as R.V, turn: [0, 0, 1] as R.V, skin: (p: R.V): number => Math.max(-nose(p), p[1] - SIDE_NET[8]!), rows: SIDE_NET[0]!, columns: SIDE_NET[1]!, reach: SIDE_NET[5]!, mirror: true, fade: [SIDE_NET[9] ?? 0, SIDE_NET[6]!] as [number, number], fadePhase: [SIDE_NET[7]!, SIDE_NET[7]!] as [number, number], observe: Math.max(5.5, SIDE_NET[2]!), ...(SIDE_NET[10] === undefined ? {} : { held: (s: number, phi: number): boolean => s < 5.5 + NOSE_RAIL(phi) + SIDE_NET[10]! }) }]),
+          ...[{ name: "side", stations: [SIDE_NET[2]!, SIDE_NET[3]!] as [number, number], phases: [-SIDE_NET[4]!, SIDE_NET[4]!] as [number, number], axis: [0, -1, 0] as R.V, turn: [0, 0, 1] as R.V, skin: (p: R.V): number => Math.max(-nose(p), p[1] - SIDE_NET[8]!), rows: SIDE_NET[0]!, columns: SIDE_NET[1]!, reach: SIDE_NET[5]!, mirror: true, fade: [SIDE_NET[9] ?? 0, SIDE_NET[6]!] as [number, number], fadePhase: [SIDE_NET[7]!, SIDE_NET[7]!] as [number, number], observe: Math.max(5.5, SIDE_NET[2]!), ...(SIDE_NET[10] === undefined ? {} : { held: (s: number, phi: number): boolean => s < 5.5 + NOSE_RAIL(phi) + SIDE_NET[10]! }) }],
         ] },
         // The breast as a loft of its own through its dome's top (`BREAST_ROOT`), attached at a port on the chest that the trunk's sections
         // leave out (`breasts`), so the fold under it is the band's short side. Its sections read the skin inside a cylinder about the course
@@ -973,7 +990,7 @@ namespace FamilyConicBody {
           // The face: a finer net, 2.6 mm apart, between the throat and the brow.
           { name: "trunk.face", stations: [690, 890], phases: [-1.2, 1.2], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 81, columns: 69, mirror: true, reach: 30, fade: [15, 15] },
           // The mouth: a net 1.5 mm apart over its band of the face, which the face's net left a block.
-          { name: "trunk.mouth", stations: [722, 758], phases: [-0.5, 0.5], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 27, columns: 67, mirror: true, reach: 12, fade: [5, 5] },
+          { name: "trunk.mouth", stations: [722, 758], phases: [-0.5, 0.5], axis: [-1, 0, 0], turn: [0, 0, -1], rows: MOUTH_NET[0], columns: MOUTH_NET[1], mirror: true, reach: 12, fade: [5, 5] },
         ], casts: [
           // The eyes: a net 1.5 mm apart over their band, cast in space onto the outermost skin. The reference's eyeball is a closed
           // surface of its own behind the lids (`FamilyConicScan.ts eye`), which no section of the trunk holds: cast in the section
@@ -1427,6 +1444,13 @@ namespace FamilyConicBody {
       // A cutter is carried straight back from its first section by `lead`: three knots more with that section's values, so it comes out
       // of the skin it is cut from with the girth of its mouth. One knot alone let the fields' cubics swing between it and the first
       // section, and the engine lost an arc of the chain there.
+
+      // `--raise=<shoulder>`: every shoulder of the wall raised to that least as it is stored, the reliefs then fitted over it, for a wall
+      // whose fit under the bound stalls. The leg's ankle, refitted under 0.3 from 640 or 740 to 900 or 880 mm, stopped at 7 and 10 knots
+      // and 1.4 and 0.26 mm, since the heel sweeps faster than knots 12 mm apart follow; its arcs of 0.11 to 0.24 drew a crescent round the
+      // lateral malleolus.
+      const raise: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--raise="))?.slice(8);
+      if (raise !== undefined) best = { ...best, layout: { ...best.layout, least: Math.max(best.layout.least ?? 0, Number(raise)) } };
       if (best.layout.least !== undefined) {
         const bound: number = best.layout.least;
         const unbounded: C.ILayout = { anchors: best.layout.anchors, mirror: best.layout.mirror };
@@ -1478,7 +1502,7 @@ namespace FamilyConicBody {
           const c: number = (phases[0] + phases[1]) / 2;
           const axis: R.V = net.window === undefined ? [frame.u[0], frame.u[1], frame.u[2]] : ([0, 1, 2].map((k: number): number => -(Math.cos(c) * frame.u[k]! + Math.sin(c) * frame.v[k]!)) as R.V);
           const turn: R.V = net.window === undefined ? [frame.v[0], frame.v[1], frame.v[2]] : ([0, 1, 2].map((k: number): number => Math.sin(c) * frame.u[k]! - Math.cos(c) * frame.v[k]!) as R.V);
-          return { name: part.name + "." + net.name, stations: net.stations, phases, axis, turn, rows: net.rows, columns: net.columns, mirror: false, ...(net.window === undefined ? { periodic: true } : { fade: net.window.fade, fadePhase: net.window.fadePhase }), chord: true, reach: net.reach, ...(net.hold === undefined ? {} : { hold: net.hold }) };
+          return { name: part.name + "." + net.name, stations: net.stations, phases, axis, turn, rows: net.rows, columns: net.columns, mirror: false, ...(net.window === undefined ? { periodic: true, ...(net.fade === undefined ? {} : { fade: net.fade }) } : { fade: net.window.fade, fadePhase: net.window.fadePhase }), chord: true, reach: net.reach, ...(net.hold === undefined ? {} : { hold: net.hold }) };
         });
         definition.reliefs = [];
         const fitAll = (list: readonly IWindow[], judged: boolean): void => {
@@ -1510,7 +1534,9 @@ namespace FamilyConicBody {
           }));
           // A window placed by the hollow search is kept only when its net takes away at least half of its deepest hollow on the withheld
           // sections. Round a turn a section's hollow lies across the cast's axis, and a net that cannot reach it leaves scratches instead.
-          const kept: boolean = !judged || fitted.heldMaxMm <= 0.5 * fitted.deepestMm;
+          // Nor is one kept whose deepest hollow is shallower than half the fit's target: the leg's window over the foot's end (924 to
+          // 960 mm) stored 473 heights for a hollow 0.11 mm deep, which is the wall's own misfit (the conic audit's leg rows).
+          const kept: boolean = !judged || (fitted.heldMaxMm <= 0.5 * fitted.deepestMm && fitted.deepestMm >= 0.5 * TARGET_MM);
           definition.reliefs ??= [];
           if (kept) definition.reliefs.push(fitted.relief);
 
