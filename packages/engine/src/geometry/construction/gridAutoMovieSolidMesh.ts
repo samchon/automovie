@@ -393,9 +393,15 @@ export function gridAutoMovieSolidMesh(
       }
     }
 
-  // The face's undecided cells all take the diagonal family that is the shorter in sum over them (`DIAGONAL`).
+  // The face's undecided cells all take the diagonal family that is the shorter in sum over them (`DIAGONAL`). The sums are compared
+  // relatively: on a face whose two families are equally long (a prism's or a cylinder's cells) they differ only by rounding, which
+  // changes with the face's size, so an exact comparison cut the same face differently at two scales.
   const ties: { first: number; other: number }[] = cuts.filter((cut: (typeof cuts)[number]): boolean => cut.choice === "tie");
-  const tie: "first" | "other" = ties.reduce((sum: number, cut: { first: number; other: number }): number => sum + cut.other, 0) < ties.reduce((sum: number, cut: { first: number; other: number }): number => sum + cut.first, 0) ? "other" : "first";
+  const sums: { first: number; other: number } = {
+    first: ties.reduce((sum: number, cut: { first: number; other: number }): number => sum + cut.first, 0),
+    other: ties.reduce((sum: number, cut: { first: number; other: number }): number => sum + cut.other, 0),
+  };
+  const tie: "first" | "other" = sums.other < sums.first * (1 - DIAGONAL_ROUNDING) ? "other" : "first";
   for (const cut of cuts)
     if ((cut.choice === "tie" ? tie : cut.choice) === "other")
       full.push(
@@ -507,6 +513,13 @@ export function gridAutoMovieSolidMesh(
  * families sum to exactly the same length falls back to the first corner.
  */
 const BEND: number = 0.9;
+
+/**
+ * Relative difference under which a face's two diagonal families count as equally long, and its undecided cells keep the first corner.
+ * Summing some thousands of lengths carries a relative rounding near 1e-13, so 1e-9 stands four decades above the noise and far under
+ * any difference a face's shape makes; `test_construction_determinism` realizes one assembly at two sizes and requires the same cells.
+ */
+const DIAGONAL_ROUNDING: number = 1e-9;
 
 /**
  * The angle between the unit normals of the two triangles a quadrilateral is

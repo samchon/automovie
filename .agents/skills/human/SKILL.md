@@ -23,7 +23,7 @@ Conquer one person before generalizing. Follow the owner's authorized campaign o
 2. **Re-base.** Rewrite each part's traced coordinates about its own origin at its joint, with axes from its own landmarks, and turn its angles to the part's own neutral orientation. Reassemble the body by chaining the parts' relative frames, so the round trip back to the reference pose is exact.
 3. **Generalize.** Search the universal algorithm and formulas that produce the re-based coordinates from parameters, by reverse analysis of those coordinates. This step follows [Generate From Parameters](curves.md#generate-from-parameters), [Numbers](construction.md#numbers) and [Inputs](construction.md#inputs).
 
-Know the construction method's classical limits before a step begins, and plan their standard remedies. Level sections cannot hold a horizontal floor, a pole cannot host ports, and a branch needs a split. A limit discovered only through a refusal costs a fix-and-revert cycle.
+Know the construction method's classical limits before a step begins, and plan their standard remedies. Level sections cannot hold a horizontal floor, a pole cannot host ports, and a branch needs a split. A limit discovered only through a refusal costs a fix-and-revert cycle. [Lofting](../3d-modeling/lofting.md#one-section-family) states what a conic section can and cannot hold.
 
 ## Done When
 
@@ -45,6 +45,8 @@ Within each step, work in [correction rounds](../visual-debugging/correction-rou
 Use the inspection and repair order in [AGENTS.md](../../../AGENTS.md).
 
 When a construction resists, do not force it. Research how the problem is solved elsewhere, generate alternatives, compare them on the frames and the numbers, and move to the better one; a round that only retries the same idea is lost.
+
+Keep a change that follows the construction's own rule when it breaks something fitted to the old state, and refit that dependent on the new state. A right direction rarely stands on its first round: carry it through rounds, each fixing all of the last one's findings. Revert only when a measurement shows the change itself is wrong, because a revert made to quiet a dependent discards the correction and leaves the dependent fitted to a defect.
 
 In step 3, derive every fix and every expectation from the person's inputs, published or derived laws, geometry, or normalized tables aggregated over the whole reference set, because a special case or an unsourced number fits one symptom and breaks the population.
 
