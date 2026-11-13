@@ -28,6 +28,8 @@ The action's study supplies the key poses, the timing and the windows. Take join
 
 Move an effector to its target on a smooth, bell-shaped speed profile, that of minimum jerk (Flash and Hogan 1985), because a constant-speed path reads as mechanical. A movement that delivers speed at its end, such as a throw or a strike, sequences from proximal to distal segments (Putnam 1993) and reaches its target before the speed falls to zero.
 
+Lay an effector's path on the body that carries it. When the root travels during the stroke, as in a lunge or a step into a blow, give the path relative to the moving shoulder or hip, or carry it by what that joint is ahead of the advance the path assumed. A path fixed in the world and keyed to the stroke's own progress lets a body that advances on its own clock overtake its hand: the limb folds to its limit, the fit changes side there, and the tool's tip jumps within one frame.
+
 ## Decide what happens out of reach
 
 Compute the reach before posing: the root-to-target distance against the limb's reachable band. Declare the rule for a target outside it, whether too far or closer than the limb can fold to. The action either refuses with the feasible range, or takes a declared alternative that still reaches the goal, such as a step, a lean or a support hand. An alternative that changes the outcome, such as a stumble, applies only when the caller selects it, because the outcome belongs to whoever decided the scene.
@@ -37,6 +39,8 @@ A silent clamp moves the contact somewhere the screenplay did not ask for and hi
 ## Decide the root once
 
 Decide the root once, from every demand on it together: the contacts, the far reaches, and balance, which keeps the extrapolated center of mass, the center of mass shifted by its velocity, over the support. Then fit every limb from that root, because separate corrections per limb disagree, and balance left to a check is met after the pose is already wrong.
+
+Place a body that bears on the floor by the joints that bear, each at the height it has when it bears: an ankle or a toe joint at its standing height, a wrist at the height of a laid palm. Resting a keyed pose on the lowest point of its collision shapes lifts the whole body by whatever hangs lowest in that pose, such as a straight hand under a plank's shoulder, and the true supports then float.
 
 A contact that still cannot be reached shows the root is wrong: revise that one root, by lowering, leaning or stepping, and refit every limb. A contact dragged off its point to keep the root's path is the error a viewer sees first.
 

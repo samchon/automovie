@@ -20,6 +20,8 @@ Plan travel as whole steps. A normal step is about 0.41 of stature (Murray, Drou
 
 At grip closure, store the object's pose in the hand's frame (inverse(hand) · object) and keep it fixed until release, as a parent constraint keeps its offset at activation. Re-deriving the offset during the hold lets the object drift in the hand and tilt when it is set down. Set an object down by giving the hand the goal that puts the object at its target pose through that stored offset.
 
+Judge a pose that a held tool must keep at both ends of the tool: fit the pose, then read back the tool's working point and a second point along its length, and refuse or choose another pose when either is off. A check of the working point alone passes a pose in which the hand's turn gave way, so a muzzle or a blade's point sits on its line while the tool points several degrees off it, and no check reports the miss.
+
 A held object stays held across actions until an action takes that hand over to put it down, hand it on or use it. Until then the hand travels with the body and keeps its grip. Refuse an action that would use a holding hand for something else, because the object would be left in the air or dragged through a gesture.
 
 At a handover:
