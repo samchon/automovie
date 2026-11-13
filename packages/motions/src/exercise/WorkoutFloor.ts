@@ -25,9 +25,6 @@ export namespace WorkoutFloor {
   /** The share of the straight arm's length the shoulders stand above the floor in a plank (provisional): the elbows a little soft. */
   export const REACH: number = 0.95;
 
-  /** The shoulders' height at a push-up's bottom, a share of the stature (provisional): the chest clear of the floor. */
-  export const CHEST: number = 0.09;
-
   /**
    * The whole-body pitch of a straight body on its toes with the shoulders
    * at a height.
@@ -62,9 +59,9 @@ export namespace WorkoutFloor {
     );
   };
 
-  /** The bottom of a push-up: the same line lowered until the chest clears the floor. */
+  /** The bottom of a push-up: the same line lowered until the upper arms are level, the shoulders at the elbows' height over upright forearms (NSCA's description of the bottom position). */
   const bottom = (body: IHumanBody, raise: number = 5): ExerciseKey.IKey => {
-    const pitch: number = plank(body, CHEST * body.measure.stature);
+    const pitch: number = plank(body, body.measure.forearm);
     return ExerciseKey.of(
       { pitch, neck: -25 },
       { toes: 70, shoulder: pitch - 60, raise, elbow: 100 },

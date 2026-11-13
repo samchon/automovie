@@ -37,13 +37,13 @@ export namespace WorkoutStanding {
 
   /** The exercises. */
   export const KINDS: Readonly<Record<Name, WorkoutKind>> = {
-    /** A deadlift: a hip hinge to 55 degrees and back, the arms hanging. */
+    /** A deadlift: from standing down to the bar's height at the shins, the trunk at 70 degrees over knees bent 75, the arms hanging, and back. */
     deadlift: WorkoutStance.of(WorkoutStance.ANKLES, WorkoutStance.FEET, 0, 5, (): WorkoutKind.IStep[] => [
       WorkoutStance.rest(1.2),
       WorkoutKind.step(
         ExerciseKey.of(
-          { pitch: 55, neck: -15 },
-          { ...ExerciseKey.stood(55, 35, 15), shoulder: 55, elbow: 3 },
+          { pitch: 70, neck: -25 },
+          { ...ExerciseKey.stood(70, 75, 25), shoulder: 70, elbow: 3 },
         ),
         1.5,
         "lower",

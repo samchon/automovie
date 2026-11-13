@@ -1,5 +1,12 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieResolvedBone,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { HumanActionKey } from "../HumanActionKey";
 import { stand } from "../actions/stand";
@@ -9,6 +16,7 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
+import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
@@ -20,6 +28,7 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
 import { ExerciseKey } from "./ExerciseKey";
@@ -220,9 +229,48 @@ export namespace workout {
       standing.root,
       pelvis(standing),
     );
+    // Where the entry shows the bearing bones: a stance is kept there, not
+    // where the keys' own joints would stand it.
+    const entered: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      poseBones(body, context.entry.pose);
+    const shown: IAutoMovieVector3 = Vector3.scale(
+      kind.pin.reduce(
+        (sum: IAutoMovieVector3, bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
+          Vector3.add(sum, entered.get(bone)!.worldPosition),
+        { x: 0, y: 0, z: 0 },
+      ),
+      1 / kind.pin.length,
+    );
+    // The feet a standing kind never moves are held by the legs' solve on
+    // the places they stand on at the entry.
+    const planted: readonly ("left" | "right")[] =
+      kind.anchor !== "stance" || kind.strides === true
+        ? []
+        : (["left", "right"] as const).filter(
+            (side: "left" | "right"): boolean =>
+              kind.supports.some(
+                (support: WorkoutKind.ISupport): boolean =>
+                  support.part === `${side}Foot` && support.kind === "plant",
+              ),
+          );
+    const footed = (placed: IHumanPosture): IHumanPosture => {
+      const limbs: IHumanPosture["limbs"] = { ...placed.limbs };
+      for (const side of planted)
+        limbs[`${side}Leg`] = AutoMovieMotionHumanLeg.goal(
+          body,
+          placed,
+          side,
+          {
+            ankle: context.entry.feet[side].ankle,
+            rotation: context.entry.feet[side].rotation,
+          },
+          true,
+        );
+      return { ...placed, limbs };
+    };
     const at: IAutoMovieVector3 =
       kind.anchor === "stance"
-        ? ExerciseKey.mean(body, standing, kind.pin)
+        ? shown
         : kind.anchor === "hips"
           ? ExerciseKey.mean(
               body,
@@ -267,6 +315,8 @@ export namespace workout {
         kind.pin,
         at,
       );
+      // A stance is where the body already stands.
+      if (kind.anchor === "stance") return footed(placed);
       // How far the body is on its support: carried there from standing.
       const down: number =
         s.a === ExerciseKey.STOOD

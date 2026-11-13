@@ -53,6 +53,9 @@ export interface WorkoutKind {
   /** The parts that bear while the body works, with how each bears. */
   supports: readonly WorkoutKind.ISupport[];
 
+  /** Whether a `stance` kind moves its bearing feet into a stance of its own (a split, a straddle); otherwise the feet that bear are held on the places they stand on at the entry. */
+  strides?: boolean;
+
   /** Whether every other repetition is done on the other side. */
   alternate?: boolean;
 

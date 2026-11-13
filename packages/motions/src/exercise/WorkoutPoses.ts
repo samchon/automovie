@@ -94,6 +94,8 @@ export namespace WorkoutPoses {
           20,
         ),
       ],
+      false,
+      true,
     ),
 
     /** A chest stretch: both straight arms opened behind the line of the shoulders, held 20 s. */
@@ -144,6 +146,7 @@ export namespace WorkoutPoses {
         ),
       ],
       true,
+      true,
     ),
 
     /** Warrior I of yoga: a split stance with the arms overhead, held 15 s. */
@@ -159,6 +162,8 @@ export namespace WorkoutPoses {
           15,
         ),
       ],
+      false,
+      true,
     ),
 
     /** The triangle of yoga: a straddle with the trunk bent to the side and the arms in one line, held 15 s. */
@@ -171,7 +176,7 @@ export namespace WorkoutPoses {
         0,
         15,
       ),
-    ]),
+    ], false, true),
 
     /** Warrior II of yoga: a straddle with the right thigh turned out and bent 60 degrees over an upright shank, the arms level to the sides, held 15 s; the straight leg's spread is solved so both feet stand. */
     warriorTwo: WorkoutStance.of(
@@ -191,6 +196,8 @@ export namespace WorkoutPoses {
           15,
         ),
       ],
+      false,
+      true,
     ),
 
     /** The standing half of a sun salutation: the arms raised, the trunk folded over the legs, lifted half way with a flat back, folded again and raised; the plank, the cobra and the dog that complete the flow are their own rows. */
@@ -248,6 +255,8 @@ export namespace WorkoutPoses {
           3,
         ),
       ],
+      false,
+      true,
     ),
 
     /** Karate's low block (gedan-barai) with the right arm. */

@@ -42,6 +42,7 @@ export namespace WorkoutStance {
    * @param reps Repetitions when the author names none.
    * @param route The postures of one repetition.
    * @param alternate Whether every other repetition is mirrored; `false` when absent.
+   * @param strides Whether the feet move into a stance of the kind's own; `false` when absent, and the bearing feet are then held where they stand.
    * @returns The kind.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input and the default.
@@ -59,6 +60,7 @@ export namespace WorkoutStance {
     reps: number,
     route: WorkoutKind["route"],
     alternate: boolean = false,
+    strides: boolean = false,
   ): WorkoutKind {
     return {
       base: "standing",
@@ -69,6 +71,7 @@ export namespace WorkoutStance {
       reps,
       route,
       alternate,
+      strides,
     };
   }
 
