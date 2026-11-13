@@ -9,6 +9,7 @@ import {
   HumanRefusal,
   type HumanSegment,
   HumanSignature,
+  HumanSword,
   type IHumanBody,
   type IHumanProp,
 } from "@automovie/motions";
@@ -36,9 +37,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    pell's target, and neither foot has left its place (5 mm).
  * 2. The same thrust at a pell 0.1 m to the side of the first: its point
  *    lands 0.1 m to the side of where the first landed, within 15 mm.
- * 3. A descending diagonal cut at a pell 25 degrees to the left: the pell's
- *    target is within 15 mm of the blade between guard and point, and over
- *    the frame before, the blade's landing part comes down more than 50 mm.
+ * 3. A descending diagonal cut at a pell 25 degrees to the left, the sword's
+ *    cut law itself (`HumanSword.cut`), since the lexicon's `cut` row fixes a
+ *    cut from straight above: the pell's target is within 15 mm of the blade
+ *    between guard and point, and over the frame before, the blade's landing
+ *    part comes down more than 50 mm.
  * 4. A lunge at a pell 25 degrees to the right, farther than the thrust's
  *    by 0.45 of the stature, the middle of the band a lunge's leading foot
  *    travels (a pell only a quarter of the stature farther leaves a lunge's
@@ -111,7 +114,7 @@ export function test_human_motion_blade_strokes(): void {
     });
     const film: HumanPerformance = new HumanPerformance({
       seed: "blade",
-      laws: Object.values(HumanBlade),
+      laws: [...Object.values(HumanBlade), HumanSword.cut],
       performers: [
         {
           subject: "a",
@@ -142,7 +145,7 @@ export function test_human_motion_blade_strokes(): void {
         })
         .registered("thrust", at("ahead"), "first")
         .registered("thrust", at("aside"), "second")
-        .registered("cut", { ...at("left"), from: "aboveForehand" }, "cut")
+        .registered("swordCut", { ...at("left"), from: "aboveForehand" }, "cut")
         .registered("lunge", at("right"), "lunge").node,
     });
     const act = (anchor: string): HumanSegment.ISegment =>
