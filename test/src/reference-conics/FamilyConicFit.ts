@@ -87,6 +87,15 @@ export namespace FamilyConicFit {
   /** Spacing of the stations at which every candidate must be an admissible chain, mm (`fit`). */
   const DENSE_MM: number = 0.25;
 
+  /**
+   * The least share of its chord at which every arc's two tangent lines must meet ahead of its start and behind its end (`AutoMovieViewChain`'s
+   * `a` and `b`), at every dense station, as fitted and as stored. Admissible at zero alone, a fit settles against that wall: f1's armpit slit
+   * cutter, fitted with the barrier, held `a` at 0 to 0.05 of the chord over its first sections and `b` at 0.02 over its groove, and the
+   * stored family, read by the engine's spline between its stations, was refused ("the tangent lines meet behind the end", `b` -0.006). A part
+   * may ask for less (`IPart.margin`) where a tight groove needs it.
+   */
+  export const ADMISSIBLE_MARGIN: number = 0.1;
+
   /** `--barrier`: the first barrier weight as a share of the starting misfit per margin, and how many tenfold falls follow it. */
   const BARRIER_SHARE: number = 0.01;
   const BARRIER_LEVELS: number = 4;
@@ -142,8 +151,9 @@ export namespace FamilyConicFit {
    * @param layout The anchors of every section.
    * @param power Residual power of the final reweighted passes; 2 is plain least squares, larger values pull the maximum down.
    * @param initial Knot values to start from, by field then knot, for these knots and this depth; absent starts from each section's own reading.
+   * @param margin The least share of its chord at which every arc's tangent lines must meet (`ADMISSIBLE_MARGIN`).
    */
-  export function fit(rows: readonly IRow[], knots: readonly number[], layout: C.ILayout, power: number = 2, initial?: readonly (readonly number[])[]): IResult {
+  export function fit(rows: readonly IRow[], knots: readonly number[], layout: C.ILayout, power: number = 2, initial?: readonly (readonly number[])[], margin: number = ADMISSIBLE_MARGIN): IResult {
     const started: number = performance.now();
     const units: C.Unit[] = C.units(layout);
     const F: number = units.length;
@@ -208,9 +218,26 @@ export namespace FamilyConicFit {
     // candidate must be admissible as stored as well: on the hand's end a feature's heading within 5e-5 of its neighbour extreme's axis
     // rounded to exactly parallel, the median between them fell on its chord and the engine refused the stored wall (`a` of 0 at 448 mm).
     const stored = (values: number[][]): number[][] => values.map((field: number[], f: number): number[] => field.map((y: number): number => (units[f] === "mm" ? Math.round(y * 100) / 100 : Math.round(y * 1e4) / 1e4)));
+    // Every arc's two tangent-meeting distances over unit tangents, as shares of its chord: what `ADMISSIBLE_MARGIN` holds.
+    const meeting = (t: number[]): number => {
+      const input = C.resolve(t, layout).input;
+      const points: number[][] = input.points as number[][];
+      const tangents: number[][] = input.tangents as number[][];
+      let least: number = Infinity;
+      for (let j: number = 0; j < points.length; ++j) {
+        const [p0, p2, t0, t2] = [points[j]!, points[(j + 1) % points.length]!, tangents[j]!, tangents[(j + 1) % points.length]!];
+        const [n0, n2]: number[] = [Math.hypot(t0[0]!, t0[1]!), Math.hypot(t2[0]!, t2[1]!)];
+        const [u, w]: number[][] = [[t0[0]! / n0, t0[1]! / n0], [t2[0]! / n2, t2[1]! / n2]];
+        const den: number = u[0]! * w[1]! - u[1]! * w[0]!;
+        const d: number[] = [p2[0]! - p0[0]!, p2[1]! - p0[1]!];
+        const chord: number = Math.hypot(d[0]!, d[1]!);
+        least = Math.min(least, (d[0]! * w[1]! - d[1]! * w[0]!) / den / chord, (u[0]! * d[1]! - u[1]! * d[0]!) / den / chord);
+      }
+      return Number.isFinite(least) ? least : -Infinity;
+    };
     const admissible = (values: number[][]): boolean => {
       const rounded: number[][] = stored(values);
-      return dense.every((b: number[]): boolean => C.chain(theta(values, b), layout).fault === null && C.chain(theta(rounded, b), layout).fault === null);
+      return dense.every((b: number[]): boolean => C.chain(theta(values, b), layout).fault === null && C.chain(theta(rounded, b), layout).fault === null && meeting(theta(values, b)) >= margin && meeting(theta(rounded, b)) >= margin);
     };
     // `--barrier`: an interior-point term over the same stations (Nocedal and Wright, ch. 19). The margins of a chain are what its
     // admissibility asks to be positive: every arc's two tangent-meeting distances (`AutoMovieViewChain`'s `a` and `b`, mm) and every

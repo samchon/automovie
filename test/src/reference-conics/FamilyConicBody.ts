@@ -715,6 +715,9 @@ namespace FamilyConicBody {
      */
     pocket?: number;
 
+    /** The least share of its chord at which every arc's tangent lines must meet in the fit (`FamilyConicFit.ADMISSIBLE_MARGIN`); absent, that default. A tight groove may need less. */
+    margin?: number;
+
     /**
      * For a cutter of a slit between two parts: each section is the air round the course point, read along rays to the nearest crossing of
      * the plane's skin, capped below by a floor `floor` mm under a band of the figure (both `[x, value]` in planes x = const, joined
@@ -1343,7 +1346,7 @@ namespace FamilyConicBody {
       let spliced: { tail: K.IStored; at: number; head: IAutoMovieLoftRelief[] } | null = null;
       const trail: unknown[] = [];
       const attempt = (knots: number[], layout: C.ILayout, initial: number[][] | undefined, note: string, power: number = 4): F.IResult => {
-        const result: F.IResult = F.fit(rows, knots, layout, power, initial);
+        const result: F.IResult = F.fit(rows, knots, layout, power, initial, part.margin);
         const row = { note, fields: result.layout.anchors.length === 0 ? 0 : C.units(layout).length, knots: knots.length, scalars: knots.length * (1 + C.units(layout).length), trainMaxMm: round(result.training.maximumMm), trainMeanMm: round(result.training.meanMm), heldMaxMm: round(result.heldout.maximumMm), heldMeanMm: round(result.heldout.meanMm), fault: result.fault, ms: Math.round(result.milliseconds) };
         trail.push(row);
         log("family-body-candidate", { part: part.name, ...row });
