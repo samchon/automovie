@@ -290,7 +290,16 @@ namespace FamilyConicBody {
   /** The pinna's course (`--pinna=<json>`), through the root of each section, so its course point lies inside every section and its rays see the skin. */
   const PINNA: R.V[] = JSON.parse(process.argv.find((a: string): boolean => a.startsWith("--pinna="))?.slice("--pinna=".length) ?? "[[16,1540,70],[5,1560,69],[4,1575,70],[10,1590,73],[11,1604,75]]");
   const PINNA_HALVES: number[] = JSON.parse(process.argv.find((a: string): boolean => a.startsWith("--pinna-halves="))?.slice("--pinna-halves=".length) ?? "[4,4,4]");
-  /** The pinna's fitted stations (`--pinna-domain`), mm above 1,538 mm, its least knot gap, its limb depth and its grooves. */
+  /**
+   * The pinna's fitted stations (`--pinna-domain`), mm along its course, its least knot gap, its limb depth and its grooves
+   * (`--pinna-grooves=<anchor indices>`, `FamilyConicSection.inflected`).
+   *
+   * Where a groove may stand, measured on the pinna's upper sections with `limb(1)` (anchors `+u, m, +v, m, -u, m, -v, m`): after a `u`
+   * guide (anchors 0 and 4) the projected seed is an admissible chain; after a `v` guide or a median (1, 2, 3, 5, 6, 7) it is not, since the
+   * groove's first inflection then stands on the chord from a median to the next guide, an arc already halved, whose end tangents leave the
+   * inflection's tangent no room to turn back and keep both arcs' tangent lines meeting ahead. Place a groove after the guide whose arc the
+   * section bends inward on, and read where that is with `--kernels` and the sections' sign changes (`FamilyConicExcursion.inflections`).
+   */
   const PINNA_DOMAIN: number[] = (process.argv.find((a: string): boolean => a.startsWith("--pinna-domain="))?.slice("--pinna-domain=".length) ?? "6,58").split(",").map(Number);
   const PINNA_GAP: number = Number(process.argv.find((a: string): boolean => a.startsWith("--pinna-gap="))?.slice("--pinna-gap=".length) ?? 4);
   const PINNA_DEPTH: number = Number(process.argv.find((a: string): boolean => a.startsWith("--pinna-depth="))?.slice("--pinna-depth=".length) ?? 1);
@@ -1147,6 +1156,14 @@ namespace FamilyConicBody {
         const cutLoop: C.P[] | null = cut(frame, s);
         const starred: { points: C.P[]; folds: number } | null = part.skin === undefined || cutLoop === null ? null : X.star(cutLoop, SKIN_RAYS, part.skin);
         if (part.skin !== undefined && cutLoop !== null) star.push({ s, folds: starred === null ? -1 : starred.folds });
+        // `--kernels`: each section's kernel point (the centre of its largest inscribed circle) in the world, and how many of 720 rays from
+        // it and from the course point cross the section more than once, to lay a course through the kernels before fitting the skin.
+        if (process.argv.includes("--kernels") && cutLoop !== null) {
+          const core: { point: C.P; clearance: number } = X.kernel(cutLoop);
+          const world: number[] = [0, 1, 2].map((k: number): number => frame.origin[k]! + core.point[0] * frame.u[k]! + core.point[1] * frame.v[k]!);
+          const shifted: C.P[] = cutLoop.map((p: C.P): C.P => [p[0] - core.point[0], p[1] - core.point[1]]);
+          log("family-body-kernel", { part: part.name, s, kernel: world.map(round), clearanceMm: round(core.clearance), foldsFromKernel: X.star(shifted, SKIN_RAYS, "inner")?.folds ?? -1, foldsFromCourse: X.star(cutLoop, SKIN_RAYS, "inner")?.folds ?? -1 });
+        }
         const loop: C.P[] | null = part.skin === undefined ? cutLoop : (starred?.points ?? null);
         if (loop === null) skipped.push(s);
         else if (part.skin !== undefined) {
