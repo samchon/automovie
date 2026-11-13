@@ -12,6 +12,7 @@ import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanProp } from "../perform/IHumanProp";
+import { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
@@ -447,10 +448,12 @@ export namespace HumanRide {
                 context.body,
                 pedal.side,
 
-                // A pedalling foot faces the way the body does and its knee tracks ahead of its hip, over the pedal, whichever way the leg came onto it.
+                // A pedalling foot bears on its ball, so where the ankle cannot give the foot its turn (at the top of the stroke) the ball stays on the pedal and the turn gives way; its knee tracks ahead of its hip, over the pedal, whichever way the leg came onto it.
                 {
                   ...goal,
-                  rotation: resolveHumanPosture.heading(out),
+                  contact:
+                    goal.contact ??
+                    HumanFoot.offset(context.body, pedal.side, "ball"),
                   bend: Vector3.add(
                     hips[pedal.side],
                     Quaternion.rotateVector(resolveHumanPosture.heading(out), {

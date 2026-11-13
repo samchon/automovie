@@ -160,8 +160,8 @@ export namespace lieDown {
 
     // Seated cross-legged, and with the legs folded to the right and the trunk leant to the left hand (provisional angles). The legs here are only what the pelvis is rested on the floor with: a thigh both flexed level and spread is not a set of these angles, so `floorSeat` folds the legs by goals on the floor.
     sitCrossed: pose(0, 0, { hip: 90, knee: 5, shoulder: 10, elbow: 40 }),
-    sitSide: bent(pose(0, -8, { hip: 90, knee: 5, shoulder: 0, elbow: 20 }), [
-      -20, -10,
+    sitSide: bent(pose(0, 0, { hip: 90, knee: 5, shoulder: 0, elbow: 20 }), [
+      -25, -15,
     ]),
   };
 
@@ -386,9 +386,6 @@ export namespace lieDown {
         ...posture.joints,
         spine: [spine[0], spine[1] + side[0], spine[2]],
         chest: [chest[0], chest[1] + side[1], chest[2]],
-
-        // The arm on the bent side is held out from the trunk, so the body is rested on the floor by its seat and not by a hand hanging under it; the hand is then set down by its goal.
-        leftUpperArm: [0, 45, 0],
       },
     };
   }
