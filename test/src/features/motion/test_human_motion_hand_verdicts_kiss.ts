@@ -21,7 +21,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * With the hand upright before the face the forearm's turn stood at the end of its range and the arm's fit changed its solution between instants; the hand now leans half way to level.
  *
  * Scenarios:
- * 1. A clean report on the small woman at 6 samples a second: the report quarters every interval a joint departs in, so a step is found on a coarse grid too, and the finer grid only costs time.
+ * 1. A clean report on the small woman at 24 samples a second, the product's rate: the bounds read only at grid instants (a part inside another, a foot off the floor or sliding, a joint past its range, a partner entered, the balance) are read at every frame of film, and a step between them is quartered as well.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Registers the lexicon, performs the row through the public chain and reads the shipped verdict report on the displayed film; a part inside another, a joint that steps or a bone that spins fails with the finding's place.
  * @evidence contracts/development/testing.md#independent-expectations The bounds are the verdict report's own, which hold for any human motion; none is read from the row.
@@ -48,7 +48,7 @@ export function test_human_motion_hand_verdicts_kiss(): void {
         .stand({ seconds: 0.3 })
         .registered("blownKiss", {}).node,
     }),
-    6,
+    24,
   );
   TestValidator.equals(
     "a blown kiss holds the physical bounds",

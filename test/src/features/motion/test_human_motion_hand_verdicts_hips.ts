@@ -21,7 +21,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * The arm's transport once asked the fit for a hand part way along a nearly straight arm, which let the elbow change sides for an instant, and the fingers took their shape in one step; the arm is now carried in joint angles and the fingers with it.
  *
  * Scenarios:
- * 1. A clean report on the small woman at 6 samples a second: the report quarters every interval a joint departs in, so a step is found on a coarse grid too, and the finer grid only costs time.
+ * 1. A clean report on the small woman at 24 samples a second, the product's rate: the bounds read only at grid instants (a part inside another, a foot off the floor or sliding, a joint past its range, a partner entered, the balance) are read at every frame of film, and a step between them is quartered as well.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Registers the lexicon, performs the row through the public chain and reads the shipped verdict report on the displayed film; a part inside another, a joint that steps or a bone that spins fails with the finding's place.
  * @evidence contracts/development/testing.md#independent-expectations The bounds are the verdict report's own, which hold for any human motion; none is read from the row.
@@ -48,7 +48,7 @@ export function test_human_motion_hand_verdicts_hips(): void {
         .stand({ seconds: 0.3 })
         .registered("handsOnHips", {}).node,
     }),
-    6,
+    24,
   );
   TestValidator.equals(
     "hands on hips hold the physical bounds",

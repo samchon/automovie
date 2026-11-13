@@ -190,7 +190,8 @@ export namespace HumanVerdicts {
         who,
         who,
         "range",
-        AutoMovieMotionHumanAuditRange.measure(performance, who, 6).overshoot,
+        AutoMovieMotionHumanAuditRange.measure(performance, who, rate)
+          .overshoot,
         0.01,
       );
       measured(
