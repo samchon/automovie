@@ -1,55 +1,63 @@
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { motionHumanSignature as M } from "../internal/motionHumanSignature";
+import type { motionComplaints } from "./motionComplaints";
+import type { motionHumanBody } from "./motionHumanBody";
+import { motionHumanSignature as M } from "./motionHumanSignature";
 
 /**
- * Climbing stairs looks like human stair walking, on the four extreme bodies
+ * The stair-walking signature of one body (the specs
+ * `test_human_motion_signature_climb_stairs_<body>`): the stair law performed
  * up and down four stairs, step over step and step by step, leading with
- * either foot.
+ * either foot, and read against McFadyen and Winter's stair kinematics (1988,
+ * J Biomech 21:733).
  *
- * Bounds and sources (McFadyen and Winter 1988, J Biomech 21:733, the
- * reference kinematics of stair ascent and descent):
- * - Ascent trunk: the trunk inclines forward on the way up, more than on
- *   level ground. Bound: mean inclination from the first toe-off to the
- *   arrival in [2, 20] degrees (provisional limits; McFadyen and Winter and
- *   later studies report a few degrees to about ten).
- * - Ascent swing: the swinging knee folds to about 90 to 100 degrees to lift
- *   the foot over the nosing. Bound: peak knee flexion of the leg that swings
- *   to each tread at least 80 degrees (provisional lower limit).
- * - Ascent contact: the leading knee lands on the tread flexed about 60
- *   degrees. Bound: the knee of the landing foot at each tread contact in
- *   [45, 80] degrees (provisional limits around the reported value).
+ * - Ascent trunk: mean inclination from the first toe-off to the arrival in
+ *   [2, 20] degrees (provisional limits; the studies report a few degrees to
+ *   about ten).
+ * - Ascent swing: peak knee flexion of the leg that swings to each tread at
+ *   least 80 degrees (provisional lower limit).
+ * - Ascent contact: the knee of the landing foot at each tread contact in
+ *   [45, 80] degrees (provisional limits around the reported value, about 60).
  * - The step values apply to a foot that lands on another tread than the
  *   other foot; a foot brought level with the other (each second step of
  *   step-by-step, the closing step onto a landing) is a step-to and is not
  *   read.
- * - Descent: the supporting knee flexes to about 90 degrees as the body is
- *   lowered to the next tread. Bound: peak knee flexion over each step at
- *   least 70 degrees (provisional lower limit).
+ * - Descent: peak supporting knee flexion over each step at least 70 degrees
+ *   (provisional lower limit).
  *
  * The trunk is read as the line from the hip joints' midpoint to the
- * shoulder joints' midpoint, the trunk segment of the cited studies, and
- * the quiet stance must read within 3 degrees of vertical under it
- * (Kendall et al. 2005, ideal alignment; `motionHumanSignature.calibrate`).
+ * shoulder joints' midpoint, and the quiet stance must read within 3 degrees
+ * of vertical under it (Kendall et al. 2005; `motionHumanSignature.calibrate`).
  *
- * @evidence contracts/development/testing.md#behavioral-verification Performs the real stair law on real bodies and reads displayed joints at its own tread contacts; a trunk tipped back on the way up, a stiff swing or a landing on a straight knee fails with its cell, value, bound and source.
- * @evidence contracts/development/testing.md#independent-expectations Every bound is from McFadyen and Winter's stair kinematics or marked provisional with its reason.
- * @evidence contracts/development/testing.md#distinguishing-cases Both directions, both patterns and both lead feet on four bodies.
- * @evidence contracts/development/testing.md#execution-ownership In memory; slow because a film of fitted poses is costly; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
- * @evidence contracts/development/common.md#meaningful-documentation States every bound with its source and status.
+ * @evidence contracts/development/common.md#meaningful-documentation States every bound with its source and status, and how the specs share the reading.
+ * @evidence contracts/development/implementation.md#principled-implementation Reads displayed joints at the law's own tread contacts; every bound is from the cited stair kinematics or marked provisional.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One reader over the rows of one body.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A row whose law names no tread contacts is a complaint, never skipped.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Seven films of one body, read at their tread contacts and on a 30 Hz grid for the trunk.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Films and readings come from `motionHumanSignature`.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps nothing once read.
  */
-export function test_human_motion_signature_climb_stairs(): void {
-  const complaints: motionComplaints.IGatherer = motionComplaints();
-  for (const name of motionHumanBody.EXTREMES)
-    for (const row of [
-      "default",
-      "direction=up",
-      "direction=down",
-      "pattern=stepOverStep",
-      "pattern=stepByStep",
-      "lead=left",
-      "lead=right",
-    ]) {
+export namespace motionHumanStairSignature {
+  /** The rows read: both directions, both patterns and both lead feet. */
+  export const ROWS: readonly string[] = [
+    "default",
+    "direction=up",
+    "direction=down",
+    "pattern=stepOverStep",
+    "pattern=stepByStep",
+    "lead=left",
+    "lead=right",
+  ];
+
+  /**
+   * Read one body's stair signature into a gatherer.
+   *
+   * @param name The body.
+   * @param complaints Receives every check.
+   */
+  export function read(
+    name: motionHumanBody.Name,
+    complaints: motionComplaints.IGatherer,
+  ): void {
+    for (const row of ROWS) {
       const cell: string = `climbStairs ${row} ${name}`;
       const up: boolean = row !== "direction=down";
       const s: M.IStaged = M.stage("climbStairs", row, name);
@@ -71,8 +79,9 @@ export function test_human_motion_signature_climb_stairs(): void {
       }
       const end: number = M.event(s, "arrived") ?? s.film.duration;
       if (up) {
-        const lean: number = M.mean(M.times(offs[0]!, end, 30), (t) =>
-          M.trunk(s, t),
+        const lean: number = M.mean(
+          M.times(offs[0]!, end, 30),
+          (t: number): number => M.trunk(s, t),
         );
         complaints.check(
           `${cell}: mean trunk inclination ${lean.toFixed(2)} deg on the way up outside [2, 20] (McFadyen and Winter 1988; provisional)`,
@@ -114,7 +123,6 @@ export function test_human_motion_signature_climb_stairs(): void {
           );
       });
     }
-  for (const name of motionHumanBody.EXTREMES)
     for (const c of M.calibrate(name)) complaints.check(c, false);
-  complaints.assert("the stairs have the signature of stair walking");
+  }
 }

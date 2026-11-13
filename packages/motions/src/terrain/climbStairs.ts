@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { minimumJerk } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
@@ -24,6 +24,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { climbStairsFlight } from "./climbStairsFlight";
+import { climbStairsPelvis } from "./climbStairsPelvis";
 
 /**
  * Climbing a flight of stairs up or down from standing before its first
@@ -43,7 +44,8 @@ import { climbStairsFlight } from "./climbStairsFlight";
  * (`AutoMovieMotionHumanClearance`): ascending it lifts beside the riser and
  * follows the line of the nosings, descending it moves forward and lowers
  * once its heel is past the nosing. The pelvis moves between the stances on
- * minimum-jerk progress over the middle of the two feet. Its height at a
+ * minimum-jerk progress over the middle of the two feet, half a step behind
+ * them over the floor (`climbStairsPelvis`). Its height at a
  * stance is the highest from which both legs reach their feet, so the lower
  * foot's leg is straight and the upper one's bent; it changes while a foot
  * swings and holds in double support, and is lowered wherever either leg,
@@ -388,27 +390,12 @@ export namespace climbStairs {
       }
       return { placement: list.at(-1)!.print.placement, planted: true };
     };
-    const rootAt = (seconds: number): IAutoMovieVector3 => {
-      for (let j: number = 1; j <= steps.length; j++) {
-        const end: number = clock.at(`treadContact${j}`);
-        if (seconds <= end) {
-          const begin: number = j === 1 ? 0 : clock.at(`treadContact${j - 1}`);
-          const u: number = minimumJerk(
-            Math.min(1, Math.max(0, (seconds - begin) / (end - begin))),
-          ).s;
-          // The height changes while the foot swings: in double support
-          // both planted legs hold it.
-          const lift: number = minimumJerk(
-            clock.linear(`toeOff${j}`, `treadContact${j}`, seconds),
-          ).s;
-          return {
-            ...Vector3.lerp(stance[j - 1]!, stance[j]!, u),
-            y: stance[j - 1]!.y + (stance[j]!.y - stance[j - 1]!.y) * lift,
-          };
-        }
-      }
-      return stance.at(-1)!;
-    };
+    const rootAt: (seconds: number) => IAutoMovieVector3 = climbStairsPelvis.of(
+      stance,
+      clock,
+      steps.length,
+      duration,
+    );
 
     // The trunk inclines forward over the climb, more ascending than on the
     // level, and is shared by the pelvis and the spine.
