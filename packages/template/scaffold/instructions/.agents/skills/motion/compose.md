@@ -38,6 +38,8 @@ The vocabulary joins actions with a few operators:
 | An action on an object, such as sitting on it, gripping it, opening it or riding it | Attaching the action to the object's [affordance](../development/entities.md#objects) |
 | An action timed to another's instant, a partner, a line of dialogue or a beat | A sync between the named instants |
 
+An action that follows, chases, escorts or meets a moving person reads where that person goes, so compose the person pursued before the pursuer; the vocabulary refuses the read otherwise.
+
 ## Seed
 
 Every performance takes the film's [one seed](../development/source-layout.md#how-the-parts-work-together). The vocabulary draws each variation from the seed, the person and the action, so people given the same action already differ and a crowd needs no offsets set by hand.
