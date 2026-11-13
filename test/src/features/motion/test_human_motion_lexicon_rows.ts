@@ -63,6 +63,11 @@ export function test_human_motion_lexicon_rows(): void {
     },
   };
 
+  const ball: object = {
+    ball: { kind: "point", at: { x: 0, y: 0.11, z: 0.45 }, frame: "world" },
+    toward: { kind: "point", at: { x: 0, y: 0, z: 5 }, frame: "world" },
+  };
+
   // What a row done alone leaves open.
   const alone: Readonly<Record<string, object>> = {
     stroll: ahead,
@@ -91,6 +96,13 @@ export function test_human_motion_lexicon_rows(): void {
     stir: bench,
     screw: bench,
     scrub: bench,
+    // The reload's palm goes to the performer's own abdomen, standing in
+    // for a magazine well; a kick has its ball on the floor ahead.
+    reloadFirearm: { target: { kind: "self", region: "abdomen" } },
+    kickRight: ball,
+    kickLeft: ball,
+    leap: { to: { x: 0, y: 0, z: 0.6 } },
+    dash: { to: { x: 0, y: 0, z: 4 } },
   };
 
   // The partner's distance and what a row done on a partner leaves open.
@@ -109,7 +121,9 @@ export function test_human_motion_lexicon_rows(): void {
         other: { kind: "person", subject: "b", region: "neckLeft" },
       },
     ],
-    hairPull: [0.5, on("crown")],
+    // A hand in the hair is closed up to, as a slap is, and takes the hair
+    // at the side of the head, which a small person reaches on a tall one.
+    hairPull: [0.35, on("templeLeft")],
     struggle: [
       0.5,
       {
@@ -137,8 +151,13 @@ export function test_human_motion_lexicon_rows(): void {
     takeAim: [3, on("sternum")],
     toss: [3, at("sternum")],
     hurl: [6, at("sternum")],
+    pitch: [6, at("sternum")],
+    underarmPitch: [3, at("sternum")],
+    pushPass: [3, at("sternum")],
     cut: [0.7, { ...on("shoulderLeft"), advance: "step" }],
-    draw: [0.7, { ...on("forearmLeft"), advance: "step" }],
+    // A rising cut lands on the flank; a hanging forearm of a small partner
+    // lies below what a tall one's bare hand reaches without stooping.
+    draw: [0.7, { ...on("ribsLeft"), advance: "step" }],
     slash: [0.7, { ...on("abdomen"), advance: "step" }],
     swordCut: [0.7, { ...on("shoulderLeft"), advance: "step" }],
     swordThrust: [0.75, { ...on("sternum"), advance: "step" }],
@@ -225,9 +244,17 @@ export function test_human_motion_lexicon_rows(): void {
     laws.forEach((law: IHumanActionLaw<never>, index: number): void => {
       // A ride and a carry need their support; each has its own scenario.
       // A firearm drawn or holstered needs the prop it takes, which the
-      // firearm tests stage.
+      // firearm tests stage. A catch needs a throw to intercept, which the
+      // throwing tests stage.
       if (
-        ["ride", "carried", "drawFirearm", "holsterFirearm"].includes(law.name)
+        [
+          "ride",
+          "carried",
+          "drawFirearm",
+          "holsterFirearm",
+          "gloveCatch",
+          "twoHandCatch",
+        ].includes(law.name)
       )
         return;
       const scene: readonly [number, object] | undefined = paired[law.name];

@@ -87,7 +87,7 @@ export namespace HumanStageFight {
   /** A headlock or a choke from behind: the clinch's hold on the partner's neck, kept two seconds (provisional). */
   export const headlock = HumanActionRow.of("headlock", clinch, { hold: 2 });
 
-  /** A hair pull: the hand closed on the crown or the nape the composition names and held; the receiver's `grabbed` follows it. */
+  /** A hair pull: the hand closed on the crown, the temple or the nape the composition names and held; the receiver's `grabbed` follows it. The puller stands as close as for a slap: the row does not close the distance itself, and a region beyond the arm is refused. */
   export const hairPull = HumanActionRow.of("hairPull", touch, {
     with: "palm",
     kind: "squeeze",

@@ -259,6 +259,17 @@ export namespace sit {
         support: { kind: "ground" },
       },
     ];
+
+    // Each hand that has an armrest bears on it from 60 % of the descent, before the seat takes the body.
+    for (const side of ["left", "right"] as const)
+      if (seat.armrests?.[side] !== undefined)
+        contacts.push({
+          part: `${side}Hand`,
+          kind: "plant",
+          from: (0.6 * descent) / duration,
+          to: 1,
+          support: { kind: "ground" },
+        });
     return {
       duration,
       events: [
@@ -328,6 +339,19 @@ export namespace sit {
           joints: tilt.joints,
           limbs: legsAt(root, yaw, t),
         });
+        // A hand goes to its armrest before the seat is reached and bears on it from then; a hand with none goes to its thigh.
+        if (seat.armrests !== undefined)
+          return seated.onArmrests(
+            body,
+            seated.arms(
+              body,
+              posture,
+              minimumJerk((t - 0.5 * descent) / (0.5 * descent)).s,
+            ),
+            seat.armrests,
+            seat.yaw,
+            minimumJerk((t - 0.2 * descent) / (0.4 * descent)).s,
+          );
         return seated.arms(
           body,
           posture,

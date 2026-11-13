@@ -14,6 +14,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanArmClearance } from "../posture/HumanArmClearance";
+import { HumanArmClearing } from "../posture/HumanArmClearing";
 import type { HumanColliders } from "../posture/HumanColliders";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
@@ -361,7 +362,7 @@ export namespace AutoMovieMotionHumanArm {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States both ends, what is blended, why and what the result holds.
    * @evidence contracts/development/implementation.md#principled-implementation Free arm movements are smooth in joint space (Soechting and Lacquaniti 1981), so the transport blends the joints of the two ends and solves the goal only to read its joints; `blendHumanJoint` blends a ball joint as a rotation, which does not depend on the chart its triple is written in, and a joint with fewer freedoms angle by angle.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture solve, then three blended joints and one clearance per arm, each arm cleared in the pose the arms before it were written into.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture solve, then three blended joints and one clearing course per arm (`HumanArmClearing.course`, solved at fixed shares of the carry so the turn does not step between two instants), each arm cleared in the pose the arms before it were written into.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shoulder takes the shorter arc between its two rotations, so neither a twist near 180 degrees nor a solution in its other chart swings the arm; the share is clamped so the arm cannot pass either end.
    * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve for both arms, and none at either end.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `resolveHumanPosture`, `angles`, `blendHumanJoint` and `HumanArmClearance`.
@@ -389,39 +390,58 @@ export namespace AutoMovieMotionHumanArm {
     for (const side of sides) {
       const held: IAngles = from[side]!;
       const goal: IAngles = solved === null ? held : angles(solved, side);
-      const blend = (
-        bone: AutoMovieHumanoidBone,
-        a: readonly [number, number, number],
-        b: readonly [number, number, number],
-      ): void => {
-        joints[bone] = blendHumanJoint(body, bone, a, b, s);
-      };
-      blend(`${side}UpperArm`, held.upper, goal.upper);
-      blend(`${side}LowerArm`, held.lower, goal.lower);
-      blend(`${side}Hand`, held.hand, goal.hand);
+      const plain = (share: number): HumanArmClearance.IArm => ({
+        upper: blendHumanJoint(
+          body,
+          `${side}UpperArm`,
+          held.upper,
+          goal.upper,
+          share,
+        ),
+        lower: blendHumanJoint(
+          body,
+          `${side}LowerArm`,
+          held.lower,
+          goal.lower,
+          share,
+        ),
+        hand: blendHumanJoint(body, `${side}Hand`, held.hand, goal.hand, share),
+      });
+      let arm: HumanArmClearance.IArm = plain(s);
       // Between two arms that clear the body the blended one may not, so its
       // elbow is let out by as much as the forearm lacks; each end keeps the
       // room it holds, so the carry leaves and joins them without a step.
+      // The turn is one course over the carry (`HumanArmClearing.course`),
+      // so two neighbouring instants read neighbouring arms.
       if (current !== null) {
+        const pose: IAutoMoviePose = current;
         const others: readonly HumanColliders.IPlaced[] =
           posture.limbs[`${side}Arm`]?.clear ?? [];
-        const clear: HumanArmClearance.IArm = HumanArmClearance.cleared(
-          body,
-          current,
-          side,
-          {
-            upper: joints[`${side}UpperArm`]!,
-            lower: joints[`${side}LowerArm`]!,
-            hand: joints[`${side}Hand`]!,
-          },
-          HumanArmClearance.room(body, current, side, held, others) * (1 - s) +
-            HumanArmClearance.room(body, current, side, goal, others) * s,
-          others,
-        );
-        joints[`${side}UpperArm`] = clear.upper;
-        joints[`${side}LowerArm`] = clear.lower;
-        current = HumanArmClearance.posed(current, side, clear);
+        const ends: readonly [number, number] = [
+          HumanArmClearance.room(body, pose, side, held, others),
+          HumanArmClearance.room(body, pose, side, goal, others),
+        ];
+        arm = HumanArmClearing.course({
+          plain,
+          share: s,
+          clear: (
+            of: HumanArmClearance.IArm,
+            share: number,
+          ): HumanArmClearance.IArm =>
+            HumanArmClearance.cleared(
+              body,
+              pose,
+              side,
+              of,
+              ends[0] * (1 - share) + ends[1] * share,
+              others,
+            ),
+        });
+        current = HumanArmClearance.posed(pose, side, arm);
       }
+      joints[`${side}UpperArm`] = arm.upper;
+      joints[`${side}LowerArm`] = arm.lower;
+      joints[`${side}Hand`] = arm.hand;
       delete limbs[`${side}Arm`];
     }
     return { ...posture, joints, limbs };

@@ -51,7 +51,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    Exerc 33:127).
  * 5. `lieStill` ends with the hip joints, the neck and the head all within
  *    0.15 statures of the floor (a lying trunk is one body depth thick, and
- *    the share is provisional).
+ *    the share is provisional). `sitOnFloor`, `sitCrossLegged` and
+ *    `sitSideways` end with the hip joints within that share of the floor
+ *    and the head above 0.35 statures: seated, not lying (an adult's sitting
+ *    height is about half the stature; the share is a provisional floor).
  * 6. `startle` raises a wrist further than `wince` does (a flinch grows with
  *    its intensity).
  *
@@ -249,6 +252,14 @@ export function test_human_motion_base_poses(): void {
             complaints.push(
               `${label}: the ${part} ends ${height.toFixed(3)} m above the floor, within ${(0.15 * stature).toFixed(3)} m expected`,
             );
+      }
+
+      // 5. Seated on the floor: the hips down, the head up.
+      if (["sitOnFloor", "sitCrossLegged", "sitSideways"].includes(row)) {
+        if (hips(end) > 0.15 * stature || y("head", end) < 0.35 * stature)
+          complaints.push(
+            `${label}: the hips end ${hips(end).toFixed(3)} m and the head ${y("head", end).toFixed(3)} m above the floor; the hips within ${(0.15 * stature).toFixed(3)} m and the head above ${(0.35 * stature).toFixed(3)} m expected`,
+          );
       }
 
       // 6. How far a wrist rises.

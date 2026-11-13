@@ -1,12 +1,15 @@
 import { createDrinkware } from "@automovie/archetypes";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanArm,
+  HumanArmClearance,
   HumanChain,
+  type HumanColliders,
   HumanObject,
   HumanPerformance,
   type IHumanBody,
   type IHumanPosture,
+  blendHumanJoint,
   poseBones,
   resolveHumanPosture,
 } from "@automovie/motions";
@@ -101,13 +104,7 @@ export function test_human_motion_core_arm_carry_course(): void {
     wrist: IAutoMovieVector3;
     joints: string;
   }
-  const triple = (
-    angles: readonly [number, number, number] | undefined,
-  ): string =>
-    angles === undefined
-      ? "goal"
-      : angles.map((a: number): string => a.toFixed(1)).join("/");
-  const read = (share: number): IReading => {
+  const read =(share: number): IReading => {
     const posture: IHumanPosture = AutoMovieMotionHumanArm.carry(
       body,
       goal,
@@ -123,6 +120,12 @@ export function test_human_motion_core_arm_carry_course(): void {
   };
   const solved: AutoMovieMotionHumanArm.IAngles =
     AutoMovieMotionHumanArm.angles(resolveHumanPosture(body, goal), "right");
+  const triple = (
+    angles: readonly [number, number, number] | undefined,
+  ): string =>
+    angles === undefined
+      ? "goal"
+      : angles.map((a: number): string => a.toFixed(1)).join("/");
   const gap = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
     Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
   const SHARES: number = 200;
@@ -140,11 +143,49 @@ export function test_human_motion_core_arm_carry_course(): void {
   for (let k: number = 1; k <= SHARES; k++)
     length += gap(readings[k]!.wrist, readings[k - 1]!.wrist);
   const mean: number = length / SHARES;
+  // The room the plain blend of the two ends lacks at a share, with the
+  // upper arm let out by 0 to 15 degrees, against the share's allowance: what
+  // the carry's clearing reads, so a failing row shows what it answered.
+  const pose: IAutoMoviePose = resolveHumanPosture(body, goal);
+  const others: readonly HumanColliders.IPlaced[] =
+    goal.limbs.rightArm?.clear ?? [];
+  const lacking = (share: number): string => {
+    const upper: readonly [number, number, number] = blendHumanJoint(
+      body,
+      "rightUpperArm",
+      held.upper,
+      solved.upper,
+      share,
+    );
+    const arm = (out: number): HumanArmClearance.IArm => ({
+      upper: [upper[0], upper[1] + out, upper[2]],
+      lower: blendHumanJoint(
+        body,
+        "rightLowerArm",
+        held.lower,
+        solved.lower,
+        share,
+      ),
+      hand: blendHumanJoint(body, "rightHand", held.hand, solved.hand, share),
+    });
+    const allowed: number =
+      HumanArmClearance.room(body, pose, "right", held, others) * (1 - share) +
+      HumanArmClearance.room(body, pose, "right", solved, others) * share;
+    return `allowance ${allowed.toFixed(3)}, room lacked at 0 to 15 degrees out: ${[
+      0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+    ]
+      .map((out: number): string =>
+        HumanArmClearance.room(body, pose, "right", arm(out), others).toFixed(
+          3,
+        ),
+      )
+      .join(" ")}`;
+  };
   for (let k: number = 1; k <= SHARES; k++) {
     const step: number = gap(readings[k]!.wrist, readings[k - 1]!.wrist);
     if (step > 5 * mean)
       complaints.push(
-        `from share ${(k - 1) / SHARES} to ${k / SHARES} the wrist moves ${mm(step)} mm, the mean step being ${mm(mean)} mm and five of it the bound; before: ${readings[k - 1]!.joints}; after: ${readings[k]!.joints}; the held arm: upper ${triple(held.upper)} lower ${triple(held.lower)}; the goal's: upper ${triple(solved.upper)} lower ${triple(solved.lower)}`,
+        `from share ${(k - 1) / SHARES} to ${k / SHARES} the wrist moves ${mm(step)} mm, the mean step being ${mm(mean)} mm and five of it the bound; before: ${readings[k - 1]!.joints} (${lacking((k - 1) / SHARES)}); after: ${readings[k]!.joints} (${lacking(k / SHARES)}); the held arm: upper ${triple(held.upper)} lower ${triple(held.lower)}; the goal's: upper ${triple(solved.upper)} lower ${triple(solved.lower)}`,
       );
   }
   TestValidator.equals("a carried arm keeps one course", complaints, []);

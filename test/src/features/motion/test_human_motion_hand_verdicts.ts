@@ -30,7 +30,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * - `blownKiss` and `smoke` (fingertips, and a held end, at the lips): the
  *   same, with the forearm's turn at the end of its range.
  *
- * Scenarios, each a clean report at 12 samples a second:
+ * Scenarios, each a clean report at 6 samples a second (the report quarters every interval a joint departs in, so a step is found on a coarse grid too):
  * 1. `handsOnHips` on the small woman.
  * 2. `hush` on the average man.
  * 3. `blownKiss` on the small woman.
@@ -69,7 +69,7 @@ export function test_human_motion_hand_verdicts(): void {
             .stand({ seconds: 0.3 })
             .registered(row, {}).node,
         }),
-        12,
+        6,
       );
       if (!report.clean)
         complaints.push(`${name} ${row}: ${HumanVerdicts.describe(report)}`);

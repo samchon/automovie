@@ -69,6 +69,13 @@ export namespace seated {
     /** Whether the seat is sat astride, a leg on either side, as a saddle is; both legs ahead when absent. */
     astride?: boolean;
 
+    /**
+     * Where a palm rests on each armrest, world metres: the top of the
+     * armrest beside the sitter. A hand with one goes to it while sitting
+     * down and bears on it; a hand with none rests on its thigh.
+     */
+    armrests?: Partial<Record<"left" | "right", IAutoMovieVector3>>;
+
     /** The side a seat sat astride is got onto and off from, as a horse is mounted from its left; either side when absent or `either`. */
     mount?: "left" | "right" | "either";
 
@@ -317,6 +324,82 @@ export namespace seated {
       };
     }
     return { ...posture, limbs };
+  }
+
+  /**
+   * A posture whose hands have moved a share of the way from where its own
+   * joints hold them to the armrests: each wrist on the straight line to a
+   * point a hand's thickness above its armrest, the palm turning down with
+   * the fingers ahead. A hand whose side has no armrest keeps the goal the
+   * posture already gives it.
+   *
+   * @param body The body.
+   * @param posture The posture with its legs placed, and its thigh goals for the hands without an armrest.
+   * @param rests The armrests, world metres.
+   * @param yaw The seat's heading, degrees.
+   * @param share 0 where the hands are to 1 on the armrests.
+   * @returns The posture with the arm goals; a hand bears (`planted`) once it is on its armrest.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the path, the palm's turn, the hand left alone and when a hand bears.
+   * @evidence contracts/development/implementation.md#principled-implementation An effector goal on a target the seat declares, travelled on the caller's eased share, as the hands' way to the thighs is; the hand's thickness is the body's own, a fifth of the hand's length (provisional).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the two hands.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An armrest out of the arm's reach is not checked here: the limb fit leaves the hand short of it, which the contact audit reports; a refusal with the reachable band is owed.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One forward-kinematics pass and constant work per hand.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to cache.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function onArmrests(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    rests: Partial<Record<"left" | "right", IAutoMovieVector3>>,
+    yaw: number,
+    share: number,
+  ): IHumanPosture {
+    if (share <= 0) return posture;
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      resolveHumanPosture(body, { ...posture, limbs: legsOnly(posture) }),
+    );
+    const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+    const s: number = Math.min(1, share);
+    for (const side of ["left", "right"] as const) {
+      const rest: IAutoMovieVector3 | undefined = rests[side];
+      if (rest === undefined) continue;
+      const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
+      limbs[`${side}Arm`] = {
+        point: Vector3.lerp(
+          hand.worldPosition,
+          { ...rest, y: rest.y + 0.2 * body.measure.hand },
+          s,
+        ),
+        rotation: Quaternion.slerp(
+          hand.worldRotation,
+          HumanHand.rotation(side, {
+            fingers: HumanFrame.point(
+              { origin: { x: 0, y: 0, z: 0 }, yaw },
+              { x: 0, y: 0, z: 1 },
+            ),
+            palm: { x: 0, y: -1, z: 0 },
+          }),
+          s,
+        ),
+        bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2),
+        planted: s >= 1,
+      };
+    }
+    return { ...posture, limbs };
+  }
+
+  /** A posture's leg goals alone, so its hands are read where its own joints hold them. */
+  function legsOnly(posture: IHumanPosture): IHumanPosture["limbs"] {
+    return {
+      ...(posture.limbs.leftLeg === undefined
+        ? {}
+        : { leftLeg: posture.limbs.leftLeg }),
+      ...(posture.limbs.rightLeg === undefined
+        ? {}
+        : { rightLeg: posture.limbs.rightLeg }),
+    };
   }
 
   /**

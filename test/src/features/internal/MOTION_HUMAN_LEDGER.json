@@ -1578,6 +1578,13 @@
     },
     {
       "layer": "compose",
+      "symbol": "AutoMovieMotionManner.PRESETS",
+      "tests": [
+        "test_human_motion_base_manner_presets"
+      ]
+    },
+    {
+      "layer": "compose",
       "symbol": "AutoMovieMotionManner.resolve",
       "tests": [
         "test_motion_compose_manner",

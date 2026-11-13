@@ -22,7 +22,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * at the ends of their ranges and a joint stepped 7.1 mm on the way back.
  *
  * Scenarios:
- * 1. A clean report at 12 samples a second on the average man.
+ * 1. A clean report on the average man at 6 samples a second: the report quarters every interval a joint departs in, so a step is found on a coarse grid too, and the finer grid only costs time.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Registers the lexicon, performs the row through the public chain and reads the shipped verdict report on the displayed film; a hand in the head, a joint that steps or a bone that spins fails with the finding's place.
  * @evidence contracts/development/testing.md#independent-expectations The bounds are the verdict report's own, which hold for any human motion; none is read from the row.
@@ -49,7 +49,7 @@ export function test_human_motion_hand_verdicts_shave(): void {
         .stand({ seconds: 0.3 })
         .registered("shave", {}).node,
     }),
-    12,
+    6,
   );
   TestValidator.equals(
     "a shave holds the physical bounds",

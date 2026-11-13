@@ -60,7 +60,14 @@ export namespace lieDown {
   };
 
   /** A lying position. */
-  export type Position = "supine" | "prone" | "lateralLeft" | "lateralRight";
+  export type Position =
+    | "supine"
+    | "prone"
+    | "lateralLeft"
+    | "lateralRight"
+    | "sitLong"
+    | "sitCrossed"
+    | "sitSide";
 
   /**
    * Parameters.
@@ -146,6 +153,17 @@ export namespace lieDown {
       { hip: 40, knee: 60, shoulder: 70, elbow: 60, ankle: -15 },
       "right",
     ),
+
+    // Seated on the floor (provisional angles; Hemmerich et al. 2006 measure the hip and knee of cross-legged sitting near 90 to 100 and 130 to 150 degrees of flexion with the hips abducted and turned out): the legs ahead, crossed, or folded to the right.
+    sitLong: pose(-8, 0, { hip: 82, knee: 5, shoulder: -25, elbow: 15 }),
+    sitCrossed: folded(pose(0, 0, { hip: 95, knee: 135, shoulder: 10, elbow: 40 }), {
+      left: [95, 45, 35],
+      right: [95, 45, 35],
+    }),
+    sitSide: folded(pose(0, 8, { hip: 95, knee: 120, shoulder: 0, elbow: 20 }), {
+      left: [95, -15, -20],
+      right: [95, 40, 30],
+    }),
   };
 
   /** The route of postures to each position, after standing, with each arrival's event. */
@@ -169,6 +187,18 @@ export namespace lieDown {
         ["sit", "seatContact"],
         ["supine", "supine"],
         ["lateralRight", "lateral"],
+      ],
+      sitLong: [
+        ["sit", "seatContact"],
+        ["sitLong", "seated"],
+      ],
+      sitCrossed: [
+        ["sit", "seatContact"],
+        ["sitCrossed", "seated"],
+      ],
+      sitSide: [
+        ["sit", "seatContact"],
+        ["sitSide", "seated"],
       ],
     };
 
@@ -284,23 +314,49 @@ export namespace lieDown {
       write: (_: IHumanPosture, seconds: number): IHumanPosture => at(seconds),
     };
     const settled: number = clock.at("settled") / duration;
+    const sitting: boolean = position.startsWith("sit");
     const contacts: IHumanContactWindow[] = [
-      {
-        // The contact parts have no chest or side; the trunk's window is
-        // named by the back for every position.
-        part: "back",
-        kind: "lie",
-        from: settled,
-        to: 1,
-        support: { kind: "ground" },
-      },
+      sitting
+        ? {
+            // Seated on the floor, the seat bears, and the base the next action is entered on is a seated one.
+            part: "seat",
+            kind: "seat",
+            from: settled,
+            to: 1,
+            support: { kind: "ground" },
+          }
+        : {
+            // The contact parts have no chest or side; the trunk's window is
+            // named by the back for every lying position.
+            part: "back",
+            kind: "lie",
+            from: settled,
+            to: 1,
+            support: { kind: "ground" },
+          },
     ];
-    return composeAutoMovieMotionHumanAction({
+    const planned: IHumanActionPlan = composeAutoMovieMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(duration, standing, contacts),
       clock,
       contact: "settled",
       primitives: [lying],
     });
+    return sitting ? { ...planned, base: { kind: "seated" } } : planned;
+  }
+
+  /** A floor posture with each thigh's flexion, abduction and twist set apart, for the legs of sitting crossed or to one side. */
+  function folded(
+    posture: IPose,
+    thighs: Record<"left" | "right", readonly [number, number, number]>,
+  ): IPose {
+    return {
+      ...posture,
+      joints: {
+        ...posture.joints,
+        leftUpperLeg: thighs.left,
+        rightUpperLeg: thighs.right,
+      },
+    };
   }
 
   /**

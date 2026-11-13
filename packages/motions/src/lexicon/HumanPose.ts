@@ -35,6 +35,24 @@ export namespace HumanPose {
     rise: false,
   });
 
+  /** Sit down on the floor with the legs ahead and stay three seconds (provisional). */
+  export const sitOnFloor = HumanActionRow.of("sitOnFloor", lieDown, {
+    position: "sitLong",
+    hold: 3,
+  });
+
+  /** Sit down on the floor cross-legged and stay three seconds (provisional). */
+  export const sitCrossLegged = HumanActionRow.of("sitCrossLegged", lieDown, {
+    position: "sitCrossed",
+    hold: 3,
+  });
+
+  /** Sit down on the floor with both legs folded to one side and stay three seconds (provisional). */
+  export const sitSideways = HumanActionRow.of("sitSideways", lieDown, {
+    position: "sitSide",
+    hold: 3,
+  });
+
   /** Squat fully, heels up, and hold three seconds (provisional), as people sit low without a seat. */
   export const squatSit = HumanActionRow.of("squatSit", crouch, {
     depth: "full",

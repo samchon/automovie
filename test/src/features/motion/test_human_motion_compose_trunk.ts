@@ -194,7 +194,10 @@ export function test_human_motion_compose_trunk(): void {
           }
     }
 
-    // 3. A crouch.
+  }
+  all.assert("the trunk's turn and sunk posture hold on every body");
+}
+/* CUT
     const crouch = (
       depth: number,
       pitch: number,

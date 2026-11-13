@@ -28,7 +28,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    at some instant read four times a second. The straight line to its
  *    stop passes the corner 1.2 m off, so only a path through the leader's
  *    turn comes that near (the 0.8 m is a provisional reading of "takes the
- *    turn").
+ *    turn"). At every one of those instants the two pelvises are 1.2 to
+ *    2.6 m apart: no nearer than the edge of Hall's social distance, and no
+ *    further than the 2 m they started at plus 0.6 m (a provisional slack
+ *    of about one step), because the follower keeps the leader's pace.
  * 2. A chase cut by proximity (`until` with the chaser's sternum within
  *    1.2 m of the quarry's, the far edge of Hall's personal distance) into
  *    a stand ends earlier than the same chase uncut, and at the cut the two
@@ -111,11 +114,26 @@ export function test_human_motion_travel_pursuit_moves(): void {
     );
     const follow: HumanSegment.ISegment = turning.segments("a")[1]!;
     const reader: HumanSignature.IReader = reading(turning);
+    const led: HumanSignature.IReader = HumanSignature.of(
+      turning,
+      "b",
+      woman,
+      0,
+    );
     let nearest: number = Infinity;
+    let least: number = Infinity;
+    let most: number = 0;
     for (const t of HumanSignature.times(follow.entryTime, follow.end, 4)) {
       const at: IAutoMovieVector3 = pelvis(reader, t);
+      const ahead: IAutoMovieVector3 = pelvis(led, t);
       nearest = Math.min(nearest, Math.hypot(at.x, at.z - 5));
+      least = Math.min(least, Math.hypot(at.x - ahead.x, at.z - ahead.z));
+      most = Math.max(most, Math.hypot(at.x - ahead.x, at.z - ahead.z));
     }
+    if (least < 1.2 || most > 2.6)
+      complaints.push(
+        `following through a turn: the two pelvises are ${least.toFixed(3)} to ${most.toFixed(3)} m apart on the way, 1.2 to 2.6 m expected`,
+      );
     if (nearest > 0.8)
       complaints.push(
         `following through a turn: the follower passes ${nearest.toFixed(3)} m from the corner at its nearest, within 0.8 m expected`,

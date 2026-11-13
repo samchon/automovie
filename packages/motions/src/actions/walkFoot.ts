@@ -177,7 +177,8 @@ export namespace walkFoot {
    *   rates its pitch and its toes leave the first with (degrees per second,
    *   carried over the first half of the swing by the engine's `carriedRate`;
    *   none when absent), the share of the swing, its duration in seconds and
-   *   the mid-swing lift in hip heights.
+   *   the mid-swing lift in hip heights, and whether the leg is kept
+   *   straight (`STIFF`, `LEVEL`).
    * @returns The swinging foot.
    */
   export function swing(
@@ -191,21 +192,29 @@ export namespace walkFoot {
       u: number;
       seconds: number;
       lift: number;
+      stiff?: boolean;
     },
   ): IFoot {
     const u: number = Math.min(1, Math.max(0, props.u));
     const s: number = minimumJerk(u).s;
     const carried: number = carriedRate(props.seconds, u * props.seconds);
     const bump: number = Math.sin(Math.PI * u) ** 2;
+    const stiff: boolean = props.stiff === true;
+
+    // A leg kept straight cannot carry its heel's rise through the swing: its foot is down at its landing height and pitch by `LEVEL` of the swing, and is lifted by `STIFF` of the gait's lift.
+    const level: number = stiff ? minimumJerk(Math.min(1, u / LEVEL)).s : s;
+    const rising: number = stiff
+      ? carriedRate(LEVEL * props.seconds, u * props.seconds)
+      : carried;
     const a: IAutoMovieVector3 = props.from.ankle;
     const b: IAutoMovieVector3 = props.to.ankle;
     const ankle: IAutoMovieVector3 = {
       x: a.x + (b.x - a.x) * s + props.velocity.x * carried,
       y:
         a.y +
-        (b.y - a.y) * s +
-        props.velocity.y * carried +
-        props.lift * body.measure.hipHeight * bump,
+        (b.y - a.y) * level +
+        props.velocity.y * rising +
+        (stiff ? STIFF : 1) * props.lift * body.measure.hipHeight * bump,
       z: a.z + (b.z - a.z) * s + props.velocity.z * carried,
     };
     const leaving: number = HumanFoot.heading(props.from.rotation);
@@ -213,7 +222,10 @@ export namespace walkFoot {
       leaving +
       wrapDegrees(HumanFoot.heading(props.to.rotation) - leaving) * s;
     const left: number = HumanFoot.pitch(props.from.rotation);
-    const turning: number = carriedRate(props.seconds / 2, u * props.seconds);
+    const turning: number = carriedRate(
+      (stiff ? LEVEL : 0.5) * props.seconds,
+      u * props.seconds,
+    );
     const toes: number =
       props.from.toes * (1 - minimumJerk(Math.min(1, 2 * u)).s) +
       props.to.toes * minimumJerk(Math.max(0, 2 * u - 1)).s +
@@ -223,7 +235,7 @@ export namespace walkFoot {
       rotation: HumanFoot.rotation(
         heading,
         left +
-          (HumanFoot.pitch(props.to.rotation) - left) * s +
+          (HumanFoot.pitch(props.to.rotation) - left) * level +
           (props.rates?.pitch ?? 0) * turning,
       ),
     };
@@ -241,6 +253,9 @@ export namespace walkFoot {
 
   /** The share of a gait's swing lift a leg kept straight is given: with no knee to fold, its foot clears the floor by little (provisional; the hip hike and the outward arc that real stiff-knee walkers add are not modelled). */
   export const STIFF: number = 0.3;
+
+  /** The share of its swing by which a straight leg's foot is down at its landing height and pitch (provisional): a knee that does not fold cannot hold the heel's rise of toe-off over the floor, so the ankle dorsiflexes and the foot passes low under the hip. */
+  export const LEVEL: number = 0.4;
 
   /** The steepest toe-off pitch of a leg kept straight, degrees toes-down (provisional): the foot leaves nearly flat, where a folding knee lets it leave at about 55. */
   export const STIFF_PUSH: number = 15;

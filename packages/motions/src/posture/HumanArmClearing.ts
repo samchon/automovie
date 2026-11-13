@@ -41,7 +41,9 @@ export namespace HumanArmClearing {
   /**
    * The directions a clearing tries, in order, as shares of abduction and of
    * elbow flexion: out, folded, out and folded, then unfolded, out and
-   * unfolded, in, in and folded, in and unfolded.
+   * unfolded, in, in and folded, in and unfolded; and after those eight the
+   * eight that lie midway between two of them, in the same order of their
+   * angles from out through folded.
    */
   export const ORDER: readonly (readonly [number, number])[] = [
     [1, 0],
@@ -52,6 +54,12 @@ export namespace HumanArmClearing {
     [-1, 0],
     [-Math.SQRT1_2, Math.SQRT1_2],
     [-Math.SQRT1_2, -Math.SQRT1_2],
+    ...[22.5, 67.5, 112.5, 157.5, 202.5, 247.5, 292.5, 337.5].map(
+      (degrees: number): readonly [number, number] => [
+        Math.cos((degrees * Math.PI) / 180),
+        Math.sin((degrees * Math.PI) / 180),
+      ],
+    ),
   ];
 
   /**
@@ -116,5 +124,68 @@ export namespace HumanArmClearing {
         }
       }
     return best;
+  }
+
+  /** The equal parts of a carry at whose ends its clearing is solved (provisional: tenths, each a few centimetres of a hand's way). */
+  export const KEYS: number = 10;
+
+  /**
+   * An arm on its way between two poses, kept clear along the way by one
+   * course: the clearing turn is solved at the `KEYS` equal shares of the
+   * way and carried between two neighbouring ones in proportion, and both
+   * ends, which hold the room they hold, take none.
+   *
+   * The room an arm lacks does not fall steadily as it is let out: a
+   * forearm that leaves the flank meets the ridge between two shapes of the
+   * trunk a few degrees farther out, so the least turn that clears it,
+   * solved afresh at each instant, drops from beyond the ridge to before it
+   * between two instants. A reach read 9 degrees of clearing at one share and
+   * 12 degrees a two-hundredth earlier, a step of 32 mm at the wrist. Solved
+   * at fixed shares and carried between them, the turn is a continuous
+   * function of the share while the rest of the body holds still; between
+   * two keys the arm is as clear as the proportion of two clear arms is.
+   *
+   * @param props The arm at a share of the way before any clearing (`plain`), the share asked for, and the clearing of an arm at a share (`clear`, which returns it turned in its upper arm's abduction and its elbow's flexion only).
+   * @returns The arm's joint angles at the share.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the course, the measured defect of a clearing solved per instant, what is continuous under which condition and what holds between two keys.
+   * @evidence contracts/development/implementation.md#principled-implementation A course fixed at shares of the way does not depend on the instant it is read at, so two neighbouring instants read two neighbouring points of one piecewise-linear turn.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The two keys around the share, their two turns and one proportion.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is remembered between calls, so the course is the same in whatever order its instants are read; a body that moves under the arm changes the keys' turns from instant to instant, the remaining place a carried arm can step.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two clearings a call, none at an end.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Stateless by design: a memory of the keys would have to be keyed by the whole pose.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function course(props: {
+    plain: (share: number) => HumanArmClearance.IArm;
+    share: number;
+    clear: (arm: HumanArmClearance.IArm, share: number) => HumanArmClearance.IArm;
+  }): HumanArmClearance.IArm {
+    const turn = (key: number): readonly [number, number] => {
+      if (key <= 0 || key >= KEYS) return [0, 0];
+      const arm: HumanArmClearance.IArm = props.plain(key / KEYS);
+      const clear: HumanArmClearance.IArm = props.clear(arm, key / KEYS);
+      return [clear.upper[1] - arm.upper[1], clear.lower[0] - arm.lower[0]];
+    };
+    const at: number = Math.min(1, Math.max(0, props.share)) * KEYS;
+    const before: number = Math.min(KEYS - 1, Math.floor(at));
+    const weight: number = at - before;
+    const a: readonly [number, number] = turn(before);
+    const b: readonly [number, number] =
+      weight === 0 ? a : turn(before + 1);
+    const arm: HumanArmClearance.IArm = props.plain(props.share);
+    return {
+      upper: [
+        arm.upper[0],
+        arm.upper[1] + a[0] + (b[0] - a[0]) * weight,
+        arm.upper[2],
+      ],
+      lower: [
+        arm.lower[0] + a[1] + (b[1] - a[1]) * weight,
+        arm.lower[1],
+        arm.lower[2],
+      ],
+      hand: arm.hand,
+    };
   }
 }

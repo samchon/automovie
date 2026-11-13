@@ -63,10 +63,10 @@ import { HumanTrunk } from "./HumanTrunk";
  * stop is taken against the target carried and turned with their root to
  * that place, and the walk waits in its first posture so that it arrives
  * `LAG` after they stop, which keeps the follower behind a leader on the
- * leader's own line. First pass: the walk is one straight approach to the
- * resting place, with no speed matched and no gap kept through the
- * leader's turns (Rio, Rhea and Warren 2014 give the speed-control law to
- * read for that).
+ * leader's own line. Where their way bends by more than `BEND` the walk
+ * goes by the places they passed, and with `track: "pace"` it matches
+ * their speed instead of waiting (`walkFollowed`; Rio, Rhea and Warren
+ * 2014).
  *
  * Events are the walk's (each foot's toe-offs and heel strikes,
  * `lastFootfall`, `arrive`), and `depart` where the walk waited.
@@ -125,10 +125,10 @@ export namespace approach {
      * at the place they come to rest, read from their placed actions, and
      * the walk begins late enough to arrive just after them. The person is
      * then composed before this performer, or the read is refused. With
-     * `pace` the walk also keeps the person's pace on the way
-     * (`walkFollowed`): as far along its way as they were along theirs
-     * `LAG` earlier, so the gap holds while they walk. Absent, the target is
-     * read once, where it is when the approach begins.
+     * `pace` the walk instead matches the person's speed on the way
+     * (`walkFollowed`), so the gap holds while they walk, and closes to
+     * the stop once they have stopped. Absent, the target is read once,
+     * where it is when the approach begins.
      */
     track?: boolean | "pace";
   }
@@ -243,7 +243,6 @@ export namespace approach {
         (seconds: number): IAutoMovieVector3 => leader.root(seconds).position,
         context.start,
         rests,
-        LAG,
       );
     const wait: number = Math.max(
       0,
@@ -258,8 +257,8 @@ export namespace approach {
   /** How far a tracked person's way must leave the straight line for the follower to take it by their places, and how near either end such a place is dropped, metres (provisional: about a body's clearance, as `CLEARANCE`). */
   export const BEND: number = 0.5;
 
-  /** How long after a tracked person has stopped the follower arrives, seconds (provisional: about one step). */
-  export const LAG: number = 0.5;
+  /** How long after a tracked person has stopped a walk that waited for them arrives, seconds: a follower's visual-motor delay, the mean optimal delay between a leader's and a follower's acceleration (420 ms; Rio, Rhea and Warren 2014, J Vis 14(2):4). */
+  export const LAG: number = 0.42;
 
   /** A target's world point and outward unit normal. */
   export interface IAim {

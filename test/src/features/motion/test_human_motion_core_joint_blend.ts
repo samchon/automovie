@@ -2,10 +2,13 @@ import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
   Quaternion,
+  getConstraint,
+  jointRomOvershoot,
   jointToQuaternion,
   skeletonJointAxes,
 } from "@automovie/engine";
 import type {
+  IAutoMovieBone,
   IAutoMovieJointAxes,
   IAutoMovieQuaternion,
 } from "@automovie/interface";
@@ -33,12 +36,18 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    does not.
  * 3. No blended rotation lies farther from both ends than the ends lie from
  *    each other, plus half a degree: the path stays between them.
+ * 4. When both ends lie inside the joint's range of motion, every blended
+ *    triple does too (the engine's `jointRomOvershoot` reads zero), so the
+ *    resolver clamps none and the displayed arm is the blended one.
  *
  * The pairs: a hanging arm to one raised forward and out; an arm raised to
- * 80 degrees to one raised to 100, across the shoulder's 90; and the two
+ * 80 degrees to one raised to 100, across the shoulder's 90; the two
  * triples measured 20 ms apart on a blown kiss leaving the lips (93.7,
  * 124.1, 90 and 85.9, -30, -72.4), which a film showed as a 35 mm step of
- * the wrist.
+ * the wrist; and a hanging arm with the solved shoulder of a reach across
+ * the body (130.5, 141.4, 90, on the edge of its twist), measured in
+ * `test_human_motion_core_arm_carry_course`, whose arc left the range over
+ * its last twenty-fifth and showed as a 33 mm step of the wrist.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the one owner of a joint blend and reads the rotations its angles give; a path that steps, or leaves the span of its ends, fails with the weight and the turn.
  * @evidence contracts/development/testing.md#independent-expectations The even share of the turn follows from what a blend is; the factor of three and the half degree allow an eased path and the conversion's rounding, and are stated. The third pair is a measured row of issue #3400, not a value from the blend.
@@ -60,6 +69,7 @@ export function test_human_motion_core_joint_blend(): void {
       [93.7, 124.1, 90],
       [85.9, -30, -72.4],
     ],
+    ["a hanging arm to a reach across the body", [0, 5, 0], [130.5, 141.4, 90]],
   ];
   for (const name of ["m-average", "f-small"] as const) {
     const body: IHumanBody = motionHumanBody(name);
@@ -117,6 +127,39 @@ export function test_human_motion_core_joint_blend(): void {
         complaints.push(
           `${name}: ${label}: the rotation turns ${step.value.toFixed(2)} degrees in the hundredth ending at ${step.at.toFixed(2)}, at most ${(0.03 * whole + 0.5).toFixed(2)} expected (the ends are ${whole.toFixed(2)} degrees apart)`,
         );
+      // 4. Between two ends inside the range, the path stays inside it.
+      const out = (of: readonly [number, number, number]): number =>
+        jointRomOvershoot(
+          {
+            bone: "rightUpperArm",
+            flexion: of[0],
+            abduction: of[1],
+            twist: of[2],
+          },
+          getConstraint(
+            "rightUpperArm",
+            body.skeleton.bones.find(
+              (b: IAutoMovieBone): boolean => b.bone === "rightUpperArm",
+            )?.constraint ?? null,
+          ),
+        );
+      if (out(from) === 0 && out(to) === 0) {
+        let worst: { value: number; at: number } = { value: 0, at: 0 };
+        for (let k: number = 1; k < 100; ++k) {
+          const value: number = out(blend(k / 100));
+          if (value > worst.value) worst = { value, at: k / 100 };
+        }
+        if (worst.value > 1e-6)
+          complaints.push(
+            `${name}: ${label}: at ${worst.at.toFixed(2)} the angles ${blend(
+              worst.at,
+            )
+              .map((v: number): string => v.toFixed(1))
+              .join(
+                ", ",
+              )} lie ${worst.value.toFixed(2)} degrees outside the joint's range, whose ends are both inside it`,
+          );
+      }
       if (stray.value > whole + 0.5)
         complaints.push(
           `${name}: ${label}: at ${stray.at.toFixed(2)} the rotation lies ${stray.value.toFixed(2)} degrees from the nearer end, whose distance from the other is ${whole.toFixed(2)}`,

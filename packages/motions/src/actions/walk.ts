@@ -300,7 +300,8 @@ export namespace walk {
         to: at(side, swing.on),
         u,
         seconds: swing.on - swing.off,
-        lift: (gait.stiff === side ? walkFoot.STIFF : 1) * gait.lift,
+        lift: gait.lift,
+        stiff: gait.stiff === side,
       });
     };
     // The lowering a swinging leg asks of the pelvis at a share of its swing
@@ -354,8 +355,7 @@ export namespace walk {
         feet,
         claims,
 
-        // The forefoot rocker is a stepping foot's: it comes in with the gait
-        // and goes with it, so a walk stands flat where it starts and stops.
+        // The forefoot rocker is a stepping foot's: it comes in with the gait and goes with it, so a walk stands flat where it starts and stops.
         walkLeg.ROCKER * steps.amount(t),
       );
     };

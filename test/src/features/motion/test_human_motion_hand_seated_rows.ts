@@ -4,6 +4,7 @@ import {
   HumanChain,
   HumanEmblem,
   HumanPerformance,
+  HumanPose,
   type HumanSegment,
   HumanSignature,
   type IHumanActionLaw,
@@ -28,19 +29,23 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    within 20 mm of the mouth region (provisional, as standing).
  * 3. `handToFace` `drink` with the implied cup: the plan keeps the task's
  *    `atMouth` event.
- * 4. In each, the pelvis stays within 10 mm of where sitting left it, at the
- *    middle of the hold (the campaign's bound for a supported body, #3358).
+ * 4. `handOnHeart` again after kneeling down to sit on the heels
+ *    (`HumanPose.kneelSit`), with the same bound.
+ * 5. In each, the pelvis stays within 10 mm of where the base left it, at
+ *    the middle of the hold (the campaign's bound for a supported body,
+ *    #3358).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds the performances through the public chain and reads displayed joints and regions; a row that stands the body up, misses its region seated or loses its event fails.
  * @evidence contracts/development/testing.md#independent-expectations The bounds are acceptance lines of #3345 and #3358 or marked provisional; the seat is the body's own popliteal height.
- * @evidence contracts/development/testing.md#distinguishing-cases Two laws and three rows on the seated base, two statures; the same rows standing are `test_human_motion_emblem_signatures`'s.
+ * @evidence contracts/development/testing.md#distinguishing-cases Two laws and three rows on the seated base and one on the kneeling base, two statures; the same rows standing are `test_human_motion_emblem_signatures`'s.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds six short performances; it runs locally and wherever CI runs the human motion tests.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 4 scenarios with their bounds.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 5 scenarios with their bounds.
  */
 export function test_human_motion_hand_seated_rows(): void {
   const laws: IHumanActionLaw<never>[] = [
     HumanEmblem.handOnHeart,
     HumanEmblem.hush,
+    HumanPose.kneelSit,
   ];
   const complaints: string[] = [];
   const gap = (p: IAutoMovieVector3, q: IAutoMovieVector3): number =>
@@ -56,10 +61,26 @@ export function test_human_motion_hand_seated_rows(): void {
       yaw: 0,
       depth: 0.45,
     };
-    for (const [label, row] of [
-      ["handOnHeart", (c: HumanChain): HumanChain => c.registered("handOnHeart", {})],
-      ["hush", (c: HumanChain): HumanChain => c.registered("hush", {})],
-      ["drink", (c: HumanChain): HumanChain => c.handToFace({ task: "drink" })],
+    const sat = (): HumanChain => HumanChain.subject("a").sit({ seat });
+    const knelt = (): HumanChain =>
+      HumanChain.subject("a").registered("kneelSit", {});
+    for (const [label, base, row] of [
+      [
+        "handOnHeart",
+        sat,
+        (c: HumanChain): HumanChain => c.registered("handOnHeart", {}),
+      ],
+      ["hush", sat, (c: HumanChain): HumanChain => c.registered("hush", {})],
+      [
+        "drink",
+        sat,
+        (c: HumanChain): HumanChain => c.handToFace({ task: "drink" }),
+      ],
+      [
+        "handOnHeart",
+        knelt,
+        (c: HumanChain): HumanChain => c.registered("handOnHeart", {}),
+      ],
     ] as const)
       try {
         const performance: HumanPerformance = new HumanPerformance({
@@ -74,9 +95,9 @@ export function test_human_motion_hand_seated_rows(): void {
               proficiency: { level: "trained" },
             },
           ],
-          composition: row(HumanChain.subject("a").sit({ seat })).node,
+          composition: row(base()).node,
         });
-        const sat: HumanSegment.ISegment = performance.segments("a")[0]!;
+        const settled: HumanSegment.ISegment = performance.segments("a")[0]!;
         const placed: HumanSegment.ISegment = performance.segments("a")[1]!;
         const instant = (event: string): number =>
           placed.start +
@@ -94,11 +115,11 @@ export function test_human_motion_hand_seated_rows(): void {
         // 4. Still seated.
         const moved: number = gap(
           HumanSignature.joint(reader, held, "hips"),
-          HumanSignature.joint(reader, sat.end, "hips"),
+          HumanSignature.joint(reader, settled.end, "hips"),
         );
         if (!(moved <= 0.01))
           complaints.push(
-            `${name}: ${label}: the pelvis is ${(moved * 1000).toFixed(0)} mm from where sitting left it, within 10 mm expected`,
+            `${name}: ${label} after ${base === sat ? "sitting" : "kneeling"}: the pelvis is ${(moved * 1000).toFixed(0)} mm from where the base left it, within 10 mm expected`,
           );
         if (label === "handOnHeart") {
           const off: number = gap(

@@ -179,13 +179,45 @@ export function test_human_motion_compose_arm_carry(): void {
         for (const share of [0.2, 0.4, 0.6, 0.8]) {
           const allowed: number = need0 * (1 - share) + need1 * share;
           const need: number = room(shown(share));
+          const written: IHumanPosture = carried(share);
+          // What the carry's own reading says of the written arm, of the
+          // plain blend and of the two ends, so a failing row tells a
+          // clearing that found no way from one that read another room.
+          const own = (arm: HumanArmClearance.IArm): string =>
+            HumanArmClearance.room(body, solved, side, arm, blocking).toFixed(
+              3,
+            );
+          const angles = (of: readonly [number, number, number]): string =>
+            of.map((v: number): string => v.toFixed(1)).join("/");
+          const plain: HumanArmClearance.IArm = {
+            upper: blendHumanJoint(
+              body,
+              `${side}UpperArm`,
+              held.upper,
+              end.upper,
+              share,
+            ),
+            lower: blendHumanJoint(
+              body,
+              `${side}LowerArm`,
+              held.lower,
+              end.lower,
+              share,
+            ),
+            hand: blendHumanJoint(
+              body,
+              `${side}Hand`,
+              held.hand,
+              end.hand,
+              share,
+            ),
+          };
           complaints.check(
-            `${cell} at share ${share}: forearm overshoot ${need.toFixed(3)} deg over the allowance ${allowed.toFixed(3)} (ends ${need0.toFixed(3)}, ${need1.toFixed(3)})`,
+            `${cell} at share ${share}: forearm overshoot ${need.toFixed(3)} deg over the allowance ${allowed.toFixed(3)} (ends ${need0.toFixed(3)}, ${need1.toFixed(3)}); written upper ${angles(written.joints[`${side}UpperArm`]!)} lower ${angles(written.joints[`${side}LowerArm`]!)}, plain upper ${angles(plain.upper)} lower ${angles(plain.lower)}; by the carry's reading the written arm lacks ${own({ upper: written.joints[`${side}UpperArm`]!, lower: written.joints[`${side}LowerArm`]!, hand: written.joints[`${side}Hand`]! })}, the plain blend ${own(plain)}, the ends ${own(held)} and ${own(end)}`,
             need <= allowed + 0.05,
           );
 
           // 3. Range, hand and the rest.
-          const written: IHumanPosture = carried(share);
           for (const [part, from, to] of [
             ["UpperArm", held.upper, end.upper],
             ["LowerArm", held.lower, end.lower],

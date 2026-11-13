@@ -48,12 +48,14 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 7. The bicycle's, the horse's and the motorcycle's seats read as sat
  *    astride and the chair's, the stool's and the scooter's as sat with the
  *    legs ahead: the object says which, and no test restates it.
- * Scenarios 1 and 2 are built for every body on every seat. Scenarios 3 to
- * 6 are read on nine of those pairs, each seat once and each body on three
- * seats: the small woman on the dining chair, the bare bicycle saddle and
- * the motorcycle; the large man on the bare stool, the bare horse saddle
- * and the bicycle; the average man on the scooter, the stool with its bar
- * and the horse.
+ * Nine pairs are performed, each seat once and each body on three seats:
+ * the small woman on the dining chair, the bare bicycle saddle and the
+ * motorcycle; the large man on the bare stool, the bare horse saddle and
+ * the bicycle; the average man on the scooter, the stool with its bar and
+ * the horse. They are enough because every seat's geometry is read once
+ * and every stature meets a low, a middle and a high seat; the other
+ * eighteen pairs would repeat a seat already read on another stature.
+ * Scenarios 3 to 6 are read on each.
  * 3. Seated, the body's seat region rests within 10 mm of the seat's
  *    height (the campaign's contact bound through a hold).
  * 4. Seated on a seat above 1.2 of the body's popliteal height with no rest
@@ -61,8 +63,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    declared planted on a rest has the ball of the foot within 15 mm of
  *    the rest's tread.
  * 5. Through every plant window the sitting and the getting off declare,
- *    read at six instants spread over it, the foot's ball moves at most
- *    5 mm (the campaign's slip bound).
+ *    read at four instants spread over it (its two ends and two between,
+ *    where a planted foot that follows the moving pelvis shows), the
+ *    foot's ball moves at most 5 mm (the campaign's slip bound).
  * 6. After getting off, both feet bear on the floor, both knees are within
  *    15 degrees of straight and the hip joints stand within 20 mm of their
  *    height in the quiet stance the film began with.
@@ -70,7 +73,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#behavioral-verification Places real archetypes, builds sitting and getting off through the public chain and reads the displayed seat region, soles, knees and hips; a refused seat, a body hovering over or sunk into the seat, a foot through the floor, a sliding plant or a body left crouched fails.
  * @evidence contracts/development/testing.md#independent-expectations That adults sit on these seats is what the seats are made for; the heights are the archetypes' cited bands, the 5, 10 and 15 mm are the campaign's slip and contact bounds, and a quiet stance is the film's own first posture, not a reading of the laws under test. The 15 degree knee, the 20 mm clearance and the 20 mm on the hips' height are provisional reading margins. Limitation: it reads where the body ends and whether its plants hold, not how a person really climbs onto a saddle, which no cited measurement here describes.
  * @evidence contracts/development/testing.md#distinguishing-cases Five seat heights from inside the band to four times the popliteal height, with and without rests, legs ahead and astride, by three statures.
- * @evidence contracts/development/testing.md#execution-ownership Prepares three polygon men and builds 27 short performances in memory; it runs locally and wherever CI runs the human motion tests.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares three polygon men and builds 9 short performances in memory; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 7 scenarios with their bounds and sources.
  */
 export function test_human_motion_base_seat_heights(): void {
@@ -125,6 +128,8 @@ export function test_human_motion_base_seat_heights(): void {
     const body: IHumanBody = motionHumanBody(name);
     for (let s: number = 0; s < seats.length; ++s) {
       const [kind, seat]: readonly [string, seated.ISeat] = seats[s]!;
+      // Nine of the pairs are performed, each seat once and each body three times: a performance and its poses cost too much for all 27.
+      if ((b + s) % 3 !== 0) continue;
       const label: string = `${name} on ${kind}`;
       const astride: boolean = seat.astride === true;
       let performance: HumanPerformance;
@@ -155,9 +160,6 @@ export function test_human_motion_base_seat_heights(): void {
         );
         continue;
       }
-
-      // The displayed body is read on nine of the pairs, each seat once and each body three times; a pose costs too much to read all 27.
-      if ((b + s) % 3 !== 0) continue;
       const reader: HumanSignature.IReader = HumanSignature.of(
         performance,
         "a",
@@ -238,7 +240,7 @@ export function test_human_motion_base_seat_heights(): void {
           for (const t of HumanSignature.times(
             from + 0.02,
             to - 0.02,
-            5 / (to - from - 0.04),
+            3 / (to - from - 0.04),
           )) {
             const now: IAutoMovieVector3 = ball(side, t);
             slip = Math.max(

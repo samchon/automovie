@@ -241,6 +241,10 @@ export namespace AutoMovieMotionHumanTrunk {
           point: { x: 0, y: 0, z: -b },
           yaw: 0,
         }),
+      // The extended posture is the caller's, so its hips may stand anywhere
+      // the planted legs let them: a body tipped whole about its feet has
+      // them most of a leg's length ahead.
+      HumanBalance.REACH,
     );
     return AutoMovieMotionHumanRoot.excursion(clock, rise, fall, {
       point: { x: 0, y: 0, z: -back },
