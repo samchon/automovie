@@ -110,6 +110,12 @@ export namespace SceneBuild {
     };
   }
 
+  /** How a blade is taken up for its use, as the package's own blade tests take it: its point the working tip, its line rising across the palm as a cutting grip holds it. */
+  export const BLADE_USE: Record<string, string> = {
+    tip: "point",
+    line: "oblique",
+  };
+
   /** A counter's top above the floor, metres: the middle of its band, where an object waits to be taken up. */
   export const COUNTER_TOP: number = 0.914;
 
@@ -174,6 +180,41 @@ export namespace SceneBuild {
           position: { x: side === "left" ? 0.17 : -0.17, y: 0.05, z: 0.08 },
           rotation: { x: 1, y: 0, z: 0, w: 0 },
         },
+      },
+    };
+  }
+
+  /**
+   * A thing worn on a person's bone from the start, until a hand takes it
+   * up by a grip, such as a camera hanging from a strap at the chest.
+   *
+   * @param thing The thing's id.
+   * @param producer Its producer.
+   * @param kind Its kind.
+   * @param wearer The person who wears it.
+   * @param bone The bone it rides.
+   * @param position Its place in the bone's frame, metres.
+   * @returns The thing.
+   */
+  export function worn(
+    thing: string,
+    producer: string,
+    kind: string,
+    wearer: string,
+    bone: string,
+    position: { x: number; y: number; z: number },
+  ): IPlaygroundComposition.IObject {
+    return {
+      subject: thing,
+      producer,
+      kind,
+      x: 0,
+      z: 0,
+      yaw: 0,
+      worn: {
+        subject: wearer,
+        bone,
+        offset: { position, rotation: { x: 0, y: 0, z: 0, w: 1 } },
       },
     };
   }

@@ -1,50 +1,14 @@
 import type { IScene } from "../structures/IScene";
 import { SceneBuild } from "./SceneBuild";
 
-const { act, at, object, person, scene, seat, to }: typeof SceneBuild =
+const { act, at, object, person, scene, seat, to, worn }: typeof SceneBuild =
   SceneBuild;
 
-/**
- * The kerb stepped over on the stairs-and-ladder scene: a Euro crate lying
- * across the walker's way, its length along `+X` and its footprint centred
- * on (`x`, `z`). The crate is placed with these dimensions and the step over
- * is given its near side, height and depth from the same numbers, so the law
- * crosses exactly the solid the visitor sees.
- */
-const KERB: {
-  x: number;
-  z: number;
-  length: number;
-  depth: number;
-  height: number;
-} = { x: 2, z: 0.38, length: 0.6, depth: 0.4, height: 0.2 };
+/** A dining table's top above the floor, metres: the middle of its band. */
+const DINING_TOP: number = 0.736;
 
-/** How far a standing person's toes lie ahead of their floor point, metres (an estimate across the site's bodies), from which a climb measures where its stairs or ladder begin. */
-const TOE: number = 0.14;
-
-/**
- * The flight climbed on the stairs-and-ladder scene: the stairs are placed
- * with these risers and treads, their first riser `start` ahead of the
- * toes, and the climb is given the same numbers, so the feet land on the
- * treads the visitor sees.
- */
-const STAIRS: { count: number; riser: number; tread: number; start: number } = {
-  count: 6,
-  riser: 0.17,
-  tread: 0.28,
-  start: 0.05,
-};
-
-/**
- * The fixed ladder climbed on the same scene: placed with this rung count
- * and spacing, its rungs `start` ahead of the toes and turned to be climbed
- * facing +Z, and the climb is given the same numbers.
- */
-const LADDER: { rungs: number; spacing: number; start: number } = {
-  rungs: 6,
-  spacing: 0.3,
-  start: 0.15,
-};
+/** A desk's top above the floor, metres: the middle of its band. */
+const DESK_TOP: number = 0.74;
 
 /** The everyday scenes composed from the lexicon and placed objects. */
 export const SCENES_DAILY: readonly IScene[] = [
@@ -53,7 +17,7 @@ export const SCENES_DAILY: readonly IScene[] = [
       id: "cafe",
       title: "Café",
       summary:
-        "Two friends sit down across a table: one lifts a mug to sip and sets it down, then nods; the other checks a phone and sips; a third arrives, stands by the table and waves them over.",
+        "Two friends sit down at the ends of a table and each lifts a mug, sips and sets it down; one nods and lays a hand on her heart, the other checks a phone; a third walks round the table, clasps his hands and waves them over.",
       setting: "everyday",
       roles: { ana: "friend", ben: "friend", cal: "latecomer" },
       needs: [],
@@ -62,31 +26,39 @@ export const SCENES_DAILY: readonly IScene[] = [
     },
     "cafe",
     [
-      person("ana", "f1", -0.92, 1.5, 90, [
+      person("ana", "f1", -0.66, 1.5, 90, [
         act("sit", { seat: seat("chairA"), seconds: 1 }),
-        act("pickUp", { prop: "mug", handle: "handle" }),
-        act("toastSip", { prop: "mug" }),
-        act("putDown", { prop: "mug", at: { x: -0.65, y: 0.75, z: 1.65 } }),
+        act("pickUp", { prop: "mugA", handle: "handle" }),
+        act("toastSip", { prop: "mugA" }),
+        act("putDown", {
+          prop: "mugA",
+          at: { x: -0.45, y: DINING_TOP, z: 1.62 },
+        }),
         act("gesture", { kind: "nod" }),
         act("handOnHeart"),
       ]),
-      person("ben", "m1", 0.92, 1.5, 270, [
+      person("ben", "m1", 0.66, 1.5, 270, [
         act("sit", { seat: seat("chairB"), seconds: 1 }),
         act("checkPhone", { seconds: 2 }),
-        act("toastSip"),
-        act("handOnHeart"),
+        act("pickUp", { prop: "mugB", handle: "handle" }),
+        act("toastSip", { prop: "mugB" }),
+        act("putDown", {
+          prop: "mugB",
+          at: { x: 0.45, y: DINING_TOP, z: 1.38 },
+        }),
       ]),
       person("cal", "m2", 3, -1, 0, [
-        act("stroll", { to: to(0.6, 2.6) }),
+        act("stroll", { to: to(0.6, 2.6), via: [to(2.2, 2.6)] }),
         act("handsClasped"),
         act("comeHere"),
       ]),
     ],
     [
       object("table", "createTable", "dining", 0, 1.5),
-      object("chairA", "createSeat", "dining", -1.05, 1.5, 90),
-      object("chairB", "createSeat", "dining", 1.05, 1.5, 270),
-      object("mug", "createDrinkware", "mug", -0.7, 1.5, 0, 0.75),
+      object("chairA", "createSeat", "dining", -0.9, 1.5, 90),
+      object("chairB", "createSeat", "dining", 0.9, 1.5, 270),
+      object("mugA", "createDrinkware", "mug", -0.45, 1.5, 180, DINING_TOP),
+      object("mugB", "createDrinkware", "mug", 0.45, 1.5, 0, DINING_TOP),
     ],
   ),
   scene(
@@ -94,16 +66,17 @@ export const SCENES_DAILY: readonly IScene[] = [
       id: "office",
       title: "Office",
       summary:
-        "Two people at work: one types standing at a counter, rubs their eyes and thinks; the other checks a watch at a desk, shifts, takes a call, gets up and switches the light.",
+        "Two people at work: one types seated at a desk, rubs their eyes and thinks; the other checks a watch at a desk, shifts, takes a call, gets up, walks to the wall and switches the light.",
       setting: "everyday",
       roles: { dee: "writer", eli: "colleague" },
       needs: [],
     },
     "office",
     [
-      person("dee", "f2", -1, 0, 0, [
+      person("dee", "f2", -1.2, 0.3, 0, [
+        act("sit", { seat: seat("chairD"), seconds: 0.5 }),
         act("typeText", {
-          keyboard: { at: { x: -1, y: 1.05, z: 0.4 }, yaw: 0 },
+          keyboard: { at: { x: -1.2, y: DESK_TOP + 0.02, z: 0.47 }, yaw: 0 },
           text: "the scene opens",
         }),
         act("rubEyes"),
@@ -128,10 +101,11 @@ export const SCENES_DAILY: readonly IScene[] = [
       ]),
     ],
     [
-      object("deskD", "createTable", "counter", -1, 0.6),
+      object("deskD", "createTable", "desk", -1.2, 0.8),
+      object("chairD", "createSeat", "office", -1.2, 0.08),
       object("deskE", "createTable", "desk", 1, 0.75),
       object("chairE", "createSeat", "office", 1, -0.15),
-      object("switch", "createSwitch", "rocker", 1.6, 0.4, 270),
+      object("switch", "createSwitch", "rocker", 2.2, 0, 270),
     ],
   ),
   scene(
@@ -139,7 +113,7 @@ export const SCENES_DAILY: readonly IScene[] = [
       id: "morning-routine",
       title: "Morning routine",
       summary:
-        "Someone wakes up: a big stretch, a neck roll, rubbing the eyes, a shave, cream, a look at the watch.",
+        "Someone wakes up: a big stretch, a neck roll, rubbing the eyes, a shave, cream, a flick of the hair and a look at the watch.",
       setting: "everyday",
       roles: { fay: "early riser" },
       needs: [],
@@ -162,7 +136,7 @@ export const SCENES_DAILY: readonly IScene[] = [
       id: "smoking-break",
       title: "Smoking break",
       summary:
-        "Two colleagues outside at a standing counter: one takes up a cigarette, smokes, taps the ash and stubs it out; the other lights up, stands with hands in pockets, arms crossed, thinking.",
+        "Two colleagues outside at a standing counter: one takes up a cigarette, smokes, taps the ash, smokes again, stubs it out and scratches the nape with the free hand; the other lights up, stands with hands in pockets, arms crossed, thinking, then hands on hips.",
       setting: "everyday",
       roles: { gus: "smoker", hal: "colleague" },
       needs: [],
@@ -176,7 +150,7 @@ export const SCENES_DAILY: readonly IScene[] = [
           prop: "cig",
           target: {
             kind: "point",
-            at: { x: -0.1, y: 0.91, z: 0.5 },
+            at: { x: -0.1, y: SceneBuild.COUNTER_TOP, z: 0.5 },
             frame: "world",
           },
         }),
@@ -185,7 +159,7 @@ export const SCENES_DAILY: readonly IScene[] = [
           prop: "cig",
           target: {
             kind: "point",
-            at: { x: -0.1, y: 0.91, z: 0.5 },
+            at: { x: -0.1, y: SceneBuild.COUNTER_TOP, z: 0.5 },
             frame: "world",
           },
         }),
@@ -201,7 +175,15 @@ export const SCENES_DAILY: readonly IScene[] = [
     ],
     [
       object("counter", "createTable", "counter", 0, 0.65, 180),
-      object("cig", "createSmoking", "cigarette", -0.18, 0.42, 90, 0.91),
+      object(
+        "cig",
+        "createSmoking",
+        "cigarette",
+        -0.18,
+        0.42,
+        90,
+        SceneBuild.COUNTER_TOP,
+      ),
     ],
   ),
   scene(
@@ -209,7 +191,7 @@ export const SCENES_DAILY: readonly IScene[] = [
       id: "tourists",
       title: "Tourists",
       summary:
-        "Three tourists stroll and stop: one fans herself and waves the others over, one takes a selfie and fans himself, one checks her phone and gives a thumbs up.",
+        "Three tourists stroll and stop: one fans herself, raises the camera hanging at her chest and takes a photograph, then waves the others over; one takes a selfie and fans himself; one checks her phone and gives a thumbs up.",
       setting: "everyday",
       roles: { ivy: "photographer", jay: "tourist", kit: "tourist" },
       needs: [],
@@ -219,7 +201,13 @@ export const SCENES_DAILY: readonly IScene[] = [
       person("ivy", "f2", -1, 0, 0, [
         act("stroll", { to: to(-1, 2) }),
         act("fanSelf"),
-        act("comeHere"),
+        act("pickUp", {
+          prop: "camera",
+          handle: "grip",
+          use: { tip: "screen", line: "across", at: { region: "noseBridge" } },
+        }),
+        act("photograph", { prop: "camera" }),
+        act("comeHere", { side: "left" }),
       ]),
       person("jay", "m1", 0, -0.5, 0, [
         act("stroll", { to: to(0, 1.6) }),
@@ -232,13 +220,20 @@ export const SCENES_DAILY: readonly IScene[] = [
         act("thumbsUp"),
       ]),
     ],
+    [
+      worn("camera", "createDevice", "camera", "ivy", "chest", {
+        x: 0,
+        y: 0,
+        z: 0.14,
+      }),
+    ],
   ),
   scene(
     {
       id: "picnic",
       title: "Picnic",
       summary:
-        "Four friends on the grass: one sits cross-legged, one on the floor, one kneels and sits back, one lies still; a toast goes round.",
+        "Four friends on the grass: two sit, cross-legged and on the floor, and raise a mimed cup to drink; one kneels, sits back and nods; one lies still.",
       setting: "everyday",
       roles: { lea: "friend", max: "friend", nia: "friend", oto: "friend" },
       needs: [],
@@ -248,7 +243,10 @@ export const SCENES_DAILY: readonly IScene[] = [
     [
       person("lea", "f1", -1, 0, 45, [act("sitCrossLegged"), act("toastSip")]),
       person("max", "m1", 1, 0, 315, [act("sitOnFloor"), act("toastSip")]),
-      person("nia", "f2", 0, 1.4, 180, [act("kneelSit"), act("sniff")]),
+      person("nia", "f2", 0, 1.4, 180, [
+        act("kneelSit"),
+        act("gesture", { kind: "nod" }),
+      ]),
       person("oto", "m2", 0, -1.2, 0, [act("lieStill")]),
     ],
   ),
@@ -257,7 +255,7 @@ export const SCENES_DAILY: readonly IScene[] = [
       id: "fright",
       title: "A fright",
       summary:
-        "Something goes off: a walker startles and takes cover, one winces and braces for impact, one dives for cover, and one stumbles and drops to a knee.",
+        "Something goes off, and four passers-by react at once: one startles and takes cover, one winces and braces for impact, one dives for cover, and one stumbles and drops to a knee.",
       setting: "everyday",
       roles: {
         pat: "passer-by",
@@ -269,11 +267,7 @@ export const SCENES_DAILY: readonly IScene[] = [
     },
     "fright",
     [
-      person("pat", "m1", -1.5, 0, 0, [
-        act("stroll", { to: to(-1.5, 1) }),
-        act("startle"),
-        act("takeCover"),
-      ]),
+      person("pat", "m1", -1.5, 0, 0, [act("startle"), act("takeCover")]),
       person("quy", "f1", -0.5, 0.5, 0, [act("wince"), act("braceForImpact")]),
       person("ray", "m2", 0.5, 0, 0, [act("diveForCover")]),
       person("sue", "f2", 1.5, 0.5, 0, [act("stumble"), act("kneelBriefly")]),
@@ -284,7 +278,7 @@ export const SCENES_DAILY: readonly IScene[] = [
       id: "farewell",
       title: "Farewell at the station",
       summary:
-        "Three people part: kisses on the cheek and the forehead, a fist bump and a pinky promise, a pat on the shoulder and a hand on the back, a blown kiss, and one trudges away.",
+        "Three people part: kisses on the cheek and the forehead, a fist bump and a pinky promise, a pat on one shoulder and a comforting hand on the other, a hand on the heart, a blown kiss, and one trudges away.",
       setting: "everyday",
       roles: { tia: "traveller", uli: "friend", val: "friend" },
       needs: [],
@@ -303,39 +297,13 @@ export const SCENES_DAILY: readonly IScene[] = [
         act("cheekKiss", { partner: "tia" }),
         act("kiss", { partner: "tia", region: "forehead" }),
         act("shoulderPat", { target: at("val", "shoulderLeft") }),
-        act("comfort", { target: at("val", "upperBack") }),
+        act("comfort", { target: at("val", "shoulderRight") }),
       ]),
       person("val", "f2", 0.5, 0.45, 240, [
         act("fistBump", { partner: "tia" }),
         act("pinkyPromise", { partner: "tia" }),
         act("handOnHeart"),
       ]),
-    ],
-  ),
-  scene(
-    {
-      id: "left-luggage",
-      title: "Left luggage",
-      summary:
-        "At the left-luggage counter an attendant lifts a tote by its handle and hands it over by the strap to the traveller beside him.",
-      setting: "everyday",
-      roles: { att: "attendant", trv: "traveller" },
-      needs: [],
-    },
-    "left-luggage",
-    [
-      person("att", "m2", 0, 0.12, 0, [
-        act("pickUp", { prop: "bag", handle: "handle" }),
-        act("handOver", { prop: "bag", to: "trv", handle: "strap" }),
-      ]),
-      person("trv", "m2", -0.65, 0.3, 90, [
-        act("stand", { seconds: 1 }),
-        act("receive", { prop: "bag", from: "att", handle: "strap" }),
-      ]),
-    ],
-    [
-      object("counter", "createTable", "counter", 0, 0.65, 180),
-      object("bag", "createBag", "tote", -0.18, 0.42, 90, 0.91),
     ],
   ),
   scene(
@@ -370,128 +338,6 @@ export const SCENES_DAILY: readonly IScene[] = [
         act("fingerSnap"),
         act("handsUp"),
       ]),
-    ],
-  ),
-  scene(
-    {
-      id: "doorway",
-      title: "At a door",
-      summary:
-        "One person takes a hinged door by its push plate and pushes, the door itself staying shut, then waves over a friend, who walks up.",
-      setting: "everyday",
-      roles: { ada: "host", bea: "friend" },
-      needs: [],
-    },
-    "doorway",
-    [
-      person("ada", "f1", 0, 0.7, 0, [
-        act("openDoor", { door: "door", handle: "push", seconds: 1.5 }),
-        act("comeHere"),
-      ]),
-      person("bea", "m1", 1.2, -1.5, 0, [
-        act("stand", { seconds: 1.5 }),
-        act("walk", { to: to(0.8, 0) }),
-      ]),
-    ],
-    [object("door", "createDoor", "hinged", 0, 1)],
-  ),
-  scene(
-    {
-      id: "dressing-room",
-      title: "Dressing room",
-      summary:
-        "Someone bends to a bag, puts on a hat, takes a knee and rises, and rolls the shoulders.",
-      setting: "everyday",
-      roles: { cyd: "actor" },
-      needs: [],
-    },
-    "dressing",
-    [
-      person("cyd", "f2", 0, 0, 0, [
-        act("bend", {
-          toward: { kind: "prop", subject: "bag", point: "handle" },
-          strategy: "squat",
-        }),
-        act("dress", { item: "hat" }),
-        act("kneel", { kind: "one", hold: 0.6 }),
-        act("selfAction", { kind: "shoulderRoll" }),
-      ]),
-    ],
-    [object("bag", "createBag", "tote", -0.15, 0.35)],
-  ),
-  scene(
-    {
-      id: "stairs-and-ladder",
-      title: "Stairs and ladder",
-      summary:
-        "One person climbs a flight of six stairs, another climbs six rungs of a fixed ladder, and a third steps over a crate lying in the way and braces.",
-      setting: "everyday",
-      roles: { dot: "climber", eve: "climber", fin: "walker" },
-      needs: [],
-    },
-    "climb",
-    [
-      person("dot", "f1", -1.5, 0, 0, [
-        act("climbStairs", {
-          pattern: "stepOverStep",
-          count: STAIRS.count,
-          riser: STAIRS.riser,
-          tread: STAIRS.tread,
-          start: STAIRS.start,
-        }),
-      ]),
-      person("eve", "m1", 0.5, 0, 0, [
-        act("climbLadder", {
-          rungs: LADDER.rungs,
-          spacing: LADDER.spacing,
-          start: LADDER.start,
-        }),
-      ]),
-      person("fin", "m2", 2, -1, 0, [
-        act("walk", { to: to(2, 0) }),
-        act("stepOver", {
-          obstacle: {
-            at: { x: KERB.x, y: 0, z: KERB.z - KERB.depth / 2 },
-            height: KERB.height,
-            depth: KERB.depth,
-          },
-        }),
-        act("brace", { kind: "push", seconds: 1 }),
-      ]),
-    ],
-    [
-      object(
-        "stairs",
-        "createStairs",
-        undefined,
-        -1.5,
-        TOE + STAIRS.start,
-        0,
-        0,
-        {
-          steps: STAIRS.count,
-          riser: STAIRS.riser,
-          tread: STAIRS.tread,
-        },
-      ),
-      object(
-        "ladder",
-        "createLadder",
-        "fixed",
-        0.5,
-        TOE + LADDER.start,
-        180,
-        0,
-        {
-          rungs: LADDER.rungs,
-          spacing: LADDER.spacing,
-        },
-      ),
-      object("kerb", "createLoad", "crate", KERB.x, KERB.z, 0, 0, {
-        length: KERB.length,
-        depth: KERB.depth,
-        height: KERB.height,
-      }),
     ],
   ),
 ];

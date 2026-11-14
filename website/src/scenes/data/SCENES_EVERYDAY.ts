@@ -109,7 +109,10 @@ const FALL: IPlaygroundComposition = {
         { name: "kneel", params: { kind: "one", hold: 1.2 } },
         {
           name: "touch",
-          params: { target: { kind: "self", region: "hipRight" } },
+          params: {
+            target: { kind: "self", region: "hipRight" },
+            kind: "hold",
+          },
         },
         {
           name: "wipe",
@@ -173,7 +176,7 @@ export const SCENES_EVERYDAY: readonly IScene[] = [
     setting: "everyday",
     cast: [
       { subject: "dee", role: "the one who falls" },
-      { subject: "eve", role: "helper" },
+      { subject: "eve", role: "bystander" },
     ],
     composition: FALL,
     takes: SceneTakes.of(FALL),

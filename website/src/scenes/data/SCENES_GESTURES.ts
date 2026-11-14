@@ -11,7 +11,7 @@ export const SCENES_GESTURES: readonly IScene[] = [
       id: "talking-hands",
       title: "Talking hands",
       summary:
-        "Three friends across a noisy room: palms together, fingers crossed, a thumbs down, four and five counted, a fist shaken, ears covered and a blown kiss sent off the palm.",
+        "Three friends across a noisy room: palms together, fingers crossed, a thumbs down, four and five counted, a fist shaken, ears covered, a hand over the mouth and a blown kiss sent off the palm.",
       setting: "everyday",
       roles: { amy: "friend", bob: "friend", cat: "friend" },
       needs: [],
@@ -41,7 +41,7 @@ export const SCENES_GESTURES: readonly IScene[] = [
       id: "powder-room",
       title: "Powder room",
       summary:
-        "Two people at a mirror: one draws lipstick across the lips, the other blows their nose.",
+        "Two guests freshen up: one draws lipstick across the lips, the other blows their nose.",
       setting: "everyday",
       roles: { dot: "guest", eli: "guest" },
       needs: [],
@@ -72,7 +72,7 @@ export const SCENES_GESTURES: readonly IScene[] = [
         }),
         act("photograph", { prop: "camera" }),
       ]),
-      person("gil", "f1", 1.5, 2.5, 210, [
+      person("gil", "f1", 0, 2.5, 180, [
         act("stand", { seconds: 1.5 }),
         act("crossedFingers"),
       ]),
@@ -177,10 +177,10 @@ export const SCENES_GESTURES: readonly IScene[] = [
     ],
     [
       object("table", "createTable", "dining", 0, 0),
-      object("g1", "createDrinkware", "wineGlass", -0.45, -0.3, 0, 0.75),
-      object("g2", "createDrinkware", "wineGlass", 0.25, -0.3, 0, 0.75),
-      object("g3", "createDrinkware", "wineGlass", -0.25, 0.3, 180, 0.75),
-      object("g4", "createDrinkware", "wineGlass", 0.45, 0.3, 180, 0.75),
+      object("g1", "createDrinkware", "wineGlass", -0.45, -0.3, 0, 0.736),
+      object("g2", "createDrinkware", "wineGlass", 0.25, -0.3, 0, 0.736),
+      object("g3", "createDrinkware", "wineGlass", -0.25, 0.3, 180, 0.736),
+      object("g4", "createDrinkware", "wineGlass", 0.45, 0.3, 180, 0.736),
     ],
     [
       mutual(
