@@ -30,17 +30,31 @@ const CABIN: string =
 const PULL: string =
   "handle heights of 100 and 110 cm tested in a luggage-pulling study, Industrial Health 45(6):756-765, 2007 (https://www.jstage.jst.go.jp/article/indhealth/45/6/45_6_756/_article)";
 
-/** The greatest load each kind may carry, kilograms: HSE's 16 kg for a load held close below the elbow by a woman (INDG143, Figure 1, https://www.hse.gov.uk/pubns/indg143.pdf) for a carried bag, and for a suitcase IATA's 32 kg piece limit (https://www.iata.org/en/programs/ops-infra/baggage/passenger-baggage-rules/) less the heaviest empty case of 4.3 kg, rounded down. */
+/** The optimal handle of the Revised NIOSH Lifting Equation, applied to a carried container's handle whose own size no maker gives. */
+const NIOSH: string =
+  "Waters, Putz-Anderson and Garg, Applications Manual for the Revised NIOSH Lifting Equation, DHHS (NIOSH) 94-110 (1994), Table 6 note 1, p. 30: \"An optimal handle design has .75 - 1.5 inches (1.9 to 3.8 cm) diameter, >= 4.5 inches (11.5 cm) length, 2 inches (5 cm) clearance, cylindrical shape\" (https://stacks.cdc.gov/view/cdc/209665/cdc_209665_DS1.pdf), applied to this handle";
+
+/** Two attache cases, seen only in search results; the larger of each case's two face sizes taken as its width. */
+const ATTACHE: string =
+  "Samsonite Focus III 6 in attache, 39.4 x 45.2 x 14.7 cm, 2.95 kg (https://www.samsonite.ca/en/bags/laptop-bags-%26-briefcases/samsonite-focus-iii-6%22-attach%C3%A9/10558XXXX.html), and Rimowa aluminium attache, 35 x 41.5 x 8.5 cm, 2.3 kg (https://rimowa.com/us/en/bags/attache/briefcase/90007010.html), seen only in search results";
+
+/** A maker's toolbox, read, its weight seen only in search results. */
+const TOOLBOX: string =
+  "Stanley 19 in Essential toolbox STST1-75520, 48.2 x 25.4 x 25 cm (https://www.stanleytools.co.uk/product/stst1-75520/stanley-19-essential-tool-box); its 1.5 kg seen only in search results";
+
+/** The greatest load each kind may carry, kilograms: HSE's 16 kg for a load held close below the elbow by a woman (INDG143, Figure 1, https://www.hse.gov.uk/pubns/indg143.pdf) for a carried bag, case or toolbox, and for a suitcase IATA's 32 kg piece limit (https://www.iata.org/en/programs/ops-infra/baggage/passenger-baggage-rules/) less the heaviest empty case of 4.3 kg, rounded down. */
 const LOADS: Readonly<Record<createBag.Kind, number>> = {
   tote: 16,
   backpack: 16,
   suitcase: 27,
+  briefcase: 16,
+  toolbox: 16,
 };
 
 /**
- * A carried bag: a tote with handles and a shoulder strap, a backpack, or a cabin suitcase with a telescopic handle.
+ * A carried bag: a tote with handles and a shoulder strap, a backpack, a cabin suitcase with a telescopic handle, a briefcase or a toolbox.
  *
- * The bag stands on its base at the origin, its wide face toward `+Z`; a backpack's straps are on its `-Z` face, against the back of a wearer who faces `-Z`. A suitcase's pull handle is a part on the `telescope` slider, so drawing it out raises it to the height it is pulled at.
+ * The bag stands on its base at the origin, its wide face toward `+Z`; a suitcase's, a briefcase's and a toolbox's top handle is the Revised NIOSH Lifting Equation's optimal handle, applied: a bar of its diameter band and its 11.5 cm length, standing its 5 cm clearance above the top; a backpack's straps are on its `-Z` face, against the back of a wearer who faces `-Z`. A suitcase's pull handle is a part on the `telescope` slider, so drawing it out raises it to the height it is pulled at.
  *
  * @param params The kind, the load and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -98,9 +112,18 @@ export function createBag(
     "body",
     Vector3.create(width, height, depth),
     Vector3.create(0, height / 2, 0),
-    { color: kind === "suitcase" ? "#3d4a5c" : "#b08d57" },
+    {
+      color:
+        kind === "suitcase" || kind === "briefcase"
+          ? "#3d4a5c"
+          : kind === "toolbox"
+            ? "#c8a020"
+            : "#b08d57",
+    },
   );
-  const bar: number = 0.012;
+  const bar: number =
+    d.handleDiameter !== undefined ? d.handleDiameter / 2 : 0.012;
+  const lift: number = createBag.HANDLE.clearance + bar;
 
   /** A carrying bar along +X at a height, gripped from above, on a riser at each end down to the body's top. */
   const carry = (id: "handle" | "strap", y: number, span: number): void => {
@@ -168,9 +191,11 @@ export function createBag(
         length: height * 0.8,
       });
     }
+  } else if (kind === "briefcase" || kind === "toolbox") {
+    carry("handle", height + lift, createBag.HANDLE.length);
   } else {
     // A suitcase: a carry handle on top, and a pull bar on two posts that slide up out of the back.
-    carry("handle", height + 0.03, 0.12);
+    carry("handle", height + lift, createBag.HANDLE.length);
     const z: number = -depth / 2 + 0.03;
     const travel: number = d.pullHeight! - (height + 0.02);
     builder.rod(
@@ -228,10 +253,22 @@ export function createBag(
  */
 export namespace createBag {
   /** The kinds of bag. */
-  export type Kind = "tote" | "backpack" | "suitcase";
+  export type Kind = "tote" | "backpack" | "suitcase" | "briefcase" | "toolbox";
 
   /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["tote", "backpack", "suitcase"];
+  export const KINDS: readonly Kind[] = [
+    "tote",
+    "backpack",
+    "suitcase",
+    "briefcase",
+    "toolbox",
+  ];
+
+  /** The Revised NIOSH Lifting Equation's optimal handle's length and clearance, metres, applied to a suitcase's, a briefcase's and a toolbox's top handle (Applications Manual, NIOSH 94-110, Table 6 note 1, p. 30, https://stacks.cdc.gov/view/cdc/209665/cdc_209665_DS1.pdf): at least 11.5 cm long, 5 cm clear of the top. */
+  export const HANDLE: Readonly<{ length: number; clearance: number }> = {
+    length: 0.115,
+    clearance: 0.05,
+  };
 
   /**
    * The affordance ids:
@@ -257,6 +294,7 @@ export namespace createBag {
    * - `handleDrop`: the top of a tote's handles above its body.
    * - `strapDrop`: the top of a tote's shoulder strap above its body.
    * - `pullHeight`: a suitcase's pull bar above the floor when drawn out.
+   * - `handleDiameter`: a suitcase's, a briefcase's or a toolbox's top handle bar.
    * - `mass`: the empty bag, kilograms.
    */
   export type Dimension =
@@ -266,6 +304,7 @@ export namespace createBag {
     | "handleDrop"
     | "strapDrop"
     | "pullHeight"
+    | "handleDiameter"
     | "mass";
 
   /** The parameters: the kind, the load, and any free dimension fixed to a value inside its band. */
@@ -276,7 +315,7 @@ export namespace createBag {
     /** The model's id, unique in a scene; `bag` when absent. */
     id?: string;
 
-    /** The mass of what the bag holds, kilograms: up to 16 for a tote or a backpack and 27 for a suitcase; empty when absent. */
+    /** The mass of what the bag holds, kilograms: up to 16 for a tote, a backpack, a briefcase or a toolbox and 27 for a suitcase; empty when absent. */
     load?: number;
   }
 
@@ -303,6 +342,7 @@ export namespace createBag {
       height: ArchetypeBand.metres(0.55, 0.56, CABIN),
       depth: ArchetypeBand.metres(0.23, 0.25, CABIN),
       pullHeight: ArchetypeBand.metres(1, 1.1, PULL),
+      handleDiameter: ArchetypeBand.metres(0.019, 0.038, NIOSH, true),
       mass: ArchetypeBand.of(
         "kg",
         3.2,
@@ -310,6 +350,20 @@ export namespace createBag {
         "Rimowa Essential and Classic Cabin, 3.2 and 4.3 kg, product pages seen only in search results",
         true,
       ),
+    },
+    briefcase: {
+      width: ArchetypeBand.metres(0.415, 0.452, ATTACHE, true),
+      height: ArchetypeBand.metres(0.35, 0.394, ATTACHE, true),
+      depth: ArchetypeBand.metres(0.085, 0.147, ATTACHE, true),
+      handleDiameter: ArchetypeBand.metres(0.019, 0.038, NIOSH, true),
+      mass: ArchetypeBand.of("kg", 2.3, 2.95, ATTACHE, true),
+    },
+    toolbox: {
+      width: ArchetypeBand.metres(0.482, 0.482, TOOLBOX),
+      height: ArchetypeBand.metres(0.25, 0.25, TOOLBOX),
+      depth: ArchetypeBand.metres(0.254, 0.254, TOOLBOX),
+      handleDiameter: ArchetypeBand.metres(0.019, 0.038, NIOSH, true),
+      mass: ArchetypeBand.of("kg", 1.5, 1.5, TOOLBOX, true),
     },
   };
 }
