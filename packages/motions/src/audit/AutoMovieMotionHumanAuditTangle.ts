@@ -59,6 +59,10 @@ import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMo
  * A caller may also exempt the hand a law declares in contact with the
  * person's own body from the bone that carries the touched region, for the
  * span of that contact window (`exemptions`): the hand is meant to lie there.
+ * An arm's segment a law declares lying on a segment of the same person (a
+ * self-hug's forearm on the other forearm or on the chest) is read against
+ * that segment only beyond `BUILT` over its window: a resting forearm may
+ * press the skin as far as it gives, and no deeper.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the probes, the depth, both removals with their reasons and the declared-contact exemption.
  * @evidence contracts/development/implementation.md#principled-implementation Interior depth of a point in a convex polytope is its least distance to the supporting planes; the engine's hull faces and shape distance are the owners of both.
@@ -124,9 +128,13 @@ export namespace AutoMovieMotionHumanAuditTangle {
       rate,
     )) {
       const skip: Set<string> = new Set();
+      const pressed: Map<string, number> = new Map();
       for (const e of exempt)
-        if (t >= e.from && t <= e.to) for (const key of e.pairs) skip.add(key);
-      for (const pair of pose(body, motion.bones(subject, t), skip)) {
+        if (t >= e.from && t <= e.to)
+          for (const key of e.pairs)
+            if (e.depth === undefined) skip.add(key);
+            else pressed.set(key, Math.max(pressed.get(key) ?? 0, e.depth));
+      for (const pair of pose(body, motion.bones(subject, t), skip, pressed)) {
         const key: string = unordered(pair.a, pair.b);
         const known: IPair | undefined = deepest.get(key);
         if (known === undefined || pair.depth > known.depth)
@@ -155,12 +163,14 @@ export namespace AutoMovieMotionHumanAuditTangle {
    * @param body The body.
    * @param bones Its displayed bones.
    * @param skip Unordered pair keys (`unordered`) not to read.
+   * @param pressed Unordered pair keys read only beyond a depth, metres: a declared rest's give.
    * @returns The pairs, each once, with the deeper direction.
    */
   export function pose(
     body: IHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     skip: ReadonlySet<string> = new Set(),
+    pressed: ReadonlyMap<string, number> = new Map(),
   ): IPair[] {
     const m: AutoMovieMotionHumanAuditTangleModel.IModel =
       AutoMovieMotionHumanAuditTangleModel.model(body);
@@ -189,7 +199,9 @@ export namespace AutoMovieMotionHumanAuditTangle {
           j,
           i,
         );
-        const depth: number = Math.max(forward, backward);
+        const depth: number =
+          Math.max(forward, backward) -
+          (pressed.get(unordered(placed[i]!.bone, placed[j]!.bone)) ?? 0);
         // A nanometre: below it a depth is the rounding of the two frames.
         if (depth > 1e-9)
           out.push({
@@ -375,11 +387,13 @@ export namespace AutoMovieMotionHumanAuditTangle {
   }
 }
 
-/** A declared self-contact: pair keys left unread in a span of film seconds. */
+/** A declared self-contact: pair keys left unread, or read beyond a depth, in a span of film seconds. */
 interface IExemption {
   from: number;
   to: number;
   pairs: string[];
+  /** How deep the pairs may press, metres; left unread when absent. */
+  depth?: number;
 }
 
 /** The declared contacts of a person with their own body, as pair keys and spans. */
@@ -395,6 +409,22 @@ const exemptions = (
   )) {
     const support = window.contact.support;
     if (support.kind !== "person" || support.subject !== subject) continue;
+    // An arm's segment declared lying on a segment of the same person: read
+    // only beyond the skin's give (`BUILT`).
+    if ("bone" in support) {
+      out.push({
+        from: window.from,
+        to: window.to,
+        pairs: [
+          AutoMovieMotionHumanAuditTangle.unordered(
+            window.contact.part as AutoMovieHumanoidBone,
+            support.bone,
+          ),
+        ],
+        depth: AutoMovieMotionHumanAuditTangle.BUILT,
+      });
+      continue;
+    }
     const part: string = window.contact.part;
     if (part !== "leftHand" && part !== "rightHand") continue;
     const touched: AutoMovieHumanoidBone =

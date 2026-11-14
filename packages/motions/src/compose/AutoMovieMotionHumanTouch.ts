@@ -24,6 +24,7 @@ import { AutoMovieMotionHumanArm } from "./AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanDrinkingArm } from "./AutoMovieMotionHumanDrinkingArm";
 import { AutoMovieMotionHumanHand } from "./AutoMovieMotionHumanHand";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
+import { AutoMovieMotionHumanTouchContacts } from "./AutoMovieMotionHumanTouchContacts";
 import { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchForm } from "./AutoMovieMotionHumanTouchForm";
 import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
@@ -150,6 +151,9 @@ export namespace AutoMovieMotionHumanTouch {
     /** `keep` leaves the fingers as the base holds them, as a hand that grips a prop must; they take the effector's shape when absent. */
     fingers?: "keep";
 
+    /** The arm's segments that lie on a person's segment while the hand is on the region, each declared as a contact from `ready` to `relax` (a self-hug's forearm on the other forearm or on the chest); none when absent. */
+    rests?: readonly AutoMovieMotionHumanTouchContacts.IRest[];
+
     /**
      * Another body's placed colliders the arm keeps clear of at a second (`IHumanPosture.IGoal.clear`), and the ones it lays the hand on (`IHumanPosture.IGoal.rests`); none when absent.
      *
@@ -231,7 +235,7 @@ export namespace AutoMovieMotionHumanTouch {
    * (`AutoMovieMotionHumanDrinkingArm.carried`).
    *
    * @param props The touch.
-   * @returns The arm's and the hand's primitives, the arm's alone when the fingers are kept; the arm carries the contact window from `ready` to `relax` when a support is given and the hand, not a held tool, is what touches it.
+   * @returns The arm's and the hand's primitives, the arm's alone when the fingers are kept; the arm carries the contact window from `ready` to `relax` when a support is given and the hand, not a held tool, is what touches it, and one `lie` window over the same span for each of its segments declared resting (`ITouch.rests`).
    * @throws {Error} When the count is not a positive whole number.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the phases, the lift and travel formulas and the contact window.
@@ -278,23 +282,17 @@ export namespace AutoMovieMotionHumanTouch {
     // the body there, and nothing excuses its fingers' depth in it.
     const tool: boolean =
       props.held !== undefined || props.effector.tool !== undefined;
+    const contacts: IHumanContactWindow[] =
+      AutoMovieMotionHumanTouchContacts.windows(
+        clock,
+        side,
+        tool && props.contact?.kind === "person" ? undefined : props.contact,
+        props.rests ?? [],
+      );
     return [
       {
         ...arm,
-        ...(props.contact === undefined ||
-        (tool && props.contact.kind === "person")
-          ? {}
-          : {
-              contacts: [
-                {
-                  part: `${side}Hand`,
-                  kind: "grip",
-                  from: clock.at("ready") / clock.duration,
-                  to: clock.at("relax") / clock.duration,
-                  support: props.contact,
-                } satisfies IHumanContactWindow,
-              ],
-            }),
+        ...(contacts.length === 0 ? {} : { contacts }),
       },
       ...(props.fingers === "keep"
         ? []

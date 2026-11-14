@@ -1,9 +1,13 @@
-import type { AutoMovieHumanoidRegion } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+} from "@automovie/interface";
 
 /**
  * A span of an action during which a body part bears on something: a foot
  * planted or pivoting on the floor, a hand gripping, the seat or the back
- * resting, a striking surface in contact.
+ * resting, a forearm lying on the other forearm or the chest, a striking
+ * surface in contact.
  *
  * Shares are of the action's duration, `from <= to`, both in [0, 1]. The
  * performance re-solves a planted or gripping limb onto its goal after every
@@ -39,6 +43,10 @@ export namespace IHumanContactWindow {
     "rightHand",
     "seat",
     "back",
+    "leftUpperArm",
+    "rightUpperArm",
+    "leftLowerArm",
+    "rightLowerArm",
   ] as const;
 
   /** The ways a part bears, as data. */
@@ -51,9 +59,15 @@ export namespace IHumanContactWindow {
     "strike",
   ] as const;
 
-  /** The frame a contact bears on: the ground, a prop subject or a person's region. */
+  /**
+   * The frame a contact bears on: the ground, a prop subject, a person's
+   * region, or a person's segment, the bone an arm's segment lies along (a
+   * self-hug's forearm on the other forearm), where a region's point and
+   * frame would not say which part of the segment it lies on.
+   */
   export type Support =
     | { kind: "ground" }
     | { kind: "prop"; subject: string }
-    | { kind: "person"; subject: string; region: AutoMovieHumanoidRegion };
+    | { kind: "person"; subject: string; region: AutoMovieHumanoidRegion }
+    | { kind: "person"; subject: string; bone: AutoMovieHumanoidBone };
 }

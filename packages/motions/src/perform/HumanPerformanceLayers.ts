@@ -181,11 +181,16 @@ export namespace HumanPerformanceLayers {
             ? contact.part === "leftHand"
               ? ["leftHand", "leftArm"]
               : ["rightHand", "rightArm"]
-            : contact.part === "leftFoot"
-              ? ["leftLeg"]
-              : contact.part === "rightFoot"
-                ? ["rightLeg"]
-                : [];
+            : contact.part === "leftUpperArm" || contact.part === "leftLowerArm"
+              ? ["leftArm"]
+              : contact.part === "rightUpperArm" ||
+                  contact.part === "rightLowerArm"
+                ? ["rightArm"]
+                : contact.part === "leftFoot"
+                  ? ["leftLeg"]
+                  : contact.part === "rightFoot"
+                    ? ["rightLeg"]
+                    : [];
         const taken: AutoMovieMotionHumanChannel[] = held.filter(
           (c: AutoMovieMotionHumanChannel): boolean =>
             layer.channels?.includes(c) === true,
