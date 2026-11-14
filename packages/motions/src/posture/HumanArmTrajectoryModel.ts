@@ -129,8 +129,8 @@ export namespace HumanArmTrajectoryModel {
     objective: number;
     /** The constraints' violations summed, millimetres. */
     violation: number;
-    /** The worst violation past its slack, what it is and the refusal's axis. */
-    worst: { value: number; what: string; axis: string };
+    /** The worst violation past its slack, what it is, the refusal's axis and the waypoint it is read at (an interval's first, for a step or a sweep). */
+    worst: { value: number; what: string; axis: string; at: number };
   }
 
   /**
@@ -172,13 +172,15 @@ export namespace HumanArmTrajectoryModel {
     );
     let objective: number = 0;
     let violation: number = 0;
-    let worst: IEvaluation["worst"] = { value: 0, what: "", axis: "region" };
+    let worst: IEvaluation["worst"] = { value: 0, what: "", axis: "region", at: 0 };
     // A clearance miss refuses only past the audit's own skin, the margin
     // the allowance keeps below it aside (`HumanArmTrajectoryTerms.SKIN`).
+    // The waypoint the loop below reads, where a violation noted is placed.
+    let here: number = 0;
     const note = (v: number, axis: string, what: () => string, slack: number = 0): void => {
       if (v <= 0) return;
       violation += v;
-      if (v - slack > worst.value) worst = { value: v - slack, what: what(), axis };
+      if (v - slack > worst.value) worst = { value: v - slack, what: what(), axis, at: here };
     };
     const n: number = c.n;
     const times: readonly number[] = c.times;
@@ -191,6 +193,7 @@ export namespace HumanArmTrajectoryModel {
           objective += T.ACCELERATION * acc * acc;
         }
       for (let k: number = 0; k + 1 < n; ++k) {
+        here = k;
         for (const p of c.still ? [] : T.PATH) {
           const s: number = 1000 * Vector3.length(Vector3.subtract(placed[a]![k + 1]!.probes[p]![0], placed[a]![k]!.probes[p]![0]));
           objective += T.LENGTH * s * s;
@@ -212,6 +215,7 @@ export namespace HumanArmTrajectoryModel {
         }
       }
       for (let k: number = 1; k + 1 < n; ++k) {
+        here = k;
         const site: ISite | undefined = c.sites[a]![k];
         if (site !== undefined) {
           const at: P.ILocated = P.located(c, placed, a, k, site);
@@ -247,6 +251,7 @@ export namespace HumanArmTrajectoryModel {
     if (x.length === 2)
       for (let k: number = 1; k + 1 < n; ++k)
         for (const pair of P.crossing(c, k, placed[0]![k]!, placed[1]![k]!).values()) {
+          here = k;
           note(pair.short, "region", () => `probe ${pair.probe} of the ${pair.a === 0 ? "first" : "second"} arm ${pair.short.toFixed(1)} mm inside the other's ${pair.bone} at ${times[k]!.toFixed(3)} s`, T.SKIN);
           if (pair.rested) objective += T.LIFT * pair.short * pair.short;
         }

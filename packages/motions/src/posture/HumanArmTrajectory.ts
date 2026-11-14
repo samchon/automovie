@@ -4,6 +4,7 @@ import type { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmMirror } from "./HumanArmMirror";
 import { HumanArmOptimiser } from "./HumanArmOptimiser";
+import { HumanArmRefine } from "./HumanArmRefine";
 import { HumanArmSeed } from "./HumanArmSeed";
 import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
@@ -18,7 +19,8 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
  * sequential convex optimisation with a trust region (TrajOpt's Algorithm
  * 1, `HumanArmOptimiser`) from a seed whose hold is solved by inverse
  * kinematics and whose reach and return are a sampling planner's clear paths
- * (`HumanArmSeed`). Two arms that move over one span are one problem, their probes kept
+ * (`HumanArmSeed`), its waypoints refined where they do not bound what lies
+ * between them (`HumanArmRefine`). Two arms that move over one span are one problem, their probes kept
  * clear of each other as they both move: planning one after the other is
  * incomplete where their paths are coupled (Erdmann and Lozano-Pérez 1987,
  * Algorithmica 2:477). One arm alone is solved as the right arm in the
@@ -63,23 +65,61 @@ export namespace HumanArmTrajectory {
   export type Trajectory = (seconds: number) => HumanArmClearance.IArm;
 
   /**
-   * Solve the problem.
+   * Solve the problem, its waypoints refined where they do not bound what
+   * lies between them (`HumanArmRefine`): first on the seed, then on each
+   * solution, which is solved again from itself on the refined waypoints
+   * until every interval bounds its site's path and its probes' clearance
+   * or is down to the frame grid, the check-and-refine loop of a continuous
+   * collision check. A solution that does not meet its constraints is also
+   * refined about the waypoint it fails at, the discretisation being what a
+   * continuous constraint (a sweep, a speed) is met on, and solved again.
    *
-   * @param problem The problem.
+   * @param read The problem on given waypoints' seconds.
+   * @param times The first waypoints' seconds, ascending.
    * @returns Each arm's trajectory, in the problem's order.
    * @throws {HumanRefusal} When no trajectory meets the constraints.
    */
-  export function solve(problem: IProblem): Trajectory[] {
-    if (alone(problem)) return solve(mirrored(problem));
-    const context: M.IContext = HumanArmTrajectoryContext.of(problem);
+  export function solve(read: (times: readonly number[]) => IProblem, times: readonly number[]): Trajectory[] {
+    const first: IProblem = read(times);
+    const reading: (times: readonly number[]) => IProblem = alone(first) ? (t: readonly number[]): IProblem => mirrored(read(t)) : read;
+    let problem: IProblem = alone(first) ? mirrored(first) : first;
+    let context: M.IContext = HumanArmTrajectoryContext.of(problem);
+    // The frame grid over the span, the instants between waypoints are read at.
+    const start: number = times[0]!;
+    const end: number = times[times.length - 1]!;
+    const grid: number[] = [start];
+    for (let j: number = 1; start + j * STEP < end - 1e-9; ++j) grid.push(start + j * STEP);
+    grid.push(end);
+    const fine: M.IContext = HumanArmTrajectoryContext.of(reading(grid));
+    // Split where the waypoints do not bound what lies between them, and
+    // about a waypoint the solve could not meet its constraints at, the arms
+    // carried onto the new waypoints by their own interpolant.
+    const refined = (x: number[][][], failed?: M.IEvaluation): number[][][] | undefined => {
+      const split: number[] = HumanArmRefine.unbounded(context, fine, x);
+      if (failed !== undefined && failed.worst.value > M.TOLERANCE)
+        for (const k of [failed.worst.at - 1, failed.worst.at])
+          if (k >= 0 && k + 1 < context.n && context.times[k + 1]! - context.times[k]! >= 2 * STEP - 1e-9 && !split.includes(k)) split.push(k);
+      split.sort((p: number, q: number): number => p - q);
+      if (split.length === 0) return undefined;
+      const next: number[] = HumanArmRefine.split(context.times, split);
+      const carried: number[][][] = x.map((arm: number[][]): number[][] => next.map((t: number): number[] => HumanArmRefine.hermite(context.times, arm, t)));
+      problem = reading(next);
+      context = HumanArmTrajectoryContext.of(problem);
+      return carried;
+    };
+    let seed: number[][][] = HumanArmSeed.seed(problem, context);
+    for (let again: number[][][] | undefined = refined(seed); again !== undefined; again = refined(seed)) seed = again;
+    let solved: { x: number[][][]; evaluation: M.IEvaluation } = HumanArmOptimiser.optimise(context, seed);
+    for (let again: number[][][] | undefined = refined(solved.x, solved.evaluation); again !== undefined; again = refined(solved.x, solved.evaluation))
+      solved = HumanArmOptimiser.optimise(context, again);
+    const { x, evaluation: current }: { x: number[][][]; evaluation: M.IEvaluation } = solved;
     const n: number = context.n;
-    const times: readonly number[] = context.times;
-    const { x, evaluation: current }: { x: number[][][]; evaluation: M.IEvaluation } = HumanArmOptimiser.optimise(context, HumanArmSeed.seed(problem, context));
+    const at: readonly number[] = context.times;
     if (current.worst.value > M.TOLERANCE)
       throw new HumanRefusal({
         kind: "reach",
         axis: current.worst.axis,
-        value: current.worst.axis === "duration" ? times[n - 1]! - times[0]! : current.worst.value,
+        value: current.worst.axis === "duration" ? at[n - 1]! - at[0]! : current.worst.value,
         feasible: null,
         reason: `no path of the ${problem.arms.map((a: IArm): string => a.side).join(" and ")} arm over the action keeps the hand on its site, the arm clear and its speed within the audit's ${M.SPEED_LIMIT} m/s: ${current.worst.what}`,
         fix:
@@ -87,10 +127,11 @@ export namespace HumanArmTrajectory {
             ? "give the action more time"
             : "put the hand on a site its arm reaches with the body clear",
       });
+    const setups: G.ISetup[] = context.setups;
     return problem.arms.map(
       (_: IArm, a: number): Trajectory =>
         (seconds: number): HumanArmClearance.IArm =>
-          G.arm(context.setups[a]!, hermite(times, x[a]!, seconds)),
+          G.arm(setups[a]!, HumanArmRefine.hermite(at, x[a]!, seconds)),
     );
   }
 
@@ -128,34 +169,5 @@ export namespace HumanArmTrajectory {
   }
 }
 
-/** A cubic Hermite through waypoints at their seconds, tangents by central differences in time, still at both ends. */
-function hermite(
-  times: readonly number[],
-  x: readonly (readonly number[])[],
-  seconds: number,
-): number[] {
-  const n: number = times.length;
-  if (seconds <= times[0]!) return [...x[0]!];
-  if (seconds >= times[n - 1]!) return [...x[n - 1]!];
-  let k: number = 0;
-  while (k + 2 < n && times[k + 1]! <= seconds) ++k;
-  const h: number = times[k + 1]! - times[k]!;
-  const u: number = (seconds - times[k]!) / h;
-  const tangent = (j: number): number[] =>
-    j === 0 || j === n - 1
-      ? new Array(G.DIMENSIONS).fill(0)
-      : x[j + 1]!.map(
-          (v: number, d: number): number =>
-            (v - x[j - 1]![d]!) / (times[j + 1]! - times[j - 1]!),
-        );
-  const m0: number[] = tangent(k);
-  const m1: number[] = tangent(k + 1);
-  const h00: number = 2 * u ** 3 - 3 * u ** 2 + 1;
-  const h10: number = u ** 3 - 2 * u ** 2 + u;
-  const h01: number = -2 * u ** 3 + 3 * u ** 2;
-  const h11: number = u ** 3 - u ** 2;
-  return x[k]!.map(
-    (v: number, d: number): number =>
-      h00 * v + h10 * h * m0[d]! + h01 * x[k + 1]![d]! + h11 * h * m1[d]!,
-  );
-}
+/** The frame grid, seconds: the instants between waypoints are read at. */
+const STEP: number = 1 / 30;
