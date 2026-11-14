@@ -2,7 +2,6 @@ import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   AutoMovieHumanoidSocket,
-  IAutoMovieQuaternion,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
   IAutoMoviePhysicalProfile as P,
@@ -10,11 +9,9 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { physicalHullFaces } from "../physics/physicalHullFaces";
-import { physicalShapeBounds } from "../physics/physicalShapeBounds";
-import { physicalShapeNormal } from "../physics/physicalShapeNormal";
-import { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
-import { resolvePose } from "./resolvePose";
+import { AutoMovieHumanoidSurfaceRays } from "./AutoMovieHumanoidSurfaceRays";
+import { AutoMovieHumanoidSurfaceRegions } from "./AutoMovieHumanoidSurfaceRegions";
+import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 
 /**
  * Resolve every anatomical region and contact socket of a canonical humanoid
@@ -73,21 +70,25 @@ export function resolveAutoMovieHumanoidSurfaces(
   skeleton: IAutoMovieSkeleton,
   profile: P,
 ): resolveAutoMovieHumanoidSurfaces.ISurfaces {
-  const { at, bounds, local, station, exit, surface } = tools(
-    skeleton,
-    profile,
-  );
+  const { at, bounds, local, station, exit, surface } =
+    AutoMovieHumanoidSurfaceRays.tools(skeleton, profile);
 
   const regions = {} as Record<
     AutoMovieHumanoidRegion,
     resolveAutoMovieHumanoidSurfaces.IFrame
   >;
-  for (const [name, def] of Object.entries(REGIONS) as [
+  for (const [name, def] of Object.entries(
+    AutoMovieHumanoidSurfaceRegions.TABLE,
+  ) as [
     AutoMovieHumanoidRegion,
-    IRegionDef,
+    AutoMovieHumanoidSurfaceRegions.IDefinition,
   ][]) {
     const origin: IAutoMovieVector3 = station(def.station);
-    const hit: ISurfacePoint = surface(def.station.bone, origin, def.direction);
+    const hit: AutoMovieHumanoidSurfaceRays.ISurfacePoint = surface(
+      def.station.bone,
+      origin,
+      def.direction,
+    );
     regions[name] = local(def.station.bone, hit.point, hit.normal);
   }
 
@@ -208,7 +209,11 @@ export function resolveAutoMovieHumanoidSurfaces(
     )
       ? bone("IndexDistal")
       : bone("Hand");
-    const tip: ISurfacePoint = surface(phalanx, distal, along);
+    const tip: AutoMovieHumanoidSurfaceRays.ISurfacePoint = surface(
+      phalanx,
+      distal,
+      along,
+    );
     regions[`indexTip${Side}` as AutoMovieHumanoidRegion] = local(
       bone("IndexDistal"),
       tip.point,
@@ -303,7 +308,7 @@ export namespace resolveAutoMovieHumanoidSurfaces {
    * @returns False for the palms, soles, heels, seat and index fingertips, which take a socket's point or a finger's line.
    */
   export function rayed(region: AutoMovieHumanoidRegion): boolean {
-    return REGIONS[region] !== undefined;
+    return AutoMovieHumanoidSurfaceRegions.TABLE[region] !== undefined;
   }
 
   /**
@@ -329,10 +334,12 @@ export namespace resolveAutoMovieHumanoidSurfaces {
     region: AutoMovieHumanoidRegion,
     tangent: ITangent,
   ): IFrame {
-    const def: IRegionDef | undefined = REGIONS[region];
+    const def: AutoMovieHumanoidSurfaceRegions.IDefinition | undefined =
+      AutoMovieHumanoidSurfaceRegions.TABLE[region];
     if (def === undefined)
       throw new Error(`The region ${region} is not placed by a ray`);
-    const { local, station, exit, surface } = tools(skeleton, profile);
+    const { local, station, exit, surface } =
+      AutoMovieHumanoidSurfaceRays.tools(skeleton, profile);
     const origin: IAutoMovieVector3 = station(def.station);
     const d: IAutoMovieVector3 = Vector3.normalize(def.direction);
     const reference: IAutoMovieVector3 =
@@ -352,33 +359,13 @@ export namespace resolveAutoMovieHumanoidSurfaces {
       origin,
     );
     const toward: IAutoMovieVector3 = Vector3.length(ray) > BOUNDARY ? ray : d;
-    const hit: ISurfacePoint = surface(def.station.bone, origin, toward);
+    const hit: AutoMovieHumanoidSurfaceRays.ISurfacePoint = surface(
+      def.station.bone,
+      origin,
+      toward,
+    );
     return local(def.station.bone, hit.point, hit.normal);
   }
-}
-
-/** A bone-local frame under construction. */
-type IFrameLocal = resolveAutoMovieHumanoidSurfaces.IFrame;
-
-/** Where on a segment a region's ray starts. */
-interface IStation {
-  /** The bone. */
-  bone: AutoMovieHumanoidBone;
-
-  /** A child joint to interpolate toward, or the colliders' bounds centre. */
-  toward: AutoMovieHumanoidBone | "centre";
-
-  /** Share of the way toward the child joint. */
-  share: number;
-}
-
-/** A region's station and rest-frame outward direction. */
-interface IRegionDef {
-  /** Ray origin. */
-  station: IStation;
-
-  /** Outward direction in the T-pose rest frame. */
-  direction: IAutoMovieVector3;
 }
 
 /** Radius of a 50 mm handle, the optimal power-grip size (Grant, Habes and Steward 1992), metres. */
@@ -389,356 +376,3 @@ const KNUCKLE_RADIUS: number = 0.012;
 
 /** Metres a station may sit outside a collider and still count as on it: the colliders are closed sets, so a station on a face or a cap must not miss by rounding. */
 const BOUNDARY: number = 1e-9;
-
-/** Every region's definition, both sides from one table: +X is the body's left. */
-const REGIONS: Readonly<Partial<Record<AutoMovieHumanoidRegion, IRegionDef>>> =
-  (() => {
-    const v = (x: number, y: number, z: number): IAutoMovieVector3 => ({
-      x,
-      y,
-      z,
-    });
-    const head: IStation = { bone: "head", toward: "centre", share: 0 };
-    const neck: IStation = { bone: "neck", toward: "head", share: 0.5 };
-    const chest = (share: number): IStation => ({
-      bone: "chest",
-      toward: "neck",
-      share,
-    });
-    const spine = (share: number): IStation => ({
-      bone: "spine",
-      toward: "chest",
-      share,
-    });
-    const table: Partial<Record<AutoMovieHumanoidRegion, IRegionDef>> = {
-      crown: { station: head, direction: v(0, 1, 0) },
-      forehead: { station: head, direction: v(0, 0.45, 1) },
-      face: { station: head, direction: v(0, 0, 1) },
-      noseBridge: { station: head, direction: v(0, 0.1, 1) },
-      nose: { station: head, direction: v(0, -0.15, 1) },
-      mouth: { station: head, direction: v(0, -0.4, 1) },
-      chin: { station: head, direction: v(0, -0.75, 0.65) },
-      headBack: { station: head, direction: v(0, 0, -1) },
-      throat: { station: neck, direction: v(0, 0, 1) },
-      nape: { station: neck, direction: v(0, 0, -1) },
-      sternum: { station: chest(0.5), direction: v(0, 0, 1) },
-      solarPlexus: { station: chest(0), direction: v(0, 0, 1) },
-      liver: { station: chest(0.1), direction: v(-0.8, 0, 0.6) },
-      spleen: { station: chest(0.1), direction: v(0.8, 0, 0.6) },
-      upperBack: { station: chest(0.5), direction: v(0, 0, -1) },
-      abdomen: { station: spine(0.4), direction: v(0, 0, 1) },
-      lowerBack: { station: spine(0.4), direction: v(0, 0, -1) },
-      groin: {
-        station: { bone: "hips", toward: "centre", share: 0 },
-        direction: v(0, -0.6, 0.8),
-      },
-    };
-    for (const [Side, x] of [
-      ["Left", 1],
-      ["Right", -1],
-    ] as const) {
-      const s = (name: string): AutoMovieHumanoidBone =>
-        `${Side.toLowerCase()}${name}` as AutoMovieHumanoidBone;
-      const set = (name: string, def: IRegionDef): void => {
-        table[`${name}${Side}` as AutoMovieHumanoidRegion] = def;
-      };
-      set("jaw", { station: head, direction: v(0.7 * x, -0.55, 0.45) });
-      // The cheek: the zygomatic prominence over the buccal area, at the
-      // nose's height (its ray's -0.15) and 40 degrees out from the face's
-      // forward ray, tan 40 = 0.84 (provisional).
-      set("cheek", { station: head, direction: v(0.84 * x, -0.15, 1) });
-      set("temple", { station: head, direction: v(x, 0.25, 0.3) });
-      set("ear", { station: head, direction: v(x, 0, 0) });
-      set("neck", { station: neck, direction: v(x, 0, 0) });
-      set("chest", { station: chest(0.55), direction: v(0.45 * x, 0, 1) });
-      set("ribs", { station: chest(0.25), direction: v(x, 0, 0.15) });
-      set("kidney", { station: spine(0.8), direction: v(0.6 * x, 0, -0.8) });
-      set("hip", {
-        station: { bone: s("UpperLeg"), toward: s("LowerLeg"), share: 0 },
-        direction: v(x, 0, 0),
-      });
-      // The top of the shoulder over the acromion, on the thorax's collider
-      // at nine tenths of the way from the chest's joint to the shoulder's,
-      // facing up and a little out along the trapezius' slope
-      // (provisional). It rode the upper arm's capsule before; with the arm
-      // hanging, that point and its normal turned to the arm's outer side.
-      set("shoulder", {
-        station: { bone: "chest", toward: s("UpperArm"), share: 0.9 },
-        direction: v(0.3 * x, 1, 0),
-      });
-      set("upperArm", {
-        station: { bone: s("UpperArm"), toward: s("LowerArm"), share: 0.5 },
-        direction: v(0, 1, 0),
-      });
-      set("elbow", {
-        station: { bone: s("LowerArm"), toward: s("Hand"), share: 0 },
-        direction: v(0, 0, -1),
-      });
-      set("forearm", {
-        station: { bone: s("LowerArm"), toward: s("Hand"), share: 0.5 },
-        direction: v(0, 1, 0),
-      });
-      set("wrist", {
-        station: { bone: s("LowerArm"), toward: s("Hand"), share: 0.95 },
-        direction: v(0, 1, 0),
-      });
-      set("pocketFront", {
-        station: { bone: s("UpperLeg"), toward: s("LowerLeg"), share: 0.15 },
-        direction: v(0.35 * x, 0, 1),
-      });
-      set("handBack", {
-        station: { bone: s("Hand"), toward: s("MiddleProximal"), share: 0.5 },
-        direction: v(0, 1, 0),
-      });
-      set("thighFront", {
-        station: { bone: s("UpperLeg"), toward: s("LowerLeg"), share: 0.5 },
-        direction: v(0, 0, 1),
-      });
-      set("thighOuter", {
-        station: { bone: s("UpperLeg"), toward: s("LowerLeg"), share: 0.5 },
-        direction: v(x, 0, 0),
-      });
-      set("thighInner", {
-        station: { bone: s("UpperLeg"), toward: s("LowerLeg"), share: 0.5 },
-        direction: v(-x, 0, 0),
-      });
-      set("knee", {
-        station: { bone: s("LowerLeg"), toward: s("Foot"), share: 0 },
-        direction: v(0, 0, 1),
-      });
-      set("shin", {
-        station: { bone: s("LowerLeg"), toward: s("Foot"), share: 0.5 },
-        direction: v(0, 0, 1),
-      });
-      set("calf", {
-        station: { bone: s("LowerLeg"), toward: s("Foot"), share: 0.35 },
-        direction: v(0, 0, -1),
-      });
-      set("footTop", {
-        station: { bone: s("Foot"), toward: s("Toes"), share: 0.5 },
-        direction: v(0, 1, 0),
-      });
-    }
-    return table;
-  })();
-
-/** The farthest distance along a unit ray at which it is still inside a shape, or -Infinity on a miss. */
-function shapeExit(
-  frame: P.ITransform,
-  shape: P.IShape,
-  origin: IAutoMovieVector3,
-  d: IAutoMovieVector3,
-): number {
-  const centre: IAutoMovieVector3 = Vector3.add(
-    frame.position,
-    Quaternion.rotateVector(frame.rotation, shape.transform.position),
-  );
-  const rotation: IAutoMovieQuaternion = Quaternion.multiply(
-    frame.rotation,
-    shape.transform.rotation,
-  );
-  const sphere = (c: IAutoMovieVector3, r: number): number => {
-    const oc: IAutoMovieVector3 = Vector3.subtract(origin, c);
-    const b: number = Vector3.dot(oc, d);
-    const disc: number = b * b - (Vector3.dot(oc, oc) - r * r);
-    return disc < -BOUNDARY * r ? -Infinity : -b + Math.sqrt(Math.max(0, disc));
-  };
-  if (shape.kind === "sphere") return sphere(centre, shape.radius);
-  if (shape.kind === "capsule") {
-    const axis: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
-      x: 0,
-      y: 1,
-      z: 0,
-    });
-    const a: IAutoMovieVector3 = Vector3.subtract(
-      centre,
-      Vector3.scale(axis, shape.halfLength),
-    );
-    let far: number = Math.max(
-      sphere(a, shape.radius),
-      sphere(
-        Vector3.add(centre, Vector3.scale(axis, shape.halfLength)),
-        shape.radius,
-      ),
-    );
-    // The cylinder: the ray's component across the axis meets the radius.
-    const oc: IAutoMovieVector3 = Vector3.subtract(origin, a);
-    const dp: IAutoMovieVector3 = Vector3.subtract(
-      d,
-      Vector3.scale(axis, Vector3.dot(d, axis)),
-    );
-    const op: IAutoMovieVector3 = Vector3.subtract(
-      oc,
-      Vector3.scale(axis, Vector3.dot(oc, axis)),
-    );
-    const qa: number = Vector3.dot(dp, dp);
-    if (qa > 1e-12) {
-      const qb: number = Vector3.dot(op, dp);
-      const disc: number =
-        qb * qb - qa * (Vector3.dot(op, op) - shape.radius * shape.radius);
-      if (disc >= 0) {
-        const t: number = (-qb + Math.sqrt(disc)) / qa;
-        const along: number = Vector3.dot(
-          Vector3.add(oc, Vector3.scale(d, t)),
-          axis,
-        );
-        if (along >= 0 && along <= 2 * shape.halfLength) far = Math.max(far, t);
-      }
-    }
-    return far;
-  }
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(rotation);
-  const o: IAutoMovieVector3 = Quaternion.rotateVector(
-    inverse,
-    Vector3.subtract(origin, centre),
-  );
-  const dir: IAutoMovieVector3 = Quaternion.rotateVector(inverse, d);
-  let near: number = -Infinity;
-  let far: number = Infinity;
-  if (shape.kind === "hull") {
-    // Clip the ray against every face plane: it enters through the planes
-    // it runs against and leaves through the ones it runs with.
-    for (const face of physicalHullFaces(shape.points).faces) {
-      const speed: number = Vector3.dot(face.normal, dir);
-      const height: number = Vector3.dot(face.normal, o) - face.offset;
-      if (Math.abs(speed) < 1e-12) {
-        if (height > BOUNDARY) return -Infinity;
-        continue;
-      }
-      if (speed < 0) near = Math.max(near, -height / speed);
-      else far = Math.min(far, -height / speed);
-    }
-    return near <= far ? far : -Infinity;
-  }
-  if (shape.kind !== "box") {
-    shape satisfies never;
-    throw new Error("Unknown physical shape kind");
-  }
-  for (const k of ["x", "y", "z"] as const) {
-    const h: number = shape.halfExtents[k];
-    if (Math.abs(dir[k]) < 1e-12) {
-      if (Math.abs(o[k]) > h + BOUNDARY) return -Infinity;
-      continue;
-    }
-    const t1: number = (-h - o[k]) / dir[k];
-    const t2: number = (h - o[k]) / dir[k];
-    near = Math.max(near, Math.min(t1, t2));
-    far = Math.min(far, Math.max(t1, t2));
-  }
-  return near <= far ? far : -Infinity;
-}
-
-/** A point where a ray leaves a segment's colliders, with their outward normal there. */
-interface ISurfacePoint {
-  /** The point, world metres in the rest pose. */
-  point: IAutoMovieVector3;
-
-  /** The outward unit normal there. */
-  normal: IAutoMovieVector3;
-}
-
-/** The rest pose readers every surface is resolved with: bones, segments, collider bounds, bone-local frames, stations and ray exits of one body. */
-function tools(skeleton: IAutoMovieSkeleton, profile: P) {
-  const rest: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
-    resolvePose(
-      { skeleton: skeleton.id, root: null, joints: [] },
-      skeleton,
-    ).map(
-      (
-        r: IAutoMovieResolvedBone,
-      ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
-    ),
-  );
-  const at = (bone: AutoMovieHumanoidBone): IAutoMovieResolvedBone => {
-    const r: IAutoMovieResolvedBone | undefined = rest.get(bone);
-    if (r === undefined) throw new Error(`Surfaces need the rig bone ${bone}`);
-    return r;
-  };
-  const segment = (bone: AutoMovieHumanoidBone): P.ISegment => {
-    const s: P.ISegment | undefined = profile.segments.find(
-      (x: P.ISegment): boolean => x.bone === bone,
-    );
-    if (s === undefined)
-      throw new Error(`Surfaces need the profile segment ${bone}`);
-    return s;
-  };
-  const bounds = (
-    bone: AutoMovieHumanoidBone,
-  ): { min: IAutoMovieVector3; max: IAutoMovieVector3 } => {
-    const s: P.ISegment = segment(bone);
-    const min: IAutoMovieVector3 = { x: Infinity, y: Infinity, z: Infinity };
-    const max: IAutoMovieVector3 = { x: -Infinity, y: -Infinity, z: -Infinity };
-    for (const shape of s.shapes) {
-      const b: { min: IAutoMovieVector3; max: IAutoMovieVector3 } =
-        physicalShapeBounds(s.neutral, shape);
-      for (const k of ["x", "y", "z"] as const) {
-        min[k] = Math.min(min[k], b.min[k]);
-        max[k] = Math.max(max[k], b.max[k]);
-      }
-    }
-    return { min, max };
-  };
-  const local = (
-    bone: AutoMovieHumanoidBone,
-    world: IAutoMovieVector3,
-    direction: IAutoMovieVector3,
-    forward?: IAutoMovieVector3,
-  ): IFrameLocal => {
-    const r: IAutoMovieResolvedBone = at(bone);
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(r.worldRotation);
-    return {
-      bone,
-      point: Quaternion.rotateVector(
-        inverse,
-        Vector3.subtract(world, r.worldPosition),
-      ),
-      normal: Quaternion.rotateVector(inverse, Vector3.normalize(direction)),
-      ...(forward === undefined
-        ? {}
-        : {
-            forward: Quaternion.rotateVector(
-              inverse,
-              Vector3.normalize(forward),
-            ),
-          }),
-    };
-  };
-  const station = (s: IStation): IAutoMovieVector3 => {
-    if (s.toward === "centre") {
-      const b = bounds(s.bone);
-      return Vector3.scale(Vector3.add(b.min, b.max), 0.5);
-    }
-    return Vector3.lerp(
-      at(s.bone).worldPosition,
-      at(s.toward).worldPosition,
-      s.share,
-    );
-  };
-  const surface = (
-    bone: AutoMovieHumanoidBone,
-    origin: IAutoMovieVector3,
-    direction: IAutoMovieVector3,
-  ): ISurfacePoint => {
-    const d: IAutoMovieVector3 = Vector3.normalize(direction);
-    const s: P.ISegment = segment(bone);
-    let far: number = -Infinity;
-    let left: P.IShape | undefined;
-    for (const shape of s.shapes) {
-      const t: number = shapeExit(s.neutral, shape, origin, d);
-      if (t > far) {
-        far = t;
-        left = shape;
-      }
-    }
-    if (!(far > -Infinity) || left === undefined)
-      throw new Error(`A surface ray from ${bone} misses its colliders`);
-    const point: IAutoMovieVector3 = Vector3.add(origin, Vector3.scale(d, far));
-    return { point, normal: physicalShapeNormal(s.neutral, left, point, d) };
-  };
-  const exit = (
-    bone: AutoMovieHumanoidBone,
-    origin: IAutoMovieVector3,
-    direction: IAutoMovieVector3,
-  ): IAutoMovieVector3 => surface(bone, origin, direction).point;
-  return { at, bounds, local, station, exit, surface };
-}
