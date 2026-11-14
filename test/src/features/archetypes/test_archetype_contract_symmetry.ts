@@ -49,6 +49,9 @@ export function test_archetype_contract_symmetry(): void {
       "holster-scabbard": { throat: "half" },
       "polearm-lance": { grip: "round" },
       "magazine-pistol": { grip: "none" },
+      "tool-powerDrill": { grip: "none" },
+      "tool-trowel": { grip: "round" },
+      "tool-wrench": { grip: "half" },
     };
   const complaints: string[] = [];
   for (const row of archetypeCatalog()) {

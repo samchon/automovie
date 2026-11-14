@@ -3,45 +3,17 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
   Archetype,
-  ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
-
-/** The handle diameters hands rated most comfortable in a power grip. */
-const POWER: string =
-  "Kong and Lowe 2005, Int J Ind Ergon 35:495, handles of 30 to 40 mm rated most comfortable (https://stacks.cdc.gov/view/cdc/197408), inside the 30 to 50 mm power grip range of CCOHS (https://www.ccohs.ca/oshanswers/ergonomics/handtools/tooldesign.html); applied to this tool's handle, whose own diameter no maker states";
-
-/** A claw hammer, from a maker's page seen in search results. */
-const HAMMER: string =
-  "Estwing E3-16C claw hammer, 13 in long with a 16 oz head, product page seen only in search results";
-
-/** Hand saws, from makers' listings seen in search results. */
-const SAW: string =
-  "Stanley 20 in and Bahco 22 in hand saws, blades 500 to 550 mm, listings seen only in search results";
-
-/** A screwdriver read at its maker's catalogue. */
-const SCREWDRIVER: string =
-  "Klein Tools 603-4, overall 8.25 in, shank 4 in, 4 oz (https://www.kleintools.com/catalog/fixed-blade-screwdrivers/2-phillips-screwdriver-4-inch-round-shank)";
-
-/** Spoons read at a maker's pages. */
-const SPOON: string =
-  "IKEA DRAGON dessert spoon 16 cm and spoon 17 cm (https://www.ikea.com/fi/en/p/dragon-dessert-spoon-stainless-steel-50090381, https://www.ikea.com/ie/en/p/dragon-spoon-stainless-steel-30091763/); the teaspoon's 13 cm seen only in search results";
-
-/** A table fork, read. */
-const FORK: string =
-  "IKEA DRAGON fork, stainless steel, 19 cm, sold in fours at 0.18 kg the pack (https://www.ikea.com/de/en/p/dragon-fork-stainless-steel-00515527/)";
-
-/** A table knife, read. */
-const KNIFE: string =
-  "IKEA DRAGON knife, stainless steel, 21 cm, sold in fours at 0.32 kg the pack (https://www.ikea.com/gb/en/p/dragon-knife-stainless-steel-40515530/)";
+import { TOOL_BANDS } from "./TOOL_BANDS";
 
 /**
- * A one-hand tool: a claw hammer, a hand saw, a screwdriver, a spoon, a fork or a table knife.
+ * A one-hand tool: a claw hammer, a hand saw, a screwdriver, a spoon, a fork, a table knife, a combination wrench, a drill driver, a garden trowel or a ladle.
  *
- * The tool stands along `+Y` from the butt of its handle at the origin to its working end, whose face is the `face` affordance: a hammer's striking face toward `+Z`, a saw's line of teeth toward `+Z`, a screwdriver's tip, a spoon's bowl, a fork's tines and a table knife's edge toward `+Z`, under the index finger that lies along the spine. The hand takes the `grip` from the `-Z` side with the thumb toward the working end, except a saw's: its grip runs across its heel square to the line from the grip to the tooth line's middle, the saw's hang (Disstonian Institute glossary: "The imaginary line that runs parallel to the hand grip should have a line running perpendicular to it, running through the mid-point of the tooth line", https://disstonianinstitute.com/glossary.html), and the hand takes it from the blade's `+X` side with the thumb toward the spine, the teeth below the fist.
+ * The tool stands along `+Y` from the butt of its handle at the origin to its working end, whose face is the `face` affordance: a hammer's striking face toward `+Z`, a saw's line of teeth toward `+Z`, a screwdriver's tip, a spoon's bowl, a fork's tines a table knife's edge toward `+Z`, under the index finger that lies along the spine, a wrench's jaw at its tip, and a trowel's scoop and a ladle's bowl toward `+Z`. A drill driver instead stands on the base of its upright grip at the origin, its head across the grip's top running forward along `+Z` to the chuck, its `face`, with its `trigger` under the head at the grip's front. The hand takes the `grip` from the `-Z` side with the thumb toward the working end, except a saw's: its grip runs across its heel square to the line from the grip to the tooth line's middle, the saw's hang (Disstonian Institute glossary: "The imaginary line that runs parallel to the hand grip should have a line running perpendicular to it, running through the mid-point of the tooth line", https://disstonianinstitute.com/glossary.html), and the hand takes it from the blade's `+X` side with the thumb toward the spine, the teeth below the fist.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -84,21 +56,76 @@ export function createTool(
       dimensions: d,
     });
 
+  const v: typeof Vector3.create = Vector3.create;
+  if (kind === "powerDrill") {
+    // A drill driver: the grip upright from its base at the origin, the head across its top running forward along +Z to the chuck.
+    const head: number = createTool.DRILL.head;
+    const rear: number = createTool.DRILL.rear;
+    const grip: number = d.height! - head;
+    builder.rod("handle", radius, v(0, 0, 0), v(0, grip, 0), {
+      color: "#2c2f33",
+    });
+    builder.box(
+      "head",
+      v(d.width!, head, length),
+      v(0, grip + head / 2, length / 2 - rear),
+      { color: "#c9a227", density: 2 },
+    );
+    builder.affordance({
+      id: "grip",
+      kind: "handle",
+      symmetry: "none",
+      frame: ArchetypeFrame.facing(v(0, grip / 2, 0), v(0, 0, -1), v(0, 1, 0)),
+      extent: null,
+      grip: "power",
+      aperture: 2 * radius,
+      length: grip,
+    });
+    builder.affordance({
+      id: "trigger",
+      kind: "trigger",
+      frame: ArchetypeFrame.facing(
+        v(0, grip - createTool.DRILL.trigger, radius),
+        v(0, 0, 1),
+        v(1, 0, 0),
+      ),
+      extent: null,
+      travel: createTool.DRILL.travel,
+    });
+    builder.affordance({
+      id: "face",
+      kind: "surface",
+      direction: "along",
+      frame: ArchetypeFrame.facing(
+        v(0, grip + head / 2, length - rear),
+        v(0, 0, 1),
+        v(1, 0, 0),
+      ),
+      extent: null,
+    });
+    return builder.build(d.mass!);
+  }
+
   // The handle and its grip: how much of the length is handle depends on the tool.
   const handle: number =
     kind === "hammer"
       ? length - 0.03
-      : kind === "saw"
+      : kind === "saw" || kind === "screwdriver" || kind === "trowel"
         ? length - d.blade!
-        : kind === "screwdriver"
-          ? length - d.blade!
-          : kind === "spoon"
-            ? length - 2 * createTool.BOWL
-            : kind === "tableKnife"
-              ? length - createTool.KNIFE_BLADE.length
-              : length - createTool.TINES.length;
+        : kind === "spoon"
+          ? length - 2 * createTool.BOWL
+          : kind === "tableKnife"
+            ? length - createTool.KNIFE_BLADE.length
+            : kind === "wrench"
+              ? length - createTool.WRENCH_HEAD.length
+              : kind === "ladle"
+                ? length - d.bowl!
+                : length - createTool.TINES.length;
   const cutlery: boolean =
-    kind === "spoon" || kind === "fork" || kind === "tableKnife";
+    kind === "spoon" ||
+    kind === "fork" ||
+    kind === "tableKnife" ||
+    kind === "ladle";
   if (kind === "saw") {
     // A saw's grip runs across its heel, square to the line from the grip to
     // the tooth line's middle (the hang), so the fist thrusts along that line.
@@ -147,7 +174,7 @@ export function createTool(
       id: "grip",
       kind: "handle",
       symmetry:
-        kind === "screwdriver"
+        kind === "screwdriver" || kind === "trowel"
           ? "round"
           : kind === "tableKnife"
             ? "none"
@@ -161,6 +188,51 @@ export function createTool(
       grip: cutlery ? "precision" : "power",
       aperture: 2 * radius,
       length: held,
+    });
+  }
+
+  if (kind === "wrench" || kind === "trowel" || kind === "ladle") {
+    // The working end beyond the handle: a wrench's flat head and its jaw at the tip, a trowel's blade with its scoop toward +Z, a ladle's bowl opening toward +Z.
+    const steel: string = "#b9bcc0";
+    if (kind === "wrench") {
+      const head: Readonly<{ width: number; length: number }> =
+        createTool.WRENCH_HEAD;
+      builder.box(
+        "head",
+        v(createTool.FLAT, head.length, head.width),
+        v(0, handle + head.length / 2, 0),
+        { color: steel, density: 1.5 },
+      );
+    } else if (kind === "trowel")
+      builder.box(
+        "blade",
+        v(d.width!, d.blade!, createTool.FLAT),
+        v(0, handle + d.blade! / 2, 0),
+        { color: steel, density: 1.5 },
+      );
+    else
+      builder.ball("bowl", d.bowl! / 2, v(0, length - d.bowl! / 2, 0), {
+        color: steel,
+      });
+    builder.affordance({
+      id: "face",
+      kind: "surface",
+      direction: kind === "wrench" ? "along" : "normal",
+      frame:
+        kind === "wrench"
+          ? ArchetypeFrame.facing(v(0, length, 0), v(0, 1, 0), v(1, 0, 0))
+          : ArchetypeFrame.facing(
+              v(
+                0,
+                kind === "trowel"
+                  ? handle + d.blade! / 2
+                  : length - d.bowl! / 2,
+                kind === "trowel" ? createTool.FLAT / 2 : d.bowl! / 2,
+              ),
+              v(0, 0, 1),
+              v(1, 0, 0),
+            ),
+      extent: null,
     });
   }
 
@@ -258,7 +330,7 @@ export function createTool(
       ),
       extent: null,
     });
-  } else {
+  } else if (kind === "spoon") {
     // The bowl is a disc on the handle's end whose far rim is the spoon's drawn length.
     const centre: number = length - createTool.BOWL;
     builder.rod(
@@ -299,7 +371,11 @@ export namespace createTool {
     | "screwdriver"
     | "spoon"
     | "fork"
-    | "tableKnife";
+    | "tableKnife"
+    | "wrench"
+    | "powerDrill"
+    | "trowel"
+    | "ladle";
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
@@ -309,7 +385,28 @@ export namespace createTool {
     "spoon",
     "fork",
     "tableKnife",
+    "wrench",
+    "powerDrill",
+    "trowel",
+    "ladle",
   ];
+
+  /** A wrench's head beyond its handle, across and along, metres: an estimate, not read at a source. */
+  export const WRENCH_HEAD: Readonly<{ width: number; length: number }> = {
+    width: 0.035,
+    length: 0.03,
+  };
+
+  /** A wrench head's and a trowel blade's thickness, metres: an estimate. */
+  export const FLAT: number = 0.004;
+
+  /** A drill driver's head height, its overhang behind the grip, the trigger's place below the head and its pull, metres: estimates; the makers give the overall length and height only. */
+  export const DRILL: Readonly<{
+    head: number;
+    rear: number;
+    trigger: number;
+    travel: number;
+  }> = { head: 0.07, rear: 0.03, trigger: 0.02, travel: 0.008 };
 
   /** A table knife's blade as one plate, from its spine to its edge and along, metres: an estimate, not read at a source; the maker's page gives the knife's whole length only. */
   export const KNIFE_BLADE: Readonly<{ width: number; length: number }> = {
@@ -336,19 +433,30 @@ export namespace createTool {
    * The affordance ids:
    *
    * - `grip`: the handle, held at its butt end on a hammer, across the heel on a saw and next to the working part on the others.
-   * - `face`: the working end: a hammer's striking face, the edge of a saw's teeth, a screwdriver's tip, the hollow of a spoon's bowl, the points of a fork's tines, a table knife's edge.
+   * - `face`: the working end: a hammer's striking face, the edge of a saw's teeth, a screwdriver's tip, the hollow of a spoon's bowl, the points of a fork's tines, a table knife's edge, a wrench's jaw, a drill's chuck, a trowel's scoop, a ladle's bowl.
+   * - `trigger`: a drill driver's trigger, pulled by the index finger of the hand on its grip.
    */
-  export type Affordance = "grip" | "face";
+  export type Affordance = "grip" | "face" | "trigger";
 
   /**
    * The free dimensions, metres unless stated:
    *
    * - `length`: overall, along `+Y`.
    * - `gripDiameter`: the handle's diameter; a spoon's or a fork's handle's width.
-   * - `blade`: the length of a saw's blade or a screwdriver's shank.
+   * - `blade`: the length of a saw's blade, a screwdriver's shank or a trowel's blade.
+   * - `height`: a drill driver's, base to head top.
+   * - `width`: a drill driver's head or a trowel's blade, across.
+   * - `bowl`: a ladle's bowl, across.
    * - `mass`: kilograms.
    */
-  export type Dimension = "length" | "gripDiameter" | "blade" | "mass";
+  export type Dimension =
+    | "length"
+    | "gripDiameter"
+    | "blade"
+    | "height"
+    | "width"
+    | "bowl"
+    | "mass";
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
@@ -362,75 +470,5 @@ export namespace createTool {
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
-  > = {
-    hammer: {
-      length: ArchetypeBand.metres(0.33, 0.33, HAMMER, true),
-      gripDiameter: ArchetypeBand.metres(0.03, 0.04, POWER, true),
-      mass: ArchetypeBand.of(
-        "kg",
-        0.6,
-        0.75,
-        `${HAMMER}: the 448 g head with a handle, the whole not read at a source`,
-        true,
-      ),
-    },
-    saw: {
-      length: ArchetypeBand.metres(0.61, 0.62, SAW, true),
-      blade: ArchetypeBand.metres(0.5, 0.55, SAW, true),
-      gripDiameter: ArchetypeBand.metres(0.03, 0.04, POWER, true),
-      mass: ArchetypeBand.of("kg", 0.35, 0.5, ArchetypeBand.TYPICAL_MASS, true),
-    },
-    screwdriver: {
-      length: ArchetypeBand.metres(0.21, 0.21, SCREWDRIVER),
-      blade: ArchetypeBand.metres(0.102, 0.102, SCREWDRIVER),
-      gripDiameter: ArchetypeBand.metres(0.03, 0.04, POWER, true),
-      mass: ArchetypeBand.of("kg", 0.113, 0.113, SCREWDRIVER),
-    },
-    spoon: {
-      length: ArchetypeBand.metres(0.13, 0.17, SPOON, true),
-      gripDiameter: ArchetypeBand.metres(
-        0.006,
-        0.013,
-        "the 6 to 13 mm precision handle band of NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf), applied to a spoon handle",
-        true,
-      ),
-      mass: ArchetypeBand.of(
-        "kg",
-        0.03,
-        0.05,
-        ArchetypeBand.TYPICAL_MASS,
-        true,
-      ),
-    },
-    fork: {
-      length: ArchetypeBand.metres(0.19, 0.19, FORK),
-      gripDiameter: ArchetypeBand.metres(
-        0.006,
-        0.013,
-        "the 6 to 13 mm precision handle band of NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf), applied to a fork handle",
-        true,
-      ),
-      mass: ArchetypeBand.of(
-        "kg",
-        0.045,
-        0.045,
-        `${FORK}: a quarter of the pack`,
-      ),
-    },
-    tableKnife: {
-      length: ArchetypeBand.metres(0.21, 0.21, KNIFE),
-      gripDiameter: ArchetypeBand.metres(
-        0.006,
-        0.013,
-        "the 6 to 13 mm precision handle band of NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf), applied to a table knife's handle",
-        true,
-      ),
-      mass: ArchetypeBand.of(
-        "kg",
-        0.08,
-        0.08,
-        `${KNIFE}: a quarter of the pack`,
-      ),
-    },
-  };
+  > = TOOL_BANDS;
 }
