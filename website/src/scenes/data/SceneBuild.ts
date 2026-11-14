@@ -85,6 +85,7 @@ export namespace SceneBuild {
    * @param z Floor point, metres.
    * @param yaw Heading, degrees.
    * @param y Height above the floor, metres, for an object resting on another.
+   * @param params Dimensions stated outright by the producer's own names, each within its band, for an object an action must match exactly; drawn when absent.
    * @returns The object.
    */
   export function object(
@@ -95,6 +96,7 @@ export namespace SceneBuild {
     z: number,
     yaw: number = 0,
     y: number = 0,
+    params?: Record<string, number>,
   ): IPlaygroundComposition.IObject {
     return {
       subject,
@@ -104,6 +106,7 @@ export namespace SceneBuild {
       z,
       ...(y === 0 ? {} : { y }),
       yaw,
+      ...(params === undefined ? {} : { params }),
     };
   }
 
@@ -162,6 +165,9 @@ export namespace SceneBuild {
 
     /** Its place in the landing page's hero. */
     featured?: number;
+
+    /** The issue that fixes the refusal the installed packages give this scene today; it is written as it should play and baked as that refusal until then. */
+    refusedUntil?: number;
   }
 
   /**
@@ -204,6 +210,9 @@ export namespace SceneBuild {
       camera: { view: about.view ?? "three-quarter" },
       needs: about.needs,
       ...(about.featured === undefined ? {} : { featured: about.featured }),
+      ...(about.refusedUntil === undefined
+        ? {}
+        : { refusedUntil: about.refusedUntil }),
     };
   }
 
