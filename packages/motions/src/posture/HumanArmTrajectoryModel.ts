@@ -135,7 +135,9 @@ export namespace HumanArmTrajectoryModel {
 
   /**
    * The iterate after a step of the convex subproblem: each inner
-   * waypoint's free coordinates moved by the step, the ends kept.
+   * waypoint's free coordinates moved by the step, the ends kept, then
+   * projected onto the hard ranges (`ranged`), which the subproblem meets
+   * only to its linearisation and its solver's tolerance.
    *
    * @param c The context.
    * @param x Each arm's coordinates at each waypoint.
@@ -154,9 +156,50 @@ export namespace HumanArmTrajectoryModel {
         c.free[a]!.forEach((d: number, f: number): void => {
           out[d] = out[d]! + step[(k - 1) * c.width + c.offset[a]! + f]!;
         });
-        return out;
+        return ranged(c, a, out);
       }),
     );
+  }
+
+  /**
+   * An arm's coordinates projected onto its hard ranges, the nearest point
+   * of that convex set (a projected step, Bertsekas 1976, "On the
+   * Goldstein-Levitin-Polyak gradient projection method", IEEE TAC 21:174):
+   * the chart's swing brought back to the disc `invalid` reads, along its
+   * radius, and each boxed coordinate clamped to its bounds. Coordinates in
+   * range are returned as they are, so the one reading `invalid` refuses by
+   * holds on every iterate.
+   *
+   * @param c The context.
+   * @param a The arm.
+   * @param v The coordinates.
+   * @returns The coordinates in range.
+   */
+  export function ranged(c: IContext, a: number, v: readonly number[]): number[] {
+    const out: number[] = [...v];
+    const xy: number = Math.hypot(out[0]!, out[1]!);
+    const disc: number = swing(c, a);
+    if (xy > disc) {
+      out[0] = (out[0]! * disc) / xy;
+      out[1] = (out[1]! * disc) / xy;
+    }
+    c.free[a]!.forEach((d: number): void => {
+      const b: [number, number] | null | undefined = c.bounds[a]![d];
+      if (b !== null && b !== undefined) out[d] = Math.min(b[1], Math.max(b[0], out[d]!));
+    });
+    return out;
+  }
+
+  /**
+   * The radius of an arm's chart disc in coordinate units: the chart's
+   * unit disc, widened to the rest and the back arm's own swing.
+   *
+   * @param c The context.
+   * @param a The arm.
+   * @returns The radius.
+   */
+  export function swing(c: IContext, a: number): number {
+    return Math.max(G.SCALE, Math.hypot(c.rest[a]![0]!, c.rest[a]![1]!), Math.hypot(c.back[a]![0]!, c.back[a]![1]!));
   }
 
   /**
@@ -285,7 +328,7 @@ export namespace HumanArmTrajectoryModel {
         if (b !== null && b !== undefined) note(Math.max(b[0] - v[d]!, v[d]! - b[1]), () => `coordinate ${d} out of its range`);
       });
       note(
-        Math.hypot(v[0]!, v[1]!) - Math.max(G.SCALE, Math.hypot(c.rest[a]![0]!, c.rest[a]![1]!), Math.hypot(c.back[a]![0]!, c.back[a]![1]!)),
+        Math.hypot(v[0]!, v[1]!) - swing(c, a),
         () => "the swing out of its chart",
       );
     });

@@ -141,7 +141,7 @@ export namespace HumanArmSeed {
     const frame = (c: M.IContext, q: readonly (readonly number[])[]): number[][][] =>
       q.map((v: readonly number[], a: number): number[][] =>
         Array.from({ length: c.n }, (_: unknown, k: number): number[] =>
-          k === 0 ? [...c.rest[a]!] : k === c.n - 1 ? [...c.back[a]!] : [...v],
+          k === 0 ? [...c.rest[a]!] : k === c.n - 1 ? [...c.back[a]!] : M.ranged(c, a, v),
         ),
       );
     let closest: M.IEvaluation | undefined;
@@ -193,7 +193,8 @@ export namespace HumanArmSeed {
           if (site === undefined || offset === undefined) return [...q];
           const error: IAutoMovieVector3 = Vector3.subtract(Vector3.subtract(site.point, contact(a, k, q, site)), offset);
           const step: number[] = HumanArmDifferential.step(context.setups[a]!, context.frames[a]![k]!, q, site.contact, error);
-          return q.map((v: number, d: number): number => v + step[d]!);
+          // Kept in the hard ranges, as every iterate of the optimiser is.
+          return M.ranged(context, a, q.map((v: number, d: number): number => v + step[d]!));
         }),
       );
     }
