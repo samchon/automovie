@@ -105,10 +105,10 @@ export function createMobilityAid(
     const innerVolume: number =
       Math.PI * (stand.inner / 2) ** 2 * (height - outer);
     const base: number = stand.base / d.mass!;
-    const perBase: number = base / (5 * (legVolume + castorVolume));
+    const perBase: number = base / (stand.legs * (legVolume + castorVolume));
     const perTube: number = (1 - base) / (outerVolume + innerVolume);
-    for (let k: number = 0; k < 5; ++k) {
-      const angle: number = (2 * Math.PI * k) / 5;
+    for (let k: number = 0; k < stand.legs; ++k) {
+      const angle: number = (2 * Math.PI * k) / stand.legs;
       const out: ReturnType<typeof v> = v(Math.sin(angle), 0, Math.cos(angle));
       builder.rod(
         `leg${k}`,
@@ -230,14 +230,22 @@ export namespace createMobilityAid {
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["cane", "walker", "infusionStand"];
 
-  /** The infusion stand's read construction, metres and kilograms: its castors' and base legs' diameters, its outer tube's length, its inner tube's diameter and its weighted base's mass, Provita's I-PRE003 / I-PRE013. */
+  /** The infusion stand's read construction, metres and kilograms: its castors' and base legs' diameters, its outer tube's length, its inner tube's diameter and its weighted base's mass, Provita's I-PRE003 / I-PRE013; its five legs are counted in the catalogue's photographs of the stand (pp. 13 and 16), as its text states no count. */
   export const STAND: Readonly<{
+    legs: number;
     castor: number;
     leg: number;
     outer: number;
     inner: number;
     base: number;
-  }> = { castor: 0.075, leg: 0.0337, outer: 1.2, inner: 0.025, base: 8.9 };
+  }> = {
+    legs: 5,
+    castor: 0.075,
+    leg: 0.0337,
+    outer: 1.2,
+    inner: 0.025,
+    base: 8.9,
+  };
 
   /** The cane's offset handle, forward of the shaft, metres: the 120 mm CCOHS recommends for a tool handle (https://www.ccohs.ca/oshanswers/ergonomics/handtools/tooldesign.html), the length a hand closes round. */
   export const HANDLE: number = 0.12;
