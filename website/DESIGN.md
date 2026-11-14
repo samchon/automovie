@@ -107,7 +107,7 @@ The site's bodies stand side by side on one floor, from the bake, with the chose
 
 ## Motions
 
-A column lists the overview, the actions and each family with its count, and stays in view while the page scrolls. A family's page has one panel per row: its parameters from its schema with their types and meanings, the scenes that use it, and Try it alone. Below 768 px the column goes above the content.
+A column lists the overview, the actions and each family with its count, and stays in view while the page scrolls. A family's page has one panel per row: its parameters from its schema with their types and meanings, the scenes that use it, and a link that tries it: alone, or in the first scene that plays when its first use names someone or something, and none when no such scene plays. Below 768 px the column goes above the content.
 
 ## Visual system
 
