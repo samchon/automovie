@@ -225,7 +225,7 @@ export namespace handToFace {
       side: HumanHand.Side,
     ): AutoMovieMotionHumanTouchEffector.IEffector =>
       p.prop === undefined || side !== first
-        ? row.effector
+        ? AutoMovieMotionHumanTouchForm.curled(row.effector, row.kind)
         : (held ??= grasped(p.prop));
     const hands: [HumanHand.Side, AutoMovieHumanoidRegion | null][] = [
       [first, row.region === null ? null : mirrored(row.region, first)],

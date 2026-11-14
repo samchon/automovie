@@ -96,6 +96,9 @@ export namespace AutoMovieMotionHumanTouchEffector {
 
     /** The direction of the hand laid along the region's tangent; the surface's own forward when absent. */
     along?: Direction;
+
+    /** Extra flexion of the fingers over the shape, degrees, as the touch's kind curls them (`AutoMovieMotionHumanTouchForm.curled`); none when absent. */
+    curl?: number;
   }
 
   /**
@@ -206,6 +209,7 @@ export namespace AutoMovieMotionHumanTouchEffector {
       side,
       effector.surface,
       effector.shape,
+      effector.curl ?? 0,
     );
     const hand: number = body.measure.hand;
     let point: IAutoMovieVector3 = surface.point;

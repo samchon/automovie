@@ -2,9 +2,12 @@ import {
   type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
+  resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  AutoMovieHumanoidSocket,
   IAutoMovieJointPose,
   IAutoMoviePose,
   IAutoMovieQuaternion,
@@ -319,4 +322,79 @@ export namespace HumanHandShape {
             );
     return Quaternion.normalize(Quaternion.multiply(arc, rotation));
   }
+
+  /**
+   * The index fingertip's frame from the wrist under a hand shape with its
+   * fingers curled by a further flexion, in the hand's rest frame, by
+   * forward kinematics of that hand alone: the frame a touch lays on its
+   * region when its kind curls the fingers (`AutoMovieMotionHumanTouchForm`),
+   * as the hand is displayed. A scratch's 30 degrees draw the tip 76 mm back
+   * from where it lies flat and turn its pad 90 degrees.
+   *
+   * @param body The body.
+   * @param side The hand.
+   * @param form The hand shape.
+   * @param curl Extra flexion of the fingers over the shape, degrees; the thumb keeps its own.
+   * @returns The frame, its point measured from the wrist joint.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the frame, the curl's reading and the measured defect.
+   * @evidence contracts/development/implementation.md#principled-implementation The shape's angles plus the curl on the fingers, as `AutoMovieMotionHumanHand` displays them, posed by forward kinematics, the tip read on the distal phalanx's region.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose, one region placement and one change of frame.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The curl is not added to the thumb, whose flexion closes across the palm.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Remembered per body, side, shape and curl.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics per body, side, shape and curl.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The memo is weak in the body.
+   */
+  export function tip(
+    body: IHumanBody,
+    side: HumanHand.Side,
+    form: HumanHand.Shape,
+    curl: number,
+  ): HumanHand.IFrame {
+    const key: string = `${side}:${form}:${curl}`;
+    let memo: Map<string, HumanHand.IFrame> | undefined = TIPS.get(body);
+    if (memo === undefined) {
+      memo = new Map();
+      TIPS.set(body, memo);
+    }
+    const known: HumanHand.IFrame | undefined = memo.get(key);
+    if (known !== undefined) return known;
+    const joints: IAutoMovieJointPose[] = Object.entries(of(side, form)).map(
+      ([bone, a]): IAutoMovieJointPose => ({
+        bone: bone as AutoMovieHumanoidBone,
+        flexion: a![0] + (bone.includes("Thumb") ? 0 : curl),
+        abduction: a![1],
+        twist: a![2],
+      }),
+    );
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      { skeleton: body.skeleton.id, root: null, joints },
+    );
+    const Side: "Left" | "Right" = side === "left" ? "Left" : "Right";
+    const region =
+      body.surfaces.regions[`indexTip${Side}` as AutoMovieHumanoidRegion];
+    const placed = resolveAutoMovieHumanoidSurfaces.place(
+      region,
+      bones.get(region.bone)!,
+    );
+    const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
+    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+      hand.worldRotation,
+    );
+    const out: HumanHand.IFrame = {
+      point: Quaternion.rotateVector(
+        inverse,
+        Vector3.subtract(placed.point, hand.worldPosition),
+      ),
+      normal: Quaternion.rotateVector(inverse, placed.normal),
+      forward:
+        body.surfaces.sockets[`palm${Side}` as AutoMovieHumanoidSocket].normal,
+    };
+    memo.set(key, out);
+    return out;
+  }
 }
+
+/** Index fingertip frames by body, keyed by side, shape and curl. */
+const TIPS: WeakMap<IHumanBody, Map<string, HumanHand.IFrame>> = new WeakMap();

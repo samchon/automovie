@@ -16,7 +16,6 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanHandDirection } from "./HumanHandDirection";
 import { HumanHandShape } from "./HumanHandShape";
-import { poseBones } from "./poseBones";
 
 /**
  * A hand brought to a target: which wrist point and hand rotation put a
@@ -170,6 +169,7 @@ export namespace HumanHand {
    * @param side The hand.
    * @param surface The surface.
    * @param form The hand shape; it matters only for the index fingertip.
+   * @param curl Extra flexion of the fingers over the shape, degrees, as a kind of touch curls them; it matters only for the index fingertip.
    * @returns The frame, its point measured from the wrist joint.
    */
   export function offset(
@@ -177,6 +177,7 @@ export namespace HumanHand {
     side: Side,
     surface: Surface,
     form: Shape = "relaxed",
+    curl: number = 0,
   ): IFrame {
     const Side: "Left" | "Right" = side === "left" ? "Left" : "Right";
     const palm =
@@ -209,7 +210,7 @@ export namespace HumanHand {
         };
       }
       case "indexTip":
-        return fingertip(body, side, form);
+        return HumanHandShape.tip(body, side, form, curl);
     }
   }
 
@@ -450,55 +451,4 @@ export namespace HumanHand {
       forward: turn(local.forward),
     };
   }
-}
-
-/** Index fingertip frames by body, keyed by side and shape. */
-const TIPS: WeakMap<IHumanBody, Map<string, HumanHand.IFrame>> = new WeakMap();
-
-/** The index fingertip's frame from the wrist under a hand shape, by forward kinematics of that hand alone. */
-function fingertip(
-  body: IHumanBody,
-  side: HumanHand.Side,
-  form: HumanHand.Shape,
-): HumanHand.IFrame {
-  const key: string = `${side}:${form}`;
-  let memo: Map<string, HumanHand.IFrame> | undefined = TIPS.get(body);
-  if (memo === undefined) {
-    memo = new Map();
-    TIPS.set(body, memo);
-  }
-  const known: HumanHand.IFrame | undefined = memo.get(key);
-  if (known !== undefined) return known;
-  const joints = Object.entries(HumanHand.shape(side, form)).map(
-    ([bone, a]) => ({
-      bone: bone as AutoMovieHumanoidBone,
-      flexion: a![0],
-      abduction: a![1],
-      twist: a![2],
-    }),
-  );
-  const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
-    body,
-    { skeleton: body.skeleton.id, root: null, joints },
-  );
-  const Side: "Left" | "Right" = side === "left" ? "Left" : "Right";
-  const region =
-    body.surfaces.regions[`indexTip${Side}` as AutoMovieHumanoidRegion];
-  const tip = resolveAutoMovieHumanoidSurfaces.place(
-    region,
-    bones.get(region.bone)!,
-  );
-  const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(hand.worldRotation);
-  const out: HumanHand.IFrame = {
-    point: Quaternion.rotateVector(
-      inverse,
-      Vector3.subtract(tip.point, hand.worldPosition),
-    ),
-    normal: Quaternion.rotateVector(inverse, tip.normal),
-    forward:
-      body.surfaces.sockets[`palm${Side}` as AutoMovieHumanoidSocket].normal,
-  };
-  memo.set(key, out);
-  return out;
 }

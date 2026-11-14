@@ -115,11 +115,7 @@ export namespace touch {
     /** The kind; `pat` when absent. */
     kind?: AutoMovieMotionHumanTouchForm.Kind;
 
-    /**
-     * The part of the hand; the palm when absent. `forefinger` is the end of
-     * the forefinger of a flat hand held in line with its forearm, the palm
-     * turned down, as a salute meets the brow.
-     */
+    /** The part of the hand; the palm when absent. `forefinger` is the end of the forefinger of a flat hand held in line with its forearm, the palm turned down, as a salute meets the brow. */
     with?: With;
 
     /** The hand; `right` when absent. */
@@ -209,7 +205,10 @@ export namespace touch {
     // The hand part that touches, or the point of the prop the hand holds.
     const effector: AutoMovieMotionHumanTouchEffector.IEffector =
       p.prop === undefined
-        ? EFFECTORS[p.with ?? "palm"]
+        ? AutoMovieMotionHumanTouchForm.curled(
+            EFFECTORS[p.with ?? "palm"],
+            kind,
+          )
         : HumanHeld.effector(
             context,
             { effector: EFFECTORS[p.with ?? "palm"] },

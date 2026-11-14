@@ -117,6 +117,32 @@ export namespace AutoMovieMotionHumanTouchForm {
   export const TANGENTS = ["up", "across"] as const;
 
   /**
+   * An effector read in the hand as a kind displays it: its fingers curled
+   * by the kind's curl over its shape (`FORMS`), so a fingertip that a
+   * scratch curls is laid on its region where the curled finger puts it,
+   * not where the shape alone would. The effector itself when the kind
+   * curls nothing.
+   *
+   * @param effector The effector.
+   * @param kind The kind.
+   * @returns The effector with the kind's curl.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is added, why and the unchanged case.
+   * @evidence contracts/development/implementation.md#principled-implementation The curl the stroke displays (`AutoMovieMotionHumanHand.form`) is the curl its effector is read with.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup and one copy.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The kind's own curl, never a row's.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function curled<E extends { curl?: number }>(
+    effector: E,
+    kind: Kind,
+  ): E {
+    const curl: number = FORMS[kind].curl;
+    return curl === 0 ? effector : { ...effector, curl };
+  }
+  /**
    * The seconds of one repetition of a kind on a body: the span's seconds,
    * or for a kind with a peak speed the period of a sine of the kind's
    * travel at that peak, `2 pi A / v`.
