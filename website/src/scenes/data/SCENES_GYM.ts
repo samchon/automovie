@@ -153,6 +153,7 @@ export const SCENES_GYM: readonly IScene[] = [
       setting: "gym",
       roles: { coa: "coach", m1: "member", m2: "member", m3: "member" },
       needs: [],
+      refusedUntil: 3528,
       skill: "novice",
     },
     "boxing",
