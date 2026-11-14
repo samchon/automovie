@@ -48,7 +48,7 @@ Fix a defect where it is made, in this order. A fix at a later stage hides the e
 5. **The reliefs.** A relief carries only skin its cast sees, under [Lofting](../3d-modeling/lofting.md#composition-before-lofting). A form a relief cannot see belongs to the wall as an inflection line, or to its own family.
 6. **The kernel.** A missing capability goes into the engine under the [Tree](#tree) rule.
 
-When one item has failed three attempts, stop changing it. Reread the governing skill sections, read the engine code at the operator and the record, research the method, and decide by the measured cause. A fourth variant of the same idea repeats the failure.
+Before the first change to an item, reread the governing skill sections, read the engine code at the operator and the record, research the method, and decide by the measured cause.
 
 A method grounded in the skills is not dropped for a failed run. A refusal measures a binding cause in the run, such as its target, windows, seed, knots or bounds. Isolate that cause with controls: the tool's existing mode as designed, then one change at a time against it. Fix the cause and keep the method. A method is set aside only when a measured cause shows it cannot express the form.
 
