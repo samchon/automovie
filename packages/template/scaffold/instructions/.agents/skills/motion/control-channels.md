@@ -6,6 +6,8 @@ A motion hint reaches its receiver through control channels rendered from the pe
 
 Render only the channels the actual receiver needs, such as the hint video, pose, depth, normal, outline or a semantic mask, and read the installed packages' documentation for what each really outputs. A mode name or a plausible image does not establish another tool's expected representation. When no installed path produces an essential channel, follow [installed packages](../development/reuse.md#installed-packages).
 
+Render from the scene the masks and handles a [request](../video/requests.md) asks for, such as one mask per figure, the region and frames its adherence locks, and the frames past each cut, because the scene knows each silhouette, contact and cut exactly where an estimate from pictures would guess.
+
 ## Keep channels aligned
 
 Give time-matched channels one frame format, camera, crop and time mapping, resolved through [frame evaluation](frame-evaluation.md), and keep them [matched as passes](../visual-debugging/passes.md#keep-passes-matched) of one evaluated performance and view. A matching frame count does not prove matching poses or events.
