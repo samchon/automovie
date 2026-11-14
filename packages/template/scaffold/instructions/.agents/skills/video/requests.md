@@ -4,7 +4,7 @@ A request is one planned generation: an interval of the motion hint with its inp
 
 ## Boundaries
 
-End a request at the model's length limit or one of its fixed lengths, at a screenplay cut, and, for a model that takes only still frames, at the end of each beat. Place each boundary at a beat boundary or a held pose, because a boundary inside a contact, a combination or a spoken line shows the seam in the action.
+End a request at the model's length limit or at a screenplay cut. On a model with fixed lengths, generate at the next fixed length at or above the interval and retime the take to it under [place takes in time](generation.md#place-takes-in-time). Place each boundary at a beat boundary or a held pose, because a boundary inside a contact, a combination or a spoken line shows the seam in the action.
 
 A request spans a cut only when the model takes several shots in one request. Keep each request's lines speakable within its length, as [generated sound](../audio/SKILL.md#generated-sound) sets.
 
@@ -31,19 +31,19 @@ At every level the prompt and the references give the faces and surfaces, becaus
 
 The scale is about motion; keep the hint's shapes only as closely as the forms are true, because a coarse form held to its shape returns as boxes. Where the model sets shape apart from motion, such as by a structure setting or a depth blur, set shape there.
 
-Start from the default adherence [project context](../production/project-context.md) records, and give a request another level where the scale suits its content better. Contacts, fast or overlapping movement, and a pose and screen direction the next shot continues are what some models lose first, so a request that holds them never takes a looser level.
+Start from the default adherence [project context](../production/project-context.md) records, and give a request another level where the scale suits its content better. Contacts, overlapping movement, and a pose and screen direction the next shot continues are what some models lose first, so a request that holds them takes a level that keeps them.
 
-A hosted model's settings apply to the whole request. An open model's control adapter may vary its control over frames and regions through a [mask](../motion/control-channels.md) that scales it; a mask that keeps source pixels keeps the gray forms, so read which kind the adapter takes.
+A proprietary model's settings apply to the whole request. An open model's control adapter may vary its control over frames and regions through a [mask](../motion/control-channels.md) that scales it; a mask that keeps source pixels keeps the gray forms, so read which kind the adapter takes.
 
 Adherence reaches the model in the way it takes the hint, and [diffusion models](diffusion.md) gives each model's controls:
 
 | Model kind | Sets adherence through |
 | --- | --- |
-| Hosted, edits or restyles a video | Its adherence settings, keyframes at chosen frames, or edit wording that names what changes and keeps the rest |
-| Hosted, reads a reference video | Wording that says what the reference supplies, such as only its timing and camera |
+| Proprietary, edits or restyles a video | Its adherence settings, keyframes at chosen frames, or edit wording that names what changes and keeps the rest |
+| Proprietary, reads a reference video | Wording that says what the reference supplies, such as only its timing and camera |
 | Turns a gray layout into the shot, hosted or through an open adapter | Its documented strength, if any, and the wording its guide sets |
-| Hosted, moves one figure onto a character | Nothing documented; it moves only the largest figure, so give it only shots where one figure, or one clearly the largest, moves, and a [shot frame](../image/SKILL.md#shot-frames) as its character image |
-| Hosted, takes still frames | Nothing: it keeps only those frames, so a contact or outcome must land at a held pose on one of them |
+| Proprietary, moves one figure onto a character | Nothing documented; it moves only the largest figure, so give it only shots where one figure, or one clearly the largest, moves, and a [shot frame](../image/SKILL.md#shot-frames) as its character image |
+| Proprietary, takes still frames | Nothing: it keeps only those frames, so a contact or outcome must land at a held pose on one of them |
 | Open weights with control adapters | Each adapter's strength and the steps where it acts, and a mask as its documentation defines one |
 
 When the chosen model cannot carry a scene's beats, such as a contact between still frames or a second figure, tell the user, who may choose another model, and follow their choice.

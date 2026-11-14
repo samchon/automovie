@@ -20,7 +20,7 @@ Every shipped skill serves these six principles, and a shipped sentence that wor
 
 ### Coarse models, detailed motion
 
-The product contract sets [coarse models and detailed motion](../project/SKILL.md#coarse-models-detailed-motion). A shipped skill therefore never asks for surface detail to make a scene work: a hint's look comes from diffusion and its value from motion.
+The product contract sets [coarse models and detailed motion](../project/SKILL.md#coarse-models-detailed-motion). A shipped skill therefore never asks for surface detail to make a scene work: a hint's appearance comes from diffusion and its value from motion.
 
 ### The screenplay carries the detail
 

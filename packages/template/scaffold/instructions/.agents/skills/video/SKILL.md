@@ -13,10 +13,11 @@ Its limits on length, frame rate, references and prompt size decide how scenes b
 
 1. Choose the model with the user from [diffusion models](diffusion.md), and record it in [project context](../production/project-context.md).
 2. [Read its documentation](#read-the-model) for every value the plan depends on.
-3. Plan each scene's [requests](requests.md): where each ends, how closely it follows the hint, and what it takes, recording the default adherence in project context.
-4. Write the [shared description](prompts.md#shared-description), then prepare the canon references and any shot frame each request takes under [image](../image/SKILL.md).
-5. Write each request's prompt under [prompts](prompts.md), with the sound decided under [audio](../audio/SKILL.md).
-6. Submit, inspect and adopt takes under [generation](generation.md).
+3. Prepare the canon references under [image](../image/SKILL.md).
+4. Plan each scene's [requests](requests.md): where each ends, how closely it follows the hint, and what it takes, recording the default adherence in project context.
+5. Write the [shared description](prompts.md#shared-description), then prepare any shot frame each request takes under image.
+6. Write each request's prompt under [prompts](prompts.md), with the sound decided under [audio](../audio/SKILL.md).
+7. Submit, inspect and adopt takes under [generation](generation.md).
 
 ## Read the model
 

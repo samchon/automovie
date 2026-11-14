@@ -52,7 +52,7 @@ When the model accepts one, give appearance there: an image made from the hint's
 
 ### Still frames only
 
-A model that takes only still frames receives no motion from the hint, so the prose also carries the framing and the action. Write one camera move per request and the beat's actions as countable steps ("takes three steps and stops at the rail"), because a chain of several is followed less reliably.
+A model that takes only still frames receives no motion from the hint, so the prose also carries the framing and the action. Write one camera move per request and its actions as countable steps ("takes three steps and stops at the rail"), because a chain of several is followed less reliably.
 
 ## Sound
 
