@@ -78,7 +78,7 @@ export const SCENES_GAMES: readonly IScene[] = [
         act("gloveCatch", { from: "pit", side: "left" }),
       ]),
       person("fie", "f1", 3, 8, 200, [
-        act("readyPosition"),
+        act("stand", { seconds: 1 }),
         act("fieldGrounder"),
       ]),
     ],
@@ -88,7 +88,7 @@ export const SCENES_GAMES: readonly IScene[] = [
       id: "volleyball",
       title: "Volleyball",
       summary:
-        "Four players: a forearm dig, an overhead set, a hitter who bounces on the spot and spikes, and a blocker who bounces and slides along the net.",
+        "Four players: a forearm dig, an overhead set, a hitter who bounces on the spot and spikes, and a blocker who bounces and jumps toward the net.",
       setting: "sport",
       roles: { v1: "libero", v2: "setter", v3: "hitter", v4: "blocker" },
       needs: [],
@@ -98,7 +98,11 @@ export const SCENES_GAMES: readonly IScene[] = [
       person("v1", "f1", -1, -1, 0, [act("volleyDig")]),
       person("v2", "f2", 0, 0, 0, [act("volleySet")]),
       person("v3", "m1", 1, 0.2, 0, [act("bounce"), act("spike")]),
-      person("v4", "m2", 0.5, 2, 180, [act("bounce"), act("defensiveSlide")]),
+      person("v4", "m2", 0.5, 2, 180, [
+        act("bounce"),
+        act("stand", { seconds: 0.3 }),
+        act("jump", { to: to(0.5, 1.8) }),
+      ]),
     ],
   ),
   scene(
@@ -118,7 +122,7 @@ export const SCENES_GAMES: readonly IScene[] = [
         act("kickRight", { ball: ball(0, 1.3) }),
       ]),
       person("kee", "m2", 0, 11, 180, [
-        act("readyPosition"),
+        act("crouch", { hold: 0.5 }),
         act("stand", { seconds: 0.3 }),
         act("goalkeeperDiveLeft"),
       ]),
@@ -168,7 +172,7 @@ export const SCENES_GAMES: readonly IScene[] = [
       ]),
       person("g3", "m1", -3, 3, 90, [
         act("leap", { to: to(-1.5, 3) }),
-        act("backSalto", { to: to(-1.5, 3) }),
+        act("backSalto", { to: to(-2.2, 3) }),
         act("frontSalto", { to: to(0, 3) }),
       ]),
     ],
@@ -180,7 +184,7 @@ export const SCENES_GAMES: readonly IScene[] = [
       summary:
         "Two athletes drill their run-up: A-skips and B-skips, butt kicks and high knees, strides into a Fosbury flop, a leap and a dash.",
       setting: "sport",
-      roles: { hj: "high jumper", pv: "pole vaulter" },
+      roles: { hj: "high jumper", pv: "sprinter" },
       needs: [],
       view: "side",
     },
@@ -206,7 +210,7 @@ export const SCENES_GAMES: readonly IScene[] = [
       id: "relay",
       title: "Relay",
       summary:
-        "Four runners: the first leg sprints in and passes the baton to the second running a step ahead, the third starts from a crouch and dashes off, the anchor waits and pumps a fist.",
+        "Four runners: the first leg sprints in and passes a mimed baton to the second running a step ahead, the third starts from a crouch and dashes off, the anchor waits and pumps a fist.",
       setting: "sport",
       roles: {
         r1: "first leg",
@@ -237,7 +241,10 @@ export const SCENES_GAMES: readonly IScene[] = [
         act("sprintStart"),
         act("dash", { to: to(8, 0.6) }),
       ]),
-      person("r4", "f2", 9, 0.9, 90, [act("readyPosition"), act("fistPump")]),
+      person("r4", "f2", 9, 0.9, 90, [
+        act("stand", { seconds: 2 }),
+        act("fistPump"),
+      ]),
     ],
   ),
   scene(
@@ -286,7 +293,7 @@ export const SCENES_GAMES: readonly IScene[] = [
       ]),
       person("ca", "f1", 0, 5, 180, [
         act("catchObject", { from: "th", hands: "two" }),
-        act("jump", { to: to(0, 5.4) }),
+        act("jump", { to: to(0, 4.6) }),
       ]),
       person("ki", "m2", 2, 2, 270, [act("kickBall", { ball: ball(1.7, 2) })]),
     ],
@@ -320,27 +327,12 @@ export const SCENES_GAMES: readonly IScene[] = [
       id: "throwing-circle",
       title: "Throwing circle",
       summary:
-        "A hammer thrower in the circle turns twice on the balls of the feet.",
+        "A hammer thrower in the circle turns twice, pivoting on the left foot.",
       setting: "sport",
       roles: { thr: "hammer thrower" },
       needs: [],
     },
     "throwing-circle",
     [person("thr", "m2", 0, 0, 0, [act("hammerTurn"), act("hammerTurn")])],
-  ),
-  scene(
-    {
-      id: "pool-rows",
-      title: "Swimmers",
-      summary: "Two swimmers: four cycles of front crawl, and treading water.",
-      setting: "sport",
-      roles: { p1: "swimmer", p2: "swimmer" },
-      needs: [],
-    },
-    "pool-rows",
-    [
-      person("p1", "f2", -0.8, 0, 0, [act("frontCrawl", { cycles: 4 })]),
-      person("p2", "m1", 0.8, 0, 0, [act("treadWater")]),
-    ],
   ),
 ];

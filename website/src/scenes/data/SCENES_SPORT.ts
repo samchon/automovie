@@ -49,7 +49,7 @@ const WARM_UP: IPlaygroundComposition = scene("warm-up", [
       params: { kind: "jumpingJack", reps: 4, tempo: [0.5, 0, 0.5] },
     },
     { name: "stand", params: { seconds: 0.4 } },
-    { name: "jump", params: { to: to(0.8, 1.9) } },
+    { name: "jump", params: { to: to(0.8, 1.1) } },
   ]),
   person("mo", "f2", 2.4, 1.5, 180, [
     {
@@ -91,8 +91,8 @@ const COURT: IPlaygroundComposition = scene("court", [
     { name: "ballSport", params: { kind: "throwIn" } },
   ]),
   person("rae", "f1", -0.7, 0, 0, [
-    { name: "ballSport", params: { kind: "set", count: 3 } },
-    { name: "ballSport", params: { kind: "dig", count: 2 } },
+    { name: "ballSport", params: { kind: "set" } },
+    { name: "ballSport", params: { kind: "dig" } },
   ]),
   person("sol", "m1", 0.8, 0, 0, [
     { name: "baseball", params: { kind: "battingStance", seconds: 2 } },
@@ -109,12 +109,9 @@ const GYMNASTICS: IPlaygroundComposition = scene("gymnastics-floor", [
   person("uma", "f1", -1, 0, 0, [
     { name: "gymnastics", params: { seconds: 3 } },
     { name: "kneel", params: { kind: "both", hold: 1 } },
-    { name: "rise", params: {} },
-  ]),
-  person("vic", "m1", 1, 0, 0, [
-    { name: "crawl", params: { cycles: 2 } },
     { name: "lieDown", params: { position: "supine", hold: 1 } },
   ]),
+  person("vic", "m1", 1, 0, 0, [{ name: "crawl", params: { cycles: 2 } }]),
 ]);
 
 const POOL: IPlaygroundComposition = scene("pool", [
@@ -170,10 +167,10 @@ export const SCENES_SPORT: readonly IScene[] = [
       "Four players drill side by side: a dribble and a throw-in, a set and a dig, a batting stance and a fielder's crouch, a racket's ready position and split step and an athlete's set.",
     setting: "sport",
     cast: [
-      { subject: "quin", role: "basketball" },
+      { subject: "quin", role: "basketball and football" },
       { subject: "rae", role: "volleyball" },
       { subject: "sol", role: "baseball" },
-      { subject: "tam", role: "tennis" },
+      { subject: "tam", role: "tennis and athletics" },
     ],
     composition: COURT,
     takes: SceneTakes.of(COURT),
@@ -184,7 +181,7 @@ export const SCENES_SPORT: readonly IScene[] = [
     id: "gymnastics-floor",
     title: "Gymnastics floor",
     summary:
-      "One gymnast holds a gymnastics pose, kneels on both knees and rises; another crawls and lies on the back.",
+      "One gymnast holds a gymnastics pose, kneels on both knees and rises, and lies on the back; another crawls on all fours.",
     setting: "sport",
     cast: [
       { subject: "uma", role: "gymnast" },

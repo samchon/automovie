@@ -44,7 +44,6 @@ export const SCENES_FIELD: readonly IScene[] = [
         act("kickLeft", { ball: ball(0, 3.3) }, { anchor: "shot" }),
       ]),
       person("dag", "m1", 0, 11, 180, [
-        act("readyPosition"),
         act("stand", { seconds: 6 }),
         act("goalkeeperDiveRight", {}, { sync: { of: "shot" } }),
       ]),
@@ -55,7 +54,7 @@ export const SCENES_FIELD: readonly IScene[] = [
       id: "shoot-around",
       title: "Shoot-around",
       summary:
-        "Two basketball players: one dribbles on the spot and throws a chest pass, the other catches it in both hands.",
+        "Two basketball players: one dribbles on the spot and throws a chest pass, the other catches it in both hands and slides across in defence.",
       setting: "sport",
       roles: { eli: "guard", fen: "forward" },
       needs: [],
@@ -69,6 +68,7 @@ export const SCENES_FIELD: readonly IScene[] = [
       person("fen", "m1", 0, 4, 180, [
         act("stand", { seconds: 1 }),
         act("twoHandCatch", { from: "chest" }),
+        act("defensiveSlide"),
       ]),
     ],
   ),
@@ -101,9 +101,15 @@ export const SCENES_FIELD: readonly IScene[] = [
       id: "swim-strokes",
       title: "Swim strokes",
       summary:
-        "Three swimmers: breaststroke, backstroke and floating on the back.",
+        "Five swimmers: breaststroke, backstroke, floating on the back, four cycles of front crawl, and treading water.",
       setting: "sport",
-      roles: { hed: "swimmer", ivo: "swimmer", jul: "swimmer" },
+      roles: {
+        hed: "swimmer",
+        ivo: "swimmer",
+        jul: "swimmer",
+        kip: "swimmer",
+        lum: "swimmer",
+      },
       needs: [],
     },
     "swim-strokes",
@@ -111,6 +117,8 @@ export const SCENES_FIELD: readonly IScene[] = [
       person("hed", "f1", -1.2, 0, 0, [act("breaststroke")]),
       person("ivo", "m1", 0, 0, 0, [act("backstroke")]),
       person("jul", "f2", 1.2, 0, 0, [act("floating")]),
+      person("kip", "m2", 2.4, 0, 0, [act("frontCrawl", { cycles: 4 })]),
+      person("lum", "f1", 3.6, 0, 0, [act("treadWater")]),
     ],
   ),
 ];
