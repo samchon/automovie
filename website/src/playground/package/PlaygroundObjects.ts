@@ -19,19 +19,19 @@ export namespace PlaygroundObjects {
   /** `HumanObject` as this module calls it, present only where the installed package has it. */
   interface IHumanObject {
     /** The prop of a model placed in the world. */
-    prop(
-      subject: string,
-      model: object,
-      placement: { at: { x: number; y: number; z: number }; yaw: number },
-    ): IHumanProp;
+    prop(subject: string, model: object, placement: IPlacement): IHumanProp;
 
     /** The seat of a model placed in the world. */
-    seat(
-      model: object,
-      placement: { at: { x: number; y: number; z: number }; yaw: number },
-      id?: string,
-    ): unknown;
+    seat(model: object, placement: IPlacement, id?: string): unknown;
   }
+
+  /** A placement as `HumanObject.Placement` takes it: a heading on a floor point, or a world frame. */
+  type IPlacement =
+    | { at: { x: number; y: number; z: number }; yaw: number }
+    | {
+        position: { x: number; y: number; z: number };
+        rotation: IPlaygroundComposition.IQuaternion;
+      };
 
   /** The packages' exports by name, for the members only some releases have. */
   const MOTIONS: Readonly<Record<string, unknown>> = motions as Readonly<
@@ -59,10 +59,18 @@ export namespace PlaygroundObjects {
   ): IHumanProp[] | undefined {
     if (objects.length === 0) return undefined;
     const human: IHumanObject = attach();
-    return objects.map(
-      (object: IPlaygroundComposition.IObject): IHumanProp =>
-        human.prop(object.subject, model(object), placement(object)),
-    );
+    // An object worn at the start rides the wearer's bone until a hand
+    // draws it, as `IHumanProp.worn` says.
+    return objects.map((object: IPlaygroundComposition.IObject): IHumanProp => {
+      const made: IHumanProp = human.prop(
+        object.subject,
+        model(object),
+        placement(object),
+      );
+      return object.worn === undefined
+        ? made
+        : ({ ...made, worn: object.worn } as IHumanProp);
+    });
   }
 
   /**
@@ -173,14 +181,16 @@ export namespace PlaygroundObjects {
     return MOTIONS["HumanObject"] as IHumanObject;
   }
 
-  /** Where an object rests. */
-  function placement(object: IPlaygroundComposition.IObject): {
-    at: { x: number; y: number; z: number };
-    yaw: number;
-  } {
-    return {
-      at: { x: object.x, y: object.y ?? 0, z: object.z },
-      yaw: object.yaw,
-    };
+  /** Where an object rests: a heading on its floor point, or its whole rotation as a world frame, the two forms `HumanObject.Placement` takes. */
+  function placement(object: IPlaygroundComposition.IObject): IPlacement {
+    return object.rotation === undefined
+      ? {
+          at: { x: object.x, y: object.y ?? 0, z: object.z },
+          yaw: object.yaw,
+        }
+      : {
+          position: { x: object.x, y: object.y ?? 0, z: object.z },
+          rotation: object.rotation,
+        };
   }
 }

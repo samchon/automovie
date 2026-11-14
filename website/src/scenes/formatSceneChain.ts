@@ -67,7 +67,14 @@ export function formatSceneChain(
     const key: string = names.frames.includes(o.producer) ? "frame" : "kind";
     body.push(
       `const ${identifier(o.subject)} = archetypes.${o.producer}(${options(o, key)}${o.seed === undefined ? "" : `, ${JSON.stringify(o.seed)}`});`,
-      `const ${identifier(o.subject)}At = { at: { x: ${o.x}, y: ${o.y ?? 0}, z: ${o.z} }, yaw: ${o.yaw} };`,
+      o.rotation === undefined
+        ? `const ${identifier(o.subject)}At = { at: { x: ${o.x}, y: ${o.y ?? 0}, z: ${o.z} }, yaw: ${o.yaw} };`
+        : `const ${identifier(o.subject)}At = { position: { x: ${o.x}, y: ${o.y ?? 0}, z: ${o.z} }, rotation: ${literal(o.rotation, imports)} };`,
+      ...(o.worn === undefined
+        ? []
+        : [
+            `// ${o.subject} starts worn: ${literal(o.worn, imports).replaceAll("\n", " ")}`,
+          ]),
     );
   }
   if (objects.length !== 0) body.push("");

@@ -92,6 +92,13 @@ export namespace PlaygroundAddress {
     (value.over === undefined ||
       (Array.isArray(value.over) && value.over.every(action)));
 
+  /** Whether a value is a quaternion's four numbers. */
+  const quaternion: (value: unknown) => boolean = (value: unknown): boolean =>
+    record(value) &&
+    ["x", "y", "z", "w"].every(
+      (k: string): boolean => typeof value[k] === "number",
+    );
+
   /** Whether a value has the members the adapter reads of a placed object. */
   const object: (value: unknown) => boolean = (value: unknown): boolean =>
     record(value) &&
@@ -107,6 +114,20 @@ export namespace PlaygroundAddress {
     typeof value.x === "number" &&
     typeof value.z === "number" &&
     (value.y === undefined || typeof value.y === "number") &&
+    (value.rotation === undefined || quaternion(value.rotation)) &&
+    (value.worn === undefined ||
+      (record(value.worn) &&
+        typeof value.worn.subject === "string" &&
+        typeof value.worn.bone === "string" &&
+        record(value.worn.offset) &&
+        record(value.worn.offset.position) &&
+        ["x", "y", "z"].every(
+          (k: string): boolean =>
+            typeof (
+              value.worn as { offset: { position: Record<string, unknown> } }
+            ).offset.position[k] === "number",
+        ) &&
+        quaternion(value.worn.offset.rotation))) &&
     typeof value.yaw === "number";
 
   /** Whether a value has the members the editor reads of a performer. */

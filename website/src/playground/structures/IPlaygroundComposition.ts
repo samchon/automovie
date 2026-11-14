@@ -53,8 +53,37 @@ export namespace IPlaygroundComposition {
     /** Height of its origin above the floor, metres, for an object resting on another, such as a mug on a table; on the floor when absent. */
     y?: number;
 
-    /** Heading about +Y, degrees. */
+    /** Heading about +Y, degrees; ignored when `rotation` is given. */
     yaw: number;
+
+    /** Its whole world rotation, a unit quaternion, for an object that does not stand upright, such as a sword lying on a table; a heading alone (`yaw`) when absent. */
+    rotation?: IPlaygroundComposition.IQuaternion;
+
+    /** The person and bone it is worn on at the start, such as a sword in its scabbard at the hip, until a hand draws it; resting where it is placed when absent. */
+    worn?: IPlaygroundComposition.IWorn;
+  }
+
+  /** A rotation as a unit quaternion. */
+  export interface IQuaternion {
+    x: number;
+    y: number;
+    z: number;
+    w: number;
+  }
+
+  /** Where an object is worn, as `IHumanProp.worn` takes it. */
+  export interface IWorn {
+    /** The wearer's subject id. */
+    subject: string;
+
+    /** The bone it rides, such as `hips`. */
+    bone: string;
+
+    /** Its frame in the bone's posed frame: metres and a unit quaternion. */
+    offset: {
+      position: { x: number; y: number; z: number };
+      rotation: IPlaygroundComposition.IQuaternion;
+    };
   }
 
   /** One person and what they do, in order. */
