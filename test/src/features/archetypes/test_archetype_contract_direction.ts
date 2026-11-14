@@ -26,7 +26,7 @@ export function test_archetype_contract_direction(): void {
   type Table = Readonly<Record<string, "along" | "normal">>;
   const PRODUCERS: Readonly<Record<string, Table>> = {
     drinkware: { lip: along, mouth: along },
-    device: { lens: normal, screen: normal },
+    device: { lens: normal, screen: normal, speaker: normal },
     smoking: { mouth: along, flame: along },
     longTool: { face: normal },
     handgun: { muzzle: along },

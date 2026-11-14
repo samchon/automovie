@@ -34,6 +34,10 @@ const REMOTE: string =
 const TABLET: string =
   "Apple iPad (10th generation) technical specifications: 248.6 mm high, 179.5 mm wide, 7 mm deep, 477 g Wi-Fi and 481 g cellular (https://support.apple.com/en-us/111840)";
 
+/** Motorola's portable radio, read in its data sheet. */
+const RADIO: string =
+  "Motorola Solutions, MOTOTRBO CP200d data sheet (06-2020): 5.0 x 2.4 x 1.5 to 1.8 in (127.7 x 61.5 x 39.0 to 44.0 mm, H x W x D) with its four batteries, 12.1 to 14.3 oz (341 to 406 g) (https://www.daywireless.com/downloads/motorola/motorola_cp200d_specsheet.pdf, p. 3)";
+
 /** The travel of a small push button, for which no specification was read. */
 const PRESS: string = "typical tactile switch travel, not read at a source";
 
@@ -43,12 +47,13 @@ const NAMES: Readonly<Record<createDevice.Kind, string>> = {
   camera: "compact camera",
   remote: "remote control",
   tablet: "tablet",
+  walkieTalkie: "walkie-talkie",
 };
 
 /**
- * A handheld device: a smartphone, a compact camera, a remote control or a tablet.
+ * A handheld device: a smartphone, a compact camera, a remote control, a tablet or a walkie-talkie.
  *
- * The model is a slab, with a camera's lens barrel and hand grip: what tells them apart. The device stands on its bottom edge at the origin, its screen, its lens or its buttons facing `+Z`, its long side along `+Y` for a phone, a remote and a tablet and along `+X` for a camera. A tablet is held across its back at its middle and its `screen` is its whole front; no maker read places its lens, so it declares none.
+ * The model is a slab, with a camera's lens barrel and hand grip: what tells them apart. The device stands on its bottom edge at the origin, its screen, its lens or its buttons facing `+Z`, its long side along `+Y` for a phone, a remote, a tablet and a walkie-talkie and along `+X` for a camera. A tablet and a walkie-talkie are held across their back anywhere up their height; a tablet's `screen` is its whole front, and no maker read places its lens, so it declares none; a walkie-talkie's `speaker` is its whole front, which the voice meets, and its antenna and push-to-talk key wait for a source of their size and place.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -102,8 +107,8 @@ export function createDevice(
       Vector3.create(1, 0, 0),
     );
 
-  if (kind === "tablet") {
-    // A tablet: one slab, held across its back at its middle and looked at on its front.
+  if (kind === "tablet" || kind === "walkieTalkie") {
+    // One slab, held across its back anywhere up its height, its front looked at or spoken into.
     builder.box(
       "body",
       Vector3.create(width, height, depth),
@@ -125,7 +130,7 @@ export function createDevice(
       length: height,
     });
     builder.affordance({
-      id: "screen",
+      id: kind === "tablet" ? "screen" : "speaker",
       kind: "surface",
       direction: "normal",
       frame: front(height / 2),
@@ -305,20 +310,27 @@ export function createDevice(
  */
 export namespace createDevice {
   /** The kinds of device. */
-  export type Kind = "phone" | "camera" | "remote" | "tablet";
+  export type Kind = "phone" | "camera" | "remote" | "tablet" | "walkieTalkie";
 
   /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["phone", "camera", "remote", "tablet"];
+  export const KINDS: readonly Kind[] = [
+    "phone",
+    "camera",
+    "remote",
+    "tablet",
+    "walkieTalkie",
+  ];
 
   /**
    * The affordance ids:
    *
-   * - `grip`: the hold, a power grip: across the back of a phone, a remote or a tablet, on a camera's grip bar at its `-X` end.
+   * - `grip`: the hold, a power grip: across the back of a phone, a remote, a tablet or a walkie-talkie, on a camera's grip bar at its `-X` end.
    * - `support`: a camera's other hold, the far `+X` end of its body taken from the front, where the second hand steadies it.
    * - `pinch`: a lateral pinch at the bottom edge of a phone or a remote.
    * - `screen`: the face that is looked at: a phone's or a tablet's front, a camera's back.
    * - `lens`: the face that looks: a phone's rear lens, a camera's lens front.
    * - `button`: a camera's shutter release on its top, a remote's keys on its face.
+   * - `speaker`: a walkie-talkie's front, which the voice meets.
    */
   export type Affordance =
     | "grip"
@@ -326,7 +338,8 @@ export namespace createDevice {
     | "support"
     | "screen"
     | "lens"
-    | "button";
+    | "button"
+    | "speaker";
 
   /**
    * The free dimensions, metres unless stated:
@@ -377,6 +390,12 @@ export namespace createDevice {
       height: ArchetypeBand.metres(0.2486, 0.2486, TABLET),
       thickness: ArchetypeBand.metres(0.007, 0.007, TABLET),
       mass: kg(0.477, 0.481, TABLET),
+    },
+    walkieTalkie: {
+      width: ArchetypeBand.metres(0.0615, 0.0615, RADIO),
+      height: ArchetypeBand.metres(0.1277, 0.1277, RADIO),
+      thickness: ArchetypeBand.metres(0.039, 0.044, RADIO),
+      mass: kg(0.341, 0.406, RADIO),
     },
   };
 }
