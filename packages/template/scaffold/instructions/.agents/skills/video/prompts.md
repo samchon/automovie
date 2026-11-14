@@ -28,7 +28,7 @@ Leave out what the request keeps from the hint, such as positions, actions, cont
 
 ### Plain prose
 
-Write the prompt in plain prose, in this order: any trigger words the adapter's documentation puts first, the inputs' roles, the shared description, the request paragraph, then sound. Natural sentences steer better than keyword lists, and pasted tag-style prompts from another model lose meaning.
+Write the prompt in plain prose, in this order: any trigger words the adapter's documentation puts first, the inputs' roles where the guide asks for them, the shared description, the request paragraph, then sound. Natural sentences steer better than keyword lists, and pasted tag-style prompts from another model lose meaning.
 
 ### What to show
 

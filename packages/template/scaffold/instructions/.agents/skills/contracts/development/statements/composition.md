@@ -4,7 +4,7 @@ Contract: [composition.md](../composition.md).
 
 ## Screenplay realization
 
-1. The scene composes its scene file's standing state and each cited beat's participants, intents, outcome, reactions and consequences, and every change of position, camera and sound, omitting, altering and adding none. Exception: for a commissioned generated film, the generation prompt carries a reaction the representation cannot show, such as a facial expression.
+1. The scene composes its scene file's standing state and each cited beat's participants, intents, outcome, reactions and consequences, and every change of position, camera and sound, omitting, altering and adding none. Exception: for a commissioned generated film, the generation prompt carries what the representation cannot show, such as a facial expression or a one-scene subject's appearance.
 2. Each state continues across cuts until a beat changes it.
 3. A film plays every scene file of its folder in the order of their numbers, with the screenplay's transitions, titles and subtitles, and fills its running time.
 4. A film takes its raster, frame rate and running time from the delivery profile in [project context](../../../production/project-context.md), and its grade and control channels from the screenplay and that record.

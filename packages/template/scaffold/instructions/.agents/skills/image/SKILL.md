@@ -21,7 +21,7 @@ These are representative examples, not a complete or required list; read the cho
 
 ## Canon references
 
-For a generated film, choose the video model under [video](../video/SKILL.md) first, because its guide and terms decide the views. Generate each subject's canon references once, inspect them and freeze them. Generate every other view, shot frame and variant from the frozen canon references, never from an earlier derived image, because each edit of an edit loses detail and drifts from the subject. A take's frame that continues the next request is a video input under [requests](../video/requests.md#inputs), not a derived image.
+For a generated film, choose the video model under [video](../video/SKILL.md) first, because its guide and terms decide the views. Generate each subject's canon references once, inspect them and freeze them. Generate every other view, shot frame and variant from the frozen canon references, never from an earlier derived image, because each edit of an edit loses detail and drifts from the subject. A subject only one scene shows takes no canon reference; its prompt describes it from the scene's standing state. A take's frame that continues the next request is a video input under [requests](../video/requests.md#inputs), not a derived image.
 
 Video models cap references per subject at about three or four images, and some read a multi-view sheet as several subjects. Give each character separate images rather than one collage, on a plain background with flat light and the canonical wardrobe:
 
@@ -35,13 +35,13 @@ A wardrobe, makeup or wound state of a story day is its own reference set, gener
 
 ## Control images
 
-For a canon reference, a plate or any other image without the hint's structure, a prompt is enough, with the canon references once they exist, because such an image carries only appearance. Add a control image only when a subject's build or shape departs from what the model draws by default, such as a child, a very tall person or an unusual object: render it from the subject's entity in a neutral pose and pass it loosely, to a proprietary model as an input labeled for build only and to an open model as [dense passes](../motion/control-channels.md#dense-passes) sets. Such a subject's canon references therefore wait for its entity.
+For a canon reference, a plate or any other image without the hint's structure, a prompt is enough, with the canon references once they exist, because such an image carries only appearance. Add a control image only when a subject's build or shape departs from what the model draws by default, such as a child, a very tall person or an unusual object: render it from the subject's entity in a neutral pose and pass it loosely, to a proprietary model as an input labeled for build only and to an open model as [dense passes](../motion/control-channels.md#dense-passes) sets.
 
 ## Shot frames
 
 A model that starts from a first frame takes the appearance from it while the hint gives the motion; when the two disagree on pose or camera, the result drifts.
 
-Render the first frame of the request's rendered hint, handles included, at the video model's exact output size and aspect, and give it with the canon references, prompted with the [shared description](../video/prompts.md#shared-description) of its video prompts, the film's look included, where a generated film has them, to a proprietary model as an input labeled "pose and camera reference only" and to an open model as the control images [dense passes](../motion/control-channels.md#dense-passes) sets. Then [overlay](../visual-debugging/comparison.md#read-the-difference) the generated frame on the hint's frame and regenerate when silhouettes, horizon or facing move.
+Render the first frame of the request's rendered hint, handles included, at the video model's exact output size and aspect. Prompt it with the [shared description](../video/prompts.md#shared-description) of its video prompts, the film's look included, where a generated film has one, and give it with the canon references to a proprietary model as an input labeled "pose and camera reference only" and to an open model as the control images [dense passes](../motion/control-channels.md#dense-passes) sets. Then [overlay](../visual-debugging/comparison.md#read-the-difference) the generated frame on the hint's frame and regenerate when silhouettes, horizon or facing move.
 
 When the image model's sizes differ from the video model's, render the hint's frame at a size the image model takes, with the video frame inside it, and crop the result to the video frame.
 

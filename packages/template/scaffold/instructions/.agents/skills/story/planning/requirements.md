@@ -4,7 +4,7 @@ What the user fixed or delegated about the work itself is recorded here before a
 
 ## Requirements
 
-Record each requirement adopted from the conversation and the user's materials before relying on it, in `docs/instructions/` with one H1 per topic and an anchored H2 per independently changeable requirement.
+Record each requirement adopted from the conversation and the user's materials before relying on it, in `docs/instructions/` with one H1 per topic and an anchored H2 per independently changeable requirement, apart from a generated film's look on a route without settings, which [project context](../../production/project-context.md) holds.
 
 Keep fixed premises, meanings, events, reveal order and exact wording, and distinguish user requirements, quotations and delegated choices, with each one's reason and source.
 
@@ -16,7 +16,7 @@ A changed or withdrawn requirement reaches its consumers through [repair](../cor
 
 ## Asking the user
 
-When the agent writes the story, its events, people, ending, tone, form, running time and frame stay the user's unless delegated. Whoever writes the screenplay, a generated film's look stays the user's unless delegated; ask for it before direction, or with the first video task when no narrative pass runs, and record it as the Look row of [project context](../../production/project-context.md) sets. A story built on a guessed element is rewritten once the user reads it, with every layer written on it. Each layer's own decisions within what the user decided, such as a researched fact, are delegated and not asked; decide delegated choices through [direction](direction.md).
+When the agent writes the story, its events, people, ending, tone, form, running time and frame stay the user's unless delegated. Whoever writes the screenplay, a generated film's look stays the user's unless delegated; ask for it before direction, or with the first video task when no narrative pass runs. On a route without settings, record it in the Look row of [project context](../../production/project-context.md) rather than in `docs/instructions`, because no body there realizes it; on long work, record it as an instruction the settings cinematography record cites. A story built on a guessed element is rewritten once the user reads it, with every layer written on it. Each layer's own decisions within what the user decided, such as a researched fact, are delegated and not asked; decide delegated choices through [direction](direction.md).
 
 Before direction, ask about each such element the user neither fixed nor delegated. Ask in rounds and record each round's answers at their owners, because an answer often raises a new element. Stop when the conversation and the user's materials leave none, or when the user delegates the rest, recorded as one delegated choice.
 
