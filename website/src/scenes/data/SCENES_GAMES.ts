@@ -67,7 +67,7 @@ export const SCENES_GAMES: readonly IScene[] = [
         act("pitch", { at: at("cat", "palmLeft") }, { anchor: "pit" }),
         act("underarmPitch", { at: at("cat", "palmLeft") }),
       ]),
-      person("bat", "m1", 0.6, 0.6, 270, [
+      person("bat", "m1", 0.9, 0.7, 270, [
         act("battingStance"),
         act("batSwing"),
         act("checkSwing"),
@@ -98,10 +98,10 @@ export const SCENES_GAMES: readonly IScene[] = [
       person("v1", "f1", -1, -1, 0, [act("volleyDig")]),
       person("v2", "f2", 0, 0, 0, [act("volleySet")]),
       person("v3", "m1", 1, 0.2, 0, [act("bounce"), act("spike")]),
-      person("v4", "m2", 0.5, 2, 180, [
+      person("v4", "m2", 1.5, 2.6, 180, [
         act("bounce"),
         act("stand", { seconds: 0.3 }),
-        act("jump", { to: to(0.5, 1.8) }),
+        act("jump", { to: to(1.5, 2.4) }),
       ]),
     ],
   ),
@@ -136,7 +136,8 @@ export const SCENES_GAMES: readonly IScene[] = [
     {
       id: "golf",
       title: "Golf",
-      summary: "Two golfers: an address, a full swing and a putt.",
+      summary:
+        "Two golfers with their clubs mimed: an address and a full swing, an address and a putt.",
       setting: "sport",
       roles: { g1: "golfer", g2: "golfer" },
       needs: [],
@@ -160,7 +161,7 @@ export const SCENES_GAMES: readonly IScene[] = [
     },
     "gymnastics",
     [
-      person("g1", "f1", -3, -1, 90, [
+      person("g1", "f1", -3, -2, 90, [
         act("cartwheelLeft"),
         act("roundOffLeft"),
         act("frontHandspring"),
@@ -170,10 +171,10 @@ export const SCENES_GAMES: readonly IScene[] = [
         act("backwardRoll"),
         act("handstand"),
       ]),
-      person("g3", "m1", -3, 3, 90, [
-        act("leap", { to: to(-1.5, 3) }),
-        act("backSalto", { to: to(-2.2, 3) }),
-        act("frontSalto", { to: to(0, 3) }),
+      person("g3", "m1", -3, 4, 90, [
+        act("leap", { to: to(-1.5, 4) }),
+        act("backSalto", { to: to(-2.2, 4) }),
+        act("frontSalto", { to: to(0, 4) }),
       ]),
     ],
   ),
@@ -230,10 +231,10 @@ export const SCENES_GAMES: readonly IScene[] = [
           { over: [act("relayIncoming", { partner: "r2", at: 1.5 })] },
         ),
       ]),
-      person("r2", "f1", -6, 0.3, 90, [
+      person("r2", "f1", -6, 0.6, 90, [
         act(
           "sprint",
-          { to: to(4, 0.3) },
+          { to: to(4, 0.6) },
           { over: [act("relayOutgoing", { partner: "r1", at: 1.5 })] },
         ),
       ]),
@@ -269,7 +270,7 @@ export const SCENES_GAMES: readonly IScene[] = [
         act("lowFive", { partner: "w1" }),
         act("thumbsUp"),
       ]),
-      person("w3", "m2", -0.5, 0.2, 60, [
+      person("w3", "m2", -0.45, 0.05, 90, [
         act("handsBehindHead"),
         act("firmPress", { target: at("w1", "shoulderRight") }),
       ]),

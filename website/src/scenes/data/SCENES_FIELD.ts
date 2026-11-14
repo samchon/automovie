@@ -85,7 +85,7 @@ export const SCENES_FIELD: readonly IScene[] = [
     },
     "vault-hall",
     [
-      person("eun", "f1", -3, -1.5, 90, [
+      person("eun", "f1", -3, -3.5, 90, [
         act("cartwheelRight"),
         act("roundOffRight"),
       ]),
