@@ -352,6 +352,11 @@ namespace FamilyConicBody {
   const ARM_GROOVES: number[] = (process.argv.find((a: string): boolean => a.startsWith("--arm-grooves="))?.slice("--arm-grooves=".length) ?? "").split(",").filter((x: string): boolean => x.length > 0).map(Number);
   /** `--arm-features=<anchor indices>`: the arm fitted with a groove of three feature anchors (`FamilyConicSection.featured`) after each listed anchor of `limb(1)`; a trial. */
   const ARM_FEATURES: number[] = (process.argv.find((a: string): boolean => a.startsWith("--arm-features="))?.slice("--arm-features=".length) ?? "").split(",").filter((x: string): boolean => x.length > 0).map(Number);
+  /**
+   * `--skin-held`: log every observed section's worst skin vertex with its world point and how far inside each round's hold it lies, mm
+   * (`IPart.rounds[].hold`, positive inside), event `family-body-skin-held`. Measurement only.
+   */
+  const SKIN_HELD: boolean = process.argv.includes("--skin-held");
   /** `--hand-features=<anchor indices>`, as `--arm-features` on the hand's own family, with `--hand-skin` fitted to the skin; a trial. */
   const HAND_FEATURES: number[] = (process.argv.find((a: string): boolean => a.startsWith("--hand-features="))?.slice("--hand-features=".length) ?? "").split(",").filter((x: string): boolean => x.length > 0).map(Number);
   /** A `limb(1)` layout with a groove of three feature anchors, an inflection, a concave floor and an inflection, after each listed anchor. */
@@ -2594,6 +2599,33 @@ namespace FamilyConicBody {
         fitAll(rounds.filter((window: IWindow): boolean => touching(window.stations) && (refitted === null || refitted.includes(window.name))), false);
         await fs.writeFile(path.join(out, part.name + ".family.json"), JSON.stringify(definition));
       }
+      // `--against=<directory>[+<shift>]`: how far the part's skin, reliefs on and caps off, moved from another stored wall's (`stored` for
+      // the Human package's), read at the same phases every 2 mm where both have fields, that wall's stations being this one's less the
+      // shift; the largest move over every 20 mm stretch. A splice or a window refit shows here whether the skin outside it stayed put.
+      const against: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--against="))?.slice("--against=".length);
+      if (against !== undefined) {
+        const [otherDir, shiftText]: string[] = against.split("+");
+        const other: K.IStored = await storedWall(otherDir!, part.name);
+        const shift: number = Number(shiftText ?? 0);
+        const low: number = Math.max(definition.knots[0]!, other.knots[0]! + shift);
+        const high: number = Math.min(definition.knots.at(-1)!, other.knots.at(-1)! + shift);
+        const at: number[] = Array.from({ length: Math.floor((high - low) / 2) + 1 }, (_: unknown, i: number): number => low + 2 * i);
+        const mine = K.create({ ...definition, tips: undefined }, at).chain;
+        const theirs = K.create({ ...other, tips: undefined }, at.map((s: number): number => s - shift)).chain;
+        if (mine === null || theirs === null) throw new Error("--against: a wall does not loft");
+        const stretches: Map<number, number> = new Map();
+        for (const s of at) {
+          let most: number = 0;
+          for (let j: number = 0; j < 128; ++j) {
+            const p: number[] = AutoMovieLoftChain.point(mine, s, (2 * Math.PI * j) / 128);
+            const q: number[] = AutoMovieLoftChain.point(theirs, s - shift, (2 * Math.PI * j) / 128);
+            most = Math.max(most, Math.hypot(p[0]! - q[0]!, p[1]! - q[1]!, p[2]! - q[2]!));
+          }
+          const key: number = Math.floor(s / 20) * 20;
+          stretches.set(key, Math.max(stretches.get(key) ?? 0, most));
+        }
+        log("family-body-against", { part: part.name, against, shift, movedMmByStretch: [...stretches.entries()].map(([from, most]: [number, number]): string => `${from}..${from + 20}: ${most.toFixed(3)}`) });
+      }
       const stations: number[] = rows.map((row: F.IRow): number => row.s);
       const lofted: number = performance.now();
       const loft: L.IResult = K.create(definition, stations);
@@ -2609,6 +2641,7 @@ namespace FamilyConicBody {
       let sum: number = 0;
       let n: number = 0;
       const worstRows: string[] = [];
+      const heldRows: { s: number; worstMm: number; phaseDeg: number; world: number[]; held: Record<string, number> }[] = [];
       rows.forEach((row: F.IRow, i: number): void => {
         // The regenerated section as a dense chart polyline; every observed skin vertex is measured to it.
         const frame: AutoMovieLoftFrame.IFrame = stage.at(row.s);
@@ -2619,19 +2652,28 @@ namespace FamilyConicBody {
         });
         let rowMaximum: number = 0;
         let rowPhase: number = 0;
+        let rowVertex: C.P = [0, 0];
         for (const vertex of skins[i]!) {
           const e: number = distance(vertex, ring);
           if (e > rowMaximum) {
             rowMaximum = e;
             rowPhase = Math.atan2(vertex[1], vertex[0]);
+            rowVertex = vertex;
           }
           sum += e;
           ++n;
         }
         maximum = Math.max(maximum, rowMaximum);
         if (rowMaximum > TARGET_MM && i % 4 === 0) worstRows.push(row.s.toFixed(0) + ":" + rowMaximum.toFixed(1) + "@" + ((rowPhase * 180) / Math.PI).toFixed(0));
+        // `--skin-held`: every section's worst skin vertex with how far inside each round's hold it lies, mm (positive: held), so a misfit
+        // the part's nets leave can be told from one their hold keeps them off.
+        if (SKIN_HELD) {
+          const world: R.V = [0, 1, 2].map((c: number): number => frame.origin[c]! + rowVertex[0] * frame.u[c]! + rowVertex[1] * frame.v[c]!) as R.V;
+          heldRows.push({ s: row.s, worstMm: round(rowMaximum), phaseDeg: Math.round((rowPhase * 180) / Math.PI), world: world.map(round), held: Object.fromEntries((part.rounds ?? []).filter((net): boolean => net.hold !== undefined && row.s > net.stations[0] && row.s < net.stations[1]).map((net): [string, number] => [net.name, round(net.hold!(world))])) });
+        }
       });
       log("family-body-skin", { part: part.name, over: worstRows.join(" ") });
+      if (SKIN_HELD) log("family-body-skin-held", { part: part.name, rows: heldRows });
       const engine = { storedBytes: Buffer.byteLength(stored), fields: best.values.length, knots: best.knots.length, scalars: best.knots.length * (1 + best.values.length), fitTrainMaxMm: round(best.training.maximumMm), fitHeldMaxMm: round(best.heldout.maximumMm), engineMaxMm: round(maximum), engineMeanMm: round(sum / n), loftMs: Math.round(loftMs), diagnostics: loft.diagnostics };
       log("family-body-engine", { part: part.name, ...engine });
       receipt.push({ part: part.name, domainMm: domain, sections: rows.length, skipped, trail, engine });
