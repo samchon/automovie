@@ -19,14 +19,41 @@ const KERB: {
   height: number;
 } = { x: 2, z: 0.38, length: 0.6, depth: 0.4, height: 0.2 };
 
-/** The everyday scenes composed from the lexicon and placed objects of #3392. */
+/** How far a standing person's toes lie ahead of their floor point, metres (an estimate across the site's bodies), from which a climb measures where its stairs or ladder begin. */
+const TOE: number = 0.14;
+
+/**
+ * The flight climbed on the stairs-and-ladder scene: the stairs are placed
+ * with these risers and treads, their first riser `start` ahead of the
+ * toes, and the climb is given the same numbers, so the feet land on the
+ * treads the visitor sees.
+ */
+const STAIRS: { count: number; riser: number; tread: number; start: number } = {
+  count: 6,
+  riser: 0.17,
+  tread: 0.28,
+  start: 0.05,
+};
+
+/**
+ * The fixed ladder climbed on the same scene: placed with this rung count
+ * and spacing, its rungs `start` ahead of the toes and turned to be climbed
+ * facing +Z, and the climb is given the same numbers.
+ */
+const LADDER: { rungs: number; spacing: number; start: number } = {
+  rungs: 6,
+  spacing: 0.3,
+  start: 0.15,
+};
+
+/** The everyday scenes composed from the lexicon and placed objects. */
 export const SCENES_DAILY: readonly IScene[] = [
   scene(
     {
       id: "cafe",
       title: "Café",
       summary:
-        "Two friends sit at a table, sip and whisper; a third arrives, stands by the table and waves them over.",
+        "Two friends sit down across a table: one lifts a mug to sip and sets it down, then nods; the other checks a phone and sips; a third arrives, stands by the table and waves them over.",
       setting: "everyday",
       roles: { ana: "friend", ben: "friend", cal: "latecomer" },
       needs: [],
@@ -35,15 +62,15 @@ export const SCENES_DAILY: readonly IScene[] = [
     },
     "cafe",
     [
-      person("ana", "f1", -1.2, 1.5, 90, [
+      person("ana", "f1", -0.92, 1.5, 90, [
         act("sit", { seat: seat("chairA"), seconds: 1 }),
         act("pickUp", { prop: "mug", handle: "handle" }),
         act("toastSip", { prop: "mug" }),
-        act("putDown", { prop: "mug", at: { x: -0.5, y: 0.75, z: 1.5 } }),
-        act("whisper", { partner: "ben" }),
+        act("putDown", { prop: "mug", at: { x: -0.65, y: 0.75, z: 1.65 } }),
+        act("gesture", { kind: "nod" }),
         act("handOnHeart"),
       ]),
-      person("ben", "m1", 1.2, 1.5, 270, [
+      person("ben", "m1", 0.92, 1.5, 270, [
         act("sit", { seat: seat("chairB"), seconds: 1 }),
         act("checkPhone", { seconds: 2 }),
         act("toastSip"),
@@ -57,9 +84,9 @@ export const SCENES_DAILY: readonly IScene[] = [
     ],
     [
       object("table", "createTable", "dining", 0, 1.5),
-      object("chairA", "createSeat", "dining", -0.7, 1.5, 90),
-      object("chairB", "createSeat", "dining", 0.7, 1.5, 270),
-      object("mug", "createDrinkware", "mug", -0.56, 1.5, 0, 0.75),
+      object("chairA", "createSeat", "dining", -1.05, 1.5, 90),
+      object("chairB", "createSeat", "dining", 1.05, 1.5, 270),
+      object("mug", "createDrinkware", "mug", -0.7, 1.5, 0, 0.75),
     ],
   ),
   scene(
@@ -82,7 +109,7 @@ export const SCENES_DAILY: readonly IScene[] = [
         act("rubEyes"),
         act("thinking", { seconds: 1.5 }),
       ]),
-      person("eli", "m2", 1, 0, 0, [
+      person("eli", "m2", 1, 0.15, 0, [
         act("sit", { seat: seat("chairE"), seconds: 0.5 }),
         act("checkWatch"),
         act("shift", { by: 0.1 }),
@@ -102,8 +129,8 @@ export const SCENES_DAILY: readonly IScene[] = [
     ],
     [
       object("deskD", "createTable", "counter", -1, 0.6),
-      object("deskE", "createTable", "desk", 1, 0.6),
-      object("chairE", "createSeat", "office", 1, 0),
+      object("deskE", "createTable", "desk", 1, 0.75),
+      object("chairE", "createSeat", "office", 1, -0.15),
       object("switch", "createSwitch", "rocker", 1.6, 0.4, 270),
     ],
   ),
@@ -182,7 +209,7 @@ export const SCENES_DAILY: readonly IScene[] = [
       id: "tourists",
       title: "Tourists",
       summary:
-        "Three tourists stroll, stop for a photograph and a selfie, fan themselves, and wave the others over.",
+        "Three tourists stroll and stop: one fans herself and waves the others over, one takes a selfie and fans himself, one checks her phone and gives a thumbs up.",
       setting: "everyday",
       roles: { ivy: "photographer", jay: "tourist", kit: "tourist" },
       needs: [],
@@ -230,7 +257,7 @@ export const SCENES_DAILY: readonly IScene[] = [
       id: "fright",
       title: "A fright",
       summary:
-        "Something goes off: one startles, one winces, one braces for impact, one dives for cover and one stumbles.",
+        "Something goes off: a walker startles and takes cover, one winces and braces for impact, one dives for cover, and one stumbles and drops to a knee.",
       setting: "everyday",
       roles: {
         pat: "passer-by",
@@ -257,7 +284,7 @@ export const SCENES_DAILY: readonly IScene[] = [
       id: "farewell",
       title: "Farewell at the station",
       summary:
-        "Three people part: a kiss on the cheek, a pat on the shoulder, a fist bump and a blown kiss, and one trudges away.",
+        "Three people part: kisses on the cheek and the forehead, a fist bump and a pinky promise, a pat on the shoulder and a hand on the back, a blown kiss, and one trudges away.",
       setting: "everyday",
       roles: { tia: "traveller", uli: "friend", val: "friend" },
       needs: [],
@@ -267,6 +294,8 @@ export const SCENES_DAILY: readonly IScene[] = [
       person("tia", "f1", 0.3, 0.15, 0, [
         act("cheekKiss", { partner: "uli" }),
         act("fistBump", { partner: "val" }),
+        act("pinkyPromise", { partner: "val" }),
+        act("blownKiss"),
         act("blownKissSend"),
         act("trudge", { to: to(0, -3) }),
       ]),
@@ -314,7 +343,7 @@ export const SCENES_DAILY: readonly IScene[] = [
       id: "charades",
       title: "Charades",
       summary:
-        "Three friends talk with their hands only: thumbs up, okay, I don't know, a facepalm, come here, halt, counting to five.",
+        "Three friends talk with their hands only: thumbs up, counting to three and air quotes; I don't know, a facepalm, okay and a victory sign; come here, halt, hush, a finger snap and hands up.",
       setting: "everyday",
       roles: { wes: "friend", xan: "friend", yui: "friend" },
       needs: [],
@@ -348,7 +377,7 @@ export const SCENES_DAILY: readonly IScene[] = [
       id: "doorway",
       title: "At a door",
       summary:
-        "One person pushes a hinged door open by its handle and waves a friend over; walking through the opening waits until a placed door can be read as an obstacle, and a pulled door's whole swing waits on #3520.",
+        "One person takes a hinged door by its push plate and pushes, the door itself staying shut, then waves over a friend, who walks up.",
       setting: "everyday",
       roles: { ada: "host", bea: "friend" },
       needs: [],
@@ -370,7 +399,8 @@ export const SCENES_DAILY: readonly IScene[] = [
     {
       id: "dressing-room",
       title: "Dressing room",
-      summary: "Someone bends, kneels, dresses and checks themselves.",
+      summary:
+        "Someone bends to a bag, puts on a hat, takes a knee and rises, and rolls the shoulders.",
       setting: "everyday",
       roles: { cyd: "actor" },
       needs: [],
@@ -378,21 +408,23 @@ export const SCENES_DAILY: readonly IScene[] = [
     "dressing",
     [
       person("cyd", "f2", 0, 0, 0, [
-        act("bend", { toward: at("cyd", "kneeLeft") }),
+        act("bend", {
+          toward: { kind: "prop", subject: "bag", point: "handle" },
+          strategy: "squat",
+        }),
         act("dress", { item: "hat" }),
         act("kneel", { kind: "one", hold: 0.6 }),
-        act("rise"),
         act("selfAction", { kind: "shoulderRoll" }),
       ]),
     ],
-    [object("bag", "createBag", "tote", 0.6, 0.4)],
+    [object("bag", "createBag", "tote", -0.15, 0.35)],
   ),
   scene(
     {
       id: "stairs-and-ladder",
       title: "Stairs and ladder",
       summary:
-        "One person climbs a flight of stairs; another climbs a leaning ladder; a third steps over a crate lying in the way and braces.",
+        "One person climbs a flight of six stairs, another climbs six rungs of a fixed ladder, and a third steps over a crate lying in the way and braces.",
       setting: "everyday",
       roles: { dot: "climber", eve: "climber", fin: "walker" },
       needs: [],
@@ -400,9 +432,21 @@ export const SCENES_DAILY: readonly IScene[] = [
     "climb",
     [
       person("dot", "f1", -1.5, 0, 0, [
-        act("climbStairs", { pattern: "stepOverStep", count: 6 }),
+        act("climbStairs", {
+          pattern: "stepOverStep",
+          count: STAIRS.count,
+          riser: STAIRS.riser,
+          tread: STAIRS.tread,
+          start: STAIRS.start,
+        }),
       ]),
-      person("eve", "m1", 0.5, 0, 0, [act("climbLadder", { rungs: 6 })]),
+      person("eve", "m1", 0.5, 0, 0, [
+        act("climbLadder", {
+          rungs: LADDER.rungs,
+          spacing: LADDER.spacing,
+          start: LADDER.start,
+        }),
+      ]),
       person("fin", "m2", 2, -1, 0, [
         act("walk", { to: to(2, 0) }),
         act("stepOver", {
@@ -416,7 +460,33 @@ export const SCENES_DAILY: readonly IScene[] = [
       ]),
     ],
     [
-      object("ladder", "createLadder", "leaning", 0.5, 0.5),
+      object(
+        "stairs",
+        "createStairs",
+        undefined,
+        -1.5,
+        TOE + STAIRS.start,
+        0,
+        0,
+        {
+          steps: STAIRS.count,
+          riser: STAIRS.riser,
+          tread: STAIRS.tread,
+        },
+      ),
+      object(
+        "ladder",
+        "createLadder",
+        "fixed",
+        0.5,
+        TOE + LADDER.start,
+        180,
+        0,
+        {
+          rungs: LADDER.rungs,
+          spacing: LADDER.spacing,
+        },
+      ),
       object("kerb", "createLoad", "crate", KERB.x, KERB.z, 0, 0, {
         length: KERB.length,
         depth: KERB.depth,

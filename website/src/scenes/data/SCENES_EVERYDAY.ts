@@ -107,7 +107,6 @@ const FALL: IPlaygroundComposition = {
         { name: "brace", params: { kind: "impact", seconds: 0.6 } },
         { name: "crouch", params: { hold: 1 } },
         { name: "kneel", params: { kind: "one", hold: 1.2 } },
-        { name: "rise", params: {} },
         {
           name: "touch",
           params: { target: { kind: "self", region: "hipRight" } },
@@ -153,7 +152,7 @@ export const SCENES_EVERYDAY: readonly IScene[] = [
     id: "meeting",
     title: "Meeting in a square",
     summary:
-      "One person walks up to another; they shake hands, high-five and talk with their hands while a third passes and waves.",
+      "One person walks up to another; they shake hands, high-five and talk with their hands; a third walks up, waves and rests a hand in a pocket and one on the hip.",
     setting: "everyday",
     cast: [
       { subject: "ana", role: "friend" },
