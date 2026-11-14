@@ -13,7 +13,7 @@ A subject the hint does not need takes no form and stays a description in the ge
 
 ## Requested detail
 
-Go further only when the user asks for it, as a [detail option](../development/entities.md#detail), or when primitives cannot make a form identifiable. The user chooses its source: a diffusion model's output, code that shapes it in detail, or an existing mesh.
+Go further only when the user asks for it, as a [detail option](../development/entities.md#detail), or when primitives cannot make a form identifiable. The user chooses its source: a diffusion model's output, code that shapes it in detail, or an existing mesh. A diffusion model generates the form from the subject's canon and turnaround views under [image](../image/SKILL.md).
 
 Build only what the request names and the subject's visible role needs. Finer geometry than that takes the time motion needed, and diffusion repaints it anyway.
 
