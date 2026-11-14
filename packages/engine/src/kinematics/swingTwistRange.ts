@@ -291,6 +291,67 @@ export namespace swingTwistRange {
   }
 
   /**
+   * A rotation part of the way between two, blended by swing and twist: the
+   * limb's direction turned along the great circle between the two
+   * directions, and its twist moved between the two twists, each read as the
+   * alias inside the range's twist interval (`nearestAngleAlias`), so the
+   * blend's twist never leaves the interval between two ends inside it.
+   *
+   * A spherical interpolation of the two rotations can pass the far side of
+   * the twist interval: a shoulder carried from a hanging arm to a hand on
+   * the nape read its twist 166, then -173, then -146 degrees on the way, and
+   * the projection that brings such a rotation back clamps it to the nearer
+   * end, which swapped from 135 to -110 between two frames and swung the
+   * elbow 417 mm. A direction's arc swaps only for opposite directions.
+   *
+   * @param a The joint's rest-relative rotation at share 0.
+   * @param b The same at share 1.
+   * @param share How far from `a` to `b`, in [0, 1].
+   * @param constraint The constraint, with `swingTwist`.
+   * @param joint The joint's axes and rest frame.
+   * @returns The rotation.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two blended parts, the measured defect of the spherical interpolation and why the parts do not jump.
+   * @evidence contracts/development/implementation.md#principled-implementation A ball joint's range is stated by swing and twist, so it is moved in them: the direction by the shortest turn between two directions, the twist linearly between its two in-interval readings, composed as `project` composes a rotation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two readings, one turn of the direction, one interpolated twist and one composition.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is clamped here; `project` brings a swing outside the region back.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `read`, `rotationBetween`, `nearestAngleAlias` and `toRigAngle`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function blend(
+    a: IAutoMovieQuaternion,
+    b: IAutoMovieQuaternion,
+    share: number,
+    constraint: IAutoMovieJointConstraint,
+    joint: IJoint,
+  ): IAutoMovieQuaternion {
+    const basis: swingTwistBasis.IBasis = swingTwistBasis.of(joint.axes);
+    const from: IReading = read(a, joint);
+    const to: IReading = read(b, joint);
+    const interval: IAutoMovieAngleRange = constraint.swingTwist!.twist;
+    const start: number = nearestAngleAlias(from.twist, interval);
+    const twist: number =
+      start + (nearestAngleAlias(to.twist, interval) - start) * share;
+    const direction: IAutoMovieVector3 = Quaternion.rotateVector(
+      Quaternion.slerp(
+        Quaternion.identity(),
+        rotationBetween(from.direction, to.direction),
+        share,
+      ),
+      from.direction,
+    );
+    return Quaternion.normalize(
+      Quaternion.multiply(
+        rotationBetween(basis.u, direction),
+        Quaternion.fromAxisAngle(
+          basis.u,
+          toRigAngle(twist, joint.frame?.twist)!,
+        ),
+      ),
+    );
+  }
+  /**
    * The swing region's radius on one great circle, degrees, read off the
    * cached table by linear interpolation between its two nearest rays.
    *
