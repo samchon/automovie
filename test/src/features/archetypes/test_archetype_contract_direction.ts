@@ -43,6 +43,7 @@ export function test_archetype_contract_direction(): void {
     golfClub: { face: normal, head: along },
     glove: { pocket: normal },
     boxingGlove: { face: normal },
+    stick: { blade: normal },
     javelin: { point: along },
     hammerThrow: { head: along },
     relayBaton: { front: along, back: along },

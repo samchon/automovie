@@ -49,7 +49,14 @@ import {
   createUmbrella,
   createVessel,
 } from "../props";
-import { createHighJump, createPoolEdge } from "../sport";
+import {
+  createCueTable,
+  createGoal,
+  createHighJump,
+  createPoolEdge,
+  createStick,
+  createSurfboard,
+} from "../sport";
 import {
   createBicycle,
   createCar,
@@ -496,6 +503,18 @@ export function archetypeCaptureCatalog(): Readonly<
       ),
       boxingGlove: createBoxingGlove(),
       heavyBag: createHeavyBag(),
+      ...kinds(
+        "goal",
+        createGoal.KINDS,
+        (kind: createGoal.Kind): Archetype => createGoal({ kind }),
+      ),
+      ...kinds(
+        "stick",
+        createStick.KINDS,
+        (kind: createStick.Kind): Archetype => createStick({ kind }),
+      ),
+      cueTable: createCueTable(),
+      surfboard: createSurfboard(),
     }),
     music: still({
       ...kinds(

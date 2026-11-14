@@ -18,6 +18,7 @@ import {
   createCart,
   createCleaning,
   createClub,
+  createCueTable,
   createDevice,
   createDiscus,
   createDoor,
@@ -29,6 +30,7 @@ import {
   createFood,
   createGate,
   createGlove,
+  createGoal,
   createGolfClub,
   createHammerThrow,
   createHandgun,
@@ -79,8 +81,10 @@ import {
   createStairs,
   createStartingBlock,
   createStationery,
+  createStick,
   createStorage,
   createStreetFixture,
+  createSurfboard,
   createSwitch,
   createSword,
   createTable,
@@ -514,6 +518,24 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
       `poolEdge-${kind}`,
       (seed?: number | string): Archetype => createPoolEdge({ kind }, seed),
     );
+  for (const kind of createGoal.KINDS)
+    add(
+      `goal-${kind}`,
+      (seed?: number | string): Archetype => createGoal({ kind }, seed),
+    );
+  for (const kind of createStick.KINDS)
+    add(
+      `stick-${kind}`,
+      (seed?: number | string): Archetype => createStick({ kind }, seed),
+    );
+  add(
+    "cueTable",
+    (seed?: number | string): Archetype => createCueTable({}, seed),
+  );
+  add(
+    "surfboard",
+    (seed?: number | string): Archetype => createSurfboard({}, seed),
+  );
   for (const kind of createLandingMat.KINDS)
     add(
       `landingMat-${kind}`,

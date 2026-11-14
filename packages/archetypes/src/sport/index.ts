@@ -1,6 +1,8 @@
 export * from "./createBall";
+export * from "./createCueTable";
 export * from "./createDiscus";
 export * from "./createGlove";
+export * from "./createGoal";
 export * from "./createGolfClub";
 export * from "./createHammerThrow";
 export * from "./createHighJump";
@@ -12,5 +14,7 @@ export * from "./createRacket";
 export * from "./createRelayBaton";
 export * from "./createShot";
 export * from "./createStartingBlock";
+export * from "./createStick";
+export * from "./createSurfboard";
 export * from "./createVaultingPole";
 export * from "./createVaultingTable";
