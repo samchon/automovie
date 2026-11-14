@@ -58,7 +58,7 @@ Language:
 
 The scene file:
 
-1. The scene file's first section opens with the standing state, stated once: the place, the cast present, any person or object only this scene shows, the camera default and the sound bed.
+1. The scene file's first section opens with the standing state, stated once: the place, the cast present, any person or object only this scene shows, with its appearance on a short for a commissioned generated film, the camera default and the sound bed.
 
 What each beat decides:
 

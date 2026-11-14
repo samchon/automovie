@@ -10,7 +10,7 @@ A prompt is put together from what the story already decided, so no request inve
 
 ### Shared description
 
-Write each person, place and recurring prop once per wardrobe, makeup or wound state, from the record that owns it, and the film's look once, from its [project context](../production/project-context.md) entry. Keep them in one file under `docs/prompts/`, laid out by [media records](../production/media-records.md#files), that every request cites, and reuse the identical words in every request that shows them, because a reworded description is a different character to the model. Turn off any prompt rewriting the model offers, since it rewords them.
+Write each person, place and prop the requests show once per wardrobe, makeup or wound state, from the record that owns it, and the film's look once, from its [project context](../production/project-context.md) entry, asked as [asking the user](../story/planning/requirements.md#asking-the-user) sets when absent. Keep them in one file under `docs/prompts/`, laid out by [media records](../production/media-records.md#files), that every request cites, and reuse the identical words in every request that shows them, because a reworded description is a different character to the model. Turn off any prompt rewriting the model offers, since it rewords them.
 
 ### Request paragraph
 
