@@ -9,14 +9,26 @@ import type { IScene } from "../structures/IScene";
 /**
  * Whether a scene plays on the installed packages, read from their own
  * data: the vocabulary, the lexicon, the chain's operators, the mutual
- * records and the archetype producers. Nothing here names a scene, so a
- * scene written for pieces a later release brings plays once that release
- * is installed.
+ * records and the archetype producers, and from the record's own mark of a
+ * refusal. Nothing here names a scene, so a scene written for pieces a later
+ * release brings plays once that release is installed.
  */
 export namespace SceneStatus {
   /** A scene's status. */
   export type Status =
     | { kind: "plays" }
+    | {
+        /**
+         * The installed packages have every piece, but the record says they
+         * refuse the scene until an issue lands: the bake keeps each refused
+         * take's refusal in place of its track, and nothing opens the scene
+         * as one that plays.
+         */
+        kind: "refused";
+
+        /** The issue whose fix lets the packages perform it. */
+        until: number;
+      }
     | {
         /** The scene has a composition the installed packages cannot build. */
         kind: "waits";
@@ -27,17 +39,30 @@ export namespace SceneStatus {
     | { kind: "planned" };
 
   /**
-   * The status of a scene.
+   * The status of a scene. A scene the packages lack pieces for waits even
+   * when its record marks a refusal, since nothing of it can be built.
    *
    * @param scene The scene.
-   * @returns Whether it plays, what it waits for, or that it is planned.
+   * @returns Whether it plays, is refused until an issue, what it waits for, or that it is planned.
    */
   export function of(scene: IScene): Status {
     if (scene.composition === null) return { kind: "planned" };
     const missing: string[] = lacks(scene.composition);
-    return missing.length === 0
+    if (missing.length !== 0) return { kind: "waits", missing };
+    return scene.refusedUntil === undefined
       ? { kind: "plays" }
-      : { kind: "waits", missing };
+      : { kind: "refused", until: scene.refusedUntil };
+  }
+
+  /**
+   * Whether the bake computes a scene's takes: every piece is installed, so
+   * each take is either a track or, for a refused scene, the refusal.
+   *
+   * @param status The scene's status.
+   * @returns Whether it plays or is refused.
+   */
+  export function bakes(status: Status): boolean {
+    return status.kind === "plays" || status.kind === "refused";
   }
 
   /**

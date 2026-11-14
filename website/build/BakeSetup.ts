@@ -38,7 +38,7 @@ export namespace BakeSetup {
     /** Whether this process only joins the shares' results. */
     merge: boolean;
 
-    /** Whether this process only plans each scene's first take and reports refusals. */
+    /** Whether this process only plans every take, samples a few poses of each scene's first take for their cost, and reports refusals. */
     check: boolean;
 
     /** Actions the check plans alone on one person instead of the scenes. */
@@ -157,13 +157,13 @@ export namespace BakeSetup {
     return hash.digest("hex");
   };
 
-  /** Every take of every scene that plays, in the order shares are dealt. */
+  /** Every take of every scene that plays or is marked refused, in the order shares are dealt. */
   export const plan: () => IJob[] = (): IJob[] => {
     const base: string = sources();
     return SCENES.filter(
       (scene: IScene): boolean =>
         (options.only.length === 0 || options.only.includes(scene.id)) &&
-        SceneStatus.of(scene).kind === "plays",
+        SceneStatus.bakes(SceneStatus.of(scene)),
     ).flatMap((scene: IScene): IJob[] =>
       scene.takes.map((take: IScene.ITake, index: number): IJob => {
         const composition: IPlaygroundComposition = SceneTake.apply(
@@ -215,6 +215,14 @@ export namespace BakeSetup {
     }
     return known;
   };
+
+  /** The notice for a take that plans though its scene's record marks it refused, which the bake and its check both print, so the mark is dropped once every take plays. */
+  export const outlived: (
+    scene: IScene,
+    index: number,
+    label: string,
+  ) => string = (scene: IScene, index: number, label: string): string =>
+    `${scene.id} ${index} ${label}: plays, though its record says it is refused until #${scene.refusedUntil}; drop the mark once every take plays`;
 
   /** A take's stable number: from its scene and index, so adding a scene or a take moves no other take to another machine or process. */
   export const hash: (job: IJob) => number = (job: IJob): number => {

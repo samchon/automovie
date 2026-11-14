@@ -4,9 +4,10 @@
 //   pnpm run bake --runner <k> --runners <n> one machine's share of the takes,
 //                                            in its own processes, then
 //   pnpm run bake --merge                    join the machines' results
-//   pnpm run bake --check                    plan every take of each playing
-//                                            scene without posing it, and list
-//                                            every refusal
+//   pnpm run bake --check                    plan every take of each scene the
+//                                            bake computes, pose a few frames
+//                                            of its first take for their cost,
+//                                            and list every refusal
 //   pnpm run bake --check --row <name>...    plan each named action alone on
 //                                            one person, with no parameters
 //
@@ -22,8 +23,10 @@
 // takes are dealt into shares by scene: by default one process per share
 // on this machine, and on CI one share per runner, joined by `--merge`. A
 // take whose inputs have not changed since the last bake keeps its file. A
-// take the packages refuse stops the bake with the scene, the take and the
-// refusal: a scene record is specification.
+// take of a scene whose record marks it refused until an issue lands keeps
+// the packages' refusal in place of its track; any other refusal stops the
+// bake with the scene, the take and the refusal, once every take of the
+// share has reported: a scene record is specification.
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type { IHumanProp } from "@automovie/motions";
 import { spawn } from "node:child_process";
@@ -128,12 +131,17 @@ const bake: (shard: number) => void = (shard: number): void => {
       );
     };
 
-    // An unchanged take keeps its file.
+    // An unchanged take keeps its file. The digest leaves out the record's
+    // mark, so a kept refusal is reused only while the record still marks
+    // the scene refused; once the mark is dropped the take is baked again
+    // and a refusal then stops the bake.
     const old: ISceneManifest.ITake | undefined = before[scene.id]?.[index];
     if (
       old !== undefined &&
       old.digest === digest &&
-      (old.refusal !== undefined || fs.existsSync(path.join(out, file)))
+      (old.refusal !== undefined
+        ? scene.refusedUntil !== undefined
+        : fs.existsSync(path.join(out, file)))
     ) {
       record({ ...old, label });
       console.log(`${scene.id} ${index} ${label}: unchanged`);
@@ -234,9 +242,7 @@ const bake: (shard: number) => void = (shard: number): void => {
       continue;
     }
     if (scene.refusedUntil !== undefined)
-      console.log(
-        `${scene.id} ${index} ${label}: plays, though its record says it is refused until #${scene.refusedUntil}; drop the mark once every take plays`,
-      );
+      console.log(BakeSetup.outlived(scene, index, label));
     const values: Int16Array = SceneTrack.encode(frames, [
       ...figures.map(
         (f: ISceneManifest.IFigure): string[] => part.bodies[f.body]!.order,
@@ -288,26 +294,40 @@ const merge: () => void = (): void => {
     scenes: {},
   };
   // A part left by an earlier run may name a take again; only an entry baked
-  // from the current inputs is taken.
-  const takes: ISceneManifest.ITake[] = [];
+  // from the current inputs is taken, and a kept refusal only while the
+  // scene's record still marks it. Each take brings its figures' bodies from
+  // the part that baked it, so a stale part adds no body.
+  const takes: { take: ISceneManifest.ITake; part: IPart }[] = [];
   for (const name of fs.existsSync(parts) ? fs.readdirSync(parts) : []) {
     const part: IPart = JSON.parse(
       fs.readFileSync(path.join(parts, name), "utf8"),
     );
-    Object.assign(manifest.bodies, part.bodies);
     for (const byIndex of Object.values(part.takes))
-      takes.push(...Object.values(byIndex));
+      for (const take of Object.values(byIndex)) takes.push({ take, part });
   }
   for (const job of plan()) {
-    const take: ISceneManifest.ITake | undefined = takes.find(
-      (t: ISceneManifest.ITake): boolean => t.digest === job.digest,
-    );
-    if (take === undefined)
+    const found: { take: ISceneManifest.ITake; part: IPart } | undefined =
+      takes.find(
+        (t: { take: ISceneManifest.ITake; part: IPart }): boolean =>
+          t.take.digest === job.digest &&
+          (t.take.refusal === undefined ||
+            job.scene.refusedUntil !== undefined),
+      );
+    if (found === undefined)
       throw new Error(
         `The take ${job.index} of ${job.scene.id} was not baked from the current inputs by any share`,
       );
+    for (const figure of found.take.figures) {
+      const known: ISceneManifest.IBody | undefined =
+        found.part.bodies[figure.body];
+      if (known === undefined)
+        throw new Error(
+          `The share that baked take ${job.index} of ${job.scene.id} has no body ${figure.body}`,
+        );
+      manifest.bodies[figure.body] = known;
+    }
     (manifest.scenes[job.scene.id] ??= { takes: [] }).takes[job.index] = {
-      ...take,
+      ...found.take,
       label: job.scene.takes[job.index]!.label,
     };
   }

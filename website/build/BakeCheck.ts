@@ -1,4 +1,5 @@
-// The bake's check: plan without posing, and list what the packages refuse.
+// The bake's check: plan every take, pose a few frames of each scene's first
+// take for their cost, and list what the packages refuse.
 import { PlaygroundPerformance } from "../src/playground/package/PlaygroundPerformance";
 import type { IPlaygroundComposition } from "../src/playground/structures/IPlaygroundComposition";
 import { SCENES } from "../src/scenes/SCENES";
@@ -7,7 +8,7 @@ import { SceneStatus } from "../src/scenes/package/SceneStatus";
 import type { IScene } from "../src/scenes/structures/IScene";
 import { BakeSetup } from "./BakeSetup";
 
-/** Planning the scenes, or single actions, without posing them. */
+/** Planning the scenes, or single actions, without baking their tracks. */
 export namespace BakeCheck {
   /** The parsed command line. */
   const options: BakeSetup.IOptions = BakeSetup.options;
@@ -47,7 +48,7 @@ export namespace BakeCheck {
     }
   };
 
-  /** Plan every take of every scene that plays, sampling the first take's poses for their cost, and list every refusal and every scene that waits. */
+  /** Plan every take of every scene that plays or is marked refused, sampling the first take's poses for their cost, and list every refusal, every scene that waits, and every take of a marked scene that plans. */
   export const check: () => void = (): void => {
     if (options.rows.length !== 0) return rows();
     const refused: string[] = [];
@@ -55,7 +56,7 @@ export namespace BakeCheck {
       if (options.only.length !== 0 && !options.only.includes(scene.id))
         continue;
       const status: SceneStatus.Status = SceneStatus.of(scene);
-      if (status.kind !== "plays") {
+      if (!SceneStatus.bakes(status)) {
         console.log(
           `${scene.id}: ${status.kind}${status.kind === "waits" ? ` for ${status.missing.join(", ")}` : ""}`,
         );
@@ -72,6 +73,10 @@ export namespace BakeCheck {
               SceneTake.apply(scene.composition!, take),
             );
           const planned: number = (Date.now() - t0) / 1000;
+
+          // A take of a marked scene that plans is told as the bake tells it.
+          if (scene.refusedUntil !== undefined)
+            console.log(BakeSetup.outlived(scene, index, take.label));
           if (index !== 0) {
             console.log(
               `${scene.id} take ${index} (${take.label}): plans, planned in ${planned.toFixed(1)} s`,

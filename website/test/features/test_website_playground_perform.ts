@@ -14,7 +14,7 @@ import type { IScene } from "../../src/scenes/structures/IScene";
  * The playground's composition data becomes a performance of `@automovie/motions`, and a refusal is placed on the action it names and repaired from its own alternatives.
  *
  * Scenarios:
- * 1. The dance circle, a scene of three people that plans in under a second, plans on the installed package: each performer's placed actions are the scene's actions in order, and the film is longer than zero seconds. Every other scene is planned by the site's bake, which fails on a refusal.
+ * 1. The dance circle, a scene of three people that plans in under a second, plans on the installed package: each performer's placed actions are the scene's actions in order, and the film is longer than zero seconds. Every other scene is planned by the site's bake, which fails on a refusal its scene's record does not mark with `refusedUntil`.
  * 2. A composition without any action is not handed to the package; building it throws with a message that says to add an action.
  * 3. An action name the vocabulary lacks is refused by the package itself, as a `HumanRefusal` on the axis `act` whose alternatives include `stand`.
  * 4. That refusal is found on the action that caused it and on no other, and applying the alternative `stand` gives a composition that plans.

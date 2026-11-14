@@ -40,12 +40,12 @@ A scene is a record in `src/scenes/data/`: its cast, the archetypes it places, t
 A pose costs tens of milliseconds and a take's plan seconds, so the pages do not compute motion. `build/bake.ts`, with its command line, takes and digests in `build/BakeSetup.ts` and its `--check` and `--row` reports in `build/BakeCheck.ts`, computes every take of every scene that plays with the packages, as the playground does, and writes each figure's bone placements and each prop's frame at 12 frames a second into the ignored `public/baked/`. The pages pose the polygon man from those numbers on one shared WebGL renderer (`src/stage/SharedStage.ts`).
 
 ```bash
-pnpm --filter @automovie/website bake --check            # plan each scene once and list every refusal
+pnpm --filter @automovie/website bake --check            # plan every take and list every refusal
 pnpm --filter @automovie/website bake --only meeting     # bake one scene
 pnpm --filter @automovie/website bake --jobs 4           # in four processes
 ```
 
-A take whose inputs have not changed keeps its file. A take the packages refuse stops the bake with the scene and the refusal, after every share has reported.
+A take whose inputs have not changed keeps its file. A scene whose record sets `refusedUntil` to the issue that fixes it is baked with the packages' refusal in place of each refused take's track, and its page shows that refusal. Any other refusal stops the bake with the scene and the refusal, after every share has reported.
 
 Three scripts look at a build through a headless Chromium, which `pnpm --filter @automovie/website exec playwright-core install chromium-headless-shell` downloads once:
 

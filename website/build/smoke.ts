@@ -19,6 +19,9 @@ import {
   chromium,
 } from "playwright-core";
 
+import { SCENES } from "../src/scenes/SCENES";
+import { SceneStatus } from "../src/scenes/package/SceneStatus";
+import type { IScene } from "../src/scenes/structures/IScene";
 import type { ISceneManifest } from "../src/scenes/structures/ISceneManifest";
 import { serveExport } from "./serveExport";
 
@@ -72,18 +75,52 @@ const REFUSED: string = compressToEncodedURIComponent(
 /** A drawn scene view: a canvas inside a view that finished loading. */
 const DRAWN: string = '.am-scene-view[aria-busy="false"] canvas';
 
-/** The scenes the build baked, read from its manifest. */
-const baked: () => string[] = (): string[] => {
+/** The listed scenes the build baked, read from its manifest, each with whether its status is refused. */
+const baked: () => { id: string; refused: boolean }[] = (): {
+  id: string;
+  refused: boolean;
+}[] => {
   const manifest: ISceneManifest = JSON.parse(
     fs.readFileSync(
       path.resolve(__dirname, "..", "public", "baked", "manifest.json"),
       "utf8",
     ),
   );
-  return Object.keys(manifest.scenes).filter(
-    (id: string): boolean => id !== "lineup",
-  );
+
+  // A hidden scene is baked for another page and has no page of its own.
+  return SCENES.filter(
+    (scene: IScene): boolean =>
+      scene.hidden !== true && manifest.scenes[scene.id] !== undefined,
+  ).map((scene: IScene): { id: string; refused: boolean } => ({
+    id: scene.id,
+    refused: SceneStatus.of(scene).kind === "refused",
+  }));
 };
+
+/** The case of one baked scene: a scene that plays draws its player, its takes and its transport; a refused one shows its notice and the refusal on a take. */
+const scene: (entry: { id: string; refused: boolean }) => ICase = (entry: {
+  id: string;
+  refused: boolean;
+}): ICase =>
+  entry.refused
+    ? {
+        name: `scene ${entry.id} shows the packages' refusal`,
+        path: `scenes/${entry.id}/`,
+        shows: [".am-scene-refused", ".am-scene-view-refusal"],
+        lacks: [".am-scene-view-note.am-danger-text"],
+        contexts: 1,
+      }
+    : {
+        name: `scene ${entry.id} plays with its takes and chain`,
+        path: `scenes/${entry.id}/`,
+        shows: [
+          `.am-player ${DRAWN}`,
+          ".am-take-grid .am-take canvas",
+          ".am-transport",
+        ],
+        lacks: [".am-scene-view-note.am-danger-text"],
+        contexts: 1,
+      };
 
 const CASES: readonly ICase[] = [
   {
@@ -111,19 +148,7 @@ const CASES: readonly ICase[] = [
     lacks: [".am-scene-view-note.am-danger-text"],
     contexts: 1,
   },
-  ...baked().map(
-    (id: string): ICase => ({
-      name: `scene ${id} plays with its takes and chain`,
-      path: `scenes/${id}/`,
-      shows: [
-        `.am-player ${DRAWN}`,
-        ".am-take-grid .am-take canvas",
-        ".am-transport",
-      ],
-      lacks: [".am-scene-view-note.am-danger-text"],
-      contexts: 1,
-    }),
-  ),
+  ...baked().map(scene),
   {
     name: "a scene page under reduced motion renders as the server did",
     path: "scenes/meeting/",

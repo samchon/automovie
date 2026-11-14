@@ -15,7 +15,7 @@ import { IScene } from "../../src/scenes/structures/IScene";
  * Scenarios:
  * 1. Scene ids are unique, and every setting is one of the gallery's.
  * 2. A scene with a composition casts exactly its performers, in their order; each performer's body is one of the site's bodies; each take names only those performers and bodies; the first take is the scene itself.
- * 3. A scene with a composition that waits, and every planned scene, names the issues it waits on, and a scene that plays names none; a planned scene states its cast and pieces and has no takes.
+ * 3. A scene with a composition that waits, and every planned scene, names the issues it waits on, and a scene that plays or is refused until an issue names none; a planned scene states its cast and pieces and has no takes.
  * 4. Every action of `HUMAN_ACTIONS` and every family of the installed lexicon is composed by at least one scene, so nothing the package performs is left out of the site.
  */
 export function test_website_scene_records(): void {
@@ -66,15 +66,15 @@ export function test_website_scene_records(): void {
     "a scene that does not play names its issues",
     SCENES.filter(
       (s: IScene): boolean =>
-        SceneStatus.of(s).kind !== "plays" && s.needs.length === 0,
+        !SceneStatus.bakes(SceneStatus.of(s)) && s.needs.length === 0,
     ).map((s: IScene): string => s.id),
     [],
   );
   TestValidator.equals(
-    "a scene that plays waits on nothing",
+    "a scene that plays or is refused waits on nothing",
     SCENES.filter(
       (s: IScene): boolean =>
-        SceneStatus.of(s).kind === "plays" && s.needs.length !== 0,
+        SceneStatus.bakes(SceneStatus.of(s)) && s.needs.length !== 0,
     ).map((s: IScene): string => s.id),
     [],
   );

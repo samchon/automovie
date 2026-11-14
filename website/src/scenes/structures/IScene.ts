@@ -6,9 +6,12 @@ import type { IPlaygroundComposition } from "../../playground/structures/IPlaygr
  *
  * A scene is data. The build computes every take of a scene that plays into
  * a baked track, the gallery lists it, its page plays it, and the playground
- * opens its composition. A scene whose pieces the installed packages lack
- * still lists, with the issues it waits on, so it turns playable the day
- * those pieces land without a change to any page.
+ * opens its composition. A scene marked `refusedUntil` is baked with each
+ * refused take's refusal in place of its track, and its page shows that
+ * refusal; neither the playground nor a reference page's trial opens it. A
+ * scene whose pieces the installed packages lack still lists, with the
+ * issues it waits on, so it turns playable the day those pieces land
+ * without a change to any page.
  */
 export interface IScene {
   /** The route segment of its page, unique among scenes. */

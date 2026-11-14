@@ -16,6 +16,7 @@ import type { IScene } from "../../src/scenes/structures/IScene";
  * 3. A scene that places an archetype the package does not export waits naming it; one that places a real archetype plays exactly when `HumanObject` is installed.
  * 4. An action performed over another plays exactly when the chain has `over`.
  * 5. A scene without a composition is planned.
+ * 6. A scene of installed pieces whose record marks `refusedUntil` is refused until that issue, and the bake computes it as it computes one that plays; the same mark on a scene with a missing piece still waits, and neither a waiting nor a planned scene is baked.
  */
 export function test_website_scene_status(): void {
   const names: string[] = Object.keys(HUMAN_ACTIONS);
@@ -126,5 +127,36 @@ export function test_website_scene_status(): void {
     "no composition is planned",
     SceneStatus.of(scene(null)),
     { kind: "planned" },
+  );
+
+  // 6. Refused until an issue.
+  const playable: IPlaygroundComposition = composition([
+    { name: names[0]!, params: {} },
+  ]);
+  const refused: SceneStatus.Status = SceneStatus.of({
+    ...scene(playable),
+    refusedUntil: 3528,
+  });
+  TestValidator.equals("a marked scene is refused", refused, {
+    kind: "refused",
+    until: 3528,
+  });
+  TestValidator.predicate(
+    "a refused scene is baked",
+    SceneStatus.bakes(refused) &&
+      SceneStatus.bakes(SceneStatus.of(scene(playable))),
+  );
+  const marked: SceneStatus.Status = SceneStatus.of({
+    ...scene(composition([{ name: "levitate", params: {} }])),
+    refusedUntil: 3528,
+  });
+  TestValidator.equals("a marked scene with a missing piece waits", marked, {
+    kind: "waits",
+    missing: ["the action levitate"],
+  });
+  TestValidator.predicate(
+    "neither a waiting nor a planned scene is baked",
+    !SceneStatus.bakes(marked) &&
+      !SceneStatus.bakes(SceneStatus.of(scene(null))),
   );
 }
