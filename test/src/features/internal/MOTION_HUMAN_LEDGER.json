@@ -368,7 +368,18 @@
       "layer": "compose",
       "symbol": "AutoMovieMotionHumanBase.under",
       "tests": [
-        "test_human_motion_overlay_channels"
+        "test_human_motion_overlay_channels_m_average_unclaimed",
+        "test_human_motion_overlay_channels_m_average_claimed",
+        "test_human_motion_overlay_channels_f_small_unclaimed",
+        "test_human_motion_overlay_channels_f_small_claimed",
+        "test_human_motion_overlay_channels_continuity_1",
+        "test_human_motion_overlay_channels_continuity_2",
+        "test_human_motion_overlay_channels_continuity_3",
+        "test_human_motion_overlay_channels_continuity_4",
+        "test_human_motion_overlay_channels_continuity_5",
+        "test_human_motion_overlay_channels_continuity_6",
+        "test_human_motion_overlay_channels_continuity_7",
+        "test_human_motion_overlay_channels_continuity_8"
       ]
     },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.of", "tests": ["test_human_motion_core_held_frame"] }, { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.point", "tests": ["test_human_motion_core_held_frame"] }, { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.grip", "tests": ["test_human_motion_core_held_frame"] }, { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.hold", "tests": ["test_human_motion_core_held_frame"] },
@@ -1324,6 +1335,22 @@
     },
     {
       "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTouchEffector.ADMITS",
+      "tests": [
+        "test_human_motion_compose_touch_effector",
+        "test_human_motion_compose_touch_laid"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTouchEffector.admit",
+      "tests": [
+        "test_human_motion_compose_touch_effector",
+        "test_human_motion_compose_touch_laid"
+      ]
+    },
+    {
+      "layer": "compose",
       "symbol": "AutoMovieMotionHumanTouchForm.FORMS",
       "tests": [
         "test_motion_compose_touch_form"
@@ -1341,6 +1368,26 @@
       "symbol": "AutoMovieMotionHumanTouchForm.tangent",
       "tests": [
         "test_motion_compose_touch_form"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTouchForm.curled",
+      "tests": [
+        "test_human_motion_law_touch_self_pat_belly",
+        "test_human_motion_law_touch_self_rub_nape",
+        "test_human_motion_law_touch_self_scratch_forearm",
+        "test_human_motion_law_touch_self_hug_self",
+        "test_human_motion_law_touch_self_cover_ears",
+        "test_human_motion_law_touch_self_hand_on_heart",
+        "test_human_motion_law_touch_self_slap_thigh",
+        "test_human_motion_law_touch_self_facepalm",
+        "test_human_motion_law_touch_self_wipe_brow",
+        "test_human_motion_law_touch_partner_pat_head",
+        "test_human_motion_law_touch_partner_tap_shoulder",
+        "test_human_motion_law_touch_partner_stroke_arm",
+        "test_human_motion_law_touch_partner_cup_cheek",
+        "test_human_motion_law_touch_partner_rub_back"
       ]
     },
     {
@@ -2108,9 +2155,7 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -2143,33 +2188,25 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "pace=slow",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "pace=normal",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "pace=fast",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -2202,33 +2239,25 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "pace=jog",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "pace=run",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "pace=sprint",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -2261,9 +2290,7 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -2298,81 +2325,61 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "at=intimate",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "at=faceToFace",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "at=personal",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "at=social",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "at=handing",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "side=front",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "side=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "side=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "side=behind",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -2405,57 +2412,43 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "with=auto",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "with=eyes",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "with=head",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "with=trunk",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "cue=seen",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "cue=signal",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -2493,258 +2486,194 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=wave",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=raiseHand",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=cheer",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=stopPalm",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=point",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=palmsUp",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=beckon",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=clap",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=rubHands",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=touchFace",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
-        { "row": "kind=palmsTogether", "tests": [], "audit": ["test_human_motion_law_sweep_posture"], "sweep": "reduced" },
+        { "row": "kind=palmsTogether", "tests": [], "audit": [], "sweep": "reduced" },
         {
           "row": "kind=pushGlasses",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=scratchHead",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=shrug",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=nod",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=shakeHead",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=bow",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=chinLift",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=squareShoulders",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=slump",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=thumbsDown",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "region=forehead",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "region=noseBridge",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "region=mouth",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "region=chin",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "region=templeLeft",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "region=templeRight",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "region=earLeft",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "region=earRight",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "region=nape",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "side=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "side=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -2778,81 +2707,61 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "place=side",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "place=pocket",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "place=hip",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "place=crossed",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "place=claspedFront",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "place=claspedBehind",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "place=behindHead",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "place=chinRest",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "place=elbowSupport",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -2890,97 +2799,73 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "technique=straight",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "technique=hook",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "technique=uppercut",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "hand=lead",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "hand=rear",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "accuracy=hit",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "accuracy=graze",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "accuracy=miss",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "accuracy=vector",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "feint=true",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "feint=false",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -3018,89 +2903,67 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "technique=round",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "technique=push",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "leg=lead",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "leg=rear",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "accuracy=hit",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "accuracy=graze",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "accuracy=miss",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "accuracy=vector",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "feint=true",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "feint=false",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -3132,25 +2995,19 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "stance=orthodox",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "stance=southpaw",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -3184,41 +3041,31 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "direction=forward",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "direction=back",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "direction=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "direction=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -3254,97 +3101,73 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=cover",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=parry",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=elbowBlock",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=highBlock",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=slip",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=roll",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=sway",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=check",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "outcome=inTime",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "outcome=late",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "outcome=fail",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -3377,9 +3200,7 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -3412,9 +3233,7 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -3447,9 +3266,7 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -3486,25 +3303,19 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "leg=lead",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "leg=rear",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -3539,33 +3350,25 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "back=upright",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "back=lean",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "back=slump",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -3598,9 +3401,7 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -3632,9 +3433,7 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -3674,25 +3473,19 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "hand=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "hand=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -3728,25 +3521,19 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "hand=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "hand=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -3781,25 +3568,19 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "hand=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "hand=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -3836,65 +3617,49 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "outcome=transfer",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "outcome=withdraw",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "outcome=decline",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "hand=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "hand=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "receiverHand=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "receiverHand=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -3931,49 +3696,37 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "outcome=transfer",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "outcome=withdraw",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "outcome=decline",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "hand=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "hand=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -4007,57 +3760,43 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "strategy=stoop",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "strategy=semiSquat",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "strategy=squat",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "strategy=auto",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "side=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "side=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -4091,25 +3830,19 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "lead=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "lead=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -4144,33 +3877,25 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=impact",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=push",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=catchBody",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -4207,9 +3932,7 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -4373,8 +4096,7 @@
             "test_human_motion_law_touch_partner_tap_shoulder_motion_4",
             "test_human_motion_law_touch_partner_tap_shoulder_motion_5",
             "test_human_motion_law_touch_partner_tap_shoulder_motion_6",
-            "test_human_motion_law_touch_partner_tap_shoulder_tangle",
-            "test_human_motion_law_sweep_touch"
+            "test_human_motion_law_touch_partner_tap_shoulder_tangle"
           ],
           "sweep": "reduced"
         },
@@ -4426,8 +4148,7 @@
             "test_human_motion_law_touch_partner_tap_shoulder_motion_4",
             "test_human_motion_law_touch_partner_tap_shoulder_motion_5",
             "test_human_motion_law_touch_partner_tap_shoulder_motion_6",
-            "test_human_motion_law_touch_partner_tap_shoulder_tangle",
-            "test_human_motion_law_sweep_touch"
+            "test_human_motion_law_touch_partner_tap_shoulder_tangle"
           ],
           "sweep": "reduced"
         },
@@ -4558,8 +4279,7 @@
             "test_human_motion_law_touch_partner_tap_shoulder_motion_4",
             "test_human_motion_law_touch_partner_tap_shoulder_motion_5",
             "test_human_motion_law_touch_partner_tap_shoulder_motion_6",
-            "test_human_motion_law_touch_partner_tap_shoulder_tangle",
-            "test_human_motion_law_sweep_touch"
+            "test_human_motion_law_touch_partner_tap_shoulder_tangle"
           ],
           "sweep": "reduced"
         },
@@ -4611,8 +4331,7 @@
             "test_human_motion_law_touch_partner_tap_shoulder_motion_4",
             "test_human_motion_law_touch_partner_tap_shoulder_motion_5",
             "test_human_motion_law_touch_partner_tap_shoulder_motion_6",
-            "test_human_motion_law_touch_partner_tap_shoulder_tangle",
-            "test_human_motion_law_sweep_touch"
+            "test_human_motion_law_touch_partner_tap_shoulder_tangle"
           ],
           "sweep": "reduced"
         },
@@ -4743,8 +4462,7 @@
             "test_human_motion_law_touch_partner_tap_shoulder_motion_4",
             "test_human_motion_law_touch_partner_tap_shoulder_motion_5",
             "test_human_motion_law_touch_partner_tap_shoulder_motion_6",
-            "test_human_motion_law_touch_partner_tap_shoulder_tangle",
-            "test_human_motion_law_sweep_touch"
+            "test_human_motion_law_touch_partner_tap_shoulder_tangle"
           ],
           "sweep": "reduced"
         },
@@ -4830,8 +4548,7 @@
             "test_human_motion_law_touch_self_wipe_brow_motion_4",
             "test_human_motion_law_touch_self_wipe_brow_motion_5",
             "test_human_motion_law_touch_self_wipe_brow_motion_6",
-            "test_human_motion_law_touch_self_wipe_brow_tangle",
-            "test_human_motion_law_sweep_touch"
+            "test_human_motion_law_touch_self_wipe_brow_tangle"
           ],
           "sweep": "reduced"
         },
@@ -4917,8 +4634,7 @@
             "test_human_motion_law_touch_self_wipe_brow_motion_4",
             "test_human_motion_law_touch_self_wipe_brow_motion_5",
             "test_human_motion_law_touch_self_wipe_brow_motion_6",
-            "test_human_motion_law_touch_self_wipe_brow_tangle",
-            "test_human_motion_law_sweep_touch"
+            "test_human_motion_law_touch_self_wipe_brow_tangle"
           ],
           "sweep": "reduced"
         },
@@ -5049,8 +4765,7 @@
             "test_human_motion_law_touch_partner_tap_shoulder_motion_4",
             "test_human_motion_law_touch_partner_tap_shoulder_motion_5",
             "test_human_motion_law_touch_partner_tap_shoulder_motion_6",
-            "test_human_motion_law_touch_partner_tap_shoulder_tangle",
-            "test_human_motion_law_sweep_touch"
+            "test_human_motion_law_touch_partner_tap_shoulder_tangle"
           ],
           "sweep": "reduced"
         },
@@ -5136,17 +4851,14 @@
             "test_human_motion_law_touch_self_wipe_brow_motion_4",
             "test_human_motion_law_touch_self_wipe_brow_motion_5",
             "test_human_motion_law_touch_self_wipe_brow_motion_6",
-            "test_human_motion_law_touch_self_wipe_brow_tangle",
-            "test_human_motion_law_sweep_touch"
+            "test_human_motion_law_touch_self_wipe_brow_tangle"
           ],
           "sweep": "reduced"
         },
         {
           "row": "with=palm",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
@@ -5276,8 +4988,7 @@
             "test_human_motion_law_touch_partner_tap_shoulder_motion_4",
             "test_human_motion_law_touch_partner_tap_shoulder_motion_5",
             "test_human_motion_law_touch_partner_tap_shoulder_motion_6",
-            "test_human_motion_law_touch_partner_tap_shoulder_tangle",
-            "test_human_motion_law_sweep_touch"
+            "test_human_motion_law_touch_partner_tap_shoulder_tangle"
           ],
           "sweep": "reduced"
         },
@@ -5363,25 +5074,20 @@
             "test_human_motion_law_touch_self_wipe_brow_motion_4",
             "test_human_motion_law_touch_self_wipe_brow_motion_5",
             "test_human_motion_law_touch_self_wipe_brow_motion_6",
-            "test_human_motion_law_touch_self_wipe_brow_tangle",
-            "test_human_motion_law_sweep_touch"
+            "test_human_motion_law_touch_self_wipe_brow_tangle"
           ],
           "sweep": "reduced"
         },
         {
           "row": "with=fist",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "tangent=up",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
@@ -5466,25 +5172,20 @@
             "test_human_motion_law_touch_self_wipe_brow_motion_4",
             "test_human_motion_law_touch_self_wipe_brow_motion_5",
             "test_human_motion_law_touch_self_wipe_brow_motion_6",
-            "test_human_motion_law_touch_self_wipe_brow_tangle",
-            "test_human_motion_law_sweep_touch"
+            "test_human_motion_law_touch_self_wipe_brow_tangle"
           ],
           "sweep": "reduced"
         },
         {
           "row": "side=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "side=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -5532,8 +5233,7 @@
             "test_human_motion_law_hand_to_face_drink_motion_5",
             "test_human_motion_law_hand_to_face_drink_motion_6",
             "test_human_motion_law_hand_to_face_drink_population",
-            "test_human_motion_law_hand_to_face_drink_tangle",
-            "test_human_motion_law_sweep_touch"
+            "test_human_motion_law_hand_to_face_drink_tangle"
           ],
           "sweep": "reduced"
         },
@@ -5550,8 +5250,7 @@
             "test_human_motion_law_hand_to_face_drink_motion_5",
             "test_human_motion_law_hand_to_face_drink_motion_6",
             "test_human_motion_law_hand_to_face_drink_population",
-            "test_human_motion_law_hand_to_face_drink_tangle",
-            "test_human_motion_law_sweep_touch"
+            "test_human_motion_law_hand_to_face_drink_tangle"
           ],
           "sweep": "reduced"
         },
@@ -5568,8 +5267,7 @@
             "test_human_motion_law_hand_to_face_sip_motion_5",
             "test_human_motion_law_hand_to_face_sip_motion_6",
             "test_human_motion_law_hand_to_face_sip_population",
-            "test_human_motion_law_hand_to_face_sip_tangle",
-            "test_human_motion_law_sweep_touch"
+            "test_human_motion_law_hand_to_face_sip_tangle"
           ],
           "sweep": "reduced"
         },
@@ -5585,8 +5283,7 @@
             "test_human_motion_law_hand_to_face_eat_motion_4",
             "test_human_motion_law_hand_to_face_eat_motion_5",
             "test_human_motion_law_hand_to_face_eat_motion_6",
-            "test_human_motion_law_hand_to_face_eat_tangle",
-            "test_human_motion_law_sweep_touch"
+            "test_human_motion_law_hand_to_face_eat_tangle"
           ],
           "sweep": "reduced"
         },
@@ -5602,8 +5299,7 @@
             "test_human_motion_law_hand_to_face_bite_motion_4",
             "test_human_motion_law_hand_to_face_bite_motion_5",
             "test_human_motion_law_hand_to_face_bite_motion_6",
-            "test_human_motion_law_hand_to_face_bite_tangle",
-            "test_human_motion_law_sweep_touch"
+            "test_human_motion_law_hand_to_face_bite_tangle"
           ],
           "sweep": "reduced"
         },
@@ -5619,8 +5315,7 @@
             "test_human_motion_law_hand_to_face_phone_motion_4",
             "test_human_motion_law_hand_to_face_phone_motion_5",
             "test_human_motion_law_hand_to_face_phone_motion_6",
-            "test_human_motion_law_hand_to_face_phone_tangle",
-            "test_human_motion_law_sweep_touch"
+            "test_human_motion_law_hand_to_face_phone_tangle"
           ],
           "sweep": "reduced"
         },
@@ -5636,8 +5331,7 @@
             "test_human_motion_law_hand_to_face_read_motion_4",
             "test_human_motion_law_hand_to_face_read_motion_5",
             "test_human_motion_law_hand_to_face_read_motion_6",
-            "test_human_motion_law_hand_to_face_read_tangle",
-            "test_human_motion_law_sweep_touch"
+            "test_human_motion_law_hand_to_face_read_tangle"
           ],
           "sweep": "reduced"
         },
@@ -5653,8 +5347,7 @@
             "test_human_motion_law_hand_to_face_brush_teeth_motion_4",
             "test_human_motion_law_hand_to_face_brush_teeth_motion_5",
             "test_human_motion_law_hand_to_face_brush_teeth_motion_6",
-            "test_human_motion_law_hand_to_face_brush_teeth_tangle",
-            "test_human_motion_law_sweep_touch"
+            "test_human_motion_law_hand_to_face_brush_teeth_tangle"
           ],
           "sweep": "reduced"
         },
@@ -5670,8 +5363,7 @@
             "test_human_motion_law_hand_to_face_comb_motion_4",
             "test_human_motion_law_hand_to_face_comb_motion_5",
             "test_human_motion_law_hand_to_face_comb_motion_6",
-            "test_human_motion_law_hand_to_face_comb_tangle",
-            "test_human_motion_law_sweep_touch"
+            "test_human_motion_law_hand_to_face_comb_tangle"
           ],
           "sweep": "reduced"
         },
@@ -5686,8 +5378,7 @@
             "test_human_motion_law_hand_to_face_wash_face_motion_4",
             "test_human_motion_law_hand_to_face_wash_face_motion_5",
             "test_human_motion_law_hand_to_face_wash_face_motion_6",
-            "test_human_motion_law_hand_to_face_wash_face_tangle",
-            "test_human_motion_law_sweep_touch"
+            "test_human_motion_law_hand_to_face_wash_face_tangle"
           ],
           "sweep": "reduced"
         },
@@ -5703,25 +5394,20 @@
             "test_human_motion_law_hand_to_face_wipe_mouth_motion_4",
             "test_human_motion_law_hand_to_face_wipe_mouth_motion_5",
             "test_human_motion_law_hand_to_face_wipe_mouth_motion_6",
-            "test_human_motion_law_hand_to_face_wipe_mouth_tangle",
-            "test_human_motion_law_sweep_touch"
+            "test_human_motion_law_hand_to_face_wipe_mouth_tangle"
           ],
           "sweep": "reduced"
         },
         {
           "row": "side=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "side=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -5754,41 +5440,31 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "depth=partial",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "depth=full",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "heels=flat",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "heels=up",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -5824,49 +5500,37 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=one",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=both",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=sitBack",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "knee=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "knee=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -5900,57 +5564,43 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "direction=up",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "direction=down",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "pattern=stepOverStep",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "pattern=stepByStep",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "lead=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "lead=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -5984,49 +5634,37 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "style=overarm",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "style=underarm",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "style=toss",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "hand=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "hand=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -6062,41 +5700,31 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "hands=one",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "hands=two",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "side=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "side=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -6132,57 +5760,43 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "mechanism=button",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "mechanism=knob",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "mechanism=slider",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "mechanism=hinge",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "hand=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "hand=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -6217,41 +5831,31 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "position=supine",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "position=prone",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "position=lateralLeft",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "position=lateralRight",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_posture"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -6286,9 +5890,7 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -6319,9 +5921,7 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -6359,41 +5959,31 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "grip=plum",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "grip=collarSleeve",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "hand=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "hand=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_striking"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -6429,25 +6019,19 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "foot=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "foot=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -6485,57 +6069,43 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "tool=hammer",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "tool=saw",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "tool=stir",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "tool=screwdriver",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "hand=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "hand=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -6573,25 +6143,19 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "hand=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "hand=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -6626,25 +6190,19 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "item=hat",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "item=glasses",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_handling"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -6680,57 +6238,43 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "how=oneHand",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "how=twoHands",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "how=hip",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "how=push",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "side=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "side=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_locomotion"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -6768,81 +6312,61 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "region=jawLeft",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "region=jawRight",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "region=forehead",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "region=crown",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "region=mouth",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "region=handBackLeft",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "region=handBackRight",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "side=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "side=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -6879,49 +6403,37 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=high",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=low",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=fist",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "side=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "side=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -6959,65 +6471,49 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=stretch",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=victory",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=fistPump",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=neckRoll",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=shoulderRoll",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "side=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "side=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_touch"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -7052,81 +6548,61 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=squat",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=lunge",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=highKnees",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=jumpingJack",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "depth=quarter",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "depth=half",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "depth=parallel",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "side=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "side=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -7162,81 +6638,61 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=neckSide",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=crossBody",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=overheadSide",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=quadriceps",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=tree",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "side=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "side=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "intensity=mild",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "intensity=moderate",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -7272,57 +6728,43 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=bounce",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=sway",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=stepTouch",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=boxStep",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "side=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "side=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -7356,25 +6798,19 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "front=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "front=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -7407,9 +6843,7 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -7444,33 +6878,25 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=horseStance",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=chokuZuki",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=taiChiPush",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -7506,57 +6932,43 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=dribble",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=dig",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=set",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=throwIn",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "side=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "side=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -7589,33 +7001,25 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=catcherCrouch",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=groundBall",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=battingStance",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -7649,49 +7053,37 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=readyPosition",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=splitStep",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=golfAddress",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "side=left",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "side=right",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]
@@ -7720,25 +7112,19 @@
         {
           "row": "default",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=treadWater",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         },
         {
           "row": "kind=frontCrawl",
           "tests": [],
-          "audit": [
-            "test_human_motion_law_sweep_sport"
-          ],
+          "audit": [],
           "sweep": "reduced"
         }
       ]

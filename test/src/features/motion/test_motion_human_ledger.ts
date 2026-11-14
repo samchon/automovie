@@ -158,7 +158,9 @@ export function test_motion_human_ledger(): void {
   TestValidator.equals(
     "every test named is a test's name",
     named.filter(
-      (name: string): boolean => !/^test_(human_)?motion_[a-z_]+$/u.test(name),
+      // A spec split into parts carries the part's number in its name.
+      (name: string): boolean =>
+        !/^test_(human_)?motion_[a-z0-9_]+$/u.test(name),
     ),
     [],
   );
