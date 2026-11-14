@@ -3,6 +3,7 @@ import { SCENES_DAILY } from "./data/SCENES_DAILY";
 import { SCENES_EVERYDAY } from "./data/SCENES_EVERYDAY";
 import { SCENES_FIGHT } from "./data/SCENES_FIGHT";
 import { SCENES_GAMES } from "./data/SCENES_GAMES";
+import { SCENES_GESTURES } from "./data/SCENES_GESTURES";
 import { SCENES_GYM } from "./data/SCENES_GYM";
 import { SCENES_PARTNER } from "./data/SCENES_PARTNER";
 import { SCENES_PLANNED } from "./data/SCENES_PLANNED";
@@ -21,6 +22,7 @@ export const SCENES: readonly IScene[] = [
   ...SCENES_SPORT,
   ...SCENES_COMBAT,
   ...SCENES_DAILY,
+  ...SCENES_GESTURES,
   ...SCENES_STREET,
   ...SCENES_GYM,
   ...SCENES_GAMES,
