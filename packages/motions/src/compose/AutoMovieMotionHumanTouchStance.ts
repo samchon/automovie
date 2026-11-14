@@ -46,7 +46,7 @@ export namespace AutoMovieMotionHumanTouchStance {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit and the meaning of its absence.
    * @evidence contracts/development/design.md#principled-representation The body, the posture it stands in, the feet it may rise on, the arm, the share of its length kept and the wrist's goal.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Seven members, all read by `solve`.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Eight members, all read by `solve`; the arm's goal only passes to the lean.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The feet are optional because a seated or carried body has none to rise on; the refusal's words are the caller's.
    */
   export interface IProps {
@@ -77,6 +77,19 @@ export namespace AutoMovieMotionHumanTouchStance {
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
      */
     wrist: (posture: IHumanPosture, progress: number) => IAutoMovieVector3;
+
+    /**
+     * The working arm's goal on a posture at the stroke's start, laid on its region, so the lean's balance weighs the arm where it reaches (`AutoMovieMotionHumanLeanInto.IProps.arm`); the arm as the posture holds it when absent.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the argument, the goal returned, who reads it and the default.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     */
+    arm?: (posture: IHumanPosture) => IHumanPosture.IGoal;
 
     /**
      * The refusal's message for a wrist left `beyond` metres out of reach at a lean of `limit` degrees.
@@ -221,6 +234,7 @@ export namespace AutoMovieMotionHumanTouchStance {
         side: props.side,
         share: props.share,
         wrist: props.wrist,
+        ...(props.arm === undefined ? {} : { arm: props.arm }),
         refuse: props.refuse,
       });
     const leaning: boolean = [0, 0.5, 1].some(

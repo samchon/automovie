@@ -186,6 +186,9 @@ export namespace wipe {
             goal.shape,
           ).point;
         },
+        // The arm on the circle's start, as the stroke lays the palm there.
+        arm: (posture: IHumanPosture): IHumanPosture.IGoal =>
+          AutoMovieMotionHumanArm.goal(body, side, palm(posture, 0)),
         refuse: (beyond: number, limit: number): string =>
           `${context.subject}: the patch's far side stays ${(1000 * beyond).toFixed(0)} mm beyond the ${side} arm at a lean of ${limit} degrees; a surface this far is walked up to first`,
       });

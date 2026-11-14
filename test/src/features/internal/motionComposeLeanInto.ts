@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionClock,
+  AutoMovieMotionHumanBend,
   AutoMovieMotionHumanLeanInto,
   AutoMovieMotionHumanReach,
   HumanBalance,
@@ -54,6 +55,14 @@ import { motionHumanBody } from "./motionHumanBody";
  *    stroke's end to `relax`, leans no less as the stroke goes farther, and
  *    at every sampled second keeps both feet on their plants and the centre
  *    of mass inside the base of support.
+ * 5. With the arm held on its goal through the lean (`arm`), the lean to the
+ *    far goal's 25 degrees and back keeps the extrapolated centre of mass
+ *    (Hof, Gazendam and Sinke 2005, `HumanBalance.extrapolated`) inside the
+ *    base of support at every 24th of a second, on the way in, while
+ *    leaned and on the way back up, and the centre of mass itself within 10
+ *    mm of where the unleaned body with its arm reaching has it (the hips
+ *    hold it there; 10 mm is the proportion's error between two solved
+ *    pitches and the arm's own fit).
  *
  * @evidence contracts/development/implementation.md#principled-implementation Reads the owner's results on a real body through the public functions and the resolver, as the scenarios state.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One body's cells, gathered as complaints and asserted once.
@@ -258,6 +267,51 @@ export function motionComposeLeanInto(name: motionHumanBody.Name): void {
             );
           before = written.pitch;
         }
+
+        // 5. The arm held on its goal through the lean and the return.
+        const reaching = (posture: IHumanPosture): IHumanPosture.IGoal => ({
+          point: far,
+          bend: AutoMovieMotionHumanBend.hang(body, posture, side),
+        });
+        const weighed: AutoMovieMotionHumanLeanInto.ILean =
+          AutoMovieMotionHumanLeanInto.solve({
+            body,
+            standing,
+            side,
+            share,
+            wrist: (): IAutoMovieVector3 => far,
+            arm: reaching,
+            refuse: (): string => "the work is out of reach",
+          });
+        const into: IAutoMovieMotionHumanPrimitive = weighed.primitive(clock);
+        const armed = (seconds: number): IHumanPosture => {
+          const written: IHumanPosture = into.write(standing, seconds);
+          return {
+            ...written,
+            limbs: { ...written.limbs, [`${side}Arm`]: reaching(written) },
+          };
+        };
+        const centre = (seconds: number): IAutoMovieVector3 =>
+          HumanBalance.support(body, armed(seconds)).centre;
+        const still: IAutoMovieVector3 = centre(0);
+        let worst: { margin: number; at: number } = { margin: Infinity, at: 0 };
+        let drift: { by: number; at: number } = { by: 0, at: 0 };
+        for (let k: number = 0; k <= Math.floor(clock.duration * 24); k++) {
+          const seconds: number = k / 24;
+          const margin: number = HumanBalance.extrapolated(
+            body,
+            armed,
+            seconds,
+          );
+          if (margin < worst.margin) worst = { margin, at: seconds };
+          const now: IAutoMovieVector3 = centre(seconds);
+          const by: number = Math.hypot(now.x - still.x, now.z - still.z);
+          if (by > drift.by) drift = { by, at: seconds };
+        }
+        all.check(
+          `${cell}: with the arm on its goal the lean to 25 degrees and back keeps the extrapolated centre ${mm(worst.margin)} mm inside the base at ${worst.at.toFixed(3)} s, the least, and the centre within ${mm(drift.by)} mm of where it stood at ${drift.at.toFixed(3)} s (limit 10.00)`,
+          worst.margin > 0 && drift.by <= 0.01,
+        );
       }
   }
   all.assert(`the lean into the work holds on every body (${name})`);

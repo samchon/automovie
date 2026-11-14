@@ -396,6 +396,9 @@ export namespace operate {
             goal.shape,
           ).point;
         },
+        // The arm on the part at the stroke's start, as the stroke grips it.
+        arm: (posture: IHumanPosture): IHumanPosture.IGoal =>
+          AutoMovieMotionHumanArm.goal(body, side, target(posture, 0)),
         refuse: (beyond: number, limit: number): string =>
           `${context.subject}: the ${mechanism.kind} stays ${(1000 * beyond).toFixed(0)} mm beyond the ${side} arm at a lean of ${limit} degrees; a part this far is walked up to first`,
       });

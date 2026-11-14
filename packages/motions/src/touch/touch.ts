@@ -278,6 +278,19 @@ export namespace touch {
       context.entry.supports.every((s: IHumanEntryState.ISupport): boolean =>
         /Foot$/.test(s.part),
       );
+    // The first arm laid on its region at the stroke's start: its wrist is
+    // what the stance reaches for, and the whole arm what the lean weighs.
+    const laidOn = (posture: IHumanPosture): IHumanPosture.IGoal =>
+      AutoMovieMotionHumanTouchLaid.rest(
+        body,
+        posture,
+        first,
+        effector,
+        placed(p.target, true)(posture, 0),
+        leading.tangent,
+        AutoMovieMotionHumanBend.hang(body, posture, first),
+        "arm",
+      );
     const stance: AutoMovieMotionHumanTouchStance.IStance =
       AutoMovieMotionHumanTouchStance.solve({
         body,
@@ -286,16 +299,8 @@ export namespace touch {
         side: first,
         share: REACH,
         wrist: (posture: IHumanPosture): IAutoMovieVector3 =>
-          AutoMovieMotionHumanTouchLaid.rest(
-            body,
-            posture,
-            first,
-            effector,
-            placed(p.target, true)(posture, 0),
-            leading.tangent,
-            AutoMovieMotionHumanBend.hang(body, posture, first),
-            "arm",
-          ).point,
+          laidOn(posture).point,
+        arm: laidOn,
         refuse: (beyond: number, limit: number): string =>
           `The touched region is ${(beyond * 1000).toFixed(0)} mm beyond the ${first} arm at a lean of ${limit} degrees`,
       });

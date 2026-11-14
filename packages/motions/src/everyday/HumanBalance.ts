@@ -26,10 +26,12 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * middle of the feet's soles along the heading, the static balance
  * condition. The posture is solved (legs on their planted goals, arms on
  * theirs) and the centre placed from the solved bones at each trial of a
- * scan and bisection over the shift. Laws solve it once per plan at the
- * movement's deepest pitch and scale the shift with the sine of the pitch in
- * between, which is exact for a rigid upper body and leaves only the legs'
- * reconfiguration unmodelled at intermediate pitches; their captures check
+ * scan and bisection over the shift. A bow solves it once per plan at its
+ * deepest pitch and scales the shift with the sine of the pitch in between,
+ * which is exact for a rigid upper body and leaves only the legs'
+ * reconfiguration unmodelled at intermediate pitches; a lean into work,
+ * whose reaching arm is no rigid part of the trunk, solves it at steps of
+ * the pitch (`AutoMovieMotionHumanLeanInto`). Their captures check
  * the margin of stability (Hof et al. 2005) on every frame they draw.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the balance condition, the engine owner, the iteration and how laws use the result.
@@ -54,7 +56,8 @@ export namespace HumanBalance {
 
   /**
    * The hips' backward shift that puts the whole-body centre of mass over
-   * the middle of the feet's soles along the heading.
+   * the middle of the feet's soles along the heading, or a stated distance
+   * ahead of it (`target`), as a lean holds the centre where the body stood.
    *
    * The shifts from 0 to `range` hip heights are scanned on a grid, of the
    * same step whatever the range, for the first one at which the centre of
@@ -69,7 +72,8 @@ export namespace HumanBalance {
    * @param body The body.
    * @param build The posture for a backward shift of the hips, metres.
    * @param range How far back the search looks, hip heights; `RANGE` when absent, and `REACH` for a posture whose hips do not start over the feet.
-   * @returns The shift, metres.
+   * @param target How far ahead of the soles' middle the centre is put, metres; 0, the middle itself, when absent.
+   * @returns The shift, metres; 0 when the centre lies no farther ahead than the target without one.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the balance condition, the search range in hip heights, the 0.5 mm tolerance, why a scan precedes the bisection, and the nearest-shift result when none balances.
    * @evidence contracts/development/implementation.md#principled-implementation Static balance (centre of mass over the middle of the soles along the heading) found by a grid scan for the first sign change and bisection; bisection needs only a bracket, so it holds where the solved legs saturate their range and the error stops responding to the shift.
@@ -83,8 +87,9 @@ export namespace HumanBalance {
     body: IHumanBody,
     build: (back: number) => IHumanPosture,
     range: number = RANGE,
+    target: number = 0,
   ): number {
-    const error = (back: number): number => offset(body, build(back));
+    const error = (back: number): number => offset(body, build(back)) - target;
     // One grid step is `RANGE / STEPS` hip heights whatever the range, so a
     // wider search finds the same first crossing a narrower one does.
     const step: number = (RANGE * body.measure.hipHeight) / STEPS;

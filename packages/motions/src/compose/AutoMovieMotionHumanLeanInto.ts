@@ -15,7 +15,8 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  * The lean of a standing body into a hand's work that lies beyond its
  * standing arm: the trunk tips about the hips by the least pitch that keeps
  * the wrist within a share of the arm's length, the hips moving back by the
- * balance shift of that pitch, and straightens as the work comes nearer.
+ * balance shift of that pitch so the centre of mass stays over the feet
+ * where it stood, and straightens as the work comes nearer.
  *
  * A person wiping the far side of a counter or pulling a drawer does not
  * lock the elbow: the trunk inclines as far as the hand needs and no
@@ -33,8 +34,8 @@ export namespace AutoMovieMotionHumanLeanInto {
    * What a lean is solved from.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The body, the posture it stands in, the arm, the share of its length kept and the wrist's goal.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members, all read by `solve`.
+   * @evidence contracts/development/design.md#principled-representation The body, the posture it stands in, the arm, the share of its length kept, the wrist's goal and the arm's.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Seven members, all read by `solve`; the arm's goal is optional because a caller with only a wrist point has no arm to weigh.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The refusal's words are the caller's, which knows what is out of reach.
    */
   export interface IProps {
@@ -62,6 +63,21 @@ export namespace AutoMovieMotionHumanLeanInto {
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
      */
     wrist: (posture: IHumanPosture, progress: number) => IAutoMovieVector3;
+
+    /**
+     * The working arm's goal on a posture at the stroke's start, so the
+     * balance weighs the arm where it reaches; the arm as the posture holds
+     * it when absent.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the argument, the goal returned, why the balance reads it and the default.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     */
+    arm?: (posture: IHumanPosture) => IHumanPosture.IGoal;
 
     /**
      * The refusal's message for a wrist left `beyond` metres out of reach at a lean of `limit` degrees.
@@ -131,43 +147,87 @@ export namespace AutoMovieMotionHumanLeanInto {
   /**
    * Solve the lean of a stroke.
    *
-   * @param props The body, the standing posture, the hand, the share and the wrist's goal.
+   * @param props The body, the standing posture, the hand, the share, the wrist's goal and the arm's.
    * @returns The lean.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and the result; the namespace states the movement.
-   * @evidence contracts/development/implementation.md#principled-implementation The hips' shift per sine of pitch is the balance shift at the limit; the pitch is the least root of the wrist's distance beyond the kept share. That distance falls with the lean for a wrist below the shoulder and rises again for one above it, so the lean is scanned upward in 5 degree steps for the first pitch that reaches and bisected between it and the step before.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One balance solve, one scan with its bisection, one primitive.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A wrist no scanned lean reaches throws with the smallest shortfall and the pitch that gives it; the leaned root is lowered until the planted legs reach their feet. A reach that opens and closes inside one 5 degree step is missed, the remaining gap.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most nine scanned leans and nine halvings per read, to a hundredth of a degree.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanLean.tip`, `HumanBalance.shift`, `AutoMovieMotionHumanReach.check` and `resolveHumanPosture.lower`; the balance shift is solved once.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Closes over the props and one number.
+   * @evidence contracts/development/implementation.md#principled-implementation The hips' shift at a pitch is the balance shift of the standing posture tipped there, lowered onto its legs and with the working arm on its goal, so the centre of mass stays where the unleaned body has it and moves no faster than the arm carries it (Hof et al. 2005's margin reads the centre's speed); it is solved at 5 degree steps and carried in proportion between, continuous in the pitch. The pitch is the least root of the wrist's distance beyond the kept share. That distance falls with the lean for a wrist below the shoulder and rises again for one above it, so the lean is scanned upward in 5 degree steps for the first pitch that reaches and bisected between it and the step before.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One balance solve per step of the pitch, one scan with its bisection, one primitive.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A wrist no scanned lean reaches throws with the smallest shortfall and the pitch that gives it; the leaned root is lowered until the planted legs reach their feet. A reach that opens and closes inside one 5 degree step is missed, the remaining gap; the shift between two steps of the pitch is their proportion, not a solve.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most nine scanned leans and nine halvings per read, to a hundredth of a degree; at most nine balance solves per plan, each made the first time a pitch needs its step and kept.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanLean.tip`, `HumanBalance.shift`, `AutoMovieMotionHumanReach.check` and `resolveHumanPosture.lower`; each step's balance shift is solved once.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Closes over the props, the held centre and at most ten solved shifts.
    */
   export function solve(props: IProps): ILean {
     // The step of the scan for the first pitch that reaches, degrees
     // (provisional: the measured distances change by a few millimetres per
     // five degrees near their least, so a reach is not stepped over).
     const SCAN: number = 5;
-    const sine = (degrees: number): number =>
-      Math.sin((degrees * Math.PI) / 180);
+    // The step of the pitch the hips' shift is solved at, degrees
+    // (provisional: the shift changes by a few millimetres per step, so the
+    // proportion between two steps misplaces the centre by less).
+    const KNOT: number = 5;
     const limit: number = AutoMovieMotionHumanReach.LEAN_LIMIT;
-    const back: number =
-      HumanBalance.shift(
-        props.body,
-        (shift: number): IHumanPosture =>
-          AutoMovieMotionHumanLean.tip(
-            props.body,
-            props.standing,
-            limit,
-            shift,
-          ),
-      ) / sine(limit);
+    const limb: "leftArm" | "rightArm" = `${props.side}Arm`;
+
+    // The standing posture as the balance weighs it: lowered onto the
+    // planted legs, the working arm on its goal.
+    const weighed = (posture: IHumanPosture): IHumanPosture => {
+      const lowered: IHumanPosture = {
+        ...posture,
+        root: resolveHumanPosture.lower(props.body, posture).root,
+      };
+      return props.arm === undefined
+        ? lowered
+        : {
+            ...lowered,
+            limbs: { ...lowered.limbs, [limb]: props.arm(lowered) },
+          };
+    };
+    // The hips' shift at each step of the pitch, solved on the standing
+    // posture tipped there: the centre held where the unleaned body with its
+    // arm placed has it, so a pitch of 0 shifts nothing.
+    const held: number = HumanBalance.offset(
+      props.body,
+      weighed(props.standing),
+    );
+    const steps: Map<number, number> = new Map();
+    const step = (index: number): number => {
+      let back: number | undefined = steps.get(index);
+      if (back === undefined) {
+        back =
+          index === 0
+            ? 0
+            : HumanBalance.shift(
+                props.body,
+                (shift: number): IHumanPosture =>
+                  weighed(
+                    AutoMovieMotionHumanLean.tip(
+                      props.body,
+                      props.standing,
+                      Math.min(limit, index * KNOT),
+                      shift,
+                    ),
+                  ),
+                HumanBalance.RANGE,
+                held,
+              );
+        steps.set(index, back);
+      }
+      return back;
+    };
+    // Between two steps the shift is carried in proportion, so it follows
+    // the pitch continuously.
+    const back = (pitch: number): number => {
+      const at: number = Math.min(limit, Math.max(0, pitch)) / KNOT;
+      const below: number = Math.floor(at);
+      const share: number = at - below;
+      return share === 0
+        ? step(below)
+        : step(below) * (1 - share) + step(below + 1) * share;
+    };
     const tip = (posture: IHumanPosture, pitch: number): IHumanPosture =>
-      AutoMovieMotionHumanLean.tip(
-        props.body,
-        posture,
-        pitch,
-        back * sine(pitch),
-      );
+      AutoMovieMotionHumanLean.tip(props.body, posture, pitch, back(pitch));
     const pitch = (posture: IHumanPosture, progress: number): number => {
       const wrist: IAutoMovieVector3 = props.wrist(posture, progress);
       const beyond = (degrees: number): number => {
