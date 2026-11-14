@@ -6,11 +6,11 @@ Follow the selected model's own prompting guide, linked in [diffusion models](di
 
 ## Sources
 
-A prompt is put together from what the story already decided, so no request invents a look or a performance. A decision the prompt needs and no record holds is made at its owner under [repair](../story/correction/repair.md), never in the prompt: a missing reaction returns the screenplay to its author, and a missing detail of a look becomes a concretization.
+A prompt is put together from what the story already decided, so no request invents an appearance or a performance. A decision the prompt needs and no record holds is made at its owner under [repair](../story/correction/repair.md), never in the prompt: a missing reaction returns the screenplay to its author, and a missing detail of a subject's appearance or of the film's look is added under [concretization](../story/correction/repair.md#concretization).
 
 ### Shared description
 
-Write each person, place and recurring prop once, from its settings or brief record and its canon images, and the look once, from the settings' cinematography or the brief's look. Reuse the identical words in every request that shows them, because a reworded description is a different character to the model.
+Write each person, place and recurring prop once, from its settings or brief record and its canon references, and the film's look once, from the settings' or the brief's cinematography record. Keep them in one generation request file under [media records](../production/media-records.md#files) and reuse the identical words in every request that shows them, because a reworded description is a different character to the model.
 
 ### Request paragraph
 
@@ -19,17 +19,17 @@ Write what happens in the request's interval from the [beat records](../story/la
 | From the beats | The paragraph says |
 | --- | --- |
 | Cast | Which polygon man becomes which person, by the reference token or element name when the model binds references, and by screen position |
-| Reaction | Each facial expression and reaction the hint cannot show, at its time within the request |
+| Reaction | Each facial expression and reaction the hint cannot show, placed within the frames where the hint performs its beat |
 | Dialogue | Each line, written as [sound](#sound) sets |
-| Camera | The lens, depth of field and focus, which the hint's geometry does not carry |
+| Camera | The lens, depth of field and focus the beat's camera entry decides, or else the lens character of the film's look; the hint carries framing and moves |
 
-Leave out what the hint performs: positions, actions, contacts, timing and camera moves.
+Leave out what the hint performs: positions, actions, contacts, timing, framing and camera moves.
 
 ## Content
 
 ### Plain prose
 
-Describe the finished shot in plain prose, in this order: camera and framing, each figure, its action where the hint does not carry it, the setting, light and palette, style, then sound. Natural sentences steer better than keyword lists, and pasted tag-style prompts from another model lose meaning.
+Write the prompt in plain prose, in this order: the inputs' roles, the shared description, the request paragraph, then sound. Natural sentences steer better than keyword lists, and pasted tag-style prompts from another model lose meaning.
 
 ### What to show
 
@@ -49,7 +49,7 @@ With a pose, depth, edge or layout control, describe appearance, material, light
 
 ### Hint video
 
-State the video's role in one sentence, in the model's wording for an edit or a reference, with what the request's [adherence](requests.md#adherence) keeps ("the input video supplies only camera, positions and timing"), and map each polygon man to its reference. Name the gray forms only as what each one becomes, never as the look to produce: one guide asks to say what the render's forms stand for and another to keep words such as clay or 3D out, so follow the selected model's.
+State the video's role in one sentence, in the model's wording for an edit or a reference, with what the request's [adherence](requests.md#adherence) keeps ("the input video supplies only camera, positions and timing"). Name the gray forms only as what each one becomes, never as the appearance to produce: one guide asks to say what the render's forms stand for and another to keep words such as clay or 3D out, so follow the selected model's.
 
 ### First frame or keyframe
 
@@ -57,7 +57,7 @@ When the model accepts one, give appearance there: an image made from the hint's
 
 ### Still frames only
 
-A model that takes only still frames receives no motion from the hint, so the prose carries it. Give each shot one camera move and one subject action, written as countable beats ("takes three steps and stops at the rail"), because several in one request blur, morph or drop; split the shot instead, or use the model's own timestamp or multi-shot syntax when it has one.
+A model that takes only still frames receives no motion from the hint, so the prose also carries the framing and the action. Give each request one camera move and one subject action, written as countable beats ("takes three steps and stops at the rail"), because several in one request blur, morph or drop; split the request instead, or use the model's own timestamp or multi-shot syntax when it has one.
 
 ## Sound
 
@@ -65,4 +65,4 @@ Write the shot's sound, decided under [audio](../audio/SKILL.md), in the model's
 
 ## Check before submitting
 
-Compare the prompt with the hint's start, middle and end frames: every visible figure is named once, no sentence contradicts the hint's positions, order or camera, and the prompt stays within the model's length limit. Regenerate with a stronger control or a shorter shot rather than a longer prompt when motion or camera drifts.
+Compare the prompt with the hint's start, middle and end frames: every visible figure is named once, no sentence contradicts the hint's positions, order or camera, and the prompt stays within the model's length limit. When motion or camera drifts, regenerate with a stronger control or a shorter request rather than a longer prompt, and repair framing under [generation](generation.md#inspect-and-choose).

@@ -13,11 +13,11 @@ Its limits on length, frame rate, references and prompt size decide how scenes b
 
 1. Choose the model with the user from [diffusion models](diffusion.md), and record it in [project context](../production/project-context.md).
 2. [Read its documentation](#read-the-model) for every value the plan depends on.
-3. Plan each scene's [requests](requests.md): where they cut, how closely each follows the hint, and what each takes.
+3. Plan each scene's [requests](requests.md): where each ends, how closely it follows the hint, and what it takes.
 4. Prepare the canon references and any first frame each request takes under [image](../image/SKILL.md).
 5. Write each request's prompt under [prompts](prompts.md), with the sound decided under [audio](../audio/SKILL.md).
 6. Submit, inspect and adopt takes under [generation](generation.md).
 
 ## Read the model
 
-Read the chosen model's current documentation for its input and output lengths, frame rate and frame grid, sizes, the controls and references it accepts with their roles, the settings or wording that set how closely it follows its input, prompt length, negative prompt, seed and sound. The model decides which controls are used, and this step is the one place its input contract is verified.
+Read the chosen model's current documentation for its input and output lengths, frame rate and frame grid, sizes, the controls and references it accepts with their roles, the settings or wording that set how closely it follows its input, prompt length, negative prompt, seed and sound. The model decides which controls are used, and this step is the one place its input contract is verified. When a page cannot be read, ask the user for the values the plan depends on rather than assume them.
