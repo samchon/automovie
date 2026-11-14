@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { realizeAutoMovieConstruction } from "@automovie/engine";
-import { AutoMovieHumanF1 } from "@automovie/human";
+import { AutoMovieLoftChain, type AutoMovieViewLoft, realizeAutoMovieConstruction } from "@automovie/engine";
+import { AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
@@ -12,7 +12,7 @@ import { FamilyConicSource as R } from "./FamilyConicSource";
  * reference under the same cameras, the same frames coloured by the face that owns each triangle, and the realized mesh written with its
  * owners so a later round can show what moved.
  *
- * Usage, from `test/`: `FamilyConicEarRound.ts [--before=<directory of an earlier round>]`. Frames, `mesh.*` and `receipt.json` go to
+ * Usage, from `test/`: `FamilyConicEarRound.ts [--before=<directory of an earlier round>]`, or `--crossing[=<plate family json>]` alone (below). Frames, `mesh.*` and `receipt.json` go to
  * `test/.shots/family-conic-ear-round/<time>`. With `--before`, the receipt lists, for every owner, how far its vertices moved: each
  * vertex's distance to the nearest vertex of the same owner in the earlier round, its largest value and how many moved more than
  * 0.01 mm; for the trunk, which the ear's merges trim, only vertices farther than `NEAR_EAR_MM` from every ear vertex count.
@@ -83,9 +83,76 @@ namespace FamilyConicEarRound {
     };
   };
 
+  /**
+   * `--crossing[=<plate family json>]`: where each tube merged on the plate (the helix, the antihelix) crosses it, before any realization.
+   * Along each tube's top line (phase 0, the line its merge's seed is sought on) and its course, every half millimetre of station, the
+   * signed distance to the plate (the stored module, or the family a fit wrote as `<part>.family.json`): to the nearest of the plate's
+   * points sampled every quarter millimetre of station and every half degree of phase, positive outside along the plate's normal there.
+   * A merge's seed needs the top line to leave the plate (negative to positive) within the seed's station range.
+   */
+  const crossing = async (file: string | undefined): Promise<string[]> => {
+    const plate: AutoMovieHumanConicLoft.IFamily = file === undefined ? AutoMovieHumanF1.BODY.ear : JSON.parse(await fs.readFile(file, "utf8"));
+    const sample = (family: AutoMovieHumanConicLoft.IFamily, step: number): { chain: NonNullable<AutoMovieViewLoft.IResult["chain"]>; stations: number[] } => {
+      const [bottom, top] = family.tips ?? [null, null];
+      const from: number = bottom === null ? family.knots[0]! : bottom.tip;
+      const to: number = top === null ? family.knots.at(-1)! : top.tip;
+      const stations: number[] = [];
+      for (let s: number = from + step / 2; s < to; s += step) stations.push(Math.round(s * 1000) / 1000);
+      const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(family, family.knots);
+      if (loft.chain === null) throw new Error("--crossing: " + family.name + " does not loft");
+      return { chain: loft.chain, stations };
+    };
+    const host = sample(plate, 0.25);
+    const PHASES: number = 720;
+    const points: number[][] = [];
+    const normals: number[][] = [];
+    for (let i: number = 1; i + 1 < host.stations.length; ++i)
+      for (let j: number = 0; j < PHASES; ++j) {
+        const at = (s: number, k: number): number[] => AutoMovieLoftChain.point(host.chain, s, (2 * Math.PI * ((k + PHASES) % PHASES)) / PHASES);
+        const p: number[] = at(host.stations[i]!, j);
+        const ds: number[] = [0, 1, 2].map((c: number): number => at(host.stations[i + 1]!, j)[c]! - at(host.stations[i - 1]!, j)[c]!);
+        const dp: number[] = [0, 1, 2].map((c: number): number => at(host.stations[i]!, j + 1)[c]! - at(host.stations[i]!, j - 1)[c]!);
+        const n: number[] = [ds[1]! * dp[2]! - ds[2]! * dp[1]!, ds[2]! * dp[0]! - ds[0]! * dp[2]!, ds[0]! * dp[1]! - ds[1]! * dp[0]!];
+        const centre: number[] = AutoMovieHumanConicLoft.axis(plate).at(host.stations[i]!).origin;
+        const out: number = (p[0]! - centre[0]!) * n[0]! + (p[1]! - centre[1]!) * n[1]! + (p[2]! - centre[2]!) * n[2]!;
+        const length: number = Math.hypot(n[0]!, n[1]!, n[2]!) || 1;
+        points.push(p);
+        normals.push(n.map((x: number): number => (out < 0 ? -x : x) / length));
+      }
+    const signed = (q: readonly number[]): number => {
+      let best: number = Infinity;
+      let k: number = -1;
+      points.forEach((p: number[], i: number): void => {
+        const d: number = (p[0]! - q[0]!) ** 2 + (p[1]! - q[1]!) ** 2 + (p[2]! - q[2]!) ** 2;
+        if (d < best) [best, k] = [d, i];
+      });
+      const p: number[] = points[k]!;
+      const n: number[] = normals[k]!;
+      return (q[0]! - p[0]!) * n[0]! + (q[1]! - p[1]!) * n[1]! + (q[2]! - p[2]!) * n[2]!;
+    };
+    const lines: string[] = ["plate: " + (file ?? "the stored module"), "tube | station | top line point (phase 0), mm | signed distance of the top line to the plate | of the course"];
+    for (const tube of ["helix", "antihelix"].map((name: string): AutoMovieHumanConicLoft.IFamily => AutoMovieHumanF1.FAMILIES.find((member): boolean => member.family.name === name)!.family)) {
+      const own = sample(tube, 0.5);
+      const axis = AutoMovieHumanConicLoft.axis(tube);
+      for (const s of own.stations) {
+        const top: number[] = AutoMovieLoftChain.point(own.chain, s, 0);
+        lines.push(`${tube.name} | ${s.toFixed(2)} | [${top.map((x: number): string => x.toFixed(2)).join(", ")}] | ${signed(top).toFixed(2)} | ${signed(axis.at(s).origin).toFixed(2)}`);
+      }
+    }
+    return lines;
+  };
+
   /** Realize, render and write the round. */
   export async function main(): Promise<void> {
     const root: string = path.resolve(process.cwd(), "..");
+    const crossingArgument: string | undefined = process.argv.find((a: string): boolean => a === "--crossing" || a.startsWith("--crossing="));
+    if (crossingArgument !== undefined) {
+      const out: string = path.join(root, "test/.shots/family-conic-ear-round", "crossing-" + new Date().toISOString().replaceAll(":", "-") + ".txt");
+      await fs.mkdir(path.dirname(out), { recursive: true });
+      await fs.writeFile(out, (await crossing(crossingArgument.includes("=") ? crossingArgument.slice("--crossing=".length) : undefined)).join("\n") + "\n");
+      process.stdout.write(JSON.stringify({ out }) + "\n");
+      return;
+    }
     const out: string = path.join(root, "test/.shots/family-conic-ear-round", new Date().toISOString().replaceAll(":", "-"));
     await fs.mkdir(out, { recursive: true });
 
