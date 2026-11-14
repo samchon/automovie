@@ -45,15 +45,69 @@ export function test_archetype_sport_placed(): void {
       }),
     );
   const findings: string[] = archetypePlaced([
-    ...kinds("ball", createBall.KINDS, (kind: createBall.Kind): archetypePlaced.IRow["archetype"] => createBall({ kind }), 0),
-    ...kinds("racket", createRacket.KINDS, (kind: createRacket.Kind): archetypePlaced.IRow["archetype"] => createRacket({ kind }), 30),
-    ...kinds("golfClub", createGolfClub.KINDS, (kind: createGolfClub.Kind): archetypePlaced.IRow["archetype"] => createGolfClub({ kind }), 60),
-    ...kinds("glove", createGlove.KINDS, (kind: createGlove.Kind): archetypePlaced.IRow["archetype"] => createGlove({ kind }), 90),
-    ...kinds("javelin", createJavelin.KINDS, (kind: createJavelin.Kind): archetypePlaced.IRow["archetype"] => createJavelin({ kind }), 120),
-    ...kinds("shot", createShot.KINDS, (kind: createShot.Kind): archetypePlaced.IRow["archetype"] => createShot({ kind }), 150),
-    ...kinds("discus", createDiscus.KINDS, (kind: createDiscus.Kind): archetypePlaced.IRow["archetype"] => createDiscus({ kind }), 180),
-    ...kinds("hammerThrow", createHammerThrow.KINDS, (kind: createHammerThrow.Kind): archetypePlaced.IRow["archetype"] => createHammerThrow({ kind }), 210),
-    ...kinds("hurdle", createHurdle.KINDS, (kind: createHurdle.Kind): archetypePlaced.IRow["archetype"] => createHurdle({ kind }), 240),
+    ...kinds(
+      "ball",
+      createBall.KINDS,
+      (kind: createBall.Kind): archetypePlaced.IRow["archetype"] =>
+        createBall({ kind }),
+      0,
+    ),
+    ...kinds(
+      "racket",
+      createRacket.KINDS,
+      (kind: createRacket.Kind): archetypePlaced.IRow["archetype"] =>
+        createRacket({ kind }),
+      30,
+    ),
+    ...kinds(
+      "golfClub",
+      createGolfClub.KINDS,
+      (kind: createGolfClub.Kind): archetypePlaced.IRow["archetype"] =>
+        createGolfClub({ kind }),
+      60,
+    ),
+    ...kinds(
+      "glove",
+      createGlove.KINDS,
+      (kind: createGlove.Kind): archetypePlaced.IRow["archetype"] =>
+        createGlove({ kind }),
+      90,
+    ),
+    ...kinds(
+      "javelin",
+      createJavelin.KINDS,
+      (kind: createJavelin.Kind): archetypePlaced.IRow["archetype"] =>
+        createJavelin({ kind }),
+      120,
+    ),
+    ...kinds(
+      "shot",
+      createShot.KINDS,
+      (kind: createShot.Kind): archetypePlaced.IRow["archetype"] =>
+        createShot({ kind }),
+      150,
+    ),
+    ...kinds(
+      "discus",
+      createDiscus.KINDS,
+      (kind: createDiscus.Kind): archetypePlaced.IRow["archetype"] =>
+        createDiscus({ kind }),
+      180,
+    ),
+    ...kinds(
+      "hammerThrow",
+      createHammerThrow.KINDS,
+      (kind: createHammerThrow.Kind): archetypePlaced.IRow["archetype"] =>
+        createHammerThrow({ kind }),
+      210,
+    ),
+    ...kinds(
+      "hurdle",
+      createHurdle.KINDS,
+      (kind: createHurdle.Kind): archetypePlaced.IRow["archetype"] =>
+        createHurdle({ kind }),
+      240,
+    ),
     { name: "startingBlock", archetype: createStartingBlock(), yaw: 270 },
     { name: "relayBaton", archetype: createRelayBaton(), yaw: 300 },
   ]);
@@ -81,30 +135,114 @@ export function test_archetype_sport_placed(): void {
       archetypeExtent(make(seed), "y").high;
   findings.push(
     ...archetypeBandSweep([
-      row("football diameter", 0.68 / Math.PI, 0.7 / Math.PI, "IFAB Law 2, 68 to 70 cm round",
-        across((seed: number): archetypePlaced.IRow["archetype"] => createBall({ kind: "football" }, seed))),
-      row("basketball diameter", 0.749 / Math.PI, 0.78 / Math.PI, "FIBA size 7, 749 to 780 mm round",
-        across((seed: number): archetypePlaced.IRow["archetype"] => createBall({ kind: "basketball" }, seed))),
-      row("tennis ball diameter", 0.0654, 0.0686, "ITF Appendix I, 6.54 to 6.86 cm",
-        across((seed: number): archetypePlaced.IRow["archetype"] => createBall({ kind: "tennis" }, seed))),
-      row("golf ball diameter", 0.04267, 0.043, "R&A and USGA, at least 42.67 mm",
-        across((seed: number): archetypePlaced.IRow["archetype"] => createBall({ kind: "golf" }, seed))),
-      row("tennis racket length", 0.686, 0.737, "ITF Appendix II, at most 73.7 cm",
-        tall((seed: number): archetypePlaced.IRow["archetype"] => createRacket({ kind: "tennis" }, seed))),
-      row("driver length", 43.5 * 0.0254, 46 * 0.0254, "R&A and USGA, at most 46 in",
-        tall((seed: number): archetypePlaced.IRow["archetype"] => createGolfClub({ kind: "driver" }, seed))),
-      row("men's javelin length", 2.6, 2.7, "World Athletics, 2.60 to 2.70 m",
-        tall((seed: number): archetypePlaced.IRow["archetype"] => createJavelin({ kind: "men" }, seed))),
-      row("men's shot diameter", 0.11, 0.13, "World Athletics, 110 to 130 mm",
-        across((seed: number): archetypePlaced.IRow["archetype"] => createShot({ kind: "men" }, seed))),
-      row("men's discus diameter", 0.219, 0.221, "World Athletics, 219 to 221 mm",
-        across((seed: number): archetypePlaced.IRow["archetype"] => createDiscus({ kind: "men" }, seed))),
-      row("men's 110 m hurdle height", 1.064, 1.07, "World Athletics, 1.067 m to 3 mm",
-        tall((seed: number): archetypePlaced.IRow["archetype"] => createHurdle({ kind: "men110" }, seed))),
-      row("baton length", 0.28, 0.3, "World Athletics, 28 to 30 cm",
-        tall((seed: number): archetypePlaced.IRow["archetype"] => createRelayBaton({}, seed))),
-      row("baton diameter", 0.038, 0.042, "World Athletics, 40 mm to 2 mm",
-        across((seed: number): archetypePlaced.IRow["archetype"] => createRelayBaton({}, seed))),
+      row(
+        "football diameter",
+        0.68 / Math.PI,
+        0.7 / Math.PI,
+        "IFAB Law 2, 68 to 70 cm round",
+        across((seed: number): archetypePlaced.IRow["archetype"] =>
+          createBall({ kind: "football" }, seed),
+        ),
+      ),
+      row(
+        "basketball diameter",
+        0.749 / Math.PI,
+        0.78 / Math.PI,
+        "FIBA size 7, 749 to 780 mm round",
+        across((seed: number): archetypePlaced.IRow["archetype"] =>
+          createBall({ kind: "basketball" }, seed),
+        ),
+      ),
+      row(
+        "tennis ball diameter",
+        0.0654,
+        0.0686,
+        "ITF Appendix I, 6.54 to 6.86 cm",
+        across((seed: number): archetypePlaced.IRow["archetype"] =>
+          createBall({ kind: "tennis" }, seed),
+        ),
+      ),
+      row(
+        "golf ball diameter",
+        0.04267,
+        0.043,
+        "R&A and USGA, at least 42.67 mm",
+        across((seed: number): archetypePlaced.IRow["archetype"] =>
+          createBall({ kind: "golf" }, seed),
+        ),
+      ),
+      row(
+        "tennis racket length",
+        0.686,
+        0.737,
+        "ITF Appendix II, at most 73.7 cm",
+        tall((seed: number): archetypePlaced.IRow["archetype"] =>
+          createRacket({ kind: "tennis" }, seed),
+        ),
+      ),
+      row(
+        "driver length",
+        43.5 * 0.0254,
+        46 * 0.0254,
+        "R&A and USGA, at most 46 in",
+        tall((seed: number): archetypePlaced.IRow["archetype"] =>
+          createGolfClub({ kind: "driver" }, seed),
+        ),
+      ),
+      row(
+        "men's javelin length",
+        2.6,
+        2.7,
+        "World Athletics, 2.60 to 2.70 m",
+        tall((seed: number): archetypePlaced.IRow["archetype"] =>
+          createJavelin({ kind: "men" }, seed),
+        ),
+      ),
+      row(
+        "men's shot diameter",
+        0.11,
+        0.13,
+        "World Athletics, 110 to 130 mm",
+        across((seed: number): archetypePlaced.IRow["archetype"] =>
+          createShot({ kind: "men" }, seed),
+        ),
+      ),
+      row(
+        "men's discus diameter",
+        0.219,
+        0.221,
+        "World Athletics, 219 to 221 mm",
+        across((seed: number): archetypePlaced.IRow["archetype"] =>
+          createDiscus({ kind: "men" }, seed),
+        ),
+      ),
+      row(
+        "men's 110 m hurdle height",
+        1.064,
+        1.07,
+        "World Athletics, 1.067 m to 3 mm",
+        tall((seed: number): archetypePlaced.IRow["archetype"] =>
+          createHurdle({ kind: "men110" }, seed),
+        ),
+      ),
+      row(
+        "baton length",
+        0.28,
+        0.3,
+        "World Athletics, 28 to 30 cm",
+        tall((seed: number): archetypePlaced.IRow["archetype"] =>
+          createRelayBaton({}, seed),
+        ),
+      ),
+      row(
+        "baton diameter",
+        0.038,
+        0.042,
+        "World Athletics, 40 mm to 2 mm",
+        across((seed: number): archetypePlaced.IRow["archetype"] =>
+          createRelayBaton({}, seed),
+        ),
+      ),
     ]),
   );
   TestValidator.equals(

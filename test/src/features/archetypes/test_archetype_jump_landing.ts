@@ -58,8 +58,8 @@ export function test_archetype_jump_landing(): void {
         .find((s: HumanSegment.ISegment): boolean => s.name === row)!;
       return (instant: string): number =>
         segment.start +
-        (segment.plan.events.find((e): boolean => e.name === instant)
-          ?.share ?? Number.NaN) *
+        (segment.plan.events.find((e): boolean => e.name === instant)?.share ??
+          Number.NaN) *
           segment.plan.duration;
     };
 

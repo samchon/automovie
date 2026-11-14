@@ -53,20 +53,22 @@ export function createJumpRope(
   const r: number = d.gripDiameter / 2;
   const end: number = d.length / 2;
   const inner: number = end - d.handleLength;
-  builder.rod("cord", createJumpRope.CORD / 2, v(-inner, r, 0), v(inner, r, 0), {
-    color: "#d4a017",
-  });
+  builder.rod(
+    "cord",
+    createJumpRope.CORD / 2,
+    v(-inner, r, 0),
+    v(inner, r, 0),
+    {
+      color: "#d4a017",
+    },
+  );
   for (const [id, part, sign] of [
     ["leftGrip", "leftHandle", 1],
     ["rightGrip", "rightHandle", -1],
   ] as const) {
-    builder.rod(
-      part,
-      r,
-      v(sign * inner, r, 0),
-      v(sign * end, r, 0),
-      { color: "#2c2f33" },
-    );
+    builder.rod(part, r, v(sign * inner, r, 0), v(sign * end, r, 0), {
+      color: "#2c2f33",
+    });
     builder.affordance({
       id,
       kind: "handle",

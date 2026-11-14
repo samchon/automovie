@@ -66,7 +66,8 @@ export function archetypePlaced(
       );
 
     // 2. On its support: a turn about the vertical keeps every height.
-    const low: number = placed.position.y + archetypeExtent(row.archetype, "y").low;
+    const low: number =
+      placed.position.y + archetypeExtent(row.archetype, "y").low;
     if (Math.abs(low - at.y) > 1e-3)
       findings.push(
         `${row.name}: its lowest point is ${((low - at.y) * 1000).toFixed(1)} mm from its support, within 1 mm expected`,
@@ -79,7 +80,9 @@ export function archetypePlaced(
         | { point: IAutoMovieVector3; normal: IAutoMovieVector3 }
         | undefined = prop.points[affordance.id];
       if (point === undefined) {
-        findings.push(`${row.name}: declares ${affordance.id} but the prop names no such point`);
+        findings.push(
+          `${row.name}: declares ${affordance.id} but the prop names no such point`,
+        );
         continue;
       }
       const world: IAutoMovieVector3 = Vector3.add(

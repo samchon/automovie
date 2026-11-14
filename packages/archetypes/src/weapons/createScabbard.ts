@@ -140,8 +140,18 @@ export namespace createScabbard {
         "a blade of createSword's arming sword to rapier, 0.78 to 1.04 m, and a few centimetres beyond its point",
         true,
       ),
-      width: ArchetypeBand.metres(0.05, 0.07, "a blade's width and the leather round it, an estimate", true),
-      thickness: ArchetypeBand.metres(0.015, 0.025, "a blade's thickness and the leather round it, an estimate", true),
+      width: ArchetypeBand.metres(
+        0.05,
+        0.07,
+        "a blade's width and the leather round it, an estimate",
+        true,
+      ),
+      thickness: ArchetypeBand.metres(
+        0.015,
+        0.025,
+        "a blade's thickness and the leather round it, an estimate",
+        true,
+      ),
       mass: ArchetypeBand.of("kg", 0.3, 0.6, ArchetypeBand.TYPICAL_MASS, true),
     },
     knife: {
@@ -151,9 +161,25 @@ export namespace createScabbard {
         "a blade of createSword's knife to dagger, 0.178 to 0.36 m, and a little beyond its point",
         true,
       ),
-      width: ArchetypeBand.metres(0.035, 0.05, "a blade's width and the leather round it, an estimate", true),
-      thickness: ArchetypeBand.metres(0.012, 0.02, "a blade's thickness and the leather round it, an estimate", true),
-      mass: ArchetypeBand.of("kg", 0.05, 0.15, ArchetypeBand.TYPICAL_MASS, true),
+      width: ArchetypeBand.metres(
+        0.035,
+        0.05,
+        "a blade's width and the leather round it, an estimate",
+        true,
+      ),
+      thickness: ArchetypeBand.metres(
+        0.012,
+        0.02,
+        "a blade's thickness and the leather round it, an estimate",
+        true,
+      ),
+      mass: ArchetypeBand.of(
+        "kg",
+        0.05,
+        0.15,
+        ArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
     },
   };
 }

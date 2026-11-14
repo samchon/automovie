@@ -140,13 +140,33 @@ export namespace createDiscus {
   > = {
     men: {
       diameter: band("m", 0.219, 0.221, "the men's 219 to 221 mm across"),
-      thickness: band("m", 0.044, 0.046, "the men's 44 to 46 mm thick at the centre"),
-      mass: band("kg", 2, 2.025, "the men's at least 2 kg; the upper end is a maker's tolerance"),
+      thickness: band(
+        "m",
+        0.044,
+        0.046,
+        "the men's 44 to 46 mm thick at the centre",
+      ),
+      mass: band(
+        "kg",
+        2,
+        2.025,
+        "the men's at least 2 kg; the upper end is a maker's tolerance",
+      ),
     },
     women: {
       diameter: band("m", 0.18, 0.182, "the women's 180 to 182 mm across"),
-      thickness: band("m", 0.037, 0.039, "the women's 37 to 39 mm thick at the centre"),
-      mass: band("kg", 1, 1.025, "the women's at least 1 kg; the upper end is a maker's tolerance"),
+      thickness: band(
+        "m",
+        0.037,
+        0.039,
+        "the women's 37 to 39 mm thick at the centre",
+      ),
+      mass: band(
+        "kg",
+        1,
+        1.025,
+        "the women's at least 1 kg; the upper end is a maker's tolerance",
+      ),
     },
   };
 }

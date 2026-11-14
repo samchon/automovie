@@ -121,11 +121,21 @@ export namespace createShot {
   > = {
     men: {
       diameter: band("m", 0.11, 0.13, "the men's 110 to 130 mm across"),
-      mass: band("kg", 7.26, 7.285, "the men's at least 7.26 kg; the upper end is a maker's tolerance"),
+      mass: band(
+        "kg",
+        7.26,
+        7.285,
+        "the men's at least 7.26 kg; the upper end is a maker's tolerance",
+      ),
     },
     women: {
       diameter: band("m", 0.095, 0.11, "the women's 95 to 110 mm across"),
-      mass: band("kg", 4, 4.025, "the women's at least 4 kg; the upper end is a maker's tolerance"),
+      mass: band(
+        "kg",
+        4,
+        4.025,
+        "the women's at least 4 kg; the upper end is a maker's tolerance",
+      ),
     },
   };
 }

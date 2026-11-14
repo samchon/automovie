@@ -53,7 +53,10 @@ export function test_archetype_weapons_rack(): void {
   };
   const tip: IAutoMovieVector3 = { x: 0, y: bat.dimensions.length!, z: 0 };
   // A weapon turned point down with its lower end on a slot's floor.
-  const stood = (slot: "slot2" | "slot3", end: IAutoMovieVector3): IHumanProp.IFrame => ({
+  const stood = (
+    slot: "slot2" | "slot3",
+    end: IAutoMovieVector3,
+  ): IHumanProp.IFrame => ({
     position: Vector3.subtract(
       rack.affordance(slot).frame.translation,
       Quaternion.rotateVector(down, end),
@@ -101,20 +104,35 @@ export function test_archetype_weapons_rack(): void {
       (pick.plan.events.find((e): boolean => e.name === "gripClosed")?.share ??
         Number.NaN) *
         pick.plan.duration;
-    const end = (prop: string, local: IAutoMovieVector3, seconds: number): IAutoMovieVector3 => {
+    const end = (
+      prop: string,
+      local: IAutoMovieVector3,
+      seconds: number,
+    ): IAutoMovieVector3 => {
       const frame: IHumanProp.IFrame = film.prop(prop, seconds);
-      return Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, local));
+      return Vector3.add(
+        frame.position,
+        Quaternion.rotateVector(frame.rotation, local),
+      );
     };
 
     // 2. Standing in the rack until taken.
     let moved: number = 0;
     for (let s: number = 0; s < closed - 0.02; s += 0.1)
-      moved = Math.max(moved, Vector3.length(Vector3.subtract(end("sword", point, s), floor)));
+      moved = Math.max(
+        moved,
+        Vector3.length(Vector3.subtract(end("sword", point, s), floor)),
+      );
     let left: number = 0;
     for (let s: number = 0; s <= film.duration; s += 0.1)
       left = Math.max(
         left,
-        Vector3.length(Vector3.subtract(end("bat", tip, s), rack.affordance("slot2").frame.translation)),
+        Vector3.length(
+          Vector3.subtract(
+            end("bat", tip, s),
+            rack.affordance("slot2").frame.translation,
+          ),
+        ),
       );
     if (!(moved <= 0.001 && left <= 0.001))
       complaints.push(
@@ -123,16 +141,24 @@ export function test_archetype_weapons_rack(): void {
 
     // 3. Held and lifted out.
     const relative = (seconds: number): IAutoMovieVector3 => {
-      const hand: IAutoMovieResolvedBone = film.bones("a", seconds).get("rightHand")!;
+      const hand: IAutoMovieResolvedBone = film
+        .bones("a", seconds)
+        .get("rightHand")!;
       return Quaternion.rotateVector(
         Quaternion.inverse(hand.worldRotation),
-        Vector3.subtract(film.prop("sword", seconds).position, hand.worldPosition),
+        Vector3.subtract(
+          film.prop("sword", seconds).position,
+          hand.worldPosition,
+        ),
       );
     };
     const first: IAutoMovieVector3 = relative(closed + 0.02);
     let slip: number = 0;
     for (let s: number = closed + 0.02; s <= film.duration; s += 0.1)
-      slip = Math.max(slip, Vector3.length(Vector3.subtract(relative(s), first)));
+      slip = Math.max(
+        slip,
+        Vector3.length(Vector3.subtract(relative(s), first)),
+      );
     const raised: number = end("sword", point, film.duration).y - floor.y;
     if (!(slip <= 0.001 && raised >= 0.05))
       complaints.push(

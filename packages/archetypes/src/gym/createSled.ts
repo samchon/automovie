@@ -10,7 +10,8 @@ import {
 } from "../core";
 
 /** What a maker's sled reads as, not read at a source. */
-const MAKER: string = "a common maker's push sled (a prowler), not read at a source";
+const MAKER: string =
+  "a common maker's push sled (a prowler), not read at a source";
 
 /**
  * A push sled: a weighted base on the floor with two upright poles a pusher leans into.
@@ -50,10 +51,15 @@ export function createSled(
   const v: typeof Vector3.create = Vector3.create;
   const base: number = createSled.BASE;
   const pole: number = createSled.POLE;
-  builder.box("base", v(d.width, base, d.length), v(0, base / 2, d.length / 2), {
-    color: "#2c2f33",
-    density: 3,
-  });
+  builder.box(
+    "base",
+    v(d.width, base, d.length),
+    v(0, base / 2, d.length / 2),
+    {
+      color: "#2c2f33",
+      density: 3,
+    },
+  );
   for (const [id, sign] of [
     ["left", -1],
     ["right", 1],

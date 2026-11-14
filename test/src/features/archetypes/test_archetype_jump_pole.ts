@@ -117,7 +117,12 @@ export function test_archetype_jump_pole(): void {
     }
 
     // 4. The swing lifts the body.
-    const reader: HumanSignature.IReader = HumanSignature.of(film, "a", body, 0);
+    const reader: HumanSignature.IReader = HumanSignature.of(
+      film,
+      "a",
+      body,
+      0,
+    );
     const lifted: number =
       HumanSignature.centre(reader, release).y -
       HumanSignature.centre(reader, off).y;

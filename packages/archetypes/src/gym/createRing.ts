@@ -11,7 +11,8 @@ import {
 } from "../core";
 
 /** The amateur ring rules as recalled, not read here. */
-const RULES: string = "the IBA and WAKO competition ring rules, recalled and not read";
+const RULES: string =
+  "the IBA and WAKO competition ring rules, recalled and not read";
 
 /** The sides of the square, as the ring's own `+Z`, `-Z`, `+X` and `-X`. */
 const SIDES: readonly ["north", "south", "east", "west"] = [
@@ -70,9 +71,15 @@ export function createRing(
     ["corner3", -half, -half],
     ["corner4", half, -half],
   ] as const) {
-    builder.rod(`${id}Post`, createRing.POST / 2, v(x, floor, z), v(x, top + 0.1, z), {
-      color: "#c9ccd1",
-    });
+    builder.rod(
+      `${id}Post`,
+      createRing.POST / 2,
+      v(x, floor, z),
+      v(x, top + 0.1, z),
+      {
+        color: "#c9ccd1",
+      },
+    );
     builder.affordance({
       id,
       kind: "surface",
@@ -87,9 +94,15 @@ export function createRing(
     for (const side of SIDES) {
       const along: boolean = side === "north" || side === "south";
       const sign: number = side === "north" || side === "east" ? 1 : -1;
-      const from: IAutoMovieVector3 = along ? v(-half, y, sign * half) : v(sign * half, y, -half);
-      const to: IAutoMovieVector3 = along ? v(half, y, sign * half) : v(sign * half, y, half);
-      builder.rod(`${side}Rope${level}`, rope / 2, from, to, { color: "#b22222" });
+      const from: IAutoMovieVector3 = along
+        ? v(-half, y, sign * half)
+        : v(sign * half, y, -half);
+      const to: IAutoMovieVector3 = along
+        ? v(half, y, sign * half)
+        : v(sign * half, y, half);
+      builder.rod(`${side}Rope${level}`, rope / 2, from, to, {
+        color: "#b22222",
+      });
     }
   }
   for (const [side, id] of [
@@ -100,7 +113,9 @@ export function createRing(
   ] as const) {
     const along: boolean = side === "north" || side === "south";
     const sign: number = side === "north" || side === "east" ? 1 : -1;
-    const at: IAutoMovieVector3 = along ? v(0, top, sign * half) : v(sign * half, top, 0);
+    const at: IAutoMovieVector3 = along
+      ? v(0, top, sign * half)
+      : v(sign * half, top, 0);
     builder.affordance({
       id,
       kind: "bar",
@@ -183,9 +198,24 @@ export namespace createRing {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    size: ArchetypeBand.metres(4.9, 6.1, `${RULES}: 4.9 to 6.1 m square inside the ropes`, true),
-    platform: ArchetypeBand.metres(0.91, 1.22, `${RULES}: the platform 0.91 to 1.22 m high`, true),
-    topRope: ArchetypeBand.metres(1.3, 1.35, `${RULES}: the top rope 1.30 m above the canvas`, true),
+    size: ArchetypeBand.metres(
+      4.9,
+      6.1,
+      `${RULES}: 4.9 to 6.1 m square inside the ropes`,
+      true,
+    ),
+    platform: ArchetypeBand.metres(
+      0.91,
+      1.22,
+      `${RULES}: the platform 0.91 to 1.22 m high`,
+      true,
+    ),
+    topRope: ArchetypeBand.metres(
+      1.3,
+      1.35,
+      `${RULES}: the top rope 1.30 m above the canvas`,
+      true,
+    ),
     mass: ArchetypeBand.of("kg", 800, 2000, "a ring's mass, an estimate", true),
   };
 }

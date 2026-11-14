@@ -178,12 +178,18 @@ export namespace createGolfClub {
   }
 
   /** A provisional band in metres. */
-  const m = (minimum: number, maximum: number, source: string): IArchetypeBand =>
-    ArchetypeBand.metres(minimum, maximum, source, true);
+  const m = (
+    minimum: number,
+    maximum: number,
+    source: string,
+  ): IArchetypeBand => ArchetypeBand.metres(minimum, maximum, source, true);
 
   /** A provisional mass band. */
-  const kg = (minimum: number, maximum: number, source: string): IArchetypeBand =>
-    ArchetypeBand.of("kg", minimum, maximum, source, true);
+  const kg = (
+    minimum: number,
+    maximum: number,
+    source: string,
+  ): IArchetypeBand => ArchetypeBand.of("kg", minimum, maximum, source, true);
 
   /** What a maker's size reads as, not read at a source. */
   const MAKER: string = "a common maker's size, not read at a source";

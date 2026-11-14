@@ -157,14 +157,34 @@ export namespace createHammerThrow {
     Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
   > = {
     men: {
-      length: band("m", 1.175, 1.215, "the men's 1175 to 1215 mm from the head to the handle's inside"),
+      length: band(
+        "m",
+        1.175,
+        1.215,
+        "the men's 1175 to 1215 mm from the head to the handle's inside",
+      ),
       diameter: band("m", 0.11, 0.13, "the men's head 110 to 130 mm across"),
-      mass: band("kg", 7.26, 7.285, "the men's at least 7.26 kg; the upper end is a maker's tolerance"),
+      mass: band(
+        "kg",
+        7.26,
+        7.285,
+        "the men's at least 7.26 kg; the upper end is a maker's tolerance",
+      ),
     },
     women: {
-      length: band("m", 1.16, 1.195, "the women's 1160 to 1195 mm from the head to the handle's inside"),
+      length: band(
+        "m",
+        1.16,
+        1.195,
+        "the women's 1160 to 1195 mm from the head to the handle's inside",
+      ),
       diameter: band("m", 0.095, 0.11, "the women's head 95 to 110 mm across"),
-      mass: band("kg", 4, 4.025, "the women's at least 4 kg; the upper end is a maker's tolerance"),
+      mass: band(
+        "kg",
+        4,
+        4.025,
+        "the women's at least 4 kg; the upper end is a maker's tolerance",
+      ),
     },
   };
 }

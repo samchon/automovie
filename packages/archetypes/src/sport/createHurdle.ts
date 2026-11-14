@@ -121,7 +121,12 @@ export namespace createHurdle {
   export type Kind = "men110" | "women100" | "men400" | "women400";
 
   /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["men110", "women100", "men400", "women400"];
+  export const KINDS: readonly Kind[] = [
+    "men110",
+    "women100",
+    "men400",
+    "women400",
+  ];
 
   /** The top bar's height, metres: the rule's 70 mm. */
   export const BAR: number = 0.07;
@@ -180,7 +185,12 @@ export namespace createHurdle {
 
   /** The bands every race shares. */
   export const SHARED: Readonly<Record<"width" | "mass", IArchetypeBand>> = {
-    width: ArchetypeBand.metres(1.18, 1.2, `${RULE}: 1.18 to 1.20 m wide`, true),
+    width: ArchetypeBand.metres(
+      1.18,
+      1.2,
+      `${RULE}: 1.18 to 1.20 m wide`,
+      true,
+    ),
     mass: ArchetypeBand.of(
       "kg",
       10,

@@ -202,7 +202,11 @@ export namespace createBall {
         0.6,
         "IHF Rules of the Game, Rule 3, size 3: circumference 58 to 60 cm",
       ),
-      mass: kg(0.425, 0.475, "IHF Rules of the Game, Rule 3, size 3: 425 to 475 g"),
+      mass: kg(
+        0.425,
+        0.475,
+        "IHF Rules of the Game, Rule 3, size 3: 425 to 475 g",
+      ),
     },
     tennis: {
       diameter: ArchetypeBand.metres(
@@ -211,7 +215,11 @@ export namespace createBall {
         "ITF Rules of Tennis, Appendix I: diameter 6.54 to 6.86 cm",
         true,
       ),
-      mass: kg(0.056, 0.0594, "ITF Rules of Tennis, Appendix I: 56.0 to 59.4 g"),
+      mass: kg(
+        0.056,
+        0.0594,
+        "ITF Rules of Tennis, Appendix I: 56.0 to 59.4 g",
+      ),
     },
     baseball: {
       diameter: round(

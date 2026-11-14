@@ -55,17 +55,19 @@ export function createRacket(
   const v: typeof Vector3.create = Vector3.create;
   const thick: number = createRacket.THICKNESS[kind];
   const base: number = d.length - d.headLength;
-  builder.rod("handle", d.gripDiameter / 2, v(0, 0, 0), v(0, d.handleLength, 0), {
-    color: "#2c2f33",
-  });
+  builder.rod(
+    "handle",
+    d.gripDiameter / 2,
+    v(0, 0, 0),
+    v(0, d.handleLength, 0),
+    {
+      color: "#2c2f33",
+    },
+  );
   if (base > d.handleLength)
-    builder.rod(
-      "throat",
-      thick / 2,
-      v(0, d.handleLength, 0),
-      v(0, base, 0),
-      { color: "#8a8d91" },
-    );
+    builder.rod("throat", thick / 2, v(0, d.handleLength, 0), v(0, base, 0), {
+      color: "#8a8d91",
+    });
   builder.box(
     "head",
     v(d.headWidth, d.headLength, thick),
@@ -182,12 +184,18 @@ export namespace createRacket {
   }
 
   /** A provisional band in metres. */
-  const m = (minimum: number, maximum: number, source: string): IArchetypeBand =>
-    ArchetypeBand.metres(minimum, maximum, source, true);
+  const m = (
+    minimum: number,
+    maximum: number,
+    source: string,
+  ): IArchetypeBand => ArchetypeBand.metres(minimum, maximum, source, true);
 
   /** A provisional mass band. */
-  const kg = (minimum: number, maximum: number, source: string): IArchetypeBand =>
-    ArchetypeBand.of("kg", minimum, maximum, source, true);
+  const kg = (
+    minimum: number,
+    maximum: number,
+    source: string,
+  ): IArchetypeBand => ArchetypeBand.of("kg", minimum, maximum, source, true);
 
   /** What a maker's size reads as, not read at a source. */
   const MAKER: string = "a common maker's size, not read at a source";
@@ -221,23 +229,51 @@ export namespace createRacket {
       mass: kg(0.25, 0.34, MAKER),
     },
     badminton: {
-      length: m(0.665, 0.68, "BWF Laws of Badminton, Law 4: the frame at most 680 mm long"),
-      headWidth: m(0.2, 0.23, "BWF Laws of Badminton, Law 4: the frame at most 230 mm wide"),
-      headLength: m(0.25, 0.28, "BWF Laws of Badminton, Law 4: the strung area at most 280 mm long"),
+      length: m(
+        0.665,
+        0.68,
+        "BWF Laws of Badminton, Law 4: the frame at most 680 mm long",
+      ),
+      headWidth: m(
+        0.2,
+        0.23,
+        "BWF Laws of Badminton, Law 4: the frame at most 230 mm wide",
+      ),
+      headLength: m(
+        0.25,
+        0.28,
+        "BWF Laws of Badminton, Law 4: the strung area at most 280 mm long",
+      ),
       handleLength: m(0.19, 0.21, MAKER),
       gripDiameter: m(0.024, 0.028, MAKER),
       mass: kg(0.07, 0.1, MAKER),
     },
     squash: {
-      length: m(0.67, 0.686, "World Squash Federation racket specification: at most 686 mm long"),
-      headWidth: m(0.19, 0.215, "World Squash Federation racket specification: at most 215 mm wide"),
+      length: m(
+        0.67,
+        0.686,
+        "World Squash Federation racket specification: at most 686 mm long",
+      ),
+      headWidth: m(
+        0.19,
+        0.215,
+        "World Squash Federation racket specification: at most 215 mm wide",
+      ),
       headLength: m(0.25, 0.28, MAKER),
       handleLength: m(0.18, 0.2, MAKER),
       gripDiameter: m(0.03, 0.034, MAKER),
-      mass: kg(0.11, 0.255, "World Squash Federation racket specification: at most 255 g"),
+      mass: kg(
+        0.11,
+        0.255,
+        "World Squash Federation racket specification: at most 255 g",
+      ),
     },
     tableTennis: {
-      length: m(0.25, 0.27, "ITTF Laws 2.4: the blade's size is free; a common bat's"),
+      length: m(
+        0.25,
+        0.27,
+        "ITTF Laws 2.4: the blade's size is free; a common bat's",
+      ),
       headWidth: m(0.15, 0.16, MAKER),
       headLength: m(0.155, 0.165, MAKER),
       handleLength: m(0.095, 0.105, MAKER),

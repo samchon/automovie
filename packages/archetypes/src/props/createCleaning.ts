@@ -129,8 +129,18 @@ export namespace createCleaning {
     Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
   > = {
     cloth: {
-      width: ArchetypeBand.metres(0.15, 0.2, `${MAKER}: a 30 to 40 cm cloth folded in four`, true),
-      length: ArchetypeBand.metres(0.15, 0.2, `${MAKER}: a 30 to 40 cm cloth folded in four`, true),
+      width: ArchetypeBand.metres(
+        0.15,
+        0.2,
+        `${MAKER}: a 30 to 40 cm cloth folded in four`,
+        true,
+      ),
+      length: ArchetypeBand.metres(
+        0.15,
+        0.2,
+        `${MAKER}: a 30 to 40 cm cloth folded in four`,
+        true,
+      ),
       thickness: ArchetypeBand.metres(0.004, 0.008, MAKER, true),
       mass: ArchetypeBand.of("kg", 0.02, 0.05, MAKER, true),
     },

@@ -104,7 +104,11 @@ export function createKeyboard(
     builder.affordance({
       id: "screen",
       kind: "surface",
-      frame: ArchetypeFrame.facing(Vector3.add(hinge, Vector3.scale(up, d.depth / 2)), out, v(1, 0, 0)),
+      frame: ArchetypeFrame.facing(
+        Vector3.add(hinge, Vector3.scale(up, d.depth / 2)),
+        out,
+        v(1, 0, 0),
+      ),
       extent: null,
       width: d.width,
       depth: d.depth,
@@ -185,8 +189,18 @@ export namespace createKeyboard {
     Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
   > = {
     keyboard: {
-      width: ArchetypeBand.metres(0.43, 0.46, `${PITCH_SOURCE}: some 22.5 keys wide; ${MAKER}`, true),
-      depth: ArchetypeBand.metres(0.13, 0.16, `${PITCH_SOURCE}: six rows deep; ${MAKER}`, true),
+      width: ArchetypeBand.metres(
+        0.43,
+        0.46,
+        `${PITCH_SOURCE}: some 22.5 keys wide; ${MAKER}`,
+        true,
+      ),
+      depth: ArchetypeBand.metres(
+        0.13,
+        0.16,
+        `${PITCH_SOURCE}: six rows deep; ${MAKER}`,
+        true,
+      ),
       height: ArchetypeBand.metres(0.02, 0.035, MAKER, true),
       mass: ArchetypeBand.of("kg", 0.5, 1.2, MAKER, true),
     },

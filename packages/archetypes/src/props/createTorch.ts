@@ -40,13 +40,15 @@ export function createTorch(
     seed,
     params,
   );
-  const builder: ArchetypeBuilder<createTorch.Affordance, createTorch.Dimension> =
-    new ArchetypeBuilder({
-      archetype: "torch",
-      id: params.id,
-      name: "torch",
-      dimensions: d,
-    });
+  const builder: ArchetypeBuilder<
+    createTorch.Affordance,
+    createTorch.Dimension
+  > = new ArchetypeBuilder({
+    archetype: "torch",
+    id: params.id,
+    name: "torch",
+    dimensions: d,
+  });
   const v: typeof Vector3.create = Vector3.create;
   const head: number = createTorch.HEAD;
   const barrel: number = d.length - head;
@@ -73,7 +75,11 @@ export function createTorch(
   builder.affordance({
     id: "switch",
     kind: "button",
-    frame: ArchetypeFrame.facing(v(0, barrel - 0.02, r), v(0, 0, 1), v(0, 1, 0)),
+    frame: ArchetypeFrame.facing(
+      v(0, barrel - 0.02, r),
+      v(0, 0, 1),
+      v(0, 1, 0),
+    ),
     extent: null,
     travel: createTorch.PRESS,
   });

@@ -36,7 +36,12 @@ export function createExerciseBike(
   seed?: number | string,
 ): Archetype<createExerciseBike.Affordance, createExerciseBike.Dimension> {
   const d: Record<createExerciseBike.Dimension, number> =
-    ArchetypeDraw.dimensions("exerciseBike", createExerciseBike.BANDS, seed, params);
+    ArchetypeDraw.dimensions(
+      "exerciseBike",
+      createExerciseBike.BANDS,
+      seed,
+      params,
+    );
   const builder: ArchetypeBuilder<
     createExerciseBike.Affordance,
     createExerciseBike.Dimension
@@ -50,28 +55,59 @@ export function createExerciseBike(
   const bracket: number = createExerciseBike.BRACKET;
   const tube: number = createExerciseBike.TUBE;
   const steel: string = "#55595f";
-  const saddle: IAutoMovieVector3 = v(0, d.saddleHeight, -createExerciseBike.SETBACK);
-  const bars: IAutoMovieVector3 = v(0, d.handlebarHeight, createExerciseBike.REACH);
+  const saddle: IAutoMovieVector3 = v(
+    0,
+    d.saddleHeight,
+    -createExerciseBike.SETBACK,
+  );
+  const bars: IAutoMovieVector3 = v(
+    0,
+    d.handlebarHeight,
+    createExerciseBike.REACH,
+  );
   builder.box("base", v(0.5, 0.06, 1.1), v(0, 0.03, 0), { color: "#2c2f33" });
-  builder.rod("seatPost", tube, v(0, 0.06, saddle.z), v(0, saddle.y - 0.03, saddle.z), { color: steel });
-  builder.rod("stem", tube, v(0, 0.06, bars.z), v(0, bars.y, bars.z), { color: steel });
-  builder.rod("downTube", tube, v(0, bracket, 0), v(0, bracket, bars.z), { color: steel });
-  builder.box("saddle", v(d.saddleWidth, 0.03, createExerciseBike.SADDLE), v(0, saddle.y - 0.015, saddle.z), {
-    color: "#22262b",
+  builder.rod(
+    "seatPost",
+    tube,
+    v(0, 0.06, saddle.z),
+    v(0, saddle.y - 0.03, saddle.z),
+    { color: steel },
+  );
+  builder.rod("stem", tube, v(0, 0.06, bars.z), v(0, bars.y, bars.z), {
+    color: steel,
   });
+  builder.rod("downTube", tube, v(0, bracket, 0), v(0, bracket, bars.z), {
+    color: steel,
+  });
+  builder.box(
+    "saddle",
+    v(d.saddleWidth, 0.03, createExerciseBike.SADDLE),
+    v(0, saddle.y - 0.015, saddle.z),
+    {
+      color: "#22262b",
+    },
+  );
   builder.affordance({
     id: "saddle",
     kind: "seat",
-    frame: ArchetypeFrame.upright(v(0, saddle.y, saddle.z + createExerciseBike.SADDLE / 2)),
+    frame: ArchetypeFrame.upright(
+      v(0, saddle.y, saddle.z + createExerciseBike.SADDLE / 2),
+    ),
     extent: null,
     depth: createExerciseBike.SADDLE,
     width: d.saddleWidth,
     astride: true,
   });
   const grip: number = createExerciseBike.GRIP;
-  builder.rod("handlebar", grip / 2, v(-d.handlebarWidth / 2, bars.y, bars.z), v(d.handlebarWidth / 2, bars.y, bars.z), {
-    color: "#1d1f22",
-  });
+  builder.rod(
+    "handlebar",
+    grip / 2,
+    v(-d.handlebarWidth / 2, bars.y, bars.z),
+    v(d.handlebarWidth / 2, bars.y, bars.z),
+    {
+      color: "#1d1f22",
+    },
+  );
   for (const [id, sign] of [
     ["leftGrip", 1],
     ["rightGrip", -1],
@@ -79,15 +115,29 @@ export function createExerciseBike(
     builder.affordance({
       id,
       kind: "handle",
-      frame: ArchetypeFrame.upright(v(sign * (d.handlebarWidth / 2 - 0.06), bars.y, bars.z)),
+      frame: ArchetypeFrame.upright(
+        v(sign * (d.handlebarWidth / 2 - 0.06), bars.y, bars.z),
+      ),
       extent: null,
       grip: "power",
       aperture: grip,
       length: 0.12,
     });
   const half: number = createExerciseBike.STANCE / 2;
-  builder.rod("crank-left", 0.01, v(half, bracket, 0), v(half, bracket + d.crank, 0), { color: "#8a8d91" });
-  builder.rod("crank-right", 0.01, v(-half, bracket, 0), v(-half, bracket - d.crank, 0), { color: "#8a8d91" });
+  builder.rod(
+    "crank-left",
+    0.01,
+    v(half, bracket, 0),
+    v(half, bracket + d.crank, 0),
+    { color: "#8a8d91" },
+  );
+  builder.rod(
+    "crank-right",
+    0.01,
+    v(-half, bracket, 0),
+    v(-half, bracket - d.crank, 0),
+    { color: "#8a8d91" },
+  );
   builder.affordance({
     id: "crank",
     kind: "crank",
@@ -96,15 +146,25 @@ export function createExerciseBike(
     radius: d.crank,
     parts: ["crank-left", "crank-right"],
   });
-  const pedal: Readonly<{ width: number; depth: number }> = createExerciseBike.PEDAL;
+  const pedal: Readonly<{ width: number; depth: number }> =
+    createExerciseBike.PEDAL;
   for (const [id, sign] of [
     ["leftPedal", 1],
     ["rightPedal", -1],
   ] as const) {
-    const at: IAutoMovieVector3 = v(sign * (half + pedal.width / 2), bracket + sign * d.crank, 0);
-    builder.box(`pedal-${sign === 1 ? "left" : "right"}`, v(pedal.width, 0.02, pedal.depth), v(at.x, at.y - 0.01, at.z), {
-      color: "#22262b",
-    });
+    const at: IAutoMovieVector3 = v(
+      sign * (half + pedal.width / 2),
+      bracket + sign * d.crank,
+      0,
+    );
+    builder.box(
+      `pedal-${sign === 1 ? "left" : "right"}`,
+      v(pedal.width, 0.02, pedal.depth),
+      v(at.x, at.y - 0.01, at.z),
+      {
+        color: "#22262b",
+      },
+    );
     builder.affordance({
       id,
       kind: "pedal",
@@ -201,7 +261,12 @@ export namespace createExerciseBike {
     handlebarHeight: ArchetypeBand.metres(0.95, 1.2, MAKER, true),
     handlebarWidth: ArchetypeBand.metres(0.45, 0.55, MAKER, true),
     saddleWidth: ArchetypeBand.metres(0.14, 0.18, MAKER, true),
-    crank: ArchetypeBand.metres(0.165, 0.175, "the common 165 to 175 mm crank arms, recalled and not read", true),
+    crank: ArchetypeBand.metres(
+      0.165,
+      0.175,
+      "the common 165 to 175 mm crank arms, recalled and not read",
+      true,
+    ),
     mass: ArchetypeBand.of("kg", 35, 60, MAKER, true),
   };
 }

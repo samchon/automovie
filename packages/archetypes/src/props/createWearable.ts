@@ -59,12 +59,26 @@ export function createWearable(
   const thin: number = createWearable.THIN;
   if (kind === "watch") {
     // The strap flat along Z, the case on its middle.
-    builder.box("strap", v(createWearable.STRAP, thin, d.depth), v(0, thin / 2, 0), { color: "#2c2f33" });
-    builder.box("case", v(d.width, d.height, d.width), v(0, thin + d.height / 2, 0), { color: "#b9bcc0" });
+    builder.box(
+      "strap",
+      v(createWearable.STRAP, thin, d.depth),
+      v(0, thin / 2, 0),
+      { color: "#2c2f33" },
+    );
+    builder.box(
+      "case",
+      v(d.width, d.height, d.width),
+      v(0, thin + d.height / 2, 0),
+      { color: "#b9bcc0" },
+    );
     builder.affordance({
       id: "hold",
       kind: "handle",
-      frame: ArchetypeFrame.facing(v(0, thin + d.height / 2, 0), v(1, 0, 0), v(0, 0, 1)),
+      frame: ArchetypeFrame.facing(
+        v(0, thin + d.height / 2, 0),
+        v(1, 0, 0),
+        v(0, 0, 1),
+      ),
       extent: null,
       grip: "precision",
       aperture: d.width,
@@ -85,12 +99,20 @@ export function createWearable(
     });
   } else if (kind === "hat") {
     // The brim on the table, the crown up from it.
-    builder.rod("brim", d.width / 2, v(0, 0, 0), v(0, thin, 0), { color: "#3a3d42" });
-    builder.rod("crown", d.depth / 2, v(0, thin, 0), v(0, d.height, 0), { color: "#3a3d42" });
+    builder.rod("brim", d.width / 2, v(0, 0, 0), v(0, thin, 0), {
+      color: "#3a3d42",
+    });
+    builder.rod("crown", d.depth / 2, v(0, thin, 0), v(0, d.height, 0), {
+      color: "#3a3d42",
+    });
     builder.affordance({
       id: "hold",
       kind: "handle",
-      frame: ArchetypeFrame.facing(v(0, thin / 2, d.width / 2 - 0.02), v(0, 1, 0), v(1, 0, 0)),
+      frame: ArchetypeFrame.facing(
+        v(0, thin / 2, d.width / 2 - 0.02),
+        v(0, 1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
       grip: "precision",
       aperture: thin,
@@ -103,7 +125,9 @@ export function createWearable(
     });
   } else {
     // The front standing on its lenses' bottom edge, the temples back from its ends.
-    builder.box("front", v(d.width, d.height, thin), v(0, d.height / 2, 0), { color: "#1d1f22" });
+    builder.box("front", v(d.width, d.height, thin), v(0, d.height / 2, 0), {
+      color: "#1d1f22",
+    });
     for (const [id, sign] of [
       ["leftTemple", 1],
       ["rightTemple", -1],
@@ -118,7 +142,11 @@ export function createWearable(
     builder.affordance({
       id: "hold",
       kind: "handle",
-      frame: ArchetypeFrame.facing(v(0, d.height / 2, 0), v(0, 0, 1), v(1, 0, 0)),
+      frame: ArchetypeFrame.facing(
+        v(0, d.height / 2, 0),
+        v(0, 0, 1),
+        v(1, 0, 0),
+      ),
       extent: null,
       grip: "precision",
       aperture: thin,
@@ -126,7 +154,11 @@ export function createWearable(
     builder.affordance({
       id: "wear",
       kind: "socket",
-      frame: ArchetypeFrame.facing(v(0, d.height * 0.4, -thin / 2), v(0, 0, -1), v(1, 0, 0)),
+      frame: ArchetypeFrame.facing(
+        v(0, d.height * 0.4, -thin / 2),
+        v(0, 0, -1),
+        v(1, 0, 0),
+      ),
       extent: null,
     });
   }
@@ -194,7 +226,12 @@ export namespace createWearable {
     },
     hat: {
       width: ArchetypeBand.metres(0.3, 0.4, MAKER, true),
-      depth: ArchetypeBand.metres(0.17, 0.2, "a head's breadth and length inside the crown, an estimate", true),
+      depth: ArchetypeBand.metres(
+        0.17,
+        0.2,
+        "a head's breadth and length inside the crown, an estimate",
+        true,
+      ),
       height: ArchetypeBand.metres(0.1, 0.15, MAKER, true),
       mass: ArchetypeBand.of("kg", 0.08, 0.2, MAKER, true),
     },

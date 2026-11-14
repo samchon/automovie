@@ -35,7 +35,12 @@ export function createRelayBaton(
   seed?: number | string,
 ): Archetype<createRelayBaton.Affordance, createRelayBaton.Dimension> {
   const d: Record<createRelayBaton.Dimension, number> =
-    ArchetypeDraw.dimensions("relayBaton", createRelayBaton.BANDS, seed, params);
+    ArchetypeDraw.dimensions(
+      "relayBaton",
+      createRelayBaton.BANDS,
+      seed,
+      params,
+    );
   const builder: ArchetypeBuilder<
     createRelayBaton.Affordance,
     createRelayBaton.Dimension
@@ -124,7 +129,12 @@ export namespace createRelayBaton {
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
     length: ArchetypeBand.metres(0.28, 0.3, `${RULE}: 28 to 30 cm long`, true),
-    diameter: ArchetypeBand.metres(0.038, 0.042, `${RULE}: 40 mm across, to 2 mm`, true),
+    diameter: ArchetypeBand.metres(
+      0.038,
+      0.042,
+      `${RULE}: 40 mm across, to 2 mm`,
+      true,
+    ),
     mass: ArchetypeBand.of(
       "kg",
       0.05,

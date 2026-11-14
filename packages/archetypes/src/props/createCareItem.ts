@@ -165,8 +165,10 @@ export function createCareItem(
 
   if (kind === "toothbrush" || kind === "razor") {
     // A handle with a head at its far end, its working face up: bristles, or a razor's cartridge of blades.
-    const head: number = kind === "razor" ? createCareItem.CARTRIDGE.depth : 0.028;
-    const across: number = kind === "razor" ? createCareItem.CARTRIDGE.width : width;
+    const head: number =
+      kind === "razor" ? createCareItem.CARTRIDGE.depth : 0.028;
+    const across: number =
+      kind === "razor" ? createCareItem.CARTRIDGE.width : width;
     builder.rod(
       "handle",
       width / 2,

@@ -27,16 +27,20 @@ export function test_archetype_jump_placed(): void {
   const findings: string[] = archetypePlaced([
     { name: "vaultingPole", archetype: createVaultingPole() },
     { name: "highJump", archetype: createHighJump(), yaw: 90 },
-    ...createLandingMat.KINDS.map((kind: createLandingMat.Kind): archetypePlaced.IRow => ({
-      name: `landingMat-${kind}`,
-      archetype: createLandingMat({ kind }),
-      yaw: 45,
-    })),
-    ...createVaultingTable.KINDS.map((kind: createVaultingTable.Kind): archetypePlaced.IRow => ({
-      name: `vaultingTable-${kind}`,
-      archetype: createVaultingTable({ kind }),
-      yaw: 180,
-    })),
+    ...createLandingMat.KINDS.map(
+      (kind: createLandingMat.Kind): archetypePlaced.IRow => ({
+        name: `landingMat-${kind}`,
+        archetype: createLandingMat({ kind }),
+        yaw: 45,
+      }),
+    ),
+    ...createVaultingTable.KINDS.map(
+      (kind: createVaultingTable.Kind): archetypePlaced.IRow => ({
+        name: `vaultingTable-${kind}`,
+        archetype: createVaultingTable({ kind }),
+        yaw: 180,
+      }),
+    ),
   ]);
   const row = (
     name: string,
@@ -102,8 +106,7 @@ export function test_archetype_jump_placed(): void {
         1.36,
         "FIG norms, 135 cm to 1 cm",
         (seed: number): number =>
-          archetypeExtent(createVaultingTable({ kind: "men" }, seed), "y")
-            .high,
+          archetypeExtent(createVaultingTable({ kind: "men" }, seed), "y").high,
       ),
       row(
         "women's vaulting table height",

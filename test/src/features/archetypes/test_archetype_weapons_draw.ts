@@ -137,11 +137,17 @@ export function test_archetype_weapons_draw(): void {
           laws: [],
           props: [
             {
-              ...HumanObject.prop("carrier", draw.carrier, { at: { x: 0, y: 0, z: 0 }, yaw: 0 }),
+              ...HumanObject.prop("carrier", draw.carrier, {
+                at: { x: 0, y: 0, z: 0 },
+                yaw: 0,
+              }),
               worn: { subject: "a", bone: draw.bone, offset: carrier },
             },
             {
-              ...HumanObject.prop("weapon", draw.weapon, { at: { x: 0, y: 0, z: 0 }, yaw: 0 }),
+              ...HumanObject.prop("weapon", draw.weapon, {
+                at: { x: 0, y: 0, z: 0 },
+                yaw: 0,
+              }),
               worn: { subject: "a", bone: draw.bone, offset: weapon },
             },
           ],
@@ -183,7 +189,10 @@ export function test_archetype_weapons_draw(): void {
         const b: IAutoMovieResolvedBone = film.bones("a", seconds).get(bone)!;
         return Quaternion.rotateVector(
           Quaternion.inverse(b.worldRotation),
-          Vector3.subtract(film.prop("weapon", seconds).position, b.worldPosition),
+          Vector3.subtract(
+            film.prop("weapon", seconds).position,
+            b.worldPosition,
+          ),
         );
       };
       const drift = (
@@ -194,7 +203,10 @@ export function test_archetype_weapons_draw(): void {
         const first: IAutoMovieVector3 = relative(from, bone);
         let most: number = 0;
         for (let s: number = from; s <= to; s += 0.1)
-          most = Math.max(most, Vector3.length(Vector3.subtract(relative(s, bone), first)));
+          most = Math.max(
+            most,
+            Vector3.length(Vector3.subtract(relative(s, bone), first)),
+          );
         return most;
       };
 
@@ -207,9 +219,15 @@ export function test_archetype_weapons_draw(): void {
 
       // 3. Out of the carrier after the lift.
       const after: number = pick.start + pick.plan.duration;
-      const placed = (prop: string, local: IAutoMovieVector3): IAutoMovieVector3 => {
+      const placed = (
+        prop: string,
+        local: IAutoMovieVector3,
+      ): IAutoMovieVector3 => {
         const frame: IHumanProp.IFrame = film.prop(prop, after);
-        return Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, local));
+        return Vector3.add(
+          frame.position,
+          Quaternion.rotateVector(frame.rotation, local),
+        );
       };
       const tip: IAutoMovieVector3 = placed("weapon", draw.tip);
       const mouth: IAutoMovieVector3 = placed("carrier", draw.opening);
@@ -227,5 +245,9 @@ export function test_archetype_weapons_draw(): void {
         );
     }
   }
-  TestValidator.equals("a weapon is drawn from its worn carrier", complaints, []);
+  TestValidator.equals(
+    "a weapon is drawn from its worn carrier",
+    complaints,
+    [],
+  );
 }

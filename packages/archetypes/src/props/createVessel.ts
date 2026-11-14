@@ -61,10 +61,26 @@ export function createVessel(
   const color: string = createVessel.COLORS[kind];
   builder.rod("floor", r, v(0, 0, 0), v(0, wall, 0), { color });
   for (const [id, size, at] of [
-    ["wallFront", v(d.diameter, d.height - wall, wall), v(0, (d.height + wall) / 2, r - wall / 2)],
-    ["wallBack", v(d.diameter, d.height - wall, wall), v(0, (d.height + wall) / 2, -r + wall / 2)],
-    ["wallLeft", v(wall, d.height - wall, d.diameter - 2 * wall), v(r - wall / 2, (d.height + wall) / 2, 0)],
-    ["wallRight", v(wall, d.height - wall, d.diameter - 2 * wall), v(-r + wall / 2, (d.height + wall) / 2, 0)],
+    [
+      "wallFront",
+      v(d.diameter, d.height - wall, wall),
+      v(0, (d.height + wall) / 2, r - wall / 2),
+    ],
+    [
+      "wallBack",
+      v(d.diameter, d.height - wall, wall),
+      v(0, (d.height + wall) / 2, -r + wall / 2),
+    ],
+    [
+      "wallLeft",
+      v(wall, d.height - wall, d.diameter - 2 * wall),
+      v(r - wall / 2, (d.height + wall) / 2, 0),
+    ],
+    [
+      "wallRight",
+      v(wall, d.height - wall, d.diameter - 2 * wall),
+      v(-r + wall / 2, (d.height + wall) / 2, 0),
+    ],
   ] as const)
     builder.box(id, size, at, { color });
   builder.affordance({
@@ -86,13 +102,23 @@ export function createVessel(
   const grip: number = createVessel.GRIP;
   if (kind === "saucepan") {
     const length: number = createVessel.HANDLE;
-    builder.rod("handle", grip / 2, v(r, d.height - grip, 0), v(r + length, d.height - grip, 0), {
-      color: "#2c2f33",
-    });
+    builder.rod(
+      "handle",
+      grip / 2,
+      v(r, d.height - grip, 0),
+      v(r + length, d.height - grip, 0),
+      {
+        color: "#2c2f33",
+      },
+    );
     builder.affordance({
       id: "handle",
       kind: "handle",
-      frame: ArchetypeFrame.facing(v(r + length / 2, d.height - grip, 0), v(0, 1, 0), v(1, 0, 0)),
+      frame: ArchetypeFrame.facing(
+        v(r + length / 2, d.height - grip, 0),
+        v(0, 1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
       grip: "power",
       aperture: grip,
@@ -104,13 +130,23 @@ export function createVessel(
       ["rightHandle", -1],
     ] as const) {
       const x: number = sign * (r + 0.03);
-      builder.rod(id, grip / 2, v(x, d.height - grip, -0.05), v(x, d.height - grip, 0.05), {
-        color: "#2c2f33",
-      });
+      builder.rod(
+        id,
+        grip / 2,
+        v(x, d.height - grip, -0.05),
+        v(x, d.height - grip, 0.05),
+        {
+          color: "#2c2f33",
+        },
+      );
       builder.affordance({
         id,
         kind: "handle",
-        frame: ArchetypeFrame.facing(v(x, d.height - grip, 0), v(0, 1, 0), v(0, 0, 1)),
+        frame: ArchetypeFrame.facing(
+          v(x, d.height - grip, 0),
+          v(0, 1, 0),
+          v(0, 0, 1),
+        ),
         extent: null,
         grip: "hook",
         aperture: grip,
@@ -142,7 +178,12 @@ export namespace createVessel {
   export type Kind = "bowl" | "ashtray" | "saucepan" | "stockpot";
 
   /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["bowl", "ashtray", "saucepan", "stockpot"];
+  export const KINDS: readonly Kind[] = [
+    "bowl",
+    "ashtray",
+    "saucepan",
+    "stockpot",
+  ];
 
   /** The wall's and the floor's thickness, metres: an estimate. */
   export const WALL: number = 0.005;

@@ -78,13 +78,22 @@ export function createStartingBlock(
     // face's bottom edge `back` behind the rail's front end.
     const centre: IAutoMovieVector3 = v(
       (side * (rail + plate.width)) / 2,
-      rail / 2 + (plate.height / 2) * Math.cos(tilt) + (plate.thick / 2) * Math.sin(tilt),
-      -back - (plate.height / 2) * Math.sin(tilt) - (plate.thick / 2) * Math.cos(tilt),
+      rail / 2 +
+        (plate.height / 2) * Math.cos(tilt) +
+        (plate.thick / 2) * Math.sin(tilt),
+      -back -
+        (plate.height / 2) * Math.sin(tilt) -
+        (plate.thick / 2) * Math.cos(tilt),
     );
-    builder.box(`${id}Plate`, v(plate.width, plate.height, plate.thick), centre, {
-      color: "#2c2f33",
-      rotation,
-    });
+    builder.box(
+      `${id}Plate`,
+      v(plate.width, plate.height, plate.thick),
+      centre,
+      {
+        color: "#2c2f33",
+        rotation,
+      },
+    );
     builder.affordance({
       id,
       kind: "pedal",
@@ -114,7 +123,11 @@ export namespace createStartingBlock {
   export const RAIL: number = 0.06;
 
   /** Each plate's width across the foot, height along its face and thickness, metres: estimates. */
-  export const PLATE: Readonly<{ width: number; height: number; thick: number }> = {
+  export const PLATE: Readonly<{
+    width: number;
+    height: number;
+    thick: number;
+  }> = {
     width: 0.12,
     height: 0.2,
     thick: 0.02,

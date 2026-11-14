@@ -56,11 +56,35 @@ export function test_archetype_gym_used(): void {
       mat: { x: 0, y: 0, z: -1.5 },
     };
   const supports: ReadonlyArray<
-    readonly [string, string, "rower" | "bike" | "mat", string, IAutoMovieVector3]
+    readonly [
+      string,
+      string,
+      "rower" | "bike" | "mat",
+      string,
+      IAutoMovieVector3,
+    ]
   > = [
-    ["rowing", "catch1", "rower", "seat", rower.affordance("seat").frame.translation],
-    ["cycling", "leftBottom1", "bike", "saddle", bike.affordance("saddle").frame.translation],
-    ["sitUp", "down1", "mat", "surface", mat.affordance("surface").frame.translation],
+    [
+      "rowing",
+      "catch1",
+      "rower",
+      "seat",
+      rower.affordance("seat").frame.translation,
+    ],
+    [
+      "cycling",
+      "leftBottom1",
+      "bike",
+      "saddle",
+      bike.affordance("saddle").frame.translation,
+    ],
+    [
+      "sitUp",
+      "down1",
+      "mat",
+      "surface",
+      mat.affordance("surface").frame.translation,
+    ],
   ];
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
@@ -73,7 +97,11 @@ export function test_archetype_gym_used(): void {
       yaw: 0,
       proficiency: { level: "trained" },
     };
-    const when = (film: HumanPerformance, row: string, event: string): number => {
+    const when = (
+      film: HumanPerformance,
+      row: string,
+      event: string,
+    ): number => {
       const found: HumanSegment.ISegment = film
         .segments("a")
         .find((s: HumanSegment.ISegment): boolean => s.name === row)!;
@@ -107,7 +135,12 @@ export function test_archetype_gym_used(): void {
         ],
         composition: chain.node,
       });
-      const reader: HumanSignature.IReader = HumanSignature.of(film, "a", body, 0);
+      const reader: HumanSignature.IReader = HumanSignature.of(
+        film,
+        "a",
+        body,
+        0,
+      );
       for (const [row, event, prop, , local] of supports) {
         const seconds: number = when(film, row, event);
         const hips: IAutoMovieVector3 = Vector3.lerp(

@@ -47,18 +47,61 @@ export function test_archetype_everyday_placed(): void {
       }),
     );
   const findings: string[] = archetypePlaced([
-    { name: "careItem-razor", archetype: createCareItem({ kind: "razor" }), yaw: 0 },
-    { name: "careItem-lipstick", archetype: createCareItem({ kind: "lipstick" }), yaw: 20 },
+    {
+      name: "careItem-razor",
+      archetype: createCareItem({ kind: "razor" }),
+      yaw: 0,
+    },
+    {
+      name: "careItem-lipstick",
+      archetype: createCareItem({ kind: "lipstick" }),
+      yaw: 20,
+    },
     { name: "tool-fork", archetype: createTool({ kind: "fork" }), yaw: 40 },
-    ...kinds("vessel", createVessel.KINDS, (kind: createVessel.Kind): Archetype => createVessel({ kind }), 60),
-    ...kinds("wearable", createWearable.KINDS, (kind: createWearable.Kind): Archetype => createWearable({ kind }), 80),
-    ...kinds("keyboard", createKeyboard.KINDS, (kind: createKeyboard.Kind): Archetype => createKeyboard({ kind }), 100),
-    ...kinds("cleaning", createCleaning.KINDS, (kind: createCleaning.Kind): Archetype => createCleaning({ kind }), 120),
-    ...kinds("tray", createTray.KINDS, (kind: createTray.Kind): Archetype => createTray({ kind }), 140),
+    ...kinds(
+      "vessel",
+      createVessel.KINDS,
+      (kind: createVessel.Kind): Archetype => createVessel({ kind }),
+      60,
+    ),
+    ...kinds(
+      "wearable",
+      createWearable.KINDS,
+      (kind: createWearable.Kind): Archetype => createWearable({ kind }),
+      80,
+    ),
+    ...kinds(
+      "keyboard",
+      createKeyboard.KINDS,
+      (kind: createKeyboard.Kind): Archetype => createKeyboard({ kind }),
+      100,
+    ),
+    ...kinds(
+      "cleaning",
+      createCleaning.KINDS,
+      (kind: createCleaning.Kind): Archetype => createCleaning({ kind }),
+      120,
+    ),
+    ...kinds(
+      "tray",
+      createTray.KINDS,
+      (kind: createTray.Kind): Archetype => createTray({ kind }),
+      140,
+    ),
     { name: "torch", archetype: createTorch(), yaw: 160 },
     { name: "pram", archetype: createPram(), yaw: 180 },
-    ...kinds("scabbard", createScabbard.KINDS, (kind: createScabbard.Kind): Archetype => createScabbard({ kind }), 200),
-    ...kinds("weaponLoop", createWeaponLoop.KINDS, (kind: createWeaponLoop.Kind): Archetype => createWeaponLoop({ kind }), 220),
+    ...kinds(
+      "scabbard",
+      createScabbard.KINDS,
+      (kind: createScabbard.Kind): Archetype => createScabbard({ kind }),
+      200,
+    ),
+    ...kinds(
+      "weaponLoop",
+      createWeaponLoop.KINDS,
+      (kind: createWeaponLoop.Kind): Archetype => createWeaponLoop({ kind }),
+      220,
+    ),
     { name: "weaponRack", archetype: createWeaponRack(), yaw: 240 },
   ]);
   const row = (
@@ -78,18 +121,46 @@ export function test_archetype_everyday_placed(): void {
   const pitch: number = 0.01905;
   findings.push(
     ...archetypeBandSweep([
-      row("razor length", 0.13, 0.15, "makers' cartridge razors", (seed: number): number =>
-        archetypeExtent(createCareItem({ kind: "razor" }, seed), "z").size),
-      row("home row behind the key field's front", 2.5 * pitch, 2.5 * pitch, "a 19.05 mm key pitch, the home row the third row", (seed: number): number => {
-        const keyboard: ReturnType<typeof createKeyboard> = createKeyboard({ kind: "keyboard" }, seed);
-        const keys: ReturnType<typeof keyboard.affordance> = keyboard.affordance("keys");
-        const front: number = keys.frame.translation.z + keys.depth! / 2;
-        return front - keyboard.affordance("homeRow").frame.translation.z;
-      }),
-      row("sword scabbard length", 0.8, 1.08, "createSword's blades with room", (seed: number): number =>
-        archetypeExtent(createScabbard({ kind: "sword" }, seed), "y").size),
-      row("pram handle height", 0.95, 1.1, "makers' prams", (seed: number): number =>
-        createPram({}, seed).affordance("handle").frame.translation.y),
+      row(
+        "razor length",
+        0.13,
+        0.15,
+        "makers' cartridge razors",
+        (seed: number): number =>
+          archetypeExtent(createCareItem({ kind: "razor" }, seed), "z").size,
+      ),
+      row(
+        "home row behind the key field's front",
+        2.5 * pitch,
+        2.5 * pitch,
+        "a 19.05 mm key pitch, the home row the third row",
+        (seed: number): number => {
+          const keyboard: ReturnType<typeof createKeyboard> = createKeyboard(
+            { kind: "keyboard" },
+            seed,
+          );
+          const keys: ReturnType<typeof keyboard.affordance> =
+            keyboard.affordance("keys");
+          const front: number = keys.frame.translation.z + keys.depth! / 2;
+          return front - keyboard.affordance("homeRow").frame.translation.z;
+        },
+      ),
+      row(
+        "sword scabbard length",
+        0.8,
+        1.08,
+        "createSword's blades with room",
+        (seed: number): number =>
+          archetypeExtent(createScabbard({ kind: "sword" }, seed), "y").size,
+      ),
+      row(
+        "pram handle height",
+        0.95,
+        1.1,
+        "makers' prams",
+        (seed: number): number =>
+          createPram({}, seed).affordance("handle").frame.translation.y,
+      ),
     ]),
   );
   TestValidator.equals(

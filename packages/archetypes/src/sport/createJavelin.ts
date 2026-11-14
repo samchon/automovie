@@ -158,8 +158,16 @@ export namespace createJavelin {
   > = {
     men: {
       length: m(2.6, 2.7, "the men's 2.60 to 2.70 m long"),
-      diameter: m(0.025, 0.03, "the men's shaft 25 to 30 mm across at its thickest"),
-      balance: m(0.9, 1.06, "the men's centre of gravity 0.90 to 1.06 m from the point"),
+      diameter: m(
+        0.025,
+        0.03,
+        "the men's shaft 25 to 30 mm across at its thickest",
+      ),
+      balance: m(
+        0.9,
+        1.06,
+        "the men's centre of gravity 0.90 to 1.06 m from the point",
+      ),
       mass: ArchetypeBand.of(
         "kg",
         0.8,
@@ -170,8 +178,16 @@ export namespace createJavelin {
     },
     women: {
       length: m(2.2, 2.3, "the women's 2.20 to 2.30 m long"),
-      diameter: m(0.02, 0.025, "the women's shaft 20 to 25 mm across at its thickest"),
-      balance: m(0.8, 0.92, "the women's centre of gravity 0.80 to 0.92 m from the point"),
+      diameter: m(
+        0.02,
+        0.025,
+        "the women's shaft 20 to 25 mm across at its thickest",
+      ),
+      balance: m(
+        0.8,
+        0.92,
+        "the women's centre of gravity 0.80 to 0.92 m from the point",
+      ),
       mass: ArchetypeBand.of(
         "kg",
         0.6,

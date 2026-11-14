@@ -46,13 +46,15 @@ export function createGlove(
     seed,
     params,
   );
-  const builder: ArchetypeBuilder<createGlove.Affordance, createGlove.Dimension> =
-    new ArchetypeBuilder({
-      archetype: "glove",
-      id: params.id,
-      name: kind === "fielder" ? "fielder's glove" : "catcher's mitt",
-      dimensions: d,
-    });
+  const builder: ArchetypeBuilder<
+    createGlove.Affordance,
+    createGlove.Dimension
+  > = new ArchetypeBuilder({
+    archetype: "glove",
+    id: params.id,
+    name: kind === "fielder" ? "fielder's glove" : "catcher's mitt",
+    dimensions: d,
+  });
   const thick: number = createGlove.THICKNESS[kind];
   builder.box(
     "glove",
@@ -129,8 +131,11 @@ export namespace createGlove {
   }
 
   /** A provisional band in metres. */
-  const m = (minimum: number, maximum: number, source: string): IArchetypeBand =>
-    ArchetypeBand.metres(minimum, maximum, source, true);
+  const m = (
+    minimum: number,
+    maximum: number,
+    source: string,
+  ): IArchetypeBand => ArchetypeBand.metres(minimum, maximum, source, true);
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
@@ -147,7 +152,13 @@ export namespace createGlove {
         7.75 * INCH,
         "Official Baseball Rules 3.06: at most 7 3/4 in wide across the palm; the narrower end is a maker's",
       ),
-      mass: ArchetypeBand.of("kg", 0.5, 0.7, "a maker's glove, not read at a source", true),
+      mass: ArchetypeBand.of(
+        "kg",
+        0.5,
+        0.7,
+        "a maker's glove, not read at a source",
+        true,
+      ),
     },
     catcher: {
       length: m(
@@ -160,7 +171,13 @@ export namespace createGlove {
         12.1 * INCH,
         "Official Baseball Rules 3.04: at most 38 in round, read as a width a third of it; an estimate",
       ),
-      mass: ArchetypeBand.of("kg", 0.6, 0.9, "a maker's mitt, not read at a source", true),
+      mass: ArchetypeBand.of(
+        "kg",
+        0.6,
+        0.9,
+        "a maker's mitt, not read at a source",
+        true,
+      ),
     },
   };
 }

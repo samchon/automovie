@@ -101,10 +101,22 @@ export function createTray(
       ["frontPost", 1],
       ["backPost", -1],
     ] as const)
-      builder.rod(id, grip / 2, v(0, d.height, sign * (hz - wall / 2)), v(0, bar, sign * (hz - wall / 2)), {
-        color,
-      });
-    builder.rod("handle", grip / 2, v(0, bar, -hz + wall / 2), v(0, bar, hz - wall / 2), { color });
+      builder.rod(
+        id,
+        grip / 2,
+        v(0, d.height, sign * (hz - wall / 2)),
+        v(0, bar, sign * (hz - wall / 2)),
+        {
+          color,
+        },
+      );
+    builder.rod(
+      "handle",
+      grip / 2,
+      v(0, bar, -hz + wall / 2),
+      v(0, bar, hz - wall / 2),
+      { color },
+    );
     builder.affordance({
       id: "handle",
       kind: "bar",

@@ -10,7 +10,8 @@ import {
 } from "../core";
 
 /** What a maker's stand reads as, not read at a source. */
-const MAKER: string = "a common floor stand for swords, clubs and bats, not read at a source";
+const MAKER: string =
+  "a common floor stand for swords, clubs and bats, not read at a source";
 
 /**
  * A floor weapon rack: a base with a row of slots and a top rail with a notch over each, where swords, clubs and bats stand upright.
@@ -54,9 +55,14 @@ export function createWeaponRack(
   const base: number = createWeaponRack.BASE;
   const post: number = createWeaponRack.POST;
   const half: number = d.width / 2;
-  builder.box("base", v(d.width, base, createWeaponRack.DEPTH), v(0, base / 2, 0), {
-    color: "#5a3e2b",
-  });
+  builder.box(
+    "base",
+    v(d.width, base, createWeaponRack.DEPTH),
+    v(0, base / 2, 0),
+    {
+      color: "#5a3e2b",
+    },
+  );
   for (const [id, x] of [
     ["leftPost", -half + post / 2],
     ["rightPost", half - post / 2],

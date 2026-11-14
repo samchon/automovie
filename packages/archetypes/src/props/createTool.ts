@@ -30,8 +30,7 @@ const SPOON: string =
   "IKEA DRAGON dessert spoon 16 cm and spoon 17 cm (https://www.ikea.com/fi/en/p/dragon-dessert-spoon-stainless-steel-50090381, https://www.ikea.com/ie/en/p/dragon-spoon-stainless-steel-30091763/); the teaspoon's 13 cm seen only in search results";
 
 /** A table fork, from a maker's listing recalled and not read. */
-const FORK: string =
-  "IKEA DRAGON fork, about 19 cm, recalled and not read";
+const FORK: string = "IKEA DRAGON fork, about 19 cm, recalled and not read";
 
 /**
  * A one-hand tool: a claw hammer, a hand saw, a screwdriver, a spoon or a fork.
@@ -315,7 +314,13 @@ export namespace createTool {
         "the 6 to 13 mm precision handle band of NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf), applied to a fork handle",
         true,
       ),
-      mass: ArchetypeBand.of("kg", 0.03, 0.06, ArchetypeBand.TYPICAL_MASS, true),
+      mass: ArchetypeBand.of(
+        "kg",
+        0.03,
+        0.06,
+        ArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
     },
   };
 }

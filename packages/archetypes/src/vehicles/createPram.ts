@@ -62,9 +62,14 @@ export function createPram(
     });
   const floor: number = 2 * wheel + createPram.CLEARANCE;
   const deep: number = createPram.DEPTH;
-  builder.box("bassinet", v(d.width - 0.06, deep, d.length), v(0, floor + deep / 2, 0), {
-    color: "#3a4a6b",
-  });
+  builder.box(
+    "bassinet",
+    v(d.width - 0.06, deep, d.length),
+    v(0, floor + deep / 2, 0),
+    {
+      color: "#3a4a6b",
+    },
+  );
   // The push rods from the bassinet's back up and back to the bar.
   const back: number = -hz - createPram.REACH;
   const grip: number = createPram.GRIP;
@@ -72,12 +77,24 @@ export function createPram(
     ["leftPushRod", hx - 0.05],
     ["rightPushRod", -hx + 0.05],
   ] as const)
-    builder.rod(id, grip / 2, v(x, floor + deep, -hz), v(x, d.handleHeight, back), {
-      color: "#8a8d91",
-    });
-  builder.rod("bar", grip / 2, v(-hx + 0.05, d.handleHeight, back), v(hx - 0.05, d.handleHeight, back), {
-    color: "#2c2f33",
-  });
+    builder.rod(
+      id,
+      grip / 2,
+      v(x, floor + deep, -hz),
+      v(x, d.handleHeight, back),
+      {
+        color: "#8a8d91",
+      },
+    );
+  builder.rod(
+    "bar",
+    grip / 2,
+    v(-hx + 0.05, d.handleHeight, back),
+    v(hx - 0.05, d.handleHeight, back),
+    {
+      color: "#2c2f33",
+    },
+  );
   builder.affordance({
     id: "handle",
     kind: "bar",

@@ -56,18 +56,48 @@ export function test_archetype_gym_placed(): void {
   });
   findings.push(
     ...archetypeBandSweep([
-      row("rowing seat height", 0.36, 0.51, "Concept2, 14 and 20 in seats", (seed: number): number =>
-        archetypeExtent(createRowingMachine({}, seed), "y", ["seat"]).high),
-      row("ring canvas height", 0.91, 1.22, "the ring rules, 0.91 to 1.22 m", (seed: number): number =>
-        archetypeExtent(createRing({}, seed), "y", ["platform"]).high),
-      row("ring top rope", 1.3, 1.35, "the ring rules, 1.30 m", (seed: number): number =>
-        archetypeExtent(createRing({}, seed), "y", ["northRope4"]).high -
-        createRing({}, seed).dimensions.platform! -
-        createRing.ROPE / 2),
-      row("skipping rope length", 2.4, 3, "makers' ropes", (seed: number): number =>
-        archetypeExtent(createJumpRope({}, seed), "x").size),
-      row("sled handle height", 0.95, 1.2, "makers' sleds", (seed: number): number =>
-        archetypeExtent(createSled({}, seed), "y", ["leftPole"]).high),
+      row(
+        "rowing seat height",
+        0.36,
+        0.51,
+        "Concept2, 14 and 20 in seats",
+        (seed: number): number =>
+          archetypeExtent(createRowingMachine({}, seed), "y", ["seat"]).high,
+      ),
+      row(
+        "ring canvas height",
+        0.91,
+        1.22,
+        "the ring rules, 0.91 to 1.22 m",
+        (seed: number): number =>
+          archetypeExtent(createRing({}, seed), "y", ["platform"]).high,
+      ),
+      row(
+        "ring top rope",
+        1.3,
+        1.35,
+        "the ring rules, 1.30 m",
+        (seed: number): number =>
+          archetypeExtent(createRing({}, seed), "y", ["northRope4"]).high -
+          createRing({}, seed).dimensions.platform! -
+          createRing.ROPE / 2,
+      ),
+      row(
+        "skipping rope length",
+        2.4,
+        3,
+        "makers' ropes",
+        (seed: number): number =>
+          archetypeExtent(createJumpRope({}, seed), "x").size,
+      ),
+      row(
+        "sled handle height",
+        0.95,
+        1.2,
+        "makers' sleds",
+        (seed: number): number =>
+          archetypeExtent(createSled({}, seed), "y", ["leftPole"]).high,
+      ),
     ]),
   );
   TestValidator.equals("the gym additions are placed and sized", findings, []);

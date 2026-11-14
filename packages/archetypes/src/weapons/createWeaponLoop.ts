@@ -145,13 +145,39 @@ export namespace createWeaponLoop {
     Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
   > = {
     belt: {
-      aperture: ArchetypeBand.metres(0.04, 0.05, "wider than a baton's shaft and narrower than its grip's end, an estimate", true),
-      length: ArchetypeBand.metres(0.025, 0.04, "a ring's depth, an estimate", true),
-      mass: ArchetypeBand.of("kg", 0.05, 0.12, ArchetypeBand.TYPICAL_MASS, true),
+      aperture: ArchetypeBand.metres(
+        0.04,
+        0.05,
+        "wider than a baton's shaft and narrower than its grip's end, an estimate",
+        true,
+      ),
+      length: ArchetypeBand.metres(
+        0.025,
+        0.04,
+        "a ring's depth, an estimate",
+        true,
+      ),
+      mass: ArchetypeBand.of(
+        "kg",
+        0.05,
+        0.12,
+        ArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
     },
     back: {
-      aperture: ArchetypeBand.metres(0.075, 0.09, "wider than a bat's barrel, at most 2.61 in across, an estimate", true),
-      length: ArchetypeBand.metres(0.25, 0.35, "a sleeve holding a bat's barrel, an estimate", true),
+      aperture: ArchetypeBand.metres(
+        0.075,
+        0.09,
+        "wider than a bat's barrel, at most 2.61 in across, an estimate",
+        true,
+      ),
+      length: ArchetypeBand.metres(
+        0.25,
+        0.35,
+        "a sleeve holding a bat's barrel, an estimate",
+        true,
+      ),
       mass: ArchetypeBand.of("kg", 0.2, 0.5, ArchetypeBand.TYPICAL_MASS, true),
     },
   };
