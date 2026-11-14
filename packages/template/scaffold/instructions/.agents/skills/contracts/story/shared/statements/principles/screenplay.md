@@ -13,7 +13,7 @@ Realization:
 
 Performance:
 
-5. Every required observable movement, interaction, reaction, expression the adopted representation can show, and sound is decided through its preparation, development and resulting state. For a commissioned generated film, so is each facial expression the representation cannot show.
+5. Every required observable movement, interaction, reaction, expression the adopted representation can show, and sound is decided through its preparation, development and resulting state.
 6. Where physical action matters, support, weight transfer, contact or separation, recovery and connecting movement are executable.
 7. No named technique, isolated key pose or emotional label stands in for that executable action.
 8. A specialist performance meets its study's density and distribution targets for the depicted level, with chained sequences, tempo changes and spatial strategy drawn from its research.
@@ -64,7 +64,7 @@ What each beat decides:
 
 2. The beat names who and what acts by their settings facts; on a short, by brief decisions, or by the standing state for a person or object only this scene shows.
 3. Each participant has an intent.
-4. The beat states its outcome and each body's reaction or consequence.
+4. The beat states its outcome and each body's reaction or consequence. For a commissioned generated film, the reaction includes each facial expression the representation cannot show, which the generation prompt carries.
 5. Position, camera and sound appear only where they change from the standing state as earlier beats left it. Exception: stillness the scene decides is stated where it matters.
 6. The beats cover the whole running time with the continuous response of everyone present. No stretch is summarized, as in "they dance".
 
@@ -72,7 +72,7 @@ What the modules can perform:
 
 7. Each action is one the installed motion vocabulary performs, alone or joined with others, or the one its cited research law describes.
 8. Each outcome is one the cited outcome table permits for the written intents and the performers' settings. An outcome the table forbids, or one no table covers, is undecided, not dramatic license.
-9. The beat asks the motion nothing the adopted representation cannot show, such as a facial expression on a polygon man. Exception: for a commissioned generated film, the beat's reaction decides that facial expression for the generation prompt.
+9. The beat asks the motion nothing the adopted representation cannot show, such as a facial expression on a polygon man.
 
 Measurements:
 
