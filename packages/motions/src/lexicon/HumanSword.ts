@@ -456,6 +456,7 @@ export namespace HumanSword {
         target: a.target,
         reach: a.reach,
         travel,
+        cone: CONE,
         posture: a.posture,
       });
       if (context.params.target !== undefined)

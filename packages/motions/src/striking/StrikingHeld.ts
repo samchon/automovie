@@ -54,6 +54,9 @@ export namespace StrikingHeld {
     /** The unit direction the tool cuts or sights along, square to the axis, hand frame. */
     edge: IAutoMovieVector3;
 
+    /** Whether the tool has no edge of its own: a prop that declares no edge affordance (a bat, a club), whose `edge` is then only a direction square to the axis, so its roll about its own line is free to the arm. False for the bare hand, whose edge is the little finger's side. */
+    rolls: boolean;
+
     /** The working length behind the point along the axis, metres: a blade's length, a barrel's; 0 for the bare hand. */
     length: number;
 
@@ -103,7 +106,7 @@ export namespace StrikingHeld {
    * @throws {HumanRefusal} When the prop lacks the working point's affordance, listing the ones it has.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input, the result's frame and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The prop's displayed frame at the entry second taken into the displayed hand's grip frame, the offset the performance itself keeps while the grip holds; an affordance's translation is its point and its rotated `+Y` its outward direction.
+   * @evidence contracts/development/implementation.md#principled-implementation The prop's displayed frame at the entry second taken into the displayed hand's grip frame, the offset the performance itself keeps while the grip holds; an affordance's translation is its point and its rotated `+Y` its outward direction; the tool's line is that `+Y` where the archetype declares it along the tool, and the line from the grip to the working point where it declares a face's normal (`IAutoMovieAffordance.direction`).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The bare hand first, then one change of frame for the point, the axis and the edge.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A prop without the named point is refused; an edge that is missing or parallel to the axis is replaced by a direction square to the axis, stated in `IPoints`.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One forward kinematics of the entry pose and a scan of the prop's affordances.
@@ -132,6 +135,7 @@ export namespace StrikingHeld {
         tip: { x: 0, y: 0, z: 0 },
         axis,
         edge: square(axis, Vector3.scale(grip.forward, -1)),
+        rolls: false,
         length: 0,
         span: null,
       };
@@ -144,7 +148,16 @@ export namespace StrikingHeld {
     );
     const tip: { point: IAutoMovieVector3; direction: IAutoMovieVector3 } =
       AutoMovieMotionHumanHeld.point(held, points.tip);
-    const axis: IAutoMovieVector3 = Vector3.normalize(tip.direction);
+    // The tool's line runs from the grip to its working point. A working
+    // affordance whose +Y the archetype declares along the tool (a muzzle, a
+    // sword's point) gives it; one whose +Y is a face's normal (a club's
+    // strike) gives only the point, and the line is the grip's to it.
+    const axis: IAutoMovieVector3 =
+      held.affordances.find(
+        (a: IAutoMovieAffordance): boolean => a.id === points.tip,
+      )?.direction === "normal"
+        ? Vector3.normalize(tip.point)
+        : Vector3.normalize(tip.direction);
     const edged:
       | { point: IAutoMovieVector3; direction: IAutoMovieVector3 }
       | undefined =
@@ -164,6 +177,7 @@ export namespace StrikingHeld {
       tip: tip.point,
       axis,
       edge: square(axis, edged?.direction ?? { x: 0, y: 1, z: 0 }),
+      rolls: edged === undefined,
       length,
       span:
         edged === undefined || run === undefined

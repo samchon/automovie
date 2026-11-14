@@ -52,12 +52,12 @@ export namespace StrikingRoll {
    * @param frame The hand frame asked.
    * @param back The point of the tool the pose keeps, metres behind its working point.
    * @param posture The body as it stands at the decisive instant.
-   * @returns The greater of the kept point's and the working point's displacement, metres.
+   * @returns The greater of the kept point's and the working point's displacement, metres; a pose that keeps the working point itself reads the line at the tool's own length in place of the kept point.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is fitted, on which body and what is measured.
    * @evidence contracts/development/implementation.md#principled-implementation The plan's own goal for the pose is resolved by the posture resolver, the fitted hand's grip frame is read by forward kinematics, and the tool's two points are carried by it: the displacement a viewer would see.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One goal, one resolution, one read-back.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both the kept point and the working point are read, so a tool that keeps its point and points elsewhere is counted.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both the kept point and the working point are read, so a tool that keeps its point and points elsewhere is counted; when the kept point is the working point, the line is read at the tool's length, so the count holds there too.
    * @evidence contracts/development/implementation.md#efficient-algorithms One elbow search and one posture resolution.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each pose is fitted once.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -109,7 +109,9 @@ export namespace StrikingRoll {
           StrikingHeld.point(tool, frame, behind),
         ),
       );
-    return Math.max(off(back), off(0));
+    // A pose that keeps its working point keeps the line through it read at
+    // the tool's own length, so its orientation still counts.
+    return Math.max(off(back > 0 ? back : tool.length), off(0));
   }
 
   /**
@@ -151,55 +153,57 @@ export namespace StrikingRoll {
         Math.abs(along.y) < 0.9 ? { x: 0, y: 1, z: 0 } : { x: 0, y: 0, z: 1 },
       ),
     );
-    const candidates: { frame: StrikingHeld.IHandFrame; rank: number }[] = [];
+    // A frame of the line leaned `tilt` toward `around` and turned `turn`
+    // about itself, degrees.
+    const frame = (values: readonly number[]): StrikingHeld.IHandFrame => {
+      const [tilt, around, turn] = values as readonly [number, number, number];
+      const run: IAutoMovieVector3 = Quaternion.rotateVector(
+        Quaternion.fromAxisAngle(along, around),
+        Quaternion.rotateVector(Quaternion.fromAxisAngle(aside, tilt), along),
+      );
+      return StrikingHeld.hand(
+        tool,
+        back,
+        at,
+        run,
+        Quaternion.rotateVector(
+          Quaternion.fromAxisAngle(run, turn),
+          Vector3.cross(run, aside),
+        ),
+      );
+    };
+    const candidates: { values: number[]; rank: number }[] = [];
     for (let tilt: number = 0; tilt <= cone + 1e-9; tilt += 10)
       for (let around: number = 0; around < 360; around += 45) {
-        const run: IAutoMovieVector3 = Quaternion.rotateVector(
-          Quaternion.fromAxisAngle(along, around),
-          Quaternion.rotateVector(Quaternion.fromAxisAngle(aside, tilt), along),
-        );
-        for (let turn: number = 0; turn < 360; turn += 30) {
-          const frame: StrikingHeld.IHandFrame = StrikingHeld.hand(
-            tool,
-            back,
-            at,
-            run,
-            Quaternion.rotateVector(
-              Quaternion.fromAxisAngle(run, turn),
-              Vector3.cross(run, aside),
-            ),
-          );
+        for (let turn: number = 0; turn < 360; turn += 30)
           candidates.push({
-            frame,
+            values: [tilt, around, turn],
             rank:
-              strained(context, tool, frame, from) +
+              strained(context, tool, frame([tilt, around, turn]), from) +
               (0.1 * tilt * Math.PI) / 180,
           });
-        }
         if (tilt === 0) break;
       }
     candidates.sort(
       (
-        a: { frame: StrikingHeld.IHandFrame; rank: number },
-        b: { frame: StrikingHeld.IHandFrame; rank: number },
+        a: { values: number[]; rank: number },
+        b: { values: number[]; rank: number },
       ): number => a.rank - b.rank,
     );
-    let best: StrikingHeld.IHandFrame = candidates[0]!.frame;
-    let least: number = Infinity;
-    for (const candidate of candidates.slice(0, TRIED)) {
-      const missed: number = miss(
-        context,
-        tool,
-        candidate.frame,
-        back,
-        posture,
-      );
-      if (missed < least - EXACT) {
-        least = missed;
-        best = candidate.frame;
-      }
-    }
-    return best;
+    return chosen(context, tool, {
+      frame,
+      tried: candidates
+        .slice(0, TRIED)
+        .map((c: { values: number[]; rank: number }): number[] => c.values),
+      steps: [cone > 0 ? 5 : 0, 22.5, 15],
+      bounds: [
+        [0, cone],
+        [-Infinity, Infinity],
+        [-Infinity, Infinity],
+      ],
+      back,
+      posture,
+    });
   }
 
   /**
@@ -235,6 +239,109 @@ export namespace StrikingRoll {
       frame,
       shoulder(context, tool.side, posture),
     );
+  }
+
+  /** The shares of each freedom's step a refinement takes in turn, halving: the last is an eighth of the first. */
+  export const REFINE: readonly number[] = [1, 0.5, 0.25, 0.125];
+
+  /** The most fits a refinement makes, a search budget: each fit is one posture resolution. */
+  export const FITS: number = 48;
+
+  /**
+   * The tool pose the arm holds, chosen from the freedoms a law leaves it.
+   *
+   * A law states a pose by values (a roll about the tool's line, a lean of
+   * the line inside a cone, an offset of the placed point inside a region)
+   * and the frame those values give. The arm is fitted to the law's tried
+   * values in its order of preference, nearest the asked pose first, and the
+   * first it holds exactly is taken. When none is held exactly, the least
+   * missed is refined by a pattern search (Hooke and Jeeves 1961): each
+   * freedom is stepped either way by `REFINE` of its step, a step that
+   * lessens the miss is kept, and the steps halve when none does, inside the
+   * freedoms' bounds and within `FITS` fits. `reachable` then judges the
+   * result, so a pose no freedom lets the arm hold is still refused.
+   *
+   * @param context The action's context.
+   * @param tool The tool.
+   * @param props The pose's frame by its values, the tried values in order of preference, each freedom's step and bounds, the point of the tool the pose keeps and the body at the decisive instant.
+   * @returns The chosen hand frame.
+   * @throws {Error} When no values are tried.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the order, the stop, the refinement, its source and budget, and who judges the result.
+   * @evidence contracts/development/implementation.md#principled-implementation Each pose is judged by `miss`, the fit that counts the shoulder's, the forearm's and the wrist's ranges, so the angle chosen is one the wrist can make; an exact hold (under `EXACT`) ends the search, and a later value wins only by more than that.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The tried values in order, then one pattern search.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The freedoms and their bounds are the law's; nothing is moved outside them, and the result is still judged by `reachable`.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fits are made lazily and stop at the first exact hold; a refinement makes at most `FITS`.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function chosen(
+    context: Pick<IHumanActionContext, "body">,
+    tool: StrikingHeld.ITool,
+    props: IChoice,
+  ): StrikingHeld.IHandFrame {
+    const { frame, tried, steps, bounds, back, posture } = props;
+    if (tried.length === 0) throw new Error("A tool pose has no candidate");
+    const within = (values: readonly number[]): number[] =>
+      values.map((v: number, i: number): number =>
+        Math.min(bounds[i]![1], Math.max(bounds[i]![0], v)),
+      );
+    let best: number[] = within(tried[0]!);
+    let least: number = Infinity;
+    for (const values of tried) {
+      if (least <= EXACT) break;
+      const v: number[] = within(values);
+      const missed: number = miss(context, tool, frame(v), back, posture);
+      if (missed < least - EXACT) {
+        least = missed;
+        best = v;
+      }
+    }
+    let fits: number = 0;
+    for (const share of REFINE)
+      for (let moved: boolean = true; moved; ) {
+        moved = false;
+        for (let d: number = 0; d < best.length && !moved; d++)
+          for (const sign of [1, -1]) {
+            if (least <= EXACT || fits >= FITS || steps[d] === 0) break;
+            const v: number[] = within(
+              best.map((x: number, i: number): number =>
+                i === d ? x + sign * share * steps[d]! : x,
+              ),
+            );
+            if (v[d] === best[d]) continue;
+            fits++;
+            const missed: number = miss(context, tool, frame(v), back, posture);
+            if (missed < least - EXACT) {
+              least = missed;
+              best = v;
+              moved = true;
+              break;
+            }
+          }
+      }
+    return frame(best);
+  }
+
+  /** A tool pose's freedoms as a law states them for `chosen`. */
+  export interface IChoice {
+    /** The hand frame the freedoms' values give. */
+    frame: (values: readonly number[]) => StrikingHeld.IHandFrame;
+
+    /** The values to fit first, in the law's order of preference, nearest the asked pose first. */
+    tried: readonly (readonly number[])[];
+
+    /** Each freedom's refinement step, in its own unit (degrees or metres); 0 holds the freedom at its tried value. */
+    steps: readonly number[];
+
+    /** Each freedom's least and greatest value. */
+    bounds: readonly (readonly [number, number])[];
+
+    /** The point of the tool the pose keeps, metres behind its working point. */
+    back: number;
+
+    /** The body as it stands at the decisive instant. */
+    posture: IHumanPosture;
   }
 
   /**
