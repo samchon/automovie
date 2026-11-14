@@ -1,5 +1,7 @@
 import {
   AutoMovieChain,
+  type IAutoMovieResolvedBone,
+  Quaternion,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
@@ -50,7 +52,10 @@ import { motionHumanLaw } from "./motionHumanLaw";
  *    mm of the region from `ready` to `relax` and its effector within 10 mm
  *    of where it arrived on it.
  * 7. Each hand ends within 10 mm of its place at the entry, and a hand the
- *    row does not use strays no more than 80 mm.
+ *    row does not use strays no more than 80 mm from where it hangs in the
+ *    trunk's frame (the chest's joint and turn): the idle arm's claim is to
+ *    stay at rest on the body, so a lean or a rise that carries the trunk
+ *    carries it too, as it carries the shoulder it hangs from.
  * 8. A one-hand row performed by the left hand on the mirrored region is
  *    the mirror image of the right hand's film within 5 mm, read 4 times a
  *    second.
@@ -199,14 +204,39 @@ export function motionHumanLawTouch(
           (found: string): string => (found === "Left" ? "Right" : "Left"),
         ),
       }) as AutoMovieMotionTarget;
+    const left: motionHumanLaw.IFilm = perform({
+      ...params,
+      target: flip(params.target),
+      side: "left",
+    });
     const mirrored = AutoMovieMotionHumanAuditDifference.measure(
       film,
-      perform({ ...params, target: flip(params.target), side: "left" }),
+      left,
       "a",
       { mirror: 0, rate: 4 },
     );
+    // Each film's acting arm and trunk at the second, as clinical triples
+    // that a mirror keeps equal, so a miss says which joint differs.
+    const acting = (shown: motionHumanLaw.IFilm, side: string): string =>
+      shown.performance
+        .pose("a", mirrored.distance.seconds)
+        .joints.filter((joint: IAutoMovieJointPose): boolean =>
+          [
+            "hips",
+            "spine",
+            "chest",
+            `${side}UpperArm`,
+            `${side}LowerArm`,
+            `${side}Hand`,
+          ].includes(joint.bone),
+        )
+        .map(
+          (joint: IAutoMovieJointPose): string =>
+            `${joint.bone.replace(side, "")} ${(joint.flexion ?? 0).toFixed(1)}/${(joint.abduction ?? 0).toFixed(1)}/${(joint.twist ?? 0).toFixed(1)}`,
+        )
+        .join(", ");
     return motionHumanLaw.expect(
-      `${label}: the left-hand touch is ${mm(mirrored.distance.value)} mm off the right-hand touch's mirror at ${mirrored.distance.seconds.toFixed(2)} s on ${mirrored.distance.where} (limit 5.0)`,
+      `${label}: the left-hand touch is ${mm(mirrored.distance.value)} mm off the right-hand touch's mirror at ${mirrored.distance.seconds.toFixed(2)} s on ${mirrored.distance.where} (limit 5.0; right ${acting(film, "right")}; left ${acting(left, "left")})`,
       mirrored.distance.value <= 0.005 && mirrored.duration <= 1e-9,
     );
   }
@@ -315,14 +345,38 @@ export function motionHumanLawTouch(
     );
   }
   if (params.other === undefined) {
-    const strayed: number = Math.max(
-      ...times.map((t: number): number =>
-        length(minus(wrist("left", t), wrist("left", 0))),
-      ),
+    // The idle wrist in the trunk's frame: where it hangs from the chest.
+    const hung = (t: number): IAutoMovieVector3 => {
+      const chest: IAutoMovieResolvedBone = film.bones("a", t).get("chest")!;
+      return Quaternion.rotateVector(
+        Quaternion.inverse(chest.worldRotation),
+        minus(wrist("left", t), chest.worldPosition),
+      );
+    };
+    const strays: number[] = times.map((t: number): number =>
+      length(minus(hung(t), hung(0))),
     );
+    const strayed: number = Math.max(...strays);
+    // Where the idle arm is when it strays farthest, so a complaint says
+    // whether the arm itself or the trunk under it moved.
+    const when: number = times[strays.indexOf(strayed)] ?? 0;
+    const joints = (t: number): string =>
+      film.performance
+        .pose("a", t)
+        .joints.filter((joint: IAutoMovieJointPose): boolean =>
+          ["hips", "spine", "chest", "leftUpperArm", "leftLowerArm"].includes(
+            joint.bone,
+          ),
+        )
+        .map(
+          (joint: IAutoMovieJointPose): string =>
+            `${joint.bone} ${(joint.flexion ?? 0).toFixed(0)}/${(joint.abduction ?? 0).toFixed(0)}/${(joint.twist ?? 0).toFixed(0)}`,
+        )
+        .join(", ") +
+      `, hips at ${((p: IAutoMovieVector3): string => `${(p.x * 1000).toFixed(0)}/${(p.y * 1000).toFixed(0)}/${(p.z * 1000).toFixed(0)} mm`)(film.bones("a", t).get("hips")!.worldPosition)}`;
     out.push(
       ...motionHumanLaw.expect(
-        `${label}: the idle hand strays ${mm(strayed)} mm (limit 80.0)`,
+        `${label}: the idle hand strays ${mm(strayed)} mm in the trunk's frame (limit 80.0) at ${when.toFixed(3)} s (${joints(when)}; at 0 s ${joints(0)})`,
         strayed <= 0.08,
       ),
     );
