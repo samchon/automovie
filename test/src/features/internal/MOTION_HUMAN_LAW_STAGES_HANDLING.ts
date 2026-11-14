@@ -1,4 +1,4 @@
-import { createTool, createVessel } from "@automovie/archetypes";
+import { createBall, createTool, createVessel } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -133,7 +133,12 @@ const throwing = (
 ): motionHumanLawSweep.IScene => {
   const distance: number =
     style === "overarm" ? 6 : style === "underarm" ? 4 : 2.5;
-  return S.duo(a, b, distance, [
+  const ball: ReturnType<typeof createBall> = createBall({ kind: "handball" });
+  return S.duo(
+    a,
+    b,
+    distance,
+    [
     S.chain().act(
       "throwObject",
       {
@@ -148,8 +153,19 @@ const throwing = (
       },
       "throw",
     ),
-    S.chain("b").act("catchObject", { from: "throw", ...catcher }),
-  ]);
+      S.chain("b").act("catchObject", {
+        from: "throw",
+        ball: "ball",
+        ...catcher,
+      }),
+    ],
+    [
+      HumanObject.prop("ball", ball, {
+        at: { x: 0, y: 0, z: 0.3 },
+        yaw: 0,
+      }),
+    ],
+  );
 };
 
 /** A point on a wall facing the performer, on a hand's side. */
@@ -172,7 +188,7 @@ const wall = (
  * over 6 m, an underarm one over 4 m and a toss over 2.5 m at the catcher's
  * chest, short of it by the catching reach; a button at 1.1 m, a knob at
  * 0.95 m turned 90 degrees, a drawer at 0.85 m pulled 0.25 m and a door
- * handle at 1 m swung 35 degrees; a ball of 0.11 m radius 0.15 m ahead of
+ * handle at 1 m swung 35 degrees; a football (`createBall`) 0.15 m ahead of
  * the toes; each tool taken up from a bench 0.15 m below the elbow and
  * worked on its work point, a stir in a saucepan on the bench before the
  * body; and a table top 0.225 m below the
@@ -275,18 +291,26 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
   ): motionHumanLawSweep.IScene => {
     const foot: "left" | "right" = pick("foot") === "left" ? "left" : "right";
     const ankle: IAutoMovieVector3 = a.rest.get(`${foot}Foot`)!;
-    const radius: number = 0.11;
+    const football: ReturnType<typeof createBall> = createBall({
+      kind: "football",
+    });
+    const radius: number = football.affordance("grip").aperture! / 2;
     return S.solo(
       a,
       S.chain().act("kickBall", {
-        ball: S.point(
-          ankle.x,
-          radius,
-          ankle.z + HumanFoot.offset(a, foot, "toe").z + 0.15 + radius,
-        ),
-        radius,
+        ball: "ball",
         ...S.set(pick, "foot"),
       }),
+      [
+        HumanObject.prop("ball", football, {
+          at: {
+            x: ankle.x,
+            y: 0,
+            z: ankle.z + HumanFoot.offset(a, foot, "toe").z + 0.15 + radius,
+          },
+          yaw: 0,
+        }),
+      ],
     );
   },
   useTool: (

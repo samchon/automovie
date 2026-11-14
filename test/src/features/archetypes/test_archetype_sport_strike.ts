@@ -18,7 +18,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 /**
  * A racket and a ball serve the strokes that read them: a forehand carries the racket's own `sweetSpot` to a tennis ball's centre with its `face` leading, and a kick meets a football at the centre and size the ball declares.
  *
- * The tennis racket lies level before the right hand, its head ahead, and a tennis ball hangs where the stroke meets it, ahead and to the right at hip height. The football rests on the floor ahead of the right foot; the kick reads its centre from the ball's `grip` and its radius from that grip's aperture.
+ * The tennis racket lies level before the right hand, its head ahead, and a tennis ball hangs where the stroke meets it, ahead and to the right at hip height. The football rests on the floor ahead of the right foot; the kick names it, reading its centre from the ball's `grip` and its radius from that grip's aperture.
  *
  * Scenarios, on the average man and the small woman:
  * 1. Taking the racket up by `grip` and driving a forehand at the tennis ball, the racket's `sweetSpot` the working point and its `face` the edge, plans; at the stroke's contact the ball's centre lies over the racket's head: inside the head's length about the `sweetSpot` and its width, and within 60 mm of the face's plane (provisional: the ball's radius and a margin). The cut the stroke is a row of lands the implement's striking part some way behind the working point, so the ball is met on the strings, not at the `sweetSpot` itself.
@@ -143,8 +143,7 @@ export function test_archetype_sport_strike(): void {
         composition: HumanChain.subject("a")
           .stand({ seconds: 0.3 })
           .registered("kickRight", {
-            ball: { kind: "prop", subject: "ball", point: "grip" },
-            radius,
+            ball: "ball",
             toward: { kind: "point", at: { x: 0, y: 0, z: 5 }, frame: "world" },
           }).node,
       });

@@ -21,14 +21,16 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
+import { HumanBall } from "./HumanBall";
 
 /**
- * Kicking a ball lying beside the support foot with the instep, from
+ * Kicking the ball prop lying beside the support foot with the instep, from
  * standing: the kicking leg swings back, then through the ball and on.
  *
  * The goal is the foot on the ball: at `stroke` (contact) the kicking foot's
  * toes' joint, the middle of the instep, meets the back of the ball at its
- * centre's height along the kick's direction, the foot plantarflexed `POINT`
+ * centre's height along the kick's direction, the centre and the radius the
+ * ball's own (`HumanBall`), the foot plantarflexed `POINT`
  * degrees so the instep faces the ball (Lees and Nolan 1998, J Sports Sci
  * 16:211; Nunome et al. 2002, Med Sci Sports Exerc 34:2028, compare the
  * instep and side-foot kicks). The backswing draws the foot back and up
@@ -49,7 +51,7 @@ import { hipJoints } from "../posture/hipJoints";
  * @evidence contracts/development/common.md#meaningful-documentation States the contact goal with sources, the swing, the refusal, the timing, the events and what is missing.
  * @evidence contracts/development/design.md#principled-representation A law record of a leg swing and an arm pulse over a standing base.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the constants, the contact placement and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The ball is a target; the places are shares of the shank.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The ball is the scene's prop; the places are shares of the shank.
  */
 export namespace kickBall {
   /** The action's name. */
@@ -69,16 +71,13 @@ export namespace kickBall {
    * Parameters.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and default.
-   * @evidence contracts/development/design.md#principled-representation The ball, its size, the kicking foot and the direction.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Five members read by `plan`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The ball is a target.
+   * @evidence contracts/development/design.md#principled-representation The ball, the kicking foot and the direction.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members read by `plan`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The ball is the scene's prop; its size is its own.
    */
   export interface IParams {
-    /** The ball's centre. */
-    ball: AutoMovieMotionTarget;
-
-    /** The ball's radius, metres; 0.11 when absent (a size 5 football). */
-    radius?: number;
+    /** The ball's prop subject: its `grip` contact is its centre and that grip's aperture its diameter (`createBall`'s contacts). */
+    ball: string;
 
     /** The kicking foot; `right` when absent. */
     foot?: "left" | "right";
@@ -131,7 +130,7 @@ export namespace kickBall {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the ball lies beyond the kicking leg's reach.
+   * @throws {HumanRefusal} When the prop declares no sized grip, or the ball lies beyond the kicking leg's reach.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -139,16 +138,20 @@ export namespace kickBall {
     const body: IHumanBody = context.body;
     const m = body.measure;
     const side: "left" | "right" = context.params.foot ?? "right";
-    const radius: number = context.params.radius ?? 0.11;
+
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
     const standing: IHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
-    const centre: IAutoMovieVector3 = context.aim(
+    const ball: HumanBall.IBall = HumanBall.of(
+      context,
       context.params.ball,
       context.start,
-    ).point;
+      "ball",
+    );
+    const centre: IAutoMovieVector3 = ball.centre;
+    const radius: number = ball.radius;
     const heading: IAutoMovieVector3 = HumanFrame.point(
       { origin: { x: 0, y: 0, z: 0 }, yaw: standing.yaw },
       { x: 0, y: 0, z: 1 },

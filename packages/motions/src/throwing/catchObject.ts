@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
@@ -7,20 +7,23 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanBall } from "../ballStrike/HumanBall";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { HumanHand } from "../posture/HumanHand";
+import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanGlove } from "./HumanGlove";
 import { throwObject } from "./throwObject";
 
 /**
@@ -35,7 +38,12 @@ import { throwObject } from "./throwObject";
  * or a point the arms cannot reach from the shoulders, is refused. With two
  * hands the palms take the object from both sides, each palm on its surface
  * across the catcher's left-right axis; with one the palm takes it from
- * behind, facing the way it comes. The hands travel there on minimum-jerk
+ * behind, facing the way it comes, or with a worn glove (`glove`) the hand
+ * turned as that palm would be and moved so the glove's pocket meets it. The
+ * fingers take the turn about the palm's normal (`ROLLS`, upward first) the
+ * arm holds at the contact with the least strain
+ * (`AutoMovieMotionHumanBend.strain`), so the wrist's range decides it. The ball's size is the
+ * ball's own (`ball`, `HumanBall`). The hands travel there on minimum-jerk
  * progress over the aimed movement time to an object of its size (McIntosh
  * et al. 2018, `AutoMovieMotionHumanTiming.aimed`), arriving at contact;
  * the anticipatory `prepare` instant is 100 ms before impact (Lacquaniti and
@@ -91,8 +99,11 @@ export namespace catchObject {
     /** The catching hand when one; `right` when absent. */
     side?: HumanHand.Side;
 
-    /** The object's radius, metres; 0.11 when absent (a handball, provisional). */
-    radius?: number;
+    /** The ball caught, its prop subject: its `grip` contact's aperture is its diameter (`createBall`'s contacts). */
+    ball: string;
+
+    /** A glove worn on the one catching hand, its prop subject: the ball meets its `pocket`, the hand turned as its bare palm would be (`createGlove`'s contacts). A bare hand when absent. */
+    glove?: string;
   }
 
   /** How far ahead of the root the object is met, arm lengths (provisional). */
@@ -100,6 +111,11 @@ export namespace catchObject {
 
   /** How far the hands give with the object after contact, metres (provisional). */
   export const GIVE: number = 0.1;
+
+  /** The turns of the fingers about the palm's normal tried on the ball, degrees from upward: the whole way round in steps of 30. */
+  export const ROLLS: readonly number[] = [
+    0, 30, -30, 60, -60, 90, -90, 120, -120, 150, -150, 180,
+  ];
 
   /** How long the give takes, seconds (provisional). */
   export const GIVE_TIME: number = 0.15;
@@ -120,13 +136,18 @@ export namespace catchObject {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the anchor is not a throw, the path never comes within reach, or the catch would start before the action.
+   * @throws {HumanRefusal} When the anchor is not a throw, the ball declares no size, the glove is not worn on the one catching hand or has no pocket, the path never comes within reach, or the catch would start before the action.
    */
   export function plan(context: IHumanActionContext<IParams>): IPlan {
     const body: IHumanBody = context.body;
     const m = body.measure;
     const arm: number = m.upperArm + m.forearm;
-    const radius: number = context.params.radius ?? 0.11;
+    const radius: number = HumanBall.of(
+      context,
+      context.params.ball,
+      context.start,
+      "ball",
+    ).radius;
     const placed = context.action(context.params.from);
     const launch: throwObject.ILaunch | undefined = throwObject.of(placed.plan);
     if (launch === undefined)
@@ -272,11 +293,104 @@ export namespace catchObject {
       (context.params.hands ?? "two") === "two"
         ? ["left", "right"]
         : [context.params.side ?? "right"];
+    const pocket: IAutoMovieVector3 | undefined =
+      context.params.glove === undefined
+        ? undefined
+        : HumanGlove.pocket(context, context.params.glove, sides);
+    // The hand on the ball: its palm's target, or with a glove the palm's
+    // turn moved so the pocket meets the ball.
+    const meeting = (
+      side: HumanHand.Side,
+      posture: IHumanPosture,
+      back: IAutoMovieVector3,
+      outward: IAutoMovieVector3,
+      fingers: IAutoMovieVector3,
+    ): AutoMovieMotionHumanArm.ITarget => {
+      const target: AutoMovieMotionHumanArm.ITarget =
+        AutoMovieMotionHumanTarget.hand(
+          body,
+          posture,
+          side,
+          { point: back, normal: outward },
+          { surface: "palm", shape: "relaxed", forward: fingers },
+        );
+      return pocket === undefined
+        ? target
+        : {
+            ...target,
+            point: Vector3.subtract(
+              back,
+              Quaternion.rotateVector(target.rotation, pocket),
+            ),
+          };
+    };
+    // Which way the fingers point on the ball: of the turns about the palm's
+    // normal, upward first, the one the arm holds at the contact with the
+    // least strain, so the wrist's range decides it.
+    const pointing = (
+      side: HumanHand.Side,
+      outward: IAutoMovieVector3,
+    ): IAutoMovieVector3 => {
+      const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+      const across: IAutoMovieVector3 = Vector3.subtract(
+        up,
+        Vector3.scale(outward, Vector3.dot(up, outward)),
+      );
+      const first: IAutoMovieVector3 =
+        Vector3.length(across) > 1e-6
+          ? Vector3.normalize(across)
+          : HumanFrame.point(
+              { origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw },
+              { x: 0, y: 0, z: 1 },
+            );
+      const back: IAutoMovieVector3 = Vector3.add(
+        meet,
+        Vector3.scale(outward, radius),
+      );
+      let best: { fingers: IAutoMovieVector3; strain: number } = {
+        fingers: first,
+        strain: Infinity,
+      };
+      for (const degrees of ROLLS) {
+        const fingers: IAutoMovieVector3 = Quaternion.rotateVector(
+          Quaternion.fromAxisAngle(outward, degrees),
+          first,
+        );
+        const target: AutoMovieMotionHumanArm.ITarget = meeting(
+          side,
+          standing,
+          back,
+          outward,
+          fingers,
+        );
+        const solve: AutoMovieMotionHumanBend.ISolve = {
+          body,
+          posture: standing,
+          side,
+          point: HumanHand.place(
+            body,
+            side,
+            "palm",
+            target.point,
+            target.rotation,
+            "relaxed",
+          ).point,
+          rotation: target.rotation,
+        };
+        const strain: number = AutoMovieMotionHumanBend.strain(
+          solve,
+          AutoMovieMotionHumanBend.solve({ ...solve, fallback: "hang" }),
+        );
+        if (strain < best.strain - 1e-9) best = { fingers, strain };
+      }
+      return best.fingers;
+    };
     const hand = (side: HumanHand.Side): IAutoMovieMotionHumanPrimitive => {
       const outward: IAutoMovieVector3 =
         sides.length === 2
           ? Vector3.scale(left, side === "left" ? 1 : -1)
           : along;
+      const fingers: IAutoMovieVector3 = pointing(side, outward);
       return AutoMovieMotionHumanArm.move({
         body,
         side,
@@ -297,20 +411,11 @@ export namespace catchObject {
             Math.max(seconds, contact),
             posture,
           );
-          return AutoMovieMotionHumanTarget.hand(
-            body,
-            posture,
-            side,
-            {
-              point: Vector3.add(centre, Vector3.scale(outward, radius)),
-              normal: outward,
-            },
-            {
-              surface: "palm",
-              shape: "relaxed",
-              forward: { x: 0, y: 1, z: 0 },
-            },
+          const back: IAutoMovieVector3 = Vector3.add(
+            centre,
+            Vector3.scale(outward, radius),
           );
+          return meeting(side, posture, back, outward, fingers);
         },
         weight: (seconds: number): number =>
           minimumJerk(clock.linear("reach", "contact", seconds)).s,

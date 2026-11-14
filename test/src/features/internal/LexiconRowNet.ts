@@ -18,7 +18,7 @@ import { motionHumanBody } from "./motionHumanBody";
  * body and the refusal's message.
  *
  * The tables say what a row leaves open: what a row done alone needs (a
- * place to go, a bench, a ball), the partner's distance and the target a
+ * place to go, a bench), the partner's distance and the target a
  * row done on a partner needs, which rows are costly strikes planned by one
  * of the two performers only, which follow a partner's placed path, and
  * which need a prop or a thrower their own tests stage.
@@ -52,11 +52,6 @@ export namespace LexiconRowNet {
     },
   };
 
-  /** A ball on the floor ahead and where it is kicked. */
-  const ball: object = {
-    ball: { kind: "point", at: { x: 0, y: 0.11, z: 0.45 }, frame: "world" },
-    toward: { kind: "point", at: { x: 0, y: 0, z: 5 }, frame: "world" },
-  };
 
   /** What a row done alone leaves open. */
   const ALONE: Readonly<Record<string, object>> = {
@@ -89,10 +84,9 @@ export namespace LexiconRowNet {
     haul: ahead,
     scrub: bench,
     // The reload's palm goes to the performer's own abdomen, standing in
-    // for a magazine well; a kick has its ball on the floor ahead.
+    // for a magazine well.
     reloadFirearm: { target: { kind: "self", region: "abdomen" } },
-    kickRight: ball,
-    kickLeft: ball,
+
     leap: { to: { x: 0, y: 0, z: 0.6 } },
     // Onto an imagined box 0.4 m high, with an apex above the climb.
     boxJump: { to: { x: 0, y: 0.4, z: 0.6 }, apex: 0.55 },
@@ -225,6 +219,10 @@ export namespace LexiconRowNet {
     "saw",
     "stir",
     "screw",
+    // A kick needs its ball, which `test_human_motion_sport_swings` and
+    // `test_archetype_sport_strike` stage.
+    "kickRight",
+    "kickLeft",
   ];
 
   /** The two builds, each performing with the other as its partner. */

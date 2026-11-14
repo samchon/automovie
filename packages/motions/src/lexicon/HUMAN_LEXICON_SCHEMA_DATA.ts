@@ -14314,13 +14314,18 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             ],
             "description": "The catching hand when one; `right` when absent."
           },
-          "radius": {
-            "type": "number",
-            "description": "The object's radius, metres; 0.11 when absent (a handball, provisional)."
+          "ball": {
+            "type": "string",
+            "description": "The ball caught, its prop subject: its `grip` contact's aperture is its diameter (`createBall`'s contacts)."
+          },
+          "glove": {
+            "type": "string",
+            "description": "A glove worn on the one catching hand, its prop subject: the ball meets its `pocket`, the hand turned as its bare palm would be (`createGlove`'s contacts). A bare hand when absent."
           }
         },
         "required": [
-          "from"
+          "from",
+          "ball"
         ],
         "additionalProperties": false
       },
@@ -14328,12 +14333,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "type": "object",
         "properties": {
           "ball": {
-            "$ref": "#/components/schemas/AutoMovieMotionTarget",
-            "description": "The ball's centre."
-          },
-          "radius": {
-            "type": "number",
-            "description": "The ball's radius, metres; 0.11 when absent (a size 5 football)."
+            "type": "string",
+            "description": "The ball's prop subject: its `grip` contact is its centre and that grip's aperture its diameter (`createBall`'s contacts)."
           },
           "toward": {
             "oneOf": [
@@ -20207,13 +20208,18 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             ],
             "description": "The catching hand when one; `right` when absent."
           },
-          "radius": {
-            "type": "number",
-            "description": "The object's radius, metres; 0.11 when absent (a handball, provisional)."
+          "ball": {
+            "type": "string",
+            "description": "The ball caught, its prop subject: its `grip` contact's aperture is its diameter (`createBall`'s contacts)."
+          },
+          "glove": {
+            "type": "string",
+            "description": "A glove worn on the one catching hand, its prop subject: the ball meets its `pocket`, the hand turned as its bare palm would be (`createGlove`'s contacts). A bare hand when absent."
           }
         },
         "required": [
-          "from"
+          "from",
+          "ball"
         ],
         "additionalProperties": false,
         "description": "Parameters."
@@ -20499,12 +20505,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "type": "object",
         "properties": {
           "ball": {
-            "$ref": "#/components/schemas/AutoMovieMotionTarget",
-            "description": "The ball's centre."
-          },
-          "radius": {
-            "type": "number",
-            "description": "The ball's radius, metres; 0.11 when absent (a size 5 football)."
+            "type": "string",
+            "description": "The ball's prop subject: its `grip` contact is its centre and that grip's aperture its diameter (`createBall`'s contacts)."
           },
           "foot": {
             "oneOf": [
