@@ -39,7 +39,7 @@ Prompt each subject's images with its record's wording and, for a generated film
 
 ## Control images
 
-A canon reference or a plate needs only a prompt and, once they exist, the canon references, because it carries only appearance. Add a control image only when a subject's build or shape departs from what the model draws by default, such as a child or an unusual object: render it from the subject's entity in a neutral pose and pass it loosely, as [dense passes](../motion/control-channels.md#dense-passes) sets.
+A canon reference or a plate needs only a prompt, because it carries only appearance. Add a control image only when a subject's build or shape departs from what the model draws by default, such as a child or an unusual object: render it from the subject's entity in a neutral pose and pass it loosely, as [dense passes](../motion/control-channels.md#dense-passes) sets.
 
 ## Shot frames
 

@@ -10,7 +10,7 @@ Keep each request's lines speakable within its length, as [generated sound](../a
 
 Time each beat by the frames where the rendered hint performs it, because a beat record's start is provisional.
 
-Render each request's hint and control channels under [control channels](../motion/control-channels.md) at the model's frame rate, frame grid and size, with a few handle frames past each boundary so takes can be trimmed and joined under [place takes in time](generation.md#place-takes-in-time).
+Render each request's hint and control channels under [control channels](../motion/control-channels.md) at the model's frame rate, frame grid and size.
 
 ## Adherence
 

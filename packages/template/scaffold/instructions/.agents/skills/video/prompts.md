@@ -22,7 +22,7 @@ Write what happens in the request's interval from the [beat records](../story/la
 | Reaction | Each reaction the hint cannot show, such as a facial expression, in the order the hint performs the beats |
 | Camera | The depth of field and focus the screenplay decides; the hint carries framing, moves and lens |
 
-Leave out what the request keeps from the hint, such as positions, actions, timing and camera moves. Write the action and the camera, from the same beat records, only where the hint does not carry them: at the loosest adherence, or for a model that takes only still frames.
+Leave out what the request keeps from the hint, such as positions, actions, timing and camera moves. Write the action and the camera, from the same beat records, only where the hint does not carry them.
 
 ## Content
 
