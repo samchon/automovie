@@ -15,12 +15,14 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import type { IHumanInterruptRow } from "../law/IHumanInterruptRow";
 import { HumanArmClearance } from "../posture/HumanArmClearance";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import type { IWalkGait } from "./IWalkGait";
+import { runStance } from "./runStance";
 import { stand } from "./stand";
 import { standUpright } from "./standUpright";
 import { walkClear } from "./walkClear";
@@ -34,6 +36,11 @@ import { walkTempo } from "./walkTempo";
 /** Seconds before a toe-off over which the ankle's velocity there is read. */
 const TICK: number = 1e-3;
 
+/** The cut a standing action makes into a walk: only once both feet are down. */
+const SETTLED: readonly IHumanInterruptRow[] = [
+  { window: ["lastFootfall", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+];
+
 /**
  * Walking to a floor point in whole steps, ending with the feet side by side.
  *
@@ -44,7 +51,8 @@ const TICK: number = 1e-3;
  * comfortable and fast adult ranges (Bohannon 1997). Step length grows with
  * the square root of speed (Grieve and Gear 1966): `1.2 l sqrt(sqrt(Fr))`,
  * 0.8 hip heights at the normal pace (about 0.4 stature, Perry and Burnfield);
- * the step count is rounded up so every step is at most that long.
+ * the step count is rounded up so every step is at most that long, at the
+ * pace's own cadence (`WalkPace`).
  *
  * Each foot follows the three rockers of stance with its contact point fixed
  * on the floor, and swings between footprints on a minimum-jerk path lifted
@@ -101,38 +109,10 @@ export namespace walk {
     jump: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.15 }],
     run: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
     approach: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
-    look: [
-      {
-        window: ["lastFootfall", 1],
-        kind: "inertialize",
-        entry: 0,
-        blend: 0.3,
-      },
-    ],
-    gesture: [
-      {
-        window: ["lastFootfall", 1],
-        kind: "inertialize",
-        entry: 0,
-        blend: 0.3,
-      },
-    ],
-    rest: [
-      {
-        window: ["lastFootfall", 1],
-        kind: "inertialize",
-        entry: 0,
-        blend: 0.3,
-      },
-    ],
-    sit: [
-      {
-        window: ["lastFootfall", 1],
-        kind: "inertialize",
-        entry: 0,
-        blend: 0.3,
-      },
-    ],
+    look: SETTLED,
+    gesture: SETTLED,
+    rest: SETTLED,
+    sit: SETTLED,
   };
 
   /** What a gait lets an overlay take: the arms it would swing, the hands and the head. */
@@ -324,6 +304,7 @@ export namespace walk {
     };
     // A swing's scheduled descent, memoised by its toe-off.
     const descents: Map<string, walkDescent.IPlan> = new Map();
+    const flights: Map<string, [number, number]> = new Map();
     const settle = (
       t: number,
       feet: Record<"left" | "right", walkFoot.IScheduled>,
@@ -331,7 +312,21 @@ export namespace walk {
       const claims: Partial<Record<"left" | "right", number>> = {};
       for (const side of ["left", "right"] as const) {
         const swing = feet[side].swing;
-        if (swing === undefined || swing.u < walkDescent.START) continue;
+        if (swing === undefined) continue;
+
+        // A foot in flight bears nothing: it claims what its stance claimed
+        // when it left and what the next claims when it lands, blended.
+        if (gait.swing > 1) {
+          const key: string = `${side}:${swing.off}`;
+          const held: [number, number] = flights.get(key) ?? [
+            reaching(side, swing, 0),
+            reaching(side, swing, 1),
+          ];
+          flights.set(key, held);
+          claims[side] = runStance.airborne(held, swing.u);
+          continue;
+        }
+        if (swing.u < walkDescent.START) continue;
         const key: string = `${side}:${swing.off}`;
         let descent: walkDescent.IPlan | undefined = descents.get(key);
         if (descent === undefined) {

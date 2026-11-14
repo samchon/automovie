@@ -15,6 +15,7 @@ import type { IWalkGait } from "./IWalkGait";
 import { WalkPace } from "./WalkPace";
 import { WalkPath } from "./WalkPath";
 import { WalkTurn } from "./WalkTurn";
+import { runStance } from "./runStance";
 import { stand } from "./stand";
 import { walkFoot } from "./walkFoot";
 import { walkReach } from "./walkReach";
@@ -184,12 +185,23 @@ export namespace walkSteps {
       ),
     );
     const D: number = path.length;
+    // A flight gait's contact rolls from the heel to the ball, or stays on
+    // the ball of a foot whose heel is held up; the middle of that way lies
+    // ahead of the ankle.
+    const raised: number = input.gait?.heels ?? 0;
+    const rolled: number =
+      raised > 0
+        ? HumanFoot.offset(body, "left", "mtp").z
+        : (HumanFoot.offset(body, "left", "heel").z +
+            HumanFoot.offset(body, "left", "mtp").z) /
+          2;
     const pace: WalkPace = WalkPace.fit(
       {
         distance: D,
         speed: input.speed,
         share: input.swing ?? 0.8,
         period: (seconds: number): number => input.period(seconds),
+        lead: rolled,
       },
       input.longest,
     );
@@ -224,6 +236,16 @@ export namespace walkSteps {
     const front: number = pace.front;
     const duration: number = last + 0.35;
     const progress = (t: number): number => pace.progress(t);
+    const flight: runStance.IStance | undefined =
+      swing > T
+        ? runStance.plan(body, {
+            stride: pace.stride,
+            share: swing / T,
+            front,
+            lead: rolled,
+            heels: raised,
+          })
+        : undefined;
 
     // A footprint lies where the pelvis is `front` periods after its heel
     // strike, one cruising step from the last in full stride and closer in
@@ -367,6 +389,8 @@ export namespace walkSteps {
     // step pivots more and pushes less in the sagittal plane (Hase and Stein
     // 1999; Taylor et al. 2005); provisional, the pitch falls linearly to 15
     // degrees as the turn reaches TWIST.
+    // A flight gait's straight push is its stance's own (`runStance`).
+    const push: number = flight?.push ?? walkStepFoot.PUSH;
     for (const side of ["left", "right"] as const) {
       let leaving: number = HumanFoot.heading(start[side].rotation);
       for (const step of steps.filter((x: IStep): boolean => x.side === side)) {
@@ -376,8 +400,8 @@ export namespace walkSteps {
               (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT)),
         );
         step.push =
-          -walkStepFoot.PUSH +
-          (walkStepFoot.PUSH - 15) *
+          -push +
+          (push - Math.min(push, 15)) *
             Math.min(1, Math.abs(turned) / walkReach.TWIST);
 
         // A leg kept straight leaves the floor nearly flat: a steep push-off needs the knee it does not bend.
@@ -387,8 +411,7 @@ export namespace walkSteps {
       }
     }
     const gaitBob: { mean: number; amplitude: number } | undefined =
-      input.gait?.bob;
-    const raised: number = input.gait?.heels ?? 0;
+      flight?.bob ?? input.gait?.bob;
     const own: Record<"left" | "right", IStep[]> = {
       left: steps.filter((s: IStep): boolean => s.side === "left"),
       right: steps.filter((s: IStep): boolean => s.side === "right"),
@@ -412,8 +435,10 @@ export namespace walkSteps {
       const yaw: number = yawAt(t);
       const c: IAutoMovieVector3 = centre(yaw);
       const a: number = amount(t);
-      // The pelvis is over the left footprint `front` periods after its heel strike.
+      // The pelvis is over the left footprint `front` periods after its heel
+      // strike; a gait's own oscillation is lowest at mid-stance.
       const over: number = firstLeft + front * T;
+      const middle: number = firstLeft + (T - swing / 2);
       const sway: number =
         0.02 * (l / 0.93) * a * Math.cos((2 * Math.PI * (t - over)) / (2 * T));
       const bob: number =
@@ -422,7 +447,7 @@ export namespace walkSteps {
           : a *
             l *
             (gaitBob.mean -
-              gaitBob.amplitude * Math.cos((2 * Math.PI * (t - over)) / T));
+              gaitBob.amplitude * Math.cos((2 * Math.PI * (t - middle)) / T));
       const s: number = progress(t);
       const p: IAutoMovieVector3 = HumanFrame.point(
         { origin: path.at(s), yaw: along$(s) },

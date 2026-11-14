@@ -22,7 +22,7 @@ export interface IWalkGait {
   /** Swing duration in step periods. */
   swing: number;
 
-  /** Vertical oscillation lowest at mid-stance, hip heights; a walk's own when absent. */
+  /** Vertical oscillation lowest at mid-stance, hip heights; a walk's own when absent. A gait with a flight rides its spring-mass stance's instead (`runStance`). */
   bob?: { mean: number; amplitude: number };
 
   /** Mid-swing ankle lift, hip heights. */

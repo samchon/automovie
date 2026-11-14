@@ -1,10 +1,11 @@
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { motionHumanSignature as M } from "../internal/motionHumanSignature";
+import type { motionComplaints } from "./motionComplaints";
+import type { motionHumanBody } from "./motionHumanBody";
+import { motionHumanSignature as M } from "./motionHumanSignature";
 
 /**
- * A run looks like human running: its kinematic signature, read on the four
- * extreme bodies at each pace over the steady middle half of a 6 m run.
+ * The running signature of one body (the specs
+ * `test_human_motion_signature_run_<body>`), read at each pace over the
+ * steady middle half of a 6 m run.
  *
  * Bounds and sources:
  * - Trunk: a runner leans the trunk forward, more as speed grows
@@ -36,15 +37,25 @@ import { motionHumanSignature as M } from "../internal/motionHumanSignature";
  * the quiet stance must read within 3 degrees of vertical under it
  * (Kendall et al. 2005, ideal alignment; `motionHumanSignature.calibrate`).
  *
- * @evidence contracts/development/testing.md#behavioral-verification Performs the real run law on real bodies and reads displayed bones; a trunk tipped back, a run with double support or no flight, a wrong cadence, a centre of mass that rises at mid-stance or a stiff stance knee fails with its cell, value, bound and source.
- * @evidence contracts/development/testing.md#independent-expectations Every bound is a cited running value or marked provisional with its reason; none is read from the law.
- * @evidence contracts/development/testing.md#distinguishing-cases Three paces and the default on four bodies from the lightest to the heaviest.
- * @evidence contracts/development/testing.md#execution-ownership In memory; slow because a film of fitted poses is costly; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
- * @evidence contracts/development/common.md#meaningful-documentation States every bound with its source and status.
+ * @evidence contracts/development/common.md#meaningful-documentation States every bound with its source and status, and how the specs share the reading.
+ * @evidence contracts/development/implementation.md#principled-implementation Reads displayed joints, soles and the centre of mass over the steady middle half of each film; every bound is a cited running value or marked provisional.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One reader for one body: a pass per pace, then the check across paces.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every limit is marked provisional or cited; nothing is skipped.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Four films, read on 30 and 120 Hz grids.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Films and readings come from `motionHumanSignature`.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps nothing once read.
  */
-export function test_human_motion_signature_run(): void {
-  const complaints: motionComplaints.IGatherer = motionComplaints();
-  for (const name of motionHumanBody.EXTREMES) {
+export namespace motionHumanRunSignature {
+  /**
+   * Read one body's runs into a gatherer.
+   *
+   * @param name The body.
+   * @param complaints Receives every check.
+   */
+  export function read(
+    name: motionHumanBody.Name,
+    complaints: motionComplaints.IGatherer,
+  ): void {
     const lean: Record<string, number> = {};
     for (const row of ["pace=jog", "pace=run", "pace=sprint", "default"]) {
       const cell: string = `run ${row} ${name}`;
@@ -52,7 +63,9 @@ export function test_human_motion_signature_run(): void {
       const s: M.IStaged = M.stage("run", row, name);
       const from: number = 0.25 * s.film.duration;
       const to: number = 0.75 * s.film.duration;
-      lean[row] = M.mean(M.times(from, to, 30), (t) => M.trunk(s, t));
+      lean[row] = M.mean(M.times(from, to, 30), (t: number): number =>
+        M.trunk(s, t),
+      );
       complaints.check(
         `${cell}: mean trunk inclination ${lean[row]!.toFixed(2)} deg outside [2, 20] (Thorstensson et al. 1984; Novacheck 1998)`,
         lean[row]! >= 2 && lean[row]! <= 20,
@@ -94,7 +107,8 @@ export function test_human_motion_signature_run(): void {
       // Only stances wholly inside the window; one cut by its start is not a
       // whole stance.
       for (const p of stances.filter(
-        (p) => p.from > from + 1e-9 && p.to - p.from >= 0.05,
+        (p: { from: number; to: number }): boolean =>
+          p.from > from + 1e-9 && p.to - p.from >= 0.05,
       )) {
         const mid: number = (p.from + p.to) / 2;
         const drop: number =
@@ -118,8 +132,6 @@ export function test_human_motion_signature_run(): void {
       lean["pace=jog"]! <= lean["pace=run"]! + 0.5 &&
         lean["pace=run"]! <= lean["pace=sprint"]! + 0.5,
     );
-  }
-  for (const name of motionHumanBody.EXTREMES)
     for (const c of M.calibrate(name)) complaints.check(c, false);
-  complaints.assert("the run has the signature of human running");
+  }
 }

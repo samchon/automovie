@@ -283,7 +283,10 @@ export namespace walkReach {
   /**
    * Hold a swinging foot inside its leg's ranges under a settled pelvis: the
    * ankle within reach and no further behind the hip than a thigh `EXTENSION`
-   * degrees back and the knee's bend carry it, the heading within `TWIST` of
+   * degrees back and the knee's bend carry it (an ankle past that keeps its
+   * place behind the hip and rises onto the shank's reach from the knee, the
+   * knee folding as a trailing heel lifts, or turns forward onto that line
+   * where the shank cannot reach so far back), the heading within `TWIST` of
    * the pelvis, the pitch inside the ankle's range, and neither toe nor heel
    * under the floor.
    *
@@ -318,12 +321,28 @@ export namespace walkReach {
     const extension: number =
       (EXTENSION * Math.PI) / 180 + walkLeg.behind(body, Vector3.length(v));
     if (v.y < 0 && Math.atan2(-ahead, -v.y) > extension) {
-      const back: number = sagittal * Math.sin(extension);
-      v = {
-        x: v.x - ahead * forward.x - back * forward.x,
-        y: -sagittal * Math.cos(extension),
-        z: v.z - ahead * forward.z - back * forward.z,
-      };
+      // The thigh stops at its extension and the knee folds: the ankle keeps
+      // its place behind the hip, raised onto the shank's reach from the
+      // knee, as a trailing leg's heel rises after toe-off. Where the shank
+      // cannot reach that far back, the leg turns forward onto the line.
+      const thighAngle: number = (EXTENSION * Math.PI) / 180;
+      const kneeAhead: number = -m.thigh * Math.sin(thighAngle);
+      const kneeDown: number = m.thigh * Math.cos(thighAngle);
+      const along: number = ahead - kneeAhead;
+      if (Math.abs(along) <= m.shank)
+        v = {
+          x: v.x,
+          y: -kneeDown - Math.sqrt(m.shank * m.shank - along * along),
+          z: v.z,
+        };
+      else {
+        const back: number = sagittal * Math.sin(extension);
+        v = {
+          x: v.x - ahead * forward.x - back * forward.x,
+          y: -sagittal * Math.cos(extension),
+          z: v.z - ahead * forward.z - back * forward.z,
+        };
+      }
     }
     let ankle: IAutoMovieVector3 = Vector3.add(h, v);
     let rotation: IAutoMovieQuaternion = foot.placement.rotation;

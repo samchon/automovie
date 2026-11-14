@@ -53,8 +53,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    4:873526, Table 3) by more than six deviations, and past the law's cap
  *    of their mean plus two, so the case does not hang on the cap's exact
  *    value.
- * 3. A vault on the spear out of a sprint cut at its third left heel strike,
- *    a foot planted to take off from: from
+ * 3. A vault on the spear out of a 10 m sprint cut at its third left heel
+ *    strike, still in full stride, a foot planted to take off from: from
  *    `takeoff` to `release`, read at both and between, the spear's butt
  *    stays within 5 mm and within 15 mm of the floor; the centre is higher
  *    at `release` than at `takeoff`; halfway between `release` and
@@ -126,7 +126,7 @@ export function test_human_motion_gymnastics_jumps(): void {
         ],
         composition: (run
           ? taken
-              .run({ to: { x: 0, y: 0, z: 8 }, pace: "sprint" })
+              .run({ to: { x: 0, y: 0, z: 10 }, pace: "sprint" })
               .until({ event: "leftHeelStrike3" })
           : taken
         ).registered("vaultOnPole", { pole: "pole", end: "butt" }).node,
