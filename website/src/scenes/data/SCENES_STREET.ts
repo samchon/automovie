@@ -39,7 +39,7 @@ export const SCENES_STREET: readonly IScene[] = [
         act(
           "readingWalk",
           { to: to(-2, -3.5) },
-          { over: [act("checkPhone", { seconds: 1.5 })] },
+          { over: [act("checkPhone", { seconds: 3 })] },
         ),
       ]),
     ],

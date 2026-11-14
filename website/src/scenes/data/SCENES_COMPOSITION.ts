@@ -93,7 +93,7 @@ export const SCENES_COMPOSITION: readonly IScene[] = [
       id: "night-out",
       title: "Night out",
       summary:
-        "Leaving a bar: one reveller staggers drunk, a friend follows with a stiff limp, and a third steps up face to face with a stranger, who stands with hands on hips and sways to the music.",
+        "Leaving a bar: one reveller staggers drunk, a friend follows with a stiff limp, and a third steps up face to face with a stranger and crosses his arms; she stands with hands on hips and sways to the music.",
       setting: "street",
       roles: {
         rae: "reveller",
