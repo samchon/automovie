@@ -61,6 +61,7 @@ import {
   createRamp,
   createRelayBaton,
   createRing,
+  createRock,
   createRowingMachine,
   createSanitary,
   createSeat,
@@ -426,6 +427,11 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `mobilityAid-${kind}`,
       (seed?: number | string): Archetype => createMobilityAid({ kind }, seed),
+    );
+  for (const kind of createRock.KINDS)
+    add(
+      `rock-${kind}`,
+      (seed?: number | string): Archetype => createRock({ kind }, seed),
     );
   // Sport: the jump apparatus.
   add(

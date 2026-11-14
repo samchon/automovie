@@ -24,6 +24,7 @@ import {
 } from "../furniture";
 import { createBoxingGlove, createHeavyBag } from "../gym";
 import { createInstrument, createMicrophone } from "../music";
+import { createRock } from "../nature";
 import {
   createBag,
   createBox,
@@ -356,6 +357,13 @@ export function archetypeCaptureCatalog(): Readonly<
       ),
     }),
     horse: still({ horse }),
+    nature: still(
+      kinds(
+        "rock",
+        createRock.KINDS,
+        (kind: createRock.Kind): Archetype => createRock({ kind }),
+      ),
+    ),
     weapons: still({
       ...kinds(
         "handgun",
