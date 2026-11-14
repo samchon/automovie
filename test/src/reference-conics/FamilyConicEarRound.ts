@@ -139,7 +139,7 @@ namespace FamilyConicEarRound {
     );
     const lines: string[] = [
       "plate: " + (file ?? "the stored module") + "; tubes: " + (candidates.length === 0 ? "stored" : candidates.map((c) => c.name + " (candidate)").join(", ")),
-      "tube | station | top line point (phase 0), mm | signed distance of the top line (phase 0) to the plate | of the course | of the bottom line (phase pi)",
+      "tube | station | top line point (phase 0), mm | signed distance of the top line (phase 0) to the plate | of the course | of the bottom line (phase pi) | least over the section's ring (every 10 degrees) @ its phase in degrees | greatest @ phase",
     ];
     for (const tube of ["helix", "antihelix"].map((name: string): AutoMovieHumanConicLoft.IFamily => candidates.find((c) => c.name === name) ?? AutoMovieHumanF1.FAMILIES.find((member): boolean => member.family.name === name)!.family)) {
       const own = sample(tube, 0.5);
@@ -147,7 +147,13 @@ namespace FamilyConicEarRound {
       for (const s of own.stations) {
         const top: number[] = AutoMovieLoftChain.point(own.chain, s, 0);
         const bottom: number[] = AutoMovieLoftChain.point(own.chain, s, Math.PI);
-        lines.push(`${tube.name} | ${s.toFixed(2)} | [${top.map((x: number): string => x.toFixed(2)).join(", ")}] | ${signed(top).toFixed(2)} | ${signed(axis.at(s).origin).toFixed(2)} | ${signed(bottom).toFixed(2)}`);
+        // The whole ring: a section crosses the plate when its least and greatest signed distances have opposite signs.
+        const ring: number[] = Array.from({ length: 36 }, (_: unknown, k: number): number => signed(AutoMovieLoftChain.point(own.chain, s, (k * Math.PI) / 18)));
+        const least: number = ring.indexOf(Math.min(...ring));
+        const most: number = ring.indexOf(Math.max(...ring));
+        lines.push(
+          `${tube.name} | ${s.toFixed(2)} | [${top.map((x: number): string => x.toFixed(2)).join(", ")}] | ${signed(top).toFixed(2)} | ${signed(axis.at(s).origin).toFixed(2)} | ${signed(bottom).toFixed(2)} | ${ring[least]!.toFixed(2)} @ ${least * 10} | ${ring[most]!.toFixed(2)} @ ${most * 10}`,
+        );
       }
     }
     return lines;
