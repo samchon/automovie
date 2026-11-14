@@ -44,7 +44,7 @@ export namespace HumanArmTrajectoryConvex {
     const at: M.IEvaluation = at0;
     const n: number = c.n;
     const width: number = c.width;
-    const vars: number = (n - 2) * width;
+    const vars: number = (c.open ? n - 1 : n - 2) * width;
     const band: number = 3 * width - 1;
     const p: Float64Array[] = Array.from({ length: vars }, () => new Float64Array(band + 1));
     const q: Float64Array = new Float64Array(vars);
@@ -57,7 +57,7 @@ export namespace HumanArmTrajectoryConvex {
           if (idx[j]! >= idx[i]!) p[idx[i]!]![idx[j]! - idx[i]!]! += 2 * w * coef[i]! * coef[j]!;
       }
     };
-    const inner = (k: number): boolean => k > 0 && k < n - 1;
+    const inner = (k: number): boolean => M.inner(c, k);
     // The Jacobians of every probe, the contact and the hand's rotation.
     const H: number = 0.05;
     const jac: IJacobian[][] = x.map((arm: readonly (readonly number[])[], a: number): IJacobian[] =>
@@ -198,7 +198,8 @@ export namespace HumanArmTrajectoryConvex {
           }
         }
       }
-      for (let k: number = 1; k + 1 < n; ++k) {
+      for (let k: number = 1; k < n; ++k) {
+        if (!inner(k)) continue;
         const site: M.ISite | undefined = c.sites[a]![k];
         const placedK: G.IPlaced = at.placed[a]![k]!;
         if (site !== undefined) {
@@ -291,8 +292,8 @@ export namespace HumanArmTrajectoryConvex {
     // Each arm's probes clear of the other arm's own colliders as both
     // move: the probe's motion less the other segment's motion at the probe.
     if (x.length === 2)
-      for (let k: number = 1; k + 1 < n; ++k)
-        for (const pair of P.crossing(c, k, at.placed[0]![k]!, at.placed[1]![k]!).values()) {
+      for (let k: number = 1; k < n; ++k)
+        for (const pair of inner(k) ? P.crossing(c, k, at.placed[0]![k]!, at.placed[1]![k]!).values() : []) {
           if (-pair.short > Math.min(T.CHECK, reach(0, k) + reach(1, k) + 2)) continue;
           const a: number = pair.a;
           const b: number = 1 - a;

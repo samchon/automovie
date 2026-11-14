@@ -210,6 +210,9 @@ export namespace HumanArmTrajectoryContext {
     return {
       n,
       still: problem.still === true,
+      // A hold that lasts to the end leaves the last waypoint to be solved;
+      // a still configuration keeps both its ends.
+      open: problem.still !== true && n > 1 && sites.every((arm: (M.ISite | undefined)[]): boolean => arm[n - 1] !== undefined),
       ...(problem.arms.some((arm): boolean => arm.anchor !== undefined)
         ? { anchor: problem.arms.map((arm, a: number): number[] | undefined => (arm.anchor === undefined ? undefined : G.encode(setups[a]!, arm.anchor))) }
         : {}),

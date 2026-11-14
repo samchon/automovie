@@ -433,7 +433,10 @@ export namespace AutoMovieMotionHumanArmCarry {
         const weight: number = props.weight(seconds);
         const span: AutoMovieMotionHumanArmPlanned.ISpan | undefined = props.span;
         let out: IHumanPosture;
-        if (span !== undefined && seconds > span.start && seconds < span.end) {
+        // The plan holds over its span, and on past its end where the hand
+        // stays on its site to the end (`ISpan.relax` at `end`), as nothing
+        // returns it.
+        if (span !== undefined && seconds > span.start && (seconds < span.end || span.relax >= span.end)) {
           const so: (seconds: number) => IHumanPosture = before ?? ((): IHumanPosture => posture);
 
           // An arm that follows a person is the plan with a bounded

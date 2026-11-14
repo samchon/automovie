@@ -85,6 +85,8 @@ export namespace HumanArmTrajectoryModel {
     n: number;
     /** Whether the problem is a still configuration, read without its steps, speeds and sweeps and smoothed only among its inner waypoints. */
     still: boolean;
+    /** Whether the last waypoint is a variable: every arm holds its site there, a hold that lasts to the end with nothing to return to; otherwise the last waypoint is the arm it returns to (`back`). */
+    open: boolean;
     /** Each arm's coordinates a still configuration is drawn to, the squared distance from them weighed by `HumanArmTrajectoryTerms.ANCHOR` in the objective; none for an arm left free, and none for a trajectory. */
     anchor?: readonly (readonly number[] | undefined)[];
     /** The waypoints' seconds. */
@@ -97,7 +99,7 @@ export namespace HumanArmTrajectoryModel {
     sites: (ISite | undefined)[][];
     /** Each arm's coordinates at the first waypoint. */
     rest: number[][];
-    /** Each arm's coordinates at the last waypoint. */
+    /** Each arm's coordinates at the last waypoint, where it is not a variable (`open`); the bound of the chart's disc either way. */
     back: number[][];
     /** Each arm's free coordinates, the variables. */
     free: number[][];
@@ -138,8 +140,21 @@ export namespace HumanArmTrajectoryModel {
   }
 
   /**
+   * Whether a waypoint's coordinates are variables: every waypoint but the
+   * first, where the arm leaves its rest, and the last, where it returns,
+   * unless the hold lasts to the end (`IContext.open`).
+   *
+   * @param c The context.
+   * @param k The waypoint.
+   * @returns Whether the waypoint is solved for.
+   */
+  export function inner(c: Pick<IContext, "n" | "open">, k: number): boolean {
+    return k > 0 && (k < c.n - 1 || (c.open && k === c.n - 1));
+  }
+
+  /**
    * The iterate after a step of the convex subproblem: each inner
-   * waypoint's free coordinates moved by the step, the ends kept, then
+   * waypoint's free coordinates moved by the step, the others kept, then
    * projected onto the hard ranges (`ranged`), which the subproblem meets
    * only to its linearisation and its solver's tolerance.
    *
@@ -156,7 +171,7 @@ export namespace HumanArmTrajectoryModel {
     return x.map((arm: readonly (readonly number[])[], a: number): number[][] =>
       arm.map((v: readonly number[], k: number): number[] => {
         const out: number[] = [...v];
-        if (k === 0 || k === c.n - 1) return out;
+        if (!inner(c, k)) return out;
         c.free[a]!.forEach((d: number, f: number): void => {
           out[d] = out[d]! + step[(k - 1) * c.width + c.offset[a]! + f]!;
         });
@@ -270,7 +285,8 @@ export namespace HumanArmTrajectoryModel {
           }
         }
       }
-      for (let k: number = 1; k + 1 < n; ++k) {
+      for (let k: number = 1; k < n; ++k) {
+        if (!inner(c, k)) continue;
         here = k;
         const site: ISite | undefined = c.sites[a]![k];
         if (site !== undefined) {
@@ -308,8 +324,8 @@ export namespace HumanArmTrajectoryModel {
       }
     });
     if (x.length === 2)
-      for (let k: number = 1; k + 1 < n; ++k)
-        for (const pair of P.crossing(c, k, placed[0]![k]!, placed[1]![k]!).values()) {
+      for (let k: number = 1; k < n; ++k)
+        for (const pair of inner(c, k) ? P.crossing(c, k, placed[0]![k]!, placed[1]![k]!).values() : []) {
           here = k;
           note(pair.short, "region", () => `probe ${pair.probe} of the ${pair.a === 0 ? "first" : "second"} arm ${pair.short.toFixed(1)} mm inside the other's ${pair.bone} at ${times[k]!.toFixed(3)} s`, T.SKIN);
           if (pair.rested) objective += T.LIFT * pair.short * pair.short;

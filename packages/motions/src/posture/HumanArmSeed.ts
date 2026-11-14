@@ -56,7 +56,7 @@ export namespace HumanArmSeed {
     const n: number = context.n;
     const times: readonly number[] = context.times;
     const holds: number[] = [];
-    for (let k: number = 1; k + 1 < n; ++k) if (problem.arms[0]!.sites[k] !== undefined) holds.push(k);
+    for (let k: number = 1; k < n; ++k) if (M.inner(context, k) && problem.arms[0]!.sites[k] !== undefined) holds.push(k);
     const first: number = holds[0]!;
     const last: number = holds[holds.length - 1]!;
     const hold: number[][][] = goal(problem, context, first, last);
@@ -81,11 +81,12 @@ export namespace HumanArmSeed {
       return found;
     };
     const reach: number[][] = path(context.rest, hold[0]!, first);
-    const back: number[][] = path(context.back, hold[hold.length - 1]!, last);
+    // A hold that lasts to the end has no return to join.
+    const back: number[][] = context.open ? [] : path(context.back, hold[hold.length - 1]!, last);
     return problem.arms.map((_: IProblem["arms"][number], a: number): number[][] =>
       times.map((t: number, k: number): number[] => {
         if (k === 0) return [...context.rest[a]!];
-        if (k === n - 1) return [...context.back[a]!];
+        if (!M.inner(context, k)) return [...context.back[a]!];
         if (k >= first && k <= last) return [...hold[k - first]![a]!];
         const along: number[] = at(k < first ? reach : back, Math.min(1, Math.max(0, problem.share(t))));
         return along.slice(a * G.DIMENSIONS, (a + 1) * G.DIMENSIONS);
@@ -116,16 +117,20 @@ export namespace HumanArmSeed {
    * draws.
    */
   function instant(problem: IProblem, context: M.IContext, k: number, given?: number[][]): number[][] {
+    // The waypoint between its neighbours; the last one, where a hold lasts
+    // to the end, with itself after it: a still configuration reads neither
+    // end's time nor its arm.
+    const around: number[] = [k - 1, k, Math.min(k + 1, context.n - 1)];
     const point: M.IContext = HumanArmTrajectoryContext.of({
       body: problem.body,
-      times: problem.times.slice(k - 1, k + 2),
-      bases: problem.bases.slice(k - 1, k + 2),
+      times: around.map((j: number): number => problem.times[j]!),
+      bases: around.map((j: number): IProblem["bases"][number] => problem.bases[j]!),
       arms: problem.arms.map((arm: IProblem["arms"][number]): HumanArmTrajectoryContext.IProblem["arms"][number] => ({
         side: arm.side,
         rest: arm.rest,
         ...(arm.back === undefined ? {} : { back: arm.back }),
         ...(arm.rests === undefined ? {} : { rests: arm.rests }),
-        sites: arm.sites.slice(k - 1, k + 2),
+        sites: around.map((j: number): IProblem["arms"][number]["sites"][number] => arm.sites[j]),
       })),
       still: true,
     });

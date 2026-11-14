@@ -54,10 +54,10 @@ export namespace AutoMovieMotionHumanArmPlanned {
     /** The hand is on its site. */
     ready: number;
 
-    /** The hand leaves its site. */
+    /** The hand leaves its site; `end` itself for a hand that stays on it to the end. */
     relax: number;
 
-    /** The arm is back at rest. */
+    /** The arm is back at rest, or, for a hand that stays on its site, the span ends with it there. */
     end: number;
   }
 
@@ -209,9 +209,14 @@ export namespace AutoMovieMotionHumanArmPlanned {
     carries: readonly IPlanned[],
     before: (seconds: number) => IHumanPosture,
   ): Map<HumanHand.Side, HumanArmTrajectory.Trajectory> {
+    // Each phrase is an interval cut into pieces, its own end left to the
+    // next one; an empty interval (a hold that lasts to the end, a reach
+    // that starts on its site) has no piece, and the last phrase closes on
+    // its end itself.
     const times: number[] = [];
     const cut = (a: number, b: number, pieces: number, last: boolean): void => {
-      for (let i: number = 0; i < pieces + (last ? 1 : 0); ++i) times.push(a + ((b - a) * i) / pieces);
+      for (let i: number = 0; i < pieces; ++i) times.push(a + ((b - a) * i) / pieces);
+      if (last) times.push(b);
     };
     const travel = (at: number, sign: -1 | 1): number => {
       let longest: number = 0;
@@ -234,7 +239,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
     const spaced = (seconds: number, arc: number): number =>
       Math.min(Math.ceil(seconds / STEP), Math.max(Math.ceil(seconds * LEAST), Math.ceil(arc / SPACING), 1));
     cut(span.start, span.ready, spaced(span.ready - span.start, travel(span.ready, 1)), false);
-    cut(span.ready, span.relax, Math.max(1, Math.ceil((span.relax - span.ready) * LEAST)), false);
+    cut(span.ready, span.relax, span.relax > span.ready ? Math.max(1, Math.ceil((span.relax - span.ready) * LEAST)) : 0, false);
     cut(span.relax, span.end, spaced(span.end - span.relax, travel(span.relax, -1)), true);
 
     // Each instant's posture so far and its pose with the planned arms left
@@ -267,7 +272,8 @@ export namespace AutoMovieMotionHumanArmPlanned {
         bases.set(t, found);
       }
       return found;
-    };    const holding = (t: number): boolean => t >= span.ready - 1e-9 && t <= span.relax + 1e-9;
+    };
+    const holding = (t: number): boolean => t >= span.ready - 1e-9 && t <= span.relax + 1e-9;
     const ready: IHumanPosture = at(span.ready).posture;
     const guesses: AutoMovieMotionHumanArmAngles.IAngles[] = carries.map(
       (c: IPlanned): AutoMovieMotionHumanArmAngles.IAngles =>
