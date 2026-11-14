@@ -190,12 +190,13 @@ export function createBin(
     hinge = mean;
     builder.box("body", v(width, body, base), v(0, body / 2, back + base / 2), {
       color: "#2c4f7c",
+      surface: "steel",
     });
     builder.box(
       "hopper",
       v(width, body / 2, depth - base),
       v(0, (3 * body) / 4, back + base + (depth - base) / 2),
-      { color: "#2c4f7c" },
+      { color: "#2c4f7c", surface: "steel" },
     );
     builder.box("lid", v(width, E.lid, depth), v(0, mean - E.lid / 2, 0), {
       color: "#1d1d1d",

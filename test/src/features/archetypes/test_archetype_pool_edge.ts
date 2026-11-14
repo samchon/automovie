@@ -18,13 +18,14 @@ const FR: string = "FINA Facilities Rules 2017-2021";
  * 1. Over 200 seeds: the deck 0.3 m above the water (FR 2.4.3); the rest ledge's top 1.2 m below the water (FR 2.4.2) and 0.1 to 0.15 m wide; the platform's top at its middle 0.5 to 0.75 m above the water (FR 2.7), sloping 0 to 10 degrees (FR 2.7), at least 0.5 m square.
  * 2. No part of the platform passes the wall's face: every collider of it lies at `Z` 0 or behind.
  * 3. The platform's top slopes down toward the water: its normal leans to `+Z`; and its `front` edge is the top's lowest edge, on the wall's line.
- * 4. Each kind declares exactly its contacts: `deck`, `edge`, `water` and `restLedge`, and on the platform kind also `platform` and `front`.
+ * 4. Each kind declares exactly its contacts: `deck`, `edge`, `water` and `restLedge`, and on the platform kind also `platform`, `front` and `backstrokeGrip`.
+ * 5. The backstroke grip lies 0.3 to 0.6 m above the water (FR 2.7), under the platform's top, and does not protrude past the wall's face.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Produces both kinds and measures contacts and colliders against the declared water; a platform off its height or slope, a ledge too shallow, a platform that pokes out past the wall, or a missing contact fails with the numbers.
  * @evidence contracts/development/testing.md#independent-expectations Every band is the rules' number, measured from the water contact the archetype declares; the wall's face is the `Z` the edge lies on.
  * @evidence contracts/development/testing.md#distinguishing-cases Both kinds; the slope's sense and the front edge's place.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the four scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation States the five scenarios and what each pins.
  */
 export function test_archetype_pool_edge(): void {
   const block = (seed: number): ReturnType<typeof createPoolEdge> =>
@@ -105,6 +106,19 @@ export function test_archetype_pool_edge(): void {
       findings.push(`seed ${seed}: the top does not fall toward the water`);
     if (Math.abs(front.z) > 0.5 * (1 - Math.cos((10 * Math.PI) / 180)) + 1e-9)
       findings.push(`seed ${seed}: the front edge stands ${front.z} m off the wall's line`);
+    const grip: number = above(edge, "backstrokeGrip");
+    const bar: { low: number; high: number } = archetypeExtent(edge, "y", [
+      "backstroke-grip",
+    ]);
+    if (
+      !(
+        grip >= 0.3 - 1e-9 &&
+        grip <= 0.6 + 1e-9 &&
+        bar.high < archetypeExtent(edge, "y", ["top"]).low &&
+        archetypeExtent(edge, "z", ["backstroke-grip"]).high <= 1e-9
+      )
+    )
+      findings.push(`seed ${seed}: the backstroke grip lies ${grip} m above the water, off FR 2.7's place`);
   }
 
   // 4. The contacts.
@@ -117,7 +131,7 @@ export function test_archetype_pool_edge(): void {
   if (ids(createPoolEdge({ kind: "deckEdge" })) !== deck)
     findings.push(`the deck edge declares ${ids(createPoolEdge({ kind: "deckEdge" }))}`);
   const platform: string =
-    "deck:surface,edge:ledge,front:ledge,platform:surface,restLedge:ledge,water:surface";
+    "backstrokeGrip:bar,deck:surface,edge:ledge,front:ledge,platform:surface,restLedge:ledge,water:surface";
   if (ids(block(1)) !== platform)
     findings.push(`the starting platform declares ${ids(block(1))}`);
   TestValidator.equals(

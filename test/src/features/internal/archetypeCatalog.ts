@@ -37,6 +37,7 @@ import {
   createHammerThrow,
   createHandgun,
   createHeavyBag,
+  createHighChair,
   createHighJump,
   createHolster,
   createHorse,
@@ -49,6 +50,7 @@ import {
   createKeyboard,
   createLadder,
   createLandingMat,
+  createLectern,
   createLight,
   createLoad,
   createLongGun,
@@ -190,6 +192,14 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
       `load-${kind}`,
       (seed?: number | string): Archetype => createLoad({ kind }, seed),
     );
+  add(
+    "highChair",
+    (seed?: number | string): Archetype => createHighChair({}, seed),
+  );
+  add(
+    "lectern",
+    (seed?: number | string): Archetype => createLectern({}, seed),
+  );
   for (const kind of createBarrel.KINDS)
     add(
       `barrel-${kind}`,

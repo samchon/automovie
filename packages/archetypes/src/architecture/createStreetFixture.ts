@@ -35,10 +35,9 @@ const HYDRANT: Readonly<{ pumper: number; hose: number; nut: number }> = {
   nut: 0.0381,
 };
 
-/** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `plate`, a cone's base plate as a share of its height; `nozzle`, how far a hydrant's nozzle stands off its barrel; `sign`, a sign blank's thickness. */
-const ESTIMATES: Readonly<{ plate: number; nozzle: number; sign: number }> = {
+/** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `plate`, a cone's base plate as a share of its height; `sign`, a sign blank's thickness. */
+const ESTIMATES: Readonly<{ plate: number; sign: number }> = {
   plate: 0.04,
-  nozzle: 0.08,
   sign: 0.003,
 };
 
@@ -54,9 +53,7 @@ const NAMES: Readonly<Record<createStreetFixture.Kind, string>> = {
 /**
  * A street fixture standing on the pavement at the origin: a traffic cone, a bollard, a fire hydrant, a lamp post or a sign post.
  *
- * Each stands upright on `y = 0`. A cone is a square base plate under a cone in the Brimar cone's proportions, held at its top. A bollard is a steel pipe, a post to lean on or swing round with a top to sit or set things on. A hydrant is a barrel with its pumper nozzle toward `+Z` and its hose nozzles toward `+X` and `-X` at the maker's height, and its operating nut on top. A lamp post is a base under a round shaft to its mounting height, a post to lean on or swing round, with a post-top luminaire on it. A sign post is a square post carrying a STOP sign's blank facing `+Z` with its bottom edge at the mounting height, the post below the sign a bar.
- *
- * A hydrant's nozzles are not declared as contacts, since no source read gives how far they stand off the barrel.
+ * Each stands upright on `y = 0`. A cone is a square base plate under a cone in the Brimar cone's proportions, held at its top. A bollard is a steel pipe, a post to lean on or swing round with a top to sit or set things on. A hydrant is a barrel with its pumper nozzle toward `+Z` and its hose nozzles toward `+X` and `-X` at the maker's height, each a socket at its face where a hose couples, and its operating nut on top. A lamp post is a base under a round shaft to its mounting height, a post to lean on or swing round, with a post-top luminaire on it. A sign post is a square post carrying a STOP sign's blank facing `+Z` with its bottom edge at the mounting height, the post below the sign a bar.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -64,9 +61,9 @@ const NAMES: Readonly<Record<createStreetFixture.Kind, string>> = {
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or one only another kind has.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how each kind stands, its contacts, and what is left out for want of a source.
- * @evidence contracts/development/implementation.md#principled-implementation Each kind's parts at the drawn sizes: the cone scaled from the Brimar sheet's proportions, the bollard at Reliance's height and diameters, the hydrant at Mueller's heights and bores, the lamp post at Wave's height, shaft and base under Sternberg's luminaire, the sign at the MUTCD's height and sizes on Atkore's post.
+ * @evidence contracts/development/implementation.md#principled-implementation Each kind's parts at the drawn sizes: the cone scaled from the Brimar sheet's proportions, the bollard at Reliance's height and diameters, the hydrant at AMERICAN-Darling's heights and nozzle faces with Mueller's nozzle bores and nut, the lamp post at Wave's height, shaft and base under Sternberg's luminaire, the sign at the MUTCD's height and sizes on Atkore's post.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then one branch per kind, each its parts then its contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A cone is three stacked rods, a bonnet and nozzles are rods; the cone's plate and the nozzles' standoff are construction estimates.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A cone is three stacked rods, a bonnet and nozzles are rods; the cone's plate is a construction estimate, and the barrel's diameter Mueller's unlabelled top.
  * @evidenceExclude contracts/development/implementation.md#efficient-algorithms At most six parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -151,7 +148,10 @@ function post(builder: Builder, d: Drawn, kind: "bollard" | "lampPost"): void {
   const color: string = kind === "lampPost" ? "#2f3236" : "#e2b714";
   if (kind === "lampPost")
     builder.rod("base", d.base! / 2, v(0, 0, 0), v(0, foot, 0), { color });
-  builder.rod("shaft", radius, v(0, foot, 0), v(0, height, 0), { color });
+  builder.rod("shaft", radius, v(0, foot, 0), v(0, height, 0), {
+    color,
+    ...(kind === "bollard" ? { surface: "steel" as const } : {}),
+  });
   if (kind === "lampPost")
     builder.rod("luminaire", d.head! / 2, v(0, height, 0), v(0, height + d.headHeight!, 0), {
       color: "#f4f1e0",
@@ -213,7 +213,7 @@ function sign(builder: Builder, d: Drawn): void {
 }
 
 /**
- * Build a fire hydrant: the barrel to its top, the pumper nozzle toward `+Z` and the hose nozzles toward `+X` and `-X` on the nozzles' plane, and the operating nut on top; `nut` is the nut, a knob turned about `+Y`.
+ * Build a fire hydrant: the barrel to its top, the pumper nozzle toward `+Z` and the hose nozzles toward `+X` and `-X` on the nozzles' plane out to their faces, and the operating nut on top; `pumper`, `hoseLeft` and `hoseRight` are the nozzles' faces, sockets whose `+Y` points out of them, and `nut` the nut, a knob turned about `+Y`.
  *
  * @param builder The builder to fill.
  * @param d The drawn dimensions.
@@ -233,7 +233,8 @@ function hydrant(builder: Builder, d: Drawn): void {
     v(0, height, 0),
     { color: "#8a8d91" },
   );
-  const out: number = radius + ESTIMATES.nozzle;
+  const out: number = d.pumperReach!;
+  const hose: number = d.hoseReach!;
   builder.rod("pumper", HYDRANT.pumper / 2, v(0, y, 0), v(0, y, out), {
     color: red,
   });
@@ -241,8 +242,24 @@ function hydrant(builder: Builder, d: Drawn): void {
     ["hose-left", 1],
     ["hose-right", -1],
   ] as const)
-    builder.rod(id, HYDRANT.hose / 2, v(0, y, 0), v(sign * out, y, 0), {
+    builder.rod(id, HYDRANT.hose / 2, v(0, y, 0), v(sign * hose, y, 0), {
       color: red,
+    });
+  builder.affordance({
+    id: "pumper",
+    kind: "socket",
+    frame: ArchetypeFrame.facing(v(0, y, out), v(0, 0, 1), v(1, 0, 0)),
+    extent: null,
+  });
+  for (const [id, sign] of [
+    ["hoseLeft", 1],
+    ["hoseRight", -1],
+  ] as const)
+    builder.affordance({
+      id,
+      kind: "socket",
+      frame: ArchetypeFrame.facing(v(sign * hose, y, 0), v(sign, 0, 0), v(0, 0, 1)),
+      extent: null,
     });
   builder.affordance({
     id: "nut",
@@ -257,7 +274,7 @@ function hydrant(builder: Builder, d: Drawn): void {
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
  * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The posts a hand leans on or swings round, the top a cone is lifted by and the nut a hydrant is opened at (#3468 N2).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The posts a hand leans on or swings round, the top a cone is lifted by, the nut a hydrant is opened at and the nozzles a hose couples to (#3468 N2).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A contact no source places is left out rather than placed by guess.
  */
 export namespace createStreetFixture {
@@ -284,8 +301,15 @@ export namespace createStreetFixture {
    * - `top`: a cone's top, a round handle it is lifted by; a bollard's top face.
    * - `post`: a bollard's or a lamp post's shaft, a sign post below its sign, an upright bar.
    * - `nut`: a hydrant's operating nut, a knob turned about `+Y`.
+   * - `pumper`, `hoseLeft`, `hoseRight`: a hydrant's pumper nozzle face on `+Z` and hose nozzle faces on `+X` and `-X`, sockets a hose couples to.
    */
-  export type Affordance = "top" | "post" | "nut";
+  export type Affordance =
+    | "top"
+    | "post"
+    | "nut"
+    | "pumper"
+    | "hoseLeft"
+    | "hoseRight";
 
   /**
    * The free dimensions, metres unless stated:
@@ -293,7 +317,7 @@ export namespace createStreetFixture {
    * - `height`: the fixture above the ground; a lamp post's mounting height; a sign's bottom edge.
    * - `diameter`: a bollard's pipe, a hydrant's barrel, a lamp post's shaft, a sign post's side.
    * - `head`, `headHeight`: a lamp post's luminaire across and high; `head` also a sign's side.
-   * - `nozzleHeight`: a hydrant's nozzles' centreline above the ground.
+   * - `nozzleHeight`: a hydrant's nozzles' centreline above the ground; `pumperReach`, `hoseReach`: its pumper's and hose nozzles' faces from its axis.
    * - `base`, `baseHeight`: a lamp post's base across and high.
    * - `mass`: kilograms.
    */
@@ -301,6 +325,8 @@ export namespace createStreetFixture {
     | "height"
     | "diameter"
     | "nozzleHeight"
+    | "pumperReach"
+    | "hoseReach"
     | "base"
     | "baseHeight"
     | "head"

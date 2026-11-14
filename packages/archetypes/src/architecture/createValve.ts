@@ -83,6 +83,7 @@ export function createValve(
   const run: number = E.run * at("height");
   builder.rod("pipe", bore / 2, v(-run, axis, 0), v(run, axis, 0), {
     color: iron,
+    surface: "steel",
   });
   builder.rod("bonnet", (E.body * bore) / 2, v(0, axis, 0), v(0, height / 2, 0), {
     color: iron,

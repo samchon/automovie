@@ -15,12 +15,13 @@ const MM: number = 1e-3;
  * 2. A fridge's door at its full travel, 90 degrees, stands out toward `+Z` from its `+X` hinge edge by the fridge's width, its handle with it; the freezer door at rest is unmoved.
  * 3. A washing machine's door opens the maker's 160 degrees, and opened square it stands out toward `+Z` from its `-X` hinge edge by its own width.
  * 4. A microwave's door states no travel: any travel but 0 is refused.
+ * 5. A washbasin mixer's lever turns GROHE's 50 degrees, swinging its front toward `+X`, and lifts GROHE's 39 degrees, raising its front; lifted after turning, it lifts in its turned plane.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Poses produced archetypes and measures the moved colliders; a lid that lifts instead of lowering, a door that swings into the cabinet or about the wrong edge, a handle left behind, or a door opened past what its source gives is caught with the numbers.
  * @evidence contracts/development/testing.md#independent-expectations Expected places come from each thing's own drawn dimensions and the geometry of a quarter turn about the door's edge (a leaf of width `w` turned square reaches `w` out), not from the articulation code; the fridge's 90 and the washer's 160 degrees are the makers' and the millimetre is #3368's tolerance.
  * @evidence contracts/development/testing.md#distinguishing-cases A lid lowered from open, side-hung doors on both edges, a moved and an unmoved door on one model, and a door that does not open; the shared articulation rules belong to `test_archetype_contract_articulation`.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the four scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation States the five scenarios and what each pins.
  */
 export function test_archetype_fixture_articulation(): void {
   const findings: string[] = [];
@@ -121,6 +122,38 @@ export function test_archetype_fixture_articulation(): void {
   } catch {
     // Refused, as a door that states no travel is.
   }
+  // 5. The basin mixer's lever.
+  const basin: ReturnType<typeof createSanitary> = createSanitary(
+    { kind: "washbasin" },
+    6,
+  );
+  if (basin.affordance("tap").travel !== 50 || basin.affordance("lift").travel !== 39)
+    findings.push("the mixer's lever does not turn 50 and lift 39 degrees");
+  const lever: { low: number; high: number; size: number } = archetypeExtent(
+    basin,
+    "y",
+    ["tap-lever"],
+  );
+  const lifted: { low: number; high: number } = archetypeExtent(
+    basin.articulate({ lift: 39 }),
+    "y",
+    ["tap-lever"],
+  );
+  near(
+    "the lifted lever's top",
+    lifted.high - lever.high,
+    0.045 * Math.sin((39 * Math.PI) / 180) + 0.012 * (Math.cos((39 * Math.PI) / 180) - 1),
+  );
+  const turned: { low: number; high: number } = archetypeExtent(
+    basin.articulate({ tap: 50 }),
+    "x",
+    ["tap-lever"],
+  );
+  near(
+    "the turned lever's reach toward +X",
+    turned.high,
+    0.045 * Math.sin((50 * Math.PI) / 180) + 0.0075 * Math.cos((50 * Math.PI) / 180),
+  );
   TestValidator.equals(
     "fixture and appliance doors move as the things do",
     findings,

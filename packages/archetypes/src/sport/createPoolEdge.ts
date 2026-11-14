@@ -19,7 +19,7 @@ const FR: string =
  * The deck's surface is the origin's height and the wall's face the origin's `Z`; the water lies toward `+Z`, its surface the drawn freeboard below the deck, and the wall reaches down to the pool's floor. A swimmer in the water faces the wall along `-Z`; one on the platform faces the water along `+Z`.
  *
  * - `deck` is the deck at its edge, a surface stood on, as wide as the segment and its run behind the edge not stated; `edge` the deck's edge over the water, a ledge along `+X` with `+Z` out over the water, which a swimmer grips and hauls out by; `water` the water's surface at the wall's face, the plane a swimming act swims on, as wide as the segment; `restLedge` the rest ledge's outer edge, a ledge a swimmer stands or rests on.
- * - A starting platform's `platform` is its top, a surface sloping down toward the water; `front` the top's front edge, a ledge the toes curl over. The backstroke grip is not built: the rules place it 0.3 to 0.6 m above the water and the top 0.5 to 0.75 m, and no source read says how a grip above a low top is mounted.
+ * - A starting platform's `platform` is its top, a surface sloping down toward the water; `front` the top's front edge, a ledge the toes curl over; `backstrokeGrip` the horizontal backstroke grip under the top's front, a bar across the platform on the wall's line, at the drawn height FR 2.7 allows below the slab, behind the wall's face so it does not protrude. Its mounting is not drawn.
  *
  * Getting into or out of the water by a ladder is `createLadder` placed at the wall; no motion law yet climbs out of water (the multi-contact rows of #3436), so the edge serves a production's staging until one does.
  *
@@ -139,6 +139,23 @@ export function createPoolEdge(
     width: size,
     depth: size,
   });
+  const grip: number = water + d.gripHeight!;
+  builder.rod(
+    "backstroke-grip",
+    E.grip / 2,
+    v(-size / 2, grip, -E.grip / 2),
+    v(size / 2, grip, -E.grip / 2),
+    { color: "#b9bec4" },
+  );
+  builder.affordance({
+    id: "backstrokeGrip",
+    kind: "bar",
+    symmetry: "round",
+    frame: ArchetypeFrame.facing(v(0, grip, -E.grip / 2), v(0, 0, 1), v(1, 0, 0)),
+    extent: null,
+    grip: "power",
+    length: size,
+  });
   builder.affordance({
     id: "front",
     kind: "ledge",
@@ -172,7 +189,7 @@ export namespace createPoolEdge {
    * The affordance ids:
    *
    * - `deck`, `edge`, `water`, `restLedge`: every kind's, as {@link createPoolEdge} describes them.
-   * - `platform`, `front`: a starting platform's.
+   * - `platform`, `front`, `backstrokeGrip`: a starting platform's.
    */
   export type Affordance =
     | "deck"
@@ -180,7 +197,8 @@ export namespace createPoolEdge {
     | "water"
     | "restLedge"
     | "platform"
-    | "front";
+    | "front"
+    | "backstrokeGrip";
 
   /**
    * The free dimensions, metres unless stated:
@@ -192,6 +210,7 @@ export namespace createPoolEdge {
    * - `platformHeight`: the platform's top above the water, at its middle.
    * - `platformSize`: its top, square.
    * - `slope`: its top's fall toward the water, degrees.
+   * - `gripHeight`: the backstroke grip above the water.
    * - `mass`: kilograms.
    */
   export type Dimension =
@@ -202,6 +221,7 @@ export namespace createPoolEdge {
     | "ledgeWidth"
     | "platformHeight"
     | "platformSize"
+    | "gripHeight"
     | "slope"
     | "mass";
 
@@ -215,18 +235,20 @@ export namespace createPoolEdge {
   }
 
   /**
-   * The construction sizes: `deck`, the deck's run behind the edge, and `ledge`, the rest ledge's thickness, each an estimate no act reads and no band declares; `slab`, the platform's top thickness, the 0.04 m FR 2.7 names for a top a swimmer grips; `recess`, how far the pedestal stands back from the wall's line, an estimate.
+   * The construction sizes: `deck`, the deck's run behind the edge, and `ledge`, the rest ledge's thickness, each an estimate no act reads and no band declares; `slab`, the platform's top thickness, the 0.04 m FR 2.7 names for a top a swimmer grips; `recess`, how far the pedestal stands back from the wall's line, an estimate; `grip`, the backstroke grip bar's diameter, an estimate the bar is not declared with.
    */
   export const ESTIMATES: Readonly<{
     deck: number;
     ledge: number;
     slab: number;
     recess: number;
+    grip: number;
   }> = {
     deck: 1,
     ledge: 0.1,
     slab: 0.04,
     recess: 0.1,
+    grip: 0.03,
   };
 
   /** The bands every segment shares. */
@@ -289,6 +311,11 @@ export namespace createPoolEdge {
         0,
         10,
         `${FR} FR 2.7: the slope not more than 10 degrees`,
+      ),
+      gripHeight: ArchetypeBand.metres(
+        0.3,
+        0.41,
+        `${FR} FR 2.7: backstroke grips 0.3 to 0.6 m above the water, parallel to the end wall and not protruding beyond it; the model keeps them under the least platform's front, 0.5 m less half its 0.5 m top's fall at 10 degrees and the 0.04 m slab`,
       ),
       mass: ArchetypeBand.of(
         "kg",

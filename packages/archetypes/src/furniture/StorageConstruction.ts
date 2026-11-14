@@ -321,7 +321,7 @@ export namespace StorageConstruction {
         id,
         v(0.03, legs, 0.03),
         v(sx * (width / 2 - 0.015), legs / 2, sz * (depth / 2 - 0.015)),
-        { color: STEEL },
+        { color: STEEL, surface: "steel" },
       );
     for (const [id, x] of [
       ["side-left", width / 2 - t / 2],
@@ -329,12 +329,13 @@ export namespace StorageConstruction {
     ] as const)
       builder.box(id, v(t, top - legs, body), v(x, mid, back + body / 2), {
         color: STEEL,
+        surface: "steel",
       });
     builder.box(
       "back",
       v(width - 2 * t, top - legs, t),
       v(0, mid, back + t / 2),
-      { color: STEEL },
+      { color: STEEL, surface: "steel" },
     );
     for (const [id, y] of [
       ["bottom", legs + t / 2],
@@ -344,7 +345,7 @@ export namespace StorageConstruction {
         id,
         v(width - 2 * t, t, body - t),
         v(0, y, back + t + (body - t) / 2),
-        { color: STEEL },
+        { color: STEEL, surface: "steel" },
       );
     const shelf: number = legs + LOCKER_SHELF;
     const inside: number = back + t + (body - t) / 2;
@@ -352,7 +353,7 @@ export namespace StorageConstruction {
       "shelf",
       v(width - 2 * t, t, body - t),
       v(0, shelf - t / 2, inside),
-      { color: STEEL },
+      { color: STEEL, surface: "steel" },
     );
     builder.affordance({
       id: "shelf1",
@@ -363,6 +364,7 @@ export namespace StorageConstruction {
     const face: number = back + depth;
     builder.box("door", v(width, top - legs, t), v(0, mid, face - t / 2), {
       color: "#a3acb4",
+      surface: "steel",
     });
     builder.affordance({
       id: "door",

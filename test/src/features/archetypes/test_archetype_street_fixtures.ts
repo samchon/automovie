@@ -14,7 +14,7 @@ const MM: number = 1e-3;
  * Scenarios:
  * 1. A cone stands between the MUTCD's 18 and 28 in, its base 13.4 in for every 28 in of height as the Brimar cone's, lifted by a handle at its top.
  * 2. A bollard stands Reliance's 36 in, between its 4.50 and 10.75 in pipes, its post a bar the shaft's height and its top a face at the top.
- * 3. A hydrant stands Mueller's 32 in with its nozzles' centreline 24 in up, the pumper toward `+Z` and the hose nozzles toward `+X` and `-X`, its nut a knob on top.
+ * 3. A hydrant stands AMERICAN-Darling's 30.5 in with its nozzles' centreline 18 in up, the pumper's face 8.84 in out toward `+Z` and the hose nozzles' 8.48 in toward `+X` and `-X`, each face a socket, its nut a knob on top.
  * 4. A lamp post's shaft stands Wave's 12 ft on a 9 1/4 in base under Sternberg's 21 in by 40 in luminaire, its post a bar from the base's top to the shaft's top.
  * 5. A sign post holds a 30 to 36 in STOP sign with its bottom edge at the MUTCD's 7 ft on Atkore's 2 in post, the post below the sign a bar.
  *
@@ -84,12 +84,15 @@ export function test_archetype_street_fixtures(): void {
 
   // 3. The hydrant.
   const hydrant: ReturnType<typeof createStreetFixture> = make("hydrant", 3);
-  near("the hydrant's height", archetypeExtent(hydrant, "y").high, 0.8128);
+  near("the hydrant's height", archetypeExtent(hydrant, "y").high, 0.7747);
+  near("the pumper's face", hydrant.affordance("pumper").frame.translation.z, 0.2245);
+  near("the left hose face", hydrant.affordance("hoseLeft").frame.translation.x, 0.2154);
+  near("the right hose face", hydrant.affordance("hoseRight").frame.translation.x, -0.2154);
   for (const part of ["pumper", "hose-left", "hose-right"]) {
     const y: { low: number; high: number } = archetypeExtent(hydrant, "y", [
       part,
     ]);
-    near(`the hydrant's ${part} centreline`, (y.low + y.high) / 2, 0.6096);
+    near(`the hydrant's ${part} centreline`, (y.low + y.high) / 2, 0.4572);
   }
   const barrel: number = archetypeExtent(hydrant, "x", ["barrel"]).high;
   if (!(archetypeExtent(hydrant, "z", ["pumper"]).high > barrel))
@@ -102,7 +105,7 @@ export function test_archetype_street_fixtures(): void {
   )
     findings.push("the hose nozzles do not face +X and -X");
   const nut: IAutoMovieAffordance = hydrant.affordance("nut");
-  near("the hydrant's nut", nut.frame.translation.y, 0.8128);
+  near("the hydrant's nut", nut.frame.translation.y, 0.7747);
 
   // 4. The lamp post.
   const lamp: ReturnType<typeof createStreetFixture> = make("lampPost", 3);

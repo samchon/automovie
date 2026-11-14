@@ -51,15 +51,21 @@ export namespace SanitaryConstruction {
   /** A toilet lid's travel, degrees: the quarter turn about its level hinge that lays the lid, upright at rest, flat on the level ring. */
   export const LIFT: number = 90;
 
+  /** A basin mixer lever's turn to either side of the middle and its lift from closed to full flow, degrees: GROHE Eurosmart basin mixer technical guide, 50 degrees each side in plan and 39 degrees in elevation (https://digitalassets.reecegroup.com.au/m/17e34382c958ae5c/original/Technical-Guide-GROHE-Eurosmart-New-Basin-Mixer-Chrome-Plated-5-Star.pdf). */
+  export const MIXER: Readonly<{ turn: number; lift: number }> = {
+    turn: 50,
+    lift: 39,
+  };
+
   /**
    * A pedestal washbasin: the basin block at its rim height, a pedestal under its middle, and a single-lever mixer on the deck behind the opening, built as `createTap` builds one.
    *
-   * The mixer's lever is a place to touch, a `knob` without travel, because no source read gives its turn.
+   * The mixer's lever turns about its body as a `knob`, `tap`, by the maker's 50 degrees toward `+X` (it turns as far the other way), and lifts about a level axis across it as a `hinge`, `lift`, by the maker's 39 degrees, the lever's part bound to the lift, which rides the turn, so a turned lever turns with it and a lifted one lifts in its turned plane.
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built, where the mixer stands and why its lever does not turn.
+   * @evidence contracts/development/common.md#meaningful-documentation States what is built, where the mixer stands and how its lever turns and lifts.
    * @evidence contracts/development/implementation.md#principled-implementation A block of the maker's plan size and basin depth under the rim, on a pedestal a sixth of the basin's width in radius, a construction proportion; the mixer from the basin mixer's drawn bands in the middle of the deck strip between the wall and the opening's back edge, so its spout of the maker's reach ends over the opening, and the `spout` socket at the maker's outlet height and reach.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Basin, pedestal, mixer, then the four contacts.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The basin is not hollowed.
@@ -125,6 +131,16 @@ export namespace SanitaryConstruction {
       frame: ArchetypeFrame.facing(v(0, top, deck), v(0, 1, 0), v(1, 0, 0)),
       extent: null,
       grip: "precision",
+      travel: MIXER.turn,
+    });
+    builder.affordance({
+      id: "lift",
+      kind: "hinge",
+      frame: ArchetypeFrame.facing(v(0, top, deck), v(-1, 0, 0), v(0, 0, 1)),
+      extent: null,
+      travel: MIXER.lift,
+      parts: ["tap-lever"],
+      rides: "tap",
     });
     builder.affordance({
       id: "spout",

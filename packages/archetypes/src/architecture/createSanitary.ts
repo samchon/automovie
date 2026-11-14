@@ -12,7 +12,7 @@ import { SanitaryConstruction } from "./SanitaryConstruction";
  *
  * Each stands on the floor with its back against the wall at the origin's `Z`, centred on `X`, and is approached from `+Z`; a wall-hung basin stands on a pedestal so the model rests on the floor.
  *
- * - A washbasin's `rim` is the front edge of its top, a ledge a body leans on; `bowl` the basin's opening, a surface the hands wash over; `tap` its mixer's lever, a knob to touch, and `spout` the mixer's mouth, facing down.
+ * - A washbasin's `rim` is the front edge of its top, a ledge a body leans on; `bowl` the basin's opening, a surface the hands wash over; `tap` its mixer's lever turned about its body, a knob, `lift` the same lever lifted, a hinge riding `tap`, and `spout` the mixer's mouth, facing down.
  * - A toilet's `seat` is the seat's front edge, the sitter facing `+Z`; `lid` the lid's hinge, the lid standing open against the tank at rest and lowered onto the seat by its travel.
  * - A bath's `rim` is the apron's top edge, a ledge sat on or stepped over; `bottom` the floor of the well, a surface lain on. Its controls are on the room's end wall (ADA 607.5), which is not the bath's: a production places a `createTap` or `createSwitch` there.
  * - A transfer shower is a one-piece stall open at the front: `tray` its floor, `threshold` the front edge stepped over, `entry` the opening, `seat` the folding seat on the `+X` wall facing `-X`, and `control` the valve on the `-X` wall, a knob.
@@ -84,7 +84,7 @@ export namespace createSanitary {
   /**
    * The affordance ids, by kind:
    *
-   * - washbasin: `rim` (ledge, the top's front edge), `bowl` (surface over the basin), `tap` (knob, the mixer's lever), `spout` (socket, the mixer's mouth facing down);
+   * - washbasin: `rim` (ledge, the top's front edge), `bowl` (surface over the basin), `tap` (knob, the mixer's lever turned), `lift` (hinge, the lever lifted, riding `tap`), `spout` (socket, the mixer's mouth facing down);
    * - toilet: `seat` (seat, facing `+Z`), `lid` (hinge, lowering the lid from open);
    * - bathtub: `rim` (ledge, the apron's top edge), `bottom` (surface, the well's floor);
    * - shower: `tray` (surface, the floor), `threshold` (ledge, the front edge), `entry` (aperture, the opening, its `+Z` into the stall), `seat` (seat, facing `-X`), `control` (knob, the valve).
@@ -93,6 +93,7 @@ export namespace createSanitary {
     | "rim"
     | "bowl"
     | "tap"
+    | "lift"
     | "spout"
     | "seat"
     | "lid"

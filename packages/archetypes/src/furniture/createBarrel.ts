@@ -82,7 +82,7 @@ export function createBarrel(
     radius,
     Vector3.create(0, 0, 0),
     Vector3.create(0, height, 0),
-    { color: kind === "keg" ? "#b9bec4" : "#4a6b8a" },
+    { color: kind === "keg" ? "#b9bec4" : "#4a6b8a", surface: "steel" },
   );
   for (const [id, sign] of [
     ["left", 1],

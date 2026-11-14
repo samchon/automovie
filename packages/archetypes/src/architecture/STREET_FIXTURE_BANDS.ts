@@ -17,6 +17,10 @@ const BOLLARD: string =
 const MUELLER: string =
   "Mueller Centurion A-403 submittal drawing FH-10018 rev C: 32 in from the ground line to the top, the nozzles' centreline 24 in up, a 4 1/2 in pumper and two 2 1/2 in hose nozzles, a 1 1/2 in pentagon operating nut, 8.66 in across the top (https://www.muellercompany.com/sites/muellercompany.com/files/uploads/media/fh-10018_rev-c.pdf); the nozzles on one plane, the hose nozzles 180 degrees apart with the pumper between (Mueller MC124 2.5)";
 
+/** The hydrant whose nozzle faces were read. */
+const DARLING: string =
+  "AMERICAN-Darling B-84-B-5 standard dimensions drawing: 30.50 in from the ground line to the top, the nozzles' centreline 18.00 in up, the pumper nozzle's face 8.84 in and the hose nozzles' faces 8.48 in from the hydrant's axis (https://american-usa.atl1.cdn.digitaloceanspaces.com/posts/2.4.1.1.2-b84b-standard-dimensions_print.png)";
+
 /** The lamp post read. */
 const WAVE: string =
   "Wave Lighting 3692 pole sheet: 12 ft mounting height, 3 in butt and 2.95 in top diameter, base 9 1/4 in across and 11 7/8 in high (https://cdn.shopify.com/s/files/1/1916/1697/files/wave-lighting-3600-pdf-4.pdf)";
@@ -67,8 +71,10 @@ export const STREET_FIXTURE_BANDS: Readonly<
     mass: ArchetypeBand.of("kg", 34.5, 128.8, `${BOLLARD}: whole pipes`),
   },
   hydrant: {
-    height: ArchetypeBand.metres(0.8128, 0.8128, MUELLER),
-    nozzleHeight: ArchetypeBand.metres(0.6096, 0.6096, MUELLER),
+    height: ArchetypeBand.metres(0.7747, 0.7747, DARLING),
+    nozzleHeight: ArchetypeBand.metres(0.4572, 0.4572, DARLING),
+    pumperReach: ArchetypeBand.metres(0.2245, 0.2245, DARLING),
+    hoseReach: ArchetypeBand.metres(0.2154, 0.2154, DARLING),
     diameter: ArchetypeBand.metres(
       0.22,
       0.22,

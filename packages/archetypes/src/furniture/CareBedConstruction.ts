@@ -315,7 +315,7 @@ export namespace CareBedConstruction {
         id,
         v(E.post, d.height!, E.post),
         v(sx * x, d.height! / 2, sz * z),
-        { color: PINE },
+        { color: PINE, surface: "wood" },
       );
     for (const [level, y] of [
       ["lower", lower],
@@ -325,7 +325,7 @@ export namespace CareBedConstruction {
         `base-${level}`,
         v(width, E.base, length),
         v(0, y - E.base / 2, 0),
-        { color: PINE },
+        { color: PINE, surface: "wood" },
       );
       builder.box(
         `mattress-${level}`,
@@ -337,13 +337,14 @@ export namespace CareBedConstruction {
     const r: number = E.bar / 2;
     builder.rod("guard-left", r, v(-x, guard - r, -z), v(-x, guard - r, z), {
       color: PINE,
+      surface: "wood",
     });
     builder.rod(
       "guard-right",
       r,
       v(x, guard - r, -z),
       v(x, guard - r, z - GUARD_GAP),
-      { color: PINE },
+      { color: PINE, surface: "wood" },
     );
     builder.affordance({
       id: "guard",

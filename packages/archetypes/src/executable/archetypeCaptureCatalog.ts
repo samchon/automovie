@@ -24,6 +24,8 @@ import { type Archetype, type ArchetypeCourse, ArchetypeRide } from "../core";
 import {
   createBarrel,
   createBed,
+  createHighChair,
+  createLectern,
   createLoad,
   createSeat,
   createStorage,
@@ -299,6 +301,8 @@ export function archetypeCaptureCatalog(): Readonly<
         createBarrel.KINDS,
         (kind: createBarrel.Kind): Archetype => createBarrel({ kind }),
       ),
+      highChair: createHighChair(),
+      lectern: createLectern(),
     }),
     doors: still({
       "door-lever-right": door,
