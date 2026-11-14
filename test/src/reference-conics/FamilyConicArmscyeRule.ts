@@ -1317,8 +1317,7 @@ namespace FamilyConicArmscyeRule {
    * length between its ends; and each closed piece's star-shape in the trunk's chart (phase read as millimetres at the armpit's side
    * distance), as the port's loop is read.
    */
-  function realCut(girdle: { frame: AutoMovieLoftFrame.IFrame; normal: V }, foldAt: (p: V) => { z: number; distance: number }): { lines: string[]; rayRing: V[]; pieces: { points: V[]; closed: boolean }[]; trunk: M.IMesh } {
-    const trunk: M.IMesh = trunkMesh();
+  function realCut(trunk: M.IMesh, girdle: { frame: AutoMovieLoftFrame.IFrame; normal: V }, foldAt: (p: V) => { z: number; distance: number }): { lines: string[]; rayRing: V[]; pieces: { points: V[]; closed: boolean }[]; trunk: M.IMesh } {
     const frame: AutoMovieLoftFrame.IFrame = girdle.frame;
     const origin: V = [...frame.origin] as V;
     const normal: V = cross(frame.v as V, frame.u as V);
@@ -1556,7 +1555,7 @@ namespace FamilyConicArmscyeRule {
     const files: string[] = [];
 
     // 3. The girdle ring as the plane's real cut of the trunk wall, and its frame: neither depends on the course.
-    const real = realCut(girdle, reference.foldAt);
+    const real = realCut(trunkMesh(), girdle, reference.foldAt);
     NodeCanvasRaster.initialize();
     const wall: N.Mesh = cropMesh("trunk", real.trunk, scale(real.rayRing.reduce((t: V, p: V): V => add(t, p), [0, 0, 0]), 1 / real.rayRing.length), 160);
     const ringFile: string = path.join(out, "bend.ring.armpit.png");
@@ -1610,16 +1609,6 @@ namespace FamilyConicArmscyeRule {
     const gh: V = P.frame("humerus").origin as V;
     const shoulder: N.Mesh = cropMesh("reference", source.all, add(gh, scale(unit(sub(elbow, gh)), 120)), 230);
     const points = (mesh: N.Mesh): V[] => Array.from({ length: mesh.positions.length / 3 }, (_: unknown, i: number): V => [mesh.positions[3 * i]!, mesh.positions[3 * i + 1]!, mesh.positions[3 * i + 2]!]);
-    const marks = (at: V[], colour: string, id: string): N.Curve[] =>
-      at.flatMap((p: V, i: number): N.Curve[] =>
-        [0, 1, 2].map((c: number): N.Curve => {
-          const a: V = [...p];
-          const b: V = [...p];
-          a[c] -= 1.5;
-          b[c] += 1.5;
-          return { id: `${id}${i}.${c}`, points: [a, b], closed: false, xray: true, colour };
-        }),
-      );
     const failingPoints: V[] = [...checkReference.failing[0]!, ...checkReference.failing[1]!].map((f: IStep): V => f.p);
     const curves: N.Curve[] = [
       ...factsReference.sections,
@@ -1638,9 +1627,301 @@ namespace FamilyConicArmscyeRule {
     process.stdout.write(lines.join("\n") + "\nout " + out + "\n");
   }
 
+  /** Short crosses at points, for a frame: three 3 mm strokes along the axes through each. */
+  function marks(at: readonly V[], colour: string, id: string): N.Curve[] {
+    return at.flatMap((p: V, i: number): N.Curve[] =>
+      [0, 1, 2].map((c: number): N.Curve => {
+        const a: V = [...p];
+        const b: V = [...p];
+        a[c] -= 1.5;
+        b[c] += 1.5;
+        return { id: `${id}${i}.${c}`, points: [a, b], closed: false, xray: true, colour };
+      }),
+    );
+  }
+
+  /** The points of a frame's mesh, for fitting its camera. */
+  function meshPoints(mesh: N.Mesh): V[] {
+    return Array.from({ length: mesh.positions.length / 3 }, (_: unknown, i: number): V => [mesh.positions[3 * i]!, mesh.positions[3 * i + 1]!, mesh.positions[3 * i + 2]!]);
+  }
+
+  /** Each ray's outermost kept point of a mesh's cut at a course station, every piece read, open or closed; null where a ray meets none. */
+  function castSection(axis: IAxis, station: number, mesh: M.IMesh, keep: (p: V) => boolean): (V | null)[] {
+    const frame: AutoMovieLoftFrame.IFrame = axis.at(station);
+    const origin: V = [...frame.origin] as V;
+    const world = (p: C.P): V => add(origin, add(scale(frame.u as V, p[0]), scale(frame.v as V, p[1])));
+    const pieces: IPiece[] = M.outline(mesh, { origin, axes: [cross(frame.v as V, frame.u as V), [...frame.u] as V, [...frame.v] as V] }, [0], 0, 0.5, 0)[0]!.loops.map((loop: M.ILoop): IPiece => ({ points: [...loop.points], closed: loop.closed }));
+    return cast(pieces, (p: C.P): boolean => keep(world(p))).map((h, j: number): V | null => (Number.isFinite(h.t) ? world([h.t * Math.cos((2 * Math.PI * j) / RAYS), h.t * Math.sin((2 * Math.PI * j) / RAYS)]) : null));
+  }
+
+  /**
+   * The folds of a course's sweep: each ray's point at every station `ADVANCE_STEP_MM` apart from `from` to `to`, the steps that go back
+   * along the course's tangent, and per phase the no-fold boundary, the last station a step of that phase goes back at (`from` where none),
+   * after which that phase never steps back again.
+   */
+  function folds(axis: IAxis, from: number, to: number, read: (station: number) => (V | null)[]): { stations: number[]; points: (V | null)[][]; back: { s: number; phase: number; p: V }[]; boundary: number[] } {
+    const stations: number[] = [];
+    for (let s: number = from; s <= to + 1e-9; s += ADVANCE_STEP_MM) stations.push(s);
+    const points: (V | null)[][] = stations.map(read);
+    const back: { s: number; phase: number; p: V }[] = [];
+    const boundary: number[] = Array.from({ length: RAYS }, (): number => from);
+    for (let k: number = 1; k < stations.length; ++k) {
+      const s: number = stations[k]!;
+      const tangent: V = unit(sub(axis.at(s - 0.25).origin as V, axis.at(s - 0.75).origin as V));
+      points[k]!.forEach((p: V | null, j: number): void => {
+        const before: V | null = points[k - 1]![j]!;
+        if (p === null || before === null || dot(sub(p, before), tangent) > 0) return;
+        back.push({ s, phase: (360 * j) / RAYS, p });
+        boundary[j] = s;
+      });
+    }
+    return { stations, points, back, boundary };
+  }
+
+  /** A per-phase value summarized every 10 degrees of phase (20 rays): each band's least and greatest, as `0..10 deg: a..b`. */
+  function everyTen(values: readonly number[], digits: number = 1): string[] {
+    const per: number = RAYS / 36;
+    return Array.from({ length: 36 }, (_: unknown, b: number): string => {
+      const band: number[] = values.slice(b * per, (b + 1) * per).filter((x: number): boolean => Number.isFinite(x));
+      return `${b * 10}..${b * 10 + 10} deg: ${band.length === 0 ? "-" : `${Math.min(...band).toFixed(digits)}..${Math.max(...band).toFixed(digits)}`}`;
+    });
+  }
+
+  /**
+   * The axilla cutter's volume at the reference pose, as a test: a point lies inside where, between two of the cutter's sections 0.5 mm
+   * apart whose planes it stands between, it falls inside the nearer section's loop (72 phases). The cutter's tips are left out, so the
+   * volume is its tube between its first and last knots.
+   */
+  function cutterVolume(): (p: V) => boolean {
+    const cutter: H.IFamily = AutoMovieHumanF1.CUTTERS[0]!.family;
+    const axis: IAxis = H.axis(cutter);
+    const stations: number[] = [];
+    for (let s: number = cutter.knots[0]!; s <= cutter.knots.at(-1)!; s += 0.5) stations.push(s);
+    const loft: AutoMovieViewLoft.IResult = H.create({ ...cutter, tips: undefined, reliefs: undefined }, stations);
+    if (loft.chain === null) throw new Error("the axilla cutter does not loft");
+    const chain = loft.chain;
+    const rings = stations.map((s: number) => {
+      const frame: AutoMovieLoftFrame.IFrame = axis.at(s);
+      const origin: V = [...frame.origin] as V;
+      const read = AutoMovieLoftChain.sampler(chain, s);
+      return { origin, normal: cross(frame.v as V, frame.u as V), u: frame.u as V, v: frame.v as V, loop: Array.from({ length: 72 }, (_: unknown, j: number): C.P => {
+        const p: V = read((2 * Math.PI * j) / 72) as V;
+        return [dot(sub(p, origin), frame.u as V), dot(sub(p, origin), frame.v as V)];
+      }) };
+    });
+    const within = (q: C.P, loop: readonly C.P[]): boolean => {
+      let inside: boolean = false;
+      for (let i: number = 0, k: number = loop.length - 1; i < loop.length; k = i++) {
+        const [a, b]: C.P[] = [loop[i]!, loop[k]!];
+        if ((a![1] > q[1]) !== (b![1] > q[1]) && q[0] < ((b![0] - a![0]) * (q[1] - a![1])) / (b![1] - a![1]) + a![0]) inside = !inside;
+      }
+      return inside;
+    };
+    return (p: V): boolean => {
+      for (let k: number = 0; k + 1 < rings.length; ++k) {
+        const [a, b] = [rings[k]!, rings[k + 1]!];
+        const [ha, hb]: number[] = [dot(sub(p, a.origin), a.normal), dot(sub(p, b.origin), b.normal)];
+        if ((ha! < 0) === (hb! < 0)) continue;
+        const ring = Math.abs(ha!) <= Math.abs(hb!) ? a : b;
+        if (within([dot(sub(p, ring.origin), ring.u), dot(sub(p, ring.origin), ring.v)], ring.loop)) return true;
+      }
+      return false;
+    };
+  }
+
+  /** One source of f1's construction realized alone at a chord of 1 mm, mm: the family's own wall, no port, band or cutter applied. */
+  function alone(name: string): M.IMesh {
+    const declared = AutoMovieHumanF1.construction();
+    const real = realizeAutoMovieConstruction({ name: "f1." + name, root: { type: "source", name, source: name }, fills: [] }, { chord: 0.001, sources: declared.sources });
+    return { positions: Array.from(real.mesh.positions, (x: number): number => 1000 * x), indices: Array.from(real.mesh.indices) };
+  }
+
+  /**
+   * The armscye as a port whose rails stand past the arm's folds (the supervisor's ruling on #3151, after the shoulder turn by the digits'
+   * rule diverged): sections square to a course meet on its centre-of-curvature line, and a course that starts at the ring's centre and ends
+   * on the arm's axis cannot keep every section on the inner side, so the band carries the skin there (`construction.md`, Ports: the child
+   * extends its field past its root rail and the band blends two real fields; `IAutoMovieConstructionPort.rails` per phase, `profiles` into
+   * a hollow and up again). The rule: rail(phase) is the first station after which that phase's ray never steps back on the arm's own skin,
+   * plus the band's margin (`ARM_RAIL_MM`) read along the skin. Measured: (1) the current f1 arm on its own course, its own wall realized
+   * alone, for folds and their overlap with the axilla cutter's volume; (2) the no-fold boundary per phase, on (a) that arm and (b) the k
+   * = 1.5 course reading the reference's arm arc; (3) the girdle ring on the trunk family's own wall realized alone; (4) the band's span on
+   * the k = 1.5 course with those rails; (5) frames.
+   */
+  async function rails(): Promise<void> {
+    const started: number = Date.now();
+    const progress = (what: string): void => {
+      process.stdout.write(`${((Date.now() - started) / 1000).toFixed(0)} s: ${what}\n`);
+    };
+    const root: string = path.resolve(process.cwd(), "..");
+    const source: R.ISource = await R.load(root);
+    const r: number = UPPER_ARM_GIRTH_MM / (2 * Math.PI);
+    const girdle = plane(0, 0);
+    const n: V = girdle.normal;
+    const gh: V = P.frame("humerus").origin as V;
+    const elbow: V = P.frame("forearm").origin as V;
+    const ringPoints: V[] = ring(source.all, girdle.frame).filter((h: V | null): h is V => h !== null);
+    const centre: V = scale(ringPoints.reduce((t: V, p: V): V => add(t, p), [0, 0, 0]), 1 / ringPoints.length);
+    const reference: ISkins = skinsOf(await realizedSkin(root, "reference", progress), source.all, "reference");
+    const slit: V[] = slitSkin();
+    const inCutter = cutterVolume();
+    const lines: string[] = ["R3b, the armscye's rails past the arm's folds; measurement only", ""];
+    const out: string = path.join(root, "test/.shots/family-conic-armscye-rule", "rails-" + new Date().toISOString().replaceAll(":", "-"));
+    await fs.mkdir(out, { recursive: true });
+
+    // 1. The current f1 arm on its own course: its stored family's frames (armRoot, armTurn, its halves), its own wall realized alone.
+    const arm: H.IFamily = AutoMovieHumanF1.BODY.arm;
+    const armAxis: IAxis = H.axis(arm);
+    const from: number = arm.knots[0]!;
+    let elbowStation: number = from;
+    for (let s: number = from; s < from + 800; s += 0.5) if (norm(sub(armAxis.at(s).origin as V, elbow)) < norm(sub(armAxis.at(elbowStation).origin as V, elbow))) elbowStation = s;
+    const armWall: M.IMesh = alone(arm.name);
+    progress(`realized the arm's own wall: ${armWall.indices.length / 3} triangles`);
+    const own = folds(armAxis, from, elbowStation, (station: number): (V | null)[] => castSection(armAxis, station, armWall, (): boolean => true));
+    progress(`the arm on its own course: ${own.back.length} steps go back`);
+    const ownInside: number = own.back.filter((b): boolean => inCutter(b.p)).length;
+    const ownStations: number[] = own.back.map((b): number => b.s - from);
+    // What the check read: the rays that met the wall per station, and how far the read points stand from the course against the course's
+    // least radius of curvature (a section folds where it reaches past its course's centre of curvature).
+    const counts: number[] = own.points.map((ps: (V | null)[]): number => ps.filter((p: V | null): boolean => p !== null).length);
+    let ownReach: { d: number; s: number } = { d: 0, s: from };
+    own.points.forEach((ps: (V | null)[], k: number): void => {
+      const origin: V = armAxis.at(own.stations[k]!).origin as V;
+      for (const p of ps) if (p !== null && norm(sub(p, origin)) > ownReach.d) ownReach = { d: norm(sub(p, origin)), s: own.stations[k]! };
+    });
+    let ownLeast: { R: number; s: number } = { R: Infinity, s: from };
+    for (const s of own.stations) if (courseRadius(armAxis, s) < ownLeast.R) ownLeast = { R: courseRadius(armAxis, s), s };
+    lines.push(
+      `1. THE CURRENT F1 ARM ON ITS OWN COURSE (its stored family's frames, its own wall realized alone, every piece of each cut read, no clip), stations ${from.toFixed(1)} to the elbow's ${elbowStation.toFixed(1)} mm, ${ADVANCE_STEP_MM} mm apart; the arm's turn ${degrees(AutoMovieHumanConicPose.angles(arm.centres.map((c): V => [c[0], c[1], c[2]]))[0]!).toFixed(1)} deg, half ${arm.halves[0]!.toFixed(1)} mm:`,
+      `  read: ${Math.min(...counts)} .. ${Math.max(...counts)} of ${RAYS} rays meet the wall per station (${counts.filter((c: number): boolean => c === 0).length} of ${counts.length} stations read nothing); the read points stand up to ${ownReach.d.toFixed(1)} mm from the course (at station ${ownReach.s.toFixed(0)}), against the course's least radius of curvature ${ownLeast.R.toFixed(1)} mm (at station ${ownLeast.s.toFixed(0)})`,
+      `  ${own.back.length} ray steps go back${own.back.length === 0 ? "" : ` over stations ${Math.min(...ownStations).toFixed(0)} .. ${Math.max(...ownStations).toFixed(0)} mm past the arm's first knot, at phases ${Math.min(...own.back.map((b): number => b.phase)).toFixed(1)} .. ${Math.max(...own.back.map((b): number => b.phase)).toFixed(1)} deg`}`,
+      `  inside the axilla cutter's volume (its tube between its first and last knots): ${ownInside} of ${own.back.length} of those points`,
+      "  steps back per 10 deg of phase (count; stations past the first knot):",
+      ...Array.from({ length: 36 }, (_: unknown, b: number): string => {
+        const band = own.back.filter((x): boolean => x.phase >= b * 10 && x.phase < b * 10 + 10);
+        return `    ${b * 10}..${b * 10 + 10} deg: ${band.length}${band.length === 0 ? "" : ` (${Math.min(...band.map((x): number => x.s - from)).toFixed(0)}..${Math.max(...band.map((x): number => x.s - from)).toFixed(0)} mm; ${band.filter((x): boolean => inCutter(x.p)).length} inside the cutter)`}`;
+      }),
+      "",
+    );
+
+    // 2. The no-fold boundary per phase: (a) that arm, (b) the k = 1.5 course on the reference's arm arc.
+    let s15: number = TURN_K * r;
+    for (let i: number = 0; i < 100; ++i) {
+      const next: number = TURN_K * r * AutoMovieHumanConicPose.share(AutoMovieHumanConicPose.angles([centre, add(centre, scale(n, s15)), elbow])[0]!);
+      if (Math.abs(next - s15) < 1e-9) break;
+      s15 = next;
+    }
+    const frames: P.IFrames = P.frames();
+    const centres15: V[] = [centre, add(centre, scale(n, s15 + 1e-6)), ...T_COURSE_AFTER.map((name: string): V => SF.toWorld(frames.get(PLACED[name]!.frame)!, PLACED[name]!.local) as V)];
+    const axis15: IAxis = H.axis({ centres: centres15, halves: [TURN_K * r, ...arm.halves.slice(1)], up: P.direction("arm.up", frames) as V });
+    const turnEnd: number = 2 * TURN_K * r + 20;
+    const rule = folds(axis15, 0, turnEnd, (station: number): (V | null)[] => readStation(axis15, station, reference, false)[1]!.rays);
+    progress(`the k ${TURN_K} course on the reference's arm arc: ${rule.back.length} steps go back`);
+    const boundaryLines = (label: string, boundary: readonly number[], start: number): string[] => {
+      const past: number[] = boundary.map((s: number): number => s - start);
+      const needs: number[] = past.map((s: number, j: number): number => (s > 0 ? (360 * j) / RAYS : NaN)).filter((x: number): boolean => Number.isFinite(x));
+      return [`  ${label}: the boundary's greatest ${Math.max(...past).toFixed(0)} mm; ${needs.length} of ${RAYS} phases need a rail past the start${needs.length === 0 ? "" : `, phases ${Math.min(...needs).toFixed(1)} .. ${Math.max(...needs).toFixed(1)} deg`}; per 10 deg (mm past the start):`, ...everyTen(past, 0).map((x: string): string => `    ${x}`)];
+    };
+    lines.push("2. THE NO-FOLD BOUNDARY PER PHASE (the last station a step of that phase goes back at; the start where none):", ...boundaryLines(`(a) the current arm on its own course (past its first knot ${from.toFixed(1)} mm)`, own.boundary, from), ...boundaryLines(`(b) the k ${TURN_K} course on the reference's arm arc (past the ring's centre)`, rule.boundary, 0), "");
+
+    // 3. The girdle ring on the trunk family's own wall, realized alone (the port cuts the host's face, not the cutter's result), and on its
+    // loft as the earlier runs read it.
+    const trunkWall: M.IMesh = alone(AutoMovieHumanF1.BODY.trunk.name);
+    progress(`realized the trunk's own wall: ${trunkWall.indices.length / 3} triangles`);
+    const ownCut = realCut(trunkWall, girdle, reference.foldAt);
+    const loftCut = realCut(trunkMesh(), girdle, reference.foldAt);
+    lines.push("3. THE GIRDLE RING ON THE TRUNK FAMILY'S OWN WALL (realized alone, no cutter):", ...ownCut.lines, "  the same on the trunk's loft (its nets, a ring every millimetre), as the bend run read it:", ...loftCut.lines, "");
+
+    // 4. The band's span on the k = 1.5 course: per phase, the ring's point (the ray from the ring's centre in the course's first frame) and
+    // the rail's (the boundary of 2b, then ARM_RAIL_MM along that phase's points on the skin); their distance, and the angle between the
+    // reference skin's normals there (triangle winding, the nearest triangle's).
+    const first: AutoMovieLoftFrame.IFrame = axis15.at(0);
+    const flatRing: C.P[] = ringPoints.map((p: V): C.P => [dot(sub(p, centre), first.u as V), dot(sub(p, centre), first.v as V)]);
+    const ringHits = cast([{ points: flatRing, closed: true }], (): boolean => true);
+    const ringAt: (V | null)[] = ringHits.map((h, j: number): V | null => (Number.isFinite(h.t) ? add(centre, add(scale(first.u as V, h.t * Math.cos((2 * Math.PI * j) / RAYS)), scale(first.v as V, h.t * Math.sin((2 * Math.PI * j) / RAYS)))) : null));
+    const railAt: { s: number; p: V | null }[] = rule.boundary.map((b: number, j: number): { s: number; p: V | null } => {
+      let k: number = rule.stations.findIndex((s: number): boolean => s >= b);
+      while (k < rule.stations.length && rule.points[k]![j] === null) ++k;
+      let walked: number = 0;
+      for (; k + 1 < rule.stations.length && walked < ARM_RAIL_MM; ++k) {
+        const [p, q] = [rule.points[k]![j], rule.points[k + 1]![j]];
+        if (p === null || q === null) continue;
+        walked += norm(sub(q!, p!));
+      }
+      return k < rule.stations.length && walked >= ARM_RAIL_MM ? { s: rule.stations[k]!, p: rule.points[k]![j]! } : { s: NaN, p: null };
+    });
+    const tris: number = source.all.indices.length / 3;
+    const corner = (t: number, c: number): V => {
+      const v: number = source.all.indices[3 * t + c]!;
+      return [source.all.positions[3 * v]!, source.all.positions[3 * v + 1]!, source.all.positions[3 * v + 2]!];
+    };
+    const grid: Map<string, number[]> = new Map();
+    const cell = (p: V): string => p.map((x: number): number => Math.floor(x / 10)).join(",");
+    for (let t: number = 0; t < tris; ++t) {
+      const key: string = cell(scale(add(add(corner(t, 0), corner(t, 1)), corner(t, 2)), 1 / 3));
+      const list: number[] | undefined = grid.get(key);
+      if (list === undefined) grid.set(key, [t]);
+      else list.push(t);
+    }
+    const normalAt = (p: V): V => {
+      let best: { d: number; t: number } = { d: Infinity, t: -1 };
+      const [x, y, z]: number[] = p.map((u: number): number => Math.floor(u / 10));
+      for (let i: number = -1; i <= 1; ++i)
+        for (let j: number = -1; j <= 1; ++j)
+          for (let k: number = -1; k <= 1; ++k)
+            for (const t of grid.get(`${x! + i},${y! + j},${z! + k}`) ?? []) {
+              const d: number = norm(sub(scale(add(add(corner(t, 0), corner(t, 1)), corner(t, 2)), 1 / 3), p));
+              if (d < best.d) best = { d, t };
+            }
+      return unit(cross(sub(corner(best.t, 1), corner(best.t, 0)), sub(corner(best.t, 2), corner(best.t, 0))));
+    };
+    const span: number[] = ringAt.map((p: V | null, j: number): number => (p === null || railAt[j]!.p === null ? NaN : norm(sub(railAt[j]!.p!, p))));
+    const angle: number[] = ringAt.map((p: V | null, j: number): number => (p === null || railAt[j]!.p === null ? NaN : degrees(Math.acos(Math.max(-1, Math.min(1, dot(normalAt(p), normalAt(railAt[j]!.p!))))))));
+    const outward: number = railAt.filter((x): boolean => x.p !== null && dot(normalAt(x.p), sub(x.p, axis15.at(x.s).origin as V)) > 0).length;
+    const read: number = railAt.filter((x): boolean => x.p !== null).length;
+    lines.push(
+      `4. THE BAND'S SPAN ON THE k ${TURN_K} COURSE with rails at the boundary of 2b plus ${ARM_RAIL_MM} mm along the skin: ${read} of ${RAYS} phases have a rail point, ${ringAt.filter((p): boolean => p !== null).length} a ring point; the skin's normals by the reference's winding (${outward} of ${read} rail normals point away from the course)`,
+      "  the rail's station per 10 deg (mm along the course):",
+      ...everyTen(railAt.map((x): number => x.s), 0).map((x: string): string => `    ${x}`),
+      "  the band's length from the ring to the rail per 10 deg (mm, straight):",
+      ...everyTen(span).map((x: string): string => `    ${x}`),
+      "  the angle between the trunk skin's normal at the ring and the arm skin's normal at the rail per 10 deg:",
+      ...everyTen(angle).map((x: string): string => `    ${x}`),
+      "",
+    );
+
+    // 5. Frames.
+    NodeCanvasRaster.initialize();
+    const files: string[] = [];
+    const render = async (file: string, camera: N.Camera, meshes: N.Mesh[], curves: N.Curve[], title: string): Promise<void> => {
+      await fs.writeFile(path.join(out, file), NodeCanvasRaster.render(camera, meshes, curves, "depth", title).png);
+      files.push(path.join(out, file));
+    };
+    const cutterRings: N.Curve[] = Array.from({ length: slit.length / 36 }, (_: unknown, i: number): N.Curve => ({ id: "cutter" + i, points: slit.slice(36 * i, 36 * i + 36), closed: true, xray: true, colour: "d08a1f" }));
+    const figure: N.Mesh = cropMesh("generated", reference.generated, gh, 200);
+    const foldMarks: N.Curve[] = marks(own.back.map((b): V => b.p), "e01b1b", "fold");
+    for (const [view, camera] of [["armpit", facing("armpit", n, [0, 1, 0], meshPoints(figure), 900, 900)], ["front", NodeCanvasCamera.fit("front", meshPoints(figure), 900, 900)]] as [string, N.Camera][])
+      await render(`rails.arm-folds.${view}.png`, camera, [figure], [...cutterRings, ...foldMarks], `f1 as generated near the shoulder | red: where the current arm's own wall steps back along its own course (${own.back.length}); orange: the axilla cutter's sections | ${view}`);
+    const trunkView: N.Mesh = cropMesh("trunk", trunkWall, scale(ownCut.rayRing.reduce((t: V, p: V): V => add(t, p), [0, 0, 0]), 1 / ownCut.rayRing.length), 160);
+    // Fitted to the ray ring: the plane's cut also crosses the trunk's lower wall far below the shoulder, which would shrink the ring.
+    await render("rails.ring.trunk-wall.armpit.png", facing("armpit", n, [0, 1, 0], ownCut.rayRing, 900, 900), [trunkView], [{ id: "ray-ring", points: ownCut.rayRing, closed: true, xray: true, colour: "9a3fb5" }, ...ownCut.pieces.map((piece, i: number): N.Curve => ({ id: "cut" + i, points: piece.points, closed: piece.closed, xray: true, colour: "1f9d3a" })), ...cutterRings], "f1's trunk family's own wall, realized alone, seen from the armpit along the plane's normal | purple: the ray ring; green: the plane's real cut; orange: the axilla cutter");
+    const shoulder: N.Mesh = cropMesh("reference", source.all, add(gh, scale(unit(sub(elbow, gh)), 60)), 200);
+    const railPoints: V[] = railAt.map((x): V | null => x.p).filter((p: V | null): p is V => p !== null);
+    const bands: N.Curve[] = Array.from({ length: 36 }, (_: unknown, b: number): N.Curve | null => {
+      const j: number = b * (RAYS / 36);
+      return ringAt[j] === null || railAt[j]!.p === null ? null : { id: "band" + b, points: [ringAt[j]!, railAt[j]!.p!], closed: false, xray: true, colour: "2f6fd0" };
+    }).filter((c: N.Curve | null): c is N.Curve => c !== null);
+    const railCurves: N.Curve[] = [{ id: "ring", points: ringPoints, closed: true, xray: true, colour: "9a3fb5" }, { id: "rail", points: railPoints, closed: true, xray: true, colour: "e01b1b" }, ...bands];
+    for (const [view, camera] of [["armpit", facing("armpit", n, [0, 1, 0], meshPoints(shoulder), 900, 900)], ["back", NodeCanvasCamera.fit("back", meshPoints(shoulder), 900, 900)]] as [string, N.Camera][])
+      await render(`rails.rails.${view}.reference.png`, camera, [shoulder], railCurves, `f1 reference | purple: the girdle ring; red: the arm's rail on the k ${TURN_K} course (the no-fold boundary + ${ARM_RAIL_MM} mm along the skin); blue: the band every 10 deg | ${view}`);
+    lines.push("5. FRAMES:", ...files.map((file: string): string => `  ${file}`));
+    await fs.writeFile(path.join(out, "rails.txt"), lines.join("\n") + "\n");
+    process.stdout.write(lines.join("\n") + "\nout " + out + "\n");
+  }
+
   export async function main(): Promise<void> {
     if (process.argv[2] === "cause") return cause();
     if (process.argv[2] === "bend") return bend();
+    if (process.argv[2] === "rails") return rails();
     if (process.argv[2] === "precheck") return precheck();
     if (process.argv[2] === "cap") return cap();
     if (process.argv[2] === "course") return armCourse();
