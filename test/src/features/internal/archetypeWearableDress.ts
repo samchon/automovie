@@ -14,32 +14,37 @@ import {
   type HumanSegment,
   type IHumanBody,
   type IHumanProp,
+  StrikingRoll,
   dress,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanBody } from "./motionHumanBody";
 
 /**
- * A hat and a pair of spectacles taken up from before the body are put on by their own `wear` socket: the hand that holds one carries it until the socket lies on the head's crown or the nose's bridge, and from then the head wears it.
+ * A hat and a pair of spectacles taken up from before the body are put on by their own `wear` socket, on one body: the hand that holds one carries it until the socket lies on the head's crown or the nose's bridge, and from then the head wears it. `test_archetype_wearable_dress_m_average` and its twin read it, one body each.
  *
- * Each wearable (`createWearable`) lies at hip height before the right hand: the hat facing the way it will be worn, held by its brim's right side, and the spectacles facing the body, their bridge toward it. The performer takes it up by its `hold` in the right hand and puts it on with `dress`, then stands a second.
+ * Each wearable (`createWearable`) lies at hip height before the right hand: the hat facing the way it will be worn, held by its brim's right side, and the spectacles facing the body, their bridge toward it. The performer takes it up by its `hold` in the right hand for its use, worn on its region (`HumanGraspUse.IUse`, line `worn`), and puts it on with `dress`, then stands a second.
  *
- * Scenarios, on the average man and the small woman, for each item:
- * 1. The pick-up and the dressing plan; at the dressing's `stroke` the item's `wear` socket, read from the displayed item through the archetype's own contact, lies within 15 mm (the capture cases' contact bound) of its region on the displayed head.
- * 2. From the stroke to the film's end, read every tenth of a second, the socket keeps its place in the head bone's frame within 1 mm (the campaign's grip bound): the head wears it.
+ * Scenarios, for each item:
+ * 1. The pick-up and the dressing plan; at the dressing's `stroke` the item's `wear` socket, read from the displayed item through the archetype's own contact, lies within the held-tool verdict's bound (`StrikingRoll.MISS`, 10 mm: how far a fitted hand may leave a held thing's point of its pose before the pose is refused) of its region on the displayed head.
+ * 2. From the stroke on, read halfway to the dressing's `relax`, at `relax`, at the dressing's end and at the film's end (the hand leaving, gone, and the body standing on): a worn thing rides its bone at the offset it took when put on until a grip takes it off (`HumanPerformance`'s prop reading), so its place on the head can change only where a grip or a hold begins or ends, at those events, and the four instants read each span and each such event after the stroke; there the socket keeps the place in the head bone's frame it had just after the stroke within 1 mm (a worn thing's rigid offset, read to the millimetre): the head wears it.
  * 3. Dressing in an item not taken up first is refused on `prop`.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Builds the pick-up and the dressing through the public chain with the real wearables and reads the displayed item and head; an item put on beside its place, one left behind as the head moves, or one put on from the table fails with the measure.
- * @evidence contracts/development/testing.md#independent-expectations The socket is the archetype's own contact and the region the body's own; the bounds are the existing ones.
- * @evidence contracts/development/testing.md#distinguishing-cases A hat on the crown and spectacles on the nose, held and not, on two bodies of opposite build.
- * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and eight short films; it runs locally and wherever CI runs the archetype tests.
- * @evidence contracts/development/common.md#meaningful-documentation States what is pinned, the stage and the 3 scenarios with their bounds.
+ * @param name The body.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what is pinned, the stage, the body and the 3 scenarios with their bounds.
+ * @evidence contracts/development/implementation.md#principled-implementation Builds the pick-up and the dressing through the public chain with the real wearables and reads the displayed item and head against the archetype's own contact and the body's own region.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over two items, one check per scenario, gathered as complaints and asserted once.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A refused plan is a complaint with the refusal's words.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Four films, the worn check read at four instants each: that a worn prop keeps its frame on its bone at every instant between the grips that put it on and take it off is verified over time by its owner's spec, 	est_human_motion_prop_worn (read every quarter of a second through a bone's movement, worn from the start and worn again by a law), so this scenario reads each span after the stroke and each event that could begin a grip; a scene with a grip inside such a span needs that instant read too.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by each body's spec, so the scenarios exist once.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; each film is dropped after its checks.
  */
-export function test_archetype_wearable_dress(): void {
+export function archetypeWearableDress(name: motionHumanBody.Name): void {
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(1);
-  for (const name of ["m-average", "f-small"] as const) {
+  {
     const body: IHumanBody = motionHumanBody(name);
     for (const item of ["hat", "glasses"] as const) {
       const label: string = `${name} ${item}`;
@@ -70,7 +75,17 @@ export function test_archetype_wearable_dress(): void {
             },
           ],
           composition: (taken
-            ? start.pickUp({ prop: "item", handle: "hold", hand: "right" })
+            ? start.pickUp({
+                prop: "item",
+                handle: "hold",
+                hand: "right",
+                use: {
+                  tip: "wear",
+                  line: "worn",
+                  at: { region: dress.WORN[item] },
+                  round: item === "hat",
+                },
+              })
             : start
           )
             .dress({ item, prop: "item", hand: "right" })
@@ -113,9 +128,9 @@ export function test_archetype_wearable_dress(): void {
           ).point,
         ),
       );
-      if (!(on <= 0.015))
+      if (!(on <= StrikingRoll.MISS))
         complaints.push(
-          `${label}: at the stroke the wear socket is ${mm(on)} mm from its region, within 15 mm expected`,
+          `${label}: at the stroke the wear socket is ${mm(on)} mm from its region, within ${mm(StrikingRoll.MISS)} mm expected`,
         );
 
       // 2. The head wears it.
@@ -130,7 +145,11 @@ export function test_archetype_wearable_dress(): void {
       };
       const first: IAutoMovieVector3 = local(stroke + 0.01);
       let drift: number = 0;
-      for (let s: number = stroke + 0.01; s <= film.duration; s += 0.1)
+      const relax: number =
+        act.start +
+        act.plan.events.find((e): boolean => e.name === "relax")!.share *
+          act.plan.duration;
+      for (const s of [(stroke + relax) / 2, relax, act.end, film.duration])
         drift = Math.max(
           drift,
           Vector3.length(Vector3.subtract(local(s), first)),
@@ -153,7 +172,7 @@ export function test_archetype_wearable_dress(): void {
     }
   }
   TestValidator.equals(
-    "a wearable is put on by its own wear socket",
+    `a wearable is put on by its own wear socket (${name})`,
     complaints,
     [],
   );

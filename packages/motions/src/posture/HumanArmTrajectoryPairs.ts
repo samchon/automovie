@@ -176,10 +176,12 @@ export namespace HumanArmTrajectoryPairs {
       const screened: Record<"upper" | "lower" | "hand", boolean[]> = { upper: near("upper"), lower: near("lower"), hand: near("hand") };
       own.probes.forEach(([p, r]: readonly [IAutoMovieVector3, number], probe: number): void => {
         if (probe < G.SURFACE) return;
-        const segment: string = G.segment(frame, probe);
+        const segment: M.Segment = G.segment(frame, probe);
         const mine: boolean[] = screened[frame.owners[probe - G.SURFACE]!];
         theirs.forEach((shape: G.IShape, i: number): void => {
           if (!mine[i]) return;
+          // The two arms' segments on one grasped object meet by design.
+          if (c.grasped(a, k, segment, owners[i] === "upper" ? "upperArm" : owners[i] === "lower" ? "lowerArm" : "hand")) return;
           if (Vector3.length(Vector3.subtract(p, shape.centre)) - shape.radius - r >= T.REACH) return;
           const short: number = 1000 * (c.between(a, k, probe, i, shape.bone) - (physicalShapeSegmentDistance(shape.pose, shape.shape, p, p) - r));
           const key: string = `${a}|${segment}|${i}`;

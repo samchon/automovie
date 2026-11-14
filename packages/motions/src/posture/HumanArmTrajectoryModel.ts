@@ -65,6 +65,9 @@ export namespace HumanArmTrajectoryModel {
     };
   }
 
+  /** One of an arm's three segments. */
+  export type Segment = "upperArm" | "lowerArm" | "hand";
+
   /** A declared rest of one of the arm's segments on a bone of the same body over the hold (a self-hug's forearm on the other forearm or the chest). */
   export interface IRest {
     /** The arm's segment. */
@@ -113,6 +116,8 @@ export namespace HumanArmTrajectoryModel {
     allowed: (a: number, k: number, probe: number, shape: number) => number;
     /** The same between a probe of one arm and a collider of the other (`G.colliders`), the collider's bone for a declared rest. */
     between: (a: number, k: number, probe: number, shape: number, bone: string) => number;
+    /** Whether a segment of one arm and a segment of the other hold one object together at a waypoint: each segment in its arm's declared grasp, over the action, as the hands close on the object, hold it and part from it. Such a pair is the allowed-collision set of the shared grasp (as a motion planner's allowed-collision matrix excuses the links that grasp an object through its approach and retreat); clearance against the body stays. */
+    grasped: (a: number, k: number, own: Segment, other: Segment) => boolean;
     /** The depth a body corner (`G.IFrame.body`) may keep inside one of the arm's own collider shapes (`G.colliders`, by index) at a waypoint, metres (negative inside): the reverse of `allowed`, as the audit reads every pair both ways. */
     inside: (a: number, k: number, corner: number, shape: number) => number;
     /** Whether an arm's segment lies on a bone at a waypoint, a declared rest (`IRest`). */

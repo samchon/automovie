@@ -12,27 +12,31 @@ import type {
 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
+import { AutoMovieMotionHumanAuditSkin } from "../../audit/AutoMovieMotionHumanAuditSkin";
 import { dress } from "../../dressing/dress";
 import type { HumanPerformance } from "../../perform/HumanPerformance";
 import type { HumanSegment } from "../../perform/HumanSegment";
 import type { IHumanProp } from "../../perform/IHumanProp";
 import { HumanColliders } from "../../posture/HumanColliders";
 import { HumanHand } from "../../posture/HumanHand";
+import { StrikingRoll } from "../../striking/StrikingRoll";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
  * Capture cases of the dressing family (#3257), from quiet standing, the
- * item first taken up by its `hold` in the right hand from before the body:
+ * item first taken up by its `hold` in the right hand from before the body,
+ * for its use: worn on its region (`HumanGraspUse.IUse`, line `worn`):
  * `dress-hat` (the hat carried onto the crown, the left palm on the head's
  * surface at the brim's front quarter) and `dress-glasses` (the glasses
  * carried onto the nose's bridge, the left index fingertip at the ear).
  *
  * Every case reports foot slip at most 5 mm and no range-of-motion
- * overshoot. Beyond that: at `stroke` the item's `wear` socket within 15 mm
- * of its region on the displayed head, and the left hand's surface within
- * 15 mm of its place there; no hand surface inside the head or neck
+ * overshoot. Beyond that: at `stroke` the item's `wear` socket within the
+ * held-tool bound (`StrikingRoll.MISS`) of its region on the displayed head,
+ * and the left hand's surface within the skin's give a hand resting on the
+ * body is allowed (`AutoMovieMotionHumanAuditSkin.BUILT`) of its place there; no hand surface inside the head or neck
  * colliders by more than 10 mm through the action (decision 11's
  * penetration bound); and each upper arm's displayed elevation, its angle
  * from the chest's downward axis, at most 121 degrees, the smaller of the
@@ -65,7 +69,17 @@ export function dressCases(
         "dress",
         [{ subject: "a", body: who.body }],
         HumanChain.subject("a")
-          .pickUp({ prop: "item", handle: "hold", hand: "right" })
+          .pickUp({
+            prop: "item",
+            handle: "hold",
+            hand: "right",
+            use: {
+              tip: "wear",
+              line: "worn",
+              at: { region: dress.WORN[item] },
+              round: item === "hat",
+            },
+          })
           .act("dress", { item, prop: "item", hand: "right" }),
         [wearable(item, { x: -0.2, y: who.body.measure.hipHeight, z: 0.35 })],
       );
@@ -120,14 +134,10 @@ export function dressCases(
       const bones = performance.bones("a", stroke);
       const region = who.body.surfaces.regions[dress.WORN[item]];
       const frame: IHumanProp.IFrame = performance.prop("item", stroke);
-      const placed: number = Math.max(
-        Vector3.length(
-          Vector3.subtract(
-            surface(bones, "left"),
-            want(bones, "left"),
-          ),
-        ),
-        Vector3.length(
+      const steadied: number = Vector3.length(
+        Vector3.subtract(surface(bones, "left"), want(bones, "left")),
+      );
+      const placed: number = Vector3.length(
           Vector3.subtract(
             Vector3.add(
               frame.position,
@@ -138,7 +148,6 @@ export function dressCases(
               bones.get(region.bone)!,
             ).point,
           ),
-        ),
       );
       let inside: number = Infinity;
       let elevation: number = 0;
@@ -177,9 +186,15 @@ export function dressCases(
         verdicts: [
           ...everydayVerdicts.standard(performance, "a", who.body),
           everydayVerdicts.within(
-            "item and free hand on their places",
+            "item's wear socket on its region",
             placed,
-            0.015,
+            StrikingRoll.MISS,
+            "mm",
+          ),
+          everydayVerdicts.within(
+            "free hand on its place on the head",
+            steadied,
+            AutoMovieMotionHumanAuditSkin.BUILT,
             "mm",
           ),
           everydayVerdicts.within(

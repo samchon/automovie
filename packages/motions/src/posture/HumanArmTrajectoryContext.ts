@@ -40,6 +40,8 @@ export namespace HumanArmTrajectoryContext {
       sites: readonly (M.ISite | undefined)[];
       /** Its segments' declared rests over the hold. */
       rests?: readonly M.IRest[];
+      /** Its segments that grasp one object with the other arm over the action (`HumanArmTrajectoryModel.IContext.grasped`); none when absent. */
+      grasp?: readonly M.Segment[];
       /** The arm a still configuration is drawn to, its distance from it the objective's (`HumanArmTrajectoryModel.IContext.anchor`); none when absent. */
       anchor?: HumanArmClearance.IArm;
     }[];
@@ -228,6 +230,11 @@ export namespace HumanArmTrajectoryContext {
       bounds: setups.map((setup: G.ISetup, a: number): ([number, number] | null)[] => boxes(setup, rest[a]!, back[a]!)),
       allowed,
       between,
+      // A grasp both hands share: over the action, as they close on the
+      // object, hold it and part from it, a pair of segments each arm
+      // declares is the grasp's contact, not a collision.
+      grasped: (a: number, _k: number, own: M.Segment, other: M.Segment): boolean =>
+        problem.arms.length === 2 && (problem.arms[a]!.grasp ?? []).includes(own) && (problem.arms[1 - a]!.grasp ?? []).includes(other),
       inside,
       lying,
       normals,

@@ -46,6 +46,8 @@ export namespace HumanArmTrajectory {
     guess?: HumanArmClearance.IArm;
     /** Its segments' declared rests over the hold (M.IRest). */
     rests?: readonly M.IRest[];
+    /** Its segments that grasp one object with the other arm over the action (`M.IContext.grasped`). */
+    grasp?: readonly M.Segment[];
   }
 
   /** The problem. */

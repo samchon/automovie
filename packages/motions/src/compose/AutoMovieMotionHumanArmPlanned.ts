@@ -90,7 +90,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The members are the carry's own by `Pick`, not restated.
    */
   export interface IPlanned
-    extends Pick<AutoMovieMotionHumanArmCarry.ICarry, "side" | "rest" | "goal" | "perceived" | "weight" | "rests" | "disc" | "on"> {
+    extends Pick<AutoMovieMotionHumanArmCarry.ICarry, "side" | "rest" | "goal" | "perceived" | "weight" | "rests" | "grasp" | "disc" | "on"> {
     /** The arm at the end of the span, where it returns to another arm than it left; `rest` when absent. */
     back?: AutoMovieMotionHumanArmAngles.IAngles;
   }
@@ -351,6 +351,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
           rest: c.rest,
           ...(c.back === undefined ? {} : { back: c.back }),
           ...(c.rests === undefined ? {} : { rests: c.rests }),
+          ...(c.grasp === undefined ? {} : { grasp: c.grasp }),
           sites: waypoints.map((t: number): HumanArmTrajectory.ISite | undefined => {
             if (!holding(t)) return undefined;
             const { posture, pose } = at(t);

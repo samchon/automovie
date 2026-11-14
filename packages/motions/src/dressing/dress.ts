@@ -24,9 +24,11 @@ import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanFrame } from "../posture/HumanFrame";
+import { HumanFreedomChoice } from "../posture/HumanFreedomChoice";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanWorn } from "./HumanWorn";
 
 /**
@@ -38,8 +40,9 @@ import { HumanWorn } from "./HumanWorn";
  * (`AutoMovieMotionHumanHeld`), so that its own `wear` socket comes onto the
  * head's region it is worn on (`HumanWorn`: a hat's on the crown, a pair of
  * glasses' on the nose's bridge), spectacles facing the way the body faces
- * and a hat, round about its crown, at whichever turn of `TURNS` the arm
- * holds with the least strain (`AutoMovieMotionHumanBend.strain`);
+ * and a hat, round about its crown, at whichever turn the arm, fitted
+ * within its ranges, brings the wear socket nearest the crown at (the
+ * shared chooser, `HumanFreedomChoice`, the turn a wrapped freedom);
  * from the stroke it is worn on the head (`IHumanActionPlan.wears`) and the
  * hand lets go. The other hand steadies it at a place on the performer's own
  * head, read on the posture so it follows the head: a hat's brim at the
@@ -185,10 +188,8 @@ export namespace dress {
     };
   }
 
-  /** The turns about the crown a hat is tried at, degrees: the whole way round in steps of 30, facing the body's way first. */
-  export const TURNS: readonly number[] = [
-    0, 30, -30, 60, -60, 90, -90, 120, -120, 150, -150, 180,
-  ];
+  /** The refinement step of a hat's turn about the crown, and the spacing of the turns tried first round it, degrees (search resolution: an eighth of a turn, halving to under 6). */
+  export const TURN: number = 45;
 
   /** The head region each item is worn on. */
   export const WORN: Readonly<Record<Item, AutoMovieHumanoidRegion>> = {
@@ -272,38 +273,85 @@ export namespace dress {
       };
     };
     // A hat is round about its crown, so it is set at whichever turn the
-    // arm holds with the least strain; spectacles face the body's way.
+    // arm, fitted within its ranges, brings its wear socket nearest the
+    // crown (the shared chooser, a wrapped freedom); spectacles face the
+    // body's way.
+    const socket: IAutoMovieVector3 = HumanHand.offset(
+      body,
+      holder,
+      "grip",
+    ).point;
+    const wear: IAutoMovieVector3 = AutoMovieMotionHumanHeld.point(
+      held,
+      "wear",
+    ).point;
+    // Each turn fitted once, however often the search comes back to it.
+    const fitted: Map<number, number> = new Map();
+    const missed = (degrees: number): number => {
+      const known: number | undefined = fitted.get(degrees);
+      if (known !== undefined) return known;
+      const posture: IHumanPosture = context.entry.posture;
+      const at: { grip: IAutoMovieVector3; rotation: IAutoMovieQuaternion } =
+        carried(posture, degrees);
+      const wrist: HumanHand.IWrist = HumanHand.place(
+        body,
+        holder,
+        "grip",
+        at.grip,
+        at.rotation,
+      );
+      const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+      limbs[`${holder}Arm`] = {
+        point: wrist.point,
+        rotation: wrist.rotation,
+        contact: socket,
+        bend: AutoMovieMotionHumanBend.solve({
+          body,
+          posture,
+          side: holder,
+          point: wrist.point,
+          rotation: wrist.rotation,
+          fallback: "hang",
+        }),
+      };
+      const bones: ReturnType<typeof poseBones> = poseBones(
+        body,
+        resolveHumanPosture(body, { ...posture, limbs }),
+      );
+      const hand: HumanHand.IFrame = HumanHand.frame(
+        body,
+        bones,
+        holder,
+        "grip",
+      );
+      const miss: number = Vector3.length(
+        Vector3.subtract(
+          Vector3.add(
+            hand.point,
+            Quaternion.rotateVector(
+              bones.get(`${holder}Hand`)!.worldRotation,
+              wear,
+            ),
+          ),
+          HumanTrunk.region(body, posture, WORN[item]).point,
+        ),
+      );
+      fitted.set(degrees, miss);
+      return miss;
+    };
+    const seeds: number[] = [0];
+    for (let k: number = TURN; k <= 180; k += TURN)
+      seeds.push(...(k < 180 ? [k, -k] : [k]));
     const turn: number =
       item === "glasses"
         ? 0
-        : TURNS.map((degrees: number): [number, number] => {
-            const at: { grip: IAutoMovieVector3; rotation: IAutoMovieQuaternion } =
-              carried(context.entry.posture, degrees);
-            const solve: AutoMovieMotionHumanBend.ISolve = {
-              body,
-              posture: context.entry.posture,
-              side: holder,
-              point: HumanHand.place(
-                body,
-                holder,
-                "grip",
-                at.grip,
-                at.rotation,
-                "relaxed",
-              ).point,
-              rotation: at.rotation,
-            };
-            return [
-              degrees,
-              AutoMovieMotionHumanBend.strain(
-                solve,
-                AutoMovieMotionHumanBend.solve({ ...solve, fallback: "hang" }),
-              ),
-            ];
-          }).reduce(
-            (best: [number, number], next: [number, number]) =>
-              next[1] < best[1] - 1e-9 ? next : best,
-          )[0];
+        : HumanFreedomChoice.chosen({
+            tried: seeds.map((degrees: number): number[] => [degrees]),
+            freedoms: [{ kind: "wrapped", step: TURN, period: 360 }],
+            judge: (values: readonly number[]): number[] => [
+              missed(values[0]!),
+            ],
+          }).values[0]!;
     // The carrying hand: the item held up the lead before its place.
     const carry = (): IAutoMovieMotionHumanPrimitive =>
       AutoMovieMotionHumanArm.stroke({

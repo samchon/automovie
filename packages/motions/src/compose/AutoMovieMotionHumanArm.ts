@@ -140,6 +140,20 @@ export namespace AutoMovieMotionHumanArm {
   export const stated: typeof AutoMovieMotionHumanArmPlanned.stated =
     AutoMovieMotionHumanArmPlanned.stated;
 
+  /**
+   * {@link AutoMovieMotionHumanArmPlanned.ITogether}, re-exported so a caller of the arm facade imports one namespace.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the type it re-exports and its owner `AutoMovieMotionHumanArmPlanned`; the members are documented there.
+   * @evidence contracts/development/design.md#principled-representation The alias is the owner's type itself, so the concept, its units and its invariants are the owner's and no second shape exists.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `AutoMovieMotionHumanArmPlanned` owns `ITogether`; this alias lets a law group the arms it plans as one problem (two hands on one object) without a second import.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts An alias of the owner's declaration, not a parallel copy; no cast or widening.
+   */
+  export type ITogether = AutoMovieMotionHumanArmPlanned.ITogether;
+
+  /** {@link AutoMovieMotionHumanArmPlanned.together}. */
+  export const together: typeof AutoMovieMotionHumanArmPlanned.together =
+    AutoMovieMotionHumanArmPlanned.together;
+
   /** {@link AutoMovieMotionHumanArmMove.move}. */
   export const move: typeof AutoMovieMotionHumanArmMove.move =
     AutoMovieMotionHumanArmMove.move;

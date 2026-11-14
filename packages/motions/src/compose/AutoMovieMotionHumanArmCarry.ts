@@ -261,7 +261,7 @@ export namespace AutoMovieMotionHumanArmCarry {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, its unit and the range of the weight.
    * @evidence contracts/development/design.md#principled-representation The span the arm is written over, the angles it holds at weight 0, the goal it solves to at weight 1 and the weight between them; with a span, the action's instants and what the planned trajectory needs of the hold.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Fifteen members, all read by `carried` or by `AutoMovieMotionHumanArmPlanned`: seven that every carry needs, seven a planned arm reads (`span`, `perceived`, `tracked`, `together`, `on`, `disc`, `rests`) and the hand's `attitude`.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Sixteen members, all read by `carried` or by `AutoMovieMotionHumanArmPlanned`: seven that every carry needs, eight a planned arm reads (`span`, `perceived`, `tracked`, `together`, `on`, `disc`, `rests`, `grasp`) and the hand's `attitude`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The goal is the posture's own goal type as a function of the posture so far, so any owner of arm goals fits.
    */
   export interface ICarry {
@@ -349,6 +349,9 @@ export namespace AutoMovieMotionHumanArmCarry {
 
     /** The arm's segments that lie on a bone of the same body over the hold (a self-hug's forearm on the other forearm); none when absent. */
     rests?: readonly { part: "upperArm" | "lowerArm"; on: string }[];
+
+    /** The arm's segments that hold one object with the other arm of its group (a racket's or a club's two hands), over the action as they close on it, hold it and part from it: each pair of them, one each arm's, is the grasp's contact and not a collision; clearance against the body stays. None when absent. */
+    grasp?: readonly ("upperArm" | "lowerArm" | "hand")[];
     /**
      * The hand's world rotation on the way, for a hand that holds an object
      * whose attitude matters (a glass kept upright), solved at the wrist on the

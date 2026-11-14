@@ -130,6 +130,7 @@ export namespace HumanArmSeed {
         rest: arm.rest,
         ...(arm.back === undefined ? {} : { back: arm.back }),
         ...(arm.rests === undefined ? {} : { rests: arm.rests }),
+        ...(arm.grasp === undefined ? {} : { grasp: arm.grasp }),
         sites: around.map((j: number): IProblem["arms"][number]["sites"][number] => arm.sites[j]),
       })),
       still: true,
