@@ -29,12 +29,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 /**
  * A weapon is drawn from the carrier worn on the body: a knife from its sheath, a baton from a belt loop and a bat from a back sleeve, each carrier worn on the hips or the chest (`IHumanProp.worn`) with its weapon standing in it grip up, its lower end on the carrier's `mouth` or `socket`.
  *
- * Each weapon is turned point or tip down and worn on the same bone as its carrier, so it sits in it: a knife's shoulder on its sheath's mouth, a baton a hand's breadth below its knob on the loop, a bat's tip on its sleeve's bottom. The right hand takes it by its `grip` and lifts it straight up until its lower end is 50 mm past the opening, drawing it out. The knife's sheath and the baton's loop hang at the right hip, 0.9 of the shoulders' half width out and 0.08 m ahead of the hips joint; the bat's sleeve stands against the chest's back on the right, its opening 0.2 m below the chest joint, so its grip stands at the shoulders behind the right one.
+ * Each weapon is turned point or tip down and worn on the same bone as its carrier, so it sits in it: a knife's shoulder on its sheath's mouth, a baton a hand's breadth below its knob on the loop, a bat's tip on its sleeve's bottom. The right hand takes it by its `grip` and lifts it straight up until its lower end is 50 mm past the opening, drawing it out. The knife's sheath and the baton's loop hang at the right hip, 0.9 of the shoulders' half width out and 0.08 m ahead of the hips joint; the bat's sleeve stands against the chest's back on the right, its opening 0.1 m below the chest joint, so the bat's grip stands above the right shoulder blade, where a back carry puts it.
  *
  * Scenarios, on the average man and the small woman, one film per carrier:
  * 1. Each draw plans.
  * 2. Before it the weapon keeps its frame in its bone's frame within 1 mm (the campaign's grip bound): it is worn in its carrier.
- * 3. After the draw's lift the weapon's lower end stands above the carrier's opening: it has left the carrier.
+ * 3. After the draw's lift the weapon's lower end stands above the carrier's opening: it has left the carrier. This fails today for the small woman's bat, whose lower end stays about 65 mm below the sleeve's opening: pickUp lifts less than the lift it is asked for when the arm cannot reach it, and says nothing, where it should refuse or lift the asked height. The expectation stands until pickUp is fixed.
  * 4. From the grip's close to the film's end the weapon keeps its frame in the right hand's frame within 1 mm: the hand holds it.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Wears real carriers and weapons, draws through the public chain and reads the displayed props and bones; a weapon that stays on the body, stays in its carrier or slips in the hand fails with the measure.
@@ -109,7 +109,7 @@ export function test_archetype_weapons_draw(): void {
         seat: { x: 0, y: bat.dimensions.length!, z: 0 },
         tip: { x: 0, y: bat.dimensions.length!, z: 0 },
         bone: "chest",
-        at: { x: -0.5 * out, y: -0.2, z: -0.15 },
+        at: { x: -0.5 * out, y: -0.1, z: -0.15 },
       },
     ];
     for (const draw of draws) {
