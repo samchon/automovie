@@ -52,6 +52,7 @@ import {
   createVessel,
 } from "../props";
 import {
+  createCue,
   createCueTable,
   createGoal,
   createHighJump,
@@ -529,6 +530,7 @@ export function archetypeCaptureCatalog(): Readonly<
         createStick.KINDS,
         (kind: createStick.Kind): Archetype => createStick({ kind }),
       ),
+      cue: createCue(),
       cueTable: createCueTable(),
       surfboard: createSurfboard(),
     }),

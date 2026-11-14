@@ -1,4 +1,5 @@
 export * from "./createBall";
+export * from "./createCue";
 export * from "./createCueTable";
 export * from "./createDiscus";
 export * from "./createGlove";

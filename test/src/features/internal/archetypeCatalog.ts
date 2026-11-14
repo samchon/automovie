@@ -20,6 +20,7 @@ import {
   createCart,
   createCleaning,
   createClub,
+  createCue,
   createCueTable,
   createDevice,
   createDiscus,
@@ -555,6 +556,10 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
       `stick-${kind}`,
       (seed?: number | string): Archetype => createStick({ kind }, seed),
     );
+  add(
+    "cue",
+    (seed?: number | string): Archetype => createCue({}, seed),
+  );
   add(
     "cueTable",
     (seed?: number | string): Archetype => createCueTable({}, seed),
