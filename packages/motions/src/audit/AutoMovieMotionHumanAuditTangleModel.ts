@@ -17,6 +17,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanColliders } from "../posture/HumanColliders";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { AutoMovieMotionHumanAuditSkin } from "./AutoMovieMotionHumanAuditSkin";
 
 /**
  * The per-body model the tangle audit (`AutoMovieMotionHumanAuditTangle`)
@@ -35,13 +36,8 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every probe and sphere is read from the body's own colliders and joints.
  */
 export namespace AutoMovieMotionHumanAuditTangleModel {
-  /**
-   * The reference overlap beyond which two segments' surfaces are one volume
-   * by their build, metres: the 10 mm a pressed skin gives, the audit's own
-   * limit for a tangle. Two colliders deeper in each other than that while
-   * the body stands at rest cannot be told apart by their corners.
-   */
-  export const BUILT: number = 0.01;
+  /** The reference overlap beyond which two segments' surfaces are one volume by their build, metres (`AutoMovieMotionHumanAuditSkin.BUILT`). */
+  export const BUILT: number = AutoMovieMotionHumanAuditSkin.BUILT;
 
   /** One collider segment's probes and bounding sphere in its own frame. */
   export interface IPart {

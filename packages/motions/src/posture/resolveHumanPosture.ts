@@ -9,6 +9,7 @@ import type {
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanLimbFit } from "./HumanLimbFit";
+import { HumanLimbPair } from "./HumanLimbPair";
 import type { IHumanPosture } from "./IHumanPosture";
 import { hipJoints } from "./hipJoints";
 
@@ -24,7 +25,11 @@ import { hipJoints } from "./hipJoints";
  * The limb fit is `fitChainToTarget`, which clamps its candidates to the
  * rig's range of motion and searches bend planes when the hinted one misses;
  * the set joints are clamped by `clampPose` before it, so no returned angle
- * exceeds the rig's declared range and the clamp never moves a plant.
+ * exceeds the rig's declared range and the clamp never moves a plant. Two
+ * arms with goals, neither riding the other, are one coupled problem
+ * (`HumanLimbPair`): fitted each on its own, and solved together only
+ * where the two fits meet, so a mirrored posture resolves to the mirror of
+ * the original's bones.
  *
  * @param body The performer's body.
  * @param posture The posture.
@@ -88,9 +93,28 @@ export function resolveHumanPosture(
     (side: "left" | "right"): boolean =>
       posture.limbs[`${side}Arm`] === undefined,
   );
+  // Two arms with goals, neither riding the other, are one coupled problem
+  // (`HumanLimbPair`), fitted when the first of them is reached.
+  const arms: Record<"left" | "right", IHumanPosture.IGoal | undefined> = {
+    left: posture.limbs.leftArm,
+    right: posture.limbs.rightArm,
+  };
+  const riding = (goal: IHumanPosture.IGoal | undefined, other: "left" | "right"): boolean =>
+    goal?.on !== undefined && goal.on.startsWith(other);
+  const paired: boolean =
+    arms.left !== undefined &&
+    arms.right !== undefined &&
+    !riding(arms.left, "right") &&
+    !riding(arms.right, "left");
   for (const limb of resolveHumanPosture.order(posture.limbs)) {
     const goal: IHumanPosture.IGoal | undefined = posture.limbs[limb];
     if (goal === undefined) continue;
+    if (paired && (limb === "leftArm" || limb === "rightArm")) {
+      if (placed.length === 0)
+        pose = HumanLimbPair.fitted(body, pose, { left: arms.left!, right: arms.right! });
+      placed.push(limb === "leftArm" ? "left" : "right");
+      continue;
+    }
     // The other arm's goal, while that arm is still to be fitted: where its
     // wrist will be, for the room the clearance keeps it.
     const other: IHumanPosture.Limb | undefined =

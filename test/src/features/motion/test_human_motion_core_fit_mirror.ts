@@ -30,12 +30,16 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    (a rotation and its negation are one rotation).
  * 2. A stance with the left arm reaching forward and across with the hand
  *    turned and a contact on the palm, the right arm hanging: the same.
+ * 3. Both hands reaching forward apart, two arms with goals that keep clear
+ *    of each other: the same.
+ * 4. The forearms crossed before the chest, each hand toward the other
+ *    shoulder, two arms whose fits meet and are solved together: the same.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Resolves real postures through the public resolver and reads the world bones every law and audit reads; a side fitted on its own fails with the bone and the component that differ.
  * @evidence contracts/development/testing.md#independent-expectations The mirror is the median-plane reflection written in this file; nothing is read from the resolver's own mirror.
- * @evidence contracts/development/testing.md#distinguishing-cases Planted legs alone, then an arm with a rotation and a contact, on the extreme bodies of both sexes.
- * @evidence contracts/development/testing.md#execution-ownership Prepares four polygon men and resolves eight postures in memory; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
- * @evidence contracts/development/common.md#meaningful-documentation States the claim, the mirror and the 2 scenarios.
+ * @evidence contracts/development/testing.md#distinguishing-cases Planted legs alone, an arm with a rotation and a contact, two arms apart and two arms crossed, on the extreme bodies of both sexes.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares four polygon men and resolves sixteen postures in memory; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
+ * @evidence contracts/development/common.md#meaningful-documentation States the claim, the mirror and the 4 scenarios.
  */
 export function test_human_motion_core_fit_mirror(): void {
   const complaints: string[] = [];
@@ -143,6 +147,38 @@ export function test_human_motion_core_fit_mirror(): void {
           rotation: { x: 0.2588190451025208, y: 0.3, z: -0.1, w: 0.9126 },
           contact: { x: 0.01, y: -0.03, z: 0.08 },
         },
+      },
+    });
+
+    // 3. Both hands reaching forward, apart, the right a little higher.
+    const level: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+    const chest: number = body.measure.shoulderHeight - 0.2;
+    const hand = (
+      x: number,
+      y: number,
+      z: number,
+      out: number,
+    ): IHumanPosture.IGoal => ({
+      point: { x, y, z },
+      bend: { x: out, y: chest - 0.25, z: 0 },
+    });
+    compare(`${name} both reaching`, body, {
+      ...level,
+      limbs: {
+        ...level.limbs,
+        leftArm: hand(0.25, chest, 0.5 * reach, 0.5),
+        rightArm: hand(-0.22, chest + 0.04, 0.55 * reach, -0.5),
+      },
+    });
+
+    // 4. The forearms crossed before the chest, each hand toward the other
+    //    shoulder, the left wrist a little nearer the body.
+    compare(`${name} crossed`, body, {
+      ...level,
+      limbs: {
+        ...level.limbs,
+        leftArm: hand(-0.12, chest, 0.2, 0.45),
+        rightArm: hand(0.1, chest + 0.02, 0.24, -0.45),
       },
     });
   }

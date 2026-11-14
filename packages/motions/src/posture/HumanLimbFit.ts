@@ -180,9 +180,11 @@ export namespace HumanLimbFit {
    * 2011, SIAM J. Numer. Anal. 49), at most `REAIM_PASSES` fits. A goal attached to a bone (`on`) is first carried into
    * the world by that bone as the pose being fitted places it, so whatever
    * moved the bone before the fit (a trunk joint, a layer, a transition
-   * offset) moves the goal with it. An arm fitted after the other arm keeps
-   * clear of it too, so two hands sent across each other stack their forearms
-   * instead of passing one through the other, and an arm keeps clear of the
+   * offset) moves the goal with it. An arm fitted after the other arm (one
+   * whose goal rides the other, `resolveHumanPosture.order`) keeps clear of
+   * it too; two arms with goals that ride neither are fitted as one coupled
+   * problem (`HumanLimbPair`), each first on its own with the other only a
+   * coming wrist (`rival`). An arm keeps clear of the
    * other bodies its goal names (`IHumanPosture.IGoal.clear`) and of the ones it lays the hand on (`rests`).
    * A left limb is fitted as the right limb in the mirror image of its world
    * (the pose, the goal, the colliders it keeps clear of and the other arm)
@@ -462,8 +464,19 @@ export namespace HumanLimbFit {
    * bone it rides and the colliders it keeps clear of or lies on taken to
    * the other side. A reference's clinical angles are a side's own, so the
    * mirrored limb reads them as they are.
+   *
+   * @param goal The goal.
+   * @returns Its mirror image.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is mirrored and why the reference is not.
+   * @evidence contracts/development/implementation.md#principled-implementation The median-plane reflection of each of the goal's parts.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record, one line per part.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every part a fit reads is mirrored.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per part.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanArmMirror`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  function reflected(goal: IHumanPosture.IGoal): IHumanPosture.IGoal {
+  export function reflected(goal: IHumanPosture.IGoal): IHumanPosture.IGoal {
     return {
       ...goal,
       point: HumanArmMirror.flip(goal.point),

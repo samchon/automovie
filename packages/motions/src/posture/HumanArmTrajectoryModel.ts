@@ -85,6 +85,8 @@ export namespace HumanArmTrajectoryModel {
     n: number;
     /** Whether the problem is a still configuration, read without its steps, speeds and sweeps and smoothed only among its inner waypoints. */
     still: boolean;
+    /** Each arm's coordinates a still configuration is drawn to, the squared distance from them weighed by `HumanArmTrajectoryTerms.ANCHOR` in the objective; none for an arm left free, and none for a trajectory. */
+    anchor?: readonly (readonly number[] | undefined)[];
     /** The waypoints' seconds. */
     times: readonly number[];
     /** Each arm's setup. */
@@ -235,6 +237,14 @@ export namespace HumanArmTrajectoryModel {
           const acc: number = arm[Math.min(n - 1, k + 1)]![d]! - 2 * arm[k]![d]! + arm[Math.max(0, k - 1)]![d]!;
           objective += T.ACCELERATION * acc * acc;
         }
+      // A still configuration drawn to its anchor.
+      const anchor: readonly number[] | undefined = c.anchor?.[a];
+      if (anchor !== undefined)
+        for (let k: number = 1; k + 1 < n; ++k)
+          for (const d of c.free[a]!) {
+            const off: number = arm[k]![d]! - anchor[d]!;
+            objective += T.ANCHOR * off * off;
+          }
       for (let k: number = 0; k + 1 < n; ++k) {
         here = k;
         for (const p of c.still ? [] : T.PATH) {

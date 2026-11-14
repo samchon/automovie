@@ -144,6 +144,11 @@ export namespace HumanArmTrajectoryConvex {
           }
           if (idx.length > 0) square(T.ACCELERATION, r0, idx, coef);
         });
+      // A still configuration drawn to its anchor, exact.
+      const anchor: readonly number[] | undefined = c.anchor?.[a];
+      if (anchor !== undefined)
+        for (let k: number = 1; k + 1 < n; ++k)
+          c.free[a]!.forEach((d: number, f: number): void => square(T.ANCHOR, arm[k]![d]! - anchor[d]!, [index(a, k, f)], [1]));
       for (let k: number = 0; k + 1 < n; ++k) {
         const dt: number = c.times[k + 1]! - c.times[k]!;
         // Cartesian steps and speed.

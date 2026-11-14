@@ -1,4 +1,4 @@
-import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAuditTangle";
+import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAuditSkin";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 
 /**
@@ -11,6 +11,9 @@ export namespace HumanArmTrajectoryTerms {
 
   /** Weight of a squared coordinate acceleration per waypoint. */
   export const ACCELERATION: number = 10;
+
+  /** Weight of a squared coordinate unit a still configuration lies from its anchor: an acceleration's own, so a coordinate moved off the anchor costs what the same second difference does. */
+  export const ANCHOR: number = ACCELERATION;
 
   /** Weight of a squared degree of the hand's rotation off its site, on a hold waypoint. */
   export const ROTATION: number = 10;
@@ -25,10 +28,10 @@ export namespace HumanArmTrajectoryTerms {
   export const SPEED: readonly number[] = [G.ELBOW, G.WRIST, G.TIP];
 
   /** How much deeper than the rest arm a probe may lie in a shape, metres: half the skin the tangle audit allows. */
-  export const DEPTH: number = AutoMovieMotionHumanAuditTangle.BUILT / 2;
+  export const DEPTH: number = AutoMovieMotionHumanAuditSkin.BUILT / 2;
 
   /** The slack a clearance miss has before the path is refused, millimetres, over the solver's own `TOLERANCE`: a probe is refused exactly where the tangle audit's skin (`BUILT`) is passed, the allowance's margin (`DEPTH`) aside. */
-  export const SKIN: number = 1000 * (AutoMovieMotionHumanAuditTangle.BUILT - DEPTH) - TOLERANCE;
+  export const SKIN: number = 1000 * (AutoMovieMotionHumanAuditSkin.BUILT - DEPTH) - TOLERANCE;
 
   /** TrajOpt's active set: a pair enters the convex subproblem only within this of its bound, millimetres. */
   export const CHECK: number = 20;

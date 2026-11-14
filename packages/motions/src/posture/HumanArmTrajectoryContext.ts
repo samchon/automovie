@@ -40,6 +40,8 @@ export namespace HumanArmTrajectoryContext {
       sites: readonly (M.ISite | undefined)[];
       /** Its segments' declared rests over the hold. */
       rests?: readonly M.IRest[];
+      /** The arm a still configuration is drawn to, its distance from it the objective's (`HumanArmTrajectoryModel.IContext.anchor`); none when absent. */
+      anchor?: HumanArmClearance.IArm;
     }[];
     /** Whether the problem is a still configuration (`HumanArmTrajectoryModel.IContext.still`). */
     still?: boolean;
@@ -204,6 +206,9 @@ export namespace HumanArmTrajectoryContext {
     return {
       n,
       still: problem.still === true,
+      ...(problem.arms.some((arm): boolean => arm.anchor !== undefined)
+        ? { anchor: problem.arms.map((arm, a: number): number[] | undefined => (arm.anchor === undefined ? undefined : G.encode(setups[a]!, arm.anchor))) }
+        : {}),
       times: problem.times,
       setups,
       frames,
