@@ -354,12 +354,17 @@ namespace FamilyConicScan {
       const face = { surface: real.surfaces.find((s: { name: string }): boolean => s.name === name)! };
       const L: number | undefined = real.chains.find((c: { name: string }): boolean => c.name === name)?.layers.at(-1)?.y;
       if (face.surface === undefined || L === undefined) throw new Error("no band " + name);
-      const head: R.ISource["head"] = source.head;
+      // The reference's triangles within 10 mm of the band's box, read on the band at 64 clocks and five shares, on the body and the head.
+      const reach: number[][] = [];
+      for (let k: number = 0; k < 64; ++k) for (const t of [0, 0.25, 0.5, 0.75, 1]) reach.push([...face.surface.jet(t * L, (2 * Math.PI * k) / 64).p]);
+      const low: number[] = [0, 1, 2].map((c: number): number => Math.min(...reach.map((p: number[]): number => p[c]!)) - 10);
+      const high: number[] = [0, 1, 2].map((c: number): number => Math.max(...reach.map((p: number[]): number => p[c]!)) + 10);
       const triangles: R.V[][] = [];
-      for (let t: number = 0; t + 2 < head.indices.length; t += 3) {
-        const corners: R.V[] = [0, 1, 2].map((k: number): R.V => [head.positions[head.indices[t + k]! * 3]!, head.positions[head.indices[t + k]! * 3 + 1]!, head.positions[head.indices[t + k]! * 3 + 2]!]);
-        if (corners.some((p: R.V): boolean => p[0] > 95 && p[1] > 1525 && p[1] < 1600 && Math.abs(p[2]) < 35)) triangles.push(corners);
-      }
+      for (const mesh of [source.body, source.head])
+        for (let t: number = 0; t + 2 < mesh.indices.length; t += 3) {
+          const corners: R.V[] = [0, 1, 2].map((k: number): R.V => [mesh.positions[mesh.indices[t + k]! * 3]!, mesh.positions[mesh.indices[t + k]! * 3 + 1]!, mesh.positions[mesh.indices[t + k]! * 3 + 2]!]);
+          if (corners.some((p: R.V): boolean => p.every((x: number, c: number): boolean => x >= low[c]! && x <= high[c]!))) triangles.push(corners);
+        }
       const sub = (a: readonly number[], b: readonly number[]): R.V => [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
       const dot = (a: readonly number[], b: readonly number[]): number => a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
       const cross = (a: readonly number[], b: readonly number[]): R.V => [a[1]! * b[2]! - a[2]! * b[1]!, a[2]! * b[0]! - a[0]! * b[2]!, a[0]! * b[1]! - a[1]! * b[0]!];

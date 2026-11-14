@@ -2049,11 +2049,12 @@ namespace FamilyConicBody {
         log("family-body-candidate", { part: part.name, ...row });
         return result;
       };
-      // With `--wall=<directory>` the wall of an earlier run is taken as it was stored and only its reliefs are fitted again.
+      // With `--wall=<directory>` the wall of an earlier run is taken as it was stored and only its reliefs are fitted again; a directory
+      // `stored`, here and in `--splice`, is the family the Human package holds (`storedWall`).
       const reuse: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--wall="))?.slice(7);
       if (reuse !== undefined) {
-        const wall: K.IStored = JSON.parse(await fs.readFile(path.join(reuse, part.name + ".family.json"), "utf8")) as K.IStored;
-        carried = { reliefs: [...(wall.reliefs ?? [])], tips: wall.tips };
+        const wall: K.IStored = await storedWall(reuse, part.name);
+        carried ={ reliefs: [...(wall.reliefs ?? [])], tips: wall.tips };
 
         // `--splice=<directory>@<station>`: from that station on, the knots and values of another stored wall of the same part, course and
         // layout replace this one's. A limb refitted for one end keeps the other end of the fit its neighbours were sewn on.
@@ -2061,7 +2062,7 @@ namespace FamilyConicBody {
         if (splice !== undefined) {
           const [other, where]: string[] = splice.split("@");
           const [at, moved]: string[] = where!.split("+");
-          const tail: K.IStored = JSON.parse(await fs.readFile(path.join(other!, part.name + ".family.json"), "utf8")) as K.IStored;
+          const tail: K.IStored = await storedWall(other!, part.name);
           if (tail.values.length !== wall.values.length) throw new Error("splice: the two walls of " + part.name + " have different layouts");
           // `--splice=<directory>@<from>..<to>`: a window refitted on its own (`--from`, `--to`, `--seed --held` on this wall's knots): the
           // other wall's knots strictly inside the window replace this one's, and this wall's values at the window's end knots and every knot
@@ -2582,7 +2583,10 @@ namespace FamilyConicBody {
           const { tail, at, head }: { tail: K.IStored; at: number; head: IAutoMovieLoftRelief[] } = spliced;
           // A stored net that goes once round the part is left behind: those are fitted again below, over the spliced wall.
           const window = (relief: IAutoMovieLoftRelief): boolean => relief.phases[1] - relief.phases[0] < 2 * Math.PI - 1e-9;
-          definition.reliefs = [...head.filter((relief: IAutoMovieLoftRelief): boolean => window(relief) && relief.stations[1] <= at), ...(tail.reliefs ?? []).filter((relief: IAutoMovieLoftRelief): boolean => window(relief) && relief.stations[0] >= at)].map((relief: IAutoMovieLoftRelief, i: number): IAutoMovieLoftRelief => ({ ...relief, name: part.name + ".hollow." + i }));
+          // A net round the part's runs (`IPart.rounds`) is fitted again below even where it spans less than a turn (the palm's), so a stored
+          // one is not carried as a hollow as well.
+          const round = (relief: IAutoMovieLoftRelief): boolean => rounds.some((window: IWindow): boolean => window.name === relief.name);
+          definition.reliefs = [...head.filter((relief: IAutoMovieLoftRelief): boolean => window(relief) && !round(relief) && relief.stations[1] <= at), ...(tail.reliefs ?? []).filter((relief: IAutoMovieLoftRelief): boolean => window(relief) && !round(relief) && relief.stations[0] >= at)].map((relief: IAutoMovieLoftRelief, i: number): IAutoMovieLoftRelief => ({ ...relief, name: part.name + ".hollow." + i }));
           log("family-body-spliced", { part: part.name, at, reliefs: definition.reliefs.map((relief: IAutoMovieLoftRelief): string => relief.name + " " + relief.stations.join("..")) });
         }
 
@@ -3166,6 +3170,17 @@ namespace FamilyConicBody {
       else if (anchor.kind !== "i" && !(anchor.kind === "m" && layout.anchors[k - 1]?.kind === "i" && layout.anchors[k + 1]?.kind === "i")) ++base;
     });
     return out;
+  }
+
+  /**
+   * A stored wall: `<directory>/<part>.family.json` of an earlier run, or with `stored` the family the Human package holds now
+   * (`AutoMovieHumanF1.BODY`), so a wall emitted long ago can be spliced or refitted on without its run's directory.
+   */
+  async function storedWall(directory: string, name: string): Promise<K.IStored> {
+    if (directory !== "stored") return JSON.parse(await fs.readFile(path.join(directory, name + ".family.json"), "utf8")) as K.IStored;
+    const family: K.IStored | undefined = Object.values(AutoMovieHumanF1.BODY).find((candidate: K.IStored): boolean => candidate.name === name);
+    if (family === undefined) throw new Error("no stored family " + name);
+    return JSON.parse(JSON.stringify(family)) as K.IStored;
   }
 
   /** How a section closed across its part's opening (`without`), or why it did not. */
