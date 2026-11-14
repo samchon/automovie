@@ -13,14 +13,16 @@ import { FamilyConicStar as S } from "./FamilyConicStar";
  * the chin and the neck; under the chin the trunk's level sections fold all along that edge (F7, "a bright jagged line under the jaw"). So
  * the chin's family runs along the jaw's lower border, its sections cut across the edge, each a wedge of cheek above and neck below.
  *
- * - The border: in frontal planes (x constant) from the chin back past the jaw's angle, on each side, the point of the skin's outline below
- *   the lower lip (y under 1,505 mm) where it turns most sharply outward (the convex corner between the cheek and the jaw's underside).
+ * - The border: in frontal planes (x constant) from the chin back past the jaw's angle, the face-to-neck line, where the skin's outward
+ *   normal turns from facing sideways or forward to facing down: on each side the most lateral point below the lower lip (y under 1,505 mm)
+ *   whose normal stands `DOWN_DEG` below the horizontal. A corner rule followed only the chin's lower corner, since the mandible's border
+ *   is too soft a corner: it stopped at x 56, z 31, short of the angle near x 20, z 55.
  * - Menton (soft tissue, Farkas "gn" region): on the median profile below the lower lip, the chin's lower corner, the point where the profile
  *   turns most sharply outward between the chin's front and the neck.
- * - Gonion: the angle of the jaw, where the lower border runs out into the ramus: the trace's last corner.
- * - The course: gonion, border points about every 15 mm, menton, and their reflections, each set `INSET_MM` inside the edge toward the
- *   jaw's interior (a course point on the skin itself has no ray to read), turned through each joint over `HALF_MM`; its sections read
- *   within `RADIUS_MM` of the course point (`FamilyConicStar`, `radius`).
+ * - Gonion (soft tissue, Farkas "go"): the border's most lateral point near the jaw's angle.
+ * - The course: a smooth curve (centripetal Catmull-Rom) through the border set `INSET_MM` inside the edge toward the jaw's interior, from
+ *   gonion to menton and out to the other gonion. A jointed course turned sharply at menton, and its sections there crossed each other; the
+ *   sections read no farther from the course than its least bend radius (`FamilyConicStar`, `radius`).
  *
  * Usage, from `test`: `node <bundle>`; it writes `jaw.txt` under `test/.shots/family-conic-jaw/<stamp>/`.
  */
@@ -30,14 +32,23 @@ namespace FamilyConicJaw {
   /** How far inside the edge the course runs, mm. */
   export const INSET_MM: number = 8;
 
-  /** Each joint's half turn arclength, mm. */
-  export const HALF_MM: number = 6;
+  /** The face-to-neck line's normal, degrees below the horizontal: half way from facing sideways (0) to facing down (90). */
+  export const DOWN_DEG: number = 45;
 
-  /** How far a border corner may stand from the last one in the next plane, mm, two planes being 2 mm apart. */
-  export const STEP_MM: number = 6;
+  /** How near `DOWN_DEG` a point's normal must stand to lie on the line, degrees: the outline's points are about 1 to 3 mm apart. */
+  export const DOWN_BAND_DEG: number = 8;
 
-  /** The least outline turn over 4 mm that counts as the border's corner, degrees. */
-  export const CORNER_DEG: number = 4;
+  /** How far apart the course's control points stand, mm. */
+  export const CONTROL_MM: number = 10;
+
+  /** How far apart the course is sampled, mm. */
+  export const SAMPLE_MM: number = 2;
+
+  /** The arc over which the course's bend radius is read, mm either side. */
+  export const BEND_SPAN_MM: number = 6;
+
+  /** Each sampled joint's half turn arclength, mm, under half the sample spacing so the turns do not overlap. */
+  export const JOINT_HALF_MM: number = 0.2;
 
   /** How far from the course point a section's skin is the region's, mm. */
   export const RADIUS_MM: number = 25;
@@ -47,13 +58,13 @@ namespace FamilyConicJaw {
    * arclength either side, and whether the corner there is convex: the chord across it passes nearer `inside`, a point well inside the
    * body, than the corner does. Open chains are read too, since the lips' skin is open into the mouth and many planes close no loop.
    */
-  function cut(mesh: R.ISource["all"], centres: [V3, V3], up: V3, inside: V3): { world: V3; turn: number; convex: boolean }[] {
+  function cut(mesh: R.ISource["all"], centres: [V3, V3], up: V3, inside: V3): { world: V3; turn: number; convex: boolean; down: number; lateral: number }[] {
     const frame = AutoMovieHumanConicLoft.axis({ centres, halves: [], up }).at(Math.hypot(centres[1][0] - centres[0][0], centres[1][1] - centres[0][1], centres[1][2] - centres[0][2]) / 2);
     const n: V3 = [frame.v[1]! * frame.u[2]! - frame.v[2]! * frame.u[1]!, frame.v[2]! * frame.u[0]! - frame.v[0]! * frame.u[2]!, frame.v[0]! * frame.u[1]! - frame.v[1]! * frame.u[0]!];
     const section: M.ISection = M.outline(mesh, { origin: [...frame.origin] as V3, axes: [n, [...frame.u] as V3, [...frame.v] as V3] }, [0], 0, 0.5, 0)[0]!;
     const world = (p: C.P): V3 => [0, 1, 2].map((c: number): number => frame.origin[c]! + p[0] * frame.u[c]! + p[1] * frame.v[c]!) as V3;
     const distance = (a: V3, b: V3): number => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
-    const out: { world: V3; turn: number; convex: boolean }[] = [];
+    const out: { world: V3; turn: number; convex: boolean; down: number; lateral: number }[] = [];
     for (const piece of section.loops) {
       const points: V3[] = piece.points.map(world);
       const m: number = points.length;
@@ -76,7 +87,13 @@ namespace FamilyConicJaw {
         const w: V3 = [points[b]![0] - p[0], points[b]![1] - p[1], points[b]![2] - p[2]];
         const turn: number = (Math.acos(Math.max(-1, Math.min(1, (u[0] * w[0] + u[1] * w[1] + u[2] * w[2]) / (Math.hypot(...u) * Math.hypot(...w))))) * 180) / Math.PI;
         const chord: V3 = [(points[a]![0] + points[b]![0]) / 2, (points[a]![1] + points[b]![1]) / 2, (points[a]![2] + points[b]![2]) / 2];
-        out.push({ world: p, turn, convex: distance(chord, inside) < distance(p, inside) });
+        // The outward normal in the plane, square to the chord across the point and away from `inside`; `down` is its angle below the
+        // horizontal, degrees (90 facing straight down), `lateral` its sideways share.
+        const tangent: V3 = [points[b]![0] - points[a]![0], points[b]![1] - points[a]![1], points[b]![2] - points[a]![2]];
+        let normal: V3 = [n[1] * tangent[2] - n[2] * tangent[1], n[2] * tangent[0] - n[0] * tangent[2], n[0] * tangent[1] - n[1] * tangent[0]];
+        if (normal[0] * (p[0] - inside[0]) + normal[1] * (p[1] - inside[1]) + normal[2] * (p[2] - inside[2]) < 0) normal = [-normal[0], -normal[1], -normal[2]];
+        const length: number = Math.hypot(...normal);
+        out.push({ world: p, turn, convex: distance(chord, inside) < distance(p, inside), down: (Math.asin(Math.max(-1, Math.min(1, -normal[1] / length))) * 180) / Math.PI, lateral: Math.abs(normal[2]) / length });
       });
     }
     return out;
@@ -96,43 +113,74 @@ namespace FamilyConicJaw {
     const menton = profile.reduce((a, b) => (b.turn > a.turn ? b : a));
     lines.push(`menton ${f(menton.world)}, profile turn ${menton.turn.toFixed(1)} deg over 4 mm`);
 
-    // The border on the +z side, traced back from the chin: in each frontal plane the sharpest outward corner below the lower lip within
-    // `STEP_MM` of the last one (the border is one edge, so the next corner of the trace lies beside the last), until no corner sharper
-    // than `CORNER_DEG` stands there: the lower border has run out into the ramus, and its last point is gonion (the angle of the jaw).
-    const border: { world: V3; turn: number }[] = [];
+    // The border on the +z side: in each frontal plane from the chin back, the face-to-neck line, where the skin's outward normal turns from
+    // facing sideways or forward to facing down, read as the most lateral point below the lower lip whose normal stands `DOWN_DEG` below the
+    // horizontal (the cheek above it faces outward; the jaw's underside below it faces down, and the neck under that faces outward again,
+    // nearer the median plane).
+    const border: { world: V3; down: number }[] = [];
+    let misses: number = 0;
     for (let x: number = Math.floor(menton.world[0]) - 2; x >= -10; x -= 2) {
-      const side = cut(mesh, [[x + 1, 1500, 0], [x - 1, 1500, 0]], [0, 1, 0], [x, 1530, 0]).filter((q) => q.convex && q.world[1] > 1430 && q.world[1] < 1505 && q.world[2] > 4 && q.world[2] < 95);
-      const last: V3 | undefined = border.at(-1)?.world;
-      const near = last === undefined ? side : side.filter((q) => Math.hypot(q.world[1] - last[1], q.world[2] - last[2]) <= STEP_MM);
-      if (near.length === 0) break;
-      const best = near.reduce((a, b) => (b.turn > a.turn ? b : a));
-      if (best.turn < CORNER_DEG) break;
-      border.push(best);
-    }
-    lines.push("border, +z side, frontal planes (point, outline turn deg):", ...border.map((q) => `  ${f(q.world)} ${q.turn.toFixed(1)}`));
-    const gonion = border.at(-1)!;
-    lines.push(`gonion ${f(gonion.world)}: the border's last corner sharper than ${CORNER_DEG} deg`);
-    // The course: gonion (-z), the border about every 15 mm, menton, and back out to gonion (+z), each set inside the edge.
-    const along: V3[] = [];
-    let last: number = Infinity;
-    for (const q of border) {
-      if (q.world[0] < gonion.world[0] - 1e-9) break;
-      if (last - q.world[0] >= 15) {
-        along.push(q.world);
-        last = q.world[0];
+      const side = cut(mesh, [[x + 1, 1500, 0], [x - 1, 1500, 0]], [0, 1, 0], [x, 1530, 0]).filter((q) => q.world[1] > 1430 && q.world[1] < 1505 && q.world[2] > 4 && q.world[2] < 95 && Math.abs(q.down - DOWN_DEG) <= DOWN_BAND_DEG);
+      if (side.length === 0) {
+        if (++misses >= 3 && border.length > 0) break;
+        continue;
       }
+      misses = 0;
+      const best = side.reduce((a, b) => (b.world[2] > a.world[2] ? b : a));
+      border.push({ world: best.world, down: best.down });
     }
-    if (along.at(-1) !== gonion.world) along.push(gonion.world);
+    lines.push(`border, +z side, frontal planes (point, normal's angle below the horizontal, deg), at ${DOWN_DEG} +- ${DOWN_BAND_DEG} deg:`, ...border.map((q) => `  ${f(q.world)} ${q.down.toFixed(1)}`));
+
+    // Gonion (soft tissue, Farkas "go"): the border's most lateral point near the jaw's angle, behind x 50.
+    const gonion = border.filter((q) => q.world[0] < 50).reduce((a, b) => (b.world[2] > a.world[2] ? b : a), border.at(-1)!);
+    lines.push(`gonion ${f(gonion.world)}: the border's most lateral point behind x 50`);
+
+    // The course: a smooth curve through the inset border from gonion to menton and its reflection, the centripetal Catmull-Rom spline
+    // through control points about `CONTROL_MM` apart, sampled every `SAMPLE_MM`; its bend radius is read over `BEND_SPAN_MM`, and the
+    // sections read no farther from the course than the least bend radius, so neighbouring sections do not cross within it.
     const inset = (p: V3): V3 => {
       const d: V3 = [0, 20, -p[2]];
       const l: number = Math.hypot(...d);
       return [p[0] + (INSET_MM * d[0]) / l, p[1] + (INSET_MM * d[1]) / l, p[2] + (INSET_MM * d[2]) / l];
     };
-    const plus: V3[] = along.map(inset);
-    const centres: V3[] = [...plus.map((p: V3): V3 => [p[0], p[1], -p[2]]).reverse(), inset(menton.world), ...plus];
-    const trial: S.ITrial = { label: "jaw", centres, halves: centres.slice(2).map((): number => HALF_MM), up: [0, 1, 0], box: [-1e9, 1e9, -1e9, 1e9, -1e9, 1e9], radius: RADIUS_MM, step: 1 };
-    lines.push(`course ${JSON.stringify(centres.map((c: V3) => c.map((x: number): number => Number(x.toFixed(1)))))}, halves ${HALF_MM}, inset ${INSET_MM}, radius ${RADIUS_MM}`);
-
+    const half: V3[] = border.filter((q) => q.world[0] >= gonion.world[0] - 1e-9).map((q) => inset(q.world)).reverse();
+    const controls: V3[] = [];
+    for (const p of [...half, inset(menton.world)]) if (controls.length === 0 || Math.hypot(p[0] - controls.at(-1)![0], p[1] - controls.at(-1)![1], p[2] - controls.at(-1)![2]) >= CONTROL_MM) controls.push(p);
+    const ring: V3[] = [...controls, ...controls.slice(0, -1).reverse().map((p: V3): V3 => [p[0], p[1], -p[2]])];
+    const spline = (p0: V3, p1: V3, p2: V3, p3: V3, u: number): V3 => {
+      const knot = (a: V3, b: V3): number => Math.sqrt(Math.max(1e-9, Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2])));
+      const t1: number = knot(p0, p1), t2: number = t1 + knot(p1, p2), t3: number = t2 + knot(p2, p3);
+      const t: number = t1 + u * (t2 - t1);
+      const lerp = (a: V3, b: V3, ta: number, tb: number): V3 => [0, 1, 2].map((c: number): number => ((tb - t) * a[c]! + (t - ta) * b[c]!) / (tb - ta)) as V3;
+      const a1: V3 = lerp(p0, p1, 0, t1), a2: V3 = lerp(p1, p2, t1, t2), a3: V3 = lerp(p2, p3, t2, t3);
+      return lerp(lerp(a1, a2, 0, t2), lerp(a2, a3, t1, t3), t1, t2);
+    };
+    const dense: V3[] = [];
+    for (let k: number = 0; k + 1 < ring.length; ++k) {
+      const p0: V3 = ring[Math.max(0, k - 1)]!, p1: V3 = ring[k]!, p2: V3 = ring[k + 1]!, p3: V3 = ring[Math.min(ring.length - 1, k + 2)]!;
+      const steps: number = Math.max(1, Math.round(Math.hypot(p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]) / SAMPLE_MM));
+      for (let j: number = 0; j < steps; ++j) dense.push(spline(k === 0 ? [2 * p1[0] - p2[0], 2 * p1[1] - p2[1], 2 * p1[2] - p2[2]] : p0, p1, p2, k + 2 >= ring.length ? [2 * p2[0] - p1[0], 2 * p2[1] - p1[1], 2 * p2[2] - p1[2]] : p3, j / steps));
+    }
+    dense.push(ring.at(-1)!);
+    // Samples closer than half the spacing (a control segment's last step) are dropped, so every joint's turn fits its segments.
+    for (let k: number = dense.length - 2; k > 0; --k) if (Math.hypot(dense[k + 1]![0] - dense[k]![0], dense[k + 1]![1] - dense[k]![1], dense[k + 1]![2] - dense[k]![2]) < SAMPLE_MM / 2) dense.splice(k, 1);
+    let bend: number = Infinity;
+    let bendAt: V3 = dense[0]!;
+    const span: number = Math.max(1, Math.round(BEND_SPAN_MM / SAMPLE_MM));
+    for (let k: number = span; k + span < dense.length; ++k) {
+      const a: V3 = dense[k - span]!, p: V3 = dense[k]!, b: V3 = dense[k + span]!;
+      const ab: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]), ap: number = Math.hypot(p[0] - a[0], p[1] - a[1], p[2] - a[2]), pb: number = Math.hypot(b[0] - p[0], b[1] - p[1], b[2] - p[2]);
+      const cross: number = Math.hypot((p[1] - a[1]) * (b[2] - a[2]) - (p[2] - a[2]) * (b[1] - a[1]), (p[2] - a[2]) * (b[0] - a[0]) - (p[0] - a[0]) * (b[2] - a[2]), (p[0] - a[0]) * (b[1] - a[1]) - (p[1] - a[1]) * (b[0] - a[0]));
+      const radius: number = cross < 1e-9 ? Infinity : (ab * ap * pb) / (2 * cross);
+      if (radius < bend) {
+        bend = radius;
+        bendAt = p;
+      }
+    }
+    const reach: number = Math.min(RADIUS_MM, bend);
+    const centres: V3[] = dense;
+    const trial: S.ITrial = { label: "jaw", centres, halves: centres.slice(2).map((): number => JOINT_HALF_MM), up: [0, 1, 0], box: [-1e9, 1e9, -1e9, 1e9, -1e9, 1e9], radius: reach, step: 1 };
+    lines.push(`course: ${controls.length} control points a side (${ring.length} in all), ${dense.length} samples ${SAMPLE_MM} mm apart; least bend radius ${bend.toFixed(1)} mm at ${f(bendAt)}; sections read within ${reach.toFixed(1)} mm`);
     // Star share and closure share per station.
     const length: number = centres.slice(1).reduce((sum: number, c: V3, k: number): number => sum + Math.hypot(c[0] - centres[k]![0], c[1] - centres[k]![1], c[2] - centres[k]![2]), 0);
     const sections = S.regionSections(source, trial, 0, length, mesh);
