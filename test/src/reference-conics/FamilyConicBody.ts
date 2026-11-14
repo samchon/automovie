@@ -1192,7 +1192,13 @@ namespace FamilyConicBody {
         // and their cubics drew a level ring above the ankle; at least 12 mm apart the ring is gone and the wall is 693 numbers at the same mean.
         // A course that leaves the ankle square to the row of toe joints, with the forefoot read as the curve round all the toes, was tried;
         // its wall stalled above 3 mm, so the foot keeps this course and closes at the toe webs, and the toes are merged onto that cap.
-        { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r"), [133, 20, 157], toward([133, 20, 157], toes, TOE_TURN.reach)], course: "[J.thigh, J.calf, J.foot, J.footBall, J.toward(J.footBall, [[J.bigtoe1, J.bigtoe2], [J.indextoe1, J.indextoe2], [J.middletoe1, J.middletoe2], [J.ringtoe1, J.ringtoe2], [J.littletoe1, J.littletoe2]], " + TOE_TURN.reach + ")]", halves: [40, 62, TOE_TURN.half], up: [1, 0, 0], domain: [104, TOE_TURN.end], gap: 12, tip: TOE_TURN.end + 15, covered: true, mirrored: true, layouts: LIMB, reliefs: "auto", reliefEnd: TOE_TURN.relief, casts: [{ name: "sole", stations: [930, TOE_TURN.relief], axis: [0, 1, 0], rows: 16, columns: 35, reach: 6, facing: 0.8, nearest: true }] },
+        // The leg's end turns from the sole round the forefoot's lateral edge within one arc, the one after anchor 5 (from the sole's
+        // lateral median to the lateral side extreme, about 230 to 245 degrees). On the refined limb(1) start of the foot end that arc's end
+        // tangent meets its chord at 0.051 to 0.078 of the chord's length at every station from 880 to 975 mm, so the default margin of 0.1
+        // refused all 762 readings (the start's margins under --seeds). A conic arc is admissible for any meeting strictly inside its
+        // chord's ends; the margin guards the engine's spline between stations, and the armpit's vault was admitted on the native path at
+        // 0.072. 0.04 holds the least measured meeting, 0.051, with the spread between stations.
+        { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r"), [133, 20, 157], toward([133, 20, 157], toes, TOE_TURN.reach)], course: "[J.thigh, J.calf, J.foot, J.footBall, J.toward(J.footBall, [[J.bigtoe1, J.bigtoe2], [J.indextoe1, J.indextoe2], [J.middletoe1, J.middletoe2], [J.ringtoe1, J.ringtoe2], [J.littletoe1, J.littletoe2]], " + TOE_TURN.reach + ")]", halves: [40, 62, TOE_TURN.half], up: [1, 0, 0], domain: [104, TOE_TURN.end], gap: 12, tip: TOE_TURN.end + 15, covered: true, mirrored: true, layouts: LIMB, reliefs: "auto", reliefEnd: TOE_TURN.relief, margin: 0.04, casts: [{ name: "sole", stations: [930, TOE_TURN.relief], axis: [0, 1, 0], rows: 16, columns: 35, reach: 6, facing: 0.8, nearest: true }] },
 
         // A stretch of the leg as a family of its own on the leg's course, fitted to its skin with grooves carried by inflection lines
         // (`FamilyConicSection.inflected`): `--segment=<from>,<to>`, `--segment-grooves=<anchors>`, `--segment-up=<x,y,z>` (the chart's seed,
@@ -2258,12 +2264,17 @@ namespace FamilyConicBody {
         if (seed === undefined) return null;
         const wall: K.IStored = JSON.parse(await fs.readFile(path.join(seed, part.name + ".family.json"), "utf8")) as K.IStored;
         const knots: number[] = [domain[0], ...wall.knots.filter((k: number): boolean => k > domain[0] + gap(domain[0]) && k < domain[1] - gap(domain[1])), domain[1]];
-        return { knots, values: wall.values.length === C.units(part.layouts[0]!.layout).length ? F.resample(wall.values, wall.knots, knots) : [] };
+        return { knots, values: F.resample(wall.values, wall.knots, knots) };
       })();
+      // The seed starts the layout whose fields it has, and the shallower layouts are not fitted: a stored `limb(1)` wall is the start of
+      // the `limb(1)` fit itself. Read only by the first layout, f1's foot end refitted from 880 to 975 mm on its stored `limb(1)` wall
+      // started from scratch at `limb(0)` (3.55 mm at most), and that fit cut at its medians was no admissible chain on every section, so
+      // the `limb(1)` fit was refused and the coarse wall kept.
+      const seedLayout: number = seeded === null ? -1 : part.layouts.findIndex((entry: { layout: C.ILayout }): boolean => C.units(entry.layout).length === seeded.values.length);
       // `--held`: with `--seed`, the seed's knots are kept as they are, neither grown nor pruned, so a wall refitted over changed sections keeps
       // the knots its neighbours were sewn on.
       const seedHeld: boolean = seeded !== null && process.argv.includes("--held");
-      for (const { layout: plain, depth } of reuse !== undefined || constructed ? [] : deepen !== undefined ? [{ layout: C.limb(deeper), depth: deeper }] : part.layouts) {
+      for (const { layout: plain, depth } of reuse !== undefined || constructed ? [] : deepen !== undefined ? [{ layout: C.limb(deeper), depth: deeper }] : part.layouts.slice(Math.max(0, seedLayout))) {
         const layout: C.ILayout = least === undefined ? plain : { ...plain, least: leastAt(plain)! };
         // A deeper layout starts from the shallower one's final knots and values, cut exactly at every arc's median.
         // A layout with feature lines starts from knots every `FEATURE_KNOT_MM`, so its lines can follow where each feature appears and fades.
@@ -2309,7 +2320,7 @@ namespace FamilyConicBody {
         }
         const base: number[] = lined ? Array.from({ length: spaced }, (_: unknown, k: number): number => domain[0] + ((domain[1] - domain[0]) * k) / (spaced - 1)) : [domain[0], (domain[0] + domain[1]) / 2, domain[1]];
         const knots0: number[] = best === null ? (seeded?.knots ?? base) : [...best.knots];
-        let result: F.IResult = attempt(knots0, layout, best === null ? (seeded !== null && seeded.values.length > 0 ? seeded.values.map((field: number[], f: number): number[] => {
+        let result: F.IResult = attempt(knots0, layout, best === null ? (seeded !== null && seeded.values.length === C.units(layout).length ? seeded.values.map((field: number[], f: number): number[] => {
           const first: number = C.units(layout).length - (layout.mirror ? layout.anchors.length - 1 : layout.anchors.length);
           return least !== undefined && f >= first ? field.map((x: number): number => Math.max(C.leastOf(layout, f - first) ?? 0, x)) : field;
         }) : undefined) : F.refine(best.values, depth - 1), "depth " + depth);
