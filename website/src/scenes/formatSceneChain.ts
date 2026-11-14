@@ -22,7 +22,7 @@ export function formatSceneChain(composition: IPlaygroundComposition): string {
           'import * as archetypes from "@automovie/archetypes";',
           "",
           ...objects.flatMap((o: IPlaygroundComposition.IObject): string[] => [
-            `const ${identifier(o.subject)} = archetypes.${o.producer}(${o.kind === undefined ? "{}" : `{ kind: ${JSON.stringify(o.kind)} }`}${o.seed === undefined ? "" : `, ${JSON.stringify(o.seed)}`});`,
+            `const ${identifier(o.subject)} = archetypes.${o.producer}(${options(o)}${o.seed === undefined ? "" : `, ${JSON.stringify(o.seed)}`});`,
             `const ${identifier(o.subject)}At = { at: { x: ${o.x}, y: ${o.y ?? 0}, z: ${o.z} }, yaw: ${o.yaw} };`,
           ]),
           "",
@@ -117,4 +117,15 @@ function literal(value: unknown): string {
       : `{\n  ${entries.join(",\n  ")},\n}`;
   }
   return JSON.stringify(value);
+}
+
+/** A producer's options as code: the stated dimensions, then the kind; `{}` when there are none. */
+function options(object: IPlaygroundComposition.IObject): string {
+  const entries: [string, unknown][] = Object.entries({
+    ...(object.params ?? {}),
+    ...(object.kind === undefined ? {} : { kind: object.kind }),
+  });
+  return entries.length === 0
+    ? "{}"
+    : `{ ${entries.map(([key, value]: [string, unknown]): string => `${key}: ${JSON.stringify(value)}`).join(", ")} }`;
 }

@@ -99,6 +99,11 @@ export namespace PlaygroundAddress {
     typeof value.producer === "string" &&
     (value.kind === undefined || typeof value.kind === "string") &&
     (value.seed === undefined || typeof value.seed === "string") &&
+    (value.params === undefined ||
+      (record(value.params) &&
+        Object.values(value.params).every(
+          (n: unknown): boolean => typeof n === "number",
+        ))) &&
     typeof value.x === "number" &&
     typeof value.z === "number" &&
     (value.y === undefined || typeof value.y === "number") &&

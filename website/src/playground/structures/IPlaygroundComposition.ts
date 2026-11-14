@@ -41,6 +41,9 @@ export namespace IPlaygroundComposition {
     /** The seed its free dimensions are drawn with; the middle of every band when absent. */
     seed?: string;
 
+    /** Dimensions stated outright, by the producer's own names (such as `height`), each within its band; drawn from the seed when absent. */
+    params?: Record<string, number>;
+
     /** Floor point, world metres: x to the left of a person facing +Z. */
     x: number;
 

@@ -35,7 +35,10 @@ export namespace SceneArchetype {
     const made: Producer = producer as Producer;
     const key: string = Array.isArray(made.FRAMES) ? "frame" : "kind";
     return made(
-      object.kind === undefined ? {} : { [key]: object.kind },
+      {
+        ...(object.params ?? {}),
+        ...(object.kind === undefined ? {} : { [key]: object.kind }),
+      },
       object.seed,
     );
   }
